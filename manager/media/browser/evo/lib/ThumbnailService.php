@@ -12,6 +12,8 @@
 class ThumbnailService
 {
     const MAX_DIM = 128;
+    const GC_PROBABILITY_DIVISOR = 200;
+    const GC_MAX_AGE = 2592000;
 
     /** @var string temp/thumbs/ の絶対パス(末尾スラッシュ付き) */
     private $cacheDir;
@@ -34,6 +36,8 @@ class ThumbnailService
      */
     public function getOrCreate($sourceFile)
     {
+        $this->maybeCollectGarbage();
+
         $ext = strtolower(pathinfo($sourceFile, PATHINFO_EXTENSION));
         if (!self::isRasterImageExtension($ext)) {
             return null;
@@ -149,6 +153,29 @@ class ThumbnailService
         foreach (glob($this->cacheDir . $prefix . '*') ?: [] as $stale) {
             if (basename($stale) !== $keepName) {
                 @unlink($stale);
+            }
+        }
+    }
+
+    /**
+     * 孤児化した古いサムネイルを確率的に掃除して temp/thumbs/ の単調増加を防ぐ。
+     */
+    private function maybeCollectGarbage()
+    {
+        if (mt_rand(1, self::GC_PROBABILITY_DIVISOR) !== 1) {
+            return;
+        }
+
+        $expireBefore = time() - self::GC_MAX_AGE;
+        foreach (glob($this->cacheDir . '*') ?: [] as $cacheFile) {
+            $name = basename($cacheFile);
+            if (!preg_match('/^[a-f0-9]{32}_[0-9]+\.(jpg|png)$/', $name)) {
+                continue;
+            }
+
+            $mtime = filemtime($cacheFile);
+            if ($mtime !== false && $mtime < $expireBefore) {
+                @unlink($cacheFile);
             }
         }
     }
