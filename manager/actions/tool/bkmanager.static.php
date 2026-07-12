@@ -101,7 +101,9 @@ if ($mode === 'snapshot') {
     exit;
 }
 
-include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
+if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを重複出力しない
+    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
+}
 if (sessionv('result_msg')) {
     switch (sessionv('result_msg')) {
         case 'import_ok':
@@ -335,7 +337,7 @@ if (sessionv('result_msg')) {
                                 $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
                             }
                         }
-                        $style = '<style type="text/css">table th {border:1px solid #ccc;background-color:#ddd;}</style>';
+                        $style = '<style type="text/css">#mainPane table th, body > .tab-page table th {border:1px solid #ccc;background-color:#ddd;}</style>';
                         $result = $style . '<table>' . $result . '</table>';
                     }
                 }
@@ -424,12 +426,13 @@ if (sessionv('result_msg')) {
             </form>
         </div>
         <style type="text/css">
-            table {
+            /* シェル化でツリー等と同一documentになったため、コンテンツ領域内に限定する */
+            #mainPane table, body > .tab-page table {
                 background-color: #fff;
                 border-collapse: collapse;
             }
 
-            table td {
+            #mainPane table td, body > .tab-page table td {
                 padding: 4px;
             }
         </style>
@@ -475,7 +478,9 @@ if (sessionv('result_msg')) {
 </script>
 
 <?php
-include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+if (empty($isPaneRequest)) {
+    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+}
 function checked($cond)
 {
     if ($cond) {

@@ -1,9 +1,9 @@
 <script type="text/javascript">
 
-    let imanager_url = '[+imanager_url+]';
-    let fmanager_url = '[+fmanager_url+]';
-    let prevWin;
-    let docMode = '[+docMode+]';
+    var imanager_url = '[+imanager_url+]';
+    var fmanager_url = '[+fmanager_url+]';
+    var prevWin;
+    var docMode = '[+docMode+]';
 
     // save tree folder state
     if (parent.tree) parent.tree.saveFolderState();

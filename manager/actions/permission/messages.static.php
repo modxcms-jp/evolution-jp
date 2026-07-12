@@ -383,10 +383,9 @@ $messagesallowed = evo()->hasPermission('messages');
 ?>
 <script type="text/javascript">
     function msgCountAgain() {
-        try {
-            top.mainMenu.startmsgcount(<?= sessionv('nrnewmessages') ?>, <?= sessionv('nrtotalmessages') ?>, <?= $messagesallowed ? 1 : 0 ?>);
-        } catch (oException) {
-            vv = window.setTimeout('msgCountAgain()', 1500);
+        // 旧startmsgcountは未定義の死にコードだったため、メニューの件数更新APIを直接呼ぶ
+        if (top.mainMenu && typeof top.mainMenu.updateMail === 'function') {
+            top.mainMenu.updateMail(true);
         }
     }
 

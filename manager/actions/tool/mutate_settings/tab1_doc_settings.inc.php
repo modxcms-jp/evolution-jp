@@ -49,6 +49,18 @@
                     }
                     echo implode("\n", $echo);
                     echo '</select><br />';
+                    $savedTmpId = 0;
+                    $savedTmpName = '(blank)';
+                    foreach ($options as $category => $templates) {
+                        foreach ($templates as $template) {
+                            if (!($template['selected'])) {
+                                continue;
+                            }
+                            $savedTmpId = $template['id'];
+                            $savedTmpName = $template['name'];
+                            break 2;
+                        }
+                    }
                     ?>
                     <div id="template_reset_options_wrapper" style="display:none;">
                         <?= wrap_label(
@@ -56,13 +68,15 @@
                             form_radio('reset_template', '1')
                         );
                         ?><br/>
-                        <?= wrap_label(
-                            sprintf(
-                                lang('template_reset_specific'),
-                                $savedTmpName
-                            ),
-                            form_radio('reset_template', 2)
-                        ); ?>
+                        <?php if ($savedTmpName !== ''): ?>
+                            <?= wrap_label(
+                                sprintf(
+                                    lang('template_reset_specific'),
+                                    $savedTmpName
+                                ),
+                                form_radio('reset_template', 2)
+                            ); ?>
+                        <?php endif; ?>
                     </div>
                     <input type="hidden" name="old_template" value="<?= $savedTmpId ?>"/>
                     <?= lang('defaulttemplate_message') ?>

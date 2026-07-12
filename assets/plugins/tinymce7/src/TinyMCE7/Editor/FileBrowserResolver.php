@@ -37,7 +37,7 @@ final class FileBrowserResolver
     {
         $managerUrl = defined('MODX_MANAGER_URL') ? MODX_MANAGER_URL : MODX_BASE_URL . 'manager/';
 
-        return rtrim($managerUrl, '/') . '/media/browser/mcpuk/browser.php?editor=tinymce7';
+        return rtrim($managerUrl, '/') . '/media/browser/evo/browser.php';
     }
 
     public function mcpukBootstrapScript(): string

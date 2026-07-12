@@ -6,6 +6,7 @@
 
 このファイルは Claude Code 固有の動作指示のみを記載する。
 スキル一覧・ワークフロー・ログ確認・コミット規約・レビュー方針は `AGENTS.md` を参照。
+AIランタイム分担と共有スキル本文の位置づけは `assets/docs/ai-runtime-governance.md` を参照。
 
 ---
 
@@ -24,4 +25,3 @@
 - 開発ガイドライン詳細は `AGENTS.md` へ
 - 実装手順詳細は ExecPlan へ
 - アーキテクチャ詳細は `assets/docs/` へ
-

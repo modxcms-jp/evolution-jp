@@ -29,8 +29,15 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
     <?= csrfTokenMeta() ?>
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
+    <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
+    <style>
+        :root {
+            --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
+            --shell-tree-width: <?= (int)$modx->config('manager_tree_width', 260) ?>px;
+        }
+    </style>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php if (is_array($evtOut)) {
         echo implode("\n", $evtOut);
@@ -44,24 +51,36 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
+    <script type="text/javascript" src="media/script/shell.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell.js') ?>"></script>
+    <script type="text/javascript" src="media/browser/evo-file-picker.js?<?= filemtime(MODX_MANAGER_PATH . 'media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
+        // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
+        window.main = window;
+
+        if (window.EvoShell) {
+            EvoShell.unsavedMessage = <?= json_encode(lang('warning_not_saved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
+            EvoShell.closeLabel = <?= json_encode(lang('close'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
+        }
+
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
-        if (treeopen === 0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 
         var documentDirty = false;
         var dontShowWorker = false;
         var baseurl = '<?= MODX_BASE_URL ?>';
         var $j = jQuery.noConflict();
 
-        // set tree to default action.
-        if (parent.tree) parent.tree.ca = "open";
+        jQuery(function () {
+            // メニュー/ツリー部品のscriptが定義済みになった後に初期化する
+            if (treeopen === 0 && window.mainMenu) mainMenu.hideTreeFrame();
 
-        // call the updateMail function, updates mail notification in top navigation
-        if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
+            // set tree to default action.
+            if (window.tree) tree.ca = "open";
+        });
 
-        jQuery(function() {
-            var action = <?= manager()->action ?>;
-            switch (action) {
+        // 編集系アクションで入力変更時にdocumentDirtyを立てる。
+        // AJAX遷移後の断片にも適用できるよう関数化し、shell.jsからも呼ばれる
+        window.evoBindDirtyTracking = function (action) {
+            switch (parseInt(action, 10)) {
                 case 27:
                 case 17:
                 case 4:
@@ -86,7 +105,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                 case 102:
                 case 300:
                 case 301:
-                    jQuery('input,textarea,select:not(#field_template,#which_editor,#stay)')
+                    jQuery('#mainPane').find('input,textarea,select')
+                        .not('#field_template,#which_editor,#stay')
                         .change(
                             function() {
                                 documentDirty = true;
@@ -95,8 +115,12 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                     gotosave = false;
                     break;
             }
+        };
+
+        jQuery(function() {
+            evoBindDirtyTracking(<?= (int)manager()->action ?>);
             <?php if (anyv('r')) {
-                echo sprintf("doRefresh(%s);\n", anyv('r'));
+                echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
             }
             ?>
             jQuery('.tooltip').powerTip({
@@ -111,7 +135,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         });
 
         jQuery(window).on('beforeunload', function() {
-            if (documentDirty) return '<?= addslashes(lang('warning_not_saved')) ?>';
+            if (documentDirty) return window.EvoShell ? window.EvoShell.unsavedMessage : '<?= addslashes(lang('warning_not_saved')) ?>';
             jQuery('#actions').fadeOut(100);
             jQuery('input,textarea,select').addClass('readonly');
             jQuery('#preLoader').show();
@@ -119,11 +143,15 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         });
 
         function doRefresh(r) {
+            // chromeless(QuickManager埋め込み等)ではmainMenuが存在せず、
+            // 例外→再試行を無限に繰り返してしまうため、事前に存在確認する
+            if (!top.mainMenu) {
+                return;
+            }
             try {
-                rr = r;
-                top.mainMenu.reloadPane(rr);
+                top.mainMenu.reloadPane(r);
             } catch (oException) {
-                vv = window.setTimeout('doRefresh(' + r + ')', 200);
+                window.setTimeout(function() { doRefresh(r); }, 200);
             }
         }
 
@@ -207,7 +235,53 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     </script>
 </head>
 
-<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" <?php if (globalv('modx_textdir') === 'rtl') { ?> class="rtl" <?php } ?>>
+<?php
+// クロームレスモード: QuickManager等がiframeへ埋め込む際は、
+// 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
+$evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
+?>
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+    <script type="text/javascript">
+        // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
+        // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の
+        // dragstartまでバブリングで潰すため、draggable明示要素は除外して許可する
+        document.body.addEventListener('dragstart', function (e) {
+            var el = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+            if (el && el.closest && el.closest('[draggable="true"]')) {
+                return;
+            }
+            e.preventDefault();
+        });
+    </script>
     <div id="preLoader">
         <div class="preLoaderText"><?= style('ajax_loader') ?></div>
     </div>
+<?php
+if (!$evoShellChromeless) {
+    // シェル: 旧framesetのメニュー/ツリーを同一ページの部品として描画する
+    $tmp = ['action' => manager()->action];
+    evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
+
+    if (!defined('EVO_SHELL_PARTIAL')) {
+        define('EVO_SHELL_PARTIAL', true);
+    }
+    // 部品を独立スコープで実行し、部品側のローカル変数($tpl,$ph等)が
+    // 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
+    $evoShellIncludePartial = static function (string $evoShellPartialPath): void {
+        extract($GLOBALS, EXTR_SKIP);
+        include_once $evoShellPartialPath;
+    };
+    $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');
+    $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/tree.php');
+    unset($evoShellIncludePartial);
+
+    $tmp = ['action' => manager()->action];
+    evo()->invokeEvent('OnManagerFrameLoader', $tmp);
+}
+// footer.inc.phpが</main>を出力してよいかの目印(header.inc.phpを介さず
+// 独自に<html>を出力するアクションが将来追加された場合、footerだけが呼ばれるため)
+if (!defined('EVO_SHELL_MAIN_OPENED')) {
+    define('EVO_SHELL_MAIN_OPENED', true);
+}
+?>
+    <main id="mainPane">
