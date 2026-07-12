@@ -124,6 +124,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `template-system.md`    | タグ解析   |
 | `events-and-plugins.md` | イベント   |
 | `cache-mechanism.md`    | キャッシュ  |
+| `ai-runtime-governance.md` | AIランタイム運用 |
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
 | `core-issues.md`        | コア課題   |
@@ -155,6 +156,7 @@ fix(db): 実行直前でエスケープ処理を統一
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
 * ExecPlan 完了処理プロトコル（skill:complete 含む）は `.agent/PLANS.md` を正本とする
+* AIランタイム分担と共有スキル本文の位置づけは `assets/docs/ai-runtime-governance.md` を正本とする
 
 ---
 
