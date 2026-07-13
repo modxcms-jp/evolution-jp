@@ -139,6 +139,13 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
         }
 
+        .loginCaptchaMessage {
+            font-size: 14px;
+            color: #5a3c55;
+            margin: 12px 0;
+            line-height: 1.7;
+        }
+
         label {
             display: block;
             font-size: 13px;

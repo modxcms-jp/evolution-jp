@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
   libpng-dev libjpeg-dev libfreetype6-dev \
   libzip-dev libxml2-dev libicu-dev libcurl4-openssl-dev \
   libonig-dev libxslt1-dev libexif-dev \
+  fonts-dejavu-core \
   msmtp msmtp-mta \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install gd mysqli curl mbstring zip xml opcache intl bcmath soap exif \

@@ -94,16 +94,16 @@ if (evo()->config('use_captcha') == 1) {
     evo()->setPlaceholder(
         'login_captcha_message',
         sprintf(
-            '<p style="margin-top:10px;">%s</p>',
+            '<p class="loginCaptchaMessage">%s</p>',
             $_lang["login_captcha_message"]
         )
     );
     $captcha_image = sprintf(
-        '<img id="captcha_image" src="../index.php?get=captcha" alt="%s" />',
-        $_lang["login_captcha_message"]
+        '<img id="captcha_image" class="loginCaptcha" src="../index.php?get=captcha" alt="%s" />',
+        $_lang["captcha_code"]
     );
     $captcha_image = sprintf(
-        '<a href="%s" class="loginCaptcha">%s</a>',
+        '<a href="%s" class="loginCaptchaLink">%s</a>',
         MODX_MANAGER_URL,
         $captcha_image
     );
@@ -111,7 +111,7 @@ if (evo()->config('use_captcha') == 1) {
     evo()->setPlaceholder(
         'captcha_input',
         sprintf(
-            '<label>%s<input type="text" class="text" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" /></label>',
+            '<label for="captcha_code">%s</label><input type="text" class="text" id="captcha_code" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" />',
             $_lang["captcha_code"]
         )
     );

@@ -448,6 +448,14 @@
             text-align: left;
         }
 
+        .loginCaptchaMessage {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.82);
+            margin: 12px 0;
+            line-height: 1.7;
+            text-align: left;
+        }
+
         /* プラグインで追加されるリンク（パスワード忘れなど） - センタリング */
         .body a {
             color: rgba(59, 130, 246, 0.85);
