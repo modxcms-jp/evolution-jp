@@ -118,7 +118,7 @@
                     <?= "({$base_path}{$default_rb_base_dir})" ?>
                 <br/>
                 <?= form_text('rb_base_dir', 255, 'id="rb_base_dir" value="' . config('rb_base_dir') . '"') ?>
-                <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery.trim(jQuery('#default_rb_base_dir').text()));"
+                <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text().trim());"
                         value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
         </tr>

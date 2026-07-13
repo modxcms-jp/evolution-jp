@@ -58,7 +58,7 @@ function failedLogin()
     db()->update(
         $fields,
         '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", user('internalKey'))
+        sprintf("internalKey='%s'", db()->escape(user('internalKey')))
     );
 
     @session_destroy();

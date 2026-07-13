@@ -48,7 +48,7 @@ class VeriWord
             }
         }
 
-        return $vword_base_path . 'ftb_____.ttf';
+        return '';
     }
 
     function set_veriword($word)
@@ -58,7 +58,16 @@ class VeriWord
 
     function output_image($word, $img_width = 200, $img_height = 80)
     {
+        if ($this->font_path === '') {
+            http_response_code(500);
+            return;
+        }
+
         $img = $this->draw_image($word, $img_width, $img_height);
+        if ($img === false) {
+            http_response_code(500);
+            return;
+        }
         header('Content-type: image/jpeg');
         imagejpeg($img);
     }
@@ -74,14 +83,26 @@ class VeriWord
         $text_angle = mt_rand(-9, 9);
         /* calculate text width and height */
         $box = imagettfbbox(30, $text_angle, $this->font_path, $word);
+        if ($box === false) {
+            http_response_code(500);
+            return false;
+        }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
+        if ($text_width <= 0) {
+            http_response_code(500);
+            return false;
+        }
 
         /* adjust text size */
         $text_size = (int) round((20 * $img_width) / $text_width);
 
         /* recalculate text width and height */
         $box = imagettfbbox($text_size, $text_angle, $this->font_path, $word);
+        if ($box === false) {
+            http_response_code(500);
+            return false;
+        }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
 
@@ -130,9 +151,14 @@ class VeriWord
             $noise_height
         );
         /* put text image into background image */
+        $textImage = $this->draw_text($word, $img_width, $img_height);
+        if ($textImage === false) {
+            return false;
+        }
+
         imagecopymerge(
             $image,
-            $this->draw_text($word, $img_width, $img_height),
+            $textImage,
             0, 0, 0, 0,
             $img_width,
             $img_height,
