@@ -29,10 +29,13 @@ function init() {
     }
 
     var config = JSON.parse(root.getAttribute('data-config') || '{}');
+    var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
+    var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
+    var initialFallbackTried = false;
 
     var state = {
         type: config.type,
-        folder: '',
+        folder: initialFolder,
         rawFolders: [],
         rawFiles: [],
         search: '',
@@ -231,6 +234,11 @@ function init() {
                 tree.revealPath(state.folder);
             })
             .catch(function (err) {
+                if (!initialFallbackTried && state.folder === initialFolder && initialFolder !== '') {
+                    initialFallbackTried = true;
+                    navigateTo('', initialSelect);
+                    return;
+                }
                 grid.renderError(err.message);
             });
     }
@@ -307,7 +315,7 @@ function init() {
     });
 
     tree.renderRoot();
-    load();
+    load(initialSelect);
 }
 
 window.EvoFileBrowserInit = init;

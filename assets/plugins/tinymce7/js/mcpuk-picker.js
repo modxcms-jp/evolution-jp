@@ -11,11 +11,57 @@
     file: 'files'
   });
 
-  function buildUrl(baseUrl, meta) {
+  function splitCurrentPath(currentValue, type) {
+    if (!currentValue && currentValue !== 0) {
+      return null;
+    }
+
+    const raw = String(currentValue).trim();
+    if (!raw) {
+      return null;
+    }
+
+    let pathname = raw;
+    try {
+      pathname = new URL(raw, global.location.href).pathname;
+    } catch (e) {
+      pathname = raw.split('#')[0].split('?')[0];
+    }
+
+    const normalizedType = String(type || '').toLowerCase();
+    const segments = pathname
+      .split('/')
+      .map(function (segment) {
+        return segment.trim();
+      })
+      .filter(Boolean);
+    const typeIndex = segments.indexOf(normalizedType);
+
+    if (typeIndex === -1 || typeIndex >= segments.length - 1) {
+      return null;
+    }
+
+    return {
+      folder: segments.slice(typeIndex + 1, -1).join('/'),
+      select: segments[segments.length - 1]
+    };
+  }
+
+  function buildUrl(baseUrl, meta, currentValue) {
     const data = meta || {};
     const type = TYPE_MAP[String(data.filetype || '').toLowerCase()] || 'files';
     const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
-    return baseUrl + separator + 'type=' + encodeURIComponent(type);
+    const currentPath = splitCurrentPath(currentValue, type);
+    let url = baseUrl + separator + 'type=' + encodeURIComponent(type);
+
+    if (currentPath && currentPath.folder) {
+      url += '&folder=' + encodeURIComponent(currentPath.folder);
+    }
+    if (currentPath && currentPath.select) {
+      url += '&select=' + encodeURIComponent(currentPath.select);
+    }
+
+    return url;
   }
 
   function sanitizeUrlSegment(value) {
@@ -138,7 +184,7 @@
     // 表示するwindowManager.openUrl()を優先し、非対応環境ではポップアップへ落とす。
     const editor = global.tinymce && global.tinymce.activeEditor;
     if (editor && editor.windowManager && typeof editor.windowManager.openUrl === 'function') {
-      openInEditorDialog(editor, buildUrl(baseUrl, meta), function (fileUrl) {
+      openInEditorDialog(editor, buildUrl(baseUrl, meta, value), function (fileUrl) {
         if (typeof callback === 'function') {
           callback(normalizeUrl(fileUrl));
         }
@@ -147,7 +193,7 @@
     }
 
     const restore = createSetUrlGuard(global.SetUrl, callback);
-    const browserWindow = openWindow(buildUrl(baseUrl, meta));
+    const browserWindow = openWindow(buildUrl(baseUrl, meta, value));
     if (!browserWindow) {
       restore();
       global.alert('ファイルブラウザを開けませんでした。ポップアップを許可してください。');
