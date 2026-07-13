@@ -456,7 +456,7 @@ function item($name, $href, $display = 1, $attrib = '')
         return false;
     }
     if (preg_match('@^[1-9][0-9]*$@', $href)) {
-        $href = "index.php?a={$href}";
+        $href = (int)$href === 2 ? './' : "index.php?a={$href}";
     }
     return sprintf('<li><a onclick="this.blur();" href="%s" %s>%s</a></li>', $href, $attrib, $name);
 }

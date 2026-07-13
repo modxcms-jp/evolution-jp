@@ -137,18 +137,19 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 }
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// 旧framesetの入口。シェル化に伴い、初期表示アクションへリダイレクトする
+// 旧framesetの入口。a未指定時はダッシュボードを既定表示にする
 if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') === null) {
     if (sessionv('mainframe.a')) {
         $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
         sessionv('*mainframe', null);
-    } elseif (sessionv('mgrForgetPassword')) {
-        $mainurl = 'index.php?a=28';
-    } else {
-        $mainurl = 'index.php?a=2';
+        header('Location: ' . MODX_MANAGER_URL . $mainurl);
+        exit;
     }
-    header('Location: ' . MODX_MANAGER_URL . $mainurl);
-    exit;
+    if (sessionv('mgrForgetPassword')) {
+        header('Location: ' . MODX_MANAGER_URL . 'index.php?a=28');
+        exit;
+    }
+    manager()->action = 2;
 }
 
 // OK, let's retrieve the action directive from the request
@@ -156,7 +157,25 @@ if (getv('a') && postv('a')) {
     alert()->setError(100);
     alert()->dumpError();
 } else {
-    $modx->manager->action = (int)anyv('a') ?: '';
+    $modx->manager->action = evo()->input_any('a') ? ((int)anyv('a') ?: '') : (int)manager()->action;
+}
+
+if (
+    manager()->action === 2
+    && is_get()
+    && !isEvoPaneRequest()
+    && postv('updateMsgCount') === null
+) {
+    $canonicalQuery = $_GET;
+    unset($canonicalQuery['a']);
+    $canonicalUrl = MODX_MANAGER_URL;
+    if (!empty($canonicalQuery)) {
+        $canonicalUrl .= '?' . http_build_query($canonicalQuery);
+    }
+    if ($canonicalUrl !== MODX_SITE_URL . ltrim(serverv('REQUEST_URI', ''), '/')) {
+        header('Location: ' . $canonicalUrl);
+        exit;
+    }
 }
 
 manager()->setView(manager()->action);
