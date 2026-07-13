@@ -114,13 +114,11 @@
                     $modx->config['rb_base_dir'] = '[(base_path)]assets/';
                 }
                 ?>
-                <?= $_lang['default'] ?> <span
-                    id="default_rb_base_dir">
-                    <?= "[(base_path)]{$default_rb_base_dir}" ?></span>
+                <?= $_lang['default'] ?> <span id="default_rb_base_dir"><?= "[(base_path)]{$default_rb_base_dir}" ?></span>
                     <?= "({$base_path}{$default_rb_base_dir})" ?>
                 <br/>
                 <?= form_text('rb_base_dir', 255, 'id="rb_base_dir" value="' . config('rb_base_dir') . '"') ?>
-                <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text());"
+                <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery.trim(jQuery('#default_rb_base_dir').text()));"
                         value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
         </tr>
