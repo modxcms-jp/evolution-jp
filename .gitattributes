@@ -3,6 +3,7 @@
 .gitignore export-ignore
 .gitkeep export-ignore
 .editorconfig export-ignore
+.coderabbit.yaml export-ignore
 .github/ export-ignore
 .agent/ export-ignore
 .agents/ export-ignore
@@ -23,4 +24,3 @@ manager/docker/ export-ignore
 *.jpg binary
 *.gif binary
 *.ttf binary
-
