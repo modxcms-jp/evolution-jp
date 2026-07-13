@@ -91,12 +91,15 @@ var ddMultiple = {
 datePickerOffset: ' . evo()->config('datepicker_offset') . ',
 datePickerFormat: "' . evo()->config('datetime_format') . '" + " hh:mm:00",
 ids: [],
+trimValue: function(value){
+    return String(value == null ? "" : value).trim();
+},
 //Обновляет мульти-поле, берёт значение из оригинального поля
 updateField: function(id){
     //Если есть текущее поле
     if (ddMultiple[id].currentField){
         //Задаём значение текущему полю (берём у оригинального поля), запускаем событие изменения
-        ddMultiple[id].currentField.val(jQuery.trim(jQuery("#" + id).val())).trigger("change.ddEvents");
+        ddMultiple[id].currentField.val(ddMultiple.trimValue(jQuery("#" + id).val())).trigger("change.ddEvents");
         //Забываем текущее поле (ибо уже обработали)
         ddMultiple[id].currentField = false;
     }
@@ -127,7 +130,7 @@ updateTv: function(id){
                 id_field.$field.val("");
             }
             //Собираем значения строки в массив
-            masCol.push(jQuery.trim(jQuery(this).val()));
+            masCol.push(ddMultiple.trimValue(jQuery(this).val()));
         });
 
         var col = masCol.join(ddMultiple[id].splX);

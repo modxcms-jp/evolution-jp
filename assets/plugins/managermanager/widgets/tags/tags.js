@@ -1,6 +1,9 @@
 // If we haven't yet got the function
 if (typeof (TagCompleter) != 'function') {
     function TagCompleter(tagEntryField, tagIndicatorList, delimiter) {
+        var trimValue = function (value) {
+            return String(value == null ? '' : value).trim();
+        };
 
         var theEntry = jQuery('#' + tagEntryField);
         var theList = jQuery('#' + tagIndicatorList);
@@ -28,7 +31,7 @@ if (typeof (TagCompleter) != 'function') {
             // Trim each item of whitespace at the beginning and end
             var theTags = jQuery(theEntry).val().split(delimiter);
             jQuery.each(theTags, function (i, v) {
-                theTags[i] = jQuery.trim(v);
+                theTags[i] = trimValue(v);
                 if (theTags[i] == '') {
                     theTags.splice(i, 1);
                 } // Remove any empty values
@@ -40,7 +43,7 @@ if (typeof (TagCompleter) != 'function') {
         var addTag = function (e) {
             var newTag = jQuery(e.target).text();
             newTag = newTag.replace(/\([0-9]+\)$/, '');
-            newTag = jQuery.trim(newTag);
+            newTag = trimValue(newTag);
             var oldTags = getTags();
             // Mark the document as dirty for Modx by triggering a "change" event
             jQuery(theEntry).trigger("change");
@@ -64,7 +67,7 @@ if (typeof (TagCompleter) != 'function') {
 
             jQuery('#' + tagIndicatorList + ' li').each(function () {
                 tag = jQuery(this).text().replace(/\([0-9]+\)$/, '');
-                tag = jQuery.trim(tag);
+                tag = trimValue(tag);
                 if (jQuery.inArray(tag, tagsInField) != -1) {
                     jQuery(this).addClass('tagSelected');
                 } else {
