@@ -163,7 +163,7 @@ if (getv('a') && postv('a')) {
 }
 
 if (
-    manager()->action === 2
+    manager_is_dashboard_action()
     && is_get()
     && !isEvoPaneRequest()
     && postv('updateMsgCount') === null
