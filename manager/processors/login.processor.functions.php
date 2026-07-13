@@ -48,19 +48,19 @@ function failedLogin()
 {
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
+    $fields = ['failedlogincount' => $failedlogincount];
+
+    if (config('failed_login_attempts', 0) <= $failedlogincount) {
+        $fields['blocked'] = 1;
+        $fields['blockeduntil'] = request_time() + (config('blocked_minutes') * 60);
+    }
+
     db()->update(
-        ['failedlogincount' => $failedlogincount],
+        $fields,
         '[+prefix+]user_attributes',
         sprintf("internalKey='%s'", user('internalKey'))
     );
-    if (config('failed_login_attempts', 0) <= $failedlogincount) {
-        db()->update([
-                'blockeduntil' => request_time() + (config('blocked_minutes') * 60)
-            ],
-            '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", user('internalKey'))
-        );
-    }
+
     @session_destroy();
     session_unset();
 }
