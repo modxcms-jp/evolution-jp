@@ -10,7 +10,6 @@
 (function () {
     'use strict';
 
-    const loadedScriptSrcs = new Set();
     // 現在表示中の内容に対応するURL(popstateキャンセル時に履歴を戻すために追跡する)
     let currentUrl = window.location.href;
     // モーダルに表示中のコンテンツのURL。モーダル内フォームのaction=""(自己送信)は
@@ -21,15 +20,18 @@
     // openFilePickerで開いたファイルブラウザの選択結果を受け取るコールバック
     let filePickerCallback = null;
 
-    // 初期ロード時に読み込み済みのscript srcを記録し、断片側での二重読込を防ぐ
-    function registerInitialScripts() {
-        document.querySelectorAll('script[src]').forEach(function (el) {
-            loadedScriptSrcs.add(resolveUrl(el.getAttribute('src')));
-        });
-    }
-
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
+    }
+
+    function hasLiveScriptTag(resolvedUrl, exceptNode) {
+        return Array.from(document.querySelectorAll('script[src]')).some(function (el) {
+            if (el === exceptNode) {
+                return false;
+            }
+            const src = el.getAttribute('src');
+            return src && resolveUrl(src) === resolvedUrl;
+        });
     }
 
     function isManagerUrl(url) {
@@ -83,11 +85,13 @@
 
             if (src) {
                 const resolved = resolveUrl(src);
-                if (loadedScriptSrcs.has(resolved)) {
+                // 「過去に一度読んだ」だけで永久スキップすると、#mainPane差し替えで
+                // 消えたページ専用script(TinyMCE初期化補助など)が再訪時に復活しない。
+                // 現在のDOMに同一scriptタグが生きている場合だけ重複読込を避ける
+                if (hasLiveScriptTag(resolved, old)) {
                     runNext(index + 1);
                     return;
                 }
-                loadedScriptSrcs.add(resolved);
                 const el = document.createElement('script');
                 Array.from(old.attributes).forEach(function (attr) {
                     if (attr.name === 'async' || attr.name === 'defer') {
@@ -628,8 +632,6 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
-        registerInitialScripts();
-
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
