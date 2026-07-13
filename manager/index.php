@@ -64,6 +64,9 @@ $modx->loadLexicon('manager');
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
 manager()->action = anyv('a', 1);
+if (!evo()->input_any('a') && postv('updateMsgCount') === null && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
+    manager()->action = 2;
+}
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
@@ -149,7 +152,6 @@ if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') ==
         header('Location: ' . MODX_MANAGER_URL . 'index.php?a=28');
         exit;
     }
-    manager()->action = 2;
 }
 
 // OK, let's retrieve the action directive from the request
@@ -166,13 +168,18 @@ if (
     && !isEvoPaneRequest()
     && postv('updateMsgCount') === null
 ) {
-    $canonicalQuery = $_GET;
+    $canonicalQuery = [];
+    parse_str((string)parse_url(request_uri(), PHP_URL_QUERY), $canonicalQuery);
     unset($canonicalQuery['a']);
     $canonicalUrl = MODX_MANAGER_URL;
     if (!empty($canonicalQuery)) {
         $canonicalUrl .= '?' . http_build_query($canonicalQuery);
     }
-    if ($canonicalUrl !== MODX_SITE_URL . ltrim(serverv('REQUEST_URI', ''), '/')) {
+    $canonicalPath = (string)parse_url($canonicalUrl, PHP_URL_PATH);
+    $canonicalQueryString = (string)parse_url($canonicalUrl, PHP_URL_QUERY);
+    $currentPath = (string)parse_url(request_uri(), PHP_URL_PATH);
+    $currentQueryString = http_build_query($canonicalQuery);
+    if ($currentPath !== $canonicalPath || $currentQueryString !== $canonicalQueryString) {
         header('Location: ' . $canonicalUrl);
         exit;
     }
