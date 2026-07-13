@@ -204,25 +204,32 @@ function OnBeforeManagerLogin()
 
 function isBlockedUser()
 {
-    if (!user('blocked')) {
-        return false;
-    }
-    if (request_time() < user('blockeduntil', 0)) {
+    $blockedUntil = (int) user('blockeduntil', 0);
+    $failedLoginLimit = (int) config('failed_login_attempts', 0);
+    $failedLoginCount = (int) user('failedlogincount', 0);
+    $isTemporaryLock = 0 < $blockedUntil && $failedLoginLimit <= $failedLoginCount;
+
+    if ($isTemporaryLock && request_time() < $blockedUntil) {
         return true;
     }
-    if (config('failed_login_attempts', 0) < user('failedlogincount', 0)) {
-        if (request_time() < user('blockeduntil', 0)) {
-            return true;
-        }
+
+    if ($isTemporaryLock) {
+        db()->update(
+            [
+                'failedlogincount' => 0,
+                'blocked' => 0,
+                'blockeduntil' => 0
+            ],
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%s'", user('internalKey'))
+        );
+        return false;
     }
-    db()->update(
-        [
-            'failedlogincount' => 0,
-            'blocked' => 0
-        ],
-        '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", user('internalKey'))
-    );
+
+    if (user('blocked')) {
+        return true;
+    }
+
     return false;
 }
 
