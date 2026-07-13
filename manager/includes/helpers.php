@@ -802,3 +802,13 @@ if (!function_exists('evoRenderPaneFooterExtras')) {
         }
     }
 }
+
+if (!function_exists('manager_is_dashboard_action')) {
+    function manager_is_dashboard_action(): bool
+    {
+        return defined('IN_MANAGER_MODE')
+            && IN_MANAGER_MODE === 'true'
+            && manager()
+            && (int)manager()->action === 2;
+    }
+}

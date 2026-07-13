@@ -64,6 +64,9 @@ $modx->loadLexicon('manager');
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
 manager()->action = anyv('a', 1);
+if (!evo()->input_any('a') && postv('updateMsgCount') === null && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
+    manager()->action = 2;
+}
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
@@ -137,18 +140,18 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 }
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// 旧framesetの入口。シェル化に伴い、初期表示アクションへリダイレクトする
+// 旧framesetの入口。a未指定時はダッシュボードを既定表示にする
 if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') === null) {
     if (sessionv('mainframe.a')) {
         $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
         sessionv('*mainframe', null);
-    } elseif (sessionv('mgrForgetPassword')) {
-        $mainurl = 'index.php?a=28';
-    } else {
-        $mainurl = 'index.php?a=2';
+        header('Location: ' . MODX_MANAGER_URL . $mainurl);
+        exit;
     }
-    header('Location: ' . MODX_MANAGER_URL . $mainurl);
-    exit;
+    if (sessionv('mgrForgetPassword')) {
+        header('Location: ' . MODX_MANAGER_URL . 'index.php?a=28');
+        exit;
+    }
 }
 
 // OK, let's retrieve the action directive from the request
@@ -156,7 +159,30 @@ if (getv('a') && postv('a')) {
     alert()->setError(100);
     alert()->dumpError();
 } else {
-    $modx->manager->action = (int)anyv('a') ?: '';
+    $modx->manager->action = evo()->input_any('a') ? ((int)anyv('a') ?: '') : (int)manager()->action;
+}
+
+if (
+    manager_is_dashboard_action()
+    && is_get()
+    && !isEvoPaneRequest()
+    && postv('updateMsgCount') === null
+) {
+    $canonicalQuery = [];
+    parse_str((string)parse_url(request_uri(), PHP_URL_QUERY), $canonicalQuery);
+    unset($canonicalQuery['a']);
+    $canonicalUrl = MODX_MANAGER_URL;
+    if (!empty($canonicalQuery)) {
+        $canonicalUrl .= '?' . http_build_query($canonicalQuery);
+    }
+    $canonicalPath = (string)parse_url($canonicalUrl, PHP_URL_PATH);
+    $canonicalQueryString = (string)parse_url($canonicalUrl, PHP_URL_QUERY);
+    $currentPath = (string)parse_url(request_uri(), PHP_URL_PATH);
+    $currentQueryString = http_build_query($canonicalQuery);
+    if ($currentPath !== $canonicalPath || $currentQueryString !== $canonicalQueryString) {
+        header('Location: ' . $canonicalUrl);
+        exit;
+    }
 }
 
 manager()->setView(manager()->action);

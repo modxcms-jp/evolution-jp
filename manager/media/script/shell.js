@@ -43,6 +43,18 @@
         return resolved.pathname === base + 'index.php' || resolved.pathname === base;
     }
 
+    function normalizeManagerUrl(url) {
+        const resolved = new URL(url, window.location.href);
+        if (!isManagerUrl(resolved.href)) {
+            return resolved.href;
+        }
+        if (resolved.searchParams.get('a') === '2') {
+            resolved.searchParams.delete('a');
+            resolved.pathname = window.location.pathname.replace(/(?:index\.php)?$/, '');
+        }
+        return resolved.href;
+    }
+
     function getCsrfToken() {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute('content') : '';
@@ -123,7 +135,7 @@
     }
 
     function fullReload(url) {
-        window.location.href = url;
+        window.location.href = normalizeManagerUrl(url);
     }
 
     function isFullDocumentHtml(text) {
@@ -168,7 +180,7 @@
         if (requested.hash) {
             finalUrl.hash = requested.hash;
         }
-        return finalUrl.href;
+        return normalizeManagerUrl(finalUrl.href);
     }
 
     // 断片内のスタイルシートを<head>へ移す。
@@ -539,7 +551,7 @@
             if (!confirmIfDirty()) {
                 return;
             }
-            request(url, { method: 'GET' }, push);
+            request(normalizeManagerUrl(url), { method: 'GET' }, push);
         },
 
         submit: function (form, submitter) {
@@ -666,15 +678,15 @@
                 return;
             }
             const url = new URL(href, window.location.href);
-            if (!url.searchParams.get('a')) {
+            if (!url.searchParams.get('a') && !(url.pathname === window.location.pathname.replace(/[^\/]*$/, '') && !url.search)) {
                 return;
             }
             e.preventDefault();
             if (link.hasAttribute('data-modal')) {
-                EvoShell.openModal(url.href);
+                EvoShell.openModal(normalizeManagerUrl(url.href));
                 return;
             }
-            EvoShell.navigate(url.href);
+            EvoShell.navigate(normalizeManagerUrl(url.href));
         });
 
         // コンテンツ領域のフォーム送信の委譲
