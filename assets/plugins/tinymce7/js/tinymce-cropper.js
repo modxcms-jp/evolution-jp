@@ -160,6 +160,15 @@
     if (typeof cleanup === 'function') cleanup();
   }
 
+  function resolveOverlayHost() {
+    const mainPane = document.getElementById('mainPane');
+    if (mainPane instanceof HTMLElement) {
+      return mainPane;
+    }
+
+    return document.body;
+  }
+
   function showAlert(editor, message) {
     if (editor && editor.windowManager) {
       editor.windowManager.alert(message);
@@ -241,7 +250,7 @@
       dialog.appendChild(actions);
 
       overlay.appendChild(dialog);
-      document.body.appendChild(overlay);
+      resolveOverlayHost().appendChild(overlay);
       overlay.focus();
 
       let cropperInstance = null;
