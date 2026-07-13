@@ -26,12 +26,29 @@ class VeriWord
 {
     /* path to font directory*/
     public $font_path;
+    public $bg_image;
 
     function __construct()
     {
         $vword_base_path = str_replace('\\', '/', __DIR__) . '/';
-        $this->font_path = $vword_base_path . 'ftb_____.ttf';
         $this->bg_image = $vword_base_path . 'noise.jpg';
+        $this->font_path = $this->resolveFontPath($vword_base_path);
+    }
+
+    function resolveFontPath($vword_base_path)
+    {
+        $candidates = [
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            $vword_base_path . 'ftb_____.ttf'
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate) && is_readable($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return '';
     }
 
     function set_veriword($word)
@@ -41,7 +58,16 @@ class VeriWord
 
     function output_image($word, $img_width = 200, $img_height = 80)
     {
+        if ($this->font_path === '') {
+            http_response_code(500);
+            return;
+        }
+
         $img = $this->draw_image($word, $img_width, $img_height);
+        if ($img === false) {
+            http_response_code(500);
+            return;
+        }
         header('Content-type: image/jpeg');
         imagejpeg($img);
     }
@@ -57,26 +83,36 @@ class VeriWord
         $text_angle = mt_rand(-9, 9);
         /* calculate text width and height */
         $box = imagettfbbox(30, $text_angle, $this->font_path, $word);
+        if ($box === false) {
+            http_response_code(500);
+            return false;
+        }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
+        if ($text_width <= 0) {
+            http_response_code(500);
+            return false;
+        }
 
         /* adjust text size */
-        $text_size = round((20 * $img_width) / $text_width);
+        $text_size = (int) round((20 * $img_width) / $text_width);
 
         /* recalculate text width and height */
         $box = imagettfbbox($text_size, $text_angle, $this->font_path, $word);
+        if ($box === false) {
+            http_response_code(500);
+            return false;
+        }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
 
         /* calculate center position of text */
-        $text_x = ($img_width - $text_width) / 2;
-        $text_y = ($img_height - $text_height) / 2;
+        $text_x = (int) round(($img_width - $text_width) / 2);
+        $text_y = (int) round(($img_height - $text_height) / 2);
 
         /* create canvas for text drawing */
         $im_text = imagecreate($img_width, $img_height);
         $bg_color = imagecolorallocate($im_text, 255, 255, 255);
-
-        /* pick color for text */
         $text_color = imagecolorallocate($im_text, 10, 10, 10);
 
         /* draw text into canvas */
@@ -88,7 +124,8 @@ class VeriWord
             $text_y,
             $text_color,
             $this->font_path,
-            $word);
+            $word
+        );
 
         /* remove background color */
         imagecolortransparent($im_text, $bg_color);
@@ -114,9 +151,14 @@ class VeriWord
             $noise_height
         );
         /* put text image into background image */
+        $textImage = $this->draw_text($word, $img_width, $img_height);
+        if ($textImage === false) {
+            return false;
+        }
+
         imagecopymerge(
             $image,
-            $this->draw_text($word, $img_width, $img_height),
+            $textImage,
             0, 0, 0, 0,
             $img_width,
             $img_height,

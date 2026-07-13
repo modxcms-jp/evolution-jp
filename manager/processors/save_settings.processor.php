@@ -164,7 +164,7 @@ function save_settiongs()
                     $v = rtrim($v, '/') . '/';
                 }
                 if (strpos($v, MODX_BASE_PATH) === 0) {
-                    $v = '[(base_path)]' . substr($v, strlen('[(base_path)]'));
+                    $v = '[(base_path)]' . substr($v, strlen(MODX_BASE_PATH));
                 }
                 break;
             case 'error_page':
