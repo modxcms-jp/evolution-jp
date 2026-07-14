@@ -128,10 +128,13 @@
 }
 
 .evo-fb-crumb {
+    flex: 0 0 auto;
+    width: auto;
     border: none;
     background: none;
     color: var(--color-link, #1285a4);
     cursor: pointer;
+    margin: 0;
     padding: 2px 4px;
     border-radius: var(--radius-sm, 2px);
 }
