@@ -3,12 +3,14 @@ var lastFileCtrl;
 
 function BrowseServer(ctrl) {
     lastImageCtrl = ctrl;
-    window.evoOpenFilePicker(imanager_url);
+    var c = document.getElementById(ctrl);
+    window.evoOpenFilePicker(imanager_url, c ? c.value : '');
 }
 
 function BrowseFileServer(ctrl) {
     lastFileCtrl = ctrl;
-    window.evoOpenFilePicker(fmanager_url);
+    var c = document.getElementById(ctrl);
+    window.evoOpenFilePicker(fmanager_url, c ? c.value : '');
 }
 
 function SetUrl(url, width, height, alt) {

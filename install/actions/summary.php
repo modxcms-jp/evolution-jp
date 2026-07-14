@@ -28,7 +28,7 @@ $errors = 0;
 
 // check PHP version
 
-if (version_compare(phpversion(), '5.3.0') < 0) {
+if (version_compare(phpversion(), '7.4.0') < 0) {
     $_ = echo_failed() . lang('you_running_php') . phpversion() . lang('modx_requires_php');
     $errors += 1;
 } else {

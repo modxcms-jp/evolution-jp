@@ -179,13 +179,13 @@ class init
         );
     }
 
-    // check PHP version. MODX Evolution is compatible with php 4 (4.4.2+)
+    // check PHP version
     public static function check_phpvar()
     {
-        if (version_compare(phpversion(), '5.3.0') >= 0) {
+        if (version_compare(phpversion(), '7.4.0') >= 0) {
             return;
         }
-        echo 'MODX is compatible with PHP 5.3.0 and higher. Please upgrade your PHP installation!';
+        echo 'MODX is compatible with PHP 7.4.0 and higher. Please upgrade your PHP installation!';
         exit;
     }
 

@@ -47,6 +47,8 @@ $jsConfig = [
     'apiUrl' => $isModal ? 'media/browser/evo/api.php' : 'api.php',
     'type' => $type,
     'csrfToken' => function_exists('getCurrentCsrfToken') ? getCurrentCsrfToken() : '',
+    'initialFolder' => getv('folder', ''),
+    'initialSelect' => getv('select', ''),
 ];
 
 $markup = '';

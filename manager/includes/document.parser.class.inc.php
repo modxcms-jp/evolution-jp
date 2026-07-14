@@ -986,8 +986,9 @@ class DocumentParser
 
         $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
         $r = [];
-        foreach ($s as $_) {
-            $r[] = " {$_['0']} {$_['1']} ";
+        foreach ($s as $delimiter) {
+            [$open, $close] = str_split($delimiter, 1);
+            $r[] = " {$open} {$close} ";
         }
 
         array_walk_recursive($target, static function (&$value) use ($s, $r) {
