@@ -32,6 +32,7 @@ function init() {
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
     var initialFallbackTried = false;
+    var isInitialLoad = true;
 
     var state = {
         type: config.type,
@@ -213,6 +214,8 @@ function init() {
     }
 
     function load(selectName) {
+        var allowInitialFallback = isInitialLoad;
+        isInitialLoad = false;
         grid.renderLoading();
         renderPath();
         state.selection.clear();
@@ -234,7 +237,7 @@ function init() {
                 tree.revealPath(state.folder);
             })
             .catch(function (err) {
-                if (!initialFallbackTried && state.folder === initialFolder && initialFolder !== '') {
+                if (allowInitialFallback && !initialFallbackTried && initialFolder !== '') {
                     initialFallbackTried = true;
                     navigateTo('', initialSelect);
                     return;

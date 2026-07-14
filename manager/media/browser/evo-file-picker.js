@@ -13,6 +13,14 @@
 (function (global) {
     'use strict';
 
+    function normalizePathSegment(segment) {
+        try {
+            return decodeURIComponent(segment).trim();
+        } catch (e) {
+            return segment.trim();
+        }
+    }
+
     function splitCurrentPath(currentValue, type) {
         if (!currentValue && currentValue !== 0) {
             return null;
@@ -34,7 +42,7 @@
         var segments = pathname
             .split('/')
             .map(function (segment) {
-                return segment.trim();
+                return normalizePathSegment(segment);
             })
             .filter(Boolean);
         var typeIndex = segments.indexOf(normalizedType);

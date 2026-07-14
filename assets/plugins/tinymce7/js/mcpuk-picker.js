@@ -11,6 +11,14 @@
     file: 'files'
   });
 
+  function normalizePathSegment(segment) {
+    try {
+      return decodeURIComponent(segment).trim();
+    } catch (e) {
+      return segment.trim();
+    }
+  }
+
   function splitCurrentPath(currentValue, type) {
     if (!currentValue && currentValue !== 0) {
       return null;
@@ -32,7 +40,7 @@
     const segments = pathname
       .split('/')
       .map(function (segment) {
-        return segment.trim();
+        return normalizePathSegment(segment);
       })
       .filter(Boolean);
     const typeIndex = segments.indexOf(normalizedType);
