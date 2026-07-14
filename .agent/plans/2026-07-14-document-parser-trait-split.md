@@ -20,7 +20,8 @@
 
 ## Surprises & Discoveries
 
-- 計画時点の調査より: 現行の `DocumentParserSubParserTrait` は「責務」ではなく「使用頻度が低い関数」という基準で切られた歴史的経緯を持つ（コミット 211420ad9）。責務が混在しているのは必然であり、本計画で解消する。
+- 計画時点の調査より: 現行の `DocumentParserSubParserTrait` は「責務」ではなく「使用頻度が低い関数」という基準で切り離された歴史的経緯を持つ（コミット 211420ad9）。責務が混在しているのは必然であり、本計画で解消する。
+- レビュー指摘で判明: `document.parser.subparser.trait.php` の末尾（2848–2856行）に `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。トレイト廃止時にファイルごと削除すると、レガシー連携が `new SubParser()` した場合にクラス未定義エラーになる。リポジトリ内に呼び出し箇所は無い（grep確認済み）が、`loadExtension('subparser')` の互換シムを残す方針と整合させるため、この後方互換クラスも別の形で維持する。
 - PHPのトレイトはコンパイル時にクラスへ平坦化されるため、トレイトAの private メソッドをトレイトBやクラス本体から呼べる。よって可視性の変更なしに純粋なメソッド移動だけで分割できる。
 - `evo` CLI の bootstrap（`manager/includes/cli/bootstrap.php` 69–70行）が `new DocumentParser` を実行するため、トレイトのメソッド名衝突（クラス合成時のFatal Error）を CLI 起動だけで検出できる。
 
@@ -28,6 +29,7 @@
 
 - 2026-07-14 (yamamoto/Claude): クラス分解ではなくトレイト分割を採用。`$modx` の public メソッドは manager/actions・プラグイン・モジュール等から広く直接呼ばれ（例: `renderFormElement` は5箇所以上）、約100個の public プロパティを全メソッド群が共有するため、別クラスへの抽出は互換性リスクが大きい。トレイトなら同一オブジェクト上の状態共有を保ったまま物理ファイルだけ分けられる。
 - 2026-07-14 (yamamoto/Claude): 責務トレイト9本 + 受け皿2本（`utility` = 薄い汎用ヘルパー、`misc` = 分類不能なレガシー）の計11ファイル構成とする。`misc` 所属メソッドは将来の deprecation 候補として明示する。
+- 2026-07-14 (yamamoto/Claude): レガシー `SubParser` クラス（`@deprecated`、`document.parser.subparser.trait.php` 末尾で定義）は、`loadExtension('subparser')` 互換シムと同じ理由で維持する。ただし実体を新規ファイル `manager/includes/traits/document.parser.subparser.legacy.php` に移し、新設11トレイトすべてを `use` する形で再定義する（旧トレイトが持っていたメソッド集合は今や11トレイトに分散しているため、全`use`が最も確実にBCを保つ。深追いした最小集合の再現は、既に呼び出し箇所ゼロの deprecated コードに対しては過剰投資と判断）。
 - 2026-07-14 (yamamoto/Claude): `DocumentParserSubParserTrait` は全メソッド移動後に廃止（ファイル削除 + `use` 文と `require_once` の除去）。ただし `loadExtension('subparser')` の互換シム（`document.parser.class.inc.php` 内の `case 'subparser': return true;`）はレガシープラグイン互換のため残す。トレイト名 `DocumentParserSubParserTrait` への参照はリポジトリ内に本体クラス以外存在しないことを確認済み。
 - 2026-07-14 (yamamoto/Claude): 帰属判定ルールを次のとおり固定する。(1) public メソッドは後述のマッピング表に従う。(2) private ヘルパーは唯一の呼び出し元と同じトレイトに置く。(3) 複数トレイトから呼ばれる private ヘルパーは `utility` へ移す。ルール適用でマッピング表と異なる帰属になった場合は本 Decision Log に追記する。
 - 2026-07-14 (yamamoto/Claude): 着手順は「独立性が高く依存が少ない順」とし、本丸の `tag-parse` / `request-response` を最後に回す。各マイルストーン = 1コミットで、失敗時の切り戻しを容易にする。
@@ -43,6 +45,8 @@
 - `manager/includes/document.parser.class.inc.php` — クラス本体（6,320行）。プロパティ宣言、マジックメソッド（`__get` / `__call`）、`__construct`、`loadExtension` に加え、リクエスト処理からユーティリティまで約190メソッドが同居。
 - `manager/includes/traits/document.parser.subparser.trait.php` — 既存トレイト（2,856行、約80メソッド）。本計画で解体・廃止する。
 - `manager/includes/cli/bootstrap.php` — `evo` CLI の起動処理。`DocumentParser` を require して `new` するため合成チェックに使える。
+
+本計画が触れる範囲: `executeParser` / `parseDocumentSource` / `prepareResponse` / `postProcess` を含む、ドキュメント処理フェーズ全体のメソッドが移動対象になる。ただし全マイルストーンともファイルを跨いだ**メソッドの移動のみ**であり、呼び出し順・ロジック・シグネチャ・可視性は変更しない。
 
 用語:
 
@@ -125,7 +129,13 @@
       | sed 's/function *&*//' | sort | uniq -c > /tmp/parser-methods-baseline.txt
     wc -l /tmp/parser-methods-baseline.txt
 
-期待される観測結果: 約270行のメソッド名一覧（各行の先頭カウントはすべて 1。2 があればその時点で重複定義であり調査が必要）。このファイルを以降の全マイルストーンで比較基準にする。
+    grep -hoE '(public|protected|private)?\s*(static\s+)?function\s+&?[a-zA-Z0-9_]+\s*\([^)]*\)' \
+      manager/includes/document.parser.class.inc.php \
+      manager/includes/traits/*.trait.php \
+      | tr -s ' ' | sort > /tmp/parser-signatures-baseline.txt
+    wc -l /tmp/parser-signatures-baseline.txt
+
+期待される観測結果: 1本目は約270行のメソッド名一覧（各行の先頭カウントはすべて 1。2 があればその時点で重複定義であり調査が必要）。2本目は可視性・static修飾・引数リストまで含めたシグネチャ一覧で、メソッド名だけでは検出できない可視性変更やシグネチャ変更を比較するための基準にする。両ファイルを以降の全マイルストーンで比較基準にする。
 
 ### M1〜M10 共通手順（マイルストーンごとに繰り返す）
 
@@ -145,19 +155,28 @@
 
    期待: `compose OK`。Fatal error が出た場合はメソッドの二重定義（移動漏れ・消し漏れ）。
 
-5. 棚卸し比較: M0と同じ grep コマンドを `/tmp/parser-methods-after.txt` に出力し、
+5. 棚卸し比較: M0と同じ2本の grep コマンドをそれぞれ `/tmp/parser-methods-after.txt` / `/tmp/parser-signatures-after.txt` に出力し、
 
        diff /tmp/parser-methods-baseline.txt /tmp/parser-methods-after.txt
+       diff /tmp/parser-signatures-baseline.txt /tmp/parser-signatures-after.txt
 
-   期待: 差分なし（メソッドの総数・名前・重複数が分割前と完全一致）。
+   期待: いずれも差分なし（メソッドの総数・名前・重複数に加え、可視性・static修飾・引数リストまで分割前と完全一致）。差分が出た場合は可視性やシグネチャを変更してしまっている可能性があるため移動作業をやり直す。
 
-6. 実機スモークテスト（DBを伴うフルブート）:
+6. トレイト帰属確認: 当該マイルストーンでマッピング表に列挙したメソッド名について、新トレイトファイルに全て存在し、旧ファイル（本体クラス・subparserトレイト）から消えていることを確認する。
+
+       # 例: M1(tv)の場合、マッピング表の該当メソッド名を1行ずつ書いた一時ファイルを用意して
+       while read -r m; do grep -q "function &*$m(" manager/includes/traits/document.parser.tv.trait.php || echo "MISSING: $m"; done < /tmp/milestone-methods.txt
+       while read -r m; do grep -l "function &*$m(" manager/includes/document.parser.class.inc.php manager/includes/traits/document.parser.subparser.trait.php 2>/dev/null && echo "STILL IN OLD LOCATION: $m"; done < /tmp/milestone-methods.txt
+
+   期待: どちらの出力も空（全メソッドが意図したトレイトに帰属し、旧ファイルに残っていない）。
+
+7. 実機スモークテスト（DBを伴うフルブート）:
 
        docker compose exec app php evo help
 
    期待: コマンド一覧が表示される（bootstrap が `new DocumentParser` に成功した証拠）。加えてブラウザでフロントページ表示と管理画面ログインを確認する。マイルストーン固有の確認点は下記。
 
-7. コミットして次のマイルストーンへ。
+8. コミットして次のマイルストーンへ。
 
 ### マイルストーン固有のスモーク確認点
 
@@ -174,24 +193,61 @@
 
 ### M10 の追加手順（subparser 廃止）
 
-1. 残メソッドをすべて移動後、`manager/includes/traits/document.parser.subparser.trait.php` にメソッドが残っていないことを確認して削除する。
-2. 編集対象: `manager/includes/document.parser.class.inc.php` — `require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');` の行と `use DocumentParserSubParserTrait;` を削除する。
-3. `loadExtension()` 内の `case 'subparser': return true;` は互換シムとして**残す**（レガシープラグインが `$modx->loadExtension('SubParser')` を呼ぶ可能性があるため）。
-4. 参照残りの最終確認:
+`document.parser.subparser.trait.php` の末尾（2848–2856行）には `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。ファイルを単純削除するとこのクラスも消え、レガシー連携が `new SubParser()` した場合にクラス未定義エラーになる（Decision Log 参照）。そのため削除とBC維持を分けて行う。
 
-       grep -rn "DocumentParserSubParserTrait\|subparser.trait" --include="*.php" .
+1. 編集対象: `manager/includes/traits/document.parser.subparser.legacy.php` を新規作成し、次の内容のみを記載する（`@deprecated` の `SubParser` クラス定義を新設11トレイトの `use` で再構成）:
 
-   期待: ヒット 0件。
+       <?php
+
+       if (!class_exists('SubParser')) {
+           /**
+            * @deprecated Use DocumentParser methods directly.
+            */
+           class SubParser
+           {
+               use DocumentParserRequestResponseTrait;
+               use DocumentParserTagParseTrait;
+               use DocumentParserElementExecTrait;
+               use DocumentParserDocumentTreeTrait;
+               use DocumentParserUrlAliasTrait;
+               use DocumentParserAuthUserTrait;
+               use DocumentParserCacheConfigTrait;
+               use DocumentParserTvTrait;
+               use DocumentParserLogErrorTrait;
+               use DocumentParserUtilityTrait;
+               use DocumentParserMiscTrait;
+           }
+       }
+
+2. 残メソッドをすべて移動後、`manager/includes/traits/document.parser.subparser.trait.php` にメソッドが残っていないことを確認してファイルを削除する。
+3. 編集対象: `manager/includes/document.parser.class.inc.php` — `require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');` の行を `require_once(__DIR__ . '/traits/document.parser.subparser.legacy.php');` に置き換え、`use DocumentParserSubParserTrait;` を削除する（新設11トレイトの `use` はM1〜M9で追加済みのためここでは変更不要）。
+4. `loadExtension()` 内の `case 'subparser': return true;` は互換シムとして**残す**（レガシープラグインが `$modx->loadExtension('SubParser')` を呼ぶ可能性があるため）。
+5. 削除後の最終検証（このコミット単体で壊れていないことを確認する）:
+
+       php -l manager/includes/document.parser.class.inc.php
+       php -l manager/includes/traits/document.parser.subparser.legacy.php
+       php -r "define('MODX_API_MODE', true); require 'manager/includes/document.parser.class.inc.php'; echo (class_exists('DocumentParser') \&\& class_exists('SubParser')) ? 'compose OK' : 'NG';"
+       docker compose exec app php evo help
+
+   期待: `php -l` はすべて「No syntax errors detected」、合成チェックは `compose OK`、`evo help` はコマンド一覧を表示する。
+
+6. 参照残りの最終確認:
+
+       grep -rln "DocumentParserSubParserTrait" --include="*.php" .
+       find manager/includes/traits -name "document.parser.subparser.trait.php"
+
+   期待: いずれも該当なし（`document.parser.subparser.legacy.php` は意図した残存物なのでヒットして良い）。
 
 ## Validation and Acceptance
 
 全マイルストーン完了時点で、次のすべてが観察できれば完了とする。
 
-1. `manager/includes/traits/` に新トレイト11ファイルが存在し、`document.parser.subparser.trait.php` が存在しない。
+1. `manager/includes/traits/` に新トレイト11ファイル＋`document.parser.subparser.legacy.php`（deprecated `SubParser` クラス定義）が存在し、`document.parser.subparser.trait.php` が存在しない。
 2. `manager/includes/document.parser.class.inc.php` が概ね500行程度（プロパティ・マジックメソッド・コンストラクタ・loadExtension のみ）。
-3. M0ベースラインとの棚卸し diff が空（公開APIのメソッド集合が分割前と完全一致）。
+3. M0ベースラインとの棚卸し diff（メソッド名一覧・シグネチャ一覧の両方）が空（公開APIのメソッド集合・可視性・シグネチャが分割前と完全一致）。
 4. `docker compose exec app php evo help` がコマンド一覧を表示する。
 5. ブラウザで、フロントページ表示・管理画面ログイン・ドキュメント編集画面のTVフォーム描画・システムイベントログ表示がすべて分割前と同様に動作する。
+6. `php -r "define('MODX_API_MODE', true); require 'manager/includes/document.parser.class.inc.php'; var_dump(class_exists('SubParser'));"` が `bool(true)` を返す（レガシー `SubParser` クラスの後方互換が保たれている）。
 
 ## Idempotence and Recovery
 
@@ -201,7 +257,7 @@
 
 ## Artifacts and Notes
 
-- 対象: `manager/includes/document.parser.class.inc.php`, `manager/includes/traits/document.parser.subparser.trait.php`
+- 対象: `manager/includes/document.parser.class.inc.php`, `manager/includes/traits/document.parser.subparser.trait.php`（廃止）, `manager/includes/traits/document.parser.subparser.legacy.php`（M10で新規作成）
 - 検証補助: `manager/includes/cli/bootstrap.php`（69–70行で `new DocumentParser`）, `compose.yml`（appサービス）
 - 関連ドキュメント: `AGENTS.md`（コミット規約・docker実行）, `assets/docs/architecture.md`
 - 想定コミット単位（Conventional Commits・日本語）:
@@ -221,4 +277,5 @@
 - 外部インターフェースは `$modx`（DocumentParserインスタンス）の public メソッド群であり、本計画では**一切変更しない**。スニペット・プラグイン・モジュール・manager/actions からの呼び出しはすべて従来どおり動く。
 - オートローダーは存在しないため、トレイトの読み込みは `document.parser.class.inc.php` 先頭の `require_once` 群で行う（既存方式の踏襲）。
 - `loadExtension('subparser')` はレガシー互換シムとして維持する。extenders（DBAPI・ManagerAPI 等）の仕組みには手を入れない。
+- レガシー `SubParser` クラス（`@deprecated`）は `document.parser.subparser.legacy.php` として存続させ、`new SubParser()` する外部連携との互換を保つ。
 - 依存タスクなし。ただし本計画進行中は同2ファイルへの他の変更とコンフリクトしやすいため、並行作業がある場合はマイルストーン境界でリベースする。
