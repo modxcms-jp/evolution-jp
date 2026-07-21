@@ -19,6 +19,85 @@
     let modalDirty = false;
     // openFilePickerで開いたファイルブラウザの選択結果を受け取るコールバック
     let filePickerCallback = null;
+    const resourceEditDebugStorageKey = 'evo-debug-resource-edit-enabled';
+    const resourceEditDebugContextStorageKey = 'evo-debug-resource-edit-context';
+    let resourceEditDebugSequence = 0;
+
+    function parseDebugContext(raw) {
+        if (!raw) {
+            return {};
+        }
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function isResourceEditDebugEnabled() {
+        try {
+            return window.sessionStorage.getItem(resourceEditDebugStorageKey) === '1';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function getResourceEditDebugContext() {
+        try {
+            return parseDebugContext(window.sessionStorage.getItem(resourceEditDebugContextStorageKey));
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function debugLogResourceEdit(eventName, context) {
+        if (!isResourceEditDebugEnabled()) {
+            return;
+        }
+
+        resourceEditDebugSequence += 1;
+        const payload = Object.assign({
+            seq: resourceEditDebugSequence,
+            event: eventName,
+            href: window.location.href,
+            currentUrl: currentUrl,
+            timestamp: new Date().toISOString()
+        }, getResourceEditDebugContext(), context || {});
+
+        window.__evoResourceEditDebugTrace = window.__evoResourceEditDebugTrace || [];
+        window.__evoResourceEditDebugTrace.push(payload);
+        if (window.console && typeof window.console.info === 'function') {
+            window.console.info('[EvoDebug][ResourceEdit]', payload);
+        }
+    }
+
+    window.EvoResourceEditDebug = {
+        enable: function (context) {
+            try {
+                window.sessionStorage.setItem(resourceEditDebugStorageKey, '1');
+                if (context) {
+                    window.sessionStorage.setItem(
+                        resourceEditDebugContextStorageKey,
+                        JSON.stringify(context)
+                    );
+                }
+            } catch (e) {
+                return;
+            }
+            debugLogResourceEdit('debug:enabled', context || {});
+        },
+
+        clear: function () {
+            try {
+                window.sessionStorage.removeItem(resourceEditDebugStorageKey);
+                window.sessionStorage.removeItem(resourceEditDebugContextStorageKey);
+            } catch (e) {
+                return;
+            }
+        },
+
+        log: debugLogResourceEdit
+    };
 
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
@@ -135,6 +214,7 @@
     }
 
     function fullReload(url) {
+        debugLogResourceEdit('shell:full-reload', { targetUrl: normalizeManagerUrl(url) });
         window.location.href = normalizeManagerUrl(url);
     }
 
@@ -242,6 +322,10 @@
     }
 
     function applyFragment(html, finalUrl, push) {
+        debugLogResourceEdit('shell:apply-fragment:start', {
+            finalUrl: finalUrl,
+            push: !!push
+        });
         const pane = document.getElementById('mainPane');
         if (!pane) {
             fullReload(finalUrl);
@@ -285,6 +369,10 @@
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
             stopWork();
+            debugLogResourceEdit('shell:apply-fragment:done', {
+                finalUrl: finalUrl,
+                action: new URL(finalUrl, window.location.href).searchParams.get('a') || ''
+            });
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
         });
     }
@@ -463,8 +551,21 @@
         startWork();
         const isModalTarget = target === 'modal';
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
+        debugLogResourceEdit('shell:request:start', {
+            requestUrl: url,
+            method: options.method || 'GET',
+            push: !!push,
+            target: target || 'pane'
+        });
         fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
+                debugLogResourceEdit('shell:request:response', {
+                    requestUrl: url,
+                    responseUrl: response.url,
+                    status: response.status,
+                    pane: response.headers.get('X-Evo-Pane') || '',
+                    login: response.headers.get('X-Evo-Login') || ''
+                });
                 if (response.headers.get('X-Evo-Login') === 'required') {
                     // セッション切れ。ログイン画面へフルリロードする
                     fullReload('index.php');
@@ -548,6 +649,10 @@
 
         navigate: function (url, opts) {
             const push = !opts || opts.push !== false;
+            debugLogResourceEdit('shell:navigate', {
+                targetUrl: normalizeManagerUrl(url),
+                push: push
+            });
             if (!confirmIfDirty()) {
                 return;
             }
@@ -712,6 +817,7 @@
         // ブラウザの戻る/進む
         window.addEventListener('popstate', function (e) {
             const url = (e.state && e.state.url) ? e.state.url : window.location.href;
+            debugLogResourceEdit('shell:popstate', { targetUrl: url });
             if (!confirmIfDirty()) {
                 // 履歴は既に移動済みのため、表示中の内容に対応するURLへ戻して整合させる
                 window.history.pushState({ url: currentUrl }, '', currentUrl);

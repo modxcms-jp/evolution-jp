@@ -69,6 +69,22 @@ checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
+evo()->logEvent(0, 1, 'Opened resource edit form debug snapshot', 'ResourceEditDebug', [
+    'action' => request_intvar('a'),
+    'request' => [
+        'uri' => (string)serverv('REQUEST_URI', ''),
+        'referer' => (string)serverv('HTTP_REFERER', ''),
+        'shell' => (string)serverv('HTTP_X_EVO_SHELL', ''),
+    ],
+    'resource' => [
+        'id' => (int)request_intvar('id'),
+        'pagetitle' => (string)doc('pagetitle'),
+        'parent' => (int)doc('parent'),
+        'isfolder' => (int)doc('isfolder'),
+        'template' => (int)doc('template'),
+    ],
+]);
+
 $body = [];
 $body[] = parseText(
     file_get_tpl('tab_general.tpl'),

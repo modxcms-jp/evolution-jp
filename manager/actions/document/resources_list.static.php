@@ -149,7 +149,18 @@ include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 180);
 echo getContextMenu($cm);
 
-echo get_jscript($id, $cm);
+$resourceListDebugContext = resourceListDebugContext($id, $current, isset($docs) ? $docs : [], $numRecords);
+$resourceListDebugJson = json_encode($resourceListDebugContext, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+if (!is_string($resourceListDebugJson) || $resourceListDebugJson === '') {
+    $resourceListDebugJson = '{}';
+}
+evo()->logEvent(0, 1, 'Rendered resources list debug snapshot', 'ResourceListDebug', $resourceListDebugContext);
+
+echo get_jscript(
+    $id,
+    $cm,
+    $resourceListDebugJson
+);
 
 ?>
     <script type="text/javascript" src="media/script/tablesort.js"></script>
@@ -379,7 +390,7 @@ function _getIconPath($doc)
     return $_style['tree_folder'];
 }
 
-function get_jscript($id, $cm)
+function get_jscript($id, $cm, $debugContextJson)
 {
     global $modx, $_lang, $modx_textdir;
 
@@ -396,7 +407,18 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 .disable {color:#777;}
 </style>
 <script type="text/javascript">
+    var resourceListDebugContext = {$debugContextJson};
+    if (window.EvoResourceEditDebug && typeof window.EvoResourceEditDebug.enable === 'function') {
+        window.EvoResourceEditDebug.enable(resourceListDebugContext);
+        window.EvoResourceEditDebug.log('resources-list:loaded', resourceListDebugContext);
+    }
     function gotoResourceListUrl(url) {
+        if (window.EvoResourceEditDebug && typeof window.EvoResourceEditDebug.log === 'function') {
+            window.EvoResourceEditDebug.log('resources-list:navigate', {
+                targetUrl: url,
+                resourceId: resourceListDebugContext.resource.id
+            });
+        }
         if (window.EvoShell) {
             EvoShell.navigate(url);
         } else {
@@ -414,6 +436,12 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         }
     }
     function editdocument() {
+        if (window.EvoResourceEditDebug && typeof window.EvoResourceEditDebug.log === 'function') {
+            window.EvoResourceEditDebug.log('resources-list:edit-click', {
+                targetUrl: "index.php?id={$id}&a=27",
+                resourceId: resourceListDebugContext.resource.id
+            });
+        }
         gotoResourceListUrl("index.php?id={$id}&a=27");
     }
     function movedocument() {
@@ -498,6 +526,38 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 </script>
 EOT;
     return $block;
+}
+
+function resourceListDebugContext($id, array $current, array $docs, $numRecords)
+{
+    $sample = [];
+    foreach (array_slice(array_values($docs), 0, 5) as $doc) {
+        $sample[] = [
+            'id' => (int)$doc['id'],
+            'pagetitle' => (string)$doc['pagetitle'],
+            'parent' => (int)$doc['parent'],
+            'isfolder' => (int)$doc['isfolder'],
+        ];
+    }
+
+    return [
+        'action' => 120,
+        'request' => [
+            'uri' => (string)serverv('REQUEST_URI', ''),
+            'referer' => (string)serverv('HTTP_REFERER', ''),
+            'shell' => (string)serverv('HTTP_X_EVO_SHELL', ''),
+        ],
+        'resource' => [
+            'id' => (int)$id,
+            'pagetitle' => isset($current['pagetitle']) ? (string)$current['pagetitle'] : '',
+            'parent' => isset($current['parent']) ? (int)$current['parent'] : 0,
+            'isfolder' => isset($current['isfolder']) ? (int)$current['isfolder'] : 0,
+        ],
+        'children' => [
+            'count' => (int)$numRecords,
+            'sample' => $sample,
+        ],
+    ];
 }
 
 function getReturnAction($current)
