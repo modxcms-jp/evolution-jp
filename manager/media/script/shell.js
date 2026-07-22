@@ -650,7 +650,7 @@
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
 
-        // リンククリックの委譲。data-no-ajax / target付き / 外部URL / #アンカーは素通しする
+        // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
         document.addEventListener('click', function (e) {
             if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
                 return;
@@ -664,6 +664,12 @@
                 return;
             }
             if (href.startsWith('#')) {
+                // href="#" はボタン用途のリンクでもブラウザの履歴を変更するため、
+                // クリックハンドラからシェル遷移した後の二重取得を防ぐ
+                if (href === '#') {
+                    e.preventDefault();
+                    return;
+                }
                 const url = new URL(window.location.href);
                 url.hash = href;
                 const pane = document.getElementById('mainPane');
