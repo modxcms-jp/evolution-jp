@@ -104,6 +104,7 @@
                             <?= lang('change_password_new') ?>:
                         </label>
                         <input
+                            id="specifiedpassword"
                             name="specifiedpassword"
                             type="password"
                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
@@ -114,6 +115,7 @@
                             <?= lang('change_password_confirm') ?>:
                         </label>
                         <input
+                            id="confirmpassword"
                             name="confirmpassword"
                             type="password"
                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"

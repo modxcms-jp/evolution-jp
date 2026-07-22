@@ -331,13 +331,13 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                         <label for="specifiedpassword"
                                             style="width:120px"><?= $_lang['change_password_new'] ?>
                                             :</label>
-                                        <input type="password" name="specifiedpassword"
+                                        <input type="password" id="specifiedpassword" name="specifiedpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="off" /><br />
                                         <label for="confirmpassword"
                                             style="width:120px"><?= $_lang['change_password_confirm'] ?>
                                             :</label>
-                                        <input type="password" name="confirmpassword"
+                                        <input type="password" id="confirmpassword" name="confirmpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="off" /><br />
                                         <span class="warning"

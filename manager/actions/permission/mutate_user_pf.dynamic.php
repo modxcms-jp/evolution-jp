@@ -229,10 +229,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                             value="spec" <?= postv('passwordgenmethod') == "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br />
                                     <div style="padding-left:20px">
                                         <label for="specifiedpassword" style="width:120px"><?= $_lang['change_password_new'] ?>:</label>
-                                        <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                                        <input type="password" id="specifiedpassword" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="off" /><br />
                                         <label for="confirmpassword" style="width:120px"><?= $_lang['change_password_confirm'] ?>:</label>
-                                        <input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                                        <input type="password" id="confirmpassword" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="off" /><br />
                                         <small><span class="warning" style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span></small>
                                     </div>
