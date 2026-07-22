@@ -229,11 +229,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                             value="spec" <?= postv('passwordgenmethod') == "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br />
                                     <div style="padding-left:20px">
                                         <label for="specifiedpassword" style="width:120px"><?= $_lang['change_password_new'] ?>:</label>
-                                        <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="off" /><br />
+                                        <input type="password" id="specifiedpassword" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                                            size="20" autocomplete="new-password" /><br />
                                         <label for="confirmpassword" style="width:120px"><?= $_lang['change_password_confirm'] ?>:</label>
-                                        <input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="off" /><br />
+                                        <input type="password" id="confirmpassword" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                                            size="20" autocomplete="new-password" /><br />
                                         <small><span class="warning" style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span></small>
                                     </div>
                                 </fieldset>
@@ -244,7 +244,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     <tr>
                         <th><?= $_lang['user_email'] ?>:</th>
                         <td>
-                            <input type="text" name="email" class="inputBox"
+                            <input type="text" name="email" class="inputBox" autocomplete="email"
                                 value="<?= hsc(userData('email')) ?>" />
                             <input type="hidden" name="oldemail"
                                 value="<?= hsc(userData('oldemail') ?: userData('email')) ?>" />
@@ -252,50 +252,50 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     </tr>
                     <tr>
                         <th><?= $_lang['user_full_name'] ?>:</th>
-                        <td><input type="text" name="fullname" class="inputBox"
+                        <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
                                 value="<?= hsc(userData('fullname')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_phone'] ?>:</th>
-                        <td><input type="text" name="phone" class="inputBox"
+                        <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('phone')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_mobile'] ?>:</th>
-                        <td><input type="text" name="mobilephone" class="inputBox"
+                        <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('mobilephone')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_fax'] ?>:</th>
-                        <td><input type="text" name="fax" class="inputBox"
+                        <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('fax')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_street'] ?>:</th>
-                        <td><input type="text" name="street" class="inputBox"
+                        <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
                                 value="<?= hsc(userData('street')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_city'] ?>:</th>
-                        <td><input type="text" name="city" class="inputBox"
+                        <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
                                 value="<?= hsc(userData('city')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_state'] ?>:</th>
-                        <td><input type="text" name="state" class="inputBox"
+                        <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
                                 value="<?= hsc(userData('state')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_zip'] ?>:</th>
-                        <td><input type="text" name="zip" class="inputBox"
+                        <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
                                 value="<?= hsc(userData('zip')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_country'] ?>:</th>
                         <td>
-                            <select size="1" name="country" class="inputBox">
+                            <select size="1" name="country" class="inputBox" autocomplete="country-name">
                                 <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
                                 <option value="" <?= selected(empty($chosenCountry)) ?>>&nbsp;</option>
                                 <?php

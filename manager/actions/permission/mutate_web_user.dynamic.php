@@ -305,7 +305,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <tr id="editname"
                         style="display:<?= getv('a') == '87' || (webuser('oldusername') && webuser('oldusername') != webuser('username')) ? 'table-row' : 'none' ?>">
                         <th><?= $_lang['username'] ?>:</th>
-                        <td><input type="text" name="newusername" class="inputBox"
+                        <td><input type="text" name="newusername" class="inputBox" autocomplete="username"
                                 value="<?= hsc(postv('newusername', webuser('username'))) ?>"
                                 maxlength="100" /></td>
                     </tr>
@@ -331,15 +331,15 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                         <label for="specifiedpassword"
                                             style="width:120px"><?= $_lang['change_password_new'] ?>
                                             :</label>
-                                        <input type="password" name="specifiedpassword"
+                                        <input type="password" id="specifiedpassword" name="specifiedpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="off" /><br />
+                                            size="20" autocomplete="new-password" /><br />
                                         <label for="confirmpassword"
                                             style="width:120px"><?= $_lang['change_password_confirm'] ?>
                                             :</label>
-                                        <input type="password" name="confirmpassword"
+                                        <input type="password" id="confirmpassword" name="confirmpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="off" /><br />
+                                            size="20" autocomplete="new-password" /><br />
                                         <span class="warning"
                                             style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span>
                                     </div>
@@ -359,7 +359,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <tr>
                         <th><?= $_lang['user_email'] ?>:</th>
                         <td>
-                            <input type="text" name="email" class="inputBox"
+                            <input type="text" name="email" class="inputBox" autocomplete="email"
                                 value="<?= postv('email', attribute('email')) ?>" />
                             <input type="hidden" name="oldemail"
                                 value="<?= hsc(attribute('oldemail') ?: attribute('email')) ?>" />
@@ -373,56 +373,56 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 <table class="settings">
                     <tr>
                         <th><?= $_lang['user_full_name'] ?>:</th>
-                        <td><input type="text" name="fullname" class="inputBox"
+                        <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
                                 value="<?= hsc(postv('fullname', attribute('fullname'))) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_phone'] ?>:</th>
-                        <td><input type="text" name="phone" class="inputBox"
+                        <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
                                 value="<?= postv('phone', attribute('phone')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_mobile'] ?>:</th>
-                        <td><input type="text" name="mobilephone" class="inputBox"
+                        <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
                                 value="<?= postv('mobilephone', attribute('mobilephone')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_fax'] ?>:</th>
-                        <td><input type="text" name="fax" class="inputBox"
+                        <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
                                 value="<?= postv('fax', attribute('fax')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_street'] ?>:</th>
-                        <td><input type="text" name="street" class="inputBox"
+                        <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
                                 value="<?= hsc(attribute('street')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_city'] ?>:</th>
-                        <td><input type="text" name="city" class="inputBox"
+                        <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
                                 value="<?= hsc(attribute('city')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_state'] ?>:</th>
-                        <td><input type="text" name="state" class="inputBox"
+                        <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
                                 value="<?= postv('state', attribute('state')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_zip'] ?>:</th>
-                        <td><input type="text" name="zip" class="inputBox"
+                        <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
                                 value="<?= postv('zip', attribute('zip')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_country'] ?>:</th>
                         <td>
-                            <select size="1" name="country">
+                            <select size="1" name="country" autocomplete="country-name">
                                 <?php $chosenCountry = postv('country', attribute('country')); ?>
                                 <option value="" <?php (!$chosenCountry ? ' selected' : '') ?>>&nbsp;
                                 </option>
