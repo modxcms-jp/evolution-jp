@@ -20,8 +20,29 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 3. 現在のバージョン（`manager/includes/version.inc.php` の `$modx_version`）
 4. 直近のリリースタグ（`git tag --sort=-creatordate | grep '^release-' | head -5`）
 5. `.agent/roadmap.md` の WIP タスク有無
+6. `.github/workflows/release.yml` が現在のコミットに存在すること
+7. 現在のブランチが `main` の場合、`origin/main` と同期していること（未同期なら差分を提示）
 
 問題がなければ `assets/docs/release-process.md` の手順に従いリリースを進める。
+
+## バージョン入力後の安全確認
+
+新しいバージョン番号を受け取った後、更新前に次を確認する。
+
+1. バージョン番号が `X.Y.ZJ` 形式であること（例: `1.3.0J`）
+2. ローカルに `release-{version}` タグが存在しないこと
+3. リモート `origin` に `release-{version}` タグが存在しないこと
+4. タグ作成対象が、バージョン更新をコミットした `main` の先端になること
+
+タグの存在確認には次を使う。既存タグが見つかった場合は削除や上書きを行わず、ユーザーに対応を確認する。
+
+```bash
+VERSION="1.3.0J"
+git rev-parse --verify "refs/tags/release-${VERSION}"
+git ls-remote --exit-code --refs origin "refs/tags/release-${VERSION}"
+```
+
+上記コマンドがタグ未存在で終了コード `128` または `2` になることを確認してから、バージョンファイルの更新へ進む。更新後は `git diff --check` と対象ファイルの差分を提示し、コミット前にユーザー確認を取る。
 
 ---
 
