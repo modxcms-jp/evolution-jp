@@ -23,4 +23,5 @@ interface:
     8) `git tag release-{version}`、`git push origin HEAD`、`git push origin release-{version}` を提示してユーザー確認後に実行する。
     9) GitHub Actions `Build Release Package` の対象 run を特定し、成功するまで待機する。失敗時はRelease確認へ進まない。
     10) GitHub Release がドラフト状態で作成されたことを確認し、添付ZIPをダウンロードする。ZIPに必須ファイルが含まれ、`.gitattributes` の `export-ignore` 対象が含まれないことを確認する。
-    11) 検証結果を提示してユーザー確認を取り、問題がなければ GitHub Releases 画面の「Publish release」または `gh release edit <tag> --draft=false` で公開する。
+    11) リリースノート生成前に、今回のタグと比較対象の前回タグをユーザーと明示的に確認する。タグの作成日時順から自動推測せず、両タグの存在と祖先関係を検証する。適切な前回タグがない場合は比較開始地点を確認するまで生成しない。
+    12) 検証結果を提示してユーザー確認を取り、問題がなければ GitHub Releases 画面の「Publish release」または `gh release edit <tag> --draft=false` で公開する。

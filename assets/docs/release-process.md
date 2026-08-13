@@ -34,18 +34,32 @@ GitHub Actions が完了したら、AI にリリースノートを生成させ�
 
 #### リリースノートの生成
 
-以下の情報を使って日本語リリースノートを生成する:
+リリースノートの比較範囲は、タグの作成日時から推測せず、今回のタグと比較対象のタグを明示する。候補一覧は参考として使い、最終的な `PREV_TAG` はユーザーが確認する。
 
 ```bash
-# 前回タグからの変更コミット一覧
-git log <前回タグ>..<今回タグ> --oneline
+# 比較対象の候補をバージョン順に表示（自動選択しない）
+git tag --list 'release-*' --sort=-v:refname
+
+# ユーザーが確認したタグを設定
+PREV_TAG="release-1.3.0J"
+CURR_TAG="release-1.4.0J"
+
+# 両方のタグが存在し、今回のタグが前回タグの後継であることを確認
+git rev-parse --verify "refs/tags/${PREV_TAG}^{commit}"
+git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
+git merge-base --is-ancestor "${PREV_TAG}" "${CURR_TAG}"
+
+# 前回タグから今回タグまでの変更コミット一覧
+git log "${PREV_TAG}..${CURR_TAG}" --oneline
 
 # 変更規模
-git diff <前回タグ>..<今回タグ> --stat | tail -3
+git diff "${PREV_TAG}..${CURR_TAG}" --stat | tail -3
 
 # 前回リリースのノート形式を参照
-gh release view <前回タグ>
+gh release view "${PREV_TAG}"
 ```
+
+適切な前回リリースタグが存在しない場合は、作成日時順の別タグを代用せず、比較開始地点をユーザーに確認してから生成する。
 
 #### リリースノートの構成
 
@@ -92,9 +106,9 @@ gh release view <前回タグ>
 コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
 
 ```bash
-# タグを変数にセット
-PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
-CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
+# 上の確認済みのタグを使う（作成日時順から自動取得しない）
+# PREV_TAG="release-1.3.0J"
+# CURR_TAG="release-1.4.0J"
 
 git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
 BEGIN {
