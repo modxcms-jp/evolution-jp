@@ -52,7 +52,7 @@ git ls-remote --exit-code --refs origin "refs/tags/release-${VERSION}"
 
 ---
 
-## リリースノート生成（手順 3）
+## リリースノート生成（手順 4）
 
 タグ push 後、GitHub Actions の完了を待ってからリリースノートを生成する。
 

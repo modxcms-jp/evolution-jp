@@ -4,17 +4,36 @@ Evolution CMS JP Edition のリリースパッケージを作成し、GitHub Rel
 
 ## 基本手順
 
-### 1. リリースタグの作成
+### 1. バージョン更新とコミット
+
+リリーススキルの開始前チェックとバージョン入力後の安全確認を完了してから、バージョン情報を更新する。
+
+1. `manager/includes/version.inc.php` の `$modx_version` を新しいバージョンへ更新
+2. `$modx_release_date` をリリース日へ更新
+3. `git diff --check` と対象ファイルの差分を確認
+4. ユーザー確認後、次の形式でコミット
+
+```bash
+git diff --check
+git diff -- manager/includes/version.inc.php
+git add manager/includes/version.inc.php
+git commit -m "chore(release): バージョンを 1.3.0J に更新"
+```
+
+### 2. リリースタグの作成
 
 ```bash
 # タグ作成（例: release-1.3.0J）
 git tag release-1.3.0J
 
+# バージョン更新コミットを push
+git push origin HEAD
+
 # タグを push
 git push origin release-1.3.0J
 ```
 
-### 2. GitHub Actions の自動実行
+### 3. GitHub Actions の自動実行
 
 タグが push されると `.github/workflows/release.yml` が自動実行される。
 
@@ -28,7 +47,7 @@ git push origin release-1.3.0J
 
 リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
 
-### 3. リリースノートの生成と適用
+### 4. リリースノートの生成と適用
 
 GitHub Actions が完了したら、AI にリリースノートを生成させてドラフトリリースに適用する。
 
@@ -362,8 +381,8 @@ ls -la .github/workflows/release.yml
 
 **対応:**
 
-1. ローカルで dist を作成して内容確認（上記手順参照）
-2. 除外パターンを `.github/workflows/release.yml` に追加
+1. ローカルで `git archive` を実行して内容確認（上記手順参照）
+2. 除外パターンを `.gitattributes` に追加
 
 #### Q. リリースノートを後から編集したい
 
