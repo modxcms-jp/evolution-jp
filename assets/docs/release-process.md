@@ -152,9 +152,49 @@ EOF
 
 ### 4. ドラフト確認と公開
 
-1. GitHub の Actions タブでワークフローの完了を確認
-2. Releases ページでドラフトリリースを開き、zip をダウンロードして内容を確認
-3. 問題がなければ「Publish release」を押して一般公開する
+タグ push 後は、Actions の成功とドラフト Release の内容を確認してから公開する。公開前に問題が見つかった場合は「Publish release」を押さず、修正方針を決める。
+
+#### Actions の完了確認
+
+```bash
+# 対象タグのワークフロー実行を一覧表示し、対象の run ID を確認
+gh run list --workflow release.yml --limit 10
+
+# 対象の run ID を指定して完了まで待機（成功以外は終了コード 1）
+gh run watch <run-id> --exit-status
+```
+
+`Build Release Package` が `success` になったことを確認する。失敗した場合は、ZIPやReleaseの確認へ進まず、Actionsのログを調査する。
+
+#### ドラフト Release とZIPの確認
+
+```bash
+VERSION="1.3.0J"
+TAG="release-${VERSION}"
+CHECK_DIR=$(mktemp -d)
+ZIP_PATH="${CHECK_DIR}/evo-${TAG}.zip"
+
+# ドラフト状態、タグ、添付ファイルを確認
+gh release view "${TAG}" --json isDraft,tagName,assets,url
+
+# GitHub Release のZIPを取得
+gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
+
+# 必須ファイルを確認
+unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'
+unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'
+
+# 配布対象外のパスが含まれていないことを確認（該当時は終了）
+if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|docs|manager/docker)(/|$)|(^|/)(AGENTS\.md|CLAUDE\.md|\.gitattributes)$'; then
+    echo '配布対象外のパスが含まれています'
+    exit 1
+fi
+
+# 確認後に一時ファイルを削除
+rm -rf "${CHECK_DIR}"
+```
+
+`gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
 
 ## 除外ファイル一覧
 
