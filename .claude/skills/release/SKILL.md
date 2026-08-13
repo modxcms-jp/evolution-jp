@@ -5,7 +5,7 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 # リリーススキル
 
-手順の正本は `assets/docs/release-process.md`。このスキルはその手順を対話形式で実行するラッパー。
+手順の正本は `assets/docs/release-process.md`。このスキルはその手順を対話形式で実行するラッパー。リリースパッケージは `git archive` で生成し、配布対象外のパスは `.gitattributes` の `export-ignore` で管理する。
 
 ## コマンド
 
