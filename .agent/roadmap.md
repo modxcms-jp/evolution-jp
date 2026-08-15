@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` を参照。
 
-最終更新: 2026-08-15 (frame要素廃止のブラウザ最終確認を完了)
+最終更新: 2026-08-15 (AIランタイム運用設計とframe要素廃止の完了を反映)
 
 ## 現在地（先に読む）
 
@@ -50,9 +50,9 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
 
 ### AIランタイム運用設計の棚卸しと再整理
 
-- Status: `WIP`
+- Status: `DONE`
 - 着手予定日: `2026-07-12`
-- 完了日: `未完了`
+- 完了日: `2026-08-15`
 - 目的: Codex 主運用の実態と、Claude 起点で育った共有スキル本文の構造を矛盾なく説明できる運用設計へ整理する
 - 背景/課題: 現状は `AGENTS.md` / `.agent/agents/` / `.claude/skills/` / `.codex/skills/` の責務分担自体は成立しているが、「なぜ共有本文の正本が `.claude/skills/` にあるのか」「sub-agent や推論レベルをどう扱うか」が共通文書で定義されていない
 - 到達条件（Definition of Done）:
@@ -61,7 +61,7 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
   - sub-agent 化条件と推論レベル運用の抽象方針を明文化する
 - 非対象（やらないこと）: 共有スキル本文の物理移設、ランタイム別の全面再設計、具体的なモデル名の固定
 - 依存関係: AI向けドキュメント構造の SSOT 整備
-- ExecPlan: `.agent/plans/2026-07-12-ai-runtime-governance-refresh.md`
+- ExecPlan: `.agent/plans/archive/2026-08-15-ai-runtime-governance-refresh.md`
 - メモ/判断ログ: 2026-07-12 ユーザー要求による棚卸しから着手。Codex 主運用だが共有スキル本文は歴史的経緯で `.claude/skills/` に残っているため、即時移設より先に共通ポリシーの明文化を優先する。
 
 ### マイグレーション機構
