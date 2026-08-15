@@ -4,21 +4,4 @@ interface:
   default_prompt: |
     入力コマンドに応じて以下を実行してください。
 
-    `/release` 引数なし:
-    1) このスキルがバージョン更新・タグ作成・ActionsによるZIP作成・ドラフト確認・リリースノート適用・公開を順に案内すること、要件確定までは変更や公開を行わないことを説明する。
-    2) 次の項目を1問ずつ質問する。回答を受けてから次へ進み、曖昧な回答はその項目だけ聞き直す: バージョン、リリース日、対象ブランチまたはコミット、リリースノートの扱い、公開範囲。
-    3) バージョン回答後、`git tag --list 'release-*' --sort=-v:refname` で候補を確認し、候補を1つ提示して「比較対象の前回リリースタグは `release-X.Y.ZJ` で合っていますか？」と質問する。「はい」ならそのタグを使い、「いいえ」なら別のタグまたは比較開始コミットを質問する。候補がない場合は比較開始コミットを質問する。候補を自動確定しない。
-    4) 回答内容を要約してユーザーに確認し、確定後に「要件確定後」の手順へ進む。
-
-    要件確定後:
-    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・`.agent/roadmap.md` の WIP タスク・`.github/workflows/release.yml` の存在を確認してユーザーに提示する。現在のブランチが `main` でない場合は警告し、続行確認を取る。リリース作業は `main` ブランチ上で行うことを強く推奨する。
-    2) 問題があれば警告し、続行確認を取る。`main` 上では `origin/main` との同期も確認する。
-    3) 入力されたバージョンの形式を検証し、ローカルとリモートの `release-{version}` タグが未存在であることを確認する。既存タグの削除・上書きはしない。
-    4) `manager/includes/version.inc.php` の `$modx_version` と `$modx_release_date` を指定された値へ更新し、`git diff --check` と変更内容を提示してユーザー確認を取る。
-    5) `chore(release): バージョンを {version} に更新` の形式でコミットする（ユーザー確認後）。
-    6) コミット後の `HEAD` がタグ作成対象であることと、ワークツリーが clean であることを確認する。
-    7) `git tag release-{version}`、`git push origin HEAD`、`git push origin release-{version}` を提示してユーザー確認後に実行する。
-    8) GitHub Actions `Build Release Package` の対象 run を特定し、成功するまで待機する。失敗時はRelease確認へ進まない。
-    9) GitHub Release がドラフト状態で作成されたことを確認し、添付ZIPをダウンロードする。ZIPに必須ファイルが含まれ、`.gitattributes` の `export-ignore` 対象が含まれないことを確認する。
-    10) 確認済みの `PREV_TAG` / `CURR_TAG` とユーザー指定の比較開始地点に基づいてリリースノートを生成する。タグの作成日時順から自動推測しない。
-    11) 検証結果を提示してユーザー確認を取り、公開範囲が公開なら GitHub Releases 画面の「Publish release」または `gh release edit <tag> --draft=false` で公開する。ドラフトで止める指定なら公開しない。
+    `/release` の入口と要件確定後の実行手順は `.claude/skills/release/SKILL.md` を正本として読み、その内容に従ってください。ここでは Codex 実行時の入口だけを扱い、詳細なリリース手順を重複して定義しないでください。

@@ -59,26 +59,35 @@ GitHub Actions が完了したら、AI にリリースノートを生成させ�
 # 比較対象の候補をバージョン順に表示（自動選択しない）
 git tag --list 'release-*' --sort=-v:refname
 
-# ユーザーが確認したタグを設定
+# 前回リリースタグがある場合は、ユーザーが確認したタグを設定
 PREV_TAG="release-1.3.0J"
 CURR_TAG="release-1.4.0J"
 
-# 両方のタグが存在し、今回のタグが前回タグの後継であることを確認
-git rev-parse --verify "refs/tags/${PREV_TAG}^{commit}"
-git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
-git merge-base --is-ancestor "${PREV_TAG}" "${CURR_TAG}"
+# 前回タグがある場合だけ、タグと祖先関係を確認
+if [[ -n "${PREV_TAG:-}" ]]; then
+    git rev-parse --verify "refs/tags/${PREV_TAG}^{commit}"
+    git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
+    git merge-base --is-ancestor "${PREV_TAG}" "${CURR_TAG}"
+else
+    BASE_REF="<比較開始コミット>"
+    git rev-parse --verify "${BASE_REF}^{commit}"
+    git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
+fi
 
-# 前回タグから今回タグまでの変更コミット一覧
-git log "${PREV_TAG}..${CURR_TAG}" --oneline
+# 前回タグまたは比較開始コミットから今回タグまでの変更コミット一覧
+BASE_REF="${PREV_TAG:-${BASE_REF}}"
+git log "${BASE_REF}..${CURR_TAG}" --oneline
 
 # 変更規模
-git diff "${PREV_TAG}..${CURR_TAG}" --stat | tail -3
+git diff "${BASE_REF}..${CURR_TAG}" --stat | tail -3
 
-# 前回リリースのノート形式を参照
-gh release view "${PREV_TAG}"
+# 前回リリースのノート形式を参照（前回タグがある場合のみ）
+if [[ -n "${PREV_TAG:-}" ]]; then
+    gh release view "${PREV_TAG}"
+fi
 ```
 
-適切な前回リリースタグが存在しない場合は、作成日時順の別タグを代用せず、比較開始地点をユーザーに確認してから生成する。
+適切な前回リリースタグが存在しない場合は、作成日時順の別タグを代用せず、ユーザーが確認したコミットを `BASE_REF` に設定して比較する。`PREV_TAG` が設定されている場合だけタグの存在確認、祖先関係確認、`gh release view "${PREV_TAG}"` を実行する。
 
 #### リリースノートの構成
 
@@ -183,7 +192,7 @@ EOF
 )"
 ```
 
-### 4. ドラフト確認と公開
+### 5. ドラフト確認と公開
 
 タグ push 後は、Actions の成功とドラフト Release の内容を確認してから公開する。公開前に問題が見つかった場合は「Publish release」を押さず、修正方針を決める。
 
@@ -218,7 +227,7 @@ unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'
 unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'
 
 # 配布対象外のパスが含まれていないことを確認（該当時は終了）
-if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|docs|manager/docker)(/|$)|(^|/)(AGENTS\.md|CLAUDE\.md|\.gitattributes)$'; then
+if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then
     echo '配布対象外のパスが含まれています'
     exit 1
 fi
@@ -231,10 +240,9 @@ rm -rf "${CHECK_DIR}"
 
 ## 除外ファイル一覧
 
-リリースパッケージから除外される主なファイル・ディレクトリ（正本は [.gitattributes](../../.gitattributes)）:
+`.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
 
 ```
-.git/
 .github/
 .agent/
 .agents/
@@ -245,8 +253,8 @@ rm -rf "${CHECK_DIR}"
 .gitignore
 .gitkeep
 .gitattributes
+.coderabbit.yaml
 .editorconfig
-dist/
 docs/
 **/docs/
 readme*
