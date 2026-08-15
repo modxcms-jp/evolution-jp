@@ -4,9 +4,19 @@ Evolution CMS JP Edition のリリースパッケージを作成し、GitHub Rel
 
 ## 基本手順
 
-### 1. バージョン更新とコミット
+### 1. 開始前チェックとリリース準備PR
 
-リリーススキルの開始前チェックとバージョン入力後の安全確認を完了してから、バージョン情報を更新する。
+リリーススキルの開始前チェックとバージョン入力後の安全確認を完了してから、`origin/main` を基準にリリース準備ブランチを作成する。開始前チェックで未対応の `WIP` / `BLOCKED` タスク、未コミット変更、`main` の未pushコミット、対象バージョンの既存タグなどが見つかった場合は、原因と対象を提示してここで保留する。
+
+`main` へ直接コミットせず、次のようにリリース準備PRを作成する。
+
+```bash
+VERSION="1.3.0J"
+BRANCH="chore/release-${VERSION}"
+
+git fetch origin main
+git switch -c "${BRANCH}" origin/main
+```
 
 1. `manager/includes/version.inc.php` の `$modx_version` を新しいバージョンへ更新
 2. `$modx_release_date` をリリース日へ更新
@@ -20,18 +30,27 @@ git add manager/includes/version.inc.php
 git commit -m "chore(release): バージョンを 1.3.0J に更新"
 ```
 
-### 2. リリースタグの作成
+コミット後、ユーザー確認を取ってリリース準備ブランチをpushし、`main` 宛てのPRを作成する。PRがマージされるまでタグ作成へ進まない。
+
+### 2. PRマージ後のリリースタグ作成
+
+PRマージ後、リリース対象をマージ後の `origin/main` に固定する。ローカルの作業ブランチやPRの元コミットにタグを付けない。
 
 ```bash
-# タグ作成（例: release-1.3.0J）
+git fetch origin main
+git switch main
+git merge --ff-only origin/main
+git status --short --branch
+git log -1 --format='%H%n%s'
+
+# ユーザー確認後にタグ作成（例: release-1.3.0J）
 git tag release-1.3.0J
 
-# バージョン更新コミットを push
-git push origin HEAD
-
-# タグを push
+# タグをpush
 git push origin release-1.3.0J
 ```
+
+保護された `main` へ通常のコミットpushは行わない。PRマージ済みの `origin/main` を取得してタグを付けるだけにする。
 
 ### 3. GitHub Actions の自動実行
 
@@ -424,7 +443,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 1. リリース告知（フォーラム、SNS など）
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
-3. ロードマップの整理（下記手順）
+3. ロードマップの整理（下記手順。保護された `main` へ直接コミットせず、整理ブランチからPRを作成する）
 
    `Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動する。
 
