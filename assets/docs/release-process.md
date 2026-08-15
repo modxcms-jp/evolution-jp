@@ -43,13 +43,13 @@ git push origin release-1.3.0J
 2. `git archive` でタグのコミットから zip ファイルを作成
 3. `.gitattributes` の `export-ignore` に従って、配布対象外のファイルを除外
 4. `evo-release-1.3.0J.zip` を作成
-5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
+5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（リリースノートは手順4で明示した比較範囲から生成して適用）
 
 リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
 
 ### 4. リリースノートの生成と適用
 
-GitHub Actions が完了したら、AI にリリースノートを生成させてドラフトリリースに適用する。
+GitHub Actions はリリースノートを自動生成しない。完了後、確認済みの比較範囲からAIにリリースノートを生成させ、ドラフトリリースに適用する。
 
 #### リリースノートの生成
 
@@ -134,11 +134,13 @@ fi
 コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
 
 ```bash
-# 上の確認済みのタグを使う（作成日時順から自動取得しない）
+# 上の確認済みのタグまたは比較開始コミットを使う（作成日時順から自動取得しない）
 # PREV_TAG="release-1.3.0J"
+# BASE_REF="<比較開始コミット>"
 # CURR_TAG="release-1.4.0J"
 
-git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
+BASE_REF="${PREV_TAG:-${BASE_REF}}"
+git log "${BASE_REF}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
 BEGIN {
     RS="__COMMIT__"
     FS="\n"
@@ -222,9 +224,15 @@ gh release view "${TAG}" --json isDraft,tagName,assets,url
 # GitHub Release のZIPを取得
 gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
 
-# 必須ファイルを確認
-unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'
-unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'
+# 必須ファイルを確認（未検出時は終了）
+if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'; then
+    echo 'index.php が見つかりません'
+    exit 1
+fi
+if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'; then
+    echo 'manager/includes/version.inc.php が見つかりません'
+    exit 1
+fi
 
 # 配布対象外のパスが含まれていないことを確認（該当時は終了）
 if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then

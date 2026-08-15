@@ -43,7 +43,7 @@ git tag --list 'release-*' --sort=-v:refname
 3. 現在のバージョン（`manager/includes/version.inc.php` の `$modx_version`）
 4. 直近のリリースタグ（`git tag --sort=-creatordate | grep '^release-' | head -5`）
 5. `.agent/roadmap.md` の WIP タスク有無
-6. `.github/workflows/release.yml` が現在のコミットに存在すること
+6. `.github/workflows/release.yml` が現在のコミットに存在し、`release-*` タグトリガー、`git archive --format=zip`、ドラフトRelease、想定したZIP添付を設定していること
 7. 現在のブランチが `main` の場合、`origin/main` と同期していること（未同期なら差分を提示）
 
 問題がなければ `assets/docs/release-process.md` の手順に従いリリースを進める。
@@ -61,11 +61,41 @@ git tag --list 'release-*' --sort=-v:refname
 
 ```bash
 VERSION="1.3.0J"
-git rev-parse --verify "refs/tags/release-${VERSION}"
-git ls-remote --exit-code --refs origin "refs/tags/release-${VERSION}"
+WORKFLOW=".github/workflows/release.yml"
+
+set -e
+
+test -f "${WORKFLOW}"
+rg -q --fixed-strings "      - 'release-*'" "${WORKFLOW}"
+rg -q --fixed-strings "git archive --format=zip" "${WORKFLOW}"
+rg -q --fixed-strings "draft: true" "${WORKFLOW}"
+rg -q --fixed-strings 'files: evo-${{ github.ref_name }}.zip' "${WORKFLOW}"
+rg -q --fixed-strings "generate_release_notes: false" "${WORKFLOW}"
+
+if git rev-parse --verify "refs/tags/release-${VERSION}" >/dev/null 2>&1; then
+    echo "ローカルに既存タグがあります"
+    exit 1
+else
+    status=$?
+    if [[ "${status}" -ne 128 ]]; then
+        echo "ローカルタグ確認に失敗しました（終了コード: ${status}）"
+        exit "${status}"
+    fi
+fi
+
+if git ls-remote --exit-code --refs origin "refs/tags/release-${VERSION}" >/dev/null 2>&1; then
+    echo "リモートに既存タグがあります"
+    exit 1
+else
+    status=$?
+    if [[ "${status}" -ne 2 ]]; then
+        echo "リモートタグ確認に失敗しました（終了コード: ${status}）"
+        exit "${status}"
+    fi
+fi
 ```
 
-上記コマンドがタグ未存在で終了コード `128` または `2` になることを確認してから、バージョンファイルの更新へ進む。更新後は `git diff --check` と対象ファイルの差分を提示し、コミット前にユーザー確認を取る。
+ローカルタグ確認では終了コード `128`、リモートタグ確認では終了コード `2` の場合だけ「タグなし」と判定する。それ以外の終了コードは認証・ネットワーク・リモート障害などの可能性があるため、バージョンファイルを更新せずに中止する。更新後は `git diff --check` と対象ファイルの差分を提示し、コミット前にユーザー確認を取る。
 
 ---
 
@@ -83,7 +113,7 @@ git ls-remote --exit-code --refs origin "refs/tags/release-${VERSION}"
 
 リリースノートの比較範囲は、作成日時順から自動推測しない。今回のタグと比較対象のタグをユーザーと確認し、手順書の `PREV_TAG` / `CURR_TAG` に明示してから生成する。適切な前回タグがない場合は、`BASE_REF` から `CURR_TAG` までを比較する。タグ専用の検証と `gh release view` は `PREV_TAG` が指定されている場合だけ実行する。
 
-リリースノート適用後は、同手順書の「ドラフト確認と公開」に従い、Actions の成功、ドラフト状態、添付ZIP、必須ファイル、配布対象外パスの有無を確認する。これらの確認が終わるまで公開操作を行わない。
+リリースノート適用後は、同手順書の「ドラフト確認と公開」に従い、Actions の成功、ドラフト状態、添付ZIP、必須ファイル、配布対象外パスの有無を確認する。Actionsが作成するドラフトの説明文は使用せず、確認済みの `PREV_TAG` または `BASE_REF` から生成した本文を `gh release edit` で適用してから検証する。これらの確認が終わるまで公開操作を行わない。
 
 生成後はユーザーへ提示し、以下のチェックリストで確認を促す:
 
