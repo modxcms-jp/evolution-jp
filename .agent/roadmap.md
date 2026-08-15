@@ -61,7 +61,7 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
   - sub-agent 化条件と推論レベル運用の抽象方針を明文化する
 - 非対象（やらないこと）: 共有スキル本文の物理移設、ランタイム別の全面再設計、具体的なモデル名の固定
 - 依存関係: AI向けドキュメント構造の SSOT 整備
-- ExecPlan: `.agent/plans/archive/2026-07-12-ai-runtime-governance-refresh.md`
+- ExecPlan: `.agent/plans/archive/2026-08-15-ai-runtime-governance-refresh.md`
 - メモ/判断ログ: 2026-07-12 ユーザー要求による棚卸しから着手。Codex 主運用だが共有スキル本文は歴史的経緯で `.claude/skills/` に残っているため、即時移設より先に共通ポリシーの明文化を優先する。
 
 ### マイグレーション機構
