@@ -4,46 +4,90 @@ Evolution CMS JP Edition のリリースパッケージを作成し、GitHub Rel
 
 ## 基本手順
 
-### 1. リリースタグの作成
+### 1. バージョン更新とコミット
+
+リリーススキルの開始前チェックとバージョン入力後の安全確認を完了してから、バージョン情報を更新する。
+
+1. `manager/includes/version.inc.php` の `$modx_version` を新しいバージョンへ更新
+2. `$modx_release_date` をリリース日へ更新
+3. `git diff --check` と対象ファイルの差分を確認
+4. ユーザー確認後、次の形式でコミット
+
+```bash
+git diff --check
+git diff -- manager/includes/version.inc.php
+git add manager/includes/version.inc.php
+git commit -m "chore(release): バージョンを 1.3.0J に更新"
+```
+
+### 2. リリースタグの作成
 
 ```bash
 # タグ作成（例: release-1.3.0J）
 git tag release-1.3.0J
 
+# バージョン更新コミットを push
+git push origin HEAD
+
 # タグを push
 git push origin release-1.3.0J
 ```
 
-### 2. GitHub Actions の自動実行
+### 3. GitHub Actions の自動実行
 
 タグが push されると `.github/workflows/release.yml` が自動実行される。
 
 **処理内容:**
 
 1. リポジトリをチェックアウト
-2. `dist/` ディレクトリを作成
-3. 除外ファイルを除いてプロジェクトファイルを `dist/` にコピー
+2. `git archive` でタグのコミットから zip ファイルを作成
+3. `.gitattributes` の `export-ignore` に従って、配布対象外のファイルを除外
 4. `evo-release-1.3.0J.zip` を作成
-5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
+5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（リリースノートは手順4で明示した比較範囲から生成して適用）
 
-### 3. リリースノートの生成と適用
+リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
 
-GitHub Actions が完了したら、AI にリリースノートを生成させてドラフトリリースに適用する。
+### 4. リリースノートの生成と適用
+
+GitHub Actions はリリースノートを自動生成しない。完了後、確認済みの比較範囲からAIにリリースノートを生成させ、ドラフトリリースに適用する。
 
 #### リリースノートの生成
 
-以下の情報を使って日本語リリースノートを生成する:
+リリースノートの比較範囲は、タグの作成日時から推測せず、今回のタグと比較対象のタグを明示する。候補一覧は参考として使い、最終的な `PREV_TAG` はユーザーが確認する。
 
 ```bash
-# 前回タグからの変更コミット一覧
-git log <前回タグ>..<今回タグ> --oneline
+# 比較対象の候補をバージョン順に表示（自動選択しない）
+git tag --list 'release-*' --sort=-v:refname
+
+# 前回リリースタグがある場合は、ユーザーが確認したタグを設定
+PREV_TAG="release-1.3.0J"
+CURR_TAG="release-1.4.0J"
+
+# 前回タグがある場合だけ、タグと祖先関係を確認
+if [[ -n "${PREV_TAG:-}" ]]; then
+    git rev-parse --verify "refs/tags/${PREV_TAG}^{commit}"
+    git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
+    git merge-base --is-ancestor "${PREV_TAG}" "${CURR_TAG}"
+else
+    BASE_REF="<比較開始コミット>"
+    git rev-parse --verify "${BASE_REF}^{commit}"
+    git rev-parse --verify "refs/tags/${CURR_TAG}^{commit}"
+fi
+
+# 前回タグまたは比較開始コミットから今回タグまでの変更コミット一覧
+BASE_REF="${PREV_TAG:-${BASE_REF}}"
+git log "${BASE_REF}..${CURR_TAG}" --oneline
 
 # 変更規模
-git diff <前回タグ>..<今回タグ> --stat | tail -3
+git diff "${BASE_REF}..${CURR_TAG}" --stat | tail -3
 
-# 前回リリースのノート形式を参照
-gh release view <前回タグ>
+# 前回リリースのノート形式を参照（前回タグがある場合のみ）
+if [[ -n "${PREV_TAG:-}" ]]; then
+    gh release view "${PREV_TAG}"
+fi
 ```
+
+適切な前回リリースタグが存在しない場合は、作成日時順の別タグを代用せず、ユーザーが確認したコミットを `BASE_REF` に設定して比較する。`PREV_TAG` が設定されている場合だけタグの存在確認、祖先関係確認、`gh release view "${PREV_TAG}"` を実行する。
 
 #### リリースノートの構成
 
@@ -90,11 +134,13 @@ gh release view <前回タグ>
 コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
 
 ```bash
-# タグを変数にセット
-PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
-CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
+# 上の確認済みのタグまたは比較開始コミットを使う（作成日時順から自動取得しない）
+# PREV_TAG="release-1.3.0J"
+# BASE_REF="<比較開始コミット>"
+# CURR_TAG="release-1.4.0J"
 
-git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
+BASE_REF="${PREV_TAG:-${BASE_REF}}"
+git log "${BASE_REF}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
 BEGIN {
     RS="__COMMIT__"
     FS="\n"
@@ -148,18 +194,63 @@ EOF
 )"
 ```
 
-### 4. ドラフト確認と公開
+### 5. ドラフト確認と公開
 
-1. GitHub の Actions タブでワークフローの完了を確認
-2. Releases ページでドラフトリリースを開き、zip をダウンロードして内容を確認
-3. 問題がなければ「Publish release」を押して一般公開する
+タグ push 後は、Actions の成功とドラフト Release の内容を確認してから公開する。公開前に問題が見つかった場合は「Publish release」を押さず、修正方針を決める。
+
+#### Actions の完了確認
+
+```bash
+# 対象タグのワークフロー実行を一覧表示し、対象の run ID を確認
+gh run list --workflow release.yml --limit 10
+
+# 対象の run ID を指定して完了まで待機（成功以外は終了コード 1）
+gh run watch <run-id> --exit-status
+```
+
+`Build Release Package` が `success` になったことを確認する。失敗した場合は、ZIPやReleaseの確認へ進まず、Actionsのログを調査する。
+
+#### ドラフト Release とZIPの確認
+
+```bash
+VERSION="1.3.0J"
+TAG="release-${VERSION}"
+CHECK_DIR=$(mktemp -d)
+ZIP_PATH="${CHECK_DIR}/evo-${TAG}.zip"
+
+# ドラフト状態、タグ、添付ファイルを確認
+gh release view "${TAG}" --json isDraft,tagName,assets,url
+
+# GitHub Release のZIPを取得
+gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
+
+# 必須ファイルを確認（未検出時は終了）
+if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'; then
+    echo 'index.php が見つかりません'
+    exit 1
+fi
+if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'; then
+    echo 'manager/includes/version.inc.php が見つかりません'
+    exit 1
+fi
+
+# 配布対象外のパスが含まれていないことを確認（該当時は終了）
+if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then
+    echo '配布対象外のパスが含まれています'
+    exit 1
+fi
+
+# 確認後に一時ファイルを削除
+rm -rf "${CHECK_DIR}"
+```
+
+`gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
 
 ## 除外ファイル一覧
 
-リリースパッケージから除外されるファイル・ディレクトリ:
+`.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
 
 ```
-.git/
 .github/
 .agent/
 .agents/
@@ -170,8 +261,8 @@ EOF
 .gitignore
 .gitkeep
 .gitattributes
+.coderabbit.yaml
 .editorconfig
-dist/
 docs/
 **/docs/
 readme*
@@ -185,65 +276,48 @@ manager/docker/
 
 ### 除外設定の追加方法
 
-除外ファイル・ディレクトリを追加する場合は [.github/workflows/release.yml](../../.github/workflows/release.yml) を編集する。
+除外ファイル・ディレクトリを追加する場合は、リポジトリルートの `.gitattributes` を編集する。
 
-```yaml
-- name: Prepare dist directory
-  run: |
-    mkdir dist
-    rsync -a ./ dist/ \
-      --exclude='.git/' \
-      --exclude='.github/' \
-      --exclude='.gitignore' \
-      --exclude='.gitkeep' \
-      --exclude='.gitattributes' \
-      --exclude='.editorconfig' \
-      --exclude='dist/' \
-      --exclude='docs/' \
-      --exclude='**/docs/' \
-      --exclude='readme*' \
-      --exclude='README*' \
-      --exclude='AGENTS.md' \
-      --exclude='新しい除外パターン'    # ← ここに追加
+```gitattributes
+新しい除外パターン export-ignore
 ```
 
 **パターンの書き方:**
 
 | パターン | 説明 | 例 |
 |---------|------|-----|
-| `filename` | ファイル名 | `--exclude='AGENTS.md'` |
-| `dirname/` | ディレクトリ（末尾に `/`） | `--exclude='dist/'` |
-| `**/dirname/` | すべての階層のディレクトリ | `--exclude='**/docs/'` |
-| `*.ext` | 拡張子パターン | `--exclude='*.log'` |
-| `prefix*` | プレフィックスパターン | `--exclude='readme*'` |
-| `path/to/file` | 相対パス | `--exclude='temp/cache/'` |
+| `filename export-ignore` | ファイル名 | `AGENTS.md export-ignore` |
+| `dirname/ export-ignore` | ディレクトリ | `manager/docker/ export-ignore` |
+| `**/dirname/ export-ignore` | すべての階層のディレクトリ | `**/docs/ export-ignore` |
+| `*.ext export-ignore` | 拡張子パターン | `*.log export-ignore` |
+| `prefix* export-ignore` | プレフィックスパターン | `readme* export-ignore` |
+| `path/to/file export-ignore` | 相対パス | `temp/cache/ export-ignore` |
 
 **追加例:**
 
-```yaml
+```gitattributes
 # テストファイルを除外
---exclude='**/test/' \
---exclude='**/tests/' \
---exclude='*.test.php' \
+**/test/ export-ignore
+**/tests/ export-ignore
+*.test.php export-ignore
 
 # 開発用ファイルを除外
---exclude='.env' \
---exclude='.env.local' \
---exclude='composer.json' \
---exclude='composer.lock' \
---exclude='package.json' \
---exclude='package-lock.json' \
+.env export-ignore
+.env.local export-ignore
+composer.json export-ignore
+composer.lock export-ignore
+package.json export-ignore
+package-lock.json export-ignore
 
 # ログ・キャッシュを除外
---exclude='*.log' \
---exclude='temp/cache/*' \
---exclude='temp/backup/*'
+*.log export-ignore
+temp/cache/ export-ignore
+temp/backup/ export-ignore
 ```
 
 **注意事項:**
 
-- 各 `--exclude` の末尾にバックスラッシュ `\` を付けて改行する（最後の行を除く）
-- パターンはシングルクォート `'...'` で囲む
+- パターンの末尾に `export-ignore` を記述する
 - ディレクトリを除外する場合は末尾に `/` を付ける（例: `dist/`）
 - `**/` は「すべての階層」を意味する（例: `**/docs/` は `assets/docs/` も `manager/media/docs/` も除外）
 
@@ -285,44 +359,14 @@ GitHub の Actions タブから失敗したワークフローを開き、「Re-r
 ローカルでリリースパッケージの内容を事前確認する場合:
 
 ```bash
-# dist ディレクトリを作成
-mkdir dist
+# 現在のコミットから、Actions と同じ方式で zip を作成
+git archive --format=zip HEAD -o evo-test.zip
 
-# rsync で除外設定を適用してコピー
-rsync -a ./ dist/ \
-  --exclude='.git/' \
-  --exclude='.github/' \
-  --exclude='.agent/' \
-  --exclude='.agents/' \
-  --exclude='.claude/' \
-  --exclude='.codex/' \
-  --exclude='.vscode/' \
-  --exclude='.work/' \
-  --exclude='.gitignore' \
-  --exclude='.gitkeep' \
-  --exclude='.gitattributes' \
-  --exclude='.editorconfig' \
-  --exclude='dist/' \
-  --exclude='docs/' \
-  --exclude='**/docs/' \
-  --exclude='readme*' \
-  --exclude='README*' \
-  --exclude='AGENTS.md' \
-  --exclude='CLAUDE.md' \
-  --exclude='compose.yml' \
-  --exclude='custom-instructions/' \
-  --exclude='manager/docker/'
+# zip の内容を確認
+unzip -l evo-test.zip
 
-# 内容を確認
-ls -la dist/
-
-# zip を作成（オプション）
-cd dist
-zip -r ../evo-test.zip .
-cd ..
-
-# 確認後、dist ディレクトリを削除
-rm -rf dist/ evo-test.zip
+# 確認後に zip を削除
+rm evo-test.zip
 ```
 
 ### よくある問題
@@ -353,8 +397,8 @@ ls -la .github/workflows/release.yml
 
 **対応:**
 
-1. ローカルで dist を作成して内容確認（上記手順参照）
-2. 除外パターンを `.github/workflows/release.yml` に追加
+1. ローカルで `git archive` を実行して内容確認（上記手順参照）
+2. 除外パターンを `.gitattributes` に追加
 
 #### Q. リリースノートを後から編集したい
 
