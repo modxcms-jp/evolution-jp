@@ -38,20 +38,20 @@ git tag --list 'release-*' --sort=-v:refname
 
 **開始前チェック**（この順序を崩さない）:
 
-1. `git fetch origin main` 後の `origin/main` をリリース準備の基準にする。現在のブランチが `main` であること自体は問題にしないが、`main` に未pushコミットがあれば、失われないよう処理方針を確認して停止する
+1. `git fetch origin main` 後の `origin/main` をリリース準備の基準にする。現在のブランチが `main` であること自体は問題にしないが、`git log --oneline origin/main..main` で未 push コミットが見つかれば、失われないよう処理方針を確認して停止する
 2. `git status` — 未コミット変更があれば保留する。既存ブランチを勝手に切り替えたり、変更をstash・破棄したりしない
-3. `.agent/roadmap.md` の `Status: WIP` / `Status: BLOCKED` タスクを実体のあるタスクブロックとして確認する。未対応のものがあれば、原則としてリリースを保留し、対象タスクと保留理由を提示する。ユーザーが明示的に進行を許可した場合だけ例外扱いにする
-4. 現在のバージョン（`manager/includes/version.inc.php` の `$modx_version`）とリリースタグ候補を確認する
-5. `.github/workflows/release.yml` が `origin/main` の対象コミットに存在し、`release-*` タグトリガー、`git archive --format=zip`、ドラフトRelease、想定したZIP添付を設定していることを確認する
+3. `git show origin/main:.agent/roadmap.md` で `Status: WIP` / `Status: BLOCKED` タスクを実体のあるタスクブロックとして確認する。未対応のものがあれば、原則としてリリースを保留し、対象タスクと保留理由を提示する。ユーザーが明示的に進行を許可した場合だけ例外扱いにする
+4. `git show origin/main:manager/includes/version.inc.php` で現在のバージョン（`$modx_version`）とリリースタグ候補を確認する
+5. `origin/main` の対象コミットから `.github/workflows/release.yml` を読み、`release-*` タグトリガー、`git archive --format=zip`、ドラフトRelease、想定したZIP添付を設定していることを確認する
 6. 対象バージョンのローカル・リモートタグが存在しないことを確認する
 
-保留条件が1つでもある場合は、バージョンファイル更新、リリース準備ブランチ作成、コミット、タグ作成、push、Release編集を開始しない。保留後に再開する場合は、改めて `origin/main` と作業ツリー、WIP/BLOCKED、タグを確認する。
+保留条件が1つでもある場合は、バージョンファイル更新、リリース準備ブランチ作成、コミット、タグ作成、push、Release編集を開始しない。保留後に再開する場合は、改めて `origin/main` と作業ツリー、`WIP` / `BLOCKED`、タグを確認する。
 
 問題がなければ `assets/docs/release-process.md` の手順に従いリリースを進める。
 
 ## リリース準備ブランチとPR
 
-開始前チェックを通過した後、`origin/main` から `chore/release-{version}` 形式のリリース準備ブランチを作成する。バージョン更新とコミットはこのブランチで行い、`main` へ直接コミットしない。pushとPR作成はユーザー確認後に行う。
+開始前チェックを通過した後、`origin/main` から `chore/release-{version}` 形式のリリース準備ブランチを作成する。バージョン更新とコミットはこのブランチで行い、`main` へ直接コミットしない。push とPR作成はユーザー確認後に行う。
 
 PRがマージされるまでタグを作成しない。マージ後に `git fetch origin main` で更新した `origin/main` の先端、バージョン情報、作業ツリーを確認し、そのコミットにだけ `release-{version}` タグを作成する。
 
@@ -69,15 +69,16 @@ PRがマージされるまでタグを作成しない。マージ後に `git fet
 ```bash
 VERSION="1.3.0J"
 WORKFLOW=".github/workflows/release.yml"
+MAIN_REF="origin/main"
 
 set -e
 
-test -f "${WORKFLOW}"
-rg -q --fixed-strings "      - 'release-*'" "${WORKFLOW}"
-rg -q --fixed-strings "git archive --format=zip" "${WORKFLOW}"
-rg -q --fixed-strings "draft: true" "${WORKFLOW}"
-rg -q --fixed-strings 'files: evo-${{ github.ref_name }}.zip' "${WORKFLOW}"
-rg -q --fixed-strings "generate_release_notes: false" "${WORKFLOW}"
+git cat-file -e "${MAIN_REF}:${WORKFLOW}"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "      - 'release-*'"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "git archive --format=zip"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "draft: true"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings 'files: evo-${{ github.ref_name }}.zip'
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "generate_release_notes: false"
 
 if git rev-parse --verify "refs/tags/release-${VERSION}" >/dev/null 2>&1; then
     echo "ローカルに既存タグがあります"
