@@ -23,7 +23,7 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 1. リリースするバージョン（`X.Y.ZJ` 形式、例: `1.4.0J`）。回答後、既存の `release-*` タグをバージョン順で確認する
 2. リリース日（指定がなければ今日の日付）
-3. リリース対象は `main` の先端で固定することを確認する
+3. リリース対象は、リリース準備PRがマージされた後の `main` の先端で固定することを確認する。`main` へ直接コミットしない
 4. 候補タグを確認したうえで、「比較対象の前回リリースタグは `release-X.Y.ZJ` で合っていますか？」と質問する。`はい` ならそのタグを使い、`いいえ` なら別のタグまたは比較開始コミットを質問する
 5. リリースノートを日本語のドラフトとして生成し、ユーザー確認後に適用するか
 6. ZIP確認後に公開まで進めるか、ドラフト作成・検証までで止めるか
@@ -36,17 +36,24 @@ git tag --list 'release-*' --sort=-v:refname
 
 回答を受けたら、バージョン、リリース日、`main` の先端、`PREV_TAG` または `BASE_REF`、`CURR_TAG`、リリースノートの扱い、公開範囲を要約して再確認する。ユーザーが要件を確定するまで、開始前チェック後の更新・コミット・タグ作成・push・Release編集を開始しない。
 
-**開始前チェック**（docs にない確認事項）:
+**開始前チェック**（この順序を崩さない）:
 
-1. 現在のブランチ（`git branch --show-current`）— `main` でない場合は停止し、`main` へ切り替える
-2. `git status` — 未コミット変更があれば警告
-3. 現在のバージョン（`manager/includes/version.inc.php` の `$modx_version`）
-4. 直近のリリースタグ（`git tag --sort=-creatordate | grep '^release-' | head -5`）
-5. `.agent/roadmap.md` の WIP タスク有無
-6. `.github/workflows/release.yml` が現在のコミットに存在し、`release-*` タグトリガー、`git archive --format=zip`、ドラフトRelease、想定したZIP添付を設定していること
-7. 現在のブランチが `main` の場合、`origin/main` と同期していること（未同期なら差分を提示）
+1. `git fetch origin main` 後の `origin/main` をリリース準備の基準にする。現在のブランチが `main` であること自体は問題にしないが、`git log --oneline origin/main..main` で未 push コミットが見つかれば、失われないよう処理方針を確認して停止する
+2. `git status` — 未コミット変更があれば保留する。既存ブランチを勝手に切り替えたり、変更をstash・破棄したりしない
+3. `git show origin/main:.agent/roadmap.md` で `Status: WIP` / `Status: BLOCKED` タスクを実体のあるタスクブロックとして確認する。未対応のものがあれば、原則としてリリースを保留し、対象タスクと保留理由を提示する。ユーザーが明示的に進行を許可した場合だけ例外扱いにする
+4. `git show origin/main:manager/includes/version.inc.php` で現在のバージョン（`$modx_version`）とリリースタグ候補を確認する
+5. `origin/main` の対象コミットから `.github/workflows/release.yml` を読み、`release-*` タグトリガー、`git archive --format=zip`、ドラフトRelease、想定したZIP添付を設定していることを確認する
+6. 対象バージョンのローカル・リモートタグが存在しないことを確認する
+
+保留条件が1つでもある場合は、バージョンファイル更新、リリース準備ブランチ作成、コミット、タグ作成、push、Release編集を開始しない。保留後に再開する場合は、改めて `origin/main` と作業ツリー、`WIP` / `BLOCKED`、タグを確認する。
 
 問題がなければ `assets/docs/release-process.md` の手順に従いリリースを進める。
+
+## リリース準備ブランチとPR
+
+開始前チェックを通過した後、`origin/main` から `chore/release-{version}` 形式のリリース準備ブランチを作成する。バージョン更新とコミットはこのブランチで行い、`main` へ直接コミットしない。push とPR作成はユーザー確認後に行う。
+
+PRがマージされるまでタグを作成しない。マージ後に `git fetch origin main` で更新した `origin/main` の先端、バージョン情報、作業ツリーを確認し、そのコミットにだけ `release-{version}` タグを作成する。
 
 ## バージョン入力後の安全確認
 
@@ -55,22 +62,23 @@ git tag --list 'release-*' --sort=-v:refname
 1. バージョン番号が `X.Y.ZJ` 形式であること（例: `1.3.0J`）
 2. ローカルに `release-{version}` タグが存在しないこと
 3. リモート `origin` に `release-{version}` タグが存在しないこと
-4. タグ作成対象が、バージョン更新をコミットした `main` の先端になること
+4. タグ作成対象が、バージョン更新PRをマージした後の `origin/main` の先端になること
 
 タグの存在確認には次を使う。既存タグが見つかった場合は削除や上書きを行わず、ユーザーに対応を確認する。
 
 ```bash
 VERSION="1.3.0J"
 WORKFLOW=".github/workflows/release.yml"
+MAIN_REF="origin/main"
 
 set -e
 
-test -f "${WORKFLOW}"
-rg -q --fixed-strings "      - 'release-*'" "${WORKFLOW}"
-rg -q --fixed-strings "git archive --format=zip" "${WORKFLOW}"
-rg -q --fixed-strings "draft: true" "${WORKFLOW}"
-rg -q --fixed-strings 'files: evo-${{ github.ref_name }}.zip' "${WORKFLOW}"
-rg -q --fixed-strings "generate_release_notes: false" "${WORKFLOW}"
+git cat-file -e "${MAIN_REF}:${WORKFLOW}"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "      - 'release-*'"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "git archive --format=zip"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "draft: true"
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings 'files: evo-${{ github.ref_name }}.zip'
+git show "${MAIN_REF}:${WORKFLOW}" | rg -q --fixed-strings "generate_release_notes: false"
 
 if git rev-parse --verify "refs/tags/release-${VERSION}" >/dev/null 2>&1; then
     echo "ローカルに既存タグがあります"
@@ -101,7 +109,7 @@ fi
 
 ## リリース後のロードマップ整理
 
-「Publish release」完了後、`assets/docs/release-process.md` の「リリース後の対応」手順 3 に従い、`Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動してコミットする。
+「Publish release」完了後、`assets/docs/release-process.md` の「リリース後の対応」手順 3 に従い、`Status: DONE` のタスクを別の整理ブランチで `.agent/roadmap-archive.md` へ移動し、PR経由で `main` に反映する。保護された `main` へ直接コミットしない。
 
 ---
 
