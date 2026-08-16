@@ -37,17 +37,34 @@ git commit -m "chore(release): バージョンを 1.3.0J に更新"
 PRマージ後、リリース対象をマージ後の `origin/main` に固定する。ローカルの作業ブランチやPRの元コミットにタグを付けない。
 
 ```bash
+VERSION="1.3.0J"
+RELEASE_DATE="2026-05-13"
+VERSION_FILE="manager/includes/version.inc.php"
+
 git fetch origin main
 git switch main
 git merge --ff-only origin/main
-git status --short --branch
+
+if [[ -n "$(git status --porcelain)" ]]; then
+    echo "作業ツリーに未コミット変更があります"
+    exit 1
+fi
+
+MAIN_SHA="$(git rev-parse origin/main)"
+if [[ "$(git rev-parse HEAD)" != "${MAIN_SHA}" ]]; then
+    echo "HEAD が origin/main と一致しません"
+    exit 1
+fi
+
+rg -q --fixed-strings "\$modx_version = '${VERSION}'" "${VERSION_FILE}"
+rg -q --fixed-strings "\$modx_release_date = '${RELEASE_DATE}'" "${VERSION_FILE}"
 git log -1 --format='%H%n%s'
 
 # ユーザー確認後にタグ作成（例: release-1.3.0J）
-git tag release-1.3.0J
+git tag "release-${VERSION}" "${MAIN_SHA}"
 
 # タグを push
-git push origin release-1.3.0J
+git push origin "release-${VERSION}"
 ```
 
 保護された `main` へ通常のコミット push は行わない。PRマージ済みの `origin/main` を取得してタグを付けるだけにする。
@@ -447,11 +464,23 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
    `Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動する。
 
-   1. `.agent/roadmap.md` から `Status: DONE` のタスクをすべて抽出する
-   2. `.agent/roadmap-archive.md` の対応セクションに追記する（セクションがない場合は新設）
-   3. `.agent/roadmap.md` から抽出したタスクを削除する
-   4. `.agent/roadmap.md` の `最終更新` を更新する
-   5. コミットする（例: `docs(roadmap): release-1.3.0J リリースに伴い完了タスクをアーカイブ`）
+   1. `origin/main` から整理用ブランチ（例: `docs/archive-roadmap-release-1.3.0J`）を作成して切り替える
+   2. `.agent/roadmap.md` から `Status: DONE` のタスクをすべて抽出する
+   3. `.agent/roadmap-archive.md` の対応セクションに追記する（セクションがない場合は新設）
+   4. `.agent/roadmap.md` から抽出したタスクを削除する
+   5. `.agent/roadmap.md` の `最終更新` を更新する
+   6. コミットする（例: `docs(roadmap): release-1.3.0J リリースに伴い完了タスクをアーカイブ`）
+   7. ユーザー確認後、整理用ブランチを `origin` へ push する
+   8. push 後、`main` 宛てのPRを作成する
+
+   ```bash
+   BRANCH="docs/archive-roadmap-release-1.3.0J"
+   git fetch origin main
+   git switch -c "${BRANCH}" origin/main
+   # 手順1〜5の編集と確認、コミット後に実行
+   git push -u origin "${BRANCH}"
+   gh pr create --base main --head "${BRANCH}"
+   ```
 
 ## 参考リンク
 
