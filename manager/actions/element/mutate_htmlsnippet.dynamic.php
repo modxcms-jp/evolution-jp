@@ -399,14 +399,19 @@ if (isset($form_v['which_editor'])) {
             jQuery('input[name="newcategory"]').val('');
         }
     });
-    const saveButton = document.querySelector('#save a');
-    if (saveButton) {
+    // EvoShellは画面の再表示時にこのscriptを同じwindowで再実行するため、
+    // 最上位でconst/letを宣言すると再宣言エラーで保存ハンドラが登録されなくなる
+    (function() {
+        const saveButton = document.querySelector('#save a');
+        if (!saveButton) {
+            return;
+        }
         saveButton.addEventListener('click', function(event) {
             event.preventDefault();
             documentDirty = false;
             document.getElementById('mutate').requestSubmit();
         });
-    }
+    })();
 </script>
 <?php
 // invoke OnRichTextEditorInit event
