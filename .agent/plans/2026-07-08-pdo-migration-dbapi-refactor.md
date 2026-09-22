@@ -20,7 +20,8 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 - `mysqli.inc.php` への `include_once` は `manager/includes/extenders/ex_dbapi.php` の1箇所のみ。ファイル名・配置を自由に再設計してよい。
 - `db()->` 系メソッドの呼び出しは grep 調査で約1,700箇所あるが、大半は `DBAPI` の公開メソッド経由。ただし例外として、インストーラの2ファイルが公開プロパティ `$conn`（生の接続オブジェクト）へ直接アクセスしている（詳細は次項）。`mysqli_result` オブジェクトのプロパティ（`num_rows` 等）への直接アクセスは発見されなかった（`getRow()` 等のラッパー経由のみ）。
-- **（レビューで発覚）** `install/connection.servertest.php` 24〜26行目・`install/connection.databasetest.php` 30〜32行目が `if (db()->conn) { db()->conn->close(); db()->conn = null; }` という形で `$conn` に直接アクセスし、既存接続を強制的に破棄してから新しい接続情報でテストしている（コメントに理由の記載あり: `connect()` は `isConnected()` が真だと即座に `true` を返すため、接続テスト画面で新しい入力値を試すには一度明示的に切断する必要がある）。さらに `install/connection.databasetest.php` 110行目は `return @db()->conn->query($query);` で `CREATE DATABASE` 文を生の接続オブジェクトへ直接投げている。当初のgrep調査（`db()->[a-zA-Z_]+\(` パターン）では `db()->conn->close()` のような「プロパティアクセス後にさらにメソッド呼び出し」の形を検出できていなかった。
+- **（レビューで発覚）** インストーラの接続設定画面 `install/tpl/connection.tpl` は、サーバ接続テストを `install/connection.servertest.php`、データベース接続テストを `install/connection.databasetest.php` へそれぞれAJAX送信する。この2エンドポイントは `if (db()->conn) { db()->conn->close(); db()->conn = null; }` という形で `$conn` に直接アクセスし、既存接続を強制的に破棄してから新しい接続情報でテストしている（コメントに理由の記載あり: `connect()` は `isConnected()` が真だと即座に `true` を返すため、接続テスト画面で新しい入力値を試すには一度明示的に切断する必要がある）。さらに `install/connection.databasetest.php` 110行目は `return @db()->conn->query($query);` で `CREATE DATABASE` 文を生の接続オブジェクトへ直接投げている。当初の調査パターンでは `db()->conn->close()` のような「プロパティアクセス後にさらにメソッド呼び出し」の形を検出できていなかった。
+- **（追加調査）** `rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- '->conn\b' .` でPHP全体を再検索した結果、上記2エンドポイントと `manager/includes/document.parser.class.inc.php` の非推奨 `DocumentParser::dbConnect()` 以外に、生の接続オブジェクトへ直接アクセスする箇所はなかった。`rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- 'mysqli_[A-Za-z0-9_]+\s*\(|new\s+mysqli\b|->(real_connect|escape_string|data_seek|fetch_assoc|fetch_row|fetch_array|fetch_field_direct)\s*\(' .` も0件であり、同様の問題を持つ別画面はない。したがって画面単位では接続設定画面1画面、処理ファイル単位ではAJAXエンドポイント2ファイルが改修対象となる。
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目の `DocumentParser::dbConnect()`（「deprecated db functions」とコメントされた非推奨メソッド）も `$this->rs = $this->db->conn;` で `$conn` に直接アクセスしている。ただしこのメソッド自体はリポジトリ全体で呼び出し箇所が0件（`dbConnect(`のgrepで確認済み）。
 - `dataSeek()` の外部呼び出しは0件（`DBAPI` 内部でも未使用）だが、公開メソッドである以上フェーズ1の「シグネチャ・返却値互換を変えない」要件の対象。省略はせず、行バッファ方式で互換実装する（Result ラッパー参照）。
 - `numFields()` / `fieldName()` は `manager/includes/controls/datagrid.class.php` と `manager/includes/traits/document.parser.subparser.trait.php` から使われている（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
@@ -59,13 +60,13 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 **呼び出し規模**（grep調査、`db()->` 経由のみ）: `select` 396、`getRow` 290、`escape` 206、`query` 171、`update` 128、`getValue` 91、`delete` 67、`insert` 58、`getLastError` 32、その他 `isResult`/`getObject`/`getColumn`/`freeResult`/`tableExists`/`makeArray`/`getInsertId`/`isConnected`/`getVersion`/`getAffectedRows`/`connect`/`truncate`/`prop`/`get`/`save`/`numFields`/`insert_ignore`/`getFullTableName`/`exec`/`lastQuery`/`getObjects`/`fieldName`/`fieldExists`/`server_info`/`select_db`/`optimize`/`host_info`/`getRecordCount`/`getLastErrorNo`/`disconnect` が合計約60箇所。**これらすべての公開メソッドのシグネチャと返却値の意味を変えない**ことが本フェーズの必須要件。
 
-**公開プロパティ `$conn` への直接アクセス**（メソッド経由ではない例外、`rg -n '\->conn\b' install/ manager/includes/document.parser.class.inc.php -g '*.php'` で確認済み、計3箇所）:
+**公開プロパティ `$conn` への直接アクセス**（メソッド経由ではない例外、PHP全体への `rg` で確認済み、計3箇所）:
 
 - `install/connection.servertest.php` 24〜26行目
 - `install/connection.databasetest.php` 30〜32行目、110行目
 - `manager/includes/document.parser.class.inc.php` 5478行目（非推奨 `dbConnect()`、呼び出し箇所0件のため本フェーズの互換対象外）
 
-前2ファイルは新設する `DBAPI` の公開メソッドのみで書き換え可能なため、Concrete Steps で対応する（Step 3）。
+前2ファイルは同じ接続設定画面から呼ばれるAJAXエンドポイントであり、新設する `DBAPI` の公開メソッドのみで書き換え可能なため、Concrete Steps で対応する（Step 3）。他のインストーラ画面および管理画面には `$conn` 直接アクセスがないため、同種の画面改修は不要。
 
 **MySQL固有SQL構文の利用状況**（呼び出し側コード全体）: `REPLACE INTO` 12箇所、`INSERT IGNORE` 3箇所、`SHOW TABLES` 5箇所、`DESCRIBE` 4箇所、`OPTIMIZE TABLE` 3箇所、`SHOW FIELDS` 1箇所。これらは将来のマルチDB対応時に方言差分として問題になるため、Driverインターフェースに切り出す対象として認識しておく（実装はMySQLのみ）。
 
@@ -187,7 +188,7 @@ AGENTS.mdの規約（`db()->insert(db()->escape($data), $table)` / `db()->update
 変更前: `return @db()->conn->query($query);`
 変更後: `return db()->query($query, false);`（`query($sql, $watchError = true)` は既存の公開メソッドで、第2引数を `false` にすることで従来の `@`（エラー抑制）と同じく `messageQuit()` を呼ばずに `false` を返す挙動を維持する）
 
-期待される観測結果: `rg -n '\->conn\b' install/ -g '*.php'` が0件になる。`php -l install/connection.servertest.php install/connection.databasetest.php` が構文エラーなし。
+期待される観測結果: `rg -n '\->conn\b' install/ -g '*.php'` が0件になる。さらに `rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- '->conn\b' .` の結果が、互換対象外として記録した `manager/includes/document.parser.class.inc.php` の非推奨 `DocumentParser::dbConnect()` 1件だけになる。`php -l install/connection.servertest.php install/connection.databasetest.php` が構文エラーなし。
 
 ### Step 4: `ex_dbapi.php` の読み込み先を変更
 
@@ -204,7 +205,7 @@ AGENTS.mdの規約（`db()->insert(db()->escape($data), $table)` / `db()->update
 
 Step 1〜4の動作確認が完了してから削除する（Idempotence and Recoveryも参照）。
 
-期待される観測結果: `grep -rn "mysqli.inc.php" --include="*.php" .` が0件になる。削除後も `docker compose exec <app-service> php evo db:tables` が引き続き成功する。
+期待される観測結果: `rg -n "mysqli.inc.php" . -g '*.php'` が0件になる。削除後も `docker compose exec <app-service> php evo db:tables` が引き続き成功する。
 
 ### Step 6: 判定用の互換メッセージ・チェックを更新
 
@@ -217,7 +218,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 
 これらは実処理に影響しないため、Step 1〜5完了後に更新する。
 
-期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)|database_type'\\s*=\\s*'mysqli'|mysqli_set_charset" manager/includes/cli install/instprocessor.php install/ -g '*.php'` が0件になる（`mysqli.inc.php` 自体は既に削除済みのため対象外）。`docker compose exec <app-service> php evo health:check` が `PHP pdo_mysql extension` 項目を表示し、正常完了する。
+期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)|database_type'\\]\\s*=\\s*'mysqli'|mysqli_set_charset" manager/includes/cli install/ manager/includes/default.config.php -g '*.php'` が0件になる（`mysqli.inc.php` 自体は既に削除済みのため対象外）。`docker compose exec <app-service> php evo health:check` が `PHP pdo_mysql extension` 項目を表示し、正常完了する。
 
 ### Step 7: ドキュメントのパス言及を更新
 
@@ -225,7 +226,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 
 `architecture.md` 24行目は現在 `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、と記述されている。この一文中のファイルパス部分のみを `manager/includes/extenders/dbapi/mysqli.inc.php` から `manager/includes/extenders/dbapi/DBAPI.php` に更新する（前後の文章は変更しない）。コミット前に `/doc-audit` でこのファイルを含む変更対象を確認する（AGENTS.mdの運用ルールに従う）。
 
-期待される観測結果: `grep -n "mysqli.inc.php" assets/docs/architecture.md` が0件になり、代わりに `grep -n "DBAPI.php" assets/docs/architecture.md` が1件ヒットする。
+期待される観測結果: `rg -n "manager/includes/extenders/dbapi/mysqli.inc.php" assets/docs/architecture.md` が0件になり、`rg -n "manager/includes/extenders/dbapi/DBAPI.php" assets/docs/architecture.md` が1件以上になる。
 
 ## Validation and Acceptance
 
