@@ -62,6 +62,10 @@ $content = db()->getRow($rs);
 /**
  * "General" tab setup
  */
+// 複製直後（editedby=0）や削除済みユーザーでは該当行が無いため、既定値を入れておく
+$createdbyname = '';
+$editedbyname = '';
+
 $rs = db()->select(
     'username',
     '[+prefix+]manager_users',
