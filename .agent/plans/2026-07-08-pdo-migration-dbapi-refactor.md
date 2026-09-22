@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きからPDOベースのオブジェクト指向実装へ置き換える。呼び出し側（`db()->select()` 等、約1,700箇所）のAPI契約は完全互換のまま維持し、内部だけをモダン化することで、保守性向上と将来のマルチDB対応（PostgreSQL/SQLite）への土台を作る。当初ロードマップ案にあった「mysqli_*関数の手続き型ラッパー」は根本解決にならないため不採用とし、クラス内部を作り直す方針に切り替えた。
+DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きからPDOベースのオブジェクト指向実装へ置き換える。呼び出し側（`db()->select()` 等、約1,700箇所）が使う**公開メソッドのAPI契約**は完全互換のまま維持し、内部だけをモダン化することで、保守性向上と将来のマルチDB対応（PostgreSQL/SQLite）への土台を作る。公開プロパティ `$conn` は互換対象に含めず、直接参照箇所は本ExecPlan内のStep 3で既存公開メソッド経由へ解消する。当初ロードマップ案にあった「mysqli_*関数の手続き型ラッパー」は根本解決にならないため不採用とし、クラス内部を作り直す方針に切り替えた。
 
 ## Progress
 
@@ -24,7 +24,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 - **（追加調査）** `rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- '->conn\b' .` でPHP全体を再検索した結果、上記2エンドポイントと `manager/includes/document.parser.class.inc.php` の非推奨 `DocumentParser::dbConnect()` 以外に、生の接続オブジェクトへ直接アクセスする箇所はなかった。`rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- 'mysqli_[A-Za-z0-9_]+\s*\(|new\s+mysqli\b|->(real_connect|escape_string|data_seek|fetch_assoc|fetch_row|fetch_array|fetch_field_direct)\s*\(' .` も0件であり、同様の問題を持つ別画面はない。したがって画面単位では接続設定画面1画面、処理ファイル単位ではAJAXエンドポイント2ファイルが改修対象となる。
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目の `DocumentParser::dbConnect()`（「deprecated db functions」とコメントされた非推奨メソッド）も `$this->rs = $this->db->conn;` で `$conn` に直接アクセスしている。ただしこのメソッド自体はリポジトリ全体で呼び出し箇所が0件（`dbConnect(`のgrepで確認済み）。
 - `dataSeek()` の外部呼び出しは0件（`DBAPI` 内部でも未使用）だが、公開メソッドである以上フェーズ1の「シグネチャ・返却値互換を変えない」要件の対象。省略はせず、行バッファ方式で互換実装する（Result ラッパー参照）。
-- `numFields()` / `fieldName()` は `manager/includes/controls/datagrid.class.php` と `document.parser.subparser.trait.php` から使われている（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
+- `numFields()` / `fieldName()` は `manager/includes/controls/datagrid.class.php` と `manager/includes/traits/document.parser.subparser.trait.php` から使われている（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
 - mysqli に直接依存する外部ファイルは4つあるが、いずれも実処理ではなく判定・表示用の文字列: `manager/includes/cli/bootstrap.php`（`extension_loaded('mysqli')` チェック）、`manager/includes/cli/commands/health-check.php`（同）、`install/instprocessor.php`（`$ph['database_type']='mysqli'` という表示用文字列）、`manager/includes/default.config.php`（文字コード関連のエラーメッセージ文言）。これらはPDO移行後に `pdo_mysql` 拡張の確認へ差し替える必要がある。
 - `manager/includes/mysql_dumper.class.inc.php` は `db()` 経由のみで mysqli 非依存。ただし `addslashes` ベースの独自エスケープ等、別の設計課題を抱えている（`assets/docs/core-issues.md` の「Mysqldumperクラスの設計上の制約」に記録済み、関連ロードマップ: 本タスク）。改修するかはフェーズ2以降で判断し、本フェーズのスコープには含めない。
 - 独立した `mysql_*()` 関数のポリフィルファイルは存在しなかった。ロードマップ記載の「既存 mysql_ 系互換レイヤーを整理」は、`mysqli.inc.php` の `DBAPI` クラス自体を新実装に置き換えることで満たされると解釈する。
@@ -39,8 +39,9 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 - 2026-07-08 / ファイル構成は `manager/includes/extenders/dbapi/` 配下に `DBAPI.php`（ファサード）・`Result.php`・`drivers/DriverInterface.php`・`drivers/PdoMysqlDriver.php` を新設し、`mysqli.inc.php` は削除する。プロジェクトに PSR-4 オートローダーがないため、`DBAPI.php` 先頭で `require_once` により他ファイルを読み込む。
 - 2026-07-08（レビュー反映） / フェーズ1では `insert()`/`update()` を `bindValue()` ベースのプレースホルダへ置き換えない。AGENTS.mdの規約上、呼び出し側は `db()->insert(db()->escape($data), $table)` のように**事前にエスケープ済みの値**を渡す前提のため、それを `bindValue()` すると二重エスケープでデータが破損する。プレースホルダ化（呼び出し側の事前エスケープ規約の解消込み）はフェーズ2に完全に切り出す。フェーズ1は既存どおり `driver->escape()` でエスケープした値をSQL文字列へ埋め込む方式を維持する。
 - 2026-07-08（レビュー反映） / PDO接続失敗時は `PDO::ATTR_ERRMODE` の設定に関わらず `new PDO(...)` が `PDOException` を送出する（PHPマニュアルに明記された特例）。`connect()` は `try/catch(PDOException)` で例外を捕捉し、既存の「接続失敗時は `false` を返す」フローへ変換する。
-- 2026-07-08（レビュー反映） / `dataSeek()` は公開APIの互換対象から除外しない。`Result` は初回のシーク要求時に全行を配列へフェッチしてカーソル位置を保持する行バッファ方式を採用し、`data_seek($n)` 相当の挙動（bool を返し、以後の `fetch*()` が指定行から返る）を再現する。
-- 2026-07-08（レビュー反映） / `escape()` の契約は2層で分離する。`DriverInterface::escape($value): string` は非null・非配列の単一スカラー値のみを受け取り、エスケープ済み文字列を返す（`PDO::quote()` の前後クォート除去 + 単一値限定）。`DBAPI::escape()` ファサードは現行の分岐（未接続時 `connect()` 失敗で `false`・`null` は `'NULL'`・配列は再帰的に配列を返す）をそのまま維持し、単一スカラー値の場合のみ `$this->driver->escape($value)` を呼ぶ。
+- 2026-07-08（レビュー反映） / `dataSeek()` は公開APIの互換対象から除外しない。`Result` はコンストラクタ時点で `fetchAll(PDO::FETCH_BOTH)` により**結果セット全体**を内部配列へバッファし、`fetch*()`/`dataSeek()` は以後この配列とカーソル位置だけで完結させる方式を採用する。
+- 2026-07-08（2回目のレビュー反映） / 上記の行バッファ方式について、初期案は「初回シーク時に残り行だけをFETCH_ASSOCでキャッシュ」としていたが、これだと（a）既読済みの行への絶対位置シークが壊れる、（b）`fetchRow()`/`fetchBoth()` に必要な数値添字が欠落する、という2つの不具合があるとの指摘を受けた。修正として、バッファ生成をコンストラクタ時点（＝クエリ実行直後）に前倒しし、`FETCH_BOTH` で数値・連想の両方のキーを保持する設計に変更した。
+- 2026-07-08（レビュー反映） / `escape()` の契約は2層で分離する。`DriverInterface::escape(string $value): string` は文字列のみを受け取り、エスケープ済み文字列を返す（`PDO::quote()` の前後クォート除去 + 文字列限定）。`DBAPI::escape()` ファサードは現行の分岐（未接続時 `connect()` 失敗で `false`・`null` は `'NULL'`・配列は再帰的に配列を返す）をそのまま維持し、数値・真偽値など文字列以外の値はここで `string` へ正規化したうえで `$this->driver->escape($value)` を呼ぶ。
 - 2026-07-08（レビュー反映） / `PDO::query()`/`PDO::exec()` が失敗（`false`）を返した場合、`PDOStatement` は存在しないため `PDOStatement::errorInfo()` は呼べない。errno判定は接続オブジェクト側の `PDO::errorInfo()[1]` を参照する。
 - 2026-07-08（ユーザー指摘で発覚） / 新設する `DBAPI` クラスから公開プロパティ `$conn` を廃止し、内部保持先は `private $driver`（`PdoMysqlDriver` インスタンス）のみとする。理由: `$conn` が生の接続オブジェクトである前提でインストーラの2ファイルが直接操作しており、型を公開したまま残すとPDO化後も「生のPDOインスタンスを外部に渡す」実装を強いられ抽象化が崩れる。`$conn` への直接アクセス箇所（3箇所、Surprises参照）は Concrete Steps で `DBAPI` の既存公開メソッド（`isConnected()`/`disconnect()`/`query()`）を使うよう書き換える。非推奨の `DocumentParser::dbConnect()`（呼び出し箇所0件）は本フェーズの互換対象から明示的に除外する（Interfaces and Dependencies参照）。
 
@@ -59,7 +60,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 **呼び出し規模**（grep調査、`db()->` 経由のみ）: `select` 396、`getRow` 290、`escape` 206、`query` 171、`update` 128、`getValue` 91、`delete` 67、`insert` 58、`getLastError` 32、その他 `isResult`/`getObject`/`getColumn`/`freeResult`/`tableExists`/`makeArray`/`getInsertId`/`isConnected`/`getVersion`/`getAffectedRows`/`connect`/`truncate`/`prop`/`get`/`save`/`numFields`/`insert_ignore`/`getFullTableName`/`exec`/`lastQuery`/`getObjects`/`fieldName`/`fieldExists`/`server_info`/`select_db`/`optimize`/`host_info`/`getRecordCount`/`getLastErrorNo`/`disconnect` が合計約60箇所。**これらすべての公開メソッドのシグネチャと返却値の意味を変えない**ことが本フェーズの必須要件。
 
-**公開プロパティ `$conn` への直接アクセス**（メソッド経由ではない例外、PHP全体への `rg` で確認済み）:
+**公開プロパティ `$conn` への直接アクセス**（メソッド経由ではない例外、PHP全体への `rg` で確認済み、計3箇所）:
 
 - `install/connection.servertest.php` 24〜26行目
 - `install/connection.databasetest.php` 30〜32行目、110行目
@@ -89,7 +90,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 - `connect(string $host, string $user, string $pass, ?string $dbase, int $timeout): bool`
 - `query(string $sql): Result|false`
-- `escape(string $value): string`（**非null・非配列の単一スカラー値のみ**を受け取り、クォートなし文字列を返す。`null` 判定・配列の再帰処理・未接続時のフォールバックは呼び出し元の `DBAPI::escape()` が担当し、Driverには渡さない）
+- `escape(string $value): string`（**文字列のみ**を受け取り、クォートなし文字列を返す。`null` 判定・配列の再帰処理・未接続時のフォールバックに加え、数値・真偽値など文字列以外の値を `string` へ正規化する責務は呼び出し元の `DBAPI::escape()` が担当し、Driverには渡さない）
 - `lastInsertId(): string|int`
 - `affectedRows(): int`
 - `lastError(): string`
@@ -102,7 +103,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 ### 接続確立（`connect()`）の移植
 
-- `PDO` のDSNは `mysql:host={host};charset={charset}` 形式（ポート指定がある場合は `;port={port}`）。
+- `PDO` への接続文字列（**DSN**: Data Source Name。接続先ホスト・文字コードなどをひとつの文字列にまとめたもので、`new PDO($dsn, ...)` の第1引数に渡す）は `mysql:host={host};charset={charset}` 形式（ポート指定がある場合は `;port={port}`）。
 - 接続タイムアウトは `PDO::ATTR_TIMEOUT`（`$timeout` が指定された場合のみ設定）。
 - 既存コードの `mysqli_report(MYSQLI_REPORT_OFF)` 相当として、接続後のクエリ実行は `PDO::ATTR_ERRMODE = PDO::ERRMODE_SILENT` を設定し、エラーは戻り値・`errorInfo()` で判定する（例外を投げさせない）。**ただし接続確立自体（`new PDO(...)`）は `ATTR_ERRMODE` の設定に関わらず失敗時に必ず `PDOException` を送出する**（PHPマニュアルに明記された特例）。そのため `new PDO(...)` は `try { ... } catch (PDOException $e) { return false; }` で包み、既存の「接続失敗時は `false` を返してメール通知」という制御フローへ変換する。
 - 接続後の `$this->connection_method . ' ' . $this->charset`（`SET CHARACTER SET utf8` 等）の実行は、PDO接続後に `PDO::exec()` でそのまま流用可能。
@@ -110,17 +111,21 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 ### エラー処理（`exec()`）の移植
 
-既存は `!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])` の場合のみ `messageQuit()` で停止し、該当errnoは黙って `true` を返す（idempotentなDDL実行のため）。PDOでは `PDO::query($sql)` が失敗すると `false` を返し、この時点では `PDOStatement` が存在しないため `PDOStatement::errorInfo()` は呼び出せない。errno判定は**接続オブジェクト側の `PDO::errorInfo()[1]`**（`$this->pdo->errorInfo()[1]`）を参照する。クエリが成功した場合は `PDOStatement::errorInfo()` でも同じ値が取れるが、失敗時の判定には接続オブジェクト側を使うことで統一する。
+既存は `!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])` の場合のみ `messageQuit()` で停止し、該当errnoは黙って `true` を返す（**冪等**＝同じDDLを何度実行しても結果が変わらないこと。例えば「既に存在するカラムをADD COLUMNしようとしてエラーになっても処理を継続する」ことで、同じマイグレーションを繰り返し実行しても安全にする）。PDOでは `PDO::query($sql)` が失敗すると `false` を返し、この時点では `PDOStatement` が存在しないため `PDOStatement::errorInfo()` は呼び出せない。errno判定は**接続オブジェクト側の `PDO::errorInfo()[1]`**（`$this->pdo->errorInfo()[1]`）を参照する。クエリが成功した場合は `PDOStatement::errorInfo()` でも同じ値が取れるが、失敗時の判定には接続オブジェクト側を使うことで統一する。
 
 ### Result ラッパー
 
 `PDOStatement` を保持し、以下を提供する:
 
-- `numRows(): int` — `rowCount()` を返す（MySQL＋バッファードクエリ前提でSELECTのrowCountが正しく機能する。PDO_MYSQLはデフォルトでバッファードクエリのため問題ない。他ドライバでは非対応の場合がある点はフェーズ3で要検討）
-- `fetchAssoc()` / `fetchRow()` / `fetchObject()` / `fetchBoth()` — `PDOStatement::fetch()` に `PDO::FETCH_*` 定数を指定
-- `columnCount(): int` — `columnCount()`
-- `columnName(int $i): string` — `getColumnMeta($i)['name']`
-- `dataSeek(int $n): bool` — `PDOStatement` はスクロールカーソル（`data_seek()` 相当）を標準サポートしないため、**行バッファ方式**で互換実装する。`dataSeek()` が初めて呼ばれた時点で残り全行を `fetchAll(PDO::FETCH_ASSOC)`（生の連想配列として）内部配列にキャッシュし、以後の `fetchAssoc()`/`fetchRow()`/`fetchObject()`/`fetchBoth()` はこの内部配列とカーソル位置から返す。存在しない行番号を指定した場合は `false` を返す（mysqliの`data_seek()`と同じ契約）
+- コンストラクタで即座に `fetchAll(PDO::FETCH_BOTH)`（数値添字・連想キーの両方を持つ行の配列。mysqliの `fetch_array(MYSQLI_BOTH)` と同じ形）を実行し、**結果セットの全行を内部配列としてバッファする**。以後の `fetchAssoc()`/`fetchRow()`/`fetchObject()`/`fetchBoth()`/`dataSeek()` は生の `PDOStatement` へは触れず、すべてこの内部配列とカーソル位置（初期値0）だけで完結させる。PDO_MYSQLはデフォルトでバッファードクエリ（結果セットをMySQLクライアント側に読み切ってから返す方式）のため、`fetchAll()` を1回追加で行っても新たな通信は発生しない
+- `numRows(): int` — 内部配列の要素数を返す（`rowCount()` には依存しない。他ドライバでの挙動差はフェーズ3で要検討）
+- `fetchAssoc()` — カーソル位置の行から連想キー部分のみを取り出して返し、カーソルを1つ進める
+- `fetchRow()` — 同様に数値添字部分のみを取り出す
+- `fetchBoth()` — カーソル位置の行（数値・連想の両方を含む）をそのまま返す
+- `fetchObject()` — カーソル位置の行の連想キー部分を `(object)` キャストして返す
+- `columnCount(): int` — `PDOStatement::columnCount()`（メタ情報のため `fetchAll()` 後も呼び出し可能）
+- `columnName(int $i): string` — `PDOStatement::getColumnMeta($i)['name']`
+- `dataSeek(int $n): bool` — 内部配列のカーソル位置を `$n` に移動する。既読・未読を問わず全行が内部配列に揃っているため、絶対位置への移動も正しく機能する。範囲外の `$n` を指定した場合は `false` を返す（mysqliの`data_seek()`と同じ契約）
 
 ### `DBAPI` ファサードの実装
 
@@ -213,7 +218,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 
 これらは実処理に影響しないため、Step 1〜5完了後に更新する。
 
-期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)" manager/includes/cli install manager/includes/default.config.php` が0件になり、`docker compose exec <app-service> php evo health:check` が `pdo_mysql` 拡張チェックを含めて成功する。
+期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)|database_type'\\]\\s*=\\s*'mysqli'|mysqli_set_charset" manager/includes/cli install/ manager/includes/default.config.php -g '*.php'` が0件になる（`mysqli.inc.php` 自体は既に削除済みのため対象外）。`docker compose exec <app-service> php evo health:check` が `PHP pdo_mysql extension` 項目を表示し、正常完了する。
 
 ### Step 7: ドキュメントのパス言及を更新
 
