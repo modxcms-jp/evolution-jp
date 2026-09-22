@@ -55,9 +55,19 @@
             prevWin = window.open(previewUrl, 'prevWin');
             var pmode = [+preview_mode+];
             if (pmode == 1) {
-                jQuery('#mutate').prop({action:previewUrl,'target':'prevWin'});
-                jQuery('#mutate').submit();
-                jQuery('#mutate').prop({action:'index.php','target':'main'});
+                // プレビュー送信後は元の状態へ戻す。target が残ると以後の保存が
+                // シェルを経由しないネイティブ送信になり、別タブへ遷移してしまう
+                var $mutate = jQuery('#mutate');
+                var orgAction = $mutate.attr('action');
+                var orgTarget = $mutate.attr('target');
+                $mutate.attr({action: previewUrl, target: 'prevWin'});
+                $mutate.submit();
+                $mutate.attr('action', orgAction);
+                if (orgTarget === undefined) {
+                    $mutate.removeAttr('target');
+                } else {
+                    $mutate.attr('target', orgTarget);
+                }
             }
             return false;
         });
