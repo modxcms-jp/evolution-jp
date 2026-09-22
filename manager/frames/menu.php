@@ -467,7 +467,8 @@ function buildMenu($target, $item)
 
     if (!isset($modx->config['topmenu_site'])) {
         include(MODX_CORE_PATH . 'default.config.php');
-        $modx->config = $default_config;
+        // シェル表示では同じリクエスト内で以降の処理が続くため、既存の設定は残して不足分だけ補う
+        $modx->config += $default_config;
     }
     $menu = [
         'site' => config('topmenu_site', ''),

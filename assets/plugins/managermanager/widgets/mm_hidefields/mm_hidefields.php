@@ -35,12 +35,12 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 break;
 
             case 'menuindex':
-                $output .= '$j("input[name=menuindex]").parents("table").parent("td").prev("td").children("span.warning").hide();' . "\n";
+                $output .= '$j("input[name=menuindex]").closest("tr.mutate-field-row").children("td:first").children("span.mutate-field-title").hide();' . "\n";
                 $output .= '$j("input[name=menuindex]").parent("td").hide();';
                 break;
 
             case 'which_editor':
-                $output .= '$j("select#which_editor").prev("span.warning").hide();' . "\n";
+                $output .= '$j("select#which_editor").prev("span.mutate-field-title").hide();' . "\n";
                 $output .= '$j("select#which_editor").hide();';
                 break;
 
