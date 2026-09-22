@@ -174,7 +174,7 @@ if (isset($form_v['which_editor'])) {
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_chunk')): ?>
                 <li id="save" class="primary mutate">
-                    <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();">
+                    <a href="#">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
@@ -399,10 +399,14 @@ if (isset($form_v['which_editor'])) {
             jQuery('input[name="newcategory"]').val('');
         }
     });
-    jQuery('#save a').click(function() {
-        documentDirty = false;
-        jQuery('#mutate').submit();
-    });
+    const saveButton = document.querySelector('#save a');
+    if (saveButton) {
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            documentDirty = false;
+            document.getElementById('mutate').requestSubmit();
+        });
+    }
 </script>
 <?php
 // invoke OnRichTextEditorInit event
