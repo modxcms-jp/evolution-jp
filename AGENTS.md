@@ -37,6 +37,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 * **ログ**: `evo()->logEvent()` を使用
 * **レビュー**: 日本語
 * **コミットメッセージ**: 日本語で生成（Conventional Commits 準拠）
+* **Pull Request**: タイトルと本文は日本語で作成し、詳細は `.github/codex-pr-rules.md` に従う
 
 ---
 

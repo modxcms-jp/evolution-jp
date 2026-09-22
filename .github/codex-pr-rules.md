@@ -1,44 +1,50 @@
-# Codex Pull Request Rules for Evolution JP
+# Evolution JP Codex Pull Requestルール
 
-When creating Pull Requests in this repository, follow these rules strictly.
+このリポジトリでPull Requestを作成するときは、以下のルールを厳守する。
 
-## Pull Request creation
-- Do not push directly to the main branch
-- Always create a Pull Request
+## Pull Requestの作成
 
-## PR title rules
-- PR titles must be suitable for GitHub release notes
-- Write PR titles in Japanese
-- Titles must clearly describe the change
-- Do not use vague expressions such as:
+- `main`ブランチへ直接pushしない
+- 必ずPull Requestを作成する
+
+## PRタイトル
+
+- GitHubのリリースノートに適したタイトルにする
+- 日本語で記述する
+- 変更内容が明確に伝わるタイトルにする
+- 以下のような曖昧な表現を使用しない
   - 更新
   - 修正対応
   - その他
-- Good examples:
+- 良い例
   - PHP 8.2 以降に対応
   - 管理画面に CSRF 対策を導入
   - データベース文字コードを utf8mb4 に移行
   - IE 向けレガシーコードを削除
 
-## PR description rules
-- Include a Summary section (1–2 sentences)
-- Include a Notes section only if there are compatibility concerns
-- Avoid long explanations
+## PR本文
 
-## Labeling rules
-- Replace or add one of the following labels based on the change intent:
-  - enhancement
-  - bug
-  - security
-  - breaking-change
-  - internal
-- Do not use a label named `codex` for change classification
+- 日本語で記述する
+- `Summary`セクションに1〜2文の概要を記載する
+- 互換性に関する注意事項がある場合のみ`Notes`セクションを追加する
+- 長い説明を避ける
 
-These rules are intended to ensure compatibility with GitHub auto-generated release notes.
+## ラベル
 
-## Review scope for agent and skill definitions
+- 変更目的に応じて、以下のいずれかのラベルへ置き換えるか追加する
+  - `enhancement`
+  - `bug`
+  - `security`
+  - `breaking-change`
+  - `internal`
+- 変更分類に`codex`ラベルを使用しない
 
-For changes to the following paths:
+これらのルールは、GitHubが自動生成するリリースノートとの互換性を確保するために設けている。
+
+## エージェント定義とスキル定義のレビュー範囲
+
+以下のパスを変更する場合:
+
 - `.claude/skills/`
 - `.codex/skills/`
 - `.github/agents/`
@@ -46,19 +52,21 @@ For changes to the following paths:
 - `.agent/plans/`
 - `.agent/roadmap.md`
 
-Focus only on:
-- Consistency with the design principles defined in `AGENTS.md`
-- Correctness of referenced file paths, API endpoints, and command syntax
-- Whether the change contradicts other agent or skill definitions in the same repository
-- Whether a SKILL.md or agent definition that declares "the authoritative source is X" contradicts the content of that source
-- Whether headings or section numbers referenced within a changed file (e.g., "Step N") actually exist and match in the referenced file
-- Whether version string formats (e.g., `vX.X.X` vs `release-1.3.0J`) are mixed within the same document
-- Whether a heading (H2/H3, etc.) is inserted in the middle of a numbered list (which breaks list continuity)
-- Whether the same file exists in both `.agent/plans/` and `.agent/plans/archive/` (ExecPlan double-management)
+次の項目だけを確認する:
 
-Do NOT raise issues about:
-- Completeness of edge case coverage in procedures
-- Whether every possible scenario is explicitly handled
-- Style, wording, or naming preferences
-- Requests to add more examples or alternative approaches
-- Hypothetical failure modes that are not demonstrated by the change itself
+- `AGENTS.md`で定義した設計原則との整合性
+- 参照先のファイルパス、APIエンドポイント、コマンド構文の正確性
+- 同一リポジトリ内にあるほかのエージェント定義またはスキル定義との矛盾
+- 「正本はX」と宣言するSKILL.mdまたはエージェント定義と、その参照先の内容との矛盾
+- 変更ファイルから参照する見出しやセクション番号（例: 「Step N」）が実在し、参照先と一致するか
+- 同一ドキュメント内におけるバージョン文字列形式（例: `vX.X.X`と`release-1.3.0J`）の混在
+- 番号付きリストの途中に見出し（H2/H3など）が挿入され、リストの連続性を壊していないか
+- 同じファイルが`.agent/plans/`と`.agent/plans/archive/`の両方に存在していないか（ExecPlanの二重管理）
+
+次の項目は指摘しない:
+
+- 手順におけるエッジケース網羅性
+- 考えられるすべての状況が明示されているか
+- スタイル、文言、命名の好み
+- 例や代替案の追加要求
+- 変更内容から実証できない仮説上の障害
