@@ -26,32 +26,32 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
     switch ($field) {
         // Exceptions
         case 'keywords':
-            $output .= '$j("select[name*=keywords]").siblings("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("select[name*=keywords]").siblings("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'metatags':
-            $output .= '$j("select[name*=metatags]").siblings("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("select[name*=metatags]").siblings("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'hidemenu':
         case 'show_in_menu':
-            $output .= '$j("input[name=hidemenucheck]").siblings("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("input[name=hidemenucheck]").siblings("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'which_editor':
-            $output .= '$j("#which_editor").prev("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("#which_editor").prev("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'content':
-            $output .= '$j("#content_header").html("' . jsSafe($newlabel) . '")';
+            $output .= '$j("#content_header").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'menuindex':
-            $output .= '$j("input[name=menuindex]").parents().parents("td:first").prev("td").children("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("input[name=menuindex]").closest("tr.mutate-field-row").children("td:first").children("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         case 'weblink':
-            $output .= '$j("input#field_weblink").parents("td:first").prev("td").children("span.warning").html("' . jsSafe($newlabel) . '");';
+            $output .= '$j("input#field_weblink").parents("td:first").prev("td").children("span.mutate-field-title").html("' . jsSafe($newlabel) . '");';
             break;
 
         default:
@@ -59,7 +59,7 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
                 break;
             }
             $output .= sprintf(
-                '$j("%s[name=%s]").parents("td:first").prev("td").children("span.warning").html("%s");',
+                '$j("%s[name=%s]").parents("td:first").prev("td").children("span.mutate-field-title").html("%s");',
                 $mm_fields[$field]['fieldtype'],
                 $mm_fields[$field]['fieldname'],
                 jsSafe($newlabel)

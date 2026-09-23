@@ -113,7 +113,7 @@ var fieldValue = $sel.val();
 if(String(fieldValue == null ? "" : fieldValue).trim() == ""){  // If it is empty
 
 // Find the label (this will be easier in Evo 1.1 with more semantic code)
-var lbl = $sel.parent("td").prev("td").children("span.warning").text().replace(jQuery(requiredHTML).text(), "");
+var lbl = $sel.parent("td").prev("td").children("span.mutate-field-title").text().replace(jQuery(requiredHTML).text(), "");
 
 // Add the label to the errors array. Would be nice to say which tab it is on, but no
 // easy way of doing this in 1.0.x as no semantic link between tabs and tab body
@@ -132,7 +132,7 @@ jQuery(this).removeClass("mmRequired");
 var $sel = jQuery("' . $selector . '");
 
 // Find the label (this will be easier in Evo 1.1 with more semantic code)
-var $lbl = $sel.parent("td").prev("td").children("span.warning").append(requiredHTML);
+var $lbl = $sel.parent("td").prev("td").children("span.mutate-field-title").append(requiredHTML);
 
                     ';
                 }
