@@ -35,6 +35,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
     && (time() < $cacheRefreshTime || $cacheRefreshTime == 0)) {
     session_name($site_sessionname);
     session_cache_limiter('');
+    ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
     session_start();
     if (!isset($_SESSION['mgrValidated'])) {
         session_write_close();
