@@ -32,9 +32,9 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
     $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css');
 
     $output .= '
-    jQuery("input, div, form[name=mutate]").remove(); // Remove all content from the page
-    jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '<p id="aback-ok"><a href="index.php?a=2" class="primary">OK</a></p></div></div>\');
-    jQuery("#aback").css({height: jQuery("body").height()} );';
+    jQuery("#mainPane").empty(); // メインペイン内のみ削除（メニュー/ツリーのセッショントークン等は残す）
+    jQuery("#mainPane").prepend(\'<div id="aback"><div id="amessage">' . $message . '<p id="aback-ok"><a href="index.php?a=2" class="primary">OK</a></p></div></div>\');
+    jQuery("#aback").css({height: jQuery("#mainPane").height()} );';
 
     event()->output($output . "\n");
 }
