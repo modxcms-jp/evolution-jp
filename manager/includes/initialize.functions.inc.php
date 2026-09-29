@@ -65,6 +65,9 @@ class init
             'httponly' => true,
             'samesite' => 'Lax'
         ];
+        // Cookieの寿命に合わせてサーバー側のセッション寿命も延ばす。
+        // 未指定だとPHP既定(約24分)でGCされ、意図せずログアウトされる
+        ini_set('session.gc_maxlifetime', (string)$options['lifetime']);
         session_set_cookie_params($options);
     }
 
