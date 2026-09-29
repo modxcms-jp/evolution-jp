@@ -36,7 +36,8 @@ function validateLoginInput()
         return false;
     }
 
-    if (!$password) {
+    // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
+    if (!$password && !getv('fmpkey')) {
         jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
@@ -321,6 +322,8 @@ function checkAllowedDays()
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
+    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':

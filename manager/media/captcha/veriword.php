@@ -8,7 +8,12 @@ if (!isset($modx)) {
     $modx->getSettings();
 }
 $vword = new VeriWord();
-$word = $vword->pick_word($modx->config['captcha_words']);
+// captcha_words は設定画面を保存するまでDBに無いため、既定値で補う
+$captcha_words = $modx->config['captcha_words'] ?? '';
+if ($captcha_words === '') {
+    $captcha_words = include MODX_CORE_PATH . 'captcha_words.default.php';
+}
+$word = $vword->pick_word($captcha_words);
 $vword->set_veriword($word);
 $vword->output_image($word, 135, 43);
 exit;

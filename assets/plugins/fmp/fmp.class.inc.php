@@ -70,6 +70,10 @@ class ForgotManagerPassword
     {
         $this->sweepExpiredTransient();
         $user_id = $this->getUserIdByHash($fmpkey);
+        // キーの持ち主以外のユーザー名でログインさせない
+        if ($user_id && (int)$user_id !== (int)event()->param('userid')) {
+            $user_id = false;
+        }
         if ($user_id) {
             $_SESSION['goto_pwd_edit'] = '1';
             if (getv('captcha_code')) {
@@ -106,8 +110,8 @@ class ForgotManagerPassword
             sprintf(
                 'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s%s',
                 rtrim(MODX_MANAGER_URL, '/'),
-                $user['email'],
-                $fmpkey,
+                urlencode($user['email']),
+                urlencode($fmpkey),
                 evo()->config('use_captcha') ? '&captcha_code=ignore' : ''
             )
         );
@@ -310,7 +314,7 @@ class ForgotManagerPassword
             db()->select(
                 'user',
                 '[+prefix+]user_settings',
-                sprintf("setting_name='fmp_hash' AND setting_value='%s'", $fmpkey)
+                sprintf("setting_name='fmp_hash' AND setting_value='%s'", db()->escape($fmpkey))
             )
         );
     }
