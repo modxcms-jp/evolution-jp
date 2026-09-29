@@ -33,7 +33,7 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
 
     $output .= '
     jQuery("input, div, form[name=mutate]").remove(); // Remove all content from the page
-    jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
+    jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '<p id="aback-ok"><a href="index.php?a=2" class="primary">OK</a></p></div></div>\');
     jQuery("#aback").css({height: jQuery("body").height()} );';
 
     event()->output($output . "\n");
