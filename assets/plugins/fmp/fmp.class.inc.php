@@ -106,8 +106,8 @@ class ForgotManagerPassword
             sprintf(
                 'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s%s',
                 rtrim(MODX_MANAGER_URL, '/'),
-                $user['email'],
-                $fmpkey,
+                urlencode($user['email']),
+                urlencode($fmpkey),
                 evo()->config('use_captcha') ? '&captcha_code=ignore' : ''
             )
         );
@@ -310,7 +310,7 @@ class ForgotManagerPassword
             db()->select(
                 'user',
                 '[+prefix+]user_settings',
-                sprintf("setting_name='fmp_hash' AND setting_value='%s'", $fmpkey)
+                sprintf("setting_name='fmp_hash' AND setting_value='%s'", db()->escape($fmpkey))
             )
         );
     }
