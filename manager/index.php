@@ -213,6 +213,8 @@ $isPaneRequest = !$isRawSystemLogRequest
     && !in_array((int)manager()->action, $evoShellFullDocumentActions, true)
     && isEvoPaneRequest();
 if ($isPaneRequest) {
+    // errorHandler::dumpError() 等が、断片応答にheader/footer(完全なHTML)を混ぜないための目印
+    define('EVO_PANE_REQUEST', true);
     header('X-Evo-Pane: 1');
     header('X-Evo-Action: ' . (int)manager()->action);
 }
