@@ -58,7 +58,17 @@ class errorHandler
 
     public function dumpError()
     {
-        include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
+        // AJAX断片応答(shell.js)では、header/footerを出力しない。
+        // 出力すると<html>・メニュー・ツリーが#mainPane内に入れ子で挿入され、
+        // 画面崩れとローディング残りの原因になる
+        // EVO_PANE_REQUESTはindex.phpのアクション確定後に定義されるため、
+        // それ以前のエラー(a二重指定・OnManagerPageInit等)はヘッダーで直接判定する。
+        // a=84は自前で完全HTMLを返す(shell.js側でdocument差し替え)ため対象外
+        $isPane = defined('EVO_PANE_REQUEST')
+            || (function_exists('isEvoPaneRequest') && isEvoPaneRequest() && (int)anyv('a') !== 84);
+        if (!$isPane) {
+            include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
+        }
         echo evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
             [
@@ -67,7 +77,11 @@ class errorHandler
                 'url' => $this->prev()
             ]
         );
-        include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
+        if ($isPane) {
+            evoRenderPaneFooterExtras();
+        } else {
+            include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
+        }
         exit;
     }
 
