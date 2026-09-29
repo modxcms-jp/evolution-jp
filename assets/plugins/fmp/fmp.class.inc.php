@@ -70,6 +70,10 @@ class ForgotManagerPassword
     {
         $this->sweepExpiredTransient();
         $user_id = $this->getUserIdByHash($fmpkey);
+        // キーの持ち主以外のユーザー名でログインさせない
+        if ($user_id && (int)$user_id !== (int)event()->param('userid')) {
+            $user_id = false;
+        }
         if ($user_id) {
             $_SESSION['goto_pwd_edit'] = '1';
             if (getv('captcha_code')) {
