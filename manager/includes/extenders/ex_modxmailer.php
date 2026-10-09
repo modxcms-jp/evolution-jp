@@ -48,16 +48,8 @@ class MODxMailer extends PHPMailer
         $this->FromName = evo()->config('site_name');
         $this->IsHTML(true);
 
-        if (evo()->config('mail_charset')) {
-            $mail_charset = evo()->config('mail_charset');
-        } else {
-            $mail_charset = strtolower(evo()->config('manager_language'));
-            if (substr($mail_charset, 0, 8) === 'japanese') {
-                $mail_charset = 'jis';
-            } else {
-                $mail_charset = 'utf8';
-            }
-        }
+        // 既定は UTF-8。JIS（i-mode 等の旧携帯向け）は mail_charset=jis を明示したときだけ使う
+        $mail_charset = strtolower(evo()->config('mail_charset') ?: 'utf8');
 
         switch ($mail_charset) {
             case 'iso-8859-1':
@@ -78,6 +70,10 @@ class MODxMailer extends PHPMailer
                 $this->CharSet = 'UTF-8';
                 $this->Encoding = 'base64';
                 $this->mb_language = 'UNI';
+        }
+        // 日本語の管理画面では従来（JIS 既定時）どおりテキストメールを既定にする
+        if (substr(strtolower(evo()->config('manager_language')), 0, 8) === 'japanese') {
+            $this->IsHTML(false);
         }
         if (extension_loaded('mbstring') && $this->mb_language !== false) {
             mb_language($this->mb_language);
