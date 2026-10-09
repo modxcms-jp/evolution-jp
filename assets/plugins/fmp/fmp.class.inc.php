@@ -56,9 +56,7 @@ class ForgotManagerPassword
             $_SESSION['fmp_sent'] = $this->sendFmpMail(getv('email'))
                 ? $this->lang('email_sent')
                 : $this->getErrorOutput() . $this->formLink();
-            if (is_file(MODX_CACHE_PATH . 'touch.siteCache.idx.php')) {
-                unlink(MODX_CACHE_PATH . 'touch.siteCache.idx.php');
-            }
+            $this->removeLoginTouchFile();
             evo()->sendRedirect(MODX_MANAGER_URL);
             exit;
         }
@@ -102,6 +100,8 @@ class ForgotManagerPassword
 
     private function OnManagerLoginFormPrerender($fmpkey)
     {
+        // ログイン画面を描画せずに exit するため、ここで消さないと次の表示がセーフモードになる
+        $this->removeLoginTouchFile();
         $user = $this->getUserByHash($fmpkey);
         if (!isset($user['email'])) {
             exit($this->lang('user_doesnt_exist'));
@@ -202,6 +202,14 @@ class ForgotManagerPassword
         );
     }
 
+    private function removeLoginTouchFile()
+    {
+        $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+        if (is_file($touch_path)) {
+            unlink($touch_path);
+        }
+    }
+
     private function unBlock($user_id)
     {
         db()->update(
@@ -250,16 +258,20 @@ class ForgotManagerPassword
 
     private function sweepExpiredTransient()
     {
+        // fmp_expire は PHP の date() で保存しているので、判定も PHP 側で行う
+        // （MySQL の unix_timestamp() は DB のタイムゾーンで解釈するため、PHP とずれると即座に期限切れになる）
         $rs = db()->select(
-            'user',
+            'user, setting_value',
             '[+prefix+]user_settings',
-            sprintf(
-                "setting_name='fmp_expire' AND unix_timestamp(setting_value)<%s", time()
-            )
+            "setting_name='fmp_expire'"
         );
         $user_ids = [];
+        $now = time();
         while ($row = db()->getRow($rs)) {
-            $user_ids[] = $row['user'];
+            $expire = strtotime($row['setting_value']);
+            if ($expire === false || $expire < $now) {
+                $user_ids[] = $row['user'];
+            }
         }
         if (!$user_ids) {
             return;
