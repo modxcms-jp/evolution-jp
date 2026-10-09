@@ -128,13 +128,38 @@ class MODxMailer extends PHPMailer
         }
     }
 
+    /**
+     * 本文の JIS 変換は送信経路（mail/smtp/sendmail）によらずここで行う。
+     * Body/AltBody は送信後に再利用されることがあるため、変換は一時的に留めて元に戻す。
+     */
+    public function createBody()
+    {
+        if (strtoupper($this->CharSet) !== 'ISO-2022-JP') {
+            return parent::createBody();
+        }
+
+        $org_body = $this->Body;
+        $org_alt_body = $this->AltBody;
+        $this->Body = mb_convert_encoding($this->Body, 'JIS', evo()->config('modx_charset'));
+        if ($this->AltBody !== '') {
+            $this->AltBody = mb_convert_encoding($this->AltBody, 'JIS', evo()->config('modx_charset'));
+        }
+        try {
+            return parent::createBody();
+        } finally {
+            $this->Body = $org_body;
+            $this->AltBody = $org_alt_body;
+        }
+    }
+
     public function MailSend($header, $body)
     {
         $org_body = $body;
 
         switch ($this->CharSet) {
             case 'ISO-2022-JP':
-                $body = mb_convert_encoding($body, 'JIS', evo()->config('modx_charset'));
+                // 本文は createBody() で JIS 変換済み。デバッグログ用に読める形へ戻す
+                $org_body = mb_convert_encoding($body, evo()->config('modx_charset'), 'JIS');
                 $this->Subject = $this->EncodeHeader($this->Subject);
                 $mode = 'mb';
             break;
