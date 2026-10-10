@@ -130,7 +130,7 @@ class MODxMailer extends PHPMailer
 
     /**
      * 本文の JIS 変換は送信経路（mail/smtp/sendmail）によらずここで行う。
-     * Body/AltBody は送信後に再利用されることがあるため、変換は一時的に留めて元に戻す。
+     * Body/AltBody/Ical は送信後に再利用されることがあるため、変換は一時的に留めて元に戻す。
      */
     public function createBody()
     {
@@ -138,17 +138,19 @@ class MODxMailer extends PHPMailer
             return parent::createBody();
         }
 
-        $org_body = $this->Body;
-        $org_alt_body = $this->AltBody;
-        $this->Body = mb_convert_encoding($this->Body, 'JIS', evo()->config('modx_charset'));
-        if ($this->AltBody !== '') {
-            $this->AltBody = mb_convert_encoding($this->AltBody, 'JIS', evo()->config('modx_charset'));
+        $org = [];
+        foreach (['Body', 'AltBody', 'Ical'] as $prop) {
+            $org[$prop] = $this->$prop;
+            if ($this->$prop !== '') {
+                $this->$prop = mb_convert_encoding($this->$prop, 'JIS', evo()->config('modx_charset'));
+            }
         }
         try {
             return parent::createBody();
         } finally {
-            $this->Body = $org_body;
-            $this->AltBody = $org_alt_body;
+            foreach ($org as $prop => $value) {
+                $this->$prop = $value;
+            }
         }
     }
 
