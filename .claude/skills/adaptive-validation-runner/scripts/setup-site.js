@@ -123,15 +123,17 @@ async function saveSystemSettings(browser) {
     const sampleBefore = fs.existsSync('sample.htaccess') ? fs.readFileSync('sample.htaccess') : null;
 
     const page = await login(browser);
+    const ctx = page.context();
     try {
         page.on('dialog', d => d.accept());
         await page.goto(config.manager + 'index.php?a=17', { waitUntil: 'domcontentloaded' });
         await page.waitForSelector('#Button1 a');
         // 保存ボタンはフォームを送信してページ遷移する。遷移の完了を待たずに次の画面へ進むと割り込んで失敗するため、
-        // クリックの前に遷移待ちを仕掛けておく
-        const navigated = page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 });
-        await page.click('#Button1 a');
-        await navigated;
+        // 遷移待ちとクリックを同時に待つ（クリックが失敗しても、遷移待ちの拒否が未処理のまま残らない）
+        await Promise.all([
+            page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
+            page.click('#Button1 a'),
+        ]);
         // 保存の完了は DB で確かめる（保存されると settings_version が現在の版になる）
         const until = Date.now() + 30000;
         let version = settingsVersion();
@@ -145,15 +147,15 @@ async function saveSystemSettings(browser) {
         }
         // 保存後のページはさらに管理画面のトップへ自動で遷移し直すため、同じページで次へ進むと割り込まれる。
         // 設定画面のページを閉じ、同じログイン状態（コンテキスト）の新しいページでキャッシュを作り直す
-        const ctx = page.context();
         await page.close();
         await refreshCache(await ctx.newPage());
     } finally {
-        await page.context().close();
+        // 書き戻しを先に行う（コンテキストを閉じる処理が失敗しても、ファイルは必ず戻す）
         if (sampleBefore !== null && !fs.existsSync('sample.htaccess')) {
             fs.writeFileSync('sample.htaccess', sampleBefore);
             console.log('sample.htaccess: 保存前の中身で書き戻した（.htaccess は残す）');
         }
+        await ctx.close();
     }
 }
 
