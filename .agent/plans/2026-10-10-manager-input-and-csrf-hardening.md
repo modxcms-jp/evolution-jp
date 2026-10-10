@@ -1,0 +1,102 @@
+# ExecPlan: 管理画面の入力の扱いと、状態を変える操作の CSRF 対策を土台から揃える
+
+## Purpose / Big Picture
+
+管理画面の処理（processor）がリクエストの値を受け取る書き方と、状態を変える操作を受け付ける条件を、決まった一つの方式に揃える。個々の箇所を見つけ次第直すのではなく、入口のヘルパーと判定を一か所にまとめ、新しく書くコードも自然に安全になり、CI で逸脱を検出できる状態にする。Issue #493 の対応。
+
+## Progress
+
+- [ ] (2026-10-10) M1: id を受け取る入口を `request_intvar()` に統一する
+- [ ] (2026-10-10) M2: 状態を変えるアクションの一覧を定義し、GET でも CSRF トークンを必須にする
+- [ ] (2026-10-10) M3: CI でリクエスト値の扱いと JS への埋め込みの逸脱を検出する
+- [ ] (2026-10-10) M4: 検証スクリプトを整え、main と比べて確認する
+
+## Surprises & Discoveries
+
+なし
+
+## Decision Log
+
+- 2026-10-10 / yamamoto・Claude: SQL の条件を組み立てる `where()` が値をエスケープしていなかった件は、先行して #505 で直した（`where()` の中でエスケープする）。この ExecPlan は、その土台の上で、入力の受け取り方と CSRF を揃える。
+- 2026-10-10 / yamamoto・Claude: id の受け取りには新しいヘルパーを作らず、既存の `request_intvar()` を「整数を返す」ように改めて統一する。AGENTS.md の「局所的な新方式の導入は禁止。改善は横断的に適用する」に従う。代替案（`request_id()` の新設）は、既存の 47 か所の呼び出しと二系統になるため採らない。
+- 2026-10-10 / yamamoto・Claude: CSRF は、状態を変えるアクションの一覧を一か所で定義し、メソッド（GET / POST）によらずトークンを必須にする。すべてを POST に変える案は、呼び出し元（リンク・ツリーのメニュー・ボタン）の作り替えが大きく、段階的に移行できないため、この ExecPlan では採らない。将来 POST に寄せる場合も、一覧はそのまま使える。
+- 2026-10-10 / yamamoto・Claude: トークンは、シェル（`EvoShell`）の fetch では既存どおり `X-CSRF-Token` ヘッダーで、フルページの遷移（`location.href` への代入やリンク）では URL の `csrf_token` パラメータで受け取る。URL に載ったトークンはアクセスログや Referer に残り得るが、トークンはログアウトで破棄されるセッション単位の値であり、GET で状態が変わる今の状態よりは大きく改善するため許容する。
+- 2026-10-10 / yamamoto・Claude: CI での検出は、DB に接続しない単独の PHP スクリプトにする。`php evo` の CLI は DB 接続を前提にしているため、DB のない CI では使えない。
+- 2026-10-10 / yamamoto・Claude: このリポジトリは公開されているため、まだ直していない具体的な箇所の一覧はこの ExecPlan に書かない。M1・M2 の最初に、棚卸しのコマンドで手元に一覧を作って作業する。
+
+## Outcomes & Retrospective
+
+## Context and Orientation
+
+用語:
+- **processor**: 管理画面で保存・削除・公開などの処理を行う PHP ファイル。`manager/processors/` 以下にあり、`manager/index.php` の `switch (manager()->action)` から、URL の `a`（アクション番号）に応じて読み込まれる。
+- **アクション番号（`a`）**: 管理画面の URL の `index.php?a=61&id=5` の `61` のように、どの画面・処理を動かすかを示す番号。
+- **CSRF**: ログイン中の利用者を、本人の意図しないリクエストへ誘導して操作させる攻撃。対策として、正規の画面だけが知っている値（CSRF トークン）をリクエストに付けさせ、サーバーで照合する。
+- **シェル（EvoShell）**: 管理画面のメイン領域だけを fetch で差し替える仕組み（`manager/media/script/shell.js`）。
+
+現状:
+- リクエストの値は `getv()` / `postv()` / `anyv()`（`manager/includes/helpers.php`）で読む。id を数値として読むヘルパー `request_intvar($key)`（`helpers.php`）はあるが、正規表現で確かめた**文字列**を返し、使っている箇所と使っていない箇所が混在している。整数への変換の有無も、processor ごとにばらばら。
+- `where()`（`manager/includes/extenders/ex_dbapi.php`）は、#505 で値をエスケープするようになった。`$field` と `$op` はそのまま埋め込まれる。
+- CSRF トークンの実装は `manager/includes/csrf_token.php`。トークンはセッション単位で、検証しても消えない（複数タブのため）。受け付ける場所は POST の `csrf_token` と `X-CSRF-Token` ヘッダーだけ（`getRequestCsrfToken()`）。
+- 検証は `manager/includes/accesscontrol.inc.php` の `if (is_post()) { checkCsrfToken(); }` だけで、GET は検証していない。管理画面には、GET で状態が変わるアクションが多数ある。
+- クライアント側は `manager/media/script/csrf.js` が、POST のフォームに hidden の `csrf_token` を補い、同一オリジンへの fetch / XHR で GET 以外のときだけ `X-CSRF-Token` ヘッダーを付ける。`shell.js` の `request()` は、POST のときだけヘッダーを付ける。トークンは `header.inc.php` が出す `<meta name="csrf-token">` から読む。
+- 値を JS へ埋め込むときは `js_literal()`（`helpers.php`）、HTML は `hsc()` を使う（AGENTS.md の「出力のエスケープ」）。
+
+## Plan of Work
+
+M1（入力の受け取り）では、`request_intvar()` を「正の整数なら int、それ以外は 0」を返すように改める。既存の 47 か所の呼び出しで、戻り値を文字列として比べている箇所がないか確かめてから変える。そのうえで、processor が id を `getv()` / `anyv()` / `postv()` で直接読み、整数に変換せずに使っている箇所を棚卸しし、`request_intvar()`（POST だけで受け取る処理は `(int) postv()`）へ置き換える。カンマ区切りの複数 id を受け取る処理は、各要素を整数にしてから使う。権限の判定（`checkPermissions()`）と、その後の更新で、必ず同じ整数の値を使う。
+
+M2（CSRF）では、`manager/includes/csrf_token.php` に「状態を変えるアクション番号の一覧」と、それを判定する関数を置く。`accesscontrol.inc.php` は、POST に加えて、一覧に含まれるアクションへの GET でもトークンを検証する。`getRequestCsrfToken()` は、POST の値・ヘッダーに加えて GET の `csrf_token` を受け付ける。クライアントでは、`csrf.js` が同一オリジンへの fetch / XHR に、メソッドによらずヘッダーを付ける（`shell.js` の GET もこれで付く）。フルページの遷移のために、URL へトークンを付ける共通の関数を、PHP（例: `csrfUrl($url)`）と JS（例: `EvoCsrf.url(url)`）の両方に用意し、状態を変えるアクションへのリンク・`location.href` の組み立てをこれに置き換える。一覧に含めるかどうかは「DB やファイルを書き換えるか」で判断し、表示だけの画面は含めない。
+
+M3（CI での検出）では、`.github/scripts/security-lint.php` を作り、次を検出したら終了コード 1 で終わるようにする。processor の中で、`getv()` / `anyv()` / `postv()` の戻り値を SQL の文字列へ直接埋め込んでいる書き方。`<script>` の文脈で `addslashes()` や `db()->escape()` を使っている書き方。`manager/index.php` で processor を読み込むアクションのうち、状態を変えるのに一覧へ登録されていないもの（判定できないものは、一覧か除外リストのどちらかへの明示を求める）。既存の違反は、M1・M2 の完了時点で 0 件にする。GitHub Actions のワークフロー（`.github/workflows/security-lint.yml`）から PR ごとに実行する。
+
+M4（検証）では、`.claude/skills/adaptive-validation-runner` の検証環境で、M1〜M3 の確認スクリプトを main と比べて流す。
+
+## Concrete Steps
+
+M1:
+- 編集対象: `manager/includes/helpers.php`（`request_intvar()`）
+- 実行: `grep -rn "request_intvar(" --include=*.php manager assets`
+- 期待: 戻り値を `=== ''` や文字列として比べている箇所がない（あれば int に合わせて直す）
+- 実行（棚卸し）: `grep -rnE "= (getv|anyv|postv)\\('(id|parent|new_parent|pid|docid)'" manager/processors manager/actions`（作成時点で約 40 件）
+- 期待: 結果を手元の一覧にし、整数へ変換していないものを `request_intvar()` または `(int)` へ置き換える。置き換え後、`checkPermissions()` とその後の更新が同じ整数の値を使っている
+
+M2:
+- 編集対象: `manager/includes/csrf_token.php`（アクション一覧・判定関数・`getRequestCsrfToken()`）、`manager/includes/accesscontrol.inc.php`、`manager/media/script/csrf.js`、状態を変えるアクションを呼ぶ画面・JS
+- 実行（棚卸し）: `grep -rnE "a=[0-9]+" manager/actions manager/frames manager/media/script manager/media/style --include=*.php --include=*.js --include=*.tpl`
+- 期待: 一覧に含めたアクションを呼ぶ箇所が、すべて `csrfUrl()` / `EvoCsrf.url()` か、シェル経由（ヘッダー付き）になっている
+
+M3:
+- 編集対象: `.github/scripts/security-lint.php`、`.github/workflows/security-lint.yml`
+- 実行: `php .github/scripts/security-lint.php`
+- 期待: M1・M2 の完了後に `0 violations` と出て、終了コード 0
+
+M4:
+- 実行: `adaptive-validation-runner` の `references/environment.md` の手順で検証環境を立て、`setup-site.js --sample --editor` と `smoke.js` を流す
+- 期待: スモークテストが全 PASS。加えて、Validation and Acceptance の各項目を確かめるスクリプトが、この ExecPlan のブランチで全 PASS する
+
+## Validation and Acceptance
+
+- ログイン中の管理者が、管理画面のリンク・ツリーのメニュー・ボタンから、公開・非公開・削除・複製などの操作をすると、これまでどおり成功する（シェル経由と、フルページの遷移の両方）。
+- 同じ操作の URL を、トークンを付けずに直接開くと、操作は行われず、403 になる（DB の値が変わらないことで確かめる）。
+- トークンを付けた URL を、ログアウト後のセッションや別の利用者のセッションで開いても、操作は行われない。
+- id に数字以外を含めて送ると、処理は id=0 として扱われ、SQL のエラーがログに出ない。
+- `php .github/scripts/security-lint.php` が 0 件で終わり、PR ごとに GitHub Actions で同じチェックが走る。違反を 1 つ足した試しのコミットでは、チェックが失敗する。
+- 検証スキルのスモークテストが全 PASS する。
+
+## Idempotence and Recovery
+
+各マイルストーンは独立した PR にでき、途中で止めても既存の動作は壊れない順に進める。M2 は、まずトークンを「受け付ける」変更（ヘッダーと URL のトークンを読む・クライアントが付ける）を入れてから、最後に「必須にする」変更を入れる。必須化で問題が出た場合は、アクション一覧から外すことで、そのアクションだけ元の動作に戻せる。棚卸しのコマンドは何度実行しても結果は変わらず、置き換えの進み具合の確認に使える。
+
+## Artifacts and Notes
+
+- Issue: #493
+- 先行して直したもの: #490（ドキュメントグループの権限判定）、#491（ブロック中のログイン）、#492・#504（JS への埋め込み）、#505（`where()` のエスケープ）
+- 想定するコミットの単位: M1 は `request_intvar()` の変更と processor の置き換えを、ディレクトリ（document / pm / db / element など）ごとに分ける。M2 は「トークンを受け付ける」「呼び出し元に付ける」「必須にする」の 3 つに分ける。M3 はスクリプトとワークフローで 1 つ。
+- 関連する計画: `.agent/plans/2026-07-08-pdo-migration-dbapi-refactor.md`（PR #453。未マージ）
+
+## Interfaces and Dependencies
+
+- PDO 移行（#453）のフェーズ 2（プレースホルダ化）とは、SQL への値の渡し方で重なる。この ExecPlan では `where()` とエスケープの仕組みを変えないので、フェーズ 2 と衝突しない。フェーズ 2 で値のバインドに移るときも、M1 で揃えた「整数の id」はそのまま使える。
+- 外部のプラグイン・モジュールが、状態を変える管理画面のアクションを GET で直接呼んでいる場合、M2 の必須化のあとはトークンが必要になる。リリースノートの「アップグレード時の注意」に、`csrfUrl()` / `EvoCsrf.url()` を使うよう書く。
+- 検証には `.claude/skills/adaptive-validation-runner` を使う。
