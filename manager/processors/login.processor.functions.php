@@ -233,6 +233,28 @@ function isBlockedUser()
     return false;
 }
 
+// DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
+function isStillBlockedInDb()
+{
+    $row = db()->getRow(
+        db()->select(
+            'blocked, blockeduntil, failedlogincount',
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        )
+    );
+    if (!$row) {
+        return true;
+    }
+    if ((int) $row['blocked']) {
+        return true;
+    }
+    $blockedUntil = (int) $row['blockeduntil'];
+    return 0 < $blockedUntil
+        && request_time() < $blockedUntil
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
+}
+
 function checkAllowedIp()
 {
     if (!user_config('allowed_ip')) {
