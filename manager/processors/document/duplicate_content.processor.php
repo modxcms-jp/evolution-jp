@@ -7,8 +7,11 @@ if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_documen
     alert()->dumpError();
 }
 
+// 権限の判定と複製で同じ値を使うため、先に整数へ揃える
+$id = (int) getv('id');
+
 // check permissions on the document
-if (!$modx->checkPermissions(getv('id'), true)) {
+if (!$modx->checkPermissions($id, true)) {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= lang('access_permissions') ?></div>
@@ -21,7 +24,7 @@ if (!$modx->checkPermissions(getv('id'), true)) {
 
 // Run the duplicator
 evo()->loadExtension('DocAPI');
-$newid = duplicateDocument(getv('id'));
+$newid = duplicateDocument($id);
 $modx->clearCache();
 
 

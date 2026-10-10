@@ -7,7 +7,7 @@ if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_doc
     alert()->dumpError();
 }
 
-$id = anyv('id');
+$id = (int) anyv('id'); // 権限の判定と後続の更新で同じ値を使うため、先に整数へ揃える
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {
