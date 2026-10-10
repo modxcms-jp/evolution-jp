@@ -11,7 +11,6 @@
 // （down -v で DB だけ消した場合など）は止める。--reinstall を付けると config.inc.php を退避して入れ直す。
 // リポジトリのルートで実行すること（config.inc.php の確認と sample.htaccess の復元のため）
 const fs = require('fs');
-const { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
 const { config, sleep, sql, appExec, newPage, login, refreshCache } = require('./lib');
 
@@ -112,32 +111,40 @@ async function runInstaller(browser) {
     }
 }
 
+function settingsVersion() {
+    return sql(`select setting_value from ${config.tablePrefix}system_settings where setting_name='settings_version'`);
+}
+
 async function saveSystemSettings(browser) {
+    // システム設定を保存すると、フレンドリーURLのために sample.htaccess が .htaccess へリネームされる
+    // (manager/processors/save_settings.processor.php)。作業ツリーに削除差分を残さないよう、保存前の中身で書き戻す
+    // （git から戻すと、作業中の未コミットの変更が失われる）
+    const sampleBefore = fs.existsSync('sample.htaccess') ? fs.readFileSync('sample.htaccess') : null;
+
     const page = await login(browser);
     page.on('dialog', d => d.accept());
     await page.goto(config.manager + 'index.php?a=17', { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#Button1 a');
-    await Promise.all([page.waitForLoadState('domcontentloaded'), page.click('#Button1 a')]);
-    await page.waitForTimeout(2000);
-    await refreshCache(page);
-    await page.context().close();
-    const version = sql(`select setting_value from ${config.tablePrefix}system_settings where setting_name='settings_version'`);
+    await page.click('#Button1 a');
+    // 保存の完了は画面ではなく DB で判定する（保存されると settings_version が現在の版になる）
+    const until = Date.now() + 30000;
+    let version = settingsVersion();
+    while ((!version || version === '0') && Date.now() < until) {
+        await sleep(500);
+        version = settingsVersion();
+    }
     console.log('settings_version:', version);
     if (!version || version === '0') {
         throw new Error('システム設定の保存後も settings_version が更新されていない');
     }
-    restoreSampleHtaccess();
-}
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await refreshCache(page);
+    await page.context().close();
 
-// システム設定を保存すると、フレンドリーURLのために sample.htaccess が .htaccess へリネームされる
-// (manager/processors/save_settings.processor.php)。作業ツリーに削除差分を残さないよう git から戻す。
-// .htaccess は git の無視対象で、フレンドリーURLに必要なので残す
-function restoreSampleHtaccess() {
-    if (fs.existsSync('sample.htaccess')) {
-        return;
+    if (sampleBefore !== null && !fs.existsSync('sample.htaccess')) {
+        fs.writeFileSync('sample.htaccess', sampleBefore);
+        console.log('sample.htaccess: 保存前の中身で書き戻した（.htaccess は残す）');
     }
-    execFileSync('git', ['checkout', '--', 'sample.htaccess']);
-    console.log('sample.htaccess: git から戻した（.htaccess は残す）');
 }
 
 function createEditor() {

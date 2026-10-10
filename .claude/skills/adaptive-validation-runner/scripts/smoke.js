@@ -3,7 +3,7 @@
 // 失敗が 1 件でもあれば終了コード 1 を返す
 const { chromium } = require('playwright');
 const {
-    config, newPage, login, watchFetch, shellState, isSafeModeLogin, clearMail, latestMail,
+    config, newPage, login, shellState, isSafeModeLogin, clearMail, latestMail,
 } = require('./lib');
 
 const results = [];
@@ -21,13 +21,17 @@ function check(name, ok, detail = '') {
 
         // 2. 管理画面のシェルで、リソースの編集画面を断片として開く
         const page = await login(browser);
-        const seen = watchFetch(page, /a=27/);
-        await page.evaluate(() => EvoShell.navigate('index.php?a=27&id=1'));
-        await page.waitForLoadState('networkidle').catch(() => {});
-        await page.waitForTimeout(1000);
-        const r = seen[seen.length - 1] || {};
+        // EvoShell.navigate() は fetch を始めてすぐ戻るため、応答と画面の更新を明示的に待つ
+        const [res] = await Promise.all([
+            page.waitForResponse(x => /a=27/.test(x.url()) && x.request().resourceType() === 'fetch', { timeout: 15000 }),
+            page.evaluate(() => EvoShell.navigate('index.php?a=27&id=1')),
+        ]);
+        const body = await res.text();
+        await page.waitForURL(/a=27/, { timeout: 15000 }).catch(() => {});
+        await page.waitForFunction(() => !((document.getElementById('workText') || {}).innerHTML || '').trim(), null, { timeout: 15000 }).catch(() => {});
+        const pane = res.headers()['x-evo-pane'] || '';
         const s = await shellState(page);
-        check('シェル: 編集画面が X-Evo-Pane の断片で返る', r.pane === '1' && !/<\s*html\b/i.test(r.body || ''), `pane=${r.pane}`);
+        check('シェル: 編集画面が X-Evo-Pane の断片で返る', pane === '1' && !/<\s*html\b/i.test(body), `pane=${pane}`);
         check('シェル: #mainPane と #topMenu が 1 つずつ', s.mainPane === 1 && s.topMenu === 1 && !s.htmlInPane, JSON.stringify({ mainPane: s.mainPane, topMenu: s.topMenu }));
         await page.context().close();
 

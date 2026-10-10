@@ -13,6 +13,7 @@
 | mailpit | `evo-validate-mailpit` | `${EVO_MAILPIT_PORT:-8025}` → 8025 | app の mail() は msmtp 経由で mailpit へ届く |
 
 ポートが空いていないときは `EVO_HTTP_PORT` / `EVO_MAILPIT_PORT` を変える。スクリプト側も同じ環境変数を読む。
+公開先は `127.0.0.1` に限定している（既定の管理者パスワードを使うため）。WSL2 では Windows 側のブラウザから `localhost` で開ける（localhostForwarding）。同じネットワーク上のほかの端末からはつながらない。
 ほかの案件のコンテナを止めてよいかは、ユーザーに確認する。
 
 ## 起動からスモークテストまで
@@ -38,14 +39,14 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ログイン情報（既定。`EVO_ADMIN_USER` / `EVO_ADMIN_PASSWORD` で変えられる）:
 
-- 管理画面: `http://localhost/manager/`
+- 管理画面: `http://localhost:${EVO_HTTP_PORT:-80}/manager/`（80 のときはポート番号を省略できる）
 - 管理者: `admin` / `Passw0rd!2026`（ロール2 ウェブマスター）
 - 権限の弱いユーザー（`--editor`）: `editor` / 管理者と同じパスワード（ロール3 投稿担当者、`save_role` なし）
-- mailpit: `http://localhost:8025/`（API は `/api/v1/messages`）
+- mailpit: `http://localhost:${EVO_MAILPIT_PORT:-8025}/`（API は `/api/v1/messages`）
 
 ## 設定を変えて確かめる
 
-システム設定は DB を直接書き換え、管理画面の「サイトをリフレッシュ」でキャッシュを作り直す（`lib.js` の `sql()` と `refreshCache()`）。
+システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html evo-validate-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
 
 ```bash
 docker exec evo-validate-db mariadb -uuser -ppassword evodb -e \
@@ -72,8 +73,8 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **インストール直後は表側が 503（メンテナンス画面）**: `settings_version` が `0` のままだと、コードの版と食い違うため。システム設定（`a=17`）を一度保存すると更新される。それまでは管理画面もシステム設定へ誘導され、エラー後の戻り先も `a=17` になる。`setup-site.js` は保存まで済ませる
 - **新規インストールには `install/install-config.php` が要る**: `setup-site.js` は一時的に置き、終わったら消す
 - **インストールすると作業ツリーに `manager/includes/config.inc.php` ができる**（git の無視対象）。`down -v` で DB だけ消すと、設定ファイルだけが残ってサイトが 500 になる。`setup-site.js` は DB のテーブルでインストール済みかを判定し、この状態なら止まる。開発者自身の設定ファイルを消さないよう、`--reinstall` を付けたときだけ退避（`config.inc.php.bak-<時刻>`）して入れ直す
-- **システム設定を保存すると `sample.htaccess` が `.htaccess` に名前を変える**（`manager/processors/save_settings.processor.php`。フレンドリーURLのため）。作業ツリーに削除差分が残るので、`git checkout -- sample.htaccess` で戻す（`setup-site.js` は自動で戻す）。`.htaccess` は git の無視対象
-- **キャッシュはファイルを消さない**: `temp/cache/*.php` を消すとプラグインのイベント表が失われ（FMP などが動かない）、表側も 503 になる。「サイトをリフレッシュ」（`a=26`）で作り直す
+- **システム設定を保存すると `sample.htaccess` が `.htaccess` に名前を変える**（`manager/processors/save_settings.processor.php`。フレンドリーURLのため）。作業ツリーに削除差分が残るので戻す。`setup-site.js` は保存前の中身で自動的に書き戻す（`git checkout` で戻すと、作業中の未コミットの変更が失われるため使わない）。`.htaccess` は git の無視対象
+- **キャッシュはファイルを直接消さない**: `temp/cache/*.php` を直接消すと、プラグインのイベント表（`plugin.siteCache.idx.php` など）がアクセスしても作り直されず、FMP などのプラグインが動かなくなる（表側は 200 のままなので気づきにくい）。`php evo cache:clear` か「サイトをリフレッシュ」（`a=26`）を使う。どちらもその場で作り直す
 - **ブランチを切り替えた直後は古いコードが動くことがある**: OPcache は `revalidate_freq=2`。切り替えてから数秒待ってから確かめる
 - **管理画面は `Accept-Language` が無いと 404**: curl でも Playwright でも付ける（`lib.js` の `newPage()` は付けている）
 - **セーフモードのログイン画面の見分け方**: `manager/media/style/common/login.tpl` はテーマの `style.css` を読み込まない。`.loginLicense` は両方にあるので目印にならない（`lib.js` の `isSafeModeLogin()`）

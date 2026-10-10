@@ -53,8 +53,8 @@ async function login(browser, user = config.adminUser, password = config.adminPa
     return page;
 }
 
-// キャッシュはファイルを消さず「サイトをリフレッシュ」(a=26) で作り直す。
-// temp/cache/*.php を消すとプラグインのイベント表が失われ、表側も 503 になる
+// キャッシュは「サイトをリフレッシュ」(a=26) で作り直す（CLI なら php evo cache:clear でもよい。どちらもすぐ作り直す）。
+// temp/cache/*.php を直接消すと、プラグインのイベント表などが作り直されず、FMP などのプラグインが動かなくなる
 async function refreshCache(page) {
     await page.goto(config.manager + 'index.php?a=26', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);

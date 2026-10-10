@@ -5,7 +5,8 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 
 # Adaptive Validation Runner
 
-既定は CLI での確認。ブラウザは CLI で判定できないときだけ使う。
+本題の確認は CLI を既定とし、ブラウザは CLI で判定できないときだけ使う。
+ただし検証環境の準備（`scripts/setup-site.js`）とスモークテスト（`scripts/smoke.js`）は、ヘッドレス Chromium を使う。
 検証環境が無ければ、このスキルの手順と同梱スクリプトで立ち上げ、確認が終わったら片付ける。
 
 ## モード

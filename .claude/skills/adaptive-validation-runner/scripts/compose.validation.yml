@@ -7,12 +7,20 @@
 # - DB は mariadb:11 を使う。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
 #   Docker Engine 29 系ではレイヤー展開時に「openat dev/ptmx: no such file or directory」で取得できない場合がある
 #   （詳細は references/environment.md）
-# - ポートは環境変数で変えられる。DB と SMTP は外へ公開しない
+# - ポートは環境変数で変えられる。既定の管理者パスワードを使うため、HTTP と mailpit は 127.0.0.1 にだけ公開し、
+#   DB と SMTP は外へ公開しない
+# - app の DB 接続の環境変数（インストーラーの初期値に使われる）は、シェルの値を引き継がないよう検証用の DB に固定する
 services:
   app:
     container_name: evo-validate-app
+    environment:
+      DB_HOST: db
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      DB_DATABASE: evodb
+      TABLE_PREFIX: ${EVO_TABLE_PREFIX:-modx_}
     ports: !override
-      - "${EVO_HTTP_PORT:-80}:8080"
+      - "127.0.0.1:${EVO_HTTP_PORT:-80}:8080"
 
   db:
     image: mariadb:11
@@ -29,7 +37,7 @@ services:
   mailpit:
     container_name: evo-validate-mailpit
     ports: !override
-      - "${EVO_MAILPIT_PORT:-8025}:8025"
+      - "127.0.0.1:${EVO_MAILPIT_PORT:-8025}:8025"
 
 volumes:
   evo_validate_db:
