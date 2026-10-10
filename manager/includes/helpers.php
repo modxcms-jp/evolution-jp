@@ -776,17 +776,48 @@ if (!function_exists('isEvoPaneRequest')) {
     }
 }
 
+if (!function_exists('evoIsPaneResponse')) {
+    /**
+     * この応答をAJAX断片(X-Evo-Pane: 1)として返しているかどうかを判定する。
+     * shell.jsは応答ヘッダーX-Evo-Paneの有無だけで断片かどうかを決めるため、
+     * header/footerの出力可否もリクエストではなく送信済みの応答ヘッダーで判定する
+     * (execute_moduleのように途中でヘッダーを外す処理とも食い違わない)。
+     *
+     * @return bool
+     */
+    function evoIsPaneResponse(): bool
+    {
+        foreach (headers_list() as $header) {
+            $parts = explode(':', $header, 2);
+            if (count($parts) === 2
+                && strcasecmp(trim($parts[0]), 'X-Evo-Pane') === 0
+                && trim($parts[1]) === '1') {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 if (!function_exists('evoRenderPaneFooterExtras')) {
     /**
      * footer.inc.php相当の後処理(システムアラート表示とDatePicker読み込み)を出力する。
      * AJAX断片応答(manager/index.php)と通常のフルページ応答(footer.inc.php)の
      * 両方から呼び出し、重複実装によるズレを防ぐ。
+     * 断片応答ではprocessor等が読み込むfooter.inc.phpとindex.php末尾の両方から呼ばれ得るため、
+     * 1リクエストにつき1回だけ出力する(システムアラートの二重表示を防ぐ)。
      *
      * @return void
      */
     function evoRenderPaneFooterExtras(): void
     {
         global $modx;
+        static $rendered = false;
+
+        if ($rendered) {
+            return;
+        }
+        $rendered = true;
 
         if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
             echo manager()->sysAlert($modx->SystemAlertMsgQueque);
