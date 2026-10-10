@@ -52,7 +52,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_modules, "name = '{$name}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], $name));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], hsc($name)));
 
             // prepare a few variables prior to redisplaying form...
             $content = [];

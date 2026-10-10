@@ -62,7 +62,7 @@ switch (postv('mode')) {
             $count = db()->getValue($rs);
             if ($count > 0) {
                 manager()->saveFormValues(101);
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
+                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
 
                 // prepare a few variables prior to redisplaying form...
                 $content = [];
@@ -131,7 +131,7 @@ switch (postv('mode')) {
                 "name='{$name}' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
                 manager()->saveFormValues();
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
+                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
 
                 // prepare a few variables prior to redisplaying form...
                 $content = [];

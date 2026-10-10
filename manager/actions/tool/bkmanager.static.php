@@ -25,7 +25,7 @@ $dumper = new Mysqldumper();
 if ($mode === 'backup') {
     $tables = postv('chk', '');
     if (!is_array($tables)) {
-        evo()->webAlertAndQuit('Please select a valid table from the list below', 'history.back(-1);');
+        evo()->webAlertAndQuit('Please select a valid table from the list below', 'javascript:history.back(-1);');
         exit;
     }
 

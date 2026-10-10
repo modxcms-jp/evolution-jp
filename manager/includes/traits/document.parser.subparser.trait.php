@@ -1899,24 +1899,31 @@ trait DocumentParserSubParserTrait
     function webAlertAndQuit($msg, $url = "")
     {
         global $modx, $modx_manager_charset;
+        // メッセージと URL は <script> 内の JS 文字列リテラルとして埋め込む（addslashes() では </script> などを防げない）。
+        // 'javascript:' で始まる $url は、呼び出し側が意図して渡す JS としてそのまま使う
+        $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+            | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
+        $toJs = function ($value) use ($flags) {
+            $json = json_encode((string)$value, $flags);
+            return $json === false ? '""' : $json;
+        };
         if (strpos(strtolower($url), 'javascript:') === 0) {
             $fnc = substr($url, 11);
         } elseif ($url) {
-            $fnc = "window.location.href='" . addslashes($url) . "';";
+            $fnc = 'window.location.href=' . $toJs($url) . ';';
         } elseif (isset($_SESSION['previous_request_uri'])) {
-            $fnc = sprintf("window.location.href='%s';", $_SESSION['previous_request_uri']);
+            $fnc = 'window.location.href=' . $toJs($_SESSION['previous_request_uri']) . ';';
         } else {
             $fnc = "history.back(-1);";
         }
-        $msg = addslashes($msg);
-        $msg = str_replace("\n", '\n', $msg);
+        $msg = $toJs($msg);
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
             <link rel=\"stylesheet\" type=\"text/css\" href=\"media/style/{$modx->config['manager_theme']}/style.css\" />
             <script>
                 function __alertQuit() {
-                    alert('" . $msg . "');
+                    alert(" . $msg . ");
                     {$fnc}
                 }
                 window.setTimeout('__alertQuit();',100);
