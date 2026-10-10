@@ -329,7 +329,9 @@
         return { overlay: overlay, body: document.getElementById('evoShellModalBody') };
     }
 
-    function closeModal() {
+    // reloadMain=falseなら、モーダル内の保存(modalDirty)があっても背後の#mainPaneを再取得しない
+    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)
+    function closeModal(reloadMain) {
         const overlay = document.getElementById('evoShellModalOverlay');
         if (!overlay || overlay.classList.contains('hidden')) {
             return;
@@ -345,7 +347,9 @@
         if (modalDirty) {
             // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
             modalDirty = false;
-            request(currentUrl, { method: 'GET' }, false);
+            if (reloadMain !== false) {
+                request(currentUrl, { method: 'GET' }, false);
+            }
         }
         document.dispatchEvent(new CustomEvent('evoshell:modalclose'));
     }
@@ -586,8 +590,9 @@
             request(url, { method: 'GET' }, false, 'modal');
         },
 
-        closeModal: function () {
-            closeModal();
+        // opts.reloadMain === false で、閉じた後の#mainPane再取得を行わない
+        closeModal: function (opts) {
+            closeModal(opts && opts.reloadMain === false ? false : undefined);
         },
 
         // ファイルブラウザ等のピッカーをモーダルで開く。断片側はグローバルフック

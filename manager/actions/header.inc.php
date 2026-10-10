@@ -4,6 +4,13 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
+// AJAX断片応答(X-Evo-Pane)では<html>・メニュー・ツリーを出力しない。
+// 出力すると#mainPane内に入れ子で挿入され、画面崩れとローディング残りの原因になる。
+// processorやerrorHandler::dumpError()など、自前でheader/footerを読み込む箇所もここで吸収する
+if (evoIsPaneResponse()) {
+    return;
+}
+
 if ($modx->config('remember_last_tab') != 2) {
     setcookie(
         'webfxtab_childPane',
