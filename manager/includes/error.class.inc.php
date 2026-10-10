@@ -59,12 +59,15 @@ class errorHandler
     public function dumpError()
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
+        // 値は <script> 内の JS リテラルとして埋め込むため json_encode する（<>'"& も \uXXXX にする）。
+        // jAlert はメッセージを HTML として表示するので、メッセージとタイトルは先に HTML エスケープする
+        $jsFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
         echo evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
             [
-                'message' => db()->escape($this->errormessage),
-                'warning' => lang('warning'),
-                'url' => $this->prev()
+                'message' => json_encode(hsc((string)$this->errormessage), $jsFlags),
+                'warning' => json_encode(hsc((string)lang('warning')), $jsFlags),
+                'url' => json_encode((string)$this->prev(), $jsFlags)
             ]
         );
         include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
