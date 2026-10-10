@@ -32,7 +32,7 @@ OnBeforeManagerLogin();
 
 // ブロック中は処理をここで止める。
 // パスワード再設定リンク（fmpkey）だけは OnManagerAuthentication（FMP）に判定を任せ、
-// 認証が通ればブロックを解除してログインさせる（下の分岐で、通らなければ止める）
+// FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）
 $isBlocked = isBlockedUser();
 if ($isBlocked && !getv('fmpkey')) {
     rejectBlockedUser();
@@ -59,6 +59,13 @@ if (!OnManagerAuthentication()) {
     if (!checkCaptcha()) {
         return;
     }
+}
+
+// ブロック中のユーザーの認証が通った場合は、FMP がブロックを解除したことを DB で確かめる。
+// OnManagerAuthentication はどのプラグインの成功でも true になるため、成否だけでは判断しない
+if ($isBlocked && isStillBlockedInDb()) {
+    rejectBlockedUser();
+    return;
 }
 
 managerLogin();
