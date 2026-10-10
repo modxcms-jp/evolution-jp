@@ -71,8 +71,10 @@ class MODxMailer extends PHPMailer
                 $this->Encoding = 'base64';
                 $this->mb_language = 'UNI';
         }
-        // 日本語の管理画面では従来（JIS 既定時）どおりテキストメールを既定にする
-        if (substr(strtolower(evo()->config('manager_language')), 0, 8) === 'japanese') {
+        // mail_charset 未設定の日本語管理画面は、従来（JIS 既定時）どおりテキストメールを既定にする
+        // （mail_charset を明示しているサイトは従来の既定を変えない）
+        if (!evo()->config('mail_charset')
+            && substr(strtolower(evo()->config('manager_language')), 0, 8) === 'japanese') {
             $this->IsHTML(false);
         }
         if (extension_loaded('mbstring') && $this->mb_language !== false) {
