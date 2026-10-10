@@ -1,0 +1,8 @@
+interface:
+  display_name: "Adaptive Validation Runner"
+  short_description: "CLI優先で、必要なときだけPlaywright(ヘッドレス)で動作確認する。検証環境の起動から後片付けまで扱う"
+  default_prompt: |
+    動作確認の手順は `.claude/skills/adaptive-validation-runner/SKILL.md` を正本として読み、その Workflow に従ってください。
+    検証環境の起動・設定・後片付けと既知の落とし穴は `.claude/skills/adaptive-validation-runner/references/environment.md` を参照してください。
+    まず CLI で確かめ、判定できないときだけ Playwright へ切り替えてください。既定はヘッドレスで、画面を表示するのは目視を明示されたときだけです。
+    ここでは Codex 実行時の入口だけを扱い、手順を重複して定義しないでください。

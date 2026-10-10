@@ -208,6 +208,13 @@ fix(db): 実行直前でエスケープ処理を統一
 - **コマンド**: `/release` で開始
 - **参照**: `assets/docs/release-process.md`
 
+### adaptive-validation-runner スキル - 自走での動作確認
+
+- **用途**: 改修後の動作確認を、Docker の検証環境の起動・インストールから、CLI 優先の確認、必要時の Playwright（既定はヘッドレス）、main との比較、後片付けまで AI が自分で進める
+- **タイミング**: 「動作確認」「自走で確認」「実環境で確かめる」「ブラウザで確認」を依頼されたとき。また不具合修正や画面に関わる改修で、実機での裏付けが必要なとき
+- **コマンド**: `/verify-live <確認したいこと>`
+- **参照**: `.claude/skills/adaptive-validation-runner/references/environment.md`（検証環境の手順と既知の落とし穴）
+
 ### doc-maintainer スキル - ドキュメント健全性チェック・修正
 
 - **用途**: AI向けドキュメントの SSOT 違反・表記ゆれ・構造問題の検出と修正。PR概要と差分の乖離チェックも行う

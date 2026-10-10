@@ -9,6 +9,7 @@
 
 - `issue-resolver` スキルの再現観点
 - `exec-plan` スキルの検証条件
+- `adaptive-validation-runner` スキルの検証環境と、CLI 優先・必要時 Playwright の確認手順
 
 ## 入力
 

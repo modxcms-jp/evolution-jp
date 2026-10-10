@@ -1,0 +1,35 @@
+# 動作確認用の compose 上書き設定。
+# compose.yml と重ねて、プロジェクト名を分けて起動する（ほかの案件や既存の開発環境と衝突させない）。
+#
+#   docker compose -p evo-validate -f compose.yml \
+#     -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
+#
+# - DB は mariadb:11 を使う。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
+#   Docker Engine 29 系ではレイヤー展開時に「openat dev/ptmx: no such file or directory」で取得できない場合がある
+#   （詳細は references/environment.md）
+# - ポートは環境変数で変えられる。DB と SMTP は外へ公開しない
+services:
+  app:
+    container_name: evo-validate-app
+    ports: !override
+      - "${EVO_HTTP_PORT:-80}:8080"
+
+  db:
+    image: mariadb:11
+    container_name: evo-validate-db
+    environment:
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: evodb
+      MARIADB_USER: user
+      MARIADB_PASSWORD: password
+    volumes: !override
+      - evo_validate_db:/var/lib/mysql
+    ports: !reset []
+
+  mailpit:
+    container_name: evo-validate-mailpit
+    ports: !override
+      - "${EVO_MAILPIT_PORT:-8025}:8025"
+
+volumes:
+  evo_validate_db:
