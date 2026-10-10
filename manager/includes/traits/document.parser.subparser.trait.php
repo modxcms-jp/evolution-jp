@@ -1099,6 +1099,8 @@ trait DocumentParserSubParserTrait
         if ($docid === false) {
             return false;
         }
+        // 呼び出し元がリクエスト値をそのまま渡すことがあるため、SQL へ入れる前に整数へ揃える
+        $docid = (int) $docid;
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
@@ -1123,13 +1125,10 @@ trait DocumentParserSubParserTrait
         $from .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
         $where = "sc.id='{$docid}' AND {$where_docgrp}";
 
-        $rs = db()->select($field, $from, $where);
-        $total = db()->count($rs);
+        // COUNT() の値で判定する（count() は結果の行数で、集計クエリでは常に1になる）
+        $total = (int) db()->getValue(db()->select($field, $from, $where));
 
-        if ($total == 1) {
-            return true;
-        }
-        return false;
+        return $total === 1;
     }
 
     /*
