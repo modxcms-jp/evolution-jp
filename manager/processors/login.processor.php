@@ -30,10 +30,13 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 OnBeforeManagerLogin();
 
-if (isBlockedUser()) {
-    @session_destroy();
-    session_unset();
-    jsAlert(alert()->errors[902]);
+// ブロック中は処理をここで止める。
+// パスワード再設定リンク（fmpkey）だけは OnManagerAuthentication（FMP）に判定を任せ、
+// 認証が通ればブロックを解除してログインさせる（下の分岐で、通らなければ止める）
+$isBlocked = isBlockedUser();
+if ($isBlocked && !getv('fmpkey')) {
+    rejectBlockedUser();
+    return;
 }
 
 if (!checkAllowedIp() || !checkAllowedDays()) {
@@ -44,6 +47,10 @@ evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
 if (!OnManagerAuthentication()) {
+    if ($isBlocked) {
+        rejectBlockedUser();
+        return;
+    }
     if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
