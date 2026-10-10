@@ -202,6 +202,13 @@ function OnBeforeManagerLogin()
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
+function rejectBlockedUser()
+{
+    @session_destroy();
+    session_unset();
+    jsAlert(alert()->errors[902]);
+}
+
 function isBlockedUser()
 {
     if (!user('blocked')) {
