@@ -31,7 +31,7 @@ Evolution CMS JP Edition の開発ワークフロー。
 ### /validate
 1. 構文チェック: `find . -path "./vendor" -prune -o -name "*.php" -exec php -l {} +`
 2. エラー時は最大3回まで自律修正・再チェック
-3. ブラウザ確認が必要な項目をリストアップ
+3. ブラウザ確認が必要な項目をリストアップし、`adaptive-validation-runner` スキル（`/verify-live`）で実環境を立てて確認する
 
 ### /handoff
 作業完了報告を以下の形式で出力:

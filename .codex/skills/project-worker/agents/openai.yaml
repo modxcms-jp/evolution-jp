@@ -18,7 +18,7 @@ interface:
     `/validate`:
     1) `find . -path "./vendor" -prune -o -name "*.php" -exec php -l {} +` で構文チェックを実行する。
     2) エラー時は最大3回まで自律修正・再チェックする。
-    3) ブラウザ確認が必要な項目をリストアップする。
+    3) ブラウザ確認が必要な項目をリストアップし、`adaptive-validation-runner` スキル（`/verify-live`）で実環境を立てて確認する。
 
     `/handoff`:
     1) 実施タスク / 変更内容 / 検証結果 / 次のアクションを報告する。

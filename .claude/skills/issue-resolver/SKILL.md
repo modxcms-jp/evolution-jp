@@ -96,7 +96,7 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 1. 調査報告に対するエンジニア承認を確認してから実装を開始する。
 2. `draft-plan` に沿って最小差分で実装する。
 3. 既存パターンを優先し、ヘルパー利用・DB安全性・イベント/キャッシュ影響を確認する。
-4. 必要なテストまたは手動確認を実施し、結果を記録する。
+4. 必要なテストまたは手動確認を実施し、結果を記録する。画面操作が絡む確認や、main で再現 → 修正ブランチで解消の比較は `adaptive-validation-runner` スキル（`/verify-live`）で行う。
 5. 修正後に `docker compose exec <app-service> php evo log:tail --lines=20 --level=error` で同じエラーが増えていないことを確認する。
 6. 必要に応じて `docker compose exec <app-service> php evo health:check` を実行し、基本健全性を確認する。
 7. CLI 実行結果は検証ログへ要約して残す。
