@@ -30,10 +30,13 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 OnBeforeManagerLogin();
 
-if (isBlockedUser()) {
-    @session_destroy();
-    session_unset();
-    jsAlert(alert()->errors[902]);
+// ブロック中は処理をここで止める。
+// パスワード再設定リンク（fmpkey）だけは OnManagerAuthentication（FMP）に判定を任せ、
+// FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）
+$isBlocked = isBlockedUser();
+if ($isBlocked && !getv('fmpkey')) {
+    rejectBlockedUser();
+    return;
 }
 
 if (!checkAllowedIp() || !checkAllowedDays()) {
@@ -44,6 +47,10 @@ evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
 if (!OnManagerAuthentication()) {
+    if ($isBlocked) {
+        rejectBlockedUser();
+        return;
+    }
     if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
@@ -52,6 +59,13 @@ if (!OnManagerAuthentication()) {
     if (!checkCaptcha()) {
         return;
     }
+}
+
+// ブロック中のユーザーの認証が通った場合は、FMP がブロックを解除したことを DB で確かめる。
+// OnManagerAuthentication はどのプラグインの成功でも true になるため、成否だけでは判断しない
+if ($isBlocked && isStillBlockedInDb()) {
+    rejectBlockedUser();
+    return;
 }
 
 managerLogin();
