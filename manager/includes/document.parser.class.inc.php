@@ -400,8 +400,8 @@ class DocumentParser
         db()->delete(
             '[+prefix+]system_cache',
             [
-                where('cache_section', db()->escape($category)),
-                and_where('cache_key', db()->escape($key))
+                where('cache_section', $category),
+                and_where('cache_key', $key)
             ]
         );
 
@@ -424,9 +424,9 @@ class DocumentParser
             'cache_value',
             '[+prefix+]system_cache',
             [
-                where('cache_section', '=', db()->escape($category)),
+                where('cache_section', '=', $category),
                 'and',
-                where('cache_key', '=', db()->escape($key))
+                where('cache_key', '=', $key)
             ]
         );
         if (!$rs) {
@@ -1135,7 +1135,14 @@ class DocumentParser
             return false;
         }
         $userid = db()->getValue($rs);
+        // トークンに一致するユーザーがいなければ、セッションに触れる前に終える
+        if (!$userid) {
+            return false;
+        }
         $user = $this->getUserINfo($userid);
+        if (!$user) {
+            return false;
+        }
 
         session_regenerate_id(true);
 
