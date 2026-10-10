@@ -3031,7 +3031,7 @@ class DocumentParser
                 $this->event->alert(
                     sprintf(
                         'An error occurred while loading. Please see the event log for more information.<p>%s</p>',
-                        $echo
+                        hsc($echo)
                     )
                 );
             }

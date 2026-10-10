@@ -207,7 +207,7 @@ function evalModule($moduleCode, $params)
         if ($willMessageQuit) {
             $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $moduleName . ' - Module',
                 $message, $line, $msg);
-            $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
+            $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>" . hsc($msg) . "</p>");
         }
     }
     unset($modx->event->params);

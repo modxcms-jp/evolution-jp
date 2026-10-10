@@ -30,6 +30,10 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
+* **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
+
+  * HTML → `hsc()` / `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）
+  * ❌ JS への埋め込みに `addslashes()` や `db()->escape()` を使う（`</script>` などを防げない）
 * **コーディングスタイル**:
 
   * 配列は `[]`（`array()` 非推奨）/ デフォルト値は `?:` / 早期リターン

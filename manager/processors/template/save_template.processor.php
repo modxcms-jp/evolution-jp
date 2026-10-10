@@ -58,7 +58,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '19';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
@@ -108,7 +108,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '16';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;

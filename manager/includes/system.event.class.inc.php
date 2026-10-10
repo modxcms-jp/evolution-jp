@@ -29,11 +29,13 @@ class SystemEvent
             return;
         }
         $alert = [];
+        // アラートは HTML として表示されるので、プラグイン名・イベント名は文字として扱う
+        // （$msg は呼び出し側が組み立てた HTML を受け取る前提。差し込む値は呼び出し側でエスケープする）
         if ($this->name && $this->activePlugin) {
             $alert[] = sprintf(
                 '<div><b>%s</b> - <span style="color:maroon;">%s</span></div>',
-                $this->activePlugin,
-                $this->name
+                hsc($this->activePlugin),
+                hsc($this->name)
             );
         }
         $alert[] = sprintf('<div style="margin-left:10px;margin-top:3px;">%s</div>', $msg);
