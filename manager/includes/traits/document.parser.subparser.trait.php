@@ -1905,8 +1905,8 @@ trait DocumentParserSubParserTrait
             $fnc = substr($url, 11);
         } elseif ($url) {
             $fnc = 'window.location.href=' . js_literal($url) . ';';
-        } elseif (isset($_SESSION['previous_request_uri'])) {
-            $fnc = 'window.location.href=' . js_literal($_SESSION['previous_request_uri']) . ';';
+        } elseif (sessionv('previous_request_uri') !== null) {
+            $fnc = 'window.location.href=' . js_literal(sessionv('previous_request_uri')) . ';';
         } else {
             $fnc = "history.back(-1);";
         }
