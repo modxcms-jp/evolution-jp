@@ -1899,24 +1899,18 @@ trait DocumentParserSubParserTrait
     function webAlertAndQuit($msg, $url = "")
     {
         global $modx, $modx_manager_charset;
-        // メッセージと URL は <script> 内の JS 文字列リテラルとして埋め込む（addslashes() では </script> などを防げない）。
+        // メッセージと URL は <script> 内の JS 文字列リテラルとして埋め込む（js_literal()。addslashes() では </script> などを防げない）。
         // 'javascript:' で始まる $url は、呼び出し側が意図して渡す JS としてそのまま使う
-        $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
-        $toJs = function ($value) use ($flags) {
-            $json = json_encode((string)$value, $flags);
-            return $json === false ? '""' : $json;
-        };
         if (strpos(strtolower($url), 'javascript:') === 0) {
             $fnc = substr($url, 11);
         } elseif ($url) {
-            $fnc = 'window.location.href=' . $toJs($url) . ';';
+            $fnc = 'window.location.href=' . js_literal($url) . ';';
         } elseif (isset($_SESSION['previous_request_uri'])) {
-            $fnc = 'window.location.href=' . $toJs($_SESSION['previous_request_uri']) . ';';
+            $fnc = 'window.location.href=' . js_literal($_SESSION['previous_request_uri']) . ';';
         } else {
             $fnc = "history.back(-1);";
         }
-        $msg = $toJs($msg);
+        $msg = js_literal($msg);
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">

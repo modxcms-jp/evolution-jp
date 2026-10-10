@@ -413,19 +413,13 @@ class ManagerAPI
         }
 
         // アラートは意図して HTML を含む（system.event の alert() が組み立てる）。差し込む値は呼び出し側でエスケープする。
-        // ここでは <script> 内の JS 文字列リテラルとして安全に埋め込む。
+        // ここでは <script> 内の JS 文字列リテラルとして安全に埋め込む（js_literal()）。
         // 埋め込んだ値の中が再び置換されないよう、parseText() ではなく strtr() で一度だけ置換する
-        $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-            | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
-        $toJs = function ($value) use ($flags) {
-            $json = json_encode((string)$value, $flags);
-            return $json === false ? '""' : $json;
-        };
         return strtr(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
             [
-                '[+alerts+]' => $toJs(implode('<hr />', $alerts)),
-                '[+title+]' => $toJs($_lang['sys_alert'])
+                '[+alerts+]' => js_literal(implode('<hr />', $alerts)),
+                '[+title+]' => js_literal($_lang['sys_alert'])
             ]
         );
     }

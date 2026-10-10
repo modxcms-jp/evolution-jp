@@ -92,6 +92,25 @@ if (!function_exists('str_ends_with')) {
     }
 }
 
+/**
+ * <script> の中へ値を埋め込むための、JS の文字列リテラル（引用符付き）を返す。
+ * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
+ * 不正な UTF-8 は置き換え、それでも失敗したら空文字列のリテラルを返す。
+ * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれを使う。
+ *
+ * @param mixed $value
+ * @return string
+ */
+function js_literal($value): string
+{
+    $json = json_encode(
+        (string)$value,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+    return $json === false ? '""' : $json;
+}
+
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
     if ($string === null) {
