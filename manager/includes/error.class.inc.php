@@ -59,16 +59,30 @@ class errorHandler
     public function dumpError()
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
-        echo evo()->parseText(
+        // 値は <script> 内の JS リテラルとして埋め込む（toJsLiteral）。
+        // jAlert はメッセージを .html() で表示するので先に HTML エスケープする。タイトルは .text() なのでしない。
+        // 埋め込んだ値の中が再び置換されないよう、parseText() ではなく strtr() で一度だけ置換する
+        echo strtr(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
             [
-                'message' => db()->escape($this->errormessage),
-                'warning' => lang('warning'),
-                'url' => $this->prev()
+                '[+message+]' => $this->toJsLiteral(hsc((string)$this->errormessage)),
+                '[+warning+]' => $this->toJsLiteral((string)lang('warning')),
+                '[+url+]' => $this->toJsLiteral((string)$this->prev())
             ]
         );
         include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
         exit;
+    }
+
+    // <script> 内へ安全に埋め込める JS の文字列リテラルにする（<>'"& も \uXXXX にする）。
+    // 不正な UTF-8 は置き換え、それでも失敗したら空文字列にして、スクリプトの構文を壊さない
+    private function toJsLiteral($value)
+    {
+        $json = json_encode(
+            $value,
+            JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+        return $json === false ? '""' : $json;
     }
 
     private function prev()
