@@ -3748,7 +3748,7 @@ class DocumentParser
         } else {
             $tmp = $documentObject['template'];
         }
-        $where = sprintf("tvtpl.templateid='%s'", $tmp);
+        $where = sprintf("tvtpl.templateid='%d'", (int)$tmp);
 
         $rs = db()->select($field, $from, $where);
         $rowCount = db()->count($rs);

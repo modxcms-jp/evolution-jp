@@ -241,7 +241,7 @@ function reset_template()
 {
     if (formv('reset_template') == 1) {
         db()->update(
-            ['template' => formv('default_template')],
+            ['template' => (int)formv('default_template')],
             '[+prefix+]site_content',
             where('type', 'document')
         );
@@ -249,7 +249,7 @@ function reset_template()
     }
     if (formv('reset_template') == 2) {
         db()->update(
-            ['template' => formv('default_template')],
+            ['template' => (int)formv('default_template')],
             '[+prefix+]site_content',
             where('template', (int)formv('old_template'))
         );

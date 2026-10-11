@@ -239,9 +239,9 @@ switch (postv('mode')) {
 
 function check_exist_name($chunkName)
 {
-    $where = "name='" . $chunkName . "'";
+    $where = "name='" . db()->escape($chunkName) . "'";
     if (postv('mode') == 78) {
-        $where .= " AND id!=" . postv('id');
+        $where .= " AND id!=" . (int)postv('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     if (!db()->getValue($rs)) {
