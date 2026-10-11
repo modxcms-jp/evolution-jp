@@ -173,13 +173,12 @@ class init
 
     public static function fix_script_name()
     {
-        if (strpos(serverv('script_name'), '/' . serverv('server_name')) !== 0) {
+        $scriptName = (string) serverv('script_name');
+        $serverName = (string) serverv('server_name');
+        if ($serverName === '' || strpos($scriptName, '/' . $serverName) !== 0) {
             return;
         }
-        $_SERVER['SCRIPT_NAME'] = substr(
-            serverv('script_name'),
-            strlen(serverv('server_name')) + 1
-        );
+        $_SERVER['SCRIPT_NAME'] = substr($scriptName, strlen($serverName) + 1);
     }
 
     // check PHP version
