@@ -489,7 +489,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
     $message = $modx->mergeChunkContent($message);
     $message = $modx->rewriteUrls($message);
 
-    if ($modx->sendmail($email, $message) === false) //ignore mail errors in this cas
+    if ($modx->sendmail(['to' => $email, 'type' => 'text'], $message) === false) //ignore mail errors in this cas
     {
         webAlert("Error while sending mail to " . $email);
         exit;

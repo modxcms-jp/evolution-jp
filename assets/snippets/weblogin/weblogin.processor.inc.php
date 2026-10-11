@@ -122,6 +122,7 @@ if ($isPWDReminder == 1) {
         $config['sendto'] = $email;
         if (!isset($emailsubject)) $emailsubject = 'パスワード再設定';
         $config['subject'] = $emailsubject;
+        $config['type'] = 'text';
         $sent = $modx->sendmail($config, $message);         //ignore mail errors in this cas
         if (!$sent) // error
         {

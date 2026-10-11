@@ -144,7 +144,10 @@ class DBAPI
             $this->conn = null;
             if (evo()->config('send_errormail') && evo()->config('send_errormail') < 3) {
                 evo()->sendmail(
-                    'Missing to create the database connection! from ' . evo()->config('site_name'),
+                    [
+                        'subject' => 'Missing to create the database connection! from ' . evo()->config('site_name'),
+                        'type' => 'text',
+                    ],
                     sprintf(
                         "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s",
                         'Failed to create the database connection!',

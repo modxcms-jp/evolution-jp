@@ -199,7 +199,7 @@ trait DocumentParserSubParserTrait
                 $mailbody[] = sprintf('[%s] %s', $k, $v);
             }
             $mailbody = implode("\n", $mailbody);
-            $modx->sendmail($subject, $mailbody);
+            $modx->sendmail(['subject' => $subject, 'type' => 'text'], $mailbody);
         }
     }
 
