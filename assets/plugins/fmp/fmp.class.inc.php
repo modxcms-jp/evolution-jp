@@ -133,7 +133,6 @@ class ForgotManagerPassword
             $this->errors[] = $this->lang('error_sending_email');
             return false;
         }
-        $this->errors[] = $this->lang('error_sending_email');
         return true;
     }
 
