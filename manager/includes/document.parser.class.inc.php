@@ -4860,10 +4860,12 @@ class DocumentParser
         if (!$resource) {
             return false;
         }
+        // names to match the built-in fields (pagetitle etc.); $idnames is quoted for SQL below
+        $names = is_array($idnames) ? $idnames : explode(',', (string)$idnames);
         if (!$resource['template']) {
             $result = [];
             foreach ($resource as $key => $value) {
-                if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
+                if ($idnames === '*' || in_array($key, $names)) {
                     $result[] = ['name' => $key, 'value' => $value];
                 }
             }
@@ -4925,7 +4927,7 @@ class DocumentParser
         // get default/built-in template variables
         ksort($resource);
         foreach ($resource as $key => $value) {
-            if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+            if ($idnames === '*' || in_array($key, $names)) {
                 $result[] = ['name' => $key, 'value' => $value];
             }
         }
@@ -4956,6 +4958,12 @@ class DocumentParser
             if (!empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier) {
                 //Load preview
                 $row['value'] = $this->previewObject[$row['name']];
+            }
+
+            // built-in fields (pagetitle etc.) have no display format
+            if (!isset($row['type'])) {
+                $output[$row['name']] = $row['value'];
+                continue;
             }
 
             if (!is_array($row['value'])) {
