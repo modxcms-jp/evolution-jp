@@ -33,8 +33,8 @@ if (!$rs) {
 // alias for backward compatibility
 $this->dbConfig = &$this->db->config;
 
-// 値はここでエスケープする（呼び出し側で db()->escape() してから渡さない。二重エスケープになる）。
-// $field と $op は SQL としてそのまま埋め込むので、リクエストの値を渡さないこと
+// 値はエスケープしない（DBAPI 共通の取り決め）。呼び出し側で db()->escape() または (int) してから渡すこと。
+// $field と $op も SQL としてそのまま埋め込むので、リクエストの値を渡さないこと
 function where($field, $op, $value = null)
 {
     if ($value === null) {
@@ -43,7 +43,7 @@ function where($field, $op, $value = null)
     }
     return sprintf(
         strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
-        $field, $op, db()->escape((string) $value)
+        $field, $op, $value
     );
 }
 

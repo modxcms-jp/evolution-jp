@@ -10,6 +10,12 @@ if (!evo()->hasPermission('edit_module')) {
 
 $id = anyv('id', 0);
 
+// make sure the id's a number（SQL に組み込む前に確かめる）
+if (!is_numeric($id)) {
+    echo "Passed ID is not a valid number!";
+    exit;
+}
+
 // Get table names (alphabetical)
 $tbl_site_module_depobj = evo()->getFullTableName('site_module_depobj');
 $tbl_site_plugins = evo()->getFullTableName('site_plugins');
@@ -30,12 +36,6 @@ if ($limit > 1) {
     }
 }
 // end check for lock
-
-// make sure the id's a number
-if (!is_numeric($id)) {
-    echo "Passed ID is not a valid number!";
-    exit;
-}
 
 // take action
 switch (anyv('op')) {
