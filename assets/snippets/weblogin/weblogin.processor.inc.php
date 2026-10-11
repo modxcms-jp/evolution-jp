@@ -75,12 +75,8 @@ if ($isPWDReminder == 1) {
             $message = $modx->getField('content', $reminder_message);
         else $message = $modx->getChunk($reminder_message);
     }
-    // システム設定の本文はプレーンテキスト。リソース・チャンクの本文は HTML のこともあるため、形式は sendmail() の判定に任せる
-    $reminderMailType = null;
-    if (!isset($reminder_message) || empty($message)) {
+    if (!isset($reminder_message) || empty($message))
         $message = $modx->config('webpwdreminder_message');
-        $reminderMailType = 'text';
-    }
     if (!isset($reminder_subject)) $reminder_subject = 'New Password Activation for ' . $modx->config('site_name');
     if (!isset($reminder_from)) $reminder_from = $modx->config('emailsender');
     if (!isset($reminder_fromname)) $reminder_fromname = $modx->config('site_name');
@@ -126,7 +122,6 @@ if ($isPWDReminder == 1) {
         $config['sendto'] = $email;
         if (!isset($emailsubject)) $emailsubject = 'パスワード再設定';
         $config['subject'] = $emailsubject;
-        if ($reminderMailType !== null) $config['type'] = $reminderMailType;
         $sent = $modx->sendmail($config, $message);         //ignore mail errors in this cas
         if (!$sent) // error
         {

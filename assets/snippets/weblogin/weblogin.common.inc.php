@@ -59,7 +59,7 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
     );
     $emailsubject = $modx->config('emailsubject');
 
-    $sent = $modx->sendmail(['to' => $email, 'type' => 'text'], $message);         //ignore mail errors in this cas
+    $sent = $modx->sendmail($email, $message);         //ignore mail errors in this cas
 
     if (!$sent) {
         webLoginAlert('Error while sending mail to ' . $modx->config('mailto'), 1);

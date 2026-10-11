@@ -31,7 +31,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
             ]
         )
     );
-    if (!evo()->sendmail(['to' => $email, 'type' => 'text'], $message)) {
+    if (!evo()->sendmail($email, $message)) {
         webAlert(sprintf('%s - %s', $email, lang('error_sending_email')));
         exit;
     }
