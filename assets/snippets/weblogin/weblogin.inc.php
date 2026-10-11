@@ -5,7 +5,8 @@
 
 defined('IN_PARSER_MODE') or die();
 
-$output = '';
+// weblogin.processor.inc.php が出したメッセージ（webLoginAlert）を消さない
+$output = $output ?? '';
 
 # load tpl
 if (is_numeric($tpl)) {

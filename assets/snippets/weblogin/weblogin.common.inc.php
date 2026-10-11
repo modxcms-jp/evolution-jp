@@ -29,8 +29,8 @@ function webLoginAlert($msg, $ph = [])
 {
     global $modx;
     return sprintf(
-        '<script>window.setTimeout("alert(\'%s\')",10);</script>',
-        addslashes(db()->escape(fmplang($msg, $ph)))
+        '<script>window.setTimeout(function(){alert(%s);},10);</script>',
+        js_literal(fmplang($msg, $ph))
     );
 }
 
@@ -101,8 +101,9 @@ function fmplang($key, $ph = [])
         'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。'
     ];
 
-    $value = ($_lang[$key]) ? $_lang[$key] : $key;
-    if (!$ph) {
+    // 翻訳が無いメッセージはそのまま返す
+    $value = $_lang[$key] ?? $key;
+    if (!$ph || !is_array($ph)) {
         return $value;
     }
 
