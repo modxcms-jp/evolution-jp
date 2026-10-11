@@ -28,7 +28,7 @@ async function waitForDb(timeoutMs = 60000) {
             return;
         } catch (e) {
             if (Date.now() > until) {
-                throw new Error('DB に接続できない（evo-validate-db が起動しているか確かめる）');
+                throw new Error(`DB に接続できない（${config.dbContainer} が起動しているか確かめる）`);
             }
             await sleep(2000);
         }

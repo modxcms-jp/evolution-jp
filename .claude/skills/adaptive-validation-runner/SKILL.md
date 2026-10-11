@@ -35,7 +35,8 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 
 既存の環境があればそれを使う。無ければ `references/environment.md` の手順で立ち上げる。要点:
 
-1. `compose.yml` に `scripts/compose.validation.yml` を重ね、プロジェクト名 `evo-validate` で起動する（DB は mariadb:11、DB・SMTP のポートは外に出さない）
+1. `compose.yml` に `scripts/compose.validation.yml` を重ね、プロジェクト名 `${EVO_VALIDATE_NAME:-evo-validate}` で起動する（DB は mariadb:11、DB・SMTP のポートは外に出さない）
+   - 起動の前に、同じ名前の環境がほかの作業ツリーで動いていないか確かめる。並走中のセッションがあり得るときは、`EVO_VALIDATE_NAME` と `EVO_BIND_IP`（127.0.0.2 など）を変える（`references/environment.md` の「並走するとき」）。ほかのセッションの環境は止めない・消さない
 2. Playwright は作業用ディレクトリへ入れ、`NODE_PATH` で解決させる（リポジトリに `node_modules` を作らない）
 3. `scripts/setup-site.js` でインストールからシステム設定の保存まで済ませる（`--sample` でサンプルサイト、`--editor` で権限の弱いユーザー）
 4. `scripts/smoke.js` が全 PASS することを確かめてから、本題の確認に入る
@@ -79,7 +80,7 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 
 ```text
 モード: cli | playwright-headless | playwright-headed
-環境: <既存 / evo-validate を起動>（ブランチ: <名前>）
+環境: <既存 / <EVO_VALIDATE_NAME> を起動（アドレス）>（ブランチ: <名前>）
 対象: <URL/画面>
 期待: <期待結果>
 

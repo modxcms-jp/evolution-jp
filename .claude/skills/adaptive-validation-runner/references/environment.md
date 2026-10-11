@@ -1,20 +1,53 @@
 # 検証環境（Docker）
 
 改修した作業ツリーをそのままマウントして動かす、使い捨ての検証環境。
-`compose.yml` に `scripts/compose.validation.yml` を重ね、プロジェクト名 `evo-validate` で起動する。
+`compose.yml` に `scripts/compose.validation.yml` を重ね、プロジェクト名 `${EVO_VALIDATE_NAME:-evo-validate}` で起動する。
 ほかの案件や既存の開発環境（プロジェクト名・コンテナ名・ボリューム）とは分けてある。
+複数のセッションが並走するときは、セッションごとに名前と公開先のアドレスを変える（「並走するとき」を参照）。
 
 ## 構成
 
 | サービス | コンテナ名 | 公開ポート | 備考 |
 | --- | --- | --- | --- |
-| app | `evo-validate-app` | `${EVO_HTTP_PORT:-80}` → 8080 | php:8.4-apache。作業ツリーを `/var/www/html` にマウント |
-| db | `evo-validate-db` | なし | mariadb:11（DB `evodb`、ユーザー `user` / `password`） |
-| mailpit | `evo-validate-mailpit` | `${EVO_MAILPIT_PORT:-8025}` → 8025 | app の mail() は msmtp 経由で mailpit へ届く |
+| app | `<名前>-app` | `<アドレス>:80` → 8080 | php:8.4-apache。作業ツリーを `/var/www/html` にマウント |
+| db | `<名前>-db` | なし | mariadb:11（DB `evodb`、ユーザー `user` / `password`） |
+| mailpit | `<名前>-mailpit` | `<アドレス>:8025` → 8025 | app の mail() は msmtp 経由で mailpit へ届く |
 
-ポートが空いていないときは `EVO_HTTP_PORT` / `EVO_MAILPIT_PORT` を変える。スクリプト側も同じ環境変数を読む。
-公開先は `127.0.0.1` に限定している（既定の管理者パスワードを使うため）。WSL2 では Windows 側のブラウザから `localhost` で開ける（localhostForwarding）。同じネットワーク上のほかの端末からはつながらない。
+`<アドレス>` は `EVO_BIND_IP`（既定 `127.0.0.1`）。既定の管理者パスワードを使うため、公開先はループバックアドレスに限定している。同じネットワーク上のほかの端末からはつながらない。
+WSL2 では、`127.0.0.1` に公開したものは Windows 側のブラウザから `localhost` で開ける（localhostForwarding）。`127.0.0.2` などは WSL の中（Playwright・curl）からだけ開ける。
+HTTP のポートは 80 から変えない（「既知の落とし穴」の「80 番以外のポートでは動かない」）。mailpit のポートは `EVO_MAILPIT_PORT` で変えられる。
+`<名前>` は `EVO_VALIDATE_NAME`（既定 `evo-validate`）。ボリューム・ネットワーク・ビルドしたイメージにも compose がこの名前を付ける。
 ほかの案件のコンテナを止めてよいかは、ユーザーに確認する。
+
+## 並走するとき
+
+コンテナ名は固定の規則で決まるため、同じ名前のまま別の作業ツリーから `up` すると、相手のコンテナを自分の作業ツリーをマウントする形で作り直してしまう。
+`down -v` も相手の環境と DB を消す。並走中のほかのセッションがあり得るときは、起動する前に次を確かめる。
+
+```bash
+# 同じ名前の環境が無いか（compose のプロジェクト名で完全一致。3 列目がコンテナを作った作業ツリー）
+docker ps -a --filter label=com.docker.compose.project=evo-validate-fix500 \
+  --format '{{.Names}}\t{{.Status}}\t{{.Label "com.docker.compose.project.working_dir"}}'
+```
+
+- 何も出ないか、出ても 3 列目が自分の作業ツリーなら、そのまま使ってよい
+- ほかの作業ツリーのものが出たら、それは別のセッションの環境。止めたり消したりせず、名前とアドレスを変えて起動する
+
+名前とアドレスは、作業ツリー名などから決める（例: `evo-validate-fix500` と `127.0.0.2`）。
+AI のエージェントではシェルの状態がコマンドごとに引き継がれないことが多いため、`export` に頼らず、**docker compose と同梱スクリプトを実行するたびに、コマンドの先頭に付ける**。
+付け忘れると既定の名前 `evo-validate` で動き、その名前の環境が別のセッションのものなら、作り直したり消したりしてしまう。
+
+```bash
+EVO_VALIDATE_NAME=evo-validate-fix500 EVO_BIND_IP=127.0.0.2 docker compose -f compose.yml \
+  -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
+EVO_VALIDATE_NAME=evo-validate-fix500 EVO_BIND_IP=127.0.0.2 NODE_PATH=<work>/pw/node_modules \
+  node .claude/skills/adaptive-validation-runner/scripts/setup-site.js --sample --editor
+```
+
+`docker exec` で直接コンテナを指定するときは、コンテナ名（`evo-validate-fix500-app` など）をそのまま書く。
+
+アドレスが使われていないかは `ss -ltn | grep -E '(127\.0\.0\.2|0\.0\.0\.0|\*|\[::\]):(80|8025)\b'` で確かめる（何も出なければ空いている）。
+`0.0.0.0:80` で待ち受けているもの（`compose.yml` だけで起動した開発環境など）があると、どのアドレスでも 80 番は使えない。
 
 ## 起動からスモークテストまで
 
@@ -22,7 +55,8 @@
 
 ```bash
 # 1. 起動
-docker compose -p evo-validate -f compose.yml \
+#    プロジェクト名は compose.validation.yml の name（EVO_VALIDATE_NAME）で決まるので -p は付けない
+docker compose -f compose.yml \
   -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
 
 # 2. Playwright（リポジトリには入れない）
@@ -39,17 +73,17 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ログイン情報（既定。`EVO_ADMIN_USER` / `EVO_ADMIN_PASSWORD` で変えられる）:
 
-- 管理画面: `http://localhost:${EVO_HTTP_PORT:-80}/manager/`（80 のときはポート番号を省略できる）
+- 管理画面: `http://localhost/manager/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>/manager/`）
 - 管理者: `admin` / `Passw0rd!2026`（ロール2 ウェブマスター）
 - 権限の弱いユーザー（`--editor`）: `editor` / 管理者と同じパスワード（ロール3 投稿担当者、`save_role` なし）
-- mailpit: `http://localhost:${EVO_MAILPIT_PORT:-8025}/`（API は `/api/v1/messages`）
+- mailpit: `http://localhost:8025/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>:8025/`。API は `/api/v1/messages`）
 
 ## 設定を変えて確かめる
 
-システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html evo-validate-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
+システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html <名前>-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
 
 ```bash
-docker exec evo-validate-db mariadb -uuser -ppassword evodb -e \
+docker exec <名前>-db mariadb -uuser -ppassword evodb -e \
   "REPLACE INTO modx_system_settings (setting_name,setting_value) VALUES ('email_method','smtp'),('smtp_host','mailpit'),('smtp_port','1025'),('smtp_auth','0'),('smtp_secure','')"
 ```
 
@@ -65,6 +99,8 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 
 ## 既知の落とし穴
 
+- **80 番以外のポートでは動かない**: アプリは URL を組み立てるとき、ポートを含まない `SERVER_NAME` を使う（`manager/includes/initialize.functions.inc.php` の `get_host_name()`）。
+  `127.0.0.1:8181` のように公開すると、`/manager/` が `http://localhost/install/...` へリダイレクトされ、インストールの途中で `ERR_CONNECTION_REFUSED` になる。並走時はポートではなく `EVO_BIND_IP` で分ける
 - **MySQL 公式イメージが取得できない**: Docker Engine 29 系では `failed to register layer: openat dev/ptmx: no such file or directory` で失敗する。
   MySQL 公式イメージ（8.3 / 8.4 とも）は Oracle Linux が土台で、最初のレイヤーにキャラクタデバイス `dev/ptmx`（5,2）を含む。
   ptmx のデバイスファイルを普通に開くと、カーネルは同じディレクトリの `pts`（devpts）を探して端末を割り当てようとし、見つからなければ ENOENT を返す。
@@ -86,7 +122,8 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 
 ```bash
 # コンテナ・ボリューム・ネットワーク・ビルドしたイメージを消す（ベースイメージは残す）
-docker compose -p evo-validate -f compose.yml \
+# 名前を変えて起動したときは、起動時と同じ EVO_VALIDATE_NAME をコマンドの先頭に付ける。消す前に「並走するとき」の確認で、自分の作業ツリーの環境かを確かめる
+docker compose -f compose.yml \
   -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml down -v --rmi local
 
 # 作業ツリーに残ったものを確かめる（manager/includes/config.inc.php と .htaccess は無視対象で、表示されない）
@@ -104,7 +141,7 @@ git status --short
 1.2 系の作業ツリーには、このスキルが含まれていない。main の `.claude/skills/adaptive-validation-runner/` を作業用ディレクトリ（リポジトリの外）へ取り出し、1.2 系の作業ツリーのルートで実行する（`git show origin/main:<path> > <work>/<path>` で 1 ファイルずつ取り出す。`git archive` は `.claude/` が export-ignore のため空になる）。
 
 ```bash
-docker compose -p evo-validate -f compose.yml -f <work>/scripts/compose.validation.yml up -d --build
+docker compose -f compose.yml -f <work>/scripts/compose.validation.yml up -d --build
 NODE_PATH=<work>/pw/node_modules node <work>/scripts/setup-site.js --sample --editor
 NODE_PATH=<work>/pw/node_modules node <work>/scripts/smoke-1.2.js
 ```

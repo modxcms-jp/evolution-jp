@@ -3,17 +3,22 @@
 //   NODE_PATH=<作業用>/node_modules node .claude/skills/adaptive-validation-runner/scripts/<script>.js
 const { execFileSync } = require('child_process');
 
+// 並走時は公開先のアドレスを分ける（127.0.0.2 など）。127.0.0.1 のときは従来どおり localhost で開く
+const BIND_IP = process.env.EVO_BIND_IP || '127.0.0.1';
+const HOST = BIND_IP === '127.0.0.1' ? 'localhost' : BIND_IP;
 const HTTP_PORT = process.env.EVO_HTTP_PORT || '80';
 const MAILPIT_PORT = process.env.EVO_MAILPIT_PORT || '8025';
+// compose.validation.yml と同じ規則でコンテナ名を決める（並走時は EVO_VALIDATE_NAME で分ける）
+const ENV_NAME = process.env.EVO_VALIDATE_NAME || 'evo-validate';
 
 const config = {
-    base: process.env.EVO_BASE_URL || `http://localhost${HTTP_PORT === '80' ? '' : ':' + HTTP_PORT}`,
-    mailpit: process.env.EVO_MAILPIT_URL || `http://localhost:${MAILPIT_PORT}`,
+    base: process.env.EVO_BASE_URL || `http://${HOST}${HTTP_PORT === '80' ? '' : ':' + HTTP_PORT}`,
+    mailpit: process.env.EVO_MAILPIT_URL || `http://${HOST}:${MAILPIT_PORT}`,
     adminUser: process.env.EVO_ADMIN_USER || 'admin',
     adminPassword: process.env.EVO_ADMIN_PASSWORD || 'Passw0rd!2026',
     adminEmail: process.env.EVO_ADMIN_EMAIL || 'admin@example.com',
-    appContainer: process.env.EVO_APP_CONTAINER || 'evo-validate-app',
-    dbContainer: process.env.EVO_DB_CONTAINER || 'evo-validate-db',
+    appContainer: process.env.EVO_APP_CONTAINER || `${ENV_NAME}-app`,
+    dbContainer: process.env.EVO_DB_CONTAINER || `${ENV_NAME}-db`,
     tablePrefix: process.env.EVO_TABLE_PREFIX || 'modx_',
 };
 config.manager = config.base + '/manager/';
