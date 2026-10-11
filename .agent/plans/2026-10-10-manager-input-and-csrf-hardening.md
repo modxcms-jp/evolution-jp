@@ -13,7 +13,7 @@
 
 ## Surprises & Discoveries
 
-なし
+- 2026-10-11（レビュー #506 で判明）: `manager/includes/accesscontrol.inc.php` の POST 向け CSRF 検証が、ログアウト（`a=8`）を「ログイン処理」として検証から除外している。ログアウトはセッションを破棄する更新操作であり、本来は保護対象。M2 で是正する。
 
 ## Decision Log
 
@@ -23,6 +23,9 @@
 - 2026-10-10 / yamamoto・Claude: トークンは、シェル（`EvoShell`）の fetch では既存どおり `X-CSRF-Token` ヘッダーで、フルページの遷移（`location.href` への代入やリンク）では URL の `csrf_token` パラメータで受け取る。URL に載ったトークンはアクセスログや Referer に残り得るが、トークンはログアウトで破棄されるセッション単位の値であり、GET で状態が変わる今の状態よりは大きく改善するため許容する。
 - 2026-10-10 / yamamoto・Claude: CI での検出は、DB に接続しない単独の PHP スクリプトにする。`php evo` の CLI は DB 接続を前提にしているため、DB のない CI では使えない。
 - 2026-10-10 / yamamoto・Claude: このリポジトリは公開されているため、まだ直していない具体的な箇所の一覧はこの ExecPlan に書かない。M1・M2 の最初に、棚卸しのコマンドで手元に一覧を作って作業する。
+- 2026-10-11 / Claude（レビュー反映 #506）: id の検証は受け取り元によらず同じにする。PHP の `(int)` は `"5abc"` を `5` にしてしまい「数字以外は 0」を満たせないため、`(int) postv()` は使わず、POST 限定でも厳密に検証する `post_intvar()` を用意する。
+- 2026-10-11 / Claude（レビュー反映 #506）: 同じアクション番号で表示と更新を兼ねる処理（`a=31` の `mode=delete` など）があるため、CSRF の一覧はアクション番号だけでなくサブ操作も見る組で定義する。将来は更新を別アクションへ分けるのが望ましいが、この計画の範囲では番号＋サブ操作とする。
+- 2026-10-11 / Claude（レビュー反映 #506）: CSRF 検証はメソッド（GET/POST/HEAD）によらず、一覧に該当する操作で行う。現状の `is_post()` 限定は GET・HEAD で迂回できる。あわせて、既存の POST 検証が `a=8`（ログアウト）を「ログイン処理」として除外しているのは誤り。除外するのは認証前でトークンを持てないログインだけとし、ログアウトは一覧に含める。
 
 ## Outcomes & Retrospective
 
@@ -44,9 +47,9 @@
 
 ## Plan of Work
 
-M1（入力の受け取り）では、`request_intvar()` を「正の整数なら int、それ以外は 0」を返すように改める。既存の 47 か所の呼び出しで、戻り値を文字列として比べている箇所がないか確かめてから変える。そのうえで、processor が id を `getv()` / `anyv()` / `postv()` で直接読み、整数に変換せずに使っている箇所を棚卸しし、`request_intvar()`（POST だけで受け取る処理は `(int) postv()`）へ置き換える。カンマ区切りの複数 id を受け取る処理は、各要素を整数にしてから使う。権限の判定（`checkPermissions()`）と、その後の更新で、必ず同じ整数の値を使う。
+M1（入力の受け取り）では、`request_intvar($key)` を「正の整数なら int、それ以外は 0」を返すように改め、**受け取り元（GET / POST / 両方）に関わらず、整数の検証はこの関数に通す**。POST だけで受け取りたい処理のために、同じ検証を POST 限定で行う `post_intvar($key)` も用意する（`(int) postv()` は使わない。PHP の `(int)` は `"5abc"` を `5` にしてしまい、「数字以外を含む id は 0」を満たせないため）。既存の 47 か所の呼び出しで、戻り値を文字列として比べている箇所がないか確かめてから変える。そのうえで、processor が id を `getv()` / `anyv()` / `postv()` で直接読み、整数に変換せずに使っている箇所を棚卸しし、この 2 つのヘルパーへ置き換える。カンマ区切りの複数 id を受け取る処理は、各要素を整数にしてから使う。権限の判定（`checkPermissions()`）と、その後の更新で、必ず同じ整数の値を使う。
 
-M2（CSRF）では、`manager/includes/csrf_token.php` に「状態を変えるアクション番号の一覧」と、それを判定する関数を置く。`accesscontrol.inc.php` は、POST に加えて、一覧に含まれるアクションへの GET でもトークンを検証する。`getRequestCsrfToken()` は、POST の値・ヘッダーに加えて GET の `csrf_token` を受け付ける。クライアントでは、`csrf.js` が同一オリジンへの fetch / XHR に、メソッドによらずヘッダーを付ける（`shell.js` の GET もこれで付く）。フルページの遷移のために、URL へトークンを付ける共通の関数を、PHP（例: `csrfUrl($url)`）と JS（例: `EvoCsrf.url(url)`）の両方に用意し、状態を変えるアクションへのリンク・`location.href` の組み立てをこれに置き換える。一覧に含めるかどうかは「DB やファイルを書き換えるか」で判断し、表示だけの画面は含めない。
+M2（CSRF）では、`manager/includes/csrf_token.php` に「状態を変える操作の一覧」と、それを判定する関数を置く。一覧に含めるかどうかは「DB・ファイル・**セッション**を書き換えるか」で判断し、表示だけの画面は含めない。**同じアクション番号で表示と更新を兼ねる処理がある**ため、判定はアクション番号だけでなく、必要に応じてサブ操作（`a=31` の `mode=delete` など）も見る。将来的には更新処理を別アクションに分けるのが望ましいが、この計画の範囲では、番号＋サブ操作の組で一覧を定義する。`accesscontrol.inc.php` は、**メソッド（GET / POST / HEAD など）に関わらず**、一覧に該当する操作ならトークンを検証する（現在は `is_post()` のときだけ検証しており、GET や HEAD で迂回できる。この if 自体を、一覧に基づく判定へ置き換える）。あわせて、現在の POST 検証が `a=8`（ログアウト。セッションを破棄する更新操作）を「ログイン処理」として検証から外しているのは誤りなので、ログイン（認証前でトークンを持てない）だけを除外し、ログアウトは一覧に含める。`getRequestCsrfToken()` は、POST の値・ヘッダーに加えて GET の `csrf_token` を受け付ける。クライアントでは、`csrf.js` が同一オリジンへの fetch / XHR に、メソッドによらずヘッダーを付ける（`shell.js` の GET もこれで付く）。フルページの遷移のために、URL へトークンを付ける共通の関数を、PHP（例: `csrfUrl($url)`）と JS（例: `EvoCsrf.url(url)`）の両方に用意し、状態を変える操作へのリンク・`location.href` の組み立てをこれに置き換える。
 
 M3（CI での検出）では、`.github/scripts/security-lint.php` を作り、次を検出したら終了コード 1 で終わるようにする。processor の中で、`getv()` / `anyv()` / `postv()` の戻り値を SQL の文字列へ直接埋め込んでいる書き方。`<script>` の文脈で `addslashes()` や `db()->escape()` を使っている書き方。`manager/index.php` で processor を読み込むアクションのうち、状態を変えるのに一覧へ登録されていないもの（判定できないものは、一覧か除外リストのどちらかへの明示を求める）。既存の違反は、M1・M2 の完了時点で 0 件にする。GitHub Actions のワークフロー（`.github/workflows/security-lint.yml`）から PR ごとに実行する。
 
@@ -55,11 +58,12 @@ M4（検証）では、`.claude/skills/adaptive-validation-runner` の検証環�
 ## Concrete Steps
 
 M1:
-- 編集対象: `manager/includes/helpers.php`（`request_intvar()`）
+- 編集対象: `manager/includes/helpers.php`（`request_intvar()` を int 返却に改め、`post_intvar()` を追加）
 - 実行: `grep -rn "request_intvar(" --include=*.php manager assets`
 - 期待: 戻り値を `=== ''` や文字列として比べている箇所がない（あれば int に合わせて直す）
 - 実行（棚卸し）: `grep -rnE "= (getv|anyv|postv)\\('(id|parent|new_parent|pid|docid)'" manager/processors manager/actions`（作成時点で約 40 件）
-- 期待: 結果を手元の一覧にし、整数へ変換していないものを `request_intvar()` または `(int)` へ置き換える。置き換え後、`checkPermissions()` とその後の更新が同じ整数の値を使っている
+- 期待: 結果を手元の一覧にし、整数へ変換していないものを `request_intvar()` / `post_intvar()` へ置き換える。置き換え後、`checkPermissions()` とその後の更新が同じ整数の値を使っている
+- 実行（確認）: `php -r 'require "manager/includes/helpers.php"; var_dump(request_intvar("x"));'` 相当で、`"5abc"` や `"0"`・空文字が 0 に、`"5"` が 5 になる（ヘルパー単体のユニット確認）
 
 M2:
 - 編集対象: `manager/includes/csrf_token.php`（アクション一覧・判定関数・`getRequestCsrfToken()`）、`manager/includes/accesscontrol.inc.php`、`manager/media/script/csrf.js`、状態を変えるアクションを呼ぶ画面・JS
@@ -72,15 +76,25 @@ M3:
 - 期待: M1・M2 の完了後に `0 violations` と出て、終了コード 0
 
 M4:
-- 実行: `adaptive-validation-runner` の `references/environment.md` の手順で検証環境を立て、`setup-site.js --sample --editor` と `smoke.js` を流す
-- 期待: スモークテストが全 PASS。加えて、Validation and Acceptance の各項目を確かめるスクリプトが、この ExecPlan のブランチで全 PASS する
+- 編集対象（新規）: 作業用ディレクトリに `csrf-check.js`（`adaptive-validation-runner` の `lib.js` を読み込む確認スクリプト。リポジトリには含めない）
+- 実行: `references/environment.md` の手順で検証環境を立て、`setup-site.js --sample --editor` と `smoke.js` を流す
+- 実行: `NODE_PATH=<work>/node_modules node csrf-check.js fix <skill-scripts-dir>`
+- `csrf-check.js` が確かめる各ケースと期待（DB の値とレスポンスで判定する。記号・不正値は無害な文字列のみ使う）:
+  - 管理者がトークン付き（シェルのヘッダー経由、または `csrfUrl()` のリンク）で非公開化 `a=62&id=<n>` → `modx_site_content.published` が 0 になる
+  - トークンなしで `index.php?a=62&id=<n>` を直接 GET → レスポンスが 403、`published` が変わらない
+  - 同じく HEAD で呼ぶ → 403、`published` が変わらない
+  - トークンなしでログアウト `a=8` を GET → 403（セッションが破棄されない）
+  - `a=27&id=5abc`（テンプレート更新などの id に数字以外を混ぜる）を送る → id=0 として扱われ、`modx_manager_log` に SQL エラーが残らない
+  - ファイル操作 `a=31&mode=newfolder`（サブ操作つき）をトークンなしで呼ぶ → 403、フォルダが作られない
+- 期待: スモークテストと `csrf-check.js` が全 PASS。同じスクリプトを main で流すと、トークンなしの各ケースが「操作が通る／500」で FAIL する（修正前後の差が出る）
 
 ## Validation and Acceptance
 
 - ログイン中の管理者が、管理画面のリンク・ツリーのメニュー・ボタンから、公開・非公開・削除・複製などの操作をすると、これまでどおり成功する（シェル経由と、フルページの遷移の両方）。
-- 同じ操作の URL を、トークンを付けずに直接開くと、操作は行われず、403 になる（DB の値が変わらないことで確かめる）。
+- 同じ操作の URL を、トークンを付けずに直接開くと（GET でも HEAD でも）、操作は行われず、403 になる（DB の値が変わらないことで確かめる）。サブ操作で更新する画面（`a=31&mode=newfolder` など）も同じ。
+- ログアウト（`a=8`）も、トークンがなければ行われない（セッションが破棄されない）。
 - トークンを付けた URL を、ログアウト後のセッションや別の利用者のセッションで開いても、操作は行われない。
-- id に数字以外を含めて送ると、処理は id=0 として扱われ、SQL のエラーがログに出ない。
+- id に数字以外を含めて送ると（`5abc` など）、処理は id=0 として扱われ、別の既存レコードが更新されない。SQL のエラーもログに出ない。
 - `php .github/scripts/security-lint.php` が 0 件で終わり、PR ごとに GitHub Actions で同じチェックが走る。違反を 1 つ足した試しのコミットでは、チェックが失敗する。
 - 検証スキルのスモークテストが全 PASS する。
 
