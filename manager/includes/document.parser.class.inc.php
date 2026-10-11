@@ -1127,14 +1127,21 @@ class DocumentParser
             [
                 where('setting_name', '=', 'auth_token'),
                 'AND',
-                where('setting_value', '=', $this->input_get('auth_token'))
+                where('setting_value', '=', db()->escape($this->input_get('auth_token')))
             ]
         );
         if (!$rs) {
             return false;
         }
         $userid = db()->getValue($rs);
+        // トークンに一致するユーザーがいなければ、セッションに触れる前に終える
+        if (!$userid) {
+            return false;
+        }
         $user = $this->getUserINfo($userid);
+        if (!$user) {
+            return false;
+        }
 
         session_regenerate_id(true);
 
@@ -1174,7 +1181,7 @@ class DocumentParser
                 'sessionid' => session_id()
             ],
             $this->getFullTableName('user_attributes'),
-            'internalKey=' . $userid
+            'internalKey=' . (int)$userid
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
@@ -5709,7 +5716,7 @@ class DocumentParser
             'id',
             '[+prefix+]site_content',
             [
-                where('alias', '=', $aliasPath),
+                where('alias', '=', db()->escape($aliasPath)),
                 'AND deleted=0'
             ],
             'parent, menuindex'

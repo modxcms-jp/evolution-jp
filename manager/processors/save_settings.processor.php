@@ -251,7 +251,7 @@ function reset_template()
         db()->update(
             ['template' => formv('default_template')],
             '[+prefix+]site_content',
-            where('template', formv('old_template'))
+            where('template', (int)formv('old_template'))
         );
     }
 }

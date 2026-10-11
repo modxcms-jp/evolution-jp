@@ -21,7 +21,7 @@ if (anyv('sendto') === 'u') {
     }
     send_pm(
         [
-            'recipient' => anyv('user'),
+            'recipient' => (int)anyv('user'),
             'sender' => evo()->getLoginUserID(),
             'subject' => anyv('messagesubject', '(no subject)'),
             'message' => anyv('messagebody', '(no message)'),
@@ -42,7 +42,7 @@ if (anyv('sendto') === 'g') {
         'internalKey',
         '[+prefix+]user_attributes',
         [
-            where('role', '=', anyv('group')),
+            where('role', '=', (int)anyv('group')),
             'AND blocked=0'
         ]
     );

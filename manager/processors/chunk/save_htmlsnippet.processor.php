@@ -82,7 +82,7 @@ switch (postv('mode')) {
         $rs = db()->select(
             'COUNT(id)',
             '[+prefix+]site_htmlsnippets',
-            where('name', entity('name'))
+            where('name', db()->escape(entity('name')))
         );
         $count = db()->getValue($rs);
         if ($count > 0) {

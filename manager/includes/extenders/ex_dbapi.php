@@ -33,6 +33,7 @@ if (!$rs) {
 // alias for backward compatibility
 $this->dbConfig = &$this->db->config;
 
+// 値はエスケープしない（DBAPI 共通の取り決め）。呼び出し側で db()->escape() または (int) してから渡すこと
 function where($field, $op, $value = null)
 {
     if ($value === null) {
