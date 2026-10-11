@@ -25,19 +25,26 @@ HTTP のポートは 80 から変えない（「既知の落とし穴」の「80
 `down -v` も相手の環境と DB を消す。並走中のほかのセッションがあり得るときは、起動する前に次を確かめる。
 
 ```bash
-# 同じ名前の環境が無いか（3 列目がコンテナを作った作業ツリー）
-docker ps -a --filter "name=^${EVO_VALIDATE_NAME:-evo-validate}-" \
+# 同じ名前の環境が無いか（compose のプロジェクト名で完全一致。3 列目がコンテナを作った作業ツリー）
+docker ps -a --filter label=com.docker.compose.project=evo-validate-fix500 \
   --format '{{.Names}}\t{{.Status}}\t{{.Label "com.docker.compose.project.working_dir"}}'
 ```
 
 - 何も出ないか、出ても 3 列目が自分の作業ツリーなら、そのまま使ってよい
 - ほかの作業ツリーのものが出たら、それは別のセッションの環境。止めたり消したりせず、名前とアドレスを変えて起動する
 
-名前とアドレスは、作業ツリー名などから決めてシェルで `export` しておく。以降のコマンドと同梱スクリプトは、同じ環境変数を読む。
+名前とアドレスは、作業ツリー名などから決める（例: `evo-validate-fix500` と `127.0.0.2`）。
+AI のエージェントではシェルの状態がコマンドごとに引き継がれないことが多いため、`export` に頼らず、**docker compose と同梱スクリプトを実行するたびに、コマンドの先頭に付ける**。
+付け忘れると既定の名前 `evo-validate` で動き、その名前の環境が別のセッションのものなら、作り直したり消したりしてしまう。
 
 ```bash
-export EVO_VALIDATE_NAME=evo-validate-fix500 EVO_BIND_IP=127.0.0.2
+EVO_VALIDATE_NAME=evo-validate-fix500 EVO_BIND_IP=127.0.0.2 docker compose -f compose.yml \
+  -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
+EVO_VALIDATE_NAME=evo-validate-fix500 EVO_BIND_IP=127.0.0.2 NODE_PATH=<work>/pw/node_modules \
+  node .claude/skills/adaptive-validation-runner/scripts/setup-site.js --sample --editor
 ```
+
+`docker exec` で直接コンテナを指定するときは、コンテナ名（`evo-validate-fix500-app` など）をそのまま書く。
 
 アドレスが使われていないかは `ss -ltn | grep -E '(127\.0\.0\.2|0\.0\.0\.0|\*|\[::\]):(80|8025)\b'` で確かめる（何も出なければ空いている）。
 `0.0.0.0:80` で待ち受けているもの（`compose.yml` だけで起動した開発環境など）があると、どのアドレスでも 80 番は使えない。
@@ -115,7 +122,7 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 
 ```bash
 # コンテナ・ボリューム・ネットワーク・ビルドしたイメージを消す（ベースイメージは残す）
-# 起動したときと同じ EVO_VALIDATE_NAME で実行する。消す前に「並走するとき」の確認で、自分の作業ツリーの環境かを確かめる
+# 名前を変えて起動したときは、起動時と同じ EVO_VALIDATE_NAME をコマンドの先頭に付ける。消す前に「並走するとき」の確認で、自分の作業ツリーの環境かを確かめる
 docker compose -f compose.yml \
   -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml down -v --rmi local
 
@@ -134,7 +141,7 @@ git status --short
 1.2 系の作業ツリーには、このスキルが含まれていない。main の `.claude/skills/adaptive-validation-runner/` を作業用ディレクトリ（リポジトリの外）へ取り出し、1.2 系の作業ツリーのルートで実行する（`git show origin/main:<path> > <work>/<path>` で 1 ファイルずつ取り出す。`git archive` は `.claude/` が export-ignore のため空になる）。
 
 ```bash
-docker compose -p evo-validate -f compose.yml -f <work>/scripts/compose.validation.yml up -d --build
+docker compose -f compose.yml -f <work>/scripts/compose.validation.yml up -d --build
 NODE_PATH=<work>/pw/node_modules node <work>/scripts/setup-site.js --sample --editor
 NODE_PATH=<work>/pw/node_modules node <work>/scripts/smoke-1.2.js
 ```
