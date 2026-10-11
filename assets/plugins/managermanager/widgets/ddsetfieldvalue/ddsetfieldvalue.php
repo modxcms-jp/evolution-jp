@@ -51,7 +51,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
             if ($value == '') {
                 $value = date($date_format . ' H:i:s');
             }
-            $output .= '$j("input[name=pub_date]").val("' . jsSafe($value) . '"); ' . "\n";
+            $output .= '$j("input[name=pub_date]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Дата отмены публикации
@@ -59,7 +59,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
             if ($value == '') {
                 $value = date($date_format . ' H:i:s');
             }
-            $output .= '$j("input[name=unpub_date]").val("' . jsSafe($value) . '"); ' . "\n";
+            $output .= '$j("input[name=unpub_date]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак публикации
@@ -71,7 +71,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=publishedcheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=published]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=published]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак отображения в меню
@@ -95,7 +95,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=hidemenu]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=hidemenu]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак доступности для поиска
@@ -107,7 +107,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=searchablecheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=searchable]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=searchable]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак кэширования
@@ -119,7 +119,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=cacheablecheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=cacheable]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=cacheable]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак очистки кэша
@@ -131,7 +131,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=syncsitecheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=syncsite]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=syncsite]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак папки
@@ -164,7 +164,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '' . "\n";
             }
 
-            $output .= '$j("input[name=richtext]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=richtext]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Признак логирования
@@ -178,12 +178,12 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                 $output .= '$j("input[name=donthitcheck]").removeAttr("checked"); ' . "\n";
             }
 
-            $output .= '$j("input[name=donthit]").val("' . $value . '"); ' . "\n";
+            $output .= '$j("input[name=donthit]").val(' . js_literal($value) . '); ' . "\n";
             break;
 
         //Тип содержимого
         case 'content_type':
-            $output .= '$j("select[name=contentType]").val("' . $value . '");' . "\n";
+            $output .= '$j("select[name=contentType]").val(' . js_literal($value) . ');' . "\n";
             break;
 
         //TV
@@ -193,7 +193,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
             $tvsMas = tplUseTvs($mm_current_page['template'], $field);
 
             if ($tvsMas) {
-                $output .= '$j("#tv' . $tvsMas[0]['id'] . '").val("' . $value . '");' . "\n";
+                $output .= '$j("#tv' . $tvsMas[0]['id'] . '").val(' . js_literal($value) . ');' . "\n";
             }
             break;
     }

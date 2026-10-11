@@ -36,7 +36,7 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
     if ($field === 'template' && doc('template') != $new_value) {
         echo '<script>jQuery(function(){documentDirty=false;';
         echo "jQuery('#mutate input[name=\"a\"]').val(4);";
-        echo "jQuery('#mutate input[name=\"newtemplate\"]').val(" . $new_value . ");";
+        echo "jQuery('#mutate input[name=\"newtemplate\"]').val(" . (int)$new_value . ");";
         echo "jQuery('#mutate').submit();});</script>";
     }
 
@@ -170,21 +170,24 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
             break;
 
         case 'content_type':
-            $output .= 'jQuery("select[name=contentType]").val("' . $new_value . '");' . "\n";
+            $output .= 'jQuery("select[name=contentType]").val(' . js_literal($new_value) . ');' . "\n";
             break;
 
         default:
+            if (!isset($mm_fields[$field])) {
+                break;
+            }
             $tv = $mm_fields[$field];
             if ($tv['tvtype'] === 'option') {
-                $tpl = 'jQuery("%s[name=%s]").val(["%s"])';
+                $tpl = 'jQuery("%s[name=%s]").val([%s]);';
             } else {
-                $tpl = 'jQuery("%s[name=%s]").val("%s");';
+                $tpl = 'jQuery("%s[name=%s]").val(%s);';
             }
             $output .= sprintf(
                     $tpl,
                     isset($tv['fieldtype']) ? $tv['fieldtype'] : '*',
                     $tv['fieldname'],
-                    $new_value
+                    js_literal($new_value)
                 ) . "\n";
             break;
     }

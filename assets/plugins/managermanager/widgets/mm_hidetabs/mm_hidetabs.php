@@ -46,9 +46,9 @@ function mm_hideTabs($tabs, $roles = '', $templates = '')
                 $output .= '$j("#tabAccess").hide();';
                 break;
         }
-
-        $output .= "//  -------------- mm_hideTabs :: End ------------- \n";
-
-        $e->output($output . "\n");
     }
+
+    $output .= "//  -------------- mm_hideTabs :: End ------------- \n";
+
+    $e->output($output . "\n");
 }

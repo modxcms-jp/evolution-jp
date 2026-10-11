@@ -1,5 +1,5 @@
 <?php
-$plugin_id_editing = $e->params['id']; // The ID of the plugin we're editing
+$plugin_id_editing = (int)($e->params['id'] ?? 0); // The ID of the plugin we're editing
 $result = db()->select('name, id', evo()->getFullTableName('site_plugins'), "id='{$plugin_id_editing}'");
 $plugin_editing_name = db()->getValue($result);
 
@@ -15,8 +15,8 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
         $class = ($count % 2) ? 'gridItem' : 'gridAltItem';
         $template_table .= '<tr>';
         $template_table .= '<td class="' . $class . '">' . $tpl['id'] . '</td>';
-        $template_table .= '<td class="' . $class . '">' . jsSafe($tpl['templatename']) . '</td>';
-        $template_table .= '<td class="' . $class . '">' . jsSafe($tpl['description']) . '</td>';
+        $template_table .= '<td class="' . $class . '">' . hsc($tpl['templatename']) . '</td>';
+        $template_table .= '<td class="' . $class . '">' . hsc($tpl['description']) . '</td>';
         $template_table .= '</tr>';
     }
     $template_table .= '</table>';
@@ -31,8 +31,8 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
         $class = ($count % 2) ? 'gridItem' : 'gridAltItem';
         $tvs_table .= '<tr>';
         $tvs_table .= '<td class="' . $class . '">' . $tv['id'] . '</td>';
-        $tvs_table .= '<td class="' . $class . '">' . jsSafe($tv['name']) . '</td>';
-        $tvs_table .= '<td class="' . $class . '">' . jsSafe($tv['caption']) . '</td>';
+        $tvs_table .= '<td class="' . $class . '">' . hsc($tv['name']) . '</td>';
+        $tvs_table .= '<td class="' . $class . '">' . hsc($tv['caption']) . '</td>';
         $tvs_table .= '</tr>';
     }
     $tvs_table .= '</table>';
@@ -47,7 +47,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
         $class = ($count % 2) ? 'gridItem' : 'gridAltItem';
         $roles_table .= '<tr>';
         $roles_table .= '<td class="' . $class . '">' . $role['id'] . '</td>';
-        $roles_table .= '<td class="' . $class . '">' . jsSafe($role['name']) . '</td>';
+        $roles_table .= '<td class="' . $class . '">' . hsc($role['name']) . '</td>';
         $roles_table .= '</tr>';
     }
     $roles_table .= '</table>';

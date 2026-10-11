@@ -41,8 +41,12 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         $columnsData = [];
         foreach ($columnsDataTemp as $value) {
             //Евалим знение и записываем результат или исходное значени
-            $eval = @eval($value);
-            $columnsData[] = $eval ? addslashes(json_encode($eval)) : $value;
+            try {
+                $eval = eval($value);
+            } catch (\Throwable $e) {
+                $eval = null; // not PHP code: use the value as is
+            }
+            $columnsData[] = $eval ? json_encode($eval) : $value;
         }
         //Сливаем в строку, что бы передать на клиент
         $columnsData = implode('||', $columnsData);
@@ -438,15 +442,15 @@ var $this = jQuery(this), //Оригинальное поле
 if (!ddMultiple[id]){
     //Инициализация текущего объекта с правилами
     ddMultiple[id] = {
-        splY: "' . $splY . '",
-        splX: "' . $splX . '",
-        coloumns: "' . $columns . '".split(","),
-        coloumnsTitle: "' . $columnsTitle . '".split(","),
-        coloumnsData: "' . $columnsData . '".split("||"),
-        colWidth: "' . $colWidth . '".split(","),
-        imageStyle: "' . $stylePrewiew . '",
-        minRow: parseInt("' . $minRow . '", 10),
-        maxRow: parseInt("' . $maxRow . '", 10),
+        splY: ' . js_literal($splY) . ',
+        splX: ' . js_literal($splX) . ',
+        coloumns: ' . js_literal($columns) . '.split(","),
+        coloumnsTitle: ' . js_literal($columnsTitle) . '.split(","),
+        coloumnsData: ' . js_literal($columnsData) . '.split("||"),
+        colWidth: ' . js_literal($colWidth) . '.split(","),
+        imageStyle: ' . js_literal($stylePrewiew) . ',
+        minRow: ' . (int)$minRow . ',
+        maxRow: ' . (int)$maxRow . ',
         makeFieldFunction: ddMultiple.' . $makeFieldFunction . ',
         browseFuntion: ' . $browseFuntion . '
     };
