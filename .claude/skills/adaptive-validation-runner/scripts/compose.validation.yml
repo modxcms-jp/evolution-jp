@@ -1,18 +1,25 @@
 # 動作確認用の compose 上書き設定。
 # compose.yml と重ねて、プロジェクト名を分けて起動する（ほかの案件や既存の開発環境と衝突させない）。
 #
-#   docker compose -p evo-validate -f compose.yml \
+#   docker compose -f compose.yml \
 #     -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
 #
+# - プロジェクト名とコンテナ名は EVO_VALIDATE_NAME（既定 evo-validate）から決まる。
+#   並走するセッションごとに名前と公開先のアドレス（EVO_BIND_IP。127.0.0.2 など）を変えれば、互いの環境を壊さない。
+#   ボリューム・ネットワーク・ビルドしたイメージには compose がプロジェクト名を付けるので、名前を変えれば別になる
+# - HTTP のポートは 80 のままにする。80 以外にすると、アプリが URL を組み立てるときにポートが落ち、
+#   リダイレクト先が 80 番になってインストールから先へ進めない（SERVER_NAME にポートが含まれないため）
 # - DB は mariadb:11 を使う。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
 #   Docker Engine 29 系ではレイヤー展開時に「openat dev/ptmx: no such file or directory」で取得できない場合がある
 #   （詳細は references/environment.md）
-# - ポートは環境変数で変えられる。既定の管理者パスワードを使うため、HTTP と mailpit は 127.0.0.1 にだけ公開し、
+# - 既定の管理者パスワードを使うため、HTTP と mailpit はループバックアドレス（既定 127.0.0.1）にだけ公開し、
 #   DB と SMTP は外へ公開しない
 # - app の DB 接続の環境変数（インストーラーの初期値に使われる）は、シェルの値を引き継がないよう検証用の DB に固定する
+name: ${EVO_VALIDATE_NAME:-evo-validate}
+
 services:
   app:
-    container_name: evo-validate-app
+    container_name: ${EVO_VALIDATE_NAME:-evo-validate}-app
     environment:
       DB_HOST: db
       DB_USERNAME: user
@@ -20,11 +27,11 @@ services:
       DB_DATABASE: evodb
       TABLE_PREFIX: ${EVO_TABLE_PREFIX:-modx_}
     ports: !override
-      - "127.0.0.1:${EVO_HTTP_PORT:-80}:8080"
+      - "${EVO_BIND_IP:-127.0.0.1}:${EVO_HTTP_PORT:-80}:8080"
 
   db:
     image: mariadb:11
-    container_name: evo-validate-db
+    container_name: ${EVO_VALIDATE_NAME:-evo-validate}-db
     environment:
       MARIADB_ROOT_PASSWORD: password
       MARIADB_DATABASE: evodb
@@ -35,9 +42,9 @@ services:
     ports: !reset []
 
   mailpit:
-    container_name: evo-validate-mailpit
+    container_name: ${EVO_VALIDATE_NAME:-evo-validate}-mailpit
     ports: !override
-      - "127.0.0.1:${EVO_MAILPIT_PORT:-8025}:8025"
+      - "${EVO_BIND_IP:-127.0.0.1}:${EVO_MAILPIT_PORT:-8025}:8025"
 
 volumes:
   evo_validate_db:
