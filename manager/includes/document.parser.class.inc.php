@@ -3689,7 +3689,7 @@ class DocumentParser
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
             ],
             [
-                where('`sc`.`id`', '=', $identifier),
+                where('`sc`.`id`', '=', (int)$identifier),
                 'AND',
                 '(' . $access . ')'
             ],
@@ -3705,7 +3705,7 @@ class DocumentParser
             $rs = db()->select(
                 'id',
                 '[+prefix+]document_groups',
-                where('document', '=', $identifier),
+                where('document', '=', (int)$identifier),
                 '',
                 1
             );
@@ -5267,7 +5267,7 @@ class DocumentParser
             'plugincode,properties,error_reporting',
             '[+prefix+]site_plugins',
             [
-                where('name', '=', $pluginName),
+                where('name', '=', db()->escape($pluginName)),
                 'AND disabled=0'
             ]
         );
