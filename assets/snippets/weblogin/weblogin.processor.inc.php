@@ -136,7 +136,7 @@ if ($isPWDReminder == 1) {
             $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
         }
     } else {
-        if (!$actUserNotFound) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
+        if (empty($actUserNotFound)) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
         else {
             $url = $modx->makeURL($actUserNotFound, '', '', 'full');
             $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
