@@ -75,10 +75,26 @@ trait DocumentParserSubParserTrait
         $modx->mail->FromName = $p['fromname'] ?? evo()->config('site_name');
         $modx->mail->Subject = $p['subject'] ?? evo()->config('emailsubject');
         $modx->mail->Body = $p['body'];
-        if (isset($p['type']) && $p['type'] === 'text') {
-            $modx->mail->IsHTML(false);
-        }
+        $modx->mail->IsHTML($this->isHtmlMail($p));
         return $modx->mail->send();
+    }
+
+    /**
+     * sendmail() で HTML メールとして送るかどうか。
+     * type=html / type=text の指定を優先し、指定がなければテキストメールを既定とする。
+     * type を付けずに HTML の本文を渡してくる拡張機能のため、本文に HTML の構造タグがあれば HTML で送る。
+     */
+    private function isHtmlMail($p)
+    {
+        $type = isset($p['type']) ? strtolower(trim($p['type'])) : '';
+        if ($type === 'html') {
+            return true;
+        }
+        if ($type === 'text') {
+            return false;
+        }
+        return is_string($p['body'] ?? null)
+            && preg_match('@<(?:html|body|p|br|div|table|a\s[^>]*href)\b[^>]*>@i', $p['body']) === 1;
     }
 
     function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
