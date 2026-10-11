@@ -14,6 +14,7 @@
 ## Surprises & Discoveries
 
 - 2026-10-11（レビュー #506 で判明）: `manager/includes/accesscontrol.inc.php` の POST 向け CSRF 検証が、ログアウト（`a=8`）を「ログイン処理」として検証から除外している。ログアウトはセッションを破棄する更新操作であり、本来は保護対象。M2 で是正する。
+- 2026-10-11（1.2.2J の作業で確認）: DBAPI は全体が「値は呼び出し側で安全化してから渡す」取り決めで動いている。`where()` に加えて、`db()->update()` / `insert()` に配列で渡した値も、`'%s'` で囲むだけでエスケープされない（`manager/includes/extenders/dbapi/mysqli.inc.php` の `update()`）。`select()` などの条件文字列も同じ。安全化の付け忘れは `where()` の呼び出しに限らず、配列の値・文字列の連結にもある。
 
 ## Decision Log
 
@@ -27,6 +28,8 @@
 - 2026-10-11 / Claude（レビュー反映 #506）: 同じアクション番号で表示と更新を兼ねる処理（`a=31` の `mode=delete` など）があるため、CSRF の一覧はアクション番号だけでなくサブ操作も見る組で定義する。将来は更新を別アクションへ分けるのが望ましいが、この計画の範囲では番号＋サブ操作とする。
 - 2026-10-11 / Claude（レビュー反映 #506）: CSRF 検証はメソッド（GET/POST/HEAD）によらず、一覧に該当する操作で行う。現状の `is_post()` 限定は GET・HEAD で迂回できる。あわせて、既存の POST 検証が `a=8`（ログアウト）を「ログイン処理」として除外しているのは誤り。除外するのは認証前でトークンを持てないログインだけとし、ログアウトは一覧に含める。
 - 2026-10-11 / Claude（レビュー反映 #506 CodeRabbit）: 既存の「ログイン以外の POST は検証」は置き換えず残し、一覧の操作に GET・HEAD の検証を足す形にする。置き換えると、一覧に載せ漏れた状態変更アクションへの POST が検証から外れ、CSRF の守りが後退する。保険として従来の POST 検証を残すことで、一覧が不完全でも POST は守られる。
+- 2026-10-11 / yamamoto・Claude: 上の 2026-10-10 の決定（#505 で `where()` の中でエスケープする）を改める。`where()` だけが値をエスケープすると、DBAPI の取り決め（呼び出し側で安全化してから渡す）と食い違い、先にエスケープしている外部プラグインでは二重エスケープになる。1.2.2J と同じく `where()` は元の仕様に戻し、安全化していなかった呼び出し側を `db()->escape()` / `(int)` で直した（main は `fix/where-callsite` の PR）。取り決めそのものを変える（値のバインドへ移る）のは、PDO 移行（#453）のフェーズ 2 で扱う。
+- 2026-10-11 / Claude: その PR では、id を `(int)` で整数にしている。M1 で `request_intvar()` / `post_intvar()` に揃えるときに、これらも置き換え対象に含める（`(int)` は SQL としては安全だが、`"5abc"` を `5` として扱う）。
 
 ## Outcomes & Retrospective
 
@@ -40,7 +43,7 @@
 
 現状:
 - リクエストの値は `getv()` / `postv()` / `anyv()`（`manager/includes/helpers.php`）で読む。id を数値として読むヘルパー `request_intvar($key)`（`helpers.php`）はあるが、正規表現で確かめた**文字列**を返し、使っている箇所と使っていない箇所が混在している。整数への変換の有無も、processor ごとにばらばら。
-- `where()`（`manager/includes/extenders/ex_dbapi.php`）は、#505 で値をエスケープするようになった。`$field` と `$op` はそのまま埋め込まれる。
+- `where()`（`manager/includes/extenders/ex_dbapi.php`）は値をエスケープしない。DBAPI 共通の取り決めとして、呼び出し側で `db()->escape()` または `(int)` してから渡す。`$field` と `$op` もそのまま埋め込まれる。`db()->update()` / `insert()` の配列の値も同じ（エスケープされない）。
 - CSRF トークンの実装は `manager/includes/csrf_token.php`。トークンはセッション単位で、検証しても消えない（複数タブのため）。受け付ける場所は POST の `csrf_token` と `X-CSRF-Token` ヘッダーだけ（`getRequestCsrfToken()`）。
 - 検証は `manager/includes/accesscontrol.inc.php` の `if (is_post()) { checkCsrfToken(); }` だけで、GET は検証していない。管理画面には、GET で状態が変わるアクションが多数ある。
 - クライアント側は `manager/media/script/csrf.js` が、POST のフォームに hidden の `csrf_token` を補い、同一オリジンへの fetch / XHR で GET 以外のときだけ `X-CSRF-Token` ヘッダーを付ける。`shell.js` の `request()` は、POST のときだけヘッダーを付ける。トークンは `header.inc.php` が出す `<meta name="csrf-token">` から読む。
@@ -52,7 +55,7 @@ M1（入力の受け取り）では、`request_intvar($key)` を「正の整数�
 
 M2（CSRF）では、`manager/includes/csrf_token.php` に「状態を変える操作の一覧」と、それを判定する関数を置く。一覧に含めるかどうかは「DB・ファイル・**セッション**を書き換えるか」で判断し、表示だけの画面は含めない。**同じアクション番号で表示と更新を兼ねる処理がある**ため、判定はアクション番号だけでなく、必要に応じてサブ操作（`a=31` の `mode=delete` など）も見る。将来的には更新処理を別アクションに分けるのが望ましいが、この計画の範囲では、番号＋サブ操作の組で一覧を定義する。`accesscontrol.inc.php` の検証は、**既存の「ログイン以外の POST は検証する」を残したうえで**、一覧に該当する操作には GET・HEAD などの検証を**足す**（置き換えではない。置き換えると、一覧に載せ漏れた状態変更アクションへの POST が、今まで効いていた検証からも外れてしまう。保険として従来の POST 検証を残す）。これで、一覧が万一不完全でも、POST の守りは後退しない。あわせて、現在の POST 検証が `a=8`（ログアウト。セッションを破棄する更新操作）を「ログイン処理」として検証から外しているのは誤りなので、除外するのはログイン（認証前でトークンを持てない）だけにし、ログアウトは検証対象に戻す（一覧にも含める）。`getRequestCsrfToken()` は、POST の値・ヘッダーに加えて GET の `csrf_token` を受け付ける。クライアントでは、`csrf.js` が同一オリジンへの fetch / XHR に、メソッドによらずヘッダーを付ける（`shell.js` の GET もこれで付く）。フルページの遷移のために、URL へトークンを付ける共通の関数を、PHP（例: `csrfUrl($url)`）と JS（例: `EvoCsrf.url(url)`）の両方に用意し、状態を変える操作へのリンク・`location.href` の組み立てをこれに置き換える。
 
-M3（CI での検出）では、`.github/scripts/security-lint.php` を作り、次を検出したら終了コード 1 で終わるようにする。processor の中で、`getv()` / `anyv()` / `postv()` の戻り値を SQL の文字列へ直接埋め込んでいる書き方。`<script>` の文脈で `addslashes()` や `db()->escape()` を使っている書き方。`manager/index.php` で processor を読み込むアクションのうち、状態を変えるのに一覧へ登録されていないもの（判定できないものは、一覧か除外リストのどちらかへの明示を求める）。既存の違反は、M1・M2 の完了時点で 0 件にする。GitHub Actions のワークフロー（`.github/workflows/security-lint.yml`）から PR ごとに実行する。
+M3（CI での検出）では、`.github/scripts/security-lint.php` を作り、次を検出したら終了コード 1 で終わるようにする。processor の中で、`getv()` / `anyv()` / `postv()` の戻り値を SQL の文字列へ直接埋め込んでいる書き方。リクエストの値を、`db()->escape()` / `(int)` / `request_intvar()` を通さずに `where()` / `and_where()` の値や、`db()->update()` / `insert()` の配列の値へ渡している書き方。`<script>` の文脈で `addslashes()` や `db()->escape()` を使っている書き方。`manager/index.php` で processor を読み込むアクションのうち、状態を変えるのに一覧へ登録されていないもの（判定できないものは、一覧か除外リストのどちらかへの明示を求める）。既存の違反は、M1・M2 の完了時点で 0 件にする。GitHub Actions のワークフロー（`.github/workflows/security-lint.yml`）から PR ごとに実行する。
 
 M4（検証）では、`.claude/skills/adaptive-validation-runner` の検証環境で、M1〜M3 の確認スクリプトを main と比べて流す。
 
@@ -106,7 +109,7 @@ M4:
 ## Artifacts and Notes
 
 - Issue: #493
-- 先行して直したもの: #490（ドキュメントグループの権限判定）、#491（ブロック中のログイン）、#492・#504（JS への埋め込み）、#505（`where()` のエスケープ）
+- 先行して直したもの: #490（ドキュメントグループの権限判定）、#491（ブロック中のログイン）、#492・#504（JS への埋め込み）、#505（`where()` のエスケープ。のちに、取り決めに沿って呼び出し側を直す形へ改めた）
 - 想定するコミットの単位: M1 は `request_intvar()` の変更と processor の置き換えを、ディレクトリ（document / pm / db / element など）ごとに分ける。M2 は「トークンを受け付ける」「呼び出し元に付ける」「必須にする」の 3 つに分ける。M3 はスクリプトとワークフローで 1 つ。
 - 関連する計画: `.agent/plans/2026-07-08-pdo-migration-dbapi-refactor.md`（PR #453。未マージ）
 
