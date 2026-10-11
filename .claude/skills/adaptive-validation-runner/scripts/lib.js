@@ -53,7 +53,8 @@ async function login(browser, user = config.adminUser, password = config.adminPa
     await page.fill('#username', user);
     await page.fill('#password', password);
     await page.click('#submitButton');
-    await page.waitForSelector('#mainPane', { timeout: 15000 });
+    // 1.2 系の管理画面はフレームセット（frame[name="main"]）。main 以降はシェルの #mainPane
+    await page.waitForSelector('#mainPane, frame[name="main"]', { state: 'attached', timeout: 15000 });
     await page.waitForLoadState('networkidle').catch(() => {});
     return page;
 }
