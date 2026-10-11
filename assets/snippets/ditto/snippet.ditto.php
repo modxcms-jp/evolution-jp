@@ -1300,12 +1300,10 @@ if ($count > 0) {
         }
 
         $resource = array_values($resource);
+        // fewer documents than expected (e.g. &queryLimit): the last one gets tplLast
+        $stop = min($stop, count($resource));
 
         for ($x = $start; $x < $stop; $x++) {
-            // fewer documents than expected (e.g. &queryLimit)
-            if (!isset($resource[$x])) {
-                break;
-            }
             $template = $ditto->template->determine(
                 $templates,
                 $x,

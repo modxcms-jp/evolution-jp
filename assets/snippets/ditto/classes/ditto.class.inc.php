@@ -265,7 +265,8 @@ class ditto
                 $source = $filterArray[0];
                 $this->addField($source, 'backend');
                 $value = $filterArray[1] ?? '';
-                $mode = isset ($filterArray[2]) ? $filterArray[2] : 1;
+                // null when omitted: the filter class falls back to mode 9 (case-insensitive contains)
+                $mode = isset($filterArray[2]) ? $filterArray[2] : null;
                 $parsedFilters['basic'][] = ['source' => $source, 'value' => $value, 'mode' => $mode];
             }
         }

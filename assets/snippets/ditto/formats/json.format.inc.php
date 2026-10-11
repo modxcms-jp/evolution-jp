@@ -66,7 +66,10 @@ if (!function_exists('ditto_json_str')) {
 // JSONP: only a JavaScript identifier (e.g. callback or obj.method) is allowed as the callback name
 $jsonp = anyv($dittoID . 'jsonp', '');
 $jsonp = (is_string($jsonp) && preg_match('/^[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*$/', $jsonp)) ? $jsonp : '';
-$json_placeholders['json_op'] = $jsonp !== '' ? $jsonp . '(' : '';
+// values put inside the JSON strings of the header
+foreach (['json_lang', 'json_copyright', 'json_link'] as $k) {
+    $json_placeholders[$k] = ditto_json_str($json_placeholders[$k] ?? '');
+}
 $json_placeholders['json_title'] = ditto_json_str(evo()->documentObject['pagetitle'] ?? '');
 $json_placeholders['json_doc_description'] = ditto_json_str(evo()->documentObject['description'] ?? '');
 
@@ -96,7 +99,7 @@ if (!function_exists("json_parameters")) {
 // ---------------------------------------------------
 
 $json_header = '
-[+json_op+]{
+{
  "title":"[+json_title+]",
  "link":"[+json_link+]",
  "description":"[+json_doc_description+]",
@@ -148,7 +151,13 @@ $tpl = isset($tpl) ? $tpl : "@CODE:{$json_tpl}";
 
 $tplLast = isset($tplLast) ? $tplLast : "@CODE:{$json_tpl_last}";
 
-$footer = isset($footer) ? $footer : $json_footer . ($jsonp !== '' ? ');' : '');
+$footer = isset($footer) ? $footer : $json_footer;
+
+// JSONP wraps the whole output, whichever header / footer is used
+if ($jsonp !== '') {
+    $header = $jsonp . '(' . $header;
+    $footer .= ');';
+}
 
 // set emptytext
 $noResults = '      ';

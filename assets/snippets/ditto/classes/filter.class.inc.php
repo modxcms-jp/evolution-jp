@@ -29,11 +29,7 @@ class filter
     private function _basicFilter($docs, $param)
     {
         foreach ($docs as $i => $doc) {
-            $unset = $this->isTrue($doc, $param);
-            if ($param['flip_mode']) {
-                $unset = !$unset;
-            }
-            if ($unset) {
+            if ($this->isTrue($doc, $param)) {
                 unset($docs[$i]);
             }
         }
@@ -47,11 +43,13 @@ class filter
         $rs = [];
         $op = $this->_get_operator_name($param['mode']);
         if (!$op) {
+            // source:operator:value is accepted as well
             $op = $this->_get_operator_name($param['value']);
             if ($op) {
                 $param['value'] = $param['mode'];
             } else {
-                $op = '9';
+                // mode omitted or unknown: case-insensitive "contains" (mode 9)
+                $op = 'ci_find';
             }
         }
         $rs['op'] = $op;
@@ -83,19 +81,10 @@ class filter
 
         $rs['field_name'] = $param['source'];
 
-        if (strpos($rs['op'], '!') !== 0 || strpos($rs['op'], '!!') === 0) {
-            $rs['flip_mode'] = 0;
-            return $rs;
-        }
-        $rs['flip_mode'] = 1;
-        $rs['op'] = substr($rs['op'], 1);
-        if ($rs['op'] === '=') {
-            $rs['op'] = '==';
-        }
-
         return $rs;
     }
 
+    // Returns true when the document is to be removed from the result
     private function isTrue($doc, $param)
     {
         $field_name = $param['field_name'];
@@ -103,7 +92,7 @@ class filter
         $creteria = $param['creteria'];
 
         switch ($param['op']) {
-            case '!=' :
+            case '!=' : // keep the documents equal to the value
                 return ($doc_value != $creteria || $doc_value === false);
             case '==' :
                 return ($doc_value == $creteria);
@@ -115,39 +104,45 @@ class filter
                 return ($doc_value >= $creteria);
             case '<=' :
                 return ($doc_value <= $creteria);
-            case '=~' :
-                return (strpos($doc_value, $creteria) === false);
-            case '!~' :
-                return (strpos($doc_value, $creteria) !== false);
-            case 9    :
-                return (stripos($doc_value, $creteria) === false);
-            case 10   :
-                return (stripos($doc_value, $creteria) !== false);
-            case 'regex':
-                // remove the documents not matching the pattern (like '=~')
-                return (preg_match($creteria, (string)$doc_value) !== 1);
-            case 11   :
-                $firstChr = strtoupper(substr($doc_value, 0, 1));
-                return ($firstChr != $creteria);
+            case '=~' : // keep the documents containing the value
+                return (strpos((string)$doc_value, (string)$creteria) === false);
+            case '!~' : // remove the documents containing the value
+                return (strpos((string)$doc_value, (string)$creteria) !== false);
+            case 'ci_find' : // keep the documents containing the value (case-insensitive)
+                return (stripos((string)$doc_value, (string)$creteria) === false);
+            case 'ci_not_find' :
+                return (stripos((string)$doc_value, (string)$creteria) !== false);
+            case 'regex': // keep the documents matching the pattern
+                return (preg_match((string)$creteria, (string)$doc_value) !== 1);
+            case 'first_char' : // keep the documents beginning with the letter
+                return (strtoupper(substr((string)$doc_value, 0, 1)) != $creteria);
         }
         return false;
     }
 
+    // mode number or operator name => operator used in isTrue()
+    private const OPERATORS = [
+        '1' => '!=', '!=' => '!=', '<>' => '!=', 'ne' => '!=',
+        '2' => '==', '==' => '==', 'eq' => '==',
+        '3' => '<', '<' => '<', 'lt' => '<',
+        '4' => '>', '>' => '>', 'gt' => '>',
+        '5' => '>=', '>=' => '>=', 'gte' => '>=', 'ge' => '>=',
+        '6' => '<=', '<=' => '<=', 'lte' => '<=', 'le' => '<=',
+        '7' => '=~', '=~' => '=~', 'find' => '=~', 'search' => '=~', 'strpos' => '=~',
+        '8' => '!~', '!=~' => '!~', '!~' => '!~', '!find' => '!~', '!search' => '!~', '!strpos' => '!~',
+        '9' => 'ci_find',
+        '10' => 'ci_not_find',
+        '11' => 'first_char',
+        'regex' => 'regex', 'preg' => 'regex',
+    ];
+
     private function _get_operator_name($op)
     {
-        if (in_array($op, ['!=', '1', '<>', 'ne'], true)) return '!=';
-        if (in_array($op, ['==', 2, 'eq'])) return '==';
-        if (in_array($op, ['<', 3, 'lt'])) return '<';
-        if (in_array($op, ['<=', 6, 'lte', 'le'])) return '<=';
-        if (in_array($op, ['>', 4, 'gt'])) return '>';
-        if (in_array($op, ['>=', 5, 'gte', 'ge'])) return '>=';
-        if (in_array($op, ['regex', 'preg'])) return 'regex';
-        if (in_array($op, ['=~', 7, 'find', 'search', 'strpos'])) return '=~';
-        if (in_array($op, ['!=~', 8, '!~', '!find', '!search', '!strpos'])) return '!~';
-        if (in_array($op, [9, '9'], true)) return 9;
-        if (in_array($op, [10, '10'], true)) return 10;
-        if (in_array($op, [11, '11'], true)) return 11;
-        return false;
+        // null: mode omitted in &filter
+        if ($op === null || is_array($op)) {
+            return false;
+        }
+        return self::OPERATORS[(string)$op] ?? false;
     }
 
     private function is_datetime_field($field_name = '')
