@@ -141,7 +141,8 @@ class ForgotManagerPassword
         return evo()->sendmail(
             [
                 'subject' => $this->lang('password_change_request'),
-                'sendto' => $email
+                'sendto' => $email,
+                'type' => 'text'
             ],
             evo()->parseDocumentSource(
                 evo()->parseText(

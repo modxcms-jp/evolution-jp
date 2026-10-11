@@ -103,6 +103,7 @@ function pm2email($from, $fields)
     $params['from'] = $from['email'];
     $params['fromname'] = $from['fullname'];
     $params['subject'] = array_get($fields, 'subject');
+    $params['type'] = 'text';
     $params['sendto'] = db()->getValue(
         db()->select(
             'email',
