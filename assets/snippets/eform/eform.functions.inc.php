@@ -422,7 +422,7 @@ function eForm($modx, $params)
             # added in 1.4.2 - Limit the time between form submissions
             if ($submitLimit > 0) {
                 if (time() < $submitLimit + sessionv($formid . '_limit', 0)) {
-                    return formMerge($_lang['ef_submit_time_limit'], $fields);
+                    return formMerge($_lang['ef_submit_time_limit'], efHtmlFields($fields));
                 } else {
                     sessionv('*' . $formid . '_limit', null);
                     sessionv('*' . $formid . '_hash', null);
@@ -439,7 +439,7 @@ function eForm($modx, $params)
                         if (isset($startupSource)) {
                             efRegisterStartupBlock($startupSource);
                         }
-                        return formMerge($tpl, $fields);
+                        return formMerge($tpl, efHtmlFields($fields));
                     }
                     return '';
                 }
@@ -470,7 +470,7 @@ function eForm($modx, $params)
 
                 # check if already succesfully submitted with same data
                 if ($sessionHash === $hash && $hash != '') {
-                    return formMerge($_lang['ef_multiple_submit'], $fields);
+                    return formMerge($_lang['ef_multiple_submit'], efHtmlFields($fields));
                 }
             }
 
@@ -638,14 +638,15 @@ function eForm($modx, $params)
                     if (isset($startupSource)) {
                         efRegisterStartupBlock($startupSource, true);
                     }    //skip scripts
+                    $htmlFields = efHtmlFields($fields);
                     if ($sendAsText) {
                         foreach ($formats as $key => $fmt) {
-                            if (($fmt[2] ?? '') === 'html' && isset($fields[$key])) {
-                                $fields[$key] = str_replace("\n", '<br />', $fields[$key]);
+                            if (($fmt[2] ?? '') === 'html' && isset($htmlFields[$key])) {
+                                $htmlFields[$key] = str_replace("\n", '<br />', $htmlFields[$key]);
                             }
                         }
                     }
-                    $thankyou = formMerge($thankyou, $fields);
+                    $thankyou = formMerge($thankyou, $htmlFields);
                     return $thankyou;
                 }
                 return $_lang['ef_thankyou_message'];
@@ -716,7 +717,20 @@ function eForm($modx, $params)
     if (isset($startupSource)) {
         efRegisterStartupBlock($startupSource);
     }
-    return formMerge($tpl, $fields);
+    return formMerge($tpl, efHtmlFields($fields));
+}
+
+# Escape field values for pages shown in the browser (not for mail bodies).
+# validationmessage / debug / disclaimer are HTML built by eForm itself.
+function efHtmlFields($fields)
+{
+    foreach ($fields as $key => $value) {
+        if (in_array($key, ['validationmessage', 'debug', 'disclaimer'], true)) {
+            continue;
+        }
+        $fields[$key] = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+    }
+    return $fields;
 }
 
 # Form Merge
@@ -1036,7 +1050,8 @@ function stripTagQuotes($value)
 
 function buildTagPlaceholder($tag, $attributes, $name)
 {
-    $type = (isset($attributes["type"])) ? stripTagQuotes($attributes["type"]) : '';
+    // an input without type is a text input
+    $type = (isset($attributes["type"])) ? stripTagQuotes($attributes["type"]) : ($tag === 'input' ? 'text' : '');
     $quotedValue = (isset($attributes['value'])) ? $attributes['value'] : '';
     $val = stripTagQuotes($quotedValue);
 
