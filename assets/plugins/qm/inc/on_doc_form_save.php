@@ -14,4 +14,4 @@ evo()->clearCache();
 
 global $modx;
 $modx->config['xhtml_urls'] = 0;
-exit(sprintf("<script>parent.location.href='%s';</script>", evo()->makeUrl(postv('qmrefresh', $id))));
+exit(sprintf('<script>parent.location.href=%s;</script>', js_literal(evo()->makeUrl((int)postv('qmrefresh', $id)))));

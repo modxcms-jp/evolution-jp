@@ -1,19 +1,27 @@
 <?php
 
-if (postv('save')) {
-    $this->setLocked(0); // Remove document locked
-    $this->saveTv(getv('tvname'));
-    exit('<body onload="parent.location.reload();">');
+global $tv;
+// 編集できるのは、組み込みの項目とこの文書の TV だけ
+$tvName = (string)getv('tvname');
+$tv = $this->getField($tvName, $docID);
+if (!$tv) {
+    return 'Error: Unknown field.';
 }
 
-global $tv;
-$tv = $this->getField(getv('tvname'), $docID);
-
 $locked = false;
-$access = tv('access', $this->checkTvAccess(tv('id')));
+$access = tv('access');
+if ($access === null) {
+    $access = $this->checkTvAccess(tv('tvid'));
+}
 
 if (!$access) {
     return 'Error: Access denied.';
+}
+
+if (postv('save')) {
+    $this->setLocked(0); // Remove document locked
+    $this->saveTv($tvName, tv('tvid', 0));
+    exit('<body onload="parent.location.reload();">');
 }
 
 if ($this->checkLocked()) {
@@ -25,7 +33,7 @@ if ($this->checkLocked()) {
 if (tv('type') === 'richtext') {
     $tmp = [
         'editor' => evo()->config['which_editor'],
-        'elements' => ['tv' . getv('tvname')]
+        'elements' => ['tv' . $tvName]
     ];
     $eventOutput = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
     if (is_array($eventOutput)) {
@@ -34,7 +42,7 @@ if (tv('type') === 'richtext') {
 }
 $tvHtml = evo()->renderFormElement(
     tv('type'),
-    getv('tvname'),
+    $tvName,
     tv('default_text'),
     tv('elements'),
     tv('value')
@@ -74,7 +82,7 @@ if ($locked) {
         $imagePreview = $this->get_img_prev_src();
         $imagePreview = str_replace(
             ['[+site_url+]', '[+tv_value+]', '[+tv_name+]'],
-            [MODX_SITE_URL, tv('value'), getv('tvname')],
+            [MODX_SITE_URL, hsc(tv('value')), $tvName],
             $imagePreview
         );
     } else $imagePreview = '';
@@ -116,13 +124,13 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
 ', [
         'site_url' => MODX_SITE_URL,
         'docid' => $docID,
-        'tvname' => getv('tvname'),
-        'tvid' => tv('tvid', ''),
+        'tvname' => urlencode($tvName),
+        'tvid' => (int)tv('tvid', 0) ?: '',
         'lang_save' => lang('save'),
         'lang_cancel' => lang('cancel'),
-        'caption' => tv('caption'),
+        'caption' => hsc(tv('caption')),
         'description' => tv('description', ''),
-        'type' => tv('type'),
+        'type' => hsc(tv('type')),
         'form' => $tvHtml,
         'img_preview' => $imagePreview,
         'editor_html' => isset($editorHtml) ? $editorHtml : ''
