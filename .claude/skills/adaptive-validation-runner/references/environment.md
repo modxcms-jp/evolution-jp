@@ -80,10 +80,10 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ## 設定を変えて確かめる
 
-システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html ${EVO_VALIDATE_NAME:-evo-validate}-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
+システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html <名前>-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
 
 ```bash
-docker exec ${EVO_VALIDATE_NAME:-evo-validate}-db mariadb -uuser -ppassword evodb -e \
+docker exec <名前>-db mariadb -uuser -ppassword evodb -e \
   "REPLACE INTO modx_system_settings (setting_name,setting_value) VALUES ('email_method','smtp'),('smtp_host','mailpit'),('smtp_port','1025'),('smtp_auth','0'),('smtp_secure','')"
 ```
 
