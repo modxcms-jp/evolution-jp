@@ -184,7 +184,7 @@ class Wayfinder
                 }
                 $this->_config['useReferenced'] = array_diff($this->_config['useReferenced'], explode(',', 'content,parent,isfolder'));
 
-                if ($resource[$this->_config['textOfLinks']]) {
+                if (!empty($resource[$this->_config['textOfLinks']])) {
                     $linkTextField = $this->_config['textOfLinks'];
                 } else {
                     $linkTextField = 'pagetitle';
@@ -195,10 +195,10 @@ class Wayfinder
                         $resource[$field] = $referenced[$field];
                     }
                     if (in_array($field, ['linktext', $linkTextField], true)) {
-                        $resource['linktext'] = $referenced[$linkTextField];
+                        $resource['linktext'] = $referenced[$linkTextField] ?? '';
                     }
                     if (in_array($field, ['title', $this->_config['titleOfLinks']], true)) {
-                        $resource['title'] = $referenced[$this->_config['titleOfLinks']];
+                        $resource['title'] = $referenced[$this->_config['titleOfLinks']] ?? '';
                     }
                 }
             }
@@ -601,7 +601,7 @@ class Wayfinder
                 $_ = explode(',', $this->_config['textOfLinks']);
                 foreach ($_ as $v) {
                     $v = trim($v);
-                    if ($row[$v]) {
+                    if (!empty($row[$v])) {
                         $useTextField = $v;
                         break;
                     }
@@ -609,13 +609,13 @@ class Wayfinder
                 if (empty($useTextField)) {
                     $useTextField = 'pagetitle';
                 }
-            } elseif ($row[$this->_config['textOfLinks']]) {
+            } elseif (!empty($row[$this->_config['textOfLinks']])) {
                 $useTextField = $this->_config['textOfLinks'];
             } else {
                 $useTextField = 'pagetitle';
             }
 
-            $row['linktext'] = $row[$useTextField];
+            $row['linktext'] = $row[$useTextField] ?? '';
 
             $useTitleField = null;
 
@@ -623,19 +623,19 @@ class Wayfinder
                 $_ = explode(',', $this->_config['titleOfLinks']);
                 foreach ($_ as $v) {
                     $v = trim($v);
-                    if ($row[$v]) {
+                    if (!empty($row[$v])) {
                         $useTitleField = $v;
                         break;
                     }
                 }
                 if (empty($useTitleField)) {
-                    $useTitleField = $this->_config['titleOfLinks'];
+                    $useTitleField = 'pagetitle';
                 }
             } else {
                 $useTitleField = $this->_config['titleOfLinks'];
             }
 
-            $row['title'] = $row[$useTitleField];
+            $row['title'] = $row[$useTitleField] ?? '';
 
             //If tvs were specified keep array flat otherwise array becomes level->parent->doc
             if ($this->tvList) {
@@ -676,8 +676,9 @@ class Wayfinder
 
         $resourceArray = [];
         foreach ($docIDs as $id) {
+            // false when the document's template has no such TV (or a weblink with template 0)
             $tv = $modx->getTemplateVarOutput($tvname, $id);
-            $resourceArray["#{$id}"][$tvname] = $tv[$tvname];
+            $resourceArray["#{$id}"][$tvname] = is_array($tv) ? ($tv[$tvname] ?? '') : '';
         }
         return $resourceArray;
     }

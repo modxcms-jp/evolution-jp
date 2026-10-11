@@ -16,6 +16,12 @@ $dm = new DocManager($modx);
 $dm->getLang();
 $dm->getTheme();
 
+// 管理画面にログインしていて、モジュールを実行できる人だけ
+if (!sessionv('mgrValidated') || !evo()->hasPermission('exec_module')) {
+    http_response_code(403);
+    exit;
+}
+
 checkCsrfToken();
 
 $output = '';
