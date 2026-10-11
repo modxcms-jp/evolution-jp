@@ -669,16 +669,25 @@ function request_time()
 
 function real_ip()
 {
-    return serverv(
-        'http_client_ip',
-        serverv(
-            'http_x_forwarded_for',
-            serverv(
-                'remote_addr',
-                'UNKNOWN'
-            )
-        )
-    );
+    // クライアントが詐称できるヘッダー（client-ip / x-forwarded-for）も候補に含めるが、
+    // 返す値は必ず IP アドレスの形式に限定する。
+    // ここを通す値はログやアクティブユーザー表の SQL にそのまま渡されるため、
+    // IP として妥当でない文字列（SQL 片など）を返さないことが安全上の要になる。
+    $candidates = [
+        serverv('http_client_ip', ''),
+        serverv('http_x_forwarded_for', ''),
+        serverv('remote_addr', ''),
+    ];
+    foreach ($candidates as $candidate) {
+        // x-forwarded-for は "client, proxy1, proxy2" のように連結されることがある
+        foreach (explode(',', (string) $candidate) as $ip) {
+            $ip = trim($ip);
+            if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+                return $ip;
+            }
+        }
+    }
+    return 'UNKNOWN';
 }
 
 function user_agent()
