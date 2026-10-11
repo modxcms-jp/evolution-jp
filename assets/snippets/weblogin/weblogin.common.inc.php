@@ -15,7 +15,7 @@ function webLoginExtractDeclarations(&$html)
         for ($i = 0; $i < count($matches[1]); $i++) {
             $tag = explode(' ', $matches[1][$i]);
             $tagname = trim($tag[0]);
-            $tagvalue = trim($tag[1]);
+            $tagvalue = trim($tag[1] ?? '');
             $declare[$tagname] = $tagvalue;
         }
         // remove declarations

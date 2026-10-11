@@ -21,20 +21,22 @@ if ($isPWDActivate == 1) {
     }
     $row = db()->getRow($rs);
     $username = $row['username'];
-    [$newpwd, $token, $requestedon] = explode('|', $row['cachepwd']);
-    $past = time() - $requestedon;
+    // 有効化済み（cachepwd が空）や形式の違う値は、無効なキーとして扱う
+    $cachepwd = explode('|', (string)$row['cachepwd']);
+    [$newpwd, $token, $requestedon] = count($cachepwd) === 3 ? $cachepwd : ['', '', 0];
+    $past = time() - (int)$requestedon;
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token !== anyv('token')) {
-        if (!$actInvalidKey)
+    if ($token === '' || $token !== anyv('token')) {
+        if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
         return;
     }
 
     if ($expireTime < $past) {
-        if (!$actExpire)
+        if (empty($actExpire))
             $output = webLoginAlert("It was over expiration time");
         else
             $modx->sendRedirect($actExpire);
