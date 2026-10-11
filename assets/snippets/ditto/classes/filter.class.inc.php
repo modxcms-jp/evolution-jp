@@ -124,7 +124,8 @@ class filter
             case 10   :
                 return (stripos($doc_value, $creteria) !== false);
             case 'regex':
-                return (preg_match($doc_value, $creteria) === false);
+                // remove the documents not matching the pattern (like '=~')
+                return (preg_match($creteria, (string)$doc_value) !== 1);
             case 11   :
                 $firstChr = strtoupper(substr($doc_value, 0, 1));
                 return ($firstChr != $creteria);
@@ -142,7 +143,10 @@ class filter
         if (in_array($op, ['>=', 5, 'gte', 'ge'])) return '>=';
         if (in_array($op, ['regex', 'preg'])) return 'regex';
         if (in_array($op, ['=~', 7, 'find', 'search', 'strpos'])) return '=~';
-        if (in_array($op, ['!=~', 8, '!~', '!find', '!search', '!strpos'])) return '!=~';
+        if (in_array($op, ['!=~', 8, '!~', '!find', '!search', '!strpos'])) return '!~';
+        if (in_array($op, [9, '9'], true)) return 9;
+        if (in_array($op, [10, '10'], true)) return 10;
+        if (in_array($op, [11, '11'], true)) return 11;
         return false;
     }
 

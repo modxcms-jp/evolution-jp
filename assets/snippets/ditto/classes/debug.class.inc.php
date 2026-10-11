@@ -148,18 +148,20 @@ class debug extends modxDebugConsole
         }
         $output = '';
         foreach ($resource as $item) {
-            $item['createdon'] = sprintf(
-                '%s(%s)',
-                $item['createdon'],
-                $modx->toDateFormat(
-                    $item['createdon']
-                )
-            );
+            if (isset($item['createdon'])) {
+                $item['createdon'] = sprintf(
+                    '%s(%s)',
+                    $item['createdon'],
+                    $modx->toDateFormat(
+                        $item['createdon']
+                    )
+                );
+            }
             $output .= $this->makeParamTable(
                 $item,
                 str_replace(
                     ['[+pagetitle+]', '[+id+]'],
-                    [$item['pagetitle'], $item['id']],
+                    [$item['pagetitle'] ?? '', $item['id'] ?? ''],
                     $this->templates['item']
                 ),
                 true,

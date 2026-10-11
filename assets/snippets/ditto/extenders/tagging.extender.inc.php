@@ -202,7 +202,8 @@ if (!class_exists('tagging')) {
         {
             global $dittoID;
 
-            $getTags = getv($dittoID . 'tags') ? trim(getv($dittoID . 'tags')) : false;
+            $rawTags = getv($dittoID . 'tags');
+            $getTags = (is_string($rawTags) && $rawTags !== '') ? trim($rawTags) : false;
             // Get tags from the getv array
 
             $tags1 = [];
@@ -279,7 +280,8 @@ if (!class_exists('tagging')) {
         function combineTags($tagData, $resource, $array = false)
         {
             if ($this->callback !== false) {
-                return call_user_func_array($this->callback, ['tagData' => $tagData, 'resource' => $resource, 'array' => $array]);
+                // positional arguments (string keys would be named arguments in PHP 8)
+                return call_user_func_array($this->callback, [$tagData, $resource, $array]);
             }
             $tags = [];
             foreach ($tagData as $source) {
@@ -303,12 +305,12 @@ if (!class_exists('tagging')) {
 
         function tagLinks($tags, $tagDelimiter, $tagID = false, $format = 'html')
         {
-            global $ditto_lang, $modx, $templates;
+            global $ditto_lang, $modx;
             if (!$tags && $format === 'html') {
                 return $ditto_lang['none'];
             }
 
-            if (!$tags && ($format === 'rss' || $format === 'xml' || $format === 'xml')) {
+            if (!$tags && ($format === 'rss' || $format === 'xml' || $format === 'atom')) {
                 return sprintf('<category>%s</category>', $ditto_lang['none']);
             }
 
@@ -321,26 +323,29 @@ if (!class_exists('tagging')) {
             $tplRss = "\r\n" . '				<category>[+tag+]</category>';
             $tpl = ($this->tpl == false) ? '<a href="[+url+]" class="ditto_tag" rel="tag">[+tag+]</a>' : $this->tpl;
 
-            $tpl = (($format === 'rss' || $format === 'xml' || $format === 'atom') && $templates['user'] == false) ? $tplRss : $tpl;
+            $tpl = (($format === 'rss' || $format === 'xml' || $format === 'atom') && $this->tpl == false) ? $tplRss : $tpl;
 
             if ($this->displayMode == 1) {
                 foreach ($tags as $tag) {
                     $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
-                    $url = ditto::buildURL("tags={$tag}&start=0", $tagDocID);
-                    $output .= template::replace(['url' => $url, 'tag' => $tag], $tpl);
+                    $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
+                    $output .= template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
                     $output .= ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? $this->displayDelimiter : '';
                 }
             } else if ($format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $this->displayMode == 2) {
                 $tagList = [];
                 foreach ($tags as $tag) {
                     $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
-                    $url = ditto::buildURL("tags={$tag}&start=0", $tagDocID);
-                    $tagList[] = template::replace(['url' => $url, 'tag' => $tag], $tpl);
+                    $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
+                    $tagList[] = template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
                 }
                 $output = $this->makeList($tagList, $ulroot = 'ditto_tag_list', $ulprefix = 'ditto_tag_', $type = '', $ordered = false, $tablevel = 0);
             }
 
-            return ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? substr($output, 0, -1 * strlen($this->displayDelimiter)) : $output;
+            // remove the last delimiter (only displayMode 1 adds them)
+            return ($this->displayMode == 1 && $format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $output !== '')
+                ? substr($output, 0, -1 * strlen($this->displayDelimiter))
+                : $output;
         }
 
         function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)
@@ -367,7 +372,7 @@ if (!class_exists('tagging')) {
                     $listhtml .= "{$tabs}\t<li>{$value}</li>\n";
                 }
             }
-            $listhtml = "{$tabs}</{$tag}>\n";
+            $listhtml .= "{$tabs}</{$tag}>\n";
             return $listhtml;
         }
     }
@@ -393,7 +398,7 @@ $modx->setPlaceholder($dittoID . 'tagLinks', $tags->tagLinks($tags->givenTags, $
 	Nice 'n beautiful tag list with links pointing to <tagDocumentID>
 */
 // set raw tags placeholder
-$modx->setPlaceholder($dittoID . 'tags', implode($delimiter, $tags->givenTags));
+$modx->setPlaceholder($dittoID . 'tags', hsc(implode($delimiter, $tags->givenTags)));
 /*
 	Placeholder: tags
 

@@ -78,7 +78,7 @@ Any valid text or html
 Default:
 'Read more...'
 */
-$trunc_tpl = isset($tplTrunc) ? template::fetch($tplTrunc) : false;
+$trunc_tpl = isset($tplTrunc) ? $ditto->template->fetch($tplTrunc) : false;
 /*
 Param: tplTrunc
 
