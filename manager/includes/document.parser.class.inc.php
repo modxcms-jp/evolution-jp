@@ -4865,6 +4865,10 @@ class DocumentParser
         if (!$resource['template']) {
             $result = [];
             foreach ($resource as $key => $value) {
+                // TVs merged into documentObject are arrays: not built-in fields
+                if (is_array($value)) {
+                    continue;
+                }
                 if ($idnames === '*' || in_array($key, $names)) {
                     $result[] = ['name' => $key, 'value' => $value];
                 }
@@ -4927,6 +4931,10 @@ class DocumentParser
         // get default/built-in template variables
         ksort($resource);
         foreach ($resource as $key => $value) {
+            // TVs merged into documentObject are arrays and come from the query above
+            if (is_array($value)) {
+                continue;
+            }
             if ($idnames === '*' || in_array($key, $names)) {
                 $result[] = ['name' => $key, 'value' => $value];
             }
@@ -4961,7 +4969,7 @@ class DocumentParser
             }
 
             // built-in fields (pagetitle etc.) have no display format
-            if (!isset($row['type'])) {
+            if (!isset($row['type']) && !is_array($row['value'])) {
                 $output[$row['name']] = $row['value'];
                 continue;
             }
