@@ -98,3 +98,21 @@ git status --short
 - 確認のために止めたほかのコンテナは、ユーザーの指示に従って戻すか止めたままにする
 - 作業用ディレクトリ（Playwright・確認スクリプト）は、リポジトリの外なので PR には入らない。不要なら消す
 - ユーザーが目視で確かめたい場合は、`down` せずにログイン情報と URL を伝える
+
+## 1.2 系（保守ブランチ・リリースタグ）で検証するとき
+
+1.2 系の作業ツリーには、このスキルが含まれていない。main の `.claude/skills/adaptive-validation-runner/` を作業用ディレクトリ（リポジトリの外）へ取り出し、1.2 系の作業ツリーのルートで実行する（`git show origin/main:<path> > <work>/<path>` で 1 ファイルずつ取り出す。`git archive` は `.claude/` が export-ignore のため空になる）。
+
+```bash
+docker compose -p evo-validate -f compose.yml -f <work>/scripts/compose.validation.yml up -d --build
+NODE_PATH=<work>/pw/node_modules node <work>/scripts/setup-site.js --sample --editor
+NODE_PATH=<work>/pw/node_modules node <work>/scripts/smoke-1.2.js
+```
+
+- **管理画面はフレームセット**: ログイン後は `frame[name="main"]` などのフレームセットで、シェル（`#mainPane`）は無い。`lib.js` の `login()` はどちらでも通る。`smoke.js` と `shellState()` はシェル前提なので使えず、代わりに `scripts/smoke-1.2.js` を使う
+- **バージョンを切り替えたら、システム設定を保存し直す**: DB の `settings_version` とコードの版が食い違うと、表側がメンテナンス画面（503）になる。修正前（1.2.xJ のタグ）と修正後を行き来するたびに、`setup-site.js`（インストール済みなら設定の保存だけ行う）を流し直す
+- **auth_token は表側の入口でだけ効く**: 1.2 系では `token_auth()` が `getSettings()` から呼ばれるため、`/manager/?auth_token=` ではログインにならない。`/?auth_token=` で確かめる
+- **手で組み立てた POST は 403 になる**: 管理画面の POST には CSRF トークン（`csrf_token`、または `X-CSRF-Token` ヘッダー）が要る。画面のフォームから送るか、別の画面のフォームにある `input[name="csrf_token"]` の値を付けて送る
+- **メッセージ画面（a=10）は表示できない**: 1.2.1J 以前は `$pager` の未初期化の警告で止まる（main では直っている）。メッセージの送信・削除は、画面を経由せずに `a=66` / `a=65` へ送って確かめる
+- **スモークテストの既知の FAIL**: 1.2.1J 以前では、パスワード再設定メールが ISO-2022-JP で届き、再設定リンクが a=28 へ進まない。修正前後で同じ結果なら、修正による劣化ではない
+- **配布 ZIP**: 1.2 系の `release.yml` は rsync で除外しながら zip にする方式（main の `git archive` とは違う）。手元で再現するときは、`git ls-files` の一覧をコピーしてから、同じ除外指定で rsync する
