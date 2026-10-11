@@ -475,17 +475,20 @@ if (!empty($refUrl)) {
         $aliasLength = $ampPos !== false ? $ampPos : strlen($alias);
         $alias = substr($alias, 0, $aliasLength);
         $url = $modx->config('base_url') . $alias;
-    } elseif (intval($targetPageId)) {
+    } elseif (ctype_digit((string)$targetPageId)) {
         $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($targetPageId);
     } else {
         $url = $refUrl;
     }
-    $modx->sendRedirect($url);
-} else // login home page
-{
-    $modx->config['xhtml_urls'] = '0';
-    $url = preserveUrl($id);
-    $modx->sendRedirect($url);
+    // 戻り先は自サイトの URL に限る
+    if (webLoginIsSiteUrl($url)) {
+        $modx->sendRedirect($url);
+        return;
+    }
 }
+// login home page
+$modx->config['xhtml_urls'] = '0';
+$url = preserveUrl($id);
+$modx->sendRedirect($url);
 return;
