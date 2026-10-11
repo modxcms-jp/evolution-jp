@@ -27,15 +27,17 @@ services:
       - evo_net
 
   db:
-    image: mysql:8.3
+    # MySQL 公式イメージは Docker Engine 29 系でレイヤー展開に失敗することがあるため MariaDB を使う
+    # （最初のレイヤーに含まれる dev/ptmx を展開時に開き直すと ENOENT になる）
+    image: mariadb:11
     container_name: evodb
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-evodb}
-      MYSQL_USER: ${MYSQL_USER:-user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MARIADB_DATABASE: ${MYSQL_DATABASE:-evodb}
+      MARIADB_USER: ${MYSQL_USER:-user}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:-password}
     volumes:
-      - db_data_mysql:/var/lib/mysql
+      - db_data_mariadb:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -54,4 +56,4 @@ networks:
     driver: bridge
 
 volumes:
-  db_data_mysql:
+  db_data_mariadb:
