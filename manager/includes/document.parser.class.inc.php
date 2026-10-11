@@ -400,8 +400,8 @@ class DocumentParser
         db()->delete(
             '[+prefix+]system_cache',
             [
-                where('cache_section', $category),
-                and_where('cache_key', $key)
+                where('cache_section', db()->escape($category)),
+                and_where('cache_key', db()->escape($key))
             ]
         );
 
@@ -424,9 +424,9 @@ class DocumentParser
             'cache_value',
             '[+prefix+]system_cache',
             [
-                where('cache_section', '=', $category),
+                where('cache_section', '=', db()->escape($category)),
                 'and',
-                where('cache_key', '=', $key)
+                where('cache_key', '=', db()->escape($key))
             ]
         );
         if (!$rs) {
@@ -1128,7 +1128,7 @@ class DocumentParser
             [
                 where('setting_name', '=', 'auth_token'),
                 'AND',
-                where('setting_value', '=', $this->input_get('auth_token'))
+                where('setting_value', '=', db()->escape($this->input_get('auth_token')))
             ]
         );
         if (!$rs) {
@@ -1182,7 +1182,7 @@ class DocumentParser
                 'sessionid' => session_id()
             ],
             $this->getFullTableName('user_attributes'),
-            'internalKey=' . $userid
+            'internalKey=' . (int)$userid
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
@@ -3749,7 +3749,7 @@ class DocumentParser
         } else {
             $tmp = $documentObject['template'];
         }
-        $where = sprintf("tvtpl.templateid='%s'", $tmp);
+        $where = sprintf("tvtpl.templateid='%d'", (int)$tmp);
 
         $rs = db()->select($field, $from, $where);
         $rowCount = db()->count($rs);
@@ -4908,11 +4908,11 @@ class DocumentParser
                 '[+prefix+]site_tmplvars tv',
                 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id',
                 sprintf(
-                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
-                    $docid
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%d'",
+                    (int)$docid
                 )
             ],
-            sprintf('%s AND tvtpl.templateid=%s', $where, $resource['template']),
+            sprintf('%s AND tvtpl.templateid=%d', $where, (int)$resource['template']),
             $sort ?
                 sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
                 :
@@ -5717,7 +5717,7 @@ class DocumentParser
             'id',
             '[+prefix+]site_content',
             [
-                where('alias', '=', $aliasPath),
+                where('alias', '=', db()->escape($aliasPath)),
                 'AND deleted=0'
             ],
             'parent, menuindex'
