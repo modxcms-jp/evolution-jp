@@ -158,7 +158,7 @@ function eForm($modx, $params)
     # invoke onBeforeFormParse event set by another script
     if ($eFormOnBeforeFormParse) {
         if ($isDebug && !function_exists($eFormOnBeforeFormParse)) {
-            $fields['debug'] .= "eFormOnBeforeFormParse event: Could not find the function " . $eFormOnBeforeFormParse;
+            $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeFormParse event: Could not find the function " . $eFormOnBeforeFormParse;
         } else {
             $templates = ['tpl' => $tpl, 'report' => $report, 'thankyou' => $thankyou, 'autotext' => $autotext];
             if ($eFormOnBeforeFormParse($fields, $templates) === false) {
@@ -191,7 +191,7 @@ function eForm($modx, $params)
                     return $v ? true : false;
                 });
             } else {
-                if (!$allowhtml || $formats[$name][2] != 'html') {
+                if (!$allowhtml || ($formats[$name][2] ?? '') != 'html') {
                     $value = strip_tags($value);
                 } else {
                     $value = $modx->htmlspecialchars($value);
@@ -211,7 +211,7 @@ function eForm($modx, $params)
         # check vericode
         if ($vericode) {
             //add support for captcha code - thanks to Djamoer
-            $code = $_SESSION['veriword'] ? $_SESSION['veriword'] : $_SESSION['eForm.VeriCode'];
+            $code = sessionv('veriword') ?: sessionv('eForm.VeriCode');
             if (postv('vericode') != $code) {
                 $vMsg[count($vMsg)] = $_lang['ef_failed_vericode'];
                 $rClass['vericode'] = $invalidClass; //added in 1.4.4
@@ -222,9 +222,9 @@ function eForm($modx, $params)
         foreach ($fields as $name => $value) {
             $fld = isset($formats[$name]) ? $formats[$name] : '';
             if ($fld) {
-                $desc = $fld[1];
-                $datatype = $fld[2];
-                $isRequired = $fld[3];
+                $desc = $fld[1] ?? $name;
+                $datatype = $fld[2] ?? '';
+                $isRequired = $fld[3] ?? 0;
 
                 if ($isRequired == 1 && $value == "" && $datatype != "file") {
                     $rMsg[count($rMsg)] = (string)$desc;
@@ -269,18 +269,20 @@ function eForm($modx, $params)
                             }
                             break;
                         case "file":
-                            if ($_FILES[$name]['error'] == 1 || $_FILES[$name]['error'] == 2) {
+                            $file = isset($_FILES[$name]) && is_array($_FILES[$name]) ? $_FILES[$name] : [];
+                            $fileError = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+                            if ($fileError == UPLOAD_ERR_INI_SIZE || $fileError == UPLOAD_ERR_FORM_SIZE) {
                                 $vMsg[count($vMsg)] = $desc . $_lang['ef_upload_exceeded'];
                                 $rClass[$name] = $invalidClass;
-                            } elseif ($isRequired == 1 && ($_FILES[$name] && $_FILES[$name]['type'] == '')) {
+                            } elseif ($isRequired == 1 && ($file['type'] ?? '') == '') {
                                 $rMsg[count($rMsg)] = $desc;
                                 $rClass[$name] = $requiredClass;
-                            } elseif ($_FILES[$name]['tmp_name']) {
-                                if (strpos($fld[5], '#LIST') !== 0 || validateField($_FILES[$name]['name'], $fld, $vMsg, $isDebug)) {
+                            } elseif (!empty($file['tmp_name'])) {
+                                if (strpos($fld[5] ?? '', '#LIST') !== 0 || validateField($file['name'], $fld, $vMsg, $isDebug)) {
                                     if(!isset($attachments)) {
                                         $attachments = [];
                                     }
-                                    $attachments[count($attachments)] = $_FILES[$name]['tmp_name'];
+                                    $attachments[count($attachments)] = $file['tmp_name'];
                                 } else $rClass[$name] = $invalidClass;
                             }
                             break;
@@ -297,7 +299,7 @@ function eForm($modx, $params)
 // Changed in 1.4.4.5  - now expects 4 parameters
         if ($eFormOnValidate) {
             if ($isDebug && !function_exists($eFormOnValidate)) {
-                $fields['debug'] .= "eformOnValidate event: Could not find the function " . $eFormOnValidate;
+                $fields['debug'] = ($fields['debug'] ?? '') . "eformOnValidate event: Could not find the function " . $eFormOnValidate;
             } else {
                 if ($eFormOnValidate($fields, $vMsg, $rMsg, $rClass) === false) {
                     return '';
@@ -309,12 +311,12 @@ function eForm($modx, $params)
         if ($vMsg || $rMsg) {
             //New in 1.4.2 - classes are set in labels and form elements for invalid fields
             foreach ($rClass as $n => $class) {
-                $fields[$n . '_class'] = $fields[$n . '_class'] ? $fields[$n . '_class'] . ' ' . $class : $class;
+                $fields[$n . '_class'] = !empty($fields[$n . '_class']) ? $fields[$n . '_class'] . ' ' . $class : $class;
                 $fields[$n . '_vClass'] = isset($fields[$n . '_vClass']) ? $fields[$n . '_vClass'] . ' ' . $class : $class;
                 //work around for checkboxes
                 if (isset($formats[$n][6])) { //have separate id's for check and option tags - set classes as well
                     foreach (explode(',', $formats[$n][6]) as $id) {
-                        $fields[$id . '_vClass'] = $fields[$id . '_vClass'] ? $fields[$id . '_vClass'] . ' ' . $class : $class;
+                        $fields[$id . '_vClass'] = !empty($fields[$id . '_vClass']) ? $fields[$id . '_vClass'] . ' ' . $class : $class;
                     }
                 }
             }
@@ -344,9 +346,9 @@ function eForm($modx, $params)
 
             # format report fields
             foreach ($fields as $name => $value) {
-                $fld = $formats[$name];
+                $fld = $formats[$name] ?? '';
                 if ($fld) {
-                    $datatype = $fld[2];
+                    $datatype = $fld[2] ?? '';
                     switch ($datatype) {
                         case "integer":
                             $value = number_format((float)$value);    //EM~
@@ -371,7 +373,7 @@ function eForm($modx, $params)
                             break;
                         case "file":
                             // set file name
-                            if ($value['type'] != "" && $value['error'] == 0) {
+                            if (is_array($value) && ($value['type'] ?? '') != "" && ($value['error'] ?? UPLOAD_ERR_NO_FILE) == UPLOAD_ERR_OK) {
                                 $value = $value["name"];
                                 $patharray = explode(((strpos($value, "/") === false) ? "\\" : "/"), $value);
                                 $value = $patharray[count($patharray) - 1];
@@ -401,7 +403,7 @@ function eForm($modx, $params)
                     $body .= "</table>";
                     evo()->loadExtension('MODxMailer');
                     # send abuse alert
-                    $modx->mail->IsHTML($isHtml);
+                    $modx->mail->IsHTML(true);
                     $modx->mail->From = $modx->config('emailsender');
                     $modx->mail->FromName = $modx->config('site_name');
                     $modx->mail->Subject = $_lang['ef_mail_abuse_subject'];
@@ -430,7 +432,7 @@ function eForm($modx, $params)
             # invoke OnBeforeMailSent event set by another script
             if ($eFormOnBeforeMailSent) {
                 if ($isDebug && !function_exists($eFormOnBeforeMailSent)) {
-                    $fields['debug'] .= "eFormOnBeforeMailSent event: Could not find the function " . $eFormOnBeforeMailSent;
+                    $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeMailSent event: Could not find the function " . $eFormOnBeforeMailSent;
                 } elseif ($eFormOnBeforeMailSent($fields) === false) {
                     if (isset($fields['validationmessage']) && !empty($fields['validationmessage'])) {
                         //register css and/or javascript
@@ -454,7 +456,7 @@ function eForm($modx, $params)
                 } else {
                     //all required fields
                     foreach ($formats as $fld) {
-                        $hash .= ($fld[3] == 1) ? $fields[$fld[0]] : '';
+                        $hash .= (($fld[3] ?? 0) == 1) ? ($fields[$fld[0]] ?? '') : '';
                     }
                 }
                 if ($hash) {
@@ -496,13 +498,13 @@ function eForm($modx, $params)
 
             if (!$nomail) {
                 # check for mail selector field - select an email from to list
-                if ($mselector && $fields[$mselector]) {
+                if ($mselector && !empty($fields[$mselector])) {
                     $i = (int)$fields[$mselector];
                     $ar = explode(",", $to);
                     if ($i > 0) {
                         $i--;
                     }
-                    if ($ar[$i]) {
+                    if (!empty($ar[$i])) {
                         $to = $ar[$i];
                     } else {
                         $to = $ar[0];
@@ -512,7 +514,7 @@ function eForm($modx, $params)
                 //set reply-to address
                 //$replyto snippet parameter must contain email or fieldname
                 if (strpos($replyto, '@') === false) {
-                    $replyto = ($fields[$replyto] && strpos($fields[$replyto], '@') !== false) ? $fields[$replyto] : $from;
+                    $replyto = (!empty($fields[$replyto]) && strpos($fields[$replyto], '@') !== false) ? $fields[$replyto] : $from;
                 }
 
                 # include PHP Mailer
@@ -524,7 +526,7 @@ function eForm($modx, $params)
 
                 if (!$noemail) {
                     if ($sendirect) {
-                        $to = $fields['email'];
+                        $to = $fields['email'] ?? '';
                     }
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From = $from;
@@ -542,7 +544,7 @@ function eForm($modx, $params)
                 }
 
                 # send user a copy of the report
-                if ($ccsender && $fields['email']) {
+                if ($ccsender && !empty($fields['email'])) {
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From = $from;
@@ -559,7 +561,7 @@ function eForm($modx, $params)
                 # send auto-respond email
                 //defaults to html so only test sendasText
                 $isHtml = ($sendAsText == 1 || strpos($sendAsText, 'autotext') !== false) ? false : true;
-                if ($autotext && $fields['email'] != '') {
+                if ($autotext && !empty($fields['email'])) {
                     $autotext = formMerge($autotext, $fields);
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
@@ -574,7 +576,7 @@ function eForm($modx, $params)
                 }
 
                 //defaults to text - test for sendAsHtml
-                $isHTML = ($sendAsHTML == 1 || strpos($sendAsHtml, 'mobile') !== false);
+                $isHtml = ($sendAsHtml == 1 || strpos((string)$sendAsHtml, 'mobile') !== false);
                 # send mobile email
                 if ($mobile && $mobiletext) {
                     $mobiletext = formMerge($mobiletext, $fields);
@@ -602,7 +604,7 @@ function eForm($modx, $params)
             # invoke OnMailSent event set by another script
             if ($eFormOnMailSent) {
                 if ($isDebug && !function_exists($eFormOnMailSent)) {
-                    $fields['debug'] .= "eFormOnMailSent event: Could not find the function" . $eFormOnMailSent;
+                    $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnMailSent event: Could not find the function" . $eFormOnMailSent;
                 } else {
                     if ($eFormOnMailSent($fields) === false) return;
                 }
@@ -638,7 +640,7 @@ function eForm($modx, $params)
                     }    //skip scripts
                     if ($sendAsText) {
                         foreach ($formats as $key => $fmt) {
-                            if ($fmt[2] === 'html') {
+                            if (($fmt[2] ?? '') === 'html' && isset($fields[$key])) {
                                 $fields[$key] = str_replace("\n", '<br />', $fields[$key]);
                             }
                         }
@@ -695,7 +697,7 @@ function eForm($modx, $params)
     # invoke OnBeforeFormMerge event set by another script
     if ($eFormOnBeforeFormMerge) {
         if ($isDebug && !function_exists($eFormOnBeforeFormMerge)) {
-            $fields['debug'] .= "eFormOnBeforeFormMerge event: Could not find the function " . $eFormOnBeforeFormMerge;
+            $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeFormMerge event: Could not find the function " . $eFormOnBeforeFormMerge;
         } else {
             if ($eFormOnBeforeFormMerge($fields) === false) {
                 return;
@@ -704,7 +706,7 @@ function eForm($modx, $params)
     }
 
     # build form
-    if ($isDebug && !$fields['debug']) {
+    if ($isDebug && empty($fields['debug'])) {
         $fields['debug'] = $debugText;
     }
     if ($isDebug && strpos($tpl, '[+debug+]') === false) {
@@ -783,7 +785,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                         $docText
                     );
                 }
-                if (in_array($datatype, ['checkbox', 'radio']) && $listValue == $docFields[$listName]) {
+                if (in_array($datatype, ['checkbox', 'radio']) && isset($docFields[$listName]) && $listValue == $docFields[$listName]) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]',
@@ -892,9 +894,12 @@ function eFormParseTemplate($tpl, $isDebug = false)
         $type = $fieldTypes[$i];
 
         //get array of html attributes
-        $tagAttributes = attr2array($fieldTags[$i]);
+        $tagAttributes = attr2array($fieldTags[$i]) ?: [];
         //attribute values are stored including quotes
         //strip quotes as well as any brackets to get the raw name
+        if (!isset($tagAttributes['name'])) {
+            continue;
+        }
         $name = str_replace(["'", '"', '[', ']'], '', $tagAttributes['name']);
 
         #skip vericode field - updated in 1.4.4
@@ -950,14 +955,16 @@ function eFormParseTemplate($tpl, $isDebug = false)
                     $matches
                 );
 
+                if (!$matches) {
+                    break;
+                }
                 $select = $newSelect = $matches[0];
                 //get separate option tags and split them up
                 preg_match_all("#(<option [^>]*?>)#si", $matches[1], $matches);
                 $validValues = [];
                 foreach ($matches[1] as $option) {
-                    $attr = attr2array($option);
-//* debug */ print __LINE__.': <pre>'.print_r($attr,true) .'</pre><br />';
-                    $value = substr($attr['value'], 1, -1); //strip outer quotes
+                    $attr = attr2array($option) ?: [];
+                    $value = isset($attr['value']) ? substr($attr['value'], 1, -1) : ''; //strip outer quotes
                     if (trim($value) != '') $validValues[] = $value;
                     $newTag = buildTagPlaceholder('option', $attr, $name);
                     $newSelect = str_replace($option, $newTag, $newSelect);
@@ -976,15 +983,14 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 break;
 
             case "textarea":
-                // add support for maxlength attribute for textarea
-                // attribute get's stripped form form //
-                if (isset($tagAttributes['maxlength'])) {
-                    $formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
-                    unset($tagAttributes['maxlength']);
-                }
+                // maxlength attribute get's stripped form form
+                // (not validated: index 6 of $formats holds checkbox ids)
+                unset($tagAttributes['maxlength']);
                 $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
-                $regExp = "#<textarea [^>]*?name=" . $tagAttributes["name"] . "[^>]*?" . ">(.*?)</textarea>#si";
-                preg_match($regExp, $tpl, $matches);
+                $regExp = "#<textarea\\s[^>]*?name=" . preg_quote($tagAttributes["name"], '#') . "[^>]*?" . ">(.*?)</textarea>#si";
+                if (!preg_match($regExp, $tpl, $matches)) {
+                    break;
+                }
                 //if nothing Posted retain the content between start/end tags
                 $placeholderValue = ($efPostBack) ? "[+$name+]" : $matches[1];
 
@@ -992,27 +998,24 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 break;
             default: //all the rest, ie. "input"
                 $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
-                $fieldType = stripTagQuotes($tagAttributes['type']);
-                //validate on maxlength...
-                if ($fieldType == 'text' && isset($tagAttributes['maxlength']) && $tagAttributes['maxlength']) {
-                    $formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
-                }
-                if ($formats[$name] && !$formats[$name][2]) $formats[$name][2] = ($fieldType == 'text') ? "string" : $fieldType;
+                $fieldType = isset($tagAttributes['type']) ? stripTagQuotes($tagAttributes['type']) : 'text';
+                if ($formats[$name] && empty($formats[$name][2])) $formats[$name][2] = ($fieldType == 'text') ? "string" : $fieldType;
                 //populate automatic validation values for hidden, checkbox and radio fields
                 if ($fieldType == 'hidden') {
                     if (!$isDebug) $formats[$name][1] = "[undefined]"; //do not want to disclose hidden field names
                     if (!isset($formats[$name][4])) $formats[$name][4] = $_lang['ef_tamper_attempt'];
-                    if (!isset($formats[$name][5])) $formats[$name][5] = "#VALUE " . stripTagQuotes($tagAttributes['value']);
+                    if (!isset($formats[$name][5])) $formats[$name][5] = "#VALUE " . stripTagQuotes($tagAttributes['value'] ?? '');
                 } elseif ($fieldType == 'checkbox' || $fieldType == 'radio') {
                     $formats[$name][4] = $_lang['ef_failed_default'];
-                    $formats[$name][5] .= isset($formats[$name][5]) ? "," : "#LIST ";
+                    $formats[$name][5] = isset($formats[$name][5]) ? $formats[$name][5] . "," : "#LIST ";
                     //convert embedded comma's in values!
-                    $formats[$name][5] .= str_replace(',', '&#44;', stripTagQuotes($tagAttributes['value']));
+                    $formats[$name][5] .= str_replace(',', '&#44;', stripTagQuotes($tagAttributes['value'] ?? ''));
                     //store the id as well
                     //if no postback, retain any checked values
-                    if (!$efPostBack && !empty($tagAttributes['checked'])) $fields[$name][] = stripTagQuotes($tagAttributes['value']);
-                    //
-                    $formats[$name][6] .= (isset($formats[$name][6]) ? "," : "") . stripTagQuotes($tagAttributes['id']);
+                    if (!$efPostBack && !empty($tagAttributes['checked'])) $fields[$name][] = stripTagQuotes($tagAttributes['value'] ?? '');
+                    if (isset($tagAttributes['id'])) {
+                        $formats[$name][6] = (isset($formats[$name][6]) ? $formats[$name][6] . "," : "") . stripTagQuotes($tagAttributes['id']);
+                    }
                 } elseif (empty($fields[$name])) { //plain old text input field
                     //retain default value set in form template if not already set in code
                     $fields[$name] = (isset($tagAttributes['value'])) ? stripTagQuotes($tagAttributes['value']) : '';
@@ -1094,11 +1097,11 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
 {
     global $modx, $_lang, $debugText, $fields;
     $output = true;
-    $desc = $fld[1];
-    $fldMsg = trim($fld[4]);
+    $desc = $fld[1] ?? '';
+    $fldMsg = trim($fld[4] ?? '');
     if (empty($fld[5])) return $output; //if no rule value validates
 
-    [$cmd, $param] = explode(" ", trim($fld[5]), 2);
+    [$cmd, $param] = explode(" ", trim($fld[5]), 2) + [1 => ''];
     $cmd = strtoupper(trim($cmd));
     if (substr($cmd, 0, 1) != '#') {
         $vMsg[count($vMsg)] = "$desc &raquo;" . $_lang['ef_error_validation_rule'];
