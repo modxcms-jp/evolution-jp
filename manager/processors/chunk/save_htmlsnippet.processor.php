@@ -82,7 +82,7 @@ switch (postv('mode')) {
         $rs = db()->select(
             'COUNT(id)',
             '[+prefix+]site_htmlsnippets',
-            where('name', entity('name'))
+            where('name', db()->escape(entity('name')))
         );
         $count = db()->getValue($rs);
         if ($count > 0) {
@@ -239,9 +239,9 @@ switch (postv('mode')) {
 
 function check_exist_name($chunkName)
 {
-    $where = "name='" . $chunkName . "'";
+    $where = "name='" . db()->escape($chunkName) . "'";
     if (postv('mode') == 78) {
-        $where .= " AND id!=" . postv('id');
+        $where .= " AND id!=" . (int)postv('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     if (!db()->getValue($rs)) {
