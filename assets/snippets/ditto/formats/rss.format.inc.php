@@ -14,7 +14,8 @@ $modx->documentObject['contentType'] = 'application/rss+xml';
 
 global $dateSource;
 $dateSource = $modx->event->params['dateSource'] ?? 'publishedon';
-if (!isset($orderBy ['unparsed'])) {
+// orderBy['unparsed'] is always set by the snippet; use the default only when no &orderBy is given
+if (($orderBy['unparsed'] ?? '') === '') {
     $orderBy ['unparsed'] = "{$dateSource} DESC";
 }
 

@@ -137,7 +137,12 @@ $debug = !empty($debug) ? $debug : 0;
     Related:
     - <debug>
 */
-$extenders = isset($extenders) ? explode(',', $extenders) : [];
+// a config may already have added extenders as an array ($extenders[] = ...)
+if (!isset($extenders)) {
+    $extenders = [];
+} elseif (!is_array($extenders)) {
+    $extenders = explode(',', $extenders);
+}
 /*
     Param: extenders
 
@@ -156,7 +161,8 @@ $extenders = isset($extenders) ? explode(',', $extenders) : [];
 // Variable: extenders
 // Array that can be added to by configs or formats to load that extender
 
-$placeholders = [];
+// keep placeholders a config may have added
+$placeholders = isset($placeholders) && is_array($placeholders) ? $placeholders : [];
 // Variable: placeholders
 // Initialize custom placeholders array for configs or extenders to add to
 
@@ -641,7 +647,8 @@ if (!isset($where)) {
     Related:
     - <queryLimit>
 */
-$noResults = event()->param('noResults', $_lang['no_documents']);
+// keep the value a format (rss, json etc.) has set unless &noResults is given
+$noResults = event()->param('noResults', isset($noResults) ? $noResults : $_lang['no_documents']);
 
 /*
     Param: noResults
@@ -1295,6 +1302,10 @@ if ($count > 0) {
         $resource = array_values($resource);
 
         for ($x = $start; $x < $stop; $x++) {
+            // fewer documents than expected (e.g. &queryLimit)
+            if (!isset($resource[$x])) {
+                break;
+            }
             $template = $ditto->template->determine(
                 $templates,
                 $x,
@@ -1357,16 +1368,16 @@ if ($debug == 1) {
             $ditto_base,
             $ditto_version,
             $ditto_params,
-            $documentIDs,
-            ["db" => $dbFields, "tv" => $TVs],
-            $display,
-            $templates,
+            $documentIDs ?? [],
+            ["db" => $dbFields ?? [], "tv" => $TVs ?? []],
+            $display ?? 0,
+            $templates ?? [],
             $orderBy,
-            $start,
-            $stop,
-            $total,
-            $filter,
-            $resource
+            $start ?? 0,
+            $stop ?? 0,
+            $total ?? 0,
+            $filter ?? [],
+            $resource ?? []
         );
     }
     if (getv("ditto_{$dittoID}debug")) {
@@ -1394,7 +1405,7 @@ if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;
 }
 if (!empty($outerTpl)) {
-    if (!$resource) {
+    if (empty($resource)) {
         $output = '';
     } elseif (substr($outerTpl, 0, 5) === '@CODE') {
         $outerTpl = trim(substr($outerTpl, 6));

@@ -1,3 +1,4 @@
 <?php
-$header = "";
-$footer = "";
+// keep &header / &footer given to the call
+$header = $header ?? '';
+$footer = $footer ?? '';
