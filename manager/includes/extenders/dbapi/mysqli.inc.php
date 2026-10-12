@@ -175,7 +175,18 @@ class DBAPI
                 );
                 return false;
             }
-            $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
+            // 文字セットを設定できなければ、違う文字セットのまま続けないよう止める
+            if (!$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+                evo()->messageQuit(
+                    sprintf(
+                        "Failed to set the connection charset '%s %s' - %s",
+                        $this->connection_method,
+                        $this->charset,
+                        $this->conn->error
+                    )
+                );
+                return false;
+            }
         }
 
         $tend = evo()->getMicroTime();
