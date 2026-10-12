@@ -387,8 +387,6 @@ function get_jscript($id, $cm)
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
     $page = (getv('page')) ? " + '&page=" . (int)getv('page') . "'" : '';
-    // 状態を変える GET リンク（複製・公開・削除など）に付けるトークン
-    $csrfQuery = csrfTokenQuery();
 
     $block = <<< EOT
 <style type="text/css">
@@ -407,12 +405,12 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
     }
     function duplicatedocument() {
         if (confirm("{$_lang['confirm_resource_duplicate']}") == true) {
-            gotoResourceListUrl("index.php?id={$id}&a=94&{$csrfQuery}");
+            gotoResourceListUrl(EvoCsrf.url("index.php?id={$id}&a=94"));
         }
     }
     function deletedocument() {
         if (confirm("{$_lang['confirm_delete_resource']}") == true) {
-            gotoResourceListUrl("index.php?id={$id}&a=6&{$csrfQuery}");
+            gotoResourceListUrl(EvoCsrf.url("index.php?id={$id}&a=6"));
         }
     }
     function editdocument() {
@@ -452,13 +450,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 94:        // duplicate
                 if(confirm("{$_lang['confirm_resource_duplicate']}")==true)
                 {
-                    gotoUrl('index.php?a=94&{$csrfQuery}&id='+id{$page});
+                    gotoUrl(EvoCsrf.url('index.php?a=94') + '&id='+id{$page});
                 }
                 break;
             case 61:        // publish
                 if(confirm("{$_lang['confirm_publish']}")==true)
                 {
-                    gotoUrl('index.php?a=61&{$csrfQuery}&id='+id{$page});
+                    gotoUrl(EvoCsrf.url('index.php?a=61') + '&id='+id{$page});
                 }
                 break;
             case 62:        // unpublish
@@ -466,7 +464,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 {
                     if(confirm("{$_lang['confirm_unpublish']}")==true)
                     {
-                        gotoUrl("index.php?a=62&{$csrfQuery}&id=" + id{$page});
+                        gotoUrl(EvoCsrf.url("index.php?a=62") + "&id=" + id{$page});
                     }
                 }
                 else
@@ -477,13 +475,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 6:         // delete
                 if(confirm("{$_lang['confirm_delete_resource']}")==true)
                 {
-                    gotoUrl('index.php?a=6&{$csrfQuery}&id='+id{$page});
+                    gotoUrl(EvoCsrf.url('index.php?a=6') + '&id='+id{$page});
                 }
                 break;
             case 63:        // undelete
                 if(confirm("{$_lang['confirm_undelete']}")==true)
                 {
-                    gotoUrl("index.php?a=63&{$csrfQuery}&id=" + id{$page});
+                    gotoUrl(EvoCsrf.url("index.php?a=63") + "&id=" + id{$page});
                 }
                 break;
             case 72:         // new Weblink

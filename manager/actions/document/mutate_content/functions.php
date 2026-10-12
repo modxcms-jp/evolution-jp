@@ -728,8 +728,6 @@ function getJScripts($docid)
     $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = manager()->action;
     $ph['suffix'] = config('friendly_url_suffix');
-    // 削除・復元・複製は GET でもトークンを検証するため、遷移先 URL に付ける
-    $ph['csrf_query'] = csrfTokenQuery();
 
     return parseText(
         file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl'),

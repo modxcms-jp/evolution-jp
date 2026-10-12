@@ -6,8 +6,10 @@
  * - フォーム: submitイベント(クリック/Enter/requestSubmit)と form.submit() 直接呼び出しの両方で、
  *   送信直前に hidden の csrf_token を補う。AJAX遷移で後から差し込まれたフォームや、
  *   target 付きでシェルを経由しないネイティブ送信も対象になる
- * - XMLHttpRequest(jQuery AJAX含む) / fetch: X-CSRF-Token ヘッダを付ける。
+ * - XMLHttpRequest(jQuery AJAX含む) / fetch: メソッドによらず X-CSRF-Token ヘッダを付ける。
+ *   GET でも状態を変える操作（サーバー側の csrfProtectedActions()）があり、シェルの GET 遷移も対象になるため。
  *   呼び出し側が既に付けている場合は重複させない
+ * - フルページ遷移(location.href・リンク)はヘッダを付けられないため、EvoCsrf.url(url) で URL に csrf_token を付ける
  *
  * shell.js が HTMLFormElement.prototype.submit を退避して使うため、shell.js より先に読み込むこと。
  */
@@ -30,9 +32,17 @@
         }
     }
 
-    function isUnsafeMethod(method) {
-        return ['GET', 'HEAD', 'OPTIONS'].indexOf(String(method || 'GET').toUpperCase()) === -1;
-    }
+    // URL に csrf_token を付ける。後ろに "&id=" などを連結できるよう末尾に付ける（PHP の csrfUrl() と同じ形）
+    window.EvoCsrf = {
+        token: getToken,
+        url: function (url) {
+            var token = getToken();
+            if (!token) {
+                return url;
+            }
+            return url + (String(url).indexOf('?') === -1 ? '?' : '&') + FIELD_NAME + '=' + encodeURIComponent(token);
+        }
+    };
 
     function ensureFormToken(form) {
         if (!form || String(form.getAttribute('method') || '').toLowerCase() !== 'post') {
@@ -92,7 +102,7 @@
 
     XMLHttpRequest.prototype.send = function () {
         var info = this._evoCsrf;
-        if (info && !info.hasHeader && isUnsafeMethod(info.method) && isSameOrigin(info.url)) {
+        if (info && !info.hasHeader && isSameOrigin(info.url)) {
             var token = getToken();
             if (token) {
                 xhrSetRequestHeader.call(this, HEADER_NAME, token);
@@ -105,9 +115,8 @@
         var nativeFetch = window.fetch;
         window.fetch = function (input, init) {
             var isRequest = typeof Request !== 'undefined' && input instanceof Request;
-            var method = (init && init.method) || (isRequest ? input.method : 'GET');
             var url = isRequest ? input.url : String(input);
-            if (isUnsafeMethod(method) && isSameOrigin(url)) {
+            if (isSameOrigin(url)) {
                 var headers = new Headers((init && init.headers) || (isRequest ? input.headers : undefined));
                 var token = getToken();
                 if (token && !headers.has(HEADER_NAME)) {

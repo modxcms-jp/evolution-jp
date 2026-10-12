@@ -31,7 +31,7 @@ if (!$forced) {
         ?>
         <script type="text/javascript">
             function deletedocument() {
-                document.location.href = "index.php?id=<?= $id;?>&a=303&force=1";
+                document.location.href = EvoCsrf.url("index.php?id=<?= $id;?>&a=303&force=1");
             }
         </script>
         <h1><?= $_lang['tmplvars'] ?></h1>

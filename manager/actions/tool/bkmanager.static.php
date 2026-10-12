@@ -231,7 +231,7 @@ if (sessionv('result_msg')) {
                                 ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
                                 '<td align="right">' . (
                                     evo()->hasPermission('settings') && $isTruncateable && $recordCount > 0
-                                    ? '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . $recordCount . '</a>'
+                                    ? '<a href="' . hsc(csrfUrl('index.php?a=54&mode=' . $action . '&u=' . $row['Name'])) . '" title="' . $_lang['truncate_table'] . '">' . $recordCount . '</a>'
                                     : $recordCount
                                 ) . '</td>' . "\n";
                             echo '<td align="right">' . $row['Collation'] . '</td>' . "\n";
@@ -246,7 +246,7 @@ if (sessionv('result_msg')) {
                                 echo '<td align="right">-</td>' . "\n";
                             } elseif (evo()->hasPermission('settings')) {
                                 echo '<td align="right">' . ($row['Data_free'] > 0 ?
-                                    '<a href="index.php?a=54&mode=' . $action . '&t=' . $row['Name'] . '" title="' . $_lang['optimize_table'] . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
+                                    '<a href="' . hsc(csrfUrl('index.php?a=54&mode=' . $action . '&t=' . $row['Name'])) . '" title="' . $_lang['optimize_table'] . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
                                     '-') .
                                     '</td>' . "\n";
                             } else {

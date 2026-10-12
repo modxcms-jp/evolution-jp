@@ -41,38 +41,28 @@ if (!sessionv('mgrValidated')) {
 // log the user action
 sessionv('*ip', real_ip());
 
-// CSRF Token Validation for POST requests
-if (is_post()) {
-    // 例外: ログインフォームのみ
-    // 注意: 表示系アクション（a=2, a=27など）でもフォームPOSTが発生する場合があるため、
-    // 基本的にはログイン以外は全てトークン検証を行う
-    $exemptActions = [
-        8,    // ログイン処理のみ例外
-    ];
-
-    $currentAction = manager()->action;
-
+// CSRF トークンの検証
+// - POST はアクションによらず全て検証する（表示系アクションでもフォーム POST が発生するため）。
+//   ログインの POST はこの地点（ログイン済みの判定より後）に来ないので、例外は設けない
+// - GET・HEAD なども、状態を変える操作（csrfProtectedActions() の一覧）なら検証する。
+//   一覧に載せ漏れがあっても POST の検証は残るので、POST の守りは後退しない
+if (is_post() || isCsrfProtectedAction(manager()->action)) {
     // デバッグ: トークン情報を確認
     // トークンそのものは秘密値のため、値ではなく有無・件数だけを記録する
     // （ログの閲覧・転送・バックアップが別の信頼境界になりうるため）
     if (evo()->config('debug', 0)) {
         $debugInfo = [
-            'action' => $currentAction,
+            'action' => manager()->action,
+            'method' => serverv('REQUEST_METHOD', ''),
             'csrf_token_in_post' => postv('csrf_token', '') !== '',
             'csrf_token_in_header' => serverv('HTTP_X_CSRF_TOKEN', '') !== '',
+            'csrf_token_in_url' => getv('csrf_token', '') !== '',
             'session_token_count' => count((array) sessionv('csrf_tokens', [])),
         ];
         evo()->logEvent(0, 1, 'CSRF Debug: ' . print_r($debugInfo, true), 'CSRF Token Debug');
     }
 
-    // 例外アクション以外でトークンを検証
-    if (!in_array($currentAction, $exemptActions, true)) {
-        checkCsrfToken();
-    }
-} elseif (in_array((int) manager()->action, [6, 52, 61, 62, 63, 64, 94, 129, 134], true)) {
-    // リソースの削除・復元・公開・非公開・移動・複製などは状態を変えるため、
-    // GET で呼ばれた場合も URL に付けたトークンを検証する
-    checkCsrfToken(getv('csrf_token', ''));
+    checkCsrfToken();
 }
 
 if (manager()->action != 1) {
