@@ -59,6 +59,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $f['moduleguid'] = $tplInfo['guid'];
 
     $pluginId = false;
+    $prevPluginId = $dbv_plugin ? (int)$dbv_plugin->id : 0;
 
     if ($dbv_plugin === false) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
@@ -72,28 +73,8 @@ foreach ($tplPlugins as $i => $tplInfo) {
             return;
         }
         echo ok($name, lang('installed'));
-    } elseif ($dbv_plugin->description === $tplInfo['description']) {
-        // 同じ版なら既存を上書きする。有効/無効の状態とカテゴリは利用者の設定を残す
-        unset($f['disabled']);
-        $rs = db()->update(
-            db()->escape(nullToEmpty($f)),
-            '[+prefix+]site_plugins',
-            "id='{$dbv_plugin->id}'"
-        );
-        if (!$rs) {
-            $errors += 1;
-            showError();
-            return;
-        }
-        // 以前の再実行で同名の有効なプラグインが重複していれば無効にする
-        db()->update(
-            ['disabled' => '1'],
-            '[+prefix+]site_plugins',
-            "{$enabledWhere} AND id!='{$dbv_plugin->id}'"
-        );
-        $pluginId = $dbv_plugin->id;
-        echo ok($name, lang('upgraded'));
     } else {
+        // 版が同じでも、利用者の手直しを控えとして残すため、同名の有効な行をすべて無効にして入れ直す
         $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', $enabledWhere);
         if ($rs) {
             $f['category'] = $dbv_plugin->category;
@@ -117,12 +98,29 @@ foreach ($tplPlugins as $i => $tplInfo) {
         db()->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");
 
         // add new events
-        $selected = sprintf(
-            "SELECT '%s' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('%s')",
-            $pluginId,
-            implode("','", $events)
-        );
-        $query = 'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) ' . $selected;
+        $eventWhere = sprintf("se.name IN ('%s')", implode("','", $events));
+        // DBAPI::fieldExists() は完全名のテーブルを照合できず常に偽になるため、直接確かめる
+        $hasPriority = db()->count(db()->query(
+            'SHOW COLUMNS FROM ' . db()->table_prefix . "site_plugin_events LIKE 'priority'"
+        )) > 0;
+        if ($hasPriority) {
+            // 実行順は入れ替える前のプラグインから引き継ぐ
+            $query = sprintf(
+                'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid, priority)'
+                . " SELECT '%d', se.id, COALESCE(prev.priority, 0) FROM [+prefix+]system_eventnames se"
+                . " LEFT JOIN [+prefix+]site_plugin_events prev ON prev.evtid=se.id AND prev.pluginid='%d'"
+                . ' WHERE %s',
+                $pluginId,
+                $prevPluginId,
+                $eventWhere
+            );
+        } else {
+            $query = sprintf(
+                "INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) SELECT '%d', se.id FROM [+prefix+]system_eventnames se WHERE %s",
+                $pluginId,
+                $eventWhere
+            );
+        }
         $query = str_replace('[+prefix+]', db()->table_prefix, $query);
         db()->query($query);
     }
