@@ -199,7 +199,7 @@ if (!$isShellPartial) {
 
         function emptyTrash() {
             if (confirm("<?= $_lang['confirm_empty_trash'] ?>") == true) {
-                EvoShell.navigate("index.php?a=64");
+                EvoShell.navigate("index.php?a=64&<?= csrfTokenQuery() ?>");
             }
         }
 
@@ -466,13 +466,13 @@ if (is_array($evtOut)) {
                 case '94' : // duplicate
                     if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>") == true) {
                         setActiveFromContextMenu(itemToChange);
-                        EvoShell.navigate("index.php?a=94&id=" + itemToChange);
+                        EvoShell.navigate("index.php?a=94&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                     }
                     break;
                 case '6' : // delete
                     if (selectedObjectDeleted == 0) {
                         if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
-                            EvoShell.navigate("index.php?a=6&id=" + itemToChange);
+                            EvoShell.navigate("index.php?a=6&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                         }
                     } else {
                         alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
@@ -483,14 +483,14 @@ if (is_array($evtOut)) {
                         alert("'" + selectedObjectName + "' <?= $_lang['not_deleted'] ?>");
                     } else {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_undelete'] ?>") == true) {
-                            EvoShell.navigate("index.php?a=63&id=" + itemToChange);
+                            EvoShell.navigate("index.php?a=63&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                         }
                     }
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
                         if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
-                            EvoShell.navigate("index.php?a=64&id=" + itemToChange);
+                            EvoShell.navigate("index.php?a=64&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                         }
                     } else {
                         alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
@@ -499,14 +499,14 @@ if (is_array($evtOut)) {
                 case '61' : // publish
                     if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_publish'] ?>") == true) {
                         setActiveFromContextMenu(itemToChange);
-                        EvoShell.navigate("index.php?a=61&id=" + itemToChange);
+                        EvoShell.navigate("index.php?a=61&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                     }
                     break;
                 case '62' : // unpublish
                     if (itemToChange != <?= config('site_start') ?>) {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_unpublish'] ?>") == true) {
                             setActiveFromContextMenu(itemToChange);
-                            EvoShell.navigate("index.php?a=62&id=" + itemToChange);
+                            EvoShell.navigate("index.php?a=62&<?= csrfTokenQuery() ?>&id=" + itemToChange);
                         }
                     } else {
                         alert('Document is linked to site_start variable and cannot be unpublished!');

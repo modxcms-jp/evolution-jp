@@ -82,7 +82,8 @@ function validateCsrfToken($token = null)
     $tokens = sessionv('csrf_tokens', []);
 
     // トークンが存在するかチェック（削除はしない）
-    return !empty($token) && isset($tokens[$token]);
+    // 配列などで渡された値はキーとして引けないため、文字列以外は不一致とする
+    return is_string($token) && $token !== '' && isset($tokens[$token]);
 }
 
 /**
@@ -171,6 +172,20 @@ function csrfTokenField($token = null)
         $token = getCurrentCsrfToken();
     }
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/**
+ * CSRFトークンをURLのクエリ文字列として生成（状態を変えるGETリンク用）
+ *
+ * @param string|null $token 使用するトークン（nullの場合は現在のトークンを使用）
+ * @return string csrf_token=... 形式の文字列
+ */
+function csrfTokenQuery($token = null)
+{
+    if ($token === null) {
+        $token = getCurrentCsrfToken();
+    }
+    return 'csrf_token=' . rawurlencode($token);
 }
 
 /**

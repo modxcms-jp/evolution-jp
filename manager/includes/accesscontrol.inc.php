@@ -69,6 +69,10 @@ if (is_post()) {
     if (!in_array($currentAction, $exemptActions, true)) {
         checkCsrfToken();
     }
+} elseif (in_array((int) manager()->action, [6, 52, 61, 62, 63, 64, 94, 129, 134], true)) {
+    // リソースの削除・復元・公開・非公開・移動・複製などは状態を変えるため、
+    // GET で呼ばれた場合も URL に付けたトークンを検証する
+    checkCsrfToken(getv('csrf_token', ''));
 }
 
 if (manager()->action != 1) {
