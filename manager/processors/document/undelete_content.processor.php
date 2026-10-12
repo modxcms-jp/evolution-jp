@@ -9,6 +9,11 @@ if (!evo()->hasPermission('delete_document')) {
 
 $id = request_intvar('id');
 
+if (!$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {
     disp_access_permission_denied();

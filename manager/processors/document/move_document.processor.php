@@ -30,7 +30,6 @@ $doc_id = $doc_ids[0];
 // 移動先。ルート（0）も正しい値なので "0" は受け付け、それ以外の整数として読めない値は移動先なしとして扱う
 $new_parent = anyv('new_parent') === '0' ? 0 : request_intvar('new_parent');
 if (!$new_parent && anyv('new_parent') !== '0') {
-    echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
     alert()->setError(602);
     alert()->dumpError();
 }

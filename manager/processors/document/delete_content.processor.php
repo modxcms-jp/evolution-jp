@@ -11,6 +11,11 @@ if (!evo()->hasPermission('delete_document')) {
 // check the document doesn't have any children
 $id = request_intvar('id');
 
+if (!$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+
 // check permissions on the document
 if ($id == $modx->config['site_start']) {
     $warning = "Document is 'Site start' and cannot be deleted!";

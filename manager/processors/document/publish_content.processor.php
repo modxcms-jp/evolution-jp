@@ -9,6 +9,11 @@ if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_doc
 
 $id = request_intvar('id');
 
+if (!$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
