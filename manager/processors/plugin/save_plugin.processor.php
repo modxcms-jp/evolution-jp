@@ -9,6 +9,10 @@ if (!evo()->hasPermission('save_plugin')) {
 }
 
 $id = post_intvar('id');
+if (postv('mode') == 102 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 $name = db()->escape(trim(postv('name')));
 $description = db()->escape(postv('description'));
 $locked = postv('locked') == 'on' ? '1' : '0';

@@ -11,7 +11,7 @@ if (!hasPermission('new_template') && anyv('a') == 300) {
     alert()->dumpError();
 }
 
-abort_if_invalid_id();
+abort_if_invalid_id('id', anyv('a') == 301);
 
 $id = request_intvar('id');
 

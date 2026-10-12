@@ -8,6 +8,10 @@ if (!evo()->hasPermission('save_template')) {
 }
 
 $id = post_intvar('id');
+if (postv('mode') == 301 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 $name = db()->escape(trim(postv('name')));
 $description = db()->escape(postv('description'));
 $caption = db()->escape(postv('caption'));

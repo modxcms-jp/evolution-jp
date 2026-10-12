@@ -7,6 +7,10 @@ if (!evo()->hasPermission('save_template')) {
     alert()->dumpError();
 }
 $id = post_intvar('id');
+if (postv('mode') == 16 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 
 $templatename = db()->escape(trim(postv('templatename')));
 $description = db()->escape(postv('description'));

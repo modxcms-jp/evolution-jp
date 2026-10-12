@@ -10,6 +10,10 @@ if (!evo()->hasPermission('save_module')) {
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
 $id = post_intvar('id');
+if (postv('mode') == 108 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 
 $name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;

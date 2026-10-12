@@ -21,7 +21,7 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-abort_if_invalid_id();
+abort_if_invalid_id('id', anyv('a') == 22);
 
 $id = (int)anyv('id', 0);
 

@@ -12,7 +12,7 @@ if (
     alert()->dumpError();
 }
 
-abort_if_invalid_id();
+abort_if_invalid_id('id', anyv('a') == 16);
 
 if (id()) {
     $username = is_locked(id());

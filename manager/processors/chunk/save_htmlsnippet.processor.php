@@ -8,6 +8,10 @@ if (!evo()->hasPermission('save_chunk')) {
 }
 
 $id = post_intvar('id');
+if (postv('mode') == 78 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 
 function entity($key, $default = null)
 {
