@@ -992,13 +992,13 @@ function eFormParseTemplate($tpl, $isDebug = false)
                     '#<option(\s[^>]*)?>([^<]*)#si',
                     function ($m) use (&$validValues, &$fields, $name, $efPostBack) {
                         $attr = attr2array('<option' . ($m[1] ?? '') . '>') ?: [];
-                        // without a value attribute, the option text is the value (as in HTML)
-                        if (!isset($attr['value'])) {
-                            $text = html_entity_decode(trim($m[2]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                            $attr['value'] = '"' . hsc($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401) . '"';
-                        }
-                        // the browser sends the decoded value: compare with it (#LIST, selected)
-                        $value = html_entity_decode(substr($attr['value'], 1, -1), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        // the value the browser sends: the value attribute, or the option text (as in HTML),
+                        // with character references decoded
+                        $raw = isset($attr['value']) ? substr($attr['value'], 1, -1) : trim($m[2]);
+                        $value = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        // write the attribute in one notation (&#38; -> &amp;) so that it matches
+                        // the escaped field values when restoring the selection
+                        $attr['value'] = '"' . hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401) . '"';
                         if (trim($value) != '') $validValues[] = $value;
                         //if no postback, retain any checked values
                         if (!$efPostBack && !empty($attr['selected'])) $fields[$name][] = $value;
