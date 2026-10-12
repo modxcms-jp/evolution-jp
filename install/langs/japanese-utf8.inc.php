@@ -98,6 +98,7 @@ $_lang["install_results_failed"] = 'インストールを完了できません�
 $_lang["install_aborted"] = 'インストールを中断しました。';
 $_lang["install_session_missing"] = 'インストールに必要な情報（データベースの接続先など）が残っていないため、インストールを行わずに中断しました。途中で時間がたってセッションが切れた場合などに起こります。お手数ですが、最初からやり直してください。';
 $_lang["install_start_over"] = '最初からやり直す';
+$_lang["installation_finished_with_errors"] = '<span style="color:#c00;">途中でエラーがあったため、インストールが正しく終わっていない可能性があります。上のメッセージを確認してください。</span>';
 $_lang["install_update"] = '';
 $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_copy"] = '新規インストール - ';

@@ -423,6 +423,13 @@ if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
 
 log_install_event('Installation processor finished');
 
+// 途中でエラーがあったときは、成功の案内を出さない（見出しは install.php が出し分ける）
+if ($errors > 0) {
+    log_install_event('Installation finished with errors', ['errors' => $errors]);
+    printf('<p><b>%s</b></p>', lang('installation_finished_with_errors'));
+    return;
+}
+
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
 echo "<p>" . lang('to_log_into_content_manager') . "</p>";

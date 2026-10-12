@@ -98,6 +98,7 @@ $_lang["install_results_failed"] = 'The installation could not be completed.';
 $_lang["install_aborted"] = 'The installation was aborted.';
 $_lang["install_session_missing"] = 'The information required for the installation (such as the database connection) is no longer available, so the installation was aborted without making any changes. This can happen when the session expires during the setup. Please start over.';
 $_lang["install_start_over"] = 'Start over';
+$_lang["installation_finished_with_errors"] = '<span style="color:#c00;">Errors occurred during the installation, so it may not have completed correctly. Please check the messages above.</span>';
 $_lang["install_update"] = 'Install/Update';
 $_lang["installation_error_occured"] = 'The following errors had occurred during installation';
 $_lang["installation_install_new_copy"] = 'Install a new copy of ';
