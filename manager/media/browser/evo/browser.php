@@ -19,8 +19,8 @@ $modx->getSettings();
 
 // 管理セッションは常に許可。ウェブユーザーのセッションは、システム設定
 // 「ウェブユーザーのファイルブラウザ利用」(rb_webuser) が有効なときだけ許可する（既定は無効）。
-if (!isset($_SESSION['mgrValidated'])) {
-    if (!isset($_SESSION['webValidated']) || (int) $modx->config('rb_webuser') !== 1) {
+if (!sessionv('mgrValidated')) {
+    if (!sessionv('webValidated') || (int) $modx->config('rb_webuser') !== 1) {
         http_response_code(403);
         die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
     }

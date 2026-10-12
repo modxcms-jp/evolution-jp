@@ -43,8 +43,8 @@ function fbError($code, $message, $status = 400)
 
 // 管理セッションは常に許可。ウェブユーザーのセッションは、システム設定
 // 「ウェブユーザーのファイルブラウザ利用」(rb_webuser) が有効なときだけ許可する（既定は無効）。
-if (!isset($_SESSION['mgrValidated'])) {
-    if (!isset($_SESSION['webValidated']) || (int) $modx->config('rb_webuser') !== 1) {
+if (!sessionv('mgrValidated')) {
+    if (!sessionv('webValidated') || (int) $modx->config('rb_webuser') !== 1) {
         fbError('unauthorized', 'ログインセッションが確認できません。', 403);
     }
 }
