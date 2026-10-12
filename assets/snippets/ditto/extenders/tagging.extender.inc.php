@@ -11,7 +11,7 @@ if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_
 // Tagging Parameters
 // ---------------------------------------------------
 
-$landing = $tagDocumentID ?? $modx->documentObject['id'];
+$landing = $tagDocumentID ?? $modx->documentObject['id'] ?? '';
 /*
 	Param: tagDocumentID
 
@@ -327,7 +327,7 @@ if (!class_exists('tagging')) {
 
             if ($this->displayMode == 1) {
                 foreach ($tags as $tag) {
-                    $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
+                    $tagDocID = (!$tagID) ? ($modx->documentObject['id'] ?? '') : $tagID;
                     $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
                     $output .= template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
                     $output .= ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? $this->displayDelimiter : '';
@@ -335,7 +335,7 @@ if (!class_exists('tagging')) {
             } else if ($format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $this->displayMode == 2) {
                 $tagList = [];
                 foreach ($tags as $tag) {
-                    $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
+                    $tagDocID = (!$tagID) ? ($modx->documentObject['id'] ?? '') : $tagID;
                     $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
                     $tagList[] = template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
                 }

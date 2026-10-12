@@ -105,7 +105,7 @@ class modxDebugConsole
         foreach ($query as $param => $value) {
             $queryString .= '&' . $param . '=' . (is_array($value) ? implode(',', $value) : $value);
         }
-        $cID = ($id !== false) ? $id : $modx->documentObject['id'];
+        $cID = ($id !== false) ? $id : ($modx->documentObject['id'] ?? '');
         $url = $modx->makeURL(trim($cID), '', $queryString);
         return ($modx->config['xhtml_urls']) ? $url : str_replace('&', '&amp;', $url);
     }

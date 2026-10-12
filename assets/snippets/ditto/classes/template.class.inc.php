@@ -195,7 +195,7 @@ class template
         if ($x % 2 && !empty($templates['alt'])) {
             $currentTPL = 'alt';
         }
-        if ($id == evo()->documentObject['id'] && !empty($templates['current'])) {
+        if ($id == (evo()->documentObject['id'] ?? null) && !empty($templates['current'])) {
             $currentTPL = 'current';
         }
         if ($x == 0 && !empty($templates['first'])) {
