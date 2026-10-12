@@ -42,13 +42,16 @@ class filter
 
         $rs = [];
         $op = $this->_get_operator_name($param['mode']);
-        if (!$op) {
+        if (!$op && $param['mode'] === null) {
+            // mode omitted: case-insensitive "contains" (mode 9), whatever the value is
+            $op = 'ci_find';
+        } elseif (!$op) {
             // source:operator:value is accepted as well
             $op = $this->_get_operator_name($param['value']);
             if ($op) {
                 $param['value'] = $param['mode'];
             } else {
-                // mode omitted or unknown: case-insensitive "contains" (mode 9)
+                // unknown mode: case-insensitive "contains" (mode 9)
                 $op = 'ci_find';
             }
         }
@@ -92,8 +95,8 @@ class filter
         $creteria = $param['creteria'];
 
         switch ($param['op']) {
-            case '!=' : // keep the documents equal to the value
-                return ($doc_value != $creteria || $doc_value === false);
+            case '!=' : // keep the documents equal to the value (a missing field compares as false)
+                return !($doc_value == $creteria);
             case '==' :
                 return ($doc_value == $creteria);
             case '<'  :
@@ -142,7 +145,8 @@ class filter
         if ($op === null || is_array($op)) {
             return false;
         }
-        return self::OPERATORS[(string)$op] ?? false;
+        // spaces around the mode are allowed (e.g. "field,value, 2")
+        return self::OPERATORS[trim((string)$op)] ?? false;
     }
 
     private function is_datetime_field($field_name = '')
