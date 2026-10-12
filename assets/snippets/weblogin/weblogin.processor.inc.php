@@ -71,7 +71,12 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = postv('txtwebemail');
+    $email = postv('txtwebemail', '');
+    // 未入力のままメールアドレスが空のアカウントに一致させない
+    if ($email === '') {
+        $output = webLoginAlert("Please enter your email address.");
+        return;
+    }
     if (isset($reminder_message)) {
         if (preg_match('@^[1-9[0-9]*$@', $reminder_message))
             $message = $modx->getField('content', $reminder_message);

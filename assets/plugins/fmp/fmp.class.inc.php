@@ -120,7 +120,8 @@ class ForgotManagerPassword
 
     private function sendFmpMail($email)
     {
-        $user_id = $this->getUserIdByEmail($email);
+        // 未入力のアドレスはメールアドレスが空のユーザーに一致しうるので、登録の無いアドレスと同じに扱う
+        $user_id = ($email === null || $email === '') ? 0 : $this->getUserIdByEmail($email);
         if (!$user_id) {
             // 登録の無いアドレスでも、送信したときと同じ応答にする（メールは送らない）
             return true;
