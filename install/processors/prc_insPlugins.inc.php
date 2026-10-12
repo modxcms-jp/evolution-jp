@@ -59,7 +59,12 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $f['moduleguid'] = $tplInfo['guid'];
 
     $pluginId = false;
-    $prevPluginId = $dbv_plugin ? (int)$dbv_plugin->id : 0;
+    // 入れ替える前の同名の有効な行（重複していればすべて）。イベントの実行順を引き継ぐのに使う
+    $prevPluginIds = [0];
+    $rs = db()->select('id', '[+prefix+]site_plugins', $enabledWhere);
+    while ($row = db()->getRow($rs)) {
+        $prevPluginIds[] = (int)$row['id'];
+    }
 
     if ($dbv_plugin === false) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
@@ -101,17 +106,18 @@ foreach ($tplPlugins as $i => $tplInfo) {
         $eventWhere = sprintf("se.name IN ('%s')", implode("','", $events));
         // DBAPI::fieldExists() は完全名のテーブルを照合できず常に偽になるため、直接確かめる
         $hasPriority = db()->count(db()->query(
-            'SHOW COLUMNS FROM ' . db()->table_prefix . "site_plugin_events LIKE 'priority'"
+            'SHOW COLUMNS FROM ' . db()->replaceFullTableName('[+prefix+]site_plugin_events') . " LIKE 'priority'"
         )) > 0;
         if ($hasPriority) {
-            // 実行順は入れ替える前のプラグインから引き継ぐ
+            // 実行順は入れ替える前のプラグインから引き継ぐ。重複していた場合は、利用者が設定した値（既定の 0 より大きい値）を残す
             $query = sprintf(
                 'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid, priority)'
                 . " SELECT '%d', se.id, COALESCE(prev.priority, 0) FROM [+prefix+]system_eventnames se"
-                . " LEFT JOIN [+prefix+]site_plugin_events prev ON prev.evtid=se.id AND prev.pluginid='%d'"
+                . ' LEFT JOIN (SELECT evtid, MAX(priority) AS priority FROM [+prefix+]site_plugin_events'
+                . ' WHERE pluginid IN (%s) GROUP BY evtid) prev ON prev.evtid=se.id'
                 . ' WHERE %s',
                 $pluginId,
-                $prevPluginId,
+                implode(',', $prevPluginIds),
                 $eventWhere
             );
         } else {
@@ -121,7 +127,6 @@ foreach ($tplPlugins as $i => $tplInfo) {
                 $eventWhere
             );
         }
-        $query = str_replace('[+prefix+]', db()->table_prefix, $query);
-        db()->query($query);
+        db()->query(db()->replaceFullTableName($query));
     }
 }
