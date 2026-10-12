@@ -301,7 +301,7 @@ function nullToEmpty(array $fields)
 }
 
 // 以前のインストーラが入れていた文字列 'NULL' を空に戻す（アップデート時。何度実行しても同じ結果になる）。
-// 対象は、インストーラが null を入れていた列だけ。あわせて、編集画面で保存したときにプロパティへ入った
+// 対象は、インストーラが null を入れていた列だけ。照合順序で 'null' や末尾空白付きの値まで一致しないよう BINARY で比べる。あわせて、編集画面で保存したときにプロパティへ入った
 // '&NULL=undefined;;'（'NULL' をプロパティ名として読んだもの）を取り除く
 function cleanupNullStrings()
 {
@@ -314,7 +314,7 @@ function cleanupNullStrings()
     foreach ($targets as $table => $columns) {
         $table = db()->table_prefix . $table;
         foreach ($columns as $column) {
-            db()->query(sprintf("UPDATE `%s` SET `%s`='' WHERE `%s`='NULL'", $table, $column, $column));
+            db()->query(sprintf("UPDATE `%s` SET `%s`='' WHERE BINARY `%s`='NULL'", $table, $column, $column));
         }
     }
     foreach (['site_snippets', 'site_plugins', 'site_modules'] as $table) {
