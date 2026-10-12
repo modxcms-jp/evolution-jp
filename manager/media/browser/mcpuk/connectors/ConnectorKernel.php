@@ -40,7 +40,14 @@ class ConnectorKernel
 
     private function assertSession(array $session)
     {
-        if (!isset($session['mgrValidated']) && !isset($session['webValidated'])) {
+        // 管理セッションは常に許可。
+        // ウェブユーザーのセッションは、システム設定「ウェブユーザーのファイルブラウザ利用」
+        // (rb_webuser) が有効なときに限り許可する（既定は無効）。
+        $allowed = isset($session['mgrValidated']);
+        if (!$allowed && isset($session['webValidated']) && (int) $this->modx->config('rb_webuser') === 1) {
+            $allowed = true;
+        }
+        if (!$allowed) {
             exit("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
         }
     }
