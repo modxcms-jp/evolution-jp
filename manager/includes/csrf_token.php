@@ -95,7 +95,8 @@ function getCsrfValidationFailureInfo()
     return [
         'action' => manager()->action ?? 'none',
         'method' => serverv('REQUEST_METHOD'),
-        'token' => getRequestCsrfToken() ?: 'none',
+        // トークンは秘密値のため、値ではなく有無だけを記録・表示する
+        'token' => getRequestCsrfToken() ? 'present' : 'none',
         'valid_tokens_count' => count(sessionv('csrf_tokens', [])),
         'uri' => serverv('REQUEST_URI'),
         'ip' => serverv('REMOTE_ADDR'),

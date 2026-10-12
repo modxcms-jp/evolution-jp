@@ -53,12 +53,14 @@ if (is_post()) {
     $currentAction = manager()->action;
 
     // デバッグ: トークン情報を確認
+    // トークンそのものは秘密値のため、値ではなく有無・件数だけを記録する
+    // （ログの閲覧・転送・バックアップが別の信頼境界になりうるため）
     if (evo()->config('debug', 0)) {
         $debugInfo = [
             'action' => $currentAction,
-            'csrf_token_from_post' => postv('csrf_token', 'none'),
-            'csrf_token_from_header' => serverv('HTTP_X_CSRF_TOKEN', 'none'),
-            'tokens_in_session' => sessionv('csrf_tokens', []),
+            'csrf_token_in_post' => postv('csrf_token', '') !== '',
+            'csrf_token_in_header' => serverv('HTTP_X_CSRF_TOKEN', '') !== '',
+            'session_token_count' => count((array) sessionv('csrf_tokens', [])),
         ];
         evo()->logEvent(0, 1, 'CSRF Debug: ' . print_r($debugInfo, true), 'CSRF Token Debug');
     }
@@ -70,15 +72,17 @@ if (is_post()) {
 }
 
 if (manager()->action != 1) {
+    // DBAPI は値を呼び出し側で安全化する取り決め。数値は整数化し、SQL に入る値は組み立ての直前にまとめてエスケープする
     $fields = [
-        'internalKey' => evo()->getLoginUserID(),
-        'username'    => sessionv('mgrShortname'),
-        'lasthit'     => serverv('REQUEST_TIME', time()),
-        'action'      => manager()->action,
-        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0,
-        'ip'          => real_ip()
+        'internalKey' => (int) evo()->getLoginUserID(),
+        'username'    => (string) sessionv('mgrShortname'),
+        'lasthit'     => (int) serverv('REQUEST_TIME', time()),
+        'action'      => (int) manager()->action,
+        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? (int) anyv('id') : 0,
+        'ip'          => (string) real_ip()
     ];
 
+    $fields = db()->escape($fields);
     $sql = sprintf(
         "REPLACE INTO %s (%s) VALUES ('%s')",
         evo()->getFullTableName('active_users'),
