@@ -67,7 +67,7 @@ function content($key, $default = null)
 }
 ?>
 <script type="text/javascript">
-    var docid = <?= anyv('id') ?>;
+    var docid = <?= request_intvar('id') ?>;
     jQuery(function() {
         jQuery('select[name="categoryid"]').change(function() {
             if (jQuery(this).val() == '-1') {
