@@ -100,9 +100,15 @@ async function runInstaller(browser) {
             }
             await Promise.all([page.waitForNavigation({ timeout: 120000 }), next.click()]);
         }
+        // #533 より前の版では、結果画面の見出し「インストールを実行しました」(install_results) が成否に関係なく出る。
+        // 比較用に古い版を入れるときも正しく判定できるよう、成功したときだけ出る文言 (installation_successful) と、
+        // テーブルが実際に作られたことで判定する
         const text = (await page.textContent('body')).replace(/\s+/g, ' ');
-        if (!/インストールを実行しました|installation was successful/i.test(text)) {
+        if (!/インストールは無事に成功しました|Installation was successful/i.test(text)) {
             throw new Error('インストールが完了しなかった: ' + text.slice(0, 300));
+        }
+        if (!hasTables()) {
+            throw new Error('インストーラーは成功と表示したが、テーブルが作られていない');
         }
         console.log('installer: 完了');
         await page.context().close();

@@ -1891,7 +1891,7 @@ class DocumentParser
             'isfolder' => (int)$row['isfolder'],
         ];
         $pathInfo['path'] = '';
-        if (0 < $pathInfo['parent'] && $this->config['use_alias_path'] == '1') {
+        if (0 < $pathInfo['parent'] && $this->config('use_alias_path') == '1') {
             $_ = $this->getAliasListing((int)$row['parent']);
             if (0 < $_['parent'] && $_['path'] != '') {
                 $pathInfo['path'] = sprintf('%s/%s', $_['path'], $_['alias']);
