@@ -7,7 +7,7 @@
 ## Progress
 
 - [x] (2026-10-12) M1: `request_intvar()` を整数返しにし、`get_intvar()`・`post_intvar()` を新設（受け取り元は元の読み方に合わせる）。processor（document・permission・要素・pm・モジュール）と編集画面の id を置き換え、document 系の権限の確認をそろえた。ロールの保存の `extract($_POST)` をやめ、Web ユーザーの保存の数値項目を整数化。検証環境で操作 19 項目・要素の保存・新規作成・スモークテスト 6/6 を確認
-- [ ] (2026-10-10) M2: 状態を変えるアクションの一覧を定義し、GET でも CSRF トークンを必須にする
+- [x] (2026-10-13) M2: 状態を変えるアクションの一覧を定義し、GET でも CSRF トークンを必須にする（PR #566）。`csrf_token.php` に一覧と判定関数、`csrfUrl()` / `EvoCsrf.url()` を置き、呼び出し元を揃えた。ログアウトの除外も是正。検証環境で、トークンなしの GET・HEAD が 403 になり状態が変わらないこと（リソース系 21 項目・そのほか 19 項目）と、画面からの操作（リソース系 24 項目・そのほか 25 項目）を確認し、main ではトークンなしでも実行されることを確かめた
 - [ ] (2026-10-10) M3: CI でリクエスト値の扱いと JS への埋め込みの逸脱を検出する
 - [ ] (2026-10-10) M4: 検証スクリプトを整え、main と比べて確認する
 
@@ -16,6 +16,11 @@
 - 2026-10-12（M1）: `(int)` で id を読んでいた処理は、`12abc` のような値を 12 として扱い、別のリソースを操作していた。M1 で、id が整数として読めないときはエラーで止めるようにした。
 - 2026-10-12（M1）: ゴミ箱を完全に削除する処理は、id が正しい形でないと「id なし」と同じ扱いになり、ゴミ箱の全件を削除する分岐に入っていた。M1 で、id が指定されていて整数として読めないときは止めるようにした。
 - 2026-10-12（M1）: 要素の編集画面を開いて変更せずに保存すると、本文の改行が `\r\n` に、`NULL` の項目が空文字に、スニペットとプラグインのプロパティが `&NULL=undefined;;` に、テンプレート変数の `elements` が文字列の `(null)` に変わる。main でも同じで、M1 の変更とは関係ない。プロパティと `(null)` は不具合なので、別の Issue で扱う。
+
+- 2026-10-13（M2）: シェル（`shell.js`）は、断片でない応答や通信の失敗のあと、同じ URL をヘッダーなしで開き直すことがある。ヘッダーだけでトークンを渡すと、開き直しで 403 になるか、操作が 2 回走る。このため、GET で状態を変える呼び出しは、シェル経由でも URL にトークンを付ける。
+- 2026-10-13（M2）: リソースの保存（`a=5`）は、GET で呼ぶと POST の値が空のまま新規作成の扱いになり、空のリソースを作っていた（main で確認）。保存系の processor も一覧に入れ、GET では実行されないようにした。
+- 2026-10-13（M2）: 既存の POST 検証の除外（`a=8`）は、アクション番号が文字列のまま厳密比較していたため、実際には除外されていなかった。ログインの POST はログイン済みの判定より前に終わるので、除外そのものを削除した。
+- 2026-10-13（M2）: 検証環境（サンプルサイト）の管理者では、メッセージ画面（`a=10`）が権限なしで表示できない（main でも同じ）。メッセージの削除は、直叩きでの拒否だけを確認した。
 
 - 2026-10-11（レビュー #506 で判明）: `manager/includes/accesscontrol.inc.php` の POST 向け CSRF 検証が、ログアウト（`a=8`）を「ログイン処理」として検証から除外している。ログアウトはセッションを破棄する更新操作であり、本来は保護対象。M2 で是正する。
 - 2026-10-12（着手前の再調査）: Issue #493 に例として挙げた公開・非公開の processor は、id の整数化がすでに済んでいる（`intval()` と、#490 で入れた `(int)`）。整数化されずに SQL に入る受け取り方は、document 系では下書き（リビジョン）関係と移動の処理に残っており、下書きの処理では、値が `manager/includes/extenders/ex_revision.php` の SQL へエスケープされずに渡る。ほかのディレクトリにも数件ある。具体的な箇所は M1 の棚卸しで確かめる。
@@ -39,6 +44,10 @@
 - 2026-10-11 / yamamoto・Claude: 上の 2026-10-10 の決定（#505 で `where()` の中でエスケープする）を改める。`where()` だけが値をエスケープすると、DBAPI の取り決め（呼び出し側で安全化してから渡す）と食い違い、先にエスケープしている外部プラグインでは二重エスケープになる。1.2.2J と同じく `where()` は元の仕様に戻し、安全化していなかった呼び出し側を `db()->escape()` / `(int)` で直した（main は `fix/where-callsite` の PR）。取り決めそのものを変える（値のバインドへ移る）のは、PDO 移行（#453）のフェーズ 2 で扱う。
 - 2026-10-12 / yamamoto・Claude: id を読む関数は、受け取り元ごとに `get_intvar()`（GET）・`post_intvar()`（POST）・`request_intvar()`（GET と POST の両方）の 3 つにし、その処理が実際に呼ばれる方法に合わせて選ぶ。`request_intvar()` をどこでも使うと「GET でも POST でもよい」という曖昧さを広げ、GET だけで呼ばれていた処理が POST でも動くようになるため。置き換えでは、元の `getv()` / `postv()` / `anyv()` に対応する関数を使い、受け付けるメソッドを変えない。状態を変える処理を POST に限るかどうかは、M2（CSRF）の範囲で扱う。
 - 2026-10-12 / Claude: 再調査の結果を受けても、計画の方針（M1〜M4）は変えない。M1 の範囲に「権限の確認の有無をそろえる」ことと、下書き（リビジョン）の API へ渡す値も含める。
+- 2026-10-13 / yamamoto・Claude（レビュー反映 #566）: M2 は、リソース系だけを先に出す案をやめ、一つの PR で一覧全体を入れる。一覧の置き場所とヘルパー名を後から揃え直す二度手間を避けるため。Artifacts の「受け付ける・付ける・必須にする」の 3 コミットには分けず、一括で入れた（受け付ける側と付ける側を同じ PR で揃えたため、途中の状態を残す必要がなかった）。
+- 2026-10-13 / Claude: 2026-10-10 の決定（シェルの fetch はヘッダー、フルページの遷移は URL）を改め、GET で状態を変える呼び出しは、シェル経由でも URL にトークンを付ける。シェルが同じ URL をヘッダーなしで開き直すことがあるため（Surprises & Discoveries の 2026-10-13 を参照）。ヘッダーはこれまでどおりメソッドによらず付ける。
+- 2026-10-13 / Claude: 一覧には、更新系のアクションに加えて保存系の processor（POST で呼ぶもの）も入れる。POST はもともと検証しているので正規の操作には影響せず、GET で到達したときに実行させないため。モジュールの実行（`a=112`）は、更新するかどうかがモジュールの実装次第で、モジュール内のリンクがすべて影響を受けるため入れない。ツリーの開閉状態の保存やメッセージの既読化など、表示のための軽微なセッション・状態の書き換えも入れない。
+- 2026-10-13 / Claude: 表側の QuickManager のログアウトリンクは、表側に `csrfUrl()` が無いため、管理画面と共有のセッションから最新のトークンを読んで付ける。ログ画面の「ログを空にする」リンクは言語文字列の中にあるため、表示時に URL を置き換える。
 - 2026-10-11 / Claude: その PR では、id を `(int)` で整数にしている。M1 で `request_intvar()` / `post_intvar()` に揃えるときに、これらも置き換え対象に含める（`(int)` は SQL としては安全だが、`"5abc"` を `5` として扱う）。
 
 ## Outcomes & Retrospective
@@ -54,9 +63,9 @@
 現状:
 - リクエストの値は `getv()` / `postv()` / `anyv()`（`manager/includes/helpers.php`）で読む。id を数値として読むヘルパー `request_intvar($key)`（`helpers.php`）はあるが、正規表現で確かめた**文字列**を返し、使っている箇所と使っていない箇所が混在している。整数への変換の有無も、processor ごとにばらばら。
 - `where()`（`manager/includes/extenders/ex_dbapi.php`）は値をエスケープしない。DBAPI 共通の取り決めとして、呼び出し側で `db()->escape()` または `(int)` してから渡す。`$field` と `$op` もそのまま埋め込まれる。`db()->update()` / `insert()` の配列の値も同じ（エスケープされない）。
-- CSRF トークンの実装は `manager/includes/csrf_token.php`。トークンはセッション単位で、検証しても消えない（複数タブのため）。受け付ける場所は POST の `csrf_token` と `X-CSRF-Token` ヘッダーだけ（`getRequestCsrfToken()`）。
-- 検証は `manager/includes/accesscontrol.inc.php` の `if (is_post()) { checkCsrfToken(); }` だけで、GET は検証していない。管理画面には、GET で状態が変わるアクションが多数ある。
-- クライアント側は `manager/media/script/csrf.js` が、POST のフォームに hidden の `csrf_token` を補い、同一オリジンへの fetch / XHR で GET 以外のときだけ `X-CSRF-Token` ヘッダーを付ける。`shell.js` の `request()` は、POST のときだけヘッダーを付ける。トークンは `header.inc.php` が出す `<meta name="csrf-token">` から読む。
+- CSRF トークンの実装は `manager/includes/csrf_token.php`。トークンはセッション単位で、検証しても消えない（複数タブのため）。受け付ける場所は POST の `csrf_token`、`X-CSRF-Token` ヘッダー、URL の `csrf_token`（`getRequestCsrfToken()`。URL は M2 で追加）。
+- 検証は `manager/includes/accesscontrol.inc.php` で行う。M2 より前は `is_post()` のときだけで、GET は検証していなかった。M2 で、POST はすべて、GET・HEAD などは `csrfProtectedActions()` の一覧に該当する操作だけ検証するようにした。
+- クライアント側は `manager/media/script/csrf.js` が、POST のフォームに hidden の `csrf_token` を補い、同一オリジンへの fetch / XHR に `X-CSRF-Token` ヘッダーを付ける（M2 より前は GET 以外のときだけ。M2 でメソッドによらず付けるようにした）。URL へトークンを付けるときは、PHP の `csrfUrl()`・JS の `EvoCsrf.url()` を使う。トークンは `header.inc.php` が出す `<meta name="csrf-token">` から読む。
 - 値を JS へ埋め込むときは `js_literal()`（`helpers.php`）、HTML は `hsc()` を使う（AGENTS.md の「出力のエスケープ」）。
 
 ## Plan of Work
@@ -82,7 +91,7 @@ M1:
 M2:
 - 編集対象: `manager/includes/csrf_token.php`（アクション一覧・判定関数・`getRequestCsrfToken()`）、`manager/includes/accesscontrol.inc.php`、`manager/media/script/csrf.js`、状態を変えるアクションを呼ぶ画面・JS
 - 実行（棚卸し）: `grep -rnE "a=[0-9]+" manager/actions manager/frames manager/media/script manager/media/style --include=*.php --include=*.js --include=*.tpl`
-- 期待: 一覧に含めたアクションを呼ぶ箇所が、すべて `csrfUrl()` / `EvoCsrf.url()` か、シェル経由（ヘッダー付き）になっている
+- 期待: 一覧に含めたアクションを GET で呼ぶ箇所が、シェル経由かどうかによらず、すべて `csrfUrl()` / `EvoCsrf.url()` で URL にトークンを付けている（2026-10-13 の Decision Log を参照）
 
 M3:
 - 編集対象: `.github/scripts/security-lint.php`、`.github/workflows/security-lint.yml`
