@@ -8,7 +8,7 @@
 
 1. `define-path.php` で `MODX_SITE_URL` を定義していれば、それを使う（この先の判定は通らない）
 2. `.env`（またはサーバーの環境変数）の `SITE_URL`
-3. システム設定の「サイトのURL」（内部名 `fixed_site_url`）。保存すると `temp/cache/basicConfig.php` に `$fixed_site_url` として書き出され、初期化のときに読まれる
+3. システム設定の「サイトのURL」（内部名 `fixed_site_url`）。保存すると `temp/cache/basicConfig.php` に `$fixed_site_url` として書き出され（パスは使わないので、スキーム・ホスト・ポートだけを書く）、初期化のときに読まれる
 4. どれも無ければ、今までどおりリクエストから決める（`init::get_host_name()`）
 
 2 か 3 があるときは、次のように URL を作る。

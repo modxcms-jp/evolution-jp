@@ -271,8 +271,9 @@ class synccache
             config('error_reporting', 1)
         );
 
-        // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）
-        $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''), MODX_BASE_URL);
+        // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）。
+        // URL の決定にパスは使わないので、スキーム・ホスト・ポートだけを書く（パスの文字でエスケープが入らないように）
+        $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''));
         if ($fixed_site_url !== '') {
             $content[] = sprintf('$fixed_site_url = %s;', var_export($fixed_site_url, true));
         }
