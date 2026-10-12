@@ -220,8 +220,8 @@ class DBAPI
     }
 
     /**
-     * @param array|string $s
-     * @return array|string
+     * @param array|string|null $s
+     * @return array|string|null null はそのまま null を返す（配列の要素も同じ）
      */
     public function escape($s)
     {
@@ -232,7 +232,7 @@ class DBAPI
         }
 
         if ($s === null) {
-            return 'NULL';
+            return null;
         }
 
         if (!is_array($s)) {
@@ -409,7 +409,7 @@ class DBAPI
             $pairs = $fields;
         } else {
             foreach ($fields as $key => $value) {
-                if ($value === null || strtolower($value) === 'null') {
+                if ($value === null) {
                     $value = 'NULL';
                 } else {
                     if( $value === 0 ){
@@ -475,6 +475,17 @@ class DBAPI
         return $this->update($fields, $table, $where);
     }
 
+    /**
+     * insert 系の VALUES に入れる値を組み立てる。PHP の null だけを SQL の NULL にする
+     */
+    private function quoteInsertValue($value)
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+        return sprintf("'%s'", $value);
+    }
+
     private function _insert(
         $insert_method = 'INSERT INTO',
         $fields = '',
@@ -505,11 +516,11 @@ class DBAPI
         } elseif (is_array($fields)) {
             if (!$fromtable) {
                 $query = sprintf(
-                    "%s %s (`%s`) VALUES('%s')",
+                    '%s %s (`%s`) VALUES(%s)',
                     $insert_method,
                     $intotable,
                     implode('`,`', array_keys($fields)),
-                    implode("','", array_values($fields))
+                    implode(',', array_map([$this, 'quoteInsertValue'], array_values($fields)))
                 );
             }
         } else {

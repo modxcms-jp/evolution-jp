@@ -73,13 +73,13 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
             $content['pagetitle'],
             $_lang['duplicate_title_string']
         );
-        $content['alias'] = null;
+        $content['alias'] = '';
     } elseif (
         (!evo()->config('friendly_urls') || !evo()->config('allow_duplicate_alias'))
         &&
         $reset_alias === true
     ) {
-        $content['alias'] = null;
+        $content['alias'] = '';
     }
 
     // change the parent accordingly

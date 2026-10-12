@@ -12,7 +12,7 @@ if (postv('mode') == 22 && !$id) {
     alert()->dumpError();
 }
 $name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
+$description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
@@ -33,7 +33,7 @@ if (strncmp($snippet, '<?', 2) == 0) {
         $snippet = substr($snippet, 0, -2);
     }
 }
-$properties = db()->escape(postv('properties'));
+$properties = db()->escape(postv('properties', ''));
 $moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
 

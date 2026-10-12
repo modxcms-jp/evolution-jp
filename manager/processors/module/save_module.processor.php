@@ -17,7 +17,7 @@ if (postv('mode') == 108 && !$id) {
 
 $name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
-if ((postv('icon') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon')) == 1)) {
+if ((postv('icon', '') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon', '')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
 $disabled = postv('disabled') === 'on' ? 1 : 0;
@@ -85,18 +85,18 @@ switch (postv('mode')) {
 
         $f = [
             'name' => $name,
-            'description' => postv('description'),
-            'icon' => postv('icon'),
+            'description' => postv('description', ''),
+            'icon' => postv('icon', ''),
             'enable_resource' => $enable_resource,
-            'resourcefile' => postv('resourcefile'),
+            'resourcefile' => postv('resourcefile', ''),
             'disabled' => $disabled,
             'wrap' => $wrap,
             'locked' => $locked,
             'category' => $category,
             'enable_sharedparams' => $enable_sharedparams,
             'guid' => postv('guid', ''),
-            'modulecode' => postv('post'),
-            'properties' => postv('properties'),
+            'modulecode' => postv('post', ''),
+            'properties' => postv('properties', ''),
             'editedon' => $editedon,
             'createdon' => $createdon
         ];
@@ -138,18 +138,18 @@ switch (postv('mode')) {
         // save the edited module
         $f = [
             'name' => $name,
-            'description' => postv('description'),
-            'icon' => postv('icon'),
+            'description' => postv('description', ''),
+            'icon' => postv('icon', ''),
             'enable_resource' => $enable_resource,
-            'resourcefile' => postv('resourcefile'),
+            'resourcefile' => postv('resourcefile', ''),
             'disabled' => $disabled,
             'wrap' => $wrap,
             'locked' => $locked,
             'category' => $category,
             'enable_sharedparams' => $enable_sharedparams,
             'guid' => postv('guid', ''),
-            'modulecode' => postv('post'),
-            'properties' => postv('properties'),
+            'modulecode' => postv('post', ''),
+            'properties' => postv('properties', ''),
             'editedon' => $editedon
         ];
 

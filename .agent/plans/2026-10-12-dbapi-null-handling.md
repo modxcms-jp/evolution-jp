@@ -6,10 +6,10 @@
 
 ## Progress
 
-- [ ] (2026-10-12) M1: 呼び出し側の棚卸しと分類（Artifacts の分類表を埋める）
-- [ ] (2026-10-12) M2: 呼び出し側の先行修正（今の DBAPI のままでも結果が変わらない修正だけを先に入れる）
-- [ ] (2026-10-12) M3: DBAPI 本体の修正（`escape()` / `update()` / `_insert()`）
-- [ ] (2026-10-12) M4: Docker 環境での動作確認（新規インストール・アップデート・管理画面の保存・QuickManager）
+- [x] (2026-10-12) M1: 呼び出し側の棚卸しと分類。`insert()` 系 65 か所のうち、要修正 9 件、要確認 2 件、対応不要 54 件（結果は Artifacts の分類表）
+- [x] (2026-10-12) M2: 呼び出し側の先行修正（qm・weblogin を `0` に、3 列を `NOT NULL DEFAULT '0'` に、要修正・要確認の箇所で `null` を空文字に）
+- [x] (2026-10-12) M3: DBAPI 本体の修正（`escape()` / `update()` / `_insert()`）
+- [x] (2026-10-12) M4: Docker 環境での動作確認（新規インストール・アップデート・管理画面の保存・QuickManager）
 
 ## Surprises & Discoveries
 
@@ -19,6 +19,10 @@
 - 2026-10-12: `manager/includes/upgrades/upd_db_structure.php` は、アップデート後に管理画面の「グローバル設定」を開いたときだけ実行される（`manager/actions/tool/mutate_settings.dynamic.php:23`）。しかも `settings_version` が `'0'` や空のサイトでは条件が偽になり、実行されないまま設定を保存すると以後も実行されない（PR #545 の Codex レビューで指摘）。インストールとアップデートのたびに条件なしで実行されるのは `install/sql/fix_settings.php`（`install/instprocessor.php:261`）なので、列の変更はこちらに置く。
 - 2026-10-12: weblogin も `active_users.id` に NULL を書いている（`assets/snippets/weblogin/weblogin.inc.php:113`、対象 ID が無いとき `$itemid = 'NULL'` を生の SQL に埋め込む）。同じ weblogin でも `assets/snippets/weblogin/weblogin.processor.inc.php:446` は `%d` で `0` を書いており、表現が割れている（PR #545 の CodeRabbit レビューで指摘）。DBAPI を通らない生の SQL の書き込みも棚卸しの対象にする必要がある。
 - 2026-10-12: インストーラは実行のたびに `active_users` を TRUNCATE する（`install/instprocessor.php:451`）。ただし、列を変更する `install/sql/fix_settings.php`（261 行）は TRUNCATE より前に実行されるので、ALTER の時点では NULL の行が残っている。ALTER の前に NULL を `0` にする UPDATE が要る。変換した行もすぐ TRUNCATE で消えるので、データとしての影響は無い。
+- 2026-10-12: リソースの複製（`manager/processors/document/duplicate_content.processor.php`）は、`alias` を `null` にしてから `escape()` 済みの配列を `insert()` に渡していた。今の DBAPI では、複製したリソースの `alias` に文字列「NULL」が入る。通常の画面操作で毎回起きるので、`null` ではなく列の既定値と同じ空文字にした（M1 で発見）。
+- 2026-10-12: QuickManager の `saveTv()` は `postv('tv' . $tvId, postv('tv' . $tvName), '')` と書いており、3 つ目の引数は `postv()` に無視される。チェックボックスの TV をすべて外して保存すると `null` になり、新規の行では文字列「NULL」が保存されていた。`postv('tv' . $tvName, '')` に直した（M1 で発見）。
+- 2026-10-12: インストーラのテンプレート登録（`install/processors/prc_insTemplates.inc.php`）は、更新の経路で値をエスケープせずに `update()` に渡していた。`nullToEmpty()` と `escape()` を通すようにした（M1 で発見）。
+- 2026-10-12: Web ユーザーの新規作成（`manager/processors/permission/save_web_user.processor.php`）で、`username` をエスケープせずに `insert()` に渡していた。今回の変更と同じ行を扱うので、あわせて `escape()` を通した（M1 で発見）。
 
 ## Decision Log
 
@@ -35,7 +39,14 @@
 
 ## Outcomes & Retrospective
 
-実装後に記載
+2026-10-12: M1〜M4 を完了した。Validation and Acceptance の 1〜7 は、別プロジェクト名の Docker 環境（MariaDB 11）ですべて満たした。
+
+- 新規インストール: 3 列が `NOT NULL DEFAULT '0'` になり、`site_htmlsnippets.description` に「NULL」も NULL も無い。説明行の無いチャンクは同梱に無いため、テンプレートを一時的に置いて `insert()` / `update()` の経路で空文字になることを確かめた。
+- 管理画面: TV のキャプション「NULL」、リソースのタイトル「null」が、新規作成・更新とも文字列のまま保存される。要素・ユーザーは、POST から説明などの項目を抜いた送信でも保存でき、NULL は入らない。リソースの複製の `alias` は空文字になる。
+- QuickManager: 保存後の `active_users` は `id=0`、`action=2`。別のユーザーで同じリソースを開いてもロック表示にならない。weblogin も `id` 無しの URL で `id=0` になる。
+- アップデート: 旧コードで作った NULL（QuickManager の保存で `active_users.id` が実際に NULL になることも再現）は、インストーラのアップデートで `0` になり、2 回目もエラーにならない。`settings_version='0'` のサイトでも同じ。`active_users` はアップデートの最後に TRUNCATE されるため、NULL→`0` の変換は `install/sql/fix_settings.php` を単独で実行して確かめた。
+- 検証中に、モジュールの保存で `icon` が POST に無いと `preg_match()` に `null` が渡り Deprecated が出ることがわかった（今回の差分の前からある）。同じ `postv()` の既定値の問題なので、あわせて空文字を既定にした。
+- 範囲外の既存の問題として、アップデートのたびに「Dropping legacy site_revision table」が出る（`install/instprocessor.php` の `fieldExists()` の判定が常に偽に見える）。別 Issue で扱う。
 
 ## Context and Orientation
 
@@ -141,13 +152,23 @@ M1 は読み取りだけなので、何度でもやり直せる。M2 の各修�
     fix: insert で NOT NULL の列に null が届かないようにする（M1 の結果に応じて画面ごとに分けてよい）
     fix(dbapi): PHP の null だけを SQL の NULL として扱う
 
-M1 分類表（2026-10-12 時点の `insert()` 系の呼び出しの控え。正は手順 1 の grep の結果とし、判定は M1 で埋める）
+M1 分類表（2026-10-12、手順 1 の grep で 65 行）
 
-- `escape()` 済みの配列を渡している箇所: `manager/includes/extenders/ex_docapi.php:38`、`manager/processors/module/save_module.processor.php:103, 219`、`manager/processors/chunk/save_htmlsnippet.processor.php:109`、`manager/processors/tmplvars/save_tmplvars.processor.php:261`
-- インストーラ（`nullToEmpty()` 適用済みを含む）: `install/functions.php:372`、`install/processors/prc_insSnippets.inc.php:35`、`install/processors/prc_insChunks.inc.php:47, 82`、`install/processors/prc_insTVs.inc.php:34, 75`、`install/processors/prc_insModules.inc.php:39`、`install/processors/prc_insTemplates.inc.php:41`、`install/processors/prc_insPlugins.inc.php:64, 78`
-- 管理画面の保存処理: `manager/processors/` 配下の template / snippet / plugin / tmplvars / permission（save_user・save_web_user・save_role・access_groups・web_access_groups）/ document（save_resource・duplicate_content）/ pm / module
-- コア: `manager/includes/document.parser.class.inc.php:408, 1483, 1488, 6192`、`manager/includes/traits/document.parser.subparser.trait.php:2698`、`manager/includes/cache_sync.class.php:229`、`manager/includes/log.class.inc.php:50`、`manager/includes/mysql_dumper.class.inc.php:351`、`manager/includes/extenders/ex_docapi.php:57, 262`、`manager/includes/extenders/ex_revision.php:134`、`manager/includes/extenders/ex_managerapi.php:296`、`manager/includes/extenders/ex_documentapi.php:568, 607`、`manager/actions/tool/import_site.static.php:236, 260, 312`
-- 同梱プラグイン・モジュール: `assets/plugins/fmp/fmp.class.inc.php:237`、`assets/plugins/qm/qm.inc.php:490`、`assets/plugins/managermanager/widgets/ddautofolders/modx.ddtools.class.php:46, 52`、`assets/modules/docmanager/classes/dm_backend.class.php:270`
+- 要修正（NOT NULL の列に `null` が届きうる。1〜8 は POST に項目が無いときだけ）:
+  1. `manager/processors/template/save_template.processor.php`（description / content）
+  2. `manager/processors/snippet/save_snippet.processor.php`（description、あわせて NULL 可の properties）
+  3. `manager/processors/plugin/save_plugin.processor.php`（description、あわせて plugincode / properties）
+  4. `manager/processors/tmplvars/save_tmplvars.processor.php`（description / type / display、あわせて elements / default_text / display_params）
+  5. `manager/processors/chunk/save_htmlsnippet.processor.php`（description、あわせて snippet）
+  6. `manager/processors/module/save_module.processor.php`（description / icon / resourcefile、あわせて modulecode / properties）
+  7. `manager/processors/permission/save_user.functions.php`（user_attributes の NOT NULL 列。role は `0`）
+  8. `manager/processors/permission/save_web_user.processor.php`（web_user_attributes の NOT NULL 列）
+  9. `install/processors/prc_insTemplates.inc.php`（description / locked。docblock の足りないテンプレートを利用者が置いたとき）
+  いずれも値を作る箇所で `postv(…, '')` などにした。
+- 要確認（NULL 可の列で値が変わる）: リソースの複製の `alias`、QuickManager の `saveTv()`。どちらも通常の操作で起きるので空文字にした（Surprises 参照）。
+- 対応不要 54 件: 値が `null` にならない（定数、`(int)`、`time()`、ID など）／既に空文字にしている（`save_resource` の `getInputValues()`、`DocumentAPI::save()`、`nullToEmpty()` 適用済みのインストーラ）／INSERT … SELECT の形／設定値の列で `null` が来ない。判断が微妙なものは、`DocAPI::create()` と `saveTV()`（リポジトリ内に呼び出し元が無い公開 API。外部コードが NOT NULL の列に `null` を渡すとエラーになる。Interfaces and Dependencies に記載済みの影響と同じ）、`manager/includes/log.class.inc.php` の username（セッションが壊れたときだけ `null`、NULL 可）。
+- 手順 2: 文字列「NULL」で NULL を指示している箇所は、qm を直した後は 0 件。
+- 手順 3: `escape()` の結果を引用符なしで埋め込む箇所は 0 件。`where()` の 3 引数の形は 5 件で、どれも `null` は届かない。
 
 ## Interfaces and Dependencies
 

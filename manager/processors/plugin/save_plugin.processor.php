@@ -14,10 +14,10 @@ if (postv('mode') == 102 && !$id) {
     alert()->dumpError();
 }
 $name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
+$description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? '1' : '0';
-$plugincode = db()->escape(postv('post'));
-$properties = db()->escape(postv('properties'));
+$plugincode = db()->escape(postv('post', ''));
+$properties = db()->escape(postv('properties', ''));
 $disabled = postv('disabled') == "on" ? '1' : '0';
 $moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');

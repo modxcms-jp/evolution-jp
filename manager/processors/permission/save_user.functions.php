@@ -295,7 +295,7 @@ function validate()
             $rs[$field] = 0;
             continue;
         }
-        $rs[$field] = postv($field);
+        $rs[$field] = postv($field, $field === 'role' ? 0 : '');
     }
     return $rs;
 }
