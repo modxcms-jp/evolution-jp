@@ -97,11 +97,11 @@ switch (postv('mode')) {
         }
         $field = [
             'name' => entity('name'),
-            'description' => entity('description'),
+            'description' => entity('description', ''),
             'published' => entity('published'),
             'pub_date' => entity('pub_date'),
             'unpub_date' => entity('unpub_date'),
-            'snippet' => entity('post'),
+            'snippet' => entity('post', ''),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),
             'category' => entity('category')
@@ -152,11 +152,11 @@ switch (postv('mode')) {
         );
         $field = [
             'name' => entity('name'),
-            'description' => entity('description'),
+            'description' => entity('description', ''),
             'published' => entity('published'),
             'pub_date' => entity('pub_date'),
             'unpub_date' => entity('unpub_date'),
-            'snippet' => entity('post'),
+            'snippet' => entity('post', ''),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),
             'category' => entity('category')

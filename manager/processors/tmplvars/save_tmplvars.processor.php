@@ -13,14 +13,14 @@ if (postv('mode') == 301 && !$id) {
     alert()->dumpError();
 }
 $name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
+$description = db()->escape(postv('description', ''));
 $caption = db()->escape(postv('caption'));
-$type = db()->escape(postv('type'));
-$elements = db()->escape(postv('elements'));
-$default_text = db()->escape(postv('default_text'));
+$type = db()->escape(postv('type', ''));
+$elements = db()->escape(postv('elements', ''));
+$default_text = db()->escape(postv('default_text', ''));
 $rank = isset($_POST['rank']) ? db()->escape(postv('rank')) : 0;
-$display = db()->escape(postv('display'));
-$display_params = db()->escape(postv('params'));
+$display = db()->escape(postv('display', ''));
+$display_params = db()->escape(postv('params', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 
 //Kyle Jaebker - added category support

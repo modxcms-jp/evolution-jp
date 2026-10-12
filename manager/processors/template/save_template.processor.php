@@ -13,7 +13,7 @@ if (postv('mode') == 16 && !$id) {
 }
 
 $templatename = db()->escape(trim(postv('templatename')));
-$description = db()->escape(postv('description'));
+$description = db()->escape(postv('description', ''));
 $parent = post_intvar('parent');
 
 $locked = postv('locked') == 'on' ? 1 : 0;
@@ -41,7 +41,7 @@ if ($templatename == '') {
 $field = [];
 $field['templatename'] = $templatename;
 $field['description'] = $description;
-$field['content'] = db()->escape(postv('content'));
+$field['content'] = db()->escape(postv('content', ''));
 $field['locked'] = $locked;
 $field['category'] = $categoryid;
 $field['parent'] = $parent;

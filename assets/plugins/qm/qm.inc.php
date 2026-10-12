@@ -447,7 +447,7 @@ class Qm
     function saveTv($tvName, $tvId = 0)
     {
         $tvId = (int)$tvId;
-        $tvContent = postv('tv' . $tvId, postv('tv' . $tvName), '');
+        $tvContent = postv('tv' . $tvId, postv('tv' . $tvName, ''));
 
         $tmp = ['mode' => 'upd', 'id' => evo()->documentIdentifier];
         evo()->invokeEvent('OnBeforeDocFormSave', $tmp);
