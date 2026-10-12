@@ -27,7 +27,7 @@ unset($code);
 
 if (!isset($tplLogin)) $tplLogin = $tpls[0];
 if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
-if (!isset($tplLogout)) $tplLogout = $tpls[1];
+if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (!isset($_SESSION['webValidated'])) {
     $username = postv('username') ? hsc(trim(postv('username')), ENT_QUOTES) : '';
@@ -83,7 +83,9 @@ EOT;
     if (isset($uid)) {
         $rs = db()->select('*', '[+prefix+]web_users', "id='{$uid}'");
         $row = db()->getRow($rs);
-        $username = $row['username'];
+        if ($row) {
+            $username = hsc($row['username'], ENT_QUOTES);
+        }
     }
 
     // display login
@@ -103,8 +105,6 @@ EOT;
 EOT;
     $output .= $form;
 } else {
-    $output = '';
-
     $_SESSION['ip'] = real_ip();
 
     if (anyv('id') && is_numeric(anyv('id'))) {
