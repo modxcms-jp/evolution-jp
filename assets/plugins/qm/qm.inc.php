@@ -432,7 +432,7 @@ class Qm
             $fields['id'] = evo()->documentIdentifier;
             $fields['action'] = 27;
         } else {
-            $fields['id'] = 'NULL';
+            $fields['id'] = 0;
             $fields['action'] = 2;
         }
         db()->update(

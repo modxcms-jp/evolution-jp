@@ -110,7 +110,7 @@ EOT;
     if (anyv('id') && is_numeric(anyv('id'))) {
         $itemid = anyv('id');
     } else {
-        $itemid = 'NULL';
+        $itemid = 0;
     }
     $sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')",
