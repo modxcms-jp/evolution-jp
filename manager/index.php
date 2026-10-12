@@ -255,7 +255,7 @@ function manager_system_log_trace(array $trace): array
 function manager_log_uncaught_throwable(Throwable $exception): void
 {
     try {
-        $logger = new Logger();
+        $logger = new EvoLogger();
         $logger->critical($exception->getMessage(), [
             'source' => 'Manager action',
             'exception' => [
@@ -298,7 +298,7 @@ function manager_log_shutdown_fatal(): void
         $line = (int)($error['line'] ?? 0);
         $source = manager_read_source_line($file, $line);
 
-        $logger = new Logger();
+        $logger = new EvoLogger();
         $logger->critical((string)($error['message'] ?? 'Fatal error'), [
             'source' => 'Manager shutdown',
             'fatal' => [
