@@ -1,6 +1,10 @@
 <?php
 
 global $tv;
+// 文書を保存できる人だけ（管理画面の保存処理と同じく、save_document と文書へのアクセス権を見る）
+if (!evo()->hasPermission('save_document') || !$this->checkAccess()) {
+    return 'Error: Access denied.';
+}
 // 編集できるのは、組み込みの項目とこの文書の TV だけ
 $tvName = (string)getv('tvname');
 $tv = $this->getField($tvName, $docID);
@@ -82,7 +86,8 @@ if ($locked) {
         $imagePreview = $this->get_img_prev_src();
         $imagePreview = str_replace(
             ['[+site_url+]', '[+tv_value+]', '[+tv_name+]'],
-            [MODX_SITE_URL, hsc(tv('value')), $tvName],
+            // tv_name is inside JS strings of the template
+            [MODX_SITE_URL, hsc(tv('value')), substr(js_literal($tvName), 1, -1)],
             $imagePreview
         );
     } else $imagePreview = '';
@@ -129,7 +134,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
         'lang_save' => lang('save'),
         'lang_cancel' => lang('cancel'),
         'caption' => hsc(tv('caption')),
-        'description' => tv('description', ''),
+        'description' => hsc(tv('description', '')),
         'type' => hsc(tv('type')),
         'form' => $tvHtml,
         'img_preview' => $imagePreview,

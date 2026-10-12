@@ -290,7 +290,8 @@ class Qm
             return true;
         }
 
-        $docGroups = array_filter(array_map('intval', explode(',', $this->docGroup)));
+        // read the groups from the session: the TV edit request does not set $this->docGroup
+        $docGroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
         if ($docGroups) {
             $result = db()->select(
                 'id',
