@@ -1,4 +1,6 @@
-* text eol=lf
+# 中身がバイナリのファイルは、git の判定で改行を変換しない（text=auto）。
+# 以前の `* text eol=lf` では、同梱フォントの \r\n が変換されて壊れた（#550）
+* text=auto eol=lf
 .gitattributes export-ignore
 .gitignore export-ignore
 .gitkeep export-ignore
@@ -24,3 +26,15 @@ manager/docker/ export-ignore
 *.jpg binary
 *.gif binary
 *.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ico binary
+*.webp binary
+*.bmp binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.mp3 binary
+*.mp4 binary

@@ -37,23 +37,16 @@ class VeriWord
     {
         $vword_base_path = str_replace('\\', '/', __DIR__) . '/';
         $this->bg_image = $vword_base_path . 'noise.jpg';
-        $this->font_path = $this->resolveFontPath($vword_base_path);
+        // 共有サーバーでも同じ結果になるよう、同梱フォントだけを使う
+        $this->font_path = $vword_base_path . 'ftb_____.ttf';
     }
 
-    function resolveFontPath($vword_base_path)
+    // 画像を出せない理由をシステムログに残し、500 を返す
+    function fail($reason)
     {
-        $candidates = [
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-            $vword_base_path . 'ftb_____.ttf'
-        ];
-
-        foreach ($candidates as $candidate) {
-            if (is_file($candidate) && is_readable($candidate)) {
-                return $candidate;
-            }
-        }
-
-        return '';
+        evo()->logEvent(0, 3, $reason, 'CAPTCHA');
+        http_response_code(500);
+        return false;
     }
 
     function set_veriword($word)
@@ -63,14 +56,17 @@ class VeriWord
 
     function output_image($word, $img_width = 200, $img_height = 80)
     {
-        if ($this->font_path === '') {
-            http_response_code(500);
+        if (!function_exists('imagettfbbox')) {
+            $this->fail('GD の FreeType 対応が無いため、CAPTCHA 画像を作れません。');
+            return;
+        }
+        if (!is_file($this->font_path) || !is_readable($this->font_path)) {
+            $this->fail('CAPTCHA 用のフォントを読めません: ' . $this->font_path);
             return;
         }
 
         $img = $this->draw_image($word, $img_width, $img_height);
         if ($img === false) {
-            http_response_code(500);
             return;
         }
         header('Content-type: image/jpeg');
@@ -87,26 +83,23 @@ class VeriWord
     {
         $text_angle = mt_rand(-9, 9);
         /* calculate text width and height */
-        $box = imagettfbbox(30, $text_angle, $this->font_path, $word);
+        $box = @imagettfbbox(30, $text_angle, $this->font_path, $word);
         if ($box === false) {
-            http_response_code(500);
-            return false;
+            return $this->fail('CAPTCHA 用のフォントが壊れているか、GD で読めない形式です: ' . $this->font_path);
         }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
         if ($text_width <= 0) {
-            http_response_code(500);
-            return false;
+            return $this->fail('CAPTCHA の文字の幅を測れません: ' . $this->font_path);
         }
 
         /* adjust text size */
         $text_size = (int) round((20 * $img_width) / $text_width);
 
         /* recalculate text width and height */
-        $box = imagettfbbox($text_size, $text_angle, $this->font_path, $word);
+        $box = @imagettfbbox($text_size, $text_angle, $this->font_path, $word);
         if ($box === false) {
-            http_response_code(500);
-            return false;
+            return $this->fail('CAPTCHA 用のフォントが壊れているか、GD で読めない形式です: ' . $this->font_path);
         }
         $text_width = $box[2] - $box[0]; //text width
         $text_height = $box[5] - $box[3]; //text height
