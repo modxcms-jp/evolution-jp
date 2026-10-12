@@ -31,10 +31,11 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = '')
         'access' => 'tabAccessHeader',
     ];
     if (isset($headers[$tab])) {
+        // WebFXTabPage wraps the heading text in a span (styles and click handling): rename inside it
         $output .= sprintf(
-            '$j("#%s").empty().prepend("%s");' . "\n",
-            $headers[$tab],
-            jsSafe($newname)
+            '(function ($h) { var $s = $h.children("span").first(); ($s.length ? $s : $h).empty().prepend("%s"); })($j("#%s"));' . "\n",
+            jsSafe($newname),
+            $headers[$tab]
         );
     }
 
