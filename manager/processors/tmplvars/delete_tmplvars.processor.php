@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = request_intvar('id');
+$id = get_intvar('id');
 $forced = getv('force', 0);
 
 $tbl_site_content = evo()->getFullTableName('site_content');

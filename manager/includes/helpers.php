@@ -357,17 +357,26 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
-// リクエスト（GET・POST）の値を id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
-// (int) は "5abc" を 5 にしてしまうので、id はこの関数か post_intvar() で読む
-function request_intvar($key)
+// id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
+// (int) は "5abc" を 5 にしてしまうので、id は次の 3 つで読む。受け取り元は、その処理が実際に呼ばれる方法に合わせて選ぶ
+// （GET だけなら get_intvar()、POST だけなら post_intvar()、GET と POST の両方で呼ばれる処理だけ request_intvar()）
+
+// GET の値だけを id として読む
+function get_intvar($key)
 {
-    return to_intvar(anyv($key, 0));
+    return to_intvar(getv($key, 0));
 }
 
-// POST の値だけを id として読む（request_intvar() と同じ検証）
+// POST の値だけを id として読む
 function post_intvar($key)
 {
     return to_intvar(postv($key, 0));
+}
+
+// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
+function request_intvar($key)
+{
+    return to_intvar(anyv($key, 0));
 }
 
 function to_intvar($value)

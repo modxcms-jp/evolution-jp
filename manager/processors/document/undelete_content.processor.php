@@ -65,7 +65,7 @@ evo()->invokeEvent("OnDocFormUnDelete", $params);
 $modx->clearCache();
 // finished emptying cache - redirect
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-$page = request_intvar('page') ? '&page=' . request_intvar('page') : '';
+$page = get_intvar('page') ? '&page=' . get_intvar('page') : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
 } else {

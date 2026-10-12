@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_snippet')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = request_intvar('id');
+$id = get_intvar('id');
 
 $tmp = ['id' => $id];
 evo()->invokeEvent('OnBeforeChunkFormDelete', $tmp);

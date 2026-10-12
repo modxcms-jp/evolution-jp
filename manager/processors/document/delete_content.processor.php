@@ -9,7 +9,7 @@ if (!evo()->hasPermission('delete_document')) {
 }
 
 // check the document doesn't have any children
-$id = request_intvar('id');
+$id = get_intvar('id');
 
 if (!$id) {
     alert()->setError(2);
@@ -75,7 +75,7 @@ evo()->invokeEvent("OnDocFormDelete", $params);
 // empty cache
 $modx->clearCache();
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-$page = request_intvar('page') ? '&page=' . request_intvar('page') : '';
+$page = get_intvar('page') ? '&page=' . get_intvar('page') : '';
 if ($pid !== '0') {
     $url = "index.php?r=1&a=120&id={$pid}";
 } else {

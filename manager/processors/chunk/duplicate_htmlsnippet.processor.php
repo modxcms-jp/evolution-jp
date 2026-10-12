@@ -6,7 +6,7 @@ if (!evo()->hasPermission('new_chunk')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = request_intvar('id');
+$id = get_intvar('id');
 if (!$id) {
     exit;
 }
