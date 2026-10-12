@@ -257,7 +257,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
     ?>
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>" />
-    <input type="hidden" name="id" value="<?= getv('id') ?>" />
+    <input type="hidden" name="id" value="<?= get_intvar('id') ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0) || attribute('failedlogins') > 3) ? "1" : "0" ?>" />
 
