@@ -92,7 +92,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=304";
+            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=304";
         }
     }
 

@@ -32,7 +32,7 @@ if (id()) {
         function duplicaterecord() {
             if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= getv('id') ?>&a=96";
+                document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=96";
             }
         }
 
@@ -53,7 +53,7 @@ if (id()) {
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?= getv('id') ?>">
+        <input type="hidden" name="id" value="<?= request_intvar('id') ?>">
         <input type="hidden" name="mode" value="<?= (int)getv('a') ?>">
 
         <h1><?= lang('template_title') ?></h1>
