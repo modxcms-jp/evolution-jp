@@ -731,13 +731,17 @@ function eForm($modx, $params)
 # validationmessage / debug / disclaimer are HTML built by eForm itself.
 function efHtmlFields($fields)
 {
+    global $formats;
     foreach ($fields as $key => $value) {
         if (in_array($key, ['validationmessage', 'debug', 'disclaimer'], true)) {
             continue;
         }
         $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
-        // keep the line breaks eForm itself has turned into <br /> (html fields)
-        $fields[$key] = str_replace('&lt;br /&gt;', '<br />', $value);
+        // keep the line breaks eForm itself has turned into <br /> (html fields only)
+        if (($formats[$key][2] ?? '') === 'html') {
+            $value = str_replace('&lt;br /&gt;', '<br />', $value);
+        }
+        $fields[$key] = $value;
     }
     return $fields;
 }
@@ -990,9 +994,11 @@ function eFormParseTemplate($tpl, $isDebug = false)
                         $attr = attr2array('<option' . ($m[1] ?? '') . '>') ?: [];
                         // without a value attribute, the option text is the value (as in HTML)
                         if (!isset($attr['value'])) {
-                            $attr['value'] = '"' . str_replace('"', '&quot;', trim($m[2])) . '"';
+                            $text = html_entity_decode(trim($m[2]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            $attr['value'] = '"' . hsc($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401) . '"';
                         }
-                        $value = substr($attr['value'], 1, -1); //strip outer quotes
+                        // the browser sends the decoded value: compare with it (#LIST, selected)
+                        $value = html_entity_decode(substr($attr['value'], 1, -1), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                         if (trim($value) != '') $validValues[] = $value;
                         //if no postback, retain any checked values
                         if (!$efPostBack && !empty($attr['selected'])) $fields[$name][] = $value;
