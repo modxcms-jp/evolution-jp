@@ -102,9 +102,19 @@ class ForgotManagerPassword
     {
         // ログイン画面を描画せずに exit するため、ここで消さないと次の表示がセーフモードになる
         $this->removeLoginTouchFile();
+        // 期限切れのキーもここで無効にして、使用済みと同じ案内を出す
+        $this->sweepExpiredTransient();
         $user = $this->getUserByHash($fmpkey);
         if (!isset($user['email'])) {
-            exit($this->lang('user_doesnt_exist'));
+            header('Content-Type: text/html; charset=UTF-8');
+            $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
+            exit(
+                sprintf(
+                    '<script>alert(%s);location.href=%s;</script>',
+                    json_encode($this->lang('fmp_link_invalid'), $flags),
+                    json_encode(MODX_MANAGER_URL, $flags)
+                )
+            );
         }
         header(
             sprintf(
@@ -127,7 +137,8 @@ class ForgotManagerPassword
             return true;
         }
         $this->sweepTransient($user_id);
-        $fmpkey = easy_hash($email . mt_rand());
+        // リンクだけでログインできるので、推測できない乱数で作る（96 ビット。URL 向けの base64 で 16 文字）
+        $fmpkey = strtr(base64_encode(random_bytes(12)), '+/', '-_');
         $this->addTransient($user_id, 'fmp_hash', $fmpkey);
         $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+30 minutes')));
 
