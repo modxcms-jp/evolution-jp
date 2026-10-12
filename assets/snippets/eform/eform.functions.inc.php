@@ -1032,8 +1032,12 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 $tpl = str_replace($matches[0], $newTag . $placeholderValue . "</textarea>", $tpl);
                 break;
             default: //all the rest, ie. "input"
-                $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
                 $fieldType = isset($tagAttributes['type']) ? stripTagQuotes($tagAttributes['type']) : 'text';
+                // a checkbox / radio without a value attribute sends "on" (as in HTML)
+                if (($fieldType == 'checkbox' || $fieldType == 'radio') && !isset($tagAttributes['value'])) {
+                    $tagAttributes['value'] = '"on"';
+                }
+                $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
                 if ($formats[$name] && empty($formats[$name][2])) $formats[$name][2] = ($fieldType == 'text') ? "string" : $fieldType;
                 //populate automatic validation values for hidden, checkbox and radio fields
                 if ($fieldType == 'hidden') {
