@@ -288,8 +288,8 @@ function clean_up($table_prefix)
 }
 
 // Property Update function
-// 値が null の項目を空文字にする。db()->escape() は null を文字列 'NULL' にするため、
-// insert() では 'NULL' という文字列が、update() では SQL の NULL が入ってしまう
+// 値が null の項目を空文字にする。insert() / update() は PHP の null を SQL の NULL として書くので、
+// NOT NULL の列に入れる値は空文字にしておく
 function nullToEmpty(array $fields)
 {
     foreach ($fields as $k => $v) {
