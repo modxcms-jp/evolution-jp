@@ -332,6 +332,19 @@ if (sessionv('is_upgradeable') == 0) {
     );
     db()->query($query);
 
+    // 新規インストールした版。settings_version が '0' のまま(設定未保存)でも、
+    // この版のコードなら公開側を止めない(version_mismatch_guard.php)
+    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
+    log_install_event('Recording install_version for fresh installation', ['version' => $modx_version]);
+    db()->query(str_replace(
+        '[+prefix+]',
+        db()->table_prefix,
+        sprintf(
+            "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('install_version','%s')",
+            db()->escape($modx_version)
+        )
+    ));
+
     // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
     $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
     if ($install_site_url !== '' && !init::env_site_url()) {
