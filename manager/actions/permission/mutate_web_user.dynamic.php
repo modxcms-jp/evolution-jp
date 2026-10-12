@@ -256,7 +256,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="mode" value="<?= getv('a') ?>" />
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>" />
     <input type="hidden" name="id" value="<?= getv('id') ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0) || attribute('failedlogins') > 3) ? "1" : "0" ?>" />
@@ -375,7 +375,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <th><?= $_lang['user_email'] ?>:</th>
                         <td>
                             <input type="text" name="email" class="inputBox"
-                                value="<?= postv('email', attribute('email')) ?>" />
+                                value="<?= hsc(postv('email', attribute('email'))) ?>" />
                             <input type="hidden" name="oldemail"
                                 value="<?= hsc(attribute('oldemail') ?: attribute('email')) ?>" />
                         </td>
@@ -395,19 +395,19 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <tr>
                         <th><?= $_lang['user_phone'] ?>:</th>
                         <td><input type="text" name="phone" class="inputBox"
-                                value="<?= postv('phone', attribute('phone')) ?>" />
+                                value="<?= hsc(postv('phone', attribute('phone'))) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_mobile'] ?>:</th>
                         <td><input type="text" name="mobilephone" class="inputBox"
-                                value="<?= postv('mobilephone', attribute('mobilephone')) ?>" />
+                                value="<?= hsc(postv('mobilephone', attribute('mobilephone'))) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_fax'] ?>:</th>
                         <td><input type="text" name="fax" class="inputBox"
-                                value="<?= postv('fax', attribute('fax')) ?>" />
+                                value="<?= hsc(postv('fax', attribute('fax'))) ?>" />
                         </td>
                     </tr>
                     <tr>
@@ -425,13 +425,13 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <tr>
                         <th><?= $_lang['user_state'] ?>:</th>
                         <td><input type="text" name="state" class="inputBox"
-                                value="<?= postv('state', attribute('state')) ?>" />
+                                value="<?= hsc(postv('state', attribute('state'))) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_zip'] ?>:</th>
                         <td><input type="text" name="zip" class="inputBox"
-                                value="<?= postv('zip', attribute('zip')) ?>" />
+                                value="<?= hsc(postv('zip', attribute('zip'))) ?>" />
                         </td>
                     </tr>
                     <tr>
@@ -453,7 +453,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <th><?= $_lang['user_dob'] ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?= postv('dob', attribute('dob') ? $modx->toDateFormat(attribute('dob'), 'dateOnly') : ""); ?>" onblur='documentDirty=true;'>
+                                value="<?= hsc(postv('dob', attribute('dob') ? $modx->toDateFormat(attribute('dob'), 'dateOnly') : "")) ?>" onblur='documentDirty=true;'>
                             <a onclick="document.userform.dob.value=''; return true;"
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                     src="<?= $icons_path ?>cal_nodate.gif"
@@ -515,7 +515,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <td nowrap class="warning"><b><?= $_lang["login_homepage"] ?></b></td>
                         <td>
                             <input type='text' maxlength='50' style="width: 100px;" name="login_home"
-                                value="<?= postv('login_home', setting('login_home')) ?>">
+                                value="<?= hsc(postv('login_home', setting('login_home'))) ?>">
                             <div><?= $_lang["login_homepage_message"] ?></div>
                         </td>
                     </tr>
@@ -556,7 +556,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_blockeduntil'] ?>:</th>
                             <td>
                                 <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker"
-                                    value="<?= postv('blockeduntil', attribute('blockeduntil') ? $modx->toDateFormat(attribute('blockeduntil')) : "") ?>"
+                                    value="<?= hsc(postv('blockeduntil', attribute('blockeduntil') ? $modx->toDateFormat(attribute('blockeduntil')) : "")) ?>"
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -569,7 +569,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_blockedafter'] ?>:</th>
                             <td>
                                 <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
-                                    value="<?= postv('blockedafter', attribute('blockedafter') ? $modx->toDateFormat(attribute('blockedafter')) : "") ?>"
+                                    value="<?= hsc(postv('blockedafter', attribute('blockedafter') ? $modx->toDateFormat(attribute('blockedafter')) : "")) ?>"
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockedafter.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -583,7 +583,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <td nowrap class="warning" valign="top"><b><?= $_lang["login_allowed_ip"] ?></b></td>
                         <td>
                             <input type="text" maxlength='255' style="width: 300px;" name="allowed_ip"
-                                value="<?= postv('allowed_ip', setting('allowed_ip')) ?>" />
+                                value="<?= hsc(postv('allowed_ip', setting('allowed_ip'))) ?>" />
                             <div><?= $_lang["login_allowed_ip_message"] ?></div>
                         </td>
                     </tr>

@@ -315,7 +315,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= content('id') ?>">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 
