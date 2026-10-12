@@ -31,12 +31,18 @@
 
 ## ラベル
 
-- 変更目的に応じて、以下のいずれかのラベルへ置き換えるか追加する
+- 日本語の分類ラベル（`バグ修正`・`新機能`・`雑務`など）は、`.github/workflows/pr-auto-label.yml`がコミットの type から自動で付けるため、手で付けなくてよい
+- 変更目的に応じて、以下のいずれかのラベルを追加する
+  - `feat`
+  - `fix`
   - `enhancement`
-  - `bug`
-  - `security`
-  - `breaking-change`
-  - `internal`
+  - `refactor`
+  - `perf`
+  - `docs`
+  - `test`
+  - `ci/cd`
+  - `chore`
+- セキュリティ修正には`security`、互換性を壊す変更には`breaking change`をあわせて追加する
 - 変更分類に`codex`ラベルを使用しない
 
 これらのルールは、GitHubが自動生成するリリースノートとの互換性を確保するために設けている。
