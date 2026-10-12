@@ -102,9 +102,19 @@ class ForgotManagerPassword
     {
         // ログイン画面を描画せずに exit するため、ここで消さないと次の表示がセーフモードになる
         $this->removeLoginTouchFile();
+        // 期限切れのキーもここで無効にして、使用済みと同じ案内を出す
+        $this->sweepExpiredTransient();
         $user = $this->getUserByHash($fmpkey);
         if (!isset($user['email'])) {
-            exit($this->lang('user_doesnt_exist'));
+            header('Content-Type: text/html; charset=UTF-8');
+            $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
+            exit(
+                sprintf(
+                    '<script>alert(%s);location.href=%s;</script>',
+                    json_encode($this->lang('fmp_link_invalid'), $flags),
+                    json_encode(MODX_MANAGER_URL, $flags)
+                )
+            );
         }
         header(
             sprintf(

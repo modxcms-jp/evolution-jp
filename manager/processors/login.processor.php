@@ -47,6 +47,12 @@ evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
 if (!OnManagerAuthentication()) {
+    // 再設定リンクの認証に失敗した場合は、パスワード違いではなくリンクが無効だと伝える。
+    // キーは推測できないため失敗回数は増やさない（期限切れのリンクでブロックが延びないように）
+    if (getv('fmpkey')) {
+        jsAlert(lang('fmp_link_invalid'));
+        return;
+    }
     if ($isBlocked) {
         rejectBlockedUser();
         return;
