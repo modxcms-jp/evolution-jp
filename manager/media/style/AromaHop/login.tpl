@@ -12,8 +12,13 @@
             box-sizing: border-box;
         }
 
+        /* body の overflow: hidden が画面全体に移らないよう、スクロールは html が受け持つ */
+        html {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         html, body {
-            height: 100%;
             font-family: "Hiragino Sans", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
         }
 
