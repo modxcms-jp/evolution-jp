@@ -130,12 +130,81 @@ class init
 
     public static function get_site_url($base_url)
     {
+        // サイトのホストが設定されていれば、常にそれを使う。無ければ今までどおり
+        $host = static::site_host();
+        if ($host === '') {
+            if (static::is_installing() && static::request_host() !== '') {
+                // インストールの前と途中はページのキャッシュが無いので、アクセスされたホスト（ポート込み）を使う
+                $host = static::request_host();
+            } else {
+                $host = static::get_host_name();
+            }
+        }
         return sprintf(
             '%s%s%s/',
             static::is_ssl() ? 'https://' : 'http://',
-            static::get_host_name(),
+            $host,
             rtrim($base_url, '/')
         );
+    }
+
+    /**
+     * サイトのホスト（ホスト名[:ポート]）。サイトの URL は常にこのホストで作る。
+     * .env（環境変数）の SITE_HOST、無ければシステム設定から書き出した basicConfig.php の $site_host（インストール中を除く）。
+     * 既定のポート（http は 80、https は 443）は省いた形にそろえる。未設定や形式の誤りは空文字。
+     */
+    public static function site_host()
+    {
+        $value = env('SITE_HOST');
+        if ((!is_string($value) || trim($value) === '') && !static::is_installing()) {
+            // インストール中は、入れ直す前の古いキャッシュが残っていることがあるので読まない
+            $value = static::basic_config_site_host();
+        }
+        return static::normalize_host((string) $value);
+    }
+
+    // basicConfig.php の $site_host。入口によっては初期化より後に basicConfig.php を読むため、
+    // ファイルの該当行だけを直接読む（include すると、あとの include_once が読み込まなくなる）
+    private static function basic_config_site_host()
+    {
+        if (isset($GLOBALS['site_host']) && is_string($GLOBALS['site_host'])) {
+            return $GLOBALS['site_host'];
+        }
+        if (!defined('MODX_CACHE_PATH') || !is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
+            return '';
+        }
+        $src = (string) file_get_contents(MODX_CACHE_PATH . 'basicConfig.php');
+        if (preg_match('/^\$site_host = \'([^\'\\\\]*)\';$/m', $src, $m)) {
+            return $m[1];
+        }
+        return '';
+    }
+
+    // インストーラの中か、まだインストールしていない（設定ファイルが無い）
+    public static function is_installing()
+    {
+        return defined('MODX_SETUP_PATH')
+            || (defined('MODX_BASE_PATH') && !is_file(MODX_BASE_PATH . 'manager/includes/config.inc.php'));
+    }
+
+    // リクエストのホスト（Host ヘッダー）。インストール中の URL と、設定画面の注意にだけ使う
+    public static function request_host()
+    {
+        return static::normalize_host((string) serverv('HTTP_HOST', ''));
+    }
+
+    // ホスト名[:ポート] を小文字にし、既定のポートを省く。形式が正しくなければ空文字
+    public static function normalize_host($host)
+    {
+        $host = strtolower(trim((string) $host));
+        if (!preg_match('/^(\[[0-9a-f:.]+\]|[a-z0-9]([a-z0-9.-]*[a-z0-9])?)(:(\d{1,5}))?$/', $host, $m)) {
+            return '';
+        }
+        $port = $m[4] ?? '';
+        if ($port === '' || $port === (static::is_ssl() ? '443' : '80')) {
+            return $m[1];
+        }
+        return $m[1] . ':' . $port;
     }
 
     public static function is_ssl()

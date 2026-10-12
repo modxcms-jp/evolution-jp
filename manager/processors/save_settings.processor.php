@@ -154,6 +154,10 @@ function save_settiongs()
                     $v = '/' . trim($v, '/') . '/';
                 }
                 break;
+            case 'site_host':
+                // 小文字にし、既定のポートを省く。形式が正しくなければ空（自動）にする
+                $v = init::normalize_host($v);
+                break;
             case 'site_url':
             case 'rb_base_url':
                 $v = rtrim($v, '/') . '/';

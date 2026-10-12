@@ -326,6 +326,20 @@ if (sessionv('is_upgradeable') == 0) {
         )
     );
     db()->query($query);
+
+    // サイトのホスト：インストールしたときのホスト（.env で決めている場合は書かない）
+    $install_host = init::request_host();
+    if ($install_host !== '' && !env('SITE_HOST')) {
+        log_install_event('Setting site_host for fresh installation', ['host' => $install_host]);
+        db()->query(str_replace(
+            '[+prefix+]',
+            db()->table_prefix,
+            sprintf(
+                "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_host','%s')",
+                db()->escape($install_host)
+            )
+        ));
+    }
 } else {
     $site_id = db()->getValue(
         'setting_value',

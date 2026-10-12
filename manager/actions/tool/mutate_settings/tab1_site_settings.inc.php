@@ -53,6 +53,19 @@
             </td>
         </tr>
         <tr>
+            <th><?= lang('site_host_title') ?></th>
+            <td>
+                <?= form_text('site_host') ?><br />
+                <?php $site_host_saved = init::normalize_host(config('site_host')); ?>
+                <?php if ($site_host_saved === '' && !env('SITE_HOST')): ?>
+                    <span style="color:#c00;"><?= lang('site_host_unset') ?></span><br />
+                <?php elseif ($site_host_saved !== '' && $site_host_saved !== init::request_host()): ?>
+                    <span style="color:#c00;"><?= evo()->parseText(lang('site_host_differs'), ['host' => hsc(init::request_host())]) ?></span><br />
+                <?php endif; ?>
+                <?= lang('site_host_message') ?>
+            </td>
+        </tr>
+        <tr>
             <th><?= lang('base_url_title') ?></th>
             <td>
                 <?= form_text('base_url') ?><br />

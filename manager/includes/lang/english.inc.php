@@ -1083,6 +1083,10 @@ $_lang['setting_convert_datauri_to_file_desc'] = 'Automatically detects Data URI
 $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
+$_lang["site_host_title"] = 'Site host';
+$_lang["site_host_message"] = 'The canonical host name used for the site URL. Add the port when the site runs on a port other than 80 (443 for https), e.g. <b>localhost:8181</b>. Example: <b>example.com</b><br />When set, the site URL (links, redirects and links in emails) is always built with this host, whatever host name is requested. When blank, it is built from the requested host (a client may control it depending on the server configuration, so setting this is recommended).<br />Make sure the manager opens with this host before saving. If you cannot open the manager after saving a wrong value, write <b>SITE_HOST=the correct host</b> in the server\'s <b>.env</b>; it takes precedence.';
+$_lang["site_host_unset"] = 'The site host is not set. Setting it is recommended to fix the site URL.';
+$_lang["site_host_differs"] = 'Differs from the host you are using now ([+host+]). The site URL (links, redirects and links in emails) is built with the configured host.';
 $_lang["site_url_message"] = 'Example: <b>[+MODX_SITE_URL+]</b><br />If it is made blank, it will process automatically (it changes dynamically by the difference between the existence and http/https of www, etc.)';
 $_lang["chunk_opt_published"] = 'Published';
 $_lang["delete_category"] = 'Are you sure you want to delete this category name?';

@@ -271,6 +271,12 @@ class synccache
             config('error_reporting', 1)
         );
 
+        // サイトのホスト（init::site_host() が、パーサより前にこの行を読む）
+        $site_host = init::normalize_host(evo()->array_get($config, 'site_host', ''));
+        if ($site_host !== '') {
+            $content[] = sprintf('$site_host = %s;', var_export($site_host, true));
+        }
+
         if (evo()->array_get($config, 'site_url') && strpos(evo()->array_get($config, 'site_url'), '[(') === false) {
             $content[] = sprintf(
                 '$site_url = "%s";',

@@ -1086,6 +1086,10 @@ $_lang['setting_convert_datauri_to_file_desc'] = 'リソース保存時に Data 
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
 $_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
 $_lang["site_url_title"] = 'サイトのURL';
+$_lang["site_host_title"] = 'サイトのホスト';
+$_lang["site_host_message"] = 'サイトのURLに使う正式なホスト名を書きます。80 番（https は 443 番）以外のポートで動かすときは、<b>localhost:8181</b> のようにポートも書きます。例：<b>example.com</b><br />設定すると、どのホスト名でアクセスされても、サイトのURL（リンク・リダイレクト・メールのリンク）は常にこのホストで作ります。空白にすると、アクセスされたホストから自動で作ります（サーバーの設定によってはクライアントが意図的な値にできるため、設定をおすすめします）。<br />このホストで管理画面を開けることを確かめてから保存してください。誤った値を保存して管理画面を開けなくなったときは、サーバーの <b>.env</b> に <b>SITE_HOST=正しいホスト</b> を書くと、こちらより優先されます。';
+$_lang["site_host_unset"] = 'サイトのホストが設定されていません。サイトのURLを固定するため、設定をおすすめします。';
+$_lang["site_host_differs"] = '今開いているホスト（[+host+]）と違います。サイトのURL（リンク・リダイレクト・メールのリンク）は、設定したホストで作られます。';
 $_lang["site_url_message"] = '[(site_url)] - 例：<b>[+MODX_SITE_URL+]</b><br />サイトのURL。空白にすると自動的に生成しますが、サーバの設定によってはクライアントが意図的な値で生成することが可能です。他のサイトのURLに改ざんされる可能性があるため、ここで値を固定することをおすすめします。';
 $_lang["chunk_opt_published"] = '公開ステータス';
 $_lang["delete_category"] = 'カテゴリー名を削除';
