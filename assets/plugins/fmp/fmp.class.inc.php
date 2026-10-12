@@ -137,8 +137,8 @@ class ForgotManagerPassword
             return true;
         }
         $this->sweepTransient($user_id);
-        // リンクだけでログインできるので、推測できない乱数で作る
-        $fmpkey = bin2hex(random_bytes(16));
+        // リンクだけでログインできるので、推測できない乱数で作る（96 ビット。URL 向けの base64 で 16 文字）
+        $fmpkey = strtr(base64_encode(random_bytes(12)), '+/', '-_');
         $this->addTransient($user_id, 'fmp_hash', $fmpkey);
         $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+30 minutes')));
 
