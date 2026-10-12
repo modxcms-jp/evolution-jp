@@ -1084,6 +1084,7 @@ $_lang['duplicate_title_string'] = '[+title+] duplicated';
 $_lang["confirm_delete_category"] = 'May delete this category name?';
 $_lang["site_url_title"] = 'Site URL';
 $_lang["site_url_message"] = 'Example: <b>[+MODX_SITE_URL+]</b><br />The URL of the site. When set, links, redirects and links in emails are always built with the host of this URL, whatever host name is requested. Add the port when the site runs on a port other than 80 (443 for https), e.g. <b>http://localhost:8181/</b>. With <b>https://</b> the site URL is always https; with <b>http://</b> it follows the request (http or https). The path (where the site is installed) is detected automatically.<br />When blank, it is built from the requested host (a client may control it depending on the server configuration, so setting this is recommended).<br />Make sure the manager opens with this URL before saving. If you cannot open the manager after saving a wrong value, write <b>SITE_URL=the correct URL</b> in the server\'s <b>.env</b>; it takes precedence.';
+$_lang["site_url_env"] = 'SITE_URL ([+url+]) is set in the server\'s .env. It takes precedence over this value.';
 $_lang["site_url_unset"] = 'The site URL is not set. Setting it is recommended.';
 $_lang["site_url_differs"] = 'Differs from the host you are using now ([+host+]). Links, redirects and links in emails are built with the host of the configured URL.';
 $_lang["chunk_opt_published"] = 'Published';

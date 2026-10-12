@@ -15,7 +15,7 @@
 
 `<アドレス>` は `EVO_BIND_IP`（既定 `127.0.0.1`）。既定の管理者パスワードを使うため、公開先はループバックアドレスに限定している。同じネットワーク上のほかの端末からはつながらない。
 WSL2 では、`127.0.0.1` に公開したものは Windows 側のブラウザから `localhost` で開ける（localhostForwarding）。`127.0.0.2` などは WSL の中（Playwright・curl）からだけ開ける。
-HTTP のポートは `EVO_HTTP_PORT`（既定 80）、mailpit のポートは `EVO_MAILPIT_PORT` で変えられる。80 番以外では、新規インストールでサイトのURL（`fixed_site_url`）にポート込みの URL が入る（`assets/docs/site-url.md`）。並走時は、ポートより `EVO_BIND_IP` で分けるほうが URL が変わらず扱いやすい。
+HTTP のポートは `EVO_HTTP_PORT`（既定 80）、mailpit のポートは `EVO_MAILPIT_PORT` で変えられる。80 以外にしたときは、URL にポートを付けて開く（例：`http://127.0.0.2:8181/manager/`）。80 番以外では、新規インストールでサイトのURL（`fixed_site_url`）にポート込みの URL が入る（`assets/docs/site-url.md`）。並走時は、ポートより `EVO_BIND_IP` で分けるほうが URL が変わらず扱いやすい。
 `<名前>` は `EVO_VALIDATE_NAME`（既定 `evo-validate`）。ボリューム・ネットワーク・ビルドしたイメージにも compose がこの名前を付ける。
 ほかの案件のコンテナを止めてよいかは、ユーザーに確認する。
 

@@ -329,7 +329,7 @@ if (sessionv('is_upgradeable') == 0) {
 
     // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
     $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
-    if ($install_site_url !== '' && !env('SITE_URL')) {
+    if ($install_site_url !== '' && !init::env_site_url()) {
         log_install_event('Setting fixed_site_url for fresh installation', ['url' => $install_site_url]);
         db()->query(str_replace(
             '[+prefix+]',

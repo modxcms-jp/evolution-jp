@@ -45,10 +45,16 @@
             <th><?= lang('site_url_title') ?></th>
             <td>
                 <?= form_text('fixed_site_url') ?><br />
-                <?php $fixed_site_url = init::parse_site_url(config('fixed_site_url')); ?>
-                <?php if (!$fixed_site_url && !env('SITE_URL')): ?>
+                <?php
+                $env_site_url = init::env_site_url();
+                $fixed_site_url = $env_site_url ?: init::parse_site_url(config('fixed_site_url'));
+                ?>
+                <?php if ($env_site_url): ?>
+                    <span style="color:#c00;"><?= evo()->parseText(lang('site_url_env'), ['url' => hsc(env('SITE_URL'))]) ?></span><br />
+                <?php endif; ?>
+                <?php if (!$fixed_site_url): ?>
                     <span style="color:#c00;"><?= lang('site_url_unset') ?></span><br />
-                <?php elseif ($fixed_site_url && $fixed_site_url['host'] !== init::request_host()): ?>
+                <?php elseif ($fixed_site_url['host'] !== init::request_host()): ?>
                     <span style="color:#c00;"><?= evo()->parseText(lang('site_url_differs'), ['host' => hsc(init::request_host())]) ?></span><br />
                 <?php endif; ?>
                 <?= evo()->parseText(

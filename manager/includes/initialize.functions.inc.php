@@ -159,11 +159,18 @@ class init
      */
     public static function fixed_site_url()
     {
-        $value = env('SITE_URL');
-        if ((!is_string($value) || trim($value) === '') && !static::is_installing()) {
-            $value = static::basic_config_fixed_site_url();
+        $url = static::env_site_url();
+        if (!$url && !static::is_installing()) {
+            $url = static::parse_site_url(static::basic_config_fixed_site_url());
         }
-        return static::parse_site_url($value);
+        return $url;
+    }
+
+    // .env（環境変数）の SITE_URL。未設定や形式の誤りは null（システム設定の値を使う）
+    public static function env_site_url()
+    {
+        $value = env('SITE_URL');
+        return is_string($value) ? static::parse_site_url($value) : null;
     }
 
     // basicConfig.php の $fixed_site_url。入口によっては初期化より後に basicConfig.php を読むため、
@@ -228,17 +235,41 @@ class init
     public static function normalize_host($host, $https = null)
     {
         $host = strtolower(trim((string) $host));
-        if (!preg_match('/^(\[[0-9a-f:.]+\]|[a-z0-9]([a-z0-9.-]*[a-z0-9])?)(:(\d{1,5}))?$/', $host, $m)) {
+        if (!preg_match('/^(\[[^\]]+\]|[^:\[\]]+)(?::(\d{1,5}))?$/', $host, $m)) {
+            return '';
+        }
+        $name = $m[1];
+        $port = $m[2] ?? '';
+        if (!static::is_valid_host_name($name)) {
+            return '';
+        }
+        if ($port !== '' && ((int) $port < 1 || (int) $port > 65535)) {
             return '';
         }
         if ($https === null) {
             $https = static::is_ssl();
         }
-        $port = $m[4] ?? '';
-        if ($port === '' || $port === ($https ? '443' : '80')) {
-            return $m[1];
+        if ($port === '' || (int) $port === ($https ? 443 : 80)) {
+            return $name;
         }
-        return $m[1] . ':' . $port;
+        return $name . ':' . (int) $port;
+    }
+
+    // ホスト名（DNS 名・IPv4）か、角かっこで囲んだ IPv6 アドレスか
+    private static function is_valid_host_name($name)
+    {
+        if ($name[0] === '[') {
+            return filter_var(substr($name, 1, -1), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+        }
+        if (strlen($name) > 253) {
+            return false;
+        }
+        foreach (explode('.', $name) as $label) {
+            if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/', $label)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function is_ssl()
