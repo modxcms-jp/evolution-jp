@@ -105,6 +105,11 @@ function compare_check($params)
         return 'no exists';
     }
 
+    // 同名の有効なプラグインが重複していれば、インストール時に整理させる
+    if ($category === 'plugin' && db()->count($rs) > 1) {
+        return 'diff';
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
