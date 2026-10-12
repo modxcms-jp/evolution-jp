@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id();
+
 // check to see the plugin editor isn't locked
 $rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", getv('id')));
 $row = db()->getRow($rs);

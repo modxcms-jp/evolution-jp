@@ -379,6 +379,20 @@ function request_intvar($key)
     return to_intvar(anyv($key, 0));
 }
 
+// id が指定されているのに整数として読めないときは、エラーで止める（新規作成など別の処理として続けない）。
+// id が無いときと 0 のときは、新規作成として扱えるよう通す
+function abort_if_invalid_id($key = 'id')
+{
+    $value = anyv($key);
+    if ($value === null || $value === '' || $value === '0') {
+        return;
+    }
+    if (!to_intvar($value)) {
+        alert()->setError(2);
+        alert()->dumpError();
+    }
+}
+
 function to_intvar($value)
 {
     if (is_int($value)) {

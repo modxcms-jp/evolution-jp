@@ -27,6 +27,8 @@ switch ((int)anyv('a', 0)) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id();
+
 $id = anyv('id', 0);
 if (!preg_match('@^[0-9]+$@', $id)) {
     alert()->setError(3);

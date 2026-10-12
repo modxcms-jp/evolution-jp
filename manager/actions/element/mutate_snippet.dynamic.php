@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id();
+
 $id = (int)anyv('id', 0);
 
 // check to see the snippet editor isn't locked

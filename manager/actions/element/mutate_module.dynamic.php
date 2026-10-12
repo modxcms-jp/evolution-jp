@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id();
+
 $id = preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0;
 
 // Check to see the editor isn't locked

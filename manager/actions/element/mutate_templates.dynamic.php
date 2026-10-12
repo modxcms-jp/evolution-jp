@@ -12,6 +12,8 @@ if (
     alert()->dumpError();
 }
 
+abort_if_invalid_id();
+
 if (id()) {
     $username = is_locked(id());
     if ($username) {
@@ -409,26 +411,11 @@ function template($key, $default = null)
     return evo()->array_get($tplObject, $key, $default);
 }
 
+// 編集するテンプレートの id。新規作成のときは空文字
 function id()
 {
     $id = get_intvar('id');
-    if ($id === null) {
-        return '';
-    }
-
-    if (!is_scalar($id)) {
-        return '';
-    }
-
-    $id = trim((string)$id);
-    if ($id === '') {
-        return '';
-    }
-
-    if (preg_match('@^[0-9]+$@', $id)) {
-        return $id;
-    }
-    return '';
+    return $id ? (string) $id : '';
 }
 
 function is_locked($id)

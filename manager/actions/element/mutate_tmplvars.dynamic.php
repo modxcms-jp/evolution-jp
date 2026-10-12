@@ -11,7 +11,9 @@ if (!hasPermission('new_template') && anyv('a') == 300) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id');
+abort_if_invalid_id();
+
+$id = request_intvar('id');
 
 // check to see the variable editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
