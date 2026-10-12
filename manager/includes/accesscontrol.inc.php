@@ -68,16 +68,17 @@ if (is_post()) {
 }
 
 if (manager()->action != 1) {
-    // DBAPI は値を呼び出し側で安全化する取り決め。SQL に入る値はここでエスケープ／整数化する
+    // DBAPI は値を呼び出し側で安全化する取り決め。数値は整数化し、SQL に入る値は組み立ての直前にまとめてエスケープする
     $fields = [
         'internalKey' => (int) evo()->getLoginUserID(),
-        'username'    => db()->escape((string) sessionv('mgrShortname')),
+        'username'    => (string) sessionv('mgrShortname'),
         'lasthit'     => (int) serverv('REQUEST_TIME', time()),
         'action'      => (int) manager()->action,
         'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? (int) anyv('id') : 0,
-        'ip'          => db()->escape((string) real_ip())
+        'ip'          => (string) real_ip()
     ];
 
+    $fields = db()->escape($fields);
     $sql = sprintf(
         "REPLACE INTO %s (%s) VALUES ('%s')",
         evo()->getFullTableName('active_users'),
