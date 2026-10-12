@@ -188,14 +188,19 @@ register_install_error_handlers();
 $logPath = install_log_path();
 log_install_event('Installation processor invoked', ['log_path' => $logPath]);
 
+// インストールに必要な値がセッションに無いときは、何もせずに中断する（結果画面は install.php が出し分ける）
 if (!sessionv('database_server')) {
     log_install_event('Installation aborted: missing database_server in session');
-    exit('go to first step');
+    $install_aborted = true;
+    printf('<p>%s</p>', lang('install_session_missing'));
+    return;
 }
 
 if (!validateSessionValues()) {
     log_install_event('Installation aborted: session values validation failed');
-    exit('session values are not valid, go to first step');
+    $install_aborted = true;
+    printf('<p>%s</p>', lang('install_session_missing'));
+    return;
 }
 
 log_install_event('Session validation succeeded', [
@@ -440,6 +445,13 @@ if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
 }
 
 log_install_event('Installation processor finished');
+
+// 途中でエラーがあったときは、成功の案内を出さない（見出しは install.php が出し分ける）
+if ($errors > 0) {
+    log_install_event('Installation finished with errors', ['errors' => $errors]);
+    printf('<p><b>%s</b></p>', lang('installation_finished_with_errors'));
+    return;
+}
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
