@@ -4860,10 +4860,23 @@ class DocumentParser
         if (!$resource) {
             return false;
         }
+        // "tv1,tv2" is a list of names (the SQL below matches a single name otherwise)
+        if (is_string($idnames) && $idnames !== '*' && strpos($idnames, ',') !== false) {
+            $idnames = array_values(array_filter(array_map('trim', explode(',', $idnames)), 'strlen'));
+            if (!$idnames) {
+                return false;
+            }
+        }
+        // names to match the built-in fields (pagetitle etc.); $idnames is quoted for SQL below
+        $names = is_array($idnames) ? $idnames : explode(',', (string)$idnames);
         if (!$resource['template']) {
             $result = [];
             foreach ($resource as $key => $value) {
-                if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
+                // TVs merged into documentObject are arrays: not built-in fields
+                if (is_array($value)) {
+                    continue;
+                }
+                if ($idnames === '*' || in_array($key, $names)) {
                     $result[] = ['name' => $key, 'value' => $value];
                 }
             }
@@ -4925,7 +4938,11 @@ class DocumentParser
         // get default/built-in template variables
         ksort($resource);
         foreach ($resource as $key => $value) {
-            if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+            // TVs merged into documentObject are arrays and come from the query above
+            if (is_array($value)) {
+                continue;
+            }
+            if ($idnames === '*' || in_array($key, $names)) {
                 $result[] = ['name' => $key, 'value' => $value];
             }
         }
@@ -4956,6 +4973,12 @@ class DocumentParser
             if (!empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier) {
                 //Load preview
                 $row['value'] = $this->previewObject[$row['name']];
+            }
+
+            // built-in fields (pagetitle etc.) have no display format
+            if (!isset($row['type']) && !is_array($row['value'])) {
+                $output[$row['name']] = $row['value'];
+                continue;
             }
 
             if (!is_array($row['value'])) {
@@ -5547,7 +5570,8 @@ class DocumentParser
         if (php_sapi_name() == 'cli') {
             return true;
         }
-        if (error_reporting() == 0 || $nr == 0) {
+        // PHP 8 では @ を付けても error_reporting() は 0 にならない（4437 などになる）ため、ビットで判定する
+        if ($nr == 0 || !(error_reporting() & $nr)) {
             return true;
         }
         if ($this->stopOnNotice == false) {

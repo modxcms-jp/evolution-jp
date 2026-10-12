@@ -21,20 +21,22 @@ if ($isPWDActivate == 1) {
     }
     $row = db()->getRow($rs);
     $username = $row['username'];
-    [$newpwd, $token, $requestedon] = explode('|', $row['cachepwd']);
-    $past = time() - $requestedon;
+    // 有効化済み（cachepwd が空）や形式の違う値は、無効なキーとして扱う
+    $cachepwd = explode('|', (string)$row['cachepwd']);
+    [$newpwd, $token, $requestedon] = count($cachepwd) === 3 ? $cachepwd : ['', '', 0];
+    $past = time() - (int)$requestedon;
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token !== anyv('token')) {
-        if (!$actInvalidKey)
+    if ($token === '' || $token !== anyv('token')) {
+        if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
         return;
     }
 
     if ($expireTime < $past) {
-        if (!$actExpire)
+        if (empty($actExpire))
             $output = webLoginAlert("It was over expiration time");
         else
             $modx->sendRedirect($actExpire);
@@ -473,17 +475,20 @@ if (!empty($refUrl)) {
         $aliasLength = $ampPos !== false ? $ampPos : strlen($alias);
         $alias = substr($alias, 0, $aliasLength);
         $url = $modx->config('base_url') . $alias;
-    } elseif (intval($targetPageId)) {
+    } elseif (ctype_digit((string)$targetPageId)) {
         $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($targetPageId);
     } else {
         $url = $refUrl;
     }
-    $modx->sendRedirect($url);
-} else // login home page
-{
-    $modx->config['xhtml_urls'] = '0';
-    $url = preserveUrl($id);
-    $modx->sendRedirect($url);
+    // 戻り先は自サイトの URL に限る
+    if (webLoginIsSiteUrl($url)) {
+        $modx->sendRedirect($url);
+        return;
+    }
 }
+// login home page
+$modx->config['xhtml_urls'] = '0';
+$url = preserveUrl($id);
+$modx->sendRedirect($url);
 return;

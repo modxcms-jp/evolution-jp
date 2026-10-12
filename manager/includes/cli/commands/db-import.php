@@ -52,11 +52,16 @@ $preserveKeys = [
     'rb_base_dir',
 ];
 $preserved = [];
+$destFixedSiteUrl = null;
 $settingsTable = $prefix . 'system_settings';
 $rs = db()->query("SHOW TABLES LIKE '" . db()->escape($settingsTable) . "'");
 if ($rs !== false && db()->count($rs) > 0) {
     $fullSettingsTable = cli_full_table_name('system_settings');
     if ($fullSettingsTable !== '') {
+        $destFixedSiteUrl = db()->getValue(sprintf(
+            "SELECT setting_value FROM %s WHERE setting_name='fixed_site_url' LIMIT 1",
+            $fullSettingsTable
+        ));
         foreach ($preserveKeys as $key) {
             $sql = sprintf(
                 "SELECT setting_value FROM %s WHERE setting_name='%s' LIMIT 1",
@@ -119,6 +124,19 @@ if ($preserved) {
                 cli_usage('Error: ' . db()->getLastError());
             }
         }
+    }
+}
+
+// サイトのURLは取り込み先の値に戻す。ダンプに行が無くても戻し、取り込み先に無ければ消す（別の環境の URL で固定しない）
+$fullSettingsTable = cli_full_table_name('system_settings');
+if ($fullSettingsTable !== '') {
+    db()->query(sprintf("DELETE FROM %s WHERE setting_name='fixed_site_url'", $fullSettingsTable));
+    if ($destFixedSiteUrl !== null) {
+        db()->query(sprintf(
+            "INSERT INTO %s (setting_name, setting_value) VALUES ('fixed_site_url', '%s')",
+            $fullSettingsTable,
+            db()->escape($destFixedSiteUrl)
+        ));
     }
 }
 

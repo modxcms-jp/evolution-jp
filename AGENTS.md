@@ -132,6 +132,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `ai-runtime-governance.md` | AIランタイム運用 |
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
+| `site-url.md`           | サイトのURL |
 | `core-issues.md`        | コア課題   |
 
 ---

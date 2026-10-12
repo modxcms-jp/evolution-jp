@@ -5,7 +5,7 @@ if (anyv('quickmanager') !== 'logout') {
 // Redirect to document id
 if ($this->logout != 'manager') {
     evo()->sendRedirect(
-        evo()->makeUrl(anyv('logoutid'), '', '', 'full'),
+        evo()->makeUrl((int)anyv('logoutid'), '', '', 'full'),
         0,
         'REDIRECT_HEADER',
         'HTTP/1.1 301 Moved Permanently'

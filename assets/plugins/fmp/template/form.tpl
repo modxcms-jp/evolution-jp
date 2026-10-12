@@ -4,6 +4,6 @@
 <button
         id="FMP-email_button"
         type="button"
-        onclick="window.location='index.php?action=send_email&email='+document.getElementById('FMP-email').value;"
+        onclick="window.location='index.php?action=send_email&email='+encodeURIComponent(document.getElementById('FMP-email').value);"
 >[+send+]
 </button>

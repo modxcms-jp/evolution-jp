@@ -761,10 +761,9 @@ trait DocumentParserSubParserTrait
             $header = "Refresh: 0;URL={$url}";
         } elseif ($type !== 'REDIRECT_META') {
             // check if url has /$base_url
-            global $base_url, $site_url;
-            if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen($base_url)) == $base_url) {
-                // append $site_url to make it work with Location:
-                $url = $site_url . substr($url, strlen($base_url));
+            if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen(MODX_BASE_URL)) == MODX_BASE_URL) {
+                // サイトのURLを付けて、Location: を絶対 URL にする
+                $url = MODX_SITE_URL . substr($url, strlen(MODX_BASE_URL));
             }
             if (strpos($url, "\n") === false) {
                 $header = 'Location: ' . $url;

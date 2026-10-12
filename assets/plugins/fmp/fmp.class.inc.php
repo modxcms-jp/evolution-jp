@@ -122,7 +122,8 @@ class ForgotManagerPassword
     {
         $user_id = $this->getUserIdByEmail($email);
         if (!$user_id) {
-            exit($this->lang('could_not_find_user'));
+            // 登録の無いアドレスでも、送信したときと同じ応答にする（メールは送らない）
+            return true;
         }
         $this->sweepTransient($user_id);
         $fmpkey = easy_hash($email . mt_rand());

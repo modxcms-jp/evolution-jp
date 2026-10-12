@@ -1086,7 +1086,10 @@ $_lang['setting_convert_datauri_to_file_desc'] = 'リソース保存時に Data 
 $_lang['duplicate_title_string'] = 'コピー - [+title+]';
 $_lang["confirm_delete_category"] = 'このカテゴリー名を削除してもよろしいですか?';
 $_lang["site_url_title"] = 'サイトのURL';
-$_lang["site_url_message"] = '[(site_url)] - 例：<b>[+MODX_SITE_URL+]</b><br />サイトのURL。空白にすると自動的に生成しますが、サーバの設定によってはクライアントが意図的な値で生成することが可能です。他のサイトのURLに改ざんされる可能性があるため、ここで値を固定することをおすすめします。';
+$_lang["site_url_message"] = '[(site_url)] - 例：<b>[+MODX_SITE_URL+]</b><br />サイトのURLを書きます。設定すると、どのホスト名でアクセスされても、リンク・リダイレクト・メールのリンクは常にこのURLのホストで作ります。80 番（https は 443 番）以外のポートで動かすときは、<b>http://localhost:8181/</b> のようにポートも書きます。<b>https://</b> で書くと常に https になり、<b>http://</b> で書くとアクセスに合わせて http と https を切り替えます。パス（サイトの設置場所）は自動で決まります。<br />空白にすると、アクセスされたホストから自動で作ります（サーバーの設定によってはクライアントが意図的な値にできるため、設定をおすすめします）。<br />このURLで管理画面を開けることを確かめてから保存してください。誤った値を保存して管理画面を開けなくなったときは、サーバーの <b>.env</b> に <b>SITE_URL=正しいURL</b> を書くと、こちらより優先されます。';
+$_lang["site_url_env"] = 'サーバーの .env で SITE_URL（[+url+]）が設定されています。こちらの値より優先されます。';
+$_lang["site_url_unset"] = 'サイトのURLが設定されていません。設定をおすすめします。';
+$_lang["site_url_differs"] = '今開いているホスト（[+host+]）と違います。リンク・リダイレクト・メールのリンクは、設定したURLのホストで作られます。';
 $_lang["chunk_opt_published"] = '公開ステータス';
 $_lang["delete_category"] = 'カテゴリー名を削除';
 

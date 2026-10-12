@@ -78,7 +78,8 @@ class debug extends modxDebugConsole
             $tabs[$ditto_lang['filters']] = $this->prepareFilters($this->cleanArray($filter));
         }
 
-        if ($ditto->prefetch === true) {
+        // prefetch is true while preparing, and an array with the debug data after it
+        if (is_array($ditto->prefetch) && isset($ditto->prefetch['dbg_IDs_pre'])) {
             $tabs[$ditto_lang['prefetch_data']] = $this->preparePrefetch($ditto->prefetch);
         }
         if ($resource) {
@@ -147,18 +148,20 @@ class debug extends modxDebugConsole
         }
         $output = '';
         foreach ($resource as $item) {
-            $item['createdon'] = sprintf(
-                '%s(%s)',
-                $item['createdon'],
-                $modx->toDateFormat(
-                    $item['createdon']
-                )
-            );
+            if (isset($item['createdon'])) {
+                $item['createdon'] = sprintf(
+                    '%s(%s)',
+                    $item['createdon'],
+                    $modx->toDateFormat(
+                        $item['createdon']
+                    )
+                );
+            }
             $output .= $this->makeParamTable(
                 $item,
                 str_replace(
                     ['[+pagetitle+]', '[+id+]'],
-                    [$item['pagetitle'], $item['id']],
+                    [$item['pagetitle'] ?? '', $item['id'] ?? ''],
                     $this->templates['item']
                 ),
                 true,
