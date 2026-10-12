@@ -47,8 +47,9 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $f['description'] = $tplInfo['description'];
     $plugincode = getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tpl_file_path), 2));
     $f['plugincode'] = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
-    $dbv_plugin = db()->getObject('site_plugins', "name='" . $name . "' AND disabled='0'");
-    if ($dbv_plugin->properties) {
+    $enabledWhere = sprintf("name='%s' AND disabled='0'", db()->escape($name));
+    $dbv_plugin = db()->getObject('site_plugins', $enabledWhere, 'id DESC');
+    if ($dbv_plugin && $dbv_plugin->properties) {
         $f['properties'] = propUpdate($tplInfo['properties'], $dbv_plugin->properties);
     } else {
         $f['properties'] = $tplInfo['properties'];
@@ -58,8 +59,14 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $f['moduleguid'] = $tplInfo['guid'];
 
     $pluginId = false;
+    // 入れ替える前の同名の有効な行（重複していればすべて）。イベントの実行順を引き継ぐのに使う
+    $prevPluginIds = [0];
+    $rs = db()->select('id', '[+prefix+]site_plugins', $enabledWhere);
+    while ($row = db()->getRow($rs)) {
+        $prevPluginIds[] = (int)$row['id'];
+    }
 
-    if ($dbv_plugin === false || $dbv_plugin->description === $tplInfo['description']) {
+    if ($dbv_plugin === false) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
         $pluginId = db()->insert(
             db()->escape(nullToEmpty($f)),
@@ -72,7 +79,8 @@ foreach ($tplPlugins as $i => $tplInfo) {
         }
         echo ok($name, lang('installed'));
     } else {
-        $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+        // 版が同じでも、利用者の手直しを控えとして残すため、同名の有効な行をすべて無効にして入れ直す
+        $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', $enabledWhere);
         if ($rs) {
             $f['category'] = $dbv_plugin->category;
             $pluginId = db()->insert(
@@ -95,13 +103,30 @@ foreach ($tplPlugins as $i => $tplInfo) {
         db()->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");
 
         // add new events
-        $selected = sprintf(
-            "SELECT '%s' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('%s')",
-            $pluginId,
-            implode("','", $events)
-        );
-        $query = 'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) ' . $selected;
-        $query = str_replace('[+prefix+]', db()->table_prefix, $query);
-        db()->query($query);
+        $eventWhere = sprintf("se.name IN ('%s')", implode("','", $events));
+        // DBAPI::fieldExists() は完全名のテーブルを照合できず常に偽になるため、直接確かめる
+        $hasPriority = db()->count(db()->query(
+            'SHOW COLUMNS FROM ' . db()->replaceFullTableName('[+prefix+]site_plugin_events') . " LIKE 'priority'"
+        )) > 0;
+        if ($hasPriority) {
+            // 実行順は入れ替える前のプラグインから引き継ぐ。重複していた場合は、利用者が設定した値（既定の 0 より大きい値）を残す
+            $query = sprintf(
+                'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid, priority)'
+                . " SELECT '%d', se.id, COALESCE(prev.priority, 0) FROM [+prefix+]system_eventnames se"
+                . ' LEFT JOIN (SELECT evtid, MAX(priority) AS priority FROM [+prefix+]site_plugin_events'
+                . ' WHERE pluginid IN (%s) GROUP BY evtid) prev ON prev.evtid=se.id'
+                . ' WHERE %s',
+                $pluginId,
+                implode(',', $prevPluginIds),
+                $eventWhere
+            );
+        } else {
+            $query = sprintf(
+                "INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) SELECT '%d', se.id FROM [+prefix+]system_eventnames se WHERE %s",
+                $pluginId,
+                $eventWhere
+            );
+        }
+        db()->query(db()->replaceFullTableName($query));
     }
 }
