@@ -101,7 +101,7 @@ function getCsrfValidationFailureInfo()
         'token' => getRequestCsrfToken() ? 'present' : 'none',
         'valid_tokens_count' => count(sessionv('csrf_tokens', [])),
         // URL にトークンが載ることがあるため、値を伏せる
-        'uri' => preg_replace('/([?&]csrf_token=)[^&#]*/', '$1***', (string) serverv('REQUEST_URI', '')),
+        'uri' => mask_csrf_token_in_uri(serverv('REQUEST_URI', '')),
         'ip' => serverv('REMOTE_ADDR'),
         'user_agent' => serverv('HTTP_USER_AGENT'),
         'user_id' => evo()->getLoginUserID() ?? 'not logged in',
