@@ -111,13 +111,13 @@ class DBAPI
 
         $tstart = evo()->getMicroTime();
 
-        // PHP 8+ では mysqli がデフォルトで例外を投げるため、エラーレポートモードを一時的に変更
-        $previous_report_mode = mysqli_report(MYSQLI_REPORT_OFF);
+        // エラーは exec() などで戻り値と errno を見て扱うので、例外も Warning も出さないモードにする（接続後もこのまま）。
+        // PHP 8.1 以降の既定は例外。mysqli_report() は直前のモードではなく true を返すため、戻すことはしない
+        mysqli_report(MYSQLI_REPORT_OFF);
 
         // mysqli_init() と mysqli_real_connect() を使って接続タイムアウトを設定
         $this->conn = mysqli_init();
         if (!$this->conn) {
-            mysqli_report($previous_report_mode);
             return false;
         }
 
@@ -132,9 +132,6 @@ class DBAPI
         } else {
             $connected = @$this->conn->real_connect($hostname, $this->username, $this->password);
         }
-
-        // レポートモードを復元
-        mysqli_report($previous_report_mode);
 
         if (!$connected) {
             $this->conn = null;
