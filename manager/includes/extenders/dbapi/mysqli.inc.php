@@ -1188,15 +1188,14 @@ class DBAPI
 
     public function fieldExists($field_name, $table_name)
     {
-        $table_name = $this->replaceFullTableName($table_name);
-
+        // tableExists() は完全名（`db`.`table`）を照合できないため、変換前の名前で確かめる
         if (!$this->tableExists($table_name)) {
             return 0;
         }
 
         return $this->getRow(
             $this->query(
-                sprintf('DESCRIBE %s %s', $table_name, $field_name)
+                sprintf('DESCRIBE %s %s', $this->replaceFullTableName($table_name), $field_name)
             )
         ) ? 1 : 0;
     }
