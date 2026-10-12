@@ -48,9 +48,9 @@ evo()->loadExtension('ManagerAPI');
 // invoke OnManagerAuthentication event
 if (!OnManagerAuthentication()) {
     // 再設定リンクの認証に失敗した場合は、パスワード違いではなくリンクが無効だと伝える。
-    // キーは推測できないため失敗回数は増やさない（期限切れのリンクでブロックが延びないように）
+    // 期限切れのリンクを開いただけでブロックが延びないよう、失敗回数は増やさない
     if (getv('fmpkey')) {
-        jsAlert(lang('fmp_link_invalid'));
+        jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
         return;
     }
     if ($isBlocked) {
