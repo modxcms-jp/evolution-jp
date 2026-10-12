@@ -455,10 +455,10 @@ class DocumentParser
         $prefix = $this->config('friendly_url_prefix');
         $suffix = $this->config('friendly_url_suffix');
         if ($prefix && strpos($q, $prefix) !== false) {
-            $alias = preg_replace("@^{$prefix}@", '', $alias);
+            $alias = preg_replace('@^' . preg_quote($prefix, '@') . '@', '', $alias);
         }
         if ($suffix && strpos($q, $suffix) !== false) {
-            $alias = preg_replace("@{$suffix}" . '$@', '', $alias);
+            $alias = preg_replace('@' . preg_quote($suffix, '@') . '$@', '', $alias);
         }
 
         if ($pos) {
