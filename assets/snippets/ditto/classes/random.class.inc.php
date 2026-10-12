@@ -103,6 +103,7 @@ class random
     {
         $count = count($this->data);
         $i = 0;
+        $return = [];
         if ($amount >= $count) {
             while ($i < $count) {
                 $return[] = $this->data[$i]['s'];
@@ -112,10 +113,17 @@ class random
         }
 
         $max = -1;
+        $weighted = 0;
         while ($i < $count) {
             $max += $this->data[$i]['w'];
+            if ($this->data[$i]['w'] > 0) {
+                $weighted++;
+            }
             ++$i;
         }
+        // only documents with a weight can be picked
+        $amount = min($amount, $weighted);
+        $key = [];
 
         $i = 0;
         $sub = 0;
