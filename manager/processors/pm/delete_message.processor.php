@@ -7,7 +7,7 @@ if (!evo()->hasPermission('messages')) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id');
+$id = request_intvar('id');
 $rs = db()->select(
     'recipient',
     '[+prefix+]user_messages',
