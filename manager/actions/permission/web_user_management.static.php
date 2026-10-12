@@ -148,11 +148,11 @@ echo $cm->render();
 
         <div>
         <?php
-        $keyword = db()->escape((string) anyv('search'));
+        $search = (string) anyv('search');
         $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked,'" . $_lang['yes'] . "','-') as 'blocked'" .
             "FROM " . evo()->getFullTableName("web_users") . " wu " .
             "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
-            ($keyword !== '' ? " WHERE (wu.username LIKE '{$keyword}%') OR (wua.fullname LIKE '%{$keyword}%') OR (wua.email LIKE '{$keyword}%')" : "") . " " .
+            ($search !== '' ? " WHERE (wu.username LIKE '" . db()->escape($search) . "%') OR (wua.fullname LIKE '%" . db()->escape($search) . "%') OR (wua.email LIKE '" . db()->escape($search) . "%')" : "") . " " .
             "ORDER BY username";
             $ds = db()->query($sql);
             include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
