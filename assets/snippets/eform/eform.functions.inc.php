@@ -58,13 +58,14 @@ function eForm($modx, $params)
     extract($params, EXTR_SKIP); // extract params into variables
 
     #include default language file
-    include_once($snipPath . "lang/english.inc.php");
+    // read every call: another form on the page may use another language or &submitLimit
+    include($snipPath . "lang/english.inc.php");
 
     #include other language file if set.
     $form_language = isset($language) ? $language : config('manager_language', 'english');
     if ($form_language != "english" && $form_language != '') {
         if (file_exists("{$snipPath}lang/{$form_language}.inc.php")) {
-            include_once("{$snipPath}lang/{$form_language}.inc.php");
+            include("{$snipPath}lang/{$form_language}.inc.php");
         } else {
             if ($isDebug) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />";
         } //always in english!
@@ -211,8 +212,12 @@ function eForm($modx, $params)
         # check vericode
         if ($vericode) {
             //add support for captcha code - thanks to Djamoer
-            $code = sessionv('veriword') ?: sessionv('eForm.VeriCode');
-            if (postv('vericode') != $code) {
+            $code = (string)(sessionv('veriword') ?: sessionv('eForm.VeriCode'));
+            $postedCode = postv('vericode');
+            // a code is used once; an empty expected code never matches
+            sessionv('*veriword', null);
+            sessionv('*eForm.VeriCode', null);
+            if ($code === '' || !is_string($postedCode) || !hash_equals($code, $postedCode)) {
                 $vMsg[count($vMsg)] = $_lang['ef_failed_vericode'];
                 $rClass['vericode'] = $invalidClass; //added in 1.4.4
             }
@@ -639,6 +644,8 @@ function eForm($modx, $params)
                         efRegisterStartupBlock($startupSource, true);
                     }    //skip scripts
                     $htmlFields = efHtmlFields($fields);
+                    // the disclaimer is merged with the posted values: rebuild it from the escaped ones
+                    $htmlFields['disclaimer'] = $disclaimer ? formMerge($disclaimer, $htmlFields) : '';
                     if ($sendAsText) {
                         foreach ($formats as $key => $fmt) {
                             if (($fmt[2] ?? '') === 'html' && isset($htmlFields[$key])) {
@@ -728,7 +735,9 @@ function efHtmlFields($fields)
         if (in_array($key, ['validationmessage', 'debug', 'disclaimer'], true)) {
             continue;
         }
-        $fields[$key] = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+        $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+        // keep the line breaks eForm itself has turned into <br /> (html fields)
+        $fields[$key] = str_replace('&lt;br /&gt;', '<br />', $value);
     }
     return $fields;
 }
@@ -972,19 +981,25 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 if (!$matches) {
                     break;
                 }
-                $select = $newSelect = $matches[0];
-                //get separate option tags and split them up
-                preg_match_all("#(<option [^>]*?>)#si", $matches[1], $matches);
+                $select = $matches[0];
+                // replace each option tag (identical tags such as <option> are handled one by one)
                 $validValues = [];
-                foreach ($matches[1] as $option) {
-                    $attr = attr2array($option) ?: [];
-                    $value = isset($attr['value']) ? substr($attr['value'], 1, -1) : ''; //strip outer quotes
-                    if (trim($value) != '') $validValues[] = $value;
-                    $newTag = buildTagPlaceholder('option', $attr, $name);
-                    $newSelect = str_replace($option, $newTag, $newSelect);
-                    //if no postback, retain any checked values
-                    if (!$efPostBack && !empty($attr['selected'])) $fields[$name][] = $value;
-                }
+                $newSelect = preg_replace_callback(
+                    '#<option(\s[^>]*)?>([^<]*)#si',
+                    function ($m) use (&$validValues, &$fields, $name, $efPostBack) {
+                        $attr = attr2array('<option' . ($m[1] ?? '') . '>') ?: [];
+                        // without a value attribute, the option text is the value (as in HTML)
+                        if (!isset($attr['value'])) {
+                            $attr['value'] = '"' . str_replace('"', '&quot;', trim($m[2])) . '"';
+                        }
+                        $value = substr($attr['value'], 1, -1); //strip outer quotes
+                        if (trim($value) != '') $validValues[] = $value;
+                        //if no postback, retain any checked values
+                        if (!$efPostBack && !empty($attr['selected'])) $fields[$name][] = $value;
+                        return buildTagPlaceholder('option', $attr, $name) . $m[2];
+                    },
+                    $select
+                );
                 //replace complete select block
                 $tpl = str_replace($select, $newSelect, $tpl);
                 //add valid values to formats... (extension to $formats)
@@ -1052,8 +1067,10 @@ function buildTagPlaceholder($tag, $attributes, $name)
 {
     // an input without type is a text input
     $type = (isset($attributes["type"])) ? stripTagQuotes($attributes["type"]) : ($tag === 'input' ? 'text' : '');
-    $quotedValue = (isset($attributes['value'])) ? $attributes['value'] : '';
+    $quotedValue = (isset($attributes['value'])) ? $attributes['value'] : '""';
     $val = stripTagQuotes($quotedValue);
+    // keep "no value attribute" as is (a submit button shows its default label)
+    $valueAttr = isset($attributes['value']) ? ' value=' . $attributes['value'] : '';
 
     $t = '';
     foreach ($attributes as $k => $v) {
@@ -1070,9 +1087,9 @@ function buildTagPlaceholder($tag, $attributes, $name)
                 case 'radio':
                 case 'checkbox':
                     return sprintf(
-                        '<input%s value=%s [+%s:%s+] />',
+                        '<input%s%s [+%s:%s+] />',
                         $t,
-                        $quotedValue,
+                        $valueAttr,
                         $name,
                         $val
                     );
@@ -1084,7 +1101,7 @@ function buildTagPlaceholder($tag, $attributes, $name)
                 case 'password':
                     return "<input$t value=\"[+$name+]\" />";
                 default: //leave as is - no placeholder
-                    return "<input$t value=" . $quotedValue . " />";
+                    return "<input$t$valueAttr />";
             }
         case "file": //no placeholder!
         case "textarea": //placeholder needs to be added in calling code
