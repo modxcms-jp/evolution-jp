@@ -274,7 +274,7 @@ if (id()) {
                             ?>
                             <ul class="actionButtons" style="margin-top:15px;">
                                 <?php
-                                $query = getv('id') ? '&amp;tpl=' . (int)getv('id') : '';
+                                $query = get_intvar('id') ? '&amp;tpl=' . get_intvar('id') : '';
                                 ?>
                                 <li>
                                     <a href="index.php?&amp;a=300<?= $query ?>">
@@ -284,7 +284,7 @@ if (id()) {
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
@@ -387,8 +387,8 @@ function template($key, $default = null)
     if (isset($tplObject[$key])) {
         return $tplObject[$key];
     }
-    if (getv('id')) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . getv('id') . "'");
+    if (get_intvar('id')) {
+        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . get_intvar('id') . "'");
         $total = db()->count($rs);
         if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";
@@ -411,7 +411,7 @@ function template($key, $default = null)
 
 function id()
 {
-    $id = getv('id');
+    $id = get_intvar('id');
     if ($id === null) {
         return '';
     }

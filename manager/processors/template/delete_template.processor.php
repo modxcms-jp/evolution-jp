@@ -7,6 +7,10 @@ if (!evo()->hasPermission('delete_template')) {
     alert()->dumpError();
 }
 $id = get_intvar('id');
+if (!$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 $tbl_site_content = evo()->getFullTableName('site_content');
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 $tbl_site_tmplvar_templates = evo()->getFullTableName('site_tmplvar_templates');
