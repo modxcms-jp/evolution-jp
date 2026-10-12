@@ -184,11 +184,9 @@ class Wayfinder
                 }
                 $this->_config['useReferenced'] = array_diff($this->_config['useReferenced'], explode(',', 'content,parent,isfolder'));
 
-                if (!empty($resource[$this->_config['textOfLinks']])) {
-                    $linkTextField = $this->_config['textOfLinks'];
-                } else {
-                    $linkTextField = 'pagetitle';
-                }
+                // choose the fields with the referenced document's values
+                $linkTextField = $this->linkTextField($referenced);
+                $titleField = $this->titleField($referenced);
 
                 foreach ($this->_config['useReferenced'] as $field) {
                     if (isset($referenced[$field])) {
@@ -197,8 +195,8 @@ class Wayfinder
                     if (in_array($field, ['linktext', $linkTextField], true)) {
                         $resource['linktext'] = $referenced[$linkTextField] ?? '';
                     }
-                    if (in_array($field, ['title', $this->_config['titleOfLinks']], true)) {
-                        $resource['title'] = $referenced[$this->_config['titleOfLinks']] ?? '';
+                    if (in_array($field, ['title', $titleField], true)) {
+                        $resource['title'] = $referenced[$titleField] ?? '';
                     }
                 }
             }
@@ -597,45 +595,8 @@ class Wayfinder
             $row['level'] = $level;
             $prevParent = $row['parent'];
             //determine other output options
-            if (strpos($this->_config['textOfLinks'], ',') !== false) {
-                $_ = explode(',', $this->_config['textOfLinks']);
-                foreach ($_ as $v) {
-                    $v = trim($v);
-                    if (!empty($row[$v])) {
-                        $useTextField = $v;
-                        break;
-                    }
-                }
-                if (empty($useTextField)) {
-                    $useTextField = 'pagetitle';
-                }
-            } elseif (!empty($row[$this->_config['textOfLinks']])) {
-                $useTextField = $this->_config['textOfLinks'];
-            } else {
-                $useTextField = 'pagetitle';
-            }
-
-            $row['linktext'] = $row[$useTextField] ?? '';
-
-            $useTitleField = null;
-
-            if (strpos($this->_config['titleOfLinks'], ',') !== false) {
-                $_ = explode(',', $this->_config['titleOfLinks']);
-                foreach ($_ as $v) {
-                    $v = trim($v);
-                    if (!empty($row[$v])) {
-                        $useTitleField = $v;
-                        break;
-                    }
-                }
-                if (empty($useTitleField)) {
-                    $useTitleField = 'pagetitle';
-                }
-            } else {
-                $useTitleField = $this->_config['titleOfLinks'];
-            }
-
-            $row['title'] = $row[$useTitleField] ?? '';
+            $row['linktext'] = $row[$this->linkTextField($row)] ?? '';
+            $row['title'] = $row[$this->titleField($row)] ?? '';
 
             //If tvs were specified keep array flat otherwise array becomes level->parent->doc
             if ($this->tvList) {
@@ -805,6 +766,34 @@ class Wayfinder
         }
 
         return [];
+    }
+
+    // First field in the comma separated list that has a value in $row, or $fallback
+    private function pickField($row, $fields, $fallback)
+    {
+        foreach (explode(',', (string)$fields) as $field) {
+            $field = trim($field);
+            if ($field !== '' && !empty($row[$field])) {
+                return $field;
+            }
+        }
+        return $fallback;
+    }
+
+    // &textOfLinks: the first field with a value, or pagetitle
+    private function linkTextField($row)
+    {
+        return $this->pickField($row, $this->_config['textOfLinks'], 'pagetitle');
+    }
+
+    // &titleOfLinks: a list falls back to pagetitle; a single field is used even when empty
+    private function titleField($row)
+    {
+        $fields = (string)$this->_config['titleOfLinks'];
+        if (strpos($fields, ',') === false) {
+            return trim($fields);
+        }
+        return $this->pickField($row, $fields, 'pagetitle');
     }
 
     function addDebugInfo($group, $groupkey, $header, $message, $info)
