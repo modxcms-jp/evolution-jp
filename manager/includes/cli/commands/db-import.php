@@ -47,6 +47,7 @@ if ($rs !== false) {
 
 $preserveKeys = [
     'site_url',
+    'fixed_site_url',
     'base_url',
     'filemanager_path',
     'rb_base_dir',
@@ -119,6 +120,14 @@ if ($preserved) {
                 cli_usage('Error: ' . db()->getLastError());
             }
         }
+    }
+}
+
+// 取り込み先にサイトのURLが無ければ、取り込んだ値（別の環境の URL）は使わず自動に戻す
+if (!array_key_exists('fixed_site_url', $preserved)) {
+    $fullSettingsTable = cli_full_table_name('system_settings');
+    if ($fullSettingsTable !== '') {
+        db()->query(sprintf("DELETE FROM %s WHERE setting_name='fixed_site_url'", $fullSettingsTable));
     }
 }
 

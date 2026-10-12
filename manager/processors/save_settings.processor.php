@@ -154,11 +154,13 @@ function save_settiongs()
                     $v = '/' . trim($v, '/') . '/';
                 }
                 break;
-            case 'site_host':
-                // 小文字にし、既定のポートを省く。形式が正しくなければ空（自動）にする
-                $v = init::normalize_host($v);
+            case 'fixed_site_url':
+                // スキーム・ホスト・ポートをそろえ、パスはサイトの設置場所に合わせる。形式が正しくなければ空（自動）にする
+                $v = init::normalize_site_url($v, MODX_BASE_URL);
                 break;
             case 'site_url':
+                // 毎回自動で決まる値なので保存しない（固定するときは fixed_site_url）
+                continue 2;
             case 'rb_base_url':
                 $v = rtrim($v, '/') . '/';
                 break;

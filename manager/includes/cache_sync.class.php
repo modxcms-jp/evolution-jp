@@ -271,17 +271,10 @@ class synccache
             config('error_reporting', 1)
         );
 
-        // サイトのホスト（init::site_host() が、パーサより前にこの行を読む）
-        $site_host = init::normalize_host(evo()->array_get($config, 'site_host', ''));
-        if ($site_host !== '') {
-            $content[] = sprintf('$site_host = %s;', var_export($site_host, true));
-        }
-
-        if (evo()->array_get($config, 'site_url') && strpos(evo()->array_get($config, 'site_url'), '[(') === false) {
-            $content[] = sprintf(
-                '$site_url = "%s";',
-                evo()->array_get($config, 'site_url')
-            );
+        // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）
+        $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''), MODX_BASE_URL);
+        if ($fixed_site_url !== '') {
+            $content[] = sprintf('$fixed_site_url = %s;', var_export($fixed_site_url, true));
         }
 
         if (evo()->array_get($config, 'base_url') && strpos(evo()->array_get($config, 'base_url'), '[(') === false) {

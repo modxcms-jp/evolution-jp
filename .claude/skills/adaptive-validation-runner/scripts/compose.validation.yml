@@ -7,8 +7,8 @@
 # - プロジェクト名とコンテナ名は EVO_VALIDATE_NAME（既定 evo-validate）から決まる。
 #   並走するセッションごとに名前と公開先のアドレス（EVO_BIND_IP。127.0.0.2 など）を変えれば、互いの環境を壊さない。
 #   ボリューム・ネットワーク・ビルドしたイメージには compose がプロジェクト名を付けるので、名前を変えれば別になる
-# - HTTP のポートは EVO_HTTP_PORT（既定 80）で変えられる。80 以外では、新規インストールでサイトのホスト（site_host）に
-#   ポート込みのホストが入る（assets/docs/site-host.md）
+# - HTTP のポートは EVO_HTTP_PORT（既定 80）で変えられる。80 以外では、新規インストールでサイトのURL（fixed_site_url）に
+#   ポート込みの URL が入る（assets/docs/site-url.md）
 # - DB は mariadb:11 を使う。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
 #   Docker Engine 29 系ではレイヤー展開時に「openat dev/ptmx: no such file or directory」で取得できない場合がある
 #   （詳細は references/environment.md）

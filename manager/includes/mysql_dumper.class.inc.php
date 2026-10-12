@@ -247,6 +247,7 @@ class Mysqldumper
                 }
                 break;
             case 'site_url':
+            case 'fixed_site_url':
                 if ($row['setting_value'] === MODX_SITE_URL) {
                     $row['setting_value'] = '[(site_url)]';
                 }
@@ -370,8 +371,9 @@ class Mysqldumper
                     }
                     break;
                 case 'site_url':
+                case 'fixed_site_url':
                     if ($value === '[(site_url)]') {
-                        $settings['site_url'] = MODX_SITE_URL;
+                        $settings[$name] = MODX_SITE_URL;
                     }
                     break;
                 case 'base_url':

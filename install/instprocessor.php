@@ -327,16 +327,16 @@ if (sessionv('is_upgradeable') == 0) {
     );
     db()->query($query);
 
-    // サイトのホスト：インストールしたときのホスト（.env で決めている場合は書かない）
-    $install_host = init::request_host();
-    if ($install_host !== '' && !env('SITE_HOST')) {
-        log_install_event('Setting site_host for fresh installation', ['host' => $install_host]);
+    // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
+    $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
+    if ($install_site_url !== '' && !env('SITE_URL')) {
+        log_install_event('Setting fixed_site_url for fresh installation', ['url' => $install_site_url]);
         db()->query(str_replace(
             '[+prefix+]',
             db()->table_prefix,
             sprintf(
-                "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_host','%s')",
-                db()->escape($install_host)
+                "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('fixed_site_url','%s')",
+                db()->escape($install_site_url)
             )
         ));
     }
@@ -360,6 +360,15 @@ if (sessionv('is_upgradeable') == 0) {
             db()->query($query);
         }
     }
+
+    // 以前の「サイトのURL」（site_url）は URL の決定に使われておらず、設定を保存したときの URL が残っているだけなので消す。
+    // 今の「サイトのURL」は fixed_site_url に保存する
+    log_install_event('Removing unused site_url setting during upgrade');
+    db()->query(str_replace(
+        '[+prefix+]',
+        db()->table_prefix,
+        "DELETE FROM [+prefix+]system_settings WHERE setting_name='site_url'"
+    ));
 }
 
 include 'processors/prc_insTemplates.inc.php'; // Install Templates

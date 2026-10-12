@@ -130,9 +130,13 @@ class init
 
     public static function get_site_url($base_url)
     {
-        // サイトのホストが設定されていれば、常にそれを使う。無ければ今までどおり
-        $host = static::site_host();
-        if ($host === '') {
+        // サイトのURLが設定されていれば、そのホスト（ポート込み）を使う。https と書かれていれば https にする
+        $fixed = static::fixed_site_url();
+        if ($fixed) {
+            $https = $fixed['https'] || static::is_ssl();
+            $host = $fixed['host'];
+        } else {
+            $https = static::is_ssl();
             if (static::is_installing() && static::request_host() !== '') {
                 // インストールの前と途中はページのキャッシュが無いので、アクセスされたホスト（ポート込み）を使う
                 $host = static::request_host();
@@ -142,42 +146,69 @@ class init
         }
         return sprintf(
             '%s%s%s/',
-            static::is_ssl() ? 'https://' : 'http://',
+            $https ? 'https://' : 'http://',
             $host,
             rtrim($base_url, '/')
         );
     }
 
     /**
-     * サイトのホスト（ホスト名[:ポート]）。サイトの URL は常にこのホストで作る。
-     * .env（環境変数）の SITE_HOST、無ければシステム設定から書き出した basicConfig.php の $site_host（インストール中を除く）。
-     * 既定のポート（http は 80、https は 443）は省いた形にそろえる。未設定や形式の誤りは空文字。
+     * 設定されたサイトのURL（.env の SITE_URL、無ければシステム設定から書き出した basicConfig.php の $fixed_site_url）。
+     * インストール中は basicConfig.php を読まない（入れ直す前の古いキャッシュが残っていることがあるため）。
+     * 未設定や形式の誤りは null。返すのは ['https' => bool, 'host' => 'ホスト名[:ポート]']。パスは使わない
      */
-    public static function site_host()
+    public static function fixed_site_url()
     {
-        $value = env('SITE_HOST');
+        $value = env('SITE_URL');
         if ((!is_string($value) || trim($value) === '') && !static::is_installing()) {
-            // インストール中は、入れ直す前の古いキャッシュが残っていることがあるので読まない
-            $value = static::basic_config_site_host();
+            $value = static::basic_config_fixed_site_url();
         }
-        return static::normalize_host((string) $value);
+        return static::parse_site_url($value);
     }
 
-    // basicConfig.php の $site_host。入口によっては初期化より後に basicConfig.php を読むため、
+    // basicConfig.php の $fixed_site_url。入口によっては初期化より後に basicConfig.php を読むため、
     // ファイルの該当行だけを直接読む（include すると、あとの include_once が読み込まなくなる）
-    private static function basic_config_site_host()
+    private static function basic_config_fixed_site_url()
     {
-        if (isset($GLOBALS['site_host']) && is_string($GLOBALS['site_host'])) {
-            return $GLOBALS['site_host'];
+        if (isset($GLOBALS['fixed_site_url']) && is_string($GLOBALS['fixed_site_url'])) {
+            return $GLOBALS['fixed_site_url'];
         }
         if (!defined('MODX_CACHE_PATH') || !is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
             return '';
         }
         $src = (string) file_get_contents(MODX_CACHE_PATH . 'basicConfig.php');
-        if (preg_match('/^\$site_host = \'([^\'\\\\]*)\';$/m', $src, $m)) {
+        if (preg_match('/^\$fixed_site_url = \'([^\'\\\\]*)\';$/m', $src, $m)) {
             return $m[1];
         }
         return '';
+    }
+
+    /**
+     * サイトのURL（http://ホスト名[:ポート]/パス）を読み取る。スキームを省いたものは http とみなす。
+     * ホストは小文字にし、スキームの既定のポート（http は 80、https は 443）は省く。形式が正しくなければ null
+     */
+    public static function parse_site_url($value)
+    {
+        $value = trim((string) $value);
+        if (!preg_match('@^(?:(https?)://)?([^/?#]+)(?:[/?#].*)?$@i', $value, $m)) {
+            return null;
+        }
+        $https = strtolower($m[1]) === 'https';
+        $host = static::normalize_host($m[2], $https);
+        if ($host === '') {
+            return null;
+        }
+        return ['https' => $https, 'host' => $host];
+    }
+
+    // 保存する形にそろえる（例：https://example.com/）。パスはサイトの設置場所（MODX_BASE_URL）に合わせる。形式が正しくなければ空文字
+    public static function normalize_site_url($value, $base_url = '/')
+    {
+        $url = static::parse_site_url($value);
+        if (!$url) {
+            return '';
+        }
+        return sprintf('%s://%s%s/', $url['https'] ? 'https' : 'http', $url['host'], rtrim($base_url, '/'));
     }
 
     // インストーラの中か、まだインストールしていない（設定ファイルが無い）
@@ -193,15 +224,18 @@ class init
         return static::normalize_host((string) serverv('HTTP_HOST', ''));
     }
 
-    // ホスト名[:ポート] を小文字にし、既定のポートを省く。形式が正しくなければ空文字
-    public static function normalize_host($host)
+    // ホスト名[:ポート] を小文字にし、既定のポートを省く（$https を省くと今のリクエストに合わせる）。形式が正しくなければ空文字
+    public static function normalize_host($host, $https = null)
     {
         $host = strtolower(trim((string) $host));
         if (!preg_match('/^(\[[0-9a-f:.]+\]|[a-z0-9]([a-z0-9.-]*[a-z0-9])?)(:(\d{1,5}))?$/', $host, $m)) {
             return '';
         }
+        if ($https === null) {
+            $https = static::is_ssl();
+        }
         $port = $m[4] ?? '';
-        if ($port === '' || $port === (static::is_ssl() ? '443' : '80')) {
+        if ($port === '' || $port === ($https ? '443' : '80')) {
             return $m[1];
         }
         return $m[1] . ':' . $port;

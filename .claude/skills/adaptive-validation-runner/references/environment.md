@@ -15,7 +15,7 @@
 
 `<アドレス>` は `EVO_BIND_IP`（既定 `127.0.0.1`）。既定の管理者パスワードを使うため、公開先はループバックアドレスに限定している。同じネットワーク上のほかの端末からはつながらない。
 WSL2 では、`127.0.0.1` に公開したものは Windows 側のブラウザから `localhost` で開ける（localhostForwarding）。`127.0.0.2` などは WSL の中（Playwright・curl）からだけ開ける。
-HTTP のポートは `EVO_HTTP_PORT`（既定 80）、mailpit のポートは `EVO_MAILPIT_PORT` で変えられる。80 番以外では、新規インストールでサイトのホスト（`site_host`）にポート込みのホストが入る（`assets/docs/site-host.md`）。並走時は、ポートより `EVO_BIND_IP` で分けるほうが URL が変わらず扱いやすい。
+HTTP のポートは `EVO_HTTP_PORT`（既定 80）、mailpit のポートは `EVO_MAILPIT_PORT` で変えられる。80 番以外では、新規インストールでサイトのURL（`fixed_site_url`）にポート込みの URL が入る（`assets/docs/site-url.md`）。並走時は、ポートより `EVO_BIND_IP` で分けるほうが URL が変わらず扱いやすい。
 `<名前>` は `EVO_VALIDATE_NAME`（既定 `evo-validate`）。ボリューム・ネットワーク・ビルドしたイメージにも compose がこの名前を付ける。
 ほかの案件のコンテナを止めてよいかは、ユーザーに確認する。
 
@@ -99,9 +99,9 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 
 ## 既知の落とし穴
 
-- **80 番以外のポートでは、サイトのホストにポートが要る**: サイトのホスト（`site_host` / `.env` の `SITE_HOST`）が無いと、アプリはポートを含まない `SERVER_NAME` で URL を組み立てる（`get_host_name()`）。
-  新規インストールでは自動で入るが、80 番で入れたサイトをポートを変えて開き直すと、リダイレクト先が元のホストになる。システム設定か `.env` でポート込みのホストにする
-- **入れ直しても `temp/cache/` は残る**: `down -v` は DB だけを消す。インストール中は `basicConfig.php` の `$site_host` を読まないので、入れ直しには支障はない
+- **80 番以外のポートでは、サイトのURLにポートが要る**: サイトのURL（`fixed_site_url` / `.env` の `SITE_URL`）が無いと、アプリはポートを含まない `SERVER_NAME` で URL を組み立てる（`get_host_name()`）。
+  新規インストールでは自動で入るが、80 番で入れたサイトをポートを変えて開き直すと、リダイレクト先が元のホストになる。システム設定か `.env` でポート込みの URL にする
+- **入れ直しても `temp/cache/` は残る**: `down -v` は DB だけを消す。インストール中は `basicConfig.php` の `$fixed_site_url` を読まないので、入れ直しには支障はない
 - **MySQL 公式イメージが取得できない**: Docker Engine 29 系では `failed to register layer: openat dev/ptmx: no such file or directory` で失敗する。
   MySQL 公式イメージ（8.3 / 8.4 とも）は Oracle Linux が土台で、最初のレイヤーにキャラクタデバイス `dev/ptmx`（5,2）を含む。
   ptmx のデバイスファイルを普通に開くと、カーネルは同じディレクトリの `pts`（devpts）を探して端末を割り当てようとし、見つからなければ ENOENT を返す。

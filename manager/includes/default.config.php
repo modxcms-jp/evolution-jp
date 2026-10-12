@@ -2,7 +2,7 @@
 $default_config = [
     'site_url' => MODX_SITE_URL,
     'base_url' => MODX_BASE_URL,
-    'site_host' => '',
+    'fixed_site_url' => '',
     'allow_duplicate_alias' => '0',
     'allow_mgr2web' => '0',
     'auto_menuindex' => '1',
