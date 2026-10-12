@@ -357,12 +357,29 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
+// リクエスト（GET・POST）の値を id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
+// (int) は "5abc" を 5 にしてしまうので、id はこの関数か post_intvar() で読む
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', anyv($key, 0))) {
-        return anyv($key);
+    return to_intvar(anyv($key, 0));
+}
+
+// POST の値だけを id として読む（request_intvar() と同じ検証）
+function post_intvar($key)
+{
+    return to_intvar(postv($key, 0));
+}
+
+function to_intvar($value)
+{
+    if (is_int($value)) {
+        return $value > 0 ? $value : 0;
     }
-    return 0;
+    if (!is_string($value) || !preg_match('@\A[1-9][0-9]{0,18}\z@', $value)) {
+        return 0;
+    }
+    $int = (int) $value;
+    return (string) $int === $value ? $int : 0;
 }
 
 /**
