@@ -7,9 +7,7 @@ if (!evo()->hasPermission('save_template')) {
     alert()->dumpError();
 }
 
-if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
-    $id = postv('id');
-}
+$id = post_intvar('id');
 $name = db()->escape(trim(postv('name')));
 $description = db()->escape(postv('description'));
 $caption = db()->escape(postv('caption'));
@@ -23,7 +21,7 @@ $locked = postv('locked') == 'on' ? 1 : 0;
 
 //Kyle Jaebker - added category support
 if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $category = db()->escape(postv('categoryid'));
+    $category = post_intvar('categoryid');
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $category = 0;
 } else {
@@ -271,7 +269,7 @@ function check_exist_name($name)
     // disallow duplicate names for new tvs
     $where = "name='{$name}'";
     if (postv('mode') == 301) {
-        $where = $where . " AND id!=" . postv('id');
+        $where = $where . " AND id!=" . post_intvar('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_tmplvars', $where);
     $count = db()->getValue($rs);

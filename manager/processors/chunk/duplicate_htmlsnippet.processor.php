@@ -6,7 +6,8 @@ if (!evo()->hasPermission('new_chunk')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (!preg_match('@^[1-9][0-9]*$@', getv('id'))) {
+$id = request_intvar('id');
+if (!$id) {
     exit;
 }
 
@@ -17,7 +18,7 @@ $sql = sprintf(
     evo()->getFullTableName('site_htmlsnippets'),
     $_lang['duplicate_title_string'],
     evo()->getFullTableName('site_htmlsnippets'),
-    getv('id')
+    $id
 );
 $rs = db()->query($sql);
 

@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_module')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = (int)getv('id');
+$id = request_intvar('id');
 
 // invoke OnBeforeModFormDelete event
 $tmp = ["id" => $id];

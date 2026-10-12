@@ -6,13 +6,11 @@ if (!evo()->hasPermission('save_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (preg_match('@^[0-9]+$@', postv('id', ''))) {
-    $id = postv('id');
-}
+$id = post_intvar('id');
 
 $templatename = db()->escape(trim(postv('templatename')));
 $description = db()->escape(postv('description'));
-$parent = db()->escape(postv('parent'));
+$parent = post_intvar('parent');
 
 $locked = postv('locked') == 'on' ? 1 : 0;
 
@@ -20,7 +18,7 @@ $tbl_site_templates = evo()->getFullTableName('site_templates');
 
 //Kyle Jaebker - added category support
 if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $categoryid = db()->escape(postv('categoryid'));
+    $categoryid = post_intvar('categoryid');
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {

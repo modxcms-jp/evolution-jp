@@ -7,9 +7,7 @@ if (!evo()->hasPermission('save_chunk')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[1-9][0-9]*$@', postv('id'))) {
-    $id = postv('id');
-}
+$id = post_intvar('id');
 
 function entity($key, $default = null)
 {
@@ -62,7 +60,7 @@ function entity($key, $default = null)
                 return manager()->newCategory(postv('newcategory'));
             }
         } elseif (0 < postv('categoryid')) {
-            return postv('categoryid');
+            return post_intvar('categoryid');
         } else {
             return 0;
         }
@@ -241,7 +239,7 @@ function check_exist_name($chunkName)
 {
     $where = "name='" . db()->escape($chunkName) . "'";
     if (postv('mode') == 78) {
-        $where .= " AND id!=" . (int)postv('id');
+        $where .= " AND id!=" . post_intvar('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     if (!db()->getValue($rs)) {

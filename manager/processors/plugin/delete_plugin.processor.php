@@ -8,7 +8,7 @@ if (!evo()->hasPermission('delete_plugin')) {
     alert()->dumpError();
 }
 
-$id = (int)getv('id');
+$id = request_intvar('id');
 
 // invoke OnBeforePluginFormDelete event
 $tmp = ['id' => $id];
