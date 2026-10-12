@@ -437,6 +437,7 @@ class DataGrid
         } else {
             // render grid items
             if ($this->pageSize <= 0) {
+                $tblRows = '';
                 for ($r = 0; $r < $rowcount; $r++) {
                     if ($this->_isDataset) {
                         $row = db()->getRow($this->ds);
@@ -444,7 +445,7 @@ class DataGrid
                         $row = $this->ds[$r];
                     }
                     if (0 < count($row)) {
-                        $tblRows = $this->RenderRowFnc($r + 1, $row);
+                        $tblRows .= $this->RenderRowFnc($r + 1, $row);
                     }
                 }
             } else {
