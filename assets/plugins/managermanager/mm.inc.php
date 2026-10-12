@@ -31,6 +31,10 @@ class MANAGERMANAGER
         global $modx;
 
         extract($modx->event->params);
+        // parseProperties() leaves out an empty property
+        if (!isset($config_chunk)) {
+            $config_chunk = '';
+        }
         $mm_version = '0.4';
 
         $pluginDir = MODX_BASE_PATH . 'assets/plugins/managermanager/';
@@ -62,8 +66,8 @@ class MANAGERMANAGER
         global $content, $default_template, $mm_current_page, $mm_fields;
         $mm_current_page = [];
 
-        if (isset($_POST['template'])) {
-            $mm_current_page['template'] = $_POST['template'];
+        if (postv('template') !== null) {
+            $mm_current_page['template'] = postv('template');
         } elseif (getv('newtemplate')) {
             $mm_current_page['template'] = getv('newtemplate');
         } elseif (isset($content['template'])) {
@@ -72,7 +76,7 @@ class MANAGERMANAGER
             $mm_current_page['template'] = $default_template;
         }
 
-        $mm_current_page['role'] = $_SESSION['mgrRole'];
+        $mm_current_page['role'] = sessionv('mgrRole');
 
         // What are the fields we can change, and what types are they?
         $field = [
@@ -273,14 +277,14 @@ class MANAGERMANAGER
         if (strpos($chunk, '@INCLUDE') === 0) {
             return evo()->atBindInclude($chunk);
         }
-        $chunk_output = evo()->getChunk($chunk);
+        $chunk_output = $chunk !== '' ? evo()->getChunk($chunk) : '';
         if ($chunk_output) {
             eval($chunk_output); // If there is, run it.
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
         $files = [
-            MODX_BASE_PATH . $chunk,
+            MODX_BASE_PATH . ltrim($chunk, '/'),
             str_replace('\\', '/', __DIR__) . '/mm_rules.inc.php'
         ];
         foreach ($files as $config_file) {
@@ -294,7 +298,7 @@ class MANAGERMANAGER
 
     function rule_exists($chunk_name)
     {
-        if (evo()->getChunk($chunk_name)) {
+        if ($chunk_name !== '' && evo()->getChunk($chunk_name)) {
             return true;
         }
 

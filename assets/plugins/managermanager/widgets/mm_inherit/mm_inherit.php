@@ -46,7 +46,7 @@ function mm_inherit($fields, $roles = '', $templates = '')
     foreach ($fields as $field) {
         // get some info about the field we are being asked to use
         if (!isset($mm_fields[$field]['dbname'])) {
-            break;     // If it's not something stored in the database, don't get the value
+            continue;     // If it's not something stored in the database, don't get the value
         }
 
         $fieldtype = $mm_fields[$field]['fieldtype'];
@@ -58,7 +58,8 @@ function mm_inherit($fields, $roles = '', $templates = '')
         if (empty($newArray)) { // If no results, check if there is an unpublished doc
             $newArray = evo()->getTemplateVarOutput($dbname, $parentID, 0);
         }
-        $newvalue = $newArray[$dbname];
+        // false when the parent's template has no such TV
+        $newvalue = is_array($newArray) ? ($newArray[$dbname] ?? '') : '';
 
         if (empty($newvalue)) {
             continue;
@@ -68,7 +69,6 @@ function mm_inherit($fields, $roles = '', $templates = '')
         // fieldtype $fieldtype
         // fieldname $fieldname
         // dbname $dbname
-        // newvalue $newvalue
         ";
         $date_format = evo()->toDateFormat(null, 'formatOnly');
 
@@ -95,11 +95,11 @@ function mm_inherit($fields, $roles = '', $templates = '')
             default:
                 switch ($fieldtype) {
                     case 'textarea':
-                        $output .= '$j("textarea[name=' . $fieldname . ']").html("' . jsSafe($newvalue) . '"); ';
+                        $output .= '$j("textarea[name=' . $fieldname . ']").val(' . js_literal($newvalue) . '); ';
                         break;
 
                     default:
-                        $output .= '$j("' . $fieldtype . '[name=' . $fieldname . ']").val("' . jsSafe($newvalue) . '"); ';
+                        $output .= '$j("' . $fieldtype . '[name=' . $fieldname . ']").val(' . js_literal($newvalue) . '); ';
                         break;
                 }
                 break;

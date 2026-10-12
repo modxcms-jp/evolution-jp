@@ -50,8 +50,14 @@ function mm_widget_tags(
     $output .= includeJs(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.js');
     $output .= includeCss(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.css');
 
+    $source_tv_ids = array_map('intval', array_column($source_tvs, 'id'));
+    $defaults = explode(',', $default);
+
     // Go through each of the fields supplied
     foreach ($fields as $targetTv) {
+        if (!isset($mm_fields[$targetTv])) {
+            continue;
+        }
         $foundTags = [];
         if (strpos($default, '@fix') !== 0) {
             // Get the list of current values for this TV
@@ -59,8 +65,8 @@ function mm_widget_tags(
                 'value',
                 '[+prefix+]site_tmplvar_contentvalues',
                 sprintf(
-                    "tmplvarid IN ('%s')",
-                    implode(',', $source_tvs[0])
+                    'tmplvarid IN (%s)',
+                    implode(',', $source_tv_ids)
                 )
             );
             $all_docs = db()->makeArray($result);
@@ -82,8 +88,7 @@ function mm_widget_tags(
             uksort($foundTags, 'strcasecmp');
         }
 
-        $default = explode(',', $default);
-        foreach ($default as $k) {
+        foreach ($defaults as $k) {
             $tag = trim($k);
             if ($tag === '' || strpos($tag, '@fix') === 0) {
                 continue;
@@ -98,7 +103,7 @@ function mm_widget_tags(
             $lis .= sprintf(
                 '<li title="Used %s times">%s%s</li>',
                 $c,
-                jsSafe($t),
+                hsc($t),
                 $display_count ? sprintf(' (%s)', $c) : ''
             );
         }
@@ -113,16 +118,16 @@ function mm_widget_tags(
         // Insert the list of tags after the field
         $output .= sprintf("
         //  -------------- Tag widget for %s (%s) --------------
-        jQuery('#%s').after('%s');
-        ", $targetTv, $tv_id, $tv_id, $html_list);
+        jQuery('#%s').after(%s);
+        ", $targetTv, $tv_id, $tv_id, js_literal($html_list));
 
         // Initiate the tagCompleter class for this field
-        $output .= evo()->parseText(
-                'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); ',
-                [
-                    'tv_id' => $tv_id,
-                    'delim' => $delimiter
-                ]
+        $output .= sprintf(
+                'var %s_tags = new TagCompleter(%s, %s, %s); ',
+                preg_replace('/\W/', '_', $tv_id),
+                js_literal($tv_id),
+                js_literal($tv_id . '_tagList'),
+                js_literal($delimiter)
             ) . "\n";
     }
     event()->output($output . "\n");
