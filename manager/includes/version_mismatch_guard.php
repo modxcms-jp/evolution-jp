@@ -71,9 +71,17 @@ if (!function_exists('evo_has_settings_version_mismatch')) {
         }
 
         // 新規インストール直後は default_settings.sql の '0' のまま(設定未保存)。
-        // アップグレード途中ではないので公開側は止めない。
+        // この版のコードで新規インストールしたサイトなら、アップグレード途中ではないので公開側は止めない。
+        // 旧版で入れて設定を一度も保存していないサイト(install_version が無い・違う)は止める
         if ($settingsVersion === '' || $settingsVersion === '0') {
-            return false;
+            $result = $modx->db->select(
+                'setting_value',
+                $tableName,
+                "setting_name='install_version'",
+                '',
+                '1'
+            );
+            return !$result || $modx->db->getValue($result) !== $modx_version;
         }
 
         return $settingsVersion !== $modx_version;
