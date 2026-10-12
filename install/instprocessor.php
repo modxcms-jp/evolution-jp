@@ -374,6 +374,10 @@ if (sessionv('is_upgradeable') == 0) {
         db()->table_prefix,
         "DELETE FROM [+prefix+]system_settings WHERE setting_name='site_url'"
     ));
+
+    // 以前のインストーラが入れていた文字列 'NULL' を空に戻す（要素の登録でプロパティを引き継ぐより前に行う）
+    log_install_event('Cleaning up literal NULL strings in elements during upgrade');
+    cleanupNullStrings();
 }
 
 include 'processors/prc_insTemplates.inc.php'; // Install Templates

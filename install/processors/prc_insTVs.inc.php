@@ -32,7 +32,7 @@ foreach ($tplTVs as $i => $tplInfo) {
     if (!$dbv_tmplvar) {
         $f['name'] = $name;
         $tmplvarid = db()->insert(
-            db()->escape($f),
+            db()->escape(nullToEmpty($f)),
             '[+prefix+]site_tmplvars'
         );
         if (!$tmplvarid) {
@@ -44,7 +44,7 @@ foreach ($tplTVs as $i => $tplInfo) {
     } else {
         $tmplvarid = $dbv_tmplvar->id;
         $rs = db()->update(
-            db()->escape($f),
+            db()->escape(nullToEmpty($f)),
             '[+prefix+]site_tmplvars',
             "id='" . $tmplvarid . "'"
         );

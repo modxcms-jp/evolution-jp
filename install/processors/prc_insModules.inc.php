@@ -36,7 +36,7 @@ foreach ($tplModules as $k => $tplInfo) {
         $f['name'] = $tplInfo['name'];
         $f['guid'] = $tplInfo['guid'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
-        if (!db()->insert(db()->escape($f), '[+prefix+]site_modules')) {
+        if (!db()->insert(db()->escape(nullToEmpty($f)), '[+prefix+]site_modules')) {
             $errors += 1;
             showError();
             return;
@@ -46,7 +46,7 @@ foreach ($tplModules as $k => $tplInfo) {
     }
     $f['properties'] = propUpdate($tplInfo['properties'], $dbv_module->properties);
     $rs = db()->update(
-        db()->escape($f),
+        db()->escape(nullToEmpty($f)),
         '[+prefix+]site_modules',
         "name='" . db()->escape($tplInfo['name']) . "'"
     );
