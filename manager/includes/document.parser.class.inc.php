@@ -5547,7 +5547,8 @@ class DocumentParser
         if (php_sapi_name() == 'cli') {
             return true;
         }
-        if (error_reporting() == 0 || $nr == 0) {
+        // PHP 8 では @ を付けても error_reporting() は 0 にならない（4437 などになる）ため、ビットで判定する
+        if ($nr == 0 || !(error_reporting() & $nr)) {
             return true;
         }
         if ($this->stopOnNotice == false) {
