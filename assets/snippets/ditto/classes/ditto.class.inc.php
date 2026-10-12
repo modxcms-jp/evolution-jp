@@ -1181,7 +1181,7 @@ class ditto
                 }
             }
         }
-        $cID = ($id !== false) ? $id : evo()->documentObject['id'];
+        $cID = ($id !== false) ? $id : (evo()->documentObject['id'] ?? '');
         $url = evo()->makeURL(trim($cID), '', $queryString);
         return evo()->config('xhtml_urls') ? $url : str_replace('&', '&amp;', $url);
     }
