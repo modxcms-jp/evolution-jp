@@ -61,7 +61,8 @@ if (!isset($startId)) {
 } elseif (stripos($startId, 'i') === 0) {
     $startId = $wf->getIndexID($modx->documentIdentifier);
 } elseif (!preg_match('@^[0-9]+$@', $startId)) {
-    exit(sprintf('# %s # Wayfinder &startId error', $startId));
+    // show the error here only; do not stop the whole page
+    return sprintf('# %s # Wayfinder &startId error', hsc($startId));
 }
 
 $wf->_config = [

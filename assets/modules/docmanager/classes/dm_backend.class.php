@@ -178,12 +178,16 @@ class DocManagerBackend
                 }
 
                 //echo $key;
-                $tvKeyName = substr($key, 10);
-                //if (strpos($key,'_prefix') !== false)
-                //	continue;
+                $tvKeyName = (int)substr($key, 10);
+                if (!$tvKeyName) {
+                    continue;
+                }
 
                 $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . $tvKeyName);
                 $row = db()->getRow($typeSQL);
+                if (!$row) {
+                    continue;
+                }
                 if ($row['type'] === 'url') {
                     $tmplvar = normalize_url_tv_value(
                         postv("tv" . $row['id']),
@@ -380,15 +384,15 @@ class DocManagerBackend
     public function changeOther($pids)
     {
         $tbl_site_content = evo()->getFullTableName('site_content');
-        session_start();
 
         /* misc document settings */
+        $fieldval = '';
         switch (postv('setoption')) {
             case 1:
                 $fieldval = 'published';
                 $secondaryFields = [
                     'publishedon' => postv('newvalue') == 1 ? time() : 0,
-                    'publishedby' => postv('newvalue') == 1 ? $_SESSION['mgrInternalKey'] : 0
+                    'publishedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : 0
                 ];
                 $this->logDocumentChange('publish');
                 break;
@@ -412,7 +416,7 @@ class DocManagerBackend
                 $fieldval = 'deleted';
                 $secondaryFields = [
                     'deletedon' => postv('newvalue') == 1 ? time() : '0',
-                    'deletedby' => postv('newvalue') == 1 ? $_SESSION['mgrInternalKey'] : '0'
+                    'deletedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : '0'
                 ];
                 $this->logDocumentChange('delete');
                 break;
@@ -451,7 +455,8 @@ class DocManagerBackend
         $error = $results[1];
         $values = rtrim($pids, ' OR ');
 
-        if ($pids !== '' && postv('newvalue') !== '') {
+        // setoption「-」のときは、公開状態などの項目は変えない
+        if ($pids !== '' && $fieldval !== '' && postv('newvalue', '') !== '') {
             $fields = [$fieldval => (int)postv('newvalue')];
             if (isset($secondaryFields) && is_array($secondaryFields)) {
                 $fields = array_merge($fields, $secondaryFields);
@@ -491,6 +496,7 @@ class DocManagerBackend
     {
         $tbl_site_content = evo()->getFullTableName('site_content');
         $values = [];
+        $idarray = [];
         $error = '';
 
         if (trim($pids) <> '') {

@@ -43,6 +43,7 @@ class TopicPath
         if (isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
         if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
 
+        $theme = $theme ?? '';
         if ($theme === 'li') {
             $theme = 'list';
         }
@@ -138,6 +139,10 @@ class TopicPath
         $c = 0;
         while ($docid !== $this->homeId && $c < 1000) {
             $doc = $modx->getPageInfo($docid, 0, '*');
+            // false when the visitor cannot see it (web private) or it does not exist
+            if (!$doc) {
+                break;
+            }
             if ($doc['id'] == $modx->documentIdentifier) {
                 $doc['hidemenu'] = false;
             }
@@ -150,7 +155,10 @@ class TopicPath
             }
             $c++;
         }
-        $docs[] = $modx->getPageInfo($this->homeId, 0, '*');
+        $home = $modx->getPageInfo($this->homeId, 0, '*');
+        if ($home) {
+            $docs[] = $home;
+        }
         return $docs;
     }
 
@@ -201,7 +209,8 @@ class TopicPath
         }
 
         foreach ($this->titleField as $f) {
-            if ($doc[$f] !== '') {
+            if (($doc[trim($f)] ?? '') !== '') {
+                $f = trim($f);
                 return $doc[$f];
             }
         }
@@ -216,7 +225,8 @@ class TopicPath
         }
 
         foreach ($this->descField as $f) {
-            if ($doc[$f] !== '') {
+            if (($doc[trim($f)] ?? '') !== '') {
+                $f = trim($f);
                 return $doc[$f];
             }
         }
@@ -233,9 +243,11 @@ class TopicPath
     {
         $tbl_site_content = evo()->getFullTableName('site_content');
 
-        if (empty($this->disabledUnder)) return $this->disabledOn;
+        $parents = array_filter(array_map('intval', explode(',', (string)$this->disabledUnder)));
+        if (!$parents) return $this->disabledOn;
 
-        $rs = db()->select('id', $tbl_site_content, "parent IN ({$this->disabledUnder})");
+        $hidden = [];
+        $rs = db()->select('id', $tbl_site_content, sprintf('parent IN (%s)', implode(',', $parents)));
         while ($id = db()->getValue($rs)) {
             $hidden[] = $id;
         }
