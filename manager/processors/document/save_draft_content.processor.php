@@ -9,8 +9,14 @@ if (!hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[1-9][0-9]*$@', postv('id'))) {
+$id = post_intvar('id');
+if (!$id) {
     alert()->setError(2);
+    alert()->dumpError();
+    return;
+}
+if (!evo()->checkPermissions($id)) {
+    alert()->setError(3);
     alert()->dumpError();
     return;
 }
@@ -25,28 +31,28 @@ $fields = $modx->doc->fixPubStatus(
 );
 
 if (postv('stay') === 'save_standby') {
-    $rs = $modx->revision->save(postv('id'), $fields, 'standby');
+    $rs = $modx->revision->save($id, $fields, 'standby');
 } else {
-    $rs = $modx->revision->save(postv('id'), $fields, 'draft');
+    $rs = $modx->revision->save($id, $fields, 'draft');
 }
 
 if (postv('stay') === 'new') {
     header(
-        sprintf('Location: index.php?a=131&id=%s&r=1', postv('id'))
+        sprintf('Location: index.php?a=131&id=%s&r=1', $id)
     );
     return;
 }
 if (postv('stay') === 'stay') {
     header(
-        sprintf('Location: index.php?a=131&id=%s&stay=stay', postv('id'))
+        sprintf('Location: index.php?a=131&id=%s&stay=stay', $id)
     );
     return;
 }
 if (in_array(postv('stay'), ['save_draft', 'save_standby'])) {
     header(
-        sprintf('Location: index.php?a=133&id=%s&r=1', postv('id'))
+        sprintf('Location: index.php?a=133&id=%s&r=1', $id)
     );
     return;
 }
 
-header(sprintf('Location: index.php?a=3&id=%s&r=1', postv('id')));
+header(sprintf('Location: index.php?a=3&id=%s&r=1', $id));

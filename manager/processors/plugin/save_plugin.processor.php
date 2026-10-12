@@ -8,8 +8,10 @@ if (!evo()->hasPermission('save_plugin')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 102 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 $name = db()->escape(trim(postv('name')));
 $description = db()->escape(postv('description'));
@@ -30,7 +32,7 @@ if (empty($sysevents)) {
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = db()->escape(postv('categoryid'));
+    $category = post_intvar('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = '0';
 } else {
@@ -72,7 +74,7 @@ switch (postv('mode')) {
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');
-                $content['category'] = postv('categoryid');
+                $content['category'] = post_intvar('categoryid');
                 $content['disabled'] = $disabled;
                 $content['properties'] = $properties;
                 $content['moduleguid'] = $moduleguid;
@@ -141,7 +143,7 @@ switch (postv('mode')) {
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');
-                $content['category'] = postv('categoryid');
+                $content['category'] = post_intvar('categoryid');
                 $content['disabled'] = $disabled;
                 $content['properties'] = $properties;
                 $content['moduleguid'] = $moduleguid;

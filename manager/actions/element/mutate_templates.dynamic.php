@@ -12,6 +12,8 @@ if (
     alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 16);
+
 if (id()) {
     $username = is_locked(id());
     if ($username) {
@@ -32,7 +34,7 @@ if (id()) {
         function duplicaterecord() {
             if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= getv('id') ?>&a=96";
+                document.location.href = "index.php?id=<?= get_intvar('id') ?>&a=96";
             }
         }
 
@@ -53,7 +55,7 @@ if (id()) {
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?= getv('id') ?>">
+        <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
         <input type="hidden" name="mode" value="<?= (int)getv('a') ?>">
 
         <h1><?= lang('template_title') ?></h1>
@@ -274,7 +276,7 @@ if (id()) {
                             ?>
                             <ul class="actionButtons" style="margin-top:15px;">
                                 <?php
-                                $query = getv('id') ? '&amp;tpl=' . (int)getv('id') : '';
+                                $query = get_intvar('id') ? '&amp;tpl=' . get_intvar('id') : '';
                                 ?>
                                 <li>
                                     <a href="index.php?&amp;a=300<?= $query ?>">
@@ -284,7 +286,7 @@ if (id()) {
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
@@ -387,8 +389,8 @@ function template($key, $default = null)
     if (isset($tplObject[$key])) {
         return $tplObject[$key];
     }
-    if (getv('id')) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . getv('id') . "'");
+    if (get_intvar('id')) {
+        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . get_intvar('id') . "'");
         $total = db()->count($rs);
         if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";
@@ -409,26 +411,11 @@ function template($key, $default = null)
     return evo()->array_get($tplObject, $key, $default);
 }
 
+// 編集するテンプレートの id。新規作成のときは空文字
 function id()
 {
-    $id = getv('id');
-    if ($id === null) {
-        return '';
-    }
-
-    if (!is_scalar($id)) {
-        return '';
-    }
-
-    $id = trim((string)$id);
-    if ($id === '') {
-        return '';
-    }
-
-    if (preg_match('@^[0-9]+$@', $id)) {
-        return $id;
-    }
-    return '';
+    $id = get_intvar('id');
+    return $id ? (string) $id : '';
 }
 
 function is_locked($id)

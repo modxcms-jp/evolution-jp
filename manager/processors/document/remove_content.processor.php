@@ -7,8 +7,15 @@ if (!evo()->hasPermission('empty_trash')) {
     alert()->dumpError();
 }
 
-if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@', $_REQUEST['id'])) {
-    $ids = [(int)$_REQUEST['id']];
+// id があればその 1 件、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
+if (anyv('id') !== null && anyv('id') !== '') {
+    $id = request_intvar('id');
+    if (!$id) {
+        alert()->setError(2);
+        alert()->dumpError();
+        exit;
+    }
+    $ids = [$id];
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
     $ids = [];

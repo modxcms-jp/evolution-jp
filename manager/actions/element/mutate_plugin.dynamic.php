@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 102);
+
 // check to see the plugin editor isn't locked
 $rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", getv('id')));
 $row = db()->getRow($rs);
@@ -85,7 +87,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=105";
+            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=105";
         }
     }
 

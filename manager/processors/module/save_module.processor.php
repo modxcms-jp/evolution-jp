@@ -9,8 +9,10 @@ if (!evo()->hasPermission('save_module')) {
 
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 108 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 $name = trim(postv('name') ?: 'Untitled module');
@@ -26,7 +28,7 @@ $createdon = $editedon = time();
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = postv('categoryid');
+    $category = post_intvar('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = 0;
 } else {
@@ -64,7 +66,7 @@ switch (postv('mode')) {
             $content['disabled'] = $disabled;
             $content['locked'] = $locked;
             $content['plugincode'] = postv('post');
-            $content['category'] = postv('categoryid');
+            $content['category'] = post_intvar('categoryid');
             $content['properties'] = postv('properties');
             $content['modulecode'] = postv('post');
             $content['enable_resource'] = $enable_resource;

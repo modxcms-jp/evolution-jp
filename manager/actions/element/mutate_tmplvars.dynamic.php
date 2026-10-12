@@ -11,7 +11,9 @@ if (!hasPermission('new_template') && anyv('a') == 300) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id');
+abort_if_invalid_id('id', anyv('a') == 301);
+
+$id = request_intvar('id');
 
 // check to see the variable editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
@@ -92,7 +94,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=304";
+            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=304";
         }
     }
 

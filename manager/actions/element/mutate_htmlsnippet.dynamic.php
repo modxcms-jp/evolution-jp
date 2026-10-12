@@ -27,6 +27,8 @@ switch ((int)anyv('a', 0)) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 78);
+
 $id = anyv('id', 0);
 if (!preg_match('@^[0-9]+$@', $id)) {
     alert()->setError(3);
@@ -130,7 +132,7 @@ if (isset($form_v['which_editor'])) {
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=97";
+            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=97";
         }
     }
 
@@ -164,7 +166,7 @@ if (isset($form_v['which_editor'])) {
 
     ?>
     <input type="hidden" name="a" value="79" />
-    <input type="hidden" name="id" value="<?= anyv('id') ?>" />
+    <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
     <input type="hidden" name="mode" value="<?= (int)anyv('a') ?>" />
     <input type="hidden" name="changeMode" value="" />
 

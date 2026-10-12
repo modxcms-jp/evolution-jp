@@ -357,12 +357,53 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
+// id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
+// (int) は "5abc" を 5 にしてしまうので、id は次の 3 つで読む。受け取り元は、その処理が実際に呼ばれる方法に合わせて選ぶ
+// （GET だけなら get_intvar()、POST だけなら post_intvar()、GET と POST の両方で呼ばれる処理だけ request_intvar()）
+
+// GET の値だけを id として読む
+function get_intvar($key)
+{
+    return to_intvar(getv($key, 0));
+}
+
+// POST の値だけを id として読む
+function post_intvar($key)
+{
+    return to_intvar(postv($key, 0));
+}
+
+// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', anyv($key, 0))) {
-        return anyv($key);
+    return to_intvar(anyv($key, 0));
+}
+
+// id が整数として読めないときは、エラーで止める（新規作成など別の処理として続けない）。
+// $required が false（新規作成の画面など）なら、id が無いときと 0 のときは通す。
+// 編集の画面のように id が必ず要るときは $required を true にする
+function abort_if_invalid_id($key = 'id', $required = false)
+{
+    $value = anyv($key);
+    if (!$required && ($value === null || $value === '' || $value === '0')) {
+        return;
     }
-    return 0;
+    if (!to_intvar($value)) {
+        alert()->setError(2);
+        alert()->dumpError();
+    }
+}
+
+function to_intvar($value)
+{
+    if (is_int($value)) {
+        return $value > 0 ? $value : 0;
+    }
+    if (!is_string($value) || !preg_match('@\A[1-9][0-9]{0,18}\z@', $value)) {
+        return 0;
+    }
+    $int = (int) $value;
+    return (string) $int === $value ? $int : 0;
 }
 
 /**

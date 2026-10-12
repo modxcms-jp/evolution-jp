@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 22);
+
 $id = (int)anyv('id', 0);
 
 // check to see the snippet editor isn't locked
@@ -76,7 +78,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=98";
+            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=98";
         }
     }
 

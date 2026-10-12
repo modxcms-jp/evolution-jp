@@ -6,7 +6,11 @@ if (!evo()->hasPermission('save_snippet')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = preg_match('@^[0-9]+$@', postv('id')) ? postv('id') : 0;
+$id = post_intvar('id');
+if (postv('mode') == 22 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 $name = db()->escape(trim(postv('name')));
 $description = db()->escape(postv('description'));
 $locked = postv('locked') == 'on' ? 1 : 0;
@@ -35,7 +39,7 @@ $sysevents = postv('sysevents');
 
 //Kyle Jaebker - added category support
 if (empty(postv('newcategory')) && 0 < postv('categoryid')) {
-    $categoryid = db()->escape(postv('categoryid'));
+    $categoryid = post_intvar('categoryid');
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {

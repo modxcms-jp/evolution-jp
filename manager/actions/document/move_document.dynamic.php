@@ -7,19 +7,27 @@ if (!evo()->hasPermission('move_document') || !evo()->hasPermission('save_docume
     alert()->dumpError();
 }
 
+// 移動するリソース。1 件なら id、複数なら batch。1 つでも整数として読めなければ止める
+$ids = [];
 if (anyv('id')) {
-    $id = (int)anyv('id');
-} elseif (anyv('batch')) {
-    $id = implode(',', anyv('batch'));
-} else {
+    $ids[] = request_intvar('id');
+} elseif (is_array(anyv('batch'))) {
+    foreach (anyv('batch') as $v) {
+        $ids[] = to_intvar($v);
+    }
+}
+if (!$ids || in_array(0, $ids, true)) {
     alert()->setError(2);
     alert()->dumpError();
 }
+$id = implode(',', $ids);
 
-// check permissions on the document
-if (!$modx->checkPermissions($id)) {
-    show_perm_error();
-    exit;
+// check permissions on the documents
+foreach ($ids as $v) {
+    if (!$modx->checkPermissions($v)) {
+        show_perm_error();
+        exit;
+    }
 }
 
 echo get_src_js();

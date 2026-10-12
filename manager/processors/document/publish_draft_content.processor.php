@@ -9,12 +9,13 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
-    $docid = postv('id');
-} elseif (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
-    $docid = getv('id');
-} else {
+$docid = request_intvar('id');
+if (!$docid) {
     alert()->setError(2);
+    alert()->dumpError();
+}
+if (!evo()->checkPermissions($docid)) {
+    alert()->setError(3);
     alert()->dumpError();
 }
 

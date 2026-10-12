@@ -7,7 +7,7 @@ if (!evo()->hasPermission('exec_module')) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id', 0);
+$id = request_intvar('id');
 
 $tbl_site_module_access = evo()->getFullTableName('site_module_access');
 $tbl_member_groups = evo()->getFullTableName('member_groups');
