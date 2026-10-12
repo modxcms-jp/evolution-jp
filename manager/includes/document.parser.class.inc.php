@@ -4860,6 +4860,13 @@ class DocumentParser
         if (!$resource) {
             return false;
         }
+        // "tv1,tv2" is a list of names (the SQL below matches a single name otherwise)
+        if (is_string($idnames) && $idnames !== '*' && strpos($idnames, ',') !== false) {
+            $idnames = array_values(array_filter(array_map('trim', explode(',', $idnames)), 'strlen'));
+            if (!$idnames) {
+                return false;
+            }
+        }
         // names to match the built-in fields (pagetitle etc.); $idnames is quoted for SQL below
         $names = is_array($idnames) ? $idnames : explode(',', (string)$idnames);
         if (!$resource['template']) {
