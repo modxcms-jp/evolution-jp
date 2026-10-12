@@ -7,7 +7,7 @@ if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_doc
     alert()->dumpError();
 }
 
-$id = (int) anyv('id'); // 権限の判定と後続の更新で同じ値を使うため、先に整数へ揃える
+$id = request_intvar('id'); // 権限の判定と後続の更新で同じ値を使うため、先に整数へ揃える
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {
@@ -45,7 +45,7 @@ evo()->invokeEvent('OnDocUnPublished', $tmp);
 $modx->clearCache();
 
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='" . $id . "'"));
-$page = getv('page') ? "&page=" . getv('page') : '';
+$page = request_intvar('page') ? '&page=' . request_intvar('page') : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
 } else {

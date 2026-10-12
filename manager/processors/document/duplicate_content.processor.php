@@ -8,7 +8,7 @@ if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_documen
 }
 
 // 権限の判定と複製で同じ値を使うため、先に整数へ揃える
-$id = (int) getv('id');
+$id = request_intvar('id');
 
 // check permissions on the document
 if (!$modx->checkPermissions($id, true)) {
