@@ -7,9 +7,7 @@ if (!evo()->hasPermission('save_web_user')) {
     alert()->dumpError();
 }
 global $_style;
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
-}
+$id = post_intvar('id');
 $oldusername = postv('oldusername');
 $newusername = trim(postv('newusername', 'New User'));
 $fullname = db()->escape(postv('fullname'));
@@ -23,17 +21,17 @@ $phone = db()->escape(postv('phone'));
 $mobilephone = db()->escape(postv('mobilephone'));
 $fax = db()->escape(postv('fax'));
 $dob = postv('dob') ? $modx->toTimeStamp(postv('dob')) : 0;
-$country = postv('country');
+$country = db()->escape(postv('country'));
 $street = db()->escape(postv('street'));
 $city = db()->escape(postv('city'));
 $state = db()->escape(postv('state'));
 $zip = db()->escape(postv('zip'));
-$gender = postv('gender') ? postv('gender') : 0;
+$gender = post_intvar('gender');
 $photo = db()->escape(postv('photo'));
 $comment = db()->escape(postv('comment'));
-$role = postv('role') ? postv('role') : 0;
-$failedlogincount = postv('failedlogincount') ? postv('failedlogincount') : 0;
-$blocked = postv('blocked') ? postv('blocked') : 0;
+$role = post_intvar('role');
+$failedlogincount = post_intvar('failedlogincount');
+$blocked = post_intvar('blocked');
 $blockeduntil = postv('blockeduntil') ? $modx->toTimeStamp(postv('blockeduntil')) : 0;
 $blockedafter = postv('blockedafter') ? $modx->toTimeStamp(postv('blockedafter')) : 0;
 $user_groups = postv('user_groups');
