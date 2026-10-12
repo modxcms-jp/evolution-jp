@@ -70,6 +70,12 @@ if (!function_exists('evo_has_settings_version_mismatch')) {
             return false;
         }
 
+        // 新規インストール直後は default_settings.sql の '0' のまま(設定未保存)。
+        // アップグレード途中ではないので公開側は止めない。
+        if ($settingsVersion === '' || $settingsVersion === '0') {
+            return false;
+        }
+
         return $settingsVersion !== $modx_version;
     }
 }
