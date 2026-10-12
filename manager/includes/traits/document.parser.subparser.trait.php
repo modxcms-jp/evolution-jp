@@ -162,13 +162,13 @@ trait DocumentParserSubParserTrait
         }
 
         $levelMap = [
-            1 => Logger::INFO,
-            2 => Logger::WARNING,
-            3 => Logger::ERROR,
+            1 => EvoLogger::INFO,
+            2 => EvoLogger::WARNING,
+            3 => EvoLogger::ERROR,
         ];
-        $level = $levelMap[$type] ?? Logger::INFO;
+        $level = $levelMap[$type] ?? EvoLogger::INFO;
         try {
-            $logger = new Logger();
+            $logger = new EvoLogger();
             $logger->log($level, $this->normalizeLogMessage($msg), array_merge([
                 'source' => $title,
             ], $context));
