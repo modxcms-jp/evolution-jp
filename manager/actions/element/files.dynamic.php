@@ -423,7 +423,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
                 <form action="index.php" method="post" name="editFile">
                     <input type="hidden" name="a" value="31" />
                     <input type="hidden" name="mode" value="save" />
-                    <input type="hidden" name="path" value="<?= anyv('path') ?>" />
+                    <input type="hidden" name="path" value="<?= hsc(anyv('path')) ?>" />
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td>
