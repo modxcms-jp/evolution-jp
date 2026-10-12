@@ -62,7 +62,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
     if ($dbv_plugin === false || $dbv_plugin->description === $tplInfo['description']) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
         $pluginId = db()->insert(
-            db()->escape($f),
+            db()->escape(nullToEmpty($f)),
             '[+prefix+]site_plugins'
         );
         if (!$pluginId) {
@@ -76,7 +76,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
         if ($rs) {
             $f['category'] = $dbv_plugin->category;
             $pluginId = db()->insert(
-                db()->escape($f),
+                db()->escape(nullToEmpty($f)),
                 '[+prefix+]site_plugins'
             );
         }

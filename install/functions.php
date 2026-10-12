@@ -288,6 +288,43 @@ function clean_up($table_prefix)
 }
 
 // Property Update function
+// 値が null の項目を空文字にする。db()->escape() は null を文字列 'NULL' にするため、
+// insert() では 'NULL' という文字列が、update() では SQL の NULL が入ってしまう
+function nullToEmpty(array $fields)
+{
+    foreach ($fields as $k => $v) {
+        if ($v === null) {
+            $fields[$k] = '';
+        }
+    }
+    return $fields;
+}
+
+// 以前のインストーラが入れていた文字列 'NULL' を空に戻す（アップデート時。何度実行しても同じ結果になる）。
+// 対象は、インストーラが null を入れていた列だけ。照合順序で 'null' や末尾空白付きの値まで一致しないよう BINARY で比べる。あわせて、編集画面で保存したときにプロパティへ入った
+// '&NULL=undefined;;'（'NULL' をプロパティ名として読んだもの）を取り除く
+function cleanupNullStrings()
+{
+    $targets = [
+        'site_snippets' => ['properties'],
+        'site_plugins' => ['properties', 'moduleguid'],
+        'site_modules' => ['properties', 'guid'],
+        'site_tmplvars' => ['elements', 'display', 'display_params'],
+    ];
+    foreach ($targets as $table => $columns) {
+        $table = db()->table_prefix . $table;
+        foreach ($columns as $column) {
+            db()->query(sprintf("UPDATE `%s` SET `%s`='' WHERE BINARY `%s`='NULL'", $table, $column, $column));
+        }
+    }
+    foreach (['site_snippets', 'site_plugins', 'site_modules'] as $table) {
+        db()->query(sprintf(
+            "UPDATE `%s` SET properties=TRIM(REPLACE(properties, '&NULL=undefined;;', '')) WHERE properties LIKE '%%&NULL=undefined;;%%'",
+            db()->table_prefix . $table
+        ));
+    }
+}
+
 function propUpdate($new, $old)
 {
     // Split properties up into arrays

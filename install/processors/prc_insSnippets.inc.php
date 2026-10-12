@@ -33,7 +33,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
         $f['name'] = $tplInfo['name'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
         $rs = db()->insert(
-            db()->escape($f),
+            db()->escape(nullToEmpty($f)),
             '[+prefix+]site_snippets'
         );
         if (!$rs) {
@@ -45,7 +45,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
         continue;
     }
     $f['properties'] = propUpdate($tplInfo['properties'], $dbv_snippet->properties);
-    if (!db()->update(db()->escape($f), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
+    if (!db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
         $errors += 1;
         showError();
         return;
