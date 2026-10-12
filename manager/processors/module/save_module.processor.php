@@ -17,7 +17,7 @@ if (postv('mode') == 108 && !$id) {
 
 $name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
-if ((postv('icon') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon')) == 1)) {
+if ((postv('icon', '') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon', '')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
 $disabled = postv('disabled') === 'on' ? 1 : 0;
