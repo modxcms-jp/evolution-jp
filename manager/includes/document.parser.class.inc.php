@@ -5772,15 +5772,15 @@ class DocumentParser
     public function getIdFromUrl($url = '')
     {
         $url = preg_replace(
-            '@' . $this->config('friendly_url_suffix') . '$@',
+            '@' . preg_quote((string)$this->config('friendly_url_suffix'), '@') . '$@',
             '',
             trim($url)
         );
         if (strpos($url, '/') === 0) {
-            $url = preg_replace('@^' . MODX_BASE_URL . '@', '', $url);
+            $url = preg_replace('@^' . preg_quote(MODX_BASE_URL, '@') . '@', '', $url);
         }
         if (substr($url, 0, 4) === 'http') {
-            $url = preg_replace('@^' . MODX_SITE_URL . '@', '', $url);
+            $url = preg_replace('@^' . preg_quote(MODX_SITE_URL, '@') . '@', '', $url);
         }
         return $this->getIdFromAlias(trim($url, '/'));
     }
