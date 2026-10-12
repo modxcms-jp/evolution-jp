@@ -19,11 +19,11 @@ if (getv('a') == 4) {
                 // Get parent document id
                 $pid = $docObject['parent'] ? $docObject['parent'] : (int)anyv('pid');
 
-                // Get parent document
-                $parent = evo()->getDocument($pid);
+                // Get parent document (unpublished parents too)
+                $parent = evo()->getDocument($pid, 'template', null);
 
                 // Set parent template
-                $docObject['template'] = $parent['template'];
+                $docObject['template'] = $parent['template'] ?? evo()->config['default_template'];
                 break;
 
             case 'id': // Template is specific id
@@ -52,7 +52,7 @@ if (getv('a') == 4) {
 
 
                 // Set template to inherit
-                if ($tv['value'] != '') {
+                if (($tv['value'] ?? '') != '') {
                     $docObject['template'] = $tv['value'];
                 } else {
                     $docObject['template'] = evo()->config['default_template'];

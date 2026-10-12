@@ -107,7 +107,7 @@ final class EditorInitializer
             $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config)),
         ];
 
-        $imageCropperJson = json_encode($imageCropperOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $imageCropperJson = json_encode($imageCropperOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
         if ($imageCropperJson === false) {
             $imageCropperJson = '{}';
         }
