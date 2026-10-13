@@ -406,6 +406,16 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     log_install_event('Demo site installation completed successfully');
 }
 
+// アップグレードを通した版。管理画面が、アップデーターの実行前か後かを見分けるのに使う（welcome.static.php）
+if (sessionv('is_upgradeable') && $errors == 0) {
+    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
+    log_install_event('Recording install_version for upgrade', ['version' => $modx_version]);
+    db()->replace(
+        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
+        '[+prefix+]system_settings'
+    );
+}
+
 clean_up($sqlParser->prefix);
 log_install_event('Clean up completed');
 
