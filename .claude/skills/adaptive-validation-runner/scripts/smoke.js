@@ -46,7 +46,8 @@ function check(name, ok, detail = '') {
             check('メール: UTF-8 で、件名と本文が読める', /utf-8/i.test(ct) && /パスワード/.test(mail.msg.Subject) && /パスワード/.test(mail.msg.Text || ''), ct);
 
             // 4. 再設定リンクをログインしていない状態で開く
-            const m = (mail.msg.Text || '').match(/https?:\/\/\S*fmpkey=[A-Za-z0-9]+/);
+            // fmpkey は URL 向けの base64 なので - と _ も含む
+            const m = (mail.msg.Text || '').match(/https?:\/\/\S*fmpkey=[A-Za-z0-9_-]+/);
             if (m) {
                 const linkPage = await newPage(browser);
                 const dialogs = [];

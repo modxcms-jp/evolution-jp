@@ -111,13 +111,12 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **新規インストールには `install/install-config.php` が要る**: `setup-site.js` は一時的に置き、終わったら消す
 - **インストールすると作業ツリーに `manager/includes/config.inc.php` ができる**（git の無視対象）。`down -v` で DB だけ消すと、設定ファイルだけが残ってサイトが 500 になる。`setup-site.js` は DB のテーブルでインストール済みかを判定し、この状態なら止まる。開発者自身の設定ファイルを消さないよう、`--reinstall` を付けたときだけ退避（`config.inc.php.bak-<時刻>`）して入れ直す
 - **システム設定を保存すると `sample.htaccess` が `.htaccess` に名前を変える**（`manager/processors/save_settings.processor.php`。フレンドリーURLのため）。作業ツリーに削除差分が残るので戻す。`setup-site.js` は保存前の中身で自動的に書き戻す（`git checkout` で戻すと、作業中の未コミットの変更が失われるため使わない）。`.htaccess` は git の無視対象
-- **キャッシュはファイルを直接消さない**: `temp/cache/*.php` を直接消すと、プラグインのイベント表（`plugin.siteCache.idx.php` など）がアクセスしても作り直されず、FMP などのプラグインが動かなくなる（表側は 200 のままなので気づきにくい）。`php evo cache:clear` か「サイトをリフレッシュ」（`a=26`）を使う。どちらもその場で作り直す
+- **キャッシュは `php evo cache:clear` か「サイトをリフレッシュ」（`a=26`）で作り直す**: どちらもその場で作り直す。`temp/cache/*.php` を直接消しても、`siteCache.idx.php`（プラグインのイベント表）が無ければ次のアクセスで作り直す（#501 より前の版は作り直さず、FMP などのプラグインが動かなくなる。表側は 200 のままなので気づきにくい）
 - **ブランチを切り替えた直後は古いコードが動くことがある**: OPcache は `revalidate_freq=2`。切り替えてから数秒待ってから確かめる
 - **管理画面は `Accept-Language` が無いと 404**: curl でも Playwright でも付ける（`lib.js` の `newPage()` は付けている）
 - **セーフモードのログイン画面の見分け方**: `manager/media/style/common/login.tpl` はテーマの `style.css` を読み込まない。`.loginLicense` は両方にあるので目印にならない（`lib.js` の `isSafeModeLogin()`）
 - **シェルの jAlert は潰れて OK ボタンが画面外に出る**: `body.evo-shell` がグリッドで、jquery.alerts が追加時の幅で `min-width` / `max-width` を固定するため。`page.click()` では押せないので DOM でクリックする（`lib.js` の `clickAlertOk()`）
 - **シェルの断片かどうかは応答ヘッダーで見る**: shell.js は `X-Evo-Pane: 1` の有無だけで、断片として差し込むかを決める。fetch の応答を記録して確かめる（`lib.js` の `watchFetch()`）
-- **POST の応答で画面全体を差し替えると**、`WebFXTabPane` の二重宣言エラーがコンソールに出る（既存の挙動。判定から除外してよい）
 
 ## 後片付け
 

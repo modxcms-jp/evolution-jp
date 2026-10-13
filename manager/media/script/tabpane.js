@@ -44,6 +44,9 @@
 | Created 2002-01-?? | All changes are in the log above. | Updated 2003-03-03 |
 \----------------------------------------------------------------------------*/
 
+// クラスは var への代入で定義する。管理画面のシェルが document.write で画面全体を
+// 差し替えると同じ window でこのファイルが再評価され、class 宣言だと二重宣言エラーになるため
+
 ///////////////////////////////////////////////////////////////////////////////////
 // The constructor for tab panes
 //
@@ -51,7 +54,7 @@
 // bUseCookie : Boolean	Optional. Default is true. Used to determine whether to us
 //						persistance using cookies or not
 //
-class WebFXTabPane {
+var WebFXTabPane = class WebFXTabPane {
   constructor(el, bUseCookie) {
     if (el == null) return;
 
@@ -158,7 +161,7 @@ class WebFXTabPane {
   get classNameTag() {
     return "dynamic-tab-pane-control";
   }
-}
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +172,7 @@ class WebFXTabPane {
 // tabPane : WebFXTabPane	The parent tab pane
 // nindex :	Number			The index of the page in the parent pane page array
 //
-class WebFXTabPage {
+var WebFXTabPage = class WebFXTabPage {
   constructor(el, tabPane, nIndex, callBackFnc) {
     if (el == null) return;
 
@@ -244,7 +247,7 @@ class WebFXTabPage {
     this.tabPane = null;
     this.element = null;
   }
-}
+};
 
 
 // This function initializes all uninitialized tab panes and tab pages

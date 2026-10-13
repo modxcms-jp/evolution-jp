@@ -1230,10 +1230,6 @@ class DocumentParser
         }
         $this->config = $config;
 
-        if (is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
-            include_once(MODX_CACHE_PATH . 'siteCache.idx.php');
-        }
-
         $this->config['base_path'] = MODX_BASE_PATH;
         $this->config['core_path'] = MODX_CORE_PATH;
         if (defined('MODX_BASE_URL')) {
@@ -1242,6 +1238,20 @@ class DocumentParser
         if (defined('MODX_SITE_URL')) {
             $this->config['site_url'] = MODX_SITE_URL;
         }
+
+        // サーバーの掃除などでキャッシュファイルが消えていたら、その場で作り直す。
+        // siteCache.idx.php が無いとプラグインのイベント登録が読めず、プラグインが一切動かない。
+        // 作り直しの中で config() から getSettings() が呼ばれても、二重には作り直さない
+        static $rebuilding = false;
+        if (!$rebuilding && !is_file(MODX_CACHE_PATH . 'siteCache.idx.php') && is_writable(MODX_CACHE_PATH)) {
+            $rebuilding = true;
+            $this->setSiteCache($config);
+            $rebuilding = false;
+        }
+        if (is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
+            include_once(MODX_CACHE_PATH . 'siteCache.idx.php');
+        }
+
         if (!$this->config('error_page')) {
             $this->config['error_page'] = $this->config('start_page');
         }
