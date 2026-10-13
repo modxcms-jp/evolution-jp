@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-9,176行に肥大化したパーサー本体2ファイル（`document.parser.class.inc.php` 6,320行 + `document.parser.subparser.trait.php` 2,856行）を責務別のトレイト11本へ機械的に再編し、変更対象の特定・レビュー・AI実装の精度を上げる。外部から見た `$modx` のAPI（メソッド名・シグネチャ・挙動）は一切変えない。
+約9,200行に肥大化したパーサー本体2ファイル（`document.parser.class.inc.php` 約6,350行 + `document.parser.subparser.trait.php` 約2,870行。行数は2026-10-13時点）を責務別のトレイト11本へ機械的に再編し、変更対象の特定・レビュー・AI実装の精度を上げる。外部から見た `$modx` のAPI（メソッド名・シグネチャ・挙動）は一切変えない。
 
 ## Progress
 
@@ -21,9 +21,10 @@
 ## Surprises & Discoveries
 
 - 計画時点の調査より: 現行の `DocumentParserSubParserTrait` は「責務」ではなく「使用頻度が低い関数」という基準で切り離された歴史的経緯を持つ（コミット 211420ad9）。責務が混在しているのは必然であり、本計画で解消する。
-- レビュー指摘で判明: `document.parser.subparser.trait.php` の末尾（2848–2856行）に `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。トレイト廃止時にファイルごと削除するとこのクラスも消えるが、リポジトリ内に呼び出し箇所は無く、ユーザー判断によりこのクラスの後方互換は維持しない（詳細はDecision Log）。
+- レビュー指摘で判明: `document.parser.subparser.trait.php` の末尾に `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。トレイト廃止時にファイルごと削除するとこのクラスも消えるが、リポジトリ内に呼び出し箇所は無く、ユーザー判断によりこのクラスの後方互換は維持しない（詳細はDecision Log）。
 - PHPのトレイトはコンパイル時にクラスへ平坦化されるため、トレイトAの private メソッドをトレイトBやクラス本体から呼べる。よって可視性の変更なしに純粋なメソッド移動だけで分割できる。
 - `evo` CLI の bootstrap（`manager/includes/cli/bootstrap.php` 69–70行）が `new DocumentParser` を実行するため、トレイトのメソッド名衝突（クラス合成時のFatal Error）を CLI 起動だけで検出できる。
+- 2026-10-13 自己レビューで判明: (1) 当初のシグネチャ比較 grep は複数行にまたがる宣言（`renderFormElement`・`getDocuments` 等11件）を拾えず、可視性変更を見逃すため、PHP Reflection による出力へ置き換えた。合成チェックと同じ `require` で動く。(2) 計画作成後に main で private ヘルパー `isHtmlMail`（`sendmail` 専用）が追加されたため、帰属ルール (2) に従い `log-error` へ追記した。
 
 ## Decision Log
 
@@ -42,8 +43,8 @@
 
 対象はEvolution CMS JP Editionのフロントエンド/管理画面共通のコアクラス `DocumentParser`（グローバル変数 `$modx` としてスニペット・プラグイン・管理画面コードから参照されるオブジェクト）。
 
-- `manager/includes/document.parser.class.inc.php` — クラス本体（6,320行）。プロパティ宣言、マジックメソッド（`__get` / `__call`）、`__construct`、`loadExtension` に加え、リクエスト処理からユーティリティまで約190メソッドが同居。
-- `manager/includes/traits/document.parser.subparser.trait.php` — 既存トレイト（2,856行、約80メソッド）。本計画で解体・廃止する。
+- `manager/includes/document.parser.class.inc.php` — クラス本体（約6,350行）。プロパティ宣言、マジックメソッド（`__get` / `__call`）、`__construct`、`loadExtension` に加え、リクエスト処理からユーティリティまで約190メソッドが同居。
+- `manager/includes/traits/document.parser.subparser.trait.php` — 既存トレイト（約2,870行、約80メソッド）。本計画で解体・廃止する。
 - `manager/includes/cli/bootstrap.php` — `evo` CLI の起動処理。`DocumentParser` を require して `new` するため合成チェックに使える。
 
 本計画が触れる範囲: `executeParser` / `parseDocumentSource` / `prepareResponse` / `postProcess` を含む、ドキュメント処理フェーズ全体のメソッドが移動対象になる。ただし全マイルストーンともファイルを跨いだ**メソッドの移動のみ**であり、呼び出し順・ロジック・シグネチャ・可視性は変更しない。
@@ -105,7 +106,7 @@
 
 9. `document.parser.log-error.trait.php` — `DocumentParserLogErrorTrait`
    本体: phpError, addLogEntry
-   sub: sendmail, rotate_log, addLog, logEvent, messageQuit, recDebugInfo, get_backtrace, normalizeLogMessage
+   sub: sendmail, isHtmlMail, rotate_log, addLog, logEvent, messageQuit, recDebugInfo, get_backtrace, normalizeLogMessage
 
 10. `document.parser.utility.trait.php` — `DocumentParserUtilityTrait`（受け皿: 薄い汎用ヘルパー）
     本体: join, getMicroTime, getAbsolutePath, is_int, isInt, isBackend, isFrontend, toDateFormat, toTimeStamp, mb_strftime, getFullTableName, getManagerPath, getCachePath, stripTags, nicesize, saveToFile, setBaseTime, getBaseTime, htmlspecialchars, hsc, move_uploaded_file, sanitizeUploadedFilename, resizeImage, input_get, input_post, input_cookie, input_any, server, server_var, session, session_var, global_var, array_get, array_set, html_tag, real_ip
@@ -129,13 +130,28 @@
       | sed 's/function *&*//' | sort | uniq -c > /tmp/parser-methods-baseline.txt
     wc -l /tmp/parser-methods-baseline.txt
 
-    grep -hoE '(public|protected|private)?\s*(static\s+)?function\s+&?[a-zA-Z0-9_]+\s*\([^)]*\)' \
-      manager/includes/document.parser.class.inc.php \
-      manager/includes/traits/*.trait.php \
-      | tr -s ' ' | sort > /tmp/parser-signatures-baseline.txt
+    php <<'PHP' | sort > /tmp/parser-signatures-baseline.txt
+    <?php
+    define('MODX_API_MODE', true);
+    require 'manager/includes/document.parser.class.inc.php';
+    foreach ((new ReflectionClass('DocumentParser'))->getMethods() as $m) {
+        $params = [];
+        foreach ($m->getParameters() as $p) {
+            $params[] = ($p->hasType() ? $p->getType() . ' ' : '')
+                . ($p->isPassedByReference() ? '&' : '')
+                . ($p->isVariadic() ? '...' : '')
+                . '$' . $p->getName()
+                . ($p->isDefaultValueAvailable() ? ' = ' . json_encode($p->getDefaultValue()) : '');
+        }
+        echo implode(' ', Reflection::getModifierNames($m->getModifiers())), ' ',
+            ($m->returnsReference() ? '&' : ''), $m->getName(),
+            '(', implode(', ', $params), ')',
+            ($m->hasReturnType() ? ': ' . $m->getReturnType() : ''), "\n";
+    }
+    PHP
     wc -l /tmp/parser-signatures-baseline.txt
 
-期待される観測結果: 1本目は約270行のメソッド名一覧（各行の先頭カウントはすべて 1。2 があればその時点で重複定義であり調査が必要）。2本目は可視性・static修飾・引数リストまで含めたシグネチャ一覧で、メソッド名だけでは検出できない可視性変更やシグネチャ変更を比較するための基準にする。両ファイルを以降の全マイルストーンで比較基準にする。
+期待される観測結果: 1本目は約280行のメソッド名一覧（各行の先頭カウントはすべて 1。2 があればその時点で重複定義であり調査が必要）。grep のためコメントや文字列内の `function` も拾う（例: コメント中の `will`、`webAlertAndQuit` 内の JS 関数 `__alertQuit`）が、前後比較には影響しない。2本目は PHP Reflection で出力したシグネチャ一覧（可視性・static修飾・参照返し・引数・既定値・戻り値型）で、メソッド名だけでは検出できない可視性変更やシグネチャ変更を比較するための基準にする。grep と違い複数行にまたがる宣言（`renderFormElement` 等）も1行で出力される（2026-10-13時点で282行）。両ファイルを以降の全マイルストーンで比較基準にする。
 
 ### M1〜M10 共通手順（マイルストーンごとに繰り返す）
 
@@ -155,7 +171,7 @@
 
    期待: `compose OK`。Fatal error が出た場合はメソッドの二重定義（移動漏れ・消し漏れ）。
 
-5. 棚卸し比較: M0と同じ2本の grep コマンドをそれぞれ `/tmp/parser-methods-after.txt` / `/tmp/parser-signatures-after.txt` に出力し、
+5. 棚卸し比較: M0と同じ2本のコマンド（grep と Reflection）をそれぞれ `/tmp/parser-methods-after.txt` / `/tmp/parser-signatures-after.txt` に出力し、
 
        diff /tmp/parser-methods-baseline.txt /tmp/parser-methods-after.txt
        diff /tmp/parser-signatures-baseline.txt /tmp/parser-signatures-after.txt
@@ -193,7 +209,7 @@
 
 ### M10 の追加手順（subparser 廃止）
 
-`document.parser.subparser.trait.php` の末尾（2848–2856行）には `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。このクラスの後方互換は維持しない（Decision Log 参照: リポジトリ内に直接参照箇所は無く、ユーザー判断により対応不要）。ファイルごと削除する。
+`document.parser.subparser.trait.php` の末尾には `@deprecated` 注記付きの `SubParser` クラスが定義されており、`DocumentParserSubParserTrait` を `use` している。このクラスの後方互換は維持しない（Decision Log 参照: リポジトリ内に直接参照箇所は無く、ユーザー判断により対応不要）。ファイルごと削除する。
 
 1. 残メソッドをすべて移動後、`manager/includes/traits/document.parser.subparser.trait.php` にメソッドが残っていないことを確認してファイルを削除する（`SubParser` クラス定義も含めて削除する）。
 2. 編集対象: `manager/includes/document.parser.class.inc.php` — `require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');` の行と `use DocumentParserSubParserTrait;` を削除する。

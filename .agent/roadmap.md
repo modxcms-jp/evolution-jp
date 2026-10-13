@@ -237,12 +237,12 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
 - Status: `NEXT`
 - 着手予定日: `未定`
 - 完了日: `未完了`
-- 目的: パーサー本体2ファイル(9,176行)を責務別トレイトへ再編し、変更対象の特定・レビュー・AI実装の精度を上げる
-- 背景/課題: `document.parser.class.inc.php`(6,320行)と既存の`document.parser.subparser.trait.php`(2,856行)は、後者が「使用頻度が低い関数」という基準で分離された歴史的経緯を持ち、実質どちらも責務混在の1枚岩になっている
+- 目的: パーサー本体2ファイル(約9,200行)を責務別トレイトへ再編し、変更対象の特定・レビュー・AI実装の精度を上げる
+- 背景/課題: `document.parser.class.inc.php`(約6,350行)と既存の`document.parser.subparser.trait.php`(約2,870行)は、後者が「使用頻度が低い関数」という基準で分離された歴史的経緯を持ち、実質どちらも責務混在の1枚岩になっている
 - 到達条件（Definition of Done）:
   - `manager/includes/traits/`配下に責務別トレイト11本(責務9本+受け皿2本)を作成し、外部から見た`$modx`のAPI(メソッド名・シグネチャ・挙動)を変更せず移行する
   - 既存`document.parser.subparser.trait.php`を廃止する(末尾の`@deprecated SubParser`クラス定義ごとファイル削除・`use`文・`require_once`の除去)。ただし`loadExtension('subparser')`の互換シムは維持する(`SubParser`クラス自体の後方互換は対象外。直接参照箇所なし、ユーザー判断)
-  - メソッド名一覧に加え可視性・static修飾・引数リストまで含めたシグネチャ単位のgrep棚卸しで分割前後の完全一致を確認し、`docker compose exec app php evo help`によるフルブート確認、主要画面のブラウザスモークテストで検証する
+  - メソッド名一覧に加え可視性・static修飾・引数リストまで含めたシグネチャ単位の棚卸し(PHP Reflectionで出力)で分割前後の完全一致を確認し、`docker compose exec app php evo help`によるフルブート確認、主要画面のブラウザスモークテストで検証する
 - 非対象（やらないこと）: クラス分解(別クラスへの抽出)、メソッドのシグネチャ・可視性・ロジック変更、PHPUnitテストの新規整備
 - 依存関係: なし
 - ExecPlan: `.agent/plans/2026-07-14-document-parser-trait-split.md`
