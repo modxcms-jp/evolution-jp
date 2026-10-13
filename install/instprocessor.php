@@ -406,6 +406,40 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     log_install_event('Demo site installation completed successfully');
 }
 
+// アップグレードを通した版。管理画面が、アップデーターの実行前か後かを見分けるのに使う（welcome.static.php）
+if (sessionv('is_upgradeable') && $errors == 0) {
+    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
+
+    // 一度も設定を保存していないサイト（settings_version が '0' か空）は前の版が分からず、このままでは
+    // 設定画面の更新処理（upgrades/upgrades.php は settings_version が空でないときだけ動く）を飛ばしたまま、
+    // install_version の記録で公開側の停止だけが解けてしまう。
+    // 新規インストール時の版（install_version）があればそれを、無ければ 1.0.7J を前の版として残し、通常のアップグレードと同じ流れにする。
+    // （1.0.7 未満向けの古い更新は、それ以降に一度も設定を保存していないサイトには当てはまらないので実行しない）
+    $settingsVersion = (string) db()->getValue(
+        'setting_value',
+        '[+prefix+]system_settings',
+        "setting_name='settings_version'"
+    );
+    if ($settingsVersion === '' || $settingsVersion === '0') {
+        $previousVersion = (string) db()->getValue(
+            'setting_value',
+            '[+prefix+]system_settings',
+            "setting_name='install_version'"
+        ) ?: '1.0.7J';
+        log_install_event('Recording previous settings_version for upgrade', ['version' => $previousVersion]);
+        db()->replace(
+            ['setting_name' => 'settings_version', 'setting_value' => db()->escape($previousVersion)],
+            '[+prefix+]system_settings'
+        );
+    }
+
+    log_install_event('Recording install_version for upgrade', ['version' => $modx_version]);
+    db()->replace(
+        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
+        '[+prefix+]system_settings'
+    );
+}
+
 clean_up($sqlParser->prefix);
 log_install_event('Clean up completed');
 

@@ -12,6 +12,23 @@ $settings_version = db()->getValue(
     evo()->getFullTableName('system_settings'),
     'setting_name="settings_version"'
 );
+// アップデーターをまだ通していない（install_version が今の版でない）なら、アップデーターへ戻す。
+// settings_version とは別に判定する。設定を先に保存したサイトでは settings_version だけが進んでいて、
+// DB の更新を飛ばしたまま公開側の停止が解けているため
+$install_version = db()->getValue(
+    'setting_value',
+    evo()->getFullTableName('system_settings'),
+    'setting_name="install_version"'
+);
+if (
+    evo()->hasPermission('settings')
+    && $install_version !== $modx_version
+    && is_file(MODX_BASE_PATH . 'install/index.php')
+) {
+    echo '<script>top.location.href=' . js_literal(MODX_SITE_URL . 'install/') . ';</script>';
+    exit;
+}
+
 if (evo()->hasPermission('settings') && $settings_version != $modx_version) {
     // seems to be a new install - send the user to the configuration page
     echo '<script>document.location.href="index.php?a=17";</script>';
