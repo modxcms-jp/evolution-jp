@@ -1157,21 +1157,10 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
-        $rs = db()->select(
-            '*',
-            '[+prefix+]user_roles',
-            where('id', '=', $user['role'])
-        );
-        $row = db()->getRow($rs);
-
-        $_SESSION['mgrPermissions'] = $row;
-
-        if ($this->session('mgrPermissions.messages') == 1) {
-            $rs = db()->select('*', '[+prefix+]manager_users');
-            if (db()->count($rs) == 1) {
-                $_SESSION['mgrPermissions']['messages'] = '0';
-            }
+        if (!$this->manager) {
+            $this->loadExtension('ManagerAPI');
         }
+        $_SESSION['mgrPermissions'] = $this->manager->getMgrPermissions($user['role']);
         // successful login so reset fail count and update key values
         db()->update(
             [
@@ -1186,9 +1175,6 @@ class DocumentParser
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
-        if (!$this->manager) {
-            $this->loadExtension('ManagerAPI');
-        }
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
         $_SESSION['modx.mgr.session.cookie.lifetime'] = $this->input_any('rememberme')

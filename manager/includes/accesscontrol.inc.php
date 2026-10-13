@@ -88,6 +88,7 @@ if (manager()->action != 1) {
         exit;
     }
     sessionv('*mgrDocgroups', manager()->getMgrDocgroups(evo()->getLoginUserID()));
+    manager()->refreshMgrPermissions();
 }
 
 clearstatcache(true, $touch_path);

@@ -60,15 +60,9 @@ switch (postv('mode')) {
         $id = db()->insert($fields, '[+prefix+]user_roles');
         break;
     case 35 :
+        // 変更はログイン中のユーザーにも次のリクエストで反映される（accesscontrol.inc.php）
         $rs = db()->update($fields, '[+prefix+]user_roles', "id='{$id}'");
-        if ($rs) {
-            $cache_path = MODX_CACHE_PATH . 'rolePublishing.idx.php';
-            if (is_file($cache_path)) {
-                $role = unserialize(file_get_contents($cache_path));
-            }
-            $role[$id] = time();
-            file_put_contents($cache_path, serialize($role));
-        } else {
+        if (!$rs) {
             echo "An error occured while attempting to update the role. <br />" . db()->getLastError();
             exit;
         }
