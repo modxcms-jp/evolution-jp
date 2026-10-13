@@ -91,8 +91,8 @@ final class PreferenceResolver
 
     /**
      * 「表示名=クラス名;...」形式のCSSスタイルセレクタ設定を style_formats に変換する。
-     * TinyMCE 3 の theme_advanced_styles と同じく、要素全体を選んだときは要素に class を付け、
-     * 文中の一部を選んだときは span で包む（selector と inline を併用した mixed 書式）。
+     * TinyMCE 3 の theme_advanced_styles と同じ書式定義（selector '*' と inline 'span' の mixed 書式）にする。
+     * 要素全体を選んだときは要素に class を付け、文中の一部を選んだときは span で包む。
      */
     public function applyCssSelectors(array $config): array
     {
@@ -105,6 +105,8 @@ final class PreferenceResolver
         $existing = $config['style_formats'] ?? [];
         $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], $formats);
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
+        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
+        $config['importcss_append'] = $config['importcss_append'] ?? true;
 
         return $this->ensureStylesButton($config);
     }
