@@ -178,7 +178,7 @@ if (!evo()->hasPermission('view_schedule')) {
                             </a>
                             /
                             <a
-                                href="<?= hsc(csrfUrl('index.php?a=134&id=' . $row['elmid'] . '&back=publist')) ?>"
+                                href="<?= hsc('index.php?a=134&id=' . $row['elmid'] . '&back=publist') ?>" data-evo-post
                                 class="unpub_draft">公開取り消し</a>
                         </td>
                     </tr>

@@ -65,7 +65,7 @@ $location = getv('id') ? '10' : '2';
                                     <li><a href="index.php?a=10&t=c&m=f&id=<?= $message['id'] ?>"><img
                                                 src="<?= $_style["icons_message_forward"] ?>" /> <?= $_lang['messages_forward'] ?>
                                         </a></li>
-                                    <li><a href="<?= hsc(csrfUrl('index.php?a=65&id=' . (int) $message['id'])) ?>"><img
+                                    <li><a href="<?= hsc('index.php?a=65&id=' . (int) $message['id']) ?>" data-evo-post><img
                                                 src="<?= $_style["icons_delete_document"] ?>" /> <?= $_lang['delete'] ?>
                                         </a></li>
                                     <?php if ($message['sender'] == 0) { ?>

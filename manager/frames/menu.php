@@ -53,7 +53,7 @@ if (!$isShellPartial) {
                 var o = Math.random();
                 jQuery.getJSON('session_keepalive.php', {"tok": tok, "o": o},
                     function (resp) {
-                        if (resp.status != 'ok') window.location.href = EvoCsrf.url('index.php?a=8');
+                        if (resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
                     });
             }
 
@@ -152,7 +152,7 @@ if (!$isShellPartial) {
             // This function removes locks on documents, templates, parsers, and snippets
             function removeLocks() {
                 if (confirm("<?= $_lang['confirm_remove_locks']?>") == true) {
-                    EvoShell.navigate(EvoCsrf.url("index.php?a=67"));
+                    EvoCsrf.post("index.php?a=67");
                 }
             }
 
@@ -259,7 +259,7 @@ if (!$isShellPartial) {
                 }
 
                 $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
-                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="%s" data-no-ajax>%s</a></span>', hsc(csrfUrl('index.php?a=8')), $logoutLabel);
+                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="%s" data-evo-post="full">%s</a></span>', 'index.php?a=8', $logoutLabel);
 
                 $settings_version = db()->getValue(
                     'setting_value',
@@ -298,8 +298,8 @@ if (!$isShellPartial) {
                     $item['home'] = item($_lang['home'], 2);             // home
                     $item['preview'] = item($_lang['view_site'], config("site_url"), 1,
                         'target="_blank"'); // preview
-                    $item['refresh_site'] = item($_lang['refresh_site'], hsc(csrfUrl('index.php?a=26')),
-                        evo()->hasPermission('empty_cache'));    // clear-cache
+                    $item['refresh_site'] = item($_lang['refresh_site'], 26,
+                        evo()->hasPermission('empty_cache'), 'data-evo-post');    // clear-cache
                     $item['search'] = item($_lang['search'], 71);          // search
                     $item['resource_list'] = item($_lang['resources_list'], 120, evo()->hasPermission('view_document'));
                     $item['add_resource'] = item($_lang['add_resource'], 4,

@@ -8,7 +8,17 @@
     <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css"/>
     <script type="text/javascript">
         function doLogout() {
-            top.location = '[+logouturl+]';
+            // ログアウトは POST でしか受け付けない
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = '[+logouturl+]';
+            var token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = 'csrf_token';
+            token.value = '[+csrf_token+]';
+            form.appendChild(token);
+            document.body.appendChild(form);
+            form.submit();
         }
 
         function gotoHome() {

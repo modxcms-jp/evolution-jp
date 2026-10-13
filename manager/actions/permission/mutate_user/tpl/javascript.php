@@ -55,7 +55,7 @@
         alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
         if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
-            document.location.href = EvoCsrf.url("index.php?id=" + document.userform.userid.value + "&a=33");
+            EvoCsrf.post("index.php?id=" + document.userform.userid.value + "&a=33");
         }
         <?php } ?>
     }

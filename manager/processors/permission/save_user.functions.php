@@ -533,9 +533,10 @@ function updateUser()
     ?>
 
         <body bgcolor='#efefef'>
+            <form id="evoLogoutForm" method="post" action="index.php?a=8" target="_top" data-no-ajax><?= csrfTokenField() ?></form>
             <script language="JavaScript">
                 alert("<?= lang('user_changeddata') ?>");
-                top.location.href = '<?= csrfUrl('index.php?a=8') ?>';
+                document.getElementById('evoLogoutForm').submit();
             </script>
         </body>
     <?php
@@ -573,7 +574,7 @@ function updateUser()
     }
 
     if (postv('userid') == evo()->getLoginUserID()) {
-        $stayUrl = csrfUrl('index.php?a=8');
+        $stayUrl = 'index.php?a=8';
     } elseif (postv('save_action') !== 'close') {
         $stayUrl = sprintf(
             'index.php?a=%s&save_action=%s',
@@ -590,7 +591,7 @@ function updateUser()
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate">
-                <a href="<?= $stayUrl ?>"><img
+                <a href="<?= hsc($stayUrl) ?>"<?= postv('userid') == evo()->getLoginUserID() ? ' data-evo-post="full"' : '' ?>><img
                         src="<?= style('icons_save') ?>" /> <?= (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close') ?>
                 </a>
             </li>

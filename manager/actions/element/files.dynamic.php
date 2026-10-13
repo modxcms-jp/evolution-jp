@@ -63,17 +63,17 @@ if (!is_readable($startpath)) {
                 ) . "\n";
             }
             $_ .= $modx->parseText(
-                '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
+                '<li><a href="[+href+]" data-evo-post onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
                 [
-                    'href' => hsc(csrfUrl('index.php?a=31&mode=newfolder&path=' . urlencode($startpath)) . '&name='),
+                    'href' => hsc('index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name='),
                     'tree_folder' => $_style['tree_folder'],
                     'subject' => lang('add_folder')
                 ]
             );
 
-            $tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
+            $tpl = '<li><a href="[+href+]" data-evo-post onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
             $ph['image'] = $_style['tree_page'];
-            $ph['href'] = hsc(csrfUrl('index.php?a=31&mode=newfile&path=' . urlencode($startpath)) . '&name=');
+            $ph['href'] = hsc('index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=');
             $ph['lang_newfile'] = lang('files.dynamic.php1');
             $_ .= $modx->parseText($tpl, $ph);
             echo $_;
@@ -122,7 +122,7 @@ if (!is_readable($startpath)) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    window.location.href = EvoCsrf.url("index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file);
+                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file);
                     return false;
                 }
             }
@@ -143,14 +143,14 @@ if (!is_readable($startpath)) {
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    window.location.href = EvoCsrf.url("index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder);
+                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder);
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    window.location.href = EvoCsrf.url("index.php?a=31&mode=delete&path=" + current_path + '/' + file);
+                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + current_path + '/' + file);
                     return false;
                 }
             }

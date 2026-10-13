@@ -405,12 +405,12 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
     }
     function duplicatedocument() {
         if (confirm("{$_lang['confirm_resource_duplicate']}") == true) {
-            gotoResourceListUrl(EvoCsrf.url("index.php?id={$id}&a=94"));
+            EvoCsrf.post("index.php?id={$id}&a=94");
         }
     }
     function deletedocument() {
         if (confirm("{$_lang['confirm_delete_resource']}") == true) {
-            gotoResourceListUrl(EvoCsrf.url("index.php?id={$id}&a=6"));
+            EvoCsrf.post("index.php?id={$id}&a=6");
         }
     }
     function editdocument() {
@@ -450,13 +450,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 94:        // duplicate
                 if(confirm("{$_lang['confirm_resource_duplicate']}")==true)
                 {
-                    gotoUrl(EvoCsrf.url('index.php?a=94') + '&id='+id{$page});
+                    EvoCsrf.post('index.php?a=94&id='+id{$page});
                 }
                 break;
             case 61:        // publish
                 if(confirm("{$_lang['confirm_publish']}")==true)
                 {
-                    gotoUrl(EvoCsrf.url('index.php?a=61') + '&id='+id{$page});
+                    EvoCsrf.post('index.php?a=61&id='+id{$page});
                 }
                 break;
             case 62:        // unpublish
@@ -464,7 +464,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 {
                     if(confirm("{$_lang['confirm_unpublish']}")==true)
                     {
-                        gotoUrl(EvoCsrf.url("index.php?a=62") + "&id=" + id{$page});
+                        EvoCsrf.post("index.php?a=62&id=" + id{$page});
                     }
                 }
                 else
@@ -475,13 +475,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 6:         // delete
                 if(confirm("{$_lang['confirm_delete_resource']}")==true)
                 {
-                    gotoUrl(EvoCsrf.url('index.php?a=6') + '&id='+id{$page});
+                    EvoCsrf.post('index.php?a=6&id='+id{$page});
                 }
                 break;
             case 63:        // undelete
                 if(confirm("{$_lang['confirm_undelete']}")==true)
                 {
-                    gotoUrl(EvoCsrf.url("index.php?a=63") + "&id=" + id{$page});
+                    EvoCsrf.post("index.php?a=63&id=" + id{$page});
                 }
                 break;
             case 72:         // new Weblink
