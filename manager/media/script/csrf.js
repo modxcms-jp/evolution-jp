@@ -9,7 +9,11 @@
  * - XMLHttpRequest(jQuery AJAX含む) / fetch: メソッドによらず X-CSRF-Token ヘッダを付ける。
  *   GET でも状態を変える操作（サーバー側の csrfProtectedActions()）があり、シェルの GET 遷移も対象になるため。
  *   呼び出し側が既に付けている場合は重複させない
- * - フルページ遷移(location.href・リンク)はヘッダを付けられないため、EvoCsrf.url(url) で URL に csrf_token を付ける
+ * - 状態を変える操作（サーバー側の csrfProtectedActions()）は POST でしか受け付けない（GET・HEAD は 405）。
+ *   JS からは EvoCsrf.post(url) で送る。id などのパラメータは url のクエリに残し、本文はトークンだけにする。
+ *   PHP が出力するリンク・ボタンは data-evo-post 属性を付ける（クリックで href / data-href へ POST する。
+ *   値を "full" にすると、シェルを通さず画面全体を移す。ログアウトなど）
+ * - EvoCsrf.url(url) は URL に csrf_token を付ける。状態を変える操作には使えなくなったため非推奨（外部の拡張のために残す）
  *
  * shell.js が HTMLFormElement.prototype.submit を退避して使うため、shell.js より先に読み込むこと。
  */
@@ -32,17 +36,58 @@
         }
     }
 
-    // URL に csrf_token を付ける。後ろに "&id=" などを連結できるよう末尾に付ける（PHP の csrfUrl() と同じ形）
     window.EvoCsrf = {
         token: getToken,
+        // 非推奨。URL に csrf_token を付ける（PHP の csrfUrl() と同じ形）。状態を変える操作は GET では受け付けないので、post() を使う
         url: function (url) {
             var token = getToken();
             if (!token) {
                 return url;
             }
             return url + (String(url).indexOf('?') === -1 ? '?' : '&') + FIELD_NAME + '=' + encodeURIComponent(token);
+        },
+        // url へ POST する。パラメータは url のクエリのまま送り、本文はトークンだけにする。
+        // シェルの中では EvoShell.submit() で #mainPane に表示する。opts.fullPage が true なら画面全体を移す
+        post: function (url, opts) {
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.setAttribute('action', url);
+            form.style.display = 'none';
+            var field = document.createElement('input');
+            field.type = 'hidden';
+            field.name = FIELD_NAME;
+            field.value = getToken();
+            form.appendChild(field);
+
+            var inShell = document.body && document.body.classList.contains('evo-shell')
+                && window.EvoShell && typeof window.EvoShell.submit === 'function';
+            if (inShell && !(opts && opts.fullPage)) {
+                window.EvoShell.submit(form);
+                return;
+            }
+            form.setAttribute('data-no-ajax', '');
+            document.body.appendChild(form);
+            formSubmit.call(form);
         }
     };
+
+    // data-evo-post を付けたリンク・ボタンのクリックを POST にする。
+    // インラインの onclick（confirm など）で取り消されたときは送らない。shell.js のリンクの横取りより先に登録される
+    document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+            return;
+        }
+        var el = e.target && e.target.closest ? e.target.closest('[data-evo-post]') : null;
+        if (!el) {
+            return;
+        }
+        var url = el.getAttribute('data-href') || el.getAttribute('href');
+        if (!url || url === '#') {
+            return;
+        }
+        e.preventDefault();
+        window.EvoCsrf.post(url, { fullPage: el.getAttribute('data-evo-post') === 'full' });
+    });
 
     function ensureFormToken(form) {
         if (!form || String(form.getAttribute('method') || '').toLowerCase() !== 'post') {

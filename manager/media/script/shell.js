@@ -477,20 +477,24 @@
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
                     return downloadResponse(response).then(stopWork);
                 }
+                // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
+                // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
+                const keepUrl = options.method === 'POST' && !response.redirected && !isModalTarget;
+                const finalUrl = keepUrl ? currentUrl : responseUrlWithRequestHash(response.url, url);
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         if (isModalTarget) {
                             if (options.method === 'POST') {
                                 modalDirty = true;
                             }
-                            applyModalFragment(text, responseUrlWithRequestHash(response.url, url));
+                            applyModalFragment(text, finalUrl);
                         } else {
-                            applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
+                            applyFragment(text, finalUrl, push && !keepUrl);
                         }
                     } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                         // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                        replaceDocument(text, responseUrlWithRequestHash(response.url, url));
+                        replaceDocument(text, finalUrl);
                     } else {
                         fullReload(url);
                     }
