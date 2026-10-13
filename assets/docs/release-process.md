@@ -282,6 +282,55 @@ rm -rf "${CHECK_DIR}"
 
 `gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
 
+### 6. modx.jp ダウンロードページの反映
+
+正式な配布ページ（<https://modx.jp/download/download_evo.html>）は、GitHub の Latest リリースを自動で表示する。バージョン・リリース日・ダウンロード先はすべて GitHub から取得し（1時間キャッシュ）、管理画面での更新は不要。
+
+- 設定ファイル: サーバー（`ssh kymsweb`）の `~/www/modx.jp/assets/release/config.php`
+- `'version' => ''` なら自動。`'version' => '1.2.1J'` のように書くとその版に固定する
+- 保存後の次のアクセスで、サイトのキャッシュは自動でクリアされる
+- この仕組みのコードはサーバーにだけあり、リポジトリには含まれない
+
+#### 告知前に表示を止める場合
+
+GitHub で公開した時点で Latest になり、1時間以内にサイトへ出る。告知まで止めたい場合は、**公開前に**現行版で固定しておき、告知のときに空へ戻す。
+
+```php
+return [
+    'version' => '1.2.1J', // 告知後に '' へ戻す
+];
+```
+
+#### 公開後の確認
+
+```bash
+VERSION="1.3.0J"
+
+# 表示中のバージョンとダウンロード数
+curl -s https://modx.jp/download/download_evo.html \
+    | rg -o "MODX Evolution(&nbsp;| )${VERSION}|ダウンロード <strong>[0-9]*</strong> 回" | sort -u
+```
+
+1時間たっても切り替わらない場合は、`config.php` が固定になっていないかを確認する。ダウンロードを試すと、その回もカウントに入る。
+
+#### お知らせ記事
+
+管理画面で「Evolutionリリース情報」（リソースID 1028）の下に、`MODX Evolution 1.3.0J をリリースしました` という題名の記事を公開する。ダウンロードページの「リリースノート」リンクは、題名に半角スペースで区切られたバージョンを含む記事を自動で指す。記事がないあいだは GitHub のリリースページを指す。
+
+#### ダウンロード数
+
+ダウンロード数はバージョン文字列ごとに数えるため、新しい版は0から始まり、過去の版の記録はそのまま残る。動作確認で落とした分を消す場合は、サーバーの `mysql` で対象の行を一覧し、ID・製品・バージョンを指定して削除する。
+
+```sql
+SELECT id, ip, FROM_UNIXTIME(downloadedon) FROM modx_counter
+WHERE product = 'evo' AND version = '1.3.0J';
+
+DELETE FROM modx_counter
+WHERE id IN (/* 確認したID */) AND product = 'evo' AND version = '1.3.0J';
+```
+
+サーバーのログインシェルは csh 系のため、ssh でコマンドを渡すときは `sh -c '...'` で包むか、SQL を標準入力で渡す。
+
 ## 除外ファイル一覧
 
 `.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
@@ -458,7 +507,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 ## リリース後の対応
 
-1. リリース告知（フォーラム、SNS など）
+1. リリース告知（modx.jp のお知らせ記事、フォーラム、SNS など）。modx.jp の表示を固定していた場合は、ここで `config.php` を `''` に戻す（手順6）
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
 3. ロードマップの整理（下記手順。保護された `main` へ直接コミットせず、整理ブランチからPRを作成する）
 
