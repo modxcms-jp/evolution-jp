@@ -9,6 +9,7 @@ class TopicPath
     private $disabledOn;
     private $disabledUnder;
     private $menuItemOnly;
+    private $showUnpublished;
     private $limit;
     private $topicGap;
     private $titleField;
@@ -29,6 +30,7 @@ class TopicPath
         $this->array_set('disabledOn', '');
         $this->set('disabledUnder', '');
         $this->set('menuItemOnly', '1');
+        $this->set('showUnpublished', '1');
         $this->set('limit', 100);
         $this->set('topicGap', '...');
         $this->array_set('titleField', 'menutitle,pagetitle');
@@ -125,10 +127,17 @@ class TopicPath
     {
         if (in_array($doc['id'], $this->ignoreIDs)) $rs = false;
         elseif ($this->menuItemOnly && $doc['hidemenu']) $rs = false;
-        elseif (!$doc['published']) $rs = false;
+        elseif (!$doc['published'] && !$this->isUnpublishedVisible()) $rs = false;
         else                                            $rs = true;
 
         return $rs;
+    }
+
+    // 非公開の文書を表示できるのは、閲覧中の文書自体が非公開のとき（view_unpublished 権限での閲覧）に限る。
+    // 公開中の文書はページキャッシュされて一般の訪問者にも配信されるため、非公開の親を含めない
+    private function isUnpublishedVisible()
+    {
+        return $this->showUnpublished && !evo()->doc('published');
     }
 
     private function getDocs($docid)
