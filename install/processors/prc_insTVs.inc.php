@@ -76,11 +76,12 @@ foreach ($tplTVs as $i => $tplInfo) {
         if (!$dbv_template) {
             continue;
         }
-        $rs = db()->insert(
+        db()->insert(
             ['tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id],
             '[+prefix+]site_tmplvar_templates'
         );
-        if (dbWriteFailed($rs)) {
+        // この表には AUTO_INCREMENT の列が無く、成功しても insert() は 0 を返すので、エラー番号だけで確かめる
+        if (db()->getLastErrorNo()) {
             $errors += 1;
             showError();
             return;
