@@ -45,7 +45,7 @@ class template
         }
 
         $templates = [];
-        if (!isset($template['base']) && isset($template['default'])) {
+        if (empty($template['base']) && isset($template['default'])) {
             $template['base'] = $template['default'];
         }
         unset($template['default']);
