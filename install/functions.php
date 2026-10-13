@@ -362,6 +362,13 @@ function propUpdate($new, $old)
     return $return;
 }
 
+// DBAPI の exec() は一部のエラー（1054 Unknown column など）を成功として返すので、
+// 書き込みの成否は戻り値に加えて直前のエラー番号でも確かめる
+function dbWriteFailed($rs)
+{
+    return !$rs || db()->getLastErrorNo();
+}
+
 function getCreateDbCategory($category)
 {
     if (!$category) {
@@ -379,7 +386,7 @@ function getCreateDbCategory($category)
         ['category' => db()->escape($category)],
         '[+prefix+]categories'
     );
-    if (!$category_id) {
+    if (dbWriteFailed($category_id)) {
         exit('Get category id error');
     }
     return $category_id;

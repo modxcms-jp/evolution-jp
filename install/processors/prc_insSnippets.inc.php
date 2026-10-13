@@ -36,7 +36,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_snippets'
         );
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
             return;
@@ -45,7 +45,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
         continue;
     }
     $f['properties'] = propUpdate($tplInfo['properties'], $dbv_snippet->properties);
-    if (!db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
+    if (dbWriteFailed(db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'"))) {
         $errors += 1;
         showError();
         return;

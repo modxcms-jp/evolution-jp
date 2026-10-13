@@ -35,7 +35,7 @@ foreach ($tplTVs as $i => $tplInfo) {
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_tmplvars'
         );
-        if (!$tmplvarid) {
+        if (dbWriteFailed($tmplvarid)) {
             $errors += 1;
             showError();
             return;
@@ -48,12 +48,16 @@ foreach ($tplTVs as $i => $tplInfo) {
             '[+prefix+]site_tmplvars',
             "id='" . $tmplvarid . "'"
         );
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
             return;
         }
-        db()->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='" . $dbv_tmplvar->id . "'");
+        if (dbWriteFailed(db()->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='" . $dbv_tmplvar->id . "'"))) {
+            $errors += 1;
+            showError();
+            return;
+        }
         echo ok($name, lang('upgraded'));
     }
 
@@ -72,9 +76,14 @@ foreach ($tplTVs as $i => $tplInfo) {
         if (!$dbv_template) {
             continue;
         }
-        db()->insert(
+        $rs = db()->insert(
             ['tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id],
             '[+prefix+]site_tmplvar_templates'
         );
+        if (dbWriteFailed($rs)) {
+            $errors += 1;
+            showError();
+            return;
+        }
     }
 }
