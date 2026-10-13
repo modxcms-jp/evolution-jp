@@ -113,14 +113,32 @@ if (is_dir($snippetPath) && is_readable($snippetPath)) {
 $tplPlugins = [];
 $pluginPath = MODX_BASE_PATH . 'assets/plugins/';
 if (is_dir($pluginPath) && is_readable($pluginPath)) {
-    $files = collectTpls($pluginPath);
-    foreach ($files as $tplfile) {
+    $pluginParams = [];
+    foreach (collectTpls($pluginPath) as $tplfile) {
         if (strpos($tplfile, '/mgr_custom/') !== false) {
             continue;
         } //Ignore
 
         $params = parse_docblock($tplfile);
         if (!is_array($params) || !$params) {
+            continue;
+        }
+        $pluginParams[$tplfile] = $params;
+    }
+
+    // 後継のプラグインが旧名（@legacy_names）として持つプラグインは候補に出さない。
+    // 古いファイルが残っていると、後継が止めるはずの旧プラグインを入れ直してしまう。
+    // 後継が「同じ版」で候補に出ない場合も含めるため、版の比較より前に集める
+    // （管理画面で旧プラグインを有効にするのは利用者の自由なので、インストーラーが入れないだけにする）
+    $supersededNames = [];
+    foreach ($pluginParams as $params) {
+        foreach (legacy_names($params['legacy_names'] ?? '') as $legacyName) {
+            $supersededNames[$legacyName] = true;
+        }
+    }
+
+    foreach ($pluginParams as $tplfile => $params) {
+        if (isset($supersededNames[$params['name']])) {
             continue;
         }
         $params['category'] = $params['category'] ?? 'plugin';
