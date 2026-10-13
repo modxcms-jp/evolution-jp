@@ -112,10 +112,12 @@ function compare_check($params)
 
     // 旧名のプラグインが有効なまま残っていれば、同じ版でもインストールして停止させる
     if ($category === 'plugin') {
-        $legacyWhere = legacy_names_where($params['legacy_names'] ?? '');
-        if ($legacyWhere !== ''
-            && db()->getValue('COUNT(id)', $tableName, $legacyWhere . " AND `disabled`='0'")
-        ) {
+        $legacyNames = legacy_names($params['legacy_names'] ?? '');
+        if ($legacyNames && db()->getValue(
+            'COUNT(id)',
+            $tableName,
+            sprintf("`name` IN ('%s') AND `disabled`='0'", implode("','", db()->escape($legacyNames)))
+        )) {
             return 'diff';
         }
     }
@@ -151,21 +153,18 @@ function compare_check($params)
 }
 
 /**
- * @legacy_names（カンマ区切り）から name IN (...) の条件を作る。名前がなければ空文字
+ * @legacy_names（カンマ区切り）を名前の配列にする。エスケープは DB 操作の直前で行う
  */
-function legacy_names_where($legacyNames)
+function legacy_names($legacyNames)
 {
-    $quoted = [];
+    $names = [];
     foreach (explode(',', (string)$legacyNames) as $name) {
         $name = trim($name);
         if ($name !== '') {
-            $quoted[] = "'" . db()->escape($name) . "'";
+            $names[] = $name;
         }
     }
-    if (!$quoted) {
-        return '';
-    }
-    return sprintf('`name` IN (%s)', implode(',', $quoted));
+    return $names;
 }
 
 function parse_docblock($fullpath)

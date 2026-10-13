@@ -26,9 +26,13 @@ foreach ($tplPlugins as $i => $tplInfo) {
     }
 
     // 旧名のプラグインを停止する
-    $legacyWhere = legacy_names_where($tplInfo['legacy_names'] ?? '');
-    if ($legacyWhere !== '') {
-        $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', $legacyWhere);
+    $legacyNames = legacy_names($tplInfo['legacy_names'] ?? '');
+    if ($legacyNames) {
+        $rs = db()->update(
+            ['disabled' => '1'],
+            '[+prefix+]site_plugins',
+            sprintf("`name` IN ('%s')", implode("','", db()->escape($legacyNames)))
+        );
         if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
