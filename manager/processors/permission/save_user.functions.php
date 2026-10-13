@@ -113,8 +113,7 @@ function saveUserSettings($id)
     db()->delete(evo()->getFullTableName('user_settings'), sprintf("user='%s'", $id));
     $savethese = [];
     foreach ($settings as $k => $v) {
-        $v = db()->escape($v);
-        $savethese[] = sprintf("(%s, '%s', '%s')", $id, $k, $v);
+        $savethese[] = sprintf("(%s, '%s', '%s')", $id, db()->escape($k), db()->escape($v));
     }
     if (empty($savethese)) {
         return;
@@ -448,7 +447,7 @@ function updateUser()
     $rs = db()->update(
         db()->escape($field),
         '[+prefix+]manager_users',
-        sprintf("id='%s'", postv('userid'))
+        sprintf("id='%s'", post_intvar('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's data.");
@@ -460,7 +459,7 @@ function updateUser()
     $rs = db()->update(
         db()->escape($field),
         '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", postv('userid'))
+        sprintf("internalKey='%s'", post_intvar('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's attributes.");
@@ -468,7 +467,7 @@ function updateUser()
     }
 
     // Save user settings
-    saveUserSettings(postv('userid'));
+    saveUserSettings(post_intvar('userid'));
 
     // invoke OnManagerSaveUser event
     $tmp = [
@@ -509,7 +508,7 @@ function updateUser()
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
         // as this is an existing user, delete his/ her entries in the groups before saving the new groups
-        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%s'", postv('userid')));
+        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%s'", post_intvar('userid')));
         if (!$rs) {
             webAlert('An error occurred while attempting to delete previous user_groups entries.');
             exit;
@@ -519,7 +518,7 @@ function updateUser()
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    ['user_group' => $user_group, 'member' => postv('userid')],
+                    ['user_group' => $user_group, 'member' => post_intvar('userid')],
                     '[+prefix+]member_groups'
                 );
                 if (!$rs) {

@@ -51,7 +51,7 @@ switch (postv('mode')) {
         evo()->invokeEvent("OnBeforeModFormSave", $eventParams);
 
         // disallow duplicate names for new modules
-        $rs = db()->select('COUNT(id)', $tbl_site_modules, "name = '{$name}'");
+        $rs = db()->select('COUNT(id)', $tbl_site_modules, where('name', db()->escape($name)));
         $count = db()->getValue($rs);
         if ($count > 0) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], hsc($name)));

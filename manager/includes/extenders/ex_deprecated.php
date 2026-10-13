@@ -123,14 +123,14 @@ class OldFunctions
     {
         global $modx;
 
-        $msg = addslashes(db()->escape($msg));
+        $fnc = '';
         if (substr(strtolower($url), 0, 11) == 'javascript:') {
             $act = '__WebAlert();';
             $fnc = 'function __WebAlert(){' . substr($url, 11) . '};';
         } else {
-            $act = $url ? "window.location.href='" . addslashes($url) . "';" : '';
+            $act = $url ? 'window.location.href=' . js_literal($url) . ';' : '';
         }
-        $html = "<script>{$fnc} window.setTimeout(\"alert('{$msg}');{$act}\",100);</script>";
+        $html = '<script>' . $fnc . ' window.setTimeout(function(){alert(' . js_literal($msg) . ');' . $act . '},100);</script>';
         if ($modx->isFrontend()) {
             $modx->regClientScript($html);
         } else {
