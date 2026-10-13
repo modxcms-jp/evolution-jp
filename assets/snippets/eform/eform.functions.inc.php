@@ -1210,7 +1210,8 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                         $tmp = db()->escape(formMerge('[+' . $matches[1] . '+]', $fields));
                         $param = str_replace('{' . $matches[1] . '}', $tmp, $param);
                     }
-                    $rs = db()->query("SELECT $param;");
+                    // 失敗したクエリは止めずに下の「結果なし」として扱う
+                    $rs = db()->query("SELECT $param;", false);
                     //select value from 1st field in records only (not case sensitive)
                     while ($v = db()->getValue($rs)) $vlist[] = strtolower($v);
                 }
