@@ -75,9 +75,15 @@ M4（2026-10-14）の修正前後の比較。before は M1 より前の main（3
 | 8 | トークン付きで公開（`a=61&id=5abc`） | FAIL（id=5 が公開される） | PASS（エラーで止まり、変わらない） |
 | 9 | テンプレート変数の保存で、テンプレートに不正な値を混ぜる | FAIL（割り当てが消えて 500） | PASS（正しい値の行だけできる） |
 | 10 | ユーザー設定の保存で、キー名に引用符を含める | FAIL（設定が全件消える） | PASS（正しく保存される） |
-| 11 | `php .github/scripts/security-lint.php` | 違反あり（sql-embed 66・csrf-action 49・js-escape 3。CSRF の一覧の関数が無いため、一覧を空として流した） | 0 violations、終了コード 0 |
+| 11 | security lint（after の版。before での流し方は表の下を参照） | 違反あり（sql-embed 66・csrf-action 49・js-escape 3） | `php .github/scripts/security-lint.php` で 0 violations、終了コード 0 |
 
 確認スクリプトはリポジトリに含めていない（Concrete Steps の M4 のとおり）。
+
+ケース 11 の before は、before の版に lint が無いため、after の版（5521e09b3）の `.github/scripts/security-lint.php` を使って次のように流した。
+
+1. after の `.github/scripts/security-lint.php` をリポジトリの外へコピーし、`$root` を before の作業ツリーの絶対パスに書き換える（before の作業ツリーには何も置かない）
+2. before には `csrfProtectedActions()` が無く、そのままでは「一覧を読み取れなかった」で終了コード 2 になる。このため、コピーの `csrfProtectedActionList()` の終わりの、一覧が空のときに `exit(2)` する分岐を消し、一覧を空として続けるようにする（`csrf-action` は、processor を読み込むアクションのうち除外リストの `a=112` 以外をすべて数える）
+3. `php <コピー>` を実行する。結果は 118 violations、終了コード 1
 
 ## Context and Orientation
 
