@@ -36,6 +36,11 @@ foreach ($tplModules as $k => $tplInfo) {
         $f['name'] = $tplInfo['name'];
         $f['guid'] = $tplInfo['guid'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
+        if ($f['category'] === false) {
+            $errors += 1;
+            showError();
+            return;
+        }
         if (dbWriteFailed(db()->insert(db()->escape(nullToEmpty($f)), '[+prefix+]site_modules'))) {
             $errors += 1;
             showError();

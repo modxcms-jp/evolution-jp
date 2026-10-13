@@ -22,6 +22,11 @@ foreach ($tplTVs as $i => $tplInfo) {
     $f['caption'] = $tplInfo['caption'];
     $f['description'] = $tplInfo['description'];
     $f['category'] = getCreateDbCategory($tplInfo['category']);
+    if ($f['category'] === false) {
+        $errors += 1;
+        showError();
+        return;
+    }
     $f['locked'] = $tplInfo['locked'];
     $f['elements'] = $tplInfo['elements'];
     $f['default_text'] = $tplInfo['default_text'];
