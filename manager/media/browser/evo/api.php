@@ -251,7 +251,6 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
 
     $allowedExt = $config->allowedExtensions($type);
     $maxSize = $config->maxUploadSize();
-    $filePermissions = octdec($modx->config('new_file_permissions') ?: '0644');
 
     $uploaded = [];
     $errors = [];
@@ -285,23 +284,38 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             continue;
         }
 
-        $targetName = $safeName;
-        $targetPath = $dir['real'] . $targetName;
+        // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（括弧などは _ になる）。
+        // 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
         $nameInfo = pathinfo($safeName);
         $baseName = $nameInfo['filename'];
         $extension = isset($nameInfo['extension']) ? '.' . $nameInfo['extension'] : '';
-        $suffix = 1;
-        while (is_file($targetPath) && $suffix <= 200) {
-            $targetName = $baseName . '(' . $suffix . ')' . $extension;
-            $targetPath = $dir['real'] . $targetName;
-            $suffix++;
+        $targetPath = null;
+        for ($suffix = 0; $suffix <= 200; $suffix++) {
+            $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
+            $candidatePath = $modx->sanitizeUploadedFilename($dir['real'] . $candidate);
+            if (!is_file($candidatePath)) {
+                $targetPath = $candidatePath;
+                break;
+            }
         }
+        if ($targetPath === null) {
+            $errors[] = ['name' => $originalName, 'message' => '同じ名前のファイルが多すぎるため保存できません。'];
+            continue;
+        }
+        $targetName = basename($targetPath);
 
-        if (!move_uploaded_file($tmpPath, $targetPath)) {
+        // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
+        if (!$modx->move_uploaded_file($tmpPath, $targetPath)) {
             $errors[] = ['name' => $originalName, 'message' => '保存に失敗しました。'];
             continue;
         }
-        @chmod($targetPath, $filePermissions);
+
+        // invokeEvent() の第2引数は参照渡しなので、変数に入れてから渡す
+        $eventParams = [
+            'filepath' => $dir['real'],
+            'filename' => $targetName,
+        ];
+        $modx->invokeEvent('OnFileBrowserUpload', $eventParams);
 
         $uploaded[] = [
             'name' => $targetName,
