@@ -88,8 +88,10 @@ if (manager()->action != 1) {
         exit;
     }
     sessionv('*mgrDocgroups', manager()->getMgrDocgroups(evo()->getLoginUserID()));
-    manager()->refreshMgrPermissions();
 }
+
+// メニューやツリーの部分更新（a=1）も権限で表示を変えるため、action によらず読み直す
+manager()->refreshMgrPermissions();
 
 clearstatcache(true, $touch_path);
 if ($touch_path && is_file($touch_path)) {

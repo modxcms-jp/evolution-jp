@@ -525,8 +525,8 @@ class ManagerAPI
         if ($role === false || $role === null) {
             return;
         }
-        $_SESSION['mgrRole'] = $role;
-        $_SESSION['mgrPermissions'] = $this->getMgrPermissions($role);
+        sessionv('*mgrRole', $role);
+        sessionv('*mgrPermissions', $this->getMgrPermissions($role));
     }
 
     public function getMemberGroups($uid = 0)
