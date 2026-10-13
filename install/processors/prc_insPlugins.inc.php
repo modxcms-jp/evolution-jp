@@ -25,25 +25,14 @@ foreach ($tplPlugins as $i => $tplInfo) {
         continue;
     }
 
-    // parse comma-separated legacy names and prepare them for sql IN clause
-    if (isset($tplInfo['legacy_names'])) {
-        $_ = [];
-        $array_legacy_names = explode(',', $tplInfo['legacy_names']);
-        while ($v = array_shift($array_legacy_names)) {
-            $_[] = trim($v);
-        }
-        $legacy_names = implode(',', $_);
-        if ($legacy_names) {
-            $rs = db()->update(
-                ['disabled' => '1'],
-                '[+prefix+]site_plugins',
-                sprintf("name IN ('%s')", db()->escape($legacy_names))
-            );
-            if (dbWriteFailed($rs)) {
-                $errors += 1;
-                showError();
-                return;
-            }
+    // 旧名のプラグインを停止する
+    $legacyWhere = legacy_names_where($tplInfo['legacy_names'] ?? '');
+    if ($legacyWhere !== '') {
+        $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', $legacyWhere);
+        if (dbWriteFailed($rs)) {
+            $errors += 1;
+            showError();
+            return;
         }
     }
 

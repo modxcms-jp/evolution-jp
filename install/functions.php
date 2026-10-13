@@ -110,6 +110,16 @@ function compare_check($params)
         return 'diff';
     }
 
+    // 旧名のプラグインが有効なまま残っていれば、同じ版でもインストールして停止させる
+    if ($category === 'plugin') {
+        $legacyWhere = legacy_names_where($params['legacy_names'] ?? '');
+        if ($legacyWhere !== ''
+            && db()->getValue('COUNT(id)', $tableName, $legacyWhere . " AND `disabled`='0'")
+        ) {
+            return 'diff';
+        }
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
@@ -138,6 +148,24 @@ function compare_check($params)
     }
 
     return 'diff';
+}
+
+/**
+ * @legacy_names（カンマ区切り）から name IN (...) の条件を作る。名前がなければ空文字
+ */
+function legacy_names_where($legacyNames)
+{
+    $quoted = [];
+    foreach (explode(',', (string)$legacyNames) as $name) {
+        $name = trim($name);
+        if ($name !== '') {
+            $quoted[] = "'" . db()->escape($name) . "'";
+        }
+    }
+    if (!$quoted) {
+        return '';
+    }
+    return sprintf('`name` IN (%s)', implode(',', $quoted));
 }
 
 function parse_docblock($fullpath)
