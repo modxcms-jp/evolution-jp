@@ -1210,8 +1210,15 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                         $tmp = db()->escape(formMerge('[+' . $matches[1] . '+]', $fields));
                         $param = str_replace('{' . $matches[1] . '}', $tmp, $param);
                     }
-                    // 失敗したクエリは止めずに下の「結果なし」として扱う
+                    // SQL が失敗したときは値を確かめられないので、画面は止めずに検証を通さない
                     $rs = db()->query("SELECT $param;", false);
+                    if ($rs === false) {
+                        $errMsg = $_lang['ef_failed_list'];
+                        if ($isDebug) {
+                            $debugText .= "'<strong>$fld[1]</strong>' SQL error: " . htmlspecialchars(db()->getLastError()) . '<br />';
+                        }
+                        break;
+                    }
                     //select value from 1st field in records only (not case sensitive)
                     while ($v = db()->getValue($rs)) $vlist[] = strtolower($v);
                 }
