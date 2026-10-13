@@ -369,6 +369,7 @@ function dbWriteFailed($rs)
     return !$rs || db()->getLastErrorNo();
 }
 
+// カテゴリーの ID を返す（無ければ作る）。作れなかったときは false を返すので、呼び出し元でエラーとして扱う
 function getCreateDbCategory($category)
 {
     if (!$category) {
@@ -387,7 +388,7 @@ function getCreateDbCategory($category)
         '[+prefix+]categories'
     );
     if (dbWriteFailed($category_id)) {
-        exit('Get category id error');
+        return false;
     }
     return $category_id;
 }

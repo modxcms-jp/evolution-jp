@@ -73,6 +73,11 @@ foreach ($tplPlugins as $i => $tplInfo) {
 
     if ($dbv_plugin === false) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
+        if ($f['category'] === false) {
+            $errors += 1;
+            showError();
+            return;
+        }
         $pluginId = db()->insert(
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_plugins'

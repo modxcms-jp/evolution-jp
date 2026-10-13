@@ -34,6 +34,11 @@ foreach ($tplChunks as $i => $tplInfo) {
         ),
         'category' => getCreateDbCategory($tplInfo['category'])
     ];
+    if ($field['category'] === false) {
+        $errors++;
+        showError();
+        return;
+    }
 
     $rs = db()->select(
         '*',

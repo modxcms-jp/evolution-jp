@@ -33,6 +33,11 @@ foreach ($tplTemplates as $i => $tplInfo) {
         'category'    => getCreateDbCategory($tplInfo['category']),
         'locked'      => (int)$tplInfo['locked']
     ];
+    if ($f['category'] === false) {
+        $errors += 1;
+        showError();
+        return;
+    }
 
     // See if the template already exists
     $dbv_template = db()->getObject('site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'");

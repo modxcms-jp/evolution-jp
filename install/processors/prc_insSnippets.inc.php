@@ -32,6 +32,11 @@ foreach ($tplSnippets as $k => $tplInfo) {
     if (!$dbv_snippet) {
         $f['name'] = $tplInfo['name'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
+        if ($f['category'] === false) {
+            $errors += 1;
+            showError();
+            return;
+        }
         $rs = db()->insert(
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_snippets'
