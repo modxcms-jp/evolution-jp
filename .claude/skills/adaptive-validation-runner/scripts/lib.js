@@ -61,8 +61,25 @@ async function login(browser, user = config.adminUser, password = config.adminPa
 
 // キャッシュは「サイトをリフレッシュ」(a=26) で作り直す（CLI なら php evo cache:clear でもよい。どちらもすぐ作り直す）。
 // temp/cache/*.php を直接消すと、プラグインのイベント表などが作り直されず、FMP などのプラグインが動かなくなる
+// a=26 は状態を変える操作のため CSRF トークンが要る。<meta name="csrf-token"> から読み、
+// 開いたばかりのページなどで無ければ、先に管理画面を開いて取得する
 async function refreshCache(page) {
-    await page.goto(config.manager + 'index.php?a=26', { waitUntil: 'domcontentloaded' });
+    const readToken = () => page.evaluate(() => {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : null;
+    }).catch(() => null);
+    let token = await readToken();
+    if (!token) {
+        await page.goto(config.manager, { waitUntil: 'domcontentloaded' });
+        token = await readToken();
+    }
+    if (!token) {
+        throw new Error('refreshCache: CSRF トークンを取得できない（管理画面にログインしていない可能性）');
+    }
+    const res = await page.goto(config.manager + 'index.php?a=26&csrf_token=' + encodeURIComponent(token), { waitUntil: 'domcontentloaded' });
+    if (!res || res.status() >= 400) {
+        throw new Error(`refreshCache: サイトのリフレッシュ（a=26）が失敗した（status=${res ? res.status() : 'none'}）`);
+    }
     await page.waitForTimeout(1000);
 }
 

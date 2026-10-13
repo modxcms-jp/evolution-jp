@@ -104,12 +104,12 @@ echo $cm->render();
                 break;
             case 3: // duplicate
                 if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
-                    window.location.href = 'index.php?a=111&id=' + id;
+                    window.location.href = EvoCsrf.url('index.php?a=111') + '&id=' + id;
                 }
                 break;
             case 4: // delete
                 if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
-                    window.location.href = 'index.php?a=110&id=' + id;
+                    window.location.href = EvoCsrf.url('index.php?a=110') + '&id=' + id;
                 }
                 break;
         }

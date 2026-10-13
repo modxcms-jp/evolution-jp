@@ -186,7 +186,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
 
     function deleteuser() {
         if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
-            document.location.href = "index.php?id=" + document.userform.id.value + "&a=90";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.userform.id.value + "&a=90");
         }
     }
 

@@ -114,13 +114,13 @@ function entity($key, $default = null)
 <script type="text/javascript">
     function duplicatedocument() {
         if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>")) {
-            document.location.href = "index.php?id=<?= $id ?>&a=94";
+            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=94");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_resource'] ?>")) {
-            document.location.href = "index.php?id=<?= $id ?>&a=6";
+            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=6");
         }
     }
 

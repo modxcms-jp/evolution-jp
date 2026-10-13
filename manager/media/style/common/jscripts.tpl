@@ -22,11 +22,11 @@
         });
         jQuery('#delete').click(function () {
             if (confirm("[+lang_confirm_delete_resource+]"))
-                document.location.href = "index.php?id=[+id+]&a=6";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=6");
         });
         jQuery('#undelete').click(function () {
             if (confirm("[+lang_confirm_undelete+]"))
-                document.location.href = "index.php?id=[+id+]&a=63";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=63");
         });
         jQuery('#deletedraft').click(function () {
             if (confirm("[+lang_confirm_delete_draft_resource+]")) {
@@ -40,7 +40,7 @@
         });
         jQuery('#duplicate').click(function () {
             if (confirm("[+lang_confirm_resource_duplicate+]"))
-                document.location.href = "index.php?id=[+id+]&a=94";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=94");
         });
 
         jQuery('#preview').click(function () {

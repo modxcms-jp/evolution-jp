@@ -111,6 +111,42 @@ function js_literal($value): string
     return $json === false ? '""' : $json;
 }
 
+/**
+ * URL のクエリにある CSRF トークンの値を伏せる（ログに URL を残すとき用）。
+ * PHP は csrf%5Ftoken や csrf.token のような名前も csrf_token として受け取るため、
+ * 名前は parse_str() に通して PHP と同じ解釈で判定する。
+ *
+ * @param mixed $uri
+ * @return string
+ */
+function mask_csrf_token_in_uri($uri): string
+{
+    $uri = (string)$uri;
+    $qpos = strpos($uri, '?');
+    if ($qpos === false) {
+        return $uri;
+    }
+    $query = substr($uri, $qpos + 1);
+    $fragment = '';
+    $hpos = strpos($query, '#');
+    if ($hpos !== false) {
+        $fragment = substr($query, $hpos);
+        $query = substr($query, 0, $hpos);
+    }
+    $pairs = explode('&', $query);
+    foreach ($pairs as $i => $pair) {
+        $eq = strpos($pair, '=');
+        if ($eq === false) {
+            continue;
+        }
+        parse_str(substr($pair, 0, $eq) . '=1', $parsed);
+        if (array_key_exists('csrf_token', $parsed)) {
+            $pairs[$i] = substr($pair, 0, $eq) . '=***';
+        }
+    }
+    return substr($uri, 0, $qpos + 1) . implode('&', $pairs) . $fragment;
+}
+
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
     if ($string === null) {

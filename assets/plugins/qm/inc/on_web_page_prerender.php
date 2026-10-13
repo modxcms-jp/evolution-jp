@@ -145,6 +145,11 @@ else {
         }
         // Logout button
         $logout = MODX_SITE_URL . 'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid=' . $docID;
+        // ログアウトは CSRF トークンが要る。表側には csrfUrl() が無いため、管理画面と共有のセッションから最新のトークンを付ける
+        $csrfTokens = array_keys((array) sessionv('csrf_tokens', []));
+        if ($csrfTokens) {
+            $logout .= '&amp;csrf_token=' . rawurlencode((string) end($csrfTokens));
+        }
         $logoutButton = '
 <li class="qmLogout">
 <a id="qmLogout" class="qmButton qmLogout" title="' . $_lang['logout'] . '" href="' . $logout . '" ><span>' . $_lang['logout'] . '</span></a>

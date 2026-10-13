@@ -536,7 +536,7 @@ function updateUser()
         <body bgcolor='#efefef'>
             <script language="JavaScript">
                 alert("<?= lang('user_changeddata') ?>");
-                top.location.href = 'index.php?a=8';
+                top.location.href = '<?= csrfUrl('index.php?a=8') ?>';
             </script>
         </body>
     <?php
@@ -574,7 +574,7 @@ function updateUser()
     }
 
     if (postv('userid') == evo()->getLoginUserID()) {
-        $stayUrl = 'index.php?a=8';
+        $stayUrl = csrfUrl('index.php?a=8');
     } elseif (postv('save_action') !== 'close') {
         $stayUrl = sprintf(
             'index.php?a=%s&save_action=%s',

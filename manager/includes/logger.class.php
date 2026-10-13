@@ -148,7 +148,8 @@ class EvoLogger
     {
         $context = [
             'request' => [
-                'url' => serverv('REQUEST_URI', ''),
+                // 管理画面の一部の GET リンクは CSRF トークンを URL に含むため、値を伏せて記録する
+                'url' => mask_csrf_token_in_uri(serverv('REQUEST_URI', '')),
                 'method' => serverv('REQUEST_METHOD', ''),
                 'ip' => serverv('REMOTE_ADDR', ''),
                 'ua' => serverv('HTTP_USER_AGENT', ''),

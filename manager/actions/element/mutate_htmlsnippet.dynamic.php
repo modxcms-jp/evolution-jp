@@ -132,14 +132,14 @@ if (isset($form_v['which_editor'])) {
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= request_intvar('id') ?>&a=97";
+            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=97");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_htmlsnippet'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=80";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=80");
         }
     }
 
