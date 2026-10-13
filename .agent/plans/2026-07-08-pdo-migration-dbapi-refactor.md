@@ -111,7 +111,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 
 ### エラー処理（`exec()`）の移植
 
-既存は `!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])` の場合のみ `messageQuit()` で停止し、該当errnoは黙って `true` を返す（**冪等**＝同じDDLを何度実行しても結果が変わらないこと。例えば「既に存在するカラムをADD COLUMNしようとしてエラーになっても処理を継続する」ことで、同じマイグレーションを繰り返し実行しても安全にする）。PDOでは `PDO::query($sql)` が失敗すると `false` を返し、この時点では `PDOStatement` が存在しないため `PDOStatement::errorInfo()` は呼び出せない。errno判定は**接続オブジェクト側の `PDO::errorInfo()[1]`**（`$this->pdo->errorInfo()[1]`）を参照する。クエリが成功した場合は `PDOStatement::errorInfo()` でも同じ値が取れるが、失敗時の判定には接続オブジェクト側を使うことで統一する。
+既存は `$watchError = true`（既定）なら、すべての DB エラーで `messageQuit()` してから `false` を返し、`$watchError = false` なら停止せずに `false` を返す。以前は errno 1064 / 1054 / 1060 / 1061 / 1091 だけ黙って `true` を返していたが、失敗が成功に見える（失敗した `insert()` が直前の ID を返すなど）ため #585 で外した。同じ DDL をやり直しても止まらないこと（冪等性）は、呼び出し側の存在確認（`fieldExists()`・`SHOW INDEX` など）で担保する。PDO でもこの挙動を踏襲し、エラー番号を無視する仕組みは持ち込まない。PDOでは `PDO::query($sql)` が失敗すると `false` を返し、この時点では `PDOStatement` が存在しないため `PDOStatement::errorInfo()` は呼び出せない。errno判定は**接続オブジェクト側の `PDO::errorInfo()[1]`**（`$this->pdo->errorInfo()[1]`）を参照する。クエリが成功した場合は `PDOStatement::errorInfo()` でも同じ値が取れるが、失敗時の判定には接続オブジェクト側を使うことで統一する。
 
 ### Result ラッパー
 
@@ -235,7 +235,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 1. **CLIによる疎通確認**: `php evo db:tables` がテーブル一覧を正常に返す（接続・`SHOW TABLES` 相当の実行が機能している証拠）
 2. **CRUD確認**: `php evo db:query "SELECT * FROM {prefix}system_settings LIMIT 5"` が結果を返す。`php evo db:count site_content` が件数を返す
 3. **管理画面での動作確認**: ブラウザで管理画面にログインし、リソース一覧表示（`select`/`getRow`/`count` 経由）、リソースの新規作成・更新・削除（`insert`/`update`/`delete` 経由）が従来どおり動作する
-4. **エラー抑制の互換確認**: 既に存在するカラムへの `ADD COLUMN` を含むSQL（errno 1060相当）を実行し、`messageQuit()` で停止せず処理が継続することを確認する（マイグレーション機構やbaseline実行時の冪等性に影響するため重要）
+4. **エラー処理の互換確認**: 既に存在するカラムへの `ADD COLUMN`（errno 1060相当）や構文エラーのSQLを実行し、既定では `messageQuit()` で停止して `false` が返ること、`query($sql, false)` では停止せず `false` が返り `getLastErrorNo()` でエラー番号が取れることを確認する（インストーラは後者でエラーを集めている）
 5. **`getObject`/`getObjects`/`makeArray`/`getXML`/`getHTMLGrid` の確認**: 管理画面のデータグリッド表示（`datagrid.class.php` 経由、`numFields`/`fieldName` を使用）が崩れずに表示される
 6. **健全性チェック**: `php evo health:check` がエラーなく完了する
 7. **インストーラの動作確認**: インストーラのDB接続テスト画面（サーバ接続テスト・DB接続テスト）を実行し、`connection.servertest.php`/`connection.databasetest.php` がエラーなく応答する。既存DBが存在する状態で再テストしても（`isConnected()`→`disconnect()`経由の再接続が機能し）正常に完了する
