@@ -9,6 +9,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal    @events OnRichTextEditorRegister,OnRichTextEditorInit,OnInterfaceSettingsRender
  * @internal    @modx_category Manager and Admin
+ * @internal    @legacy_names TinyMCE Rich Text Editor,TinyMCE
  * @internal    @installset base
  */
 
