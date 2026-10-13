@@ -17,3 +17,14 @@ $_lang['tinymce7_entermode_default'] = 'TinyMCE の既定（段落）';
 $_lang['tinymce7_entermode_p'] = '段落 <p> を挿入';
 $_lang['tinymce7_entermode_br'] = '改行 <br> を挿入';
 
+$_lang['tinymce7_template_label'] = 'ひな形';
+$_lang['tinymce7_template_docs'] = 'リソースID';
+$_lang['tinymce7_template_chunks'] = 'チャンク名';
+$_lang['tinymce7_template_category'] = 'チャンクのカテゴリ';
+$_lang['tinymce7_template_description'] = 'ここで指定したリソースの本文やチャンクを、ツールバーの「ひな形の挿入」ボタンや「挿入」メニューから本文に挿入できます。複数指定するときはカンマ（,）で区切ります。カテゴリを指定すると、そのカテゴリのチャンクをすべて一覧に出します。';
+$_lang['tinymce7_template_button'] = 'ひな形の挿入';
+$_lang['tinymce7_template_dialog_title'] = 'ひな形の挿入';
+$_lang['tinymce7_template_select'] = 'ひな形';
+$_lang['tinymce7_template_preview'] = 'プレビュー';
+$_lang['tinymce7_template_insert'] = '挿入';
+$_lang['tinymce7_template_cancel'] = 'キャンセル';
