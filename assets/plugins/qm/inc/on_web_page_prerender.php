@@ -19,7 +19,7 @@ $output = &evo()->documentOutput;
 if (getv('quickmanagerclose')) {
     // Set url to refresh
     $url = evo()->makeUrl($docID, '', '', 'full');
-    exit(sprintf("<script>parent.location.href='%s';</script>", $url));
+    exit(sprintf('<script>parent.location.href=%s;</script>', js_literal($url)));
 }
 
 // QM+ TV edit
@@ -28,12 +28,6 @@ if (getv('quickmanagertv') == 1 && getv('tvname') != '' && $this->tvbuttons == '
 } // QM+ with toolbar
 else {
     if (sessionv('mgrValidated') && anyv('z') !== 'manprev') {
-        if (anyv('logout')) {
-            $this->Logout();
-            return;
-        }
-        $userID = $_SESSION['mgrInternalKey'];
-
         // Edit button
 
         $editButton = '
@@ -83,7 +77,7 @@ else {
                 $i++;
 
                 $field = substr($field, 1, -1); // Trim "'" from beginning and from end
-                $buttonParams = explode("','", $field); // Button params are divided by "','"
+                $buttonParams = array_pad(explode("','", $field), 5, ''); // Button params are divided by "','"
 
                 $buttonTitle = $buttonParams[0];
                 $buttonAction = $buttonParams[1]; // Contains URL if this is not add button
@@ -101,16 +95,17 @@ else {
 
                     // Check if user role is found
                     foreach ($buttonRoles as $mgrRole) {
-                        if ($mgrRole != $_SESSION['mgrRole']) {
+                        if (trim($mgrRole) != sessionv('mgrRole')) {
                             continue;
                         }
                         $showButton = TRUE;
-                        return;
+                        break;
                     }
                 }
 
                 // Show custom button
                 if ($showButton) {
+                    $customButton = '';
                     switch ($buttonAction) {
                         case 'new':
                             $customButton = '
@@ -118,21 +113,21 @@ else {
 <a class="qmButton qmCustom colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=' . $buttonParentId . '&amp;quickmanager=1&amp;customaddtplid=' . $buttonTplId . '"><span>' . $buttonTitle . '</span></a>
 </li>
 ';
-                            return;
+                            break;
                         case 'link':
                             $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom" href="' . $buttonParentId . '" ><span>' . $buttonTitle . '</span></a>
 </li>
 ';
-                            return;
+                            break;
                         case 'modal':
                             $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom colorbox" href="' . $buttonParentId . '" ><span>' . $buttonTitle . '</span></a>
 </li>
 ';
-                            return;
+                            break;
                     }
                     $controls .= $customButton;
                 }
@@ -150,6 +145,11 @@ else {
         }
         // Logout button
         $logout = MODX_SITE_URL . 'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid=' . $docID;
+        // ログアウトは CSRF トークンが要る。表側には csrfUrl() が無いため、管理画面と共有のセッションから最新のトークンを付ける
+        $csrfTokens = array_keys((array) sessionv('csrf_tokens', []));
+        if ($csrfTokens) {
+            $logout .= '&amp;csrf_token=' . rawurlencode((string) end($csrfTokens));
+        }
         $logoutButton = '
 <li class="qmLogout">
 <a id="qmLogout" class="qmButton qmLogout" title="' . $_lang['logout'] . '" href="' . $logout . '" ><span>' . $_lang['logout'] . '</span></a>
@@ -210,7 +210,7 @@ else {
         }
         $head .= '
 {
-$' . $jvar . '("a.colorbox").colorbox({width:"' . $this->tbwidth . '", height:"' . $this->tbheight . '", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
+$' . $jvar . '("a.colorbox").colorbox({width:' . js_literal($this->tbwidth) . ', height:' . js_literal($this->tbheight) . ', iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
 
 // Hide QM+ if cookie found
 if (getCookie("hideQM") == 1)
@@ -260,23 +260,23 @@ function getCookie(cookieName)
 
         // Search and create edit buttons in to the content
         if ($this->editbuttons == 'true' && $access) {
-            $output = preg_replace('/<!-- ' . $this->editbclass . ' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="' . $this->editbclass . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh=' . $docID . '"><span>$3</span></a></span>', $output);
+            $output = preg_replace('/<!-- ' . preg_quote($this->editbclass, '/') . ' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="' . hsc($this->editbclass) . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh=' . $docID . '"><span>$3</span></a></span>', $output);
         }
 
         // Search and create new document buttons in to the content
         if ($this->newbuttons == 'true' && $access) {
-            $output = preg_replace('/<!-- ' . $this->newbclass . ' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="' . $this->newbclass . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
+            $output = preg_replace('/<!-- ' . preg_quote($this->newbclass, '/') . ' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="' . hsc($this->newbclass) . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
         }
 
         // Search and create new document buttons in to the content
         if ($this->tvbuttons == 'true' && $access) {
             // Set and get user doc groups for TV permissions
             $this->docGroup = '';
-            $mrgDocGroups = $_SESSION['mgrDocgroups'];
+            $mrgDocGroups = sessionv('mgrDocgroups');
             if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups);
 
             // Create TV buttons and check TV permissions
-            $output = preg_replace_callback('/<!-- ' . $this->tvbclass . ' ([^\\"\'\(\)<>!?]+) -->/', [&$this, 'createTvButtons'], $output);
+            $output = preg_replace_callback('/<!-- ' . preg_quote($this->tvbclass, '/') . ' ([^\\"\'\(\)<>!?]+) -->/', [&$this, 'createTvButtons'], $output);
         }
     }
 }

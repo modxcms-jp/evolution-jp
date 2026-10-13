@@ -1,6 +1,6 @@
 <?php
 
-class Logger
+class EvoLogger
 {
     public const EMERGENCY = 'emergency';
     public const ALERT = 'alert';
@@ -148,7 +148,8 @@ class Logger
     {
         $context = [
             'request' => [
-                'url' => serverv('REQUEST_URI', ''),
+                // 管理画面の一部の GET リンクは CSRF トークンを URL に含むため、値を伏せて記録する
+                'url' => mask_csrf_token_in_uri(serverv('REQUEST_URI', '')),
                 'method' => serverv('REQUEST_METHOD', ''),
                 'ip' => serverv('REMOTE_ADDR', ''),
                 'ua' => serverv('HTTP_USER_AGENT', ''),
@@ -298,7 +299,7 @@ class Logger
         $function = $frame['function'] ?? '';
         $class = $frame['class'] ?? '';
 
-        if ($class === 'Logger' || $file === 'manager/includes/logger.class.php') {
+        if ($class === 'EvoLogger' || $file === 'manager/includes/logger.class.php') {
             return true;
         }
 

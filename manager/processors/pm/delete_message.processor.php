@@ -7,10 +7,11 @@ if (!evo()->hasPermission('messages')) {
     alert()->dumpError();
 }
 
+$id = request_intvar('id');
 $rs = db()->select(
     'recipient',
     '[+prefix+]user_messages',
-    where('id', '=', anyv('id'))
+    where('id', '=', $id)
 );
 if (db()->count($rs) != 1) {
     exit('Wrong number of messages returned!');
@@ -21,7 +22,7 @@ if ($row['recipient'] != evo()->getLoginUserID()) {
     exit('You are not allowed to delete this message!');
 }
 
-if (!db()->delete('[+prefix+]user_messages', where('id', '=', anyv('id')))) {
+if (!db()->delete('[+prefix+]user_messages', where('id', '=', $id))) {
     exit('Something went wrong while trying to delete the message!');
 }
 header('Location: index.php?a=10');

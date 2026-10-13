@@ -8,14 +8,16 @@ if (!evo()->hasPermission('save_plugin')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 102 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 $name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
+$description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? '1' : '0';
-$plugincode = db()->escape(postv('post'));
-$properties = db()->escape(postv('properties'));
+$plugincode = db()->escape(postv('post', ''));
+$properties = db()->escape(postv('properties', ''));
 $disabled = postv('disabled') == "on" ? '1' : '0';
 $moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
@@ -30,7 +32,7 @@ if (empty($sysevents)) {
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = db()->escape(postv('categoryid'));
+    $category = post_intvar('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = '0';
 } else {
@@ -62,7 +64,7 @@ switch (postv('mode')) {
             $count = db()->getValue($rs);
             if ($count > 0) {
                 manager()->saveFormValues(101);
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
+                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
 
                 // prepare a few variables prior to redisplaying form...
                 $content = [];
@@ -72,7 +74,7 @@ switch (postv('mode')) {
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');
-                $content['category'] = postv('categoryid');
+                $content['category'] = post_intvar('categoryid');
                 $content['disabled'] = $disabled;
                 $content['properties'] = $properties;
                 $content['moduleguid'] = $moduleguid;
@@ -131,7 +133,7 @@ switch (postv('mode')) {
                 "name='{$name}' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
                 manager()->saveFormValues();
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
+                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
 
                 // prepare a few variables prior to redisplaying form...
                 $content = [];
@@ -141,7 +143,7 @@ switch (postv('mode')) {
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');
-                $content['category'] = postv('categoryid');
+                $content['category'] = post_intvar('categoryid');
                 $content['disabled'] = $disabled;
                 $content['properties'] = $properties;
                 $content['moduleguid'] = $moduleguid;

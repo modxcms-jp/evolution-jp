@@ -94,7 +94,6 @@ class Qm
             $modx->documentOutput = 'QuickManagerをインストールし直してください。';
             return;
         }
-        extract($params);
         if ($this->config('disabled')) {
             $arr = explode(',', $this->config('disabled'));
             if (in_array(evo()->documentIdentifier, $arr)) {
@@ -103,29 +102,20 @@ class Qm
         }
 
         // Get plugin parameters
+        // 値が空のプロパティは parseProperties() が渡さないため、そのときはクラスの既定値を使う
         $this->jqpath = 'manager/media/script/jquery/jquery.min.js';
-        $this->loadfrontendjq = $loadfrontendjq;
-        $this->noconflictjq = $noconflictjq;
-        $this->loadtb = $loadtb;
-        $this->tbwidth = $tbwidth;
-        $this->tbheight = $tbheight;
-        $this->hidefields = $hidefields;
-        $this->hidetabs = isset($hidetabs) ? $hidetabs : '';
-        $this->hidesections = isset($hidesections) ? $hidesections : '';
-        $this->addbutton = $addbutton;
-        $this->tpltype = $tpltype;
-        $this->tplid = isset($tplid) ? $tplid : '';
-        $this->custombutton = isset($custombutton) ? $custombutton : '';
-        $this->managerbutton = $managerbutton;
-        $this->logout = $logout;
-        $this->autohide = $autohide;
-        $this->editbuttons = $editbuttons;
-        $this->editbclass = $editbclass;
-        $this->newbuttons = $newbuttons;
-        $this->newbclass = $newbclass;
-        $this->tvbuttons = $tvbuttons;
-        $this->tvbclass = $tvbclass;
-
+        $names = [
+            'loadfrontendjq', 'noconflictjq', 'loadtb', 'tbwidth', 'tbheight',
+            'hidefields', 'hidetabs', 'hidesections', 'addbutton', 'tpltype', 'tplid',
+            'custombutton', 'managerbutton', 'logout', 'autohide',
+            'editbuttons', 'editbclass', 'newbuttons', 'newbclass', 'tvbuttons', 'tvbclass'
+        ];
+        foreach ($names as $name) {
+            if (isset($params[$name])) {
+                $this->$name = $params[$name];
+            }
+        }
+        $version = $params['version'] ?? null;
         if (!isset($version) || version_compare($version, '1.5.5r5', '<')) {
             $modx->documentOutput = 'QuickManagerをアップデートしてください。';
             return false;
@@ -257,51 +247,59 @@ class Qm
         $docID = evo()->documentIdentifier;
 
         // Get TV caption for button title
+        // built-in fields (pagetitle etc.) have no caption, unknown names return false
         $tv = evo()->getTemplateVar($matches[1]);
-        $caption = $tv['caption'];
+        $caption = is_array($tv) ? ($tv['caption'] ?? '') : '';
 
         // If caption is empty this must be a "build-in-tv-field" like pagetitle etc.
         if ($caption == '') {
             $access = true;
             $caption = $this->getDefaultTvCaption($matches[1]);
         } else {
-            $access = $this->checkTvAccess($tv['id']);
+            $access = $this->checkTvAccess($tv['id'] ?? 0);
         }
 
         // Return TV button link if access
         if ($access && $caption != '') {
             return sprintf(
                 '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>',
-                $this->tvbclass,
+                hsc($this->tvbclass),
                 MODX_SITE_URL,
                 $docID,
                 urlencode($matches[1]),
-                $caption
+                hsc($caption)
             );
         }
+        return '';
     }
 
     // Check user access to TV
     //_____________________________________________________
     function checkTvAccess($tvId)
     {
-        if ($_SESSION['mgrRole'] == 1) {
+        if (sessionv('mgrRole') == 1) {
             return true;
         }
 
+        $tvId = (int)$tvId;
+        if (!$tvId) {
+            return false;
+        }
         $result = db()->select('id', '[+prefix+]site_tmplvar_access', 'tmplvarid = ' . $tvId);
         if (!db()->count($result)) {
             return true;
         }
 
-        if ($this->docGroup != '') {
+        // read the groups from the session: the TV edit request does not set $this->docGroup
+        $docGroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+        if ($docGroups) {
             $result = db()->select(
                 'id',
-                '[+prefi+]site_tmplvar_access',
+                '[+prefix+]site_tmplvar_access',
                 sprintf(
-                    'tmplvarid = %s AND documentgroup IN (%s)',
+                    'tmplvarid = %d AND documentgroup IN (%s)',
                     $tvId,
-                    $this->docGroup
+                    implode(',', $docGroups)
                 )
             );
             if (db()->count($result)) {
@@ -339,8 +337,34 @@ class Qm
         if (!$doc) {
             return false;
         }
-        if (is_array(array_get($doc, $field_name))) {
-            return array_get($doc, $field_name);
+        $field = array_get($doc, $field_name);
+        if (is_array($field)) {
+            // template variable: the document object has no elements / default_text / description
+            if (empty($field['tvid'])) {
+                return false;
+            }
+            $def = db()->getRow(db()->select(
+                'id, name, type, caption, description, default_text, elements',
+                '[+prefix+]site_tmplvars',
+                where('id', '=', (int)$field['tvid'])
+            ));
+            if (!$def) {
+                return false;
+            }
+            return [
+                'tvid' => $def['id'],
+                'name' => $def['name'],
+                'type' => $def['type'],
+                'caption' => $def['caption'],
+                'description' => $def['description'],
+                'default_text' => $def['default_text'],
+                'elements' => $def['elements'],
+                'value' => $field['value'] ?? ''
+            ];
+        }
+        // only the built-in fields QM+ can edit
+        if ($this->formType($doc, $field_name) === null) {
+            return false;
         }
         return [
             'type' => $this->formType($doc, $field_name),
@@ -408,7 +432,7 @@ class Qm
             $fields['id'] = evo()->documentIdentifier;
             $fields['action'] = 27;
         } else {
-            $fields['id'] = 'NULL';
+            $fields['id'] = 0;
             $fields['action'] = 2;
         }
         db()->update(
@@ -420,10 +444,10 @@ class Qm
 
     // Save TV
     //_____________________________________________________
-    function saveTv($tvName)
+    function saveTv($tvName, $tvId = 0)
     {
-        $tvId = preg_match('@^[1-9][0-9]*$@', postv('tvid')) ? postv('tvid') : 0;
-        $tvContent = postv('tv' . $tvId, postv('tv' . $tvName), '');
+        $tvId = (int)$tvId;
+        $tvContent = postv('tv' . $tvId, postv('tv' . $tvName, ''));
 
         $tmp = ['mode' => 'upd', 'id' => evo()->documentIdentifier];
         evo()->invokeEvent('OnBeforeDocFormSave', $tmp);

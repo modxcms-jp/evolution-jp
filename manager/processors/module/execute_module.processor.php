@@ -7,7 +7,7 @@ if (!evo()->hasPermission('exec_module')) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id', 0);
+$id = request_intvar('id');
 
 $tbl_site_module_access = evo()->getFullTableName('site_module_access');
 $tbl_member_groups = evo()->getFullTableName('member_groups');
@@ -207,7 +207,7 @@ function evalModule($moduleCode, $params)
         if ($willMessageQuit) {
             $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $moduleName . ' - Module',
                 $message, $line, $msg);
-            $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
+            $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>" . hsc($msg) . "</p>");
         }
     }
     unset($modx->event->params);

@@ -20,12 +20,9 @@ include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');
 class MODxMailer extends PHPMailer
 {
     public $mb_language = false;
-    public $encode_header_method = null;
 
     public function __construct()
     {
-        $this->encode_header_method = '';
-
         if(evo()->config('email_method')==='smtp') {
             include_once MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php';
             $this->IsSMTP();
@@ -48,36 +45,22 @@ class MODxMailer extends PHPMailer
         $this->FromName = evo()->config('site_name');
         $this->IsHTML(true);
 
-        if (evo()->config('mail_charset')) {
-            $mail_charset = evo()->config('mail_charset');
+        // JIS（ISO-2022-JP）での送信は廃止した。mail_charset=jis も UTF-8 で送る
+        $mail_charset = strtolower((string)evo()->config('mail_charset'));
+        if ($mail_charset === 'iso-8859-1') {
+            $this->CharSet = 'iso-8859-1';
+            $this->Encoding = 'quoted-printable';
+            $this->mb_language = 'English';
         } else {
-            $mail_charset = strtolower(evo()->config('manager_language'));
-            if (substr($mail_charset, 0, 8) === 'japanese') {
-                $mail_charset = 'jis';
-            } else {
-                $mail_charset = 'utf8';
-            }
+            $this->CharSet = 'UTF-8';
+            $this->Encoding = 'base64';
+            $this->mb_language = 'UNI';
         }
-
-        switch ($mail_charset) {
-            case 'iso-8859-1':
-                $this->CharSet = 'iso-8859-1';
-                $this->Encoding = 'quoted-printable';
-                $this->mb_language = 'English';
-                break;
-            case 'jis':
-                $this->CharSet = 'ISO-2022-JP';
-                $this->Encoding = '7bit';
-                $this->mb_language = 'Japanese';
-                $this->encode_header_method = 'mb_encode_mimeheader';
-                $this->IsHTML(false);
-                break;
-            case 'utf8':
-            case 'utf-8':
-            default:
-                $this->CharSet = 'UTF-8';
-                $this->Encoding = 'base64';
-                $this->mb_language = 'UNI';
+        // 従来 JIS で送っていたサイト（mail_charset=jis、または未設定の日本語管理画面）は
+        // テキストメールを既定にする挙動を残す
+        if ($mail_charset === 'jis'
+            || ($mail_charset === '' && substr(strtolower(evo()->config('manager_language')), 0, 8) === 'japanese')) {
+            $this->IsHTML(false);
         }
         if (extension_loaded('mbstring') && $this->mb_language !== false) {
             mb_language($this->mb_language);
@@ -86,15 +69,6 @@ class MODxMailer extends PHPMailer
         $exconf = MODX_CORE_PATH . 'controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
             include_once($exconf);
-        }
-    }
-
-    public function EncodeHeader($str, $position = 'text')
-    {
-        if ($this->encode_header_method == 'mb_encode_mimeheader') {
-            return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
-        } else {
-            return parent::EncodeHeader($str, $position);
         }
     }
 
@@ -109,6 +83,7 @@ class MODxMailer extends PHPMailer
             "sanitized_by_modx& #148" => "\"",
             "&quot;" => "\""
         ];
+        $this->normalizeLegacyJis();
         $this->Body = str_replace(array_keys($target), array_values($target), $this->Body);
 
         $this->logSendRequest();
@@ -128,35 +103,55 @@ class MODxMailer extends PHPMailer
         }
     }
 
+    /**
+     * 呼び出し側が JIS 前提で組み立てたメールを UTF-8 に揃える。
+     * cfFormMailer など、本文を自前で ISO-2022-JP に変換し Encoding=7bit を指定してくる
+     * 拡張機能への互換処理。
+     */
+    private function normalizeLegacyJis()
+    {
+        if (stripos($this->CharSet, 'ISO-2022-JP') === 0) {
+            $this->CharSet = 'UTF-8';
+        }
+        if (strtoupper($this->CharSet) !== 'UTF-8') {
+            return;
+        }
+        foreach (['Subject', 'FromName', 'Body', 'AltBody', 'Ical'] as $prop) {
+            $this->$prop = $this->jisToUtf8($this->$prop);
+        }
+        foreach ($this->attachment as $i => $attachment) {
+            $this->attachment[$i][2] = $this->jisToUtf8($attachment[2]);
+        }
+        // UTF-8 の 8bit 文字は 7bit では送れない
+        if ($this->Encoding === '7bit'
+            && ($this->has8bitChars($this->Body) || $this->has8bitChars($this->AltBody))) {
+            $this->Encoding = 'base64';
+        }
+    }
+
+    private function jisToUtf8($str)
+    {
+        if (!is_string($str) || strpos($str, "\x1b") === false) {
+            return $str;
+        }
+        // ISO-2022-JP のエスケープシーケンス（ESC $ @ / ESC $ B / ESC ( B / ESC ( J / ESC ( I）
+        if (!preg_match('/\x1b(?:\$[@B]|\([BJI])/', $str)) {
+            return $str;
+        }
+        return mb_convert_encoding($str, 'UTF-8', 'ISO-2022-JP-MS');
+    }
+
     public function MailSend($header, $body)
     {
-        $org_body = $body;
-
-        switch ($this->CharSet) {
-            case 'ISO-2022-JP':
-                $body = mb_convert_encoding($body, 'JIS', evo()->config('modx_charset'));
-                $this->Subject = $this->EncodeHeader($this->Subject);
-                $mode = 'mb';
-            break;
-            default:
-                $mode = 'normal';
-        }
-
         if (evo()->debug) {
             $debug_info = 'CharSet = ' . $this->CharSet . "\n";
             $debug_info .= 'Encoding = ' . $this->Encoding . "\n";
             $debug_info .= 'mb_language = ' . $this->mb_language . "\n";
-            $debug_info .= 'encode_header_method = ' . $this->encode_header_method . "\n";
-            $debug_info .= "send_mode = {$mode}\n";
             $debug_info .= 'Subject = ' . $this->Subject . "\n";
-            $log = "<pre>{$debug_info}\n{$header}\n{$org_body}</pre>";
+            $log = "<pre>{$debug_info}\n{$header}\n{$body}</pre>";
             evo()->logEvent(1, 1, $log, 'MODxMailer debug information');
-            //return true;
         }
-        if ($mode === 'normal') {
-            return parent::MailSend($header, $body);
-        }
-        return $this->mbMailSend($header, $body);
+        return parent::MailSend($header, $body);
     }
 
     private function logSendRequest()
@@ -212,46 +207,6 @@ class MODxMailer extends PHPMailer
         }
 
         return $result;
-    }
-
-    public function mbMailSend($header, $body)
-    {
-        $to = '';
-        for ($i = 0; $i < count($this->to); $i++) {
-            if ($i != 0) {
-                $to .= ', ';
-            }
-            $to .= $this->AddrFormat($this->to[$i]);
-        }
-
-        if ($this->Sender) {
-            $old_from = ini_get('sendmail_from');
-            ini_set('sendmail_from', $this->Sender);
-        }
-        $toArr = explode(',', $to);
-        $params = sprintf("-oi -f %s", $this->Sender);
-        foreach ($toArr as $val) {
-            $rt = mail($val, $this->Subject, $body, $header, $params);
-        }
-        if (!empty($old_from)) {
-            ini_set('sendmail_from', $old_from);
-        }
-
-        if (!$rt) {
-            $this->SetError(
-                implode(
-                    "\n", [
-                        $this->Lang('instantiate') . "<br />",
-                        "{$this->Subject}<br />",
-                        "{$this->FromName}&lt;{$this->From}&gt;<br />",
-                        mb_convert_encoding($body, evo()->config('modx_charset'), $this->CharSet)
-                    ]
-                )
-            );
-            return false;
-        }
-
-        return true;
     }
 
     public function SetError($msg)

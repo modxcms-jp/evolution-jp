@@ -15,7 +15,7 @@ function webLoginExtractDeclarations(&$html)
         for ($i = 0; $i < count($matches[1]); $i++) {
             $tag = explode(' ', $matches[1][$i]);
             $tagname = trim($tag[0]);
-            $tagvalue = trim($tag[1]);
+            $tagvalue = trim($tag[1] ?? '');
             $declare[$tagname] = $tagvalue;
         }
         // remove declarations
@@ -24,13 +24,27 @@ function webLoginExtractDeclarations(&$html)
     return $declare;
 }
 
+// 自サイトの URL（サイトの URL で始まる絶対 URL、またはホストを含まない相対 URL）か
+function webLoginIsSiteUrl($url)
+{
+    $url = (string)$url;
+    if ($url === '' || preg_match('/[\x00-\x20\\\\]/', $url)) {
+        return false;
+    }
+    if (stripos($url, MODX_SITE_URL) === 0) {
+        return true;
+    }
+    // スキームやホストを含むものは不可（//host、http:、javascript: など）
+    return strpos($url, '//') !== 0 && !preg_match('/^[a-z][a-z0-9+.-]*:/i', $url);
+}
+
 // show javascript alert
 function webLoginAlert($msg, $ph = [])
 {
     global $modx;
     return sprintf(
-        '<script>window.setTimeout("alert(\'%s\')",10);</script>',
-        addslashes(db()->escape(fmplang($msg, $ph)))
+        '<script>window.setTimeout(function(){alert(%s);},10);</script>',
+        js_literal(fmplang($msg, $ph))
     );
 }
 
@@ -101,8 +115,9 @@ function fmplang($key, $ph = [])
         'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。'
     ];
 
-    $value = ($_lang[$key]) ? $_lang[$key] : $key;
-    if (!$ph) {
+    // 翻訳が無いメッセージはそのまま返す
+    $value = $_lang[$key] ?? $key;
+    if (!$ph || !is_array($ph)) {
         return $value;
     }
 

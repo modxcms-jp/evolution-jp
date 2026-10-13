@@ -11,26 +11,42 @@ if (!evo()->hasPermission('edit_document')) {
     alert()->dumpError();
 }
 
-if (anyv('id') == anyv('new_parent')) {
-    alert()->setError(600);
-    alert()->dumpError();
-}
-if (anyv('id') == '') {
+// 移動するリソース（カンマ区切りで複数可）。一部だけを移動しないよう、1 つでも整数として読めなければ全体を止める
+if (!is_string(anyv('id')) || trim(anyv('id')) === '') {
     alert()->setError(601);
     alert()->dumpError();
 }
-if (anyv('new_parent') === null) {
-    echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
+$doc_ids = [];
+foreach (explode(',', anyv('id')) as $v) {
+    $v = to_intvar(trim($v));
+    if (!$v) {
+        alert()->setError(2);
+        alert()->dumpError();
+    }
+    if (!in_array($v, $doc_ids, true)) {
+        $doc_ids[] = $v;
+    }
+}
+$doc_id = $doc_ids[0];
+
+// 移動先。ルート（0）も正しい値なので "0" は受け付け、それ以外の整数として読めない値は移動先なしとして扱う
+$new_parent = anyv('new_parent') === '0' ? 0 : request_intvar('new_parent');
+if (!$new_parent && anyv('new_parent') !== '0') {
     alert()->setError(602);
     alert()->dumpError();
 }
+if (in_array($new_parent, $doc_ids, true)) {
+    alert()->setError(600);
+    alert()->dumpError();
+}
 
-if (strpos(anyv('id'), ',') === false) {
-    $doc_ids[] = anyv('id');
-    $doc_id = anyv('id');
-} else {
-    $doc_ids = explode(',', anyv('id'));
-    $doc_id = $doc_ids[0];
+// 移動するリソースそれぞれについても、操作できるかを確かめる
+if (evo()->config['use_udperms'] == 1) {
+    foreach ($doc_ids as $v) {
+        if (!evo()->checkPermissions($v)) {
+            accessDenied('access_permission_denied');
+        }
+    }
 }
 
 $rs = db()->select(
@@ -41,22 +57,12 @@ $rs = db()->select(
 if (!$rs) {
     exit("An error occured while attempting to find the resource's current parent.");
 }
-$current_parent = db()->getValue($rs);
-$new_parent = (int)anyv('new_parent');
+$current_parent = (int) db()->getValue($rs);
 
 // check user has permission to move resource to chosen location
 if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
     if (!evo()->checkPermissions($new_parent)) {
-        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-        ?>
-        <script type="text/javascript">parent.tree.ca = '';</script>
-        <div class="sectionHeader"><?= lang('access_permissions') ?></div>
-        <div class="sectionBody">
-            <p><?= lang('access_permission_parent_denied') ?></p>
-        </div>
-        <?php
-        include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        exit;
+        accessDenied('access_permission_parent_denied');
     }
 }
 
@@ -158,6 +164,20 @@ header("Location: index.php?a=2&r=1");
 exit;
 
 
+function accessDenied($lang_key)
+{
+    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
+    ?>
+    <script type="text/javascript">parent.tree.ca = '';</script>
+    <div class="sectionHeader"><?= lang('access_permissions') ?></div>
+    <div class="sectionBody">
+        <p><?= lang($lang_key) ?></p>
+    </div>
+    <?php
+    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+    exit;
+}
+
 function alertAndQuit($string, $docid)
 {
     evo()->webAlertAndQuit(
@@ -195,8 +215,9 @@ function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
     if (!evo()->config('allow_duplicate_alias')) {
         $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$doc_id}'");
         $alias = db()->getValue($rs);
+        $alias_sql = db()->escape((string) $alias);
         $rs = db()->select('id', '[+prefix+]site_content',
-            "parent='{$new_parent}' AND (alias='{$alias}' OR (alias='' AND id='{$alias}'))");
+            "parent='{$new_parent}' AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))");
         $find = db()->count($rs);
         if (0 < $find) {
             $target_id = db()->getValue($rs);

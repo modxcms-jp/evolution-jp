@@ -61,9 +61,13 @@ class modxDebugConsole
     function makeLink($title, $open_text, $save_text, $base_path, $prefix = '')
     {
         global $modx;
+        $open_url = $this->buildURL('debug=open', $modx->documentIdentifier, $prefix);
         $placeholders = [
-            '[+open_url+]' => $this->buildURL('debug=open', $modx->documentIdentifier, $prefix),
-            '[+curl+]' => $_SERVER['REQUEST_URI'],
+            // JS strings inside the onclick attribute
+            '[+open_url_js+]' => hsc(js_literal(html_entity_decode($open_url, ENT_QUOTES))),
+            '[+dbg_title_js+]' => hsc(js_literal($title)),
+            '[+open_url+]' => $open_url,
+            '[+curl+]' => hsc(serverv('REQUEST_URI', '')),
             '[+dbg_title+]' => $title,
             '[+dbg_icon_url+]' => $base_path . 'bug.png',
             '[+save_url+]' => $this->buildURL('debug=save', $modx->documentIdentifier, $prefix),
@@ -82,15 +86,15 @@ class modxDebugConsole
         global $modx;
         $query = [];
         foreach ($_GET as $param => $value) {
-            if ($param !== 'id' && $param !== 'q') {
-                $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
+            if ($param !== 'id' && $param !== 'q' && !is_array($value)) {
+                $query[rawurlencode($param)] = rawurlencode($value);
             }
         }
         if (!is_array($args)) {
             $args = explode('&', $args);
             foreach ($args as $arg) {
-                $arg = explode('=', $arg);
-                $query[$prefix . $arg[0]] = urlencode(trim($arg[1]));
+                $arg = explode('=', $arg, 2);
+                $query[$prefix . $arg[0]] = urlencode(trim($arg[1] ?? ''));
             }
         } else {
             foreach ($args as $name => $value) {
@@ -101,7 +105,7 @@ class modxDebugConsole
         foreach ($query as $param => $value) {
             $queryString .= '&' . $param . '=' . (is_array($value) ? implode(',', $value) : $value);
         }
-        $cID = ($id !== false) ? $id : $modx->documentObject['id'];
+        $cID = ($id !== false) ? $id : ($modx->documentObject['id'] ?? '');
         $url = $modx->makeURL(trim($cID), '', $queryString);
         return ($modx->config['xhtml_urls']) ? $url : str_replace('&', '&amp;', $url);
     }

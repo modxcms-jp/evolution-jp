@@ -7,8 +7,10 @@ if (!evo()->hasPermission('save_chunk')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[1-9][0-9]*$@', postv('id'))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 78 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 function entity($key, $default = null)
@@ -62,7 +64,7 @@ function entity($key, $default = null)
                 return manager()->newCategory(postv('newcategory'));
             }
         } elseif (0 < postv('categoryid')) {
-            return postv('categoryid');
+            return post_intvar('categoryid');
         } else {
             return 0;
         }
@@ -82,7 +84,7 @@ switch (postv('mode')) {
         $rs = db()->select(
             'COUNT(id)',
             '[+prefix+]site_htmlsnippets',
-            where('name', entity('name'))
+            where('name', db()->escape(entity('name')))
         );
         $count = db()->getValue($rs);
         if ($count > 0) {
@@ -95,11 +97,11 @@ switch (postv('mode')) {
         }
         $field = [
             'name' => entity('name'),
-            'description' => entity('description'),
+            'description' => entity('description', ''),
             'published' => entity('published'),
             'pub_date' => entity('pub_date'),
             'unpub_date' => entity('unpub_date'),
-            'snippet' => entity('post'),
+            'snippet' => entity('post', ''),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),
             'category' => entity('category')
@@ -150,11 +152,11 @@ switch (postv('mode')) {
         );
         $field = [
             'name' => entity('name'),
-            'description' => entity('description'),
+            'description' => entity('description', ''),
             'published' => entity('published'),
             'pub_date' => entity('pub_date'),
             'unpub_date' => entity('unpub_date'),
-            'snippet' => entity('post'),
+            'snippet' => entity('post', ''),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),
             'category' => entity('category')
@@ -239,9 +241,9 @@ switch (postv('mode')) {
 
 function check_exist_name($chunkName)
 {
-    $where = "name='" . $chunkName . "'";
+    $where = "name='" . db()->escape($chunkName) . "'";
     if (postv('mode') == 78) {
-        $where .= " AND id!=" . postv('id');
+        $where .= " AND id!=" . post_intvar('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     if (!db()->getValue($rs)) {

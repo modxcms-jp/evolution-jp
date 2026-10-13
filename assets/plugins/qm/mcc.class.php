@@ -82,6 +82,7 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function hideSection($section)
         {
+            $section = trim($section);
             if (!isset($this->sections[$section])) return;
             $sectionBodyIndex = $this->sections[$section]['index'];
             $sectionHeaderIndex = $sectionBodyIndex - 1;
@@ -100,7 +101,8 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function hideTab($tab)
         {
-            global $modx;
+            $tab = trim($tab);
+            if (!isset($this->tabs[$tab])) return;
             $tabIndex = $this->tabs[$tab]['index'];
             $tabId = $this->tabs[$tab]['id'];
             $this->addLine('$("div#documentPane h2:nth-child(' . ($tabIndex) . ')").hide();');
@@ -111,7 +113,9 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function hideField($field)
         {
-            if (empty($field)) return;
+            $field = trim($field);
+            // field names only (used in a jQuery selector)
+            if (!preg_match('/^[A-Za-z0-9_\-]+$/', $field)) return;
             if ($field == 'content') return $this->hideSection($field);
             $this->addLine('$("[name=' . $field . ']").parents("tr").hide();');
         }

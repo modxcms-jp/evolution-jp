@@ -31,7 +31,7 @@ foreach ($tplTemplates as $i => $tplInfo) {
         'content'     => preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $content, 1),
         'description' => $tplInfo['description'],
         'category'    => getCreateDbCategory($tplInfo['category']),
-        'locked'      => $tplInfo['locked']
+        'locked'      => (int)$tplInfo['locked']
     ];
 
     // See if the template already exists
@@ -39,7 +39,7 @@ foreach ($tplTemplates as $i => $tplInfo) {
     if (!$dbv_template) {
         $f['templatename'] = $tplInfo['templatename'];
         $rs = db()->insert(
-            db()->escape($f),
+            db()->escape(nullToEmpty($f)),
             '[+prefix+]site_templates'
         );
         if (!$rs) {
@@ -50,7 +50,7 @@ foreach ($tplTemplates as $i => $tplInfo) {
         echo ok($tplInfo['templatename'], lang('installed'));
         continue;
     }
-    if (!db()->update($f, '[+prefix+]site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'")) {
+    if (!db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'")) {
         $errors += 1;
         showError();
         return;

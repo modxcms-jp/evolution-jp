@@ -18,7 +18,7 @@ evo()->toPlaceholders(
         'manager_lockout_message' => $_lang['manager_lockout_message'],
         'home' => $_lang['home'],
         'logout' => $_lang['logout'],
-        'logouturl' => './index.php?a=8',
+        'logouturl' => hsc(csrfUrl('./index.php?a=8')),
         'manager_theme_url' => sprintf('%smedia/style/%s/', MODX_MANAGER_URL, evo()->config('manager_theme')),
         'year' => date('Y')
     ]

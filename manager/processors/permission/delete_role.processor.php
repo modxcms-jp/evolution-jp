@@ -10,13 +10,9 @@ if (!evo()->hasPermission('delete_role')) {
 $tbl_user_attributes = evo()->getFullTableName('user_attributes');
 $tb_user_roles = evo()->getFullTableName('user_roles');
 
-$id = getv('id');
-if (empty($id)) {
+$id = get_intvar('id');
+if (!$id) {
     header("Location: index.php?a=86");
-}
-
-if (!preg_match('/^[0-9]+$/', $id)) {
-    echo "Wrong data was inputted!";
     exit;
 }
 

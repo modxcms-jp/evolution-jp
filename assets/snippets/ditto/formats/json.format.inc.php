@@ -38,7 +38,7 @@ $json_placeholders['json_copyright'] = isset($copyright) ? $copyright : $_lang['
 	Default:
 	[LANG]
 */
-$json_placeholders['json_link'] = MODX_SITE_URL . "[~" . $modx->documentObject['id'] . "~]";
+$json_placeholders['json_link'] = MODX_SITE_URL . "[~" . ($modx->documentObject['id'] ?? '') . "~]";
 $json_placeholders['json_ttl'] = isset($ttl) ? intval($ttl) : 120;
 /*
 	Param: ttl
@@ -52,7 +52,26 @@ $json_placeholders['json_ttl'] = isset($ttl) ? intval($ttl) : 120;
 	Default:
 	120
 */
-$json_placeholders['json_op'] = (!empty($_REQUEST[$dittoID . 'jsonp']) ? $_REQUEST[$dittoID . 'jsonp'] : '');
+// JSON string body (without the quotes); values keep the HTML escaping as before
+if (!function_exists('ditto_json_str')) {
+    function ditto_json_str($value)
+    {
+        $json = json_encode(
+            (string)$value,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+        return $json === false ? '' : substr($json, 1, -1);
+    }
+}
+// JSONP: only a JavaScript identifier (e.g. callback or obj.method) is allowed as the callback name
+$jsonp = anyv($dittoID . 'jsonp', '');
+$jsonp = (is_string($jsonp) && preg_match('/^[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*$/', $jsonp)) ? $jsonp : '';
+// values put inside the JSON strings of the header
+foreach (['json_lang', 'json_copyright', 'json_link'] as $k) {
+    $json_placeholders[$k] = ditto_json_str($json_placeholders[$k] ?? '');
+}
+$json_placeholders['json_title'] = ditto_json_str(evo()->documentObject['pagetitle'] ?? '');
+$json_placeholders['json_doc_description'] = ditto_json_str(evo()->documentObject['description'] ?? '');
 
 // set tpl JSON placeholders
 $placeholders['*'] = "json_parameters";
@@ -62,11 +81,14 @@ if (!function_exists("json_parameters")) {
         global $modx;
         $jsonArr = [];
         foreach ($placeholders as $name => $value) {
-            $value = addslashes(htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
-            if ($name == 'date' && !preg_match('@^[0-9]+$@', $value))
+            if (is_array($value)) {
+                continue;
+            }
+            if ($name == 'date' && !preg_match('@^[0-9]+$@', (string)$value)) {
                 $value = $modx->getUnixtimeFromDateString($value);
-            $value = str_replace(["\r\n", "\n", "\r"], '\n', $value);
-            $jsonArr["json_{$name}"] = str_replace("\t", '\t', $value);
+            }
+            $value = htmlspecialchars((string)$value, ENT_QUOTES, $modx->config['modx_charset']);
+            $jsonArr["json_{$name}"] = ditto_json_str($value);
         }
         $placeholders = array_merge($jsonArr, $placeholders);
         return $placeholders;
@@ -77,10 +99,10 @@ if (!function_exists("json_parameters")) {
 // ---------------------------------------------------
 
 $json_header = '
-[+json_op+]{
- "title":"[*pagetitle:addslashes*]",
+{
+ "title":"[+json_title+]",
  "link":"[+json_link+]",
- "description":"[*description:addslashes:nl2lf*]",
+ "description":"[+json_doc_description+]",
  "language":"[+json_lang+]",
  "copyright":"[+json_copyright+]",
  "ttl":"[+json_ttl+]",
@@ -130,6 +152,12 @@ $tpl = isset($tpl) ? $tpl : "@CODE:{$json_tpl}";
 $tplLast = isset($tplLast) ? $tplLast : "@CODE:{$json_tpl_last}";
 
 $footer = isset($footer) ? $footer : $json_footer;
+
+// JSONP wraps the whole output, whichever header / footer is used
+if ($jsonp !== '') {
+    $header = $jsonp . '(' . $header;
+    $footer .= ');';
+}
 
 // set emptytext
 $noResults = '      ';

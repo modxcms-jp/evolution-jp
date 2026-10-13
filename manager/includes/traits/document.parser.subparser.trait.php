@@ -75,10 +75,26 @@ trait DocumentParserSubParserTrait
         $modx->mail->FromName = $p['fromname'] ?? evo()->config('site_name');
         $modx->mail->Subject = $p['subject'] ?? evo()->config('emailsubject');
         $modx->mail->Body = $p['body'];
-        if (isset($p['type']) && $p['type'] === 'text') {
-            $modx->mail->IsHTML(false);
-        }
+        $modx->mail->IsHTML($this->isHtmlMail($p));
         return $modx->mail->send();
+    }
+
+    /**
+     * sendmail() で HTML メールとして送るかどうか。
+     * type=html / type=text の指定を優先し、指定がなければテキストメールを既定とする。
+     * type を付けずに HTML の本文を渡してくる拡張機能のため、本文に HTML の構造タグがあれば HTML で送る。
+     */
+    private function isHtmlMail($p)
+    {
+        $type = isset($p['type']) ? strtolower(trim($p['type'])) : '';
+        if ($type === 'html') {
+            return true;
+        }
+        if ($type === 'text') {
+            return false;
+        }
+        return is_string($p['body'] ?? null)
+            && preg_match('@<(?:html|body|p|br|div|table|a\s[^>]*href)\b[^>]*>@i', $p['body']) === 1;
     }
 
     function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
@@ -146,13 +162,13 @@ trait DocumentParserSubParserTrait
         }
 
         $levelMap = [
-            1 => Logger::INFO,
-            2 => Logger::WARNING,
-            3 => Logger::ERROR,
+            1 => EvoLogger::INFO,
+            2 => EvoLogger::WARNING,
+            3 => EvoLogger::ERROR,
         ];
-        $level = $levelMap[$type] ?? Logger::INFO;
+        $level = $levelMap[$type] ?? EvoLogger::INFO;
         try {
-            $logger = new Logger();
+            $logger = new EvoLogger();
             $logger->log($level, $this->normalizeLogMessage($msg), array_merge([
                 'source' => $title,
             ], $context));
@@ -183,7 +199,7 @@ trait DocumentParserSubParserTrait
                 $mailbody[] = sprintf('[%s] %s', $k, $v);
             }
             $mailbody = implode("\n", $mailbody);
-            $modx->sendmail($subject, $mailbody);
+            $modx->sendmail(['subject' => $subject, 'type' => 'text'], $mailbody);
         }
     }
 
@@ -745,10 +761,9 @@ trait DocumentParserSubParserTrait
             $header = "Refresh: 0;URL={$url}";
         } elseif ($type !== 'REDIRECT_META') {
             // check if url has /$base_url
-            global $base_url, $site_url;
-            if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen($base_url)) == $base_url) {
-                // append $site_url to make it work with Location:
-                $url = $site_url . substr($url, strlen($base_url));
+            if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen(MODX_BASE_URL)) == MODX_BASE_URL) {
+                // サイトのURLを付けて、Location: を絶対 URL にする
+                $url = MODX_SITE_URL . substr($url, strlen(MODX_BASE_URL));
             }
             if (strpos($url, "\n") === false) {
                 $header = 'Location: ' . $url;
@@ -1099,6 +1114,8 @@ trait DocumentParserSubParserTrait
         if ($docid === false) {
             return false;
         }
+        // 呼び出し元がリクエスト値をそのまま渡すことがあるため、SQL へ入れる前に整数へ揃える
+        $docid = (int) $docid;
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
@@ -1123,13 +1140,10 @@ trait DocumentParserSubParserTrait
         $from .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
         $where = "sc.id='{$docid}' AND {$where_docgrp}";
 
-        $rs = db()->select($field, $from, $where);
-        $total = db()->count($rs);
+        // COUNT() の値で判定する（count() は結果の行数で、集計クエリでは常に1になる）
+        $total = (int) db()->getValue(db()->select($field, $from, $where));
 
-        if ($total == 1) {
-            return true;
-        }
-        return false;
+        return $total === 1;
     }
 
     /*
@@ -1900,24 +1914,25 @@ trait DocumentParserSubParserTrait
     function webAlertAndQuit($msg, $url = "")
     {
         global $modx, $modx_manager_charset;
+        // メッセージと URL は <script> 内の JS 文字列リテラルとして埋め込む（js_literal()。addslashes() では </script> などを防げない）。
+        // 'javascript:' で始まる $url は、呼び出し側が意図して渡す JS としてそのまま使う
         if (strpos(strtolower($url), 'javascript:') === 0) {
             $fnc = substr($url, 11);
         } elseif ($url) {
-            $fnc = "window.location.href='" . addslashes($url) . "';";
-        } elseif (isset($_SESSION['previous_request_uri'])) {
-            $fnc = sprintf("window.location.href='%s';", $_SESSION['previous_request_uri']);
+            $fnc = 'window.location.href=' . js_literal($url) . ';';
+        } elseif (sessionv('previous_request_uri') !== null) {
+            $fnc = 'window.location.href=' . js_literal(sessionv('previous_request_uri')) . ';';
         } else {
             $fnc = "history.back(-1);";
         }
-        $msg = addslashes($msg);
-        $msg = str_replace("\n", '\n', $msg);
+        $msg = js_literal($msg);
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
             <link rel=\"stylesheet\" type=\"text/css\" href=\"media/style/{$modx->config['manager_theme']}/style.css\" />
             <script>
                 function __alertQuit() {
-                    alert('" . $msg . "');
+                    alert(" . $msg . ");
                     {$fnc}
                 }
                 window.setTimeout('__alertQuit();',100);

@@ -41,44 +41,42 @@ if (!sessionv('mgrValidated')) {
 // log the user action
 sessionv('*ip', real_ip());
 
-// CSRF Token Validation for POST requests
-if (is_post()) {
-    // 例外: ログインフォームのみ
-    // 注意: 表示系アクション（a=2, a=27など）でもフォームPOSTが発生する場合があるため、
-    // 基本的にはログイン以外は全てトークン検証を行う
-    $exemptActions = [
-        8,    // ログイン処理のみ例外
-    ];
-
-    $currentAction = manager()->action;
-
+// CSRF トークンの検証
+// - POST はアクションによらず全て検証する（表示系アクションでもフォーム POST が発生するため）。
+//   ログインの POST はこの地点（ログイン済みの判定より後）に来ないので、例外は設けない
+// - GET・HEAD なども、状態を変える操作（csrfProtectedActions() の一覧）なら検証する。
+//   一覧に載せ漏れがあっても POST の検証は残るので、POST の守りは後退しない
+if (is_post() || isCsrfProtectedAction(manager()->action)) {
     // デバッグ: トークン情報を確認
+    // トークンそのものは秘密値のため、値ではなく有無・件数だけを記録する
+    // （ログの閲覧・転送・バックアップが別の信頼境界になりうるため）
     if (evo()->config('debug', 0)) {
         $debugInfo = [
-            'action' => $currentAction,
-            'csrf_token_from_post' => postv('csrf_token', 'none'),
-            'csrf_token_from_header' => serverv('HTTP_X_CSRF_TOKEN', 'none'),
-            'tokens_in_session' => sessionv('csrf_tokens', []),
+            'action' => manager()->action,
+            'method' => serverv('REQUEST_METHOD', ''),
+            'csrf_token_in_post' => postv('csrf_token', '') !== '',
+            'csrf_token_in_header' => serverv('HTTP_X_CSRF_TOKEN', '') !== '',
+            'csrf_token_in_url' => getv('csrf_token', '') !== '',
+            'session_token_count' => count((array) sessionv('csrf_tokens', [])),
         ];
         evo()->logEvent(0, 1, 'CSRF Debug: ' . print_r($debugInfo, true), 'CSRF Token Debug');
     }
 
-    // 例外アクション以外でトークンを検証
-    if (!in_array($currentAction, $exemptActions, true)) {
-        checkCsrfToken();
-    }
+    checkCsrfToken();
 }
 
 if (manager()->action != 1) {
+    // DBAPI は値を呼び出し側で安全化する取り決め。数値は整数化し、SQL に入る値は組み立ての直前にまとめてエスケープする
     $fields = [
-        'internalKey' => evo()->getLoginUserID(),
-        'username'    => sessionv('mgrShortname'),
-        'lasthit'     => serverv('REQUEST_TIME', time()),
-        'action'      => manager()->action,
-        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0,
-        'ip'          => real_ip()
+        'internalKey' => (int) evo()->getLoginUserID(),
+        'username'    => (string) sessionv('mgrShortname'),
+        'lasthit'     => (int) serverv('REQUEST_TIME', time()),
+        'action'      => (int) manager()->action,
+        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? (int) anyv('id') : 0,
+        'ip'          => (string) real_ip()
     ];
 
+    $fields = db()->escape($fields);
     $sql = sprintf(
         "REPLACE INTO %s (%s) VALUES ('%s')",
         evo()->getFullTableName('active_users'),

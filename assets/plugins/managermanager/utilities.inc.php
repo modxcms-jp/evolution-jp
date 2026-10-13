@@ -60,7 +60,13 @@ function jsSafe($str)
 {
     global $modx;
 
-    return htmlentities($str, ENT_QUOTES, $modx->config('modx_charset', 'utf-8'), false);
+    $str = htmlentities((string)$str, ENT_QUOTES, $modx->config('modx_charset', 'utf-8'), false);
+    // Also keep it inside a JS string literal: escape backslashes and line breaks
+    return str_replace(
+        ['\\', "\r", "\n", "\u{2028}", "\u{2029}"],
+        ['\\\\', '\\r', '\\n', '\\u2028', '\\u2029'],
+        $str
+    );
 }
 
 // Does the specified template use the specified TVs?

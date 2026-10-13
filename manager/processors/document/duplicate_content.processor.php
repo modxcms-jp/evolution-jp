@@ -7,8 +7,16 @@ if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_documen
     alert()->dumpError();
 }
 
+// 権限の判定と複製で同じ値を使うため、先に整数へ揃える
+$id = get_intvar('id');
+
+if (!$id) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+
 // check permissions on the document
-if (!$modx->checkPermissions(getv('id'), true)) {
+if (!$modx->checkPermissions($id, true)) {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= lang('access_permissions') ?></div>
@@ -21,7 +29,7 @@ if (!$modx->checkPermissions(getv('id'), true)) {
 
 // Run the duplicator
 evo()->loadExtension('DocAPI');
-$newid = duplicateDocument(getv('id'));
+$newid = duplicateDocument($id);
 $modx->clearCache();
 
 
@@ -65,13 +73,13 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
             $content['pagetitle'],
             $_lang['duplicate_title_string']
         );
-        $content['alias'] = null;
+        $content['alias'] = '';
     } elseif (
         (!evo()->config('friendly_urls') || !evo()->config('allow_duplicate_alias'))
         &&
         $reset_alias === true
     ) {
-        $content['alias'] = null;
+        $content['alias'] = '';
     }
 
     // change the parent accordingly

@@ -62,6 +62,10 @@ $content = db()->getRow($rs);
 /**
  * "General" tab setup
  */
+// 複製直後（editedby=0）や削除済みユーザーでは該当行が無いため、既定値を入れておく
+$createdbyname = '';
+$editedbyname = '';
+
 $rs = db()->select(
     'username',
     '[+prefix+]manager_users',
@@ -110,13 +114,13 @@ function entity($key, $default = null)
 <script type="text/javascript">
     function duplicatedocument() {
         if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>")) {
-            document.location.href = "index.php?id=<?= $id ?>&a=94";
+            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=94");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_resource'] ?>")) {
-            document.location.href = "index.php?id=<?= $id ?>&a=6";
+            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=6");
         }
     }
 

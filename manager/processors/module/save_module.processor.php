@@ -9,13 +9,15 @@ if (!evo()->hasPermission('save_module')) {
 
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 108 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 $name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
-if ((postv('icon') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon')) == 1)) {
+if ((postv('icon', '') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon', '')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
 $disabled = postv('disabled') === 'on' ? 1 : 0;
@@ -26,7 +28,7 @@ $createdon = $editedon = time();
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = postv('categoryid');
+    $category = post_intvar('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = 0;
 } else {
@@ -52,7 +54,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_modules, "name = '{$name}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], $name));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], hsc($name)));
 
             // prepare a few variables prior to redisplaying form...
             $content = [];
@@ -64,7 +66,7 @@ switch (postv('mode')) {
             $content['disabled'] = $disabled;
             $content['locked'] = $locked;
             $content['plugincode'] = postv('post');
-            $content['category'] = postv('categoryid');
+            $content['category'] = post_intvar('categoryid');
             $content['properties'] = postv('properties');
             $content['modulecode'] = postv('post');
             $content['enable_resource'] = $enable_resource;
@@ -83,18 +85,18 @@ switch (postv('mode')) {
 
         $f = [
             'name' => $name,
-            'description' => postv('description'),
-            'icon' => postv('icon'),
+            'description' => postv('description', ''),
+            'icon' => postv('icon', ''),
             'enable_resource' => $enable_resource,
-            'resourcefile' => postv('resourcefile'),
+            'resourcefile' => postv('resourcefile', ''),
             'disabled' => $disabled,
             'wrap' => $wrap,
             'locked' => $locked,
             'category' => $category,
             'enable_sharedparams' => $enable_sharedparams,
             'guid' => postv('guid', ''),
-            'modulecode' => postv('post'),
-            'properties' => postv('properties'),
+            'modulecode' => postv('post', ''),
+            'properties' => postv('properties', ''),
             'editedon' => $editedon,
             'createdon' => $createdon
         ];
@@ -136,18 +138,18 @@ switch (postv('mode')) {
         // save the edited module
         $f = [
             'name' => $name,
-            'description' => postv('description'),
-            'icon' => postv('icon'),
+            'description' => postv('description', ''),
+            'icon' => postv('icon', ''),
             'enable_resource' => $enable_resource,
-            'resourcefile' => postv('resourcefile'),
+            'resourcefile' => postv('resourcefile', ''),
             'disabled' => $disabled,
             'wrap' => $wrap,
             'locked' => $locked,
             'category' => $category,
             'enable_sharedparams' => $enable_sharedparams,
             'guid' => postv('guid', ''),
-            'modulecode' => postv('post'),
-            'properties' => postv('properties'),
+            'modulecode' => postv('post', ''),
+            'properties' => postv('properties', ''),
             'editedon' => $editedon
         ];
 

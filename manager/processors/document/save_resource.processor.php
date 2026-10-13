@@ -302,8 +302,8 @@ function _check_duplicate_alias($id, $alias, $parent)
     $url = sprintf('index.php?a=%s', postv('mode'));
     if (mode() === 'edit') {
         $url .= sprintf('&id=%s', $id);
-    } elseif (anyv('pid')) {
-        $url .= sprintf('&pid=%s', anyv('pid'));
+    } elseif (request_intvar('pid')) {
+        $url .= sprintf('&pid=%s', request_intvar('pid'));
     }
 
     if (anyv('stay')) {

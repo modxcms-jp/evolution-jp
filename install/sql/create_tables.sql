@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}active_users`
     `internalKey` int(9)      NOT NULL DEFAULT '0',
     `username`    varchar(50) NOT NULL DEFAULT '',
     `lasthit`     int(20)     NOT NULL DEFAULT '0',
-    `id`          int(10)              DEFAULT NULL,
+    `id`          int(10)     NOT NULL DEFAULT '0',
     `action`      varchar(10) NOT NULL DEFAULT '',
     `ip`          varchar(50) NOT NULL DEFAULT '',
     PRIMARY KEY (`internalKey`)
@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names`
 (
     `id`               int(10)      NOT NULL AUTO_INCREMENT,
     `name`             varchar(245) NOT NULL DEFAULT '',
-    `private_memgroup` tinyint(4)            DEFAULT '0' COMMENT 'determine whether the document group is private to manager users',
-    `private_webgroup` tinyint(4)            DEFAULT '0' COMMENT 'determines whether the document is private to web users',
+    `private_memgroup` tinyint(4)   NOT NULL DEFAULT '0' COMMENT 'determine whether the document group is private to manager users',
+    `private_webgroup` tinyint(4)   NOT NULL DEFAULT '0' COMMENT 'determines whether the document is private to web users',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`)
 ) {TABLE_OPTION} COMMENT ='Contains data used for access permissions.';

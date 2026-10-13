@@ -24,9 +24,12 @@ function mm_widget_googlemap($fields, $googleApiKey = '', $default = '', $roles 
         $output .= includeJs($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
 
         foreach ($fields as $targetTv) {
-            $tv_id = $mm_fields[$targetTv]['fieldname'];
-            $callBack .= "mm_gmap.init('$tv_id','$default');";
+            if (!isset($mm_fields[$targetTv])) {
+                continue;
+            }
+            $callBack .= sprintf('mm_gmap.init(%s,%s);', js_literal($mm_fields[$targetTv]['fieldname']), js_literal($default));
         }
+        $googleApiKey = rawurlencode((string)$googleApiKey);
 
 
         $output .= <<<EOP

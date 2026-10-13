@@ -41,14 +41,14 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
 
     // Clean up for js output
     $output .= sprintf(
-        "jQuery('div#'+mm_lastTab).after('%s');\n",
-        str_replace(["\n", "\t", "\r"], '', $empty_tab)
+        "jQuery('div#'+mm_lastTab).after(%s);\n",
+        js_literal(str_replace(["\n", "\t", "\r"], '', $empty_tab))
     );
-    $output .= sprintf("mm_lastTab = 'tab%s';\n", $id);
+    $output .= sprintf("mm_lastTab = %s;\n", js_literal('tab' . $id));
     $output .= sprintf(
-        '%s.addTabPage( document.getElementById( "tab%s" ) ); ',
+        '%s.addTabPage( document.getElementById( %s ) ); ',
         (event()->name === 'OnPluginFormRender') ? 'tp' : 'tpSettings',
-        $id
+        js_literal('tab' . $id)
     );
 
     $output .= "//  -------------- mm_createTab :: End ------------- \n";

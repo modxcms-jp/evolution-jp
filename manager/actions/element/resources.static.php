@@ -6,7 +6,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     <script type="text/javascript">
         function deleteCategory(catid) {
             jConfirm("<?= $_lang['confirm_delete_category'] ?>", "<?= $_lang['delete_category'] ?>", function (r) {
-                if (r) document.location.href = "index.php?a=501&catId=" + catid;
+                if (r) document.location.href = EvoCsrf.url("index.php?a=501&catId=" + catid);
                 else return false;
             });
         }

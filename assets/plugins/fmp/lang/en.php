@@ -11,5 +11,6 @@ return [
     'error_sending_email' => 'Error sending email',
     'could_not_find_user' => 'Could not find user',
     'user_doesnt_exist' => 'User does not exist',
+    'fmp_link_invalid' => 'This password reset link is invalid or has expired. Please request a new one.',
     'email_sent' => 'Email sent',
 ];

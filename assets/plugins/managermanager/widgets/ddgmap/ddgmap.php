@@ -66,7 +66,7 @@ var ddLatLng = $coordinatesField.val();
 //Родитель
 var $coordFieldParent = $coordinatesField.parents("tr:first");
 //Запоминаем название поля
-var sectionName = $coordFieldParent.find(".warning").text();
+var sectionName = $coordFieldParent.find(".mutate-field-title").text();
 
 //Скрываем родителя и разделитель
 $coordFieldParent.hide().prev("tr").hide();

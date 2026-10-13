@@ -7,8 +7,8 @@ if (!evo()->hasPermission('new_plugin')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = getv('id');
-if (!preg_match('/^[0-9]+\z/', $id)) {
+$id = get_intvar('id');
+if (!$id) {
     echo 'Value of $id is invalid.';
     exit;
 }

@@ -91,8 +91,8 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 
         if ($thumbnailerUrl) {
             $output .= evo()->parseText(
-                'url = "%s?src="+escape(url)+"&w=%d&h=%d";' . "\n",
-                $ph
+                'url = [+thumbnailer+] + "?src=" + encodeURIComponent(url) + "&w=[+w+]&h=[+h+]";' . "\n",
+                ['thumbnailer' => js_literal($thumbnailerUrl), 'w' => (int)$w, 'h' => (int)$h]
             );
         }
         $ph['style'] = $style;
@@ -111,7 +111,7 @@ checkImageTVupdates = function(){
     });
 }
 
-setInterval ("checkImageTVupdates();", 250);
+setInterval(checkImageTVupdates, 250);
 
 //  -------------- mm_widget_showimagetvs :: End -------------
 

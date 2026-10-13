@@ -59,12 +59,15 @@ class errorHandler
     public function dumpError()
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
-        echo evo()->parseText(
+        // 値は <script> 内の JS リテラルとして埋め込む（js_literal()）。
+        // jAlert はメッセージを .html() で表示するので先に HTML エスケープする。タイトルは .text() なのでしない。
+        // 埋め込んだ値の中が再び置換されないよう、parseText() ではなく strtr() で一度だけ置換する
+        echo strtr(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
             [
-                'message' => db()->escape($this->errormessage),
-                'warning' => lang('warning'),
-                'url' => $this->prev()
+                '[+message+]' => js_literal(hsc((string)$this->errormessage)),
+                '[+warning+]' => js_literal((string)lang('warning')),
+                '[+url+]' => js_literal((string)$this->prev())
             ]
         );
         include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';

@@ -8,7 +8,15 @@ if( !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_doc
 	$e->dumpError();
 }
 
-$id = anyv('id');
+$id = request_intvar('id');
+if (!$id) {
+	alert()->setError(2);
+	alert()->dumpError();
+}
+if (!$modx->checkPermissions($id)) {
+	alert()->setError(3);
+	alert()->dumpError();
+}
 
 $modx->loadExtension('REVISION');
 if( $modx->revision->chStandbytoDraft($id) ){

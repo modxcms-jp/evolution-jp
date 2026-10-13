@@ -14,8 +14,13 @@
             box-sizing: border-box;
         }
 
+        /* body の overflow: hidden が画面全体に移らないよう、スクロールは html が受け持つ */
+        html {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         html, body {
-            height: 100%;
             font-family: sans-serif;
             font-size: 16px;
             line-height: 1.6;

@@ -49,9 +49,9 @@ function mm_hideSections($sections, $roles = '', $templates = '')
                 $j("#sectionAccessBody").hide();';
                 break;
         }
-
-        $output .= "//  -------------- mm_hideSections :: End ------------- \n";
-
-        $e->output($output . "\n");
     }
+
+    $output .= "//  -------------- mm_hideSections :: End ------------- \n";
+
+    $e->output($output . "\n");
 }

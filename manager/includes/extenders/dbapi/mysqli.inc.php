@@ -111,13 +111,13 @@ class DBAPI
 
         $tstart = evo()->getMicroTime();
 
-        // PHP 8+ では mysqli がデフォルトで例外を投げるため、エラーレポートモードを一時的に変更
-        $previous_report_mode = mysqli_report(MYSQLI_REPORT_OFF);
+        // エラーは exec() などで戻り値と errno を見て扱うので、例外も Warning も出さないモードにする（接続後もこのまま）。
+        // PHP 8.1 以降の既定は例外。mysqli_report() は直前のモードではなく true を返すため、戻すことはしない
+        mysqli_report(MYSQLI_REPORT_OFF);
 
         // mysqli_init() と mysqli_real_connect() を使って接続タイムアウトを設定
         $this->conn = mysqli_init();
         if (!$this->conn) {
-            mysqli_report($previous_report_mode);
             return false;
         }
 
@@ -133,9 +133,6 @@ class DBAPI
             $connected = @$this->conn->real_connect($hostname, $this->username, $this->password);
         }
 
-        // レポートモードを復元
-        mysqli_report($previous_report_mode);
-
         if (!$connected) {
             $this->conn = null;
             return false;
@@ -144,7 +141,10 @@ class DBAPI
             $this->conn = null;
             if (evo()->config('send_errormail') && evo()->config('send_errormail') < 3) {
                 evo()->sendmail(
-                    'Missing to create the database connection! from ' . evo()->config('site_name'),
+                    [
+                        'subject' => 'Missing to create the database connection! from ' . evo()->config('site_name'),
+                        'type' => 'text',
+                    ],
                     sprintf(
                         "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s",
                         'Failed to create the database connection!',
@@ -175,7 +175,18 @@ class DBAPI
                 );
                 return false;
             }
-            $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
+            // 文字セットを設定できなければ、違う文字セットのまま続けないよう止める
+            if (!$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+                evo()->messageQuit(
+                    sprintf(
+                        "Failed to set the connection charset '%s %s' - %s",
+                        $this->connection_method,
+                        $this->charset,
+                        $this->conn->error
+                    )
+                );
+                return false;
+            }
         }
 
         $tend = evo()->getMicroTime();
@@ -209,8 +220,8 @@ class DBAPI
     }
 
     /**
-     * @param array|string $s
-     * @return array|string
+     * @param array|string|null $s
+     * @return array|string|null null はそのまま null を返す（配列の要素も同じ）
      */
     public function escape($s)
     {
@@ -221,7 +232,7 @@ class DBAPI
         }
 
         if ($s === null) {
-            return 'NULL';
+            return null;
         }
 
         if (!is_array($s)) {
@@ -398,7 +409,7 @@ class DBAPI
             $pairs = $fields;
         } else {
             foreach ($fields as $key => $value) {
-                if ($value === null || strtolower($value) === 'null') {
+                if ($value === null) {
                     $value = 'NULL';
                 } else {
                     if( $value === 0 ){
@@ -464,6 +475,17 @@ class DBAPI
         return $this->update($fields, $table, $where);
     }
 
+    /**
+     * insert 系の VALUES に入れる値を組み立てる。PHP の null だけを SQL の NULL にする
+     */
+    private function quoteInsertValue($value)
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+        return sprintf("'%s'", $value);
+    }
+
     private function _insert(
         $insert_method = 'INSERT INTO',
         $fields = '',
@@ -494,11 +516,11 @@ class DBAPI
         } elseif (is_array($fields)) {
             if (!$fromtable) {
                 $query = sprintf(
-                    "%s %s (`%s`) VALUES('%s')",
+                    '%s %s (`%s`) VALUES(%s)',
                     $insert_method,
                     $intotable,
                     implode('`,`', array_keys($fields)),
-                    implode("','", array_values($fields))
+                    implode(',', array_map([$this, 'quoteInsertValue'], array_values($fields)))
                 );
             }
         } else {
@@ -1166,15 +1188,14 @@ class DBAPI
 
     public function fieldExists($field_name, $table_name)
     {
-        $table_name = $this->replaceFullTableName($table_name);
-
+        // tableExists() は完全名（`db`.`table`）を照合できないため、変換前の名前で確かめる
         if (!$this->tableExists($table_name)) {
             return 0;
         }
 
         return $this->getRow(
             $this->query(
-                sprintf('DESCRIBE %s %s', $table_name, $field_name)
+                sprintf('DESCRIBE %s %s', $this->replaceFullTableName($table_name), $field_name)
             )
         ) ? 1 : 0;
     }

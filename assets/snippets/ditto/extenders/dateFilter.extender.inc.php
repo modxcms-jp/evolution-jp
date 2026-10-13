@@ -29,8 +29,9 @@ if (!class_exists('dateFilter')) {
             $year = $this->year;
             $day = $this->day;
             $unset = 1;
+            $min = $max = null;
 
-            if ($year && !$month && !$day) { // Year only e.g. 2007
+            if ($year && !$month) { // Year only e.g. 2007 (a day without a month is ignored)
                 $min = mktime(0, 0, 0, 1, 1, $year);
                 $max = mktime(23, 59, 59, 12, 31, $year);
             } else if ($year && $month && !$day) { // Year and month e.g. 2007-01
@@ -41,7 +42,10 @@ if (!class_exists('dateFilter')) {
                 $max = mktime(23, 59, 59, $month, $day, $year);
             }
 
-            $compare = $value[$this->dateSource];
+            if ($min === null) { // no year: nothing to filter by
+                return $unset;
+            }
+            $compare = $value[$this->dateSource] ?? 0;
             if ($compare < $min || $compare > $max) {
                 $unset = 0;
             }
@@ -158,6 +162,7 @@ if ($source === 'get') {
         [NULL]
     */
 } else {
+    $year = $month = $day = 0;
     if (anyv($dittoID . $source)) {
         $date = getdate(strtotime(anyv($dittoID . $source)));
         $year = $date['year'];

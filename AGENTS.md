@@ -30,6 +30,10 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
+* **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
+
+  * HTML → `hsc()` / `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）
+  * ❌ JS への埋め込みに `addslashes()` や `db()->escape()` を使う（`</script>` などを防げない）
 * **コーディングスタイル**:
 
   * 配列は `[]`（`array()` 非推奨）/ デフォルト値は `?:` / 早期リターン
@@ -37,6 +41,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 * **ログ**: `evo()->logEvent()` を使用
 * **レビュー**: 日本語
 * **コミットメッセージ**: 日本語で生成（Conventional Commits 準拠）
+* **Pull Request**: タイトルと本文は日本語で作成し、詳細は `.github/codex-pr-rules.md` に従う
 
 ---
 
@@ -127,6 +132,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `ai-runtime-governance.md` | AIランタイム運用 |
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
+| `site-url.md`           | サイトのURL |
 | `core-issues.md`        | コア課題   |
 
 ---
@@ -206,6 +212,13 @@ fix(db): 実行直前でエスケープ処理を統一
 - **タイミング**: 「リリース」「release」と依頼されたとき
 - **コマンド**: `/release` で開始
 - **参照**: `assets/docs/release-process.md`
+
+### adaptive-validation-runner スキル - 自走での動作確認
+
+- **用途**: 改修後の動作確認を、Docker の検証環境の起動・インストールから、CLI 優先の確認、必要時の Playwright（既定はヘッドレス）、main との比較、後片付けまで AI が自分で進める
+- **タイミング**: 「動作確認」「自走で確認」「実環境で確かめる」「ブラウザで確認」を依頼されたとき。また不具合修正や画面に関わる改修で、実機での裏付けが必要なとき
+- **コマンド**: `/verify-live <確認したいこと>`
+- **参照**: `.claude/skills/adaptive-validation-runner/references/environment.md`（検証環境の手順と既知の落とし穴）
 
 ### doc-maintainer スキル - ドキュメント健全性チェック・修正
 

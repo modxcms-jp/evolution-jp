@@ -330,6 +330,12 @@ class Mysqldumper
         if (strpos($source, "\r") !== false) {
             $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
+        // サイトのURLは取り込み先の値を残す（別の環境の URL で固定しない）
+        $fixed_site_url = db()->getValue(
+            'setting_value',
+            '[+prefix+]system_settings',
+            "setting_name='fixed_site_url'"
+        );
         $sql_array = preg_split('@;[ \t]*\n@', $source);
         foreach ($sql_array as $sql_entry) {
             $sql_entry = trim($sql_entry);
@@ -340,6 +346,13 @@ class Mysqldumper
         }
         $settings = $this->getSettings();
         $this->restoreSettings($settings);
+        db()->delete('[+prefix+]system_settings', "setting_name='fixed_site_url'");
+        if ($fixed_site_url !== null) {
+            db()->insert(
+                ['setting_name' => 'fixed_site_url', 'setting_value' => db()->escape($fixed_site_url)],
+                '[+prefix+]system_settings'
+            );
+        }
 
         evo()->clearCache();
         if (db()->count($rs)) {

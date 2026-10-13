@@ -7,6 +7,7 @@
                 value="<?= hsc(user('fullname', '')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="name"
             /></td>
     </tr>
     <tr>
@@ -16,6 +17,7 @@
                 value="<?= hsc(user('phone')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="tel"
             /></td>
     </tr>
     <tr>
@@ -25,6 +27,7 @@
                 value="<?= hsc(user('mobilephone')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="tel"
             /></td>
     </tr>
     <tr>
@@ -34,6 +37,7 @@
                 value="<?= hsc(user('fax')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="tel"
             /></td>
     </tr>
     <tr>
@@ -43,6 +47,7 @@
                 value="<?= hsc(user('street')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="street-address"
                 onchange="documentDirty=true;"
             /></td>
     </tr>
@@ -53,6 +58,7 @@
                 value="<?= hsc(user('city')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="address-level2"
                 onchange="documentDirty=true;"
             /></td>
     </tr>
@@ -64,6 +70,7 @@
                 value="<?= hsc(user('state')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="address-level1"
             /></td>
     </tr>
     <tr>
@@ -73,12 +80,13 @@
                 value="<?= hsc(user('zip')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="postal-code"
             /></td>
     </tr>
     <tr>
         <th><?= lang('user_country') ?>:</th>
         <td>
-            <select size="1" name="country" class="inputBox">
+            <select size="1" name="country" class="inputBox" autocomplete="country-name">
                 <?php $chosenCountry = postv('country', user('country')); ?>
                 <option
                     value="" <?= selected(empty($chosenCountry)) ?>

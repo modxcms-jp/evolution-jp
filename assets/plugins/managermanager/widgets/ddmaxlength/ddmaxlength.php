@@ -65,7 +65,7 @@ jQuery("div.ddMaxLengthCount span").each(function(){
         field.addClass("maxLenghtErrorField").focus(function(){
             field.removeClass("maxLenghtErrorField");
         });
-        ddErrors.push(field.parents("tr").find("td:first-child .warning").text());
+        ddErrors.push(field.parents("tr").find("td:first-child .mutate-field-title").text());
     }
 });
 

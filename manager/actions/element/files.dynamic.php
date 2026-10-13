@@ -65,7 +65,7 @@ if (!is_readable($startpath)) {
             $_ .= $modx->parseText(
                 '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
                 [
-                    'href' => 'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
+                    'href' => hsc(csrfUrl('index.php?a=31&mode=newfolder&path=' . urlencode($startpath)) . '&name='),
                     'tree_folder' => $_style['tree_folder'],
                     'subject' => lang('add_folder')
                 ]
@@ -73,7 +73,7 @@ if (!is_readable($startpath)) {
 
             $tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
             $ph['image'] = $_style['tree_page'];
-            $ph['href'] = 'index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=';
+            $ph['href'] = hsc(csrfUrl('index.php?a=31&mode=newfile&path=' . urlencode($startpath)) . '&name=');
             $ph['lang_newfile'] = lang('files.dynamic.php1');
             $_ .= $modx->parseText($tpl, $ph);
             echo $_;
@@ -122,7 +122,7 @@ if (!is_readable($startpath)) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    window.location.href = "index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file;
+                    window.location.href = EvoCsrf.url("index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file);
                     return false;
                 }
             }
@@ -143,14 +143,14 @@ if (!is_readable($startpath)) {
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    window.location.href = "index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder;
+                    window.location.href = EvoCsrf.url("index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder);
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    window.location.href = "index.php?a=31&mode=delete&path=" + current_path + '/' + file;
+                    window.location.href = EvoCsrf.url("index.php?a=31&mode=delete&path=" + current_path + '/' + file);
                     return false;
                 }
             }
@@ -423,7 +423,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
                 <form action="index.php" method="post" name="editFile">
                     <input type="hidden" name="a" value="31" />
                     <input type="hidden" name="mode" value="save" />
-                    <input type="hidden" name="path" value="<?= anyv('path') ?>" />
+                    <input type="hidden" name="path" value="<?= hsc(anyv('path')) ?>" />
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td>

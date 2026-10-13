@@ -21,7 +21,7 @@ if (anyv('sendto') === 'u') {
     }
     send_pm(
         [
-            'recipient' => anyv('user'),
+            'recipient' => (int)anyv('user'),
             'sender' => evo()->getLoginUserID(),
             'subject' => anyv('messagesubject', '(no subject)'),
             'message' => anyv('messagebody', '(no message)'),
@@ -42,7 +42,7 @@ if (anyv('sendto') === 'g') {
         'internalKey',
         '[+prefix+]user_attributes',
         [
-            where('role', '=', anyv('group')),
+            where('role', '=', (int)anyv('group')),
             'AND blocked=0'
         ]
     );
@@ -103,6 +103,7 @@ function pm2email($from, $fields)
     $params['from'] = $from['email'];
     $params['fromname'] = $from['fullname'];
     $params['subject'] = array_get($fields, 'subject');
+    $params['type'] = 'text';
     $params['sendto'] = db()->getValue(
         db()->select(
             'email',

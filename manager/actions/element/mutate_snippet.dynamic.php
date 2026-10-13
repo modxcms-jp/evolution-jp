@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 22);
+
 $id = (int)anyv('id', 0);
 
 // check to see the snippet editor isn't locked
@@ -76,14 +78,14 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=98";
+            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=98");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_snippet'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=25";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=25");
         }
     }
 
@@ -268,7 +270,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <div id="actions">
         <ul class="actionButtons">

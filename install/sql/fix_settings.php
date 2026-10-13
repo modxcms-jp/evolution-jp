@@ -37,6 +37,15 @@ addColumnIfNotExists($table, 'move_document', 'int(1) NOT NULL DEFAULT \'0\' AFT
 
 $table = sessionv('table_prefix') . 'documentgroup_names';
 db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`");
+// NULL と 0 が同じ意味の列は NOT NULL DEFAULT '0' に揃える。NULL が残っていると ALTER が失敗するので先に 0 にする
+db()->query("UPDATE `$table` SET `private_memgroup`=0 WHERE `private_memgroup` IS NULL");
+db()->query("UPDATE `$table` SET `private_webgroup`=0 WHERE `private_webgroup` IS NULL");
+db()->query("ALTER TABLE `$table` MODIFY COLUMN `private_memgroup` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'determine whether the document group is private to manager users'");
+db()->query("ALTER TABLE `$table` MODIFY COLUMN `private_webgroup` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'determines whether the document is private to web users'");
+
+$table = sessionv('table_prefix') . 'active_users';
+db()->query("UPDATE `$table` SET `id`=0 WHERE `id` IS NULL");
+db()->query("ALTER TABLE `$table` MODIFY COLUMN `id` int(10) NOT NULL DEFAULT '0'");
 
 $table = sessionv('table_prefix') . 'membergroup_names';
 db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`");

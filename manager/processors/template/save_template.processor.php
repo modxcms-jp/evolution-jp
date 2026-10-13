@@ -6,13 +6,15 @@ if (!evo()->hasPermission('save_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (preg_match('@^[0-9]+$@', postv('id', ''))) {
-    $id = postv('id');
+$id = post_intvar('id');
+if (postv('mode') == 16 && !$id) {
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 $templatename = db()->escape(trim(postv('templatename')));
-$description = db()->escape(postv('description'));
-$parent = db()->escape(postv('parent'));
+$description = db()->escape(postv('description', ''));
+$parent = post_intvar('parent');
 
 $locked = postv('locked') == 'on' ? 1 : 0;
 
@@ -20,7 +22,7 @@ $tbl_site_templates = evo()->getFullTableName('site_templates');
 
 //Kyle Jaebker - added category support
 if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $categoryid = db()->escape(postv('categoryid'));
+    $categoryid = post_intvar('categoryid');
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {
@@ -39,7 +41,7 @@ if ($templatename == '') {
 $field = [];
 $field['templatename'] = $templatename;
 $field['description'] = $description;
-$field['content'] = db()->escape(postv('content'));
+$field['content'] = db()->escape(postv('content', ''));
 $field['locked'] = $locked;
 $field['category'] = $categoryid;
 $field['parent'] = $parent;
@@ -58,7 +60,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '19';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
@@ -108,7 +110,7 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
+            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '16';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;

@@ -1,5 +1,6 @@
 /.htaccess
 /.env
+/install/install-config.php
 /manager/includes/config.inc.php
 /manager/includes/extra.config.php
 

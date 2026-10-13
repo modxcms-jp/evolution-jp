@@ -27,6 +27,8 @@ switch ((int)anyv('a', 0)) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 78);
+
 $id = anyv('id', 0);
 if (!preg_match('@^[0-9]+$@', $id)) {
     alert()->setError(3);
@@ -130,14 +132,14 @@ if (isset($form_v['which_editor'])) {
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=97";
+            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=97");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_htmlsnippet'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=80";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=80");
         }
     }
 
@@ -164,7 +166,7 @@ if (isset($form_v['which_editor'])) {
 
     ?>
     <input type="hidden" name="a" value="79" />
-    <input type="hidden" name="id" value="<?= anyv('id') ?>" />
+    <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
     <input type="hidden" name="mode" value="<?= (int)anyv('a') ?>" />
     <input type="hidden" name="changeMode" value="" />
 
@@ -174,7 +176,7 @@ if (isset($form_v['which_editor'])) {
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_chunk')): ?>
                 <li id="save" class="primary mutate">
-                    <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();">
+                    <a href="#">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
@@ -399,10 +401,19 @@ if (isset($form_v['which_editor'])) {
             jQuery('input[name="newcategory"]').val('');
         }
     });
-    jQuery('#save a').click(function() {
-        documentDirty = false;
-        jQuery('#mutate').submit();
-    });
+    // EvoShellは画面の再表示時にこのscriptを同じwindowで再実行するため、
+    // 最上位でconst/letを宣言すると再宣言エラーで保存ハンドラが登録されなくなる
+    (function() {
+        const saveButton = document.querySelector('#save a');
+        if (!saveButton) {
+            return;
+        }
+        saveButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            documentDirty = false;
+            document.getElementById('mutate').requestSubmit();
+        });
+    })();
 </script>
 <?php
 // invoke OnRichTextEditorInit event

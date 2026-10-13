@@ -11,7 +11,9 @@ if (!hasPermission('new_template') && anyv('a') == 300) {
     alert()->dumpError();
 }
 
-$id = (int)anyv('id');
+abort_if_invalid_id('id', anyv('a') == 301);
+
+$id = request_intvar('id');
 
 // check to see the variable editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
@@ -92,14 +94,14 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=304";
+            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=304");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_tmplvars'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=303";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=303");
         }
     }
 
@@ -281,7 +283,7 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= entity('id') ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];

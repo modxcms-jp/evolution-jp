@@ -97,7 +97,7 @@ if (db()->count($rs) < 1) {
                             '<input type="hidden" name="operation" value="rename_user_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . htmlspecialchars($row['name']) . '" />&nbsp;' . "\n" .
                             '<input type="submit" value="' . $_lang['rename'] . '" />&nbsp;' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" onclick="document.location.href=\'index.php?a=41&usergroup=' . $row['id'] . '&operation=delete_user_group\';" />' . "\n" .
+                            '<input type="button" value="' . $_lang['delete'] . '" onclick="document.location.href=\'' . csrfUrl('index.php?a=41&usergroup=' . (int) $row['id'] . '&operation=delete_user_group') . '\';" />' . "\n" .
                             '</form>';
 
                         echo "<ul>\n";
@@ -175,7 +175,7 @@ if (db()->count($rs) < 1) {
                             '<input type="hidden" name="operation" value="rename_document_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . htmlspecialchars($row['name']) . '">&nbsp;' . "\n" .
                             '<input type="submit" value="' . $_lang['rename'] . '">' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" onclick="document.location.href=\'index.php?a=41&documentgroup=' . $row['id'] . '&operation=delete_document_group\';" />' . "\n" .
+                            '<input type="button" value="' . $_lang['delete'] . '" onclick="document.location.href=\'' . csrfUrl('index.php?a=41&documentgroup=' . (int) $row['id'] . '&operation=delete_document_group') . '\';" />' . "\n" .
                             '</form>';
 
                         echo '</td></tr><tr><td class="row2">' . $_lang['access_permissions_resources_in_group'] . ' ';
@@ -256,7 +256,7 @@ if (db()->count($rs) < 1) {
                         continue;
                     }
                     echo "\t<li>" . $row['dg_name'];
-                    echo ' <small><i>(<a href="index.php?a=41&amp;coupling=' . $row['link_id'] . '&amp;operation=remove_document_group_from_user_group">';
+                    echo ' <small><i>(<a href="' . hsc(csrfUrl('index.php?a=41&coupling=' . (int) $row['link_id'] . '&operation=remove_document_group_from_user_group')) . '">';
                     echo $_lang['remove'] . '</a>)</i></small>';
                     echo "</li>\n";
 

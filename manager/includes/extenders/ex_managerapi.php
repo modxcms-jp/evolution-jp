@@ -412,11 +412,14 @@ class ManagerAPI
             $alerts[] = $_;
         }
 
-        return evo()->parseText(
+        // アラートは意図して HTML を含む（system.event の alert() が組み立てる）。差し込む値は呼び出し側でエスケープする。
+        // ここでは <script> 内の JS 文字列リテラルとして安全に埋め込む（js_literal()）。
+        // 埋め込んだ値の中が再び置換されないよう、parseText() ではなく strtr() で一度だけ置換する
+        return strtr(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
             [
-                'alerts' => db()->escape(implode('<hr />', $alerts)),
-                'title' => $_lang['sys_alert']
+                '[+alerts+]' => js_literal(implode('<hr />', $alerts)),
+                '[+title+]' => js_literal($_lang['sys_alert'])
             ]
         );
     }

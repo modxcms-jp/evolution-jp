@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 102);
+
 // check to see the plugin editor isn't locked
 $rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", getv('id')));
 $row = db()->getRow($rs);
@@ -85,14 +87,14 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id') ?>&a=105";
+            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=105");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_plugin'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=104";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=104");
         }
     }
 
@@ -425,7 +427,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
 

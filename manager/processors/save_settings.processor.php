@@ -154,7 +154,13 @@ function save_settiongs()
                     $v = '/' . trim($v, '/') . '/';
                 }
                 break;
+            case 'fixed_site_url':
+                // スキーム・ホスト・ポートをそろえ、パスはサイトの設置場所に合わせる。形式が正しくなければ空（自動）にする
+                $v = init::normalize_site_url($v, MODX_BASE_URL);
+                break;
             case 'site_url':
+                // 毎回自動で決まる値なので保存しない（固定するときは fixed_site_url）
+                continue 2;
             case 'rb_base_url':
                 $v = rtrim($v, '/') . '/';
                 break;
@@ -241,7 +247,7 @@ function reset_template()
 {
     if (formv('reset_template') == 1) {
         db()->update(
-            ['template' => formv('default_template')],
+            ['template' => (int)formv('default_template')],
             '[+prefix+]site_content',
             where('type', 'document')
         );
@@ -249,9 +255,9 @@ function reset_template()
     }
     if (formv('reset_template') == 2) {
         db()->update(
-            ['template' => formv('default_template')],
+            ['template' => (int)formv('default_template')],
             '[+prefix+]site_content',
-            where('template', formv('old_template'))
+            where('template', (int)formv('old_template'))
         );
     }
 }

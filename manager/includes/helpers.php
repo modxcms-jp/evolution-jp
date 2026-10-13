@@ -92,6 +92,61 @@ if (!function_exists('str_ends_with')) {
     }
 }
 
+/**
+ * <script> の中へ値を埋め込むための、JS の文字列リテラル（引用符付き）を返す。
+ * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
+ * 不正な UTF-8 は置き換え、それでも失敗したら空文字列のリテラルを返す。
+ * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれを使う。
+ *
+ * @param mixed $value
+ * @return string
+ */
+function js_literal($value): string
+{
+    $json = json_encode(
+        (string)$value,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+    return $json === false ? '""' : $json;
+}
+
+/**
+ * URL のクエリにある CSRF トークンの値を伏せる（ログに URL を残すとき用）。
+ * PHP は csrf%5Ftoken や csrf.token のような名前も csrf_token として受け取るため、
+ * 名前は parse_str() に通して PHP と同じ解釈で判定する。
+ *
+ * @param mixed $uri
+ * @return string
+ */
+function mask_csrf_token_in_uri($uri): string
+{
+    $uri = (string)$uri;
+    $qpos = strpos($uri, '?');
+    if ($qpos === false) {
+        return $uri;
+    }
+    $query = substr($uri, $qpos + 1);
+    $fragment = '';
+    $hpos = strpos($query, '#');
+    if ($hpos !== false) {
+        $fragment = substr($query, $hpos);
+        $query = substr($query, 0, $hpos);
+    }
+    $pairs = explode('&', $query);
+    foreach ($pairs as $i => $pair) {
+        $eq = strpos($pair, '=');
+        if ($eq === false) {
+            continue;
+        }
+        parse_str(substr($pair, 0, $eq) . '=1', $parsed);
+        if (array_key_exists('csrf_token', $parsed)) {
+            $pairs[$i] = substr($pair, 0, $eq) . '=***';
+        }
+    }
+    return substr($uri, 0, $qpos + 1) . implode('&', $pairs) . $fragment;
+}
+
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
     if ($string === null) {
@@ -338,12 +393,53 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
+// id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
+// (int) は "5abc" を 5 にしてしまうので、id は次の 3 つで読む。受け取り元は、その処理が実際に呼ばれる方法に合わせて選ぶ
+// （GET だけなら get_intvar()、POST だけなら post_intvar()、GET と POST の両方で呼ばれる処理だけ request_intvar()）
+
+// GET の値だけを id として読む
+function get_intvar($key)
+{
+    return to_intvar(getv($key, 0));
+}
+
+// POST の値だけを id として読む
+function post_intvar($key)
+{
+    return to_intvar(postv($key, 0));
+}
+
+// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', anyv($key, 0))) {
-        return anyv($key);
+    return to_intvar(anyv($key, 0));
+}
+
+// id が整数として読めないときは、エラーで止める（新規作成など別の処理として続けない）。
+// $required が false（新規作成の画面など）なら、id が無いときと 0 のときは通す。
+// 編集の画面のように id が必ず要るときは $required を true にする
+function abort_if_invalid_id($key = 'id', $required = false)
+{
+    $value = anyv($key);
+    if (!$required && ($value === null || $value === '' || $value === '0')) {
+        return;
     }
-    return 0;
+    if (!to_intvar($value)) {
+        alert()->setError(2);
+        alert()->dumpError();
+    }
+}
+
+function to_intvar($value)
+{
+    if (is_int($value)) {
+        return $value > 0 ? $value : 0;
+    }
+    if (!is_string($value) || !preg_match('@\A[1-9][0-9]{0,18}\z@', $value)) {
+        return 0;
+    }
+    $int = (int) $value;
+    return (string) $int === $value ? $int : 0;
 }
 
 /**
@@ -650,16 +746,25 @@ function request_time()
 
 function real_ip()
 {
-    return serverv(
-        'http_client_ip',
-        serverv(
-            'http_x_forwarded_for',
-            serverv(
-                'remote_addr',
-                'UNKNOWN'
-            )
-        )
-    );
+    // クライアントが詐称できるヘッダー（client-ip / x-forwarded-for）も候補に含めるが、
+    // 返す値は必ず IP アドレスの形式に限定する。
+    // ここを通す値はログやアクティブユーザー表の SQL にそのまま渡されるため、
+    // IP として妥当でない文字列（SQL 片など）を返さないことが安全上の要になる。
+    $candidates = [
+        serverv('http_client_ip', ''),
+        serverv('http_x_forwarded_for', ''),
+        serverv('remote_addr', ''),
+    ];
+    foreach ($candidates as $candidate) {
+        // x-forwarded-for は "client, proxy1, proxy2" のように連結されることがある
+        foreach (explode(',', (string) $candidate) as $ip) {
+            $ip = trim($ip);
+            if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+                return $ip;
+            }
+        }
+    }
+    return 'UNKNOWN';
 }
 
 function user_agent()
@@ -776,17 +881,48 @@ if (!function_exists('isEvoPaneRequest')) {
     }
 }
 
+if (!function_exists('evoIsPaneResponse')) {
+    /**
+     * この応答をAJAX断片(X-Evo-Pane: 1)として返しているかどうかを判定する。
+     * shell.jsは応答ヘッダーX-Evo-Paneの有無だけで断片かどうかを決めるため、
+     * header/footerの出力可否もリクエストではなく送信済みの応答ヘッダーで判定する
+     * (execute_moduleのように途中でヘッダーを外す処理とも食い違わない)。
+     *
+     * @return bool
+     */
+    function evoIsPaneResponse(): bool
+    {
+        foreach (headers_list() as $header) {
+            $parts = explode(':', $header, 2);
+            if (count($parts) === 2
+                && strcasecmp(trim($parts[0]), 'X-Evo-Pane') === 0
+                && trim($parts[1]) === '1') {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 if (!function_exists('evoRenderPaneFooterExtras')) {
     /**
      * footer.inc.php相当の後処理(システムアラート表示とDatePicker読み込み)を出力する。
      * AJAX断片応答(manager/index.php)と通常のフルページ応答(footer.inc.php)の
      * 両方から呼び出し、重複実装によるズレを防ぐ。
+     * 断片応答ではprocessor等が読み込むfooter.inc.phpとindex.php末尾の両方から呼ばれ得るため、
+     * 1リクエストにつき1回だけ出力する(システムアラートの二重表示を防ぐ)。
      *
      * @return void
      */
     function evoRenderPaneFooterExtras(): void
     {
         global $modx;
+        static $rendered = false;
+
+        if ($rendered) {
+            return;
+        }
+        $rendered = true;
 
         if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
             echo manager()->sysAlert($modx->SystemAlertMsgQueque);

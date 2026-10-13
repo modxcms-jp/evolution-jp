@@ -36,7 +36,8 @@ function validateLoginInput()
         return false;
     }
 
-    if (!$password) {
+    // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
+    if (!$password && !getv('fmpkey')) {
         jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
@@ -202,6 +203,13 @@ function OnBeforeManagerLogin()
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
+function rejectBlockedUser()
+{
+    @session_destroy();
+    session_unset();
+    jsAlert(alert()->errors[902]);
+}
+
 function isBlockedUser()
 {
     $blockedUntil = (int) user('blockeduntil', 0);
@@ -231,6 +239,28 @@ function isBlockedUser()
     }
 
     return false;
+}
+
+// DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
+function isStillBlockedInDb()
+{
+    $row = db()->getRow(
+        db()->select(
+            'blocked, blockeduntil, failedlogincount',
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        )
+    );
+    if (!$row) {
+        return true;
+    }
+    if ((int) $row['blocked']) {
+        return true;
+    }
+    $blockedUntil = (int) $row['blockeduntil'];
+    return 0 < $blockedUntil
+        && request_time() < $blockedUntil
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
 }
 
 function checkAllowedIp()
@@ -321,6 +351,8 @@ function checkAllowedDays()
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
+    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':

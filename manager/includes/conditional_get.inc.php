@@ -13,6 +13,7 @@ if ($_POST || defined('MODX_API_MODE')) {
 if (isset($site_sessionname) && $site_sessionname) {
     session_name($site_sessionname);
     session_cache_limiter('');
+    ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
     session_start();
     if (isset($_SESSION['mgrValidated'])) {
         return;

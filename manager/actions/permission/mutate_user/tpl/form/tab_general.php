@@ -57,6 +57,7 @@
                 type="text"
                 class="inputBox"
                 maxlength="100"
+                autocomplete="username"
             /></td>
     </tr>
     <tr>
@@ -104,21 +105,23 @@
                             <?= lang('change_password_new') ?>:
                         </label>
                         <input
+                            id="specifiedpassword"
                             name="specifiedpassword"
                             type="password"
                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                             size="20"
-                            autocomplete="off"
+                            autocomplete="new-password"
                         /><br/>
                         <label for="confirmpassword" style="width:120px">
                             <?= lang('change_password_confirm') ?>:
                         </label>
                         <input
+                            id="confirmpassword"
                             name="confirmpassword"
                             type="password"
                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                             size="20"
-                            autocomplete="off"
+                            autocomplete="new-password"
                         /><br/>
                         <span
                             class="warning"
@@ -157,6 +160,7 @@
                 value="<?= hsc(user('email')) ?>"
                 type="text"
                 class="inputBox"
+                autocomplete="email"
             />
             <input
                 name="oldemail"

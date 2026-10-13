@@ -329,7 +329,9 @@
         return { overlay: overlay, body: document.getElementById('evoShellModalBody') };
     }
 
-    function closeModal() {
+    // reloadMain=falseなら、モーダル内の保存(modalDirty)があっても背後の#mainPaneを再取得しない
+    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)
+    function closeModal(reloadMain) {
         const overlay = document.getElementById('evoShellModalOverlay');
         if (!overlay || overlay.classList.contains('hidden')) {
             return;
@@ -345,7 +347,9 @@
         if (modalDirty) {
             // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
             modalDirty = false;
-            request(currentUrl, { method: 'GET' }, false);
+            if (reloadMain !== false) {
+                request(currentUrl, { method: 'GET' }, false);
+            }
         }
         document.dispatchEvent(new CustomEvent('evoshell:modalclose'));
     }
@@ -586,8 +590,9 @@
             request(url, { method: 'GET' }, false, 'modal');
         },
 
-        closeModal: function () {
-            closeModal();
+        // opts.reloadMain === false で、閉じた後の#mainPane再取得を行わない
+        closeModal: function (opts) {
+            closeModal(opts && opts.reloadMain === false ? false : undefined);
         },
 
         // ファイルブラウザ等のピッカーをモーダルで開く。断片側はグローバルフック
@@ -650,7 +655,7 @@
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
 
-        // リンククリックの委譲。data-no-ajax / target付き / 外部URL / #アンカーは素通しする
+        // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
         document.addEventListener('click', function (e) {
             if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
                 return;
@@ -664,6 +669,12 @@
                 return;
             }
             if (href.startsWith('#')) {
+                // href="#" はボタン用途のリンクでもブラウザの履歴を変更するため、
+                // クリックハンドラからシェル遷移した後の二重取得を防ぐ
+                if (href === '#') {
+                    e.preventDefault();
+                    return;
+                }
                 const url = new URL(window.location.href);
                 url.hash = href;
                 const pane = document.getElementById('mainPane');

@@ -195,7 +195,7 @@ class template
         if ($x % 2 && !empty($templates['alt'])) {
             $currentTPL = 'alt';
         }
-        if ($id == evo()->documentObject['id'] && !empty($templates['current'])) {
+        if ($id == (evo()->documentObject['id'] ?? null) && !empty($templates['current'])) {
             $currentTPL = 'current';
         }
         if ($x == 0 && !empty($templates['first'])) {
@@ -219,7 +219,7 @@ class template
         $template = $this->_fetch($tpl);
 
         if (strpos($template, '[!') !== false) {
-            return str_replace(['[!', '!]'], '[[', ']]', $template);
+            return str_replace(['[!', '!]'], ['[[', ']]'], $template);
         }
 
         return $template;

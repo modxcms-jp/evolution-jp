@@ -158,7 +158,7 @@ class OldFunctions
         }
 
         foreach ($docs as $docid => $doc) {
-            if ($modx->config['friendly_urls'] !== '1' || $modx->config['use_alias_path'] !== '1') {
+            if ($modx->config('friendly_urls') !== '1' || $modx->config('use_alias_path') !== '1') {
                 $key = $doc['alias'];
             } else {
                 $_ = [];

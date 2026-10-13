@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` を参照。
 
-最終更新: 2026-07-14 (DocumentParser責務別トレイト分割タスクを追加)
+最終更新: 2026-10-13 (DocumentParser責務別トレイト分割タスクを追加)
 
 ## 現在地（先に読む）
 
@@ -50,9 +50,9 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
 
 ### AIランタイム運用設計の棚卸しと再整理
 
-- Status: `WIP`
+- Status: `DONE`
 - 着手予定日: `2026-07-12`
-- 完了日: `未完了`
+- 完了日: `2026-08-15`
 - 目的: Codex 主運用の実態と、Claude 起点で育った共有スキル本文の構造を矛盾なく説明できる運用設計へ整理する
 - 背景/課題: 現状は `AGENTS.md` / `.agent/agents/` / `.claude/skills/` / `.codex/skills/` の責務分担自体は成立しているが、「なぜ共有本文の正本が `.claude/skills/` にあるのか」「sub-agent や推論レベルをどう扱うか」が共通文書で定義されていない
 - 到達条件（Definition of Done）:
@@ -61,7 +61,7 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
   - sub-agent 化条件と推論レベル運用の抽象方針を明文化する
 - 非対象（やらないこと）: 共有スキル本文の物理移設、ランタイム別の全面再設計、具体的なモデル名の固定
 - 依存関係: AI向けドキュメント構造の SSOT 整備
-- ExecPlan: `.agent/plans/2026-07-12-ai-runtime-governance-refresh.md`
+- ExecPlan: `.agent/plans/archive/2026-08-15-ai-runtime-governance-refresh.md`
 - メモ/判断ログ: 2026-07-12 ユーザー要求による棚卸しから着手。Codex 主運用だが共有スキル本文は歴史的経緯で `.claude/skills/` に残っているため、即時移設より先に共通ポリシーの明文化を優先する。
 
 ### マイグレーション機構
@@ -265,9 +265,9 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
 
 ### frame要素廃止（最高優先）
 
-- Status: `WIP`
+- Status: `DONE`
 - 着手予定日: `2026-07-07`
-- 完了日: `未完了`
+- 完了日: `2026-08-15`
 - 目的: 管理画面をモダン構成へ移行し、保守性とUXを改善する
 - 背景/課題: frame依存構造は拡張性・互換性・開発効率に制約が大きい
 - 到達条件（Definition of Done）:
@@ -275,8 +275,8 @@ AI実装を前提とした長期計画の正本。ExecPlanと実装状況を同�
   - ヘッダー/サイドバー/メインエリアの移行を完了
 - 非対象（やらないこと）: デザイン全面刷新
 - 依存関係: なし（既存 `index.php?a=` ルーティングのまま実施。API Router統合は将来の別タスク）
-- ExecPlan: `.agent/plans/2026-07-07-manager-frameset-removal.md`
-- メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。ExecPlan本体のM6(ブラウザでの最終確認: 保存フロー・履歴・未保存警告・RTL)が未完了のためStatusはWIPのまま維持。
+- ExecPlan: `.agent/plans/archive/2026-07-07-manager-frameset-removal.md`
+- メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。2026-08-15: ExecPlan本体のM6（保存フロー・履歴・未保存警告・RTL）のブラウザ最終確認を完了し、StatusをDONEへ更新。ExecPlanは完了処理に従いarchiveへ移動。
 
 ### ファイルブラウザのKCFinder級拡張（低優先）
 

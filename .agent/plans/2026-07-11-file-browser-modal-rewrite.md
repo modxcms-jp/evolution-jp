@@ -14,7 +14,7 @@
 - 2026-07-11 (yamamoto/Claude): filebrowser.js(実装当初985行)が機能追加のたびに肥大化する懸念をユーザーから指摘され、ESモジュール(`<script type="module">`)へ分割した。分割構成: `js/utils.js`(HTMLエスケープ・表示整形・パンくず・アイコン)/`js/api.js`(list/thumb/postForm通信)/`js/dnd.js`(内部移動D&DとOSファイルD&Dの判別・バインド)/`js/marquee.js`(矩形選択、新設)/`js/tree.js`(左ペインツリー)/`js/grid.js`(右ペイングリッド・選択)/`js/upload.js`(アップロードUI)/`js/dialogs.js`(移動先選択・プレビューの2オーバーレイ)、`filebrowser.js`(状態を保持し各モジュールへコールバックを渡す構成ルート、288行)。ESモジュールの相対import(`./js/utils.js`等)はモジュール自身の解決済みURL基準になるため、モーダル断片(/manager/index.php上で実行)とスタンドアロン(/manager/media/browser/evo/上で実行)でscriptタグのsrcパスが異なっていても正しく解決される(モーダル判定でapiUrlだけ切り替えている非対称性と対照的に、モジュール分割後はこの種の相対パス問題が構造的に起きない)。
 - [x] (2026-07-11) M4実機検証・不具合修正: TinyMCEはeditor.windowManager.openUrl()(公式のiframeダイアログAPI)へ切替えて成功。副次的に発見したshell.js teardownPaneのTinyMCE全削除バグを修正(pane内のエディタのみremove、詳細はcore-issues.md)。ツリー開閉・D&D移動・ダブルクリック選択・矩形選択・インラインリネーム・モーダル幅・拡張子フィルタ等、ユーザー実機検証で見つかった不具合を都度修正済み。
 - [x] (2026-07-11) 「正式リリース前に宿題を残さず改善したい」というユーザー要望を受けた構造改善: (1) EvoShell利用可否判定+ポップアップ/モーダル分岐が browser.js と呼び出し元4ファイル(mutate_module/mutate_user_pf/mutate_user/mutate_web_user)に計5重複していたのを `manager/media/browser/evo-file-picker.js`(window.evoOpenFilePicker(url))へ集約し、header.inc.php(全マネージャページ共通ヘッダー)で読み込むよう変更。各呼び出し元は1行呼ぶだけになった。(2) モーダル幅拡張CSSのbody.evo-shell prefix合わせによる詳細度勝負(shell.css側のセレクタが変われば静かに負ける)をやめ、`.evo-fb-modal-wide`専用の!importantに変更(ファイルブラウザのモーダル限定の例外であることが自明なため許容)。(3) filebrowser.js/cssはmtimeクエリでキャッシュバスターが効くが、js/配下のESモジュール8本には効いておらずデプロイ後も古いモジュールが使われ得る問題を発見。`manager/media/browser/evo/.htaccess`でCache-Control: no-cache(mod_headers、IfModuleガード付き)を追加し、Dockerfile(manager/docker/Dockerfile)にa2enmod headersを追加。稼働中コンテナでも同様に有効化し、curlでCache-Control付与を確認済み。
-- [x] (2026-07-11) M5: manager/media/browser/mcpuk/(344KB、56ファイル)を`git rm -r`で削除。`grep -rn "mcpuk" manager assets`の残存参照は(a)evo/配下の歴史的コメント、(b)TinyMCE7の設定値名'mcpuk'(実体はevo/browser.php、後方互換のため識別子名は維持)、(c)mcpuk-picker.jsというファイル名自体、のみで実装上の参照ゼロを確認。`<frameset>`/`<frame>`の実タグはリポジトリ内0件(マネージャ内frame要素全廃、2026-07-07-manager-frameset-removal.md側にも追記)。アプリ全体のPHP構文チェック(find+php -l)エラーなし。サイズ差分: 新規evo/+evo-file-picker.js合計152KB、削除mcpuk 344KB→正味192KB削減(サイズ予算の決定事項どおり増加なし)。KCFinder級の将来拡張候補(クリップボード・zip一括DL・画像リサイズ回転・右クリックメニュー・多言語化)はロードマップへの登録要否をユーザーへ提示、判断待ち。
+- [x] (2026-07-11) M5: manager/media/browser/mcpuk/(344KB、56ファイル)を`git rm -r`で削除。`grep -rn "mcpuk" manager assets`の残存参照は(a)evo/配下の歴史的コメント、(b)TinyMCE7の設定値名'mcpuk'(実体はevo/browser.php、後方互換のため識別子名は維持)、(c)mcpuk-picker.jsというファイル名自体、のみで実装上の参照ゼロを確認。`<frameset>`/`<frame>`の実タグはリポジトリ内0件(マネージャ内frame要素全廃、archive/2026-07-07-manager-frameset-removal.md側にも追記)。アプリ全体のPHP構文チェック(find+php -l)エラーなし。サイズ差分: 新規evo/+evo-file-picker.js合計152KB、削除mcpuk 344KB→正味192KB削減(サイズ予算の決定事項どおり増加なし)。KCFinder級の将来拡張候補(クリップボード・zip一括DL・画像リサイズ回転・右クリックメニュー・多言語化)はロードマップへの登録要否をユーザーへ提示、判断待ち。
 
 ## Surprises & Discoveries
 
@@ -129,7 +129,7 @@ M4 モーダル統合と切替:
 M5 後始末:
 
 1. 削除: manager/media/browser/mcpuk/ ディレクトリ全体。事前に grep -rn "mcpuk" manager assets で参照残りゼロを確認(ドキュメント内の歴史的記述は除く)。既存サイトのコンテンツフォルダに残る旧 .thumb/ ディレクトリは自動削除しない(ユーザーデータ領域への破壊的操作を避ける)。掃除方法をリリースノート/ドキュメントに記載し、必要ならクリーンアップ用の管理操作追加を将来課題とする。
-2. 編集: .agent/plans/2026-07-07-manager-frameset-removal.md のProgressへマネージャ内frameset全廃を追記。assets/docs/core-issues.md の関連項目を更新。KCFinder級の将来拡張候補(クリップボードコピー&ペースト、zip一括ダウンロード、画像リサイズ・回転、右クリックコンテキストメニュー、多言語化)を .agent/roadmap.md へ新タスク案として提示(登録はユーザー判断)。
+2. 編集: archive/2026-07-07-manager-frameset-removal.md のProgressへマネージャ内frameset全廃を追記。assets/docs/core-issues.md の関連項目を更新。KCFinder級の将来拡張候補(クリップボードコピー&ペースト、zip一括ダウンロード、画像リサイズ・回転、右クリックコンテキストメニュー、多言語化)を .agent/roadmap.md へ新タスク案として提示(登録はユーザー判断)。
 3. 確認: アプリコンテナで find . -path ./vendor -prune -o -name "*.php" -exec php -l {} + が構文エラーなし。
 4. 確認: サイズ差分の計測。du -sk manager/media/browser/evo/ と、削除した mcpuk(344KB)を比較し、正味増減をOutcomes & Retrospectiveへ記録する。git diff --stat main...HEAD でも追加行規模を確認する。
 
@@ -152,7 +152,7 @@ M5 後始末:
 
 ## Artifacts and Notes
 
-- 関連ExecPlan: .agent/plans/2026-07-07-manager-frameset-removal.md(シェル化本体・モーダル機構の経緯はDecision Log 2026-07-10参照)
+- 関連ExecPlan: archive/2026-07-07-manager-frameset-removal.md(シェル化本体・モーダル機構の経緯はDecision Log 2026-07-10参照)
 - 想定コミット分割:
   - feat(manager): ファイルブラウザ用JSON APIと新UI基盤を追加(M1)
   - feat(manager): 新ファイルブラウザにアップロード・フォルダ操作を実装(M2)

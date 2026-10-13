@@ -21,6 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+abort_if_invalid_id('id', anyv('a') == 108);
+
 $id = preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0;
 
 // Check to see the editor isn't locked
@@ -67,7 +69,7 @@ function content($key, $default = null)
 }
 ?>
 <script type="text/javascript">
-    var docid = <?= anyv('id') ?>;
+    var docid = <?= request_intvar('id') ?>;
     jQuery(function() {
         jQuery('select[name="categoryid"]').change(function() {
             if (jQuery(this).val() == '-1') {
@@ -100,14 +102,14 @@ function content($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + docid + "&a=111";
+            document.location.href = EvoCsrf.url("index.php?id=" + docid + "&a=111");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=110";
+            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=110");
         }
     }
 
@@ -299,7 +301,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= content('id') ?>">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 

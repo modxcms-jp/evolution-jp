@@ -53,7 +53,7 @@ if (!$isShellPartial) {
                 var o = Math.random();
                 jQuery.getJSON('session_keepalive.php', {"tok": tok, "o": o},
                     function (resp) {
-                        if (resp.status != 'ok') window.location.href = 'index.php?a=8';
+                        if (resp.status != 'ok') window.location.href = EvoCsrf.url('index.php?a=8');
                     });
             }
 
@@ -152,7 +152,7 @@ if (!$isShellPartial) {
             // This function removes locks on documents, templates, parsers, and snippets
             function removeLocks() {
                 if (confirm("<?= $_lang['confirm_remove_locks']?>") == true) {
-                    EvoShell.navigate("index.php?a=67");
+                    EvoShell.navigate(EvoCsrf.url("index.php?a=67"));
                 }
             }
 
@@ -259,7 +259,7 @@ if (!$isShellPartial) {
                 }
 
                 $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
-                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="index.php?a=8" data-no-ajax>%s</a></span>', $logoutLabel);
+                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="%s" data-no-ajax>%s</a></span>', hsc(csrfUrl('index.php?a=8')), $logoutLabel);
 
                 $settings_version = db()->getValue(
                     'setting_value',
@@ -298,7 +298,7 @@ if (!$isShellPartial) {
                     $item['home'] = item($_lang['home'], 2);             // home
                     $item['preview'] = item($_lang['view_site'], config("site_url"), 1,
                         'target="_blank"'); // preview
-                    $item['refresh_site'] = item($_lang['refresh_site'], 26,
+                    $item['refresh_site'] = item($_lang['refresh_site'], hsc(csrfUrl('index.php?a=26')),
                         evo()->hasPermission('empty_cache'));    // clear-cache
                     $item['search'] = item($_lang['search'], 71);          // search
                     $item['resource_list'] = item($_lang['resources_list'], 120, evo()->hasPermission('view_document'));
@@ -467,7 +467,8 @@ function buildMenu($target, $item)
 
     if (!isset($modx->config['topmenu_site'])) {
         include(MODX_CORE_PATH . 'default.config.php');
-        $modx->config = $default_config;
+        // シェル表示では同じリクエスト内で以降の処理が続くため、既存の設定は残して不足分だけ補う
+        $modx->config += $default_config;
     }
     $menu = [
         'site' => config('topmenu_site', ''),

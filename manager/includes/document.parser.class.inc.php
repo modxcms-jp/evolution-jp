@@ -271,7 +271,7 @@ class DocumentParser
     public function executeParser()
     {
         ob_start();
-        Logger::pushEvent('parser.execute.start');
+        EvoLogger::pushEvent('parser.execute.start');
 
         $this->http_status_code = '200';
 
@@ -455,10 +455,10 @@ class DocumentParser
         $prefix = $this->config('friendly_url_prefix');
         $suffix = $this->config('friendly_url_suffix');
         if ($prefix && strpos($q, $prefix) !== false) {
-            $alias = preg_replace("@^{$prefix}@", '', $alias);
+            $alias = preg_replace('@^' . preg_quote($prefix, '@') . '@', '', $alias);
         }
         if ($suffix && strpos($q, $suffix) !== false) {
-            $alias = preg_replace("@{$suffix}" . '$@', '', $alias);
+            $alias = preg_replace('@' . preg_quote($suffix, '@') . '$@', '', $alias);
         }
 
         if ($pos) {
@@ -551,18 +551,18 @@ class DocumentParser
                 $this->config['cache_type'] = 0;
                 $GLOBALS['cache_type'] = 0;
                 $this->documentContent = '';
-                Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                EvoLogger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
             } else {
-                Logger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
+                EvoLogger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
             }
         }
 
         if ($this->documentContent == '') {
             if (!$cacheChecked) {
                 if ($this->config('cache_type')) {
-                    Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
+                    EvoLogger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
                 } else {
-                    Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                    EvoLogger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
                 }
             }
             // get document object
@@ -848,7 +848,7 @@ class DocumentParser
 
     private function postProcess()
     {
-        Logger::pushEvent('parser.post_process.start');
+        EvoLogger::pushEvent('parser.post_process.start');
         try {
             // if the current document was generated, cache it!
             if (
@@ -938,7 +938,7 @@ class DocumentParser
                 ? frontend_system_log_trace($trace)
                 : $this->normalizeTraceFrames($trace);
 
-            $logger = new Logger();
+            $logger = new EvoLogger();
             $logger->critical($exception->getMessage(), [
                 'source' => 'postProcess execution',
                 'exception' => [
@@ -1075,7 +1075,7 @@ class DocumentParser
 
         $content = file_get_contents($filepath);
         if ($content) {
-            Logger::pushEvent('cache.static.hit');
+            EvoLogger::pushEvent('cache.static.hit');
             $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: " . $get_mime_type($ext));
@@ -1128,14 +1128,21 @@ class DocumentParser
             [
                 where('setting_name', '=', 'auth_token'),
                 'AND',
-                where('setting_value', '=', $this->input_get('auth_token'))
+                where('setting_value', '=', db()->escape($this->input_get('auth_token')))
             ]
         );
         if (!$rs) {
             return false;
         }
         $userid = db()->getValue($rs);
+        // トークンに一致するユーザーがいなければ、セッションに触れる前に終える
+        if (!$userid) {
+            return false;
+        }
         $user = $this->getUserINfo($userid);
+        if (!$user) {
+            return false;
+        }
 
         session_regenerate_id(true);
 
@@ -1175,7 +1182,7 @@ class DocumentParser
                 'sessionid' => session_id()
             ],
             $this->getFullTableName('user_attributes'),
-            'internalKey=' . $userid
+            'internalKey=' . (int)$userid
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
@@ -1884,7 +1891,7 @@ class DocumentParser
             'isfolder' => (int)$row['isfolder'],
         ];
         $pathInfo['path'] = '';
-        if (0 < $pathInfo['parent'] && $this->config['use_alias_path'] == '1') {
+        if (0 < $pathInfo['parent'] && $this->config('use_alias_path') == '1') {
             $_ = $this->getAliasListing((int)$row['parent']);
             if (0 < $_['parent'] && $_['path'] != '') {
                 $pathInfo['path'] = sprintf('%s/%s', $_['path'], $_['alias']);
@@ -3031,7 +3038,7 @@ class DocumentParser
                 $this->event->alert(
                     sprintf(
                         'An error occurred while loading. Please see the event log for more information.<p>%s</p>',
-                        $echo
+                        hsc($echo)
                     )
                 );
             }
@@ -3682,7 +3689,7 @@ class DocumentParser
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
             ],
             [
-                where('`sc`.`id`', '=', $identifier),
+                where('`sc`.`id`', '=', (int)$identifier),
                 'AND',
                 '(' . $access . ')'
             ],
@@ -3698,7 +3705,7 @@ class DocumentParser
             $rs = db()->select(
                 'id',
                 '[+prefix+]document_groups',
-                where('document', '=', $identifier),
+                where('document', '=', (int)$identifier),
                 '',
                 1
             );
@@ -3742,7 +3749,7 @@ class DocumentParser
         } else {
             $tmp = $documentObject['template'];
         }
-        $where = sprintf("tvtpl.templateid='%s'", $tmp);
+        $where = sprintf("tvtpl.templateid='%d'", (int)$tmp);
 
         $rs = db()->select($field, $from, $where);
         $rowCount = db()->count($rs);
@@ -4853,10 +4860,23 @@ class DocumentParser
         if (!$resource) {
             return false;
         }
+        // "tv1,tv2" is a list of names (the SQL below matches a single name otherwise)
+        if (is_string($idnames) && $idnames !== '*' && strpos($idnames, ',') !== false) {
+            $idnames = array_values(array_filter(array_map('trim', explode(',', $idnames)), 'strlen'));
+            if (!$idnames) {
+                return false;
+            }
+        }
+        // names to match the built-in fields (pagetitle etc.); $idnames is quoted for SQL below
+        $names = is_array($idnames) ? $idnames : explode(',', (string)$idnames);
         if (!$resource['template']) {
             $result = [];
             foreach ($resource as $key => $value) {
-                if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
+                // TVs merged into documentObject are arrays: not built-in fields
+                if (is_array($value)) {
+                    continue;
+                }
+                if ($idnames === '*' || in_array($key, $names)) {
                     $result[] = ['name' => $key, 'value' => $value];
                 }
             }
@@ -4901,11 +4921,11 @@ class DocumentParser
                 '[+prefix+]site_tmplvars tv',
                 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id',
                 sprintf(
-                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
-                    $docid
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%d'",
+                    (int)$docid
                 )
             ],
-            sprintf('%s AND tvtpl.templateid=%s', $where, $resource['template']),
+            sprintf('%s AND tvtpl.templateid=%d', $where, (int)$resource['template']),
             $sort ?
                 sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
                 :
@@ -4918,7 +4938,11 @@ class DocumentParser
         // get default/built-in template variables
         ksort($resource);
         foreach ($resource as $key => $value) {
-            if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+            // TVs merged into documentObject are arrays and come from the query above
+            if (is_array($value)) {
+                continue;
+            }
+            if ($idnames === '*' || in_array($key, $names)) {
                 $result[] = ['name' => $key, 'value' => $value];
             }
         }
@@ -4949,6 +4973,12 @@ class DocumentParser
             if (!empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier) {
                 //Load preview
                 $row['value'] = $this->previewObject[$row['name']];
+            }
+
+            // built-in fields (pagetitle etc.) have no display format
+            if (!isset($row['type']) && !is_array($row['value'])) {
+                $output[$row['name']] = $row['value'];
+                continue;
             }
 
             if (!is_array($row['value'])) {
@@ -5260,7 +5290,7 @@ class DocumentParser
             'plugincode,properties,error_reporting',
             '[+prefix+]site_plugins',
             [
-                where('name', '=', $pluginName),
+                where('name', '=', db()->escape($pluginName)),
                 'AND disabled=0'
             ]
         );
@@ -5540,7 +5570,8 @@ class DocumentParser
         if (php_sapi_name() == 'cli') {
             return true;
         }
-        if (error_reporting() == 0 || $nr == 0) {
+        // PHP 8 では @ を付けても error_reporting() は 0 にならない（4437 などになる）ため、ビットで判定する
+        if ($nr == 0 || !(error_reporting() & $nr)) {
             return true;
         }
         if ($this->stopOnNotice == false) {
@@ -5710,7 +5741,7 @@ class DocumentParser
             'id',
             '[+prefix+]site_content',
             [
-                where('alias', '=', $aliasPath),
+                where('alias', '=', db()->escape($aliasPath)),
                 'AND deleted=0'
             ],
             'parent, menuindex'
@@ -5741,15 +5772,15 @@ class DocumentParser
     public function getIdFromUrl($url = '')
     {
         $url = preg_replace(
-            '@' . $this->config('friendly_url_suffix') . '$@',
+            '@' . preg_quote((string)$this->config('friendly_url_suffix'), '@') . '$@',
             '',
             trim($url)
         );
         if (strpos($url, '/') === 0) {
-            $url = preg_replace('@^' . MODX_BASE_URL . '@', '', $url);
+            $url = preg_replace('@^' . preg_quote(MODX_BASE_URL, '@') . '@', '', $url);
         }
         if (substr($url, 0, 4) === 'http') {
-            $url = preg_replace('@^' . MODX_SITE_URL . '@', '', $url);
+            $url = preg_replace('@^' . preg_quote(MODX_SITE_URL, '@') . '@', '', $url);
         }
         return $this->getIdFromAlias(trim($url, '/'));
     }

@@ -22,11 +22,11 @@
         });
         jQuery('#delete').click(function () {
             if (confirm("[+lang_confirm_delete_resource+]"))
-                document.location.href = "index.php?id=[+id+]&a=6";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=6");
         });
         jQuery('#undelete').click(function () {
             if (confirm("[+lang_confirm_undelete+]"))
-                document.location.href = "index.php?id=[+id+]&a=63";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=63");
         });
         jQuery('#deletedraft').click(function () {
             if (confirm("[+lang_confirm_delete_draft_resource+]")) {
@@ -40,7 +40,7 @@
         });
         jQuery('#duplicate').click(function () {
             if (confirm("[+lang_confirm_resource_duplicate+]"))
-                document.location.href = "index.php?id=[+id+]&a=94";
+                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=94");
         });
 
         jQuery('#preview').click(function () {
@@ -55,9 +55,19 @@
             prevWin = window.open(previewUrl, 'prevWin');
             var pmode = [+preview_mode+];
             if (pmode == 1) {
-                jQuery('#mutate').prop({action:previewUrl,'target':'prevWin'});
-                jQuery('#mutate').submit();
-                jQuery('#mutate').prop({action:'index.php','target':'main'});
+                // プレビュー送信後は元の状態へ戻す。target が残ると以後の保存が
+                // シェルを経由しないネイティブ送信になり、別タブへ遷移してしまう
+                var $mutate = jQuery('#mutate');
+                var orgAction = $mutate.attr('action');
+                var orgTarget = $mutate.attr('target');
+                $mutate.attr({action: previewUrl, target: 'prevWin'});
+                $mutate.submit();
+                $mutate.attr('action', orgAction);
+                if (orgTarget === undefined) {
+                    $mutate.removeAttr('target');
+                } else {
+                    $mutate.attr('target', orgTarget);
+                }
             }
             return false;
         });

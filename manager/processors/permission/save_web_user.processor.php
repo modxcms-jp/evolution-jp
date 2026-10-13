@@ -7,33 +7,31 @@ if (!evo()->hasPermission('save_web_user')) {
     alert()->dumpError();
 }
 global $_style;
-if (preg_match('@^[0-9]+$@', postv('id'))) {
-    $id = postv('id');
-}
+$id = post_intvar('id');
 $oldusername = postv('oldusername');
 $newusername = trim(postv('newusername', 'New User'));
-$fullname = db()->escape(postv('fullname'));
+$fullname = db()->escape(postv('fullname', ''));
 $genpassword = postv('newpassword');
 $passwordgenmethod = postv('passwordgenmethod');
 $passwordnotifymethod = postv('passwordnotifymethod');
 $specifiedpassword = postv('specifiedpassword');
-$email = db()->escape(postv('email'));
+$email = db()->escape(postv('email', ''));
 $oldemail = postv('oldemail');
-$phone = db()->escape(postv('phone'));
-$mobilephone = db()->escape(postv('mobilephone'));
-$fax = db()->escape(postv('fax'));
+$phone = db()->escape(postv('phone', ''));
+$mobilephone = db()->escape(postv('mobilephone', ''));
+$fax = db()->escape(postv('fax', ''));
 $dob = postv('dob') ? $modx->toTimeStamp(postv('dob')) : 0;
-$country = postv('country');
-$street = db()->escape(postv('street'));
-$city = db()->escape(postv('city'));
-$state = db()->escape(postv('state'));
-$zip = db()->escape(postv('zip'));
-$gender = postv('gender') ? postv('gender') : 0;
-$photo = db()->escape(postv('photo'));
-$comment = db()->escape(postv('comment'));
-$role = postv('role') ? postv('role') : 0;
-$failedlogincount = postv('failedlogincount') ? postv('failedlogincount') : 0;
-$blocked = postv('blocked') ? postv('blocked') : 0;
+$country = db()->escape(postv('country', ''));
+$street = db()->escape(postv('street', ''));
+$city = db()->escape(postv('city', ''));
+$state = db()->escape(postv('state', ''));
+$zip = db()->escape(postv('zip', ''));
+$gender = post_intvar('gender');
+$photo = db()->escape(postv('photo', ''));
+$comment = db()->escape(postv('comment', ''));
+$role = post_intvar('role');
+$failedlogincount = post_intvar('failedlogincount');
+$blocked = post_intvar('blocked');
 $blockeduntil = postv('blockeduntil') ? $modx->toTimeStamp(postv('blockeduntil')) : 0;
 $blockedafter = postv('blockedafter') ? $modx->toTimeStamp(postv('blockedafter')) : 0;
 $user_groups = postv('user_groups');
@@ -112,7 +110,7 @@ switch (postv('mode')) {
 
         // create the user account
         $fields = [];
-        $fields['username'] = $newusername;
+        $fields['username'] = db()->escape($newusername);
         $fields['password'] = md5($newpassword);
         $internalKey = db()->insert(
             $fields,

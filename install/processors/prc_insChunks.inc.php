@@ -44,7 +44,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         )
     );
     if (!db()->count($rs)) {
-        $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
+        $rs = db()->insert(db()->escape(nullToEmpty($field)), '[+prefix+]site_htmlsnippets');
         if (!$rs) {
             $errors++;
             showError();
@@ -55,7 +55,7 @@ foreach ($tplChunks as $i => $tplInfo) {
     }
     if ($tplInfo['overwrite'] !== 'false') {
         $updated = db()->update(
-            db()->escape($field),
+            db()->escape(nullToEmpty($field)),
             '[+prefix+]site_htmlsnippets',
             sprintf("name='%s'", db()->escape($tplInfo['name']))
         );
@@ -79,7 +79,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         }
         $i++;
     }
-    $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
+    $rs = db()->insert(db()->escape(nullToEmpty($field)), '[+prefix+]site_htmlsnippets');
     if (!$rs) {
         $errors++;
         showError();

@@ -9,31 +9,61 @@
 // ---------------------------------------------------
 // Group: Parameters
 // $newParameters = $oldParameter;
+// Only the old parameters given to the call are moved to the new ones.
 // ---------------------------------------------------
 
-$parents = isset($parents) ? $parents . ',' . $startID : $startID;
+if (isset($startID)) {
+    $parents = isset($parents) ? $parents . ',' . $startID : $startID;
+}
 
-$removeChunk = isset($commentsChunk) ? $commentsChunk . ',' . $removeChunk : $commentsChunk;
+if (isset($commentsChunk)) {
+    $removeChunk = isset($removeChunk) ? $commentsChunk . ',' . $removeChunk : $commentsChunk;
+}
 
-$hiddenFields = isset($hiddenTVs) ? $hiddenTVs . ',' . $hiddenFields : $hiddenTVs;
+if (isset($hiddenTVs)) {
+    $hiddenFields = isset($hiddenFields) ? $hiddenTVs . ',' . $hiddenFields : $hiddenTVs;
+}
 
-$dateSource = isset($dateFormatType) ? $dateFormatType : $dateSource;
+if (isset($dateFormatType)) {
+    $dateSource = $dateFormatType;
+}
 
-$depth = (isset($descendentDepth)) ? $descendentDepth : $depth;
+if (isset($descendentDepth)) {
+    $depth = $descendentDepth;
+}
 
-$abbrLanguage = (isset($rssLanguage)) ? $rssLanguage : $abbrLanguage;
+if (isset($rssLanguage)) {
+    $abbrLanguage = $rssLanguage;
+}
 
-$tplAlt = isset($tplAltRows) ? $tplAltRows : $tplAlt;
+if (isset($tplAltRows)) {
+    $tplAlt = $tplAltRows;
+}
 
-$tplFirst = isset($tplFirstRow) ? ($tplFirstRow) : $tplFirst;
+if (isset($tplFirstRow)) {
+    $tplFirst = $tplFirstRow;
+}
 
-$tplLast = isset($tplLastRow) ? ($tplLastRow) : $tplLast;
+if (isset($tplLastRow)) {
+    $tplLast = $tplLastRow;
+}
 
-$tplPaginatePrevious = isset($tplArchivePrevious) ? ($tplArchivePrevious) : $tplPaginatePrevious;
+if (isset($tplArchivePrevious)) {
+    $tplPaginatePrevious = $tplArchivePrevious;
+}
 
-$tplPaginateNext = isset($tplArchiveNext) ? ($tplArchiveNext) : $tplPaginateNext;
+if (isset($tplArchiveNext)) {
+    $tplPaginateNext = $tplArchiveNext;
+}
 
-$noResults = isset($emptyText) ? $emptyText : $noResults;
+if (isset($emptyText)) {
+    $noResults = $emptyText;
+}
 
+if (!isset($extenders)) {
+    $extenders = [];
+} elseif (!is_array($extenders)) {
+    $extenders = explode(',', $extenders);
+}
 $extenders[] = "summary";
 // load the summary extender

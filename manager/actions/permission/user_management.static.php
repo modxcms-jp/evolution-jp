@@ -79,7 +79,7 @@ echo $cm->render();
                 break;
             case 2: // delete
                 if (confirm("<?= $_lang['confirm_delete_user'] ?>")) {
-                    window.location.href = 'index.php?a=33&id=' + id;
+                    window.location.href = EvoCsrf.url('index.php?a=33') + '&id=' + id;
                 }
                 break;
         }
@@ -89,7 +89,8 @@ echo $cm->render();
         contextm.style.visibility = "hidden";
     });
 </script>
-<form name="resource" method="post">
+<form action="index.php" name="resource" method="get">
+    <input type="hidden" name="a" value="75" />
     <input type="hidden" name="id" value="<?= $id ?? '' ?>" />
     <input type="hidden" name="listmode" value="<?= $listmode ?? '' ?>" />
     <input type="hidden" name="op" value="" />
@@ -120,7 +121,7 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= anyv('search') ?>" /></td>
+                                        value="<?= hsc(anyv('search')) ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
