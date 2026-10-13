@@ -310,17 +310,18 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             continue;
         }
 
+        // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
+        $uploaded[] = [
+            'name' => $targetName,
+            'size' => filesize($targetPath),
+        ];
+
         // invokeEvent() の第2引数は参照渡しなので、変数に入れてから渡す
         $eventParams = [
             'filepath' => $dir['real'],
             'filename' => $targetName,
         ];
         $modx->invokeEvent('OnFileBrowserUpload', $eventParams);
-
-        $uploaded[] = [
-            'name' => $targetName,
-            'size' => filesize($targetPath),
-        ];
     }
 
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
