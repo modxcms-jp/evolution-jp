@@ -497,6 +497,38 @@ class ManagerAPI
         return $documentgroup;
     }
 
+    // get permissions of the role（ロールが無ければ空配列＝権限なし）
+    public function getMgrPermissions($role)
+    {
+        $row = db()->getRow(
+            db()->select('*', '[+prefix+]user_roles', sprintf("id='%d'", $role))
+        );
+        if (!$row) {
+            return [];
+        }
+        // 管理ユーザーが 1 人だけならメッセージ機能は使えないので無効にする
+        if ($row['messages'] == 1 && db()->getValue(db()->select('COUNT(*)', '[+prefix+]manager_users')) == 1) {
+            $row['messages'] = '0';
+        }
+        return $row;
+    }
+
+    // ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとに読み直す
+    public function refreshMgrPermissions($uid = 0)
+    {
+        if (!$uid) {
+            $uid = evo()->getLoginUserID();
+        }
+        $role = db()->getValue(
+            db()->select('role', '[+prefix+]user_attributes', sprintf("internalKey='%d'", $uid))
+        );
+        if ($role === false || $role === null) {
+            return;
+        }
+        sessionv('*mgrRole', $role);
+        sessionv('*mgrPermissions', $this->getMgrPermissions($role));
+    }
+
     public function getMemberGroups($uid = 0)
     {
         if (!$uid) {
