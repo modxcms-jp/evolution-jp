@@ -282,6 +282,8 @@ rm -rf "${CHECK_DIR}"
 
 `gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
 
+modx.jp のダウンロードページは公開した Release を自動で表示するので、告知まで表示を止める場合は、公開する前に公式サイトのリポジトリ（`modxcms-jp/modxjp`）の手順で固定しておく。
+
 ## 除外ファイル一覧
 
 `.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
