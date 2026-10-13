@@ -322,41 +322,28 @@ if ($config_saved === false) {
 
 if (sessionv('is_upgradeable') == 0) {
     log_install_event('Creating site_id for fresh installation');
-    $query = str_replace(
-        '[+prefix+]',
-        db()->table_prefix,
-        sprintf(
-            "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')",
-            uniqid('')
-        )
+    db()->replace(
+        ['setting_name' => 'site_id', 'setting_value' => uniqid('')],
+        '[+prefix+]system_settings'
     );
-    db()->query($query);
 
     // 新規インストールした版。settings_version が '0' のまま(設定未保存)でも、
     // この版のコードなら公開側を止めない(version_mismatch_guard.php)
     include MODX_BASE_PATH . 'manager/includes/version.inc.php';
     log_install_event('Recording install_version for fresh installation', ['version' => $modx_version]);
-    db()->query(str_replace(
-        '[+prefix+]',
-        db()->table_prefix,
-        sprintf(
-            "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('install_version','%s')",
-            db()->escape($modx_version)
-        )
-    ));
+    db()->replace(
+        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
+        '[+prefix+]system_settings'
+    );
 
     // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
     $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
     if ($install_site_url !== '' && !init::env_site_url()) {
         log_install_event('Setting fixed_site_url for fresh installation', ['url' => $install_site_url]);
-        db()->query(str_replace(
-            '[+prefix+]',
-            db()->table_prefix,
-            sprintf(
-                "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('fixed_site_url','%s')",
-                db()->escape($install_site_url)
-            )
-        ));
+        db()->replace(
+            ['setting_name' => 'fixed_site_url', 'setting_value' => db()->escape($install_site_url)],
+            '[+prefix+]system_settings'
+        );
     }
 } else {
     $site_id = db()->getValue(
@@ -364,29 +351,19 @@ if (sessionv('is_upgradeable') == 0) {
         '[+prefix+]system_settings',
         "setting_name='site_id'"
     );
-    if ($site_id) {
-        if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
-            log_install_event('Regenerating site_id during upgrade');
-            $query = str_replace(
-                '[+prefix+]',
-                db()->table_prefix,
-                sprintf(
-                    "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')",
-                    uniqid('')
-                )
-            );
-            db()->query($query);
-        }
+    // 未設定か、配布物に入っていた既定値のままのときだけ作り直す
+    if (!$site_id || $site_id === 'MzGeQ2faT4Dw06+U49x3') {
+        log_install_event('Regenerating site_id during upgrade');
+        db()->replace(
+            ['setting_name' => 'site_id', 'setting_value' => uniqid('')],
+            '[+prefix+]system_settings'
+        );
     }
 
     // 以前の「サイトのURL」（site_url）は URL の決定に使われておらず、設定を保存したときの URL が残っているだけなので消す。
     // 今の「サイトのURL」は fixed_site_url に保存する
     log_install_event('Removing unused site_url setting during upgrade');
-    db()->query(str_replace(
-        '[+prefix+]',
-        db()->table_prefix,
-        "DELETE FROM [+prefix+]system_settings WHERE setting_name='site_url'"
-    ));
+    db()->delete('[+prefix+]system_settings', "setting_name='site_url'");
 
     // 以前のインストーラやリソースの複製が入れていた文字列 'NULL' を空に戻す（要素の登録でプロパティを引き継ぐより前に行う）
     log_install_event('Cleaning up literal NULL strings in elements and resource aliases during upgrade');
