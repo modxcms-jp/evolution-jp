@@ -16,4 +16,6 @@ $_lang['tinymce7_entermode_description'] = 'TinyMCE 7 で Enter キーを押し�
 $_lang['tinymce7_entermode_default'] = 'TinyMCE の既定（段落）';
 $_lang['tinymce7_entermode_p'] = '段落 <p> を挿入';
 $_lang['tinymce7_entermode_br'] = '改行 <br> を挿入';
+$_lang['tinymce7_css_selectors_label'] = 'CSSスタイルセレクタ';
+$_lang['tinymce7_css_selectors_description'] = 'ツールバーの「スタイル」から選べる CSS クラスを「表示名=クラス名;表示名2=クラス名2」の形式で指定します（例：本のタイトル=booktitle;著者=author）。要素全体を選ぶとその要素に、文中の一部を選ぶと span でクラスを付けます。旧 TinyMCE の設定が残っていれば引き継ぎます。';
 

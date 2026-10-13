@@ -106,7 +106,8 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_toolbar_preset` | プリセットを `simple` / `basic` / `legacy` / `full` から選択します。|
 | `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示、空 = TinyMCE 既定値）。|
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
-| 互換キー (`tinymce_toolbar_preset`, `tinymce_menubar`, `tinymce4_entermode` など) | 旧プラグインとの互換のために自動的に読み替えます。|
+| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「スタイル」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。ツールバーに `styles` が無ければ先頭に足します。一度保存すると空でも旧キーには戻りません。|
+| 互換キー (`tinymce_toolbar_preset`, `tinymce_menubar`, `tinymce4_entermode`, `tinymce_css_selectors` など) | 旧プラグインとの互換のために自動的に読み替えます。|
 
 ## イベントパラメーター
 `OnRichTextEditorInit` に渡されたパラメーターは TinyMCE の設定にマージされます。

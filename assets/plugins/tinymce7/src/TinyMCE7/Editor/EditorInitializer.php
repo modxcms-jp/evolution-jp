@@ -96,6 +96,7 @@ final class EditorInitializer
         $config = $this->preferences->applyToolbarPreset($config);
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyEnterMode($config);
+        $config = $this->preferences->applyCssSelectors($config);
 
         $config = $this->applyEditorCssPath($config);
 

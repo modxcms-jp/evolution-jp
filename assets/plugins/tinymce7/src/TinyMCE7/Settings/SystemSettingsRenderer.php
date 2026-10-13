@@ -34,6 +34,7 @@ final class SystemSettingsRenderer
         $fieldId = 'tinymce7_entermode';
         $toolbarFieldId = 'tinymce7_toolbar_preset';
         $menubarFieldId = 'tinymce7_menubar';
+        $cssSelectorsFieldId = 'tinymce7_css_selectors';
 
         $toolbarOptions = [
             ['value' => 'simple', 'label' => $this->t('tinymce7_toolbar_simple', 'Simple')],
@@ -105,6 +106,13 @@ final class SystemSettingsRenderer
 
         $html[] = '      </select>';
         $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_entermode_description', 'Choose how TinyMCE 7 handles the Enter key.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '    </td>';
+        $html[] = '  </tr>';
+        $html[] = '  <tr class="row1">';
+        $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . htmlspecialchars($this->t('tinymce7_css_selectors_label', 'CSS style selectors'), ENT_QUOTES, 'UTF-8') . '</label></th>';
+        $html[] = '    <td>';
+        $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . htmlspecialchars($this->preferences->detectCssSelectors(), ENT_QUOTES, 'UTF-8') . '">';
+        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".'), ENT_QUOTES, 'UTF-8') . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
         $html[] = '</table>';
