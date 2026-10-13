@@ -79,9 +79,7 @@ class SqlParser
             if (!$error_no) {
                 continue;
             }
-            if ($this->isIgnorableError($sql, $error_no)) {
-                continue;
-            }
+            // 同梱 SQL は IF NOT EXISTS / IF EXISTS でやり直しに耐えるため、エラーはすべて失敗として扱う
             $this->mysqlErrors[] = [
                 'error' => db()->getLastError(),
                 'sql' => $sql
@@ -89,16 +87,5 @@ class SqlParser
             $this->installFailed = true;
         }
         return !$this->installFailed;
-    }
-
-    // スキーマ変更のやり直しで起きるエラー（列・キーの重複や不在など）だけを無視する。
-    // データ投入（INSERT/REPLACE など）の失敗は、同じエラー番号でも失敗として扱う
-    private function isIgnorableError($sql, $error_no)
-    {
-        if (!in_array($error_no, [1060, 1061, 1091, 1054, 1064])) {
-            return false;
-        }
-        $statement = ltrim(preg_replace('@^(\s*--[^\n]*\n)+@', '', $sql));
-        return (bool)preg_match('@^(CREATE|ALTER|DROP)\b@i', $statement);
     }
 }
