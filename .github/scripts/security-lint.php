@@ -236,7 +236,10 @@ const SQL_FUNCS = ['where', 'and_where'];
 function lintSqlEmbed($file)
 {
     $toks = tokens($file);
-    $tainted = []; // 変数名 => true
+    // 変数名 => 汚染したブロックの深さ。代入し直しで汚染を外すのは、その深さ以下（同じブロックか外側）で代入したときだけ。
+    // 条件・ループの中だけで代入し直しても、通らない経路では元の値が残るため
+    $tainted = [];
+    $depths = braceDepths($toks);
     $out = [];
     // 関数の本体は別のスコープ。入るときに外側の状態を退避して空にし、出るときに戻す
     $scopes = functionBodies($toks);
@@ -252,6 +255,13 @@ function lintSqlEmbed($file)
             }
             $stack[] = ['end' => $bodyEnd, 'tainted' => $tainted];
             $tainted = [];
+        }
+        // ブロックを出たら、中で汚染した変数は出た先の深さで汚染したものとして扱う
+        $depth = $depths[$s];
+        foreach ($tainted as $name => $d) {
+            if ($d > $depth) {
+                $tainted[$name] = $depth;
+            }
         }
         // 代入: $var = 式 / $var[...] = 式 / $var .= 式
         $assignTo = null;
@@ -282,7 +292,7 @@ function lintSqlEmbed($file)
             if ($as !== null && rawSources($toks, $s + 2, $as - 1, $tainted)) {
                 for ($j = $as + 1; $j <= $e; $j++) {
                     if (isTok($toks[$j], T_VARIABLE)) {
-                        $tainted[$toks[$j][1]] = true;
+                        $tainted[$toks[$j][1]] = $depth + 1;
                     }
                 }
             }
@@ -295,13 +305,43 @@ function lintSqlEmbed($file)
         if ($assignTo !== null) {
             $raw = rawSources($toks, $exprStart, $e, $tainted);
             if ($raw) {
-                $tainted[$assignTo] = true;
-            } elseif (!$elementAssign) {
+                $tainted[$assignTo] = min($depth, $tainted[$assignTo] ?? $depth);
+            } elseif (!$elementAssign && isset($tainted[$assignTo]) && $depth <= $tainted[$assignTo]) {
                 unset($tainted[$assignTo]);
             }
         }
     }
     return $out;
+}
+
+// 各トークンの前の { } の深さ（文字列の中の {$x} は数えない）
+function braceDepths($toks)
+{
+    $depths = [];
+    $depth = 0;
+    $inString = false;
+    $strBrace = 0;
+    foreach ($toks as $i => $t) {
+        $depths[$i] = $depth;
+        if ($t[0] === '"' || $t[0] === T_START_HEREDOC || $t[0] === T_END_HEREDOC) {
+            $inString = $t[0] === T_START_HEREDOC ? true : ($t[0] === T_END_HEREDOC ? false : !$inString);
+            continue;
+        }
+        if ($inString) {
+            if ($t[0] === T_CURLY_OPEN || $t[0] === T_DOLLAR_OPEN_CURLY_BRACES) {
+                $strBrace++;
+            } elseif ($t[0] === '}' && $strBrace > 0) {
+                $strBrace--;
+            }
+            continue;
+        }
+        if ($t[0] === '{') {
+            $depth++;
+        } elseif ($t[0] === '}') {
+            $depth = max(0, $depth - 1);
+        }
+    }
+    return $depths;
 }
 
 // function の本体（{ } の位置）の一覧。開始位置の順
