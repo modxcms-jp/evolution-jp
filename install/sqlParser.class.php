@@ -71,21 +71,34 @@ class SqlParser
 
         foreach ($sql_array as $sql) {
             $sql = trim($sql, "\r\n; ");
-            if ($sql) {
-                db()->query($sql, false);
+            if (!$sql) {
+                continue;
             }
+            db()->query($sql, false);
             $error_no = db()->getLastErrorNo();
             if (!$error_no) {
                 continue;
             }
-            if (!in_array($error_no, [1060, 1061, 1091, 1054, 1064])) {
-                $this->mysqlErrors[] = [
-                    'error' => db()->getLastError(),
-                    'sql' => $sql
-                ];
-                $this->installFailed = true;
+            if ($this->isIgnorableError($sql, $error_no)) {
+                continue;
             }
+            $this->mysqlErrors[] = [
+                'error' => db()->getLastError(),
+                'sql' => $sql
+            ];
+            $this->installFailed = true;
         }
         return !$this->installFailed;
+    }
+
+    // スキーマ変更のやり直しで起きるエラー（列・キーの重複や不在など）だけを無視する。
+    // データ投入（INSERT/REPLACE など）の失敗は、同じエラー番号でも失敗として扱う
+    private function isIgnorableError($sql, $error_no)
+    {
+        if (!in_array($error_no, [1060, 1061, 1091, 1054, 1064])) {
+            return false;
+        }
+        $statement = ltrim(preg_replace('@^(\s*--[^\n]*\n)+@', '', $sql));
+        return (bool)preg_match('@^(CREATE|ALTER|DROP)\b@i', $statement);
     }
 }
