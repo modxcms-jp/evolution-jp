@@ -5986,7 +5986,8 @@ class DocumentParser
         }
 
         if (move_uploaded_file($tmp_path, $target_path)) {
-            chmod($target_path, $new_file_permissions);
+            // パーミッションを変えられない環境(IIS や一部の NFS/ACL)でも、保存できていれば成功として扱う
+            @chmod($target_path, $new_file_permissions);
             return true;
         }
 
@@ -6038,7 +6039,8 @@ class DocumentParser
             if (!$moved) {
                 return false;
             }
-            chmod(
+            // パーミッションを変えられなくても、保存できていれば成功として扱う
+            @chmod(
                 $target_path, octdec(ltrim($this->config('new_file_permissions'), '0'))
             );
             return true;
@@ -6082,7 +6084,8 @@ class DocumentParser
             return false;
         }
 
-        chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
+        // パーミッションを変えられなくても、保存できていれば成功として扱う
+        @chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
         return true;
     }
 
