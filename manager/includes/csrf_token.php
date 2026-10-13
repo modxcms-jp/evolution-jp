@@ -259,6 +259,7 @@ function csrfProtectedActions()
         36  => true, // ロール
         34  => true, // パスワード
         30  => true, // システム設定
+        305 => true, // バックアップからの復元
     ];
 }
 

@@ -256,7 +256,7 @@ if (!$isShellPartial) {
 
         function showBinEmpty() {
             var a = document.getElementById('Button10');
-            var title = '<?= addslashes($_lang['empty_recycle_bin_empty']) ?>';
+            var title = <?= js_literal($_lang['empty_recycle_bin_empty']) ?>;
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);

@@ -219,6 +219,10 @@ function saveTemplateAccess()
         return;
     }
     foreach ($templates as $iValue) {
+        $iValue = to_intvar($iValue);
+        if (!$iValue) {
+            continue;
+        }
         $setRank = $getRankArray[$iValue] ?? 0;
         $field = [
             'tmplvarid' => $id,

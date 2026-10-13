@@ -21,7 +21,7 @@ $properties = db()->escape(postv('properties', ''));
 $disabled = postv('disabled') == "on" ? '1' : '0';
 $moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
-$pluginErrorReporting = postv('error_reporting', 'inherit');
+$pluginErrorReporting = db()->escape(postv('error_reporting', 'inherit'));
 $validErrorLevels = ['inherit', '0', '1', '2', '99'];
 if (!in_array($pluginErrorReporting, $validErrorLevels, true)) {
     $pluginErrorReporting = 'inherit';
