@@ -20,6 +20,7 @@
     }
 
     function changeblockstate(element, checkelement) {
+        var blocked = document.getElementById('blocked');
         currval = eval(element).value;
         if (currval == 1) {
             if (confirm("<?= $_lang['confirm_unblock'] ?>") == true) {
@@ -27,8 +28,10 @@
                 document.userform.blockeduntil.value = "";
                 document.userform.blockedafter.value = "";
                 document.userform.failedlogincount.value = 0;
-                blocked.innerHTML = "<b><?= $_lang['unblock_message'] ?></b>";
-                blocked.className = "TD";
+                if (blocked) {
+                    blocked.innerHTML = "<b><?= $_lang['unblock_message'] ?></b>";
+                    blocked.className = "TD";
+                }
                 eval(element).value = 0;
             } else {
                 eval(checkelement).checked = true;
@@ -36,8 +39,10 @@
         } else {
             if (confirm("<?= $_lang['confirm_block'] ?>") == true) {
                 document.userform.blocked.value = 1;
-                blocked.innerHTML = "<b><?= $_lang['block_message'] ?></b>";
-                blocked.className = "warning";
+                if (blocked) {
+                    blocked.innerHTML = "<b><?= $_lang['block_message'] ?></b>";
+                    blocked.className = "warning";
+                }
                 eval(element).value = 1;
             } else {
                 eval(checkelement).checked = false;
