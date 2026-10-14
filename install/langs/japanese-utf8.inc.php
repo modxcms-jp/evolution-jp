@@ -44,6 +44,8 @@ $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>�
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
 $_lang["checking_sql_version"] = 'SQLのバージョン: ';
+$_lang["upgrade_old_db_title"] = 'この版からはアップデートできません';
+$_lang["upgrade_old_db_not_supported"] = 'このデータベースは 1.0.0J より古い版のもので、この版から直接アップデートすることはできません。データベースはまだ変更していません。サイトのファイルを元に戻してください。';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプレフィックスの設定 `';

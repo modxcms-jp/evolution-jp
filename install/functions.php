@@ -494,6 +494,13 @@ function managerConfigExists()
  *
  * @return int アップグレード可能なら1、新規インストールなら0
  */
+// 1.0.0J より古い DB は、新しいファイルを置いた時点で起動時のクエリが止まるので、直接アップデートさせない。
+// 1.0.0J からある列で見分ける（site_plugin_events.priority はキャッシュの再生成で読む）
+function isUnsupportedOldDb()
+{
+    return !db()->fieldExists('priority', '[+prefix+]site_plugin_events');
+}
+
 function isUpGradeable()
 {
     error_reporting(E_ALL & ~E_NOTICE);
@@ -649,9 +656,10 @@ function collectTpls($path)
     return $files;
 }
 
+// 画面のテンプレートに渡す値。template.tpl の language_code・encoding・help などは言語配列から入る
 function ph()
 {
-    global $cmsName, $cmsVersion, $modx_textdir, $modx_release_date;
+    global $cmsName, $cmsVersion, $modx_textdir, $modx_release_date, $_lang;
 
     $ph['site_url'] = MODX_SITE_URL;
     $ph['pagetitle'] = lang('modx_install');
@@ -661,7 +669,7 @@ function ph()
     $ph['release_date'] = ($modx_textdir && $modx_textdir === 'rtl' ? '&rlm;' : '') . $modx_release_date;
     $ph['footer1'] = str_replace('[+year+]', date('Y'), lang('modx_footer1'));
     $ph['footer2'] = lang('modx_footer2');
-    return $ph;
+    return array_merge($ph, $_lang ?: []);
 }
 
 function installConfigPath()
@@ -769,6 +777,22 @@ function renderUpgradeAuthRequired()
     $ph['content'] = parseText(
         file_get_contents(MODX_SETUP_PATH . 'tpl/upgrade_auth.tpl'),
         $ph
+    );
+
+    echo evo()->parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+        $ph
+    );
+    exit;
+}
+
+function renderUnsupportedOldDb()
+{
+    $ph = ph();
+    $ph['content'] = sprintf(
+        '<div class="sectionBody"><h2>%s</h2><p>%s</p></div>',
+        lang('upgrade_old_db_title'),
+        lang('upgrade_old_db_not_supported')
     );
 
     echo evo()->parseText(

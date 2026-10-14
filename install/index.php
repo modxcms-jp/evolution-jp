@@ -73,6 +73,11 @@ if ($action === 'mode') {
 
 $_lang = includeLang(lang_name());
 
+// 1.0.0J より古い DB は新しいファイルで管理画面にログインできないので、認証より前に止める（DB はまだ変えていない）
+if (sessionv('is_upgradeable') && isUnsupportedOldDb()) {
+    renderUnsupportedOldDb();
+}
+
 // 新規インストール時: install-config.php による保護
 // アップグレード時: Evolution CMS の管理者認証を要求
 if (!sessionv('is_upgradeable')) {
@@ -84,7 +89,6 @@ if (!sessionv('is_upgradeable')) {
 $errors = 0;
 
 $ph = ph();
-$ph = array_merge($ph, $_lang);
 $ph['install_language'] = lang_name();
 
 ob_start();
