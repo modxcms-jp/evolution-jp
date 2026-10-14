@@ -1205,7 +1205,8 @@ trait DocumentParserSubParserTrait
                 break;
             case '@DOCUMENT' : // retrieve a document and process it's content
             case '@DOC' :
-                $rs = $modx->getDocument($param);
+                $param = trim($param);
+                $rs = preg_match('/^[1-9][0-9]*$/', $param) ? $modx->getDocument((int)$param) : false;
                 if (is_array($rs)) {
                     $output = $rs['content'];
                 } else {
