@@ -498,17 +498,20 @@ class Wayfinder
 
         //add the include docs to the where clause
         if ($this->_config['includeDocs']) {
+            // no valid id matches nothing (0 is never a document id)
+            $includeDocs = $this->idList($this->_config['includeDocs']) ?: [0];
             $where[] = sprintf(
                 'AND sc.id IN (%s)',
-                $this->_config['includeDocs']
+                implode(',', $includeDocs)
             );
         }
 
         //add the exclude docs to the where clause
-        if ($this->_config['excludeDocs']) {
+        $excludeDocs = $this->idList($this->_config['excludeDocs']);
+        if ($excludeDocs) {
             $where[] = sprintf(
                 'AND (sc.id NOT IN (%s))',
-                $this->_config['excludeDocs']
+                implode(',', $excludeDocs)
             );
         }
 
@@ -530,13 +533,19 @@ class Wayfinder
         if (strtolower($this->_config['sortBy']) === 'random') {
             $sort = 'rand()';
         } else {
-            // modify field names to use sc. table reference
-            $_ = explode(',', $this->_config['sortBy']);
-            foreach ($_ as $i => $v) {
-                $_[$i] = 'sc.' . trim($v);
+            // site_content columns only, with the sc. table reference
+            $_ = [];
+            foreach (explode(',', $this->_config['sortBy']) as $v) {
+                $v = trim($v);
+                if (in_array($v, $this->contentColumns(), true)) {
+                    $_[] = 'sc.' . $v;
+                }
             }
-            $sort = implode(',', $_);
-            $sort = "{$sort} {$this->_config['sortOrder']}";
+            if (!$_) {
+                $_[] = 'sc.menuindex';
+            }
+            $sortOrder = strtoupper(trim((string)$this->_config['sortOrder'])) === 'DESC' ? 'DESC' : 'ASC';
+            $sort = implode(',', $_) . ' ' . $sortOrder;
         }
 
         //run the query
@@ -766,6 +775,30 @@ class Wayfinder
         }
 
         return [];
+    }
+
+    // "1, 2,,3" => [1, 2, 3]; drops anything that is not a document id
+    private function idList($ids)
+    {
+        $result = [];
+        foreach (explode(',', (string)$ids) as $id) {
+            $id = trim($id);
+            if (preg_match('/^[1-9][0-9]*$/', $id)) {
+                $result[] = (int)$id;
+            }
+        }
+        return $result;
+    }
+
+    // column names of site_content (for &sortBy)
+    private function contentColumns()
+    {
+        static $columns = null;
+        if ($columns === null) {
+            $meta = db()->getTableMetaData(evo()->getFullTableName('site_content'));
+            $columns = $meta ? array_keys($meta) : [];
+        }
+        return $columns;
     }
 
     // First field in the comma separated list that has a value in $row, or $fallback

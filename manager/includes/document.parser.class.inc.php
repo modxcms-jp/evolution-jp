@@ -1026,6 +1026,17 @@ class DocumentParser
         return implode($delim, $array);
     }
 
+    // "a, b,,c" => ['a','b','c']; drops anything that is not a plain column name
+    private function columnNames($list)
+    {
+        return array_values(array_filter(
+            array_map('trim', explode(',', (string)$list)),
+            function ($v) {
+                return preg_match('/^[a-z_][a-z0-9_]*$/i', $v) === 1;
+            }
+        ));
+    }
+
     public function getMicroTime()
     {
         [$usec, $sec] = explode(' ', microtime());
@@ -4879,19 +4890,14 @@ class DocumentParser
             return $result;
         }
 
-        if ($fields === '*' || $fields === '') {
-            $fields = "tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-        } else {
-            $fields = sprintf(
-                "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value",
-                array_map(
-                    function ($v) {
-                        return 'tv.' . $v;
-                    },
-                    explode(',', $fields)
-                )
-            );
-        }
+        // column names only ("*", "" or anything else falls back to all columns)
+        $columns = $this->columnNames($fields);
+        $fields = sprintf(
+            "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value",
+            $columns ? $this->join(',', $columns, 'tv.') : 'tv.*'
+        );
+        $sort = $this->columnNames($sort);
+        $dir = strtoupper(trim((string)$dir)) === 'DESC' ? 'DESC' : 'ASC';
 
         if (is_array($idnames) && !empty($idnames)) {
             $idnames = sprintf(
@@ -4922,10 +4928,7 @@ class DocumentParser
                 )
             ],
             sprintf('%s AND tvtpl.templateid=%d', $where, (int)$resource['template']),
-            $sort ?
-                sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
-                :
-                ''
+            $sort ? sprintf('%s %s', $this->join(',', $sort, 'tv.'), $dir) : ''
         );
         while ($row = db()->getRow($rs)) {
             $result[] = $row;

@@ -599,16 +599,18 @@ function getContextMenu($cm)
     return $cm->render();
 }
 
+// "field [asc|desc], ..." => "sc.field DESC, ..."; unknown fields are skipped (TVs can not be used)
 function transformOrderBy($input) {
-    $parts = array_map(
-        'trim',
-        explode(',', $input)
-    );
-    foreach ($parts as &$part) {
-        $part = 'sc.' . $part;
-        if (stripos($part, ' desc') === false && stripos($part, ' asc') === false) {
-            $part .= ' desc';
+    $meta = db()->getTableMetaData(evo()->getFullTableName('site_content'));
+    $columns = $meta ? array_keys($meta) : [];
+    $parts = [];
+    foreach (explode(',', $input) as $part) {
+        $words = preg_split('/\s+/', trim($part));
+        if (!in_array($words[0], $columns, true)) {
+            continue;
         }
+        $dir = strtoupper($words[1] ?? '') === 'ASC' ? 'ASC' : 'DESC';
+        $parts[] = sprintf('sc.%s %s', $words[0], $dir);
     }
-    return implode(', ', $parts);
+    return $parts ? implode(', ', $parts) : 'sc.isfolder DESC, sc.publishedon DESC, sc.editedon DESC, sc.id DESC';
 }
