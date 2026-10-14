@@ -60,8 +60,6 @@ if (manager()->hasFormValues()) {
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
-    $usernamedata['username'] = postv('newusername');
-    $usernamedata['oldusername'] = postv('oldusername');
     $usersettings = array_merge($usersettings, $userdata);
     $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
     extract($usersettings, EXTR_OVERWRITE);
