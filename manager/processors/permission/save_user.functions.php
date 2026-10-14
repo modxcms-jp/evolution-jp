@@ -199,9 +199,8 @@ function systemSettings()
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    global $id;
     $mode = postv('mode');
-    $url = 'index.php?a=' . $mode . ($mode == '12' ? "&id=" . $id : '');
+    $url = 'index.php?a=' . $mode . ($mode == '12' ? '&id=' . post_intvar('userid') : '');
     evo()->manager->saveFormValues($mode);
     evo()->webAlertAndQuit($msg, $url);
 }
