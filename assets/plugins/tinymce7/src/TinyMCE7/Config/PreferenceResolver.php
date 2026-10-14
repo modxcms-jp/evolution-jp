@@ -164,6 +164,38 @@ final class PreferenceResolver
         return null;
     }
 
+    /**
+     * ひな形として使うリソースの ID（旧 TinyMCE 3 の mce_template_docs を互換キーとして読む）
+     *
+     * @return int[]
+     */
+    public function detectTemplateDocIds(): array
+    {
+        $ids = [];
+        foreach ($this->splitList($this->detectString(['tinymce7_template_docs', 'mce_template_docs'])) as $value) {
+            if (preg_match('/^[1-9][0-9]*$/', $value)) {
+                $ids[] = (int)$value;
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * ひな形として使うチャンクの名前（旧 TinyMCE 3 の mce_template_chunks を互換キーとして読む）
+     *
+     * @return string[]
+     */
+    public function detectTemplateChunkNames(): array
+    {
+        return $this->splitList($this->detectString(['tinymce7_template_chunks', 'mce_template_chunks']));
+    }
+
+    public function detectTemplateCategory(): string
+    {
+        return $this->detectString(['tinymce7_template_category']);
+    }
+
     public function detectEnterMode(): ?string
     {
         $keys = ['tinymce7_entermode', 'tinymce4_entermode', 'tinymce_entermode'];
@@ -181,5 +213,35 @@ final class PreferenceResolver
         }
 
         return null;
+    }
+
+    /**
+     * 先に見つかったキーの値を返す。空でも保存済みなら優先する（設定画面で空にしたとき互換キーの値に戻らないように）
+     */
+    private function detectString(array $keys): string
+    {
+        foreach ($keys as $key) {
+            if (!isset(evo()->config[$key]) || !is_scalar(evo()->config[$key])) {
+                continue;
+            }
+
+            return trim((string)evo()->config[$key]);
+        }
+
+        return '';
+    }
+
+    /**
+     * @return string[]
+     */
+    private function splitList(string $value): array
+    {
+        if ($value === '') {
+            return [];
+        }
+
+        $items = array_filter(array_map('trim', explode(',', $value)), 'strlen');
+
+        return array_values(array_unique($items));
     }
 }

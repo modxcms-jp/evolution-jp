@@ -39,6 +39,7 @@ MODX Evolution で最新の TinyMCE エディターを利用できるように�
 
 * **ツールバー設定**: グローバル設定またはユーザー設定の「TinyMCE7 ツールバー構成」から、シンプル／ベーシック／レガシー／フルの各構成を選択できます。
 * **メニューバー表示**: 必要に応じてメニューバーを表示・非表示に切り替えられます。
+* **ひな形の挿入**: グローバル設定の「ひな形」にリソースID・チャンク名・チャンクのカテゴリを指定すると、ツールバーの「ひな形の挿入」ボタンや「挿入」メニューから、その本文を一覧で選んで挿入できます。TinyMCE 7 ではオープンソース版の template プラグインが廃止されたため、その代わりとなる本プラグイン独自の機能です。指定が無いときはボタンを表示しません。
 * **TinyMCE 本体の読み込み元**: デフォルトは CDN (`https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js`) です。ローカルで使いたい場合は公式パッケージの `tinymce/` を `assets/plugins/tinymce7/tinymce/` に配置し、設定に `"tinymce_use_local": true` を追加してください。CDN・ローカル問わず別の URL を使う場合は `config/manager.json` や `config/frontend.json` に `"tinymce_script_url"` を指定します。
 * **言語ファイル**: 日本語などの UI 言語はローカルの `assets/plugins/tinymce7/tinymce/js/tinymce/langs/`（または `assets/plugins/tinymce7/langs/`）に置いた公式 `langs/*.js` を読み込みます。TinyMCE 公式配布の言語パックをダウンロードして配置してください（CDN フォールバックはありません）。
 
