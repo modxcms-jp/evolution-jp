@@ -19,7 +19,8 @@ $carriedChanges = is_array($carriedChanges) ? array_values(array_filter($carried
                 if (!el.name || el.type === 'file' || el.type === 'submit' || el.type === 'button') {
                     return;
                 }
-                var name = el.name.replace(/\[\]$/, '');
+                // PHP が POST を受け取るときと同じ名前にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+                var name = el.name.replace(/\[.*$/, '').replace(/[. ]/g, '_');
                 if (!values[name]) {
                     values[name] = [];
                 }
