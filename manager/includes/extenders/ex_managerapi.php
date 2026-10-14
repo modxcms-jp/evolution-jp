@@ -740,6 +740,65 @@ class ManagerAPI
         );
     }
 
+    /**
+     * リソースの祖先 ID を近い順に返す。
+     * getParentIds() と違い、深さの上限やエイリアスのキャッシュに頼らず DB の parent を直接たどる。
+     * 既に循環しているデータでも止まるよう、一度たどった ID に戻ったら打ち切る
+     *
+     * @param int $id
+     * @return int[]
+     */
+    public function getAncestorIds($id)
+    {
+        $id = (int)$id;
+        $visited = [$id];
+        $ancestors = [];
+        while ($id) {
+            $id = (int)db()->getValue(
+                db()->select('parent', '[+prefix+]site_content', sprintf('id=%d', $id))
+            );
+            if (!$id || in_array($id, $visited, true)) {
+                break;
+            }
+            $visited[] = $id;
+            $ancestors[] = $id;
+        }
+        return $ancestors;
+    }
+
+    /**
+     * $parentId を $docIds の親にできないとき、その理由を表示用のメッセージで返す。親にできるなら空文字。
+     * ルート（0）はいつでも親にできる。
+     * 画面側（ツリーの JS やダイアログ）でも弾いているが、リクエストを直接送られても
+     * 循環や存在しない親を保存しないよう、保存処理はこれで確かめる
+     *
+     * @param int[] $docIds 親を変えるリソース。新規作成なら空配列
+     * @param int $parentId
+     * @return string
+     */
+    public function invalidParentMessage(array $docIds, $parentId)
+    {
+        $parentId = (int)$parentId;
+        if (!$parentId) {
+            return '';
+        }
+        $docIds = array_map('intval', $docIds);
+        if (in_array($parentId, $docIds, true)) {
+            // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻す
+            return stripcslashes(lang('illegal_parent_self'));
+        }
+        $exists = db()->getValue(
+            db()->select('COUNT(id)', '[+prefix+]site_content', sprintf('id=%d', $parentId))
+        );
+        if (!$exists) {
+            return sprintf(lang('parent_not_found'), $parentId);
+        }
+        if (array_intersect($docIds, $this->getAncestorIds($parentId))) {
+            return stripcslashes(lang('illegal_parent_child'));
+        }
+        return '';
+    }
+
     public function isAllowed($id)
     {
         global $modx;

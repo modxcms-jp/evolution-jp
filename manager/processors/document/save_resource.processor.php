@@ -26,6 +26,8 @@ checkDocPermission(validated('id'), $document_groups);
 
 evo()->manager->saveFormValues();
 
+checkParent();
+
 if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
     $param = [
@@ -73,13 +75,6 @@ if (mode() === 'edit') {
     if (validated('id') == evo()->config('site_start')) {
         checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     }
-    if (validated('id') == validated('parent')) {
-        evo()->webAlertAndQuit(
-            "Document can not be it's own parent!",
-            sprintf('index.php?a=27&id=%s', validated('id'))
-        );
-    }
-
     validated('*isfolder', checkFolderStatus(validated('id')));
 
     $db_v = getExistsValues(validated('id'));
@@ -319,6 +314,27 @@ function _check_duplicate_alias($id, $alias, $parent)
         $url
     );
     return $alias;
+}
+
+// 自分自身・子孫・存在しないリソースを親にしていないか
+function checkParent()
+{
+    $message = manager()->invalidParentMessage(
+        mode() === 'edit' ? [validated('id')] : [],
+        validated('parent')
+    );
+    if ($message === '') {
+        return;
+    }
+    // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
+    evo()->manager->saveFormValues(postv('mode'));
+    $url = sprintf('index.php?a=%s', postv('mode'));
+    if (mode() === 'edit') {
+        $url .= sprintf('&id=%s', validated('id'));
+    } elseif (request_intvar('pid')) {
+        $url .= sprintf('&pid=%s', request_intvar('pid'));
+    }
+    evo()->webAlertAndQuit($message, $url);
 }
 
 function checkDocPermission($id, $document_groups = [])

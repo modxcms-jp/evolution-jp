@@ -508,6 +508,9 @@ switch (manager()->action) {
     case 52: // get the move document processor
         include_once($prc_path . 'document/move_document.processor.php');
         break;
+    case 135: // get the parent resource picker (modal)
+        include_once($action_path . 'document/parent_picker.dynamic.php');
+        break;
     case 61: // get the processor for publishing content
         include_once($prc_path . 'document/publish_content.processor.php');
         break;

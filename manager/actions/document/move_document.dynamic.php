@@ -39,6 +39,7 @@ function get_src_content($id, $parent)
 {
     global $_lang, $_style;
     $redirect = $parent == 0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
+    $pickerLabel = hsc(lang('parent_picker_open'));
     $src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">
@@ -55,7 +56,8 @@ function get_src_content($id, $parent)
 <input type="hidden" name="a" value="52">
 <input type="hidden" name="id" value="{$id}">
 <p>{$_lang['resource_to_be_moved']}: <b>{$id}</b></p>
-<p><span id="parentName" class="warning">{$_lang['move_resource_new_parent']}</span></p>
+<p><span id="parentName" class="warning">{$_lang['move_resource_new_parent']}</span>
+<button type="button" onclick="openParentPicker();">{$pickerLabel}</button></p>
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
 <input type="save" value="Move" style="display:none">
@@ -85,6 +87,7 @@ function batch_move()
 function get_src_js()
 {
     global $_lang;
+    $newParentLabel = js_literal(lang('new_parent'));
     $src = <<< EOT
 <script language="javascript">
 top.mainMenu.defaultTreeFrame();
@@ -94,6 +97,22 @@ function setMoveValue(pId, pName) {
         document.newdocumentparent.new_parent.value=pId;
         document.getElementById('parentName').innerHTML = "{$_lang['new_parent']}: <b>" + pId + "</b> (" + pName + ")";
     }
+}
+
+// ツリーで省略されたリソースも移動先にできるよう、タイトルか ID で検索して選ぶ。
+// 移動するリソース自身と子孫はダイアログ側で選べないようにしている
+function openParentPicker() {
+    EvoShell.openPicker(
+        'index.php?a=135&id=' + encodeURIComponent(document.newdocumentparent.id.value),
+        function (picked) {
+            document.newdocumentparent.new_parent.value = picked.id;
+            const label = document.getElementById('parentName');
+            const id = document.createElement('b');
+            id.textContent = picked.id;
+            label.textContent = {$newParentLabel} + ': ';
+            label.append(id, ' (' + picked.pagetitle + ')');
+        }
+    );
 }
 
 // check if the selected parent is a child of this document

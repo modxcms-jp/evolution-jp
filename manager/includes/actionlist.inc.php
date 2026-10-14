@@ -119,6 +119,7 @@ $GLOBALS['action_list'] = [
     '118' => 'Call settings ajax include',
     '119' => 'Editing user profile',
     '120' => 'Viewing Resources List',
+    '135' => 'Selecting parent resource',
 
     '300' => 'Create Template Variable',
     '301' => 'Edit Template Variable',

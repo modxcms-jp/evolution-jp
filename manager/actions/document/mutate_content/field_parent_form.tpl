@@ -2,5 +2,6 @@
            onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;"/>
 <b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;">
 [+pid+] ([+pname+])</span></b>
+<button type="button" onclick="openParentPicker();">[+lang_parent_picker_open+]</button>
 [+tooltip+]
 <input type="hidden" name="parent" value="[+pid+]"/>
