@@ -7,9 +7,6 @@ if (!canSaveUser()) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (postv('mode') == 74) {
-    useSavedProfileValues();
-}
 
 evo()->loadExtension('phpass');
 
@@ -33,7 +30,7 @@ if (!verifyPermission()) {
 }
 
 if (postv('mode') == 11) { // new user
-    if (userid_byname(postv('newusername', 'New User'))) {
+    if (userid_byname(userformv('newusername', 'New User'))) {
         webAlert('User name is already in use!');
         exit;
     }
@@ -62,12 +59,12 @@ if (in_array(postv('mode'), [12, 74])) {
     if (!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
         webAlert('Missing user id!');
     }
-    if (trim((string)postv('newusername')) === '') {
+    if (trim((string)userformv('newusername')) === '') {
         webAlert('Missing user name!');
         exit;
     }
     // check if the username already exist
-    if (userid_byname(postv('newusername')) && userid_byname(postv('newusername')) != postv('userid')) {
+    if (userid_byname(userformv('newusername')) && userid_byname(userformv('newusername')) != postv('userid')) {
         webAlert('User name is already in use!');
         exit;
     }
