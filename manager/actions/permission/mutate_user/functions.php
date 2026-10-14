@@ -27,6 +27,21 @@ function user($key, $default = null)
     return evo()->array_get($user, $key, $default);
 }
 
+// システム設定の値。evo()->config には編集している管理者自身のユーザー設定が重なっているので、テーブルから読む。
+// テーブルにない項目は組み込みの既定値（default.config.php）を使う
+function systemSetting($key, $default = null)
+{
+    static $settings = null;
+    if ($settings === null) {
+        $settings = include MODX_CORE_PATH . 'default.config.php';
+        $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
+        while ($row = db()->getRow($rs)) {
+            $settings[$row['setting_name']] = $row['setting_value'];
+        }
+    }
+    return $settings[$key] ?? $default;
+}
+
 function checked($cond)
 {
     if ($cond) {
