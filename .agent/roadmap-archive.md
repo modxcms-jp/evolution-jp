@@ -154,3 +154,52 @@
 - 依存関係: なし
 - ExecPlan: `.agent/plans/archive/2026-05-06-gitattributes-export-ignore-and-release-refactor.md`
 - メモ/判断ログ: `git archive` は `.gitattributes` の `export-ignore` を自動的に尊重するため SSOT が実現できる
+
+### AI向けドキュメント構造の SSOT 整備
+
+- Status: `DONE`
+- 着手予定日: `2026-05-07`
+- 完了日: `2026-05-07`
+- 目的: スキル定義・運用ドキュメント間の重複と表記ゆれを解消し、レビューラリーを減らす
+- 背景/課題: PR #442 のレビュー対応で、SKILL.md と release-process.md の二重管理・パス表記ゆれ・見出し構造の不整合がレビューラリーの原因と判明。同種の問題が他のスキル定義にも潜在している
+- 到達条件（Definition of Done）:
+  - `.github/codex-pr-rules.md` に SSOT 整合性チェック制約を追加する
+  - `roadmap-manager` / `roadmap-next-task` の重複する手順記述を整理する
+  - 完了処理プロトコルの粒度（詳細記載 vs `.agent/PLANS.md` 丸投げ）をスキル間で統一する
+- 非対象（やらないこと）: スキル定義の機能変更、AGENTS.md の全面改訂
+- 依存関係: なし
+- ExecPlan: `.agent/plans/archive/2026-05-07-ai-doc-ssot-refactor.md`
+- メモ/判断ログ: 2026-05-07 PR #442 のレビュー分析から特定。doc-maintainer スキル（AI向けドキュメント健全性チェック）は同 PR で作成済み。2026-05-07 到達条件の反映確認後に完了同期。
+
+### AIランタイム運用設計の棚卸しと再整理
+
+- Status: `DONE`
+- 着手予定日: `2026-07-12`
+- 完了日: `2026-08-15`
+- 目的: Codex 主運用の実態と、Claude 起点で育った共有スキル本文の構造を矛盾なく説明できる運用設計へ整理する
+- 背景/課題: 現状は `AGENTS.md` / `.agent/agents/` / `.claude/skills/` / `.codex/skills/` の責務分担自体は成立しているが、「なぜ共有本文の正本が `.claude/skills/` にあるのか」「sub-agent や推論レベルをどう扱うか」が共通文書で定義されていない
+- 到達条件（Definition of Done）:
+  - ランタイム分担と共有本文の位置づけを定義する中立文書を追加する
+  - AGENTS / skills README / Copilot 指示 / orchestrator の記述をその文書へ整合させる
+  - sub-agent 化条件と推論レベル運用の抽象方針を明文化する
+- 非対象（やらないこと）: 共有スキル本文の物理移設、ランタイム別の全面再設計、具体的なモデル名の固定
+- 依存関係: AI向けドキュメント構造の SSOT 整備
+- ExecPlan: `.agent/plans/archive/2026-08-15-ai-runtime-governance-refresh.md`
+- メモ/判断ログ: 2026-07-12 ユーザー要求による棚卸しから着手。Codex 主運用だが共有スキル本文は歴史的経緯で `.claude/skills/` に残っているため、即時移設より先に共通ポリシーの明文化を優先する。
+
+## 3. 大規模改修
+
+### frame要素廃止
+
+- Status: `DONE`
+- 着手予定日: `2026-07-07`
+- 完了日: `2026-08-15`
+- 目的: 管理画面をモダン構成へ移行し、保守性とUXを改善する
+- 背景/課題: frame依存構造は拡張性・互換性・開発効率に制約が大きい
+- 到達条件（Definition of Done）:
+  - framesetを廃止し、HTML5 + Ajax + CSS Gridのシェル構成へ一括移行する
+  - ヘッダー/サイドバー/メインエリアの移行を完了
+- 非対象（やらないこと）: デザイン全面刷新
+- 依存関係: なし（既存 `index.php?a=` ルーティングのまま実施。API Router統合は将来の別タスク）
+- ExecPlan: `.agent/plans/archive/2026-07-07-manager-frameset-removal.md`
+- メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。2026-08-15: ExecPlan本体のM6（保存フロー・履歴・未保存警告・RTL）のブラウザ最終確認を完了し、StatusをDONEへ更新。ExecPlanは完了処理に従いarchiveへ移動。

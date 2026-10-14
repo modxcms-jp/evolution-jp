@@ -63,6 +63,7 @@ ExecPlan の仕様書。複雑なタスクはこの仕様に従い `.agent/plans
 ## 完了処理プロトコル
 
 ExecPlan に紐づくタスクの完了処理は、次の順序を正本とする。
+ExecPlan を作らなかったタスク（`ExecPlan: 不要`）は、`Issue:` の Issue がすべて閉じたことを確かめ、手順 1〜3 と 7 だけを行う。
 
 1. 実装と検証の完了を明示し、完了処理を進める前にユーザー確認を取る
 2. ユーザー確認後にのみ、対象タスクの `.agent/roadmap.md` の `Status: DONE` と `完了日` を更新する
@@ -70,7 +71,7 @@ ExecPlan に紐づくタスクの完了処理は、次の順序を正本とす�
 4. ユーザー確認後にのみ、完了した ExecPlan を `.agent/plans/archive/` へ移動する
 5. アーカイブ時はファイル名先頭の日付を完了日（`YYYY-MM-DD`）へ更新する
 6. ロードマップに `ExecPlan:` を記載している場合は、移動後のパスへ更新する
-7. `.agent/roadmap.md` の `最終更新` を同期する
+7. `DONE` にした項目を `.agent/roadmap-archive.md` へ移し、`.agent/roadmap.md` の `最終更新` を同期する。ほかの項目の `依存関係:` に名前が出ていれば `なし（〇〇は完了済み）` と書き換える
 8. **スキル成長ループ**（アプリコンテナに対してホストから実行する）:
    - 8-1. `skill:init` が未実行の場合は先に実行する:
      `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=<skill-name>`
