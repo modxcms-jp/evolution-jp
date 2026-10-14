@@ -93,7 +93,7 @@ function saveUserSettings($id)
 
     // get user setting field names
     $settings = [];
-    $post = $_POST;
+    $post = postv();
     foreach ($post as $k => $v) {
         if (in_array($k, $ignore)) {
             continue;
@@ -165,10 +165,11 @@ function saveUserSettings($id)
 // 画面で変えた項目名の一覧。送られていない（JS が動かなかった）ときは null を返し、送られた値をすべて保存する
 function changedSettingNames()
 {
-    if (!isset($_POST['changed_settings'])) {
+    $json = postv('changed_settings');
+    if ($json === null) {
         return null;
     }
-    $names = json_decode((string)$_POST['changed_settings'], true);
+    $names = json_decode((string)$json, true);
     if (!is_array($names)) {
         return null;
     }
