@@ -6,10 +6,15 @@ namespace TinyMCE7\Config;
 final class PreferenceResolver
 {
     private ConfigRepository $repository;
+    private ?array $settings;
 
-    public function __construct(?ConfigRepository $repository = null)
+    /**
+     * @param array|null $settings 読む設定。省略時は evo()->config（ユーザー設定画面では編集中のユーザーの設定を渡す）
+     */
+    public function __construct(?ConfigRepository $repository = null, ?array $settings = null)
     {
         $this->repository = $repository ?? new ConfigRepository();
+        $this->settings = $settings;
     }
 
     public function applyToolbarPreset(array $config): array
@@ -114,18 +119,18 @@ final class PreferenceResolver
     public function detectCssSelectors(): string
     {
         // 一度保存されたら空でも旧キーへは戻らない（空にして無効化できるようにする）
-        if (array_key_exists('tinymce7_css_selectors', evo()->config)) {
-            return trim((string)evo()->config['tinymce7_css_selectors']);
+        if (array_key_exists('tinymce7_css_selectors', $this->settings())) {
+            return trim((string)$this->settings()['tinymce7_css_selectors']);
         }
 
         $keys = ['tinymce_css_selectors', 'editor_css_selectors'];
 
         foreach ($keys as $key) {
-            if (!isset(evo()->config[$key])) {
+            if (!isset($this->settings()[$key])) {
                 continue;
             }
 
-            $value = trim((string)evo()->config[$key]);
+            $value = trim((string)$this->settings()[$key]);
 
             if ($value !== '') {
                 return $value;
@@ -211,6 +216,14 @@ final class PreferenceResolver
 
     public function detectToolbarPreset(): string
     {
+        return $this->detectToolbarPresetSetting() ?? 'legacy';
+    }
+
+    /**
+     * 設定されているツールバー構成。未設定なら null
+     */
+    public function detectToolbarPresetSetting(): ?string
+    {
         $keys = ['tinymce7_toolbar_preset', 'tinymce_toolbar_preset'];
 
         $aliases = [
@@ -223,11 +236,11 @@ final class PreferenceResolver
         ];
 
         foreach ($keys as $key) {
-            if (!isset(evo()->config[$key])) {
+            if (!isset($this->settings()[$key])) {
                 continue;
             }
 
-            $value = strtolower(trim((string)evo()->config[$key]));
+            $value = strtolower(trim((string)$this->settings()[$key]));
 
             if ($value === '') {
                 continue;
@@ -238,7 +251,7 @@ final class PreferenceResolver
             }
         }
 
-        return 'legacy';
+        return null;
     }
 
     public function detectMenubarPreference(): ?bool
@@ -246,11 +259,11 @@ final class PreferenceResolver
         $keys = ['tinymce7_menubar', 'tinymce_menubar'];
 
         foreach ($keys as $key) {
-            if (!array_key_exists($key, evo()->config)) {
+            if (!array_key_exists($key, $this->settings())) {
                 continue;
             }
 
-            $raw = evo()->config[$key];
+            $raw = $this->settings()[$key];
 
             if (is_bool($raw)) {
                 return $raw;
@@ -321,11 +334,11 @@ final class PreferenceResolver
         $keys = ['tinymce7_entermode', 'tinymce4_entermode', 'tinymce_entermode'];
 
         foreach ($keys as $key) {
-            if (!isset(evo()->config[$key])) {
+            if (!isset($this->settings()[$key])) {
                 continue;
             }
 
-            $value = strtolower(trim((string)evo()->config[$key]));
+            $value = strtolower(trim((string)$this->settings()[$key]));
 
             if ($value === 'br' || $value === 'p') {
                 return $value;
@@ -341,14 +354,19 @@ final class PreferenceResolver
     private function detectString(array $keys): string
     {
         foreach ($keys as $key) {
-            if (!isset(evo()->config[$key]) || !is_scalar(evo()->config[$key])) {
+            if (!isset($this->settings()[$key]) || !is_scalar($this->settings()[$key])) {
                 continue;
             }
 
-            return trim((string)evo()->config[$key]);
+            return trim((string)$this->settings()[$key]);
         }
 
         return '';
+    }
+
+    private function settings(): array
+    {
+        return $this->settings ?? evo()->config;
     }
 
     /**

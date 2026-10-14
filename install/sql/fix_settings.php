@@ -63,6 +63,8 @@ addColumnIfNotExists($table, 'error_reporting', "varchar(8) NOT NULL DEFAULT 'in
 // ユーザーの保存が、設定ではないフォームの項目（CSRF トークンなど）もユーザー設定に入れていた（#611）。残っている行を消す
 $table = sessionv('table_prefix') . 'user_settings';
 db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('csrf_token', 'save_action', 'blockedcheck')");
+// TinyMCE7 のひな形はサイト共通の設定だが、ユーザー設定画面に出ていたため、表示中の管理者の値が個別設定として入っていた（#615）
+db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('tinymce7_template_docs', 'tinymce7_template_chunks', 'tinymce7_template_category')");
 
 $data = [
     'id' => 1,

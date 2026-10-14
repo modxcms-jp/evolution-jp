@@ -8,23 +8,31 @@ use TinyMCE7\Support\Language;
 
 final class SystemSettingsRenderer
 {
-    private PreferenceResolver $preferences;
+    private ?PreferenceResolver $preferences;
     private Language $language;
 
     public function __construct(?PreferenceResolver $preferences = null, ?Language $language = null)
     {
-        $this->preferences = $preferences ?? new PreferenceResolver();
+        $this->preferences = $preferences;
         $this->language = $language ?? new Language();
     }
 
     public function render(): string
     {
-        $toolbarPreset = $this->preferences->detectToolbarPreset();
-        $current = $this->preferences->detectEnterMode();
+        $isSystemSettingsScreen = $this->isSystemSettingsScreen();
+        // ユーザー設定画面では、表示中の管理者ではなく編集中のユーザーの値を出す。
+        // 未設定の欄は空（グローバル設定を使用）のまま保存され、user_settings に入らない
+        $preferences = $this->preferences
+            ?? new PreferenceResolver(null, $isSystemSettingsScreen ? null : $this->editedUserSettings());
+
+        $toolbarPreset = $isSystemSettingsScreen
+            ? $preferences->detectToolbarPreset()
+            : ($preferences->detectToolbarPresetSetting() ?? '');
+        $current = $preferences->detectEnterMode();
         if ($current !== 'p' && $current !== 'br') {
             $current = '';
         }
-        $menubarPreference = $this->preferences->detectMenubarPreference();
+        $menubarPreference = $preferences->detectMenubarPreference();
         $menubarValue = '';
         if ($menubarPreference === true) {
             $menubarValue = '1';
@@ -42,13 +50,16 @@ final class SystemSettingsRenderer
             ['value' => 'legacy', 'label' => $this->t('tinymce7_toolbar_legacy', 'Legacy (Default)')],
             ['value' => 'full', 'label' => $this->t('tinymce7_toolbar_full', 'Full')],
         ];
+        if (!$isSystemSettingsScreen) {
+            array_unshift($toolbarOptions, ['value' => '', 'label' => lang('user_use_config')]);
+        }
         $options = [
-            ['value' => '', 'label' => $this->t('tinymce7_entermode_default', 'TinyMCE default (paragraph)')],
+            ['value' => '', 'label' => $isSystemSettingsScreen ? $this->t('tinymce7_entermode_default', 'TinyMCE default (paragraph)') : lang('user_use_config')],
             ['value' => 'p', 'label' => $this->t('tinymce7_entermode_p', 'Insert paragraph <p>')],
             ['value' => 'br', 'label' => $this->t('tinymce7_entermode_br', 'Insert line break <br>')],
         ];
         $menubarOptions = [
-            ['value' => '', 'label' => $this->t('tinymce7_menubar_default', 'TinyMCE default (show)')],
+            ['value' => '', 'label' => $isSystemSettingsScreen ? $this->t('tinymce7_menubar_default', 'TinyMCE default (show)') : lang('user_use_config')],
             ['value' => '1', 'label' => $this->t('tinymce7_menubar_show', 'Show')],
             ['value' => '0', 'label' => $this->t('tinymce7_menubar_hide', 'Hide')],
         ];
@@ -109,33 +120,32 @@ final class SystemSettingsRenderer
         $html[] = '    </td>';
         $html[] = '  </tr>';
 
-        // サイト共通の設定なのでシステム設定画面だけに出す。ユーザー設定画面に出すと、
-        // 表示中の管理者の値がそのユーザーの個別設定として保存されてしまう
-        if ($this->isSystemSettingsScreen()) {
+        // CSSスタイルセレクタとひな形はサイト共通の設定なので、システム設定画面だけに出す
+        if ($isSystemSettingsScreen) {
             $html[] = '  <tr class="row1">';
             $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . hsc($this->t('tinymce7_css_selectors_label', 'CSS style selectors')) . '</label></th>';
             $html[] = '    <td>';
-            $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . hsc($this->preferences->detectCssSelectors()) . '">';
+            $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectCssSelectors()) . '">';
             $html[] = '      <div>' . hsc($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
+            $html[] = '    <td>';
+            $templateFields = [
+                'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $preferences->detectTemplateDocIds())],
+                'tinymce7_template_chunks' => [$this->t('tinymce7_template_chunks', 'Chunk names'), implode(',', $preferences->detectTemplateChunkNames())],
+                'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $preferences->detectTemplateCategory()],
+            ];
+            foreach ($templateFields as $name => [$label, $value]) {
+                $html[] = '      <div class="tinymce7-settings__template"><label><span>' . hsc($label) . '</span>'
+                    . '<input type="text" class="inputBox" name="' . $name . '" value="' . hsc($value) . '"></label></div>';
+            }
+            $html[] = '      <div>' . hsc($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
         }
 
-        $html[] = '  <tr class="row1">';
-        $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
-        $html[] = '    <td>';
-        $templateFields = [
-            'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $this->preferences->detectTemplateDocIds())],
-            'tinymce7_template_chunks' => [$this->t('tinymce7_template_chunks', 'Chunk names'), implode(',', $this->preferences->detectTemplateChunkNames())],
-            'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $this->preferences->detectTemplateCategory()],
-        ];
-        foreach ($templateFields as $name => [$label, $value]) {
-            $html[] = '      <div class="tinymce7-settings__template"><label><span>' . hsc($label) . '</span>'
-                . '<input type="text" class="inputBox" name="' . $name . '" value="' . hsc($value) . '"></label></div>';
-        }
-        $html[] = '      <div>' . hsc($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.')) . '</div>';
-        $html[] = '    </td>';
-        $html[] = '  </tr>';
         $html[] = '</table>';
 
         return implode("\n", $html);
@@ -144,6 +154,16 @@ final class SystemSettingsRenderer
     private function isSystemSettingsScreen(): bool
     {
         return function_exists('manager') && (int)manager()->action === 17;
+    }
+
+    /**
+     * 編集中のユーザーの設定（ユーザー編集画面 a=11/12 とプロフィール a=74 がグローバル $usersettings に用意する）
+     */
+    private function editedUserSettings(): array
+    {
+        global $usersettings;
+
+        return is_array($usersettings) ? $usersettings : [];
     }
 
     private function t(string $key, string $default): string
