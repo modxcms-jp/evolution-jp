@@ -498,6 +498,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
     ?>
 </form>
+<?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
 <script type="text/javascript">
     var remember = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);

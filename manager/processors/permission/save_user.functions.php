@@ -79,7 +79,8 @@ function saveUserSettings($id)
         'userid',
         'csrf_token',
         'save_action',
-        'blockedcheck'
+        'blockedcheck',
+        'changed_settings'
     ];
 
     // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
@@ -106,11 +107,40 @@ function saveUserSettings($id)
 
         $settings[$k] = $v; // this value should be saved
     }
+    // 画面で変えていない項目は、表示されていた値（既定値や、編集している管理者自身の値）ではなく保存済みの値を残す
+    $changed = changedSettingNames();
+    if ($changed !== null) {
+        $current = currentUserSettings($id);
+        foreach (array_keys($post) as $k) {
+            if (in_array($k, $ignore)) {
+                continue;
+            }
+            // 「システム設定に従う」チェックボックス（default_{設定名}）は、設定本体と一組で扱う
+            $name = strpos($k, 'default_') === 0 && in_array(substr($k, 8), $defaults) ? substr($k, 8) : $k;
+            if (in_array($name, $changed) || in_array('default_' . $name, $changed)) {
+                continue;
+            }
+            if (array_key_exists($k, $current)) {
+                $settings[$k] = $current[$k];
+            } else {
+                unset($settings[$k]);
+            }
+        }
+    }
+
     foreach ($defaults as $k) {
         if (evo()->array_get($settings, 'default_' . $k) == 1) {
             unset($settings[$k]);
         }
         unset($settings['default_' . $k]);
+    }
+
+    // システム設定と同じ値は保存しない（あとでシステム設定を変えたときに、そのユーザーも追従させる）
+    $system = systemSettings();
+    foreach ($settings as $k => $v) {
+        if (array_key_exists($k, $system) && (string)$system[$k] === (string)$v) {
+            unset($settings[$k]);
+        }
     }
 
     db()->delete(evo()->getFullTableName('user_settings'), sprintf("user='%s'", $id));
@@ -130,6 +160,39 @@ function saveUserSettings($id)
         exit('Failed to update user settings!');
     }
     unset($_SESSION['openedArray']);
+}
+
+// 画面で変えた項目名の一覧。送られていない（JS が動かなかった）ときは null を返し、送られた値をすべて保存する
+function changedSettingNames()
+{
+    if (!isset($_POST['changed_settings'])) {
+        return null;
+    }
+    $names = json_decode((string)$_POST['changed_settings'], true);
+    if (!is_array($names)) {
+        return null;
+    }
+    return array_values(array_filter($names, 'is_string'));
+}
+
+function currentUserSettings($id)
+{
+    $settings = [];
+    $rs = db()->select('setting_name, setting_value', '[+prefix+]user_settings', sprintf("user='%d'", $id));
+    while ($row = db()->getRow($rs)) {
+        $settings[$row['setting_name']] = $row['setting_value'];
+    }
+    return $settings;
+}
+
+function systemSettings()
+{
+    $settings = [];
+    $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
+    while ($row = db()->getRow($rs)) {
+        $settings[$row['setting_name']] = $row['setting_value'];
+    }
+    return $settings;
 }
 
 // Web alert -  sends an alert to web browser
