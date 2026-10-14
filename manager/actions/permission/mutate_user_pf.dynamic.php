@@ -478,9 +478,14 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             $pluginFields = is_array($evtOut) ? implode('', $evtOut) : '';
                             echo $pluginFields;
                             // 保存時に、ここで出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
-                            // PHP は POST のキーの「.」を「_」に変えて受け取るので、名前も合わせる
-                            preg_match_all('@name=["\']([^"\'\[\]\s]+)(?:\[\])?["\']@', $pluginFields, $m);
-                            sessionv('*profileSettingNames', str_replace('.', '_', $m[1]));
+                            // 名前は PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+                            preg_match_all('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $pluginFields, $m, PREG_SET_ORDER);
+                            $names = [];
+                            foreach ($m as $match) {
+                                $name = html_entity_decode(implode('', array_slice($match, 1)), ENT_QUOTES);
+                                $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
+                            }
+                            sessionv('*profileSettingNames', $names);
                             ?>
                         </td>
                     </tr>
