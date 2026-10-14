@@ -26,9 +26,12 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
   * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
   * リクエストメソッド判定 → `is_post()` / `is_get()`
-* **DB操作のセキュリティ**: エスケープはDB操作直前で行う。
+* **DB操作のセキュリティ**: 既存の DBAPI は値をエスケープしない。呼び出し側で、DB操作の直前に `db()->escape()` か `(int)` で安全化してから渡す。
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
+  * 条件も同じ: `where('id', '=', (int) $id)` / `where('name', '=', db()->escape($name))`。`$field`・`$op` にリクエストの値を渡さない
+  * 注意: `where_in()` / `and_where_in()` は取り決めから外れて、各値を内部でエスケープしている（実装時の揃え漏れ。外部のコードが前提にしている可能性があるので、新 API で解消するまで残す）。エスケープ済みの値を渡さない（二重エスケープになる）。同じ作りのヘルパーを増やさない
+  * 値を内部で無害化する方式は PDO ベースの新 API（#453）で導入する。既存 API には足さない（二重エスケープになるため）
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
 * **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
 
