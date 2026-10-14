@@ -60,8 +60,6 @@ if (manager()->hasFormValues()) {
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
-    $usernamedata['username'] = postv('newusername');
-    $usernamedata['oldusername'] = postv('oldusername');
     $usersettings = array_merge($usersettings, $userdata);
     $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
     extract($usersettings, EXTR_OVERWRITE);
@@ -152,7 +150,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     ?>
     <input type="hidden" name="mode" value="74">
     <input type="hidden" name="userid" value="<?= $userid ?>">
-    <input type="hidden" name="newusername" value="<?= userData('username') ?>" />
+    <input type="hidden" name="newusername" value="<?= hsc($usernamedata['username']) ?>" />
     <input type="hidden" name="role" value="<?= userData('role') ?>" />
     <input type="hidden" name="failedlogincount" value="<?= userData('failedlogincount') ?>">
     <input type="hidden" name="blockedmode"
