@@ -9,6 +9,8 @@
  *   js-escape   <script> の中へ埋め込む値に addslashes() や db()->escape() を使う書き方（js_literal() を使う）
  *   csrf-action manager/index.php で processor を読み込むアクションのうち、
  *               csrfProtectedActions() の一覧にも、このスクリプトの除外リストにも載っていないもの
+ *   csrf-get    非推奨の csrfUrl() / EvoCsrf.url() の使用。状態を変える操作は GET では受け付けない（405）ので、
+ *               リンク・ボタンには data-evo-post 属性を付け、JS からは EvoCsrf.post() で送る
  *
  * 実行: php .github/scripts/security-lint.php
  * 違反がなければ "0 violations" と出して終了コード 0、あれば 1 で終わる。
@@ -39,6 +41,9 @@ function main($root, $csrfExcludedActions)
         }
     }
     foreach (lintCsrfActions($root, $csrfExcludedActions) as $v) {
+        $violations[] = $v;
+    }
+    foreach (lintCsrfGet($root) as $v) {
         $violations[] = $v;
     }
 
@@ -704,6 +709,36 @@ function scriptStateAfter($html, $inScript)
 // ---------------------------------------------------------------------------
 // csrf-action
 // ---------------------------------------------------------------------------
+
+function lintCsrfGet($root)
+{
+    $out = [];
+    $dirs = [$root . '/manager', $root . '/assets'];
+    $definitions = [
+        'manager/includes/csrf_token.php' => true, // csrfUrl() の定義
+        'manager/media/script/csrf.js' => true,    // EvoCsrf.url() の定義
+    ];
+    foreach ($dirs as $dir) {
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            if (!$f->isFile() || !preg_match('@\.(php|js|tpl|html|inc)$@', $f->getFilename())) {
+                continue;
+            }
+            $rel = relPath($f->getPathname());
+            if (isset($definitions[$rel]) || strpos($rel, 'manager/includes/controls/') === 0
+                || preg_match('@/(vendor|node_modules|tinymce)/@', $rel)) {
+                continue;
+            }
+            foreach (file($f->getPathname()) as $n => $line) {
+                if (preg_match('@\bcsrfUrl\s*\(|\bEvoCsrf\.url\s*\(@', $line)) {
+                    $out[] = violation($f->getPathname(), $n + 1, 'csrf-get',
+                        '非推奨の csrfUrl() / EvoCsrf.url() を使っている（data-evo-post 属性か EvoCsrf.post() を使う）');
+                }
+            }
+        }
+    }
+    return $out;
+}
 
 function lintCsrfActions($root, $excluded)
 {

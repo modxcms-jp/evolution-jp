@@ -267,7 +267,7 @@ $icons_path = manager_style_image_path('icons');
                 if ($total < 1) {
                     echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
                 } else {
-                    echo '<p>' . str_replace('index.php?a=55', hsc(csrfUrl('index.php?a=55')), lang('mgrlog_sortinst')) . '</p>';
+                    echo '<p>' . str_replace('href="index.php?a=55"', 'href="index.php?a=55" data-evo-post', lang('mgrlog_sortinst')) . '</p>';
 
                     include_once(MODX_CORE_PATH . 'paginate.inc.php');
                     // New instance of the Paging class, you can modify the color and the width of the html table
