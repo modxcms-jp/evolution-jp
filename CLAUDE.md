@@ -1,27 +1,11 @@
 # Claude Code 実行ガイド
 
-## 基本方針
-
-**開発ガイドラインは `AGENTS.md` を正とする。**
-
-このファイルは Claude Code 固有の動作指示のみを記載する。
-スキル一覧・ワークフロー・ログ確認・コミット規約・レビュー方針は `AGENTS.md` を参照。
-AIランタイム分担と共有スキル本文の位置づけは `assets/docs/ai-runtime-governance.md` を参照。
+@AGENTS.md
 
 ---
 
-## プロジェクト構成
+## Claude Code 固有の指示
 
-- **開発ガイドライン**: `AGENTS.md`（コーディング規約、判断基準、スキル一覧、ワークフロー）
-- **ロードマップ**: `.agent/roadmap.md`（実行順、依存関係、ExecPlan連携）
-- **ExecPlan**: `.agent/plans/`（実装計画の詳細）
-- **ドキュメント**: `assets/docs/`（アーキテクチャ、仕様）
-
----
-
-## 肥大化防止
-
-- このファイルは**Claude Code固有の動作指示のみ**を記載
-- 開発ガイドライン詳細は `AGENTS.md` へ
-- 実装手順詳細は ExecPlan へ
-- アーキテクチャ詳細は `assets/docs/` へ
+- 共通の開発ガイドラインは上の `@AGENTS.md` で取り込んでいる。このファイルに書き写さない
+- このファイルには、Claude Code だけに必要な動作指示を書く（現時点ではなし）
+- 取り込み方式の理由は `assets/docs/ai-runtime-governance.md` を参照

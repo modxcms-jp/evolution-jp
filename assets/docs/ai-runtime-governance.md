@@ -28,6 +28,14 @@
 - `CLAUDE.md`: Claude 固有の起動入口
 - `.github/copilot-instructions.md`: Copilot 系の入口
 
+### CLAUDE.md から AGENTS.md を取り込む理由
+
+`CLAUDE.md` は先頭で `@AGENTS.md` と書き、`AGENTS.md` を取り込む。
+
+Claude Code は v2.1.277 から `AGENTS.md` を直接読むようになった。ただし既定の設定では、`CLAUDE.md`、`.claude/CLAUDE.md`、`CLAUDE.local.md` のどれかがあると `AGENTS.md` を読まない。テレメトリを無効にした環境や、Bedrock・Vertex・Foundry 経由の環境でも読まれない。
+`CLAUDE.md` をなくして `AGENTS.md` だけに頼ると、こうした条件に当たったときに `AGENTS.md` が読まれないまま作業が進み、気付きにくい。
+`@AGENTS.md` で取り込んでおけば、設定や環境によらず必ず読まれる。両方を読む設定でも二重には読み込まれない。
+
 ## 設計原則
 
 ### 1. 役割とランタイムを分離する
