@@ -30,7 +30,7 @@
 
 ### CLAUDE.md から AGENTS.md を取り込む理由
 
-`CLAUDE.md` は先頭で `@AGENTS.md` と書き、`AGENTS.md` を取り込む。
+`CLAUDE.md` は `@AGENTS.md` の1行だけにして、`AGENTS.md` を取り込む。Claude 固有の指示が必要になったときだけ、その下に書き足す。
 
 Claude Code は v2.1.277 から `AGENTS.md` を直接読むようになった。ただし既定の設定では、`CLAUDE.md`、`.claude/CLAUDE.md`、`CLAUDE.local.md` のどれかがあると `AGENTS.md` を読まない。テレメトリを無効にした環境や、Bedrock・Vertex・Foundry 経由の環境でも読まれない。
 `CLAUDE.md` をなくして `AGENTS.md` だけに頼ると、こうした条件に当たったときに `AGENTS.md` が読まれないまま作業が進み、気付きにくい。
