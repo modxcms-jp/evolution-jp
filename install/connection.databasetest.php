@@ -136,10 +136,9 @@ function isAlreadyInUse($db_name, $table_prefix)
     if (!db()->tableExists('[+prefix+]site_content')) {
         return false;
     }
-    if (!db()->select('COUNT(id)', '[+prefix+]site_content')) {
-        return false;
-    }
-    return true;
+    // テーブルがあっても、どれも空なら失敗したインストールの残りとみなし、やり直しを通す
+    // （空のテーブルには、やり直しでそのまま初期データを入れられる）
+    return prefixedTablesHaveRows($table_prefix);
 }
 
 function span_pass($bgcolor, $str)

@@ -10,7 +10,7 @@ class SqlParser
     public $adminname;
     public $adminemail = 'example@example.com';
     public $adminpass;
-    public $connection_charset = 'utf8';
+    public $connection_charset = 'utf8mb4';
     public $connection_collation = 'utf8mb4_general_ci';
     public $managerlanguage = 'english';
 

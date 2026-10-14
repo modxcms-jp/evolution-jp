@@ -247,6 +247,9 @@ if (sessionv('is_upgradeable')) {
 echo "<p>" . lang('setup_database_creating_tables');
 log_install_event('Creating database tables');
 
+// 新規インストールが失敗したときに、この実行で作ったテーブルだけを片付けられるよう、前からあるテーブルを控える
+$tablesBeforeInstall = sessionv('is_upgradeable') ? [] : prefixedTables(sessionv('table_prefix'));
+
 $sqlParser->intoDB('create_tables.sql');
 
 if (!sessionv('is_upgradeable')) {
@@ -258,8 +261,12 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include MODX_SETUP_PATH . 'sql/fix_settings.php';
-log_install_event('Applied settings fix script');
+// 新規インストールで失敗したときは、テーブルの修正に進まない。
+// 欠けたテーブルへの ALTER TABLE でエラーになると処理ごと止まり、下で作ったテーブルを片付けられない
+if (sessionv('is_upgradeable') || !$sqlParser->installFailed) {
+    include MODX_SETUP_PATH . 'sql/fix_settings.php';
+    log_install_event('Applied settings fix script');
+}
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
     log_install_event('Converting database to utf8mb4');
@@ -277,7 +284,30 @@ if ($sqlParser->installFailed == true) {
         printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], lang('during_execution_of_sql'), strip_tags($err['sql']));
     }
     echo '</p>';
-    echo "<p>" . lang('some_tables_not_updated') . "</p>";
+    if (sessionv('is_upgradeable')) {
+        echo "<p>" . lang('some_tables_not_updated') . "</p>";
+        return;
+    }
+    // 作ったテーブルが残ると、やり直しの接続テストで接頭辞の重複になるので片付ける（前からあったテーブルには触れない）
+    // どちらかの一覧を取得できなかったときは、前からあったテーブルと見分けられないので何も消さない
+    $tablesAfterInstall = prefixedTables(sessionv('table_prefix'));
+    if ($tablesBeforeInstall === null || $tablesAfterInstall === null) {
+        log_install_event('Skipped removing tables: could not list tables');
+        echo "<p>" . lang('some_tables_not_updated') . "</p>";
+        return;
+    }
+    $leftTables = [];
+    foreach (array_diff($tablesAfterInstall, $tablesBeforeInstall) as $table) {
+        if (!db()->query(sprintf('DROP TABLE IF EXISTS `%s`', str_replace('`', '``', $table)), false)) {
+            $leftTables[] = $table;
+        }
+    }
+    log_install_event('Removed tables created by the failed installation', ['left' => $leftTables]);
+    if ($leftTables) {
+        printf('<p>%s<br /><span class="mono">%s</span></p>', lang('install_failed_tables_left'), hsc(implode(', ', $leftTables)));
+    } else {
+        printf('<p>%s</p>', lang('install_failed_tables_removed'));
+    }
     return;
 }
 

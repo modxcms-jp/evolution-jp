@@ -482,6 +482,51 @@ function checkAllTablesExist()
     return true;
 }
 
+/**
+ * 接頭辞が付いたテーブルの名前を返す（接頭辞の _ や % は文字どおりに一致させる）
+ *
+ * @param string $table_prefix
+ * @return array|null 一覧を取得できなかったときは null
+ */
+function prefixedTables($table_prefix)
+{
+    $like = str_replace(['\\', '_', '%'], ['\\\\', '\\_', '\\%'], $table_prefix);
+    $rs = db()->query(sprintf("SHOW TABLES LIKE '%s%%'", db()->escape($like)), false);
+    if (!$rs) {
+        return null;
+    }
+    $tables = [];
+    while ($row = db()->getRow($rs, 'num')) {
+        $tables[] = $row[0];
+    }
+    return $tables;
+}
+
+/**
+ * 接頭辞が付いたテーブルのどれかに、1行でもデータが入っているか
+ * 中身を確かめられなかったテーブルがあるときも、入っているものとみなす
+ *
+ * @param string $table_prefix
+ * @return bool
+ */
+function prefixedTablesHaveRows($table_prefix)
+{
+    $tables = prefixedTables($table_prefix);
+    if ($tables === null) {
+        return true;
+    }
+    foreach ($tables as $table) {
+        $rs = db()->query(
+            sprintf('SELECT 1 FROM `%s` LIMIT 1', str_replace('`', '``', $table)),
+            false
+        );
+        if (!$rs || db()->count($rs)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function managerConfigExists()
 {
     return is_file(MODX_BASE_PATH . 'manager/includes/config.inc.php');
