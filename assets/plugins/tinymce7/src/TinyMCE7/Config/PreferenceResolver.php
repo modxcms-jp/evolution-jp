@@ -175,23 +175,38 @@ final class PreferenceResolver
             return $config;
         }
 
-        $rows = is_array($toolbar) ? $toolbar : [(string)$toolbar];
-
-        foreach ($rows as $row) {
-            if (preg_match('/(^|[\s|])styles($|[\s|])/', (string)$row)) {
-                return $config;
-            }
-        }
-
         if ($toolbar === null || $toolbar === '' || $toolbar === true) {
             // TinyMCE 既定のツールバーには styles が含まれる
             return $config;
         }
 
-        $rows[0] = 'styles ' . ltrim((string)$rows[0]);
+        // toolbar は文字列、文字列の配列（行ごと）、{name, items} のグループ配列のいずれか
+        $rows = is_array($toolbar) ? array_values($toolbar) : [$toolbar];
+
+        foreach ($rows as $row) {
+            if ($this->rowHasStyles($row)) {
+                return $config;
+            }
+        }
+
+        if (is_array($rows[0] ?? null)) {
+            array_unshift($rows, ['name' => 'styles', 'items' => ['styles']]);
+        } else {
+            $rows[0] = 'styles ' . ltrim((string)($rows[0] ?? ''));
+        }
+
         $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
 
         return $config;
+    }
+
+    private function rowHasStyles($row): bool
+    {
+        if (is_array($row)) {
+            return in_array('styles', (array)($row['items'] ?? []), true);
+        }
+
+        return (bool)preg_match('/(^|[\s|])styles($|[\s|])/', (string)$row);
     }
 
     public function detectToolbarPreset(): string
