@@ -475,9 +475,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <?php
                             // invoke OnInterfaceSettingsRender event
                             $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
-                            if (is_array($evtOut)) {
-                                echo implode('', $evtOut);
-                            }
+                            $pluginFields = is_array($evtOut) ? implode('', $evtOut) : '';
+                            echo $pluginFields;
+                            // 保存時に、ここで出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
+                            preg_match_all('@name=["\']([A-Za-z0-9_]+)(?:\[\])?["\']@', $pluginFields, $m);
+                            sessionv('*profileSettingNames', $m[1]);
                             ?>
                         </td>
                     </tr>
