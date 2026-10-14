@@ -27,6 +27,18 @@ function user($key, $default = null)
     return evo()->array_get($user, $key, $default);
 }
 
+// システム設定の値。evo()->config には編集している管理者自身のユーザー設定が重なっているので、テーブルから読む
+function systemSetting($key, $default = null)
+{
+    $rs = db()->select(
+        'setting_value',
+        '[+prefix+]system_settings',
+        sprintf("setting_name='%s'", db()->escape($key))
+    );
+    $row = db()->getRow($rs);
+    return $row ? $row['setting_value'] : $default;
+}
+
 function checked($cond)
 {
     if ($cond) {
