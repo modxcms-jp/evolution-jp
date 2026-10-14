@@ -59,6 +59,10 @@ if (in_array(postv('mode'), [12, 74])) {
     if (!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
         webAlert('Missing user id!');
     }
+    if (trim((string)postv('newusername')) === '') {
+        webAlert('Missing user name!');
+        exit;
+    }
     // check if the username already exist
     if (userid_byname(postv('newusername')) && userid_byname(postv('newusername')) != postv('userid')) {
         webAlert('User name is already in use!');
