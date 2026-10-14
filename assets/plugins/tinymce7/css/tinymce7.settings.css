@@ -27,3 +27,16 @@ textarea.mce {
     margin: 3px;
 }
 
+
+#editorRow_TinyMCE7 .tinymce7-settings__template {
+    margin-bottom: 8px;
+}
+
+#editorRow_TinyMCE7 .tinymce7-settings__template span {
+    display: inline-block;
+    min-width: 10em;
+}
+
+#editorRow_TinyMCE7 .tinymce7-settings__template input {
+    width: 300px;
+}

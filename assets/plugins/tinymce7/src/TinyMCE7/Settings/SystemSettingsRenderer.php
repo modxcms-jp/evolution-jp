@@ -107,6 +107,21 @@ final class SystemSettingsRenderer
         $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_entermode_description', 'Choose how TinyMCE 7 handles the Enter key.'), ENT_QUOTES, 'UTF-8') . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
+        $html[] = '  <tr class="row1">';
+        $html[] = '    <th>' . htmlspecialchars($this->t('tinymce7_template_label', 'Templates'), ENT_QUOTES, 'UTF-8') . '</th>';
+        $html[] = '    <td>';
+        $templateFields = [
+            'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $this->preferences->detectTemplateDocIds())],
+            'tinymce7_template_chunks' => [$this->t('tinymce7_template_chunks', 'Chunk names'), implode(',', $this->preferences->detectTemplateChunkNames())],
+            'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $this->preferences->detectTemplateCategory()],
+        ];
+        foreach ($templateFields as $name => [$label, $value]) {
+            $html[] = '      <div class="tinymce7-settings__template"><label><span>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>'
+                . '<input type="text" class="inputBox" name="' . $name . '" value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"></label></div>';
+        }
+        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '    </td>';
+        $html[] = '  </tr>';
         $html[] = '</table>';
 
         return implode("\n", $html);

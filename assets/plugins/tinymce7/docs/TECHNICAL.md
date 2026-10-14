@@ -13,6 +13,7 @@
 - 管理画面設定用スタイル: `css/tinymce7.settings.css`
 - MCPuk 連携スクリプト: `js/mcpuk-picker.js`
 - 画像編集モーダル連携スクリプト: `js/tinymce-cropper.js`
+- ひな形挿入プラグイン: `js/modx-template.js`
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -106,6 +107,9 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_toolbar_preset` | プリセットを `simple` / `basic` / `legacy` / `full` から選択します。|
 | `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示、空 = TinyMCE 既定値）。|
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
+| `tinymce7_template_docs` | ひな形にするリソースの ID（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_docs` を読みます。|
+| `tinymce7_template_chunks` | ひな形にするチャンクの名前（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_chunks` を読みます。|
+| `tinymce7_template_category` | このカテゴリに属するチャンクをすべてひな形にします（カテゴリ名で指定）。|
 | 互換キー (`tinymce_toolbar_preset`, `tinymce_menubar`, `tinymce4_entermode` など) | 旧プラグインとの互換のために自動的に読み替えます。|
 
 ## イベントパラメーター
@@ -120,6 +124,14 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 ## MCPuk ファイルブラウザー連携
 `tinymce7_file_browser` が `mcpuk` の場合、`js/mcpuk-picker.js` が `file_picker_callback` を上書きし、選択したファイルの URL を CMS のルートに合わせて正規化します。無効化すると TinyMCE の標準ダイアログが利用されます。
+
+## ひな形の挿入
+TinyMCE 7 ではオープンソース版の `template` プラグインが廃止され、有償の Templates（advtemplate）に置き換わりました。本プラグインは MODX のリソースとチャンクをひな形として挿入する独自プラグイン `modxtemplate`（`js/modx-template.js`）を同梱しています。
+
+- 管理画面のエディターで、システム設定 `tinymce7_template_*` から 1 件以上のひな形が見つかったときだけ、`external_plugins` に登録して読み込みます。フロントエンド用（`forfrontend`）では読み込みません。
+- 一覧と本文は `TinyMCE7\Editor\TemplateRepository` が集め、エディター設定の `modx_templates` として渡します（別のエンドポイントは使いません）。リソースは公開中かつ管理画面で閲覧できるもの、チャンクは公開中のものに限ります。
+- ツールバーのボタン名は旧プラグインと同じ `template`、メニュー項目名は TinyMCE 7 の「挿入」メニュー既定値に含まれる `inserttemplate` です。ひな形が無いときは、ツールバー設定から `template` を取り除きます。
+- 本文は MODX タグを含めて保存されているまま挿入します。ダイアログのプレビューは、エディターのスキーマで無害化した HTML を表示します。
 
 ## コード構成
 - `TinyMCE7\Plugin` クラスがエントリーポイントで、イベントごとの処理を担当します。
