@@ -89,7 +89,6 @@ if (!sessionv('is_upgradeable')) {
 $errors = 0;
 
 $ph = ph();
-$ph = array_merge($ph, $_lang);
 $ph['install_language'] = lang_name();
 
 ob_start();
