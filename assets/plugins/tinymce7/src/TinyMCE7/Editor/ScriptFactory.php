@@ -22,7 +22,7 @@ final class ScriptFactory
 
     public function scriptTag(string $url): string
     {
-        $escaped = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+        $escaped = hsc($url);
 
         return '<script src="' . $escaped . '"></script>';
     }
