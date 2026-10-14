@@ -76,7 +76,10 @@ function saveUserSettings($id)
         'stay',
         'save',
         'theme_refresher',
-        'userid'
+        'userid',
+        'csrf_token',
+        'save_action',
+        'blockedcheck'
     ];
 
     // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)

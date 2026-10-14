@@ -60,6 +60,10 @@ addColumnIfNotExists($table, 'error_reporting', "varchar(8) NOT NULL DEFAULT 'in
 $table = sessionv('table_prefix') . 'site_snippets';
 addColumnIfNotExists($table, 'error_reporting', "varchar(8) NOT NULL DEFAULT 'inherit' AFTER `properties`");
 
+// ユーザーの保存が、設定ではないフォームの項目（CSRF トークンなど）もユーザー設定に入れていた（#611）。残っている行を消す
+$table = sessionv('table_prefix') . 'user_settings';
+db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('csrf_token', 'save_action', 'blockedcheck')");
+
 $data = [
     'id' => 1,
     'name' => 'Administrator',
