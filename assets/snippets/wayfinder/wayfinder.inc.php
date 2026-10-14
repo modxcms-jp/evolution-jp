@@ -579,7 +579,7 @@ class Wayfinder
         while ($row = db()->getRow($result)) {
             $resultIds[] = $row['id'];
             //Create the link
-            $linkScheme = $this->_config['fullLink'] ? 'full' : '';
+            $linkScheme = $this->_config['fullLink'] ? 'full' : 'abs';
             if ($this->_config['useWeblinkUrl'] && $row['type'] === 'reference') {
                 if (preg_match('@^[1-9][0-9]*$@', $row['content'])) {
                     $row['link'] = $modx->makeUrl((int)$row['content'], '', '', $linkScheme);
@@ -587,7 +587,7 @@ class Wayfinder
                     $row['link'] = $row['content'];
                 }
             } elseif ($row['id'] == $modx->config['site_start']) {
-                $row['link'] = MODX_SITE_URL;
+                $row['link'] = $this->_config['fullLink'] ? MODX_SITE_URL : MODX_BASE_URL;
             } else {
                 $row['link'] = $modx->makeUrl($row['id'], '', '', $linkScheme);
             }
