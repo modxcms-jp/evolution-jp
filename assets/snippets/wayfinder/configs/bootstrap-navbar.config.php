@@ -10,7 +10,7 @@ $outerTpl = '@CODE:
   <span class="icon-bar"></span>
   <span class="icon-bar"></span>
 </button>
-<a class="navbar-brand" href="[(site_url)]">[(site_name)]</a>
+<a class="navbar-brand" href="' . (!empty($fullLink) ? '[(site_url)]' : '[(base_url)]') . '">[(site_name)]</a>
 </div>
 <div id="gnavi" class="collapse navbar-collapse">
   <ul [+wf.classes+]>[+wf.wrapper+]</ul>
