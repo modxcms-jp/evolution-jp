@@ -520,13 +520,18 @@ function ConvertDate($date)
     }
 }
 
-// HTML の入力欄の名前。PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+// HTML の入力欄（input / select / textarea / button）の名前。コメントの中は見ない。
+// PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
 function fieldNames($html)
 {
-    preg_match_all('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $html, $m, PREG_SET_ORDER);
+    $html = preg_replace('@<!--.*?-->@s', '', $html);
+    preg_match_all('@<(?:input|select|textarea|button)\b[^>]*>@i', $html, $tags);
     $names = [];
-    foreach ($m as $match) {
-        $name = html_entity_decode(implode('', array_slice($match, 1)), ENT_QUOTES);
+    foreach ($tags[0] as $tag) {
+        if (!preg_match('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $tag, $m)) {
+            continue;
+        }
+        $name = html_entity_decode(implode('', array_slice($m, 1)), ENT_QUOTES);
         $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
     }
     return $names;
