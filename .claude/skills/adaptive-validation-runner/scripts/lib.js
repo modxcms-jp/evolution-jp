@@ -61,8 +61,8 @@ async function login(browser, user = config.adminUser, password = config.adminPa
 
 // キャッシュは「サイトをリフレッシュ」(a=26) で作り直す（CLI なら php evo cache:clear でもよい。どちらもすぐ作り直す）。
 // temp/cache/*.php を直接消しても次のアクセスで作り直されるが、確認の手順ではこちらを使う
-// a=26 は状態を変える操作のため CSRF トークンが要る。<meta name="csrf-token"> から読み、
-// 開いたばかりのページなどで無ければ、先に管理画面を開いて取得する
+// a=26 は状態を変える操作のため、POST でしか受け付けず（GET は 405）、CSRF トークンが要る。
+// トークンは <meta name="csrf-token"> から読み、開いたばかりのページなどで無ければ、先に管理画面を開いて取得する
 async function refreshCache(page) {
     const readToken = () => page.evaluate(() => {
         const meta = document.querySelector('meta[name="csrf-token"]');
@@ -76,9 +76,10 @@ async function refreshCache(page) {
     if (!token) {
         throw new Error('refreshCache: CSRF トークンを取得できない（管理画面にログインしていない可能性）');
     }
-    const res = await page.goto(config.manager + 'index.php?a=26&csrf_token=' + encodeURIComponent(token), { waitUntil: 'domcontentloaded' });
-    if (!res || res.status() >= 400) {
-        throw new Error(`refreshCache: サイトのリフレッシュ（a=26）が失敗した（status=${res ? res.status() : 'none'}）`);
+    // page.request はページと Cookie（ログインのセッション）を共有する
+    const res = await page.request.post(config.manager + 'index.php?a=26', { form: { csrf_token: token } });
+    if (res.status() >= 400) {
+        throw new Error(`refreshCache: サイトのリフレッシュ（a=26）が失敗した（status=${res.status()}）`);
     }
     await page.waitForTimeout(1000);
 }
