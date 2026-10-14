@@ -106,11 +106,11 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
 
     if ($offset !== null) {
         // 省略した非コンテナを limit_by_container 件ずつ返す
-        $limit = (int)$modx->config('limit_by_container');
+        $limit = (int)config('limit_by_container');
         if ($parent == 0 || $limit <= 0) {
             return '';
         }
-        $where = "isfolder=0 AND " . $where;
+        $where = sprintf('isfolder=0 %s AND %s', allowed_docs_condition(), $where);
         $remaining = db()->count(db()->select('sc.id', $from, $where)) - $offset - $limit;
         $result = db()->select(
             implode(',', $field),
@@ -142,13 +142,18 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         } else {
             $container_status = 'asis';
         }
+        if ($container_status === 'too_many') {
+            // 省略した非コンテナの件数。「残り N 件を表示」から続きを読み込む
+            $remaining = db()->count(db()->select(
+                'sc.id',
+                $from,
+                sprintf('isfolder=0 %s AND %s', allowed_docs_condition(), $where)
+            ));
+        }
         if ($container_status !== 'asis' && $parent != 0) {
-            $totalChild = $hasChild;
             $where = "isfolder=1 AND " . $where;
             $result = db()->select($field, $from, $where, $tree_orderby);
             $hasChild = db()->count($result);
-            // 省略した非コンテナの件数。「残り N 件を表示」から続きを読み込む
-            $remaining = $totalChild - $hasChild;
         }
     }
 
@@ -439,8 +444,25 @@ function get_tree_orderby()
     if (sessionv('tree_sortby') === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
-    $orderby .= ', sc.editedon DESC';
+    // 続きの読み込み（LIMIT）で順序が揺れないよう、一意なキーで並びを確定させる
+    $orderby .= ', sc.editedon DESC, sc.id ASC';
     return $orderby;
+}
+
+/**
+ * allowed_parents があるとき、表示を許可されたリソースだけに絞る条件
+ * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる
+ */
+function allowed_docs_condition()
+{
+    if (!evo()->conf_var('allowed_parents')) {
+        return '';
+    }
+    if (!isset(evo()->user_allowed_docs)) {
+        evo()->user_allowed_docs = manager()->getUserAllowedDocs();
+    }
+    $ids = array_filter(array_map('intval', (array)evo()->user_allowed_docs));
+    return sprintf('AND sc.id IN (%s)', $ids ? implode(',', $ids) : '0');
 }
 
 function get_spacer($indent)
@@ -629,10 +651,11 @@ function parseNode($tpl, $param, $id)
 
     $_tmp = $modx->config('limit_by_container');
     $modx->config['limit_by_container'] = '';
-    if (manager()->isContainAllowed($id) === false) {
+    $allowed = manager()->isContainAllowed($id);
+    $modx->config['limit_by_container'] = $_tmp;
+    if ($allowed === false) {
         return;
     }
-    $modx->config['limit_by_container'] = $_tmp;
     $modx->event->vars = [];
     $modx->event->vars = &$param;
     $modx->event->vars['tpl'] = &$tpl;
