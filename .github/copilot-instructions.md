@@ -1,31 +1,20 @@
-## Language
+## 参照する正本
 
-- このリポジトリの共通ルールは `AGENTS.md` を正本とする。
-- AIランタイム分担の正本は `assets/docs/ai-runtime-governance.md` とする。
-- スキル本文の共通正本は `.claude/skills/` に置き、必要に応じて参照する。
-- エージェント責務の共通正本は `.agent/agents/` に置く。
+- 共通ルール: `AGENTS.md`
+- PRのタイトル・本文・ラベル: `.github/codex-pr-rules.md`
+- AIランタイム分担: `assets/docs/ai-runtime-governance.md`
+- スキル本文: `.claude/skills/`
+- エージェント責務: `.agent/agents/`
+
+## 言語と文体
 
 - すべて日本語で記述すること。
 - 英語は明示的に求められた場合を除き使用しない。
-
-## PR Summary Format
-
-- PR Summary は日本語で記述すること。
-- 説明的な詳細な文章ではなく、要点を簡潔に列挙すること。
-- 見出しや装飾（絵文字・太字・コードブロックなど）は使用しない。
-
-## Writing Style
-
 - 敬体（です・ます調）は使用しない。
 - 技術文書・リリースノート向けの簡潔な文体を用いる。
 
-## Content Rules
+## PR Summary
 
-- 変更点のみを記載し、背景説明や推測は書かない。
-- 破壊的変更がある場合は、最初の箇条書きで明示する。
+- 構成は `.github/codex-pr-rules.md` の「PR本文」に従う。
+- 変更点を書き、推測は書かない。
 - 実装詳細ではなく「利用者・開発者にとっての影響」を優先する。
-
-## Release Notes Compatibility
-
-- PR Summary は、そのまま Release Notes に転記できる内容とする。
-- 必要に応じて、Release Notes 用に別途要約を作成すること。
