@@ -1072,6 +1072,7 @@ $_lang["day_names"] = '日,月,火,水,木,金,土';
 $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
 $_lang["tree_page_click_option_auto"] = '自動(推奨)';
 $_lang["too_many_resources"] = 'リソース数が多いため非表示';
+$_lang["tree_show_more"] = '残り [+count+] 件を表示';
 $_lang['setting_resource_tree_sortby_default'] = 'リソースツリーの並び順';
 $_lang['setting_resource_tree_sortby_default_desc'] = '管理画面のリソースツリー上の並び順を指定します。デフォルトはmenuindexですが、menutitle・alias など任意のリソースフィールドを使用できます。';
 $_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード名';
@@ -1149,7 +1150,7 @@ $_lang["save_user.processor.php1"] = '変更した設定を反映するために
 $_lang["disabled"] = '無効';
 
 $_lang["limit_by_container"] = 'コンテナ内の表示数';
-$_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると表示を抑制します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
+$_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると、コンテナ以外のリソースを省略して「残り N 件を表示」を出します。クリックするとここで設定した数ずつ続きを表示します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
 $_lang["allow_mgr2web_title"] = '認証状態を上書き';
 $_lang["allow_mgr2web_message"] = '管理メンバーとしてログインしている時はウェブユーザとしてもログインしている状態にします。';
 
