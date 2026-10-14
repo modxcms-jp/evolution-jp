@@ -47,6 +47,12 @@ $closed2 = [];
 
 $expandAll = (int)getv('expandAll');
 
+if (getv('offset') !== null) {
+    // 件数超過で省略したリソースの続き
+    echo getNodes(getv('indent', 0), getv('parent', 0), 0, '', max(0, (int)getv('offset')));
+    exit;
+}
+
 $output = getNodes(getv('indent',0), getv('parent',0), $expandAll);
 
 // check for deleted documents on reload
@@ -59,7 +65,7 @@ if ($expandAll == 2) {
 
 echo $output;
 
-function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
+function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
 {
     global $modx;
     global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2;
@@ -96,16 +102,37 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
-    $where = sprintf("parent='%s' %s GROUP BY sc.id,rev.status", $parent, $access);
-    $result = db()->select(
-        implode(',', $field),
-        $from,
-        $where,
-        $tree_orderby
-    );
-    $hasChild = db()->count($result);
+    $where = sprintf("parent='%d' %s GROUP BY sc.id,rev.status", $parent, $access);
 
-    if ($modx->config('tree_page_click') != 27 && $parent != 0) {
+    if ($offset !== null) {
+        // 省略した非コンテナを limit_by_container 件ずつ返す
+        $limit = (int)$modx->config('limit_by_container');
+        if ($parent == 0 || $limit <= 0) {
+            return '';
+        }
+        $where = "isfolder=0 AND " . $where;
+        $remaining = db()->count(db()->select('sc.id', $from, $where)) - $offset - $limit;
+        $result = db()->select(
+            implode(',', $field),
+            $from,
+            $where,
+            $tree_orderby,
+            sprintf('%d,%d', $offset, $limit)
+        );
+        $hasChild = db()->count($result);
+        $container_status = 'more';
+    } else {
+        $result = db()->select(
+            implode(',', $field),
+            $from,
+            $where,
+            $tree_orderby
+        );
+        $hasChild = db()->count($result);
+        $container_status = 'asis';
+    }
+
+    if ($offset === null && $modx->config('tree_page_click') != 27 && $parent != 0) {
         if ($modx->config('limit_by_container') === '') {
             $container_status = 'asis';
         } elseif ($modx->config('limit_by_container') == 0) {
@@ -116,35 +143,26 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
             $container_status = 'asis';
         }
         if ($container_status !== 'asis' && $parent != 0) {
+            $totalChild = $hasChild;
             $where = "isfolder=1 AND " . $where;
             $result = db()->select($field, $from, $where, $tree_orderby);
             $hasChild = db()->count($result);
+            // 省略した非コンテナの件数。「残り N 件を表示」から続きを読み込む
+            $remaining = $totalChild - $hasChild;
         }
-    } else {
-        $container_status = 'asis';
     }
 
     $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-    if ($hasChild == 0 && $container_status !== 'container_only') {
-        if ($container_status === 'too_many') {
-            $msg = $_lang['too_many_resources'];
-        } else {
-            $msg = $_lang['empty_folder'];
-        }
-
+    if ($hasChild == 0 && $container_status === 'asis') {
         $tpl = tplEmptyFolder();
-        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => $_style['tree_deletedpage'], 'msg' => $msg];
-        if ($msg) {
-            $output .= $modx->parseText($tpl, $param);
-        }
+        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => $_style['tree_deletedpage'], 'msg' => $_lang['empty_folder']];
+        $output .= $modx->parseText($tpl, $param);
     }
 
 
-    $loop_count = 0;
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        $loop_count++;
         [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft] = $row;
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
 
@@ -228,10 +246,14 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
                     $ph['ca'] = hasChildren($id) ? 'doclist' : 'open';
             }
 
-            if ($container_status === 'container_only' && $isfolder == 1) {
-                $where = "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id,rev.status";
-                $result = db()->select($field, $from, $where, $tree_orderby);
-                $hasChild = db()->count($result);
+            // 子コンテナの有無で開閉アイコンを決める。ループ中の $result を上書きしない
+            $childFolderCount = 0;
+            if ($container_status === 'container_only') {
+                $childFolderCount = db()->count(db()->select(
+                    'sc.id',
+                    $from,
+                    "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id,rev.status"
+                ));
             }
 
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
@@ -245,7 +267,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
                 if ($expandAll == 1) {
                     $opened2[] = $id;
                 }
-                if ($container_status === 'container_only' && $hasChild == 0) {
+                if ($container_status === 'container_only' && $childFolderCount == 0) {
                     $ph['_style_tree_minusnode'] = $_style['tree_blanknode'];
                 } else {
                     $ph['_style_tree_minusnode'] = $_style['tree_minusnode'];
@@ -264,7 +286,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
                 $indent--;
                 $output .= '</div></div>';
             } else {
-                if ($container_status === 'container_only' && $hasChild == 0) {
+                if ($container_status === 'container_only' && $childFolderCount == 0) {
                     $ph['_style_tree_plusnode'] = $_style['tree_blanknode'];
                 } else {
                     $ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
@@ -274,14 +296,6 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
                     $ph,
                     $id
                 );
-                if ($parent != 0 && $container_status === 'too_many' && $loop_count == $hasChild) {
-                    $param = [
-                        'spacer' => $spacer . $pad,
-                        'icon_deletedpage' => $_style['tree_deletedpage'],
-                        'msg' => $_lang['too_many_resources']
-                    ];
-                    $output .= $modx->parseText(tplEmptyFolder(), $param);
-                }
                 $closed2[] = $id;
             }
         }
@@ -300,6 +314,12 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
             $output .= '<script type="text/javascript">' . "\n" . implode("\n", $a) . "\n</script>";
         }
     endwhile;
+
+    if ($container_status === 'too_many') {
+        $output .= moreNode($indent, $parent, 0, $remaining);
+    } elseif ($container_status === 'more') {
+        $output .= moreNode($indent, $parent, $offset + $hasChild, $remaining);
+    }
     return $output;
 }
 
@@ -570,6 +590,31 @@ function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
     $alt = implode("\n", $_);
     $alt = addslashes($alt);
     return htmlspecialchars($alt, ENT_QUOTES, $modx->config('modx_charset'));
+}
+
+function moreNode($indent, $parent, $offset, $remaining)
+{
+    global $_style, $_lang;
+
+    if ($remaining <= 0) {
+        return '';
+    }
+    return evo()->parseText(
+        tplMoreNode(),
+        [
+            'spacer' => get_spacer($indent) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
+            'icon' => $_style['tree_deletedpage'],
+            'indent' => (int)$indent,
+            'parent' => (int)$parent,
+            'offset' => (int)$offset,
+            'msg' => str_replace('[+count+]', (int)$remaining, $_lang['tree_show_more'])
+        ]
+    );
+}
+
+function tplMoreNode()
+{
+    return '<div class="moreNode" style="white-space:nowrap;">[+spacer+]<img align="absmiddle" src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()

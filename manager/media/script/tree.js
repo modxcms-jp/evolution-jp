@@ -81,6 +81,30 @@ function sendTreeRequest(url) {
         });
 }
 
+// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える
+function loadMoreNodes(el, indent, parent, offset) {
+    var moreNode = el.parentNode;
+    if (moreNode.loading) {
+        return;
+    }
+    moreNode.loading = true;
+    loadTreeRequest({
+        "a": "1",
+        "f": "nodes",
+        "indent": indent,
+        "parent": parent,
+        "offset": offset
+    }, function (response) {
+        if (response.indexOf('mx_loginbox') !== -1) {
+            // セッション切れ
+            top.location = 'index.php';
+            return;
+        }
+        moreNode.insertAdjacentHTML('beforebegin', response);
+        moreNode.parentNode.removeChild(moreNode);
+    });
+}
+
 function rpcLoadData(response) {
     if (rpcNode == null) {
         return;
