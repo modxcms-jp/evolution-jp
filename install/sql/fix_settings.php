@@ -2,7 +2,8 @@
 
 function addColumnIfNotExists($table, $column, $definition) {
     $query = sprintf(
-        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
+        // 同じサーバーにある別の DB の同名テーブルを数えないよう、接続中の DB に絞る
+        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
         $table,
         $column
     );

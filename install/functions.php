@@ -389,8 +389,8 @@ function propUpdate($new, $old)
     return $return;
 }
 
-// DBAPI の exec() は一部のエラー（1054 Unknown column など）を成功として返すので、
-// 書き込みの成否は戻り値に加えて直前のエラー番号でも確かめる
+// 書き込みの成否を確かめる。#585 より前の DBAPI の exec() は一部のエラー（1054 Unknown column など）を
+// 成功として返していたため、戻り値に加えて直前のエラー番号でも確かめている
 function dbWriteFailed($rs)
 {
     return !$rs || db()->getLastErrorNo();

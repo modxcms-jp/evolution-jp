@@ -599,7 +599,8 @@ class ditto
         $randomize
     )
     {
-        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
+        // &documents が空（TV の値が空など）のときも結果なしにする。そのまま進むと IN () で SQL が失敗する
+        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false || $IDs === '') {
             return [];
         }
         // Get starting IDs;
