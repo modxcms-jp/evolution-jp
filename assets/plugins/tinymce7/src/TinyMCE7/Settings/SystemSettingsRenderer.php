@@ -108,16 +108,27 @@ final class SystemSettingsRenderer
         $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_entermode_description', 'Choose how TinyMCE 7 handles the Enter key.'), ENT_QUOTES, 'UTF-8') . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
-        $html[] = '  <tr class="row1">';
-        $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . htmlspecialchars($this->t('tinymce7_css_selectors_label', 'CSS style selectors'), ENT_QUOTES, 'UTF-8') . '</label></th>';
-        $html[] = '    <td>';
-        $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . htmlspecialchars($this->preferences->detectCssSelectors(), ENT_QUOTES, 'UTF-8') . '">';
-        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".'), ENT_QUOTES, 'UTF-8') . '</div>';
-        $html[] = '    </td>';
-        $html[] = '  </tr>';
+
+        // サイト共通の設定なのでシステム設定画面だけに出す。ユーザー設定画面に出すと、
+        // 表示中の管理者の値がそのユーザーの個別設定として保存されてしまう
+        if ($this->isSystemSettingsScreen()) {
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . htmlspecialchars($this->t('tinymce7_css_selectors_label', 'CSS style selectors'), ENT_QUOTES, 'UTF-8') . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . htmlspecialchars($this->preferences->detectCssSelectors(), ENT_QUOTES, 'UTF-8') . '">';
+            $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".'), ENT_QUOTES, 'UTF-8') . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+        }
+
         $html[] = '</table>';
 
         return implode("\n", $html);
+    }
+
+    private function isSystemSettingsScreen(): bool
+    {
+        return function_exists('manager') && (int)manager()->action === 17;
     }
 
     private function t(string $key, string $default): string
