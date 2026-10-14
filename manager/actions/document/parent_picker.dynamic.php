@@ -242,34 +242,24 @@ function parent_picker_search($q, array $docIds)
         $match[] = sprintf('sc.id=%d', $q);
         $idOrder = sprintf('sc.id=%d DESC, ', $q);
     }
-    $where = '(' . implode(' OR ', $match) . ')';
-    if (!manager()->isAdmin()) {
-        $docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-        $where .= $docgroups
-            ? sprintf(
-                ' AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
-                db()->getFullTableName('document_groups'),
-                implode(',', $docgroups)
-            )
-            : ' AND sc.privatemgr=0';
+    $where = '(' . implode(' OR ', $match) . ')' . parent_picker_access_where();
+    // 件数で打ち切る前に絞らないと、範囲内の候補が範囲外の候補に押し出されて出てこない
+    if (evo()->conf_var('allowed_parents')) {
+        $allowed = array_filter(array_map('intval', (array)manager()->getUserAllowedDocs()));
+        $where .= $allowed ? sprintf(' AND sc.id IN (%s)', implode(',', $allowed)) : ' AND 0';
     }
 
-    // allowed_parents で外す分を見込んで多めに取る
-    $fetchLimit = PARENT_PICKER_LIMIT * 2;
     $rs = db()->select(
         'sc.id, sc.pagetitle, sc.deleted',
         '[+prefix+]site_content AS sc',
         $where,
         "{$idOrder}sc.isfolder DESC, sc.id",
-        $fetchLimit + 1
+        PARENT_PICKER_LIMIT + 1
     );
 
     $items = [];
-    $more = db()->count($rs) > $fetchLimit;
+    $more = false;
     while ($row = db()->getRow($rs)) {
-        if (!manager()->isAllowed($row['id'])) {
-            continue;
-        }
         if (count($items) === PARENT_PICKER_LIMIT) {
             $more = true;
             break;
@@ -287,7 +277,29 @@ function parent_picker_search($q, array $docIds)
 }
 
 /**
- * ID の並びをタイトルの並びにする（同じ名前のリソースを見分けるための階層表示）
+ * 管理画面で非公開（privatemgr）のリソースを、所属する文書グループのものだけに絞る条件（' AND ...'）
+ *
+ * @return string
+ */
+function parent_picker_access_where()
+{
+    if (manager()->isAdmin()) {
+        return '';
+    }
+    $docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+    if (!$docgroups) {
+        return ' AND sc.privatemgr=0';
+    }
+    return sprintf(
+        ' AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+        db()->getFullTableName('document_groups'),
+        implode(',', $docgroups)
+    );
+}
+
+/**
+ * ID の並びをタイトルの並びにする（同じ名前のリソースを見分けるための階層表示）。
+ * 見る権限のない祖先は、ツリーと同じくタイトルを出さずに伏せる
  *
  * @param int[] $ids
  * @return string[]
@@ -297,10 +309,14 @@ function parent_picker_titles(array $ids)
     static $titles = [];
     $missing = array_diff($ids, array_keys($titles));
     if ($missing) {
+        $missing = array_map('intval', $missing);
+        foreach ($missing as $id) {
+            $titles[$id] = '…';
+        }
         $rs = db()->select(
-            'id, pagetitle',
-            '[+prefix+]site_content',
-            sprintf('id IN (%s)', implode(',', array_map('intval', $missing)))
+            'sc.id, sc.pagetitle',
+            '[+prefix+]site_content AS sc',
+            sprintf('sc.id IN (%s)', implode(',', $missing)) . parent_picker_access_where()
         );
         while ($row = db()->getRow($rs)) {
             $titles[(int)$row['id']] = $row['pagetitle'];
@@ -308,7 +324,7 @@ function parent_picker_titles(array $ids)
     }
     $path = [];
     foreach ($ids as $id) {
-        $path[] = $titles[$id] ?? (string)$id;
+        $path[] = $titles[$id];
     }
     return $path;
 }
