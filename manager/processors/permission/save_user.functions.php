@@ -8,7 +8,8 @@ function canSaveUser()
 {
     if (postv('mode') == 74) {
         return evo()->hasPermission('change_password')
-            && post_intvar('userid') === (int)evo()->getLoginUserID();
+            && post_intvar('userid') === (int)evo()->getLoginUserID()
+            && (postv('newpassword') != 1 || evo()->hasPermission('save_password'));
     }
     return evo()->hasPermission('save_user');
 }

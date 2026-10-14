@@ -143,9 +143,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 
     // invoke OnUserFormPrerender event
     $tmp = ["id" => $userid];
+    $pluginSettingNames = [];
     $evtOut = evo()->invokeEvent("OnUserFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
+        $pluginSettingNames = fieldNames(implode("", $evtOut));
     }
     ?>
     <input type="hidden" name="mode" value="74">
@@ -475,17 +477,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <?php
                             // invoke OnInterfaceSettingsRender event
                             $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
-                            $pluginFields = is_array($evtOut) ? implode('', $evtOut) : '';
-                            echo $pluginFields;
-                            // 保存時に、ここで出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
-                            // 名前は PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
-                            preg_match_all('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $pluginFields, $m, PREG_SET_ORDER);
-                            $names = [];
-                            foreach ($m as $match) {
-                                $name = html_entity_decode(implode('', array_slice($match, 1)), ENT_QUOTES);
-                                $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
+                            if (is_array($evtOut)) {
+                                echo implode('', $evtOut);
+                                $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode('', $evtOut)));
                             }
-                            sessionv('*profileSettingNames', $names);
                             ?>
                         </td>
                     </tr>
@@ -501,7 +496,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     $evtOut = evo()->invokeEvent("OnUserFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
+        $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode("", $evtOut)));
     }
+    // 保存時に、プラグインが出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
+    sessionv('*profileSettingNames', $pluginSettingNames);
     ?>
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
@@ -520,6 +518,18 @@ function ConvertDate($date)
     } else {
         return $modx->toTimeStamp($date);
     }
+}
+
+// HTML の入力欄の名前。PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+function fieldNames($html)
+{
+    preg_match_all('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $html, $m, PREG_SET_ORDER);
+    $names = [];
+    foreach ($m as $match) {
+        $name = html_entity_decode(implode('', array_slice($match, 1)), ENT_QUOTES);
+        $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
+    }
+    return $names;
 }
 
 function checkbox($name, $value, $label, $cond)
