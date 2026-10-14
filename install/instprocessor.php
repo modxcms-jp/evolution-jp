@@ -261,8 +261,12 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include MODX_SETUP_PATH . 'sql/fix_settings.php';
-log_install_event('Applied settings fix script');
+// 新規インストールで失敗したときは、テーブルの修正に進まない。
+// 欠けたテーブルへの ALTER TABLE でエラーになると処理ごと止まり、下で作ったテーブルを片付けられない
+if (sessionv('is_upgradeable') || !$sqlParser->installFailed) {
+    include MODX_SETUP_PATH . 'sql/fix_settings.php';
+    log_install_event('Applied settings fix script');
+}
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
     log_install_event('Converting database to utf8mb4');
