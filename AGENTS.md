@@ -30,6 +30,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
   * 条件も同じ: `where('id', '=', (int) $id)` / `where('name', '=', db()->escape($name))`。`$field`・`$op` にリクエストの値を渡さない
+  * 例外: `where_in()` / `and_where_in()` は各値を内部でエスケープする。エスケープ済みの値を渡さない（二重エスケープになる）
   * 値を内部で無害化する方式は PDO ベースの新 API（#453）で導入する。既存 API には足さない（二重エスケープになるため）
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
 * **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
