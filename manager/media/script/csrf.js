@@ -62,6 +62,11 @@
             var inShell = document.body && document.body.classList.contains('evo-shell')
                 && window.EvoShell && typeof window.EvoShell.submit === 'function';
             if (inShell && !(opts && opts.fullPage)) {
+                // EvoShell.submit() は未保存の確認をせずに画面を差し替えるため、navigate() と同じく先に確かめる。
+                // 画面全体を移すときは、ブラウザの beforeunload で確かめる
+                if (typeof window.EvoShell.confirmIfDirty === 'function' && !window.EvoShell.confirmIfDirty()) {
+                    return;
+                }
                 window.EvoShell.submit(form);
                 return;
             }

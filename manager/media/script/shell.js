@@ -554,6 +554,11 @@
         unsavedMessage: 'Your changes are not saved. Continue?',
         networkErrorMessage: 'A network error occurred. The page will be reloaded.',
 
+        // 未保存の変更があれば確認する。続けてよいなら true(EvoCsrf.post()も送る前に使う)
+        confirmIfDirty: function () {
+            return confirmIfDirty();
+        },
+
         navigate: function (url, opts) {
             const push = !opts || opts.push !== false;
             if (!confirmIfDirty()) {
