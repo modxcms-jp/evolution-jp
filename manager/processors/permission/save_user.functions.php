@@ -3,9 +3,53 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!evo()->hasPermission('save_user')) {
-    alert()->setError(3);
-    alert()->dumpError();
+// プロフィール（a=74）は自分自身の編集なので、画面を開ける change_password 権限で保存できる
+function canSaveUser()
+{
+    if (postv('mode') == 74) {
+        return evo()->hasPermission('change_password')
+            && post_intvar('userid') === (int)evo()->getLoginUserID();
+    }
+    return evo()->hasPermission('save_user');
+}
+
+// プロフィールで変えられない項目（ユーザー名・ロール・ブロック・所属グループ）は、送られた値ではなく保存済みの値を使う
+function useSavedProfileValues()
+{
+    $userid = (int)evo()->getLoginUserID();
+    $_POST['newusername'] = db()->getValue(
+        db()->select('username', '[+prefix+]manager_users', where('id', '=', $userid))
+    );
+    $attributes = db()->getRow(db()->select(
+        'role, failedlogincount, blocked, blockeduntil, blockedafter',
+        '[+prefix+]user_attributes',
+        where('internalKey', '=', $userid)
+    ));
+    foreach ((array)$attributes as $k => $v) {
+        $_POST[$k] = $v;
+    }
+    $_POST['user_groups'] = db()->getColumn(
+        'user_group',
+        db()->select('user_group', '[+prefix+]member_groups', where('member', '=', $userid))
+    );
+}
+
+// プロフィール画面に出している設定の名前。プラグインが足す欄（OnInterfaceSettingsRender）は、画面と同じく呼んで入力名を拾う
+function profileSettingNames()
+{
+    $names = [
+        'manager_theme',
+        'manager_inline_style',
+        'manager_login_startup',
+        'manager_language',
+        'which_editor',
+        'editor_css_path'
+    ];
+    $evtOut = evo()->invokeEvent('OnInterfaceSettingsRender');
+    if (is_array($evtOut) && preg_match_all('@name=["\']([A-Za-z0-9_]+)["\']@', implode('', $evtOut), $m)) {
+        $names = array_merge($names, $m[1]);
+    }
+    return $names;
 }
 
 // Send an email to the user
@@ -133,6 +177,17 @@ function saveUserSettings($id)
             unset($settings[$k]);
         }
         unset($settings['default_' . $k]);
+    }
+
+    // プロフィールでは画面に出している設定だけを変え、それ以外（ファイル管理のパスなど）は保存済みの値を残す
+    if (postv('mode') == 74) {
+        $allowed = profileSettingNames();
+        $settings = array_intersect_key($settings, array_flip($allowed));
+        foreach (currentUserSettings($id) as $k => $v) {
+            if (!in_array($k, $allowed)) {
+                $settings[$k] = $v;
+            }
+        }
     }
 
     // システム設定と同じ値は保存しない（あとでシステム設定を変えたときに、そのユーザーも追従させる）

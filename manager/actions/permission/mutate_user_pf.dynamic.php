@@ -454,7 +454,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                 if (is_array($evtOut)) {
                                     for ($i = 0; $i < count($evtOut); $i++) {
                                         $selected = selected($edt == $evtOut[$i]);
-                                        echo sprintf('<option value="%s">%s</option>', $selected, $evtOut[$i]);
+                                        echo sprintf('<option value="%s"%s>%s</option>', hsc($evtOut[$i]), $selected, hsc($evtOut[$i]));
                                     }
                                 }
                                 ?>

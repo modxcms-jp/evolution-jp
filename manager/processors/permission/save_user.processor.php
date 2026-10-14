@@ -2,13 +2,16 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('save_user')) {
+include(__DIR__ . '/save_user.functions.php');
+if (!canSaveUser()) {
     alert()->setError(3);
     alert()->dumpError();
 }
+if (postv('mode') == 74) {
+    useSavedProfileValues();
+}
 
 evo()->loadExtension('phpass');
-include(__DIR__ . '/save_user.functions.php');
 
 // verify password
 if (!confirmPassword()) {
