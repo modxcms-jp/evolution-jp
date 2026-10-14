@@ -180,7 +180,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### exec-plan スキル - 実行計画の作成・検証・更新
 
 - **用途**: 新機能開発、リファクタリング、バグ修正の設計フェーズ
-- **タイミング**: roadmapで`NEXT`ステータスかつExecPlan未作成のタスク着手時
+- **タイミング**: roadmap の `NEXT` タスクに着手するとき、改修規模から ExecPlan が要ると判断した場合（目安は `.agent/roadmap.md` の「記述フォーマット」）
 - **コマンド**: `/create-plan <タスク概要>` でプラン作成開始
 
 ### project-worker スキル - 開発タスク実行
@@ -206,7 +206,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ### roadmap-next-task スキル - 次タスク着手
 
-- **用途**: 依存順で次の未完了タスクを選定し、ExecPlan作成から実装完了・同期まで一貫して行う
+- **用途**: ロードマップの上から次の未完了タスクを選定し、ExecPlan の要否判断（要る場合は作成）から実装完了・同期まで一貫して行う
 - **コマンド**: `/next-task`（着手）/ `/finish-task`（完了処理）/ `/sync-roadmap`（状態同期）
 
 ### release スキル - リリース作業
@@ -240,7 +240,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### 実行前の確認
 
 1. **roadmapを確認**: `.agent/roadmap.md` でステータス（NEXT/WIP/DONE/BLOCKED）と依存関係を確認
-2. **ExecPlanの存在確認**: 着手予定タスクにExecPlanがあるか確認
+2. **ExecPlan・Issue の確認**: 着手予定タスクの `Issue:` と `ExecPlan:` を確認する
 3. **AGENTS.mdの遵守**: コーディング規約と判断基準に従う
 
 ### コミット前（ドキュメント変更時）
@@ -258,7 +258,7 @@ fix(db): 実行直前でエスケープ処理を統一
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
    - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
-   - ExecPlanなし → `/create-plan <タスク概要>` で計画作成（exec-plan スキル）
+   - `着手時に判断` → `.agent/roadmap.md` の目安で要否を決める。要るなら `/create-plan <タスク概要>` で計画作成（exec-plan スキル）、要らないなら `不要` にして Issue を正に実装（issue-resolver スキル）
 4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
 5. **実装**: AGENTS.md の規約に従って実装
 6. **完了処理**: `roadmap-next-task` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う
