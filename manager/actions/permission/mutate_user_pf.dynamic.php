@@ -532,6 +532,10 @@ function fieldNames($html)
     preg_match_all('@<(?:input|select|textarea|button)\b[^>]*>@i', $html, $tags);
     $names = [];
     foreach ($tags[0] as $tag) {
+        // disabled の欄は送信されない
+        if (preg_match('@\sdisabled\b@i', $tag)) {
+            continue;
+        }
         if (!preg_match('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $tag, $m)) {
             continue;
         }
