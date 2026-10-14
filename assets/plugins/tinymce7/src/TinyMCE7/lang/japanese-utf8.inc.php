@@ -19,3 +19,14 @@ $_lang['tinymce7_entermode_br'] = '改行 <br> を挿入';
 $_lang['tinymce7_css_selectors_label'] = 'CSSスタイルセレクタ';
 $_lang['tinymce7_css_selectors_description'] = 'ツールバーの「フォーマット」から選べる CSS クラスを「表示名=クラス名;表示名2=クラス名2」の形式で指定します（例：本のタイトル=booktitle;著者=author）。要素全体を選ぶとその要素に、文中の一部を選ぶと span でクラスを付けます。旧 TinyMCE の設定が残っていれば引き継ぎます。';
 
+$_lang['tinymce7_template_label'] = 'ひな形';
+$_lang['tinymce7_template_docs'] = 'リソースID';
+$_lang['tinymce7_template_chunks'] = 'チャンク名';
+$_lang['tinymce7_template_category'] = 'チャンクのカテゴリ';
+$_lang['tinymce7_template_description'] = 'ここで指定したリソースの本文やチャンクを、ツールバーの「ひな形の挿入」ボタンや「挿入」メニューから本文に挿入できます。複数指定するときはカンマ（,）で区切ります。カテゴリを指定すると、そのカテゴリのチャンクをすべて一覧に出します。';
+$_lang['tinymce7_template_button'] = 'ひな形の挿入';
+$_lang['tinymce7_template_dialog_title'] = 'ひな形の挿入';
+$_lang['tinymce7_template_select'] = 'ひな形';
+$_lang['tinymce7_template_preview'] = 'プレビュー';
+$_lang['tinymce7_template_insert'] = '挿入';
+$_lang['tinymce7_template_cancel'] = 'キャンセル';

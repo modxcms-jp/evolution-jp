@@ -16,6 +16,7 @@ final class EditorInitializer
     private Language $language;
     private FileBrowserResolver $fileBrowserResolver;
     private ScriptFactory $scriptFactory;
+    private TemplateRepository $templateRepository;
 
     public function __construct(
         ?ElementSelector $elementSelector = null,
@@ -23,7 +24,8 @@ final class EditorInitializer
         ?PreferenceResolver $preferences = null,
         ?Language $language = null,
         ?FileBrowserResolver $fileBrowserResolver = null,
-        ?ScriptFactory $scriptFactory = null
+        ?ScriptFactory $scriptFactory = null,
+        ?TemplateRepository $templateRepository = null
     ) {
         $this->elementSelector = $elementSelector ?? new ElementSelector();
         $this->configRepository = $configRepository ?? new ConfigRepository();
@@ -31,6 +33,7 @@ final class EditorInitializer
         $this->language = $language ?? new Language();
         $this->fileBrowserResolver = $fileBrowserResolver ?? new FileBrowserResolver();
         $this->scriptFactory = $scriptFactory ?? new ScriptFactory();
+        $this->templateRepository = $templateRepository ?? new TemplateRepository($this->preferences);
     }
 
     public function handle($event): void
@@ -99,6 +102,7 @@ final class EditorInitializer
         $config = $this->preferences->applyCssSelectors($config);
 
         $config = $this->applyEditorCssPath($config);
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
 
@@ -151,6 +155,80 @@ final class EditorInitializer
         $output[] = '</script>';
 
         $event->output(implode("\n", $output));
+    }
+
+    /**
+     * 「ひな形の挿入」（TinyMCE 7 で廃止された template プラグインの代替）を組み込む。
+     * ひな形の本文はページに埋め込むため、管理画面のエディターに限る。
+     */
+    private function applyTemplates(array $config, bool $isManager): array
+    {
+        $templates = $isManager ? $this->templateRepository->all() : [];
+
+        if ($templates === []) {
+            if (isset($config['toolbar'])) {
+                $config['toolbar'] = $this->removeToolbarItem($config['toolbar'], 'template');
+            }
+
+            return $config;
+        }
+
+        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
+        $externalPlugins['modxtemplate'] = MODX_BASE_URL . 'assets/plugins/tinymce7/js/modx-template.js';
+        $config['external_plugins'] = $externalPlugins;
+        $config['modx_templates'] = $templates;
+        $config['modx_template_labels'] = [
+            'button' => $this->language->translate('tinymce7_template_button', 'Insert template'),
+            'title' => $this->language->translate('tinymce7_template_dialog_title', 'Insert template'),
+            'select' => $this->language->translate('tinymce7_template_select', 'Template'),
+            'preview' => $this->language->translate('tinymce7_template_preview', 'Preview'),
+            'insert' => $this->language->translate('tinymce7_template_insert', 'Insert'),
+            'cancel' => $this->language->translate('tinymce7_template_cancel', 'Cancel'),
+        ];
+
+        return $config;
+    }
+
+    /**
+     * @param string|array $plugins
+     * @return string|array
+     */
+    private function appendPlugin($plugins, string $name)
+    {
+        if (is_array($plugins)) {
+            if (!in_array($name, $plugins, true)) {
+                $plugins[] = $name;
+            }
+
+            return $plugins;
+        }
+
+        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (!in_array($name, $list, true)) {
+            $list[] = $name;
+        }
+
+        return implode(' ', $list);
+    }
+
+    /**
+     * @param mixed $toolbar
+     * @return mixed
+     */
+    private function removeToolbarItem($toolbar, string $item)
+    {
+        if (is_array($toolbar)) {
+            return array_map(fn($row) => $this->removeToolbarItem($row, $item), $toolbar);
+        }
+
+        if (!is_string($toolbar)) {
+            return $toolbar;
+        }
+
+        $pattern = '/(^|\s)' . preg_quote($item, '/') . '(?=\s|$)/';
+
+        return trim(preg_replace('/\s{2,}/', ' ', preg_replace($pattern, '$1', $toolbar) ?? $toolbar) ?? $toolbar);
     }
 
     private function applyEditorCssPath(array $config): array

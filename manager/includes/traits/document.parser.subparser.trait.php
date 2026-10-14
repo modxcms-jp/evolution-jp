@@ -347,7 +347,8 @@ trait DocumentParserSubParserTrait
                     'right' => $source
                 ]
             );
-        } elseif ($modx->currentSnippetCode) {
+        } elseif ($modx->currentSnippetCode && is_numeric($line)) {
+            // DBAPI からの呼び出しなど、行番号がないときはスニペットの行を出さない
             $lines = explode("\n", $modx->currentSnippetCode);
             $str .= $modx->parseText(
                 $tpl,

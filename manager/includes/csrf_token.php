@@ -177,8 +177,9 @@ function csrfTokenField($token = null)
 }
 
 /**
- * URLにCSRFトークンを付ける（状態を変える操作へのリンク・location.href 用）
- * JS 側で後ろに "&id=" などを連結する使い方もできるよう、トークンは末尾に付ける
+ * URLにCSRFトークンを付ける
+ * 非推奨。状態を変える操作（csrfProtectedActions()）は GET では受け付けない（405）ため、
+ * リンク・ボタンには data-evo-post 属性を付け、JS からは EvoCsrf.post() で送る。外部の拡張のために残している
  *
  * @param string $url 付け先のURL
  * @return string csrf_token を付けたURL
@@ -192,7 +193,8 @@ function csrfUrl($url)
 /**
  * 状態（DB・ファイル・セッション）を変える操作の一覧
  * 値が true のアクションは常に対象。配列のときは、そのパラメータが列挙した値のときだけ対象（表示と更新を兼ねる画面のサブ操作）
- * POST はこの一覧によらず検証するため、ここに載せるのは GET・HEAD などでも到達しうる操作
+ * ここに載せた操作は POST でしか受け付けない（GET・HEAD などは accesscontrol.inc.php で 405）。
+ * POST はこの一覧によらずトークンを検証する
  *
  * @return array<int, true|array<string, string[]>>
  */

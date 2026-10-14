@@ -34,14 +34,14 @@ if (id()) {
         function duplicaterecord() {
             if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
                 documentDirty = false;
-                document.location.href = EvoCsrf.url("index.php?id=<?= get_intvar('id') ?>&a=96");
+                EvoCsrf.post("index.php?id=<?= get_intvar('id') ?>&a=96");
             }
         }
 
         function deletedocument() {
             if (confirm("<?= lang('confirm_delete_template') ?>")) {
                 documentDirty = false;
-                document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=21");
+                EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=21");
             }
         }
     </script>

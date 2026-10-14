@@ -94,14 +94,14 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=<?= request_intvar('id') ?>&a=304");
+            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=304");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_tmplvars'] ?>") == true) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=303");
+            EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=303");
         }
     }
 

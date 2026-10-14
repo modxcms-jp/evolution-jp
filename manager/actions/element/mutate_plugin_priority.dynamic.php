@@ -48,11 +48,13 @@ $f['evtname'] = 'sysevt.name';
 $f['evtid'] = 'sysevt.id';
 $f[] = 'pe.pluginid';
 $f[] = 'plugs.name';
+$f[] = 'plugs.disabled';
 $f[] = 'pe.priority';
 $from[] = '[+prefix+]system_eventnames sysevt';
 $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
 $from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
-$rs = db()->select($f, $from, 'plugs.disabled=0', 'sysevt.name,pe.priority');
+// 停止中のプラグインも並べ替えられるよう含める（実行時は cache_sync 側で除外される）
+$rs = db()->select($f, $from, '', 'sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
@@ -65,7 +67,11 @@ while ($row = db()->getRow($rs)) {
         $evtLists .= '<strong>' . hsc($row['evtname']) . '</strong><br /><ul id="' . (int)$row['evtid'] . '" class="sortableList" data-sortable="true" data-target="list_' . (int)$row['evtid'] . '" data-delimiter=",">';
         $insideUl = 1;
     }
-    $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '">' . hsc($row['name']) . '</li>';
+    if ($row['disabled']) {
+        $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '" class="disabledPlugin">' . hsc($row['name']) . ' (' . hsc($_lang['disabled']) . ')</li>';
+    } else {
+        $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '">' . hsc($row['name']) . '</li>';
+    }
     $preEvt = $row['evtid'];
 }
 
@@ -92,6 +98,11 @@ if ($insideUl) {
         user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;
+    }
+
+    ul.sortableList li.disabledPlugin {
+        font-weight: normal;
+        color: #999999;
     }
 
     ul.sortableList li.dragging {

@@ -102,14 +102,14 @@ function content($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=" + docid + "&a=111");
+            EvoCsrf.post("index.php?id=" + docid + "&a=111");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=110");
+            EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=110");
         }
     }
 

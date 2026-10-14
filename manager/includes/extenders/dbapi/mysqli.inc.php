@@ -278,17 +278,14 @@ class DBAPI
             if (!$watchError) {
                 return false;
             }
-            if (!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])) {
-                evo()->messageQuit(
-                    sprintf(
-                        'Execution of a query to the database failed - %s',
-                        $this->getLastError()
-                    ),
-                    $sql
-                );
-                return false;
-            }
-            return true;
+            evo()->messageQuit(
+                sprintf(
+                    'Execution of a query to the database failed - %s',
+                    $this->getLastError()
+                ),
+                $sql
+            );
+            return false;
         }
 
         $totaltime = evo()->getMicroTime() - $tstart;

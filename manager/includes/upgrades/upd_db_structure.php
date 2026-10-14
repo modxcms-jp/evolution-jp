@@ -26,15 +26,16 @@ $queries = [
         'column' => 'alias_visible',
         'query' => "ALTER TABLE `{$prefix}site_content` ADD COLUMN `alias_visible` int(2) NOT NULL DEFAULT '1' COMMENT 'Hide document from alias path';"
     ],
-    [
-        'table' => "{$prefix}site_htmlsnippets",
-        'column' => 'pub_date',
-        'query' => "ALTER TABLE `{$prefix}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;"
-    ],
+    // AFTER に書いた列が先にできているよう、基準になる列から追加する
     [
         'table' => "{$prefix}site_htmlsnippets",
         'column' => 'published',
         'query' => "ALTER TABLE `{$prefix}site_htmlsnippets` ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`;"
+    ],
+    [
+        'table' => "{$prefix}site_htmlsnippets",
+        'column' => 'pub_date',
+        'query' => "ALTER TABLE `{$prefix}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;"
     ],
     [
         'table' => "{$prefix}site_htmlsnippets",
@@ -58,13 +59,13 @@ $queries = [
     ],
     [
         'table' => "{$prefix}user_attributes",
-        'column' => 'city',
-        'query' => "ALTER TABLE `{$prefix}user_attributes` ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;"
+        'column' => 'street',
+        'query' => "ALTER TABLE `{$prefix}user_attributes` ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`;"
     ],
     [
         'table' => "{$prefix}user_attributes",
-        'column' => 'street',
-        'query' => "ALTER TABLE `{$prefix}user_attributes` ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`;"
+        'column' => 'city',
+        'query' => "ALTER TABLE `{$prefix}user_attributes` ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;"
     ],
     [
         'table' => "{$prefix}web_user_attributes",

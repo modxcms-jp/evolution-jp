@@ -90,7 +90,7 @@ function role($key, $default = null)
         jConfirm('<?= $_lang['confirm_delete_role'] ?>', '<?= $_lang['confirm'] ?>',
             function(r) {
                 if (r)
-                    document.location.href = EvoCsrf.url("index.php?id=" + document.userform.id.value + "&a=37");
+                    EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=37");
                 else return false;
             }
         );
