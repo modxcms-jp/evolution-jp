@@ -143,9 +143,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 
     // invoke OnUserFormPrerender event
     $tmp = ["id" => $userid];
+    $pluginSettingNames = [];
     $evtOut = evo()->invokeEvent("OnUserFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
+        $pluginSettingNames = fieldNames(implode("", $evtOut));
     }
     ?>
     <input type="hidden" name="mode" value="74">
@@ -454,7 +456,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                 if (is_array($evtOut)) {
                                     for ($i = 0; $i < count($evtOut); $i++) {
                                         $selected = selected($edt == $evtOut[$i]);
-                                        echo sprintf('<option value="%s">%s</option>', $selected, $evtOut[$i]);
+                                        echo sprintf('<option value="%s"%s>%s</option>', hsc($evtOut[$i]), $selected, hsc($evtOut[$i]));
                                     }
                                 }
                                 ?>
@@ -477,6 +479,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
                             if (is_array($evtOut)) {
                                 echo implode('', $evtOut);
+                                $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode('', $evtOut)));
                             }
                             ?>
                         </td>
@@ -493,7 +496,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     $evtOut = evo()->invokeEvent("OnUserFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
+        $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode("", $evtOut)));
     }
+    // 保存時に、プラグインが出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
+    sessionv('*profileSettingNames', $pluginSettingNames);
     ?>
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
@@ -512,6 +518,31 @@ function ConvertDate($date)
     } else {
         return $modx->toTimeStamp($date);
     }
+}
+
+// HTML の入力欄（input / select / textarea / button）の名前。コメントや script などの送信されない部分は見ない。
+// PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+function fieldNames($html)
+{
+    $html = preg_replace(
+        ['@<!--.*?-->@s', '@<(script|template|style|noscript)\b.*?</\1\s*>@is', '@(<textarea\b[^>]*>).*?</textarea\s*>@is'],
+        ['', '', '$1'],
+        $html
+    );
+    preg_match_all('@<(?:input|select|textarea|button)\b[^>]*>@i', $html, $tags);
+    $names = [];
+    foreach ($tags[0] as $tag) {
+        // disabled の欄は送信されない
+        if (preg_match('@\sdisabled\b@i', $tag)) {
+            continue;
+        }
+        if (!preg_match('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $tag, $m)) {
+            continue;
+        }
+        $name = html_entity_decode(implode('', array_slice($m, 1)), ENT_QUOTES);
+        $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
+    }
+    return $names;
 }
 
 function checkbox($name, $value, $label, $cond)

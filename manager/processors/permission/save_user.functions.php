@@ -3,9 +3,59 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!evo()->hasPermission('save_user')) {
-    alert()->setError(3);
-    alert()->dumpError();
+// プロフィール（a=74）は自分自身の編集なので、画面を開ける change_password 権限で保存できる
+function canSaveUser()
+{
+    if (postv('mode') == 74) {
+        return evo()->hasPermission('change_password')
+            && post_intvar('userid') === (int)evo()->getLoginUserID()
+            && (postv('newpassword') != 1 || evo()->hasPermission('save_password'));
+    }
+    return evo()->hasPermission('save_user');
+}
+
+// 保存に使う値。プロフィールで変えられない項目（ユーザー名・ロール・ブロック・所属グループ）は、送られた値ではなく保存済みの値を返す
+function userformv($key, $default = null)
+{
+    static $saved = null;
+    if (postv('mode') != 74) {
+        return postv($key, $default);
+    }
+    if ($saved === null) {
+        $saved = savedProfileValues();
+    }
+    return array_key_exists($key, $saved) ? $saved[$key] : postv($key, $default);
+}
+
+function savedProfileValues()
+{
+    $userid = (int)evo()->getLoginUserID();
+    $values = (array)db()->getRow(db()->select(
+        'role, failedlogincount, blocked, blockeduntil, blockedafter',
+        '[+prefix+]user_attributes',
+        where('internalKey', '=', $userid)
+    ));
+    $values['newusername'] = db()->getValue(
+        db()->select('username', '[+prefix+]manager_users', where('id', '=', $userid))
+    );
+    $values['user_groups'] = db()->getColumn(
+        'user_group',
+        db()->select('user_group', '[+prefix+]member_groups', where('member', '=', $userid))
+    );
+    return $values;
+}
+
+// プロフィール画面に出している設定の名前。プラグインが足す欄（OnInterfaceSettingsRender）は、画面を表示したときに覚えた名前を使う
+function profileSettingNames()
+{
+    return array_merge([
+        'manager_theme',
+        'manager_inline_style',
+        'manager_login_startup',
+        'manager_language',
+        'which_editor',
+        'editor_css_path'
+    ], (array)sessionv('profileSettingNames', []));
 }
 
 // Send an email to the user
@@ -135,6 +185,29 @@ function saveUserSettings($id)
         unset($settings['default_' . $k]);
     }
 
+    // プロフィールでは画面に出している設定だけを変え、それ以外（ファイル管理のパスなど）は保存済みの値を残す
+    if (postv('mode') == 74) {
+        $allowed = profileSettingNames();
+        $settings = array_intersect_key($settings, array_flip($allowed));
+        foreach (currentUserSettings($id) as $k => $v) {
+            if (!in_array($k, $allowed)) {
+                $settings[$k] = $v;
+            }
+        }
+    }
+
+    // 言語とテーマは読み込むファイルのパスになるので、実在する名前だけを保存する
+    $files = [
+        'manager_language' => MODX_CORE_PATH . 'lang/%s.inc.php',
+        'manager_theme' => MODX_MANAGER_PATH . 'media/style/%s/style.php'
+    ];
+    foreach ($files as $k => $format) {
+        if (isset($settings[$k])
+            && (!preg_match('@^[A-Za-z0-9_-]+$@', $settings[$k]) || !is_file(sprintf($format, $settings[$k])))) {
+            unset($settings[$k]);
+        }
+    }
+
     // システム設定と同じ値は保存しない（あとでシステム設定を変えたときに、そのユーザーも追従させる）
     $system = systemSettings();
     foreach ($settings as $k => $v) {
@@ -220,7 +293,7 @@ function verifyPermission()
     if (manager()->isAdmin()) {
         return true;
     }
-    if (evo()->input_post('role') != 1) {
+    if (userformv('role') != 1) {
         return true;
     }
     if (!evo()->hasPermission('edit_role') || !evo()->hasPermission('save_role')) {
@@ -279,7 +352,7 @@ function role_byuserid($userid)
 
 function hasOldUserName()
 {
-    return (postv('oldusername') != postv('newusername', 'New User'));
+    return (postv('oldusername') != userformv('newusername', 'New User'));
 }
 
 function hasOldUserEmail()
@@ -356,11 +429,11 @@ function validate()
     ];
     $rs = [];
     foreach ($fields as $field) {
-        if (in_array($field, ['dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter']) && !postv($field)) {
+        if (in_array($field, ['dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter']) && !userformv($field)) {
             $rs[$field] = 0;
             continue;
         }
-        $rs[$field] = postv($field, $field === 'role' ? 0 : '');
+        $rs[$field] = userformv($field, $field === 'role' ? 0 : '');
     }
     return $rs;
 }
@@ -376,7 +449,7 @@ function newUser()
 
     // build the SQL
     $internalKey = db()->insert(
-        ['username' => db()->escape(postv('newusername', 'New User'))],
+        ['username' => db()->escape(userformv('newusername', 'New User'))],
         '[+prefix+]manager_users'
     );
     if (!$internalKey) {
@@ -407,11 +480,11 @@ function newUser()
     $tmp = [
         'mode' => 'new',
         'userid' => $internalKey,
-        'username' => postv('newusername', 'New User'),
+        'username' => userformv('newusername', 'New User'),
         'userpassword' => newPassword(),
         'useremail' => postv('email'),
         'userfullname' => postv('fullname'),
-        'userroleid' => postv('role', 0)
+        'userroleid' => userformv('role', 0)
     ];
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
@@ -425,7 +498,7 @@ function newUser()
     // put the user in the user_groups he/ she should be in
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
-        $user_groups = postv('user_groups');
+        $user_groups = userformv('user_groups');
         if ($user_groups) {
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
@@ -459,7 +532,7 @@ function newUser()
     if (postv('passwordnotifymethod') === 'e') {
         sendMailMessage(
             postv('email'),
-            postv('newusername', 'New User'),
+            userformv('newusername', 'New User'),
             newPassword(),
             postv('fullname')
         );
@@ -485,7 +558,7 @@ function newUser()
             <div id="disp">
                 <p>
                     <?php
-                    echo sprintf(lang('password_msg'), postv('newusername', 'New User'), newPassword());
+                    echo sprintf(lang('password_msg'), userformv('newusername', 'New User'), newPassword());
                     ?>
                 </p>
             </div>
@@ -506,7 +579,7 @@ function updateUser()
     evo()->invokeEvent('OnBeforeUserFormSave', $tmp);
 
     // update user name and password
-    $field = ['username' => postv('newusername', 'New User')];
+    $field = ['username' => userformv('newusername', 'New User')];
     if (postv('newpassword') == 1) {
         $field['password'] = evo()->phpass->HashPassword(newPassword());
     }
@@ -521,7 +594,7 @@ function updateUser()
     }
 
     $field = validate();
-    $field['failedlogincount'] = postv('failedlogincount');
+    $field['failedlogincount'] = userformv('failedlogincount');
     $rs = db()->update(
         db()->escape($field),
         '[+prefix+]user_attributes',
@@ -539,11 +612,11 @@ function updateUser()
     $tmp = [
         'mode' => 'upd',
         'userid' => postv('userid'),
-        'username' => postv('newusername', 'New User'),
+        'username' => userformv('newusername', 'New User'),
         'userpassword' => newPassword(),
         'useremail' => postv('email'),
         'userfullname' => postv('fullname'),
-        'userroleid' => postv('role', 0),
+        'userroleid' => userformv('role', 0),
         'oldusername' => hasOldUserName() ? postv('oldusername') : '',
         'olduseremail' => hasOldUserEmail() ? postv('oldemail') : ''
     ];
@@ -553,14 +626,14 @@ function updateUser()
     if (postv('newpassword') == 1) {
         $tmp = [
             'userid' => postv('userid'),
-            'username' => postv('newusername', 'New User'),
+            'username' => userformv('newusername', 'New User'),
             'userpassword' => newPassword()
         ];
         evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 
     if (postv('passwordnotifymethod') === 'e' && postv('newpassword') == 1) {
-        sendMailMessage(postv('email'), postv('newusername', 'New User'), newPassword(), postv('fullname'));
+        sendMailMessage(postv('email'), userformv('newusername', 'New User'), newPassword(), postv('fullname'));
     }
 
     // invoke OnUserFormSave event
@@ -579,7 +652,7 @@ function updateUser()
             webAlert('An error occurred while attempting to delete previous user_groups entries.');
             exit;
         }
-        $user_groups = postv('user_groups');
+        $user_groups = userformv('user_groups');
         if ($user_groups) {
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
@@ -609,8 +682,8 @@ function updateUser()
         exit;
     }
     evo()->getSettings();
-    if (postv('userid') == evo()->getLoginUserID() && sessionv('mgrRole') !== postv('role', 0)) {
-        $_SESSION['mgrRole'] = postv('role', 0);
+    if (postv('userid') == evo()->getLoginUserID() && sessionv('mgrRole') !== userformv('role', 0)) {
+        $_SESSION['mgrRole'] = userformv('role', 0);
         evo()->webAlertAndQuit(lang('save_user.processor.php1'), 'index.php?a=75');
         exit;
     }
@@ -671,7 +744,7 @@ function updateUser()
                 <p>
                     <?= sprintf(
                         lang('password_msg'),
-                        postv('newusername', 'New User'),
+                        userformv('newusername', 'New User'),
                         newPassword()
                     ) . ((postv('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
                 </p>
