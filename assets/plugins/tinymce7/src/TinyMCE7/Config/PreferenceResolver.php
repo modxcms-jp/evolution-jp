@@ -89,6 +89,126 @@ final class PreferenceResolver
         return $config;
     }
 
+    /**
+     * 「表示名=クラス名;...」形式のCSSスタイルセレクタ設定を style_formats に変換する。
+     * TinyMCE 3 の theme_advanced_styles と同じ書式定義（selector '*' と inline 'span' の mixed 書式）にする。
+     * 要素全体を選んだときは要素に class を付け、文中の一部を選んだときは span で包む。
+     */
+    public function applyCssSelectors(array $config): array
+    {
+        $formats = $this->parseCssSelectors($this->detectCssSelectors());
+
+        if ($formats === []) {
+            return $config;
+        }
+
+        $existing = $config['style_formats'] ?? [];
+        $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], $formats);
+        $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
+        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
+        $config['importcss_append'] = $config['importcss_append'] ?? true;
+
+        return $this->ensureStylesButton($config);
+    }
+
+    public function detectCssSelectors(): string
+    {
+        // 一度保存されたら空でも旧キーへは戻らない（空にして無効化できるようにする）
+        if (array_key_exists('tinymce7_css_selectors', evo()->config)) {
+            return trim((string)evo()->config['tinymce7_css_selectors']);
+        }
+
+        $keys = ['tinymce_css_selectors', 'editor_css_selectors'];
+
+        foreach ($keys as $key) {
+            if (!isset(evo()->config[$key])) {
+                continue;
+            }
+
+            $value = trim((string)evo()->config[$key]);
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
+    }
+
+    public function parseCssSelectors(string $value): array
+    {
+        $formats = [];
+
+        foreach (explode(';', $value) as $entry) {
+            $entry = trim($entry);
+
+            if ($entry === '') {
+                continue;
+            }
+
+            if (str_contains($entry, '=')) {
+                [$title, $classes] = array_map('trim', explode('=', $entry, 2));
+            } else {
+                $title = $classes = $entry;
+            }
+
+            if ($classes === '') {
+                continue;
+            }
+
+            $formats[] = [
+                'title' => $title !== '' ? $title : $classes,
+                'selector' => '*',
+                'inline' => 'span',
+                'classes' => $classes,
+            ];
+        }
+
+        return $formats;
+    }
+
+    private function ensureStylesButton(array $config): array
+    {
+        $toolbar = $config['toolbar'] ?? null;
+
+        if ($toolbar === false) {
+            return $config;
+        }
+
+        if ($toolbar === null || $toolbar === '' || $toolbar === true) {
+            // TinyMCE 既定のツールバーには styles が含まれる
+            return $config;
+        }
+
+        // toolbar は文字列、文字列の配列（行ごと）、{name, items} のグループ配列のいずれか
+        $rows = is_array($toolbar) ? array_values($toolbar) : [$toolbar];
+
+        foreach ($rows as $row) {
+            if ($this->rowHasStyles($row)) {
+                return $config;
+            }
+        }
+
+        if (is_array($rows[0] ?? null)) {
+            array_unshift($rows, ['name' => 'styles', 'items' => ['styles']]);
+        } else {
+            $rows[0] = 'styles ' . ltrim((string)($rows[0] ?? ''));
+        }
+
+        $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
+
+        return $config;
+    }
+
+    private function rowHasStyles($row): bool
+    {
+        if (is_array($row)) {
+            return in_array('styles', (array)($row['items'] ?? []), true);
+        }
+
+        return (bool)preg_match('/(^|[\s|])styles($|[\s|])/', (string)$row);
+    }
+
     public function detectToolbarPreset(): string
     {
         $keys = ['tinymce7_toolbar_preset', 'tinymce_toolbar_preset'];

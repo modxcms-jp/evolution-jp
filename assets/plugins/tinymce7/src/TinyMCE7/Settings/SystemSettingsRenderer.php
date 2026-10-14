@@ -34,6 +34,7 @@ final class SystemSettingsRenderer
         $fieldId = 'tinymce7_entermode';
         $toolbarFieldId = 'tinymce7_toolbar_preset';
         $menubarFieldId = 'tinymce7_menubar';
+        $cssSelectorsFieldId = 'tinymce7_css_selectors';
 
         $toolbarOptions = [
             ['value' => 'simple', 'label' => $this->t('tinymce7_toolbar_simple', 'Simple')],
@@ -54,61 +55,74 @@ final class SystemSettingsRenderer
 
         $html = [];
         $cssUrl = MODX_BASE_URL . 'assets/plugins/tinymce7/css/tinymce7.settings.css';
-        $html[] = '<link rel="stylesheet" type="text/css" href="' . htmlspecialchars($cssUrl, ENT_QUOTES, 'UTF-8') . '">';
+        $html[] = '<link rel="stylesheet" type="text/css" href="' . hsc($cssUrl) . '">';
         $html[] = '<table id="editorRow_TinyMCE7" class="settings editorRow">';
         $html[] = '  <tr class="row1">';
-        $html[] = '    <th colspan="2" class="tinymce7-settings__header"><h4 class="tinymce7-settings__title">' . htmlspecialchars($this->t('tinymce7_settings_header', 'TinyMCE 7'), ENT_QUOTES, 'UTF-8') . '</h4></th>';
+        $html[] = '    <th colspan="2" class="tinymce7-settings__header"><h4 class="tinymce7-settings__title">' . hsc($this->t('tinymce7_settings_header', 'TinyMCE 7')) . '</h4></th>';
         $html[] = '  </tr>';
         $html[] = '  <tr class="row1">';
-        $html[] = '    <th><label for="' . $toolbarFieldId . '">' . htmlspecialchars($this->t('tinymce7_toolbar_label', 'Toolbar layout'), ENT_QUOTES, 'UTF-8') . '</label></th>';
+        $html[] = '    <th><label for="' . $toolbarFieldId . '">' . hsc($this->t('tinymce7_toolbar_label', 'Toolbar layout')) . '</label></th>';
         $html[] = '    <td>';
         $html[] = '      <select name="' . $toolbarFieldId . '" id="' . $toolbarFieldId . '" class="inputBox">';
 
         foreach ($toolbarOptions as $option) {
-            $value = htmlspecialchars($option['value'], ENT_QUOTES, 'UTF-8');
-            $label = htmlspecialchars($option['label'], ENT_QUOTES, 'UTF-8');
+            $value = hsc($option['value']);
+            $label = hsc($option['label']);
             $selected = ($toolbarPreset === $option['value']) ? ' selected="selected"' : '';
             $html[] = '            <option value="' . $value . '"' . $selected . '>' . $label . '</option>';
         }
 
         $html[] = '      </select>';
-        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_toolbar_description', 'Choose the TinyMCE 7 toolbar configuration.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '      <div>' . hsc($this->t('tinymce7_toolbar_description', 'Choose the TinyMCE 7 toolbar configuration.')) . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
         $html[] = '  <tr class="row1">';
-        $html[] = '    <th><label for="' . $menubarFieldId . '">' . htmlspecialchars($this->t('tinymce7_menubar_label', 'Menubar visibility'), ENT_QUOTES, 'UTF-8') . '</label></th>';
+        $html[] = '    <th><label for="' . $menubarFieldId . '">' . hsc($this->t('tinymce7_menubar_label', 'Menubar visibility')) . '</label></th>';
         $html[] = '    <td>';
         $html[] = '      <select name="' . $menubarFieldId . '" id="' . $menubarFieldId . '" class="inputBox">';
 
         foreach ($menubarOptions as $option) {
-            $value = htmlspecialchars($option['value'], ENT_QUOTES, 'UTF-8');
-            $label = htmlspecialchars($option['label'], ENT_QUOTES, 'UTF-8');
+            $value = hsc($option['value']);
+            $label = hsc($option['label']);
             $selected = ($menubarValue === $option['value']) ? ' selected="selected"' : '';
             $html[] = '            <option value="' . $value . '"' . $selected . '>' . $label . '</option>';
         }
 
         $html[] = '      </select>';
-        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_menubar_description', 'Choose whether TinyMCE 7 displays the menubar.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '      <div>' . hsc($this->t('tinymce7_menubar_description', 'Choose whether TinyMCE 7 displays the menubar.')) . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
         $html[] = '  <tr class="row1">';
-        $html[] = '    <th><label for="' . $fieldId . '">' . htmlspecialchars($this->t('tinymce7_entermode_label', 'Enter key behavior'), ENT_QUOTES, 'UTF-8') . '</label></th>';
+        $html[] = '    <th><label for="' . $fieldId . '">' . hsc($this->t('tinymce7_entermode_label', 'Enter key behavior')) . '</label></th>';
         $html[] = '    <td>';
         $html[] = '      <select name="' . $fieldId . '" id="' . $fieldId . '" class="inputBox">';
 
         foreach ($options as $option) {
-            $value = htmlspecialchars($option['value'], ENT_QUOTES, 'UTF-8');
-            $label = htmlspecialchars($option['label'], ENT_QUOTES, 'UTF-8');
+            $value = hsc($option['value']);
+            $label = hsc($option['label']);
             $selected = ($current === $option['value']) ? ' selected="selected"' : '';
             $html[] = '            <option value="' . $value . '"' . $selected . '>' . $label . '</option>';
         }
 
         $html[] = '      </select>';
-        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_entermode_description', 'Choose how TinyMCE 7 handles the Enter key.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '      <div>' . hsc($this->t('tinymce7_entermode_description', 'Choose how TinyMCE 7 handles the Enter key.')) . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
+
+        // サイト共通の設定なのでシステム設定画面だけに出す。ユーザー設定画面に出すと、
+        // 表示中の管理者の値がそのユーザーの個別設定として保存されてしまう
+        if ($this->isSystemSettingsScreen()) {
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . hsc($this->t('tinymce7_css_selectors_label', 'CSS style selectors')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . hsc($this->preferences->detectCssSelectors()) . '">';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+        }
+
         $html[] = '  <tr class="row1">';
-        $html[] = '    <th>' . htmlspecialchars($this->t('tinymce7_template_label', 'Templates'), ENT_QUOTES, 'UTF-8') . '</th>';
+        $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
         $html[] = '    <td>';
         $templateFields = [
             'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $this->preferences->detectTemplateDocIds())],
@@ -116,15 +130,20 @@ final class SystemSettingsRenderer
             'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $this->preferences->detectTemplateCategory()],
         ];
         foreach ($templateFields as $name => [$label, $value]) {
-            $html[] = '      <div class="tinymce7-settings__template"><label><span>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>'
-                . '<input type="text" class="inputBox" name="' . $name . '" value="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"></label></div>';
+            $html[] = '      <div class="tinymce7-settings__template"><label><span>' . hsc($label) . '</span>'
+                . '<input type="text" class="inputBox" name="' . $name . '" value="' . hsc($value) . '"></label></div>';
         }
-        $html[] = '      <div>' . htmlspecialchars($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.'), ENT_QUOTES, 'UTF-8') . '</div>';
+        $html[] = '      <div>' . hsc($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.')) . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
         $html[] = '</table>';
 
         return implode("\n", $html);
+    }
+
+    private function isSystemSettingsScreen(): bool
+    {
+        return function_exists('manager') && (int)manager()->action === 17;
     }
 
     private function t(string $key, string $default): string
