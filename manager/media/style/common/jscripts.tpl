@@ -185,6 +185,22 @@
         }
     }
 
+    // ツリーで省略されたリソースも親にできるよう、タイトルか ID で検索して選ぶ。
+    // 自分自身と子孫はダイアログ側で選べないようにしている
+    function openParentPicker() {
+        EvoShell.openPicker(
+            'index.php?a=135&id=' + encodeURIComponent(document.mutate.id.value),
+            function (picked) {
+                documentDirty = true;
+                document.mutate.parent.value = picked.id;
+                var elm = document.getElementById('parentName');
+                if (elm) {
+                    elm.textContent = picked.id + " (" + picked.pagetitle + ")";
+                }
+            }
+        );
+    }
+
     // check if the selected parent is a child of this document
     function checkParentChildRelation(pId, pName) {
         const id = document.mutate.id.value;

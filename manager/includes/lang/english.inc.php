@@ -1323,3 +1323,12 @@ $_lang["enable_draft_message"] = 'Show draft UI.';
 
 $_lang["manager_treepane_trim_title"] = 'Trim Tree Pane Titles';
 $_lang["manager_treepane_trim_title_message"] = 'Choose whether to trim the titles in the tree pane when they are too long.';
+
+$_lang["parent_picker_open"] = 'Search';
+$_lang["parent_picker_title"] = 'Select parent resource';
+$_lang["parent_picker_placeholder"] = 'Search by title, alias or ID';
+$_lang["parent_picker_hint"] = 'Enter part of a title or alias, or an ID.';
+$_lang["parent_picker_more"] = 'Only the first %s results are shown. Please narrow your search.';
+$_lang["parent_picker_root"] = 'Select the site root';
+$_lang["parent_picker_descendant"] = 'A resource cannot be placed under itself or its children';
+$_lang["parent_not_found"] = 'The selected parent resource (ID: %s) does not exist.';

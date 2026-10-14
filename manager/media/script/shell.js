@@ -17,8 +17,8 @@
     let currentModalUrl = '';
     // モーダル内でPOST(保存)が行われたか。真なら閉じる際に背後の#mainPaneを再取得する
     let modalDirty = false;
-    // openFilePickerで開いたファイルブラウザの選択結果を受け取るコールバック
-    let filePickerCallback = null;
+    // openPicker/openFilePickerで開いたピッカーの選択結果を受け取るコールバック
+    let pickerCallback = null;
 
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
@@ -342,7 +342,7 @@
             body.innerHTML = '';
         }
         currentModalUrl = '';
-        filePickerCallback = null;
+        pickerCallback = null;
         overlay.classList.add('hidden');
         if (modalDirty) {
             // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
@@ -604,13 +604,29 @@
             closeModal(opts && opts.reloadMain === false ? false : undefined);
         },
 
-        // ファイルブラウザ等のピッカーをモーダルで開く。断片側はグローバルフック
+        // 選択ダイアログ(親リソースの選択等)をモーダルで開く。断片側が EvoShell.pick(value) を呼ぶと、
+        // モーダルが閉じてonPick(value)が実行される
+        openPicker: function (url, onPick) {
+            pickerCallback = typeof onPick === 'function' ? onPick : null;
+            request(url, { method: 'GET' }, false, 'modal');
+        },
+
+        // closeModal()がpickerCallbackをクリアするため、先に退避してから閉じる
+        pick: function (value) {
+            const callback = pickerCallback;
+            pickerCallback = null;
+            closeModal();
+            if (callback) {
+                callback(value);
+            }
+        },
+
+        // ファイルブラウザをモーダルで開く。断片側はグローバルフック
         // EvoFileBrowserPick(url) を呼ぶと、モーダルが閉じてonPick(url)が実行される
         openFilePicker: function (url, onPick) {
-            filePickerCallback = typeof onPick === 'function' ? onPick : null;
             const resolved = new URL(url, window.location.href);
             resolved.searchParams.set('modal', '1');
-            request(resolved.href, { method: 'GET' }, false, 'modal');
+            EvoShell.openPicker(resolved.href, onPick);
         },
 
         reloadTree: function () {
@@ -629,15 +645,9 @@
 
     window.EvoShell = EvoShell;
 
-    // モーダル内ファイルブラウザ(filebrowser.js)が選択確定時に呼ぶグローバルフック。
-    // closeModal()がfilePickerCallbackをクリアするため、先に退避してから閉じる
+    // モーダル内ファイルブラウザ(filebrowser.js)が選択確定時に呼ぶグローバルフック
     window.EvoFileBrowserPick = function (pickedUrl) {
-        const callback = filePickerCallback;
-        filePickerCallback = null;
-        closeModal();
-        if (callback) {
-            callback(pickedUrl);
-        }
+        EvoShell.pick(pickedUrl);
     };
 
     // 既存コードのform.submit()直接呼び出し(submitイベント非発火)もシェル経由にする

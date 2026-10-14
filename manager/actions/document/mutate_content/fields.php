@@ -299,9 +299,10 @@ function fieldParent()
         sprintf('id=%s', doc('parent', 0))
     );
     $ph['pid'] = array_get($parent, 'id', 0);
-    $ph['pname'] = $parent ? $parent['pagetitle'] : config('site_name');
+    $ph['pname'] = hsc($parent ? $parent['pagetitle'] : config('site_name'));
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
+    $ph['lang_parent_picker_open'] = hsc(lang('parent_picker_open'));
     return renderTr(
         lang('resource_parent'),
         parseText(file_get_tpl('field_parent_form.tpl'), $ph)

@@ -1325,3 +1325,12 @@ $_lang["enable_draft_message"] = '下書き機能の操作ボタンなどを表�
 
 $_lang["manager_treepane_trim_title"] = 'リソースツリーのタイトルを省略';
 $_lang["manager_treepane_trim_title_message"] = 'リソースツリーのタイトルの文字数が多い時に省略するかどうかを設定します。';
+
+$_lang["parent_picker_open"] = '検索して選ぶ';
+$_lang["parent_picker_title"] = '親リソースを選択';
+$_lang["parent_picker_placeholder"] = 'タイトル・エイリアス・ID で検索';
+$_lang["parent_picker_hint"] = 'タイトルやエイリアスの一部か、ID を入力してください。';
+$_lang["parent_picker_more"] = '先頭の %s 件だけを表示しています。条件を絞り込んでください。';
+$_lang["parent_picker_root"] = 'ルート（サイト直下）を選ぶ';
+$_lang["parent_picker_descendant"] = '自分自身とその下のリソースは選べません';
+$_lang["parent_not_found"] = '指定した親リソース（ID: %s）が見つかりません。';
