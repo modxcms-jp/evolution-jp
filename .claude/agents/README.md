@@ -24,7 +24,8 @@
 
 - 認識されているか: 実行中のセッションの一覧は起動時に固定されるので、新しいセッションで確かめる。対話なら `/agents`。非対話なら、ワークツリーで `claude -p` を起動し、`evo-` で始まる subagent_type を列挙させる。`claude agents --json` はセッションの一覧で、定義の一覧ではない。
 - 使われたモデルと effort: `claude -p --output-format stream-json --verbose` で起動し、サブエージェントを呼ばせる。記録 `~/.claude/projects/<プロジェクト>/<セッションID>/subagents/` の `agent-*.meta.json` の `agentType` と、対応する `agent-*.jsonl` の `"model"`・`"effort"` を照らし合わせる。最終行の `modelUsage` はモデルごとの合計なので、メインと同じモデルの役（opus）は見分けられない。サブエージェントに自分のモデル名を答えさせても、それは本人の申告で、裏付けにならない。
-- 許可設定: 入れ子のセッションに `git push --dry-run …` を 1 つずつ実行させ、結果の `permission_denials` を見る。`--dry-run` なので、通っても送られない。
+- 許可設定: 入れ子のセッションに `git push --dry-run …` を 1 つずつ実行させ、結果の `permission_denials` を見る。`--dry-run` なので、通っても送られない。auto モードのままだと、拒否したのが deny のルールか auto モードの判定かを見分けられない（メッセージは同じ）。deny だけの効果を確かめるときは、`--permission-mode default --settings '{"permissions":{"allow":["Bash(git push --dry-run *)","Bash(git -C * push --dry-run *)"]}}'` で起動する。allow に入っていても拒否されたものが、deny で止まったものである。`--permission-mode bypassPermissions` での入れ子起動は、auto モードの判定に断られる。
+- deny のパターンは、`git push …` と `git -C <パス> push …` の両方の形で書く。片方だけだと、もう片方の書き方で抜ける。
 
 ## 分かっている限界
 
