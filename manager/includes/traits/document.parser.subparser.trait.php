@@ -2522,7 +2522,7 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 6);
@@ -2600,7 +2600,7 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 9);
