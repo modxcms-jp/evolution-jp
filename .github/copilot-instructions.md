@@ -15,6 +15,4 @@
 
 ## PR Summary
 
-- 構成は `.github/codex-pr-rules.md` の「PR本文」に従う。
-- 変更点を書き、推測は書かない。
-- 実装詳細ではなく「利用者・開発者にとっての影響」を優先する。
+- `.github/codex-pr-rules.md` の「PR本文」に従う。
