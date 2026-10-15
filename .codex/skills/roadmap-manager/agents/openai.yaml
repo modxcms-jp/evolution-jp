@@ -9,7 +9,7 @@ interface:
     2) ロードマップの上から次の未完了タスクを1件選定する。`BLOCKED`、依存先が `DONE` でない項目、非公開のセキュリティ修正、進行中の項目（開いている Issue のすべてにブランチか PR がある）は対象外。
     3) `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。この時点ではファイルを書き換えない。
     4) 選んだ項目、ExecPlan の要否と理由、次のコマンドを示す。`--run` が無ければ止まる。
-    5) `--run` があれば `exec-plan-runner` に渡す。ExecPlan があれば `/run-plan <ExecPlan のパス>`、`不要` ならブランチも PR も無い開いた Issue を番号順に 1 件ずつ `/run-issue <番号>`。作ると決めたら、番号のいちばん小さい Issue のブランチで `/create-plan` を行ってコミットし、push せずに止まる。
+    5) `--run` があれば `exec-plan-runner` に渡す。ExecPlan があれば `/run-plan <ExecPlan のパス>`、`不要` ならブランチも PR も無い開いた Issue を `Issue:` に書かれた順に 1 件ずつ `/run-issue <番号>`。作ると決めたら、先頭に書かれた Issue のブランチで `/create-plan` を行ってコミットし、push せずに止まる。
 
     `/roadmap-add <セクション> <タスク>`:
     1) 指定セクション配下へ固定フォーマットでタスクを追加する。

@@ -25,6 +25,8 @@
 - 認識されているか: 実行中のセッションの一覧は起動時に固定されるので、新しいセッションで確かめる。対話なら `/agents`。非対話なら、ワークツリーで `claude -p` を起動し、`evo-` で始まる subagent_type を列挙させる。`claude agents --json` はセッションの一覧で、定義の一覧ではない。
 - 使われたモデルと effort: `claude -p --output-format stream-json --verbose` で起動し、サブエージェントを呼ばせる。記録 `~/.claude/projects/<プロジェクト>/<セッションID>/subagents/` の `agent-*.meta.json` の `agentType` と、対応する `agent-*.jsonl` の `"model"`・`"effort"` を照らし合わせる。最終行の `modelUsage` はモデルごとの合計なので、メインと同じモデルの役（opus）は見分けられない。サブエージェントに自分のモデル名を答えさせても、それは本人の申告で、裏付けにならない。
 - 許可設定: 入れ子のセッションに `git push --dry-run …` を 1 つずつ実行させ、結果の `permission_denials` を見る。`--dry-run` なので、通っても送られない。auto モードのままだと、拒否したのが deny のルールか auto モードの判定かを見分けられない（メッセージは同じ）。deny だけの効果を確かめるときは、`--permission-mode default --settings '{"permissions":{"allow":["Bash(git push --dry-run *)","Bash(git -C * push --dry-run *)"]}}'` で起動する。allow に入っていても拒否されたものが、deny で止まったものである。`--permission-mode bypassPermissions` での入れ子起動は、auto モードの判定に断られる。
+- tester 役の自走: main の detached ワークツリーを本体のルートを起点に作る。入れ子のセッションの evo-tester に、作業ディレクトリ・作業用ディレクトリ（リポジトリの外）・`EVO_VALIDATE_NAME`・`EVO_BIND_IP` を渡し、adaptive-validation-runner の手順で起動・`setup-site.js`・`smoke.js`・後片付けまでを任せる（2026-10-16 に 6/6 PASS、許可確認 0 件で完走）。片付けの結果は報告を鵜呑みにせず、メインがコンテナ・ボリューム・イメージの残りと `git worktree remove` が通ることで確かめる。
+- `/next-task` の挙動: `--run` を付けずに入れ子のセッションで動かせば、ファイルを書き換えずに選定結果だけを確かめられる。
 - deny のパターンは、`git push …` と `git -C <パス> push …` の両方の形で書く。片方だけだと、もう片方の書き方で抜ける。
 - `*` は空にも当たるが、`Bash(git push * -f *)` の前後の空白は文字どおりに照合される。このため `git push -f origin x` には当たらない（`Bash(git push -f*)` が別に要る）。試験で `--dry-run` を `-f` の前に置くと、`--dry-run` が `*` に当たって抜けが隠れるので、`--dry-run` は最後に置く。
 
