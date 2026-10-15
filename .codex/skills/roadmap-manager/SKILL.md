@@ -1,6 +1,6 @@
 ---
 name: roadmap-manager
-description: ロードマップ（`.agent/roadmap.md`）を運用するスキル。タスクの追加・変更・削除・次タスク着手・完了同期を一貫して扱い、着手時に改修規模で ExecPlan の要否を判断する。
+description: ロードマップ（`.agent/roadmap.md`）を運用するスキル。タスクの追加・変更・削除、次タスクの選定（`/next-task`）、完了同期（`/roadmap-sync`）を扱い、着手時に改修規模で ExecPlan の要否を判断する。選んだタスクの実装から PR までは exec-plan-runner に渡す。「次のタスク」「/next-task」「ロードマップに追加」「ロードマップを同期」と依頼されたときに使う。
 ---
 
 # Roadmap Manager
@@ -33,10 +33,17 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 
 ## コマンド
 
-### /roadmap-next
-1. 依存順で次の未完了タスクを1件選定する。
-2. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `.agent/PLANS.md` 準拠で新規作成して行を更新し、作らない場合は `不要` にする。
-3. ExecPlan を作った場合は `Progress` 初期行を更新して着手する。作らない場合は対象 Issue を確認して着手する。
+### /next-task [--run]
+1. `Issue:` の Issue がすべて閉じたのに完了同期していない項目があれば、先に `exec-plan-runner` スキルの `/finish-task` を提案する（完了処理はユーザー確認のあとにだけ行う）。
+2. 依存順で次の未完了タスクを1件選定する。次の項目は対象外とする。
+   - `Status: BLOCKED` の項目、依存先が `DONE` でない項目、非公開で扱うセキュリティ修正
+   - 進行中の項目: `Issue:` の開いている Issue のすべてに、紐づくブランチ（`gh issue develop --list <番号>`）か PR がある
+3. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。この時点ではファイルを書き換えない。
+4. 選んだ項目、ExecPlan の要否とその理由、次に実行するコマンドを示す。`--run` が無ければ、ここで止まる。
+5. `--run` があれば、`exec-plan-runner` スキルに渡す。`--run` は、下の「作ると決めた」場合の `/create-plan` によるブランチ作成とコミットの明示指示も兼ねる（`exec-plan` の「明示指示が必要」の規則）。
+   - ExecPlan がある: `/run-plan <ExecPlan のパス>`
+   - `不要`（またはそう決めた）: 開いている Issue のうち、紐づくブランチも PR も無いものを `Issue:` に書かれた順（優先順）に 1 件ずつ `/run-issue <番号>` で進める。`ExecPlan:` 行の書き換えは、runner が最初の PR に含める
+   - 作ると決めた: runner の「作業場所」の手順で、`Issue:` の先頭に書かれた Issue のブランチとワークツリーを作る。そこで `exec-plan` スキルの `/create-plan` を行い、`.agent/roadmap.md` の `ExecPlan:` 行も更新する。ブランチを ExecPlan の Artifacts and Notes に記録してコミットし、push せずに作成を告げて止まる（本人が計画を確かめてから `/run-plan` で進める）
 
 ### /roadmap-add <セクション> <タスク>
 1. 指定セクション配下へ固定フォーマットでタスクを追加する。

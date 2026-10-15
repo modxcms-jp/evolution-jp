@@ -188,20 +188,22 @@ fix(db): 実行直前でエスケープ処理を統一
 1. `/doc-audit` で変更対象ファイルのドキュメント問題（パス表記ゆれ・構造問題・無効参照・SSOT違反）を確認・修正する
 2. 問題が見つかった場合は `/doc-fix <問題番号|説明>` で修正してからコミットする
 
+`exec-plan-runner` の実行中は、worker が確認せずに直してコミットする（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
+
 ### 新タスク着手時
 
-**ショートカット**: `roadmap-next-task` スキルの `/next-task` で着手、完了時は `/finish-task` で完了処理・ロードマップ同期まで一貫して行える。
+**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。
 
 **手動手順**:
 
-1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定（roadmap-next-task スキル）
+1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定（roadmap-manager スキルの `/next-task`）
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
    - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
    - `着手時に判断` → `.agent/roadmap.md` の目安で要否を決める。要るなら `/create-plan <タスク概要>` で計画作成（exec-plan スキル）、要らないなら `不要` にして Issue を正に実装（issue-resolver スキル）
-4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
+4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する（`exec-plan-runner` で進めるときは変えず、`/finish-task` でまとめて同期する）
 5. **実装**: AGENTS.md の規約に従って実装
-6. **完了処理**: `roadmap-next-task` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う
+6. **完了処理**: `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了宣言・ユーザー確認・同期を行う
 
 ### レビュー時
 
@@ -211,6 +213,8 @@ fix(db): 実行直前でエスケープ処理を統一
    - PR のレビュー指摘対応: `/resolve-review <PR番号>`（**必ずこのコマンドを使う**。直接修正した場合も、push 後にスレッドの resolved 化とユーザー確認を忘れず行う）
 2. PR 作成後に追加コミットをしたときは、まず「`/pr-sync <PR番号>` を実行するか？ はい・いいえ」で確認する
 3. `はい` の場合のみ `/pr-sync <PR番号>` で概要との乖離を確認・更新する
+
+`exec-plan-runner` の実行中は、手順 1〜3 の確認を省く（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
 
 ### 不具合対応時
 

@@ -8,7 +8,6 @@
 ## 利用スキル
 
 - `roadmap-manager` スキル
-- `roadmap-next-task` スキル
 - `exec-plan` スキル
 
 ## 入力
