@@ -1,0 +1,5 @@
+interface:
+  display_name: "Skill Creator"
+  short_description: "新しいスキルの作成・改善・パッケージングを支援する"
+  default_prompt: |
+    `.claude/skills/skill-creator/SKILL.md` を正本として読み、その手順に従ってください。スクリプトと参照資料は `.claude/skills/skill-creator/` 配下のものを使い、ここでは手順を重複して定義しないでください。
