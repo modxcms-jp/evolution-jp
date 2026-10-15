@@ -2,7 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('delete_snippet')) {
+if (!evo()->hasPermission('delete_chunk')) {
     alert()->setError(3);
     alert()->dumpError();
 }
