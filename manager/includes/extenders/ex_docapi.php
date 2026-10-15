@@ -507,7 +507,7 @@ class DocAPI
         }
 
         // deny publishing if not permitted
-        if (array_get('mode') != 27) {
+        if (postv('mode') == 27) {
             return $form_v;
         }
 
