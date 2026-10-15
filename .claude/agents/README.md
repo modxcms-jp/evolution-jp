@@ -26,10 +26,11 @@
 - 使われたモデルと effort: `claude -p --output-format stream-json --verbose` で起動し、サブエージェントを呼ばせる。記録 `~/.claude/projects/<プロジェクト>/<セッションID>/subagents/` の `agent-*.meta.json` の `agentType` と、対応する `agent-*.jsonl` の `"model"`・`"effort"` を照らし合わせる。最終行の `modelUsage` はモデルごとの合計なので、メインと同じモデルの役（opus）は見分けられない。サブエージェントに自分のモデル名を答えさせても、それは本人の申告で、裏付けにならない。
 - 許可設定: 入れ子のセッションに `git push --dry-run …` を 1 つずつ実行させ、結果の `permission_denials` を見る。`--dry-run` なので、通っても送られない。auto モードのままだと、拒否したのが deny のルールか auto モードの判定かを見分けられない（メッセージは同じ）。deny だけの効果を確かめるときは、`--permission-mode default --settings '{"permissions":{"allow":["Bash(git push --dry-run *)","Bash(git -C * push --dry-run *)"]}}'` で起動する。allow に入っていても拒否されたものが、deny で止まったものである。`--permission-mode bypassPermissions` での入れ子起動は、auto モードの判定に断られる。
 - deny のパターンは、`git push …` と `git -C <パス> push …` の両方の形で書く。片方だけだと、もう片方の書き方で抜ける。
+- `*` は空にも当たるが、`Bash(git push * -f *)` の前後の空白は文字どおりに照合される。このため `git push -f origin x` には当たらない（`Bash(git push -f*)` が別に要る）。試験で `--dry-run` を `-f` の前に置くと、`--dry-run` が `*` に当たって抜けが隠れるので、`--dry-run` は最後に置く。
 
 ## 分かっている限界
 
 - `model: opus` は `claude-opus-5-5`（1M 版ではない）になる。メインのセッションが `opus[1m]` でも、サブエージェントは引き継がない。
 - `evo-reviewer` は Write・Edit を持たないが、Bash を持つので、リダイレクトで書くことは仕組みとしては止まっていない。試験ではファイルの作成を頼んでも断ったが、それは指示に従った結果である。レビューの前後に、メインのセッションが `git status --porcelain` と `git rev-parse HEAD` を照合する。
-- `.claude/settings.json` の deny は、リポジトリでのすべての Claude Code のセッションに効き、runner の実行中だけに絞れない。そのため、止めるのは main への push と強制 push だけにしている。`gh pr merge`・`gh release`・タグの push は、本人の作業やリリース手順でも使うので止めない。
+- `.claude/settings.json` の deny は、リポジトリでのすべての Claude Code のセッションに効き、runner の実行中だけに絞れない。そのため、止めるのは main への push と強制 push だけにしている。`-uf` のように `-f` をほかのフラグとまとめて書いた形は止まらない（当てようとすると、通常の push まで止まるパターンになる）。`gh pr merge`・`gh release`・タグの push は、本人の作業やリリース手順でも使うので止めない。
 - ワークツリーの中で `git worktree add .claude/worktrees/<名前>` を相対パスで実行すると、そのワークツリーの中に入れ子で作られる。本体のルート `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")` を起点にする。
