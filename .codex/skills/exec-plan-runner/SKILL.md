@@ -6,11 +6,10 @@ description: Issue または ExecPlan を、人の確認を待たずに「準備
 # Exec Plan Runner
 
 このファイルは Codex 実行用の入口とメタデータを管理する。
-手順本文の正本は `.claude/skills/exec-plan-runner/SKILL.md` に置く。必ず正本を読み、その手順・不変条件・止まる条件・確認を省く範囲に従う。ここには手順を写さない。
+手順本文の正本は `.claude/skills/exec-plan-runner/SKILL.md` に置く。必ず正本を読み、そのすべて（不変条件、1 件ごとの繰り返し、止まる条件、確認を省く範囲）に従う。ここには手順を写さない。
 
-## Codex での回し方
+## Codex での差分
 
-- 正本の「役割」（explorer・planner・worker・tester・reviewer）は、役割を別のエージェントに分けずに、1 つのセッションで同じ順に行う。役割ごとのモデルや推論の強さの割り当て（`.claude/agents/`）は Claude Code 用で、Codex では使わない。
-- 分けずに行う場合も、自己レビューは省かない。実装を終えたら、いったん実装の文脈から離れて、`.agent/agents/reviewer.md` の観点で main との差分全体を読み直し、重大度順の指摘を書き出してから直す。
-- 正本で「メイン」が行うこと（ワークツリーの用意、push、PR、GitHub への書き込み）は、このセッションが行う。
-- 不変条件（main への push・強制 push・`gh pr merge`・`gh release` をしない、非公開アドバイザリに関わる修正を扱わない など）と止まる条件は、正本のとおりに守る。
+- 正本の役割は、別のエージェントに分けずに 1 つのセッションで正本の順に行う。正本で「メイン」が行うことも、このセッションが行う。Claude Code 用の割り当て（`.claude/agents/`）は使わない。
+- 正本の手順 7 の「格上げ」は行わない。自己レビューを 2 往復しても高・中の指摘が残れば止まる。
+- Claude Code の許可設定（`.claude/settings.json` の deny）は Codex には効かない。main への push などを止めるのは、正本の不変条件の文面だけになる。

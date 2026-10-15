@@ -3,7 +3,7 @@ interface:
   short_description: "複雑な作業向けのExecPlanを設計・検証・更新する"
   default_prompt: |
     入力コマンドに応じて以下を実行してください。
-    `exec-plan-runner` から呼ばれたときは、以下の確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
+    `exec-plan-runner` から呼ばれたときは、以下の確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
 
     `/create-plan <タスク概要>`:
     1) `AGENTS.md` と `.agent/PLANS.md` を読み、`assets/docs/` と対象コードの既存パターンを確認する。

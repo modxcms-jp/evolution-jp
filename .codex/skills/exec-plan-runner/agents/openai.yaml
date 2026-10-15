@@ -5,9 +5,8 @@ interface:
     入力コマンドに応じて以下を実行してください。
 
     共通:
-    1) `.claude/skills/exec-plan-runner/SKILL.md` を読み、その手順・不変条件・止まる条件・確認を省く範囲に従う。手順はここに写さない。
-    2) 役割は別のエージェントに分けず、1 つのセッションで正本の順に行う。自己レビューは省かず、`.agent/agents/reviewer.md` の観点で差分全体を読み直してから push する。
-    3) 止まる条件に当たったら、正本の 4 項目（止まった理由・決めてほしいこと・ここまでの状態・再開のしかた）を 1 か所にまとめて返す。
+    1) `.claude/skills/exec-plan-runner/SKILL.md` を読み、そのすべて（不変条件、1 件ごとの繰り返し、止まる条件、確認を省く範囲）に従う。手順はここに写さない。
+    2) Codex での差分は `.codex/skills/exec-plan-runner/SKILL.md` の「Codex での差分」に従う。
 
     `/run-issue <番号>`:
     1) 正本の `/run-issue` を行う。
@@ -16,4 +15,4 @@ interface:
     1) 正本の `/run-plan` を行う。
 
     `/finish-task <Issue 番号 | ExecPlan のパス>`:
-    1) 正本の `/finish-task` を行う。完了処理の前のユーザー確認は省かない。
+    1) 正本の `/finish-task` を行う。

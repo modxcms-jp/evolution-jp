@@ -37,7 +37,7 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
    - 進行中の項目: `Issue:` の開いている Issue のすべてに、紐づくブランチ（`gh issue develop --list <番号>`）か PR がある
 3. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。この時点ではファイルを書き換えない。
 4. 選んだ項目、ExecPlan の要否とその理由、次に実行するコマンドを示す。`--run` が無ければ、ここで止まる。
-5. `--run` があれば、`exec-plan-runner` スキルに渡す。
+5. `--run` があれば、`exec-plan-runner` スキルに渡す。`--run` は、下の「作ると決めた」場合の `/create-plan` によるブランチ作成とコミットの明示指示も兼ねる（`exec-plan` の「明示指示が必要」の規則）。
    - ExecPlan がある: `/run-plan <ExecPlan のパス>`
    - `不要`（またはそう決めた）: 開いている Issue のうち、紐づくブランチも PR も無いものを `Issue:` に書かれた順（優先順）に 1 件ずつ `/run-issue <番号>` で進める。`ExecPlan:` 行の書き換えは、runner が最初の PR に含める
    - 作ると決めた: runner の「作業場所」の手順で、`Issue:` の先頭に書かれた Issue のブランチとワークツリーを作る。そこで `exec-plan` スキルの `/create-plan` を行い、`.agent/roadmap.md` の `ExecPlan:` 行も更新する。ブランチを ExecPlan の Artifacts and Notes に記録してコミットし、push せずに作成を告げて止まる（本人が計画を確かめてから `/run-plan` で進める）

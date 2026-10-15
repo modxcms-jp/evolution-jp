@@ -3,7 +3,7 @@ interface:
   short_description: "不具合報告から修正完了までを一貫して進める"
   default_prompt: |
     入力コマンドに応じて以下を実行してください。
-    `exec-plan-runner` から呼ばれたときは、以下の確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
+    `exec-plan-runner` から呼ばれたときは、以下の確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
 
     `analyze-issue <URL|テキスト>`:
     1) 不具合報告を分析し、再現手順と原因仮説（最大3件）を整理する。

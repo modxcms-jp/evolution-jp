@@ -188,6 +188,8 @@ fix(db): 実行直前でエスケープ処理を統一
 1. `/doc-audit` で変更対象ファイルのドキュメント問題（パス表記ゆれ・構造問題・無効参照・SSOT違反）を確認・修正する
 2. 問題が見つかった場合は `/doc-fix <問題番号|説明>` で修正してからコミットする
 
+`exec-plan-runner` の実行中は、worker が確認せずに直してコミットする（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
+
 ### 新タスク着手時
 
 **ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。

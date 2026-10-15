@@ -8,7 +8,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 `.agent/PLANS.md` の仕様に準拠した ExecPlan を作成・管理するワークフロー。
 コーディング規約・ドキュメントマップは `AGENTS.md` を参照。
 
-`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
 
 ## ロードマップ連携
 

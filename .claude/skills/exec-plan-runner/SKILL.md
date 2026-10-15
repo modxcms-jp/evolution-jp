@@ -83,7 +83,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - `/run-plan` では、PR がまだ無ければ最初のマイルストーンで下書きの PR を作り、対象の Issue すべてを `Refs #<番号>` で挙げる。作ったブランチと PR は、次の push の前に ExecPlan の Artifacts and Notes に記録する。2 つめ以降は同じ PR に push し、本文を更新する。最後のマイルストーンで、対象の Issue すべてを `Closes #<番号>` に改める。
    - push のあと `gh pr checks <PR番号> --watch` で CI を待つ。PR を作った直後で「no checks reported」と出たときは失敗とみなさず、少しおいてやり直す。
 
-PR に付くほかのレビュー（Codex など）への対応は、この繰り返しに含めない。人が依頼したとき、または次の `/run-issue` に入る前に、review-agent の `/resolve-review <PR番号>` で扱う。仕分けは reviewer、修正は worker、push と GitHub への書き込みはメインが行う。review-agent が「ユーザー判断を仰ぐ」に分類した指摘があれば、止まって人に返す。
+PR に付くほかのレビュー（Codex など）への対応は、この繰り返しに含めない。次の `/run-issue` に入る前に、runner が前の PR について review-agent の `/resolve-review <PR番号>` を行う（このときは runner の実行中として、下の「確認を省く範囲」に従う）。仕分けは reviewer、修正は worker、push と GitHub への書き込みはメインが行う。review-agent が「ユーザー判断を仰ぐ」に分類した指摘があれば、止まって人に返す。人が runner とは別に `/resolve-review` を頼んだときは、review-agent の通常の確認に従う。
 
 ## 止まる条件
 
@@ -115,6 +115,8 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 
 この runner の実行中は、ほかのスキルやエージェント定義にある次の確認を省いて先へ進む。runner を呼んだこと自体（roadmap-manager の `/next-task --run` から渡された場合を含む）を、その Issue または ExecPlan についての実装・ブランチ作成・コミット・push・PR 作成の明示指示とみなす。`--run` の無い `/next-task` は、明示指示にならない。
 
+各スキルにある「`exec-plan-runner` から呼ばれたとき」と「`exec-plan-runner` の実行中」は同じ意味で、同じセッションで `/run-issue`・`/run-plan`・`/finish-task`（`/next-task --run` から渡されたものを含む）を実行している間に限る。人が runner とは別に頼んだ作業（単独の `/resolve-review`・`/handoff`・`/create-plan` など）は、各スキルの確認に従う。「スキップ禁止」などと書かれた確認も、下の表にあれば省く。
+
 | 場所 | 省く確認 | runner での扱い |
 |---|---|---|
 | `.claude/skills/project-worker/SKILL.md` の `/handoff` | 「コミットして push しますか？」 | worker がコミットし、メインが push する |
@@ -125,7 +127,8 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 | `.agent/agents/reviewer.md` の「書き込み権限」 | GitHub への返信と resolved 化の前の確認 | reviewer は書かない。メインが確認せずに行う |
 | `AGENTS.md` の「レビュー時」手順 1 の resolved 化 | push 後の resolved 化のユーザー確認 | 確認せずに進める（review-agent の行と同じ） |
 | `AGENTS.md` の「レビュー時」手順 2・3 と `.claude/skills/doc-maintainer/SKILL.md` の `/pr-sync` 手順 1・5 | 追加コミット後の `/pr-sync` 実行と、乖離の一覧への確認 | メインが確認せずに PR 本文を更新する |
-| `AGENTS.md` の「新タスク着手時」手順 4、`.claude/skills/exec-plan/SKILL.md` の「ロードマップ連携」4 と `/update-plan` 手順 7 | 着手時に `Status` を `WIP` にする規則 | runner の実行中は `Status` を変えない（不変条件 5）。`/finish-task` でまとめて同期する |
+| `AGENTS.md` の「コミット前（ドキュメント変更時）」と `.claude/skills/doc-maintainer/SKILL.md` の `/doc-audit` 手順 4・`/doc-fix` 手順 4 | ドキュメントの問題の修正方針とコミットの確認 | worker が確認せずに直してコミットする。直せない問題は、自己レビューの指摘として扱う |
+| `AGENTS.md` の「新タスク着手時」手順 4、`.claude/skills/exec-plan/SKILL.md` の「ロードマップ連携」4 と `/update-plan` 手順 7、`.claude/skills/project-worker/SKILL.md` の `/sync-status` | 着手時に `Status` を `WIP` にする規則 | runner の実行中は `Status` を変えない（不変条件 5）。`/finish-task` でまとめて同期する |
 
 省かないもの:
 
