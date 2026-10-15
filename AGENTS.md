@@ -190,7 +190,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ### 新タスク着手時
 
-**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task` で完了処理・ロードマップ同期を行う。
+**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。
 
 **手動手順**:
 
@@ -201,7 +201,7 @@ fix(db): 実行直前でエスケープ処理を統一
    - `着手時に判断` → `.agent/roadmap.md` の目安で要否を決める。要るなら `/create-plan <タスク概要>` で計画作成（exec-plan スキル）、要らないなら `不要` にして Issue を正に実装（issue-resolver スキル）
 4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
 5. **実装**: AGENTS.md の規約に従って実装
-6. **完了処理**: `exec-plan-runner` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う
+6. **完了処理**: `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了宣言・ユーザー確認・同期を行う
 
 ### レビュー時
 

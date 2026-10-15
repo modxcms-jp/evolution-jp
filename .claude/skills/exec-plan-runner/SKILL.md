@@ -65,7 +65,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 
 `/run-issue` では Issue 1 件、`/run-plan` ではマイルストーン 1 つを、この順で進める。
 
-1. **事前確認**: Issue が開いていること、自分以外の担当者がいないこと、Issue に紐づくブランチと PR が無いことを確かめる。例外として、`/run-plan` で ExecPlan の Artifacts and Notes にブランチと PR が記録されている場合は、それがあるのは正しい（そのブランチと PR を使う）。
+1. **事前確認**: Issue が開いていること、自分以外の担当者がいないこと、Issue に紐づくブランチと PR が無いことを確かめる。例外として、`/run-plan` で ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されている場合は、それがあるのは正しい（そのブランチと PR を使う）。
 2. **準備**: 「作業場所」の手順でワークツリーを用意し（既にあれば使う）、Issue の初期設定をそろえる。続けて、このあとの範囲の照合のために、開始時の HEAD を `git -C <パス> rev-parse HEAD` で控える。
    - アサイニー: `gh issue edit <番号> --add-assignee @me`
    - Issue タイプ: `gh issue edit <番号> --type <Bug・Feature・Task>`
@@ -80,7 +80,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 9. **push と PR**: メインがブランチを push し、PR を作る。
    - タイトル・本文・ラベルは `.github/codex-pr-rules.md` に従う。「確認手順」に検証の結果、「備考」に自己レビューの結果（指摘と対応、または問題なし）を書く。
    - `/run-issue` では `Closes #<番号>` を入れ、下書きにしない（自己レビューを通したものだけを出すため）。
-   - `/run-plan` では、最初のマイルストーンで下書きの PR を作り、対象の Issue すべてを `Refs #<番号>` で挙げる。作ったブランチと PR は、次の push の前に ExecPlan の Artifacts and Notes に記録する。2 つめ以降は同じ PR に push し、本文を更新する。最後のマイルストーンで、対象の Issue すべてを `Closes #<番号>` に改める。
+   - `/run-plan` では、PR がまだ無ければ最初のマイルストーンで下書きの PR を作り、対象の Issue すべてを `Refs #<番号>` で挙げる。作ったブランチと PR は、次の push の前に ExecPlan の Artifacts and Notes に記録する。2 つめ以降は同じ PR に push し、本文を更新する。最後のマイルストーンで、対象の Issue すべてを `Closes #<番号>` に改める。
    - push のあと `gh pr checks <PR番号> --watch` で CI を待つ。PR を作った直後で「no checks reported」と出たときは失敗とみなさず、少しおいてやり直す。
 
 PR に付くほかのレビュー（Codex など）への対応は、この繰り返しに含めない。人が依頼したとき、または次の `/run-issue` に入る前に、review-agent の `/resolve-review <PR番号>` で扱う。仕分けは reviewer、修正は worker、push と GitHub への書き込みはメインが行う。review-agent が「ユーザー判断を仰ぐ」に分類した指摘があれば、止まって人に返す。
@@ -91,6 +91,7 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 
 - 「要相談」に当たる判断が出た（DB スキーマの変更、互換性を損なう変更、Issue で決まっていない挙動の選択、Issue の「直し方の案」と違う直し方が要る など）
 - Issue が閉じている。自分以外の担当者、紐づくブランチ、PR のどれかが既にある（`/run-plan` で ExecPlan に記録されたブランチと PR は除く）
+- 対象のロードマップ項目が一意に決まらない（`/finish-task`）
 - 割り当てた範囲の外を直す必要が出た。または差分が想定より大きい（目安: 変更ファイルが Issue の「場所」に挙がったファイル数の 2 倍を超える）
 - Issue 1 件のつもりが、ExecPlan を作るべき規模だと分かった（`.agent/roadmap.md` の目安による）
 - `php -l` などの静的な確認が通らない。または検証できない（環境が立たない、再現しない）
@@ -112,7 +113,7 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 
 ## 確認を省く範囲
 
-この runner の実行中は、ほかのスキルやエージェント定義にある次の確認を省いて先へ進む。runner を呼んだこと自体を、その Issue または ExecPlan についての実装・ブランチ作成・コミット・push・PR 作成の明示指示とみなす。
+この runner の実行中は、ほかのスキルやエージェント定義にある次の確認を省いて先へ進む。runner を呼んだこと自体（roadmap-manager の `/next-task --run` から渡された場合を含む）を、その Issue または ExecPlan についての実装・ブランチ作成・コミット・push・PR 作成の明示指示とみなす。`--run` の無い `/next-task` は、明示指示にならない。
 
 | 場所 | 省く確認 | runner での扱い |
 |---|---|---|
@@ -138,7 +139,7 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 
 ExecPlan の無い Issue を 1 件直す。
 
-1. 「1 件ごとの繰り返し」を手順 1 から 9 まで行う（ExecPlan が無いので、手順 8 の記録は行わない）。
+1. 「1 件ごとの繰り返し」を手順 1 から 9 まで行う。ExecPlan が無いので、手順 8 では ExecPlan の代わりに次を行う: 対象のロードマップ項目の `ExecPlan:` 行が `着手時に判断` のままで、その項目の Issue の PR がまだどれも無ければ、`不要` に書き換えてコミットする（`Status` は変えない。ほかの PR と衝突させないため、最初の PR でだけ行う）。
 2. CI が通ったら、PR の URL、自己レビューの結果、検証の結果を短く報告して終える。マージはしない。
 
 ### /run-plan <ExecPlan のパス>
@@ -146,7 +147,7 @@ ExecPlan の無い Issue を 1 件直す。
 ExecPlan をマイルストーンごとに進める。
 
 1. ExecPlan を読み、Progress の最初の未完了のマイルストーンを特定する。対象の Issue は、ExecPlan の Artifacts and Notes に挙がった Issue（無ければ、その ExecPlan を指すロードマップ項目の `Issue:`）のすべてとする。事前確認は、対象の Issue すべてに対して行う。
-2. ExecPlan の Artifacts and Notes にブランチと PR が記録されていれば、それとそのワークツリーを使う（ワークツリーが無ければ、そのブランチで `git worktree add` する）。記録が無ければ、「作業場所」の手順で新しく用意する。`gh issue develop` で紐づけるのは、対象の Issue のうち番号のいちばん小さいもの 1 件にする。
+2. ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されていれば、それとそのワークツリーを使う（ワークツリーが無ければ、そのブランチで `git worktree add` する）。roadmap-manager の `/next-task --run` で作った ExecPlan は、この形でブランチが記録されている。記録が無ければ、「作業場所」の手順で新しく用意する。`gh issue develop` で紐づけるのは、対象の Issue のうち番号のいちばん小さいもの 1 件にする。
 3. マイルストーンごとに「1 件ごとの繰り返し」を行う。worker に渡す書き込み範囲は、そのマイルストーンの Plan of Work と Concrete Steps に挙がったファイルにする（ExecPlan の記録はメインが行う）。
 4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。
 5. すべてのマイルストーンが終わり CI が通ったら、`gh pr ready <PR番号>` で下書きを解除し、報告して終える。マージはしない。完了処理は `/finish-task` で行う。
@@ -156,7 +157,7 @@ ExecPlan をマイルストーンごとに進める。
 PR がマージされたあとの片付けと完了処理を行う。完了処理の中身は `.agent/PLANS.md` の「完了処理プロトコル」を正本とする。
 
 1. 対象のロードマップ項目を特定する。ExecPlan のパスなら、その ExecPlan を `ExecPlan:` に持つ項目。Issue 番号なら、その番号を `Issue:` に含む項目。一意に決まらなければ、推測で進めずに止まる。
-2. その項目の Issue のうち、PR が MERGED のもの（`gh pr view <PR番号> --json state`）について、ワークツリーを片付ける。
+2. その項目の Issue のうち、PR が MERGED のもの（`gh pr view <PR番号> --json state`）について、ワークツリーを片付ける（runner を使わずに進めたなどで、ワークツリーが無ければ飛ばす）。
    `git worktree remove "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.claude/worktrees/issue-<番号>"`
 3. 項目の `Issue:` に挙がった Issue が、すべて閉じたことを確かめる。まだ開いているものがあれば、ここで終える（項目は未完了のまま）。ExecPlan がある場合は、Progress と Validation and Acceptance が完了の状態かも確かめる。
 4. 実装と検証の完了を告げ、完了処理へ進む前にユーザー確認を取る（省かない）。

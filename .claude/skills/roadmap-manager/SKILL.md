@@ -30,11 +30,17 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 
 ## コマンド
 
-### /next-task
+### /next-task [--run]
 1. `Issue:` の Issue がすべて閉じたのに完了同期していない項目があれば、先に `exec-plan-runner` スキルの `/finish-task` を提案する（完了処理はユーザー確認のあとにだけ行う）。
-2. 依存順で次の未完了タスクを1件選定する。依存先が `DONE` でない項目と、非公開で扱うセキュリティ修正は対象外とする。
-3. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `exec-plan` スキルの `/create-plan` で作成して行を更新し、作成を告げて止まる（本人が計画を確かめてから `/run-plan` で進める）。作らない場合は `不要` にする。
-4. 実行は `exec-plan-runner` スキルに渡す。ExecPlan があれば `/run-plan <ExecPlan のパス>`、`ExecPlan: 不要` なら `Issue:` の開いている Issue を番号順に 1 件ずつ `/run-issue <番号>` で進める。
+2. 依存順で次の未完了タスクを1件選定する。次の項目は対象外とする。
+   - `Status: BLOCKED` の項目、依存先が `DONE` でない項目、非公開で扱うセキュリティ修正
+   - 進行中の項目: `Issue:` の開いている Issue のすべてに、紐づくブランチ（`gh issue develop --list <番号>`）か PR がある
+3. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。この時点ではファイルを書き換えない。
+4. 選んだ項目、ExecPlan の要否とその理由、次に実行するコマンドを示す。`--run` が無ければ、ここで止まる。
+5. `--run` があれば、`exec-plan-runner` スキルに渡す。
+   - ExecPlan がある: `/run-plan <ExecPlan のパス>`
+   - `不要`（またはそう決めた）: 開いている Issue のうち、紐づくブランチも PR も無いものを番号順に 1 件ずつ `/run-issue <番号>` で進める。`ExecPlan:` 行の書き換えは、runner が最初の PR に含める
+   - 作ると決めた: runner の「作業場所」の手順で、`Issue:` のうち番号のいちばん小さい Issue のブランチとワークツリーを作る。そこで `exec-plan` スキルの `/create-plan` を行い、`.agent/roadmap.md` の `ExecPlan:` 行も更新する。ブランチを ExecPlan の Artifacts and Notes に記録してコミットし、push せずに作成を告げて止まる（本人が計画を確かめてから `/run-plan` で進める）
 
 ### /roadmap-add <セクション> <タスク>
 1. 指定セクション配下へ固定フォーマットでタスクを追加する。
@@ -56,7 +62,7 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 2. `Status: DONE` に変更する項目だけは、事前にユーザー確認が取れていることを確認する。
 3. `Status: DONE` に変更する項目は、`.agent/PLANS.md` の「完了処理プロトコル」に従う。
 4. 互換表示としてチェックボックスが残っている場合のみ整合させる。
-5. スキル自己成長タスクでは、完了同期後に `docker compose exec <app-service> php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict` を実行し、集計更新は `skill:sync` を正本とする。
+5. スキル自己成長タスクでは、完了同期後に `.agent/PLANS.md` の「完了処理プロトコル」step 8 に従う。`skill:complete` 実行後は `learning.json` / `proposal.json` の内容を示し、`この学びをスキルへ反映しますか？ はい・いいえ` と確認してから次へ進む。
 
 ### /roadmap-normalize
 1. 旧ToDo形式の項目を固定フォーマットへ変換する。
