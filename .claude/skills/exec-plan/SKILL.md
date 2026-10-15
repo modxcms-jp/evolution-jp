@@ -8,6 +8,8 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 `.agent/PLANS.md` の仕様に準拠した ExecPlan を作成・管理するワークフロー。
 コーディング規約・ドキュメントマップは `AGENTS.md` を参照。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
+
 ## ロードマップ連携
 
 1. `.agent/roadmap.md` のタスクに ExecPlan を作るかどうかは、着手時に改修規模で決める（目安は `.agent/roadmap.md` の「記述フォーマット」）。1 つの Issue で原因と直し方がはっきりしている小さな修正は作らず、`ExecPlan: 不要` とする。

@@ -11,6 +11,8 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 不具合対応を「再現可能な事実」ベースで前進させる。
 実装規約はプロジェクトの `AGENTS.md` を最優先とし、必要に応じて `project-worker` の規約へ委譲する。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
+
 ## 実行ルール
 
 詳細な実行ルールは `.claude/skills/issue-resolver/SKILL.md` の `## 実行ルール` を参照。

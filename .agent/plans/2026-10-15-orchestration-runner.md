@@ -11,7 +11,7 @@
 - [x] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）と、push を機械的に止める許可設定を作り、モデル・effort・書き込み範囲・許可確認の出方を確かめる（`gh issue develop` と実際の push・PR 作成での許可確認は M5 の最初の 1 件で確かめる）
 - [x] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-issue`・`/run-plan`・`/finish-task`）を作る。不変条件・止まる条件・確認を省く範囲の一覧をここに置く
 - [x] (2026-10-16) M3: `roadmap-next-task` を廃止し、`/next-task` を `roadmap-manager` へまとめる。完了同期は `/roadmap-sync` に一本化する。参照を更新する
-- [ ] (2026-10-15) M4: 各スキルの確認を「`exec-plan-runner` から呼ばれたときは runner の一覧に従う」に改める。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
+- [x] (2026-10-16) M4: 各スキルの確認を「`exec-plan-runner` から呼ばれたときは runner の一覧に従う」に改める。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
 - [ ] (2026-10-15) M5: 0 節の Issue 3 件で試運転し、実装役のモデル（Sonnet 5.5 の `medium` と Opus 5.5 の `low`）を比べて決める。手順と止まる条件を直す
 
 ## Surprises & Discoveries
@@ -30,6 +30,7 @@
 - 2026-10-16 (M3): ヘッドレス Playwright の自走確認を、入れ子のセッションの evo-tester に任せて行った。本体のルートを起点に main の detached ワークツリーを作り、`EVO_VALIDATE_NAME=evo-validate-probe684`・`EVO_BIND_IP=127.0.0.2` で検証環境を起動した。続けて Playwright を作業用ディレクトリに入れ、`setup-site.js --sample --editor` でインストールした。`smoke.js` は 6/6 PASS、`/manager/` は 200、表側の title も出た。そのあと `down -v --rmi local` と `config.inc.php` の削除で片付けた。許可確認や拒否は 0 件で、所要は約 1 分半（イメージとブラウザはキャッシュ済み）。別の作業ツリーの既定名 `evo-validate` の環境（停止中）には触れなかった。片付けのあと、コンテナ・ボリューム・イメージが残っていないこと、ワークツリーを `git worktree remove` で消せたことを、メインで確かめた。tester 役が、人の手を借りずに検証環境の起動から片付けまでを完走できることを確かめられた。
 - 2026-10-16 (M3): ワークツリーで分離したセッションでは、`ROOT=$(…) && git worktree add "$ROOT/…"` の 1 行は、分離の仕組みに断られた。`git rev-parse` で先にパスを得て、絶対パスを直接書いた `git worktree add` は通った。分離していない普段のメインのセッションでは、この制約は無い。
 - 2026-10-16 (M3): M3 の差分を evo-reviewer で自己レビューし、中 3 件・低 4 件を直した。中は次の 3 件。(1) 「次のタスク」と言うだけで push まで進んでしまう。(2) Status を WIP にしないので、進行中の項目を選び直してしまう。(3) `/next-task` が書き換えたファイルの置き場が無い。続けて、`--run` を付けない `/next-task` を入れ子のセッションで実際に動かした。進行中の #684 の項目を外し、次の項目を選んで示し、ファイルを書き換えずに止まった。このとき、`Issue:` 欄が番号順ではなく優先順に並んでいて、モデルがその順に従うことが分かった。スキルの「番号順」はこれと食い違っていたので、直した。
+- 2026-10-16 (M4): Codex CLI（0.156.1）を読み取り専用のサンドボックス（`codex exec -s read-only --ephemeral`）で動かし、`.codex/skills/exec-plan-runner/` の入口が読まれるか確かめた。Codex は `exec-plan-runner` と `roadmap-manager` をスキルとして認識した。入口から正本を辿り、`/run-issue` の手順 9 つと、止まったときに返す 4 項目を正しく答えた。ファイルの変更は無かった。Codex で runner を実際に 1 周させる確認は、この計画の到達条件に含めない（#680 と合わせた将来の課題）。
 - 2026-10-15 (M2): 2 回目の自己レビューの中 4 件・低 5 件はすべて直した。3 回目のレビューは行っていない（runner の往復上限の 2 回に合わせた）。
 
 ## Decision Log
@@ -54,6 +55,7 @@
 - 2026-10-16 (Claude, M3): 自己レビューを受けて、`/next-task` は選んで示したところで止め、`/next-task --run` と明示されたときだけ runner に渡すことにした。runner に書いた「呼び出しを明示指示とみなす」の範囲を、あいまいな言い方の依頼にまで広げないため。代替案は、`/next-task` を呼んだことそのものを明示指示とみなす形で、自走の範囲が「次のタスク」という一言にまで広がるので採らない。`ExecPlan: 不要` への書き換えは runner の最初の PR に含める。ExecPlan を作るときは、代表の Issue のブランチにコミットして、push せずに止まる。
 - 2026-10-16 (yamamoto/Claude, M3): ロードマップの `Issue:` 欄は優先順に並べ、着手もその順にする、と書式に足した。実際の項目がそう並んでいて、`/next-task` の実地の確認でもモデルがその順に従ったため。M2 の (9) で決めた「`gh issue develop` で紐づけるのは番号のいちばん小さい 1 件」も「先頭に書かれた 1 件」に改めた。
 - 2026-10-16 (Claude, M3): この項目のロードマップの到達条件「main への push とマージが、許可設定で機械的に止まる」を、M1 の決定（止めるのは main への push と強制 push だけ）に合わせて直した。
+- 2026-10-16 (Claude, M4): 各スキルに足す 1 行は、どのファイルも同じ文面にした（「`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、runner の『確認を省く範囲』を優先する。完了処理の前のユーザー確認は省かない」）。置き場所は各スキルの導入文の直後で、確認の箇所より先に読まれる位置にした。Codex の写し（SKILL.md と `agents/openai.yaml`）にも同じ 1 行を入れた。reviewer.md・orchestrator.md・AGENTS.md は、文脈に合わせて書き分けた。`ai-runtime-governance.md` は、Codex が主という前提が全体にあったので、全体を書き直した。以前の文書にあった「主運用は Codex なのに、共有本文の正本は `.claude/skills/` にある」というねじれも、正本が主に使うランタイムの側にあることになって解消した。
 - 2026-10-15 (yamamoto/Claude): 最初は直列（1 件ずつ）で動かす。並行は M5 のあとに、検証環境の分離（`EVO_VALIDATE_NAME`・`EVO_BIND_IP`）を確かめてから決める。
 - 2026-10-15 (yamamoto/Claude): ロードマップの Status 更新は Issue ごとの PR では行わず、`/finish-task` でまとめて行う（PR 同士が `.agent/roadmap.md` で衝突しないようにする）。
 - 2026-10-15 (yamamoto/Claude): スキルは「作る」`exec-plan` と「回す」`exec-plan-runner` の対にする。`roadmap-next-task` は廃止し、選定（`/next-task`）は `roadmap-manager` にまとめる。重複していた `/roadmap-next` は消し、`/sync-roadmap` は既存の `/roadmap-sync` に一本化する。`/next-task` という名前は使い慣れているので残す。2026-05-07 の SSOT 整備（`.agent/plans/archive/2026-05-07-ai-doc-ssot-refactor.md`）では両スキルを残して重複を整理したが、実行の受け持ちを `exec-plan-runner` へ移すと `roadmap-next-task` に残る仕事が選定だけになるため、統合する。代替案は `roadmap-next-task` を名前だけ変えて残す形。

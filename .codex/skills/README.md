@@ -1,8 +1,8 @@
 # Skills
 
 このディレクトリは、Codex 実行用のアダプタを管理する。
-主運用ランタイムは Codex だが、共有スキル本文の正本は歴史的経緯と既存参照の互換性のため当面 `.claude/skills/` にある。
-このねじれの意味づけは `assets/docs/ai-runtime-governance.md` を正本とし、ここでは Codex 固有の入口とメタデータだけを持つ。
+主に使うランタイムは Claude Code で、Codex は補佐（PR の補助レビューを含む）。共有スキル本文の正本は `.claude/skills/` にある。
+ランタイム分担の意味づけは `assets/docs/ai-runtime-governance.md` を正本とし、ここでは Codex 固有の入口とメタデータだけを持つ。
 
 ## 正本の分担
 
@@ -20,4 +20,5 @@
 - このディレクトリでは Codex 固有の差分だけを管理する。実行環境の差異（`docker compose exec` 形式など）があるコマンドはここに手順を持つことができる。
 - エージェント責務は `.agent/agents/` を参照する。
 - 共通ルールは `AGENTS.md` を参照する。
-- Codex 主運用と共有本文の位置づけは `assets/docs/ai-runtime-governance.md` を参照する。
+- ランタイム分担と共有本文の位置づけは `assets/docs/ai-runtime-governance.md` を参照する。
+- 役割を分けて進めるスキル（`exec-plan-runner` など）は、Codex では役割を分けずに 1 つのセッションで同じ手順を順に行う。不変条件・止まる条件・自己レビューは省かない。

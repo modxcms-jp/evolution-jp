@@ -3,6 +3,7 @@ interface:
   short_description: "AI向けドキュメントのSSOT違反や表記ゆれを監査・修正する"
   default_prompt: |
     入力コマンドに応じて以下を実行してください。
+    `exec-plan-runner` から呼ばれたときは、以下の確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（完了処理の前のユーザー確認は省かない）。
 
     `/doc-audit [対象]`:
     1) `AGENTS.md` と `.claude/skills/doc-maintainer/SKILL.md` を読む。
