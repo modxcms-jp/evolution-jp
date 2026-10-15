@@ -10,7 +10,7 @@
 - `issue-resolver` スキル
 - `exec-plan` スキル
 - `roadmap-manager` スキル
-- `roadmap-next-task` スキル
+- `exec-plan-runner` スキル
 
 ## 入力
 

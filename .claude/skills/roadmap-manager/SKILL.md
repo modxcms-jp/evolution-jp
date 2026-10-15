@@ -1,6 +1,6 @@
 ---
 name: roadmap-manager
-description: ロードマップ（`.agent/roadmap.md`）を運用するスキル。タスクの追加・変更・削除・次タスク着手・完了同期を一貫して扱い、着手時に改修規模で ExecPlan の要否を判断する。
+description: ロードマップ（`.agent/roadmap.md`）を運用するスキル。タスクの追加・変更・削除、次タスクの選定（`/next-task`）、完了同期（`/roadmap-sync`）を扱い、着手時に改修規模で ExecPlan の要否を判断する。選んだタスクの実装から PR までは exec-plan-runner に渡す。「次のタスク」「/next-task」「ロードマップに追加」「ロードマップを同期」と依頼されたときに使う。
 ---
 
 # Roadmap Manager
@@ -30,10 +30,11 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 
 ## コマンド
 
-### /roadmap-next
-1. 依存順で次の未完了タスクを1件選定する。
-2. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `.agent/PLANS.md` 準拠で新規作成して行を更新し、作らない場合は `不要` にする。
-3. ExecPlan を作った場合は `Progress` 初期行を更新して着手する。作らない場合は対象 Issue を確認して着手する。
+### /next-task
+1. `Issue:` の Issue がすべて閉じたのに完了同期していない項目があれば、先に `exec-plan-runner` スキルの `/finish-task` を提案する（完了処理はユーザー確認のあとにだけ行う）。
+2. 依存順で次の未完了タスクを1件選定する。依存先が `DONE` でない項目と、非公開で扱うセキュリティ修正は対象外とする。
+3. `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `exec-plan` スキルの `/create-plan` で作成して行を更新し、作成を告げて止まる（本人が計画を確かめてから `/run-plan` で進める）。作らない場合は `不要` にする。
+4. 実行は `exec-plan-runner` スキルに渡す。ExecPlan があれば `/run-plan <ExecPlan のパス>`、`ExecPlan: 不要` なら `Issue:` の開いている Issue を番号順に 1 件ずつ `/run-issue <番号>` で進める。
 
 ### /roadmap-add <セクション> <タスク>
 1. 指定セクション配下へ固定フォーマットでタスクを追加する。

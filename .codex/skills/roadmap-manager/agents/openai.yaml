@@ -4,10 +4,11 @@ interface:
   default_prompt: |
     入力コマンドに応じて以下を実行してください。
 
-    `/roadmap-next`:
-    1) ロードマップの上から次の未完了タスクを1件選定する（非公開のセキュリティ修正は対象外）。
-    2) `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `.agent/PLANS.md` 準拠で作成してパスを書き、作らない場合は `不要` にして `Issue:` の Issue を正とする。
-    3) ExecPlan を作った場合は `Progress` 初期行を更新して着手する。
+    `/next-task`:
+    1) `Issue:` の Issue がすべて閉じたのに完了同期していない項目があれば、先に `exec-plan-runner` の `/finish-task` を提案する。
+    2) ロードマップの上から、依存先が `DONE` の次の未完了タスクを1件選定する（非公開のセキュリティ修正は対象外）。
+    3) `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は `exec-plan` の `/create-plan` で作成してパスを書き、作成を告げて止まる。作らない場合は `不要` にして `Issue:` の Issue を正とする。
+    4) 実行は `exec-plan-runner` に渡す。ExecPlan があれば `/run-plan <ExecPlan のパス>`、`不要` なら開いている Issue を番号順に 1 件ずつ `/run-issue <番号>`。
 
     `/roadmap-add <セクション> <タスク>`:
     1) 指定セクション配下へ固定フォーマットでタスクを追加する。
