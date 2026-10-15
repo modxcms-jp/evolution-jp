@@ -1,29 +1,44 @@
-# ExecPlan: ExecPlan と Issue を、実装役 Sonnet・レビュー役 Opus のサブエージェントで自分で進められるようにする
+# ExecPlan: ExecPlan と Issue を、役割ごとのサブエージェントで自分で進められるようにする
 
 ## Purpose / Big Picture
 
-ロードマップの項目や Issue を、AI が人の確認を待たずに「実装 → 検証 → 自己レビュー → push」まで進められるようにする。実装は軽快で安い Sonnet、レビューは深く読める Opus のサブエージェントに任せ、push する前に必ず自己レビューを通す。人が見るのはマージの判断と、途中で出た「要相談」の判断だけにする。
+ロードマップの項目や Issue を、AI が人の確認を待たずに「実装 → 検証 → 自己レビュー → push → PR」まで進められるようにする。実装と検証は速く安いモデル、レビューと計画は深く読めるモデルのサブエージェントに任せ、push する前に必ず自己レビューを通す。人が見るのはマージの判断と、途中で出た「要相談」の判断だけにする。
 
-最初の使い道は、ロードマップ「0. 全体点検で見つかった不具合の修正」の 32 件（#634〜#665）を一気に片付けることである。
+最初の使い道は、ロードマップ「0. 全体点検で見つかった不具合の修正」の Issue（#634〜#665）を順に片付けることである。
 
 ## Progress
 
-- [ ] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）を作り、モデル・推論の強さ・書き込み範囲が想定どおり効くことを確かめる
-- [ ] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-plan`・`/run-issue`・`/finish-task`）を作る
-- [ ] (2026-10-15) M3: `roadmap-next-task` を廃止し、`/next-task` を `roadmap-manager` へまとめる。参照を更新する
-- [ ] (2026-10-15) M4: 自分で進めると止まる確認を、`exec-plan-runner` の実行中だけ省けるようにする。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
-- [ ] (2026-10-15) M5: 0 節の小さな Issue 2 件で試運転し、手順と止まる条件を直す
+- [ ] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）と、push・マージを機械的に止める許可設定を作り、モデル・effort・書き込み範囲・許可確認の出方を確かめる
+- [ ] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-issue`・`/run-plan`・`/finish-task`）を作る。不変条件・止まる条件・確認を省く範囲の一覧をここに置く
+- [ ] (2026-10-15) M3: `roadmap-next-task` を廃止し、`/next-task` を `roadmap-manager` へまとめる。完了同期は `/roadmap-sync` に一本化する。参照を更新する
+- [ ] (2026-10-15) M4: 各スキルの確認を「`exec-plan-runner` から呼ばれたときは runner の一覧に従う」に改める。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
+- [ ] (2026-10-15) M5: 0 節の Issue 3 件で試運転し、実装役のモデル（Sonnet 5.5 の `medium` と Opus 5.5 の `low`）を比べて決める。手順と止まる条件を直す
 
 ## Surprises & Discoveries
 
+- 2026-10-15: 自己レビュー（Opus のレビュー役、読み取り専用）で、確認を省く対象の漏れ、push とマージを文章だけで禁じている点、レビュー役の書き込み禁止の実効性、ワークツリーと並行実行の具体性不足、役割表と `.agent/agents/` の食い違いなどが見つかった。この版はそれを反映している。
+- 2026-10-15: 本人の個人設定（`~/.claude/settings.json`）は `model: opus[1m]`、`effortLevel: high`。`CLAUDE_CODE_EFFORT_LEVEL`・`CLAUDE_CODE_SUBAGENT_MODEL`・`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` は未設定。サブエージェントの frontmatter の `model`・`effort` はセッションの設定より優先されるので、そのまま効く見込み（公式ドキュメントによる。実際の効き方は M1 で確かめる）。
+
 ## Decision Log
 
-- 2026-10-15 (yamamoto/Claude): 実装役は Sonnet、レビュー役は Opus とする。Sonnet はサブエージェントとして呼ぶ実装役で費用対効果がよく、Opus はレビューで効果が大きい、という本人の見立てによる。
-- 2026-10-15 (yamamoto/Claude): 品質の主な関門は push 前の自己レビュー（Opus のレビュー役）とする。PR に付く Codex のレビューは補助として扱い、妥当なものだけ直す。
-- 2026-10-15 (yamamoto/Claude): Claude Code を主なランタイム、Codex を補佐とする。Codex 側に同じ役割分担を作ることは、この計画の対象外とする（入口の参照だけ整える）。
-- 2026-10-15 (yamamoto/Claude): モデル名は `.claude/agents/*.md` の frontmatter にだけ書く。`.agent/agents/` と `assets/docs/ai-runtime-governance.md` は抽象的な段階（通常・高推論・低コスト）のまま残す。モデルが変わったときに直すのは 1 か所で済む。モデルは `sonnet`・`opus` などの別名で書き、版番号を固定しない。
-- 2026-10-15 (yamamoto/Claude): スキルは「作る」`exec-plan` と「回す」`exec-plan-runner` の対にする。`roadmap-next-task` は廃止し、選定（`/next-task`）は `roadmap-manager` にまとめる。重複していた `/roadmap-next` は消す。`/next-task` という名前は使い慣れているので残す。
+- 2026-10-15 (yamamoto/Claude): 役割とモデルの対応は、公式情報に基づいて次のとおりにする。
+  - 実装役・検証役は Sonnet 5.5。公式の説明は「速さと知能の最良の組み合わせ」で、速度は Fast、価格は Opus 5.5 の半分（入力 $2 / 出力 $10 per MTok）。移行ガイドでは「実際のリポジトリでの複数手順のエージェント型コーディングが最も得意」。
+  - レビュー役・計画役は Opus 5.5。公式の説明は「長時間のエージェント型コーディングと知的作業向け」。移行ガイドでは、最も大きな改善の一つがコードレビューで「より多くのバグを、より少ない誤検知で見つける」。
+  - 調査役は Haiku 5.5。公式の説明は「大量・遅延に敏感な作業（分類・抽出・振り分け）向け」で、移行ガイドでは「サブエージェントとしての動作が大きく改善」。Claude Code の公式ドキュメントも、調査を `model: haiku` で安く回す例を示している。
+  - Fable 5.1 は使わない（遅く高価。Opus 5.5 で足りないと測れたときだけ検討する）。
+  - 代替案: 全役割を Opus 5.5 にして effort だけ変える。公式のコスト指針は、複数モデルを組み合わせる前に「最も能力の高いモデルを低い effort で使う」形を測るよう勧めており、Opus 5.5 は `low` でもコーディング評価で `medium` に近い結果を大幅に安く出すとされる。1 モデルならキャッシュも共有できる。そのため実装役は M5 で「Sonnet 5.5 の `medium`」と「Opus 5.5 の `low`」を比べて決める。
+  - 出典: https://platform.claude.com/docs/en/about-claude/models/overview 、Claude API スキル同梱の移行ガイド（Migrating to Claude Opus 5.5 / Sonnet 5.5 / Haiku 5.5、2026-10-06 時点）、https://code.claude.com/docs/en/sub-agents
+- 2026-10-15 (yamamoto/Claude): effort は役割ごとに必ず明示する。モデルごとに既定値が違い（Opus 5.5 と Haiku 5.5 は `medium`、Sonnet 5.5 は `high` で段階が見直されている）、省くと意図しない強さで動くため。初期値は Plan of Work の表のとおり。公式の指針: 知能が効く作業は最低 `high`、エージェント型のコーディングは `medium` から、`xhigh`・`max` は効果を測ってからに限る、思考を減らしたいときは指示より effort を下げる。
+- 2026-10-15 (yamamoto/Claude): 実装役の指示文に「動かして確かめてから完了と報告する」段落を入れる。公式の移行ガイドに、Sonnet 5.5（主に `low`）と Haiku 5.5（`low`・`medium`）は、動かして確かめずに完了と報告することがあると書かれているため。
+- 2026-10-15 (yamamoto/Claude): 品質の主な関門は push 前の自己レビュー（Opus のレビュー役）とする。PR に付く Codex のレビューは補助として扱い、自走の 1 周には含めず、後から `/resolve-review` で扱う。
+- 2026-10-15 (yamamoto/Claude): Claude Code を主なランタイム、Codex を補佐とし、Claude Code での動作を優先する。Codex でも同じように動くのが望ましい（本人）。そのため `exec-plan-runner` の本文は抽象的な役割（worker・reviewer など）と、手順・不変条件・止まる条件だけで書き、Claude Code での割り当ては `.claude/agents/` を正本にする（ランタイム分担の文書の原則 3「共有本文にランタイム固有の癖を書かない」にも合う）。Codex では、役割を分けずに 1 つのセッションで同じ手順を順に行えば、同じ不変条件と止まる条件のもとで動く。Codex で役割を別のエージェントに分けられるか（モデルや推論の強さを役割ごとに変えられるか）は未確認で、#680（Codex 用スキルの整理）と合わせた将来の課題とし、この計画の到達条件には含めない。代替案は「runner を Claude Code 専用と宣言して Codex の入口を作らない」。Codex でも動かしたいという本人の希望と、原則 3 に合わないので採らない。
+- 2026-10-15 (yamamoto/Claude): モデル名は `.claude/agents/*.md` の frontmatter にだけ書く。`.agent/agents/` と `assets/docs/ai-runtime-governance.md` は抽象的な段階（通常・高推論・低コスト）のまま残す。モデルは `sonnet`・`opus`・`haiku` の別名で書き、版番号を固定しない。
 - 2026-10-15 (yamamoto/Claude): 役割の責務の正本は `.agent/agents/*.md` のまま。`.claude/agents/*.md` の本文は「対応する `.agent/agents/<役割>.md` と `AGENTS.md` を読んで従う」という薄い入口にし、内容を写さない（#680 と同じ問題を増やさない）。
+- 2026-10-15 (yamamoto/Claude): push・PR の作成・GitHub への書き込み（コメント、返信、resolved 化）は、メインのセッションだけが行う。worker はコミットまで、reviewer はファイルにも GitHub にも書かない。代替案は、`.agent/agents/reviewer.md` のとおり reviewer に GitHub への書き込みを任せる形。書き込み禁止を確かめにくくなるので採らない（`reviewer.md` は M4 で runner 実行時の扱いを追記する）。
+- 2026-10-15 (yamamoto/Claude): 最初は直列（1 件ずつ）で動かす。並行は M5 のあとに、検証環境の分離（`EVO_VALIDATE_NAME`・`EVO_BIND_IP`）を確かめてから決める。
+- 2026-10-15 (yamamoto/Claude): ロードマップの Status 更新は Issue ごとの PR では行わず、`/finish-task` でまとめて行う（PR 同士が `.agent/roadmap.md` で衝突しないようにする）。
+- 2026-10-15 (yamamoto/Claude): スキルは「作る」`exec-plan` と「回す」`exec-plan-runner` の対にする。`roadmap-next-task` は廃止し、選定（`/next-task`）は `roadmap-manager` にまとめる。重複していた `/roadmap-next` は消し、`/sync-roadmap` は既存の `/roadmap-sync` に一本化する。`/next-task` という名前は使い慣れているので残す。2026-05-07 の SSOT 整備（`.agent/plans/archive/2026-05-07-ai-doc-ssot-refactor.md`）では両スキルを残して重複を整理したが、実行の受け持ちを `exec-plan-runner` へ移すと `roadmap-next-task` に残る仕事が選定だけになるため、統合する。代替案は `roadmap-next-task` を名前だけ変えて残す形。
+- 2026-10-15 (yamamoto/Claude): 確認を省く範囲は `exec-plan-runner` の 1 か所に一覧で置き、各スキルからはそこを参照する（各スキルに例外を散らさない）。完了処理の前のユーザー確認（`.agent/PLANS.md` の完了処理の手順 1）は省かない。
 
 ## Outcomes & Retrospective
 
@@ -31,140 +46,220 @@
 
 用語:
 
-- サブエージェント: メインの Claude Code セッションから仕事を任せる別の Claude。自分の指示文（システムプロンプト）・使えるツール・モデルを持つ。`.claude/agents/<名前>.md` で定義する
-- frontmatter: Markdown の先頭の `---` で囲んだ設定欄
-- 推論の強さ（effort）: 考える量の設定。`low`・`medium`・`high`・`xhigh`・`max`
-- 自己レビュー: push する前に、実装した本人とは別のレビュー役が差分を読み、問題を指摘すること
+- サブエージェント: メインの Claude Code セッションから仕事を任せる別の Claude。自分の指示文・使えるツール・モデルを持つ。`.claude/agents/<名前>.md` で定義する。
+- frontmatter: Markdown の先頭の `---` で囲んだ設定欄。
+- effort（推論の強さ）: 考える量の設定。`low`・`medium`・`high`・`xhigh`・`max`。
+- 自己レビュー: push する前に、実装した役とは別のレビュー役が差分を読み、問題を指摘すること。
+- メインのセッション: 人と対話している Claude Code のセッション。この計画ではまとめ役（orchestrator）を兼ねる。
 
 関係するファイル:
 
-- `.agent/agents/*.md`: 役割（orchestrator・explorer・planner・worker・reviewer・tester・roadmap-curator）の責務の正本
-- `assets/docs/ai-runtime-governance.md`: ランタイム分担と推論運用の正本。今は「主運用は Codex」と書いてある
-- `.claude/skills/`: スキル本文の正本。`.codex/skills/` は Codex 用の入口（#680 で薄くする予定）
-- `.claude/skills/roadmap-next-task/SKILL.md`: 今の `/next-task`・`/finish-task`・`/sync-roadmap`
-- `.claude/skills/roadmap-manager/SKILL.md`: ロードマップの追加・変更・削除。`/roadmap-next` が `/next-task` と重複している
-- `.claude/skills/project-worker/SKILL.md`: `/work`・`/handoff`。`/handoff` は毎回「コミットして push しますか？」と聞く
-- `.claude/skills/review-agent/SKILL.md` と `.agent/agents/reviewer.md`: レビュー。GitHub への返信や resolved 化の前に確認を求める
-- `.claude/skills/adaptive-validation-runner/`: Docker の検証環境で動作を確かめるスキル
-- `.agent/PLANS.md`: ExecPlan の書式と完了処理
+- `.agent/agents/*.md`: 役割（orchestrator・explorer・planner・worker・reviewer・tester・roadmap-curator）の責務の正本。書き込み範囲もここが正。
+- `assets/docs/ai-runtime-governance.md`: ランタイム分担と推論運用の正本。今は「主運用は Codex」と書いてある。
+- `.claude/skills/`: スキル本文の正本。`.codex/skills/` は Codex 用の入口（#680 で薄くする予定）。
+- `.claude/skills/roadmap-next-task/SKILL.md`: 今の `/next-task`・`/finish-task`・`/sync-roadmap`。
+- `.claude/skills/roadmap-manager/SKILL.md`: ロードマップの追加・変更・削除と `/roadmap-sync`。`/roadmap-next` が `/next-task` と重複している。
+- 確認で止まる箇所（M4 で runner の一覧に従う形へ改める）:
+  - `.claude/skills/project-worker/SKILL.md`: `/handoff` の「コミットして push しますか？」（妥当な区切りに達したとき）、`/work` の初回着手時の `skill:init`
+  - `.claude/skills/issue-resolver/SKILL.md`: 規則 14「エンジニア承認前に修正へ進まない」と implement-fix の手順 1
+  - `.claude/skills/exec-plan/SKILL.md`: `/create-plan` の手順 7「プラン作成完了を伝えて停止」、ブランチ作成・コミット・PR には明示指示が必要とする規則
+  - `.claude/skills/review-agent/SKILL.md`: 規則 11・12、`/resolve-review` の手順 2（方針の確認）と手順 5（push の確認）
+  - `.agent/agents/reviewer.md`: GitHub への返信・resolved 化の前の確認
+  - `AGENTS.md` の「コミット前（ドキュメント変更時）」と `.claude/skills/doc-maintainer/SKILL.md`: 追加コミット後の `/pr-sync` 実行の確認
+  - Codex の写し（`.codex/skills/*/SKILL.md` と `agents/openai.yaml`）
+- `.claude/skills/adaptive-validation-runner/`: Docker の検証環境で動作を確かめるスキル。並走時は `EVO_VALIDATE_NAME`・`EVO_BIND_IP` を分ける。
+- `.github/codex-pr-rules.md`: PR 本文の見出し（概要・変更内容・確認手順・備考）とラベルの決まり。
+- `.agent/PLANS.md`: ExecPlan の書式と完了処理。
 
-Claude Code のサブエージェント定義で使える主な欄（公式ドキュメント https://code.claude.com/docs/en/sub-agents.md）:
+Claude Code のサブエージェント定義（公式ドキュメント https://code.claude.com/docs/en/sub-agents ）:
 
-- `name`・`description`（必須）、`model`（`sonnet`・`opus`・`haiku`・`inherit` など）、`effort`、`tools`・`disallowedTools`、`isolation: worktree`、`maxTurns`、`permissionMode`
-- `tools` を省くと親のツールをすべて受け継ぐ。`Bash` を残すとファイルを書けるので、書き込み禁止は `disallowedTools: Write, Edit` だけでは完全ではない
-- `isolation: worktree` は一時的なワークツリーで動かす。分岐元は既定でリポジトリの既定ブランチ（main）
-- サブエージェントからさらにサブエージェントを呼べる（既定で 3 階層まで）
+- 主な欄は `name`・`description`（必須）、`model`（`sonnet`・`opus`・`haiku`・`fable`・`inherit` またはモデル ID）、`effort`、`tools`・`disallowedTools`、`permissionMode`、`isolation: worktree`、`maxTurns`。
+- モデルの決まり方は、呼び出しごとの `model` 指定 → frontmatter の `model` → 環境変数 `CLAUDE_CODE_SUBAGENT_MODEL` → メインのセッションのモデル、の順。
+- `effort` はセッションの effort より優先されるが、環境変数 `CLAUDE_CODE_EFFORT_LEVEL` より弱い。使える段階はモデルによる。
+- `tools` を省くと親のツールをすべて受け継ぐ。`Bash` を残すとファイルを書けるので、`disallowedTools: Write, Edit` だけでは書き込みを完全には止められない。
+- `isolation: worktree` は一時的なワークツリーで動かす。分岐元は `worktree.baseRef` の設定による（既定は既定ブランチ）。この計画では使わない（下の作業場所の決め方を参照）。
+- `permissionMode` は、親が `bypassPermissions`・`acceptEdits`・auto モードのときは無視される。
 
 ## Plan of Work
 
-### 役割とモデルの対応（M1）
+### 役割・モデル・effort（M1）
 
-`.claude/agents/` に次の 5 つを置く。本文は「`AGENTS.md` と `.agent/agents/<役割>.md` を読み、それに従う。返す成果物の形」だけを書く。
+`.claude/agents/` に次の 5 つを置く。書き込みの列は `.agent/agents/` の正本に合わせ、runner での運用上の制限を括弧で添える。
 
 | 名前 | model | effort | 書き込み | 主な用途 |
 |---|---|---|---|---|
-| `evo-explorer` | `haiku` | `low` | なし（Read・Grep・Glob・読み取り用の Bash） | 既存実装や影響範囲の下調べ |
-| `evo-planner` | `opus` | `high` | `.agent/plans/` だけ | ExecPlan の作成と更新 |
-| `evo-worker` | `sonnet` | `medium` | 割り当てたファイルだけ | 実装・コミット・push |
-| `evo-tester` | `sonnet` | `medium` | なし（検証環境の操作は可） | 再現と動作確認（adaptive-validation-runner） |
-| `evo-reviewer` | `opus` | `high` | なし（`disallowedTools: Write, Edit`） | push 前の自己レビュー、Codex 指摘の仕分け |
+| `evo-explorer` | `haiku` | `medium` | なし（読み取り専用。`tools: Read, Grep, Glob, Bash`） | 既存実装や影響範囲の下調べ |
+| `evo-planner` | `opus` | `high` | `.agent/plans/`・`.agent/roadmap.md`（`planner.md` のとおり） | ExecPlan の作成と更新 |
+| `evo-worker` | `sonnet` | `medium` | 割り当てたファイル（runner ではコミットまで。push はしない） | 実装 |
+| `evo-tester` | `sonnet` | `medium` | テストの追加・`.agent/runs/`（`tester.md` のとおり。runner では検証環境の操作のみ） | 再現と動作確認 |
+| `evo-reviewer` | `opus` | `high` | なし（`disallowedTools: Write, Edit`。GitHub にも書かない） | push 前の自己レビュー、Codex 指摘の仕分け |
 
-名前に `evo-` を付けるのは、Claude Code 組み込みの `Explore`・`Plan` などや、利用者の個人用エージェントと区別するため。orchestrator はメインのセッションが受け持つ（振り分けと統合だけを行い、自分では大きな実装をしない）。
+effort の初期値の考え方: explorer は `low` だと長い指示のもとで検索を飛ばしたり早く止まったりしやすい（Haiku 5.5 の移行ガイド）ので `medium`。planner と reviewer は知能が効く作業なので最低の `high`。worker と tester はエージェント型のコーディングの出発点である `medium`。`xhigh`・`max` は効果を測ってから使う。
 
-worker のワークツリーの扱い: Issue ごとのブランチは `gh issue develop` で先に作る（Issue に紐づけるため）。worker は `isolation: worktree` を使わず、メインのセッションが用意した Issue 用のワークツリーで作業する。並行して動かすときは、Issue ごとに別のワークツリーを用意する。M1 の試験で、`isolation: worktree`（分岐元 main）で作業して紐づけ済みブランチへ push する方式と比べ、扱いやすい方に決めて Decision Log に残す。
+格上げ: 自己レビューで 2 往復しても重大な指摘が残ったら、同じ作業を worker に `model: opus`（`effort: medium`）を指定して 1 回だけやり直させ、それでも残れば止まる。呼び出しごとの `model` 指定は frontmatter より優先される。
+
+本文は薄い入口にする。例（evo-worker）:
+
+    ---
+    name: evo-worker
+    description: Evolution CMS JP Edition の実装担当。exec-plan-runner から、Issue またはマイルストーンと、書き込んでよいファイル・作業ディレクトリを渡されて使う。
+    model: sonnet
+    effort: medium
+    tools: Read, Grep, Glob, Edit, Write, Bash
+    ---
+    AGENTS.md と .agent/agents/worker.md を読み、それに従う。
+    作業は渡された作業ディレクトリの中だけで行い、Bash では毎回そのディレクトリを -C や cd で明示する。
+    渡されたファイル以外を変更する必要が出たら、変更せずに理由を返す。
+    コード（実行・ビルド・型チェックできるもの）を変えたら、完了と報告する前に、その変更を実際に動かす確認（php -l だけでなく、該当する画面・CLI・テスト）を行う。確認できなかった場合は、何を確認できず、なぜかを報告する。
+    コミットまで行い、push はしない。返すもの: 変更したファイル、コミットのハッシュ、行った確認とその結果、残った懸念。
+
+### push・マージを機械的に止める（M1）
+
+リポジトリに `.claude/settings.json` を置き、`permissions.deny` で次を止める: main への push（`git push * main`、`git push origin HEAD:main` などの書き方を含む）、`--force` を含む push、タグの push、`gh pr merge`、`gh release`。書き方が許可設定で表しきれない場合は、PreToolUse フックで同じ判定を行う。この設定は本人の確認を得てから入れる（リポジトリ全体の Claude Code の挙動に影響するため）。
+
+あわせて、`/run-issue` の 1 周（`gh issue develop`、`git push`、`gh pr create`、`docker compose exec`）で許可確認が出るかを確かめ、出るものは許可設定（`permissions.allow`）に足すかどうかを本人と決める。結果は Surprises & Discoveries に残す。
+
+### 作業場所（M1 で確かめ、M2 に書く）
+
+Issue ごとに、メインのセッションが次の順でワークツリーを用意する。既存のブランチは後から Issue に紐づけられないので、`gh issue develop` を必ず最初に行う。
+
+    gh issue develop <番号> -R modxcms-jp/evolution-jp --name <種別>/<番号>-<短い名前> --base main
+    git fetch origin
+    git worktree add .claude/worktrees/issue-<番号> <種別>/<番号>-<短い名前>
+
+worker・tester・reviewer には作業ディレクトリの絶対パスを必ず渡す。worker が返したあと、メインのセッションが `git -C <パス> diff --name-only origin/main...HEAD` で、変更が割り当てたファイルに収まっているかを照合する。tester が main と比べるときは、`git worktree add --detach <一時パス> origin/main` で別のワークツリーを使い、worker のワークツリーの checkout は切り替えない。PR がマージされたら `git worktree remove .claude/worktrees/issue-<番号>` で片付ける。
+
+`isolation: worktree` は使わない。分岐元が設定に左右され、紐づけ済みブランチへの push とブランチ名の受け渡しが増えるため（Decision Log の代替案として残す）。
 
 ### 実行の繰り返し（M2）
 
-新しいスキル `exec-plan-runner` に次のコマンドを置く。
+新しいスキル `exec-plan-runner` に次のコマンドを置く。本文は抽象的な役割で書き、Claude Code での割り当ては `.claude/agents/` を参照する。
 
-- `/run-issue <番号>`: ExecPlan の無い Issue を 1 件直す
-- `/run-plan <ExecPlan のパス>`: ExecPlan をマイルストーンごとに進める
-- `/finish-task`: 完了処理（今の `roadmap-next-task` から移す）。中身は `.agent/PLANS.md` の完了処理を正本とする
+- `/run-issue <番号>`: ExecPlan の無い Issue を 1 件直す。
+- `/run-plan <ExecPlan のパス>`: ExecPlan をマイルストーンごとに進める。
+- `/finish-task`: 完了処理（今の `roadmap-next-task` から移す）。中身は `.agent/PLANS.md` の完了処理を正本とし、ロードマップの更新は `roadmap-manager` の `/roadmap-sync` を使う。
+
+不変条件（どの段階でも守る）:
+
+- push してよいのは、`gh issue develop` で作ったその Issue のブランチだけ。main・ほかのブランチ・タグへの push、`--force`、`gh pr merge`、`gh release` はしない。
+- 非公開アドバイザリに関わる修正は扱わない。指示されても、重なる可能性に気付いても、止まって本人に返す。公開の場（PR・Issue・コミット）にアドバイザリの存在や内容を書かない。
+- `security` ラベル付きの Issue では、PR 本文・コミット・自己レビューの要約に悪用の手順を書かない（「エスケープをそろえる」「権限を確かめる」などの中立的な書き方にする）。
+- 顧客名・社名・個人名を書かない。
+- ロードマップの Status は Issue ごとの PR では変えない。
 
 1 件（Issue 1 件、またはマイルストーン 1 つ）ごとの繰り返し:
 
-1. 準備: Issue の初期設定（`gh issue develop`、アサイニー、タイプ、ラベル）。必要なら evo-explorer に下調べを任せる
-2. 実装: evo-worker に、Issue（または ExecPlan のマイルストーン）、書き込んでよいファイル、検証のしかたを渡す。worker はコミットまで行い、まだ push しない
-3. 検証: evo-tester が、Issue に書いた症状が直ったことを確かめる。画面や DB が絡む場合は adaptive-validation-runner を使う
-4. 自己レビュー: evo-reviewer が、main との差分全体・Issue・検証結果を読み、重大度順に指摘を返す。指摘が無ければ「問題なし」と明記する
-5. 修正: 指摘があれば worker が直し、reviewer が見直す。往復は 2 回まで
-6. push と PR: 自己レビューを通ったら push し、PR を作る（本文に `Closes #番号` と自己レビューの結果の要約）
-7. 補助のレビュー: Codex のレビューが付いたら evo-reviewer が仕分け、妥当なものだけ worker が直す。返信と resolved 化まで行う
-8. 記録: ExecPlan があれば Progress を更新する。Issue に結果をコメントする
+1. 事前確認: Issue が開いていて、担当者・既存のブランチ・PR が無いことを確かめる。あれば止まる。
+2. 準備: 上の「作業場所」の手順と Issue の初期設定（アサイニー、タイプ、ラベル）。必要なら explorer に下調べを任せる。explorer の結果は手がかりとして使い、原因の根拠には worker・reviewer が自分で裏を取る。
+3. 実装: worker に、Issue（またはマイルストーン）、作業ディレクトリ、書き込んでよいファイル、確認のしかたを渡す。worker はコミットまで行う。
+4. 範囲の照合: メインのセッションが変更ファイルを照合し、`php -l` が通ることを確かめる。
+5. 検証: tester が、Issue に書いた症状が直ったことを確かめる。画面や DB が絡む場合は adaptive-validation-runner を使う。
+6. 自己レビュー: メインのセッションがレビュー前の `git -C <パス> status --porcelain` と `git -C <パス> rev-parse HEAD` を控え、reviewer に main との差分全体・Issue・検証結果を渡す。reviewer は重大度順に指摘を返す（無ければ「問題なし」と明記）。レビュー後に同じ 2 つを取り、変化が無いことを確かめる。
+7. 修正: 高・中の指摘があれば worker が直し、reviewer が見直す。往復は 2 回まで。残れば格上げ（上記）、それでも残れば止まる。
+8. push と PR: メインのセッションが push し、PR を作る。本文は `.github/codex-pr-rules.md` の見出しに従い、「確認手順」に検証の結果、「備考」に自己レビューの結果（指摘と対応、または問題なし）を書く。`Closes #番号` を入れ、ラベルは Issue に合わせる（`fix`、必要なら `security`）。
+9. 記録: ExecPlan があれば Progress を更新する。Issue へのコメントは、PR で足りるので行わない。
 
-止まる条件（人に返す）:
+Codex のレビューへの対応は 1 周に含めない。人が依頼したとき、または次の `/run-issue` に入る前に、`/resolve-review <PR>` で扱う（仕分けは reviewer、修正は worker、GitHub への書き込みはメインのセッション）。review-agent が「ユーザー判断を仰ぐ」に分類した指摘は止まって人に返す。
 
-- 「要相談」に当たる判断が出た（DB スキーマの変更、互換性を損なう変更、挙動の選び方が複数あり Issue で決まっていない など）
-- 自己レビューで 2 往復しても重大な指摘が残る
-- 検証できない（環境が立たない、再現しない）
-- 割り当てた範囲の外を直す必要が出た
+止まる条件（何を決めてほしいかを 1 か所にまとめて人に返す）:
 
-マージは自分ではしない。人がまとめて行う。
+- 「要相談」に当たる判断が出た（DB スキーマの変更、互換性を損なう変更、Issue で決まっていない挙動の選択、Issue の「直し方の案」と違う直し方が要る など）
+- Issue が閉じている、担当者・ブランチ・PR が既にある
+- 割り当てた範囲の外を直す必要が出た、または差分が想定より大きい（目安: 変更ファイルが Issue の「場所」の 2 倍を超える）
+- `php -l` などの静的な確認が通らない、検証できない（環境が立たない、再現しない）
+- 自己レビューで、格上げのあとも高・中の指摘が残る
+- push 後に CI が失敗した、main との衝突で rebase が要る
+- 非公開アドバイザリと重なる可能性に気付いた
+- 許可確認が出て、先に進めない
 
 ### スキルの整理（M3）
 
-- `roadmap-manager` に `/next-task`（次の項目を選び、ExecPlan が要るかを判断して `exec-plan-runner` へ渡す）と `/sync-roadmap` を移す。`/roadmap-next` を消す
-- `roadmap-next-task` を削除する（`.claude` と `.codex` の両方）
-- 参照を更新する: `AGENTS.md`、`.claude/skills/README.md`、`.codex/skills/README.md`、`agent-orchestrator`、`.agent/agents/orchestrator.md`・`roadmap-curator.md`、`exec-plan`
+更新する箇所（行番号は 2026-10-15 時点の `docs/684-orchestration-runner`）:
 
-### 止まる確認を省く範囲と、ランタイム分担（M4）
+- `AGENTS.md:193,197,204`: `roadmap-next-task` の記述を、`roadmap-manager` の `/next-task` と `exec-plan-runner` に置き換える
+- `.agent/agents/orchestrator.md:13`: 利用スキルの `roadmap-next-task` を外し、`exec-plan-runner` を足す
+- `.agent/agents/roadmap-curator.md:11`: 利用スキルの `roadmap-next-task` を外す
+- `.claude/skills/roadmap-manager/SKILL.md:33` と `.codex/skills/roadmap-manager/SKILL.md:36`: `/roadmap-next` を `/next-task` に置き換える（選定し、ExecPlan の要否を決めて `exec-plan-runner` へ渡す）
+- `.codex/skills/roadmap-manager/agents/openai.yaml:7`: 同上
+- `.claude/skills/roadmap-next-task/` と `.codex/skills/roadmap-next-task/`: ディレクトリごと削除
 
-`exec-plan-runner` の実行中に限り、次の確認を省いてよいと各スキルに書く。それ以外の場面では今の確認を残す。
+### 確認を省く範囲とランタイム分担（M4）
 
-- `project-worker` の `/handoff` の「コミットして push しますか？」
-- `reviewer` の「GitHub 上へ返信・コメントし、review thread を resolved 化しますか？」
-- ExecPlan を伴う作業での毎回の `skill:init`（成長ループは完了処理のときにまとめて行う）
+`exec-plan-runner` に「この runner の実行中は、次の確認を省いて先へ進む」という一覧を置き、Context に挙げた各スキル・エージェント定義には「`exec-plan-runner` から呼ばれたときは、runner の一覧に従う」と 1 行だけ足す。省かないもの: `.agent/PLANS.md` の完了処理の前のユーザー確認、不変条件、止まる条件。
 
-`assets/docs/ai-runtime-governance.md` は「主に使うランタイムは Claude Code、Codex は補佐（PR の補助レビューを含む）」に改める。「役割ごとの目安」の節に、Claude Code での具体的な割り当ては `.claude/agents/` を正本とする、と 1 行足す。
+`assets/docs/ai-runtime-governance.md`・`.claude/skills/README.md`・`.codex/skills/README.md` の「主運用は Codex」を「主に使うランタイムは Claude Code、Codex は補佐（PR の補助レビューを含む）」に改める。ランタイム分担の文書の「役割ごとの目安」の節に、Claude Code での具体的な割り当ては `.claude/agents/` を正本とする、と 1 行足す。Codex 用の入口は、`exec-plan-runner` について `.codex/skills/exec-plan-runner/SKILL.md` と `agents/openai.yaml` に正本への参照だけを置く（Codex では役割を分けずに 1 つのセッションで順に行う、と注記する）。
 
 ### 試運転（M5）
 
-0 節のうち、小さく独立した 2 件（候補: #642 チャンク削除の権限名、#664 DocManager のログ文言）を `/run-issue` で処理する。繰り返しの各段階が想定どおり動くか、止まる条件が適切かを見て、スキルを直す。
+0 節から次の 3 件を `/run-issue` で直列に処理する。
+
+- #642（チャンク削除の権限名）: 修正は 1 行。権限を絞ったロールを作る検証で、tester と adaptive-validation-runner を試す。
+- #664（DocManager のログ文言）: 修正は 1 行。DocManager の画面操作と管理ログの確認を試す。
+- #651（`@FILE`・`@INCLUDE` の後ろに改行があると読み込まれない）: 直し方に判断が要り、自己レビューの往復や止まる条件が出やすい。
+
+実装役のモデルを比べるため、#642 と #664 は worker を `sonnet`（`medium`）、#651 は同じ Issue を `sonnet`（`medium`）と `opus`（`low`）の両方で 1 回ずつ実装させ（PR にするのは片方だけ）、品質（自己レビューの指摘の数と重さ）・トークン数・かかった時間を比べる。結果で worker の既定を決め、Decision Log に残す。
+
+`/run-plan` の試運転は、0 節の子 ExecPlan（公開状態とアクセス権、または キャッシュのキー）を最初に作るときに行う。この計画の到達条件には含めない。
 
 ## Concrete Steps
 
 M1:
 
-1. `.claude/agents/evo-explorer.md`・`evo-planner.md`・`evo-worker.md`・`evo-tester.md`・`evo-reviewer.md` を作る
-2. 新しいセッションで `/agents` を開き、5 つが表示されることを確かめる
-3. evo-reviewer に任意のファイルの書き換えを頼み、Write・Edit が使えずに断ることを確かめる
-4. evo-worker を呼んだときに Sonnet で動いていることを、応答の自己申告ではなくセッションの表示（使用モデル）で確かめる
+1. `.claude/agents/evo-explorer.md`・`evo-planner.md`・`evo-worker.md`・`evo-tester.md`・`evo-reviewer.md` を、Plan of Work の表と雛形に沿って作る。
+2. 新しいセッションで `/agents` を開く。期待: 5 つが一覧に出る。
+3. evo-reviewer に、任意のファイルを書き換えるよう頼む。期待: Write・Edit が使えず断る。続けてメインのセッションで `git status --porcelain` を実行し、何も変わっていないことを確かめる。
+4. evo-worker・evo-reviewer を 1 回ずつ呼び、使われたモデルを確かめる。方法の候補: セッション記録（`~/.claude/projects/<プロジェクト>/` の `*.jsonl`）に残る `model` を grep する。この方法で確かめられるかは未確認。確かめられなければ別の方法を探し、結果を Surprises に残す。
+5. 本人の確認を得て `.claude/settings.json` に `permissions.deny` を入れる。`git push origin HEAD:main` を試し、期待: 拒否される。
+6. 試しの Issue なしで、ワークツリーの作成（「作業場所」の 3 コマンド）と削除（`git worktree remove`）を一度通す。期待: `git worktree list` に出て、削除後に消える。
+7. `gh issue develop`・`git push`（自分の試しブランチ）・`gh pr create --draft`・`docker compose exec` で許可確認が出るかを確かめ、Surprises に残す。試しの PR とブランチは閉じて消す。
 
-M2〜M4:
+M2:
 
-5. `.claude/skills/exec-plan-runner/SKILL.md` を作る。Codex 用は `.codex/skills/exec-plan-runner/SKILL.md` に正本への参照だけを置く
-6. M3・M4 の各ファイルを更新する
-7. `grep -rn "roadmap-next-task\|/roadmap-next" .claude .codex .agent AGENTS.md assets/docs` で参照が残っていないことを確かめる（期待: アーカイブ済みの ExecPlan 以外に出てこない）
+8. `.claude/skills/exec-plan-runner/SKILL.md` を、Plan of Work の「実行の繰り返し」に沿って作る（不変条件、繰り返し、止まる条件、確認を省く一覧、作業場所の手順）。
+
+M3:
+
+9. Plan of Work の「スキルの整理」の各箇所を直し、2 つのディレクトリを削除する。
+10. `grep -rn "roadmap-next-task\|/roadmap-next\b\|/sync-roadmap" --include=*.md --include=*.yaml .` を実行する。期待: ヒットするのは `.agent/roadmap-archive.md`、`.agent/plans/archive/` の中、`.agent/roadmap.md` の判断ログ、この ExecPlan だけ。
+
+M4:
+
+11. Plan of Work の「確認を省く範囲とランタイム分担」の各箇所を直す。
+12. `grep -rn "主運用" assets/docs .claude/skills/README.md .codex/skills/README.md AGENTS.md` を実行する。期待: 「Codex が主」を意味する記述が残っていない。
 
 M5:
 
-8. `/run-issue 642` と `/run-issue 664` を実行し、それぞれ PR ができること、PR 本文に自己レビューの結果があることを確かめる
+13. #642・#664・#651 を `/run-issue` で順に処理する。期待: それぞれ PR ができ、本文の「備考」に自己レビューの結果がある。止まった場合は、何を決めてほしいかが 1 か所にまとまっている。
+14. #651 で実装役の比較を行い、結果を Decision Log に残す。
 
 ## Validation and Acceptance
 
-- `/agents` に evo-explorer・evo-planner・evo-worker・evo-tester・evo-reviewer の 5 つが出る
-- evo-reviewer はファイルを書き換えられない
-- `/run-issue <番号>` で、人が途中で答えなくても「Issue の初期設定 → 実装 → 検証 → 自己レビュー → push → PR」まで進む。PR 本文に自己レビューの結果（問題なし、または直した指摘）が載る
-- 止まる条件に当たったときは、何を決めてほしいかを 1 か所にまとめて人に返す
-- `roadmap-next-task` への参照が、アーカイブ済みの ExecPlan 以外に残っていない
-- `assets/docs/ai-runtime-governance.md` が「Claude Code が主、Codex は補佐」になっている
-- 試運転の 2 件の PR が、レビューのうえマージできる品質になっている
+- `/agents` に evo-explorer・evo-planner・evo-worker・evo-tester・evo-reviewer の 5 つが出る。
+- evo-reviewer を使った前後で、メインのセッションが確かめた `git status --porcelain` と `git rev-parse HEAD` が変わらない。
+- `git push origin HEAD:main` と `gh pr merge` が、許可設定（またはフック）で拒否される。
+- `/run-issue <番号>` で、止まる条件に当たらない限り、人が途中で答えなくても「事前確認 → 準備 → 実装 → 範囲の照合 → 検証 → 自己レビュー → push → PR」まで進む。
+- 試運転の 3 件の PR が、自己レビューで高・中の指摘ゼロ、CI 成功、PR 本文の「備考」に自己レビューの結果あり、の状態になっている。止まった場合は、止まる条件のどれに当たったかが人への報告に書いてある。
+- `roadmap-next-task` と `/roadmap-next`・`/sync-roadmap` への参照が、Concrete Steps 10 の期待どおりにしか残っていない。
+- `assets/docs/ai-runtime-governance.md` が「Claude Code が主、Codex は補佐」になっている。
 
 ## Idempotence and Recovery
 
-- エージェント定義とスキルはファイルの追加・書き換えだけで、何度やり直しても同じ状態になる
-- 試運転の PR が想定どおりでなければ、PR を閉じてブランチを消し、スキルを直してからやり直す
-- `roadmap-next-task` を消したあとに問題が出たら、この PR のコミットを戻せば元に戻る
+- エージェント定義・スキル・許可設定はファイルの追加と書き換えだけで、何度やり直しても同じ状態になる。
+- PR の分け方: M1〜M4 は #684 の PR（このブランチ）にまとめる。M5 の試運転は Issue ごとに別の PR になる。
+- 試運転の PR が想定どおりでなければ、PR を閉じてブランチとワークツリーを消し、スキルを直してからやり直す。
+- 許可設定が作業の邪魔になった場合は、`.claude/settings.json` のその行を消せば元に戻る。
+- `roadmap-next-task` を消したあとに問題が出たら、#684 の PR の該当コミットを戻せば元に戻る。
 
 ## Artifacts and Notes
 
 - Issue: #684
 - 関連: #680（Codex 用スキルの複製）、PR #666（ロードマップ運用の見直し。このブランチの分岐元）
-- サブエージェントの公式ドキュメント: https://code.claude.com/docs/en/sub-agents.md 、 https://code.claude.com/docs/en/worktrees.md
+- 公式情報: https://platform.claude.com/docs/en/about-claude/models/overview 、 https://code.claude.com/docs/en/sub-agents 、 https://code.claude.com/docs/en/worktrees
+- 2026-10-15 の自己レビュー（Opus、読み取り専用）の指摘は、この版の Decision Log と Plan of Work に反映済み。
 
 ## Interfaces and Dependencies
 
-- Claude Code のサブエージェント機能（`.claude/agents/`）。モデルの別名（`sonnet`・`opus`・`haiku`）が指す版は Claude Code 側で変わる
-- GitHub CLI（`gh issue develop`、`gh pr create`、GraphQL の `resolveReviewThread`）
-- 検証環境（Docker、adaptive-validation-runner）
-- PR #666 のマージが前提（ロードマップの書式と ExecPlan の要否判断を使う）
+- Claude Code のサブエージェント機能（`.claude/agents/`）と許可設定（`.claude/settings.json`）。モデルの別名（`sonnet`・`opus`・`haiku`）が指す版は Claude Code 側で変わる。
+- GitHub CLI（`gh issue develop`、`gh pr create`、GraphQL の `resolveReviewThread`）。
+- 検証環境（Docker、adaptive-validation-runner）。
+- PR #666 のマージが前提（ロードマップの書式と ExecPlan の要否判断を使う）。
