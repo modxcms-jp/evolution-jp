@@ -8,7 +8,7 @@
 
 ## Progress
 
-- [ ] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）と、push・マージを機械的に止める許可設定を作り、モデル・effort・書き込み範囲・許可確認の出方を確かめる
+- [x] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）と、push を機械的に止める許可設定を作り、モデル・effort・書き込み範囲・許可確認の出方を確かめる（`gh issue develop` と実際の push・PR 作成での許可確認は M5 の最初の 1 件で確かめる）
 - [ ] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-issue`・`/run-plan`・`/finish-task`）を作る。不変条件・止まる条件・確認を省く範囲の一覧をここに置く
 - [ ] (2026-10-15) M3: `roadmap-next-task` を廃止し、`/next-task` を `roadmap-manager` へまとめる。完了同期は `/roadmap-sync` に一本化する。参照を更新する
 - [ ] (2026-10-15) M4: 各スキルの確認を「`exec-plan-runner` から呼ばれたときは runner の一覧に従う」に改める。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
@@ -18,6 +18,12 @@
 
 - 2026-10-15: 自己レビュー（Opus のレビュー役、読み取り専用）で、確認を省く対象の漏れ、push とマージを文章だけで禁じている点、レビュー役の書き込み禁止の実効性、ワークツリーと並行実行の具体性不足、役割表と `.agent/agents/` の食い違いなどが見つかった。この版はそれを反映している。
 - 2026-10-15: 本人の個人設定（`~/.claude/settings.json`）は `model: opus[1m]`、`effortLevel: high`。`CLAUDE_CODE_EFFORT_LEVEL`・`CLAUDE_CODE_SUBAGENT_MODEL`・`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` は未設定。サブエージェントの frontmatter の `model`・`effort` はセッションの設定より優先されるので、そのまま効く見込み（公式ドキュメントによる。実際の効き方は M1 で確かめる）。
+- 2026-10-15 (M1): `/agents` の代わりに、ワークツリーで `claude -p --output-format stream-json --verbose` の入れ子セッションを起動して確かめた。evo- で始まる 5 つが subagent_type として認識された。`claude agents --json` はセッションの一覧で、定義の一覧ではない。
+- 2026-10-15 (M1): 使われたモデルと effort は、入れ子セッションの記録 `~/.claude/projects/<プロジェクト>/<セッションID>/subagents/agent-*.jsonl` の `"model"`・`"effort"` と、同じ場所の `agent-*.meta.json` の `agentType` で確かめられる。結果: evo-reviewer は `claude-opus-5-5`／`high`、evo-worker は `claude-sonnet-5-5`／`medium`、evo-explorer は `claude-haiku-5-5`／`medium` で、表のとおり。`model: opus` は 1M 版ではなく `claude-opus-5-5` になる（メインは `opus[1m]`）。差分のレビューなら困らない。
+- 2026-10-15 (M1): evo-reviewer にファイルの作成を頼むと断り、`git status --porcelain` も前後で変わらなかった。ただし使えるツールは Read・Bash などで、Bash のリダイレクトによる書き込みは仕組みとしては止まっていない（指示に従った結果）。そのため、手順 6 の前後照合（`status` と `HEAD`）は省かない。
+- 2026-10-15 (M1): `.claude/settings.json` の deny で、`git push --dry-run` の 6 形（`origin HEAD:main`、`origin main`、`HEAD:refs/heads/main`、`--force`、`-f`、`+HEAD:…`）がすべて拒否され、作業ブランチへの通常の push は通った（入れ子セッションの `permission_denials` で確認）。
+- 2026-10-15 (M1): ワークツリーの中で `git worktree add .claude/worktrees/<名前>` を相対パスで実行すると、そのワークツリーの中に入れ子で作られる。作業場所の手順は、本体のルートを起点にした絶対パスに改めた。また `.claude/worktrees/` はこのクローンの `.git/info/exclude` でしか除外されていなかったので、`.gitignore` に足した。
+- 2026-10-15 (M1): 自動モードのセッションでは、`git fetch`・`git worktree add/remove`・`gh pr create --dry-run`・`docker compose exec` は許可確認なしで実行された（検証環境は止まっていたので、docker は実行が拒否されないことまでしか確かめていない）。`gh issue develop` と実際の push・PR 作成は、公開リポジトリに跡が残るので試しでは行わず、M5 の最初の 1 件で確かめる。なお、ワークツリーで分離したバックグラウンドのセッションでは、git のワークツリー操作を入れ子セッションに頼むと分離の仕組みに断られた。runner のワークツリー操作はメインのセッションが普通のコマンドとして行う。
 
 ## Decision Log
 
@@ -35,6 +41,7 @@
 - 2026-10-15 (yamamoto/Claude): モデル名は `.claude/agents/*.md` の frontmatter にだけ書く。`.agent/agents/` と `assets/docs/ai-runtime-governance.md` は抽象的な段階（通常・高推論・低コスト）のまま残す。モデルは `sonnet`・`opus`・`haiku` の別名で書き、版番号を固定しない。
 - 2026-10-15 (yamamoto/Claude): 役割の責務の正本は `.agent/agents/*.md` のまま。`.claude/agents/*.md` の本文は「対応する `.agent/agents/<役割>.md` と `AGENTS.md` を読んで従う」という薄い入口にし、内容を写さない（#680 と同じ問題を増やさない）。
 - 2026-10-15 (yamamoto/Claude): push・PR の作成・GitHub への書き込み（コメント、返信、resolved 化）は、メインのセッションだけが行う。worker はコミットまで、reviewer はファイルにも GitHub にも書かない。代替案は、`.agent/agents/reviewer.md` のとおり reviewer に GitHub への書き込みを任せる形。書き込み禁止を確かめにくくなるので採らない（`reviewer.md` は M4 で runner 実行時の扱いを追記する）。
+- 2026-10-15 (yamamoto/Claude): 許可設定で機械的に止めるのは、main への push と強制 push（`--force`・`-f`・`+` の refspec）だけにする。`.claude/settings.json` はリポジトリ全体に効き、runner の実行中だけに絞れないため。`gh release` はリリース手順（`release` スキル、`assets/docs/release-process.md`）が `view`・`edit`・`download` に使い、タグの push はリリースのタグ作成に使い、`gh pr merge` は本人が Claude 経由でマージするときに使う。これらは runner の不変条件（文章）と、PR をマージする人の判断で守る。代替案は (1) ExecPlan の当初案どおりすべて止める、(2) `gh pr merge` も止める、(3) runner の実行中だけ働く PreToolUse フックで止める。(1)(2) は普段の作業を妨げるので採らない。(3) は試運転で必要と分かったら検討する（本人の選択）。
 - 2026-10-15 (yamamoto/Claude): 最初は直列（1 件ずつ）で動かす。並行は M5 のあとに、検証環境の分離（`EVO_VALIDATE_NAME`・`EVO_BIND_IP`）を確かめてから決める。
 - 2026-10-15 (yamamoto/Claude): ロードマップの Status 更新は Issue ごとの PR では行わず、`/finish-task` でまとめて行う（PR 同士が `.agent/roadmap.md` で衝突しないようにする）。
 - 2026-10-15 (yamamoto/Claude): スキルは「作る」`exec-plan` と「回す」`exec-plan-runner` の対にする。`roadmap-next-task` は廃止し、選定（`/next-task`）は `roadmap-manager` にまとめる。重複していた `/roadmap-next` は消し、`/sync-roadmap` は既存の `/roadmap-sync` に一本化する。`/next-task` という名前は使い慣れているので残す。2026-05-07 の SSOT 整備（`.agent/plans/archive/2026-05-07-ai-doc-ssot-refactor.md`）では両スキルを残して重複を整理したが、実行の受け持ちを `exec-plan-runner` へ移すと `roadmap-next-task` に残る仕事が選定だけになるため、統合する。代替案は `roadmap-next-task` を名前だけ変えて残す形。
@@ -115,7 +122,7 @@ effort の初期値の考え方: explorer は `low` だと長い指示のもと�
 
 ### push・マージを機械的に止める（M1）
 
-リポジトリに `.claude/settings.json` を置き、`permissions.deny` で次を止める: main への push（`git push * main`、`git push origin HEAD:main` などの書き方を含む）、`--force` を含む push、タグの push、`gh pr merge`、`gh release`。書き方が許可設定で表しきれない場合は、PreToolUse フックで同じ判定を行う。この設定は本人の確認を得てから入れる（リポジトリ全体の Claude Code の挙動に影響するため）。
+リポジトリに `.claude/settings.json` を置き、`permissions.deny` で main への push（`git push origin main`、`HEAD:main`、`refs/heads/main`、`git -C <パス> push …` の書き方を含む）と強制 push（`--force`・`-f`・`+` の refspec）を止める。タグの push・`gh pr merge`・`gh release` は止めない（Decision Log を参照。runner の不変条件で守る）。この設定は本人の確認を得て入れた。
 
 あわせて、`/run-issue` の 1 周（`gh issue develop`、`git push`、`gh pr create`、`docker compose exec`）で許可確認が出るかを確かめ、出るものは許可設定（`permissions.allow`）に足すかどうかを本人と決める。結果は Surprises & Discoveries に残す。
 
@@ -125,9 +132,12 @@ Issue ごとに、メインのセッションが次の順でワークツリー�
 
     gh issue develop <番号> -R modxcms-jp/evolution-jp --name <種別>/<番号>-<短い名前> --base main
     git fetch origin
-    git worktree add .claude/worktrees/issue-<番号> <種別>/<番号>-<短い名前>
+    ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
+    git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短い名前>
 
-worker・tester・reviewer には作業ディレクトリの絶対パスを必ず渡す。worker が返したあと、メインのセッションが `git -C <パス> diff --name-only origin/main...HEAD` で、変更が割り当てたファイルに収まっているかを照合する。tester が main と比べるときは、`git worktree add --detach <一時パス> origin/main` で別のワークツリーを使い、worker のワークツリーの checkout は切り替えない。PR がマージされたら `git worktree remove .claude/worktrees/issue-<番号>` で片付ける。
+ワークツリーの中から相対パスで `git worktree add` すると入れ子になるので、必ず本体のルート（`$ROOT`）を起点にする。
+
+worker・tester・reviewer には作業ディレクトリの絶対パスを必ず渡す。worker が返したあと、メインのセッションが `git -C <パス> diff --name-only origin/main...HEAD` で、変更が割り当てたファイルに収まっているかを照合する。tester が main と比べるときは、`git worktree add --detach <一時パス> origin/main` で別のワークツリーを使い、worker のワークツリーの checkout は切り替えない。PR がマージされたら `git worktree remove "$ROOT/.claude/worktrees/issue-<番号>"` で片付ける。
 
 `isolation: worktree` は使わない。分岐元が設定に左右され、紐づけ済みブランチへの push とブランチ名の受け渡しが増えるため（Decision Log の代替案として残す）。
 
@@ -236,7 +246,7 @@ M5:
 
 - `/agents` に evo-explorer・evo-planner・evo-worker・evo-tester・evo-reviewer の 5 つが出る。
 - evo-reviewer を使った前後で、メインのセッションが確かめた `git status --porcelain` と `git rev-parse HEAD` が変わらない。
-- `git push origin HEAD:main` と `gh pr merge` が、許可設定（またはフック）で拒否される。
+- `git push origin HEAD:main` と強制 push が、許可設定で拒否される（`gh pr merge`・`gh release`・タグの push は不変条件で守る）。
 - `/run-issue <番号>` で、止まる条件に当たらない限り、人が途中で答えなくても「事前確認 → 準備 → 実装 → 範囲の照合 → 検証 → 自己レビュー → push → PR」まで進む。
 - 試運転の 3 件の PR が、自己レビューで高・中の指摘ゼロ、CI 成功、PR 本文の「備考」に自己レビューの結果あり、の状態になっている。止まった場合は、止まる条件のどれに当たったかが人への報告に書いてある。
 - `roadmap-next-task` と `/roadmap-next`・`/sync-roadmap` への参照が、Concrete Steps 10 の期待どおりにしか残っていない。
@@ -256,6 +266,7 @@ M5:
 - 関連: #680（Codex 用スキルの複製）、PR #666（ロードマップ運用の見直し。このブランチの分岐元）
 - 公式情報: https://platform.claude.com/docs/en/about-claude/models/overview 、 https://code.claude.com/docs/en/sub-agents 、 https://code.claude.com/docs/en/worktrees
 - 2026-10-15 の自己レビュー（Opus、読み取り専用）の指摘は、この版の Decision Log と Plan of Work に反映済み。
+- M1 で分かった確かめ方と限界は、この計画の完了後も使えるよう `.claude/agents/README.md` に残した。
 
 ## Interfaces and Dependencies
 
