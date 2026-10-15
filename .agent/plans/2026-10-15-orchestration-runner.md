@@ -9,7 +9,7 @@
 ## Progress
 
 - [x] (2026-10-15) M1: Claude Code 用のエージェント定義（`.claude/agents/`）と、push を機械的に止める許可設定を作り、モデル・effort・書き込み範囲・許可確認の出方を確かめる（`gh issue develop` と実際の push・PR 作成での許可確認は M5 の最初の 1 件で確かめる）
-- [ ] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-issue`・`/run-plan`・`/finish-task`）を作る。不変条件・止まる条件・確認を省く範囲の一覧をここに置く
+- [x] (2026-10-15) M2: ExecPlan と Issue を実行するスキル `exec-plan-runner`（`/run-issue`・`/run-plan`・`/finish-task`）を作る。不変条件・止まる条件・確認を省く範囲の一覧をここに置く
 - [ ] (2026-10-15) M3: `roadmap-next-task` を廃止し、`/next-task` を `roadmap-manager` へまとめる。完了同期は `/roadmap-sync` に一本化する。参照を更新する
 - [ ] (2026-10-15) M4: 各スキルの確認を「`exec-plan-runner` から呼ばれたときは runner の一覧に従う」に改める。ランタイム分担の文書を「Claude Code が主、Codex は補佐」に改める
 - [ ] (2026-10-15) M5: 0 節の Issue 3 件で試運転し、実装役のモデル（Sonnet 5.5 の `medium` と Opus 5.5 の `low`）を比べて決める。手順と止まる条件を直す
@@ -42,6 +42,7 @@
 - 2026-10-15 (yamamoto/Claude): 役割の責務の正本は `.agent/agents/*.md` のまま。`.claude/agents/*.md` の本文は「対応する `.agent/agents/<役割>.md` と `AGENTS.md` を読んで従う」という薄い入口にし、内容を写さない（#680 と同じ問題を増やさない）。
 - 2026-10-15 (yamamoto/Claude): push・PR の作成・GitHub への書き込み（コメント、返信、resolved 化）は、メインのセッションだけが行う。worker はコミットまで、reviewer はファイルにも GitHub にも書かない。代替案は、`.agent/agents/reviewer.md` のとおり reviewer に GitHub への書き込みを任せる形。書き込み禁止を確かめにくくなるので採らない（`reviewer.md` は M4 で runner 実行時の扱いを追記する）。
 - 2026-10-15 (yamamoto/Claude): 許可設定で機械的に止めるのは、main への push と強制 push（`--force`・`-f`・`+` の refspec）だけにする。`.claude/settings.json` はリポジトリ全体に効き、runner の実行中だけに絞れないため。`gh release` はリリース手順（`release` スキル、`assets/docs/release-process.md`）が `view`・`edit`・`download` に使い、タグの push はリリースのタグ作成に使い、`gh pr merge` は本人が Claude 経由でマージするときに使う。これらは runner の不変条件（文章）と、PR をマージする人の判断で守る。代替案は (1) ExecPlan の当初案どおりすべて止める、(2) `gh pr merge` も止める、(3) runner の実行中だけ働く PreToolUse フックで止める。(1)(2) は普段の作業を妨げるので採らない。(3) は試運転で必要と分かったら検討する（本人の選択）。
+- 2026-10-15 (Claude, M2): `exec-plan-runner` を書く際に、Plan of Work から次の点を変えた・補った。(1) 事前確認で止まる対象を「自分以外の担当者」にした。本人が先にアサインしてある Issue まで止めないため。(2) アサイニーは個人名を書かず `@me` にした。(3) push のあとに `gh pr checks --watch` で CI を待つ手順を足した（止まる条件「CI が失敗した」を判定するため）。(4) `/run-issue` の PR は下書きにしない（自己レビューを通したものだけを出す）。`/run-plan` は最初のマイルストーンで下書きの PR を作り、全マイルストーンが終わったら `gh pr ready` で解除する。(5) 格上げのモデル名は共有本文に書かず、`.claude/agents/README.md` に置いた。(6) 止まる条件に「ExecPlan を作るべき規模だと分かった」「reviewer の前後で状態が変わった」「ExecPlan に本人の確認を得てから行うと書かれた手順に来た」を足した。(7) 確認を省く一覧に、`issue-resolver` の規則 4 と `review-agent` の `/resolve-review` ステップ 6 を足した（Context の列挙から漏れていた）。
 - 2026-10-15 (yamamoto/Claude): 最初は直列（1 件ずつ）で動かす。並行は M5 のあとに、検証環境の分離（`EVO_VALIDATE_NAME`・`EVO_BIND_IP`）を確かめてから決める。
 - 2026-10-15 (yamamoto/Claude): ロードマップの Status 更新は Issue ごとの PR では行わず、`/finish-task` でまとめて行う（PR 同士が `.agent/roadmap.md` で衝突しないようにする）。
 - 2026-10-15 (yamamoto/Claude): スキルは「作る」`exec-plan` と「回す」`exec-plan-runner` の対にする。`roadmap-next-task` は廃止し、選定（`/next-task`）は `roadmap-manager` にまとめる。重複していた `/roadmap-next` は消し、`/sync-roadmap` は既存の `/roadmap-sync` に一本化する。`/next-task` という名前は使い慣れているので残す。2026-05-07 の SSOT 整備（`.agent/plans/archive/2026-05-07-ai-doc-ssot-refactor.md`）では両スキルを残して重複を整理したが、実行の受け持ちを `exec-plan-runner` へ移すと `roadmap-next-task` に残る仕事が選定だけになるため、統合する。代替案は `roadmap-next-task` を名前だけ変えて残す形。

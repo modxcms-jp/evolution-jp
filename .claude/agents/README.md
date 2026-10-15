@@ -14,6 +14,10 @@
 | `evo-tester` | `tester.md` | `sonnet` | `medium` |
 | `evo-reviewer` | `reviewer.md` | `opus` | `high` |
 
+`exec-plan-runner` の役割（explorer・planner・worker・tester・reviewer）は、表のそれぞれのエージェントに任せる。メイン（まとめ役）は、人と対話しているセッション自身が務める。
+
+格上げ（`exec-plan-runner` の「修正」の手順）: 自己レビューで 2 往復しても高・中の指摘が残ったら、同じ作業を `evo-worker` に呼び出し時の `model: opus` を指定して 1 回だけやり直させる。呼び出しごとの `model` 指定は frontmatter より優先される。effort は frontmatter の `medium` のまま。
+
 ## 確かめ方（2026-10-15 に確認）
 
 定義を変えたら、次の方法で効き方を確かめる。
