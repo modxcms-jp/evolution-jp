@@ -711,7 +711,7 @@ class DocManagerBackend
                 $log->initAndWriteLog($this->dm->lang['DM_log_delete']);
                 break;
             case 'dates':
-                $log->initAndWriteLog($this->dm->lang['DM_log_richtext']);
+                $log->initAndWriteLog($this->dm->lang['DM_log_dates']);
                 break;
             case 'authors':
                 $log->initAndWriteLog($this->dm->lang['DM_log_authors']);
