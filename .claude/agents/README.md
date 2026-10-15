@@ -34,5 +34,6 @@
 
 - `model: opus` は `claude-opus-5-5`（1M 版ではない）になる。メインのセッションが `opus[1m]` でも、サブエージェントは引き継がない。
 - `evo-reviewer` は Write・Edit を持たないが、Bash を持つので、リダイレクトで書くことは仕組みとしては止まっていない。試験ではファイルの作成を頼んでも断ったが、それは指示に従った結果である。レビューの前後に、メインのセッションが `git status --porcelain` と `git rev-parse HEAD` を照合する。
+- `.claude/settings.json` の deny は、コマンドの文字列で判定する。`main` をチェックアウトして追跡先がある状態で `git push`・`git push origin` と refspec を省くと、文字列に `main` が出ないので止まらない。この形は、GitHub のルールセット（main は PR 経由でだけ更新でき、強制 push と削除を禁止。2026-10-16 に設定）がサーバー側で拒否する。
 - `.claude/settings.json` の deny は、リポジトリでのすべての Claude Code のセッションに効き、runner の実行中だけに絞れない。そのため、止めるのは main への push と強制 push だけにしている。`-uf` のように `-f` をほかのフラグとまとめて書いた形は止まらない（当てようとすると、通常の push まで止まるパターンになる）。`gh pr merge`・`gh release`・タグの push は、本人の作業やリリース手順でも使うので止めない。
 - ワークツリーの中で `git worktree add .claude/worktrees/<名前>` を相対パスで実行すると、そのワークツリーの中に入れ子で作られる。本体のルート `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")` を起点にする。

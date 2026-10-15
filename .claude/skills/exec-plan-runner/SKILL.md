@@ -25,7 +25,7 @@ description: Issue または ExecPlan を、人の確認を待たずに「準備
 | explorer | `.agent/agents/explorer.md` | なし |
 | planner | `.agent/agents/planner.md` | `.agent/plans/` と `assets/docs/core-issues.md` だけ。runner の実行中は `.agent/roadmap.md` を変えない（不変条件 5） |
 | worker | `.agent/agents/worker.md` | 割り当てたファイルだけ。コミットまで行い、push はしない |
-| tester | `.agent/agents/tester.md` | 渡されたときのテスト追加と `.agent/runs/` だけ。本体のコードは変えない |
+| tester | `.agent/agents/tester.md` | 渡されたときのテスト追加と `.agent/runs/` だけ。本体のコードは変えない。コミットはしない（足したテストはメインがコミットする） |
 | reviewer | `.agent/agents/reviewer.md` | なし。ファイルにも GitHub にも書かない |
 
 役割を別のエージェントに分けられるランタイムでは、各役割をそれぞれのエージェントに任せる。Claude Code での割り当て（モデル・effort・格上げのしかた）は `.claude/agents/README.md` を正本とする。
@@ -76,7 +76,8 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 5. **検証**: tester が、Issue に書かれた症状が直ったこと（`/run-plan` では、そのマイルストーンの Concrete Steps の期待どおりであること）を確かめる。画面や DB が絡む場合は adaptive-validation-runner を使う。
    - 検証の前に、変えた関数がどの入口（画面・テンプレート・TV・スニペットなど）から呼ばれるかを確かめ（必要なら explorer に任せる）、主な入口ごとに確かめる。Issue の書き方（「TV で」など）と実際の呼び出し経路が違うことがある。
    - 修正前と修正後を比べる。修正前は main の detached ワークツリーと別の検証環境で確かめる。
-6. **自己レビュー**: メインがレビュー前の `git -C <パス> status --porcelain` と `git -C <パス> rev-parse HEAD` を控える。reviewer には main との差分全体、Issue（または ExecPlan）、検証結果を渡す。reviewer は指摘を重大度（高・中・低）順に返し、無ければ「問題なし」と明記する。レビュー後に同じ 2 つを取り、変わっていないことを確かめる。変わっていたら止まる。
+   - tester がテストを足したとき（tester はコミットしない）は、メインがそのファイルを範囲の照合（手順 4 と同じ）にかけてからコミットする。
+6. **自己レビュー**: メインが、未コミットの変更が残っていない（`git -C <パス> status --porcelain` が空）ことを確かめてから、レビュー前の `git -C <パス> status --porcelain` と `git -C <パス> rev-parse HEAD` を控える。残っていたら、手順 5 のとおりコミットするか、出どころを確かめる。reviewer には main との差分全体、Issue（または ExecPlan）、検証結果を渡す。reviewer は指摘を重大度（高・中・低）順に返し、無ければ「問題なし」と明記する。レビュー後に同じ 2 つを取り、変わっていないことを確かめる。変わっていたら止まる。
 7. **修正**: 高・中の指摘があれば、worker が直し、tester が確かめ直し、reviewer が見直す。往復は 2 回まで。残れば worker を 1 回だけ格上げしてやり直し、それでも残れば止まる。低の指摘は直すか、PR 本文の「備考」に残す。
 8. **記録**: ExecPlan があれば、メインが Progress（このマイルストーンを完了に）と Surprises & Discoveries を更新してコミットする。Issue へのコメントは、PR で足りるので行わない。
 9. **push と PR**: メインがブランチを push し、PR を作る。
