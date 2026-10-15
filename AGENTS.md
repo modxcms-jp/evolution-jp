@@ -180,7 +180,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### 実行前の確認
 
 1. **roadmapを確認**: `.agent/roadmap.md` でステータス（NEXT/WIP/DONE/BLOCKED）と依存関係を確認
-2. **ExecPlanの存在確認**: 着手予定タスクにExecPlanがあるか確認
+2. **ExecPlan・Issue の確認**: 着手予定タスクの `Issue:` と `ExecPlan:` を確認する
 3. **AGENTS.mdの遵守**: コーディング規約と判断基準に従う
 
 ### コミット前（ドキュメント変更時）
@@ -198,7 +198,7 @@ fix(db): 実行直前でエスケープ処理を統一
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
    - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
-   - ExecPlanなし → `/create-plan <タスク概要>` で計画作成（exec-plan スキル）
+   - `着手時に判断` → `.agent/roadmap.md` の目安で要否を決める。要るなら `/create-plan <タスク概要>` で計画作成（exec-plan スキル）、要らないなら `不要` にして Issue を正に実装（issue-resolver スキル）
 4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
 5. **実装**: AGENTS.md の規約に従って実装
 6. **完了処理**: `roadmap-next-task` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う

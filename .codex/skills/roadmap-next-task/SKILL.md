@@ -1,6 +1,6 @@
 ---
 name: roadmap-next-task
-description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に次の未完了タスクへ着手するスキル。完了時のチェック反映、ExecPlan未作成タスクの計画作成先行、実装開始までを一貫して行う。
+description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に次の未完了タスクへ着手するスキル。完了時のチェック反映、改修規模に応じた ExecPlan の作成、実装開始までを一貫して行う。
 ---
 
 # Roadmap Next Task
@@ -15,12 +15,13 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 ## 実行ルール
 
 1. 正本は必ず `.agent/roadmap.md` を使う（`assets/docs/roadmap.md` は案内用途）。
-2. タスク選定は「実行順ロードマップ（依存順）」の上から順に行う。
+2. タスク選定は「実行順ロードマップ」の上から順に行う。
 3. 既に実装と検証が完了し、ユーザー確認済みの作業を見つけた場合は、実装前にロードマップの完了状態を同期する。
-4. 着手対象タスクに ExecPlan が無い場合は、実装前に `.agent/PLANS.md` 準拠で新規作成する。
-5. ExecPlan がある場合でも、着手前に目的・進捗・検証条件を更新する。
-6. 実装と検証が完了したら、完了を告げてユーザー確認を求める。
-7. 完了処理の詳細は `.agent/PLANS.md` の「完了処理プロトコル」を正本とし、ユーザー確認後にのみ行う。
+4. 着手対象タスクの `ExecPlan:` が `着手時に判断` か未記入なら、`.agent/roadmap.md` の目安で要否を決める。作る場合は実装前に `.agent/PLANS.md` 準拠で新規作成し、作らない場合は `不要` にして Issue を正とする。
+5. ExecPlan がある場合は、着手前に目的・進捗・検証条件を更新する。
+6. 非公開で扱うセキュリティ修正は自動選定の対象外とする（ロードマップの項目にもしない）。
+7. 実装と検証が完了したら、完了を告げてユーザー確認を求める。
+8. 完了処理の詳細は `.agent/PLANS.md` の「完了処理プロトコル」を正本とし、ユーザー確認後にのみ行う。
 
 ## コマンド
 
@@ -28,8 +29,8 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 1. すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば、先に `/sync-roadmap` で `.agent/PLANS.md` の「完了処理プロトコル」に従って反映する。
 2. `.agent/roadmap.md` の未完了項目を依存順で確認し、最上位の次タスクを1件特定する。
 3. 対象タスクに `ExecPlan:` 行があるか確認する。
-4. `ExecPlan:` 行が無い場合、`.agent/plans/YYYY-MM-DD-task-name.md` を作成し、該当タスク配下へ `ExecPlan:` 行を追記する。
-5. 作成済み/新規の ExecPlan を更新し、最初の実装ステップを `Progress` に追加する。
+4. `ExecPlan:` が `着手時に判断` か未記入なら要否を決める。作る場合は `.agent/plans/YYYY-MM-DD-task-name.md` を作成して行を更新し、作らない場合は `不要` にする。
+5. ExecPlan がある場合は、最初の実装ステップを `Progress` に追加する。無い場合は `Issue:` の Issue を確認する。
 6. 実装に着手する。
 
 ### /sync-roadmap
@@ -38,7 +39,7 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 3. 互換表示としてチェックボックスが残っている項目がある場合のみ整合させる。
 
 ### /finish-task
-1. 対象 ExecPlan の `Progress` と `Validation and Acceptance` を完了状態に更新する。
+1. ExecPlan がある場合は `Progress` と `Validation and Acceptance` を完了状態に更新する。無い場合は対象 Issue が閉じたか（PR がマージされたか）を確認する。
 2. 実装と検証の完了を告げ、ロードマップ反映前にユーザー確認を求める。
 3. ユーザー確認後に `/sync-roadmap` を実行して、`.agent/PLANS.md` の「完了処理プロトコル」に従った完了同期を行う。
 4. スキル自己成長対象タスクでは、`skill:complete` 実行後に `learning.json` / `proposal.json` の内容を示し、`この学びをスキルへ反映しますか？ はい・いいえ` と確認する。
@@ -55,7 +56,7 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 
 **自律判断可能**:
 - 次タスクの機械的選定（依存順で先頭の未完了）
-- ExecPlan の有無判定と新規作成
+- ExecPlan の要否判定と新規作成
 - ロードマップのチェック同期
 
 **要相談**:
