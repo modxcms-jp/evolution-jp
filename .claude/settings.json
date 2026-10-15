@@ -19,7 +19,15 @@
       "Bash(git -C * push -f*)",
       "Bash(git -C * push * -f)",
       "Bash(git -C * push * -f *)",
-      "Bash(git -C * push * +*)"
+      "Bash(git -C * push * +*)",
+      "Bash(git push origin *advisory/*)",
+      "Bash(git push * origin *advisory/*)",
+      "Bash(git -C * push origin *advisory/*)",
+      "Bash(git -C * push * origin *advisory/*)",
+      "Bash(git push *modxcms-jp/evolution-jp.git *advisory/*)",
+      "Bash(git push *modxcms-jp/evolution-jp *advisory/*)",
+      "Bash(git -C * push *modxcms-jp/evolution-jp.git *advisory/*)",
+      "Bash(git -C * push *modxcms-jp/evolution-jp *advisory/*)"
     ]
   }
 }

@@ -1,6 +1,6 @@
 ---
 name: evo-worker
-description: Evolution CMS JP Edition の実装担当。exec-plan-runner から、Issue またはマイルストーンと、書き込んでよいファイル・作業ディレクトリを渡されて使う。
+description: Evolution CMS JP Edition の実装担当。exec-plan-runner（または兄弟スキルの advisory-runner）から、Issue またはマイルストーンと、書き込んでよいファイル・作業ディレクトリを渡されて使う。
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Edit, Write, Bash

@@ -75,7 +75,7 @@ Claude Code の許可設定（`.claude/settings.json` の deny）は Codex に�
 - 役割ごとに求める推論強度や観点が明確に異なる
 - 単独実行だと見落としや長文コンテキスト化のコストが高い
 
-`exec-plan-runner` は例外で、直列で進めるときも役割を分ける（理由は `.claude/skills/exec-plan-runner/SKILL.md` の「役割」）。
+`exec-plan-runner` と兄弟スキルの `advisory-runner` は例外で、直列で進めるときも役割を分ける（理由は `.claude/skills/exec-plan-runner/SKILL.md` の「役割」）。
 
 ### sub-agent 化しない条件
 
