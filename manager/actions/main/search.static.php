@@ -133,14 +133,15 @@ if (getv('submitok')) {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }
 
-    // ツリー（nodes.php の getNodes()）と同じ、ドキュメントグループによる絞り込み
-    if (!config('tree_show_protected') && !manager()->isAdmin()) {
+    // ツリー（nodes.php の getNodes()）と同じ、ドキュメントグループによる絞り込み。
+    // アクセス判定 checkPermissions() と同じく、use_udperms が無効なら絞らない
+    if (config('use_udperms') && !config('tree_show_protected') && !manager()->isAdmin()) {
         $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
         $access = 'privatemgr=0';
         if ($mgrDocgroups) {
             $access .= sprintf(
                 ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
-                evo()->getFullTableName('document_groups'),
+                db()->getFullTableName('document_groups'),
                 implode(',', $mgrDocgroups)
             );
         }
