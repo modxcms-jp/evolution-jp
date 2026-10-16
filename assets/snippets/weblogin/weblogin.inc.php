@@ -30,7 +30,7 @@ if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (!isset($_SESSION['webValidated'])) {
-    $username = postv('username') ? hsc(trim(postv('username')), ENT_QUOTES) : '';
+    $username = hsc(trim(webLoginString(postv('username'))), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -91,7 +91,8 @@ EOT;
     // display login
     $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
-    $ref = isset($_REQUEST['refurl']) ? ['refurl' => urlencode($_REQUEST['refurl'])] : [];
+    $refurl = webLoginString(anyv('refurl'));
+    $ref = $refurl !== '' ? ['refurl' => urlencode($refurl)] : [];
     $form = str_replace("[+action+]", preserveUrl($modx->documentIdentifier, '', $ref), $form);
     $form = str_replace("[+rememberme+]", (isset($cookieSet) ? 1 : 0), $form);
     $form = str_replace("[+username+]", (isset($username) ? $username : ''), $form);

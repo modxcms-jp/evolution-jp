@@ -231,6 +231,18 @@ function eForm($modx, $params)
                 $datatype = $fld[2] ?? '';
                 $isRequired = $fld[3] ?? 0;
 
+                // 単一の値を前提にした書式は、配列（name[]）の入力を不正な値として扱う
+                if ($datatype != 'file' && is_array($value)) {
+                    $isSingleValue = in_array($datatype, ['integer', 'float', 'date', 'email'], true);
+                    if ($value === [] && $isSingleValue) {
+                        $value = ''; // 空の配列は未入力と同じ
+                    } elseif ($value !== [] && ($isSingleValue || count($value) !== count($value, COUNT_RECURSIVE))) {
+                        $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
+                        $rClass[$name] = $invalidClass;
+                        continue;
+                    }
+                }
+
                 if ($isRequired == 1 && $value == "" && $datatype != "file") {
                     $rMsg[count($rMsg)] = (string)$desc;
                     $rClass[$name] = $requiredClass;
@@ -276,7 +288,11 @@ function eForm($modx, $params)
                         case "file":
                             $file = isset($_FILES[$name]) && is_array($_FILES[$name]) ? $_FILES[$name] : [];
                             $fileError = $file['error'] ?? UPLOAD_ERR_NO_FILE;
-                            if ($fileError == UPLOAD_ERR_INI_SIZE || $fileError == UPLOAD_ERR_FORM_SIZE) {
+                            if (is_array($file['name'] ?? '')) {
+                                // name[] 形式のアップロードは扱わない
+                                $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
+                                $rClass[$name] = $invalidClass;
+                            } elseif ($fileError == UPLOAD_ERR_INI_SIZE || $fileError == UPLOAD_ERR_FORM_SIZE) {
                                 $vMsg[count($vMsg)] = $desc . $_lang['ef_upload_exceeded'];
                                 $rClass[$name] = $invalidClass;
                             } elseif ($isRequired == 1 && ($file['type'] ?? '') == '') {
