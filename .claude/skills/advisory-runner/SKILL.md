@@ -108,10 +108,10 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
 1. push 先が、「一時フォーク」の手順 3 で計画に書いた `ssh_url` であることを照らし合わせる。
 2. `git -C <ワークツリー> push <ssh_url> advisory/<短い名前>-<版>`
 3. PR の本文を、記録先など公開リポジトリの外のファイルに書き、`gh pr create -R <フォークの full_name> --base <宛先ブランチ> --head advisory/<短い名前>-<版> --title "<タイトル>" --body-file <本文のファイル>` で作る。対話にしないため、`--title` と `--body-file` を必ず付ける。下書きにしない（アドバイザリ画面のマージ対象にするため）。
-   - タイトルは Conventional Commits の形で中立に書く。本文は「概要」「確認手順」にし、確認手順には観点だけを書く（詳細な手順と結果は記録先に置く）。`Closes #` や Issue 番号は書かない。
+   - タイトルは、マージ後は公開リポジトリの PR として残るので、`.github/codex-pr-rules.md` の「PRタイトル」に従い、日本語で中立に書く。1.2 系の PR は、先頭に `[1.2] ` を付けて main 宛ての PR と見分ける。本文は「概要」「確認手順」にし、確認手順には観点だけを書く（詳細な手順と結果は記録先に置く）。`Closes #` や Issue 番号は書かない。
 4. 作った PR の URL と、push したコミット（自己レビューを通ったもの。`git -C <ワークツリー> rev-parse HEAD`）を計画に書く。
 5. PR を作った直後と、次の版へ進む前と、報告の直前（「開いている PR の照合」の 2）に、呼んでいないレビューやボットのコメントが付いていないかを、次の 3 つで確かめる（PR 全体へのコメント、レビュー、差分の行へのコメントは、それぞれ別の API でしか取れない）。どれかに 1 件でもあれば、それ以上進めずに止まる。
-   `gh api repos/<フォークの full_name>/issues/<PR 番号>/comments --jq 'length'`
+   `gh pr view <PR 番号> -R <フォークの full_name> --json comments --jq '.comments | length'`（PR 全体へのコメント。一時フォークでは Issue の機能が無効のことがあり、`issues/<PR 番号>/comments` の API は 404 になり得るので使わない）
    `gh api repos/<フォークの full_name>/pulls/<PR 番号>/reviews --jq 'length'`
    `gh api repos/<フォークの full_name>/pulls/<PR 番号>/comments --jq 'length'`
 
