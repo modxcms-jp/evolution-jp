@@ -2227,7 +2227,7 @@ class DocumentParser
         }
         if ($this->get_docfield_type($key) === 'user') {
             $user = $this->getUserInfo($value);
-            return $user['username'];
+            return is_array($user) ? $user['username'] : '';
         }
         return $value;
     }
