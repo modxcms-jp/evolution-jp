@@ -50,6 +50,16 @@ if (evo()->config['use_udperms'] == 1) {
     }
 }
 
+// 許可するリソースの範囲の外の文書と、範囲の外への移動は止める
+foreach ($doc_ids as $v) {
+    if (!manager()->isInAllowedParents($v)) {
+        accessDenied('access_permission_denied');
+    }
+}
+if (!manager()->isInAllowedParents($new_parent)) {
+    accessDenied('access_permission_parent_denied');
+}
+
 $rs = db()->select(
     'parent',
     '[+prefix+]site_content',

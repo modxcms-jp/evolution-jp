@@ -845,23 +845,58 @@ class ManagerAPI
         return false;
     }
 
+    /**
+     * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
+     * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
+     * 設定が空なら常に true。ルート（0）と存在しない ID は、設定があれば範囲の外（false）。
+     * 削除済みの文書も、親をたどって判定する。
+     *
+     * @param int $id 文書の ID（作成先・移動先の親を確かめるときは親の ID）
+     * @return bool
+     */
+    public function isInAllowedParents($id)
+    {
+        $allowed = $this->getAllowedParentIds();
+        if (!$allowed) {
+            return true;
+        }
+        $id = (int)$id;
+        if ($id <= 0) {
+            return false;
+        }
+        if (in_array($id, $allowed, true)) {
+            return true;
+        }
+        return (bool)array_intersect($allowed, $this->getAncestorIds($id));
+    }
+
+    /**
+     * 「許可するリソース」の設定値を、正の整数の配列にして返す（空白・カンマ・| 区切り）
+     *
+     * @return int[]
+     */
+    private function getAllowedParentIds()
+    {
+        $setting = trim((string)evo()->conf_var('allowed_parents'));
+        if ($setting === '') {
+            return [];
+        }
+        $ids = [];
+        foreach (preg_split('@[\s,|]+@', $setting) as $v) {
+            $v = (int)$v;
+            if ($v > 0 && !in_array($v, $ids, true)) {
+                $ids[] = $v;
+            }
+        }
+        return $ids;
+    }
+
     public function getUserAllowedDocs()
     {
         global $modx;
 
         $modx->user_allowed_docs = [];
-        $allowed_parents = explode(
-            ',',
-            str_replace(
-                [' ', '|'],
-                ',',
-                preg_replace(
-                    '@\s+@',
-                    ' ',
-                    trim(evo()->config['allowed_parents'])
-                )
-            )
-        );
+        $allowed_parents = $this->getAllowedParentIds();
 
         if (!$allowed_parents) {
             return '';
@@ -869,7 +904,6 @@ class ManagerAPI
 
         $_ = [];
         foreach ($allowed_parents as $parent) {
-            $parent = trim($parent);
             $children = evo()->getChildIds($parent);
             $_[] = $parent;
             foreach ($children as $child) {
