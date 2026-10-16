@@ -67,9 +67,9 @@ class MANAGERMANAGER
         $mm_current_page = [];
 
         if (postv('template') !== null) {
-            $mm_current_page['template'] = (int)postv('template');
+            $mm_current_page['template'] = to_intvar(postv('template'));
         } elseif (getv('newtemplate')) {
-            $mm_current_page['template'] = (int)getv('newtemplate');
+            $mm_current_page['template'] = to_intvar(getv('newtemplate'));
         } elseif (isset($content['template'])) {
             $mm_current_page['template'] = (int)$content['template'];
         } else {
@@ -236,9 +236,9 @@ class MANAGERMANAGER
                 break;
 
             case 'OnBeforeDocFormSave':
-                global $template;
-
-                $mm_current_page['template'] = (int)$template;
+                if (isset($doc_vars['template'])) {
+                    $mm_current_page['template'] = (int)$doc_vars['template'];
+                }
 
                 $this->make_changes($config_chunk);
                 break;
