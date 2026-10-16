@@ -66,6 +66,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 `/run-issue` では Issue 1 件、`/run-plan` ではマイルストーン 1 つを、この順で進める。
 
 1. **事前確認**: Issue が開いていること、自分以外の担当者がいないこと、Issue に紐づくブランチと PR が無いことを確かめる。例外として、`/run-plan` で ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されている場合は、それがあるのは正しい（そのブランチと PR を使う）。
+   - 非公開アドバイザリとの重なり（不変条件 2）: 非公開アドバイザリを扱うセッション（または本人）に、Issue の番号だけを送って、非公開の修正と重ならないかを確かめる。アドバイザリの中身は受け取らない。「重なる」と言われた番号は、理由を聞かずに飛ばす。返事が来るまで push しない。確かめる相手がいないときは、本人に確かめるか止まる。照合済みの番号は、照合したときから増えた分だけ確かめればよい。
 2. **準備**: 「作業場所」の手順でワークツリーを用意し（既にあれば使う）、Issue の初期設定をそろえる。続けて、このあとの範囲の照合のために、開始時の HEAD を `git -C <パス> rev-parse HEAD` で控える。
    - アサイニー: `gh issue edit <番号> --add-assignee @me`
    - Issue タイプ: `gh issue edit <番号> --type <Bug・Feature・Task>`
@@ -87,6 +88,8 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - push のあと `gh pr checks <PR番号> --watch` で CI を待つ。PR を作った直後で「no checks reported」と出たときは失敗とみなさず、少しおいてやり直す。
 
 PR に付くほかのレビュー（Codex など）への対応は、この繰り返しに含めない。次の `/run-issue` に入る前に、runner が前の PR について review-agent の `/resolve-review <PR番号>` を行う（このときは runner の実行中として、下の「確認を省く範囲」に従う）。仕分けは reviewer、修正は worker、push と GitHub への書き込みはメインが行う。review-agent が「ユーザー判断を仰ぐ」に分類した指摘があれば、止まって人に返す。人が runner とは別に `/resolve-review` を頼んだときは、review-agent の通常の確認に従う。
+
+Codex のレビューは、PR を開いたときと「@codex review」のコメントで動き、push しただけでは見直されない。指摘に対応したあと見直しを頼むのは、必要と判断できるとき（対応で手順や判定のしかたを変えた、影響の広い変更をした など）だけにする。文言の手直しや小さな修正では頼まない。完了したかは、Codex のサマリーコメントに埋め込まれた `codex-review-state` の JSON で、`code_review.commit_sha` が今の head と同じで `status` が `completed` かを見る（サマリーの本文に出る文字では判定しない）。
 
 ## 止まる条件
 
@@ -172,6 +175,12 @@ PR がマージされたあとの片付けと完了処理を行う。完了処�
    git fetch origin
    ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)") && git worktree add -b docs/roadmap-sync-<YYYY-MM-DD>-<短い名前> "$ROOT/.claude/worktrees/roadmap-sync-<短い名前>" origin/main
    ```
-6. そのワークツリーで、ロードマップの更新を roadmap-manager の `/roadmap-sync` で、ExecPlan のアーカイブを `.agent/PLANS.md` のとおりに行う。スキル成長ループ（`.agent/PLANS.md` の手順 8）は検証環境のコンテナで動き、コンテナは本体のチェックアウトをマウントしているので、本体のチェックアウトで実行し、できた `.agent/runs/<run>` を同期用のワークツリーにコピーする。
+6. そのワークツリーで、ロードマップの更新を roadmap-manager の `/roadmap-sync` で、ExecPlan のアーカイブを `.agent/PLANS.md` のとおりに行う。スキル成長ループ（`.agent/PLANS.md` の手順 8）は省かない。次の順に行う。
+   - 同期用のワークツリーをマウントした検証環境を、ほかと重ならない `EVO_VALIDATE_NAME`・`EVO_BIND_IP` で立てる（`EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose --project-directory <同期用のワークツリー> -f <同期用のワークツリー>/compose.yml -f <同期用のワークツリー>/.claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build`）。シェルの状態はコマンドをまたいで残らないので、`setup-site.js` と片付け（`down -v --rmi local`）のコマンドにも、同じ値を毎回先頭に付ける。起動の前に、`.claude/skills/adaptive-validation-runner/references/environment.md` の「並走するとき」の確認を行う。
+   - その環境に `setup-site.js` でインストールする。インストールしていないと、`php evo` は何も出さずに終わる。`setup-site.js` は今いるディレクトリに `sample.htaccess` を書き戻すので、必ず同期用のワークツリーをカレントにして動かす。
+   - アプリのコンテナで `php evo skill:init` → `skill:status` → `skill:complete --strict` を行う（`docker exec -w /var/www/html <名前>-app php evo …`）。`learning.json`・`proposal.json`・`trace.jsonl` は、`skill:complete` の前にメインが書く（書式は `.agent/runs/README.md` とテンプレート）。
+   - 前例どおり、次の run の雛形（`skill:complete` が作る）と `.agent/skill-metadata/<スキル名>/` も残す（`skill:sync` で更新する）。
+   - 手順 8-5（反映するかの確認）は省かない。反映すると決まったものは、完了同期とは別の PR で入れる。
+   - 終わったら検証環境を片付け、追跡外の `manager/includes/config.inc.php` を消す。
 7. コミットしてブランチを push し、PR を作る（不変条件 1 の例外。マージは人が行う）。PR がマージされたら、同期用のワークツリーを `git worktree remove` で片付ける。
 8. 完了処理まで終えたことを告げ、次のタスクの候補を 1 件挙げて終える。
