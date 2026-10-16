@@ -497,7 +497,8 @@ function checkPermissions($id)
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
-    // 新規作成（4・72）は isAllowed() が pid を見るため、pid 指定時は後段で pid を検査する
+    // 新規作成（4・72）で pid を指定したときは、ここでは止めない
+    // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
     $isEditAction = in_array(manager()->action, [27, 131, 132]);
     if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
         alert()->setError(3);
@@ -505,7 +506,7 @@ function checkPermissions($id)
     }
 
     $i = manager()->action;
-    if (in_array($i, [27, 131, 132])) {
+    if ($isEditAction) {
         // 編集・下書きの画面は文書の ID が必須
         abort_if_invalid_id('id', true);
     }
