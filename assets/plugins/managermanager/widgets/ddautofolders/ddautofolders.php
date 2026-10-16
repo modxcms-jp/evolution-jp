@@ -144,9 +144,10 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         return db()->update(db()->escape($fields), '[+prefix+]site_content', sprintf('id=%d', (int)$id));
     };
 
-    //保存する文書自身が最上位の親なら、何もしない
-    $docId = (int)($docVars['id'] ?? 0);
-    if ($docId && $docId === (int)$ddParent) {
+    //保存する文書の ID（新規では予測 ID が入るため、編集のときだけ取る）
+    $docId = (($e->params['mode'] ?? '') === 'upd') ? (int)($e->params['id'] ?? 0) : 0;
+    //最上位の親が自分自身・自分の子孫・存在しない場合は、フォルダを作る前に何もしない
+    if (manager()->invalidParentMessage($docId ? [$docId] : [], $ddParent) !== '') {
         return;
     }
 
@@ -165,6 +166,9 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Получаем id нужного нам года
     $yearId = $findChild($ddParent, $ddDate['y']);
     $monthId = 0;
+    if ($docId && $docId === $yearId) {
+        return;
+    }
 
     //Если нужный год существует
     if ($yearId) {
@@ -176,6 +180,9 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         ]);
         //Получаем id нужного нам месяца
         $monthId = $findChild($yearId, $ddDate['m']);
+        if ($docId && $docId === $monthId) {
+            return;
+        }
         //Если нужный год не существует
     } else {
         //Создадим его
@@ -216,14 +223,6 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
 
     //Ещё раз на всякий случай проверим, что с месяцем всё хорошо
     if ($monthId && $monthId != ($docVars['parent'] ?? 0)) {
-        //保存する文書が年・月のフォルダ自身、または親が輪になる場合は付け替えない
-        //（本体の親の確かめは OnBeforeDocFormSave より前に走るため、ここで確かめる）
-        if ($docId && in_array($docId, [(int)$yearId, (int)$monthId], true)) {
-            return;
-        }
-        if (manager()->invalidParentMessage($docId ? [$docId] : [], $monthId) !== '') {
-            return;
-        }
         //本体の保存に反映させるため、params の doc_vars を書き換える
         $docVars['parent'] = (int)$monthId;
         $e->cm->setParam('doc_vars', $docVars);
