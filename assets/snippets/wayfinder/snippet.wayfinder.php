@@ -36,14 +36,31 @@ $config = ltrim($config, '/');
 
 if (strpos($config, '@CHUNK') === 0) {
     eval('?>' . $modx->getChunk(trim(substr($config, 7))));
-} elseif (strpos($config, '@FILE') === 0) {
-    include MODX_BASE_PATH . trim(substr($config, 6));
-} elseif ($config !== 'default' && is_file($conf_path . $config . '.config.php')) {
-    include $conf_path . $config . '.config.php';
-} elseif (is_file($conf_path . $config)) {
-    include $conf_path . $config;
-} elseif (is_file(MODX_BASE_PATH . $config)) {
-    include(MODX_BASE_PATH . $config);
+} else {
+    // 名前から組み立てたパスは configs/ の下にあるときだけ、サイトのルートからの指定は
+    // 本体のバインドと同じ判定を通ったときだけ読む（.php は設定ファイルとして許す）
+    if (strpos($config, '@FILE') === 0) {
+        $config_candidates = [[MODX_BASE_PATH . trim(substr($config, 6)), null]];
+    } else {
+        $config_candidates = [
+            [$conf_path . $config, $conf_path],
+            [MODX_BASE_PATH . $config, null]
+        ];
+        if ($config !== 'default') {
+            array_unshift($config_candidates, [$conf_path . $config . '.config.php', $conf_path]);
+        }
+    }
+    foreach ($config_candidates as $config_candidate) {
+        if ($config_candidate[1] === null) {
+            $config_path = evo()->resolveBindFilePath($config_candidate[0]);
+        } else {
+            $config_path = evo()->resolveFileUnderDir($config_candidate[0], $config_candidate[1]);
+        }
+        if ($config_path) {
+            include $config_path;
+            break;
+        }
+    }
 }
 
 include_once $wf_base_path . 'wayfinder.inc.php';

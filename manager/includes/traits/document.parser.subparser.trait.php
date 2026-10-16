@@ -2555,6 +2555,33 @@ trait DocumentParserSubParserTrait
     }
 
     /*
+     * $path の実パスが、ディレクトリ $dir の実パスの下にあるファイルなら、その実パスを返す。
+     * 名前をつないで組み立てたパスが、そのディレクトリから外れていないかを確かめるのに使う。
+     */
+    function resolveFileUnderDir($path, $dir)
+    {
+        $path = (string) $path;
+        $dir = (string) $dir;
+        if ($path === '' || $dir === '' || strpos($path, "\0") !== false || strpos($dir, "\0") !== false) {
+            return false;
+        }
+
+        $real = realpath($path);
+        $real_dir = realpath($dir);
+        if ($real === false || $real_dir === false || !is_file($real) || !is_dir($real_dir)) {
+            return false;
+        }
+
+        $real = str_replace('\\', '/', $real);
+        $real_dir = rtrim(str_replace('\\', '/', $real_dir), '/') . '/';
+        if (strpos($real, $real_dir) !== 0) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /*
      * サイトのルートの下の実パスのうち、バインドで読まない場所かどうか。
      * . で始まる区切りを含む場所と、バックアップ・スナップショットの置き場所が対象。
      * 管理画面の下かどうかは、呼び出し側が判断する。

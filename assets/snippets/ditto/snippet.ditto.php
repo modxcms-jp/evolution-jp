@@ -99,9 +99,20 @@ if (is_file($ditto_base . 'configs/default.config.php'))
 if (str_starts_with($config, '@CHUNK')) {
     eval('?>' . evo()->getChunk(trim(substr($config, 7))));
 } elseif (str_starts_with($config, '@FILE')) {
-    include MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/');
+    // サイトのルートからの指定は、本体のバインドと同じ判定に通す（.php は設定ファイルとして許す）
+    $config_path = evo()->resolveBindFilePath(MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/'));
+    if ($config_path) {
+        include $config_path;
+    }
 } elseif ($config !== 'default') {
-    include $ditto_base . 'configs/' . $config . '.config.php';
+    // 名前から組み立てたパスは、configs/ の下にあるときだけ読む
+    $config_path = evo()->resolveFileUnderDir(
+        $ditto_base . 'configs/' . $config . '.config.php',
+        $ditto_base . 'configs'
+    );
+    if ($config_path) {
+        include $config_path;
+    }
 }
 
 /*
@@ -266,16 +277,16 @@ if (count($extenders) > 0) {
                 $rs = true;
             }
         } elseif (strpos($extender, '@FILE') === 0) {
-            $extender_path = MODX_BASE_PATH . trim(
-                trim(
-                    substr($extender, 6)
-                ),
-                '/'
+            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（.php は拡張として許す）
+            $extender_path = evo()->resolveBindFilePath(
+                MODX_BASE_PATH . trim(
+                    trim(
+                        substr($extender, 6)
+                    ),
+                    '/'
+                )
             );
-            if (strpos($extender_path, '../') === false
-                && strpos($extender_path, 'manager/') !== 0
-                && is_file($extender_path)
-            ) {
+            if ($extender_path) {
                 include($extender_path);
                 $rs = true;
             }
@@ -287,13 +298,17 @@ if (count($extenders) > 0) {
             }
         }
 
-        $extender_path = sprintf(
-            '%sextenders/%s.extender.inc.php',
-            $ditto_base,
-            $extender
+        // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
+        $extender_path = evo()->resolveFileUnderDir(
+            sprintf(
+                '%sextenders/%s.extender.inc.php',
+                $ditto_base,
+                $extender
+            ),
+            $ditto_base . 'extenders'
         );
 
-        if ($rs === false && is_file($extender_path)) {
+        if ($rs === false && $extender_path) {
             include($extender_path);
             $rs = true;
         }
