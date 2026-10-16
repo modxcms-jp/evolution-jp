@@ -386,7 +386,7 @@ class DocumentParser
             return 0;
         }
 
-        $this->saveDBCache('docid_by_uri', $parsedUri, $docId);
+        $this->saveDBCache('docid_by_uri', $urlWithoutQuery, $docId);
 
         return $docId;
     }
