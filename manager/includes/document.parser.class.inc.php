@@ -2227,7 +2227,7 @@ class DocumentParser
         }
         if ($this->get_docfield_type($key) === 'user') {
             $user = $this->getUserInfo($value);
-            return $user['username'];
+            return is_array($user) ? $user['username'] : '';
         }
         return $value;
     }
@@ -2349,9 +2349,14 @@ class DocumentParser
         $currentId = $docId;
         while ($currentId != 0) {
             $doc = $this->getDocumentObject('id', $currentId);
-            $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
-            if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
-                return $currentId;
+            if (!is_array($doc)) {
+                break;
+            }
+            if (isset($doc[$key])) {
+                $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
+                if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
+                    return $currentId;
+                }
             }
             $currentId = $this->getParentID($currentId);
         }
