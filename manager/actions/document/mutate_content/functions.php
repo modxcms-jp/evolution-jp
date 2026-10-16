@@ -511,7 +511,7 @@ function checkPermissions($id)
         }
         manager()->remove_locks('27');
         if (!evo()->checkPermissions($id)) {
-            alert()->setError(3);
+            alert()->setError(3, lang('access_permission_denied'));
             alert()->dumpError();
         }
     } elseif ($i == 72 || $i == 4) {
@@ -528,6 +528,10 @@ function checkPermissions($id)
     } elseif ($i == 132 || $i == 131) {
         if (!hasPermission('view_document')) {
             alert()->setError(3);
+            alert()->dumpError();
+        }
+        if ($id && !evo()->checkPermissions($id)) {
+            alert()->setError(3, lang('access_permission_denied'));
             alert()->dumpError();
         }
     } else {
