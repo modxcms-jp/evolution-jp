@@ -18,6 +18,10 @@ if (!evo()->checkPermissions($docid)) {
     alert()->setError(3);
     alert()->dumpError();
 }
+if (!manager()->isInAllowedParents($docid)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->loadExtension('REVISION');
 

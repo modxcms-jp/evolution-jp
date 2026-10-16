@@ -4,8 +4,8 @@
  */
 if( !defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 if( !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document') ){
-	$e->setError(3);
-	$e->dumpError();
+	alert()->setError(3);
+	alert()->dumpError();
 }
 
 $id = request_intvar('id');
@@ -15,6 +15,10 @@ if (!$id) {
 }
 if (!$modx->checkPermissions($id)) {
 	alert()->setError(3);
+	alert()->dumpError();
+}
+if (!manager()->isInAllowedParents($id)) {
+	alert()->setError(3, lang('access_permission_denied'));
 	alert()->dumpError();
 }
 

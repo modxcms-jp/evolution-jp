@@ -799,6 +799,29 @@ class ManagerAPI
         return '';
     }
 
+    /**
+     * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
+     * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
+     * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
+     *
+     * @param int[] $docIds 親を変える文書
+     * @param int $parentId 新しい親の ID
+     * @return string
+     */
+    public function parentChangeDeniedMessage(array $docIds, $parentId)
+    {
+        $parentId = (int)$parentId;
+        $message = $this->invalidParentMessage($docIds, $parentId);
+        if ($message) {
+            return $message;
+        }
+        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
+            return lang('access_permission_parent_denied');
+        }
+        return '';
+    }
+
     public function isAllowed($id)
     {
         global $modx;
@@ -845,31 +868,79 @@ class ManagerAPI
         return false;
     }
 
+    /**
+     * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
+     * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
+     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * 一覧に 0（ルート）が含まれていれば、サイト全体を許可する設定として常に true（制限なし）。
+     * 一覧に 0 が無いとき、ルート（0）は範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
+     * 存在の確認は呼ぶ側で行う。
+     * 削除済みの文書も、親をたどって判定する。
+     *
+     * @param int $id 文書の ID（作成先・移動先の親を確かめるときは親の ID）
+     * @return bool
+     */
+    public function isInAllowedParents($id)
+    {
+        if (!evo()->conf_var('allowed_parents')) {
+            return true;
+        }
+        $allowed = $this->getAllowedParentIds();
+        if (!$allowed) {
+            return false;
+        }
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
+        $id = (int)$id;
+        if ($id <= 0) {
+            return false;
+        }
+        if (in_array($id, $allowed, true)) {
+            return true;
+        }
+        return (bool)array_intersect($allowed, $this->getAncestorIds($id));
+    }
+
+    /**
+     * 「許可するリソース」の設定値を、0 と正の整数の配列にして返す（空白・カンマ・| 区切り）
+     * 0 か、正の整数の書式（先頭が 0 でない半角数字だけ）に当たる値だけを採る。0 はルート（サイト全体）を表す。
+     *
+     * @return int[]
+     */
+    private function getAllowedParentIds()
+    {
+        $setting = trim((string)evo()->conf_var('allowed_parents'));
+        if ($setting === '') {
+            return [];
+        }
+        $ids = [];
+        foreach (preg_split('@[\s,|]+@', $setting) as $v) {
+            if (!preg_match('@^(0|[1-9][0-9]*)$@', $v)) {
+                continue;
+            }
+            $v = (int)$v;
+            if (!in_array($v, $ids, true)) {
+                $ids[] = $v;
+            }
+        }
+        return $ids;
+    }
+
     public function getUserAllowedDocs()
     {
         global $modx;
 
         $modx->user_allowed_docs = [];
-        $allowed_parents = explode(
-            ',',
-            str_replace(
-                [' ', '|'],
-                ',',
-                preg_replace(
-                    '@\s+@',
-                    ' ',
-                    trim(evo()->config['allowed_parents'])
-                )
-            )
-        );
+        $allowed_parents = $this->getAllowedParentIds();
 
         if (!$allowed_parents) {
             return '';
         }
 
+        // 0（ルート）を含むときは getChildIds(0) がサイト全体を返す（修正前と同じ）
         $_ = [];
         foreach ($allowed_parents as $parent) {
-            $parent = trim($parent);
             $children = evo()->getChildIds($parent);
             $_[] = $parent;
             foreach ($children as $child) {

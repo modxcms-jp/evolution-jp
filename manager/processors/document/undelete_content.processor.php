@@ -15,7 +15,7 @@ if (!$id) {
 }
 
 // check permissions on the document
-if (!$modx->checkPermissions($id)) {
+if (!$modx->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
     disp_access_permission_denied();
 }
 

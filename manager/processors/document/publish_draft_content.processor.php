@@ -18,8 +18,31 @@ if (!evo()->checkPermissions($docid)) {
     alert()->setError(3);
     alert()->dumpError();
 }
+if (!manager()->isInAllowedParents($docid)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->loadExtension('REVISION');
+
+$draft = evo()->revision->getDraft($docid);
+if ($draft) {
+    $currentParent = (int)db()->getValue(
+        db()->select('parent', '[+prefix+]site_content', where('id', '=', (int)$docid))
+    );
+    $draftParent = array_get($draft, 'parent', 0);
+    if (!preg_match('@^[0-9]+$@', (string)$draftParent)) {
+        alert()->setError(3, lang('access_permission_parent_denied'));
+        alert()->dumpError();
+    }
+    if ((int)$draftParent !== $currentParent) {
+        $message = manager()->parentChangeDeniedMessage([$docid], $draftParent);
+        if ($message) {
+            alert()->setError(3, $message);
+            alert()->dumpError();
+        }
+    }
+}
 
 if (postv('publishoption') === 'reserve' && postv('pub_date')) {
     $pub_date = evo()->toTimeStamp(postv('pub_date'));

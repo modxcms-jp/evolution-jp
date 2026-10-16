@@ -27,6 +27,7 @@ checkDocPermission(validated('id'), $document_groups);
 evo()->manager->saveFormValues();
 
 checkParent();
+checkAllowedParents(validated('id'));
 
 if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
@@ -412,6 +413,34 @@ function checkDocPermission($id, $document_groups = [])
         // 作成先の親にアクセスできるか
         alert()->setError(3);
         alert()->dumpError();
+    }
+}
+
+// 許可するリソースの範囲の外の文書の更新と、範囲の外の親への作成・移動を止める
+function checkAllowedParents($id)
+{
+    if (mode() === 'new') {
+        if (!manager()->isInAllowedParents(validated('parent'))) {
+            alert()->setError(3, lang('access_permission_parent_denied'));
+            alert()->dumpError();
+        }
+        return;
+    }
+
+    if (!manager()->isInAllowedParents($id)) {
+        evo()->manager->saveFormValues();
+        evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
+    }
+
+    $currentParent = (int)db()->getValue(
+        db()->select('parent', '[+prefix+]site_content', sprintf('id=%d', (int)$id))
+    );
+    if ($currentParent === (int)validated('parent')) {
+        return;
+    }
+    if (!manager()->isInAllowedParents(validated('parent'))) {
+        evo()->manager->saveFormValues();
+        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), sprintf('index.php?a=27&id=%d', (int)$id));
     }
 }
 

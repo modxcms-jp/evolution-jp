@@ -15,8 +15,17 @@ if (!$id) {
     alert()->dumpError();
 }
 
+// 複製元と、複製の置き場所（複製元の親）が、許可するリソースの範囲の中かも確かめる
+$parentOfSource = (int)db()->getValue(
+    db()->select('parent', '[+prefix+]site_content', sprintf("id='%d'", $id))
+);
+
 // check permissions on the document
-if (!$modx->checkPermissions($id, true)) {
+if (
+    !$modx->checkPermissions($id, true)
+    || !manager()->isInAllowedParents($id)
+    || !manager()->isInAllowedParents($parentOfSource)
+) {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= lang('access_permissions') ?></div>

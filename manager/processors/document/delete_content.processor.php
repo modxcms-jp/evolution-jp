@@ -25,6 +25,8 @@ if ($id == $modx->config['site_start']) {
     $warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
 } elseif (!$modx->checkPermissions($id)) {
     $warning = $_lang['access_permissions'];
+} elseif (!manager()->isInAllowedParents($id)) {
+    $warning = lang('access_permission_denied');
 } else {
     $linked = check_linked($id);
 }
