@@ -562,16 +562,30 @@ class DocManagerBackend
                 $descendants = [(int) rtrim($match[0], '*')];
                 $visited = [$descendants[0] => true];
 
-                for ($i = 0; $i < count($descendants); $i++) {
-                    $rs = db()->select('id', $tbl_site_content, 'parent=' . (int) $descendants[$i]);
+                $level = $descendants;
+                while ($level) {
+                    // 階層ごとにまとめて問い合わせる（問い合わせ回数は木の深さの分だけ）
+                    $rs = db()->select(
+                        'id,parent',
+                        $tbl_site_content,
+                        'parent IN (' . implode(',', array_map('intval', $level)) . ')'
+                    );
+                    $childrenByParent = [];
                     while ($row = db()->getRow($rs)) {
-                        $childId = (int) $row['id'];
-                        if (isset($visited[$childId])) {
-                            continue;
-                        }
-                        $visited[$childId] = true;
-                        $descendants[] = $childId;
+                        $childrenByParent[(int) $row['parent']][] = (int) $row['id'];
                     }
+                    $next = [];
+                    foreach ($level as $parentId) {
+                        foreach ($childrenByParent[$parentId] ?? [] as $childId) {
+                            if (isset($visited[$childId])) {
+                                continue;
+                            }
+                            $visited[$childId] = true;
+                            $descendants[] = $childId;
+                            $next[] = $childId;
+                        }
+                    }
+                    $level = $next;
                 }
 
                 foreach ($descendants as $descendantId) {
