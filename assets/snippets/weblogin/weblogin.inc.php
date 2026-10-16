@@ -116,11 +116,11 @@ EOT;
     $sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')",
         evo()->getFullTableName('active_users'),
-        $_SESSION['webInternalKey'],
-        $_SESSION['webShortname'],
-        time(),
-        $itemid,
-        real_ip()
+        (int) sessionv('webInternalKey'),
+        db()->escape(sessionv('webShortname')),
+        (int) time(),
+        (int) $itemid,
+        db()->escape(real_ip())
     );
     if (!$rs = db()->query($sql)) {
         $output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
