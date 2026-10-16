@@ -540,14 +540,17 @@ function getTopicPath($id)
             "id='" . $topic . "'"
         );
         $doc = db()->getRow($rs);
-        if ($topic != evo()->config('site_start') && $topic != $id
-            && !evo()->checkPermissions($topic) && !evo()->config('tree_show_protected')) {
-            // ツリーと同じく、アクセスできない文書は tree_show_protected が無効なら出さない
-            $topics[] = '…';
-        } elseif ($topic == evo()->config('site_start')) {
+        if ($topic == evo()->config('site_start')) {
             $topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
-        } elseif ($topic == $id) {
+            continue;
+        }
+        if ($topic == $id) {
             $topics[] = sprintf('%s', $doc['alias']);
+            continue;
+        }
+        if (!evo()->checkPermissions($topic)) {
+            // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
+            $topics[] = evo()->config('tree_show_protected') ? sprintf('%s', $doc['alias']) : '…';
         } elseif (manager()->isAllowed($topic)) {
             $topics[] = sprintf('<a href="index.php?a=120&id=%s">%s</a>', $topic, $doc['alias']);
         } else {
