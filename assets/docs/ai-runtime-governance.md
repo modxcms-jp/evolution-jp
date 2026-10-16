@@ -5,7 +5,7 @@
 
 ## 現在の運用モデル
 
-- 主に使うランタイムは Claude Code とする（2026-10-15 から。経緯は `.agent/plans/2026-10-15-orchestration-runner.md` の Decision Log）
+- 主に使うランタイムは Claude Code とする（2026-10-15 から。経緯は `.agent/plans/archive/2026-10-16-orchestration-runner.md` の Decision Log）
 - Codex は補佐として併用する。PR の補助レビューと、Codex で同じ手順を回す作業を含む
 - Copilot 系は補助的な参照先、レビュー補助、指示ファイル読者として扱う
 

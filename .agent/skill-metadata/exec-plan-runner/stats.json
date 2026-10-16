@@ -1,0 +1,40 @@
+{
+    "items": {
+        "change-001": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        },
+        "change-002": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        },
+        "change-003": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        },
+        "__summary": {
+            "seen_runs": 3,
+            "used_runs": 3,
+            "helped_runs": 3,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "archived_runs": 0,
+            "active_runs": 2
+        }
+    }
+}

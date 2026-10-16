@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-16-orchestration-runner",
+    "run_id": "2026-10-16-orchestration-runner-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-16T11:16:39+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}

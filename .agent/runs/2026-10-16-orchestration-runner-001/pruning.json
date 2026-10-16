@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-16-orchestration-runner",
+    "run_id": "2026-10-16-orchestration-runner-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-16T11:14:18+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}
