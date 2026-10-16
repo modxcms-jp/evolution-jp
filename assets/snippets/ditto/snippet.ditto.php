@@ -108,9 +108,9 @@ if (is_file($ditto_base . 'configs/default.config.php'))
 if (str_starts_with($config, '@CHUNK')) {
     eval('?>' . evo()->getChunk(trim(substr($config, 7))));
 } elseif (str_starts_with($config, '@FILE')) {
-    // サイトのルートからの指定は、本体のバインドと同じ判定に通す（.php は設定ファイルとして許す）
+    // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
     $config_path = evo()->resolveBindFilePath(MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/'));
-    if ($config_path) {
+    if ($config_path && evo()->getExtention($config_path) === '.php') {
         include $config_path;
     }
 } elseif ($config !== 'default') {
@@ -119,7 +119,7 @@ if (str_starts_with($config, '@CHUNK')) {
         $ditto_base . 'configs/' . $config . '.config.php',
         $ditto_base . 'configs'
     );
-    if ($config_path) {
+    if ($config_path && evo()->getExtention($config_path) === '.php') {
         include $config_path;
     }
 }
@@ -286,7 +286,7 @@ if (count($extenders) > 0) {
                 $rs = true;
             }
         } elseif (strpos($extender, '@FILE') === 0) {
-            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（.php は拡張として許す）
+            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
             $extender_path = evo()->resolveBindFilePath(
                 MODX_BASE_PATH . trim(
                     trim(
@@ -295,7 +295,7 @@ if (count($extenders) > 0) {
                     '/'
                 )
             );
-            if ($extender_path) {
+            if ($extender_path && evo()->getExtention($extender_path) === '.php') {
                 include($extender_path);
                 $rs = true;
             }
@@ -317,7 +317,7 @@ if (count($extenders) > 0) {
             $ditto_base . 'extenders'
         );
 
-        if ($rs === false && $extender_path) {
+        if ($rs === false && $extender_path && evo()->getExtention($extender_path) === '.php') {
             include($extender_path);
             $rs = true;
         }

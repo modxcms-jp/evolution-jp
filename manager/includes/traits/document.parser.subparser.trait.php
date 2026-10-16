@@ -2813,7 +2813,8 @@ trait DocumentParserSubParserTrait
         $str = substr($str, 9);
         $str = trim($str);
         $file_path = $this->findBindFile($str);
-        if (!$file_path || !is_file($file_path)) {
+        // PHP として読み込むので、.php だけを対象にする
+        if (!$file_path || !is_file($file_path) || $this->getExtention($file_path) !== '.php') {
             return false;
         }
 

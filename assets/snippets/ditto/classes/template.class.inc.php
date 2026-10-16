@@ -250,7 +250,8 @@ class template
 
         if (strpos($tpl, '@INCLUDE') === 0) {
             $file_path = $this->findFile(preg_replace('/^@INCLUDE[: ]?/', '', $tpl));
-            if (!$file_path) {
+            // PHP として読み込むので、.php だけを対象にする
+            if (!$file_path || evo()->getExtention($file_path) !== '.php') {
                 return false;
             }
             return ob_get_include($file_path);

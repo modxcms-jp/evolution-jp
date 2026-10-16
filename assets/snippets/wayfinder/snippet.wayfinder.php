@@ -38,7 +38,7 @@ if (strpos($config, '@CHUNK') === 0) {
     eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 } else {
     // 名前から組み立てたパスは configs/ の下にあるときだけ、サイトのルートからの指定は
-    // 本体のバインドと同じ判定を通ったときだけ読む（.php は設定ファイルとして許す）
+    // 本体のバインドと同じ判定を通ったときだけ読む（PHP として読み込むので .php だけ）
     if (strpos($config, '@FILE') === 0) {
         $config_candidates = [[MODX_BASE_PATH . trim(substr($config, 6)), null]];
     } else {
@@ -56,7 +56,7 @@ if (strpos($config, '@CHUNK') === 0) {
         } else {
             $config_path = evo()->resolveFileUnderDir($config_candidate[0], $config_candidate[1]);
         }
-        if ($config_path) {
+        if ($config_path && evo()->getExtention($config_path) === '.php') {
             include $config_path;
             break;
         }
