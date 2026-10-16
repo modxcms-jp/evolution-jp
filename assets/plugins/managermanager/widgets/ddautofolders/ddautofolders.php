@@ -144,19 +144,26 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         return db()->update(db()->escape($fields), '[+prefix+]site_content', sprintf('id=%d', (int)$id));
     };
 
-    //Получаем псевдоним корневого родителя
-    $ultimateAlias = '';
-    //Если корневой родитель не в корне, допишем путь к нему
-    if ($modx->getAliasListing($ddParent, 'path') != '') {
-        $ultimateAlias .= $modx->getAliasListing($ddParent, 'path') . '/';
+    //保存する文書自身が最上位の親なら、何もしない
+    $docId = (int)($docVars['id'] ?? 0);
+    if ($docId && $docId === (int)$ddParent) {
+        return;
     }
-    $ultimateAlias .= $modx->getAliasListing($ddParent, 'alias');
 
-    //Получаем годы (непосредственных детей корневого родителя)
-    $years = $modx->getChildIds($ddParent, 1);
+    //親の ID と alias で子のフォルダを探す
+    $findChild = function ($parent, $alias) {
+        $rs = db()->select(
+            'id',
+            '[+prefix+]site_content',
+            sprintf("parent=%d AND alias='%s' AND deleted=0", (int)$parent, db()->escape($alias)),
+            '',
+            1
+        );
+        return (int)db()->getValue($rs);
+    };
 
     //Получаем id нужного нам года
-    $yearId = $years[$ultimateAlias . '/' . $ddDate['y']] ?? 0;
+    $yearId = $findChild($ddParent, $ddDate['y']);
     $monthId = 0;
 
     //Если нужный год существует
@@ -167,10 +174,8 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             'template' => $ddYearTpl,
             'published' => $ddYearPub
         ]);
-        //Получаем месяцы (непосредственных детей текущего года)
-        $months = $modx->getChildIds($yearId, 1);
         //Получаем id нужного нам месяца
-        $monthId = $months[$ultimateAlias . '/' . $ddDate['y'] . '/' . $ddDate['m']] ?? 0;
+        $monthId = $findChild($yearId, $ddDate['m']);
         //Если нужный год не существует
     } else {
         //Создадим его
@@ -180,8 +185,6 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             'parent' => $ddParent,
             'isfolder' => 1,
             'template' => $ddYearTpl,
-            //Года запихиваем тупо в самый конец
-            //                 'menuindex' => count($years),
             //Да пусть будут тупо по году, сортироваться нормально зато будут
             'menuindex' => $ddDate['y'] - 2000,
             'published' => $ddYearPub
@@ -213,6 +216,14 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
 
     //Ещё раз на всякий случай проверим, что с месяцем всё хорошо
     if ($monthId && $monthId != ($docVars['parent'] ?? 0)) {
+        //保存する文書が年・月のフォルダ自身、または親が輪になる場合は付け替えない
+        //（本体の親の確かめは OnBeforeDocFormSave より前に走るため、ここで確かめる）
+        if ($docId && in_array($docId, [(int)$yearId, (int)$monthId], true)) {
+            return;
+        }
+        if (manager()->invalidParentMessage($docId ? [$docId] : [], $monthId) !== '') {
+            return;
+        }
         //本体の保存に反映させるため、params の doc_vars を書き換える
         $docVars['parent'] = (int)$monthId;
         $e->cm->setParam('doc_vars', $docVars);
