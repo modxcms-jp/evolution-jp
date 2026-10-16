@@ -11,6 +11,10 @@ if (!hasPermission('view_document')) {
 }
 $idParam = getv('id', '');
 $id = preg_match('@^[1-9][0-9]*$@', $idParam) ? (int)$idParam : 0;
+if ($id && !evo()->checkPermissions($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
@@ -536,7 +540,11 @@ function getTopicPath($id)
             "id='" . $topic . "'"
         );
         $doc = db()->getRow($rs);
-        if ($topic == evo()->config('site_start')) {
+        if ($topic != evo()->config('site_start') && $topic != $id
+            && !evo()->checkPermissions($topic) && !evo()->config('tree_show_protected')) {
+            // ツリーと同じく、アクセスできない文書は tree_show_protected が無効なら出さない
+            $topics[] = '…';
+        } elseif ($topic == evo()->config('site_start')) {
             $topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
         } elseif ($topic == $id) {
             $topics[] = sprintf('%s', $doc['alias']);
