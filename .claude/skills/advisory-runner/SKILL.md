@@ -97,7 +97,10 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
 3. PR の本文を、記録先など公開リポジトリの外のファイルに書き、`gh pr create -R <フォークの full_name> --base <宛先ブランチ> --head advisory/<短い名前>-<版> --title "<タイトル>" --body-file <本文のファイル>` で作る。対話にしないため、`--title` と `--body-file` を必ず付ける。下書きにしない（アドバイザリ画面のマージ対象にするため）。
    - タイトルは Conventional Commits の形で中立に書く。本文は「概要」「確認手順」にし、確認手順には観点だけを書く（詳細な手順と結果は記録先に置く）。`Closes #` や Issue 番号は書かない。
 4. 作った PR の URL を計画に書く。
-5. PR を作った直後と、次の版へ進む前に、`gh pr view <PR の URL> --comments` で、呼んでいないレビューやボットのコメントが付いていないかを確かめる。付いていたら、それ以上進めずに止まる。
+5. PR を作った直後と、次の版へ進む前に、呼んでいないレビューやボットのコメントが付いていないかを、次の 3 つで確かめる（PR 全体へのコメント、レビュー、差分の行へのコメントは、それぞれ別の API でしか取れない）。どれかに 1 件でもあれば、それ以上進めずに止まる。
+   `gh api repos/<フォークの full_name>/issues/<PR 番号>/comments --jq 'length'`
+   `gh api repos/<フォークの full_name>/pulls/<PR 番号>/reviews --jq 'length'`
+   `gh api repos/<フォークの full_name>/pulls/<PR 番号>/comments --jq 'length'`
 
 ## 止まる条件
 
