@@ -19,19 +19,26 @@ $mxla = globalv('modx_lang_attribute') ?: 'en';
  */
 
 // get name of callback function
+// 文字列かつ JS の識別子の形のときだけ受け付ける
 $cb = anyv('cb', '');
+if (!is_string($cb) || !preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
+    $cb = '';
+}
 
 // get resource type
-$rt = strtolower((string)anyv('rt', ''));
+$rt = anyv('rt', '');
+$rt = is_string($rt) ? strtolower($rt) : '';
 if (!in_array($rt, ['snip', 'tpl', 'tv', 'chunk', 'plug', 'doc'], true)) {
     $rt = 'doc';
 }
 
 // get selection method: s - single (default), m - multiple
-$sm = strtolower((string)anyv('sm', 's')) === 'm' ? 'm' : 's';
+$sm = anyv('sm', 's');
+$sm = is_string($sm) && strtolower($sm) === 'm' ? 'm' : 's';
 
 // get search string
-$query = (string)anyv('search', '');
+$query = anyv('search', '');
+$query = is_string($query) ? $query : '';
 $sqlQuery = db()->escape($query);
 
 // select SQL
@@ -79,10 +86,10 @@ switch ($rt) {
 <html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '" xml:lang="' . hsc($mxla) . '"' ?>>
 
 <head>
-    <title><?= hsc($title . ' ' . $_lang['element_selector_title']) ?></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(globalv('modx_manager_charset', 'UTF-8')) ?>"/>
+    <title><?= $title . ' ' . $_lang['element_selector_title'] ?></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
     <link rel="stylesheet" type="text/css"
-          href="media/style/<?= hsc(evo()->config('manager_theme')) ?>/style.css"/>
+          href="media/style/<?= hsc(evo()->config('manager_theme')) ?>/style.css?<?= hsc(globalv('modx_version')) ?>"/>
 </head>
 
 <body ondragstart="return false">
