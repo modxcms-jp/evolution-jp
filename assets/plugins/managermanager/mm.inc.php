@@ -67,13 +67,13 @@ class MANAGERMANAGER
         $mm_current_page = [];
 
         if (postv('template') !== null) {
-            $mm_current_page['template'] = postv('template');
+            $mm_current_page['template'] = (int)postv('template');
         } elseif (getv('newtemplate')) {
-            $mm_current_page['template'] = getv('newtemplate');
+            $mm_current_page['template'] = (int)getv('newtemplate');
         } elseif (isset($content['template'])) {
-            $mm_current_page['template'] = $content['template'];
+            $mm_current_page['template'] = (int)$content['template'];
         } else {
-            $mm_current_page['template'] = $default_template;
+            $mm_current_page['template'] = (int)$default_template;
         }
 
         $mm_current_page['role'] = sessionv('mgrRole');
@@ -238,7 +238,7 @@ class MANAGERMANAGER
             case 'OnBeforeDocFormSave':
                 global $template;
 
-                $mm_current_page['template'] = $template;
+                $mm_current_page['template'] = (int)$template;
 
                 $this->make_changes($config_chunk);
                 break;
