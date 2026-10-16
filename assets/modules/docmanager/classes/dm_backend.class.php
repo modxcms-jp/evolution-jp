@@ -213,7 +213,7 @@ class DocManagerBackend
             foreach ($pids as $docID) {
                 $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . $docID);
                 if (db()->count($tempSQL) <= 0) {
-                    if ($docID !== '0') {
+                    if ((int) $docID !== 0) {
                         $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
                     }
                     continue;
@@ -558,21 +558,42 @@ class DocManagerBackend
                     }
                 }
             } elseif (preg_match('/^[\d]+\*\*$/', $value, $match)) {
-                $match = rtrim($match[0], '**');
-                $idarray[] = $match;
+                /* value is a group for all descendants */
+                $descendants = [(int) rtrim($match[0], '*')];
+                $visited = [$descendants[0] => true];
 
-                foreach ($idarray as $iValue) {
-                    $where = 'parent=' . $iValue;
-                    $rs = db()->select('id', $tbl_site_content, $where);
-                    if (db()->count($rs) > 0) {
-                        while ($row = db()->getRow($rs)) {
-                            $idarray[] = $row['id'];
+                $level = $descendants;
+                while ($level) {
+                    // 階層ごとにまとめて問い合わせる（問い合わせ回数は木の深さの分だけ）
+                    $rs = db()->select(
+                        'id,parent',
+                        $tbl_site_content,
+                        'parent IN (' . implode(',', array_map('intval', $level)) . ')'
+                    );
+                    $childrenByParent = [];
+                    while ($row = db()->getRow($rs)) {
+                        $childrenByParent[(int) $row['parent']][] = (int) $row['id'];
+                    }
+                    $next = [];
+                    foreach ($level as $parentId) {
+                        foreach ($childrenByParent[$parentId] ?? [] as $childId) {
+                            if (isset($visited[$childId])) {
+                                continue;
+                            }
+                            $visited[$childId] = true;
+                            $descendants[] = $childId;
+                            $next[] = $childId;
                         }
                     }
+                    $level = $next;
                 }
 
-                foreach ($idarray as $iValue) {
-                    $pids .= $column . "='" . $iValue . "' OR ";
+                foreach ($descendants as $descendantId) {
+                    if ($returnval == 0) {
+                        $idarray[] = $descendantId;
+                    } else {
+                        $pids .= $column . "='" . $descendantId . "' OR ";
+                    }
                 }
             } elseif (preg_match('/^[\d]+$/', $value, $match)) {
                 if ($returnval == 0) {
