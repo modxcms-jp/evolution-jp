@@ -268,6 +268,19 @@ class DataGrid
                 break;
 
             case "template":
+                if ($escape) {
+                    // エスケープ済みの値に含まれるタグを展開しないよう、一度の置換で済ませる（strtr は置換後の文字列を走査し直さない）
+                    $pairs = ['[+value+]' => $value];
+                    if (is_array($row) || is_object($row)) {
+                        foreach ($row as $k => $v) {
+                            if ($k !== 'value' && is_scalar($v)) {
+                                $pairs['[+' . $k . '+]'] = (string)$v;
+                            }
+                        }
+                    }
+                    $value = strtr($type_format, $pairs);
+                    break;
+                }
                 // replace [+value+] first
                 $value = str_replace("[+value+]", $value, $type_format);
                 // replace other [+fields+]
