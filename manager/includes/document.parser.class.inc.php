@@ -5413,7 +5413,7 @@ class DocumentParser
                 return $value;
             }
 
-            if ($format === 'datagrid' && $params['egmsg'] === '') {
+            if ($format === 'datagrid' && ($params['egmsg'] ?? '') === '') {
                 return '';
             }
         }

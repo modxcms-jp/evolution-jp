@@ -111,7 +111,7 @@ class DataGrid
         $ds = trim($this->ds);
         if ((strpos($ds, "\n") === false) && is_file($ds)) {
             $ds = trim(file_get_contents($ds));
-            if ($ds) {
+            if ($ds && $this->src_encode) {
                 $ds = mb_convert_encoding($ds, evo()->config['modx_charset'], $this->src_encode);
             }
         }
@@ -357,7 +357,7 @@ class DataGrid
 
         // build column header
         if ($this->detectHeader === 'first line') {
-            [$firstline, $this->ds] = explode("\n", $this->ds, 2);
+            [$firstline, $this->ds] = explode("\n", $this->ds, 2) + ['', ''];
             $this->_colnames = explode($this->cdelim, $firstline);
         } elseif (!empty($this->columns)) {
             $this->_colnames = explode(
@@ -396,8 +396,9 @@ class DataGrid
         if (0 < count($this->_colnames)) {
             $this->_colcount = count($this->_colnames);
         } elseif (!db()->isResult($this->ds) && strpos($this->ds, $this->cdelim) !== false) {
-            if (strpos($this->ds, "\n") !== false) {
-                $_ = substr($this->ds, 0, strpos($this->ds, "\n"));
+            $_ = strstr($this->ds, "\n", true);
+            if ($_ === false) {
+                $_ = $this->ds;
             }
             $this->_colcount = count(explode($this->cdelim, $_));
         } else {
