@@ -238,15 +238,22 @@ class template
         }
 
         if (strpos($tpl, '@FILE') === 0) {
-            return file_get_contents(
-                preg_replace('/^@FILE[: ]?/', '', $tpl)
-            );
+            $file_path = $this->findFile(preg_replace('/^@FILE[: ]?/', '', $tpl));
+            if (!$file_path) {
+                return false;
+            }
+            if (evo()->getExtention($file_path) === '.php') {
+                return 'Could not retrieve PHP file.';
+            }
+            return file_get_contents($file_path);
         }
 
         if (strpos($tpl, '@INCLUDE') === 0) {
-            return ob_get_include(
-                preg_replace('/^@INCLUDE[: ]?/', '', $tpl)
-            );
+            $file_path = $this->findFile(preg_replace('/^@INCLUDE[: ]?/', '', $tpl));
+            if (!$file_path) {
+                return false;
+            }
+            return ob_get_include($file_path);
         }
 
         if (strpos($tpl, '@CODE') === 0) {
@@ -266,5 +273,18 @@ class template
         }
 
         return $tpl;
+    }
+
+    // ---------------------------------------------------
+    // Function: findFile
+    // @FILE・@INCLUDE の指定から、本体と同じ場所の判定を通ったファイルの実パスを返す
+    // ---------------------------------------------------
+    private function findFile($path)
+    {
+        $path = trim($path);
+        if (strpos($path, "\n") !== false) {
+            $path = trim(substr($path, 0, strpos($path, "\n")));
+        }
+        return evo()->findBindFile($path);
     }
 }

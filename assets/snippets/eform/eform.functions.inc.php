@@ -1353,11 +1353,14 @@ function efLoadTemplate($key)
 
     $tpl = '';
     if (strpos($key, '@FILE') === 0) {
-        $path = substr($key, 6);
-        $path = trim($path);
-        $path = ltrim($path, '/');
-        $path = MODX_BASE_PATH . $path;
-        $tpl = file_get_contents($path);
+        $path = evo()->findBindFile(substr($key, 6));
+        if (!$path) {
+            $tpl = false;
+        } elseif (evo()->getExtention($path) === '.php') {
+            $tpl = 'Could not retrieve PHP file.';
+        } else {
+            $tpl = file_get_contents($path);
+        }
     } elseif (strpos($key, '@CODE') === 0) {
         $tpl = substr($key, 6);
     } elseif (is_numeric($key)) { //get from document id
