@@ -38,6 +38,7 @@ class DataGrid
     public $colAligns = '';
     public $colWraps = '';
     public $colColors = '';
+    public $colEscapes = ''; // 列ごとに値を hsc() で無害化するか。1 で有効（例: 1,,1）。既定は無害化しない
     public $colTypes = ''; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
     // data type: integer,float,currency,date
 
@@ -70,6 +71,7 @@ class DataGrid
     private $_colwraps;
     private $_colcolors = [];
     private $_coltypes;
+    private $_colescapes = [];
     private $_itemStyle;
     private $_itemClass;
     private $_altItemStyle;
@@ -150,10 +152,11 @@ class DataGrid
             $color = $this->_colcolors[$c] ?? '';
             $type = $this->_coltypes[$c] ?? '';
             $nowrap = $this->_colwraps[$c] ?? '';
+            $escape = !empty($this->_colescapes[$c]);
             if ($color && $Style) {
                 $colStyle = substr($colStyle, 0, -1) . ";background-color:{$color};'";
             }
-            $value = $this->formatColumnValue($row, $value, $type, $align);
+            $value = $this->formatColumnValue($row, $value, $type, $align, $escape);
 
             if ($align) {
                 $align = 'align="' . $align . '"';
@@ -181,7 +184,7 @@ class DataGrid
     }
 
     // format column values
-    function formatColumnValue($row, $value, $type, &$align)
+    function formatColumnValue($row, $value, $type, &$align, $escape = false)
     {
         global $modx;
 
@@ -191,6 +194,18 @@ class DataGrid
 
         if (strpos($type, ":") !== false) {
             [$type, $type_format] = explode(":", $type, 2);
+        }
+        // 値がそのまま HTML に出る列（template・型の指定なし）だけが対象。数値・日付などの整形後の値は影響を受けない
+        $isRawType = !in_array(strtolower($type), ['integer', 'float', 'currency', 'date', 'boolean'], true);
+        if ($escape && $isRawType) {
+            $value = hsc($value);
+            if (is_array($row) || is_object($row)) {
+                $escapedRow = [];
+                foreach ($row as $k => $v) {
+                    $escapedRow[$k] = is_scalar($v) ? hsc((string)$v) : $v;
+                }
+                $row = $escapedRow;
+            }
         }
         switch (strtolower($type)) {
             case "integer":
@@ -355,6 +370,10 @@ class DataGrid
         $this->_colcolors = explode(
             (strstr($this->colColors, "||") !== false ? "||" : ","),
             $this->colColors
+        );
+        $this->_colescapes = explode(
+            (strstr($this->colEscapes, "||") !== false ? "||" : ","),
+            $this->colEscapes
         );
         $this->_coltypes = explode(
             (strstr($this->colTypes, "||") !== false ? "||" : ","),
