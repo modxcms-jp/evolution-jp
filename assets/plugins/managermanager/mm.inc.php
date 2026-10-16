@@ -68,7 +68,7 @@ class MANAGERMANAGER
 
         if (postv('template') !== null) {
             $mm_current_page['template'] = to_intvar(postv('template'));
-        } elseif (getv('newtemplate')) {
+        } elseif (to_intvar(getv('newtemplate')) > 0) {
             $mm_current_page['template'] = to_intvar(getv('newtemplate'));
         } elseif (isset($content['template'])) {
             $mm_current_page['template'] = (int)$content['template'];
