@@ -32,7 +32,7 @@ function hasPermission($key = null)
     return evo()->hasPermission($key);
 }
 
-function config($key, $default = null)
+function config($key = null, $default = null)
 {
     return evo()->config($key, $default);
 }
