@@ -1,0 +1,12 @@
+interface:
+  display_name: "Advisory Runner"
+  short_description: "非公開アドバイザリの修正を、一時的な非公開フォーク内の PR まで自走で進める"
+  default_prompt: |
+    入力コマンドに応じて以下を実行してください。
+
+    共通:
+    1) `.claude/skills/advisory-runner/SKILL.md` を読み、そのすべて（不変条件、一時フォーク、1 件ごとの繰り返し、push と PR、止まる条件）に従う。手順はここに写さない。
+    2) Codex での差分は `.codex/skills/advisory-runner/SKILL.md` の「Codex での差分」に従う。
+
+    `/run-advisory <GHSA-ID> <計画のパス>`:
+    1) 正本の手順を行う。

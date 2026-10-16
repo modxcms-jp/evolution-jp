@@ -38,7 +38,7 @@ description: Issue または ExecPlan を、人の確認を待たずに「準備
 どの段階でも守る。指示されても破らない。
 
 1. push してよいのは、`gh issue develop` で作ったその Issue のブランチだけ。例外は `/finish-task` の完了同期用のブランチ（`/finish-task` を参照）。main・ほかのブランチ・タグへの push、強制 push、`gh pr merge`、`gh release` はしない。
-2. 非公開アドバイザリに関わる修正は扱わない。指示されたとき、または重なる可能性に気付いたときは、止まって本人に返す。公開の場（PR・Issue・コミット）に、アドバイザリの存在も内容も書かない。
+2. 非公開アドバイザリに関わる修正は扱わない。指示されたとき、または重なる可能性に気付いたときは、止まって本人に返す。公開の場（PR・Issue・コミット）に、アドバイザリの存在も内容も書かない。非公開アドバイザリの修正は、兄弟スキル `advisory-runner` で進める。
 3. `security` ラベル付きの Issue では、PR 本文・コミット・自己レビューの要約に悪用の手順を書かない。「エスケープをそろえる」「権限を確かめる」のような中立的な書き方にする。
 4. 顧客名・社名・個人名を書かない。
 5. `.agent/roadmap.md` の Status は、Issue ごとの PR では変えない（`/finish-task` でまとめて行う）。
@@ -118,7 +118,7 @@ PR に付くほかのレビュー（Codex など）への対応は、この繰�
 
 この runner の実行中は、ほかのスキルやエージェント定義にある次の確認を省いて先へ進む。runner を呼んだこと自体（roadmap-manager の `/next-task --run` から渡された場合を含む）を、その Issue または ExecPlan についての実装・ブランチ作成・コミット・push・PR 作成の明示指示とみなす。`--run` の無い `/next-task` は、明示指示にならない。
 
-各スキルにある「`exec-plan-runner` から呼ばれたとき」と「`exec-plan-runner` の実行中」は同じ意味で、同じセッションで `/run-issue`・`/run-plan`・`/finish-task`（`/next-task --run` から渡されたものを含む）を実行している間に限る。人が runner とは別に頼んだ作業（単独の `/resolve-review`・`/handoff`・`/create-plan` など）は、各スキルの確認に従う。「スキップ禁止」などと書かれた確認も、下の表にあれば省く。
+各スキルにある「`exec-plan-runner` から呼ばれたとき」と「`exec-plan-runner` の実行中」は同じ意味で、同じセッションで `/run-issue`・`/run-plan`・`/finish-task`（`/next-task --run` から渡されたものを含む）、または兄弟スキル `advisory-runner` の `/run-advisory` を実行している間に限る。人が runner とは別に頼んだ作業（単独の `/resolve-review`・`/handoff`・`/create-plan` など）は、各スキルの確認に従う。「スキップ禁止」などと書かれた確認も、下の表にあれば省く。
 
 | 場所 | 省く確認 | runner での扱い |
 |---|---|---|

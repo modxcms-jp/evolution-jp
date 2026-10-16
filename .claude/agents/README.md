@@ -14,7 +14,7 @@
 | `evo-tester` | `tester.md` | `sonnet` | `medium` |
 | `evo-reviewer` | `reviewer.md` | `opus` | `high` |
 
-`exec-plan-runner` の役割（explorer・planner・worker・tester・reviewer）は、表のそれぞれのエージェントに任せる。メイン（まとめ役）は、人と対話しているセッション自身が務める。
+`exec-plan-runner` と兄弟スキルの `advisory-runner` の役割（explorer・planner・worker・tester・reviewer）は、表のそれぞれのエージェントに任せる。メイン（まとめ役）は、人と対話しているセッション自身が務める。
 
 格上げ（`exec-plan-runner` の「修正」の手順）: 自己レビューで 2 往復しても高・中の指摘が残ったら、同じ作業を `evo-worker` に呼び出し時の `model: opus` を指定して 1 回だけやり直させる。呼び出しごとの `model` 指定は frontmatter より優先される。effort は frontmatter の `medium` のまま。
 
@@ -28,6 +28,7 @@
 - tester 役の自走: main の detached ワークツリーを本体のルートを起点に作る。入れ子のセッションの evo-tester に、作業ディレクトリ・作業用ディレクトリ（リポジトリの外）・`EVO_VALIDATE_NAME`・`EVO_BIND_IP` を渡し、adaptive-validation-runner の手順で起動・`setup-site.js`・`smoke.js`・後片付けまでを任せる（2026-10-16 に 6/6 PASS、許可確認 0 件で完走）。片付けの結果は報告を鵜呑みにせず、メインがコンテナ・ボリューム・イメージの残りと `git worktree remove` が通ることで確かめる。
 - `/next-task` の挙動: `--run` を付けずに入れ子のセッションで動かせば、ファイルを書き換えずに選定結果だけを確かめられる。
 - deny のパターンは、`git push …` と `git -C <パス> push …` の両方の形で書く。片方だけだと、もう片方の書き方で抜ける。
+- origin への `advisory/` ブランチの push の deny（2026-10-16 に確認）: 上の deny だけを確かめる起動で、`git push origin advisory/x:advisory/x`・`git push -u origin advisory/x`・`git push --set-upstream origin …`・`git -C <パス> push origin …`・`git -C <パス> push -u origin …` の 5 つ（いずれも `--dry-run` を最後に置く）が拒否され、通常のブランチへの push と、フォークの URL を指定した push は拒否されないことを確かめた。`-u` などのフラグを origin の前に置いた形は、`Bash(git push * origin *advisory/*)` の側で止まる。公開リポジトリの URL を直接書いた形（`…/evolution-jp.git` と `.git` なし）も拒否され、一時フォークの URL（`…/evolution-jp-ghsa-…`）は拒否されないことを確かめた。
 - `*` は空にも当たるが、`Bash(git push * -f *)` の前後の空白は文字どおりに照合される。このため `git push -f origin x` には当たらない（`Bash(git push -f*)` が別に要る）。試験で `--dry-run` を `-f` の前に置くと、`--dry-run` が `*` に当たって抜けが隠れるので、`--dry-run` は最後に置く。
 
 ## 分かっている限界
@@ -35,5 +36,5 @@
 - `model: opus` は `claude-opus-5-5`（1M 版ではない）になる。メインのセッションが `opus[1m]` でも、サブエージェントは引き継がない。
 - `evo-reviewer` は Write・Edit を持たないが、Bash を持つので、リダイレクトで書くことは仕組みとしては止まっていない。試験ではファイルの作成を頼んでも断ったが、それは指示に従った結果である。レビューの前後に、メインのセッションが `git status --porcelain` と `git rev-parse HEAD` を照合する。
 - `.claude/settings.json` の deny は、コマンドの文字列で判定する。`main` をチェックアウトして追跡先がある状態で `git push`・`git push origin` と refspec を省くと、文字列に `main` が出ないので止まらない。この形は、GitHub のルールセット（main は PR 経由でだけ更新でき、強制 push と削除を禁止。2026-10-16 に設定）がサーバー側で拒否する。
-- `.claude/settings.json` の deny は、リポジトリでのすべての Claude Code のセッションに効き、runner の実行中だけに絞れない。そのため、止めるのは main への push と強制 push だけにしている。`-uf` のように `-f` をほかのフラグとまとめて書いた形は止まらない（当てようとすると、通常の push まで止まるパターンになる）。`gh pr merge`・`gh release`・タグの push は、本人の作業やリリース手順でも使うので止めない。
+- `.claude/settings.json` の deny は、リポジトリでのすべての Claude Code のセッションに効き、runner の実行中だけに絞れない。そのため、止めるのは main への push、強制 push、origin への `advisory/` ブランチの push（`advisory-runner` の修正ブランチ。公開リポジトリに出さないため）だけにしている。`advisory/` の deny は、`git push`・`git -C <パス> push` のそれぞれで、`origin <refspec>`・`<フラグ> origin <refspec>`・公開リポジトリの URL を直接書いた形に当たる。コマンドに `advisory/` が出てこない形（引数なしの `git push`、`--all`、`--mirror`、`advisory/` のブランチにいるときの `git push origin HEAD`）には当たらない。`advisory-runner` は、修正ブランチを `--no-track` で作って追跡先を持たせず、push はフォークの URL とブランチ名を明示して行う決まりで補う。この deny は `git push origin --delete advisory/…` のような削除の push も止めるので、誤って origin に出た `advisory/` のブランチは本人が消す。`-uf` のように `-f` をほかのフラグとまとめて書いた形は止まらない（当てようとすると、通常の push まで止まるパターンになる）。`gh pr merge`・`gh release`・タグの push は、本人の作業やリリース手順でも使うので止めない。
 - ワークツリーの中で `git worktree add .claude/worktrees/<名前>` を相対パスで実行すると、そのワークツリーの中に入れ子で作られる。本体のルート `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")` を起点にする。
