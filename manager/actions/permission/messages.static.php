@@ -402,7 +402,7 @@ function decrypt($encryptedText, $key = 'modx')
     $len = strlen($enc);
     for ($i = 0; $i < $len; $i++) {
         $asciin = ord($enc[$i]);
-        $plaintext .= chr($asciin ^ ord($key[$i]));
+        $plaintext .= chr($asciin ^ (isset($key[$i]) ? ord($key[$i]) : 0));
     }
     return $plaintext;
 }
