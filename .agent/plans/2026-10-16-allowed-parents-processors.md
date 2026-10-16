@@ -6,7 +6,7 @@
 
 ## Progress
 
-- [ ] (2026-10-16) M1: 共通の判定関数を `ManagerAPI` に足し、文書の保存（新規・更新、a=5）と移動（a=52）で確かめる。下書きの PR を作る
+- [ ] (2026-10-16) M1: 共通の判定関数を `ManagerAPI` に足し、文書の保存（新規・更新、a=5）と移動（a=52）で確かめる。下書きの PR を作る（実装と検証は 2026-10-17 に完了。コミット e8e9c2a2e と、自己レビューの指摘への対応 bd0206f5d。PR の作成は未）
 - [ ] M2: 複製（a=94）・削除（a=6）・削除の取り消し（a=63）・公開（a=61）・非公開（a=62）・完全削除（a=64）で確かめる。完全削除にはドキュメントグループの確認も足す
 - [ ] M3: 下書きの保存（a=128）・公開（a=129）・削除（a=130）・公開予約の取り消し（a=134）で確かめる。下書きの保存と公開で親が変わるときは、新しい親について、通常の保存と同じ確認（ドキュメントグループ・循環と存在・範囲）もする。PR を `Closes #733` に改め、下書きを解除する
 
@@ -25,6 +25,7 @@
 - 2026-10-16: 下書きの値は `ex_revision.php` の `convertData()` で作られ、`parent` は送られてこなければ 0 になる。下書きの編集の画面は `parent` を必ず送る（`manager/actions/document/mutate_content/field_parent_form.tpl` の hidden の入力）。`getDraft()` は下書きが無ければ空の配列を返す。
 - 2026-10-16: 公開予約した下書き（`status='standby'`）は、予約の時刻を過ぎた最初のサイトへの要求で `updateDraft()`（`manager/includes/traits/document.parser.subparser.trait.php` 2772 行付近）が、利用者の確認なしに文書へ反映する（親も含む）。下書きを予約の状態にできるのは、下書きの保存（a=128 の `stay=save_standby`）と下書きの公開（a=129 の `publishoption=reserve`）だけなので、この 2 つで確かめれば、予約の反映で範囲の外へ移ることは防げる。
 - 2026-10-16: `alert()->setError($code, $message)` は第 2 引数があればその文言を出す（無ければ番号に対応する定型の文言）。`dumpError()` が出すのは文言だけで、番号は画面に出ない。根拠: `manager/includes/error.class.inc.php` の `setError()`。
+- 2026-10-17: 設定値の読み方。`(int)` で読むと、全角の読点・空白の入った値（例: 「5、6」）が先頭の 5 だけの範囲になり、全角の数字や数字以外だけの値は空の一覧になる。空の一覧を「制限なし」と扱うと、設定はあるのに処理の側だけ制限が効かなくなる。画面の側（`isAllowed()`）は設定値そのものが空かで判断するので、基準が食い違っていた。
 
 ## Decision Log
 
@@ -43,6 +44,9 @@
 - 2026-10-16 確定（本人の答え「(A) #733 の M3 に含める」）: 下書きの保存（a=128）と下書きの公開（a=129）で、下書きの親が DB の今の親と違うとき、新しい親について、通常の保存と同じ 3 つの確認（ドキュメントグループの確認 `evo()->checkPermissions()`、循環と存在の確認 `invalidParentMessage()`、範囲の確認 `isInAllowedParents()`）をする。下書きの公開は親を変える操作になりうるのに（Surprises）、どれも確かめていなかったため。
 - 2026-10-16（planner）: 下書きの 2 つの処理の親の確認は、`ManagerAPI` に関数 `parentChangeDeniedMessage(array $docIds, $parentId)` を足して 1 か所にまとめる（`invalidParentMessage()` の後ろに置く）。中身は、`invalidParentMessage()` が空でなければその文言、`evo()->checkPermissions($parentId)` が false なら `lang('access_permission_parent_denied')`、M1 の `isInAllowedParents($parentId)` が false なら同じ文言、どれも通れば空文字を返す。範囲の判定は M1 の関数をそのまま呼び、規則を二重に持たない。順番は、存在しない親で「権限が無い」と出ないよう、循環と存在の確認を先にする（移動と同じ）。判断の基準は「2 つのファイルに同じ 3 つの確認を書かずに済むか」と「通常の保存・移動の今の止め方を変えずに済むか」。代替案 1: 下書きの 2 つのファイルにそれぞれ 3 つの確認を直接書く案は、同じ数行が 2 か所に重なるので採らない。代替案 2: 通常の保存（a=5）と移動（a=52）もこの関数に寄せる案は、保存の確認がフォームに戻る作り（入力の保存と戻り先の URL）で 2 つの関数に分かれていること、移動は親が変わらないときに専用の文言（`move_resource_new_parent`）を出すこと（Surprises）から、止め方・文言・確認の順が変わる。この計画では採らず、保存と移動は M1 のとおり、今の確認に `isInAllowedParents()` を足して直接呼ぶ。寄せるかどうかは未決で、メインの判断を待つ（決まるまでは M1 のとおり）。
 - 2026-10-16（planner）: 公開予約した下書きが予約の時刻に反映されるとき（`updateDraft()`）は確かめない。予約の状態にできるのは a=128 と a=129 だけで、そこで確かめる（Surprises）。
+- 2026-10-17（M1 の自己レビューへの対応）: 設定値は、区切った値のうち書式 `^[1-9][0-9]*$` に当たるものだけを採る（0 や「5abc」・全角の数字は採らない）。`isInAllowedParents()` の「制限があるか」は、画面の側と同じ `evo()->conf_var('allowed_parents')` が空かで判断し、設定があるのに正しい ID が 1 つも無いときは false（範囲の外）にする。判断の基準は「画面と処理で制限の有無の基準が同じか」と「読めない設定のとき制限が外れる方向に倒れないか」。代替案: 読めない値は読み飛ばして残りだけで判断する案は、全部読めないとき空になって制限が外れるので、空のときの扱いを上記にそろえる形で採った。画面の側 `getUserAllowedDocs()` も同じ読み方になり、修正前（設定値を分割して `getChildIds()` にそのまま渡していた）と変わるのは、0 や数字以外を含む値。たとえば「0,5」は、修正前は `getChildIds(0)` が全文書を返して実質制限なしになっていたが、修正後は 5 とその子孫だけが範囲になる。「5、6」「5abc」のような値は、修正前は正しく読めていなかった（結果は不定）ので、修正後は範囲に入れない。この変更は PR 本文の「変わること」に含め、リリース記事の候補とする。
+- 2026-10-17（M1 の自己レビューへの対応）: 保存の処理の `checkAllowedParents()` は `checkParent()` の後ろで呼ぶ。存在しない親を指定したとき「親が見つからない」の文言が先に出る（M3 の Decision Log の、循環と存在の確認を先にする考え方と同じ）。
+- 2026-10-17（M1 の自己レビューへの対応）: `isInAllowedParents()` の docblock の「存在しない ID は範囲の外」を、「設定に書いた ID そのものでなければ範囲の外。存在の確認は呼ぶ側で行う」に直した。関数は DB で存在を確かめず、祖先をたどれない ID は設定に書かれた ID と一致するかだけで判定するため。
 
 ## Outcomes & Retrospective
 
@@ -90,7 +94,9 @@ DocumentParser への影響: 管理画面の処理だけを変えるので、`ex
     /**
      * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
      * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
-     * 設定が空なら常に true。ルート（0）と存在しない ID は、設定があれば範囲の外（false）。
+     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * ルート（0）は、設定があれば範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
+     * 存在の確認は呼ぶ側で行う。
      * 削除済みの文書も、親をたどって判定する。
      *
      * @param int $id 文書の ID（作成先・移動先の親を確かめるときは親の ID）
@@ -118,7 +124,7 @@ DocumentParser への影響: 管理画面の処理だけを変えるので、`ex
 
 処理の側の置き方。どの処理も、すぐ隣のドキュメントグループの確認の直後に置き、止め方はそれにそろえる。文言は、文書なら `lang('access_permission_denied')`、親なら `lang('access_permission_parent_denied')`（Decision Log）。ドキュメントグループの確認は `use_udperms` の条件の中にあることが多いが、この確認は条件の外に置く。
 
-- 保存（a=5）: `save_resource.processor.php` に関数 `checkAllowedParents()` を足し、`checkDocPermission()` の直後で呼ぶ。新規なら `validated('parent')` を確かめ、外なら `alert()->setError(3, lang('access_permission_parent_denied'))` と `alert()->dumpError()`。更新なら `validated('id')` を確かめ、外なら `saveFormValues()` と `webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2')`。更新で DB の今の親と `validated('parent')` が違えば、新しい親を確かめ、外なら `saveFormValues()` と `webAlertAndQuit(lang('access_permission_parent_denied'), 'index.php?a=27&id=…')`。
+- 保存（a=5）: `save_resource.processor.php` に関数 `checkAllowedParents()` を足し、`checkParent()` の直後で呼ぶ（存在しない親を指定したときに「親が見つからない」の文言が先に出るよう、循環と存在の確認の後ろに置く）。新規なら `validated('parent')` を確かめ、外なら `alert()->setError(3, lang('access_permission_parent_denied'))` と `alert()->dumpError()`。更新なら `validated('id')` を確かめ、外なら `saveFormValues()` と `webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2')`。更新で DB の今の親と `validated('parent')` が違えば、新しい親を確かめ、外なら `saveFormValues()` と `webAlertAndQuit(lang('access_permission_parent_denied'), 'index.php?a=27&id=…')`。
 - 移動（a=52）: ドキュメントグループの確認の `if` ブロックの後ろで、`$doc_ids` それぞれを確かめて外なら `accessDenied('access_permission_denied')`、続けて `$new_parent` を確かめて外なら `accessDenied('access_permission_parent_denied')`。
 - 複製（a=94）: ドキュメントグループの確認の後ろで、`$id` と、その親（`site_content.parent` を `(int)` で読む）を確かめ、どちらかが外なら同じヘッダー付きのエラーページで止める。
 - 削除（a=6）: `elseif` の連なりで、ドキュメントグループの確認の次に `elseif (!manager()->isInAllowedParents($id))` を足し、`$warning = lang('access_permission_denied')`。
@@ -268,6 +274,7 @@ M1〜M3 の完了条件（M2 の完全削除を含む）をすべて満たし、
 PR には `fix`・`security`・`仕様変更` のラベルを付け、本文の「変更内容」に次を書く。
 
 - 「許可するリソース」を設定した利用者は、範囲の外の文書を、保存・移動・複製・削除・削除の取り消し・完全削除・公開・非公開・下書きの操作で変えられなくなる（これまでは文書の画面を開くときだけ確かめていた）。
+- 設定値の読み方が厳しくなる。正の整数（半角）だけを ID として読み、0・数字以外・全角の数字は読まない。読める ID が 1 つも無い設定は、範囲がどこにも無い（すべて範囲の外）扱いになる。たとえば「0,5」は、以前は全文書が範囲になっていたが、5 とその子孫だけになる。
 - 同じ利用者は、範囲の外（ルートを含む）に文書を作ったり移したり複製したりできなくなる。範囲の頂点に指定した文書そのものの複製も、複製の置き場所が範囲の外になるので止まる。
 - 完全削除（ごみ箱を空にする・1 件ずつの完全削除）でも、ドキュメントグループの確認をするようになる。`use_udperms` が 1 のとき、見られないドキュメントグループの文書は完全削除できなくなる。
 - 下書きの保存と公開で親が変わるとき、通常の保存と同じく、新しい親のドキュメントグループ・循環と存在・範囲を確かめるようになる。許可するリソースを設定していない利用者でも、見られないドキュメントグループの文書や、自分の子孫・存在しない文書を親にした下書きは、保存も公開もできなくなる。
