@@ -212,13 +212,20 @@ function eForm($modx, $params)
 
         # get uploaded files
         foreach ($_FILES as $name => $value) {
-            if (is_array($value['name'] ?? null) && ($formats[$name][2] ?? '') != 'file') {
-                // file 以外の書式の項目に入れ子のアップロードが来たときは、不正な値として扱う
+            if (($formats[$name][2] ?? '') == 'file') {
+                $fields[$name] = $value;
+                continue;
+            }
+            // file 以外の項目には、アップロードの情報を入れない（POST の値があればそれを残す）
+            if (is_array($value['name'] ?? null) && isset($formats[$name])) {
+                // 書式のある項目に入れ子のアップロードが来たときは、不正な値として扱う
                 $nestedFields[$name] = true;
                 $fields[$name] = '';
                 continue;
             }
-            $fields[$name] = $value;
+            if (!isset($fields[$name])) {
+                $fields[$name] = '';
+            }
         }
 
         # check vericode
