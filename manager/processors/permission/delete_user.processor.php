@@ -18,6 +18,17 @@ if ($id == evo()->getLoginUserID()) {
     exit;
 }
 
+// 管理者でなければ管理者ユーザーは削除できない（保存の処理と同じ判定）
+if (!manager()->isAdmin()) {
+    $role = db()->getValue(
+        db()->select('role', '[+prefix+]user_attributes', sprintf('internalKey=%d', $id))
+    );
+    if ($role == 1) {
+        echo 'You cannot delete an administrative user.';
+        exit;
+    }
+}
+
 $tbl_manager_users = evo()->getFullTableName('manager_users');
 $tbl_member_groups = evo()->getFullTableName('member_groups');
 $tbl_user_settings = evo()->getFullTableName('user_settings');
