@@ -78,7 +78,7 @@ function postForm() {
         document.getElementById('tabaction').value = 'changeTemplate';
         document.getElementById('newvalue').value = getSelectedRadioValue(document.template.id);
 
-        document.range.submit();
+        document.getElementById('range').submit();
     } else if (tabActiveID == '1') {
         document.getElementById('pids_tv').value = document.getElementById('pids').value;
         document.getElementById('template_id').value = getSelectedRadioValue(document.templatevariables.tid);
@@ -88,7 +88,7 @@ function postForm() {
         document.getElementById('tabaction').value = getSelectedRadioValue(document.docgroups.tabAction);
         document.getElementById('newvalue').value = getSelectedRadioValue(document.docgroups.docgroupid);
 
-        document.range.submit();
+        document.getElementById('range').submit();
     } else if (tabActiveID == '3') {
         /* handled separately using save() function */
     } else if (tabActiveID == '4') {
@@ -105,7 +105,7 @@ function postForm() {
         document.getElementById('author_createdby').value = document.authors.author_createdby.value;
         document.getElementById('author_editedby').value = document.authors.author_editedby.value;
 
-        document.range.submit();
+        document.getElementById('range').submit();
     }
 }
 

@@ -298,6 +298,11 @@ class DocManagerBackend
     public function changeDocGroups($pids, $docgroup, $action)
     {
         $this->dm->ph['update.message'] = '';
+        if (!evo()->hasPermission('access_permissions') || !evo()->hasPermission('web_access_permissions')) {
+            $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error']
+                . '<br />' . $this->dm->lang['DM_process_no_permission'];
+            return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
+        }
         $doc_vals = $this->processRange($pids, '', 0);
         $doc_id = $doc_vals[0];
         $error = $doc_vals[1];
@@ -309,10 +314,11 @@ class DocManagerBackend
                         break;
                     }
                     foreach ($doc_id as $value) {
+                        $value = (int)$value;
                         $sqlResult = db()->select(
                             '*',
                             '[+prefix+]document_groups',
-                            sprintf('document_group=%d AND document=%s', $docgroup, $value)
+                            sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                         );
                         $NotAMember = (db()->count($sqlResult) == 0);
                         if (!$NotAMember) {
@@ -324,13 +330,10 @@ class DocManagerBackend
                             );
                             continue;
                         }
-                        $sql = sprintf(
-                            'INSERT INTO %s (document_group, document) VALUES (%d,%s)',
-                            '[+prefix+]document_groups',
-                            $docgroup,
-                            $value
+                        db()->insert(
+                            ['document_group' => (int)$docgroup, 'document' => $value],
+                            '[+prefix+]document_groups'
                         );
-                        db()->query($sql);
                         $this->secureWebDocument($value);
                         $this->secureMgrDocument($value);
                     }
@@ -338,21 +341,19 @@ class DocManagerBackend
                 case 'pullDocGroup':
                     if (count($doc_id) > 0) {
                         foreach ($doc_id as $value) {
+                            $value = (int)$value;
                             $docsRemoved = 0;
                             $sqlResult = db()->select(
                                 '*',
                                 '[+prefix+]document_groups',
-                                "document_group = " . $docgroup . " AND document = " . $value
+                                sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                             );
                             $AMember = (db()->count($sqlResult) <> 0);
                             if ($AMember) {
-                                $sql = sprintf(
-                                    'DELETE FROM %s WHERE document_group = %d AND document = %s',
+                                db()->delete(
                                     '[+prefix+]document_groups',
-                                    $docgroup,
-                                    $value
+                                    sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                                 );
-                                db()->query($sql);
                                 $this->secureWebDocument($value);
                                 $this->secureMgrDocument($value);
                             } else {
@@ -387,6 +388,7 @@ class DocManagerBackend
 
         /* misc document settings */
         $fieldval = '';
+        $logAction = '';
         switch (postv('setoption')) {
             case 1:
                 $fieldval = 'published';
@@ -394,23 +396,23 @@ class DocManagerBackend
                     'publishedon' => postv('newvalue') == 1 ? time() : 0,
                     'publishedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : 0
                 ];
-                $this->logDocumentChange('publish');
+                $logAction = 'publish';
                 break;
             case 2:
                 $fieldval = 'hidemenu';
-                $this->logDocumentChange('hidemenu');
+                $logAction = 'hidemenu';
                 break;
             case 3:
                 $fieldval = 'searchable';
-                $this->logDocumentChange('search');
+                $logAction = 'search';
                 break;
             case 4:
                 $fieldval = 'cacheable';
-                $this->logDocumentChange('cache');
+                $logAction = 'cache';
                 break;
             case 5:
                 $fieldval = 'richtext';
-                $this->logDocumentChange('richtext');
+                $logAction = 'richtext';
                 break;
             case 6:
                 $fieldval = 'deleted';
@@ -418,7 +420,7 @@ class DocManagerBackend
                     'deletedon' => postv('newvalue') == 1 ? time() : '0',
                     'deletedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : '0'
                 ];
-                $this->logDocumentChange('delete');
+                $logAction = 'delete';
                 break;
             default:
                 break;
@@ -464,6 +466,7 @@ class DocManagerBackend
 
             db()->update($fields, $tbl_site_content, $values);
             $new = true;
+            $this->logDocumentChange($logAction);
         }
 
         if ($pids !== '' && count($dateval) > 0) {
