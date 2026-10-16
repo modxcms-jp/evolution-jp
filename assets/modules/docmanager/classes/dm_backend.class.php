@@ -309,10 +309,11 @@ class DocManagerBackend
                         break;
                     }
                     foreach ($doc_id as $value) {
+                        $value = (int)$value;
                         $sqlResult = db()->select(
                             '*',
                             '[+prefix+]document_groups',
-                            sprintf('document_group=%d AND document=%s', $docgroup, $value)
+                            sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                         );
                         $NotAMember = (db()->count($sqlResult) == 0);
                         if (!$NotAMember) {
@@ -324,13 +325,10 @@ class DocManagerBackend
                             );
                             continue;
                         }
-                        $sql = sprintf(
-                            'INSERT INTO %s (document_group, document) VALUES (%d,%s)',
-                            '[+prefix+]document_groups',
-                            $docgroup,
-                            $value
+                        db()->insert(
+                            ['document_group' => (int)$docgroup, 'document' => $value],
+                            '[+prefix+]document_groups'
                         );
-                        db()->query($sql);
                         $this->secureWebDocument($value);
                         $this->secureMgrDocument($value);
                     }
@@ -338,21 +336,19 @@ class DocManagerBackend
                 case 'pullDocGroup':
                     if (count($doc_id) > 0) {
                         foreach ($doc_id as $value) {
+                            $value = (int)$value;
                             $docsRemoved = 0;
                             $sqlResult = db()->select(
                                 '*',
                                 '[+prefix+]document_groups',
-                                "document_group = " . $docgroup . " AND document = " . $value
+                                sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                             );
                             $AMember = (db()->count($sqlResult) <> 0);
                             if ($AMember) {
-                                $sql = sprintf(
-                                    'DELETE FROM %s WHERE document_group = %d AND document = %s',
+                                db()->delete(
                                     '[+prefix+]document_groups',
-                                    $docgroup,
-                                    $value
+                                    sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                                 );
-                                db()->query($sql);
                                 $this->secureWebDocument($value);
                                 $this->secureMgrDocument($value);
                             } else {
