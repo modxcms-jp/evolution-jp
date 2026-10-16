@@ -497,7 +497,9 @@ function checkPermissions($id)
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
-    if (!isset($_GET['pid']) && !$isAllowed) {
+    // 新規作成（4・72）は isAllowed() が pid を見るため、pid 指定時は後段で pid を検査する
+    $isEditAction = in_array(manager()->action, [27, 131, 132]);
+    if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
         alert()->setError(3);
         alert()->dumpError();
     }
