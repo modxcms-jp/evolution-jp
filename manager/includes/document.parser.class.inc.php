@@ -4900,13 +4900,25 @@ class DocumentParser
         $dir = strtoupper(trim((string)$dir)) === 'DESC' ? 'DESC' : 'ASC';
 
         if (is_array($idnames) && !empty($idnames)) {
-            $idnames = sprintf(
-                "'%s'",
-                implode("','", db()->escape($idnames))
-            );
-        }
-
-        if ($idnames === '*') {
+            // every element is a tv.name; positive integers are also looked up as tv.id
+            // (a TV can be named with digits only, e.g. "2024")
+            $ids = [];
+            $tvNames = [];
+            foreach ($idnames as $idname) {
+                if (preg_match('@^[1-9][0-9]*$@', (string)$idname)) {
+                    $ids[] = (int)$idname;
+                }
+                $tvNames[] = db()->escape($idname);
+            }
+            $conditions = [];
+            if ($ids) {
+                $conditions[] = sprintf('tv.id IN (%s)', implode(',', $ids));
+            }
+            if ($tvNames) {
+                $conditions[] = sprintf("tv.name IN ('%s')", implode("','", $tvNames));
+            }
+            $where = sprintf('(%s)', implode(' OR ', $conditions));
+        } elseif ($idnames === '*') {
             $where = 'tv.id<>0';
         } elseif (preg_match('@^[1-9][0-9]*$@', $idnames)) {
             $where = sprintf('tv.id=%s', $idnames);
