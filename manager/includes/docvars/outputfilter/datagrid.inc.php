@@ -3,7 +3,6 @@ if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 $grd = new DataGrid('', $value);
-// 区切り文字と元の文字コードは、指定が無ければ DataGrid の既定値を使う（空文字だと 500 になるため）
 $grd->noRecordMsg = $params['egmsg'] ?? '';
 
 $grd->columnHeaderClass = $params['chdrc'] ?? '';
@@ -32,6 +31,7 @@ $grd->pagerLocation = $params['ploc'] ?? '';
 $grd->pagerClass = $params['pclass'] ?? '';
 $grd->pagerStyle = $params['pstyle'] ?? '';
 
+// 区切り文字と元の文字コードは、指定が無ければ DataGrid の既定値を使う（空文字だと 500 になるため）
 $grd->cdelim = ($params['cdelim'] ?? '') ?: $grd->cdelim;
 $grd->cwrap = $params['cwrap'] ?? '';
 $grd->src_encode = ($params['enc'] ?? '') ?: $grd->src_encode;
