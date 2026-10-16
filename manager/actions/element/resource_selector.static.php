@@ -8,22 +8,8 @@ if (!evo()->hasPermission('edit_module')) {
     alert()->dumpError();
 }
 
-$mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+$mxla = globalv('modx_lang_attribute') ?: 'en';
 
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?= ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"' ?>>
-
-<head>
-    <title><?= $content["name"] . " " . $_lang['element_selector_title'] ?></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
-    <link rel="stylesheet" type="text/css"
-          href="media/style/<?= $manager_theme ?>/style.css<?= "?$theme_refresher" ?>"/>
-</head>
-
-<body ondragstart="return false">
-
-<?php
 /**
  * Resource Selector
  * Created by Raymond Irving May, 2005
@@ -33,19 +19,23 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
  */
 
 // get name of callback function
-$cb = $_REQUEST['cb'];
+$cb = anyv('cb', '');
 
 // get resource type
-$rt = strtolower($_REQUEST['rt']);
+$rt = strtolower((string)anyv('rt', ''));
+if (!in_array($rt, ['snip', 'tpl', 'tv', 'chunk', 'plug', 'doc'], true)) {
+    $rt = 'doc';
+}
 
 // get selection method: s - single (default), m - multiple
-$sm = strtolower($_REQUEST['sm']);
+$sm = strtolower((string)anyv('sm', 's')) === 'm' ? 'm' : 's';
 
 // get search string
-$query = anyv('search');
+$query = (string)anyv('search', '');
 $sqlQuery = db()->escape($query);
 
 // select SQL
+$title = '';
 switch ($rt) {
     case "snip":
         $title = $_lang["snippet"];
@@ -85,6 +75,18 @@ switch ($rt) {
 }
 
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '" xml:lang="' . hsc($mxla) . '"' ?>>
+
+<head>
+    <title><?= hsc($title . ' ' . $_lang['element_selector_title']) ?></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(globalv('modx_manager_charset', 'UTF-8')) ?>"/>
+    <link rel="stylesheet" type="text/css"
+          href="media/style/<?= hsc(evo()->config('manager_theme')) ?>/style.css"/>
+</head>
+
+<body ondragstart="return false">
+
 <script language="JavaScript" type="text/javascript">
     function saveSelection() {
         var ids = [];
@@ -94,8 +96,8 @@ switch ($rt) {
             for (i = 0; i < ctrl.length; i++) {
                 if (ctrl[i].checked) ids[ids.length] = ctrl[i].value;
             }
-        cb = window.opener["<?= $cb ?>"];
-        if (cb) cb("<?= $rt ?>", ids);
+        cb = window.opener[<?= js_literal($cb) ?>];
+        if (cb) cb(<?= js_literal($rt) ?>, ids);
         window.close();
     }
 
@@ -141,14 +143,13 @@ switch ($rt) {
     setTimeout("restoreChkBoxes();", 100);
 </script>
 <form name="selector" method="get">
-    <input type="hidden" name="id" value="<?= $id ?>"/>
+    <input type="hidden" name="id" value="<?= (int)anyv('id') ?>"/>
     <input type="hidden" name="a" value="<?= (int)anyv('a') ?>"/>
     <input type="hidden" name="listmode" value="<?= hsc(anyv('listmode')) ?>"/>
     <input type="hidden" name="op" value=""/>
-    <input type="hidden" name="rt" value="<?= $rt ?>"/>
-    <input type="hidden" name="rt" value="<?= $rt ?>"/>
-    <input type="hidden" name="sm" value="<?= $sm ?>"/>
-    <input type="hidden" name="cb" value="<?= $cb ?>"/>
+    <input type="hidden" name="rt" value="<?= hsc($rt) ?>"/>
+    <input type="hidden" name="sm" value="<?= hsc($sm) ?>"/>
+    <input type="hidden" name="cb" value="<?= hsc($cb) ?>"/>
     <div class="section" style="margin:1em;">
         <div class="sectionHeader"
             style="margin:0px"><?= $title . " - " . $_lang['element_selector_title'] ?></div>
@@ -166,7 +167,7 @@ switch ($rt) {
                                             <tr>
                                                 <td><?= $_lang["search"] ?></td>
                                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                                           value="<?= $query ?>"/></td>
+                                                           value="<?= hsc($query) ?>"/></td>
                                                 <td class="actionButtons"><a href="#"
                                                                              title="<?= $_lang["search"] ?>"
                                                                              onclick="searchResource();return false;"><?= $_lang["go"] ?></a>
@@ -206,7 +207,7 @@ switch ($rt) {
                             exit;
                         } else {
                             include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                            $grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
+                            $grd = new DataGrid('', $ds, (int)evo()->config('number_of_results', 20)); // set page size to 0 t show all items
                             $grd->noRecordMsg = $_lang["no_records_found"];
                             $grd->cssClass = "grid";
                             $grd->columnHeaderClass = "gridHeader";

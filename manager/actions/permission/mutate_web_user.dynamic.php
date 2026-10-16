@@ -486,7 +486,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                     $photo = $modx->config['base_url'] . $photo;
                                 }
                                 ?>
-                                <img name="iphoto" src="<?= $photo ?>" />
+                                <img name="iphoto" src="<?= hsc($photo) ?>" />
                             </div>
                         </td>
                     </tr>
