@@ -20,6 +20,11 @@ if (!evo()->checkPermissions($id)) {
     alert()->dumpError();
     return;
 }
+if (!manager()->isInAllowedParents($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+    return;
+}
 
 manager()->saveFormValues(4);
 
