@@ -213,7 +213,7 @@ class DocManagerBackend
             foreach ($pids as $docID) {
                 $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . $docID);
                 if (db()->count($tempSQL) <= 0) {
-                    if ($docID !== '0') {
+                    if ((int) $docID !== 0) {
                         $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
                     }
                     continue;
