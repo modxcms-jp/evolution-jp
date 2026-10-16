@@ -6,20 +6,20 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 if (!isset($_POST['action'])) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('key'))) {
+if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('key', ''))) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('value'))) {
+if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('value', ''))) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', postv('lang'))) {
+if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', postv('lang', ''))) {
     exit;
 }
 
 $post = db()->escape($_POST);
-$post_lang = $post['lang'];
-$post_key = $post['key'];
-$post_value = $post['value'];
+$post_lang = isset($post['lang']) ? $post['lang'] : '';
+$post_key = isset($post['key']) ? $post['key'] : '';
+$post_value = isset($post['value']) ? $post['value'] : '';
 
 if (postv('action') === 'get') {
     echo getStringFromLangFile($post_key, $post_lang);
@@ -30,7 +30,7 @@ $output = '';
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
-        if (strpos(postv('key'), '_hide_configcheck_') === 0 && postv('value') === '1') {
+        if (strpos(postv('key', ''), '_hide_configcheck_') === 0 && postv('value', '') === '1') {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;
