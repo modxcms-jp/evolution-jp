@@ -293,7 +293,7 @@ PR には `fix`・`security`・`仕様変更` のラベルを付け、本文の�
 - Issue: #733（対象はこの 1 件）
 - ブランチ: `fix/733-allowed-parents-processors`（main `765ffe10c` から作成、`gh issue develop` で #733 に紐づけ済み）
 - ワークツリー: `.claude/worktrees/issue-733`
-- PR: M1 で下書きとして作り、`Refs #733` を書く。作ったら、次の push の前に番号をここに記録する。M3 で `Closes #733` に改める。
+- PR: #748（下書き。M1 で作成、`Refs #733`）。M3 で `Closes #733` に改める。
 - ラベル: `fix`・`security`・`仕様変更`
 - 関連: #717（画面の側の確認。作業中）、#637・PR #698（保存でのドキュメントグループの確認）
 
