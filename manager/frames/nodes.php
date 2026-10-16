@@ -77,19 +77,13 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     // setup spacer
     $spacer = get_spacer($indent);
     $tree_orderby = get_tree_orderby();
-    $in_docgrp = sessionv('mgrDocgroups')
-        ? sprintf(
-            'OR dg.document_group IN (%s)',
-            implode(',', sessionv('mgrDocgroups', ''))
-        )
+    $mgr_docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+    $in_docgrp = $mgr_docgroups
+        ? sprintf('OR dg.document_group IN (%s)', implode(',', $mgr_docgroups))
         : ''
     ;
 
-    if (config('tree_show_protected') || manager()->isAdmin()) {
-        $access = '';
-    } else {
-        $access = "AND (sc.privatemgr=0 " . $in_docgrp . ")";
-    }
+    $access = tree_access_condition();
     $field = [];
     $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
     $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
@@ -685,19 +679,34 @@ function parseNode($tpl, $param, $id)
     return $node;
 }
 
-function hasChildren($id) {
-    if (config('tree_show_protected') || sessionv('mgrRole')) {
-        $access = '';
-    } elseif(!sessionv('mgrDocgroups')) {
-        $access = '';
-    } else {
-        $access = sprintf(
-            "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
-            implode(',', sessionv('mgrDocgroups', ''))
-        );
+/**
+ * ツリーに表示してよいリソースだけに絞る条件（getNodes() と hasChildren() で共通）
+ * 管理者と tree_show_protected が有効なときは絞らない
+ */
+function tree_access_condition()
+{
+    if (config('tree_show_protected') || manager()->isAdmin()) {
+        return '';
     }
+    $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+    if (!$groups) {
+        return 'AND sc.privatemgr=0';
+    }
+    return sprintf(
+        'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+        db()->getFullTableName('document_groups'),
+        implode(',', $groups)
+    );
+}
 
-    $result = db()->select('*', '[+prefix+]site_content', "parent='{$id}' {$access}");
+function hasChildren($id) {
+    $result = db()->select(
+        'sc.id',
+        '[+prefix+]site_content AS sc',
+        sprintf('sc.parent=%d %s', (int)$id, tree_access_condition()),
+        '',
+        '1'
+    );
     return db()->count($result) ? true : false;
 }
 
