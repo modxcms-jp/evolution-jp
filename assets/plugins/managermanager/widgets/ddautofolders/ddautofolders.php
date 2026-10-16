@@ -44,19 +44,21 @@
 
 function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddDateSource = 'pub_date', $ddYearTpl = 0, $ddMonthTpl = 0, $ddYearPub = '0', $ddMonthPub = '0')
 {
-    global $modx, $pub_date, $parent, $template, $document_groups, $tmplvars, $modx_lang_attribute;
-    $e = &$modx->Event;
+    global $modx, $modx_lang_attribute;
+    $e = &$modx->event;
 
     //$ddParent is required
     if (!is_numeric($ddParent) || $e->name != 'OnBeforeDocFormSave' || !useThisRule($ddRoles, $ddTemplates)) {
         return;
     }
 
-    $base_path = $modx->config['base_path'];
-    $widgetDir = $base_path . 'assets/plugins/managermanager/widgets/ddautofolders/';
-
-    //Подключаем библиотеку ddTools
-    require_once $widgetDir . 'modx.ddtools.class.php';
+    //保存される値は、イベントの params（doc_vars・tv_vars）から読み書きする
+    $docVars = $e->params['doc_vars'] ?? null;
+    if (!is_array($docVars)) {
+        return;
+    }
+    $tvVars = $e->params['tv_vars'] ?? [];
+    $template = (int)($docVars['template'] ?? 0);
 
     //Дата
     $ddDate = [];
@@ -67,21 +69,22 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         $dateTv = tplUseTvs($template, $ddDateSource);
 
         //Если tv удалось получить, такая tv есть и есть её значение
-        if ($dateTv && $dateTv[0]['id'] && $tmplvars[$dateTv[0]['id']] && $tmplvars[$dateTv[0]['id']][1]) {
+        $dateTvValue = $dateTv && $dateTv[0]['id'] ? ($tvVars[$dateTv[0]['id']] ?? false) : false;
+        if ($dateTvValue) {
             //Если дата в юникс-времени
-            if (is_numeric($tmplvars[$dateTv[0]['id']][1])) {
-                $ddDate['date'] = $tmplvars[$dateTv[0]['id']][1];
+            if (is_numeric($dateTvValue)) {
+                $ddDate['date'] = (int)$dateTvValue;
             } else {
                 //Пытаемся преобразовать в unix-время
-                $ddDate['date'] = strtotime($tmplvars[$dateTv[0]['id']][1]);
+                $ddDate['date'] = strtotime($dateTvValue);
             }
         }
     } else {
-        $ddDate['date'] = $pub_date;
+        $ddDate['date'] = $docVars['pub_date'] ?? 0;
     }
 
     //Если не задана дата, выбрасываем
-    if (!$ddDate['date']) {
+    if (empty($ddDate['date'])) {
         return;
     }
 
@@ -106,7 +109,40 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
-    $docGroups = preg_replace('/,\d*/', '', $document_groups);
+    $docGroups = [];
+    if (postv('chkalldocs') !== 'on') {
+        foreach ((array)postv('docgroups', []) as $docGroup) {
+            $docGroups[] = (int)$docGroup;
+        }
+    }
+
+    //年・月のフォルダを作る（値は DB 操作の直前にエスケープする）
+    $createDocument = function ($fields, $groups) {
+        $fields['createdon'] = time();
+        $fields['createdby'] = (int)evo()->getLoginUserID();
+        //Если группы заданы, то это приватный документ
+        if ($groups) {
+            $fields['privatemgr'] = 1;
+        }
+        //Если надо публиковать, поставим дату публикации текущей
+        if ($fields['published'] == 1) {
+            $fields['pub_date'] = $fields['createdon'];
+        }
+        $id = db()->insert(db()->escape($fields), '[+prefix+]site_content');
+        if (!$id) {
+            return false;
+        }
+        foreach ($groups as $group) {
+            db()->insert(
+                db()->escape(['document_group' => (int)$group, 'document' => (int)$id]),
+                '[+prefix+]document_groups'
+            );
+        }
+        return $id;
+    };
+    $updateDocument = function ($id, $fields) {
+        return db()->update(db()->escape($fields), '[+prefix+]site_content', sprintf('id=%d', (int)$id));
+    };
 
     //Получаем псевдоним корневого родителя
     $ultimateAlias = '';
@@ -125,7 +161,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Если нужный год существует
     if ($yearId) {
         //Проставим году нужные параметры
-        ddTools::udateDocument($yearId, [
+        $updateDocument($yearId, [
             'isfolder' => 1,
             'template' => $ddYearTpl,
             'published' => $ddYearPub
@@ -137,7 +173,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         //Если нужный год не существует
     } else {
         //Создадим его
-        $yearId = ddTools::createDocument([
+        $yearId = $createDocument([
             'pagetitle' => $ddDate['y'],
             'alias' => $ddDate['y'],
             'parent' => $ddParent,
@@ -155,14 +191,14 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Если нужный месяц существует
     if ($monthId) {
         //Проставим месяцу нужные параметры
-        ddTools::udateDocument($monthId, [
+        $updateDocument($monthId, [
             'isfolder' => 1,
             'template' => $ddMonthTpl,
             'published' => $ddMonthPub
         ]);
         //Если нужный месяц не существует (на всякий случай проверим ещё и год)
     } else if ($yearId) {
-        $monthId = ddTools::createDocument([
+        $monthId = $createDocument([
             'pagetitle' => $ddDate['mTitle'],
             'alias' => $ddDate['m'],
             'parent' => $yearId,
@@ -175,7 +211,9 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Ещё раз на всякий случай проверим, что с месяцем всё хорошо
-    if ($monthId && $monthId != $parent) {
-        $parent = $monthId;
+    if ($monthId && $monthId != ($docVars['parent'] ?? 0)) {
+        //本体の保存に反映させるため、params の doc_vars を書き換える
+        $docVars['parent'] = (int)$monthId;
+        $e->cm->setParam('doc_vars', $docVars);
     }
 }
