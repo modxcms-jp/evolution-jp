@@ -58,7 +58,7 @@ class truncate
     private function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars = false)
     {
         if (mb_strlen($posttext) <= $minimum_length || $truncChars == 1) {
-            return $this->textTrunc($posttext, $minimum_length + $length_offset);
+            return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
         }
 
         // Reset tag counter & quote checker
@@ -90,7 +90,18 @@ class truncate
                 return $posttext;
             }
         }
-        return $this->textTrunc($posttext, $minimum_length + $length_offset);
+        return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
+    }
+
+    // 切り詰めたときだけ、末尾の途中のタグ（<... で > なし）と途中の文字参照（&... で ; なし）を落とす
+    private function truncWithoutPartial($string, $limit)
+    {
+        $result = $this->textTrunc($string, $limit);
+        if ($result === $string) {
+            return $result;
+        }
+        $result = preg_replace('/<[^>]*$/u', '', $result) ?? $result;
+        return preg_replace('/&#?\w*$/u', '', $result) ?? $result;
     }
 
     private function textTrunc($string, $limit, $break = "。")
