@@ -37,6 +37,8 @@ if (mode() === 'new') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
+    syncParentAfterEvent($param);
+    $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
 
     $newid = db()->insert(
         db()->escape($param['doc_vars']),
@@ -97,6 +99,7 @@ if (mode() === 'edit') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
+    syncParentAfterEvent($param);
     $rs = db()->update(
         db()->escape($param['doc_vars']),
         '[+prefix+]site_content',
@@ -147,6 +150,32 @@ if (mode() === 'edit') {
 
 header('Location: index.php?a=7');
 
+
+// OnBeforeDocFormSave のプラグインが変えた親を、保存後の処理にも反映する
+function syncParentAfterEvent($param)
+{
+    if (!isset($param['doc_vars']['parent'])) {
+        return;
+    }
+    $parent = (int)$param['doc_vars']['parent'];
+    if ($parent !== (int)validated('parent')) {
+        validated('*parent', $parent);
+    }
+}
+
+// OnBeforeDocFormSave のプラグインが同じ保存の中で文書を作ると、事前に決めた ID がぶつかる
+function refreshNewDocId($doc_vars)
+{
+    if (empty($doc_vars['id'])) {
+        return $doc_vars;
+    }
+    $rs = db()->select('id', '[+prefix+]site_content', sprintf('id=%d', (int)$doc_vars['id']), '', 1);
+    if (!db()->count($rs)) {
+        return $doc_vars;
+    }
+    $doc_vars['id'] = evo()->doc->getNewDocID();
+    return $doc_vars;
+}
 
 function get_tmplvars()
 {
