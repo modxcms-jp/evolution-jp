@@ -63,10 +63,13 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
 
 1. アドバイザリが下書きであることを確かめる。`draft` でなければ止まる。
    `gh api repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID> --jq '.state'`
-2. フォークの有無を確かめる。結果が `null` か空ならフォークを作る。作るには、アドバイザリを管理できる権限が要る。作れなければ止まる。
+2. フォークの有無を確かめる。結果が `null` か空ならフォークを作る。作るには、アドバイザリを管理できる権限が要る。作れなければ止まる。作成の要求は受け付け（202）を返すだけで、作り終わりを待たないので、作成の応答の値は使わない。
    `gh api repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID> --jq '.private_fork.full_name'`
-   `gh api -X POST repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID>/forks --jq '.full_name, .ssh_url'`
-3. フォークの `full_name` と `ssh_url` を API の結果から取って計画に書く。名前の形から推測しない。`full_name` が `modxcms-jp/` で始まり、手順 2 で作った（または見つけた）フォークと一致することを確かめる。
+   `gh api -X POST repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID>/forks`
+3. フォークの `full_name` と `ssh_url` を、作ったときも見つけたときも、次の 2 つで取り直して計画に書く。どちらかが `null` か空、またはリポジトリが見つからないときは、少しおいて数回やり直し、それでも取れなければ止まる。アドバイザリの `.private_fork` には `ssh_url` が入っていない（`null`）ので、`ssh_url` はフォークのリポジトリから取る。名前の形から推測しない。
+   `gh api repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID> --jq '.private_fork.full_name'`
+   `gh api repos/<full_name> --jq '.full_name, .ssh_url, .private'`
+   `full_name` が `modxcms-jp/` で始まり、2 つの結果で一致し、`private` が `true` であることを確かめる。
 4. フォークに宛先ブランチ（`main` と、1.2 系なら `release/1.2.x`）があることを `git ls-remote <ssh_url>` で確かめる。作った直後は複製が終わっていないことがあるので、見つからなければ少しおいて数回やり直す。それでも無ければ止まる（宛先ブランチを自分で push しない。不変条件 1）。
 
 一時フォークでは CI とステータスチェックが動かない。フォーク内の PR は、アドバイザリ画面から開いているものを一度にマージする。main 宛ての PR は 1 本しかマージできない。
