@@ -382,6 +382,12 @@ function checkDocPermission($id, $document_groups = [])
         }
         $existingDocument = db()->getRow($rs);
 
+        // 保存しようとしている文書そのものにアクセスできるか
+        if (!evo()->checkPermissions($id)) {
+            evo()->manager->saveFormValues();
+            evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
+        }
+
         // check to see if the user is allowed to save the document in the place he wants to save it in
         if ($existingDocument['parent'] == validated('parent')) {
             return;
@@ -400,6 +406,10 @@ function checkDocPermission($id, $document_groups = [])
         alert()->setError(3);
         alert()->dumpError();
     } elseif (!evo()->hasPermission('new_document')) {
+        alert()->setError(3);
+        alert()->dumpError();
+    } elseif (evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
+        // 作成先の親にアクセスできるか
         alert()->setError(3);
         alert()->dumpError();
     }
