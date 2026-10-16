@@ -212,7 +212,7 @@ $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
 if (
-    config('warning_visibility' == 0 && manager()->isAdmin())
+    (config('warning_visibility') == 0 && manager()->isAdmin())
     || (config('warning_visibility') == 2 && evo()->hasPermission('save_role') == 1)
     || config('warning_visibility') == 1
 ) {
