@@ -1280,7 +1280,7 @@ class MODIFIERS
                 $filename = $value;
 
                 if (strpos($filename, MODX_SITE_URL) === 0) {
-                    $filename = substr($filename, 0, strlen(MODX_SITE_URL));
+                    $filename = substr($filename, strlen(MODX_SITE_URL));
                 }
                 $filename = trim($filename, '/');
 
