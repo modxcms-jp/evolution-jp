@@ -35,7 +35,10 @@ $fields = $modx->doc->fixPubStatus(
     $modx->doc->fixTvNest($_POST)
 );
 
-$parent = (int)array_get($fields, 'parent', 0);
+// 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
+$parent = trim((string)array_get($fields, 'parent', 0));
+$parent = preg_match('@^[0-9]+$@', $parent) ? (int)$parent : 0;
+$fields['parent'] = $parent;
 $currentParent = (int)db()->getValue(
     db()->select('parent', '[+prefix+]site_content', where('id', '=', (int)$id))
 );
