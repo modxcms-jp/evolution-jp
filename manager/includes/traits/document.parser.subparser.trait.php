@@ -1191,6 +1191,10 @@ trait DocumentParserSubParserTrait
                 $output = trim($param);
                 break;
             case '@FILE' :
+                if (strpos($param, "\n") !== false) {
+                    $param = substr($param, 0, strpos($param, "\n"));
+                }
+                $param = trim($param);
                 if ($modx->getExtention($param) === '.php') {
                     $output = 'Could not retrieve PHP file.';
                 } else {
