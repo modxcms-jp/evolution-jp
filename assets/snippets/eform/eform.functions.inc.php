@@ -258,8 +258,8 @@ function eForm($modx, $params)
                         $rClass[$name] = $invalidClass;
                         continue;
                     }
-                    if ($isSingleValue && $value === []) {
-                        $value = ''; // 空の配列は未入力と同じ
+                    if ($value === []) {
+                        $value = ''; // 空の配列は、書式にかかわらず未入力と同じ
                         $fields[$name] = ''; // コールバックやメールにも単一の値として渡す
                     }
                 }
