@@ -198,9 +198,9 @@ function eForm($modx, $params)
                 $nestedFields[$name] = true;
                 $fields[$name] = ''; // 再表示・メールで扱える形にする
             } elseif (is_array($value)) {
-                //remove empty values
+                // 空文字の要素だけ除く（"0" は有効な値として残す）
                 $fields[$name] = array_filter(array_map($cleanValue, $value), function ($v) {
-                    return $v ? true : false;
+                    return $v !== '';
                 });
             } else {
                 $fields[$name] = $cleanValue($value);
@@ -258,8 +258,8 @@ function eForm($modx, $params)
                         $rClass[$name] = $invalidClass;
                         continue;
                     }
-                    if ($isSingleValue && $value === []) {
-                        $value = ''; // 空の配列は未入力と同じ
+                    if ($value === []) {
+                        $value = ''; // 空の配列は、書式にかかわらず未入力と同じ
                         $fields[$name] = ''; // コールバックやメールにも単一の値として渡す
                     }
                 }
