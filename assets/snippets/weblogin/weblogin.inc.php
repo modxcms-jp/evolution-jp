@@ -123,7 +123,8 @@ EOT;
         db()->escape(real_ip())
     );
     if (!$rs = db()->query($sql)) {
-        $output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
+        evo()->logEvent(0, 3, 'error replacing into active users', 'WebLogin', ['sql' => $sql, 'error' => db()->getLastError()]);
+        $output .= webLoginAlert('error replacing into active users!');
     } else {
         // display logout
         $url = preserveUrl($modx->documentObject['id']);
