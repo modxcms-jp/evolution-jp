@@ -140,6 +140,32 @@ function getNewVersion() {
     return $modx_version;
 }
 
+/**
+ * フォームから送られてくるが、設定ではないキー（保存しない）
+ */
+function nonSettingKeys()
+{
+    return [
+        'a',
+        'csrf_token',
+        'reload_site_unavailable',
+        'reload_captcha_words',
+        'reload_emailsubject',
+        'reload_signupemail_message',
+        'reload_websignupemail_message',
+        'reload_system_email_webreminder_message',
+        // 設定画面の補助項目（テンプレートの一括変更、言語ごとの初期文面）
+        'reset_template',
+        'old_template',
+        'captcha_words_default',
+        'emailsubject_default',
+        'siteunavailable_message_default',
+        'system_email_signup_default',
+        'system_email_websignup_default',
+        'system_email_webreminder_default',
+    ];
+}
+
 function save_settiongs()
 {
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
@@ -147,7 +173,11 @@ function save_settiongs()
     $form_v['settings_version'] = getNewVersion();
 
     $savethese = [];
+    $non_settings = nonSettingKeys();
     foreach ($form_v as $k => $v) {
+        if (in_array($k, $non_settings, true)) {
+            continue;
+        }
         switch ($k) {
             case 'base_url':
                 if ($v !== '' && $v !== '/') {
@@ -205,15 +235,6 @@ function save_settiongs()
                         0, 7);
                 $v = str_replace('=', '%', $v);
                 break;
-            case 'a':
-            case 'reload_site_unavailable':
-            case 'reload_captcha_words':
-            case 'reload_emailsubject':
-            case 'reload_signupemail_message':
-            case 'reload_websignupemail_message':
-            case 'reload_system_email_webreminder_message':
-                $k = '';
-                break;
             case 'topmenu_site':
             case 'topmenu_element':
             case 'topmenu_security':
@@ -225,13 +246,11 @@ function save_settiongs()
         }
         $v = is_array($v) ? implode(',', $v) : $v;
 
-        if (!empty($k)) {
-            $savethese[] = sprintf(
-                "('%s', '%s')",
-                db()->escape($k),
-                db()->escape($v)
-            );
-        }
+        $savethese[] = sprintf(
+            "('%s', '%s')",
+            db()->escape($k),
+            db()->escape($v)
+        );
     }
     // Run a single query to save all the values
     return db()->query(
