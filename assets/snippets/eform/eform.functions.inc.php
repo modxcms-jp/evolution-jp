@@ -185,8 +185,12 @@ function eForm($modx, $params)
         $vMsg = $rMsg = $rClass = [];
 
         # get user post back data
+        $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
         foreach ($_POST as $name => $value) {
-            if (is_array($value)) {
+            if (is_array($value) && count($value) !== count($value, COUNT_RECURSIVE)) {
+                $nestedFields[$name] = true;
+                $fields[$name] = ''; // 再表示・メールで扱える形にする
+            } elseif (is_array($value)) {
                 //remove empty values
                 $fields[$name] = array_filter($value, function ($v) {
                     return $v ? true : false;
@@ -232,11 +236,16 @@ function eForm($modx, $params)
                 $isRequired = $fld[3] ?? 0;
 
                 // 単一の値を前提にした書式は、配列（name[]）の入力を不正な値として扱う
+                if ($datatype != 'file' && isset($nestedFields[$name])) {
+                    $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
+                    $rClass[$name] = $invalidClass;
+                    continue;
+                }
                 if ($datatype != 'file' && is_array($value)) {
                     $isSingleValue = in_array($datatype, ['integer', 'float', 'date', 'email'], true);
                     if ($value === [] && $isSingleValue) {
                         $value = ''; // 空の配列は未入力と同じ
-                    } elseif ($value !== [] && ($isSingleValue || count($value) !== count($value, COUNT_RECURSIVE))) {
+                    } elseif ($value !== [] && $isSingleValue) {
                         $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
                         $rClass[$name] = $invalidClass;
                         continue;
