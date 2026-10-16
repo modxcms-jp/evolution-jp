@@ -848,7 +848,9 @@ class ManagerAPI
     /**
      * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
      * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
-     * 設定が空なら常に true。ルート（0）と存在しない ID は、設定があれば範囲の外（false）。
+     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * ルート（0）は、設定があれば範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
+     * 存在の確認は呼ぶ側で行う。
      * 削除済みの文書も、親をたどって判定する。
      *
      * @param int $id 文書の ID（作成先・移動先の親を確かめるときは親の ID）
@@ -856,9 +858,12 @@ class ManagerAPI
      */
     public function isInAllowedParents($id)
     {
+        if (!evo()->conf_var('allowed_parents')) {
+            return true;
+        }
         $allowed = $this->getAllowedParentIds();
         if (!$allowed) {
-            return true;
+            return false;
         }
         $id = (int)$id;
         if ($id <= 0) {
@@ -872,6 +877,7 @@ class ManagerAPI
 
     /**
      * 「許可するリソース」の設定値を、正の整数の配列にして返す（空白・カンマ・| 区切り）
+     * 正の整数の書式（先頭が 0 でない半角数字だけ）に当たる値だけを採る。
      *
      * @return int[]
      */
@@ -883,8 +889,11 @@ class ManagerAPI
         }
         $ids = [];
         foreach (preg_split('@[\s,|]+@', $setting) as $v) {
+            if (!preg_match('@^[1-9][0-9]*$@', $v)) {
+                continue;
+            }
             $v = (int)$v;
-            if ($v > 0 && !in_array($v, $ids, true)) {
+            if (!in_array($v, $ids, true)) {
                 $ids[] = $v;
             }
         }

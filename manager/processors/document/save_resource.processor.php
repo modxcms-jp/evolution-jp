@@ -23,11 +23,11 @@ $id = validated('id');
 $document_groups = getDocGroups();
 
 checkDocPermission(validated('id'), $document_groups);
-checkAllowedParents(validated('id'));
 
 evo()->manager->saveFormValues();
 
 checkParent();
+checkAllowedParents(validated('id'));
 
 if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
