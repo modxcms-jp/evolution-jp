@@ -417,7 +417,7 @@ function checkDocPermission($id, $document_groups = [])
 
 function isAllowroot()
 {
-    if (postv('parent') != 0) {
+    if (validated('parent') != 0) {
         return 1;
     }
     if (evo()->hasPermission('save_role')) {
