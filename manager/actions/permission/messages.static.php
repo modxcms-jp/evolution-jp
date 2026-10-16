@@ -308,7 +308,7 @@ $location = getv('id') ? '10' : '2';
                                     <?php
                                     while ($row = db()->getRow($rs)) {
                                     ?>
-                                        <option value="<?= $row['id'] ?>"><?= $row['username'] ?></option>
+                                        <option value="<?= (int)$row['id'] ?>"><?= hsc($row['username']) ?></option>
                                     <?php
                                     }
                                     ?>
@@ -324,7 +324,7 @@ $location = getv('id') ? '10' : '2';
                                     <?php
                                     while ($row = db()->getRow($rs)) {
                                     ?>
-                                        <option value="<?= $row['id'] ?>"><?= $row['name'] ?></option>
+                                        <option value="<?= (int)$row['id'] ?>"><?= hsc($row['name']) ?></option>
                                     <?php
                                     }
                                     ?>
