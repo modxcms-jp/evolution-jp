@@ -26,6 +26,16 @@ if (anyv('id') !== null && anyv('id') !== '') {
     }
 }
 
+// 対象の文書それぞれについて、ドキュメントグループと許可するリソースの範囲を確かめる。
+// 1 件でも通らなければ、何も消さずに全体を止める
+foreach ($ids as $docid) {
+    if (!evo()->checkPermissions($docid) || !manager()->isInAllowedParents($docid)) {
+        alert()->setError(3, lang('access_permission_denied'));
+        alert()->dumpError();
+        exit;
+    }
+}
+
 // invoke OnBeforeEmptyTrash event
 $modx->event->vars['ids'] = &$ids;
 evo()->invokeEvent('OnBeforeEmptyTrash', $modx->event->vars);
