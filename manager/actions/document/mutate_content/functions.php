@@ -503,6 +503,10 @@ function checkPermissions($id)
     }
 
     $i = manager()->action;
+    if (in_array($i, [27, 131, 132])) {
+        // 編集・下書きの画面は文書の ID が必須
+        abort_if_invalid_id('id', true);
+    }
     if ($i == 27) {
         if (!hasPermission('view_document')) {
             $modx->config['remember_last_tab'] = 0;
@@ -530,7 +534,7 @@ function checkPermissions($id)
             alert()->setError(3);
             alert()->dumpError();
         }
-        if ($id && !evo()->checkPermissions($id)) {
+        if (!evo()->checkPermissions($id)) {
             alert()->setError(3, lang('access_permission_denied'));
             alert()->dumpError();
         }
