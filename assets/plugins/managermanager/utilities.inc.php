@@ -91,7 +91,7 @@ function tplUseTvs($tpl_id, $tvs = '', $types = '')
 
     $where = [];
     if ($tpl_id) {
-        $where[] = sprintf('rel.templateid=%s', $tpl_id);
+        $where[] = sprintf('rel.templateid=%d', (int)$tpl_id);
     }
     if ($fields) {
         $where[] = sprintf('tvs.name IN %s', makeSqlList($fields));
