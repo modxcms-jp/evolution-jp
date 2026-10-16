@@ -57,6 +57,15 @@ function eForm($modx, $params)
 
     extract($params, EXTR_SKIP); // extract params into variables
 
+    // バインディングが無効のときは、引数で指定したフックを呼ばない（フックが無いときと同じ扱い）
+    if (config('enable_bindings', 0) != 1) {
+        $eFormOnBeforeFormParse = '';
+        $eFormOnValidate = '';
+        $eFormOnBeforeMailSent = '';
+        $eFormOnMailSent = '';
+        $eFormOnBeforeFormMerge = '';
+    }
+
     #include default language file
     // read every call: another form on the page may use another language or &submitLimit
     include($snipPath . "lang/english.inc.php");
