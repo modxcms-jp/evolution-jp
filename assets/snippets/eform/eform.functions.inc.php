@@ -1272,6 +1272,11 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                 break;
 
             case "#EVAL":    // php code should return true or false
+                // バインディングが無効のときは実行せず、検証を通さない
+                if (evo()->config('enable_bindings') != 1) {
+                    $errMsg = $_lang['ef_failed_eval'];
+                    break;
+                }
                 $tmp = $cmd; //just in case eval destroys cmd
                 if (eval($param) === false)
                     $errMsg = $_lang['ef_failed_eval'];
@@ -1281,7 +1286,8 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
             //added in 1.4
             case "#FUNCTION":
                 $tmp = $cmd; //just in case function destroys cmd
-                if (function_exists($param))
+                // バインディングが無効のときは、関数が見つからないときと同じ扱いにする
+                if (evo()->config('enable_bindings') == 1 && function_exists($param))
                     if (!@$param($value)) $errMsg = $_lang['ef_failed_eval'];
                     else
                         if ($isDebug) $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_no_function'] . " $param";
@@ -1344,7 +1350,10 @@ function filterEformValue($value, $param)
             break;
 
         case "#EVAL":
-            $value = ($v = @eval($param)) ? $v : $value;
+            // バインディングが無効のときは実行せず、値を変えない
+            if (evo()->config('enable_bindings') == 1) {
+                $value = ($v = @eval($param)) ? $v : $value;
+            }
             break;
     }
     return $value;
