@@ -598,10 +598,10 @@ function checkPublishedon($timestamp)
 function checkPublishedby($db_v)
 {
     if (!evo()->hasPermission('publish_document')) {
-        return $db_v['publishedon'];
+        return $db_v['publishedby'];
     }
 
-    if (validated('published') && validated('pub_date') <= request_time()) {
+    if (validated('published') && validated('pub_date') && validated('pub_date') <= request_time()) {
         return $db_v['publishedby'];
     }
 
