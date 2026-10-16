@@ -511,12 +511,8 @@ function checkPermissions($id)
         }
         manager()->remove_locks('27');
         if (!evo()->checkPermissions($id)) {
-            $_ = [];
-            $_[] = '<br /><br /><div class="section">';
-            $_[] = sprintf('<div class="sectionHeader">%s</div>', lang('access_permissions'));
-            $_[] = '<div class="sectionBody">';
-            $_[] = sprintf('<p>%s</p></div></div>', lang('access_permission_denied'));
-            echo implode("\n", $_);
+            alert()->setError(3);
+            alert()->dumpError();
         }
     } elseif ($i == 72 || $i == 4) {
         if (!hasPermission('new_document')) {
