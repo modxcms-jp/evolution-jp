@@ -545,16 +545,16 @@ function getTopicPath($id)
             continue;
         }
         if ($topic == $id) {
-            $topics[] = sprintf('%s', $doc['alias']);
+            $topics[] = hsc($doc['alias']);
             continue;
         }
         if (!evo()->checkPermissions($topic)) {
             // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
-            $topics[] = evo()->config('tree_show_protected') ? sprintf('%s', $doc['alias']) : '…';
+            $topics[] = evo()->config('tree_show_protected') ? hsc($doc['alias']) : '…';
         } elseif (manager()->isAllowed($topic)) {
-            $topics[] = sprintf('<a href="index.php?a=120&id=%s">%s</a>', $topic, $doc['alias']);
+            $topics[] = sprintf('<a href="index.php?a=120&id=%d">%s</a>', (int)$topic, hsc($doc['alias']));
         } else {
-            $topics[] = sprintf('%s', $doc['alias']);
+            $topics[] = hsc($doc['alias']);
         }
     }
     return sprintf(
