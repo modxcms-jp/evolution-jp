@@ -185,8 +185,12 @@ function eForm($modx, $params)
         $vMsg = $rMsg = $rClass = [];
 
         # get user post back data
+        $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
         foreach ($_POST as $name => $value) {
-            if (is_array($value)) {
+            if (is_array($value) && count($value) !== count($value, COUNT_RECURSIVE)) {
+                $nestedFields[$name] = true;
+                $fields[$name] = ''; // 再表示・メールで扱える形にする
+            } elseif (is_array($value)) {
                 //remove empty values
                 $fields[$name] = array_filter($value, function ($v) {
                     return $v ? true : false;
@@ -206,6 +210,12 @@ function eForm($modx, $params)
 
         # get uploaded files
         foreach ($_FILES as $name => $value) {
+            if (is_array($value['name'] ?? null) && ($formats[$name][2] ?? '') != 'file') {
+                // file 以外の書式の項目に入れ子のアップロードが来たときは、不正な値として扱う
+                $nestedFields[$name] = true;
+                $fields[$name] = '';
+                continue;
+            }
             $fields[$name] = $value;
         }
 
@@ -230,6 +240,20 @@ function eForm($modx, $params)
                 $desc = $fld[1] ?? $name;
                 $datatype = $fld[2] ?? '';
                 $isRequired = $fld[3] ?? 0;
+
+                // 単一の値を前提にした書式は、配列（name[]）の入力を不正な値として扱う
+                if ($datatype != 'file') {
+                    $isSingleValue = in_array($datatype, ['integer', 'float', 'date', 'email'], true);
+                    if (isset($nestedFields[$name]) || ($isSingleValue && is_array($value) && $value !== [])) {
+                        $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
+                        $rClass[$name] = $invalidClass;
+                        continue;
+                    }
+                    if ($isSingleValue && $value === []) {
+                        $value = ''; // 空の配列は未入力と同じ
+                        $fields[$name] = ''; // コールバックやメールにも単一の値として渡す
+                    }
+                }
 
                 if ($isRequired == 1 && $value == "" && $datatype != "file") {
                     $rMsg[count($rMsg)] = (string)$desc;
@@ -276,7 +300,11 @@ function eForm($modx, $params)
                         case "file":
                             $file = isset($_FILES[$name]) && is_array($_FILES[$name]) ? $_FILES[$name] : [];
                             $fileError = $file['error'] ?? UPLOAD_ERR_NO_FILE;
-                            if ($fileError == UPLOAD_ERR_INI_SIZE || $fileError == UPLOAD_ERR_FORM_SIZE) {
+                            if (is_array($file['name'] ?? '')) {
+                                // name[] 形式のアップロードは扱わない
+                                $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
+                                $rClass[$name] = $invalidClass;
+                            } elseif ($fileError == UPLOAD_ERR_INI_SIZE || $fileError == UPLOAD_ERR_FORM_SIZE) {
                                 $vMsg[count($vMsg)] = $desc . $_lang['ef_upload_exceeded'];
                                 $rClass[$name] = $invalidClass;
                             } elseif ($isRequired == 1 && ($file['type'] ?? '') == '') {

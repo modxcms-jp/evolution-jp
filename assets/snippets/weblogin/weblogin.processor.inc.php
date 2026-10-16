@@ -11,9 +11,9 @@ $tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
 
 # process password activation
 if ($isPWDActivate == 1) {
-    $uid = db()->escape(anyv('uid'));
+    $uid = request_intvar('uid');
 
-    $rs = db()->select('*', $tbl_web_users, "id='{$uid}'");
+    $rs = db()->select('*', $tbl_web_users, "id={$uid}");
     $limit = db()->count($rs);
     if ($limit != 1) {
         $output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
@@ -46,10 +46,10 @@ if ($isPWDActivate == 1) {
     $f = [];
     $f['password'] = md5($newpwd);
     $f['cachepwd'] = '';
-    $rs = db()->update($f, $tbl_web_users, "id='{$uid}'");
+    $rs = db()->update($f, $tbl_web_users, "id={$uid}");
 
     // unblock user by resetting "blockeduntil"
-    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
+    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey={$uid}");
 
     // invoke OnWebChangePassword event
     $tmp = [
@@ -71,7 +71,7 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = postv('txtwebemail', '');
+    $email = webLoginString(postv('txtwebemail', ''));
     // 未入力のままメールアドレスが空のアカウントに一致させない
     if ($email === '') {
         $output = webLoginAlert("Please enter your email address.");
@@ -211,8 +211,8 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = db()->escape(htmlspecialchars(postv('username'), ENT_QUOTES));
-$givenPassword = db()->escape(postv('password'));
+$username = db()->escape(htmlspecialchars(webLoginString(postv('username')), ENT_QUOTES));
+$givenPassword = db()->escape(webLoginString(postv('password')));
 $captcha_code = postv('captcha_code', '');
 $rememberme = postv('rememberme');
 
@@ -468,7 +468,7 @@ $tmp = [
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = anyv('refurl');
+$refUrl = webLoginString(anyv('refurl'));
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;
