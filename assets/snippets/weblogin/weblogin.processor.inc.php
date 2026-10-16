@@ -11,9 +11,9 @@ $tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
 
 # process password activation
 if ($isPWDActivate == 1) {
-    $uid = db()->escape(webLoginString(anyv('uid')));
+    $uid = request_intvar('uid');
 
-    $rs = db()->select('*', $tbl_web_users, "id='{$uid}'");
+    $rs = db()->select('*', $tbl_web_users, "id={$uid}");
     $limit = db()->count($rs);
     if ($limit != 1) {
         $output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
@@ -46,10 +46,10 @@ if ($isPWDActivate == 1) {
     $f = [];
     $f['password'] = md5($newpwd);
     $f['cachepwd'] = '';
-    $rs = db()->update($f, $tbl_web_users, "id='{$uid}'");
+    $rs = db()->update($f, $tbl_web_users, "id={$uid}");
 
     // unblock user by resetting "blockeduntil"
-    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
+    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey={$uid}");
 
     // invoke OnWebChangePassword event
     $tmp = [

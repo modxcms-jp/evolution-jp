@@ -210,6 +210,12 @@ function eForm($modx, $params)
 
         # get uploaded files
         foreach ($_FILES as $name => $value) {
+            if (is_array($value['name'] ?? null) && ($formats[$name][2] ?? '') != 'file') {
+                // file 以外の書式の項目に入れ子のアップロードが来たときは、不正な値として扱う
+                $nestedFields[$name] = true;
+                $fields[$name] = '';
+                continue;
+            }
             $fields[$name] = $value;
         }
 
@@ -236,19 +242,15 @@ function eForm($modx, $params)
                 $isRequired = $fld[3] ?? 0;
 
                 // 単一の値を前提にした書式は、配列（name[]）の入力を不正な値として扱う
-                if ($datatype != 'file' && isset($nestedFields[$name])) {
-                    $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
-                    $rClass[$name] = $invalidClass;
-                    continue;
-                }
-                if ($datatype != 'file' && is_array($value)) {
+                if ($datatype != 'file') {
                     $isSingleValue = in_array($datatype, ['integer', 'float', 'date', 'email'], true);
-                    if ($value === [] && $isSingleValue) {
-                        $value = ''; // 空の配列は未入力と同じ
-                    } elseif ($value !== [] && $isSingleValue) {
+                    if (isset($nestedFields[$name]) || ($isSingleValue && is_array($value) && $value !== [])) {
                         $vMsg[count($vMsg)] = $desc . ' &raquo;' . $_lang['ef_failed_default'];
                         $rClass[$name] = $invalidClass;
                         continue;
+                    }
+                    if ($isSingleValue && $value === []) {
+                        $value = ''; // 空の配列は未入力と同じ
                     }
                 }
 

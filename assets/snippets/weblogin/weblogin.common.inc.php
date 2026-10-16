@@ -95,7 +95,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = fal
 
     $array_url = array_merge($array_get, $array_values);
     // 配列の値（name[]=...）も含め、null を除いて組み立てる
-    $url = http_build_query($array_url);
+    $url = http_build_query($array_url, '', '&');
     if ($suffix) {
         if (empty($url)) {
             $url = '?';
