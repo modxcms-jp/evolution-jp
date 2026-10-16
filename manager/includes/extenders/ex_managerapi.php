@@ -872,7 +872,8 @@ class ManagerAPI
      * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
      * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
      * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
-     * ルート（0）は、設定があれば範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
+     * 一覧に 0（ルート）が含まれていれば、サイト全体を許可する設定として常に true（制限なし）。
+     * 一覧に 0 が無いとき、ルート（0）は範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
      * 存在の確認は呼ぶ側で行う。
      * 削除済みの文書も、親をたどって判定する。
      *
@@ -888,6 +889,9 @@ class ManagerAPI
         if (!$allowed) {
             return false;
         }
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
         $id = (int)$id;
         if ($id <= 0) {
             return false;
@@ -899,8 +903,8 @@ class ManagerAPI
     }
 
     /**
-     * 「許可するリソース」の設定値を、正の整数の配列にして返す（空白・カンマ・| 区切り）
-     * 正の整数の書式（先頭が 0 でない半角数字だけ）に当たる値だけを採る。
+     * 「許可するリソース」の設定値を、0 と正の整数の配列にして返す（空白・カンマ・| 区切り）
+     * 0 か、正の整数の書式（先頭が 0 でない半角数字だけ）に当たる値だけを採る。0 はルート（サイト全体）を表す。
      *
      * @return int[]
      */
@@ -912,7 +916,7 @@ class ManagerAPI
         }
         $ids = [];
         foreach (preg_split('@[\s,|]+@', $setting) as $v) {
-            if (!preg_match('@^[1-9][0-9]*$@', $v)) {
+            if (!preg_match('@^(0|[1-9][0-9]*)$@', $v)) {
                 continue;
             }
             $v = (int)$v;
@@ -934,6 +938,7 @@ class ManagerAPI
             return '';
         }
 
+        // 0（ルート）を含むときは getChildIds(0) がサイト全体を返す（修正前と同じ）
         $_ = [];
         foreach ($allowed_parents as $parent) {
             $children = evo()->getChildIds($parent);
