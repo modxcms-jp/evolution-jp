@@ -4900,15 +4900,15 @@ class DocumentParser
         $dir = strtoupper(trim((string)$dir)) === 'DESC' ? 'DESC' : 'ASC';
 
         if (is_array($idnames) && !empty($idnames)) {
-            // positive integers are tv.id, anything else is tv.name (same rule as a string $idnames)
+            // every element is a tv.name; positive integers are also looked up as tv.id
+            // (a TV can be named with digits only, e.g. "2024")
             $ids = [];
             $tvNames = [];
             foreach ($idnames as $idname) {
                 if (preg_match('@^[1-9][0-9]*$@', (string)$idname)) {
                     $ids[] = (int)$idname;
-                } else {
-                    $tvNames[] = db()->escape($idname);
                 }
+                $tvNames[] = db()->escape($idname);
             }
             $conditions = [];
             if ($ids) {
