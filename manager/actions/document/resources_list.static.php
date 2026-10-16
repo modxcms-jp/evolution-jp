@@ -11,6 +11,10 @@ if (!hasPermission('view_document')) {
 }
 $idParam = getv('id', '');
 $id = preg_match('@^[1-9][0-9]*$@', $idParam) ? (int)$idParam : 0;
+if ($id && !evo()->checkPermissions($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
@@ -538,12 +542,19 @@ function getTopicPath($id)
         $doc = db()->getRow($rs);
         if ($topic == evo()->config('site_start')) {
             $topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
-        } elseif ($topic == $id) {
-            $topics[] = sprintf('%s', $doc['alias']);
+            continue;
+        }
+        if ($topic == $id) {
+            $topics[] = hsc($doc['alias']);
+            continue;
+        }
+        if (!evo()->checkPermissions($topic)) {
+            // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
+            $topics[] = evo()->config('tree_show_protected') ? hsc($doc['alias']) : '…';
         } elseif (manager()->isAllowed($topic)) {
-            $topics[] = sprintf('<a href="index.php?a=120&id=%s">%s</a>', $topic, $doc['alias']);
+            $topics[] = sprintf('<a href="index.php?a=120&id=%d">%s</a>', (int)$topic, hsc($doc['alias']));
         } else {
-            $topics[] = sprintf('%s', $doc['alias']);
+            $topics[] = hsc($doc['alias']);
         }
     }
     return sprintf(
