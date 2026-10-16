@@ -558,21 +558,28 @@ class DocManagerBackend
                     }
                 }
             } elseif (preg_match('/^[\d]+\*\*$/', $value, $match)) {
-                $match = rtrim($match[0], '**');
-                $idarray[] = $match;
+                /* value is a group for all descendants */
+                $descendants = [(int) rtrim($match[0], '*')];
+                $visited = [$descendants[0] => true];
 
-                foreach ($idarray as $iValue) {
-                    $where = 'parent=' . $iValue;
-                    $rs = db()->select('id', $tbl_site_content, $where);
-                    if (db()->count($rs) > 0) {
-                        while ($row = db()->getRow($rs)) {
-                            $idarray[] = $row['id'];
+                for ($i = 0; $i < count($descendants); $i++) {
+                    $rs = db()->select('id', $tbl_site_content, 'parent=' . (int) $descendants[$i]);
+                    while ($row = db()->getRow($rs)) {
+                        $childId = (int) $row['id'];
+                        if (isset($visited[$childId])) {
+                            continue;
                         }
+                        $visited[$childId] = true;
+                        $descendants[] = $childId;
                     }
                 }
 
-                foreach ($idarray as $iValue) {
-                    $pids .= $column . "='" . $iValue . "' OR ";
+                foreach ($descendants as $descendantId) {
+                    if ($returnval == 0) {
+                        $idarray[] = $descendantId;
+                    } else {
+                        $pids .= $column . "='" . $descendantId . "' OR ";
+                    }
                 }
             } elseif (preg_match('/^[\d]+$/', $value, $match)) {
                 if ($returnval == 0) {
