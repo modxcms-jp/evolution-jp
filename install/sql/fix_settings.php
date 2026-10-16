@@ -66,6 +66,10 @@ db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('csrf_token', 'save_a
 // TinyMCE7 のひな形はサイト共通の設定だが、ユーザー設定画面に出ていたため、表示中の管理者の値が個別設定として入っていた（#615）
 db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('tinymce7_template_docs', 'tinymce7_template_chunks', 'tinymce7_template_category')");
 
+// システム設定の保存が、CSRF トークンも設定として保存していた（#640）。残っている行を消す
+$table = sessionv('table_prefix') . 'system_settings';
+db()->query("DELETE FROM `$table` WHERE `setting_name` = 'csrf_token'");
+
 $data = [
     'id' => 1,
     'name' => 'Administrator',
