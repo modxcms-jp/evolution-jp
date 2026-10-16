@@ -178,6 +178,10 @@ function save_settiongs()
         if (in_array($k, $non_settings, true)) {
             continue;
         }
+        // 空のキーと 0 のキー（'0' は整数 0 として届く）は設定名にならないので保存しない
+        if ($k === '' || $k === 0 || $k === '0') {
+            continue;
+        }
         switch ($k) {
             case 'base_url':
                 if ($v !== '' && $v !== '/') {
