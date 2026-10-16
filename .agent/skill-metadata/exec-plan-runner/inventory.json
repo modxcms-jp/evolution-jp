@@ -1,0 +1,28 @@
+{
+    "items": [
+        {
+            "id": "change-001",
+            "location": "SKILL.md（「PR に付くほかのレビュー」の段落と、手順 9 の CI 待ち）",
+            "status": "adopted",
+            "added_at": "2026-10-16T11:30:00+09:00",
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        },
+        {
+            "id": "change-002",
+            "location": "SKILL.md（不変条件 2 か、1 件ごとの繰り返しの手順 1「事前確認」）",
+            "status": "adopted",
+            "added_at": "2026-10-16T11:30:00+09:00",
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        },
+        {
+            "id": "change-003",
+            "location": "SKILL.md（/finish-task の手順 6）",
+            "status": "adopted",
+            "added_at": "2026-10-16T11:30:00+09:00",
+            "last_used_at": "2026-10-16T11:30:00+09:00",
+            "source": "2026-10-16-orchestration-runner-001"
+        }
+    ]
+}
