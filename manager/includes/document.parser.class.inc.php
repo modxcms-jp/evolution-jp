@@ -6184,7 +6184,7 @@ class DocumentParser
         if ($this->config['base_url'] === '[(base_url)]') {
             $this->config['base_url'] = MODX_BASE_URL;
         }
-        if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
+        if (is_string($key) && (strpos($key, '*') === 0 || strpos($key, '.*') !== false)) {
             $value = $default;
             $this->setConfig(str_replace(['.*', '*'], '', $key), $value);
             return $value;
