@@ -1176,10 +1176,21 @@ trait DocumentParserSubParserTrait
                 $output = trim($param);
                 break;
             case '@FILE' :
+                if (strpos($param, "\n") !== false) {
+                    $param = substr($param, 0, strpos($param, "\n"));
+                }
+                $param = trim($param);
                 if ($modx->getExtention($param) === '.php') {
                     $output = 'Could not retrieve PHP file.';
                 } else {
-                    $output = @file_get_contents($param);
+                    $file_path = $this->findBindFile($param);
+                    if ($file_path === false) {
+                        $output = false;
+                    } elseif ($modx->getExtention($file_path) === '.php') {
+                        $output = 'Could not retrieve PHP file.';
+                    } else {
+                        $output = @file_get_contents($file_path);
+                    }
                 }
                 if ($output === false) {
                     $output = " Could not retrieve document '{$param}'.";
@@ -2423,6 +2434,214 @@ trait DocumentParserSubParserTrait
         $cache->publishBasicConfig();
     }
 
+    /*
+     * バインドで読むファイルの場所の判定。
+     * 実パスがサイトのルートの下で、管理画面の下ではないときだけ実パスを返す。
+     */
+    function resolveBindFilePath($path)
+    {
+        $path = str_replace('\\', '/', trim((string) $path));
+        if ($path === '' || strpos($path, "\0") !== false) {
+            return false;
+        }
+
+        $real = realpath($path);
+        $base = realpath(MODX_BASE_PATH);
+        if ($real === false || $base === false || !is_file($real)) {
+            return false;
+        }
+
+        $real = str_replace('\\', '/', $real);
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        if (strpos($real, $base) !== 0) {
+            return false;
+        }
+
+        // 拒む側の判定は、大文字小文字を区別しないファイルシステムに備えてそろえて比べる
+        $lower = strtolower($real);
+
+        $manager = realpath(MODX_MANAGER_PATH);
+        if ($manager !== false) {
+            $manager = strtolower(rtrim(str_replace('\\', '/', $manager), '/')) . '/';
+            if (strpos($lower, $manager) === 0) {
+                return false;
+            }
+        }
+
+        if ($this->isBindDeniedPath($real)) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /*
+     * resolveBindFilePath() のディレクトリ版。
+     * 実パスがサイトのルートの下で、管理画面の下・読まない場所ではないときだけ、末尾に / を付けた実パスを返す。
+     */
+    function resolveBindDirPath($path)
+    {
+        $path = str_replace('\\', '/', trim((string) $path));
+        if ($path === '' || strpos($path, "\0") !== false) {
+            return false;
+        }
+
+        $real = realpath($path);
+        $base = realpath(MODX_BASE_PATH);
+        if ($real === false || $base === false || !is_dir($real)) {
+            return false;
+        }
+
+        $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        if (strpos($real, $base) !== 0) {
+            return false;
+        }
+
+        $manager = realpath(MODX_MANAGER_PATH);
+        if ($manager !== false) {
+            $manager = strtolower(rtrim(str_replace('\\', '/', $manager), '/')) . '/';
+            if (strpos(strtolower($real), $manager) === 0) {
+                return false;
+            }
+        }
+
+        if ($this->isBindDeniedPath($real)) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /*
+     * $path の実パスが、ディレクトリ $dir の実パスの下にあるファイルなら、その実パスを返す。
+     * 名前をつないで組み立てたパスが、そのディレクトリから外れていないかを確かめるのに使う。
+     */
+    function resolveFileUnderDir($path, $dir)
+    {
+        $path = (string) $path;
+        $dir = (string) $dir;
+        if ($path === '' || $dir === '' || strpos($path, "\0") !== false || strpos($dir, "\0") !== false) {
+            return false;
+        }
+
+        $real = realpath($path);
+        $real_dir = realpath($dir);
+        if ($real === false || $real_dir === false || !is_file($real) || !is_dir($real_dir)) {
+            return false;
+        }
+
+        $real = str_replace('\\', '/', $real);
+        $real_dir = rtrim(str_replace('\\', '/', $real_dir), '/') . '/';
+        if (strpos($real, $real_dir) !== 0) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /*
+     * サイトのルートの下の実パスのうち、バインドで読まない場所かどうか。
+     * . で始まる区切りを含む場所と、バックアップ・スナップショットの置き場所が対象。
+     * 管理画面の下かどうかは、呼び出し側が判断する。
+     */
+    function isBindDeniedPath($real)
+    {
+        $real = str_replace('\\', '/', (string) $real);
+        $base = realpath(MODX_BASE_PATH);
+        if ($base === false) {
+            return true;
+        }
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        if (strpos($real, $base) !== 0) {
+            return true;
+        }
+
+        $relative = substr($real, strlen($base));
+        foreach (explode('/', $relative) as $segment) {
+            if (strpos($segment, '.') === 0) {
+                return true;
+            }
+        }
+
+        $lower = strtolower($real);
+        foreach ($this->getBindDenyDirs() as $deny_dir) {
+            if (strpos($lower, $deny_dir) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /*
+     * バインドで読まない置き場所（バックアップ・スナップショット）の実パスの一覧。
+     * 小文字にそろえ、末尾に / を付けて返す。存在しない場所は含めない。
+     */
+    function getBindDenyDirs()
+    {
+        $dirs = [MODX_BASE_PATH . 'temp/backup', MODX_BASE_PATH . 'assets/backup'];
+        $snapshot_path = $this->config('snapshot_path');
+        if ($snapshot_path) {
+            $dirs[] = $snapshot_path;
+        }
+
+        // 設定を広く誤っても、サイトのルート・assets/・assets/templates/ やその親は一覧に入れない
+        $keep = [];
+        foreach ([MODX_BASE_PATH, MODX_BASE_PATH . 'assets', MODX_BASE_PATH . 'assets/templates'] as $dir) {
+            $real_dir = realpath($dir);
+            if ($real_dir !== false) {
+                $keep[] = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
+            }
+        }
+
+        $result = [];
+        foreach ($dirs as $dir) {
+            $real_dir = realpath(str_replace('\\', '/', $dir));
+            if ($real_dir === false || !is_dir($real_dir)) {
+                continue;
+            }
+            $deny = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
+            foreach ($keep as $protected) {
+                if (strpos($protected, $deny) === 0) {
+                    continue 2;
+                }
+            }
+            $result[] = $deny;
+        }
+
+        return $result;
+    }
+
+    /*
+     * @FILE・@INCLUDE の指定から読むファイルを探す。
+     * 絶対パス、サイトのルートからの相対、assets/templates/ からの相対、作業ディレクトリからの相対の順に探し、
+     * 場所の判定を通った最初の実パスを返す。
+     */
+    function findBindFile($str)
+    {
+        $str = str_replace('\\', '/', trim((string) $str));
+        if ($str === '') {
+            return false;
+        }
+
+        if (strpos($str, '/') === 0) {
+            $candidates = [$str, MODX_BASE_PATH . trim($str, '/')];
+        } else {
+            // 最後は作業ディレクトリからの相対（管理画面では manager/ から）。場所の判定は同じ
+            $candidates = [MODX_BASE_PATH . $str, MODX_BASE_PATH . 'assets/templates/' . $str, $str];
+        }
+
+        foreach ($candidates as $candidate) {
+            $file_path = $this->resolveBindFilePath($candidate);
+            if ($file_path !== false) {
+                return $file_path;
+            }
+        }
+
+        return false;
+    }
+
     function atBind($str = '')
     {
         if (strpos($str, '@') !== 0) {
@@ -2449,31 +2668,12 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 6);
         $str = trim($str);
-        $str = str_replace('\\', '/', $str);
-        $template_path = 'assets/templates/';
-
-        if (strpos($str, '/') === 0) {
-            if (is_file($str) && strpos($str, MODX_MANAGER_PATH) === 0) {
-                $file_path = false;
-            } elseif (is_file($str) && strpos($str, MODX_BASE_PATH) === 0) {
-                $file_path = $str;
-            } elseif (is_file(MODX_BASE_PATH . trim($str, '/'))) {
-                $file_path = MODX_BASE_PATH . trim($str, '/');
-            } else {
-                $file_path = false;
-            }
-        } elseif (is_file(MODX_BASE_PATH . $str)) {
-            $file_path = MODX_BASE_PATH . $str;
-        } elseif (is_file(MODX_BASE_PATH . $template_path . $str)) {
-            $file_path = MODX_BASE_PATH . $template_path . $str;
-        } else {
-            $file_path = false;
-        }
+        $file_path = $this->findBindFile($str);
 
         if (!$file_path) {
             return false;
@@ -2492,7 +2692,8 @@ trait DocumentParserSubParserTrait
         if ($recent_update < filemtime($file_path)) {
             evo()->clearCache();
         }
-        if (!evo()->template_path && strpos($file_path, MODX_BASE_PATH . 'assets/templates/') === 0) {
+        $base_path = str_replace('\\', '/', (string) realpath(MODX_BASE_PATH));
+        if (!evo()->template_path && strpos($file_path, rtrim($base_path, '/') . '/assets/templates/') === 0) {
             evo()->template_path = $file_path . '/';
         }
 
@@ -2527,36 +2728,14 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 9);
         $str = trim($str);
-        $str = str_replace('\\', '/', $str);
-
-        $tpl_dir = 'assets/templates/';
-
-        if (strpos($str, '/') === 0) {
-            $vpath = MODX_BASE_PATH . ltrim($str, '/');
-            if (is_file($str) && strpos($str, MODX_MANAGER_PATH) === 0) {
-                $file_path = false;
-            } elseif (is_file($vpath) && strpos($vpath, MODX_MANAGER_PATH) === 0) {
-                $file_path = false;
-            } elseif (is_file($str) && strpos($str, MODX_BASE_PATH) === 0) {
-                $file_path = $str;
-            } elseif (is_file($vpath)) {
-                $file_path = $vpath;
-            } else {
-                $file_path = false;
-            }
-        } elseif (is_file(MODX_BASE_PATH . $str)) {
-            $file_path = MODX_BASE_PATH . $str;
-        } elseif (is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}")) {
-            $file_path = MODX_BASE_PATH . $tpl_dir . $str;
-        } else {
-            $file_path = false;
-        }
-        if (!$file_path || !is_file($file_path)) {
+        $file_path = $this->findBindFile($str);
+        // PHP として読み込むので、.php だけを対象にする
+        if (!$file_path || !is_file($file_path) || $this->getExtention($file_path) !== '.php') {
             return false;
         }
 

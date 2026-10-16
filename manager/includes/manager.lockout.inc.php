@@ -52,7 +52,12 @@ function tpl_content()
         }
 
         if (strpos($target, '@FILE') === 0) {
-            return file_get_contents(trim(substr($target, 6)));
+            $file_path = lockout_tpl_path(trim(substr($target, 6)));
+            if ($file_path !== false) {
+                return file_get_contents($file_path);
+            }
+            // 読めない指定は、既定のテンプレートに戻す
+            return file_get_contents(MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl');
         }
         exit('error');
     }
@@ -77,4 +82,34 @@ function tpl_content()
     }
 
     return file_get_contents(MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl');
+}
+
+function lockout_tpl_path($path)
+{
+    if (strpos((string) $path, "\0") !== false) {
+        return false;
+    }
+
+    $real = realpath(str_replace('\\', '/', $path));
+    $base = realpath(MODX_BASE_PATH);
+    if ($real === false || $base === false || !is_file($real)) {
+        return false;
+    }
+
+    $real = str_replace('\\', '/', $real);
+    $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+    if (strpos($real, $base) !== 0) {
+        return false;
+    }
+
+    if (strtolower(pathinfo($real, PATHINFO_EXTENSION)) === 'php') {
+        return false;
+    }
+
+    // . で始まる区切りとバックアップの置き場所は、バインドと同じ判定で拒む（管理画面の下は許す）
+    if (!evo() || evo()->isBindDeniedPath($real)) {
+        return false;
+    }
+
+    return $real;
 }
