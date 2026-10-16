@@ -30,14 +30,16 @@ $output = '';
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
-        if (!empty($post_key) && !empty($post_value)) {
+        if (strpos(postv('key'), '_hide_configcheck_') === 0 && postv('value') === '1') {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;
     case 'updateplugin':
-        if ($post_key == '_delete_' && !empty($post_lang)) {
-            $rs = @ db()->delete('[+prefix+}site_plugins', "name='{$post_lang}'");
-        } elseif (!empty($post_key) && !empty($post_lang) && !empty($post_value)) {
+        if ($post_key == '_delete_') {
+            if (!empty($post_lang) && evo()->hasPermission('delete_plugin')) {
+                $rs = @ db()->delete('[+prefix+]site_plugins', "name='{$post_lang}'");
+            }
+        } elseif ($post_key === 'disabled' && $post_value === '1' && !empty($post_lang) && evo()->hasPermission('save_plugin')) {
             $rs = @ db()->update([$post_key => $post_value], '[+prefix+]site_plugins', "name='{$post_lang}'");
         }
         break;
