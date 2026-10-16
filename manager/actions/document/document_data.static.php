@@ -24,6 +24,10 @@ if (!manager()->isAllowed($id)) {
     alert()->setError(3);
     alert()->dumpError();
 }
+if (!evo()->checkPermissions($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->updatePublishStatus();
 
