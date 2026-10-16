@@ -5962,7 +5962,7 @@ class DocumentParser
                 mb_convert_encoding(
                     $str,
                     $encode,
-                    mb_detect_order(['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'])
+                    ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS']
                 ),
                 $flags,
                 $encode,
