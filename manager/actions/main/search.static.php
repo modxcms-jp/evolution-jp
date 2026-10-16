@@ -133,6 +133,19 @@ if (getv('submitok')) {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }
 
+    // ツリー（nodes.php の getNodes()）と同じ、ドキュメントグループによる絞り込み
+    if (!config('tree_show_protected') && !manager()->isAdmin()) {
+        $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
+        $access = 'privatemgr=0';
+        if ($mgrDocgroups) {
+            $access .= sprintf(
+                ' OR id IN (SELECT document FROM [+prefix+]document_groups WHERE document_group IN (%s))',
+                implode(',', $mgrDocgroups)
+            );
+        }
+        $where[] = '(' . $access . ')';
+    }
+
     $rs = db()->select(
         'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
         '[+prefix+]site_content',
