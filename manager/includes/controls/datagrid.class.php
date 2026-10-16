@@ -107,10 +107,14 @@ class DataGrid
         }
 
         $ds = trim($this->ds);
-        if ((strpos($ds, "\n") === false) && is_file($ds)) {
-            $ds = trim(file_get_contents($ds));
-            if ($ds) {
-                $ds = mb_convert_encoding($ds, evo()->config['modx_charset'], $this->src_encode);
+        if (strpos($ds, "\n") === false && evo()->config('enable_bindings') == 1) {
+            // ファイルのパスとして読むのは、バインディングが有効で、場所の判定を通るときだけ
+            $file_path = evo()->resolveBindFilePath($ds);
+            if ($file_path !== false && evo()->getExtention($file_path) !== '.php') {
+                $ds = trim(file_get_contents($file_path));
+                if ($ds) {
+                    $ds = mb_convert_encoding($ds, evo()->config['modx_charset'], $this->src_encode);
+                }
             }
         }
         $this->ds = $ds;
