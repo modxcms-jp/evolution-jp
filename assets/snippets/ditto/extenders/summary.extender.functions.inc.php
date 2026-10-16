@@ -93,15 +93,16 @@ class truncate
         return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
     }
 
-    // 切り詰めたときだけ、末尾の途中のタグ（<... で > なし）と途中の文字参照（&... で ; なし）を落とす
+    // 切り詰めたときだけ、末尾の途中のタグ（<英字・!・/・? で始まり > なし）と途中の文字参照（& と英数字・# だけで ; なし）を落とす。
+    // タグでない < や & の後ろの日本語は残す。UTF-8 前提で、< > & は複数バイト文字に含まれないので /u は付けない
     private function truncWithoutPartial($string, $limit)
     {
         $result = $this->textTrunc($string, $limit);
         if ($result === $string) {
             return $result;
         }
-        $result = preg_replace('/<[^>]*$/u', '', $result) ?? $result;
-        return preg_replace('/&#?\w*$/u', '', $result) ?? $result;
+        $result = preg_replace('/<[!\/?A-Za-z][^>]*$/', '', $result) ?? $result;
+        return preg_replace('/&(#[0-9]*|#[xX][0-9a-fA-F]*|[A-Za-z][A-Za-z0-9]*)?$/', '', $result) ?? $result;
     }
 
     private function textTrunc($string, $limit, $break = "。")
