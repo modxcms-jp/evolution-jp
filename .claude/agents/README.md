@@ -4,7 +4,7 @@
 
 - 役割の責務と書き込み範囲の正本は `.agent/agents/*.md`。ここの本文は「それを読んで従う」薄い入口にとどめ、内容を写さない。
 - モデルと effort の割り当ては、各ファイルの frontmatter を正本とする。`.agent/agents/` と `assets/docs/ai-runtime-governance.md` には、モデル名を書かない。
-- 割り当ての理由と出典は `.agent/plans/2026-10-15-orchestration-runner.md` の Decision Log を参照。
+- 割り当ての理由と出典は `.agent/plans/archive/2026-10-16-orchestration-runner.md` の Decision Log を参照。
 
 | 名前 | 役割の正本 | model | effort |
 |---|---|---|---|
