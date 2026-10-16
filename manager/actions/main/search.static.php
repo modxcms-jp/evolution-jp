@@ -139,7 +139,8 @@ if (getv('submitok')) {
         $access = 'privatemgr=0';
         if ($mgrDocgroups) {
             $access .= sprintf(
-                ' OR id IN (SELECT document FROM [+prefix+]document_groups WHERE document_group IN (%s))',
+                ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
+                evo()->getFullTableName('document_groups'),
                 implode(',', $mgrDocgroups)
             );
         }
