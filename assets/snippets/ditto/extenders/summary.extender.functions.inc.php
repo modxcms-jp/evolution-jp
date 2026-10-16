@@ -101,7 +101,11 @@ class truncate
         if ($result === $string) {
             return $result;
         }
-        $result = preg_replace('/<[!\/?A-Za-z][^>]*$/', '', $result) ?? $result;
+        // 途中のタグを落としたときは、その手前の文字参照は完結しているので判定しない
+        $stripped = preg_replace('/<[!\/?A-Za-z][^>]*$/', '', $result);
+        if ($stripped !== null && $stripped !== $result) {
+            return $stripped;
+        }
         return preg_replace('/&(#[0-9]*|#[xX][0-9a-fA-F]*|[A-Za-z][A-Za-z0-9]*)?$/', '', $result) ?? $result;
     }
 
