@@ -82,7 +82,7 @@ $location = getv('id') ? '10' : '2';
                         </tr>
                         <tr>
                             <td style="width: 120px;"><b><?= $_lang['messages_from'] ?>:</b></td>
-                            <td style="width: 480px;"><?= $sendername ?></td>
+                            <td style="width: 480px;"><?= hsc($sendername) ?></td>
                         </tr>
                         <tr>
                             <td><b><?= $_lang['messages_sent'] ?>:</b></td>
@@ -90,13 +90,13 @@ $location = getv('id') ? '10' : '2';
                         </tr>
                         <tr>
                             <td><b><?= $_lang['messages_subject'] ?>:</b></td>
-                            <td><?= $message['subject'] ?></td>
+                            <td><?= hsc($message['subject']) ?></td>
                         </tr>
                         <tr>
                             <td colspan="2">
                                 <?php
                                 // format the message :)
-                                $message = str_replace("\n", "<br />", $message['message']);
+                                $message = str_replace("\n", "<br />", hsc($message['message']));
                                 $dashcount = substr_count($message, "-----");
                                 $message = str_replace("-----", "<i class='message-quote'>", $message);
                                 for ($i = 0; $i < $dashcount; $i++) {
@@ -214,8 +214,8 @@ $location = getv('id') ? '10' : '2';
                                     );
                                 } ?></td>
                             <td class="<?= $messagestyle ?>" style="cursor: pointer; text-decoration: underline;"
-                                onclick="document.location.href='index.php?a=10&id=<?= $message['id'] ?>&m=r';"><?= $message['subject'] ?></td>
-                            <td><?= $sendername ?></td>
+                                onclick="document.location.href='index.php?a=10&id=<?= $message['id'] ?>&m=r';"><?= hsc($message['subject']) ?></td>
+                            <td><?= hsc($sendername) ?></td>
                             <td><?= $message['private'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
                             <td><?= $modx->toDateFormat($message['postdate'] + $modx->config['server_offset_time']) ?></td>
                         </tr>
@@ -346,12 +346,12 @@ $location = getv('id') ? '10' : '2';
                     <tr>
                         <td><?= $_lang['messages_subject'] ?>:</td>
                         <td><input name="messagesubject" type=text class="inputBox" style="width: 500px;"
-                                maxlength="60" value="<?= $subjecttext ?>"></td>
+                                maxlength="60" value="<?= hsc($subjecttext) ?>"></td>
                     </tr>
                     <tr>
                         <td valign="top"><?= $_lang['messages_message'] ?>:</td>
                         <td><textarea name="messagebody" style="width:500px; height: 200px;" onLoad="this.focus()"
-                                class="inputBox"><?= $messagetext ?></textarea></td>
+                                class="inputBox"><?= hsc($messagetext) ?></textarea></td>
                     </tr>
                     <tr>
                         <td></td>

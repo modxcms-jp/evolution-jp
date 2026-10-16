@@ -186,7 +186,7 @@
                     $photo = MODX_BASE_URL . $photo;
                 }
                 ?>
-                <img name="iphoto" src="<?= $photo ?>"/>
+                <img name="iphoto" src="<?= hsc($photo) ?>"/>
             </div>
         </td>
     </tr>
