@@ -387,6 +387,7 @@ class DocManagerBackend
 
         /* misc document settings */
         $fieldval = '';
+        $logAction = '';
         switch (postv('setoption')) {
             case 1:
                 $fieldval = 'published';
@@ -394,23 +395,23 @@ class DocManagerBackend
                     'publishedon' => postv('newvalue') == 1 ? time() : 0,
                     'publishedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : 0
                 ];
-                $this->logDocumentChange('publish');
+                $logAction = 'publish';
                 break;
             case 2:
                 $fieldval = 'hidemenu';
-                $this->logDocumentChange('hidemenu');
+                $logAction = 'hidemenu';
                 break;
             case 3:
                 $fieldval = 'searchable';
-                $this->logDocumentChange('search');
+                $logAction = 'search';
                 break;
             case 4:
                 $fieldval = 'cacheable';
-                $this->logDocumentChange('cache');
+                $logAction = 'cache';
                 break;
             case 5:
                 $fieldval = 'richtext';
-                $this->logDocumentChange('richtext');
+                $logAction = 'richtext';
                 break;
             case 6:
                 $fieldval = 'deleted';
@@ -418,7 +419,7 @@ class DocManagerBackend
                     'deletedon' => postv('newvalue') == 1 ? time() : '0',
                     'deletedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : '0'
                 ];
-                $this->logDocumentChange('delete');
+                $logAction = 'delete';
                 break;
             default:
                 break;
@@ -464,6 +465,7 @@ class DocManagerBackend
 
             db()->update($fields, $tbl_site_content, $values);
             $new = true;
+            $this->logDocumentChange($logAction);
         }
 
         if ($pids !== '' && count($dateval) > 0) {
