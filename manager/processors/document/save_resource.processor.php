@@ -173,7 +173,48 @@ function refreshNewDocId($doc_vars)
     if (!db()->count($rs)) {
         return $doc_vars;
     }
+    $oldId = (int)$doc_vars['id'];
     $doc_vars['id'] = evo()->doc->getNewDocID();
+    if ((int)$doc_vars['id'] !== $oldId && evo()->getConfig('convert_datauri_to_file', 1)) {
+        $doc_vars = moveDataUriFilesToNewId($doc_vars, $oldId, (int)$doc_vars['id']);
+    }
+    return $doc_vars;
+}
+
+// saveDataUriFile()（mutate_content/functions.php）の書き出し先の前の部分と同じ規則
+function dataUriRelativeDir($docid)
+{
+    return sprintf('content/images/datauri/%d/', $docid);
+}
+
+// ID を取り直したとき、introtext の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
+// 古い ID の場所は、プラグインが作った別の文書のものが同居し得るので、フォルダごとではなく本文に出てくるファイルだけを移す
+function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
+{
+    if (empty($doc_vars['introtext']) || !is_string($doc_vars['introtext'])) {
+        return $doc_vars;
+    }
+    $oldDir = dataUriRelativeDir($oldId);
+    $newDir = dataUriRelativeDir($newId);
+    $pattern = '@' . preg_quote($oldDir, '@') . '[A-Za-z0-9_.\-]+@';
+    if (!preg_match_all($pattern, $doc_vars['introtext'], $matches)) {
+        return $doc_vars;
+    }
+    foreach (array_unique($matches[0]) as $oldPath) {
+        $newPath = $newDir . substr($oldPath, strlen($oldDir));
+        $absoluteNewDir = MODX_BASE_PATH . $newDir;
+        if (!is_file(MODX_BASE_PATH . $oldPath)) {
+            continue;
+        }
+        if (
+            (!is_dir($absoluteNewDir) && !mkdir($absoluteNewDir, 0755, true))
+            || !rename(MODX_BASE_PATH . $oldPath, MODX_BASE_PATH . $newPath)
+        ) {
+            evo()->logEvent(0, 3, sprintf('Failed to move Data URI file: %s -> %s', $oldPath, $newPath), 'refreshNewDocId');
+            continue;
+        }
+        $doc_vars['introtext'] = str_replace($oldPath, $newPath, $doc_vars['introtext']);
+    }
     return $doc_vars;
 }
 
