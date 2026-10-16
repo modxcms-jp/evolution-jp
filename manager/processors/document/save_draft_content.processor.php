@@ -35,6 +35,19 @@ $fields = $modx->doc->fixPubStatus(
     $modx->doc->fixTvNest($_POST)
 );
 
+$parent = (int)array_get($fields, 'parent', 0);
+$currentParent = (int)db()->getValue(
+    db()->select('parent', '[+prefix+]site_content', where('id', '=', (int)$id))
+);
+if ($parent !== $currentParent) {
+    $message = manager()->parentChangeDeniedMessage([$id], $parent);
+    if ($message) {
+        alert()->setError(3, $message);
+        alert()->dumpError();
+        return;
+    }
+}
+
 if (postv('stay') === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {

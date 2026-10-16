@@ -25,6 +25,20 @@ if (!manager()->isInAllowedParents($docid)) {
 
 evo()->loadExtension('REVISION');
 
+$draft = evo()->revision->getDraft($docid);
+if ($draft) {
+    $currentParent = (int)db()->getValue(
+        db()->select('parent', '[+prefix+]site_content', where('id', '=', (int)$docid))
+    );
+    if ((int)array_get($draft, 'parent', 0) !== $currentParent) {
+        $message = manager()->parentChangeDeniedMessage([$docid], array_get($draft, 'parent', 0));
+        if ($message) {
+            alert()->setError(3, $message);
+            alert()->dumpError();
+        }
+    }
+}
+
 if (postv('publishoption') === 'reserve' && postv('pub_date')) {
     $pub_date = evo()->toTimeStamp(postv('pub_date'));
     if (request_time() < $pub_date) {

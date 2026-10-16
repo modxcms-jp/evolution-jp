@@ -799,6 +799,29 @@ class ManagerAPI
         return '';
     }
 
+    /**
+     * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
+     * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
+     * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
+     *
+     * @param int[] $docIds 親を変える文書
+     * @param int $parentId 新しい親の ID
+     * @return string
+     */
+    public function parentChangeDeniedMessage(array $docIds, $parentId)
+    {
+        $parentId = (int)$parentId;
+        $message = $this->invalidParentMessage($docIds, $parentId);
+        if ($message) {
+            return $message;
+        }
+        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
+            return lang('access_permission_parent_denied');
+        }
+        return '';
+    }
+
     public function isAllowed($id)
     {
         global $modx;
