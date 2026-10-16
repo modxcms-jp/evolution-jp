@@ -187,21 +187,23 @@ function eForm($modx, $params)
         # get user post back data
         $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
         foreach ($_POST as $name => $value) {
+            // 単一の値と配列の各値に同じ処理を通す（allowhtml と html 書式のときだけタグを許す）
+            $cleanValue = function ($v) use ($allowhtml, $formats, $name, $modx) {
+                if (!$allowhtml || ($formats[$name][2] ?? '') != 'html') {
+                    return strip_tags($v);
+                }
+                return $modx->htmlspecialchars($v);
+            };
             if (is_array($value) && count($value) !== count($value, COUNT_RECURSIVE)) {
                 $nestedFields[$name] = true;
                 $fields[$name] = ''; // 再表示・メールで扱える形にする
             } elseif (is_array($value)) {
                 //remove empty values
-                $fields[$name] = array_filter($value, function ($v) {
+                $fields[$name] = array_filter(array_map($cleanValue, $value), function ($v) {
                     return $v ? true : false;
                 });
             } else {
-                if (!$allowhtml || ($formats[$name][2] ?? '') != 'html') {
-                    $value = strip_tags($value);
-                } else {
-                    $value = $modx->htmlspecialchars($value);
-                }
-                $fields[$name] = $value;
+                $fields[$name] = $cleanValue($value);
             }
         }
 
