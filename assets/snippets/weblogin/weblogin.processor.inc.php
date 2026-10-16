@@ -211,8 +211,8 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = db()->escape(htmlspecialchars(webLoginString(postv('username')), ENT_QUOTES));
-$givenPassword = db()->escape(webLoginString(postv('password')));
+$username = webLoginString(postv('username'));
+$givenPassword = webLoginString(postv('password'));
 $captcha_code = postv('captcha_code', '');
 $rememberme = postv('rememberme');
 
@@ -225,7 +225,7 @@ evo()->invokeEvent('OnBeforeWebLogin', $v);
 
 $field = 'web_users.*, user_attributes.*';
 $from = "{$tbl_web_users} as web_users, {$tbl_web_user_attributes} as user_attributes";
-$where = "BINARY web_users.username='{$username}' and user_attributes.internalKey=web_users.id";
+$where = "BINARY web_users.username='" . db()->escape($username) . "' and user_attributes.internalKey=web_users.id";
 $ds = db()->select($field, $from, $where);
 $limit = db()->count($ds);
 
@@ -445,14 +445,15 @@ if ($id != $modx->documentIdentifier) {
             "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) VALUES (-%d, '%s', %d, '%s', %d, '%s')",
             $tbl_active_users,
             sessionv('webInternalKey'),
-            sessionv('webShortname'),
+            db()->escape(sessionv('webShortname')),
             $lasthittime,
             $a,
             $itemid,
             real_ip()
         );
         if (!$ds = db()->query($sql)) {
-            $output = "error replacing into active users! SQL: {$sql}";
+            evo()->logEvent(0, 3, 'error replacing into active users', 'WebLogin', ['sql' => $sql, 'error' => db()->getLastError()]);
+            $output = 'error replacing into active users!';
             return;
         }
     }

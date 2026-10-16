@@ -7,6 +7,9 @@ if (!isset($modx->filter->cache['ui'][$userid])) {
 } else {
     $user = $modx->filter->cache['ui'][$userid];
 }
-$user['name'] = !empty($user['fullname']) ? $user['fullname'] : $user['username'];
+if (!is_array($user)) {
+    return '';
+}
+$user['name'] = !empty($user['fullname']) ? $user['fullname'] : ($user['username'] ?? '');
 
-return $user[$opt];
+return $user[$opt] ?? '';

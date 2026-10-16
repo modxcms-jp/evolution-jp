@@ -376,10 +376,10 @@ global $database_connection_method, $lastInstallTime;
                         }
                         $html .= sprintf(
                             '<tr><td><b>%s</b></td><td>%s&nbsp;%s</td><td>%s</td><td>%s</td><td>%s</td><td align="right">%s</td></tr>',
-                            $activeusers['username'],
+                            hsc($activeusers['username']),
                             $webicon,
                             abs($activeusers['internalKey']),
-                            $activeusers['ip'],
+                            hsc($activeusers['ip']),
                             date(
                                 'H:i:s',
                                 $activeusers['lasthit'] + config('server_offset_time')

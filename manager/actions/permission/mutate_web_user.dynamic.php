@@ -294,7 +294,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             style="display: <?= (getv('a') == 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
                             <td colspan="2">
                                 <img src="<?= $_style['icons_user'] ?>"
-                                    alt="." />&nbsp;<b><?= webuser('oldusername') ?: webuser('username') ?></b>
+                                    alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
                                 - <span class="comment"><a href="#"
                                         onclick="changeName();return false;"><?= $_lang["change_name"] ?></a></span>
                                 <input type="hidden" name="oldusername"

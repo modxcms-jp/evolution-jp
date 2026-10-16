@@ -240,7 +240,7 @@ function tabOnlineUser()
             $webicon = ($row['internalKey'] < 0) ? '<img src="' . $style_tree_path . 'globe.png" alt="Web user" />' : '';
             $tr[] = sprintf(
                 "<tr><td><b>%s</b></td><td>%s&nbsp;%d</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-                $row['username'],
+                hsc($row['username']),
                 $webicon,
                 abs($row['internalKey']),
                 $row['ip'],

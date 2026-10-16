@@ -386,7 +386,7 @@ class DocumentParser
             return 0;
         }
 
-        $this->saveDBCache('docid_by_uri', $parsedUri, $docId);
+        $this->saveDBCache('docid_by_uri', $urlWithoutQuery, $docId);
 
         return $docId;
     }
@@ -2227,7 +2227,7 @@ class DocumentParser
         }
         if ($this->get_docfield_type($key) === 'user') {
             $user = $this->getUserInfo($value);
-            return $user['username'];
+            return is_array($user) ? $user['username'] : '';
         }
         return $value;
     }
@@ -2349,9 +2349,14 @@ class DocumentParser
         $currentId = $docId;
         while ($currentId != 0) {
             $doc = $this->getDocumentObject('id', $currentId);
-            $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
-            if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
-                return $currentId;
+            if (!is_array($doc)) {
+                break;
+            }
+            if (isset($doc[$key])) {
+                $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
+                if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
+                    return $currentId;
+                }
             }
             $currentId = $this->getParentID($currentId);
         }
@@ -6184,13 +6189,9 @@ class DocumentParser
         if ($this->config['base_url'] === '[(base_url)]') {
             $this->config['base_url'] = MODX_BASE_URL;
         }
-        if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
+        if (is_string($key) && (strpos($key, '*') === 0 || strpos($key, '.*') !== false)) {
             $value = $default;
-            $this->setConfig(
-                $this->config,
-                str_replace(['.*', '*'], '', $key),
-                $value
-            );
+            $this->setConfig(str_replace(['.*', '*'], '', $key), $value);
             return $value;
         }
         return $this->array_get($this->config, $key, $default);

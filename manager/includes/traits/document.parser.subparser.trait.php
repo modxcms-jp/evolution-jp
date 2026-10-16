@@ -1242,9 +1242,15 @@ trait DocumentParserSubParserTrait
                     $doc = $modx->getPageInfo($docid, 0, 'id,parent');
                 }
 
-                while ($doc['parent'] != 0) {
+                while (is_array($doc) && $doc['parent'] != 0) {
                     $doc = $modx->getPageInfo($doc['parent'], 0, 'id,parent');
+                    if (!is_array($doc)) {
+                        break;
+                    }
                     $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
+                    if (!is_array($tv)) {
+                        continue;
+                    }
                     $value = (string)$tv['value'];
                     if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
                         $output = $value;
