@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-16-orchestration-runner",
+    "run_id": "2026-10-16-orchestration-runner-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-16T11:30:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-001",
+            "action": "add",
+            "target": "SKILL.md（「PR に付くほかのレビュー」の段落と、手順 9 の CI 待ち）",
+            "summary": "Codex のレビューは PR を開いたときと「@codex review」のコメントでしか動かず、対応後の push では新しいコミットが見直されない。完了はサマリーコメントの codex-review-state の JSON（code_review.commit_sha が今の head と同じで status が completed）で見る。本文の「running」などの文字で判定すると誤る（#685 で誤った）",
+            "source_ref": "finding-A",
+            "confidence": "high"
+        },
+        {
+            "id": "change-002",
+            "action": "add",
+            "target": "SKILL.md（不変条件 2 か、1 件ごとの繰り返しの手順 1「事前確認」）",
+            "summary": "公開 Issue を公開 PR にする前に、非公開アドバイザリと重ならないかを、非公開側のセッションに番号だけで確かめる運用がうまく働いた（#634・#636 を飛ばし、#689 は順番を合わせた）。不変条件 2 は「重なる可能性に気付いたら止まる」だけで、気付くための手順が無い。非公開側のセッションが動いていない場合の扱いを決める必要がある",
+            "source_ref": "finding-B",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-003",
+            "action": "add",
+            "target": "SKILL.md（/finish-task の手順 6）",
+            "summary": "/finish-task で、.agent/PLANS.md の完了処理の手順 8（スキル成長ループ）を前例に倣って省き、Codex に指摘された（PR #699）。手順 8 は、インストール済みの検証環境のアプリのコンテナで php evo skill:* を動かす必要がある（未インストールだと evo が何も出さずに終わる）。setup-site.js は今いるディレクトリに書き戻すので、同期用のワークツリーで動かす必要がある",
+            "source_ref": "finding-C",
+            "confidence": "high"
+        }
+    ]
+}
