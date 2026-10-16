@@ -39,7 +39,7 @@ if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $lock = db()->getRow($rs);
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang["lock_msg"], hsc($lock['username']), "web user");
+            $msg = sprintf($_lang["lock_msg"], $lock['username'], "web user");
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
