@@ -156,7 +156,8 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     $years = $modx->getChildIds($ddParent, 1);
 
     //Получаем id нужного нам года
-    $yearId = $years[$ultimateAlias . '/' . $ddDate['y']];
+    $yearId = $years[$ultimateAlias . '/' . $ddDate['y']] ?? 0;
+    $monthId = 0;
 
     //Если нужный год существует
     if ($yearId) {
@@ -169,7 +170,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         //Получаем месяцы (непосредственных детей текущего года)
         $months = $modx->getChildIds($yearId, 1);
         //Получаем id нужного нам месяца
-        $monthId = $months[$ultimateAlias . '/' . $ddDate['y'] . '/' . $ddDate['m']];
+        $monthId = $months[$ultimateAlias . '/' . $ddDate['y'] . '/' . $ddDate['m']] ?? 0;
         //Если нужный год не существует
     } else {
         //Создадим его
