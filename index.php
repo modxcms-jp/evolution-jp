@@ -39,9 +39,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
     session_start();
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         session_write_close();
-        $uri_parent_dir = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/')) . '/';
-        $uri_parent_dir = ltrim($uri_parent_dir, '/');
-        $target = MODX_CACHE_PATH . 'pages/' . $uri_parent_dir . hash('crc32b', $_SERVER['REQUEST_URI']) . '.pageCache.php';
+        $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));
