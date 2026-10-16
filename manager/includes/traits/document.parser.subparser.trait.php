@@ -2555,6 +2555,44 @@ trait DocumentParserSubParserTrait
     }
 
     /*
+     * resolveBindFilePath() のディレクトリ版。
+     * 実パスがサイトのルートの下で、管理画面の下・読まない場所ではないときだけ、末尾に / を付けた実パスを返す。
+     */
+    function resolveBindDirPath($path)
+    {
+        $path = str_replace('\\', '/', trim((string) $path));
+        if ($path === '' || strpos($path, "\0") !== false) {
+            return false;
+        }
+
+        $real = realpath($path);
+        $base = realpath(MODX_BASE_PATH);
+        if ($real === false || $base === false || !is_dir($real)) {
+            return false;
+        }
+
+        $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        if (strpos($real, $base) !== 0) {
+            return false;
+        }
+
+        $manager = realpath(MODX_MANAGER_PATH);
+        if ($manager !== false) {
+            $manager = strtolower(rtrim(str_replace('\\', '/', $manager), '/')) . '/';
+            if (strpos(strtolower($real), $manager) === 0) {
+                return false;
+            }
+        }
+
+        if ($this->isBindDeniedPath($real)) {
+            return false;
+        }
+
+        return $real;
+    }
+
+    /*
      * $path の実パスが、ディレクトリ $dir の実パスの下にあるファイルなら、その実パスを返す。
      * 名前をつないで組み立てたパスが、そのディレクトリから外れていないかを確かめるのに使う。
      */

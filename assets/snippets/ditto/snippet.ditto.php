@@ -16,9 +16,13 @@ if (!defined('MODX_BASE_PATH')) {
 $ditto_version = '2.1.4';
 // Ditto version being executed
 
-if (isset($ditto_base)) {
-    $ditto_base = MODX_BASE_PATH . ltrim($ditto_base, '/');
+// 指定された置き場所は、サイトの中（本体のバインドと同じ判定）に限る。外れたら同梱の場所を使う
+if (isset($ditto_base) && trim($ditto_base, '/ ') !== '') {
+    $ditto_base = evo()->resolveBindDirPath(MODX_BASE_PATH . ltrim($ditto_base, '/'));
 } else {
+    $ditto_base = false;
+}
+if (empty($ditto_base)) {
     $ditto_base = str_replace('\\', '/', __DIR__) . '/';
 }
 /*
@@ -57,7 +61,9 @@ $GLOBALS['dittoID'] = $dittoID;
 if (!isset($language)) {
     $language = evo()->config('manager_language');
 }
-if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
+if (!preg_match('/^[\w\-]+$/', (string) $language)
+    || !is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))
+) {
     $language = 'english';
 }
 /*
@@ -73,6 +79,9 @@ if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
     "english"
 */
 $format = isset($format) ? strtolower($format) : 'html';
+if (!preg_match('/^[\w\-]+$/', $format)) {
+    $format = 'html';
+}
 /*
     Param: format
 

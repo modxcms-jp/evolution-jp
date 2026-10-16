@@ -63,6 +63,9 @@ function eForm($modx, $params)
 
     #include other language file if set.
     $form_language = isset($language) ? $language : config('manager_language', 'english');
+    if (!preg_match('/^[\w\-]+$/', (string) $form_language)) {
+        $form_language = 'english';
+    }
     if ($form_language != "english" && $form_language != '') {
         if (file_exists("{$snipPath}lang/{$form_language}.inc.php")) {
             include("{$snipPath}lang/{$form_language}.inc.php");
