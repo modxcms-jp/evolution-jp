@@ -143,6 +143,7 @@ $_lang['DM_process_limits_error'] = 'Upper limit less than lower limit:';
 $_lang['DM_process_invalid_error'] = 'Invalid Value:';
 $_lang['DM_process_update_success'] = 'Update was completed successfully, with no errors.';
 $_lang['DM_process_update_error'] = 'Update has completed but encountered errors:';
+$_lang['DM_process_no_permission'] = 'You do not have permission to change document group access.';
 $_lang['DM_process_back'] = 'Back';
 
 //-- manager access logging
