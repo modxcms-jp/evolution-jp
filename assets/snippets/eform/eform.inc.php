@@ -135,11 +135,23 @@ function eForm($modx, $params)
 
     extract($params, EXTR_SKIP); // extract params into variables
 
+    // バインディングが無効のときは、引数で指定したフックを呼ばない（フックが無いときと同じ扱い）
+    if (config('enable_bindings', 0) != 1) {
+        $eFormOnBeforeFormParse = '';
+        $eFormOnValidate = '';
+        $eFormOnBeforeMailSent = '';
+        $eFormOnMailSent = '';
+        $eFormOnBeforeFormMerge = '';
+    }
+
     #include default language file
     include_once($snipPath . "lang/english.inc.php");
 
     #include other language file if set.
     $form_language = isset($language) ? $language : config('manager_language', 'english');
+    if (!preg_match('/^[\w\-]+$/', (string) $form_language)) {
+        $form_language = 'english';
+    }
     if ($form_language != "english" && $form_language != '') {
         if (file_exists("{$snipPath}lang/{$form_language}.inc.php")) {
             include_once("{$snipPath}lang/{$form_language}.inc.php");
@@ -1257,6 +1269,11 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                 break;
 
             case "#EVAL":    // php code should return true or false
+                // バインディングが無効のときは実行せず、検証を通さない
+                if (evo()->config('enable_bindings') != 1) {
+                    $errMsg = $_lang['ef_failed_eval'];
+                    break;
+                }
                 $tmp = $cmd; //just in case eval destroys cmd
                 if (eval($param) === false)
                     $errMsg = $_lang['ef_failed_eval'];
@@ -1266,7 +1283,8 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
             //added in 1.4
             case "#FUNCTION":
                 $tmp = $cmd; //just in case function destroys cmd
-                if (function_exists($param))
+                // バインディングが無効のときは、関数が見つからないときと同じ扱いにする
+                if (evo()->config('enable_bindings') == 1 && function_exists($param))
                     if (!@$param($value)) $errMsg = $_lang['ef_failed_eval'];
                     else
                         if ($isDebug) $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_no_function'] . " $param";
@@ -1329,7 +1347,10 @@ function filterEformValue($value, $param)
             break;
 
         case "#EVAL":
-            $value = ($v = @eval($param)) ? $v : $value;
+            // バインディングが無効のときは実行せず、値を変えない
+            if (evo()->config('enable_bindings') == 1) {
+                $value = ($v = @eval($param)) ? $v : $value;
+            }
             break;
     }
     return $value;
@@ -1341,11 +1362,14 @@ function efLoadTemplate($key)
 
     $tpl = '';
     if (strpos($key, '@FILE') === 0) {
-        $path = substr($key, 6);
-        $path = trim($path);
-        $path = ltrim($path, '/');
-        $path = MODX_BASE_PATH . $path;
-        $tpl = file_get_contents($path);
+        $path = evo()->findBindFile(substr($key, 6));
+        if (!$path) {
+            $tpl = false;
+        } elseif (evo()->getExtention($path) === '.php') {
+            $tpl = 'Could not retrieve PHP file.';
+        } else {
+            $tpl = file_get_contents($path);
+        }
     } elseif (strpos($key, '@CODE') === 0) {
         $tpl = substr($key, 6);
     } elseif (is_numeric($key)) { //get from document id

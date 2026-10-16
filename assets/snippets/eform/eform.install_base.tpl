@@ -22,7 +22,7 @@
 #
 
 # Set Snippet Paths
-$snip_dir = isset($snip_dir) ? $snip_dir : 'eform';
+$snip_dir = isset($snip_dir) && preg_match('/^[\w\-]+$/', (string) $snip_dir) ? $snip_dir : 'eform';
 $snipPath = base_path() . "assets/snippets/{$snip_dir}/";
 
 # check if inside manager
