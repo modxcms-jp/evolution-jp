@@ -452,7 +452,8 @@ if ($id != $modx->documentIdentifier) {
             real_ip()
         );
         if (!$ds = db()->query($sql)) {
-            $output = "error replacing into active users! SQL: {$sql}";
+            evo()->logEvent(0, 3, 'error replacing into active users! SQL: ' . $sql, 'WebLogin');
+            $output = 'error replacing into active users!';
             return;
         }
     }
