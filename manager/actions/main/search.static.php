@@ -246,8 +246,8 @@ if (getv('submitok')) {
                             ?>
                             <img src="<?= $icon ?>"/> <?= $pagetitle ?></td>
                             <td<?= $tdClass ?>><?= mb_strlen($row['description'],
-                                    $modx_manager_charset) > 70 ? mb_substr($row['description'], 0, 70,
-                                        $modx_manager_charset) . "..." : $row['description']; ?></td>
+                                    $modx_manager_charset) > 70 ? evo()->hsc(mb_substr($row['description'], 0, 70,
+                                        $modx_manager_charset)) . "..." : evo()->hsc($row['description']); ?></td>
                         </tr>
                         <?php
                     }
