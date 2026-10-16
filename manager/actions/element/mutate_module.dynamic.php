@@ -558,6 +558,7 @@ function content($key, $default = null)
                             $grd->altItemClass = 'gridAltItem';
                             $grd->columns = $_lang['element_name'] . " ," . $_lang['type'];
                             $grd->fields = "name,type";
+                            $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
                             echo $grd->render();
                         } ?>
                     </div>

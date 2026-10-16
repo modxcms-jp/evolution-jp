@@ -257,6 +257,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                 $grd->columns = $_lang["element_name"] . " ," . $_lang["type"];
                 $grd->colTypes = "template:<label><input type='checkbox' name='depid[]' value='[+id+]'> [+value+]</label>";
                 $grd->fields = "name,type";
+                $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
                 $grd->colWidths = '200';
                 echo $grd->render();
             }

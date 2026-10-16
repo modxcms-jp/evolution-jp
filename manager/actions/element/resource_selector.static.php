@@ -223,6 +223,7 @@ switch ($rt) {
                             $grd->columns = $_lang["name"] . " ," . $_lang["description"];
                             $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>";
                             $grd->fields = "name,description";
+                            $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
                             if (anyv('listmode') == 1) {
                                 $grd->pageSize = 0;
                             }

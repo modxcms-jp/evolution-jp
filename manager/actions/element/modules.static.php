@@ -160,6 +160,7 @@ echo $cm->render();
         $grd->itemClass = "gridItem";
         $grd->altItemClass = "gridAltItem";
         $grd->fields = "icon,name,description,locked,disabled";
+        $grd->colEscapes = '1,1,1,1,1'; // DB の値を出す列をエスケープ
         $grd->columns = $_lang["icon"] . " ," . $_lang["name"] . " ," . $_lang["description"] . " ," . $_lang["locked"] . " ," . $_lang["disabled"];
         $grd->colWidths = "34,,,60,60";
         $grd->colAligns = "center,,,center,center";

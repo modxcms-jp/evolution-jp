@@ -176,6 +176,7 @@ echo $cm->render();
             $grd->itemClass = 'gridItem';
             $grd->altItemClass = 'gridAltItem';
             $grd->fields = 'username,fullname,email,rolename,thislogin,logincount,blocked';
+            $grd->colEscapes = '1,1,1,1,1,1,1'; // DB の値を出す列をエスケープ
             $grd->colAligns = 'left,left,left,left,left,left,left';
             $columns = [
                 $_lang['username'],
