@@ -7,7 +7,7 @@ function fieldPagetitle()
             [
                 'id' => 'field_pagetitle',
                 'name' => 'pagetitle',
-                'value' => doc('pagetitle|hsc')
+                'value' => hsc(doc('pagetitle'))
             ]
         ) . tooltip(lang('resource_title_help'))
     );
@@ -21,7 +21,7 @@ function fieldLongtitle()
             [
                 'id' => 'field_longtitle',
                 'name' => 'longtitle',
-                'value' => doc('longtitle|hsc')
+                'value' => hsc(doc('longtitle'))
             ]
         ) . tooltip(lang('resource_long_title_help'))
     );
@@ -38,7 +38,7 @@ function fieldDescription()
                 'class' => 'inputBox',
                 'rows' => '2'
             ],
-            doc('description|hsc', '')
+            hsc(doc('description', ''))
         )
             . tooltip(lang('resource_description_help')),
         'vertical-align:top;'
@@ -54,7 +54,7 @@ function fieldAlias($id)
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => doc('alias|hsc'),
+                    'value' => hsc(doc('alias')),
                     'maxlength' => 100
                 ]
             )
@@ -68,12 +68,12 @@ function fieldAlias($id)
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => doc('alias|hsc'),
+                    'value' => hsc(doc('alias')),
                     'size' => 20,
                     'style' => 'width:120px;',
                     'maxlength' => 50,
                     'onkeyup' => config('suffix_mode') ? 'change_url_suffix();' : '',
-                    'placeholder' => doc('id')
+                    'placeholder' => hsc(doc('id'))
                 ]
             )
             . html_tag(
@@ -117,7 +117,7 @@ function fieldWeblink()
             [
                 'id' => 'field_weblink',
                 'name' => 'content',
-                'value' => doc('content')
+                'value' => hsc(doc('content'))
             ]
         )
             . html_tag(
@@ -144,7 +144,7 @@ function fieldIntrotext()
                 'style' => 'height:60px;',
                 'rows' => '3'
             ],
-            doc('introtext|hsc', '')
+            hsc(doc('introtext', ''))
         ) . tooltip(lang('resource_summary_help')),
         'vertical-align:top;'
     );
@@ -237,7 +237,7 @@ function fieldMenutitle()
             [
                 'id' => 'field_menutitle',
                 'name' => 'menutitle',
-                'value' => doc('menutitle|hsc')
+                'value' => hsc(doc('menutitle'))
             ]
         )
             . tooltip(lang('resource_opt_menu_title_help'))
@@ -258,7 +258,7 @@ function menuindex()
     $ph['menuindex'] = input_text_tag(
         [
             'name' => 'menuindex',
-            'value' => doc('menuindex'),
+            'value' => hsc(doc('menuindex')),
             'style' => 'width:62px;',
             'maxlength' => 8
         ]
@@ -487,7 +487,7 @@ function fieldLink_attributes()
     $body = input_text_tag(
         [
             'name' => 'link_attributes',
-            'value' => doc('link_attributes|hsc')
+            'value' => hsc(doc('link_attributes'))
         ]
     )
         . tooltip(lang('link_attributes_help'));
