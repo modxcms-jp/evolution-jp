@@ -271,6 +271,15 @@ class synccache
             config('error_reporting', 1)
         );
 
+        // 書き出したときのコードの版（index.php のフルページキャッシュの早い返しが、コードの版と照らす）
+        $versionFile = MODX_BASE_PATH . 'manager/includes/version.inc.php';
+        if (is_file($versionFile)) {
+            include $versionFile;
+            if (!empty($modx_version) && is_string($modx_version)) {
+                $content[] = sprintf('$cache_version = %s;', var_export($modx_version, true));
+            }
+        }
+
         // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）。
         // URL の決定にパスは使わないので、スキーム・ホスト・ポートだけを書く（パスの文字でエスケープが入らないように）
         $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''));

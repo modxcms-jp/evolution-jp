@@ -22,15 +22,28 @@ $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
+$cache_version = '';
 if (is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
     include_once MODX_CACHE_PATH . 'basicConfig.php';
 }
+
+// コードとキャッシュの版が違うとき（ファイルを入れ替えてアップデートする前など）は早い返しをせず、通常の処理に回す
+$code_version = (static function () {
+    $versionFile = MODX_BASE_PATH . 'manager/includes/version.inc.php';
+    if (!is_file($versionFile)) {
+        return '';
+    }
+    include $versionFile;
+    return isset($modx_version) && is_string($modx_version) ? $modx_version : '';
+})();
 
 if (isset($conditional_get) && $conditional_get == 1) {
     include_once(MODX_BASE_PATH . "manager/includes/conditional_get.inc.php");
 } elseif (!defined('MODX_API_MODE')
     && $cache_type == 2
     && $site_status != 0
+    && $code_version !== ''
+    && $cache_version === $code_version
     && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)
     && count($_POST) < 1
     && (time() < $cacheRefreshTime || $cacheRefreshTime == 0)) {
