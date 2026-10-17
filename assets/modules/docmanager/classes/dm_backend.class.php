@@ -534,7 +534,7 @@ class DocManagerBackend
                     if ($returnval == 0) {
                         $idarray[] = ($i + $match[0]);
                     } else {
-                        $pids .= '' . $column . "='" . ($i + $match[0]) . '\' OR ';
+                        $pids .= '' . $column . "='" . (int) ($i + $match[0]) . '\' OR ';
                     }
                 }
             } elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
@@ -546,14 +546,14 @@ class DocManagerBackend
                 if ($returnval == 0) {
                     $idarray[] = $match;
                 } else {
-                    $pids .= '' . $column . '=\'' . $match . '\' OR ';
+                    $pids .= '' . $column . '=\'' . (int) $match . '\' OR ';
                 }
                 if (db()->count($group) > 0) {
                     while ($row = db()->getRow($group)) {
                         if ($returnval == 0) {
                             $idarray[] = ($row['id']);
                         } else {
-                            $pids .= '' . $column . '=\'' . $row['id'] . '\' OR ';
+                            $pids .= '' . $column . '=\'' . (int) $row['id'] . '\' OR ';
                         }
                     }
                 }
@@ -592,14 +592,14 @@ class DocManagerBackend
                     if ($returnval == 0) {
                         $idarray[] = $descendantId;
                     } else {
-                        $pids .= $column . "='" . $descendantId . "' OR ";
+                        $pids .= $column . "='" . (int) $descendantId . "' OR ";
                     }
                 }
             } elseif (preg_match('/^[\d]+$/', $value, $match)) {
                 if ($returnval == 0) {
                     $idarray[] = ($match[0]);
                 } else {
-                    $pids .= $column . "='" . $value . "' OR ";
+                    $pids .= $column . "='" . (int) $value . "' OR ";
                 }
             } else {
                 $error .= $this->dm->lang['DM_process_invalid_error'] . $value . '<br />';
@@ -631,7 +631,7 @@ class DocManagerBackend
             $sql = db()->select(
                 'id,default_text',
                 '[+prefix+]site_tmplvars',
-                "id='" . db()->escape($name) . "'"
+                sprintf('id=%d', (int) $name)
             );
             if (db()->count($sql) <= 0) {
                 continue;
