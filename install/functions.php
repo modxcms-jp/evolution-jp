@@ -984,6 +984,9 @@ function convert2utf8mb4() {
         echo "<p>utf8mb4_general_ciに変換されたテーブルはありません。</p>";
     }
 
+    sessionv('*database_charset', 'utf8mb4');
+    sessionv('*database_collation', 'utf8mb4_general_ci');
+
     $convert->updateConfigIncPhp();
     echo "<p>config.inc.php has been updated.</p>";
 }
