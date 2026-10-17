@@ -508,7 +508,7 @@ function checkDocPermission($id, $document_groups = [])
             evo()->manager->saveFormValues();
             evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, validated('alias')), $url);
         }
-    } elseif (!isAllowroot()) {
+    } elseif (validated('parent') == 0 && !manager()->isAllowroot()) {
         alert()->setError(3);
         alert()->dumpError();
     } elseif (!evo()->hasPermission('new_document')) {
@@ -547,20 +547,6 @@ function checkAllowedParents($id)
         evo()->manager->saveFormValues();
         evo()->webAlertAndQuit(lang('access_permission_parent_denied'), sprintf('index.php?a=27&id=%d', (int)$id));
     }
-}
-
-function isAllowroot()
-{
-    if (validated('parent') != 0) {
-        return 1;
-    }
-    if (evo()->hasPermission('save_role')) {
-        return 1;
-    }
-    if (evo()->config('udperms_allowroot')) {
-        return 1;
-    }
-    return 0;
 }
 
 function getInputValues($id = 0, $mode = 'new')

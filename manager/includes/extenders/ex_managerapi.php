@@ -956,6 +956,12 @@ class ManagerAPI
         return $modx->user_allowed_docs;
     }
 
+    // ルート直下にリソースを作ってよいか
+    public function isAllowroot()
+    {
+        return evo()->hasPermission('save_role') || (bool)evo()->config('udperms_allowroot');
+    }
+
     public function getUploadMaxsize()
     {
         return min(
