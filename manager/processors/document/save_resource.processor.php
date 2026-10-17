@@ -162,11 +162,12 @@ function syncParentAfterEvent($param)
         return $param;
     }
     validated('*parent', $parent);
-    if (renumberAliasAfterParentChange()) {
+    if (renumberAliasAfterParentChange($param)) {
         $param['doc_vars']['alias'] = evo()->manager->get_alias_num_in_folder(
             array_get($param['doc_vars'], 'id'),
             $parent
         );
+        validated('*alias', $param['doc_vars']['alias']);
         return $param;
     }
     recheckAliasAfterParentChange($param, $parent);
@@ -174,10 +175,12 @@ function syncParentAfterEvent($param)
 }
 
 // 別名が空で、フォルダ内の連番（automatic_alias=2）で振られていた場合は、新しい親で振り直す対象
-function renumberAliasAfterParentChange()
+// プラグインが別名を変えていたら、その別名を連番で上書きしない
+function renumberAliasAfterParentChange($param)
 {
     return evo()->config('friendly_urls')
         && (int)evo()->config('automatic_alias') === 2
+        && (string) array_get($param['doc_vars'], 'alias', '') === (string) validated('alias')
         && trim((string) postv('alias', '')) === '';
 }
 
