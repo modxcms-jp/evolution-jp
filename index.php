@@ -31,6 +31,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
 } elseif (!defined('MODX_API_MODE')
     && $cache_type == 2
     && $site_status != 0
+    && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)
     && count($_POST) < 1
     && (time() < $cacheRefreshTime || $cacheRefreshTime == 0)) {
     session_name($site_sessionname);
