@@ -37,8 +37,8 @@ if (mode() === 'new') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
-    $param = syncParentAfterEvent($param);
     $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
+    $param = syncParentAfterEvent($param);
 
     $newid = db()->insert(
         db()->escape($param['doc_vars']),
