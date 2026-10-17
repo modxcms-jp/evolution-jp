@@ -54,13 +54,15 @@ class SqlParser
                 str_replace('{TABLE_OPTION}', $tableOption, $idata),
                 [
                     'PREFIX' => $this->prefix,
-                    'ADMINNAME' => $this->adminname,
+                    'ADMINNAME' => db()->escape($this->adminname),
                     'ADMINPASS' => md5($this->adminpass),
-                    'ADMINEMAIL' => $this->adminemail,
-                    'ADMINFULLNAME' => ($atPos = strpos($this->adminemail, '@')) !== false
-                        ? substr($this->adminemail, 0, $atPos)
-                        : $this->adminemail,
-                    'MANAGERLANGUAGE' => $this->managerlanguage,
+                    'ADMINEMAIL' => db()->escape($this->adminemail),
+                    'ADMINFULLNAME' => db()->escape(
+                        ($atPos = strpos($this->adminemail, '@')) !== false
+                            ? substr($this->adminemail, 0, $atPos)
+                            : $this->adminemail
+                    ),
+                    'MANAGERLANGUAGE' => db()->escape($this->managerlanguage),
                     'DATE_NOW' => time()
                 ],
                 '{',

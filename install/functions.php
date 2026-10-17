@@ -1028,3 +1028,17 @@ function validateSessionValues() {
 
     return true;
 }
+
+/**
+ * 設定ファイルのテンプレートの [+キー+] を、PHP のリテラルに置き換える。
+ * 値は var_export() で出すので、引用符や \ や $ を含んでいても読み戻した値が変わらない。
+ * strtr() で一度に置き換えるので、値の中のタグ風の文字列は置き換わらない。
+ */
+function buildConfigFile($template, array $values)
+{
+    $replacePairs = [];
+    foreach ($values as $key => $value) {
+        $replacePairs["[+{$key}+]"] = var_export($value, true);
+    }
+    return strtr($template, $replacePairs);
+}
