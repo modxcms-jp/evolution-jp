@@ -316,9 +316,9 @@ M5:
 
 - ブランチ: `fix/654-upgrade-data-safety`（main ceeff2009 から作成、#654 に紐づけ済み）
 - 作業ツリー: `.claude/worktrees/issue-654`
-- PR: #782（下書き）
+- PR: #782（マージ済み、2026-10-17）
 - Issue（着手順）: #654, #655, #657, #658, #659, #656（#656 は `security` ラベル。PR 本文・コミットには、値の扱いの説明だけを書き、悪用の手順を書かない）
-- ロードマップ: `.agent/roadmap.md` の「アップグレードで利用者のデータや設定を壊す不具合を直す」（`ExecPlan:` の反映はメインのセッションが行う）
+- ロードマップ: `.agent/roadmap-archive.md` の「0. 全体点検で見つかった不具合の修正」にある「アップグレードで利用者のデータや設定を壊す不具合を直す」（`ExecPlan:` の反映はメインのセッションが行う）
 - 想定コミット: Concrete Steps の各マイルストーンのコミット案（M3 は 2 つ）。PR は 1 つで、本文に `Closes #654` など 6 件を並べ、「動きが変わる点」を書く。
 - 検証の手順の正本: `.claude/skills/adaptive-validation-runner/references/environment.md`
 
