@@ -270,13 +270,16 @@ function block_plugins($tplPlugins, $ph)
 
     $_ = ['<h3>[+plugins+]</h3>'];
     foreach ($tplPlugins as $i => $v) {
+        // 利用者が無効にしたプラグインは、初めて開いたときはチェックを外し、理由を添える
+        $userDisabled = !empty($v['user_disabled']);
         $_[] = sprintf(
-            '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
+            '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s%s</label>',
             $i,
             is_demo($v) ? 'toggle' : 'toggle demo',
-            is_check(sessionv('plugin', false), $i) ? 'checked' : '',
+            is_check(sessionv('plugin', false), $i, !$userDisabled) ? 'checked' : '',
             $v['name'],
-            $v['description']
+            $v['description'],
+            $userDisabled ? ' <em class="user-disabled">' . hsc(lang('plugin_disabled_in_site')) . '</em>' : ''
         );
     }
     return evo()->parseText(implode("<br />\n", $_), $ph);
@@ -309,11 +312,11 @@ function is_demo($option)
     return is_array($option['installset']) && !in_array('sample', $option['installset'], true);
 }
 
-function is_check($elements, $num)
+function is_check($elements, $num, $checkedFirst = true)
 {
     if (in_array($_SESSION['prevAction'], ['connection', 'mode'])) {
         if (!isset($_SESSION['installdata'])) {
-            return true;
+            return $checkedFirst;
         }
     }
     if (!is_array($elements) || !$elements) {

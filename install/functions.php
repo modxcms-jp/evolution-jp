@@ -122,6 +122,16 @@ function compare_check($params)
         }
     }
 
+    // 有効な行が無く、無効な同名の行だけがあるときは、利用者が無効にしたものとして扱う
+    // （アップグレードで入れ直した控えは有効な行と並ぶので、これに当たらない）
+    if ($category === 'plugin' && db()->count($rs) === 0 && db()->getValue(
+        'COUNT(id)',
+        $tableName,
+        sprintf("`name`='%s' AND `disabled`='1'", db()->escape($params['name']))
+    )) {
+        return 'disabled';
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
@@ -919,7 +929,8 @@ function shouldInstallElement($index, $installset, $selected, $installSampleData
     if ($installSampleData && in_array('sample', $installset)) {
         return true;
     }
-    if (in_array('base', $installset)) {
+    // 新規インストールでは base を必ず入れる。アップグレードでは、オプション画面のチェックを尊重する
+    if (!sessionv('is_upgradeable') && in_array('base', $installset)) {
         return true;
     }
 

@@ -142,7 +142,8 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
             continue;
         }
         $params['category'] = $params['category'] ?? 'plugin';
-        if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
+        $compare = sessionv('is_upgradeable') ? compare_check($params) : '';
+        if ($compare === 'same') {
             continue;
         }
         if ($params['version']) {
@@ -157,6 +158,7 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
             'guid'          => $params['guid'],
             'category'      => $params['modx_category'],
             'legacy_names'  => $params['legacy_names'],
+            'user_disabled' => $compare === 'disabled',
             'disabled'      => isset($params['disabled'])
                 ? $params['disabled']
                 : '0', 'installset' => get_installset($params)

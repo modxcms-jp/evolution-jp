@@ -136,6 +136,7 @@ $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>こ
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。';
 $_lang["plugins"] = 'プラグイン';
+$_lang["plugin_disabled_in_site"] = 'このサイトでは無効にしてあります';
 $_lang["preinstall_validation"] = 'インストール前の状態確認';
 $_lang["preupdate_validation"] = 'アップデート前の状態確認';
 $_lang["remove_install_folder_auto"] = 'インストールディレクトリを自動的に削除する<br />※この操作はサーバ設定によっては実行されないことがあります。<br />削除できなかった場合は、管理画面ログイン時に太文字で警告が表示されますので、手作業で削除してください。';
