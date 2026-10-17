@@ -856,7 +856,10 @@ class DocumentParser
                 && $this->doc('cacheable') == 1
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
+                && !($this->config('cache_type') == 2 && $this->doc('privateweb'))
             ) {
+                // cache_type=2 のフルページキャッシュは閲覧者を区別せず配信されるため、
+                // アクセス制御(privateweb)されたページは保存しない
                 $docid = $this->documentIdentifier;
                 $param = ['makeCache' => true];
                 // invoke OnBeforeSaveWebPageCache event
