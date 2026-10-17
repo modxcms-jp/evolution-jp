@@ -360,26 +360,19 @@ function cleanupNullStrings()
 
 function propUpdate($new, $old)
 {
-    // Split properties up into arrays
+    // 本体の DocumentParser::parseProperties() と同じく、最初の = で名前と値に分ける（値の中の = は残す）。
+    // 値の中の & は %26 で表す前提なので、& での分割は変えない。後に渡した定義（$old）が優先される
     $returnArr = [];
-    $newArr = explode('&', $new);
-    $oldArr = explode('&', $old);
-
-    foreach ($newArr as $k => $v) {
-        if ($v) {
-            $tempArr = explode('=', trim($v));
-            $returnArr[$tempArr[0]] = $tempArr[1];
+    foreach ([$new, $old] as $properties) {
+        foreach (explode('&', (string)$properties) as $v) {
+            $v = trim($v);
+            if (strpos($v, '=') === false) {
+                continue;
+            }
+            [$name, $value] = explode('=', $v, 2);
+            $returnArr[$name] = $value;
         }
     }
-    foreach ($oldArr as $k => $v) {
-        if ($v) {
-            $tempArr = explode('=', trim($v));
-            $returnArr[$tempArr[0]] = $tempArr[1];
-        }
-    }
-
-    // Make unique array
-    $returnArr = array_unique($returnArr);
 
     // Build new string for new properties value
     $return = '';
