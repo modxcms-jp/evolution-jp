@@ -37,7 +37,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
     session_cache_limiter('');
     ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
     session_start();
-    if (!isset($_SESSION['mgrValidated'])) {
+    if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         session_write_close();
         $uri_parent_dir = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/')) . '/';
         $uri_parent_dir = ltrim($uri_parent_dir, '/');
