@@ -2187,7 +2187,7 @@ class DocumentParser
                 }
             }
 
-            if (strpos($value, '@') === 0) {
+            if (strpos($value, '@') === 0 && $this->config('enable_bindings') == 1) {
                 $value = $this->atBind($value);
             }
 
@@ -5392,15 +5392,25 @@ class DocumentParser
             case 'listbox-multiple':
             case 'checkbox':
             case 'option':
-                $src = $tvtype;
+                // バインディングが無効のときは、コマンドにあたる値だけをほかの型と同じ扱いにする。
+                // コマンドにあたらない @ で始まる値は、そのまま残す
+                $bindings_enabled = $this->config('enable_bindings') == 1;
+                $src = $bindings_enabled ? $tvtype : 'docform';
                 $values = explode('||', $value);
                 foreach ($values as $i => $v) {
                     if (strpos($v, '<?php') === 0) {
                         $v = "@@EVAL\n" . substr($v, 6);
                     }
-                    if (strpos($v, '@') === 0) {
-                        $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
+                    if (strpos($v, '@') !== 0) {
+                        continue;
                     }
+                    if (!$bindings_enabled) {
+                        $command = $this->splitTVCommand($v);
+                        if ($command[0] === null) {
+                            continue;
+                        }
+                    }
+                    $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
                 }
                 $value = implode('||', $values);
                 break;
