@@ -835,7 +835,7 @@ if (!function_exists('collect_tab_settings_ph')) {
             [
                 'type' => 'hidden',
                 'name' => 'contentType',
-                'value' => doc('contentType')
+                'value' => hsc(doc('contentType'))
             ]
         ) : fieldContentType();
         $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
@@ -843,7 +843,7 @@ if (!function_exists('collect_tab_settings_ph')) {
             [
                 'type' => 'hidden',
                 'name' => 'content_dispo',
-                'value' => doc('content_dispo')
+                'value' => hsc(doc('content_dispo'))
             ]
         ) : fieldContent_dispo();
         $ph['fieldLink_attributes'] = fieldLink_attributes();
