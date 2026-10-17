@@ -296,7 +296,7 @@ function fieldParent()
     $parent = db()->getRow(
         'id,pagetitle',
         '[+prefix+]site_content',
-        sprintf('id=%s', doc('parent', 0))
+        sprintf('id=%d', (int) doc('parent', 0))
     );
     $ph['pid'] = array_get($parent, 'id', 0);
     $ph['pname'] = hsc($parent ? $parent['pagetitle'] : config('site_name'));
