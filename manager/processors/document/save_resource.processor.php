@@ -178,7 +178,7 @@ function renumberAliasAfterParentChange()
 {
     return evo()->config('friendly_urls')
         && (int)evo()->config('automatic_alias') === 2
-        && (string)validated('alias') === '';
+        && trim((string) postv('alias', '')) === '';
 }
 
 // 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件）
