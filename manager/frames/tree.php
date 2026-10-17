@@ -302,7 +302,7 @@ if (is_array($evtOut)) {
                         <td><a href="#" class="treeButton" id="Button2" onclick="collapseTree();"
                                 title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
                         </td>
-                        <?php if (evo()->hasPermission('new_document') && isAllowroot()) { ?>
+                        <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
                             <td><a href="#" class="treeButton" id="Button3a"
                                     onclick="EvoShell.navigate('index.php?a=4');return false;"
                                     title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
@@ -843,18 +843,6 @@ function itemViewPage()
     $ph['img'] = $_style['icons_information'];
     $ph['text'] = $_lang['preview_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function isAllowroot()
-{
-    if (evo()->hasPermission('save_role')) {
-        return 1;
-    }
-    if (config('udperms_allowroot')) {
-        return 1;
-    }
-
-    return 0;
 }
 
 function openedArray($allowed_parents)
