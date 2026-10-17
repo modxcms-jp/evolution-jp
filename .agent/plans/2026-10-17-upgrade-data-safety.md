@@ -8,7 +8,9 @@
 
 - [x] (2026-10-17) ExecPlan を作成（6 件の原因を確認し、M1〜M5 に分けた。要相談 4 件は Decision Log の先頭）
 - [x] (2026-10-17) 要相談 Q1〜Q4 に本人の確認を得た（選択肢の UI で回答。すべて推奨の案。Decision Log の「決まったこと」を参照）
-- [ ] M1: #654 utf8mb4 に変換したら、接続文字セットも utf8mb4 で書き出す
+- [x] (2026-10-17) M1: #654 utf8mb4 に変換したら、接続文字セットも utf8mb4 で書き出す（f5d0fe4d9）
+  - 検証: 修正前は `DB_CHARSET` が `'utf8mb3'` のままで、絵文字が化けた。修正後は `'utf8mb4'` になり、絵文字が保存できた。回帰（「変換しない」）は、設定ファイルもテーブルも utf8mb4 にならず、問題なし。
+  - 自己レビュー: 問題なし。低 1 件: アップグレードの SQL が失敗して止まる経路では、設定ファイルが書き込み可の権限のまま残る。修正前からの動きで、今回は見送り。
 - [ ] M2: #655 ロール ID 1 と権限をアップグレードで初期値に戻さない（Q3 は案 i に決定）
 - [ ] M3: #657 無効にした同梱プラグインを入れ直さない、#658 プロパティの値を切らない（Q1 は案 B、Q2 は案 a に決定）
 - [ ] M4: #659 主キーが正しいときは付け直さない
@@ -28,6 +30,7 @@
 - #659: MariaDB には `sql_require_primary_key` が無い。MySQL 公式イメージは Docker Engine 29 系で取得できない（`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。代わりに MariaDB の `innodb_force_primary_key` と general_log（発行された SQL の記録）で確かめる。
 - #658: 修正前の `propUpdate()` の出力をホストの PHP 8.4 で確かめた。`&tpl=テンプレート;string;@CODE:<a href="[+url+]">[+title+]</a>` は `&tpl=テンプレート;string;@CODE:<a href ` になり、`&a=Show;list;yes,no;yes &b=Show;list;yes,no;yes` は `&a=Show;list;yes,no;yes ` になる。`array_unique()` は値で重複を除くので、名前の重複を除く役には立っていない（配列のキーはもともと重複しない）。
 - 範囲外（起票しない）: `install/functions.php` 624 行の関数 `parseProperties()` は、どこからも呼ばれておらず、同じ `explode('=')` の問題がある。接続テスト（`install/connection.databasetest.php` 51 行）はテーブル接頭辞の文字を確かめていない。アップグレード時、設定ファイルに書く DB の接続情報は、環境変数があればその値になる（`isUpGradeable()` が `config.inc.php` を読み込んだ結果をセッションに入れるため）。
+- M1 の検証（2026-10-17）: MariaDB 11 では、修正前の `DB_CHARSET` が `'utf8'` でなく `'utf8mb3'` だった（計画時の見立てどおり、照合順序の名前から決まる）。「変換しない」を選んでも、設定ファイルの `'utf8'` は `'utf8mb3'` に書き換わる（修正前からの動き）。
 - 検証環境の管理者 `admin` はロール 2（ウェブマスター、`save_role=1`）。ロール 1（Administrator）には、初期状態ではユーザーがいない（`install/sql/default_settings.sql` 46 行）。
 
 ## Decision Log
