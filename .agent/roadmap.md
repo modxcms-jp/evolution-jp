@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` へ移す（このファイルには未完了の項目だけを置く）。
 
-最終更新: 2026-10-17 (0 節の「エスケープ漏れを直す（2）」を完了にしてアーカイブへ移し、「表示が止まる」に Issue を足した。「権限チェック」「表示が止まる」「軽微」は残りの Issue が非公開側の扱いか本人の判断待ちだけなので BLOCKED にした)
+最終更新: 2026-10-17 (0 節の「エスケープ漏れを直す（2）」を完了にしてアーカイブへ移し、「表示が止まる」に Issue を足した。「権限チェック」「表示が止まる」「軽微」は残りの Issue が非公開側の扱いか本人の判断待ちだけなので BLOCKED にした。3 節に DocumentParser責務別トレイト分割を足した)
 
 ## 現在地（先に読む）
 
@@ -358,6 +358,23 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
 - メモ/判断ログ: 基本CRUDに責務を限定し拡張は分離する
 
 ## 3. 大規模改修
+
+### DocumentParser責務別トレイト分割
+
+- Status: `NEXT`
+- Issue: `未起票`
+- 着手予定日: `未定`
+- 完了日: `未完了`
+- 目的: パーサー本体2ファイル(約9,200行)を責務別トレイトへ再編し、変更対象の特定・レビュー・AI実装の精度を上げる
+- 背景/課題: `document.parser.class.inc.php`(約6,350行)と既存の`document.parser.subparser.trait.php`(約2,870行)は、後者が「使用頻度が低い関数」という基準で分離された歴史的経緯を持ち、実質どちらも責務混在の1枚岩になっている
+- 到達条件（Definition of Done）:
+  - `manager/includes/traits/`配下に責務別トレイト11本(責務9本+受け皿2本)を作成し、外部から見た`$modx`のAPI(メソッド名・シグネチャ・挙動)を変更せず移行する
+  - 既存`document.parser.subparser.trait.php`を廃止する(末尾の`@deprecated SubParser`クラス定義ごとファイル削除・`use`文・`require_once`の除去)。ただし`loadExtension('subparser')`の互換シムは維持する(`SubParser`クラス自体の後方互換は対象外。直接参照箇所なし、ユーザー判断)
+  - メソッド名一覧に加え可視性・static修飾・引数リストまで含めたシグネチャ単位の棚卸し(PHP Reflectionで出力)で分割前後の完全一致を確認し、`docker compose exec app php evo help`によるフルブート確認、主要画面のブラウザスモークテストで検証する
+- 非対象（やらないこと）: クラス分解(別クラスへの抽出)、メソッドのシグネチャ・可視性・ロジック変更、PHPUnitテストの新規整備
+- 依存関係: なし
+- ExecPlan: `.agent/plans/2026-07-14-document-parser-trait-split.md`
+- メモ/判断ログ: 2026-07-14 (yamamoto/Claude): public メソッドが manager/actions・プラグイン・モジュール等から広く直接呼ばれ、約100個のpublicプロパティを全メソッド群が共有するため、別クラス抽出より同一オブジェクト上でのトレイト分割を採用。着手順は独立性の高い`tv`から始め、本丸の`tag-parse`/`request-response`を最後に回す方針(詳細はExecPlanのDecision Log)。2026-07-14 PRレビューで既存トレイト末尾の`@deprecated SubParser`クラス(呼び出し箇所は現状ゼロ)の存在が指摘されたが、直接参照するプラグインが無いためユーザー判断で後方互換は対象外とし、ファイルごと削除する方針のままとした。
 
 ### PDO移行
 
