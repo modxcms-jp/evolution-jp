@@ -90,7 +90,7 @@
     ],
     "toolbar": [
       "undo redo | blocks | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist",
-      "link image media | codesample charmap emoticons | pagebreak nonbreaking insertdatetime anchor | table | searchreplace | removeformat | code fullscreen preview | save"
+      "link image media | template codesample charmap emoticons | pagebreak nonbreaking insertdatetime anchor | table | searchreplace | removeformat | code fullscreen preview | save"
     ],
     "mobile": {
       "plugins": "preview searchreplace importcss autolink autosave save directionality visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists quickbars wordcount help"

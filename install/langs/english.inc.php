@@ -44,6 +44,8 @@ $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/
 $_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories exists: ';
 $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories are writable: ';
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
+$_lang["upgrade_old_db_title"] = 'Cannot upgrade from this version';
+$_lang["upgrade_old_db_not_supported"] = 'This database is from a version older than 1.0.0J and cannot be upgraded directly to this version. The database has not been changed. Please restore the previous site files.';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
@@ -160,6 +162,8 @@ $_lang["setup_database_selection_failed"] = 'Database selection failed...';
 $_lang["setup_database_selection_failed_note"] = 'The database does not exist. Setup will attempt to create it.';
 $_lang["snippets"] = 'Snippets';
 $_lang["some_tables_not_updated"] = 'Some tables were not updated. This might be due to previous modifications.';
+$_lang["install_failed_tables_removed"] = 'The tables created during this installation have been removed. Fix the cause and run the installation again with the same settings.';
+$_lang["install_failed_tables_left"] = 'The following tables created during this installation could not be removed. Remove them with a tool such as phpMyAdmin, then run the installation again.';
 $_lang["status_checking_database"] = 'Checking database: ';
 $_lang["status_connecting"] = ' Connection to host: ';
 $_lang["status_failed"] = 'failed!';

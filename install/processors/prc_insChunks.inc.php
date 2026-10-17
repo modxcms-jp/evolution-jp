@@ -34,6 +34,11 @@ foreach ($tplChunks as $i => $tplInfo) {
         ),
         'category' => getCreateDbCategory($tplInfo['category'])
     ];
+    if ($field['category'] === false) {
+        $errors++;
+        showError();
+        return;
+    }
 
     $rs = db()->select(
         '*',
@@ -45,7 +50,7 @@ foreach ($tplChunks as $i => $tplInfo) {
     );
     if (!db()->count($rs)) {
         $rs = db()->insert(db()->escape(nullToEmpty($field)), '[+prefix+]site_htmlsnippets');
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors++;
             showError();
             return;
@@ -59,6 +64,11 @@ foreach ($tplChunks as $i => $tplInfo) {
             '[+prefix+]site_htmlsnippets',
             sprintf("name='%s'", db()->escape($tplInfo['name']))
         );
+        if (dbWriteFailed($updated)) {
+            $errors++;
+            showError();
+            return;
+        }
         echo ok($tplInfo['name'], lang('upgraded'));
         continue;
     }
@@ -80,7 +90,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         $i++;
     }
     $rs = db()->insert(db()->escape(nullToEmpty($field)), '[+prefix+]site_htmlsnippets');
-    if (!$rs) {
+    if (dbWriteFailed($rs)) {
         $errors++;
         showError();
         return;

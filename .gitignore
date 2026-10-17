@@ -17,3 +17,6 @@
 # gitは空のディレクトリを管理しないため、空のディレクトリを同期したい場合は、
 # このファイルが存在するディレクトリに.gitkeepという名前の空ファイルを作成してください
 !.gitkeep
+
+# Claude Code のワークツリー（exec-plan-runner が Issue ごとに作る）
+/.claude/worktrees/

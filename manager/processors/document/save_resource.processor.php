@@ -26,6 +26,9 @@ checkDocPermission(validated('id'), $document_groups);
 
 evo()->manager->saveFormValues();
 
+checkParent();
+checkAllowedParents(validated('id'));
+
 if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
     $param = [
@@ -34,6 +37,8 @@ if (mode() === 'new') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
+    $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
+    $param = syncParentAfterEvent($param);
 
     $newid = db()->insert(
         db()->escape($param['doc_vars']),
@@ -73,13 +78,6 @@ if (mode() === 'edit') {
     if (validated('id') == evo()->config('site_start')) {
         checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     }
-    if (validated('id') == validated('parent')) {
-        evo()->webAlertAndQuit(
-            "Document can not be it's own parent!",
-            sprintf('index.php?a=27&id=%s', validated('id'))
-        );
-    }
-
     validated('*isfolder', checkFolderStatus(validated('id')));
 
     $db_v = getExistsValues(validated('id'));
@@ -101,6 +99,7 @@ if (mode() === 'edit') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
+    $param = syncParentAfterEvent($param);
     $rs = db()->update(
         db()->escape($param['doc_vars']),
         '[+prefix+]site_content',
@@ -151,6 +150,108 @@ if (mode() === 'edit') {
 
 header('Location: index.php?a=7');
 
+
+// OnBeforeDocFormSave のプラグインが変えた親を、保存後の処理にも反映する
+function syncParentAfterEvent($param)
+{
+    if (!isset($param['doc_vars']['parent'])) {
+        return $param;
+    }
+    $parent = (int)$param['doc_vars']['parent'];
+    if ($parent === (int)validated('parent')) {
+        return $param;
+    }
+    validated('*parent', $parent);
+    if (renumberAliasAfterParentChange($param)) {
+        $param['doc_vars']['alias'] = evo()->manager->get_alias_num_in_folder(
+            array_get($param['doc_vars'], 'id'),
+            $parent
+        );
+        validated('*alias', $param['doc_vars']['alias']);
+        return $param;
+    }
+    recheckAliasAfterParentChange($param, $parent);
+    return $param;
+}
+
+// 別名が空で、フォルダ内の連番（automatic_alias=2）で振られていた場合は、新しい親で振り直す対象
+// プラグインが別名を変えていたら、その別名を連番で上書きしない
+function renumberAliasAfterParentChange($param)
+{
+    return evo()->config('friendly_urls')
+        && (int)evo()->config('automatic_alias') === 2
+        && (string) array_get($param['doc_vars'], 'alias', '') === (string) validated('alias')
+        && trim((string) postv('alias', '')) === '';
+}
+
+// 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件）
+// use_alias_path が無効なら重複の確認は親に依らないので、確かめ直さない
+function recheckAliasAfterParentChange($param, $parent)
+{
+    $alias = (string)array_get($param['doc_vars'], 'alias', '');
+    if ($alias === '' || !evo()->config('friendly_urls') || !evo()->config('use_alias_path')) {
+        return;
+    }
+    if (evo()->config('allow_duplicate_alias')) {
+        return;
+    }
+    _check_duplicate_alias((int)validated('id'), $alias, (string)$parent);
+}
+
+// OnBeforeDocFormSave のプラグインが同じ保存の中で文書を作ると、事前に決めた ID がぶつかる
+function refreshNewDocId($doc_vars)
+{
+    if (empty($doc_vars['id'])) {
+        return $doc_vars;
+    }
+    $rs = db()->select('id', '[+prefix+]site_content', sprintf('id=%d', (int)$doc_vars['id']), '', 1);
+    if (!db()->count($rs)) {
+        return $doc_vars;
+    }
+    $oldId = (int)$doc_vars['id'];
+    $doc_vars['id'] = evo()->doc->getNewDocID();
+    if ((int)$doc_vars['id'] !== $oldId && evo()->getConfig('convert_datauri_to_file', 1)) {
+        $doc_vars = moveDataUriFilesToNewId($doc_vars, $oldId, (int)$doc_vars['id']);
+    }
+    return $doc_vars;
+}
+
+// saveDataUriFile()（mutate_content/functions.php）の書き出し先の前の部分と同じ規則
+function dataUriRelativeDir($docid)
+{
+    return sprintf('content/images/datauri/%d/', $docid);
+}
+
+// ID を取り直したとき、introtext の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
+// 古い ID の場所は、プラグインが作った別の文書のものが同居し得るので、フォルダごとではなく本文に出てくるファイルだけを移す
+function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
+{
+    if (empty($doc_vars['introtext']) || !is_string($doc_vars['introtext'])) {
+        return $doc_vars;
+    }
+    $oldDir = dataUriRelativeDir($oldId);
+    $newDir = dataUriRelativeDir($newId);
+    $pattern = '@' . preg_quote($oldDir, '@') . '[A-Za-z0-9_.\-]+@';
+    if (!preg_match_all($pattern, $doc_vars['introtext'], $matches)) {
+        return $doc_vars;
+    }
+    foreach (array_unique($matches[0]) as $oldPath) {
+        $newPath = $newDir . substr($oldPath, strlen($oldDir));
+        $absoluteNewDir = MODX_BASE_PATH . $newDir;
+        if (!is_file(MODX_BASE_PATH . $oldPath)) {
+            continue;
+        }
+        if (
+            (!is_dir($absoluteNewDir) && !mkdir($absoluteNewDir, 0755, true))
+            || !rename(MODX_BASE_PATH . $oldPath, MODX_BASE_PATH . $newPath)
+        ) {
+            evo()->logEvent(0, 3, sprintf('Failed to move Data URI file: %s -> %s', $oldPath, $newPath), 'refreshNewDocId');
+            continue;
+        }
+        $doc_vars['introtext'] = str_replace($oldPath, $newPath, $doc_vars['introtext']);
+    }
+    return $doc_vars;
+}
 
 function get_tmplvars()
 {
@@ -257,9 +358,9 @@ function _check_duplicate_alias($id, $alias, $parent)
             '[+prefix+]site_content',
             sprintf(
                 "id!='%s' AND alias='%s' AND parent=%s LIMIT 1",
-                $id,
-                $alias,
-                $parent
+                (int) $id,
+                db()->escape($alias),
+                (int) $parent
             )
         );
         if ($docid < 1) {
@@ -268,8 +369,8 @@ function _check_duplicate_alias($id, $alias, $parent)
                 '[+prefix+]site_content',
                 sprintf(
                     "id='%s' AND alias='' AND parent='%s'",
-                    $alias,
-                    $parent
+                    db()->escape($alias),
+                    (int) $parent
                 )
             );
         }
@@ -279,8 +380,8 @@ function _check_duplicate_alias($id, $alias, $parent)
             '[+prefix+]site_content',
             sprintf(
                 "id!='%s' AND alias='%s' LIMIT 1",
-                $id,
-                $alias
+                (int) $id,
+                db()->escape($alias)
             )
         );
         $docid = db()->getValue($rs);
@@ -289,7 +390,7 @@ function _check_duplicate_alias($id, $alias, $parent)
                 db()->select(
                     'id',
                     '[+prefix+]site_content',
-                    sprintf("id='%s' AND alias=''", $alias)
+                    sprintf("id='%s' AND alias=''", db()->escape($alias))
                 )
             );
         }
@@ -319,6 +420,27 @@ function _check_duplicate_alias($id, $alias, $parent)
         $url
     );
     return $alias;
+}
+
+// 自分自身・子孫・存在しないリソースを親にしていないか
+function checkParent()
+{
+    $message = manager()->invalidParentMessage(
+        mode() === 'edit' ? [validated('id')] : [],
+        validated('parent')
+    );
+    if ($message === '') {
+        return;
+    }
+    // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
+    evo()->manager->saveFormValues(postv('mode'));
+    $url = sprintf('index.php?a=%s', postv('mode'));
+    if (mode() === 'edit') {
+        $url .= sprintf('&id=%s', validated('id'));
+    } elseif (request_intvar('pid')) {
+        $url .= sprintf('&pid=%s', request_intvar('pid'));
+    }
+    evo()->webAlertAndQuit($message, $url);
 }
 
 function checkDocPermission($id, $document_groups = [])
@@ -366,6 +488,12 @@ function checkDocPermission($id, $document_groups = [])
         }
         $existingDocument = db()->getRow($rs);
 
+        // 保存しようとしている文書そのものにアクセスできるか
+        if (!evo()->checkPermissions($id)) {
+            evo()->manager->saveFormValues();
+            evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
+        }
+
         // check to see if the user is allowed to save the document in the place he wants to save it in
         if ($existingDocument['parent'] == validated('parent')) {
             return;
@@ -386,12 +514,44 @@ function checkDocPermission($id, $document_groups = [])
     } elseif (!evo()->hasPermission('new_document')) {
         alert()->setError(3);
         alert()->dumpError();
+    } elseif (evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
+        // 作成先の親にアクセスできるか
+        alert()->setError(3);
+        alert()->dumpError();
+    }
+}
+
+// 許可するリソースの範囲の外の文書の更新と、範囲の外の親への作成・移動を止める
+function checkAllowedParents($id)
+{
+    if (mode() === 'new') {
+        if (!manager()->isInAllowedParents(validated('parent'))) {
+            alert()->setError(3, lang('access_permission_parent_denied'));
+            alert()->dumpError();
+        }
+        return;
+    }
+
+    if (!manager()->isInAllowedParents($id)) {
+        evo()->manager->saveFormValues();
+        evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
+    }
+
+    $currentParent = (int)db()->getValue(
+        db()->select('parent', '[+prefix+]site_content', sprintf('id=%d', (int)$id))
+    );
+    if ($currentParent === (int)validated('parent')) {
+        return;
+    }
+    if (!manager()->isInAllowedParents(validated('parent'))) {
+        evo()->manager->saveFormValues();
+        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), sprintf('index.php?a=27&id=%d', (int)$id));
     }
 }
 
 function isAllowroot()
 {
-    if (postv('parent') != 0) {
+    if (validated('parent') != 0) {
         return 1;
     }
     if (evo()->hasPermission('save_role')) {
@@ -543,10 +703,10 @@ function checkPublishedon($timestamp)
 function checkPublishedby($db_v)
 {
     if (!evo()->hasPermission('publish_document')) {
-        return $db_v['publishedon'];
+        return $db_v['publishedby'];
     }
 
-    if (validated('published') && validated('pub_date') <= request_time()) {
+    if (validated('published') && validated('pub_date') && validated('pub_date') <= request_time()) {
         return $db_v['publishedby'];
     }
 

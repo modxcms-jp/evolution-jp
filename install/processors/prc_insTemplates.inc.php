@@ -33,6 +33,11 @@ foreach ($tplTemplates as $i => $tplInfo) {
         'category'    => getCreateDbCategory($tplInfo['category']),
         'locked'      => (int)$tplInfo['locked']
     ];
+    if ($f['category'] === false) {
+        $errors += 1;
+        showError();
+        return;
+    }
 
     // See if the template already exists
     $dbv_template = db()->getObject('site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'");
@@ -42,7 +47,7 @@ foreach ($tplTemplates as $i => $tplInfo) {
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_templates'
         );
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
             return;
@@ -50,7 +55,7 @@ foreach ($tplTemplates as $i => $tplInfo) {
         echo ok($tplInfo['templatename'], lang('installed'));
         continue;
     }
-    if (!db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'")) {
+    if (dbWriteFailed(db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_templates', "templatename='" . db()->escape($tplInfo['templatename']) . "'"))) {
         $errors += 1;
         showError();
         return;

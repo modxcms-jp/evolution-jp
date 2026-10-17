@@ -20,6 +20,11 @@ if (!evo()->checkPermissions($id)) {
     alert()->dumpError();
     return;
 }
+if (!manager()->isInAllowedParents($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+    return;
+}
 
 manager()->saveFormValues(4);
 
@@ -29,6 +34,22 @@ evo()->loadExtension('DocAPI');
 $fields = $modx->doc->fixPubStatus(
     $modx->doc->fixTvNest($_POST)
 );
+
+// 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
+$parent = trim((string)array_get($fields, 'parent', 0));
+$parent = preg_match('@^[0-9]+$@', $parent) ? (int)$parent : 0;
+$fields['parent'] = $parent;
+$currentParent = (int)db()->getValue(
+    db()->select('parent', '[+prefix+]site_content', where('id', '=', (int)$id))
+);
+if ($parent !== $currentParent) {
+    $message = manager()->parentChangeDeniedMessage([$id], $parent);
+    if ($message) {
+        alert()->setError(3, $message);
+        alert()->dumpError();
+        return;
+    }
+}
 
 if (postv('stay') === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');

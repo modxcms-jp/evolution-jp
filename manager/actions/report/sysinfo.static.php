@@ -289,7 +289,7 @@ global $database_connection_method, $lastInstallTime;
 
                                 if (evo()->hasPermission('settings')) {
                                     if ($log_status['Data_free']) {
-                                        echo "<td align='right'>" . ("<a href='" . hsc(csrfUrl('index.php?a=54&mode=' . $action . '&t=' . $log_status['Name'])) . "' title='" . lang('optimize_table') . "' ><span dir='ltr'>" . evo()->nicesize($log_status['Data_free']) . "</span></a>") . "</td>";
+                                        echo "<td align='right'>" . ("<a href='" . hsc('index.php?a=54&mode=' . $action . '&t=' . $log_status['Name']) . "' data-evo-post title='" . lang('optimize_table') . "' ><span dir='ltr'>" . evo()->nicesize($log_status['Data_free']) . "</span></a>") . "</td>";
                                     } else {
                                         echo "<td align='right'>" . ("-") . "</td>";
                                     }
@@ -376,10 +376,10 @@ global $database_connection_method, $lastInstallTime;
                         }
                         $html .= sprintf(
                             '<tr><td><b>%s</b></td><td>%s&nbsp;%s</td><td>%s</td><td>%s</td><td>%s</td><td align="right">%s</td></tr>',
-                            $activeusers['username'],
+                            hsc($activeusers['username']),
                             $webicon,
                             abs($activeusers['internalKey']),
-                            $activeusers['ip'],
+                            hsc($activeusers['ip']),
                             date(
                                 'H:i:s',
                                 $activeusers['lasthit'] + config('server_offset_time')

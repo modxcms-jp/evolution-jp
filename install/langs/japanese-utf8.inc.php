@@ -44,6 +44,8 @@ $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>�
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
 $_lang["checking_sql_version"] = 'SQLのバージョン: ';
+$_lang["upgrade_old_db_title"] = 'この版からはアップデートできません';
+$_lang["upgrade_old_db_not_supported"] = 'このデータベースは 1.0.0J より古い版のもので、この版から直接アップデートすることはできません。データベースはまだ変更していません。サイトのファイルを元に戻してください。';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプレフィックスの設定 `';
@@ -160,6 +162,8 @@ $_lang["setup_database_selection_failed"] = 'データベース選択が失敗�
 $_lang["setup_database_selection_failed_note"] = 'データベースが存在しません。データベースの作成を試行します。';
 $_lang["snippets"] = 'スニペット';
 $_lang["some_tables_not_updated"] = 'いくつかのテーブルはアップデートされませんでした。修正などに起因しているようです。';
+$_lang["install_failed_tables_removed"] = '途中まで作ったテーブルは削除しました。原因を取り除いてから、同じ設定でもう一度インストールできます。';
+$_lang["install_failed_tables_left"] = '途中まで作った次のテーブルを削除できませんでした。phpMyAdmin などで削除してから、もう一度インストールしてください。';
 $_lang["status_checking_database"] = 'データベースとTableプレフィックスのチェック: ';
 $_lang["status_connecting"] = ' データベースホストとの接続テストの結果: ';
 $_lang["status_failed"] = '接続できません';

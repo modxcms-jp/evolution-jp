@@ -24,6 +24,10 @@ if (!manager()->isAllowed($id)) {
     alert()->setError(3);
     alert()->dumpError();
 }
+if (!evo()->checkPermissions($id)) {
+    alert()->setError(3, lang('access_permission_denied'));
+    alert()->dumpError();
+}
 
 evo()->updatePublishStatus();
 
@@ -114,13 +118,13 @@ function entity($key, $default = null)
 <script type="text/javascript">
     function duplicatedocument() {
         if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>")) {
-            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=94");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=94");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_resource'] ?>")) {
-            document.location.href = EvoCsrf.url("index.php?id=<?= $id ?>&a=6");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=6");
         }
     }
 

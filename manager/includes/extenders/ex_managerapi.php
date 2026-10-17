@@ -84,6 +84,7 @@ class ManagerAPI
             $id = 0;
         }
 
+        $alias = '';
         $pagetitle = trim($pagetitle);
         if ($pagetitle !== '') {
             $alias = strtolower(evo()->stripAlias($pagetitle));
@@ -93,10 +94,14 @@ class ManagerAPI
             return '';
         }
 
+        if ($alias === '') {
+            return '';
+        }
+
         $rs = db()->select(
             'id',
             '[+prefix+]site_content',
-            sprintf("id<>'%s' AND alias='%s'", $id, $alias)
+            sprintf("id<>%d AND alias='%s'", (int) $id, db()->escape($alias))
         );
         if (db()->count($rs)) {
             $c = 2;
@@ -106,7 +111,7 @@ class ManagerAPI
                     db()->select(
                         'id',
                         '[+prefix+]site_content',
-                        sprintf("id!='%s' AND alias='%s'", $id, $_)
+                        sprintf("id<>%d AND alias='%s'", (int) $id, db()->escape($_))
                     )
                 )
             ) {
@@ -497,6 +502,38 @@ class ManagerAPI
         return $documentgroup;
     }
 
+    // get permissions of the role（ロールが無ければ空配列＝権限なし）
+    public function getMgrPermissions($role)
+    {
+        $row = db()->getRow(
+            db()->select('*', '[+prefix+]user_roles', sprintf("id='%d'", $role))
+        );
+        if (!$row) {
+            return [];
+        }
+        // 管理ユーザーが 1 人だけならメッセージ機能は使えないので無効にする
+        if ($row['messages'] == 1 && db()->getValue(db()->select('COUNT(*)', '[+prefix+]manager_users')) == 1) {
+            $row['messages'] = '0';
+        }
+        return $row;
+    }
+
+    // ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとに読み直す
+    public function refreshMgrPermissions($uid = 0)
+    {
+        if (!$uid) {
+            $uid = evo()->getLoginUserID();
+        }
+        $role = db()->getValue(
+            db()->select('role', '[+prefix+]user_attributes', sprintf("internalKey='%d'", $uid))
+        );
+        if ($role === false || $role === null) {
+            return;
+        }
+        sessionv('*mgrRole', $role);
+        sessionv('*mgrPermissions', $this->getMgrPermissions($role));
+    }
+
     public function getMemberGroups($uid = 0)
     {
         if (!$uid) {
@@ -708,6 +745,88 @@ class ManagerAPI
         );
     }
 
+    /**
+     * リソースの祖先 ID を近い順に返す。
+     * getParentIds() と違い、深さの上限やエイリアスのキャッシュに頼らず DB の parent を直接たどる。
+     * 既に循環しているデータでも止まるよう、一度たどった ID に戻ったら打ち切る
+     *
+     * @param int $id
+     * @return int[]
+     */
+    public function getAncestorIds($id)
+    {
+        $id = (int)$id;
+        $visited = [$id];
+        $ancestors = [];
+        while ($id) {
+            $id = (int)db()->getValue(
+                db()->select('parent', '[+prefix+]site_content', sprintf('id=%d', $id))
+            );
+            if (!$id || in_array($id, $visited, true)) {
+                break;
+            }
+            $visited[] = $id;
+            $ancestors[] = $id;
+        }
+        return $ancestors;
+    }
+
+    /**
+     * $parentId を $docIds の親にできないとき、その理由を表示用のメッセージで返す。親にできるなら空文字。
+     * ルート（0）はいつでも親にできる。
+     * 画面側（ツリーの JS やダイアログ）でも弾いているが、リクエストを直接送られても
+     * 循環や存在しない親を保存しないよう、保存処理はこれで確かめる
+     *
+     * @param int[] $docIds 親を変えるリソース。新規作成なら空配列
+     * @param int $parentId
+     * @return string
+     */
+    public function invalidParentMessage(array $docIds, $parentId)
+    {
+        $parentId = (int)$parentId;
+        if (!$parentId) {
+            return '';
+        }
+        $docIds = array_map('intval', $docIds);
+        if (in_array($parentId, $docIds, true)) {
+            // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻す
+            return stripcslashes(lang('illegal_parent_self'));
+        }
+        $exists = db()->getValue(
+            db()->select('COUNT(id)', '[+prefix+]site_content', sprintf('id=%d', $parentId))
+        );
+        if (!$exists) {
+            return sprintf(lang('parent_not_found'), $parentId);
+        }
+        if (array_intersect($docIds, $this->getAncestorIds($parentId))) {
+            return stripcslashes(lang('illegal_parent_child'));
+        }
+        return '';
+    }
+
+    /**
+     * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
+     * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
+     * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
+     *
+     * @param int[] $docIds 親を変える文書
+     * @param int $parentId 新しい親の ID
+     * @return string
+     */
+    public function parentChangeDeniedMessage(array $docIds, $parentId)
+    {
+        $parentId = (int)$parentId;
+        $message = $this->invalidParentMessage($docIds, $parentId);
+        if ($message) {
+            return $message;
+        }
+        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
+            return lang('access_permission_parent_denied');
+        }
+        return '';
+    }
+
     public function isAllowed($id)
     {
         global $modx;
@@ -754,31 +873,79 @@ class ManagerAPI
         return false;
     }
 
+    /**
+     * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
+     * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
+     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * 一覧に 0（ルート）が含まれていれば、サイト全体を許可する設定として常に true（制限なし）。
+     * 一覧に 0 が無いとき、ルート（0）は範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
+     * 存在の確認は呼ぶ側で行う。
+     * 削除済みの文書も、親をたどって判定する。
+     *
+     * @param int $id 文書の ID（作成先・移動先の親を確かめるときは親の ID）
+     * @return bool
+     */
+    public function isInAllowedParents($id)
+    {
+        if (!evo()->conf_var('allowed_parents')) {
+            return true;
+        }
+        $allowed = $this->getAllowedParentIds();
+        if (!$allowed) {
+            return false;
+        }
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
+        $id = (int)$id;
+        if ($id <= 0) {
+            return false;
+        }
+        if (in_array($id, $allowed, true)) {
+            return true;
+        }
+        return (bool)array_intersect($allowed, $this->getAncestorIds($id));
+    }
+
+    /**
+     * 「許可するリソース」の設定値を、0 と正の整数の配列にして返す（空白・カンマ・| 区切り）
+     * 0 か、正の整数の書式（先頭が 0 でない半角数字だけ）に当たる値だけを採る。0 はルート（サイト全体）を表す。
+     *
+     * @return int[]
+     */
+    private function getAllowedParentIds()
+    {
+        $setting = trim((string)evo()->conf_var('allowed_parents'));
+        if ($setting === '') {
+            return [];
+        }
+        $ids = [];
+        foreach (preg_split('@[\s,|]+@', $setting) as $v) {
+            if (!preg_match('@^(0|[1-9][0-9]*)$@', $v)) {
+                continue;
+            }
+            $v = (int)$v;
+            if (!in_array($v, $ids, true)) {
+                $ids[] = $v;
+            }
+        }
+        return $ids;
+    }
+
     public function getUserAllowedDocs()
     {
         global $modx;
 
         $modx->user_allowed_docs = [];
-        $allowed_parents = explode(
-            ',',
-            str_replace(
-                [' ', '|'],
-                ',',
-                preg_replace(
-                    '@\s+@',
-                    ' ',
-                    trim(evo()->config['allowed_parents'])
-                )
-            )
-        );
+        $allowed_parents = $this->getAllowedParentIds();
 
         if (!$allowed_parents) {
             return '';
         }
 
+        // 0（ルート）を含むときは getChildIds(0) がサイト全体を返す（修正前と同じ）
         $_ = [];
         foreach ($allowed_parents as $parent) {
-            $parent = trim($parent);
             $children = evo()->getChildIds($parent);
             $_[] = $parent;
             foreach ($children as $child) {

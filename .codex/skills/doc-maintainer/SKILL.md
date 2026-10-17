@@ -11,6 +11,8 @@ description: AI向けマークダウンドキュメント（SKILL.md、AGENTS.md
 AI向けドキュメントの SSOT 違反・表記ゆれ・構造問題を検出・修正する。
 PR 概要とコミット差分の乖離チェックも扱う。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
+
 ## 参照順
 
 1. `AGENTS.md`

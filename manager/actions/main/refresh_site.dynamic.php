@@ -2,6 +2,10 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
+if (!evo()->hasPermission('empty_cache')) {
+    alert()->setError(3);
+    alert()->dumpError();
+}
 
 $now = $_SERVER['REQUEST_TIME'];
 

@@ -25,20 +25,18 @@ foreach ($tplPlugins as $i => $tplInfo) {
         continue;
     }
 
-    // parse comma-separated legacy names and prepare them for sql IN clause
-    if (isset($tplInfo['legacy_names'])) {
-        $_ = [];
-        $array_legacy_names = explode(',', $tplInfo['legacy_names']);
-        while ($v = array_shift($array_legacy_names)) {
-            $_[] = trim($v);
-        }
-        $legacy_names = implode(',', $_);
-        if ($legacy_names) {
-            $rs = db()->update(
-                ['disabled' => '1'],
-                '[+prefix+]site_plugins',
-                sprintf("name IN ('%s')", db()->escape($legacy_names))
-            );
+    // 旧名のプラグインを停止する
+    $legacyNames = legacy_names($tplInfo['legacy_names'] ?? '');
+    if ($legacyNames) {
+        $rs = db()->update(
+            ['disabled' => '1'],
+            '[+prefix+]site_plugins',
+            sprintf("`name` IN ('%s')", implode("','", db()->escape($legacyNames)))
+        );
+        if (dbWriteFailed($rs)) {
+            $errors += 1;
+            showError();
+            return;
         }
     }
 
@@ -68,11 +66,16 @@ foreach ($tplPlugins as $i => $tplInfo) {
 
     if ($dbv_plugin === false) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
+        if ($f['category'] === false) {
+            $errors += 1;
+            showError();
+            return;
+        }
         $pluginId = db()->insert(
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_plugins'
         );
-        if (!$pluginId) {
+        if (dbWriteFailed($pluginId)) {
             $errors += 1;
             showError();
             return;
@@ -81,14 +84,14 @@ foreach ($tplPlugins as $i => $tplInfo) {
     } else {
         // 版が同じでも、利用者の手直しを控えとして残すため、同名の有効な行をすべて無効にして入れ直す
         $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', $enabledWhere);
-        if ($rs) {
+        if (!dbWriteFailed($rs)) {
             $f['category'] = $dbv_plugin->category;
             $pluginId = db()->insert(
                 db()->escape(nullToEmpty($f)),
                 '[+prefix+]site_plugins'
             );
         }
-        if (!$rs || !$pluginId) {
+        if (dbWriteFailed($rs) || dbWriteFailed($pluginId)) {
             $errors += 1;
             showError();
             return;
@@ -100,7 +103,11 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $events = explode(',', $tplInfo['events']);
     if ($pluginId && $events) {
         // remove existing events
-        db()->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");
+        if (dbWriteFailed(db()->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'"))) {
+            $errors += 1;
+            showError();
+            return;
+        }
 
         // add new events
         $eventWhere = sprintf("se.name IN ('%s')", implode("','", $events));
@@ -127,6 +134,10 @@ foreach ($tplPlugins as $i => $tplInfo) {
                 $eventWhere
             );
         }
-        db()->query(db()->replaceFullTableName($query));
+        if (dbWriteFailed(db()->query(db()->replaceFullTableName($query)))) {
+            $errors += 1;
+            showError();
+            return;
+        }
     }
 }

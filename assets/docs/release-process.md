@@ -280,7 +280,11 @@ fi
 rm -rf "${CHECK_DIR}"
 ```
 
-`gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
+`gh release view` の `isDraft` が `true` であること、添付ZIPが1つ存在すること、必須ファイルが含まれること、配布対象外のパスが含まれないことを確認する。
+
+公開する前に、modx.jp のダウンロードページを告知まで止めるかを確認する。ダウンロードページは公開した Release を自動で表示するため、止める場合は、公式サイトのリポジトリ（`modxcms-jp/modxjp`）の手順で固定を済ませてから公開する。
+
+問題がなければ Releases 画面または `gh release edit "${TAG}" --draft=false` で公開する。
 
 ## 除外ファイル一覧
 
@@ -458,7 +462,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 ## リリース後の対応
 
-1. リリース告知（フォーラム、SNS など）
+1. リリース告知（modx.jp、フォーラム、SNS など）。modx.jp のダウンロードページやお知らせ記事の更新は、公式サイトのリポジトリ（`modxcms-jp/modxjp`）の手順に従う
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
 3. ロードマップの整理（下記手順。保護された `main` へ直接コミットせず、整理ブランチからPRを作成する）
 

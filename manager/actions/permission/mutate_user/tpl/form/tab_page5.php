@@ -29,7 +29,7 @@
         <td>
             <textarea
                 name="manager_inline_style" id="manager_inline_style"
-                style="width:95%; height: 9em;"><?= $modx->config['manager_inline_style'] ?></textarea><br />
+                style="width:95%; height: 9em;"><?= hsc(user('manager_inline_style', systemSetting('manager_inline_style', ''))) ?></textarea><br />
             &nbsp;&nbsp;
             <label><input
                     type="checkbox" name="default_manager_inline_style"

@@ -247,6 +247,9 @@ if (sessionv('is_upgradeable')) {
 echo "<p>" . lang('setup_database_creating_tables');
 log_install_event('Creating database tables');
 
+// 新規インストールが失敗したときに、この実行で作ったテーブルだけを片付けられるよう、前からあるテーブルを控える
+$tablesBeforeInstall = sessionv('is_upgradeable') ? [] : prefixedTables(sessionv('table_prefix'));
+
 $sqlParser->intoDB('create_tables.sql');
 
 if (!sessionv('is_upgradeable')) {
@@ -258,8 +261,12 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include MODX_SETUP_PATH . 'sql/fix_settings.php';
-log_install_event('Applied settings fix script');
+// 新規インストールで失敗したときは、テーブルの修正に進まない。
+// 欠けたテーブルへの ALTER TABLE でエラーになると処理ごと止まり、下で作ったテーブルを片付けられない
+if (sessionv('is_upgradeable') || !$sqlParser->installFailed) {
+    include MODX_SETUP_PATH . 'sql/fix_settings.php';
+    log_install_event('Applied settings fix script');
+}
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
     log_install_event('Converting database to utf8mb4');
@@ -277,7 +284,30 @@ if ($sqlParser->installFailed == true) {
         printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], lang('during_execution_of_sql'), strip_tags($err['sql']));
     }
     echo '</p>';
-    echo "<p>" . lang('some_tables_not_updated') . "</p>";
+    if (sessionv('is_upgradeable')) {
+        echo "<p>" . lang('some_tables_not_updated') . "</p>";
+        return;
+    }
+    // 作ったテーブルが残ると、やり直しの接続テストで接頭辞の重複になるので片付ける（前からあったテーブルには触れない）
+    // どちらかの一覧を取得できなかったときは、前からあったテーブルと見分けられないので何も消さない
+    $tablesAfterInstall = prefixedTables(sessionv('table_prefix'));
+    if ($tablesBeforeInstall === null || $tablesAfterInstall === null) {
+        log_install_event('Skipped removing tables: could not list tables');
+        echo "<p>" . lang('some_tables_not_updated') . "</p>";
+        return;
+    }
+    $leftTables = [];
+    foreach (array_diff($tablesAfterInstall, $tablesBeforeInstall) as $table) {
+        if (!db()->query(sprintf('DROP TABLE IF EXISTS `%s`', str_replace('`', '``', $table)), false)) {
+            $leftTables[] = $table;
+        }
+    }
+    log_install_event('Removed tables created by the failed installation', ['left' => $leftTables]);
+    if ($leftTables) {
+        printf('<p>%s<br /><span class="mono">%s</span></p>', lang('install_failed_tables_left'), hsc(implode(', ', $leftTables)));
+    } else {
+        printf('<p>%s</p>', lang('install_failed_tables_removed'));
+    }
     return;
 }
 
@@ -404,6 +434,40 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     }
     printf('<span class="ok">%s</span></p>', lang('ok'));
     log_install_event('Demo site installation completed successfully');
+}
+
+// アップグレードを通した版。管理画面が、アップデーターの実行前か後かを見分けるのに使う（welcome.static.php）
+if (sessionv('is_upgradeable') && $errors == 0) {
+    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
+
+    // 一度も設定を保存していないサイト（settings_version が '0' か空）は前の版が分からず、このままでは
+    // 設定画面の更新処理（upgrades/upgrades.php は settings_version が空でないときだけ動く）を飛ばしたまま、
+    // install_version の記録で公開側の停止だけが解けてしまう。
+    // 新規インストール時の版（install_version）があればそれを、無ければ 1.0.7J を前の版として残し、通常のアップグレードと同じ流れにする。
+    // （1.0.7 未満向けの古い更新は、それ以降に一度も設定を保存していないサイトには当てはまらないので実行しない）
+    $settingsVersion = (string) db()->getValue(
+        'setting_value',
+        '[+prefix+]system_settings',
+        "setting_name='settings_version'"
+    );
+    if ($settingsVersion === '' || $settingsVersion === '0') {
+        $previousVersion = (string) db()->getValue(
+            'setting_value',
+            '[+prefix+]system_settings',
+            "setting_name='install_version'"
+        ) ?: '1.0.7J';
+        log_install_event('Recording previous settings_version for upgrade', ['version' => $previousVersion]);
+        db()->replace(
+            ['setting_name' => 'settings_version', 'setting_value' => db()->escape($previousVersion)],
+            '[+prefix+]system_settings'
+        );
+    }
+
+    log_install_event('Recording install_version for upgrade', ['version' => $modx_version]);
+    db()->replace(
+        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
+        '[+prefix+]system_settings'
+    );
 }
 
 clean_up($sqlParser->prefix);

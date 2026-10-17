@@ -497,12 +497,19 @@ function checkPermissions($id)
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
-    if (!isset($_GET['pid']) && !$isAllowed) {
+    // 新規作成（4・72）で pid を指定したときは、ここでは止めない
+    // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
+    $isEditAction = in_array(manager()->action, [27, 131, 132]);
+    if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
         alert()->setError(3);
         alert()->dumpError();
     }
 
     $i = manager()->action;
+    if ($isEditAction) {
+        // 編集・下書きの画面は文書の ID が必須
+        abort_if_invalid_id('id', true);
+    }
     if ($i == 27) {
         if (!hasPermission('view_document')) {
             $modx->config['remember_last_tab'] = 0;
@@ -511,12 +518,8 @@ function checkPermissions($id)
         }
         manager()->remove_locks('27');
         if (!evo()->checkPermissions($id)) {
-            $_ = [];
-            $_[] = '<br /><br /><div class="section">';
-            $_[] = sprintf('<div class="sectionHeader">%s</div>', lang('access_permissions'));
-            $_[] = '<div class="sectionBody">';
-            $_[] = sprintf('<p>%s</p></div></div>', lang('access_permission_denied'));
-            echo implode("\n", $_);
+            alert()->setError(3, lang('access_permission_denied'));
+            alert()->dumpError();
         }
     } elseif ($i == 72 || $i == 4) {
         if (!hasPermission('new_document')) {
@@ -532,6 +535,10 @@ function checkPermissions($id)
     } elseif ($i == 132 || $i == 131) {
         if (!hasPermission('view_document')) {
             alert()->setError(3);
+            alert()->dumpError();
+        }
+        if (!evo()->checkPermissions($id)) {
+            alert()->setError(3, lang('access_permission_denied'));
             alert()->dumpError();
         }
     } else {
@@ -828,7 +835,7 @@ if (!function_exists('collect_tab_settings_ph')) {
             [
                 'type' => 'hidden',
                 'name' => 'contentType',
-                'value' => doc('contentType')
+                'value' => hsc(doc('contentType'))
             ]
         ) : fieldContentType();
         $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
@@ -836,7 +843,7 @@ if (!function_exists('collect_tab_settings_ph')) {
             [
                 'type' => 'hidden',
                 'name' => 'content_dispo',
-                'value' => doc('content_dispo')
+                'value' => hsc(doc('content_dispo'))
             ]
         ) : fieldContent_dispo();
         $ph['fieldLink_attributes'] = fieldLink_attributes();

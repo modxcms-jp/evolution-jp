@@ -29,7 +29,7 @@
 ## 書き込み範囲
 
 - 必要最小限のテスト追加または検証用フィクスチャ。
-- `.agent/runs/` の検証ログ。
+- `.agent/runs/` の検証ログ。呼び出し元が別の記録先を渡したときは、そこにだけ書き、`.agent/runs/` には書かない。
 - ExecPlan の `Validation and Acceptance` または `Outcomes & Retrospective`。
 
 ## 成果物

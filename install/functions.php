@@ -110,6 +110,18 @@ function compare_check($params)
         return 'diff';
     }
 
+    // 旧名のプラグインが有効なまま残っていれば、同じ版でもインストールして停止させる
+    if ($category === 'plugin') {
+        $legacyNames = legacy_names($params['legacy_names'] ?? '');
+        if ($legacyNames && db()->getValue(
+            'COUNT(id)',
+            $tableName,
+            sprintf("`name` IN ('%s') AND `disabled`='0'", implode("','", db()->escape($legacyNames)))
+        )) {
+            return 'diff';
+        }
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
@@ -138,6 +150,21 @@ function compare_check($params)
     }
 
     return 'diff';
+}
+
+/**
+ * @legacy_names（カンマ区切り）を名前の配列にする。エスケープは DB 操作の直前で行う
+ */
+function legacy_names($legacyNames)
+{
+    $names = [];
+    foreach (explode(',', (string)$legacyNames) as $name) {
+        $name = trim($name);
+        if ($name !== '') {
+            $names[] = $name;
+        }
+    }
+    return $names;
 }
 
 function parse_docblock($fullpath)
@@ -362,6 +389,14 @@ function propUpdate($new, $old)
     return $return;
 }
 
+// 書き込みの成否を確かめる。#585 より前の DBAPI の exec() は一部のエラー（1054 Unknown column など）を
+// 成功として返していたため、戻り値に加えて直前のエラー番号でも確かめている
+function dbWriteFailed($rs)
+{
+    return !$rs || db()->getLastErrorNo();
+}
+
+// カテゴリーの ID を返す（無ければ作る）。作れなかったときは false を返すので、呼び出し元でエラーとして扱う
 function getCreateDbCategory($category)
 {
     if (!$category) {
@@ -379,8 +414,8 @@ function getCreateDbCategory($category)
         ['category' => db()->escape($category)],
         '[+prefix+]categories'
     );
-    if (!$category_id) {
-        exit('Get category id error');
+    if (dbWriteFailed($category_id)) {
+        return false;
     }
     return $category_id;
 }
@@ -447,6 +482,51 @@ function checkAllTablesExist()
     return true;
 }
 
+/**
+ * 接頭辞が付いたテーブルの名前を返す（接頭辞の _ や % は文字どおりに一致させる）
+ *
+ * @param string $table_prefix
+ * @return array|null 一覧を取得できなかったときは null
+ */
+function prefixedTables($table_prefix)
+{
+    $like = str_replace(['\\', '_', '%'], ['\\\\', '\\_', '\\%'], $table_prefix);
+    $rs = db()->query(sprintf("SHOW TABLES LIKE '%s%%'", db()->escape($like)), false);
+    if (!$rs) {
+        return null;
+    }
+    $tables = [];
+    while ($row = db()->getRow($rs, 'num')) {
+        $tables[] = $row[0];
+    }
+    return $tables;
+}
+
+/**
+ * 接頭辞が付いたテーブルのどれかに、1行でもデータが入っているか
+ * 中身を確かめられなかったテーブルがあるときも、入っているものとみなす
+ *
+ * @param string $table_prefix
+ * @return bool
+ */
+function prefixedTablesHaveRows($table_prefix)
+{
+    $tables = prefixedTables($table_prefix);
+    if ($tables === null) {
+        return true;
+    }
+    foreach ($tables as $table) {
+        $rs = db()->query(
+            sprintf('SELECT 1 FROM `%s` LIMIT 1', str_replace('`', '``', $table)),
+            false
+        );
+        if (!$rs || db()->count($rs)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function managerConfigExists()
 {
     return is_file(MODX_BASE_PATH . 'manager/includes/config.inc.php');
@@ -459,6 +539,13 @@ function managerConfigExists()
  *
  * @return int アップグレード可能なら1、新規インストールなら0
  */
+// 1.0.0J より古い DB は、新しいファイルを置いた時点で起動時のクエリが止まるので、直接アップデートさせない。
+// 1.0.0J からある列で見分ける（site_plugin_events.priority はキャッシュの再生成で読む）
+function isUnsupportedOldDb()
+{
+    return !db()->fieldExists('priority', '[+prefix+]site_plugin_events');
+}
+
 function isUpGradeable()
 {
     error_reporting(E_ALL & ~E_NOTICE);
@@ -614,9 +701,10 @@ function collectTpls($path)
     return $files;
 }
 
+// 画面のテンプレートに渡す値。template.tpl の language_code・encoding・help などは言語配列から入る
 function ph()
 {
-    global $cmsName, $cmsVersion, $modx_textdir, $modx_release_date;
+    global $cmsName, $cmsVersion, $modx_textdir, $modx_release_date, $_lang;
 
     $ph['site_url'] = MODX_SITE_URL;
     $ph['pagetitle'] = lang('modx_install');
@@ -626,7 +714,7 @@ function ph()
     $ph['release_date'] = ($modx_textdir && $modx_textdir === 'rtl' ? '&rlm;' : '') . $modx_release_date;
     $ph['footer1'] = str_replace('[+year+]', date('Y'), lang('modx_footer1'));
     $ph['footer2'] = lang('modx_footer2');
-    return $ph;
+    return array_merge($ph, $_lang ?: []);
 }
 
 function installConfigPath()
@@ -734,6 +822,22 @@ function renderUpgradeAuthRequired()
     $ph['content'] = parseText(
         file_get_contents(MODX_SETUP_PATH . 'tpl/upgrade_auth.tpl'),
         $ph
+    );
+
+    echo evo()->parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+        $ph
+    );
+    exit;
+}
+
+function renderUnsupportedOldDb()
+{
+    $ph = ph();
+    $ph['content'] = sprintf(
+        '<div class="sectionBody"><h2>%s</h2><p>%s</p></div>',
+        lang('upgrade_old_db_title'),
+        lang('upgrade_old_db_not_supported')
     );
 
     echo evo()->parseText(

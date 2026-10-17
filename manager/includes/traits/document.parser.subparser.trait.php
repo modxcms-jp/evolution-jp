@@ -347,7 +347,8 @@ trait DocumentParserSubParserTrait
                     'right' => $source
                 ]
             );
-        } elseif ($modx->currentSnippetCode) {
+        } elseif ($modx->currentSnippetCode && is_numeric($line)) {
+            // DBAPI からの呼び出しなど、行番号がないときはスニペットの行を出さない
             $lines = explode("\n", $modx->currentSnippetCode);
             $str .= $modx->parseText(
                 $tpl,
@@ -1190,6 +1191,10 @@ trait DocumentParserSubParserTrait
                 $output = trim($param);
                 break;
             case '@FILE' :
+                if (strpos($param, "\n") !== false) {
+                    $param = substr($param, 0, strpos($param, "\n"));
+                }
+                $param = trim($param);
                 if ($modx->getExtention($param) === '.php') {
                     $output = 'Could not retrieve PHP file.';
                 } else {
@@ -1204,7 +1209,8 @@ trait DocumentParserSubParserTrait
                 break;
             case '@DOCUMENT' : // retrieve a document and process it's content
             case '@DOC' :
-                $rs = $modx->getDocument($param);
+                $param = trim($param);
+                $rs = preg_match('/^[1-9][0-9]*$/', $param) ? $modx->getDocument((int)$param) : false;
                 if (is_array($rs)) {
                     $output = $rs['content'];
                 } else {
@@ -1236,9 +1242,15 @@ trait DocumentParserSubParserTrait
                     $doc = $modx->getPageInfo($docid, 0, 'id,parent');
                 }
 
-                while ($doc['parent'] != 0) {
+                while (is_array($doc) && $doc['parent'] != 0) {
                     $doc = $modx->getPageInfo($doc['parent'], 0, 'id,parent');
+                    if (!is_array($doc)) {
+                        break;
+                    }
                     $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
+                    if (!is_array($tv)) {
+                        continue;
+                    }
                     $value = (string)$tv['value'];
                     if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
                         $output = $value;
@@ -2485,7 +2497,7 @@ trait DocumentParserSubParserTrait
         if ($unixtime == 0) {
             return;
         }
-        if (db()->isConnected() || !db()->tableExists('[+prefix+]system_settings')) {
+        if (!db()->isConnected() || !db()->tableExists('[+prefix+]system_settings')) {
             return;
         }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
@@ -2520,7 +2532,7 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 6);
@@ -2598,7 +2610,7 @@ trait DocumentParserSubParserTrait
         }
         $str = trim($str);
         if (strpos($str, "\n") !== false) {
-            $str = substr($str, 0, strpos("\n", $str));
+            $str = substr($str, 0, strpos($str, "\n"));
         }
 
         $str = substr($str, 9);

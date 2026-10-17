@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push *:main)",
+      "Bash(git push *:main *)",
+      "Bash(git push *refs/heads/main*)",
+      "Bash(git -C * push * main)",
+      "Bash(git -C * push * main *)",
+      "Bash(git -C * push *:main*)",
+      "Bash(git -C * push *refs/heads/main*)",
+      "Bash(git push *--force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * +*)",
+      "Bash(git -C * push *--force*)",
+      "Bash(git -C * push -f*)",
+      "Bash(git -C * push * -f)",
+      "Bash(git -C * push * -f *)",
+      "Bash(git -C * push * +*)",
+      "Bash(git push origin *advisory/*)",
+      "Bash(git push * origin *advisory/*)",
+      "Bash(git -C * push origin *advisory/*)",
+      "Bash(git -C * push * origin *advisory/*)",
+      "Bash(git push *modxcms-jp/evolution-jp.git *advisory/*)",
+      "Bash(git push *modxcms-jp/evolution-jp *advisory/*)",
+      "Bash(git -C * push *modxcms-jp/evolution-jp.git *advisory/*)",
+      "Bash(git -C * push *modxcms-jp/evolution-jp *advisory/*)"
+    ]
+  }
+}

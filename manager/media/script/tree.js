@@ -55,7 +55,7 @@ function buildTreeRequestUrl(params) {
     return 'index.php?' + query;
 }
 
-function loadTreeRequest(params, callback) {
+function loadTreeRequest(params, callback, onError) {
     fetch(buildTreeRequestUrl(params), { credentials: 'same-origin' })
         .then(function (response) {
             if (!response.ok) {
@@ -66,6 +66,9 @@ function loadTreeRequest(params, callback) {
         .then(callback)
         .catch(function (error) {
             console.error(error);
+            if (onError) {
+                onError(error);
+            }
         });
 }
 
@@ -79,6 +82,33 @@ function sendTreeRequest(url) {
         .catch(function (error) {
             console.error(error);
         });
+}
+
+// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える
+function loadMoreNodes(el, indent, parent, offset) {
+    var moreNode = el.parentNode;
+    if (moreNode.loading) {
+        return;
+    }
+    moreNode.loading = true;
+    loadTreeRequest({
+        "a": "1",
+        "f": "nodes",
+        "indent": indent,
+        "parent": parent,
+        "offset": offset
+    }, function (response) {
+        if (response.indexOf('mx_loginbox') !== -1) {
+            // セッション切れ
+            top.location = 'index.php';
+            return;
+        }
+        moreNode.insertAdjacentHTML('beforebegin', response);
+        moreNode.parentNode.removeChild(moreNode);
+    }, function () {
+        // 失敗したらもう一度押せるようにする
+        moreNode.loading = false;
+    });
 }
 
 function rpcLoadData(response) {

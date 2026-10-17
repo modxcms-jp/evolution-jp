@@ -26,6 +26,8 @@ function get_resources_byajax($id)
 
     $items = [];
     while ($ph = db()->getRow($rs)) {
+        $ph['id'] = (int)$ph['id'];
+        $ph['pagetitle'] = hsc($ph['pagetitle']);
         $items[] = evo()->parseText(
             '<a href="index.php?a=27&id=[+id+]">[+pagetitle+]([+id+])</a>',
             $ph

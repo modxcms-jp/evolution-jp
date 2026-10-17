@@ -11,6 +11,8 @@ description: Evolution CMS JP Editionの開発タスクを実行するための�
 実装規約は `AGENTS.md` を最優先とする。
 ExecPlan の完了処理プロトコルは `.agent/PLANS.md` を正本とする。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
+
 ## 実行ルール
 
 1. コーディング規約は `AGENTS.md` に従う。

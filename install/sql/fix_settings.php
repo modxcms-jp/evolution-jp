@@ -2,7 +2,8 @@
 
 function addColumnIfNotExists($table, $column, $definition) {
     $query = sprintf(
-        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
+        // 同じサーバーにある別の DB の同名テーブルを数えないよう、接続中の DB に絞る
+        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '%s' AND COLUMN_NAME = '%s'",
         $table,
         $column
     );
@@ -58,6 +59,16 @@ addColumnIfNotExists($table, 'error_reporting', "varchar(8) NOT NULL DEFAULT 'in
 
 $table = sessionv('table_prefix') . 'site_snippets';
 addColumnIfNotExists($table, 'error_reporting', "varchar(8) NOT NULL DEFAULT 'inherit' AFTER `properties`");
+
+// ユーザーの保存が、設定ではないフォームの項目（CSRF トークンなど）もユーザー設定に入れていた（#611）。残っている行を消す
+$table = sessionv('table_prefix') . 'user_settings';
+db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('csrf_token', 'save_action', 'blockedcheck')");
+// TinyMCE7 のひな形はサイト共通の設定だが、ユーザー設定画面に出ていたため、表示中の管理者の値が個別設定として入っていた（#615）
+db()->query("DELETE FROM `$table` WHERE `setting_name` IN ('tinymce7_template_docs', 'tinymce7_template_chunks', 'tinymce7_template_category')");
+
+// システム設定の保存が、CSRF トークンも設定として保存していた（#640）。残っている行を消す
+$table = sessionv('table_prefix') . 'system_settings';
+db()->query("DELETE FROM `$table` WHERE `setting_name` = 'csrf_token'");
 
 $data = [
     'id' => 1,

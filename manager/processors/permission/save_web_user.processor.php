@@ -400,7 +400,7 @@ switch (postv('mode')) {
                     $sql = sprintf(
                         "INSERT INTO %s (webgroup, webuser) VALUES('%s', '%s')",
                         evo()->getFullTableName('web_groups'),
-                        $group,
+                        (int)$group,
                         $id
                     );
                     if (!db()->query($sql)) {

@@ -11,9 +11,9 @@ $tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
 
 # process password activation
 if ($isPWDActivate == 1) {
-    $uid = db()->escape(anyv('uid'));
+    $uid = request_intvar('uid');
 
-    $rs = db()->select('*', $tbl_web_users, "id='{$uid}'");
+    $rs = db()->select('*', $tbl_web_users, "id={$uid}");
     $limit = db()->count($rs);
     if ($limit != 1) {
         $output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
@@ -46,10 +46,10 @@ if ($isPWDActivate == 1) {
     $f = [];
     $f['password'] = md5($newpwd);
     $f['cachepwd'] = '';
-    $rs = db()->update($f, $tbl_web_users, "id='{$uid}'");
+    $rs = db()->update($f, $tbl_web_users, "id={$uid}");
 
     // unblock user by resetting "blockeduntil"
-    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
+    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey={$uid}");
 
     // invoke OnWebChangePassword event
     $tmp = [
@@ -71,7 +71,7 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = postv('txtwebemail', '');
+    $email = webLoginString(postv('txtwebemail', ''));
     // 未入力のままメールアドレスが空のアカウントに一致させない
     if ($email === '') {
         $output = webLoginAlert("Please enter your email address.");
@@ -211,8 +211,8 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = db()->escape(htmlspecialchars(postv('username'), ENT_QUOTES));
-$givenPassword = db()->escape(postv('password'));
+$username = webLoginString(postv('username'));
+$givenPassword = webLoginString(postv('password'));
 $captcha_code = postv('captcha_code', '');
 $rememberme = postv('rememberme');
 
@@ -225,7 +225,7 @@ evo()->invokeEvent('OnBeforeWebLogin', $v);
 
 $field = 'web_users.*, user_attributes.*';
 $from = "{$tbl_web_users} as web_users, {$tbl_web_user_attributes} as user_attributes";
-$where = "BINARY web_users.username='{$username}' and user_attributes.internalKey=web_users.id";
+$where = "BINARY web_users.username='" . db()->escape($username) . "' and user_attributes.internalKey=web_users.id";
 $ds = db()->select($field, $from, $where);
 $limit = db()->count($ds);
 
@@ -445,14 +445,15 @@ if ($id != $modx->documentIdentifier) {
             "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) VALUES (-%d, '%s', %d, '%s', %d, '%s')",
             $tbl_active_users,
             sessionv('webInternalKey'),
-            sessionv('webShortname'),
+            db()->escape(sessionv('webShortname')),
             $lasthittime,
             $a,
             $itemid,
             real_ip()
         );
         if (!$ds = db()->query($sql)) {
-            $output = "error replacing into active users! SQL: {$sql}";
+            evo()->logEvent(0, 3, 'error replacing into active users', 'WebLogin', ['sql' => $sql, 'error' => db()->getLastError()]);
+            $output = 'error replacing into active users!';
             return;
         }
     }
@@ -468,7 +469,7 @@ $tmp = [
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = anyv('refurl');
+$refUrl = webLoginString(anyv('refurl'));
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;

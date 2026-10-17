@@ -92,33 +92,6 @@ if (!isset($_SESSION['mgrValidated'])) {
     exit('Not Logged In!');
 }
 
-switch (manager()->action) {
-    case 5:
-    case 20:
-    case 24:
-    case 79:
-    case 103:
-    case 109:
-    case 30:
-    case 302:
-    case 86:
-        break;
-    default:
-        if (is_file(MODX_CACHE_PATH . 'rolePublishing.idx.php')) {
-            $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
-            $role = unserialize($content, ['allowed_classes' => false]);
-            $mgrRole = sessionv('mgrRole', 0);
-            if (isset($role[$mgrRole])) {
-                if (sessionv('mgrLastlogin', 0) < $role[$mgrRole]) {
-                    @session_destroy();
-                    session_unset();
-                    header("Location: " . MODX_SITE_URL . "manager/");
-                    exit;
-                }
-            }
-        }
-}
-
 // include_once the style variables file
 $theme_dir = MODX_BASE_PATH . 'manager/media/style/' . $modx->conf_var('manager_theme') . '/';
 if (is_file($theme_dir . 'style.php')) {
@@ -534,6 +507,9 @@ switch (manager()->action) {
         break;
     case 52: // get the move document processor
         include_once($prc_path . 'document/move_document.processor.php');
+        break;
+    case 135: // get the parent resource picker (modal)
+        include_once($action_path . 'document/parent_picker.dynamic.php');
         break;
     case 61: // get the processor for publishing content
         include_once($prc_path . 'document/publish_content.processor.php');

@@ -22,11 +22,11 @@
         });
         jQuery('#delete').click(function () {
             if (confirm("[+lang_confirm_delete_resource+]"))
-                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=6");
+                EvoCsrf.post("index.php?id=[+id+]&a=6");
         });
         jQuery('#undelete').click(function () {
             if (confirm("[+lang_confirm_undelete+]"))
-                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=63");
+                EvoCsrf.post("index.php?id=[+id+]&a=63");
         });
         jQuery('#deletedraft').click(function () {
             if (confirm("[+lang_confirm_delete_draft_resource+]")) {
@@ -40,7 +40,7 @@
         });
         jQuery('#duplicate').click(function () {
             if (confirm("[+lang_confirm_resource_duplicate+]"))
-                document.location.href = EvoCsrf.url("index.php?id=[+id+]&a=94");
+                EvoCsrf.post("index.php?id=[+id+]&a=94");
         });
 
         jQuery('#preview').click(function () {
@@ -183,6 +183,22 @@
                 }
             }
         }
+    }
+
+    // ツリーで省略されたリソースも親にできるよう、タイトルか ID で検索して選ぶ。
+    // 自分自身と子孫はダイアログ側で選べないようにしている
+    function openParentPicker() {
+        EvoShell.openPicker(
+            'index.php?a=135&id=' + encodeURIComponent(document.mutate.id.value),
+            function (picked) {
+                documentDirty = true;
+                document.mutate.parent.value = picked.id;
+                var elm = document.getElementById('parentName');
+                if (elm) {
+                    elm.textContent = picked.id + " (" + picked.pagetitle + ")";
+                }
+            }
+        );
     }
 
     // check if the selected parent is a child of this document

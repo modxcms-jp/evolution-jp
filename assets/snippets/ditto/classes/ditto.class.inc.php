@@ -201,17 +201,21 @@ class ditto
             $inputs = explode(',', $orderBy['unparsed']);
             foreach ($inputs as $input) {
                 $input = trim($input);
-                $position = strrpos($input, ' ');
-                // find last space
-                $sortBy = substr($input, 0, $position);
-                if (!$sortBy) {
-                    $sortBy = 'id';
+                if ($input === '') {
+                    continue;
                 }
-                $sortDir = substr($input, $position);
-                $sortDir = $sortDir ? trim($sortDir) : 'asc';
+                // "field" or "field dir" (split at the last space)
+                $position = strrpos($input, ' ');
+                if ($position === false) {
+                    $sortBy = $input;
+                    $sortDir = 'ASC';
+                } else {
+                    $sortBy = trim(substr($input, 0, $position));
+                    $sortDir = $this->normalizeSortDir(substr($input, $position), 'ASC');
+                }
                 $sortBy = $this->checkAdvSort($sortBy, $sortDir);
                 $this->addField($sortBy, 'backend');
-                $orderBy['parsed'][] = [$sortBy, strtoupper($sortDir)];
+                $orderBy['parsed'][] = [$sortBy, $sortDir];
             }
         }
         $orderBy['sql'] = implode(', ', $this->sqlOrderBy);
@@ -220,11 +224,22 @@ class ditto
     }
 
     // ---------------------------------------------------
+    // Function: normalizeSortDir
+    // ASC / DESC only; anything else becomes $default
+    // ---------------------------------------------------
+    function normalizeSortDir($sortDir, $default = 'ASC')
+    {
+        $sortDir = strtoupper(trim((string)$sortDir));
+        return in_array($sortDir, ['ASC', 'DESC'], true) ? $sortDir : $default;
+    }
+
+    // ---------------------------------------------------
     // Function: checkAdvSort
     // Check the advSortString
     // ---------------------------------------------------
     function checkAdvSort($sortBy, $sortDir = 'asc')
     {
+        $sortDir = $this->normalizeSortDir($sortDir);
         $advSort = ['pub_date', 'unpub_date', "editedon", "deletedon", "publishedon"];
         $type = $this->getDocVarType($sortBy);
         switch ($type) {
@@ -599,7 +614,8 @@ class ditto
         $randomize
     )
     {
-        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
+        // &documents が空（TV の値が空など）のときも結果なしにする。そのまま進むと IN () で SQL が失敗する
+        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false || $IDs === '') {
             return [];
         }
         // Get starting IDs;

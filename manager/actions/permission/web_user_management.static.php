@@ -84,7 +84,7 @@ echo $cm->render();
                 break;
             case 2: // delete
                 if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
-                    window.location.href = EvoCsrf.url('index.php?a=90') + '&id=' + id;
+                    EvoCsrf.post('index.php?a=90&id=' + id);
                 }
                 break;
         }
@@ -164,6 +164,7 @@ echo $cm->render();
             $grd->itemClass = "gridItem";
             $grd->altItemClass = "gridAltItem";
             $grd->fields = "id,username,fullname,email,gender,blocked";
+            $grd->colEscapes = '1,1,1,1,1,1'; // DB の値を出す列をエスケープ
             $grd->columns = $_lang["icon"] . " ," . $_lang["username"] . " ," . $_lang["user_full_name"] . " ," . $_lang["email"] . " ," . $_lang["user_gender"] . " ," . $_lang["user_block"];
             $grd->colWidths = "34,,,,40,34";
             $grd->colAligns = "center,,,,center,center";

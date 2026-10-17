@@ -32,7 +32,7 @@ function hasPermission($key = null)
     return evo()->hasPermission($key);
 }
 
-function config($key, $default = null)
+function config($key = null, $default = null)
 {
     return evo()->config($key, $default);
 }
@@ -632,11 +632,10 @@ function doc($key, $default = '')
         // modifierを設定
         $modifiers = explode(':', $key);
         $key = array_shift($modifiers);
-        $value = evo()->applyFilter(
-            array_get($a, $key, $default),
-            $key,
-            implode(':', $modifiers)
-        );
+        $value = isset($a[$key]) && is_array($a[$key])
+            ? array_get($a, $key . '.value', $default)
+            : array_get($a, $key, $default);
+        return evo()->applyFilter($value, implode(':', $modifiers), $key);
     }
     // $keyが「|」で区切られている場合は値が有効なキーを探す
     if (strpos($key, '|') !== false) {

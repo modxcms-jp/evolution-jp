@@ -186,7 +186,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
 
     function deleteuser() {
         if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
-            document.location.href = EvoCsrf.url("index.php?id=" + document.userform.id.value + "&a=90");
+            EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=90");
         }
     }
 
@@ -294,7 +294,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             style="display: <?= (getv('a') == 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
                             <td colspan="2">
                                 <img src="<?= $_style['icons_user'] ?>"
-                                    alt="." />&nbsp;<b><?= webuser('oldusername') ?: webuser('username') ?></b>
+                                    alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
                                 - <span class="comment"><a href="#"
                                         onclick="changeName();return false;"><?= $_lang["change_name"] ?></a></span>
                                 <input type="hidden" name="oldusername"
@@ -486,7 +486,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                     $photo = $modx->config['base_url'] . $photo;
                                 }
                                 ?>
-                                <img name="iphoto" src="<?= $photo ?>" />
+                                <img name="iphoto" src="<?= hsc($photo) ?>" />
                             </div>
                         </td>
                     </tr>

@@ -54,7 +54,7 @@ class DocManagerBackend
             $rs = db()->select(
                 'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
                 '[+prefix+]site_content',
-                where('parent', '=', $id),
+                where('parent', '=', (int)$id),
                 'menuindex ASC'
             );
             if (!$rs) {
@@ -117,8 +117,8 @@ class DocManagerBackend
                     $sql = sprintf(
                         "UPDATE %s set menuindex=%s WHERE id=%s",
                         evo()->getFullTableName('site_content'),
-                        $key,
-                        $id
+                        (int)$key,
+                        (int)$id
                     );
                     db()->query($sql);
                 }
@@ -141,7 +141,7 @@ class DocManagerBackend
         if ($pids !== '' && $template !== '') {
             $values = rtrim($pids, ' OR ');
             $fields = ['template' => (int)$template];
-            db()->update($fields, evo()->getFullTableName('site_content'), $values);
+            db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
@@ -183,7 +183,7 @@ class DocManagerBackend
                     continue;
                 }
 
-                $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . $tvKeyName);
+                $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . (int)$tvKeyName);
                 $row = db()->getRow($typeSQL);
                 if (!$row) {
                     continue;
@@ -211,9 +211,9 @@ class DocManagerBackend
             }
 
             foreach ($pids as $docID) {
-                $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . $docID);
+                $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . (int)$docID);
                 if (db()->count($tempSQL) <= 0) {
-                    if ($docID !== '0') {
+                    if ((int) $docID !== 0) {
                         $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
                     }
                     continue;
@@ -236,7 +236,7 @@ class DocManagerBackend
                     $checkSQL = db()->select(
                         'value',
                         $tbl_site_tmplvar_contentvalues,
-                        "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                        sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                     );
                     $checkCount = db()->count($checkSQL);
                     if ($checkCount) {
@@ -246,7 +246,7 @@ class DocManagerBackend
                         } elseif (trim($tmplVars["$tvIndex"]) == '') {
                             db()->delete(
                                 $tbl_site_tmplvar_contentvalues,
-                                "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                                sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                             );
                             $noUpdate = true;
                         }
@@ -258,14 +258,14 @@ class DocManagerBackend
                             db()->update(
                                 $fields,
                                 $tbl_site_tmplvar_contentvalues,
-                                "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                                sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                             );
                             $updated = true;
                         } elseif (ltrim($tmplVars[(string)$tvIndex]) !== '') {
                             $fields = [
                                 'value' => db()->escape($tmplVars["$tvIndex"]),
-                                'contentid' => db()->escape($docID),
-                                'tmplvarid' => db()->escape($tvValue)
+                                'contentid' => (int)$docID,
+                                'tmplvarid' => (int)$tvValue
                             ];
                             db()->insert($fields, $tbl_site_tmplvar_contentvalues);
                             $updated = true;
@@ -298,6 +298,11 @@ class DocManagerBackend
     public function changeDocGroups($pids, $docgroup, $action)
     {
         $this->dm->ph['update.message'] = '';
+        if (!evo()->hasPermission('access_permissions') || !evo()->hasPermission('web_access_permissions')) {
+            $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error']
+                . '<br />' . $this->dm->lang['DM_process_no_permission'];
+            return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
+        }
         $doc_vals = $this->processRange($pids, '', 0);
         $doc_id = $doc_vals[0];
         $error = $doc_vals[1];
@@ -309,10 +314,11 @@ class DocManagerBackend
                         break;
                     }
                     foreach ($doc_id as $value) {
+                        $value = (int)$value;
                         $sqlResult = db()->select(
                             '*',
                             '[+prefix+]document_groups',
-                            sprintf('document_group=%d AND document=%s', $docgroup, $value)
+                            sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                         );
                         $NotAMember = (db()->count($sqlResult) == 0);
                         if (!$NotAMember) {
@@ -324,13 +330,10 @@ class DocManagerBackend
                             );
                             continue;
                         }
-                        $sql = sprintf(
-                            'INSERT INTO %s (document_group, document) VALUES (%d,%s)',
-                            '[+prefix+]document_groups',
-                            $docgroup,
-                            $value
+                        db()->insert(
+                            ['document_group' => (int)$docgroup, 'document' => $value],
+                            '[+prefix+]document_groups'
                         );
-                        db()->query($sql);
                         $this->secureWebDocument($value);
                         $this->secureMgrDocument($value);
                     }
@@ -338,21 +341,19 @@ class DocManagerBackend
                 case 'pullDocGroup':
                     if (count($doc_id) > 0) {
                         foreach ($doc_id as $value) {
+                            $value = (int)$value;
                             $docsRemoved = 0;
                             $sqlResult = db()->select(
                                 '*',
                                 '[+prefix+]document_groups',
-                                "document_group = " . $docgroup . " AND document = " . $value
+                                sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                             );
                             $AMember = (db()->count($sqlResult) <> 0);
                             if ($AMember) {
-                                $sql = sprintf(
-                                    'DELETE FROM %s WHERE document_group = %d AND document = %s',
+                                db()->delete(
                                     '[+prefix+]document_groups',
-                                    $docgroup,
-                                    $value
+                                    sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                                 );
-                                db()->query($sql);
                                 $this->secureWebDocument($value);
                                 $this->secureMgrDocument($value);
                             } else {
@@ -387,6 +388,7 @@ class DocManagerBackend
 
         /* misc document settings */
         $fieldval = '';
+        $logAction = '';
         switch (postv('setoption')) {
             case 1:
                 $fieldval = 'published';
@@ -394,23 +396,23 @@ class DocManagerBackend
                     'publishedon' => postv('newvalue') == 1 ? time() : 0,
                     'publishedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : 0
                 ];
-                $this->logDocumentChange('publish');
+                $logAction = 'publish';
                 break;
             case 2:
                 $fieldval = 'hidemenu';
-                $this->logDocumentChange('hidemenu');
+                $logAction = 'hidemenu';
                 break;
             case 3:
                 $fieldval = 'searchable';
-                $this->logDocumentChange('search');
+                $logAction = 'search';
                 break;
             case 4:
                 $fieldval = 'cacheable';
-                $this->logDocumentChange('cache');
+                $logAction = 'cache';
                 break;
             case 5:
                 $fieldval = 'richtext';
-                $this->logDocumentChange('richtext');
+                $logAction = 'richtext';
                 break;
             case 6:
                 $fieldval = 'deleted';
@@ -418,7 +420,7 @@ class DocManagerBackend
                     'deletedon' => postv('newvalue') == 1 ? time() : '0',
                     'deletedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : '0'
                 ];
-                $this->logDocumentChange('delete');
+                $logAction = 'delete';
                 break;
             default:
                 break;
@@ -462,18 +464,19 @@ class DocManagerBackend
                 $fields = array_merge($fields, $secondaryFields);
             }
 
-            db()->update($fields, $tbl_site_content, $values);
+            db()->update(db()->escape($fields), $tbl_site_content, $values);
             $new = true;
+            $this->logDocumentChange($logAction);
         }
 
         if ($pids !== '' && count($dateval) > 0) {
-            db()->update($dateval, $tbl_site_content, $values);
+            db()->update(db()->escape($dateval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('dates');
         }
 
         if ($pids <> '' && count($authorval) > 0) {
-            db()->update($authorval, $tbl_site_content, $values);
+            db()->update(db()->escape($authorval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('authors');
         }
@@ -531,51 +534,72 @@ class DocManagerBackend
                     if ($returnval == 0) {
                         $idarray[] = ($i + $match[0]);
                     } else {
-                        $pids .= '' . $column . "='" . ($i + $match[0]) . '\' OR ';
+                        $pids .= '' . $column . "='" . (int) ($i + $match[0]) . '\' OR ';
                     }
                 }
             } elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
                 /* value is a group for immediate children */
                 $match = rtrim($match[0], '*');
 
-                $group = db()->select('id', $tbl_site_content, 'parent=' . $match);
+                $group = db()->select('id', $tbl_site_content, 'parent=' . (int)$match);
 
                 if ($returnval == 0) {
                     $idarray[] = $match;
                 } else {
-                    $pids .= '' . $column . '=\'' . $match . '\' OR ';
+                    $pids .= '' . $column . '=\'' . (int) $match . '\' OR ';
                 }
                 if (db()->count($group) > 0) {
                     while ($row = db()->getRow($group)) {
                         if ($returnval == 0) {
                             $idarray[] = ($row['id']);
                         } else {
-                            $pids .= '' . $column . '=\'' . $row['id'] . '\' OR ';
+                            $pids .= '' . $column . '=\'' . (int) $row['id'] . '\' OR ';
                         }
                     }
                 }
             } elseif (preg_match('/^[\d]+\*\*$/', $value, $match)) {
-                $match = rtrim($match[0], '**');
-                $idarray[] = $match;
+                /* value is a group for all descendants */
+                $descendants = [(int) rtrim($match[0], '*')];
+                $visited = [$descendants[0] => true];
 
-                foreach ($idarray as $iValue) {
-                    $where = 'parent=' . $iValue;
-                    $rs = db()->select('id', $tbl_site_content, $where);
-                    if (db()->count($rs) > 0) {
-                        while ($row = db()->getRow($rs)) {
-                            $idarray[] = $row['id'];
+                $level = $descendants;
+                while ($level) {
+                    // 階層ごとにまとめて問い合わせる（問い合わせ回数は木の深さの分だけ）
+                    $rs = db()->select(
+                        'id,parent',
+                        $tbl_site_content,
+                        'parent IN (' . implode(',', array_map('intval', $level)) . ')'
+                    );
+                    $childrenByParent = [];
+                    while ($row = db()->getRow($rs)) {
+                        $childrenByParent[(int) $row['parent']][] = (int) $row['id'];
+                    }
+                    $next = [];
+                    foreach ($level as $parentId) {
+                        foreach ($childrenByParent[$parentId] ?? [] as $childId) {
+                            if (isset($visited[$childId])) {
+                                continue;
+                            }
+                            $visited[$childId] = true;
+                            $descendants[] = $childId;
+                            $next[] = $childId;
                         }
                     }
+                    $level = $next;
                 }
 
-                foreach ($idarray as $iValue) {
-                    $pids .= $column . "='" . $iValue . "' OR ";
+                foreach ($descendants as $descendantId) {
+                    if ($returnval == 0) {
+                        $idarray[] = $descendantId;
+                    } else {
+                        $pids .= $column . "='" . (int) $descendantId . "' OR ";
+                    }
                 }
             } elseif (preg_match('/^[\d]+$/', $value, $match)) {
                 if ($returnval == 0) {
                     $idarray[] = ($match[0]);
                 } else {
-                    $pids .= $column . "='" . $value . "' OR ";
+                    $pids .= $column . "='" . (int) $value . "' OR ";
                 }
             } else {
                 $error .= $this->dm->lang['DM_process_invalid_error'] . $value . '<br />';
@@ -607,7 +631,7 @@ class DocManagerBackend
             $sql = db()->select(
                 'id,default_text',
                 '[+prefix+]site_tmplvars',
-                "id='" . $name . "'"
+                sprintf('id=%d', (int) $name)
             );
             if (db()->count($sql) <= 0) {
                 continue;
@@ -623,14 +647,14 @@ class DocManagerBackend
             $newSql = db()->select(
                 'value',
                 '[+prefix+]site_tmplvar_contentvalues',
-                "tmplvarid=" . $row['id'] . " AND contentid=" . $documentId
+                sprintf('tmplvarid=%d AND contentid=%d', (int)$row['id'], (int)$documentId)
             );
             if (db()->count($newSql) != 1) {
                 continue;
             }
             db()->delete(
                 '[+prefix+]site_tmplvar_contentvalues',
-                "tmplvarid=" . $row['id'] . " AND contentid=" . $documentId
+                sprintf('tmplvarid=%d AND contentid=%d', (int)$row['id'], (int)$documentId)
             );
         }
         return $output;
@@ -648,13 +672,13 @@ class DocManagerBackend
             $tbl_site_content,
             evo()->getFullTableName("document_groups"),
             evo()->getFullTableName("webgroup_access"),
-            $docId > 0 ? " sc.id=" . $docId . " AND " : ""
+            $docId > 0 ? " sc.id=" . (int)$docId . " AND " : ""
         );
         $ids = db()->getColumn("id", $sql);
         if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", $ids) . ")");
+            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
         } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id=" . $docId : "privateweb = 1"));
+            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privateweb = 1"));
         }
     }
 
@@ -665,12 +689,12 @@ class DocManagerBackend
                 FROM " . $tbl_site_content . " sc
                 LEFT JOIN " . evo()->getFullTableName("document_groups") . " dg ON dg.document = sc.id
                 LEFT JOIN " . evo()->getFullTableName("membergroup_access") . " mga ON mga.documentgroup = dg.document_group
-                WHERE " . ($docId > 0 ? " sc.id=" . $docId . " AND " : "") . "mga.id>0";
+                WHERE " . ($docId > 0 ? " sc.id=" . (int)$docId . " AND " : "") . "mga.id>0";
         $ids = db()->getColumn("id", $sql);
         if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", $ids) . ")");
+            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
         } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id=" . $docId : "privatemgr = 1"));
+            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privatemgr = 1"));
         }
     }
 
@@ -711,7 +735,7 @@ class DocManagerBackend
                 $log->initAndWriteLog($this->dm->lang['DM_log_delete']);
                 break;
             case 'dates':
-                $log->initAndWriteLog($this->dm->lang['DM_log_richtext']);
+                $log->initAndWriteLog($this->dm->lang['DM_log_dates']);
                 break;
             case 'authors':
                 $log->initAndWriteLog($this->dm->lang['DM_log_authors']);

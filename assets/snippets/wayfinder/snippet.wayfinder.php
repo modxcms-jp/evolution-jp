@@ -76,7 +76,8 @@ $wf->_config = [
     'ignoreHidden' => isset($ignoreHidden) ? $ignoreHidden : FALSE,
     'hideSubMenus' => isset($hideSubMenus) ? $hideSubMenus : FALSE,
     'useWeblinkUrl' => isset($useWeblinkUrl) ? $useWeblinkUrl : TRUE,
-    'fullLink' => isset($fullLink) ? $fullLink : true,
+    // FALSE: /about.html のようにルート相対で出す。TRUE: サイトの URL から出す
+    'fullLink' => isset($fullLink) ? $fullLink : FALSE,
     'nl' => isset($removeNewLines) ? '' : "\n",
     'sortOrder' => isset($sortOrder) ? strtoupper($sortOrder) : 'ASC',
     'sortBy' => isset($sortBy) ? $sortBy : 'menuindex',

@@ -30,7 +30,7 @@ if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (!isset($_SESSION['webValidated'])) {
-    $username = postv('username') ? hsc(trim(postv('username')), ENT_QUOTES) : '';
+    $username = hsc(trim(webLoginString(postv('username'))), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -91,7 +91,8 @@ EOT;
     // display login
     $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
-    $ref = isset($_REQUEST['refurl']) ? ['refurl' => urlencode($_REQUEST['refurl'])] : [];
+    $refurl = webLoginString(anyv('refurl'));
+    $ref = $refurl !== '' ? ['refurl' => urlencode($refurl)] : [];
     $form = str_replace("[+action+]", preserveUrl($modx->documentIdentifier, '', $ref), $form);
     $form = str_replace("[+rememberme+]", (isset($cookieSet) ? 1 : 0), $form);
     $form = str_replace("[+username+]", (isset($username) ? $username : ''), $form);
@@ -115,14 +116,15 @@ EOT;
     $sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')",
         evo()->getFullTableName('active_users'),
-        $_SESSION['webInternalKey'],
-        $_SESSION['webShortname'],
-        time(),
-        $itemid,
-        real_ip()
+        (int) sessionv('webInternalKey'),
+        db()->escape(sessionv('webShortname')),
+        (int) time(),
+        (int) $itemid,
+        db()->escape(real_ip())
     );
     if (!$rs = db()->query($sql)) {
-        $output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
+        evo()->logEvent(0, 3, 'error replacing into active users', 'WebLogin', ['sql' => $sql, 'error' => db()->getLastError()]);
+        $output .= webLoginAlert('error replacing into active users!');
     } else {
         // display logout
         $url = preserveUrl($modx->documentObject['id']);

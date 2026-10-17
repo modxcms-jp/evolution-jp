@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-16-orchestration-runner",
+    "run_id": "2026-10-16-orchestration-runner-001",
+    "skill": "exec-plan-runner",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-10-16T11:14:18+09:00",
+    "status": "completed",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}

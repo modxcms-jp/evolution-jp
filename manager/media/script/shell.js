@@ -17,8 +17,8 @@
     let currentModalUrl = '';
     // モーダル内でPOST(保存)が行われたか。真なら閉じる際に背後の#mainPaneを再取得する
     let modalDirty = false;
-    // openFilePickerで開いたファイルブラウザの選択結果を受け取るコールバック
-    let filePickerCallback = null;
+    // openPicker/openFilePickerで開いたピッカーの選択結果を受け取るコールバック
+    let pickerCallback = null;
 
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
@@ -342,7 +342,7 @@
             body.innerHTML = '';
         }
         currentModalUrl = '';
-        filePickerCallback = null;
+        pickerCallback = null;
         overlay.classList.add('hidden');
         if (modalDirty) {
             // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
@@ -477,20 +477,24 @@
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
                     return downloadResponse(response).then(stopWork);
                 }
+                // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
+                // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
+                const keepUrl = options.method === 'POST' && !response.redirected && !isModalTarget;
+                const finalUrl = keepUrl ? currentUrl : responseUrlWithRequestHash(response.url, url);
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         if (isModalTarget) {
                             if (options.method === 'POST') {
                                 modalDirty = true;
                             }
-                            applyModalFragment(text, responseUrlWithRequestHash(response.url, url));
+                            applyModalFragment(text, finalUrl);
                         } else {
-                            applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
+                            applyFragment(text, finalUrl, push && !keepUrl);
                         }
                     } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                         // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                        replaceDocument(text, responseUrlWithRequestHash(response.url, url));
+                        replaceDocument(text, finalUrl);
                     } else {
                         fullReload(url);
                     }
@@ -550,6 +554,11 @@
         unsavedMessage: 'Your changes are not saved. Continue?',
         networkErrorMessage: 'A network error occurred. The page will be reloaded.',
 
+        // 未保存の変更があれば確認する。続けてよいなら true(EvoCsrf.post()も送る前に使う)
+        confirmIfDirty: function () {
+            return confirmIfDirty();
+        },
+
         navigate: function (url, opts) {
             const push = !opts || opts.push !== false;
             if (!confirmIfDirty()) {
@@ -595,13 +604,29 @@
             closeModal(opts && opts.reloadMain === false ? false : undefined);
         },
 
-        // ファイルブラウザ等のピッカーをモーダルで開く。断片側はグローバルフック
+        // 選択ダイアログ(親リソースの選択等)をモーダルで開く。断片側が EvoShell.pick(value) を呼ぶと、
+        // モーダルが閉じてonPick(value)が実行される
+        openPicker: function (url, onPick) {
+            pickerCallback = typeof onPick === 'function' ? onPick : null;
+            request(url, { method: 'GET' }, false, 'modal');
+        },
+
+        // closeModal()がpickerCallbackをクリアするため、先に退避してから閉じる
+        pick: function (value) {
+            const callback = pickerCallback;
+            pickerCallback = null;
+            closeModal();
+            if (callback) {
+                callback(value);
+            }
+        },
+
+        // ファイルブラウザをモーダルで開く。断片側はグローバルフック
         // EvoFileBrowserPick(url) を呼ぶと、モーダルが閉じてonPick(url)が実行される
         openFilePicker: function (url, onPick) {
-            filePickerCallback = typeof onPick === 'function' ? onPick : null;
             const resolved = new URL(url, window.location.href);
             resolved.searchParams.set('modal', '1');
-            request(resolved.href, { method: 'GET' }, false, 'modal');
+            EvoShell.openPicker(resolved.href, onPick);
         },
 
         reloadTree: function () {
@@ -620,15 +645,9 @@
 
     window.EvoShell = EvoShell;
 
-    // モーダル内ファイルブラウザ(filebrowser.js)が選択確定時に呼ぶグローバルフック。
-    // closeModal()がfilePickerCallbackをクリアするため、先に退避してから閉じる
+    // モーダル内ファイルブラウザ(filebrowser.js)が選択確定時に呼ぶグローバルフック
     window.EvoFileBrowserPick = function (pickedUrl) {
-        const callback = filePickerCallback;
-        filePickerCallback = null;
-        closeModal();
-        if (callback) {
-            callback(pickedUrl);
-        }
+        EvoShell.pick(pickedUrl);
     };
 
     // 既存コードのform.submit()直接呼び出し(submitイベント非発火)もシェル経由にする

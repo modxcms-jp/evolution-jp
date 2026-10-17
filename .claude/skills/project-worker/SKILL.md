@@ -8,6 +8,8 @@ description: Evolution CMS JP Editionの開発タスクを実行するための�
 Evolution CMS JP Edition の開発ワークフロー。
 コーディング規約・技術スタック・ドキュメントマップは `AGENTS.md` を参照。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
+
 ## コマンド
 
 ### /start-session

@@ -35,9 +35,10 @@ if (!$new_parent && anyv('new_parent') !== '0') {
     alert()->setError(602);
     alert()->dumpError();
 }
-if (in_array($new_parent, $doc_ids, true)) {
-    alert()->setError(600);
-    alert()->dumpError();
+// 自分自身・子孫・存在しないリソースへは移動しない（複数移動ではすべてのリソースについて確かめる）
+$invalid_parent = manager()->invalidParentMessage($doc_ids, $new_parent);
+if ($invalid_parent !== '') {
+    alertAndQuit($invalid_parent, $doc_ids[0]);
 }
 
 // 移動するリソースそれぞれについても、操作できるかを確かめる
@@ -47,6 +48,16 @@ if (evo()->config['use_udperms'] == 1) {
             accessDenied('access_permission_denied');
         }
     }
+}
+
+// 許可するリソースの範囲の外の文書と、範囲の外への移動は止める
+foreach ($doc_ids as $v) {
+    if (!manager()->isInAllowedParents($v)) {
+        accessDenied('access_permission_denied');
+    }
+}
+if (!manager()->isInAllowedParents($new_parent)) {
+    accessDenied('access_permission_parent_denied');
 }
 
 $rs = db()->select(
@@ -69,15 +80,6 @@ if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
 if ($current_parent == $new_parent) {
     alertAndQuit(
         lang('move_resource_new_parent'),
-        $doc_id
-    );
-    exit;
-}
-
-$children = allChildren($doc_id);
-if (in_array($new_parent, $children)) {
-    alertAndQuit(
-        lang('move_resource_cant_myself'),
         $doc_id
     );
     exit;
@@ -188,26 +190,6 @@ function alertAndQuit($string, $docid)
         )
     );
     exit;
-}
-
-function allChildren($docid)
-{
-    $children = [];
-    $rs = db()->select('id', '[+prefix+]site_content', "parent='{$docid}'");
-    if (!$rs) {
-        exit("An error occured while attempting to find all of the resource's children.");
-    }
-
-    if ($numChildren = db()->count($rs)) {
-        while ($child = db()->getRow($rs)) {
-            $children[] = $child['id'];
-            $nextgen = allChildren($child['id']);
-            foreach ($nextgen as $k => $v) {
-                $children[$k] = $v;
-            }
-        }
-    }
-    return $children;
 }
 
 function update_parentid($doc_id, $new_parent, $user_id, $menuindex)

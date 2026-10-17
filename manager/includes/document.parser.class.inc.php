@@ -386,7 +386,7 @@ class DocumentParser
             return 0;
         }
 
-        $this->saveDBCache('docid_by_uri', $parsedUri, $docId);
+        $this->saveDBCache('docid_by_uri', $urlWithoutQuery, $docId);
 
         return $docId;
     }
@@ -1026,6 +1026,17 @@ class DocumentParser
         return implode($delim, $array);
     }
 
+    // "a, b,,c" => ['a','b','c']; drops anything that is not a plain column name
+    private function columnNames($list)
+    {
+        return array_values(array_filter(
+            array_map('trim', explode(',', (string)$list)),
+            function ($v) {
+                return preg_match('/^[a-z_][a-z0-9_]*$/i', $v) === 1;
+            }
+        ));
+    }
+
     public function getMicroTime()
     {
         [$usec, $sec] = explode(' ', microtime());
@@ -1157,21 +1168,10 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
-        $rs = db()->select(
-            '*',
-            '[+prefix+]user_roles',
-            where('id', '=', $user['role'])
-        );
-        $row = db()->getRow($rs);
-
-        $_SESSION['mgrPermissions'] = $row;
-
-        if ($this->session('mgrPermissions.messages') == 1) {
-            $rs = db()->select('*', '[+prefix+]manager_users');
-            if (db()->count($rs) == 1) {
-                $_SESSION['mgrPermissions']['messages'] = '0';
-            }
+        if (!$this->manager) {
+            $this->loadExtension('ManagerAPI');
         }
+        $_SESSION['mgrPermissions'] = $this->manager->getMgrPermissions($user['role']);
         // successful login so reset fail count and update key values
         db()->update(
             [
@@ -1186,9 +1186,6 @@ class DocumentParser
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
-        if (!$this->manager) {
-            $this->loadExtension('ManagerAPI');
-        }
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
         $_SESSION['modx.mgr.session.cookie.lifetime'] = $this->input_any('rememberme')
@@ -1230,10 +1227,6 @@ class DocumentParser
         }
         $this->config = $config;
 
-        if (is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
-            include_once(MODX_CACHE_PATH . 'siteCache.idx.php');
-        }
-
         $this->config['base_path'] = MODX_BASE_PATH;
         $this->config['core_path'] = MODX_CORE_PATH;
         if (defined('MODX_BASE_URL')) {
@@ -1242,6 +1235,20 @@ class DocumentParser
         if (defined('MODX_SITE_URL')) {
             $this->config['site_url'] = MODX_SITE_URL;
         }
+
+        // サーバーの掃除などでキャッシュファイルが消えていたら、その場で作り直す。
+        // siteCache.idx.php が無いとプラグインのイベント登録が読めず、プラグインが一切動かない。
+        // 作り直しの中で config() から getSettings() が呼ばれても、二重には作り直さない
+        static $rebuilding = false;
+        if (!$rebuilding && !is_file(MODX_CACHE_PATH . 'siteCache.idx.php') && is_writable(MODX_CACHE_PATH)) {
+            $rebuilding = true;
+            $this->setSiteCache($config);
+            $rebuilding = false;
+        }
+        if (is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
+            include_once(MODX_CACHE_PATH . 'siteCache.idx.php');
+        }
+
         if (!$this->config('error_page')) {
             $this->config['error_page'] = $this->config('start_page');
         }
@@ -2220,7 +2227,7 @@ class DocumentParser
         }
         if ($this->get_docfield_type($key) === 'user') {
             $user = $this->getUserInfo($value);
-            return $user['username'];
+            return is_array($user) ? $user['username'] : '';
         }
         return $value;
     }
@@ -2342,9 +2349,14 @@ class DocumentParser
         $currentId = $docId;
         while ($currentId != 0) {
             $doc = $this->getDocumentObject('id', $currentId);
-            $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
-            if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
-                return $currentId;
+            if (!is_array($doc)) {
+                break;
+            }
+            if (isset($doc[$key])) {
+                $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
+                if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
+                    return $currentId;
+                }
             }
             $currentId = $this->getParentID($currentId);
         }
@@ -4883,28 +4895,35 @@ class DocumentParser
             return $result;
         }
 
-        if ($fields === '*' || $fields === '') {
-            $fields = "tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-        } else {
-            $fields = sprintf(
-                "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value",
-                array_map(
-                    function ($v) {
-                        return 'tv.' . $v;
-                    },
-                    explode(',', $fields)
-                )
-            );
-        }
+        // column names only ("*", "" or anything else falls back to all columns)
+        $columns = $this->columnNames($fields);
+        $fields = sprintf(
+            "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value",
+            $columns ? $this->join(',', $columns, 'tv.') : 'tv.*'
+        );
+        $sort = $this->columnNames($sort);
+        $dir = strtoupper(trim((string)$dir)) === 'DESC' ? 'DESC' : 'ASC';
 
         if (is_array($idnames) && !empty($idnames)) {
-            $idnames = sprintf(
-                "'%s'",
-                implode("','", db()->escape($idnames))
-            );
-        }
-
-        if ($idnames === '*') {
+            // every element is a tv.name; positive integers are also looked up as tv.id
+            // (a TV can be named with digits only, e.g. "2024")
+            $ids = [];
+            $tvNames = [];
+            foreach ($idnames as $idname) {
+                if (preg_match('@^[1-9][0-9]*$@', (string)$idname)) {
+                    $ids[] = (int)$idname;
+                }
+                $tvNames[] = db()->escape($idname);
+            }
+            $conditions = [];
+            if ($ids) {
+                $conditions[] = sprintf('tv.id IN (%s)', implode(',', $ids));
+            }
+            if ($tvNames) {
+                $conditions[] = sprintf("tv.name IN ('%s')", implode("','", $tvNames));
+            }
+            $where = sprintf('(%s)', implode(' OR ', $conditions));
+        } elseif ($idnames === '*') {
             $where = 'tv.id<>0';
         } elseif (preg_match('@^[1-9][0-9]*$@', $idnames)) {
             $where = sprintf('tv.id=%s', $idnames);
@@ -4926,10 +4945,7 @@ class DocumentParser
                 )
             ],
             sprintf('%s AND tvtpl.templateid=%d', $where, (int)$resource['template']),
-            $sort ?
-                sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
-                :
-                ''
+            $sort ? sprintf('%s %s', $this->join(',', $sort, 'tv.'), $dir) : ''
         );
         while ($row = db()->getRow($rs)) {
             $result[] = $row;
@@ -5414,7 +5430,7 @@ class DocumentParser
                 return $value;
             }
 
-            if ($format === 'datagrid' && $params['egmsg'] === '') {
+            if ($format === 'datagrid' && ($params['egmsg'] ?? '') === '') {
                 return '';
             }
         }
@@ -5951,7 +5967,7 @@ class DocumentParser
                 mb_convert_encoding(
                     $str,
                     $encode,
-                    mb_detect_order(['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'])
+                    ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS']
                 ),
                 $flags,
                 $encode,
@@ -5990,7 +6006,8 @@ class DocumentParser
         }
 
         if (move_uploaded_file($tmp_path, $target_path)) {
-            chmod($target_path, $new_file_permissions);
+            // パーミッションを変えられない環境(IIS や一部の NFS/ACL)でも、保存できていれば成功として扱う
+            @chmod($target_path, $new_file_permissions);
             return true;
         }
 
@@ -6042,7 +6059,8 @@ class DocumentParser
             if (!$moved) {
                 return false;
             }
-            chmod(
+            // パーミッションを変えられなくても、保存できていれば成功として扱う
+            @chmod(
                 $target_path, octdec(ltrim($this->config('new_file_permissions'), '0'))
             );
             return true;
@@ -6086,7 +6104,8 @@ class DocumentParser
             return false;
         }
 
-        chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
+        // パーミッションを変えられなくても、保存できていれば成功として扱う
+        @chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
         return true;
     }
 
@@ -6170,13 +6189,9 @@ class DocumentParser
         if ($this->config['base_url'] === '[(base_url)]') {
             $this->config['base_url'] = MODX_BASE_URL;
         }
-        if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
+        if (is_string($key) && (strpos($key, '*') === 0 || strpos($key, '.*') !== false)) {
             $value = $default;
-            $this->setConfig(
-                $this->config,
-                str_replace(['.*', '*'], '', $key),
-                $value
-            );
+            $this->setConfig(str_replace(['.*', '*'], '', $key), $value);
             return $value;
         }
         return $this->array_get($this->config, $key, $default);

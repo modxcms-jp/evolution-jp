@@ -32,11 +32,16 @@ foreach ($tplSnippets as $k => $tplInfo) {
     if (!$dbv_snippet) {
         $f['name'] = $tplInfo['name'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
+        if ($f['category'] === false) {
+            $errors += 1;
+            showError();
+            return;
+        }
         $rs = db()->insert(
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_snippets'
         );
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
             return;
@@ -45,7 +50,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
         continue;
     }
     $f['properties'] = propUpdate($tplInfo['properties'], $dbv_snippet->properties);
-    if (!db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
+    if (dbWriteFailed(db()->update(db()->escape(nullToEmpty($f)), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'"))) {
         $errors += 1;
         showError();
         return;

@@ -15,6 +15,9 @@ DBスキーマ変更の適用履歴を `modx_migrations` テーブルで一元�
 
 ## Surprises & Discoveries
 
+- 2026-10-14（#585） / 旧 `upgrades.php` は、新しいコードのまま古い DB で管理画面が起動できる前提で、設定ページを開いたときに列を足している。この前提を支えていたのが `exec()` の 1054 などの無視で、起動時のクエリが無い列を参照しても黙って通っていた。#585 で無視を外したため、起動時（プラグインのイベント一覧の `site_plugin_events.priority` など）やログインからシステム設定までの画面で読む列は、システム設定より前（インストーラ）にそろっている必要がある。1.0.0J 以降の DB では、システム設定より前に無い列（`site_content.alias_visible`、`user_attributes` / `web_user_attributes` の `street` / `city`）を読んでも止まらないことを確かめた。ランナーをインストーラや CLI から呼べるようにする次フェーズでは、この順番を前提にする。
+- 2026-10-14（#585） / `upd_db_structure.php` で `ADD COLUMN ... AFTER x` の `x` が後から追加される順になっていた（`site_htmlsnippets` の `pub_date` → `published`、`user_attributes` の `city` → `street`）。無視があった間は 2 回目の実行で追加されていたが、#585 で順序を直した。baseline を書き起こすときも、AFTER の基準列を先に追加する。
+
 ## Decision Log
 
 - 2026-05-06 / ロールバック（down）は不要。マイグレーションは一方向（up）のみ。
@@ -26,6 +29,7 @@ DBスキーマ変更の適用履歴を `modx_migrations` テーブルで一元�
 - 2026-05-06 / `default.config.php` のバージョン別分岐（1.0.5J-r11 等の極旧JP版向け）はスコープ外。既存実装のまま残す。
 - 2026-05-06 / baseline の実装は `upd_db_structure.php` のコピーではなく、`release-1.0.0J:install/setup.sql` と現在の `create_tables.sql` の差分を正として書き起こす。`upd_db_structure.php` は15年近くの積み重ねで漏れがある（`site_plugins.error_reporting`、`site_snippets.error_reporting` 等）。差分比較スクリプトをExecPlan策定時に実施し、結果を Plan of Work に記録済み。
 - 2026-05-06 / `00000000_baseline.php` のエラーハンドリングは現状と同じく DBラッパー任せ。`db()->exec()` は errno 1060/1061/1091/1054/1064 を黙って無視し、それ以外は `messageQuit()` で停止する。`db()->fieldExists()` 等の存在チェックは無駄クエリ削減のためであり、移植時もそのまま維持する。
+- 2026-10-14 / 上の決定を改める。`db()->exec()` が errno 1060/1061/1091/1054/1064 を黙って無視する処理は #585 で外したので、DB エラーは既定ですべて `messageQuit()` で停止する。やり直しても止まらないこと（冪等性）は DB ラッパーに頼れないため、`fieldExists()`・`SHOW INDEX`・`IF NOT EXISTS` などの存在確認で担保する。存在確認は省略しない。
 
 ## Outcomes & Retrospective
 

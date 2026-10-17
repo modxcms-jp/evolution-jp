@@ -102,14 +102,14 @@ function content($key, $default = null)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=" + docid + "&a=111");
+            EvoCsrf.post("index.php?id=" + docid + "&a=111");
         }
     }
 
     function deletedocument() {
         if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
             documentDirty = false;
-            document.location.href = EvoCsrf.url("index.php?id=" + document.mutate.id.value + "&a=110");
+            EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=110");
         }
     }
 
@@ -558,6 +558,7 @@ function content($key, $default = null)
                             $grd->altItemClass = 'gridAltItem';
                             $grd->columns = $_lang['element_name'] . " ," . $_lang['type'];
                             $grd->fields = "name,type";
+                            $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
                             echo $grd->render();
                         } ?>
                     </div>

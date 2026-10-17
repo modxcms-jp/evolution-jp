@@ -67,3 +67,4 @@ if (is_array($evtOut)) {
 }
 include_once __DIR__ . '/mutate_user/tpl/javascript.php';
 include_once __DIR__ . '/mutate_user/tpl/form.php';
+include_once __DIR__ . '/mutate_user/tpl/changed_settings.php';

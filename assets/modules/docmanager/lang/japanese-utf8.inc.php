@@ -143,6 +143,7 @@ $_lang['DM_process_limits_error'] = '上限が下限よりも小さいです:';
 $_lang['DM_process_invalid_error'] = '指定値が正しくありません。 ';
 $_lang['DM_process_update_success'] = '変更は無事完了しました。';
 $_lang['DM_process_update_error'] = 'エラーが発生しました。';
+$_lang['DM_process_no_permission'] = 'リソースグループのアクセス権を変更する権限がありません。';
 $_lang['DM_process_back'] = '戻る';
 
 //-- manager access logging

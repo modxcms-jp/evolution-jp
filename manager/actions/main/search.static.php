@@ -133,6 +133,21 @@ if (getv('submitok')) {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }
 
+    // ツリー（nodes.php の getNodes()）と同じ、ドキュメントグループによる絞り込み。
+    // アクセス判定 checkPermissions() と同じく、use_udperms が無効なら絞らない
+    if (config('use_udperms') && !config('tree_show_protected') && !manager()->isAdmin()) {
+        $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
+        $access = 'privatemgr=0';
+        if ($mgrDocgroups) {
+            $access .= sprintf(
+                ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
+                db()->getFullTableName('document_groups'),
+                implode(',', $mgrDocgroups)
+            );
+        }
+        $where[] = '(' . $access . ')';
+    }
+
     $rs = db()->select(
         'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
         '[+prefix+]site_content',
@@ -231,8 +246,8 @@ if (getv('submitok')) {
                             ?>
                             <img src="<?= $icon ?>"/> <?= $pagetitle ?></td>
                             <td<?= $tdClass ?>><?= mb_strlen($row['description'],
-                                    $modx_manager_charset) > 70 ? mb_substr($row['description'], 0, 70,
-                                        $modx_manager_charset) . "..." : $row['description']; ?></td>
+                                    $modx_manager_charset) > 70 ? evo()->hsc(mb_substr($row['description'], 0, 70,
+                                        $modx_manager_charset)) . "..." : evo()->hsc($row['description']); ?></td>
                         </tr>
                         <?php
                     }

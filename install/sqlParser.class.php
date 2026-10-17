@@ -10,7 +10,7 @@ class SqlParser
     public $adminname;
     public $adminemail = 'example@example.com';
     public $adminpass;
-    public $connection_charset = 'utf8';
+    public $connection_charset = 'utf8mb4';
     public $connection_collation = 'utf8mb4_general_ci';
     public $managerlanguage = 'english';
 
@@ -71,20 +71,20 @@ class SqlParser
 
         foreach ($sql_array as $sql) {
             $sql = trim($sql, "\r\n; ");
-            if ($sql) {
-                db()->query($sql, false);
+            if (!$sql) {
+                continue;
             }
+            db()->query($sql, false);
             $error_no = db()->getLastErrorNo();
             if (!$error_no) {
                 continue;
             }
-            if (!in_array($error_no, [1060, 1061, 1091, 1054, 1064])) {
-                $this->mysqlErrors[] = [
-                    'error' => db()->getLastError(),
-                    'sql' => $sql
-                ];
-                $this->installFailed = true;
-            }
+            // 同梱 SQL は IF NOT EXISTS / IF EXISTS でやり直しに耐えるため、エラーはすべて失敗として扱う
+            $this->mysqlErrors[] = [
+                'error' => db()->getLastError(),
+                'sql' => $sql
+            ];
+            $this->installFailed = true;
         }
         return !$this->installFailed;
     }

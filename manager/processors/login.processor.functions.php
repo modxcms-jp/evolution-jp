@@ -408,22 +408,7 @@ function managerLogin()
     $_SESSION['mgrLogincount']   = user('logincount');        // login count
     $_SESSION['mgrRole']         = user('role');
 
-    $rs = db()->select(
-        '*',
-        '[+prefix+]user_roles',
-        sprintf("id='%d'", user('role'))
-    );
-    $row = db()->getRow($rs);
-
-    $_SESSION['mgrPermissions'] = $row;
-
-    if (sessionv('mgrPermissions.messages') == 1) {
-        $rs = db()->select('*', '[+prefix+]manager_users');
-        $total = db()->count($rs);
-        if ($total == 1) {
-            $_SESSION['mgrPermissions']['messages'] = '0';
-        }
-    }
+    $_SESSION['mgrPermissions'] = manager()->getMgrPermissions(user('role'));
     // successful login so reset fail count and update key values
     db()->update(
         [

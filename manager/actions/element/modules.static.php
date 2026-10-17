@@ -104,12 +104,12 @@ echo $cm->render();
                 break;
             case 3: // duplicate
                 if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
-                    window.location.href = EvoCsrf.url('index.php?a=111') + '&id=' + id;
+                    EvoCsrf.post('index.php?a=111&id=' + id);
                 }
                 break;
             case 4: // delete
                 if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
-                    window.location.href = EvoCsrf.url('index.php?a=110') + '&id=' + id;
+                    EvoCsrf.post('index.php?a=110&id=' + id);
                 }
                 break;
         }
@@ -160,6 +160,7 @@ echo $cm->render();
         $grd->itemClass = "gridItem";
         $grd->altItemClass = "gridAltItem";
         $grd->fields = "icon,name,description,locked,disabled";
+        $grd->colEscapes = '1,1,,1,1'; // DB の値を出す列をエスケープ（説明の列は HTML として出す）
         $grd->columns = $_lang["icon"] . " ," . $_lang["name"] . " ," . $_lang["description"] . " ," . $_lang["locked"] . " ," . $_lang["disabled"];
         $grd->colWidths = "34,,,60,60";
         $grd->colAligns = "center,,,center,center";

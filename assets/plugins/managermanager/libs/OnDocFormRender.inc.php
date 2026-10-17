@@ -2,8 +2,8 @@
 // Include the JQuery call
 $e->output('
     <!-- ManagerManager Plugin :: ' . $mm_version . ' -->
-    <!-- This document is using template: ' . $mm_current_page['template'] . ' -->
-    <!-- You are logged into the following role: ' . $mm_current_page['role'] . ' -->
+    <!-- This document is using template: ' . (int)$mm_current_page['template'] . ' -->
+    <!-- You are logged into the following role: ' . hsc($mm_current_page['role']) . ' -->
 
     <script charset="' . $modx->config['modx_charset'] . '">
     var mm_lastTab = "tabGeneral";

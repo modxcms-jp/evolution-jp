@@ -11,6 +11,8 @@ description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル
 `.agent/agents/reviewer.md` を主担当として、バグ・回帰・セキュリティ・キャッシュ整合性・SSOT 違反を優先してレビューする。
 PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する。
 
+`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
+
 ## 参照順
 
 1. `AGENTS.md`

@@ -26,9 +26,12 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
   * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
   * リクエストメソッド判定 → `is_post()` / `is_get()`
-* **DB操作のセキュリティ**: エスケープはDB操作直前で行う。
+* **DB操作のセキュリティ**: 既存の DBAPI は値をエスケープしない。呼び出し側で、DB操作の直前に `db()->escape()` か `(int)` で安全化してから渡す。
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
+  * 条件も同じ: `where('id', '=', (int) $id)` / `where('name', '=', db()->escape($name))`。`$field`・`$op` にリクエストの値を渡さない
+  * 注意: `where_in()` / `and_where_in()` は取り決めから外れて、各値を内部でエスケープしている（実装時の揃え漏れ。外部のコードが前提にしている可能性があるので、新 API で解消するまで残す）。エスケープ済みの値を渡さない（二重エスケープになる）。同じ作りのヘルパーを増やさない
+  * 値を内部で無害化する方式は PDO ベースの新 API（#453）で導入する。既存 API には足さない（二重エスケープになるため）
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
 * **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
 
@@ -158,7 +161,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## ドキュメント運用
 
-* AGENTS.md は **判断基準・スキル一覧・ワークフローを記載（詳細手順は docs へ分離）**
+* AGENTS.md は **判断基準・ワークフローを記載（詳細手順は docs へ、スキルの詳細は各 SKILL.md へ分離）**
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
 * ExecPlan 完了処理プロトコル（skill:complete 含む）は `.agent/PLANS.md` を正本とする
@@ -166,69 +169,9 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ---
 
-## スキル一覧と使い方
+## スキル
 
-### agent-orchestrator スキル - マルチエージェントオーケストレーション
-
-- **用途**: 大きなタスクを調査・計画・実装・レビュー・検証へ役割分担する
-- **タイミング**: 「エージェント」「役割分担」「複数担当」などを求めたとき、または担当境界を決める必要があるとき
-- **コマンド**: `/orchestrate <タスク>` で開始、レビューは `/agent-review-flow`
-
-### exec-plan スキル - 実行計画の作成・検証・更新
-
-- **用途**: 新機能開発、リファクタリング、バグ修正の設計フェーズ
-- **タイミング**: roadmapで`NEXT`ステータスかつExecPlan未作成のタスク着手時
-- **コマンド**: `/create-plan <タスク概要>` でプラン作成開始
-
-### project-worker スキル - 開発タスク実行
-
-- **用途**: Evolution CMS JP Editionの開発作業全般
-- **コマンド**: `/work`（タスク実行）/ `/start-session`（開発セッション開始）
-
-### issue-resolver スキル - 不具合調査・修正
-
-- **用途**: フォーラムやIssueの不具合報告に対する調査・再現・修正
-- **コマンド**: `analyze-issue <URL|テキスト>` から開始（reproduce → implement-fix の順に進む）
-
-### review-agent スキル - コードレビュー
-
-- **用途**: PR差分やローカル差分を日本語でレビューする。GitHub PR のレビュー指摘への対応（分類・方針提示・Worker委譲・resolved化）も行う
-- **タイミング**: 「レビュー」「PR確認」「差分確認」「コードレビュー」「レビュー指摘に対応」を依頼したとき
-- **コマンド**: `/review-diff`（ローカル差分）/ `/review-pr`（PR）/ `/resolve-review <PR番号>`（レビュー指摘対応）
-
-### roadmap-manager スキル - ロードマップ管理
-
-- **用途**: ロードマップのタスク追加・変更・削除・フォーマット正規化
-- **コマンド**: `/roadmap-next`（次タスク着手）/ `/roadmap-add` / `/roadmap-update` / `/roadmap-remove` / `/roadmap-sync` / `/roadmap-normalize`
-
-### roadmap-next-task スキル - 次タスク着手
-
-- **用途**: 依存順で次の未完了タスクを選定し、ExecPlan作成から実装完了・同期まで一貫して行う
-- **コマンド**: `/next-task`（着手）/ `/finish-task`（完了処理）/ `/sync-roadmap`（状態同期）
-
-### release スキル - リリース作業
-
-- **用途**: バージョン更新・タグ作成・GitHub Actions によるパッケージビルドまでを対話形式でガイド
-- **タイミング**: 「リリース」「release」と依頼されたとき
-- **コマンド**: `/release` で開始
-- **参照**: `assets/docs/release-process.md`
-
-### adaptive-validation-runner スキル - 自走での動作確認
-
-- **用途**: 改修後の動作確認を、Docker の検証環境の起動・インストールから、CLI 優先の確認、必要時の Playwright（既定はヘッドレス）、main との比較、後片付けまで AI が自分で進める
-- **タイミング**: 「動作確認」「自走で確認」「実環境で確かめる」「ブラウザで確認」を依頼されたとき。また不具合修正や画面に関わる改修で、実機での裏付けが必要なとき
-- **コマンド**: `/verify-live <確認したいこと>`
-- **参照**: `.claude/skills/adaptive-validation-runner/references/environment.md`（検証環境の手順と既知の落とし穴）
-
-### doc-maintainer スキル - ドキュメント健全性チェック・修正
-
-- **用途**: AI向けドキュメントの SSOT 違反・表記ゆれ・構造問題の検出と修正。PR概要と差分の乖離チェックも行う
-- **タイミング**: 「ドキュメントの整合性を確認」「SSOT違反を探す」「PRの概要を更新したい」を依頼したとき。またドキュメントファイルを変更したコミット前に必ず実行する
-- **コマンド**: `/doc-audit [対象]`（問題一覧表示）/ `/doc-fix <問題番号|説明>`（修正）/ `/pr-sync <PR番号>`（PR概要と差分の乖離確認）
-
-### skill-creator スキル - スキル作成支援
-
-- **用途**: 新規スキルの作成・検証・パッケージング
+スキルの用途・起動タイミング・コマンドは、各 `.claude/skills/<name>/SKILL.md` を正本とする（Codex の入口は `.codex/skills/`）。ここには一覧を複製しない。ドキュメント変更時に必ず実行する doc-maintainer は「コミット前（ドキュメント変更時）」を参照。
 
 ---
 
@@ -237,7 +180,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### 実行前の確認
 
 1. **roadmapを確認**: `.agent/roadmap.md` でステータス（NEXT/WIP/DONE/BLOCKED）と依存関係を確認
-2. **ExecPlanの存在確認**: 着手予定タスクにExecPlanがあるか確認
+2. **ExecPlan・Issue の確認**: 着手予定タスクの `Issue:` と `ExecPlan:` を確認する
 3. **AGENTS.mdの遵守**: コーディング規約と判断基準に従う
 
 ### コミット前（ドキュメント変更時）
@@ -245,20 +188,22 @@ fix(db): 実行直前でエスケープ処理を統一
 1. `/doc-audit` で変更対象ファイルのドキュメント問題（パス表記ゆれ・構造問題・無効参照・SSOT違反）を確認・修正する
 2. 問題が見つかった場合は `/doc-fix <問題番号|説明>` で修正してからコミットする
 
+`exec-plan-runner` の実行中は、worker が確認せずに直してコミットする（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
+
 ### 新タスク着手時
 
-**ショートカット**: `roadmap-next-task` スキルの `/next-task` で着手、完了時は `/finish-task` で完了処理・ロードマップ同期まで一貫して行える。
+**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。
 
 **手動手順**:
 
-1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定（roadmap-next-task スキル）
+1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定（roadmap-manager スキルの `/next-task`）
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
    - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
-   - ExecPlanなし → `/create-plan <タスク概要>` で計画作成（exec-plan スキル）
-4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
+   - `着手時に判断` → `.agent/roadmap.md` の目安で要否を決める。要るなら `/create-plan <タスク概要>` で計画作成（exec-plan スキル）、要らないなら `不要` にして Issue を正に実装（issue-resolver スキル）
+4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する（`exec-plan-runner` で進めるときは変えず、`/finish-task` でまとめて同期する）
 5. **実装**: AGENTS.md の規約に従って実装
-6. **完了処理**: `roadmap-next-task` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う
+6. **完了処理**: `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了宣言・ユーザー確認・同期を行う
 
 ### レビュー時
 
@@ -266,8 +211,10 @@ fix(db): 実行直前でエスケープ処理を統一
    - ローカル差分: `/review-diff`
    - PR: `/review-pr`
    - PR のレビュー指摘対応: `/resolve-review <PR番号>`（**必ずこのコマンドを使う**。直接修正した場合も、push 後にスレッドの resolved 化とユーザー確認を忘れず行う）
-2. PR 作成直後、および追加コミットをした後は、まず「`/pr-sync <PR番号>` を実行するか？ はい・いいえ」で確認する
+2. PR 作成後に追加コミットをしたときは、まず「`/pr-sync <PR番号>` を実行するか？ はい・いいえ」で確認する
 3. `はい` の場合のみ `/pr-sync <PR番号>` で概要との乖離を確認・更新する
+
+`exec-plan-runner` の実行中は、手順 1〜3 の確認を省く（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
 
 ### 不具合対応時
 
@@ -289,4 +236,4 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## 肥大化防止ポリシー
 
-AGENTS.md は「原則・判断基準・スキル一覧・ワークフロー」を記載し、詳細仕様は必ず `assets/docs/` に分離する。
+AGENTS.md は「原則・判断基準・ワークフロー」を記載し、詳細仕様は必ず `assets/docs/` に分離する。

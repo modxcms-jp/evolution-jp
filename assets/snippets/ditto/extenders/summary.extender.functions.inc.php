@@ -58,7 +58,7 @@ class truncate
     private function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars = false)
     {
         if (mb_strlen($posttext) <= $minimum_length || $truncChars == 1) {
-            return $this->textTrunc($posttext, $minimum_length + $length_offset);
+            return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
         }
 
         // Reset tag counter & quote checker
@@ -90,7 +90,23 @@ class truncate
                 return $posttext;
             }
         }
-        return $this->textTrunc($posttext, $minimum_length + $length_offset);
+        return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
+    }
+
+    // 切り詰めたときだけ、末尾の途中のタグ（<英字・!・/・? で始まり > なし）と途中の文字参照（& と英数字・# だけで ; なし）を落とす。
+    // タグでない < や & の後ろの日本語は残す。UTF-8 前提で、< > & は複数バイト文字に含まれないので /u は付けない
+    private function truncWithoutPartial($string, $limit)
+    {
+        $result = $this->textTrunc($string, $limit);
+        if ($result === $string) {
+            return $result;
+        }
+        // 途中のタグを落としたときは、その手前の文字参照は完結しているので判定しない
+        $stripped = preg_replace('/<[!\/?A-Za-z][^>]*$/', '', $result);
+        if ($stripped !== null && $stripped !== $result) {
+            return $stripped;
+        }
+        return preg_replace('/&(#[0-9]*|#[xX][0-9a-fA-F]*|[A-Za-z][A-Za-z0-9]*)?$/', '', $result) ?? $result;
     }
 
     private function textTrunc($string, $limit, $break = "。")

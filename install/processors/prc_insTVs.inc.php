@@ -22,6 +22,11 @@ foreach ($tplTVs as $i => $tplInfo) {
     $f['caption'] = $tplInfo['caption'];
     $f['description'] = $tplInfo['description'];
     $f['category'] = getCreateDbCategory($tplInfo['category']);
+    if ($f['category'] === false) {
+        $errors += 1;
+        showError();
+        return;
+    }
     $f['locked'] = $tplInfo['locked'];
     $f['elements'] = $tplInfo['elements'];
     $f['default_text'] = $tplInfo['default_text'];
@@ -35,7 +40,7 @@ foreach ($tplTVs as $i => $tplInfo) {
             db()->escape(nullToEmpty($f)),
             '[+prefix+]site_tmplvars'
         );
-        if (!$tmplvarid) {
+        if (dbWriteFailed($tmplvarid)) {
             $errors += 1;
             showError();
             return;
@@ -48,12 +53,16 @@ foreach ($tplTVs as $i => $tplInfo) {
             '[+prefix+]site_tmplvars',
             "id='" . $tmplvarid . "'"
         );
-        if (!$rs) {
+        if (dbWriteFailed($rs)) {
             $errors += 1;
             showError();
             return;
         }
-        db()->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='" . $dbv_tmplvar->id . "'");
+        if (dbWriteFailed(db()->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='" . $dbv_tmplvar->id . "'"))) {
+            $errors += 1;
+            showError();
+            return;
+        }
         echo ok($name, lang('upgraded'));
     }
 
@@ -76,5 +85,11 @@ foreach ($tplTVs as $i => $tplInfo) {
             ['tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id],
             '[+prefix+]site_tmplvar_templates'
         );
+        // この表には AUTO_INCREMENT の列が無く、成功しても insert() は 0 を返すので、エラー番号だけで確かめる
+        if (db()->getLastErrorNo()) {
+            $errors += 1;
+            showError();
+            return;
+        }
     }
 }

@@ -143,6 +143,7 @@ $_lang['DM_process_limits_error'] = 'Upper limit less than lower limit:';
 $_lang['DM_process_invalid_error'] = 'Invalid Value:';
 $_lang['DM_process_update_success'] = 'Update was completed successfully, with no errors.';
 $_lang['DM_process_update_error'] = 'Update has completed but encountered errors:';
+$_lang['DM_process_no_permission'] = 'You do not have permission to change document group access.';
 $_lang['DM_process_back'] = 'Back';
 
 //-- manager access logging
@@ -150,7 +151,7 @@ $_lang['DM_log_template'] = 'Document Manager: Templates changed.';
 $_lang['DM_log_templatevariables'] = 'Document Manager: Template variables changed.';
 $_lang['DM_log_docpermissions'] = 'Document Manager: Document Permissions changed.';
 $_lang['DM_log_sortmenu'] = 'Document Manager: Menu Index operation completed.';
-$_lang['DM_log_publish'] = 'Document Manager: Document Manager: Documents Published/Unpublished settings changed.';
+$_lang['DM_log_publish'] = 'Document Manager: Documents Published/Unpublished settings changed.';
 $_lang['DM_log_hidemenu'] = 'Document Manager: Documents Hide/Show in Menu settings changed.';
 $_lang['DM_log_search'] = 'Document Manager: Documents Searchable/Unsearchable settings changed.';
 $_lang['DM_log_cache'] = 'Document Manager: Documents Cacheable/Uncacheable settings changed.';

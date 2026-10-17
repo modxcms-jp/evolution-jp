@@ -36,6 +36,7 @@
 レビューコメント、PR本文案、`.agent/runs/` のレビュー記録、`resolveReviewThread` による GitHub レビュースレッドの resolved 化、およびレビュー本文への返答としての PR コメントのみ実行できる。
 実装・コミット・push を伴う場合は Worker へ委譲し、reviewer 自身は方針整理、確認、GitHub 上の返信・resolved 化のみ担当する。
 これらの GitHub 書き込みは、修正と push の完了後に「GitHub上へ返信・コメントし、review thread を resolved 化しますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
+`exec-plan-runner` から呼ばれたときは、ファイルにも GitHub にも書かない。GitHub への書き込みはメインのセッションが確認せずに行う（`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」）。
 
 ## 成果物
 

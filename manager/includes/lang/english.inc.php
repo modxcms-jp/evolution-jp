@@ -1069,6 +1069,7 @@ $_lang["day_names"] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 $_lang["month_names"] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
 $_lang["tree_page_click_option_auto"] = 'Auto';
 $_lang["too_many_resources"] = 'Undisplayed, there are many resources';
+$_lang["tree_show_more"] = 'Show [+count+] more';
 $_lang['setting_resource_tree_sortby_default'] = 'The Order of a resource tree';
 $_lang['setting_resource_tree_sortby_default_desc'] = 'Specify the sorting order on the resource tree of the management screen. The default is menuindex, but you can use any resource field such as menutitle, alias, etc.';
 $_lang['setting_resource_tree_node_name'] = 'The node name of resource tree';
@@ -1146,7 +1147,7 @@ $_lang["save_user.processor.php1"] = 'In order to read an authority setup of the
 $_lang["disabled"] = 'disabled';
 
 $_lang["limit_by_container"] = 'The number of displays in a container';
-$_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Containers only';
+$_lang["limit_by_container_message"] = 'If the number of resources in a container on the tree exceeds this number, non-container resources are collapsed into a "Show N more" link that loads them in batches of this size.<br />blank - Unlimited<br />0  - Containers only';
 $_lang["allow_mgr2web_title"] = 'Override attestation state';
 $_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
 
@@ -1322,3 +1323,12 @@ $_lang["enable_draft_message"] = 'Show draft UI.';
 
 $_lang["manager_treepane_trim_title"] = 'Trim Tree Pane Titles';
 $_lang["manager_treepane_trim_title_message"] = 'Choose whether to trim the titles in the tree pane when they are too long.';
+
+$_lang["parent_picker_open"] = 'Search';
+$_lang["parent_picker_title"] = 'Select parent resource';
+$_lang["parent_picker_placeholder"] = 'Search by title, alias or ID';
+$_lang["parent_picker_hint"] = 'Enter part of a title or alias, or an ID.';
+$_lang["parent_picker_more"] = 'Only the first %s results are shown. Please narrow your search.';
+$_lang["parent_picker_root"] = 'Select the site root';
+$_lang["parent_picker_descendant"] = 'A resource cannot be placed under itself or its children';
+$_lang["parent_not_found"] = 'The selected parent resource (ID: %s) does not exist.';

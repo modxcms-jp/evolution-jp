@@ -63,7 +63,7 @@ if (!evo()->hasPermission('view_schedule')) {
                     ?>
                     <tr>
                         <td><?= $row['id'] ?></td>
-                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= $row['pagetitle'] ?></a>
+                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= hsc($row['pagetitle']) ?></a>
                         </td>
                         <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
                     </tr>
@@ -108,7 +108,7 @@ if (!evo()->hasPermission('view_schedule')) {
                     ?>
                     <tr>
                         <td><?= $row['id'] ?></td>
-                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= $row['pagetitle'] ?></a>
+                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= hsc($row['pagetitle']) ?></a>
                         </td>
                         <td><?= $modx->toDateFormat($row['unpub_date'] + config('server_offset_time', 0)) ?></td>
                     </tr>
@@ -161,7 +161,7 @@ if (!evo()->hasPermission('view_schedule')) {
                             <a
                                 href="<?= 'index.php?a=131&id=' . $row['elmid'] ?>"
                             >
-                                <?= $row['pagetitle'] ?>
+                                <?= hsc($row['pagetitle']) ?>
                             </a>
                         </td>
                         <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
@@ -178,7 +178,7 @@ if (!evo()->hasPermission('view_schedule')) {
                             </a>
                             /
                             <a
-                                href="<?= hsc(csrfUrl('index.php?a=134&id=' . $row['elmid'] . '&back=publist')) ?>"
+                                href="<?= hsc('index.php?a=134&id=' . $row['elmid'] . '&back=publist') ?>" data-evo-post
                                 class="unpub_draft">公開取り消し</a>
                         </td>
                     </tr>

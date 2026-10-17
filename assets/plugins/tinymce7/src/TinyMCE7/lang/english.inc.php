@@ -16,4 +16,17 @@ $_lang['tinymce7_entermode_description'] = 'Choose how TinyMCE 7 handles the Ent
 $_lang['tinymce7_entermode_default'] = 'TinyMCE default (paragraph)';
 $_lang['tinymce7_entermode_p'] = 'Insert paragraph <p>';
 $_lang['tinymce7_entermode_br'] = 'Insert line break <br>';
+$_lang['tinymce7_css_selectors_label'] = 'CSS style selectors';
+$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The setting of the old TinyMCE plugin is carried over if present.';
 
+$_lang['tinymce7_template_label'] = 'Templates';
+$_lang['tinymce7_template_docs'] = 'Resource IDs';
+$_lang['tinymce7_template_chunks'] = 'Chunk names';
+$_lang['tinymce7_template_category'] = 'Chunk category';
+$_lang['tinymce7_template_description'] = 'Content of the resources and chunks specified here can be inserted from the "Insert template" toolbar button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.';
+$_lang['tinymce7_template_button'] = 'Insert template';
+$_lang['tinymce7_template_dialog_title'] = 'Insert template';
+$_lang['tinymce7_template_select'] = 'Template';
+$_lang['tinymce7_template_preview'] = 'Preview';
+$_lang['tinymce7_template_insert'] = 'Insert';
+$_lang['tinymce7_template_cancel'] = 'Cancel';

@@ -17,7 +17,7 @@ $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
-$errorReporting = postv('error_reporting', 'inherit');
+$errorReporting = db()->escape(postv('error_reporting', 'inherit'));
 $validErrorLevels = ['inherit', '0', '1', '2', '99'];
 if (!in_array($errorReporting, $validErrorLevels, true)) {
     $errorReporting = 'inherit';

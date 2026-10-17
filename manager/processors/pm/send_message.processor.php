@@ -134,7 +134,7 @@ function encrypt($plaintext, $key = 'modx')
     $len = strlen($plaintext);
     $enc = '';
     for ($i = 0; $i < $len; $i++) {
-        $enc .= chr(ord($plaintext[$i]) ^ ord($key[$i]));
+        $enc .= chr(ord($plaintext[$i]) ^ (isset($key[$i]) ? ord($key[$i]) : 0));
     }
     return base64_encode($enc);
 }

@@ -41,12 +41,25 @@ if (!sessionv('mgrValidated')) {
 // log the user action
 sessionv('*ip', real_ip());
 
+// 状態を変える操作（csrfProtectedActions() の一覧）は POST でしか受け付けない。GET・HEAD などは 405 で止める。
+// 外部の拡張が GET で呼んでいるときに気づけるよう、システムログに残す
+if (!is_post() && isCsrfProtectedAction(manager()->action)) {
+    evo()->logEvent(0, 2, sprintf(
+        'a=%d was requested with %s. Operations that change state accept only POST.',
+        (int) manager()->action,
+        hsc(serverv('REQUEST_METHOD', ''))
+    ), 'Method Not Allowed');
+    header('HTTP/1.1 405 Method Not Allowed');
+    header('Allow: POST');
+    header('Content-Type: text/plain; charset=UTF-8');
+    exit('This operation accepts only POST. Please go back and use the button or link on the page.');
+}
+
 // CSRF トークンの検証
 // - POST はアクションによらず全て検証する（表示系アクションでもフォーム POST が発生するため）。
 //   ログインの POST はこの地点（ログイン済みの判定より後）に来ないので、例外は設けない
-// - GET・HEAD なども、状態を変える操作（csrfProtectedActions() の一覧）なら検証する。
-//   一覧に載せ漏れがあっても POST の検証は残るので、POST の守りは後退しない
-if (is_post() || isCsrfProtectedAction(manager()->action)) {
+// - 状態を変える操作は、上で POST だけに絞っている
+if (is_post()) {
     // デバッグ: トークン情報を確認
     // トークンそのものは秘密値のため、値ではなく有無・件数だけを記録する
     // （ログの閲覧・転送・バックアップが別の信頼境界になりうるため）
@@ -89,6 +102,9 @@ if (manager()->action != 1) {
     }
     sessionv('*mgrDocgroups', manager()->getMgrDocgroups(evo()->getLoginUserID()));
 }
+
+// メニューやツリーの部分更新（a=1）も権限で表示を変えるため、action によらず読み直す
+manager()->refreshMgrPermissions();
 
 clearstatcache(true, $touch_path);
 if ($touch_path && is_file($touch_path)) {

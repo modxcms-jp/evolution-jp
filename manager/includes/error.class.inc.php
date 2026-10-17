@@ -80,14 +80,19 @@ class errorHandler
             return 'index.php?a=2';
         }
 
-        if (preg_match('/[&?]count_attempts/', sessionv('previous_request_uri'))) {
-            return sessionv('previous_request_uri');
+        $previous = (string)sessionv('previous_request_uri', '');
+        if ($previous === '') {
+            return 'index.php?a=2';
+        }
+
+        if (preg_match('/[&?]count_attempts/', $previous)) {
+            return $previous;
         }
 
         return sprintf(
             '%s%scount_attempts=1',
-            sessionv('previous_request_uri'),
-            strpos(sessionv('previous_request_uri'), '?') === false ? '?' : '&'
+            $previous,
+            strpos($previous, '?') === false ? '?' : '&'
         );
     }
 
