@@ -30,6 +30,11 @@ class DocManager
             }
         }
 
+        // 言語の名前は、英数字・_・- だけを受け付ける
+        if (!preg_match('/^[\w\-]+$/', (string) $managerLanguage)) {
+            $managerLanguage = 'english';
+        }
+
         $docmanager_lang_dir = MODX_BASE_PATH . 'assets/modules/docmanager/lang/';
         include MODX_CORE_PATH . 'lang/english.inc.php';
         include $docmanager_lang_dir . 'english.inc.php';

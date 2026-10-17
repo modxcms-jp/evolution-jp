@@ -8,10 +8,17 @@ if (empty($params['output'])) {
 $widget_output = null;
 $o = '';
 /* If we are loading a file */
-$params['output'] = $this->parseText($params['output'], ['value' => $value, 'tvname' => $name]);
+// 処理の種類は、文書の値を埋め込む前の出力の定義で決める。
+// 定義が @FILE・@INCLUDE などなら、値を埋め込む前に展開してから決める
+$raw_output = $params['output'];
+if (strpos($raw_output, '@') === 0) {
+    $raw_output = $this->atBind($raw_output);
+    $raw_output = is_array($raw_output) ? implode('', $raw_output) : (string) $raw_output;
+}
+$params['output'] = $this->parseText($raw_output, ['value' => $value, 'tvname' => $name]);
 
-if (substr($params['output'], 0, 5) === '<?php') {
-    $params['output'] = "@EVAL:\n" . substr($params['output'], 5);
+if (substr($raw_output, 0, 5) === '<?php') {
+    $raw_output = "@EVAL:\n" . substr($raw_output, 5);
 }
 
 $modx->tvfilter = new stdClass();
@@ -20,29 +27,12 @@ $modx->tvfilter->vars['value'] = &$value;
 $modx->tvfilter->vars['input'] = &$value;
 $modx->tvfilter->vars['docid'] = &$docid;
 
-if (substr($params['output'], 0, 5) == '@FILE') {
-    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
-    if (!is_file($file_name)) {
-        throw new Exception($file_name . ' does not exist');
-    }
-    $widget_output = file_get_contents($file_name);
-} elseif (substr($params['output'], 0, 8) == '@INCLUDE') {
-    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
-    if (!is_file($file_name)) {
-        throw new Exception($file_name . ' does not exist');
-    }
-    ob_start();
-    $return = include $file_name;
-    $incOut = ob_get_clean();
-    if ($widget_output === null) {
-        $widget_output = $incOut ?: $return;
-    }
-} elseif (substr($params['output'], 0, 6) == '@CHUNK' && $value !== '') {
-    $chunk_name = trim(substr($params['output'], 7));
+if (substr($raw_output, 0, 6) == '@CHUNK' && $value !== '') {
+    $chunk_name = trim(substr($raw_output, 7));
     $widget_output = $this->getChunk($chunk_name);
-} elseif (substr($params['output'], 0, 5) == '@EVAL') {
+} elseif (substr($raw_output, 0, 5) == '@EVAL') {
     $tvname = $name;
-    $eval_str = trim(substr($params['output'], 6));
+    $eval_str = trim(substr($raw_output, 6));
     ob_start();
     $return = eval($eval_str);
     $msg = ob_get_contents();
@@ -59,7 +49,6 @@ if (substr($params['output'], 0, 5) == '@FILE') {
 
 $modx->tvfilter->vars = [];
 
-// Except @INCLUDE
 if (!is_string($widget_output)) {
     return $widget_output;
 }

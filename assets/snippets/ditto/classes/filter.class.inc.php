@@ -56,7 +56,8 @@ class filter
         }
         $rs['op'] = $op;
 
-        if (stripos($param['value'], '@EVAL') === 0) {
+        // @EVAL は、バインディングが有効のときだけ実行する。無効のときは、ふつうの値として扱う
+        if (stripos($param['value'], '@EVAL') === 0 && evo()->config('enable_bindings') == 1) {
             $eval_code = trim(
                     substr($param['value'], 6),
                     ';'
