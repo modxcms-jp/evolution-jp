@@ -18,23 +18,33 @@ function addColumnIfNotExists($table, $column, $definition) {
             $definition
         );
         db()->query($query);
+        return true;
     }
+    return false;
+}
+
+// 権限の列を足したときだけ、管理者（ロール ID 1）に付ける。すでにある列は触らない（利用者が外した権限を戻さない）
+function addRolePermissionColumn($table, $column, $definition) {
+    if (!addColumnIfNotExists($table, $column, $definition)) {
+        return;
+    }
+    db()->query(sprintf("UPDATE `%s` SET `%s`=1 WHERE `id`=1", $table, $column));
 }
 
 $table = sessionv('table_prefix') . 'user_roles';
 
-addColumnIfNotExists($table, 'edit_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `delete_snippet`');
-addColumnIfNotExists($table, 'new_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `edit_chunk`');
-addColumnIfNotExists($table, 'save_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `new_chunk`');
-addColumnIfNotExists($table, 'delete_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_chunk`');
-addColumnIfNotExists($table, 'empty_trash', 'int(1) NOT NULL DEFAULT \'0\' AFTER `delete_document`');
-addColumnIfNotExists($table, 'view_unpublished', 'int(1) NOT NULL DEFAULT \'0\' AFTER `web_access_permissions`');
-addColumnIfNotExists($table, 'import_static', 'int(1) NOT NULL DEFAULT \'0\' AFTER `view_unpublished`');
-addColumnIfNotExists($table, 'export_static', 'int(1) NOT NULL DEFAULT \'0\' AFTER `import_static`');
-addColumnIfNotExists($table, 'remove_locks', 'int(1) NOT NULL DEFAULT \'0\' AFTER `export_static`');
-addColumnIfNotExists($table, 'view_schedule', 'int(1) NOT NULL DEFAULT \'0\' AFTER `remove_locks`');
-addColumnIfNotExists($table, 'publish_document', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_document`');
-addColumnIfNotExists($table, 'move_document', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_document`');
+addRolePermissionColumn($table, 'edit_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `delete_snippet`');
+addRolePermissionColumn($table, 'new_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `edit_chunk`');
+addRolePermissionColumn($table, 'save_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `new_chunk`');
+addRolePermissionColumn($table, 'delete_chunk', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_chunk`');
+addRolePermissionColumn($table, 'empty_trash', 'int(1) NOT NULL DEFAULT \'0\' AFTER `delete_document`');
+addRolePermissionColumn($table, 'view_unpublished', 'int(1) NOT NULL DEFAULT \'0\' AFTER `web_access_permissions`');
+addRolePermissionColumn($table, 'import_static', 'int(1) NOT NULL DEFAULT \'0\' AFTER `view_unpublished`');
+addRolePermissionColumn($table, 'export_static', 'int(1) NOT NULL DEFAULT \'0\' AFTER `import_static`');
+addRolePermissionColumn($table, 'remove_locks', 'int(1) NOT NULL DEFAULT \'0\' AFTER `export_static`');
+addRolePermissionColumn($table, 'view_schedule', 'int(1) NOT NULL DEFAULT \'0\' AFTER `remove_locks`');
+addRolePermissionColumn($table, 'publish_document', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_document`');
+addRolePermissionColumn($table, 'move_document', 'int(1) NOT NULL DEFAULT \'0\' AFTER `save_document`');
 
 $table = sessionv('table_prefix') . 'documentgroup_names';
 db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`");
@@ -146,19 +156,12 @@ $data = [
     'view_schedule' => 1
 ];
 
-$columns = array_keys($data);
-$values = array_values($data);
-
-$columns_str = implode(',', $columns);
-$values_str = implode(',', array_map(function($value) {
-    return is_string($value) ? "'$value'" : $value;
-}, $values));
-
-// SQL文を組み立てる
-$query = "REPLACE INTO `{PREFIX}user_roles` ($columns_str) VALUES ($values_str)";
-$query = str_replace('{PREFIX}', db()->table_prefix, $query);
-
-db()->query($query);
+// ロール ID 1 は、無いときだけ入れる。あれば、利用者が変えた名前・説明・権限を残す
+$table = sessionv('table_prefix') . 'user_roles';
+$exists = db()->getValue(sprintf("SELECT COUNT(*) FROM `%s` WHERE `id`=1", $table));
+if (!$exists) {
+    db()->insert(db()->escape($data), $table);
+}
 
 $query = "REPLACE INTO `{PREFIX}system_eventnames` (id,name,service,groupname) VALUES ('1','OnDocPublished','1','Documents'), ('2','OnDocUnPublished','1','Documents'), ('3','OnWebPagePrerender','5',''), ('4','OnWebLogin','3',''), ('5','OnBeforeWebLogout','3',''), ('6','OnWebLogout','3',''), ('7','OnWebSaveUser','3',''), ('8','OnWebDeleteUser','3',''), ('9','OnWebChangePassword','3',''), ('10','OnWebCreateGroup','3',''), ('11','OnManagerLogin','2',''), ('12','OnBeforeManagerLogout','2',''), ('13','OnManagerLogout','2',''), ('14','OnManagerSaveUser','2',''), ('15','OnManagerDeleteUser','2',''), ('16','OnManagerChangePassword','2',''), ('17','OnManagerCreateGroup','2',''), ('18','OnBeforeCacheUpdate','4',''), ('19','OnCacheUpdate','4',''), ('20','OnLoadWebPageCache','4',''), ('21','OnBeforeSaveWebPageCache','4',''), ('22','OnChunkFormPrerender','1','Chunks'), ('23','OnChunkFormRender','1','Chunks'), ('24','OnBeforeChunkFormSave','1','Chunks'), ('25','OnChunkFormSave','1','Chunks'), ('26','OnBeforeChunkFormDelete','1','Chunks'), ('27','OnChunkFormDelete','1','Chunks'), ('28','OnDocFormPrerender','1','Documents'), ('215','OnDocListRender','1','Documents'), ('216','OnDocListPrerender','1','Documents'), ('29','OnDocFormRender','1','Documents'), ('30','OnBeforeDocFormSave','1','Documents'), ('31','OnDocFormSave','1','Documents'), ('32','OnBeforeDocFormDelete','1','Documents'), ('33','OnDocFormDelete','1','Documents'), ('34','OnPluginFormPrerender','1','Plugins'), ('35','OnPluginFormRender','1','Plugins'), ('36','OnBeforePluginFormSave','1','Plugins'), ('37','OnPluginFormSave','1','Plugins'), ('38','OnBeforePluginFormDelete','1','Plugins'), ('39','OnPluginFormDelete','1','Plugins'), ('40','OnSnipFormPrerender','1','Snippets'), ('41','OnSnipFormRender','1','Snippets'), ('42','OnBeforeSnipFormSave','1','Snippets'), ('43','OnSnipFormSave','1','Snippets'), ('44','OnBeforeSnipFormDelete','1','Snippets'), ('45','OnSnipFormDelete','1','Snippets'), ('46','OnTempFormPrerender','1','Templates'), ('47','OnTempFormRender','1','Templates'), ('48','OnBeforeTempFormSave','1','Templates'), ('49','OnTempFormSave','1','Templates'), ('50','OnBeforeTempFormDelete','1','Templates'), ('51','OnTempFormDelete','1','Templates'), ('52','OnTVFormPrerender','1','Template Variables'), ('53','OnTVFormRender','1','Template Variables'), ('54','OnBeforeTVFormSave','1','Template Variables'), ('55','OnTVFormSave','1','Template Variables'), ('56','OnBeforeTVFormDelete','1','Template Variables'), ('57','OnTVFormDelete','1','Template Variables'), ('58','OnUserFormPrerender','1','Users'), ('59','OnUserFormRender','1','Users'), ('60','OnBeforeUserFormSave','1','Users'), ('61','OnUserFormSave','1','Users'), ('62','OnBeforeUserFormDelete','1','Users'), ('63','OnUserFormDelete','1','Users'), ('64','OnWUsrFormPrerender','1','Web Users'), ('65','OnWUsrFormRender','1','Web Users'), ('66','OnBeforeWUsrFormSave','1','Web Users'), ('67','OnWUsrFormSave','1','Web Users'), ('68','OnBeforeWUsrFormDelete','1','Web Users'), ('69','OnWUsrFormDelete','1','Web Users'), ('70','OnSiteRefresh','1',''), ('71','OnFileManagerUpload','2',''), ('72','OnModFormPrerender','1','Modules'), ('73','OnModFormRender','1','Modules'), ('74','OnBeforeModFormDelete','1','Modules'), ('75','OnModFormDelete','1','Modules'), ('76','OnBeforeModFormSave','1','Modules'), ('77','OnModFormSave','1','Modules'), ('78','OnBeforeWebLogin','3',''), ('79','OnWebAuthentication','3',''), ('80','OnBeforeManagerLogin','2',''), ('81','OnManagerAuthentication','2',''), ('82','OnSiteSettingsRender','1','System Settings'), ('83','OnFriendlyURLSettingsRender','1','System Settings'), ('84','OnUserSettingsRender','1','System Settings'), ('85','OnInterfaceSettingsRender','1','System Settings'), ('86','OnMiscSettingsRender','1','System Settings'), ('87','OnRichTextEditorRegister','1','RichText Editor'), ('88','OnRichTextEditorInit','1','RichText Editor'), ('89','OnManagerPageInit','2',''), ('90','OnWebPageInit','5',''), ('104','OnBeforeGetDocID','5',''), ('101','OnLoadDocumentObject','5',''), ('91','OnLoadWebDocument','5',''), ('92','OnParseDocument','5',''), ('93','OnManagerLoginFormRender','2',''), ('94','OnWebPageComplete','5',''), ('95','OnLogPageHit','5',''), ('96','OnBeforeManagerPageInit','2',''), ('97','OnBeforeEmptyTrash','1','Documents'), ('98','OnEmptyTrash','1','Documents'), ('99','OnManagerLoginFormPrerender','2',''), ('100','OnStripAlias','1','Documents'), ('102','OnBeforeDocFormUnDelete','1','Documents'), ('103','OnDocFormUnDelete','1','Documents'), ('200','OnCreateDocGroup','1','Documents'), ('201','OnManagerWelcomePrerender','2',''), ('202','OnManagerWelcomeHome','2',''), ('203','OnManagerWelcomeRender','2',''), ('204','OnBeforeDocDuplicate','1','Documents'), ('205','OnDocDuplicate','1','Documents'), ('206','OnManagerMainFrameHeaderHTMLBlock','2',''), ('207','OnManagerPreFrameLoader','2',''), ('208','OnManagerFrameLoader','2',''), ('209','OnManagerTreeInit','2',''), ('210','OnManagerTreePrerender','2',''), ('211','OnManagerTreeRender','2',''), ('212','OnSystemSettingsRender','1','System Settings'), ('213','OnManagerNodePrerender','2',''), ('214','OnManagerNodeRender','2',''), ('300','OnMakeUrl','1',''), ('301','OnExportPreExec','2',''), ('302','OnExportExec','2',''), ('303','OnGetConfig','1',''), ('304','OnCallChunk','1','Chunks'), ('999','OnPageUnauthorized','1',''), ('1000','OnPageNotFound','1','')";
 
