@@ -122,6 +122,16 @@ function compare_check($params)
         }
     }
 
+    // 有効な行が無く、無効な同名の行だけがあるときは、利用者が無効にしたものとして扱う
+    // （アップグレードで入れ直した控えは有効な行と並ぶので、これに当たらない）
+    if ($category === 'plugin' && db()->count($rs) === 0 && db()->getValue(
+        'COUNT(id)',
+        $tableName,
+        sprintf("`name`='%s' AND `disabled`='1'", db()->escape($params['name']))
+    )) {
+        return 'disabled';
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
@@ -360,26 +370,19 @@ function cleanupNullStrings()
 
 function propUpdate($new, $old)
 {
-    // Split properties up into arrays
+    // 本体の DocumentParser::parseProperties() と同じく、最初の = で名前と値に分ける（値の中の = は残す）。
+    // 値の中の & は %26 で表す前提なので、& での分割は変えない。後に渡した定義（$old）が優先される
     $returnArr = [];
-    $newArr = explode('&', $new);
-    $oldArr = explode('&', $old);
-
-    foreach ($newArr as $k => $v) {
-        if ($v) {
-            $tempArr = explode('=', trim($v));
-            $returnArr[$tempArr[0]] = $tempArr[1];
+    foreach ([$new, $old] as $properties) {
+        foreach (explode('&', (string)$properties) as $v) {
+            $v = trim($v);
+            if (strpos($v, '=') === false) {
+                continue;
+            }
+            [$name, $value] = explode('=', $v, 2);
+            $returnArr[$name] = $value;
         }
     }
-    foreach ($oldArr as $k => $v) {
-        if ($v) {
-            $tempArr = explode('=', trim($v));
-            $returnArr[$tempArr[0]] = $tempArr[1];
-        }
-    }
-
-    // Make unique array
-    $returnArr = array_unique($returnArr);
 
     // Build new string for new properties value
     $return = '';
@@ -926,7 +929,8 @@ function shouldInstallElement($index, $installset, $selected, $installSampleData
     if ($installSampleData && in_array('sample', $installset)) {
         return true;
     }
-    if (in_array('base', $installset)) {
+    // 新規インストールでは base を必ず入れる。アップグレードでは、オプション画面のチェックを尊重する
+    if (!sessionv('is_upgradeable') && in_array('base', $installset)) {
         return true;
     }
 
@@ -984,6 +988,9 @@ function convert2utf8mb4() {
         echo "<p>utf8mb4_general_ciに変換されたテーブルはありません。</p>";
     }
 
+    sessionv('*database_charset', 'utf8mb4');
+    sessionv('*database_collation', 'utf8mb4_general_ci');
+
     $convert->updateConfigIncPhp();
     echo "<p>config.inc.php has been updated.</p>";
 }
@@ -1020,4 +1027,18 @@ function validateSessionValues() {
     }
 
     return true;
+}
+
+/**
+ * 設定ファイルのテンプレートの [+キー+] を、PHP のリテラルに置き換える。
+ * 値は var_export() で出すので、引用符や \ や $ を含んでいても読み戻した値が変わらない。
+ * strtr() で一度に置き換えるので、値の中のタグ風の文字列は置き換わらない。
+ */
+function buildConfigFile($template, array $values)
+{
+    $replacePairs = [];
+    foreach ($values as $key => $value) {
+        $replacePairs["[+{$key}+]"] = var_export($value, true);
+    }
+    return strtr($template, $replacePairs);
 }

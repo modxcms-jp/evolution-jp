@@ -31,7 +31,7 @@ class convert2utf8mb4 {
         @chmod($this->config_path, 0666);
         return file_put_contents(
             $this->config_path,
-            str_replace("'utf8'", "'utf8mb4'", $this->getConfigContent())
+            str_replace(["'utf8'", "'utf8mb3'"], "'utf8mb4'", $this->getConfigContent())
         );
     }
 

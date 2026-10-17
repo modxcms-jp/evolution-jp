@@ -316,8 +316,8 @@ log_install_event('Database installation completed successfully');
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
 $ph['database_type'] = 'mysqli';
 $ph['database_server'] = sessionv('database_server');
-$ph['database_user'] = db()->escape(sessionv('database_user'));
-$ph['database_password'] = db()->escape(sessionv('database_password'));
+$ph['database_user'] = sessionv('database_user');
+$ph['database_password'] = sessionv('database_password');
 $ph['database_connection_charset'] = sessionv('database_charset');
 $ph['database_connection_method'] = sessionv('database_connection_method');
 $ph['dbase'] = trim(sessionv('dbase'), '`');
@@ -325,7 +325,7 @@ $ph['table_prefix'] = sessionv('table_prefix');
 $ph['lastInstallTime'] = time();
 $ph['https_port'] = '443';
 
-$configString = evo()->parseText($configString, $ph);
+$configString = buildConfigFile($configString, $ph);
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
 $config_saved = @file_put_contents($config_path, $configString);
 // try to chmod the config file go-rwx (for suexeced php)

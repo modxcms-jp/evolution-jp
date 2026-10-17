@@ -136,6 +136,7 @@ $_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODX w
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';
+$_lang["plugin_disabled_in_site"] = 'This plugin is disabled on this site.';
 $_lang["preinstall_validation"] = 'Pre-install validation';
 $_lang["preupdate_validation"] = 'Pre-update validation';
 $_lang["remove_install_folder_auto"] = 'Remove the install folder and files from my website <br />&nbsp;(This operation requires delete permission to the granted to the install folder).';
