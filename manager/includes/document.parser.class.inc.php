@@ -3220,10 +3220,9 @@ class DocumentParser
             $value = print_r($session, true);
         } elseif ($this->isSuperGlobalAccessor($key) && strpos($key, '[') !== false) {
             $value = $this->fetchSuperGlobalValue($key, $session);
-        } elseif (strpos($key, '[') !== false) {
-            $value = $key ? eval("return {$key};") : '';
-        } elseif (0 < eval("return is_array($key) ? count({$key}) : 0;")) {
-            $value = eval("return print_r({$key},true)");
+        } elseif ($this->isSuperGlobalAccessor($key)) {
+            $source = $this->getSuperGlobalSource(substr($key, 2), $session);
+            $value = (is_array($source) && count($source) > 0) ? print_r($source, true) : '';
         } else {
             $value = '';
         }
@@ -3237,12 +3236,12 @@ class DocumentParser
 
     private function isSuperGlobalAccessor($key)
     {
-        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)/', $key) === 1;
+        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key) === 1;
     }
 
     private function fetchSuperGlobalValue($key, $session)
     {
-        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(.*)$/', $key, $matches)) {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
             return '';
         }
 
