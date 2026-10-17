@@ -158,9 +158,24 @@ function syncParentAfterEvent($param)
         return;
     }
     $parent = (int)$param['doc_vars']['parent'];
-    if ($parent !== (int)validated('parent')) {
-        validated('*parent', $parent);
+    if ($parent === (int)validated('parent')) {
+        return;
     }
+    validated('*parent', $parent);
+    recheckAliasAfterParentChange($param, $parent);
+}
+
+// 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件。連番の振り直しはしない）
+function recheckAliasAfterParentChange($param, $parent)
+{
+    $alias = (string)array_get($param['doc_vars'], 'alias', '');
+    if ($alias === '' || !evo()->config('friendly_urls') || !evo()->config('use_alias_path')) {
+        return;
+    }
+    if (evo()->config('allow_duplicate_alias')) {
+        return;
+    }
+    _check_duplicate_alias((int)validated('id'), $alias, (string)$parent);
 }
 
 // OnBeforeDocFormSave のプラグインが同じ保存の中で文書を作ると、事前に決めた ID がぶつかる
