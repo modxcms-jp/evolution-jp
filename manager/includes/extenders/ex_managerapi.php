@@ -84,6 +84,7 @@ class ManagerAPI
             $id = 0;
         }
 
+        $alias = '';
         $pagetitle = trim($pagetitle);
         if ($pagetitle !== '') {
             $alias = strtolower(evo()->stripAlias($pagetitle));
@@ -93,10 +94,14 @@ class ManagerAPI
             return '';
         }
 
+        if ($alias === '') {
+            return '';
+        }
+
         $rs = db()->select(
             'id',
             '[+prefix+]site_content',
-            sprintf("id<>'%s' AND alias='%s'", $id, $alias)
+            sprintf("id<>%d AND alias='%s'", (int) $id, db()->escape($alias))
         );
         if (db()->count($rs)) {
             $c = 2;
@@ -106,7 +111,7 @@ class ManagerAPI
                     db()->select(
                         'id',
                         '[+prefix+]site_content',
-                        sprintf("id!='%s' AND alias='%s'", $id, $_)
+                        sprintf("id<>%d AND alias='%s'", (int) $id, db()->escape($_))
                     )
                 )
             ) {
