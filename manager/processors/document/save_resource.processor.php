@@ -37,7 +37,7 @@ if (mode() === 'new') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
-    syncParentAfterEvent($param);
+    $param = syncParentAfterEvent($param);
     $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
 
     $newid = db()->insert(
@@ -99,7 +99,7 @@ if (mode() === 'edit') {
         'tv_vars' => validated('template') ? get_tmplvars() : []
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
-    syncParentAfterEvent($param);
+    $param = syncParentAfterEvent($param);
     $rs = db()->update(
         db()->escape($param['doc_vars']),
         '[+prefix+]site_content',
@@ -155,17 +155,34 @@ header('Location: index.php?a=7');
 function syncParentAfterEvent($param)
 {
     if (!isset($param['doc_vars']['parent'])) {
-        return;
+        return $param;
     }
     $parent = (int)$param['doc_vars']['parent'];
     if ($parent === (int)validated('parent')) {
-        return;
+        return $param;
     }
     validated('*parent', $parent);
+    if (renumberAliasAfterParentChange()) {
+        $param['doc_vars']['alias'] = evo()->manager->get_alias_num_in_folder(
+            array_get($param['doc_vars'], 'id'),
+            $parent
+        );
+        return $param;
+    }
     recheckAliasAfterParentChange($param, $parent);
+    return $param;
 }
 
-// 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件。連番の振り直しはしない）
+// 別名が空で、フォルダ内の連番（automatic_alias=2）で振られていた場合は、新しい親で振り直す対象
+function renumberAliasAfterParentChange()
+{
+    return evo()->config('friendly_urls')
+        && (int)evo()->config('automatic_alias') === 2
+        && (string)validated('alias') === '';
+}
+
+// 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件）
+// use_alias_path が無効なら重複の確認は親に依らないので、確かめ直さない
 function recheckAliasAfterParentChange($param, $parent)
 {
     $alias = (string)array_get($param['doc_vars'], 'alias', '');
@@ -338,9 +355,9 @@ function _check_duplicate_alias($id, $alias, $parent)
             '[+prefix+]site_content',
             sprintf(
                 "id!='%s' AND alias='%s' AND parent=%s LIMIT 1",
-                $id,
-                $alias,
-                $parent
+                (int) $id,
+                db()->escape($alias),
+                (int) $parent
             )
         );
         if ($docid < 1) {
@@ -349,8 +366,8 @@ function _check_duplicate_alias($id, $alias, $parent)
                 '[+prefix+]site_content',
                 sprintf(
                     "id='%s' AND alias='' AND parent='%s'",
-                    $alias,
-                    $parent
+                    db()->escape($alias),
+                    (int) $parent
                 )
             );
         }
@@ -360,8 +377,8 @@ function _check_duplicate_alias($id, $alias, $parent)
             '[+prefix+]site_content',
             sprintf(
                 "id!='%s' AND alias='%s' LIMIT 1",
-                $id,
-                $alias
+                (int) $id,
+                db()->escape($alias)
             )
         );
         $docid = db()->getValue($rs);
@@ -370,7 +387,7 @@ function _check_duplicate_alias($id, $alias, $parent)
                 db()->select(
                     'id',
                     '[+prefix+]site_content',
-                    sprintf("id='%s' AND alias=''", $alias)
+                    sprintf("id='%s' AND alias=''", db()->escape($alias))
                 )
             );
         }
