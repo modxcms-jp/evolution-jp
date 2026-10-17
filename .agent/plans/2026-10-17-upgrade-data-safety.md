@@ -21,7 +21,9 @@
     - 低 2: 利用者が無効にしたプラグインにチェックを入れて入れ直すと、無効な行のプロパティを引き継がず、既定のプロパティで新しい行が入る。
     - 低 3: アップグレードで base の要素のチェックを外すと、その要素は更新されない（DB のコードは古いまま、`assets/` のファイルだけ新しくなる）。
   - 低 2・低 3 は「変わること」として、PR の本文とリリース記事の候補に入れる。
-- [ ] M4: #659 主キーが正しいときは付け直さない
+- [x] (2026-10-17) M4: #659 主キーが正しいときは付け直さない（78925672f）
+  - 検証: 修正前は、設定画面（`a=17`）を開くたびに 2 つの表の主キーを外して付け直した。修正後は `SHOW KEYS` だけで、`DROP PRIMARY KEY` は発行されない。主キーが違う形・無いときは、1 つの `ALTER TABLE` か `ADD` だけで直り、`innodb_force_primary_key=ON` でも通る。`OFF` での回帰はなし。
+  - 自己レビュー: 問題なし。
 - [ ] M5: #656 設定ファイルと初期データに入れる値を、文脈に合わせてエスケープする。最後に 1.2.2J からの通しの確認を行う
 
 ## Surprises & Discoveries
@@ -40,6 +42,7 @@
 - 範囲外（起票しない）: `install/functions.php` 624 行の関数 `parseProperties()` は、どこからも呼ばれておらず、同じ `explode('=')` の問題がある。接続テスト（`install/connection.databasetest.php` 51 行）はテーブル接頭辞の文字を確かめていない。アップグレード時、設定ファイルに書く DB の接続情報は、環境変数があればその値になる（`isUpGradeable()` が `config.inc.php` を読み込んだ結果をセッションに入れるため）。
 - M1 の検証（2026-10-17）: MariaDB 11 では、修正前の `DB_CHARSET` が `'utf8'` でなく `'utf8mb3'` だった（計画時の見立てどおり、照合順序の名前から決まる）。「変換しない」を選んでも、設定ファイルの `'utf8'` は `'utf8mb3'` に書き換わる（修正前からの動き）。
 - M2 の自己レビュー（2026-10-17）: 設定を一度も保存していないサイトは、インストーラが前の版を `'1.0.7J'` とするので、`update_tbl_user_roles()` が動き、外した権限がまた付く（中。今回は見送り。直すなら版が分からないときの値を上げる案があり、本人の判断が要る）。
+- M4 の検証（2026-10-17）: MariaDB 11.8.9 では `innodb_force_primary_key=ON` でも修正前の処理が止まらなかったので、発行された SQL（general_log）の `DROP PRIMARY KEY` の件数で判定した。MySQL の `sql_require_primary_key` での動きは説明に基づくもので、実際には試していない。主キーが違う形で、その列の組が重複する行がある古いサイトでは、`ADD PRIMARY KEY` が止まる（修正前からの動き）。
 - 検証環境の管理者 `admin` はロール 2（ウェブマスター、`save_role=1`）。ロール 1（Administrator）には、初期状態ではユーザーがいない（`install/sql/default_settings.sql` 46 行）。
 
 ## Decision Log
@@ -244,7 +247,7 @@ M5:
 
 確かめること:
 
-- 管理者で `a=17` を開く。修正前は DB のエラー画面で止まる。MariaDB がこの操作を拒まず止まらない場合は、`docker exec <名前>-db grep -c 'DROP PRIMARY KEY' /tmp/general.log` が 2 以上になることで、外して付け直していることを確かめる。修正後は設定画面（`#Button1`）が出て、同じ数が 0。
+- 管理者で `a=17` を開く。修正前は DB のエラー画面で止まる。MariaDB 11 では ON でも止まらないので、`DROP PRIMARY KEY` の件数で確かめる。MariaDB がこの操作を拒まず止まらない場合は、`docker exec <名前>-db grep -c 'DROP PRIMARY KEY' /tmp/general.log` が 2 以上になることで、外して付け直していることを確かめる。修正後は設定画面（`#Button1`）が出て、同じ数が 0。
 - 修正後だけ: 主キーが違う・無いときは直す。`innodb_force_primary_key=OFF` にして次の 2 文を流し、`ON` に戻してから 2 段目を開く。
 
         ALTER TABLE modx_site_tmplvar_templates DROP PRIMARY KEY, ADD PRIMARY KEY (tmplvarid, templateid, `rank`);
