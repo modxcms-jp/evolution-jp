@@ -54,7 +54,7 @@ class DocManagerBackend
             $rs = db()->select(
                 'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
                 '[+prefix+]site_content',
-                where('parent', '=', $id),
+                where('parent', '=', (int)$id),
                 'menuindex ASC'
             );
             if (!$rs) {
@@ -117,8 +117,8 @@ class DocManagerBackend
                     $sql = sprintf(
                         "UPDATE %s set menuindex=%s WHERE id=%s",
                         evo()->getFullTableName('site_content'),
-                        $key,
-                        $id
+                        (int)$key,
+                        (int)$id
                     );
                     db()->query($sql);
                 }
@@ -141,7 +141,7 @@ class DocManagerBackend
         if ($pids !== '' && $template !== '') {
             $values = rtrim($pids, ' OR ');
             $fields = ['template' => (int)$template];
-            db()->update($fields, evo()->getFullTableName('site_content'), $values);
+            db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
@@ -183,7 +183,7 @@ class DocManagerBackend
                     continue;
                 }
 
-                $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . $tvKeyName);
+                $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . (int)$tvKeyName);
                 $row = db()->getRow($typeSQL);
                 if (!$row) {
                     continue;
@@ -211,7 +211,7 @@ class DocManagerBackend
             }
 
             foreach ($pids as $docID) {
-                $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . $docID);
+                $tempSQL = db()->select('template', evo()->getFullTableName('site_content'), "id=" . (int)$docID);
                 if (db()->count($tempSQL) <= 0) {
                     if ((int) $docID !== 0) {
                         $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_doc_not_found'] . '<br />';
@@ -236,7 +236,7 @@ class DocManagerBackend
                     $checkSQL = db()->select(
                         'value',
                         $tbl_site_tmplvar_contentvalues,
-                        "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                        sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                     );
                     $checkCount = db()->count($checkSQL);
                     if ($checkCount) {
@@ -246,7 +246,7 @@ class DocManagerBackend
                         } elseif (trim($tmplVars["$tvIndex"]) == '') {
                             db()->delete(
                                 $tbl_site_tmplvar_contentvalues,
-                                "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                                sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                             );
                             $noUpdate = true;
                         }
@@ -258,14 +258,14 @@ class DocManagerBackend
                             db()->update(
                                 $fields,
                                 $tbl_site_tmplvar_contentvalues,
-                                "contentid='" . $docID . "' AND tmplvarid='" . $tvValue . "'"
+                                sprintf("contentid=%d AND tmplvarid=%d", (int)$docID, (int)$tvValue)
                             );
                             $updated = true;
                         } elseif (ltrim($tmplVars[(string)$tvIndex]) !== '') {
                             $fields = [
                                 'value' => db()->escape($tmplVars["$tvIndex"]),
-                                'contentid' => db()->escape($docID),
-                                'tmplvarid' => db()->escape($tvValue)
+                                'contentid' => (int)$docID,
+                                'tmplvarid' => (int)$tvValue
                             ];
                             db()->insert($fields, $tbl_site_tmplvar_contentvalues);
                             $updated = true;
@@ -464,19 +464,19 @@ class DocManagerBackend
                 $fields = array_merge($fields, $secondaryFields);
             }
 
-            db()->update($fields, $tbl_site_content, $values);
+            db()->update(db()->escape($fields), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange($logAction);
         }
 
         if ($pids !== '' && count($dateval) > 0) {
-            db()->update($dateval, $tbl_site_content, $values);
+            db()->update(db()->escape($dateval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('dates');
         }
 
         if ($pids <> '' && count($authorval) > 0) {
-            db()->update($authorval, $tbl_site_content, $values);
+            db()->update(db()->escape($authorval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('authors');
         }
@@ -541,7 +541,7 @@ class DocManagerBackend
                 /* value is a group for immediate children */
                 $match = rtrim($match[0], '*');
 
-                $group = db()->select('id', $tbl_site_content, 'parent=' . $match);
+                $group = db()->select('id', $tbl_site_content, 'parent=' . (int)$match);
 
                 if ($returnval == 0) {
                     $idarray[] = $match;
@@ -631,7 +631,7 @@ class DocManagerBackend
             $sql = db()->select(
                 'id,default_text',
                 '[+prefix+]site_tmplvars',
-                "id='" . $name . "'"
+                "id='" . db()->escape($name) . "'"
             );
             if (db()->count($sql) <= 0) {
                 continue;
@@ -647,14 +647,14 @@ class DocManagerBackend
             $newSql = db()->select(
                 'value',
                 '[+prefix+]site_tmplvar_contentvalues',
-                "tmplvarid=" . $row['id'] . " AND contentid=" . $documentId
+                sprintf('tmplvarid=%d AND contentid=%d', (int)$row['id'], (int)$documentId)
             );
             if (db()->count($newSql) != 1) {
                 continue;
             }
             db()->delete(
                 '[+prefix+]site_tmplvar_contentvalues',
-                "tmplvarid=" . $row['id'] . " AND contentid=" . $documentId
+                sprintf('tmplvarid=%d AND contentid=%d', (int)$row['id'], (int)$documentId)
             );
         }
         return $output;
@@ -672,13 +672,13 @@ class DocManagerBackend
             $tbl_site_content,
             evo()->getFullTableName("document_groups"),
             evo()->getFullTableName("webgroup_access"),
-            $docId > 0 ? " sc.id=" . $docId . " AND " : ""
+            $docId > 0 ? " sc.id=" . (int)$docId . " AND " : ""
         );
         $ids = db()->getColumn("id", $sql);
         if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", $ids) . ")");
+            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
         } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id=" . $docId : "privateweb = 1"));
+            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privateweb = 1"));
         }
     }
 
@@ -689,12 +689,12 @@ class DocManagerBackend
                 FROM " . $tbl_site_content . " sc
                 LEFT JOIN " . evo()->getFullTableName("document_groups") . " dg ON dg.document = sc.id
                 LEFT JOIN " . evo()->getFullTableName("membergroup_access") . " mga ON mga.documentgroup = dg.document_group
-                WHERE " . ($docId > 0 ? " sc.id=" . $docId . " AND " : "") . "mga.id>0";
+                WHERE " . ($docId > 0 ? " sc.id=" . (int)$docId . " AND " : "") . "mga.id>0";
         $ids = db()->getColumn("id", $sql);
         if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", $ids) . ")");
+            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
         } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id=" . $docId : "privatemgr = 1"));
+            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privatemgr = 1"));
         }
     }
 
