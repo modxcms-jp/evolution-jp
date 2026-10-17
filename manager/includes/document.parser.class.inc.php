@@ -857,9 +857,11 @@ class DocumentParser
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
                 && !($this->config('cache_type') == 2 && ($this->doc('privateweb') || $this->isLoggedIn('web')))
+                && !($this->config('cache_type') == 2 && serverv('REQUEST_METHOD', 'GET') !== 'GET')
             ) {
                 // cache_type=2 のフルページキャッシュは閲覧者を区別せず配信されるため、
-                // アクセス制御(privateweb)されたページと、ウェブ会員ログイン中のリクエストは保存しない
+                // アクセス制御(privateweb)されたページと、ウェブ会員ログイン中のリクエストは保存しない。
+                // 読む側は GET・HEAD で返すので、書く側は GET の応答だけを保存する(POST・PUT・DELETE などは保存しない)
                 $docid = $this->documentIdentifier;
                 $param = ['makeCache' => true];
                 // invoke OnBeforeSaveWebPageCache event
