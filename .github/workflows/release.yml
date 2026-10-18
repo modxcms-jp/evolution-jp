@@ -16,6 +16,55 @@ jobs:
       - name: Create zip archive
         run: git archive --format=zip HEAD -o evo-${GITHUB_REF_NAME}.zip
 
+      # zip のサイズとファイル数、同じ系列（1.2.x なら 1.2 系）の直前のリリース（下書きを除く。rc などの
+      # プレリリースは含む）との差をジョブの概要に出す。系列で分けるのは、1.2 系の保守リリースを
+      # 1.3 系と比べないため（#831）。表示するだけで、サイズが増えてもリリースは止めない
+      - name: Report zip size
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip="evo-${GITHUB_REF_NAME}.zip"
+          size=$(stat -c %s "$zip")
+          files=$(zipinfo -1 "$zip" | grep -vc '/$')
+          mib() { awk -v b="$1" 'BEGIN { printf "%.2f", b / 1048576 }'; }
+          {
+            echo "## zip のサイズ"
+            echo
+            echo "| | バイト | MiB | ファイル数 |"
+            echo "| --- | ---: | ---: | ---: |"
+            echo "| ${GITHUB_REF_NAME} | ${size} | $(mib "$size") | ${files} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          series=""
+          if [[ "$GITHUB_REF_NAME" =~ ^release-([0-9]+\.[0-9]+)\. ]]; then
+            series="${BASH_REMATCH[1]}"
+          fi
+          prev=""
+          if [ -n "$series" ]; then
+            prev=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 100 --json tagName,createdAt \
+              --jq "[.[] | select(.tagName != \"${GITHUB_REF_NAME}\" and (.tagName | startswith(\"release-${series}.\")))] | sort_by(.createdAt) | last | .tagName // empty")
+          fi
+          if [ -z "$prev" ]; then
+            echo >> "$GITHUB_STEP_SUMMARY"
+            echo "同じ系列（${series:-不明} 系）に前のリリースが無いため、比べる相手なし。" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          prev_size=$(gh release view "$prev" --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq "[.assets[] | select(.name == \"evo-${prev}.zip\")][0].size // empty")
+          if [ -z "$prev_size" ]; then
+            echo >> "$GITHUB_STEP_SUMMARY"
+            echo "直前のリリースの zip が見つからないため、差は出していません。" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          diff=$((size - prev_size))
+          pct=$(awk -v d="$diff" -v p="$prev_size" 'BEGIN { printf "%+.1f", d * 100 / p }')
+          {
+            echo "| ${prev}（直前） | ${prev_size} | $(mib "$prev_size") | |"
+            echo
+            echo "直前との差: $(printf '%+d' "$diff") バイト（${pct}%）"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
