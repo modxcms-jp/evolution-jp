@@ -1,0 +1,25 @@
+<?php
+// 管理画面テーマの設定の見本。
+// 使うテーマのフォルダ（manager/media/style/<テーマ>/）に config.php という名前でコピーし、
+// 変えたい項目だけを残す。書かなかった項目は既定値（common/style.defaults.php と、テーマの style.php）のまま。
+// テーマごとに別の config.php を置ける。
+return [
+    // ホーム画面のタブ
+    'tab_your_info' => 1,
+    'tab_online' => 1,
+
+    // ホーム画面のアイコン（0 で隠す）
+    'iconResources' => 1,
+    'iconNewDoc' => 1,
+    'iconSearch' => 1,
+    'iconMessage' => 1,
+    'iconElements' => 1,
+    'iconSettings' => 1,
+    'iconFileManager' => 1,
+    'iconEventLog' => 1,
+    'iconSysInfo' => 1,
+    'iconHelp' => 1,
+
+    // メニューの高さ（px）。システム設定の値がこれより小さいときに上書きする（既定は 86。RevoStyle は 58）
+    'manager_menu_height' => 86,
+];
