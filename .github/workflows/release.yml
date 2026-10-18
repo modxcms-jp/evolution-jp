@@ -16,6 +16,45 @@ jobs:
       - name: Create zip archive
         run: git archive --format=zip HEAD -o evo-${GITHUB_REF_NAME}.zip
 
+      # zip のサイズとファイル数、直前のリリース（下書きを除く。rc などのプレリリースは含む）との差を
+      # ジョブの概要に出す。表示するだけで、サイズが増えてもリリースは止めない
+      - name: Report zip size
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip="evo-${GITHUB_REF_NAME}.zip"
+          size=$(stat -c %s "$zip")
+          files=$(zipinfo -1 "$zip" | grep -vc '/$')
+          mib() { awk -v b="$1" 'BEGIN { printf "%.2f", b / 1048576 }'; }
+          {
+            echo "## zip のサイズ"
+            echo
+            echo "| | バイト | MiB | ファイル数 |"
+            echo "| --- | ---: | ---: | ---: |"
+            echo "| ${GITHUB_REF_NAME} | ${size} | $(mib "$size") | ${files} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          prev=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 30 --json tagName,createdAt \
+            --jq "[.[] | select(.tagName != \"${GITHUB_REF_NAME}\")] | sort_by(.createdAt) | last | .tagName // empty")
+          prev_size=""
+          if [ -n "$prev" ]; then
+            prev_size=$(gh release view "$prev" --repo "$GITHUB_REPOSITORY" --json assets \
+              --jq "[.assets[] | select(.name == \"evo-${prev}.zip\")][0].size // empty")
+          fi
+          if [ -z "$prev_size" ]; then
+            echo >> "$GITHUB_STEP_SUMMARY"
+            echo "直前のリリースの zip が見つからないため、差は出していません。" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          diff=$((size - prev_size))
+          pct=$(awk -v d="$diff" -v p="$prev_size" 'BEGIN { printf "%+.1f", d * 100 / p }')
+          {
+            echo "| ${prev}（直前） | ${prev_size} | $(mib "$prev_size") | |"
+            echo
+            echo "直前との差: $(printf '%+d' "$diff") バイト（${pct}%）"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
