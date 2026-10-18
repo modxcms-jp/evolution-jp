@@ -53,9 +53,8 @@ body.evo-shell > #mainPane {
 /* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
-   jquery.alertsのダイアログ(#popup_container/#popup_overlay)は自前でfixed/absolute配置し、
-   追加直後のouterWidth()で幅を固定するため、幅0にすると潰れる(#495)。対象から外す */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(#popup_container):not(#popup_overlay) {
+   ダイアログ(evo-dialog.js の <dialog>)は最上位レイヤーに出すので、幅0にすると潰れる。対象から外す */
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog) {
     grid-area: main;
     align-self: start;
     justify-self: start;

@@ -60,7 +60,7 @@ class errorHandler
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         // 値は <script> 内の JS リテラルとして埋め込む（js_literal()）。
-        // jAlert はメッセージを .html() で表示するので先に HTML エスケープする。タイトルは .text() なのでしない。
+        // jAlert はメッセージを HTML として表示するので先に HTML エスケープする。タイトルは文字列として表示するのでしない。
         // 埋め込んだ値の中が再び置換されないよう、parseText() ではなく strtr() で一度だけ置換する
         echo strtr(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),

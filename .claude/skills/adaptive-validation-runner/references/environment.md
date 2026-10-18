@@ -115,7 +115,7 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **ブランチを切り替えた直後は古いコードが動くことがある**: OPcache は `revalidate_freq=2`。切り替えてから数秒待ってから確かめる
 - **管理画面は `Accept-Language` が無いと 404**: curl でも Playwright でも付ける（`lib.js` の `newPage()` は付けている）
 - **セーフモードのログイン画面の見分け方**: `manager/media/style/common/login.tpl` はテーマの `style.css` を読み込まない。`.loginLicense` は両方にあるので目印にならない（`lib.js` の `isSafeModeLogin()`）
-- **シェルの jAlert は潰れて OK ボタンが画面外に出る**: `body.evo-shell` がグリッドで、jquery.alerts が追加時の幅で `min-width` / `max-width` を固定するため。`page.click()` では押せないので DOM でクリックする（`lib.js` の `clickAlertOk()`）
+- **jAlert / jConfirm は `<dialog>`**: `dialog.evo-dialog[open]` の `.evo-dialog-ok` / `.evo-dialog-cancel` を押す（`lib.js` の `clickAlertOk()`）。本文は `.evo-dialog-message`
 - **シェルの断片かどうかは応答ヘッダーで見る**: shell.js は `X-Evo-Pane: 1` の有無だけで、断片として差し込むかを決める。fetch の応答を記録して確かめる（`lib.js` の `watchFetch()`）
 
 ## 後片付け

@@ -554,8 +554,7 @@
     </style>
 
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css"/>
-    <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
+    <script src="media/script/evo-dialog.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         if (top.frames.length != 0) {
