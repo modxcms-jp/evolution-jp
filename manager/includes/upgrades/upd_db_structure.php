@@ -5,6 +5,28 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 $prefix = db()->config['table_prefix'];
 
+/**
+ * 主キーを $columns の形にそろえる。すでに同じなら何もしない。
+ * sql_require_primary_key=ON の DB でも通るよう、外す操作と付ける操作は 1 つの ALTER TABLE にする。
+ * $table と $columns には固定の値だけを渡す（識別子はバッククォートで囲むだけで、エスケープしない）。
+ */
+function syncPrimaryKey($table, array $columns)
+{
+    $rs = db()->query("SHOW KEYS FROM `{$table}` WHERE Key_name = 'PRIMARY'");
+    $current = [];
+    while ($row = db()->getRow($rs)) {
+        $current[(int)$row['Seq_in_index']] = $row['Column_name'];
+    }
+    ksort($current);
+    if (array_values($current) === $columns) {
+        return;
+    }
+
+    $cols = '`' . implode('`, `', $columns) . '`';
+    $drop = $current ? 'DROP PRIMARY KEY, ' : '';
+    db()->query("ALTER TABLE `{$table}` {$drop}ADD PRIMARY KEY ({$cols});");
+}
+
 $queries = [
     [
         'table' => "{$prefix}site_content",
@@ -174,12 +196,7 @@ db()->query("UPDATE `{$prefix}site_content` SET `type`='document', `contentType`
 
 db()->query("ALTER TABLE `{$prefix}site_htmlsnippets` MODIFY COLUMN `snippet` mediumtext;");
 
-// Check if primary key exists before dropping
-$primaryKeyExists = db()->getValue(db()->query("SHOW KEYS FROM `{$prefix}site_plugin_events` WHERE Key_name = 'PRIMARY'"));
-if ($primaryKeyExists) {
-    db()->query("ALTER TABLE `{$prefix}site_plugin_events` DROP PRIMARY KEY;");
-}
-db()->query("ALTER TABLE `{$prefix}site_plugin_events` ADD PRIMARY KEY (`pluginid`, `evtid`);");
+syncPrimaryKey("{$prefix}site_plugin_events", ['pluginid', 'evtid']);
 
 db()->query("ALTER TABLE `{$prefix}site_templates` MODIFY COLUMN `icon` varchar(255) NOT NULL default '' COMMENT 'url to icon file';");
 db()->query("ALTER TABLE `{$prefix}site_templates` MODIFY COLUMN `content` mediumtext;");
@@ -194,12 +211,7 @@ if ($indexExists) {
     db()->query("ALTER TABLE `{$prefix}site_tmplvar_templates` DROP INDEX `idx_templateid`;");
 }
 
-// Check if primary key exists before dropping
-$primaryKeyExists = db()->getValue(db()->query("SHOW KEYS FROM `{$prefix}site_tmplvar_templates` WHERE Key_name = 'PRIMARY'"));
-if ($primaryKeyExists) {
-    db()->query("ALTER TABLE `{$prefix}site_tmplvar_templates` DROP PRIMARY KEY;");
-}
-db()->query("ALTER TABLE `{$prefix}site_tmplvar_templates` ADD PRIMARY KEY (`tmplvarid`, `templateid`);");
+syncPrimaryKey("{$prefix}site_tmplvar_templates", ['tmplvarid', 'templateid']);
 
 db()->query("ALTER TABLE `{$prefix}site_tmplvar_contentvalues` MODIFY COLUMN `tmplvarid` int(10) NOT NULL DEFAULT '0' COMMENT 'Template Variable id';");
 db()->query("ALTER TABLE `{$prefix}site_tmplvar_contentvalues` MODIFY COLUMN `value` mediumtext;");

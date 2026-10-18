@@ -856,7 +856,12 @@ class DocumentParser
                 && $this->doc('cacheable') == 1
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
+                && !($this->config('cache_type') == 2 && ($this->doc('privateweb') || $this->isLoggedIn('web')))
+                && !($this->config('cache_type') == 2 && serverv('REQUEST_METHOD', 'GET') !== 'GET')
             ) {
+                // cache_type=2 のフルページキャッシュは閲覧者を区別せず配信されるため、
+                // アクセス制御(privateweb)されたページと、ウェブ会員ログイン中のリクエストは保存しない。
+                // 読む側は GET・HEAD で返すので、書く側は GET の応答だけを保存する(POST・PUT・DELETE などは保存しない)
                 $docid = $this->documentIdentifier;
                 $param = ['makeCache' => true];
                 // invoke OnBeforeSaveWebPageCache event
@@ -2184,7 +2189,7 @@ class DocumentParser
                 }
             }
 
-            if (strpos($value, '@') === 0) {
+            if (strpos($value, '@') === 0 && $this->config('enable_bindings') == 1) {
                 $value = $this->atBind($value);
             }
 
@@ -3230,10 +3235,9 @@ class DocumentParser
             $value = print_r($session, true);
         } elseif ($this->isSuperGlobalAccessor($key) && strpos($key, '[') !== false) {
             $value = $this->fetchSuperGlobalValue($key, $session);
-        } elseif (strpos($key, '[') !== false) {
-            $value = $key ? eval("return {$key};") : '';
-        } elseif (0 < eval("return is_array($key) ? count({$key}) : 0;")) {
-            $value = eval("return print_r({$key},true)");
+        } elseif ($this->isSuperGlobalAccessor($key)) {
+            $source = $this->getSuperGlobalSource(substr($key, 2), $session);
+            $value = (is_array($source) && count($source) > 0) ? print_r($source, true) : '';
         } else {
             $value = '';
         }
@@ -3247,12 +3251,12 @@ class DocumentParser
 
     private function isSuperGlobalAccessor($key)
     {
-        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)/', $key) === 1;
+        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key) === 1;
     }
 
     private function fetchSuperGlobalValue($key, $session)
     {
-        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(.*)$/', $key, $matches)) {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
             return '';
         }
 
@@ -5390,15 +5394,25 @@ class DocumentParser
             case 'listbox-multiple':
             case 'checkbox':
             case 'option':
-                $src = $tvtype;
+                // バインディングが無効のときは、コマンドにあたる値だけをほかの型と同じ扱いにする。
+                // コマンドにあたらない @ で始まる値は、そのまま残す
+                $bindings_enabled = $this->config('enable_bindings') == 1;
+                $src = $bindings_enabled ? $tvtype : 'docform';
                 $values = explode('||', $value);
                 foreach ($values as $i => $v) {
                     if (strpos($v, '<?php') === 0) {
                         $v = "@@EVAL\n" . substr($v, 6);
                     }
-                    if (strpos($v, '@') === 0) {
-                        $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
+                    if (strpos($v, '@') !== 0) {
+                        continue;
                     }
+                    if (!$bindings_enabled) {
+                        $command = $this->splitTVCommand($v);
+                        if ($command[0] === null) {
+                            continue;
+                        }
+                    }
+                    $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
                 }
                 $value = implode('||', $values);
                 break;

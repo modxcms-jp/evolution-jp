@@ -239,6 +239,35 @@ class MODIFIERS
         return $value;
     }
 
+    /**
+     * 読み込みを許すファイルの実パスを返す。サイトのルート配下かつ管理画面配下でなければ許可。
+     * 不可（存在しない・サイト外・管理画面下）の場合は false。
+     */
+    private function resolveReadablePath($path)
+    {
+        if (!is_string($path) || $path === '' || strpos($path, "\0") !== false) {
+            return false;
+        }
+        $real = realpath($path);
+        $base = realpath(MODX_BASE_PATH);
+        $manager = realpath(MODX_MANAGER_PATH);
+        if ($real === false || $base === false) {
+            return false;
+        }
+        $real = str_replace('\\', '/', $real);
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        if (strpos($real, $base) !== 0) {
+            return false;
+        }
+        if ($manager !== false) {
+            $manager = rtrim(str_replace('\\', '/', $manager), '/') . '/';
+            if (strpos($real, $manager) === 0) {
+                return false;
+            }
+        }
+        return $real;
+    }
+
     // Parser: modifier detection and eXtended processing if needed
     public function Filter($key, $value, $cmd, $opt = '')
     {
@@ -1265,6 +1294,10 @@ class MODIFIERS
                 if (strpos($value, MODX_MANAGER_PATH) !== false) {
                     exit('Can not read core file');
                 }
+                $value = $this->resolveReadablePath($value);
+                if ($value === false) {
+                    return '';
+                }
                 $ext = strtolower(substr($value, -4));
                 if ($ext === '.php') {
                     exit('Can not read php file');
@@ -1291,7 +1324,8 @@ class MODIFIERS
 
                 $filename = MODX_BASE_PATH . $opt . $filename;
 
-                if (is_file($filename)) {
+                $filename = $this->resolveReadablePath($filename);
+                if ($filename !== false && is_file($filename)) {
                     clearstatcache();
                     return filesize($filename);
                 }

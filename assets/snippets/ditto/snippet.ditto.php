@@ -16,9 +16,13 @@ if (!defined('MODX_BASE_PATH')) {
 $ditto_version = '2.1.4';
 // Ditto version being executed
 
-if (isset($ditto_base)) {
-    $ditto_base = MODX_BASE_PATH . ltrim($ditto_base, '/');
+// 指定された置き場所は、サイトの中（本体のバインドと同じ判定）に限る。外れたら同梱の場所を使う
+if (isset($ditto_base) && trim($ditto_base, '/ ') !== '') {
+    $ditto_base = evo()->resolveBindDirPath(MODX_BASE_PATH . ltrim($ditto_base, '/'));
 } else {
+    $ditto_base = false;
+}
+if (empty($ditto_base)) {
     $ditto_base = str_replace('\\', '/', __DIR__) . '/';
 }
 /*
@@ -57,7 +61,9 @@ $GLOBALS['dittoID'] = $dittoID;
 if (!isset($language)) {
     $language = evo()->config('manager_language');
 }
-if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
+if (!preg_match('/^[\w\-]+$/', (string) $language)
+    || !is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))
+) {
     $language = 'english';
 }
 /*
@@ -73,6 +79,9 @@ if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
     "english"
 */
 $format = isset($format) ? strtolower($format) : 'html';
+if (!preg_match('/^[\w\-]+$/', $format)) {
+    $format = 'html';
+}
 /*
     Param: format
 
@@ -99,9 +108,20 @@ if (is_file($ditto_base . 'configs/default.config.php'))
 if (str_starts_with($config, '@CHUNK')) {
     eval('?>' . evo()->getChunk(trim(substr($config, 7))));
 } elseif (str_starts_with($config, '@FILE')) {
-    include MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/');
+    // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
+    $config_path = evo()->resolveBindFilePath(MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/'));
+    if ($config_path && evo()->getExtention($config_path) === '.php') {
+        include $config_path;
+    }
 } elseif ($config !== 'default') {
-    include $ditto_base . 'configs/' . $config . '.config.php';
+    // 名前から組み立てたパスは、configs/ の下にあるときだけ読む
+    $config_path = evo()->resolveFileUnderDir(
+        $ditto_base . 'configs/' . $config . '.config.php',
+        $ditto_base . 'configs'
+    );
+    if ($config_path && evo()->getExtention($config_path) === '.php') {
+        include $config_path;
+    }
 }
 
 /*
@@ -266,16 +286,16 @@ if (count($extenders) > 0) {
                 $rs = true;
             }
         } elseif (strpos($extender, '@FILE') === 0) {
-            $extender_path = MODX_BASE_PATH . trim(
-                trim(
-                    substr($extender, 6)
-                ),
-                '/'
+            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
+            $extender_path = evo()->resolveBindFilePath(
+                MODX_BASE_PATH . trim(
+                    trim(
+                        substr($extender, 6)
+                    ),
+                    '/'
+                )
             );
-            if (strpos($extender_path, '../') === false
-                && strpos($extender_path, 'manager/') !== 0
-                && is_file($extender_path)
-            ) {
+            if ($extender_path && evo()->getExtention($extender_path) === '.php') {
                 include($extender_path);
                 $rs = true;
             }
@@ -287,13 +307,17 @@ if (count($extenders) > 0) {
             }
         }
 
-        $extender_path = sprintf(
-            '%sextenders/%s.extender.inc.php',
-            $ditto_base,
-            $extender
+        // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
+        $extender_path = evo()->resolveFileUnderDir(
+            sprintf(
+                '%sextenders/%s.extender.inc.php',
+                $ditto_base,
+                $extender
+            ),
+            $ditto_base . 'extenders'
         );
 
-        if ($rs === false && is_file($extender_path)) {
+        if ($rs === false && $extender_path && evo()->getExtention($extender_path) === '.php') {
             include($extender_path);
             $rs = true;
         }

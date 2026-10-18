@@ -154,7 +154,8 @@ $tplTagLinks = !empty($tplTagLinks) ? $templateInstance->fetch($tplTagLinks) : f
 	(code)
 	<a href="[+url+]" class="ditto_tag" rel="tag">[+tag+]</a>
 */
-$callback = !empty($tagCallback) ? trim($tagCallback) : false;
+// バインディングが無効のときは、引数で指定したコールバックを呼ばない（既定の組み立てに倒す）
+$callback = (!empty($tagCallback) && evo()->config('enable_bindings') == 1) ? trim($tagCallback) : false;
 /*
 	Param: tagCallback
 

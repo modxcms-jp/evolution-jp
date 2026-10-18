@@ -47,7 +47,10 @@ function run_update($pre_version)
         evo()->logEvent(0, 1, $msg, $msg);
     }
 
-    update_tbl_user_roles();
+    // 1.0.20J より前の版には、権限の列の一部が無い。足りない権限を配るのはそのときだけにし、利用者が外した権限を付け直さない
+    if (version_compare($pre_version, '1.0.20', '<')) {
+        update_tbl_user_roles();
+    }
     disableOldCarbonTheme();
     disableOldFckEditor();
     updateTopMenu();

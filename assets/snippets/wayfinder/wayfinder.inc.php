@@ -748,7 +748,14 @@ class Wayfinder
         global $modx;
 
         if (strpos($tpl, '@FILE') === 0) {
-            return file_get_contents(substr($tpl, 6));
+            $file_path = evo()->findBindFile(substr($tpl, 6));
+            if (!$file_path) {
+                return false;
+            }
+            if (evo()->getExtention($file_path) === '.php') {
+                return 'Could not retrieve PHP file.';
+            }
+            return file_get_contents($file_path);
         }
         if (strpos($tpl, '@CODE') === 0) {
             return substr($tpl, 6);
