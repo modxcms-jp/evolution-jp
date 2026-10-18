@@ -151,7 +151,7 @@
 
     function resetpubdate() {
         if (document.mutate.pub_date.value !== '' || document.mutate.unpub_date.value !== '') {
-            if (confirm("[+lang_mutate_content.dynamic.php1+]") === true) {
+            if (confirm("[+lang_confirm_reset_pub_dates+]") === true) {
                 document.mutate.pub_date.value = '';
                 document.mutate.unpub_date.value = '';
             }

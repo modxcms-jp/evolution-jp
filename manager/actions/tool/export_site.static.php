@@ -140,7 +140,7 @@ if (!evo()->hasPermission('export_static')) {
                             </td>
                         </tr>
                         <tr>
-                            <td class="head"><?= lang('export_site.static.php4') ?></td>
+                            <td class="head"><?= lang('export_site_replace_before') ?></td>
                             <td>
                                 <input
                                     type="text"
@@ -150,7 +150,7 @@ if (!evo()->hasPermission('export_static')) {
                             </td>
                         </tr>
                         <tr>
-                            <td class="head"><?= lang('export_site.static.php5') ?></td>
+                            <td class="head"><?= lang('export_site_replace_after') ?></td>
                             <td>
                                 <input
                                     type="text"

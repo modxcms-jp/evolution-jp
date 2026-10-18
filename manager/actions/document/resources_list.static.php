@@ -144,7 +144,7 @@ if (!$numRecords) {
     $pageNavBlock = evo()->table->renderPagingNavigation($numRecords, $qs);
     $children_output = $pageNavBlock . evo()->table->renderTable($rows, $header) . $pageNavBlock;
     if (hasPermission('move_document')) {
-        $children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
+        $children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["resources_list_move_checked"] . '" /></div>';
     }
 }
 

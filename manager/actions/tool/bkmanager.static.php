@@ -409,11 +409,11 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="snapshot" />
                 <table>
                     <tr>
-                        <th><?= $_lang["bk.contentOnly"] ?></th>
+                        <th><?= $_lang["bkmgr_content_only"] ?></th>
                         <td><input type="checkbox" name="contentsOnly" value="1" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang["bk.fileName"] ?></th>
+                        <th><?= $_lang["bkmgr_file_name"] ?></th>
                         <td><input type="text" name="file_name" size="50" value="<?= $filename ?>" /></td>
                     </tr>
                 </table>

@@ -684,7 +684,7 @@ function updateUser()
     evo()->getSettings();
     if (postv('userid') == evo()->getLoginUserID() && sessionv('mgrRole') !== userformv('role', 0)) {
         $_SESSION['mgrRole'] = userformv('role', 0);
-        evo()->webAlertAndQuit(lang('save_user.processor.php1'), 'index.php?a=75');
+        evo()->webAlertAndQuit(lang('save_user_relogin'), 'index.php?a=75');
         exit;
     }
     if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {

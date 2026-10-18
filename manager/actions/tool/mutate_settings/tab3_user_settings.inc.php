@@ -105,16 +105,16 @@
         </tr>
 
         <tr>
-            <th><?= $_lang['mutate_settings.dynamic.php6'] ?></th>
+            <th><?= $_lang['send_errormail_title'] ?></th>
             <td>
-                <?= wrap_label($_lang['mutate_settings.dynamic.php7'],
+                <?= wrap_label($_lang['send_errormail_none'],
                     form_radio('send_errormail', '0', ($send_errormail == '0' || !isset($send_errormail)))); ?><br/>
                 <?= wrap_label('error', form_radio('send_errormail', '3', $send_errormail == '3')) ?><br/>
                 <?= wrap_label('error + warning', form_radio('send_errormail', '2', $send_errormail == '2')) ?>
                 <br/>
                 <?= wrap_label('error + warning + information',
                     form_radio('send_errormail', '1', $send_errormail == '1')); ?><br/>
-                <?= $modx->parseText($_lang['mutate_settings.dynamic.php8'],
+                <?= $modx->parseText($_lang['send_errormail_message'],
                     ['emailsender' => $modx->config['emailsender']]); ?></td>
         </tr>
         <?php

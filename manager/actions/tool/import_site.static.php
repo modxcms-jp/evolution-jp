@@ -62,16 +62,16 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php1'] ?></b>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_reset_tree'] ?></b>
                             </td>
                             <td>&nbsp;</td>
                             <td><input type="checkbox" id="reset" name="reset" value="on" />
                                 <br />
-                                <?= $_lang['import_site.static.php2'] ?>
+                                <?= $_lang['import_site_reset_tree_message'] ?>
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php3'] ?></b>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_target'] ?></b>
                             </td>
                             <td>&nbsp;</td>
                             <td>
@@ -79,12 +79,12 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                                         type="radio"
                                         name="object"
                                         value="body"
-                                        checked="checked" /> <?= $_lang['import_site.static.php4'] ?>
+                                        checked="checked" /> <?= $_lang['import_site_target_body'] ?>
                                 </label>
                                 <label><input
                                         type="radio"
                                         name="object"
-                                        value="all" /> <?= $_lang['import_site.static.php5'] ?></label>
+                                        value="all" /> <?= $_lang['import_site_target_all'] ?></label>
                                 <br />
                             </td>
                         </tr>

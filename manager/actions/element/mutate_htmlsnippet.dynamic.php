@@ -145,7 +145,7 @@ if (isset($form_v['which_editor'])) {
 
     function resetpubdate() {
         if (document.mutate.pub_date.value != '' || document.mutate.unpub_date.value != '') {
-            if (confirm("<?= $_lang['mutate_htmlsnippet.dynamic.php1'] ?>")) {
+            if (confirm("<?= $_lang['confirm_reset_pub_dates'] ?>")) {
                 document.mutate.pub_date.value = '';
                 document.mutate.unpub_date.value = '';
             }
