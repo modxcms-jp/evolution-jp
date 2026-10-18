@@ -22,9 +22,11 @@ function mm_hideTemplates($tplIds, $roles = '', $templates = '')
     $tplIds = makeArray($tplIds);
     $output = "//  -------------- mm_hideTemplates :: Begin ------------- \n";
     foreach ($tplIds as $tpl) {
-        $output .= 'if ($j("select#field_template").val() != ' . $tpl . '){ ' . "\n";
-        $output .= '$j("select#field_template option[value=' . $tpl . ']").remove();' . "\n";
-        $output .= '}' . "\n";
+        // 選ばれているテンプレートは残す
+        $output .= sprintf(
+            '(function (sel, v) { if (!sel || sel.value == v) { return; } Array.from(sel.options).forEach(function (o) { if (o.value == v) { o.remove(); } }); })(document.querySelector("select#field_template"), %s);' . "\n",
+            js_literal($tpl)
+        );
     }
     $output .= "//  -------------- mm_hideTemplates :: End ------------- \n";
 

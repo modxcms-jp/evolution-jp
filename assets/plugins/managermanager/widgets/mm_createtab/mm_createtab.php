@@ -40,8 +40,9 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
     );
 
     // Clean up for js output
+    // OnPluginFormRender では MM（mm.js）が読まれていないので素の DOM で書く
     $output .= sprintf(
-        "jQuery('div#'+mm_lastTab).after(%s);\n",
+        "(function (t, html) { if (t && t.matches('div')) { t.insertAdjacentHTML('afterend', html); } })(document.getElementById(mm_lastTab), %s);\n",
         js_literal(str_replace(["\n", "\t", "\r"], '', $empty_tab))
     );
     $output .= sprintf("mm_lastTab = %s;\n", js_literal('tab' . $id));

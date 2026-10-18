@@ -33,23 +33,24 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
     $output = "//  -------------- mm_changeFieldHelp :: Begin ------------- \n";
     $fieldtype = $mm_fields[$field]['fieldtype'];
     $fieldname = $mm_fields[$field]['fieldname'];
+    // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
+    $selector = js_literal(sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname)));
 
     //Is this TV?
     if ($mm_fields[$field]['tv']) {
+        // 最も近い祖先の td の、直前の td の説明
         $output .= sprintf(
-            'jQuery("%s[name=%s]").parents("td:first").prev("td").children("span.comment").html("%s");',
-            $fieldtype,
-            $fieldname,
+            'MM.all(%s).forEach(function (el) { const td = el.parentElement && el.parentElement.closest("td"); const p = td && td.previousElementSibling; if (p && p.matches("td")) { MM.html(p.querySelectorAll(":scope > span.comment"), "%s"); } });',
+            $selector,
             jsSafe($helptext)
         );
         //Or document field
     } else {
         // Give the help button an ID, and modify the alt/title text
-        // prop() sets the text as is, so pass the raw string
+        // title・alt はプロパティなので生の文字列を、data-powertip は属性なので hsc() したものを入れる
         $output .= sprintf(
-            'jQuery("%s[name=%s]").siblings("img.tooltip").prop("id", "%s-help").prop("title", %s).prop("alt", %s).attr("data-powertip", %s); ',
-            $fieldtype,
-            $fieldname,
+            'MM.all(%s).forEach(function (el) { Array.from(el.parentNode.children).forEach(function (c) { if (c === el || !c.matches("img.tooltip")) { return; } c.id = "%s-help"; c.title = %s; c.alt = %s; c.setAttribute("data-powertip", %s); }); }); ',
+            $selector,
             $fieldname,
             js_literal($helptext),
             js_literal($helptext),

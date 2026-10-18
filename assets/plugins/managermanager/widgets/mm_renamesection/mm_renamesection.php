@@ -26,17 +26,17 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
 
     switch ($section) {
         case 'content':
-            $output .= '$j("div#content_header").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            $output .= 'MM.html("div#content_header", "' . jsSafe($newname) . '");' . "\n";
             break;
 
         case 'tvs':
             $output .= '
-            $j("div#tv_header").empty().prepend("' . jsSafe($newname) . '");
+            MM.html("div#tv_header", "' . jsSafe($newname) . '");
             ';
             break;
 
         case 'access': // These have moved to tabs in 1.0.1
-            $output .= '$j("div#sectionAccessHeader").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            $output .= 'MM.html("div#sectionAccessHeader", "' . jsSafe($newname) . '");' . "\n";
             break;
     }
 
