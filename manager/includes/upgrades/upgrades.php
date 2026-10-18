@@ -72,16 +72,26 @@ function removeBundledThemeCopies()
         'SoftSlate' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
     ];
     $removed = [];
+    $failed = [];
     foreach ($files as $theme => $names) {
         foreach ($names as $name) {
             $path = MODX_MANAGER_PATH . "media/style/{$theme}/{$name}";
-            if (is_file($path) && @unlink($path)) {
+            if (!is_file($path)) {
+                continue;
+            }
+            if (@unlink($path)) {
                 $removed[] = "{$theme}/{$name}";
+            } else {
+                $failed[] = "manager/media/style/{$theme}/{$name}";
             }
         }
     }
     if ($removed) {
         evo()->logEvent(0, 1, '管理画面テーマの古いファイルを削除しました: ' . implode(', ', $removed), 'Upgrade');
+    }
+    // 権限で消せないときは、テーマ側の古いファイルが優先され続けるので、手で消すよう知らせる
+    if ($failed) {
+        evo()->logEvent(0, 2, '管理画面テーマの古いファイルを削除できませんでした。FTP などで削除してください: ' . implode(', ', $failed), 'Upgrade');
     }
 }
 
