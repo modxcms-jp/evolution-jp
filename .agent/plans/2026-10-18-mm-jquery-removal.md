@@ -6,7 +6,7 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 
 ## Progress
 
-- [ ] (2026-10-18) M1: 本体と共通の小さな部品（`mm.js`）。ルールの包みを `Evo.ready` にし、`includeJs` / `includeCss` を `<script src>` / `<link>` の出力に変える
+- [x] (2026-10-18) M1: 本体と共通の部品（`mm.js`）。ルールの包みを `Evo.ready` に、`includeJs` / `includeCss` をルールの実行中は登録して `<script src>` / `<link>` で出す形に。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
 - [ ] M2: 表示と文言のウィジェット（タブ・セクション・項目名・説明・タブの追加・テンプレートの選択肢）
 - [ ] M3: 項目の操作と検証のウィジェット（隠す・タブへ移す・必須・同期・アクセス拒否）
 - [ ] M4: 値を入れるウィジェット（mm_default・ddsetfieldvalue・mm_inherit・showimagetvs）
@@ -14,6 +14,9 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - [ ] M6: ddmultiplefields の残りと仕上げ（全体の grep、`assets/docs/jquery-migration.md` への追記）
 
 ## Surprises & Discoveries
+
+- 2026-10-18（M1）: main でもセット D（accessdenied）を開くと `Cannot set properties of null (setting 'innerHTML')` のページのエラーが出る（M1 の前から）。M3 で accessdenied を置き換えるときに見る。根拠: 検証環境で main とブランチの両方で同じエラー
+- 2026-10-18（M1）: 登録先は `$GLOBALS['mm_includes']` ではなく `global $mm_includes` と `mm_registerInclude()` にした（MM のほかのグローバルに揃えた）
 
 - 2026-10-18: `includeJs()` は `jQuery("head").append('<script src=…>')` を返す。jQuery 3（同梱は 3.6.0）は、append した `<script src>` を同期の XHR（`jQuery._evalUrl`、`async: false`）で読み込んでその場で実行する。そのため、tags の `includeJs(tags.js)` の直後の行で `new TagCompleter(…)` が動いている。素の JS で `<script>` 要素を足すだけでは非同期になり、この順番が崩れる（Plan of Work の「外部ファイルの読み込み」で扱う）。
 - 2026-10-18: googlemap ウィジェットの見出しのコメントは「Google Maps API v2」だが、実際のコードは v3（`https://maps.googleapis.com/maps/api/js?v=3.51&key=…&callback=initMap`、`google.maps.Map`）で、API キーを渡す作り。キーがあれば動く見込みがある。#796（613c82192）で ddgmap を外したときのコミットのメッセージも「代わりに mm_widget_googlemap を使う」としている。
