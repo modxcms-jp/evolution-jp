@@ -46,6 +46,9 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
 
     // Go through each of the fields supplied
     foreach ($fields as $tv) {
+        if (!isset($mm_fields[$tv])) {
+            continue;
+        }
         $output .= parseText('
             // ----------- Color widget for  [+tv_id+]  --------------
             (function() {
@@ -53,7 +56,7 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
                 var $picker = jQuery(\'<input type="color" id="colorpicker[+tv_id+]" style="margin-left:4px;vertical-align:middle;" />\');
                 $text.css("background-image","none").after($picker);
                 if ($text.val() == "") {
-                    $text.val("[+default+]");
+                    $text.val([+default+]);
                 }
                 var syncPicker = function() {
                     var hex = mmColorsToHex6($text.val());
@@ -71,7 +74,7 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
             documentDirty = false;
             ', [
                 'tv_id' => $mm_fields[$tv]['fieldname'],
-                'default' => $default
+                'default' => js_literal($default)
             ]
         );
     }
