@@ -46,7 +46,8 @@ if (typeof (TagCompleter) != 'function') {
             newTag = trimValue(newTag);
             var oldTags = getTags();
             // Mark the document as dirty for Modx by triggering a "change" event
-            jQuery(theEntry).trigger("change");
+            // 素の change を起こす（jQuery の trigger では、管理画面の未保存の検知に届かない）
+            jQuery(theEntry).each(function () { this.dispatchEvent(new Event("change", {bubbles: true})); });
 
             // Is the tag already in the list? If so, remove it
             var thePos = jQuery.inArray(newTag, oldTags);

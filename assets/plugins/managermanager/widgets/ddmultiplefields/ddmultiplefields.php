@@ -401,7 +401,8 @@ if (typeof(SetUrl) != "undefined") {
             var c = jQuery(document.mutate[lastImageCtrl]);
         }
         OldSetUrl(url, width, height, alt);
-        c.trigger("change");
+        // 素の change を起こす（jQuery の trigger では、管理画面の未保存の検知に届かない）
+        if (c && c[0]) c[0].dispatchEvent(new Event("change", {bubbles: true}));
     };
 }
 //Самбмит главной формы

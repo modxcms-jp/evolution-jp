@@ -106,7 +106,8 @@ checkImageTVupdates = function(){
     jQuery(".imageField").each(function(){
         var $this = jQuery(this);
         if ($this.val() != $this.data("lastvalue")){
-            $this.trigger("change");
+            // 素の change を起こす（jQuery の trigger では、管理画面の未保存の検知に届かない）
+            this.dispatchEvent(new Event("change", {bubbles: true}));
         }
     });
 }
