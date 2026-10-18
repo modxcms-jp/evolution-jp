@@ -11,7 +11,7 @@
     'use strict';
 
     const STYLE = ''
-        + '#evoTooltip{position:fixed;z-index:2147483647;max-width:360px;padding:8px 12px;border-radius:6px;'
+        + '#evoTooltip{position:fixed;z-index:2147483647;max-width:min(520px,calc(100vw - 32px));padding:8px 12px;border-radius:6px;'
         + 'background:rgba(30,34,42,.94);color:#fff;font:13px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;'
         + 'box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;word-break:break-word}'
         + '#evoTooltip[hidden]{display:none}'
