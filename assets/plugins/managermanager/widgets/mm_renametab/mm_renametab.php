@@ -33,7 +33,7 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = '')
     if (isset($headers[$tab])) {
         // WebFXTabPage wraps the heading text in a span (styles and click handling): rename inside it
         $output .= sprintf(
-            '(function ($h) { var $s = $h.children("span").first(); ($s.length ? $s : $h).empty().prepend("%s"); })($j("#%s"));' . "\n",
+            '(function (h) { if (!h) { return; } const s = h.querySelector(":scope > span"); (s || h).innerHTML = "%s"; })(document.getElementById("%s"));' . "\n",
             jsSafe($newname),
             $headers[$tab]
         );

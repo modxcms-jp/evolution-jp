@@ -31,22 +31,22 @@ function mm_hideSections($sections, $roles = '', $templates = '')
         switch ($section) {
             case 'content':
                 $output .= '
-                $j("#content_header").hide();
-                $j("#content_body").hide();
+                MM.hide("#content_header");
+                MM.hide("#content_body");
                 ';
                 break;
 
             case 'tvs':
                 $output .= '
-                $j("#tv_header").hide();
-                $j("#tv_body").hide();
+                MM.hide("#tv_header");
+                MM.hide("#tv_body");
                 ';
                 break;
 
             case 'access': // These have moved to tabs in 1.0.1
                 $output .= '
-                $j("#sectionAccessHeader").hide();
-                $j("#sectionAccessBody").hide();';
+                MM.hide("#sectionAccessHeader");
+                MM.hide("#sectionAccessBody");';
                 break;
         }
     }

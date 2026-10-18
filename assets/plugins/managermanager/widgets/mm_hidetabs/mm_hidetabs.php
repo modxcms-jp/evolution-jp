@@ -30,20 +30,20 @@ function mm_hideTabs($tabs, $roles = '', $templates = '')
     foreach ($tabs as $tab) {
         switch ($tab) {
             case 'general':
-                $output .= '$j("#tabGeneralHeader").hide();';
-                $output .= '$j("#tabGeneral").hide();';
+                $output .= 'MM.hide("#tabGeneralHeader");';
+                $output .= 'MM.hide("#tabGeneral");';
                 break;
             case 'settings':
-                $output .= '$j("#tabSettingsHeader").hide();';
-                $output .= '$j("#tabSettings").hide();';
+                $output .= 'MM.hide("#tabSettingsHeader");';
+                $output .= 'MM.hide("#tabSettings");';
                 break;
             case 'tv':
-                $output .= '$j("#tabTVsHeader").hide();';
-                $output .= '$j("#tabTVs").hide();';
+                $output .= 'MM.hide("#tabTVsHeader");';
+                $output .= 'MM.hide("#tabTVs");';
                 break;
             case 'access':
-                $output .= '$j("#tabAccessHeader").hide();';
-                $output .= '$j("#tabAccess").hide();';
+                $output .= 'MM.hide("#tabAccessHeader");';
+                $output .= 'MM.hide("#tabAccess");';
                 break;
         }
     }
