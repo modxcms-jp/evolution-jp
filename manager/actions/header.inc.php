@@ -38,7 +38,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
-    <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
@@ -56,7 +55,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     );
     ?>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
-    <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
+    <script src="media/script/evo-dialog.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
     <script type="text/javascript" src="media/script/csrf.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/csrf.js') ?>"></script>
@@ -72,6 +71,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             EvoShell.unsavedMessage = <?= js_literal(lang('warning_not_saved')) ?>;
             EvoShell.closeLabel = <?= js_literal(lang('close')) ?>;
         }
+        EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
 
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
 

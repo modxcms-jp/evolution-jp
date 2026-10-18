@@ -5,7 +5,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 ?>
     <script type="text/javascript">
         function deleteCategory(catid) {
-            jConfirm("<?= $_lang['confirm_delete_category'] ?>", "<?= $_lang['delete_category'] ?>", function (r) {
+            jConfirm(<?= js_literal($_lang['confirm_delete_category']) ?>, <?= js_literal($_lang['delete_category']) ?>, function (r) {
                 if (r) EvoCsrf.post("index.php?a=501&catId=" + catid);
                 else return false;
             });

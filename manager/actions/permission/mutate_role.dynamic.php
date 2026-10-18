@@ -87,7 +87,7 @@ function role($key, $default = null)
     }
 
     function deletedocument() {
-        jConfirm('<?= $_lang['confirm_delete_role'] ?>', '<?= $_lang['confirm'] ?>',
+        jConfirm(<?= js_literal($_lang['confirm_delete_role']) ?>, <?= js_literal($_lang['confirm']) ?>,
             function(r) {
                 if (r)
                     EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=37");

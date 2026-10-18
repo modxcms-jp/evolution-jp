@@ -103,13 +103,13 @@ function watchFetch(page, urlPattern) {
     return seen;
 }
 
-// jAlert（jquery.alerts）の OK を押す。シェルではダイアログが潰れて OK が画面外に出るため DOM でクリックする
+// jAlert（evo-dialog.js の <dialog>）の OK を押す
 async function clickAlertOk(page) {
-    const ok = await page.$('#popup_ok');
+    const ok = await page.$('dialog.evo-dialog[open] .evo-dialog-ok');
     if (!ok) {
         return false;
     }
-    await ok.evaluate(b => b.click());
+    await ok.click();
     await page.waitForTimeout(1000);
     await page.waitForLoadState('networkidle').catch(() => {});
     return true;
@@ -122,7 +122,7 @@ async function shellState(page) {
         mainPane: document.querySelectorAll('#mainPane').length,
         topMenu: document.querySelectorAll('#topMenu').length,
         htmlInPane: !!document.querySelector('#mainPane html, #mainPane head, #mainPane body'),
-        alert: (document.querySelector('#popup_message') || {}).textContent || '',
+        alert: (document.querySelector('dialog.evo-dialog[open] .evo-dialog-message') || {}).textContent || '',
         modalOpen: !!document.querySelector('#evoShellModalOverlay:not(.hidden)'),
         working: ((document.getElementById('workText') || {}).innerHTML || '').trim() !== '',
     }));
