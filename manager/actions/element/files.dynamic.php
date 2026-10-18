@@ -33,6 +33,18 @@ if (!is_readable($startpath)) {
     exit;
 }
 
+// ファイル操作より前に、要求されたすべてのパスを保護対象と照合する
+$requested_paths = array_filter([$startpath, getv('path'), postv('path'), anyv('folderpath')]);
+if (anyv('file')) {
+    $requested_paths[] = $startpath . '/' . anyv('file');
+}
+foreach ($requested_paths as $requested_path) {
+    if (is_protected_path($requested_path, $proteted_path)) {
+        echo lang('files.dynamic.php2');
+        exit;
+    }
+}
+
 ?>
 <style type="text/css">
     .warning {
@@ -162,11 +174,6 @@ if (!is_readable($startpath)) {
             echo textsave();
         } elseif (anyv('mode') === 'delete') {
             echo delete_file();
-        }
-
-        if (in_array($startpath, $proteted_path)) {
-            echo lang('files.dynamic.php2');
-            exit;
         }
 
         if (rtrim($startpath, '/') == config('filemanager_path')) {
@@ -488,7 +495,7 @@ function ls($curpath)
                 continue;
             }
 
-            if (in_array($newpath, $proteted_path)) {
+            if (is_protected_path($newpath, $proteted_path)) {
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
@@ -952,6 +959,36 @@ function proteted_path()
         $proteted_path[] = base_path() . 'assets/export';
     }
     return $proteted_path;
+}
+
+/**
+ * 保護対象そのもの、またはその配下なら true。
+ * まだ存在しないパス（アップロード先など）は親フォルダで判定する。
+ */
+function is_protected_path($path, $proteted_path)
+{
+    if (!$proteted_path) {
+        return false;
+    }
+    $realpath = realpath($path);
+    if ($realpath === false) {
+        $realpath = realpath(dirname($path));
+    }
+    if ($realpath === false) {
+        return false;
+    }
+    $realpath = str_replace('\\', '/', $realpath);
+    foreach ($proteted_path as $protected) {
+        $protected = realpath($protected);
+        if ($protected === false) {
+            continue;
+        }
+        $protected = str_replace('\\', '/', $protected);
+        if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function uploadablefiles()
