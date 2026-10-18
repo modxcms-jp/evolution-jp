@@ -55,8 +55,14 @@
             return;
         }
         const t = getTip();
+        if (current && current !== el) {
+            current.removeAttribute('aria-describedby');
+        }
         current = el;
         t.innerHTML = html;
+        // 前回の位置のままだと、使える幅が狭いまま測ってしまうので、左上に戻してから測る
+        t.style.left = '0';
+        t.style.top = '0';
         t.hidden = false;
         el.setAttribute('aria-describedby', 'evoTooltip');
 
