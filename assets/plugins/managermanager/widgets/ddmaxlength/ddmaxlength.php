@@ -41,42 +41,61 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
 
     $output .= "// ---------------- mm_ddMaxLength :: Begin ------------- \n";
     //General functions
-    $output .= includeJs($base_url . 'assets/plugins/managermanager/widgets/ddmaxlength/jquery.ddmaxlength-1.0.min.js');
+    $output .= includeJs($base_url . 'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.js');
     $output .= includeCss($base_url . 'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.css');
 
     foreach ($tvs as $tv) {
         $output .= '
-jQuery("#tv' . $tv['id'] . '").addClass("ddMaxLengthField").each(function(){
-jQuery(this).parent().append("<div class=\"ddMaxLengthCount\"><span></span></div>");
-}).ddMaxLength({
-max: ' . $length . ',
-containerSelector: "div.ddMaxLengthCount span",
-warningClass: "maxLenghtWarning"
+MM.all("#tv' . $tv['id'] . '").forEach(function (field) {
+    field.classList.add("ddMaxLengthField");
+    field.parentElement.insertAdjacentHTML("beforeend", "<div class=\"ddMaxLengthCount\"><span></span></div>");
+    ddMaxLength(field, {
+        max: ' . $length . ',
+        containerSelector: "div.ddMaxLengthCount span",
+        warningClass: "maxLenghtWarning"
+    });
 });
         ';
     }
 
+    // 残りが負の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
     $output .= '
-jQuery("#mutate").submit(function(){
-var ddErrors = new Array();
-jQuery("div.ddMaxLengthCount span").each(function(){
-    var $this = jQuery(this), field = $this.parents(".ddMaxLengthCount:first").parent().find(".ddMaxLengthField");
-    if (parseInt($this.text()) < 0){
-        field.addClass("maxLenghtErrorField").focus(function(){
-            field.removeClass("maxLenghtErrorField");
+(function () {
+    const form = document.getElementById("mutate");
+    if (!form) { return; }
+    form.addEventListener("submit", function (e) {
+        const ddErrors = [];
+        MM.all("div.ddMaxLengthCount span").forEach(function (span) {
+            const box = span.parentElement ? span.parentElement.closest(".ddMaxLengthCount") : null;
+            const fields = box && box.parentElement ? MM.all(".ddMaxLengthField", box.parentElement) : [];
+            if (parseInt(span.textContent) < 0) {
+                fields.forEach(function (field) {
+                    field.classList.add("maxLenghtErrorField");
+                    field.addEventListener("focus", function () {
+                        fields.forEach(function (f) { f.classList.remove("maxLenghtErrorField"); });
+                    });
+                });
+                // 欄の祖先の行にある、最初の列の項目名（文書の順につなぐ）
+                const titles = [];
+                MM.parents(fields, "tr").forEach(function (tr) {
+                    MM.all(":scope td:first-child .mutate-field-title", tr).forEach(function (t) {
+                        if (titles.indexOf(t) === -1) { titles.push(t); }
+                    });
+                });
+                titles.sort(function (a, b) {
+                    return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+                });
+                ddErrors.push(titles.map(function (t) { return t.textContent; }).join(""));
+            }
         });
-        ddErrors.push(field.parents("tr").find("td:first-child .mutate-field-title").text());
-    }
-});
 
-if(ddErrors.length > 0){
-    alert("Некорректно заполнены поля: " + ddErrors.join(","));
-
-    return false;
-} else {
-    return true;
-}
-});
+        if (ddErrors.length > 0) {
+            alert("Некорректно заполнены поля: " + ddErrors.join(","));
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+})();
     ';
 
     $output .= "\n// ---------------- mm_ddMaxLength :: End -------------";

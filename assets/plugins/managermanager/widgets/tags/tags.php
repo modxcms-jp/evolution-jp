@@ -109,6 +109,8 @@ function mm_widget_tags(
         }
 
         $tv_id = $mm_fields[$targetTv]['fieldname'];
+        // fieldname の \\[\\] は CSS のエスケープなので、getElementById には外して渡す
+        $entry_id = str_replace('\\', '', $tv_id);
         $html_list = sprintf(
             '<ul class="mmTagList" id="%s_tagList">%s</ul>',
             $tv_id,
@@ -118,14 +120,14 @@ function mm_widget_tags(
         // Insert the list of tags after the field
         $output .= sprintf("
         //  -------------- Tag widget for %s (%s) --------------
-        jQuery('#%s').after(%s);
-        ", $targetTv, $tv_id, $tv_id, js_literal($html_list));
+        MM.all([document.getElementById(%s)]).forEach(function (el) { el.insertAdjacentHTML('afterend', %s); });
+        ", $targetTv, $tv_id, js_literal($entry_id), js_literal($html_list));
 
         // Initiate the tagCompleter class for this field
         $output .= sprintf(
                 'var %s_tags = new TagCompleter(%s, %s, %s); ',
                 preg_replace('/\W/', '_', $tv_id),
-                js_literal($tv_id),
+                js_literal($entry_id),
                 js_literal($tv_id . '_tagList'),
                 js_literal($delimiter)
             ) . "\n";
