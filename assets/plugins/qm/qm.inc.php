@@ -527,20 +527,11 @@ class Qm
         evo()->clearCache();
     }
 
-    public function jq()
-    {
-        if ($this->noconflictjq === 'true') {
-            return '$j';
-        }
-        return '$';
-    }
-
     public function get_img_prev_src()
     {
         return parseText(
             file_get_contents(__DIR__ . '/js/preview_img.tpl'),
             [
-                'jq' => '$',
                 'base_url' => MODX_BASE_URL
             ]
         );

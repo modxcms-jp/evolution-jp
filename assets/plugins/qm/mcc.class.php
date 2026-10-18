@@ -16,7 +16,6 @@ if (!class_exists('Mcc')) {
         var $tabs;
         var $sections;
         var $fields;
-        var $noconflictjq;
 
         //_______________________________________________________
         function __construct()
@@ -39,10 +38,6 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function addLine($line)
         {
-            if ($this->noconflictjq == 'true') {
-                $line = str_replace('$(', '$j(', $line);
-            }
-
             $this->script .= $line . "\n";
         }
 
@@ -50,10 +45,12 @@ if (!class_exists('Mcc')) {
         function Output()
         {
             $out = $this->head;
-            $this->addLine('document.body.style.display="block";');
-            if ($this->noconflictjq == 'true') {
-                $out .= '<script type="text/javascript">var $j = jQuery.noConflict(); $j(function(){' . $this->script . '});</script>';
-            } else $out .= '<script type="text/javascript">$(function(){' . $this->script . '});</script>';
+            $this->addLine('document.body.style.display = "block";');
+            // qmHide: 要素の配列や NodeList を隠す（無い要素は飛ばす。表の行も扱うので hidden ではなく display を none に）
+            $out .= '<script type="text/javascript">Evo.ready(function () {' . "\n"
+                . 'var qmHide = function (els) { Array.prototype.forEach.call(els, function (el) { if (el) { el.style.display = "none"; } }); };' . "\n"
+                . $this->script
+                . '});</script>';
 
             return $out;
         }
@@ -62,7 +59,11 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function hideTemplate($tpl)
         {
-            $this->addLine('$("select#field_template option[value=' . $tpl . ']").remove();');
+            $this->addLine(
+                'document.querySelectorAll("select#field_template option").forEach(function (el) { if (el.getAttribute("value") === '
+                . js_literal($tpl)
+                . ') { el.remove(); } });'
+            );
         }
 
         //_______________________________________________________
@@ -89,12 +90,13 @@ if (!class_exists('Mcc')) {
 
             // Handle docsettings
             if ($sectionHeaderIndex == -1) {
-                $this->addLine('$("#tabGeneral table:eq(0)").hide()');
+                $this->addLine('qmHide([document.querySelector("#tabGeneral table")]);');
                 return;
             }
 
-            $this->addLine('$("div.sectionHeader:eq(' . $sectionHeaderIndex . ')").hide()');
-            $this->addLine('$("div.sectionBody:eq(' . $sectionBodyIndex . ')").hide()');
+            // 文書の中で n 番目（0 始まり）の 1 つだけ（以前の :eq(n) と同じ）
+            $this->addLine('qmHide([document.querySelectorAll("div.sectionHeader")[' . $sectionHeaderIndex . ']]);');
+            $this->addLine('qmHide([document.querySelectorAll("div.sectionBody")[' . $sectionBodyIndex . ']]);');
         }
 
         // Tab
@@ -105,8 +107,8 @@ if (!class_exists('Mcc')) {
             if (!isset($this->tabs[$tab])) return;
             $tabIndex = $this->tabs[$tab]['index'];
             $tabId = $this->tabs[$tab]['id'];
-            $this->addLine('$("div#documentPane h2:nth-child(' . ($tabIndex) . ')").hide();');
-            $this->addLine('$("#' . $tabId . '").hide();');
+            $this->addLine('qmHide(document.querySelectorAll("div#documentPane h2:nth-child(' . $tabIndex . ')"));');
+            $this->addLine('qmHide([document.getElementById("' . $tabId . '")]);');
         }
 
         // Field
@@ -114,10 +116,13 @@ if (!class_exists('Mcc')) {
         function hideField($field)
         {
             $field = trim($field);
-            // field names only (used in a jQuery selector)
+            // field names only (used in a selector)
             if (!preg_match('/^[A-Za-z0-9_\-]+$/', $field)) return;
             if ($field == 'content') return $this->hideSection($field);
-            $this->addLine('$("[name=' . $field . ']").parents("tr").hide();');
+            // 祖先の tr をすべて隠す（直近の 1 つではない。以前の .parents("tr") と同じ）
+            $this->addLine(
+                'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { for (var p = el.parentElement; p; p = p.parentElement) { if (p.tagName === "TR") { p.style.display = "none"; } } });'
+            );
         }
 
         //_______________________________________________________
