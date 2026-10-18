@@ -51,13 +51,15 @@
     </div>
 
     <script type="text/javascript">
-        jQuery('#servertest').click(function () {
-            var target = jQuery('html, body');
-            target.animate({scrollTop: jQuery('#footer').offset().top}, 'slow');
-        });
-        jQuery('#databasetest').click(function () {
-            var target = jQuery('html, body');
-            target.animate({scrollTop: jQuery('#footer').offset().top}, 'slow');
+        // 確認の結果が見えるよう、ページの下までスクロールする
+        ['servertest', 'databasetest'].forEach(function (id) {
+            document.getElementById(id).addEventListener('click', function () {
+                var footer = document.getElementById('footer');
+                window.scrollTo({
+                    top: footer.getBoundingClientRect().top + window.scrollY,
+                    behavior: 'smooth'
+                });
+            });
         });
     </script>
     <div id="AUH" style="margin-top:1.5em;display:[+auh_display+];">
@@ -89,75 +91,115 @@
 </form>
 
 <script type="text/javascript">
-    jQuery('#servertest').click(function () {
-        jQuery('#serverstatus').fadeOut();
-        jQuery('#setCollation').fadeOut();
-        jQuery('#AUH').fadeOut();
+    var showBlock = function (id) {
+        document.getElementById(id).style.display = 'block';
+    };
+    var hide = function (id) {
+        document.getElementById(id).style.display = 'none';
+    };
+    // HTML を差し込み、応答に含まれる script も実行する（jQuery の .html() と同じ）
+    var setHtml = function (el, html) {
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(function (old) {
+            var script = document.createElement('script');
+            script.textContent = old.textContent;
+            old.replaceWith(script);
+        });
+    };
+    var postForm = function (url, data) {
+        return fetch(url, {method: 'POST', body: new URLSearchParams(data)})
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error(response.status + ' ' + response.statusText);
+                }
+                return response.text();
+            });
+    };
+
+    document.getElementById('servertest').addEventListener('click', function () {
+        hide('serverstatus');
+        hide('setCollation');
+        hide('AUH');
         var url = 'connection.servertest.php';
         var pars = {
             q: url,
-            host: jQuery('#database_server').val(),
-            uid: jQuery('#database_user').val(),
-            pwd: jQuery('#database_password').val(),
+            host: document.getElementById('database_server').value,
+            uid: document.getElementById('database_user').value,
+            pwd: document.getElementById('database_password').value,
             language: language
         };
-        jQuery.post(url, pars, function (data) {
-            jQuery('#serverstatus').html(data).fadeIn();
+        postForm(url, pars).then(function (data) {
+            setHtml(document.getElementById('serverstatus'), data);
+            showBlock('serverstatus');
             if (0 < data.indexOf('server_pass'))
-                jQuery('#setCollation').fadeIn();
+                showBlock('setCollation');
+        }).catch(function () {
+            // 失敗時は何もしない（従来どおり）
         });
     });
 
     // database test
-    jQuery('#databasetest').click(function () {
-        jQuery('#databasetest').fadeOut();
-        jQuery('#AUH').fadeOut();
-        jQuery('#databasestatus').html('').hide();
+    document.getElementById('databasetest').addEventListener('click', function () {
+        hide('databasetest');
+        hide('AUH');
+        var status = document.getElementById('databasestatus');
+        status.innerHTML = '';
+        status.style.display = 'none';
         var url = 'connection.databasetest.php';
         var pars = {
             'q': url,
-            'host': jQuery('#database_server').val(),
-            'uid': jQuery('#database_user').val(),
-            'pwd': jQuery('#database_password').val(),
-            'dbase': jQuery('#dbase').val(),
-            'table_prefix': jQuery('#table_prefix').val(),
-            'database_collation': jQuery('#collation').val(),
+            'host': document.getElementById('database_server').value,
+            'uid': document.getElementById('database_user').value,
+            'pwd': document.getElementById('database_password').value,
+            'dbase': document.getElementById('dbase').value,
+            'table_prefix': document.getElementById('table_prefix').value,
+            'database_collation': document.getElementById('collation').value,
             'database_connection_method': 'SET CHARACTER SET',
             'language': language,
             'is_upgradeable': is_upgradeable
         };
-        jQuery.post(url, pars, function (data) {
-            jQuery('#databasestatus').html(data).fadeIn();
+        postForm(url, pars).then(function (data) {
+            setHtml(status, data);
+            status.style.display = 'block';
             if (0 < data.indexOf('database_pass')) {
-                jQuery('#AUH').fadeIn();
+                showBlock('AUH');
             } else {
-                jQuery('#databasetest').fadeIn();
+                document.getElementById('databasetest').style.display = '';
             }
-        }).fail(function () {
-            jQuery('#databasestatus').html('<span id="database_fail" style="background: #ffe6eb;padding:8px;border-radius:5px;color:#FF0000;">[+alert_database_test_connection_failed+]</span>').fadeIn();
-            jQuery('#databasetest').fadeIn();
+        }).catch(function () {
+            status.innerHTML = '<span id="database_fail" style="background: #ffe6eb;padding:8px;border-radius:5px;color:#FF0000;">[+alert_database_test_connection_failed+]</span>';
+            status.style.display = 'block';
+            document.getElementById('databasetest').style.display = '';
         });
     });
 
-    if (jQuery('#adminpassconfirm').val() != '') {
-        jQuery('a.next').css('display', 'block');
+    var showNextButton = function () {
+        document.querySelectorAll('a.next').forEach(function (el) {
+            el.style.display = 'block';
+        });
+    };
+    if (document.getElementById('adminpassconfirm').value != '') {
+        showNextButton();
     }
 
-    jQuery('#adminpassconfirm').focus(function () {
-        jQuery('a.next').css('display', 'block');
-    });
+    document.getElementById('adminpassconfirm').addEventListener('focus', showNextButton);
 
-    jQuery('a.prev').click(function () {
-        jQuery('#install input[name=action]').val('mode');
-        jQuery('#install').submit();
+    document.querySelectorAll('a.prev').forEach(function (el) {
+        el.addEventListener('click', function () {
+            var form = document.getElementById('install');
+            form.querySelector('input[name=action]').value = 'mode';
+            form.submit();
+        });
     });
-    jQuery('a.next').click(function () {
-        if (is_upgradeable != 1 && document.getElementById('adminemail').value.trim() === '')
-            alert("[+alert_enter_adminemail+]");
-        else if (jQuery('#adminpass').val() !== jQuery('#adminpassconfirm').val())
-            alert("[+alert_enter_adminpassword+]");
-        else
-            jQuery('#install').submit();
+    document.querySelectorAll('a.next').forEach(function (el) {
+        el.addEventListener('click', function () {
+            if (is_upgradeable != 1 && document.getElementById('adminemail').value.trim() === '')
+                alert("[+alert_enter_adminemail+]");
+            else if (document.getElementById('adminpass').value !== document.getElementById('adminpassconfirm').value)
+                alert("[+alert_enter_adminpassword+]");
+            else
+                document.getElementById('install').submit();
+        });
     });
     var language = '[+install_language+]';
     var is_upgradeable = '[+is_upgradeable+]';

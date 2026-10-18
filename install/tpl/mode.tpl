@@ -21,10 +21,13 @@
 
 <script>
     var is_upgradeable = '[+is_upgradeable+]';
-    jQuery('a.next').click(function () {
-        if (is_upgradeable == 1) {
-            jQuery('#install input[name=action]').val('options');
-        }
-        jQuery('#install').submit();
+    document.querySelectorAll('a.next').forEach(function (el) {
+        el.addEventListener('click', function () {
+            var form = document.getElementById('install');
+            if (is_upgradeable == 1) {
+                form.querySelector('input[name=action]').value = 'options';
+            }
+            form.submit();
+        });
     });
 </script>
