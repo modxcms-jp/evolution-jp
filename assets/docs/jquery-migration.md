@@ -43,13 +43,16 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | `.closest(sel)` / `.parent()` | `el.closest(sel)` / `el.parentElement` |
 | `.parents(sel)` | 一致する祖先をすべて返す（自身は含まない）。`el.parentElement` から `closest(sel)` をたどって集める。1 つだけ使っているなら `el.parentElement.closest(sel)` |
 | `.siblings()` / `.next()` / `.prev()` | `Array.from(el.parentElement.children).filter(c => c !== el)` / `nextElementSibling` / `previousElementSibling` |
-| `.each(fn)` | `document.querySelectorAll(sel).forEach(fn)` |
+| `.each(function (i, el) { … this … })` | `document.querySelectorAll(sel).forEach(function (el, i) { … el … })`。引数の順が逆で、`this` は要素にならないので、コールバックの中も書き換える |
 | `.click(fn)` / `.change(fn)` / `.on(ev, fn)` / `.bind` | `el.addEventListener(ev, fn)`。後から差し込まれる要素は `document.addEventListener` で受けて `e.target.closest(sel)` で絞る |
 | `.click()` / `.submit()` / `.trigger('change')` | `el.click()` / `form.requestSubmit()` / `el.dispatchEvent(new Event('change', { bubbles: true }))` |
 | `.focus()` | `el.focus()` |
 | `.data(k)` | `el.dataset.k` |
-| `.offset()` / `.outerWidth()` / `.height()` | `el.getBoundingClientRect()` / `el.offsetWidth` / `el.offsetHeight` |
-| `$j.inArray(v, arr)` / `$j.each(arr, fn)` / `$j.extend` | `arr.indexOf(v)` / `arr.forEach(fn)` / `Object.assign` |
+| `.offset()` | 文書基準の座標。`const r = el.getBoundingClientRect();` に `r.top + window.scrollY` / `r.left + window.scrollX`（`getBoundingClientRect()` だけではビューポート基準） |
+| `.outerWidth()` / `.outerHeight()` | `el.offsetWidth` / `el.offsetHeight`（padding と border を含む） |
+| `.width()` / `.height()` | 内容領域の大きさ。`getComputedStyle(el)` の `width` / `height` を数値にする（`box-sizing: border-box` のときは padding と border を引く）。`offsetWidth` / `offsetHeight` とは違う |
+| `$j.inArray(v, arr)` / `$j.extend` | `arr.indexOf(v)` / `Object.assign` |
+| `$j.each(arr, function (i, v) { … })` | `arr.forEach(function (v, i) { … })`。引数の順が逆になる。オブジェクトは `Object.keys(obj).forEach(function (k) { … obj[k] … })` |
 
 ## 気をつけること
 
