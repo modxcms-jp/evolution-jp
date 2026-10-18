@@ -157,3 +157,12 @@ function includeCss($url, $output_type = 'js')
     }
     return '';
 }
+
+// Removed widgets
+// Kept as no-op so that existing rules do not cause a fatal error.
+
+// mm_ddGMap was removed because it loads the Google Maps API without an API key (#796).
+// Use mm_widget_googlemap instead.
+function mm_ddGMap($tvs = '', $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true)
+{
+}
