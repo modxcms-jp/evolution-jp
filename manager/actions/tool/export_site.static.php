@@ -199,20 +199,32 @@ if (!evo()->hasPermission('export_static')) {
 
 <script>
     tpExport = new WebFXTabPane(document.getElementById("exportPane"));
-    jQuery('input[name="target"]:radio').change(function () {
-        switch (jQuery('input[name="target"]:checked').val()) {
-            case 'all'       :
-                jQuery('#ignore_ids').fadeOut('fast');
-                jQuery('#allow_ids').fadeOut('fast');
-                break;
-            case 'allow_ids' :
-                jQuery('#ignore_ids').hide();
-                jQuery('#allow_ids').fadeIn('normal');
-                break;
-            case 'ignore_ids':
-                jQuery('#allow_ids').hide();
-                jQuery('#ignore_ids').fadeIn('normal');
-                break;
-        }
-    });
+    (function () {
+        // 出力する範囲に合わせて ID の入力欄を出し入れする
+        const show = function (id, visible) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.display = visible ? 'block' : 'none';
+            }
+        };
+        document.querySelectorAll('input[type="radio"][name="target"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                const checked = document.querySelector('input[name="target"]:checked');
+                switch (checked ? checked.value : '') {
+                    case 'all'       :
+                        show('ignore_ids', false);
+                        show('allow_ids', false);
+                        break;
+                    case 'allow_ids' :
+                        show('ignore_ids', false);
+                        show('allow_ids', true);
+                        break;
+                    case 'ignore_ids':
+                        show('allow_ids', false);
+                        show('ignore_ids', true);
+                        break;
+                }
+            });
+        });
+    })();
 </script>

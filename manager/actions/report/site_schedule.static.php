@@ -188,10 +188,14 @@ if (!evo()->hasPermission('view_schedule')) {
                 </tbody>
             </table>
             <script type="text/javascript">
-                jQuery('.unpub_draft').on('click', function () {
-                    if (!confirm('公開設定を取り消してもよろしいですか？')) {
-                        return false;
-                    }
+                document.querySelectorAll('.unpub_draft').forEach(function (link) {
+                    link.addEventListener('click', function (e) {
+                        // 取り消したときは data-evo-post の POST も止める
+                        if (!confirm('公開設定を取り消してもよろしいですか？')) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    });
                 });
             </script>
             <?php

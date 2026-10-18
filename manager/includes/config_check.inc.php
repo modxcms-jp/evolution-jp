@@ -50,18 +50,22 @@ class ConfigCheck {
             ">
 function deleteTemplateSwitcher(){
     if(confirm('" . $_lang["confirm_delete_plugin"] . "')) {
-	\$j.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':'" . $tplName . "'},function(resp)
+	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':'" . $tplName . "'}).then(function()
 	{
-		var k = '#templateswitcher_present_warning_wrapper';
-		\$j('fieldset:has(' + k + ')').fadeOut('slow');
+		hideTemplateSwitcherWarning();
 	});
 }
 function disableTemplateSwitcher(){
-    \$j.post('index.php', {'a':'118','action':'updateplugin','lang':'" . $tplName . "','key':'disabled','value':'1'}, function(resp)
+    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':'" . $tplName . "','key':'disabled','value':'1'}).then(function()
     {
-		var k = '#templateswitcher_present_warning_wrapper';
-		\$j('fieldset:has(' + k + ')').fadeOut('slow');
+		hideTemplateSwitcherWarning();
     });
+}
+function hideTemplateSwitcherWarning(){
+	// 警告の入った fieldset を隠す
+	var el = document.getElementById('templateswitcher_present_warning_wrapper');
+	var fieldset = el ? el.closest('fieldset') : null;
+	if (fieldset) fieldset.style.display = 'none';
 }
 </script>";
         return $script;

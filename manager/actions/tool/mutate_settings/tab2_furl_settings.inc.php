@@ -1,14 +1,19 @@
 <script>
-    jQuery(function () {
-        if (jQuery('input[name="friendly_urls"]:checked').val() == 0) {
-            jQuery('.furlRow').hide();
+    Evo.ready(function () {
+        // フレンドリー URL を使うときだけ関連の行を出す
+        const setRows = function (show) {
+            document.querySelectorAll('tr.furlRow').forEach(function (row) {
+                row.style.display = show ? '' : 'none';
+            });
+        };
+        const checked = document.querySelector('input[name="friendly_urls"]:checked');
+        if (checked && checked.value == 0) {
+            setRows(false);
         }
-        jQuery('input[name="friendly_urls"]').change(function () {
-            if (jQuery(this).val() == 1) {
-                jQuery('tr.furlRow').fadeIn();
-            } else {
-                jQuery('tr.furlRow').fadeOut();
-            }
+        document.querySelectorAll('input[name="friendly_urls"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                setRows(radio.value == 1);
+            });
         });
     });
 </script>

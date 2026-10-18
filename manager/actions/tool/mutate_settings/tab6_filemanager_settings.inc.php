@@ -13,7 +13,7 @@
                 <?= $_lang['default'] ?> <span
                     id="default_filemanager_path">[(base_path)]</span> <?= "({$base_path})" ?><br/>
                 <?= form_text('filemanager_path', 255, 'id="filemanager_path" value="' . config('filemanager_path') . '"') ?>
-                <input type="button" onclick="jQuery('#filemanager_path').val('[(base_path)]');"
+                <input type="button" onclick="document.getElementById('filemanager_path').value = '[(base_path)]';"
                         value="<?= $_lang["reset"] ?>" name="reset_filemanager_path"><br/>
                 <?= $_lang["filemanager_path_message"] ?></td>
         </tr>
@@ -118,7 +118,7 @@
                     <?= "({$base_path}{$default_rb_base_dir})" ?>
                 <br/>
                 <?= form_text('rb_base_dir', 255, 'id="rb_base_dir" value="' . config('rb_base_dir') . '"') ?>
-                <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text().trim());"
+                <input type="button" onclick="document.getElementById('rb_base_dir').value = document.getElementById('default_rb_base_dir').textContent.trim();"
                         value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
         </tr>

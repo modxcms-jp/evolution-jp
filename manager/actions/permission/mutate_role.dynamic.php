@@ -64,15 +64,20 @@ function role($key, $default = null)
 }
 ?>
 <script type="text/javascript">
-    $j(function() {
-        $j('#allcheck').click(function() {
-            if (this.checked) {
-                $j('input.click:enabled').prop('checked', true);
-                $j('input.set').val('1');
-            } else {
-                $j('input.click:enabled').prop('checked', false);
-                $j('input.set').val('0');
-            }
+    Evo.ready(function() {
+        // 「すべて」のチェックに合わせて、操作できる権限のチェックと値をそろえる
+        const allcheck = document.getElementById('allcheck');
+        if (!allcheck) {
+            return;
+        }
+        allcheck.addEventListener('click', function() {
+            const checked = this.checked;
+            document.querySelectorAll('input.click:not(:disabled)').forEach(function(el) {
+                el.checked = checked;
+            });
+            document.querySelectorAll('input.set').forEach(function(el) {
+                el.value = checked ? '1' : '0';
+            });
         });
     });
 
