@@ -52,17 +52,21 @@ function updateContentType() {
  * @param string default_str default value of string for loaded manager language - allows some level of confirmation of change from default
  */
 function confirmLangChange(el, lkey, elupd) {
-    lang_current = jQuery('#' + elupd).val();
-    lang_default = jQuery('#' + lkey + '_hidden').val();
+    lang_current = document.getElementById(elupd).value;
+    lang_default = document.getElementById(lkey + '_hidden').value;
     proceed = true;
     if (lang_current != lang_default) {
         proceed = confirm(lang_chg);
     }
     if (proceed) {
         //document.getElementById(elupd).value = '';
-        lang = jQuery(el).val();
-        jQuery.post('index.php', {'a': '118', 'action': 'get', 'lang': lang, 'key': lkey}, function (resp) {
-            document.getElementById(elupd).value = resp;
-        });
+        lang = el.value;
+        Evo.post('index.php', {'a': '118', 'action': 'get', 'lang': lang, 'key': lkey})
+            .then(function (response) {
+                return response.text();
+            })
+            .then(function (resp) {
+                document.getElementById(elupd).value = resp;
+            });
     }
 }

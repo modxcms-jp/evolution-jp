@@ -40,10 +40,12 @@ $uid = evo()->getLoginUserID();
 $script = <<<JS
         <script>
         function hideConfigCheckWarning(key){
-            \$j.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'},function(resp)
+            Evo.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'}).then(function()
             {
-                var k = '#' + key + '_warning_wrapper';
-                \$j('fieldset:has(' + k + ')').fadeOut('slow');
+                // 警告の入った fieldset を隠す
+                var el = document.getElementById(key + '_warning_wrapper');
+                var fieldset = el ? el.closest('fieldset') : null;
+                if (fieldset) fieldset.style.display = 'none';
             });
         }
         </script>

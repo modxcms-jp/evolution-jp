@@ -73,13 +73,15 @@ function getTplDraft()
 	label {display:block;}
 </style>
 <script>
-	jQuery(function(){
-		jQuery("input[name='publishoption']").click(function(){
-			var val = jQuery("input[name='publishoption']:checked").val();
-			if(val=='now') {
-				jQuery('#pubdate').fadeOut();
-			}
-			else jQuery('#pubdate').fadeIn();
+	Evo.ready(function(){
+		// 「今すぐ」以外を選んだときだけ日時の欄を出す
+		document.querySelectorAll("input[name='publishoption']").forEach(function(radio){
+			radio.addEventListener('click', function(){
+				var checked = document.querySelector("input[name='publishoption']:checked");
+				var pubdate = document.getElementById('pubdate');
+				if (!pubdate) return;
+				pubdate.style.display = (checked && checked.value=='now') ? 'none' : 'block';
+			});
 		});
 	});
 </script>

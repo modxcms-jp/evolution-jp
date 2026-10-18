@@ -79,7 +79,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                                 <li><a
                                         class="default"
                                         href="#"
-                                        onclick="jQuery('#submitok').click();"
+                                        onclick="document.getElementById('submitok').click();"
                                     ><img
                                             src="<?= style('icons_save') ?>"
                                         /> <?= lang('search') ?></a

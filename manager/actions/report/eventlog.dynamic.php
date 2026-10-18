@@ -403,9 +403,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
 function downloadSystemLog(url) {
     dontShowWorker = true;
     documentDirty = false;
-    if (window.jQuery) {
-        jQuery(window).off('beforeunload');
-    }
     window.location.href = url;
 }
 

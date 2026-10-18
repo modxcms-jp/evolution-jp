@@ -1,25 +1,29 @@
 <script>
-    jQuery(function () {
-        if (jQuery('input[name="use_captcha"]:checked').val() == 0) {
-            jQuery('.captchaRow').hide();
+    Evo.ready(function () {
+        // ラジオの値に合わせて関連の行を出し入れする
+        const bindRows = function (name, rowClass, showValue) {
+            const setRows = function (show) {
+                document.querySelectorAll('tr.' + rowClass).forEach(function (row) {
+                    row.style.display = show ? '' : 'none';
+                });
+            };
+            document.querySelectorAll('input[name="' + name + '"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    setRows(radio.value == showValue);
+                });
+            });
+            return setRows;
+        };
+        const setCaptchaRows = bindRows('use_captcha', 'captchaRow', 1);
+        const captcha = document.querySelector('input[name="use_captcha"]:checked');
+        if (captcha && captcha.value == 0) {
+            setCaptchaRows(false);
         }
-        jQuery('input[name="use_captcha"]').change(function () {
-            if (jQuery(this).val() == 1) {
-                jQuery('tr.captchaRow').fadeIn();
-            } else {
-                jQuery('tr.captchaRow').fadeOut();
-            }
-        });
-        if (jQuery('input[name="email_method"]:checked').val() == 'mail') {
-            jQuery('.emailMethodRow').hide();
+        const setEmailMethodRows = bindRows('email_method', 'emailMethodRow', 'smtp');
+        const emailMethod = document.querySelector('input[name="email_method"]:checked');
+        if (emailMethod && emailMethod.value == 'mail') {
+            setEmailMethodRows(false);
         }
-        jQuery('input[name="email_method"]').change(function () {
-            if (jQuery(this).val() == 'smtp') {
-                jQuery('tr.emailMethodRow').fadeIn();
-            } else {
-                jQuery('tr.emailMethodRow').fadeOut();
-            }
-        });
     });
 </script>
 <div class="tab-page" id="tabPage4">

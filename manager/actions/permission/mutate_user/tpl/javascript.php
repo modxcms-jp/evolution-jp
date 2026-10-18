@@ -12,10 +12,9 @@
 
     function changePasswordState(element) {
         currval = eval(element).value;
-        if (currval == 1) {
-            jQuery('#passwordBlock').show(100);
-        } else {
-            jQuery('#passwordBlock').hide(100);
+        var passwordBlock = document.getElementById('passwordBlock');
+        if (passwordBlock) {
+            passwordBlock.style.display = currval == 1 ? '' : 'none';
         }
     }
 

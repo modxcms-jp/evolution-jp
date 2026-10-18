@@ -119,22 +119,24 @@ foreach ($dir as $filename) {
         document.getElementById("settingsPane"),
         <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
     );
-    jQuery('#udPermsOn').change(function () {
-        jQuery('.udPerms').slideDown();
-    });
-    jQuery('#udPermsOff').change(function () {
-        jQuery('.udPerms').slideUp();
-    });
-    jQuery('#editorRowOn').change(function () {
-        jQuery('.editorRow').slideDown();
-    });
-    jQuery('#editorRowOff').change(function () {
-        jQuery('.editorRow').slideUp();
-    });
-    jQuery('#rbRowOn').change(function () {
-        jQuery('.rbRow').slideDown();
-    });
-    jQuery('#rbRowOff').change(function () {
-        jQuery('.rbRow').slideUp();
-    });
+    (function () {
+        // ラジオの切り替えで関連の行を出し入れする
+        const toggleRows = function (radioId, selector, show) {
+            const radio = document.getElementById(radioId);
+            if (!radio) {
+                return;
+            }
+            radio.addEventListener('change', function () {
+                document.querySelectorAll(selector).forEach(function (row) {
+                    row.style.display = show ? '' : 'none';
+                });
+            });
+        };
+        toggleRows('udPermsOn', '.udPerms', true);
+        toggleRows('udPermsOff', '.udPerms', false);
+        toggleRows('editorRowOn', '.editorRow', true);
+        toggleRows('editorRowOff', '.editorRow', false);
+        toggleRows('rbRowOn', '.rbRow', true);
+        toggleRows('rbRowOff', '.rbRow', false);
+    })();
 </script>

@@ -29,7 +29,7 @@
                 <span class="comment">
                 <a
                     href="#"
-                    onclick="jQuery('#showname').hide(100);jQuery('#editname').show(100);return false;"
+                    onclick="document.getElementById('showname').style.display = 'none';document.getElementById('editname').style.display = '';return false;"
                 ><?= lang('change_name') ?></a>
             </span>
                 <input
