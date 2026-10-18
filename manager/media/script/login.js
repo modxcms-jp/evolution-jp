@@ -11,8 +11,13 @@
     'use strict';
 
     // 別のページのフレームの中で開かれたら、ログイン画面を画面全体で開き直す
-    if (window.top.frames.length !== 0) {
-        window.top.location = window.self.document.location;
+    // 他のオリジンのフレームでは移せないことがある。そのときも送信処理は動かす
+    try {
+        if (window.top.frames.length !== 0) {
+            window.top.location = window.self.document.location;
+        }
+    } catch (e) {
+        // 何もしない
     }
 
     function value(selector) {
@@ -43,9 +48,14 @@
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(function (response) {
-                return response.text();
+                // 404・500 などのエラーページは出さず、ボタンを戻すだけにする（今までと同じ）
+                return response.ok ? response.text() : null;
             })
             .then(function (response) {
+                if (response === null) {
+                    done();
+                    return;
+                }
                 if (response.substr(0, 9).toLowerCase() === 'location:') {
                     window.top.location = response.substr(10);
                     return;
