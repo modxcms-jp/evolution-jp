@@ -32,11 +32,11 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
     // #rgb / #rrggbb -> #rrggbb, otherwise ''
     $output = '
         function mmColorsToHex6(value) {
-            var m = jQuery.trim(value).match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+            const m = value.trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
             if (!m) {
                 return "";
             }
-            var hex = m[1].toLowerCase();
+            let hex = m[1].toLowerCase();
             if (hex.length === 3) {
                 hex = hex.replace(/(.)/g, "$1$1");
             }
@@ -51,24 +51,34 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
         }
         $output .= parseText('
             // ----------- Color widget for  [+tv_id+]  --------------
-            (function() {
-                var $text = jQuery("#[+tv_id+]");
-                var $picker = jQuery(\'<input type="color" id="colorpicker[+tv_id+]" style="margin-left:4px;vertical-align:middle;" />\');
-                $text.css("background-image","none").after($picker);
-                if ($text.val() == "") {
-                    $text.val([+default+]);
+            (() => {
+                const text = document.getElementById("[+tv_id+]");
+                if (!text) {
+                    return;
                 }
-                var syncPicker = function() {
-                    var hex = mmColorsToHex6($text.val());
+                const picker = document.createElement("input");
+                picker.type = "color";
+                picker.id = "colorpicker[+tv_id+]";
+                picker.style.marginLeft = "4px";
+                picker.style.verticalAlign = "middle";
+                text.style.backgroundImage = "none";
+                text.after(picker);
+                if (text.value === "") {
+                    text.value = [+default+];
+                }
+                const syncPicker = () => {
+                    const hex = mmColorsToHex6(text.value);
                     if (hex) {
-                        $picker.val(hex);
+                        picker.value = hex;
                     }
                 };
                 syncPicker();
-                $text.on("input change", syncPicker);
-                $picker.on("input change", function() {
+                text.addEventListener("input", syncPicker);
+                text.addEventListener("change", syncPicker);
+                picker.addEventListener("input", () => {
+                    text.value = picker.value;
                     // mark the document as dirty, or the value wont be saved
-                    $text.val($picker.val()).trigger("change");
+                    text.dispatchEvent(new Event("change", { bubbles: true }));
                 });
             })();
             documentDirty = false;
