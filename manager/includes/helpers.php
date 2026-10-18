@@ -931,7 +931,7 @@ if (!function_exists('evoRenderPaneFooterExtras')) {
             echo manager()->loadDatePicker(
                 $modx->config(
                     'mgr_date_picker_path',
-                    'media/script/air-datepicker/datepicker.inc.php'
+                    'media/script/datepicker/datepicker.inc.php'
                 )
             );
         }

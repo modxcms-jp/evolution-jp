@@ -1,0 +1,130 @@
+/* 管理画面の日付選び(datepicker.js)。色や角丸はテーマの変数があれば使う */
+.evo-datepicker {
+    position: absolute;
+    z-index: 1000;
+    box-sizing: border-box;
+    width: 252px;
+    margin: 0;
+    padding: 8px;
+    background: var(--color-surface, #fff);
+    color: var(--color-text-primary, #222);
+    border: 1px solid var(--color-border-default, #ccc);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, .15));
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: left;
+    white-space: normal;
+}
+
+/* テーマのボタンや選択欄の装飾を打ち消す */
+.evo-datepicker button,
+.evo-datepicker select {
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+.evo-datepicker button {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm, 4px);
+    cursor: pointer;
+}
+
+.evo-datepicker button:hover,
+.evo-datepicker button:focus-visible {
+    background: var(--color-border-light, #eef1f5);
+}
+
+.evo-datepicker select {
+    padding: 1px 2px;
+}
+
+.evo-datepicker-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.evo-datepicker-head button {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.evo-datepicker-title {
+    flex: 1;
+    font-weight: bold;
+    text-align: center;
+}
+
+.evo-datepicker-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+.evo-datepicker-grid span {
+    font-size: 11px;
+    color: var(--color-text-muted, #777);
+}
+
+.evo-datepicker-grid button {
+    height: 30px;
+}
+
+.evo-datepicker-grid .is-w0 {
+    color: var(--color-error, #c0392b);
+}
+
+.evo-datepicker-grid .is-w6 {
+    color: var(--color-info, #2a6ebb);
+}
+
+.evo-datepicker-grid .is-other {
+    opacity: .45;
+}
+
+.evo-datepicker-grid .is-today {
+    box-shadow: inset 0 0 0 1px var(--color-primary, #2f7ed8);
+}
+
+.evo-datepicker-grid .is-selected,
+.evo-datepicker-grid .is-selected:hover {
+    background: var(--color-primary, #2f7ed8);
+    color: #fff;
+    opacity: 1;
+}
+
+.evo-datepicker-foot {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border-light, #e5e8ec);
+}
+
+.evo-datepicker-time {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.evo-datepicker-foot > button {
+    padding: 3px 8px;
+    color: var(--color-link, #2f7ed8);
+}
+
+.evo-datepicker-foot > button:first-of-type {
+    margin-left: auto;
+}
