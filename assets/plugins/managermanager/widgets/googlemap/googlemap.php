@@ -5,7 +5,7 @@
 // Free for all
 //
 // Features:
-// - Based on Google Maps api v2
+// - Based on Google Maps JavaScript API v3 (needs an API key)
 // - Support multiple maps in single document
 // - Double click to set marker
 // - Drag and drop support to move markers

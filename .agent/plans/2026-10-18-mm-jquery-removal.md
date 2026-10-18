@@ -10,10 +10,12 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - [x] (2026-10-18) M2: 表示と文言のウィジェット 8 つ。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
 - [x] (2026-10-18) M3: 項目の操作と検証のウィジェット 5 つ。セット A〜D を 2 通りで main と比べて一致（必須を空にして保存すると止まる、埋めると保存できる、も確認）
 - [x] (2026-10-18) M4: 値を入れるウィジェット 4 つ。セット A〜E を 2 通りで main と比べて一致（新規作成の既定値・継承・値の設定・画像のプレビューと未保存の印・テンプレートの自動の送信）
-- [ ] M5: 同梱ライブラリを持つウィジェット（ddmaxlength・tags・googlemap）
+- [x] (2026-10-18) M5: 同梱ライブラリを持つウィジェット（ddmaxlength は素の JS の `ddmaxlength.js` に作り直し、jQuery のプラグインを削除。tags・googlemap）。セット A〜E を 2 通りで main と比べて一致（文字数の表示と超えたときの保存の中止、タグのクリックと未保存の印、地図の容器と検索欄）
 - [ ] M6: ddmultiplefields の残りと仕上げ（全体の grep、`assets/docs/jquery-migration.md` への追記）
 
 ## Surprises & Discoveries
+
+- 2026-10-18（M5）: 動きが変わる点が 3 つ。tags は空のタグが続くとき、クリックの後の値から空の項目をすべて除く（元は splice の飛ばしで一部が残った）。ddmaxlength の `canWriteError:false` の経路は、元は未定義の `max` で ReferenceError だったのが `o.max` で切り詰めるようになる（同梱のルールでは使わない）。tags をチェックボックス・複数選択の TV に使ったときは、元と同じく何もしない（要素の id に `[]` が付かないため。元は構文の崩れたセレクタで何もしなかった。Codex の指摘で確かめた）
 
 - 2026-10-18（M4）: リソース編集の画面には `changeRTE` の定義が無い（スニペット編集の画面だけ）。`mm_default('richtext', 0)`（エディタが none 以外のとき）と `mm_ddSetFieldValue('is_richtext', 0)` は、main でも ReferenceError で MM の alert が出る。#819 の範囲外として、そのまま呼んでいる
 
