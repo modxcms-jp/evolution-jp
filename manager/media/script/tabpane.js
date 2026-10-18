@@ -105,6 +105,7 @@ var WebFXTabPane = class WebFXTabPane {
         }
     }
 
+    // 覚えた番号を返す。そのタブが無い・隠れているときは表示中のタブと違う（表示中の番号は shownIndex）
     getSelectedIndex() {
         return this.selectedIndex;
     }
@@ -148,12 +149,14 @@ var WebFXTabPane = class WebFXTabPane {
         return tp;
     }
 
+    // キーボードでも click を起こして切り替える（DocManager などは document の click でタブの切り替えを受けている）
     keyDown(e) {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
         const tab = e.target.closest ? e.target.closest('.tab') : null;
         if (!tab || !tab.tabPage) return;
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            tab.tabPage.select();
+            tab.click();
             return;
         }
         const visible = this.pages.filter((page) => !WebFXTabPane.isHidden(page));
@@ -164,7 +167,7 @@ var WebFXTabPane = class WebFXTabPane {
         else if (e.key === 'End') i = visible.length - 1;
         else return;
         e.preventDefault();
-        visible[i].select();
+        visible[i].tab.click();
         visible[i].tab.focus();
     }
 
