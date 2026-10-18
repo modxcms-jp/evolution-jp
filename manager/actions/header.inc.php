@@ -60,6 +60,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
     <script type="text/javascript" src="media/script/csrf.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/csrf.js') ?>"></script>
+    <!-- jQuery 置き換え用の共通部品（Evo.ready / Evo.fetch / Evo.post） -->
+    <script type="text/javascript" src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>"></script>
     <script type="text/javascript" src="media/script/shell.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell.js') ?>"></script>
     <script type="text/javascript" src="media/browser/evo-file-picker.js?<?= filemtime(MODX_MANAGER_PATH . 'media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
