@@ -81,10 +81,10 @@ jQuery の本体（`manager/media/script/jquery/jquery.min.js`）は当面同梱
    );
    ```
 
-2. 設定 `mgr_jquery_path` に、読み込む jQuery の URL（管理画面からの相対パス。例: `media/script/jquery/jquery.min.js`）を入れる。設定の画面には項目が無いので、DB の `system_settings` に直接入れる（入れた後はキャッシュを消す）。
+2. 設定 `mgr_jquery_path` に、読み込む jQuery の URL（管理画面からの相対パス。例: `media/script/jquery/jquery.min.js`）を入れる。設定の画面には項目が無いので、DB の `system_settings` に直接入れる（`{prefix}` は実際のテーブルの接頭辞。例: `modx_`）。入れた後は、管理画面の「サイトのリフレッシュ」か `php evo cache:clear` でキャッシュを消す。
 
    ```sql
-   INSERT INTO `{prefix}system_settings` (setting_name, setting_value)
+   REPLACE INTO `{prefix}system_settings` (setting_name, setting_value)
    VALUES ('mgr_jquery_path', 'media/script/jquery/jquery.min.js');
    ```
 
