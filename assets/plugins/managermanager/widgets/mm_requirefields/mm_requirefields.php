@@ -6,7 +6,7 @@
  * Make fields required. Currently works with text fields only.
  * In the future perhaps this could deal with other elements.
  * Originally version by Jelle Jager AKA TobyL - Make fields required
- * Updated by ncrossland to utilise simpler field handline of MM 0.3.5+; bring jQuery code into line; add indication to required fields
+ * Updated by ncrossland to utilise simpler field handline of MM 0.3.5+; bring JS code into line; add indication to required fields
  *
  * @uses ManagerManager plugin 0.4.
  *

@@ -11,7 +11,7 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - [x] (2026-10-18) M3: 項目の操作と検証のウィジェット 5 つ。セット A〜D を 2 通りで main と比べて一致（必須を空にして保存すると止まる、埋めると保存できる、も確認）
 - [x] (2026-10-18) M4: 値を入れるウィジェット 4 つ。セット A〜E を 2 通りで main と比べて一致（新規作成の既定値・継承・値の設定・画像のプレビューと未保存の印・テンプレートの自動の送信）
 - [x] (2026-10-18) M5: 同梱ライブラリを持つウィジェット（ddmaxlength は素の JS の `ddmaxlength.js` に作り直し、jQuery のプラグインを削除。tags・googlemap）。セット A〜E を 2 通りで main と比べて一致（文字数の表示と超えたときの保存の中止、タグのクリックと未保存の印、地図の容器と検索欄）
-- [ ] M6: ddmultiplefields の残りと仕上げ（全体の grep、`assets/docs/jquery-migration.md` への追記）
+- [x] (2026-10-18) M6: ddmultiplefields の残りと仕上げ。`grep -rnE '\$j|jQuery' assets/plugins/managermanager` が 0 件。セット A〜E と ddmultiplefields の操作（行の追加・入力・並べ替え・削除・保存した値・未保存の印）を 2 通りで main と比べて一致（違いは削除のフェードを無くしたことと、行の上限で + を押したときに main で出ていた TypeError が出なくなることだけ）
 
 ## Surprises & Discoveries
 
@@ -63,6 +63,8 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - 2026-10-18 / planner（AI）: 次の既存の問題は範囲を広げず、直さない。showimagetvs の `setInterval` はシェルの画面遷移のたびに増える（前の画面の要素は見つからないので害は小さい）。ddmaxlength の alert の文言がロシア語のまま。mm_requireFields の alert の文言が英語のまま。
 
 ## Outcomes & Retrospective
+
+2026-10-18: 6 つのマイルストーンで、ManagerManager の本体・ウィジェット・同梱ライブラリから jQuery の呼び出しをなくした（PR #846・#848・#849・#850・#851 と M6 の PR）。マイルストーンごとに、検証用の TV とルールのセット A〜E を入れた画面で、main とブランチの観測値を直接開く・シェルで移るの 2 通りで JSON にして比べる方法が効いた。違いはどれも、アニメーションを無くしたことなど意図したものだけだった。自己レビューで見つけて直した主なもの：CSS をフォームの中に置くと accessdenied で消える（M1）、前の画面の `mm_run` が動く（M1）、画像のプレビューを文字列の HTML で組み立てていた（M4）。jQuery 本体と、利用者の自作のウィジェット・ルールの `$j` の扱いは #823 で決める
 
 ## Context and Orientation
 

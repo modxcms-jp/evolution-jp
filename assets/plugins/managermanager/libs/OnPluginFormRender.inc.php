@@ -53,7 +53,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
     $roles_table .= '</table>';
 
 
-    // Load the jquery library
+    // タブを足す出力の開始（即時に実行する）
     $output = '<!-- Begin ManagerManager output -->' . "\n";
 
     $output .= '<script type="text/javascript">' . "\n";
