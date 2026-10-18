@@ -184,7 +184,7 @@
     }
 
     // 断片内のスタイルシートを<head>へ移す。
-    // 断片ごと消えると、body直下に残るUI部品(datepickerのカレンダー等)が
+    // 断片ごと消えると、body直下に残るUI部品(ライブラリのポップアップ等)が
     // スタイルを失いシェルのグリッドを崩すため、headに恒久配置して重複は除去する
     function hoistStylesheets(container) {
         container.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
@@ -214,18 +214,6 @@
     // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)
     function teardownPane(pane) {
         document.dispatchEvent(new CustomEvent('evoshell:unload'));
-
-        // Air Datepickerはbody直下の #datepickers-container にポップアップを持つため、
-        // 断片を捨てる前に入力とポップアップを明示的に破棄する
-        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.datepicker) {
-            window.jQuery(pane).find('input.DatePicker').each(function (_, input) {
-                const instance = window.jQuery(input).data('datepicker');
-                if (instance && typeof instance.destroy === 'function') {
-                    instance.destroy();
-                }
-            });
-            window.jQuery('#datepickers-container').empty();
-        }
 
         // TinyMCEはEditorManagerに旧インスタンスが残ると同じidで再初期化できない。
         // ただし全インスタンスを無条件にremove()すると、モーダルを閉じただけで
