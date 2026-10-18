@@ -66,6 +66,33 @@
         return null;
     }
 
+    function isAnimating(el) {
+        return !!(el.getAnimations && el.getAnimations().length);
+    }
+
+    // 押しのけられた行が元の位置から滑って動くようにする（どこからどこへ動いたか見えるように）
+    function moveWithAnimation(list, move) {
+        var items = getItems(list);
+        var before = [];
+        for (var i = 0; i < items.length; i++) {
+            before.push(items[i].getBoundingClientRect().top);
+        }
+        move();
+        if (!items[0] || !items[0].animate
+            || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+            return;
+        }
+        for (var j = 0; j < items.length; j++) {
+            var dy = before[j] - items[j].getBoundingClientRect().top;
+            if (items[j] !== dragItem && dy) {
+                items[j].animate(
+                    [{transform: 'translateY(' + dy + 'px)'}, {transform: 'none'}],
+                    {duration: 150, easing: 'ease-out'}
+                );
+            }
+        }
+    }
+
     function updateHidden(list) {
         if (!list) {
             return;
@@ -171,12 +198,15 @@
         }
         e.preventDefault();
         var target = resolveListItem(this, e.target);
-        if (!target || target === dragItem) {
+        // 動いている途中の行はカーソルの下を通り過ぎるため、入れ替えの判定に使わない
+        if (!target || target === dragItem || isAnimating(target)) {
             return;
         }
         var rect = target.getBoundingClientRect();
         var after = e.clientY - rect.top > rect.height / 2;
-        target.parentNode.insertBefore(dragItem, after ? target.nextSibling : target);
+        moveWithAnimation(this, function() {
+            target.parentNode.insertBefore(dragItem, after ? target.nextSibling : target);
+        });
     }
 
     function onDrop(e) {
