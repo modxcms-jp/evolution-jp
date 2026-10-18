@@ -66,11 +66,15 @@ function mm_inherit($fields, $roles = '', $templates = '')
         ";
         $date_format = evo()->toDateFormat(null, 'formatOnly');
 
+        // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる。change は起こさない
+        $name = str_replace('\\', '', $fieldname);
+        $input = js_literal(sprintf('input[name="%s"]', $name));
+
         switch ($field) {
             case 'log':
             case 'hide_menu':
             case 'show_in_menu':
-                $output .= '$j("input[name=' . $fieldname . ']").prop("checked", ' . ($newvalue ? 'false' : 'true') . '); ';
+                $output .= 'MM.setChecked(' . $input . ', ' . ($newvalue ? 'false' : 'true') . '); ';
                 break;
 
             case 'is_folder':
@@ -78,22 +82,22 @@ function mm_inherit($fields, $roles = '', $templates = '')
             case 'searchable':
             case 'cacheable':
             case 'published':
-                $output .= '$j("input[name=' . $fieldname . ']").prop("checked", ' . ($newvalue ? 'true' : 'false') . '); ';
+                $output .= 'MM.setChecked(' . $input . ', ' . ($newvalue ? 'true' : 'false') . '); ';
                 break;
 
             case 'pub_date':
             case 'unpub_date':
-                $output .= '$j("input[name=' . $fieldname . ']").val("' . evo()->mb_strftime($date_format . ' %H:%M:%S', $newvalue) . '"); ';
+                $output .= 'MM.setValue(' . $input . ', ' . js_literal(evo()->mb_strftime($date_format . ' %H:%M:%S', $newvalue)) . '); ';
                 break;
 
             default:
                 switch ($fieldtype) {
                     case 'textarea':
-                        $output .= '$j("textarea[name=' . $fieldname . ']").val(' . js_literal($newvalue) . '); ';
+                        $output .= 'MM.setValue(' . js_literal(sprintf('textarea[name="%s"]', $name)) . ', ' . js_literal($newvalue) . '); ';
                         break;
 
                     default:
-                        $output .= '$j("' . $fieldtype . '[name=' . $fieldname . ']").val(' . js_literal($newvalue) . '); ';
+                        $output .= 'MM.setValue(' . js_literal(sprintf('%s[name="%s"]', $fieldtype, $name)) . ', ' . js_literal($newvalue) . '); ';
                         break;
                 }
                 break;
