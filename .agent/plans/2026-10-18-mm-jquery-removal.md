@@ -180,7 +180,7 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
 - jQuery の `.hide()` は `style.display = 'none'`、`.show()` は `style.display = ''` にする（表の行などは CSS の `display` で出し分けているため `hidden` 属性にしない）。`MM.hide` / `MM.show` で揃える。
 - `.parents(sel)` は `MM.parents(el, sel)`（一致する祖先すべて）、`.parents(sel + ":first")` / `.closest(sel)` は `el.parentElement.closest(sel)` / `el.closest(sel)`、`.parent(sel)` は「親が `sel` に一致するときだけ親」に置き換える。jQuery の擬似セレクタ（`:first`・`:last`・`:input`・`:has()`）は使わない。
 - 値を入れるだけの処理（`mm_default`・`ddsetfieldvalue`・`mm_inherit`）は、今と同じく `change` を起こさない（起こすと画面を開いた直後に未保存の扱いになる）。利用者の操作の代わりに値を変える処理（タグのクリック、画像の選択）は、素の `change` を起こす（`MM.fire(el, 'change')`）。
-- jQuery の `.submit(function(){ … return false; })` は、`form.addEventListener('submit', e => { … e.preventDefault(); })` にする。`mm_default('template')` の `$('#mutate').submit()` は `form.requestSubmit()` にする（`form.submit()` は submit イベントを起こさず、シェルの横取りを通らない）。
+- jQuery の `.submit(function(){ … return false; })` は、`form.addEventListener('submit', e => { … e.preventDefault(); })` にする。`mm_default('template')` の `$('#mutate').submit()` は `form.submit()` にする（シェルが `HTMLFormElement.prototype.submit` を差し替えているので、シェルを通る。理由は Decision Log の「`mm_default('template', X)` の自動の送信は `form.submit()` にした」）。
 - 文字列の埋め込みは、`assets/docs/jquery-migration.md` と AGENTS.md の規則（`<script>` 内の値は `js_literal()`）に従う。今 `jsSafe()` で HTML エスケープしてから `.html()` に入れている箇所（`mm_renamefield` など）は、同じ値を `innerHTML` に入れる形にして、表示を変えない。fieldname を含むセレクタは発見のとおり扱う。
 
 ### M1: 本体と共通の部品
@@ -219,7 +219,7 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
 対象: `widgets/mm_default/mm_default.php`、`widgets/ddsetfieldvalue/ddsetfieldvalue.php`、`widgets/mm_inherit/mm_inherit.php`、`widgets/showimagetvs/showimagetvs.php`（4 ファイル・83 行）。
 
 - `mm_default` / `ddsetfieldvalue` / `mm_inherit`: `MM.setValue`・`MM.setChecked` に揃える。`.removeAttr("checked")` は `checked = false`（今は属性を消しているが、表示上の結果は同じ）。`is_richtext` の `#which_editor:first` は `document.getElementById('which_editor')`、`changeRTE()` はそのまま呼ぶ。`option` 型の TV の `.val([v])`（ラジオ）は、`name` が一致するラジオのうち `value` が一致するものに `checked = true`。
-- `mm_default('template')` の自動送信は、`Evo.ready` の中で `documentDirty = false`、`#mutate` の `a` を `4`・`newtemplate` を値にして `form.requestSubmit()`。
+- `mm_default('template')` の自動送信は、`Evo.ready` の中で `documentDirty = false`、`#mutate` の `a` を `4`・`newtemplate` を値にして `form.submit()`（Decision Log を参照）。
 - `showimagetvs`: `#tv<ID>` に `imageField` を付け、プレビューを作り直す関数を `change` のリスナーと初回の呼び出しに使う（今の `bind("change load")…trigger("load")`）。前回の値は `el.dataset.lastvalue`。`checkImageTVupdates` は `MM.all('.imageField')` で回し、値が変わっていれば `MM.fire(el, 'change')`。プレビューの画像のクリックで `BrowseServer("tv<ID>")`。
 
 ### M5: 同梱ライブラリを持つウィジェット
@@ -339,6 +339,13 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
     mm_widget_showimagetvs('mmImage');
 
    `mm_inherit('mmArea')` を確かめるため、親（ID 1）の `mmArea` に値を入れておく（`modx_site_tmplvar_contentvalues` に `contentid=1` の行を足す）。`mm_default('template', '<別のテンプレートの ID>')` は自動で送信されて画面が変わるので、別に 1 回だけ流し、送信後の URL と `newtemplate` の値を比べる。
+
+セット E（M4、新規作成 `a=4&pid=1`。テンプレートの自動の送信と必須の確認の関係）:
+
+    mm_default('template', '<別のテンプレートの ID>');
+    mm_requireFields('pagetitle');
+
+   比べる観測値: 送信後の URL、`#field_template` の値、alert と jAlert のダイアログの有無、ページのエラー。
 
 セット C（M5・M6、既存のリソース `a=27&id=1`）:
 

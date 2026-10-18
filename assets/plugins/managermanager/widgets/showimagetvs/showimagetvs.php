@@ -33,7 +33,8 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
             $h
         );
     } else {
-        $style = '';
+        // JS の式として埋め込むので、空でも文字列にする
+        $style = "''";
     }
 
     // Does this page's template use any image TVs? If not, quit now!
@@ -71,8 +72,17 @@ const update = function(){
 
     if (url != "" && !url.match("/.*::.*/")){
         // Create a new preview（以前の .parents("td").append() と同じく、祖先の td すべてに足す）
+        // 値を HTML として解釈しないよう、要素を作って src に入れる
         MM.parents(field, "td").forEach(function (td) {
-            td.insertAdjacentHTML("beforeend", \'<div class="tvimage" id="tv[+id+]PreviewContainer"><img src="\'+url+\'" style="\'+[+style+]+\'" id="tv[+id+]Preview"/></div>\');
+            const box = document.createElement("div");
+            box.className = "tvimage";
+            box.id = "tv[+id+]PreviewContainer";
+            const img = document.createElement("img");
+            img.src = url;
+            img.setAttribute("style", [+style+]);
+            img.id = "tv[+id+]Preview";
+            box.appendChild(img);
+            td.appendChild(box);
         });
 
         // Attach a browse event to the picture, so it can trigger too
