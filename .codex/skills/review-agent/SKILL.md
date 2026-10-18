@@ -6,41 +6,4 @@ description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル
 # Review Agent
 
 このファイルは Codex 実行用の入口とメタデータを管理する。
-手順本文の正本は `.claude/skills/review-agent/SKILL.md` に置く。
-
-`.agent/agents/reviewer.md` を主担当として、バグ・回帰・セキュリティ・キャッシュ整合性・SSOT 違反を優先してレビューする。
-PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する。
-
-`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
-
-## 参照順
-
-1. `AGENTS.md`
-2. `.agent/agents/reviewer.md`
-3. `.github/codex-pr-rules.md`
-4. 関連する ExecPlan
-5. 関連する `assets/docs/`
-6. 変更ファイルと `git diff`
-
-## 実行ルール
-
-正本の実行ルールは `.claude/skills/review-agent/SKILL.md` の `## 実行ルール` を参照。
-GitHub への返信・コメントと review thread の resolved 化は、修正と push の完了後に `はい・いいえ` で確認し、`はい` の場合のみ実行する。`/resolve-review` を経由せず直接修正・push した場合も、push 後に resolved 化をユーザーに確認してから実行する（スキップ禁止）。
-
-## コマンド
-
-### /review-diff
-
-詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/review-diff` を参照。
-
-### /review-pr
-
-詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/review-pr` を参照。
-
-### /resolve-review <PR番号>
-
-詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/resolve-review` を参照。
-
-## 出力形式
-
-差分レビューおよび /resolve-review の出力形式は `.claude/skills/review-agent/SKILL.md` の `## 出力形式` を参照。
+手順本文の正本は `.claude/skills/review-agent/SKILL.md` に置く。必ず正本を読み、そのすべてに従う。ここには手順を写さない。

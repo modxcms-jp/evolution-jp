@@ -6,15 +6,9 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 # Adaptive Validation Runner
 
 このファイルは Codex 実行用の入口とメタデータを管理する。
-手順本文の正本は `.claude/skills/adaptive-validation-runner/SKILL.md`、検証環境の手順は同じディレクトリの `references/environment.md`、同梱スクリプトは `scripts/` にある。
+手順本文の正本は `.claude/skills/adaptive-validation-runner/SKILL.md` に置く。必ず正本を読み、そのすべてに従う。ここには手順を写さない。検証環境の手順は同じディレクトリの `references/environment.md`、同梱スクリプトは `scripts/` にある。
 
-## コマンド
-
-### /verify-live <確認したいこと>
-
-`.claude/skills/adaptive-validation-runner/SKILL.md` の Workflow に従って進める。
-
-## Codex 固有の差分
+## Codex での差分
 
 - `docker`、`npm install`、`npx playwright install`、ブラウザの起動は、サンドボックスの中では失敗することがある。次のような失敗が出たときだけ、制限の外での実行へ切り替えて再実行する
   - `sandbox_host_linux.cc`

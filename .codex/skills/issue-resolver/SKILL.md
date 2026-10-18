@@ -6,47 +6,4 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 # Issue Resolver
 
 このファイルは Codex 実行用の入口とメタデータを管理する。
-手順本文の正本は `.claude/skills/issue-resolver/SKILL.md` に置く。
-
-不具合対応を「再現可能な事実」ベースで前進させる。
-実装規約はプロジェクトの `AGENTS.md` を最優先とし、必要に応じて `project-worker` の規約へ委譲する。
-
-`exec-plan-runner` から呼ばれたときは、このスキルの確認と `Status` の扱いより、`.claude/skills/exec-plan-runner/SKILL.md` の「確認を省く範囲」を優先する（「スキップ禁止」と書かれた確認も、表にあれば省く。runner の「省かないもの」は省かない）。
-
-## 実行ルール
-
-詳細な実行ルールは `.claude/skills/issue-resolver/SKILL.md` の `## 実行ルール` を参照。
-
-## evo CLI
-
-詳細は `.claude/skills/issue-resolver/SKILL.md` の `## evo CLI（実用最小）` を参照。
-
-## Workflow
-
-### analyze-issue <URL|テキスト>
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### analyze-issue` を参照。
-
-### reproduce
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### reproduce` を参照。
-
-### create-branch
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### create-branch` を参照。
-
-### draft-plan (必要時)
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### draft-plan` を参照。
-
-### implement-fix
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### implement-fix` を参照。
-
-### archive
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### archive` を参照。
-
-### pull-request
-
-詳細な手順は `.claude/skills/issue-resolver/SKILL.md` の `### pull-request` を参照。
+手順本文の正本は `.claude/skills/issue-resolver/SKILL.md` に置く。必ず正本を読み、そのすべてに従う。ここには手順を写さない。
