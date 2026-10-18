@@ -296,7 +296,7 @@ function entity($key, $default = null)
             <?php if (evo()->hasPermission('save_template')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
@@ -693,29 +693,61 @@ function entity($key, $default = null)
 <script>
     tpTmplvars = new WebFXTabPane(document.getElementById("tmplvarsPane"), false);
     var readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
-    if (readonly == 1) {
-        jQuery('textarea,input[type=text]').prop('readonly', true);
-        jQuery('select').addClass('readonly');
-        jQuery('#Button1').hide();
-        jQuery('input[name="locked"]').click(function() {
-            jQuery('#Button1').toggle();
-        });
-    }
-    jQuery('input[name="locked"]').click(function() {
-        jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
-        jQuery('select').toggleClass('readonly');
-    });
-    jQuery('select[name="categoryid"]').change(function() {
-        if (jQuery(this).val() == '-1') {
-            jQuery('#newcategry').fadeIn();
-        } else {
-            jQuery('#newcategry').fadeOut();
-            jQuery('input[name="newcategory"]').val('');
+    // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
+    (function() {
+        const saveButton = document.getElementById('Button1');
+        const lockInputs = document.querySelectorAll('input[name="locked"]');
+        if (readonly == 1) {
+            document.querySelectorAll('textarea,input[type=text]').forEach(function(el) {
+                el.readOnly = true;
+            });
+            document.querySelectorAll('select').forEach(function(el) {
+                el.classList.add('readonly');
+            });
+            if (saveButton) saveButton.style.display = 'none';
+            lockInputs.forEach(function(el) {
+                el.addEventListener('click', function() {
+                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
+                });
+            });
         }
-    });
-    var itype = jQuery('#type');
-    itype.change(function() {
-        switch (itype.val()) {
+        lockInputs.forEach(function(el) {
+            el.addEventListener('click', function(event) {
+                const checked = event.currentTarget.checked;
+                document.querySelectorAll('textarea,input[type=text]').forEach(function(input) {
+                    input.readOnly = checked;
+                });
+                document.querySelectorAll('select').forEach(function(select) {
+                    select.classList.toggle('readonly');
+                });
+            });
+        });
+        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
+            el.addEventListener('change', function(event) {
+                const row = document.getElementById('newcategry');
+                if (event.currentTarget.value == '-1') {
+                    if (row) row.style.display = '';
+                } else {
+                    if (row) row.style.display = 'none';
+                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
+                        input.value = '';
+                    });
+                }
+            });
+        });
+    })();
+    var itype = document.getElementById('type');
+    if (itype) itype.addEventListener('change', function() {
+        const inputOption = document.getElementById('inputoption');
+        const optionHeader = document.querySelector('#inputoption th');
+        const optionTextareas = document.querySelectorAll('#inputoption textarea');
+        const optionValue = optionTextareas.length ? optionTextareas[0].value : undefined;
+        const setOptionValue = function(value) {
+            optionTextareas.forEach(function(el) {
+                el.value = value;
+            });
+        };
+        switch (itype.value) {
             case 'dropdown':
             case 'listbox':
             case 'listbox-multiple':
@@ -729,18 +761,18 @@ function entity($key, $default = null)
                     echo "\t\t\tcase '" . $type . "':\n";
                 }
                 ?>
-                jQuery('#inputoption').fadeIn();
+                if (inputOption) inputOption.style.display = '';
                 var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
-                if (itype.val() == 'custom_tv') {
-                    jQuery('#inputoption th:first').css('visibility', 'hidden');
-                    if (jQuery('#inputoption textarea').val() == '') jQuery('#inputoption textarea').val(ctv);
+                if (itype.value == 'custom_tv') {
+                    if (optionHeader) optionHeader.style.setProperty('visibility', 'hidden');
+                    if (optionValue == '') setOptionValue(ctv);
                 } else {
-                    jQuery('#inputoption th:first').css('visibility', 'visible');
-                    if (jQuery('#inputoption textarea').val() == ctv) jQuery('#inputoption textarea').val('');
+                    if (optionHeader) optionHeader.style.setProperty('visibility', 'visible');
+                    if (optionValue == ctv) setOptionValue('');
                 }
                 break;
             default:
-                jQuery('#inputoption').fadeOut();
+                if (inputOption) inputOption.style.display = 'none';
         }
     });
 </script>

@@ -64,7 +64,7 @@ if (id()) {
                 <?php if (evo()->hasPermission('save_template')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                            onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"><img
+                            onclick="document.querySelectorAll('#templatesPane select').forEach(function(el){el.disabled=false;});documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><img
                                 src="<?= style('icons_save') ?>"/> <?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
@@ -318,37 +318,65 @@ if (id()) {
         var tpstatus = <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?>;
         tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
         var readonly = <?= (template('locked') == 1 || template('locked') === 'on') ? '1' : '0' ?>;
-        if (readonly) {
-            jQuery('#templatesPane textarea,input[type=text]').prop('readonly', true);
-            jQuery('#templatesPane select').addClass('readonly');
-            jQuery('#templatesPane select').prop('disabled', true);
-            jQuery('#Button1').hide();
-            jQuery('input#locked').click(function () {
-                jQuery('#Button1').toggle();
-            });
-        }
-        jQuery('input#locked').click(function () {
-            jQuery('#templatesPane textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
-            jQuery('#templatesPane select').prop('disabled', true);
-            jQuery('#templatesPane select').toggleClass('readonly');
-        });
-        jQuery.get("index.php", {
-                a: "1",
-                ajaxa: "16",
-                target: "use_resources",
-                id: "<?= id() ?>"
-            },
-            function (data) {
-                jQuery('div#use_resources').html(data);
-            });
-        jQuery('select#categoryid').change(function () {
-            if (jQuery(this).val() == '-1') {
-                jQuery('#newcategry').fadeIn();
-            } else {
-                jQuery('#newcategry').fadeOut();
-                jQuery('input[name="newcategory"]').val('');
+        // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
+        (function () {
+            const saveButton = document.getElementById('Button1');
+            const lockInput = document.querySelector('input#locked');
+            const paneSelects = function (fn) {
+                document.querySelectorAll('#templatesPane select').forEach(fn);
+            };
+            if (readonly) {
+                document.querySelectorAll('#templatesPane textarea,input[type=text]').forEach(function (el) {
+                    el.readOnly = true;
+                });
+                paneSelects(function (el) {
+                    el.classList.add('readonly');
+                    el.disabled = true;
+                });
+                if (saveButton) saveButton.style.display = 'none';
+                if (lockInput) lockInput.addEventListener('click', function () {
+                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
+                });
             }
-        });
+            if (lockInput) lockInput.addEventListener('click', function (event) {
+                const checked = event.currentTarget.checked;
+                document.querySelectorAll('#templatesPane textarea,input[type=text]').forEach(function (el) {
+                    el.readOnly = checked;
+                });
+                paneSelects(function (el) {
+                    el.disabled = true;
+                    el.classList.toggle('readonly');
+                });
+            });
+            // このテンプレートを使うリソースの一覧（HTML の断片）を取得する
+            Evo.fetch('index.php?' + new URLSearchParams({
+                a: '1',
+                ajaxa: '16',
+                target: 'use_resources',
+                id: '<?= id() ?>'
+            }).toString())
+                .then(function (response) {
+                    return response.ok ? response.text() : null;
+                })
+                .then(function (data) {
+                    if (data === null) return;
+                    const target = document.querySelector('div#use_resources');
+                    if (target) target.innerHTML = data;
+                })
+                .catch(function () {});
+            const categorySelect = document.querySelector('select#categoryid');
+            if (categorySelect) categorySelect.addEventListener('change', function (event) {
+                const row = document.getElementById('newcategry');
+                if (event.currentTarget.value == '-1') {
+                    if (row) row.style.display = '';
+                } else {
+                    if (row) row.style.display = 'none';
+                    document.querySelectorAll('input[name="newcategory"]').forEach(function (input) {
+                        input.value = '';
+                    });
+                }
+            });
+        })();
     </script>
 <?php
 function getParentValues($parent)
