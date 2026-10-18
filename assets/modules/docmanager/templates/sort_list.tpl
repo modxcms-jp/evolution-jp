@@ -1,18 +1,10 @@
-<!-- Doc Manager: シェル内に表示される断片テンプレート。jQuery/CSSはシェルが読み込み済み -->
+<!-- Doc Manager: シェル内に表示される断片テンプレート。evo.js/CSSはシェルが読み込み済み -->
 <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
 <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
 <script type="text/javascript">
     (function() {
-        function onReady(handler) {
-            // AJAX差し替え時はDOMContentLoaded発火済みのため即時実行する
-            if (document.readyState !== 'loading') {
-                handler();
-                return;
-            }
-            document.addEventListener('DOMContentLoaded', handler, false);
-        }
-
-        onReady(function() {
+        // シェルの差し替えでも動くように Evo.ready で待つ
+        Evo.ready(function() {
             if (window.MODXSortable) {
                 window.MODXSortable.updateAll();
             }

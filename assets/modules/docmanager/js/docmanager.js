@@ -47,25 +47,14 @@ function changeOtherLabels() {
     var choice1 = document.getElementById('choice_label_1');
     var choice2 = document.getElementById('choice_label_2');
 
-    if ($j('#misc').val() == '1') {
-        choice1.innerHTML = $j('#option1').val();
-        choice2.innerHTML = $j('#option2').val();
-    } else if ($j('#misc').val() == '2') {
-        choice1.innerHTML = $j('#option3').val();
-        choice2.innerHTML = $j('#option4').val();
-    } else if ($j('#misc').val() == '3') {
-        choice1.innerHTML = $j('#option5').val();
-        choice2.innerHTML = $j('#option6').val();
-    } else if ($j('#misc').val() == '4') {
-        choice1.innerHTML = $j('#option7').val();
-        choice2.innerHTML = $j('#option8').val();
-    } else if ($j('#misc').val() == '5') {
-        choice1.innerHTML = $j('#option9').val();
-        choice2.innerHTML = $j('#option10').val();
-    } else if ($j('#misc').val() == '6') {
-        choice1.innerHTML = $j('#option11').val();
-        choice2.innerHTML = $j('#option12').val();
-    } else if ($j('#misc').val() == '0') {
+    const misc = document.getElementById('misc').value;
+
+    // 項目 n（1〜6）の選択肢の文言は option(2n-1) と option(2n) にある
+    if (['1', '2', '3', '4', '5', '6'].includes(misc)) {
+        const n = Number(misc);
+        choice1.innerHTML = document.getElementById('option' + (n * 2 - 1)).value;
+        choice2.innerHTML = document.getElementById('option' + (n * 2)).value;
+    } else if (misc == '0') {
         choice1.innerHTML = " - ";
         choice2.innerHTML = " - ";
     }
