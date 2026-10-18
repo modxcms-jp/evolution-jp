@@ -58,9 +58,9 @@
         return el.getAttribute('data-timepicker') !== 'false';
     }
 
+    // readonly の欄(ユーザーのブロック期間など)は、手入力を防いでカレンダーだけで選ばせる
     function isPickerInput(el) {
-        return el instanceof HTMLInputElement && el.classList.contains('DatePicker')
-            && !el.disabled && !el.readOnly;
+        return el instanceof HTMLInputElement && el.classList.contains('DatePicker') && !el.disabled;
     }
 
     // datetime_format(YYYY/mm/dd・dd-mm-YYYY・mm/dd/YYYY)に時刻 HH:MM を足した形で書き出す
