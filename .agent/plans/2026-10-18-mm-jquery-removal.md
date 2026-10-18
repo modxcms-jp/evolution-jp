@@ -7,7 +7,7 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 ## Progress
 
 - [x] (2026-10-18) M1: 本体と共通の部品（`mm.js`）。ルールの包みを `Evo.ready` に、`includeJs` / `includeCss` をルールの実行中は登録して `<script src>` / `<link>` で出す形に。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
-- [ ] M2: 表示と文言のウィジェット（タブ・セクション・項目名・説明・タブの追加・テンプレートの選択肢）
+- [x] (2026-10-18) M2: 表示と文言のウィジェット 8 つ。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
 - [ ] M3: 項目の操作と検証のウィジェット（隠す・タブへ移す・必須・同期・アクセス拒否）
 - [ ] M4: 値を入れるウィジェット（mm_default・ddsetfieldvalue・mm_inherit・showimagetvs）
 - [ ] M5: 同梱ライブラリを持つウィジェット（ddmaxlength・tags・googlemap）
