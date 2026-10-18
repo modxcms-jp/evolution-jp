@@ -5,7 +5,7 @@
  * - Evo.ready(fn): $j(function(){…}) の代わり。シェルが後から差し込んだインラインスクリプトでは
  *   DOMContentLoaded がすでに発火しているため、DOM の準備ができていれば待たずに実行する。
  *   jQuery 3 と同じく、呼び出したスクリプトの残りが終わってから非同期に実行する
- * - Evo.fetch(url, options): 管理画面の AJAX 用の fetch。シェルと同じヘッダーを付け、
+ * - Evo.fetch(url, options): 管理画面の AJAX 用の fetch。X-Requested-With を付け、
  *   GET・HEAD 以外では X-CSRF-Token を付ける。セッションが切れていれば（X-Evo-Login: required）
  *   ログイン画面へ移り、Promise は解決しない（呼び出し側の後続処理やエラー表示を走らせない）
  * - Evo.post(url, data): $j.post の代わり。data はオブジェクト・FormData・URLSearchParams・文字列
@@ -32,8 +32,12 @@
         if (data === undefined || data === null) {
             return undefined;
         }
-        if (typeof data === 'string' || data instanceof FormData || data instanceof URLSearchParams) {
+        if (data instanceof FormData || data instanceof URLSearchParams) {
             return data;
+        }
+        // 文字列のまま送ると text/plain になり、PHP の $_POST に入らない
+        if (typeof data === 'string') {
+            return new URLSearchParams(data);
         }
         const params = new URLSearchParams();
         Object.keys(data).forEach(function (key) {
@@ -65,12 +69,10 @@
             const method = String(opts.method || 'GET').toUpperCase();
             const headers = new Headers(opts.headers);
             if (isSameOrigin(url)) {
+                // サーバーはこのヘッダーで、セッション切れを X-Evo-Login で知らせる。
+                // X-Evo-Shell はシェルの画面遷移の印（応答が断片になる）なので付けない
                 if (!headers.has('X-Requested-With')) {
                     headers.set('X-Requested-With', 'XMLHttpRequest');
-                }
-                // サーバーはこのヘッダーがあるときだけ、セッション切れを X-Evo-Login で知らせる
-                if (!headers.has('X-Evo-Shell')) {
-                    headers.set('X-Evo-Shell', '1');
                 }
                 const token = getCsrfToken();
                 if (method !== 'GET' && method !== 'HEAD' && token && !headers.has('X-CSRF-Token')) {

@@ -9,8 +9,8 @@
 | 部品 | 代わりにするもの | 補足 |
 | --- | --- | --- |
 | `Evo.ready(fn)` | `$j(function(){…})` / `$j(document).ready(…)` | DOM の準備ができていれば待たずに実行する。シェルが後から差し込んだインラインスクリプトでも動く |
-| `Evo.fetch(url, options)` | `$j.ajax(…)` / `$j.get(…)` / `$j.getJSON(…)` | シェルと同じヘッダーを付け、GET・HEAD 以外では `X-CSRF-Token` を付ける。セッション切れならログイン画面へ移る |
-| `Evo.post(url, data)` | `$j.post(url, data, …)` | `data` はオブジェクト・`FormData`・`URLSearchParams`・文字列。配列の値は `key[]` で送る（入れ子のオブジェクトは扱わない） |
+| `Evo.fetch(url, options)` | `$j.ajax(…)` / `$j.get(…)` / `$j.getJSON(…)` | `X-Requested-With` を付け、GET・HEAD 以外では `X-CSRF-Token` を付ける。セッション切れならログイン画面へ移る |
+| `Evo.post(url, data)` | `$j.post(url, data, …)` | `data` はオブジェクト・`FormData`・`URLSearchParams`・文字列（`a=1&b=2` の形）。配列の値は `key[]` で送る（入れ子のオブジェクトは扱わない） |
 
 - `DOMContentLoaded` へ単純に書き換えない。シェルの画面遷移で差し込まれたスクリプトでは、すでに発火していて実行されない。
 - `fetch` は 404・500 などでも reject しない。`$j.post` の失敗時の処理にあたるものは `response.ok` を見て書く。
@@ -40,7 +40,8 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | `.css(n, v)` | `el.style.setProperty(n, v)` |
 | `.html(s)` / `.text(s)` | `el.innerHTML = s` / `el.textContent = s`（利用者の入力を入れるときは `textContent`） |
 | `.append(el)` / `.after(el)` / `.before(el)` / `.remove()` / `.empty()` | `append` / `after` / `before` / `remove` / `replaceChildren()` |
-| `.parents(sel)` / `.closest(sel)` / `.parent()` | `el.closest(sel)` / `el.closest(sel)` / `el.parentElement` |
+| `.closest(sel)` / `.parent()` | `el.closest(sel)` / `el.parentElement` |
+| `.parents(sel)` | 一致する祖先をすべて返す（自身は含まない）。`el.parentElement` から `closest(sel)` をたどって集める。1 つだけ使っているなら `el.parentElement.closest(sel)` |
 | `.siblings()` / `.next()` / `.prev()` | `Array.from(el.parentElement.children).filter(c => c !== el)` / `nextElementSibling` / `previousElementSibling` |
 | `.each(fn)` | `document.querySelectorAll(sel).forEach(fn)` |
 | `.click(fn)` / `.change(fn)` / `.on(ev, fn)` / `.bind` | `el.addEventListener(ev, fn)`。後から差し込まれる要素は `document.addEventListener` で受けて `e.target.closest(sel)` で絞る |
