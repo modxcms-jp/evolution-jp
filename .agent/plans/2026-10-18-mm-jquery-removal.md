@@ -11,7 +11,7 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - [x] (2026-10-18) M3: 項目の操作と検証のウィジェット 5 つ。セット A〜D を 2 通りで main と比べて一致（必須を空にして保存すると止まる、埋めると保存できる、も確認）
 - [x] (2026-10-18) M4: 値を入れるウィジェット 4 つ。セット A〜E を 2 通りで main と比べて一致（新規作成の既定値・継承・値の設定・画像のプレビューと未保存の印・テンプレートの自動の送信）
 - [x] (2026-10-18) M5: 同梱ライブラリを持つウィジェット（ddmaxlength は素の JS の `ddmaxlength.js` に作り直し、jQuery のプラグインを削除。tags・googlemap）。セット A〜E を 2 通りで main と比べて一致（文字数の表示と超えたときの保存の中止、タグのクリックと未保存の印、地図の容器と検索欄）
-- [x] (2026-10-18) M6: ddmultiplefields の残りと仕上げ。`grep -rnE '\$j|jQuery' assets/plugins/managermanager` が 0 件。セット A〜E と ddmultiplefields の操作（行の追加・入力・並べ替え・削除・保存した値・未保存の印）を 2 通りで main と比べて一致（違いは削除のフェードを無くしたことだけ）
+- [x] (2026-10-18) M6: ddmultiplefields の残りと仕上げ。`grep -rnE '\$j|jQuery' assets/plugins/managermanager` が 0 件。セット A〜E と ddmultiplefields の操作（行の追加・入力・並べ替え・削除・保存した値・未保存の印）を 2 通りで main と比べて一致（違いは削除のフェードを無くしたことと、行の上限で + を押したときに main で出ていた TypeError が出なくなることだけ）
 
 ## Surprises & Discoveries
 

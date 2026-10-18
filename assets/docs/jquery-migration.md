@@ -86,13 +86,13 @@ ManagerManager（`assets/plugins/managermanager/`）が出力する JS は、#81
 
 ### 外部ファイルの読み込み（`includeJs` / `includeCss`）
 
-- OnDocFormRender のルールの中で `includeJs($url)` / `includeCss($url)` を呼ぶと、URL を登録して空文字を返す。登録した JS は `mm_run` の前に `<script src>` で読まれるので、ルールの中で読み込んだ関数をすぐ使える。CSS は `head` に足す。同じ URL は 1 回だけ読む。
+- OnDocFormRender のルールの中で `includeJs($url)` / `includeCss($url)` を呼ぶと、URL を登録して空文字を返す。登録した JS は `mm_run` の前に `<script src>` で読まれるので、ルールの中で読み込んだ関数をすぐ使える。CSS は `head` に足す。1 つの画面の MM の出力の中では、同じ URL は 1 回だけ読む（シェルで開き直すと読み直す）。
 - 返り値が空文字なので、JS の条件の中（`if (!window.X){ … }` など）に置いても条件は効かない。常に登録する。
 - OnDocFormRender のルールの外で呼ぶと、`head` に要素を足す JS を返す（読み込みは非同期になる）。`includeJs($url, 'html')` / `includeCss($url, 'html')` の返り値は変わらない。
 
 ### change を起こすかどうか
 
-- 管理画面の未保存の検知（`documentDirty`）は、`document` の素の `change` のリスナーで動く。jQuery の `.trigger('change')` では届かない。
+- 管理画面の未保存の検知（`documentDirty`）は、画面を開いたとき（シェルで移ったときも）に `#mainPane` の input・textarea・select それぞれに付けた素の `change` のリスナーで動く（`header.inc.php` の `evoBindDirtyTracking`）。jQuery の `.trigger('change')` では届かない。後から足した要素には付かない
 - 利用者の操作の代わりに値を変える処理（タグのクリック、画像の選択など）は `MM.fire(el, 'change')` を起こす。
 - 値を入れるだけの処理（既定値・継承など、画面を開いたときに動くもの）は `change` を起こさない。起こすと、開いた直後に未保存の扱いになる。
 - ウィジェットの中だけで知らせ合う変更は、独自の名前のイベントにする（例: ddmultiplefields の `ddmultiple:change`）。
