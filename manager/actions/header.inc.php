@@ -37,7 +37,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?= csrfTokenMeta() ?>
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/shell.css') ?>" />
-    <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
@@ -54,7 +53,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')
     );
     ?>
-    <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
+    <script src="media/script/evo-tooltip.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
     <script src="media/script/evo-dialog.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
@@ -134,10 +133,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                 echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
             }
             ?>
-            jQuery('.tooltip').powerTip({
-                'fadeInTime': '0',
-                'placement': 'e'
-            });
         });
 
         jQuery(function() {
