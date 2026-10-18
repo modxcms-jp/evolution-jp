@@ -33,6 +33,22 @@ if (!is_readable($startpath)) {
     exit;
 }
 
+// ファイル操作より前に、要求されたすべてのパスを保護対象と照合する
+$requested_paths = array_filter([$startpath, getv('path'), postv('path'), anyv('folderpath')]);
+if (anyv('file')) {
+    $requested_paths[] = $startpath . '/' . anyv('file');
+}
+if (anyv('name')) {
+    // 新規フォルダ・新規ファイルで実際に使う形で照合する
+    $requested_paths[] = $startpath . '/' . str_replace(['../', '..\\'], '', anyv('name'));
+}
+foreach ($requested_paths as $requested_path) {
+    if (is_protected_path($requested_path, $proteted_path)) {
+        echo lang('files.dynamic.php2');
+        exit;
+    }
+}
+
 ?>
 <style type="text/css">
     .warning {
@@ -162,11 +178,6 @@ if (!is_readable($startpath)) {
             echo textsave();
         } elseif (anyv('mode') === 'delete') {
             echo delete_file();
-        }
-
-        if (in_array($startpath, $proteted_path)) {
-            echo lang('files.dynamic.php2');
-            exit;
         }
 
         if (rtrim($startpath, '/') == config('filemanager_path')) {
@@ -488,7 +499,7 @@ function ls($curpath)
                 continue;
             }
 
-            if (in_array($newpath, $proteted_path)) {
+            if (is_protected_path($newpath, $proteted_path)) {
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
@@ -752,8 +763,19 @@ function unzip($file, $path)
         return false;
     }
 
-    $old_umask = umask(0);
     $path = rtrim($path, '/') . '/';
+    // 展開先の外や保護対象へ書き込むエントリがあれば、何も展開しない
+    $proteted_path = proteted_path();
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $zip_entry_name = str_replace('\\', '/', $zip->getNameIndex($i));
+        if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
+            || is_protected_path($path . $zip_entry_name, $proteted_path)) {
+            $zip->close();
+            return false;
+        }
+    }
+
+    $old_umask = umask(0);
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = $zip->getNameIndex($i);
         $complete_path = $path . str_replace('\\', '/', dirname($zip_entry_name));
@@ -777,7 +799,8 @@ function unzip($file, $path)
 function rrmdir($dir)
 {
     foreach (glob($dir . '/*') as $file) {
-        if (is_dir($file)) {
+        // リンク先はたどらず、リンク自体だけを消す
+        if (is_dir($file) && !is_link($file)) {
             rrmdir($file);
         } else {
             unlink($file);
@@ -922,7 +945,7 @@ function proteted_path()
         return [];
     }
 
-    $proteted_path[] = [
+    $proteted_path = [
         base_path() . 'manager',
         base_path() . 'temp/backup',
         base_path() . 'assets/backup'
@@ -952,6 +975,67 @@ function proteted_path()
         $proteted_path[] = base_path() . 'assets/export';
     }
     return $proteted_path;
+}
+
+/**
+ * 保護対象そのもの、またはその配下なら true。
+ * どちらもまだ存在しなくてよい（アップロード先、作成するフォルダ、未作成のバックアップフォルダなど）。
+ * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
+ */
+function is_protected_path($path, $proteted_path)
+{
+    if (!$proteted_path) {
+        return false;
+    }
+    $realpath = normalize_path($path);
+    if ($realpath === false) {
+        return false;
+    }
+    $realpath = strtolower($realpath);
+    foreach ($proteted_path as $protected) {
+        $protected = normalize_path($protected);
+        if ($protected === false) {
+            continue;
+        }
+        $protected = strtolower($protected);
+        if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * 存在する部分は realpath() で解決し、存在しない残りは文字列のまま . と .. を畳んでつなぐ。
+ */
+function normalize_path($path)
+{
+    $path = str_replace('\\', '/', $path);
+    $rest = [];
+    $realpath = realpath($path);
+    while ($realpath === false) {
+        $parent = dirname($path);
+        if ($parent === $path) {
+            return false;
+        }
+        array_unshift($rest, basename($path));
+        $path = $parent;
+        $realpath = realpath($path);
+    }
+    $segments = explode('/', rtrim(str_replace('\\', '/', $realpath), '/'));
+    foreach ($rest as $segment) {
+        if ($segment === '' || $segment === '.') {
+            continue;
+        }
+        if ($segment === '..') {
+            if (count($segments) > 1) {
+                array_pop($segments);
+            }
+            continue;
+        }
+        $segments[] = $segment;
+    }
+    return implode('/', $segments);
 }
 
 function uploadablefiles()
