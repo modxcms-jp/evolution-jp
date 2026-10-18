@@ -3,6 +3,7 @@
 // 1. ルールを mm_run に包んで定義だけする <script>
 // 2. ルールの実行中に includeJs() / includeCss() で登録された <script src> / <link>
 // 3. Evo.ready(mm_run)。<script src> の読み込みの後に動くので、ルールの中で読み込んだファイルをすぐ使える
+// CSS は head に足す（accessdenied などがフォームごと消しても見た目が残るように）
 global $mm_includes;
 
 $mm_js = 'assets/plugins/managermanager/mm.js';
@@ -12,6 +13,10 @@ $e->output('
     <!-- You are logged into the following role: ' . hsc($mm_current_page['role']) . ' -->
 
     <script src="' . hsc(MODX_BASE_URL . $mm_js . '?' . filemtime(MODX_BASE_PATH . $mm_js)) . '"></script>
+    <script>
+    // シェルで画面を移ったとき、ルールの定義が構文エラーで動かなくても、前の画面の mm_run を動かさない
+    window.mm_run = null;
+    </script>
     <script charset="' . $modx->config['modx_charset'] . '">
     var mm_lastTab = "tabGeneral";
     var mm_sync_field_count = 0;
@@ -62,23 +67,31 @@ $e->output('
             // If theres an error, fail nicely
             alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
     }finally{
-            // Whatever happens, hide the loading mask
-            MM.hide("#loadingmask");
+            // Whatever happens, hide the loading mask（mm.js が読めなくても隠せるよう、素の DOM で）
+            var mask = document.getElementById("loadingmask");
+            if (mask) mask.style.display = "none";
         }
     };
     </script>
 ');
 
-foreach ($includes['css'] as $url) {
-    $e->output('<link href="' . hsc($url) . '" rel="stylesheet" type="text/css" />' . "\n");
-}
 foreach ($includes['js'] as $url) {
     $e->output('<script src="' . hsc($url) . '"></script>' . "\n");
 }
 
 $e->output('
     <script>
-    Evo.ready(mm_run);
+    [' . implode(',', array_map('js_literal', $includes['css'])) . '].forEach(function (href) {
+        const exists = Array.from(document.head.querySelectorAll("link[rel=stylesheet]")).some(function (link) {
+            return link.getAttribute("href") === href;
+        });
+        if (!exists) {
+            document.head.appendChild(Object.assign(document.createElement("link"), {rel: "stylesheet", type: "text/css", href: href}));
+        }
+    });
+    if (typeof mm_run === "function") {
+        Evo.ready(mm_run);
+    }
     </script>
     <!-- ManagerManager Plugin :: End -->
 ');

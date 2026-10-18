@@ -28,6 +28,8 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 
 ## Decision Log
 
+- 2026-10-18 / メイン（AI）: **ルールで登録した CSS は MM の出力の位置ではなく head に足す**（M1 の自己レビューで分かった）。MM の出力は `#mutate` の中にあり、`mm_widget_accessdenied` がフォームごと消すと `<link>` も消えて見た目が外れるため。JS は実行の順番のために出力の位置の `<script src>` のまま。あわせて、前の画面の `mm_run` が残って動かないよう、定義の前に `window.mm_run = null` を出し、関数のときだけ `Evo.ready(mm_run)` を呼ぶ
+
 - 2026-10-18 / planner（AI）: **共通の小さな部品を MM の中に 1 ファイル用意する（推奨）**。`assets/plugins/managermanager/mm.js` に、グローバルの `MM` として次だけを置く（目安 100 行以内）。
   `MM.all(sel)`（`querySelectorAll` を配列で）、`MM.parents(el, sel)`（jQuery の `.parents` と同じく一致する祖先をすべて）、`MM.hide(x)` / `MM.show(x)`（`style.display` を `none` / `''` にする）、`MM.setValue(x, v)`、`MM.setChecked(x, bool)`、`MM.html(x, s)`、`MM.fire(el, type)`（`bubbles: true` の素のイベント）、`MM.addStyle(cssText)`。`x` は要素・配列・NodeList・セレクタの文字列・`null` のどれでもよく、要素が無ければ何もしない。
   理由: (1) 20 近いウィジェットが PHP の文字列で同じ形（行を隠す・値を入れる・チェックを付ける）を繰り返し出しており、直接書くと出力が長くなり、要素が無いときの確認を毎回書くことになる。上の発見のとおり、確認の漏れ 1 つで残りのルールがすべて止まる。(2) 部品を 1 か所にすると、jQuery と違う点（`parents` の意味、`hide` の方法）を 1 か所で正しく実装できる。(3) ファイルにすると、ブラウザのキャッシュが効き、構文の確認もしやすい。

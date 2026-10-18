@@ -37,7 +37,8 @@
     window.MM = {
         all: all,
 
-        // jQuery の .parents(sel) と同じく、一致する祖先をすべて返す（自身は含まない。近い順）
+        // jQuery の .parents(sel) と同じく、一致する祖先をすべて返す（自身は含まない）。
+        // 並びも jQuery と同じく文書の逆順（要素 1 つなら近い順）
         parents: function (x, sel) {
             const found = [];
             all(x).forEach(function (el) {
@@ -49,7 +50,9 @@
                     p = p.parentElement;
                 }
             });
-            return found;
+            return found.sort(function (a, b) {
+                return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? 1 : -1;
+            });
         },
 
         // 表の行なども扱うので hidden 属性ではなく display で出し分ける
