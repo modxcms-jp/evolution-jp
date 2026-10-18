@@ -1345,7 +1345,7 @@ a.hometblink:hover {
     background-color: var(--color-secondary-start);
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover {
+.dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
     color: var(--color-secondary-hover-text);
     border-color: var(--color-secondary-border);
@@ -1377,18 +1377,18 @@ a.hometblink:hover {
     text-decoration: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover span {
+.dynamic-tab-pane-control .tab-row .tab:hover span {
     color: var(--color-secondary-hover-text);
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover {
     color: var(--color-text-primary);
     border-color: var(--color-primary-hover-end) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
     background-color: var(--color-surface);
     background-image: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
     color: var(--color-gray-950);
 }
 
@@ -2040,7 +2040,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     transition: all 0.2s ease;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover {
+.dynamic-tab-pane-control .tab-row .tab:hover {
     background: var(--light-bg-secondary);
     color: var(--light-text-primary);
     border-color: var(--color-gray-400);

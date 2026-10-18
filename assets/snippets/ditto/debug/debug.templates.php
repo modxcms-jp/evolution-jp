@@ -18,7 +18,8 @@ $dbg_templates['main'] = <<<TPL
 	</div>
 	</div>
 	</div>
-	<script type="text/javascript" src="[+base_url+]media/script/tabpane.js">
+	<script type="text/javascript" src="[+base_url+]media/script/tabpane.js"></script>
+	<script type="text/javascript">
 		tpDittoDebug = new WebFXTabPane( document.getElementById( "dittoDebug" ) ); 
 	</script>
 	</body>

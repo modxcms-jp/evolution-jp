@@ -1,286 +1,273 @@
-/*----------------------------------------------------------------------------\
-|                               Tab Pane 1.02                                 |
-|-----------------------------------------------------------------------------|
-|                         Created by Erik Arvidsson                           |
-|                  (http://webfx.eae.net/contact.html#erik)                   |
-|                      For WebFX (http://webfx.eae.net/)                      |
-|-----------------------------------------------------------------------------|
-|                  Copyright (c) 1998 - 2003 Erik Arvidsson                   |
-|-----------------------------------------------------------------------------|
-| This software is provided "as is", without warranty of any kind, express or |
-| implied, including  but not limited  to the warranties of  merchantability, |
-| fitness for a particular purpose and noninfringement. In no event shall the |
-| authors or  copyright  holders be  liable for any claim,  damages or  other |
-| liability, whether  in an  action of  contract, tort  or otherwise, arising |
-| from,  out of  or in  connection with  the software or  the  use  or  other |
-| dealings in the software.                                                   |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-| This  software is  available under the  three different licenses  mentioned |
-| below.  To use this software you must chose, and qualify, for one of those. |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-| The WebFX Non-Commercial License          http://webfx.eae.net/license.html |
-| Permits  anyone the right to use the  software in a  non-commercial context |
-| free of charge.                                                             |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-| The WebFX Commercial license           http://webfx.eae.net/commercial.html |
-| Permits the  license holder the right to use  the software in a  commercial |
-| context. Such license must be specifically obtained, however it's valid for |
-| any number of  implementations of the licensed software.                    |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-| GPL - The GNU General Public License    http://www.gnu.org/licenses/gpl.txt |
-| Permits anyone the right to use and modify the software without limitations |
-| as long as proper  credits are given  and the original  and modified source |
-| code are included. Requires  that the final product, software derivate from |
-| the original  source or any  software  utilizing a GPL  component, such  as |
-| this, is also licensed under the GPL license.                               |
-|-----------------------------------------------------------------------------|
-| 2002-01-?? | First working version                                          |
-| 2002-02-17 | Cleaned up for 1.0 public version                              |
-| 2003-02-18 | Changed from javascript uri for anchors to return false        |
-| 2003-03-03 | Added dispose methods to release IE memory                     |
-|-----------------------------------------------------------------------------|
-| Dependencies: *.css           a css file to define the layout               |
-|-----------------------------------------------------------------------------|
-| Created 2002-01-?? | All changes are in the log above. | Updated 2003-03-03 |
-\----------------------------------------------------------------------------*/
+/**
+ * 管理画面のタブ（WebFX Tab Pane 1.02 の呼び方に合わせて書き直したもの）
+ *
+ * <div class="tab-pane" id="…">
+ *   <div class="tab-page" id="…"><h2 class="tab">見出し</h2> 中身 </div>
+ * </div>
+ * new WebFXTabPane(el, bUseCookie) / tp.addTabPage(el, callback) / setSelectedIndex() / getSelectedIndex()、
+ * setupAllTabs() / disposeAllTabs()、要素の tabPane / tabPage プロパティは今までと同じ。
+ * テーマの CSS が使うクラス（dynamic-tab-pane-control / .tab-row / .tab / .selected）と、
+ * 開いたタブを覚える Cookie（webfxtab_<id>）も変えない。
+ * - 覚えた番号のタブが無い・隠れている（ManagerManager の mm_hideTabs など）ときは、表示されている最初のタブを開く
+ * - 見出しは role="tab"。Tab キーで選ばれたタブへ移り、左右・Home・End で切り替える。Enter・Space でも開く
+ * - 見出しの中身は <span> で包む（テーマの CSS と mm_renameTab が前提にしている）
+ */
 
 // クラスは var への代入で定義する。管理画面のシェルが document.write で画面全体を
 // 差し替えると同じ window でこのファイルが再評価され、class 宣言だと二重宣言エラーになるため
-
-///////////////////////////////////////////////////////////////////////////////////
-// The constructor for tab panes
-//
-// el : HTMLElement		The html element used to represent the tab pane
-// bUseCookie : Boolean	Optional. Default is true. Used to determine whether to us
-//						persistance using cookies or not
-//
 var WebFXTabPane = class WebFXTabPane {
-  constructor(el, bUseCookie) {
-    if (el == null) return;
+    constructor(el, bUseCookie) {
+        if (el == null) return;
 
-    this.element = el;
-    this.element.tabPane = this;
-    this.pages = [];
-    this.selectedIndex = null;
-    this.useCookie = bUseCookie != null ? bUseCookie : true;
+        this.element = el;
+        el.tabPane = this;
+        this.pages = [];
+        this.useCookie = bUseCookie != null ? bUseCookie : true;
+        // 選ぶつもりのタブの番号（覚えた番号）。表示しているタブは shownIndex
+        this.selectedIndex = 0;
+        this.shownIndex = null;
+        this.settled = false;
 
-    // add class name tag to class name
-    this.element.className = this.classNameTag + " " + this.element.className;
+        el.classList.add('dynamic-tab-pane-control');
+        this.tabRow = document.createElement('div');
+        this.tabRow.className = 'tab-row';
+        this.tabRow.setAttribute('role', 'tablist');
+        el.insertBefore(this.tabRow, el.firstChild);
 
-    // add tab row
-    this.tabRow = document.createElement("div");
-    this.tabRow.className = "tab-row";
-    el.insertBefore(this.tabRow, el.firstChild);
+        if (this.useCookie) {
+            const n = Number(WebFXTabPane.getCookie('webfxtab_' + el.id));
+            this.selectedIndex = Number.isInteger(n) && n >= 0 ? n : 0;
+        }
 
-    let tabIndex = 0;
-    if (this.useCookie) {
-      tabIndex = Number(WebFXTabPane.getCookie("webfxtab_" + this.element.id));
-      if (isNaN(tabIndex))
-        tabIndex = 0;
+        this._onKeyDown = (e) => this.keyDown(e);
+        this.tabRow.addEventListener('keydown', this._onKeyDown);
+        // 見出しが後から隠されたら、表示されているタブへ移す
+        this.observer = typeof MutationObserver === 'function'
+            ? new MutationObserver(() => this.ensureVisible())
+            : null;
+
+        Array.from(el.children).forEach((child) => {
+            if (child.classList.contains('tab-page')) {
+                this.addTabPage(child);
+            }
+        });
+
+        // 後に続く addTabPage と、画面のスクリプト（MM など）が終わってから確かめる
+        const settle = () => {
+            this.settled = true;
+            this.ensureVisible();
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(settle, 0), { once: true });
+        } else {
+            setTimeout(settle, 0);
+        }
     }
-    this.selectedIndex = tabIndex;
 
-    // loop through child nodes and add them
-    const cs = el.childNodes;
-    for (let i = 0; i < cs.length; i++) {
-      if (cs[i].nodeType == 1 && cs[i].className == "tab-page") {
-        this.addTabPage(cs[i]);
-      }
+    static setCookie(sName, sValue, nDays) {
+        let expires = '';
+        if (nDays) {
+            const d = new Date();
+            d.setTime(d.getTime() + nDays * 24 * 60 * 60 * 1000);
+            expires = '; expires=' + d.toUTCString();
+        }
+        // 公開側（Ditto のデバッグ画面など）では baseurl が無い
+        const path = typeof window.baseurl === 'string' && window.baseurl ? window.baseurl : '/';
+        document.cookie = sName + '=' + encodeURIComponent(sValue) + expires + '; path=' + path + '; SameSite=Lax';
     }
-  }
-  // Cookie handling
-  static setCookie(sName, sValue, nDays) {
-    let expires = "";
-    if (nDays) {
-      const d = new Date();
-      d.setTime(d.getTime() + nDays * 24 * 60 * 60 * 1000);
-      expires = "; expires=" + d.toUTCString();
+
+    static getCookie(sName) {
+        for (const cookie of document.cookie.split('; ')) {
+            const i = cookie.indexOf('=');
+            if (cookie.slice(0, i) === sName) {
+                return decodeURIComponent(cookie.slice(i + 1));
+            }
+        }
+        return null;
     }
-    document.cookie = sName + "=" + encodeURIComponent(sValue) + expires +
-      "; path=" + baseurl +
-      "; SameSite=Lax";
-  }
-  static getCookie(sName) {
-    const cookies = document.cookie.split("; ");
-    for (const cookie of cookies) {
-      const [name, value] = cookie.split("=");
-      if (name === sName) {
-        return decodeURIComponent(value);
-      }
+
+    static removeCookie(name) {
+        WebFXTabPane.setCookie(name, '', -1);
     }
-    return null;
-  }
-  static removeCookie(name) {
-    WebFXTabPane.setCookie(name, "", -1);
-  }
-  setSelectedIndex(n) {
-    if (this.selectedIndex != n) {
-      if (this.selectedIndex != null && this.pages[this.selectedIndex] != null)
-        this.pages[this.selectedIndex].hide();
-      this.selectedIndex = n;
-      this.pages[this.selectedIndex].show();
 
-      if (this.useCookie)
-        WebFXTabPane.setCookie("webfxtab_" + this.element.id, n); // session cookie
+    static isHidden(page) {
+        return !page || page.tab.hidden || getComputedStyle(page.tab).display === 'none';
     }
-  }
-  getSelectedIndex() {
-    return this.selectedIndex;
-  }
-  addTabPage(oElement, callBackFnc) {
-    if (oElement.tabPage && oElement.tabPage.tabPane === this) // already added
-      return oElement.tabPage;
 
-    const n = this.pages.length;
-    const tp = this.pages[n] = new WebFXTabPage(oElement, this, n, callBackFnc); // modified by Raymond
-    tp.tabPane = this;
-
-    // move the tab out of the box
-    this.tabRow.appendChild(tp.tab);
-
-    if (n == this.selectedIndex)
-      tp.show();
-
-    else
-      tp.hide();
-
-    return tp;
-  }
-  dispose() {
-    this.element.tabPane = null;
-    this.element = null;
-    this.tabRow = null;
-
-    for (let i = 0; i < this.pages.length; i++) {
-      this.pages[i].dispose();
-      this.pages[i] = null;
+    // n のタブを開いて、開くタブとして覚える
+    setSelectedIndex(n) {
+        n = Number(n);
+        if (!this.pages[n]) return;
+        this.selectedIndex = n;
+        this.show(n);
+        if (this.useCookie) {
+            WebFXTabPane.setCookie('webfxtab_' + this.element.id, n); // session cookie
+        }
     }
-    this.pages = null;
-  }
 
-  get classNameTag() {
-    return "dynamic-tab-pane-control";
-  }
+    getSelectedIndex() {
+        return this.selectedIndex;
+    }
+
+    show(n) {
+        if (this.shownIndex === n) return;
+        this.pages.forEach((page, i) => (i === n ? page.show() : page.hide()));
+        this.shownIndex = n;
+    }
+
+    // 覚えた番号のタブが無い・隠れているときは、表示されている最初のタブを開く（覚えた番号は変えない）
+    ensureVisible() {
+        if (!this.pages) return;
+        const wanted = this.pages[this.selectedIndex];
+        if (wanted && !WebFXTabPane.isHidden(wanted)) {
+            this.show(this.selectedIndex);
+            return;
+        }
+        if (!this.settled && !wanted) return; // まだ addTabPage が続く
+        const first = this.pages.findIndex((page) => !WebFXTabPane.isHidden(page));
+        if (first !== -1) {
+            this.show(first);
+        }
+    }
+
+    addTabPage(oElement, callBackFnc) {
+        if (oElement.tabPage && oElement.tabPage.tabPane === this) // already added
+            return oElement.tabPage;
+
+        const n = this.pages.length;
+        const tp = new WebFXTabPage(oElement, this, n, callBackFnc);
+        this.pages[n] = tp;
+        this.tabRow.appendChild(tp.tab);
+        tp.hide();
+        if (this.observer) {
+            this.observer.observe(tp.tab, { attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
+        }
+        if (n === this.selectedIndex || this.settled) {
+            this.ensureVisible();
+        }
+        return tp;
+    }
+
+    keyDown(e) {
+        const tab = e.target.closest ? e.target.closest('.tab') : null;
+        if (!tab || !tab.tabPage) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            tab.tabPage.select();
+            return;
+        }
+        const visible = this.pages.filter((page) => !WebFXTabPane.isHidden(page));
+        let i = visible.indexOf(tab.tabPage);
+        if (e.key === 'ArrowRight') i = (i + 1) % visible.length;
+        else if (e.key === 'ArrowLeft') i = (i - 1 + visible.length) % visible.length;
+        else if (e.key === 'Home') i = 0;
+        else if (e.key === 'End') i = visible.length - 1;
+        else return;
+        e.preventDefault();
+        visible[i].select();
+        visible[i].tab.focus();
+    }
+
+    dispose() {
+        if (this.observer) this.observer.disconnect();
+        this.tabRow.removeEventListener('keydown', this._onKeyDown);
+        this.pages.forEach((page) => page.dispose());
+        this.element.tabPane = null;
+        this.element = null;
+        this.tabRow = null;
+        this.observer = null;
+        this.pages = null;
+    }
+
+    get classNameTag() {
+        return 'dynamic-tab-pane-control';
+    }
 };
 
-
-///////////////////////////////////////////////////////////////////////////////////
-// The constructor for tab pages. This one should not be used.
-// Use WebFXTabPage.addTabPage instead
-//
-// el : HTMLElement			The html element used to represent the tab pane
-// tabPane : WebFXTabPane	The parent tab pane
-// nindex :	Number			The index of the page in the parent pane page array
-//
+// タブの 1 枚。WebFXTabPane#addTabPage から作る
 var WebFXTabPage = class WebFXTabPage {
-  constructor(el, tabPane, nIndex, callBackFnc) {
-    if (el == null) return;
+    constructor(el, tabPane, nIndex, callBackFnc) {
+        if (el == null) return;
 
-    this.element = el;
-    this.element.tabPage = this;
-    this.callBack = callBackFnc;
-    this.index = nIndex;
+        this.element = el;
+        el.tabPage = this;
+        this.tabPane = tabPane;
+        this.index = nIndex;
+        this.callBack = callBackFnc;
+        this.tab = Array.from(el.children).find((child) => child.classList.contains('tab'));
+        this.tab.tabPage = this;
 
-    const cs = el.childNodes;
-    for (let i = 0; i < cs.length; i++) {
-      if (cs[i].nodeType == 1 && cs[i].className == "tab") {
-        this.tab = cs[i];
-        break;
-      }
+        // 見出しの中身を <span> で包む（テーマの CSS と mm_renameTab が前提にしている）
+        this.aElement = document.createElement('span');
+        while (this.tab.firstChild) this.aElement.appendChild(this.tab.firstChild);
+        this.tab.appendChild(this.aElement);
+
+        const uid = el.id || 'tabpage-' + Math.random().toString(36).slice(2, 10);
+        if (!el.id) el.id = uid;
+        if (!this.tab.id) this.tab.id = uid + '-tab';
+        this.tab.setAttribute('role', 'tab');
+        this.tab.setAttribute('aria-controls', el.id);
+        el.setAttribute('role', 'tabpanel');
+        el.setAttribute('aria-labelledby', this.tab.id);
+
+        this._onClick = (e) => {
+            e.preventDefault();
+            this.select();
+        };
+        this.tab.addEventListener('click', this._onClick);
     }
 
-    // insert a tag around content to support keyboard navigation
-    const a = document.createElement("span");
-    this.aElement = a;
+    show() {
+        this.tab.classList.add('selected');
+        this.tab.setAttribute('aria-selected', 'true');
+        this.tab.tabIndex = 0;
+        this.element.style.display = 'block';
+    }
 
-    // Event handler for preventing default action
-    this._handleAClick = (e) => {
-      e.preventDefault();
-    };
-    a.addEventListener("click", this._handleAClick);
+    hide() {
+        this.tab.classList.remove('selected');
+        this.tab.setAttribute('aria-selected', 'false');
+        this.tab.tabIndex = -1;
+        this.element.style.display = 'none';
+    }
 
-    while (this.tab.hasChildNodes())
-      a.appendChild(this.tab.firstChild);
-    this.tab.appendChild(a);
+    select() {
+        this.tabPane.setSelectedIndex(this.index);
+        if (this.callBack) this.callBack();
+        return false;
+    }
 
-
-    // hook up events using addEventListener
-    this._handleTabClick = () => this.select();
-    this._handleTabMouseOver = () => WebFXTabPage.tabOver(this);
-    this._handleTabMouseOut = () => WebFXTabPage.tabOut(this);
-
-    this.tab.addEventListener("click", this._handleTabClick);
-    this.tab.addEventListener("mouseover", this._handleTabMouseOver);
-    this.tab.addEventListener("mouseout", this._handleTabMouseOut);
-  }
-  static tabOver(tabpage) {
-    tabpage.tab.classList.add("hover");
-  }
-  static tabOut(tabpage) {
-    tabpage.tab.classList.remove("hover");
-  }
-  show() {
-    this.tab.classList.add("selected");
-    this.element.style.display = "block";
-  }
-  hide() {
-    this.tab.classList.remove("selected");
-    this.element.style.display = "none";
-  }
-  select() {
-    this.tabPane.setSelectedIndex(this.index);
-    if (this.callBack) this.callBack();
-    return false;
-  }
-  dispose() {
-    this.aElement.removeEventListener("click", this._handleAClick);
-    this._handleAClick = null;
-    this.aElement = null;
-    this.element.tabPage = null;
-    this.tab.removeEventListener("click", this._handleTabClick);
-    this.tab.removeEventListener("mouseover", this._handleTabMouseOver);
-    this.tab.removeEventListener("mouseout", this._handleTabMouseOut);
-    this._handleTabClick = null;
-    this._handleTabMouseOver = null;
-    this._handleTabMouseOut = null;
-    this.tab = null;
-    this.tabPane = null;
-    this.element = null;
-  }
+    dispose() {
+        this.tab.removeEventListener('click', this._onClick);
+        this.tab.tabPage = null;
+        this.element.tabPage = null;
+        this.aElement = null;
+        this.tab = null;
+        this.tabPane = null;
+        this.element = null;
+    }
 };
 
-
-// This function initializes all uninitialized tab panes and tab pages
+// 初期化していない .tab-pane と .tab-page を初期化する
 function setupAllTabs() {
-    // Initialize tab panes
-    document.querySelectorAll(".tab-pane").forEach(el => {
+    document.querySelectorAll('.tab-pane').forEach((el) => {
         if (!el.tabPane) {
             new WebFXTabPane(el);
         }
     });
-
-    // Initialize tab pages with valid tab pane parent
-    document.querySelectorAll(".tab-page").forEach(el => {
-        if (!el.tabPage && el.parentNode.classList.contains("tab-pane")) {
+    document.querySelectorAll('.tab-page').forEach((el) => {
+        if (!el.tabPage && el.parentNode.classList.contains('tab-pane')) {
             el.parentNode.tabPane.addTabPage(el);
         }
     });
 }
 
 function disposeAllTabs() {
-    const tabPanes = [];
-    document.querySelectorAll(".tab-pane").forEach(el => {
+    document.querySelectorAll('.tab-pane').forEach((el) => {
         if (el.tabPane) {
-            tabPanes.push(el.tabPane);
+            el.tabPane.dispose();
         }
     });
-
-    for (let i = tabPanes.length - 1; i >= 0; i--) {
-        tabPanes[i].dispose();
-        tabPanes[i] = null;
-    }
 }
 
-
-// initialization hook up
-document.addEventListener("DOMContentLoaded", setupAllTabs);
+document.addEventListener('DOMContentLoaded', setupAllTabs);
