@@ -978,34 +978,60 @@ function proteted_path()
 
 /**
  * 保護対象そのもの、またはその配下なら true。
- * まだ存在しないパス（アップロード先や作成するフォルダ）は、存在する親フォルダで判定する。
+ * どちらもまだ存在しなくてよい（アップロード先、作成するフォルダ、未作成のバックアップフォルダなど）。
  */
 function is_protected_path($path, $proteted_path)
 {
     if (!$proteted_path) {
         return false;
     }
+    $realpath = normalize_path($path);
+    if ($realpath === false) {
+        return false;
+    }
+    foreach ($proteted_path as $protected) {
+        $protected = normalize_path($protected);
+        if ($protected === false) {
+            continue;
+        }
+        if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * 存在する部分は realpath() で解決し、存在しない残りは文字列のまま . と .. を畳んでつなぐ。
+ */
+function normalize_path($path)
+{
+    $path = str_replace('\\', '/', $path);
+    $rest = [];
     $realpath = realpath($path);
     while ($realpath === false) {
         $parent = dirname($path);
         if ($parent === $path) {
             return false;
         }
+        array_unshift($rest, basename($path));
         $path = $parent;
         $realpath = realpath($path);
     }
-    $realpath = str_replace('\\', '/', $realpath);
-    foreach ($proteted_path as $protected) {
-        $protected = realpath($protected);
-        if ($protected === false) {
+    $segments = explode('/', rtrim(str_replace('\\', '/', $realpath), '/'));
+    foreach ($rest as $segment) {
+        if ($segment === '' || $segment === '.') {
             continue;
         }
-        $protected = str_replace('\\', '/', $protected);
-        if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
-            return true;
+        if ($segment === '..') {
+            if (count($segments) > 1) {
+                array_pop($segments);
+            }
+            continue;
         }
+        $segments[] = $segment;
     }
-    return false;
+    return implode('/', $segments);
 }
 
 function uploadablefiles()
