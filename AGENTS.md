@@ -45,11 +45,12 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 * **レビュー**: 日本語
 * **コミットメッセージ**: 日本語で生成（Conventional Commits 準拠）
 * **Pull Request**: タイトルと本文は日本語で作成し、詳細は `.github/codex-pr-rules.md` に従う
-* **検証環境**: 動作確認はできるだけ Docker 環境（`compose.yml` / `manager/docker/Dockerfile`）で行う。この CMS の動作を保証する環境は Docker 側であり、ホスト（開発者の WSL など）で動く・動かないは判断材料にしない。
+* **検証環境**: 動作確認はできるだけ Docker 環境（`compose.yml` / `manager/docker/Dockerfile`）で行う。この CMS の動作を保証する標準の環境は Docker 側であり、ホスト（開発者の WSL など）固有の事情で動く・動かないは判断材料にしない。
 
   * 関数単体の確認も、ホストの PHP ではなく検証用イメージの `php` で動かす（ホストには zip などの拡張が無いことがある）
   * 「ホストで動かせないので未確認」で済ませない。Docker で確かめられないときだけ、その理由を書く
   * 画面や DB を含む確認は `adaptive-validation-runner` スキルに従う
+  * 標準の環境は 1 つの版（PHP・DB）に固定されている。`README.md` の動作要件にある版との互換性に関わる変更（新しい PHP でしか使えない構文や関数、特定の DB に固有の SQL など）は、対象の版の公式イメージ（例: `php:7.4-cli`、`mysql:5.7`）を使い、これも Docker で確かめる
 
 ---
 
