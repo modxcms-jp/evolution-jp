@@ -41,43 +41,9 @@
         {padding-left:0;}
     </style>
 
-    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="media/script/evo-dialog.js" type="text/javascript"></script>
+    <script src="media/script/login.js" type="text/javascript"></script>
 
-    <script type="text/javascript">
-        var $j = jQuery.noConflict();
-        if (top.frames.length != 0) {
-            top.location = self.document.location;
-        }
-
-        jQuery(function () {
-            jQuery('#submitButton').click(function (e) {
-                var $form = jQuery('#loginfrm');
-                var username = jQuery('#username').val();
-                var password = jQuery('#password').val();
-                var rememberme = jQuery('#rememberme').val();
-                var captcha_code = jQuery('input[name="captcha_code"]').val();
-                params = {"username":username,"password":password,"rememberme":rememberme,"ajax":'1',"captcha_code":captcha_code};
-                jQuery.post('processors/login.processor.php', params, function (response) {
-                    var header = response.substr(0, 9);
-                    if (header.toLowerCase() == 'location:') top.location = response.substr(10);
-                    else {
-                        var cimg = document.getElementById('captcha_image');
-                        if (cimg) {
-                            cimg.src = '../index.php?get=captcha';
-                        }
-                        jAlert(response);
-                    }
-
-                });
-            });
-
-            // Initial focus
-            if (jQuery('#username').val() != '') jQuery('#password').focus();
-            else jQuery('#username').focus();
-
-        });
-    </script>
 </head>
 <body id="login">
 <div id="mx_loginbox">
