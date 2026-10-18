@@ -67,17 +67,9 @@ if (getv('a') == 4) {
 
 // Manager control class
 $mc = new Mcc();
-$mc->noconflictjq = 'true';
-
-// Get jQuery conflict mode
-if ($this->noconflictjq == 'true') {
-    $jq_mode = '$j';
-} else {
-    $jq_mode = '$';
-}
 
 // Hide default manager action buttons
-$mc->addLine($jq_mode . '("#actions").hide();');
+$mc->addLine('qmHide([document.getElementById("actions")]);');
 
 // Get MODx theme
 $qm_theme = evo()->config['manager_theme'];
@@ -120,7 +112,7 @@ if ($this->conf('prop_loadtb')) {
 $mc->head = '<script>document.body.style.display="none";</script>';
 
 // Add control button
-$mc->addLine($jq_mode . '("body").prepend(controls);');
+$mc->addLine('document.body.insertAdjacentHTML("afterbegin", controls);');
 
 // Hide fields to from front-end editors
 if ($this->hidefields != '') {

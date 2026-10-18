@@ -8,8 +8,12 @@
 </div>
 <script type="text/javascript" charset="UTF-8">
     function SetUrl(url, width, height, alt) {
-        [+jq+]('#tv[+tv_name+]').val("[+site_url+]" + url);
-        [+jq+]('#tv[+tv_name+]').trigger("change");
+        const field = document.getElementById('tv[+tv_name+]');
+        if (!field) {
+            return;
+        }
+        field.value = "[+site_url+]" + url;
+        field.dispatchEvent(new Event('change', {bubbles: true}));
     }
 
     function OpenServerBrowser(url, width, height) {
@@ -31,18 +35,24 @@
         OpenServerBrowser("[+base_url+]manager/media/browser/evo/browser.php?type=images", w, h);
     }
 
-    [+jq+](function () {
-        let previewImage = "#tv[+tv_name+]";
-        let siteUrl = "[+site_url+]";
-        [+jq+](previewImage).change(function () {
-            [+jq+]("#qm-tv-image-preview").empty();
-            if ([+jq+](previewImage).val() !== "") {
-                [+jq+]("#qm-tv-image-preview").append(
-                    '<img id="img_preview" class="qm-tv-image-preview-drskip qm-tv-image-preview-skip" src="' + [+jq+](previewImage).val() + '" alt="" />'
-                );
-            } else {
-                [+jq+]("#qm-tv-image-preview").append("");
+    (function () {
+        const field = document.getElementById('tv[+tv_name+]');
+        const preview = document.getElementById('qm-tv-image-preview');
+        if (!field || !preview) {
+            return;
+        }
+        // 選んだ画像でプレビューを差し替える（値は属性に入るので、文字列をつながずに img.src へ入れる）
+        field.addEventListener('change', function () {
+            preview.replaceChildren();
+            if (field.value === '') {
+                return;
             }
+            const img = document.createElement('img');
+            img.id = 'img_preview';
+            img.className = 'qm-tv-image-preview-drskip qm-tv-image-preview-skip';
+            img.alt = '';
+            img.src = field.value;
+            preview.append(img);
         });
-    });
+    })();
 </script>

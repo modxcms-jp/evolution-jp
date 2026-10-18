@@ -60,15 +60,13 @@ $output = <<< EOT
 <title>qm edit</title>
 <link rel="stylesheet" type="text/css" href="[+site_url+]manager/media/style/[+theme+]/style.css" />
 <link rel="stylesheet" type="text/css" href="[+site_url+]assets/plugins/qm/css/style.css" />
-<script src="[+site_url+][+jquery_path+]" type="text/javascript"></script>
 </head>
 EOT;
 $output = parseText(
     $output,
     [
         'theme' => $theme,
-        'site_url' => MODX_SITE_URL,
-        'jquery_path' => $this->jqpath
+        'site_url' => MODX_SITE_URL
     ]
 );
 
