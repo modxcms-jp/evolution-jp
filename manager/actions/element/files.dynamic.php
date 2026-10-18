@@ -922,7 +922,7 @@ function proteted_path()
         return [];
     }
 
-    $proteted_path[] = [
+    $proteted_path = [
         base_path() . 'manager',
         base_path() . 'temp/backup',
         base_path() . 'assets/backup'
