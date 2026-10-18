@@ -102,8 +102,9 @@
                 toggleToolbar(false);
                 return;
             }
+            // サイト側が自分の Colorbox などで処理したリンクは開かない
             const link = target.closest('a.colorbox');
-            if (link && options.modal) {
+            if (link && options.modal && !e.defaultPrevented) {
                 e.preventDefault();
                 open(link.href);
             }
