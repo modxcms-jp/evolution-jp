@@ -35,7 +35,6 @@
         repositionOnResize: true,           // re-centers the dialog on window resize
         overlayOpacity: .6,                // transparency level of overlay
         overlayColor: '#000',               // base color of overlay
-        draggable: false,                    // make the dialogs draggable (requires UI Draggables plugin)
         okButton: '&nbsp;OK&nbsp;',         // text for the OK button
         cancelButton: '&nbsp;Cancel&nbsp;', // text for the Cancel button
         dialogClass: null,                  // if specified, this class will be applied to all dialogs
@@ -148,15 +147,6 @@
                     if (value) $("#popup_prompt").val(value);
                     $("#popup_prompt").focus().select();
                     break;
-            }
-
-            // Make draggable
-            if ($.alerts.draggable) {
-                try {
-                    $("#popup_container").draggable({handle: $("#popup_title")});
-                    $("#popup_title").css({cursor: 'move'});
-                } catch (e) { /* requires jQuery UI draggables */
-                }
             }
         },
 

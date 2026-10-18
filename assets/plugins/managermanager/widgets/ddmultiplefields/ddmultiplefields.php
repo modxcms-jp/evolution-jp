@@ -85,8 +85,8 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
     $output .= "// ---------------- mm_ddMultipleFields :: Begin ------------- \n";
     //General functions
     $output .= '
-//Если ui-sortable ещё не подключён, подключим
-if (!jQuery.ui || !jQuery.ui.sortable){' . includeJs($widgetDir . 'jquery-ui.custom.min.js') . '}
+//行の並べ替えは管理画面共通の dragdrop-sort.js を使う
+if (!window.MODXSortable){' . includeJs(MODX_MANAGER_URL . 'media/script/dragdrop-sort.js') . '}
 
 //Проверяем на всякий случай (если вдруг вызывается пару раз)
 if (!ddMultiple){
@@ -189,23 +189,16 @@ init: function(id, val, target){
     ddMultiple.makeAddButton(id);
 
     //Добавляем возможность перетаскивания
-    $ddMultipleField.sortable({
-        items: "tr:has(td)",
-        handle: ".ddSortHandle",
-        cursor: "move",
-        axis: "y",
-/*            tolerance: "pointer",*/
-/*            containment: "parent",*/
-        placeholder: "ui-state-highlight",
-        start: function(event, ui){
-            ui.placeholder.html("<td colspan=\""+(ddMultiple[id].coloumns.length+2)+"\"><div></div></td>").find("div").css("height", ui.item.height());
-        },
-        stop: function(event, ui){
-            //Находим родителя таблицы, вызываем функцию обновления поля
-            ui.item.parents(".ddMultipleField:first").trigger("change.ddEvents");
-            ddMultiple.moveAddButton(id);
-        }
+    $ddMultipleField.attr({
+        "data-sortable": "true",
+        "data-sortable-items": ".ddFieldBlock",
+        "data-sortable-handle": ".ddSortHandle"
+    }).on("modxsortable:end", function(){
+        //Находим родителя таблицы, вызываем функцию обновления поля
+        $ddMultipleField.trigger("change.ddEvents");
+        ddMultiple.moveAddButton(id);
     });
+    window.MODXSortable.prepareList($ddMultipleField[0]);
     //Запускаем обновление, если были ограничения
     if (ddMultiple[id].maxRow || ddMultiple[id].minRow) $ddMultipleField.trigger("change.ddEvents");
 
