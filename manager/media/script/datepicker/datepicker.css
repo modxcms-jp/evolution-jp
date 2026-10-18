@@ -87,8 +87,9 @@
     color: var(--color-error, #c0392b);
 }
 
+/* テーマの --color-info は緑系のものがあるため、土曜は青に固定する */
 .evo-datepicker-grid .is-w6 {
-    color: var(--color-info, #2a6ebb);
+    color: #2a6ebb;
 }
 
 .evo-datepicker-grid .is-other {

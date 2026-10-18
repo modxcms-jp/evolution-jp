@@ -10,7 +10,7 @@
 
     const LANG = {
         ja: {
-            days: ['日', '月', '火', '水', '木', '金', '土'],
+            days: ['月', '火', '水', '木', '金', '土', '日'],
             title: function (y, m) {
                 return y + '年' + (m + 1) + '月';
             },
@@ -23,7 +23,7 @@
             clear: 'クリア'
         },
         en: {
-            days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+            days: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
             title: function (y, m) {
                 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
                     'August', 'September', 'October', 'November', 'December'];
@@ -133,8 +133,8 @@
         t.days.forEach(function (day) {
             html += '<span>' + day + '</span>';
         });
-        // 6 週分を出して高さを一定にする
-        const start = new Date(y, m, 1 - view.getDay());
+        // 月曜始まり。6 週分を出して高さを一定にする
+        const start = new Date(y, m, 1 - (view.getDay() + 6) % 7);
         for (let i = 0; i < 42; i++) {
             const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
             const classes = ['is-w' + d.getDay()];
