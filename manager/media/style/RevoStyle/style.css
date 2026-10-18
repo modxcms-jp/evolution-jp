@@ -1364,7 +1364,7 @@ a.hometblink:hover {
 }
 
 
-.dynamic-tab-pane-control .tab-row .tab.hover {
+.dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
     background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
 }

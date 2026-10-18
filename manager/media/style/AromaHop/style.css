@@ -1958,7 +1958,7 @@ a.hometblink:hover {
     transition: all var(--transition-fast);
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover {
+.dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
     color: #244828;
     background: rgba(255, 255, 255, 0.5);
@@ -1995,11 +1995,11 @@ a.hometblink:hover {
     text-decoration: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover span {
+.dynamic-tab-pane-control .tab-row .tab:hover span {
     color: #244828;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover {
     color: #244828;
     background:
         linear-gradient(
@@ -2011,7 +2011,7 @@ a.hometblink:hover {
         #ACD59C;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
     color: #244828;
 }
 

@@ -1488,7 +1488,7 @@ a.hometblink:hover {
     padding: 2px 15px 3px;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover {
+.dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
     color: var(--color-secondary-hover-text);
     border-color: var(--color-secondary-border);
@@ -1520,18 +1520,18 @@ a.hometblink:hover {
     text-decoration: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover span {
+.dynamic-tab-pane-control .tab-row .tab:hover span {
     color: var(--color-secondary-hover-text);
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover {
     color: var(--gray-900);
     border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
     background-color: var(--color-surface);
     background-image: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
     color: #111;
 }
 
