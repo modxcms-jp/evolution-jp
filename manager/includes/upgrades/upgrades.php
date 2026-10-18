@@ -54,6 +54,35 @@ function run_update($pre_version)
     disableOldCarbonTheme();
     disableOldFckEditor();
     updateTopMenu();
+    removeBundledThemeCopies();
+}
+
+// 同梱テーマのフォルダから、common/ にまとめたファイルの古いコピーを消す（#794）。
+// アップロードで上書きしても、配布から外したファイルは残り、テーマ側が優先されて common/ の修正が効かなくなるため。
+// 同梱テーマのファイルはアップグレードのたびに上書きされるので、手直しが残る前提にはしない
+function removeBundledThemeCopies()
+{
+    $files = [
+        'AromaHop' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'AuroraFlow' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'RevoClassic' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'RevoStyle' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'RubberWhite' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'SakuraFlow' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'SoftSlate' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+    ];
+    $removed = [];
+    foreach ($files as $theme => $names) {
+        foreach ($names as $name) {
+            $path = MODX_MANAGER_PATH . "media/style/{$theme}/{$name}";
+            if (is_file($path) && @unlink($path)) {
+                $removed[] = "{$theme}/{$name}";
+            }
+        }
+    }
+    if ($removed) {
+        evo()->logEvent(0, 1, '管理画面テーマの古いファイルを削除しました: ' . implode(', ', $removed), 'Upgrade');
+    }
 }
 
 function disableOldCarbonTheme()

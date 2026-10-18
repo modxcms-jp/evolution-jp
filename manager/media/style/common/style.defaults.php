@@ -32,7 +32,9 @@ if (!function_exists('apply_manager_style_defaults')) {
             }
         }
 
-        include_once "{$themePath}/welcome.php";
+        // ホーム画面の部品。テーマに welcome.php があればそれを、無ければ共通のものを使う
+        $welcomePath = "{$themePath}/welcome.php";
+        include_once is_file($welcomePath) ? $welcomePath : __DIR__ . '/welcome.php';
 
         if ($config['manager_menu_height'] !== null) {
             $menuHeight = (int)$config['manager_menu_height'];
