@@ -15,7 +15,7 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 
 ## Surprises & Discoveries
 
-- 2026-10-18（M5）: 動きが変わる点が 3 つ。tags は空のタグが続くとき、クリックの後の値から空の項目をすべて除く（元は splice の飛ばしで一部が残った）。ddmaxlength の `canWriteError:false` の経路は、元は未定義の `max` で ReferenceError だったのが `o.max` で切り詰めるようになる（同梱のルールでは使わない）。tags はチェックボックス・複数選択の TV でも一覧が結び付くようになる（元は構文の崩れたセレクタで何もしなかった）
+- 2026-10-18（M5）: 動きが変わる点が 3 つ。tags は空のタグが続くとき、クリックの後の値から空の項目をすべて除く（元は splice の飛ばしで一部が残った）。ddmaxlength の `canWriteError:false` の経路は、元は未定義の `max` で ReferenceError だったのが `o.max` で切り詰めるようになる（同梱のルールでは使わない）。tags をチェックボックス・複数選択の TV に使ったときは、元と同じく何もしない（要素の id に `[]` が付かないため。元は構文の崩れたセレクタで何もしなかった。Codex の指摘で確かめた）
 
 - 2026-10-18（M4）: リソース編集の画面には `changeRTE` の定義が無い（スニペット編集の画面だけ）。`mm_default('richtext', 0)`（エディタが none 以外のとき）と `mm_ddSetFieldValue('is_richtext', 0)` は、main でも ReferenceError で MM の alert が出る。#819 の範囲外として、そのまま呼んでいる
 
