@@ -125,13 +125,18 @@ function makeSqlList($arr)
 // Generates the code needed to include an external script file.
 // $url is the URL of the external script
 // $output_type is either js or html - depending on where the output is appearing
+// 'js': OnDocFormRender のルールの実行中は URL を登録して空文字を返す（ルールより前に <script src> で読み込む）。
+//       それ以外では <script> を head に足す素の JS を返す（非同期に読み込まれる）
 function includeJs($url, $output_type = 'js')
 {
-
     if ($output_type === 'js') {
+        if (mm_registerInclude('js', $url)) {
+            return '';
+        }
         return sprintf(
-            'jQuery("head").append(\' <script src="%s" type="text/javascript"></scr\'+\'ipt> \');' . "\n",
-            $url);
+            'document.head.appendChild(Object.assign(document.createElement("script"), {src: %s}));' . "\n",
+            js_literal($url)
+        );
     }
     if ($output_type === 'html') {
         return sprintf('<script src="%s" type="text/javascript"></script>' . "\n", $url);
@@ -142,12 +147,16 @@ function includeJs($url, $output_type = 'js')
 // Generates the code needed to include an external CSS file.
 // $url is any URL
 // $output_type is either js or html - depending on where the output is appearing
+// 'js' の動きは includeJs() と同じ
 function includeCss($url, $output_type = 'js')
 {
     if ($output_type === 'js') {
+        if (mm_registerInclude('css', $url)) {
+            return '';
+        }
         return sprintf(
-            '$j("head").append(\' <link href="%s" rel="stylesheet" type="text/css" /> \');' . "\n",
-            $url
+            'document.head.appendChild(Object.assign(document.createElement("link"), {rel: "stylesheet", href: %s}));' . "\n",
+            js_literal($url)
         );
     }
     if ($output_type === 'html') {
@@ -156,6 +165,21 @@ function includeCss($url, $output_type = 'js')
             $url);
     }
     return '';
+}
+
+// OnDocFormRender のルールの実行中なら URL を登録する（同じ URL は 1 回）。実行中でなければ false
+// 登録先の $mm_includes は libs/OnDocFormRender.inc.php が用意して読む
+function mm_registerInclude($type, $url)
+{
+    global $mm_includes;
+
+    if (!is_array($mm_includes)) {
+        return false;
+    }
+    if (!in_array($url, $mm_includes[$type], true)) {
+        $mm_includes[$type][] = $url;
+    }
+    return true;
 }
 
 // Removed widgets

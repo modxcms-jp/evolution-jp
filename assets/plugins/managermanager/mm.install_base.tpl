@@ -28,11 +28,7 @@
 // create the chunk, and enter its name in the configuration tab.
 // The chunk should NOT have php tags at the beginning or end
 
-// ManagerManager requires jQuery 1.7+
-// The URL to the jQuery library. Choose from the configuration tab whether you want to use
-// a local copy (which defaults to the jQuery library distributed with ModX 1.0.1)
-// a remote copy (which defaults to the Google Code hosted version)
-// or specify a URL to a custom location.
+// ルールが出力する JS は Evo.ready() の中で動く。共通の部品は assets/plugins/managermanager/mm.js（window.MM）
 
 // You don't need to change anything else from here onwards
 //-------------------------------------------------------

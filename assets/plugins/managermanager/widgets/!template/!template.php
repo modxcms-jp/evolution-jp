@@ -22,7 +22,8 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
     }
 
     // Your output should be stored in a string, which is outputted at the end
-    // It will be inserted as a Javascript block (with jQuery), which is executed on document ready
+    // It will be inserted as a Javascript block, which is executed in Evo.ready()
+    // 要素の操作には mm.js の MM（MM.all・MM.parents・MM.hide など）を使う。要素が無くても例外にならない
     // We always put a JS comment, which makes debugging much easier
     $output = "//  -------------- mm_widget_template :: Begin ------------- \n";
 
@@ -39,14 +40,18 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
 
     // We have functions to include JS or CSS external files you might need
     // The standard ModX API methods don't work here
-    $output .= includeJs('assets/plugins/managermanager/widgets/template/javascript.js');
-    $output .= includeCss('assets/plugins/managermanager/widgets/template/styles.css');
+    // 登録したファイルはルールより前に読み込まれるので、続く行ですぐ使える
+    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/template/javascript.js');
+    $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/template/styles.css');
 
     // Do something for each of the fields supplied
     foreach ($fields as $targetTv) {
         // If it's a TV, we may need to map the field name, to what it's ID is.
         // This can be obtained from the mm_fields array
         $tv_id = $mm_fields[$targetTv]['fieldname'];
+
+        // 例: 項目の行を隠す
+        $output .= 'MM.hide(MM.parents("#' . $tv_id . '", "tr"));' . "\n";
     }
 
     //JS comment for end of widget
