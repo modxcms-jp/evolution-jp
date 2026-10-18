@@ -5,7 +5,7 @@
  * の名前と引数は jquery.alerts と同じ（外部のアドオンが呼んでいるため）。
  * - message は HTML として表示し、改行は <br> にする（呼び出し側で必要なエスケープをする前提。error.class.inc.php）
  * - title は文字列として表示する
- * - callback には、OK で true、キャンセルで false（jPrompt は入力値か null）を渡す。Esc は jAlert では OK と同じ
+ * - callback には、OK で true、キャンセルで false（jPrompt は入力値か null）を渡す。Esc は jAlert では OK、ほかはキャンセルと同じ
  * - 新しいダイアログを開くと、開いているダイアログは閉じる（コールバックは呼ばない）
  * ボタンの文言は EvoDialog.okLabel / EvoDialog.cancelLabel で変えられる（header.inc.php が言語に合わせる）
  */
@@ -123,7 +123,13 @@
                 }
             });
         }
-        // Esc。jAlert は OK と同じ扱いにする（jquery.alerts と同じ）
+        // Esc。jAlert は OK と同じ扱いにする。
+        // 背後のシェルのモーダル（shell.js が document で Esc を受ける）まで閉じないよう、ここで止める
+        dialog.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+            }
+        });
         dialog.addEventListener('cancel', function (e) {
             e.preventDefault();
             close(type === 'alert' ? true : cancelResult);
