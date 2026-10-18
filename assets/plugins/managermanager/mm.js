@@ -4,7 +4,7 @@
  * MM の出力用。自作のウィジェットからも使える。
  * x には要素・配列・NodeList・セレクタの文字列・null のどれでも渡せる。
  * 要素が無ければ何もしない（ルールが指す項目がテンプレートに無いことはよくあるため）。
- * jQuery の代わりの汎用ライブラリにはしない。MM の出力が使う形だけを置く。
+ * 汎用の DOM ライブラリにはしない。MM の出力が使う形だけを置く。
  */
 (function () {
     'use strict';
@@ -37,8 +37,8 @@
     window.MM = {
         all: all,
 
-        // jQuery の .parents(sel) と同じく、一致する祖先をすべて返す（自身は含まない）。
-        // 並びも jQuery と同じく文書の逆順（要素 1 つなら近い順）
+        // sel に一致する祖先をすべて返す（自身は含まない）。
+        // 並びは文書の逆順（要素 1 つなら近い順）
         parents: function (x, sel) {
             const found = [];
             all(x).forEach(function (el) {
@@ -86,7 +86,7 @@
             });
         },
 
-        // jQuery の .trigger() は addEventListener のリスナーを呼ばないので、素のイベントを起こす
+        // addEventListener のリスナー（管理画面の未保存の検知など）に届くよう、素のイベントを起こす
         fire: function (x, type) {
             return each(x, function (el) {
                 el.dispatchEvent(new Event(type, { bubbles: true }));

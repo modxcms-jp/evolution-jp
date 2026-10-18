@@ -59,3 +59,57 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 - `form.submit()` は `submit` イベントを発火しない。jQuery の `.submit()`（引数なし）は発火するため、置き換えでは `form.requestSubmit()` を使う（シェルの送信の横取りや、送信前の確認が動く）。
 - 要素が無いとき、jQuery は何もしないが、素の JS では `null` への操作で例外になる。無いことがある要素は先に確かめる。
 - 外部アドオンが `$j` や `jQuery` を使っていることがある。jQuery 本体を外す方針は #823 で決める。
+
+## ManagerManager のウィジェット
+
+ManagerManager（`assets/plugins/managermanager/`）が出力する JS は、#819 で jQuery を使わない形になった。ルール（`mm_rules`）に手で書く JS や自作のウィジェットも、次の決まりで書く。
+
+### ルールの動く時機
+
+- OnDocFormRender のルールの出力は `mm_run` という関数に包まれ、`Evo.ready(mm_run)` で動く。ルールの中で `$j(function(){…})` のように包み直さなくてよい。
+- 1 つのルールで例外が出ると、MM が alert を出して残りのルールがすべて止まる。ルールが指す項目がテンプレートに無いことはよくあるので、要素が無いときは黙って何もしない形にする。
+
+### 部品 `MM`
+
+`assets/plugins/managermanager/mm.js` がグローバルの `MM` を置く。`x` には要素・配列・NodeList・セレクタの文字列・`null` のどれでも渡せ、要素が無ければ何もしない。
+
+| 部品 | 中身 |
+| --- | --- |
+| `MM.all(x)` | 要素の配列（`querySelectorAll` の結果を配列にしたもの） |
+| `MM.parents(el, sel)` | `sel` に一致する祖先をすべて（自身は含まない）。1 つだけでよければ `el.parentElement.closest(sel)` |
+| `MM.hide(x)` / `MM.show(x)` | `style.display` を `none` / `''` にする（表の行も扱うので `hidden` 属性は使わない） |
+| `MM.setValue(x, v)` / `MM.setChecked(x, bool)` / `MM.html(x, s)` | `value` / `checked` / `innerHTML` を入れる |
+| `MM.fire(x, type)` | `bubbles: true` の素のイベントを起こす |
+| `MM.addStyle(cssText)` | `head` に `<style>` を足す |
+
+汎用のライブラリではないので、取った要素への操作は素の DOM で書く。
+
+### 外部ファイルの読み込み（`includeJs` / `includeCss`）
+
+- OnDocFormRender のルールの中で `includeJs($url)` / `includeCss($url)` を呼ぶと、URL を登録して空文字を返す。登録した JS は `mm_run` の前に `<script src>` で読まれるので、ルールの中で読み込んだ関数をすぐ使える。CSS は `head` に足す。同じ URL は 1 回だけ読む。
+- 返り値が空文字なので、JS の条件の中（`if (!window.X){ … }` など）に置いても条件は効かない。常に登録する。
+- OnDocFormRender のルールの外で呼ぶと、`head` に要素を足す JS を返す（読み込みは非同期になる）。`includeJs($url, 'html')` / `includeCss($url, 'html')` の返り値は変わらない。
+
+### change を起こすかどうか
+
+- 管理画面の未保存の検知（`documentDirty`）は、`document` の素の `change` のリスナーで動く。jQuery の `.trigger('change')` では届かない。
+- 利用者の操作の代わりに値を変える処理（タグのクリック、画像の選択など）は `MM.fire(el, 'change')` を起こす。
+- 値を入れるだけの処理（既定値・継承など、画面を開いたときに動くもの）は `change` を起こさない。起こすと、開いた直後に未保存の扱いになる。
+- ウィジェットの中だけで知らせ合う変更は、独自の名前のイベントにする（例: ddmultiplefields の `ddmultiple:change`）。
+
+### 送信の前の処理
+
+- `$j('#mutate').submit(function(){ … return false; })` は、`form.addEventListener('submit', function (e) { … e.preventDefault(); })` にする。シェルの送信の横取りは `e.defaultPrevented` を見るので、これで送信が止まる。
+
+### 項目名（fieldname）を含むセレクタ
+
+- `$mm_fields[…]['fieldname']` は、チェックボックス・複数選択などの TV で `tv5\\[\\]` を含む（CSS のセレクタのエスケープ）。`"…"` の文字列に埋め込むとセレクタとして働くが、`js_literal()` に通すと `\\` が残って壊れる。
+- `getElementById` に渡すときは `\` を外す（`str_replace('\\', '', $fieldname)`）。セレクタを組み立てるときは今の埋め込み方を保つか、`\` を外した値を属性の引用（`[name="…"]`）で使う。
+
+```php
+// 前
+$output .= '$j("#tv' . $tv['id'] . '").hide();';
+
+// 後
+$output .= 'MM.hide(document.getElementById("tv' . $tv['id'] . '"));';
+```
