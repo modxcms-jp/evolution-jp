@@ -60,15 +60,8 @@ echo $output;
 
 function getStringFromLangFile($key, $lang)
 {
-    $langfile_path = MODX_CORE_PATH . "lang/{$lang}.inc.php";
-    if (strpos($langfile_path, '..') !== false || !is_file($langfile_path)) {
-        return;
-    }
-
-    include($langfile_path);
-    if (isset($_lang[$key])) {
-        return $_lang[$key];
-    } else {
+    if (!preg_match('/^[\w\-]+$/', $lang) || !is_file(MODX_CORE_PATH . "lang/{$lang}.inc.php")) {
         return '';
     }
+    return evo()->getLexicon($lang)[$key] ?? '';
 }

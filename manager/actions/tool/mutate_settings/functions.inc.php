@@ -6,13 +6,8 @@
  */
 function get_lang_keys($filename)
 {
-    global $_lang;
-    $path = sprintf('%slang/%s', MODX_CORE_PATH, $filename);
-    if (is_file($path) && is_readable($path)) {
-        include($path);
-        return array_keys($_lang);
-    }
-    return [];
+    // 英語で補うと、すべての言語が英語のキーを持つことになるので、ファイル単体で読む
+    return array_keys(evo()->readLexiconFile(sprintf('%slang/%s', MODX_CORE_PATH, $filename)));
 }
 
 /**

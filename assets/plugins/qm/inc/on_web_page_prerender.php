@@ -6,8 +6,7 @@ if (evo()->documentObject['content_dispo'] == 1) {
     return;
 }
 
-// Include_once the language file
-include_once(MODX_CORE_PATH . 'lang/' . $manager_language . '.inc.php');
+$_lang = evo()->getLexicon($manager_language);
 
 // Get document id
 $docID = evo()->documentIdentifier;
