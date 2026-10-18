@@ -48,10 +48,16 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         echo implode("\n", $evtOut);
     } ?>
     <?= $modx->config('manager_inline_style') ?>
-    <?= sprintf(
-        '<script src="%s" type="text/javascript"></script>',
-        $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')
-    );
+    <?php
+    // 管理画面は jQuery を使わない。外部のアドオンの互換のために、
+    // 隠れた設定 mgr_jquery_path（画面は無い）が入っているときだけ読み込む
+    $mgrJqueryPath = evo()->config('mgr_jquery_path');
+    if ($mgrJqueryPath) {
+        echo sprintf(
+            '<script src="%s" type="text/javascript"></script>',
+            hsc($mgrJqueryPath)
+        );
+    }
     ?>
     <script src="media/script/evo-tooltip.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
     <script src="media/script/evo-dialog.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>" type="text/javascript"></script>
@@ -77,7 +83,10 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         var documentDirty = false;
         var dontShowWorker = false;
         var baseurl = '<?= MODX_BASE_URL ?>';
-        var $j = jQuery.noConflict();
+        // jQuery を読み込んだとき（mgr_jquery_path の設定やプラグイン）だけ、互換の $j を定義する
+        if (window.jQuery) {
+            var $j = jQuery.noConflict();
+        }
 
         Evo.ready(function () {
             // メニュー/ツリー部品のscriptが定義済みになった後に初期化する

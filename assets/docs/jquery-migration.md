@@ -58,7 +58,37 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 - `form.submit()` は `submit` イベントを発火しない。jQuery の `.submit()`（引数なし）は発火するため、置き換えでは `form.requestSubmit()` を使う（シェルの送信の横取りや、送信前の確認が動く）。
 - 要素が無いとき、jQuery は何もしないが、素の JS では `null` への操作で例外になる。無いことがある要素は先に確かめる。
-- 外部アドオンが `$j` や `jQuery` を使っていることがある。jQuery 本体を外す方針は #823 で決める。
+
+## 外部のアドオンの互換（jQuery を読み込まなくなったこと）
+
+管理画面は既定で jQuery を読み込まない。`$j` も `jQuery` も定義されない（#823）。他の作者のプラグイン、自作の ManagerManager のウィジェット、`mm_rules` に手で書いた `$j(...)` などの JS は、そのままでは動かない（`$j is not defined` のエラーになる）。
+
+### アドオンの作者へ
+
+このファイルの「共通部品」と「よく使う呼び出しの置き換え」の表に沿って、素の JS に書き換える。ManagerManager のルールやウィジェットは「ManagerManager のウィジェット」の決まりに沿って書く。
+
+### どうしても jQuery が要る場合（利用者向け）
+
+jQuery の本体（`manager/media/script/jquery/jquery.min.js`）は当面同梱している。次のどちらかで読み込める。
+
+1. `OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）と `$j` を定義するインラインスクリプトより前に出る。jQuery が読み込まれていれば `header.inc.php` も `$j` を定義するが、プラグインの側で定義しておくと確実。
+
+   ```php
+   // プラグイン（システムイベント OnManagerMainFrameHeaderHTMLBlock にチェック）
+   event()->output(
+       '<script src="media/script/jquery/jquery.min.js"></script>'
+       . '<script>var $j = jQuery.noConflict();</script>'
+   );
+   ```
+
+2. 設定 `mgr_jquery_path` に、読み込む jQuery の URL（管理画面からの相対パス。例: `media/script/jquery/jquery.min.js`）を入れる。設定の画面には項目が無いので、DB の `system_settings` に直接入れる（入れた後はキャッシュを消す）。
+
+   ```sql
+   INSERT INTO `{prefix}system_settings` (setting_name, setting_value)
+   VALUES ('mgr_jquery_path', 'media/script/jquery/jquery.min.js');
+   ```
+
+どちらも、シェルの画面遷移で後から差し込まれた画面のインラインスクリプトからも `$j` を使える（`<head>` は最初の読み込みのときだけ出る）。読み込みは約 87KB 増える。
 
 ## ManagerManager のウィジェット
 
