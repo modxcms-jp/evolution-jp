@@ -52,23 +52,27 @@ function mm_synch_fields($fields, $roles = '', $templates = '')
         }
 
         // Add this field to the array of fields being synched
+        // 項目ごとに要素の配列を入れる。fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
         $output .= '
-        synch_field[mm_sync_field_count].push(jQuery("' . $fieldtype . '[name=' . $fieldname . ']"));
+        synch_field[mm_sync_field_count].push(MM.all(' . js_literal(sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname))) . '));
         ';
 
         // Or we don't recognise it
     }
 
     // Output some javascript to sync these fields
+    // 入力した欄の値を、ほかの項目の欄すべてに写す
     $output .= '
-jQuery.each(synch_field[mm_sync_field_count], function(i, n){
-jQuery.each(synch_field[mm_sync_field_count], function(j, m){
-    if (i != j){
-        n.keyup(function(){
-            m.val(jQuery(this).val());
-        });
-    }
-});
+synch_field[mm_sync_field_count].forEach(function (n, i, list) {
+    list.forEach(function (m, j) {
+        if (i != j) {
+            n.forEach(function (el) {
+                el.addEventListener("keyup", function () {
+                    MM.setValue(m, this.value);
+                });
+            });
+        }
+    });
 });
 
 mm_sync_field_count++;

@@ -32,9 +32,9 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
     $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css');
 
     $output .= '
-    jQuery("input, div, form[name=mutate]").remove(); // Remove all content from the page
-    jQuery("body").prepend(' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');
-    jQuery("#aback").css({height: jQuery("body").height()} );';
+    MM.all("input, div, form[name=mutate]").forEach(function (el) { el.remove(); }); // Remove all content from the page
+    document.body.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');
+    MM.all("#aback").forEach(function (el) { el.style.height = document.body.offsetHeight + "px"; });';
 
     event()->output($output . "\n");
 }
