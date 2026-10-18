@@ -110,7 +110,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
 	><span>[+lang_save+]</span></a></li>
 <li><a
 		href="#"
-		onclick="parent.$j.colorbox.close(); return false;"
+		onclick="parent.QM.close(); return false;"
 	><span>[+lang_cancel+]</span></a></li>
 </ul>
 </div>

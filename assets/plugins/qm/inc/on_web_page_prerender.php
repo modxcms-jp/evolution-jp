@@ -181,73 +181,27 @@ else {
 ';
         }
 
-        // Insert jQuery and ColorBox in head if needed
+        // jQuery は QM には要らない。サイト側のスクリプトのために、設定（loadfrontendjq）があれば読み込む
         $head = '';
         if ($this->loadfrontendjq == 'true') {
             $head .= '<script src="' . MODX_SITE_URL . $this->jqpath . '" type="text/javascript"></script>';
         }
-        if ($this->loadtb == 'true') {
-            $head .= '
-<link type="text/css" media="screen" rel="stylesheet" href="' . MODX_SITE_URL . 'assets/plugins/qm/css/colorbox.css" />
-<script type="text/javascript" src="' . MODX_SITE_URL . 'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
-';
-        }
-        // Insert ColorBox jQuery definitions for QuickManager+
-        $head .= '<script type="text/javascript">';
-
-        // jQuery in noConflict mode
+        // noConflict は QM が読み込んだ jQuery にだけかける（サイトが自分で読んだ jQuery の $ を外さない）。
+        // それ以外は、互換のために $j の別名だけを付ける
         if ($this->noconflictjq == 'true') {
-            $head .= '
-						var $j = jQuery.noConflict();
-						$j(function()
-						';
-            $jvar = 'j';
-        } else {
-            // jQuery in normal mode
-            $head .= '$(function()';
-            $jvar = '';
+            $head .= $this->loadfrontendjq == 'true'
+                ? '<script type="text/javascript">window.$j = jQuery.noConflict();</script>'
+                : '<script type="text/javascript">if (window.jQuery && !window.$j) { window.$j = jQuery; }</script>';
         }
-        $head .= '
-{
-$' . $jvar . '("a.colorbox").colorbox({width:' . js_literal($this->tbwidth) . ', height:' . js_literal($this->tbheight) . ', iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
-
-// Hide QM+ if cookie found
-if (getCookie("hideQM") == 1)
-{
-	$' . $jvar . '("#qmEditor").css({"display":"none"});
-	$' . $jvar . '("#qmEditorClosed").css({"display":"block"});
-}
-
-// Hide QM+
-$' . $jvar . '(".qmClose").click(function ()
-{
-	$' . $jvar . '("#qmEditor").hide("normal");
-	$' . $jvar . '("#qmEditorClosed").show("normal");
-	document.cookie = "hideQM=1; path=/;";
-});
-
-// Show QM+
-$' . $jvar . '("#qmEditorClosed").click(function ()
-{
-	{
-		$' . $jvar . '("#qmEditorClosed").hide("normal");
-		$' . $jvar . '("#qmEditor").show("normal");
-		document.cookie = "hideQM=0; path=/;";
-	}
-});
-
-});
-
-function getCookie(cookieName)
-{
-	var results = document.cookie.match ( "(^|;) ?" + cookieName + "=([^;]*)(;|$)" );
-
-	if (results) return (unescape(results[2]));
-	else return null;
-}
-</script>
-';
-
+        // 編集画面を開くモーダル（loadtb）とツールバーの開閉
+        $head .= sprintf(
+            '<script type="text/javascript" src="%sassets/plugins/qm/js/qm.js"></script>'
+            . '<script type="text/javascript">QM.init({modal: %s, width: %s, height: %s});</script>',
+            MODX_SITE_URL,
+            $this->loadtb == 'true' ? 'true' : 'false',
+            js_literal($this->tbwidth),
+            js_literal($this->tbheight)
+        );
         // Insert QM+ css in head
         $head .= $css;
 
