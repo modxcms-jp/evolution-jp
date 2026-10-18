@@ -8,42 +8,70 @@
     // save tree folder state
     if (parent.tree) parent.tree.saveFolderState();
 
-    jQuery(function () {
-        jQuery('#save a').click(function () {
-            documentDirty = false;
-            gotosave = true;
-            jQuery('#mutate').submit();
+    Evo.ready(function () {
+        // 要素が無い画面（下書きなど）もあるため、あるときだけ結び付ける
+        function onClick(id, fn) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('click', fn);
+        }
+        function submitMutate() {
+            var form = document.getElementById('mutate');
+            if (form) form.requestSubmit();
+        }
+        function setMutateValue(name, value) {
+            var input = document.querySelector('#mutate input[name="' + name + '"]');
+            if (input) input.value = value == null ? '' : value;
+        }
+        function bindClearDate(id) {
+            var input = document.getElementById(id);
+            var link = input ? input.nextElementSibling : null;
+            if (!link || !link.matches('a')) return;
+            link.addEventListener('click', function () {
+                input.value = '';
+                documentDirty = true;
+            });
+        }
+
+        document.querySelectorAll('#save a').forEach(function (el) {
+            el.addEventListener('click', function () {
+                documentDirty = false;
+                gotosave = true;
+                submitMutate();
+            });
         });
-        jQuery('#createdraft').click(function () {
+        onClick('createdraft', function () {
             document.location.href = 'index.php?a=132&id=[+id+]';
         });
-        jQuery('#opendraft').click(function () {
+        onClick('opendraft', function () {
             document.location.href = 'index.php?a=131&id=[+id+]';
         });
-        jQuery('#delete').click(function () {
+        onClick('delete', function () {
             if (confirm("[+lang_confirm_delete_resource+]"))
                 EvoCsrf.post("index.php?id=[+id+]&a=6");
         });
-        jQuery('#undelete').click(function () {
+        onClick('undelete', function () {
             if (confirm("[+lang_confirm_undelete+]"))
                 EvoCsrf.post("index.php?id=[+id+]&a=63");
         });
-        jQuery('#deletedraft').click(function () {
+        onClick('deletedraft', function () {
             if (confirm("[+lang_confirm_delete_draft_resource+]")) {
                 documentDirty = false;
                 document.mutate.a.value = 130;
-                jQuery('#mutate').submit();
+                submitMutate();
             }
         });
-        jQuery('#move').click(function () {
+        onClick('move', function () {
             document.location.href = "index.php?id=[+id+]&a=51";
         });
-        jQuery('#duplicate').click(function () {
+        onClick('duplicate', function () {
             if (confirm("[+lang_confirm_resource_duplicate+]"))
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
         });
 
-        jQuery('#preview').click(function () {
+        onClick('preview', function (e) {
+            // 従来の return false と同じく、既定の動作と伝播を止める
+            e.preventDefault();
+            e.stopPropagation();
             if (prevWin && !prevWin.closed) {
                 prevWin.close();
             }
@@ -57,21 +85,23 @@
             if (pmode == 1) {
                 // プレビュー送信後は元の状態へ戻す。target が残ると以後の保存が
                 // シェルを経由しないネイティブ送信になり、別タブへ遷移してしまう
-                var $mutate = jQuery('#mutate');
-                var orgAction = $mutate.attr('action');
-                var orgTarget = $mutate.attr('target');
-                $mutate.attr({action: previewUrl, target: 'prevWin'});
-                $mutate.submit();
-                $mutate.attr('action', orgAction);
-                if (orgTarget === undefined) {
-                    $mutate.removeAttr('target');
-                } else {
-                    $mutate.attr('target', orgTarget);
+                var mutate = document.getElementById('mutate');
+                if (mutate) {
+                    var orgAction = mutate.getAttribute('action');
+                    var orgTarget = mutate.getAttribute('target');
+                    mutate.setAttribute('action', previewUrl);
+                    mutate.setAttribute('target', 'prevWin');
+                    mutate.requestSubmit();
+                    mutate.setAttribute('action', orgAction);
+                    if (orgTarget === null) {
+                        mutate.removeAttribute('target');
+                    } else {
+                        mutate.setAttribute('target', orgTarget);
+                    }
                 }
             }
-            return false;
         });
-        jQuery('#cancel').click(function () {
+        onClick('cancel', function () {
             var docIsFolder = '[+docIsFolder+]';
             var docParent = '[+docParent+]';
             if (docMode === 'draft') document.location.href = 'index.php?a=3&id=' + '[+id+]';
@@ -79,35 +109,34 @@
             else if (docParent != 0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
             else document.location.href = 'index.php?a=2';
         });
-        jQuery('#pub_date').next('a').click(function () {
-            jQuery('#pub_date').val('');
-            documentDirty = true;
-            return true;
-        });
-        jQuery('#unpub_date').next('a').click(function () {
-            jQuery('#unpub_date').val('');
-            documentDirty = true;
-            return true;
-        });
-        curTemplate = jQuery('#field_template').val();
-        jQuery('#field_template').change(function () {
-            newTemplate = jQuery('#field_template').val();
-            if (curTemplate !== newTemplate) {
+        bindClearDate('pub_date');
+        bindClearDate('unpub_date');
+
+        var fieldTemplate = document.getElementById('field_template');
+        var whichEditor = document.getElementById('which_editor');
+        curTemplate = fieldTemplate ? fieldTemplate.value : undefined;
+        if (fieldTemplate) {
+            fieldTemplate.addEventListener('change', function () {
+                newTemplate = fieldTemplate.value;
+                if (curTemplate !== newTemplate) {
+                    documentDirty = false;
+                    setMutateValue('a', [+action+]);
+                    setMutateValue('newtemplate', newTemplate);
+                    submitMutate();
+                }
+            });
+        }
+        if (whichEditor) {
+            whichEditor.addEventListener('change', function () {
+                newTemplate = fieldTemplate ? fieldTemplate.value : undefined;
+                newEditor = whichEditor.value;
                 documentDirty = false;
-                jQuery('#mutate input[name="a"]').val([+action+]);
-                jQuery('#mutate input[name="newtemplate"]').val(newTemplate);
-                jQuery('#mutate').submit();
-            }
-        });
-        jQuery('#which_editor').change(function () {
-            newTemplate = jQuery('#field_template').val();
-            newEditor = jQuery('#which_editor').val();
-            documentDirty = false;
-            jQuery('#mutate input[name="a"]').val([+action+]);
-            jQuery('#mutate input[name="newtemplate"]').val(newTemplate);
-            jQuery('#which_editor').val(newEditor);
-            jQuery('#mutate').submit();
-        });
+                setMutateValue('a', [+action+]);
+                setMutateValue('newtemplate', newTemplate);
+                whichEditor.value = newEditor;
+                submitMutate();
+            });
+        }
     });
 
     function changestate(element) {

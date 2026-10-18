@@ -19,13 +19,12 @@ if (!$isShellPartial) {
         <link rel="stylesheet" type="text/css"
               href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
         <?= config('manager_inline_style') ?>
-        <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+        <script src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>" type="text/javascript"></script>
         <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>" type="text/javascript"></script>
 <?php } ?>
         <script type="text/javascript">
             var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;
 
-            var $j = jQuery.noConflict();
             function initMenuState(nextMsgcheck, mailinterval) {
                 msgcheck = nextMsgcheck;
                 // シェルでのメニュー再読込時にタイマーが多重登録されないよう、一旦解除する
@@ -44,31 +43,38 @@ if (!$isShellPartial) {
                 }
             }
 
-            jQuery(function () {
+            Evo.ready(function () {
                 initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
             });
 
             function keepMeAlive() {
-                var tok = jQuery('#sessTokenInput').val();
+                var tokInput = document.getElementById('sessTokenInput');
+                var tok = tokInput ? tokInput.value : '';
                 var o = Math.random();
-                jQuery.getJSON('session_keepalive.php', {"tok": tok, "o": o},
-                    function (resp) {
-                        if (resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
-                    });
+                var params = new URLSearchParams({"tok": tok, "o": o});
+                // 失敗時（HTTP エラー・JSON でない応答）は何もしない
+                Evo.fetch('session_keepalive.php?' + params.toString())
+                    .then(function (response) {
+                        return response.ok ? response.json() : null;
+                    })
+                    .then(function (resp) {
+                        if (resp && resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
+                    })
+                    .catch(function () {});
             }
 
             function updateMail(now) {
                 try {
                     // if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
                     if (now && msgcheck != 0) {
-                        jQuery.ajax({
-                            type: 'POST',
-                            url: 'index.php',
-                            data: {"updateMsgCount": "true"},
-                            success: function (request) {
-                                showResponse(request);
-                            }
-                        });
+                        Evo.post('index.php', {"updateMsgCount": "true"})
+                            .then(function (response) {
+                                return response.ok ? response.text() : null;
+                            })
+                            .then(function (request) {
+                                if (request !== null) showResponse(request);
+                            })
+                            .catch(function () {});
                     }
                     return false;
                 } catch (oException) {
@@ -86,7 +92,8 @@ if (!$isShellPartial) {
             }
 
             function hideTreeFrame() {
-                jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();return false;'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
+                var tocText = document.getElementById('tocText');
+                if (tocText) tocText.innerHTML = "<a href='#' onclick='defaultTreeFrame();return false;'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>";
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
@@ -104,7 +111,7 @@ if (!$isShellPartial) {
                 var elm = document.getElementById('buildText');
                 if (elm) {
                     elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_loading_doc_tree']?>' />&nbsp;<?= $_lang['loading_doc_tree']?>";
-                    jQuery(elm).show();
+                    elm.style.display = '';
                 }
                 top.tree.saveFolderState(); // save folder state
                 setTimeout('top.tree.restoreTree()', 100);
@@ -114,7 +121,7 @@ if (!$isShellPartial) {
                 var elm = document.getElementById('buildText');
                 if (elm) {
                     elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_working']?>' />&nbsp;<?= $_lang['loading_menu']?>";
-                    jQuery(elm).show();
+                    elm.style.display = '';
                 }
                 EvoShell.reloadMenu();
             }
@@ -141,7 +148,8 @@ if (!$isShellPartial) {
             // GENERAL FUNCTIONS - Work
             // These functions are used for showing the user the system is working
             window.work = function() { // parent.mainMenu.document
-                jQuery('#workText').html('&nbsp;<img src="<?= $_style['icons_working']?>" />&nbsp;<?= $_lang['working']?>');
+                var workText = document.getElementById('workText');
+                if (workText) workText.innerHTML = '&nbsp;<img src="<?= $_style['icons_working']?>" />&nbsp;<?= $_lang['working']?>';
             }
 
             window.stopWork = function() {
