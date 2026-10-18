@@ -381,26 +381,49 @@ if (isset($form_v['which_editor'])) {
 </div>
 <script>
     var readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
-    if (readonly == 1) {
-        jQuery('textarea,input[type=text]').prop('readonly', true);
-        jQuery('select').addClass('readonly');
-        jQuery('#save').hide();
-        jQuery('input[name="locked"]').click(function() {
-            jQuery('#save').toggle();
-        });
-    }
-    jQuery('input[name="locked"]').click(function() {
-        jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
-        jQuery('select').toggleClass('readonly');
-    });
-    jQuery('select[name="categoryid"]').change(function() {
-        if (jQuery(this).val() == '-1') {
-            jQuery('#newcategry').fadeIn();
-        } else {
-            jQuery('#newcategry').fadeOut();
-            jQuery('input[name="newcategory"]').val('');
+    // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
+    (function() {
+        const saveButton = document.getElementById('save');
+        const lockInputs = document.querySelectorAll('input[name="locked"]');
+        if (readonly == 1) {
+            document.querySelectorAll('textarea,input[type=text]').forEach(function(el) {
+                el.readOnly = true;
+            });
+            document.querySelectorAll('select').forEach(function(el) {
+                el.classList.add('readonly');
+            });
+            if (saveButton) saveButton.style.display = 'none';
+            lockInputs.forEach(function(el) {
+                el.addEventListener('click', function() {
+                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
+                });
+            });
         }
-    });
+        lockInputs.forEach(function(el) {
+            el.addEventListener('click', function(event) {
+                const checked = event.currentTarget.checked;
+                document.querySelectorAll('textarea,input[type=text]').forEach(function(input) {
+                    input.readOnly = checked;
+                });
+                document.querySelectorAll('select').forEach(function(select) {
+                    select.classList.toggle('readonly');
+                });
+            });
+        });
+        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
+            el.addEventListener('change', function(event) {
+                const row = document.getElementById('newcategry');
+                if (event.currentTarget.value == '-1') {
+                    if (row) row.style.display = '';
+                } else {
+                    if (row) row.style.display = 'none';
+                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
+                        input.value = '';
+                    });
+                }
+            });
+        });
+    })();
     // EvoShellは画面の再表示時にこのscriptを同じwindowで再実行するため、
     // 最上位でconst/letを宣言すると再宣言エラーで保存ハンドラが登録されなくなる
     (function() {

@@ -70,22 +70,30 @@ function content($key, $default = null)
 ?>
 <script type="text/javascript">
     var docid = <?= request_intvar('id') ?>;
-    jQuery(function() {
-        jQuery('select[name="categoryid"]').change(function() {
-            if (jQuery(this).val() == '-1') {
-                jQuery('#newcategry').fadeIn();
-            } else {
-                jQuery('#newcategry').fadeOut();
-                jQuery('input[name="newcategory"]').val('');
-            }
+    Evo.ready(function() {
+        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
+            el.addEventListener('change', function(event) {
+                const row = document.getElementById('newcategry');
+                if (event.currentTarget.value == '-1') {
+                    if (row) row.style.display = '';
+                } else {
+                    if (row) row.style.display = 'none';
+                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
+                        input.value = '';
+                    });
+                }
+            });
         });
-        jQuery('input[name="enable_sharedparams"]').change(function() {
-            var checked = jQuery('input[name="enable_sharedparams"]').is(':checked');
-            if (checked) {
-                jQuery('.sharedparams').fadeIn();
-            } else {
-                jQuery('.sharedparams').fadeOut();
-            }
+        const sharedInputs = document.querySelectorAll('input[name="enable_sharedparams"]');
+        sharedInputs.forEach(function(el) {
+            el.addEventListener('change', function() {
+                const checked = Array.from(sharedInputs).some(function(input) {
+                    return input.checked;
+                });
+                document.querySelectorAll('.sharedparams').forEach(function(section) {
+                    section.style.display = checked ? '' : 'none';
+                });
+            });
         });
     });
 
@@ -310,7 +318,7 @@ function content($key, $default = null)
             <?php if (evo()->hasPermission('save_module')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>

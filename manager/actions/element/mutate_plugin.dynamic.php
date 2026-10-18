@@ -59,28 +59,48 @@ function entity($key, $default = null)
 }
 ?>
 <script language="JavaScript">
-    jQuery(function() {
+    Evo.ready(function() {
         let readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
+        const saveButton = document.getElementById('Button1');
+        const lockInputs = document.querySelectorAll('input[name="locked"]');
         if (readonly == 1) {
-            jQuery('textarea,input[type=text]').prop('readonly', true);
-            jQuery('select').addClass('readonly');
-            jQuery('#Button1').hide();
-            jQuery('input[name="locked"]').click(function() {
-                jQuery('#Button1').toggle();
+            document.querySelectorAll('textarea,input[type=text]').forEach(function(el) {
+                el.readOnly = true;
+            });
+            document.querySelectorAll('select').forEach(function(el) {
+                el.classList.add('readonly');
+            });
+            if (saveButton) saveButton.style.display = 'none';
+            lockInputs.forEach(function(el) {
+                el.addEventListener('click', function() {
+                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
+                });
             });
         }
-        jQuery('input[name="locked"]').click(function() {
-            jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
-            jQuery('select').toggleClass('readonly');
+        lockInputs.forEach(function(el) {
+            el.addEventListener('click', function(event) {
+                const checked = event.currentTarget.checked;
+                document.querySelectorAll('textarea,input[type=text]').forEach(function(input) {
+                    input.readOnly = checked;
+                });
+                document.querySelectorAll('select').forEach(function(select) {
+                    select.classList.toggle('readonly');
+                });
+            });
         });
         setTimeout('showParameters()', 10);
-        jQuery('select[name="categoryid"]').change(function() {
-            if (jQuery(this).val() == '-1') {
-                jQuery('#newcategry').fadeIn();
-            } else {
-                jQuery('#newcategry').fadeOut();
-                jQuery('input[name="newcategory"]').val('');
-            }
+        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
+            el.addEventListener('change', function(event) {
+                const row = document.getElementById('newcategry');
+                if (event.currentTarget.value == '-1') {
+                    if (row) row.style.display = '';
+                } else {
+                    if (row) row.style.display = 'none';
+                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
+                        input.value = '';
+                    });
+                }
+            });
         });
     });
 
@@ -272,23 +292,30 @@ function entity($key, $default = null)
         return s;
     }
 
-    jQuery(function() {
+    Evo.ready(function() {
 
         // Try and populate config fields from the text that is pasted in the PHP box
-        jQuery('#phptextarea').bind('blur', function() {
+        const phpTextarea = document.getElementById('phptextarea');
+        if (!phpTextarea) return;
+        phpTextarea.addEventListener('blur', function() {
 
             // Get the value of the php text field
-            var src = jQuery('#phptextarea').val();
+            var src = phpTextarea.value;
 
             // Is  something in there?
             if (src == '') {
-                jQuery('input[name="sysevents[]"]').removeAttr('checked'); // Untick all sys events
-                jQuery('#pluginName').val('');
-                jQuery('#pluginDescription').val('');
-                jQuery('#propertiesBox').val('');
-                jQuery('#newcategory').val('');
-                jQuery('#categoryid option').removeAttr('selected')
-                showParameters(jQuery('#propertiesBox'));
+                // Untick all sys events
+                document.querySelectorAll('input[name="sysevents[]"]').forEach(function(el) {
+                    el.removeAttribute('checked');
+                });
+                ['pluginName', 'pluginDescription', 'propertiesBox', 'newcategory'].forEach(function(id) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                document.querySelectorAll('#categoryid option').forEach(function(el) {
+                    el.removeAttribute('selected');
+                });
+                showParameters(document.getElementById('propertiesBox'));
                 return;
             }
 
@@ -436,7 +463,7 @@ function entity($key, $default = null)
             <?php if (evo()->hasPermission('save_plugin')): ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
