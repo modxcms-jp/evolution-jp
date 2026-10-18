@@ -247,6 +247,22 @@
 - ExecPlan: `.agent/plans/archive/2026-08-15-ai-runtime-governance-refresh.md`
 - メモ/判断ログ: 2026-07-12 ユーザー要求による棚卸しから着手。Codex 主運用だが共有スキル本文は歴史的経緯で `.claude/skills/` に残っているため、即時移設より先に共通ポリシーの明文化を優先する。
 
+### Codex 用スキルの複製をなくす
+
+- Status: `DONE`
+- Issue: #680
+- 着手予定日: `2026-10-18`
+- 完了日: `2026-10-18`
+- 目的: `.codex/skills/` は Codex 固有の差分だけを持ち、スキル本文は正本（`.claude/skills/`）を参照する形にする
+- 背景/課題: `.codex/skills/*/SKILL.md` が本文をほぼ丸ごと複製していて、すでに正本とずれている箇所がある
+- 到達条件（Definition of Done）:
+  - `.codex/skills/*/SKILL.md` が frontmatter・Codex 固有の手順・正本への参照だけになっている
+  - Codex が参照先の本文を読んで動くことを確かめている
+- 非対象（やらないこと）: 共有スキル本文の正本の移設（`assets/docs/ai-runtime-governance.md` の方針に従う）
+- 依存関係: なし
+- ExecPlan: `不要`
+- メモ/判断ログ: 2026-10-15 ロードマップ見直し（PR #666）で、両方のスキルを直す必要があったことから起票。2026-10-18 着手。文書だけの整理で直し方がはっきりしているため ExecPlan は作らない。2026-10-18 PR #810 で完了。Codex（codex-cli 0.156.1）で入口から正本を開いて正本どおりに動くことを確かめた。Codex で役割を別のエージェントに分けて呼べるかは確かめていない。
+
 ## 3. 大規模改修
 
 ### frame要素廃止
