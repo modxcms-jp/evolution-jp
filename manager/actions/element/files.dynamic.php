@@ -799,7 +799,8 @@ function unzip($file, $path)
 function rrmdir($dir)
 {
     foreach (glob($dir . '/*') as $file) {
-        if (is_dir($file)) {
+        // リンク先はたどらず、リンク自体だけを消す
+        if (is_dir($file) && !is_link($file)) {
             rrmdir($file);
         } else {
             unlink($file);
