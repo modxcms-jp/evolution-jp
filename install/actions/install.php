@@ -58,11 +58,14 @@ if ($errors == 0) {
 <br>
 <br>
 <script>
-    jQuery('#closepage span').click(function () {
-        if (jQuery('#rminstaller').prop('checked')) {
-            window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
-        } else {
-            window.location.href = "../manager/";
-        }
+    document.querySelectorAll('#closepage span').forEach(function (el) {
+        el.addEventListener('click', function () {
+            var rminstaller = document.getElementById('rminstaller');
+            if (rminstaller && rminstaller.checked) {
+                window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
+            } else {
+                window.location.href = "../manager/";
+            }
+        });
     });
 </script>

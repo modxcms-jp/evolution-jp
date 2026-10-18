@@ -263,33 +263,35 @@ $nextButtonProgress = $nextAction === 'install'
         </p>
     </form>
     <script type="text/javascript">
-        (function ($) {
-            var $form = $('#install');
-            var $prevButton = $('a.prev');
-            var $nextButton = $('a.next');
+        (function () {
+            var form = document.getElementById('install');
+            var prevButton = document.querySelector('a.prev');
+            var nextButton = document.querySelector('a.next');
             var nextButtonProgress = <?= json_encode($nextButtonProgress) ?>;
+            var submitting = false;
 
-            $prevButton.on('click', function (evt) {
+            prevButton.addEventListener('click', function (evt) {
                 evt.preventDefault();
-                $form.find('input[name=action]').val('options');
-                $form.submit();
+                form.querySelector('input[name=action]').value = 'options';
+                form.submit();
             });
 
-            $nextButton.on('click', function (evt) {
+            nextButton.addEventListener('click', function (evt) {
                 evt.preventDefault();
-                if ($nextButton.data('submitting')) {
+                if (submitting) {
                     return;
                 }
 
-                $nextButton.data('submitting', true).addClass('disabled');
-                $prevButton.addClass('disabled');
+                submitting = true;
+                nextButton.classList.add('disabled');
+                prevButton.classList.add('disabled');
                 if (nextButtonProgress) {
-                    $nextButton.find('span').text(nextButtonProgress);
+                    nextButton.querySelector('span').textContent = nextButtonProgress;
                 }
 
-                $form.submit();
+                form.submit();
             });
-        }(jQuery));
+        }());
     </script>
 
 <?php
