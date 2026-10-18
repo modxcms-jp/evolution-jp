@@ -979,6 +979,7 @@ function proteted_path()
 /**
  * 保護対象そのもの、またはその配下なら true。
  * どちらもまだ存在しなくてよい（アップロード先、作成するフォルダ、未作成のバックアップフォルダなど）。
+ * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
  */
 function is_protected_path($path, $proteted_path)
 {
@@ -989,11 +990,13 @@ function is_protected_path($path, $proteted_path)
     if ($realpath === false) {
         return false;
     }
+    $realpath = strtolower($realpath);
     foreach ($proteted_path as $protected) {
         $protected = normalize_path($protected);
         if ($protected === false) {
             continue;
         }
+        $protected = strtolower($protected);
         if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
             return true;
         }
