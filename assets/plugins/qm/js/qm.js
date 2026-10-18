@@ -13,7 +13,7 @@
         + 'max-width:100vw;max-height:100vh;background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}'
         + '#qmModal::backdrop{background:rgba(20,24,32,.5)}'
         + '#qmModal iframe{display:block;width:100%;height:100%;border:0}'
-        + '#qmModalClose{position:absolute;top:6px;right:8px;z-index:1;width:32px;height:32px;border:0;border-radius:50%;'
+        + '#qmModalClose{position:absolute;bottom:10px;right:14px;z-index:1;width:32px;height:32px;border:0;border-radius:50%;'
         + 'background:rgba(30,34,42,.75);color:#fff;font:20px/32px sans-serif;cursor:pointer}'
         + '#qmModalClose:focus-visible{outline:2px solid #2f6fd0;outline-offset:2px}';
 
