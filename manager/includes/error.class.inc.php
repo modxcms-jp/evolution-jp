@@ -11,33 +11,24 @@ class errorHandler
     public function __construct()
     {
         $this->errors = [
-            0 => lang('No errors occured.'),
-            1 => lang('An error occured!'),
-            2 => lang("Document's ID not passed in request!"),
-            3 => lang("You don't have enough privileges for this action!"),
-            4 => lang('ID passed in request is NaN!'),
-            5 => lang('The document is locked!'),
-            6 => lang('Too many results returned from database!'),
-            7 => lang('Not enough/ no results returned from database!'),
-            8 => lang("Couldn't find parent document's name!"),
-            9 => lang('Logging error!'),
-            10 => lang('Table to optimise not found in request!'),
-            11 => lang('No settings found in request!'),
-            12 => lang('The document must have a title!'),
-            13 => lang('No user selected as recipient of this message!'),
-            14 => lang('No group selected as recipient of this message!'),
-            15 => lang('The document was not found!'),
+            1 => lang('error_occurred'),
+            2 => lang('error_id_not_passed'),
+            3 => lang('error_no_privileges'),
+            5 => lang('error_document_locked'),
+            6 => lang('error_too_many_results'),
+            7 => lang('error_no_results'),
+            9 => lang('error_logging'),
+            10 => lang('error_optimize_table_not_set'),
+            13 => lang('error_no_recipient_user'),
+            14 => lang('error_no_recipient_group'),
 
-            100 => lang('Double action (GET & POST) posted!'),
-            600 => lang("Document cannot be it's own parent!"),
-            601 => lang("Document's ID not passed in request!"),
-            602 => lang('New parent not set in request!'),
-            900 => lang("don't know the user!"), // don't know the user!
-            901 => lang('wrong password!'), // wrong password!
-            902 => lang('Due to too many failed logins, you have been blocked!'),
-            903 => lang('You are blocked and cannot log in!'),
-            904 => lang('You are blocked and cannot log in! Please try again later.'),
-            905 => lang("The security code you entered didn't validate! Please try to login again!")
+            100 => lang('error_double_action'),
+            601 => lang('error_id_not_passed'),
+            602 => lang('error_new_parent_not_set'),
+            900 => lang('error_unknown_user'),
+            901 => lang('error_wrong_password'),
+            902 => lang('error_login_blocked'),
+            905 => lang('error_captcha_invalid')
         ];
     }
 

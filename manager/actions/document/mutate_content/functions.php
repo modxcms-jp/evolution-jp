@@ -727,7 +727,7 @@ function getJScripts($docid)
     $ph['docParent'] = doc('parent');
     $ph['docIsFolder'] = doc('isfolder');
     $ph['docMode'] = evo()->doc->mode;
-    $ph['lang_mutate_content.dynamic.php1'] = lang('mutate_content.dynamic.php1');
+    $ph['lang_confirm_reset_pub_dates'] = lang('confirm_reset_pub_dates');
     $ph['style_tree_folder'] = style('tree_folder');
     $ph['style_icons_set_parent'] = style('icons_set_parent');
     $ph['style_tree_folder'] = style('tree_folder');

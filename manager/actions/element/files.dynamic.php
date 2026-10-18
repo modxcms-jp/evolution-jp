@@ -44,7 +44,7 @@ if (anyv('name')) {
 }
 foreach ($requested_paths as $requested_path) {
     if (is_protected_path($requested_path, $proteted_path)) {
-        echo lang('files.dynamic.php2');
+        echo lang('files_dir_not_viewable');
         exit;
     }
 }
@@ -90,7 +90,7 @@ foreach ($requested_paths as $requested_path) {
             $tpl = '<li><a href="[+href+]" data-evo-post onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
             $ph['image'] = $_style['tree_page'];
             $ph['href'] = hsc('index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=');
-            $ph['lang_newfile'] = lang('files.dynamic.php1');
+            $ph['lang_newfile'] = lang('files_create_textfile');
             $_ .= $modx->parseText($tpl, $ph);
             echo $_;
         }
@@ -313,13 +313,13 @@ foreach ($requested_paths as $requested_path) {
                         lang('files_filetype_notok')
                     );
                 } elseif (preg_match('@([/:;,*?"<>|])@', $filename) !== 0) {
-                    echo lang('files.dynamic.php3');
+                    echo lang('files_filename_invalid');
                 } else {
                     $rs = file_put_contents($startpath . '/' . $filename, '');
                     if ($rs === false) {
                         echo '<span class="warning"><b>' . lang('file_folder_not_created') . '</b></span><br /><br />';
                     } else {
-                        echo lang('files.dynamic.php4');
+                        echo lang('files_textfile_created');
                     }
                     umask($old_umask);
                 }

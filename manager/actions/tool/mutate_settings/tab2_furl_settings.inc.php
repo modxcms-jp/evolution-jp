@@ -50,11 +50,11 @@
                 <?= $_lang["make_folders_message"] ?></td>
         </tr>
         <tr class="furlRow">
-            <th><?= $_lang['mutate_settings.dynamic.php4'] ?></th>
+            <th><?= $_lang['suffix_mode_title'] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"], form_radio('suffix_mode', '1', $suffix_mode == '1')) ?><br/>
                 <?= wrap_label($_lang["no"], form_radio('suffix_mode', '0', $suffix_mode == '0')) ?><br/>
-                <?= $_lang['mutate_settings.dynamic.php5'] ?></td>
+                <?= $_lang['suffix_mode_message'] ?></td>
         </tr>
         <tr class="furlRow">
             <th><?= $_lang["friendly_alias_title"] ?></th>

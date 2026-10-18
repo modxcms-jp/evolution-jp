@@ -6,7 +6,7 @@
             <th><?= lang('setting_cache_type') ?></th>
             <td>
                 <?= wrap_label(
-                    lang('mutate_settings.dynamic.php1'),
+                    lang('setting_cache_type_standard'),
                     form_radio(
                         'cache_type',
                         1,
@@ -14,7 +14,7 @@
                     )
                 ) ?><br />
                 <?= wrap_label(
-                    lang('mutate_settings.dynamic.php2'),
+                    lang('setting_cache_type_bypass'),
                     form_radio(
                         'cache_type',
                         2,
@@ -22,7 +22,7 @@
                     )
                 ) ?><br />
                 <?= wrap_label(
-                    lang('mutate_settings.dynamic.php3'),
+                    lang('setting_cache_type_disabled'),
                     form_radio(
                         'cache_type',
                         0,
