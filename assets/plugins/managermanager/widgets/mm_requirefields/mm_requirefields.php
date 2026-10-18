@@ -32,10 +32,35 @@ function mm_requireFields($fields, $roles = '', $templates = '')
 
     $output = "//  -------------- mm_requireFields :: Begin ------------- \n";
 
-    $output .= '
-    jQuery("head").append("<style>.mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }</style>");
-    var requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
-    ';
+    $output .= '(function () {
+    MM.addStyle(".mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }");
+    const requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
+    // 欄の親の td の直前の td にある見出し（this will be easier in Evo 1.1 with more semantic code）
+    function titles(els) {
+        const found = [];
+        els.forEach(function (el) {
+            const td = el.parentElement;
+            const prev = td && td.matches("td") ? td.previousElementSibling : null;
+            if (!prev || !prev.matches("td")) { return; }
+            prev.querySelectorAll(":scope > span.mutate-field-title").forEach(function (span) {
+                if (found.indexOf(span) === -1) { found.push(span); }
+            });
+        });
+        return found;
+    }
+    // 最初の欄の値（複数選択は選んだ値をつないだもの。欄が無ければ空）
+    function fieldValue(el) {
+        if (!el) { return ""; }
+        if (el.matches("select[multiple]")) {
+            return Array.from(el.selectedOptions).map(function (o) { return o.value; }).join(",");
+        }
+        return el.value;
+    }
+    // Add an event so the hilight is removed upon focussing
+    function unmark() {
+        this.classList.remove("mmRequired");
+    }
+';
 
     $submit_js = '';
     $load_js = '';
@@ -67,8 +92,8 @@ function mm_requireFields($fields, $roles = '', $templates = '')
             case 'pub_date':
             case 'unpub_date':
                 $load_js .= '
-                jQuery("#pub_date, #unpub_date").each(function() { this.type = "text";  }); // Cant use jQuery attr function as datepicker class clashes with jQuery methods
-                ';
+    MM.all("#pub_date, #unpub_date").forEach(function (el) { el.type = "text"; });
+';
             // no break, because we want to do the things below too.
 
             // Ones that follow the regular pattern
@@ -83,20 +108,21 @@ function mm_requireFields($fields, $roles = '', $templates = '')
                 }
 
                 // What type is this field?
-                $fieldname = $mm_fields[$field]['fieldname'];
+                // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
+                $fieldname = str_replace('\\', '', $mm_fields[$field]['fieldname']);
 
-                // What jQuery selector should we use for this fieldtype?
+                // What selector should we use for this fieldtype?
                 switch ($mm_fields[$field]['fieldtype']) {
                     case 'textarea':
-                        $selector = "textarea[name=$fieldname]";
+                        $selector = sprintf('textarea[name="%s"]', $fieldname);
                         break;
 
                     case 'input': // If it's an input, we only want to do something if it's a text field
-                        $selector = "input[type=text][name=$fieldname]";
+                        $selector = sprintf('input[type="text"][name="%s"]', $fieldname);
                         break;
 
                     case 'select':
-                        $selector = "select[name=$fieldname]";
+                        $selector = sprintf('select[name="%s"]', $fieldname);
                         break;
 
                     default:  // all other input types, do nothing
@@ -106,66 +132,51 @@ function mm_requireFields($fields, $roles = '', $templates = '')
 
                 // If we've found something we want to use
                 if (!empty($selector)) {
+                    // 空なら、見出しを errors に足し、欄に印を付ける
                     $submit_js .= '
+        {
+            const els = MM.all(' . js_literal($selector) . ');
+            if (String(fieldValue(els[0])).trim() === "") {
+                // Add the label to the errors array
+                errors.push(titles(els).map(function (span) { return span.textContent; }).join("").replace("*", ""));
+                els.forEach(function (el) {
+                    el.classList.add("mmRequired");
+                    el.addEventListener("focus", unmark);
+                });
+            }
+        }
+';
 
-// The element we are targetting (' . $fieldname . ')
-var $sel = jQuery("' . $selector . '");
-var fieldValue = $sel.val();
-
-// Check if its valid
-if(String(fieldValue == null ? "" : fieldValue).trim() == ""){  // If it is empty
-
-// Find the label (this will be easier in Evo 1.1 with more semantic code)
-var lbl = $sel.parent("td").prev("td").children("span.mutate-field-title").text().replace(jQuery(requiredHTML).text(), "");
-
-// Add the label to the errors array. Would be nice to say which tab it is on, but no
-// easy way of doing this in 1.0.x as no semantic link between tabs and tab body
-errors.push(lbl);
-
-// Add an event so the hilight is removed upon focussing
-$sel.addClass("mmRequired").focus(function(){
-jQuery(this).removeClass("mmRequired");
-});
-}
-                    ';
-
+                    // Add an indicator this is required
                     $load_js .= '
-
-// Add an indicator this is required (' . $fieldname . ')
-var $sel = jQuery("' . $selector . '");
-
-// Find the label (this will be easier in Evo 1.1 with more semantic code)
-var $lbl = $sel.parent("td").prev("td").children("span.mutate-field-title").append(requiredHTML);
-
-                    ';
+    titles(MM.all(' . js_literal($selector) . ')).forEach(function (span) { span.insertAdjacentHTML("beforeend", requiredHTML); });
+';
                 }
                 break;
         }
     }
 
+    // 空の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
     $output .= $load_js . '
-jQuery("#mutate").submit(function(){
-var errors = [];
-//TODO: The local variable msg is never read
-var msg = "";
-
+    const form = document.getElementById("mutate");
+    if (!form) { return; }
+    form.addEventListener("submit", function (e) {
+        const errors = [];
 ' . $submit_js . '
+        if (errors.length > 0) {
+            let errMsg = errors.length + " required fields are missing:\n\n ";
+            for (let i = 0; i < errors.length; i++) {
+                errMsg += " - " + errors[i] + " \n";
+            }
+            errMsg += " \nPlease correct the indicated fields.";
 
-if(errors.length > 0){
-    var errMsg = errors.length + " required fields are missing:\n\n ";
-
-    for (var i = 0; i < errors.length; i++){
-        errMsg += " - " + errors[i] + " \n";
-    }
-    errMsg += " \nPlease correct the indicated fields.";
-
-    alert(errMsg);
-    return false;
-}else{
-    return true;
-}
-});
-    ';
+            alert(errMsg);
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+})();
+';
 
     $output .= "//  -------------- mm_requireFields :: End ------------- \n";
 
