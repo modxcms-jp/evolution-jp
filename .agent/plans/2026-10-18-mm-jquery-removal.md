@@ -9,11 +9,13 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - [x] (2026-10-18) M1: 本体と共通の部品（`mm.js`）。ルールの包みを `Evo.ready` に、`includeJs` / `includeCss` をルールの実行中は登録して `<script src>` / `<link>` で出す形に。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
 - [x] (2026-10-18) M2: 表示と文言のウィジェット 8 つ。セット A〜D を直接開く・シェルで移るの 2 通りで main と比べ、観測値が一致
 - [x] (2026-10-18) M3: 項目の操作と検証のウィジェット 5 つ。セット A〜D を 2 通りで main と比べて一致（必須を空にして保存すると止まる、埋めると保存できる、も確認）
-- [ ] M4: 値を入れるウィジェット（mm_default・ddsetfieldvalue・mm_inherit・showimagetvs）
+- [x] (2026-10-18) M4: 値を入れるウィジェット 4 つ。セット A〜E を 2 通りで main と比べて一致（新規作成の既定値・継承・値の設定・画像のプレビューと未保存の印・テンプレートの自動の送信）
 - [ ] M5: 同梱ライブラリを持つウィジェット（ddmaxlength・tags・googlemap）
 - [ ] M6: ddmultiplefields の残りと仕上げ（全体の grep、`assets/docs/jquery-migration.md` への追記）
 
 ## Surprises & Discoveries
+
+- 2026-10-18（M4）: リソース編集の画面には `changeRTE` の定義が無い（スニペット編集の画面だけ）。`mm_default('richtext', 0)`（エディタが none 以外のとき）と `mm_ddSetFieldValue('is_richtext', 0)` は、main でも ReferenceError で MM の alert が出る。#819 の範囲外として、そのまま呼んでいる
 
 - 2026-10-18（M1）: main でもセット D（accessdenied）を開くと `Cannot set properties of null (setting 'innerHTML')` のページのエラーが出る（M1 の前から）。M3 で accessdenied を置き換えるときに見る。根拠: 検証環境で main とブランチの両方で同じエラー
 - 2026-10-18（M3）: 上のエラーの原因は、accessdenied がページの div をすべて消すときにメニューの `#workText` も消え、シェルが画面の差し込みの後に呼ぶ `manager/frames/menu.php` の `window.stopWork` が null を確かめずに `innerHTML` を触るため（シェルで移ったとき）。accessdenied の消す範囲は変えず、menu.php も #819 の範囲外なので触っていない
@@ -28,6 +30,8 @@ ManagerManager（MM）のルールを使っているサイトで、リソース�
 - 2026-10-18: ddmultiplefields は jQuery の名前空間付きのイベント（`change.ddEvents`・`load.ddEvents`）を `trigger` で起こしている。jQuery の `trigger` は名前空間付きでも要素の `onchange` 属性のハンドラーを呼ぶ。素の `change` に置き換えると、#814 で `addEventListener('change')` にした未保存の検知が画面を開いた直後に反応し得る。独自の名前のイベント（例: `ddmultiple:change`）にする。
 
 ## Decision Log
+
+- 2026-10-18 / メイン（AI）: **`mm_default('template', X)` の自動の送信は `form.submit()` にした**（M4）。今の jQuery の `.submit()` も最後はシェルが差し替えたネイティブの `form.submit()` を通るので、送られる経路は同じ。必須の確認（M3 の素の submit のリスナー）は通らず、新規作成を開いた瞬間に止まらない（セット E で main と一致）。違いは、jQuery で付いた ddmaxlength の submit のハンドラー（文字数の超過で止める）が自動の送信の前に走らなくなることだけ
 
 - 2026-10-18 / メイン（AI）: **M3 の区切りの行は `insertAdjacentHTML('afterend', …)` ではなく `<template>` で組み立てて `after()` で入れる**。表の直下の `tr` に `insertAdjacentHTML` で `<tr>` を足すと、HTML の仕様で余分な `tbody` ができるため（jQuery の `.after()` は `<tr>` のまま入れていた）。行を表に入れるときも jQuery と同じく、直下の `tbody` があればその中に入れる
 - 2026-10-18 / メイン（AI）: **M4 で決めること：`mm_default('template', X)` の自動の送信**。今は jQuery の `.submit()`（jQuery で付けたリスナーと onsubmit 属性だけを呼ぶ）なので、M3 で素の submit のリスナーにした `mm_requireFields` の確認を通らない。`requestSubmit()` にすると確認が走り、新規作成を開いた瞬間に必須の alert が出て切り替えが止まる（main で直接開いたときの動き）。`form.submit()` 相当にして確認を通さないほうが、テンプレートの切り替えとしては自然。M4 で main と比べて決める
@@ -176,7 +180,7 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
 - jQuery の `.hide()` は `style.display = 'none'`、`.show()` は `style.display = ''` にする（表の行などは CSS の `display` で出し分けているため `hidden` 属性にしない）。`MM.hide` / `MM.show` で揃える。
 - `.parents(sel)` は `MM.parents(el, sel)`（一致する祖先すべて）、`.parents(sel + ":first")` / `.closest(sel)` は `el.parentElement.closest(sel)` / `el.closest(sel)`、`.parent(sel)` は「親が `sel` に一致するときだけ親」に置き換える。jQuery の擬似セレクタ（`:first`・`:last`・`:input`・`:has()`）は使わない。
 - 値を入れるだけの処理（`mm_default`・`ddsetfieldvalue`・`mm_inherit`）は、今と同じく `change` を起こさない（起こすと画面を開いた直後に未保存の扱いになる）。利用者の操作の代わりに値を変える処理（タグのクリック、画像の選択）は、素の `change` を起こす（`MM.fire(el, 'change')`）。
-- jQuery の `.submit(function(){ … return false; })` は、`form.addEventListener('submit', e => { … e.preventDefault(); })` にする。`mm_default('template')` の `$('#mutate').submit()` は `form.requestSubmit()` にする（`form.submit()` は submit イベントを起こさず、シェルの横取りを通らない）。
+- jQuery の `.submit(function(){ … return false; })` は、`form.addEventListener('submit', e => { … e.preventDefault(); })` にする。`mm_default('template')` の `$('#mutate').submit()` は `form.submit()` にする（シェルが `HTMLFormElement.prototype.submit` を差し替えているので、シェルを通る。理由は Decision Log の「`mm_default('template', X)` の自動の送信は `form.submit()` にした」）。
 - 文字列の埋め込みは、`assets/docs/jquery-migration.md` と AGENTS.md の規則（`<script>` 内の値は `js_literal()`）に従う。今 `jsSafe()` で HTML エスケープしてから `.html()` に入れている箇所（`mm_renamefield` など）は、同じ値を `innerHTML` に入れる形にして、表示を変えない。fieldname を含むセレクタは発見のとおり扱う。
 
 ### M1: 本体と共通の部品
@@ -215,7 +219,7 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
 対象: `widgets/mm_default/mm_default.php`、`widgets/ddsetfieldvalue/ddsetfieldvalue.php`、`widgets/mm_inherit/mm_inherit.php`、`widgets/showimagetvs/showimagetvs.php`（4 ファイル・83 行）。
 
 - `mm_default` / `ddsetfieldvalue` / `mm_inherit`: `MM.setValue`・`MM.setChecked` に揃える。`.removeAttr("checked")` は `checked = false`（今は属性を消しているが、表示上の結果は同じ）。`is_richtext` の `#which_editor:first` は `document.getElementById('which_editor')`、`changeRTE()` はそのまま呼ぶ。`option` 型の TV の `.val([v])`（ラジオ）は、`name` が一致するラジオのうち `value` が一致するものに `checked = true`。
-- `mm_default('template')` の自動送信は、`Evo.ready` の中で `documentDirty = false`、`#mutate` の `a` を `4`・`newtemplate` を値にして `form.requestSubmit()`。
+- `mm_default('template')` の自動送信は、`Evo.ready` の中で `documentDirty = false`、`#mutate` の `a` を `4`・`newtemplate` を値にして `form.submit()`（Decision Log を参照）。
 - `showimagetvs`: `#tv<ID>` に `imageField` を付け、プレビューを作り直す関数を `change` のリスナーと初回の呼び出しに使う（今の `bind("change load")…trigger("load")`）。前回の値は `el.dataset.lastvalue`。`checkImageTVupdates` は `MM.all('.imageField')` で回し、値が変わっていれば `MM.fire(el, 'change')`。プレビューの画像のクリックで `BrowseServer("tv<ID>")`。
 
 ### M5: 同梱ライブラリを持つウィジェット
@@ -335,6 +339,13 @@ ready の外で動くもの: OnDocFormPrerender の `#loadingmask`、プラグ�
     mm_widget_showimagetvs('mmImage');
 
    `mm_inherit('mmArea')` を確かめるため、親（ID 1）の `mmArea` に値を入れておく（`modx_site_tmplvar_contentvalues` に `contentid=1` の行を足す）。`mm_default('template', '<別のテンプレートの ID>')` は自動で送信されて画面が変わるので、別に 1 回だけ流し、送信後の URL と `newtemplate` の値を比べる。
+
+セット E（M4、新規作成 `a=4&pid=1`。テンプレートの自動の送信と必須の確認の関係）:
+
+    mm_default('template', '<別のテンプレートの ID>');
+    mm_requireFields('pagetitle');
+
+   比べる観測値: 送信後の URL、`#field_template` の値、alert と jAlert のダイアログの有無、ページのエラー。
 
 セット C（M5・M6、既存のリソース `a=27&id=1`）:
 

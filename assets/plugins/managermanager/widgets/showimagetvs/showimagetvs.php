@@ -33,7 +33,8 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
             $h
         );
     } else {
-        $style = '';
+        // JS の式として埋め込むので、空でも文字列にする
+        $style = "''";
     }
 
     // Does this page's template use any image TVs? If not, quit now!
@@ -48,34 +49,54 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 
     $output .= "//  -------------- mm_widget_showimagetvs :: Begin ------------- \n";
 
+    // 値が変わったとき（change）と最初の 1 回にプレビューを作り直す。前回の値は dataset.lastvalue に置く
     $tpl1 = '
-// Adding preview for tv[+id+]\
-jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
-    var $this = jQuery(this),
-        // Get the new URL
-        url = $this.val();
+// Adding preview for tv[+id+]
+(function (field) {
+if (!field) { return; }
+field.classList.add("imageField");
+const update = function(){
+    // Get the new URL
+    var url = field.value;
 
-    $this.data("lastvalue", url);
+    field.dataset.lastvalue = url;
 
-    $this.addClass("imageField");
-    var url = jQuery(this).val();
+    field.classList.add("imageField");
     url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
     url = (url != "" && url.search(/https?:\\/\\//i) == -1 && url.search(/^\\//i) == -1) ? ("[+base_url+]" + url) : url;' . "\n";
 
     $tpl2 = '
     // Remove the old preview tv[+id+]
-    jQuery("#tv[+id+]PreviewContainer").remove();
+    const old = document.getElementById("tv[+id+]PreviewContainer");
+    if (old) { old.remove(); }
 
     if (url != "" && !url.match("/.*::.*/")){
-        // Create a new preview
-        jQuery("#tv[+id+]").parents("td").append(\'<div class="tvimage" id="tv[+id+]PreviewContainer"><img src="\'+url+\'" style="\'+[+style+]+\'" id="tv[+id+]Preview"/></div>\');
+        // Create a new preview（以前の .parents("td").append() と同じく、祖先の td すべてに足す）
+        // 値を HTML として解釈しないよう、要素を作って src に入れる
+        MM.parents(field, "td").forEach(function (td) {
+            const box = document.createElement("div");
+            box.className = "tvimage";
+            box.id = "tv[+id+]PreviewContainer";
+            const img = document.createElement("img");
+            img.src = url;
+            img.setAttribute("style", [+style+]);
+            img.id = "tv[+id+]Preview";
+            box.appendChild(img);
+            td.appendChild(box);
+        });
 
         // Attach a browse event to the picture, so it can trigger too
-        jQuery("#tv[+id+]Preview").click(function(){
-            BrowseServer("tv[+id+]");
-        });
+        const preview = document.getElementById("tv[+id+]Preview");
+        if (preview) {
+            preview.addEventListener("click", function(){
+                BrowseServer("tv[+id+]");
+            });
+        }
     }
-}).trigger("load"); // Trigger a change event on load
+};
+field.addEventListener("change", update);
+update();
+})(document.getElementById("tv[+id+]"));
 
             ' . "\n";
     // Go through each TV
@@ -103,11 +124,10 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 
 // Monitor the image TVs for changes
 checkImageTVupdates = function(){
-    jQuery(".imageField").each(function(){
-        var $this = jQuery(this);
-        if ($this.val() != $this.data("lastvalue")){
-            // 素の change を起こす（jQuery の trigger では、管理画面の未保存の検知に届かない）
-            this.dispatchEvent(new Event("change", {bubbles: true}));
+    MM.all(".imageField").forEach(function(el){
+        if (el.value != el.dataset.lastvalue){
+            // 素の change を起こす（管理画面の未保存の検知に届く）
+            MM.fire(el, "change");
         }
     });
 }
