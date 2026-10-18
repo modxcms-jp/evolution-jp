@@ -1,8 +1,7 @@
 <!-- Doc Manager: シェル(メニュー/ツリー)内に表示される断片テンプレート。
-     jQuery/tabpane/CSSはシェル(header.inc.php)が読み込み済みのため含めない -->
+     evo.js/tabpane/CSSはシェル(header.inc.php)が読み込み済みのため含めない -->
 <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
 <script type="text/javascript">
-    var $j = jQuery.noConflict();
     if (window.stopWork) window.stopWork();
     var baseurl = '[+baseurl+]';
     if (window.mainMenu && mainMenu.defaultTreeFrame) mainMenu.defaultTreeFrame();
@@ -30,19 +29,20 @@
     }
 
     function loadTemplateVars(tplId) {
-        var tokenElement = document.querySelector('meta[name="csrf-token"]');
-        var csrfToken = tokenElement ? tokenElement.content : '';
-        $j('#tvloading').css('display', 'block');
-        $j.ajax({
-            'type': 'POST',
-            'url': '[+ajax.endpoint+]',
-            'headers': {'X-CSRF-TOKEN': csrfToken},
-            'data': {'tplID':tplId},
-            'success': function (r, s) {
+        document.getElementById('tvloading').style.display = 'block';
+        // X-CSRF-Token は Evo.post が付ける。応答は HTML の文字列。失敗時は今までどおり何もしない
+        Evo.post('[+ajax.endpoint+]', {'tplID': tplId})
+            .then(function (response) {
+                return response.ok ? response.text() : null;
+            })
+            .then(function (r) {
+                if (r === null) {
+                    return;
+                }
                 document.getElementById('results').innerHTML = r;
                 document.getElementById('tvloading').style.display = 'none';
-            }
-        });
+            })
+            .catch(function () {});
     }
 
     function save() {
