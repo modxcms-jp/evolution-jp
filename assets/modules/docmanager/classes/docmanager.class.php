@@ -36,12 +36,9 @@ class DocManager
         }
 
         $docmanager_lang_dir = MODX_BASE_PATH . 'assets/modules/docmanager/lang/';
-        include MODX_CORE_PATH . 'lang/english.inc.php';
+        $_lang = evo()->getLexicon($managerLanguage);
         include $docmanager_lang_dir . 'english.inc.php';
         if ($managerLanguage !== 'english') {
-            if (is_file(MODX_CORE_PATH . 'lang/' . $managerLanguage . '.inc.php')) {
-                include MODX_CORE_PATH . 'lang/' . $managerLanguage . '.inc.php';
-            }
             if (is_file($docmanager_lang_dir . $managerLanguage . '.inc.php')) {
                 include $docmanager_lang_dir . $managerLanguage . '.inc.php';
             }

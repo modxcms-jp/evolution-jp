@@ -2377,12 +2377,14 @@ trait DocumentParserSubParserTrait
 
         if ($target === 'manager') {
             global $_lang, $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
-            $path = MODX_CORE_PATH . 'lang/';
-            $modx_manager_charset = 'utf-8';
-            $modx_lang_attribute = 'en';
-            $modx_textdir = 'ltr';
-            $_lang = [];
-        } elseif ($target === 'locale') {
+            $_lang = $this->getLexicon($langname);
+            $modx_manager_charset = 'UTF-8';
+            $modx_lang_attribute = $_lang['lang_attribute'] ?? 'en';
+            $modx_textdir = $_lang['textdir'] ?? 'ltr';
+            return;
+        }
+
+        if ($target === 'locale') {
             global $_lc;
             $path = MODX_CORE_PATH . 'lang/locale/';
         } else {
@@ -2395,6 +2397,53 @@ trait DocumentParserSubParserTrait
         if (is_file($file_path)) {
             include_once($file_path);
         }
+    }
+
+    /**
+     * 管理画面の言語の配列を返す。英語を読んでから、指定した言語で上書きする
+     *
+     * @param string|null $langname 言語の名前（省略時は manager_language の設定）
+     * @return array
+     */
+    function getLexicon($langname = null)
+    {
+        $langname = $langname ?: evo()->config('manager_language', 'english');
+        $path = MODX_CORE_PATH . 'lang/';
+        $lexicon = $this->readLexiconFile($path . 'english.inc.php');
+        if ($langname === 'english' || !preg_match('/^[\w\-]+$/', $langname)) {
+            return $lexicon;
+        }
+        return array_merge($lexicon, $this->readLexiconFile("{$path}{$langname}.inc.php"));
+    }
+
+    /**
+     * 言語ファイルを 1 つ読み、配列で返す（英語で補わない）
+     *
+     * `return [...]` で配列を返す形と、`$_lang` に書き込む古い形の両方を読める。
+     * 古い形の $modx_lang_attribute・$modx_textdir は、lang_attribute・textdir のキーにする。
+     *
+     * @param string $file_path
+     * @return array
+     */
+    function readLexiconFile($file_path)
+    {
+        if (!is_file($file_path)) {
+            return [];
+        }
+        return (static function () {
+            $_lang = [];
+            $result = include func_get_arg(0);
+            if (is_array($result)) {
+                return $result;
+            }
+            if (isset($modx_lang_attribute)) {
+                $_lang['lang_attribute'] = $modx_lang_attribute;
+            }
+            if (isset($modx_textdir)) {
+                $_lang['textdir'] = $modx_textdir;
+            }
+            return $_lang;
+        })($file_path);
     }
 
     function snapshot($filename = '', $target = '')

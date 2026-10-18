@@ -30,8 +30,7 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 if (getv('frame')) {
     $_SESSION['save_uri'] = serverv('REQUEST_URI');
 }
-// include localized overrides
-include_once MODX_CORE_PATH . sprintf('lang/%s.inc.php', evo()->config('manager_language', 'english'));
+// 言語は manager/index.php の loadLexicon() で読み込み済み
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
 if (is_file($theme_path)) {
