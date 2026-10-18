@@ -1,9 +1,10 @@
 <?php
 /**
  * mm_widget_colors
- * @version 1.1 (2012-11-13)
+ * @version 1.2 (2026-10-18)
  *
  * Adds a color selection widget to the specified TVs.
+ * Uses the browser's native <input type="color">.
  *
  * @uses ManagerManager plugin 0.4.
  *
@@ -20,8 +21,6 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
         return;
     }
 
-    $output = '';
-
     // if we've been supplied with a string, convert it into an array
     $fields = makeArray($fields);
 
@@ -30,8 +29,20 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
         return;
     }
 
-    // Insert some JS
-    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/colors/farbtastic.js');
+    // #rgb / #rrggbb -> #rrggbb, otherwise ''
+    $output = '
+        function mmColorsToHex6(value) {
+            const m = value.trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i);
+            if (!m) {
+                return "";
+            }
+            let hex = m[1].toLowerCase();
+            if (hex.length === 3) {
+                hex = hex.replace(/(.)/g, "$1$1");
+            }
+            return "#" + hex;
+        }
+    ';
 
     // Go through each of the fields supplied
     foreach ($fields as $tv) {
@@ -40,16 +51,36 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
         }
         $output .= parseText('
             // ----------- Color widget for  [+tv_id+]  --------------
-            jQuery("#[+tv_id+]").css("background-image","none");
-            jQuery("#[+tv_id+]").after(\'<div id="colorpicker[+tv_id+]"></div>\');
-            if (jQuery("#[+tv_id+]").val() == ""){
-                jQuery("#[+tv_id+]").val([+default+]);
-            }
-            jQuery("#colorpicker[+tv_id+]").farbtastic("#[+tv_id+]");
-            jQuery("#colorpicker[+tv_id+]").mouseup(function() {
-                // mark the document as dirty, or the value wont be saved
-                jQuery("#[+tv_id+]").trigger("change");
-            });
+            (() => {
+                const text = document.getElementById("[+tv_id+]");
+                if (!text) {
+                    return;
+                }
+                const picker = document.createElement("input");
+                picker.type = "color";
+                picker.id = "colorpicker[+tv_id+]";
+                picker.style.marginLeft = "4px";
+                picker.style.verticalAlign = "middle";
+                text.style.backgroundImage = "none";
+                text.after(picker);
+                if (text.value === "") {
+                    text.value = [+default+];
+                }
+                const syncPicker = () => {
+                    const hex = mmColorsToHex6(text.value);
+                    if (hex) {
+                        picker.value = hex;
+                    }
+                };
+                syncPicker();
+                text.addEventListener("input", syncPicker);
+                text.addEventListener("change", syncPicker);
+                picker.addEventListener("input", () => {
+                    text.value = picker.value;
+                    // mark the document as dirty, or the value wont be saved
+                    text.dispatchEvent(new Event("change", { bubbles: true }));
+                });
+            })();
             documentDirty = false;
             ', [
                 'tv_id' => $mm_fields[$tv]['fieldname'],
