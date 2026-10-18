@@ -256,7 +256,6 @@
             // 断片内のjQuery ready相当は即時実行済み。共通後処理を行う
             if (window.jQuery) {
                 window.jQuery('#preLoader').hide();
-                window.jQuery('.tooltip').powerTip({ fadeInTime: '0', placement: 'e' });
             }
             // window.load / DOMContentLoaded 依存の既存ライブラリを再初期化する
             if (window.fdTableSort && typeof window.fdTableSort.init === 'function') {
@@ -386,9 +385,6 @@
         }
 
         executeScripts(body, function () {
-            if (window.jQuery) {
-                window.jQuery('.tooltip').powerTip({ fadeInTime: '0', placement: 'e' });
-            }
             if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
                 window.MODXSortable.init(body);
             }

@@ -47,7 +47,7 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
         // Give the help button an ID, and modify the alt/title text
         // prop() sets the text as is, so pass the raw string
         $output .= sprintf(
-            'jQuery("%s[name=%s]").siblings("img.tooltip").prop("id", "%s-help").prop("title", %s).prop("alt", %s).data("powertip", %s); ',
+            'jQuery("%s[name=%s]").siblings("img.tooltip").prop("id", "%s-help").prop("title", %s).prop("alt", %s).attr("data-powertip", %s); ',
             $fieldtype,
             $fieldname,
             $fieldname,

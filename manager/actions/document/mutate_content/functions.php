@@ -382,7 +382,8 @@ function tooltip($msg)
             'title' => $msg,
             'onclick' => 'alert(this.alt);',
             'style' => 'cursor:help;margin-left:5px;',
-            'class' => 'tooltip'
+            'class' => 'tooltip',
+            'tabindex' => '0'
         ]
     );
 }

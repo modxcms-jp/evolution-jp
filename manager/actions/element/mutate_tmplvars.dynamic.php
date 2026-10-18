@@ -68,7 +68,7 @@ if (is_array($evtOut)) {
 
 $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc(entity('elements')) . "</textarea>\n";
 
-$tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
+$tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" tabindex="0" onclick="alert(this.alt);" style="cursor:help" />';
 $ph = [];
 $ph['src'] = $_style['icons_tooltip_over'];
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
