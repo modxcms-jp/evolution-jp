@@ -41,7 +41,8 @@
                 }
                 document.getElementById('results').innerHTML = r;
                 document.getElementById('tvloading').style.display = 'none';
-            });
+            })
+            .catch(function () {});
     }
 
     function save() {
