@@ -63,10 +63,14 @@ function confirmLangChange(el, lkey, elupd) {
         lang = el.value;
         Evo.post('index.php', {'a': '118', 'action': 'get', 'lang': lang, 'key': lkey})
             .then(function (response) {
-                return response.text();
+                // エラーの応答（403 など）は欄に入れない
+                return response.ok ? response.text() : null;
             })
             .then(function (resp) {
-                document.getElementById(elupd).value = resp;
-            });
+                if (resp !== null) {
+                    document.getElementById(elupd).value = resp;
+                }
+            })
+            .catch(function () {});
     }
 }
