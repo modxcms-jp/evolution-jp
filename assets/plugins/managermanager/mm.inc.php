@@ -45,6 +45,10 @@ class MANAGERMANAGER
         // When loading widgets, ignore folders / files beginning with these chars
         $ignore_first_chars = ['.', '_', '!'];
 
+        // Removed widgets. Their files may remain after an upgrade, so skip them.
+        // The no-op functions are defined in utilities.inc.php.
+        $removed_widgets = ['ddgmap'];
+
         // Include widgets
         // We look for a PHP file with the same name as the directory - e.g.
         // /widgets/widgetname/widgetname.php
@@ -52,6 +56,9 @@ class MANAGERMANAGER
         if ($handle = opendir($widget_dir)) {
             while (($file = readdir($handle)) !== false) {
                 if ($file === '..') {
+                    continue;
+                }
+                if (in_array($file, $removed_widgets, true)) {
                     continue;
                 }
                 if (in_array(substr($file, 0, 1), $ignore_first_chars) || !is_dir($widget_dir . '/' . $file)) {
