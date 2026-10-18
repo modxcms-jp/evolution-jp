@@ -38,6 +38,10 @@ $requested_paths = array_filter([$startpath, getv('path'), postv('path'), anyv('
 if (anyv('file')) {
     $requested_paths[] = $startpath . '/' . anyv('file');
 }
+if (anyv('name')) {
+    // 新規フォルダ・新規ファイルで実際に使う形で照合する
+    $requested_paths[] = $startpath . '/' . str_replace(['../', '..\\'], '', anyv('name'));
+}
 foreach ($requested_paths as $requested_path) {
     if (is_protected_path($requested_path, $proteted_path)) {
         echo lang('files.dynamic.php2');
@@ -759,8 +763,19 @@ function unzip($file, $path)
         return false;
     }
 
-    $old_umask = umask(0);
     $path = rtrim($path, '/') . '/';
+    // 展開先の外や保護対象へ書き込むエントリがあれば、何も展開しない
+    $proteted_path = proteted_path();
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $zip_entry_name = str_replace('\\', '/', $zip->getNameIndex($i));
+        if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
+            || is_protected_path($path . $zip_entry_name, $proteted_path)) {
+            $zip->close();
+            return false;
+        }
+    }
+
+    $old_umask = umask(0);
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = $zip->getNameIndex($i);
         $complete_path = $path . str_replace('\\', '/', dirname($zip_entry_name));
@@ -963,7 +978,7 @@ function proteted_path()
 
 /**
  * 保護対象そのもの、またはその配下なら true。
- * まだ存在しないパス（アップロード先など）は親フォルダで判定する。
+ * まだ存在しないパス（アップロード先や作成するフォルダ）は、存在する親フォルダで判定する。
  */
 function is_protected_path($path, $proteted_path)
 {
@@ -971,11 +986,13 @@ function is_protected_path($path, $proteted_path)
         return false;
     }
     $realpath = realpath($path);
-    if ($realpath === false) {
-        $realpath = realpath(dirname($path));
-    }
-    if ($realpath === false) {
-        return false;
+    while ($realpath === false) {
+        $parent = dirname($path);
+        if ($parent === $path) {
+            return false;
+        }
+        $path = $parent;
+        $realpath = realpath($path);
     }
     $realpath = str_replace('\\', '/', $realpath);
     foreach ($proteted_path as $protected) {
