@@ -79,7 +79,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         var baseurl = '<?= MODX_BASE_URL ?>';
         var $j = jQuery.noConflict();
 
-        jQuery(function () {
+        Evo.ready(function () {
             // メニュー/ツリー部品のscriptが定義済みになった後に初期化する
             if (treeopen === 0 && window.mainMenu) mainMenu.hideTreeFrame();
 
@@ -89,6 +89,11 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
         // 編集系アクションで入力変更時にdocumentDirtyを立てる。
         // AJAX遷移後の断片にも適用できるよう関数化し、shell.jsからも呼ばれる
+        // 同じ関数を渡すため、再バインドしても二重には登録されない
+        function evoMarkDirty() {
+            documentDirty = true;
+        }
+
         window.evoBindDirtyTracking = function (action) {
             switch (parseInt(action, 10)) {
                 case 27:
@@ -115,19 +120,20 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                 case 102:
                 case 300:
                 case 301:
-                    jQuery('#mainPane').find('input,textarea,select')
-                        .not('#field_template,#which_editor,#stay')
-                        .change(
-                            function() {
-                                documentDirty = true;
+                    var mainPane = document.getElementById('mainPane');
+                    if (mainPane) {
+                        mainPane.querySelectorAll('input,textarea,select').forEach(function (el) {
+                            if (!el.matches('#field_template,#which_editor,#stay')) {
+                                el.addEventListener('change', evoMarkDirty);
                             }
-                        );
+                        });
+                    }
                     gotosave = false;
                     break;
             }
         };
 
-        jQuery(function() {
+        Evo.ready(function() {
             evoBindDirtyTracking(<?= (int)manager()->action ?>);
             <?php if (anyv('r')) {
                 echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
@@ -135,15 +141,26 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             ?>
         });
 
-        jQuery(function() {
-            jQuery('#preLoader').hide();
+        Evo.ready(function() {
+            var preLoader = document.getElementById('preLoader');
+            if (preLoader) preLoader.style.display = 'none';
         });
 
-        jQuery(window).on('beforeunload', function() {
-            if (documentDirty) return window.EvoShell ? window.EvoShell.unsavedMessage : <?= js_literal(lang('warning_not_saved')) ?>;
-            jQuery('#actions').fadeOut(100);
-            jQuery('input,textarea,select').addClass('readonly');
-            jQuery('#preLoader').show();
+        window.addEventListener('beforeunload', function(e) {
+            if (documentDirty) {
+                // 戻り値だけでは確認が出ないため、preventDefault と returnValue も使う
+                var message = window.EvoShell ? window.EvoShell.unsavedMessage : <?= js_literal(lang('warning_not_saved')) ?>;
+                e.preventDefault();
+                e.returnValue = message;
+                return message;
+            }
+            var actions = document.getElementById('actions');
+            if (actions) actions.style.display = 'none';
+            document.querySelectorAll('input,textarea,select').forEach(function (el) {
+                el.classList.add('readonly');
+            });
+            var preLoader = document.getElementById('preLoader');
+            if (preLoader) preLoader.style.display = '';
             if (!dontShowWorker && top.mainMenu) top.mainMenu.work();
         });
 

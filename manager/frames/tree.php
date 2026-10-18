@@ -31,7 +31,7 @@ if (!$isShellPartial) {
     <link rel="stylesheet"
             href="media/style/<?= $manager_theme ?>/style.css?<?= $modx_version ?>"/>
     <?= config('manager_inline_style') ?>
-    <script src="media/script/jquery/jquery.min.js"></script>
+    <script src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>"></script>
     <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>"></script>
 <?php } ?>
     <script>
@@ -39,10 +39,10 @@ if (!$isShellPartial) {
         window.tree = window.tree || {};
         tree.ca = "open";
 
-        jQuery(function () {
+        Evo.ready(function () {
             resizeTree();
             restoreTree();
-            jQuery(window).resize(function () {
+            window.addEventListener('resize', function () {
                 resizeTree();
             });
         });
@@ -95,36 +95,41 @@ if (!$isShellPartial) {
             var mnu = document.getElementById('mx_contextmenu');
             var permpub = <?= evo()->hasPermission('publish_document') ? 1 : 0 ?>;
             var permdel = <?= evo()->hasPermission('delete_document') ? 1 : 0 ?>;
+            // 権限や設定によって出ない項目もあるため、あるときだけ切り替える
+            function showItem(id, shown) {
+                var item = document.getElementById(id);
+                if (item) item.style.display = shown ? '' : 'none';
+            }
             if (draft == 1) {
-                jQuery('#itemcreateDraft').hide();
-                jQuery('#itemeditDraft').show();
+                showItem('itemcreateDraft', false);
+                showItem('itemeditDraft', true);
             } else {
-                jQuery('#itemcreateDraft').show();
-                jQuery('#itemeditDraft').hide();
+                showItem('itemcreateDraft', true);
+                showItem('itemeditDraft', false);
             }
             if (permpub == 1) {
-                jQuery('#item61').show();
-                jQuery('#item62').show();
-                if (pub == 1) jQuery('#item61').hide();
-                else jQuery('#item62').hide();
+                showItem('item61', true);
+                showItem('item62', true);
+                if (pub == 1) showItem('item61', false);
+                else showItem('item62', false);
             } else {
-                if (jQuery('#item51') != null) jQuery('#item51').hide();
+                showItem('item51', false);
 
-                if (draft == 1) jQuery('#item27').hide();
-                else jQuery('#item27').show();
+                if (draft == 1) showItem('item27', false);
+                else showItem('item27', true);
             }
 
             if (permdel == 1) {
-                jQuery('#item6').show();
-                jQuery('#item63').show();
-                if (jQuery('#item64') != null) jQuery('#item64').show();
+                showItem('item6', true);
+                showItem('item63', true);
+                showItem('item64', true);
                 if (del == 1) {
-                    jQuery('#item6').hide();
-                    jQuery('#item61').hide();
-                    jQuery('#item62').hide();
+                    showItem('item6', false);
+                    showItem('item61', false);
+                    showItem('item62', false);
                 } else {
-                    jQuery('#item63').hide();
-                    if (document.getElementById('item64') != null) jQuery('#item64').hide();
+                    showItem('item63', false);
+                    showItem('item64', false);
                 }
             }
             // position:fixed のためビューポート座標をそのまま使う
@@ -147,11 +152,15 @@ if (!$isShellPartial) {
                 selectedObjectName = selectedObjectName.substr(0, 20) + "...";
             }
             x = x<?= $modx_textdir === 'rtl' ? '-190' : '';?>;
-            jQuery('#mx_contextmenu').css('left', x); //offset menu to the left if rtl is selected
-            jQuery('#mx_contextmenu').css('top', y);
-            jQuery("#nameHolder").text(selectedObjectName);
+            var mnu = document.getElementById('mx_contextmenu');
+            var nameHolder = document.getElementById('nameHolder');
+            if (mnu) {
+                mnu.style.left = x + 'px'; //offset menu to the left if rtl is selected
+                mnu.style.top = y + 'px';
+            }
+            if (nameHolder) nameHolder.textContent = selectedObjectName;
 
-            jQuery('#mx_contextmenu').css('visibility', 'visible');
+            if (mnu) mnu.style.visibility = 'visible';
             _rc = 1;
             setTimeout("_rc = 0;", 100);
         }
@@ -168,7 +177,7 @@ if (!$isShellPartial) {
                 // collapse
                 signImg.src = '<?= $_style["tree_plusnode"] ?>';
                 //rpcNode.innerHTML = '';
-                jQuery(rpcNode).hide(100);
+                rpcNode.style.display = 'none';
                 openedArray[id] = 0;
             } else {
                 // expand
@@ -179,22 +188,31 @@ if (!$isShellPartial) {
 
                 if (rpcNodeText == '') {
                     var folderState = getFolderState();
-                    jQuery.get('index.php', {
+                    var params = new URLSearchParams({
                         "a": "1",
                         "f": "nodes",
                         "indent": indent,
                         "parent": id,
                         "expandAll": expandAll + folderState
-                    }, rpcLoadData);
-                    jQuery(rpcNode).show(100);
+                    });
+                    // 失敗時は従来どおり何もしない
+                    Evo.fetch('index.php?' + params.toString())
+                        .then(function (response) {
+                            return response.ok ? response.text() : null;
+                        })
+                        .then(function (html) {
+                            if (html !== null) rpcLoadData(html);
+                        })
+                        .catch(function () {});
+                    rpcNode.style.display = 'block';
                 } else {
-                    jQuery(rpcNode).show(100);
+                    rpcNode.style.display = 'block';
                 }
             }
 
-            jQuery.get(
+            Evo.fetch(
                 'index.php?a=1&f=nodes&savestateonly=1' + getFolderState()
-            );
+            ).catch(function () {});
         }
 
         function emptyTrash() {
@@ -428,8 +446,12 @@ if (is_array($evtOut)) {
     <script type="text/javascript">
         // Set 'treeNodeSelected' class on document node when editing via Context Menu
         function setActiveFromContextMenu(doc_id) {
-            jQuery('.treeNodeSelected').removeClass('treeNodeSelected');
-            jQuery('#node' + doc_id + ' span:first').prop('class', 'treeNodeSelected');
+            document.querySelectorAll('.treeNodeSelected').forEach(function (el) {
+                el.classList.remove('treeNodeSelected');
+            });
+            var node = document.getElementById('node' + doc_id);
+            var span = node ? node.querySelector('span') : null;
+            if (span) span.className = 'treeNodeSelected';
         }
 
         // Context menu stuff
@@ -593,9 +615,11 @@ EOT;
     });
 <?php if ($isShellPartial) { ?>
     // シェルの部分再取得では#treePane内のscriptだけが実行されるため、ここで再初期化する
-    jQuery(window)
-        .off('resize.evoTreePartial')
-        .on('resize.evoTreePartial', resizeTree);
+    if (window.__evoTreePartialResize) {
+        window.removeEventListener('resize', window.__evoTreePartialResize);
+    }
+    window.__evoTreePartialResize = resizeTree;
+    window.addEventListener('resize', resizeTree);
     resizeTree();
     restoreTree();
 <?php } ?>

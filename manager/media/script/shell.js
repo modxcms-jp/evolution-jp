@@ -253,9 +253,10 @@
         }
 
         executeScripts(pane, function () {
-            // 断片内のjQuery ready相当は即時実行済み。共通後処理を行う
-            if (window.jQuery) {
-                window.jQuery('#preLoader').hide();
+            // 断片内のready相当は即時実行済み。共通後処理を行う
+            const preLoader = document.getElementById('preLoader');
+            if (preLoader) {
+                preLoader.style.display = 'none';
             }
             // window.load / DOMContentLoaded 依存の既存ライブラリを再初期化する
             if (window.fdTableSort && typeof window.fdTableSort.init === 'function') {
