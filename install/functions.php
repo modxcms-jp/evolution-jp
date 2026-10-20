@@ -995,6 +995,54 @@ function convert2utf8mb4() {
     echo "<p>config.inc.php has been updated.</p>";
 }
 
+// インストーラが $_SESSION に書く作業用のキー（SSOT）。アップデート後にログインを保つとき、これだけを消す
+function installerSessionKeys()
+{
+    return [
+        'test', 'currentAction', 'prevAction', 'install_language', 'is_upgradeable',
+        'database_server', 'database_user', 'database_password', 'dbase', 'table_prefix',
+        'database_collation', 'database_charset', 'database_connection_method',
+        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'managerlanguage',
+        'chkagree', 'installdata', 'template', 'tv', 'chunk', 'snippet', 'plugin', 'module',
+        'convert_to_utf8mb4', 'install_log_path',
+    ];
+}
+
+// install/ のソースがセッションに書いているキーのうち、installerSessionKeys() に無いものを返す（取りこぼしの検出）
+function installerSessionKeysUnlisted()
+{
+    $written = [];
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(MODX_SETUP_PATH, FilesystemIterator::SKIP_DOTS)) as $file) {
+        if ($file->getExtension() !== 'php' || strpos($file->getPathname(), '/langs/') !== false) {
+            continue;
+        }
+        $src = file_get_contents($file->getPathname());
+        preg_match_all('/sessionv\(\s*[\'"]\*(\w+)[\'"]|\$_SESSION\[[\'"](\w+)[\'"]\]\s*=(?!=)|setOption\(\s*[\'"](\w+)[\'"]/', $src, $m, PREG_SET_ORDER);
+        foreach ($m as $hit) {
+            $written[] = $hit[3] ?? ($hit[2] ?? $hit[1]);
+        }
+    }
+    return array_values(array_diff(array_unique(array_filter($written)), installerSessionKeys()));
+}
+
+// アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、権限と作成時刻を更新する
+function keepManagerLoginAfterUpgrade()
+{
+    $unlisted = installerSessionKeysUnlisted();
+    if ($unlisted) {
+        log_install_event('Installer session keys not listed in installerSessionKeys()', ['keys' => $unlisted]);
+    }
+    $uid = (int) sessionv('mgrInternalKey');
+    foreach (installerSessionKeys() as $key) {
+        unset($_SESSION[$key]);
+    }
+    // 権限はログインのときに読み込まれるので、アップデートで増えた項目を反映するために読み直す
+    evo()->loadExtension('ManagerAPI');
+    manager()->refreshMgrPermissions($uid);
+    // config.inc.php の $lastInstallTime（書き込み済み）以上にして、次の画面で切られないようにする
+    $_SESSION['modx.session.created.time'] = time();
+}
+
 function validateSessionValues() {
     $requiredKeys = sessionv('is_upgradeable')
     ? [
