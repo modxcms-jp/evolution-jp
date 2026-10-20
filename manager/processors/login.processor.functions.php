@@ -423,6 +423,8 @@ function managerLogin()
     );
 
     $_SESSION['mgrLastlogin'] = request_time();
+    // 表側のセッションの古い作成時刻を引き継がず、インストール前のセッション判定に切られないようにする
+    $_SESSION['modx.session.created.time'] = request_time();
     $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(user('internalKey'));
 
     if (anyv('rememberme')) {
