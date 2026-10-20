@@ -5,7 +5,7 @@
  * 投稿画面を自由自在にカスタマイズ。
  *
  * @category     plugin
- * @version     0.4
+ * @version     0.4.1
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * 
  * @internal    @properties &config_chunk=Configuration Chunk;text;mm_rules;
