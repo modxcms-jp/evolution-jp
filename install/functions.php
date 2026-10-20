@@ -1009,16 +1009,13 @@ function installerSessionKeys()
     ];
 }
 
-// アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、権限と作成時刻を更新する
+// アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、作成時刻を更新する
+// 権限は管理画面の次のリクエストで読み直される（accesscontrol.inc.php）
 function keepManagerLoginAfterUpgrade()
 {
-    $uid = (int) sessionv('mgrInternalKey');
     foreach (installerSessionKeys() as $key) {
         unset($_SESSION[$key]);
     }
-    // 権限はログインのときに読み込まれるので、アップデートで増えた項目を反映するために読み直す
-    evo()->loadExtension('ManagerAPI');
-    manager()->refreshMgrPermissions($uid);
     // config.inc.php の $lastInstallTime（書き込み済み）以上にして、次の画面で切られないようにする
     $_SESSION['modx.session.created.time'] = time();
 }
