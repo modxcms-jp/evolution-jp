@@ -1191,6 +1191,8 @@ class DocumentParser
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
+        // 表側のセッションの古い作成時刻を引き継がず、インストール前のセッション判定に切られないようにする
+        $_SESSION['modx.session.created.time'] = request_time();
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
         $_SESSION['modx.mgr.session.cookie.lifetime'] = $this->input_any('rememberme')
