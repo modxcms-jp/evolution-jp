@@ -1251,4 +1251,6 @@ return [
     "parent_picker_root" => 'Select the site root',
     "parent_picker_descendant" => 'A resource cannot be placed under itself or its children',
     "parent_not_found" => 'The selected parent resource (ID: %s) does not exist.',
+    "update_in_progress_title" => 'We are performing maintenance',
+    "update_in_progress_message" => 'The system is being updated. Please try again later, or ask an administrator.',
 ];

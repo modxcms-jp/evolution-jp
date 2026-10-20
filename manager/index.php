@@ -92,6 +92,30 @@ if (!isset($_SESSION['mgrValidated'])) {
     exit('Not Logged In!');
 }
 
+// アップデーターを通す前は、どの画面からも入れない（ログアウトは通す）。
+// 未ログインはここまでに accesscontrol.inc.php で止まっているので、インストーラーとのループは起きない
+if ((int) manager()->action !== 8 && manager()->isUpdatePending()) {
+    if (isEvoPaneRequest() || serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
+        // 画面の部分読み込みや AJAX には、ページ全体を読み直させる（読み直した先で下の分岐に入る）
+        header('X-Evo-Login: required');
+        exit;
+    }
+    if (evo()->hasPermission('settings')) {
+        header('Location: ' . MODX_SITE_URL . 'install/');
+        exit;
+    }
+    header(serverv('SERVER_PROTOCOL', 'HTTP/1.1') . ' 503 Service Unavailable', true, 503);
+    header('Retry-After: 600');
+    echo '<!DOCTYPE html><html><head><meta charset="' . hsc(config('modx_charset', 'utf-8')) . '">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<title>' . hsc($_lang['update_in_progress_title']) . '</title></head>'
+        . '<body style="font-family:sans-serif;text-align:center;padding:4rem 1rem;">'
+        . '<h1>' . hsc($_lang['update_in_progress_title']) . '</h1>'
+        . '<p>' . hsc($_lang['update_in_progress_message']) . '</p>'
+        . '</body></html>';
+    exit;
+}
+
 // include_once the style variables file
 $theme_dir = MODX_BASE_PATH . 'manager/media/style/' . $modx->conf_var('manager_theme') . '/';
 if (is_file($theme_dir . 'style.php')) {
