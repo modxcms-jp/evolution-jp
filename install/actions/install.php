@@ -1,6 +1,7 @@
 <?php
 $errors = 0;
 $install_aborted = false;
+$keep_login = false;
 ob_start();
 include_once(MODX_SETUP_PATH . 'instprocessor.php');
 $content = ob_get_contents();
@@ -18,7 +19,9 @@ if ($install_aborted) {
 <h2><?= $results_title ?></h2>
 <?php
 echo $content;
-session_destroy();
+if (empty($keep_login)) {
+    session_destroy();
+}
 
 if ($install_aborted) {
     ?>

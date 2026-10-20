@@ -995,6 +995,31 @@ function convert2utf8mb4() {
     echo "<p>config.inc.php has been updated.</p>";
 }
 
+// インストーラが $_SESSION に書く作業用のキー（SSOT）。アップデート後にログインを保つとき、これだけを消す
+// インストーラで $_SESSION に新しいキーを書くときは、ここにも足す
+function installerSessionKeys()
+{
+    return [
+        'test', 'currentAction', 'prevAction', 'install_language', 'is_upgradeable',
+        'database_server', 'database_user', 'database_password', 'dbase', 'table_prefix',
+        'database_collation', 'database_charset', 'database_connection_method',
+        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'managerlanguage',
+        'chkagree', 'installdata', 'template', 'tv', 'chunk', 'snippet', 'plugin', 'module',
+        'convert_to_utf8mb4', 'install_log_path',
+    ];
+}
+
+// アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、作成時刻を更新する
+// 権限は管理画面の次のリクエストで読み直される（accesscontrol.inc.php）
+function keepManagerLoginAfterUpgrade()
+{
+    foreach (installerSessionKeys() as $key) {
+        unset($_SESSION[$key]);
+    }
+    // config.inc.php の $lastInstallTime（書き込み済み）以上にして、次の画面で切られないようにする
+    $_SESSION['modx.session.created.time'] = time();
+}
+
 function validateSessionValues() {
     $requiredKeys = sessionv('is_upgradeable')
     ? [

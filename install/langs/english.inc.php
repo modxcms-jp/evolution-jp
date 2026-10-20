@@ -181,6 +181,7 @@ $_lang["table_prefix_already_inuse_note"] = 'Setup couldn\'t install into the se
 $_lang["table_prefix_not_exist"] = ' - Table prefix does not exist in this database!';
 $_lang["templates"] = 'Templates';
 $_lang["to_log_into_content_manager"] = 'To log into the Content Manager (manager/index.php) you can click on the `Close` button.';
+$_lang["to_log_into_content_manager_keep_login"] = 'To finish, click the `Close` button. You will return to the Content Manager (manager/index.php) still logged in.';
 $_lang["toggle"] = 'Toggle';
 $_lang['tvs'] = 'Template Variables';
 $_lang["unable_install_chunk"] = 'Unable to install chunk.  File';
@@ -189,6 +190,7 @@ $_lang["unable_install_plugin"] = 'Unable to install plugin.  File';
 $_lang["unable_install_snippet"] = 'Unable to install snippet.  File';
 $_lang["unable_install_template"] = 'Unable to install template.  File';
 $_lang["upgrade_note"] = '<strong>Note:</strong> Before browsing your site you should log into the manager with an administrative account, then review and save your System Configuration settings.';
+$_lang["upgrade_note_keep_login"] = '<strong>Note:</strong> Before browsing your site, review and save your System Configuration settings in the manager.';
 $_lang["upgraded"] = 'Upgraded';
 $_lang["visit_forum"] = ', visit the <a href="http://forums.modx.com/" target="_blank">MODX Forums</a>.';
 $_lang["warning"] = 'WARNING!';
