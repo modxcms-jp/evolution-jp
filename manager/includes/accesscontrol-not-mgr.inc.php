@@ -12,21 +12,6 @@ if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
     @session_destroy();
 }
 
-// andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
-    if (
-        (sessionv('modx.session.created.time', 0) < $lastInstallTime)
-        && sessionv('REQUEST_METHOD') !== 'POST'
-    ) {
-        if (cookiev(session_name())) {
-            session_unset();
-            @session_destroy();
-        }
-        header('HTTP/1.0 307 Redirect');
-        header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
-    }
-}
-
 if (getv('frame')) {
     $_SESSION['save_uri'] = serverv('REQUEST_URI');
 }

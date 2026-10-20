@@ -16,7 +16,7 @@ if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
 if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
     if (
         (sessionv('modx.session.created.time', 0) < $lastInstallTime)
-        && sessionv('REQUEST_METHOD') !== 'POST'
+        && serverv('REQUEST_METHOD') !== 'POST'
     ) {
         if (cookiev(session_name())) {
             session_unset();
@@ -24,6 +24,7 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
         }
         header('HTTP/1.0 307 Redirect');
         header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+        exit;
     }
 }
 
