@@ -996,6 +996,7 @@ function convert2utf8mb4() {
 }
 
 // インストーラが $_SESSION に書く作業用のキー（SSOT）。アップデート後にログインを保つとき、これだけを消す
+// インストーラで $_SESSION に新しいキーを書くときは、ここにも足す
 function installerSessionKeys()
 {
     return [
@@ -1008,30 +1009,9 @@ function installerSessionKeys()
     ];
 }
 
-// install/ のソースがセッションに書いているキーのうち、installerSessionKeys() に無いものを返す（取りこぼしの検出）
-function installerSessionKeysUnlisted()
-{
-    $written = [];
-    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(MODX_SETUP_PATH, FilesystemIterator::SKIP_DOTS)) as $file) {
-        if ($file->getExtension() !== 'php' || strpos($file->getPathname(), '/langs/') !== false) {
-            continue;
-        }
-        $src = file_get_contents($file->getPathname());
-        preg_match_all('/sessionv\(\s*[\'"]\*(\w+)[\'"]|\$_SESSION\[[\'"](\w+)[\'"]\]\s*=(?!=)|setOption\(\s*[\'"](\w+)[\'"]/', $src, $m, PREG_SET_ORDER);
-        foreach ($m as $hit) {
-            $written[] = $hit[3] ?? ($hit[2] ?? $hit[1]);
-        }
-    }
-    return array_values(array_diff(array_unique(array_filter($written)), installerSessionKeys()));
-}
-
 // アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、権限と作成時刻を更新する
 function keepManagerLoginAfterUpgrade()
 {
-    $unlisted = installerSessionKeysUnlisted();
-    if ($unlisted) {
-        log_install_event('Installer session keys not listed in installerSessionKeys()', ['keys' => $unlisted]);
-    }
     $uid = (int) sessionv('mgrInternalKey');
     foreach (installerSessionKeys() as $key) {
         unset($_SESSION[$key]);
