@@ -2,7 +2,7 @@
 
 /**
  * ManagerManager plugin
- * @version 0.4 (2012-11-14)
+ * @version 0.4.1 (2012-11-14)
  *
  * @for MODX Evolution 1.0.x
  *
@@ -35,7 +35,7 @@ class MANAGERMANAGER
         if (!isset($config_chunk)) {
             $config_chunk = '';
         }
-        $mm_version = '0.4';
+        $mm_version = '0.4.1';
 
         $pluginDir = MODX_BASE_PATH . 'assets/plugins/managermanager/';
 

@@ -5,7 +5,7 @@
  *
  * @author      Mikko Lammi, www.maagit.fi
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.6 updated 12/01/2011
+ * @version     1.5.7 updated 12/01/2011
  */
 
 class Qm

@@ -1,5 +1,5 @@
 <?php
-# eForm 1.4.4.7 - Electronic Form Snippet
+# eForm 1.4.4.8 - Electronic Form Snippet
 # Original created by: Raymond Irving 15-Dec-2004.
 # Extended by: Jelle Jager (TobyL) September 2006
 # -----------------------------------------------------
@@ -114,7 +114,7 @@ $params = [
     'invalidClass' => isset($invalidClass) ? $invalidClass : "invalid",
     'runSnippet' => (isset($runSnippet) && !is_numeric($runSnippet)) ? $runSnippet : '',
     'autoSenderName' => isset($autoSenderName) ? $autoSenderName : '',
-    'version' => isset($version) ? $version : '1.4.4.7'
+    'version' => isset($version) ? $version : '1.4.4.8'
 ];
 
 // pixelchutes PHx workaround

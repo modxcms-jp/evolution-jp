@@ -5,7 +5,7 @@
  * Modern TinyMCE 7 integration for Evolution CMS.
  *
  * @category    plugin
- * @version     1.0.0
+ * @version     1.0.1
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal    @events OnRichTextEditorRegister,OnRichTextEditorInit,OnInterfaceSettingsRender
  * @internal    @modx_category Manager and Admin
