@@ -532,8 +532,9 @@ class synccache
     private function _get_snippets()
     {
         global $modx;
+        // error_reporting 列はアップデーターで足す。DB の更新前でも動くよう、列を指定せずに読む
         $rs = db()->select(
-            'name,snippet,properties,error_reporting',
+            '*',
             '[+prefix+]site_snippets'
         );
         $modx->snippetCache = [];
@@ -550,8 +551,9 @@ class synccache
     {
         global $modx;
 
+        // error_reporting 列はアップデーターで足す。DB の更新前でも動くよう、列を指定せずに読む
         $rs = db()->select(
-            'name,plugincode,properties,error_reporting',
+            '*',
             '[+prefix+]site_plugins',
             'disabled=0'
         );

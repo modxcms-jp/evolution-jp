@@ -3159,7 +3159,8 @@ class DocumentParser
 
         // not in cache so let's check the db
         $esc_name = db()->escape($snippetName);
-        $result = db()->select('name,snippet,properties,error_reporting', '[+prefix+]site_snippets', "name='{$esc_name}'");
+        // error_reporting 列はアップデーターで足す。DB の更新前でも動くよう、列を指定せずに読む
+        $result = db()->select('*', '[+prefix+]site_snippets', "name='{$esc_name}'");
         if (db()->count($result) == 1) {
             $row = db()->getRow($result);
             $phpCode = $this->snippetCache[$snippetName] = $row['snippet'];
@@ -3569,7 +3570,8 @@ class DocumentParser
 
     private function setSnippetCache()
     {
-        $rs = db()->select('name,snippet,properties,error_reporting', '[+prefix+]site_snippets');
+        // error_reporting 列はアップデーターで足す。DB の更新前でも動くよう、列を指定せずに読む
+        $rs = db()->select('*', '[+prefix+]site_snippets');
         while ($row = db()->getRow($rs)) {
             $name = $row['name'];
             $this->snippetCache[$name] = $row['snippet'];
@@ -5264,8 +5266,9 @@ class DocumentParser
             }
             return;
         }
+        // error_reporting 列はアップデーターで足す。DB の更新前でも動くよう、列を指定せずに読む
         $result = db()->select(
-            'plugincode,properties,error_reporting',
+            '*',
             '[+prefix+]site_plugins',
             [
                 where('name', '=', $pluginName),
