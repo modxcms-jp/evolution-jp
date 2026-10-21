@@ -29,12 +29,30 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
     if (!$message) {
         $message = '<span>Access denied</span>Access to current document closed for security reasons.';
     }
-    $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css');
+    // CSS を変えたときにブラウザの古いキャッシュが残らないよう、更新時刻を付ける
+    $css = 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css';
+    $output .= includeCss(MODX_BASE_URL . $css . '?' . filemtime(MODX_BASE_PATH . $css));
 
+    // 次にどうすればよいか分かるよう、行き先のボタンを付ける。
+    // フォルダなら、中のリソースの一覧（フォルダ自体は編集できなくても、中は編集できることが多い）
+    $id = (int)getv('id');
+    $buttons = '';
+    if (db()->getValue('isfolder', '[+prefix+]site_content', "id={$id}")) {
+        $buttons .= sprintf(
+            '<a class="abutton aprimary" href="index.php?a=120&amp;id=%d">%s</a>',
+            $id,
+            hsc(lang('view_child_resources_in_container'))
+        );
+    }
+    $buttons .= sprintf('<a class="abutton" href="index.php?a=2">%s</a>', hsc(lang('home')));
+    $message .= '<p class="aactions">' . $buttons . '</p>';
+
+    // 消すのは編集画面の領域（シェルの #mainPane）の中だけにする。body を対象にすると、
+    // シェルではメニュー・ツリー・ログアウトまで消えてしまう。シェルが無い画面では従来どおり body
     $output .= '
-    MM.all("input, div, form[name=mutate]").forEach(function (el) { el.remove(); }); // Remove all content from the page
-    document.body.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');
-    MM.all("#aback").forEach(function (el) { el.style.height = document.body.offsetHeight + "px"; });';
+    var accessDeniedRoot = document.getElementById("mainPane") || document.body;
+    accessDeniedRoot.replaceChildren();
+    accessDeniedRoot.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');';
 
     event()->output($output . "\n");
 }

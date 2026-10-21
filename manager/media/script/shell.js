@@ -93,6 +93,12 @@
                 return;
             }
             const old = scripts[index];
+            // 先に動いたスクリプトが、まだ動かしていないスクリプトごと画面を消すことがある
+            // （MM の accessdenied など）。文書から外れたスクリプトは、ブラウザと同じく動かさない
+            if (!old.isConnected) {
+                runNext(index + 1);
+                return;
+            }
             const src = old.getAttribute('src');
 
             if (src) {
