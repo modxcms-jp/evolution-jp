@@ -4,7 +4,6 @@
  * @version 1.1 (2012-11-13)
  *
  * Close access for some documents by ids.
- * Icon by designmagus.com
  * Originally written by Metaller
  *
  * @uses ManagerManager plugin 0.4.
@@ -27,32 +26,25 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
 
     $output = "//  -------------- accessdenied widget include ------------- \n";
     if (!$message) {
-        $message = '<span>Access denied</span>Access to current document closed for security reasons.';
+        $message = '<strong>Access denied</strong><br>Access to current document closed for security reasons.';
     }
-    // CSS を変えたときにブラウザの古いキャッシュが残らないよう、更新時刻を付ける
-    $css = 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css';
-    $output .= includeCss(MODX_BASE_URL . $css . '?' . filemtime(MODX_BASE_PATH . $css));
 
-    // 次にどうすればよいか分かるよう、「戻る」を付ける。リンク先は戻る先が無いとき（直接開いたとき）のダッシュボード
-    $message .= sprintf(
-        '<p class="aactions"><a id="aback-button" class="abutton aprimary" href="index.php?a=2">%s</a></p>',
-        hsc(lang('go_back'))
-    );
-
-    // 消すのは編集画面の領域（シェルの #mainPane）の中だけにする。body を対象にすると、
-    // シェルではメニュー・ツリー・ログアウトまで消えてしまう。シェルが無い画面では従来どおり body
+    // 編集画面の中身は消す（編集させない）。消すのは編集画面の領域（シェルの #mainPane）の中だけにする。
+    // body を対象にすると、シェルではメニュー・ツリー・ログアウトまで消えてしまう。シェルが無い画面では従来どおり body。
+    // メッセージは管理画面のダイアログ（EvoDialog）で、画面全体を覆うモーダルとして出す。
+    // 「戻る」は、シェルの中で移ってきたとき（shell.js が履歴に付ける目印 shellNav がある）だけ前の画面へ戻る。
+    // 直接開いたときは管理画面の外へ戻ってしまうので、ダッシュボードへ移る
     $output .= '
-    var accessDeniedRoot = document.getElementById("mainPane") || document.body;
-    accessDeniedRoot.replaceChildren();
-    accessDeniedRoot.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');
-    // シェルの中で移ってきたとき（shell.js が履歴に付ける目印 shellNav がある）だけ前の画面へ戻る。
-    // 直接開いたときは管理画面の外へ戻ってしまうので、リンク先のダッシュボードへ移る
-    document.getElementById("aback-button").addEventListener("click", function (e) {
+    (document.getElementById("mainPane") || document.body).replaceChildren();
+    EvoDialog.alert(' . js_literal($message) . ', "", function () {
         if (window.history.state && window.history.state.shellNav) {
-            e.preventDefault();
             window.history.back();
+        } else if (window.EvoShell) {
+            EvoShell.navigate("index.php?a=2");
+        } else {
+            window.location.href = "index.php?a=2";
         }
-    });';
+    }, { icon: "warning", okLabel: ' . js_literal(lang('go_back')) . ' });';
 
     event()->output($output . "\n");
 }
