@@ -38,7 +38,10 @@
         // テーマの button の右の余白（margin）が残ると、真ん中からずれる
         + '.evo-dialog-buttons button{margin:0;min-width:80px;padding:6px 16px;border:1px solid #c5cad3;border-radius:2px;background:#f5f6f8;color:#222;font:inherit;cursor:pointer}'
         + '.evo-dialog-buttons button.evo-dialog-ok{border-color:#2f6fd0;background:#2f6fd0;color:#fff}'
-        + '.evo-dialog-buttons button:focus-visible{outline:2px solid #2f6fd0;outline-offset:2px}';
+        // 開いたときにフォーカスを当てるので、そのままだとブラウザが枠を出すことがある。
+        // 枠は、ダイアログの中で Tab を押してボタンを移り始めたとき（evo-dialog-keyboard）だけ出す
+        + '.evo-dialog-buttons button:focus{outline:none}'
+        + '.evo-dialog-keyboard .evo-dialog-buttons button:focus-visible{outline:2px solid #2f6fd0;outline-offset:2px}';
 
     let current = null;
 
@@ -160,6 +163,9 @@
         // Esc。jAlert は OK と同じ扱いにする。
         // 背後のシェルのモーダル（shell.js が document で Esc を受ける）まで閉じないよう、ここで止める
         dialog.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                dialog.classList.add('evo-dialog-keyboard');
+            }
             if (e.key === 'Escape') {
                 e.stopPropagation();
             }
