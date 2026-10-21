@@ -235,7 +235,8 @@ $nextButtonProgress = $nextAction === 'install'
     ? ($isUpgrade ? lang('upgrade_in_progress') : lang('install_in_progress'))
     : '';
 ?>
-<form id="install" action="index.php" method="POST">
+<?php // ほかの画面と同じ送り先にする。index.php を付けると、/install/ へ転送するサーバーで POST の中身が失われる ?>
+<form id="install" action="<?= hsc(MODX_SITE_URL) ?>install/" method="POST">
     <div>
         <input type="hidden" value="<?= $nextAction ?>" name="action" />
         <input type="hidden" value="1" name="options_selected" />
