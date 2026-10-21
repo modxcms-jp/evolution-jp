@@ -18,9 +18,10 @@
     const STYLE = ''
         // テーマのリセット CSS（margin:0 など）で中央からずれないよう、配置も指定する
         + '.evo-dialog{position:fixed;inset:0;margin:auto;width:fit-content;height:fit-content;max-height:calc(100vh - 32px);'
-        + 'border:1px solid #d5d9e0;border-radius:5px;padding:0;min-width:min(300px,calc(100vw - 32px));max-width:min(600px,calc(100vw - 32px));'
+        + 'border:1px solid #d5d9e0;border-radius:5px;padding:0;min-width:min(300px,calc(100vw - 32px));max-width:min(480px,calc(100vw - 32px));'
         + 'box-sizing:border-box;display:flex;flex-direction:column;'
-        + 'box-shadow:0 4px 16px rgba(0,0,0,.15);color:#222;background:#fff;font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}'
+        // 文字は管理画面（テーマ）の書体を引き継ぐ
+        + 'box-shadow:0 4px 16px rgba(0,0,0,.15);color:#222;background:#fff;font-family:inherit;font-size:13px;line-height:1.6}'
         + '.evo-dialog:not([open]){display:none}'
         + '.evo-dialog::backdrop{background:rgba(0,0,0,.25)}'
         + '.evo-dialog-title{flex:none;margin:0;padding:14px 20px 0;font-size:15px;font-weight:600}'
@@ -31,8 +32,11 @@
         + '.evo-dialog-icon{flex:none;width:24px;height:24px;margin-top:1px}'
         + '.evo-dialog-text{flex:1;min-width:0}'
         + '.evo-dialog-input{flex:none;display:block;box-sizing:border-box;width:calc(100% - 40px);margin:6px 20px 0;padding:6px 8px;font:inherit}'
-        + '.evo-dialog-buttons{flex:none;display:flex;justify-content:flex-end;gap:8px;padding:14px 20px 16px}'
-        + '.evo-dialog-buttons button{min-width:80px;padding:6px 16px;border:1px solid #c5cad3;border-radius:6px;background:#f5f6f8;color:#222;font:inherit;cursor:pointer}'
+        + '.evo-dialog-buttons{flex:none;display:flex;justify-content:flex-end;gap:8px;padding:16px 20px}'
+        // ボタンが 1 つ（jAlert）のときは下の真ん中。jConfirm / jPrompt は右寄せのまま
+        + '.evo-dialog-alert .evo-dialog-buttons{justify-content:center}'
+        // テーマの button の右の余白（margin）が残ると、真ん中からずれる
+        + '.evo-dialog-buttons button{margin:0;min-width:80px;padding:6px 16px;border:1px solid #c5cad3;border-radius:2px;background:#f5f6f8;color:#222;font:inherit;cursor:pointer}'
         + '.evo-dialog-buttons button.evo-dialog-ok{border-color:#2f6fd0;background:#2f6fd0;color:#fff}'
         + '.evo-dialog-buttons button:focus-visible{outline:2px solid #2f6fd0;outline-offset:2px}';
 
