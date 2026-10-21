@@ -181,17 +181,11 @@ else {
 ';
         }
 
-        // jQuery は QM には要らない。サイト側のスクリプトのために、設定（loadfrontendjq）があれば読み込む
+        // QM は jQuery を使わず、読み込みもしない。サイトが自分で jQuery を読み込んでいるときだけ、
+        // 互換のために $j の別名を付ける（サイトの $ は外さない）
         $head = '';
-        if ($this->loadfrontendjq == 'true') {
-            $head .= '<script src="' . MODX_SITE_URL . $this->jqpath . '" type="text/javascript"></script>';
-        }
-        // noConflict は QM が読み込んだ jQuery にだけかける（サイトが自分で読んだ jQuery の $ を外さない）。
-        // それ以外は、互換のために $j の別名だけを付ける
         if ($this->noconflictjq == 'true') {
-            $head .= $this->loadfrontendjq == 'true'
-                ? '<script type="text/javascript">window.$j = jQuery.noConflict();</script>'
-                : '<script type="text/javascript">if (window.jQuery && !window.$j) { window.$j = jQuery; }</script>';
+            $head .= '<script type="text/javascript">if (window.jQuery && !window.$j) { window.$j = jQuery; }</script>';
         }
         // 編集画面を開くモーダル（loadtb）とツールバーの開閉
         $head .= sprintf(

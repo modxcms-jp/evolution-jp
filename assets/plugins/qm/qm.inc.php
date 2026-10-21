@@ -11,8 +11,8 @@
 class Qm
 {
     public $modx;
+    // 使わない。旧版（1.5.6 まで）のプラグインのコードが代入するため、宣言だけ残す
     public $jqpath = '';
-    public $loadfrontendjq = 'false';
     public $noconflictjq = 'false';
     public $loadtb = 'false';
     public $tbwidth = '600';
@@ -103,9 +103,8 @@ class Qm
 
         // Get plugin parameters
         // 値が空のプロパティは parseProperties() が渡さないため、そのときはクラスの既定値を使う
-        $this->jqpath = 'manager/media/script/jquery/jquery.min.js';
         $names = [
-            'loadfrontendjq', 'noconflictjq', 'loadtb', 'tbwidth', 'tbheight',
+            'noconflictjq', 'loadtb', 'tbwidth', 'tbheight',
             'hidefields', 'hidetabs', 'hidesections', 'addbutton', 'tpltype', 'tplid',
             'custombutton', 'managerbutton', 'logout', 'autohide',
             'editbuttons', 'editbclass', 'newbuttons', 'newbclass', 'tvbuttons', 'tvbclass'
@@ -168,12 +167,6 @@ class Qm
             $keys = ['hidetabs', 'hidesections', 'tplid', 'custombutton'];
             if (in_array($key, $keys)) {
                 return '';
-            }
-            if ($key === 'jqpath') {
-                if ($this->jqpath) {
-                    return $this->jqpath;
-                }
-                return 'manager/media/script/jquery/jquery.min.js';
             }
             return $default;
         }
@@ -541,12 +534,6 @@ class Qm
     {
         $conf = evo()->event->params;
         if (!isset($conf[$key])) {
-            if ($key === 'jqpath') {
-                if ($this->jqpath) {
-                    return $this->jqpath;
-                }
-                return 'manager/media/script/jquery/jquery.min.js';
-            }
             return $default;
         }
         if ($conf[$key] === 'true') {

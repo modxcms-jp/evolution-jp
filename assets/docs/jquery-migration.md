@@ -61,7 +61,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 ## 外部のアドオンの互換（jQuery を読み込まなくなったこと）
 
-管理画面は既定で jQuery を読み込まない。`$j` も `jQuery` も定義されない（#823）。他の作者のプラグイン、自作の ManagerManager のウィジェット、`mm_rules` に手で書いた `$j(...)` などの JS は、そのままでは動かない（`$j is not defined` のエラーになる）。
+管理画面は jQuery を同梱せず、読み込まない。`$j` も `jQuery` も定義されない（#823・#858）。他の作者のプラグイン、自作の ManagerManager のウィジェット、`mm_rules` に手で書いた `$j(...)` などの JS は、そのままでは動かない（`$j is not defined` のエラーになる）。
 
 ### アドオンの作者へ
 
@@ -69,26 +69,23 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 ### どうしても jQuery が要る場合（利用者向け）
 
-jQuery の本体（`manager/media/script/jquery/jquery.min.js`）は当面同梱している。次のどちらかで読み込める。
+jQuery の本体は同梱していない（`manager/media/script/jquery/` は #858 で削除した）。必要なら、jQuery のファイルを自分で用意し（例: `assets/js/jquery.min.js` に置く）、`OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）と `$j` を定義するインラインスクリプトより前に出る。jQuery が読み込まれていれば `header.inc.php` も `$j` を定義するが、プラグインの側で定義しておくと確実。
 
-1. `OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）と `$j` を定義するインラインスクリプトより前に出る。jQuery が読み込まれていれば `header.inc.php` も `$j` を定義するが、プラグインの側で定義しておくと確実。
+```php
+// プラグイン（システムイベント OnManagerMainFrameHeaderHTMLBlock にチェック）
+event()->output(
+    '<script src="' . MODX_BASE_URL . 'assets/js/jquery.min.js"></script>'
+    . '<script>var $j = jQuery.noConflict();</script>'
+);
+```
 
-   ```php
-   // プラグイン（システムイベント OnManagerMainFrameHeaderHTMLBlock にチェック）
-   event()->output(
-       '<script src="media/script/jquery/jquery.min.js"></script>'
-       . '<script>var $j = jQuery.noConflict();</script>'
-   );
-   ```
+シェルの画面遷移で後から差し込まれた画面のインラインスクリプトからも `$j` を使える（`<head>` は最初の読み込みのときだけ出る）。
 
-2. 設定 `mgr_jquery_path` に、読み込む jQuery の URL（管理画面からの相対パス。例: `media/script/jquery/jquery.min.js`）を入れる。設定の画面には項目が無いので、DB の `system_settings` に直接入れる（`{prefix}` は実際のテーブルの接頭辞。例: `modx_`）。入れた後は、管理画面の「サイトのリフレッシュ」か `php evo cache:clear` でキャッシュを消す。
+以前の隠れた設定 `mgr_jquery_path` は廃止した（入れても読み込まない）。
 
-   ```sql
-   REPLACE INTO `{prefix}system_settings` (setting_name, setting_value)
-   VALUES ('mgr_jquery_path', 'media/script/jquery/jquery.min.js');
-   ```
+### 公開側（QuickManager）
 
-どちらも、シェルの画面遷移で後から差し込まれた画面のインラインスクリプトからも `$j` を使える（`<head>` は最初の読み込みのときだけ出る）。読み込みは約 87KB 増える。
+QuickManager は jQuery を使わず、公開側でも読み込まない。以前の設定 `loadfrontendjq`（公開側に同梱の jQuery を読み込む）は廃止した。サイトのテンプレートのスクリプトが jQuery を使うときは、テンプレートで自分で読み込む。設定 `noconflictjq` が true（既定）なら、サイトが読み込んだ jQuery に QM が `$j` の別名を付ける（`parent.$j.colorbox.close()` を呼ぶ外部のアドオンの互換）。
 
 ## ManagerManager のウィジェット
 
