@@ -1253,4 +1253,5 @@ return [
     "parent_not_found" => 'The selected parent resource (ID: %s) does not exist.',
     "update_in_progress_title" => 'We are performing maintenance',
     "update_in_progress_message" => 'The system is being updated. Please try again later, or ask an administrator.',
+    "go_back" => 'Back',
 ];

@@ -250,7 +250,8 @@
 
         currentUrl = finalUrl;
         if (push) {
-            window.history.pushState({ url: finalUrl }, '', finalUrl);
+            // shellNav: シェルの中で移ってきた履歴の目印（前の履歴も管理画面だと分かる。MM の accessdenied の「戻る」が使う）
+            window.history.pushState({ url: finalUrl, shellNav: true }, '', finalUrl);
         }
 
         // 遷移のたびにツリーのクリック動作を既定(開く)へ戻す(旧header.inc.php相当)
@@ -690,7 +691,7 @@
                 const pane = document.getElementById('mainPane');
                 if (paneTargetFromHash(pane, url.hash)) {
                     e.preventDefault();
-                    window.history.pushState({ url: url.href }, '', url.href);
+                    window.history.pushState({ url: url.href, shellNav: true }, '', url.href);
                     scrollPaneToHash(url.href);
                 }
                 return;

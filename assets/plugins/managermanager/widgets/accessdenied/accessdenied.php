@@ -33,26 +33,26 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
     $css = 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css';
     $output .= includeCss(MODX_BASE_URL . $css . '?' . filemtime(MODX_BASE_PATH . $css));
 
-    // 次にどうすればよいか分かるよう、行き先のボタンを付ける。
-    // フォルダなら、中のリソースの一覧（フォルダ自体は編集できなくても、中は編集できることが多い）
-    $id = (int)getv('id');
-    $buttons = '';
-    if (db()->getValue('isfolder', '[+prefix+]site_content', "id={$id}")) {
-        $buttons .= sprintf(
-            '<a class="abutton aprimary" href="index.php?a=120&amp;id=%d">%s</a>',
-            $id,
-            hsc(lang('view_child_resources_in_container'))
-        );
-    }
-    $buttons .= sprintf('<a class="abutton" href="index.php?a=2">%s</a>', hsc(lang('home')));
-    $message .= '<p class="aactions">' . $buttons . '</p>';
+    // 次にどうすればよいか分かるよう、「戻る」を付ける。リンク先は戻る先が無いとき（直接開いたとき）のダッシュボード
+    $message .= sprintf(
+        '<p class="aactions"><a id="aback-button" class="abutton aprimary" href="index.php?a=2">%s</a></p>',
+        hsc(lang('go_back'))
+    );
 
     // 消すのは編集画面の領域（シェルの #mainPane）の中だけにする。body を対象にすると、
     // シェルではメニュー・ツリー・ログアウトまで消えてしまう。シェルが無い画面では従来どおり body
     $output .= '
     var accessDeniedRoot = document.getElementById("mainPane") || document.body;
     accessDeniedRoot.replaceChildren();
-    accessDeniedRoot.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');';
+    accessDeniedRoot.insertAdjacentHTML("afterbegin", ' . js_literal('<div id="aback"><div id="amessage">' . $message . '</div></div>') . ');
+    // シェルの中で移ってきたとき（shell.js が履歴に付ける目印 shellNav がある）だけ前の画面へ戻る。
+    // 直接開いたときは管理画面の外へ戻ってしまうので、リンク先のダッシュボードへ移る
+    document.getElementById("aback-button").addEventListener("click", function (e) {
+        if (window.history.state && window.history.state.shellNav) {
+            e.preventDefault();
+            window.history.back();
+        }
+    });';
 
     event()->output($output . "\n");
 }
