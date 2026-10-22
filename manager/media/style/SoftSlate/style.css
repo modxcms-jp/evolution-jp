@@ -284,13 +284,13 @@ h1, h2, h3, h4, h5, h6, .subTitle {
 
 /* ページタイトル。灰色の帯をやめ、濃い文字で本文と階層を分ける */
 h1 {
-    font-size: 1.3em;
+    font-size: 1.25em;
     color: var(--color-heading);
     font-weight: bold;
     background-color: transparent;
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-    padding: var(--space-2) var(--space-1);
+    letter-spacing: 1px;
+    line-height: 1em;
+    padding: var(--space-2);
     border-radius: var(--radius-md);
     margin: var(--space-2);
 }
@@ -300,35 +300,16 @@ h1.draft {
     background-color: #F4E2C3;
 }
 
-/* シェルでは、タイトルと右上の操作ボタン(#actions。shell.css で fixed)を一つのページヘッダーにまとめる。
-   タイトルをメイン領域の幅いっぱいの白い帯にし、ボタン群はその帯の右側に重なる位置に置く。
-   ボタン群は DOM 上でタイトルの前にも後にも来るため、並び順に頼らず高さと位置で揃える */
-body.evo-shell #mainPane h1 {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    min-height: 64px;
-    margin: calc(-1 * var(--shell-main-padding, var(--space-2))) calc(-1 * var(--shell-main-padding, var(--space-2))) var(--space-4);
-    padding: var(--space-2) var(--space-5);
-    border-radius: 0;
-    border-bottom: 1px solid var(--color-frame);
-    background-color: var(--color-surface);
-}
-
-body.evo-shell #mainPane h1.draft {
-    background-color: #F4E2C3;
-}
-
-/* 狭い画面では、タイトルの下の段にボタン群を置いて重ならないようにする */
-@media (max-width: 1200px) {
-    body.evo-shell #mainPane:has(#actions) h1 {
-        align-items: flex-start;
-        min-height: 112px;
-        padding-top: var(--space-3);
+/* 狭い画面では、右上に浮かぶ操作ボタン群(shell.css で fixed)がタイトルを覆うため、浮かせる位置を右下へ移す。
+   本文は押し下げず、最後の項目がボタン群に隠れないよう下側にだけ余白を足す */
+@media (max-width: 1100px) {
+    html body.evo-shell #mainPane #actions {
+        top: auto;
+        bottom: var(--space-2);
     }
 
-    html body.evo-shell #mainPane:has(h1) #actions {
-        top: calc(var(--shell-menu-height, 58px) + 52px);
+    html body.evo-shell > #mainPane:has(#actions) {
+        padding-bottom: 72px;
     }
 }
 
@@ -777,7 +758,7 @@ form .imeoff {
 .sectionHeader {
     color: var(--color-section-header-text);
     margin: 0 8px;
-    padding: 10px 16px;
+    padding: 8px 16px;
     font-weight: bold;
     border: 1px solid var(--color-frame);
     border-bottom-color: var(--color-frame-light);
@@ -808,7 +789,7 @@ form .imeoff {
     border-radius: var(--radius-lg);
     box-shadow: none;
     margin: 0 3px 15px;
-    padding: var(--space-4);
+    padding: 15px;
 }
 
 /* 見出しの直後は、見出しと一枚の枠にまとめる(二重線にしない) */
@@ -1623,7 +1604,7 @@ a.hometblink:hover {
     top: 0;
     border-top: none;
     box-shadow: var(--shadow-frame);
-    padding: 20px 16px 16px !important;
+    padding: 20px 15px 14px !important;
 }
 
 .rtl .dynamic-tab-pane-control .tab-page {
@@ -1815,7 +1796,7 @@ h2#edit_document_title {
 
 /* from https://github.com/manse/ScienceStyle */
 /* 操作ボタンの群。灰色の半透明の帯をやめ、白地と細い枠でまとめる。
-   ページヘッダー(h1)の帯の上にも、スクロール後の本文の上にも自然に乗るようにする */
+   右上に浮かび、タイトルの上にもスクロール後の本文の上にも重なる */
 #actions {
     background: var(--color-surface);
     border: 1px solid var(--color-frame);
