@@ -52,16 +52,12 @@ foreach ($dir as $filename) {
         <ul class="actionButtons">
             <li id="Button1" class="mutate">
                 <a href="#" onclick="documentDirty=false; document.settings.submit();">
-                    <img
-                        src="<?= style('icons_save') ?>"
-                    /> <?= lang('update') ?>
+                    <?= lang('update') ?>
                 </a>
             </li>
             <li id="Button5" class="mutate">
                 <a href="#" onclick="document.location.href='index.php?a=2';">
-                    <img
-                        src="<?= style('icons_cancel') ?>"
-                    /> <?= lang('cancel') ?>
+                    <?= lang('cancel') ?>
                 </a>
             </li>
         </ul>

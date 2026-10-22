@@ -162,27 +162,26 @@ echo get_jscript($id, $cm);
     <div id="actions">
         <ul class="actionButtons">
             <?php
-            $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
+            $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
             if (hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
+                echo sprintf($tpl, 'Button1', 'editdocument();', $_lang['edit']);
             }
             if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
+                echo sprintf($tpl, 'Button2', 'movedocument();', $_lang['move']);
             }
             if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"],
-                    $_lang['duplicate']);
+                echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_lang['duplicate']);
             }
             if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button3', 'deletedocument();', $_style["icons_delete_document"], $_lang['delete']);
+                echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
             }
 
             $url = evo()->makeUrl($id);
             $prev = "window.open('" . $url . "','previeWin')";
-            echo sprintf($tpl, 'Button6', $prev, $_style["icons_preview_resource"],
+            echo sprintf($tpl, 'Button6', $prev,
                 $id == 0 ? $_lang["view_site"] : $_lang['view_resource']);
             $action = "documentDirty=false;document.location.href='" . getReturnAction($current) . "'";
-            echo sprintf($tpl, 'Button5', $action, $_style["icons_cancel"], $_lang['cancel']);
+            echo sprintf($tpl, 'Button5', $action, $_lang['cancel']);
             ?>
         </ul>
     </div>
@@ -194,19 +193,11 @@ echo get_jscript($id, $cm);
                 <ul class="actionButtons">
                     <li class="mutate">
                         <a href="index.php?a=4&amp;pid=<?= $id ?>">
-                            <img
-                                src="<?= $_style["icons_new_document"] ?>"
-                                align="absmiddle"
-                            />
                             <?= $_lang['create_resource_here'] ?>
                         </a>
                     </li>
                     <li class="mutate">
                         <a href="index.php?a=72&amp;pid=<?= $id ?>">
-                            <img
-                                src="<?= $_style["icons_new_weblink"] ?>"
-                                align="absmiddle"
-                            />
                             <?= $_lang['create_weblink_here'] ?>
                         </a>
                     </li>

@@ -38,10 +38,8 @@ if (!$forced) {
 
         <div id="actions">
             <ul class="actionButtons">
-                <li><a href="#" onclick="deletedocument();"><img
-                            src="<?= $_style["icons_delete"] ?>"/> <?= $_lang["delete"] ?></a></li>
-                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><img
-                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang["cancel"] ?></a></li>
+                <li><a href="#" onclick="deletedocument();"><?= $_lang["delete"] ?></a></li>
+                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= $_lang["cancel"] ?></a></li>
             </ul>
         </div>
 

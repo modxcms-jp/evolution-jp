@@ -21,9 +21,7 @@ $location = getv('id') ? '10' : '2';
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=<?= $location ?>';"><img
-                    alt="icons_cancel"
-                    src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                onclick="documentDirty=false;document.location.href='index.php?a=<?= $location ?>';"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 
@@ -59,14 +57,11 @@ $location = getv('id') ? '10' : '2';
                             <td colspan="2">
                                 <ul class="actionButtons">
                                     <li id="btn_reply"><a
-                                            href="index.php?a=10&t=c&m=rp&id=<?= $message['id'] ?>"><img
-                                                src="<?= $_style["icons_message_reply"] ?>" /> <?= $_lang['messages_reply'] ?>
+                                            href="index.php?a=10&t=c&m=rp&id=<?= $message['id'] ?>"><?= $_lang['messages_reply'] ?>
                                         </a></li>
-                                    <li><a href="index.php?a=10&t=c&m=f&id=<?= $message['id'] ?>"><img
-                                                src="<?= $_style["icons_message_forward"] ?>" /> <?= $_lang['messages_forward'] ?>
+                                    <li><a href="index.php?a=10&t=c&m=f&id=<?= $message['id'] ?>"><?= $_lang['messages_forward'] ?>
                                         </a></li>
-                                    <li><a href="<?= hsc('index.php?a=65&id=' . (int) $message['id']) ?>" data-evo-post><img
-                                                src="<?= $_style["icons_delete_document"] ?>" /> <?= $_lang['delete'] ?>
+                                    <li><a href="<?= hsc('index.php?a=65&id=' . (int) $message['id']) ?>" data-evo-post><?= $_lang['delete'] ?>
                                         </a></li>
                                     <?php if ($message['sender'] == 0) { ?>
                                         <script
@@ -358,11 +353,9 @@ $location = getv('id') ? '10' : '2';
                         <td>
                             <ul class="actionButtons" style="margin-top:15px;">
                                 <li><a href="#" class="primary"
-                                        onclick="documentDirty=false; document.messagefrm.submit();"><img
-                                            src="<?= $_style["icons_save"] ?>" /> <?= $_lang['messages_send'] ?>
+                                        onclick="documentDirty=false; document.messagefrm.submit();"><?= $_lang['messages_send'] ?>
                                     </a></li>
-                                <li><a href="index.php?a=10&t=c"><img
-                                            src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?>
+                                <li><a href="index.php?a=10&t=c"><?= $_lang['cancel'] ?>
                                     </a></li>
                             </ul>
                         </td>

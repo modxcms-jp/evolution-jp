@@ -64,8 +64,7 @@ if (id()) {
                 <?php if (evo()->hasPermission('save_template')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                            onclick="document.querySelectorAll('#templatesPane select').forEach(function(el){el.disabled=false;});documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><img
-                                src="<?= style('icons_save') ?>"/> <?= lang('update') ?>
+                            onclick="document.querySelectorAll('#templatesPane select').forEach(function(el){el.disabled=false;});documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
@@ -81,21 +80,18 @@ if (id()) {
                     if (evo()->hasPermission('new_template')) {
                         echo evo()->manager->ab([
                             'onclick' => 'duplicaterecord();',
-                            'icon' => style('icons_resource_duplicate'),
                             'label' => lang('duplicate')
                         ]);
                     }
                     if (evo()->hasPermission('delete_template')) {
                         echo evo()->manager->ab([
                             'onclick' => 'deletedocument();',
-                            'icon' => style('icons_delete_document'),
                             'label' => lang('delete')
                         ]);
                     }
                 }
                 echo evo()->manager->ab([
                     'onclick' => "document.location.href='index.php?a=76';",
-                    'icon' => style('icons_cancel'),
                     'label' => lang('cancel')
                 ]);
                 ?>
@@ -280,13 +276,12 @@ if (id()) {
                                 ?>
                                 <li>
                                     <a href="index.php?&amp;a=300<?= $query ?>">
-                                        <img src="<?= style('icons_add') ?>"/>
                                         <?= lang('new_tmplvars') ?>
                                     </a>
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal>' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>

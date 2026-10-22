@@ -143,7 +143,6 @@ function entity($key, $default = null)
         <?php if (evo()->hasPermission('save_document')) : ?>
             <li id="Button1" class="mutate">
                 <a href="javascript:void(0)" onclick="editdocument();">
-                    <img src="<?= $_style["icons_edit_document"] ?>"/>
                     <?= $_lang['edit'] ?>
                 </a>
             </li>
@@ -151,7 +150,6 @@ function entity($key, $default = null)
         <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
             <li id="Button2" class="mutate">
                 <a href="#" onclick="movedocument();">
-                    <img src="<?= $_style["icons_move_document"] ?>"/>
                     <?= $_lang['move'] ?>
                 </a>
             </li>
@@ -159,7 +157,6 @@ function entity($key, $default = null)
         <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button4">
                 <a href="#" onclick="duplicatedocument();">
-                    <img src="<?= $_style["icons_resource_duplicate"] ?>"/>
                     <?= $_lang['duplicate'] ?>
                 </a>
             </li>
@@ -167,7 +164,6 @@ function entity($key, $default = null)
         <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button3">
                 <a href="#" onclick="deletedocument();">
-                    <img src="<?= $_style["icons_delete_document"] ?>"/>
                     <?= $_lang['delete'] ?>
                 </a>
             </li>
@@ -181,7 +177,6 @@ function entity($key, $default = null)
                     : sprintf("window.open('../index.php?id=%s','previeWin')", $id);
                 ?>"
             >
-                <img src="<?= $_style["icons_preview_resource"] ?>"/>
                 <?= $_lang['view_resource'] ?>
             </a>
         </li>
@@ -200,10 +195,7 @@ function entity($key, $default = null)
                     echo 'document.location.href=\'index.php?a=2\';';
                 }
                 ?>"
-            ><img
-                    alt="icons_cancel"
-                    src="<?= $_style["icons_cancel"] ?>"
-                /> <?= $_lang['cancel'] ?></a>
+            ><?= $_lang['cancel'] ?></a>
         </li>
     </ul>
 </div>

@@ -196,11 +196,7 @@ function aButtonSave()
                 'href' => '#',
                 'onclick' => 'documentDirty=false; document.userform.save.click();'
             ],
-            html_tag(
-                'img',
-                ['src' => style('icons_save')]
-            )
-                . lang('update')
+            lang('update')
         )
             . html_tag(
                 'span',
@@ -227,7 +223,6 @@ function aButtonDelete($userid)
     return manager()->ab(
         [
             'onclick' => 'deleteuser();',
-            'icon' => style('icons_delete_document'),
             'label' => lang('delete')
         ]
     );
@@ -238,7 +233,6 @@ function aButtonCancel()
     return manager()->ab(
         [
             'onclick' => "document.location.href='index.php?a=75';",
-            'icon' => style('icons_cancel'),
             'label' => lang('cancel')
         ]
     );

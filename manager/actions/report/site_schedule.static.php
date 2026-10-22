@@ -18,10 +18,7 @@ if (!evo()->hasPermission('view_schedule')) {
                 href="#"
                 onclick="documentDirty=false;document.location.href='index.php?a=2';"
             >
-                <img
-                    alt="icons_cancel"
-                    src="<?= style('icons_cancel') ?>"
-                /> <?= lang('cancel') ?>
+                <?= lang('cancel') ?>
             </a>
         </li>
     </ul>

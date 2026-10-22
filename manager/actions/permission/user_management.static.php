@@ -100,9 +100,7 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -112,8 +110,7 @@ echo $cm->render();
             <table border="0" style="width:100%">
                 <tr>
                     <?php if (evo()->hasPermission('new_user')): ?>
-                        <td><a href="index.php?a=11" class="default"><img
-                                    src="<?= $_style["icons_add"] ?>" /> <?= $_lang['new_user'] ?></a>
+                        <td><a href="index.php?a=11" class="default"><?= $_lang['new_user'] ?></a>
                         </td>
                     <?php endif; ?>
                     <td nowrap="nowrap">
@@ -126,12 +123,11 @@ echo $cm->render();
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
                                         onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" style="display:inline;" /></a>
+                                            src="<?= $_style['icons_refresh'] ?>" /></a>
                                 </td>
                                 <td><a href="#" title="<?= $_lang["list_mode"] ?>"
                                         onclick="changeListMode();return false;"><img
-                                            src="<?= $_style['icons_table'] ?>"
-                                            style="display:inline;" /></a></td>
+                                            src="<?= $_style['icons_table'] ?>" /></a></td>
                             </tr>
                         </table>
                     </td>

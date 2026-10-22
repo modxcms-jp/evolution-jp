@@ -20,10 +20,7 @@ if (!evo()->hasPermission('export_static')) {
         ><a
                 href="#"
                 onclick="documentDirty=false;document.location.href='index.php?a=2';"
-            ><img
-                    alt="icons_cancel"
-                    src="<?= style('icons_cancel') ?>"
-                /> <?= lang('cancel') ?></a>
+            ><?= lang('cancel') ?></a>
         </li>
     </ul>
 </div>
@@ -175,9 +172,7 @@ if (!evo()->hasPermission('export_static')) {
                                 href="#"
                                 class="default"
                                 onclick="document.exportFrm.submit();"
-                            ><img
-                                    src="<?= style('icons_save') ?>"
-                                /> <?= lang('export_site_start') ?></a>
+                            ><?= lang('export_site_start') ?></a>
                         </li>
                     </ul>
                 </form>

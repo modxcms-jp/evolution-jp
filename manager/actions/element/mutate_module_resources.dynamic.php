@@ -215,8 +215,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <li class="mutate"><a href="index.php?a=106"><img
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a>
+            <li class="mutate"><a href="index.php?a=106"><?= $_lang['cancel'] ?></a>
         </ul>
     </div>
 
@@ -228,10 +227,8 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             <br />
             <!-- Dependencies -->
             <ul class="actionButtons">
-                <li><a href="#" onclick="addSnippet();return false;"><img
-                            src="<?= $_style["icons_add"] ?>" /> <?= $_lang['add_snippet'] ?></a></li>
-                <li><a href="#" onclick="addPlugin();return false;"><img
-                            src="<?= $_style["icons_add"] ?>" /> <?= $_lang['add_plugin'] ?></a></li>
+                <li><a href="#" onclick="addSnippet();return false;"><?= $_lang['add_snippet'] ?></a></li>
+                <li><a href="#" onclick="addPlugin();return false;"><?= $_lang['add_plugin'] ?></a></li>
             </ul>
             <?php
             $sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
@@ -263,8 +260,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             }
             ?>
             <ul class="actionButtons">
-                <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img
-                            src="<?= $_style["icons_delete_document"] ?>" /> <?= $_lang['remove'] ?>
+                <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><?= $_lang['remove'] ?>
                     </a></li>
             </ul>
         </div>

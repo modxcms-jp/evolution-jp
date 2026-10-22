@@ -319,7 +319,7 @@ function content($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
-                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
+                        <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
@@ -340,7 +340,6 @@ function content($key, $default = null)
                     echo manager()->ab(
                         [
                             'onclick' => 'deletedocument();',
-                            'icon' => $_style['icons_delete_document'],
                             'label' => $_lang['delete']
                         ]
                     );
@@ -349,7 +348,6 @@ function content($key, $default = null)
             echo manager()->ab(
                 [
                     'onclick' => "document.location.href='index.php?a=106';",
-                    'icon' => $_style['icons_cancel'],
                     'label' => $_lang['cancel']
                 ]
             );
@@ -532,7 +530,6 @@ function content($key, $default = null)
                         <p><?= $_lang['module_viewdepend_msg'] ?></p>
                         <p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
                             <a href="#" onclick="loadDependencies();return false;">
-                                <img src="<?= $_style["icons_edit_document"] ?>" align="absmiddle" />
                                 <?= $_lang['manage_depends'] ?>
                             </a>
                         </p>

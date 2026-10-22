@@ -2314,10 +2314,6 @@ ul.actionButtons {
     transition: all var(--transition-fast);
 }
 
-.actionButtons a img {
-    display: none;
-}
-
 .actionButtons a:hover {
     border-color: rgba(160, 195, 175, 0.55);
     background: rgba(252, 255, 253, 0.96);

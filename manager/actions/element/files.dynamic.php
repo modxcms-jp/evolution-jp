@@ -71,24 +71,21 @@ foreach ($requested_paths as $requested_path) {
             $_ = '';
             if (anyv('mode') === 'save') {
                 $_ = $modx->parseText(
-                    '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>',
+                    '<li class="primary"><a href="#" onclick="document.editFile.submit();">[+lang_save+]</a></li>',
                     [
-                        'icons_save' => $_style['icons_save'],
                         'lang_save' => lang('save')
                     ]
                 ) . "\n";
             }
             $_ .= $modx->parseText(
-                '<li><a href="[+href+]" data-evo-post onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
+                '<li><a href="[+href+]" data-evo-post onclick="return getFolderName(this);">[+subject+]</a></li>',
                 [
                     'href' => hsc('index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name='),
-                    'tree_folder' => $_style['tree_folder'],
                     'subject' => lang('add_folder')
                 ]
             );
 
-            $tpl = '<li><a href="[+href+]" data-evo-post onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
-            $ph['image'] = $_style['tree_page'];
+            $tpl = '<li><a href="[+href+]" data-evo-post onclick="return getFileName(this);">[+lang_newfile+]</a></li>';
             $ph['href'] = hsc('index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=');
             $ph['lang_newfile'] = lang('files_create_textfile');
             $_ .= $modx->parseText($tpl, $ph);
@@ -98,9 +95,7 @@ foreach ($requested_paths as $requested_path) {
         <li id="Button5" class="mutate">
             <a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"><img
-                    alt="icons_cancel"
-                    src="<?= $_style["icons_cancel"] ?>" /> <?= lang('cancel') ?></a>
+                onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"><?= lang('cancel') ?></a>
         </li>
     </ul>
 </div>
@@ -384,10 +379,7 @@ if (is_writable($startpath)) {
             <input type="file" name="userfile" onchange="document.upload.submit();">
             <a
                 class="default" href="#" onclick="document.upload.submit()"
-                style="display:inline;float:none;"><?=
-                                                    '<img src="' . $_style['icons_add'] . '" /> '
-                                                        . lang('files_uploadfile')
-                                                    ?></a>
+                style="display:inline;float:none;"><?= lang('files_uploadfile') ?></a>
             <input type="submit" value="<?= lang('files_uploadfile') ?>" style="display:none;">
         </div>
     </form>

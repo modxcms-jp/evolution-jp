@@ -182,22 +182,18 @@ switch ($rt) {
                                                 <td class="actionButtons"><a href="#"
                                                                              title="<?= $_lang["reset"] ?>"
                                                                              onclick="resetSearch();return false;"><img
-                                                            src="<?= $_style['icons_refresh'] ?>"
-                                                            style="display:inline;"/></a></td>
+                                                            src="<?= $_style['icons_refresh'] ?>" /></a></td>
                                                 <td class="actionButtons"><a href="#"
                                                                              title="<?= $_lang["list_mode"] ?>"
                                                                              onclick="changeListMode();return false;"><img
-                                                            src="<?= $_style['icons_table'] ?>"
-                                                            style="display:inline;"/></a></td>
+                                                            src="<?= $_style['icons_table'] ?>" /></a></td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td width="230" class="actionButtons">
-                                        <a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><img
-                                                src="<?= $_style['icons_cancel'] ?>"/> <?= $_lang['cancel'] ?>
+                                        <a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><?= $_lang['cancel'] ?>
                                         </a>
-                                        <a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><img
-                                                src="<?= $_style['icons_add'] ?>"/> <?= $_lang['insert'] ?>
+                                        <a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><?= $_lang['insert'] ?>
                                         </a>
                                     </td>
                                 </tr>

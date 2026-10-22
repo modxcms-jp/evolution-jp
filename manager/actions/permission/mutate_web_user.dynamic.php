@@ -251,8 +251,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_web_user')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
-                            src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?></a><span
+                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a><span
                         class="and"> + </span>
                     <select id="stay" name="stay">
                         <?php if (evo()->hasPermission('new_web_user')) { ?>
@@ -267,12 +266,10 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 </li>
             <?php endif; ?>
             <?php if (anyv('a') == 88) { ?>
-                <li><a href="#" onclick="deleteuser();"><img
-                            src="<?= $_style["icons_delete"] ?>" /> <?= $_lang['delete'] ?></a>
+                <li><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?></a>
                 </li>
             <?php } ?>
-            <li><a href="#" onclick="document.location.href='index.php?a=99';"><img
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+            <li><a href="#" onclick="document.location.href='index.php?a=99';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

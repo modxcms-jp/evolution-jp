@@ -1705,10 +1705,6 @@ ul.actionButtons {
     background-color: var(--color-neutral-button-start);
 }
 
-.actionButtons a img {
-    display: none;
-}
-
 .actionButtons a:hover {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-hover-end);

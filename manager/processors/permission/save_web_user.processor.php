@@ -217,8 +217,7 @@ switch (postv('mode')) {
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= $stayUrl ?>"><img
-                                src="<?= $_style['icons_save'] ?>" /> <?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= $stayUrl ?>"><?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
@@ -432,8 +431,7 @@ switch (postv('mode')) {
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= $stayUrl ?>"><img
-                                src="<?= $_style["icons_save"] ?>" /> <?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= $stayUrl ?>"><?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 

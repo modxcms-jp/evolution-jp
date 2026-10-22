@@ -1814,10 +1814,6 @@ ul.actionButtons {
     background-color: var(--color-neutral-button-start);
 }
 
-.actionButtons a img {
-    display: none;
-}
-
 .actionButtons a.disabled img {
     opacity: .3;
 }

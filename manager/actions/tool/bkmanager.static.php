@@ -19,8 +19,6 @@ $mode = postv('mode', '');
 
 include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 
-$misc_path = manager_style_image_path('misc');
-
 $dumper = new Mysqldumper();
 if ($mode === 'backup') {
     $tables = postv('chk', '');
@@ -145,9 +143,7 @@ if (sessionv('result_msg')) {
             id="Button5"
             class="mutate"><a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel"
-                    src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 
@@ -159,8 +155,7 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="" />
                 <p><?= $_lang['table_hoverinfo'] ?></p>
 
-                <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><img
-                            src="<?= $misc_path ?>ed_save.gif" /> <?= $_lang['database_table_clickbackup'] ?>
+                <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><?= $_lang['database_table_clickbackup'] ?>
                     </a></p>
                 <p>
                     <label>
@@ -376,9 +371,7 @@ if (sessionv('result_msg')) {
                     <a
                         href="#"
                         class="primary"
-                        onclick="document.mutate.save.click();"><img
-                            alt="icons_save"
-                            src="<?= $_style["icons_save"] ?>" /> <?= $_lang["bkmgr_run_sql_submit"] ?>
+                        onclick="document.mutate.save.click();"><?= $_lang["bkmgr_run_sql_submit"] ?>
                     </a>
                 </div>
                 <input type="submit" name="save" style="display:none;" />
@@ -419,8 +412,7 @@ if (sessionv('result_msg')) {
                 </table>
                 <div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
                     <a href="#" class="primary" onclick="document.snapshot.save.click();">
-                        <img alt="icons_save"
-                            src="<?= $_style["icons_add"] ?>" /><?= $_lang["bkmgr_snapshot_submit"] ?>
+                        <?= $_lang["bkmgr_snapshot_submit"] ?>
                     </a>
                     <input type="submit" name="save" style="display:none;" />
             </form>

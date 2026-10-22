@@ -25,9 +25,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel"
-                    src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 
@@ -97,8 +95,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                         </tr>
                     </table>
                     <ul class="actionButtons">
-                        <li><a href="#" class="default" onclick="document.importFrm.submit();"><img
-                                    src="<?= $_style["icons_save"] ?>" /> <?= $_lang['import_site_start'] ?>
+                        <li><a href="#" class="default" onclick="document.importFrm.submit();"><?= $_lang['import_site_start'] ?>
                             </a></li>
                     </ul>
                 </form>
@@ -109,8 +106,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
             evo()->clearCache();
         ?>
             <ul class="actionButtons">
-                <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                            src="<?= $_style["icons_close"] ?>" /> <?= $_lang['close'] ?></a></li>
+                <li><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['close'] ?></a></li>
             </ul>
             <script type="text/javascript">
                 top.mainMenu.reloadtree();

@@ -8,8 +8,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel" src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
+                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?>
             </a></li>
     </ul>
 </div>

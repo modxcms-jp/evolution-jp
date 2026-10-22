@@ -163,7 +163,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
         <ul class="actionButtons">
             <li id="Button1" class="mutate">
                 <a href="#" onclick="documentDirty=false; document.userform.save.click();">
-                    <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
+                    <?= $_lang['update'] ?>
                 </a>
                 <span class="and"> + </span>
                 <select id="stay" name="stay">
@@ -177,12 +177,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
             </li>
             <?php
             if (anyv('a') == 74) { ?>
-                <li id="Button3"><a href="#" onclick="deleteuser();"><img
-                            src="<?= $_style["icons_delete_document"] ?>" /> <?= $_lang['delete'] ?>
+                <li id="Button3"><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?>
                     </a></li>
             <?php } ?>
-            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
     <!-- Tab Start -->

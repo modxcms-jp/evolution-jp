@@ -177,7 +177,7 @@ if (isset($form_v['which_editor'])) {
             <?php if (evo()->hasPermission('save_chunk')): ?>
                 <li id="save" class="primary mutate">
                     <a href="#">
-                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
+                        <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
@@ -198,7 +198,6 @@ if (isset($form_v['which_editor'])) {
                     echo manager()->ab(
                         [
                             'onclick' => 'duplicaterecord();',
-                            'icon' => $_style['icons_resource_duplicate'],
                             'label' => $_lang['duplicate']
                         ]
                     );
@@ -207,7 +206,6 @@ if (isset($form_v['which_editor'])) {
                     echo manager()->ab(
                         [
                             'onclick' => 'deletedocument();',
-                            'icon' => $_style['icons_delete_document'],
                             'label' => $_lang['delete']
                         ]
                     );
@@ -216,7 +214,6 @@ if (isset($form_v['which_editor'])) {
             echo manager()->ab(
                 [
                     'onclick' => "document.location.href='index.php?a=76';",
-                    'icon' => $_style['icons_cancel'],
                     'label' => $_lang['cancel']
                 ]
             );

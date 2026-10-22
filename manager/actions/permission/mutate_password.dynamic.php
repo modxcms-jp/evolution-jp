@@ -19,8 +19,7 @@ if (isset($_SESSION['onetime_msg'])) {
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
+                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 <div class="section">
@@ -48,8 +47,7 @@ if (isset($_SESSION['onetime_msg'])) {
                     <td colspan="2">
                         <div class="actionButtons" style="float:right;">
                             <a class="default" href="#"
-                               onclick="documentDirty=false; document.userform.save.click();"><img
-                                    src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?></a>
+                               onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a>
                         </div>
                     </td>
                 </tr>
