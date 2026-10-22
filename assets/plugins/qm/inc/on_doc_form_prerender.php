@@ -71,9 +71,6 @@ $mc = new Mcc();
 // Hide default manager action buttons
 $mc->addLine('qmHide([document.getElementById("actions")]);');
 
-// Get MODx theme
-$qm_theme = evo()->config['manager_theme'];
-
 // Get doc id
 if (anyv('id')) {
     $doc_id = (int)anyv('id');
@@ -84,25 +81,22 @@ if (anyv('id')) {
 }
 
 // Add action buttons
+// アイコンは付けない（どのテーマも .actionButtons a img を隠す。テーマに images/icons も無い）
 if ($this->conf('prop_loadtb')) {
     $mc->addLine(
         sprintf(
-            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";',
-            $qm_theme,
+            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\">%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\">%s</a></li></ul></div>";',
             $_lang['save'],
             evo()->makeUrl($doc_id, '', '', 'full'),
-            $qm_theme,
             $_lang['cancel']
         )
     );
 } else {
     $mc->addLine(
         sprintf(
-            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";',
-            $qm_theme,
+            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\">%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\">%s</a></li></ul></div>";',
             $_lang['save'],
             evo()->makeUrl($doc_id, '', '', 'full'),
-            $qm_theme,
             $_lang['cancel']
         )
     );
