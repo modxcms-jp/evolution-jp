@@ -14,10 +14,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
             ><a
                     href="#"
                     onclick="documentDirty=false;document.location.href='index.php?a=2';"
-                ><img
-                        alt="icons_cancel"
-                        src="<?= style('icons_cancel') ?>"
-                    /> <?= lang('cancel') ?></a></li>
+                ><?= lang('cancel') ?></a></li>
         </ul>
     </div>
     <div class="section">
@@ -80,15 +77,11 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                                         class="default"
                                         href="#"
                                         onclick="document.getElementById('submitok').click();"
-                                    ><img
-                                            src="<?= style('icons_save') ?>"
-                                        /> <?= lang('search') ?></a
+                                    ><?= lang('search') ?></a
                                     ></li>
                                 <li><a
                                         href="index.php?a=2"
-                                    ><img
-                                            src="<?= style('icons_cancel') ?>"
-                                        /> <?= lang('cancel') ?></a
+                                    ><?= lang('cancel') ?></a
                                     ></li>
                             </ul>
                         </td>

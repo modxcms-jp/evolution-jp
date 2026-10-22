@@ -16,7 +16,6 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
 }
 
 $ph['id'] = $id;
-$ph['style_icons_cancel'] = $_style["icons_cancel"];
 $ph['lang_cancel'] = $_lang['cancel'];
 
 switch (getv('mode')) {
@@ -46,7 +45,7 @@ function tpl()
 <ul class="actionButtons">
     <li class="mutate">
     <a href="javascript:void(0)" onclick="document.location.href='index.php?a=2'">
-    <img src="[+style_icons_cancel+]" /> [+lang_cancel+]
+    [+lang_cancel+]
     </a>
     </li>
 </ul>

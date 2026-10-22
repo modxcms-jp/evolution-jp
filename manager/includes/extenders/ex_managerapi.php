@@ -308,12 +308,7 @@ class ManagerAPI
                     'href' => '#',
                     'onclick' => $ph['onclick']
                 ],
-                img_tag(
-                    $ph['icon'],
-                    [
-                        'alt' => $ph['alt'] ?? '',
-                    ]
-                ) . $ph['label']
+                $ph['label']
             )
         );
     }

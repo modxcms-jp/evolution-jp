@@ -131,12 +131,10 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <?php if ((evo()->hasPermission('new_module'))) {
-                echo '<li id="newModule" class="mutate"><a href="index.php?a=107"><img src="' . $_style["icons_save"] . '" />' . $_lang["new_module"] . '</a></li>';
+                echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . $_lang["new_module"] . '</a></li>';
             } ?>
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

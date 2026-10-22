@@ -95,12 +95,9 @@
 </form>
 <div id="actions">
     <ul class="actionButtons">
-        <li id="Button1"><a href="index.php?a=2"><img
-                        src="media/style/common/images/icons/stop.png" align="absmiddle"> [+lang.DM_close+]</a></li>
-        <li id="Button2" style="display:[+sort.save+]"><a href="#" onclick="save();"><img
-                        src="media/style/common/images/icons/save.png" align="absmiddle"> [+lang.DM_save+]</a></li>
-        <li id="Button4"><a href="#" onclick="reset();"><img src="media/style/common/images/icons/cancel.png"
-                                                             align="absmiddle"> [+lang.DM_cancel+]</a></li>
+        <li id="Button1"><a href="index.php?a=2">[+lang.DM_close+]</a></li>
+        <li id="Button2" style="display:[+sort.save+]"><a href="#" onclick="save();">[+lang.DM_save+]</a></li>
+        <li id="Button4"><a href="#" onclick="reset();">[+lang.DM_cancel+]</a></li>
     </ul>
 </div>
 <div class="section">

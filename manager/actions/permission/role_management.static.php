@@ -16,8 +16,7 @@ if (!evo()->hasPermission('edit_role')) {
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel" src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
+                                           onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?>
             </a></li>
     </ul>
 </div>
@@ -27,8 +26,7 @@ if (!evo()->hasPermission('edit_role')) {
         <p><?= $_lang['role_management_msg'] ?></p>
 
         <ul class="actionButtons">
-            <li><a class="default" href="index.php?a=38"><img
-                        src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_role'] ?></a></li>
+            <li><a class="default" href="index.php?a=38"><?= $_lang['new_role'] ?></a></li>
         </ul>
         <?php
 

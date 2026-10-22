@@ -1653,10 +1653,6 @@ ul.actionButtons {
     background-image: linear-gradient(var(--color-neutral-button-start), var(--color-neutral-button-end));
 }
 
-.actionButtons a img {
-    display: none;
-}
-
 .actionButtons a:hover {
     border-color: #fff;
     background-image: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));

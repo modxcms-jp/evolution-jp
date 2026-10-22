@@ -138,8 +138,8 @@ $cancelUrl = 'index.php?a=16&id=' . (int)anyv('id');
 
 <div id="actions">
     <ul class="actionButtons">
-        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><img src="<?= $_style["icons_cancel"] ?>"> <?= $_lang['cancel'] ?></a></li>
-        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?></a></li>
+        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><?= $_lang['cancel'] ?></a></li>
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= $_lang['update'] ?></a></li>
     </ul>
 </div>
 

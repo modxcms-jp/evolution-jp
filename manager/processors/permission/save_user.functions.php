@@ -546,8 +546,7 @@ function newUser()
 
     <div id="actions">
         <ul class="actionButtons">
-            <li class="mutate"><a href="<?= $stayUrl ?>"><img
-                        src="<?= style('icons_save') ?>" /> <?= lang('close') ?>
+            <li class="mutate"><a href="<?= $stayUrl ?>"><?= lang('close') ?>
                 </a></li>
         </ul>
     </div>
@@ -730,8 +729,7 @@ function updateUser()
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate">
-                <a href="<?= hsc($stayUrl) ?>"<?= postv('userid') == evo()->getLoginUserID() ? ' data-evo-post="full"' : '' ?>><img
-                        src="<?= style('icons_save') ?>" /> <?= (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close') ?>
+                <a href="<?= hsc($stayUrl) ?>"<?= postv('userid') == evo()->getLoginUserID() ? ' data-evo-post="full"' : '' ?>><?= (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close') ?>
                 </a>
             </li>
         </ul>

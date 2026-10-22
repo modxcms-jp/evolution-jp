@@ -46,8 +46,7 @@ $searchUrl = 'index.php?' . http_build_query(['a' => 135, 'ajax' => 'search', 'i
         <?php if (evo()->checkPermissions(0)): ?>
             <li><a href="#" id="parentPickerRoot"><?= hsc(lang('parent_picker_root')) ?></a></li>
         <?php endif; ?>
-        <li class="mutate"><a href="#" onclick="EvoShell.closeModal({reloadMain: false}); return false;"><img
-                    src="<?= style('icons_cancel') ?>"/> <?= hsc(lang('cancel')) ?></a></li>
+        <li class="mutate"><a href="#" onclick="EvoShell.closeModal({reloadMain: false}); return false;"><?= hsc(lang('cancel')) ?></a></li>
     </ul>
 </div>
 

@@ -297,7 +297,7 @@ function entity($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
-                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
+                        <?= $_lang['update'] ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
@@ -313,7 +313,6 @@ function entity($key, $default = null)
             if (getv('a') == 301) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
-                    'icon' => $_style['icons_resource_duplicate'],
                     'label' => $_lang['duplicate']
                 ];
                 if (evo()->hasPermission('new_template')) {
@@ -321,7 +320,6 @@ function entity($key, $default = null)
                 }
                 $params = [
                     'onclick' => 'deletedocument();',
-                    'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
                 ];
                 if (evo()->hasPermission('delete_template')) {
@@ -330,7 +328,6 @@ function entity($key, $default = null)
             }
             $params = [
                 'onclick' => "document.location.href='index.php?a=76';",
-                'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
             ];
             echo manager()->ab($params);

@@ -21,7 +21,6 @@ if (preg_match('@^[1-9][0-9]*$@', postv('id'))) {
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content/functions.php');
 
 $ph['id'] = $docid;
-$ph['style_icons_cancel'] = style('icons_cancel');
 $ph['lang_cancel'] = lang('cancel');
 
 $tpl = getTplDraft();
@@ -94,7 +93,7 @@ function getTplDraft()
     <ul class="actionButtons">
         <li class="mutate">
         <a href="javascript:void(0)" onclick="document.location.href='index.php?a=131&id=[+id+]'">
-        <img src="[+style_icons_cancel+]" /> [+lang_cancel+]
+        [+lang_cancel+]
         </a>
         </li>
     </ul>

@@ -16,8 +16,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel" src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
+            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?>
                 </a></li>
         </ul>
     </div>
@@ -31,8 +30,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     <h2 class="tab"><?= $_lang["manage_templates"] ?></h2>
                     <div><?= $_lang['template_management_msg'] ?></div>
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=19"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_template'] ?>
+                        <li><a class="default" href="index.php?a=19"><?= $_lang['new_template'] ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_templates', 16, 'templatename') ?>
@@ -49,8 +47,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         -->
                     <div><?= $_lang['tmplvars_management_msg'] ?></div>
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=300"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_tmplvars'] ?>
+                        <li><a class="default" href="index.php?a=300"><?= $_lang['new_tmplvars'] ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_tmplvars', 301) ?>
@@ -64,8 +61,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     <div><?= $_lang['htmlsnippet_management_msg'] ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=77"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_htmlsnippet'] ?>
+                        <li><a class="default" href="index.php?a=77"><?= $_lang['new_htmlsnippet'] ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_htmlsnippets', 78) ?>
@@ -79,8 +75,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     <div><?= $_lang['snippet_management_msg'] ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=23"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_snippet'] ?>
+                        <li><a class="default" href="index.php?a=23"><?= $_lang['new_snippet'] ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_snippets', 22) ?>
@@ -94,12 +89,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     <div><?= $_lang['plugin_management_msg'] ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=101"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_plugin'] ?>
+                        <li><a class="default" href="index.php?a=101"><?= $_lang['new_plugin'] ?>
                             </a></li>
                         <?php if (evo()->hasPermission('save_plugin')) { ?>
-                            <li><a href="index.php?a=100" data-modal><img
-                                    src="<?= $_style["sort"] ?>"/> <?= $_lang['plugin_priority'] ?>
+                            <li><a href="index.php?a=100" data-modal><?= $_lang['plugin_priority'] ?>
                             </a></li><?php } ?>
                     </ul>
                     <?= createResourceList('site_plugins', 102) ?>

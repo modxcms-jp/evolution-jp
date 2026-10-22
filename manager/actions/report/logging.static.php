@@ -23,9 +23,7 @@ $icons_path = manager_style_image_path('icons');
             class="mutate">
             <a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel"
-                    src="<?= style('icons_cancel') ?>" /> <?= lang('cancel') ?>
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= lang('cancel') ?>
             </a>
         </li>
     </ul>
@@ -191,13 +189,11 @@ $icons_path = manager_style_image_path('icons');
                 <li><a
                         href="#" class="default"
                         onclick="documentDirty=false;document.logging.log_submit.click();">
-                        <img src="<?= style('icons_save') ?>" />
                         <?= lang('search') ?>
                     </a>
                 </li>
                 <li>
                     <a href="index.php?a=2" onclick="documentDirty=false;">
-                        <img src="<?= style('icons_cancel') ?>" />
                         <?= lang('cancel') ?>
                     </a>
                 </li>

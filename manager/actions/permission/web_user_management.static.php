@@ -105,9 +105,7 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -116,8 +114,7 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td><a class="default" href="index.php?a=87"><img
-                                src="<?= $_style["icons_add"] ?>" /> <?= $_lang['new_web_user'] ?></a>
+                    <td><a class="default" href="index.php?a=87"><?= $_lang['new_web_user'] ?></a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
@@ -133,12 +130,11 @@ echo $cm->render();
                                 </td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
                                         onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" style="display:inline;" /></a>
+                                            src="<?= $_style['icons_refresh'] ?>" /></a>
                                 </td>
                                 <td><a href="#" title="<?= $_lang["list_mode"] ?>"
                                         onclick="changeListMode();return false;"><img
-                                            src="<?= $_style['icons_table'] ?>"
-                                            style="display:inline;" /></a>
+                                            src="<?= $_style['icons_table'] ?>" /></a>
                                 </td>
                             </tr>
                         </table>

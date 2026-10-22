@@ -123,9 +123,7 @@ if (!evo()->hasPermission('logs')) {
                 <a
                     href="#"
                     onclick="documentDirty=false;document.location.href='index.php?a=53';"
-                ><img
-                        alt="icons_cancel"
-                        src="<?= style("icons_cancel") ?>"/> <?= lang('cancel') ?></a>
+                ><?= lang('cancel') ?></a>
             </li>
         </ul>
     </div>
