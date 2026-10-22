@@ -13,7 +13,6 @@ class Qm
     public $modx;
     // 使わない。旧版（1.5.6 まで）のプラグインのコードが代入するため、宣言だけ残す
     public $jqpath = '';
-    public $noconflictjq = 'false';
     public $loadtb = 'false';
     public $tbwidth = '600';
     public $tbheight = '400';
@@ -104,7 +103,7 @@ class Qm
         // Get plugin parameters
         // 値が空のプロパティは parseProperties() が渡さないため、そのときはクラスの既定値を使う
         $names = [
-            'noconflictjq', 'loadtb', 'tbwidth', 'tbheight',
+            'loadtb', 'tbwidth', 'tbheight',
             'hidefields', 'hidetabs', 'hidesections', 'addbutton', 'tpltype', 'tplid',
             'custombutton', 'managerbutton', 'logout', 'autohide',
             'editbuttons', 'editbclass', 'newbuttons', 'newbclass', 'tvbuttons', 'tvbclass'

@@ -181,14 +181,8 @@ else {
 ';
         }
 
-        // QM は jQuery を使わず、読み込みもしない。サイトが自分で jQuery を読み込んでいるときだけ、
-        // 互換のために $j の別名を付ける（サイトの $ は外さない）
-        $head = '';
-        if ($this->noconflictjq == 'true') {
-            $head .= '<script type="text/javascript">if (window.jQuery && !window.$j) { window.$j = jQuery; }</script>';
-        }
-        // 編集画面を開くモーダル（loadtb）とツールバーの開閉
-        $head .= sprintf(
+        // 編集画面を開くモーダル（loadtb）とツールバーの開閉。QM は jQuery を使わず、読み込みもしない
+        $head = sprintf(
             '<script type="text/javascript" src="%sassets/plugins/qm/js/qm.js"></script>'
             . '<script type="text/javascript">QM.init({modal: %s, width: %s, height: %s});</script>',
             MODX_SITE_URL,

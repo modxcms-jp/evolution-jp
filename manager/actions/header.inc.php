@@ -72,10 +72,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         var documentDirty = false;
         var dontShowWorker = false;
         var baseurl = '<?= MODX_BASE_URL ?>';
-        // 管理画面は jQuery を同梱しない。プラグインで jQuery を読み込んだときだけ、互換の $j を定義する
-        if (window.jQuery) {
-            var $j = jQuery.noConflict();
-        }
 
         Evo.ready(function () {
             // メニュー/ツリー部品のscriptが定義済みになった後に初期化する

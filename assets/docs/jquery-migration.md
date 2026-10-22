@@ -69,7 +69,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 ### どうしても jQuery が要る場合（利用者向け）
 
-jQuery の本体は同梱していない（`manager/media/script/jquery/` は #858 で削除した）。必要なら、jQuery のファイルを自分で用意し（例: `assets/js/jquery.min.js` に置く）、`OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）と `$j` を定義するインラインスクリプトより前に出る。jQuery が読み込まれていれば `header.inc.php` も `$j` を定義するが、プラグインの側で定義しておくと確実。
+jQuery の本体は同梱していない（`manager/media/script/jquery/` は #858 で削除した）。必要なら、jQuery のファイルを自分で用意し（例: `assets/js/jquery.min.js` に置く）、`OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）より前に出る。本体は `$j` を定義しないので、`$j` を使うアドオンのためには、次の例のようにプラグインの側で定義する。
 
 ```php
 // プラグイン（システムイベント OnManagerMainFrameHeaderHTMLBlock にチェック）
@@ -85,7 +85,7 @@ event()->output(
 
 ### 公開側（QuickManager）
 
-QuickManager は jQuery を使わず、公開側でも読み込まない。以前の設定 `loadfrontendjq`（公開側に同梱の jQuery を読み込む）は廃止した。サイトのテンプレートのスクリプトが jQuery を使うときは、テンプレートで自分で読み込む。設定 `noconflictjq` が true（既定）なら、サイトが読み込んだ jQuery に QM が `$j` の別名を付ける（`parent.$j.colorbox.close()` を呼ぶ外部のアドオンの互換）。
+QuickManager は jQuery を使わず、公開側でも読み込まない。以前の設定 `loadfrontendjq`（公開側に同梱の jQuery を読み込む）は廃止した。サイトのテンプレートのスクリプトが jQuery を使うときは、テンプレートで自分で読み込む。以前の設定 `noconflictjq`（`$j` の別名を付ける）も廃止し、QM は `$j` を定義しない。QM の編集画面のモーダルを閉じるときは、`parent.$j.colorbox.close()` ではなく `parent.QM.close()` を呼ぶ。
 
 ## ManagerManager のウィジェット
 
