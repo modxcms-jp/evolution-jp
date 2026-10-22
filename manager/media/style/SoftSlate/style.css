@@ -1302,14 +1302,14 @@ a.hometblink:hover {
     outline-offset: -2px;
 }
 
-/* 選択中は 2 段目と同じ地色でつなげ、上端の青い線でも示す */
+/* 選択中は 2 段目と同じ暗いスレートの地色でつなげ、白い太字で示す。線や影は付けない */
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
     border-color: var(--topnav-link-active-bg);
-    border-top: 1px solid var(--topnav-border);
     border-bottom: none;
-    box-shadow: inset 0 2px 0 #7eb3d6;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
     color: var(--topnav-link-hover-color);
+    font-weight: 600;
     position: relative;
     text-shadow: none;
     z-index: 2;
