@@ -154,7 +154,7 @@ html, body, form, fieldset {
 }
 
 body {
-    font-family: "Hiragino Sans", "Noto Sans JP", Meiryo, "Helvetica Neue", Arial, sans-serif;
+    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 13px;
     height: 100%;
     line-height: 1.6;
@@ -170,22 +170,23 @@ body {
             #fffaff 85%,
             #ffffff 100%);
     background-attachment: fixed;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
+/* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、
+   水玉をビューポート基準(fixed)で一枚に描き、半透明のナビやツリーから透かして見せる */
 body#mainpane {
     padding: var(--space-4);
     background:
-        /* === 上のほうの大きな水玉 === */
-        radial-gradient(circle 90px at 75% 15%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
-        radial-gradient(circle 70px at 92% 25%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 51%),
-        radial-gradient(circle 80px at 60% 8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
-        /* === 右上のボタン付近の水玉 === */
-        radial-gradient(circle 100px at 88% 12%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 51%),
-        radial-gradient(circle 65px at 98% 18%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
-        radial-gradient(circle 50px at 82% 6%, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 51%),
-        /* === 白い水玉模様（大小ランダム） === */
+        /* === ナビの裏の水玉。ナビの高さは px で決まるため、縦位置も px で置く === */
+        radial-gradient(circle 90px at 20% 10px, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+        radial-gradient(circle 50px at 6% 72px, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+        radial-gradient(circle 60px at 40% 64px, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+        radial-gradient(circle 80px at 62% 20px, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+        radial-gradient(circle 36px at 74% 78px, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+        radial-gradient(circle 100px at 88% 40px, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 51%),
+        radial-gradient(circle 70px at 97% 120px, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 51%),
+
+        /* === 右側の水玉（大小ランダム） === */
         /* 大きめの水玉 */
         radial-gradient(circle 45px at 85% 75%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
         radial-gradient(circle 35px at 72% 88%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
@@ -213,6 +214,26 @@ body#mainpane {
         radial-gradient(circle 4px at 80% 90%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
         radial-gradient(circle 6px at 67% 82%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
         radial-gradient(circle 5px at 96% 65%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+
+        /* === 中央の水玉（右側の群れから左へ、間を空けて散らす） === */
+        radial-gradient(circle 40px at 48% 70%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+        radial-gradient(circle 30px at 58% 52%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+        radial-gradient(circle 22px at 38% 84%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+        radial-gradient(circle 14px at 55% 92%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+        radial-gradient(circle 10px at 33% 60%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+        radial-gradient(circle 8px at 52% 40%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+        radial-gradient(circle 6px at 44% 78%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+
+        /* === 左（ツリー側）の水玉。白い水玉は文字の下地を明るくするだけなので、数を抑えて置く === */
+        radial-gradient(circle 44px at 9% 82%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+        radial-gradient(circle 26px at 17% 66%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+        radial-gradient(circle 30px at 14% 44%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
+        radial-gradient(circle 16px at 4% 58%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+        radial-gradient(circle 12px at 13% 93%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+        radial-gradient(circle 10px at 3% 32%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+        radial-gradient(circle 8px at 21% 86%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+        radial-gradient(circle 6px at 7% 70%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+
         /* === 濃いめのピンクグラデーション === */
         radial-gradient(
             ellipse 130% 110% at 100% 100%,
@@ -231,6 +252,13 @@ body#mainpane {
             ellipse 70% 70% at 80% 95%,
             rgba(190, 140, 165, 0.35) 0%,
             transparent 50%
+        ),
+        /* 左下の淡いピンクのたまり。下端の白に左側の水玉が溶けないよう、ごく薄く色を置く */
+        radial-gradient(
+            ellipse 45% 55% at 0% 100%,
+            rgba(215, 170, 195, 0.3) 0%,
+            rgba(230, 190, 212, 0.15) 45%,
+            transparent 80%
         ),
         /* ベースのグラデーション */
         linear-gradient(180deg,
@@ -1059,6 +1087,12 @@ div.treeframebody {
     padding: var(--space-2);
 }
 
+/* ツリーとメインの境目。shell.css の灰色の線は背景から浮くため、半透明の白にする
+   (shell.css より後に効かせるため html を足して詳細度を上げる) */
+html body.evo-shell > #treePane {
+    border-inline-end-color: rgba(255, 255, 255, 0.6);
+}
+
 #treeMenu * {
     vertical-align: middle;
 }
@@ -1456,23 +1490,16 @@ a.hometblink:hover {
     --topnav-link-color: #5a4055;
     --topnav-link-hover-color: #d45da7;
 
-    /* 質感豊かなグラデーション背景 */
+    /* 淡いピンクのガラス。opacity は使わず背景色のアルファだけを下げ、
+       文字はそのままに body#mainpane の水玉を透かして見せる */
     background:
-        /* 微細なノイズテクスチャ風のオーバーレイ */
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 1px,
-            rgba(255, 255, 255, 0.02) 1px,
-            rgba(255, 255, 255, 0.02) 2px
-        ),
         /* 左から右へのメイングラデーション */
         linear-gradient(
             90deg,
-            rgba(248, 220, 235, 0.95) 0%,
-            rgba(245, 215, 230, 0.9) 30%,
-            rgba(235, 200, 218, 0.85) 60%,
-            rgba(200, 160, 185, 0.92) 100%
+            rgba(248, 220, 235, 0.6) 0%,
+            rgba(245, 215, 230, 0.55) 30%,
+            rgba(235, 200, 218, 0.5) 60%,
+            rgba(200, 160, 185, 0.58) 100%
         ),
         /* 下部のアクセント */
         linear-gradient(
@@ -1557,53 +1584,12 @@ a.hometblink:hover {
         inset 0 1px 0 rgba(255, 255, 255, 0.45),
         0 1px 2px rgba(175, 135, 152, 0.05);
     z-index: 1;
-    /* === かすれ・使い込み表現 === */
-    background:
-        /* 縦方向のかすれ線（細い） */
-        repeating-linear-gradient(
-            90deg,
-            transparent 0px,
-            transparent 3px,
-            rgba(255, 255, 255, 0.12) 3px,
-            rgba(255, 255, 255, 0.12) 4px,
-            transparent 4px,
-            transparent 18px
-        ),
-        /* 横方向のかすれ（ランダムな繰り返し） */
-        repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            rgba(255, 255, 255, 0.08) 1px,
-            transparent 2px,
-            transparent 5px
-        ),
-        /* 大きなかすれスポット（左側） */
-        radial-gradient(ellipse 80px 6px at 5% 60%, rgba(255, 255, 255, 0.35) 0%, transparent 70%),
-        radial-gradient(ellipse 120px 4px at 15% 30%, rgba(255, 255, 255, 0.28) 0%, transparent 70%),
-        radial-gradient(ellipse 60px 5px at 8% 80%, rgba(255, 255, 255, 0.32) 0%, transparent 70%),
-        /* 大きなかすれスポット（中央） */
-        radial-gradient(ellipse 100px 5px at 35% 45%, rgba(255, 255, 255, 0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 70px 4px at 50% 70%, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse 90px 6px at 45% 20%, rgba(255, 255, 255, 0.22) 0%, transparent 70%),
-        /* 大きなかすれスポット（右側） */
-        radial-gradient(ellipse 110px 5px at 70% 55%, rgba(255, 255, 255, 0.27) 0%, transparent 70%),
-        radial-gradient(ellipse 80px 4px at 85% 35%, rgba(255, 255, 255, 0.33) 0%, transparent 70%),
-        radial-gradient(ellipse 65px 5px at 92% 75%, rgba(255, 255, 255, 0.29) 0%, transparent 70%),
-        /* 小さなかすれドット */
-        radial-gradient(circle 3px at 12% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
-        radial-gradient(circle 2px at 28% 65%, rgba(255, 255, 255, 0.45) 0%, transparent 100%),
-        radial-gradient(circle 4px at 42% 25%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
-        radial-gradient(circle 2px at 58% 80%, rgba(255, 255, 255, 0.48) 0%, transparent 100%),
-        radial-gradient(circle 3px at 75% 50%, rgba(255, 255, 255, 0.42) 0%, transparent 100%),
-        radial-gradient(circle 2px at 88% 30%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
-        /* ベースの微妙なグラデーション */
-        linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.08) 0%,
-            transparent 30%,
-            transparent 70%,
-            rgba(255, 255, 255, 0.05) 100%
-        );
+    /* 下地の色は持たず、トップメニューのガラス越しに水玉を見せる。上端だけ白く光らせて 1 段目と揃える */
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 255, 255, 0.04) 100%
+    );
 }
 
 #nav > li.active > ul.subnav {
