@@ -179,6 +179,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、
+   泡と光をビューポート基準(fixed)で一枚に描き、各ペインは背景を持たずに透かして見せる */
 body#mainpane {
     padding: var(--space-4);
     background:
@@ -296,6 +298,17 @@ body#mainpane {
         radial-gradient(circle 3px at 75% 95%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
         radial-gradient(circle 2px at 88% 78%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
 
+        /* --- ツリー側（左下）へ立ちのぼる泡 ---
+           ツリーの文字に重なるため、右下の泡より小さく淡くして、大きさと濃さに変化をつける */
+        radial-gradient(circle 22px at 9% 90%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.06) 36%, rgba(203, 238, 197, 0.1) 45%, rgba(255, 255, 255, 0.55) 47.5%, rgba(255, 255, 255, 0.65) 49%, rgba(223, 245, 215, 0.1) 50%, transparent 50.5%),
+        radial-gradient(circle 4px at 8% 88%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%),
+        radial-gradient(circle 12px at 16% 80%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.08) 34%, rgba(203, 238, 197, 0.12) 45%, rgba(255, 255, 255, 0.6) 47.5%, rgba(255, 255, 255, 0.7) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
+        radial-gradient(circle 7px at 4% 74%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.09) 32%, rgba(203, 238, 197, 0.13) 44%, rgba(255, 255, 255, 0.55) 47%, rgba(255, 255, 255, 0.65) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
+        radial-gradient(circle 4px at 12% 66%, rgba(223, 245, 215, 0.12) 0%, rgba(203, 238, 197, 0.22) 30%, rgba(203, 238, 197, 0.32) 45%, rgba(255, 255, 255, 0.6) 46.5%, rgba(255, 255, 255, 0.7) 47.5%, rgba(223, 245, 215, 0.4) 49%, transparent 50%),
+        radial-gradient(circle 2.5px at 6% 58%, rgba(223, 245, 215, 0.15) 0%, rgba(203, 238, 197, 0.28) 28%, rgba(203, 238, 197, 0.38) 44%, rgba(255, 255, 255, 0.65) 45.5%, rgba(255, 255, 255, 0.75) 47%, rgba(223, 245, 215, 0.45) 48.5%, transparent 50%),
+        radial-gradient(circle 5px at 19% 94%, rgba(223, 245, 215, 0.1) 0%, rgba(203, 238, 197, 0.2) 30%, rgba(203, 238, 197, 0.3) 45%, rgba(255, 255, 255, 0.55) 46.5%, rgba(255, 255, 255, 0.65) 47.5%, rgba(223, 245, 215, 0.35) 49%, transparent 50%),
+        radial-gradient(circle 2px at 14% 72%, rgba(223, 245, 215, 0.15) 0%, rgba(203, 238, 197, 0.28) 28%, rgba(203, 238, 197, 0.38) 44%, rgba(255, 255, 255, 0.65) 45.5%, rgba(255, 255, 255, 0.75) 47%, rgba(223, 245, 215, 0.45) 48.5%, transparent 50%),
+
         /* === ライムの皮のエッジ（酸味の光） === */
         radial-gradient(
             ellipse 60% 40% at 20% 8%,
@@ -333,6 +346,13 @@ body#mainpane {
             ellipse 70% 70% at 80% 95%,
             rgba(255, 255, 255, 0.2) 0%,
             transparent 50%
+        ),
+        /* 左下（ツリー側）の淡いライムのたまり。下端の白に泡の輪郭が溶けないよう、ごく薄く色を置く */
+        radial-gradient(
+            ellipse 40% 50% at 0% 100%,
+            rgba(203, 238, 197, 0.32) 0%,
+            rgba(223, 245, 215, 0.16) 45%,
+            transparent 80%
         ),
         /* ベースのグラデーション（白から淡いライムグリーンへ） */
         linear-gradient(180deg,
@@ -1187,37 +1207,18 @@ a img {
    Used in: Left frame site tree, document tree navigation
    ============================================================================ */
 
-/* ツリーフレーム - メインペインと連続したグラデーション */
+/* ツリー - 画面全体の背景（body#mainpane の泡と光）を透かして、メインペインとつなげる。
+   背景は自前で描かず、文字やアイコンが模様に負けないよう薄い氷白を重ねるだけにする */
 div.treeframebody {
-    /* メインペインと同じ固定背景グラデーションを使用し、境界をなくす */
-    background:
-        linear-gradient(180deg,
-            #DFF5D7 0%,
-            #E5F7DE 10%,
-            #EBF9E5 20%,
-            #F2FBEF 35%,
-            #F7FCF5 50%,
-            #FBFDFB 70%,
-            #FDFDFB 85%,
-            #ffffff 100%);
-    background-attachment: fixed;
+    background: rgba(253, 253, 251, 0.32);
     padding: var(--space-2);
     min-height: 100%;
 }
 
-/* ツリーフレームのbodyにも同じ固定背景を適用 */
-body.treeFrame {
-    background:
-        linear-gradient(180deg,
-            #DFF5D7 0%,
-            #E5F7DE 10%,
-            #EBF9E5 20%,
-            #F2FBEF 35%,
-            #F7FCF5 50%,
-            #FBFDFB 70%,
-            #FDFDFB 85%,
-            #ffffff 100%);
-    background-attachment: fixed;
+/* ツリーとメインの境目。shell.css の灰色の線は背景から浮くため、光の縁のような半透明の白にする
+   (shell.css より後に効かせるため html を足して詳細度を上げる) */
+html body.evo-shell > #treePane {
+    border-inline-end-color: rgba(255, 255, 255, 0.6);
 }
 
 #treeMenu * {
@@ -1680,12 +1681,12 @@ a.hometblink:hover {
             rgba(200, 230, 185, 0.84) 80%,
             rgba(215, 240, 195, 0.88) 100%
         ),
-        /* 下地（程よい濃さのグリーン） */
+        /* 下地（程よい濃さのグリーン）。半透明にして画面全体の背景の光をうっすら透かす */
     linear-gradient(
         180deg,
-        #B8DDA8 0%,    /* 程よく深いグリーン */
-        #ACD59C 50%,   /* 中間 */
-        #A2CD92 100%   /* 下端 */
+        rgba(184, 221, 168, 0.45) 0%,    /* 程よく深いグリーン */
+        rgba(172, 213, 156, 0.45) 50%,   /* 中間 */
+        rgba(162, 205, 146, 0.45) 100%   /* 下端 */
     );
     border-bottom: 1px solid rgba(255, 255, 255, 0.42);
     box-shadow:
@@ -1785,8 +1786,8 @@ a.hometblink:hover {
             rgba(202, 232, 188, 0.8) 50%,
             rgba(212, 240, 195, 0.84) 100%
         ),
-        /* 下地 */
-        #C8EBB8;
+        /* 下地（トップメニューと同じく半透明にする） */
+        rgba(200, 235, 184, 0.35);
 }
 
 #nav > li.active > ul.subnav {
