@@ -46,7 +46,7 @@
     --color-text-subtle: var(--gray-600);
     --color-text-dark: #222;
     --color-text-darker: #111;
-    --color-background-page: #f4f4f4;
+    --color-background-page: #f3f5f7;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
     --color-border-default: var(--gray-400);
@@ -61,11 +61,27 @@
     --color-warning: #444;
     --color-info: #3CB371;
 
-    /* Component Colors - Sections */
-    --color-section-header-text: var(--color-text-muted);
+    /* Accent - タブの選択線・ツリーの選択・主ボタン。上部ナビのネイビーに合わせた青 */
+    --color-accent: #1d6fa5;
+    --color-accent-strong: #1d5f8a;
+    --color-accent-strong-hover: #174d71;
+    --color-accent-soft: rgba(29, 111, 165, 0.08);
+    --color-accent-softer: rgba(29, 111, 165, 0.14);
+    --color-heading: #1f3445;
+
+    /* Danger - 削除など取り消せない操作 */
+    --color-danger: #b42318;
+    --color-danger-border: #e4b4ae;
+    --color-danger-bg-hover: #fdf1f0;
+
+    /* Component Colors - Sections (白いカード + ごく薄い枠と影) */
+    --color-section-header-text: var(--color-heading);
     --color-section-header-start: var(--gray-100);
-    --color-section-header-end: #dddddd;
-    --color-section-bg: #F7F7F7;
+    --color-section-header-end: #f7f9fa;
+    --color-section-bg: var(--color-surface);
+    --color-card-border: #e3e7eb;
+    --color-input-border: #c4ccd3;
+    --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 2px 8px rgba(16, 24, 40, 0.05);
 
     /* Component Colors - Navigation */
     --color-nav-subnav-start: #0d2c44;
@@ -260,20 +276,23 @@ h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
 
+/* ページタイトル。灰色の帯はやめ、本文より一段大きい濃紺の見出しにする */
 h1 {
-    font-size: 1.25em;
-    color: var(--gray-800);
+    font-size: 1.35em;
+    color: var(--color-heading);
     font-weight: bold;
-    background-color: #d0d0d0;
-    letter-spacing: 1px;
-    line-height: 1em;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
-    margin: var(--space-2);
+    background-color: transparent;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-md);
+    margin: var(--space-2) var(--space-2) var(--space-3);
 }
 
+/* 下書きは帯の色で見分けるため、背景を残す */
 h1.draft {
     background-color: var(--color-draft-light);
+    padding-inline: var(--space-3);
 }
 
 h2 {
@@ -525,7 +544,7 @@ optgroup option {
 
 form select {
     background: var(--color-surface);
-    border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
+    border-color: var(--color-input-border);
     border-style: solid;
     border-width: 1px;
     padding: var(--space-1);
@@ -543,7 +562,7 @@ form input[type=text],
 form input[type=password],
 form textarea {
     background: var(--color-surface);
-    border-color: var(--gray-500) #DDD #DDD var(--gray-500);
+    border-color: var(--color-input-border);
     border-style: solid;
     border-width: 1px;
     padding: var(--space-1) 2px var(--space-1) var(--space-1);
@@ -551,7 +570,7 @@ form textarea {
     min-height: 17px;
     vertical-align: baseline;
     border-radius: var(--radius-sm);
-    box-shadow: 0px 1px 3px #E8E8E8 inset;
+    box-shadow: none;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -775,15 +794,14 @@ form .imeoff {
     margin-bottom: 10px;
 }
 
+/* セクション見出し。濃い灰色の帯をやめ、ごく薄い地色と下線だけで本文と区切る */
 .sectionHeader {
     color: var(--color-section-header-text);
     margin: 0 var(--space-2);
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-3) var(--space-4);
     font-weight: bold;
-    border: 1px solid var(--color-section-header-end);
-    border-bottom: none;
+    border: 1px solid var(--color-card-border);
     background-color: var(--color-section-header-end);
-    box-shadow: 0 1px 0 var(--color-surface) inset;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
@@ -797,12 +815,20 @@ form .imeoff {
     display: block;
 }
 
+/* 白いカード。枠はごく薄くし、角は控えめに丸める */
 .tab-page .sectionBody,
 .section .sectionBody {
     background: var(--color-section-bg);
-    border: 1px solid var(--gray-400);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
     margin: 0 3px 15px;
-    padding: 15px;
+    padding: var(--space-4);
+}
+
+/* 見出しの直後は見出しと一枚のカードにつなげる */
+.sectionHeader + .sectionBody {
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .section .sectionBody {
@@ -893,13 +919,17 @@ a img {
    Used in: Left frame site tree, document tree navigation
    ============================================================================ */
 
+/* ツリーは清潔感のある明るいグレー。内側の影はやめ、メインとの境目は 1px の線だけにする */
 div.treeframebody {
-    background: var(--gray-100) !important;
-    background-image: linear-gradient(180deg,
-        rgba(13, 44, 68, 0.03) 0%,
-        rgba(10, 34, 51, 0.05) 100%) !important;
-    box-shadow: var(--shadow-inset);
+    background: #f6f8fa !important;
+    background-image: none !important;
     padding: var(--space-2);
+}
+
+/* shell.css の 3px の白い境目を、カードと同じ薄い線にする
+   (shell.css より後に効かせるため html を足して詳細度を上げる) */
+html body.evo-shell > #treePane {
+    border-inline-end: 1px solid var(--color-card-border);
 }
 
 #treeMenu * {
@@ -950,13 +980,21 @@ div.treeNode {
     white-space: nowrap;
 }
 
+/* ホバーは淡い青の地色だけ、選択中は地色と枠で示す。行の寸法は変えない */
 .treeNodeSelected,
 .treeNodeHover {
-    background-color: var(--color-surface);
-    border: 1px solid var(--gray-400);
+    background-color: var(--color-accent-soft);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
     color: #000;
     padding: 1px 2px;
     margin-left: -3px;
+}
+
+.treeNodeSelected {
+    background-color: var(--color-accent-softer);
+    border-color: rgba(29, 111, 165, 0.35);
+    color: var(--color-heading);
 }
 
 .unpublished a, .unpublishedNode {
@@ -1426,46 +1464,51 @@ a.hometblink:hover {
     width: 100%;
 }
 
+/* タブ。箱と枠をやめたフラットな見出しにし、選択中は青い下線で示す。
+   タブ列の下線(.tab-row の border-bottom)に、選択中の下線を 1px 重ねる */
 .dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-secondary-text);
+    color: var(--color-text-muted);
     font-size: 1em;
     cursor: pointer;
     display: inline;
-    margin: 3px 2px 1px 0;
+    margin: 0 var(--space-1) -1px 0;
     float: left;
-    padding: var(--space-2) var(--space-4);
+    padding: 10px var(--space-4) 9px;
     z-index: 1;
     position: relative;
-    top: 1px;
-    border: 1px solid var(--color-secondary-border);
+    top: 0;
+    border: none;
+    border-bottom: 2px solid transparent;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--color-secondary-start);
+    background-color: transparent;
+    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
-    color: var(--color-secondary-hover-text);
-    border-color: var(--color-secondary-border);
-    background-color: var(--color-secondary-hover-start);
-    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
+    color: var(--color-heading);
+    border-bottom-color: #c5d3de;
+    background-color: var(--color-accent-soft);
+    background-image: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--gray-900);
+    color: var(--color-heading);
     z-index: 999;
-    top: 1px;
-    border-width: 1px;
-    border-bottom-style: solid;
-    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    border-width: 1px 1px 0;
-    background-color: var(--color-surface);
+    top: 0;
+    border-bottom-color: var(--color-accent);
+    background-color: transparent;
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-text-darker);
-    background-color: var(--color-surface);
+    color: var(--color-heading);
+    background-color: transparent;
     text-shadow: none;
 }
 
@@ -1479,14 +1522,14 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--gray-900);
-    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
-    background-color: var(--color-surface);
+    color: var(--color-heading);
+    border-bottom-color: var(--color-accent);
+    background-color: var(--color-accent-soft);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: var(--color-text-darker);
+    color: var(--color-heading);
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
@@ -1497,18 +1540,24 @@ a.hometblink:hover {
     color: #c00;
 }
 
+/* タブの中身。タブ列の下線を上辺とする白いカードにし、ごく薄い影で背景から浮かせる */
 .dynamic-tab-pane-control .tab-page {
     clear: both;
     background: var(--color-surface);
     z-index: 2;
     position: relative;
-    top: -2px;
-    padding: var(--space-5) 15px 14px !important;
+    top: 0;
+    border-top: none;
+    box-shadow: var(--shadow-card);
+    padding: var(--space-5) var(--space-5) var(--space-4) !important;
 }
 
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
+    /* float のタブを包み、下線をタブの下に引く */
+    display: flow-root;
+    border-bottom: 1px solid var(--color-card-border);
 }
 
 .dynamic-tab-pane-control ul {
@@ -1535,7 +1584,8 @@ a.hometblink:hover {
 }
 
 .treeButton:hover {
-    border: 1px solid #88939E;
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-sm);
     padding: 2px var(--space-1);
     background: var(--color-surface);
 }
@@ -1570,8 +1620,8 @@ a.hometblink, a.hometblink img {
 }
 
 .tab-page {
-    border: 1px solid #AAA;
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    border: 1px solid var(--color-card-border);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .sectionBody .tab-page {
@@ -1670,8 +1720,11 @@ h2#edit_document_title {
    From: https://github.com/manse/ScienceStyle
    ============================================================================ */
 
+/* 操作ボタンの浮遊バー。灰色の帯をやめ、カードと同じ白地と薄い枠・影にする */
 #actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid var(--color-card-border);
+    box-shadow: var(--shadow-card);
     margin: 0;
     padding: var(--space-2) var(--space-4) !important;
     position: fixed;
@@ -1730,16 +1783,16 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: var(--radius-sm);
-    color: var(--color-secondary-text);
+    border-radius: var(--radius-md);
+    color: var(--color-secondary-hover-text);
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
     padding: var(--space-2) var(--space-3);
     text-decoration: none;
     white-space: nowrap;
-    border: 1px solid var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-start);
+    border: 1px solid var(--color-input-border);
+    background-color: var(--color-surface);
     box-shadow: var(--shadow-sm);
     transition: background-color var(--transition-fast), color var(--transition-fast),
         box-shadow var(--transition-fast), border-color var(--transition-fast);
@@ -1747,15 +1800,20 @@ ul.actionButtons {
 
 .actionButtons a:hover {
     border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-    color: var(--color-secondary-hover-text);
-    box-shadow: var(--shadow-md);
+    background-color: #f3f6f8;
+    color: var(--color-heading);
+    box-shadow: var(--shadow-sm);
 }
 
 .actionButtons a:active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
     box-shadow: none;
+}
+
+.actionButtons a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 .actionButtons a.disabled {
@@ -1791,6 +1849,7 @@ ul.actionButtons {
     font-weight: 700;
 }
 
+/* 主ボタン(保存など)。上部ナビのネイビーに合わせた濃い青で、ほかのボタンと区別する */
 .actionButtons #Button1 a,
 .actionButtons li.primary a,
 .actionButtons a.primary,
@@ -1798,20 +1857,38 @@ ul.actionButtons {
     color: var(--color-surface);
     box-shadow: none;
     text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
+    background-color: var(--color-accent-strong);
+    border-color: var(--color-accent-strong);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
+    color: var(--color-surface);
+    background-color: var(--color-accent-strong-hover);
+    border-color: var(--color-accent-strong-hover);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
     background-color: var(--color-primary-active-start);
     border-color: var(--color-primary-active-end);
+}
+
+/* 削除系。取り消せない操作なので赤い文字と枠で示す。
+   リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();" のボタン */
+.actionButtons #delete a,
+.actionButtons #deletedraft a,
+.actionButtons a[onclick^="delete"] {
+    color: var(--color-danger);
+    border-color: var(--color-danger-border);
+}
+
+.actionButtons #delete a:hover,
+.actionButtons #deletedraft a:hover,
+.actionButtons a[onclick^="delete"]:hover {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-bg-hover);
 }
 
 
