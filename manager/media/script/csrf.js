@@ -6,7 +6,7 @@
  * - フォーム: submitイベント(クリック/Enter/requestSubmit)と form.submit() 直接呼び出しの両方で、
  *   送信直前に hidden の csrf_token を補う。AJAX遷移で後から差し込まれたフォームや、
  *   target 付きでシェルを経由しないネイティブ送信も対象になる
- * - XMLHttpRequest(jQuery AJAX含む) / fetch: メソッドによらず X-CSRF-Token ヘッダを付ける。
+ * - XMLHttpRequest / fetch（アドオンが読み込んだ jQuery の AJAX も XHR を通るので含まれる）: メソッドによらず X-CSRF-Token ヘッダを付ける。
  *   GET でも状態を変える操作（サーバー側の csrfProtectedActions()）があり、シェルの GET 遷移も対象になるため。
  *   呼び出し側が既に付けている場合は重複させない
  * - 状態を変える操作（サーバー側の csrfProtectedActions()）は POST でしか受け付けない（GET・HEAD は 405）。
@@ -125,15 +125,15 @@
         }
     }, true);
 
-    // form.submit() / jQuery('#form').submit() はsubmitイベントを発火しない
+    // form.submit() はsubmitイベントを発火しない
     var formSubmit = HTMLFormElement.prototype.submit;
     HTMLFormElement.prototype.submit = function () {
         ensureFormToken(this);
         return formSubmit.call(this);
     };
 
-    // XMLHttpRequest(jQuery AJAXもここを通る)。ajaxSetupのbeforeSendは
-    // 呼び出し側のbeforeSend指定で上書きされるため、XHR自体で付与する
+    // XMLHttpRequest（アドオンが読み込んだ jQuery の AJAX もここを通る）。
+    // 呼び出し側の設定に左右されないよう、XHR自体で付与する
     var xhrOpen = XMLHttpRequest.prototype.open;
     var xhrSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
     var xhrSend = XMLHttpRequest.prototype.send;

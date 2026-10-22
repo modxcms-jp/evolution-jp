@@ -58,7 +58,34 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 - `form.submit()` は `submit` イベントを発火しない。jQuery の `.submit()`（引数なし）は発火するため、置き換えでは `form.requestSubmit()` を使う（シェルの送信の横取りや、送信前の確認が動く）。
 - 要素が無いとき、jQuery は何もしないが、素の JS では `null` への操作で例外になる。無いことがある要素は先に確かめる。
-- 外部アドオンが `$j` や `jQuery` を使っていることがある。jQuery 本体を外す方針は #823 で決める。
+
+## 外部のアドオンの互換（jQuery を読み込まなくなったこと）
+
+管理画面は jQuery を同梱せず、読み込まない。`$j` も `jQuery` も定義されない（#823・#858）。他の作者のプラグイン、自作の ManagerManager のウィジェット、`mm_rules` に手で書いた `$j(...)` などの JS は、そのままでは動かない（`$j is not defined` のエラーになる）。
+
+### アドオンの作者へ
+
+このファイルの「共通部品」と「よく使う呼び出しの置き換え」の表に沿って、素の JS に書き換える。ManagerManager のルールやウィジェットは「ManagerManager のウィジェット」の決まりに沿って書く。
+
+### どうしても jQuery が要る場合（利用者向け）
+
+jQuery の本体は同梱していない（`manager/media/script/jquery/` は #858 で削除した）。必要なら、jQuery のファイルを自分で用意し（例: `assets/js/jquery.min.js` に置く）、`OnManagerMainFrameHeaderHTMLBlock` のプラグインで読み込む。このイベントの出力は `header.inc.php` の `<head>` の中、共通のスクリプト（`evo.js` など）より前に出る。本体は `$j` を定義しないので、`$j` を使うアドオンのためには、次の例のようにプラグインの側で定義する。
+
+```php
+// プラグイン（システムイベント OnManagerMainFrameHeaderHTMLBlock にチェック）
+event()->output(
+    '<script src="' . MODX_BASE_URL . 'assets/js/jquery.min.js"></script>'
+    . '<script>var $j = jQuery.noConflict();</script>'
+);
+```
+
+シェルの画面遷移で後から差し込まれた画面のインラインスクリプトからも `$j` を使える（`<head>` は最初の読み込みのときだけ出る）。
+
+以前の隠れた設定 `mgr_jquery_path` は廃止した（入れても読み込まない）。
+
+### 公開側（QuickManager）
+
+QuickManager は jQuery を使わず、公開側でも読み込まない。以前の設定 `loadfrontendjq`（公開側に同梱の jQuery を読み込む）は廃止した。サイトのテンプレートのスクリプトが jQuery を使うときは、テンプレートで自分で読み込む。以前の設定 `noconflictjq`（`$j` の別名を付ける）も廃止し、QM は `$j` を定義しない。QM の編集画面のモーダルを閉じるときは、`parent.$j.colorbox.close()` ではなく `parent.QM.close()` を呼ぶ。
 
 ## ManagerManager のウィジェット
 

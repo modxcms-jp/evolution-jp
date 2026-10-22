@@ -3,7 +3,7 @@
  *
  * - a.colorbox のリンクを、<dialog> の中の <iframe> で開く（Colorbox の置き換え）。QM.init() の modal が true のときだけ
  * - ツールバーを閉じる・開く（Cookie の hideQM で覚える）
- * QM.close() で開いているモーダルを閉じる。jQuery があるときは、互換のために $j.colorbox.close() / jQuery.colorbox.close() も使える
+ * QM.close() で開いているモーダルを閉じる
  */
 (function () {
     'use strict';
@@ -26,17 +26,8 @@
         return /^\d+(\.\d+)?$/.test(v) ? v + 'px' : v;
     }
 
-    // 外部のアドオンが呼ぶ parent.$j.colorbox.close() のための互換。jQuery がページの後ろで読まれることもあるので、開くたびに付ける
-    function shimColorbox() {
-        if (window.jQuery) {
-            window.jQuery.colorbox = window.jQuery.colorbox || {};
-            window.jQuery.colorbox.close = close;
-        }
-    }
-
     function open(url) {
         close();
-        shimColorbox();
         if (!document.getElementById('qmModalStyle')) {
             const style = document.createElement('style');
             style.id = 'qmModalStyle';
