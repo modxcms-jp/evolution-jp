@@ -178,181 +178,112 @@ body {
 }
 
 /* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、
-   泡と光をビューポート基準(fixed)で一枚に描き、各ペインは背景を持たずに透かして見せる */
+   泡と光をビューポート基準(fixed)で一枚に描き、各ペインは背景を持たずに透かして見せる。
+   重ね順は上から: 光の帯とライン → 泡 → 光のたまり → ベースのグラデーション */
 body#mainpane {
     padding: var(--space-4);
+
+    /* 泡の色。液体の中の泡らしく、中身はほぼ透明にし、外周の薄い緑(屈折)と白い輪郭で形を見せる */
+    --bubble-core: rgba(240, 252, 234, 0.08);
+    --bubble-body: rgba(214, 242, 206, 0.12);
+    --bubble-edge: rgba(126, 190, 128, 0.32);
+    --bubble-rim: rgba(255, 255, 255, 0.95);
+    --bubble-halo: rgba(255, 255, 255, 0.35);
+    --bubble-glint: rgba(255, 255, 255, 0.92);
+    /* ツリー側の泡。文字やアイコンに重なるため輪郭も中身も淡くする */
+    --bubble-soft-body: rgba(214, 242, 206, 0.1);
+    --bubble-soft-edge: rgba(126, 190, 128, 0.16);
+    --bubble-soft-rim: rgba(255, 255, 255, 0.75);
+    --bubble-soft-glint: rgba(255, 255, 255, 0.7);
+
     background:
+        /* === 斜めに差し込む幅の広い光の帯（画面全体を横切る）。
+           白だけでは淡い下地に溶けるため、手前に淡いライムの帯を沿わせて光の筋を見せる === */
+        linear-gradient(115deg, transparent 15%, rgba(203, 238, 197, 0.3) 19%, rgba(255, 255, 255, 0.55) 22%, rgba(255, 255, 255, 0.15) 27%, transparent 31%),
+        linear-gradient(115deg, transparent 49%, rgba(203, 238, 197, 0.22) 52.5%, rgba(255, 255, 255, 0.45) 55%, rgba(255, 255, 255, 0.1) 59%, transparent 62%),
+
         /* === 氷の表面に反射したシャープな白いハイライト === */
         linear-gradient(125deg, transparent 42%, rgba(253, 253, 251, 0.9) 42.5%, rgba(253, 253, 251, 0.9) 43%, transparent 43.5%),
         linear-gradient(135deg, transparent 28%, rgba(253, 253, 251, 0.7) 28.3%, rgba(253, 253, 251, 0.7) 28.6%, transparent 29%),
         linear-gradient(118deg, transparent 67%, rgba(250, 255, 244, 0.8) 67.2%, rgba(250, 255, 244, 0.8) 67.5%, transparent 68%),
         linear-gradient(142deg, transparent 55%, rgba(253, 253, 251, 0.6) 55.2%, rgba(253, 253, 251, 0.6) 55.4%, transparent 55.8%),
+        linear-gradient(128deg, transparent 14%, rgba(253, 253, 251, 0.6) 14.2%, rgba(253, 253, 251, 0.6) 14.4%, transparent 14.7%),
+        linear-gradient(121deg, transparent 84%, rgba(253, 253, 251, 0.7) 84.2%, rgba(253, 253, 251, 0.7) 84.5%, transparent 84.8%),
         /* === 極細の黄緑ライン（光の透過） === */
         linear-gradient(130deg, transparent 35%, rgba(234, 252, 207, 0.5) 35.1%, rgba(234, 252, 207, 0.5) 35.2%, transparent 35.3%),
         linear-gradient(122deg, transparent 72%, rgba(247, 255, 222, 0.45) 72.05%, rgba(247, 255, 222, 0.45) 72.15%, transparent 72.2%),
         linear-gradient(138deg, transparent 48%, rgba(234, 252, 207, 0.4) 48.08%, rgba(234, 252, 207, 0.4) 48.16%, transparent 48.25%),
-        /* === 透明な氷越しの強い白のきらめき（点在） === */
-        radial-gradient(circle 3px at 82% 18%, rgba(253, 253, 251, 0.95) 0%, rgba(253, 253, 251, 0.95) 60%, transparent 100%),
-        radial-gradient(circle 2px at 45% 32%, rgba(253, 253, 251, 0.9) 0%, rgba(253, 253, 251, 0.9) 70%, transparent 100%),
-        radial-gradient(circle 2.5px at 68% 55%, rgba(250, 255, 244, 0.92) 0%, rgba(250, 255, 244, 0.92) 65%, transparent 100%),
-        radial-gradient(circle 2px at 28% 72%, rgba(253, 253, 251, 0.88) 0%, rgba(253, 253, 251, 0.88) 70%, transparent 100%),
-        radial-gradient(circle 3px at 91% 42%, rgba(253, 253, 251, 0.9) 0%, rgba(253, 253, 251, 0.9) 60%, transparent 100%),
-        radial-gradient(circle 2px at 55% 85%, rgba(250, 255, 244, 0.85) 0%, rgba(250, 255, 244, 0.85) 70%, transparent 100%),
-        radial-gradient(circle 2.5px at 15% 48%, rgba(253, 253, 251, 0.92) 0%, rgba(253, 253, 251, 0.92) 65%, transparent 100%),
-        radial-gradient(circle 2px at 78% 68%, rgba(253, 253, 251, 0.88) 0%, rgba(253, 253, 251, 0.88) 70%, transparent 100%),
 
         /* ========================================
-           炭酸の泡 - モヒートの清涼感
-           透明感を保ちつつ内部に薄く色を入れた泡
+           炭酸の泡
+           右下に大きな泡の群れ、中央から左へ中くらい・小さな泡が散って立ちのぼる構図。
+           各泡はハイライト(左上の光)を本体の直前に重ねる
            ======================================== */
 
-        /* --- 超特大の泡（主役級）130px, 100px --- */
-        /* 泡本体：内部に淡い色あり + 白い輪郭 */
-        radial-gradient(circle 130px at 88% 88%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.08) 40%, rgba(203, 238, 197, 0.12) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.15) 50%, transparent 50.5%),
-        radial-gradient(circle 25px at 82% 80%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
-        radial-gradient(circle 100px at 95% 75%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.06) 40%, rgba(203, 238, 197, 0.1) 46%, rgba(255, 255, 255, 0.8) 48%, rgba(255, 255, 255, 0.9) 49%, rgba(255, 255, 255, 0.9) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
-        radial-gradient(circle 18px at 90% 68%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
+        /* --- 大きな泡（右下の群れ） --- */
+        radial-gradient(circle 13px at calc(88% + 32px) calc(86% + 32px), rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+        radial-gradient(circle 20px at calc(88% - 27px) calc(86% - 27px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 70px at 88% 86%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 13px at calc(96% - 17px) calc(68% - 17px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 46px at 96% 68%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 10px at calc(75% - 13px) calc(95% - 13px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 34px at 75% 95%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 7px at calc(82% - 10px) calc(66% - 10px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 26px at 82% 66%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
 
-        /* --- 特大の泡 70px〜55px --- */
-        radial-gradient(circle 70px at 75% 92%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.09) 40%, rgba(203, 238, 197, 0.14) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.16) 50%, transparent 50.5%),
-        radial-gradient(circle 12px at 70% 86%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
-        radial-gradient(circle 60px at 92% 95%, rgba(223, 245, 215, 0.035) 0%, rgba(203, 238, 197, 0.075) 40%, rgba(203, 238, 197, 0.12) 46%, rgba(255, 255, 255, 0.8) 48%, rgba(255, 255, 255, 0.9) 49%, rgba(255, 255, 255, 0.9) 49.5%, rgba(223, 245, 215, 0.14) 50%, transparent 50.5%),
-        radial-gradient(circle 10px at 88% 90%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
-        radial-gradient(circle 55px at 65% 78%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.07) 40%, rgba(203, 238, 197, 0.11) 46%, rgba(255, 255, 255, 0.78) 48%, rgba(255, 255, 255, 0.88) 49%, rgba(255, 255, 255, 0.88) 49.5%, rgba(223, 245, 215, 0.13) 50%, transparent 50.5%),
-        radial-gradient(circle 9px at 60% 72%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
+        /* --- 中くらいの泡（中央〜右上へ散らす） --- */
+        radial-gradient(circle 6px at calc(40% - 8px) calc(84% - 8px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 22px at 40% 84%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 5px at calc(63% - 7px) calc(80% - 7px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 18px at 63% 80%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 4px at calc(71% - 5px) calc(54% - 5px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 14px at 71% 54%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 4px at calc(93% - 6px) calc(38% - 6px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 16px at 93% 38%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 3px at calc(49% - 5px) calc(91% - 5px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 12px at 49% 91%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 3px at calc(37% - 5px) calc(73% - 5px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 12px at 37% 73%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 3px at calc(55% - 4px) calc(64% - 4px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 10px at 55% 64%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 3px at calc(27% - 4px) calc(93% - 4px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 9px at 27% 93%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
+        radial-gradient(circle 2px at calc(45% - 3px) calc(47% - 3px), var(--bubble-glint) 0%, var(--bubble-glint) 35%, transparent 100%),
+        radial-gradient(circle 8px at 45% 47%, var(--bubble-core) 0%, var(--bubble-body) 70%, var(--bubble-edge) 85%, var(--bubble-rim) 92%, var(--bubble-halo) 96%, transparent 100%),
 
-        /* --- 大きめの泡 48px〜35px --- */
-        radial-gradient(circle 48px at 82% 65%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.1) 38%, rgba(203, 238, 197, 0.16) 46%, rgba(255, 255, 255, 0.9) 48%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.18) 50%, transparent 50.5%),
-        radial-gradient(circle 8px at 78% 60%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
-        radial-gradient(circle 42px at 98% 85%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.09) 38%, rgba(203, 238, 197, 0.14) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.16) 50%, transparent 50.5%),
-        radial-gradient(circle 7px at 94% 80%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
-        radial-gradient(circle 38px at 70% 98%, rgba(223, 245, 215, 0.045) 0%, rgba(203, 238, 197, 0.095) 38%, rgba(203, 238, 197, 0.15) 46%, rgba(255, 255, 255, 0.88) 48%, rgba(255, 255, 255, 0.98) 49%, rgba(255, 255, 255, 0.98) 49.5%, rgba(223, 245, 215, 0.17) 50%, transparent 50.5%),
-        radial-gradient(circle 6px at 66% 93%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
-        radial-gradient(circle 35px at 55% 88%, rgba(223, 245, 215, 0.035) 0%, rgba(203, 238, 197, 0.08) 38%, rgba(203, 238, 197, 0.13) 46%, rgba(255, 255, 255, 0.82) 48%, rgba(255, 255, 255, 0.92) 49%, rgba(255, 255, 255, 0.92) 49.5%, rgba(223, 245, 215, 0.15) 50%, transparent 50.5%),
+        /* --- 小さな泡（粒。白い芯と薄い緑の縁だけ） --- */
+        radial-gradient(circle 4px at 66% 41%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 3px at 78% 29%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 2.5px at 87% 21%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 3px at 41% 61%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 4px at 31% 83%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 5px at 57% 96%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 3px at 73% 73%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 3.5px at 99% 52%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 2px at 51% 77%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 2.5px at 84% 49%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
+        radial-gradient(circle 2px at 60% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 45%, var(--bubble-edge) 75%, transparent 100%),
 
-        /* --- 中くらいの泡 32px〜22px --- */
-        radial-gradient(circle 32px at 88% 78%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.11) 36%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
-        radial-gradient(circle 5px at 85% 74%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%),
-        radial-gradient(circle 28px at 78% 55%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.1) 36%, rgba(203, 238, 197, 0.16) 45%, rgba(255, 255, 255, 0.9) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.18) 50%, transparent 50.5%),
-        radial-gradient(circle 4.5px at 75% 51%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.42) 50%, transparent 100%),
-        radial-gradient(circle 25px at 95% 68%, rgba(223, 245, 215, 0.055) 0%, rgba(203, 238, 197, 0.105) 36%, rgba(203, 238, 197, 0.17) 45%, rgba(255, 255, 255, 0.92) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.19) 50%, transparent 50.5%),
-        radial-gradient(circle 4px at 92% 64%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
-        radial-gradient(circle 22px at 60% 72%, rgba(223, 245, 215, 0.045) 0%, rgba(203, 238, 197, 0.09) 36%, rgba(203, 238, 197, 0.15) 45%, rgba(255, 255, 255, 0.88) 47.5%, rgba(255, 255, 255, 0.98) 49%, rgba(255, 255, 255, 0.98) 49.5%, rgba(223, 245, 215, 0.17) 50%, transparent 50.5%),
-        radial-gradient(circle 3.5px at 57% 68%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
-
-        /* --- 小さめの泡 18px〜12px --- */
-        radial-gradient(circle 18px at 85% 92%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 34%, rgba(203, 238, 197, 0.2) 45%, rgba(255, 255, 255, 1) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
-        radial-gradient(circle 3px at 83% 89%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
-        radial-gradient(circle 16px at 72% 68%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.125) 34%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
-        radial-gradient(circle 2.5px at 70% 65%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.48) 50%, transparent 100%),
-        radial-gradient(circle 15px at 98% 92%, rgba(223, 245, 215, 0.065) 0%, rgba(203, 238, 197, 0.13) 34%, rgba(203, 238, 197, 0.19) 45%, rgba(255, 255, 255, 0.98) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
-        radial-gradient(circle 2.5px at 96% 89%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%),
-        radial-gradient(circle 14px at 50% 82%, rgba(223, 245, 215, 0.055) 0%, rgba(203, 238, 197, 0.115) 34%, rgba(203, 238, 197, 0.17) 45%, rgba(255, 255, 255, 0.92) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.19) 50%, transparent 50.5%),
-        radial-gradient(circle 12px at 90% 58%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.125) 34%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
-        radial-gradient(circle 2px at 88% 55%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.48) 50%, transparent 100%),
-
-        /* --- 小さい泡 10px〜7px --- */
-        radial-gradient(circle 10px at 80% 85%, rgba(223, 245, 215, 0.09) 0%, rgba(203, 238, 197, 0.16) 32%, rgba(203, 238, 197, 0.22) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.24) 50%, transparent 50.5%),
-        radial-gradient(circle 1.8px at 78% 82%, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%),
-        radial-gradient(circle 9px at 92% 82%, rgba(223, 245, 215, 0.08) 0%, rgba(203, 238, 197, 0.15) 32%, rgba(203, 238, 197, 0.21) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.23) 50%, transparent 50.5%),
-        radial-gradient(circle 8px at 68% 95%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 32%, rgba(203, 238, 197, 0.2) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
-        radial-gradient(circle 1.5px at 66% 92%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.52) 50%, transparent 100%),
-        radial-gradient(circle 7px at 78% 62%, rgba(223, 245, 215, 0.07) 0%, rgba(203, 238, 197, 0.13) 32%, rgba(203, 238, 197, 0.19) 44%, rgba(255, 255, 255, 0.98) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
-        radial-gradient(circle 9px at 55% 92%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 32%, rgba(203, 238, 197, 0.2) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
-        radial-gradient(circle 8px at 95% 75%, rgba(223, 245, 215, 0.08) 0%, rgba(203, 238, 197, 0.15) 32%, rgba(203, 238, 197, 0.21) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.23) 50%, transparent 50.5%),
-        radial-gradient(circle 1.5px at 93% 72%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.52) 50%, transparent 100%),
-        radial-gradient(circle 7px at 62% 78%, rgba(223, 245, 215, 0.07) 0%, rgba(203, 238, 197, 0.13) 32%, rgba(203, 238, 197, 0.19) 44%, rgba(255, 255, 255, 0.98) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
-
-        /* --- とても小さい泡 6px〜4px --- */
-        radial-gradient(circle 6px at 88% 70%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
-        radial-gradient(circle 1.2px at 87% 68%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
-        radial-gradient(circle 5px at 75% 88%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
-        radial-gradient(circle 6px at 98% 78%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
-        radial-gradient(circle 1.2px at 97% 76%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
-        radial-gradient(circle 4px at 82% 98%, rgba(223, 245, 215, 0.17) 0%, rgba(203, 238, 197, 0.33) 30%, rgba(203, 238, 197, 0.5) 45%, rgba(255, 255, 255, 0.85) 46.5%, rgba(255, 255, 255, 0.95) 47.5%, rgba(223, 245, 215, 0.6) 49%, transparent 50%),
-        radial-gradient(circle 5px at 65% 65%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
-        radial-gradient(circle 4px at 92% 92%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
-        radial-gradient(circle 1px at 91% 91%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 100%),
-        radial-gradient(circle 6px at 70% 75%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
-        radial-gradient(circle 5px at 85% 55%, rgba(223, 245, 215, 0.17) 0%, rgba(203, 238, 197, 0.33) 30%, rgba(203, 238, 197, 0.5) 45%, rgba(255, 255, 255, 0.85) 46.5%, rgba(255, 255, 255, 0.95) 47.5%, rgba(223, 245, 215, 0.6) 49%, transparent 50%),
-        radial-gradient(circle 4px at 58% 85%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
-
-        /* --- 極小の泡 3px〜2px --- */
-        radial-gradient(circle 3px at 90% 88%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-        radial-gradient(circle 0.8px at 89% 87%, rgba(255, 255, 255, 1) 0%, transparent 100%),
-        radial-gradient(circle 2.5px at 78% 72%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
-        radial-gradient(circle 3px at 95% 85%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-        radial-gradient(circle 0.8px at 94% 84%, rgba(255, 255, 255, 1) 0%, transparent 100%),
-        radial-gradient(circle 2px at 68% 90%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
-        radial-gradient(circle 2.5px at 85% 65%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
-        radial-gradient(circle 3px at 72% 82%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-        radial-gradient(circle 0.8px at 71% 81%, rgba(255, 255, 255, 1) 0%, transparent 100%),
-        radial-gradient(circle 2px at 98% 88%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
-        radial-gradient(circle 2.5px at 55% 78%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
-        radial-gradient(circle 3px at 82% 95%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-        radial-gradient(circle 2px at 62% 68%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
-        radial-gradient(circle 2.5px at 92% 72%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-        radial-gradient(circle 0.8px at 91% 71%, rgba(255, 255, 255, 1) 0%, transparent 100%),
-        radial-gradient(circle 3px at 75% 95%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
-        radial-gradient(circle 2px at 88% 78%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
-
-        /* --- ツリー側（左下）へ立ちのぼる泡 ---
-           ツリーの文字に重なるため、右下の泡より小さく淡くして、大きさと濃さに変化をつける */
-        radial-gradient(circle 22px at 9% 90%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.06) 36%, rgba(203, 238, 197, 0.1) 45%, rgba(255, 255, 255, 0.55) 47.5%, rgba(255, 255, 255, 0.65) 49%, rgba(223, 245, 215, 0.1) 50%, transparent 50.5%),
-        radial-gradient(circle 4px at 8% 88%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%),
-        radial-gradient(circle 12px at 16% 80%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.08) 34%, rgba(203, 238, 197, 0.12) 45%, rgba(255, 255, 255, 0.6) 47.5%, rgba(255, 255, 255, 0.7) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
-        radial-gradient(circle 7px at 4% 74%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.09) 32%, rgba(203, 238, 197, 0.13) 44%, rgba(255, 255, 255, 0.55) 47%, rgba(255, 255, 255, 0.65) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
-        radial-gradient(circle 4px at 12% 66%, rgba(223, 245, 215, 0.12) 0%, rgba(203, 238, 197, 0.22) 30%, rgba(203, 238, 197, 0.32) 45%, rgba(255, 255, 255, 0.6) 46.5%, rgba(255, 255, 255, 0.7) 47.5%, rgba(223, 245, 215, 0.4) 49%, transparent 50%),
-        radial-gradient(circle 2.5px at 6% 58%, rgba(223, 245, 215, 0.15) 0%, rgba(203, 238, 197, 0.28) 28%, rgba(203, 238, 197, 0.38) 44%, rgba(255, 255, 255, 0.65) 45.5%, rgba(255, 255, 255, 0.75) 47%, rgba(223, 245, 215, 0.45) 48.5%, transparent 50%),
-        radial-gradient(circle 5px at 19% 94%, rgba(223, 245, 215, 0.1) 0%, rgba(203, 238, 197, 0.2) 30%, rgba(203, 238, 197, 0.3) 45%, rgba(255, 255, 255, 0.55) 46.5%, rgba(255, 255, 255, 0.65) 47.5%, rgba(223, 245, 215, 0.35) 49%, transparent 50%),
-        radial-gradient(circle 2px at 14% 72%, rgba(223, 245, 215, 0.15) 0%, rgba(203, 238, 197, 0.28) 28%, rgba(203, 238, 197, 0.38) 44%, rgba(255, 255, 255, 0.65) 45.5%, rgba(255, 255, 255, 0.75) 47%, rgba(223, 245, 215, 0.45) 48.5%, transparent 50%),
+        /* --- ツリー側（左）の淡い泡。下から上へ小さくなりながら立ちのぼる --- */
+        radial-gradient(circle 4px at calc(8% - 5px) calc(87% - 5px), var(--bubble-soft-glint) 0%, var(--bubble-soft-glint) 35%, transparent 100%),
+        radial-gradient(circle 14px at 8% 87%, transparent 0%, var(--bubble-soft-body) 70%, var(--bubble-soft-edge) 85%, var(--bubble-soft-rim) 92%, transparent 100%),
+        radial-gradient(circle 2px at calc(14% - 3px) calc(75% - 3px), var(--bubble-soft-glint) 0%, var(--bubble-soft-glint) 35%, transparent 100%),
+        radial-gradient(circle 8px at 14% 75%, transparent 0%, var(--bubble-soft-body) 70%, var(--bubble-soft-edge) 85%, var(--bubble-soft-rim) 92%, transparent 100%),
+        radial-gradient(circle 5px at 4% 64%, transparent 0%, var(--bubble-soft-body) 65%, var(--bubble-soft-edge) 82%, var(--bubble-soft-rim) 90%, transparent 100%),
+        radial-gradient(circle 3px at 11% 53%, rgba(255, 255, 255, 0.8) 0%, var(--bubble-soft-edge) 70%, transparent 100%),
+        radial-gradient(circle 3px at 16% 95%, rgba(255, 255, 255, 0.8) 0%, var(--bubble-soft-edge) 70%, transparent 100%),
+        radial-gradient(circle 2.5px at 6% 41%, rgba(255, 255, 255, 0.8) 0%, var(--bubble-soft-edge) 70%, transparent 100%),
+        radial-gradient(circle 2px at 13% 31%, rgba(255, 255, 255, 0.8) 0%, var(--bubble-soft-edge) 70%, transparent 100%),
 
         /* === ライムの皮のエッジ（酸味の光） === */
-        radial-gradient(
-            ellipse 60% 40% at 20% 8%,
-            rgba(247, 255, 222, 0.28) 0%,
-            rgba(234, 252, 207, 0.15) 40%,
-            transparent 75%
-        ),
-        radial-gradient(
-            ellipse 50% 35% at 80% 12%,
-            rgba(247, 255, 222, 0.22) 0%,
-            rgba(234, 252, 207, 0.1) 50%,
-            transparent 80%
-        ),
-        radial-gradient(
-            ellipse 45% 30% at 55% 5%,
-            rgba(250, 255, 244, 0.25) 0%,
-            rgba(247, 255, 222, 0.12) 45%,
-            transparent 75%
-        ),
-        /* === 自然なライムグリーンのグラデーション === */
-        radial-gradient(
-            ellipse 130% 110% at 100% 100%,
-            rgba(255, 255, 255, 0.3) 0%,
-            rgba(203, 238, 197, 0.2) 25%,
-            rgba(223, 245, 215, 0.12) 50%,
-            transparent 75%
-        ),
-        radial-gradient(
-            ellipse 90% 90% at 90% 85%,
-            rgba(255, 255, 255, 0.25) 0%,
-            rgba(203, 238, 197, 0.15) 30%,
-            transparent 60%
-        ),
-        radial-gradient(
-            ellipse 70% 70% at 80% 95%,
-            rgba(255, 255, 255, 0.2) 0%,
-            transparent 50%
-        ),
-        /* 左下（ツリー側）の淡いライムのたまり。下端の白に泡の輪郭が溶けないよう、ごく薄く色を置く */
-        radial-gradient(
-            ellipse 40% 50% at 0% 100%,
-            rgba(203, 238, 197, 0.32) 0%,
-            rgba(223, 245, 215, 0.16) 45%,
-            transparent 80%
-        ),
-        /* ベースのグラデーション（白から淡いライムグリーンへ） */
+        radial-gradient(ellipse 60% 40% at 20% 8%, rgba(247, 255, 222, 0.28) 0%, rgba(234, 252, 207, 0.15) 40%, transparent 75%),
+        radial-gradient(ellipse 50% 35% at 80% 12%, rgba(247, 255, 222, 0.22) 0%, rgba(234, 252, 207, 0.1) 50%, transparent 80%),
+        radial-gradient(ellipse 45% 30% at 55% 5%, rgba(250, 255, 244, 0.25) 0%, rgba(247, 255, 222, 0.12) 45%, transparent 75%),
+        /* === 光のたまり。右下は泡の群れの下地、左下はツリー側の泡の下地 === */
+        radial-gradient(ellipse 130% 110% at 100% 100%, rgba(255, 255, 255, 0.3) 0%, rgba(203, 238, 197, 0.2) 25%, rgba(223, 245, 215, 0.12) 50%, transparent 75%),
+        radial-gradient(ellipse 90% 90% at 90% 85%, rgba(255, 255, 255, 0.25) 0%, rgba(203, 238, 197, 0.15) 30%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 0% 100%, rgba(203, 238, 197, 0.32) 0%, rgba(223, 245, 215, 0.16) 45%, transparent 80%),
+        /* ベースのグラデーション（淡いライムグリーンから白へ） */
         linear-gradient(180deg,
             #DFF5D7 0%,
             #E5F7DE 10%,
@@ -1097,7 +1028,7 @@ form .imeoff {
             transparent 100%
         ),
         /* 透明感のあるベース */
-        rgba(253, 253, 251, 0.85);
+        rgba(253, 253, 251, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.35);
     margin: 0 0 var(--space-4);
     padding: var(--space-5);
@@ -2025,7 +1956,8 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-page {
     clear: both;
-    background: rgba(255, 255, 255, 0.55);
+    /* 中の .sectionBody と二重に白が重なるため、外枠は薄くして余白に背景の泡と光を見せる */
+    background: rgba(255, 255, 255, 0.38);
     border: 1px solid rgba(170, 200, 185, 0.32);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
