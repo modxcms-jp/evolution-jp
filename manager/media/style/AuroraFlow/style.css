@@ -1497,8 +1497,10 @@ a.hometblink:hover {
     outline-offset: -2px;
 }
 
+/* 選択中は青い下線に加え、文字を少し太い濃紺にする */
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-heading);
+    color: var(--color-primary-start);
+    font-weight: 600;
     z-index: 999;
     top: 0;
     border-bottom-color: var(--color-accent);
@@ -1507,7 +1509,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-heading);
+    color: inherit;
     background-color: transparent;
     text-shadow: none;
 }
@@ -1522,14 +1524,14 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-heading);
+    color: var(--color-primary-start);
     border-bottom-color: var(--color-accent);
     background-color: var(--color-accent-soft);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: var(--color-heading);
+    color: inherit;
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
@@ -2122,9 +2124,10 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 }
 
 /* === メインナビゲーション項目 === */
+/* 未選択の文字は、選択中・ホバーの白(1.0)より一段控えめにしつつ、暗い地で読める明るさにする */
 #nav > li > a {
     background: transparent !important;
-    color: rgba(226, 232, 240, 0.55) !important;
+    color: rgba(226, 232, 240, 0.78) !important;
     border-color: transparent !important;
     transition: all var(--transition-normal) !important;
 }
