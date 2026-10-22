@@ -33,16 +33,15 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
     // body を対象にすると、シェルではメニュー・ツリー・ログアウトまで消えてしまう。シェルが無い画面では従来どおり body。
     // メッセージは管理画面のダイアログ（EvoDialog）で、画面全体を覆うモーダルとして出す。
     // 「戻る」は、シェルの中で移ってきたとき（shell.js が履歴に付ける目印 shellNav がある）だけ前の画面へ戻る。
-    // 直接開いたときは管理画面の外へ戻ってしまうので、ダッシュボードへ移る
+    // 直接開いたときは管理画面の外へ戻ってしまうので、ダッシュボードへ移る。このとき履歴を積むと、
+    // ダッシュボードでブラウザの「戻る」を押すたびにこの警告へ戻るので、拒否した URL の履歴を置き換える
     $output .= '
     (document.getElementById("mainPane") || document.body).replaceChildren();
     EvoDialog.alert(' . js_literal($message) . ', "", function () {
         if (window.history.state && window.history.state.shellNav) {
             window.history.back();
-        } else if (window.EvoShell) {
-            EvoShell.navigate("index.php?a=2");
         } else {
-            window.location.href = "index.php?a=2";
+            window.location.replace("index.php?a=2");
         }
     }, { icon: "warning", okLabel: ' . js_literal(lang('go_back')) . ' });';
 
