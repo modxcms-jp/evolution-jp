@@ -128,6 +128,11 @@
     --color-accent-green-light: #D9E7C2;
     --color-accent-green-dark: #658f1a;
 
+    /* 共通の CSS（shell.css・evo-dialog.js）が使う主ボタンの色。ほかの同梱テーマと同じ名前で、このテーマの主ボタン（緑）を指す */
+    --color-primary: var(--color-accent-green-end);
+    --color-primary-start: var(--color-accent-green-start);
+    --color-primary-end: var(--color-accent-green-end);
+
     /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #fafafa;
     --color-neutral-button-end: var(--gray-450);
