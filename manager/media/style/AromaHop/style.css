@@ -159,7 +159,7 @@ html, body, form, fieldset {
 }
 
 body {
-    font-family: "Hiragino Sans", "Noto Sans JP", Meiryo, "Helvetica Neue", Arial, sans-serif;
+    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 13px;
     height: 100%;
     line-height: 1.6;
@@ -175,8 +175,6 @@ body {
             #FDFDFB 85%,
             #ffffff 100%);
     background-attachment: fixed;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 /* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、

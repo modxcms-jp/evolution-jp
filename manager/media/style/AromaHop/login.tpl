@@ -19,7 +19,7 @@
         }
 
         html, body {
-            font-family: "Hiragino Sans", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+            font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
         }
 
         /* AromaHop ログイン画面
