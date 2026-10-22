@@ -800,8 +800,12 @@ form .imeoff {
     border-radius: 8px 8px 0 0;
 }
 
+/* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
+   枠線は透明にするだけで幅を残し、位置と寸法を変えない */
 .tab-page .sectionHeader {
     margin: 2px 3px 0;
+    background: transparent;
+    border-color: transparent transparent var(--clean-border);
 }
 
 .sectionBody {
@@ -827,6 +831,8 @@ form .imeoff {
 .tab-page .sectionBody {
     margin-block: 0 15px;
     margin-inline: 3px;
+    border-color: transparent;
+    box-shadow: none;
 }
 
 .section .sectionBody {
@@ -2025,26 +2031,32 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     color: var(--clean-nav-text);
 }
 
-/* タブデザイン */
+/* タブデザイン。未選択はごく薄いグレーの面だけにして枠を消し、選択中の白い面が中身へつながって見えるようにする */
 .dynamic-tab-pane-control .tab-row .tab {
-    background: var(--clean-bg-secondary);
-    border: 1px solid var(--light-border);
+    background: #f1f3f5;
+    border: 1px solid transparent;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    color: var(--light-text-secondary);
+    /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
+    color: #5c6670;
     font-weight: 500;
     padding: 10px var(--space-lg);
     transition: all 0.2s ease;
 }
 
 .dynamic-tab-pane-control .tab-row .tab:hover {
-    background: var(--light-bg-secondary);
+    background: #e9ecef;
     color: var(--light-text-primary);
-    border-color: var(--color-gray-400);
+    border-color: transparent;
+}
+
+.dynamic-tab-pane-control .tab-row .tab:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: -2px;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
     background: var(--color-surface);
-    border-color: var(--light-border) var(--light-border) var(--color-surface) var(--light-border);
+    border-color: var(--clean-border) var(--clean-border) var(--color-surface) var(--clean-border);
     border-top: 2px solid var(--accent-blue);
     border-bottom: none;
     color: var(--light-text-primary);
@@ -2055,8 +2067,9 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 .dynamic-tab-pane-control .tab-page {
     background: var(--color-surface);
-    border: 1px solid var(--light-border);
-    border-top: 1px solid var(--light-border);
+    border: 1px solid var(--clean-border);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 /* ボタン */
@@ -2108,20 +2121,20 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
 }
 
-/* セクションヘッダー */
+/* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
 .sectionHeader {
-    background: var(--light-bg-primary);
+    background: var(--light-bg-tertiary);
     border: 1px solid var(--clean-border);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     color: var(--light-text-primary);
     font-weight: 600;
 }
 
-/* h1スタイル */
+/* h1スタイル。灰色の帯と枠をやめて文字だけで示す(枠線は透明にして幅を残し、位置を変えない) */
 h1 {
-    background: var(--light-bg-primary);
+    background: transparent;
     color: var(--light-text-primary);
-    border: 1px solid var(--clean-border);
+    border: 1px solid transparent;
     border-radius: var(--radius-lg);
     font-weight: 600;
     padding: 12px;
@@ -2163,6 +2176,12 @@ form select:focus {
     border: 1px solid var(--clean-border);
     border-radius: var(--radius-xl);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
+body.evo-shell #evoShellModalFooter #actions {
+    border: none;
+    box-shadow: none;
 }
 
 /* ページ背景 */
