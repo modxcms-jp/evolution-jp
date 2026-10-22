@@ -1737,6 +1737,12 @@ h2#edit_document_title {
     border-radius: var(--radius-lg);
 }
 
+/* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
+body.evo-shell #evoShellModalFooter #actions {
+    border: none;
+    box-shadow: none;
+}
+
 select#stay {
     padding: var(--space-2);
 }
