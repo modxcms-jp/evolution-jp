@@ -9,7 +9,7 @@
 - [x] (2026-10-24) M1: `EvoBackupManager` クラスと、`Mysqldumper` のファイルへの直接書き出し（c746601bb・d54fc1953・5a6a2ff1e。Docker で確認、自己レビューの高・中なし）
 - [x] (2026-10-24) M2: 管理画面（バックアップ管理・スナップショット・復元）を新しいクラスへ置き換える（49e797e09・6703b7b27・1e6f5b6b4・f8995581b。Docker で修正前と比較、自己レビューの高・中なし）
 - [x] (2026-10-24) M3: CLI（`db:backup` / `db:import`）とパーサーの API（`$modx->snapshot()`）を置き換える（1c80ac86d・f666a844e・253d34bec・13d1e5da4。Docker で修正前と比較、自己レビューの高・中なし）
-- [ ] M4: ドキュメントの更新と Docker での通し確認
+- [x] (2026-10-24) M4: ドキュメントの更新と Docker での通し確認（6efa3aa0e・b5d54b04b。Validation 1〜6 を main と比べて通しで確認、自己レビューの高・中なし）
 
 ## Surprises & Discoveries
 
@@ -23,7 +23,7 @@
 - 2026-10-24: 管理画面の `global $settings_version` は、`manager/index.php` の `extract($modx->config)` で入る `settings_version` の設定値と同じ。CLI（`db-backup.php`）は `evo()->config('settings_version')` を使っている。フロントから呼ばれる `$modx->snapshot()` では、この global は入らない。
 - 2026-10-24: `mysql_dumper.class.inc.php` は、先頭で `$modx` がオブジェクトでなければ `exit` する。メソッドの中で `include` すると、`global $modx;` を書かない限り何も出さずに止まる（CLI は `cli_export_database()` で先に `global $modx;` を書いている）。
 - 2026-10-24（M1）: `php -r` の API モード（`define("MODX_API_MODE", true); include "index.php";`）では `evo()->config('settings_version')` が空で、自動の名前の版は `unknown` になる。管理画面と CLI で版が入るかは M2・M3 の確認で見る。
-- 2026-10-24（M1）: `evo()->clearCache()` は `system_settings` が無い DB では "Error" を出してプロセスを終える。`restore()` は、取り込んだ SQL が `system_settings` を消したとき、設定の引き継ぎとキャッシュの作り直しをしない（成功なら `ok` は true のまま、`error` に `system_settings is missing; cache was not rebuilt`）。
+- 2026-10-24（M1）: `evo()->clearCache()` は `system_settings` が無い DB では "Error" を出してプロセスを終える。`restore()` は、取り込んだ SQL が `system_settings` を消したとき、設定の引き継ぎとキャッシュの作り直しをしない（成功なら `ok` は true のまま、`error` に `system_settings is missing; cache was not rebuilt`）。M3 で `system_cache` が無いときも同じ扱いにし、文言は `system_settings or system_cache is missing; cache was not rebuilt` になった。
 - 2026-10-24（M1）: 自動の名前は秒単位で `request_time()` を使うので、同じリクエストの中で 2 回作ると同じ名前になり上書きする（同じ処理で 2 回 `restore()` すると、1 回目の `pre-restore-` が失われる）。今の入口（画面・CLI は 1 リクエスト 1 回）では起きないので直していない。
 - 2026-10-24（M1）: `createSnapshot()` は実行時間の上限を、0（無制限）でなく 120 秒未満のときだけ 120 秒に延ばす。`restore()` の中の 2 回目の呼び出しは、その後なので既定の経路では何もしない（復元前のスナップショットと取り込みを合わせて 120 秒。元の上限より短くはならない）。
 - 2026-10-24（M1、M2・M3 への申し送り）: 自己レビューで挙がった注意。
@@ -58,9 +58,29 @@
 - 2026-10-24 / yamamoto: 保存先のディレクトリとファイルに `chmod` しない（これまでは `0777` / `0666`）。`mkdir` は `0755`。`.htaccess` は Apache 2.2 と 2.4 の両方で効く書き方にする。`ensureDir()` は、`.htaccess` が無いとき、または中身がインストーラーの古い書き方（`order deny,allow` / `deny from all` だけ）のときに書き直す。利用者が書き換えた中身は残す。インストーラー（`install/actions/summary.php`）も同じ中身を書くように直す。
 - 2026-10-24 / yamamoto: `DocumentParser::snapshot()` は外部から呼ばれうる公開の API なので、戻り値の形を変えない。作れたら書いたバイト数、書き出しに失敗したら `false`、名前が通らなければ `null`。`.sql` が無い名前には `.sql` を付ける（`snapshot.processor.php` と同じ）。名前の規則が `isValidFilename()` になるので、これまで作れた日本語や空白を含む名前は `null` になる。
 - 2026-10-24 / yamamoto: `restore()` は、取り込みの前に `system_cache` を TRUNCATE し、`system_cache` を対象にする文は飛ばす（今の `db-import.php` と同じ）。
+  - 追記（M3）: 判定は `db-import.php` の文頭だけを見る正規表現から変えた。文頭のコメントを除いてから判定し、`IF EXISTS` の無い `DROP`・`IF NOT EXISTS`・`INSERT IGNORE`・`REPLACE`・`LOCK TABLES`・`ALTER TABLE`・DB 名付きの表名も対象にする（Surprises の M3 の項）。
 - 2026-10-24 / exec-plan-runner（M1 の自己レビュー）: `restore()` は、文が途中で失敗したときも、`system_settings` があれば取り込み先の 5 つの設定を戻し、キャッシュを作り直す。ダンプの `system_settings` が入ったあとで失敗すると、別の環境の `site_url` や `fixed_site_url` が残り、管理画面へ届かなくなって `pre-restore-` から戻せなくなるおそれがあるため。
 
 ## Outcomes & Retrospective
+
+結果（2026-10-24、PR #896）:
+
+- 保存先・ファイル名・一覧・世代・作成・復元を `EvoBackupManager` にまとめ、管理画面・CLI・`$modx->snapshot()`・`getBindDenyDirs()`・インストーラーがこれを使うようになった。保存先・`.htaccess` の中身・世代の数・名前の規則・復元は、それぞれ 1 か所で決まる。
+- Validation 1〜6 は、最後の HEAD で修正前の main と比べてすべて期待どおり（main はそれぞれ従来の問題あり）。
+  1. 空のまま 12 回作ると自動の名前の新しい 10 件が残る（`dd-mm-YYYY` でも同じ。main は名前を付けたものや新しいものが消える）
+  2. 名前を付けたものは残り、`pre-restore-` は新しい 3 件
+  3. `db:backup` のファイルを管理画面から戻せる（main はトリガーの `DELIMITER` で失敗）
+  4. 途中で失敗したら位置・エラー・`pre-restore-` を案内し、そこから戻せる。保存先に書けなければ復元しない
+  5. `$modx->snapshot()` の `target` が効く
+  6. `.htaccess` が Apache 2.4 でも効き、ファイルは `0666` でない
+- 未確認のまま残るもの: 空の DB（プレフィックスの付いた表が無い）への `db:import` で復元前のスナップショットを飛ばす分岐（その状態では `php evo` が起動しない）。書き出しやダウンロードを途中で止めたときに一時ファイルが消えること（中断を作れなかった。正常時は確認）。
+- 範囲外のまま残るもの: `createDump()`（`db:export` と `db:backup` の `--driver=php`）と復元は、まだ SQL 全体をメモリに持つ（`assets/docs/core-issues.md` に書き分けた）。`Mysqldumper` のエスケープ方式、nginx で `.htaccess` が効かない件、検証用のイメージに mysqldump を入れること。
+
+振り返り:
+
+- 検証で見つかった最大の不具合（mysqldump 形式の復元で `system_cache` が消える）は、`db-import.php` から写した判定にもともとあったもの。写した処理も「今の動きと同じ」で済ませず、修正前後を同じ入力で比べたことで見つかった。
+- 自己レビューで見つかった回帰（一覧から復元した結果が見えない）は、画面のタブが cookie で前のタブを覚えるという、差分の外の作りに由来した。表示の出し先を変えるときは、どの操作がどのタブから来るかを確かめる。
+- ExecPlan の「解消済みにする」（M4 の `core-issues.md`）は、実装に合わせて一部解消と書き分けた。手順の文言より実装を正とした。
 
 ## Context and Orientation
 
@@ -207,7 +227,9 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 ## Interfaces and Dependencies
 
 - 呼び出し元: `manager/actions/tool/bkmanager.static.php`、`manager/processors/backup/*.php`、`manager/includes/cli/commands/db-backup.php` / `db-import.php`、`DocumentParser::snapshot()`（外部のスニペットやプラグインが呼びうる公開の API。引数と戻り値の形は変えない。名前の規則だけが `isValidFilename()` になる）
-- `Mysqldumper`: `createDump()` / `getTableNames()` / `setDBtables()` は残す（`db:export --driver=php` が使う）。`import_sql()` / `getSettings()` / `restoreSettings()` は消す
+- `Mysqldumper`: `createDump()` / `getTableNames()` / `setDBtables()` は残す（`db:export --driver=php` が使う）。`dumpToFile($path)` を足した。`import_sql()` / `getSettings()` / `restoreSettings()` は消す。呼び出し元が無くなった `dumpSql()`（M2）と `snapshot()`（M3）も消した
+- `EvoBackupManager`: 公開メソッドは M1 の一覧のとおり。定数 `KEEP`（残す世代の数、10）・`HTACCESS`（保存先の `.htaccess` の中身。インストーラーも参照する）・`AUTO_NAME_PATTERN`（自動の名前の判定）を持つ
+- CLI: `cli_export_database()` に `$options`（`['routines' => false]` で `--skip-triggers`）を足した。`cli_export_database_file()` を新設し、一時ファイルに書いてから `rename()` する（`db:backup` と `db:import` の復元前スナップショットが使う）
 - `evo system-upgrade` コマンド（`.agent/plans/2026-05-06-evo-system-upgrade-command.md`）は、DB のバックアップを `temp/backup/migrate/` に置く設計。`files()` と `prune()` は保存先の直下の `*.sql` だけを見るので、影響しない
 - 前提: #889（「SQL を直接実行」の廃止と、復元を管理者だけにする変更）が main に入っていること。着手前に、PR #890 がマージ済みかを確かめる
 - 範囲外: `Mysqldumper` のエスケープ方式（PDO 移行で扱う）、nginx で `.htaccess` が効かない件の根本的な対策、検証環境のイメージ（`manager/docker/Dockerfile`）に mysqldump を入れること
