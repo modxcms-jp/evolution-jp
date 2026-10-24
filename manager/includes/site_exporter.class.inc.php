@@ -13,6 +13,7 @@ class EvoSiteExporter
     private $replBefore;
     private $replAfter;
     private $exportDir;
+    private $siteUrl;
     private $bearerToken = null;
     private $prepared = false;
     private $curl = null;
@@ -22,6 +23,7 @@ class EvoSiteExporter
     /**
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
      *                       repl_before, repl_after, export_dir,
+     *                       site_url(ページを取得する先のサイトの URL。省略時は設定のサイトの URL。書き出す中身は変えない),
      *                       bearer_token(サイトが非公開のときにページの取得へ付ける合言葉。発行と取り消しは呼び出し側)
      */
     public function __construct(array $options = [])
@@ -32,6 +34,7 @@ class EvoSiteExporter
         $this->includeNoncache = !empty($options['include_noncache']);
         $this->replBefore = isset($options['repl_before']) ? (string)$options['repl_before'] : '';
         $this->replAfter = isset($options['repl_after']) ? (string)$options['repl_after'] : '';
+        $this->siteUrl = !empty($options['site_url']) ? rtrim((string)$options['site_url'], '/') . '/' : '';
         $this->bearerToken = !empty($options['bearer_token']) ? (string)$options['bearer_token'] : null;
 
         $dir = isset($options['export_dir']) && $options['export_dir'] !== ''
@@ -271,6 +274,11 @@ class EvoSiteExporter
     private function makeFile($docid, $filepath)
     {
         $url = evo()->makeUrl($docid, '', '', 'full');
+        // 取得の先だけを替える（CLI ではサイトの URL が http://localhost/ になるため）。書き出す中身は替えない
+        $siteUrl = (string)evo()->config('site_url');
+        if ($this->siteUrl !== '' && $siteUrl !== '' && strpos($url, $siteUrl) === 0) {
+            $url = $this->siteUrl . substr($url, strlen($siteUrl));
+        }
         $src = $this->getContents($url);
 
         if ($src === false || is_file(dirname($filepath))) {

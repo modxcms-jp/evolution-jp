@@ -61,7 +61,7 @@ class EvoSiteExportJob
      * ジョブを始める。途中のジョブがあれば捨てて、出力先を空にして最初から始める。
      *
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
-     *                       repl_before, repl_after
+     *                       repl_before, repl_after, site_url(ページを取得する先の URL。空なら設定のサイトの URL)
      * @return array 応答（state: running | busy | error）
      */
     public function start(array $options)
@@ -88,6 +88,7 @@ class EvoSiteExportJob
                 'include_noncache' => !empty($options['include_noncache']),
                 'repl_before'      => isset($options['repl_before']) ? (string)$options['repl_before'] : '',
                 'repl_after'       => isset($options['repl_after']) ? (string)$options['repl_after'] : '',
+                'site_url'         => isset($options['site_url']) ? (string)$options['site_url'] : '',
             ];
 
             $began = microtime(true);
@@ -324,6 +325,7 @@ class EvoSiteExportJob
             'include_noncache' => !empty($options['include_noncache']),
             'repl_before'      => isset($options['repl_before']) ? $options['repl_before'] : '',
             'repl_after'       => isset($options['repl_after']) ? $options['repl_after'] : '',
+            'site_url'         => isset($options['site_url']) ? $options['site_url'] : '',
             'export_dir'       => $exportDir,
             'bearer_token'     => $token,
         ];
