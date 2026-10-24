@@ -22,9 +22,10 @@
 - 2026-10-24: CLI（`manager/includes/cli/bootstrap.php`）では、固定のサイトの URL が無いと `MODX_SITE_URL` が `http://localhost/` になる。Docker の検証環境では、コンテナの中の 80 番で Apache が待っていないため、そのままではページを取得できない
 
 - 2026-10-24（M1）: 時間切れの扱いが変わった。main は `makeFile()` の中から `exit()` で止めていたため、画面がタブの組み立ての途中で切れ、ヘルプのタブもフッターも出なかった。M1 では processor が文言を返すので、画面が最後まで描かれる（改善）。経過時間を見る場所も「取得する直前」から「各行の先頭」に移り、飛ばす行やフォルダの行でも止まる。止まったときに出す件数が main より小さくなることがあるが、押し直しで最後まで進むことは検証で確かめた（311 件で main と同じ 6 回）
-- 2026-10-24（M1）: 検証環境（`compose.yml` + `compose.validation.yml`）の Apache は 8080 番だけで待ち受けるため、エクスポートが自サイトのページ（`http://<アドレス>/`）を取得できず、全件「ページを開けません」になる。検証ではコンテナの `/etc/apache2/ports.conf` に `Listen 80` を足して `apache2ctl graceful` した。開発用の環境（ホストの 80 番を 8080 番へ）でも同じことが起きるはずで、エクスポートとは別の課題として扱う
+- 2026-10-24（M1）: 検証環境（`compose.yml` + `.claude/skills/adaptive-validation-runner/scripts/compose.validation.yml`）の Apache は 8080 番だけで待ち受けるため、エクスポートが自サイトのページ（`http://<アドレス>/`）を取得できず、全件「ページを開けません」になる。検証ではコンテナの `/etc/apache2/ports.conf` に `Listen 80` を足して `apache2ctl graceful` した。開発用の環境（ホストの 80 番を 8080 番へ）でも同じことが起きるはずで、エクスポートとは別の課題として #908 で扱う
 - 2026-10-24（M1 の自己レビュー）: M2・M4 で気を付けること。basic 認証を検出した印（`basicAuthDetected`）は一度立つと下がらない。curl の `CURLOPT_FAILONERROR` により、404・500・401 のように送り直しても同じ結果になる応答でも 0.3 秒おいて 2 回送り直す。curl が無いときの経路は `Authorization` ヘッダーを送らないので、非公開サイトでは取得できない
-- 2026-10-24（M1 の自己レビュー）: `new_file_permissions` / `new_folder_permissions` の読み方が、`document.parser.class.inc.php`・`files.dynamic.php`・`manager/media/browser/evo/api.php` と今回の `EvoSiteExporter` でそれぞれ少しずつ違う。1 つの関数にまとめるのはエクスポートと関係しない箇所に及ぶので、別の Issue にする
+- 2026-10-24（M1 の自己レビュー）: `new_file_permissions` / `new_folder_permissions` の読み方が、`document.parser.class.inc.php`・`files.dynamic.php`・`manager/media/browser/evo/api.php` と今回の `EvoSiteExporter` でそれぞれ少しずつ違う。1 つの関数にまとめるのはエクスポートと関係しない箇所に及ぶので、別の Issue（#909）にする
+- 2026-10-24（M1 の自己レビュー）: 出力先の設定（`export_dir`）が空のときの動きが変わった。main は `realpath('')` が今いるディレクトリ（`manager/`）を返すため「temp/ の中にしてください」で止まっていた。M1 では `EvoSiteExporter` が空を `temp/export` として扱い、そこへ書き出す。出力先は `temp/` の中なので、安全な側の変化としてこのまま残す
 
 ## Decision Log
 
@@ -98,7 +99,7 @@ M1（整理）
 M2（ジョブ化と進捗表示）
 
 1. 編集: `manager/includes/site_export_job.class.inc.php` を作り、`EvoSiteExportJob` を実装する
-2. 実行と編集: 先に main の検証環境でサイトを非公開（`site_status` を 0）にしてエクスポートし、ページを取得できないこと（失敗の表示、または出力されたファイルがメンテナンスの画面）を確かめる。`manager/includes/document.parser.class.inc.php` の `verifyBearerToken()` を Decision Log のとおり直し、`revokeBearerToken()` を足し、`loadExtension()` の `case 'export_site'` を消す。`manager/includes/extenders/ex_export_site.php` を消す
+2. 実行と編集: 検証環境を立てたら、まずコンテナの `/etc/apache2/ports.conf` に `Listen 80` を足して `apache2ctl graceful` する（#908。これが無いと、ポートのせいで全件の取得に失敗し、トークンのせいかを見分けられない。手順 7・8 の環境でも同じ）。先に main の検証環境でサイトを非公開（`site_status` を 0）にしてエクスポートし、ページを取得できないこと（失敗の表示、または出力されたファイルがメンテナンスの画面）を確かめる。`manager/includes/document.parser.class.inc.php` の `verifyBearerToken()` を Decision Log のとおり直し、`revokeBearerToken()` を足し、`loadExtension()` の `case 'export_site'` を消す。`manager/includes/extenders/ex_export_site.php` を消す
 3. 編集: `manager/processors/export_site.processor.php` を JSON の窓口に書き換える。権限 `export_static` が無ければ 403 の JSON。POST 以外は 405。応答は `{"state":"running|done|cancelled|busy|error","total":…,"done":…,"failed":…,"failures":[…],"messages":[…]}`
 4. 編集: `manager/index.php` に `case 308` を足す（ヘッダーの一覧には載せない）。`manager/includes/actionlist.inc.php` に `'308' => 'HTML export job'`、`manager/includes/csrf_token.php` の `csrfProtectedActions()` に `308 => true` を足す
 5. 編集: `manager/actions/tool/export_site.static.php` を書き換える（フォーム・プログレスバー・中止・再開・結果の欄。JS は素の JS で、jQuery を使わない）
