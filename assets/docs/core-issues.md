@@ -31,7 +31,7 @@
 - **課題**:
   - `addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）
   - トランザクション整合性なし（`LOCK TABLES` / `--single-transaction` 相当がない）
-  - 全体を `file_get_contents` でメモリに読み込む設計（大規模 DB でメモリ不足のリスク）
+  - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 管理画面のスナップショット・ダウンロードは解消（2026-10-24、`dumpToFile()` が一時ファイルへ書き、書き終えてから rename する）。`createDump()`（`db:export --driver=php` と `db:backup --driver=php` が使う）と復元（SQL 全体を文字列で読み込んでから文に分ける）は、大きな DB ではメモリが要るまま
   - ファイル先頭の `$modx` グローバル変数チェックがクラス定義として不適切
 - **改善案**: CLI では `mysqldump` ラッパーをデフォルトにすることで回避済み。管理画面のバックアップ機能でも同様に `mysqldump` を優先候補にすることを検討。クラス自体の改修は PDO 移行と合わせて行うのが効率的。
 - **関連ロードマップ**: Phase 2 PDO 移行

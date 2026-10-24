@@ -40,10 +40,23 @@ php evo skill:sync --skill=issue-resolver
 注意: シェル展開が必要な記号（`*` など）を含む場合は引用符で囲むことを推奨します。
 `db:tables --pattern=` は `LIKE` で評価されます。`db:count --where=` は生 SQL をそのまま渡すため、条件に空白がある場合は引用符で囲んでください。
 `db:export` はデフォルトで `mysqldump` を使用します。`mysqldump` が利用できない環境では `--driver=php` で組み込みの PHP ダンパーに切り替えられます。`--output` なしで実行すると SQL が標準出力へ流れるため、必要に応じてリダイレクトしてください。
-`db:backup` は `snapshot_path`（未設定または不正な場合は `temp/backup/` または `assets/backup/`）へ SQL スナップショットを保存し、`--max` を超えた世代を古い順に削除します。
+`db:backup` は管理画面のバックアップ管理と同じ保存先へ SQL スナップショットを保存します。保存先は `snapshot_path` の設定（サイトのフォルダの下にある場合だけ有効）で、未設定または不正な場合は `temp/backup/`（無くて `assets/backup/` がある場合はそちら）です。
+- ファイル名は `YYYY-MM-DD-HHMMSS-<バージョン>.sql` の自動の名前になります。
+- 書き出すのは、設定したプレフィックスの付いた表だけです。トリガーとストアドルーチンは含めません（管理画面から復元できる形にするため）。
+- `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルと `pre-restore-` のファイルは消しません。
+- 世代の上限は管理画面と共有です。`--max` に 10 より大きい値を指定しても、次に管理画面でスナップショットを作ったり復元したりすると、10 件に戻ります。
+- `pre-restore-` のファイルは別に新しい 3 件だけ残します。
+- 最後に `Backups in <保存先>: auto-named N/M, other K` の行で、自動の名前のファイルの数（N、M は `--max`）とそれ以外の数（K）を表示します。
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
-`db:import` は `system_cache` をインポート対象から除外し、事前に `TRUNCATE` します。`system_settings` はインポートした上で `site_url`/`base_url`/`filemanager_path`/`rb_base_dir` を復元します。
+`db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
+- 取り込みの前に、今の DB を `pre-restore-<自動の名前>.sql` として保存先へ保存します（`mysqldump` を使い、`db:backup` と同じくプレフィックスの表だけ、トリガーなし）。保存できなければ、何も取り込まずに終了コード 1 で終わります。プレフィックスの表がまだ無い DB（空の DB への取り込み）では保存するものが無いので、このスナップショットは作りません（`Pre-restore snapshot: skipped (...)` と表示）。
+- 出力は `Pre-restore snapshot: <ファイル名>` と、完了時の `Import completed. Executed: N, Skipped: M` です。
+- 途中の文が失敗したら、`Error: statement N failed: ...` と実行した文の数を表示して終了コード 1 で終わり、復元前のスナップショットから戻すよう案内します。
+- `system_cache` は取り込み対象から除外し（Skipped に数えます）、事前に `TRUNCATE` します。
+- `system_settings` はインポートした上で、`site_url` / `base_url` / `filemanager_path` / `rb_base_dir` / `fixed_site_url` の 5 つを取り込み先の値に戻します。
+- 以前の `Preserved ...` の行は表示しません。
+- `mysqldump` が必要です。
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
 `skill:validate` は run scaffold と skill metadata の JSON 契約を確認します。
 ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-request.json` 完了更新、次 run scaffold 準備をまとめて行います。
