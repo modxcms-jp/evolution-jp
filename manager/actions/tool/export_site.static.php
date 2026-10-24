@@ -275,7 +275,22 @@ foreach ($exportJsKeys as $key) {
             result: $('exportResult')
         };
         let running = false;
+        let starting = false;
         let cancelling = false;
+        let buttonMode = 'start';
+        // シェルが別の画面へ差し替えたら false。残った関数が、新しい画面の処理と重ならないようにする
+        let alive = true;
+        document.addEventListener('evoshell:unload', function () {
+            alive = false;
+            running = false;
+            starting = false;
+            cancelling = false;
+            window.documentDirty = false;
+        }, {once: true});
+        // 処理中は documentDirty を立て、シェルが別の画面へ移る前に確認を出す
+        const setDirty = function (dirty) {
+            window.documentDirty = dirty;
+        };
 
         const fill = function (template, values) {
             return Object.keys(values).reduce(function (text, key) {
@@ -309,6 +324,7 @@ foreach ($exportJsKeys as $key) {
         // ボタンは状態ごとに 1 組だけ出す
         //   start: 開始 / running: 中止 / choice: 再開とやり直し / restart: やり直し / none: 出さない
         const setButtons = function (mode) {
+            buttonMode = mode;
             els.startItem.hidden = mode !== 'start';
             els.cancelItem.hidden = mode !== 'running';
             els.resumeItem.hidden = mode !== 'choice';
@@ -317,15 +333,24 @@ foreach ($exportJsKeys as $key) {
         // 応答が読めない・4xx のときは送り直さず止める
         const stopUnreadable = function () {
             running = false;
+            starting = false;
             cancelling = false;
+            setDirty(false);
             setButtons('none');
             setNotice(T.export_site_unreadable);
         };
 
         // サーバーに送る。通信に失敗したら間をおいて数回やり直す
+        // 戻り値の印:
+        //   local: true      手元で作った失敗（通信の失敗が続いた・5xx・JSON でない 200 の応答）。サーバーのジョブは続いているかもしれない
+        //   unreadable: true JSON でない 4xx（共通の入口の 405・CSRF の 403）。送り直しても同じなので止める
+        //   どちらも無い     サーバーが返した JSON（権限なしの 403 の error も、その message を使う）
         const call = async function (op, extra) {
             const data = Object.assign({op: op}, extra || {});
             for (let attempt = 0; attempt < 5; attempt++) {
+                if (!alive) {
+                    break;
+                }
                 let response;
                 try {
                     response = await Evo.post(ENDPOINT, data);
@@ -335,16 +360,21 @@ foreach ($exportJsKeys as $key) {
                     await sleep(2000);
                     continue;
                 }
-                if (!response.ok) {
-                    return {state: 'error', unreadable: true};
-                }
+                let json = null;
                 try {
-                    return await response.json();
+                    json = await response.json();
                 } catch (e) {
+                    json = null;
+                }
+                if (json && typeof json === 'object' && json.state) {
+                    return json;
+                }
+                if (response.status >= 400 && response.status < 500) {
                     return {state: 'error', unreadable: true};
                 }
+                return {state: 'error', local: true};
             }
-            return {state: 'error', message: T.export_site_request_failed};
+            return {state: 'error', local: true};
         };
 
         const formData = function () {
@@ -422,10 +452,25 @@ foreach ($exportJsKeys as $key) {
             els.result.hidden = false;
         };
 
+        // ジョブが無い状態（開始ボタン）に戻す
+        const showIdle = function () {
+            running = false;
+            starting = false;
+            cancelling = false;
+            setDirty(false);
+            els.box.hidden = true;
+            els.result.hidden = true;
+            setNotice('');
+            setButtons('start');
+            setFormDisabled(false);
+        };
+
         // 終わった（done / cancelled / error）。やり直せる状態に戻す
         const showFinished = function (res) {
             running = false;
+            starting = false;
             cancelling = false;
+            setDirty(false);
             renderProgress(res);
             renderMessages(res);
             setButtons(res.state === 'done' ? 'start' : 'restart');
@@ -442,23 +487,95 @@ foreach ($exportJsKeys as $key) {
             setFormDisabled(false);
         };
 
+        // サーバーに保存されたジョブの状態を画面に出す（開いたとき・通信が続けて失敗したあと）
+        const showStatus = function (res) {
+            running = false;
+            starting = false;
+            cancelling = false;
+            setDirty(false);
+            setFormDisabled(false);
+            if (res.state === 'none') {
+                showIdle();
+                return;
+            }
+            if (res.state === 'error' && res.total === undefined) {
+                // ジョブの状態ではなく、サーバーが返した拒否など。その message をそのまま出す
+                setButtons('none');
+                setNotice(res.message || T.export_site_unreadable, true);
+                return;
+            }
+            renderProgress(res);
+            renderMessages(res);
+            if (res.state === 'running') {
+                setNotice(T.export_site_resume_notice);
+                setButtons('choice');
+                return;
+            }
+            if (res.state === 'cancelled') {
+                setNotice(T.export_site_cancelled_notice);
+            } else if (res.state === 'error') {
+                setNotice(T.export_site_error_notice + ' ' + (res.message || ''), true);
+            } else {
+                setNotice('');
+            }
+            els.result.hidden = true;
+            renderResult(res);
+            setButtons(res.state === 'done' ? 'start' : 'restart');
+        };
+
+        // 手元の失敗（通信が続けて失敗・5xx・JSON でない応答）のとき、サーバーのジョブの状態を取り直して出す。
+        // 状態も取れなければ、案内（画面を開き直す）を出す
+        const recover = async function () {
+            running = false;
+            starting = false;
+            cancelling = false;
+            setDirty(false);
+            setButtons('none');
+            const res = await call('status');
+            if (!alive) {
+                return;
+            }
+            if (res.unreadable || res.local) {
+                stopUnreadable();
+                return;
+            }
+            showStatus(res);
+        };
+
+        // call() の失敗の印を処理する。処理したら true（呼び出し側はそこで終える）
+        const handleBroken = async function (res) {
+            if (res.unreadable) {
+                stopUnreadable();
+                return true;
+            }
+            if (res.local) {
+                await recover();
+                return true;
+            }
+            return false;
+        };
+
         // 続きを進めるを、終わるまで繰り返す
         const loop = async function () {
             if (running) {
                 return;
             }
             running = true;
+            setDirty(true);
             setFormDisabled(true);
             setButtons('running');
             els.result.hidden = true;
             setNotice(T.export_site_running);
-            while (running) {
+            while (running && alive) {
                 const res = await call(cancelling ? 'cancel' : 'step');
-                if (!running) {
+                if (!running || !alive) {
                     return;
                 }
-                if (res.unreadable) {
-                    stopUnreadable();
+                if (await handleBroken(res)) {
+                    return;
+                }
+                if (res.state === 'none') {
+                    showIdle();
                     return;
                 }
                 if (res.state === 'running') {
@@ -479,23 +596,33 @@ foreach ($exportJsKeys as $key) {
         };
 
         const start = async function () {
-            if (running) {
+            if (running || starting) {
                 return;
             }
+            // 応答を待つ間は、押せるボタンを出さない（二度押しを防ぐ）
+            starting = true;
+            setDirty(true);
+            const previousMode = buttonMode;
+            setButtons('none');
             setNotice('');
             els.messages.textContent = '';
             els.result.hidden = true;
             const res = await call('start', formData());
-            if (res.unreadable) {
-                stopUnreadable();
+            if (!alive) {
                 return;
             }
-            if (res.state === 'busy') {
-                setNotice(T.export_site_busy);
+            if (await handleBroken(res)) {
                 return;
             }
-            if (res.state === 'error') {
-                setNotice(res.message || T.export_site_request_failed, true);
+            starting = false;
+            if (res.state === 'busy' || res.state === 'error') {
+                setDirty(false);
+                setButtons(previousMode);
+                if (res.state === 'busy') {
+                    setNotice(T.export_site_busy);
+                } else {
+                    setNotice(res.message || T.export_site_request_failed, true);
+                }
                 return;
             }
             renderProgress(res);
@@ -511,8 +638,10 @@ foreach ($exportJsKeys as $key) {
             setNotice(T.export_site_cancelling);
             // 処理中の続きを進めるを待たずに、中止の印を書かせる
             const res = await call('cancel');
-            if (res.unreadable) {
-                stopUnreadable();
+            if (!alive) {
+                return;
+            }
+            if (await handleBroken(res)) {
                 return;
             }
             if (res.state === 'cancelled' || res.state === 'done' || res.state === 'error') {
@@ -550,27 +679,16 @@ foreach ($exportJsKeys as $key) {
         // 開いたとき、保存したジョブがあれば状態を見せる
         setButtons('start');
         call('status').then(function (res) {
-            if (res && res.unreadable) {
+            if (!alive) {
+                return;
+            }
+            if (res.unreadable || res.local) {
                 stopUnreadable();
                 return;
             }
-            if (!res || res.state === 'none') {
-                return;
+            if (res.state !== 'none') {
+                showStatus(res);
             }
-            renderProgress(res);
-            renderMessages(res);
-            if (res.state === 'running') {
-                setNotice(T.export_site_resume_notice);
-                setButtons('choice');
-                return;
-            }
-            if (res.state === 'cancelled') {
-                setNotice(T.export_site_cancelled_notice);
-            } else if (res.state === 'error') {
-                setNotice(T.export_site_error_notice + ' ' + (res.message || ''), true);
-            }
-            renderResult(res);
-            setButtons(res.state === 'done' ? 'start' : 'restart');
         });
     })();
 </script>
