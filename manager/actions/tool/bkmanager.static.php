@@ -133,7 +133,7 @@ if (sessionv('result_msg')) {
         f.submit();
         return false;
     }
-    <?= isset($_REQUEST['r']) ? " doRefresh(" . $_REQUEST['r'] . ");" : ""; ?>
+    <?= anyv('r') !== null ? ' doRefresh(' . (int) anyv('r') . ');' : ''; ?>
 </script>
 <h1><?= $_lang['bk_manager'] ?></h1>
 
@@ -322,12 +322,12 @@ if (sessionv('result_msg')) {
                         foreach ($last_result['0'] as $k => $v) {
                             $title[] = $k;
                         }
-                        $result = '<tr><th>' . implode('</th><th>', $title) . '</th></tr>';
+                        $result = '<tr><th>' . implode('</th><th>', hsc($title)) . '</th></tr>';
                         foreach ($last_result as $row) {
                             $result_value = [];
                             if ($row) {
                                 foreach ($row as $k => $v) {
-                                    $result_value[] = $v;
+                                    $result_value[] = hsc($v);
                                 }
                                 $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
                             }
@@ -365,7 +365,7 @@ if (sessionv('result_msg')) {
                 <div id="textarea" style="display:<?= $t_display ?>;">
                     <textarea
                         name="textarea"
-                        style="width:500px;height:200px;"><?= $value ?></textarea>
+                        style="width:500px;height:200px;"><?= hsc($value) ?></textarea>
                 </div>
                 <div class="actionButtons" style="margin-top:10px;">
                     <a
@@ -378,7 +378,7 @@ if (sessionv('result_msg')) {
             </form>
             <?php
             if (isset($result)) {
-                echo '<div style="margin-top:20px;"><p style="font-weight:bold;"><?= $_lang["bkmgr_run_sql_result"];?></p>' . $result . '</div>';
+                echo '<div style="margin-top:20px;"><p style="font-weight:bold;">' . $_lang['bkmgr_run_sql_result'] . '</p>' . $result . '</div>';
             }
             ?>
         </div>
@@ -441,12 +441,17 @@ if (sessionv('result_msg')) {
                 if (is_array($files) && $total) {
                     echo '<ul>';
                     arsort($files);
-                    $tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=\'[+filename+]\';document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
+                    $tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
                     while ($file = array_shift($files)) {
                         $timestamp = filemtime($file);
                         $filename = substr($file, strrpos($file, '/') + 1);
                         $filesize = evo()->nicesize(filesize($file));
-                        $output[$timestamp] = str_replace(['[+filename+]', '[+filesize+]'], [$filename, $filesize], $tpl);
+                        // 置き換えた値の中を再び置換しないよう、strtr() で一度だけ置換する
+                        $output[$timestamp] = strtr($tpl, [
+                            '[+filename+]' => hsc($filename),
+                            '[+filename_js+]' => js_literal($filename),
+                            '[+filesize+]' => $filesize,
+                        ]);
                     }
                     krsort($output);
                     foreach ($output as $v) {

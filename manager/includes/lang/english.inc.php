@@ -1235,6 +1235,7 @@ return [
 
     "bkmgr_content_only" => 'Contents only',
     "bkmgr_file_name" => 'File name',
+    "bkmgr_invalid_file_name" => 'The file name may contain only letters, digits, ".", "_" and "-", and must start with a letter or digit.',
     "delete_resource_complete" => 'Delete complete',
 
     "enable_draft_title" => 'Draft function',
