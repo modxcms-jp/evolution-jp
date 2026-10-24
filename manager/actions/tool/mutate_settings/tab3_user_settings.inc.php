@@ -219,7 +219,7 @@
             <th><?= $_lang["smtp_host_title"] ?></th>
             <td><input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
-                    value="<?= config('smtp_host', 'smtp.example.com') ?>"/>
+                    value="<?= hsc(config('smtp_host', 'smtp.example.com')) ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">
@@ -228,7 +228,7 @@
                 <input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
                     name="smtp_port"
-                    value="<?= config('smtp_port', '25') ?>"/>
+                    value="<?= hsc(config('smtp_port', '25')) ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">
@@ -237,7 +237,7 @@
                 <input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
                     name="smtp_username"
-                    value="<?= config('smtp_username', $emailsender) ?>"
+                    value="<?= hsc(config('smtp_username', $emailsender)) ?>"
                 />
             </td>
         </tr>
