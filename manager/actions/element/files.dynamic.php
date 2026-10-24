@@ -818,13 +818,13 @@ function fileupload()
     // this seems to be an upload action.
     $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
     $path = rtrim($path, '/') . '/' . $userfile['name'];
-    $msg .= $path;
+    $msg .= hsc($path);
     if ($userfile['error'] == 0) {
-        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . $path . '" height="75" />' : '';
+        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . hsc($path) . '" height="75" />' : '';
         $msg .= sprintf(
             '<p>%s%s, %s%s</p>',
             lang('files_file_type'),
-            $userfile['type'],
+            hsc($userfile['type']),
             $modx->nicesize(filesize($userfile['tmp_name'])),
             $img
         );
@@ -897,7 +897,7 @@ function delete_file()
 
     logFileChange('delete', anyv('path'));
 
-    $msg = sprintf(lang('deleting_file'), str_replace('\\', '/', anyv('path')));
+    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
 
     if (!unlink(anyv('path'))) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
