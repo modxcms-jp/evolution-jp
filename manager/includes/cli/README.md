@@ -23,6 +23,8 @@ EVO_CLI_IMPORT=1 php evo db:import /tmp/backup.sql
 php evo db:backup
 php evo db:backup --max=20
 php evo db:backup --driver=php
+php evo export:site
+php evo export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
 php evo health:check
 php evo log:tail --lines=20
 php evo log:search "インストーラー" --level=error --limit=10
@@ -46,6 +48,12 @@ php evo skill:sync --skill=issue-resolver
 - `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルは消さず、`--max` の数え方にも含めません（`pre-restore-` は別に新しい 3 件だけ残します）。古い世代を消したときは、1 件ごとに `Removed old backup: <名前>` の行を表示します。
 - 世代の上限は管理画面と共有です。`--max` に 10 より大きい値を指定しても、次に管理画面でスナップショットを作ったり復元したりすると、10 件に戻ります。
 - 最後に `Backups in <保存先>: auto-named N/M, other K` の行で、自動の名前のファイルの数（N、M は `--max`）とそれ以外の数（K）を表示します。
+`export:site` は管理画面の「HTML エクスポート」（a=83）と同じジョブ（状態ファイル `temp/export_job.json`）で、静的 HTML を出力先（`export_dir`、`temp/` の中）へ書き出します。
+- 引数: `--target=all|allow|ignore`（既定 all）、`--ids=1,2,3`（allow / ignore のとき必須）、`--include-noncache`、`--replace-before=` / `--replace-after=`（書き出す中身の置換。既定は置換なし）、`--site-url=`（ページを取得する先のサイトの URL）、`--restart`。
+- CLI ではサイトの URL が `http://localhost/` になるため、コンテナの中などで取得できないときは `--site-url=` で取得先を指定します。取得の URL の先頭だけを替え、書き出す中身は変えません（中身を替えるのは `--replace-*`）。
+- 画面のジョブが途中のときは、`--restart` が無ければ始めずに終了コード 1 で終わります。`--restart` を付けると前のジョブを捨てて始めます。始めるときは出力先を空にします。
+- 100 件ごとと最後に `n / 全体 (success, skipped, failed)` を表示し、最後に所要時間と失敗の一覧（ID・ページタイトル・理由）を表示します。失敗が 1 件でもあるか、始められなかった・途中で止まったときは終了コード 1、すべて成功なら 0 です。
+- 開始は操作ログ（manager_log）に `HTML export: start (CLI)`（ユーザー名 `CLI`）として残ります。`OnExportPreExec` / `OnExportExec` は画面と同じく呼ばれます。
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
