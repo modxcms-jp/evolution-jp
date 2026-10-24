@@ -27,7 +27,7 @@
 - 2026-10-24（M1）: 自動の名前は秒単位で `request_time()` を使うので、同じリクエストの中で 2 回作ると同じ名前になり上書きする（同じ処理で 2 回 `restore()` すると、1 回目の `pre-restore-` が失われる）。今の入口（画面・CLI は 1 リクエスト 1 回）では起きないので直していない。
 - 2026-10-24（M1）: `createSnapshot()` は実行時間の上限を、0（無制限）でなく 120 秒未満のときだけ 120 秒に延ばす。`restore()` の中の 2 回目の呼び出しは、その後なので既定の経路では何もしない（復元前のスナップショットと取り込みを合わせて 120 秒。元の上限より短くはならない）。
 - 2026-10-24（M1、M2・M3 への申し送り）: 自己レビューで挙がった注意。
-  - `restore()` は「`ok` が true で `error` が空でない」結果を返すことがある。画面と `db:import` は `error` も見て注意を出す。失敗時もキャッシュを作り直すので、画面では `pre-restore-` のファイルから戻すよう、はっきり案内する
+  - `restore()` は「`ok` が true で `error` が空でない」結果を返すことがある。画面と `db:import` は `error` も見て注意を出す。失敗したときは DB が途中の状態になるので、画面では `pre-restore-` のファイルから戻すよう、はっきり案内する（失敗時にキャッシュを作り直すかは、PR #896 のレビューで改めた。Decision Log の該当の行）
   - インストーラー（M2 の 7）は `.htaccess` の中身を写さず、`EvoBackupManager::HTACCESS` を参照する（二重持ちにしない）
   - `dir()` は、設定した `snapshot_path` がまだ無いと既定の `temp/backup/` へ戻る（今の `snapshot.processor.php` はその場所を作っていた）。画面に保存先を出すか、言語ファイルで案内する
   - `getBindDenyDirs()` の一覧に、`dir()` の結果（実パス）が必ず入るようにする
@@ -60,6 +60,8 @@
 - 2026-10-24 / yamamoto: `restore()` は、取り込みの前に `system_cache` を TRUNCATE し、`system_cache` を対象にする文は飛ばす（今の `db-import.php` と同じ）。
   - 追記（M3）: 判定は `db-import.php` の文頭だけを見る正規表現から変えた。文頭のコメントを除いてから判定し、`IF EXISTS` の無い `DROP`・`IF NOT EXISTS`・`INSERT IGNORE`・`REPLACE`・`LOCK TABLES`・`ALTER TABLE`・DB 名付きの表名も対象にする（Surprises の M3 の項）。
 - 2026-10-24 / exec-plan-runner（M1 の自己レビュー）: `restore()` は、文が途中で失敗したときも、`system_settings` があれば取り込み先の 5 つの設定を戻し、キャッシュを作り直す。ダンプの `system_settings` が入ったあとで失敗すると、別の環境の `site_url` や `fixed_site_url` が残り、管理画面へ届かなくなって `pre-restore-` から戻せなくなるおそれがあるため。
+- 2026-10-24 / yamamoto（PR #896 の Codex のレビュー）: 上の行を改め、文が途中で失敗したときは、`system_settings` があれば取り込み先の 5 つの設定だけを戻し、キャッシュは作り直さない（成功したときは今までどおり作り直す）。たとえば `site_content` を消したあとで失敗すると、キャッシュの作り直しがその表を読んで DB エラーで止まり、失敗の位置と `pre-restore-` の案内を返せなくなるため。設定のキャッシュは復元の前のまま残るので、管理画面は結果と案内を出せ、`pre-restore-` から戻したときの成功の経路でキャッシュが作り直される。
+- 2026-10-24 / yamamoto（PR #896 の Codex のレビュー）: 既存のファイルを読む `path()` は、作るときの規則（`isValidFilename()`）ではなく、ディレクトリを含まない・`..` と NUL を含まない・拡張子が大文字小文字を問わず `.sql`・実パスが保存先の中・通常のファイル、の条件で許す。変更前の `$modx->snapshot()` で作れた日本語や空白を含む名前のファイルが、一覧に出るのに復元できなくなるのを防ぐため。
 
 ## Outcomes & Retrospective
 
@@ -127,7 +129,7 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
     ensureDir(): bool        無ければ 0755 で作り、.htaccess を置く（無いか、インストーラーの古い中身なら書き直す）。書けなければ false
     autoFilename(string $prefix = ''): string   $prefix . date('Y-m-d-His', request_time() + server_offset_time) . '-' . 版 . '.sql'。版は evo()->config('settings_version') ?: 'unknown'
     isValidFilename(string $name): bool          /\A[0-9A-Za-z][0-9A-Za-z._-]*\.sql\z/（PR #884 の規則に .sql 必須を足したもの）
-    path(string $name): string|false             検証して、保存先にあるファイルの実パス。無ければ false
+    path(string $name): string|false             検証して、保存先にあるファイルの実パス。無ければ false（既存のファイルを読むので isValidFilename() より緩い規則で見て、実パスが保存先の中かを確かめる。Decision Log）
     files(): array           [['name', 'size', 'mtime'], ...] を更新日時の新しい順で
     createSnapshot(string $name = '', bool $contentsOnly = false): string|false   PHP のダンパーで書き出し、成功したら prune()。ファイル名を返す
     prune(int $max = 10): string[]               自動の名前のファイルだけを、更新日時の古い順に $max 件まで消す。あわせて pre-restore- のファイルを新しい 3 件まで消す。消した名前を返す
