@@ -147,14 +147,14 @@
                                 size="5">
                                 <?php
                                 foreach (explode(',', config('custom_contenttype')) as $v) {
-                                    echo '<option value="' . $v . '">' . $v . "</option>\n";
+                                    echo '<option value="' . hsc($v) . '">' . hsc($v) . "</option>\n";
                                 }
                                 ?>
                             </select>
                             <input
                                 name="custom_contenttype"
                                 type="hidden"
-                                value="<?= config('custom_contenttype') ?>" />
+                                value="<?= hsc(config('custom_contenttype')) ?>" />
                         </td>
                         <td valign="top">
                             &nbsp;<input

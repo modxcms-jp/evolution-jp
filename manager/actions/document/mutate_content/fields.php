@@ -697,10 +697,10 @@ function fieldContentType()
         $option[] = html_tag(
             '<option>',
             [
-                'value' => $value,
+                'value' => hsc($value),
                 'selected' => doc('contentType') === $value ? null : ''
             ],
-            $value
+            hsc($value)
         );
     }
     $body = parseText(
