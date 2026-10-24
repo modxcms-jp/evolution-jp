@@ -20,124 +20,36 @@ if (!defined('EVO_CLI_IMPORT')) {
     cli_usage('Refusing to import without explicit confirmation. Set EVO_CLI_IMPORT=1.');
 }
 
-$prefix = db()->config['table_prefix'] ?? '';
-$excluded = [
-    $prefix . 'system_cache',
-];
+require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
-if (strpos($source, "\r") !== false) {
-    $source = str_replace(["\r\n", "\r"], "\n", $source);
+global $modx;
+require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
+
+$backup = new EvoBackupManager();
+
+// 復元前のスナップショットも mysqldump で取る（PHP のダンパーの遅さとメモリを CLI に持ち込まない）
+$preRestore = function ($fullPath) {
+    return cli_export_database_file(
+        'mysqldump',
+        $fullPath,
+        (new Mysqldumper())->getTableNames(),
+        ['routines' => false]
+    );
+};
+$result = $backup->restore($source, $preRestore);
+
+if ($result['pre_restore_failed']) {
+    cli_usage('Error: failed to save the pre-restore snapshot; nothing was imported.');
 }
 
-$statements = preg_split('@;[ \t]*\n@', $source);
-$skipped = 0;
-$executed = 0;
-
-$cacheTable = $prefix . 'system_cache';
-$rs = db()->query("SHOW TABLES LIKE '" . db()->escape($cacheTable) . "'");
-if ($rs !== false && db()->count($rs) > 0) {
-    $fullCacheTable = cli_full_table_name('system_cache');
-    if ($fullCacheTable !== '') {
-        db()->query('TRUNCATE TABLE ' . $fullCacheTable);
-    }
-}
-if ($rs !== false) {
-    db()->freeResult($rs);
+cli_out("Pre-restore snapshot: {$result['pre_restore']}");
+if (!$result['ok']) {
+    cli_err("Error: statement {$result['failed_at']} failed: {$result['error']}");
+    cli_out("Executed: {$result['executed']}, Skipped: {$result['skipped']}");
+    cli_usage("Restore the previous state from {$result['pre_restore']} in " . $backup->dir());
 }
 
-$preserveKeys = [
-    'site_url',
-    'base_url',
-    'filemanager_path',
-    'rb_base_dir',
-];
-$preserved = [];
-$destFixedSiteUrl = null;
-$settingsTable = $prefix . 'system_settings';
-$rs = db()->query("SHOW TABLES LIKE '" . db()->escape($settingsTable) . "'");
-if ($rs !== false && db()->count($rs) > 0) {
-    $fullSettingsTable = cli_full_table_name('system_settings');
-    if ($fullSettingsTable !== '') {
-        $destFixedSiteUrl = db()->getValue(sprintf(
-            "SELECT setting_value FROM %s WHERE setting_name='fixed_site_url' LIMIT 1",
-            $fullSettingsTable
-        ));
-        foreach ($preserveKeys as $key) {
-            $sql = sprintf(
-                "SELECT setting_value FROM %s WHERE setting_name='%s' LIMIT 1",
-                $fullSettingsTable,
-                db()->escape($key)
-            );
-            $valueRs = db()->query($sql);
-            if ($valueRs !== false) {
-                $row = db()->getRow($valueRs, 'assoc');
-                db()->freeResult($valueRs);
-                if ($row && array_key_exists('setting_value', $row)) {
-                    $preserved[$key] = $row['setting_value'];
-                }
-            }
-        }
-    }
+cli_out("Import completed. Executed: {$result['executed']}, Skipped: {$result['skipped']}");
+if ($result['error'] !== '') {
+    cli_err('Warning: ' . $result['error']);
 }
-if ($rs !== false) {
-    db()->freeResult($rs);
-}
-
-foreach ($statements as $sql) {
-    $sql = trim($sql);
-    if ($sql === '') {
-        continue;
-    }
-
-    $skip = false;
-    if (preg_match('/^(INSERT INTO|REPLACE INTO|DROP TABLE IF EXISTS|CREATE TABLE|TRUNCATE TABLE)\s+`?([a-zA-Z0-9_]+)`?/i', $sql, $m)) {
-        $table = $m[2] ?? '';
-        if ($table !== '' && in_array($table, $excluded, true)) {
-            $skip = true;
-        }
-    }
-
-    if ($skip) {
-        $skipped++;
-        continue;
-    }
-
-    $rs = db()->query($sql);
-    if ($rs === false) {
-        cli_usage('Error: ' . db()->getLastError());
-    }
-    $executed++;
-}
-
-if ($preserved) {
-    $fullSettingsTable = cli_full_table_name('system_settings');
-    if ($fullSettingsTable !== '') {
-        foreach ($preserved as $key => $value) {
-            $sql = sprintf(
-                "UPDATE %s SET setting_value='%s' WHERE setting_name='%s'",
-                $fullSettingsTable,
-                db()->escape($value),
-                db()->escape($key)
-            );
-            $rs = db()->query($sql);
-            if ($rs === false) {
-                cli_usage('Error: ' . db()->getLastError());
-            }
-        }
-    }
-}
-
-// サイトのURLは取り込み先の値に戻す。ダンプに行が無くても戻し、取り込み先に無ければ消す（別の環境の URL で固定しない）
-$fullSettingsTable = cli_full_table_name('system_settings');
-if ($fullSettingsTable !== '') {
-    db()->query(sprintf("DELETE FROM %s WHERE setting_name='fixed_site_url'", $fullSettingsTable));
-    if ($destFixedSiteUrl !== null) {
-        db()->query(sprintf(
-            "INSERT INTO %s (setting_name, setting_value) VALUES ('fixed_site_url', '%s')",
-            $fullSettingsTable,
-            db()->escape($destFixedSiteUrl)
-        ));
-    }
-}
-
-cli_out("Import completed. Executed: {$executed}, Skipped: {$skipped}, Preserved: " . count($preserved));
