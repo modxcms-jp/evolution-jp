@@ -111,7 +111,7 @@ if (db()->count($rs) < 1) {
                     if ($pid == $row['id']) {
                         echo ', ';
                     } // comma separation :)
-                    echo '<a href="index.php?a=12&amp;id=' . $row['user_id'] . '">' . $row['user_name'] . '</a>';
+                    echo '<a href="index.php?a=12&amp;id=' . $row['user_id'] . '">' . hsc($row['user_name']) . '</a>';
                     $pid = $row['id'];
                 }
                 echo "</li></ul></li>\n";

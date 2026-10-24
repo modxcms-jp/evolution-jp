@@ -164,11 +164,11 @@ if (!evo()->hasPermission('view_schedule')) {
                         <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
                         <td>
                             <a
-                                href="<?= sprintf(
+                                href="<?= hsc(sprintf(
                                     '%s?revision=%s',
                                     evo()->makeUrl($row['elmid']),
                                     $row['version']
-                                ); ?>"
+                                )); ?>"
                                 target="_blank"
                             >
                                 プレビュー

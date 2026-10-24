@@ -173,8 +173,8 @@ function entity($key, $default = null)
                 href="#"
                 onclick="<?=
                 (evo()->config('friendly_urls') == 1)
-                    ? sprintf("window.open('%s','previeWin')", evo()->makeUrl($id))
-                    : sprintf("window.open('../index.php?id=%s','previeWin')", $id);
+                    ? sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))))
+                    : sprintf("window.open(%s,'previeWin')", hsc(js_literal('../index.php?id=' . $id)));
                 ?>"
             >
                 <?= $_lang['view_resource'] ?>
@@ -291,7 +291,7 @@ function entity($key, $default = null)
                                 entity('createdon') + evo()->config('server_offset_time', 0)
                             )
                             ?>
-                            (<b><?= $createdbyname ?></b>)
+                            (<b><?= hsc($createdbyname) ?></b>)
                         </td>
                         <td>[*createdon:date*]</td>
                     </tr>
@@ -299,7 +299,7 @@ function entity($key, $default = null)
                         <tr>
                             <td><?= $_lang['page_data_edited'] ?>:</td>
                             <td><?= evo()->toDateFormat(entity('editedon') + evo()->config('server_offset_time', 0)) ?>
-                                (<b><?= $editedbyname ?></b>)
+                                (<b><?= hsc($editedbyname) ?></b>)
                             </td>
                             <td>[*editedon:date*]</td>
                         </tr>

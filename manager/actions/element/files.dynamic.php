@@ -103,7 +103,7 @@ foreach ($requested_paths as $requested_path) {
 <div class="section">
     <div class="sectionBody">
         <script type="text/javascript">
-            var current_path = '<?= $startpath; ?>';
+            var current_path = <?= js_literal($startpath) ?>;
 
             function show_image(url) {
                 document.getElementById('imageviewer').style.border = "1px solid #ccc";
@@ -210,11 +210,11 @@ foreach ($requested_paths as $requested_path) {
                 if (1 < $count) {
                     $pieces[$i] = sprintf(
                         '<a href="%s">%s</a>',
-                        'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path),
-                        trim($v, '/')
+                        hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path)),
+                        hsc(trim($v, '/'))
                     );
                 } else {
-                    $pieces[$i] = trim($v, '/');
+                    $pieces[$i] = hsc(trim($v, '/'));
                 }
                 $count--;
             }
@@ -369,7 +369,7 @@ if (is_writable($startpath)) {
             type="hidden" name="MAX_FILE_SIZE"
             value="<?= evo()->config('upload_maxsize', 32 * 1024 * 1024) ?>">
         <input type="hidden" name="a" value="31">
-        <input type="hidden" name="path" value="<?= $startpath ?>">
+        <input type="hidden" name="path" value="<?= hsc($startpath) ?>">
 
         <?php if (isset($information)) {
             echo $information;
@@ -460,7 +460,7 @@ function ls($curpath)
     $curpath = str_replace('//', '/', $curpath . '/');
 
     if (!is_dir($curpath)) {
-        echo 'Invalid path "', $curpath, '"<br />';
+        echo 'Invalid path "', hsc($curpath), '"<br />';
         return;
     }
     $editablefiles = add_dot(
@@ -495,7 +495,7 @@ function ls($curpath)
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
-                    $file
+                    hsc($file)
                 );
                 if (is_writable($curpath)) {
                     $dirs_array[$dircounter]['delete'] = sprintf(
@@ -512,8 +512,8 @@ function ls($curpath)
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path=%s"><b>%s</b></a>',
                     $_style['tree_folder'],
-                    urlencode($newpath),
-                    $file
+                    hsc(urlencode($newpath)),
+                    hsc($file)
                 );
 
                 $dfiles = scandir($newpath, SCANDIR_SORT_ASCENDING);
@@ -545,12 +545,11 @@ function ls($curpath)
             $type = getExtension($newpath);
             $files_array[$filecounter]['file'] = $newpath;
             $files_array[$filecounter]['stats'] = lstat($newpath);
-            $files_array[$filecounter]['text'] = '<img src="' . $_style['tree_page'] . '" align="absmiddle" alt="" />' . $file;
+            $files_array[$filecounter]['text'] = '<img src="' . $_style['tree_page'] . '" align="absmiddle" alt="" />' . hsc($file);
             if (in_array($type, $viewablefiles)) {
                 $files_array[$filecounter]['view'] = sprintf(
-                    '<span style="cursor:pointer; width:20px;" onclick="show_image(\'%s%s\');"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
-                    webstart_path(),
-                    substr($newpath, $len, strlen($newpath)),
+                    '<span style="cursor:pointer; width:20px;" onclick="show_image(%s);"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
+                    hsc(js_literal(webstart_path() . substr($newpath, $len, strlen($newpath)))),
                     $style_path,
                     lang('files_viewfile'),
                     lang('files_viewfile')

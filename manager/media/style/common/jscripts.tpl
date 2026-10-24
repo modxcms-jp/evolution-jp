@@ -76,7 +76,7 @@
                 prevWin.close();
             }
             
-            var previewUrl = '[+preview_url+]';
+            var previewUrl = [+preview_url+];
             // z=manprev パラメータを追加してプレビューモードを有効化
             previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
             
