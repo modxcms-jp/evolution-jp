@@ -234,19 +234,28 @@ class EvoBackupManager
             if (db()->query($statement, false) === false) {
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $i + 1;
-                if ($this->tableExists('system_settings')) {
-                    $this->restoreSettings($keep);
-                }
-                evo()->clearCache();
+                $this->finish($keep);
                 return $result;
             }
             $result['executed']++;
         }
 
-        $this->restoreSettings($keep);
-        evo()->clearCache();
+        if (!$this->finish($keep)) {
+            $result['error'] = 'system_settings is missing; cache was not rebuilt';
+        }
         $result['ok'] = true;
         return $result;
+    }
+
+    // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）
+    private function finish($keep)
+    {
+        if (!$this->tableExists('system_settings')) {
+            return false;
+        }
+        $this->restoreSettings($keep);
+        evo()->clearCache();
+        return true;
     }
 
     private function tableExists($name)
