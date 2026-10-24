@@ -89,6 +89,31 @@ class Mysqldumper
 
     public function createDump()
     {
+        $tempfile_path = tempnam(MODX_CACHE_PATH, 'bktemp');
+        if ($tempfile_path === false) {
+            return false;
+        }
+        if (!$this->dumpToFile($tempfile_path)) {
+            if (is_file($tempfile_path)) {
+                unlink($tempfile_path);
+            }
+            return false;
+        }
+        $output = file_get_contents($tempfile_path);
+        unlink($tempfile_path);
+
+        if (empty($output)) {
+            return false;
+        }
+        return $output;
+    }
+
+    /**
+     * 同じディレクトリの一時ファイルへ書き出し、書き終えてから $path へ rename する。
+     * 失敗したときは $path に中途半端なファイルを残さない。
+     */
+    public function dumpToFile($path)
+    {
         if (empty($this->database_server) || empty($this->dbname)) {
             return false;
         }
@@ -102,9 +127,14 @@ class Mysqldumper
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_CACHE_PATH . 'bktemp.pageCache.php';
-        if (is_file($tempfile_path)) {
+        $tempfile_path = tempnam(dirname($path), 'dump');
+        if ($tempfile_path === false) {
+            return false;
+        }
+        $fp = fopen($tempfile_path, 'wb');
+        if ($fp === false) {
             unlink($tempfile_path);
+            return false;
         }
 
         $result = db()->query('SHOW TABLES');
@@ -126,11 +156,7 @@ class Mysqldumper
         $header[] = '--  PHP Version: ' . phpversion();
         $header[] = '--  Database : `' . $this->dbname . '`';
         $header[] = '-- ';
-        file_put_contents(
-            $tempfile_path,
-            implode($lf, $header),
-            FILE_APPEND | LOCK_EX
-        );
+        $ok = $this->write($fp, implode($lf, $header));
 
         $this->_dbtables = array_flip($this->_dbtables);
         foreach ($this->_dbtables as $k => $v) {
@@ -138,6 +164,9 @@ class Mysqldumper
         }
 
         foreach ($tables as $table_name) {
+            if (!$ok) {
+                break;
+            }
             if (!isset($this->_dbtables[$table_name])) {
                 continue;
             }
@@ -180,11 +209,11 @@ class Mysqldumper
                 $lf,
                 $lf
             );
-            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            $ok = $this->write($fp, $output);
 
             $output = '';
             $result = db()->select('*', $table_name);
-            while ($row = db()->getRow($result)) {
+            while ($ok && ($row = db()->getRow($result))) {
                 $insertdump = $lf;
                 $insertdump .= "INSERT INTO `{$table_name}` VALUES (";
                 if ($table_name === $this->table_prefix . 'system_settings') {
@@ -211,20 +240,26 @@ class Mysqldumper
                 }
                 $output .= rtrim($insertdump, ',') . ");".$lf;
                 if (1048576 < strlen($output)) {
-                    file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+                    $ok = $this->write($fp, $output);
                     $output = '';
                 }
             }
-            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            if ($ok) {
+                $ok = $this->write($fp, $output);
+            }
         }
-        $output = file_get_contents($tempfile_path);
+        $ok = fclose($fp) && $ok;
 
-        if (empty($output)) {
+        if (!$ok || filesize($tempfile_path) === 0 || !rename($tempfile_path, $path)) {
+            unlink($tempfile_path);
             return false;
         }
+        return true;
+    }
 
-        unlink($tempfile_path);
-        return $output;
+    private function write($fp, $data)
+    {
+        return $data === '' || fwrite($fp, $data) === strlen($data);
     }
 
     private function in_array($table_name, $table_names)
