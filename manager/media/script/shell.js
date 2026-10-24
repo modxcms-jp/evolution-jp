@@ -446,26 +446,32 @@
         });
     }
 
-    // 応答待ちのフォーム。同じフォームの送信が重ならないよう、送信中は次の送信を無視する
-    const submittingForms = new WeakSet();
+    // 応答待ちのフォーム。同じフォームの送信が重ならないよう、送信中は次の送信を無視する。
+    // 値は送信中の印を付けた要素(フォームが画面から外れても、その要素から確実に外す)
+    const submittingForms = new WeakMap();
 
     // 送信中の見た目。送信ボタンと、同じ画面(#mainPane/モーダル)のactionButtonsを押せない見た目にする
     function setSubmitting(form, on) {
-        const container = form.closest('#mainPane, #evoShellModal');
-        const targets = [form];
-        if (container) {
-            container.querySelectorAll('.actionButtons').forEach(function (el) {
-                targets.push(el);
-            });
-        }
-        targets.forEach(function (el) {
-            el.classList.toggle('evo-submitting', on);
-            if (on) {
-                el.setAttribute('aria-busy', 'true');
-            } else {
-                el.removeAttribute('aria-busy');
+        if (on) {
+            const container = form.closest('#mainPane, #evoShellModal');
+            const targets = [form];
+            if (container) {
+                container.querySelectorAll('.actionButtons').forEach(function (el) {
+                    targets.push(el);
+                });
             }
+            targets.forEach(function (el) {
+                el.classList.add('evo-submitting');
+                el.setAttribute('aria-busy', 'true');
+            });
+            submittingForms.set(form, targets);
+            return;
+        }
+        (submittingForms.get(form) || []).forEach(function (el) {
+            el.classList.remove('evo-submitting');
+            el.removeAttribute('aria-busy');
         });
+        submittingForms.delete(form);
     }
 
     function getFormData(form, submitter) {
@@ -605,17 +611,21 @@
             }
 
             window.documentDirty = false;
-            // 応答・エラーのどちらでも印を外す(requestは失敗も内部で処理して解決する)
-            submittingForms.add(form);
-            setSubmitting(form, true);
-            request(action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-CSRF-Token': getCsrfToken() }
-            }, push, target).then(function () {
-                submittingForms.delete(form);
+            // 応答・エラー・同期の例外のどれでも印を外す
+            const clear = function () {
                 setSubmitting(form, false);
-            });
+            };
+            setSubmitting(form, true);
+            try {
+                request(action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRF-Token': getCsrfToken() }
+                }, push, target).then(clear, clear);
+            } catch (e) {
+                clear();
+                throw e;
+            }
         },
 
         openModal: function (url) {
