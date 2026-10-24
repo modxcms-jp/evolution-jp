@@ -10,7 +10,7 @@ require_once __DIR__ . '/site_exporter.class.inc.php';
  * PHP の制限時間やプロキシのタイムアウトに掛からない。
  *
  * 状態ファイル: temp/export_job.json（書き換えは一時ファイルからの rename で、読む側は常に完全な内容を見る）
- * 排他:         temp/export_job.lock を flock する。取れなければ待たずに busy を返す
+ * 排他:         temp/export_job.lock を flock する。step・cancel は取れなければ待たずに busy を返す。start だけは処理の切れ目まで少し待つ（startWaitSeconds）
  * 中止の印:     temp/export_job.cancel。中止するジョブの id（状態の job_id）を書く。ロックを取らずに書ける。
  *               step() は 1 ページごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
  *
@@ -58,6 +58,17 @@ class EvoSiteExportJob
     }
 
     /**
+     * start() がロックを待つ上限（秒）。相手の step() の持ち時間より少し長い時間（持ち時間 + 3 秒）。
+     * 待ったあとに出力先を空にする時間も PHP の制限時間に収まるよう、制限時間の半分を超えない。制限時間が 0 なら持ち時間 + 3 秒。
+     */
+    public static function startWaitSeconds()
+    {
+        $wait = self::defaultBudget() + 3;
+        $max = (int)ini_get('max_execution_time');
+        return $max > 0 ? min($wait, $max / 2) : $wait;
+    }
+
+    /**
      * ジョブを始める。途中のジョブがあれば捨てて、出力先を空にして最初から始める。
      *
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
@@ -69,7 +80,7 @@ class EvoSiteExportJob
         if (!evo()->config('friendly_urls')) {
             return $this->errorResponse(lang('export_site_friendly_urls_disabled'));
         }
-        $denied = $this->acquireLock();
+        $denied = $this->acquireLock(self::startWaitSeconds());
         if ($denied) {
             return $denied;
         }
@@ -449,16 +460,22 @@ class EvoSiteExportJob
     /**
      * ロックを取る。取れたら null。取れなければ返す応答を返す
      * （ほかが処理中なら busy、ロックファイルを開けない＝ temp/ に書けないなら error）。
+     *
+     * @param float $waitSeconds 取れないときに、0.2 秒おきに試し直して待つ秒数（0 なら待たない）
      */
-    private function acquireLock()
+    private function acquireLock($waitSeconds = 0)
     {
         $handle = @fopen($this->lockFile, 'c');
         if (!$handle) {
             return $this->errorResponse(lang('export_site_state_unwritable'));
         }
-        if (!flock($handle, LOCK_EX | LOCK_NB)) {
-            fclose($handle);
-            return ['state' => self::STATE_BUSY];
+        $until = microtime(true) + $waitSeconds;
+        while (!flock($handle, LOCK_EX | LOCK_NB)) {
+            if (microtime(true) >= $until) {
+                fclose($handle);
+                return ['state' => self::STATE_BUSY];
+            }
+            usleep(200000);
         }
         $this->lockHandle = $handle;
         return null;
