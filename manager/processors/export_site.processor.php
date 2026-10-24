@@ -19,7 +19,7 @@ if (strpos(MODX_BASE_PATH, $export_dir . '/') === 0 && 0 <= strlen(str_replace($
 if (str_replace('[(base_path)]', MODX_BASE_PATH, config('rb_base_dir')) === $export_dir . '/') {
     return evo()->parseText(
         lang('export_site_target_rb_base'),
-        'rb_base_url=' . MODX_BASE_URL . config('rb_base_url')
+        ['rb_base_url' => MODX_BASE_URL . config('rb_base_url')]
     );
 }
 
