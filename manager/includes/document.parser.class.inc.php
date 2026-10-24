@@ -231,7 +231,6 @@ class DocumentParser
             case 'dbapi': // Database API
             case 'managerapi': // Manager API
             case 'docapi': // Resource API
-            case 'export_site':
                 require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'revision':
@@ -1448,17 +1447,8 @@ class DocumentParser
     }
 
     private function verifyBearerToken() {
-        if (!function_exists('getallheaders')) {
-            return false;
-        }
-
-        $headers = getallheaders();
-        if (!isset($headers['authorization'])) {
-            return false;
-        }
-
-        $auth = $headers['authorization'];
-        if (!preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
+        $auth = $this->getAuthorizationHeader();
+        if ($auth === '' || !preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
             return false;
         }
 
@@ -1484,6 +1474,46 @@ class DocumentParser
 
         $this->loadExtension('phpass');
         return $this->phpass->checkPassword($matches[1], $hashedBearerToken);
+    }
+
+    /**
+     * リクエストの Authorization ヘッダーを返す。無ければ空文字列。
+     * getallheaders() は送られたとおりの大文字小文字で返すので、名前は区別せずに探す。
+     * PHP-FPM などでは Authorization が PHP に渡らず、$_SERVER にだけ入ることがある。
+     */
+    private function getAuthorizationHeader()
+    {
+        if (function_exists('getallheaders')) {
+            foreach ((array)getallheaders() as $name => $value) {
+                if (strcasecmp($name, 'authorization') === 0 && $value !== '') {
+                    return (string)$value;
+                }
+            }
+        }
+        foreach (['HTTP_AUTHORIZATION', 'REDIRECT_HTTP_AUTHORIZATION'] as $key) {
+            $value = serverv($key);
+            if ($value) {
+                return (string)$value;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * ベアラートークンを取り消す（期限を過去にし、ハッシュを空にする）。
+     */
+    public function revokeBearerToken()
+    {
+        db()->save(
+            ['setting_name' => 'bearer_token', 'setting_value' => ''],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token')
+        );
+        db()->save(
+            ['setting_name' => 'bearer_token_expire', 'setting_value' => request_time() - 1],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token_expire')
+        );
     }
 
     public function saveBearerToken($token, $expire = null)
