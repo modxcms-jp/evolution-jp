@@ -315,22 +315,14 @@ if (sessionv('result_msg')) {
                 if (sessionv('last_result')) {
                     $last_result = sessionv('last_result');
                     unset($_SESSION['last_result']);
+                    // 行は連想配列なので、空の行を除くのに array_diff() は使えない（PHP 8 で警告になり表示が止まる）
+                    $last_result = array_values(array_filter((array) $last_result));
                     if (!$last_result) {
                         $result = '';
                     } else {
-                        $last_result = array_merge([], array_diff($last_result, ['']));
-                        foreach ($last_result['0'] as $k => $v) {
-                            $title[] = $k;
-                        }
-                        $result = '<tr><th>' . implode('</th><th>', hsc($title)) . '</th></tr>';
+                        $result = '<tr><th>' . implode('</th><th>', hsc(array_keys($last_result[0]))) . '</th></tr>';
                         foreach ($last_result as $row) {
-                            $result_value = [];
-                            if ($row) {
-                                foreach ($row as $k => $v) {
-                                    $result_value[] = hsc($v);
-                                }
-                                $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
-                            }
+                            $result .= '<tr><td>' . implode('</td><td>', hsc(array_values($row))) . '</td></tr>';
                         }
                         $style = '<style type="text/css">#mainPane table th, body > .tab-page table th {border:1px solid #ccc;background-color:#ddd;}</style>';
                         $result = $style . '<table>' . $result . '</table>';
