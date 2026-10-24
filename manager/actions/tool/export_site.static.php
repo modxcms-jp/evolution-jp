@@ -17,7 +17,7 @@ if (!in_array($exportTarget, ['all', 'allow_ids', 'ignore_ids'], true)) {
 $exportJsKeys = [
     'export_site_progress', 'export_site_running', 'export_site_cancelling', 'export_site_cancelled',
     'export_site_resume_notice', 'export_site_cancelled_notice', 'export_site_error_notice',
-    'export_site_busy', 'export_site_request_failed', 'export_site_unreadable',
+    'export_site_busy', 'export_site_job_replaced', 'export_site_request_failed', 'export_site_unreadable',
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
     'export_site_failures_title', 'export_site_failures_more',
@@ -277,6 +277,8 @@ foreach ($exportJsKeys as $key) {
         let starting = false;
         let cancelling = false;
         let buttonMode = 'start';
+        // この画面が進めているジョブの id。step の応答が別の id を指したら、別の場所でやり直されたので止める
+        let jobId = '';
         // シェルが別の画面へ差し替えたら、この画面のフォームは文書から外れる。残った関数が、新しい画面の処理と重ならないようにする
         // （モーダルの開け閉めでは外れないので、evoshell:unload ではなくこれで見る）
         const alive = function () {
@@ -502,6 +504,7 @@ foreach ($exportJsKeys as $key) {
             renderProgress(res);
             renderMessages(res);
             if (res.state === 'running') {
+                jobId = res.job_id || '';
                 setNotice(T.export_site_resume_notice);
                 setButtons('choice');
                 return;
@@ -577,6 +580,12 @@ foreach ($exportJsKeys as $key) {
                     showIdle();
                     return;
                 }
+                if (!cancelling && res.job_id && jobId && res.job_id !== jobId) {
+                    // 別の場所でジョブがやり直された。進め続けず、今の状態の表示に切り替える
+                    showStatus(res);
+                    setNotice(T.export_site_job_replaced + (els.notice.hidden ? '' : '<br>' + els.notice.innerHTML), true);
+                    return;
+                }
                 if (res.state === 'running') {
                     renderProgress(res);
                     if (cancelling) {
@@ -625,6 +634,7 @@ foreach ($exportJsKeys as $key) {
                 await recover(res.message || T.export_site_request_failed);
                 return;
             }
+            jobId = res.job_id || '';
             renderProgress(res);
             renderMessages(res);
             loop();

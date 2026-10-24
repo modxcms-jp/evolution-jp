@@ -296,6 +296,7 @@ return [
     "export_site_error_notice" => 'The last export stopped with an error. Please start over.',
     "export_site_busy" => 'Another screen is processing the export. Waiting a moment before continuing.',
     "export_site_request_failed" => 'Communication with the server failed. Retrying...',
+    "export_site_job_replaced" => 'The export was restarted from another screen or the command line. This screen stopped following it; showing its current status.',
     "export_site_unreadable" => 'Could not continue processing. Please reload this screen.',
     "export_site_result_success" => 'Succeeded',
     "export_site_result_skipped" => 'Skipped',

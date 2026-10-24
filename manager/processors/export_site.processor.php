@@ -7,8 +7,9 @@
  * op=status : 保存した状態を返す
  * op=cancel : 中止する
  *
- * 応答: {"state":"running|done|cancelled|busy|error|none","total":…,"done":…,"success":…,"skipped":…,
+ * 応答: {"state":"running|done|cancelled|busy|error|none","job_id":"…","total":…,"done":…,"success":…,"skipped":…,
  *        "failed":…,"failures":[{"id","pagetitle","reason"}],"messages":[…],"elapsed":…,"output":"","message":""}
+ * job_id は始めたジョブの識別子（start・step・status・cancel の応答に含む）。画面は別のジョブに替わったことの検出に使う。
  * messages はプラグインのイベントの出力（HTML）、message は言語ファイルの案内（HTML）。
  * pagetitle など利用者のデータは、画面で出すときに必ずエスケープする。
  */

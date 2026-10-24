@@ -73,7 +73,6 @@ $result = $job->start([
     'include_noncache' => $includeNoncache,
     'repl_before'      => $replBefore,
     'repl_after'       => $replAfter,
-    'site_url'         => $siteUrl,
 ]);
 if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
     $fail('Error: another export is in progress. Try again later.');
@@ -85,14 +84,7 @@ if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {
 // 操作ログ（manager_log）に CLI からの開始として残す。ログインユーザーがいないので、ユーザー名を CLI にする
 include_once MODX_CORE_PATH . 'log.class.inc.php';
 // CLI では input_any('a') が 0 になるため、画面からの開始と同じ action（308）を渡して書く
-$log = new logHandler();
-$log->entry = [
-    'msg'         => 'HTML export: start (CLI)',
-    'internalKey' => '0',
-    'username'    => 'CLI',
-    'itemName'    => '-',
-];
-$log->writeToLog(308, 'x');
+(new logHandler())->initAndWriteLog('HTML export: start (CLI)', '0', 'CLI', 308, 'x', '-');
 
 $printMessages = function (array $messages) use ($plain) {
     foreach ($messages as $message) {
@@ -113,17 +105,28 @@ $progress = function (array $r) {
 };
 
 cli_out("Exporting {$result['total']} resources...");
+$jobId = $result['job_id'];
 $printedBucket = 0;
 $budget = EvoSiteExportJob::defaultBudget();
 // 持ち時間つきで繰り返す（ベアラートークンを step ごとに発行し直し、1 つを長く使わないため）
 while (true) {
-    $result = $job->step($budget);
+    // 取得先（--site-url）は状態に保存されないので、そのつど渡す
+    $result = $job->step($budget, $siteUrl);
     if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
-        $fail('Error: another export is in progress.');
+        // 画面のタブなど、ほかが処理中。間をおいて送り直す
+        sleep(1);
+        continue;
+    }
+    if ($result['state'] === EvoSiteExportJob::STATE_NONE) {
+        break;
+    }
+    if ($result['job_id'] !== $jobId) {
+        $fail('Error: the export job was replaced by another one (restarted elsewhere). Stopping this command.');
     }
     if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {
         break;
     }
+    // 処理が戻るたびに、100 件の区切りを越えていれば出す
     $bucket = intdiv($result['done'], 100);
     if ($bucket > $printedBucket) {
         $printedBucket = $bucket;

@@ -61,7 +61,7 @@ class EvoSiteExportJob
      * ジョブを始める。途中のジョブがあれば捨てて、出力先を空にして最初から始める。
      *
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
-     *                       repl_before, repl_after, site_url(ページを取得する先の URL。空なら設定のサイトの URL)
+     *                       repl_before, repl_after
      * @return array 応答（state: running | busy | error）
      */
     public function start(array $options)
@@ -88,7 +88,6 @@ class EvoSiteExportJob
                 'include_noncache' => !empty($options['include_noncache']),
                 'repl_before'      => isset($options['repl_before']) ? (string)$options['repl_before'] : '',
                 'repl_after'       => isset($options['repl_after']) ? (string)$options['repl_after'] : '',
-                'site_url'         => isset($options['site_url']) ? (string)$options['site_url'] : '',
             ];
 
             $began = microtime(true);
@@ -157,9 +156,11 @@ class EvoSiteExportJob
      * 持ち時間ぶん書き出して進める。持ち時間を過ぎたら、処理中の 1 件を終えて返す。
      *
      * @param float|null $budgetSeconds 持ち時間（秒）。null か 0 以下なら終わるまで続ける（CLI 用）
+     * @param string $siteUrl ページを取得する先のサイトの URL。空なら設定のサイトの URL。
+     *                        状態には保存しない（実行する側が、そのつど渡す）
      * @return array 応答（state: running | done | cancelled | error | busy | none）
      */
-    public function step($budgetSeconds = null)
+    public function step($budgetSeconds = null, $siteUrl = '')
     {
         $denied = $this->acquireLock();
         if ($denied) {
@@ -182,7 +183,8 @@ class EvoSiteExportJob
             $exporter = new EvoSiteExporter($this->exporterOptions(
                 $state['options'],
                 $this->issueToken(),
-                isset($state['export_dir']) ? $state['export_dir'] : ''
+                isset($state['export_dir']) ? $state['export_dir'] : '',
+                $siteUrl
             ));
             if (!$exporter->isOutputDirValid()) {
                 return $this->finish($state, self::STATE_ERROR, $began, lang($exporter->getOutputDirError()));
@@ -317,7 +319,7 @@ class EvoSiteExportJob
         return str_replace('[(base_path)]', MODX_BASE_PATH, (string)config('export_dir'));
     }
 
-    private function exporterOptions(array $options, $token, $exportDir)
+    private function exporterOptions(array $options, $token, $exportDir, $siteUrl = '')
     {
         return [
             'target'           => isset($options['target']) ? $options['target'] : 'all',
@@ -325,7 +327,7 @@ class EvoSiteExportJob
             'include_noncache' => !empty($options['include_noncache']),
             'repl_before'      => isset($options['repl_before']) ? $options['repl_before'] : '',
             'repl_after'       => isset($options['repl_after']) ? $options['repl_after'] : '',
-            'site_url'         => isset($options['site_url']) ? $options['site_url'] : '',
+            'site_url'         => (string)$siteUrl,
             'export_dir'       => $exportDir,
             'bearer_token'     => $token,
         ];
@@ -390,6 +392,7 @@ class EvoSiteExportJob
         }
         return [
             'state'    => $state['state'],
+            'job_id'   => (string)$state['job_id'],
             'total'    => count($state['ids']),
             'done'     => $state['pos'],
             'success'  => $state['success'],
