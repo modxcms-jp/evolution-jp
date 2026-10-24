@@ -52,8 +52,11 @@
     function setMoveValue(pId, pName) {
         if (!pId || checkParentChildRelation(pId, pName)) {
             document.newdocumentparent.new_parent.value = pId;
-            document.getElementById('parentName').innerHTML = "Parent: <strong>" + pId + "</strong> (" + pName +
-                ")";
+            const label = document.getElementById('parentName');
+            const id = document.createElement('strong');
+            id.textContent = pId;
+            label.textContent = 'Parent: ';
+            label.append(id, ' (' + pName + ')');
         }
     }
 

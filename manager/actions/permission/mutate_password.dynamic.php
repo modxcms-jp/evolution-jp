@@ -31,7 +31,7 @@ if (isset($_SESSION['onetime_msg'])) {
             <table border="0" cellspacing="0" cellpadding="4">
                 <tr>
                     <td><?= $_lang["username"] ?>:</td>
-                    <td><b><?= $modx->getLoginUserName() ?></b></td>
+                    <td><b><?= hsc($modx->getLoginUserName()) ?></b></td>
                 </tr>
                 <tr>
                     <td><?= $_lang['change_password_new'] ?>:</td>

@@ -133,7 +133,7 @@ foreach ($requested_paths as $requested_path) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file);
+                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + encodeURIComponent(current_path) + '/&file=' + encodeURIComponent(file));
                     return false;
                 }
             }
@@ -154,14 +154,14 @@ foreach ($requested_paths as $requested_path) {
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder);
+                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + encodeURIComponent(current_path) + "&folderpath=" + encodeURIComponent(current_path + '/' + folder));
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + current_path + '/' + file);
+                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + encodeURIComponent(current_path + '/' + file));
                     return false;
                 }
             }
@@ -207,25 +207,22 @@ foreach ($requested_paths as $requested_path) {
                     continue;
                 }
                 $path .= rtrim($v, '/') . '/';
+                $label = hsc(mb_convert_encoding(trim($v, '/'), $modx_manager_charset, 'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'));
                 if (1 < $count) {
                     $pieces[$i] = sprintf(
                         '<a href="%s">%s</a>',
                         hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path)),
-                        hsc(trim($v, '/'))
+                        $label
                     );
                 } else {
-                    $pieces[$i] = hsc(trim($v, '/'));
+                    $pieces[$i] = $label;
                 }
                 $count--;
             }
             $topic_path = implode(' / ', $pieces);
         }
 
-        ?> <b><?= mb_convert_encoding(
-                        $topic_path,
-                        $modx_manager_charset,
-                        'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'
-                    ) ?></b>
+        ?> <b><?= $topic_path ?></b>
         <?php
         // check to see user isn't trying to move below the document_root
         if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace(
@@ -527,9 +524,9 @@ function ls($curpath)
                 }
                 if (is_writable($curpath)) {
                     $dirs_array[$dircounter]['delete'] = sprintf(
-                        '<span style="width:20px"><a href="javascript: deleteFolder(\'%s\',\'%s\');"><img src="%sicons/delete.gif" alt="%s" title="%s" /></a></span>',
-                        urlencode($file),
-                        (0 < count($dfiles)) ? 'file_exists' : '',
+                        '<span style="width:20px"><a href="#" onclick="deleteFolder(%s, %s);return false;"><img src="%sicons/delete.gif" alt="%s" title="%s" /></a></span>',
+                        hsc(js_literal($file)),
+                        hsc(js_literal((0 < count($dfiles)) ? 'file_exists' : '')),
                         $style_path,
                         lang('file_delete_folder'),
                         lang('file_delete_folder')
@@ -588,8 +585,8 @@ function ls($curpath)
             }
             if ($enablefileunzip && $type === '.zip') {
                 $files_array[$filecounter]['unzip'] = sprintf(
-                    '<span style="width:20px;"><a href="javascript:unzipFile(\'%s\');"><img src="%sicons/unzip.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    urlencode($file),
+                    '<span style="width:20px;"><a href="#" onclick="unzipFile(%s);return false;"><img src="%sicons/unzip.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
+                    hsc(js_literal($file)),
                     $style_path,
                     lang('file_download_unzip'),
                     lang('file_download_unzip')
@@ -615,8 +612,8 @@ function ls($curpath)
             }
             if (is_writable($curpath) && is_writable($newpath)) {
                 $files_array[$filecounter]['delete'] = sprintf(
-                    '<span style="width:20px;"><a href="javascript:deleteFile(\'%s\');"><img src="%sicons/delete.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    urlencode($file),
+                    '<span style="width:20px;"><a href="#" onclick="deleteFile(%s);return false;"><img src="%sicons/delete.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
+                    hsc(js_literal($file)),
                     $style_path,
                     lang('file_delete_file'),
                     lang('file_delete_file')

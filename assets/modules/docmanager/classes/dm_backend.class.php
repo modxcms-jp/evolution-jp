@@ -99,7 +99,7 @@ class DocManagerBackend
                 '<li id="item_%s" class="sort %s">%s</li>',
                 $item['id'],
                 implode(' ', $classes),
-                $item['pagetitle']
+                evo()->hsc($item['pagetitle'])
             );
         }
 
