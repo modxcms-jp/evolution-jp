@@ -98,9 +98,9 @@ foreach ($ids as $id) {
         lang('export_site_exporting_document'),
         [
             'status'    => makeStatusMsg($result['reason'], $result['status'] === 'failed' ? 'fail' : 'success', $export_dir),
-            'count'     => $count,
-            'id'        => $result['id'],
-            'pagetitle' => $result['pagetitle'],
+            'count'     => (int)$count,
+            'id'        => (int)$result['id'],
+            'pagetitle' => hsc($result['pagetitle']),
         ]
     );
 }
