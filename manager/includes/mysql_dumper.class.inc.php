@@ -131,6 +131,12 @@ class Mysqldumper
         if ($tempfile_path === false) {
             return false;
         }
+        // 時間切れや fatal で止まっても一時ファイルを残さない（rename 後は何もしない）
+        register_shutdown_function(function () use ($tempfile_path) {
+            if (is_file($tempfile_path)) {
+                @unlink($tempfile_path);
+            }
+        });
         $fp = fopen($tempfile_path, 'wb');
         if ($fp === false) {
             unlink($tempfile_path);

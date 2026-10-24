@@ -25,7 +25,7 @@ class EvoBackupManager
             $real = realpath($configured);
             if ($real !== false) {
                 $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
-                if (strpos($real, $base) === 0) {
+                if ($real !== $base && strpos($real, $base) === 0) {
                     return $real;
                 }
             }
@@ -56,7 +56,11 @@ class EvoBackupManager
                 return true;
             }
         }
-        return file_put_contents($htaccess, self::HTACCESS) !== false;
+        if (file_put_contents($htaccess, self::HTACCESS) === false) {
+            // 書き込めなくても、保護の .htaccess が既に在れば保存先は使える
+            return is_file($htaccess);
+        }
+        return true;
     }
 
     public function autoFilename($prefix = '')
@@ -65,7 +69,7 @@ class EvoBackupManager
             '%s%s-%s.sql',
             $prefix,
             date('Y-m-d-His', request_time() + (int)evo()->config('server_offset_time', 0)),
-            evo()->config('settings_version') ?: 'unknown'
+            preg_replace('/[^0-9A-Za-z._-]/', '-', (string)(evo()->config('settings_version') ?: 'unknown'))
         );
     }
 
@@ -124,7 +128,7 @@ class EvoBackupManager
             return false;
         }
 
-        @set_time_limit(120);
+        $this->extendTimeLimit();
         global $modx;
         include_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
         $dumper = new Mysqldumper();
@@ -211,6 +215,7 @@ class EvoBackupManager
         }
 
         $keep = $this->getKeptSettings();
+        $this->extendTimeLimit();
 
         $statements = preg_split('@;[ \t]*\n@', $sql);
         foreach ($statements as $i => $statement) {
@@ -229,6 +234,10 @@ class EvoBackupManager
             if (db()->query($statement, false) === false) {
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $i + 1;
+                if ($this->tableExists('system_settings')) {
+                    $this->restoreSettings($keep);
+                }
+                evo()->clearCache();
                 return $result;
             }
             $result['executed']++;
@@ -238,6 +247,26 @@ class EvoBackupManager
         evo()->clearCache();
         $result['ok'] = true;
         return $result;
+    }
+
+    private function tableExists($name)
+    {
+        $rs = db()->query("SHOW TABLES LIKE '" . db()->escape(db()->table_prefix . $name) . "'");
+        if ($rs === false) {
+            return false;
+        }
+        $exists = db()->count($rs) > 0;
+        db()->freeResult($rs);
+        return $exists;
+    }
+
+    // 制限時間は延ばすだけにする（残り時間を縮めない）
+    private function extendTimeLimit()
+    {
+        $limit = (int)ini_get('max_execution_time');
+        if ($limit !== 0 && $limit < 120) {
+            @set_time_limit(120);
+        }
     }
 
     private function isLegacyHtaccess($content)
@@ -250,6 +279,9 @@ class EvoBackupManager
     private function getKeptSettings()
     {
         $keep = [];
+        if (!$this->tableExists('system_settings')) {
+            return $keep;
+        }
         $keys = ['site_url', 'base_url', 'filemanager_path', 'rb_base_dir', 'fixed_site_url'];
         foreach ($keys as $key) {
             $value = db()->getValue(
