@@ -791,6 +791,9 @@ switch (manager()->action) {
     case 307: // Backup Manager
         include_once($prc_path . 'backup/snapshot.processor.php');
         break;
+    case 308: // HTML export job (JSON)
+        include_once($prc_path . 'export_site.processor.php');
+        break;
     case 94: // get the duplicate processor
         include_once($prc_path . 'document/duplicate_content.processor.php');
         break;

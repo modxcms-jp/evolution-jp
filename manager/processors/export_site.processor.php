@@ -1,161 +1,92 @@
 <?php
-if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
-    exit();
+/**
+ * HTML エクスポートのジョブの JSON の窓口（a=308）。POST のみ。
+ *
+ * op=start  : ジョブを始める（target, allow_ids, ignore_ids, includenoncache, repl_before, repl_after）
+ * op=step   : 持ち時間ぶん進める
+ * op=status : 保存した状態を返す
+ * op=cancel : 中止する
+ *
+ * 応答: {"state":"running|done|cancelled|busy|error|none","total":…,"done":…,"success":…,"skipped":…,
+ *        "failed":…,"failures":[{"id","pagetitle","reason"}],"messages":[…],"elapsed":…,"output":"","message":""}
+ * messages はプラグインのイベントの出力（HTML）、message は言語ファイルの案内（HTML）。
+ * pagetitle など利用者のデータは、画面で出すときに必ずエスケープする。
+ */
+if (!isset($modx) || !evo()->isLoggedin()) {
+    exit;
+}
+
+require_once MODX_CORE_PATH . 'site_export_job.class.inc.php';
+
+if (!is_post()) {
+    exportSiteJson(['state' => 'error', 'message' => 'Method Not Allowed'], 405);
 }
 if (!hasPermission('export_static')) {
-    alert()->setError(3);
-    alert()->dumpError();
+    exportSiteJson(['state' => 'error', 'message' => lang('error_no_privileges')], 403);
 }
 
-evo()->loadExtension('EXPORT_SITE');
+$job = new EvoSiteExportJob();
 
-if (getIds('allow_ids') !== '') {
-    $target = 'allow';
-    $target_ids = parseIds(getIds('allow_ids'));
-} elseif (getIds('ignore_ids') !== '') {
-    $target = 'ignore';
-    $target_ids = parseIds(getIds('ignore_ids'));
-} else {
-    $target = 'all';
-    $target_ids = [];
-}
+switch (postv('op')) {
+    case 'start':
+        $target = 'all';
+        $ids = '';
+        if (postv('target') === 'allow_ids' && trim((string)postv('allow_ids')) !== '') {
+            $target = 'allow';
+            $ids = postv('allow_ids');
+        } elseif (postv('target') === 'ignore_ids' && trim((string)postv('ignore_ids')) !== '') {
+            $target = 'ignore';
+            $ids = postv('ignore_ids');
+        }
 
-$exporter = evo()->export->create([
-    'target'           => $target,
-    'ids'              => $target_ids,
-    'include_noncache' => postv('includenoncache', 0) == 1,
-    'repl_before'      => postv('repl_before'),
-    'repl_after'       => postv('repl_after'),
-    'export_dir'       => str_replace('[(base_path)]', MODX_BASE_PATH, config('export_dir')),
-    'skip_existing'    => true,
-]);
+        // 次に画面を開いたときの既定値
+        sessionv('*export_allow_ids', postv('allow_ids'));
+        sessionv('*export_ignore_ids', postv('ignore_ids'));
+        sessionv('*export_target', postv('target'));
+        sessionv('*export_includenoncache', postv('includenoncache', 0));
+        sessionv('*export_repl_before', postv('repl_before'));
+        sessionv('*export_repl_after', postv('repl_after'));
+        // 処理中でも中止などの要求を受けられるよう、セッションのロックを手放す
+        session_write_close();
 
-// 出力先の確認（temp/ の中だけ）は EvoSiteExporter が持つ
-if (!$exporter->isOutputDirValid()) {
-    return lang($exporter->getOutputDirError());
-}
-$export_dir = $exporter->getOutputDir();
-
-$maxtime = preg_match('@^[0-9]+$@', postv('maxtime')) ? postv('maxtime') : 60;
-$exportstart = microtime(true);
-
-$info = [];
-$info['allow_ids'] = getIds('allow_ids');
-$info['ignore_ids'] = getIds('ignore_ids');
-$info['repl_after'] = postv('repl_after');
-$info['repl_before'] = postv('repl_before');
-$info['export_dir'] = $export_dir;
-
-$evtOut = evo()->invokeEvent('OnExportPreExec', $info);
-if (is_array($evtOut)) {
-    echo implode("\n", $evtOut);
-}
-
-if (sessionv('export_allow_ids') !== getIds('allow_ids')
-    || sessionv('export_ignore_ids') !== getIds('ignore_ids')
-    || sessionv('export_includenoncache') !== postv('includenoncache')
-    || sessionv('export_repl_before') !== postv('repl_before')
-    || sessionv('export_repl_after') !== postv('repl_after')) {
-    $modx->clearCache();
-}
-
-sessionv('*export_allow_ids', postv('allow_ids'));
-sessionv('*export_ignore_ids', postv('ignore_ids'));
-sessionv('*export_target', postv('target'));
-sessionv('*export_includenoncache', postv('includenoncache', 0));
-sessionv('*export_repl_before', postv('repl_before'));
-sessionv('*export_repl_after', postv('repl_after'));
-
-$ids = $exporter->targetIds();
-$total = count($ids);
-$output = sprintf(lang('export_site_numberdocs'), $total);
-
-$lock_file_path = MODX_CACHE_PATH . 'export.lock';
-if (!is_file($lock_file_path)) {
-    $exporter->clearOutputDir();
-}
-touch($lock_file_path);
-
-$lines = [];
-$count = 0;
-foreach ($ids as $id) {
-    $count++;
-    if (!empty($maxtime) && $maxtime < time() - request_time()) {
-        return evo()->parseText(
-            lang('export_site_exit_maxtime'),
-            ['count' => $count, 'total' => $total, 'maxtime' => $maxtime]
-        );
-    }
-
-    $result = $exporter->exportOne($id);
-
-    if ($result['reason'] === 'basic_auth') {
-        $lines[] = '<div style="color:#a00; font-weight:bold; margin-bottom:1em;">' . lang('export_site_basic_auth_warning') . '</div>';
+        $result = $job->start([
+            'target'           => $target,
+            'ids'              => array_map('intval', array_map('trim', explode(',', (string)$ids))),
+            'include_noncache' => postv('includenoncache', 0) == 1,
+            'repl_before'      => postv('repl_before'),
+            'repl_after'       => postv('repl_after'),
+        ]);
         break;
+    case 'step':
+        session_write_close();
+        $result = $job->step(EvoSiteExportJob::defaultBudget());
+        break;
+    case 'status':
+        session_write_close();
+        $result = $job->status();
+        break;
+    case 'cancel':
+        session_write_close();
+        $result = $job->cancel();
+        break;
+    default:
+        exportSiteJson(['state' => 'error', 'message' => 'Bad Request'], 400);
+}
+
+exportSiteJson($result);
+
+function exportSiteJson(array $data, $status = 200)
+{
+    while (ob_get_level() > 0) {
+        ob_end_clean();
     }
-
-    $lines[] = evo()->parseText(
-        lang('export_site_exporting_document'),
-        [
-            'status'    => makeStatusMsg($result['reason'], $result['status'] === 'failed' ? 'fail' : 'success', $export_dir),
-            'count'     => (int)$count,
-            'id'        => (int)$result['id'],
-            'pagetitle' => hsc($result['pagetitle']),
-        ]
+    http_response_code($status);
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Cache-Control: no-store');
+    echo json_encode(
+        $data,
+        JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
     );
-}
-
-if (is_file($lock_file_path)) {
-    unlink($lock_file_path);
-}
-$output .= implode("\n", $lines);
-
-$totaltime = microtime(true) - $exportstart;
-$output .= sprintf('<p>' . lang('export_site_time') . '</p>', round($totaltime, 3));
-
-$info = [];
-$info['allow_ids'] = getIds('allow_ids');
-$info['ignore_ids'] = getIds('ignore_ids');
-$info['repl_after'] = postv('repl_after');
-$info['repl_before'] = postv('repl_before');
-$info['export_dir'] = $export_dir;
-$info['output'] = $output;
-$info['totatlime'] = $totaltime;
-$evtOut = evo()->invokeEvent('OnExportExec', $info);
-if (is_array($evtOut)) {
-    echo implode("\n", $evtOut);
-}
-
-return $output;
-
-function getIds($target)
-{
-    if (postv('target') === 'all' || postv('target') !== $target) {
-        return '';
-    }
-    return postv($target);
-}
-
-function parseIds($ids)
-{
-    return array_map('intval', array_map('trim', explode(',', $ids)));
-}
-
-function makeStatusMsg($reason, $status, $export_dir)
-{
-    $messages = [
-        'failed_no_write'    => lang('export_site_failed_no_write') . ' - ' . $export_dir . '/',
-        'failed_no_retrieve' => lang('export_site_failed_no_retrieve'),
-        'failed_no_open'     => lang('export_site_failed_no_open'),
-        'success_skip_doc'   => lang('export_site_success_skip_doc'),
-        'success_skip_dir'   => lang('export_site_success_skip_dir'),
-    ];
-    return evo()->parseText(
-        ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>',
-        [
-            'status' => $status,
-            'msg1'   => $status === 'success' ? lang('export_site_success') : lang('export_site_failed'),
-            'msg2'   => isset($messages[$reason]) ? $messages[$reason] : '',
-        ]
-    );
+    // 続きを進めるたびに操作ログが増えないよう、ここで終える
+    exit;
 }
