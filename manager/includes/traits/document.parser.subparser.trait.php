@@ -2716,7 +2716,7 @@ trait DocumentParserSubParserTrait
             $result[] = $deny;
         }
 
-        return $result;
+        return array_values(array_unique($result));
     }
 
     /*

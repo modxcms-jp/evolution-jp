@@ -224,9 +224,14 @@ class EvoBackupManager
             if ($statement === '') {
                 continue;
             }
+            // mysqldump 形式は文の前に行コメントが付く。判定はコメントを除いた形で行う
+            $body = $this->stripLeadingComments($statement);
+            if ($body === '') {
+                continue;
+            }
             if (preg_match(
-                '/^(INSERT INTO|REPLACE INTO|DROP TABLE IF EXISTS|CREATE TABLE|TRUNCATE TABLE)\s+`?([a-zA-Z0-9_]+)`?/i',
-                $statement,
+                '/^(INSERT INTO|REPLACE INTO|DROP TABLE IF EXISTS|CREATE TABLE|TRUNCATE TABLE|LOCK TABLES|ALTER TABLE)\s+`?([a-zA-Z0-9_]+)`?/i',
+                $body,
                 $m
             ) && $m[2] === $cacheTable) {
                 $result['skipped']++;
@@ -242,7 +247,7 @@ class EvoBackupManager
         }
 
         if (!$this->finish($keep)) {
-            $result['error'] = 'system_settings is missing; cache was not rebuilt';
+            $result['error'] = 'system_settings or system_cache is missing; cache was not rebuilt';
         }
         $result['ok'] = true;
         return $result;
@@ -255,8 +260,24 @@ class EvoBackupManager
             return false;
         }
         $this->restoreSettings($keep);
+        if (!$this->tableExists('system_cache')) {
+            return false;
+        }
         evo()->clearCache();
         return true;
+    }
+
+    // 文の先頭の行コメント（-- / #）と /* */ を除く。/*! */ は実行される文なので残す
+    private function stripLeadingComments($statement)
+    {
+        $prev = null;
+        while ($prev !== $statement) {
+            $prev = $statement;
+            $statement = preg_replace('/\A\s*(?:--(?:[ \t][^\n]*|(?=\n|\z))|#[^\n]*)(?:\n|\z)/', '', $statement);
+            $statement = preg_replace('/\A\s*\/\*(?!!).*?\*\//s', '', $statement);
+            $statement = ltrim($statement);
+        }
+        return $statement;
     }
 
     private function tableExists($name)

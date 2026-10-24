@@ -44,4 +44,13 @@ foreach ($backup->prune($maxGenerations) as $removed) {
     cli_out('Removed old backup: ' . $removed);
 }
 
-cli_out('Backups in ' . $backup->dir() . ': ' . count($backup->files()) . ' (auto-named kept: max ' . $maxGenerations . ')');
+$autoCount = 0;
+$otherCount = 0;
+foreach ($backup->files() as $file) {
+    if (preg_match(EvoBackupManager::AUTO_NAME_PATTERN, $file['name'])) {
+        $autoCount++;
+    } else {
+        $otherCount++;
+    }
+}
+cli_out('Backups in ' . $backup->dir() . ": auto-named {$autoCount}/{$maxGenerations}, other {$otherCount}");
