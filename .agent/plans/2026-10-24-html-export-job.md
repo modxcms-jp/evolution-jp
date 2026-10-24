@@ -97,7 +97,7 @@ M1 では、`ex_export_site.php` の中身を `manager/includes/site_exporter.cl
 
 M2 では、`manager/includes/site_export_job.class.inc.php` に `EvoSiteExportJob` を作る。`start($options)` は、フレンドリーURLの確認、出力先の確認（M1 で `EvoSiteExporter` に置いた確認の結果を使う）、`clearOutputDir()`、対象の ID 一覧の保存、`OnExportPreExec` を行う。`step($budgetSeconds)` は、トークンの発行、持ち時間ぶんの `exportOne()`、進み具合の保存を行い、最後の 1 件で `OnExportExec` とトークンの取り消しを行う。`status()` は保存した状態を返し、`cancel()` は中止の印を書く（処理中の `step()` が無ければ、その場で状態を `cancelled` にしてトークンを取り消す）。`step()` は 1 ページごとに中止の印を見る。processor は `manager/processors/export_site.processor.php` を JSON の窓口に書き換え、`a=308` で `op`（`start` / `step` / `status` / `cancel`）を受ける。画面は、フォームの下にプログレスバー（`<progress>`）・件数・中止のボタン・結果の欄を置き、`Evo.post('index.php?a=308', …)` で開始と「続きを進める」を繰り返す。画面を開いたときに途中のジョブがあれば、「続きから再開」と「最初からやり直す」を出す。「最大エクスポート時間」の欄と文言、ロックファイル、`setUrlMode()`、エクステンダーを消す。直書きの文言を言語ファイルへ移し、入力欄の値は `hsc()` で出す。
 
-M3 では、`manager/includes/cli/commands/export-site.php` を作る。引数は `--target=all|allow|ignore`、`--ids=1,2,3`、`--include-noncache`、`--replace-before=`、`--replace-after=`、`--site-url=`、`--restart`。`EvoSiteExportJob` を持ち時間なしで動かし、100 件ごとと最後に進み具合を出す。
+M3 では、`manager/includes/cli/commands/export-site.php` を作る。引数は `--target=all|allow|ignore`、`--ids=1,2,3`、`--include-noncache`、`--replace-before=`、`--replace-after=`、`--site-url=`、`--restart`。`EvoSiteExportJob` の step を持ち時間（10 秒）ありで終わるまで繰り返し（持ち時間なしで 1 回の step にすると、非公開サイトでトークンの期限が切れるため）、step が戻るたびに 100 件の区切りを越えていれば進み具合を出し、最後にも出す（step の単位で出すので、出る件数の区切りは揃わない）。
 
 M4 では、`EvoSiteExporter` に複数の ID をまとめて取得する `exportMany(array $ids)` を足し、`curl_multi` で同時に `EvoSiteExporter::CONCURRENCY`（4）件まで取る。`step()` は `exportMany()` を使う。
 
