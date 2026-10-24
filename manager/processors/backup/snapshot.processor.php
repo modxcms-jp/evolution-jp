@@ -76,8 +76,17 @@ function check_snapshot_path($snapshot_path)
 
 function filename()
 {
-    if (postv('file_name')) {
-        return postv('file_name');
+    $filename = trim((string) postv('file_name', ''));
+    if ($filename !== '') {
+        // 保存先の外や .sql 以外のファイルを作らせないため、ディレクトリを含まない名前に限る
+        if (!preg_match('@\A[0-9A-Za-z][0-9A-Za-z._-]*\z@', $filename)) {
+            alert()->setError(1, lang('bkmgr_invalid_file_name'));
+            alert()->dumpError();
+        }
+        if (strtolower(substr($filename, -4)) !== '.sql') {
+            $filename .= '.sql';
+        }
+        return $filename;
     }
     $today = str_replace(
         ['/', ' ', ':'],

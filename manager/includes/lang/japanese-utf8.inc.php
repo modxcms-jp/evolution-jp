@@ -1236,6 +1236,7 @@ return [
 
     "bkmgr_content_only" => 'コンテンツデータのみ',
     "bkmgr_file_name" => 'ファイル名',
+    "bkmgr_invalid_file_name" => 'ファイル名に使えるのは英数字と「.」「_」「-」で、先頭は英数字にしてください。',
     "delete_resource_complete" => '完全に削除',
 
     "enable_draft_title" => '下書き機能',
