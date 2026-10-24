@@ -6,6 +6,8 @@ if (!evo()->hasPermission('bk_manager')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+// 復元は DB を丸ごと書き換えるため、管理者だけに許す
+$canRestore = manager()->isAdmin();
 
 if (!config('snapshot_path') || strpos(config('snapshot_path'), MODX_BASE_PATH) === false) {
     if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
@@ -278,6 +280,7 @@ if (sessionv('result_msg')) {
         </div>
         <!-- This iframe is used when downloading file backup file -->
         <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+        <?php if ($canRestore) { ?>
         <div class="tab-page" id="tabRestore">
             <h2 class="tab"><?= $_lang["bkmgr_restore_title"] ?></h2>
             <?= $ph['result_msg'] ?>
@@ -285,79 +288,8 @@ if (sessionv('result_msg')) {
             <form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
                 <input type="hidden" name="a" value="305" />
                 <input type="hidden" name="mode" value="restore1" />
-                <script type="text/javascript">
-                    function showhide(a) {
-                        var f = document.getElementById('sqlfile');
-                        var t = document.getElementById('textarea');
-                        if (a === 'file') {
-                            f.style.display = 'block';
-                            t.style.display = 'none';
-                        } else {
-                            t.style.display = 'block';
-                            f.style.display = 'none';
-                        }
-                    }
-                </script>
-                <?php
-                if (sessionv('textarea')) {
-                    $value = sessionv('textarea');
-                    unset($_SESSION['textarea']);
-                    $_SESSION['console_mode'] = 'text';
-                    $f_display = 'none';
-                    $t_display = 'block';
-                } else {
-                    $value = '';
-                    $_SESSION['console_mode'] = 'file';
-                    $f_display = 'block';
-                    $t_display = 'none';
-                }
-
-                if (sessionv('last_result')) {
-                    $last_result = sessionv('last_result');
-                    unset($_SESSION['last_result']);
-                    // 行は連想配列なので、空の行を除くのに array_diff() は使えない（PHP 8 で警告になり表示が止まる）
-                    $last_result = array_values(array_filter((array) $last_result));
-                    if (!$last_result) {
-                        $result = '';
-                    } else {
-                        $result = '<tr><th>' . implode('</th><th>', hsc(array_keys($last_result[0]))) . '</th></tr>';
-                        foreach ($last_result as $row) {
-                            $result .= '<tr><td>' . implode('</td><td>', hsc(array_values($row))) . '</td></tr>';
-                        }
-                        $style = '<style type="text/css">#mainPane table th, body > .tab-page table th {border:1px solid #ccc;background-color:#ddd;}</style>';
-                        $result = $style . '<table>' . $result . '</table>';
-                    }
-                }
-
-                ?>
-                <p>
-                    <label>
-                        <input
-                            type="radio"
-                            name="sel"
-                            onclick="showhide('file');"
-                            <?= checked(!isset($_SESSION['console_mode']) || sessionv('console_mode') !== 'text') ?> /> <?= $_lang["bkmgr_run_sql_file_label"] ?>
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="sel"
-                            onclick="showhide('textarea');"
-                            <?= checked(sessionv('console_mode') === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
-                    </label>
-                </p>
                 <div>
-                    <input
-                        type="file"
-                        name="sqlfile"
-                        id="sqlfile"
-                        size="70"
-                        style="display:<?= $f_display ?>;" />
-                </div>
-                <div id="textarea" style="display:<?= $t_display ?>;">
-                    <textarea
-                        name="textarea"
-                        style="width:500px;height:200px;"><?= hsc($value) ?></textarea>
+                    <input type="file" name="sqlfile" id="sqlfile" size="70" />
                 </div>
                 <div class="actionButtons" style="margin-top:10px;">
                     <a
@@ -368,12 +300,8 @@ if (sessionv('result_msg')) {
                 </div>
                 <input type="submit" name="save" style="display:none;" />
             </form>
-            <?php
-            if (isset($result)) {
-                echo '<div style="margin-top:20px;"><p style="font-weight:bold;">' . $_lang['bkmgr_run_sql_result'] . '</p>' . $result . '</div>';
-            }
-            ?>
         </div>
+        <?php } ?>
         <?php
         $today = evo()->toDateFormat(request_time());
         $today = str_replace(['/', ' '], '-', $today);
@@ -433,7 +361,9 @@ if (sessionv('result_msg')) {
                 if (is_array($files) && $total) {
                     echo '<ul>';
                     arsort($files);
-                    $tpl = '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n";
+                    $tpl = $canRestore
+                        ? '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n"
+                        : '<li>[+filename+] ([+filesize+])</li>' . "\n";
                     while ($file = array_shift($files)) {
                         $timestamp = filemtime($file);
                         $filename = substr($file, strrpos($file, '/') + 1);
@@ -469,11 +399,4 @@ if (sessionv('result_msg')) {
 <?php
 if (empty($isPaneRequest)) {
     include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-}
-function checked($cond)
-{
-    if ($cond) {
-        return 'checked';
-    }
-    return '';
 }
