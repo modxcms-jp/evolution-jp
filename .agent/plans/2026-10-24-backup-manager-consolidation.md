@@ -13,12 +13,13 @@
 
 ## Surprises & Discoveries
 
-- 2026-10-24: 管理画面の「SQL を直接実行」の結果は、PHP 8 では表示されていなかった（`array_diff()` で「Array to string conversion」）。PR #884 で直した。
+- 2026-10-24: 管理画面の「SQL を直接実行」の結果は、PHP 8 では表示されていなかった（`array_diff()` で「Array to string conversion」）。PR #884 で直した。この機能自体は #889 で廃止する。
 - 2026-10-24: `$modx->snapshot(['filename' => 'x.sql', 'target' => 'c'])` は `target` が効かない。`$filename` を文字列で上書きしてから `$filename['target']` を読んでいる（`manager/includes/traits/document.parser.subparser.trait.php` の `snapshot()`）。
 - 2026-10-24: 設定 `snapshot_path` は `manager/includes/default.config.php` に定義が無い隠し設定。値は `system_settings` に直接入れたときだけ効く。
 
 ## Decision Log
 
+- 2026-10-24 / yamamoto: この ExecPlan は #889 を先に入れた main を前提にする。#889 で、バックアップ管理の「SQL を直接実行」（入力欄・`console_mode`・セッションの `textarea`・結果一覧の `last_result`）を廃止し、復元（アップロード・スナップショットとも）を管理者（`mgrRole=1`）だけにする。そのため `restore()` は実行結果の行を返さず、復元の失敗の確認はアップロードした SQL ファイルで行う。#889 を ExecPlan に取り込む案は、任意の SQL を流せる入口が実装の完了まで残るので採らなかった。
 - 2026-10-24 / yamamoto: CLI の `db:backup` は mysqldump を既定のまま、プレフィックスの付いたテーブルだけを書き出し、`--routines --triggers` を付けない。管理画面は PHP のダンパー（`Mysqldumper`）のまま。どちらで作っても、管理画面の復元と `db:import` で戻せる形にそろえる。代替案の「PHP のダンパーに統一」は、大きな DB で遅くメモリを使う課題（`assets/docs/core-issues.md` の「Mysqldumper クラスの設計上の制約」）が CLI にも広がるので採らない。「CLI のものは一覧から外す」は、戻せないバックアップが残り続けるので採らない。
 - 2026-10-24 / yamamoto: 復元（管理画面・`db:import`）の前に、自動で現在の DB を `pre-restore-<日時>-<版>.sql` として保存する。途中で失敗したときに、利用者がこのファイルから戻せる。失敗時に自動で戻すことはしない（戻す処理も失敗しうるため、どのファイルから戻せるかを示すだけにする）。
 - 2026-10-24 / yamamoto: 古い世代の削除は、自動で付けた名前（`YYYY-MM-DD-HHMMSS-<版>.sql`）のファイルだけを対象にし、更新日時の古い順に消す。利用者が名前を付けたものと `pre-restore-` のものは消さない。世代数は既定 10、CLI は `--max` で変える。システム設定の項目は増やさない（YAGNI）。
@@ -44,7 +45,7 @@
 
 - `manager/actions/tool/bkmanager.static.php`: 画面。`mode=backup` でダウンロード（`Mysqldumper::createDump()` → `dumpSql()`）。`mode=snapshot`（47〜100 行）は今のフォームから使われない死んだコード。スナップショットの一覧（`glob()` → 更新時刻をキーにした配列）。
 - `manager/processors/backup/snapshot.processor.php`（`a=307`）: スナップショットの作成と、ファイル名順での世代の削除（10 世代）。
-- `manager/processors/backup/restore.processor.php`（`a=305`）: `mode=restore1` はアップロードか入力欄の SQL、`mode=restore2` は一覧のファイル。どちらも `Mysqldumper::import_sql()`。
+- `manager/processors/backup/restore.processor.php`（`a=305`）: `mode=restore1` はアップロードした SQL ファイル、`mode=restore2` は一覧のファイル。どちらも `Mysqldumper::import_sql()`。#889 の後は、どちらも管理者（`mgrRole=1`）だけが使える（入力欄から SQL を流す機能は #889 で廃止）。
 - `manager/includes/mysql_dumper.class.inc.php`: `Mysqldumper`。`createDump()` は固定名の一時ファイル `MODX_CACHE_PATH . 'bktemp.pageCache.php'` に書き、最後に全体を `file_get_contents()` で読み込んで返す。`import_sql()` は `;` と改行で文を区切り、1 文ずつ `db()->query()`（エラーで `messageQuit` して止まる）。
 - `manager/includes/cli/commands/db-backup.php`: 保存先の決定・`.htaccess`・ファイル名・世代の削除（`--max`）。書き出しは `cli_export_database()`（`manager/includes/cli/cli-helpers.php`）。
 - `manager/includes/cli/commands/db-import.php`: CLI の復元。`EVO_CLI_IMPORT` が定義されていないと拒否。`system_cache` の文を飛ばし、5 つの設定を取り込み先の値に戻す。
@@ -78,7 +79,7 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
     files(): array           [['name', 'size', 'mtime'], ...] を更新日時の新しい順で
     createSnapshot(string $name = '', bool $contentsOnly = false): string|false   PHP のダンパーで書き出し、成功したら prune()。ファイル名を返す
     prune(int $max = 10): string[]               自動の名前のファイルだけを、更新日時の古い順に消す。消した名前を返す
-    restore(string $sql): array                  直前に createSnapshot(autoFilename('pre-restore-')) を取り、文を実行し、設定を引き継ぐ。['ok' => bool, 'executed' => int, 'skipped' => int, 'error' => string, 'failed_at' => int, 'pre_restore' => string, 'last_result' => array]
+    restore(string $sql): array                  直前に createSnapshot(autoFilename('pre-restore-')) を取り、文を実行し、設定を引き継ぐ。['ok' => bool, 'executed' => int, 'skipped' => int, 'error' => string, 'failed_at' => int, 'pre_restore' => string]
 
 自動の名前の判定は `/\A\d{4}-\d{2}-\d{2}-\d{6}-[0-9A-Za-z._-]+\.sql\z/`。`.htaccess` の中身:
 
@@ -90,7 +91,7 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
         Deny from all
     </IfModule>
 
-`restore()` は、文を `db()->query($sql, false)` で実行し、`false` が返ったら止めて `db()->getLastError()` を `error` に入れる。`system_cache` を対象にする文は飛ばす（`db-import.php` の正規表現をそのまま使う）。`last_result` は最後の文が SELECT などで行を返したときの行（管理画面の「SQL を直接実行」の表示に使う）。
+`restore()` は、文を `db()->query($sql, false)` で実行し、`false` が返ったら止めて `db()->getLastError()` を `error` に入れる。`system_cache` を対象にする文は飛ばす（`db-import.php` の正規表現をそのまま使う）。実行結果の行は返さない（表示する画面は #889 で廃止）。
 
 `Mysqldumper` には `dumpToFile($path)` を足し、`createDump()` をそれを使う形にする。`import_sql()` / `getSettings()` / `restoreSettings()` は M2 で呼び出し元を置き換えてから消す。
 
@@ -108,10 +109,10 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 2. 一覧は `files()` を使う（更新時刻をキーにしないので、同じ時刻のファイルも全部出る）。
 3. ダウンロード（`mode=backup`）は、`dumpToFile()` で一時ファイルに書き、成功したときだけヘッダーを送って `readfile()` する。失敗時はヘッダーを送る前にエラーを出す。
 4. `snapshot.processor.php` は、入力のファイル名を `isValidFilename()` で確かめ（`.sql` が無ければ付ける。PR #884 の動き）、`createSnapshot()` を呼ぶ。保存先・`.htaccess`・世代の処理を消す。
-5. `restore.processor.php` は、`restore2` で `path()` を使い、どちらのモードも `restore()` を呼ぶ。結果をセッションに入れ、画面で「復元した」か「N 文目で失敗した。復元前の状態は <pre_restore> から戻せる」と出す（言語ファイルに 2 つ追加）。
+5. `restore.processor.php` は、#889 で入った管理者だけの判定を残したまま、`restore2` で `path()` を使い、どちらのモードも `restore()` を呼ぶ。結果をセッションに入れ、画面で「復元した」か「N 文目で失敗した。復元前の状態は <pre_restore> から戻せる」と出す（言語ファイルに 2 つ追加）。
 6. `Mysqldumper` から `import_sql()` / `getSettings()` / `restoreSettings()` を消す。
 
-確認: Docker の管理画面で、スナップショットを 12 回作って一覧が 10 件になり、名前を付けたもの（`keep.sql`）と `pre-restore-` のものが残ること。存在しないテーブルへの INSERT を含む SQL を「SQL を直接実行」で流し、失敗のメッセージと `pre-restore-` のファイル名が出て、そのファイルの復元で元に戻ること。
+確認: Docker の管理画面で、スナップショットを 12 回作って一覧が 10 件になり、名前を付けたもの（`keep.sql`）と `pre-restore-` のものが残ること。存在しないテーブルへの INSERT を含む `.sql` ファイルを「復元」タブからアップロードし、失敗のメッセージと `pre-restore-` のファイル名が出て、そのファイルの復元で元に戻ること。
 
 ### M3: CLI とパーサーの API
 
@@ -141,7 +142,7 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 1. 管理画面でスナップショットを 12 回作ると、一覧は自動の名前のものが新しい 10 件になる。`datetime_format` を `dd-mm-YYYY` にしても同じ。
 2. 利用者が名前を付けたスナップショットと `pre-restore-` のものは、何回作っても消えない。
 3. `php evo db:backup` で作ったファイルを、管理画面の一覧から復元できる（main では、トリガーのある DB で失敗する）。
-4. 存在しないテーブルへの INSERT を含む SQL を管理画面から流すと、失敗した文の位置と `pre-restore-` のファイル名が表示され、そのファイルを復元すると元の内容に戻る。
+4. 存在しないテーブルへの INSERT を含む `.sql` ファイルを管理画面からアップロードして復元すると、失敗した文の位置と `pre-restore-` のファイル名が表示され、そのファイルを復元すると元の内容に戻る。
 5. `$modx->snapshot(['filename' => 'c.sql', 'target' => 'c'])` で作ったファイルに、`site_content` などコンテンツのテーブルだけが入っている。
 6. 保存先の `.htaccess` が Apache 2.4 の書き方を含み、作ったファイルのパーミッションが `0666` でない。
 
@@ -168,4 +169,5 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 - 呼び出し元: `manager/actions/tool/bkmanager.static.php`、`manager/processors/backup/*.php`、`manager/includes/cli/commands/db-backup.php` / `db-import.php`、`DocumentParser::snapshot()`（外部のスニペットやプラグインが呼びうる公開の API。引数と戻り値は変えない）
 - `Mysqldumper`: `createDump()` / `getTableNames()` / `setDBtables()` は残す（`db:export --driver=php` が使う）。`import_sql()` / `getSettings()` / `restoreSettings()` は消す
 - `evo system-upgrade` コマンド（`.agent/plans/2026-05-06-evo-system-upgrade-command.md`）は、DB のバックアップを `temp/backup/migrate/` に置く設計。`files()` と `prune()` は保存先の直下の `*.sql` だけを見るので、影響しない
+- 前提: #889（「SQL を直接実行」の廃止と、復元を管理者だけにする変更）が main に入っていること。着手前に、#889 の PR がマージ済みかを確かめる
 - 範囲外: `Mysqldumper` のエスケープ方式（PDO 移行で扱う）、nginx で `.htaccess` が効かない件の根本的な対策
