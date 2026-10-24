@@ -43,8 +43,9 @@ function setPermission()
     if (!is_dir($rb_base_dir . 'media')) {
         mkd($rb_base_dir . 'media');
     }
-    if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
-        mkd(MODX_BASE_PATH . 'temp/export');
+    $export_dir = str_replace('[(base_path)]', MODX_BASE_PATH, exportDirOrDefault(formv('export_dir')));
+    if (!is_dir($export_dir)) {
+        mkd($export_dir);
     }
     if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
         mkd(MODX_BASE_PATH . 'temp/backup');
@@ -66,6 +67,12 @@ function mkd($path)
     return $rs;
 }
 
+// 空にされたらエクスポート先は既定値に戻す
+function exportDirOrDefault($value)
+{
+    return trim((string)$value) === '' ? '[(base_path)]temp/export/' : $value;
+}
+
 function setModifiedConfig($form_v, $defaut_v)
 {
     if ($form_v === $defaut_v) {
@@ -76,7 +83,7 @@ function setModifiedConfig($form_v, $defaut_v)
 
 function formv($key, $default = null)
 {
-    if (in_array($key, ['filemanager_path', 'rb_base_dir'])) {
+    if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir'])) {
         $value = postv($key, $default);
         if ($value === null) {
             $value = '';
@@ -198,6 +205,9 @@ function save_settiongs()
             case 'rb_base_url':
                 $v = rtrim($v, '/') . '/';
                 break;
+            case 'export_dir':
+                $v = exportDirOrDefault($v);
+                // no break
             case 'rb_base_dir':
             case 'filemanager_path':
                 if ($v !== '[(base_path)]') {

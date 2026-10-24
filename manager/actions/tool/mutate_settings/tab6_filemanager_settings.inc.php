@@ -12,27 +12,36 @@
                 ?>
                 <?= $_lang['default'] ?> <span
                     id="default_filemanager_path">[(base_path)]</span> <?= "({$base_path})" ?><br/>
-                <?= form_text('filemanager_path', 255, 'id="filemanager_path" value="' . config('filemanager_path') . '"') ?>
+                <?= form_text('filemanager_path', 255, 'id="filemanager_path"') ?>
                 <input type="button" onclick="document.getElementById('filemanager_path').value = '[(base_path)]';"
                         value="<?= $_lang["reset"] ?>" name="reset_filemanager_path"><br/>
                 <?= $_lang["filemanager_path_message"] ?></td>
         </tr>
         <tr>
+            <th><?= $_lang["export_dir_title"] ?></th>
+            <td>
+                <?= $_lang['default'] ?> <span>[(base_path)]temp/export/</span><br/>
+                <?= form_text('export_dir', 255, 'id="export_dir"') ?>
+                <input type="button" onclick="document.getElementById('export_dir').value = '[(base_path)]temp/export/';"
+                        value="<?= $_lang["reset"] ?>" name="reset_export_dir"><br/>
+                <?= $_lang["export_dir_message"] ?></td>
+        </tr>
+        <tr>
             <th><?= $_lang["uploadable_files_title"] ?></th>
             <td>
-                <?= form_text('upload_files', 255, 'value="' . config('upload_files') . '"') ?><br/>
+                <?= form_text('upload_files', 255) ?><br/>
                 <?= $_lang["uploadable_files_message"] ?></td>
         </tr>
         <tr>
             <th><?= $_lang["uploadable_images_title"] ?></th>
             <td>
-                <?= form_text('upload_images', 255, 'value="' . config('upload_images') . '"') ?><br/>
+                <?= form_text('upload_images', 255) ?><br/>
                 <?= $_lang["uploadable_images_message"] ?></td>
         </tr>
         <tr>
             <th><?= $_lang["uploadable_media_title"] ?></th>
             <td>
-                <?= form_text('upload_media', 255, 'value="' . config('upload_media') . '"') ?><br/>
+                <?= form_text('upload_media', 255) ?><br/>
                 <?= $_lang["uploadable_media_message"] ?></td>
         </tr>
         <tr>
@@ -57,19 +66,19 @@
                     $settings['upload_maxsize'] = $limit_size;
                 }
                 ?>
-                <?= form_text('upload_maxsize', 255, 'value="' . config('upload_maxsize') . '"') ?><br/>
+                <?= form_text('upload_maxsize', 255) ?><br/>
                 <?= sprintf($_lang["upload_maxsize_message"], evo()->nicesize($limit_size)) ?></td>
         </tr>
         <tr>
             <th><?= $_lang["new_file_permissions_title"] ?></th>
             <td>
-                <?= form_text('new_file_permissions', 4, 'value="' . config('new_file_permissions') . '"') ?><br/>
+                <?= form_text('new_file_permissions', 4) ?><br/>
                 <?= $_lang["new_file_permissions_message"] ?></td>
         </tr>
         <tr>
             <th><?= $_lang["new_folder_permissions_title"] ?></th>
             <td>
-                <?= form_text('new_folder_permissions', 4, 'value="' . config('new_folder_permissions') . '"') ?><br/>
+                <?= form_text('new_folder_permissions', 4) ?><br/>
                 <?= $_lang["new_folder_permissions_message"] ?></td>
         </tr>
 
@@ -117,7 +126,7 @@
                 <?= $_lang['default'] ?> <span id="default_rb_base_dir"><?= "[(base_path)]{$default_rb_base_dir}" ?></span>
                     <?= "({$base_path}{$default_rb_base_dir})" ?>
                 <br/>
-                <?= form_text('rb_base_dir', 255, 'id="rb_base_dir" value="' . config('rb_base_dir') . '"') ?>
+                <?= form_text('rb_base_dir', 255, 'id="rb_base_dir"') ?>
                 <input type="button" onclick="document.getElementById('rb_base_dir').value = document.getElementById('default_rb_base_dir').textContent.trim();"
                         value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
@@ -125,7 +134,7 @@
         <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["rb_base_url_title"] ?></th>
             <td>
-                <?= $site_url . form_text('rb_base_url', 255, 'value="' . config('rb_base_url') . '"') ?><br/>
+                <?= $site_url . form_text('rb_base_url', 255) ?><br/>
                 <?= $_lang["rb_base_url_message"] ?></td>
         </tr>
         <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">

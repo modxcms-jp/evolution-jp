@@ -9,25 +9,19 @@ if (!hasPermission('export_static')) {
 
 evo()->loadExtension('EXPORT_SITE');
 
-if (is_dir(MODX_BASE_PATH . 'temp')) {
-    $export_dir = MODX_BASE_PATH . 'temp/export';
-} elseif (is_dir(MODX_BASE_PATH . 'assets')) {
-    $export_dir = MODX_BASE_PATH . 'assets/export';
+// エクスポートは開始時に出力先の中身を消すため、temp/ の中だけに限る（./ や ../ も解決してから比べる）
+$real_dir = realpath(str_replace('[(base_path)]', MODX_BASE_PATH, config('export_dir')));
+if ($real_dir === false) {
+    return lang('export_site_target_unwritable');
 }
-
-if (strpos(MODX_BASE_PATH, $export_dir . '/') === 0 && 0 <= strlen(str_replace($export_dir . '/', '',
-        MODX_BASE_PATH))) {
-    return lang('export_site_target_above_manager');
+$real_temp = realpath(MODX_BASE_PATH . 'temp');
+if ($real_temp === false || strpos($real_dir, $real_temp . '/') !== 0) {
+    return lang('export_site_target_outside_temp');
 }
+// 以降の処理は MODX_BASE_PATH で始まるパスを前提にするため、temp/ からの相対で組み直す
+$export_dir = MODX_BASE_PATH . 'temp' . substr($real_dir, strlen($real_temp));
 
-if (config('rb_base_dir') === $export_dir . '/') {
-    return evo()->parseText(
-        lang('export_site_target_rb_base'),
-        'rb_base_url=' . MODX_BASE_URL . config('rb_base_url')
-    );
-}
-
-if (!is_writable($export_dir)) {
+if (!is_dir($export_dir) || !is_writable($export_dir)) {
     return lang('export_site_target_unwritable');
 }
 
