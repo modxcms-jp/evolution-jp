@@ -183,6 +183,8 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 ## Artifacts and Notes
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/886
+- ブランチ: `refactor/886-backup-manager`（ワークツリー `.claude/worktrees/issue-886`）
+- PR: https://github.com/modxcms-jp/evolution-jp/pull/896 （下書き。M4 まで積む）
 - 先行の修正（出力のエスケープとファイル名の検証、マージ済み fb9bba1b7）: https://github.com/modxcms-jp/evolution-jp/pull/884 。復元の `onclick` は `hsc(js_literal($filename))` で埋め込む
 - 「SQL を直接実行」の廃止と復元を管理者だけにする変更（#889）: https://github.com/modxcms-jp/evolution-jp/pull/890
 - 想定するコミット:
