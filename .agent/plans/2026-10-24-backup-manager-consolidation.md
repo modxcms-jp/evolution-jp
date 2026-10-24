@@ -8,7 +8,7 @@
 
 - [x] (2026-10-24) M1: `EvoBackupManager` クラスと、`Mysqldumper` のファイルへの直接書き出し（c746601bb・d54fc1953・5a6a2ff1e。Docker で確認、自己レビューの高・中なし）
 - [x] (2026-10-24) M2: 管理画面（バックアップ管理・スナップショット・復元）を新しいクラスへ置き換える（49e797e09・6703b7b27・1e6f5b6b4・f8995581b。Docker で修正前と比較、自己レビューの高・中なし）
-- [ ] M3: CLI（`db:backup` / `db:import`）とパーサーの API（`$modx->snapshot()`）を置き換える
+- [x] (2026-10-24) M3: CLI（`db:backup` / `db:import`）とパーサーの API（`$modx->snapshot()`）を置き換える（1c80ac86d・f666a844e・253d34bec・13d1e5da4。Docker で修正前と比較、自己レビューの高・中なし）
 - [ ] M4: ドキュメントの更新と Docker での通し確認
 
 ## Surprises & Discoveries
@@ -38,6 +38,10 @@
 - 2026-10-24（M2）: 復元の結果は、操作したタブにだけ出す。一覧の「このデータに戻す」（`restore2`）はスナップショットのタブ、アップロード（`restore1`）はリストアのタブ。タブは `manager/media/script/tabpane.js` が cookie で前のタブを覚えているので、両方に出すのをやめるとき、一覧からの復元の結果が見えなくなる回帰を自己レビューで見つけて直した（`restore_result` の `mode` で出し分ける）。
 - 2026-10-24（M2）: 画面から付ける名前は、末尾が大文字小文字を問わず `.sql` なら小文字の `.sql` にそろえる（`Bad.SQL` → `Bad.sql`）。`isValidFilename()` は小文字の `.sql` だけを通すまま。世代数は `EvoBackupManager::KEEP`（10）にまとめ、案内文は `[+keep+]` で埋める。呼び出し元の無くなった `Mysqldumper::dumpSql()` は消した。
 - 2026-10-24（M2）: インストーラーには `MODX_CORE_PATH` が無いので、`MODX_BASE_PATH . 'manager/includes/backup_manager.class.inc.php'` を読み込んで `EvoBackupManager::HTACCESS` を書く。`setup-site.js` のインストールで新しい中身になることを確かめた。
+- 2026-10-24（M3）: `restore()` が `system_cache` を飛ばす判定は、文頭だけを見ていた（`db-import.php` から写した正規表現。main の `db:import` も同じ）。mysqldump は `DROP TABLE` の前に `-- Table structure …` のコメントを付けるので、`DROP` だけが実行され、続く `CREATE TABLE` は飛ばされて、表が無いまま `clearCache()` が止まった。判定の前に文頭の `--`・`#`・`/* */`（`/*!` は実行される文なので残す）を除き、`IF EXISTS` の無い `DROP`・`IF NOT EXISTS`・`INSERT IGNORE`・`REPLACE`・`LOCK TABLES`・`ALTER TABLE`・DB 名付きの表名にも当てるようにした。`finish()` は `system_cache` が無いときもキャッシュを作り直さない。
+- 2026-10-24（M3）: 修正前の main では、`db:backup` のファイルはトリガーの `DELIMITER` で管理画面から戻せなかった。修正後は、管理画面の一覧からも `db:import` からも戻せる。
+- 2026-10-24（M3、未確認）: `db:import` は、取り込み先にプレフィックスの付いた表が 1 つも無いとき、復元前のスナップショットを書かずに取り込む（DB 全体を書き出さないため）。ただし、その状態の DB では `php evo` の起動そのものが失敗する（`modx_site_snippets` などを読むため。今回の変更の前からの動き）ので、この分岐は CLI から確かめられなかった。
+- 2026-10-24（M3）: `db:import` の出力から `Preserved: N` を外した（`restore()` が件数を返さない）。`db:backup` の最後の行は `auto-named N/M, other K`。`cli_export_database()` は失敗すると `cli_usage()` で終わるので、復元前のスナップショットの失敗では、何も取り込まずにそのまま終わる。
 - 2026-10-24（M2、未確認）: ダウンロードを途中で止めたときに一時ファイルが消えること（`register_shutdown_function()`）。検証の DB が小さく、受信を切る前に書き終わるため試験にならなかった。正常時に残らないことは確認。
 
 ## Decision Log
