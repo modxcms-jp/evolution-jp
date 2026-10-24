@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-backup-manager-consolidation",
+    "run_id": "2026-10-24-backup-manager-consolidation-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-24T18:50:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-001",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "既存の処理を別の場所へ写したり、まとめたりした変更では、その処理に入力を渡すそれぞれの入口の実際の出力で、修正前後を比べる（例: 復元の処理なら、mysqldump 形式と PHP のダンパー形式の両方のファイル）。写した元の不具合も見つかる",
+            "source_ref": "finding-001",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-002",
+            "action": "add",
+            "target": ".claude/agents/README.md（分かっている限界）",
+            "summary": "evo-* はセッションを始めたときの本体のチェックアウトの .claude/agents から読まれるので、本体の main が古いと使えない。/run-plan の前に本体のチェックアウトを最新にする。使えないときは、general-purpose に .agent/agents/<役割>.md を読ませ、表のモデルを呼び出し時に指定して代わりにする",
+            "source_ref": "finding-003",
+            "confidence": "high"
+        }
+    ]
+}

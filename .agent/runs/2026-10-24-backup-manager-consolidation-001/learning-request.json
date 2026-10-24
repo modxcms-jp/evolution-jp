@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-backup-manager-consolidation",
+    "run_id": "2026-10-24-backup-manager-consolidation-001",
+    "skill": "exec-plan-runner",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-10-24T18:46:05+09:00",
+    "status": "completed",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}

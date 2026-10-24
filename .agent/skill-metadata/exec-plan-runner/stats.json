@@ -1,22 +1,22 @@
 {
     "items": {
         "change-001": {
-            "seen_runs": 1,
-            "used_runs": 1,
-            "helped_runs": 1,
+            "seen_runs": 2,
+            "used_runs": 2,
+            "helped_runs": 2,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-10-16T11:30:00+09:00",
-            "source": "2026-10-16-orchestration-runner-001"
+            "last_used_at": "2026-10-24T18:50:00+09:00",
+            "source": "2026-10-24-backup-manager-consolidation-001"
         },
         "change-002": {
-            "seen_runs": 1,
-            "used_runs": 1,
-            "helped_runs": 1,
+            "seen_runs": 2,
+            "used_runs": 2,
+            "helped_runs": 2,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-10-16T11:30:00+09:00",
-            "source": "2026-10-16-orchestration-runner-001"
+            "last_used_at": "2026-10-24T18:50:00+09:00",
+            "source": "2026-10-24-backup-manager-consolidation-001"
         },
         "change-003": {
             "seen_runs": 1,
@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 3,
-            "used_runs": 3,
-            "helped_runs": 3,
+            "seen_runs": 5,
+            "used_runs": 5,
+            "helped_runs": 5,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 2
+            "active_runs": 4
         }
     }
 }

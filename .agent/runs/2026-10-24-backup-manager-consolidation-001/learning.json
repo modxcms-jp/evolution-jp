@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-backup-manager-consolidation",
+    "run_id": "2026-10-24-backup-manager-consolidation-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-24T18:50:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "既存の処理を新しいクラスへ写すときは、「今の動きと同じ」で済ませず、その処理に入力を渡すそれぞれの入口（mysqldump 形式と PHP のダンパー形式のファイルなど）の実際の出力で、修正前後を比べる。今回は、写した判定に元からあった不具合をこの比べ方で見つけた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "表示の出し先を変える変更は、差分の外の画面の作り（タブが前の選択を覚えるなど）で、ある操作の結果が見えなくなることがある。どの操作がどのタブ・画面から来るかを、操作ごとに確かめる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "low"
+        },
+        {
+            "id": "finding-003",
+            "kind": "missing_instruction",
+            "summary": ".claude/agents の evo-* は、セッションを始めたときの本体のチェックアウトから読まれる。本体の main が古いと定義が無く使えない。/run-plan の前に本体のチェックアウトを最新にするか、使えないときの代わり方（general-purpose に役割の定義を読ませ、モデルを表どおり指定する）を決めておく",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/agents/README.md",
+            "confidence": "high"
+        }
+    ]
+}
