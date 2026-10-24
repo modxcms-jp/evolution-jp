@@ -6,7 +6,7 @@
 
 ## Progress
 
-- [ ] (2026-10-24) M1: `EvoBackupManager` クラスと、`Mysqldumper` のファイルへの直接書き出し
+- [x] (2026-10-24) M1: `EvoBackupManager` クラスと、`Mysqldumper` のファイルへの直接書き出し（c746601bb・d54fc1953・5a6a2ff1e。Docker で確認、自己レビューの高・中なし）
 - [ ] M2: 管理画面（バックアップ管理・スナップショット・復元）を新しいクラスへ置き換える
 - [ ] M3: CLI（`db:backup` / `db:import`）とパーサーの API（`$modx->snapshot()`）を置き換える
 - [ ] M4: ドキュメントの更新と Docker での通し確認
@@ -22,6 +22,18 @@
 - 2026-10-24: `DocumentParser::snapshot()` の戻り値は、名前に `/` か `\` を含むと `null`（値を返さない `return`）、それ以外は `Mysqldumper::snapshot()` の `file_put_contents()` の戻り値（書いたバイト数か `false`）。
 - 2026-10-24: 管理画面の `global $settings_version` は、`manager/index.php` の `extract($modx->config)` で入る `settings_version` の設定値と同じ。CLI（`db-backup.php`）は `evo()->config('settings_version')` を使っている。フロントから呼ばれる `$modx->snapshot()` では、この global は入らない。
 - 2026-10-24: `mysql_dumper.class.inc.php` は、先頭で `$modx` がオブジェクトでなければ `exit` する。メソッドの中で `include` すると、`global $modx;` を書かない限り何も出さずに止まる（CLI は `cli_export_database()` で先に `global $modx;` を書いている）。
+- 2026-10-24（M1）: `php -r` の API モード（`define("MODX_API_MODE", true); include "index.php";`）では `evo()->config('settings_version')` が空で、自動の名前の版は `unknown` になる。管理画面と CLI で版が入るかは M2・M3 の確認で見る。
+- 2026-10-24（M1）: `evo()->clearCache()` は `system_settings` が無い DB では "Error" を出してプロセスを終える。`restore()` は、取り込んだ SQL が `system_settings` を消したとき、設定の引き継ぎとキャッシュの作り直しをしない（成功なら `ok` は true のまま、`error` に `system_settings is missing; cache was not rebuilt`）。
+- 2026-10-24（M1）: 自動の名前は秒単位で `request_time()` を使うので、同じリクエストの中で 2 回作ると同じ名前になり上書きする（同じ処理で 2 回 `restore()` すると、1 回目の `pre-restore-` が失われる）。今の入口（画面・CLI は 1 リクエスト 1 回）では起きないので直していない。
+- 2026-10-24（M1）: `createSnapshot()` は実行時間の上限を、0（無制限）でなく 120 秒未満のときだけ 120 秒に延ばす。`restore()` の中の 2 回目の呼び出しは、その後なので既定の経路では何もしない（復元前のスナップショットと取り込みを合わせて 120 秒。元の上限より短くはならない）。
+- 2026-10-24（M1、M2・M3 への申し送り）: 自己レビューで挙がった注意。
+  - `restore()` は「`ok` が true で `error` が空でない」結果を返すことがある。画面と `db:import` は `error` も見て注意を出す。失敗時もキャッシュを作り直すので、画面では `pre-restore-` のファイルから戻すよう、はっきり案内する
+  - インストーラー（M2 の 7）は `.htaccess` の中身を写さず、`EvoBackupManager::HTACCESS` を参照する（二重持ちにしない）
+  - `dir()` は、設定した `snapshot_path` がまだ無いと既定の `temp/backup/` へ戻る（今の `snapshot.processor.php` はその場所を作っていた）。画面に保存先を出すか、言語ファイルで案内する
+  - `getBindDenyDirs()` の一覧に、`dir()` の結果（実パス）が必ず入るようにする
+  - `createSnapshot()` と `restore()` は `prune(10)` を呼ぶので、`db:backup --max` を 10 より大きくしても、次の画面からの作成や復元で 10 件に減る。CLI の README（M4）に書く
+  - `$modx->snapshot()` は書いたバイト数を返すので、`createSnapshot()` が返す名前から `filesize()` を取る
+- 2026-10-24（M1、直していない低い指摘）: 読み取り専用の古い `.htaccess` に書こうとすると PHP の Warning が出る（動きは正しい）。`tableExists()` の `SHOW TABLES LIKE` は `_` を 1 文字の何にでも合う印として扱う（実際にはまず起きない）。書き出しの途中で止まったときに一時ファイルが消えることは、中断を作れず未確認（`register_shutdown_function()` で消す作りはコードで確認）。
 
 ## Decision Log
 
@@ -37,6 +49,7 @@
 - 2026-10-24 / yamamoto: 保存先のディレクトリとファイルに `chmod` しない（これまでは `0777` / `0666`）。`mkdir` は `0755`。`.htaccess` は Apache 2.2 と 2.4 の両方で効く書き方にする。`ensureDir()` は、`.htaccess` が無いとき、または中身がインストーラーの古い書き方（`order deny,allow` / `deny from all` だけ）のときに書き直す。利用者が書き換えた中身は残す。インストーラー（`install/actions/summary.php`）も同じ中身を書くように直す。
 - 2026-10-24 / yamamoto: `DocumentParser::snapshot()` は外部から呼ばれうる公開の API なので、戻り値の形を変えない。作れたら書いたバイト数、書き出しに失敗したら `false`、名前が通らなければ `null`。`.sql` が無い名前には `.sql` を付ける（`snapshot.processor.php` と同じ）。名前の規則が `isValidFilename()` になるので、これまで作れた日本語や空白を含む名前は `null` になる。
 - 2026-10-24 / yamamoto: `restore()` は、取り込みの前に `system_cache` を TRUNCATE し、`system_cache` を対象にする文は飛ばす（今の `db-import.php` と同じ）。
+- 2026-10-24 / exec-plan-runner（M1 の自己レビュー）: `restore()` は、文が途中で失敗したときも、`system_settings` があれば取り込み先の 5 つの設定を戻し、キャッシュを作り直す。ダンプの `system_settings` が入ったあとで失敗すると、別の環境の `site_url` や `fixed_site_url` が残り、管理画面へ届かなくなって `pre-restore-` から戻せなくなるおそれがあるため。
 
 ## Outcomes & Retrospective
 
