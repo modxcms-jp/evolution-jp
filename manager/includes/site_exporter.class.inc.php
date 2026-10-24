@@ -13,7 +13,6 @@ class EvoSiteExporter
     private $replBefore;
     private $replAfter;
     private $exportDir;
-    private $skipExisting;
     private $bearerToken = null;
     private $prepared = false;
     private $curl = null;
@@ -22,7 +21,8 @@ class EvoSiteExporter
 
     /**
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
-     *                       repl_before, repl_after, export_dir, skip_existing(bool)
+     *                       repl_before, repl_after, export_dir,
+     *                       bearer_token(サイトが非公開のときにページの取得へ付ける合言葉。発行と取り消しは呼び出し側)
      */
     public function __construct(array $options = [])
     {
@@ -32,16 +32,12 @@ class EvoSiteExporter
         $this->includeNoncache = !empty($options['include_noncache']);
         $this->replBefore = isset($options['repl_before']) ? (string)$options['repl_before'] : '';
         $this->replAfter = isset($options['repl_after']) ? (string)$options['repl_after'] : '';
-        $this->skipExisting = !empty($options['skip_existing']);
+        $this->bearerToken = !empty($options['bearer_token']) ? (string)$options['bearer_token'] : null;
 
         $dir = isset($options['export_dir']) && $options['export_dir'] !== ''
             ? $options['export_dir']
             : MODX_BASE_PATH . 'temp/export';
         $this->resolveOutputDir($dir);
-
-        if (!evo()->config('site_status')) {
-            $this->bearerToken = bin2hex(random_bytes(64));
-        }
     }
 
     /**
@@ -145,15 +141,15 @@ class EvoSiteExporter
             if (is_dir($filename)) {
                 $filename = rtrim($filename, '/') . '/index.html';
             }
-            if ($this->skipExisting && is_file($filename) && substr($filename, -10) !== 'index.html') {
-                $reason = 'success_skip_doc';
-            } elseif ($row['published'] != 1) {
+            if ($row['published'] != 1) {
                 $reason = 'failed_no_retrieve';
             } else {
+                // basic 認証の検出はこの 1 件の取得ごとに判断する（持ち越さない）
+                $this->basicAuthDetected = false;
                 $reason = $this->makeFile($row['id'], $filename);
-            }
-            if ($this->basicAuthDetected) {
-                $reason = 'basic_auth';
+                if ($this->basicAuthDetected) {
+                    $reason = 'basic_auth';
+                }
             }
         }
 
@@ -210,9 +206,6 @@ class EvoSiteExporter
             return;
         }
         $this->prepared = true;
-        if ($this->bearerToken) {
-            evo()->saveBearerToken($this->bearerToken, time() + 60 * 60 * 3);
-        }
         $this->initCurl();
     }
 
@@ -340,39 +333,75 @@ class EvoSiteExporter
         }
     }
 
+    /**
+     * 1 件を取得する。通信の失敗（接続できない・タイムアウト）だけ最大 2 回送り直す。
+     * HTTP のステータスで答えが返った取得（401・404・500 など）は、送り直しても同じなので送り直さない。
+     * 401 は basic 認証として印を立てる。
+     */
     private function getContents($url, $timeout = 10)
     {
-        if (!extension_loaded('curl')) {
-            $headers = @get_headers($url);
-            if (is_array($headers) && isset($headers[0]) && strpos($headers[0], '401') !== false) {
+        if (extension_loaded('curl') && !$this->curl) {
+            $this->initCurl($timeout);
+        }
+
+        for ($i = 0; $i < 3; $i++) {
+            if ($i > 0) {
+                usleep(300000);
+            }
+            list($body, $status) = $this->fetch($url, $timeout);
+            if ($status === 401) {
                 $this->basicAuthDetected = true;
                 return false;
             }
-            return @file_get_contents($url);
+            if ($status !== 0) {
+                return $status >= 400 ? false : $body;
+            }
+            if ($body !== false) {
+                return $body;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return array [本文 または false, HTTP ステータス（応答が無ければ 0）]
+     */
+    private function fetch($url, $timeout)
+    {
+        if (!extension_loaded('curl')) {
+            $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
+            if ($this->bearerToken) {
+                $header[] = 'Authorization: Bearer ' . $this->bearerToken;
+            }
+            $context = stream_context_create([
+                'http' => [
+                    'method'        => 'GET',
+                    'header'        => implode("\r\n", $header),
+                    'timeout'       => $timeout,
+                    'max_redirects' => 3,
+                    // 4xx・5xx でも本文は読まず、ステータスで判断する
+                    'ignore_errors' => true,
+                ],
+            ]);
+            $body = @file_get_contents($url, false, $context);
+            $status = 0;
+            if (!empty($http_response_header) && is_array($http_response_header)) {
+                // リダイレクトを辿ったときは最後のステータス行を使う
+                foreach ($http_response_header as $line) {
+                    if (preg_match('@^HTTP/\S+\s+(\d{3})@', $line, $m)) {
+                        $status = (int)$m[1];
+                    }
+                }
+            }
+            return [$body, $status];
         }
 
         if (!$this->curl) {
-            $this->initCurl($timeout);
+            return [false, 0];
         }
-        if (!$this->curl) {
-            return false;
-        }
-
         curl_setopt($this->curl, CURLOPT_URL, $url);
-        $result = curl_exec($this->curl);
-
-        // 失敗したときだけ最大 2 回やり直す（成功したら抜ける）
-        for ($i = 0; $result === false && $i < 2; $i++) {
-            usleep(300000);
-            $result = curl_exec($this->curl);
-        }
-
-        if (curl_getinfo($this->curl, CURLINFO_HTTP_CODE) === 401) {
-            $this->basicAuthDetected = true;
-            return false;
-        }
-
-        return $result;
+        $body = curl_exec($this->curl);
+        return [$body, (int)curl_getinfo($this->curl, CURLINFO_HTTP_CODE)];
     }
 
     private function initCurl($timeout = 10)
