@@ -154,7 +154,7 @@ class DataSetPager
                 $query = getv();
                 unset($query['dpgn' . $this->id]);
                 if ($query) {
-                    $url .= http_build_query($query) . '&';
+                    $url .= http_build_query($query, "", "&") . '&';
                 }
             }
             for ($i = 1; $i <= $tp; $i++) {
