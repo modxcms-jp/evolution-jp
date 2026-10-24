@@ -106,7 +106,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### フロントエンド
 
 * jQuery 禁止 → Vanilla JS (ES6+)
-* frame/iframe 禁止
+* frame/frameset 禁止（HTML で廃止された要素。iframe は対象外）
 
 ### データベース
 
