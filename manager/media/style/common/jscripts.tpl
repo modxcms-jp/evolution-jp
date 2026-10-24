@@ -208,7 +208,7 @@
                 document.mutate.parent.value = pId;
                 var elm = document.getElementById('parentName');
                 if (elm) {
-                    elm.innerHTML = (pId + " (" + pName + ")");
+                    elm.textContent = pId + " (" + pName + ")";
                 }
             }
         }
