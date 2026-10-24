@@ -81,11 +81,19 @@ class EvoBackupManager
 
     public function path($name)
     {
-        if (!$this->isValidFilename($name)) {
+        // 既存のファイルを読むので、作るときの規則より緩くする（日本語や空白を含む名前も通す）
+        if (!is_string($name) || $name === '' || $name !== basename(str_replace('\\', '/', $name))
+            || strpos($name, '..') !== false || strpos($name, "\0") !== false
+            || !preg_match('/\.sql\z/i', $name)) {
             return false;
         }
+        $dir = realpath($this->dir());
         $path = realpath($this->dir() . $name);
-        if ($path === false || !is_file($path)) {
+        if ($dir === false || $path === false || !is_file($path)) {
+            return false;
+        }
+        $dir = rtrim(str_replace('\\', '/', $dir), '/') . '/';
+        if (strpos(str_replace('\\', '/', $path), $dir) !== 0) {
             return false;
         }
         return $path;
@@ -240,7 +248,10 @@ class EvoBackupManager
             if (db()->query($statement, false) === false) {
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $i + 1;
-                $this->finish($keep);
+                // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
+                if ($this->tableExists('system_settings')) {
+                    $this->restoreSettings($keep);
+                }
                 return $result;
             }
             $result['executed']++;
