@@ -1365,7 +1365,7 @@ a.hometblink:hover {
     z-index: 1;
     position: relative;
     top: 1px;
-    border: 1px solid #658f1a;
+    border: 1px solid var(--color-primary-end);
     text-shadow: 0px -1px 0px #2B5F0C;
     border-radius: 5px 5px 0 0;
     background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));

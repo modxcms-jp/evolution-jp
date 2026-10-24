@@ -104,6 +104,8 @@
 
     /* Focus - キーボード操作時の枠 */
     --color-focus: #4a7ba7;
+
+    /* 入力欄のフォーカス時の枠 */
     --color-border-focus: #5689b8;
 
     /* Danger - 削除など取り消せない操作 */

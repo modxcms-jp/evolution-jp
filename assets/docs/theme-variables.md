@@ -23,11 +23,12 @@
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
 | `--color-error` | エラー・削除の色 | filebrowser.css、datepicker.css |
 
-ファイルブラウザは、ほかに `--color-background-page`、`--color-success`、`--color-text-subtle` も既定値付きで読む。テーマが定義すればそれに従い、無ければ既定値で表示される。
+ファイルブラウザは、ほかに `--color-background-page`、`--color-success`、`--color-text-subtle`、`--gray-50`、`--gray-100` も既定値付きで読む。テーマが定義すればそれに従い、無ければ既定値で表示される。
 
 ## 書き方
 
-- 主ボタン（`.actionButtons #Button1 a`、`li.primary a`、`a.primary`、`a.default` と、それぞれの `:hover` / `:active`）の地・枠・文字の色は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない
+- 主ボタン（`.actionButtons #Button1 a`、`li.primary a`、`a.primary`、`a.default`。`:hover` / `:active` は `#Button1 a` と `a.default` に書く）の地・枠・文字の色は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない
+- 主ボタンの規則は、一般のボタン（`.actionButtons a`）の規則より後ろに書く。詳細度が同じセレクタ（`a.primary` など）が、一般のボタンの `:hover` / `:active` に負けるため
 - テーマ固有の別名（`--color-accent-green-*` など）を作って主ボタンの色にしない。別名を挟むと、共通部と同じ色の根拠がなくなる
 - 主な操作の色を 2 色で描くか単色で描くかは、テーマが決める。`--color-primary` と `-start` / `-end` の両方を必ず定義し、共通部がどちらを読んでも主ボタンと同じ系統の色になるようにする
 - 共通部は、変数を既定値付き（`var(--color-primary, #375665)`）で参照する。テーマが読み込まれない画面や、変数が足りない外部のテーマでも崩れないようにするため。共通部に色を直接書かない

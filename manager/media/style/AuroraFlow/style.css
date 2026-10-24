@@ -61,7 +61,7 @@
     --color-warning: #444;
     --color-info: #3CB371;
 
-    /* Accent - タブの選択線・ツリーの選択・主ボタン。上部ナビのネイビーに合わせた青 */
+    /* Accent - タブの選択線・ツリーの選択。上部ナビのネイビーに合わせた青 */
     --color-accent: #1d6fa5;
     --color-accent-soft: rgba(29, 111, 165, 0.08);
     --color-accent-softer: rgba(29, 111, 165, 0.14);
