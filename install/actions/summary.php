@@ -134,7 +134,9 @@ if (!is_writable(MODX_BASE_PATH . 'temp')) {
     mkd(MODX_BASE_PATH . 'temp/export');
     mkd(MODX_BASE_PATH . 'temp/backup');
     if (is_dir(MODX_BASE_PATH . 'temp/backup')) {
-        @file_put_contents(MODX_BASE_PATH . 'temp/backup/.htaccess', "order deny,allow\ndeny from all");
+        // 中身は管理画面・CLI と同じ EvoBackupManager::HTACCESS を使う
+        require_once MODX_BASE_PATH . 'manager/includes/backup_manager.class.inc.php';
+        @file_put_contents(MODX_BASE_PATH . 'temp/backup/.htaccess', EvoBackupManager::HTACCESS);
     }
 }
 echo p($_ . lang('checking_if_temp_writable'));

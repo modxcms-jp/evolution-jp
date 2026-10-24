@@ -1234,6 +1234,10 @@ return [
     "bkmgr_content_only" => 'Contents only',
     "bkmgr_file_name" => 'File name',
     "bkmgr_invalid_file_name" => 'The file name may contain only letters, digits, ".", "_" and "-", and must start with a letter or digit.',
+    "bkmgr_file_name_hint" => 'If left empty, a name is generated from the date, time and version. Only automatically named files are deleted, oldest first, keeping the newest 10 (files you name yourself are never deleted).',
+    "bkmgr_restore_warn" => 'Settings were not carried over and the cache was not rebuilt after the restore (the settings table was not found). If the site does not work correctly, restore from [+pre_restore+], which was saved automatically before the restore.',
+    "bkmgr_restore_failed" => 'The restore failed at statement [+failed_at+] ([+error+]). The database may be in an incomplete state. Select [+pre_restore+], which was saved automatically before the restore, from the snapshot list below and restore it.',
+    "bkmgr_restore_no_snapshot" => 'The restore was not run because a snapshot before the restore could not be created. The database was not changed. Please check the permission of the snapshot directory.',
     "delete_resource_complete" => 'Delete complete',
 
     "enable_draft_title" => 'Draft function',
