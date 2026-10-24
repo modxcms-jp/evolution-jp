@@ -21,7 +21,15 @@
 - 2026-10-24: 管理画面のヘッダー（`manager/actions/header.inc.php`）は、`manager/index.php` の一覧に載ったアクション番号のときだけ出力される。一覧に載せない番号にすれば、JSON だけを返せる（保存の処理と同じ扱い）
 - 2026-10-24: CLI（`manager/includes/cli/bootstrap.php`）では、固定のサイトの URL が無いと `MODX_SITE_URL` が `http://localhost/` になる。Docker の検証環境では、コンテナの中の 80 番で Apache が待っていないため、そのままではページを取得できない
 
+- 2026-10-24（M1）: 時間切れの扱いが変わった。main は `makeFile()` の中から `exit()` で止めていたため、画面がタブの組み立ての途中で切れ、ヘルプのタブもフッターも出なかった。M1 では processor が文言を返すので、画面が最後まで描かれる（改善）。経過時間を見る場所も「取得する直前」から「各行の先頭」に移り、飛ばす行やフォルダの行でも止まる。止まったときに出す件数が main より小さくなることがあるが、押し直しで最後まで進むことは検証で確かめた（311 件で main と同じ 6 回）
+- 2026-10-24（M1）: 検証環境（`compose.yml` + `compose.validation.yml`）の Apache は 8080 番だけで待ち受けるため、エクスポートが自サイトのページ（`http://<アドレス>/`）を取得できず、全件「ページを開けません」になる。検証ではコンテナの `/etc/apache2/ports.conf` に `Listen 80` を足して `apache2ctl graceful` した。開発用の環境（ホストの 80 番を 8080 番へ）でも同じことが起きるはずで、エクスポートとは別の課題として扱う
+- 2026-10-24（M1 の自己レビュー）: M2・M4 で気を付けること。basic 認証を検出した印（`basicAuthDetected`）は一度立つと下がらない。curl の `CURLOPT_FAILONERROR` により、404・500・401 のように送り直しても同じ結果になる応答でも 0.3 秒おいて 2 回送り直す。curl が無いときの経路は `Authorization` ヘッダーを送らないので、非公開サイトでは取得できない
+- 2026-10-24（M1 の自己レビュー）: `new_file_permissions` / `new_folder_permissions` の読み方が、`document.parser.class.inc.php`・`files.dynamic.php`・`manager/media/browser/evo/api.php` と今回の `EvoSiteExporter` でそれぞれ少しずつ違う。1 つの関数にまとめるのはエクスポートと関係しない箇所に及ぶので、別の Issue にする
+
 ## Decision Log
+
+- 2026-10-24 / メイン（AI）: **出力先を `temp/` の中に限る確認は、削除を行う `EvoSiteExporter` の側に置く**（M1 の自己レビューを受けて、当初の「M2 で Job の `start()` に移す」から変更）。消す処理のそばで守れば、CLI（M3）も同じ確認を通る。processor はその結果を使って文言を出すだけにし、確認を 2 か所に書かない
+- 2026-10-24 / メイン（AI）: **M2 で、`exportOne()` の結果ごとに basic 認証の検出を判断し、印を持ち越さない。HTTP のステータスで答えが返った取得（401・404・500 など）は送り直さない。curl が無いときの経路にも `stream_context_create()` で `Authorization` ヘッダーを付ける**（M1 の自己レビューの注意を受けて）
 
 - 2026-10-24 / メイン（AI）: **画面から短いリクエストを繰り返す「ジョブ」方式にする**。開始で対象の ID 一覧と設定を状態ファイルに保存し、画面の JS が「続きを進める」を、1 回あたり決めた秒数ぶんだけ繰り返し呼ぶ。理由: 1 回のリクエストが短いので、PHP の制限時間にも、PHP-FPM の `request_terminate_timeout` やプロキシのタイムアウトにも掛からない。進み具合を JSON で返せる。代替案: 制限時間を外して 1 回で流し切る（PHP-FPM やプロキシで切られ得るので採らない）。裏で動くワーカーや cron（共用サーバーで使えないことが多いので採らない）
 - 2026-10-24 / メイン（AI）: **JSON の窓口は新しいアクション `a=308` にし、ヘッダーを出す一覧には載せない**。`a=83` は画面のまま残す。`a=308` は POST だけを受け、`csrfProtectedActions()`（`manager/includes/csrf_token.php`）に載せる。JS は `Evo.post()`（`X-CSRF-Token` を自動で付ける）で呼ぶ。代替案: `a=83` に `ajax=1` のような目印を付けて、`a=114` のように index.php で特別扱いする（特別扱いが増えるので採らない）。`manager/ajax.php`（`a=1&ajaxa=`）に足す（中身が 1 つの分岐だけの古い入口で、権限やメソッドの確認を持たないので採らない）
@@ -72,7 +80,7 @@
 
 M1 では、`ex_export_site.php` の中身を `manager/includes/site_exporter.class.inc.php` の `EvoSiteExporter` に移し、画面に出す HTML・`global $_lang`・セッション・`exit()` を持たない部品にする。設定は配列でコンストラクタに渡す（`target`: `all` / `allow` / `ignore`、`ids`: 整数の配列、`include_noncache`、`repl_before`、`repl_after`、`export_dir`）。公開する操作は、対象の ID 一覧を返す `targetIds()`、出力先を空にする `clearOutputDir()`、1 件を書き出して結果の配列（`id`・`pagetitle`・`status`: `success` / `skipped` / `failed`・`reason`）を返す `exportOne($id)` の 3 つ。M1 では今の動きを保つため、「既にあるファイルを飛ばす」をオプション（`skip_existing`）で残し、時間切れの確認とロックファイル、結果の HTML 作りは processor に移す。エクステンダーは `EvoSiteExporter` を呼ぶだけの薄い形にして残す（M2 で消す）。
 
-M2 では、`manager/includes/site_export_job.class.inc.php` に `EvoSiteExportJob` を作る。`start($options)` は、フレンドリーURLの確認、出力先の確認（今の processor の `temp/` に限る確認を移す）、`clearOutputDir()`、対象の ID 一覧の保存、`OnExportPreExec` を行う。`step($budgetSeconds)` は、トークンの発行、持ち時間ぶんの `exportOne()`、進み具合の保存を行い、最後の 1 件で `OnExportExec` とトークンの取り消しを行う。`status()` は保存した状態を返し、`cancel()` は中止の印を書く（処理中の `step()` が無ければ、その場で状態を `cancelled` にしてトークンを取り消す）。`step()` は 1 ページごとに中止の印を見る。processor は `manager/processors/export_site.processor.php` を JSON の窓口に書き換え、`a=308` で `op`（`start` / `step` / `status` / `cancel`）を受ける。画面は、フォームの下にプログレスバー（`<progress>`）・件数・中止のボタン・結果の欄を置き、`Evo.post('index.php?a=308', …)` で開始と「続きを進める」を繰り返す。画面を開いたときに途中のジョブがあれば、「続きから再開」と「最初からやり直す」を出す。「最大エクスポート時間」の欄と文言、ロックファイル、`setUrlMode()`、エクステンダーを消す。直書きの文言を言語ファイルへ移し、入力欄の値は `hsc()` で出す。
+M2 では、`manager/includes/site_export_job.class.inc.php` に `EvoSiteExportJob` を作る。`start($options)` は、フレンドリーURLの確認、出力先の確認（M1 で `EvoSiteExporter` に置いた確認の結果を使う）、`clearOutputDir()`、対象の ID 一覧の保存、`OnExportPreExec` を行う。`step($budgetSeconds)` は、トークンの発行、持ち時間ぶんの `exportOne()`、進み具合の保存を行い、最後の 1 件で `OnExportExec` とトークンの取り消しを行う。`status()` は保存した状態を返し、`cancel()` は中止の印を書く（処理中の `step()` が無ければ、その場で状態を `cancelled` にしてトークンを取り消す）。`step()` は 1 ページごとに中止の印を見る。processor は `manager/processors/export_site.processor.php` を JSON の窓口に書き換え、`a=308` で `op`（`start` / `step` / `status` / `cancel`）を受ける。画面は、フォームの下にプログレスバー（`<progress>`）・件数・中止のボタン・結果の欄を置き、`Evo.post('index.php?a=308', …)` で開始と「続きを進める」を繰り返す。画面を開いたときに途中のジョブがあれば、「続きから再開」と「最初からやり直す」を出す。「最大エクスポート時間」の欄と文言、ロックファイル、`setUrlMode()`、エクステンダーを消す。直書きの文言を言語ファイルへ移し、入力欄の値は `hsc()` で出す。
 
 M3 では、`manager/includes/cli/commands/export-site.php` を作る。引数は `--target=all|allow|ignore`、`--ids=1,2,3`、`--include-noncache`、`--replace-before=`、`--replace-after=`、`--site-url=`、`--restart`。`EvoSiteExportJob` を持ち時間なしで動かし、100 件ごとと最後に進み具合を出す。
 
@@ -96,12 +104,12 @@ M2（ジョブ化と進捗表示）
 5. 編集: `manager/actions/tool/export_site.static.php` を書き換える（フォーム・プログレスバー・中止・再開・結果の欄。JS は素の JS で、jQuery を使わない）
 6. 編集: 言語ファイル 2 つ。`export_site_maxtime`・`export_site_maxtime_message`・`export_site_exit_maxtime` を消し、進み具合・中止・再開・フレンドリーURLの案内・直書きだった文言のキーを足す。`export_site_message` の上書きの記述は残す（実際の動きと一致するようになる）
 7. 実行: 検証環境で 3,000 件のリソースを作る（`a=4` を繰り返すと遅いので、`docker exec <db> mariadb … -e "INSERT INTO modx_site_content (pagetitle, alias, published, template, content, parent, cacheable) SELECT CONCAT('p', seq), CONCAT('p', seq), 1, 1, 'x', 0, 1 FROM seq_1_to_3000"`。MariaDB の Sequence エンジン）。続けて `php evo cache:clear`
-8. 実行: PHP の制限時間を 5 秒にした状態（`manager/docker/php.ini` の `max_execution_time` を一時的に変えてコンテナを再起動）で、Playwright により画面から開始を 1 回だけ押す。期待: プログレスバーが進み、3,0xx 件すべてのファイルが書き出され、失敗が 0 件で終わる。終わったら php.ini を戻す
+8. 実行: PHP の制限時間を 5 秒にした状態（`manager/docker/php.ini` の `max_execution_time = 5` を一時的に足してコンテナを再起動）で、Playwright により画面から開始を 1 回だけ押す。期待: プログレスバーが進み、3,0xx 件すべてのファイルが書き出され、失敗が 0 件で終わる。終わったら足した行を消す
 
 M3（CLI）
 
 1. 編集: `manager/includes/cli/commands/export-site.php` を作る。`php evo help` の一覧に出るよう、既存のコマンドの書き方に揃える
-2. 実行: `docker exec -w /var/www/html <app> php evo export:site --site-url=http://localhost:8080/`。期待: 進み具合が出て、画面からのエクスポートと同じファイルの一覧になる
+2. 実行: `docker compose exec <app-service> php evo export:site --site-url=http://localhost:8080/`（検証環境のコンテナを名前で指すときは `docker exec -w /var/www/html <名前>-app php evo …`）。期待: 進み具合が出て、画面からのエクスポートと同じファイルの一覧になる
 3. 実行: 画面でジョブを途中で止めた状態で、`--restart` なしで実行。期待: 途中のジョブがある旨を出して始めない（終了コード 1）
 
 M4（並列の取得）
