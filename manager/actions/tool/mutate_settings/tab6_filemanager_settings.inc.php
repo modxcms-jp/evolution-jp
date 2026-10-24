@@ -18,6 +18,15 @@
                 <?= $_lang["filemanager_path_message"] ?></td>
         </tr>
         <tr>
+            <th><?= $_lang["export_dir_title"] ?></th>
+            <td>
+                <?= $_lang['default'] ?> <span>[(base_path)]temp/export/</span><br/>
+                <?= form_text('export_dir', 255, 'id="export_dir" value="' . config('export_dir') . '"') ?>
+                <input type="button" onclick="document.getElementById('export_dir').value = '[(base_path)]temp/export/';"
+                        value="<?= $_lang["reset"] ?>" name="reset_export_dir"><br/>
+                <?= $_lang["export_dir_message"] ?></td>
+        </tr>
+        <tr>
             <th><?= $_lang["uploadable_files_title"] ?></th>
             <td>
                 <?= form_text('upload_files', 255, 'value="' . config('upload_files') . '"') ?><br/>

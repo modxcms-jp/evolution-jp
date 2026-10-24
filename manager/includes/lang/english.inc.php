@@ -302,6 +302,8 @@ return [
     "file_unzip_fail" => 'Unzip Failed!',
     "filemanager_path_message" => 'IIS often does not populate the document_root setting properly, which is used by the file manager to determine what you can see. If you are having problems using the file manager, make sure this path points to the root of your MODX installation.',
     "filemanager_path_title" => 'File Manager path',
+    "export_dir_message" => 'The directory where static HTML files are written by the HTML export. The site directory itself or any directory above it, and the File Browser directory (rb_base_dir), cannot be used.',
+    "export_dir_title" => 'Export output<br />directory',
     "files_access_denied" => 'Access denied!',
     "files_data" => 'Data',
     "files_directories" => 'Directories',

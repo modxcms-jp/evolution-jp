@@ -9,18 +9,14 @@ if (!hasPermission('export_static')) {
 
 evo()->loadExtension('EXPORT_SITE');
 
-if (is_dir(MODX_BASE_PATH . 'temp')) {
-    $export_dir = MODX_BASE_PATH . 'temp/export';
-} elseif (is_dir(MODX_BASE_PATH . 'assets')) {
-    $export_dir = MODX_BASE_PATH . 'assets/export';
-}
+$export_dir = rtrim(str_replace('[(base_path)]', MODX_BASE_PATH, config('export_dir')), '/');
 
 if (strpos(MODX_BASE_PATH, $export_dir . '/') === 0 && 0 <= strlen(str_replace($export_dir . '/', '',
         MODX_BASE_PATH))) {
     return lang('export_site_target_above_manager');
 }
 
-if (config('rb_base_dir') === $export_dir . '/') {
+if (str_replace('[(base_path)]', MODX_BASE_PATH, config('rb_base_dir')) === $export_dir . '/') {
     return evo()->parseText(
         lang('export_site_target_rb_base'),
         'rb_base_url=' . MODX_BASE_URL . config('rb_base_url')

@@ -304,6 +304,8 @@ return [
     "file_unzip_fail" => '解凍できません。',
     "filemanager_path_message" => '<a href="index.php?a=31">「ファイル管理」</a>で扱える範囲を決定します。コンテンツ編集に利用するファイルブラウザと違い、同じサーバ内で権限を持つ領域であればどのディレクトリでも管理できます。ドキュメントルート外の指定も可能です。',
     "filemanager_path_title" => 'ファイル管理機能の<br />管理対象ディレクトリ<br />[(filemanager_path)]',
+    "export_dir_message" => 'HTMLエクスポートの出力先ディレクトリです。ここで指定したディレクトリに静的なHTMLファイルを書き出します。サイトの設置ディレクトリ以上の上位や、ファイルブラウザ（rb_base_dir）と同じディレクトリは指定できません。',
+    "export_dir_title" => 'エクスポート出力先<br />ディレクトリ',
     "files_access_denied" => 'このアカウントは休止中です。',
     "files_data" => 'データ',
     "files_directories" => 'ディレクトリ',
