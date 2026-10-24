@@ -20,7 +20,7 @@
 ## Decision Log
 
 - 2026-10-24 / yamamoto: この ExecPlan は #889（PR #890）を先に入れた main を前提にする。#889 で、バックアップ管理の「SQL を直接実行」（入力欄・`console_mode`・セッションの `textarea`・結果一覧の `last_result`）を廃止し、復元（アップロード・スナップショットとも）を管理者だけにする。管理者の判定は `manager()->isAdmin()`（`access_permissions` と `web_access_permissions` を持つ）。インストーラーは最初の管理者を役割 2（ウェブマスター）で作り、役割 1 と 2 の権限は同じなので、`mgrRole=1` では判定しない。そのため `restore()` は実行結果の行を返さず、復元の失敗の確認はアップロードした SQL ファイルで行う。#889 を ExecPlan に取り込む案は、任意の SQL を流せる入口が実装の完了まで残るので採らなかった。
-- 2026-10-24 / yamamoto: CLI の `db:backup` は mysqldump を既定のまま、プレフィックスの付いたテーブルだけを書き出し、`--routines --triggers` を付けない。管理画面は PHP のダンパー（`Mysqldumper`）のまま。どちらで作っても、管理画面の復元と `db:import` で戻せる形にそろえる。代替案の「PHP のダンパーに統一」は、大きな DB で遅くメモリを使う課題（`assets/docs/core-issues.md` の「Mysqldumper クラスの設計上の制約」）が CLI にも広がるので採らない。「CLI のものは一覧から外す」は、戻せないバックアップが残り続けるので採らない。
+- 2026-10-24 / yamamoto: CLI の `db:backup` は mysqldump を既定のまま、プレフィックスの付いたテーブルだけを書き出し、`--routines` を付けず、`--skip-triggers` を明示する（mysqldump は triggers が既定で有効、routines が既定で無効。mariadb:11 の `mariadb-dump --help` で確認。`--triggers` を外すだけではトリガーが書き出され、`DELIMITER` が入る）。管理画面は PHP のダンパー（`Mysqldumper`）のまま。どちらで作っても、管理画面の復元と `db:import` で戻せる形にそろえる。代替案の「PHP のダンパーに統一」は、大きな DB で遅くメモリを使う課題（`assets/docs/core-issues.md` の「Mysqldumper クラスの設計上の制約」）が CLI にも広がるので採らない。「CLI のものは一覧から外す」は、戻せないバックアップが残り続けるので採らない。
 - 2026-10-24 / yamamoto: 復元（管理画面・`db:import`）の前に、自動で現在の DB を `pre-restore-<日時>-<版>.sql` として保存する。途中で失敗したときに、利用者がこのファイルから戻せる。失敗時に自動で戻すことはしない（戻す処理も失敗しうるため、どのファイルから戻せるかを示すだけにする）。
 - 2026-10-24 / yamamoto: 古い世代の削除は、自動で付けた名前（`YYYY-MM-DD-HHMMSS-<版>.sql`）のファイルだけを対象にし、更新日時の古い順に消す。利用者が名前を付けたものと `pre-restore-` のものは消さない。世代数は既定 10、CLI は `--max` で変える。システム設定の項目は増やさない（YAGNI）。
 - 2026-10-24 / yamamoto: 自動の名前の日時は `date('Y-m-d-His')` で作る。これまで管理画面は日付の表示形式（`datetime_format`）で名前を作っていたため、形式によって並び順が崩れていた。
@@ -63,7 +63,7 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 
 ## Concrete Steps
 
-コマンドはリポジトリのルートで実行する。Docker の検証環境は `.claude/skills/adaptive-validation-runner/` の手順で立ち上げる（以下、アプリのコンテナを `<app>` と書く）。
+コマンドはリポジトリのルートで実行する。Docker の検証環境は `.claude/skills/adaptive-validation-runner/` の手順で立ち上げる（以下、アプリのコンテナを `<app>`、DB のコンテナを `<db>` と書く。DB は `evodb`、ユーザーは `user` / `password`、テーブルの接頭辞は `modx_`）。
 
 ### M1: クラスとファイルへの直接書き出し
 
@@ -118,18 +118,19 @@ M1 でクラスを作り、M2〜M3 で呼び出し側を順に置き換える。
 
 編集対象: `manager/includes/cli/commands/db-backup.php`、`manager/includes/cli/commands/db-import.php`、`manager/includes/cli/cli-helpers.php`、`manager/includes/traits/document.parser.subparser.trait.php`
 
-1. `cli_export_database()` に `$options` を足し、`['routines' => false]` のときは `--routines --triggers` を付けない。`db:export` の既定は変えない。
+1. `cli_export_database()` に `$options` を足し、`['routines' => false]` のときは `--routines --triggers` の代わりに `--skip-triggers` を付ける（`--triggers` を外すだけでは、既定で有効なのでトリガーが残る）。`db:export` の既定は変えない。
 2. `db-backup.php` は、`dir()` / `ensureDir()` / `autoFilename()` を使い、`cli_export_database($driver, $path, <プレフィックスのテーブル一覧>, true, ['routines' => false])` で書き出してから `prune($max)` を呼ぶ。テーブル一覧は `Mysqldumper::getTableNames()`。
 3. `db-import.php` は `EVO_CLI_IMPORT` の確認を残し、`restore()` を呼ぶ。結果を `Executed / Skipped / Pre-restore snapshot` として出し、失敗なら終了コード 1。
 4. `$modx->snapshot()` は `createSnapshot()` を呼ぶ。配列の引数の `target` が効かない不具合を直す。名前が `isValidFilename()` を通らなければ `false` を返す。
 
 確認:
 
+    docker exec <db> mariadb -uuser -ppassword evodb -e "CREATE TRIGGER modx_bk_test BEFORE UPDATE ON modx_site_content FOR EACH ROW SET NEW.editedon = NEW.editedon"
     docker exec -w /var/www/html <app> php evo db:backup --max=3
     docker exec -w /var/www/html <app> sh -c 'grep -c "DELIMITER" temp/backup/$(ls -t temp/backup | grep -E "^[0-9]" | head -1)'
     docker exec -w /var/www/html -e EVO_CLI_IMPORT=1 <app> php evo db:import temp/backup/<上で作ったファイル>
 
-期待: `db:backup` は 3 世代を超えた自動の名前のファイルだけを消す。`DELIMITER` は 0 件。`db:import` は `Pre-restore snapshot: pre-restore-….sql` を出して成功し、同じファイルを管理画面の一覧から復元しても成功する。
+期待: `db:backup` は 3 世代を超えた自動の名前のファイルだけを消す。トリガーを作ってあっても `DELIMITER` は 0 件（main の `--triggers` 付きでは 1 件以上になる）。確認のあとは `DROP TRIGGER modx_bk_test` で消す。`db:import` は `Pre-restore snapshot: pre-restore-….sql` を出して成功し、同じファイルを管理画面の一覧から復元しても成功する。
 
 ### M4: ドキュメントと通し確認
 
