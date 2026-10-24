@@ -104,6 +104,7 @@
 
     /* Focus - キーボード操作時の枠 */
     --color-focus: #4a7ba7;
+    --color-border-focus: #5689b8;
 
     /* Danger - 削除など取り消せない操作 */
     --color-danger: #b42318;
@@ -118,10 +119,11 @@
     --color-primary: #3d4f5d;
     --color-primary-start: #4a5f6f;
     --color-primary-end: #3d4f5d;
-    --color-primary-hover-start: #5689b8;
-    --color-primary-hover-end: #4a7ba7;
+    --color-primary-hover-start: #33434f;
+    --color-primary-hover-end: #33434f;
     --color-primary-active-start: #2f3d48;
     --color-primary-active-end: #253240;
+    --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */
     --color-secondary-start: #e4e4e4;
@@ -601,7 +603,7 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border: 1px solid var(--color-primary-hover-start);
+    border: 1px solid var(--color-border-focus);
     box-shadow: 0 0 0 2px rgba(74, 123, 167, 0.2);
 }
 
@@ -1942,7 +1944,7 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
+    color: var(--color-text-inverse);
     box-shadow: none;
     text-shadow: none;
     background-color: var(--color-primary);
@@ -1952,9 +1954,9 @@ ul.actionButtons {
 /* 主ボタンのホバーは、明るい青に変えず同じスレートを一段濃くする */
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    color: #fff;
-    background-color: #33434f;
-    border-color: #33434f;
+    color: var(--color-text-inverse);
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
 }
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。

@@ -118,20 +118,16 @@
     --color-nav-link-hover: #fff;
     --color-nav-border: #525252;
 
-    /* Component Colors - Accent Green (Primary Actions) */
-    --color-accent-green-start: #8aae4b;
-    --color-accent-green-end: #66901b;
-    --color-accent-green-hover-start: #90bf40;
-    --color-accent-green-hover-end: #82af33;
-    --color-accent-green-active-start: #749c2f;
-    --color-accent-green-active-end: #4b7109;
-    --color-accent-green-light: #D9E7C2;
-    --color-accent-green-dark: #658f1a;
+    /* Component Colors - Primary (Primary Actions) */
+    --color-primary-start: #8aae4b;
+    --color-primary-end: #66901b;
+    --color-primary-hover-start: #90bf40;
+    --color-primary-hover-end: #82af33;
+    --color-primary-active-start: #749c2f;
+    --color-primary-active-end: #4b7109;
 
-    /* 共通の CSS（shell.css・evo-dialog.js）が使う主ボタンの色。ほかの同梱テーマと同じ名前で、このテーマの主ボタン（緑）を指す */
-    --color-primary: var(--color-accent-green-end);
-    --color-primary-start: var(--color-accent-green-start);
-    --color-primary-end: var(--color-accent-green-end);
+    --color-primary: var(--color-primary-end);
+    --color-text-inverse: #fff;
 
     /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #fafafa;
@@ -1307,7 +1303,7 @@ a.hometblink:hover {
     padding: 6px 4px;
     margin-bottom: 3px;
     text-shadow: 0px -1px 0px #222;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 #mx_contextmenu .seperator {
@@ -1372,13 +1368,13 @@ a.hometblink:hover {
     border: 1px solid #658f1a;
     text-shadow: 0px -1px 0px #2B5F0C;
     border-radius: 5px 5px 0 0;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 
 .dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
-    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
+    background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
@@ -1704,20 +1700,20 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
-    box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
+    color: var(--color-text-inverse);
+    box-shadow: -1px -1px 0 var(--color-primary-end), 1px 1px 0 var(--color-primary-end), 1px -1px 0 var(--color-primary-end), -1px 1px 0 var(--color-primary-end), 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
     text-shadow: 0 -1px 0 #2B5F0C;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-image: linear-gradient(var(--color-accent-green-hover-start), var(--color-accent-green-hover-end));
+    background-image: linear-gradient(var(--color-primary-hover-start), var(--color-primary-hover-end));
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
+    background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 }
 
 

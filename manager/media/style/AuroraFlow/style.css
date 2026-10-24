@@ -63,8 +63,6 @@
 
     /* Accent - タブの選択線・ツリーの選択・主ボタン。上部ナビのネイビーに合わせた青 */
     --color-accent: #1d6fa5;
-    --color-accent-strong: #1d5f8a;
-    --color-accent-strong-hover: #174d71;
     --color-accent-soft: rgba(29, 111, 165, 0.08);
     --color-accent-softer: rgba(29, 111, 165, 0.14);
     --color-heading: #1f3445;
@@ -88,13 +86,14 @@
     --color-nav-subnav-end: #0a2233;
 
     /* Component Colors - Primary Actions */
-    --color-primary: #375665;
+    --color-primary: #1d5f8a;
     --color-primary-start: #0e2f47;
     --color-primary-end: #0a3f62;
-    --color-primary-hover-start: #124b6f;
-    --color-primary-hover-end: #0d3c58;
+    --color-primary-hover-start: #174d71;
+    --color-primary-hover-end: #174d71;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
+    --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */
     --color-secondary-start: var(--gray-200);
@@ -1862,18 +1861,18 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: var(--color-surface);
+    color: var(--color-text-inverse);
     box-shadow: none;
     text-shadow: none;
-    background-color: var(--color-accent-strong);
-    border-color: var(--color-accent-strong);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    color: var(--color-surface);
-    background-color: var(--color-accent-strong-hover);
-    border-color: var(--color-accent-strong-hover);
+    color: var(--color-text-inverse);
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
 }
 
 .actionButtons #Button1 a:active,

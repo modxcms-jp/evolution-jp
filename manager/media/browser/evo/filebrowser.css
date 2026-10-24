@@ -80,7 +80,7 @@
 .evo-fb-btn-primary {
     background: var(--color-primary, #375665);
     border-color: var(--color-primary, #375665);
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
 }
 
 .evo-fb-btn-primary:hover,
@@ -184,7 +184,7 @@
 
 .evo-fb-tree-row.is-active {
     background: var(--color-primary, #375665);
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
 }
 
 .evo-fb-tree-row.is-dropover {
@@ -207,7 +207,7 @@
 }
 
 .evo-fb-tree-row.is-active .evo-fb-tree-toggle {
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
 }
 
 .evo-fb-tree-toggle svg {
@@ -373,7 +373,7 @@
 
 .evo-fb-item.is-checked {
     background: var(--color-primary, #375665);
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
     border-color: var(--color-primary, #375665);
 }
 
@@ -460,7 +460,7 @@
 }
 
 .evo-fb-item.is-checked .evo-fb-thumb {
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
 }
 
 .evo-fb-thumb-img {
