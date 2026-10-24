@@ -401,6 +401,7 @@ class EvoSiteExporter
                     'ignore_errors' => true,
                 ],
             ]);
+            error_clear_last();
             $body = @file_get_contents($url, false, $context);
             $status = 0;
             if (!empty($http_response_header) && is_array($http_response_header)) {
