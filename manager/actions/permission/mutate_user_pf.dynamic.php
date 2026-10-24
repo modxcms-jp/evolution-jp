@@ -409,7 +409,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     <tr>
                         <th><?= $_lang["mgr_login_start"] ?></th>
                         <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                value="<?= isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : setting('manager_login_startup') ?>">
+                                value="<?= hsc(postv('manager_login_startup', setting('manager_login_startup'))) ?>">
                             <div><?= $_lang["mgr_login_start_message"] ?></div>
                         </td>
                     </tr>
