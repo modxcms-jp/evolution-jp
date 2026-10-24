@@ -1290,6 +1290,13 @@ a.hometblink:hover {
     color: #d9edf1;
 }
 
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav > li > ul.subnav a[aria-current="page"] {
+    background: #184753;
+    color: #ffffff;
+    font-weight: bold;
+}
+
 /* Contextual Menu used in the Tree Menu */
 #mx_contextmenu {
     position: absolute;

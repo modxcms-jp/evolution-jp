@@ -1226,6 +1226,13 @@ a.hometblink:hover {
     color: #ccc;
 }
 
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav li.active ul.subnav a[aria-current="page"] {
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 0 0 2px #FFF;
+}
+
 #nav li.active ul.subnav,
 #nav li.active ul.subnav a {
     background-color: var(--color-nav-subnav-start);

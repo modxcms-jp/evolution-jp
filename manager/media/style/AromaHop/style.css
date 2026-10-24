@@ -2509,6 +2509,13 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     color: var(--topnav-link-hover-color);
 }
 
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav > li > ul.subnav a[aria-current="page"] {
+    color: var(--topnav-link-hover-color);
+    border-bottom-color: currentColor;
+    font-weight: 700;
+}
+
 /* === 右上のユーザー情報エリア === */
 #supplementalNav a {
     color: var(--topnav-link-color);
