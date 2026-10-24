@@ -66,12 +66,13 @@ class EvoSiteExportJob
     }
 
     /**
-     * start() がロックを待つ上限（秒）。相手の step() の持ち時間より少し長い時間（持ち時間 + 3 秒）。
-     * 待ったあとに出力先を空にする時間も PHP の制限時間に収まるよう、制限時間の半分を超えない。制限時間が 0 なら持ち時間 + 3 秒。
+     * start() がロックを待つ上限（秒）。相手の step() が持ち時間の最後に始めた 1 まとまりを終えるまでの時間
+     * （持ち時間 + 1 まとまりの締め切り + 3 秒）。
+     * 待ったあとに出力先を空にする時間も PHP の制限時間に収まるよう、制限時間の半分を超えない。制限時間が 0 ならそのまま。
      */
     public static function startWaitSeconds()
     {
-        $wait = self::defaultBudget() + 3;
+        $wait = self::defaultBudget() + EvoSiteExporter::CHUNK_DEADLINE + 3;
         $max = (int)ini_get('max_execution_time');
         return $max > 0 ? min($wait, $max / 2) : $wait;
     }
@@ -535,7 +536,7 @@ class EvoSiteExportJob
 
     /**
      * 待っている start() の印が 1 つでもあるか。期限を過ぎた印は無視して消す。
-     * 期限は、start() が待ちうる最長（持ち時間の上限 + 3 秒）+ 1 秒。start() の待ち時間はそのプロセスの
+     * 期限は、start() が待ちうる最長（持ち時間の上限 + 1 まとまりの締め切り + 3 秒）+ 1 秒。start() の待ち時間はそのプロセスの
      * 制限時間で短くなるが、読む側の制限時間で期限を決めると、長く待つ側（CLI など）の印を早く消してしまうため、
      * プロセスによらない最長で決める。
      * glob が使えない・失敗したときは、印が無いものとして扱う。
@@ -546,7 +547,7 @@ class EvoSiteExportJob
         if (!$marks) {
             return false;
         }
-        $limit = self::MAX_BUDGET + 3 + 1;
+        $limit = self::MAX_BUDGET + EvoSiteExporter::CHUNK_DEADLINE + 3 + 1;
         $found = false;
         foreach ($marks as $mark) {
             clearstatcache(true, $mark);

@@ -13,6 +13,8 @@ class EvoSiteExporter
     const FETCH_TIMEOUT = 10;
     /** 辿るリダイレクトの上限 */
     const MAX_REDIRECTS = 3;
+    /** 同時に取得する 1 まとまり全体の締め切り（秒）。送り直しとリダイレクトを含め、これを超えて続けない */
+    const CHUNK_DEADLINE = 10;
 
     private $target;
     private $ids;
@@ -431,17 +433,19 @@ class EvoSiteExporter
 
 
     /**
-     * 複数の URL を同時に取得する。通信の失敗（接続できない・タイムアウト）だけ最大 2 回送り直す。
+     * 複数の URL を同時に取得する。通信の失敗（接続できない・タイムアウト・本文の途中の切断）だけ最大 2 回送り直す。
      * HTTP のステータスで答えが返った取得（401・404・500 など）は、送り直しても同じなので送り直さない。
      * 401 は basic 認証として印を立てる（結果ごと）。
-     * 3xx は、curl が辿らないとき（open_basedir がある）だけ自分で Location を辿る（最大 3 回、同じサイトの中だけ）。
-     * 辿れない 3xx は失敗にする。
+     * 3xx は curl の経路でもストリームの経路でも自分で Location を辿る（最大 MAX_REDIRECTS 回、最初の URL と同じオリジンの中だけ）。
+     * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。Authorization を付けるのは同じオリジンへの要求だけになる。
+     * このまとまり全体に CHUNK_DEADLINE 秒の締め切りがあり、過ぎたら送り直しとリダイレクトの追跡を打ち切って失敗にする。
      *
      * @param array $urls キー => URL
      * @return array キーごとの [body(本文 または false), detail(HTTP のステータスや通信のエラー), basic_auth(bool)]
      */
     private function fetchAll(array $urls)
     {
+        $deadline = microtime(true) + self::CHUNK_DEADLINE;
         $state = [];
         foreach ($urls as $key => $url) {
             $state[$key] = ['url' => $url, 'origin' => $this->originOf($url), 'hops' => 0, 'tries' => 0];
@@ -449,41 +453,54 @@ class EvoSiteExporter
 
         $out = [];
         while ($state) {
+            $remaining = $deadline - microtime(true);
+            if ($remaining <= 0) {
+                foreach ($state as $key => $s) {
+                    $out[$key] = $this->failure('aborted: time limit for the batch exceeded');
+                }
+                break;
+            }
+
             $requests = [];
             foreach ($state as $key => $s) {
                 $requests[$key] = $s['url'];
             }
-            $raw = $this->requestAll($requests);
+            $raw = $this->requestAll($requests, $deadline);
 
             $next = [];
             $retry = false;
             foreach ($state as $key => $s) {
-                list($body, $status, $error, $redirect) = $raw[$key];
-                $detail = $status !== 0
-                    ? 'HTTP ' . $status
-                    : ($error !== '' ? $error : 'no response');
+                list($body, $status, $error, $redirect, $errno) = $raw[$key];
+                $detail = 'HTTP ' . $status;
 
                 if ($status === 401) {
                     $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => true];
                 } elseif ($status >= 300 && $status < 400) {
-                    $to = $redirect !== '' ? $redirect : null;
-                    if (!$this->curlFollows() && $to !== null && $s['hops'] < self::MAX_REDIRECTS
-                        && $this->originOf($to) !== null && $this->originOf($to) === $s['origin']) {
-                        $s['url'] = $to;
+                    if ($redirect === '') {
+                        $out[$key] = $this->failure($detail);
+                    } elseif ($this->originOf($redirect) !== $s['origin']) {
+                        $out[$key] = $this->failure($detail . ' → another site');
+                    } elseif ($s['hops'] >= self::MAX_REDIRECTS) {
+                        $out[$key] = $this->failure($detail . ' → too many redirects');
+                    } else {
+                        $s['url'] = $redirect;
                         $s['hops']++;
                         $next[$key] = $s;
-                    } else {
-                        $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => false];
                     }
-                } elseif ($status !== 0) {
-                    $out[$key] = ['body' => $status >= 400 ? false : $body, 'detail' => $detail, 'basic_auth' => false];
-                } elseif ($body !== false) {
-                    $out[$key] = ['body' => $body, 'detail' => $detail, 'basic_auth' => false];
-                } elseif (++$s['tries'] < 3) {
-                    $next[$key] = $s;
-                    $retry = true;
+                } elseif ($errno !== 0 && $status < 400) {
+                    // 応答が無い、または本文の途中で切れた
+                    if (++$s['tries'] < 3) {
+                        $next[$key] = $s;
+                        $retry = true;
+                    } else {
+                        $out[$key] = $this->failure($error !== '' ? $error : 'no response');
+                    }
                 } else {
-                    $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => false];
+                    $out[$key] = [
+                        'body'       => $status >= 400 ? false : $body,
+                        'detail'     => $detail,
+                        'basic_auth' => false,
+                    ];
                 }
             }
             $state = $next;
@@ -494,15 +511,14 @@ class EvoSiteExporter
         return $out;
     }
 
-    /**
-     * curl が Location を辿るか。open_basedir があると CURLOPT_FOLLOWLOCATION を使えない。
-     * curl が無いときの経路（file_get_contents）は常に辿る。
-     */
-    private function curlFollows()
+    private function failure($detail)
     {
-        return !extension_loaded('curl') || ini_get('open_basedir') == '';
+        return ['body' => false, 'detail' => $detail, 'basic_auth' => false];
     }
 
+    /**
+     * URL のオリジン（scheme・host・port）。http・https 以外や解釈できない URL は null。
+     */
     private function originOf($url)
     {
         $p = parse_url((string)$url);
@@ -518,17 +534,48 @@ class EvoSiteExporter
     }
 
     /**
+     * Location の値を、リダイレクト元の URL に対する絶対 URL にする。
+     */
+    private function resolveLocation($base, $location)
+    {
+        $location = trim((string)$location);
+        if ($location === '') {
+            return '';
+        }
+        $b = parse_url($base);
+        if (!$b || empty($b['scheme']) || empty($b['host'])) {
+            return '';
+        }
+        if (preg_match('@^[a-zA-Z][a-zA-Z0-9+.-]*:@', $location)) {
+            return $location;
+        }
+        if (strpos($location, '//') === 0) {
+            return $b['scheme'] . ':' . $location;
+        }
+        $origin = $b['scheme'] . '://' . $b['host'] . (isset($b['port']) ? ':' . $b['port'] : '');
+        if ($location[0] === '/') {
+            return $origin . $location;
+        }
+        $path = isset($b['path']) ? $b['path'] : '/';
+        if ($location[0] === '?') {
+            return $origin . $path . $location;
+        }
+        return $origin . substr($path, 0, strrpos($path, '/') + 1) . $location;
+    }
+
+    /**
      * 1 回ぶんの取得（送り直しも Location を辿ることもしない）。
      *
      * @param array $urls キー => URL（CONCURRENCY 件まで）
-     * @return array キーごとの [本文 または false, HTTP ステータス（応答が無ければ 0）, 通信のエラー（無ければ空）, 辿るべき Location（無ければ空）]
+     * @param float $deadline まとまりの締め切り（microtime(true) の値）。1 件の制限時間は FETCH_TIMEOUT と締め切りまでの残りの小さいほう
+     * @return array キーごとの [本文 または false, HTTP ステータス（応答が無ければ 0）, 通信のエラー（無ければ空）, 辿るべき Location（絶対 URL。無ければ空）, 通信の結果（0 なら正常）]
      */
-    private function requestAll(array $urls)
+    private function requestAll(array $urls, $deadline)
     {
         if (!extension_loaded('curl')) {
             $out = [];
             foreach ($urls as $key => $url) {
-                $out[$key] = $this->requestByStream($url);
+                $out[$key] = $this->requestByStream($url, $deadline);
             }
             return $out;
         }
@@ -539,6 +586,7 @@ class EvoSiteExporter
         foreach ($urls as $key => $url) {
             $ch = $this->curlHandle($i++);
             curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_TIMEOUT_MS, max(1, (int)($this->timeoutUntil($deadline) * 1000)));
             curl_multi_add_handle($mh, $ch);
             $handles[$key] = $ch;
         }
@@ -571,53 +619,78 @@ class EvoSiteExporter
             $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $body = $errno === 0 ? (string)curl_multi_getcontent($ch) : false;
             $error = '';
-            if ($body === false && $status === 0) {
+            if ($errno !== 0 && $status < 400) {
                 $error = curl_error($ch) ?: ($errno > 0 ? (string)curl_strerror($errno) : '');
             }
             $redirect = (string)curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-            $out[$key] = [$body, $status, $error, $redirect];
+            $out[$key] = [$body, $status, $error, $redirect, $errno];
             curl_multi_remove_handle($mh, $ch);
         }
         curl_multi_close($mh);
         return $out;
     }
 
+    private function timeoutUntil($deadline)
+    {
+        return min((float)self::FETCH_TIMEOUT, $deadline - microtime(true));
+    }
+
     /**
      * @return array requestAll() の 1 件分
      */
-    private function requestByStream($url)
+    private function requestByStream($url, $deadline)
     {
+        $timeout = $this->timeoutUntil($deadline);
+        if ($timeout <= 0) {
+            return [false, 0, 'aborted: time limit for the batch exceeded', '', -1];
+        }
         $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
         if ($this->bearerToken) {
             $header[] = 'Authorization: Bearer ' . $this->bearerToken;
         }
         $context = stream_context_create([
             'http' => [
-                'method'        => 'GET',
-                'header'        => implode("\r\n", $header),
-                'timeout'       => self::FETCH_TIMEOUT,
-                'max_redirects' => self::MAX_REDIRECTS,
+                'method'          => 'GET',
+                'header'          => implode("\r\n", $header),
+                'timeout'         => $timeout,
+                // リダイレクトは fetchAll() が同じオリジンの中だけ辿る
+                'follow_location' => 0,
                 // 4xx・5xx でも応答を受け取り（false を返さず）、ステータス行を見て判断する
-                'ignore_errors' => true,
+                'ignore_errors'   => true,
             ],
         ]);
         error_clear_last();
         $body = @file_get_contents($url, false, $context);
         $status = 0;
+        $location = '';
+        $length = null;
         if (!empty($http_response_header) && is_array($http_response_header)) {
-            // リダイレクトを辿ったときは最後のステータス行を使う
             foreach ($http_response_header as $line) {
                 if (preg_match('@^HTTP/\S+\s+(\d{3})@', $line, $m)) {
                     $status = (int)$m[1];
+                } elseif (preg_match('@^Location:\s*(.+)$@i', $line, $m)) {
+                    $location = $m[1];
+                } elseif (preg_match('@^Content-Length:\s*(\d+)\s*$@i', $line, $m)) {
+                    $length = (int)$m[1];
                 }
             }
         }
         $error = '';
-        if ($body === false && $status === 0) {
+        if ($body === false && $status < 400) {
             $last = error_get_last();
             $error = $last ? trim(preg_replace('@^file_get_contents\([^)]*\):\s*@', '', $last['message'])) : '';
+        } elseif ($body !== false && $status < 400 && $length !== null && strlen($body) < $length) {
+            // 本文の途中で切れた（PHP は途中までを返す）
+            $error = 'transfer closed with ' . ($length - strlen($body)) . ' bytes remaining to read';
+            $body = false;
         }
-        return [$body, $status, $error, ''];
+        return [
+            $body,
+            $status,
+            $error,
+            $status >= 300 && $status < 400 ? $this->resolveLocation($url, $location) : '',
+            $body === false && $status < 400 ? -1 : 0,
+        ];
     }
 
     /**
@@ -633,14 +706,8 @@ class EvoSiteExporter
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        if ($this->curlFollows()) {
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        }
-        curl_setopt($ch, CURLOPT_MAXREDIRS, self::MAX_REDIRECTS);
-        if (defined('CURLOPT_AUTOREFERER')) {
-            curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, self::FETCH_TIMEOUT);
+        // リダイレクトは curl に辿らせず、fetchAll() が同じオリジンの中だけ辿る（別のオリジンへ Authorization を送らない）
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, serverv('HTTP_USER_AGENT'));
         }
