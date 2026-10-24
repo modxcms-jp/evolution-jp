@@ -319,7 +319,7 @@ class EvoSiteExportJob
         }
         // OnExportExec を呼ぶ前に、状態を保存できることを確かめる
         if (!$this->writeState($state)) {
-            return $this->stateUnwritable();
+            return $this->stateUnwritable($state);
         }
         if ($finalState === self::STATE_DONE) {
             $info = $this->eventInfo($state['options'], isset($state['export_dir']) ? $state['export_dir'] : '');
@@ -526,7 +526,10 @@ class EvoSiteExportJob
     }
 
     /**
-     * 待っている start() の印が 1 つでもあるか。期限（待ちの上限 + 1 秒）を過ぎた印は無視して消す。
+     * 待っている start() の印が 1 つでもあるか。期限を過ぎた印は無視して消す。
+     * 期限は、start() が待ちうる最長（持ち時間の上限 + 3 秒）+ 1 秒。start() の待ち時間はそのプロセスの
+     * 制限時間で短くなるが、読む側の制限時間で期限を決めると、長く待つ側（CLI など）の印を早く消してしまうため、
+     * プロセスによらない最長で決める。
      * glob が使えない・失敗したときは、印が無いものとして扱う。
      */
     private function hasTakeoverMark()
@@ -535,7 +538,7 @@ class EvoSiteExportJob
         if (!$marks) {
             return false;
         }
-        $limit = self::startWaitSeconds() + 1;
+        $limit = self::MAX_BUDGET + 3 + 1;
         $found = false;
         foreach ($marks as $mark) {
             clearstatcache(true, $mark);
