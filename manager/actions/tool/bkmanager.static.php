@@ -59,6 +59,7 @@ if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを�
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
 }
 $ph['result_msg'] = '';
+$ph['snapshot_msg'] = '';
 if (sessionv('result_msg')) {
     $restoreResult = sessionv('restore_result', []);
     $restoreResult = is_array($restoreResult) ? $restoreResult : [];
@@ -95,7 +96,7 @@ if (sessionv('result_msg')) {
             $ph['result_msg'] = sprintf('<div class="errmsg">%s</div>', $_lang['bkmgr_restore_no_snapshot']);
             break;
         case 'snapshot_ok':
-            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
+            $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
             break;
     }
     sessionv('*result_msg', '');
@@ -288,7 +289,7 @@ if (sessionv('result_msg')) {
         <?php } ?>
         <div class="tab-page" id="tabSnapshot">
             <h2 class="tab"><?= $_lang["bkmgr_snapshot_title"] ?></h2>
-            <?= $ph['result_msg'] ?>
+            <?= $ph['snapshot_msg'] ?>
             <?= evo()->parseText(
                 $_lang["bkmgr_snapshot_msg"],
                 ['snapshot_path' => hsc($backup->dir())]

@@ -1043,7 +1043,7 @@ return [
     "bkmgr_snapshot_ok" => 'The snapshot was saved normally.',
     "bkmgr_run_sql_submit" => 'Execute restore',
     "bkmgr_snapshot_title" => 'Snapshot save and recovery',
-    "bkmgr_snapshot_msg" => '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>',
+    "bkmgr_snapshot_msg" => '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+]</p>',
     "bkmgr_snapshot_submit" => 'Add snapshot',
     "bkmgr_snapshot_list_title" => 'List of snapshot',
     "bkmgr_restore_submit" => 'Revert this data',

@@ -12,7 +12,9 @@ $backup = new EvoBackupManager();
 
 $filename = trim((string) postv('file_name', ''));
 if ($filename !== '') {
-    if (strtolower(substr($filename, -4)) !== '.sql') {
+    if (strtolower(substr($filename, -4)) === '.sql') {
+        $filename = substr($filename, 0, -4) . '.sql';
+    } else {
         $filename .= '.sql';
     }
     // 保存先の外や .sql 以外のファイルを作らせないため、ディレクトリを含まない名前に限る

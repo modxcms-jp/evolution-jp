@@ -1045,7 +1045,7 @@ return [
     "bkmgr_snapshot_ok" => 'スナップショットは正常に保存されました。',
     "bkmgr_run_sql_submit" => 'リストア実行',
     "bkmgr_snapshot_title" => 'スナップショット',
-    "bkmgr_snapshot_msg" => '<p>データベースの内容をサーバに保存します。<br />保存先 : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>',
+    "bkmgr_snapshot_msg" => '<p>データベースの内容をサーバに保存します。<br />保存先 : [+snapshot_path+]</p>',
     "bkmgr_snapshot_submit" => 'スナップショットを追加する',
     "bkmgr_snapshot_list_title" => 'スナップショットの一覧',
     "bkmgr_restore_submit" => 'このデータに戻す',
