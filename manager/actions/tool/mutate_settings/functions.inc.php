@@ -108,7 +108,7 @@ function form_text($name, $maxlength = '255', $add = '', $readonly = false)
     return sprintf(
         '<input type="text" name="%s" value="%s" maxlength="%s" %s %s %s />',
         $name,
-        evo()->config($name, ''),
+        hsc(evo()->config($name, '')),
         $maxlength,
         $maxlength <= 10 ? sprintf('style="width:%sem;"', $maxlength) : '',
         $readonly ? 'disabled' : '',

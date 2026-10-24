@@ -43,7 +43,7 @@ function setPermission()
     if (!is_dir($rb_base_dir . 'media')) {
         mkd($rb_base_dir . 'media');
     }
-    $export_dir = str_replace('[(base_path)]', MODX_BASE_PATH, formv('export_dir'));
+    $export_dir = str_replace('[(base_path)]', MODX_BASE_PATH, exportDirOrDefault(formv('export_dir')));
     if (!is_dir($export_dir)) {
         mkd($export_dir);
     }
@@ -65,6 +65,12 @@ function mkd($path)
         $rs = @chmod($path, 0777);
     }
     return $rs;
+}
+
+// 空にされたらエクスポート先は既定値に戻す
+function exportDirOrDefault($value)
+{
+    return trim((string)$value) === '' ? '[(base_path)]temp/export/' : $value;
 }
 
 function setModifiedConfig($form_v, $defaut_v)
@@ -199,13 +205,11 @@ function save_settiongs()
             case 'rb_base_url':
                 $v = rtrim($v, '/') . '/';
                 break;
+            case 'export_dir':
+                $v = exportDirOrDefault($v);
+                // no break
             case 'rb_base_dir':
             case 'filemanager_path':
-            case 'export_dir':
-                if (trim($v) === '') {
-                    // 空にされたらエクスポート先は既定値に戻す
-                    $v = '[(base_path)]temp/export/';
-                }
                 if ($v !== '[(base_path)]') {
                     $v = rtrim($v, '/') . '/';
                 }

@@ -188,7 +188,7 @@ if (!evo()->hasPermission('export_static')) {
             <?php
             echo '<p>' . evo()->parseText(
                 lang('export_site_message'),
-                ['export_dir' => str_replace('[(base_path)]', '', config('export_dir'))]
+                ['export_dir' => hsc(str_replace('[(base_path)]', '', config('export_dir')))]
             ) . '</p>';
             ?>
         </div>
