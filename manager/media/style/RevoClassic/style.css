@@ -1245,7 +1245,7 @@ a.hometblink:hover {
     top: calc(var(--topnav-item-height) + var(--space-4));
     margin: 0;
     list-style: none;
-    padding: var(--space-1) var(--subnav-horizontal-padding);
+    padding: 2px var(--subnav-horizontal-padding);
     min-height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;

@@ -47,6 +47,34 @@ if (!$isShellPartial) {
                 initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
             });
 
+            // シェルのメニュー行の高さ(--shell-menu-height)を、表示中のサブメニュー帯の下端に合わせる。
+            // 帯はテーマ側で絶対配置されているため、行の高さを固定値にすると帯の下が #mainPane に隠れる
+            function fitMenuHeight() {
+                var menu = document.getElementById('topMenu');
+                if (!menu || menu.tagName === 'BODY') return;
+
+                var subnav = document.querySelector('#nav > li.active > ul.subnav');
+                var target = subnav && subnav.getClientRects().length ? subnav : document.getElementById('Navcontainer');
+                if (!target) return;
+                var height = Math.ceil(target.getBoundingClientRect().bottom - menu.getBoundingClientRect().top);
+                if (height > 0) {
+                    document.documentElement.style.setProperty('--shell-menu-height', height + 'px');
+                }
+            }
+
+            // タブの切り替え・帯の折り返し・メニューの再読込に追随する。再読込で要素が替わるため、そのたびに付け直す
+            function watchMenuHeight() {
+                if (window.__menuHeightObserver) {
+                    window.__menuHeightObserver.disconnect();
+                }
+                fitMenuHeight();
+                if (!window.ResizeObserver) return;
+                window.__menuHeightObserver = new ResizeObserver(fitMenuHeight);
+                document.querySelectorAll('#nav, #nav > li > ul.subnav').forEach(function (el) {
+                    window.__menuHeightObserver.observe(el);
+                });
+            }
+
             function keepMeAlive() {
                 var tokInput = document.getElementById('sessTokenInput');
                 var tok = tokInput ? tokInput.value : '';
@@ -448,6 +476,10 @@ if (!$isShellPartial) {
             </ul>
         </nav>
     </form>
+    <script type="text/javascript">
+        // メニューを組み立てた直後に測り、最初の描画から帯が隠れないようにする
+        watchMenuHeight();
+    </script>
 
     <div id="menuSplitter"></div>
 <?php if (!$isShellPartial) { ?>

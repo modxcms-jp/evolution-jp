@@ -1954,7 +1954,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     inset-inline: 0;
     margin: var(--radius-md) 0 0 0;
     list-style: none;
-    padding: var(--radius-md) var(--subnav-horizontal-padding);
+    padding: 4px var(--subnav-horizontal-padding);
     min-height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;
