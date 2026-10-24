@@ -43,9 +43,8 @@ php evo skill:sync --skill=issue-resolver
 `db:backup` は管理画面のバックアップ管理と同じ保存先へ SQL スナップショットを保存します。保存先は `snapshot_path` の設定（サイトのフォルダの下にある場合だけ有効）で、未設定または不正な場合は `temp/backup/`（無くて `assets/backup/` がある場合はそちら）です。
 - ファイル名は `YYYY-MM-DD-HHMMSS-<バージョン>.sql` の自動の名前になります。
 - 書き出すのは、設定したプレフィックスの付いた表だけです。トリガーとストアドルーチンは含めません（管理画面から復元できる形にするため）。
-- `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルと `pre-restore-` のファイルは消しません。
+- `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルは消さず、`--max` の数え方にも含めません（`pre-restore-` は別に新しい 3 件だけ残します）。古い世代を消したときは、1 件ごとに `Removed old backup: <名前>` の行を表示します。
 - 世代の上限は管理画面と共有です。`--max` に 10 より大きい値を指定しても、次に管理画面でスナップショットを作ったり復元したりすると、10 件に戻ります。
-- `pre-restore-` のファイルは別に新しい 3 件だけ残します。
 - 最後に `Backups in <保存先>: auto-named N/M, other K` の行で、自動の名前のファイルの数（N、M は `--max`）とそれ以外の数（K）を表示します。
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
@@ -55,6 +54,7 @@ php evo skill:sync --skill=issue-resolver
 - 途中の文が失敗したら、`Error: statement N failed: ...` と実行した文の数を表示して終了コード 1 で終わり、復元前のスナップショットから戻すよう案内します。
 - `system_cache` は取り込み対象から除外し（Skipped に数えます）、事前に `TRUNCATE` します。
 - `system_settings` はインポートした上で、`site_url` / `base_url` / `filemanager_path` / `rb_base_dir` / `fixed_site_url` の 5 つを取り込み先の値に戻します。
+- 成功したが注意があるとき（設定かキャッシュのテーブルが無く、キャッシュを作り直さなかったとき）は、`Import completed...` の後に `Warning: <内容>` の行を標準エラーに表示します。終了コードは 0 です。
 - 以前の `Preserved ...` の行は表示しません。
 - `mysqldump` が必要です。
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
