@@ -23,6 +23,22 @@
             "added_at": "2026-10-16T11:30:00+09:00",
             "last_used_at": "2026-10-16T11:30:00+09:00",
             "source": "2026-10-16-orchestration-runner-001"
+        },
+        {
+            "id": "change-004",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-10-24T18:50:00+09:00",
+            "last_used_at": "2026-10-24T18:50:00+09:00",
+            "source": "2026-10-24-backup-manager-consolidation-001"
+        },
+        {
+            "id": "change-005",
+            "location": ".claude/agents/README.md（分かっている限界）",
+            "status": "adopted",
+            "added_at": "2026-10-24T18:50:00+09:00",
+            "last_used_at": "2026-10-24T18:50:00+09:00",
+            "source": "2026-10-24-backup-manager-consolidation-001"
         }
     ]
 }
