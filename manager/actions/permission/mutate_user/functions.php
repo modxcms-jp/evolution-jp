@@ -68,7 +68,7 @@ function getUser($userid)
     $rs = db()->select(
         $field,
         $from,
-        sprintf("mu.id='%s'", db()->escape($userid))
+        sprintf("mu.id='%d'", (int)$userid)
     );
 
     if (!db()->count($rs)) {
@@ -77,7 +77,7 @@ function getUser($userid)
 
     $user = db()->getRow($rs);
 
-    $rs = db()->select('*', '[+prefix+]user_settings', "user='" . $userid . "'");
+    $rs = db()->select('*', '[+prefix+]user_settings', sprintf("user='%d'", (int)$userid));
     while ($row = db()->getRow($rs)) {
         if (isset($user[$row['setting_name']])) {
             continue;

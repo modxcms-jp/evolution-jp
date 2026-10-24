@@ -7,7 +7,7 @@
         $rs = db()->select(
             '*',
             '[+prefix+]member_groups',
-            sprintf("member='%s'", evo()->input_get('id'))
+            sprintf("member='%d'", (int)$userid)
         );
         while ($row = db()->getRow($rs)) {
             $groupsarray[] = $row['user_group'];
