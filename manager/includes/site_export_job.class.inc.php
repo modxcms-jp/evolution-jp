@@ -97,8 +97,29 @@ class EvoSiteExportJob
             if (!$this->discardPreviousJob()) {
                 return $this->errorResponse(lang('export_site_state_unwritable'));
             }
+            // 出力先を空にする前に、状態を書けることを確かめる。書けないまま空にしない。
+            // 空にできなかったときはこの error の状態が残り、画面は export_site_clear_failed を案内する
+            $failed = lang('export_site_clear_failed');
+            if (!$this->writeState([
+                'state' => self::STATE_ERROR,
+                'job_id' => '',
+                'export_dir' => $exportDir,
+                'options' => $options,
+                'ids' => [],
+                'pos' => 0,
+                'success' => 0,
+                'skipped' => 0,
+                'failed' => 0,
+                'failures' => [],
+                'messages' => [],
+                'elapsed' => 0,
+                'error' => $failed,
+                'output' => '',
+            ])) {
+                return $this->errorResponse(lang('export_site_state_unwritable'));
+            }
             if (!$exporter->clearOutputDir()) {
-                return $this->errorResponse(lang('export_site_clear_failed'));
+                return $this->errorResponse($failed);
             }
             $messages = $this->invokeEvent('OnExportPreExec', $options, $exportDir);
 
@@ -461,10 +482,13 @@ class EvoSiteExportJob
             return false;
         }
         $tmp = $this->stateFile . '.tmp';
-        if (file_put_contents($tmp, $json) === false) {
+        if (@file_put_contents($tmp, $json) === false || !@rename($tmp, $this->stateFile)) {
+            if (is_file($tmp)) {
+                @unlink($tmp);
+            }
             return false;
         }
-        return rename($tmp, $this->stateFile);
+        return true;
     }
 
     private function hasCancelMark($jobId)
