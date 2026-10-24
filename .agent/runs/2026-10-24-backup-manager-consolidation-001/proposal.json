@@ -4,7 +4,7 @@
     "run_id": "2026-10-24-backup-manager-consolidation-001",
     "skill": "exec-plan-runner",
     "generated_at": "2026-10-24T18:50:00+09:00",
-    "status": "proposed",
+    "status": "applied",
     "source_files": [
         "learning.json",
         "pruning.json"
