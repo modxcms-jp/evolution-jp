@@ -37,8 +37,8 @@
         + '.evo-dialog-alert .evo-dialog-buttons{justify-content:center}'
         // テーマの button の右の余白（margin）が残ると、真ん中からずれる
         + '.evo-dialog-buttons button{margin:0;min-width:80px;padding:6px 16px;border:1px solid #c5cad3;border-radius:2px;background:#f5f6f8;color:#222;font:inherit;cursor:pointer}'
-        // OK はテーマの主ボタンの色（--color-primary）。テーマに無いときは shell.css のモーダルの見出しと同じ既定の色
-        + '.evo-dialog-buttons button.evo-dialog-ok{border-color:var(--color-primary,#375665);background:var(--color-primary,#375665);color:#fff}'
+        // OK は主ボタンの地の色（--color-primary）と、その上の文字の色（--color-text-inverse）。テーマに無いときは既定値。変数の契約は assets/docs/theme-variables.md
+        + '.evo-dialog-buttons button.evo-dialog-ok{border-color:var(--color-primary,#375665);background:var(--color-primary,#375665);color:var(--color-text-inverse,#fff)}'
         // 開いたときにフォーカスを当てるので、そのままだとブラウザが枠を出すことがある。
         // 枠は、ダイアログの中で Tab を押してボタンを移り始めたとき（evo-dialog-keyboard）だけ出す
         + '.evo-dialog-buttons button:focus{outline:none}'

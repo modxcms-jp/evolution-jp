@@ -87,12 +87,12 @@
     --color-nav-subnav-end: #3d4f5d;
 
     /* Color - Primary */
-    --color-primary: #3d4f5d;
-    --color-primary-start: #4a5f6f;
-    --color-primary-end: #3d4f5d;
-    --color-primary-hover-start: #5689b8;
-    --color-primary-hover-end: #4a7ba7;
-    --color-primary-active-start: #2f3d48;
+    --color-primary: #4a7ba7;
+    --color-primary-start: #4a7ba7;
+    --color-primary-end: #3d6686;
+    --color-primary-hover-start: #3d6686;
+    --color-primary-hover-end: #2f5570;
+    --color-primary-active-start: #2f5570;
     --color-primary-active-end: #253240;
 
     /* Color - Secondary */
@@ -154,7 +154,6 @@
     --clean-border: #e1e4e8;
     --clean-bg-secondary: #f0f2f5;
     --clean-text-secondary: #586069;
-    --clean-button-primary-hover: #2f5570;
 
     /* Spacing */
     --space-xs: 4px;
@@ -1365,7 +1364,7 @@ a.hometblink:hover {
     top: 1px;
     border-width: 1px;
     border-bottom-style: solid;
-    border-color: var(--color-primary-hover-end) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
+    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
     border-radius: 5px 5px 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
@@ -1389,7 +1388,7 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.selected:hover {
     color: var(--color-text-primary);
-    border-color: var(--color-primary-hover-end) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
+    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
     background-color: var(--color-surface);
     background-image: none;
 }
@@ -1690,30 +1689,6 @@ ul.actionButtons {
     color: var(--color-secondary-hover-text);
     font-weight: 700;
 }
-
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: none;
-    text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
-}
-
 
 #loadingmask {
     display: none;
@@ -2102,29 +2077,30 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     box-shadow: none;
 }
 
-/* プライマリボタン */
 .actionButtons #Button1 a,
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue-dark);
-    color: var(--color-surface);
-    font-weight: 600;
+    color: var(--color-text-inverse);
     box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
+    text-shadow: none;
+    font-weight: 600;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-end);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background: var(--accent-blue-dark);
-    border-color: var(--clean-button-primary-hover);
     box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background: var(--clean-button-primary-hover);
     box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
+    background-color: var(--color-primary-active-start);
+    border-color: var(--color-primary-active-end);
 }
 
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
