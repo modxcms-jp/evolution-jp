@@ -379,7 +379,7 @@ class EvoSiteExporter
                     'header'        => implode("\r\n", $header),
                     'timeout'       => $timeout,
                     'max_redirects' => 3,
-                    // 4xx・5xx でも本文は読まず、ステータスで判断する
+                    // 4xx・5xx でも応答を受け取り（false を返さず）、ステータス行を見て判断する
                     'ignore_errors' => true,
                 ],
             ]);

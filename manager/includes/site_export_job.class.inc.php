@@ -11,7 +11,8 @@ require_once __DIR__ . '/site_exporter.class.inc.php';
  *
  * 状態ファイル: temp/export_job.json（書き換えは一時ファイルからの rename で、読む側は常に完全な内容を見る）
  * 排他:         temp/export_job.lock を flock する。取れなければ待たずに busy を返す
- * 中止の印:     temp/export_job.cancel。ロックを取らずに書ける。step() は 1 ページごとに見る
+ * 中止の印:     temp/export_job.cancel。中止するジョブの id（状態の job_id）を書く。ロックを取らずに書ける。
+ *               step() は 1 ページごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
  *
  * 画面・セッション・exit は持たない。結果は配列で返す（processor が JSON にする）。
  */
@@ -68,11 +69,12 @@ class EvoSiteExportJob
         if (!evo()->config('friendly_urls')) {
             return $this->errorResponse(lang('export_site_friendly_urls_disabled'));
         }
-        if (!$this->lock()) {
-            return ['state' => self::STATE_BUSY];
+        $denied = $this->acquireLock();
+        if ($denied) {
+            return $denied;
         }
         try {
-            $exporter = new EvoSiteExporter($this->exporterOptions($options));
+            $exporter = new EvoSiteExporter($this->exporterOptions($options, null, $this->configuredExportDir()));
             if (!$exporter->isOutputDirValid()) {
                 return $this->errorResponse(lang($exporter->getOutputDirError()));
             }
@@ -89,26 +91,32 @@ class EvoSiteExportJob
             ];
 
             $began = microtime(true);
-            $messages = $this->invokeEvent('OnExportPreExec', $options, $exporter->getOutputDir());
+            $exportDir = $exporter->getOutputDir();
 
+            // 出力先を空にする前に、前のジョブを無効にする（空にできなくても、欠けたまま再開されない）
+            if (!$this->discardPreviousJob()) {
+                return $this->errorResponse(lang('export_site_state_unwritable'));
+            }
             if (!$exporter->clearOutputDir()) {
                 return $this->errorResponse(lang('export_site_clear_failed'));
             }
-            $this->removeCancelMark();
+            $messages = $this->invokeEvent('OnExportPreExec', $options, $exportDir);
 
             $state = [
-                'state'     => self::STATE_RUNNING,
-                'options'   => $options,
-                'ids'       => $exporter->targetIds(),
-                'pos'       => 0,
-                'success'   => 0,
-                'skipped'   => 0,
-                'failed'    => 0,
-                'failures'  => [],
-                'messages'  => $messages,
-                'elapsed'   => microtime(true) - $began,
-                'error'     => '',
-                'output'    => '',
+                'state' => self::STATE_RUNNING,
+                'job_id' => bin2hex(random_bytes(8)),
+                'export_dir' => $exportDir,
+                'options' => $options,
+                'ids' => $exporter->targetIds(),
+                'pos' => 0,
+                'success' => 0,
+                'skipped' => 0,
+                'failed' => 0,
+                'failures' => [],
+                'messages' => $messages,
+                'elapsed' => microtime(true) - $began,
+                'error' => '',
+                'output' => '',
             ];
             if (!$this->writeState($state)) {
                 return $this->errorResponse(lang('export_site_state_unwritable'));
@@ -127,8 +135,9 @@ class EvoSiteExportJob
      */
     public function step($budgetSeconds = null)
     {
-        if (!$this->lock()) {
-            return ['state' => self::STATE_BUSY];
+        $denied = $this->acquireLock();
+        if ($denied) {
+            return $denied;
         }
         try {
             $state = $this->readState();
@@ -140,7 +149,15 @@ class EvoSiteExportJob
             }
 
             $began = microtime(true);
-            $exporter = new EvoSiteExporter($this->exporterOptions($state['options'], $this->issueToken()));
+            if (!evo()->config('friendly_urls')) {
+                return $this->finish($state, self::STATE_ERROR, $began, lang('export_site_friendly_urls_disabled'));
+            }
+            // 出力先は開始時に確かめたものを使う（設定が途中で変わっても、別の場所へ書き出さない）
+            $exporter = new EvoSiteExporter($this->exporterOptions(
+                $state['options'],
+                $this->issueToken(),
+                isset($state['export_dir']) ? $state['export_dir'] : ''
+            ));
             if (!$exporter->isOutputDirValid()) {
                 return $this->finish($state, self::STATE_ERROR, $began, lang($exporter->getOutputDirError()));
             }
@@ -148,7 +165,7 @@ class EvoSiteExportJob
             $total = count($state['ids']);
             $startPos = $state['pos'];
             while ($state['pos'] < $total) {
-                if ($this->hasCancelMark()) {
+                if ($this->hasCancelMark($state['job_id'])) {
                     return $this->finish($state, self::STATE_CANCELLED, $began);
                 }
                 // 少なくとも 1 件は進める。持ち時間を過ぎていたら、次の 1 件には掛からず返す
@@ -177,7 +194,9 @@ class EvoSiteExportJob
                 return $this->finish($state, self::STATE_DONE, $began);
             }
             $state['elapsed'] += microtime(true) - $began;
-            $this->writeState($state);
+            if (!$this->writeState($state)) {
+                return $this->stateUnwritable();
+            }
             return $this->toResponse($state);
         } finally {
             $this->unlock();
@@ -205,19 +224,21 @@ class EvoSiteExportJob
             return $state ? $this->toResponse($state) : ['state' => self::STATE_NONE];
         }
 
-        // ロックを取らずに書ける。処理中の step() はこれを見て止まる
-        @file_put_contents($this->cancelFile, (string)time());
+        // ロックを取らずに書ける。処理中の step() はこれを見て止まる。
+        // 印には止めたいジョブの id を書く。別のタブが新しいジョブを始めていても、新しいほうは止まらない
+        $jobId = (string)$state['job_id'];
+        @file_put_contents($this->cancelFile, $jobId);
 
-        if (!$this->lock()) {
+        $denied = $this->acquireLock();
+        if ($denied) {
             // 処理中の step() が止まって後始末をする。その応答が cancelled になる
-            return $this->toResponse($state);
+            return $denied['state'] === self::STATE_BUSY ? $this->toResponse($state) : $denied;
         }
         try {
             $state = $this->readState();
-            if ($state && $state['state'] === self::STATE_RUNNING) {
+            if ($state && $state['state'] === self::STATE_RUNNING && (string)$state['job_id'] === $jobId) {
                 return $this->finish($state, self::STATE_CANCELLED, microtime(true));
             }
-            $this->removeCancelMark();
             return $state ? $this->toResponse($state) : ['state' => self::STATE_NONE];
         } finally {
             $this->unlock();
@@ -239,12 +260,19 @@ class EvoSiteExportJob
 
         if ($finalState === self::STATE_DONE) {
             $state['output'] = sprintf(lang('export_site_time'), round($state['elapsed'], 3));
-            $info = $this->eventInfo($state['options'], $this->exportDirOf($state['options']));
+        }
+        // OnExportExec を呼ぶ前に、状態を保存できることを確かめる
+        if (!$this->writeState($state)) {
+            return $this->stateUnwritable();
+        }
+        if ($finalState === self::STATE_DONE) {
+            $info = $this->eventInfo($state['options'], isset($state['export_dir']) ? $state['export_dir'] : '');
             $info['output'] = $state['output'];
             $info['totaltime'] = $state['elapsed'];
             $state['messages'] = array_merge($state['messages'], $this->collectEvent('OnExportExec', $info));
+            // イベントの出力は応答に含める。ここで保存に失敗しても、ジョブは終わっている
+            $this->writeState($state);
         }
-        $this->writeState($state);
         return $this->toResponse($state);
     }
 
@@ -258,7 +286,12 @@ class EvoSiteExportJob
         return $token;
     }
 
-    private function exporterOptions(array $options, $token = null)
+    private function configuredExportDir()
+    {
+        return str_replace('[(base_path)]', MODX_BASE_PATH, (string)config('export_dir'));
+    }
+
+    private function exporterOptions(array $options, $token, $exportDir)
     {
         return [
             'target'           => isset($options['target']) ? $options['target'] : 'all',
@@ -266,15 +299,9 @@ class EvoSiteExportJob
             'include_noncache' => !empty($options['include_noncache']),
             'repl_before'      => isset($options['repl_before']) ? $options['repl_before'] : '',
             'repl_after'       => isset($options['repl_after']) ? $options['repl_after'] : '',
-            'export_dir'       => str_replace('[(base_path)]', MODX_BASE_PATH, (string)config('export_dir')),
+            'export_dir'       => $exportDir,
             'bearer_token'     => $token,
         ];
-    }
-
-    private function exportDirOf(array $options)
-    {
-        $exporter = new EvoSiteExporter($this->exporterOptions($options));
-        return $exporter->getOutputDir();
     }
 
     /**
@@ -364,20 +391,45 @@ class EvoSiteExportJob
         return ['state' => self::STATE_ERROR, 'message' => $message];
     }
 
+    /**
+     * 状態を保存できなかった。トークンを取り消して error を返す（続きは進めない）。
+     */
+    private function stateUnwritable()
+    {
+        evo()->revokeBearerToken();
+        return $this->errorResponse(lang('export_site_state_unwritable'));
+    }
+
+    /**
+     * 前のジョブを無効にする。状態を消し、中止の印とトークンも片付ける。
+     *
+     * @return bool 消せなかったら false
+     */
+    private function discardPreviousJob()
+    {
+        evo()->revokeBearerToken();
+        $this->removeCancelMark();
+        return !is_file($this->stateFile) || @unlink($this->stateFile);
+    }
+
     // ----- 状態ファイル・ロック・中止の印 -----
 
-    private function lock()
+    /**
+     * ロックを取る。取れたら null。取れなければ返す応答を返す
+     * （ほかが処理中なら busy、ロックファイルを開けない＝ temp/ に書けないなら error）。
+     */
+    private function acquireLock()
     {
         $handle = @fopen($this->lockFile, 'c');
         if (!$handle) {
-            return false;
+            return $this->errorResponse(lang('export_site_state_unwritable'));
         }
         if (!flock($handle, LOCK_EX | LOCK_NB)) {
             fclose($handle);
-            return false;
+            return ['state' => self::STATE_BUSY];
         }
         $this->lockHandle = $handle;
-        return true;
+        return null;
     }
 
     private function unlock()
@@ -415,10 +467,14 @@ class EvoSiteExportJob
         return rename($tmp, $this->stateFile);
     }
 
-    private function hasCancelMark()
+    private function hasCancelMark($jobId)
     {
         clearstatcache(true, $this->cancelFile);
-        return is_file($this->cancelFile);
+        if (!is_file($this->cancelFile)) {
+            return false;
+        }
+        $id = @file_get_contents($this->cancelFile);
+        return $id !== false && trim($id) === (string)$jobId;
     }
 
     private function removeCancelMark()

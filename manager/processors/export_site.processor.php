@@ -56,6 +56,7 @@ switch (postv('op')) {
             'repl_before'      => postv('repl_before'),
             'repl_after'       => postv('repl_after'),
         ]);
+        exportSiteLog('HTML export: start', $result);
         break;
     case 'step':
         session_write_close();
@@ -68,12 +69,28 @@ switch (postv('op')) {
     case 'cancel':
         session_write_close();
         $result = $job->cancel();
+        exportSiteLog('HTML export: cancel', $result);
         break;
     default:
         exportSiteJson(['state' => 'error', 'message' => 'Bad Request'], 400);
 }
 
 exportSiteJson($result);
+
+/**
+ * 開始と中止だけ操作ログ（manager_log）に残す。step と status は何度も呼ばれるので残さない。
+ * この窓口は exit で終えるため、manager/index.php の共通の記録が走らない。
+ * 受け付けられなかった要求（busy・error・none）や、すでに終わっていたジョブへの中止は残さない。
+ */
+function exportSiteLog($message, array $result)
+{
+    if (!in_array($result['state'], ['running', 'cancelled'], true)) {
+        return;
+    }
+    include_once MODX_CORE_PATH . 'log.class.inc.php';
+    $log = new logHandler();
+    $log->initAndWriteLog($message);
+}
 
 function exportSiteJson(array $data, $status = 200)
 {
