@@ -27,7 +27,11 @@ class logHandler
     )
     {
         $this->setEntry($msg, $internalKey, $username, $itemname);
-        $this->writeToLog(evo()->input_any('a', 0), evo()->input_any('id', 'x'));
+        // action・itemid が渡されたらそれを使う。空なら今のリクエストの a・id
+        $this->writeToLog(
+            $action !== '' ? $action : evo()->input_any('a', 0),
+            $itemid !== '' ? $itemid : evo()->input_any('id', 'x')
+        );
     }
 
     public function writeToLog($action_id = 0, $item_id = 'x')
