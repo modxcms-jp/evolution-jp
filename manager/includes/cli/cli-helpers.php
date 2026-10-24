@@ -105,7 +105,11 @@ function cli_full_table_name($table)
     return sprintf('`%s`.`%s`', $dbase, $full);
 }
 
-function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTables = [], $quiet = false)
+/**
+ * @param array $options ['routines' => false] で --routines --triggers の代わりに --skip-triggers を付ける
+ *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）
+ */
+function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTables = [], $quiet = false, $options = [])
 {
     if ($driver !== 'mysqldump' && $driver !== 'php') {
         cli_usage('Usage: php evo db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
@@ -148,9 +152,11 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
     $defaultsFile = cli_mysql_defaults_file();
     $dbname = trim(db()->config['dbase'] ?? '', '`');
 
+    $routines = !array_key_exists('routines', $options) || $options['routines'];
     $cmd = sprintf(
-        'mysqldump --defaults-extra-file=%s --single-transaction --routines --triggers --no-tablespaces %s',
+        'mysqldump --defaults-extra-file=%s --single-transaction %s --no-tablespaces %s',
         escapeshellarg($defaultsFile),
+        $routines ? '--routines --triggers' : '--skip-triggers',
         escapeshellarg($dbname)
     );
 
@@ -172,4 +178,23 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
     if ($outputPath !== '' && !$quiet) {
         cli_out("Written: {$outputPath}");
     }
+}
+
+/**
+ * DB を一時ファイルへ書き出し、書き終えてから $path へ移す（途中で止まっても中途半端な .sql を残さない）。
+ * 書き出しの失敗は cli_export_database() が終了コード付きで止める。移せなければ false。
+ */
+function cli_export_database_file($driver, $path, $fullTables = [], $options = [])
+{
+    $tmp = $path . '.' . uniqid('part', true) . '.tmp';
+    register_shutdown_function(function () use ($tmp) {
+        if (is_file($tmp)) {
+            @unlink($tmp);
+        }
+    });
+    cli_export_database($driver, $tmp, $fullTables, true, $options);
+    if (!is_file($tmp) || !rename($tmp, $path)) {
+        return false;
+    }
+    return true;
 }

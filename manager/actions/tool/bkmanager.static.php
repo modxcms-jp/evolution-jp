@@ -9,13 +9,8 @@ if (!evo()->hasPermission('bk_manager')) {
 // 復元は DB を丸ごと書き換えるため、管理者だけに許す
 $canRestore = manager()->isAdmin();
 
-if (!config('snapshot_path') || strpos(config('snapshot_path'), MODX_BASE_PATH) === false) {
-    if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
-        $modx->config['snapshot_path'] = MODX_BASE_PATH . 'temp/backup/';
-    } elseif (is_dir(MODX_BASE_PATH . 'assets/backup/')) {
-        $modx->config['snapshot_path'] = MODX_BASE_PATH . 'assets/backup/';
-    }
-}
+require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
+$backup = new EvoBackupManager();
 
 $mode = postv('mode', '');
 
@@ -29,93 +24,98 @@ if ($mode === 'backup') {
         exit;
     }
 
-    /*
-     * Code taken from Ralph A. Dahlgren MySQLdumper Snippet - Etomite 0.6 - 2004-09-27
-     * Modified by Raymond 3-Jan-2005
-     * Perform MySQLdumper data dump
-     */
     @set_time_limit(120); // set timeout limit to 2 minutes
     $dumper->setDBtables($tables);
-    $dumper->addDropCommand((isset($_POST['droptables']) ? true : false));
-    $output = $dumper->createDump();
-    $dumper->dumpSql($output);
-    if (!$output) {
+    $dumper->addDropCommand(postv('droptables') !== null);
+    // 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
+    $tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
+    if ($tempfile !== false) {
+        // 途中で止められても DB 全体のダンプを残さない
+        register_shutdown_function(function () use ($tempfile) {
+            if (is_file($tempfile)) {
+                @unlink($tempfile);
+            }
+        });
+    }
+    if ($tempfile === false || !$dumper->dumpToFile($tempfile)) {
+        if ($tempfile !== false && is_file($tempfile)) {
+            unlink($tempfile);
+        }
         alert()->setError(1, 'Unable to Backup Database');
         alert()->dumpError();
     }
-    exit;
-}
-
-if ($mode === 'snapshot') {
-    if (!is_dir(rtrim(config('snapshot_path'), '/'))) {
-        mkdir(rtrim(config('snapshot_path'), '/'));
-        @chmod(rtrim(config('snapshot_path'), '/'), 0777);
-    }
-    if (!is_file(config('snapshot_path') . '.htaccess')) {
-        file_put_contents(
-            config('snapshot_path') . '.htaccess',
-            "order deny,allow\ndeny from all\n"
+    if (!headers_sent()) {
+        header('Expires: 0');
+        header('Cache-Control: private');
+        header('Pragma: cache');
+        header('Content-type: application/download');
+        header('Content-Length: ' . filesize($tempfile));
+        header(
+            sprintf(
+                'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
+                strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
+                preg_replace('/[^0-9A-Za-z._-]/', '-', (string) config('settings_version'))
+            )
         );
     }
-    if (!is_writable(rtrim(config('snapshot_path'), '/'))) {
-        echo evo()->parseText(
-            $_lang['bkmgr_alert_mkdir'],
-            ['snapshot_path' => config('snapshot_path')]
-        );
-        exit;
-    }
-
-    $today = strtolower(
-        str_replace(
-            ['/', ' ', ':'],
-            ['-', '-', ''],
-            evo()->toDateFormat(request_time())
-        )
-    );
-    global $path, $settings_version;
-    $filename = "{$today}-{$settings_version}.sql";
-
-    @set_time_limit(120); // set timeout limit to 2 minutes
-    $dumper->mode = 'snapshot';
-    $output = $dumper->createDump();
-    $dumper->snapshot(config('snapshot_path') . $filename, $output);
-
-    $pattern = config('snapshot_path') . '*.sql';
-    $files = glob($pattern, GLOB_NOCHECK);
-    $total = ($files[0] !== $pattern) ? count($files) : 0;
-    arsort($files);
-    while (10 < $total && $limit < 50) {
-        $del_file = array_pop($files);
-        unlink($del_file);
-        $total = count($files);
-        $limit++;
-    }
-
-    if (!empty($output)) {
-        $_SESSION['result_msg'] = 'snapshot_ok';
-        header("Location: index.php?a=93");
-    } else {
-        alert()->setError(1, 'Unable to Backup Database');
-        alert()->dumpError();
-    }
+    readfile($tempfile);
+    unlink($tempfile);
     exit;
 }
 
 if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを重複出力しない
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
 }
+$ph['result_msg'] = '';
+$ph['snapshot_msg'] = '';
+$restoreHtml = '';
 if (sessionv('result_msg')) {
+    $restoreResult = sessionv('restore_result', []);
+    $restoreResult = is_array($restoreResult) ? $restoreResult : [];
+    $preRestore = hsc($restoreResult['pre_restore'] ?? '');
     switch (sessionv('result_msg')) {
         case 'import_ok':
-            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
+            $restoreHtml = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
+            break;
+        case 'restore_warn':
+            // 復元は成功したが、設定のテーブルが無くキャッシュを作り直さなかった
+            $restoreHtml = sprintf(
+                '<div class="okmsg">%s</div><div class="errmsg">%s</div>',
+                $_lang['bkmgr_import_ok'],
+                evo()->parseText(
+                    $_lang['bkmgr_restore_warn'],
+                    ['pre_restore' => $preRestore]
+                )
+            );
+            break;
+        case 'restore_failed':
+            $restoreHtml = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(
+                    $_lang['bkmgr_restore_failed'],
+                    [
+                        'failed_at'   => (int) ($restoreResult['failed_at'] ?? 0),
+                        'error'       => hsc($restoreResult['error'] ?? ''),
+                        'pre_restore' => $preRestore,
+                    ]
+                )
+            );
+            break;
+        case 'restore_no_snapshot':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $_lang['bkmgr_restore_no_snapshot']);
             break;
         case 'snapshot_ok':
-            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
+            $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
             break;
     }
-    $_SESSION['result_msg'] = '';
-} else {
-    $ph['result_msg'] = '';
+    // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
+    if (($restoreResult['mode'] ?? '') === 'restore2') {
+        $ph['snapshot_msg'] .= $restoreHtml;
+    } else {
+        $ph['result_msg'] .= $restoreHtml;
+    }
+    sessionv('*result_msg', '');
+    sessionv('*restore_result', []);
 }
 
 ?>
@@ -302,20 +302,12 @@ if (sessionv('result_msg')) {
             </form>
         </div>
         <?php } ?>
-        <?php
-        $today = evo()->toDateFormat(request_time());
-        $today = str_replace(['/', ' '], '-', $today);
-        $today = str_replace(':', '', $today);
-        $today = strtolower($today);
-        global $settings_version;
-        $filename = "{$today}-{$settings_version}.sql";
-        ?>
         <div class="tab-page" id="tabSnapshot">
             <h2 class="tab"><?= $_lang["bkmgr_snapshot_title"] ?></h2>
-            <?= $ph['result_msg'] ?>
+            <?= $ph['snapshot_msg'] ?>
             <?= evo()->parseText(
                 $_lang["bkmgr_snapshot_msg"],
-                ['snapshot_path' => config('snapshot_path')]
+                ['snapshot_path' => hsc($backup->dir())]
             ); ?>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />
@@ -327,7 +319,7 @@ if (sessionv('result_msg')) {
                     </tr>
                     <tr>
                         <th><?= $_lang["bkmgr_file_name"] ?></th>
-                        <td><input type="text" name="file_name" size="50" value="<?= $filename ?>" /></td>
+                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText($_lang["bkmgr_file_name_hint"], ['keep' => EvoBackupManager::KEEP]) ?></td>
                     </tr>
                 </table>
                 <div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
@@ -355,29 +347,19 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="restore2" />
                 <input type="hidden" name="filename" value="" />
                 <?php
-                $pattern = config('snapshot_path') . '*.sql';
-                $files = glob($pattern, GLOB_NOCHECK);
-                $total = ($files[0] !== $pattern) ? count($files) : 0;
-                if (is_array($files) && $total) {
+                $files = $backup->files();
+                if ($files) {
                     echo '<ul>';
-                    arsort($files);
                     $tpl = $canRestore
                         ? '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n"
                         : '<li>[+filename+] ([+filesize+])</li>' . "\n";
-                    while ($file = array_shift($files)) {
-                        $timestamp = filemtime($file);
-                        $filename = substr($file, strrpos($file, '/') + 1);
-                        $filesize = evo()->nicesize(filesize($file));
+                    foreach ($files as $file) {
                         // 置き換えた値の中を再び置換しないよう、strtr() で一度だけ置換する
-                        $output[$timestamp] = strtr($tpl, [
-                            '[+filename+]' => hsc($filename),
-                            '[+filename_js+]' => hsc(js_literal($filename)),
-                            '[+filesize+]' => $filesize,
+                        echo strtr($tpl, [
+                            '[+filename+]' => hsc($file['name']),
+                            '[+filename_js+]' => hsc(js_literal($file['name'])),
+                            '[+filesize+]' => evo()->nicesize($file['size']),
                         ]);
-                    }
-                    krsort($output);
-                    foreach ($output as $v) {
-                        echo $v;
                     }
                     echo '</ul>';
                 } else {

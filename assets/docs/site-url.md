@@ -50,7 +50,7 @@
 
 ## DB の取り込み
 
-`php evo db:import` と、管理画面のバックアップからの復元（`mysql_dumper`）は、どちらも取り込み先の `fixed_site_url` を残す。
+`php evo db:import` と、管理画面のバックアップからの復元（`EvoBackupManager::restore()`）は、どちらも取り込み先の `fixed_site_url` を残す。
 
 - 取り込み先に値があれば、その値に戻す（取り込むダンプに行が無くても戻す）
 - 取り込み先に値が無ければ、取り込んだ値（別の環境の URL）は使わず、未設定にする

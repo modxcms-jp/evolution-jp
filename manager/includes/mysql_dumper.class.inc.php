@@ -89,6 +89,31 @@ class Mysqldumper
 
     public function createDump()
     {
+        $tempfile_path = tempnam(MODX_CACHE_PATH, 'bktemp');
+        if ($tempfile_path === false) {
+            return false;
+        }
+        if (!$this->dumpToFile($tempfile_path)) {
+            if (is_file($tempfile_path)) {
+                unlink($tempfile_path);
+            }
+            return false;
+        }
+        $output = file_get_contents($tempfile_path);
+        unlink($tempfile_path);
+
+        if (empty($output)) {
+            return false;
+        }
+        return $output;
+    }
+
+    /**
+     * 同じディレクトリの一時ファイルへ書き出し、書き終えてから $path へ rename する。
+     * 失敗したときは $path に中途半端なファイルを残さない。
+     */
+    public function dumpToFile($path)
+    {
         if (empty($this->database_server) || empty($this->dbname)) {
             return false;
         }
@@ -102,9 +127,20 @@ class Mysqldumper
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_CACHE_PATH . 'bktemp.pageCache.php';
-        if (is_file($tempfile_path)) {
+        $tempfile_path = tempnam(dirname($path), 'dump');
+        if ($tempfile_path === false) {
+            return false;
+        }
+        // 時間切れや fatal で止まっても一時ファイルを残さない（rename 後は何もしない）
+        register_shutdown_function(function () use ($tempfile_path) {
+            if (is_file($tempfile_path)) {
+                @unlink($tempfile_path);
+            }
+        });
+        $fp = fopen($tempfile_path, 'wb');
+        if ($fp === false) {
             unlink($tempfile_path);
+            return false;
         }
 
         $result = db()->query('SHOW TABLES');
@@ -126,11 +162,7 @@ class Mysqldumper
         $header[] = '--  PHP Version: ' . phpversion();
         $header[] = '--  Database : `' . $this->dbname . '`';
         $header[] = '-- ';
-        file_put_contents(
-            $tempfile_path,
-            implode($lf, $header),
-            FILE_APPEND | LOCK_EX
-        );
+        $ok = $this->write($fp, implode($lf, $header));
 
         $this->_dbtables = array_flip($this->_dbtables);
         foreach ($this->_dbtables as $k => $v) {
@@ -138,6 +170,9 @@ class Mysqldumper
         }
 
         foreach ($tables as $table_name) {
+            if (!$ok) {
+                break;
+            }
             if (!isset($this->_dbtables[$table_name])) {
                 continue;
             }
@@ -180,11 +215,11 @@ class Mysqldumper
                 $lf,
                 $lf
             );
-            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            $ok = $this->write($fp, $output);
 
             $output = '';
             $result = db()->select('*', $table_name);
-            while ($row = db()->getRow($result)) {
+            while ($ok && ($row = db()->getRow($result))) {
                 $insertdump = $lf;
                 $insertdump .= "INSERT INTO `{$table_name}` VALUES (";
                 if ($table_name === $this->table_prefix . 'system_settings') {
@@ -211,20 +246,26 @@ class Mysqldumper
                 }
                 $output .= rtrim($insertdump, ',') . ");".$lf;
                 if (1048576 < strlen($output)) {
-                    file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+                    $ok = $this->write($fp, $output);
                     $output = '';
                 }
             }
-            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            if ($ok) {
+                $ok = $this->write($fp, $output);
+            }
         }
-        $output = file_get_contents($tempfile_path);
+        $ok = fclose($fp) && $ok;
 
-        if (empty($output)) {
+        if (!$ok || filesize($tempfile_path) === 0 || !rename($tempfile_path, $path)) {
+            unlink($tempfile_path);
             return false;
         }
+        return true;
+    }
 
-        unlink($tempfile_path);
-        return $output;
+    private function write($fp, $data)
+    {
+        return $data === '' || fwrite($fp, $data) === strlen($data);
     }
 
     private function in_array($table_name, $table_names)
@@ -285,122 +326,6 @@ class Mysqldumper
         }
         db()->freeResult($resource);
         return $array;
-    }
-
-    public function dumpSql(&$dumpstring)
-    {
-        if (!headers_sent()) {
-            header('Expires: 0');
-            header('Cache-Control: private');
-            header('Pragma: cache');
-            header('Content-type: application/download');
-            header("Content-Length: " . strlen($dumpstring));
-            header(
-                sprintf(
-                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
-                    strtolower(
-                        str_replace(
-                            '/',
-                            '-',
-                            evo()->toDateFormat(
-                                time(),
-                                'dateOnly'
-                            )
-                        )
-                    ),
-                    globalv('settings_version')
-                )
-            );
-        }
-        echo $dumpstring;
-        return true;
-    }
-
-    function snapshot($path, &$dumpstring)
-    {
-        $rs = file_put_contents($path, $dumpstring);
-        if ($rs) {
-            @chmod($path, 0666);
-        }
-        return $rs;
-    }
-
-    function import_sql($source)
-    {
-        if (strpos($source, "\r") !== false) {
-            $source = str_replace(["\r\n", "\r"], "\n", $source);
-        }
-        // サイトのURLは取り込み先の値を残す（別の環境の URL で固定しない）
-        $fixed_site_url = db()->getValue(
-            'setting_value',
-            '[+prefix+]system_settings',
-            "setting_name='fixed_site_url'"
-        );
-        $sql_array = preg_split('@;[ \t]*\n@', $source);
-        foreach ($sql_array as $sql_entry) {
-            $sql_entry = trim($sql_entry);
-            if (empty($sql_entry)) {
-                continue;
-            }
-            db()->query($sql_entry);
-        }
-        $settings = $this->getSettings();
-        $this->restoreSettings($settings);
-        db()->delete('[+prefix+]system_settings', "setting_name='fixed_site_url'");
-        if ($fixed_site_url !== null) {
-            db()->insert(
-                ['setting_name' => 'fixed_site_url', 'setting_value' => db()->escape($fixed_site_url)],
-                '[+prefix+]system_settings'
-            );
-        }
-
-        evo()->clearCache();
-        $_SESSION['result_msg'] = 'import_ok';
-    }
-
-
-    function getSettings()
-    {
-        $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
-        $settings = [];
-        while ($row = db()->getRow($rs)) {
-            $name = $row['setting_name'];
-            $value = $row['setting_value'];
-            switch ($name) {
-                case 'rb_base_dir':
-                case 'filemanager_path':
-                    if (strpos($value, '[(base_path)]') !== false) {
-                        $settings[$name] = str_replace(
-                            '[(base_path)]',
-                            MODX_BASE_PATH,
-                            $value
-                        );
-                    }
-                    break;
-                case 'site_url':
-                    if ($value === '[(site_url)]') {
-                        $settings['site_url'] = MODX_SITE_URL;
-                    }
-                    break;
-                case 'base_url':
-                    if ($value === '[(base_url)]') {
-                        $settings['base_url'] = MODX_BASE_URL;
-                    }
-                    break;
-            }
-        }
-        return $settings;
-    }
-
-    function restoreSettings($settings)
-    {
-        foreach ($settings as $k => $v) {
-            db()->update(
-                ['setting_value' => $v],
-                '[+prefix+]system_settings',
-                "setting_name='{$k}'"
-            );
-        }
     }
 
     function getTableNames($dbname = '', $table_prefix = '')
