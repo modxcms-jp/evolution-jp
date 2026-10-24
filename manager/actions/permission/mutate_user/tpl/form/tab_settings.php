@@ -30,7 +30,7 @@
     <?php if (getv('a') == 12): ?>
         <tr>
             <th><?= lang('user_logincount') ?>:</th>
-            <td><?= user('logincount') ?></td>
+            <td><?= (int)user('logincount') ?></td>
         </tr>
         <?php
         if (!empty(user('lastlogin'))) {
@@ -46,8 +46,8 @@
         <tr>
             <th><?= lang('user_failedlogincount') ?>:</th>
             <td>
-                <input type="hidden" name="failedlogincount" value="<?= user('failedlogincount') ?>">
-                <span id='failed'><?= user('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
+                <input type="hidden" name="failedlogincount" value="<?= (int)user('failedlogincount') ?>">
+                <span id='failed'><?= (int)user('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
                     href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
             </td>
         </tr>
