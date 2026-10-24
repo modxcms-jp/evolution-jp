@@ -100,7 +100,7 @@ class EvoSiteExportJob
             // 出力先を空にする前に、状態を書けることを確かめる。書けないまま空にしない。
             // 空にできなかったときはこの error の状態が残り、画面は export_site_clear_failed を案内する
             $failed = lang('export_site_clear_failed');
-            if (!$this->writeState([
+            $pending = [
                 'state' => self::STATE_ERROR,
                 'job_id' => '',
                 'export_dir' => $exportDir,
@@ -115,12 +115,16 @@ class EvoSiteExportJob
                 'elapsed' => 0,
                 'error' => $failed,
                 'output' => '',
-            ])) {
+            ];
+            if (!$this->writeState($pending)) {
                 return $this->errorResponse(lang('export_site_state_unwritable'));
             }
             if (!$exporter->clearOutputDir()) {
                 return $this->errorResponse($failed);
             }
+            // 出力先を空にできた。ここから先で止まったときの文言に替える（保存できなくても、最後の running の保存で判断する）
+            $pending['error'] = lang('export_site_start_interrupted');
+            $this->writeState($pending);
             $messages = $this->invokeEvent('OnExportPreExec', $options, $exportDir);
 
             $state = [

@@ -277,15 +277,11 @@ foreach ($exportJsKeys as $key) {
         let starting = false;
         let cancelling = false;
         let buttonMode = 'start';
-        // シェルが別の画面へ差し替えたら false。残った関数が、新しい画面の処理と重ならないようにする
-        let alive = true;
-        document.addEventListener('evoshell:unload', function () {
-            alive = false;
-            running = false;
-            starting = false;
-            cancelling = false;
-            window.documentDirty = false;
-        }, {once: true});
+        // シェルが別の画面へ差し替えたら、この画面のフォームは文書から外れる。残った関数が、新しい画面の処理と重ならないようにする
+        // （モーダルの開け閉めでは外れないので、evoshell:unload ではなくこれで見る）
+        const alive = function () {
+            return form.isConnected;
+        };
         // 処理中は documentDirty を立て、シェルが別の画面へ移る前に確認を出す
         const setDirty = function (dirty) {
             window.documentDirty = dirty;
@@ -347,7 +343,7 @@ foreach ($exportJsKeys as $key) {
         const call = async function (op, extra) {
             const data = Object.assign({op: op}, extra || {});
             for (let attempt = 0; attempt < 5; attempt++) {
-                if (!alive) {
+                if (!alive()) {
                     break;
                 }
                 let response;
@@ -524,21 +520,25 @@ foreach ($exportJsKeys as $key) {
 
         // 手元の失敗（通信が続けて失敗・5xx・JSON でない応答）のとき、サーバーのジョブの状態を取り直して出す。
         // 状態も取れなければ、案内（画面を開き直す）を出す
-        const recover = async function () {
+        const recover = async function (message) {
             running = false;
             starting = false;
             cancelling = false;
             setDirty(false);
             setButtons('none');
             const res = await call('status');
-            if (!alive) {
+            if (!alive()) {
                 return;
             }
             if (res.unreadable || res.local) {
                 stopUnreadable();
-                return;
+            } else {
+                showStatus(res);
             }
-            showStatus(res);
+            if (message) {
+                const current = els.notice.hidden ? '' : els.notice.innerHTML;
+                setNotice(message + (current ? '<br>' + current : ''), true);
+            }
         };
 
         // call() の失敗の印を処理する。処理したら true（呼び出し側はそこで終える）
@@ -565,9 +565,9 @@ foreach ($exportJsKeys as $key) {
             setButtons('running');
             els.result.hidden = true;
             setNotice(T.export_site_running);
-            while (running && alive) {
+            while (running && alive()) {
                 const res = await call(cancelling ? 'cancel' : 'step');
-                if (!running || !alive) {
+                if (!running || !alive()) {
                     return;
                 }
                 if (await handleBroken(res)) {
@@ -607,21 +607,22 @@ foreach ($exportJsKeys as $key) {
             els.messages.textContent = '';
             els.result.hidden = true;
             const res = await call('start', formData());
-            if (!alive) {
+            if (!alive()) {
                 return;
             }
             if (await handleBroken(res)) {
                 return;
             }
             starting = false;
-            if (res.state === 'busy' || res.state === 'error') {
+            if (res.state === 'busy') {
                 setDirty(false);
                 setButtons(previousMode);
-                if (res.state === 'busy') {
-                    setNotice(T.export_site_busy);
-                } else {
-                    setNotice(res.message || T.export_site_request_failed, true);
-                }
+                setNotice(T.export_site_busy);
+                return;
+            }
+            if (res.state === 'error') {
+                // 前の状態へは戻さない（捨てたジョブの再開を出さない）。message に続けて、サーバーの実際の状態を出す
+                await recover(res.message || T.export_site_request_failed);
                 return;
             }
             renderProgress(res);
@@ -637,7 +638,7 @@ foreach ($exportJsKeys as $key) {
             setNotice(T.export_site_cancelling);
             // 処理中の続きを進めるを待たずに、中止の印を書かせる
             const res = await call('cancel');
-            if (!alive) {
+            if (!alive()) {
                 return;
             }
             if (await handleBroken(res)) {
@@ -676,18 +677,18 @@ foreach ($exportJsKeys as $key) {
         });
 
         // 開いたとき、保存したジョブがあれば状態を見せる
-        setButtons('start');
+        // 応答が届くまでボタンは出さない（先に押された開始と食い違わせない）
+        setButtons('none');
         call('status').then(function (res) {
-            if (!alive) {
+            // 応答を待つ間に開始されていたら、その状態を戻さない
+            if (!alive() || running || starting) {
                 return;
             }
             if (res.unreadable || res.local) {
                 stopUnreadable();
                 return;
             }
-            if (res.state !== 'none') {
-                showStatus(res);
-            }
+            showStatus(res);
         });
     })();
 </script>

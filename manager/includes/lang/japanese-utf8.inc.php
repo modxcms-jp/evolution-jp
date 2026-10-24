@@ -283,6 +283,7 @@ return [
     "export_site_target_ignore_hint" => '出力しないリソースのIDを指定(カンマ区切りで複数指定可)',
     "export_site_friendly_urls_disabled" => 'フレンドリーURLが無効のため、エクスポートを始められません。<a href="index.php?a=17">グローバル設定</a>で「フレンドリーURLの使用」を「はい」にしてください。',
     "export_site_clear_failed" => '出力先のディレクトリを空にできませんでした。パーミッションを確認してください。',
+    "export_site_start_interrupted" => 'エクスポートの開始が途中で止まりました。最初からやり直してください。',
     "export_site_state_unwritable" => 'ジョブの状態を temp/ に保存できません。temp ディレクトリが書き込み可能か確認してください。',
     "export_site_basic_auth_failed" => 'HTTPベーシック認証のため取得できません。',
     "export_site_progress" => '[+done+] / [+total+] 件',

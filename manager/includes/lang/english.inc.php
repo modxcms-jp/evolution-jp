@@ -281,6 +281,7 @@ return [
     "export_site_target_ignore_hint" => 'Enter the IDs of the resources not to export (comma separated)',
     "export_site_friendly_urls_disabled" => 'The export cannot start because Friendly URLs are disabled. Set "Use friendly URLs" to "Yes" in the <a href="index.php?a=17">global settings</a>.',
     "export_site_clear_failed" => 'Could not empty the export directory. Please check its permissions.',
+    "export_site_start_interrupted" => 'The export stopped partway through starting. Please start again from the beginning.',
     "export_site_state_unwritable" => 'Could not save the job state in temp/. Please make sure the temp directory is writable.',
     "export_site_basic_auth_failed" => 'Cannot retrieve the page because of HTTP Basic Authentication.',
     "export_site_progress" => '[+done+] / [+total+] resources',
