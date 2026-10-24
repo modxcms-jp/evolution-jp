@@ -124,7 +124,7 @@ echo $cm->render();
                                 <td><?= $_lang["search"] ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= anyv('search') ?>" />
+                                        value="<?= hsc(anyv('search')) ?>" />
                                 </td>
                                 <td>
                                     <a class="default" href="#" title="<?= $_lang["search"] ?>"
