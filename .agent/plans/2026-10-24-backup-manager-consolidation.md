@@ -7,7 +7,7 @@
 ## Progress
 
 - [x] (2026-10-24) M1: `EvoBackupManager` クラスと、`Mysqldumper` のファイルへの直接書き出し（c746601bb・d54fc1953・5a6a2ff1e。Docker で確認、自己レビューの高・中なし）
-- [ ] M2: 管理画面（バックアップ管理・スナップショット・復元）を新しいクラスへ置き換える
+- [x] (2026-10-24) M2: 管理画面（バックアップ管理・スナップショット・復元）を新しいクラスへ置き換える（49e797e09・6703b7b27・1e6f5b6b4・f8995581b。Docker で修正前と比較、自己レビューの高・中なし）
 - [ ] M3: CLI（`db:backup` / `db:import`）とパーサーの API（`$modx->snapshot()`）を置き換える
 - [ ] M4: ドキュメントの更新と Docker での通し確認
 
@@ -34,6 +34,11 @@
   - `createSnapshot()` と `restore()` は `prune(10)` を呼ぶので、`db:backup --max` を 10 より大きくしても、次の画面からの作成や復元で 10 件に減る。CLI の README（M4）に書く
   - `$modx->snapshot()` は書いたバイト数を返すので、`createSnapshot()` が返す名前から `filesize()` を取る
 - 2026-10-24（M1、直していない低い指摘）: 読み取り専用の古い `.htaccess` に書こうとすると PHP の Warning が出る（動きは正しい）。`tableExists()` の `SHOW TABLES LIKE` は `_` を 1 文字の何にでも合う印として扱う（実際にはまず起きない）。書き出しの途中で止まったときに一時ファイルが消えることは、中断を作れず未確認（`register_shutdown_function()` で消す作りはコードで確認）。
+- 2026-10-24（M2）: 手順 5（復元前のスナップショット）は、`bkmanager.static.php` と言語ファイルの変更が手順 1〜5 で混ざるため、想定の `feat(backup): …` とは分けずに 1 つのコミットにした。
+- 2026-10-24（M2）: 復元の結果は、操作したタブにだけ出す。一覧の「このデータに戻す」（`restore2`）はスナップショットのタブ、アップロード（`restore1`）はリストアのタブ。タブは `manager/media/script/tabpane.js` が cookie で前のタブを覚えているので、両方に出すのをやめるとき、一覧からの復元の結果が見えなくなる回帰を自己レビューで見つけて直した（`restore_result` の `mode` で出し分ける）。
+- 2026-10-24（M2）: 画面から付ける名前は、末尾が大文字小文字を問わず `.sql` なら小文字の `.sql` にそろえる（`Bad.SQL` → `Bad.sql`）。`isValidFilename()` は小文字の `.sql` だけを通すまま。世代数は `EvoBackupManager::KEEP`（10）にまとめ、案内文は `[+keep+]` で埋める。呼び出し元の無くなった `Mysqldumper::dumpSql()` は消した。
+- 2026-10-24（M2）: インストーラーには `MODX_CORE_PATH` が無いので、`MODX_BASE_PATH . 'manager/includes/backup_manager.class.inc.php'` を読み込んで `EvoBackupManager::HTACCESS` を書く。`setup-site.js` のインストールで新しい中身になることを確かめた。
+- 2026-10-24（M2、未確認）: ダウンロードを途中で止めたときに一時ファイルが消えること（`register_shutdown_function()`）。検証の DB が小さく、受信を切る前に書き終わるため試験にならなかった。正常時に残らないことは確認。
 
 ## Decision Log
 
