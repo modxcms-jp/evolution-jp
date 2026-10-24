@@ -441,7 +441,7 @@ if (sessionv('result_msg')) {
                         // 置き換えた値の中を再び置換しないよう、strtr() で一度だけ置換する
                         $output[$timestamp] = strtr($tpl, [
                             '[+filename+]' => hsc($filename),
-                            '[+filename_js+]' => js_literal($filename),
+                            '[+filename_js+]' => hsc(js_literal($filename)),
                             '[+filesize+]' => $filesize,
                         ]);
                     }
