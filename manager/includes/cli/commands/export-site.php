@@ -120,7 +120,11 @@ while (true) {
     if ($result['state'] === EvoSiteExportJob::STATE_NONE) {
         break;
     }
-    if ($result['job_id'] !== $jobId) {
+    if ($result['state'] === EvoSiteExportJob::STATE_ERROR && !isset($result['total'])) {
+        // ロックや状態を扱えないなど、ジョブの状態に結びつかない error（job_id が無い）
+        $fail('Error: ' . $plain($result['message']));
+    }
+    if (isset($result['job_id']) && $result['job_id'] !== $jobId) {
         $fail('Error: the export job was replaced by another one (restarted elsewhere). Stopping this command.');
     }
     if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {

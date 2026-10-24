@@ -13,10 +13,10 @@ require_once __DIR__ . '/site_exporter.class.inc.php';
  * 排他:         temp/export_job.lock を flock する。step・cancel は取れなければ待たずに busy を返す。start だけは処理の切れ目まで少し待つ（startWaitSeconds）
  * 中止の印:     temp/export_job.cancel。中止するジョブの id（状態の job_id）を書く。ロックを取らずに書ける。
  *               step() は 1 ページごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
- * 開始待ちの印: temp/export_job.takeover。start() がロックを取れないとき、待つ間だけ書く（中身は印の期限の時刻）。
+ * 開始待ちの印: temp/export_job.takeover.<ランダムな 16 進>。start() がロックを取れないとき、待つ間だけ待つ側ごとに作る（中身は無い）。
  *               処理中の step() は、始めと 1 ページごとにこれを見て、あれば進み具合を保存してロックを放し busy を返す。
  *               処理が途切れなく続く側（CLI など）でも、時間の隙間に頼らず start() に順番を譲らせるための印。
- *               期限（start() の待ちの上限）を過ぎた印は、書いた側が落ちたものとして無視して消す
+ *               期限（start() の待ちの上限 + 1 秒。印の更新時刻で判断する）を過ぎた印は、作った側が落ちたものとして無視して消す
  *
  * 画面・セッション・exit は持たない。結果は配列で返す（processor が JSON にする）。
  */
@@ -39,7 +39,8 @@ class EvoSiteExportJob
     private $stateFile;
     private $lockFile;
     private $cancelFile;
-    private $takeoverFile;
+    private $takeoverPattern;
+    private $takeoverPrefix;
     private $lockHandle = null;
 
     public function __construct()
@@ -48,7 +49,8 @@ class EvoSiteExportJob
         $this->stateFile = $dir . 'export_job.json';
         $this->lockFile = $dir . 'export_job.lock';
         $this->cancelFile = $dir . 'export_job.cancel';
-        $this->takeoverFile = $dir . 'export_job.takeover';
+        $this->takeoverPattern = $dir . 'export_job.takeover.*';
+        $this->takeoverPrefix = $dir . 'export_job.takeover.';
     }
 
     /**
@@ -220,7 +222,7 @@ class EvoSiteExportJob
                 // start() が待っていたら、処理中の 1 件を終えたここで進み具合を保存して譲る
                 if ($state['pos'] > $startPos && $this->hasTakeoverMark()) {
                     $state['elapsed'] += microtime(true) - $began;
-                    return $this->writeState($state) ? ['state' => self::STATE_BUSY] : $this->stateUnwritable();
+                    return $this->writeState($state) ? ['state' => self::STATE_BUSY] : $this->stateUnwritable($state);
                 }
                 // 少なくとも 1 件は進める。持ち時間を過ぎていたら、次の 1 件には掛からず返す
                 if ($budgetSeconds > 0 && $state['pos'] > $startPos
@@ -249,7 +251,7 @@ class EvoSiteExportJob
             }
             $state['elapsed'] += microtime(true) - $began;
             if (!$this->writeState($state)) {
-                return $this->stateUnwritable();
+                return $this->stateUnwritable($state);
             }
             return $this->toResponse($state);
         } finally {
@@ -444,18 +446,25 @@ class EvoSiteExportJob
         return $detail !== '' ? "{$text} ({$detail})" : $text;
     }
 
-    private function errorResponse($message)
+    /**
+     * ジョブの状態に結びつかない error の応答。ジョブの状態がある場合は $jobId を渡す（無ければ job_id キーは付けない）。
+     */
+    private function errorResponse($message, $jobId = null)
     {
-        return ['state' => self::STATE_ERROR, 'message' => $message];
+        $response = ['state' => self::STATE_ERROR, 'message' => $message];
+        if ($jobId !== null) {
+            $response['job_id'] = (string)$jobId;
+        }
+        return $response;
     }
 
     /**
      * 状態を保存できなかった。トークンを取り消して error を返す（続きは進めない）。
      */
-    private function stateUnwritable()
+    private function stateUnwritable($state = null)
     {
         evo()->revokeBearerToken();
-        return $this->errorResponse(lang('export_site_state_unwritable'));
+        return $this->errorResponse(lang('export_site_state_unwritable'), $state ? $state['job_id'] : null);
     }
 
     /**
@@ -507,34 +516,40 @@ class EvoSiteExportJob
             return $denied;
         }
         $wait = self::startWaitSeconds();
-        @file_put_contents($this->takeoverFile, (string)(microtime(true) + $wait + 1));
+        $mark = $this->takeoverPrefix . bin2hex(random_bytes(8));
+        @touch($mark);
         try {
             return $this->acquireLock($wait);
         } finally {
-            $this->removeTakeoverMark();
+            @unlink($mark);
         }
     }
 
+    /**
+     * 待っている start() の印が 1 つでもあるか。期限（待ちの上限 + 1 秒）を過ぎた印は無視して消す。
+     * glob が使えない・失敗したときは、印が無いものとして扱う。
+     */
     private function hasTakeoverMark()
     {
-        clearstatcache(true, $this->takeoverFile);
-        if (!is_file($this->takeoverFile)) {
+        $marks = @glob($this->takeoverPattern);
+        if (!$marks) {
             return false;
         }
-        $until = @file_get_contents($this->takeoverFile);
-        if ($until !== false && (float)$until > microtime(true)) {
-            return true;
+        $limit = self::startWaitSeconds() + 1;
+        $found = false;
+        foreach ($marks as $mark) {
+            clearstatcache(true, $mark);
+            $mtime = @filemtime($mark);
+            if ($mtime === false) {
+                continue;
+            }
+            if (time() - $mtime > $limit) {
+                @unlink($mark);
+                continue;
+            }
+            $found = true;
         }
-        // 期限を過ぎた印（書いた側が落ちた）、または読めない印は無視して消す
-        $this->removeTakeoverMark();
-        return false;
-    }
-
-    private function removeTakeoverMark()
-    {
-        if (is_file($this->takeoverFile)) {
-            @unlink($this->takeoverFile);
-        }
+        return $found;
     }
 
     private function unlock()
