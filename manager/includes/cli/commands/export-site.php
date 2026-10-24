@@ -2,6 +2,15 @@
 
 require_once MODX_CORE_PATH . 'site_export_job.class.inc.php';
 
+// 画面用の文言（HTML）は、タグを外してエンティティを戻した文字で出す
+$plain = function ($text) {
+    return trim(html_entity_decode(strip_tags((string)$text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+};
+// 失敗は必ずここを通り、終了コード 1 で終わる
+$fail = function ($message) use ($plain) {
+    cli_usage($plain($message), 1);
+};
+
 $usage = 'Usage: php evo export:site [--target=all|allow|ignore] [--ids=1,2,3] [--include-noncache]'
     . ' [--replace-before=TEXT] [--replace-after=TEXT] [--site-url=URL] [--restart]';
 
@@ -28,22 +37,22 @@ foreach ($args as $arg) {
     } elseif ($arg === '--restart') {
         $restart = true;
     } else {
-        cli_usage($usage);
+        $fail($usage);
     }
 }
 
 if (!in_array($target, ['all', 'allow', 'ignore'], true)) {
-    cli_usage($usage);
+    $fail($usage);
 }
 $ids = [];
 if ($target !== 'all') {
     if ($idsArg === null || !preg_match('/^\s*\d+(\s*,\s*\d+)*\s*$/', $idsArg)) {
-        cli_usage("Error: --ids=1,2,3 is required when --target={$target}.\n" . $usage);
+        $fail("Error: --ids=1,2,3 is required when --target={$target}.\n" . $usage);
     }
     $ids = array_map('intval', explode(',', $idsArg));
 }
 if ($siteUrl !== '' && !preg_match('#^https?://[^\s/]+#i', $siteUrl)) {
-    cli_usage("Error: --site-url must start with http:// or https://\n" . $usage);
+    $fail("Error: --site-url must start with http:// or https://\n" . $usage);
 }
 
 $job = new EvoSiteExportJob();
@@ -51,7 +60,7 @@ $job = new EvoSiteExportJob();
 // 画面のジョブ（temp/export_job.json）と共有する。途中のジョブは --restart が無ければ壊さない
 $current = $job->status();
 if ($current['state'] === EvoSiteExportJob::STATE_RUNNING && !$restart) {
-    cli_usage(sprintf(
+    $fail(sprintf(
         'Error: an export job is already running (%d / %d). Finish it from the manager (a=83), or use --restart to discard it and start over.',
         $current['done'],
         $current['total']
@@ -67,19 +76,27 @@ $result = $job->start([
     'site_url'         => $siteUrl,
 ]);
 if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
-    cli_usage('Error: another export is in progress. Try again later.');
+    $fail('Error: another export is in progress. Try again later.');
 }
 if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {
-    cli_usage('Error: ' . ($result['message'] ?? 'failed to start the export.'));
+    $fail('Error: ' . ($result['message'] ?? 'failed to start the export.'));
 }
 
 // 操作ログ（manager_log）に CLI からの開始として残す。ログインユーザーがいないので、ユーザー名を CLI にする
 include_once MODX_CORE_PATH . 'log.class.inc.php';
-(new logHandler())->initAndWriteLog('HTML export: start (CLI)', '0', 'CLI');
+// CLI では input_any('a') が 0 になるため、画面からの開始と同じ action（308）を渡して書く
+$log = new logHandler();
+$log->entry = [
+    'msg'         => 'HTML export: start (CLI)',
+    'internalKey' => '0',
+    'username'    => 'CLI',
+    'itemName'    => '-',
+];
+$log->writeToLog(308, 'x');
 
-$printMessages = function (array $messages) {
+$printMessages = function (array $messages) use ($plain) {
     foreach ($messages as $message) {
-        cli_out(trim(strip_tags($message)));
+        cli_out($plain($message));
     }
 };
 $printMessages($result['messages']);
@@ -102,7 +119,7 @@ $budget = EvoSiteExportJob::defaultBudget();
 while (true) {
     $result = $job->step($budget);
     if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
-        cli_usage('Error: another export is in progress.');
+        $fail('Error: another export is in progress.');
     }
     if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {
         break;
@@ -115,21 +132,21 @@ while (true) {
 }
 
 if ($result['state'] === EvoSiteExportJob::STATE_NONE) {
-    cli_usage('Error: the export job disappeared (temp/export_job.json was removed).');
+    $fail('Error: the export job disappeared (temp/export_job.json was removed).');
 }
 
 if (isset($result['total'])) {
     $progress($result);
     $printMessages($result['messages']);
     if ($result['output'] !== '') {
-        cli_out(trim(strip_tags($result['output'])));
+        cli_out($plain($result['output']));
     }
     cli_out(sprintf('Elapsed: %s sec', $result['elapsed']));
 
     if ($result['failures']) {
         cli_err('Failures:');
         foreach ($result['failures'] as $f) {
-            cli_err(sprintf('  #%d %s: %s', $f['id'], $f['pagetitle'], $f['reason']));
+            cli_err('  ' . $plain(sprintf('#%d %s: %s', $f['id'], $f['pagetitle'], $f['reason'])));
         }
         if ($result['failed'] > count($result['failures'])) {
             cli_err(sprintf('  ... and %d more', $result['failed'] - count($result['failures'])));
@@ -137,6 +154,6 @@ if (isset($result['total'])) {
     }
 }
 if ($result['state'] !== EvoSiteExportJob::STATE_DONE) {
-    cli_usage('Error: ' . (($result['message'] ?? '') ?: 'the export stopped (' . $result['state'] . ').'));
+    $fail('Error: ' . (($result['message'] ?? '') ?: 'the export stopped (' . $result['state'] . ').'));
 }
 exit($result['failed'] > 0 ? 1 : 0);

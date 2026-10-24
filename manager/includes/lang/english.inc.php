@@ -264,7 +264,7 @@ return [
     "expand_tree" => 'Expand Site Tree',
     "export_site" => 'Export Static HTML',
     "export_site_cacheable" => 'Include non-cacheable files:',
-    "export_site_failed_no_open" => 'Cannot open file: ',
+    "export_site_failed_no_open" => 'Cannot open the page.',
     "export_site_failed_no_retrieve" => 'Cannot retrieve document.',
     "export_site_failed_no_write" => 'Cannot write file.',
     "export_site_html" => 'Export site to HTML',

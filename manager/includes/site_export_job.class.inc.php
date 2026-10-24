@@ -373,6 +373,7 @@ class EvoSiteExportJob
                 'id'        => (int)$result['id'],
                 'pagetitle' => (string)$result['pagetitle'],
                 'reason'    => (string)$result['reason'],
+                'detail'    => isset($result['detail']) ? (string)$result['detail'] : '',
             ];
         }
     }
@@ -384,7 +385,7 @@ class EvoSiteExportJob
             $failures[] = [
                 'id'        => $f['id'],
                 'pagetitle' => $f['pagetitle'],
-                'reason'    => $this->reasonText($f['reason']),
+                'reason'    => $this->reasonText($f['reason'], isset($f['detail']) ? $f['detail'] : ''),
             ];
         }
         return [
@@ -402,7 +403,7 @@ class EvoSiteExportJob
         ];
     }
 
-    private function reasonText($reason)
+    private function reasonText($reason, $detail = '')
     {
         $keys = [
             'failed_no_write'    => 'export_site_failed_no_write',
@@ -410,7 +411,8 @@ class EvoSiteExportJob
             'failed_no_open'     => 'export_site_failed_no_open',
             'basic_auth'         => 'export_site_basic_auth_failed',
         ];
-        return isset($keys[$reason]) ? lang($keys[$reason]) : (string)$reason;
+        $text = isset($keys[$reason]) ? lang($keys[$reason]) : (string)$reason;
+        return $detail !== '' ? "{$text} ({$detail})" : $text;
     }
 
     private function errorResponse($message)

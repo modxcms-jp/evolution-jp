@@ -266,7 +266,7 @@ return [
     "expand_tree" => 'リソースツリーを展開',
     "export_site" => 'エクスポート',
     "export_site_cacheable" => '非キャッシュリソースを含む',
-    "export_site_failed_no_open" => 'ページを開けません:',
+    "export_site_failed_no_open" => 'ページを開けません。',
     "export_site_failed_no_retrieve" => '非公開リソースのためエクスポートしません。',
     "export_site_failed_no_write" => 'ファイルを更新できません。パーミッションを確認してください。',
     "export_site_html" => 'サイト全体を静的HTMLとしてエクスポート',

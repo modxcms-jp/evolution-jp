@@ -19,6 +19,7 @@ class EvoSiteExporter
     private $curl = null;
     private $basicAuthDetected = false;
     private $outputDirError = null;
+    private $fetchDetail = '';
 
     /**
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
@@ -106,13 +107,14 @@ class EvoSiteExporter
     /**
      * 1 件を書き出す。
      *
-     * @return array id, pagetitle, status('success'|'skipped'|'failed'), reason
+     * @return array id, pagetitle, status('success'|'skipped'|'failed'), reason,
+     *               detail(失敗の詳しい内容。取得の失敗なら HTTP のステータスや通信のエラー。無ければ空)
      */
     public function exportOne($id)
     {
         $id = (int)$id;
         if (!$this->isOutputDirValid()) {
-            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_write'];
+            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_write', 'detail' => ''];
         }
         $this->prepare();
 
@@ -123,7 +125,7 @@ class EvoSiteExporter
         );
         $row = db()->getRow($rs);
         if (!$row) {
-            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_retrieve'];
+            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_retrieve', 'detail' => ''];
         }
 
         $path = evo()->getAliasListing($row['id'], 'path');
@@ -131,6 +133,7 @@ class EvoSiteExporter
         $this->makeDir(rtrim($baseDir, '/'));
 
         $filename = null;
+        $this->fetchDetail = '';
         if ($row['wasNull']) {
             $reason = 'success_skip_dir';
         } else {
@@ -171,6 +174,7 @@ class EvoSiteExporter
             'pagetitle' => $row['pagetitle'],
             'status'    => $status,
             'reason'    => $reason,
+            'detail'    => $reason === 'failed_no_open' ? $this->fetchDetail : '',
         ];
     }
 
@@ -282,6 +286,9 @@ class EvoSiteExporter
         $src = $this->getContents($url);
 
         if ($src === false || is_file(dirname($filepath))) {
+            if ($src !== false) {
+                $this->fetchDetail = 'output path is a file: ' . dirname($filepath);
+            }
             return 'failed_no_open';
         }
 
@@ -356,7 +363,10 @@ class EvoSiteExporter
             if ($i > 0) {
                 usleep(300000);
             }
-            list($body, $status) = $this->fetch($url, $timeout);
+            list($body, $status, $error) = $this->fetch($url, $timeout);
+            $this->fetchDetail = $status !== 0
+                ? 'HTTP ' . $status
+                : ($error !== '' ? $error : 'no response');
             if ($status === 401) {
                 $this->basicAuthDetected = true;
                 return false;
@@ -372,7 +382,7 @@ class EvoSiteExporter
     }
 
     /**
-     * @return array [本文 または false, HTTP ステータス（応答が無ければ 0）]
+     * @return array [本文 または false, HTTP ステータス（応答が無ければ 0）, 通信のエラー（無ければ空）]
      */
     private function fetch($url, $timeout)
     {
@@ -401,15 +411,21 @@ class EvoSiteExporter
                     }
                 }
             }
-            return [$body, $status];
+            $error = '';
+            if ($body === false && $status === 0) {
+                $last = error_get_last();
+                $error = $last ? trim(preg_replace('@^file_get_contents\([^)]*\):\s*@', '', $last['message'])) : '';
+            }
+            return [$body, $status, $error];
         }
 
         if (!$this->curl) {
-            return [false, 0];
+            return [false, 0, 'curl is not available'];
         }
         curl_setopt($this->curl, CURLOPT_URL, $url);
         $body = curl_exec($this->curl);
-        return [$body, (int)curl_getinfo($this->curl, CURLINFO_HTTP_CODE)];
+        $status = (int)curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+        return [$body, $status, $body === false && $status === 0 ? curl_error($this->curl) : ''];
     }
 
     private function initCurl($timeout = 10)
