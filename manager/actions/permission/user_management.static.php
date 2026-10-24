@@ -90,8 +90,8 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?= $id ?? '' ?>" />
-    <input type="hidden" name="listmode" value="<?= $listmode ?? '' ?>" />
+    <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
+    <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
     <input type="hidden" name="op" value="" />
 
     <h1><?= $_lang['user_management_title'] ?></h1>

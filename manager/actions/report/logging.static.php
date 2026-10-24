@@ -273,15 +273,15 @@ $icons_path = manager_style_image_path('icons');
                     // New instance of the Paging class, you can modify the color and the width of the html table
                     $extargv = sprintf(
                         '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s',
-                        getv('searchuser'),
-                        getv('action'),
-                        getv('itemid'),
-                        getv('itemname'),
-                        getv('message'),
-                        getv('dateto'),
-                        getv('datefrom'),
+                        urlencode((string)getv('searchuser')),
+                        urlencode((string)getv('action')),
+                        urlencode((string)getv('itemid')),
+                        urlencode((string)getv('itemname')),
+                        urlencode((string)getv('message')),
+                        urlencode((string)getv('dateto')),
+                        urlencode((string)getv('datefrom')),
                         $int_num_result,
-                        getv('log_submit')
+                        urlencode((string)getv('log_submit'))
                     );
                     $p = new Paging($total, evo()->input_get('int_cur_position', 0), $int_num_result, $extargv);
 

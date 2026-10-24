@@ -149,18 +149,12 @@ class DataSetPager
                 if ($modx->isFrontend()) {
                     $url = $modx->makeUrl($modx->documentIdentifier, '', '', 'full') . '?';
                 } else {
-                    $url = $_SERVER['PHP_SELF'] . '?';
+                    $url = serverv('PHP_SELF') . '?';
                 }
-                $i = 0;
-                foreach ($_GET as $n => $v) {
-                    if ($n != 'dpgn' . $this->id) {
-                        $i++;
-                        $url .= (($i > 1) ? "&" : "") . "$n=$v";
-                    }
-                }
-
-                if ($i >= 1) {
-                    $url .= "&";
+                $query = getv();
+                unset($query['dpgn' . $this->id]);
+                if ($query) {
+                    $url .= http_build_query($query) . '&';
                 }
             }
             for ($i = 1; $i <= $tp; $i++) {
@@ -175,7 +169,7 @@ class DataSetPager
                         $this->pager .= ' <span class="' . $this->selPageClass . '" style="' . $this->selPageStyle . '">' . $i . '</span> ';
                     } else {
                         $eachurl = "{$url}dpgn{$this->id}={$i}";
-                        $this->pager .= ' <a href="' . $eachurl . '" class="' . $this->pageClass . '" style="' . $this->pageStyle . '">' . $i . '</a> ';
+                        $this->pager .= ' <a href="' . hsc($eachurl) . '" class="' . $this->pageClass . '" style="' . $this->pageStyle . '">' . $i . '</a> ';
                     }
                 }
             }
