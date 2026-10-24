@@ -17,7 +17,7 @@ if (!in_array($exportTarget, ['all', 'allow_ids', 'ignore_ids'], true)) {
 $exportJsKeys = [
     'export_site_progress', 'export_site_running', 'export_site_cancelling', 'export_site_cancelled',
     'export_site_resume_notice', 'export_site_cancelled_notice', 'export_site_error_notice',
-    'export_site_busy', 'export_site_request_failed',
+    'export_site_busy', 'export_site_request_failed', 'export_site_unreadable',
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
     'export_site_failures_title', 'export_site_failures_more',
@@ -65,6 +65,10 @@ foreach ($exportJsKeys as $key) {
                         vertical-align: top;
                         padding-right: 20px;
                         font-weight: bold;
+                    }
+
+                    #exportPane [hidden] {
+                        display: none !important;
                     }
 
                     #exportNotice {
@@ -196,8 +200,8 @@ foreach ($exportJsKeys as $key) {
                     </tr>
                 </table>
 
-                <ul class="actionButtons" id="exportStartButtons">
-                    <li>
+                <ul class="actionButtons">
+                    <li id="exportStartItem">
                         <a
                             href="#"
                             class="default"
@@ -208,11 +212,11 @@ foreach ($exportJsKeys as $key) {
             </form>
 
             <div id="exportNotice" role="status" hidden></div>
-            <ul class="actionButtons" id="exportChoice" hidden>
-                <li>
+            <ul class="actionButtons">
+                <li id="exportResumeItem" hidden>
                     <a href="#" class="default" id="exportResume"><?= lang('export_site_resume') ?></a>
                 </li>
-                <li>
+                <li id="exportRestartItem" hidden>
                     <a href="#" id="exportRestart"><?= lang('export_site_restart') ?></a>
                 </li>
             </ul>
@@ -223,7 +227,7 @@ foreach ($exportJsKeys as $key) {
                     <span id="exportCount"></span>
                 </p>
                 <ul class="actionButtons">
-                    <li>
+                    <li id="exportCancelItem" hidden>
                         <a href="#" id="exportCancel"><?= lang('export_site_cancel') ?></a>
                     </li>
                 </ul>
@@ -255,10 +259,12 @@ foreach ($exportJsKeys as $key) {
         };
         const form = $('exportFrm');
         const els = {
-            startButtons: $('exportStartButtons'),
+            startItem: $('exportStartItem'),
+            resumeItem: $('exportResumeItem'),
+            restartItem: $('exportRestartItem'),
+            cancelItem: $('exportCancelItem'),
             start: $('exportStart'),
             notice: $('exportNotice'),
-            choice: $('exportChoice'),
             resume: $('exportResume'),
             restart: $('exportRestart'),
             box: $('exportProgressBox'),
@@ -299,19 +305,43 @@ foreach ($exportJsKeys as $key) {
             Array.prototype.forEach.call(form.elements, function (el) {
                 el.disabled = disabled;
             });
-            els.startButtons.hidden = disabled;
+        };
+        // ボタンは状態ごとに 1 組だけ出す
+        //   start: 開始 / running: 中止 / choice: 再開とやり直し / restart: やり直し / none: 出さない
+        const setButtons = function (mode) {
+            els.startItem.hidden = mode !== 'start';
+            els.cancelItem.hidden = mode !== 'running';
+            els.resumeItem.hidden = mode !== 'choice';
+            els.restartItem.hidden = mode !== 'choice' && mode !== 'restart';
+        };
+        // 応答が読めない・4xx のときは送り直さず止める
+        const stopUnreadable = function () {
+            running = false;
+            cancelling = false;
+            setButtons('none');
+            setNotice(T.export_site_unreadable);
         };
 
         // サーバーに送る。通信に失敗したら間をおいて数回やり直す
         const call = async function (op, extra) {
             const data = Object.assign({op: op}, extra || {});
             for (let attempt = 0; attempt < 5; attempt++) {
+                let response;
                 try {
-                    const response = await Evo.post(ENDPOINT, data);
-                    return await response.json();
+                    response = await Evo.post(ENDPOINT, data);
                 } catch (e) {
+                    // 通信そのものの失敗だけ送り直す
                     setNotice(T.export_site_request_failed);
                     await sleep(2000);
+                    continue;
+                }
+                if (!response.ok) {
+                    return {state: 'error', unreadable: true};
+                }
+                try {
+                    return await response.json();
+                } catch (e) {
+                    return {state: 'error', unreadable: true};
                 }
             }
             return {state: 'error', message: T.export_site_request_failed};
@@ -396,10 +426,9 @@ foreach ($exportJsKeys as $key) {
         const showFinished = function (res) {
             running = false;
             cancelling = false;
-            els.cancel.hidden = true;
-            els.choice.hidden = true;
             renderProgress(res);
             renderMessages(res);
+            setButtons(res.state === 'done' ? 'start' : 'restart');
             if (res.state === 'cancelled') {
                 setNotice(T.export_site_cancelled);
             } else if (res.state === 'error') {
@@ -420,13 +449,16 @@ foreach ($exportJsKeys as $key) {
             }
             running = true;
             setFormDisabled(true);
-            els.choice.hidden = true;
+            setButtons('running');
             els.result.hidden = true;
-            els.cancel.hidden = false;
             setNotice(T.export_site_running);
             while (running) {
                 const res = await call(cancelling ? 'cancel' : 'step');
                 if (!running) {
+                    return;
+                }
+                if (res.unreadable) {
+                    stopUnreadable();
                     return;
                 }
                 if (res.state === 'running') {
@@ -454,6 +486,10 @@ foreach ($exportJsKeys as $key) {
             els.messages.textContent = '';
             els.result.hidden = true;
             const res = await call('start', formData());
+            if (res.unreadable) {
+                stopUnreadable();
+                return;
+            }
             if (res.state === 'busy') {
                 setNotice(T.export_site_busy);
                 return;
@@ -475,6 +511,10 @@ foreach ($exportJsKeys as $key) {
             setNotice(T.export_site_cancelling);
             // 処理中の続きを進めるを待たずに、中止の印を書かせる
             const res = await call('cancel');
+            if (res.unreadable) {
+                stopUnreadable();
+                return;
+            }
             if (res.state === 'cancelled' || res.state === 'done' || res.state === 'error') {
                 showFinished(res);
             }
@@ -508,7 +548,12 @@ foreach ($exportJsKeys as $key) {
         });
 
         // 開いたとき、保存したジョブがあれば状態を見せる
+        setButtons('start');
         call('status').then(function (res) {
+            if (res && res.unreadable) {
+                stopUnreadable();
+                return;
+            }
             if (!res || res.state === 'none') {
                 return;
             }
@@ -516,8 +561,7 @@ foreach ($exportJsKeys as $key) {
             renderMessages(res);
             if (res.state === 'running') {
                 setNotice(T.export_site_resume_notice);
-                els.choice.hidden = false;
-                els.cancel.hidden = true;
+                setButtons('choice');
                 return;
             }
             if (res.state === 'cancelled') {
@@ -526,7 +570,7 @@ foreach ($exportJsKeys as $key) {
                 setNotice(T.export_site_error_notice + ' ' + (res.message || ''), true);
             }
             renderResult(res);
-            els.cancel.hidden = true;
+            setButtons(res.state === 'done' ? 'start' : 'restart');
         });
     })();
 </script>

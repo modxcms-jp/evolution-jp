@@ -297,6 +297,7 @@ return [
     "export_site_error_notice" => '前回のエクスポートはエラーで止まりました。最初からやり直してください。',
     "export_site_busy" => '別の画面でエクスポートを処理中です。少し待ってから続けます。',
     "export_site_request_failed" => 'サーバーとの通信に失敗しました。再試行しています…',
+    "export_site_unreadable" => '処理を続けられませんでした。画面を開き直してください。',
     "export_site_result_success" => '成功',
     "export_site_result_skipped" => 'スキップ',
     "export_site_result_failed" => '失敗',
