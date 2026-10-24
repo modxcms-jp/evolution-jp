@@ -36,8 +36,7 @@ foreach ($exportJsKeys as $key) {
             class="mutate"
             id="Button5"
         ><a
-                href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                href="index.php?a=2"
             ><?= lang('cancel') ?></a>
         </li>
     </ul>
