@@ -230,10 +230,10 @@ class EvoBackupManager
                 continue;
             }
             if (preg_match(
-                '/^(INSERT INTO|REPLACE INTO|DROP TABLE IF EXISTS|CREATE TABLE|TRUNCATE TABLE|LOCK TABLES|ALTER TABLE)\s+`?([a-zA-Z0-9_]+)`?/i',
+                '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
                 $body,
                 $m
-            ) && $m[2] === $cacheTable) {
+            ) && $m[1] === $cacheTable) {
                 $result['skipped']++;
                 continue;
             }
