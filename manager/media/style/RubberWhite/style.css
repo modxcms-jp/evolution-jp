@@ -1997,6 +1997,12 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     color: var(--accent-blue-hover);
 }
 
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav > li > ul.subnav a[aria-current="page"] {
+    background: var(--color-surface);
+    font-weight: 700;
+}
+
 /* 補助ナビゲーション（右上） */
 #supplementalNav {
     background: rgba(255, 255, 255, 0.98);

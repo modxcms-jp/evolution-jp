@@ -41,11 +41,48 @@ if (!$isShellPartial) {
                 if (top.__hideTree) {
                     hideTreeFrame();
                 }
+
+                markCurrentMenu(window.location.href);
             }
 
             Evo.ready(function () {
                 initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
             });
+
+            // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す
+            document.addEventListener('evoshell:load', function (e) {
+                markCurrentMenu(e.detail && e.detail.url ? e.detail.url : window.location.href);
+            });
+
+            // 表示中の画面に対応するサブメニュー項目に aria-current を付け、その親タブを開く。
+            // リンクのクエリ（a、モジュールなら id も）がすべて一致する項目を対象にする。ダッシュボードは対象外
+            function markCurrentMenu(url) {
+                var nav = document.getElementById('nav');
+                if (!nav) return;
+
+                var current = new URL(url, window.location.href).searchParams;
+                var action = current.get('a');
+                var matched = null;
+                nav.querySelectorAll('ul.subnav a[href]').forEach(function (link) {
+                    link.removeAttribute('aria-current');
+                    if (matched || !action || action === '2') return;
+                    var href = link.getAttribute('href');
+                    if (href.indexOf('javascript:') === 0) return;
+                    var params = new URL(href, window.location.href).searchParams;
+                    if (params.get('a') !== action) return;
+                    for (var [key, value] of params) {
+                        if (current.get(key) !== value) return;
+                    }
+                    matched = link;
+                });
+                if (!matched) return;
+
+                matched.setAttribute('aria-current', 'page');
+                var tab = matched.closest('ul.subnav').parentNode;
+                Array.prototype.forEach.call(nav.children, function (li) {
+                    li.classList.toggle('active', li === tab);
+                });
+            }
 
             // シェルのメニュー行の高さ(--shell-menu-height)を、表示中のサブメニュー帯の下端に合わせる。
             // 帯はテーマ側で絶対配置されているため、行の高さを固定値にすると帯の下が #mainPane に隠れる

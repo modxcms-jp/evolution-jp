@@ -2177,6 +2177,13 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     color: rgba(255, 255, 255, 1) !important;
 }
 
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav > li > ul.subnav a[aria-current="page"] {
+    background: rgba(59, 130, 246, 0.25) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    font-weight: bold;
+}
+
 /* === 右上のユーザー情報エリア === */
 #supplementalNav {
     background: linear-gradient(180deg, rgba(15, 23, 24, 0.4), rgba(16, 35, 37, 0.4)) !important;
