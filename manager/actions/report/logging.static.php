@@ -225,20 +225,20 @@ $icons_path = manager_style_image_path('icons');
                     $where[] = sprintf('action=%d', (int)getv('action'));
                 }
                 if (getv('itemid') || getv('itemid') == '-') {
-                    $where[] = sprintf("itemid='%s'", getv('itemid'));
+                    $where[] = sprintf("itemid='%s'", db()->escape(getv('itemid')));
                 }
                 if (getv('itemname')) {
-                    $where[] = sprintf("itemname='%s'", getv('itemname'));
+                    $where[] = sprintf("itemname='%s'", db()->escape(getv('itemname')));
                 }
                 if (getv('message')) {
-                    $where[] = sprintf("message LIKE '%%%s%%'", getv('message'));
+                    $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(getv('message')));
                 }
                 // date stuff
                 if (getv('datefrom')) {
-                    $where[] = sprintf('timestamp > %s', evo()->toTimeStamp(getv('datefrom')));
+                    $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(getv('datefrom')));
                 }
                 if (getv('dateto')) {
-                    $where[] = sprintf('timestamp < %s', evo()->toTimeStamp(getv('dateto')));
+                    $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(getv('dateto')));
                 }
 
                 // Number of result to display on the page, will be in the LIMIT of the sql query also
@@ -258,7 +258,7 @@ $icons_path = manager_style_image_path('icons');
                     '[+prefix+]manager_log',
                     implode(' AND ', $where),
                     $orderby,
-                    sprintf('%s, %s', evo()->input_get('int_cur_position', 0), $int_num_result)
+                    sprintf('%d, %d', (int)evo()->input_get('int_cur_position', 0), (int)$int_num_result)
                 );
                 if ($total < 1) {
                     echo '<p>' . lang('mgrlog_emptysrch') . '</p>';

@@ -114,7 +114,7 @@ function activeUserCheck($userid)
     $rs = db()->select(
         'internalKey, username',
         '[+prefix+]active_users',
-        sprintf("action='12' AND id='%s'", $userid)
+        sprintf("action='12' AND id='%d'", (int)$userid)
     );
     if (db()->count($rs) > 1) {
         while ($lock = db()->getRow($rs)) {

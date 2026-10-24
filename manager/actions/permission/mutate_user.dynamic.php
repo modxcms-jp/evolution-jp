@@ -12,7 +12,7 @@ if (!hasUserPermission(request_intvar('a'))) {
     return;
 }
 
-$userid = evo()->input_any('id', 0);
+$userid = (int)evo()->input_any('id', 0);
 
 if ($userid && !activeUserCheck($userid)) {
     alert()->dumpError();
