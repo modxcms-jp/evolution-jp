@@ -1690,33 +1690,6 @@ ul.actionButtons {
     font-weight: 700;
 }
 
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
-    text-shadow: none;
-    font-weight: 600;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
-}
-
-
 #loadingmask {
     display: none;
 }
@@ -2102,6 +2075,32 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     background: #e2e7eb;
     transform: translateY(0);
     box-shadow: none;
+}
+
+.actionButtons #Button1 a,
+.actionButtons li.primary a,
+.actionButtons a.primary,
+.actionButtons a.default {
+    color: var(--color-text-inverse);
+    box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
+    text-shadow: none;
+    font-weight: 600;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-end);
+}
+
+.actionButtons #Button1 a:hover,
+.actionButtons a:hover.default {
+    box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
+}
+
+.actionButtons #Button1 a:active,
+.actionButtons a:active.default {
+    box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
+    background-color: var(--color-primary-active-start);
+    border-color: var(--color-primary-active-end);
 }
 
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
