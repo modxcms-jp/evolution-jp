@@ -43,7 +43,7 @@ const SKILL_TRACE_EVENT_TYPES = ['step', 'decision', 'error', 'feedback', 'resul
 /**
  * trace.jsonl agent値
  */
-const SKILL_TRACE_AGENTS = ['worker', 'explorer', 'reviewer', 'planner', 'user', 'system'];
+const SKILL_TRACE_AGENTS = ['worker', 'explorer', 'reviewer', 'planner', 'orchestrator', 'tester', 'roadmap-curator', 'user', 'system'];
 
 /**
  * trace.jsonl status値（step, error, result）
