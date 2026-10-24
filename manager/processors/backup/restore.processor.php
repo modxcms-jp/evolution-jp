@@ -27,6 +27,7 @@ if (postv('mode') === 'restore1') {
 if ($source !== '') {
     $result = $backup->restore($source);
     sessionv('*restore_result', [
+        'mode'               => postv('mode'),
         'ok'                 => $result['ok'],
         'error'              => $result['error'],
         'failed_at'          => $result['failed_at'],

@@ -328,35 +328,6 @@ class Mysqldumper
         return $array;
     }
 
-    public function dumpSql(&$dumpstring)
-    {
-        if (!headers_sent()) {
-            header('Expires: 0');
-            header('Cache-Control: private');
-            header('Pragma: cache');
-            header('Content-type: application/download');
-            header("Content-Length: " . strlen($dumpstring));
-            header(
-                sprintf(
-                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
-                    strtolower(
-                        str_replace(
-                            '/',
-                            '-',
-                            evo()->toDateFormat(
-                                time(),
-                                'dateOnly'
-                            )
-                        )
-                    ),
-                    globalv('settings_version')
-                )
-            );
-        }
-        echo $dumpstring;
-        return true;
-    }
-
     function snapshot($path, &$dumpstring)
     {
         $rs = file_put_contents($path, $dumpstring);

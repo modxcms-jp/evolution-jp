@@ -29,6 +29,14 @@ if ($mode === 'backup') {
     $dumper->addDropCommand(postv('droptables') !== null);
     // 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
     $tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
+    if ($tempfile !== false) {
+        // 途中で止められても DB 全体のダンプを残さない
+        register_shutdown_function(function () use ($tempfile) {
+            if (is_file($tempfile)) {
+                @unlink($tempfile);
+            }
+        });
+    }
     if ($tempfile === false || !$dumper->dumpToFile($tempfile)) {
         if ($tempfile !== false && is_file($tempfile)) {
             unlink($tempfile);
@@ -60,17 +68,18 @@ if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを�
 }
 $ph['result_msg'] = '';
 $ph['snapshot_msg'] = '';
+$restoreHtml = '';
 if (sessionv('result_msg')) {
     $restoreResult = sessionv('restore_result', []);
     $restoreResult = is_array($restoreResult) ? $restoreResult : [];
     $preRestore = hsc($restoreResult['pre_restore'] ?? '');
     switch (sessionv('result_msg')) {
         case 'import_ok':
-            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
+            $restoreHtml = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
             break;
         case 'restore_warn':
             // 復元は成功したが、設定のテーブルが無くキャッシュを作り直さなかった
-            $ph['result_msg'] = sprintf(
+            $restoreHtml = sprintf(
                 '<div class="okmsg">%s</div><div class="errmsg">%s</div>',
                 $_lang['bkmgr_import_ok'],
                 evo()->parseText(
@@ -80,7 +89,7 @@ if (sessionv('result_msg')) {
             );
             break;
         case 'restore_failed':
-            $ph['result_msg'] = sprintf(
+            $restoreHtml = sprintf(
                 '<div class="errmsg">%s</div>',
                 evo()->parseText(
                     $_lang['bkmgr_restore_failed'],
@@ -93,11 +102,17 @@ if (sessionv('result_msg')) {
             );
             break;
         case 'restore_no_snapshot':
-            $ph['result_msg'] = sprintf('<div class="errmsg">%s</div>', $_lang['bkmgr_restore_no_snapshot']);
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $_lang['bkmgr_restore_no_snapshot']);
             break;
         case 'snapshot_ok':
             $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
             break;
+    }
+    // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
+    if (($restoreResult['mode'] ?? '') === 'restore2') {
+        $ph['snapshot_msg'] .= $restoreHtml;
+    } else {
+        $ph['result_msg'] .= $restoreHtml;
     }
     sessionv('*result_msg', '');
     sessionv('*restore_result', []);
@@ -304,7 +319,7 @@ if (sessionv('result_msg')) {
                     </tr>
                     <tr>
                         <th><?= $_lang["bkmgr_file_name"] ?></th>
-                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= $_lang["bkmgr_file_name_hint"] ?></td>
+                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText($_lang["bkmgr_file_name_hint"], ['keep' => EvoBackupManager::KEEP]) ?></td>
                     </tr>
                 </table>
                 <div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">

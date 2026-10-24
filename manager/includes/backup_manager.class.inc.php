@@ -9,6 +9,7 @@ class EvoBackupManager
     const AUTO_NAME_PATTERN = '/\A\d{4}-\d{2}-\d{2}-\d{6}-[0-9A-Za-z._-]+\.sql\z/';
     const FILE_NAME_PATTERN = '/\A[0-9A-Za-z][0-9A-Za-z._-]*\.sql\z/';
     const PRE_RESTORE_PREFIX = 'pre-restore-';
+    const KEEP = 10;
     const PRE_RESTORE_KEEP = 3;
     const HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
 
@@ -142,7 +143,7 @@ class EvoBackupManager
         return $name;
     }
 
-    public function prune($max = 10)
+    public function prune($max = self::KEEP)
     {
         $max = max(1, (int)$max);
         $auto = [];
