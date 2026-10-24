@@ -291,3 +291,14 @@ body.evo-shell #evoShellModal .evo-modal-close:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
 }
+
+/* 送信中(EvoShell.submit)は送信ボタンとactionButtonsを押せない見た目にする */
+body.evo-shell form.evo-submitting button[type="submit"],
+body.evo-shell form.evo-submitting button:not([type]),
+body.evo-shell form.evo-submitting input[type="submit"],
+body.evo-shell form.evo-submitting input[type="image"],
+body.evo-shell .actionButtons.evo-submitting a {
+    opacity: .5;
+    pointer-events: none;
+    cursor: progress;
+}
