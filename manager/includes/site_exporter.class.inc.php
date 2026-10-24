@@ -18,6 +18,7 @@ class EvoSiteExporter
     private $prepared = false;
     private $curl = null;
     private $basicAuthDetected = false;
+    private $outputDirError = null;
 
     /**
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
@@ -36,11 +37,36 @@ class EvoSiteExporter
         $dir = isset($options['export_dir']) && $options['export_dir'] !== ''
             ? $options['export_dir']
             : MODX_BASE_PATH . 'temp/export';
-        $this->exportDir = rtrim(str_replace('\\', '/', $dir), '/');
+        $this->resolveOutputDir($dir);
 
         if (!evo()->config('site_status')) {
             $this->bearerToken = bin2hex(random_bytes(64));
         }
+    }
+
+    /**
+     * 出力先が使えるか。
+     */
+    public function isOutputDirValid()
+    {
+        return $this->outputDirError === null;
+    }
+
+    /**
+     * 出力先が使えない理由を言語キーで返す。使えるなら null。
+     * 'export_site_target_unwritable' | 'export_site_target_outside_temp'
+     */
+    public function getOutputDirError()
+    {
+        return $this->outputDirError;
+    }
+
+    /**
+     * 確認済みの出力先（MODX_BASE_PATH/temp/ からの相対で組み直したパス）。使えないときは null。
+     */
+    public function getOutputDir()
+    {
+        return $this->outputDirError === null ? $this->exportDir : null;
     }
 
     /**
@@ -72,6 +98,9 @@ class EvoSiteExporter
      */
     public function clearOutputDir()
     {
+        if (!$this->isOutputDirValid()) {
+            return false;
+        }
         return $this->removeDirectoryAll($this->exportDir);
     }
 
@@ -83,6 +112,9 @@ class EvoSiteExporter
     public function exportOne($id)
     {
         $id = (int)$id;
+        if (!$this->isOutputDirValid()) {
+            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_write'];
+        }
         $this->prepare();
 
         $rs = db()->select(
@@ -148,6 +180,30 @@ class EvoSiteExporter
         $this->curl = null;
     }
 
+    /**
+     * 出力先は temp/ の中（temp/ 自体は不可）に限る。開始時に中身を消すため、./ や ../ は解決してから比べる。
+     */
+    private function resolveOutputDir($dir)
+    {
+        $real = realpath(str_replace('\\', '/', $dir));
+        if ($real === false) {
+            $this->outputDirError = 'export_site_target_unwritable';
+            return;
+        }
+        $real = str_replace('\\', '/', $real);
+        $realTemp = realpath(MODX_BASE_PATH . 'temp');
+        $realTemp = $realTemp === false ? false : str_replace('\\', '/', $realTemp);
+        if ($realTemp === false || strpos($real, $realTemp . '/') !== 0) {
+            $this->outputDirError = 'export_site_target_outside_temp';
+            return;
+        }
+        // 以降の処理は MODX_BASE_PATH で始まるパスを前提にするため、temp/ からの相対で組み直す
+        $this->exportDir = rtrim(MODX_BASE_PATH . 'temp' . substr($real, strlen($realTemp)), '/');
+        if (!is_dir($this->exportDir) || !is_writable($this->exportDir)) {
+            $this->outputDirError = 'export_site_target_unwritable';
+        }
+    }
+
     private function prepare()
     {
         if ($this->prepared) {
@@ -162,12 +218,12 @@ class EvoSiteExporter
 
     private function filePermission()
     {
-        return octdec((string)evo()->config('new_file_permissions')) ?: 0666;
+        return octdec((string)evo()->config('new_file_permissions')) ?: 0644;
     }
 
     private function folderPermission()
     {
-        return octdec((string)evo()->config('new_folder_permissions')) ?: 0777;
+        return octdec((string)evo()->config('new_folder_permissions')) ?: 0755;
     }
 
     private function makeDir($dir)
