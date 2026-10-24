@@ -242,7 +242,8 @@ $icons_path = manager_style_image_path('icons');
                 }
 
                 // Number of result to display on the page, will be in the LIMIT of the sql query also
-                $int_num_result = is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs');
+                $int_num_result = (int)(is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs'));
+                $int_cur_position = (int)evo()->input_get('int_cur_position', 0);
 
                 // build the sql
                 $total = db()->getValue(
@@ -258,7 +259,7 @@ $icons_path = manager_style_image_path('icons');
                     '[+prefix+]manager_log',
                     implode(' AND ', $where),
                     $orderby,
-                    sprintf('%d, %d', (int)evo()->input_get('int_cur_position', 0), (int)$int_num_result)
+                    sprintf('%d, %d', $int_cur_position, $int_num_result)
                 );
                 if ($total < 1) {
                     echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
@@ -279,12 +280,12 @@ $icons_path = manager_style_image_path('icons');
                         $int_num_result,
                         getv('log_submit')
                     );
-                    $p = new Paging($total, evo()->input_get('int_cur_position', 0), $int_num_result, $extargv);
+                    $p = new Paging($total, $int_cur_position, $int_num_result, $extargv);
 
                     // Load up the 2 array in order to display result
                     $array_paging = $p->getPagingArray();
                     $array_row_paging = $p->getPagingRowArray();
-                    $current_row = (int)(evo()->input_get('int_cur_position', 0) / $int_num_result);
+                    $current_row = (int)($int_cur_position / $int_num_result);
 
                     // Display the result as you like...
                     echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);
