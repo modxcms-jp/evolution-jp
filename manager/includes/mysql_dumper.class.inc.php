@@ -328,15 +328,6 @@ class Mysqldumper
         return $array;
     }
 
-    function snapshot($path, &$dumpstring)
-    {
-        $rs = file_put_contents($path, $dumpstring);
-        if ($rs) {
-            @chmod($path, 0666);
-        }
-        return $rs;
-    }
-
     function getTableNames($dbname = '', $table_prefix = '')
     {
         if (!$table_prefix) {

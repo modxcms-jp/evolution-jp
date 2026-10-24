@@ -2448,60 +2448,36 @@ trait DocumentParserSubParserTrait
 
     function snapshot($filename = '', $target = '')
     {
-        global $modx, $settings_version;
-
         if (is_array($filename)) {
-            if (!isset($filename['filename'])) {
-                $filename = '';
-            } else {
-                $filename = $filename['filename'];
-            }
-            if (!isset($filename['target'])) {
-                $target = '';
-            } else {
-                $target = $filename['target'];
-            }
+            $target = $filename['target'] ?? '';
+            $filename = $filename['filename'] ?? '';
         }
+        $filename = (string)$filename;
 
-        if (strpos($filename, '/') !== false) {
+        if (strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
             return;
         }
-        if (strpos($filename, '\\') !== false) {
-            return;
-        }
-        if ($target !== '') {
-            $target = substr(strtolower($target), 0, 1);
-        }
+        $target = substr(strtolower((string)$target), 0, 1);
 
-        if (!evo()->config('snapshot_path')) {
-            if (is_dir(MODX_BASE_PATH . 'temp/backup')) {
-                $snapshot_path = MODX_BASE_PATH . 'temp/backup/';
-            } elseif (is_dir(MODX_BASE_PATH . 'assets/backup')) {
-                $snapshot_path = MODX_BASE_PATH . 'assets/backup/';
+        include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
+        $backup = new EvoBackupManager();
+        if ($filename !== '') {
+            if (preg_match('/\.sql\z/i', $filename)) {
+                $filename = substr($filename, 0, -4) . '.sql';
+            } else {
+                $filename .= '.sql';
             }
-        } else {
-            $snapshot_path = evo()->config('snapshot_path');
+            if (!$backup->isValidFilename($filename)) {
+                return;
+            }
         }
 
-        if ($filename === '') {
-            $today = $modx->toDateFormat(request_time());
-            $today = str_replace(
-                ['/', ' ', ':'],
-                ['-', '-', ''],
-                $today
-            );
-            $today = strtolower($today);
-            $filename = "{$today}-{$settings_version}.sql";
+        // target が c のときはコンテンツのテーブルだけを書き出す
+        $name = $backup->createSnapshot($filename, $target === 'c');
+        if ($name === false) {
+            return false;
         }
-
-        include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
-        $dumper = new Mysqldumper();
-        $dumper->mode = 'snapshot';
-        if ($target === 'c') {
-            $dumper->contentsOnly = true;
-        }
-        $output = $dumper->createDump();
-        return $dumper->snapshot($snapshot_path . $filename, $output);
+        return filesize($backup->dir() . $name);
     }
 
     /**
@@ -2708,7 +2684,9 @@ trait DocumentParserSubParserTrait
      */
     function getBindDenyDirs()
     {
-        $dirs = [MODX_BASE_PATH . 'temp/backup', MODX_BASE_PATH . 'assets/backup'];
+        include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
+        // 保存先の判定は EvoBackupManager::dir() が持つ。以前の置き場所も、残っていれば読めないままにする
+        $dirs = [(new EvoBackupManager())->dir(), MODX_BASE_PATH . 'temp/backup', MODX_BASE_PATH . 'assets/backup'];
         $snapshot_path = $this->config('snapshot_path');
         if ($snapshot_path) {
             $dirs[] = $snapshot_path;
