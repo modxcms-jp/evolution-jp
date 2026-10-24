@@ -2,7 +2,8 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('bk_manager')) {
+// 復元は DB を丸ごと書き換えるため、管理者だけに許す
+if (!evo()->hasPermission('bk_manager') || !manager()->isAdmin()) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -11,10 +12,7 @@ if (!evo()->hasPermission('bk_manager')) {
 
 $source = '';
 if (postv('mode') === 'restore1') {
-    if (postv('textarea')) {
-        $source = trim(postv('textarea'));
-        $_SESSION['textarea'] = $source . "\n";
-    } elseif (filev('sqlfile.tmp_name')) {
+    if (filev('sqlfile.tmp_name')) {
         $source = file_get_contents(filev('sqlfile.tmp_name'));
     }
 } elseif (postv('mode') === 'restore2') {

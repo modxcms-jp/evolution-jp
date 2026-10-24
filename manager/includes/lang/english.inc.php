@@ -1037,14 +1037,11 @@ return [
 
     // bkmanager.static.php
     "bkmgr_alert_mkdir" => 'A file cannot be created in a directory.  Please check the permission of [+snapshot_path+]',
-    "bkmgr_restore_msg" => '<p>A site can be restore using an SQL file. </p>',
+    "bkmgr_restore_msg" => '<p>A site can be restored using an SQL file created by "Backup".<br />To run other SQL statements, use <code>php evo db:query</code> or a database administration tool.</p>',
     "bkmgr_restore_title" => 'Restore',
     "bkmgr_import_ok" => 'SQL recovery was performed normally.',
     "bkmgr_snapshot_ok" => 'The snapshot was saved normally.',
-    "bkmgr_run_sql_file_label" => 'Execute by sql file',
-    "bkmgr_run_sql_direct_label" => 'Direct execute SQL command strings',
     "bkmgr_run_sql_submit" => 'Execute restore',
-    "bkmgr_run_sql_result" => 'Result',
     "bkmgr_snapshot_title" => 'Snapshot save and recovery',
     "bkmgr_snapshot_msg" => '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>',
     "bkmgr_snapshot_submit" => 'Add snapshot',

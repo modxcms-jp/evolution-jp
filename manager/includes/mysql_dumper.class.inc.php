@@ -342,7 +342,7 @@ class Mysqldumper
             if (empty($sql_entry)) {
                 continue;
             }
-            $rs = db()->query($sql_entry);
+            db()->query($sql_entry);
         }
         $settings = $this->getSettings();
         $this->restoreSettings($settings);
@@ -355,11 +355,6 @@ class Mysqldumper
         }
 
         evo()->clearCache();
-        if (db()->count($rs)) {
-            while ($row = db()->getRow($rs)) {
-                $_SESSION['last_result'][] = $row;
-            }
-        }
         $_SESSION['result_msg'] = 'import_ok';
     }
 
