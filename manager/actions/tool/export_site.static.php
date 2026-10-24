@@ -186,7 +186,10 @@ if (!evo()->hasPermission('export_static')) {
         <div class="tab-page" id="tabHelp">
             <h2 class="tab"><?= lang('help') ?></h2>
             <?php
-            echo '<p>' . lang('export_site_message') . '</p>';
+            echo '<p>' . evo()->parseText(
+                lang('export_site_message'),
+                ['export_dir' => str_replace('[(base_path)]', '', config('export_dir'))]
+            ) . '</p>';
             ?>
         </div>
     </div>
