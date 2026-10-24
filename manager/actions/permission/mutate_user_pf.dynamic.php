@@ -67,6 +67,9 @@ if (manager()->hasFormValues()) {
     extract($usersettings, EXTR_OVERWRITE);
 }
 
+// userData('username') で保存失敗時に送ったユーザー名も返せるようにする
+$userdata['username'] = $usernamedata['username'];
+
 function userData($key, $default = null)
 {
     global $userdata;
