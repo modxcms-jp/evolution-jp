@@ -446,6 +446,28 @@
         });
     }
 
+    // 応答待ちのフォーム。同じフォームの送信が重ならないよう、送信中は次の送信を無視する
+    const submittingForms = new WeakSet();
+
+    // 送信中の見た目。送信ボタンと、同じ画面(#mainPane/モーダル)のactionButtonsを押せない見た目にする
+    function setSubmitting(form, on) {
+        const container = form.closest('#mainPane, #evoShellModal');
+        const targets = [form];
+        if (container) {
+            container.querySelectorAll('.actionButtons').forEach(function (el) {
+                targets.push(el);
+            });
+        }
+        targets.forEach(function (el) {
+            el.classList.toggle('evo-submitting', on);
+            if (on) {
+                el.setAttribute('aria-busy', 'true');
+            } else {
+                el.removeAttribute('aria-busy');
+            }
+        });
+    }
+
     function getFormData(form, submitter) {
         const formData = new FormData(form);
         if (submitter && submitter.name && !submitter.disabled) {
@@ -459,7 +481,7 @@
         startWork();
         const isModalTarget = target === 'modal';
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
-        fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
+        return fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
                     // セッション切れ。ログイン画面へフルリロードする
@@ -560,6 +582,9 @@
         },
 
         submit: function (form, submitter) {
+            if (submittingForms.has(form)) {
+                return;
+            }
             const method = (form.getAttribute('method') || 'GET').toUpperCase();
             const formData = getFormData(form, submitter);
             // モーダル内フォームはhistory/#mainPaneに触れず、モーダル自身を差し替える。
@@ -580,11 +605,17 @@
             }
 
             window.documentDirty = false;
+            // 応答・エラーのどちらでも印を外す(requestは失敗も内部で処理して解決する)
+            submittingForms.add(form);
+            setSubmitting(form, true);
             request(action, {
                 method: 'POST',
                 body: formData,
                 headers: { 'X-CSRF-Token': getCsrfToken() }
-            }, push, target);
+            }, push, target).then(function () {
+                submittingForms.delete(form);
+                setSubmitting(form, false);
+            });
         },
 
         openModal: function (url) {
