@@ -2,11 +2,18 @@
 
 /**
  * 静的 HTML エクスポートの中身。
- * 対象の一覧・出力先の準備・1 件の書き出しを受け持つ。
+ * 対象の一覧・出力先の準備・ページの取得と書き出しを受け持つ。
  * 画面の出力・セッション・exit は持たず、結果は配列で返す。
  */
 class EvoSiteExporter
 {
+    /** 同時に取得する件数。1 にすると 1 件ずつ順に取得する（サーバーへの負荷に関わるので、設定にはしない） */
+    const CONCURRENCY = 4;
+    /** 1 件の取得の制限時間（秒） */
+    const FETCH_TIMEOUT = 10;
+    /** 辿るリダイレクトの上限 */
+    const MAX_REDIRECTS = 3;
+
     private $target;
     private $ids;
     private $includeNoncache;
@@ -15,11 +22,8 @@ class EvoSiteExporter
     private $exportDir;
     private $siteUrl;
     private $bearerToken = null;
-    private $prepared = false;
-    private $curl = null;
-    private $basicAuthDetected = false;
+    private $curlPool = [];
     private $outputDirError = null;
-    private $fetchDetail = '';
 
     /**
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
@@ -105,18 +109,69 @@ class EvoSiteExporter
     }
 
     /**
-     * 1 件を書き出す。
+     * 1 件を書き出す。exportMany([$id]) と同じ。
      *
-     * @return array id, pagetitle, status('success'|'skipped'|'failed'), reason,
-     *               detail(失敗の詳しい内容。取得の失敗なら HTTP のステータスや通信のエラー。無ければ空)
+     * @return array exportMany() の結果の 1 件分
      */
     public function exportOne($id)
     {
-        $id = (int)$id;
-        if (!$this->isOutputDirValid()) {
-            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_write', 'detail' => ''];
+        $results = $this->exportMany([(int)$id]);
+        return $results[0];
+    }
+
+    /**
+     * 複数件を書き出す。取得は CONCURRENCY 件ずつ同時に行う（まとまりごと。1 なら 1 件ずつ順に取る）。
+     * ファイルの作成・書き出しは、取得を終えたあとに ID の順に行う（1 件ずつ書き出すときと同じ並びで、フォルダ側の整理も同じ順で行う）。
+     *
+     * @param int[] $ids
+     * @return array ID の順の結果の配列。各要素は id, pagetitle, status('success'|'skipped'|'failed'), reason,
+     *               detail(失敗の詳しい内容。取得の失敗なら HTTP のステータスや通信のエラー。無ければ空)
+     */
+    public function exportMany(array $ids)
+    {
+        $results = [];
+        foreach (array_chunk(array_values($ids), max(1, (int)self::CONCURRENCY)) as $batch) {
+            foreach ($this->exportBatch($batch) as $result) {
+                $results[] = $result;
+            }
         }
-        $this->prepare();
+        return $results;
+    }
+
+    /**
+     * 同時に取得する 1 まとまりを書き出す。準備（行の取得・フォルダ作成）→ 取得 → 書き出しの順。
+     */
+    private function exportBatch(array $ids)
+    {
+        $items = [];
+        $urls = [];
+        foreach ($ids as $i => $id) {
+            $items[$i] = $this->prepareItem((int)$id);
+            if (isset($items[$i]['url'])) {
+                $urls[$i] = $items[$i]['url'];
+            }
+        }
+
+        $fetched = $urls ? $this->fetchAll($urls) : [];
+
+        $results = [];
+        foreach ($items as $i => $item) {
+            $results[] = isset($item['result'])
+                ? $item['result']
+                : $this->finishItem($item, isset($fetched[$i]) ? $fetched[$i] : null);
+        }
+        return $results;
+    }
+
+    /**
+     * 取得の前の準備。結果がここで決まるなら ['result' => …]、
+     * そうでなければ書き出しに使う情報（取得が要るときは url も）を返す。
+     */
+    private function prepareItem($id)
+    {
+        if (!$this->isOutputDirValid()) {
+            return ['result' => $this->failedResult($id, 'failed_no_write')];
+        }
 
         $rs = db()->select(
             "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published",
@@ -125,15 +180,32 @@ class EvoSiteExporter
         );
         $row = db()->getRow($rs);
         if (!$row) {
-            return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => 'failed_no_retrieve', 'detail' => ''];
+            return ['result' => $this->failedResult($id, 'failed_no_retrieve')];
         }
 
         $path = evo()->getAliasListing($row['id'], 'path');
         $baseDir = $path == '' ? $this->exportDir . '/' : $this->exportDir . '/' . $path . '/';
         $this->makeDir(rtrim($baseDir, '/'));
 
+        $item = ['row' => $row, 'baseDir' => $baseDir];
+        if (!$row['wasNull'] && $row['published'] == 1) {
+            $item['url'] = $this->fetchUrl($row['id']);
+        }
+        return $item;
+    }
+
+    /**
+     * 取得した中身の書き出しと、フォルダ側の整理。結果を返す。
+     *
+     * @param array|null $fetched fetchAll() の 1 件分（取得しなかったときは null）
+     */
+    private function finishItem(array $item, $fetched)
+    {
+        $row = $item['row'];
+        $baseDir = $item['baseDir'];
+
         $filename = null;
-        $this->fetchDetail = '';
+        $detail = '';
         if ($row['wasNull']) {
             $reason = 'success_skip_dir';
         } else {
@@ -147,15 +219,13 @@ class EvoSiteExporter
             if (is_dir($filename)) {
                 $filename = rtrim($filename, '/') . '/index.html';
             }
-            if ($row['published'] != 1) {
+            if ($fetched === null) {
                 $reason = 'failed_no_retrieve';
-            } else {
+            } elseif ($fetched['basic_auth']) {
                 // basic 認証の検出はこの 1 件の取得ごとに判断する（持ち越さない）
-                $this->basicAuthDetected = false;
-                $reason = $this->makeFile($row['id'], $filename);
-                if ($this->basicAuthDetected) {
-                    $reason = 'basic_auth';
-                }
+                $reason = 'basic_auth';
+            } else {
+                list($reason, $detail) = $this->writeFile($fetched, $filename);
             }
         }
 
@@ -174,13 +244,18 @@ class EvoSiteExporter
             'pagetitle' => $row['pagetitle'],
             'status'    => $status,
             'reason'    => $reason,
-            'detail'    => $reason === 'failed_no_open' ? $this->fetchDetail : '',
+            'detail'    => $reason === 'failed_no_open' ? $detail : '',
         ];
+    }
+
+    private function failedResult($id, $reason)
+    {
+        return ['id' => $id, 'pagetitle' => '', 'status' => 'failed', 'reason' => $reason, 'detail' => ''];
     }
 
     public function __destruct()
     {
-        $this->curl = null;
+        $this->curlPool = [];
     }
 
     /**
@@ -207,14 +282,6 @@ class EvoSiteExporter
         }
     }
 
-    private function prepare()
-    {
-        if ($this->prepared) {
-            return;
-        }
-        $this->prepared = true;
-        $this->initCurl();
-    }
 
     private function filePermission()
     {
@@ -275,21 +342,34 @@ class EvoSiteExporter
         return $rs;
     }
 
-    private function makeFile($docid, $filepath)
+
+    /**
+     * 取得する URL。取得の先だけを替える（CLI ではサイトの URL が http://localhost/ になるため）。書き出す中身は替えない
+     */
+    private function fetchUrl($docid)
     {
         $url = evo()->makeUrl($docid, '', '', 'full');
-        // 取得の先だけを替える（CLI ではサイトの URL が http://localhost/ になるため）。書き出す中身は替えない
         $siteUrl = (string)evo()->config('site_url');
         if ($this->siteUrl !== '' && $siteUrl !== '' && strpos($url, $siteUrl) === 0) {
             $url = $this->siteUrl . substr($url, strlen($siteUrl));
         }
-        $src = $this->getContents($url);
+        return $url;
+    }
 
-        if ($src === false || is_file(dirname($filepath))) {
-            if ($src !== false) {
-                $this->fetchDetail = 'output path is a file: ' . dirname($filepath);
-            }
-            return 'failed_no_open';
+    /**
+     * 取得した中身を置換して書き出す。
+     *
+     * @return array [reason, detail]
+     */
+    private function writeFile(array $fetched, $filepath)
+    {
+        $src = $fetched['body'];
+
+        if ($src === false) {
+            return ['failed_no_open', $fetched['detail']];
+        }
+        if (is_file(dirname($filepath))) {
+            return ['failed_no_open', 'output path is a file: ' . dirname($filepath)];
         }
 
         if ($this->replBefore !== $this->replAfter) {
@@ -297,12 +377,13 @@ class EvoSiteExporter
         }
 
         if (file_put_contents($filepath, $src) === false) {
-            return 'failed_no_write';
+            return ['failed_no_write', ''];
         }
 
         @chmod($filepath, $this->filePermission());
-        return 'success';
+        return ['success', ''];
     }
+
 
     private function getFileName($docid, $alias, $prefix, $suffix)
     {
@@ -348,108 +429,218 @@ class EvoSiteExporter
         }
     }
 
+
     /**
-     * 1 件を取得する。通信の失敗（接続できない・タイムアウト）だけ最大 2 回送り直す。
+     * 複数の URL を同時に取得する。通信の失敗（接続できない・タイムアウト）だけ最大 2 回送り直す。
      * HTTP のステータスで答えが返った取得（401・404・500 など）は、送り直しても同じなので送り直さない。
-     * 401 は basic 認証として印を立てる。
+     * 401 は basic 認証として印を立てる（結果ごと）。
+     * 3xx は、curl が辿らないとき（open_basedir がある）だけ自分で Location を辿る（最大 3 回、同じサイトの中だけ）。
+     * 辿れない 3xx は失敗にする。
+     *
+     * @param array $urls キー => URL
+     * @return array キーごとの [body(本文 または false), detail(HTTP のステータスや通信のエラー), basic_auth(bool)]
      */
-    private function getContents($url, $timeout = 10)
+    private function fetchAll(array $urls)
     {
-        if (extension_loaded('curl') && !$this->curl) {
-            $this->initCurl($timeout);
+        $state = [];
+        foreach ($urls as $key => $url) {
+            $state[$key] = ['url' => $url, 'origin' => $this->originOf($url), 'hops' => 0, 'tries' => 0];
         }
 
-        for ($i = 0; $i < 3; $i++) {
-            if ($i > 0) {
-                usleep(300000);
+        $out = [];
+        while ($state) {
+            $requests = [];
+            foreach ($state as $key => $s) {
+                $requests[$key] = $s['url'];
             }
-            list($body, $status, $error) = $this->fetch($url, $timeout);
-            $this->fetchDetail = $status !== 0
-                ? 'HTTP ' . $status
-                : ($error !== '' ? $error : 'no response');
-            if ($status === 401) {
-                $this->basicAuthDetected = true;
-                return false;
-            }
-            if ($status !== 0) {
-                return $status >= 400 ? false : $body;
-            }
-            if ($body !== false) {
-                return $body;
-            }
-        }
-        return false;
-    }
+            $raw = $this->requestAll($requests);
 
-    /**
-     * @return array [本文 または false, HTTP ステータス（応答が無ければ 0）, 通信のエラー（無ければ空）]
-     */
-    private function fetch($url, $timeout)
-    {
-        if (!extension_loaded('curl')) {
-            $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
-            if ($this->bearerToken) {
-                $header[] = 'Authorization: Bearer ' . $this->bearerToken;
-            }
-            $context = stream_context_create([
-                'http' => [
-                    'method'        => 'GET',
-                    'header'        => implode("\r\n", $header),
-                    'timeout'       => $timeout,
-                    'max_redirects' => 3,
-                    // 4xx・5xx でも応答を受け取り（false を返さず）、ステータス行を見て判断する
-                    'ignore_errors' => true,
-                ],
-            ]);
-            error_clear_last();
-            $body = @file_get_contents($url, false, $context);
-            $status = 0;
-            if (!empty($http_response_header) && is_array($http_response_header)) {
-                // リダイレクトを辿ったときは最後のステータス行を使う
-                foreach ($http_response_header as $line) {
-                    if (preg_match('@^HTTP/\S+\s+(\d{3})@', $line, $m)) {
-                        $status = (int)$m[1];
+            $next = [];
+            $retry = false;
+            foreach ($state as $key => $s) {
+                list($body, $status, $error, $redirect) = $raw[$key];
+                $detail = $status !== 0
+                    ? 'HTTP ' . $status
+                    : ($error !== '' ? $error : 'no response');
+
+                if ($status === 401) {
+                    $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => true];
+                } elseif ($status >= 300 && $status < 400) {
+                    $to = $redirect !== '' ? $redirect : null;
+                    if (!$this->curlFollows() && $to !== null && $s['hops'] < self::MAX_REDIRECTS
+                        && $this->originOf($to) !== null && $this->originOf($to) === $s['origin']) {
+                        $s['url'] = $to;
+                        $s['hops']++;
+                        $next[$key] = $s;
+                    } else {
+                        $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => false];
                     }
+                } elseif ($status !== 0) {
+                    $out[$key] = ['body' => $status >= 400 ? false : $body, 'detail' => $detail, 'basic_auth' => false];
+                } elseif ($body !== false) {
+                    $out[$key] = ['body' => $body, 'detail' => $detail, 'basic_auth' => false];
+                } elseif (++$s['tries'] < 3) {
+                    $next[$key] = $s;
+                    $retry = true;
+                } else {
+                    $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => false];
                 }
             }
-            $error = '';
-            if ($body === false && $status === 0) {
-                $last = error_get_last();
-                $error = $last ? trim(preg_replace('@^file_get_contents\([^)]*\):\s*@', '', $last['message'])) : '';
+            $state = $next;
+            if ($state && $retry) {
+                usleep(300000);
             }
-            return [$body, $status, $error];
         }
-
-        if (!$this->curl) {
-            return [false, 0, 'curl is not available'];
-        }
-        curl_setopt($this->curl, CURLOPT_URL, $url);
-        $body = curl_exec($this->curl);
-        $status = (int)curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
-        return [$body, $status, $body === false && $status === 0 ? curl_error($this->curl) : ''];
+        return $out;
     }
 
-    private function initCurl($timeout = 10)
+    /**
+     * curl が Location を辿るか。open_basedir があると CURLOPT_FOLLOWLOCATION を使えない。
+     * curl が無いときの経路（file_get_contents）は常に辿る。
+     */
+    private function curlFollows()
+    {
+        return !extension_loaded('curl') || ini_get('open_basedir') == '';
+    }
+
+    private function originOf($url)
+    {
+        $p = parse_url((string)$url);
+        if (!$p || empty($p['host']) || empty($p['scheme'])) {
+            return null;
+        }
+        $scheme = strtolower($p['scheme']);
+        if ($scheme !== 'http' && $scheme !== 'https') {
+            return null;
+        }
+        $port = isset($p['port']) ? (int)$p['port'] : ($scheme === 'https' ? 443 : 80);
+        return $scheme . '://' . strtolower($p['host']) . ':' . $port;
+    }
+
+    /**
+     * 1 回ぶんの取得（送り直しも Location を辿ることもしない）。
+     *
+     * @param array $urls キー => URL（CONCURRENCY 件まで）
+     * @return array キーごとの [本文 または false, HTTP ステータス（応答が無ければ 0）, 通信のエラー（無ければ空）, 辿るべき Location（無ければ空）]
+     */
+    private function requestAll(array $urls)
     {
         if (!extension_loaded('curl')) {
-            return false;
+            $out = [];
+            foreach ($urls as $key => $url) {
+                $out[$key] = $this->requestByStream($url);
+            }
+            return $out;
         }
-        if ($this->curl) {
-            return true;
+
+        $mh = curl_multi_init();
+        $handles = [];
+        $i = 0;
+        foreach ($urls as $key => $url) {
+            $ch = $this->curlHandle($i++);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_multi_add_handle($mh, $ch);
+            $handles[$key] = $ch;
+        }
+
+        $running = 0;
+        do {
+            $rc = curl_multi_exec($mh, $running);
+        } while ($rc === CURLM_CALL_MULTI_PERFORM);
+        while ($running && $rc === CURLM_OK) {
+            if (curl_multi_select($mh, 1.0) === -1) {
+                usleep(1000);
+            }
+            do {
+                $rc = curl_multi_exec($mh, $running);
+            } while ($rc === CURLM_CALL_MULTI_PERFORM);
+        }
+
+        $errnos = [];
+        while ($msg = curl_multi_info_read($mh)) {
+            foreach ($handles as $key => $ch) {
+                if ($ch === $msg['handle']) {
+                    $errnos[$key] = (int)$msg['result'];
+                }
+            }
+        }
+
+        $out = [];
+        foreach ($handles as $key => $ch) {
+            $errno = isset($errnos[$key]) ? $errnos[$key] : -1;
+            $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $body = $errno === 0 ? (string)curl_multi_getcontent($ch) : false;
+            $error = '';
+            if ($body === false && $status === 0) {
+                $error = curl_error($ch) ?: ($errno > 0 ? (string)curl_strerror($errno) : '');
+            }
+            $redirect = (string)curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+            $out[$key] = [$body, $status, $error, $redirect];
+            curl_multi_remove_handle($mh, $ch);
+        }
+        curl_multi_close($mh);
+        return $out;
+    }
+
+    /**
+     * @return array requestAll() の 1 件分
+     */
+    private function requestByStream($url)
+    {
+        $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
+        if ($this->bearerToken) {
+            $header[] = 'Authorization: Bearer ' . $this->bearerToken;
+        }
+        $context = stream_context_create([
+            'http' => [
+                'method'        => 'GET',
+                'header'        => implode("\r\n", $header),
+                'timeout'       => self::FETCH_TIMEOUT,
+                'max_redirects' => self::MAX_REDIRECTS,
+                // 4xx・5xx でも応答を受け取り（false を返さず）、ステータス行を見て判断する
+                'ignore_errors' => true,
+            ],
+        ]);
+        error_clear_last();
+        $body = @file_get_contents($url, false, $context);
+        $status = 0;
+        if (!empty($http_response_header) && is_array($http_response_header)) {
+            // リダイレクトを辿ったときは最後のステータス行を使う
+            foreach ($http_response_header as $line) {
+                if (preg_match('@^HTTP/\S+\s+(\d{3})@', $line, $m)) {
+                    $status = (int)$m[1];
+                }
+            }
+        }
+        $error = '';
+        if ($body === false && $status === 0) {
+            $last = error_get_last();
+            $error = $last ? trim(preg_replace('@^file_get_contents\([^)]*\):\s*@', '', $last['message'])) : '';
+        }
+        return [$body, $status, $error, ''];
+    }
+
+    /**
+     * 取得に使う curl のハンドル（番号ごとに使い回す）。
+     */
+    private function curlHandle($index)
+    {
+        if (isset($this->curlPool[$index])) {
+            return $this->curlPool[$index];
         }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        if (ini_get('open_basedir') == '') {
+        if ($this->curlFollows()) {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, self::MAX_REDIRECTS);
         if (defined('CURLOPT_AUTOREFERER')) {
             curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         }
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, self::FETCH_TIMEOUT);
         if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, serverv('HTTP_USER_AGENT'));
         }
@@ -459,7 +650,7 @@ class EvoSiteExporter
             ]);
         }
 
-        $this->curl = $ch;
-        return true;
+        $this->curlPool[$index] = $ch;
+        return $ch;
     }
 }

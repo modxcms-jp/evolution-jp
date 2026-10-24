@@ -12,9 +12,9 @@ require_once __DIR__ . '/site_exporter.class.inc.php';
  * 状態ファイル: temp/export_job.json（書き換えは一時ファイルからの rename で、読む側は常に完全な内容を見る）
  * 排他:         temp/export_job.lock を flock する。step・cancel は取れなければ待たずに busy を返す。start だけは処理の切れ目まで少し待つ（startWaitSeconds）
  * 中止の印:     temp/export_job.cancel。中止するジョブの id（状態の job_id）を書く。ロックを取らずに書ける。
- *               step() は 1 ページごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
+ *               step() は 1 まとまり（同時に取得する最大 EvoSiteExporter::CONCURRENCY 件）ごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
  * 開始待ちの印: temp/export_job.takeover.<ランダムな 16 進>。start() がロックを取れないとき、待つ間だけ待つ側ごとに作る（中身は無い）。
- *               処理中の step() は、始めと 1 ページごとにこれを見て、あれば進み具合を保存してロックを放し busy を返す。
+ *               処理中の step() は、始めと 1 まとまりごとにこれを見て、あれば進み具合を保存してロックを放し busy を返す。
  *               処理が途切れなく続く側（CLI など）でも、時間の隙間に頼らず start() に順番を譲らせるための印。
  *               期限（start() の待ちの上限 + 1 秒。印の更新時刻で判断する）を過ぎた印は、作った側が落ちたものとして無視して消す
  *
@@ -172,7 +172,7 @@ class EvoSiteExportJob
     }
 
     /**
-     * 持ち時間ぶん書き出して進める。持ち時間を過ぎたら、処理中の 1 件を終えて返す。
+     * 持ち時間ぶん書き出して進める。持ち時間を過ぎたら、処理中の 1 まとまり（同時に取得する最大 EvoSiteExporter::CONCURRENCY 件）を終えて返す。
      *
      * @param float|null $budgetSeconds 持ち時間（秒）。null か 0 以下なら終わるまで続ける（CLI 用）
      * @param string $siteUrl ページを取得する先のサイトの URL。空なら設定のサイトの URL。
@@ -216,33 +216,41 @@ class EvoSiteExportJob
             $total = count($state['ids']);
             $startPos = $state['pos'];
             while ($state['pos'] < $total) {
+                // 中止・開始待ち・持ち時間は、同時に取得する 1 まとまりを終えたここで確かめる（まとまりの途中では止まらない）
                 if ($this->hasCancelMark($state['job_id'])) {
                     return $this->finish($state, self::STATE_CANCELLED, $began);
                 }
-                // start() が待っていたら、処理中の 1 件を終えたここで進み具合を保存して譲る
+                // start() が待っていたら、処理中の 1 まとまりを終えたここで進み具合を保存して譲る
                 if ($state['pos'] > $startPos && $this->hasTakeoverMark()) {
                     $state['elapsed'] += microtime(true) - $began;
                     return $this->writeState($state) ? ['state' => self::STATE_BUSY] : $this->stateUnwritable($state);
                 }
-                // 少なくとも 1 件は進める。持ち時間を過ぎていたら、次の 1 件には掛からず返す
+                // 少なくとも 1 まとまりは進める。持ち時間を過ぎていたら、次のまとまりには掛からず返す
                 if ($budgetSeconds > 0 && $state['pos'] > $startPos
                     && microtime(true) - $began >= $budgetSeconds) {
                     break;
                 }
 
-                $result = $exporter->exportOne($state['ids'][$state['pos']]);
-                $state['pos']++;
+                $ids = array_slice($state['ids'], $state['pos'], max(1, (int)EvoSiteExporter::CONCURRENCY));
+                $results = $exporter->exportMany($ids);
+                $state['pos'] += count($ids);
 
-                if ($result['reason'] === 'basic_auth') {
-                    $this->addFailure($state, $result);
-                    return $this->finish($state, self::STATE_ERROR, $began, lang('export_site_basic_auth_warning'));
+                // まとまりは全件を書き出し済みなので、basic 認証の失敗があっても全件を数えてから止める
+                $basicAuth = false;
+                foreach ($results as $result) {
+                    if ($result['reason'] === 'basic_auth') {
+                        $basicAuth = true;
+                        $this->addFailure($state, $result);
+                    } elseif ($result['status'] === 'success') {
+                        $state['success']++;
+                    } elseif ($result['status'] === 'skipped') {
+                        $state['skipped']++;
+                    } else {
+                        $this->addFailure($state, $result);
+                    }
                 }
-                if ($result['status'] === 'success') {
-                    $state['success']++;
-                } elseif ($result['status'] === 'skipped') {
-                    $state['skipped']++;
-                } else {
-                    $this->addFailure($state, $result);
+                if ($basicAuth) {
+                    return $this->finish($state, self::STATE_ERROR, $began, lang('export_site_basic_auth_warning'));
                 }
             }
 
@@ -269,7 +277,7 @@ class EvoSiteExportJob
     }
 
     /**
-     * 中止する。中止の印を書き、処理中の step() があればそれが次のページの前に止まる。
+     * 中止する。中止の印を書き、処理中の step() があればそれが次のまとまりの前に止まる。
      * 処理中の step() が無ければ、その場で cancelled にしてトークンを取り消す。
      * 中止したジョブは再開できない（書き出し済みのファイルは消さない）。
      */
