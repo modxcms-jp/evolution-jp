@@ -48,12 +48,15 @@ php evo skill:sync --skill=issue-resolver
 - `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルは消さず、`--max` の数え方にも含めません（`pre-restore-` は別に新しい 3 件だけ残します）。古い世代を消したときは、1 件ごとに `Removed old backup: <名前>` の行を表示します。
 - 世代の上限は管理画面と共有です。`--max` に 10 より大きい値を指定しても、次に管理画面でスナップショットを作ったり復元したりすると、10 件に戻ります。
 - 最後に `Backups in <保存先>: auto-named N/M, other K` の行で、自動の名前のファイルの数（N、M は `--max`）とそれ以外の数（K）を表示します。
+
 `export:site` は管理画面の「HTML エクスポート」（a=83）と同じジョブ（状態ファイル `temp/export_job.json`）で、静的 HTML を出力先（`export_dir`、`temp/` の中）へ書き出します。
 - 引数: `--target=all|allow|ignore`（既定 all）、`--ids=1,2,3`（allow / ignore のとき必須）、`--include-noncache`、`--replace-before=` / `--replace-after=`（書き出す中身の置換。既定は置換なし）、`--site-url=`（ページを取得する先のサイトの URL）、`--restart`。
-- CLI ではサイトの URL が `http://localhost/` になるため、コンテナの中などで取得できないときは `--site-url=` で取得先を指定します。取得の URL の先頭だけを替え、書き出す中身は変えません（中身を替えるのは `--replace-*`）。
+- CLI ではサイトの URL が `http://localhost/` になるため、コンテナの中などで取得できないときは `--site-url=` で取得先を指定します。ページを取得する URL の先頭（サイトの URL）と丸ごと入れ替えるので、サイトがサブディレクトリにあるときは、そのパスまで含めて指定します（例: `http://localhost:8080/sub/`）。書き出す中身は変えません（中身を替えるのは `--replace-*`）。取得先はジョブの状態には保存しないので、この CLI を止めて画面から再開したときは、画面の側の取得先（設定のサイトの URL）が使われます。
 - 画面のジョブが途中のときは、`--restart` が無ければ始めずに終了コード 1 で終わります。`--restart` を付けると前のジョブを捨てて始めます。始めるときは出力先を空にします。
-- 100 件ごとと最後に `n / 全体 (success, skipped, failed)` を表示し、最後に所要時間と失敗の一覧（ID・ページタイトル・理由）を表示します。失敗が 1 件でもあるか、始められなかった・途中で止まったときは終了コード 1、すべて成功なら 0 です。
+- 進み具合は、処理が戻るたびに 100 件の区切りを越えていれば `n / 全体 (success, skipped, failed)` で表示します（表示される件数は 100 ちょうどには揃いません）。最後にも表示し、最後に所要時間と失敗の一覧（ID・ページタイトル・理由）を表示します。失敗が 1 件でもあるか、始められなかった・途中で止まったときは終了コード 1、すべて成功なら 0 です。
 - 開始は操作ログ（manager_log）に `HTML export: start (CLI)`（ユーザー名 `CLI`）として残ります。`OnExportPreExec` / `OnExportExec` は画面と同じく呼ばれます。
+- ほかが処理中（画面のタブで進めているなど）で続きを進められないときは、1 秒おいて送り直します。画面のタブで進めている間に `--restart` で始めると、画面のジョブは止まります（画面は別の場所でやり直された旨を出して、今の状態の表示に切り替わります）。CLI は自分が始めたジョブだけを進め、別のジョブに替わったと分かったら終了コード 1 で止まります。
+
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
@@ -65,6 +68,7 @@ php evo skill:sync --skill=issue-resolver
 - 成功したが注意があるとき（設定かキャッシュのテーブルが無く、キャッシュを作り直さなかったとき）は、`Import completed...` の後に `Warning: <内容>` の行を標準エラーに表示します。終了コードは 0 です。
 - 以前の `Preserved ...` の行は表示しません。
 - `mysqldump` が必要です。
+
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
 `skill:validate` は run scaffold と skill metadata の JSON 契約を確認します。
 ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-request.json` 完了更新、次 run scaffold 準備をまとめて行います。
