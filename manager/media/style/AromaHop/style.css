@@ -120,6 +120,7 @@
     --space-4: 16px;
     --space-5: 20px;
     --space-6: 24px;
+    --space-7: 28px;
     --space-8: 32px;
 
     /* Border Radius - slightly more rounded for modern feel */
@@ -305,7 +306,7 @@ img, a img {
 }
 
 h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: .5em 0;
+    margin: 0 0 .5em;
     padding: 0;
     font-weight: normal;
 }
@@ -1007,7 +1008,7 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: 0 0 12px 0;
+    margin: 0 0 var(--space-3) 0;
     font-size: 1rem;
 }
 
@@ -1031,7 +1032,7 @@ form .imeoff {
         /* 透明感のあるベース */
         rgba(253, 253, 251, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.35);
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--space-3);
     padding: var(--space-5);
     border-radius: var(--radius-xl);
     box-shadow:
@@ -1964,7 +1965,6 @@ a.hometblink:hover {
     box-shadow: var(--shadow-sm);
     z-index: 2;
     position: relative;
-    top: 12px;
     margin-top: 0;
     padding: var(--space-5);
 }
@@ -1972,11 +1972,13 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
-    margin-bottom: 0;
+    /* float のタブを包み、タブ列とパネルの間を margin で作る */
+    display: flow-root;
+    margin-bottom: var(--space-2);
 }
 
 .dynamic-tab-pane-control.tab-pane {
-    padding-bottom: 20px;
+    margin-bottom: var(--space-3);
 }
 
 .dynamic-tab-pane-control ul {
@@ -2187,7 +2189,7 @@ select#stay {
 }
 
 .actionButtons {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons:after {
@@ -2197,17 +2199,31 @@ select#stay {
 }
 
 ul.actionButtons {
-    margin: 0;
+    margin: 0 0 var(--space-3);
     padding: 0;
     /* accommodate border on buttons - */
     background: none;
     width: auto;
     white-space: nowrap;
-    padding-bottom: 10px;
 }
 
+/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
 #actions .actionButtons {
+    margin-bottom: 0;
     padding-bottom: 0;
+}
+
+/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
+   入れ物の最後の子の下に、外側の margin を足さない。この規則は、ブロックの間を作る margin-bottom の規則より後ろに置く */
+#mainPane > :last-child,
+:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
+    margin-bottom: 0;
+}
+
+/* サブリソース一覧（resources_list.static.php）のパンくずと、移動のボタンの前のブロック */
+.resources-topic-path,
+form > :has(+ .resources-batch-actions) {
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons li {
