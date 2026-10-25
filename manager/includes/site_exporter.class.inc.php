@@ -184,7 +184,7 @@ class EvoSiteExporter
         }
 
         $rs = db()->select(
-            "id, alias, pagetitle, type, isfolder, (content = '' AND template = 0) AS wasNull, published",
+            "id, alias, pagetitle, type, isfolder, content, (content = '' AND template = 0) AS wasNull, published",
             '[+prefix+]site_content',
             sprintf('id=%d', $id)
         );
@@ -197,8 +197,10 @@ class EvoSiteExporter
         $baseDir = $path == '' ? $this->exportDir . '/' : $this->exportDir . '/' . $path . '/';
         $this->makeDir(rtrim($baseDir, '/'));
 
-        // Web リンクのフォルダはページを取得せず、フォルダだけを作る（content はリンク先であって、このサイトのページではない）
-        $row['noPage'] = $row['wasNull'] || ($row['type'] === 'reference' && $row['isfolder'] == 1);
+        // Web リンクのフォルダは、リンク先がこのサイトのリソース ID（数字）のときだけ取得する。外部の URL などはフォルダだけを作る
+        $isOuterLink = $row['type'] === 'reference' && $row['isfolder'] == 1
+            && !ctype_digit(trim((string)$row['content']));
+        $row['noPage'] = $row['wasNull'] || $isOuterLink;
 
         $item = ['row' => $row, 'baseDir' => $baseDir];
         if (!$row['noPage'] && $row['published'] == 1) {
@@ -362,6 +364,9 @@ class EvoSiteExporter
     private function fetchUrl($docid)
     {
         $url = evo()->makeUrl($docid, '', '', 'full');
+        if (!$url) {
+            return '';
+        }
         $siteUrl = (string)evo()->config('site_url');
         if ($this->siteUrl !== '' && $siteUrl !== '' && strpos($url, $siteUrl) === 0) {
             $url = $this->siteUrl . substr($url, strlen($siteUrl));
@@ -462,6 +467,10 @@ class EvoSiteExporter
         $state = [];
         $out = [];
         foreach ($urls as $key => $url) {
+            if (!$url) {
+                $out[$key] = $this->failure('not fetched: no URL for the resource');
+                continue;
+            }
             // 取得先はそのサイトの http・https に限る（最初の URL がサイトの外なら取得しない）
             $origin = $this->originOf($url);
             if ($origin === null || $siteOrigin === null || $origin !== $siteOrigin) {
