@@ -2247,6 +2247,12 @@ ul.actionButtons {
     margin-bottom: var(--space-3);
 }
 
+/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
+.system-log-toolbar,
+.system-log-summary {
+    margin-bottom: var(--space-3);
+}
+
 /* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。:has 非対応のブラウザでは捨てられる */
 form > :has(+ .resources-batch-actions),
 form > :has(+ #pagination) {
