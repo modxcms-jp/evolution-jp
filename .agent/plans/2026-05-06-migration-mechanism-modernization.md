@@ -82,6 +82,8 @@
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
 - 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。
+- 2026-10-26 / M2 自己レビュー（メインの判断。本人の就寝中のため、あとで確かめてもらう） / フィクスチャは utf8mb3 に加えて utf8mb4 でも作れるようにし、M3・M7 の確認に 1.0.0J・1.1.0J・1.2.3J の utf8mb4 版を加える。1.1.0J 以降のインストーラは `convert2utf8mb4()` を流すので、実際のサイトの多くは utf8mb4 に変換済みで、前置き長の付いた索引（1.0.0J の `alias(250)`）など、baseline が向き合う形が utf8mb3 だけでは再現できないため。既定は今までどおり utf8mb3。
+- 2026-10-26 / M2 / `install_version` の行は、どのリリースのタグのインストーラも書いていない（main の d98d88609 から）。フィクスチャに入れるのは、baseline がこの行を消すことを確かめるため。
 - 2026-10-26 / 本人の決定 / 日本語版は mbstring があることを前提にする。ログに入れる SQL は `mb_strimwidth()` で切り、mbstring の有無で分けない。動作要件への明記と、本体に残る `function_exists('mb_...')` の分岐の整理は #932 で行う（この ExecPlan の範囲外）。
 - 2026-10-26 / M1 / マイグレーションのファイルは、変数を持たない `private static function load()` で読み込み、雛形も `static function` にする。ファイルの変数がランナーの変数（記録する ID など）を書き換えたり、関数が `$this` に結び付いたりしないようにするため。
 - 2026-10-26 / M1 / ID の上限は `EvoMigrator::MAX_ID_LENGTH`（100。記録の表の列と同じ値）。超える ID があれば流す前に止める。`make:migration` の説明は 84 文字まで。時刻の無い ID は `00000000_baseline` だけを読む（同じ日の時刻つきの ID との並び順が直感と合わないため）。
@@ -342,14 +344,14 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 作業: `upgrade-fixture.js` は `lib.js` の docker の補助を使い、次の副コマンドを持つ。
 
-- `build <tag>`: `git show release-<tag>:<path>` でそのタグの CREATE TABLE の定義を取り出す（1.0.0J〜1.0.6J は `install/setup.sql` の CREATE TABLE、1.0.7J〜1.0.16J は `install/sql/both_createtables.sql`、1.0.17J 以降は `install/sql/create_tables.sql`。`git grep -l "CREATE TABLE" release-<tag> -- install` で確かめた）。`{PREFIX}` を `modx_` に、`TYPE=MyISAM` を `ENGINE=MyISAM` に、`{TABLE_OPTION}` を `DEFAULT CHARSET=utf8mb3` にし（古いサイトの文字セットを再現する）、`upgrade-fixture-data.sql` を足して `<work>/fixture-<tag>.sql` に書く。データの `settings_version` はそのタグの版にする。
+- `build <tag>`: `git show release-<tag>:<path>` でそのタグの CREATE TABLE の定義を取り出す（1.0.0J〜1.0.6J は `install/setup.sql` の CREATE TABLE、1.0.7J〜1.0.16J は `install/sql/both_createtables.sql`、1.0.17J 以降は `install/sql/create_tables.sql`。`git grep -l "CREATE TABLE" release-<tag> -- install` で確かめた）。`{PREFIX}` を `modx_` に、`TYPE=MyISAM` を `ENGINE=MyISAM` に、`{TABLE_OPTION}` を `DEFAULT CHARSET=utf8mb3` にし（古いサイトの文字セットを再現する。`{TABLE_OPTION}` の無い 1.0.16J までは `ENGINE=` の直後に足す）、`upgrade-fixture-data.sql` を足して `<work>/fixture-<tag>.sql` に書く。`--charset utf8mb4` を付けると、utf8mb4（`utf8mb4_general_ci`。`convert2utf8mb4()` と同じ）で作り、`<work>/fixture-<tag>-utf8mb4.sql` に書く（utf8mb4 へ変換済みのサイトの再現）。データの `settings_version` はそのタグの版にする。
 - `load <file>`: 検証用の DB の `modx_` の表をすべて消してから、ファイルを流し込む。管理者（`manager_users` の ID 1）のパスワードの値は、流し込む前の DB（`setup-site.js` で入れた今の版）のものに置き換え、`admin` / `Passw0rd!2026` でログインできるようにする。
 - `migrate`: アップデーターと同じく、CLI のガード（`requiresInstaller()`）を通さずに作業ツリーのランナーを流す。アプリのコンテナで CLI の起動処理（`manager/includes/cli/bootstrap.php`）を読み込んでから `(new EvoMigrator())->run()` を呼び、適用した ID を 1 行ずつ、失敗したら ID とエラーを出して終了コード 1 にする。キャッシュは消さない（`system_cache` の無い DB で止まらないように。M3・M4 では次の `create-tables` のあとで消す必要も無い）。M3・M4 で、M5 より前にアップデーターの順を手で再現するため。M5 からはアップデーターが行う。
 - `create-tables`: 作業ツリーの `install/sql/create_tables.sql` を、インストーラと同じ置き換えで流す（M3・M4 で、アップデーターの順を手で再現するため。M5 からはアップデーターが行う）。
 - `snapshot <out>`: `INFORMATION_SCHEMA.COLUMNS`（型・NULL 可否・既定値・`EXTRA`）と `STATISTICS`（索引の名前・一意・種類・列の並び）を、`modx_` の表について 1 行 1 項目の TSV に書く（比べない項目は Decision Log のとおり）。
 - `diff <ref> <out>`: 2 つの TSV を比べ、違う行と、`<ref>` に無い表（残す表）を分けて出す。違いが無ければ終了コード 0。
 
-`upgrade-fixture-data.sql` は、1.0.0J から今まである列だけを使い、次を入れる: `settings_version`・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`（古い既定）・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`csrf_token`・`install_version`（1.2.x 以降のサイトにある行の再現）、管理者（ロール 1）と、`empty_trash=0` のロール 1・`save_role=1` で一部の権限が 0 のロール 2、`type=''` の文書（`http://example.com/` の中身、`feed.xml` の alias）、alias が文字列 `NULL` の文書、`content` が NULL のテンプレート、有効な `Inherit Parent Template`（`&inheritTemplate=...;list;From Parent,From First Sibling;From First Sibling`）と `Bottom Button Bar`、プロパティに `&NULL=undefined;;` を含むスニペット、`site_plugin_events`・`member_groups`・`web_groups`・`user_settings`（同じ利用者・名前で値の違う 2 行）・`web_user_settings` の重複行、`user_settings` の `csrf_token`。どの表の重複が何件かを `upgrade-fixture.md` に書く。
+`upgrade-fixture-data.sql` は、1.0.0J から今まである列だけを使い、次を入れる: `settings_version`・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`（古い既定）・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`csrf_token`・`install_version`（main を入れたサイトにある行の再現。どのリリースのタグのインストーラも書かない。main の d98d88609 から）、管理者（ロール 1）と、`empty_trash=0` のロール 1・`save_role=1` で一部の権限が 0 のロール 2、`type=''` の文書（`http://example.com/` の中身、`feed.xml` の alias）、alias が文字列 `NULL` の文書、`content` が NULL のテンプレート、有効な `Inherit Parent Template`（`&inheritTemplate=...;list;From Parent,From First Sibling;From First Sibling`）と `Bottom Button Bar`、プロパティに `&NULL=undefined;;` を含むスニペット、`site_plugin_events`・`member_groups`・`web_groups`・`user_settings`（同じ利用者・名前で値の違う 2 行）・`web_user_settings` の重複行、`user_settings` の `csrf_token`。どの表の重複が何件かを `upgrade-fixture.md` に書く。
 
 `upgrade-fixtures.md` には、使い方、タグとファイルの対応、古い版のコードを動かさない理由（Decision Log の PHP の版の話）、比べない項目、`EVO_DB_IMAGE=mariadb:10.4` などで古い DB の版を試す方法と、MySQL 公式イメージは Docker Engine 29 系で取れないことを書く。
 
@@ -398,6 +400,8 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 2 回目: `db:query "DELETE FROM modx_migrations"` で記録を消し、DB の一般ログを有効にして（`docker exec evo-validate-667-db mariadb -uroot -ppassword -e "SET GLOBAL general_log=1; SET GLOBAL log_output='TABLE'"`）もう一度 `upgrade-fixture.js migrate` を流す。期待: `mysql.general_log` に `ALTER`・`UPDATE`・`DELETE`・`INSERT`（記録の 1 行を除く）が 1 本も無い。今の main の新規インストール（`setup-site.js --reinstall` 直後、記録の表が無い）に `upgrade-fixture.js migrate` を流しても同じ（baseline は最終形を変えない）。終わったら一般ログを戻す。
 
 長さの確認: 1.0.0J のフィクスチャに alias が 250 文字の文書を 25 件と、`name` が 200 文字の文書グループを 1 件足して `upgrade-fixture.js migrate` を流す。期待: 終了コード 1。出力に、該当する 26 行がすべて（`site_content.alias`・上限 `245`・ID・`250`、`documentgroup_names.name`・上限 `191`・ID・`200`）出る。`log:search "245" --level=error` で同じ一覧がコンテキストに入った 1 件が見つかる。`snapshot` が流す前と同じ（何も変わっていない）。
+
+utf8mb4 へ変換済みのサイト: 1.0.0J・1.1.0J・1.2.3J を `build --charset utf8mb4` で作り、同じ確認を行う（1.0.0J の utf8mb4 版には、前置き長の付いた `aliasidx (alias(250))` が出る。`alias` を 245 に縮めたあと、最終形の索引に直ること）。
 
 古い DB の版: `EVO_DB_IMAGE=mariadb:10.4` で環境を作り直し、1.0.0J と 1.2.3J のフィクスチャで同じ確認を行う（取れない・動かないときは理由を記録する）。
 
@@ -526,6 +530,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 | 1.0.5J・1.0.6J・1.0.7J・1.0.10J・1.0.14J.r9・1.0.16J・1.0.17J・1.0.20J・1.0.26J | フィクスチャ（そのタグの CREATE TABLE + 最小のデータ） |
 | 1.0.0J に `site_templates.doc_encoding` と 1.0.14J.r9 の `site_revision` を足したもの | フィクスチャ（途中の版を通ってきたサイトの再現） |
 | 1.1.0J | フィクスチャ |
+| 1.0.0J・1.1.0J・1.2.3J の utf8mb4 版 | フィクスチャ（`build --charset utf8mb4`。utf8mb4 へ変換済みのサイトの再現） |
 | 1.2.0J・1.2.1J・1.2.2J・1.2.3J | フィクスチャと、`environment.md` の「1.2 系で検証するとき」で実際に入れたサイト（1.2.3J は必須、ほかはフィクスチャでよい） |
 | 今の main（b686bb12c）の新規インストール | main の detached の作業ツリーで入れた DB を、この作業ツリーのコードでアップデーター |
 
