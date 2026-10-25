@@ -36,6 +36,7 @@
 - 2026-10-26 / MariaDB 11 で、前置き長の付いた索引（1.0.0J の `aliasidx (alias(250))`）がある列を `varchar(245)` に縮めると、索引は列全体の索引に自動で直った。MySQL 5.7 での動きは未確認（MySQL 公式イメージは Docker Engine 29 系で取得できない。`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。
 - 2026-10-26 / インストーラを通さずにファイルだけ差し替えたサイトは、設定画面（`a=17`）で `upgrades.php` が動くが、`create_tables.sql`（1.0.14J・1.0.20J で増えた `site_revision`・`system_cache`）、`fix_settings.php`、utf8mb4 への変換、同梱の要素の入れ直しは行われない。インストーラを通したサイトと結果が違う 2 つ目の経路になっていた。
 - 2026-10-26 / インストーラは同梱プラグインのイベントの紐付け（`install/processors/prc_insPlugins.inc.php` 106 行）と同梱 TV のテンプレートの割り当て（`install/processors/prc_insTVs.inc.php` 61 行）を消して入れ直す。利用者が付け替えた分は戻る（推測）。版依存の処理ではなく要素の入れ直しの作りなので、この計画の非対象とし、`assets/docs/core-issues.md` に記録した。
+- 2026-10-26（M3） / MariaDB 11 で、MyISAM のまま utf8mb4 にした 1.0.0J の `*_names.name`（255 文字）の UNIQUE は HASH になっているが、191 に縮める MODIFY で BTREE に作り直される。COMPACT の InnoDB 表は、`ROW_FORMAT=DYNAMIC` への ALTER で全体の `aliasidx` を作れるようになる（1.2.3J の utf8mb4 版で再現して確かめた）。MySQL 5.6・5.7 の実機では確かめていない。
 - 2026-10-26（M2） / 1.0.16J までの CREATE TABLE は文字セットを書かないので、そのまま流すとサーバーの既定（utf8mb4）になり、`aliasidx` が `alias(250)` に切られ、長い UNIQUE が HASH と報告される。古いサイトの再現には文字セットを明示する。
 - 2026-10-26（M2） / 古い DB を読み込んだ直後は、アップデーターを通すまで管理画面に入れないことがある。1.0.0J・1.0.6J は `/manager/` が HTTP 500（`site_htmlsnippets.published` などが無い）。1.0.14J.r9 以降は、ログインすると次の `GET /manager/` でアップデーター（`/install/`）へ送られる。M5 以降の確認では、アップデーターをログインなしで動かせることが前提になる。
 - 2026-10-26（M2） / `user_roles` の欠けた列: 1.0.0J は `move_document`・`remove_locks`・`view_schedule`、1.0.5J・1.0.6J は `move_document`・`view_schedule`、1.0.7J〜1.0.17J は `move_document`、1.0.20J 以降は無し。重複行は 1.0.0J と 1.0.5J のフィクスチャにだけ入る（1.0.6J 以降は主キー・UNIQUE が既にある）。
@@ -85,6 +86,7 @@
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
 - 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。
+- 2026-10-26 / M3 自己レビュー（メインの判断。本人の就寝中のため、あとで確かめてもらう） / 索引の長さの上限が 767 バイトの InnoDB 表（ROW_FORMAT が COMPACT・REDUNDANT。MySQL 5.6 の頃に作られた表など）を utf8mb4 にしたサイトでは、`alias varchar(245)`（980 バイト）全体の `aliasidx` を作れない。baseline は、前置き長の索引を外す前に作れるかを判定し（`EvoMigrationHelper::fullIndexFits()`。1 文字は、あとでインストーラが utf8mb4 に変換するので 4 バイトで見積もる）、作れなければまず `ROW_FORMAT=DYNAMIC` にしてから判定し直す（`useDynamicRowFormat()`）。それでも作れない環境（`innodb_large_prefix` が無効など）では、前置き長の索引を残して種別 2 のログで知らせ、最終形との差として扱う。止まって流し直せなくなるよりも、差を記録して先へ進むほうを選んだ。utf8mb4 で 767 バイトを超える索引列は、今の定義では `site_content.alias` だけ（`*_names.name` は 191 文字で 764 バイト）。`system_cache` の 245 文字の列も 980 バイトになるが、`create_tables.sql` が毎回作り直す表なので baseline の対象外（サーバーの既定の行形式が COMPACT だと `create_tables.sql` の側が失敗する。以前からの問題）。
 - 2026-10-26 / M2 自己レビュー（メインの判断。本人の就寝中のため、あとで確かめてもらう） / フィクスチャは utf8mb3 に加えて utf8mb4 でも作れるようにし、M3・M7 の確認に 1.0.0J・1.1.0J・1.2.3J の utf8mb4 版を加える。1.1.0J 以降のインストーラは `convert2utf8mb4()` を流すので、実際のサイトの多くは utf8mb4 に変換済みで、前置き長の付いた索引（1.0.0J の `alias(250)`）など、baseline が向き合う形が utf8mb3 だけでは再現できないため。既定は今までどおり utf8mb3。
 - 2026-10-26 / M2 / `install_version` の行は、どのリリースのタグのインストーラも書いていない（main の d98d88609 から）。フィクスチャに入れるのは、baseline がこの行を消すことを確かめるため。
 - 2026-10-26 / 本人の決定 / 日本語版は mbstring があることを前提にする。ログに入れる SQL は `mb_strimwidth()` で切り、mbstring の有無で分けない。動作要件への明記と、本体に残る `function_exists('mb_...')` の分岐の整理は #932 で行う（この ExecPlan の範囲外）。
@@ -449,7 +451,7 @@ utf8mb4 へ変換済みのサイト: 1.0.0J・1.1.0J・1.2.3J を `build --chars
 - `manager/includes/upgrades/upgrades.php`・`upd_db_structure.php`（削除。ディレクトリも無くなる）
 - `manager/actions/tool/mutate_settings.dynamic.php`（23〜25 行の削除）
 
-作業: Plan of Work の「インストーラへの組み込み」のとおり。
+作業: Plan of Work の「インストーラへの組み込み」のとおり。あわせて、ランナーを呼ぶ前に `ignore_user_abort(true)` と `set_time_limit(0)` を呼ぶ（baseline の MODIFY や FULLTEXT の追加は表を作り直すので、大きなサイトでは数分かかり、Web サーバーやプロキシの時間切れで要求が切られることがある。冪等なので流し直せば進むが、利用者には失敗に見える。M3 の自己レビュー）。
 
 確かめ方:
 
