@@ -73,7 +73,7 @@ if ($isPWDActivate == 1) {
 if ($isPWDReminder == 1) {
     $email = webLoginString(postv('txtwebemail', ''));
     // 未入力のままメールアドレスが空のアカウントに一致させない
-    if ($email === '') {
+    if (trim($email) === '') {
         $output = webLoginAlert("Please enter your email address.");
         return;
     }
@@ -88,7 +88,7 @@ if ($isPWDReminder == 1) {
     if (!isset($reminder_from)) $reminder_from = $modx->config('emailsender');
     if (!isset($reminder_fromname)) $reminder_fromname = $modx->config('site_name');
     // lookup account
-    $sql = "SELECT wu.*, wua.fullname
+    $sql = "SELECT wu.*, wua.fullname, wua.email
 	FROM {$tbl_web_users} wu
 	INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id
 	WHERE wua.email='" . db()->escape($email) . "'";
@@ -126,7 +126,8 @@ if ($isPWDReminder == 1) {
         $message = $modx->parseDocumentSource($message);
         $config['from'] = $reminder_from;
         $config['fromname'] = $reminder_fromname;
-        $config['sendto'] = $email;
+        // 送信先は登録されているアドレス
+        $config['sendto'] = $row['email'];
         if (!isset($emailsubject)) $emailsubject = 'パスワード再設定';
         $config['subject'] = $emailsubject;
         $sent = $modx->sendmail($config, $message);         //ignore mail errors in this cas
@@ -277,6 +278,7 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     $f['failedlogincount'] = '0';
     $f['blockeduntil'] = time() - 1;
     $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
+    $failedlogins = 0;
 }
 
 if ($blocked == '1') // this user has been blocked by an admin, so no way he's loggin in!
@@ -353,8 +355,8 @@ if (isset($newloginerror) && $newloginerror == 1) {
     if ($failedlogins >= $failedLoginLimit) //increment the failed login counter, and block!
     {
         $f = [];
+        // 一時的なロックは blockeduntil だけで表す（blocked は管理者によるブロック）
         $f['failedlogincount'] = $failedlogins;
-        $f['blocked'] = 1;
         $f['blockeduntil'] = time() + ($blockMinutes * 60);
     } else //increment the failed login counter
     {
