@@ -169,14 +169,18 @@ if (is_writable(MODX_BASE_PATH . 'temp')) {
 // config.inc.php writable?
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
 
+// 無ければ仮の中身で作って書き込めるか確かめ、確かめたら消す。
+// 本当の設定は instprocessor.php が書く。残すと、インストールが途中で失敗したときに中身のない設定ファイルになる
+$isPlaceholder = false;
 if (!is_file($config_path)) {
-    // make an attempt to create the file
-    file_put_contents($config_path, '<?php //MODX configuration file ?>');
+    $isPlaceholder = @file_put_contents($config_path, '<?php //MODX configuration file ?>') !== false;
 }
-
 
 @chmod($config_path, 0666);
 $isWriteable = is_writable($config_path);
+if ($isPlaceholder) {
+    @unlink($config_path);
+}
 if (!$isWriteable) {
     if ($_SESSION['is_upgradeable'] == 0) {
         $_ = echo_failed() . '</p><p><strong>' . lang('config_permissions_note') . '</strong>';
