@@ -629,10 +629,11 @@ class DocumentParser
             // Parse document source
             $this->documentContent = $this->parseDocumentSource($this->documentContent);
         }
-        register_shutdown_function([
-            &$this,
-            'postProcess'
-        ]); // tell PHP to call postProcess when it shuts down
+        // tell PHP to call postProcess when it shuts down
+        // （private のメソッドは、PHP 7.4 では配列の callable だと終了時にクラスの外から呼ばれて __call に落ちるので、クロージャで呼ぶ）
+        register_shutdown_function(function () {
+            $this->postProcess();
+        });
         return $this->outputContent();
     }
 
