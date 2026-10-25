@@ -309,6 +309,7 @@ readme*
 README*
 AGENTS.md
 CLAUDE.md
+SECURITY.md
 compose.yml
 custom-instructions/
 manager/docker/
@@ -452,6 +453,8 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 - **マイナーリリース**: `release-1.3.0J`（機能追加、下位互換性あり）
 - **パッチリリース**: `release-1.2.1J`（バグ修正のみ）
 
+正式版の前の `main` は、`manager/includes/version.inc.php` の版を `1.3.0rc2` のような RC の表記にする。RC は配布しない（タグも GitHub の Release も作らない）。配布するのは正式版だけにする。
+
 ## リリース前チェックリスト
 
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
@@ -460,11 +463,23 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 - [ ] ドキュメントの更新（`.agent/roadmap.md` など）
 - [ ] リリースノートの準備（GitHub Release の説明文）
 
+## セキュリティ修正のリリース
+
+非公開のセキュリティアドバイザリで扱う修正は、公開の Issue・PR を使わずに進める。報告の窓口は `SECURITY.md`、修正の進め方（一時的な非公開フォークとフォーク内の PR）は `.claude/skills/advisory-runner/SKILL.md` を正本とする。ここには、アドバイザリを作ってから公開するまでの順序だけを書く。
+
+1. アドバイザリを下書きにする。報告の窓口から届いた報告は受付（triage）の状態なので、Security タブで受け入れて下書きにする。自分で見つけたときは、新しく下書きを作る。影響する版（画面の Affected versions）を書く
+2. 修正を advisory-runner で一時フォークの PR として作る。対象の版ごとに 1 本（main は `main` 宛て、1.2 系は `release/1.2.x` 宛て）
+3. フォーク内の PR を確かめ、アドバイザリの画面からマージする。マージした時点で修正は公開の履歴に入るので、ここからアドバイザリの公開までを同じ日に行う
+4. 版を上げてタグを作り、リリースを公開する。main は上の「基本手順」に従う。1.2 系は、版を上げる PR を `release/1.2.x` 宛てに作ってマージしてから、`release/1.2.x` ブランチの `assets/docs/release-process.md` に従ってタグとリリースを行う（ZIP の作り方が main と違う）
+5. アドバイザリの修正済みの版（画面の Patched versions）にリリースした版を書き、アドバイザリを公開する。CVE は必須にしない。取得する場合は、アドバイザリが下書きのうちに申請しておく
+6. リリース告知では、アドバイザリへのリンクを添えてアップデートを呼びかける。悪用の手順は書かない
+
 ## リリース後の対応
 
 1. リリース告知（modx.jp、フォーラム、SNS など）。modx.jp のダウンロードページやお知らせ記事の更新は、公式サイトのリポジトリ（`modxcms-jp/modxjp`）の手順に従う
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
-3. ロードマップの整理（下記手順。保護された `main` へ直接コミットせず、整理ブランチからPRを作成する）
+3. サポートする版が変わったら（1.3.0J の公開など）、`SECURITY.md` の「サポートする版」を直す
+4. ロードマップの整理（下記手順。保護された `main` へ直接コミットせず、整理ブランチからPRを作成する）
 
    `Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動する。
 
