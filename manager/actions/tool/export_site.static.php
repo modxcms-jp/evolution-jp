@@ -78,6 +78,25 @@ foreach ($exportJsKeys as $key) {
                         width: 100%;
                         max-width: 600px;
                         height: 1.5em;
+                        /* 色はテーマの変数（assets/docs/theme-variables.md）。進んだ部分が primary、残りが薄い枠の色 */
+                        appearance: none;
+                        border: 1px solid var(--color-border-default, #ccc);
+                        border-radius: 3px;
+                        background: var(--color-border-light, #ededed);
+                        color: var(--color-primary, #375665);
+                        overflow: hidden;
+                    }
+
+                    #exportProgressBox progress::-webkit-progress-bar {
+                        background: var(--color-border-light, #ededed);
+                    }
+
+                    #exportProgressBox progress::-webkit-progress-value {
+                        background: var(--color-primary, #375665);
+                    }
+
+                    #exportProgressBox progress::-moz-progress-bar {
+                        background: var(--color-primary, #375665);
                     }
 
                     #exportResult dl {
