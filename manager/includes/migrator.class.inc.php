@@ -140,9 +140,14 @@ class EvoMigrator
     /**
      * 未適用を順に流し、1 本終わるごとに記録する。途中で止まっても次はその続きから
      *
+     * $record を false にすると、流すだけで記録しない（アップデーターが、あとの必須の処理もすべて済んでから
+     * recordApplied() でまとめて記録するため。記録しないあいだは hasPending() が true のままで、公開側は止まる）。
+     * 流し直しても同じ結果になるよう、マイグレーションは冪等に書く
+     *
+     * @param bool $record 1 本終わるごとに記録するか
      * @return array ['applied' => [ID...], 'failed' => ID か null, 'error' => 文か null]
      */
-    public function run(): array
+    public function run(bool $record = true): array
     {
         $result = ['applied' => [], 'failed' => null, 'error' => null];
 
@@ -168,7 +173,7 @@ class EvoMigrator
             $this->ensureTable();
             foreach ($this->pending() as $id) {
                 try {
-                    $this->runOne($id);
+                    $this->runOne($id, $record);
                 } catch (Throwable $e) {
                     $result['failed'] = $id;
                     $result['error'] = $e->getMessage();
@@ -204,14 +209,30 @@ class EvoMigrator
         }
     }
 
-    private function runOne($id): void
+    /**
+     * run(false) で流したものなど、指定した ID を適用済みとして記録する。重ねて記録しても壊れない
+     *
+     * @param string[] $ids
+     */
+    public function recordApplied(array $ids): void
+    {
+        $this->ensureTable();
+        $now = time();
+        foreach ($ids as $id) {
+            $this->record((string)$id, $now, 'INSERT IGNORE');
+        }
+    }
+
+    private function runOne($id, bool $record = true): void
     {
         $migration = self::load($this->dir() . $id . '.php');
         if (!is_callable($migration)) {
             throw new RuntimeException("Migration {$id} must return a function.");
         }
         $migration(new EvoMigrationHelper());
-        $this->record($id, time(), 'INSERT');
+        if ($record) {
+            $this->record($id, time(), 'INSERT');
+        }
     }
 
     /**

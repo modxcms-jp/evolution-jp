@@ -242,7 +242,8 @@ if (sessionv('is_upgradeable')) {
     set_time_limit(0);
 
     log_install_event('Running migrations');
-    $migration = (new EvoMigrator())->run();
+    // 記録は、create_tables.sql 以降の必須の処理がすべて済んでからまとめて行う（途中で失敗したら、次のアップデーターで流し直す）
+    $migration = (new EvoMigrator())->run(false);
     if ($migration['applied']) {
         log_install_event('Migrations applied', ['migrations' => $migration['applied']]);
     }
@@ -286,17 +287,6 @@ if (!sessionv('is_upgradeable')) {
 if (sessionv('is_upgradeable') || !$sqlParser->installFailed) {
     $sqlParser->intoDB('system_eventnames.sql');
     log_install_event('Synchronized system event names');
-}
-
-// 新規インストールは最終形をそのまま作ったので、マイグレーションは流さず、適用済みとだけ記録する
-if (!sessionv('is_upgradeable') && !$sqlParser->installFailed) {
-    try {
-        (new EvoMigrator())->markAllApplied();
-        log_install_event('Recorded migrations as applied for fresh installation');
-    } catch (Throwable $e) {
-        $sqlParser->installFailed = true;
-        $sqlParser->mysqlErrors[] = ['error' => $e->getMessage(), 'sql' => 'migrations'];
-    }
 }
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
@@ -433,6 +423,30 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     }
     printf('<span class="ok">%s</span></p>', lang('ok'));
     log_install_event('Demo site installation completed successfully');
+}
+
+// マイグレーションの記録は、必須の処理がすべて成功したあとに行う。記録が済むと hasPending() が false になり、公開側の停止が解けるため。
+// 新規インストールは最終形をそのまま作ったので流さずに適用済みとだけ記録し、アップグレードは流した ID を記録する
+if ($errors == 0) {
+    try {
+        $migrator = new EvoMigrator();
+        if (sessionv('is_upgradeable')) {
+            $migrator->recordApplied($migration['applied']);
+            log_install_event('Recorded applied migrations', ['migrations' => $migration['applied']]);
+        } else {
+            $migrator->markAllApplied();
+            log_install_event('Recorded migrations as applied for fresh installation');
+        }
+    } catch (Throwable $e) {
+        $errors += 1;
+        log_install_event('Failed to record migrations', ['error' => $e->getMessage()]);
+        printf('<p><span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
+        printf('<p class="mono">%s</p>', nl2br(hsc($e->getMessage())));
+        printf('<p>%s</p>', lang('some_tables_not_updated'));
+        return;
+    }
+} else {
+    log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
 clean_up($sqlParser->prefix);
