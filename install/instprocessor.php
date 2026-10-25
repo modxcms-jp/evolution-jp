@@ -253,7 +253,12 @@ if (sessionv('is_upgradeable')) {
             'error' => $migration['error']
         ]);
         printf('<p><span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
-        printf('<p>%s</p>', hsc(sprintf(lang('migration_failed'), (string)$migration['failed'])));
+        // 失敗した ID が無いとき（ロックを取れない、記録の表を作れない、ID が長すぎるなど）は、ID を含まない文にする
+        printf('<p>%s</p>', hsc(
+            $migration['failed'] !== null
+                ? sprintf(lang('migration_failed'), $migration['failed'])
+                : lang('migration_runner_failed')
+        ));
         printf('<p class="mono">%s</p>', nl2br(hsc($migration['error'])));
         printf('<p>%s</p>', lang('some_tables_not_updated'));
         return;
@@ -307,7 +312,7 @@ if ($sqlParser->installFailed == true) {
     printf('<p>%s</p>', lang('setup_couldnt_install'));
     printf('<p>%s<br /><br />', lang('installation_error_occured'));
     foreach ($sqlParser->mysqlErrors as $err) {
-        printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], lang('during_execution_of_sql'), strip_tags($err['sql']));
+        printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', hsc($err['error']), lang('during_execution_of_sql'), hsc(strip_tags($err['sql'] ?? '')));
     }
     echo '</p>';
     if (sessionv('is_upgradeable')) {
