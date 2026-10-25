@@ -9,7 +9,7 @@
  * - 表を作るのは create_tables.sql だけ。ここは既にある表を変えるだけで、表が無ければ何もしない。
  * - 最終形の DB に流しても何も変えない。UPDATE も、変える行があるときだけ流す。
  *
- * 後半（データの部）は M4 で、この関数の末尾の印の位置に足す。
+ * 後半（データの部）は、スキーマの部のあとに続く。
  */
 return static function (EvoMigrationHelper $m) {
     $prefix = db()->config['table_prefix'];
@@ -311,5 +311,253 @@ return static function (EvoMigrationHelper $m) {
         }
     }
 
-    // ---- データの部（M4）はここに足す ----
+    // ======== データの部 ========
+    // どれも版の条件は置かず、DB とファイルの状態が「古い形のまま」のときだけ変える。
+    // 利用者が選んだ値は上書きしない。変えたときはログ（種別 1）に設定名・前の値・新しい値を残す。
+    // 2 回目は条件に合う行が無いので、UPDATE / DELETE を流さない（先に SELECT で確かめる）。
+    // 同梱物（プラグインのコードなど）の入れ替えはしない（アップデーターが利用者の選択どおりに入れ直す）
+    $defaults = include MODX_CORE_PATH . 'default.config.php';
+
+    $changeSetting = function ($name, $old, $new, $showValues = true) use ($m) {
+        $m->saveSetting($name, $new);
+        $m->log('Updated the setting', $showValues
+            ? ['setting' => $name, 'old' => $old, 'new' => $new]
+            : ['setting' => $name]);
+    };
+
+    // 8. ロール ID 1（Administrator）。コードが特別に扱う。無いときだけ今の定義で入れる（あれば利用者の変更を残す）
+    if ($m->tableExists('user_roles') && !$m->rows(sprintf('SELECT 1 FROM %s WHERE `id`=1', $m->table('user_roles')))) {
+        $permissions = [
+            'frames', 'home', 'view_document', 'new_document', 'save_document', 'move_document', 'publish_document',
+            'delete_document', 'empty_trash', 'action_ok', 'logout', 'help', 'messages', 'new_user', 'edit_user', 'logs',
+            'edit_parser', 'save_parser', 'edit_template', 'settings', 'credits', 'new_template', 'save_template',
+            'delete_template', 'edit_snippet', 'new_snippet', 'save_snippet', 'delete_snippet', 'edit_chunk', 'new_chunk',
+            'save_chunk', 'delete_chunk', 'empty_cache', 'edit_document', 'change_password', 'error_dialog', 'about',
+            'file_manager', 'save_user', 'delete_user', 'save_password', 'edit_role', 'save_role', 'delete_role', 'new_role',
+            'access_permissions', 'bk_manager', 'new_plugin', 'edit_plugin', 'save_plugin', 'delete_plugin', 'new_module',
+            'edit_module', 'save_module', 'exec_module', 'delete_module', 'view_eventlog', 'delete_eventlog',
+            'manage_metatags', 'edit_doc_metatags', 'new_web_user', 'edit_web_user', 'save_web_user', 'delete_web_user',
+            'web_access_permissions', 'view_unpublished', 'import_static', 'export_static', 'remove_locks', 'view_schedule',
+        ];
+        $fields = ['`id`', '`name`', '`description`'];
+        $values = ['1', "'Administrator'", "'Site administrators have full access to all functions'"];
+        foreach ($permissions as $permission) {
+            $fields[] = "`{$permission}`";
+            $values[] = '1';
+        }
+        $m->exec(
+            sprintf('INSERT INTO %s (%s) VALUES (%s)', $m->table('user_roles'), implode(',', $fields), implode(',', $values)),
+            'INSERT the Administrator role'
+        );
+        $m->log('Added the Administrator role (id 1)');
+    }
+
+    // 9. 設定ではない値が入っていた行を消す（#611・#615・#640）
+    $notSettings = "'csrf_token','save_action','blockedcheck','tinymce7_template_docs','tinymce7_template_chunks','tinymce7_template_category'";
+    if (
+        $m->tableExists('user_settings')
+        && $m->rows(sprintf('SELECT 1 FROM %s WHERE `setting_name` IN (%s) LIMIT 1', $m->table('user_settings'), $notSettings))
+    ) {
+        $m->exec(sprintf('DELETE FROM %s WHERE `setting_name` IN (%s)', $m->table('user_settings'), $notSettings));
+        $m->log('Removed non-setting rows from user_settings');
+    }
+    // CSRF トークンに置き換わった validate_referer、判定に使わなくなった install_version、
+    // URL の決定に使われていなかった site_url（今の「サイトのURL」は fixed_site_url）
+    if ($m->tableExists('system_settings')) {
+        foreach (['csrf_token', 'validate_referer', 'install_version', 'site_url'] as $name) {
+            if ($m->deleteSetting($name)) {
+                $m->log('Removed an obsolete setting', ['setting' => $name]);
+            }
+        }
+    }
+
+    // 10. 使えなくなったものを選んでいるときだけ、既定に戻す
+    // 管理画面テーマ: 古い作りのもの（style.php が無い、manager/ か sysalert_style.php がある、MODxCarbon の新しい作りでないもの）
+    if ($m->hasSetting('manager_theme')) {
+        $theme = (string)$m->setting('manager_theme');
+        if ($theme !== '') {
+            $themeDir = MODX_MANAGER_PATH . 'media/style/' . $theme . '/';
+            // テーマ名はフォルダ名として使うので、英数字・_・- 以外は使えないものとして扱う
+            $unusable = !preg_match('/\A[A-Za-z0-9_-]+\z/', $theme)
+                || !is_file($themeDir . 'style.php')
+                || is_dir($themeDir . 'manager')
+                || is_file($themeDir . 'sysalert_style.php')
+                || ($theme === 'MODxCarbon' && !is_dir($themeDir . 'images/icons/32x'));
+            if ($unusable) {
+                $changeSetting('manager_theme', $theme, $defaults['manager_theme']);
+            }
+        }
+    }
+    // エディタ: FCKeditor の古い雛形が残っていて、それを選んでいるとき
+    if (strcasecmp((string)$m->setting('which_editor', ''), 'FCKeditor') === 0) {
+        $fckTemplate = MODX_BASE_PATH . 'assets/plugins/fckeditor/plugin.fckeditor.tpl';
+        if (is_file($fckTemplate) && strpos((string)file_get_contents($fckTemplate), 'FCKeditor v2.1.1') !== false) {
+            $changeSetting('which_editor', $m->setting('which_editor'), $defaults['which_editor']);
+        }
+    }
+    // 上部メニュー: 古い既定のままのときだけ今の既定に（並べ替えた値は残す）
+    if ($m->setting('topmenu_site') === 'home,preview,refresh_site,search,add_resource,add_weblink') {
+        $changeSetting('topmenu_site', $m->setting('topmenu_site'), $defaults['topmenu_site']);
+    }
+    // コンテンツタイプの一覧: 古い既定の 2 つのどちらかと同じか、行が無いときだけ（空にした値は残す）
+    $contentTypes = $m->setting('custom_contenttype');
+    if (
+        $contentTypes === null
+        || $contentTypes === 'text/css,text/html,text/javascript,text/plain,text/xml'
+        || $contentTypes === 'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain'
+    ) {
+        $changeSetting('custom_contenttype', $contentTypes, $defaults['custom_contenttype']);
+    }
+
+    // 11. メールの送信元: 初期値のままのときだけ、ロール ID 1 の管理者のうち ID が最も小さい人のアドレスにする
+    if ($m->setting('emailsender') === 'you@example.com') {
+        $admin = $m->rows(sprintf(
+            "SELECT ua.`email` FROM %s ua JOIN %s mu ON mu.`id`=ua.`internalKey` WHERE ua.`role`=1 AND ua.`email`<>'' "
+            . 'ORDER BY ua.`internalKey` ASC LIMIT 1',
+            $m->table('user_attributes'),
+            $m->table('manager_users')
+        ), 'SELECT the email of the first administrator');
+        if ($admin) {
+            $changeSetting('emailsender', null, $admin[0]['email'], false);
+        } else {
+            $m->log('emailsender was not changed: no administrator with an email address', ['setting' => 'emailsender'], 2);
+        }
+    }
+    // 文書グループによる権限: 設定の行が無いときだけ、文書グループの有無で決める（行があれば利用者の選択）
+    if (!$m->hasSetting('use_udperms') && $m->tableExists('document_groups')) {
+        $groups = $m->rows(sprintf('SELECT COUNT(*) AS n FROM %s', $m->table('document_groups')));
+        $changeSetting('use_udperms', null, (int)$groups[0]['n'] > 0 ? '1' : '0');
+    }
+    // site_id: 無いか、配布物の既定値のままのときだけ作り直す
+    $siteId = $m->setting('site_id');
+    if ($siteId === null || $siteId === '' || $siteId === 'MzGeQ2faT4Dw06+U49x3') {
+        $changeSetting('site_id', null, uniqid(''), false);
+    }
+
+    // 12. 親テンプレートの継承: 有効な Inherit Parent Template プラグインがあり、auto_template_logic の行が無いときだけ、
+    // プラグインの設定から計算して保存し、プラグインを無効にする（旧 1.0.5J のインストーラの意図。保存し忘れていた不具合を直した）
+    if ($m->tableExists('site_plugins') && !$m->hasSetting('auto_template_logic')) {
+        $inherit = $m->rows(
+            sprintf("SELECT `id`, `properties` FROM %s WHERE `name`='Inherit Parent Template' AND `disabled`=0", $m->table('site_plugins')),
+            'SELECT the Inherit Parent Template plugin'
+        );
+        if ($inherit) {
+            $properties = evo()->parseProperties($inherit[0]['properties']);
+            $logic = ($properties['inheritTemplate'] ?? '') === 'From First Sibling' ? 'sibling' : 'parent';
+            $changeSetting('auto_template_logic', null, $logic);
+            $m->exec(
+                sprintf("UPDATE %s SET `disabled`=1 WHERE `name`='Inherit Parent Template' AND `disabled`=0", $m->table('site_plugins')),
+                'UPDATE the Inherit Parent Template plugin'
+            );
+            $m->log('Disabled the plugin replaced by auto_template_logic', ['plugin' => 'Inherit Parent Template']);
+        }
+    }
+    // 1.0.7J で役目を終えたプラグイン（今のコードと組み合わせる理由が無い）。有効なら無効にする
+    if ($m->tableExists('site_plugins')) {
+        $legacy = $m->rows(
+            sprintf(
+                "SELECT `id`, `name` FROM %s WHERE `disabled`=0 AND `name` IN ('%s','%s')",
+                $m->table('site_plugins'),
+                db()->escape('Bindings機能の有効無効'),
+                db()->escape('Bottom Button Bar')
+            ),
+            'SELECT the legacy plugins'
+        );
+        if ($legacy) {
+            $ids = array_map('intval', array_column($legacy, 'id'));
+            $m->exec(
+                sprintf('UPDATE %s SET `disabled`=1 WHERE `id` IN (%s)', $m->table('site_plugins'), implode(',', $ids)),
+                'UPDATE the legacy plugins'
+            );
+            $m->log('Disabled legacy plugins', ['plugin_ids' => $ids]);
+        }
+    }
+
+    // 13. 文字列 'NULL' を空に戻す（以前のインストーラとリソースの複製が入れていた）。
+    // BINARY で比べ、照合順序で 'null' や末尾空白付きの値まで一致しないようにする
+    $nullTargets = [
+        'site_snippets' => ['properties'],
+        'site_plugins' => ['properties', 'moduleguid'],
+        'site_modules' => ['properties', 'guid'],
+        'site_tmplvars' => ['elements', 'display', 'display_params'],
+        'site_content' => ['alias'],
+    ];
+    foreach ($nullTargets as $table => $columns) {
+        foreach ($columns as $column) {
+            if (!$m->columnExists($table, $column)) {
+                continue;
+            }
+            $where = sprintf("BINARY `%s`='NULL'", $column);
+            if ($m->rows(sprintf('SELECT 1 FROM %s WHERE %s LIMIT 1', $m->table($table), $where))) {
+                $m->exec(sprintf("UPDATE %s SET `%s`='' WHERE %s", $m->table($table), $column, $where));
+                $m->log("Emptied the literal 'NULL' strings", ['table' => $table, 'column' => $column]);
+            }
+        }
+    }
+    // 編集画面で保存したときにプロパティへ入った '&NULL=undefined;;' を取り除く
+    foreach (['site_snippets', 'site_plugins', 'site_modules'] as $table) {
+        if (!$m->columnExists($table, 'properties')) {
+            continue;
+        }
+        $where = "`properties` LIKE '%&NULL=undefined;;%'";
+        if ($m->rows(sprintf('SELECT 1 FROM %s WHERE %s LIMIT 1', $m->table($table), $where))) {
+            $m->exec(sprintf(
+                "UPDATE %s SET `properties`=TRIM(REPLACE(`properties`, '&NULL=undefined;;', '')) WHERE %s",
+                $m->table($table),
+                $where
+            ));
+            $m->log("Removed '&NULL=undefined;;' from the properties", ['table' => $table]);
+        }
+    }
+
+    // 14. ファイル。サイトのルート（MODX_BASE_PATH）と管理画面（MODX_MANAGER_PATH）の下の、固定のパスだけを扱う
+    // 同梱テーマの、common/ にまとめたファイルの古い写し（#794）。配布から外したファイルなので、利用者の選択ではない
+    $themeCopies = [
+        'AromaHop' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'AuroraFlow' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'RevoClassic' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'RevoStyle' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'RubberWhite' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+        'SakuraFlow' => ['welcome.php', 'manager.lockout.tpl', 'config.php.sample'],
+        'SoftSlate' => ['welcome.php', 'welcome.tpl', 'manager.lockout.tpl', 'config.php.sample'],
+    ];
+    $removed = [];
+    $failed = [];
+    foreach ($themeCopies as $theme => $names) {
+        foreach ($names as $name) {
+            $path = MODX_MANAGER_PATH . "media/style/{$theme}/{$name}";
+            if (!is_file($path)) {
+                continue;
+            }
+            if (@unlink($path)) {
+                $removed[] = "{$theme}/{$name}";
+            } else {
+                $failed[] = "manager/media/style/{$theme}/{$name}";
+            }
+        }
+    }
+    if ($removed) {
+        $m->log('Removed old copies of bundled theme files', ['files' => $removed]);
+    }
+    if ($failed) {
+        // 消せないと、テーマ側の古いファイルが優先され続けるので、手で消すよう知らせる
+        $m->log('Could not remove old copies of bundled theme files. Delete them by hand', ['files' => $failed], 2);
+    }
+    // 2012 年の脆弱な action.php（$_GET['include'] を読み込み、パスの確認が無い版）と中身が同じときだけ消す。
+    // 利用者が置いた別の action.php は消さない
+    $actionPhp = MODX_BASE_PATH . 'action.php';
+    if (is_file($actionPhp)) {
+        $source = (string)file_get_contents($actionPhp);
+        if (
+            strpos($source, "\$_GET['include']") !== false
+            && strpos($source, 'MODX_API_MODE') !== false
+            && strpos($source, 'if(strpos($path,MODX_MANAGER_PATH)!==0)') === false
+        ) {
+            if (@unlink($actionPhp)) {
+                $m->log('Removed the vulnerable action.php', ['file' => 'action.php']);
+            } else {
+                $m->log('Could not remove the vulnerable action.php. Delete it by hand', ['file' => 'action.php'], 2);
+            }
+        }
+    }
 };
