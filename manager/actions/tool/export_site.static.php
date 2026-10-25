@@ -21,6 +21,10 @@ $exportJsKeys = [
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
     'export_site_failures_title', 'export_site_failures_more', 'export_site_previous_title',
+    'export_site_done', 'export_site_done_with_failures', 'export_site_finished_at',
+    'export_site_done_dialog_title', 'export_site_done_dialog', 'export_site_done_dialog_with_failures',
+    'export_site_error_dialog_title', 'export_site_error_dialog',
+    'export_site_title_done', 'export_site_title_failed', 'export_site_title_stopped',
 ];
 $exportJsLang = [];
 foreach ($exportJsKeys as $key) {
@@ -72,6 +76,22 @@ foreach ($exportJsKeys as $key) {
 
                     #exportNotice {
                         margin: 1em 0;
+                    }
+
+                    /* 完了の案内。色はテーマの変数（assets/docs/theme-variables.md） */
+                    #exportNotice.exportNotice-success,
+                    #exportNotice.exportNotice-warning {
+                        padding: 0.6em 1em;
+                        font-weight: bold;
+                        color: var(--color-text-primary, #333);
+                        background: var(--color-success-bg, #edffee);
+                        border: 1px solid var(--color-success, #090);
+                        border-left-width: 6px;
+                    }
+
+                    #exportNotice.exportNotice-warning {
+                        background: var(--color-surface, #fff);
+                        border-color: var(--color-error, #c00);
                     }
 
                     #exportProgressBox progress {
@@ -320,7 +340,9 @@ foreach ($exportJsKeys as $key) {
                 window.setTimeout(resolve, ms);
             });
         };
-        const setNotice = function (text, html) {
+        // kind: 'success' / 'warning' で、完了の案内の見た目にする
+        const setNotice = function (text, html, kind) {
+            els.notice.className = kind ? 'exportNotice-' + kind : '';
             if (!text) {
                 els.notice.hidden = true;
                 els.notice.textContent = '';
@@ -333,6 +355,27 @@ foreach ($exportJsKeys as $key) {
                 els.notice.textContent = text;
             }
             els.notice.hidden = false;
+        };
+        // 完了を知らせる印を、ブラウザのタブの題名の先頭に付ける。外すと元に戻る
+        let titleMark = '';
+        const setTitleMark = function (mark) {
+            if (titleMark && document.title.indexOf(titleMark) === 0) {
+                document.title = document.title.slice(titleMark.length);
+            }
+            titleMark = mark || '';
+            if (titleMark) {
+                document.title = titleMark + document.title;
+            }
+        };
+        // シェルが別の画面へ移るとき（題名を差し替える前）に戻す
+        document.addEventListener('evoshell:unload', function () {
+            setTitleMark('');
+        }, {once: true});
+        // 完了をダイアログで知らせる（管理画面の共通のダイアログ。メッセージは HTML なので、言語ファイルの文言と数だけを渡す）
+        const notifyDialog = function (message, title, warning) {
+            if (typeof window.jAlert === 'function') {
+                window.jAlert(message, title, null, warning ? {icon: 'warning'} : undefined);
+            }
         };
         const setFormDisabled = function (disabled) {
             Array.prototype.forEach.call(form.elements, function (el) {
@@ -480,6 +523,7 @@ foreach ($exportJsKeys as $key) {
             els.result.hidden = true;
             els.previous.hidden = true;
             setNotice('');
+            setTitleMark('');
             setButtons('start');
             setFormDisabled(false);
         };
@@ -494,12 +538,24 @@ foreach ($exportJsKeys as $key) {
             renderProgress(res);
             renderMessages(res);
             setButtons(res.state === 'done' ? 'start' : 'restart');
+            const at = res.finished_label ? fill(T.export_site_finished_at, {datetime: res.finished_label}) : '';
+            const counts = {success: Number(res.success) || 0, failed: Number(res.failed) || 0};
             if (res.state === 'cancelled') {
-                setNotice(T.export_site_cancelled);
+                // 中止は利用者が押したので、案内だけ出す（ダイアログは出さない）
+                setNotice(T.export_site_cancelled + at);
+                setTitleMark('');
             } else if (res.state === 'error') {
                 setNotice(res.message || T.export_site_request_failed, true);
+                setTitleMark(T.export_site_title_stopped);
+                notifyDialog(T.export_site_error_dialog, T.export_site_error_dialog_title, true);
+            } else if (counts.failed > 0) {
+                setNotice(T.export_site_done_with_failures + at, false, 'warning');
+                setTitleMark(T.export_site_title_failed);
+                notifyDialog(fill(T.export_site_done_dialog_with_failures, counts), T.export_site_done_dialog_title, true);
             } else {
-                setNotice('');
+                setNotice(T.export_site_done + at, false, 'success');
+                setTitleMark(T.export_site_title_done);
+                notifyDialog(fill(T.export_site_done_dialog, counts), T.export_site_done_dialog_title, false);
             }
             if (res.state !== 'error' || res.total) {
                 renderResult(res);
@@ -641,6 +697,7 @@ foreach ($exportJsKeys as $key) {
             const previousMode = buttonMode;
             setButtons('none');
             setNotice('');
+            setTitleMark('');
             els.messages.textContent = '';
             els.result.hidden = true;
             els.previous.hidden = true;
