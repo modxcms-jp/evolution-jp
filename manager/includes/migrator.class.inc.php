@@ -11,6 +11,8 @@ require_once __DIR__ . '/migration_helper.class.inc.php';
  */
 class EvoMigrator
 {
+    // ランナーを入れる前の DB を今の形にそろえる最初のマイグレーション
+    const BASELINE_ID = '00000000_baseline';
     // 時刻の無い ID は 00000000_baseline だけ
     const FILE_PATTERN = '/\A(00000000_baseline|\d{8}_\d{6}_[a-z0-9_]+)\.php\z/';
     // 記録の表の id 列の長さ
@@ -103,6 +105,20 @@ class EvoMigrator
         } catch (Throwable $e) {
             return true;
         }
+    }
+
+    /**
+     * アップデーター（install/）を通す必要があるか。baseline のファイルがあり、まだ適用していなければ true。
+     * baseline の前の DB は、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しも要るので、
+     * マイグレーションだけで上げない（記録の表が無い DB も baseline が未適用と見なす）。
+     * 記録を読めないときは例外を投げる
+     */
+    public function requiresInstaller(): bool
+    {
+        if (!in_array(self::BASELINE_ID, $this->all(), true)) {
+            return false;
+        }
+        return !isset($this->applied()[self::BASELINE_ID]);
     }
 
     public function ensureTable(): void

@@ -47,7 +47,7 @@ class EvoMigrationHelper
     {
         $rs = db()->query($sql, false);
         if ($rs === false) {
-            $shown = $summary !== null ? $summary : mb_strimwidth($sql, 0, 200, '...');
+            $shown = $summary !== null ? $summary : $this->shorten($sql, 200);
             $errno = (int)db()->getLastErrorNo();
             throw new EvoMigrationException(
                 sprintf('SQL failed: %s (errno %d: %s)', $shown, $errno, db()->getLastError()),
@@ -475,6 +475,20 @@ class EvoMigrationHelper
             throw new InvalidArgumentException('Invalid identifier: ' . var_export($name, true));
         }
         return $name;
+    }
+
+    /**
+     * 例外の文とログに入れる SQL を切り詰める（mbstring が無い環境ではバイト数で切る）
+     */
+    private function shorten($text, $width): string
+    {
+        if (function_exists('mb_strimwidth')) {
+            return mb_strimwidth($text, 0, $width, '...');
+        }
+        if (strlen($text) <= $width) {
+            return $text;
+        }
+        return substr($text, 0, $width - 3) . '...';
     }
 
     private function columnList(array $columns): string

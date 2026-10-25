@@ -73,7 +73,7 @@ php evo skill:sync --skill=issue-resolver
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `migrate` は `manager/includes/migrations/` の未適用のマイグレーションをファイル名の順に適用し、記録の表（`{prefix}migrations`）に 1 本ずつ記録します。
 - 適用した ID を `Applied <ID>` と 1 行ずつ表示し、未適用が無ければ `Nothing to migrate.` と表示します。
-- 流す前に `{prefix}system_cache` の有無を確かめ、無い古い版の DB では何も流さずに `This database predates the current table definitions. ...` を標準エラーに表示して終了コード 1 で終わります。古い版の DB はアップデーター（`install/`）で上げてください（表を作るのは `create_tables.sql` だけで、キャッシュも消せないため）。
+- 流す前に `00000000_baseline` が適用済みかを確かめます。baseline のファイルがあるのに記録が無い（記録の表が無い DB を含む）ときは、アップデーターを通していない古い版の DB と見なし、何も流さずに `This database has not been upgraded with the installer yet. ...` を標準エラーに表示して終了コード 1 で終わります。古い版の DB はアップデーター（`install/`）で上げてください（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しはアップデーターだけが行うため）。baseline のファイルがまだ無いときは、この確認では止めません。記録を読めないときは `Error: ...` を標準エラーに表示して終了コード 1 で終わります。
 - 1 本でも適用した、または失敗したときは、最後にキャッシュを消します。失敗の文は、キャッシュを消す前に標準エラーへ出します。
 - マイグレーションの ID が 100 文字を超えるなど、一覧を読めないときも、`migrate:status` と同じく標準エラーに文を出して終了コード 1 で終わります。
 - 失敗したら、ID とエラーを標準エラーに表示して終了コード 1 で終わります（失敗したマイグレーションは記録せず、次回はそこから流し直します）。

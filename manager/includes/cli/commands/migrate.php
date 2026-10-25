@@ -6,16 +6,22 @@
 
 require_once MODX_CORE_PATH . 'migrator.class.inc.php';
 
-// 古い版の DB は、アップデーター（install/）でそろえる（表を作るのは create_tables.sql だけ）。
-// system_cache が無いとキャッシュを消せず、流したあとに止まるため、流す前に確かめる
-if (!(new EvoMigrationHelper())->tableExists('system_cache')) {
+$migrator = new EvoMigrator();
+
+// baseline を通していない DB は、アップデーター（install/）で上げる
+// （イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しはアップデーターだけが行う）
+try {
+    $requiresInstaller = $migrator->requiresInstaller();
+} catch (Throwable $e) {
+    cli_usage('Error: ' . $e->getMessage());
+}
+if ($requiresInstaller) {
     cli_usage(
-        'This database predates the current table definitions. '
+        'This database has not been upgraded with the installer yet. '
         . 'Upgrade it with the installer (install/) instead of php evo migrate.'
     );
 }
 
-$migrator = new EvoMigrator();
 $result = $migrator->run();
 
 foreach ($result['applied'] as $id) {
