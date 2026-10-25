@@ -197,14 +197,19 @@ class EvoSiteExporter
         $baseDir = $path == '' ? $this->exportDir . '/' : $this->exportDir . '/' . $path . '/';
         $this->makeDir(rtrim($baseDir, '/'));
 
-        // Web リンクのフォルダは、リンク先がこのサイトのリソース ID（数字）のときだけ取得する。外部の URL などはフォルダだけを作る
+        // ページを取得しないもの: 中身が無いリソース、未公開のフォルダ（下に公開のページがあり得るのでフォルダは作る）、
+        // 取得先のサイトの外を指す（または URL が作れない）Web リンクのフォルダ
+        $url = '';
+        if (!$row['wasNull'] && $row['published'] == 1) {
+            $url = $this->fetchUrl($row['id']);
+        }
         $isOuterLink = $row['type'] === 'reference' && $row['isfolder'] == 1
-            && !ctype_digit(trim((string)$row['content']));
-        $row['noPage'] = $row['wasNull'] || $isOuterLink;
+            && !$this->isInsideSite($url);
+        $row['noPage'] = $row['wasNull'] || $row['published'] != 1 || $isOuterLink;
 
         $item = ['row' => $row, 'baseDir' => $baseDir];
-        if (!$row['noPage'] && $row['published'] == 1) {
-            $item['url'] = $this->fetchUrl($row['id']);
+        if (!$row['noPage']) {
+            $item['url'] = $url;
         }
         return $item;
     }
@@ -472,7 +477,6 @@ class EvoSiteExporter
     private function fetchAll(array $urls)
     {
         $deadline = microtime(true) + self::CHUNK_DEADLINE;
-        $siteOrigin = $this->originOf($this->siteUrl !== '' ? $this->siteUrl : (string)evo()->config('site_url'));
         $state = [];
         $out = [];
         foreach ($urls as $key => $url) {
@@ -481,12 +485,11 @@ class EvoSiteExporter
                 continue;
             }
             // 取得先はそのサイトの http・https に限る（最初の URL がサイトの外なら取得しない）
-            $origin = $this->originOf($url);
-            if ($origin === null || $siteOrigin === null || $origin !== $siteOrigin) {
+            if (!$this->isInsideSite($url)) {
                 $out[$key] = $this->failure('not fetched: the URL is outside the site (' . $this->shortUrl($url) . ')');
                 continue;
             }
-            $state[$key] = ['url' => $url, 'origin' => $origin, 'hops' => 0, 'tries' => 0];
+            $state[$key] = ['url' => $url, 'origin' => $this->originOf($url), 'hops' => 0, 'tries' => 0];
         }
 
         while ($state) {
@@ -571,6 +574,17 @@ class EvoSiteExporter
     private function failure($detail)
     {
         return ['body' => false, 'detail' => $detail, 'basic_auth' => false];
+    }
+
+    /**
+     * URL が取得先のサイト（--site-url、無ければ設定のサイトの URL）の http・https の中か。
+     * 取得の入口（fetchAll）と Web リンクのフォルダの判定で共通の基準。
+     */
+    private function isInsideSite($url)
+    {
+        $siteOrigin = $this->originOf($this->siteUrl !== '' ? $this->siteUrl : (string)evo()->config('site_url'));
+        $origin = $this->originOf($url);
+        return $origin !== null && $siteOrigin !== null && $origin === $siteOrigin;
     }
 
     /**
