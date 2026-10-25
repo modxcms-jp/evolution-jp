@@ -210,30 +210,30 @@ function rejectBlockedUser()
     jsAlert(alert()->errors[902]);
 }
 
-function isBlockedUser()
+// user() は期限切れのロックをキャッシュ上で解除済みの値にして返すため、ブロックの判定には DB の値を使う
+function getBlockStateFromDb()
 {
-    // user() は期限切れのロックをキャッシュ上で解除済みの値にして返すため、判定には DB の値を使う
-    $row = db()->getRow(
+    return db()->getRow(
         db()->select(
             'blocked, blockeduntil, failedlogincount',
             '[+prefix+]user_attributes',
             sprintf("internalKey='%d'", user('internalKey'))
         )
     );
+}
+
+function isBlockedUser()
+{
+    $row = getBlockStateFromDb();
     if (!$row) {
         return true;
     }
 
     $blockedUntil = (int) $row['blockeduntil'];
-    $failedLoginLimit = (int) config('failed_login_attempts', 0);
-    $failedLoginCount = (int) $row['failedlogincount'];
-    $isTemporaryLock = 0 < $blockedUntil && $failedLoginLimit <= $failedLoginCount;
 
-    if ($isTemporaryLock && request_time() < $blockedUntil) {
-        return true;
-    }
-
-    if ($isTemporaryLock) {
+    // 期限（解除日）が過ぎていれば、一時ロックでも解除日付きのブロックでも解除する。
+    // blockeduntil=0 の無期限ブロックはここに入らない
+    if (0 < $blockedUntil && $blockedUntil <= request_time()) {
         db()->update(
             [
                 'failedlogincount' => 0,
@@ -246,19 +246,16 @@ function isBlockedUser()
         return false;
     }
 
-    return (bool) (int) $row['blocked'];
+    $isTemporaryLock = 0 < $blockedUntil
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
+
+    return $isTemporaryLock || (bool) (int) $row['blocked'];
 }
 
-// DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
+// DB の最新の状態で、まだブロックされているかを確かめる
 function isStillBlockedInDb()
 {
-    $row = db()->getRow(
-        db()->select(
-            'blocked, blockeduntil, failedlogincount',
-            '[+prefix+]user_attributes',
-            sprintf("internalKey='%d'", user('internalKey'))
-        )
-    );
+    $row = getBlockStateFromDb();
     if (!$row) {
         return true;
     }
