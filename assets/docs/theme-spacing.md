@@ -39,7 +39,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 | ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、`.sectionBody` の直下のブロック（`.sectionBody > :is(div, table, fieldset)`）の下、本体の中の小見出し（`.sectionBody h3`）の下、サブリソース一覧のパンくず（`.resources-topic-path`）の下、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
 | タブとパネルを離して見せる作り（丸いタブ）の、タブ列とパネルの間 | `--space-2`（8px） | `.dynamic-tab-pane-control .tab-row` → `.tab-page` |
 | 入れ物の最初の子の上・最後の子の下 | 外側の `margin` を足さない（0）。間は入れ物の内側の `padding` だけで作る。入れ物は `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` | `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` の最初と最後の子 |
-| 本文の流れの要素（リセット規則の対象）の間 | 本文の文字の大きさ × 0.5（`margin-bottom` だけ）。入れ物の最初の子の上・最後の子の下は 0 | `p`、`ul`、`ol`、`h2`〜`h6`、`pre`、`blockquote`、`dl`、`address` |
+| 本文の流れの要素（リセット規則の対象）の間 | 本文の文字の大きさ × 0.5（`margin-bottom` だけ）。入れ物の最初の子の上・最後の子の下は 0（`.sectionBody h3` はブロックの間に従う） | `p`、`ul`、`ol`、`h2`〜`h6`、`pre`、`blockquote`、`dl`、`address` |
 
 ### 書き方
 
@@ -48,7 +48,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - 入れ物（`#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form`）の最初の子の上と最後の子の下は 0 にする。入れ物の `padding` に加えて、外側の `margin` が積まれないようにするため。ブロックとリセット規則の対象は `margin-top` を持たないので、最初の子の上は 0 になる。最後の子の下は、`:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child { margin-bottom: 0 }` と `#mainPane > :last-child { margin-bottom: 0 }` で 0 にする
 - 下のブロックの前の間は、前の兄弟の `margin-bottom` を `:has(+ X)` で作ってよい。`:has` を使う規則は別の規則に分け、未対応のブラウザで一緒に捨てられないようにする。間に非表示の要素が挟まると当たらない（`:last-child` と同じ限界）
 - `.section` は入れ物であり、ブロックでもある。中の最後の子の下は 0 にし、`.section` 自身の下は次のブロックとの間（`--space-3`）にする。`.section` どうしの間は `.section` の `margin-bottom` で作り、本体（`.section .sectionBody`）の `margin-bottom` は 0 にする
-- 最後の子を 0 にする規則の詳細度は (0,2,0)（`#mainPane` 側は (1,1,0)）。これより詳細度が高い規則（`#pagination` など）と、後ろに書いた規則の `margin-bottom` は 0 にならないので、そのブロックで別に 0 にする。限界として、後ろに `display: none` の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後のブロックの `margin-bottom` は残る（CSS には「見えている最後の子」を選ぶ方法がない）。画面の HTML は、非表示の要素を入れ物の最後に置かないようにする
+- 最後の子を 0 にする規則の詳細度は (0,2,0)（`#mainPane` 側は (1,1,0)）。これより詳細度が高い規則（`#pagination` など）と、後ろに書いた同じ詳細度の規則の `margin-bottom` は 0 にならない（後ろにあっても詳細度が低い `.sectionBody > :is(div, table, fieldset)` の (0,1,1) は 0 になる）ので、そのブロックで別に 0 にする。限界として、後ろに `display: none` の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後のブロックの `margin-bottom` は残る（CSS には「見えている最後の子」を選ぶ方法がない）。画面の HTML は、非表示の要素を入れ物の最後に置かないようにする
 - リセット規則（`h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address`。7 テーマすべてが持つ）は、`margin-bottom` だけを本文の文字の大きさ × 0.5 にする。`margin-top` は持たない
 - ページの見出し（`#mainPane > h1`）と操作ボタン列（`ul.actionButtons`）は、リセット規則の対象でも、ブロックとして扱う。決まりの段（`--space-3` など）で上書きする
 - 位置を `top` でずらして間を作らない。`position: relative` と `z-index` は、重なりの順のために使ってよい
@@ -78,7 +78,7 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 ## 新しいテーマを作るとき
 
 1. `:root` に `--space-1` 〜 `--space-8` を、上の表の値で定義する
-2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`・`.resources-batch-actions`、`.system-log-toolbar`・`.system-log-summary`、`.sectionBody > :is(div, table, fieldset)`）を写す
+2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`、`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`form > :has(+ #pagination)`、`.sectionBody > :is(div, table, fieldset)`。ほかに、決まりの表の例のセレクタ）を写す
 3. `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" style.css | grep -E "^[0-9]+-\s+top:"` で、`.tab-page` を `top` でずらしていないか確かめる（出てよいのは、例外の負の値か `0` だけ）
 4. 管理画面の主な画面（ダッシュボード、サブリソース一覧、リソースの編集、システム設定、アクセス権限など）を開き、ページの端・見出し・ボタン列・表・タブとパネルの間が、決まりの表の値になっているか、ブラウザの開発者ツールで確かめる
 

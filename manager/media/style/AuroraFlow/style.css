@@ -1787,7 +1787,7 @@ ul.actionButtons {
 /* 縦の余白の決まり（assets/docs/theme-spacing.md）。
    入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
    この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
-   これより詳細度が高いもの（#pagination など）と、この規則より後ろにあるものは 0 にならないので、それぞれ別に 0 にする。
+   これより詳細度が高いもの（#pagination など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
    後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
 #mainPane > :last-child,
 :is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
