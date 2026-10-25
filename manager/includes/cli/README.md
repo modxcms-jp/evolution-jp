@@ -73,7 +73,9 @@ php evo skill:sync --skill=issue-resolver
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `migrate` は `manager/includes/migrations/` の未適用のマイグレーションをファイル名の順に適用し、記録の表（`{prefix}migrations`）に 1 本ずつ記録します。
 - 適用した ID を `Applied <ID>` と 1 行ずつ表示し、未適用が無ければ `Nothing to migrate.` と表示します。
-- 1 本でも適用した、または失敗したときは、最後にキャッシュを消します。
+- 流す前に `{prefix}system_cache` の有無を確かめ、無い古い版の DB では何も流さずに `This database predates the current table definitions. ...` を標準エラーに表示して終了コード 1 で終わります。古い版の DB はアップデーター（`install/`）で上げてください（表を作るのは `create_tables.sql` だけで、キャッシュも消せないため）。
+- 1 本でも適用した、または失敗したときは、最後にキャッシュを消します。失敗の文は、キャッシュを消す前に標準エラーへ出します。
+- マイグレーションの ID が 100 文字を超えるなど、一覧を読めないときも、`migrate:status` と同じく標準エラーに文を出して終了コード 1 で終わります。
 - 失敗したら、ID とエラーを標準エラーに表示して終了コード 1 で終わります（失敗したマイグレーションは記録せず、次回はそこから流し直します）。
 - 同時に 2 回走らないよう `GET_LOCK()` を使い、30 秒待っても取れなければ失敗にします。
 `migrate:status` は `applied <ID> <日時>` と `pending <ID>` を並べ、最後に `N applied, M pending` を表示します。記録の表がまだ無いときは、先頭に `Migrations table not found (every migration is pending).` を表示します。記録はあるのにファイルが無いマイグレーションは `applied <ID> <日時> (file missing)` と表示します。

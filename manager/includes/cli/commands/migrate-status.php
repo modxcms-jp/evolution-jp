@@ -9,6 +9,7 @@ require_once MODX_CORE_PATH . 'migrator.class.inc.php';
 $migrator = new EvoMigrator();
 try {
     $applied = $migrator->applied();
+    $all = $migrator->all();
 } catch (Throwable $e) {
     cli_usage('Error: ' . $e->getMessage());
 }
@@ -17,7 +18,6 @@ if (!(new EvoMigrationHelper())->tableExists('migrations')) {
     cli_out('Migrations table not found (every migration is pending).');
 }
 
-$all = $migrator->all();
 foreach ($all as $id) {
     if (isset($applied[$id])) {
         cli_out(sprintf('applied %s %s', $id, date('Y-m-d H:i:s', $applied[$id])));
