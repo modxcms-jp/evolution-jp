@@ -1825,7 +1825,7 @@ a.hometblink:hover {
     box-shadow: var(--shadow-sm);
     z-index: 2;
     position: relative;
-    top: 12px;
+    top: var(--space-2);
     margin-top: 0;
     padding: var(--space-5) !important;
 }
