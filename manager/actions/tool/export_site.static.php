@@ -24,6 +24,8 @@ $exportJsKeys = [
     'export_site_done', 'export_site_done_with_failures', 'export_site_finished_at',
     'export_site_done_dialog_title', 'export_site_done_dialog', 'export_site_done_dialog_with_failures',
     'export_site_error_dialog_title', 'export_site_error_dialog',
+    'export_site_eta', 'export_site_eta_calculating', 'export_site_eta_seconds', 'export_site_eta_minutes',
+    'export_site_eta_hours',
     'export_site_title_done', 'export_site_title_failed', 'export_site_title_stopped',
 ];
 $exportJsLang = [];
@@ -78,25 +80,54 @@ foreach ($exportJsKeys as $key) {
                         margin: 1em 0;
                     }
 
-                    /* 完了の案内。色はテーマの変数（assets/docs/theme-variables.md） */
-                    #exportNotice.exportNotice-success,
-                    #exportNotice.exportNotice-warning {
-                        padding: 0.6em 1em;
-                        font-weight: bold;
-                        color: var(--color-text-primary, #333);
-                        background: var(--color-success-bg, #edffee);
-                        border: 1px solid var(--color-success, #090);
-                        border-left-width: 6px;
+                    #exportBar {
+                        position: relative;
+                        max-width: 600px;
                     }
 
-                    #exportNotice.exportNotice-warning {
-                        background: var(--color-surface, #fff);
-                        border-color: var(--color-error, #c00);
+                    /* 処理中は縞を重ねて、止まっていないことを示す（位置は実際の件数のまま）。色はテーマの変数の半透明 */
+                    #exportBar.is-working::after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        left: 0;
+                        border-radius: 3px;
+                        pointer-events: none;
+                        opacity: 0.12;
+                        background-image: linear-gradient(
+                            45deg,
+                            var(--color-surface, #fff) 25%, transparent 25%,
+                            transparent 50%, var(--color-surface, #fff) 50%,
+                            var(--color-surface, #fff) 75%, transparent 75%, transparent
+                        );
+                        background-size: 20px 20px;
+                        animation: exportBarStripes 2s linear infinite;
+                    }
+
+                    @keyframes exportBarStripes {
+                        from {
+                            background-position: 0 0;
+                        }
+                        to {
+                            background-position: 20px 0;
+                        }
+                    }
+
+                    @media (prefers-reduced-motion: reduce) {
+                        #exportBar.is-working::after {
+                            animation: none;
+                        }
+                    }
+
+                    #exportEta {
+                        margin-left: 1em;
                     }
 
                     #exportProgressBox progress {
+                        display: block;
                         width: 100%;
-                        max-width: 600px;
                         height: 1.5em;
                         /* 色はテーマの変数（assets/docs/theme-variables.md）。進んだ部分が primary、残りが薄い枠の色 */
                         appearance: none;
@@ -261,9 +292,11 @@ foreach ($exportJsKeys as $key) {
             </ul>
 
             <div id="exportProgressBox" hidden>
-                <progress id="exportProgress" value="0" max="1"></progress>
+                <div id="exportBar">
+                    <progress id="exportProgress" value="0" max="1"></progress>
+                </div>
                 <p>
-                    <span id="exportCount"></span>
+                    <span id="exportCount"></span><span id="exportEta" hidden></span>
                 </p>
                 <ul class="actionButtons">
                     <li id="exportCancelItem" hidden>
@@ -308,8 +341,10 @@ foreach ($exportJsKeys as $key) {
             resume: $('exportResume'),
             restart: $('exportRestart'),
             box: $('exportProgressBox'),
+            bar: $('exportBar'),
             progress: $('exportProgress'),
             count: $('exportCount'),
+            eta: $('exportEta'),
             cancel: $('exportCancel'),
             messages: $('exportMessages'),
             result: $('exportResult')
@@ -342,7 +377,8 @@ foreach ($exportJsKeys as $key) {
         };
         // kind: 'success' / 'warning' で、完了の案内の見た目にする
         const setNotice = function (text, html, kind) {
-            els.notice.className = kind ? 'exportNotice-' + kind : '';
+            // 成功は他の画面（bkmanager など）と同じ okmsg、一部失敗は warning（テーマの既存のクラス）
+            els.notice.className = kind === 'success' ? 'okmsg' : (kind === 'warning' ? 'warning' : '');
             if (!text) {
                 els.notice.hidden = true;
                 els.notice.textContent = '';
@@ -377,6 +413,47 @@ foreach ($exportJsKeys as $key) {
                 window.jAlert(message, title, null, warning ? {icon: 'warning'} : undefined);
             }
         };
+        // 処理中の縞と残り時間の目安は、処理が止まるところ（完了・中止・エラー・状態の取り直し）で必ず消す
+        const setWorking = function (working) {
+            els.bar.classList.toggle('is-working', working);
+        };
+        let etaSmoothed = null;
+        const hideEta = function () {
+            etaSmoothed = null;
+            els.eta.hidden = true;
+            els.eta.textContent = '';
+        };
+        const settle = function () {
+            setWorking(false);
+            hideEta();
+        };
+        // 残りの秒数を「約30秒」「約2分」のような文言にする（秒は 5 秒、分は切り上げ）
+        const formatEta = function (sec) {
+            if (sec < 60) {
+                return fill(T.export_site_eta_seconds, {sec: Math.max(5, Math.round(sec / 5) * 5)});
+            }
+            const min = Math.ceil(sec / 60);
+            if (min < 60) {
+                return fill(T.export_site_eta_minutes, {min: min});
+            }
+            return fill(T.export_site_eta_hours, {hour: Math.floor(min / 60), min: min % 60});
+        };
+        // 処理した件数と、ジョブの処理にかかった時間（elapsed）の平均の速さから残りを推定し、移動平均でならして出す。
+        // 始まってすぐ（5% 未満か 5 秒未満）は「計算中」
+        const renderEta = function (res) {
+            const total = Number(res.total) || 0;
+            const done = Number(res.done) || 0;
+            const elapsed = Number(res.elapsed) || 0;
+            els.eta.hidden = false;
+            if (total <= 0 || done / total < 0.05 || elapsed < 5 || done <= 0) {
+                etaSmoothed = null;
+                els.eta.textContent = T.export_site_eta_calculating;
+                return;
+            }
+            const estimate = (total - done) * elapsed / done;
+            etaSmoothed = etaSmoothed === null ? estimate : etaSmoothed * 0.7 + estimate * 0.3;
+            els.eta.textContent = fill(T.export_site_eta, {time: formatEta(etaSmoothed)});
+        };
         const setFormDisabled = function (disabled) {
             Array.prototype.forEach.call(form.elements, function (el) {
                 el.disabled = disabled;
@@ -393,6 +470,7 @@ foreach ($exportJsKeys as $key) {
         };
         // 応答が読めない・4xx のときは送り直さず止める
         const stopUnreadable = function () {
+            settle();
             running = false;
             starting = false;
             cancelling = false;
@@ -515,6 +593,7 @@ foreach ($exportJsKeys as $key) {
 
         // ジョブが無い状態（開始ボタン）に戻す
         const showIdle = function () {
+            settle();
             running = false;
             starting = false;
             cancelling = false;
@@ -530,6 +609,7 @@ foreach ($exportJsKeys as $key) {
 
         // 終わった（done / cancelled / error）。やり直せる状態に戻す
         const showFinished = function (res) {
+            settle();
             running = false;
             starting = false;
             cancelling = false;
@@ -565,6 +645,7 @@ foreach ($exportJsKeys as $key) {
 
         // サーバーに保存されたジョブの状態を画面に出す（開いたとき・通信が続けて失敗したあと）
         const showStatus = function (res) {
+            settle();
             running = false;
             starting = false;
             cancelling = false;
@@ -608,6 +689,7 @@ foreach ($exportJsKeys as $key) {
         // 手元の失敗（通信が続けて失敗・5xx・JSON でない応答）のとき、サーバーのジョブの状態を取り直して出す。
         // 状態も取れなければ、案内（画面を開き直す）を出す
         const recover = async function (message) {
+            settle();
             running = false;
             starting = false;
             cancelling = false;
@@ -652,8 +734,12 @@ foreach ($exportJsKeys as $key) {
             setButtons('running');
             els.result.hidden = true;
             setNotice(T.export_site_running);
+            hideEta();
             while (running && alive()) {
+                // 応答を待つあいだは縞を動かす
+                setWorking(true);
                 const res = await call(cancelling ? 'cancel' : 'step');
+                setWorking(false);
                 if (!running || !alive()) {
                     return;
                 }
@@ -673,7 +759,10 @@ foreach ($exportJsKeys as $key) {
                 if (res.state === 'running') {
                     renderProgress(res);
                     if (cancelling) {
+                        hideEta();
                         await sleep(300);
+                    } else {
+                        renderEta(res);
                     }
                     continue;
                 }
