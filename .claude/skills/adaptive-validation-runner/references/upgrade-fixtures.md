@@ -32,6 +32,56 @@
 
 `load` が途中で失敗すると、管理者のパスワードの元の値は失われる（フィクスチャの仮の値 `x` が残る）。次の `load` が止まって知らせるので、`setup-site.js --reinstall` で今の版を入れ直す（DB の表が残っているとインストール済みと見なされるので、先に表を消すか `down -v` する）。
 
+### 環境変数をまとめるラッパー
+
+コマンドごとにシェルを引き継がない実行環境では、環境変数を毎回付ける代わりに、作業用ディレクトリ（リポジトリの外）に短いスクリプトを置く。
+
+```bash
+#!/bin/bash
+# <work>/uf.sh（chmod +x する）。リポジトリのルートへ移ってから道具を呼ぶ
+cd <リポジトリ（作業ツリー）のルート> || exit 1
+EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> EVO_WORK_DIR=<work> \
+  exec node .claude/skills/adaptive-validation-runner/scripts/upgrade-fixture.js "$@"
+```
+
+`<work>/uf.sh load <work>/fixture-1.0.0J.sql` のように使う。
+
+### `migrate`（道具）と `php evo migrate`（CLI）の違い
+
+| | 道具の `migrate` | CLI の `php evo migrate` |
+| --- | --- | --- |
+| ガード（`requiresInstaller()`） | 通さない | 通る。baseline のファイルがあり、まだ記録されていない DB では、何も流さず「アップデーターで上げる」旨を出して終了コード 1 |
+| キャッシュ | 消さない | 1 本でも適用したか失敗したときに `clearCache()` で消す。`system_cache` の無い DB（1.0.20J より前）では、ここで `Error` を出して止まる（baseline のファイルがあれば、その前にガードで止まる） |
+
+古い版の DB にランナーを流す確認は、道具の `migrate` を使う。CLI は、アップデーターを通したあとの DB に足したマイグレーションを流す用途。
+
+### load した直後は管理画面に入れないことがある
+
+古い版の DB は、アップデーターを通すまで今のコードの管理画面が動かない。
+
+- 1.0.0J・1.0.6J: `/manager/` が HTTP 500（`site_htmlsnippets.published` などの列が無い）
+- 1.0.14J.r9 以降: ログインすると、アップデーター（`/install/`）へ飛ぶ
+
+`lib.js` の `login()` は `#mainPane` を待つので、古い DB では失敗に見える。ログインできるかは、画面を開かずに curl で見る（ログインの成否だけを見る）。
+
+```bash
+# 応答のステータスと Location を見る。500 なら DB が古すぎて画面が動いていない。
+# 302 の Location が install/ ならアップデーターへ送られている（ログインは通っている）
+curl -s -o /dev/null -D - -H 'Accept-Language: ja' \
+  --data-urlencode 'username=admin' --data-urlencode 'password=Passw0rd!2026' \
+  http://<アドレス>/manager/processors/login.processor.php | grep -i -E '^(HTTP|location)'
+```
+
+ログインの CSRF トークンなどで通らないときは、`mainPane` を待たない確認（`/install/` を開いて画面の文言を見る、`php evo` の CLI や DB で確かめる）に切り替える。アップデーターを通したあとは、通常どおり `login()` が使える。
+
+### ログの検証の前に `temp/logs/system/` を消す
+
+`down -v` で消えるのは DB だけで、`temp/logs/system/` は作業ツリーに残る。`log:search` で件数を数える検証（重複行の件数、長さの確認のログなど）は、前の実行のログが混ざらないよう、先に消してから行う。
+
+```bash
+rm -rf temp/logs/system/*
+```
+
 ## タグと CREATE TABLE の元
 
 | タグ | ファイル |
@@ -102,11 +152,17 @@
 
 ## DB の版
 
-標準は mariadb:11。古い DB の版で試すときは、`EVO_DB_IMAGE` で変えて環境を作り直す（ボリュームごと作り直すので、`down -v` してから `up`）。
+標準は mariadb:11。古い DB の版で試すときは、`EVO_DB_IMAGE` で変えて環境を作り直す。ボリュームごと作り直すので、`down -v` するだけでなく、インストールで作られた `manager/includes/config.inc.php` も消す（残すと、空の DB に対してサイトが動いてしまい、`setup-site.js` が止まる）。そのあと `up` して `setup-site.js` を流す。
 
 ```bash
+# down のときも、起動時と同じ EVO_VALIDATE_NAME を付ける
+EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose -f compose.yml \
+  -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml down -v
+rm -f manager/includes/config.inc.php   # 開発者自身の設定ファイルを使っている作業ツリーでは消さない
 EVO_DB_IMAGE=mariadb:10.4 EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose -f compose.yml \
   -f .claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build
+EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> NODE_PATH=<work>/pw/node_modules \
+  node .claude/skills/adaptive-validation-runner/scripts/setup-site.js --sample --editor
 ```
 
 MySQL 公式イメージ（5.7・8.0 など）は、Docker Engine 29 系ではレイヤーを展開できず取得できない（`environment.md` の「既知の落とし穴」）。MySQL の版で確かめられない部分は、取れない理由を検証の記録に書く。
