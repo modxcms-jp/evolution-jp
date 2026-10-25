@@ -115,7 +115,7 @@ modx.jp（公式サイト）側の作業（ダウンロードページの反映�
 
 ## リリース後のロードマップ整理
 
-「Publish release」完了後、`assets/docs/release-process.md` の「リリース後の対応」手順 3 に従い、`Status: DONE` のタスクを別の整理ブランチで `.agent/roadmap-archive.md` へ移動し、PR経由で `main` に反映する。保護された `main` へ直接コミットしない。
+「Publish release」完了後、`assets/docs/release-process.md` の「リリース後の対応」手順 4 に従い、`Status: DONE` のタスクを別の整理ブランチで `.agent/roadmap-archive.md` へ移動し、PR経由で `main` に反映する。保護された `main` へ直接コミットしない。
 
 ---
 
