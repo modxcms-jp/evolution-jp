@@ -35,6 +35,8 @@ class EvoSiteExportJob
     const TOKEN_TTL = 600;
     /** 1 回の続きを進めるの持ち時間の上限（秒） */
     const MAX_BUDGET = 10;
+    /** 管理画面（a=308 の op=step）から進めるときの 1 回の持ち時間（秒）。進み具合の更新を細かくする */
+    const SCREEN_BUDGET = 3;
 
     private $stateFile;
     private $lockFile;
@@ -63,6 +65,15 @@ class EvoSiteExportJob
             return (float)self::MAX_BUDGET;
         }
         return min((float)self::MAX_BUDGET, $max / 3);
+    }
+
+    /**
+     * 管理画面から続きを進める 1 回の持ち時間（秒）。SCREEN_BUDGET と defaultBudget()（PHP の制限時間による上限）の小さいほう。
+     * 開始待ちの長さ・印の期限は defaultBudget() / MAX_BUDGET の側で見積もるので、これが短くなる分には足りる。
+     */
+    public static function screenBudget()
+    {
+        return min((float)self::SCREEN_BUDGET, self::defaultBudget());
     }
 
     /**

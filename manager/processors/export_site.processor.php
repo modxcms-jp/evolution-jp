@@ -3,7 +3,7 @@
  * HTML エクスポートのジョブの JSON の窓口（a=308）。POST のみ。
  *
  * op=start  : ジョブを始める（target, allow_ids, ignore_ids, includenoncache, repl_before, repl_after）
- * op=step   : 持ち時間ぶん進める
+ * op=step   : 持ち時間（EvoSiteExportJob::screenBudget()。3 秒）ぶん進める
  * op=status : 保存した状態を返す
  * op=cancel : 中止する
  *
@@ -61,7 +61,7 @@ switch (postv('op')) {
         break;
     case 'step':
         session_write_close();
-        $result = $job->step(EvoSiteExportJob::defaultBudget());
+        $result = $job->step(EvoSiteExportJob::screenBudget());
         break;
     case 'status':
         session_write_close();
