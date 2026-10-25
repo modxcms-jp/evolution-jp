@@ -155,11 +155,7 @@ trait DocumentParserSubParserTrait
         }
 
         $title = (string)$title;
-        if (function_exists('mb_substr')) {
-            $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
-        } else {
-            $title = substr($title, 0, 100);
-        }
+        $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
 
         $levelMap = [
             1 => EvoLogger::INFO,

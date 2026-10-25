@@ -29,9 +29,7 @@ class MODIFIERS
             $modx->config = $modx->getSiteCache();
         }
 
-        if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
-        }
+        mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
@@ -1584,9 +1582,6 @@ class MODIFIERS
         if ($l === null) {
             $l = $this->strlen($str);
         }
-        if (!function_exists('mb_substr')) {
-            return substr($str, $s, $l);
-        }
         if (strpos($str, "\r") !== false) {
             $str = str_replace(["\r\n", "\r"], "\n", $str);
         }
@@ -1595,9 +1590,6 @@ class MODIFIERS
 
     private function strpos($haystack, $needle, $offset = 0)
     {
-        if (!function_exists('mb_strpos')) {
-            return strpos($haystack, $needle, $offset);
-        }
         return mb_strpos(
             $haystack,
             $needle,
@@ -1608,9 +1600,6 @@ class MODIFIERS
 
     private function strlen($str)
     {
-        if (!function_exists('mb_strlen')) {
-            return strlen($str);
-        }
         return mb_strlen(
             str_replace("\r\n", "\n", $str),
             evo()->config('modx_charset', 'utf-8')
@@ -1619,25 +1608,16 @@ class MODIFIERS
 
     private function strtolower($str)
     {
-        if (!function_exists('mb_strtolower')) {
-            return strtolower($str);
-        }
         return mb_strtolower($str);
     }
 
     private function strtoupper($str)
     {
-        if (!function_exists('mb_strtoupper')) {
-            return strtoupper($str);
-        }
         return mb_strtoupper($str);
     }
 
     private function ucfirst($str)
     {
-        if (!function_exists('mb_strtoupper')) {
-            return ucfirst($str);
-        }
         return mb_strtoupper(
                 $this->substr(
                     $str,
@@ -1653,9 +1633,6 @@ class MODIFIERS
 
     private function lcfirst($str)
     {
-        if (!function_exists('mb_strtolower')) {
-            return lcfirst($str);
-        }
         return mb_strtolower(
                 $this->substr(
                     $str,
@@ -1671,9 +1648,6 @@ class MODIFIERS
 
     private function ucwords($str)
     {
-        if (!function_exists('mb_convert_case')) {
-            return ucwords($str);
-        }
         return mb_convert_case($str, MB_CASE_TITLE);
     }
 
