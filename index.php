@@ -27,6 +27,8 @@ if (is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
     include_once MODX_CACHE_PATH . 'basicConfig.php';
 }
 
+// これはページのキャッシュの互換のための判定で、アップデート待ちの判定ではない。
+// 未適用のマイグレーションがあっても、アップデートの前に作られたページが返ることがある（判定は下の update_guard.php）
 // コードとキャッシュの版が違うとき（ファイルを入れ替えてアップデートする前など）は早い返しをせず、通常の処理に回す
 $code_version = (static function () {
     $versionFile = MODX_BASE_PATH . 'manager/includes/version.inc.php';

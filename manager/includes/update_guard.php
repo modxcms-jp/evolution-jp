@@ -44,9 +44,10 @@ if (!function_exists('evo_has_pending_migrations')) {
         }
 
         try {
-            require_once MODX_BASE_PATH . 'manager/includes/migrator.class.inc.php';
+            require_once MODX_CORE_PATH . 'migrator.class.inc.php';
             return (new EvoMigrator())->hasPending();
         } catch (Throwable $e) {
+            // ガード自身の失敗で公開側を壊さないよう、ここでは通す（hasPending() は記録を読めなければ true に倒す）
             return false;
         }
     }
