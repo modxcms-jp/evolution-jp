@@ -23,6 +23,7 @@ $exportJsKeys = [
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
     'export_site_failures_title', 'export_site_failures_more', 'export_site_previous_title',
+    'export_site_previous_title_cancelled', 'export_site_previous_title_error', 'export_site_progress_label',
     'export_site_done', 'export_site_done_with_failures', 'export_site_finished_at',
     'export_site_done_dialog_title', 'export_site_done_dialog', 'export_site_done_dialog_with_failures',
     'export_site_error_dialog_title', 'export_site_error_dialog',
@@ -284,6 +285,7 @@ foreach ($exportJsKeys as $key) {
                 <div
                     id="exportBar"
                     role="progressbar"
+                    aria-label="<?= hsc(lang('export_site_progress_label')) ?>"
                     aria-valuemin="0"
                     aria-valuemax="1"
                     aria-valuenow="0"
@@ -399,10 +401,16 @@ foreach ($exportJsKeys as $key) {
                 document.title = titleMark + document.title;
             }
         };
-        // シェルが別の画面へ移るとき（題名を差し替える前）に戻す
-        document.addEventListener('evoshell:unload', function () {
+        // シェルが画面を差し替えたあと、この画面がもう無ければ印を外してリスナーも外す
+        // （モーダルの開け閉めでも evoshell:unload / evoshell:load は出るので、そのたびに alive() で確かめる）
+        const onShellLoad = function () {
+            if (alive()) {
+                return;
+            }
             setTitleMark('');
-        }, {once: true});
+            document.removeEventListener('evoshell:load', onShellLoad);
+        };
+        document.addEventListener('evoshell:load', onShellLoad);
         // 完了をダイアログで知らせる（管理画面の共通のダイアログ。メッセージは HTML なので、言語ファイルの文言と数だけを渡す）
         const notifyDialog = function (message, title, warning) {
             if (typeof window.jAlert === 'function') {
@@ -538,6 +546,7 @@ foreach ($exportJsKeys as $key) {
         let barTotal = 0;
         let frame = 0;
         let frameDone = null;
+        let frameTarget = 0;
         let lastUpdate = null;
         const paint = function () {
             const ratio = barTotal > 0 ? Math.min(shown / barTotal, 1) : 1;
@@ -558,17 +567,18 @@ foreach ($exportJsKeys as $key) {
         // target 件まで、duration ミリ秒かけて一定の速さで伸ばす（target を超えない）。伸び終えると解決する Promise を返す
         const animateTo = function (target, duration) {
             stopFrame();
-            if (reducedMotion.matches || duration <= 0 || target <= shown) {
+            if (reducedMotion.matches || document.hidden || duration <= 0 || target <= shown) {
                 shown = target;
                 paint();
                 return Promise.resolve();
             }
             const from = shown;
             const began = window.performance.now();
+            frameTarget = target;
             return new Promise(function (resolve) {
                 frameDone = resolve;
                 const tick = function (now) {
-                    const t = Math.min((now - began) / duration, 1);
+                    const t = Math.max(0, Math.min((now - began) / duration, 1));
                     shown = from + (target - from) * t;
                     paint();
                     if (t < 1 && alive()) {
@@ -584,6 +594,21 @@ foreach ($exportJsKeys as $key) {
                 frame = window.requestAnimationFrame(tick);
             });
         };
+        // タブが裏に回ると requestAnimationFrame は止まるので、伸ばしている途中なら一気に最後まで進める
+        // （完了の知らせが、タブが裏にある間も出るように）。この画面が無くなったらリスナーも外す
+        const onVisibility = function () {
+            if (!alive()) {
+                document.removeEventListener('visibilitychange', onVisibility);
+                return;
+            }
+            if (document.hidden && frameDone) {
+                const target = frameTarget;
+                stopFrame();
+                shown = target;
+                paint();
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibility);
         // 応答の内容をバーに出す。duration があれば、その時間をかけて伸ばす。無ければ一気に動かす
         const renderProgress = function (res, duration) {
             const total = Number(res.total) || 0;
@@ -591,6 +616,7 @@ foreach ($exportJsKeys as $key) {
             els.box.hidden = false;
             els.bar.setAttribute('aria-valuemax', String(Math.max(total, 1)));
             els.bar.setAttribute('aria-valuenow', String(total === 0 ? 1 : done));
+            els.bar.setAttribute('aria-valuetext', fill(T.export_site_progress, {done: done, total: total}));
             if (total !== barTotal) {
                 stopFrame();
                 shown = 0;
@@ -666,6 +692,9 @@ foreach ($exportJsKeys as $key) {
 
         // 終わった（done / cancelled / error）。やり直せる状態に戻す
         const showFinished = async function (res) {
+            if (finishing) {
+                return;
+            }
             // 完了は、残りを短い時間で最後まで伸ばしてから表示する（案内とダイアログが、バーが満杯になる前に出ない）
             finishing = true;
             if (res.state === 'done') {
@@ -747,7 +776,10 @@ foreach ($exportJsKeys as $key) {
             }
             // 開いたときに出すのは前回の結果。今の処理と取り違えないよう、見出しと完了日時を付け、進み具合の表示は出さない
             els.box.hidden = true;
-            els.previous.textContent = fill(T.export_site_previous_title, {datetime: res.finished_label || ''});
+            const previousKey = res.state === 'cancelled'
+                ? 'export_site_previous_title_cancelled'
+                : (res.state === 'error' ? 'export_site_previous_title_error' : 'export_site_previous_title');
+            els.previous.textContent = fill(T[previousKey], {datetime: res.finished_label || ''});
             els.previous.hidden = false;
             els.result.hidden = true;
             renderResult(res);
@@ -895,7 +927,7 @@ foreach ($exportJsKeys as $key) {
             setNotice(T.export_site_cancelling);
             // 処理中の続きを進めるを待たずに、中止の印を書かせる
             const res = await call('cancel');
-            if (!alive()) {
+            if (!alive() || !running || finishing) {
                 return;
             }
             if (await handleBroken(res)) {
