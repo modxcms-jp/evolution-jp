@@ -45,8 +45,8 @@ $never = [
 ];
 $good = isset($good)
     ? explode(",", $good)
-    : ["display", "total", "tpl", "tplAlt", "tplFirst", "tplLast", "tplCurrentDocument", "paginate",
-       "paginateAlwaysShowLinks", "randomize", "summarize", "noResults", "dateSource", "dateFormat", "filter"];
+    : ["display", "total", "paginate", "paginateAlwaysShowLinks", "randomize", "summarize", "noResults",
+       "dateSource", "dateFormat", "filter"];
 
 $request = (array) anyv();
 /*
@@ -59,8 +59,9 @@ $request = (array) anyv();
 	Any valid Ditto options separated by commas
 
 	Default:
-	"display,total,tpl,tplAlt,tplFirst,tplLast,tplCurrentDocument,paginate,paginateAlwaysShowLinks,
-	randomize,summarize,noResults,dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
+	"display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,
+	dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
+	Templates (tpl, tplAlt, ...) are set from the request only when listed in &good
 */
 $variables = [];
 foreach ($request as $name => $value) {
