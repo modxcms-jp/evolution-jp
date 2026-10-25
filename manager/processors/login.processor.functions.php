@@ -211,9 +211,21 @@ function rejectBlockedUser()
 
 function isBlockedUser()
 {
-    $blockedUntil = (int) user('blockeduntil', 0);
+    // user() は期限切れのロックをキャッシュ上で解除済みの値にして返すため、判定には DB の値を使う
+    $row = db()->getRow(
+        db()->select(
+            'blocked, blockeduntil, failedlogincount',
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        )
+    );
+    if (!$row) {
+        return true;
+    }
+
+    $blockedUntil = (int) $row['blockeduntil'];
     $failedLoginLimit = (int) config('failed_login_attempts', 0);
-    $failedLoginCount = (int) user('failedlogincount', 0);
+    $failedLoginCount = (int) $row['failedlogincount'];
     $isTemporaryLock = 0 < $blockedUntil && $failedLoginLimit <= $failedLoginCount;
 
     if ($isTemporaryLock && request_time() < $blockedUntil) {
@@ -233,11 +245,7 @@ function isBlockedUser()
         return false;
     }
 
-    if (user('blocked')) {
-        return true;
-    }
-
-    return false;
+    return (bool) (int) $row['blocked'];
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
