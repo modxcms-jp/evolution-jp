@@ -11,7 +11,7 @@
  *
  * 後半（データの部）は M4 で、この関数の末尾の印の位置に足す。
  */
-return function (EvoMigrationHelper $m) {
+return static function (EvoMigrationHelper $m) {
     $prefix = db()->config['table_prefix'];
 
     // 1. 長さの確認（何も変えない）。縮める列に収まらない値があれば、ここで止める。
@@ -142,11 +142,35 @@ return function (EvoMigrationHelper $m) {
     }
 
     // 4. NULL の片付けと、列の変更（型・NULL 可否・既定値が最終形と違うときだけ）
-    // 前置き長の付いた索引（1.0.0J の aliasidx (alias(250))）は、列を縮める前に外す（索引は 6 で作り直す）。
-    // 縮めた長さより長い前置きは、サーバーによってはエラーになる
-    $aliasIndex = $m->index('site_content', 'aliasidx');
-    if ($aliasIndex && $aliasIndex['prefix']) {
-        $m->dropIndexIfExists('site_content', 'aliasidx');
+    // alias の索引（aliasidx）。245 文字の全体に索引を付けられるかは、表のエンジン・行の形式・文字セットで決まる
+    // （utf8mb4 で 980 バイト。InnoDB の COMPACT / REDUNDANT は 767 バイトまで）。
+    // 付けられない行の形式なら DYNAMIC に直してみて、それでも付けられないときは、前置き長つきの索引を残す
+    $aliasFull = true;
+    if ($m->columnExists('site_content', 'alias')) {
+        $fit = $m->fullIndexFits('site_content', 'alias', 245);
+        if (!$fit['fits'] && $m->useDynamicRowFormat('site_content')) {
+            $m->log('Changed the row format to DYNAMIC', ['table' => 'site_content', 'reason' => $fit['reason']]);
+            $fit = $m->fullIndexFits('site_content', 'alias', 245);
+        }
+        $aliasFull = $fit['fits'];
+        if (!$aliasFull) {
+            $prefixLength = max(1, min(245, intdiv($fit['limit'], $fit['char_bytes'])));
+            // 列を縮める前に、縮めたあとの長さに収まる前置き長にしておく（今の前置きが短ければそのまま残す）
+            $m->addPrefixIndex('site_content', 'aliasidx', 'alias', $prefixLength);
+            $m->log('Kept the alias index as a prefix index in this environment', [
+                'table' => 'site_content',
+                'index' => 'aliasidx',
+                'prefix_length' => $prefixLength,
+                'reason' => $fit['reason'],
+            ], 2);
+        } else {
+            // 前置き長の付いた索引（1.0.0J の aliasidx (alias(250))）は、列を縮める前に外す（索引は 6 で作り直す）。
+            // 縮めた長さより長い前置きは、サーバーによってはエラーになる
+            $aliasIndex = $m->index('site_content', 'aliasidx');
+            if ($aliasIndex && $aliasIndex['prefix']) {
+                $m->dropIndexIfExists('site_content', 'aliasidx');
+            }
+        }
     }
 
     // [表, 列, 定義, 型, NULL 可か, 既定値, NULL を NOT NULL にする前に入れる値（null なら入れない）]
@@ -244,7 +268,9 @@ return function (EvoMigrationHelper $m) {
     $m->addIndex('user_settings', 'user', ['user']);
     $m->addIndex('web_user_settings', 'setting_name', ['setting_name']);
     $m->addIndex('web_user_settings', 'webuserid', ['webuser']);
-    $m->addIndex('site_content', 'aliasidx', ['alias']);
+    if ($aliasFull) {
+        $m->addIndex('site_content', 'aliasidx', ['alias']);
+    }
     $m->addIndex('site_content', 'typeidx', ['type']);
     // 最終形に無い索引
     $m->dropIndexIfExists('site_content', 'content_ft_idx');

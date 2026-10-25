@@ -107,7 +107,8 @@ class EvoMigrationHelper
 
     /**
      * 索引の情報。索引や表が無ければ null
-     * ['columns' => 列(並び順), 'unique' => bool, 'type' => 'BTREE'|'FULLTEXT'|..., 'prefix' => 前置き長のある列があるか]
+     * ['columns' => 列(並び順), 'unique' => bool, 'type' => 'BTREE'|'FULLTEXT'|..., 'prefix' => 前置き長のある列があるか,
+     *  'sub_part' => 前置き長（最後の前置き長のある列のもの。無ければ null）]
      */
     public function index($table, $index): ?array
     {
@@ -126,9 +127,11 @@ class EvoMigrationHelper
             return (int)$a['Seq_in_index'] <=> (int)$b['Seq_in_index'];
         });
         $prefix = false;
+        $subPart = null;
         foreach ($rows as $row) {
             if ($row['Sub_part'] !== null) {
                 $prefix = true;
+                $subPart = (int)$row['Sub_part'];
             }
         }
         return [
@@ -136,7 +139,131 @@ class EvoMigrationHelper
             'unique' => (int)$rows[0]['Non_unique'] === 0,
             'type' => strtoupper($rows[0]['Index_type']),
             'prefix' => $prefix,
+            'sub_part' => $subPart,
         ];
+    }
+
+    /**
+     * 列の全体に索引を付けられる長さか（表のエンジン・行の形式・文字セットで決まる索引の長さの上限と比べる）。
+     * 文字セットは、今の列のものと utf8mb4（4 バイト）の長いほうで見積もる
+     * （インストーラが続けて utf8mb4 へ変換するため。変換のあとで作れなくなる長さにしない）。
+     *
+     * @return array ['fits' => bool, 'bytes' => 必要なバイト数, 'limit' => 上限のバイト数, 'char_bytes' => 1 文字の最大バイト数,
+     *                'engine' => 大文字, 'row_format' => 大文字, 'reason' => 作れないときの理由（作れるなら空）]。
+     *                表か列が無ければ fits は true
+     */
+    public function fullIndexFits($table, $column, $chars): array
+    {
+        $result = [
+            'fits' => true, 'bytes' => 0, 'limit' => 0, 'char_bytes' => 0,
+            'engine' => '', 'row_format' => '', 'reason' => '',
+        ];
+        if (!$this->columnExists($table, $column)) {
+            return $result;
+        }
+        $info = $this->rows(sprintf(
+            "SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table)
+        ));
+        $charset = $this->rows(sprintf(
+            'SELECT cs.MAXLEN FROM INFORMATION_SCHEMA.COLUMNS c'
+            . ' JOIN INFORMATION_SCHEMA.CHARACTER_SETS cs ON cs.CHARACTER_SET_NAME = c.CHARACTER_SET_NAME'
+            . " WHERE c.TABLE_SCHEMA='%s' AND c.TABLE_NAME='%s' AND c.COLUMN_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table),
+            db()->escape($column)
+        ));
+        $engine = $info ? strtoupper((string)$info[0]['ENGINE']) : '';
+        $rowFormat = $info ? strtoupper((string)$info[0]['ROW_FORMAT']) : '';
+        $charBytes = max(4, $charset ? (int)$charset[0]['MAXLEN'] : 4);
+
+        $limit = 1000; // MyISAM とその他
+        $why = "{$engine} index key limit";
+        if ($engine === 'INNODB') {
+            if (in_array($rowFormat, ['DYNAMIC', 'COMPRESSED'], true)) {
+                $limit = 3072;
+                // MySQL 5.6 / 5.7 初期は、変数が OFF だと行の形式が DYNAMIC でも 767 バイトまで
+                $variable = $this->rows("SHOW VARIABLES LIKE 'innodb_large_prefix'");
+                if ($variable && in_array(strtoupper((string)$variable[0]['Value']), ['OFF', '0'], true)) {
+                    $limit = 767;
+                    $why = "InnoDB {$rowFormat} with innodb_large_prefix=OFF";
+                }
+            } else {
+                $limit = 767;
+                $why = "InnoDB row format {$rowFormat}";
+            }
+        }
+        $result['bytes'] = (int)$chars * $charBytes;
+        $result['limit'] = $limit;
+        $result['char_bytes'] = $charBytes;
+        $result['engine'] = $engine;
+        $result['row_format'] = $rowFormat;
+        if ($result['bytes'] > $limit) {
+            $result['fits'] = false;
+            $result['reason'] = sprintf('%d characters x %d bytes = %d bytes exceeds the %d-byte limit (%s)', $chars, $charBytes, $result['bytes'], $limit, $why);
+        }
+        return $result;
+    }
+
+    /**
+     * InnoDB の表を ROW_FORMAT=DYNAMIC にする（長い索引を付けられるようにする）。
+     * COMPACT / REDUNDANT の InnoDB の表でなければ何もしない。サーバーが受け付けない（Antelope など）ときは、
+     * 警告のログを残して false を返す（DYNAMIC にならなかったことは、呼び出し側が fullIndexFits() で見直す）。変えたら true
+     */
+    public function useDynamicRowFormat($table): bool
+    {
+        $info = $this->rows(sprintf(
+            "SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table)
+        ));
+        if (
+            !$info
+            || strtoupper((string)$info[0]['ENGINE']) !== 'INNODB'
+            || !in_array(strtoupper((string)$info[0]['ROW_FORMAT']), ['COMPACT', 'REDUNDANT'], true)
+        ) {
+            return false;
+        }
+        $rs = db()->query(sprintf('ALTER TABLE %s ROW_FORMAT=DYNAMIC', $this->table($table)), false);
+        if ($rs === false) {
+            $this->log('Could not change the row format to DYNAMIC', [
+                'table' => $table,
+                'errno' => (int)db()->getLastErrorNo(),
+                'error' => db()->getLastError(),
+            ], 2);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 前置き長つきの索引にする。同じ列の前置き長つきの索引が、$length 以下の前置き長で既にあれば何もしない
+     * （全体に付けられない環境で、今ある前置き長の索引を残すため）。作った・作り直したら true
+     */
+    public function addPrefixIndex($table, $name, $column, $length): bool
+    {
+        if (!$this->tableExists($table) || !$this->columnExists($table, $column)) {
+            return false;
+        }
+        $current = $this->index($table, $name);
+        if (
+            $current
+            && $current['columns'] === [$column]
+            && !$current['unique']
+            && $current['type'] === 'BTREE'
+            && $current['sub_part'] !== null
+            && $current['sub_part'] <= (int)$length
+        ) {
+            return false;
+        }
+        $parts = [];
+        if ($current) {
+            $parts[] = sprintf('DROP INDEX `%s`', $this->assertName($name));
+        }
+        $parts[] = sprintf('ADD INDEX `%s` (`%s`(%d))', $this->assertName($name), $this->assertName($column), (int)$length);
+        $this->exec(sprintf('ALTER TABLE %s %s', $this->table($table), implode(', ', $parts)));
+        return true;
     }
 
     /**
