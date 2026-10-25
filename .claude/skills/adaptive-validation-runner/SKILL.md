@@ -102,5 +102,6 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 ## References
 
 - 検証環境の起動・設定・後片付けと既知の落とし穴: `references/environment.md`
+- 古い版の DB を作り、アップグレード後のスキーマを今の新規インストールと比べる道具（`scripts/upgrade-fixture.js`）: `references/upgrade-fixtures.md`
 - 判定の粒度と記録項目: `references/checklist.md`
 - 同梱スクリプト: `scripts/compose.validation.yml`（compose の上書き）/ `scripts/lib.js`（共通ヘルパー）/ `scripts/setup-site.js`（インストールと初期設定）/ `scripts/smoke.js`（スモークテスト兼見本）/ `scripts/smoke-1.2.js`（1.2 系向けのスモークテスト）

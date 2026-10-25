@@ -9,7 +9,8 @@
 #   ボリューム・ネットワーク・ビルドしたイメージには compose がプロジェクト名を付けるので、名前を変えれば別になる
 # - HTTP のポートは EVO_HTTP_PORT（既定 80）で変えられる。80 以外では、新規インストールでサイトのURL（fixed_site_url）に
 #   ポート込みの URL が入る（assets/docs/site-url.md）
-# - DB は mariadb:11 を使う。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
+# - DB は mariadb:11 を使う（EVO_DB_IMAGE で変えられる。古い DB の版で試すときは mariadb:10.4 など。
+#   references/upgrade-fixtures.md）。MySQL 公式イメージは土台のレイヤーに dev/ptmx（デバイス番号 5,2）を含み、
 #   Docker Engine 29 系ではレイヤー展開時に「openat dev/ptmx: no such file or directory」で取得できない場合がある
 #   （詳細は references/environment.md）
 # - 既定の管理者パスワードを使うため、HTTP と mailpit はループバックアドレス（既定 127.0.0.1）にだけ公開し、
@@ -30,7 +31,7 @@ services:
       - "${EVO_BIND_IP:-127.0.0.1}:${EVO_HTTP_PORT:-80}:8080"
 
   db:
-    image: mariadb:11
+    image: ${EVO_DB_IMAGE:-mariadb:11}
     container_name: ${EVO_VALIDATE_NAME:-evo-validate}-db
     environment:
       MARIADB_ROOT_PASSWORD: password
