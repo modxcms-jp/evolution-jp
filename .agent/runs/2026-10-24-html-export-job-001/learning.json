@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-html-export-job",
+    "run_id": "2026-10-24-html-export-job-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-25T17:45:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "排他や取り合い（2 つの処理が同じ資源を奪い合う動き）の確認を、外からロックを握る・処理を遅らせるなどで隙間を作って通すと、実際の条件で起きる飢え（相手がすぐ取り直して通らない）を見落とす。隙間を作らず、処理を遅くした実際の条件（キャッシュを消すなど）で確かめる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/adaptive-validation-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "利用者に目視で渡している環境で速さを測ると、利用者の操作と重なって大きく乱れる。速さの比較は、利用者に操作を控えてもらうか別の環境で、同じ条件（cache:clear のあと全件）を交互に測ってから判断する",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "missing_instruction",
+            "summary": "作業ツリーの外の git 操作が許されないセッション（Claude Code の worktree の隔離）では、「作業場所」の git worktree add が使えない。今の作業ツリーを Issue のブランチに切り替えて使う、main との比較は git archive で作業用ディレクトリへ書き出す、という代わり方を決めておく",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-004",
+            "kind": "missing_instruction",
+            "summary": "利用者の目視のために、別の PR の修正を git merge --no-commit で一時的に重ねると、その間は修正をコミットできず、外す・重ねるを繰り返すことになる。重ねる必要があるときは、重ねている間はコミットしない作業だけにする（または確認用に別のブランチを作って重ね、作業ブランチは汚さない）",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/adaptive-validation-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-html-export-job",
+    "run_id": "2026-10-24-html-export-job-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-25T17:41:52+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": []
+}

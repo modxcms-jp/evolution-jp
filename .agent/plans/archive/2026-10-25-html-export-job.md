@@ -170,7 +170,7 @@ M4（並列の取得）
 ## Artifacts and Notes
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/907
-- ブランチ: `feat/907-html-export`（`gh issue develop 907` で作成）。PR: #910（下書き。M1 から M4 までをこの PR に積む）
+- ブランチ: `feat/907-html-export`（`gh issue develop 907` で作成）。PR: #910（M1 から M4 までをこの PR に積み、2026-10-25 にマージ）。関連: #920（#915 の DocumentParser の修正。先にマージ）
 - 関連: #902（フォームの二度押しの防止。エクスポートの開始の二度押しも、シェルを通る限り防がれる）
 - 想定するコミットと PR（マイルストーンごとに 1 PR）
   - M1: `refactor(export): エクスポートの中身を部品に分け、件数と書き出しの食い違いを直す`
