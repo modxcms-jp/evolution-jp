@@ -19,7 +19,7 @@
 - [x] (2026-10-26) M2: 古い版の DB を作る道具とスキーマの比べ方を、検証スキルに足す（15 タグすべてで build・load が通り、1.0.0J の差が Context の表と 41 件で一致。utf8mb4 版も作れる。自己レビュー 2 回、tester の独立の確認 1 回）
 - [x] (2026-10-26) M3: baseline のスキーマの部を作り、`create_tables.sql` に `fix_settings.php` のスキーマの直しを移す（15 タグ・utf8mb4 版・途中の版を通ってきた形・COMPACT の InnoDB の再現・mariadb:10.4 で、今の新規インストールの形との差 0 件。2 回目は baseline の変更系の文 0 本。途中で失敗させても流し直せる。自己レビュー 3 回、tester の独立の確認 2 回）
 - [x] (2026-10-26) M4: baseline のデータの部を作り、`default.config.php` の版の分岐を撤去する（1.0.0J・1.0.5J・1.2.3J で計画の期待どおり。利用者の選択を変えたフィクスチャでは変わらない。2 回目は変更系の文 0 本。ログに秘密の値が出ない。自己レビュー 2 回、tester の独立の確認 1 回）
-- [ ] (2026-10-26) M5: インストーラに組み込み、`manager/includes/upgrades/`・`fix_settings.php`・インストーラの版依存の処理を消す
+- [x] (2026-10-26) M5: インストーラに組み込み、`manager/includes/upgrades/`・`fix_settings.php`・インストーラの版依存の処理を消す（新規インストールで baseline が記録され、イベント名は旧 `fix_settings.php` と 128 件同一。1.0.0J・1.0.14J.r9・1.2.3J・utf8mb4 の 1.1.0J からアップデーターで差 0 件。長い値・ロックの待ち時間切れで止まり、何も変えない。2 回目は baseline 由来の変更 0。自己レビュー 2 回、tester の独立の確認 1 回）
 - [ ] (2026-10-26) M6: 「アップデートが済んでいないか」の判定を未適用のマイグレーションの有無にそろえる
 - [ ] (2026-10-26) M7: 全版の通しの確認と文書（`assets/docs/migrations.md` ほか）
 
@@ -36,6 +36,8 @@
 - 2026-10-26 / MariaDB 11 で、前置き長の付いた索引（1.0.0J の `aliasidx (alias(250))`）がある列を `varchar(245)` に縮めると、索引は列全体の索引に自動で直った。MySQL 5.7 での動きは未確認（MySQL 公式イメージは Docker Engine 29 系で取得できない。`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。
 - 2026-10-26 / インストーラを通さずにファイルだけ差し替えたサイトは、設定画面（`a=17`）で `upgrades.php` が動くが、`create_tables.sql`（1.0.14J・1.0.20J で増えた `site_revision`・`system_cache`）、`fix_settings.php`、utf8mb4 への変換、同梱の要素の入れ直しは行われない。インストーラを通したサイトと結果が違う 2 つ目の経路になっていた。
 - 2026-10-26 / インストーラは同梱プラグインのイベントの紐付け（`install/processors/prc_insPlugins.inc.php` 106 行）と同梱 TV のテンプレートの割り当て（`install/processors/prc_insTVs.inc.php` 61 行）を消して入れ直す。利用者が付け替えた分は戻る（推測）。版依存の処理ではなく要素の入れ直しの作りなので、この計画の非対象とし、`assets/docs/core-issues.md` に記録した。
+- 2026-10-26（M5） / M5 と M6 の間は、アップデートしたあとも `settings_version` が古いままなので、公開側は今の判定（`version_mismatch_guard.php`）で 503 になる（設定を保存すると直る）。M6 で判定を未適用のマイグレーションの有無にそろえて解消する。マイグレーションが途中で失敗したとき、アップデーターはキャッシュを消さない（`system_cache` の無い DB で `clearCache()` が止まるため）。公開側は止まり、管理画面もアップデーターへ送られるので、古いキャッシュで動くことはほぼ無く、成功したときに消える。
+- 2026-10-26（M5） / 検証のフィクスチャは `system_settings` が少ない（`site_name` などが無い）ので、上げたあとの管理画面が `Undefined variable $site_name`（`manager/frames/menu.php`）で止まることがある。実際のサイトには行があるので、本体の不具合ではない。管理画面まで確かめる M6・M7 の前に、フィクスチャのデータに `site_name` などの基本の設定を足す（M6 の書き込んでよいファイルに `upgrade-fixture-data.sql` を加える）。
 - 2026-10-26（M4） / M6 で `install_version` の書き込みを消すまでは、今の main で新規インストールした DB に baseline を流すと、`install_version` の行を消す DELETE が 1 本流れる（ほかは変えない）。新規インストールでは `markAllApplied()` で baseline を流さないので、実害は無い。M3 の「最終形の DB に流しても何も変えない」の、M6 までの例外。
 - 2026-10-26（M3） / MariaDB 11 で、MyISAM のまま utf8mb4 にした 1.0.0J の `*_names.name`（255 文字）の UNIQUE は HASH になっているが、191 に縮める MODIFY で BTREE に作り直される。COMPACT の InnoDB 表は、`ROW_FORMAT=DYNAMIC` への ALTER で全体の `aliasidx` を作れるようになる（1.2.3J の utf8mb4 版で再現して確かめた）。MySQL 5.6・5.7 の実機では確かめていない。
 - 2026-10-26（M2） / 1.0.16J までの CREATE TABLE は文字セットを書かないので、そのまま流すとサーバーの既定（utf8mb4）になり、`aliasidx` が `alias(250)` に切られ、長い UNIQUE が HASH と報告される。古いサイトの再現には文字セットを明示する。
@@ -481,8 +483,15 @@ M4 から引き継いで確かめること: アップデーターの中で basel
 
 ### M6: 判定をそろえる
 
+M5 から引き継いで確かめること（M5 の自己レビュー）:
+
+- `install_version` の書き込みを消したあと、今の main で新規インストールした DB に baseline を流しても何も変えない（M4 の Surprises の、M6 までの例外が解消される）。
+- `isUpdatePending()` を `hasPending()` に替えたあと、マイグレーションが失敗した（記録されていない）サイトで、settings 権限のある人はアップデーターへ、ほかの人はメンテナンスの表示になる。
+- アップデーターがマイグレーションの失敗で止まったあと（失敗の画面のあと `session_destroy()` される）、もう一度ログインしてアップデーターを開き直し、値を直してから通すと最後まで進む。
+
 書き込んでよいファイル:
 
+- `.claude/skills/adaptive-validation-runner/scripts/upgrade-fixture-data.sql`（`site_name` など、上げたあとの管理画面が開くのに要る基本の設定を足す。M5 の Surprises）
 - `manager/includes/version_mismatch_guard.php` → `manager/includes/update_guard.php`（名前の変更と中身）
 - `install/instprocessor.php`（`install_version` の記録を消す。install/ の PHP なので、メインがマージ前に並走セッションへ照会する）
 - `index.php`（109 行の読み込み先）
