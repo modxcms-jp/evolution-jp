@@ -77,7 +77,7 @@
 - 2026-10-26 / planner / 公開側の判定は、リクエストごとに `glob()` 1 回と、記録の表への SELECT 1 回になる。今も `settings_version` の SELECT を 1 回しているので、負担は同じ程度とする。記録の表が無い（ランナー導入前の DB）ときは、エラーで止めず（`db()->query($sql, false)` とエラー番号 1146 の確認）、すべて未適用と見なす。
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
-- 2026-10-26 / M1 確かめ直し / CLI の `migrate` は、流す前に `{prefix}system_cache` の有無を確かめ、無ければ何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。表を作るのは `create_tables.sql` だけで、古い版からはアップデーターだけで上げる（本人の決定）ため、CLI だけで古い DB を途中まで上げない。`system_cache` は今の定義の表のうち最も新しい表（1.0.20J から）なので、これで判定する。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。
+- 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。mbstring が無い環境では、ログに入れる SQL を `substr()` で切る。
 - 2026-10-26 / M1 / マイグレーションのファイルは、変数を持たない `private static function load()` で読み込み、雛形も `static function` にする。ファイルの変数がランナーの変数（記録する ID など）を書き換えたり、関数が `$this` に結び付いたりしないようにするため。
 - 2026-10-26 / M1 / ID の上限は `EvoMigrator::MAX_ID_LENGTH`（100。記録の表の列と同じ値）。超える ID があれば流す前に止める。`make:migration` の説明は 84 文字まで。時刻の無い ID は `00000000_baseline` だけを読む（同じ日の時刻つきの ID との並び順が直感と合わないため）。
 - 2026-10-26 / M1 / `hasPending()` は、記録の表が 1146 以外のエラーで読めないときも例外を投げずに true（待ちあり）を返し、ログは残さない。確かめられないときは止める側に倒す。公開側で毎回呼ぶので、ログを残すと増えすぎるため。
@@ -339,6 +339,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 - `build <tag>`: `git show release-<tag>:<path>` でそのタグの CREATE TABLE の定義を取り出す（1.0.0J〜1.0.6J は `install/setup.sql` の CREATE TABLE、1.0.7J〜1.0.16J は `install/sql/both_createtables.sql`、1.0.17J 以降は `install/sql/create_tables.sql`。`git grep -l "CREATE TABLE" release-<tag> -- install` で確かめた）。`{PREFIX}` を `modx_` に、`TYPE=MyISAM` を `ENGINE=MyISAM` に、`{TABLE_OPTION}` を `DEFAULT CHARSET=utf8mb3` にし（古いサイトの文字セットを再現する）、`upgrade-fixture-data.sql` を足して `<work>/fixture-<tag>.sql` に書く。データの `settings_version` はそのタグの版にする。
 - `load <file>`: 検証用の DB の `modx_` の表をすべて消してから、ファイルを流し込む。管理者（`manager_users` の ID 1）のパスワードの値は、流し込む前の DB（`setup-site.js` で入れた今の版）のものに置き換え、`admin` / `Passw0rd!2026` でログインできるようにする。
+- `migrate`: アップデーターと同じく、CLI のガード（`requiresInstaller()`）を通さずに作業ツリーのランナーを流す。アプリのコンテナで CLI の起動処理（`manager/includes/cli/bootstrap.php`）を読み込んでから `(new EvoMigrator())->run()` を呼び、適用した ID を 1 行ずつ、失敗したら ID とエラーを出して終了コード 1 にする。キャッシュは消さない（`system_cache` の無い DB で止まらないように。M3・M4 では次の `create-tables` のあとで消す必要も無い）。M3・M4 で、M5 より前にアップデーターの順を手で再現するため。M5 からはアップデーターが行う。
 - `create-tables`: 作業ツリーの `install/sql/create_tables.sql` を、インストーラと同じ置き換えで流す（M3・M4 で、アップデーターの順を手で再現するため。M5 からはアップデーターが行う）。
 - `snapshot <out>`: `INFORMATION_SCHEMA.COLUMNS`（型・NULL 可否・既定値・`EXTRA`）と `STATISTICS`（索引の名前・一意・種類・列の並び）を、`modx_` の表について 1 行 1 項目の TSV に書く（比べない項目は Decision Log のとおり）。
 - `diff <ref> <out>`: 2 つの TSV を比べ、違う行と、`<ref>` に無い表（残す表）を分けて出す。違いが無ければ終了コード 0。
@@ -355,7 +356,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     ...upgrade-fixture.js snapshot <work>/v100.tsv
     ...upgrade-fixture.js diff <work>/ref-main.tsv <work>/v100.tsv
 
-期待: 違いの一覧が、Context の「1.0.0J と今の最終形の差」の表と同じ項目になる（この時点の最終形は `name` が 191。新規インストールで `fix_settings.php` が動くため）。`build` は 1.0.0J・1.0.5J・1.0.6J・1.0.7J・1.0.10J・1.0.14J.r9・1.0.16J・1.0.17J・1.0.20J・1.0.26J・1.1.0J・1.2.0J・1.2.1J・1.2.2J・1.2.3J のすべてで、`load` がエラー無しで終わる。終わったら `setup-site.js --reinstall` で今の版に戻す。
+期待: 違いの一覧が、Context の「1.0.0J と今の最終形の差」の表と同じ項目になる（この時点の最終形は `name` が 191。新規インストールで `fix_settings.php` が動くため）。`migrate` は、一時のマイグレーション（`$m->exec('SELECT 1');` だけ）を置いた 1.0.0J のフィクスチャで `Applied` を出して終了コード 0、`system_cache` の無い DB でも止まらない（一時のファイルと記録の行は最後に消す）。`build` は 1.0.0J・1.0.5J・1.0.6J・1.0.7J・1.0.10J・1.0.14J.r9・1.0.16J・1.0.17J・1.0.20J・1.0.26J・1.1.0J・1.2.0J・1.2.1J・1.2.2J・1.2.3J のすべてで、`load` がエラー無しで終わる。終わったら `setup-site.js --reinstall` で今の版に戻す。
 
 推奨コミット: `test(validation): 古い版の DB を作る道具とスキーマの比較を追加`
 
@@ -375,10 +376,11 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 続けて、Plan of Work の「baseline のスキーマの部」の 1〜7 を書き、`create_tables.sql` の 3 つの `name` を 191 にする。
 
-確かめ方（アップデーターの順を手で再現する。`load` のあと `php evo migrate`、`create-tables`）:
+確かめ方（アップデーターの順を手で再現する。`load` のあと `upgrade-fixture.js migrate`、`create-tables`。CLI の `php evo migrate` は baseline が未適用の DB では止まるので使わない）:
 
     ...upgrade-fixture.js load <work>/fixture-1.0.0J.sql
     docker exec -w /var/www/html evo-validate-667-app php evo migrate
+    ...upgrade-fixture.js migrate
     ...upgrade-fixture.js create-tables
     ...upgrade-fixture.js snapshot <work>/after-1.0.0J.tsv
     ...upgrade-fixture.js diff <work>/ref.tsv <work>/after-1.0.0J.tsv
@@ -386,11 +388,11 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 `<work>/ref.tsv` は、M3 の作業ツリーで `setup-site.js --reinstall` した直後の `snapshot`（この時点では、新規インストールは `fix_settings.php` をまだ通るので、`name` は 191 のまま。`create_tables.sql` の変更後も同じになること自体が確認の 1 つ）。
 
-期待: `diff` の違いは 0 件で、残す表（1.0.0J なら `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` とサンプルの表）だけが出る。ログに、重複行を消した件数が表ごとに出る（M2 で書いた件数と同じ）。`user_settings` で残った値が、フィクスチャで後に入れた行の値と同じ。M2 の 15 個のタグのすべてで同じ結果になる。
+期待: 最初の `php evo migrate` は、baseline が未適用なので何も流さずに、アップデーターで上げる旨を出して終了コード 1（記録の表も作られない）。`diff` の違いは 0 件で、残す表（1.0.0J なら `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` とサンプルの表）だけが出る。ログに、重複行を消した件数が表ごとに出る（M2 で書いた件数と同じ）。`user_settings` で残った値が、フィクスチャで後に入れた行の値と同じ。M2 の 15 個のタグのすべてで同じ結果になる。
 
-2 回目: `db:query "DELETE FROM modx_migrations"` で記録を消し、DB の一般ログを有効にして（`docker exec evo-validate-667-db mariadb -uroot -ppassword -e "SET GLOBAL general_log=1; SET GLOBAL log_output='TABLE'"`）もう一度 `migrate` を流す。期待: `mysql.general_log` に `ALTER`・`UPDATE`・`DELETE`・`INSERT`（記録の 1 行を除く）が 1 本も無い。今の main の新規インストール（`setup-site.js --reinstall` 直後、記録の表が無い）に `migrate` を流しても同じ（baseline は最終形を変えない）。終わったら一般ログを戻す。
+2 回目: `db:query "DELETE FROM modx_migrations"` で記録を消し、DB の一般ログを有効にして（`docker exec evo-validate-667-db mariadb -uroot -ppassword -e "SET GLOBAL general_log=1; SET GLOBAL log_output='TABLE'"`）もう一度 `upgrade-fixture.js migrate` を流す。期待: `mysql.general_log` に `ALTER`・`UPDATE`・`DELETE`・`INSERT`（記録の 1 行を除く）が 1 本も無い。今の main の新規インストール（`setup-site.js --reinstall` 直後、記録の表が無い）に `upgrade-fixture.js migrate` を流しても同じ（baseline は最終形を変えない）。終わったら一般ログを戻す。
 
-長さの確認: 1.0.0J のフィクスチャに alias が 250 文字の文書を 25 件と、`name` が 200 文字の文書グループを 1 件足して `migrate` を流す。期待: 終了コード 1。出力に、該当する 26 行がすべて（`site_content.alias`・上限 `245`・ID・`250`、`documentgroup_names.name`・上限 `191`・ID・`200`）出る。`log:search "245" --level=error` で同じ一覧がコンテキストに入った 1 件が見つかる。`snapshot` が流す前と同じ（何も変わっていない）。
+長さの確認: 1.0.0J のフィクスチャに alias が 250 文字の文書を 25 件と、`name` が 200 文字の文書グループを 1 件足して `upgrade-fixture.js migrate` を流す。期待: 終了コード 1。出力に、該当する 26 行がすべて（`site_content.alias`・上限 `245`・ID・`250`、`documentgroup_names.name`・上限 `191`・ID・`200`）出る。`log:search "245" --level=error` で同じ一覧がコンテキストに入った 1 件が見つかる。`snapshot` が流す前と同じ（何も変わっていない）。
 
 古い DB の版: `EVO_DB_IMAGE=mariadb:10.4` で環境を作り直し、1.0.0J と 1.2.3J のフィクスチャで同じ確認を行う（取れない・動かないときは理由を記録する）。
 
@@ -406,7 +408,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 作業: Plan of Work の「データの部」の表のとおり書く。
 
-確かめ方: 1.0.0J と 1.0.5J のフィクスチャで `load` → `migrate` → `create-tables` のあと、`db:query` で次を確かめる。
+確かめ方: 1.0.0J と 1.0.5J のフィクスチャで `load` → `upgrade-fixture.js migrate` → `create-tables` のあと、`db:query` で次を確かめる。
 
     docker exec -w /var/www/html evo-validate-667-app php evo db:query "SELECT setting_name, setting_value FROM modx_system_settings WHERE setting_name IN ('manager_theme','which_editor','auto_template_logic','custom_contenttype','topmenu_site','emailsender','upload_maxsize','use_udperms','site_id','site_url','validate_referer','csrf_token')"
     docker exec -w /var/www/html evo-validate-667-app php evo db:query "SELECT id, save_role, empty_trash, view_schedule, move_document, remove_locks FROM modx_user_roles"
@@ -558,9 +560,11 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     public function pending(): array      // 未適用の ID（名前の順）
     public function hasPending(): bool    // アップデート待ちの唯一の判定（公開側・管理画面の入口・health:check）。例外を投げない
     public function run(): array          // ['applied' => [...], 'failed' => ID か null, 'error' => 文か null]
+    public function requiresInstaller(): bool // baseline のファイルがあり、まだ記録されていなければ true（記録の表が無い DB を含む）。記録を読めなければ例外。CLI の migrate のガード
     public function markAllApplied(): void // 新規インストールだけで使う
     public function ensureTable(): void
     public const MAX_ID_LENGTH = 100;     // ID の上限（記録の表の列と同じ）
+    public const BASELINE_ID = '00000000_baseline';
 
 ロックの名前は `'evo_migrations_' . md5(<DB 名> . <接頭辞>)`（47 文字。`GET_LOCK()` の上限 64 文字に収まる）。待つのは 30 秒。記録の表の定義は `CREATE TABLE IF NOT EXISTS {prefix}migrations (id varchar(100) NOT NULL, applied_at int(20) NOT NULL DEFAULT '0', PRIMARY KEY (id))`（文字セットとエンジンは DB の既定に任せる。ほかの表と同じく utf8mb4 への変換の対象になる）。
 
