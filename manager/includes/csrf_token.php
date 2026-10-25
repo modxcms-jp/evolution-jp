@@ -245,6 +245,7 @@ function csrfProtectedActions()
         55  => true, // 管理画面のログを空にする
         67  => true, // ロックの解除
         307 => true, // スナップショットの作成
+        308 => true, // HTML エクスポートのジョブ
         31  => ['mode' => ['delete', 'deletefolder', 'newfolder', 'newfile', 'unzip']], // ファイルの操作
         // 保存系（POST で呼ぶもの。GET で到達しても実行させない）
         5   => true, // リソース

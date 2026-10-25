@@ -23,6 +23,8 @@ EVO_CLI_IMPORT=1 php evo db:import /tmp/backup.sql
 php evo db:backup
 php evo db:backup --max=20
 php evo db:backup --driver=php
+php evo export:site
+php evo export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
 php evo health:check
 php evo log:tail --lines=20
 php evo log:search "インストーラー" --level=error --limit=10
@@ -46,6 +48,25 @@ php evo skill:sync --skill=issue-resolver
 - `--max`（既定は 10）を超えた世代は、自動の名前のファイルだけを古い順に削除します。利用者が名前を付けたファイルは消さず、`--max` の数え方にも含めません（`pre-restore-` は別に新しい 3 件だけ残します）。古い世代を消したときは、1 件ごとに `Removed old backup: <名前>` の行を表示します。
 - 世代の上限は管理画面と共有です。`--max` に 10 より大きい値を指定しても、次に管理画面でスナップショットを作ったり復元したりすると、10 件に戻ります。
 - 最後に `Backups in <保存先>: auto-named N/M, other K` の行で、自動の名前のファイルの数（N、M は `--max`）とそれ以外の数（K）を表示します。
+
+`export:site` は管理画面の「HTML エクスポート」（a=83）と同じジョブ（状態ファイル `temp/export_job.json`）で、静的 HTML を出力先（`export_dir`、`temp/` の中）へ書き出します。
+- 引数: `--target=all|allow|ignore`（既定 all）、`--ids=1,2,3`（allow / ignore のとき必須）、`--include-noncache`、`--replace-before=` / `--replace-after=`（書き出す中身の置換。既定は置換なし）、`--site-url=`（ページを取得する先のサイトの URL）、`--restart`。
+- CLI ではサイトの URL が `http://localhost/` になるため、コンテナの中などで取得できないときは `--site-url=` で取得先を指定します。ページを取得する URL の先頭（サイトの URL）と丸ごと入れ替えるので、サイトがサブディレクトリにあるときは、そのパスまで含めて指定します（例: `http://localhost:8080/sub/`）。書き出す中身は変えません（中身を替えるのは `--replace-*`）。取得先はジョブの状態には保存しないので、この CLI を止めて画面から再開したときは、画面の側の取得先（設定のサイトの URL）が使われます。
+- 画面のジョブが途中のときは、`--restart` が無ければ始めずに終了コード 1 で終わります。`--restart` を付けると前のジョブを捨てて始めます。始めるときは出力先を空にします。
+- 進み具合は、処理が戻るたびに 100 件の区切りを越えていれば `n / 全体 (success, skipped, failed)` で表示します（表示される件数は 100 ちょうどには揃いません）。最後にも表示し、最後に所要時間と失敗の一覧（ID・ページタイトル・理由）を表示します。失敗が 1 件でもあるか、始められなかった・途中で止まったときは終了コード 1、すべて成功なら 0 です。
+- ページの取得でのリダイレクトは、curl の有無や `open_basedir` に関わらず、書き出し側が同じサイト（scheme・host・port が同じ）の中だけ最大 3 回辿ります。同じホスト・既定のポートでの http から https への切り替えも辿ります。`--site-url` で取得先を置き換えているときは、設定のサイトの URL へのリダイレクト（Web リンクのフォルダなど）も同じサイトとして、先頭を取得先に読み替えて辿ります。それ以外の別のサイトへのリダイレクトは失敗（`HTTP 302 → another site`。転送先に合わせて `--site-url`（画面ではグローバル設定のサイトの URL）を直す案内を添えます）で、ベアラートークン（Authorization）は元のサイトへの要求にしか付けません。
+- 取得するのは、取得先のサイト（`--site-url`、無ければ設定のサイトの URL）の http・https の URL だけです。サイトの外の URL は取得しません（失敗の詳細は `not fetched: the URL is outside the site`）。Web リンクのフォルダは、リンク先の URL が取得先のサイトの中のときだけページを取得し、外部の URL などのときはフォルダだけを作ります。未公開のフォルダもフォルダだけを作り（ページは取得せず、スキップとして数えます）、下の公開のページは通常どおり書き出します。
+- 1 回の処理の持ち時間は 10 秒です（管理画面から進めるときは、進み具合を細かく更新するため 3 秒）。
+- 同時に取得する 1 まとまりには 10 秒の締め切りがあります。過ぎると送り直しとリダイレクトの追跡を打ち切り、結果の無い件は通信の失敗にします（通信の失敗は、本文の途中の切断も含めて最大 2 回送り直します）。
+- 開始は操作ログ（manager_log）に `HTML export: start (CLI)`（ユーザー名 `CLI`）として残ります。`OnExportPreExec` / `OnExportExec` は画面と同じく呼ばれます。
+- ほかが処理中（画面のタブで進めているなど）で続きを進められないときは、1 秒おいて送り直します。
+- 画面のタブで進めている間に `--restart` で始めると、画面のジョブは止まり、CLI のジョブが最初から進みます。
+  - 始める側は、開始待ちの印 `temp/export_job.takeover.<ランダムな値>` を書いて待ちます。待つのは最大で、1 回の処理の持ち時間（10 秒）+ 1 まとまりの締め切り（10 秒）+ 3 秒です（PHP の制限時間の半分を超えない）。
+  - 処理中の側は、同時に取得する 1 まとまり（最大 4 件）ごとに印を見て、印があれば処理の切れ目で譲ります。
+  - 印の期限は、ファイルの更新時刻で決めます。始める側が途中で落ちて印が残っても、期限を過ぎたものは無視して消します。
+  - 画面は、別の場所でやり直された旨を出して、今の状態の表示に切り替わります。
+- CLI の処理中に画面から「最初からやり直す」を押したときも同じで、CLI は譲ります。CLI は自分が始めたジョブだけを進め、別のジョブに替わったと分かったら終了コード 1 で止まります。
+
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
@@ -57,6 +78,7 @@ php evo skill:sync --skill=issue-resolver
 - 成功したが注意があるとき（設定かキャッシュのテーブルが無く、キャッシュを作り直さなかったとき）は、`Import completed...` の後に `Warning: <内容>` の行を標準エラーに表示します。終了コードは 0 です。
 - 以前の `Preserved ...` の行は表示しません。
 - `mysqldump` が必要です。
+
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
 `skill:validate` は run scaffold と skill metadata の JSON 契約を確認します。
 ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-request.json` 完了更新、次 run scaffold 準備をまとめて行います。
