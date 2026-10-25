@@ -20,10 +20,6 @@ if (1 < db()->count($rs)) {
     }
 }
 
-if ($settings_version && $settings_version != $modx_version) {
-    include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
-}
-
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 

@@ -163,6 +163,7 @@ $_lang["setup_database_selection_failed"] = 'データベース選択が失敗�
 $_lang["setup_database_selection_failed_note"] = 'データベースが存在しません。データベースの作成を試行します。';
 $_lang["snippets"] = 'スニペット';
 $_lang["some_tables_not_updated"] = 'いくつかのテーブルはアップデートされませんでした。修正などに起因しているようです。';
+$_lang["migration_failed"] = 'データベースの移行処理「%s」が失敗したため、残りの手順に進まずにアップデートを止めました。下に示した原因を取り除いてから、もう一度アップデートしてください。';
 $_lang["install_failed_tables_removed"] = '途中まで作ったテーブルは削除しました。原因を取り除いてから、同じ設定でもう一度インストールできます。';
 $_lang["install_failed_tables_left"] = '途中まで作った次のテーブルを削除できませんでした。phpMyAdmin などで削除してから、もう一度インストールしてください。';
 $_lang["status_checking_database"] = 'データベースとTableプレフィックスのチェック: ';

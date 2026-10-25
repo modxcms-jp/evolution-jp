@@ -163,6 +163,7 @@ $_lang["setup_database_selection_failed"] = 'Database selection failed...';
 $_lang["setup_database_selection_failed_note"] = 'The database does not exist. Setup will attempt to create it.';
 $_lang["snippets"] = 'Snippets';
 $_lang["some_tables_not_updated"] = 'Some tables were not updated. This might be due to previous modifications.';
+$_lang["migration_failed"] = 'The database migration "%s" failed, so the update was stopped before the remaining steps. Fix the cause shown below, then run the update again.';
 $_lang["install_failed_tables_removed"] = 'The tables created during this installation have been removed. Fix the cause and run the installation again with the same settings.';
 $_lang["install_failed_tables_left"] = 'The following tables created during this installation could not be removed. Remove them with a tool such as phpMyAdmin, then run the installation again.';
 $_lang["status_checking_database"] = 'Checking database: ';
