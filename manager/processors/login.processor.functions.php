@@ -36,7 +36,8 @@ function validateLoginInput()
         return false;
     }
 
-    if (!$password) {
+    // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
+    if (!$password && !getv('fmpkey')) {
         jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
