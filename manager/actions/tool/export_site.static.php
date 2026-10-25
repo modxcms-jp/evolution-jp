@@ -7,6 +7,8 @@ if (!evo()->hasPermission('export_static')) {
     alert()->dumpError();
 }
 
+require_once MODX_CORE_PATH . 'site_export_job.class.inc.php';
+
 // フォームの値は、前回の指定（processor がセッションに保存する）を既定値にする
 $exportTarget = sessionv('export_target', 'all');
 if (!in_array($exportTarget, ['all', 'allow_ids', 'ignore_ids'], true)) {
@@ -80,9 +82,22 @@ foreach ($exportJsKeys as $key) {
                         margin: 1em 0;
                     }
 
+                    /* 外枠が残りの色、中身（#exportBarFill）が進んだ部分。色はテーマの変数（assets/docs/theme-variables.md） */
                     #exportBar {
                         position: relative;
                         max-width: 600px;
+                        height: 1.5em;
+                        box-sizing: border-box;
+                        border: 1px solid var(--color-border-default, #ccc);
+                        border-radius: 3px;
+                        background: var(--color-border-light, #ededed);
+                        overflow: hidden;
+                    }
+
+                    #exportBarFill {
+                        width: 0;
+                        height: 100%;
+                        background: var(--color-primary, #375665);
                     }
 
                     /* 処理中は縞を重ねて、止まっていないことを示す（位置は実際の件数のまま）。色はテーマの変数の半透明 */
@@ -93,7 +108,6 @@ foreach ($exportJsKeys as $key) {
                         right: 0;
                         bottom: 0;
                         left: 0;
-                        border-radius: 3px;
                         pointer-events: none;
                         opacity: 0.12;
                         background-image: linear-gradient(
@@ -123,31 +137,6 @@ foreach ($exportJsKeys as $key) {
 
                     #exportEta {
                         margin-left: 1em;
-                    }
-
-                    #exportProgressBox progress {
-                        display: block;
-                        width: 100%;
-                        height: 1.5em;
-                        /* 色はテーマの変数（assets/docs/theme-variables.md）。進んだ部分が primary、残りが薄い枠の色 */
-                        appearance: none;
-                        border: 1px solid var(--color-border-default, #ccc);
-                        border-radius: 3px;
-                        background: var(--color-border-light, #ededed);
-                        color: var(--color-primary, #375665);
-                        overflow: hidden;
-                    }
-
-                    #exportProgressBox progress::-webkit-progress-bar {
-                        background: var(--color-border-light, #ededed);
-                    }
-
-                    #exportProgressBox progress::-webkit-progress-value {
-                        background: var(--color-primary, #375665);
-                    }
-
-                    #exportProgressBox progress::-moz-progress-bar {
-                        background: var(--color-primary, #375665);
                     }
 
                     #exportResult dl {
@@ -292,8 +281,14 @@ foreach ($exportJsKeys as $key) {
             </ul>
 
             <div id="exportProgressBox" hidden>
-                <div id="exportBar">
-                    <progress id="exportProgress" value="0" max="1"></progress>
+                <div
+                    id="exportBar"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="1"
+                    aria-valuenow="0"
+                >
+                    <div id="exportBarFill"></div>
                 </div>
                 <p>
                     <span id="exportCount"></span><span id="exportEta" hidden></span>
@@ -342,7 +337,7 @@ foreach ($exportJsKeys as $key) {
             restart: $('exportRestart'),
             box: $('exportProgressBox'),
             bar: $('exportBar'),
-            progress: $('exportProgress'),
+            fill: $('exportBarFill'),
             count: $('exportCount'),
             eta: $('exportEta'),
             cancel: $('exportCancel'),
@@ -352,6 +347,7 @@ foreach ($exportJsKeys as $key) {
         let running = false;
         let starting = false;
         let cancelling = false;
+        let finishing = false;
         let buttonMode = 'start';
         // この画面が進めているジョブの id。step の応答が別の id を指したら、別の場所でやり直されたので止める
         let jobId = '';
@@ -533,13 +529,74 @@ foreach ($exportJsKeys as $key) {
             };
         };
 
-        const renderProgress = function (res) {
+        // バーと「n / 全体 件」は同じ値（shown）から描く。shown は確定した件数（サーバーの done）を超えない
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        // 次の更新までの時間の目安（ミリ秒）。最初は 1 回の持ち時間、あとは直前の更新との間隔
+        const SCREEN_BUDGET_MS = <?= (int)(EvoSiteExportJob::screenBudget() * 1000) ?>;
+        const FINISH_MS = 400;
+        let shown = 0;
+        let barTotal = 0;
+        let frame = 0;
+        let frameDone = null;
+        let lastUpdate = null;
+        const paint = function () {
+            const ratio = barTotal > 0 ? Math.min(shown / barTotal, 1) : 1;
+            els.fill.style.width = (ratio * 100) + '%';
+            els.count.textContent = fill(T.export_site_progress, {done: Math.floor(shown), total: barTotal});
+        };
+        const stopFrame = function () {
+            if (frame) {
+                window.cancelAnimationFrame(frame);
+                frame = 0;
+            }
+            if (frameDone) {
+                const resolve = frameDone;
+                frameDone = null;
+                resolve();
+            }
+        };
+        // target 件まで、duration ミリ秒かけて一定の速さで伸ばす（target を超えない）。伸び終えると解決する Promise を返す
+        const animateTo = function (target, duration) {
+            stopFrame();
+            if (reducedMotion.matches || duration <= 0 || target <= shown) {
+                shown = target;
+                paint();
+                return Promise.resolve();
+            }
+            const from = shown;
+            const began = window.performance.now();
+            return new Promise(function (resolve) {
+                frameDone = resolve;
+                const tick = function (now) {
+                    const t = Math.min((now - began) / duration, 1);
+                    shown = from + (target - from) * t;
+                    paint();
+                    if (t < 1 && alive()) {
+                        frame = window.requestAnimationFrame(tick);
+                    } else {
+                        frame = 0;
+                        frameDone = null;
+                        shown = target;
+                        paint();
+                        resolve();
+                    }
+                };
+                frame = window.requestAnimationFrame(tick);
+            });
+        };
+        // 応答の内容をバーに出す。duration があれば、その時間をかけて伸ばす。無ければ一気に動かす
+        const renderProgress = function (res, duration) {
             const total = Number(res.total) || 0;
             const done = Number(res.done) || 0;
             els.box.hidden = false;
-            els.progress.max = Math.max(total, 1);
-            els.progress.value = total === 0 ? els.progress.max : done;
-            els.count.textContent = fill(T.export_site_progress, {done: done, total: total});
+            els.bar.setAttribute('aria-valuemax', String(Math.max(total, 1)));
+            els.bar.setAttribute('aria-valuenow', String(total === 0 ? 1 : done));
+            if (total !== barTotal) {
+                stopFrame();
+                shown = 0;
+                barTotal = total;
+            }
+            return animateTo(done, duration || 0);
         };
 
         const renderMessages = function (res) {
@@ -608,14 +665,25 @@ foreach ($exportJsKeys as $key) {
         };
 
         // 終わった（done / cancelled / error）。やり直せる状態に戻す
-        const showFinished = function (res) {
+        const showFinished = async function (res) {
+            // 完了は、残りを短い時間で最後まで伸ばしてから表示する（案内とダイアログが、バーが満杯になる前に出ない）
+            finishing = true;
+            if (res.state === 'done') {
+                await renderProgress(res, FINISH_MS);
+            }
+            finishing = false;
+            if (!alive()) {
+                return;
+            }
             settle();
             running = false;
             starting = false;
             cancelling = false;
             setDirty(false);
             els.previous.hidden = true;
-            renderProgress(res);
+            if (res.state !== 'done') {
+                renderProgress(res);
+            }
             renderMessages(res);
             setButtons(res.state === 'done' ? 'start' : 'restart');
             const at = res.finished_label ? fill(T.export_site_finished_at, {datetime: res.finished_label}) : '';
@@ -735,6 +803,7 @@ foreach ($exportJsKeys as $key) {
             els.result.hidden = true;
             setNotice(T.export_site_running);
             hideEta();
+            lastUpdate = null;
             while (running && alive()) {
                 // 応答を待つあいだは縞を動かす
                 setWorking(true);
@@ -757,7 +826,10 @@ foreach ($exportJsKeys as $key) {
                     return;
                 }
                 if (res.state === 'running') {
-                    renderProgress(res);
+                    const now = window.performance.now();
+                    const interval = lastUpdate === null ? SCREEN_BUDGET_MS : Math.max(300, Math.min(now - lastUpdate, 10000));
+                    lastUpdate = now;
+                    renderProgress(res, interval);
                     if (cancelling) {
                         hideEta();
                         await sleep(300);
@@ -816,7 +888,7 @@ foreach ($exportJsKeys as $key) {
         };
 
         const cancel = async function () {
-            if (!running || cancelling) {
+            if (!running || cancelling || finishing) {
                 return;
             }
             cancelling = true;
