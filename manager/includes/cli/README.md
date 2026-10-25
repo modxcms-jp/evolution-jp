@@ -30,6 +30,9 @@ php evo log:tail --lines=20
 php evo log:search "インストーラー" --level=error --limit=10
 php evo db:console
 php evo make:command cache:clear
+php evo migrate
+php evo migrate:status
+php evo make:migration add_example_column
 php evo skill:init --plan=2026-05-02-agent-skill-growth-loop --skill=issue-resolver
 php evo skill:validate --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
 php evo skill:complete --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
@@ -68,6 +71,12 @@ php evo skill:sync --skill=issue-resolver
 - CLI の処理中に画面から「最初からやり直す」を押したときも同じで、CLI は譲ります。CLI は自分が始めたジョブだけを進め、別のジョブに替わったと分かったら終了コード 1 で止まります。
 
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
+`migrate` は `manager/includes/migrations/` の未適用のマイグレーションをファイル名の順に適用し、記録の表（`{prefix}migrations`）に 1 本ずつ記録します。
+- 適用した ID を `Applied <ID>` と 1 行ずつ表示し、未適用が無ければ `Nothing to migrate.` と表示します。
+- 失敗したら、ID とエラーを標準エラーに表示して終了コード 1 で終わります（失敗したマイグレーションは記録せず、次回はそこから流し直します）。
+- 同時に 2 回走らないよう `GET_LOCK()` を使い、30 秒待っても取れなければ失敗にします。
+`migrate:status` は `applied <ID> <日時>` と `pending <ID>` を並べ、最後に `N applied, M pending` を表示します。
+`make:migration <説明>` は `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形を作ります。説明は `a-z`・`0-9`・`_` だけで、合わなければ終了コード 1 です。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
 - 取り込みの前に、今の DB を `pre-restore-<自動の名前>.sql` として保存先へ保存します（`mysqldump` を使い、`db:backup` と同じくプレフィックスの表だけ、トリガーなし）。保存できなければ、何も取り込まずに終了コード 1 で終わります。プレフィックスの表がまだ無い DB（空の DB への取り込み）では保存するものが無いので、このスナップショットは作りません（`Pre-restore snapshot: skipped (...)` と表示）。

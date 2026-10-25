@@ -1,0 +1,201 @@
+<?php
+
+require_once __DIR__ . '/migration_helper.class.inc.php';
+
+/**
+ * マイグレーション（manager/includes/migrations/ の PHP ファイル）を、
+ * 未適用のものだけファイル名の順に流して記録する。アップデート待ちの判定の正本（hasPending）でもある。
+ *
+ * マイグレーション 1 本は `return function (EvoMigrationHelper $m) { ... };` で関数を 1 つ返す。
+ * 表を作るのは create_tables.sql だけで、マイグレーションは既にある表を変える。
+ */
+class EvoMigrator
+{
+    const FILE_PATTERN = '/\A\d{8}(_\d{6})?_[a-z0-9_]+\.php\z/';
+    const LOCK_WAIT = 30;
+
+    public function dir(): string
+    {
+        return MODX_CORE_PATH . 'migrations/';
+    }
+
+    public function table(): string
+    {
+        return db()->getFullTableName('migrations');
+    }
+
+    /**
+     * ロックの名前（GET_LOCK() の上限 64 文字に収まる 47 文字）
+     */
+    public function lockName(): string
+    {
+        return 'evo_migrations_' . md5(db()->config['dbase'] . db()->config['table_prefix']);
+    }
+
+    /**
+     * ファイルの ID（名前の順）。ディレクトリが無ければ 0 本
+     */
+    public function all(): array
+    {
+        $files = glob($this->dir() . '*.php');
+        if (!$files) {
+            return [];
+        }
+        $ids = [];
+        foreach ($files as $file) {
+            $name = basename($file);
+            if (preg_match(self::FILE_PATTERN, $name)) {
+                $ids[] = substr($name, 0, -4);
+            }
+        }
+        sort($ids, SORT_STRING);
+        return $ids;
+    }
+
+    /**
+     * 適用済みの ID => applied_at。記録の表が無ければ空
+     */
+    public function applied(): array
+    {
+        $rs = db()->query("SELECT id, applied_at FROM {$this->table()} ORDER BY id", false);
+        if ($rs === false) {
+            if ((int)db()->getLastErrorNo() === 1146) {
+                return [];
+            }
+            throw new RuntimeException(
+                'Failed to read migrations: ' . db()->getLastError()
+            );
+        }
+        $applied = [];
+        while ($row = db()->getRow($rs, 'assoc')) {
+            $applied[$row['id']] = (int)$row['applied_at'];
+        }
+        db()->freeResult($rs);
+        return $applied;
+    }
+
+    /**
+     * 未適用の ID（名前の順）
+     */
+    public function pending(): array
+    {
+        return array_values(array_diff($this->all(), array_keys($this->applied())));
+    }
+
+    /**
+     * アップデート待ちの唯一の判定。例外を投げない
+     * （記録を読めないときは、確かめられないので待ちあり扱いにする）
+     */
+    public function hasPending(): bool
+    {
+        try {
+            return (bool)$this->pending();
+        } catch (Throwable $e) {
+            return true;
+        }
+    }
+
+    public function ensureTable(): void
+    {
+        $rs = db()->query(
+            "CREATE TABLE IF NOT EXISTS {$this->table()} ("
+            . 'id varchar(100) NOT NULL, '
+            . "applied_at int(20) NOT NULL DEFAULT '0', "
+            . 'PRIMARY KEY (id))',
+            false
+        );
+        if ($rs === false) {
+            throw new RuntimeException(
+                'Failed to create migrations table: ' . db()->getLastError()
+            );
+        }
+    }
+
+    /**
+     * 未適用を順に流し、1 本終わるごとに記録する。途中で止まっても次はその続きから
+     *
+     * @return array ['applied' => [ID...], 'failed' => ID か null, 'error' => 文か null]
+     */
+    public function run(): array
+    {
+        $result = ['applied' => [], 'failed' => null, 'error' => null];
+
+        $lock = db()->escape($this->lockName());
+        $locked = db()->query("SELECT GET_LOCK('{$lock}', " . self::LOCK_WAIT . ')', false);
+        if ($locked === false || (int)db()->getValue($locked) !== 1) {
+            $result['error'] = 'Could not acquire the migration lock within ' . self::LOCK_WAIT
+                . ' seconds. Another migration may be running.';
+            evo()->logEvent(0, 3, $result['error'], 'Migration', ['lock' => $this->lockName()]);
+            return $result;
+        }
+
+        try {
+            $this->ensureTable();
+            foreach ($this->pending() as $id) {
+                try {
+                    $this->runOne($id);
+                } catch (Throwable $e) {
+                    $result['failed'] = $id;
+                    $result['error'] = $e->getMessage();
+                    evo()->logEvent(0, 3, $e->getMessage(), 'Migration', [
+                        'migration' => $id,
+                        'exception' => get_class($e),
+                    ]);
+                    break;
+                }
+                $result['applied'][] = $id;
+            }
+        } catch (Throwable $e) {
+            $result['error'] = $e->getMessage();
+            evo()->logEvent(0, 3, $e->getMessage(), 'Migration', ['exception' => get_class($e)]);
+        } finally {
+            db()->query("SELECT RELEASE_LOCK('{$lock}')", false);
+        }
+
+        if ($result['applied']) {
+            evo()->clearCache();
+        }
+        return $result;
+    }
+
+    /**
+     * 新規インストールだけで使う。すべてのマイグレーションを流さずに適用済みとして記録する
+     */
+    public function markAllApplied(): void
+    {
+        $this->ensureTable();
+        $now = time();
+        foreach ($this->all() as $id) {
+            $this->record($id, $now, 'INSERT IGNORE');
+        }
+    }
+
+    private function runOne($id): void
+    {
+        $migration = require $this->dir() . $id . '.php';
+        if (!is_callable($migration)) {
+            throw new RuntimeException("Migration {$id} must return a function.");
+        }
+        $migration(new EvoMigrationHelper());
+        $this->record($id, time(), 'INSERT');
+    }
+
+    private function record($id, $time, $verb): void
+    {
+        $rs = db()->query(
+            sprintf(
+                "%s INTO %s (id, applied_at) VALUES ('%s', %d)",
+                $verb,
+                $this->table(),
+                db()->escape($id),
+                (int)$time
+            ),
+            false
+        );
+        if ($rs === false) {
+            throw new RuntimeException(
+                "Failed to record migration {$id}: " . db()->getLastError()
+            );
+        }
+    }
+}
