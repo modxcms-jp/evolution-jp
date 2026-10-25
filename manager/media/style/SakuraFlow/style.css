@@ -984,7 +984,7 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: 0 0 var(--space-3) 0;
+    margin-bottom: var(--space-3);
     font-size: 1rem;
 }
 
@@ -997,14 +997,19 @@ form .imeoff {
 .section .sectionBody {
     background: rgba(255, 255, 255, 0.60);
     border: 1px solid rgba(255, 200, 230, 0.35);
-    margin: 0 0 var(--space-3);
+    margin-bottom: var(--space-3);
     padding: var(--space-5);
     border-radius: var(--radius-xl);
     box-shadow: 0 8px 32px rgba(200, 150, 180, 0.1);
 }
 
+/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
+.section {
+    margin-bottom: var(--space-3);
+}
+
 .section .sectionBody {
-    margin: 0 0 var(--space-3);
+    margin-bottom: 0;
     background: rgba(255, 255, 255, 0.65);
     border-radius: var(--radius-xl);
 }
@@ -1978,11 +1983,17 @@ table.sortabletable {
 }
 
 #pagination {
-    margin: 10px 0;
+    margin-top: 0;
+    margin-bottom: var(--space-3);
+}
+
+/* 入れ物の最後の子のときは、#pagination の詳細度が last-child の規則に勝つので、ここで 0 にする */
+#pagination:last-child {
+    margin-bottom: 0;
 }
 
 #pagination ul {
-    margin: 10px 0;
+    margin: 0;
     display: inline;
 }
 
@@ -2060,7 +2071,10 @@ select#stay {
 }
 
 ul.actionButtons {
-    margin: 0 0 var(--space-3);
+    /* 汎用の ul 規則の左右の margin を打ち消す（縦は margin-bottom だけ） */
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: var(--space-3);
     padding: 0;
     /* accommodate border on buttons - */
     background: none;
@@ -2075,15 +2089,28 @@ ul.actionButtons {
 }
 
 /* 縦の余白の決まり（assets/docs/theme-spacing.md）。
-   入れ物の最後の子の下に、外側の margin を足さない。この規則は、ブロックの間を作る margin-bottom の規則より後ろに置く */
+   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
+   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
+   これより詳細度が高いもの（#pagination など）と、この規則より後ろにあるものは 0 にならないので、それぞれ別に 0 にする。
+   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
 #mainPane > :last-child,
 :is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
     margin-bottom: 0;
 }
 
-/* サブリソース一覧（resources_list.static.php）のパンくずと、移動のボタンの前のブロック */
-.resources-topic-path,
-form > :has(+ .resources-batch-actions) {
+/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
+.tab-page > :has(+ .sectionHeader) {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
+.resources-topic-path {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。:has 非対応のブラウザでは捨てられる */
+form > :has(+ .resources-batch-actions),
+form > :has(+ #pagination) {
     margin-bottom: var(--space-3);
 }
 
