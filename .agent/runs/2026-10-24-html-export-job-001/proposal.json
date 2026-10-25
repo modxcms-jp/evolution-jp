@@ -4,14 +4,14 @@
     "run_id": "2026-10-24-html-export-job-001",
     "skill": "exec-plan-runner",
     "generated_at": "2026-10-25T17:45:00+09:00",
-    "status": "proposed",
+    "status": "applied",
     "source_files": [
         "learning.json",
         "pruning.json"
     ],
     "changes": [
         {
-            "id": "change-001",
+            "id": "change-006",
             "action": "add",
             "target": ".claude/skills/adaptive-validation-runner/SKILL.md（4. ブラウザでの確認）",
             "summary": "排他や取り合いの確認は、外からロックを握る・処理を遅らせるなどの人工的な隙間を作らずに、処理を遅くした実際の条件（cache:clear など）で行う。隙間を作った確認だけで PASS にしない",
@@ -19,7 +19,7 @@
             "confidence": "high"
         },
         {
-            "id": "change-002",
+            "id": "change-007",
             "action": "add",
             "target": ".claude/skills/adaptive-validation-runner/references/environment.md（既知の落とし穴）",
             "summary": "利用者に目視で渡している環境で速さを測らない。比べるときは利用者に操作を控えてもらうか別の環境で、同じ条件を交互に測る。重ねて確認に使うための一時的な合成（merge --no-commit）は、作業ブランチではなく確認用のブランチで行う",
@@ -27,7 +27,7 @@
             "confidence": "medium"
         },
         {
-            "id": "change-003",
+            "id": "change-008",
             "action": "add",
             "target": ".claude/skills/exec-plan-runner/SKILL.md（作業場所）",
             "summary": "作業ツリーの外の git 操作が許されないセッションでは git worktree add を使わず、今の作業ツリーを Issue のブランチに切り替えて使う（切り替える前に未コミットの変更が無いことと push 済みであることを確かめる）。main との比較は git archive で作業用ディレクトリへ書き出す",
