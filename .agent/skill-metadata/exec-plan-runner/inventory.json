@@ -63,6 +63,38 @@
             "added_at": "2026-10-25T17:45:00+09:00",
             "last_used_at": "2026-10-25T17:45:00+09:00",
             "source": "2026-10-24-html-export-job-001"
+        },
+        {
+            "id": "change-009",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-10-25T21:30:00+09:00",
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        {
+            "id": "change-010",
+            "location": ".agent/agents/tester.md（報告）",
+            "status": "adopted",
+            "added_at": "2026-10-25T21:30:00+09:00",
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        {
+            "id": "change-011",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（並走するとき、またはユーザーに環境を渡すとき）",
+            "status": "adopted",
+            "added_at": "2026-10-25T21:30:00+09:00",
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        {
+            "id": "change-012",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 9「push と PR」）",
+            "status": "adopted",
+            "added_at": "2026-10-25T21:30:00+09:00",
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
         }
     ]
 }

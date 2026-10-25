@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-25-theme-vertical-spacing",
+    "run_id": "2026-10-25-theme-vertical-spacing-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-25T21:30:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-009",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "画面を計測して見た目を確かめる変更では、画面の数ではなく、ブロックの組み合わせ（同じ入れ物が続く、ページ送りが出る、2 枚目以降のタブ、権限で部品が消える など）を網羅するように画面と状態を選ぶ",
+            "source_ref": "finding-001",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-010",
+            "action": "add",
+            "target": ".agent/agents/tester.md（報告）",
+            "summary": "計測の値を報告するときは、どの版（コミット）の CSS・HTML を当てた値かを書く",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-011",
+            "action": "add",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md（並走するとき、またはユーザーに環境を渡すとき）",
+            "summary": "80 番以外のポートで環境をユーザーに渡すときは、fixed_site_url をポート込みの URL のままにし、curl でログインして転送先がそのポートのままかを確かめてから渡す",
+            "source_ref": "finding-003",
+            "confidence": "high"
+        },
+        {
+            "id": "change-012",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 9「push と PR」）",
+            "summary": "「no checks reported」がやり直しても変わらないときは、gh pr view の mergeable が CONFLICTING でないかを確かめる。衝突していると pull_request のワークフローが動かない（衝突は止まる条件）",
+            "source_ref": "finding-004",
+            "confidence": "high"
+        }
+    ]
+}

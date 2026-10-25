@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-25-theme-vertical-spacing",
+    "run_id": "2026-10-25-theme-vertical-spacing-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-25T21:30:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "見た目を画面の計測で確かめるときは、画面の数ではなく、ブロックの組み合わせ（同じ入れ物が続く、ページ送りが出る、2 枚目以降のタブ、権限で部品が消える など）を網羅するように画面と状態を選ぶ。今回は .section が続く画面とページ送りが計測から漏れ、回帰を自己レビューで見つけた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "tester や worker の計測の報告には、どの版（コミット）の CSS・HTML を当てた値かを書かせる。版が書かれていないと、古いデータの値を今の結果として報告しても気づけない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/tester.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "missing_instruction",
+            "summary": "ユーザーの目視用に 80 番以外のポートで環境を渡すときは、fixed_site_url にポート込みの URL を残し、ログイン後の転送先がそのポートのままか（curl でログインして Location を見る）を確かめてから渡す。空にすると、ログイン後に 80 番の別の環境へ飛ぶ",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-004",
+            "kind": "missing_instruction",
+            "summary": "gh pr checks が「no checks reported」のまま変わらないときは、PR が main と衝突していないか（mergeable が CONFLICTING か）を確かめる。衝突していると pull_request のワークフローが動かない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        }
+    ]
+}

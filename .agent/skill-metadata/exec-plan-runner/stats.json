@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 8,
-            "used_runs": 8,
-            "helped_runs": 8,
+            "seen_runs": 12,
+            "used_runs": 12,
+            "helped_runs": 12,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 6
+            "active_runs": 8
         },
         "change-004": {
             "seen_runs": 1,
@@ -80,6 +80,42 @@
             "stale_runs": 0,
             "last_used_at": "2026-10-25T17:45:00+09:00",
             "source": "2026-10-24-html-export-job-001"
+        },
+        "change-009": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        "change-010": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        "change-011": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        "change-012": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T21:30:00+09:00",
+            "source": "2026-10-25-theme-vertical-spacing-001"
         }
     }
 }
