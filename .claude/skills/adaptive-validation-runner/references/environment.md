@@ -110,6 +110,8 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **Chromium が `libnss3.so: cannot open shared object file` で起動しない**: ホストに Chromium の動作に要る OS のライブラリが無い。ヘッドレスでも同じで、`npx playwright install chromium` はブラウザ本体しか入れない。
   `<work>/pw` で `sudo env "PATH=$PATH" npx playwright install-deps chromium` を一度実行する（apt でホストに入れる）。`env "PATH=$PATH"` が無いと、sudo が PATH を初期化し、ユーザーの環境に入れた `npx` が見つからない（`sudo: 'npx': command not found`）。
   sudo はユーザーが実行する。Playwright のイメージの中で動かして避ける方法は、`lib.js` の `docker exec` のために `docker.sock` を渡すことになる（ホストの Docker を何でも操作できる）ので使わない
+- **利用者に目視で渡している環境で、速さを測らない**: 利用者の操作（エクスポートの開始やキャッシュの削除など）と重なると、所要時間が倍近くぶれる。速さを比べるときは、利用者に操作を控えてもらうか別の環境を立て、同じ条件（`cache:clear` のあと全件など）で交互に測ってから判断する
+- **利用者の目視のために別の PR の修正を重ねるときは、作業ブランチに重ねない**: `git merge --no-commit` で作業ブランチに一時的に重ねると、その間は修正をコミットできず（マージのコミットになる）、外す・重ねるを繰り返すことになる。確認用のブランチ（例: `check/<名前>`）を作業ブランチから切って重ね、環境はそのブランチで動かす。作業ブランチの修正は、確認用のブランチに取り込み直して見せる
 - **インストール直後は `settings_version` が `0` のまま**: システム設定（`a=17`）を一度保存すると現在の版に更新される。それまでは管理画面がシステム設定へ誘導され、エラー後の戻り先も `a=17` になる（表側は、`install_version` がコードの版と同じ新規インストールなら 200 で表示される。#484 より前の版や、旧版で入れて設定を保存していないサイトでは 503 のメンテナンス画面になる）。`setup-site.js` は保存まで済ませる
 - **新規インストールには `install/install-config.php` が要る**: `setup-site.js` は一時的に置き、終わったら消す
 - **インストールすると作業ツリーに `manager/includes/config.inc.php` ができる**（git の無視対象）。`down -v` で DB だけ消すと、設定ファイルだけが残ってサイトが 500 になる。`setup-site.js` は DB のテーブルでインストール済みかを判定し、この状態なら止まる。開発者自身の設定ファイルを消さないよう、`--reinstall` を付けたときだけ退避（`config.inc.php.bak-<時刻>`）して入れ直す

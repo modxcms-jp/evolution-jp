@@ -59,6 +59,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 - ワークツリーの中から相対パスで `git worktree add` すると入れ子になるので、必ず `$ROOT` を起点にする。シェルの変数はコマンドの呼び出しをまたいで残らないので、`$ROOT` は使うコマンドと同じ呼び出しの中で求めるか、先に絶対パスに解決してから使う。
 - 各役割には、作業ディレクトリの絶対パスを必ず渡す。
 - tester が main と比べるときは、`git worktree add --detach <一時パス> origin/main` で別のワークツリーを使い、worker のワークツリーの checkout は切り替えない。
+- セッションが今のワークツリーの外の git 操作を許さない（Claude Code の worktree に隔離されている）ときは、`git worktree add` を使えない。今のワークツリーを `gh issue develop` で作ったブランチに切り替えて使う（切り替える前に、未コミットの変更が無く、前の作業が push 済みであることを確かめる）。tester が main と比べるときは、`git archive origin/main` を作業用ディレクトリ（リポジトリの外）へ展開して代わりにする（`.claude/` と `compose.yml` は export-ignore で入らないので、`compose.yml` と `manager/docker/` を写し、スキルのスクリプトはワークツリー側のパスを使う）。
 - 片付けは `/finish-task` で行う。
 
 ## 1 件ごとの繰り返し
