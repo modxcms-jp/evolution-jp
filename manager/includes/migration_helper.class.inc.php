@@ -161,11 +161,7 @@ class EvoMigrationHelper
         if (!$this->columnExists($table, $column)) {
             return $result;
         }
-        $info = $this->rows(sprintf(
-            "SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'",
-            db()->escape(db()->config['dbase']),
-            db()->escape(db()->config['table_prefix'] . $table)
-        ));
+        $info = $this->tableInfo($table);
         $charset = $this->rows(sprintf(
             'SELECT cs.MAXLEN FROM INFORMATION_SCHEMA.COLUMNS c'
             . ' JOIN INFORMATION_SCHEMA.CHARACTER_SETS cs ON cs.CHARACTER_SET_NAME = c.CHARACTER_SET_NAME'
@@ -174,18 +170,23 @@ class EvoMigrationHelper
             db()->escape(db()->config['table_prefix'] . $table),
             db()->escape($column)
         ));
-        $engine = $info ? strtoupper((string)$info[0]['ENGINE']) : '';
-        $rowFormat = $info ? strtoupper((string)$info[0]['ROW_FORMAT']) : '';
+        $engine = $info ? $info['ENGINE'] : '';
+        $rowFormat = $info ? $info['ROW_FORMAT'] : '';
         $charBytes = max(4, $charset ? (int)$charset[0]['MAXLEN'] : 4);
 
         $limit = 1000; // MyISAM とその他
         $why = "{$engine} index key limit";
         if ($engine === 'INNODB') {
             if (in_array($rowFormat, ['DYNAMIC', 'COMPRESSED'], true)) {
+                // ページの大きさの 3/16 まで（16KB 以上で 3072、8KB で 1536、4KB で 768）。変数が読めなければ 3072
                 $limit = 3072;
+                $pageSize = (int)$this->serverVariable('innodb_page_size');
+                if ($pageSize > 0) {
+                    $limit = min(3072, intdiv($pageSize * 3, 16));
+                }
+                $why = "InnoDB {$rowFormat} with a {$limit}-byte limit";
                 // MySQL 5.6 / 5.7 初期は、変数が OFF だと行の形式が DYNAMIC でも 767 バイトまで
-                $variable = $this->rows("SHOW VARIABLES LIKE 'innodb_large_prefix'");
-                if ($variable && in_array(strtoupper((string)$variable[0]['Value']), ['OFF', '0'], true)) {
+                if (in_array(strtoupper((string)$this->serverVariable('innodb_large_prefix')), ['OFF', '0'], true)) {
                     $limit = 767;
                     $why = "InnoDB {$rowFormat} with innodb_large_prefix=OFF";
                 }
@@ -213,16 +214,17 @@ class EvoMigrationHelper
      */
     public function useDynamicRowFormat($table): bool
     {
-        $info = $this->rows(sprintf(
-            "SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'",
-            db()->escape(db()->config['dbase']),
-            db()->escape(db()->config['table_prefix'] . $table)
-        ));
-        if (
-            !$info
-            || strtoupper((string)$info[0]['ENGINE']) !== 'INNODB'
-            || !in_array(strtoupper((string)$info[0]['ROW_FORMAT']), ['COMPACT', 'REDUNDANT'], true)
-        ) {
+        $info = $this->tableInfo($table);
+        if (!$info || $info['ENGINE'] !== 'INNODB' || !in_array($info['ROW_FORMAT'], ['COMPACT', 'REDUNDANT'], true)) {
+            return false;
+        }
+        // Antelope（MySQL 5.6 のファイル形式）では DYNAMIC にならないので、意味の無い表の作り直しをしない
+        $fileFormat = $this->serverVariable('innodb_file_format');
+        if ($fileFormat !== null && strcasecmp($fileFormat, 'Antelope') === 0) {
+            $this->log('Could not change the row format to DYNAMIC', [
+                'table' => $table,
+                'error' => 'innodb_file_format is Antelope',
+            ], 2);
             return false;
         }
         $rs = db()->query(sprintf('ALTER TABLE %s ROW_FORMAT=DYNAMIC', $this->table($table)), false);
@@ -234,7 +236,44 @@ class EvoMigrationHelper
             ], 2);
             return false;
         }
+        // サーバーによっては、受け付けられなくても警告だけで元の形式のまま作り直す。読み直して確かめる
+        $after = $this->tableInfo($table);
+        if (!$after || !in_array($after['ROW_FORMAT'], ['DYNAMIC', 'COMPRESSED'], true)) {
+            $this->log('The row format is not DYNAMIC after ALTER TABLE', [
+                'table' => $table,
+                'row_format' => $after ? $after['ROW_FORMAT'] : null,
+            ], 2);
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * 表のエンジンと行の形式（大文字）。表が無ければ null
+     */
+    protected function tableInfo($table): ?array
+    {
+        $rows = $this->rows(sprintf(
+            "SELECT ENGINE, ROW_FORMAT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table)
+        ));
+        if (!$rows) {
+            return null;
+        }
+        return [
+            'ENGINE' => strtoupper((string)$rows[0]['ENGINE']),
+            'ROW_FORMAT' => strtoupper((string)$rows[0]['ROW_FORMAT']),
+        ];
+    }
+
+    /**
+     * サーバー変数の値。変数が無ければ null
+     */
+    protected function serverVariable($name): ?string
+    {
+        $rows = $this->rows(sprintf("SHOW VARIABLES LIKE '%s'", db()->escape($name)));
+        return $rows ? (string)$rows[0]['Value'] : null;
     }
 
     /**
