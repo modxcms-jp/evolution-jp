@@ -305,6 +305,7 @@ return [
     "export_site_result_seconds" => '[+sec+] sec',
     "export_site_result_count" => '[+count+]',
     "export_site_failures_title" => 'Pages that failed',
+    "export_site_previous_title" => 'Previous export (completed [+datetime+])',
     "export_site_failures_more" => '[+count+] more are not listed.',
     "failed_login_message" => 'Enter the number of failed login attempts allowed before blocking a user.',
     "failed_login_title" => 'Failed Login Attempts',

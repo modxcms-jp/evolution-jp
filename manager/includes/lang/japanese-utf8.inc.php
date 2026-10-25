@@ -307,6 +307,7 @@ return [
     "export_site_result_seconds" => '[+sec+] 秒',
     "export_site_result_count" => '[+count+] 件',
     "export_site_failures_title" => '失敗したページ',
+    "export_site_previous_title" => '前回のエクスポート（[+datetime+] 完了）',
     "export_site_failures_more" => 'ほか [+count+] 件は一覧に表示していません。',
     "failed_login_message" => 'ログイン失敗を許容する回数を設定します。ここで設定した回数を超えると一定時間ロックされログインできなくなります。',
     "failed_login_title" => 'ログイン失敗を許容する回数',

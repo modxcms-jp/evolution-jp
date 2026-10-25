@@ -320,6 +320,7 @@ class EvoSiteExportJob
         $state['elapsed'] += microtime(true) - $began;
         $state['state'] = $finalState;
         $state['error'] = $error;
+        $state['finished_at'] = time();
         $this->removeCancelMark();
         evo()->revokeBearerToken();
 
@@ -427,6 +428,9 @@ class EvoSiteExportJob
                 'reason'    => $this->reasonText($f['reason'], isset($f['detail']) ? $f['detail'] : ''),
             ];
         }
+        $finishedAt = $state['state'] === self::STATE_RUNNING || empty($state['finished_at'])
+            ? 0
+            : (int)$state['finished_at'];
         return [
             'state'    => $state['state'],
             'job_id'   => (string)$state['job_id'],
@@ -440,6 +444,9 @@ class EvoSiteExportJob
             'elapsed'  => round($state['elapsed'], 3),
             'output'   => $state['output'],
             'message'  => $state['error'],
+            'finished_at'    => $finishedAt,
+            // システム設定の日時の表示に合わせた文字列（画面の「前回のエクスポート」の見出しに使う）
+            'finished_label' => $finishedAt ? (string)evo()->toDateFormat($finishedAt) : '',
         ];
     }
 
@@ -582,6 +589,10 @@ class EvoSiteExportJob
         $state = $json === false ? null : json_decode($json, true);
         if (!is_array($state) || !isset($state['state'], $state['ids'], $state['options'])) {
             return null;
+        }
+        if ($state['state'] !== self::STATE_RUNNING && empty($state['finished_at'])) {
+            // finished_at を持たない古い状態は、ファイルの更新日時を終わった日時とみなす
+            $state['finished_at'] = (int)@filemtime($this->stateFile);
         }
         return $state;
     }

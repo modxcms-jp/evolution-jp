@@ -20,7 +20,7 @@ $exportJsKeys = [
     'export_site_busy', 'export_site_job_replaced', 'export_site_request_failed', 'export_site_unreadable',
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
-    'export_site_failures_title', 'export_site_failures_more',
+    'export_site_failures_title', 'export_site_failures_more', 'export_site_previous_title',
 ];
 $exportJsLang = [];
 foreach ($exportJsKeys as $key) {
@@ -210,6 +210,7 @@ foreach ($exportJsKeys as $key) {
                 </ul>
             </form>
 
+            <h3 id="exportPrevious" hidden></h3>
             <div id="exportNotice" role="status" hidden></div>
             <ul class="actionButtons">
                 <li id="exportResumeItem" hidden>
@@ -263,6 +264,7 @@ foreach ($exportJsKeys as $key) {
             restartItem: $('exportRestartItem'),
             cancelItem: $('exportCancelItem'),
             start: $('exportStart'),
+            previous: $('exportPrevious'),
             notice: $('exportNotice'),
             resume: $('exportResume'),
             restart: $('exportRestart'),
@@ -457,6 +459,7 @@ foreach ($exportJsKeys as $key) {
             setDirty(false);
             els.box.hidden = true;
             els.result.hidden = true;
+            els.previous.hidden = true;
             setNotice('');
             setButtons('start');
             setFormDisabled(false);
@@ -468,6 +471,7 @@ foreach ($exportJsKeys as $key) {
             starting = false;
             cancelling = false;
             setDirty(false);
+            els.previous.hidden = true;
             renderProgress(res);
             renderMessages(res);
             setButtons(res.state === 'done' ? 'start' : 'restart');
@@ -501,6 +505,7 @@ foreach ($exportJsKeys as $key) {
                 setNotice(res.message || T.export_site_unreadable, true);
                 return;
             }
+            els.previous.hidden = true;
             renderProgress(res);
             renderMessages(res);
             if (res.state === 'running') {
@@ -516,6 +521,10 @@ foreach ($exportJsKeys as $key) {
             } else {
                 setNotice('');
             }
+            // 開いたときに出すのは前回の結果。今の処理と取り違えないよう、見出しと完了日時を付け、進み具合の表示は出さない
+            els.box.hidden = true;
+            els.previous.textContent = fill(T.export_site_previous_title, {datetime: res.finished_label || ''});
+            els.previous.hidden = false;
             els.result.hidden = true;
             renderResult(res);
             setButtons(res.state === 'done' ? 'start' : 'restart');
@@ -615,6 +624,7 @@ foreach ($exportJsKeys as $key) {
             setNotice('');
             els.messages.textContent = '';
             els.result.hidden = true;
+            els.previous.hidden = true;
             const res = await call('start', formData());
             if (!alive()) {
                 return;
