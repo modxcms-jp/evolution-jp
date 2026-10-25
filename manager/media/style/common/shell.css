@@ -194,7 +194,7 @@ body.evo-shell #evoShellModal {
     position: relative;
     display: flex;
     flex-direction: column;
-    background: var(--surface, #fff);
+    background: var(--color-surface, #fff);
     color: inherit;
     max-width: min(720px, 92vw);
     max-height: 85vh;
@@ -218,7 +218,7 @@ body.evo-shell #evoShellModalHeader {
     background-image:
         linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)),
         linear-gradient(var(--color-primary-start, var(--color-primary, #375665)), var(--color-primary-end, var(--color-primary, #375665)));
-    color: #fff;
+    color: var(--color-text-inverse, #fff);
 }
 
 body.evo-shell #evoShellModalHeader h1 {

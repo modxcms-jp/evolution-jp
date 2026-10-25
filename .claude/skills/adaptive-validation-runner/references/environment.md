@@ -107,6 +107,9 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
   ptmx のデバイスファイルを普通に開くと、カーネルは同じディレクトリの `pts`（devpts）を探して端末を割り当てようとし、見つからなければ ENOENT を返す。
   Docker が展開時に、作ったデバイスファイルを開き直しているためと見られる（`docker import` で、置き場所に関係なく 5,2 のデバイスだけが失敗し、`dev/null` などほかのデバイスや FIFO は成功することを確かめた）。
   MariaDB 公式イメージは Ubuntu が土台で、このデバイスを含まないため問題ない
+- **Chromium が `libnss3.so: cannot open shared object file` で起動しない**: ホストに Chromium の動作に要る OS のライブラリが無い。ヘッドレスでも同じで、`npx playwright install chromium` はブラウザ本体しか入れない。
+  `<work>/pw` で `sudo env "PATH=$PATH" npx playwright install-deps chromium` を一度実行する（apt でホストに入れる）。`env "PATH=$PATH"` が無いと、sudo が PATH を初期化し、ユーザーの環境に入れた `npx` が見つからない（`sudo: 'npx': command not found`）。
+  sudo はユーザーが実行する。Playwright のイメージの中で動かして避ける方法は、`lib.js` の `docker exec` のために `docker.sock` を渡すことになる（ホストの Docker を何でも操作できる）ので使わない
 - **インストール直後は `settings_version` が `0` のまま**: システム設定（`a=17`）を一度保存すると現在の版に更新される。それまでは管理画面がシステム設定へ誘導され、エラー後の戻り先も `a=17` になる（表側は、`install_version` がコードの版と同じ新規インストールなら 200 で表示される。#484 より前の版や、旧版で入れて設定を保存していないサイトでは 503 のメンテナンス画面になる）。`setup-site.js` は保存まで済ませる
 - **新規インストールには `install/install-config.php` が要る**: `setup-site.js` は一時的に置き、終わったら消す
 - **インストールすると作業ツリーに `manager/includes/config.inc.php` ができる**（git の無視対象）。`down -v` で DB だけ消すと、設定ファイルだけが残ってサイトが 500 になる。`setup-site.js` は DB のテーブルでインストール済みかを判定し、この状態なら止まる。開発者自身の設定ファイルを消さないよう、`--reinstall` を付けたときだけ退避（`config.inc.php.bak-<時刻>`）して入れ直す

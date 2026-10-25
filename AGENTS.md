@@ -106,7 +106,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ### フロントエンド
 
 * jQuery 禁止 → Vanilla JS (ES6+)
-* frame/iframe 禁止
+* frame/frameset 禁止（HTML で廃止された要素。iframe は対象外）
 
 ### データベース
 
@@ -143,6 +143,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
 | `site-url.md`           | サイトのURL |
+| `theme-variables.md`    | テーマの色の変数 |
 | `core-issues.md`        | コア課題   |
 
 ---

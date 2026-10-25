@@ -54,6 +54,13 @@
     --color-surface: rgba(255, 255, 255, 0.95);
     --color-surface-glass: rgba(255, 255, 255, 0.72);
 
+    /* Accent Palette - light tints for backgrounds */
+    --pink-50: #fff0f6;
+    --pink-100: #ffe1ee;
+    --pink-200: #fcc9e0;
+    --lavender-50: #f6f0ff;
+    --lavender-100: #ece3ff;
+
     /* Status Colors - softer, pastel-toned */
     --color-success: #3da37a;
     --color-success-light: #6ec9a5;
@@ -80,12 +87,14 @@
 
     /* Component Colors - Primary Actions (refined gradients) */
     --color-primary: #d45da7;
-    --color-primary-start: #ffb6d9;
+    --color-primary-dark: #9c3f7f; /* 淡い地の上の文字に使う濃い側 */
+    --color-primary-start: #f8a5cc;
     --color-primary-end: #d45da7;
-    --color-primary-hover-start: #ffc4df;
-    --color-primary-hover-end: #c760a8;
-    --color-primary-active-start: #c24b93;
-    --color-primary-active-end: #9f3e78;
+    --color-primary-hover-start: #ffb8d9;
+    --color-primary-hover-end: #dc6fb5;
+    --color-primary-active-start: #e08cb8;
+    --color-primary-active-end: #c04d97;
+    --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions (subtle, glass-like) */
     --color-secondary-start: rgba(255, 240, 248, 0.9);
@@ -1202,7 +1211,7 @@ div.treeNode {
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-sm);
 }
 
 .grid th, .grid td {
@@ -1425,7 +1434,7 @@ a.hometblink:hover {
     padding: var(--space-1);
     border: 1px solid var(--pink-200);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-elevated);
+    box-shadow: var(--shadow-lg);
     position: absolute;
     z-index: 10000;
 }
@@ -1642,7 +1651,7 @@ a.hometblink:hover {
     border-radius: var(--radius-lg);
     overflow: hidden;
     line-height: 1.4;
-    box-shadow: var(--shadow-elevated);
+    box-shadow: var(--shadow-lg);
 }
 
 #mx_contextmenu .menuLink {
@@ -1689,7 +1698,7 @@ a.hometblink:hover {
 }
 
 #mx_contextmenu #nameHolder {
-    color: var(--color-surface);
+    color: var(--color-text-inverse);
     text-align: left;
     cursor: default;
     font-weight: 600;
@@ -1697,7 +1706,7 @@ a.hometblink:hover {
     margin-bottom: var(--space-1);
     border-radius: var(--radius-md);
     text-shadow: none;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
 }
 
 #mx_contextmenu .seperator {
@@ -1816,7 +1825,7 @@ a.hometblink:hover {
     box-shadow: var(--shadow-sm);
     z-index: 2;
     position: relative;
-    top: 12px;
+    top: var(--space-2);
     margin-top: 0;
     padding: var(--space-5) !important;
 }
@@ -2150,9 +2159,9 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
+    color: var(--color-text-inverse);
     text-shadow: none;
-    background: linear-gradient(135deg, #f8a5cc 0%, #e07ab0 50%, #d45da7 100%);
+    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
     border: none;
     box-shadow: 0 4px 15px rgba(212, 93, 167, 0.3);
     border-radius: var(--radius-md);
@@ -2161,14 +2170,14 @@ ul.actionButtons {
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background: linear-gradient(135deg, #ffb8d9 0%, #e88bbc 50%, #dc6fb5 100%);
+    background: linear-gradient(135deg, var(--color-primary-hover-start) 0%, var(--color-primary-hover-end) 100%);
     box-shadow: 0 6px 20px rgba(212, 93, 167, 0.35);
     transform: translateY(-1px);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background: linear-gradient(135deg, #e08cb8 0%, #d45da7 50%, #c04d97 100%);
+    background: linear-gradient(135deg, var(--color-primary-active-start) 0%, var(--color-primary-active-end) 100%);
     box-shadow: 0 2px 10px rgba(212, 93, 167, 0.3);
     transform: translateY(0);
 }

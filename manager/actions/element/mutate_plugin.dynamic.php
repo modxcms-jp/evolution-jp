@@ -306,14 +306,14 @@ function entity($key, $default = null)
             if (src == '') {
                 // Untick all sys events
                 document.querySelectorAll('input[name="sysevents[]"]').forEach(function(el) {
-                    el.removeAttribute('checked');
+                    el.checked = false;
                 });
                 ['pluginName', 'pluginDescription', 'propertiesBox', 'newcategory'].forEach(function(id) {
                     const el = document.getElementById(id);
                     if (el) el.value = '';
                 });
                 document.querySelectorAll('#categoryid option').forEach(function(el) {
-                    el.removeAttribute('selected');
+                    el.selected = false;
                 });
                 showParameters(document.getElementById('propertiesBox'));
                 return;
@@ -331,7 +331,7 @@ function entity($key, $default = null)
 
             // Go through each line and transform into something useful
             var lines = src.split(/\n/);
-            lines.each(function(theLine, index) {
+            lines.forEach(function(theLine) {
 
                 //theLine = theLine.search(/\s\*\s([A-Za-z0-9])/);
                 var docblock_regexp = /\s\*\s(.+)/;
@@ -368,28 +368,35 @@ function entity($key, $default = null)
                 var events = theParams.events.split(',');
 
                 // Untick all sys events
-                $$('input[name^=sysevents]').removeProperty('checked');
+                document.querySelectorAll('input[name="sysevents[]"]').forEach(function(el) {
+                    el.checked = false;
+                });
 
-                events.each(function(i) {
-                    $(i.trim()).setProperty('checked', 'checked');
+                // The checkbox id is the event name
+                events.forEach(function(i) {
+                    const el = document.getElementById(i.trim());
+                    if (el) el.checked = true;
                 });
             }
 
 
             // Populate the name
-            if (theParams.name) $('pluginName').setProperty('value', theParams.name);
+            const nameEl = document.getElementById('pluginName');
+            if (theParams.name && nameEl) nameEl.value = theParams.name;
 
             // Populate the description
             var version = (theParams.version) ? '<strong>' + theParams.version + '</strong> ' : '';
-            if (theParams.description) $('pluginDescription').setProperty('value', version + theParams.description);
+            const descEl = document.getElementById('pluginDescription');
+            if (theParams.description && descEl) descEl.value = version + theParams.description;
 
             // If old param values are set, keep a record of them
             var oldParams = currentParams;
 
             // Set new default params
             if (theParams.properties) {
-                $('propertiesBox').value = theParams.properties;
-                showParameters($('propertiesBox'));
+                const propertiesBox = document.getElementById('propertiesBox');
+                propertiesBox.value = theParams.properties;
+                showParameters(propertiesBox);
             }
 
 
@@ -397,9 +404,9 @@ function entity($key, $default = null)
             if (oldParams) {
 
                 // Go through each old param, and set its value if it exists
-                $each(oldParams, function(oldParam, oldName) {
-
-                    var theField = $('prop_' + oldName);
+                Object.keys(oldParams).forEach(function(oldName) {
+                    var oldParam = oldParams[oldName];
+                    var theField = document.getElementById('prop_' + oldName);
 
                     if (!theField) return;
 
@@ -407,7 +414,7 @@ function entity($key, $default = null)
                         case 'list':
                         case 'menu':
                             var oldValue = oldParam[3];
-                            theField.setProperty('value', oldValue);
+                            theField.value = oldValue;
                             setParameter(oldName, oldParam[1], theField);
                             break;
 
@@ -417,7 +424,7 @@ function entity($key, $default = null)
 
                         default:
                             var oldValue = oldParam[2];
-                            theField.setProperty('value', oldValue);
+                            theField.value = oldValue;
                             setParameter(oldName, oldParam[1], theField);
                             break;
                     }
@@ -427,17 +434,20 @@ function entity($key, $default = null)
 
             // Select the correct dropdown value
             var modx_category_found = false;
-            $$('#categoryid option').removeProperty('selected').each(function(opt) {
-                if (opt.text.trim() == theParams.modx_category.trim()) {
-                    opt.setProperty('selected', 'selected');
+            var modx_category = (theParams.modx_category || '').trim();
+            document.querySelectorAll('#categoryid option').forEach(function(opt) {
+                opt.selected = false;
+                if (modx_category && opt.text.trim() == modx_category) {
+                    opt.selected = true;
                     modx_category_found = true;
                 }
             });
 
 
             // If not found in the dropdown, create a new category
-            if (!modx_category_found && theParams.modx_category) {
-                $('newcategory').setProperty('value', theParams.modx_category);
+            const newCategoryEl = document.getElementById('newcategory');
+            if (!modx_category_found && modx_category && newCategoryEl) {
+                newCategoryEl.value = modx_category;
             }
 
         });
