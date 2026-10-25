@@ -36,7 +36,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 | --- | --- | --- |
 | ページの端と最初のブロック | 共通部の `#mainPane` の `padding`（`--space-2`）だけ。テーマは足さない（最初のブロックの上の `margin` は 0） | `#mainPane > h1`、`#mainPane > form`、ダッシュボードの外枠 |
 | ページの端と最後のブロック | `#mainPane` の最後の子の下は 0（共通部の `padding` だけ） | `#mainPane > :last-child` |
-| ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、サブリソース一覧のパンくず（`.resources-topic-path`）の下、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
+| ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、`.sectionBody` の直下のブロック（SoftSlate・RubberWhite の `.sectionBody > :is(div, table, fieldset)`）の下、サブリソース一覧のパンくず（`.resources-topic-path`）の下、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
 | タブとパネルを離して見せる作り（丸いタブ）の、タブ列とパネルの間 | `--space-2`（8px） | `.dynamic-tab-pane-control .tab-row` → `.tab-page` |
 | 入れ物の最初の子の上・最後の子の下 | 外側の `margin` を足さない（0）。間は入れ物の内側の `padding` だけで作る。入れ物は `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` | `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` の最初と最後の子 |
 | 本文の流れの要素（リセット規則の対象）の間 | 本文の文字の大きさ × 0.5（`margin-bottom` だけ）。入れ物の最初の子の上・最後の子の下は 0 | `p`、`ul`、`ol`、`h2`〜`h6`、`pre`、`blockquote`、`dl`、`address` |
@@ -71,6 +71,8 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 RevoStyle は、旧デザインを保つためのテーマで、廃止予定のため決まりの対象外。新しいテーマの手本にしない。
 
 RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-0` 〜 `--space-14`。`--space-1` が 2px、`--space-2` が 3px、`--space-8` が 10px）。共通部は `--space-2` を 8px のつもりで読むので、RevoStyle の `#mainPane` の内側の余白は 3px で表示される。この値は今のまま変えない。
+
+画面の PHP から直書きの余白を消した分（`.resources-topic-path` の下・`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。
 
 ## 新しいテーマを作るとき
 
