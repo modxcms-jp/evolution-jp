@@ -13,8 +13,8 @@ class EvoMigrator
 {
     // ランナーを入れる前の DB を今の形にそろえる最初のマイグレーション
     const BASELINE_ID = '00000000_baseline';
-    // 時刻の無い ID は 00000000_baseline だけ
-    const FILE_PATTERN = '/\A(00000000_baseline|\d{8}_\d{6}_[a-z0-9_]+)\.php\z/';
+    // 時刻の無い ID は baseline だけ
+    const FILE_PATTERN = '/\A(' . self::BASELINE_ID . '|\d{8}_\d{6}_[a-z0-9_]+)\.php\z/';
     // 記録の表の id 列の長さ
     const MAX_ID_LENGTH = 100;
     const LOCK_WAIT = 30;
