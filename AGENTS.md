@@ -144,6 +144,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `global-settings.md`    | 設定追加   |
 | `site-url.md`           | サイトのURL |
 | `theme-variables.md`    | テーマの色の変数 |
+| `theme-spacing.md`      | テーマの縦の余白 |
 | `core-issues.md`        | コア課題   |
 
 ---

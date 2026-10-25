@@ -156,11 +156,14 @@
     --clean-text-secondary: #586069;
 
     /* Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 20px;
-    --space-xl: 24px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
 
     /* Layout - Topnav */
     --topnav-item-height: 32px;
@@ -223,7 +226,7 @@ img, a img {
 }
 
 h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: .5em 0;
+    margin: 0 0 .5em;
     padding: 0;
     font-weight: normal;
 }
@@ -331,9 +334,9 @@ h1 {
     background-color: var(--color-section-header-end);
     letter-spacing: 1px;
     line-height: 1em;
-    padding: var(--space-sm);
+    padding: var(--space-2);
     border-radius: var(--radius-sm);
-    margin: var(--space-sm);
+    margin: 0 var(--space-2) var(--space-3);
 }
 
 h1.draft {
@@ -784,7 +787,7 @@ form .imeoff {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 .sectionHeader {
@@ -802,19 +805,15 @@ form .imeoff {
 /* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
    枠線は透明にするだけで幅を残し、位置と寸法を変えない */
 .tab-page .sectionHeader {
-    margin: 2px 3px 0;
+    margin: 0 3px;
     background: transparent;
     border-color: transparent transparent var(--clean-border);
 }
 
 .sectionBody {
     position: relative;
-    margin: 8px;
+    margin: 0 8px var(--space-3);
     display: block;
-}
-
-.sectionBody > * + * {
-    margin-top: 0.75rem;
 }
 
 .tab-page .sectionBody,
@@ -828,14 +827,19 @@ form .imeoff {
 }
 
 .tab-page .sectionBody {
-    margin-block: 0 15px;
+    margin-block: 0 var(--space-3);
     margin-inline: 3px;
     border-color: transparent;
     box-shadow: none;
 }
 
+/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
+.section {
+    margin-bottom: var(--space-3);
+}
+
 .section .sectionBody {
-    margin: 0 8px 8px;
+    margin: 0 8px;
 }
 
 .comment {
@@ -1025,7 +1029,7 @@ div.treeNode {
 }
 
 .grid th, .grid td {
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     border-bottom: 1px solid var(--color-border-lighter);
 }
 
@@ -1054,7 +1058,7 @@ div.treeNode {
 
 .gridItem {
     background-color: var(--color-surface);
-    padding: var(--space-xs);
+    padding: var(--space-1);
     transition: background-color var(--transition-fast);
 }
 
@@ -1064,7 +1068,7 @@ div.treeNode {
 
 .gridAltItem {
     background-color: var(--color-gray-100);
-    padding: var(--space-xs);
+    padding: var(--space-1);
     transition: background-color var(--transition-fast);
 }
 
@@ -1103,7 +1107,7 @@ div.treeNode {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-xs) var(--space-sm);
+    padding: var(--space-1) var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
@@ -1114,7 +1118,7 @@ div.treeNode {
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-xs) var(--space-sm);
+    padding: var(--space-1) var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
@@ -1189,12 +1193,12 @@ div.treeNode {
     border: 1px solid var(--light-border);
     background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
     border-radius: var(--radius-md);
-    padding: var(--space-sm);
+    padding: var(--space-2);
 }
 
 .searchtext {
     height: 28px;
-    padding: var(--space-xs) var(--space-sm);
+    padding: var(--space-1) var(--space-2);
     border: 1px solid var(--light-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
@@ -1244,7 +1248,7 @@ a.hometblink:hover {
 .contextMenu {
     background: var(--color-surface);
     margin: 0;
-    padding: var(--space-xs);
+    padding: var(--space-1);
     border: 1px solid var(--light-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -1256,7 +1260,7 @@ a.hometblink:hover {
     background-image: none;
     cursor: pointer;
     color: var(--color-text-primary);
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-md);
     transition: background-color var(--transition-fast);
 }
@@ -1267,7 +1271,7 @@ a.hometblink:hover {
 
 .cntxMnuItemDisabled {
     cursor: default;
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     color: var(--color-text-muted);
     border-radius: var(--radius-md);
 }
@@ -1276,14 +1280,14 @@ a.hometblink:hover {
     cursor: pointer;
     color: var(--color-text-primary);
     background: var(--color-gray-200);
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     border: none;
     border-radius: var(--radius-md);
 }
 
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
     margin: 0;
-    margin-inline-end: var(--space-sm);
+    margin-inline-end: var(--space-2);
 }
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
@@ -1295,7 +1299,7 @@ a.hometblink:hover {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--color-gray-300), transparent);
     overflow: hidden;
-    margin: var(--space-xs) var(--space-sm);
+    margin: var(--space-1) var(--space-2);
 }
 
 /* ============================================================================
@@ -1332,6 +1336,7 @@ a.hometblink:hover {
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
+    margin-bottom: var(--space-3);
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
@@ -1497,7 +1502,7 @@ table.sortabletable {
 }
 
 .sortabletable td, .sortabletable th {
-    padding: var(--space-sm);
+    padding: var(--space-2);
     border: 1px solid var(--color-border-default);
 }
 
@@ -1523,11 +1528,17 @@ table.sortabletable {
 }
 
 #pagination {
-    margin: 10px 0;
+    margin-top: 0;
+    margin-bottom: var(--space-3);
+}
+
+/* 入れ物の最後の子のときは、#pagination の詳細度が last-child の規則に勝つので、ここで 0 にする */
+#pagination:last-child {
+    margin-bottom: 0;
 }
 
 #pagination ul {
-    margin: 10px 0;
+    margin: 0;
     display: inline;
 }
 
@@ -1541,7 +1552,7 @@ table.sortabletable {
 
 #pagination li a,
 #pagination li span {
-    padding: 3px var(--space-sm);
+    padding: 3px var(--space-2);
     border: 1px solid var(--color-pagination-border);
     text-decoration: none;
     color: var(--color-text-primary);
@@ -1579,21 +1590,21 @@ h2#edit_document_title {
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
-    padding: var(--space-sm) var(--space-md) !important;
+    padding: var(--space-2) var(--space-4) !important;
     position: fixed;
-    right: var(--space-md);
+    right: var(--space-4);
     text-align: right;
-    top: var(--space-sm);
+    top: var(--space-2);
     z-index: 100;
-    border-radius: var(--space-sm);
+    border-radius: var(--space-2);
 }
 
 select#stay {
-    padding: var(--space-sm);
+    padding: var(--space-2);
 }
 
 .actionButtons {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons:after {
@@ -1603,17 +1614,57 @@ select#stay {
 }
 
 ul.actionButtons {
-    margin: 0;
+    margin: 0 0 var(--space-3);
     padding: 0;
     /* accommodate border on buttons - */
     background: none;
     width: auto;
     white-space: nowrap;
-    padding-bottom: 10px;
 }
 
+/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
 #actions .actionButtons {
+    margin-bottom: 0;
     padding-bottom: 0;
+}
+
+/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
+   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
+   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
+   これより詳細度が高いもの（#pagination など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
+   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
+#mainPane > :last-child,
+:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
+    margin-bottom: 0;
+}
+
+/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
+.tab-page > :has(+ .sectionHeader) {
+    margin-bottom: var(--space-3);
+}
+
+/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
+   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
+.sectionBody > :is(div, table, fieldset) {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
+.resources-topic-path {
+    margin-bottom: var(--space-3);
+}
+
+/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
+.system-log-toolbar,
+.system-log-summary {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
+   表 → 下のページ送りの間も、同じ規則（form > :has(+ #pagination)）で作る。:has 非対応のブラウザでは捨てられる */
+form > :has(+ .resources-batch-actions),
+form > :has(+ #pagination) {
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons li {
@@ -1636,12 +1687,12 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: inline-start;
-    border-radius: var(--space-xs);
+    border-radius: var(--space-1);
     color: var(--color-gray-800);
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
-    padding: var(--space-sm) 12px;
+    padding: var(--space-2) 12px;
     text-decoration: none;
     white-space: nowrap;
     background-color: var(--color-neutral-button-start);
@@ -1659,7 +1710,7 @@ ul.actionButtons {
 
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-xs);
+    padding: 2px var(--space-1);
     color: var(--color-text-tertiary);
     background-color: var(--color-surface);
     cursor: default;
@@ -1826,7 +1877,7 @@ fieldset#access_permissions dl dd ul li {
 /* -------------------------[ date picker ]--- */
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;
-    padding: 3px 3px 3px var(--space-xl);
+    padding: 3px 3px 3px var(--space-6);
     background-color: var(--color-surface);
     background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
 }
@@ -1853,8 +1904,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .okmsg {
     background-color: var(--color-success-bg);
     border: 2px solid var(--color-success-border);
-    padding: var(--space-sm);
-    margin-bottom: var(--space-sm);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
 }
 
 /* ============================================================================
@@ -2020,7 +2071,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
     color: #5c6670;
     font-weight: 500;
-    padding: 10px var(--space-lg);
+    padding: 10px var(--space-5);
     transition: all 0.2s ease;
 }
 
@@ -2178,7 +2229,7 @@ body#mainpane {
 div.treeframebody {
     background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%) !important;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
-    padding: var(--space-sm);
+    padding: var(--space-2);
 }
 
 /* ツリーメニューのツールバー */
@@ -2189,8 +2240,8 @@ div.treeframebody {
 /* ツリーボタンのスタイル改善 */
 .treeButton {
     border: 1px solid transparent;
-    border-radius: var(--space-xs);
-    padding: var(--space-xs) var(--radius-md);
+    border-radius: var(--space-1);
+    padding: var(--space-1) var(--radius-md);
     transition: all 0.2s ease;
 }
 
@@ -2212,7 +2263,7 @@ div.treeframebody {
     z-index: 10000;
     width: 180px;
     margin: 0;
-    padding: var(--space-xs);
+    padding: var(--space-1);
     overflow: hidden;
     line-height: 1.4;
     background: var(--color-surface);
@@ -2225,8 +2276,8 @@ div.treeframebody {
     text-align: start;
     cursor: default;
     font-weight: 600;
-    padding: var(--space-sm) var(--space-md);
-    margin-bottom: var(--space-xs);
+    padding: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-1);
     background: linear-gradient(180deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
     border-radius: var(--radius-md);
     color: var(--color-text-inverse);
@@ -2236,7 +2287,7 @@ div.treeframebody {
 #mx_contextmenu .menuLink {
     display: block;
     cursor: pointer;
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
     color: var(--color-text-primary);
@@ -2244,7 +2295,7 @@ div.treeframebody {
 
 #mx_contextmenu .menuLink:hover {
     cursor: pointer;
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     background: var(--color-gray-100);
     border: none;
     color: var(--color-link);
@@ -2252,7 +2303,7 @@ div.treeframebody {
 
 #mx_contextmenu .menuLinkDisabled {
     cursor: default;
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-2) var(--space-4);
     color: var(--color-text-muted);
     border-radius: var(--radius-md);
 }
@@ -2260,7 +2311,7 @@ div.treeframebody {
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
 #mx_contextmenu .menuLinkDisabled img {
-    margin-inline-end: var(--space-sm);
+    margin-inline-end: var(--space-2);
     vertical-align: middle;
 }
 

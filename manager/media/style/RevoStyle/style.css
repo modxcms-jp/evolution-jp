@@ -1881,3 +1881,22 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     padding: 8px;
     margin-bottom: 8px;
 }
+
+/* RevoStyle は旧デザインを保つ凍結テーマ（assets/docs/theme-spacing.md の対象外）。
+   resources_list.static.php と eventlog.dynamic.php から消した直書きの余白を、凍結のため同じ値で保つ。
+   ここだけは決まりの段ではなく、消した値（10px）をそのまま書く */
+.resources-topic-path {
+    margin-bottom: 10px;
+}
+
+.resources-batch-actions {
+    margin-top: 10px;
+}
+
+.system-log-toolbar {
+    margin-bottom: 10px;
+}
+
+.system-log-summary {
+    margin: 0 0 10px;
+}
