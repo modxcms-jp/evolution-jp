@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 5,
-            "used_runs": 5,
-            "helped_runs": 5,
+            "seen_runs": 8,
+            "used_runs": 8,
+            "helped_runs": 8,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 4
+            "active_runs": 6
         },
         "change-004": {
             "seen_runs": 1,
@@ -53,6 +53,33 @@
             "stale_runs": 0,
             "last_used_at": "2026-10-24T18:50:00+09:00",
             "source": "2026-10-24-backup-manager-consolidation-001"
+        },
+        "change-006": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
+        },
+        "change-007": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
+        },
+        "change-008": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
         }
     }
 }

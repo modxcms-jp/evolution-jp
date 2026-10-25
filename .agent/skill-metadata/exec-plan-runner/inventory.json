@@ -39,6 +39,30 @@
             "added_at": "2026-10-24T18:50:00+09:00",
             "last_used_at": "2026-10-24T18:50:00+09:00",
             "source": "2026-10-24-backup-manager-consolidation-001"
+        },
+        {
+            "id": "change-006",
+            "location": ".claude/skills/adaptive-validation-runner/SKILL.md（4. ブラウザでの確認）",
+            "status": "adopted",
+            "added_at": "2026-10-25T17:45:00+09:00",
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
+        },
+        {
+            "id": "change-007",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（既知の落とし穴）",
+            "status": "adopted",
+            "added_at": "2026-10-25T17:45:00+09:00",
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
+        },
+        {
+            "id": "change-008",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（作業場所）",
+            "status": "adopted",
+            "added_at": "2026-10-25T17:45:00+09:00",
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
         }
     ]
 }
