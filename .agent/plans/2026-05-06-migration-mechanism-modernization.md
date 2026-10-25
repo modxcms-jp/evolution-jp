@@ -76,6 +76,13 @@
 - 2026-10-26 / planner / FCKeditor の判定は、`which_editor` を `FCKeditor` と大文字小文字を区別せずに比べる。FCKeditor のプラグインはこのリポジトリの履歴に無い（`git log --all -- assets/plugins/fckeditor` が空。外部の配布物）ので、登録名をタグから確かめることはできない。v2.1.1 の雛形のファイルがあり、かつ選んでいる値が `FCKeditor` のときだけ戻すので、ほかのエディタを選んでいる利用者には影響しない。
 - 2026-10-26 / planner / 公開側の判定は、リクエストごとに `glob()` 1 回と、記録の表への SELECT 1 回になる。今も `settings_version` の SELECT を 1 回しているので、負担は同じ程度とする。記録の表が無い（ランナー導入前の DB）ときは、エラーで止めず（`db()->query($sql, false)` とエラー番号 1146 の確認）、すべて未適用と見なす。
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
+- 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
+- 2026-10-26 / M1 / マイグレーションのファイルは、変数を持たない `private static function load()` で読み込み、雛形も `static function` にする。ファイルの変数がランナーの変数（記録する ID など）を書き換えたり、関数が `$this` に結び付いたりしないようにするため。
+- 2026-10-26 / M1 / ID の上限は `EvoMigrator::MAX_ID_LENGTH`（100。記録の表の列と同じ値）。超える ID があれば流す前に止める。`make:migration` の説明は 84 文字まで。時刻の無い ID は `00000000_baseline` だけを読む（同じ日の時刻つきの ID との並び順が直感と合わないため）。
+- 2026-10-26 / M1 / `hasPending()` は、記録の表が 1146 以外のエラーで読めないときも例外を投げずに true（待ちあり）を返し、ログは残さない。確かめられないときは止める側に倒す。公開側で毎回呼ぶので、ログを残すと増えすぎるため。
+- 2026-10-26 / M1 / 失敗のログは 1 回だけ。補助は失敗をコンテキストつきの `EvoMigrationException`（`context()`）で投げ、ランナーがそれに ID を足して 1 回だけ記録する。マイグレーション側はログせずに投げるだけにする。例外の文とログに入れる SQL は先頭 200 文字までにし、値を含む SQL（設定の保存、重複の除去）は値を含まない説明だけを出す（SMTP のパスワードなどの設定値や利用者のデータを画面とログに出さないため）。
+- 2026-10-26 / M1 / `removeDuplicates()` は重複の組ごとにトランザクションで DELETE と INSERT を行い、失敗したら ROLLBACK する。MyISAM の表では戻せないことをコードに書いた。キーの比べ方は `<=>`（NULL を含む組でも正しく合う）。
+- 2026-10-26 / M1 / `modifyColumn()` は、MariaDB が既定値を引用符つきで返す差と、MySQL 8.0.19 以降で整数の表示幅を出さない差を吸収して比べる。`addIndex()` は列の並び・一意かどうか・種類（FULLTEXT など）・前置き長を比べ、違えば作り直す。実機での差は M3 で確かめる。
 - 2026-10-26 / planner / マイルストーンは 7 つにし、この ExecPlan で最後まで行う。インストーラ統合と、散らばった版依存の処理を残さないことは範囲に入れる。次の段階（非対象）は Plan of Work の「非対象と次の段階」に書く。
 
 ## Outcomes & Retrospective
@@ -124,7 +131,7 @@
 
 DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`evo()->isFrontend()` のとき、`executeParser()` より前）で行う。M6 で中身が変わるが、呼ぶ位置は変えない。`executeParser()`・`prepareResponse()`・`parseDocumentSource()`・`postProcess()` には影響しない。
 
-キャッシュ: baseline はシステム設定を書き換えるので、ランナーは 1 本でも適用したら最後に `evo()->clearCache()` を呼ぶ。インストーラは最後にもキャッシュを消す（488 行）。
+キャッシュ: ランナーはキャッシュを消さない。消すのは呼び出し側で、CLI の `migrate` は 1 本でも適用したか失敗したときに `evo()->clearCache()` を呼び、インストーラは最後に消す（488 行）。
 
 1.0.0J の新規インストールの定義（`git show release-1.0.0J:install/setup.sql` の 1〜548 行）と今の最終形の差（2026-10-26、MariaDB 11 に読み込んで `INFORMATION_SCHEMA` で比べた結果。今の最終形は `create_tables.sql` に `name` の 191 を足したもの）:
 
@@ -552,15 +559,18 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     public function run(): array          // ['applied' => [...], 'failed' => ID か null, 'error' => 文か null]
     public function markAllApplied(): void // 新規インストールだけで使う
     public function ensureTable(): void
+    public const MAX_ID_LENGTH = 100;     // ID の上限（記録の表の列と同じ）
 
 ロックの名前は `'evo_migrations_' . md5(<DB 名> . <接頭辞>)`（47 文字。`GET_LOCK()` の上限 64 文字に収まる）。待つのは 30 秒。記録の表の定義は `CREATE TABLE IF NOT EXISTS {prefix}migrations (id varchar(100) NOT NULL, applied_at int(20) NOT NULL DEFAULT '0', PRIMARY KEY (id))`（文字セットとエンジンは DB の既定に任せる。ほかの表と同じく utf8mb4 への変換の対象になる）。
 
-`EvoMigrationHelper`（`manager/includes/migration_helper.class.inc.php`。マイグレーションの関数に渡す）: `table($name)`、`exec($sql)`（失敗で例外）、`tableExists`・`columnExists`・`column`（`INFORMATION_SCHEMA` の 1 行）・`indexColumns`・`primaryKey`、`addColumn($table, $column, $definition): bool`（足したら true）、`modifyColumn($table, $column, $definition, $type, $nullable, $default): bool`（違ったときだけ）、`syncPrimaryKey($table, $columns, $dropIndexes = [])`、`addIndex($table, $name, $columns, $kind)`、`dropIndexIfExists`・`dropColumnIfExists`・`dropTableIfExists`、`removeDuplicates($table, $keyColumns, $keepRule): int`、`setting($name)`・`hasSetting($name)`・`saveSetting($name, $value)`・`deleteSetting($name)`、`log($message, array $context = [], $type = 1)`。
+`EvoMigrationHelper`（`manager/includes/migration_helper.class.inc.php`。マイグレーションの関数に渡す）: `table($name)`、`exec($sql, $summary = null)`（失敗で `EvoMigrationException`。`$summary` を渡すと SQL の代わりにそれを出す）、`rows($sql, $summary = null)`（行の配列）、`tableExists`・`columnExists`・`column`（`INFORMATION_SCHEMA` の 1 行）・`index($table, $index)`（`columns`・`unique`・`type`・`prefix`）・`indexExists`・`indexColumns`・`primaryKey`、`addColumn($table, $column, $definition): bool`（足したら true）、`modifyColumn($table, $column, $definition, $type, $nullable, $default): bool`（違ったときだけ）、`syncPrimaryKey($table, $columns, $dropIndexes = [])`、`addIndex($table, $name, $columns, $kind)`、`dropIndexIfExists`・`dropColumnIfExists`・`dropTableIfExists`、`removeDuplicates($table, $keyColumns, $keepRule): int`、`setting($name, $default = null)`・`hasSetting($name)`・`saveSetting($name, $value)`・`deleteSetting($name)`、`log($message, array $context = [], $type = 1)`。
+
+`EvoMigrationException`（同じファイル）: `__construct($message, array $context = [], ?Throwable $previous = null)`、`context(): array`。ランナーは失敗のログのコンテキストにこれを入れる。
 
 依存:
 
 - `db()`（`query($sql, false)`・`getLastErrorNo()`・`getLastError()`・`select`・`update`・`insert`・`delete`・`getValue`・`getRow`・`escape`・`config['table_prefix']`）。値は実行の直前で `db()->escape()` か `(int)`。
-- `evo()->logEvent()`（コンテキスト配列）・`evo()->clearCache()`。
+- `evo()->logEvent()`（コンテキスト配列）。`evo()->clearCache()` はランナーでは呼ばず、呼び出し側（CLI の `migrate`、インストーラ）で呼ぶ。
 - インストーラ: `install/instprocessor.php` がランナーを呼ぶ。`install/sqlParser.class.php`（`create_tables.sql`・`system_eventnames.sql` を流す）は変えない。
 - CLI: `evo`（`manager/includes/cli/bootstrap.php`）。コマンドは `manager/includes/cli/commands/` のファイル名で決まる。
 - 次の計画: #668（`evo system-upgrade`）はこのランナーを呼ぶ。#677（PDO 移行）は補助の `exec()` の中を置き換える。
