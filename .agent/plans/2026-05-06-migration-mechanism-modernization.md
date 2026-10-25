@@ -552,7 +552,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 - 関連 Issue: #932（動作要件への mbstring の明記と、`function_exists('mb_...')` の分岐の整理。この ExecPlan の範囲外）
 
-- ブランチ: `refactor/667-migrations`（ワークツリー `.claude/worktrees/issue-667`）。PR はまだ無い。
+- ブランチ: `refactor/667-migrations`（ワークツリー `.claude/worktrees/issue-667`）。PR: #933（下書き。M1 の時点で作成）。
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/667（2026-10-18 のコメントに Laravel を参考にした検討）
 - 古い版の定義: `git show release-1.0.0J:install/setup.sql`、`git show release-1.0.7J:install/sql/both_createtables.sql`、`git show release-1.0.17J:install/sql/create_tables.sql` など（タグとファイルの対応は M2）。
 - 関連する完了済みの計画: `.agent/plans/archive/2026-10-17-upgrade-data-safety.md`（#654〜#659。ロール ID 1 の扱い、主キーの付け替え、1.2.2J からの通しの確認の手順と落とし穴）。
