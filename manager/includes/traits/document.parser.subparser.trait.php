@@ -766,6 +766,9 @@ trait DocumentParserSubParserTrait
             if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen(MODX_BASE_URL)) == MODX_BASE_URL) {
                 // サイトのURLを付けて、Location: を絶対 URL にする
                 $url = MODX_SITE_URL . substr($url, strlen(MODX_BASE_URL));
+            } elseif ($url !== '' && !preg_match('@^([a-z][a-z0-9+.-]*:|/|[?#])@i', $url)) {
+                // 相対パスはサイトのURL基準にして、Location: を絶対 URL にする
+                $url = MODX_SITE_URL . $url;
             }
             if (strpos($url, "\n") === false) {
                 $header = 'Location: ' . $url;
