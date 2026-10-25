@@ -151,7 +151,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
     }
     .system-log-summary {
         color: #666;
-        margin: 0 0 10px;
     }
     .system-log-summary a {
         margin-left: 8px;
@@ -169,7 +168,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
         gap: 8px;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 10px;
     }
     .system-log-toolbar select[name="file"] {
         min-width: 260px;

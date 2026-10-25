@@ -4,6 +4,8 @@
 
 共通部（`manager/media/style/common/shell.css`、`manager/media/script/evo-dialog.js`、ファイルブラウザ、日付ピッカー）は、テーマの中身を知らない。テーマが `:root` で定義する下の変数だけを頼りに色を決める。変数の名前と意味が、テーマと共通部の約束（契約）になる。
 
+余白の変数（`--space-*`）と、ブロックの縦の間の決まりは [theme-spacing.md](theme-spacing.md) を参照する。
+
 ## 変数の一覧
 
 すべてのテーマが `:root` で定義する。
