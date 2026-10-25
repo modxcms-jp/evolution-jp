@@ -8,7 +8,7 @@
 
 - [x] (2026-10-25) ExecPlan を作った（planner）
 - [x] (2026-10-25) ユーザーの判断を反映した。RevoStyle は対象外として凍結、RubberWhite は `--space-1..8` に名前を揃える、`common/welcome.tpl` の外枠の余白は消す（M3）、`AGENTS.md` のドキュメントマップへの追加は承認済み。M2 の手順 0 の関門は残す
-- [ ] (2026-10-25 計画) M1: 7 テーマ × 主な画面の縦の余白を計測し、余白の決まりの案と文書（`assets/docs/theme-spacing.md`）を作って、下書きの PR に載せる
+- [x] (2026-10-25) M1: 計測と決まりの案・文書（578e7618e）。自己レビューの指摘に対応した（`--space-7` が無いテーマの訂正、関門の相談事項の追加）
 - [ ] (2026-10-25 計画) M2: 決まりの案に本人の確認を得てから（手順 0）、SakuraFlow・AromaHop（丸いタブの 2 テーマ）の `style.css` を決まりに揃える
 - [ ] (2026-10-25 計画) M3: RubberWhite の段の名前を揃え、AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `style.css` と `common/welcome.tpl` を決まりに揃える。7 テーマを通しで確かめる（RevoStyle は前後で変わらないこと）
 
@@ -18,7 +18,7 @@
 
 - RevoStyle の `--space-*` は、ほかのテーマと刻みが違う。`--space-0` から `--space-14` まであり、`--space-1: 2px`、`--space-2: 3px`、`--space-3: 4px`、`--space-4: 5px` … `--space-8: 10px` … `--space-14: 28px` となっている（`manager/media/style/RevoStyle/style.css` の 48〜63 行）。共通の `manager/media/style/common/shell.css` は、`--space-2` を 8px のつもりで読む（49 行の `#mainPane` の padding、148〜156 行の `#actions` の位置、215〜269 行のモーダル）。そのため RevoStyle では、`#mainPane` の内側の余白が 3px になっている。RevoStyle は `--shell-main-padding` を定義していない。RevoStyle は対象外にしたので（Decision Log）、この値はそのまま残る。
 - RubberWhite は数字の段を持たず、名前の段 `--space-xs: 4px`・`--space-sm: 8px`・`--space-md: 16px`・`--space-lg: 20px`・`--space-xl: 24px` を持つ（`manager/media/style/RubberWhite/style.css` の 159〜163 行。39 か所で参照）。shell.css の余白は既定値（8px など）で表示されている。
-- 残りの 5 テーマ（AromaHop・AuroraFlow・RevoClassic・SakuraFlow・SoftSlate）は、`--space-1: 4px` 〜 `--space-8: 32px`（4px 刻み）を持つ。
+- 4px 刻みの段を全部そろえて持つのは、RevoClassic と SoftSlate だけ（`--space-1: 4px` 〜 `--space-8: 32px`）。AromaHop・AuroraFlow・SakuraFlow は、`--space-7`（28px）を定義していない（`grep -cE "^\s*--space-[1-8]\s*:"` が 7 件）。RubberWhite は名前が違う（下の項）。（2026-10-25、M1 の自己レビューで訂正。計画作成時は「5 テーマが 1〜8 を持つ」と誤って書いていた）
 - ダッシュボード（`a=2`）の外枠の余白が、テンプレートの `style` 属性に直書きされている。
   - `manager/media/style/common/welcome.tpl` の 2 行目は `<div style="margin:8px;">`。AuroraFlow・RevoClassic・RubberWhite・SoftSlate が使う
   - `manager/media/style/RevoStyle/welcome.tpl` の 2 行目は `<div style="margin: 20px 12px;">`
@@ -34,6 +34,13 @@
 - 操作ボタン群 `#actions` は、shell.css（146〜153 行）で `position: fixed` になり、右上に浮く。縦に積むブロックの流れには入らない。SoftSlate は、幅 1100px 以下で `#actions` を右下へ移し、`#mainPane` の下に 72px の余白を足している（`manager/media/style/SoftSlate/style.css` の 307〜318 行）。最後の項目がボタン群に隠れないようにするための、意図した値。
 - SakuraFlow には、決まりの無い px の余白が残っている。例: `.tab-page .sectionHeader { margin: 0 0 12px 0 }`（986 行）、`.dynamic-tab-pane-control.tab-pane { padding-bottom: 20px }`（1840 行）、`.actionButtons { margin-bottom: 15px }`（2051 行）、`ul.actionButtons { padding-bottom: 10px }`（2067 行）。AromaHop も同じ作り（1979 行、2190 行付近）。
 - テーマの `style.css` は、`manager/actions/header.inc.php` の 38 行で `media/style/<テーマ>/style.css?<modx_version>` として読み込まれる。
+
+M1 の計測と自己レビューで分かったこと（2026-10-25）。
+
+- `a=40`・`a=107`・`a=108` でタブの上が 6px になる原因は、リセット規則の `p` の margin。リセット規則は `h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address { margin: .5em 0 }` で、7 テーマすべての `style.css` にある（SakuraFlow は 292 行、AromaHop は 307 行）。ブロックの間を決めるとき、この規則をどう扱うかを M2 の手順 0 で相談する。
+- `a=120`（サブリソース一覧）の 10px は、`manager/actions/document/resources_list.static.php` の `style` 属性で直書きされている。パンくずは 552 行の `<div style="margin-bottom:10px;">`、「チェックしたものを移動」のボタンは 147 行の `<div style="margin-top:10px;">`。このファイルは、計画で決めた書き換えの範囲（6 テーマの `style.css` と `common/welcome.tpl`）の外にある。
+- RubberWhite と SoftSlate は、ページの中の操作ボタン列の下が 22px ある。
+- M1 の文書のコミットは 578e7618e（`docs(theme): 管理画面テーマの縦の余白の決まりを追加する`）。
 
 ## Decision Log
 
@@ -97,7 +104,7 @@
 - シェル: 管理画面の外枠。上のメニュー `#topMenu`、左のツリー `#treePane`、右の作業領域 `#mainPane` から成る。各画面の中身は `#mainPane` に差し込まれる。見た目の土台は `manager/media/style/common/shell.css`
 - ブロック: `#mainPane` の中で縦に積まれる塊。ページの見出し（`h1`）、セクション（`.section`。見出しは `.sectionHeader`、本体は `.sectionBody`）、ページの中の操作ボタン列（`ul.actionButtons`）、一覧の表、タブの組（`.tab-pane`。中にタブの列 `.tab-row` とパネル `.tab-page`）など
 - タブとパネル: `manager/media/script/tabpane.js`（`WebFXTabPane`）が、`.tab-pane` の中に `.dynamic-tab-pane-control`・`.tab-row`・`.tab-page` を作る。丸いタブ（SakuraFlow・AromaHop）は、タブとパネルが離れて見える。フォルダ型（RevoClassic・RubberWhite。対象外の RevoStyle も同じ作り）は、タブの下端とパネルの上端の枠を負の `top` で重ねてつなげる
-- `--space-N`: テーマが `:root` で定義する、余白の段の変数。この作業で、RevoStyle を除く全テーマが `--space-1: 4px` 〜 `--space-8: 32px`（4px 刻み）を持つようにする（今は RubberWhite が名前の段。Surprises & Discoveries を参照）
+- `--space-N`: テーマが `:root` で定義する、余白の段の変数。この作業で、RevoStyle を除く全テーマが `--space-1: 4px` 〜 `--space-8: 32px`（4px 刻み）を持つようにする（今は RubberWhite が名前の段で、AromaHop・AuroraFlow・SakuraFlow は `--space-7` が無い。Surprises & Discoveries を参照）
 - 縦の間: 縦に並んだ 2 つのブロックのうち、上のブロックの下端（枠を含む）から、下のブロックの上端（枠を含む）までの距離。入れ物とその最初の子の間は、入れ物の上の枠の内側から子の上端までの距離（入れ物の上の内側の余白と、子の上の margin の和）
 
 関係するファイル（パスはリポジトリのルートから）:
@@ -271,21 +278,28 @@ M3 では、次の順に進める。
    - 現状の縦の間の表（テーマ × 主な間の種類）。全画面の表は長いので、ばらつきの大きい組を中心にする
    - 決まりの案と、テーマごとに直す箇所の見込み
    - SakuraFlow のサブリソース一覧の、修正前のスクリーンショットの所見
-   - 相談したいこと: `a=40`・`a=107`・`a=108` の 6px の原因と、決まりに含めるか例外にするかの案
+   - 相談したいこと: M2 の手順 0 の相談事項 1〜4
    - M1 はここで完了にしてよい。確認の関門は M2 の手順 0 に置く。
 
 ### M2: SakuraFlow・AromaHop
 
 0. 決まりの案について、本人の確認を得てから行う（M2 以降のすべての手順の前提）。
    - Decision Log に「M1 の確認」の行（本人が決まりの案を了承した日付と、相談への答え）があれば、確認は済んでいる。手順 1 へ進む。
-   - 無ければ、runner はここで止まる。M1 の手順 7 の内容（PR の番号と、相談したいこと）を、「止まった理由: ExecPlan に『本人の確認を得てから行う』と書かれた手順に来た」として返す。
+   - 無ければ、runner はここで止まる。M1 の手順 7 の内容（PR の番号と、下の相談事項）を、「止まった理由: ExecPlan に『本人の確認を得てから行う』と書かれた手順に来た」として返す。
+   - 相談事項（M1 の計測と自己レビューから）:
+     1. ブロックとブロックの間を `--space-3`（12px）にするか、`--space-2`（8px）にするか
+     2. `a=40`・`a=107`・`a=108` でタブの上が 6px になる件。原因はリセット規則の `p` の margin（Surprises）。決まりに含めるか、例外にするか
+     3. リセット規則 `h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address { margin: .5em 0 }`（7 テーマすべてにある）をどう扱うか
+        - A: 対象外にし、決まりはブロックの要素（`.section`・`.sectionBody`・`.tab-pane`・操作ボタン列など）にだけ当てる
+        - B: `margin-bottom` だけにし、入れ物の中の `:first-child` の上と `:last-child` の下を 0 にする
+     4. SakuraFlow・AromaHop の `.section` で、文字だけの見出し（`.sectionHeader`）から本体（`.sectionBody`）までを、0 にするか `--space-3` にするか
    - 確認を得たら、メインが次を行う。
      - Decision Log に「M1 の確認」の行を書く
-     - 文書を答えに合わせて直す。コミットは `docs(theme): 余白の決まりを確認の結果に合わせて直す`（直すものが無ければ不要）
+     - 文書を答えに合わせて直す。`assets/docs/theme-spacing.md` の冒頭にある「状態: 案」の行は、ここで消す。コミットは `docs(theme): 余白の決まりを確認の結果に合わせて直す`
      - `<work>/spacing/rule.json` も同じ値に直す
    - SakuraFlow・AromaHop の自前の `welcome.tpl` が、外枠の余白を持たないことも確かめる。
 1. SakuraFlow を決まりに揃える。
-   - 編集: `manager/media/style/SakuraFlow/style.css`。M1 の (c) に挙がった箇所を、決まりの段の `margin-bottom`（入れ物の内側は `padding-block`）に書き換える。
+   - 編集: `manager/media/style/SakuraFlow/style.css`。`:root` の `--space-6` の次に `--space-7: 28px;` を足す（段の約束をそろえる）。M1 の (c) に挙がった箇所を、決まりの段の `margin-bottom`（入れ物の内側は `padding-block`）に書き換える。
    - 直す見込みの箇所:
      - `h1` の `margin`
      - `.tab-page .sectionHeader` の `12px`
@@ -297,7 +311,7 @@ M3 では、次の順に進める。
    - 横の余白は変えない。`margin: 0 0 X` のような一括の書き方を変えるときは、左右の値を保つ。
    - コミット: `fix(theme): SakuraFlow の縦の余白を決まりに揃える`
 2. AromaHop を決まりに揃える。
-   - 編集: `manager/media/style/AromaHop/style.css`。方針は手順 1 と同じ。`.dynamic-tab-pane-control .tab-page` の `top: 12px`（1967 行）を消し、タブとパネルの間を決まりの段（`--space-2` の見込み）にする。
+   - 編集: `manager/media/style/AromaHop/style.css`。方針は手順 1 と同じで、`:root` に `--space-7: 28px;` を足す。`.dynamic-tab-pane-control .tab-page` の `top: 12px`（1967 行）を消し、タブとパネルの間を決まりの段（`--space-2` の見込み）にする。
    - コミット: `fix(theme): AromaHop の縦の余白を決まりに揃える`
 3. 確かめる。
    - 実行:
@@ -308,6 +322,7 @@ M3 では、次の順に進める。
      - (c) が 0 件（2 テーマ × 15 画面の縦の間が、文書の例外を除いて決まりどおり）
      - (b) が 0 件（色・枠・角・影・文字・横の余白が、前後で同じ）
      - `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" <wt>/manager/media/style/SakuraFlow/style.css <wt>/manager/media/style/AromaHop/style.css | grep -E "^\S+-\s+top:"` が何も出さない
+     - `grep -cE "^\s*--space-[1-8]\s*:" <wt>/manager/media/style/SakuraFlow/style.css <wt>/manager/media/style/AromaHop/style.css` が、どちらも 8 を出す
      - SakuraFlow のサブリソース一覧で、見出しの枠・操作ボタン列・表の間が同じ値になる（`m2-base` と `m2-work` の PNG を並べて見る）
    - M2 で分かった例外があれば、文書に足す。コミットは `docs(theme): 余白の決まりに丸いタブの例外を足す` など（足すものが無ければ不要）。
 
@@ -324,7 +339,7 @@ M3 では、次の順に進める。
      - `grep -nE "\-\-space-(xs|sm|md|lg|xl)\b" <wt>/manager/media/style/RubberWhite/style.css` が何も出さない
    - コミット: `refactor(theme): RubberWhite の余白の変数を共通の段の名前にする`
 2. 4 テーマを決まりに揃える。
-   - 編集: `manager/media/style/{AuroraFlow,RevoClassic,RubberWhite,SoftSlate}/style.css`。方針は M2 の手順 1 と同じ。
+   - 編集: `manager/media/style/{AuroraFlow,RevoClassic,RubberWhite,SoftSlate}/style.css`。方針は M2 の手順 1 と同じ。AuroraFlow は `:root` に `--space-7: 28px;` を足す（RevoClassic・SoftSlate は既に持ち、RubberWhite は手順 1 で足す）。
    - 残すもの:
      - フォルダ型のタブの負の `top`（RevoClassic・RubberWhite）
      - RevoClassic の、見出しの帯と本体の間 0
@@ -347,6 +362,7 @@ M3 では、次の順に進める。
      - (b) で違いが出るのは、AuroraFlow・RevoClassic・RubberWhite・SoftSlate のダッシュボードの外枠の `margin-left/right`（8px から 0）だけ
      - RevoStyle は、15 画面すべてで縦の間・(b)・PNG が前後で同じ
      - `git -C <wt> diff --stat <base> -- manager/media/style/RevoStyle` が何も出さない
+     - `grep -cE "^\s*--space-[1-8]\s*:" <wt>/manager/media/style/{AromaHop,AuroraFlow,RevoClassic,RubberWhite,SakuraFlow,SoftSlate}/style.css` が、どのファイルも 8 を出す
      - `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" <wt>/manager/media/style/*/style.css | grep -E "^\S+-\s+top:"` が、RevoClassic・RevoStyle・RubberWhite の負の値だけを出す
    - 文書の決まりの表と例外を、実際の値に合わせて仕上げる。必要なときだけ行い、コミットは `docs(theme): 余白の決まりを 6 テーマの結果に合わせて仕上げる`。
 5. 後片付け。
@@ -372,6 +388,7 @@ M3 では、次の順に進める。
    - `.dynamic-tab-pane-control .tab-page` の `top` は、RevoClassic・RubberWhite の負の値（タブとパネルの枠をつなげる重ね）だけ
    - ブロックの縦の間を作る宣言は `--space-N` で書かれていて、例外を除き、px の直書きが無い
    - RubberWhite に `--space-xs/sm/md/lg/xl` が残っていない
+   - 6 テーマすべてが `--space-1` 〜 `--space-8` をそろえて持つ。`grep -cE "^\s*--space-[1-8]\s*:" <wt>/manager/media/style/{AromaHop,AuroraFlow,RevoClassic,RubberWhite,SakuraFlow,SoftSlate}/style.css` が、どのファイルも 8 を出す（main では AromaHop・AuroraFlow・SakuraFlow が 7、RubberWhite が 0）
 4. 縦の余白以外の計算済みの値（色・枠・角の丸み・影・文字・横の余白など）が、修正前と同じ。違うのは、`common/welcome.tpl` の外枠の `margin-left/right`（4 テーマのダッシュボード）だけ。
 5. RevoStyle は、ファイルの差分が無く、15 画面の計測とスクリーンショットが前後で同じ。
 6. 修正前と修正後のスクリーンショットを並べて見て、縦の余白以外の見た目が変わっていない（目視。本人の確認に使う）。
