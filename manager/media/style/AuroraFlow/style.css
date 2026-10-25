@@ -122,6 +122,7 @@
     --space-4: 16px;
     --space-5: 20px;
     --space-6: 24px;
+    --space-7: 28px;
     --space-8: 32px;
 
     /* Border Radius */
@@ -174,7 +175,7 @@ img, a img {
 }
 
 h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: .5em 0;
+    margin: 0 0 .5em;
     padding: 0;
     font-weight: normal;
 }
@@ -285,7 +286,7 @@ h1 {
     line-height: 1.2;
     padding: var(--space-2) var(--space-1);
     border-radius: var(--radius-md);
-    margin: var(--space-2) var(--space-2) var(--space-3);
+    margin: 0 var(--space-2) var(--space-3);
 }
 
 /* 下書きは帯の色で見分けるため、背景を残す */
@@ -805,12 +806,12 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: 2px 3px 0;
+    margin: 0 3px;
 }
 
 .sectionBody {
     position: relative;
-    margin: var(--space-2);
+    margin: 0 var(--space-2) var(--space-3);
     display: block;
 }
 
@@ -820,7 +821,7 @@ form .imeoff {
     background: var(--color-section-bg);
     border: 1px solid var(--color-card-border);
     border-radius: var(--radius-lg);
-    margin: 0 3px 15px;
+    margin: 0 3px var(--space-3);
     padding: var(--space-4);
 }
 
@@ -830,8 +831,13 @@ form .imeoff {
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
+/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
+.section {
+    margin-bottom: var(--space-3);
+}
+
 .section .sectionBody {
-    margin: 0 var(--space-2) var(--space-2);
+    margin: 0 var(--space-2);
     background-color: var(--color-surface);
 }
 
@@ -1461,6 +1467,7 @@ a.hometblink:hover {
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
+    margin-bottom: var(--space-3);
 }
 
 /* タブ。箱と枠をやめたフラットな見出しにし、選択中は青い下線で示す。
@@ -1666,11 +1673,17 @@ table.sortabletable {
 }
 
 #pagination {
-    margin: 10px 0;
+    margin-top: 0;
+    margin-bottom: var(--space-3);
+}
+
+/* 入れ物の最後の子のときは、#pagination の詳細度が last-child の規則に勝つので、ここで 0 にする */
+#pagination:last-child {
+    margin-bottom: 0;
 }
 
 #pagination ul {
-    margin: 10px 0;
+    margin: 0;
     display: inline;
 }
 
@@ -1747,7 +1760,7 @@ select#stay {
 }
 
 .actionButtons {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons:after {
@@ -1757,17 +1770,51 @@ select#stay {
 }
 
 ul.actionButtons {
-    margin: 0;
+    margin: 0 0 var(--space-3);
     padding: 0;
     /* accommodate border on buttons - */
     background: none;
     width: auto;
     white-space: nowrap;
-    padding-bottom: 10px;
 }
 
+/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
 #actions .actionButtons {
+    margin-bottom: 0;
     padding-bottom: 0;
+}
+
+/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
+   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
+   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
+   これより詳細度が高いもの（#pagination など）と、この規則より後ろにあるものは 0 にならないので、それぞれ別に 0 にする。
+   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
+#mainPane > :last-child,
+:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
+    margin-bottom: 0;
+}
+
+/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
+.tab-page > :has(+ .sectionHeader) {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
+.resources-topic-path {
+    margin-bottom: var(--space-3);
+}
+
+/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
+.system-log-toolbar,
+.system-log-summary {
+    margin-bottom: var(--space-3);
+}
+
+/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
+   表 → 下のページ送りの間も、同じ規則（form > :has(+ #pagination)）で作る。:has 非対応のブラウザでは捨てられる */
+form > :has(+ .resources-batch-actions),
+form > :has(+ #pagination) {
+    margin-bottom: var(--space-3);
 }
 
 .actionButtons li {
