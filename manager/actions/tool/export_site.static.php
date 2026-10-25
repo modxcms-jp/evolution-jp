@@ -839,7 +839,7 @@ foreach ($exportJsKeys as $key) {
             while (running && alive()) {
                 // 応答を待つあいだは縞を動かす
                 setWorking(true);
-                const res = await call(cancelling ? 'cancel' : 'step');
+                const res = await call(cancelling ? 'cancel' : 'step', cancelling ? {} : {job_id: jobId});
                 setWorking(false);
                 if (!running || !alive()) {
                     return;

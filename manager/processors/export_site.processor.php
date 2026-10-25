@@ -61,7 +61,7 @@ switch (postv('op')) {
         break;
     case 'step':
         session_write_close();
-        $result = $job->step(EvoSiteExportJob::screenBudget());
+        $result = $job->step(EvoSiteExportJob::screenBudget(), '', (string)postv('job_id', ''));
         break;
     case 'status':
         session_write_close();

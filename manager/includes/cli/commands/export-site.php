@@ -111,7 +111,7 @@ $budget = EvoSiteExportJob::defaultBudget();
 // 持ち時間つきで繰り返す（ベアラートークンを step ごとに発行し直し、1 つを長く使わないため）
 while (true) {
     // 取得先（--site-url）は状態に保存されないので、そのつど渡す
-    $result = $job->step($budget, $siteUrl);
+    $result = $job->step($budget, $siteUrl, $jobId);
     if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
         // 画面のタブなど、ほかが処理中。間をおいて送り直す
         sleep(1);

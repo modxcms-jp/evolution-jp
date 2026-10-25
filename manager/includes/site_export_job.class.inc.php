@@ -189,9 +189,11 @@ class EvoSiteExportJob
      * @param float|null $budgetSeconds 持ち時間（秒）。null か 0 以下なら終わるまで続ける（CLI 用）
      * @param string $siteUrl ページを取得する先のサイトの URL。空なら設定のサイトの URL。
      *                        状態には保存しない（実行する側が、そのつど渡す）
+     * @param string $jobId 呼び出し元が進めているジョブの id。空でなければ、ロックを取って状態を読んだ直後（トークンの発行や書き出しより前）に
+     *                      状態の job_id と照合し、違えば何も処理せず今の状態の応答（今の job_id を含む）を返す。空なら照合しない
      * @return array 応答（state: running | done | cancelled | error | busy | none）
      */
-    public function step($budgetSeconds = null, $siteUrl = '')
+    public function step($budgetSeconds = null, $siteUrl = '', $jobId = '')
     {
         // start() が順番を待っているときは、何も処理せずに譲る
         if ($this->hasTakeoverMark()) {
@@ -205,6 +207,10 @@ class EvoSiteExportJob
             $state = $this->readState();
             if (!$state) {
                 return ['state' => self::STATE_NONE];
+            }
+            // 呼び出し元が進めているのとは別のジョブに替わっていたら、何も処理せず今の状態を返す（呼び出し元が job_id の違いで気づく）
+            if ((string)$jobId !== '' && (string)$jobId !== (string)$state['job_id']) {
+                return $this->toResponse($state);
             }
             if ($state['state'] !== self::STATE_RUNNING) {
                 return $this->toResponse($state);
