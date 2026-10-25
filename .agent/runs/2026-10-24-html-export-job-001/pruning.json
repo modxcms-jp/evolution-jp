@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-html-export-job",
+    "run_id": "2026-10-24-html-export-job-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-25T17:40:27+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}

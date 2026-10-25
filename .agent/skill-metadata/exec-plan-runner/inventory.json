@@ -2,27 +2,27 @@
     "items": [
         {
             "id": "change-001",
-            "location": "SKILL.md（「PR に付くほかのレビュー」の段落と、手順 9 の CI 待ち）",
+            "location": ".claude/skills/adaptive-validation-runner/SKILL.md（4. ブラウザでの確認）",
             "status": "adopted",
             "added_at": "2026-10-16T11:30:00+09:00",
-            "last_used_at": "2026-10-16T11:30:00+09:00",
-            "source": "2026-10-16-orchestration-runner-001"
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
         },
         {
             "id": "change-002",
-            "location": "SKILL.md（不変条件 2 か、1 件ごとの繰り返しの手順 1「事前確認」）",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（既知の落とし穴）",
             "status": "adopted",
             "added_at": "2026-10-16T11:30:00+09:00",
-            "last_used_at": "2026-10-16T11:30:00+09:00",
-            "source": "2026-10-16-orchestration-runner-001"
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
         },
         {
             "id": "change-003",
-            "location": "SKILL.md（/finish-task の手順 6）",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（作業場所）",
             "status": "adopted",
             "added_at": "2026-10-16T11:30:00+09:00",
-            "last_used_at": "2026-10-16T11:30:00+09:00",
-            "source": "2026-10-16-orchestration-runner-001"
+            "last_used_at": "2026-10-25T17:45:00+09:00",
+            "source": "2026-10-24-html-export-job-001"
         },
         {
             "id": "change-004",

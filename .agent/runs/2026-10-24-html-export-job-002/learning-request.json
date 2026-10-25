@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-24-html-export-job",
+    "run_id": "2026-10-24-html-export-job-002",
+    "skill": "exec-plan-runner",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-10-25T17:41:52+09:00",
+    "status": "pending",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}
