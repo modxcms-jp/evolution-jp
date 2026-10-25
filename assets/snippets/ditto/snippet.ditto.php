@@ -339,7 +339,10 @@ if (isset($limit)) {
     $queryLimit = $limit;
 }
 if (isset($sortBy) || isset($sortDir) || $orderBy['unparsed'] === null) {
-    $sortDir = isset($sortDir) ? strtoupper($sortDir) : 'DESC';
+    $sortDir = isset($sortDir) ? strtoupper(trim($sortDir)) : 'DESC';
+    if ($sortDir !== 'ASC') {
+        $sortDir = 'DESC';
+    }
     $sortBy = isset($sortBy) ? $sortBy : "createdon";
     $orderBy['parsed'][] = [$sortBy, $sortDir];
 }
