@@ -10,7 +10,7 @@
 - [x] (2026-10-25) ユーザーの判断を反映した。RevoStyle は対象外として凍結、RubberWhite は `--space-1..8` に名前を揃える、`common/welcome.tpl` の外枠の余白は消す（M3）、`AGENTS.md` のドキュメントマップへの追加は承認済み。M2 の手順 0 の関門は残す
 - [x] (2026-10-25) M1: 計測と決まりの案・文書（578e7618e）。自己レビューの指摘に対応した（`--space-7` が無いテーマの訂正、関門の相談事項の追加）
 - [x] (2026-10-25) M2 の手順 0: 本人の確認が済んだ（Decision Log の「M1 の確認」）。ブロックの間は `--space-3`、リセット規則は案 B、文字だけの見出しと本体は 0、`resources_list.static.php` の `style` 属性は消す
-- [ ] (2026-10-25) M2: SakuraFlow・AromaHop の `style.css` を決まりに揃え、サブリソース一覧（`resources_list.static.php`）とシステムログ（`eventlog.dynamic.php`）の直書きの余白を消す
+- [x] (2026-10-25) M2: 完了（35f01c77d まで。tester の確かめ直しは合格、見直しの低い指摘も対応、PR #922 に push）。ほかの画面の直書きは #924 に分けた（ユーザー判断）。SakuraFlow・AromaHop の `style.css` を決まりに揃え、サブリソース一覧（`resources_list.static.php`）とシステムログ（`eventlog.dynamic.php`）の直書きの余白を消す
   - [x] 実装: 712d74f31（SakuraFlow）・5cb88340f（AromaHop）・c86c3fbb2（`resources_list.static.php`）
   - [x] 自己レビューと検証の指摘への対応: 05cb9c166（`.section` の間・ページ送り・タブ内の見出し前の間）・984c34fea（入れ物の集合と最後の子の規則の限界を文書に書く）
   - [x] ブロックの間 12px の確定（12px 版と 8px 版を 5 画面で見比べてもらった。Decision Log）
