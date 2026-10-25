@@ -15,7 +15,7 @@
 
 ## Progress
 
-- [ ] (2026-10-26) M1: ランナー（`EvoMigrator`）・補助（`EvoMigrationHelper`）・CLI（`migrate`・`migrate:status`・`make:migration`）を作る
+- [x] (2026-10-26) M1: ランナー（`EvoMigrator`）・補助（`EvoMigrationHelper`）・CLI（`migrate`・`migrate:status`・`make:migration`）を作る（自己レビュー 3 回、tester の確認 4 回。Docker の php:8.4 / mariadb:11 で計画の期待をすべて満たした）
 - [ ] (2026-10-26) M2: 古い版の DB を作る道具とスキーマの比べ方を、検証スキルに足す
 - [ ] (2026-10-26) M3: baseline のスキーマの部を作り、`create_tables.sql` に `fix_settings.php` のスキーマの直しを移す
 - [ ] (2026-10-26) M4: baseline のデータの部を作り、`default.config.php` の版の分岐を撤去する
@@ -36,6 +36,10 @@
 - 2026-10-26 / MariaDB 11 で、前置き長の付いた索引（1.0.0J の `aliasidx (alias(250))`）がある列を `varchar(245)` に縮めると、索引は列全体の索引に自動で直った。MySQL 5.7 での動きは未確認（MySQL 公式イメージは Docker Engine 29 系で取得できない。`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。
 - 2026-10-26 / インストーラを通さずにファイルだけ差し替えたサイトは、設定画面（`a=17`）で `upgrades.php` が動くが、`create_tables.sql`（1.0.14J・1.0.20J で増えた `site_revision`・`system_cache`）、`fix_settings.php`、utf8mb4 への変換、同梱の要素の入れ直しは行われない。インストーラを通したサイトと結果が違う 2 つ目の経路になっていた。
 - 2026-10-26 / インストーラは同梱プラグインのイベントの紐付け（`install/processors/prc_insPlugins.inc.php` 106 行）と同梱 TV のテンプレートの割り当て（`install/processors/prc_insTVs.inc.php` 61 行）を消して入れ直す。利用者が付け替えた分は戻る（推測）。版依存の処理ではなく要素の入れ直しの作りなので、この計画の非対象とし、`assets/docs/core-issues.md` に記録した。
+- 2026-10-26（M1） / `evo()->clearCache()` は `system_cache` を TRUNCATE するので、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わる（未ログインの CLI では `Error` とだけ出て終了コード 0）。ランナーの中でキャッシュを消すと、アップデーターでは `create_tables.sql` より前に止まる。
+- 2026-10-26（M1） / マイグレーションのファイルをメソッドの中で `require` すると、ファイルの変数（`$id` など）がランナーの変数を書き換え、返した関数が `$this` に結び付く（php:7.4 で確かめた）。
+- 2026-10-26（M1） / 1.0.20J〜1.2.3J の DB には `system_cache` があるので、表の有無で「古い DB か」を判定すると、CLI だけで baseline まで流れてしまう。baseline の記録の有無で判定する。
+- 2026-10-26（M1） / MariaDB 11 で、補助の `modifyColumn()`（INT の既定値 `'0'`・VARCHAR の既定値 `''`）・`addIndex()`（UNIQUE・通常・FULLTEXT・非 UNIQUE からの作り直し）・`removeDuplicates()`（NULL を含む組を含む）は、2 回目に何もしない（`SHOW CREATE TABLE` が同じ）ことを確かめた。MySQL と古い MariaDB での差は M3 で確かめる。
 
 ## Decision Log
 
@@ -77,7 +81,8 @@
 - 2026-10-26 / planner / 公開側の判定は、リクエストごとに `glob()` 1 回と、記録の表への SELECT 1 回になる。今も `settings_version` の SELECT を 1 回しているので、負担は同じ程度とする。記録の表が無い（ランナー導入前の DB）ときは、エラーで止めず（`db()->query($sql, false)` とエラー番号 1146 の確認）、すべて未適用と見なす。
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
-- 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。mbstring が無い環境では、ログに入れる SQL を `substr()` で切る。
+- 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。
+- 2026-10-26 / 本人の決定 / 日本語版は mbstring があることを前提にする。ログに入れる SQL は `mb_strimwidth()` で切り、mbstring の有無で分けない。動作要件への明記と、本体に残る `function_exists('mb_...')` の分岐の整理は #932 で行う（この ExecPlan の範囲外）。
 - 2026-10-26 / M1 / マイグレーションのファイルは、変数を持たない `private static function load()` で読み込み、雛形も `static function` にする。ファイルの変数がランナーの変数（記録する ID など）を書き換えたり、関数が `$this` に結び付いたりしないようにするため。
 - 2026-10-26 / M1 / ID の上限は `EvoMigrator::MAX_ID_LENGTH`（100。記録の表の列と同じ値）。超える ID があれば流す前に止める。`make:migration` の説明は 84 文字まで。時刻の無い ID は `00000000_baseline` だけを読む（同じ日の時刻つきの ID との並び順が直感と合わないため）。
 - 2026-10-26 / M1 / `hasPending()` は、記録の表が 1146 以外のエラーで読めないときも例外を投げずに true（待ちあり）を返し、ログは残さない。確かめられないときは止める側に倒す。公開側で毎回呼ぶので、ログを残すと増えすぎるため。
@@ -376,7 +381,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 続けて、Plan of Work の「baseline のスキーマの部」の 1〜7 を書き、`create_tables.sql` の 3 つの `name` を 191 にする。
 
-確かめ方（アップデーターの順を手で再現する。`load` のあと `upgrade-fixture.js migrate`、`create-tables`。CLI の `php evo migrate` は baseline が未適用の DB では止まるので使わない）:
+確かめ方（アップデーターの順を手で再現する。`load` のあと `upgrade-fixture.js migrate`、`create-tables`。CLI の `php evo migrate` は baseline が未適用の DB では止まるので、止まることの確認にだけ使う）:
 
     ...upgrade-fixture.js load <work>/fixture-1.0.0J.sql
     docker exec -w /var/www/html evo-validate-667-app php evo migrate
@@ -420,7 +425,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 ファイル: tester が `manager/media/style/RubberWhite/welcome.php`（空のファイル）と、2012 年の脆弱な版の `action.php`（`git show 6aca49d69:action.php`）をサイトの直下に置いて流すと、どちらも消え、ログに残る。中身の違う `action.php`（`<?php echo 1;`）は消えない。置いたファイルは最後に消す。
 
-2 回目: 記録を消して流し直すと、`system_settings`・`user_roles`・`site_plugins` を `db:export --tables=...` で書き出した内容が流す前と同じ。
+2 回目: 記録を消して `upgrade-fixture.js migrate` で流し直すと、`system_settings`・`user_roles`・`site_plugins` を `db:export --tables=...` で書き出した内容が流す前と同じ。
 
 推奨コミット: `feat(migration): baseline に設定とデータの移行を入れる`
 
@@ -537,13 +542,15 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 ## Idempotence and Recovery
 
-- マイグレーションは 1 本ずつ記録するので、途中で止まったら、次のアップデーター（または `php evo migrate`）はそのマイグレーションから流し直す。DDL は途中で戻らないので、baseline の各手順は存在確認か最終形との比較をしてから実行し、途中まで済んだ状態から流しても最後まで進む。
+- マイグレーションは 1 本ずつ記録するので、途中で止まったら、次のアップデーター（baseline の途中で止まったときはアップデーターだけ。baseline が記録済みのサイトで足したマイグレーションなら `php evo migrate` でもよい）はそのマイグレーションから流し直す。DDL は途中で戻らないので、baseline の各手順は存在確認か最終形との比較をしてから実行し、途中まで済んだ状態から流しても最後まで進む。
 - baseline が長さの確認で止まったときは、DB は何も変わっていない。値を短くしてからやり直す。
 - 同時に 2 回走らないよう、ランナーはロックを取る。取れなければ何もせずに失敗する。
 - 検証環境は `setup-site.js --reinstall` で今の版の新規インストールに戻せる。フィクスチャは `upgrade-fixture.js build` で何度でも作り直せる。
 - 作業中のマイルストーンを中断したときは、この ExecPlan の Progress と、ブランチの最後のコミットから再開する。
 
 ## Artifacts and Notes
+
+- 関連 Issue: #932（動作要件への mbstring の明記と、`function_exists('mb_...')` の分岐の整理。この ExecPlan の範囲外）
 
 - ブランチ: `refactor/667-migrations`（ワークツリー `.claude/worktrees/issue-667`）。PR はまだ無い。
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/667（2026-10-18 のコメントに Laravel を参考にした検討）
