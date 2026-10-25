@@ -293,3 +293,19 @@
 - 依存関係: なし（既存 `index.php?a=` ルーティングのまま実施。API Router統合は将来の別タスク）
 - ExecPlan: `.agent/plans/archive/2026-07-07-manager-frameset-removal.md`
 - メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。2026-08-15: ExecPlan本体のM6（保存フロー・履歴・未保存警告・RTL）のブラウザ最終確認を完了し、StatusをDONEへ更新。ExecPlanは完了処理に従いarchiveへ移動。
+
+### jQuery廃止
+
+- Status: `DONE`
+- Issue: #679
+- 着手予定日: `2026-10-18`
+- 完了日: `2026-10-25`
+- 目的: フロント実装をVanilla JSへ統一し、依存削減と可読性向上を図る
+- 背景/課題: jQuery依存はモダン実装との混在コストが高い
+- 到達条件（Definition of Done）:
+  - Vanilla JS (ES6+) への段階移行を進める
+  - `querySelector` / `fetch` ベースへ置換する
+- 非対象（やらないこと）: UIコンポーネント刷新
+- 依存関係: なし（frame要素廃止は完了済み）
+- ExecPlan: `不要`（子 Issue ごとに進めた）
+- メモ/判断ログ: 移行時は既存挙動の互換維持を優先。2026-10-15: タイトルの「高優先」を外し、並び順で表す。2026-10-25: 子 Issue（#784〜#787・#813〜#821・#823・#858・#914）がすべて閉じ、管理画面の jQuery の呼び出しと本体の同梱・読み込みがなくなったので完了。外部アドオン向けの互換の方針は `assets/docs/jquery-migration.md`。
