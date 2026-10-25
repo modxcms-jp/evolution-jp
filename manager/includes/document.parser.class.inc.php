@@ -915,17 +915,12 @@ class DocumentParser
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
                 }
                 if ($this->ensureDir($path)) {
-                    $this->saveToFile(
-                        MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
-                        $cacheContent
-                    );
+                    $cacheFile = MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename);
+                    if (!$this->saveToFile($cacheFile, $cacheContent)) {
+                        $this->logEvent(0, 3, 'Failed to save page cache', 'Page cache', ['path' => $cacheFile]);
+                    }
                 } else {
-                    $this->logEvent(
-                        0,
-                        3,
-                        sprintf('Failed to create cache directory: %s', $this->htmlspecialchars($path)),
-                        'Page cache'
-                    );
+                    $this->logEvent(0, 3, 'Failed to create cache directory', 'Page cache', ['path' => $path]);
                 }
             }
             // Useful for example to external page counters/stats packages
