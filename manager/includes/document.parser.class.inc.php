@@ -910,20 +910,18 @@ class DocumentParser
                         break;
                 }
 
-                if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                    mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
-                }
-
+                $path = MODX_CACHE_PATH . $this->uaType;
                 if ($this->config['cache_type'] == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                    if (!is_dir($path)) {
-                        mkdir($path, 0777, true);
-                    }
                 }
-                $this->saveToFile(
-                    MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
-                    $cacheContent
-                );
+                if ($this->ensureDir($path)) {
+                    $cacheFile = MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename);
+                    if (!$this->saveToFile($cacheFile, $cacheContent)) {
+                        $this->logEvent(0, 3, 'Failed to save page cache', 'Page cache', ['path' => $cacheFile]);
+                    }
+                } else {
+                    $this->logEvent(0, 3, 'Failed to create cache directory', 'Page cache', ['path' => $path]);
+                }
             }
             // Useful for example to external page counters/stats packages
             $this->invokeEvent('OnWebPageComplete');
@@ -5821,6 +5819,19 @@ class DocumentParser
     }
 
     /*
+     * ディレクトリを作る(既にあれば何もしない)
+     *
+     * 同時に別のリクエストが同じディレクトリを作っても警告を出さない。
+     *
+     * @param $dir 作るディレクトリ
+     * @return bool 使える状態なら true
+     */
+    protected function ensureDir($dir)
+    {
+        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
+    }
+
+    /*
      * ファイル作成
      *
      * 一時ファイルを作成後、リネームしてファイルを作成する。
@@ -5843,8 +5854,11 @@ class DocumentParser
             chmod($tmp, 0666);
         }
 
-        if (@file_put_contents($tmp, $data, LOCK_EX)) {
-            return rename($tmp, $filename);
+        if (@file_put_contents($tmp, $data, LOCK_EX) && @rename($tmp, $filename)) {
+            return true;
+        }
+        if (is_file($tmp)) {
+            @unlink($tmp);
         }
         return false;
     }
