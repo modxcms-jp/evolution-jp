@@ -66,7 +66,14 @@
 - 2026-10-26 / planner / インストーラの版依存の処理は baseline へ移す: `site_revision` の古い形の削除（235〜245 行）、`site_id` の作り直し（379〜391 行）、`site_url` の削除（393〜396 行）、`cleanupNullStrings()`（398〜400 行。要素の入れ直しより前という条件は、ランナーが先に動くので満たす）。`settings_version` の補完（439〜464 行）は、設定画面で `upgrades.php` を動かすためだけのものだったので消す。`convert2utf8mb4()` はインストーラに残す（版に依存せず、利用者がインストーラで選ぶ変換で、設定ファイルの書き換えも伴うため）。
 - 2026-10-26 / planner / `fix_settings.php` は消す。スキーマの直しは `create_tables.sql` と baseline へ、1 回だけのデータの直し（#611・#615・#640 の不要な設定の行の削除、ロール ID 1 が無いときの追加）は baseline へ、イベント名の一覧（`system_eventnames` への REPLACE）は新しい `install/sql/system_eventnames.sql` へ移し、新規・アップグレードのどちらでも `create_tables.sql` の後に流す。イベント名は版ごとに増える「同梱のデータ」で、1 回だけの移行ではないため、`create_tables.sql` と同じく毎回そろえる。新規インストールのロール ID 1 は `default_settings.sql` に入れる。
 - 2026-10-26 / planner / 「アップデートが済んでいないか」の正は「未適用のマイグレーションがあるか」（`EvoMigrator::hasPending()`）にする。公開側の 503、管理画面の入口、`health:check` はこれだけを見る。`settings_version` は「システム設定を保存した版」として残すが、アップデートの判定には使わない（初回だけ設定画面へ案内する、`'0'` か空かの判定にだけ使う）。版の表示（メニュー・システム情報・バックアップの名前・ダンプの見出し・`health:check`）はコードの版（`$modx_version`）にする。`settings_version` は今後アップグレードで更新されなくなるので、表示に使うと古い版が出るため。
-- 2026-10-26 / planner / `install_version`（インストーラがこの版で最後まで通ったか）は、管理画面の入口だけで使い続ける。未適用のマイグレーションが無くても、`install/` があって `install_version` が今の版でなければアップデーターへ送る（`manager()->isUpdatePending()`）。同梱プラグインのコードは DB に入っていて、インストーラでしか入れ替わらないため。これは DB の判定ではなく「アップデーターを通したか」の判定なので、公開側では使わない（DB が追いついていれば公開側は止めない）。この扱いは未決として本人に確かめる（決まったらこの行を更新する）。
+- 2026-10-26 / 本人の決定 / 設定画面（`a=17`）のトリガーは残さない（上の planner の案のとおり）。ファイルだけ差し替えたサイトは、未適用のマイグレーションがあれば、公開側はメンテナンスの表示にする。管理画面では、settings 権限のある人に「アップデーター（`install/`）を置いて実行してください」と案内し、ほかの人にはメンテナンスの表示を出す（M6）。
+- 2026-10-26 / 本人の決定 / `install_version` による判定はやめる。アップデート待ちの判定は「未適用のマイグレーションがあるか」（`EvoMigrator::hasPending()`）の 1 つだけにし、管理画面の入口（`manager()->isUpdatePending()`）でも `install_version` を見ない。同梱プラグインのコードなど、DB に入っている同梱物の入れ替えが要る版では、その版のマイグレーションに入れ替えを書く。マイグレーションがあれば未適用として数えられ、アップデーターへ送られる。その結果、マイグレーションを含まない版は、ファイルを差し替えただけでもアップデーターへは送られない（DB が追いついているので、公開側も管理画面も止めない）。
+- 2026-10-26 / planner（本人の決定を受けて） / 今回の baseline では、同梱物の入れ替えをしない。今のアップデーターは、ランナーのあとに `prc_ins*`（`install/processors/`。利用者がアップデーターで選んだ同梱の要素を入れ直す）を毎回流すので、baseline で入れ替えると同じことを 2 回することになる。役割は次のように分ける。`prc_ins*` は「利用者が選んだ要素を入れる・入れ直す」（新規とアップグレードのどちらでも、選択の画面に従う）。マイグレーションは「その版で必ず要る入れ替え」（選択に関わらず、1 回だけ）。入れ替えの元は `assets/` の下の `.tpl`（`install/setup.info.php` が読む docblock）で、読み取りの関数 `parse_docblock()` は今は `install/functions.php`（180 行）にある。初めて入れ替えのマイグレーションを書く版で、この関数を `manager/includes/` へ移し、インストーラとマイグレーションの両方から使う（今回は使わないので移さない。YAGNI）。入れ替えの書き方は `prc_insPlugins.inc.php` の作り（同名の有効な行を無効にして控えとして残し、新しい行を入れる）に合わせることを `assets/docs/migrations.md` に書く。
+- 2026-10-26 / planner（本人の決定を受けて） / `install_version` の記録もやめる。読むのは `version_mismatch_guard.php` と `ex_managerapi.php` だけで、M6 でどちらも読まなくなるため、残しても使い道が無い。M6 で `install/instprocessor.php` の書き込み（新規 360〜367 行、アップグレード 439〜471 行のうち残っていた 466〜470 行）を消し、baseline のデータの部で、既にある `install_version` の行を消す。M5 の時点では書き込みを残す（M5 と M6 の間も、新規インストールの公開側が止まらないよう、今の判定が `install_version` を読むため）。代替案の「インストーラを最後に通した版として残す」は、表示する場所も無く、判定に使われる誤解のもとになるので採らない。
+- 2026-10-26 / 本人の決定 / 縮める列に収まらない値があるときは、何も変えずに止める（上の planner の案のとおり）。該当する行は件数を絞らず、すべて（表・列・上限・行の ID・今の長さ）を、アップデーターの画面（CLI では標準出力）と `evo()->logEvent()`（種別 3、コンテキストに行の一覧）の両方に出す。
+- 2026-10-26 / 本人の決定 / `upload_maxsize` を移さないこと、古いプラグイン 2 つを有効なら無効にすること、`emailsender` をロール ID 1 の管理者のうち ID が最も小さい人のアドレスにすること、消えた表を残し `doc_encoding` と古い形の `site_revision` を消すことは、上の planner の案のとおりとする。
+- 2026-10-26 / planner / インストーラの中で使う定数とログ: `MODX_CORE_PATH`・`MODX_MANAGER_PATH` は、`install/index.php` が読み込む `document.parser.class.inc.php` から `manager/includes/initialize.inc.php`（30・34 行）で定義されるので、インストーラの中でも使える。ログは AGENTS.md のとおり `evo()->logEvent()` を使う。インストーラの中では `evo()->config` が空のことがあり、そのときは `logEvent()` が `getSettings()` を呼んでキャッシュを作り直す。1.0.0J 以降の DB なら起動時の読み込みで止まらないことは #585 で確かめてあり、`getSettings()` の例外は `logEvent()` の中で受けている。インストーラは最後にキャッシュを消すので、途中で作られたキャッシュは残らない。M5 の検証で、1.0.0J のフィクスチャからアップデーターを通し、`temp/logs/system/` に書かれることを確かめる。
+- 2026-10-26 / planner / FCKeditor の判定は、`which_editor` を `FCKeditor` と大文字小文字を区別せずに比べる。FCKeditor のプラグインはこのリポジトリの履歴に無い（`git log --all -- assets/plugins/fckeditor` が空。外部の配布物）ので、登録名をタグから確かめることはできない。v2.1.1 の雛形のファイルがあり、かつ選んでいる値が `FCKeditor` のときだけ戻すので、ほかのエディタを選んでいる利用者には影響しない。
 - 2026-10-26 / planner / 公開側の判定は、リクエストごとに `glob()` 1 回と、記録の表への SELECT 1 回になる。今も `settings_version` の SELECT を 1 回しているので、負担は同じ程度とする。記録の表が無い（ランナー導入前の DB）ときは、エラーで止めず（`db()->query($sql, false)` とエラー番号 1146 の確認）、すべて未適用と見なす。
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / planner / マイルストーンは 7 つにし、この ExecPlan で最後まで行う。インストーラ統合と、散らばった版依存の処理を残さないことは範囲に入れる。次の段階（非対象）は Plan of Work の「非対象と次の段階」に書く。
@@ -98,13 +105,14 @@
 | `install/sql/fix_settings.php` | 権限の列の追加、`name` 191、NOT NULL 化、`error_reporting`、不要な設定の行の削除、ロール ID 1、イベント名 | スキーマは `create_tables.sql` と baseline、1 回だけの直しは baseline、ロール ID 1 は `default_settings.sql` と baseline、イベント名は `install/sql/system_eventnames.sql`。ファイルは消す（M3〜M5） |
 | `install/instprocessor.php` 235〜245 行 | 古い形の `site_revision` を消す | baseline へ（M3・M5） |
 | `install/instprocessor.php` 379〜400 行 | `site_id` の作り直し、`site_url` の削除、`cleanupNullStrings()` | baseline へ（M4・M5） |
-| `install/instprocessor.php` 439〜464 行 | `settings_version` の補完 | 消す（M5）。`install_version` の記録（466〜470 行）は残す |
+| `install/instprocessor.php` 439〜464 行 | `settings_version` の補完 | 消す（M5） |
+| `install/instprocessor.php` 360〜367 行・466〜470 行 | `install_version` の記録 | 消す（M6）。既にある行は baseline が消す（M4） |
 | `install/functions.php` 345〜369 行 | `cleanupNullStrings()` | baseline へ移して消す（M4・M5） |
 | `install/functions.php` 956 行 | `convert2utf8mb4()` | インストーラに残す（版に依存しない、利用者が選ぶ変換） |
 | `manager/includes/default.config.php` 125〜137 行 | `settings_version` による分岐 | 撤去（M4） |
 | `manager/actions/tool/mutate_settings.dynamic.php` 23〜25 行 | 設定画面のトリガー | 消す（M5）。94 行の案内は「一度も保存していない」ときだけにする（M6） |
 | `manager/includes/version_mismatch_guard.php` | 公開側の 503（`settings_version`・`install_version` で判定） | `manager/includes/update_guard.php` に名前を変え、未適用のマイグレーションで判定（M6） |
-| `manager/includes/extenders/ex_managerapi.php` 32〜44 行 | `isUpdatePending()`（`install_version`） | 未適用のマイグレーション、または `install/` があって `install_version` が違う（M6） |
+| `manager/includes/extenders/ex_managerapi.php` 32〜44 行 | `isUpdatePending()`（`install_version`） | 未適用のマイグレーションがあるか（`EvoMigrator::hasPending()` を返すだけ）（M6） |
 | `manager/index.php` 95〜117 行 | 管理画面の入口でアップデーターへ送る | `install/` が無いときの表示を足す（M6） |
 | `manager/actions/main/welcome.static.php` 10〜19 行 | 版が違えば設定画面へ | 一度も保存していない（`'0'` か空）ときだけ設定画面へ（M6） |
 | `manager/frames/menu.php` 339〜357 行 | `settings_version` を表示し、違えば印を付ける | コードの版を表示（M6） |
@@ -183,7 +191,7 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 
 `manager/includes/migrations/00000000_baseline.php` の前半。上の Context の差の表を、次の順で行う。すべて存在確認か、最終形との比較をしてから実行する。
 
-1. 長さの確認（何も変えない）: `site_content.alias` が 245 文字を超える行、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` が 191 文字を超える行があれば、表・列・上限・ID（最大 20 件）を入れた例外を投げて止める。
+1. 長さの確認（何も変えない）: `site_content.alias` が 245 文字を超える行、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` が 191 文字を超える行があれば、該当する行をすべて（表・列・上限・行の ID・今の文字数）`evo()->logEvent()`（種別 3、コンテキストに行の一覧）に残し、同じ一覧を入れた例外を投げて止める。ランナーは例外の文をそのまま返し、アップデーターの画面と CLI の出力に出す（本人の決定）。
 2. 古い表・列の片付け: `site_revision` に `elmid` が無ければ表を消す。`site_templates.doc_encoding` があれば消す。
 3. 列の追加: Context の表と、途中の版で欠けることのある `user_roles` の列（`fix_settings.php` 36〜47 行と同じ定義と AFTER）・`site_plugin_events.priority`・`site_tmplvar_templates.rank`・`site_content` の `publishedon`・`publishedby`・`link_attributes`。`user_roles` の列を足したときは、その列をロール ID 1 だけ 1 にする（データの部の表の 1 行目。足した列の一覧は補助が返す）。
 4. NULL の片付けと列の変更: `active_users.id`・`documentgroup_names.private_*` の NULL を 0 に、`site_templates.content` の NULL を空にしてから、Context の「列の変更」の表を、型・NULL 可否・既定値が違うときだけ MODIFY する（コメントは `create_tables.sql` と同じにする）。
@@ -212,7 +220,7 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 | `update_tbl_user_roles()`（`upgrades.php` 195〜215 行）と `addRolePermissionColumn()`（`fix_settings.php` 27〜47 行） | 前の版が 1.0.20 未満なら、`save_role=1` の全ロールの 12 列を 1 に | 入れる | 列を足したときだけ、その列をロール ID 1 だけ 1 にする（本人の決定 2）。既にある列は触らない |
 | ロール ID 1 の追加（`fix_settings.php` 83〜164 行） | 毎回、無ければ入れる | 入れる | ロール ID 1 が無いときだけ、今と同じ値で入れる（ID 1 はコードが特別に扱う。`manager/processors/permission/delete_user.processor.php` 26 行など）。新規インストールは `default_settings.sql` に移す |
 | `disableOldCarbonTheme()`（`upgrades.php` 98〜115 行） | 毎回、テーマが古い作りなら既定に | 入れる | 選んでいるテーマ（`system_settings.manager_theme`）のフォルダが無い、`style.php` が無い、`manager/` フォルダか `sysalert_style.php` がある（古い作り）、または `MODxCarbon` で `images/icons/32x` が無いときだけ、`default.config.php` の既定（`RevoClassic`）に戻す。同梱のテーマ（RevoStyle を含む）はどれも `style.php` があり、戻されない |
-| `disableOldFckEditor()`（`upgrades.php` 117〜132 行） | 毎回、古い FCKeditor の雛形があれば既定に | 入れる | 選んでいるエディタ（`which_editor`）が FCKeditor で、`assets/plugins/fckeditor/plugin.fckeditor.tpl` が v2.1.1 のときだけ既定（`TinyMCE7`）に戻す。FCKeditor の登録名は、worker が `git show release-1.0.0J:assets/plugins/fckeditor/plugin.fckeditor.tpl` などで確かめる |
+| `disableOldFckEditor()`（`upgrades.php` 117〜132 行） | 毎回、古い FCKeditor の雛形があれば既定に | 入れる | 選んでいるエディタ（`which_editor`）が大文字小文字を区別せずに `FCKeditor` で、`assets/plugins/fckeditor/plugin.fckeditor.tpl` が v2.1.1 のときだけ既定（`TinyMCE7`）に戻す（Decision Log） |
 | `removeBundledThemeCopies()`（`upgrades.php` 63〜96 行） | 毎回 | 入れる | 今と同じ（同梱テーマの、`common/` にまとめたファイルの古い写しを消す。消せなければ種別 2 で知らせる）。配布から外したファイルなので、利用者の選択ではない |
 | `update_config_default_template_method()`（`upgrades.php` 157〜193 行） | 前の版が 1.0.6 未満なら、`Inherit Parent Template` を無条件に無効化（計算した値は保存していない） | 入れる | 有効な `Inherit Parent Template` があり、`auto_template_logic` の行が無いときだけ、プラグインのプロパティ `inheritTemplate` が `From First Sibling` なら `sibling`、それ以外は `parent` を保存し、プラグインを無効にする（1.0.5J のインストーラの意図。`git show release-1.0.5J:install/instprocessor.php` 145〜166 行）。行があれば、プラグインも設定も触らない |
 | `update_config_custom_contenttype()`（`upgrades.php` 140〜155 行） | 前の版が 1.0.6 未満 | 入れる | 保存された値が古い既定の 2 つの一覧のどちらかと同じか、行が無いときだけ、今の既定にする。空の値（利用者が空にしたかもしれない）は変えない |
@@ -226,6 +234,8 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 | 不要な設定の行の削除（`fix_settings.php` 73〜81 行。#611・#615・#640） | 毎回 | 入れる | 今と同じ（`user_settings` の `csrf_token`・`save_action`・`blockedcheck`・`tinymce7_template_*`、`system_settings` の `csrf_token` を消す）。設定ではない値が入っていたもの |
 | `site_id` の作り直し（`instprocessor.php` 379〜391 行） | アップグレードのたび | 入れる | 値が無いか、配布物の既定値（`MzGeQ2faT4Dw06+U49x3`）のときだけ作り直す |
 | `site_url` の削除（`instprocessor.php` 393〜396 行） | アップグレードのたび | 入れる | 行があれば消す（今の「サイトのURL」は `fixed_site_url`） |
+| `install_version` の行（`instprocessor.php` 360〜367・466〜470 行が書いていた） | — | 入れる | 行があれば消す（判定に使わなくなり、読む所が無い。本人の決定 2 を受けた planner の判断） |
+| 同梱物（プラグインなどのコード）の入れ替え | — | 入れない | 同じアップデーターの中で、ランナーのあとに `prc_ins*` が利用者の選択どおり入れ直すため（Decision Log）。これからの版で必ず要る入れ替えは、その版のマイグレーションに書く |
 | `cleanupNullStrings()`（`install/functions.php` 345〜369 行） | アップグレードのたび | 入れる | 今と同じ（文字列 `'NULL'` を空に、`&NULL=undefined;;` をプロパティから除く）。BINARY で比べ、何度流しても同じ |
 | チャンクの非公開（`default.config.php` 125〜137 行） | `settings_version` が 1.0.5J-r11〜1.0.6J-r1 | 入れない（撤去） | Decision Log のとおり |
 
@@ -240,10 +250,10 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 3. 253 行の `create_tables.sql` のあと、新規なら既定の設定（今と同じ）、どちらでも `system_eventnames.sql` を流す。
 4. 264〜269 行の `fix_settings.php` の読み込みを消す。新規で失敗していなければ、`EvoMigrator::markAllApplied()` を呼ぶ（新規インストールでは baseline などを流さず、適用済みとだけ記録する。本人の決定 1）。新規で失敗したときの表の片付け（291〜311 行）は、記録の表も消す対象になる（控えより後に作るため）。
 5. 271〜274 行の utf8mb4 への変換は残す。
-6. 378〜401 行（アップグレードの `site_id`・`site_url`・`cleanupNullStrings()`）を消す。新規の `site_id`・`install_version`・`fixed_site_url`（353〜377 行）は残す。
-7. 439〜464 行の `settings_version` の補完を消し、466〜470 行の `install_version` の記録は残す。
+6. 378〜401 行（アップグレードの `site_id`・`site_url`・`cleanupNullStrings()`）を消す。新規の `site_id`・`install_version`・`fixed_site_url`（353〜377 行）は残す（`install_version` は M6 で消す）。
+7. 439〜464 行の `settings_version` の補完を消す。466〜470 行の `install_version` の記録は M5 では残し、M6 で消す（Decision Log）。
 
-インストーラの中で、ランナーと補助を読み込むには `require_once MODX_CORE_PATH . 'migrator.class.inc.php';` を使う（`MODX_CORE_PATH` などの定数がインストーラで定義済みかは worker が確かめ、無ければ止まって報告する）。`evo()->logEvent()` がインストーラの中で `temp/logs/system/` に書けることも確かめる。書けなければ止まって報告する（別の書き方を作らない）。
+インストーラの中で、ランナーと補助を読み込むには `require_once MODX_CORE_PATH . 'migrator.class.inc.php';` を使う（`MODX_CORE_PATH` はインストーラでも定義済み。Decision Log）。ログは `evo()->logEvent()` で書き、M5 の検証で `temp/logs/system/` に書かれることを確かめる。書かれないときは止まって報告する（別の書き方を作らない）。マイグレーションが失敗したときは、ランナーが返した文（長さの確認で止まったときは該当する行の一覧）を `hsc()` してアップデーターの画面に出す。
 
 M5 では、`manager/includes/upgrades/`（2 ファイル）と `install/sql/fix_settings.php` を消し、`mutate_settings.dynamic.php` 23〜25 行のトリガーを消す。
 
@@ -254,8 +264,9 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 | 場所 | 役割 | 変更後に見るもの |
 | --- | --- | --- |
 | `manager/includes/update_guard.php`（`version_mismatch_guard.php` の名前を変える。`index.php` 109 行も） | 公開側を 503 にする | `EvoMigrator::hasPending()` だけ |
-| `manager()->isUpdatePending()`（`ex_managerapi.php`） | 管理画面の入口で止める | 未適用のマイグレーションがある、または `install/index.php` があって `install_version` が今の版でない |
-| `manager/index.php` 97〜117 行 | 止めたときの行き先 | settings 権限があり `install/index.php` があればアップデーターへ。`install/` が無ければ、settings 権限のある人には「アップデーター（`install/`）を置いて実行してください」（新しい言語の文字列）、ほかの人には今のメンテナンスの表示 |
+| `manager()->isUpdatePending()`（`ex_managerapi.php`） | 管理画面の入口で止める | `EvoMigrator::hasPending()` だけ（`install_version` は見ない。本人の決定） |
+| `manager/index.php` 97〜117 行 | 止めたときの行き先 | settings 権限があり `install/index.php` があればアップデーターへ。`install/` が無ければ、settings 権限のある人には「アップデーター（`install/`）を置いて実行してください」（新しい言語の文字列 `update_upload_installer_message`。見出しは今の `update_in_progress_title`）、ほかの人には今のメンテナンスの表示（本人の決定） |
+| `install/instprocessor.php` 360〜367・466〜470 行 | `install_version` の記録 | 消す（Decision Log） |
 | `welcome.static.php` 10〜19 行 | 初回の設定の案内 | `settings_version` が `'0'` か空のときだけ設定画面へ |
 | `mutate_settings.dynamic.php` 94 行 | 設定画面の案内文 | 同上 |
 | `menu.php` 339〜357 行 | 版の表示 | `$modx_version`（DB を読まない。食い違いの印は、入口で止めるので不要になり消す） |
@@ -266,7 +277,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 ### 文書（M7）
 
-`assets/docs/migrations.md` を新しく作り、アップグレードの流れ（アップデーターの順）、マイグレーションの書き方（ID の付け方、`return function (EvoMigrationHelper $m)`、存在確認を省かない、表を作るのは `create_tables.sql` だけ、`create_tables.sql` を変えたら同じ変更のマイグレーションも足す、版の条件を置かない、利用者の選択を上書きしない）、CLI（`migrate`・`migrate:status`・`make:migration`）、検証のしかた（M2 の道具）を書く。`AGENTS.md` のドキュメントマップに 1 行足し、`assets/docs/release-process.md` のリリース前の確認に「新しいマイグレーションを古い版の DB から確かめた」を足す。
+`assets/docs/migrations.md` を新しく作り、アップグレードの流れ（アップデーターの順）、マイグレーションの書き方（ID の付け方、`return function (EvoMigrationHelper $m)`、存在確認を省かない、表を作るのは `create_tables.sql` だけ、`create_tables.sql` を変えたら同じ変更のマイグレーションも足す、版の条件を置かない、利用者の選択を上書きしない、DB にある同梱物の入れ替えが要る版はその版のマイグレーションに書く・書き方は `prc_insPlugins.inc.php` の作りに合わせる）、アップデート待ちの判定が未適用のマイグレーションだけであること（マイグレーションを含まない版はアップデーターへ送られない）、CLI（`migrate`・`migrate:status`・`make:migration`）、検証のしかた（M2 の道具）を書く。`AGENTS.md` のドキュメントマップに 1 行足し、`assets/docs/release-process.md` のリリース前の確認に「新しいマイグレーションを古い版の DB から確かめた」と「DB にある同梱物（プラグインのコードなど）を変えた版は、入れ替えのマイグレーションを足した」を足す。
 
 ### 非対象と次の段階
 
@@ -276,6 +287,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 - インストーラの要素の入れ直しで、同梱プラグインのイベントの紐付けと同梱 TV のテンプレートの割り当てが戻ること（`assets/docs/core-issues.md` に記録）。
 - 1.0.0J より古い DB（アップデーターが受け付けない。`install/functions.php` の `isUnsupportedOldDb()`）。
 - CLI だけでアップグレードを済ませること（ファイルの差し替え・`create_tables.sql`・イベント名の同期を含む）。#668（`evo system-upgrade`）で、この計画のランナーを呼ぶ形で行う。
+- `parse_docblock()` を `manager/includes/` へ移し、同梱物を入れ替えるマイグレーションから使えるようにすること。初めてそういうマイグレーションが要る版で行う（Decision Log）。
 - `settings_version` を別の名前の設定に置き換えること。
 
 ## Concrete Steps
@@ -323,7 +335,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 - `snapshot <out>`: `INFORMATION_SCHEMA.COLUMNS`（型・NULL 可否・既定値・`EXTRA`）と `STATISTICS`（索引の名前・一意・種類・列の並び）を、`modx_` の表について 1 行 1 項目の TSV に書く（比べない項目は Decision Log のとおり）。
 - `diff <ref> <out>`: 2 つの TSV を比べ、違う行と、`<ref>` に無い表（残す表）を分けて出す。違いが無ければ終了コード 0。
 
-`upgrade-fixture-data.sql` は、1.0.0J から今まである列だけを使い、次を入れる: `settings_version`・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`（古い既定）・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`csrf_token`、管理者（ロール 1）と、`empty_trash=0` のロール 1・`save_role=1` で一部の権限が 0 のロール 2、`type=''` の文書（`http://example.com/` の中身、`feed.xml` の alias）、alias が文字列 `NULL` の文書、`content` が NULL のテンプレート、有効な `Inherit Parent Template`（`&inheritTemplate=...;list;From Parent,From First Sibling;From First Sibling`）と `Bottom Button Bar`、プロパティに `&NULL=undefined;;` を含むスニペット、`site_plugin_events`・`member_groups`・`web_groups`・`user_settings`（同じ利用者・名前で値の違う 2 行）・`web_user_settings` の重複行、`user_settings` の `csrf_token`。どの表の重複が何件かを `upgrade-fixture.md` に書く。
+`upgrade-fixture-data.sql` は、1.0.0J から今まである列だけを使い、次を入れる: `settings_version`・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`（古い既定）・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`csrf_token`・`install_version`（1.2.x 以降のサイトにある行の再現）、管理者（ロール 1）と、`empty_trash=0` のロール 1・`save_role=1` で一部の権限が 0 のロール 2、`type=''` の文書（`http://example.com/` の中身、`feed.xml` の alias）、alias が文字列 `NULL` の文書、`content` が NULL のテンプレート、有効な `Inherit Parent Template`（`&inheritTemplate=...;list;From Parent,From First Sibling;From First Sibling`）と `Bottom Button Bar`、プロパティに `&NULL=undefined;;` を含むスニペット、`site_plugin_events`・`member_groups`・`web_groups`・`user_settings`（同じ利用者・名前で値の違う 2 行）・`web_user_settings` の重複行、`user_settings` の `csrf_token`。どの表の重複が何件かを `upgrade-fixture.md` に書く。
 
 `upgrade-fixtures.md` には、使い方、タグとファイルの対応、古い版のコードを動かさない理由（Decision Log の PHP の版の話）、比べない項目、`EVO_DB_IMAGE=mariadb:10.4` などで古い DB の版を試す方法と、MySQL 公式イメージは Docker Engine 29 系で取れないことを書く。
 
@@ -370,7 +382,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 2 回目: `db:query "DELETE FROM modx_migrations"` で記録を消し、DB の一般ログを有効にして（`docker exec evo-validate-667-db mariadb -uroot -ppassword -e "SET GLOBAL general_log=1; SET GLOBAL log_output='TABLE'"`）もう一度 `migrate` を流す。期待: `mysql.general_log` に `ALTER`・`UPDATE`・`DELETE`・`INSERT`（記録の 1 行を除く）が 1 本も無い。今の main の新規インストール（`setup-site.js --reinstall` 直後、記録の表が無い）に `migrate` を流しても同じ（baseline は最終形を変えない）。終わったら一般ログを戻す。
 
-長さの確認: 1.0.0J のフィクスチャに alias が 250 文字の文書を足して `migrate` を流す。期待: 終了コード 1、出力に `site_content.alias`・`245`・その ID、`snapshot` が流す前と同じ（何も変わっていない）。
+長さの確認: 1.0.0J のフィクスチャに alias が 250 文字の文書を 25 件と、`name` が 200 文字の文書グループを 1 件足して `migrate` を流す。期待: 終了コード 1。出力に、該当する 26 行がすべて（`site_content.alias`・上限 `245`・ID・`250`、`documentgroup_names.name`・上限 `191`・ID・`200`）出る。`log:search "245" --level=error` で同じ一覧がコンテキストに入った 1 件が見つかる。`snapshot` が流す前と同じ（何も変わっていない）。
 
 古い DB の版: `EVO_DB_IMAGE=mariadb:10.4` で環境を作り直し、1.0.0J と 1.2.3J のフィクスチャで同じ確認を行う（取れない・動かないときは理由を記録する）。
 
@@ -384,7 +396,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 - `manager/includes/migration_helper.class.inc.php`（設定の読み書きの補助が足りなければ）
 - `manager/includes/default.config.php`（125〜137 行の撤去）
 
-作業: Plan of Work の「データの部」の表のとおり書く。FCKeditor の登録名は `git show release-1.0.0J:<FCKeditor のプラグインのファイル>` で確かめる。
+作業: Plan of Work の「データの部」の表のとおり書く。
 
 確かめ方: 1.0.0J と 1.0.5J のフィクスチャで `load` → `migrate` → `create-tables` のあと、`db:query` で次を確かめる。
 
@@ -392,7 +404,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     docker exec -w /var/www/html evo-validate-667-app php evo db:query "SELECT id, save_role, empty_trash, view_schedule, move_document, remove_locks FROM modx_user_roles"
     docker exec -w /var/www/html evo-validate-667-app php evo db:query "SELECT name, disabled FROM modx_site_plugins"
 
-期待: `manager_theme` は `RevoClassic`（フィクスチャの `MODxCarbon` は無いので戻る）。`which_editor` は `TinyMCE7` のまま。`auto_template_logic` は `sibling` で、`Inherit Parent Template` と `Bottom Button Bar` は `disabled=1`。`custom_contenttype`・`topmenu_site` は今の既定。`emailsender` は管理者のアドレス。`upload_maxsize` は `1048576` のまま。`use_udperms` はフィクスチャの値のまま。`site_id` は既定値から変わり、`site_url`・`validate_referer`・`csrf_token` の行は無い。ロール 1 の `empty_trash` は 0 のまま（1.0.0J に列があった）。1.0.5J で足りなかった列（`view_schedule` など。M2 で確かめた欠け）はロール 1 だけ 1、ロール 2 は 0。文字列 `NULL` の alias とプロパティの `&NULL=undefined;;` は消えている。
+期待: `manager_theme` は `RevoClassic`（フィクスチャの `MODxCarbon` は無いので戻る）。`which_editor` は `TinyMCE7` のまま。`auto_template_logic` は `sibling` で、`Inherit Parent Template` と `Bottom Button Bar` は `disabled=1`。`custom_contenttype`・`topmenu_site` は今の既定。`emailsender` は管理者のアドレス。`upload_maxsize` は `1048576` のまま。`use_udperms` はフィクスチャの値のまま。`site_id` は既定値から変わり、`site_url`・`validate_referer`・`csrf_token`・`install_version`（フィクスチャに入れておく）の行は無い。`site_plugins` の行数と `plugincode` は流す前と同じ（baseline は同梱物を入れ替えない）。ロール 1 の `empty_trash` は 0 のまま（1.0.0J に列があった）。1.0.5J で足りなかった列（`view_schedule` など。M2 で確かめた欠け）はロール 1 だけ 1、ロール 2 は 0。文字列 `NULL` の alias とプロパティの `&NULL=undefined;;` は消えている。
 
 利用者の選択が残ること: フィクスチャを変えて（`manager_theme` を `SoftSlate`、`which_editor` を `none`、`auto_template_logic` の行を `parent` で入れる、`topmenu_site` を利用者が並べ替えた値にする）流すと、どれも変わらない。
 
@@ -430,7 +442,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 
 フィクスチャからのアップグレード: `load <work>/fixture-1.0.0J.sql` のあと、Playwright でアップデーターを最後まで進める（`admin` でログイン → `install/` → アップグレード）。期待: 結果の画面にエラーが無い。`migrate:status` が `applied 00000000_baseline`。`snapshot` を `ref-final.tsv` と比べて違いが 0 件（残す表だけ）。インストールのログ（`temp/logs/install/`）に適用した ID がある。`temp/logs/system/` に重複行の件数のログがある（インストーラの中から `evo()->logEvent()` が書けている）。もう一度アップデーターを通すと、DB は変わらない（M3 と同じく一般ログで確かめる）。
 
-失敗: alias が 250 文字の文書を入れたフィクスチャでアップデーターを通すと、画面にマイグレーションの ID・エラー（列と ID）が出て、`create_tables.sql` 以降に進まない（`snapshot` が流す前と同じ）。
+失敗: M3 の「長さの確認」と同じ 26 行を入れたフィクスチャでアップデーターを通すと、画面にマイグレーションの ID と、該当する 26 行がすべて（表・列・上限・ID・文字数）出て、`create_tables.sql` 以降に進まない（`snapshot` が流す前と同じ）。インストールのログと `temp/logs/system/` にも同じ一覧が残る。
 
 撤去の確認:
 
@@ -445,6 +457,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
 書き込んでよいファイル:
 
 - `manager/includes/version_mismatch_guard.php` → `manager/includes/update_guard.php`（名前の変更と中身）
+- `install/instprocessor.php`（`install_version` の記録を消す。install/ の PHP なので、メインがマージ前に並走セッションへ照会する）
 - `index.php`（109 行の読み込み先）
 - `manager/includes/extenders/ex_managerapi.php`
 - `manager/index.php`
@@ -463,7 +476,14 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     curl -s -o /dev/null -w '%{http_code}\n' -H 'Accept-Language: ja' http://127.0.0.6/
     docker exec -w /var/www/html evo-validate-667-app php evo health:check
 
-期待: 新規インストール直後（設定を保存していない）で 200、`health:check` に `CMS version 1.3.0rc2` と `Database migrations OK`。一時のマイグレーションを置くと、公開側が 503、`health:check` が `Database migrations` NG と ID、管理画面にログインすると settings 権限の `admin` はアップデーターへ、`editor` はメンテナンスの表示。`install/` を一時的に別名にすると、`admin` には「アップデーターを置いて実行してください」の表示。`php evo migrate` のあとは公開側が 200 に戻る。新規インストール直後は、ログインするとダッシュボードではなく設定画面（`a=17`）に案内され、保存したあとは案内されない。1.2.3J のフィクスチャからアップデーターで上げたあとは、設定を保存しなくても公開側が 200 で、ダッシュボードは設定画面へ飛ばない。メニューの版の表示が `1.3.0rc2`。一時のファイルと別名は最後に戻す。
+期待: 新規インストール直後（設定を保存していない）で 200、`health:check` に `CMS version 1.3.0rc2` と `Database migrations OK`。一時のマイグレーションを置くと、公開側が 503、`health:check` が `Database migrations` NG と ID、管理画面にログインすると settings 権限の `admin` はアップデーターへ、`editor` はメンテナンスの表示。`install/` を一時的に別名にすると、`admin` には「アップデーターを置いて実行してください」の表示。`php evo migrate` のあとは公開側が 200 に戻る。新規インストール直後は、ログインするとダッシュボードではなく設定画面（`a=17`）に案内され、保存したあとは案内されない。1.2.3J のフィクスチャからアップデーターで上げたあとは、設定を保存しなくても公開側が 200 で、ダッシュボードは設定画面へ飛ばない。メニューの版の表示が `1.3.0rc2`。
+
+判定が 1 つだけであること: 未適用のマイグレーションが無い状態で、`db:query "REPLACE INTO modx_system_settings VALUES ('install_version','1.2.3J')"` のように古い版の行を入れても、`settings_version` を古い版にしても、公開側は 200 のまま、`admin` はアップデーターへ送られずダッシュボードが開く（マイグレーションを含まない版をファイルだけ差し替えた場合の再現）。新規インストールとアップグレードのあと、`db:query "SELECT * FROM modx_system_settings WHERE setting_name='install_version'"` が `(no rows)`。次のコマンドで、判定に使う所が残っていないことを確かめる。
+
+    git -C <worktree> grep -n "install_version" -- manager install index.php
+    git -C <worktree> grep -n "settings_version" -- manager install index.php
+
+期待: `install_version` は baseline の削除だけ。`settings_version` は、保存（`save_settings.processor.php` と、設定画面のフォームの hidden の値 `mutate_settings.dynamic.php` 91 行）と、一度も保存していないかの判定（`welcome.static.php`・`mutate_settings.dynamic.php`）と、`default_settings.sql` の初期値だけ。一時のファイルと別名は最後に戻す。
 
 推奨コミット: `refactor(manager): アップデートの判定を未適用のマイグレーションにそろえる`
 
@@ -528,7 +548,7 @@ M5 と M6 の間は、公開側の判定がまだ `settings_version` を見る�
     public function all(): array          // ファイルの ID（名前の順）
     public function applied(): array      // ID => applied_at（記録の表が無ければ空）
     public function pending(): array      // 未適用の ID（名前の順）
-    public function hasPending(): bool    // 公開側・管理画面・health:check が使う唯一の判定。例外を投げない
+    public function hasPending(): bool    // アップデート待ちの唯一の判定（公開側・管理画面の入口・health:check）。例外を投げない
     public function run(): array          // ['applied' => [...], 'failed' => ID か null, 'error' => 文か null]
     public function markAllApplied(): void // 新規インストールだけで使う
     public function ensureTable(): void
