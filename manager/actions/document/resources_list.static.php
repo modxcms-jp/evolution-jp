@@ -222,12 +222,6 @@ echo get_jscript($id, $cm);
 EOT;
             ?>
             <style type="text/css">
-                h3 {
-                    font-size: 1em;
-                    padding-bottom: 0;
-                    margin-bottom: 0;
-                }
-
                 div.title {
                     float: left;
                 }

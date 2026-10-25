@@ -2114,7 +2114,8 @@ ul.actionButtons {
     margin-bottom: var(--space-3);
 }
 
-/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。:has 非対応のブラウザでは捨てられる */
+/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
+   表 → 下のページ送りの間も、同じ規則（form > :has(+ #pagination)）で作る。:has 非対応のブラウザでは捨てられる */
 form > :has(+ .resources-batch-actions),
 form > :has(+ #pagination) {
     margin-bottom: var(--space-3);
