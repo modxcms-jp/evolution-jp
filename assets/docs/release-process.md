@@ -453,6 +453,8 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 - **マイナーリリース**: `release-1.3.0J`（機能追加、下位互換性あり）
 - **パッチリリース**: `release-1.2.1J`（バグ修正のみ）
 
+正式版の前の `main` は、`manager/includes/version.inc.php` の版を `1.3.0rc2` のような RC の表記にする。RC は配布しない（タグも GitHub の Release も作らない）。配布するのは正式版だけにする。
+
 ## リリース前チェックリスト
 
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
