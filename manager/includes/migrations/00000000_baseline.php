@@ -375,16 +375,28 @@ return static function (EvoMigrationHelper $m) {
     // 管理画面テーマ: 古い作りのもの（style.php が無い、manager/ か sysalert_style.php がある、MODxCarbon の新しい作りでないもの）
     if ($m->hasSetting('manager_theme')) {
         $theme = (string)$m->setting('manager_theme');
-        if ($theme !== '') {
+        if (basename($theme) !== $theme || strpos($theme, '..') !== false) {
+            // フォルダ名として使えない値は、使えるかどうかを判定できないので変えない
+            $m->log('manager_theme was not checked: it is not a folder name', ['setting' => 'manager_theme'], 2);
+        } else {
+            // 空の値も使えないものとして扱う（style.php が見つからない）
             $themeDir = MODX_MANAGER_PATH . 'media/style/' . $theme . '/';
-            // テーマ名はフォルダ名として使うので、英数字・_・- 以外は使えないものとして扱う
-            $unusable = !preg_match('/\A[A-Za-z0-9_-]+\z/', $theme)
-                || !is_file($themeDir . 'style.php')
+            $unusable = !is_file($themeDir . 'style.php')
                 || is_dir($themeDir . 'manager')
                 || is_file($themeDir . 'sysalert_style.php')
                 || ($theme === 'MODxCarbon' && !is_dir($themeDir . 'images/icons/32x'));
             if ($unusable) {
-                $changeSetting('manager_theme', $theme, $defaults['manager_theme']);
+                // 戻す先の既定のテーマが使えないときは書き込まない（流し直すたびに同じ書き込みが出ないように）
+                $defaultTheme = (string)$defaults['manager_theme'];
+                if (is_file(MODX_MANAGER_PATH . 'media/style/' . $defaultTheme . '/style.php')) {
+                    $changeSetting('manager_theme', $theme, $defaultTheme);
+                } else {
+                    $m->log(
+                        'manager_theme was not changed: the default theme is not available',
+                        ['setting' => 'manager_theme', 'old' => $theme, 'default' => $defaultTheme],
+                        2
+                    );
+                }
             }
         }
     }
@@ -399,11 +411,11 @@ return static function (EvoMigrationHelper $m) {
     if ($m->setting('topmenu_site') === 'home,preview,refresh_site,search,add_resource,add_weblink') {
         $changeSetting('topmenu_site', $m->setting('topmenu_site'), $defaults['topmenu_site']);
     }
-    // コンテンツタイプの一覧: 古い既定の 2 つのどちらかと同じか、行が無いときだけ（空にした値は残す）
+    // コンテンツタイプの一覧: 古い既定の 2 つのどちらかと同じときだけ今の既定にする。
+    // 行が無いときは書かない（既定は default.config.php から届くので、書くと今後の既定の変更が届かなくなる）。空にした値は残す
     $contentTypes = $m->setting('custom_contenttype');
     if (
-        $contentTypes === null
-        || $contentTypes === 'text/css,text/html,text/javascript,text/plain,text/xml'
+        $contentTypes === 'text/css,text/html,text/javascript,text/plain,text/xml'
         || $contentTypes === 'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain'
     ) {
         $changeSetting('custom_contenttype', $contentTypes, $defaults['custom_contenttype']);
