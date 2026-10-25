@@ -78,13 +78,7 @@ if (sessionv('is_upgradeable') && isUnsupportedOldDb()) {
     renderUnsupportedOldDb();
 }
 
-// 新規インストール時: install-config.php による保護
-// アップグレード時: Evolution CMS の管理者認証を要求
-if (!sessionv('is_upgradeable')) {
-    guardInstallerAccess();
-} else {
-    guardUpgradeAccess();
-}
+guardInstallerRequest();
 
 $errors = 0;
 
