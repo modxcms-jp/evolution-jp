@@ -306,14 +306,14 @@ function entity($key, $default = null)
             if (src == '') {
                 // Untick all sys events
                 document.querySelectorAll('input[name="sysevents[]"]').forEach(function(el) {
-                    el.removeAttribute('checked');
+                    el.checked = false;
                 });
                 ['pluginName', 'pluginDescription', 'propertiesBox', 'newcategory'].forEach(function(id) {
                     const el = document.getElementById(id);
                     if (el) el.value = '';
                 });
                 document.querySelectorAll('#categoryid option').forEach(function(el) {
-                    el.removeAttribute('selected');
+                    el.selected = false;
                 });
                 showParameters(document.getElementById('propertiesBox'));
                 return;
