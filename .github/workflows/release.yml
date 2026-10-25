@@ -13,8 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 作業ツリーの HEAD ではなく、push されたタグを指定して固める（checkout はタグの参照を作る）
       - name: Create zip archive
-        run: git archive --format=zip HEAD -o evo-${GITHUB_REF_NAME}.zip
+        run: git archive --format=zip "refs/tags/${GITHUB_REF_NAME}" -o "evo-${GITHUB_REF_NAME}.zip"
 
       # zip のサイズとファイル数、同じ系列（1.2.x なら 1.2 系）の直前のリリース（下書きを除く。rc などの
       # プレリリースは含む）との差をジョブの概要に出す。系列で分けるのは、1.2 系の保守リリースを
