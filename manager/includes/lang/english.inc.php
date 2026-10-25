@@ -1300,5 +1300,6 @@ return [
     "parent_not_found" => 'The selected parent resource (ID: %s) does not exist.',
     "update_in_progress_title" => 'We are performing maintenance',
     "update_in_progress_message" => 'The system is being updated. Please try again later, or ask an administrator.',
+    "update_upload_installer_message" => 'The database needs to be updated. Upload the updater (the install/ folder) to the site and run it.',
     "go_back" => 'Back',
 ];

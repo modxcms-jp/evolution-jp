@@ -154,7 +154,7 @@ class Mysqldumper
         $header = [];
         $header[] = '-- ';
         $header[] = '--  ' . addslashes(evo()->config('site_name')) . ' Database Dump';
-        $header[] = '--  MODX Version:' . evo()->config('settings_version');
+        $header[] = '--  MODX Version:' . evo()->getVersionData('version');
         $header[] = '--  ';
         $header[] = '--  Host: ' . $this->database_server;
         $header[] = '--  Generation Time: ' . evo()->toDateFormat(time());

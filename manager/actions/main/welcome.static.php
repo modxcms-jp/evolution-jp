@@ -12,7 +12,8 @@ $settings_version = db()->getValue(
     evo()->getFullTableName('system_settings'),
     'setting_name="settings_version"'
 );
-if (evo()->hasPermission('settings') && $settings_version != $modx_version) {
+// settings_version は「システム設定を保存した版」。'0' か空は、一度も保存していない新規インストール
+if (evo()->hasPermission('settings') && in_array((string) $settings_version, ['', '0'], true)) {
     // seems to be a new install - send the user to the configuration page
     echo '<script>document.location.href="index.php?a=17";</script>';
     exit;

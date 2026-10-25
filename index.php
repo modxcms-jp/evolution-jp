@@ -106,8 +106,8 @@ if (isset($error_reporting)) {
 }
 
 if (evo()->isFrontend()) {
-    include_once MODX_MANAGER_PATH . 'includes/version_mismatch_guard.php';
-    evo_guard_version_mismatch($modx);
+    include_once MODX_MANAGER_PATH . 'includes/update_guard.php';
+    evo_guard_update_pending($modx);
 }
 
 require_once MODX_BASE_PATH . 'manager/includes/frontend_error_log.inc.php';

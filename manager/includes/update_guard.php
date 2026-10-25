@@ -1,6 +1,6 @@
 <?php
-if (!function_exists('evo_render_version_mismatch_page')) {
-    function evo_render_version_mismatch_page()
+if (!function_exists('evo_render_update_pending_page')) {
+    function evo_render_update_pending_page()
     {
         $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
         header($protocol . ' 503 Service Unavailable', true, 503);
@@ -32,69 +32,33 @@ if (!function_exists('evo_render_version_mismatch_page')) {
     }
 }
 
-if (!function_exists('evo_has_settings_version_mismatch')) {
-    function evo_has_settings_version_mismatch($modx)
+if (!function_exists('evo_has_pending_migrations')) {
+    /**
+     * アップデート待ち（未適用のマイグレーションがある）かどうか。判定は EvoMigrator::hasPending() の 1 つだけ。
+     * リクエストごとに走るので、ファイルの一覧（glob 1 回）と記録の表の SELECT 1 回以上は足さない。例外は外に出さない
+     */
+    function evo_has_pending_migrations($modx)
     {
         if (!$modx || !isset($modx->db)) {
             return false;
         }
 
-        $versionFile = MODX_BASE_PATH . 'manager/includes/version.inc.php';
-        if (!is_file($versionFile)) {
+        try {
+            require_once MODX_BASE_PATH . 'manager/includes/migrator.class.inc.php';
+            return (new EvoMigrator())->hasPending();
+        } catch (Throwable $e) {
             return false;
         }
-
-        include $versionFile;
-        if (!isset($modx_version)) {
-            return false;
-        }
-
-        $tableName = $modx->getFullTableName('system_settings');
-        if (!$tableName) {
-            return false;
-        }
-
-        $result = $modx->db->select(
-            'setting_value',
-            $tableName,
-            "setting_name='settings_version'",
-            '',
-            '1'
-        );
-        if (!$result) {
-            return false;
-        }
-
-        $settingsVersion = $modx->db->getValue($result);
-        if ($settingsVersion === null) {
-            return false;
-        }
-
-        // 新規インストール直後は default_settings.sql の '0' のまま(設定未保存)。
-        // この版のインストーラーを通したサイト(新規インストール・アップグレード)なら、アップグレード途中ではないので公開側は止めない。
-        // 旧版で入れて設定を一度も保存していないサイト(install_version が無い・違う)は止める
-        if ($settingsVersion === '' || $settingsVersion === '0') {
-            $result = $modx->db->select(
-                'setting_value',
-                $tableName,
-                "setting_name='install_version'",
-                '',
-                '1'
-            );
-            return !$result || $modx->db->getValue($result) !== $modx_version;
-        }
-
-        return $settingsVersion !== $modx_version;
     }
 }
 
-if (!function_exists('evo_guard_version_mismatch')) {
-    function evo_guard_version_mismatch($modx)
+if (!function_exists('evo_guard_update_pending')) {
+    function evo_guard_update_pending($modx)
     {
-        if (!evo_has_settings_version_mismatch($modx)) {
+        if (!evo_has_pending_migrations($modx)) {
             return;
         }
 
-        evo_render_version_mismatch_page();
+        evo_render_update_pending_page();
     }
 }

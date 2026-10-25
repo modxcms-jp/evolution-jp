@@ -28,7 +28,27 @@ if ($dbOk) {
 $checks[] = info('PHP version', PHP_VERSION);
 
 // CMS version
-$checks[] = info('CMS version', evo()->config('settings_version') ?: 'unknown');
+$checks[] = info('CMS version', evo()->getVersionData('version') ?: 'unknown');
+
+// Database migrations（未適用のマイグレーションが無いこと。アップデート待ちの判定と同じ EvoMigrator）
+if ($dbOk) {
+    require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+    try {
+        $pendingMigrations = (new EvoMigrator())->pending();
+        $checks[] = check(
+            'Database migrations',
+            !$pendingMigrations,
+            sprintf(
+                '%d pending: %s%s',
+                count($pendingMigrations),
+                implode(', ', array_slice($pendingMigrations, 0, 5)),
+                count($pendingMigrations) > 5 ? ', ...' : ''
+            )
+        );
+    } catch (Throwable $e) {
+        $checks[] = check('Database migrations', false, 'could not read the migrations: ' . $e->getMessage());
+    }
+}
 
 // Cache directory writable
 $checks[] = check('Cache directory writable', is_writable(MODX_CACHE_PATH));

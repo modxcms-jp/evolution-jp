@@ -388,15 +388,6 @@ if (sessionv('is_upgradeable') == 0) {
         '[+prefix+]system_settings'
     );
 
-    // 新規インストールした版。settings_version が '0' のまま(設定未保存)でも、
-    // この版のコードなら公開側を止めない(version_mismatch_guard.php)
-    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
-    log_install_event('Recording install_version for fresh installation', ['version' => $modx_version]);
-    db()->replace(
-        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
-        '[+prefix+]system_settings'
-    );
-
     // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
     $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
     if ($install_site_url !== '' && !init::env_site_url()) {
@@ -442,17 +433,6 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     }
     printf('<span class="ok">%s</span></p>', lang('ok'));
     log_install_event('Demo site installation completed successfully');
-}
-
-// アップグレードを通した版。公開側と管理画面の入口の判定がまだ読んでいる（判定を未適用のマイグレーションにそろえるときに消す）
-if (sessionv('is_upgradeable') && $errors == 0) {
-    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
-
-    log_install_event('Recording install_version for upgrade', ['version' => $modx_version]);
-    db()->replace(
-        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
-        '[+prefix+]system_settings'
-    );
 }
 
 clean_up($sqlParser->prefix);

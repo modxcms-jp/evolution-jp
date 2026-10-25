@@ -92,7 +92,7 @@ if (!isset($_SESSION['mgrValidated'])) {
     exit('Not Logged In!');
 }
 
-// アップデーターを通す前は、どの画面からも入れない（ログアウトは通す）。
+// 未適用のマイグレーションがあるときは、どの画面からも入れない（ログアウトは通す）。
 // 未ログインはここまでに accesscontrol.inc.php で止まっているので、インストーラーとのループは起きない
 if ((int) manager()->action !== 8 && manager()->isUpdatePending()) {
     if (isEvoPaneRequest() || serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
@@ -100,10 +100,13 @@ if ((int) manager()->action !== 8 && manager()->isUpdatePending()) {
         header('X-Evo-Login: required');
         exit;
     }
-    if (evo()->hasPermission('settings')) {
+    $canUpdate = evo()->hasPermission('settings');
+    if ($canUpdate && is_file(MODX_BASE_PATH . 'install/index.php')) {
         header('Location: ' . MODX_SITE_URL . 'install/');
         exit;
     }
+    // install/ が無いサイト（ファイルだけ差し替えた）では、settings 権限のある人にアップデーターを置くよう案内する。
+    // ほかの人にはメンテナンスの表示
     header(serverv('SERVER_PROTOCOL', 'HTTP/1.1') . ' 503 Service Unavailable', true, 503);
     header('Retry-After: 600');
     echo '<!DOCTYPE html><html><head><meta charset="' . hsc(config('modx_charset', 'utf-8')) . '">'
@@ -111,7 +114,7 @@ if ((int) manager()->action !== 8 && manager()->isUpdatePending()) {
         . '<title>' . hsc($_lang['update_in_progress_title']) . '</title></head>'
         . '<body style="font-family:sans-serif;text-align:center;padding:4rem 1rem;">'
         . '<h1>' . hsc($_lang['update_in_progress_title']) . '</h1>'
-        . '<p>' . hsc($_lang['update_in_progress_message']) . '</p>'
+        . '<p>' . hsc($_lang[$canUpdate ? 'update_upload_installer_message' : 'update_in_progress_message']) . '</p>'
         . '</body></html>';
     exit;
 }

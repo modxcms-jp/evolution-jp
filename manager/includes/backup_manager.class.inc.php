@@ -70,7 +70,7 @@ class EvoBackupManager
             '%s%s-%s.sql',
             $prefix,
             date('Y-m-d-His', request_time() + (int)evo()->config('server_offset_time', 0)),
-            preg_replace('/[^0-9A-Za-z._-]/', '-', (string)(evo()->config('settings_version') ?: 'unknown'))
+            preg_replace('/[^0-9A-Za-z._-]/', '-', (string)(evo()->getVersionData('version') ?: 'unknown'))
         );
     }
 

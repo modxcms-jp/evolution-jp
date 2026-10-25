@@ -1301,5 +1301,6 @@ return [
     "parent_not_found" => '指定した親リソース（ID: %s）が見つかりません。',
     "update_in_progress_title" => 'メンテナンス中です',
     "update_in_progress_message" => 'システムのアップデート中です。しばらくしてからもう一度お試しいただくか、管理者にお問い合わせください。',
+    "update_upload_installer_message" => 'データベースの更新が必要です。アップデーター（install/ フォルダ）をサイトに置いて実行してください。',
     "go_back" => '戻る',
 ];

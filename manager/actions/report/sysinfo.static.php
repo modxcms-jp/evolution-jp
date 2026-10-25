@@ -38,7 +38,7 @@ global $database_connection_method, $lastInstallTime;
                     <?php
                     echo render_tr(
                         lang('modx_version'),
-                        config('settings_version')
+                        evo()->getVersionData('version')
                     );
                     echo render_tr(
                         lang('release_date'),
@@ -108,7 +108,7 @@ global $database_connection_method, $lastInstallTime;
                     'php_sapi_name' => php_sapi_name(),
                     'MySQLのバージョン' => db()->server_info(),
                     'MySQLホスト情報' => db()->host_info(),
-                    'MODXのバージョン' => config('settings_version'),
+                    'MODXのバージョン' => evo()->getVersionData('version'),
                     'サイトのURL' => config('site_url'),
                     'ホスト名' => gethostbyaddr($_SERVER['SERVER_ADDR']),
                     'MODX_BASE_URL' => MODX_BASE_URL,
