@@ -16,7 +16,7 @@
 ## Progress
 
 - [x] (2026-10-26) M1: ランナー（`EvoMigrator`）・補助（`EvoMigrationHelper`）・CLI（`migrate`・`migrate:status`・`make:migration`）を作る（自己レビュー 3 回、tester の確認 4 回。Docker の php:8.4 / mariadb:11 で計画の期待をすべて満たした）
-- [ ] (2026-10-26) M2: 古い版の DB を作る道具とスキーマの比べ方を、検証スキルに足す
+- [x] (2026-10-26) M2: 古い版の DB を作る道具とスキーマの比べ方を、検証スキルに足す（15 タグすべてで build・load が通り、1.0.0J の差が Context の表と 41 件で一致。utf8mb4 版も作れる。自己レビュー 2 回、tester の独立の確認 1 回）
 - [ ] (2026-10-26) M3: baseline のスキーマの部を作り、`create_tables.sql` に `fix_settings.php` のスキーマの直しを移す
 - [ ] (2026-10-26) M4: baseline のデータの部を作り、`default.config.php` の版の分岐を撤去する
 - [ ] (2026-10-26) M5: インストーラに組み込み、`manager/includes/upgrades/`・`fix_settings.php`・インストーラの版依存の処理を消す
@@ -36,6 +36,9 @@
 - 2026-10-26 / MariaDB 11 で、前置き長の付いた索引（1.0.0J の `aliasidx (alias(250))`）がある列を `varchar(245)` に縮めると、索引は列全体の索引に自動で直った。MySQL 5.7 での動きは未確認（MySQL 公式イメージは Docker Engine 29 系で取得できない。`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。
 - 2026-10-26 / インストーラを通さずにファイルだけ差し替えたサイトは、設定画面（`a=17`）で `upgrades.php` が動くが、`create_tables.sql`（1.0.14J・1.0.20J で増えた `site_revision`・`system_cache`）、`fix_settings.php`、utf8mb4 への変換、同梱の要素の入れ直しは行われない。インストーラを通したサイトと結果が違う 2 つ目の経路になっていた。
 - 2026-10-26 / インストーラは同梱プラグインのイベントの紐付け（`install/processors/prc_insPlugins.inc.php` 106 行）と同梱 TV のテンプレートの割り当て（`install/processors/prc_insTVs.inc.php` 61 行）を消して入れ直す。利用者が付け替えた分は戻る（推測）。版依存の処理ではなく要素の入れ直しの作りなので、この計画の非対象とし、`assets/docs/core-issues.md` に記録した。
+- 2026-10-26（M2） / 1.0.16J までの CREATE TABLE は文字セットを書かないので、そのまま流すとサーバーの既定（utf8mb4）になり、`aliasidx` が `alias(250)` に切られ、長い UNIQUE が HASH と報告される。古いサイトの再現には文字セットを明示する。
+- 2026-10-26（M2） / 古い DB を読み込んだ直後は、アップデーターを通すまで管理画面に入れないことがある。1.0.0J・1.0.6J は `/manager/` が HTTP 500（`site_htmlsnippets.published` などが無い）。1.0.14J.r9 以降は、ログインすると次の `GET /manager/` でアップデーター（`/install/`）へ送られる。M5 以降の確認では、アップデーターをログインなしで動かせることが前提になる。
+- 2026-10-26（M2） / `user_roles` の欠けた列: 1.0.0J は `move_document`・`remove_locks`・`view_schedule`、1.0.5J・1.0.6J は `move_document`・`view_schedule`、1.0.7J〜1.0.17J は `move_document`、1.0.20J 以降は無し。重複行は 1.0.0J と 1.0.5J のフィクスチャにだけ入る（1.0.6J 以降は主キー・UNIQUE が既にある）。
 - 2026-10-26（M1） / `evo()->clearCache()` は `system_cache` を TRUNCATE するので、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わる（未ログインの CLI では `Error` とだけ出て終了コード 0）。ランナーの中でキャッシュを消すと、アップデーターでは `create_tables.sql` より前に止まる。
 - 2026-10-26（M1） / マイグレーションのファイルをメソッドの中で `require` すると、ファイルの変数（`$id` など）がランナーの変数を書き換え、返した関数が `$this` に結び付く（php:7.4 で確かめた）。
 - 2026-10-26（M1） / 1.0.20J〜1.2.3J の DB には `system_cache` があるので、表の有無で「古い DB か」を判定すると、CLI だけで baseline まで流れてしまう。baseline の記録の有無で判定する。
