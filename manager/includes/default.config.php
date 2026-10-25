@@ -122,19 +122,4 @@ if (!function_exists('mysqli_set_charset') && !function_exists('mysql_set_charse
     $_lang['settings_after_install'] .= '<br /><strong style="color:red;">この環境では日本語以外の文字(中国語・韓国語・一部の機種依存文字など)を入力できません。</strong>対応が必要な場合は、サーバ環境のUTF-8エンコードの扱いを整備したうえで、mysqli.incのescape関数の処理を書き換えてください。mb_convert_encodingの処理を行なっている行が2行ありますので、これを削除します。';
 }
 
-switch (evo()->config('settings_version')) {
-    case '1.0.5J-r11':
-    case '1.0.6J':
-    case '1.0.6J-r1':
-        $rs = db()->select('id', '[+prefix+]site_htmlsnippets', "name='ログイン画面'");
-        if (db()->count($rs)) {
-            db()->update('published=0', '[+prefix+]site_htmlsnippets', "name='ログイン画面'");
-        }
-        $rs = db()->select('id', '[+prefix+]site_htmlsnippets', "name='ダッシュボード'");
-        if (db()->count($rs)) {
-            db()->update('published=0', '[+prefix+]site_htmlsnippets', "name='ダッシュボード'");
-        }
-        break;
-}
-
 return $default_config;
