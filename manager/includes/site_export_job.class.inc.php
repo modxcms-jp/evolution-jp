@@ -12,7 +12,7 @@ require_once __DIR__ . '/site_exporter.class.inc.php';
  * 状態ファイル: temp/export_job.json（書き換えは一時ファイルからの rename で、読む側は常に完全な内容を見る）
  * 排他:         temp/export_job.lock を flock する。step・cancel は取れなければ待たずに busy を返す。start だけは処理の切れ目まで少し待つ（startWaitSeconds）
  * 中止の印:     temp/export_job.cancel。中止するジョブの id（状態の job_id）を書く。ロックを取らずに書ける。
- *               step() は 1 まとまり（同時に取得する最大 EvoSiteExporter::CONCURRENCY 件）ごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
+ *               step() は 1 まとまり（同時に取得する最大 EvoSiteExporter::concurrency() 件）ごとに、自分のジョブの id の印だけを見る（別のタブが始めた新しいジョブは止まらない）
  * 開始待ちの印: temp/export_job.takeover.<ランダムな 16 進>。start() がロックを取れないとき、待つ間だけ待つ側ごとに作る（中身は無い）。
  *               処理中の step() は、始めと 1 まとまりごとにこれを見て、あれば進み具合を保存してロックを放し busy を返す。
  *               処理が途切れなく続く側（CLI など）でも、時間の隙間に頼らず start() に順番を譲らせるための印。
@@ -184,7 +184,7 @@ class EvoSiteExportJob
     }
 
     /**
-     * 持ち時間ぶん書き出して進める。持ち時間を過ぎたら、処理中の 1 まとまり（同時に取得する最大 EvoSiteExporter::CONCURRENCY 件）を終えて返す。
+     * 持ち時間ぶん書き出して進める。持ち時間を過ぎたら、処理中の 1 まとまり（同時に取得する最大 EvoSiteExporter::concurrency() 件）を終えて返す。
      *
      * @param float|null $budgetSeconds 持ち時間（秒）。null か 0 以下なら終わるまで続ける（CLI 用）
      * @param string $siteUrl ページを取得する先のサイトの URL。空なら設定のサイトの URL。
@@ -243,7 +243,7 @@ class EvoSiteExportJob
                     break;
                 }
 
-                $ids = array_slice($state['ids'], $state['pos'], max(1, (int)EvoSiteExporter::CONCURRENCY));
+                $ids = array_slice($state['ids'], $state['pos'], EvoSiteExporter::concurrency());
                 $results = $exporter->exportMany($ids);
                 $state['pos'] += count($ids);
 

@@ -16,6 +16,14 @@ class EvoSiteExporter
     /** 同時に取得する 1 まとまり全体の締め切り（秒）。送り直しとリダイレクトを含め、これを超えて続けない */
     const CHUNK_DEADLINE = 10;
 
+    /**
+     * 実際に同時に取得する件数。curl が無いときは、まとまりの中を順に取るので 1 にして、締め切りを分け合わないようにする。
+     */
+    public static function concurrency()
+    {
+        return extension_loaded('curl') ? max(1, (int)self::CONCURRENCY) : 1;
+    }
+
     private $target;
     private $ids;
     private $includeNoncache;
@@ -132,7 +140,7 @@ class EvoSiteExporter
     public function exportMany(array $ids)
     {
         $results = [];
-        foreach (array_chunk(array_values($ids), max(1, (int)self::CONCURRENCY)) as $batch) {
+        foreach (array_chunk(array_values($ids), self::concurrency()) as $batch) {
             foreach ($this->exportBatch($batch) as $result) {
                 $results[] = $result;
             }
@@ -176,7 +184,7 @@ class EvoSiteExporter
         }
 
         $rs = db()->select(
-            "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published",
+            "id, alias, pagetitle, type, isfolder, (content = '' AND template = 0) AS wasNull, published",
             '[+prefix+]site_content',
             sprintf('id=%d', $id)
         );
@@ -189,8 +197,11 @@ class EvoSiteExporter
         $baseDir = $path == '' ? $this->exportDir . '/' : $this->exportDir . '/' . $path . '/';
         $this->makeDir(rtrim($baseDir, '/'));
 
+        // Web リンクのフォルダはページを取得せず、フォルダだけを作る（content はリンク先であって、このサイトのページではない）
+        $row['noPage'] = $row['wasNull'] || ($row['type'] === 'reference' && $row['isfolder'] == 1);
+
         $item = ['row' => $row, 'baseDir' => $baseDir];
-        if (!$row['wasNull'] && $row['published'] == 1) {
+        if (!$row['noPage'] && $row['published'] == 1) {
             $item['url'] = $this->fetchUrl($row['id']);
         }
         return $item;
@@ -208,7 +219,7 @@ class EvoSiteExporter
 
         $filename = null;
         $detail = '';
-        if ($row['wasNull']) {
+        if ($row['noPage']) {
             $reason = 'success_skip_dir';
         } else {
             $docname = $this->getFileName(
@@ -437,7 +448,8 @@ class EvoSiteExporter
      * HTTP のステータスで答えが返った取得（401・404・500 など）は、送り直しても同じなので送り直さない。
      * 401 は basic 認証として印を立てる（結果ごと）。
      * 3xx は curl の経路でもストリームの経路でも自分で Location を辿る（最大 MAX_REDIRECTS 回、最初の URL と同じオリジンの中だけ）。
-     * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。Authorization を付けるのは同じオリジンへの要求だけになる。
+     * 同じホスト・既定のポートでの http から https への切り替えも辿る。
+     * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。最初の URL がこのサイト（取得先）の http・https でなければ取得しない。Authorization を付けるのは同じオリジンへの要求だけになる。
      * このまとまり全体に CHUNK_DEADLINE 秒の締め切りがあり、過ぎたら送り直しとリダイレクトの追跡を打ち切って失敗にする。
      *
      * @param array $urls キー => URL
@@ -446,12 +458,19 @@ class EvoSiteExporter
     private function fetchAll(array $urls)
     {
         $deadline = microtime(true) + self::CHUNK_DEADLINE;
+        $siteOrigin = $this->originOf($this->siteUrl !== '' ? $this->siteUrl : (string)evo()->config('site_url'));
         $state = [];
+        $out = [];
         foreach ($urls as $key => $url) {
-            $state[$key] = ['url' => $url, 'origin' => $this->originOf($url), 'hops' => 0, 'tries' => 0];
+            // 取得先はそのサイトの http・https に限る（最初の URL がサイトの外なら取得しない）
+            $origin = $this->originOf($url);
+            if ($origin === null || $siteOrigin === null || $origin !== $siteOrigin) {
+                $out[$key] = $this->failure('not fetched: the URL is outside the site (' . $this->shortUrl($url) . ')');
+                continue;
+            }
+            $state[$key] = ['url' => $url, 'origin' => $origin, 'hops' => 0, 'tries' => 0];
         }
 
-        $out = [];
         while ($state) {
             $remaining = $deadline - microtime(true);
             if ($remaining <= 0) {
@@ -478,12 +497,16 @@ class EvoSiteExporter
                 } elseif ($status >= 300 && $status < 400) {
                     if ($redirect === '') {
                         $out[$key] = $this->failure($detail);
-                    } elseif ($this->originOf($redirect) !== $s['origin']) {
-                        $out[$key] = $this->failure($detail . ' → another site');
+                    } elseif (($to = $this->originOf($redirect)) === null
+                        || ($to !== $s['origin'] && !$this->isHttpsUpgrade($s['origin'], $to))) {
+                        $out[$key] = $this->failure(
+                            $detail . ' → another site (set the site URL to match the redirect target)'
+                        );
                     } elseif ($s['hops'] >= self::MAX_REDIRECTS) {
                         $out[$key] = $this->failure($detail . ' → too many redirects');
                     } else {
                         $s['url'] = $redirect;
+                        $s['origin'] = $to;
                         $s['hops']++;
                         $next[$key] = $s;
                     }
@@ -509,6 +532,20 @@ class EvoSiteExporter
             }
         }
         return $out;
+    }
+
+    private function shortUrl($url)
+    {
+        $url = (string)$url;
+        return strlen($url) > 100 ? substr($url, 0, 100) . '...' : $url;
+    }
+
+    /**
+     * 同じホスト・既定のポートでの http から https への切り替えか。
+     */
+    private function isHttpsUpgrade($from, $to)
+    {
+        return preg_match('@^http://(.+):80$@', (string)$from, $m) === 1 && $to === 'https://' . $m[1] . ':443';
     }
 
     private function failure($detail)
@@ -549,18 +586,54 @@ class EvoSiteExporter
         if (preg_match('@^[a-zA-Z][a-zA-Z0-9+.-]*:@', $location)) {
             return $location;
         }
+        // フラグメントは取得に関係ないので捨てる
+        $location = preg_replace('@#.*$@', '', $location);
         if (strpos($location, '//') === 0) {
             return $b['scheme'] . ':' . $location;
         }
         $origin = $b['scheme'] . '://' . $b['host'] . (isset($b['port']) ? ':' . $b['port'] : '');
-        if ($location[0] === '/') {
-            return $origin . $location;
-        }
         $path = isset($b['path']) ? $b['path'] : '/';
+        if ($location === '') {
+            return $origin . $path . (isset($b['query']) ? '?' . $b['query'] : '');
+        }
         if ($location[0] === '?') {
             return $origin . $path . $location;
         }
-        return $origin . substr($path, 0, strrpos($path, '/') + 1) . $location;
+        if ($location[0] !== '/') {
+            $location = substr($path, 0, strrpos($path, '/') + 1) . $location;
+        }
+        $query = '';
+        $pos = strpos($location, '?');
+        if ($pos !== false) {
+            $query = substr($location, $pos);
+            $location = substr($location, 0, $pos);
+        }
+        return $origin . $this->normalizePath($location) . $query;
+    }
+
+    /**
+     * パスの . と .. を整理する（ルートより上には行かない）。
+     */
+    private function normalizePath($path)
+    {
+        $out = [];
+        $segments = explode('/', $path);
+        $last = count($segments) - 1;
+        foreach ($segments as $i => $seg) {
+            if ($seg === '..') {
+                array_pop($out);
+                if ($i === $last) {
+                    $out[] = '';
+                }
+            } elseif ($seg === '.') {
+                if ($i === $last) {
+                    $out[] = '';
+                }
+            } elseif ($seg !== '' || $i === $last) {
+                $out[] = $seg;
+            }
+        }
+        return '/' . implode('/', $out);
     }
 
     /**
@@ -644,6 +717,9 @@ class EvoSiteExporter
         if ($timeout <= 0) {
             return [false, 0, 'aborted: time limit for the batch exceeded', '', -1];
         }
+        if ($this->originOf($url) === null) {
+            return [false, 0, 'not fetched: only http and https are allowed', '', -1];
+        }
         $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
         if ($this->bearerToken) {
             $header[] = 'Authorization: Bearer ' . $this->bearerToken;
@@ -708,6 +784,14 @@ class EvoSiteExporter
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
         // リダイレクトは curl に辿らせず、fetchAll() が同じオリジンの中だけ辿る（別のオリジンへ Authorization を送らない）
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        // 取得の経路も http・https に限る
+        if (defined('CURLOPT_PROTOCOLS_STR')) {
+            curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
+            curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
+        } else {
+            curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+            curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        }
         if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, serverv('HTTP_USER_AGENT'));
         }
