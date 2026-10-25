@@ -78,6 +78,7 @@ php evo skill:sync --skill=issue-resolver
 - マイグレーションの ID が 100 文字を超えるなど、一覧を読めないときも、`migrate:status` と同じく標準エラーに文を出して終了コード 1 で終わります。
 - 失敗したら、ID とエラーを標準エラーに表示して終了コード 1 で終わります（失敗したマイグレーションは記録せず、次回はそこから流し直します）。
 - 同時に 2 回走らないよう `GET_LOCK()` を使い、30 秒待っても取れなければ失敗にします。
+マイグレーションの仕組みと書き方は [`assets/docs/migrations.md`](../../../assets/docs/migrations.md) を参照してください。
 `migrate:status` は `applied <ID> <日時>` と `pending <ID>` を並べ、最後に `N applied, M pending` を表示します。記録の表がまだ無いときは、先頭に `Migrations table not found (every migration is pending).` を表示します。記録はあるのにファイルが無いマイグレーションは `applied <ID> <日時> (file missing)` と表示します。
 `make:migration <説明>` は `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形を作ります。説明は `a-z`・`0-9`・`_` だけで、合わなければ終了コード 1 です。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
