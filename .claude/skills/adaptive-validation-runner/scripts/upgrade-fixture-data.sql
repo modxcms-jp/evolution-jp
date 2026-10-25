@@ -71,10 +71,10 @@ INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
 
 -- 基本の設定。アップグレードのあと、設定を保存しなくても公開側と管理画面が開くために要る
 -- （install/sql/default_settings.sql の設定のうち、1.0.0J から今まである名前だけ。manager_language と fe_editor_lang は
--- フィクスチャのため english にする）
+-- フィクスチャのため japanese-utf8 にする。smoke.js のメールの日本語の検査に合わせる）
 INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
     ('server_offset_time', '0'),
-    ('manager_language', 'english'),
+    ('manager_language', 'japanese-utf8'),
     ('modx_charset', 'UTF-8'),
     ('site_name', 'Fixture Site'),
     ('site_start', '1'),
@@ -89,7 +89,7 @@ INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
     ('use_captcha', '0'),
     ('use_editor', '1'),
     ('use_browser', '1'),
-    ('fe_editor_lang', 'english'),
+    ('fe_editor_lang', 'japanese-utf8'),
     ('session.cookie.lifetime', '604800');
 
 INSERT IGNORE INTO `{PREFIX}user_settings` (`user`, `setting_name`, `setting_value`) VALUES
