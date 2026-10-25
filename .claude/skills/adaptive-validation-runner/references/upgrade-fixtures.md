@@ -19,6 +19,8 @@
 <uf> diff <work>/ref.tsv <work>/after.tsv
 ```
 
+道具（`snapshot` の書き方）を更新したら、比べる基準の `ref.tsv` も同じ版の道具で取り直す（書き方を変えると、それより前に取った TSV とは比べられない）。
+
 | 副コマンド | 役割 |
 | --- | --- |
 | `build <tag> [--out <file>] [--charset utf8mb3\|utf8mb4]` | `git show release-<tag>:<path>` で CREATE TABLE を取り出し、`upgrade-fixture-data.sql` を足して SQL を作る。出力先は `$EVO_WORK_DIR/fixture-<tag>.sql`（`--charset utf8mb4` は `fixture-<tag>-utf8mb4.sql`。作業用ディレクトリはリポジトリの外に置く）。元の文にある CREATE TABLE を 1 つでも取り出せなければ止まる。文字セットは「タグと CREATE TABLE の元」を見る |

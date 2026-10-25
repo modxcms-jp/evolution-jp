@@ -127,13 +127,16 @@ function takeOption(args, name) {
 
 function cmdBuild(args) {
     let out = takeOption(args, '--out');
-    const charset = takeOption(args, '--charset') || 'utf8mb3';
+    const charsetOpt = takeOption(args, '--charset');
     const tag = args[0];
-    if (!tag || out === '') {
-        fail('使い方: build <tag> [--out <file>] [--charset utf8mb3|utf8mb4]（例: build 1.0.0J）');
+    const usage = '使い方: build <tag> [--out <file>] [--charset utf8mb3|utf8mb4]（例: build 1.0.0J）';
+    // 値が無い・空の指定は、黙って既定に戻さず止める
+    if (!tag || out === '' || charsetOpt === '') {
+        fail(usage);
     }
-    if (!CHARSET_OPTIONS[charset]) {
-        fail(`--charset は utf8mb3 か utf8mb4: ${charset}`);
+    const charset = charsetOpt === null ? 'utf8mb3' : charsetOpt;
+    if (!Object.prototype.hasOwnProperty.call(CHARSET_OPTIONS, charset)) {
+        fail(`--charset は utf8mb3 か utf8mb4 だけ: ${charset}\n${usage}`);
     }
     if (!out) {
         if (!process.env.EVO_WORK_DIR) {
@@ -328,7 +331,7 @@ function cmdSnapshot(args) {
     const columns = sql(
         `SELECT 'column', ${strip}, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, `
         // 空の値は、行末だと sql() の trim で消えて項目が減るので、空にならない表記にする
-        + "IF(COLUMN_DEFAULT IS NULL, '<none>', IF(COLUMN_DEFAULT = '', '<empty>', COLUMN_DEFAULT)), IF(EXTRA = '', '-', EXTRA) "
+        + "IF(COLUMN_DEFAULT IS NULL, '<none>', IF(CHAR_LENGTH(COLUMN_DEFAULT) = 0, '<empty>', COLUMN_DEFAULT)), IF(EXTRA = '', '-', EXTRA) "
         + `FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME LIKE ${like} `
         + 'ORDER BY TABLE_NAME, COLUMN_NAME'
     );
