@@ -36,6 +36,15 @@ if (version_compare(phpversion(), '7.4.0') < 0) {
 }
 echo p($_ . lang('checking_php_version'));
 
+// check mbstring
+if (!extension_loaded('mbstring')) {
+    $_ = echo_failed() . lang('mbstring_required');
+    $errors += 1;
+} else {
+    $_ = echo_ok();
+}
+echo p($_ . lang('checking_mbstring'));
+
 // check sessions
 if (sessionv('test') != 1) {
     echo p(echo_failed() . lang('checking_sessions'));
