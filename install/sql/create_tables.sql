@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}document_groups`
 CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names`
 (
     `id`               int(10)      NOT NULL AUTO_INCREMENT,
-    `name`             varchar(245) NOT NULL DEFAULT '',
+    `name`             varchar(191) NOT NULL DEFAULT '',
     `private_memgroup` tinyint(4)   NOT NULL DEFAULT '0' COMMENT 'determine whether the document group is private to manager users',
     `private_webgroup` tinyint(4)   NOT NULL DEFAULT '0' COMMENT 'determines whether the document is private to web users',
     PRIMARY KEY (`id`),
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_access`
 CREATE TABLE IF NOT EXISTS `{PREFIX}membergroup_names`
 (
     `id`   int(10)      NOT NULL AUTO_INCREMENT,
-    `name` varchar(245) NOT NULL DEFAULT '',
+    `name` varchar(191) NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`)
 ) {TABLE_OPTION} COMMENT ='Contains data used for access permissions.';
@@ -459,7 +459,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_access`
 CREATE TABLE IF NOT EXISTS `{PREFIX}webgroup_names`
 (
     `id`   int(10)      NOT NULL AUTO_INCREMENT,
-    `name` varchar(245) NOT NULL DEFAULT '',
+    `name` varchar(191) NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
     UNIQUE KEY `name` (`name`)
 ) {TABLE_OPTION} COMMENT ='Contains data used for web access permissions.';
