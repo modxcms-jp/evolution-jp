@@ -21,8 +21,8 @@
 
 | 副コマンド | 役割 |
 | --- | --- |
-| `build <tag> [--out <file>]` | `git show release-<tag>:<path>` で CREATE TABLE を取り出し、`upgrade-fixture-data.sql` を足して SQL を作る。出力先は `$EVO_WORK_DIR/fixture-<tag>.sql`（作業用ディレクトリはリポジトリの外に置く） |
-| `load <file>` | 接頭辞（`EVO_TABLE_PREFIX`、既定 `modx_`）の表をすべて消してから、ファイルを流し込む。管理者（ID 1）のパスワードは、流し込む前の DB の値を引き継ぐので、`admin` / `Passw0rd!2026` でログインできる |
+| `build <tag> [--out <file>] [--charset utf8mb3\|utf8mb4]` | `git show release-<tag>:<path>` で CREATE TABLE を取り出し、`upgrade-fixture-data.sql` を足して SQL を作る。出力先は `$EVO_WORK_DIR/fixture-<tag>.sql`（`--charset utf8mb4` は `fixture-<tag>-utf8mb4.sql`。作業用ディレクトリはリポジトリの外に置く）。元の文にある CREATE TABLE を 1 つでも取り出せなければ止まる。文字セットは「タグと CREATE TABLE の元」を見る |
+| `load <file>` | 接頭辞（`EVO_TABLE_PREFIX`、既定 `modx_`）の表をすべて消してから、ファイルを流し込む。`EVO_VALIDATE_NAME`（か `EVO_DB_CONTAINER`）が無いと止まる（既定のコンテナ名で別のセッションの表を消さないため）。消す前に、対象のコンテナ名と表の数を出す。管理者（ID 1）のパスワードは、流し込む前の DB の値を引き継ぐので、`admin` / `Passw0rd!2026` でログインできる |
 | `migrate` | アップデーターと同じく、CLI のガード（`EvoMigrator::requiresInstaller()`）を通さずに、作業ツリーのランナーを流す。アプリのコンテナで `manager/includes/cli/bootstrap.php` を読み込んでから `(new EvoMigrator())->run()` を呼ぶ。適用した ID を `Applied <ID>` で 1 行ずつ出し、失敗は ID とエラーを出して終了コード 1。キャッシュは消さない（`system_cache` の無い古い DB では `clearCache()` が処理ごと止めるため） |
 | `create-tables` | `install/sql/create_tables.sql` を、インストーラ（`install/sqlParser.class.php`）と同じ置き換え（`{PREFIX}`、`{TABLE_OPTION}` を `CHARSET=utf8mb4 COLLATE utf8mb4_general_ci`）で流す。アップデーターの順（ランナー → `create_tables.sql`）を手で再現するときに使う |
 | `snapshot <out>` | 列と索引の定義を、1 行 1 項目の TSV に書く |
@@ -30,7 +30,7 @@
 
 アップデーターを実際に通すとき（M5 以降）は、`load` のあと Playwright で `install/` を進める。`migrate`・`create-tables` は、アップデーターに組み込まれる前の段階と、ランナー単体の確認のための手順。
 
-`load` が途中で失敗すると、管理者のパスワードの元の値は失われる（フィクスチャの仮の値 `x` が残る）。次の `load` が止まって知らせるので、`setup-site.js --reinstall` で今の版を入れ直す（DB の表が残っているとインストール済みと見なされるので、先に表を消すか `down -v` する）。
+`load` は、読めた管理者のパスワードを `$EVO_WORK_DIR/admin-password.hex` に控える。`load` が途中で失敗するとテーブルにはフィクスチャの仮の値 `x` が残るが、次の `load` はこの控えを使って続けられる。控えが無い（`EVO_WORK_DIR` を付けていなかったなど）ときは止まって知らせるので、`setup-site.js --reinstall` で今の版を入れ直す（DB の表が残っているとインストール済みと見なされるので、先に表を消すか `down -v` する）。環境を入れ直したら、古い控えを消す（`load` は読めた値で控えを上書きする）。
 
 ### 環境変数をまとめるラッパー
 
@@ -62,17 +62,30 @@ EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> EVO_WORK_DIR=<work> \
 - 1.0.0J・1.0.6J: `/manager/` が HTTP 500（`site_htmlsnippets.published` などの列が無い）
 - 1.0.14J.r9 以降: ログインすると、アップデーター（`/install/`）へ飛ぶ
 
-`lib.js` の `login()` は `#mainPane` を待つので、古い DB では失敗に見える。ログインできるかは、画面を開かずに curl で見る（ログインの成否だけを見る）。
+`lib.js` の `login()` は `#mainPane` を待つので、古い DB では失敗に見える。ログインの成否と、その先の行き先は、画面を開かずに curl の 2 回で見る（cookie を `-c` / `-b` で持ち回る）。ログインの POST に CSRF トークンは要らない。
 
 ```bash
-# 応答のステータスと Location を見る。500 なら DB が古すぎて画面が動いていない。
-# 302 の Location が install/ ならアップデーターへ送られている（ログインは通っている）
-curl -s -o /dev/null -D - -H 'Accept-Language: ja' \
+# 1 回目: ログイン。302 で Location が /manager/ なら成功。200 なら失敗（本文に <script>alert(...) が出る）
+rm -f <work>/cj.txt
+curl -s -c <work>/cj.txt -b <work>/cj.txt -o /dev/null -D - -H 'Accept-Language: ja' \
   --data-urlencode 'username=admin' --data-urlencode 'password=Passw0rd!2026' \
   http://<アドレス>/manager/processors/login.processor.php | grep -i -E '^(HTTP|location)'
+# 2 回目: 同じ cookie で入口を開く。アップデーターへ送るのはここ（login.processor.php ではない）。
+# 302 で Location が /install/ なら送られている。500 なら DB が古すぎて入口が動かない
+curl -s -c <work>/cj.txt -b <work>/cj.txt -o /dev/null -D - -H 'Accept-Language: ja' \
+  http://<アドレス>/manager/ | grep -i -E '^(HTTP|location)'
 ```
 
-ログインの CSRF トークンなどで通らないときは、`mainPane` を待たない確認（`/install/` を開いて画面の文言を見る、`php evo` の CLI や DB で確かめる）に切り替える。アップデーターを通したあとは、通常どおり `login()` が使える。
+確かめた結果（mariadb:11、この作業ツリー）:
+
+| load したフィクスチャ | 1 回目（ログイン） | 2 回目（`GET /manager/`） |
+| --- | --- | --- |
+| 1.0.0J | 302 → `/manager/`（成功） | 500 |
+| 1.0.20J | 302 → `/manager/`（成功） | 302 → `/install/` |
+| 1.2.3J | 302 → `/manager/`（成功） | 302 → `/install/` |
+| 1.2.3J で誤ったパスワード | 200（本文に `alert('Incorrect username or password entered!')`） | — |
+
+アップデーターを通したあとは、通常どおり `login()` が使える。
 
 ### ログの検証の前に `temp/logs/system/` を消す
 
@@ -93,7 +106,11 @@ rm -rf temp/logs/system/*
 `build` は CREATE TABLE の文だけを使い、同じ表が 2 回出てきたら最初のものを使う。次の置き換えをする。
 
 - `{PREFIX}` を接頭辞に、`TYPE=MyISAM` を `ENGINE=MyISAM` に（今の MariaDB は `TYPE=` を受け付けない）
-- `{TABLE_OPTION}` を `DEFAULT CHARSET=utf8mb3` に。1.0.16J までは文字セットを書かないので、`ENGINE=` のあとに同じものを足す。古いサイトの文字セットを再現する（インストーラの utf8mb4 への変換より前の状態）。utf8mb4 のままだと、MyISAM の索引の長さの上限（1000 バイト）で `aliasidx` が `alias(250)` に切られ、長い UNIQUE が HASH になって、本物の古いサイトと違う形になる
+- `{TABLE_OPTION}` を文字セットの指定に。1.0.16J までは文字セットを書かないので、`ENGINE=` のあとに同じものを足す。`--charset` で選ぶ。
+  - `utf8mb3`（既定）: `DEFAULT CHARSET=utf8mb3`。インストーラの utf8mb4 への変換より前の、古いサイトの状態を再現する
+  - `utf8mb4`: `DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci`。1.1.0J 以降のサイトの多くは、インストーラの `convert2utf8mb4()`（`install/functions.php`。照合順序は `utf8mb4_general_ci`）で変換済みなので、その状態を再現する
+
+  1.0.0J を utf8mb4 のまま作ると、MyISAM の索引の長さの上限（1000 バイト）で `aliasidx` が `alias(250)` に切られ、`name` の長い UNIQUE が内部で HASH になって、本物の古いサイトと違う形になる（`snapshot` は前置き長を比べるので `aliasidx` の違いとして出る。HASH は種類を FULLTEXT かどうかだけで比べるので出ない）。1.1.0J と 1.2.3J は列がすでに 245・191 なので、utf8mb3 と utf8mb4 のフィクスチャの `snapshot` に違いは無い（`diff` で 0 件。確かめた）
 - エンジンは定義のとおり。1.0.0J〜1.1.0J は MyISAM、1.2.0J 以降は `ENGINE=` が無いので DB の既定（InnoDB）
 
 ### 動作確認済みのタグ
@@ -108,7 +125,7 @@ rm -rf temp/logs/system/*
 
 `scripts/upgrade-fixture-data.sql`。1.0.0J から今まである列だけを使い、アップグレードの処理が読む古い値を入れる。
 
-- システム設定: `settings_version`・`install_version`（どちらもそのタグの版）・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`use_udperms`・`csrf_token`
+- システム設定: `settings_version`（そのタグの版）・`install_version`（main を入れたサイトにある行の再現。どのリリースのタグのインストーラも書かず、main の d98d88609 から。値は便宜上そのタグの版）・`manager_theme`（`MODxCarbon`）・`which_editor`（`TinyMCE7`）・`site_id`（配布の既定値）・`site_url`・`emailsender`（`you@example.com`）・`custom_contenttype`・`topmenu_site`（古い既定）・`validate_referer`・`upload_maxsize`（`1048576`）・`use_udperms`・`csrf_token`
 - 管理者（ID 1）と、ロール 1（`empty_trash=0`。利用者が外した権限）、ロール 2（`save_role=1` で一部の権限が 0）
 - 文書: `type=''` の 5 件（`http://example.com/` の中身、`feed.xml`・`site.js`・`site.css`・どれにも当たらないもの）、alias が文字列 `NULL` の 1 件
 - テンプレート: `content` が NULL の 1 件
@@ -128,11 +145,24 @@ rm -rf temp/logs/system/*
 
 1.0.5J の `member_groups`・`web_groups` は、定義に UNIQUE が既にあるので重複が入らない。1.0.6J 以降は主キー・UNIQUE が既にあり、重複は入らない（1.0.6J の `user_settings` / `web_user_settings` は主キーが `setting_name` だけなので、同じ名前の行は 1 行しか入らない）。重複を消す処理を確かめるのは、1.0.0J と 1.0.5J。
 
+### タグごとに欠けている `user_roles` の列
+
+今の `user_roles`（73 列）に対して、フィクスチャの `user_roles` に無い列（全タグを `load` して `INFORMATION_SCHEMA` で確かめた）。baseline が列を足し、足したときだけロール ID 1 を 1 にする処理（M3・M4）の確認に使う。
+
+| タグ | 欠けている列 |
+| --- | --- |
+| 1.0.0J | `move_document`・`remove_locks`・`view_schedule` |
+| 1.0.5J・1.0.6J | `move_document`・`view_schedule` |
+| 1.0.7J・1.0.10J・1.0.14J.r9・1.0.16J・1.0.17J | `move_document` |
+| 1.0.20J 以降（1.0.26J・1.1.0J・1.2.0J〜1.2.3J） | なし |
+
+`empty_trash`・`edit_chunk` などの権限の列は、1.0.0J のフィクスチャにすでにある。
+
 ## 比べる項目と比べない項目
 
 `snapshot` / `diff` が比べるのは次のとおり。
 
-- 列: 型（`COLUMN_TYPE`）・NULL 可否・既定値・`EXTRA`（`auto_increment` など）
+- 列: 型（`COLUMN_TYPE`）・NULL 可否・既定値・`EXTRA`（`auto_increment` など）。空の既定値は `<empty>`、既定値なしは `<none>`、空の `EXTRA` は `-` と書く（行末の空が落ちないように）
 - 索引: 名前・一意かどうか・種類・列の並び（前置き長を含む）。種類は FULLTEXT かそれ以外かだけ（MariaDB は長い UNIQUE を HASH と報告するなど、サーバーの事情で変わるため）
 
 比べない項目と理由:

@@ -52,6 +52,8 @@ VALUES
      0, 0, 1, 1, 1, 1, 1);
 
 -- システム設定（settings_version 以外は、アップグレードの処理が読む古い値）
+-- install_version は、main を入れたサイトにある行の再現（どのリリースのタグのインストーラも書かない。main の d98d88609 から）。
+-- 値は便宜上そのタグの版にしている
 INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
     ('settings_version', '{SETTINGS_VERSION}'),
     ('install_version', '{SETTINGS_VERSION}'),

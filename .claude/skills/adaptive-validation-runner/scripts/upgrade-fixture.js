@@ -1,9 +1,11 @@
 // 古い版の DB を再現し、アップグレード後のスキーマを今の新規インストールと比べるための道具。
 //   [EVO_WORK_DIR=<作業用>] node .claude/skills/adaptive-validation-runner/scripts/upgrade-fixture.js <副コマンド> ...
 //
-//   build <tag> [--out <file>]  リリースタグの CREATE TABLE と最小のデータから、フィクスチャの SQL を作る
-//                               （既定の出力先は $EVO_WORK_DIR/fixture-<tag>.sql）
+//   build <tag> [--out <file>] [--charset utf8mb3|utf8mb4]
+//                               リリースタグの CREATE TABLE と最小のデータから、フィクスチャの SQL を作る
+//                               （既定の出力先は $EVO_WORK_DIR/fixture-<tag>.sql。utf8mb4 は -utf8mb4 が付く）
 //   load <file>                 検証用 DB の接頭辞つきの表をすべて消してから、フィクスチャを流し込む
+//                               （EVO_VALIDATE_NAME か EVO_DB_CONTAINER が必須）
 //   migrate                     CLI のガード（requiresInstaller）を通さずに、作業ツリーのランナーを流す
 //   create-tables               install/sql/create_tables.sql を、インストーラと同じ置き換えで流す
 //   snapshot <out>              列と索引の定義を TSV に書く
@@ -61,15 +63,23 @@ function gitShow(ref, file) {
 
 // CREATE TABLE の文だけを取り出す（コメントと、アップグレード用の ALTER・INSERT は捨てる）。
 // 同じ表の定義が 2 回あれば、最初のものだけ使う（IF NOT EXISTS の動きと同じ）
-function createTables(text) {
+// 文字セットは tableOption（'DEFAULT CHARSET=utf8mb3' など）。取り出せなかった CREATE TABLE があれば止める
+function createTables(text, tableOption) {
     const seen = new Set();
     const out = [];
+    const stripComments = s => s
+        .split(/\r?\n/)
+        .filter(line => !/^\s*(#|--)/.test(line))
+        .join('\n');
+    // 元の文の中にあるすべての CREATE TABLE の表名（読み飛ばしの検出用）
+    const expected = new Set();
+    const nameRe = /CREATE TABLE\s+(?:IF NOT EXISTS\s+)?`([^`]+)`/gi;
+    let nm;
+    while ((nm = nameRe.exec(stripComments(text))) !== null) {
+        expected.add(nm[1]);
+    }
     for (const raw of text.split(/;[ \t]*\r?\n/)) {
-        const stmt = raw
-            .split(/\r?\n/)
-            .filter(line => !/^\s*(#|--)/.test(line))
-            .join('\n')
-            .trim();
+        const stmt = stripComments(raw).trim();
         const m = /^CREATE TABLE\s+(?:IF NOT EXISTS\s+)?`([^`]+)`/i.exec(stmt);
         if (!m || seen.has(m[1])) {
             continue;
@@ -80,35 +90,57 @@ function createTables(text) {
             // 古い版は TYPE=MyISAM。今の MariaDB は ENGINE= だけ受け付ける
             .replace(/\bTYPE\s*=\s*(\w+)/gi, 'ENGINE=$1')
             // 古いサイトの文字セットを再現する（インストーラの utf8mb4 への変換より前の状態）
-            .split('{TABLE_OPTION}').join('DEFAULT CHARSET=utf8mb3');
+            .split('{TABLE_OPTION}').join(tableOption);
         // 1.0.16J までは文字セットを書かない（インストーラが ENGINE=MyISAM のあとに足していた）。ここで足す
         if (!/\bCHARSET\s*=/i.test(ddl)) {
             if (!/\bENGINE\s*=/i.test(ddl)) {
                 fail(`ENGINE も CHARSET も無い CREATE TABLE があり、文字セットを足せない: ${m[1]}`);
             }
-            ddl = ddl.replace(/\bENGINE\s*=\s*(\w+)/i, 'ENGINE=$1 DEFAULT CHARSET=utf8mb3');
+            ddl = ddl.replace(/\bENGINE\s*=\s*(\w+)/i, `ENGINE=$1 ${tableOption}`);
         }
         out.push(ddl);
+    }
+    const missing = [...expected].filter(t => !seen.has(t));
+    if (missing.length) {
+        fail(`CREATE TABLE を取り出せなかった表がある（文の区切りの読み違いなど）: ${missing.join(', ')}`);
     }
     return out;
 }
 
-function cmdBuild(args) {
-    const outIdx = args.indexOf('--out');
-    let out = null;
-    if (outIdx !== -1) {
-        out = args[outIdx + 1];
-        args = args.filter((_, i) => i !== outIdx && i !== outIdx + 1);
+// 文字セット。utf8mb3 は古いサイトのまま、utf8mb4 は installer の convert2utf8mb4 で変換済みのサイト
+// （照合順序は install/functions.php の convert2utf8mb4() と同じ utf8mb4_general_ci）
+const CHARSET_OPTIONS = {
+    utf8mb3: 'DEFAULT CHARSET=utf8mb3',
+    utf8mb4: 'DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci',
+};
+
+// args から `--name value` を取り除いて値を返す（無ければ null）
+function takeOption(args, name) {
+    const i = args.indexOf(name);
+    if (i === -1) {
+        return null;
     }
+    const value = args[i + 1];
+    args.splice(i, 2);
+    return value === undefined ? '' : value;
+}
+
+function cmdBuild(args) {
+    let out = takeOption(args, '--out');
+    const charset = takeOption(args, '--charset') || 'utf8mb3';
     const tag = args[0];
-    if (!tag) {
-        fail('使い方: build <tag> [--out <file>]（例: build 1.0.0J）');
+    if (!tag || out === '') {
+        fail('使い方: build <tag> [--out <file>] [--charset utf8mb3|utf8mb4]（例: build 1.0.0J）');
+    }
+    if (!CHARSET_OPTIONS[charset]) {
+        fail(`--charset は utf8mb3 か utf8mb4: ${charset}`);
     }
     if (!out) {
         if (!process.env.EVO_WORK_DIR) {
             fail('出力先を決められない。EVO_WORK_DIR（作業用ディレクトリ）か --out <file> を指定する');
         }
-        out = path.join(process.env.EVO_WORK_DIR, `fixture-${tag}.sql`);
+        const suffix = charset === 'utf8mb3' ? '' : `-${charset}`;
+        out = path.join(process.env.EVO_WORK_DIR, `fixture-${tag}${suffix}.sql`);
     }
 
     const ref = `release-${tag}`;
@@ -119,7 +151,7 @@ function cmdBuild(args) {
     if (marker !== -1) {
         text = text.slice(0, marker);
     }
-    const tables = createTables(text);
+    const tables = createTables(text, CHARSET_OPTIONS[charset]);
     if (!tables.length) {
         fail(`${ref}:${file} から CREATE TABLE を取り出せなかった`);
     }
@@ -139,7 +171,7 @@ function cmdBuild(args) {
     ].join('\n');
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(out, header + tables.join(';\n\n') + ';\n\n' + data);
-    console.log(`build: ${tag} -> ${out}（${tables.length} 表、定義は ${file}）`);
+    console.log(`build: ${tag} -> ${out}（${tables.length} 表、定義は ${file}、文字セット ${charset}）`);
 }
 
 // --- DB を流す補助 ---
@@ -174,22 +206,42 @@ function cmdLoad(args) {
     if (!fs.existsSync(file)) {
         fail(`ファイルが無い: ${file}`);
     }
-    // 管理者のパスワードは、流し込む前の DB（setup-site.js で入れた今の版）の値を引き継ぐ
+    // 既定のコンテナ名（evo-validate-db）のまま別のセッションの表を消さないよう、対象を明示させる
+    if (!process.env.EVO_VALIDATE_NAME && !process.env.EVO_DB_CONTAINER) {
+        fail('load は表を消す。EVO_VALIDATE_NAME（か EVO_DB_CONTAINER）で対象の環境を明示する');
+    }
+    const tables = prefixedTables();
+    console.log(`load: 対象 ${config.dbContainer} の ${tables.length} 表（接頭辞 ${PREFIX}）を消して置き換える`);
+
+    // 管理者のパスワードは、流し込む前の DB（setup-site.js で入れた今の版）の値を引き継ぐ。
+    // 前の load が途中で失敗しても使えるよう、読めた値は $EVO_WORK_DIR/admin-password.hex に控える
+    const hexFile = process.env.EVO_WORK_DIR ? path.join(process.env.EVO_WORK_DIR, 'admin-password.hex') : null;
     let hex = '';
     try {
         hex = sql(`SELECT HEX(password) FROM ${PREFIX}manager_users WHERE id=1`);
     } catch (e) {
         hex = '';
     }
-    if (!hex) {
-        fail(`${PREFIX}manager_users の ID 1 が読めない。先に setup-site.js で今の版を入れる`);
+    // フィクスチャのパスワードは 'x'（1 文字）。それが残っているのは、前の load が途中で失敗したとき
+    if (hex.length >= 20) {
+        if (hexFile) {
+            fs.mkdirSync(path.dirname(hexFile), { recursive: true });
+            fs.writeFileSync(hexFile, hex + '\n');
+        }
+    } else if (hexFile && fs.existsSync(hexFile)) {
+        hex = fs.readFileSync(hexFile, 'utf8').trim();
+        console.log(`load: 管理者のパスワードは DB から読めないので、${hexFile} の控えを使う`);
+    } else {
+        fail(
+            hex
+                ? '管理者のパスワードがフィクスチャの仮の値のまま（前の load が途中で失敗した）で、控え（EVO_WORK_DIR の admin-password.hex）も無い。setup-site.js --reinstall で今の版を入れ直す'
+                : `${PREFIX}manager_users の ID 1 が読めない。先に setup-site.js で今の版を入れる`
+        );
     }
-    // フィクスチャのパスワードは 'x'（1 文字）。それが残っているのは、前の load が途中で失敗したとき（元の値は失われている）
-    if (hex.length < 20) {
-        fail('管理者のパスワードがフィクスチャの仮の値のまま（前の load が途中で失敗した）。setup-site.js --reinstall で今の版を入れ直す');
+    if (!/^[0-9A-Fa-f]{20,}$/.test(hex)) {
+        fail('管理者のパスワードの控えの形が正しくない。setup-site.js --reinstall で今の版を入れ直し、控えを消す');
     }
 
-    const tables = prefixedTables();
     if (tables.length) {
         runSql(
             'SET FOREIGN_KEY_CHECKS=0;\n'
@@ -238,6 +290,9 @@ function cmdMigrate() {
         ['exec', '-w', '/var/www/html', config.appContainer, 'php', '-r', MIGRATE_PHP],
         { maxBuffer: 64 * 1024 * 1024 }
     );
+    if (res.error) {
+        fail(`docker を起動できない: ${res.error.message}`);
+    }
     process.stdout.write(res.stdout);
     process.stderr.write(res.stderr);
     process.exit(res.status === null ? 1 : res.status);
@@ -271,7 +326,9 @@ function cmdSnapshot(args) {
     const like = quote(PREFIX.replace(/[_%\\]/g, '\\$&') + '%');
     const strip = `SUBSTRING(TABLE_NAME, ${PREFIX.length + 1})`;
     const columns = sql(
-        `SELECT 'column', ${strip}, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, IFNULL(COLUMN_DEFAULT, '<none>'), EXTRA `
+        `SELECT 'column', ${strip}, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, `
+        // 空の値は、行末だと sql() の trim で消えて項目が減るので、空にならない表記にする
+        + "IF(COLUMN_DEFAULT IS NULL, '<none>', IF(COLUMN_DEFAULT = '', '<empty>', COLUMN_DEFAULT)), IF(EXTRA = '', '-', EXTRA) "
         + `FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME LIKE ${like} `
         + 'ORDER BY TABLE_NAME, COLUMN_NAME'
     );
