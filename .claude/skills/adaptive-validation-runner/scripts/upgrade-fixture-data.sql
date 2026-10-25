@@ -69,6 +69,29 @@ INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
     ('use_udperms', '0'),
     ('csrf_token', 'fixture-token');
 
+-- 基本の設定。アップグレードのあと、設定を保存しなくても公開側と管理画面が開くために要る
+-- （install/sql/default_settings.sql の設定のうち、1.0.0J から今まである名前だけ。manager_language と fe_editor_lang は
+-- フィクスチャのため english にする）
+INSERT INTO `{PREFIX}system_settings` (`setting_name`, `setting_value`) VALUES
+    ('server_offset_time', '0'),
+    ('manager_language', 'english'),
+    ('modx_charset', 'UTF-8'),
+    ('site_name', 'Fixture Site'),
+    ('site_start', '1'),
+    ('error_page', '1'),
+    ('unauthorized_page', '1'),
+    ('site_status', '1'),
+    ('old_template', ''),
+    ('cache_type', '1'),
+    ('udperms_allowroot', '0'),
+    ('failed_login_attempts', '5'),
+    ('blocked_minutes', '10'),
+    ('use_captcha', '0'),
+    ('use_editor', '1'),
+    ('use_browser', '1'),
+    ('fe_editor_lang', 'english'),
+    ('session.cookie.lifetime', '604800');
+
 INSERT IGNORE INTO `{PREFIX}user_settings` (`user`, `setting_name`, `setting_value`) VALUES
     (1, 'tinymce_editor_theme', 'simple'),
     (1, 'tinymce_editor_theme', 'advanced'),
