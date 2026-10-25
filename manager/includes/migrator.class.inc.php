@@ -11,7 +11,10 @@ require_once __DIR__ . '/migration_helper.class.inc.php';
  */
 class EvoMigrator
 {
-    const FILE_PATTERN = '/\A\d{8}(_\d{6})?_[a-z0-9_]+\.php\z/';
+    // 時刻の無い ID は 00000000_baseline だけ
+    const FILE_PATTERN = '/\A(00000000_baseline|\d{8}_\d{6}_[a-z0-9_]+)\.php\z/';
+    // 記録の表の id 列の長さ
+    const MAX_ID_LENGTH = 100;
     const LOCK_WAIT = 30;
 
     public function dir(): string
@@ -44,9 +47,16 @@ class EvoMigrator
         $ids = [];
         foreach ($files as $file) {
             $name = basename($file);
-            if (preg_match(self::FILE_PATTERN, $name)) {
-                $ids[] = substr($name, 0, -4);
+            if (!preg_match(self::FILE_PATTERN, $name)) {
+                continue;
             }
+            $id = substr($name, 0, -4);
+            if (strlen($id) > self::MAX_ID_LENGTH) {
+                throw new RuntimeException(
+                    sprintf('Migration ID is longer than %d characters: %s', self::MAX_ID_LENGTH, $id)
+                );
+            }
+            $ids[] = $id;
         }
         sort($ids, SORT_STRING);
         return $ids;
@@ -99,7 +109,7 @@ class EvoMigrator
     {
         $rs = db()->query(
             "CREATE TABLE IF NOT EXISTS {$this->table()} ("
-            . 'id varchar(100) NOT NULL, '
+            . 'id varchar(' . self::MAX_ID_LENGTH . ') NOT NULL, '
             . "applied_at int(20) NOT NULL DEFAULT '0', "
             . 'PRIMARY KEY (id))',
             false
@@ -121,10 +131,19 @@ class EvoMigrator
         $result = ['applied' => [], 'failed' => null, 'error' => null];
 
         $lock = db()->escape($this->lockName());
-        $locked = db()->query("SELECT GET_LOCK('{$lock}', " . self::LOCK_WAIT . ')', false);
-        if ($locked === false || (int)db()->getValue($locked) !== 1) {
-            $result['error'] = 'Could not acquire the migration lock within ' . self::LOCK_WAIT
-                . ' seconds. Another migration may be running.';
+        $rs = db()->query("SELECT GET_LOCK('{$lock}', " . self::LOCK_WAIT . ')', false);
+        if ($rs === false) {
+            $result['error'] = 'Failed to acquire the migration lock: ' . db()->getLastError();
+        } else {
+            $locked = db()->getValue($rs);
+            if ($locked === null) {
+                $result['error'] = 'Failed to acquire the migration lock: GET_LOCK() returned NULL.';
+            } elseif ((int)$locked !== 1) {
+                $result['error'] = 'Could not acquire the migration lock within ' . self::LOCK_WAIT
+                    . ' seconds. Another migration may be running.';
+            }
+        }
+        if ($result['error'] !== null) {
             evo()->logEvent(0, 3, $result['error'], 'Migration', ['lock' => $this->lockName()]);
             return $result;
         }
@@ -137,10 +156,11 @@ class EvoMigrator
                 } catch (Throwable $e) {
                     $result['failed'] = $id;
                     $result['error'] = $e->getMessage();
-                    evo()->logEvent(0, 3, $e->getMessage(), 'Migration', [
+                    $context = $e instanceof EvoMigrationException ? $e->context() : [];
+                    evo()->logEvent(0, 3, $e->getMessage(), 'Migration', array_merge($context, [
                         'migration' => $id,
                         'exception' => get_class($e),
-                    ]);
+                    ]));
                     break;
                 }
                 $result['applied'][] = $id;
@@ -152,9 +172,7 @@ class EvoMigrator
             db()->query("SELECT RELEASE_LOCK('{$lock}')", false);
         }
 
-        if ($result['applied']) {
-            evo()->clearCache();
-        }
+        // キャッシュは呼び出し側で消す（system_cache の無い古い DB では clearCache() が止まるため）
         return $result;
     }
 
@@ -172,12 +190,21 @@ class EvoMigrator
 
     private function runOne($id): void
     {
-        $migration = require $this->dir() . $id . '.php';
+        $migration = self::load($this->dir() . $id . '.php');
         if (!is_callable($migration)) {
             throw new RuntimeException("Migration {$id} must return a function.");
         }
         $migration(new EvoMigrationHelper());
         $this->record($id, time(), 'INSERT');
+    }
+
+    /**
+     * ファイルの変数がランナーの変数を書き換えたり、返した関数がランナーに結び付いたりしないよう、
+     * 変数を持たない static な場所で読み込む
+     */
+    private static function load($file)
+    {
+        return require $file;
     }
 
     private function record($id, $time, $verb): void

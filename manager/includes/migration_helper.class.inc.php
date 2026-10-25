@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * マイグレーションの失敗。ログに残すコンテキストを持ち、ランナーが 1 回だけ記録する
+ * （マイグレーション側はログせずに投げるだけでよい）
+ */
+class EvoMigrationException extends RuntimeException
+{
+    private $context;
+
+    public function __construct($message, array $context = [], ?Throwable $previous = null)
+    {
+        parent::__construct($message, 0, $previous);
+        $this->context = $context;
+    }
+
+    public function context(): array
+    {
+        return $this->context;
+    }
+}
+
+/**
  * マイグレーションの関数に渡す補助。存在確認と、それに基づく変更だけを持つ（Schema Builder は作らない）。
  *
  * 表と列の名前、定義の文字列は、マイグレーションに書いた固定の文字列だけを渡す（リクエストの値は渡さない）。
@@ -19,18 +39,20 @@ class EvoMigrationHelper
     }
 
     /**
-     * SQL を実行する。失敗したら SQL とエラーを持った例外を投げる
+     * SQL を実行する。失敗したら EvoMigrationException を投げる。
+     * 例外の文とログには SQL の先頭 200 文字までを入れる。設定の値や利用者のデータを含む SQL では、
+     * $summary に値を含まない説明を渡すと、SQL の代わりにそれだけを出す
      */
-    public function exec($sql)
+    public function exec($sql, $summary = null)
     {
         $rs = db()->query($sql, false);
         if ($rs === false) {
-            throw new RuntimeException(sprintf(
-                'SQL failed: %s (errno %d: %s)',
-                $sql,
-                db()->getLastErrorNo(),
-                db()->getLastError()
-            ));
+            $shown = $summary !== null ? $summary : mb_strimwidth($sql, 0, 200, '...');
+            $errno = (int)db()->getLastErrorNo();
+            throw new EvoMigrationException(
+                sprintf('SQL failed: %s (errno %d: %s)', $shown, $errno, db()->getLastError()),
+                ['sql' => $shown, 'errno' => $errno]
+            );
         }
         return $rs;
     }
@@ -38,9 +60,9 @@ class EvoMigrationHelper
     /**
      * SELECT / SHOW の結果を行の配列で返す
      */
-    public function rows($sql): array
+    public function rows($sql, $summary = null): array
     {
-        $rs = $this->exec($sql);
+        $rs = $this->exec($sql, $summary);
         $rows = [];
         if (db()->isResult($rs)) {
             while ($row = db()->getRow($rs, 'assoc')) {
@@ -84,22 +106,46 @@ class EvoMigrationHelper
     }
 
     /**
-     * 索引の列（並び順）。索引や表が無ければ空
+     * 索引の情報。索引や表が無ければ null
+     * ['columns' => 列(並び順), 'unique' => bool, 'type' => 'BTREE'|'FULLTEXT'|..., 'prefix' => 前置き長のある列があるか]
      */
-    public function indexColumns($table, $index): array
+    public function index($table, $index): ?array
     {
         if (!$this->tableExists($table)) {
-            return [];
+            return null;
         }
         $rows = $this->rows(sprintf(
             "SHOW INDEX FROM %s WHERE Key_name='%s'",
             $this->table($table),
             db()->escape($index)
         ));
+        if (!$rows) {
+            return null;
+        }
         usort($rows, function ($a, $b) {
             return (int)$a['Seq_in_index'] <=> (int)$b['Seq_in_index'];
         });
-        return array_column($rows, 'Column_name');
+        $prefix = false;
+        foreach ($rows as $row) {
+            if ($row['Sub_part'] !== null) {
+                $prefix = true;
+            }
+        }
+        return [
+            'columns' => array_column($rows, 'Column_name'),
+            'unique' => (int)$rows[0]['Non_unique'] === 0,
+            'type' => strtoupper($rows[0]['Index_type']),
+            'prefix' => $prefix,
+        ];
+    }
+
+    /**
+     * 索引の列（並び順）。索引や表が無ければ空
+     */
+    public function indexColumns($table, $index): array
+    {
+        $info = $this->index($table, $index);
+        return $info ? $info['columns'] : [];
     }
 
     public function indexExists($table, $index): bool
@@ -203,7 +249,8 @@ class EvoMigrationHelper
     }
 
     /**
-     * 索引が同じ列で既にあれば何もしない。違う列であれば付け替える。変えたら true
+     * 列の並び・一意か・種類（FULLTEXT か）・前置き長のあるなしが同じ索引が既にあれば何もしない。
+     * 違えば既存を落として作り直す（UNIQUE にする前の重複は、呼び出し側が removeDuplicates() で除く）。変えたら true
      *
      * @param string $kind '' | 'UNIQUE' | 'FULLTEXT'
      */
@@ -215,8 +262,14 @@ class EvoMigrationHelper
         if (!$this->tableExists($table)) {
             return false;
         }
-        $current = $this->indexColumns($table, $name);
-        if ($current === $columns) {
+        $current = $this->index($table, $name);
+        if (
+            $current
+            && $current['columns'] === $columns
+            && $current['unique'] === ($kind === 'UNIQUE')
+            && $current['type'] === ($kind === 'FULLTEXT' ? 'FULLTEXT' : 'BTREE')
+            && !$current['prefix']
+        ) {
             return false;
         }
         $this->assertName($name);
@@ -291,12 +344,18 @@ class EvoMigrationHelper
         foreach ($groups as $group) {
             $conditions = [];
             foreach ($keyColumns as $column) {
-                $conditions[] = sprintf('`%s`=%s', $column, $this->literal($group[$column]));
+                $conditions[] = sprintf('`%s`<=>%s', $column, $this->literal($group[$column]));
             }
             $where = implode(' AND ', $conditions);
 
             $order = $keepRule === '' ? '' : ' ORDER BY ' . $keepRule;
-            $rows = $this->rows("SELECT * FROM {$fullTable} WHERE {$where}{$order}");
+            $rows = $this->rows(
+                "SELECT * FROM {$fullTable} WHERE {$where}{$order}",
+                "SELECT rows of a duplicate group in {$table}"
+            );
+            if (!$rows) {
+                continue;
+            }
             $keep = $keepRule === '' ? end($rows) : $rows[0];
 
             $fields = [];
@@ -309,13 +368,16 @@ class EvoMigrationHelper
             // InnoDB では、消したあとの入れ直しが失敗しても行を失わない（MyISAM では戻せない）
             $this->exec('START TRANSACTION');
             try {
-                $this->exec("DELETE FROM {$fullTable} WHERE {$where}");
-                $this->exec(sprintf(
-                    'INSERT INTO %s (%s) VALUES (%s)',
-                    $fullTable,
-                    implode(',', $fields),
-                    implode(',', $values)
-                ));
+                $this->exec("DELETE FROM {$fullTable} WHERE {$where}", "DELETE a duplicate group from {$table}");
+                $this->exec(
+                    sprintf(
+                        'INSERT INTO %s (%s) VALUES (%s)',
+                        $fullTable,
+                        implode(',', $fields),
+                        implode(',', $values)
+                    ),
+                    "INSERT the kept row into {$table}"
+                );
                 $this->exec('COMMIT');
             } catch (Throwable $e) {
                 db()->query('ROLLBACK', false);
@@ -341,11 +403,14 @@ class EvoMigrationHelper
      */
     public function setting($name, $default = null)
     {
-        $rows = $this->rows(sprintf(
-            "SELECT setting_value FROM %s WHERE setting_name='%s'",
-            $this->table('system_settings'),
-            db()->escape($name)
-        ));
+        $rows = $this->rows(
+            sprintf(
+                "SELECT setting_value FROM %s WHERE setting_name='%s'",
+                $this->table('system_settings'),
+                db()->escape($name)
+            ),
+            "SELECT setting {$name}"
+        );
         return $rows ? $rows[count($rows) - 1]['setting_value'] : $default;
     }
 
@@ -361,20 +426,26 @@ class EvoMigrationHelper
     public function saveSetting($name, $value): void
     {
         if ($this->hasSetting($name)) {
-            $this->exec(sprintf(
-                "UPDATE %s SET setting_value=%s WHERE setting_name='%s'",
-                $this->table('system_settings'),
-                $this->literal($value),
-                db()->escape($name)
-            ));
+            $this->exec(
+                sprintf(
+                    "UPDATE %s SET setting_value=%s WHERE setting_name='%s'",
+                    $this->table('system_settings'),
+                    $this->literal($value),
+                    db()->escape($name)
+                ),
+                "UPDATE setting {$name}"
+            );
             return;
         }
-        $this->exec(sprintf(
-            "INSERT INTO %s (setting_name, setting_value) VALUES ('%s', %s)",
-            $this->table('system_settings'),
-            db()->escape($name),
-            $this->literal($value)
-        ));
+        $this->exec(
+            sprintf(
+                "INSERT INTO %s (setting_name, setting_value) VALUES ('%s', %s)",
+                $this->table('system_settings'),
+                db()->escape($name),
+                $this->literal($value)
+            ),
+            "INSERT setting {$name}"
+        );
     }
 
     public function deleteSetting($name): bool

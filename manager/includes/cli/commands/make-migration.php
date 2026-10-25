@@ -7,8 +7,10 @@
 require_once MODX_CORE_PATH . 'migrator.class.inc.php';
 
 $description = trim($args[0] ?? '');
-if (!preg_match('/\A[a-z0-9_]+\z/', $description)) {
-    cli_usage('Usage: php evo make:migration <description>  (description: a-z, 0-9, _)');
+// ID（YYYYMMDD_HHMMSS_ の 16 文字 + 説明）は記録の表の id 列の長さに収める
+$maxLength = EvoMigrator::MAX_ID_LENGTH - strlen('YYYYMMDD_HHMMSS_');
+if (!preg_match('/\A[a-z0-9_]+\z/', $description) || strlen($description) > $maxLength) {
+    cli_usage("Usage: php evo make:migration <description>  (description: a-z, 0-9, _ up to {$maxLength} characters)");
 }
 
 $migrator = new EvoMigrator();
@@ -27,7 +29,7 @@ $template = <<<'PHP'
 
 // 存在確認や最終形との比較を省かない（もう一度流しても何も変わらないようにする）。
 // 表を作るのは create_tables.sql だけ。ここでは既にある表を変える。
-return function (EvoMigrationHelper $m) {
+return static function (EvoMigrationHelper $m) {
 };
 PHP;
 
