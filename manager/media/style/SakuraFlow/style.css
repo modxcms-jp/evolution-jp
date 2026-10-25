@@ -80,12 +80,13 @@
 
     /* Component Colors - Primary Actions (refined gradients) */
     --color-primary: #d45da7;
-    --color-primary-start: #ffb6d9;
+    --color-primary-start: #f8a5cc;
     --color-primary-end: #d45da7;
-    --color-primary-hover-start: #ffc4df;
-    --color-primary-hover-end: #c760a8;
-    --color-primary-active-start: #c24b93;
-    --color-primary-active-end: #9f3e78;
+    --color-primary-hover-start: #ffb8d9;
+    --color-primary-hover-end: #dc6fb5;
+    --color-primary-active-start: #e08cb8;
+    --color-primary-active-end: #c04d97;
+    --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions (subtle, glass-like) */
     --color-secondary-start: rgba(255, 240, 248, 0.9);
@@ -2150,9 +2151,9 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
+    color: var(--color-text-inverse);
     text-shadow: none;
-    background: linear-gradient(135deg, #f8a5cc 0%, #e07ab0 50%, #d45da7 100%);
+    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
     border: none;
     box-shadow: 0 4px 15px rgba(212, 93, 167, 0.3);
     border-radius: var(--radius-md);
@@ -2161,14 +2162,14 @@ ul.actionButtons {
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background: linear-gradient(135deg, #ffb8d9 0%, #e88bbc 50%, #dc6fb5 100%);
+    background: linear-gradient(135deg, var(--color-primary-hover-start) 0%, var(--color-primary-hover-end) 100%);
     box-shadow: 0 6px 20px rgba(212, 93, 167, 0.35);
     transform: translateY(-1px);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background: linear-gradient(135deg, #e08cb8 0%, #d45da7 50%, #c04d97 100%);
+    background: linear-gradient(135deg, var(--color-primary-active-start) 0%, var(--color-primary-active-end) 100%);
     box-shadow: 0 2px 10px rgba(212, 93, 167, 0.3);
     transform: translateY(0);
 }

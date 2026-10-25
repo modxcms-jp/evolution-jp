@@ -112,6 +112,7 @@
     --color-primary-hover-end: #2d879b;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
+    --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */
     --color-secondary-start: #e4e4e4;
@@ -1759,7 +1760,7 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
+    color: var(--color-text-inverse);
     box-shadow: none;
     text-shadow: none;
     background-color: var(--color-primary);
