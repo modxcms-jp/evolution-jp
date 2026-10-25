@@ -910,16 +910,23 @@ class DocumentParser
                         break;
                 }
 
-                $this->ensureDir(MODX_CACHE_PATH . $this->uaType);
-
+                $path = MODX_CACHE_PATH . $this->uaType;
                 if ($this->config['cache_type'] == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                    $this->ensureDir($path);
                 }
-                $this->saveToFile(
-                    MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
-                    $cacheContent
-                );
+                if ($this->ensureDir($path)) {
+                    $this->saveToFile(
+                        MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
+                        $cacheContent
+                    );
+                } else {
+                    $this->logEvent(
+                        0,
+                        3,
+                        sprintf('Failed to create cache directory: %s', $this->htmlspecialchars($path)),
+                        'Page cache'
+                    );
+                }
             }
             // Useful for example to external page counters/stats packages
             $this->invokeEvent('OnWebPageComplete');
@@ -5817,6 +5824,19 @@ class DocumentParser
     }
 
     /*
+     * ディレクトリを作る(既にあれば何もしない)
+     *
+     * 同時に別のリクエストが同じディレクトリを作っても警告を出さない。
+     *
+     * @param $dir 作るディレクトリ
+     * @return bool 使える状態なら true
+     */
+    protected function ensureDir($dir)
+    {
+        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
+    }
+
+    /*
      * ファイル作成
      *
      * 一時ファイルを作成後、リネームしてファイルを作成する。
@@ -5828,12 +5848,6 @@ class DocumentParser
      * @return bool
      *
      */
-    // 同時に別のリクエストが同じディレクトリを作っても警告を出さない
-    protected function ensureDir($dir)
-    {
-        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
-    }
-
     public function saveToFile($filename, $data)
     {
         if (!$filename) {
@@ -5845,8 +5859,11 @@ class DocumentParser
             chmod($tmp, 0666);
         }
 
-        if (@file_put_contents($tmp, $data, LOCK_EX)) {
-            return rename($tmp, $filename);
+        if (@file_put_contents($tmp, $data, LOCK_EX) && @rename($tmp, $filename)) {
+            return true;
+        }
+        if (is_file($tmp)) {
+            @unlink($tmp);
         }
         return false;
     }
