@@ -355,6 +355,7 @@ $_lang["files_uploadfile_msg"] = 'Select a file to upload:';
 $_lang["files_uploading"] = 'Uploading <b>%s</b> to <b>%s/</b>';
 $_lang["files_viewfile"] = 'View file';
 $_lang["folder"] = 'Folder';
+$_lang["fmp_link_invalid"] = 'This password reset link is invalid or has expired. Please request a new one.';
 $_lang["forgot_password_email_fine_print"] = '* The URL above will expire once you change your password or after today.';
 $_lang["forgot_password_email_instructions"] = 'From there you will be able to change your password from the My Account menu.';
 $_lang["forgot_password_email_intro"] = 'A request has been made to change the password on your account.';
