@@ -18,7 +18,7 @@
 - [x] (2026-10-26) M1: ランナー（`EvoMigrator`）・補助（`EvoMigrationHelper`）・CLI（`migrate`・`migrate:status`・`make:migration`）を作る（自己レビュー 3 回、tester の確認 4 回。Docker の php:8.4 / mariadb:11 で計画の期待をすべて満たした）
 - [x] (2026-10-26) M2: 古い版の DB を作る道具とスキーマの比べ方を、検証スキルに足す（15 タグすべてで build・load が通り、1.0.0J の差が Context の表と 41 件で一致。utf8mb4 版も作れる。自己レビュー 2 回、tester の独立の確認 1 回）
 - [x] (2026-10-26) M3: baseline のスキーマの部を作り、`create_tables.sql` に `fix_settings.php` のスキーマの直しを移す（15 タグ・utf8mb4 版・途中の版を通ってきた形・COMPACT の InnoDB の再現・mariadb:10.4 で、今の新規インストールの形との差 0 件。2 回目は baseline の変更系の文 0 本。途中で失敗させても流し直せる。自己レビュー 3 回、tester の独立の確認 2 回）
-- [ ] (2026-10-26) M4: baseline のデータの部を作り、`default.config.php` の版の分岐を撤去する
+- [x] (2026-10-26) M4: baseline のデータの部を作り、`default.config.php` の版の分岐を撤去する（1.0.0J・1.0.5J・1.2.3J で計画の期待どおり。利用者の選択を変えたフィクスチャでは変わらない。2 回目は変更系の文 0 本。ログに秘密の値が出ない。自己レビュー 2 回、tester の独立の確認 1 回）
 - [ ] (2026-10-26) M5: インストーラに組み込み、`manager/includes/upgrades/`・`fix_settings.php`・インストーラの版依存の処理を消す
 - [ ] (2026-10-26) M6: 「アップデートが済んでいないか」の判定を未適用のマイグレーションの有無にそろえる
 - [ ] (2026-10-26) M7: 全版の通しの確認と文書（`assets/docs/migrations.md` ほか）
@@ -36,6 +36,7 @@
 - 2026-10-26 / MariaDB 11 で、前置き長の付いた索引（1.0.0J の `aliasidx (alias(250))`）がある列を `varchar(245)` に縮めると、索引は列全体の索引に自動で直った。MySQL 5.7 での動きは未確認（MySQL 公式イメージは Docker Engine 29 系で取得できない。`.claude/skills/adaptive-validation-runner/references/environment.md` の「既知の落とし穴」）。
 - 2026-10-26 / インストーラを通さずにファイルだけ差し替えたサイトは、設定画面（`a=17`）で `upgrades.php` が動くが、`create_tables.sql`（1.0.14J・1.0.20J で増えた `site_revision`・`system_cache`）、`fix_settings.php`、utf8mb4 への変換、同梱の要素の入れ直しは行われない。インストーラを通したサイトと結果が違う 2 つ目の経路になっていた。
 - 2026-10-26 / インストーラは同梱プラグインのイベントの紐付け（`install/processors/prc_insPlugins.inc.php` 106 行）と同梱 TV のテンプレートの割り当て（`install/processors/prc_insTVs.inc.php` 61 行）を消して入れ直す。利用者が付け替えた分は戻る（推測）。版依存の処理ではなく要素の入れ直しの作りなので、この計画の非対象とし、`assets/docs/core-issues.md` に記録した。
+- 2026-10-26（M4） / M6 で `install_version` の書き込みを消すまでは、今の main で新規インストールした DB に baseline を流すと、`install_version` の行を消す DELETE が 1 本流れる（ほかは変えない）。新規インストールでは `markAllApplied()` で baseline を流さないので、実害は無い。M3 の「最終形の DB に流しても何も変えない」の、M6 までの例外。
 - 2026-10-26（M3） / MariaDB 11 で、MyISAM のまま utf8mb4 にした 1.0.0J の `*_names.name`（255 文字）の UNIQUE は HASH になっているが、191 に縮める MODIFY で BTREE に作り直される。COMPACT の InnoDB 表は、`ROW_FORMAT=DYNAMIC` への ALTER で全体の `aliasidx` を作れるようになる（1.2.3J の utf8mb4 版で再現して確かめた）。MySQL 5.6・5.7 の実機では確かめていない。
 - 2026-10-26（M2） / 1.0.16J までの CREATE TABLE は文字セットを書かないので、そのまま流すとサーバーの既定（utf8mb4）になり、`aliasidx` が `alias(250)` に切られ、長い UNIQUE が HASH と報告される。古いサイトの再現には文字セットを明示する。
 - 2026-10-26（M2） / 古い DB を読み込んだ直後は、アップデーターを通すまで管理画面に入れないことがある。1.0.0J・1.0.6J は `/manager/` が HTTP 500（`site_htmlsnippets.published` などが無い）。1.0.14J.r9 以降は、ログインすると次の `GET /manager/` でアップデーター（`/install/`）へ送られる。M5 以降の確認では、アップデーターをログインなしで動かせることが前提になる。
@@ -239,11 +240,11 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 | --- | --- | --- | --- |
 | `update_tbl_user_roles()`（`upgrades.php` 195〜215 行）と `addRolePermissionColumn()`（`fix_settings.php` 27〜47 行） | 前の版が 1.0.20 未満なら、`save_role=1` の全ロールの 12 列を 1 に | 入れる | 列を足したときだけ、その列をロール ID 1 だけ 1 にする（本人の決定 2）。既にある列は触らない |
 | ロール ID 1 の追加（`fix_settings.php` 83〜164 行） | 毎回、無ければ入れる | 入れる | ロール ID 1 が無いときだけ、今と同じ値で入れる（ID 1 はコードが特別に扱う。`manager/processors/permission/delete_user.processor.php` 26 行など）。新規インストールは `default_settings.sql` に移す |
-| `disableOldCarbonTheme()`（`upgrades.php` 98〜115 行） | 毎回、テーマが古い作りなら既定に | 入れる | 選んでいるテーマ（`system_settings.manager_theme`）のフォルダが無い、`style.php` が無い、`manager/` フォルダか `sysalert_style.php` がある（古い作り）、または `MODxCarbon` で `images/icons/32x` が無いときだけ、`default.config.php` の既定（`RevoClassic`）に戻す。同梱のテーマ（RevoStyle を含む）はどれも `style.php` があり、戻されない |
+| `disableOldCarbonTheme()`（`upgrades.php` 98〜115 行） | 毎回、テーマが古い作りなら既定に | 入れる | 選んでいるテーマ（`system_settings.manager_theme`）のフォルダが無い、`style.php` が無い、`manager/` フォルダか `sysalert_style.php` がある（古い作り）、または `MODxCarbon` で `images/icons/32x` が無いときだけ、`default.config.php` の既定（`RevoClassic`）に戻す。空の値も既定に戻す。同梱のテーマ（RevoStyle を含む）はどれも `style.php` があり、戻されない。テーマ名は `basename($theme) === $theme` で `..` を含まないことだけを確かめ（`.` や空白を含む自作のテーマも判定する）、合わなければ変えずに種別 2 のログ。戻す先の既定のテーマに `style.php` が無ければ、書き込まずに種別 2 のログだけ（M4 の自己レビュー） |
 | `disableOldFckEditor()`（`upgrades.php` 117〜132 行） | 毎回、古い FCKeditor の雛形があれば既定に | 入れる | 選んでいるエディタ（`which_editor`）が大文字小文字を区別せずに `FCKeditor` で、`assets/plugins/fckeditor/plugin.fckeditor.tpl` が v2.1.1 のときだけ既定（`TinyMCE7`）に戻す（Decision Log） |
 | `removeBundledThemeCopies()`（`upgrades.php` 63〜96 行） | 毎回 | 入れる | 今と同じ（同梱テーマの、`common/` にまとめたファイルの古い写しを消す。消せなければ種別 2 で知らせる）。配布から外したファイルなので、利用者の選択ではない |
 | `update_config_default_template_method()`（`upgrades.php` 157〜193 行） | 前の版が 1.0.6 未満なら、`Inherit Parent Template` を無条件に無効化（計算した値は保存していない） | 入れる | 有効な `Inherit Parent Template` があり、`auto_template_logic` の行が無いときだけ、プラグインのプロパティ `inheritTemplate` が `From First Sibling` なら `sibling`、それ以外は `parent` を保存し、プラグインを無効にする（1.0.5J のインストーラの意図。`git show release-1.0.5J:install/instprocessor.php` 145〜166 行）。行があれば、プラグインも設定も触らない |
-| `update_config_custom_contenttype()`（`upgrades.php` 140〜155 行） | 前の版が 1.0.6 未満 | 入れる | 保存された値が古い既定の 2 つの一覧のどちらかと同じか、行が無いときだけ、今の既定にする。空の値（利用者が空にしたかもしれない）は変えない |
+| `update_config_custom_contenttype()`（`upgrades.php` 140〜155 行） | 前の版が 1.0.6 未満 | 入れる | 保存された値が古い既定の 2 つの一覧のどちらかと同じときだけ、今の既定にする。行が無いときは書かない（`getSettings()` が `default.config.php` の既定を使うので、書くと値がサイトに固定され、今後の既定の変更が届かなくなる。M4 の自己レビュー）。空の値（利用者が空にしたかもしれない）は変えない |
 | `disableLegacyPlugins()`（`upgrades.php` 134〜138 行） | 前の版が 1.0.7 未満 | 入れる | `Bindings機能の有効無効`・`Bottom Button Bar` が有効なら無効にする（1.0.7J で役目を終えたプラグインで、今のコードと組み合わせる理由が無い）。無効にした ID をログに残す |
 | `delete_actionphp()`（`upgrades.php` 239〜252 行） | 1.0.4 < 前の版 < 1.0.7 | 入れる | サイトの直下の `action.php` が、2012 年の脆弱な版（`$_GET['include']` と `MODX_API_MODE` を含み、`if(strpos($path,MODX_MANAGER_PATH)!==0)` を含まない）のときだけ消す。利用者が置いた別の `action.php` は消さない |
 | `updateTopMenu()`（`upgrades.php` 254〜268 行） | 毎回 | 入れる | 値が古い既定（`home,preview,refresh_site,search,add_resource,add_weblink`）と同じときだけ、今の既定にする |
@@ -450,6 +451,8 @@ utf8mb4 へ変換済みのサイト: 1.0.0J・1.1.0J・1.2.3J を `build --chars
 - `install/sql/default_settings.sql`（ロール ID 1 の行を足す。値は `fix_settings.php` 83〜157 行と同じ）
 - `manager/includes/upgrades/upgrades.php`・`upd_db_structure.php`（削除。ディレクトリも無くなる）
 - `manager/actions/tool/mutate_settings.dynamic.php`（23〜25 行の削除）
+
+M4 から引き継いで確かめること: アップデーターの中で baseline の `evo()->parseProperties()`（`auto_template_logic` の判定）が動くこと。テーマの古い写しや `action.php` を Web サーバーの権限で消せないときに、種別 2 のログが `temp/logs/system/` に残ること。
 
 作業: Plan of Work の「インストーラへの組み込み」のとおり。あわせて、ランナーを呼ぶ前に `ignore_user_abort(true)` と `set_time_limit(0)` を呼ぶ（baseline の MODIFY や FULLTEXT の追加は表を作り直すので、大きなサイトでは数分かかり、Web サーバーやプロキシの時間切れで要求が切られることがある。冪等なので流し直せば進むが、利用者には失敗に見える。M3 の自己レビュー）。
 
