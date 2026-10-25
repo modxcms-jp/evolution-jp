@@ -19,6 +19,7 @@ readme* export-ignore
 README* export-ignore
 AGENTS.md export-ignore
 CLAUDE.md export-ignore
+SECURITY.md export-ignore
 compose.yml export-ignore
 custom-instructions/ export-ignore
 manager/docker/ export-ignore
