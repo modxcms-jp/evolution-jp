@@ -21,20 +21,22 @@ if ($isPWDActivate == 1) {
     }
     $row = db()->getRow($rs);
     $username = $row['username'];
-    [$newpwd, $token, $requestedon] = explode('|', $row['cachepwd']);
-    $past = time() - $requestedon;
+    // 有効化済み（cachepwd が空）や形式の違う値は、無効なキーとして扱う
+    $cachepwd = explode('|', (string)$row['cachepwd']);
+    [$newpwd, $token, $requestedon] = count($cachepwd) === 3 ? $cachepwd : ['', '', 0];
+    $past = time() - (int)$requestedon;
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token !== anyv('token')) {
-        if (!$actInvalidKey)
+    if ($token === '' || $token !== anyv('token')) {
+        if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
         return;
     }
 
     if ($expireTime < $past) {
-        if (!$actExpire)
+        if (empty($actExpire))
             $output = webLoginAlert("It was over expiration time");
         else
             $modx->sendRedirect($actExpire);
@@ -70,6 +72,12 @@ if ($isPWDActivate == 1) {
 # process password reminder
 if ($isPWDReminder == 1) {
     $email = postv('txtwebemail');
+    $email = is_string($email) ? $email : '';
+    // 未入力のままメールアドレスが空のアカウントに一致させない
+    if (trim($email) === '') {
+        $output = webLoginAlert("Please enter your email address.");
+        return;
+    }
     if (isset($reminder_message)) {
         if (preg_match('@^[1-9[0-9]*$@', $reminder_message))
             $message = $modx->getField('content', $reminder_message);
@@ -81,7 +89,7 @@ if ($isPWDReminder == 1) {
     if (!isset($reminder_from)) $reminder_from = $modx->config('emailsender');
     if (!isset($reminder_fromname)) $reminder_fromname = $modx->config('site_name');
     // lookup account
-    $sql = "SELECT wu.*, wua.fullname
+    $sql = "SELECT wu.*, wua.fullname, wua.email
 	FROM {$tbl_web_users} wu
 	INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id
 	WHERE wua.email='" . db()->escape($email) . "'";
@@ -119,7 +127,8 @@ if ($isPWDReminder == 1) {
         $message = $modx->parseDocumentSource($message);
         $config['from'] = $reminder_from;
         $config['fromname'] = $reminder_fromname;
-        $config['sendto'] = $email;
+        // 送信先は登録されているアドレス
+        $config['sendto'] = $row['email'];
         if (!isset($emailsubject)) $emailsubject = 'パスワード再設定';
         $config['subject'] = $emailsubject;
         $sent = $modx->sendmail($config, $message);         //ignore mail errors in this cas
@@ -136,7 +145,7 @@ if ($isPWDReminder == 1) {
             $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
         }
     } else {
-        if (!$actUserNotFound) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
+        if (empty($actUserNotFound)) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
         else {
             $url = $modx->makeURL($actUserNotFound, '', '', 'full');
             $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
@@ -270,6 +279,7 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     $f['failedlogincount'] = '0';
     $f['blockeduntil'] = time() - 1;
     $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
+    $failedlogins = 0;
 }
 
 if ($blocked == '1') // this user has been blocked by an admin, so no way he's loggin in!
@@ -346,8 +356,8 @@ if (isset($newloginerror) && $newloginerror == 1) {
     if ($failedlogins >= $failedLoginLimit) //increment the failed login counter, and block!
     {
         $f = [];
+        // 一時的なロックは blockeduntil だけで表す（blocked は管理者によるブロック）
         $f['failedlogincount'] = $failedlogins;
-        $f['blocked'] = 1;
         $f['blockeduntil'] = time() + ($blockMinutes * 60);
     } else //increment the failed login counter
     {
