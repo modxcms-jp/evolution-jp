@@ -367,9 +367,17 @@ class EvoSiteExporter
         if (!$url) {
             return '';
         }
+        return $this->toFetchTarget($url);
+    }
+
+    /**
+     * 設定のサイトの URL で始まる URL の先頭を、取得先（--site-url）に読み替える。取得先を置き換えていないときはそのまま返す
+     */
+    private function toFetchTarget($url)
+    {
         $siteUrl = (string)evo()->config('site_url');
         if ($this->siteUrl !== '' && $siteUrl !== '' && strpos($url, $siteUrl) === 0) {
-            $url = $this->siteUrl . substr($url, strlen($siteUrl));
+            return $this->siteUrl . substr($url, strlen($siteUrl));
         }
         return $url;
     }
@@ -454,6 +462,7 @@ class EvoSiteExporter
      * 401 は basic 認証として印を立てる（結果ごと）。
      * 3xx は curl の経路でもストリームの経路でも自分で Location を辿る（最大 MAX_REDIRECTS 回、最初の URL と同じオリジンの中だけ）。
      * 同じホスト・既定のポートでの http から https への切り替えも辿る。
+     * 取得先を置き換えている（--site-url）ときは、設定のサイトの URL へのリダイレクトを取得先に読み替えて辿る。
      * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。最初の URL がこのサイト（取得先）の http・https でなければ取得しない。Authorization を付けるのは同じオリジンへの要求だけになる。
      * このまとまり全体に CHUNK_DEADLINE 秒の締め切りがあり、過ぎたら送り直しとリダイレクトの追跡を打ち切って失敗にする。
      *
@@ -504,6 +513,8 @@ class EvoSiteExporter
                 if ($status === 401) {
                     $out[$key] = ['body' => false, 'detail' => $detail, 'basic_auth' => true];
                 } elseif ($status >= 300 && $status < 400) {
+                    // 取得先を置き換えているとき、設定のサイトの URL へのリダイレクトは同じサイトとして取得先に読み替える
+                    $redirect = $redirect === '' ? '' : $this->toFetchTarget($redirect);
                     if ($redirect === '') {
                         $out[$key] = $this->failure($detail);
                     } elseif (($to = $this->originOf($redirect)) === null
