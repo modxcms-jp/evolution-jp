@@ -183,11 +183,6 @@ h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
     font-weight: normal;
 }
 
-/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る */
-.sectionBody > :is(div, table, fieldset) {
-    margin-bottom: var(--space-3);
-}
-
 li, dd, blockquote {
     margin: 0 0 0 1em;
 }
@@ -752,7 +747,7 @@ form .imeoff {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 /* セクション見出し。グラデーションの帯をやめ、ごく薄い地色と下線で本文と区切る */
@@ -1883,6 +1878,12 @@ ul.actionButtons {
 
 /* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
 .tab-page > :has(+ .sectionHeader) {
+    margin-bottom: var(--space-3);
+}
+
+/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
+   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
+.sectionBody > :is(div, table, fieldset) {
     margin-bottom: var(--space-3);
 }
 

@@ -787,7 +787,7 @@ form .imeoff {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 .sectionHeader {
@@ -814,11 +814,6 @@ form .imeoff {
     position: relative;
     margin: 0 8px var(--space-3);
     display: block;
-}
-
-/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る */
-.sectionBody > :is(div, table, fieldset) {
-    margin-bottom: var(--space-3);
 }
 
 .tab-page .sectionBody,
@@ -1645,6 +1640,12 @@ ul.actionButtons {
 
 /* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
 .tab-page > :has(+ .sectionHeader) {
+    margin-bottom: var(--space-3);
+}
+
+/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
+   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
+.sectionBody > :is(div, table, fieldset) {
     margin-bottom: var(--space-3);
 }
 

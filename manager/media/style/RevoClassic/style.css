@@ -1710,6 +1710,12 @@ ul.actionButtons {
     margin-bottom: var(--space-3);
 }
 
+/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
+   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
+.sectionBody > :is(div, table, fieldset) {
+    margin-bottom: var(--space-3);
+}
+
 /* サブリソース一覧（resources_list.static.php）のパンくずの下 */
 .resources-topic-path {
     margin-bottom: var(--space-3);
