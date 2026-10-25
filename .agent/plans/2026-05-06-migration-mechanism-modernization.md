@@ -89,6 +89,7 @@
 - 2026-10-26 / planner / 古い版のコードは PHP 8.4 で動かせない。1.0.0J〜1.0.15J は `mysql_*` 関数を使い（mysqli は 1.0.16J から）、PHP 7.0 以降には無い。そのため古い版の DB は、そのタグの CREATE TABLE と最小のデータから作るフィクスチャで再現する（M2）。1.2.0J〜1.2.3J は、今の検証環境で実際に入れて上げる手順（`environment.md` の「1.2 系で検証するとき」）も行う。1.0.16J〜1.1.0J を PHP 7.x のイメージで実際に入れるのは、手間に比べて得るものが少ない（スキーマはフィクスチャで同じに作れる）ので行わず、その理由を検証の記録に書く。
 - 2026-10-26 / M1 自己レビュー / ランナー（`run()`）はキャッシュを消さず、呼び出し側（CLI の `migrate`、インストーラ）が消す。`evo()->clearCache()` は `system_cache` を TRUNCATE し、表の無い DB（1.0.20J より前）では `messageQuit()` から `exit` して処理ごと終わるため。アップデーターでは `create_tables.sql` より前にランナーを流すので、ランナーの中では消せない。「表があれば消す」の条件で避けると判定が増えるので、呼び出し側に寄せた。
 - 2026-10-26 / M1 自己レビュー（2 回目） / CLI の `migrate` は、流す前に `EvoMigrator::requiresInstaller()`（baseline のファイルがあり、まだ記録されていない。記録の表が無い DB も含む）を確かめ、true なら何も流さずに「アップデーター（install/）で上げる」旨を出して終了コード 1 で止まる。古い版からはアップデーターだけで上げる（本人の決定）ので、CLI だけで baseline を流すと、イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しを通らないまま `hasPending()` が false になり、二度とアップデーターへ案内されなくなるため。いったん `system_cache` の有無で判定したが、1.0.20J〜1.2.3J の DB には表があって CLI で baseline まで流れるので改めた。新規インストール（`markAllApplied()`）とアップデーターを通したサイトは baseline が記録済みなので、開発中に足したマイグレーションは CLI で流せる。baseline のファイルがまだ無い（M3 より前）ときは止めない。`requiresInstaller()` は記録を読めないとき例外を投げる（CLI は終了コード 1。M6 で管理画面の案内に使うときは呼ぶ側で受ける）。M3・M4 の検証で古い DB に流すときは、ガードを通さない `upgrade-fixture.js migrate`（M2）を使う。失敗の文と終了コードは `clearCache()` より前に決める。`migrate:status` も ID の誤りなどの例外を捕まえて終了コード 1 にする。
+- 2026-10-26 / PR #933 の Codex のレビュー（P1） / アップデーターは、マイグレーションを流したあと、`create_tables.sql`・イベント名の同期・utf8mb4 への変換・config の書き込み・要素の入れ直しがすべて成功してから、流したものをまとめて記録する（`run(false)` と `recordApplied()`）。すぐに記録すると、あとの手順が失敗しても `hasPending()` が false になり、更新が終わっていないのに公開側の停止が解けるため（以前は最後に書く `install_version` で止めていた）。判定は `hasPending()` の 1 つのまま保つ。代わりに、アップデーターが途中で失敗すると、その回に流したマイグレーションも次のアップデーターで流し直す（マイグレーションは冪等に書く決まりなので壊れない）。新規インストールの `markAllApplied()` も同じ位置に移した（途中で失敗した新規インストールは、公開側が止まり、アップデーターを通し直すと解ける）。流してから記録するまでのあいだはロックを持たない（同時に動いても冪等で、記録は `INSERT IGNORE`）。CLI の `migrate` は今までどおり 1 本ずつ記録する。
 - 2026-10-26 / M7 の通しの確認（メインの判断） / MariaDB 10.4・MySQL 5.7・8.0 で utf8mb3 のサイトを上げると、インストーラの `convert2utf8mb4()` が text 系の列の型を 1 段広げ、新規インストールと型が違う列（11 列）が残る。4 バイトの文字で容量が足りなくならないための DB の動きで、型を戻すと値が切れるおそれがあるので、差として受け入れて文書に書く（MariaDB 11 では広がらない）。
 - 2026-10-26 / M6 自己レビュー（メインの判断。本人の就寝中のため、あとで確かめてもらう） / ガードのファイル名を `update_guard.php` に変えたので、`version_mismatch_guard.php` の `evo_guard_version_mismatch()` を呼ぶ古いルートの `index.php` が残ったサイトは、公開側が 503 ではなく 500 になる（FTP でのアップロードの途中や、`index.php` に手を入れて上書きしないサイト）。リリース済みの 1.2.0J〜1.2.3J の `index.php` も古いガードを読み込む（M7 の通しの確認で一度「影響しない」と記録したが、確かめた環境に古いガードのファイルが残っていたためで、最後の自己レビューでタグの中身から誤りと分かり、確かめ直した）。上書きでアップロードして古いガードのファイルが残っていれば 500 にはならないが、古い判定（`settings_version` と版の比較）のまま動き、新しい判定は効かない（未適用があっても 503 にならない。逆に `settings_version` が古いままなら、設定を保存するまで 503 が続く）。どちらも `index.php` を差し替えれば解消する。互換のために古いファイル名と関数を残す案もあったが、本人の方針「互換を重ねず進める」に合わせて残さない。代わりに `assets/docs/migrations.md` とリリースノートに「ルートの `index.php` も必ず差し替える」と書く（M7）。出さなくなった版の食い違いの印（`supplementalNav__version-label--mismatch`）のスタイルは、同梱テーマ 6 つから消した（凍結中の RevoStyle には無かった）。docmanager の使われていない `settings_version` の読み込みも消した。
 - 2026-10-26 / M3 自己レビュー（メインの判断。本人の就寝中のため、あとで確かめてもらう） / 索引の長さの上限が 767 バイトの InnoDB 表（ROW_FORMAT が COMPACT・REDUNDANT。MySQL 5.6 の頃に作られた表など）を utf8mb4 にしたサイトでは、`alias varchar(245)`（980 バイト）全体の `aliasidx` を作れない。baseline は、前置き長の索引を外す前に作れるかを判定し（`EvoMigrationHelper::fullIndexFits()`。1 文字は、あとでインストーラが utf8mb4 に変換するので 4 バイトで見積もる）、作れなければまず `ROW_FORMAT=DYNAMIC` にしてから判定し直す（`useDynamicRowFormat()`）。それでも作れない環境（`innodb_large_prefix` が無効など）では、前置き長の索引を残して種別 2 のログで知らせ、最終形との差として扱う。止まって流し直せなくなるよりも、差を記録して先へ進むほうを選んだ。1 文字を 4 バイトで見積もるので、COMPACT の InnoDB で utf8mb3 のまま全体の索引（735 バイト）が使えている DB でも、DYNAMIC にできなければ `alias(191)` に短くする（あとでインストーラが utf8mb4 へ変換したときに失敗しないため。変換は利用者が選ぶもので、変換しない利用者は索引を短くされるだけになる）。`DYNAMIC` にできたかは ALTER の成否ではなく、ALTER のあとの `ROW_FORMAT` で判定し、`innodb_file_format` が Antelope なら ALTER を流さない。DYNAMIC の上限は `innodb_page_size` から `min(3072, ページ × 3 / 16)` とする。utf8mb4 で 767 バイトを超える索引列は、今の定義では `site_content.alias` だけ（`*_names.name` は 191 文字で 764 バイト）。`system_cache` の 245 文字の列も 980 バイトになるが、`create_tables.sql` が毎回作り直す表なので baseline の対象外（サーバーの既定の行形式が COMPACT だと `create_tables.sql` の側が失敗する。以前からの問題）。
@@ -208,7 +209,7 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 
 `manager/includes/migrator.class.inc.php` に `EvoMigrator`、`manager/includes/migration_helper.class.inc.php` に `EvoMigrationHelper` を置く（既存の `backup_manager.class.inc.php` の `EvoBackupManager` と同じ並び）。マイグレーションのファイルは `manager/includes/migrations/` に置き、ランナーのコードは置かない（読むファイルの規則を単純にするため）。ディレクトリが無ければ、マイグレーションは 0 本として扱う。
 
-`EvoMigrator` の役割は、ファイルの一覧、適用済みの一覧、未適用の一覧、未適用を流して記録すること、すべてを適用済みとして記録すること、記録の表を作ることだけ。マイグレーション 1 本は `return function (EvoMigrationHelper $m) { ... };` で、ランナーは `require` した関数に補助を渡して呼ぶ。1 本が例外なく終わったら、すぐにその 1 行を記録する（途中で止まっても、次はその続きから）。ロックは `GET_LOCK()`（名前は DB 名と接頭辞から作る）で取り、`RELEASE_LOCK()` は `finally` で必ず行う。
+`EvoMigrator` の役割は、ファイルの一覧、適用済みの一覧、未適用の一覧、未適用を流して記録すること、すべてを適用済みとして記録すること、記録の表を作ることだけ。マイグレーション 1 本は `return function (EvoMigrationHelper $m) { ... };` で、ランナーは `require` した関数に補助を渡して呼ぶ。CLI の `migrate` では、1 本が例外なく終わったら、すぐにその 1 行を記録する（途中で止まっても、次はその続きから）。アップデーターでは `run(false)` で流すだけにし、アップデーターの必須の処理がすべて成功したあとで `recordApplied()` でまとめて記録する（PR #933 の Codex のレビュー。Decision Log）。ロックは `GET_LOCK()`（名前は DB 名と接頭辞から作る）で取り、`RELEASE_LOCK()` は `finally` で必ず行う。
 
 `EvoMigrationHelper` は、存在確認（表・列・索引・主キー）、それに基づく変更（列を足す、最終形と違えば MODIFY、主キーをそろえる、UNIQUE を付ける、重複行を消す）、システム設定の読み書き（`system_settings` を `db()` で直接読み書きする）、ログ（`evo()->logEvent(0, 種別, 文, 'Migration', コンテキスト配列)`）を持つ。システム設定を `evo()->config` や `evo()->regOption()` で扱わないのは、インストーラ・CLI・管理画面のどこから呼んでも同じに動かすため（`regOption()` は `getSettings()` を呼び、インストーラの中では前提が違う）。DB に渡す値は、SQL を組み立てる直前で `db()->escape()` か `(int)` にする。表と列の名前は baseline に書いた固定の文字列だけを渡し、リクエストの値は渡さない。
 
@@ -273,7 +274,7 @@ DocumentParser への影響: 公開側の判定は `index.php` 108〜111 行（`
 1. 231〜245 行の `site_revision` の削除を消す（baseline へ移した）。
 2. 251 行の `$tablesBeforeInstall` の控えのあと、アップグレードなら `create_tables.sql` の前で `EvoMigrator::run()` を呼ぶ。失敗したら、画面にマイグレーションの ID とエラーを出し（新しい言語の文字列 `migration_failed`）、`$errors` を足し、`log_install_event()` に残して、この先（`create_tables.sql` 以降）に進まずに終わる（DB をそれ以上変えない）。成功したら、適用した ID の一覧を `log_install_event()` に残す。
 3. 253 行の `create_tables.sql` のあと、新規なら既定の設定（今と同じ）、どちらでも `system_eventnames.sql` を流す。
-4. 264〜269 行の `fix_settings.php` の読み込みを消す。新規で失敗していなければ、`EvoMigrator::markAllApplied()` を呼ぶ（新規インストールでは baseline などを流さず、適用済みとだけ記録する。本人の決定 1）。新規で失敗したときの表の片付け（291〜311 行）は、記録の表も消す対象になる（控えより後に作るため）。
+4. 264〜269 行の `fix_settings.php` の読み込みを消す。新規インストールでは、要素の入れ直しなどアップデーターの必須の処理がすべて成功したあとで `EvoMigrator::markAllApplied()` を呼ぶ（baseline などを流さず、適用済みとだけ記録する。本人の決定 1）。アップグレードでは同じ位置で `recordApplied()` を呼ぶ。新規で失敗したときの表の片付け（291〜311 行）は、記録の表も消す対象になる（控えより後に作るため）。
 5. 271〜274 行の utf8mb4 への変換は残す。
 6. 378〜401 行（アップグレードの `site_id`・`site_url`・`cleanupNullStrings()`）を消す。新規の `site_id`・`install_version`・`fixed_site_url`（353〜377 行）は残す（`install_version` は M6 で消す）。
 7. 439〜464 行の `settings_version` の補完を消す。466〜470 行の `install_version` の記録は M5 では残し、M6 で消す（Decision Log）。
@@ -575,7 +576,7 @@ PHP の版: main（1.3 系）は PHP 7.4 以上が対象（1.4 で 8 以上に�
 
 ## Idempotence and Recovery
 
-- マイグレーションは 1 本ずつ記録するので、途中で止まったら、次のアップデーター（baseline の途中で止まったときはアップデーターだけ。baseline が記録済みのサイトで足したマイグレーションなら `php evo migrate` でもよい）はそのマイグレーションから流し直す。DDL は途中で戻らないので、baseline の各手順は存在確認か最終形との比較をしてから実行し、途中まで済んだ状態から流しても最後まで進む。
+- CLI の `migrate` は 1 本ずつ記録するので、途中で止まったら、次はそのマイグレーションから流し直す。アップデーターは最後にまとめて記録するので、あとの手順が失敗すると、その回に流したマイグレーションも記録されず、次のアップデーターで全部流し直す（baseline の途中で止まったときや、アップデーターが途中で失敗したときは、アップデーターでやり直す）。DDL は途中で戻らないので、baseline の各手順は存在確認か最終形との比較をしてから実行し、途中まで済んだ状態から流しても最後まで進む。
 - baseline が長さの確認で止まったときは、DB は何も変わっていない。値を短くしてからやり直す。
 - 同時に 2 回走らないよう、ランナーはロックを取る。取れなければ何もせずに失敗する。
 - 検証環境は `setup-site.js --reinstall` で今の版の新規インストールに戻せる。フィクスチャは `upgrade-fixture.js build` で何度でも作り直せる。
@@ -599,7 +600,8 @@ PHP の版: main（1.3 系）は PHP 7.4 以上が対象（1.4 で 8 以上に�
     public function applied(): array      // ID => applied_at（記録の表が無ければ空）
     public function pending(): array      // 未適用の ID（名前の順）
     public function hasPending(): bool    // アップデート待ちの唯一の判定（公開側・管理画面の入口・health:check）。例外を投げない
-    public function run(): array          // ['applied' => [...], 'failed' => ID か null, 'error' => 文か null]
+    public function run(bool $record = true): array // ['applied' => [...], 'failed' => ID か null, 'error' => 文か null]。false なら流すだけで記録しない（アップデーター）
+    public function recordApplied(array $ids): void // まとめて記録する（INSERT IGNORE。重ねて呼んでも壊れない）
     public function requiresInstaller(): bool // baseline のファイルがあり、まだ記録されていなければ true（記録の表が無い DB を含む）。記録を読めなければ例外。CLI の migrate のガード
     public function markAllApplied(): void // 新規インストールだけで使う
     public function ensureTable(): void
