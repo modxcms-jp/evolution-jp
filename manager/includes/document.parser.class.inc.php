@@ -910,15 +910,11 @@ class DocumentParser
                         break;
                 }
 
-                if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                    mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
-                }
+                $this->ensureDir(MODX_CACHE_PATH . $this->uaType);
 
                 if ($this->config['cache_type'] == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                    if (!is_dir($path)) {
-                        mkdir($path, 0777, true);
-                    }
+                    $this->ensureDir($path);
                 }
                 $this->saveToFile(
                     MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
@@ -5832,6 +5828,12 @@ class DocumentParser
      * @return bool
      *
      */
+    // 同時に別のリクエストが同じディレクトリを作っても警告を出さない
+    protected function ensureDir($dir)
+    {
+        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
+    }
+
     public function saveToFile($filename, $data)
     {
         if (!$filename) {
