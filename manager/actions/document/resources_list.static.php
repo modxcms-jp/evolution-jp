@@ -144,7 +144,7 @@ if (!$numRecords) {
     $pageNavBlock = evo()->table->renderPagingNavigation($numRecords, $qs);
     $children_output = $pageNavBlock . evo()->table->renderTable($rows, $header) . $pageNavBlock;
     if (hasPermission('move_document')) {
-        $children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["resources_list_move_checked"] . '" /></div>';
+        $children_output .= '<div class="resources-batch-actions"><input type="submit" value="' . $_lang["resources_list_move_checked"] . '" /></div>';
     }
 }
 
@@ -549,7 +549,7 @@ function getTopicPath($id)
         }
     }
     return sprintf(
-        '<div style="margin-bottom:10px;">%s</div>',
+        '<div class="resources-topic-path">%s</div>',
         implode(' / ', $topics)
     );
 }
