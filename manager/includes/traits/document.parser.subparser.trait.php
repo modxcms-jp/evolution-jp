@@ -629,18 +629,18 @@ trait DocumentParserSubParserTrait
             if (isset($v['args']) && empty($v['args'])) {
                 unset($backtrace[$i]['args']);
             }
-            if ($v['class'] === 'DocumentParser' && $v['type'] === '->') {
+            if (array_get($v, 'class') === 'DocumentParser' && array_get($v, 'type') === '->') {
                 unset($backtrace[$i]['file']);
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
                 $backtrace[$i]['function'] = '$modx->' . $v['function'] . '()';
             } elseif (isset($v['class'])) {
-                if (strpos($v['file'], 'document.parser.class.inc.php') !== false) {
+                if (strpos(array_get($v, 'file', ''), 'document.parser.class.inc.php') !== false) {
                     unset($backtrace[$i]['file']);
                 }
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
-                $backtrace[$i]['function'] = $v['class'] . $v['type'] . $v['function'] . '()';
+                $backtrace[$i]['function'] = array_get($v, 'class', '') . array_get($v, 'type', '') . $v['function'] . '()';
             }
             $i++;
         }
