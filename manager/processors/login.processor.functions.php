@@ -59,7 +59,7 @@ function failedLogin()
     db()->update(
         $fields,
         '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", user('internalKey'))
+        sprintf("internalKey='%d'", user('internalKey'))
     );
 
     @session_destroy();
@@ -241,7 +241,7 @@ function isBlockedUser()
                 'blockeduntil' => 0
             ],
             '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", user('internalKey'))
+            sprintf("internalKey='%d'", user('internalKey'))
         );
         return false;
     }
@@ -359,6 +359,8 @@ function checkAllowedDays()
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
+    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':
