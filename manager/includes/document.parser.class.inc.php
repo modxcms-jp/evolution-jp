@@ -231,7 +231,6 @@ class DocumentParser
             case 'dbapi': // Database API
             case 'managerapi': // Manager API
             case 'docapi': // Resource API
-            case 'export_site':
                 require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'revision':
@@ -910,20 +909,18 @@ class DocumentParser
                         break;
                 }
 
-                if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                    mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
-                }
-
+                $path = MODX_CACHE_PATH . $this->uaType;
                 if ($this->config['cache_type'] == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                    if (!is_dir($path)) {
-                        mkdir($path, 0777, true);
-                    }
                 }
-                $this->saveToFile(
-                    MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
-                    $cacheContent
-                );
+                if ($this->ensureDir($path)) {
+                    $cacheFile = MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename);
+                    if (!$this->saveToFile($cacheFile, $cacheContent)) {
+                        $this->logEvent(0, 3, 'Failed to save page cache', 'Page cache', ['path' => $cacheFile]);
+                    }
+                } else {
+                    $this->logEvent(0, 3, 'Failed to create cache directory', 'Page cache', ['path' => $path]);
+                }
             }
             // Useful for example to external page counters/stats packages
             $this->invokeEvent('OnWebPageComplete');
@@ -1448,17 +1445,8 @@ class DocumentParser
     }
 
     private function verifyBearerToken() {
-        if (!function_exists('getallheaders')) {
-            return false;
-        }
-
-        $headers = getallheaders();
-        if (!isset($headers['authorization'])) {
-            return false;
-        }
-
-        $auth = $headers['authorization'];
-        if (!preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
+        $auth = $this->getAuthorizationHeader();
+        if ($auth === '' || !preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
             return false;
         }
 
@@ -1484,6 +1472,46 @@ class DocumentParser
 
         $this->loadExtension('phpass');
         return $this->phpass->checkPassword($matches[1], $hashedBearerToken);
+    }
+
+    /**
+     * リクエストの Authorization ヘッダーを返す。無ければ空文字列。
+     * getallheaders() は送られたとおりの大文字小文字で返すので、名前は区別せずに探す。
+     * PHP-FPM などでは Authorization が PHP に渡らず、$_SERVER にだけ入ることがある。
+     */
+    private function getAuthorizationHeader()
+    {
+        if (function_exists('getallheaders')) {
+            foreach ((array)getallheaders() as $name => $value) {
+                if (strcasecmp($name, 'authorization') === 0 && $value !== '') {
+                    return (string)$value;
+                }
+            }
+        }
+        foreach (['HTTP_AUTHORIZATION', 'REDIRECT_HTTP_AUTHORIZATION'] as $key) {
+            $value = serverv($key);
+            if ($value) {
+                return (string)$value;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * ベアラートークンを取り消す（期限を過去にし、ハッシュを空にする）。
+     */
+    public function revokeBearerToken()
+    {
+        db()->save(
+            ['setting_name' => 'bearer_token', 'setting_value' => ''],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token')
+        );
+        db()->save(
+            ['setting_name' => 'bearer_token_expire', 'setting_value' => request_time() - 1],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token_expire')
+        );
     }
 
     public function saveBearerToken($token, $expire = null)
@@ -5821,6 +5849,19 @@ class DocumentParser
     }
 
     /*
+     * ディレクトリを作る(既にあれば何もしない)
+     *
+     * 同時に別のリクエストが同じディレクトリを作っても警告を出さない。
+     *
+     * @param $dir 作るディレクトリ
+     * @return bool 使える状態なら true
+     */
+    protected function ensureDir($dir)
+    {
+        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
+    }
+
+    /*
      * ファイル作成
      *
      * 一時ファイルを作成後、リネームしてファイルを作成する。
@@ -5843,8 +5884,11 @@ class DocumentParser
             chmod($tmp, 0666);
         }
 
-        if (@file_put_contents($tmp, $data, LOCK_EX)) {
-            return rename($tmp, $filename);
+        if (@file_put_contents($tmp, $data, LOCK_EX) && @rename($tmp, $filename)) {
+            return true;
+        }
+        if (is_file($tmp)) {
+            @unlink($tmp);
         }
         return false;
     }

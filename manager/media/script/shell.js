@@ -235,7 +235,9 @@
         }
     }
 
-    function applyFragment(html, finalUrl, push) {
+    // finalUrl はアドレスバーと履歴に残すURL、screenUrl は表示する画面のURL（省略時は finalUrl）。
+    // リダイレクトしないPOSTの結果では、アドレスバーは元の画面のまま、表示するのは操作の結果の画面になる
+    function applyFragment(html, finalUrl, push, screenUrl) {
         const pane = document.getElementById('mainPane');
         if (!pane) {
             fullReload(finalUrl);
@@ -280,7 +282,7 @@
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
             stopWork();
-            document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
+            document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl, screenUrl: screenUrl || finalUrl } }));
         });
     }
 
@@ -500,7 +502,8 @@
                 // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
                 // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
                 const keepUrl = options.method === 'POST' && !response.redirected && !isModalTarget;
-                const finalUrl = keepUrl ? currentUrl : responseUrlWithRequestHash(response.url, url);
+                const screenUrl = responseUrlWithRequestHash(response.url, url);
+                const finalUrl = keepUrl ? currentUrl : screenUrl;
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         if (isModalTarget) {
@@ -509,7 +512,7 @@
                             }
                             applyModalFragment(text, finalUrl);
                         } else {
-                            applyFragment(text, finalUrl, push && !keepUrl);
+                            applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
                         }
                     } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
