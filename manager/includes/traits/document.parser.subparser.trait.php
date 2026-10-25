@@ -629,18 +629,18 @@ trait DocumentParserSubParserTrait
             if (isset($v['args']) && empty($v['args'])) {
                 unset($backtrace[$i]['args']);
             }
-            if ($v['class'] === 'DocumentParser' && $v['type'] === '->') {
+            if (array_get($v, 'class') === 'DocumentParser' && array_get($v, 'type') === '->') {
                 unset($backtrace[$i]['file']);
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
                 $backtrace[$i]['function'] = '$modx->' . $v['function'] . '()';
             } elseif (isset($v['class'])) {
-                if (strpos($v['file'], 'document.parser.class.inc.php') !== false) {
+                if (strpos(array_get($v, 'file', ''), 'document.parser.class.inc.php') !== false) {
                     unset($backtrace[$i]['file']);
                 }
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
-                $backtrace[$i]['function'] = $v['class'] . $v['type'] . $v['function'] . '()';
+                $backtrace[$i]['function'] = array_get($v, 'class', '') . array_get($v, 'type', '') . $v['function'] . '()';
             }
             $i++;
         }
@@ -674,17 +674,18 @@ trait DocumentParserSubParserTrait
             if (substr($val['function'], 0, 8) === 'phpError') {
                 break;
             }
-            $path = str_replace('\\', '/', $val['file']);
+            $path = str_replace('\\', '/', array_get($val, 'file', ''));
             if (strpos($path, MODX_BASE_PATH) === 0) {
                 $path = substr($path, strlen(MODX_BASE_PATH));
             }
             switch (array_get($val, 'type')) {
                 case '->':
                 case '::':
-                    if ($val['class'] === 'DocumentParser' && $val['type'] === '->') {
-                        $val['class'] = '$modx';
+                    $class = array_get($val, 'class', '');
+                    if ($class === 'DocumentParser' && $val['type'] === '->') {
+                        $class = '$modx';
                     }
-                    $functionName = $val['function'] = $val['class'] . $val['type'] . $val['function'];
+                    $functionName = $val['function'] = $class . $val['type'] . $val['function'];
                     break;
                 default:
                     $functionName = $val['function'];
@@ -697,7 +698,7 @@ trait DocumentParserSubParserTrait
                 '<td>%s()<br />%s on line %s</td>',
                 $functionName,
                 $path,
-                $val['line']
+                array_get($val, 'line', '')
             );
         }
         $str .= '</table>';
