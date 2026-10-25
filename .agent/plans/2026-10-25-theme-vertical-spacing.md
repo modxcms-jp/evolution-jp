@@ -15,7 +15,10 @@
   - [x] 自己レビューと検証の指摘への対応: 05cb9c166（`.section` の間・ページ送り・タブ内の見出し前の間）・984c34fea（入れ物の集合と最後の子の規則の限界を文書に書く）
   - [x] ブロックの間 12px の確定（12px 版と 8px 版を 5 画面で見比べてもらった。Decision Log）
   - [x] `a=114`（システムログ）の追加: `eventlog.dynamic.php` の埋め込みの余白を消し、2 テーマに規則を足した（4646c17a2・bbee43682。2 テーマとも 10/10px → 12/12px）
-- [ ] (2026-10-25 計画) M3: RubberWhite の段の名前を揃え、AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `style.css` と `common/welcome.tpl` を決まりに揃える。RevoStyle は `a=120`・`a=114` の今の 10px を保つ規則だけを足す。7 テーマを通しで確かめる（RevoStyle は前後で変わらないこと）
+- [x] (2026-10-25) M3: 完了。af1d90375〜3afae4148 の 8 コミット（RubberWhite の段の名前、4 テーマの揃え、RevoStyle の凍結の規則、ダッシュボードの外枠、文書の仕上げ）と、指摘への対応 8fbf6bc63・d3b5bc865。低い指摘への対応は、このあと worker がコミットする。tester の確認は合格
+  - 決まりとの差なし: 6 テーマ × 17 画面と、ページ送りのある `a=120`
+  - 縦の余白以外の差: 4 テーマの `a=2` の外枠の左右（8px→0）と、SakuraFlow・AromaHop の `.tab-row` の `flow-root` だけ
+  - `#actions` は全画面で同じ。RevoStyle は main と同じ
 
 ## Surprises & Discoveries
 
@@ -54,6 +57,13 @@ M2 の自己レビューと検証で分かったこと（2026-10-25）。
 - `a=27`（リソースの編集）では、表示される最後の子の後ろに、表示されない兄弟の要素がある。そのため `:last-child` が表示される最後の子に当たらず、その子の下の margin が残る。CSS では表示されているかどうかで要素を選べないので、規則の限界として文書に書いた（984c34fea）。
 - SoftSlate は、`.sectionBody > div` に上下の margin を持つ。M3 で決まりに合わせて直す。
 - `a=114`（システムログ）の 10px は、`manager/actions/report/eventlog.dynamic.php` が埋め込む `<style>`（147 行から）の、`.system-log-toolbar` と `.system-log-summary` の縦の margin による。M2 で直す（Decision Log）。
+
+M3 で分かったこと（2026-10-25）。
+
+- RubberWhite・SoftSlate は、`.sectionBody` の直下に独自の規則を持っていた（`> * + *` と、`p, h3, h4, > div` の上下 `.75rem`）。これを廃止し、6 テーマ共通の `.sectionBody > :is(div, table, fieldset)` にした（8fbf6bc63）。`form` は対象から外した。`a=120` などでは末尾に `<style>` があり、`form` に `:last-child` が当たらないため。
+- `.sectionBody h3` の下が、テーマによって 10px と 12px に分かれていた。12px に揃えた（8fbf6bc63）。
+- tester の「`h1` から `.section` までが 8px」という報告は、読み違いだった。決まりとの差は無い。
+- `a=93`（バックアップ）の表のセルで、`width` に 0.2〜0.6px の差が出る。M3 で CSS を変えていないテーマでも出るので、変更が原因ではない（原因は未確認）。
 
 ## Decision Log
 
@@ -137,11 +147,35 @@ M2 の自己レビューと検証で分かったこと（2026-10-25）。
     - RevoStyle だけ `style` 属性を残す（テーマで出し分ける）: PHP 側にテーマの分岐ができる
     - 変わるのを受け入れる: 凍結の目的に反する
   - 検証: RevoStyle の `a=120`・`a=114` の縦の間が main と同じ値で、ほかの 13 画面も前後で同じ。`git diff <base> -- manager/media/style/RevoStyle` は、この規則の追加だけ。
+- 2026-10-25 / メイン判断（M3 の自己レビューの中 1、案 a）: `.sectionBody` の直下のブロックの間は、6 テーマ共通の `.sectionBody > :is(div, table, fieldset)` に `margin-bottom: var(--space-3)` で書く。RubberWhite・SoftSlate の独自の規則（`> * + *`、`p, h3, h4, > div` の上下 `.75rem`）は廃止する。
+  - 根拠: 決まりの「ブロックの間は `--space-3`」に沿い、テーマごとに違う書き方を残さない。`form` は、末尾の `<style>` のせいで `:last-child` が当たらない画面があるので外す。
+  - 代替案: RubberWhite・SoftSlate の規則を残し、値だけ `--space-3` に直す案。テーマによって当たる要素が違ったままになり、文書の表と一致しないので採らない。
+- 2026-10-25 / メイン判断（M3 の自己レビューの中 2）: `.sectionBody h3` の下を、6 テーマとも `--space-3`（12px）にする（10px のテーマがあった）。
+  - 根拠: 小見出しと本文の間も、決まりの「ブロックの間は `--space-3`」に揃える。
+  - 代替案: テーマごとの値（10px）を残す案。決まりに無い px の直書きが残るので採らない。
 - 2026-10-25 / yamamoto（planner）: 計測は、幅 1440px・高さ 900px で行う。`#actions` が右上に浮く通常の配置で、SoftSlate の 1100px 以下の配置は例外として扱う。位置は `getBoundingClientRect()` の値を 0.5px 単位に丸めて比べ、決まりとの差が ±0.5px 以内なら一致とみなす（`em` で決まる高さなどで端数が出るため）。
 
 ## Outcomes & Retrospective
 
-実装後に記載。
+結果（2026-10-25、PR #922）:
+
+- 達成したこと:
+  - 縦の余白の決まりを `assets/docs/theme-spacing.md` に書き、`AGENTS.md` のドキュメントマップと `theme-variables.md` から辿れるようにした。内容は、段の約束（`--space-1..8`）、ブロックの間 `--space-3`（12px）、リセット規則の案 B、例外の一覧、書き方、RevoStyle を対象外にすること
+  - RevoStyle を除く 6 テーマの `style.css` を、決まりに揃えた
+    - 全テーマが `--space-1..8` を持つ。RubberWhite は名前を揃えた
+    - 位置をずらす正の `top` が無くなった
+    - ブロックの間は `var(--space-3)` で書く
+  - 2 画面の直書きの余白を消し、テーマの決まりで揃えた。サブリソース一覧（`resources_list.static.php`）とシステムログ（`eventlog.dynamic.php`）。ダッシュボードの外枠（`common/welcome.tpl`）も同じ
+  - RevoStyle は凍結した。消した直書きの余白と同じ値を保つ規則だけを足し、15 画面とも main と同じ見た目
+  - tester の確認は合格した。6 テーマ × 17 画面とページ送りのある `a=120` で、決まりとの差が無い。縦の余白以外の差は、意図した 2 点だけ（4 テーマの `a=2` の外枠の左右、SakuraFlow・AromaHop の `.tab-row` の `flow-root`）
+- 残したこと:
+  - #924: ほかの画面の直書きの余白と、2 枚目以降のタブの中の計測
+  - `a=27` のように、表示される最後の子の後ろに表示されない兄弟があると、`:last-child` の規則が当たらない（文書に限界として書いた）
+  - `:has()` に対応していないブラウザでは、`:has()` に頼る規則が効かない
+- 学び:
+  - 入れ物の最初の子・最後の子を 0 にする規則は、詳細度がブロックの `margin-bottom` より高くなりやすい。`.section` の間が 0 になったことで分かった。こうした規則を足すときは、ブロックの規則との詳細度の関係を先に確かめる
+  - 計測する画面の選び方に漏れがあった。`.section` が続く画面や、ページ送りのある一覧が最初の 15 画面に入っておらず、自己レビューで見つかった。計測の対象は、ブロックの組み合わせ（`.section` の連続、ページ送り、タブの有無、`<script>`・`<style>` で終わる入れ物）を網羅するように選ぶ
+  - 計測の基準の版を報告に書いておく必要がある。修正前の値が、横取りの CSS（`<base>`）・`m1-work`・途中のコミットのどれと比べたものかを書かないと、差の読み違いが起きる（「`h1` から `.section` までが 8px」の読み違いなど）
 
 ## Context and Orientation
 
