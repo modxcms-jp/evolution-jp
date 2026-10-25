@@ -95,7 +95,7 @@ ExecPlan: `.agent/plans/2026-05-06-migration-mechanism-modernization.md` の「V
   - ログインしていない状態で `/install/` を直接開くと、画面に「アップグレードには管理者認証が必要です / Evolution CMS の管理画面にログインしている必要があります」と出て、アップデーターは実行できない（ログインが要る）。
   - `admin` でログインして `/manager/` を開くとメンテナンス表示（「システムのアップデート中です。…管理者にお問い合わせください」）。アップデーターへは案内されない。
   - 文書に書く内容: この状態から抜けるには、DB でロールに `settings` の権限を戻してから、ログインしてアップデーターを通す。
-- 古いルートの `index.php`（`git show release-1.2.3J:index.php`）を置いたまま `manager/` が新しい状態: 未適用なし・ありのどちらでも公開側は 200 / 503 で、500 にならない（1.2.3J の `index.php` は `version_mismatch_guard.php` を読まない）。
+- 古いルートの `index.php`（`git show release-1.2.3J:index.php`。95〜97 行で `manager/includes/version_mismatch_guard.php` を `include_once` し、`evo_guard_version_mismatch()` を呼ぶ）を置いたまま `manager/` が新しい状態（再検証）: (a) 古いガードのファイルが無いと、未適用なし・ありのどちらでも公開側は HTTP 500（本文 `Error`）。(b) `git show release-1.2.3J:manager/includes/version_mismatch_guard.php` を置くと、未適用なし・ありのどちらでも公開側は 200 でページが出る（今の判定は使われず、未適用があっても 503 にならない）。
 - 古い main の `index.php`（`git show b686bb12c:index.php`、`manager/includes/version_mismatch_guard.php` を `include_once`）を置いたまま: 公開側が HTTP 500（本文 `Error`）。未適用の有無に関わらず再現（`version_mismatch_guard.php` が無くなったため）。
   - 文書に書く内容: ルートの `index.php` もアップデートで差し替える（`manager/` だけ差し替えると 500 になる）。
 

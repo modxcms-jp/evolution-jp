@@ -48,7 +48,7 @@ php evo make:migration add_example_column
 `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形ができる。
 
 - ID は `YYYYMMDD_HHMMSS_説明` で、ファイル名から `.php` を除いたもの。説明は英小文字・数字・`_`（`make:migration` の説明は 84 文字まで）。ID の上限は 100 文字（記録の表の列と同じ）。超える ID があるとランナーは流す前に止まる。
-- ランナーが読むファイルは `^\d{8}(_\d{6})?_[a-z0-9_]+\.php$` に合うものだけ。時刻の無い ID は `00000000_baseline` だけに使う。
+- ランナーが読むファイルは `00000000_baseline.php` か、`\d{8}_\d{6}_[a-z0-9_]+.php`（日付・時刻・説明）に合うものだけ。時刻の無い ID は `00000000_baseline` だけに使う。
 - 適用の順は ID の名前順。同じ日に 2 本足したときの順は、時刻が決める。
 - ロールバック（down）は作らない。上げる方向だけ。
 
@@ -96,7 +96,7 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 「アップデートが済んでいないか」の判定は、未適用のマイグレーションがあるか（`EvoMigrator::hasPending()`）の 1 つだけ。次の場所が同じ判定を使う。
 
 - 公開側（`manager/includes/update_guard.php`）: 未適用があればメンテナンスの表示（HTTP 503）を返す。呼ぶ位置は `index.php` の `executeParser()` より前。
-- 管理画面の入口（`manager()->isUpdatePending()`）: 未適用があればアップデーター（`install/`）へ送る。`install/` が無いときは、権限のある人にはアップデーターを置いて実行するよう案内し、ほかの人にはメンテナンスの表示を出す。
+- 管理画面の入口（`manager()->isUpdatePending()`）: 未適用があればアップデーター（`install/`）へ送る。settings 権限のある人は、`install/` があればアップデーターへ送られ、無ければアップデーターを置いて実行するよう案内される。ほかの人には、`install/` の有無に関わらずメンテナンスの表示を出す。
 - `php evo health:check`: 未適用の件数を表示する。
 
 記録の表が読めないときは、止める側に倒す（未適用あり、として扱う）。公開側のリクエストごとに、ファイルの一覧（`glob()` 1 回）と記録の表の SELECT 1 回を行う。
@@ -107,13 +107,13 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 ## 利用者がアップデートするとき
 
-1. ファイルを差し替える。`manager/` だけでなく、ルートの `index.php` も必ず差し替える。未リリースの `main` の `index.php` は、今は無いファイルを読み込むため、`manager/` だけを新しくして古い `main` の `index.php` が残ると、公開側が HTTP 500 になる（リリース済みの 1.2.x の `index.php` は影響しない）。
+1. ファイルを差し替える。`manager/` だけでなく、ルートの `index.php` も必ず差し替える。1.2 系と未リリースの `main` の古い `index.php` は、今は無い `manager/includes/version_mismatch_guard.php` を読み込むため、`manager/` だけを新しくして古い `index.php` が残ると、公開側が HTTP 500 になる（古いガードのファイルが残っていれば読み込めるが、今の判定は使われず、未適用があっても公開側は止まらない）。
 2. `install/` を置いて、アップデーターで上げる。管理画面にログインした状態で `/install/?action=mode` から最後まで進める。
 3. アップデーターは、ランナー → `create_tables.sql` → イベント名 → utf8mb4 への変換の順に処理し、最後にキャッシュを消す。
 
 ファイルだけを差し替えて `install/` を置かないと、未適用があるあいだ、公開側はメンテナンスの表示になる。管理画面では、settings 権限のある人に、アップデーター（`install/`）を置くよう案内が出る。
 
-settings 権限のある人がいないサイトでは、管理画面のメンテナンスの表示から先へ進めない。DB でロールに `settings` の権限を戻してから、ログインしてアップデーターを通す。
+settings 権限のある人がいないと、管理画面からはアップデーターへ案内されない。
 
 CLI の `php evo migrate` は、baseline が記録済みのサイトで、開発中などに足したマイグレーションを流すためのもの。古い版からは使えない（baseline が記録されていないと、何も流さずに止まる）。古い版の DB は、必ずアップデーターで上げる（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しは、アップデーターだけが行うため）。
 
@@ -126,11 +126,12 @@ CLI の `php evo migrate` は、baseline が記録済みのサイトで、開発
 
 よくある止まり方:
 
-- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面（CLI では標準出力）とシステムログに出る。DB の道具か `php evo db:query` で値を短くしてから、アップデーターをやり直す。
+- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面とシステムログに出る。DB の道具か `php evo db:query` で値を短くしてから、アップデーターをやり直す。
 - **ロック**: ほかの処理が走っていて 30 秒待っても取れないと、失敗になる。ほかのアップデーターや `migrate` が走っていないか確かめて、やり直す。
-- **途中の失敗**: 失敗したマイグレーションは記録されない。原因を直して、アップデーター（または `php evo migrate`）をやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。ただし MyISAM の表の変更は、途中で戻せない。
+- **途中の失敗**: 失敗したマイグレーションは記録されない。原因を直して、アップデーター（baseline の失敗はアップデーターで。baseline のあとに足したマイグレーションなら `php evo migrate` でも）をやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。ただし MyISAM の表の変更は、途中で戻せない。
 
 ## 既知の差
 
 - **MariaDB 11 以外で text 系の型が 1 段広がる**: MariaDB 10.4・MySQL 5.7・8.0 で、utf8mb3 のサイトを上げると、インストーラの utf8mb4 への変換（`convert2utf8mb4()`。版によらない既存の処理）が、text 系の列の型を 1 段広げる（`text` → `mediumtext`、`mediumtext` → `longtext`）。新規インストールと型が違う列が 11 列残る。4 バイトの文字で容量が足りなくならないための DB の動きで、戻すと値が切れるおそれがあるので戻さない。読み書きには支障が無い。MariaDB 11 では広がらない。
-- **`alias` の索引**: InnoDB の古い表（行形式が COMPACT・REDUNDANT）では、索引の長さの上限が 767 バイトで、`alias`（245 文字）全体の索引を utf8mb4 で作れない。baseline は、まず `ROW_FORMAT=DYNAMIC` にして作れるか確かめる。`DYNAMIC` にできない環境（`innodb_large_prefix` が無効など）では、`alias` の索引を前置き長のまま残し、ログ（種別 2）で知らせる。最終形との差になるが、動作には支障が無い。
+- **MariaDB 11 以外では、2 回目のアップデーターで `system_cache.cache_value` の型が戻る**: `create_tables.sql` が `system_cache` を毎回作り直すため（インストーラの動き）。
+- **`alias` の索引**: InnoDB の古い表（行形式が COMPACT・REDUNDANT）では、索引の長さの上限が 767 バイトで、`alias`（245 文字）全体の索引を utf8mb4 で作れない。baseline は、まず `ROW_FORMAT=DYNAMIC` にして作れるか確かめる。`DYNAMIC` にできない環境や、`DYNAMIC` にしても上限が 767 バイトの環境（MySQL 5.6 の Antelope、`innodb_large_prefix=OFF` など）では、`alias` の索引を前置き長のまま残し、ログ（種別 2）で知らせる。最終形との差になるが、動作には支障が無い。
