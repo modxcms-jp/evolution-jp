@@ -49,9 +49,11 @@ if (!$isShellPartial) {
                 initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
             });
 
-            // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す
+            // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す。
+            // リダイレクトしないPOST（サイトをリフレッシュ等）ではアドレスバーが元の画面のままなので、表示した画面のURLで判定する
             document.addEventListener('evoshell:load', function (e) {
-                markCurrentMenu(e.detail && e.detail.url ? e.detail.url : window.location.href);
+                var detail = e.detail || {};
+                markCurrentMenu(detail.screenUrl || detail.url || window.location.href);
             });
 
             // 表示中の画面に対応するサブメニュー項目に aria-current を付け、その親タブを開く。
