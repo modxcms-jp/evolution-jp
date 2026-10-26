@@ -426,16 +426,17 @@ EOT;
 
 function get_tree_orderby()
 {
-    $orderby = sprintf('%s %s',
-        sessionv(
-            'tree_sortby',
-            config('resource_tree_sortby_default','menuindex')
-        ),
-        sessionv('tree_sortdir', 'asc')
-    );
+    // 並べ替えの列と向きは、ツリーの選択肢にあるものだけを使う
+    $sortby = sessionv('tree_sortby', config('resource_tree_sortby_default', 'menuindex'));
+    if (!in_array($sortby, ['isfolder', 'pagetitle', 'id', 'menuindex', 'createdon', 'editedon'], true)) {
+        $sortby = 'menuindex';
+    }
+    $sortdir = sessionv('tree_sortdir', 'asc');
+    $sortdir = is_string($sortdir) && strtoupper($sortdir) === 'DESC' ? 'DESC' : 'ASC';
+    $orderby = sprintf('sc.%s %s', $sortby, $sortdir);
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if (sessionv('tree_sortby') === 'isfolder') {
+    if ($sortby === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
     // 続きの読み込み（LIMIT）で順序が揺れないよう、一意なキーで並びを確定させる
