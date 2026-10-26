@@ -20,7 +20,8 @@ $ph = array_merge(
         'adminpass'         => sessionv('adminpass') ?: '',
         'adminpassconfirm'  => sessionv('adminpassconfirm') ?: '',
         'database_user'     => sessionv('database_user') ?: env('DB_USERNAME') ?: '',
-        'database_password' => sessionv('database_password') ?: env('DB_PASSWORD') ?: '',
+        // 保存済みのパスワードは画面に出さない（毎回入力してもらう）
+        'database_password' => '',
         'dbase'             => sessionv('dbase') ?: env('DB_DATABASE') ?: '',
     ]
 );

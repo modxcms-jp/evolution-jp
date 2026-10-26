@@ -409,6 +409,40 @@ function managerConfigExists()
     return is_file(MODX_BASE_PATH . 'manager/includes/config.inc.php');
 }
 
+// インストーラーが書き込んだ config.inc.php か（$lastInstallTime がある）。
+// 空のファイルや書き込み確認用の仮の中身はインストール前とみなす（ex_dbapi.php と同じ見分け方）
+function managerConfigInstalled()
+{
+    static $installed = null;
+    if ($installed !== null) {
+        return $installed;
+    }
+    if (!managerConfigExists()) {
+        return $installed = false;
+    }
+    // 読めない・読み込めないときは、インストール済みとみなして認証を求める
+    if (!is_readable(MODX_BASE_PATH . 'manager/includes/config.inc.php')) {
+        return $installed = true;
+    }
+    $lastInstallTime = null;
+    if ((include MODX_BASE_PATH . 'manager/includes/config.inc.php') === false) {
+        return $installed = true;
+    }
+    return $installed = !empty($lastInstallTime);
+}
+
+// 新規インストール時: install-config.php による保護
+// インストール済み（config.inc.php が書き込み済み）: Evolution CMS の管理者認証を要求
+// 保護の種類は config.inc.php の状態だけで決める。インストーラーの入口はすべてここを通す
+function guardInstallerRequest()
+{
+    if (!managerConfigInstalled()) {
+        guardInstallerAccess();
+        return;
+    }
+    guardUpgradeAccess();
+}
+
 /**
  * アップグレード可能かどうかを判定
  *

@@ -9,6 +9,7 @@ require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
 require_once(MODX_BASE_PATH . 'install/functions.php');
 
 includeLang(postv('language') ?: getOption('install_language'));
+guardInstallerRequest();
 
 // AJAXリクエストで送信された接続情報を使用
 // JavaScriptは 'host', 'uid', 'pwd' という名前で送信している
@@ -31,6 +32,10 @@ if (db()->conn) {
     db()->conn->close();
     db()->conn = null;
 }
+// 空の欄は空のまま使い、保存済みの接続情報に戻さない
+db()->hostname = (string) $database_server;
+db()->username = (string) $database_user;
+db()->password = (string) $database_password;
 
 $connected = db()->connect(
     $database_server,
