@@ -23,7 +23,7 @@ $stripTags = isset($stripTags) ? $stripTags : 1;
 	Default:
 	1 - on
 */
-$bad = isset($bad) ? explode(",", $bad) : ["seeThroughtUnpub", "showInMenuOnly", "showPublishedOnly", "debug", "start", "config", "extenders", "dittoID"];
+$bad = isset($bad) ? explode(",", $bad) : ["seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "debug", "start", "config", "extenders", "dittoID"];
 /*
 	Param: bad
 
@@ -34,9 +34,19 @@ $bad = isset($bad) ? explode(",", $bad) : ["seeThroughtUnpub", "showInMenuOnly",
 	Any valid Ditto options separated by commas
 
 	Default:
-	"seeThroughtUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID"
+	"seeThruUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID"
 */
-$good = isset($good) ? explode(",", $good) : false;
+// Never set from the request: SQL conditions, access control, the documents to list,
+// and variables used inside the snippet
+$never = [
+    "where", "hidePrivate", "seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "hideFolders",
+    "parents", "documents", "depth", "orderBy", "queryLimit", "debug", "config", "extenders", "dittoID",
+    "ditto", "modx", "placeholders", "filters", "_lang", "language", "format", "save",
+];
+$good = isset($good)
+    ? explode(",", $good)
+    : ["display", "total", "paginate", "paginateAlwaysShowLinks", "randomize", "summarize", "noResults",
+       "dateSource", "dateFormat", "filter"];
 
 $request = (array) anyv();
 /*
@@ -49,13 +59,24 @@ $request = (array) anyv();
 	Any valid Ditto options separated by commas
 
 	Default:
-	All parameters execpt those in &bad
+	"display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,
+	dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
+	Templates (tpl, tplAlt, ...) are set from the request only when listed in &good
 */
+$variables = [];
 foreach ($request as $name => $value) {
+    if (!is_string($value) || strpos($name, "ditto_") !== 0) {
+        continue;
+    }
     $saneName = str_replace($dittoID, "", substr($name, 6));
     $dID = ($dittoID == "") ? true : strpos($name, $dittoID);
-    if ((strpos($name, "ditto_") === 0 && $dID) && !in_array($saneName, $bad) && ($good == false || in_array($saneName, $good)) && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)) {
-        if ($stripTags) $var = $modx->stripTags($value);
+    $allowed = in_array($saneName, $good, true)
+        || (in_array("filter", $good, true) && preg_match('/^filter_[0-9]+$/', $saneName));
+    if ($dID && $allowed && !in_array($saneName, $bad, true) && !in_array($saneName, $never, true)
+        && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)) {
+        if ($stripTags) {
+            $value = $modx->stripTags($value);
+        }
         $variables[$saneName] = trim($value);
     }
 }
@@ -63,7 +84,7 @@ foreach ($request as $name => $value) {
 	Param: dbg
 
 	Purpose:
-	Output variables being set
+	Output variables being set (only with &debug)
 
         Options:
         0 - off
@@ -73,8 +94,8 @@ foreach ($request as $name => $value) {
         0 - off
 */
 $debugRequest = anyv($dittoID . "dbg", 0);
-if ($debugRequest == 1) {
-    print_r($variables);
+if ($debugRequest == 1 && !empty($debug)) {
+    echo hsc(print_r($variables, true));
 }
 extract($variables);
 
