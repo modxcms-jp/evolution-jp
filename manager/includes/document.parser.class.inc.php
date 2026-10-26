@@ -5733,6 +5733,7 @@ class DocumentParser
 
     public function nicesize($size)
     {
+        $size = (float) $size;
         $a = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         $pos = 0;
         while ($size >= 1024) {
