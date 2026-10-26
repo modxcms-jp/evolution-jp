@@ -75,10 +75,11 @@ if (!sessionv('tree_sortdir')) {
 
         if (sessionv('openedArray')) {
             foreach (sessionv('openedArray') as $i=>$v) {
+                $v = (int)$v;
                 if(!$v) {
                     continue;
                 }
-                echo sprintf("openedArray[%s] = 1;\n", $v);
+                echo sprintf("openedArray[%d] = 1;\n", $v);
             }
         }
         ?>

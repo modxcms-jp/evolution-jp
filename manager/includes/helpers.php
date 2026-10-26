@@ -125,6 +125,24 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
+/**
+ * <script> の中に値を埋め込むための、引用符付きの JS の文字列リテラルを返す。
+ * 不正な UTF-8 は置き換え、それでも失敗したら空文字列のリテラルを返す。
+ * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれを使う。
+ *
+ * @param mixed $value
+ * @return string
+ */
+function js_literal($value): string
+{
+    $json = json_encode(
+        (string)$value,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+    return $json === false ? '""' : $json;
+}
+
 function manager_safe_mode_can_toggle()
 {
     return defined('IN_MANAGER_MODE')
