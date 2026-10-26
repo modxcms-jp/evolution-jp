@@ -100,7 +100,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
-    $where = sprintf("parent='%s' %s GROUP BY sc.id,rev.status", $parent, $access);
+    $where = sprintf("parent='%d' %s GROUP BY sc.id,rev.status", $parent, $access);
     $result = db()->select(
         implode(',', $field),
         $from,
@@ -411,16 +411,17 @@ EOT;
 
 function get_tree_orderby()
 {
-    $orderby = sprintf('%s %s',
-        sessionv(
-            'tree_sortby',
-            config('resource_tree_sortby_default','menuindex')
-        ),
-        sessionv('tree_sortdir', 'asc')
-    );
+    // 並べ替えの列と向きは、ツリーの選択肢にあるものだけを使う
+    $sortby = sessionv('tree_sortby', config('resource_tree_sortby_default', 'menuindex'));
+    if (!in_array($sortby, ['isfolder', 'pagetitle', 'id', 'menuindex', 'createdon', 'editedon'], true)) {
+        $sortby = 'menuindex';
+    }
+    $sortdir = sessionv('tree_sortdir', 'asc');
+    $sortdir = is_string($sortdir) && strtoupper($sortdir) === 'DESC' ? 'DESC' : 'ASC';
+    $orderby = sprintf('sc.%s %s', $sortby, $sortdir);
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if (sessionv('tree_sortby') === 'isfolder') {
+    if ($sortby === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
     $orderby .= ', sc.editedon DESC';
