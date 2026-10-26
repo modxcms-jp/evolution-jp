@@ -549,7 +549,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <td><input name="blockedcheck" type="checkbox"
                                     onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0)) ? " checked='checked'" : "" ?> /><input
                                     type="hidden" name="blocked"
-                                    value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0)) ? 1 : 0 ?>">
+                                    value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
                             </td>
                         </tr>
                         <tr>
