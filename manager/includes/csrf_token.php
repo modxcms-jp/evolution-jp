@@ -174,6 +174,153 @@ function csrfTokenField($token = null)
 }
 
 /**
+ * 状態（DB・ファイル・セッション）を変える操作の一覧
+ * 値が true のアクションは常に対象。配列のときは、そのパラメータが列挙した値のときだけ対象（表示と更新を兼ねる画面のサブ操作）
+ * GET・HEAD でここに載せた操作に届いたときは、外部サイトから来た要求を accesscontrol.inc.php で 403 にする
+ * （isCrossSiteRequest()）。POST はこの一覧によらずトークンを検証する
+ * ログアウト（a=8）は、フロントのリンクで正規に GET で使うため載せない
+ *
+ * @return array<int, true|array<string, string[]>>
+ */
+function csrfProtectedActions()
+{
+    // モジュールの実行（a=112）は、更新するかどうかがモジュールの実装次第で、
+    // モジュール内のリンクがすべて影響を受けるため対象にしない。
+    // ツリーの開閉状態やメッセージの既読など、表示のためのセッション・軽微な状態の書き換えも対象にしない
+    return [
+        // リソース
+        6   => true, // 削除
+        52  => true, // 移動
+        61  => true, // 公開
+        62  => true, // 非公開
+        63  => true, // 復元
+        64  => true, // ごみ箱から完全に削除
+        94  => true, // 複製
+        129 => true, // 下書きの公開
+        134 => true, // 下書きの公開予約の取り消し
+        // 要素
+        21  => true, // テンプレートの削除
+        96  => true, // テンプレートの複製
+        25  => true, // スニペットの削除
+        98  => true, // スニペットの複製
+        80  => true, // チャンクの削除
+        97  => true, // チャンクの複製
+        104 => true, // プラグインの削除
+        105 => true, // プラグインの複製
+        110 => true, // モジュールの削除
+        111 => true, // モジュールの複製
+        303 => true, // テンプレート変数の削除
+        304 => true, // テンプレート変数の複製
+        501 => true, // カテゴリの削除
+        113 => ['op' => ['add', 'del']], // モジュールのリソース設定
+        // ユーザー・権限
+        33  => true, // ユーザーの削除
+        90  => true, // Web ユーザーの削除
+        37  => true, // ロールの削除
+        41  => true, // アクセス権（ユーザーグループ・リソースグループ）の操作
+        92  => true, // Web アクセス権の操作
+        // メッセージ
+        65  => true, // 削除
+        66  => true, // 送信
+        // 管理・ツール
+        26  => true, // サイトのリフレッシュ（公開状態の更新とキャッシュの削除）
+        54  => true, // テーブルの最適化・ログの truncate
+        55  => true, // 管理画面のログを空にする
+        67  => true, // ロックの解除
+        307 => true, // スナップショットの作成
+        308 => true, // HTML エクスポートのジョブ
+        31  => ['mode' => ['delete', 'deletefolder', 'newfolder', 'newfile', 'unzip']], // ファイルの操作
+        // 保存系（POST で呼ぶもの。GET で到達しても実行させない）
+        5   => true, // リソース
+        128 => true, // 下書きの保存
+        130 => true, // 下書きの削除
+        20  => true, // テンプレート
+        24  => true, // スニペット
+        79  => true, // チャンク
+        103 => true, // プラグイン
+        109 => true, // モジュール
+        302 => true, // テンプレート変数
+        32  => true, // ユーザー
+        89  => true, // Web ユーザー
+        36  => true, // ロール
+        34  => true, // パスワード
+        30  => true, // システム設定
+        305 => true, // バックアップからの復元
+    ];
+}
+
+/**
+ * 現在のリクエストが、状態を変える操作（csrfProtectedActions()）かを判定する
+ *
+ * @param int|string $action アクション番号
+ * @return bool
+ */
+function isCsrfProtectedAction($action)
+{
+    $list = csrfProtectedActions();
+    $action = (int) $action;
+    if (!isset($list[$action])) {
+        return false;
+    }
+    if ($list[$action] === true) {
+        return true;
+    }
+    foreach ($list[$action] as $param => $values) {
+        $value = anyv($param);
+        if (is_string($value) && in_array($value, $values, true)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/**
+ * URL から host（小文字）だけを取り出す。取れなければ空文字列。
+ * フォールバック（Origin・Referer）の比較は、scheme やポートの違い
+ * （TLS 終端プロキシなど）で正規の要求を誤って拒まないよう host だけで行う
+ *
+ * @param string $url
+ * @return string
+ */
+function csrfUrlHost($url)
+{
+    $host = parse_url((string) $url, PHP_URL_HOST);
+    return is_string($host) ? strtolower($host) : '';
+}
+
+/**
+ * 現在のリクエストが外部サイト（cross-site）から来たものかを判定する
+ * Sec-Fetch-Site（cross-site だけ該当）、無ければ Origin、無ければ Referer の host を自サイトと比べる。
+ * same-origin・same-site・none は通す。どのヘッダーも無いときは通す
+ *
+ * @return string 外部サイトと判定した根拠のヘッダー名（外部サイトでなければ空文字列）
+ */
+function isCrossSiteRequest()
+{
+    $fetchSite = serverv('HTTP_SEC_FETCH_SITE');
+    if ($fetchSite) {
+        return strtolower($fetchSite) === 'cross-site' ? 'Sec-Fetch-Site' : '';
+    }
+
+    $siteUrl = defined('MODX_SITE_URL') ? MODX_SITE_URL : '';
+    $siteHost = csrfUrlHost($siteUrl) ?: csrfUrlHost(config('site_url'));
+    // 自サイトの host が分からないときは判定しない（通す）
+    if ($siteHost === '') {
+        return '';
+    }
+
+    foreach (['Origin' => 'HTTP_ORIGIN', 'Referer' => 'HTTP_REFERER'] as $name => $key) {
+        $value = serverv($key);
+        if (!$value) {
+            continue;
+        }
+        return csrfUrlHost($value) !== $siteHost ? $name : '';
+    }
+    return '';
+}
+
+/**
  * CSRFトークンのメタタグを生成（Ajax用）
  *
  * @param string|null $token 使用するトークン（nullの場合は現在のトークンを使用）
