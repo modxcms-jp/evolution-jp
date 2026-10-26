@@ -15,10 +15,14 @@ if (evo()->getLoginUserType() !== 'manager') {
 // save folderstate
 
 if (getv('savestateonly')) {
-    $_SESSION['openedArray'] = getv('opened')
-        ? explode('|',getv('opened'))
-        : []
-    ;
+    // 開いているフォルダの ID（整数）だけを残す
+    $opened = getv('opened');
+    sessionv(
+        '*openedArray',
+        is_string($opened) && $opened !== ''
+            ? array_values(array_filter(array_map('intval', explode('|', $opened))))
+            : []
+    );
     exit('savestateonly');
 }
 
