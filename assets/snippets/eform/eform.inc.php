@@ -664,7 +664,7 @@ function eForm($modx, $params)
                 }
 
                 //defaults to text - test for sendAsHtml
-                $isHTML = ($sendAsHTML == 1 || strpos($sendAsHtml, 'mobile') !== false);
+                $isHTML = ($sendAsHtml == 1 || strpos($sendAsHtml, 'mobile') !== false);
                 # send mobile email
                 if ($mobile && $mobiletext) {
                     $mobiletext = formMerge($mobiletext, $fields);
