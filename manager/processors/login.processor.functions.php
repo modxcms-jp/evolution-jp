@@ -36,7 +36,8 @@ function validateLoginInput()
         return false;
     }
 
-    if (!$password) {
+    // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
+    if (!$password && !getv('fmpkey')) {
         jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
@@ -48,19 +49,19 @@ function failedLogin()
 {
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
-    db()->update(
-        ['failedlogincount' => $failedlogincount],
-        '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", user('internalKey'))
-    );
+    $fields = ['failedlogincount' => $failedlogincount];
+
     if (config('failed_login_attempts', 0) <= $failedlogincount) {
-        db()->update([
-                'blockeduntil' => request_time() + (config('blocked_minutes') * 60)
-            ],
-            '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", user('internalKey'))
-        );
+        $fields['blocked'] = 1;
+        $fields['blockeduntil'] = request_time() + (config('blocked_minutes') * 60);
     }
+
+    db()->update(
+        $fields,
+        '[+prefix+]user_attributes',
+        sprintf("internalKey='%d'", user('internalKey'))
+    );
+
     @session_destroy();
     session_unset();
 }
@@ -202,28 +203,69 @@ function OnBeforeManagerLogin()
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
+function rejectBlockedUser()
+{
+    @session_destroy();
+    session_unset();
+    jsAlert(alert()->errors[902]);
+}
+
+// user() は期限切れのロックをキャッシュ上で解除済みの値にして返すため、ブロックの判定には DB の値を使う
+function getBlockStateFromDb()
+{
+    return db()->getRow(
+        db()->select(
+            'blocked, blockeduntil, failedlogincount',
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        )
+    );
+}
+
 function isBlockedUser()
 {
-    if (!user('blocked')) {
-        return false;
-    }
-    if (request_time() < user('blockeduntil', 0)) {
+    $row = getBlockStateFromDb();
+    if (!$row) {
         return true;
     }
-    if (config('failed_login_attempts', 0) < user('failedlogincount', 0)) {
-        if (request_time() < user('blockeduntil', 0)) {
-            return true;
-        }
+
+    $blockedUntil = (int) $row['blockeduntil'];
+
+    // 期限（解除日）が過ぎていれば、一時ロックでも解除日付きのブロックでも解除する。
+    // blockeduntil=0 の無期限ブロックはここに入らない
+    if (0 < $blockedUntil && $blockedUntil <= request_time()) {
+        db()->update(
+            [
+                'failedlogincount' => 0,
+                'blocked' => 0,
+                'blockeduntil' => 0
+            ],
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        );
+        return false;
     }
-    db()->update(
-        [
-            'failedlogincount' => 0,
-            'blocked' => 0
-        ],
-        '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", user('internalKey'))
-    );
-    return false;
+
+    $isTemporaryLock = 0 < $blockedUntil
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
+
+    return $isTemporaryLock || (bool) (int) $row['blocked'];
+}
+
+// DB の最新の状態で、まだブロックされているかを確かめる
+function isStillBlockedInDb()
+{
+    $row = getBlockStateFromDb();
+    if (!$row) {
+        return true;
+    }
+    if ((int) $row['blocked']) {
+        return true;
+    }
+    $blockedUntil = (int) $row['blockeduntil'];
+    return 0 < $blockedUntil
+        && request_time() < $blockedUntil
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
 }
 
 function checkAllowedIp()
@@ -314,6 +356,8 @@ function checkAllowedDays()
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
+    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':

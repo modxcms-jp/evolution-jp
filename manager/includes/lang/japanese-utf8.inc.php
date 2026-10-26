@@ -358,6 +358,7 @@ $_lang["files_uploadfile_msg"] = 'アップロードするファイルを選択'
 $_lang["files_uploading"] = '<strong>%s</strong>を<strong>%s/</strong>にアップロードしました。<br />';
 $_lang["files_viewfile"] = 'ファイルの表示';
 $_lang["folder"] = 'コンテナ';
+$_lang["fmp_link_invalid"] = 'パスワード再設定のリンクが無効か、有効期限が切れています。お手数ですが、もう一度パスワードの再設定を請求してください。';
 $_lang["forgot_password_email_fine_print"] = '注意：上記のURLは30分間有効です。';
 $_lang["forgot_password_email_instructions"] = 'そのページの「パスワード変更」メニューからパスワードを変更することができます。';
 $_lang["forgot_password_email_intro"] = 'アカウントへのパスワード変更リクエストを受け付けました。';
