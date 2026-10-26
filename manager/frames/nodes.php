@@ -187,12 +187,10 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $ph['alt'] = getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb);
         $ph['parent'] = $parent;
         $ph['spacer'] = $spacer;
-        $pagetitle = addslashes($pagetitle);
-        $pagetitle = htmlspecialchars($pagetitle, ENT_QUOTES, $modx->config('modx_charset'));
-        $ph['pagetitle'] = "'{$pagetitle}'";
+        $ph['pagetitle'] = hsc(js_literal($pagetitle));
         $ph['nodetitle'] = "'" . addslashes($nodetitle) . "'";
         $url = $modx->makeUrl($id, '', '', 'full');
-        $ph['url'] = "'{$url}'";
+        $ph['url'] = hsc(js_literal($url));
         $ph['published'] = $published;
         $ph['deleted'] = $deleted;
         $hankaku_title = mb_convert_kana($nodetitle, 'Kas');

@@ -112,9 +112,9 @@ $icons_path = manager_style_image_path('icons');
                                         $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
-                                            $row['itemid'],
+                                            hsc($row['itemid']),
                                             $selectedtext,
-                                            $row['itemid']
+                                            hsc($row['itemid'])
                                         );
                                     }
                                     ?>
@@ -132,9 +132,9 @@ $icons_path = manager_style_image_path('icons');
                                     foreach ($logs_names as $row) {
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
-                                            $row['itemname'],
+                                            hsc($row['itemname']),
                                             $row['itemname'] == getv('itemname') ? ' selected="selected"' : '',
-                                            $row['itemname']
+                                            hsc($row['itemname'])
                                         );
                                     }
                                     ?>

@@ -80,7 +80,7 @@ function batch_move()
     $where = implode(' OR ', $ids);
     $rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
     while ($row = db()->getRow($rs)) {
-        echo $row['pagetitle'] . '<br />';
+        echo hsc($row['pagetitle']) . '<br />';
     }
 }
 
@@ -95,7 +95,11 @@ parent.tree.ca = "move";
 function setMoveValue(pId, pName) {
     if (pId===0 || checkParentChildRelation(pId, pName)) {
         document.newdocumentparent.new_parent.value=pId;
-        document.getElementById('parentName').innerHTML = "{$_lang['new_parent']}: <b>" + pId + "</b> (" + pName + ")";
+        const label = document.getElementById('parentName');
+        const id = document.createElement('b');
+        id.textContent = pId;
+        label.textContent = {$newParentLabel} + ': ';
+        label.append(id, ' (' + pName + ')');
     }
 }
 

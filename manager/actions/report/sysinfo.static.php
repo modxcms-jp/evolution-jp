@@ -231,8 +231,8 @@ global $database_connection_method, $lastInstallTime;
                                     ($i % 2) ? '#EEEEEE' : '#FFFFFF',
                                     $content['id'],
                                     $content['id'],
-                                    $content['pagetitle'],
-                                    $user,
+                                    hsc($content['pagetitle']),
+                                    hsc($user),
                                     evo()->toDateFormat($content['editedon'] + config('server_offset_time'))
                                 );
                                 $i++;

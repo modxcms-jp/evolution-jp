@@ -15,7 +15,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 
     function setParent(pId, pName) {
         document.importFrm.parent.value = pId;
-        document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
+        document.getElementById('parentName').textContent = pId + " (" + pName + ")";
         document.getElementById('reset').disabled = pId != 0;
     }
 </script>

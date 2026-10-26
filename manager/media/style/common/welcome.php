@@ -146,7 +146,7 @@ function tabYourInfo()
         $Lastlogin = '-';
     }
 
-    $ph['UserName'] = $modx->getLoginUserName();
+    $ph['UserName'] = hsc($modx->getLoginUserName());
     $ph['name'] = sessionv('mgrPermissions.name');
     $ph['Lastlogin'] = $Lastlogin;
     $ph['Logincount'] = sessionv('mgrLogincount', 0) + 1;
@@ -194,8 +194,9 @@ TPL;
         $tpl = '<li><b>[+editedon+]</b> - [[+id+]] <a href="index.php?a=3&amp;id=[+id+]">[+pagetitle+]</a>[+description+]</li>';
         while ($row = db()->getRow($rs)) {
             $row['editedon'] = $modx->toDateFormat($row['editedon']);
+            $row['pagetitle'] = hsc($row['pagetitle']);
             if ($row['description'] != '') {
-                $row['description'] = ' - ' . $row['description'];
+                $row['description'] = ' - ' . hsc($row['description']);
             }
             $recent_info .= $modx->parseText($tpl, $row);
         }
