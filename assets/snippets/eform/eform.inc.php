@@ -275,6 +275,10 @@ function eForm($modx, $params)
 
         # get user post back data
         foreach ($_POST as $name => $value) {
+            // eForm が組み立てる項目は、送られた値で上書きさせない
+            if (in_array($name, ['validationmessage', 'debug', 'disclaimer'], true)) {
+                continue;
+            }
             if (is_array($value)) {
                 //remove empty values
                 $fields[$name] = array_filter($value, function ($v) {
@@ -295,7 +299,14 @@ function eForm($modx, $params)
 
         # get uploaded files
         foreach ($_FILES as $name => $value) {
-            $fields[$name] = $value;
+            if (($formats[$name][2] ?? '') == 'file') {
+                $fields[$name] = $value;
+                continue;
+            }
+            // file 以外の項目には、アップロードの情報を入れない（POST の値があればそれを残す）
+            if (!isset($fields[$name])) {
+                $fields[$name] = '';
+            }
         }
 
         # check vericode
@@ -510,7 +521,7 @@ function eForm($modx, $params)
             # added in 1.4.2 - Limit the time between form submissions
             if ($submitLimit > 0) {
                 if (time() < $submitLimit + sessionv($formid . '_limit', 0)) {
-                    return formMerge($_lang['ef_submit_time_limit'], $fields);
+                    return formMerge($_lang['ef_submit_time_limit'], efHtmlFields($fields));
                 } else {
                     sessionv('*' . $formid . '_limit', null);
                     sessionv('*' . $formid . '_hash', null);
@@ -527,7 +538,7 @@ function eForm($modx, $params)
                         if (isset($startupSource)) {
                             efRegisterStartupBlock($startupSource);
                         }
-                        return formMerge($tpl, $fields);
+                        return formMerge($tpl, efHtmlFields($fields));
                     }
                     return '';
                 }
@@ -558,7 +569,7 @@ function eForm($modx, $params)
 
                 # check if already succesfully submitted with same data
                 if ($sessionHash === $hash && $hash != '') {
-                    return formMerge($_lang['ef_multiple_submit'], $fields);
+                    return formMerge($_lang['ef_multiple_submit'], efHtmlFields($fields));
                 }
             }
 
@@ -726,14 +737,17 @@ function eForm($modx, $params)
                     if (isset($startupSource)) {
                         efRegisterStartupBlock($startupSource, true);
                     }    //skip scripts
+                    $htmlFields = efHtmlFields($fields);
+                    // the disclaimer is merged with the posted values: rebuild it from the escaped ones
+                    $htmlFields['disclaimer'] = $disclaimer ? formMerge($disclaimer, $htmlFields) : '';
                     if ($sendAsText) {
                         foreach ($formats as $key => $fmt) {
-                            if ($fmt[2] === 'html') {
-                                $fields[$key] = str_replace("\n", '<br />', $fields[$key]);
+                            if (($fmt[2] ?? '') === 'html' && isset($htmlFields[$key])) {
+                                $htmlFields[$key] = str_replace("\n", '<br />', $htmlFields[$key]);
                             }
                         }
                     }
-                    $thankyou = formMerge($thankyou, $fields);
+                    $thankyou = formMerge($thankyou, $htmlFields);
                     return $thankyou;
                 }
                 return $_lang['ef_thankyou_message'];
@@ -804,7 +818,26 @@ function eForm($modx, $params)
     if (isset($startupSource)) {
         efRegisterStartupBlock($startupSource);
     }
-    return formMerge($tpl, $fields);
+    return formMerge($tpl, efHtmlFields($fields));
+}
+
+# Escape field values for pages shown in the browser (not for mail bodies).
+# validationmessage / debug / disclaimer are HTML built by eForm itself.
+function efHtmlFields($fields)
+{
+    global $formats;
+    foreach ($fields as $key => $value) {
+        if (in_array($key, ['validationmessage', 'debug', 'disclaimer'], true)) {
+            continue;
+        }
+        $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+        // keep the line breaks eForm itself has turned into <br /> (html fields only)
+        if (($formats[$key][2] ?? '') === 'html') {
+            $value = str_replace('&lt;br /&gt;', '<br />', $value);
+        }
+        $fields[$key] = $value;
+    }
+    return $fields;
 }
 
 # Form Merge
@@ -816,6 +849,11 @@ function formMerge($docText, $docFields, $vClasses = '')
     if (!$docText) {
         return '';
     }
+
+    // 選択済みの判定は、エスケープの有無にかかわらず元の文字で比べる
+    $decode = function ($v) {
+        return is_string($v) ? html_entity_decode($v, ENT_QUOTES | ENT_HTML5) : $v;
+    };
 
     preg_match_all('~\[\+(.*?)\+\]~', $docText, $matches);
     foreach ($matches[1] as $iValue) {
@@ -839,7 +877,8 @@ function formMerge($docText, $docFields, $vClasses = '')
             $listValue = substr($name, $colonPost + 1);
             $datatype = isset($formats[$listName][2]) ? $formats[$listName][2] : '';
             if (isset($docFields[$listName]) && is_array($docFields[$listName])) {
-                if ($datatype === 'listbox' && in_array($listValue, $docFields[$listName])) {
+                $selectedValues = array_map($decode, $docFields[$listName]);
+                if ($datatype === 'listbox' && in_array($decode($listValue), $selectedValues)) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]',
@@ -850,7 +889,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                         $docText
                     );
                 }
-                if (in_array($datatype, ['checkbox', 'radio']) && in_array($listValue, $docFields[$listName])) {
+                if (in_array($datatype, ['checkbox', 'radio']) && in_array($decode($listValue), $selectedValues)) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]',
@@ -862,7 +901,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                     );
                 }
             } else {
-                if ($datatype === 'listbox' && isset($docFields[$listName]) && $listValue == $docFields[$listName]) {
+                if ($datatype === 'listbox' && isset($docFields[$listName]) && $decode($listValue) == $decode($docFields[$listName])) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]',
@@ -873,7 +912,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                         $docText
                     );
                 }
-                if (in_array($datatype, ['checkbox', 'radio']) && $listValue == $docFields[$listName]) {
+                if (in_array($datatype, ['checkbox', 'radio']) && isset($docFields[$listName]) && $decode($listValue) == $decode($docFields[$listName])) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]',
