@@ -21,6 +21,17 @@ if (is_file(MODX_BASE_PATH . '.env')) {
     $dotenv->load();
 }
 
+// DocumentParser が mbstring を前提にしているため、読み込む前に確かめる（言語ファイルにも頼らない）
+if (!extension_loaded('mbstring')) {
+    http_response_code(503);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>MODX Installer</title></head><body>'
+        . '<p>PHP の拡張モジュール mbstring が有効ではありません。mbstring は必須です。有効にしてからやり直してください。</p>'
+        . '<p>The PHP mbstring extension is not enabled. It is required; enable it and try again.</p>'
+        . '</body></html>';
+    exit;
+}
+
 include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 

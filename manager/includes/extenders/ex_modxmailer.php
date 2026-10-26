@@ -62,7 +62,7 @@ class MODxMailer extends PHPMailer
             || ($mail_charset === '' && substr(strtolower(evo()->config('manager_language')), 0, 8) === 'japanese')) {
             $this->IsHTML(false);
         }
-        if (extension_loaded('mbstring') && $this->mb_language !== false) {
+        if ($this->mb_language !== false) {
             mb_language($this->mb_language);
             mb_internal_encoding(evo()->config('modx_charset'));
         }
