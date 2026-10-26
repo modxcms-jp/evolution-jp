@@ -6,6 +6,7 @@ include_once MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php';
 $modx = new DocumentParser;
 require_once MODX_BASE_PATH . 'install/functions.php';
 $_lang = includeLang(sessionv('install_language', 'english'));
+guardInstallerRequest();
 
 // POSTデータを取得
 $host = postv('host');
@@ -26,7 +27,10 @@ if (db()->conn) {
     db()->conn = null;
 }
 
-// 明示的に接続情報を渡す（タイムアウト2秒）
+// 明示的に接続情報を渡す（タイムアウト2秒）。空の欄は空のまま使い、保存済みの接続情報に戻さない
+db()->hostname = (string) $host;
+db()->username = (string) $username;
+db()->password = (string) $password;
 $connected = db()->connect($host, $username, $password, '', 2);
 
 // connect() の戻り値をチェック（isConnected() ではなく）
