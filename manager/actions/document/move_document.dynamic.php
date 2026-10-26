@@ -7,14 +7,23 @@ if (!evo()->hasPermission('move_document') || !evo()->hasPermission('save_docume
     alert()->dumpError();
 }
 
+// 移動するリソース。1 件なら id、複数なら batch。1 つでも整数として読めなければ止める
+$ids = [];
+$readId = function ($v) {
+    return is_string($v) && preg_match('@\\A[1-9][0-9]{0,18}\\z@', $v) && (string)(int)$v === $v ? (int)$v : 0;
+};
 if (anyv('id')) {
-    $id = (int)anyv('id');
-} elseif (anyv('batch')) {
-    $id = implode(',', anyv('batch'));
-} else {
+    $ids[] = $readId(anyv('id'));
+} elseif (is_array(anyv('batch'))) {
+    foreach (anyv('batch') as $v) {
+        $ids[] = $readId($v);
+    }
+}
+if (!$ids || in_array(0, $ids, true)) {
     alert()->setError(2);
     alert()->dumpError();
 }
+$id = implode(',', $ids);
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {

@@ -388,7 +388,7 @@ function template($key, $default = null)
         return $tplObject[$key];
     }
     if (getv('id')) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . getv('id') . "'");
+        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . (int)getv('id') . "'");
         $total = db()->count($rs);
         if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";

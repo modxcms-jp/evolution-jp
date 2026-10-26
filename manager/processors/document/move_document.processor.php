@@ -25,13 +25,24 @@ if (anyv('new_parent') === null) {
     alert()->dumpError();
 }
 
-if (strpos(anyv('id'), ',') === false) {
-    $doc_ids[] = anyv('id');
-    $doc_id = anyv('id');
-} else {
-    $doc_ids = explode(',', anyv('id'));
-    $doc_id = $doc_ids[0];
+// 移動するリソース（カンマ区切りで複数可）。一部だけを移動しないよう、1 つでも整数として読めなければ全体を止める
+if (!is_string(anyv('id')) || trim(anyv('id')) === '') {
+    alert()->setError(601);
+    alert()->dumpError();
 }
+$doc_ids = [];
+foreach (explode(',', anyv('id')) as $v) {
+    $v = trim($v);
+    $v = is_string($v) && preg_match('@\\A[1-9][0-9]{0,18}\\z@', $v) && (string)(int)$v === $v ? (int)$v : 0;
+    if (!$v) {
+        alert()->setError(2);
+        alert()->dumpError();
+    }
+    if (!in_array($v, $doc_ids, true)) {
+        $doc_ids[] = $v;
+    }
+}
+$doc_id = $doc_ids[0];
 
 $rs = db()->select(
     'parent',
