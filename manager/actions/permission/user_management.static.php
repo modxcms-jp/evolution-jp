@@ -120,7 +120,7 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= anyv('search') ?>" /></td>
+                                        value="<?= hsc(anyv('search')) ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"

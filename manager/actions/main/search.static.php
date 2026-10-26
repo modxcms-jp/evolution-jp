@@ -29,7 +29,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td width="120"><?= lang('search_criteria_id') ?></td>
                         <td width="20">&nbsp;</td>
                         <td width="120">
-                            <input name="searchid" type="text" value="<?= getv('searchid') ?>"/>
+                            <input name="searchid" type="text" value="<?= hsc(getv('searchid')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_id_msg') ?></td>
                     </tr>
@@ -37,7 +37,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_title') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="pagetitle" type="text" value="<?= getv('pagetitle') ?>"/>
+                            <input name="pagetitle" type="text" value="<?= hsc(getv('pagetitle')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_title_msg') ?></td>
                     </tr>
@@ -45,7 +45,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_longtitle') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="longtitle" type="text" value="<?= getv('longtitle') ?>"/>
+                            <input name="longtitle" type="text" value="<?= hsc(getv('longtitle')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_longtitle_msg') ?></td>
                     </tr>
@@ -53,7 +53,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td>Alias</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="alias" type="text" value="<?= getv('alias') ?>"/>
+                            <input name="alias" type="text" value="<?= hsc(getv('alias')) ?>"/>
                         </td>
                         <td></td>
                     </tr>
@@ -61,7 +61,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td>URL</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="url" type="text" size="50" value="<?= getv('url') ?>"/>
+                            <input name="url" type="text" size="50" value="<?= hsc(getv('url')) ?>"/>
                         </td>
                         <td></td>
                     </tr>
@@ -69,7 +69,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_content') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="content" type="text" value="<?= getv('content') ?>"/>
+                            <input name="content" type="text" value="<?= hsc(getv('content')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_content_msg') ?></td>
                     </tr>

@@ -153,7 +153,7 @@ switch ($rt) {
 <form name="selector" method="get">
     <input type="hidden" name="id" value="<?= (int)anyv('id') ?>"/>
     <input type="hidden" name="a" value="<?= (int)anyv('a') ?>"/>
-    <input type="hidden" name="listmode" value="<?= anyv('listmode') ?>"/>
+    <input type="hidden" name="listmode" value="<?= hsc(anyv('listmode')) ?>"/>
     <input type="hidden" name="op" value=""/>
     <input type="hidden" name="rt" value="<?= hsc($rt) ?>"/>
     <input type="hidden" name="sm" value="<?= hsc($sm) ?>"/>

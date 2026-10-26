@@ -67,7 +67,7 @@ function content($key, $default = null)
 }
 ?>
 <script type="text/javascript">
-    var docid = <?= anyv('id') ?>;
+    var docid = <?= request_intvar('id') ?>;
     jQuery(function() {
         jQuery('select[name="categoryid"]').change(function() {
             if (jQuery(this).val() == '-1') {
@@ -315,7 +315,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= content('id') ?>">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 

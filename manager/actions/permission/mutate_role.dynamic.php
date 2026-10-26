@@ -97,8 +97,8 @@ function role($key, $default = null)
     }
 </script>
 <form action="index.php?a=36" method="post" name="userform" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= getv('a') ?>">
-    <input type="hidden" name="id" value="<?= getv('id') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
 
     <h1><?= $_lang['role_title'] ?></h1>
 
