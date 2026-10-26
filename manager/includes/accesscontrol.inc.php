@@ -37,14 +37,27 @@ if (!sessionv('mgrValidated')) {
 // log the user action
 sessionv('*ip', real_ip());
 
+// 状態を変える操作が GET・HEAD で届いたとき、外部サイトからの要求は拒否する
+if (in_array(serverv('REQUEST_METHOD'), ['GET', 'HEAD'], true) && isCsrfProtectedAction(manager()->action)) {
+    $crossSiteBy = isCrossSiteRequest();
+    if ($crossSiteBy) {
+        header('HTTP/1.1 403 Forbidden');
+        evo()->logEvent(
+            0,
+            2,
+            sprintf('Cross-site request to a state-changing action was rejected | action: %d | judged by: %s', (int) manager()->action, $crossSiteBy),
+            'CSRF'
+        );
+        exit;
+    }
+}
+
 // CSRF Token Validation for POST requests
 if (is_post()) {
-    // 例外: ログインフォームのみ
+    // 例外: なし（ログイン前の処理はここに来ない。ログアウトの POST もトークンを検証する）
     // 注意: 表示系アクション（a=2, a=27など）でもフォームPOSTが発生する場合があるため、
-    // 基本的にはログイン以外は全てトークン検証を行う
-    $exemptActions = [
-        8,    // ログイン処理のみ例外
-    ];
+    // 全てのアクションでトークン検証を行う
+    $exemptActions = [];
 
     $currentAction = manager()->action;
 
