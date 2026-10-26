@@ -47,7 +47,7 @@ $icons_path = manager_style_image_path('icons');
                                     name="message"
                                     class="inputbox"
                                     style="width:240px"
-                                    value="<?= getv('message') ?>" />
+                                    value="<?= hsc(getv('message')) ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -147,7 +147,7 @@ $icons_path = manager_style_image_path('icons');
                             <td><b><?= lang('mgrlog_datefr') ?></b></td>
                             <td align="right">
                                 <input type="text" id="datefrom" name="datefrom" class="DatePicker"
-                                    value="<?= getv('datefrom', '') ?>" />
+                                    value="<?= hsc(getv('datefrom', '')) ?>" />
                                 <a
                                     onclick="document.logging.datefrom.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img
@@ -163,7 +163,7 @@ $icons_path = manager_style_image_path('icons');
                                     id="dateto"
                                     name="dateto"
                                     class="DatePicker"
-                                    value="<?= getv('dateto', '') ?>" />
+                                    value="<?= hsc(getv('dateto', '')) ?>" />
                                 <a
                                     onclick="document.logging.dateto.value=''; return true;"
                                     style="cursor:pointer; cursor:hand">
@@ -180,7 +180,7 @@ $icons_path = manager_style_image_path('icons');
                                 <input
                                     type="text" name="nrresults"
                                     class="inputbox" style="width:100px"
-                                    value="<?= getv('nrresults', config('number_of_logs')) ?>" />
+                                    value="<?= hsc(getv('nrresults', config('number_of_logs'))) ?>" />
                                 <img src="<?= style('tx') ?>" border="0" />
                             </td>
                         </tr>
@@ -273,15 +273,15 @@ $icons_path = manager_style_image_path('icons');
                     // New instance of the Paging class, you can modify the color and the width of the html table
                     $extargv = sprintf(
                         '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s',
-                        getv('searchuser'),
-                        getv('action'),
-                        getv('itemid'),
-                        getv('itemname'),
-                        getv('message'),
-                        getv('dateto'),
-                        getv('datefrom'),
+                        urlencode((string)getv('searchuser')),
+                        urlencode((string)getv('action')),
+                        urlencode((string)getv('itemid')),
+                        urlencode((string)getv('itemname')),
+                        urlencode((string)getv('message')),
+                        urlencode((string)getv('dateto')),
+                        urlencode((string)getv('datefrom')),
                         $int_num_result,
-                        getv('log_submit')
+                        urlencode((string)getv('log_submit'))
                     );
                     $p = new Paging($total, evo()->input_get('int_cur_position', 0), $int_num_result, $extargv);
 

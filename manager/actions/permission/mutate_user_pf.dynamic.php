@@ -167,9 +167,9 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     ?>
     <input type="hidden" name="mode" value="74">
     <input type="hidden" name="userid" value="<?= $userid ?>">
-    <input type="hidden" name="newusername" value="<?= userData('username') ?>" />
-    <input type="hidden" name="role" value="<?= userData('role') ?>" />
-    <input type="hidden" name="failedlogincount" value="<?= userData('failedlogincount') ?>">
+    <input type="hidden" name="newusername" value="<?= hsc(userData('username')) ?>" />
+    <input type="hidden" name="role" value="<?= (int)userData('role') ?>" />
+    <input type="hidden" name="failedlogincount" value="<?= (int)userData('failedlogincount') ?>">
     <input type="hidden" name="blockedmode"
         value="<?= (userData('blocked') == 1 || (userData('blockeduntil') > time() && userData('blockeduntil') != 0) || (userData('blockedafter') < time() && userData('blockedafter') != 0) || userData('failedlogins') > 3) ? "1" : "0" ?>" />
 
@@ -426,7 +426,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     <tr>
                         <th><?= $_lang["mgr_login_start"] ?></th>
                         <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                value="<?= isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : setting('manager_login_startup') ?>">
+                                value="<?= hsc(postv('manager_login_startup', setting('manager_login_startup'))) ?>">
                             <div><?= $_lang["mgr_login_start_message"] ?></div>
                         </td>
                     </tr>

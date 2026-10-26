@@ -330,7 +330,7 @@ if (isset($form_v['which_editor'])) {
                         <td align="left" valign="top"><input
                                 name="newcategory"
                                 type="text" maxlength="45"
-                                value="<?= entity('newcategory') ?>"
+                                value="<?= hsc(entity('newcategory')) ?>"
                                 class="inputBox" style="width:300px;">
                         </td>
                     </tr>
