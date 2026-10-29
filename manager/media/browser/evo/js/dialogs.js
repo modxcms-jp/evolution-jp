@@ -88,6 +88,15 @@ export function createMoveDialog(ctx) {
 export function createPreview(ctx) {
     var currentPath = '';
 
+    // path は要素ごとに URL エンコードされている。表示は読める形に戻し、選んだときはエンコードしたまま渡す
+    function decodePathForDisplay(path) {
+        try {
+            return decodeURIComponent(path);
+        } catch (e) {
+            return path;
+        }
+    }
+
     function open(file) {
         ctx.imgEl.src = file.url;
         ctx.imgEl.alt = file.name;
@@ -95,7 +104,7 @@ export function createPreview(ctx) {
         ctx.metaEl.innerHTML = '' +
             '<div class="evo-fb-preview-name">' + escapeHtml(file.name) + '</div>' +
             '<div>' + [dims, formatSize(file.size), formatDate(file.mtime)].filter(Boolean).join(' / ') + '</div>' +
-            '<div class="evo-fb-preview-url">' + escapeHtml(file.path) + '</div>';
+            '<div class="evo-fb-preview-url">' + escapeHtml(decodePathForDisplay(file.path)) + '</div>';
         currentPath = file.path;
         ctx.overlayEl.hidden = false;
     }
