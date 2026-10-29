@@ -4,6 +4,8 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 
 # 依存パッケージとPHP拡張
+# OPcache は PHP 8.5 から本体に組み込まれ、docker-php-ext-install ではビルドできない（cp: cannot stat 'modules/*'）。
+# 公式イメージで最初から読み込まれている版もあるため、読み込まれていないときだけビルドする
 RUN apt-get update && apt-get install -y \
   wget curl vim net-tools iputils-ping unzip \
   libpng-dev libjpeg-dev libfreetype6-dev \
@@ -11,7 +13,8 @@ RUN apt-get update && apt-get install -y \
   libonig-dev libxslt1-dev libexif-dev \
   msmtp msmtp-mta \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install gd mysqli curl mbstring zip xml opcache intl bcmath soap exif \
+  && docker-php-ext-install gd mysqli curl mbstring zip xml intl bcmath soap exif \
+    $(php -r 'echo extension_loaded("Zend OPcache") ? "" : "opcache";') \
   && a2enmod rewrite headers \
   && rm -rf /var/lib/apt/lists/*
 
