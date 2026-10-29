@@ -344,6 +344,7 @@ return [
     "file_not_saved" => 'Cannot save file, please ensure target directory is writable!',
     "file_saved" => 'File updated successfully!',
     "file_unzip" => 'Unzip was successful!',
+    "file_unzip_entry_failed" => 'Unzipped, but the following files or folders could not be extracted:',
     "file_unzip_fail" => 'Unzip Failed!',
     "file_unzip_skipped" => 'The following files were not extracted because uploading this kind of file is not allowed:',
     "filemanager_path_message" => 'IIS often does not populate the document_root setting properly, which is used by the file manager to determine what you can see. If you are having problems using the file manager, make sure this path points to the root of your MODX installation.',

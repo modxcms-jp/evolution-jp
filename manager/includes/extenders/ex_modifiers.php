@@ -237,35 +237,6 @@ class MODIFIERS
         return $value;
     }
 
-    /**
-     * 読み込みを許すファイルの実パスを返す。サイトのルート配下かつ管理画面配下でなければ許可。
-     * 不可（存在しない・サイト外・管理画面下）の場合は false。
-     */
-    private function resolveReadablePath($path)
-    {
-        if (!is_string($path) || $path === '' || strpos($path, "\0") !== false) {
-            return false;
-        }
-        $real = realpath($path);
-        $base = realpath(MODX_BASE_PATH);
-        $manager = realpath(MODX_MANAGER_PATH);
-        if ($real === false || $base === false) {
-            return false;
-        }
-        $real = str_replace('\\', '/', $real);
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-        if (strpos($real, $base) !== 0) {
-            return false;
-        }
-        if ($manager !== false) {
-            $manager = rtrim(str_replace('\\', '/', $manager), '/') . '/';
-            if (strpos($real, $manager) === 0) {
-                return false;
-            }
-        }
-        return $real;
-    }
-
     // Parser: modifier detection and eXtended processing if needed
     public function Filter($key, $value, $cmd, $opt = '')
     {
@@ -658,10 +629,12 @@ class MODIFIERS
                 if (strpos($path, MODX_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, MODX_BASE_PATH) === false) {
-                    $path = ltrim($path, '/');
+                // サイトの中のパスだけを見る（ファイルブラウザが返す URL エンコードした値も探せる）
+                $real = $cmd === 'is_dir' ? false : evo()->resolveSitePath($path);
+                if ($real === false && $cmd !== 'is_file') {
+                    $real = evo()->resolveSitePath($path, true);
                 }
-                $this->condition[] = (int)($cmd($path) !== false);
+                $this->condition[] = (int)($real !== false && $cmd($real) !== false);
                 break;
             case 'is_image':
                 if (!$opt) {
@@ -669,7 +642,8 @@ class MODIFIERS
                 } else {
                     $path = $opt;
                 }
-                if (!is_file($path)) {
+                $path = evo()->resolveSitePath($path);
+                if ($path === false) {
                     $this->condition[] = '0';
                     break;
                 }
@@ -1238,11 +1212,12 @@ class MODIFIERS
             // File system
             case 'getimageinfo':
             case 'imageinfo':
-                if (!is_file($value)) {
+                $path = evo()->resolveSitePath($value);
+                if ($path === false) {
                     return '';
                 }
-                $_ = getimagesize($value);
-                if (!$_[0]) {
+                $_ = getimagesize($path);
+                if (!$_ || !$_[0]) {
                     return '';
                 }
                 $info['width'] = $_[0];
@@ -1285,17 +1260,12 @@ class MODIFIERS
 
             case 'file_get_contents':
             case 'readfile':
-                if (!is_file($value)) {
-                    return $value;
+                $path = evo()->resolveSitePath($value);
+                if ($path === false) {
+                    // ファイルでない値はそのまま返す。サイトの外・管理画面の下などのファイルは読まない
+                    return is_file($value) ? '' : $value;
                 }
-                $value = realpath($value);
-                if (strpos($value, MODX_MANAGER_PATH) !== false) {
-                    exit('Can not read core file');
-                }
-                $value = $this->resolveReadablePath($value);
-                if ($value === false) {
-                    return '';
-                }
+                $value = $path;
                 $ext = strtolower(substr($value, -4));
                 if ($ext === '.php') {
                     exit('Can not read php file');
@@ -1309,21 +1279,17 @@ class MODIFIERS
                     return '';
                 }
                 $filename = $value;
-
-                if (strpos($filename, MODX_SITE_URL) === 0) {
-                    $filename = substr($filename, strlen(MODX_SITE_URL));
-                }
-                $filename = trim($filename, '/');
-
+                // フォルダーを指定したときは、値をそのフォルダーからの相対パスとみなす
                 $opt = trim($opt, '/');
                 if ($opt !== '') {
-                    $opt .= '/';
+                    if (strpos($filename, MODX_SITE_URL) === 0) {
+                        $filename = substr($filename, strlen(MODX_SITE_URL));
+                    }
+                    $filename = $opt . '/' . trim($filename, '/');
                 }
 
-                $filename = MODX_BASE_PATH . $opt . $filename;
-
-                $filename = $this->resolveReadablePath($filename);
-                if ($filename !== false && is_file($filename)) {
+                $filename = evo()->resolveSitePath($filename);
+                if ($filename !== false) {
                     clearstatcache();
                     return filesize($filename);
                 }

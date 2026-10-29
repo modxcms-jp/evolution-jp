@@ -241,8 +241,9 @@ foreach ($requested_paths as $requested_path) {
 
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
+            $failed = [];
             $skipped = [];
-            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $skipped);
+            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $failed, $skipped);
             if (!$err) {
                 echo sprintf(
                     '<span class="warning"><b>%s%s</b></span><br /><br />',
@@ -250,7 +251,15 @@ foreach ($requested_paths as $requested_path) {
                     $err === 0 ? 'Missing zip library (php_zip.dll / zip.so)' : ''
                 );
             } else {
-                echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                if ($failed) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_entry_failed'),
+                        implode('<br />', array_map('hsc', $failed))
+                    );
+                } else {
+                    echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                }
                 if ($skipped) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
@@ -756,11 +765,14 @@ function logFileChange($type, $filename)
 /**
  * zip を展開する。by patrick_allaert - php user notes
  * ファイルのエントリは、アップロードと同じ拡張子の許可リスト（checkExtension()）で確かめ、
- * 許されていないものは展開せずに $skipped へ（展開先からの相対パスで）加える。フォルダーのエントリは確かめない。
+ * 許されていないものは展開せずに $skipped へ加える（名前の重なりの確かめより先に飛ばすので、名前を取らない）。
+ * フォルダーのエントリは確かめない。
  *
+ * @param array $failed 展開できなかったエントリ（展開先からの相対パス）を加える
+ * @param array $skipped 拡張子が許されていないため展開しなかったエントリ（展開先からの相対パス）を加える
  * @return bool|int 展開できたら true、zip を開けない・展開先が保護対象なら false、zip 拡張が無ければ 0
  */
-function unzip($file, $path, &$skipped = [])
+function unzip($file, $path, &$failed = [], &$skipped = [])
 {
     // added by Raymond
     if (!extension_loaded('zip')) {
@@ -785,30 +797,42 @@ function unzip($file, $path, &$skipped = [])
     }
 
     $old_umask = umask(0);
+    $assigned = ['dirs' => [], 'paths' => []];
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = unzip_entry_name($zip, $i);
         $relative_name = unzip_entry_path($zip_entry_name);
         if ($relative_name === '') {
             continue;
         }
-        $complete_name = $path . $relative_name;
         // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
         $is_dir_entry = substr(str_replace('\\', '/', $zip_entry_name), -1) === '/';
-        // 拡張子は、無害化した後の名前の最後の要素で確かめる
+        // 拡張子は、無害化した後の名前の最後の要素で確かめる。飛ばすエントリは、次の名前の割り当てに加えない
         $slash_pos = strrpos($relative_name, '/');
         $entry_filename = $slash_pos === false ? $relative_name : substr($relative_name, $slash_pos + 1);
         if (!$is_dir_entry && !checkExtension($entry_filename)) {
             $skipped[] = $relative_name;
             continue;
         }
+        // 無害化で、この zip で先に展開したファイル・フォルダーと名前が重なったときは上書きせず、(1) などを付けた名前にする
+        $complete_name = $path . unzip_unique_path($path, $relative_name, $is_dir_entry, $assigned);
         $complete_path = $is_dir_entry ? $complete_name : dirname($complete_name);
-        if (!is_dir($complete_path)) {
-            mkdir($complete_path, 0777, true);
+        // 書けないエントリは警告で画面を止めず、残りを展開してから一覧で知らせる（ログにも残す）
+        if (!is_dir($complete_path) && !@mkdir($complete_path, 0777, true)) {
+            $failed[] = $relative_name;
+            continue;
         }
         if ($is_dir_entry) {
             continue;
         }
-        copy("zip://" . $file . "#" . $zip->getNameIndex($i), $complete_name);
+        if (!@copy("zip://" . $file . "#" . $zip->getNameIndex($i), $complete_name)) {
+            $failed[] = $relative_name;
+        }
+    }
+    if ($failed) {
+        evo()->logEvent(0, 2, 'Some zip entries could not be extracted', 'unzip', [
+            'zip' => $file,
+            'entries' => $failed,
+        ]);
     }
     umask($old_umask);
     $zip->close();
@@ -844,6 +868,66 @@ function unzip_entry_path($zip_entry_name)
         $segments[] = evo()->sanitizeFilename($segment);
     }
     return implode('/', $segments);
+}
+
+/**
+ * 展開するエントリの相対パスを、同じ zip で先に展開したファイル・フォルダーと重ならないパスにして返す。
+ * パスの各要素を確かめ、重なったときは、新しいファイルブラウザのアップロードと同じく名前に (1)・(2)… を付ける。
+ * - ファイルは、先に展開したファイル・フォルダーと同じ名前にしない
+ * - フォルダーは、同じ名前のフォルダーとは一つにまとめ、ファイルとは同じ名前にしない
+ * - 付け直したフォルダーは、同じ zip の配下のエントリすべてに同じ付け直しを当てる
+ * 展開先に前からあるファイルは、これまでどおり上書きする（同じ zip を展開し直して更新する使い方のため）。
+ *
+ * @param string $path 展開先（末尾に /）
+ * @param string $relative_name unzip_entry_path() の結果
+ * @param bool $is_dir フォルダーのエントリか
+ * @param array $assigned これまでの割り当て。dirs: 無害化した後のフォルダーのパス => 付け直した後のパス、
+ *                        paths: 割り当てたパス => 'file' | 'dir'。この関数が書き足す
+ */
+function unzip_unique_path($path, $relative_name, $is_dir, array &$assigned)
+{
+    $segments = explode('/', $relative_name);
+    $last = count($segments) - 1;
+    $key = '';
+    $parent = '';
+    foreach ($segments as $i => $segment) {
+        $key .= ($key === '' ? '' : '/') . $segment;
+        if ($i < $last || $is_dir) {
+            if (!isset($assigned['dirs'][$key])) {
+                $dir = unzip_free_name($path, $parent, $segment, 'dir', $assigned['paths']);
+                $assigned['dirs'][$key] = $dir;
+                $assigned['paths'][$dir] = 'dir';
+            }
+            $parent = $assigned['dirs'][$key];
+            continue;
+        }
+        $file = unzip_free_name($path, $parent, $segment, 'file', $assigned['paths']);
+        $assigned['paths'][$file] = 'file';
+        return $file;
+    }
+    return $parent;
+}
+
+/**
+ * unzip_unique_path() の下請け。$parent の下で $name が使えるか確かめ、使えなければ (1)・(2)… を付けた名前を返す。
+ */
+function unzip_free_name($path, $parent, $name, $kind, array $paths)
+{
+    $prefix = $parent === '' ? '' : $parent . '/';
+    $dot_pos = $kind === 'file' ? strrpos($name, '.') : false;
+    $base = $dot_pos === false ? $name : substr($name, 0, $dot_pos);
+    $ext = $dot_pos === false ? '' : substr($name, $dot_pos);
+    for ($i = 0; ; $i++) {
+        $candidate = $prefix . ($i === 0 ? $name : evo()->sanitizeFilename($base . '(' . $i . ')' . $ext));
+        if ($kind === 'dir') {
+            $taken = (isset($paths[$candidate]) && $paths[$candidate] !== 'dir') || is_file($path . $candidate);
+        } else {
+            $taken = isset($paths[$candidate]) || is_dir($path . $candidate);
+        }
+        if (!$taken) {
+            return $candidate;
+        }
+    }
 }
 
 function rrmdir($dir)
