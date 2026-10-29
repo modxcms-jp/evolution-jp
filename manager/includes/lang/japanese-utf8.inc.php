@@ -230,6 +230,7 @@ return [
     "element_categories" => 'エレメント一覧',
     "element_management" => 'エレメント管理',
     "element_name" => 'エレメント名',
+    "element_name_required" => '%sの名前を入力してください。',
     "element_selector_msg" => '下のリストからエレメントを選択して「挿入」ボタンをクリックします。',
     "element_selector_title" => 'エレメントセレクタ',
     "elements" => 'エレメント',
