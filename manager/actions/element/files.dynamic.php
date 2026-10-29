@@ -40,7 +40,7 @@ if (anyv('file')) {
 }
 if (anyv('name')) {
     // 新規フォルダ・新規ファイルで実際に使う形で照合する
-    $requested_paths[] = $startpath . '/' . str_replace(['../', '..\\'], '', anyv('name'));
+    $requested_paths[] = $startpath . '/' . evo()->sanitizeFilename(anyv('name'), false);
 }
 foreach ($requested_paths as $requested_path) {
     if (is_protected_path($requested_path, $proteted_path)) {
@@ -141,14 +141,14 @@ foreach ($requested_paths as $requested_path) {
             function getFolderName(a) {
                 var f;
                 f = window.prompt('Enter New Folder Name:', '')
-                if (f) a.href += escape(f);
+                if (f) a.href += encodeURIComponent(f);
                 return (f) ? true : false;
             }
 
             function getFileName(a) {
                 var f;
                 f = window.prompt('Enter New File Name:', '')
-                if (f) a.href += escape(f);
+                if (f) a.href += encodeURIComponent(f);
                 return (f) ? true : false;
             }
 
@@ -207,7 +207,8 @@ foreach ($requested_paths as $requested_path) {
                     continue;
                 }
                 $path .= rtrim($v, '/') . '/';
-                $label = hsc(mb_convert_encoding(trim($v, '/'), $modx_manager_charset, 'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'));
+                // 名前は UTF-8 として扱う（推測で変換すると UTF-8 の日本語を取り違えて化ける）。不正なバイトは hsc() が置き換える
+                $label = hsc(trim($v, '/'));
                 if (1 < $count) {
                     $pieces[$i] = sprintf(
                         '<a href="%s">%s</a>',
@@ -274,8 +275,8 @@ foreach ($requested_paths as $requested_path) {
             // Create folder here
             if (anyv('mode') === 'newfolder') {
                 $old_umask = umask(0);
-                $foldername = str_replace(['../', '..\\'], '', anyv('name'));
-                if (!mkdirs($startpath . "/" . $foldername, 0777)) {
+                $foldername = evo()->sanitizeFilename(anyv('name'), false);
+                if ($foldername === '' || !mkdirs($startpath . "/" . $foldername, 0777)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_created')
@@ -296,16 +297,15 @@ foreach ($requested_paths as $requested_path) {
             // Create file here
             if (anyv('mode') === 'newfile') {
                 $old_umask = umask(0);
-                $filename = str_replace(['../', '..\\'], '', anyv('name'));
-                $filename = db()->escape($filename);
+                $filename = evo()->sanitizeFilename(anyv('name'), false);
 
-                if (!checkExtension($filename)) {
+                if ($filename === '') {
+                    echo lang('files_filename_invalid');
+                } elseif (!checkExtension($filename)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('files_filetype_notok')
                     );
-                } elseif (preg_match('@([/:;,*?"<>|])@', $filename) !== 0) {
-                    echo lang('files_filename_invalid');
                 } else {
                     $rs = file_put_contents($startpath . '/' . $filename, '');
                     if ($rs === false) {
@@ -450,7 +450,7 @@ function ls($curpath)
         define('SCANDIR_SORT_ASCENDING', 0);
         define('SCANDIR_SORT_DESCENDING', 1);
     }
-    global $style_path, $_style, $modx_manager_charset;
+    global $style_path, $_style;
     global $enablefileunzip, $enablefiledownload, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $modx;
     $dircounter = 0;
     $filecounter = 0;
@@ -505,7 +505,6 @@ function ls($curpath)
                     $dirs_array[$dircounter]['delete'] = '';
                 }
             } else {
-                $file = mb_convert_encoding($file, $modx_manager_charset, 'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path=%s"><b>%s</b></a>',
                     $_style['tree_folder'],
@@ -757,7 +756,7 @@ function unzip($file, $path)
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = str_replace('\\', '/', $zip->getNameIndex($i));
         if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
-            || is_protected_path($path . $zip_entry_name, $proteted_path)) {
+            || is_protected_path($path . unzip_entry_path($zip_entry_name), $proteted_path)) {
             $zip->close();
             return false;
         }
@@ -766,22 +765,42 @@ function unzip($file, $path)
     $old_umask = umask(0);
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = $zip->getNameIndex($i);
-        $complete_path = $path . str_replace('\\', '/', dirname($zip_entry_name));
-        $complete_name = $path . str_replace('\\', '/', $zip_entry_name);
+        $relative_name = unzip_entry_path($zip_entry_name);
+        if ($relative_name === '') {
+            continue;
+        }
+        $complete_name = $path . $relative_name;
+        // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
+        $is_dir_entry = substr(str_replace('\\', '/', $zip_entry_name), -1) === '/';
+        $complete_path = $is_dir_entry ? $complete_name : dirname($complete_name);
         if (!is_dir($complete_path)) {
-            $tmp = '';
-            foreach (explode('/', $complete_path) as $k) {
-                $tmp .= $k . '/';
-                if (!is_dir($tmp)) {
-                    mkdir($tmp, 0777);
-                }
-            }
+            mkdir($complete_path, 0777, true);
+        }
+        if ($is_dir_entry) {
+            continue;
         }
         copy("zip://" . $file . "#" . $zip_entry_name, $complete_name);
     }
     umask($old_umask);
     $zip->close();
     return true;
+}
+
+/**
+ * zip のエントリ名を、展開先からの相対パスにする。
+ * 各要素をアップロードと同じ規則（sanitizeFilename()）で無害化する。
+ * UTF-8 でない名前（Windows で作った Shift_JIS の zip など）は英数字に置き換わる。
+ */
+function unzip_entry_path($zip_entry_name)
+{
+    $segments = [];
+    foreach (explode('/', str_replace('\\', '/', $zip_entry_name)) as $segment) {
+        if ($segment === '' || $segment === '.') {
+            continue;
+        }
+        $segments[] = evo()->sanitizeFilename($segment);
+    }
+    return implode('/', $segments);
 }
 
 function rrmdir($dir)
@@ -805,22 +824,23 @@ function fileupload()
     if (filev('userfile.tmp_name')) {
         $userfile['tmp_name'] = filev('userfile.tmp_name');
         $userfile['error'] = filev('userfile.error');
-        $name = filev('userfile.name');
-        if (evo()->config('clean_uploaded_filename') == 1) {
-            $nameparts = explode('.', $name);
-            $nameparts = array_map([$modx, 'stripAlias'], $nameparts, ['file_manager']);
-            $name = implode('.', $nameparts);
-        }
-        $userfile['name'] = $name;
+        $userfile['name'] = filev('userfile.name');
         $userfile['type'] = filev('userfile.type');
     }
 
+    // 保存先は $modx->move_uploaded_file() と同じ無害化をかけて決める。
+    // 表示・拡張子の確かめ・イベント・ログには、元の名前ではなく実際に保存する名前を使う
+    $targetPath = $modx->sanitizeUploadedFilename(postv('path') . '/' . $userfile['name']);
+    $savedName = substr($targetPath, strrpos($targetPath, '/') + 1);
+
     // this seems to be an upload action.
-    $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
-    $path = rtrim($path, '/') . '/' . $userfile['name'];
+    $relPath = ltrim(rtrim(substr($startpath, strlen(config('filemanager_path'))), '/') . '/' . $savedName, '/');
+    $path = MODX_SITE_URL . $relPath;
+    // 画像の src には、名前の # や % などで切れないよう要素ごとにエンコードした URL を使う
+    $url = MODX_SITE_URL . implode('/', array_map('rawurlencode', explode('/', $relPath)));
     $msg .= hsc($path);
     if ($userfile['error'] == 0) {
-        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . hsc($path) . '" height="75" />' : '';
+        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . hsc($url) . '" height="75" />' : '';
         $msg .= sprintf(
             '<p>%s%s, %s%s</p>',
             lang('files_file_type'),
@@ -857,25 +877,22 @@ function fileupload()
         return $msg . '</span><br />';
     }
     // file is uploaded file, process it!
-    if (!checkExtension($userfile['name'])) {
+    if (!checkExtension($savedName)) {
         return $msg . '<p><span class="warning">' . lang('files_filetype_notok') . '</span></p>';
     }
 
-    $rs = $modx->move_uploaded_file(
-        $userfile['tmp_name'],
-        postv('path') . '/' . $userfile['name']
-    );
+    $rs = $modx->move_uploaded_file($userfile['tmp_name'], $targetPath);
     if (!$rs) {
         return $msg . '<p><span class="warning">' . lang('files_upload_copyfailed') . '</span> ' . lang('files_upload_permissions_error') . '</p>';
     }
     // invoke OnFileManagerUpload event
     $tmp = [
         'filepath' => postv('path'),
-        'filename' => $userfile['name']
+        'filename' => $savedName
     ];
     evo()->invokeEvent('OnFileManagerUpload', $tmp);
     // Log the change
-    logFileChange('upload', postv('path') . '/' . $userfile['name']);
+    logFileChange('upload', $targetPath);
     return $msg . '<p><span class="success">' . lang('files_upload_ok') . '</span></p>';
 }
 

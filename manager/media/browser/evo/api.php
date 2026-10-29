@@ -83,7 +83,7 @@ switch ($action) {
 
     case 'rename':
         checkCsrfToken();
-        fbActionRename($resolver, $type);
+        fbActionRename($resolver, $modx, $type);
         break;
 
     case 'delete':
@@ -266,7 +266,10 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             continue;
         }
 
-        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        // 拡張子は、実際に保存する名前（無害化した後）で確かめる
+        $safeName = $modx->sanitizeFilename($originalName);
+        $dotPos = strrpos($safeName, '.');
+        $ext = $dotPos === false ? '' : strtolower(substr($safeName, $dotPos + 1));
         if (!in_array($ext, $allowedExt, true)) {
             $errors[] = ['name' => $originalName, 'message' => '許可されていない拡張子です。'];
             continue;
@@ -277,18 +280,10 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             continue;
         }
 
-        $sanitizedPath = $modx->sanitizeUploadedFilename('/' . PathResolver::sanitizeSegment(basename($originalName)));
-        $safeName = basename($sanitizedPath);
-        if ($safeName === '') {
-            $errors[] = ['name' => $originalName, 'message' => '不正なファイル名です。'];
-            continue;
-        }
-
-        // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（括弧などは _ になる）。
+        // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
         // 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
-        $nameInfo = pathinfo($safeName);
-        $baseName = $nameInfo['filename'];
-        $extension = isset($nameInfo['extension']) ? '.' . $nameInfo['extension'] : '';
+        $baseName = substr($safeName, 0, $dotPos);
+        $extension = substr($safeName, $dotPos);
         $targetPath = null;
         for ($suffix = 0; $suffix <= 200; $suffix++) {
             $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
@@ -335,8 +330,8 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
         fbError('not_found', '指定されたフォルダが見つかりません。', 404);
     }
 
-    $name = PathResolver::sanitizeSegment(postv('name', ''));
-    if ($name === '' || strpos($name, '.') === 0) {
+    $name = $modx->sanitizeFilename(postv('name', ''), false);
+    if ($name === '') {
         fbError('invalid_name', '不正なフォルダ名です。', 400);
     }
 
@@ -354,7 +349,7 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
     fbSendJson(['name' => $name]);
 }
 
-function fbActionRename(PathResolver $resolver, $type)
+function fbActionRename(PathResolver $resolver, DocumentParser $modx, $type)
 {
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
@@ -362,9 +357,10 @@ function fbActionRename(PathResolver $resolver, $type)
         fbError('not_found', '指定されたフォルダが見つかりません。', 404);
     }
 
+    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
     $target = PathResolver::sanitizeSegment(postv('target', ''));
-    $newName = PathResolver::sanitizeSegment(postv('newName', ''));
-    if ($target === '' || $newName === '' || strpos($newName, '.') === 0) {
+    $newName = $modx->sanitizeFilename(postv('newName', ''), false);
+    if ($target === '' || $newName === '') {
         fbError('invalid_name', '不正な名前です。', 400);
     }
 
