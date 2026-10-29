@@ -824,7 +824,7 @@ function unzip($file, $path, &$failed = [], &$skipped = [])
         if ($is_dir_entry) {
             continue;
         }
-        if (!@copy("zip://" . $file . "#" . $zip->getNameIndex($i), $complete_name)) {
+        if (!unzip_copy_entry($zip, $i, $complete_name)) {
             $failed[] = $relative_name;
         }
     }
@@ -837,6 +837,30 @@ function unzip($file, $path, &$failed = [], &$skipped = [])
     umask($old_umask);
     $zip->close();
     return true;
+}
+
+/**
+ * zip のエントリ $index の中身を $target へ書き出す。
+ * zip://<アーカイブのパス>#<エントリ名> の形は、アーカイブのパスにある # を区切りと読むため使わず、
+ * 開いている ZipArchive から読む。大きなエントリでもメモリに載せないよう、ストリームで写す。
+ * getStream() には getNameIndex() の既定の名前を渡す（zip の中で名前を探すときと同じ形。Shift_JIS の名前も開ける）。
+ */
+function unzip_copy_entry($zip, $index, $target)
+{
+    $stat = $zip->statIndex($index);
+    $in = $stat ? $zip->getStream($zip->getNameIndex($index)) : false;
+    if (!$in) {
+        return false;
+    }
+    $out = @fopen($target, 'wb');
+    if (!$out) {
+        fclose($in);
+        return false;
+    }
+    $copied = stream_copy_to_stream($in, $out);
+    fclose($in);
+    $closed = fclose($out);
+    return $closed && $copied === (int) $stat['size'];
 }
 
 /**
