@@ -241,7 +241,8 @@ foreach ($requested_paths as $requested_path) {
 
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
-            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath));
+            $skipped = [];
+            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $skipped);
             if (!$err) {
                 echo sprintf(
                     '<span class="warning"><b>%s%s</b></span><br /><br />',
@@ -250,6 +251,13 @@ foreach ($requested_paths as $requested_path) {
                 );
             } else {
                 echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                if ($skipped) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_skipped'),
+                        implode('<br />', array_map('hsc', $skipped))
+                    );
+                }
             }
         }
         // End Unzip - Raymond
@@ -403,7 +411,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
         <div class="sectionBody">
             <?php
             $filename = anyv('path');
-            $buffer = file_get_contents($filename);
+            $buffer = is_file($filename) ? file_get_contents($filename) : false;
 
             // Log the change
             logFileChange('view', $filename);
@@ -689,6 +697,11 @@ function getExtension($string)
     return $ext;
 }
 
+/**
+ * 名前の拡張子が、アップロードを許している拡張子（uploadablefiles()）に含まれるかを返す。
+ * アップロード・新しいファイルの作成・zip の展開で同じ基準を使う。
+ * 名前は sanitizeFilename() を通した後のものを渡す。大文字小文字は区別せず、拡張子の無い名前は許さない。
+ */
 function checkExtension($path = '')
 {
     $uploadablefiles = add_dot(uploadablefiles());
@@ -740,8 +753,14 @@ function logFileChange($type, $filename)
     $action = 1;
 }
 
-// by patrick_allaert - php user notes
-function unzip($file, $path)
+/**
+ * zip を展開する。by patrick_allaert - php user notes
+ * ファイルのエントリは、アップロードと同じ拡張子の許可リスト（checkExtension()）で確かめ、
+ * 許されていないものは展開せずに $skipped へ（展開先からの相対パスで）加える。フォルダーのエントリは確かめない。
+ *
+ * @return bool|int 展開できたら true、zip を開けない・展開先が保護対象なら false、zip 拡張が無ければ 0
+ */
+function unzip($file, $path, &$skipped = [])
 {
     // added by Raymond
     if (!extension_loaded('zip')) {
@@ -775,6 +794,13 @@ function unzip($file, $path)
         $complete_name = $path . $relative_name;
         // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
         $is_dir_entry = substr(str_replace('\\', '/', $zip_entry_name), -1) === '/';
+        // 拡張子は、無害化した後の名前の最後の要素で確かめる
+        $slash_pos = strrpos($relative_name, '/');
+        $entry_filename = $slash_pos === false ? $relative_name : substr($relative_name, $slash_pos + 1);
+        if (!$is_dir_entry && !checkExtension($entry_filename)) {
+            $skipped[] = $relative_name;
+            continue;
+        }
         $complete_path = $is_dir_entry ? $complete_name : dirname($complete_name);
         if (!is_dir($complete_path)) {
             mkdir($complete_path, 0777, true);
@@ -915,6 +941,10 @@ function fileupload()
 
 function textsave()
 {
+    // 保存は既にあるファイルの編集だけにする（新しいファイルは newfile で、拡張子を確かめて作る）
+    if (!is_file(postv('path'))) {
+        return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
+    }
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.
