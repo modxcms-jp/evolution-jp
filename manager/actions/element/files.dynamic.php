@@ -103,7 +103,8 @@ foreach ($requested_paths as $requested_path) {
 <div class="section">
     <div class="sectionBody">
         <script type="text/javascript">
-            var current_path = <?= js_literal($startpath) ?>;
+            // パスと名前は PHP で URL エンコードしたものを使う（UTF-8 でない名前も、そのままのバイト列で送り返せるように）
+            var current_path_q = <?= js_literal(rawurlencode($startpath)) ?>;
 
             function show_image(url) {
                 document.getElementById('imageviewer').style.border = "1px solid #ccc";
@@ -133,7 +134,7 @@ foreach ($requested_paths as $requested_path) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + encodeURIComponent(current_path) + '/&file=' + encodeURIComponent(file));
+                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + current_path_q + '%2F&file=' + file);
                     return false;
                 }
             }
@@ -154,14 +155,14 @@ foreach ($requested_paths as $requested_path) {
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + encodeURIComponent(current_path) + "&folderpath=" + encodeURIComponent(current_path + '/' + folder));
+                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + current_path_q + "&folderpath=" + current_path_q + '%2F' + folder);
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + encodeURIComponent(current_path + '/' + file));
+                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + current_path_q + '%2F' + file);
                     return false;
                 }
             }
@@ -524,7 +525,7 @@ function ls($curpath)
                 if (is_writable($curpath)) {
                     $dirs_array[$dircounter]['delete'] = sprintf(
                         '<span style="width:20px"><a href="#" onclick="deleteFolder(%s, %s);return false;"><img src="%sicons/delete.gif" alt="%s" title="%s" /></a></span>',
-                        hsc(js_literal($file)),
+                        hsc(js_literal(rawurlencode($file))),
                         hsc(js_literal((0 < count($dfiles)) ? 'file_exists' : '')),
                         $style_path,
                         lang('file_delete_folder'),
@@ -545,7 +546,7 @@ function ls($curpath)
             if (in_array($type, $viewablefiles)) {
                 $files_array[$filecounter]['view'] = sprintf(
                     '<span style="cursor:pointer; width:20px;" onclick="show_image(%s);"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
-                    hsc(js_literal(webstart_path() . substr($newpath, $len, strlen($newpath)))),
+                    hsc(js_literal(webstart_path() . implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len)))))),
                     $style_path,
                     lang('files_viewfile'),
                     lang('files_viewfile')
@@ -585,7 +586,7 @@ function ls($curpath)
             if ($enablefileunzip && $type === '.zip') {
                 $files_array[$filecounter]['unzip'] = sprintf(
                     '<span style="width:20px;"><a href="#" onclick="unzipFile(%s);return false;"><img src="%sicons/unzip.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    hsc(js_literal($file)),
+                    hsc(js_literal(rawurlencode($file))),
                     $style_path,
                     lang('file_download_unzip'),
                     lang('file_download_unzip')
@@ -612,7 +613,7 @@ function ls($curpath)
             if (is_writable($curpath) && is_writable($newpath)) {
                 $files_array[$filecounter]['delete'] = sprintf(
                     '<span style="width:20px;"><a href="#" onclick="deleteFile(%s);return false;"><img src="%sicons/delete.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    hsc(js_literal($file)),
+                    hsc(js_literal(rawurlencode($file))),
                     $style_path,
                     lang('file_delete_file'),
                     lang('file_delete_file')
@@ -712,6 +713,8 @@ function mkdirs($strPath, $mode)
 
 function logFileChange($type, $filename)
 {
+    // UTF-8 でない名前（FTP で置いたものなど）は、そのままでは管理ログ（utf8mb4）に書けないため置き換える
+    $filename = mb_scrub((string) $filename, 'UTF-8');
     include_once(MODX_CORE_PATH . 'log.class.inc.php');
     $log = new logHandler();
 
@@ -754,7 +757,7 @@ function unzip($file, $path)
     // 展開先の外や保護対象へ書き込むエントリがあれば、何も展開しない
     $proteted_path = proteted_path();
     for ($i = 0; $i < $zip->numFiles; $i++) {
-        $zip_entry_name = str_replace('\\', '/', $zip->getNameIndex($i));
+        $zip_entry_name = str_replace('\\', '/', unzip_entry_name($zip, $i));
         if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
             || is_protected_path($path . unzip_entry_path($zip_entry_name), $proteted_path)) {
             $zip->close();
@@ -764,7 +767,7 @@ function unzip($file, $path)
 
     $old_umask = umask(0);
     for ($i = 0; $i < $zip->numFiles; $i++) {
-        $zip_entry_name = $zip->getNameIndex($i);
+        $zip_entry_name = unzip_entry_name($zip, $i);
         $relative_name = unzip_entry_path($zip_entry_name);
         if ($relative_name === '') {
             continue;
@@ -779,7 +782,7 @@ function unzip($file, $path)
         if ($is_dir_entry) {
             continue;
         }
-        copy("zip://" . $file . "#" . $zip_entry_name, $complete_name);
+        copy("zip://" . $file . "#" . $zip->getNameIndex($i), $complete_name);
     }
     umask($old_umask);
     $zip->close();
@@ -787,9 +790,23 @@ function unzip($file, $path)
 }
 
 /**
+ * zip のエントリ名を UTF-8 で返す。
+ * Windows で作った zip は名前を Shift_JIS（CP932）で持つことが多い。getNameIndex() の既定では
+ * CP437 とみなして変換した別の文字列（\ を含むこともある）になるため、元のバイト列から変換する。
+ */
+function unzip_entry_name($zip, $index)
+{
+    $raw = $zip->getNameIndex($index, ZipArchive::FL_ENC_RAW);
+    if (mb_check_encoding($raw, 'UTF-8') || !mb_check_encoding($raw, 'SJIS-win')) {
+        return $raw;
+    }
+    return mb_convert_encoding($raw, 'UTF-8', 'SJIS-win');
+}
+
+/**
  * zip のエントリ名を、展開先からの相対パスにする。
  * 各要素をアップロードと同じ規則（sanitizeFilename()）で無害化する。
- * UTF-8 でない名前（Windows で作った Shift_JIS の zip など）は英数字に置き換わる。
+ * UTF-8 にも Shift_JIS にもならない名前は、英数字に置き換わる。
  */
 function unzip_entry_path($zip_entry_name)
 {

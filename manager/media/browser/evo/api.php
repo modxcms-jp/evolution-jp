@@ -32,13 +32,26 @@ function fbSendJson($data, $status = 200)
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    // UTF-8 でない名前（EUC-JP のサーバーに FTP で置いたものなど）があっても一覧全体を返せるよう、
+    // 不正なバイトは置き換え文字（U+FFFD）にする
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
 function fbError($code, $message, $status = 400)
 {
     fbSendJson(['error' => ['code' => $code, 'message' => $message]], $status);
+}
+
+/**
+ * 名前が見つからないときの文言。一覧で置き換え文字（U+FFFD）になった名前は実体と一致せず操作できないため、その旨を返す
+ */
+function fbNotFoundMessage($name, $message)
+{
+    if (strpos((string) $name, "\u{FFFD}") !== false) {
+        return '名前の文字コードが UTF-8 でないため、この画面では操作できません。FTP などで名前を付け直してください。';
+    }
+    return $message;
 }
 
 // 管理セッションは常に許可。ウェブユーザーのセッションは、システム設定
@@ -105,7 +118,7 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
     $folder = getv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', fbNotFoundMessage($folder, '指定されたフォルダが見つかりません。'), 404);
     }
 
     $entries = @scandir($dir['real']);
@@ -366,7 +379,7 @@ function fbActionRename(PathResolver $resolver, DocumentParser $modx, $type)
 
     $sourcePath = $dir['real'] . $target;
     if (!file_exists($sourcePath)) {
-        fbError('not_found', '対象が見つかりません。', 404);
+        fbError('not_found', fbNotFoundMessage($target, '対象が見つかりません。'), 404);
     }
 
     $destPath = $dir['real'] . $newName;
@@ -399,7 +412,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_file($path)) {
-            $errors[] = ['name' => $name, 'message' => 'ファイルが見つかりません。'];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'ファイルが見つかりません。')];
             continue;
         }
         if (unlink($path)) {
@@ -413,7 +426,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_dir($path)) {
-            $errors[] = ['name' => $name, 'message' => 'フォルダが見つかりません。'];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'フォルダが見つかりません。')];
             continue;
         }
         if (fbDeleteTree($path)) {
@@ -454,7 +467,7 @@ function fbActionMove(PathResolver $resolver, $type)
         $destPath = $destDir['real'] . $name;
 
         if ($name === '' || !is_file($sourcePath)) {
-            $errors[] = ['name' => $name, 'message' => 'ファイルが見つかりません。'];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'ファイルが見つかりません。')];
             continue;
         }
         if (file_exists($destPath)) {
