@@ -268,7 +268,12 @@ foreach ($requested_paths as $requested_path) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
                 $folder = anyv('folderpath');
-                if (!@rrmdir($folder)) {
+                if (!is_dir($folder)) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br /><br />',
+                        lang('file_folder_not_found')
+                    );
+                } elseif (!@rrmdir($folder)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_deleted')
@@ -314,6 +319,12 @@ foreach ($requested_paths as $requested_path) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('files_filetype_notok')
+                    );
+                } elseif (file_exists($startpath . '/' . $filename) || is_link($startpath . '/' . $filename)) {
+                    // 同じ名前のファイル・フォルダー（リンク切れのリンクも含む）があれば、空の中身で上書きしない
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br /><br />',
+                        lang('files_file_exists')
                     );
                 } else {
                     $rs = file_put_contents($startpath . '/' . $filename, '');
@@ -958,10 +969,14 @@ function textsave()
 
 function delete_file()
 {
+    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
+
+    // 無いもの・フォルダーは unlink() に渡さない（PHP の警告になる）。リンクはリンク自体を消す
+    if (!is_file(anyv('path')) && !is_link(anyv('path'))) {
+        return $msg . '<span class="warning"><b>' . lang('file_not_found') . '</b></span><br /><br />';
+    }
 
     logFileChange('delete', anyv('path'));
-
-    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
 
     if (!unlink(anyv('path'))) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
