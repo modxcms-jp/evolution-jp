@@ -14,6 +14,8 @@ class EvoLogger
     private const SYSTEM_TYPE = 'system';
     private const DEFAULT_MAX_BYTES = 104857600;
     private const RECENT_EVENTS_MAX = 20;
+    // 不正な UTF-8（EUC-JP や Shift_JIS のファイル名など）は U+FFFD に置き換えて、記録の中身を残す
+    private const JSON_FLAGS = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
     private static string $runtimeTraceId = '';
     private static array $recentEvents = [];
 
@@ -136,7 +138,7 @@ class EvoLogger
             return (string)$message;
         }
 
-        $json = json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($message, self::JSON_FLAGS);
         if ($json !== false) {
             return $json;
         }
@@ -399,7 +401,7 @@ class EvoLogger
 
     private function writeLog(string $logFile, array $logEntry): void
     {
-        $json = json_encode($logEntry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($logEntry, self::JSON_FLAGS);
         if ($json === false) {
             $json = json_encode([
                 'timestamp' => $this->formatLogTimestamp(),
@@ -409,7 +411,7 @@ class EvoLogger
                     'json_error' => json_last_error_msg(),
                     'request_started_at' => $this->formatRequestStartedAt(),
                 ],
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            ], self::JSON_FLAGS);
         }
 
         $jsonLine = $json . "\n";
