@@ -310,7 +310,8 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             $errors[] = ['name' => $originalName, 'message' => '同じ名前のファイルが多すぎるため保存できません。'];
             continue;
         }
-        $targetName = basename($targetPath);
+        // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
+        $targetName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
         if (!$modx->move_uploaded_file($tmpPath, $targetPath)) {
