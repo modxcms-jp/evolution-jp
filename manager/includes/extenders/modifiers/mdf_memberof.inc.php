@@ -1,6 +1,6 @@
 <?php
 $userID = abs(evo()->getLoginUserID('web'));
-$modx->qs_hash = md5($modx->qs_hash . "^{$userID}^");
+evo()->qs_hash = md5(evo()->qs_hash . "^{$userID}^");
 
 $groupNames = ($this->strlen($opt) > 0) ? explode(',', $opt) : [];
 
@@ -8,11 +8,11 @@ $groupNames = ($this->strlen($opt) > 0) ? explode(',', $opt) : [];
 if (!is_array($groupNames)) return 0;
 
 // Creates an array with all webgroups the user id is in
-if (isset($modx->filter->cache['mo'][$userID])) $grpNames = $modx->filter->cache['mo'][$userID];
+if (isset($this->cache['mo'][$userID])) $grpNames = $this->cache['mo'][$userID];
 else {
     $from = sprintf("[+prefix+]webgroup_names wgn INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='%s'", $userID);
     $rs = db()->select('wgn.name', $from);
-    $modx->filter->cache['mo'][$userID] = $grpNames = $modx->db->getColumn('name', $rs);
+    $this->cache['mo'][$userID] = $grpNames = db()->getColumn('name', $rs);
 }
 
 // Check if a supplied group matches a webgroup from the array we just created
