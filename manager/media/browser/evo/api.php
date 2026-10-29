@@ -5,6 +5,7 @@
  *
  * GET  action=list   (type, folder, light?)                   -> {folders:[{name,hasChildren}], files:[{name,size,mtime,url,path,thumb,width,height}]}
  *                     light=1はツリー展開用(filesはname/pathのみ。画像寸法等の収集を省く)
+ *                     url・pathはパスの要素ごとにURLエンコード済み。nameは生の名前
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ
  * POST action=upload (type, folder, files[])                  -> {uploaded:[{name,size,url}], errors:[{name,message}]}
  * POST action=mkdir  (type, folder, name)                      -> {name}
@@ -154,10 +155,15 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
             continue;
         }
 
+        // 名前の # や % などで URL が切れないよう、パスの要素ごとにエンコードする（name は生の名前のまま）
+        $encodedRelPath = implode('/', array_map('rawurlencode', explode('/', $relPath)));
+        // url: ブラウザ内表示用の絶対URL / path: SetUrl(TV値等)へ渡す相対パス(旧mcpuk同等の形で、要素ごとにエンコード済み)
+        $filePath = ($urlPrefix !== '' ? $urlPrefix . '/' : '') . $encodedRelPath;
+
         if ($light) {
             $files[] = [
                 'name' => $entry,
-                'path' => ($urlPrefix !== '' ? $urlPrefix . '/' : '') . $relPath,
+                'path' => $filePath,
             ];
             continue;
         }
@@ -165,10 +171,7 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
         $isSvg = ($ext === 'svg');
         $isRaster = ThumbnailService::isRasterImageExtension($ext);
 
-        $encodedRelPath = implode('/', array_map('rawurlencode', explode('/', $relPath)));
-        // url: ブラウザ内表示用の絶対URL / path: SetUrl(TV値等)互換の相対パス(旧mcpuk同等)
         $fileUrl = $baseUrl . $encodedRelPath;
-        $filePath = ($urlPrefix !== '' ? $urlPrefix . '/' : '') . $relPath;
 
         $width = null;
         $height = null;
