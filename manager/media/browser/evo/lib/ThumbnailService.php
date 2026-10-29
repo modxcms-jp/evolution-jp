@@ -64,14 +64,14 @@ class ThumbnailService
         }
 
         $resized = $this->resize($image, !$isJpeg);
-        imagedestroy($image);
+        // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
+        unset($image);
 
         if ($isJpeg) {
             $saved = imagejpeg($resized, $cacheFile, 85);
         } else {
             $saved = imagepng($resized, $cacheFile, 6);
         }
-        imagedestroy($resized);
 
         return $saved ? $cacheFile : null;
     }
