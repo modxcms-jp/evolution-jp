@@ -766,6 +766,7 @@ function unzip($file, $path)
     }
 
     $old_umask = umask(0);
+    $extracted = [];
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = unzip_entry_name($zip, $i);
         $relative_name = unzip_entry_path($zip_entry_name);
@@ -782,6 +783,8 @@ function unzip($file, $path)
         if ($is_dir_entry) {
             continue;
         }
+        // 無害化で、この zip の別のエントリと同じ名前になったときは上書きせず、(1) などを付けた名前にする
+        $complete_name = $path . unzip_unique_path($path, $relative_name, $extracted);
         copy("zip://" . $file . "#" . $zip->getNameIndex($i), $complete_name);
     }
     umask($old_umask);
@@ -818,6 +821,33 @@ function unzip_entry_path($zip_entry_name)
         $segments[] = evo()->sanitizeFilename($segment);
     }
     return implode('/', $segments);
+}
+
+/**
+ * 展開するファイルの相対パスを、同じ zip で先に展開したファイルと重ならない名前にして返す。
+ * 重なったときは、新しいファイルブラウザのアップロードと同じく名前に (1)・(2)… を付ける。
+ * 展開先に前からあるファイルは、これまでどおり上書きする（同じ zip を展開し直して更新する使い方のため）。
+ * 同じ名前のフォルダーがあるときは、ファイルを書けないので別の名前にする。
+ *
+ * @param string $path 展開先（末尾に /）
+ * @param string $relative_name unzip_entry_path() の結果
+ * @param array $extracted 展開したファイルの相対パス（キー）。この関数が書き足す
+ */
+function unzip_unique_path($path, $relative_name, array &$extracted)
+{
+    $slash_pos = strrpos($relative_name, '/');
+    $dir = $slash_pos === false ? '' : substr($relative_name, 0, $slash_pos + 1);
+    $name = $slash_pos === false ? $relative_name : substr($relative_name, $slash_pos + 1);
+    $dot_pos = strrpos($name, '.');
+    $base = $dot_pos === false ? $name : substr($name, 0, $dot_pos);
+    $ext = $dot_pos === false ? '' : substr($name, $dot_pos);
+
+    $candidate = $relative_name;
+    for ($i = 1; isset($extracted[$candidate]) || is_dir($path . $candidate); $i++) {
+        $candidate = $dir . evo()->sanitizeFilename($base . '(' . $i . ')' . $ext);
+    }
+    $extracted[$candidate] = true;
+    return $candidate;
 }
 
 function rrmdir($dir)
