@@ -109,7 +109,7 @@
    sub: sendmail, isHtmlMail, rotate_log, addLog, logEvent, messageQuit, recDebugInfo, get_backtrace, normalizeLogMessage
 
 10. `document.parser.utility.trait.php` — `DocumentParserUtilityTrait`（受け皿: 薄い汎用ヘルパー）
-    本体: join, getMicroTime, getAbsolutePath, is_int, isInt, isBackend, isFrontend, toDateFormat, toTimeStamp, mb_strftime, getFullTableName, getManagerPath, getCachePath, stripTags, nicesize, saveToFile, setBaseTime, getBaseTime, htmlspecialchars, hsc, move_uploaded_file, sanitizeUploadedFilename, resizeImage, input_get, input_post, input_cookie, input_any, server, server_var, session, session_var, global_var, array_get, array_set, html_tag, real_ip
+    本体: join, getMicroTime, getAbsolutePath, is_int, isInt, isBackend, isFrontend, toDateFormat, toTimeStamp, mb_strftime, getFullTableName, getManagerPath, getCachePath, stripTags, nicesize, saveToFile, setBaseTime, getBaseTime, htmlspecialchars, hsc, move_uploaded_file, sanitizeUploadedFilename, sanitizeFilename, resizeImage, input_get, input_post, input_cookie, input_any, server, server_var, session, session_var, global_var, array_get, array_set, html_tag, real_ip
     sub: getMimeType, loadLexicon
 
 11. `document.parser.misc.trait.php` — `DocumentParserMiscTrait`（受け皿: レガシー・将来のdeprecation候補）
