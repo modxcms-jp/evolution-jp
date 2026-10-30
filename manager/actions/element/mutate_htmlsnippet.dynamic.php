@@ -67,7 +67,7 @@ if (preg_match('@^[1-9][0-9]*$@', $id)) {
 
 // restore saved form
 $formRestored = manager()->hasFormValues();
-$content = manager()->restoreElementFormValues($content, 'snippet');
+$content = manager()->restoreElementFormValues($content, 'snippet', ['published', 'editor_type', 'locked']);
 if (!$formRestored && postv('changeMode')) {
     $content = array_merge($content, $_POST);
     $content['content'] = postv('ta');

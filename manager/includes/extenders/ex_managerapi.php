@@ -142,7 +142,7 @@ class ManagerAPI
             $values[$codeKey] = $values['post'];
         }
         foreach ($checkboxes as $name) {
-            $values[$name] = !empty($values[$name]) && $values[$name] !== '0' ? 1 : 0;
+            $values[$name] = !empty($values[$name]) ? 1 : 0;
         }
         return array_merge($content, $values);
     }
