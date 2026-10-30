@@ -44,9 +44,12 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 ### 書き方
 
 - `.sectionBody` の直下のブロックの間は、`.sectionBody > :is(div, table, fieldset)` の `margin-bottom` で作る。`form` は含めない。末尾の `<style>` の前では `:last-child` に当たらず、`form` の下の `margin` が 0 にならないため
-- 間は、上のブロックの `margin-bottom` で作る。下のブロックの `margin-top` と重ねない（margin の相殺で、値が読めなくなるため）
+- 間は、上のブロックの `margin-bottom` で作る。下のブロックの `margin-top` と重ねない（margin の相殺で、値が読めなくなるため）。`margin-top` で作ってよいのは次の 2 つだけ
+  - `.tab-pane > ul.actionButtons`（ログ a=13 のように、タブの組の直後のボタン列）。最後のタブのパネルが非表示のことがあり、前の兄弟の `margin-bottom`（`:has(+ ul)`）が当たらないため。前に兄弟のブロックが無い作りなので、相殺は起きない
+  - `ul.actionButtons.messages-compose-actions`（メッセージの返信欄）。表のセルの中にあり、前の兄弟が無いため
 - 入れ物（`#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form`）の最初の子の上と最後の子の下は 0 にする。入れ物の `padding` に加えて、外側の `margin` が積まれないようにするため。ブロックとリセット規則の対象は `margin-top` を持たないので、最初の子の上は 0 になる。最後の子の下は、`:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child { margin-bottom: 0 }` と `#mainPane > :last-child { margin-bottom: 0 }` で 0 にする
-- 下のブロックの前の間は、前の兄弟の `margin-bottom` を `:has(+ X)` で作ってよい。`:has` を使う規則は別の規則に分け、未対応のブラウザで一緒に捨てられないようにする。間に非表示の要素が挟まると当たらない（`:last-child` と同じ限界）
+- 下のブロックの前の間は、前の兄弟の `margin-bottom` を `:has(+ X)` で作ってよい。`:has` を使う規則は別の規則に分け、未対応のブラウザで一緒に捨てられないようにする。間に非表示の要素が挟まると当たらない（`:last-child` と同じ限界）。`<style>` も挟まると当たらないので、画面は `<style>` をブロックの間に置かない（`bkmanager` は `<style>` を `form` の前へ移した）。`:has()` に対応しないブラウザでは、この規則で作る間（コード欄の前、ボタン列の前など）が 0 になる。許容する（表示は崩れず、ブロックが詰まるだけ）
+- 画面ごとの規則の親は `:is(.sectionBody, .tab-page, form)` にする（`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`）。画面がブロックを直に置く入れ物はこの 3 つで、`#mainPane` の直下や表のセルの中は、最後の子・ページの端・セルの内側の別の規則が決めているため、ここに混ぜない
 - `.section` は入れ物であり、ブロックでもある。中の最後の子の下は 0 にし、`.section` 自身の下は次のブロックとの間（`--space-3`）にする。`.section` どうしの間は `.section` の `margin-bottom` で作り、本体（`.section .sectionBody`）の `margin-bottom` は 0 にする
 - 最後の子を 0 にする規則の詳細度は (0,2,0)（`#mainPane` 側は (1,1,0)）。これより詳細度が高い規則（`#pagination` など）と、後ろに書いた同じ詳細度の規則の `margin-bottom` は 0 にならない（後ろにあっても詳細度が低い `.sectionBody > :is(div, table, fieldset)` の (0,1,1) は 0 になる）ので、そのブロックで別に 0 にする。限界として、後ろに `display: none` の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後のブロックの `margin-bottom` は残る（CSS には「見えている最後の子」を選ぶ方法がない）。画面の HTML は、非表示の要素を入れ物の最後に置かないようにする
 - リセット規則（`h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address`。7 テーマすべてが持つ）は、`margin-bottom` だけを本文の文字の大きさ × 0.5 にする。`margin-top` は持たない
@@ -55,6 +58,10 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - 間を、ブロック自身の `padding-bottom` で作らない（`ul.actionButtons { padding-bottom: 10px }` など）。箱の端が間の分だけ広がり、決まりの値が読めなくなる
 - 余白の px を直書きしない。`var(--space-N)` で書く。`margin` を一括で書くときは、横の値を元のまま保つ。縦だけを変えるなら `margin-bottom` などを使う
 - テーマが持つテンプレート（`welcome.tpl` など）と、画面の HTML（`manager/actions/` の PHP やテンプレート）には、`style` 属性や埋め込みの `<style>` で、ブロックの間の余白を書かない。`style.css` から揃えられなくなる
+- 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になり、ツリーやほかの画面にも効くため
+- 画面とテーマの約束として、次の class をテーマが受ける。画面は余白を書かず、class だけを持つ
+  - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る。帯の色と枠は、まだ画面の直書き（別の Issue）
+  - `.messages-compose-actions`: メッセージの返信欄のボタン列（`ul.actionButtons` と併用）。上を `--space-3` にする
 
 ## 例外
 
@@ -65,6 +72,9 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 | つなげて見せる組は 0 | 上のブロックの枠や下線を下のブロックと共有して、1 つに見せる組。タブ列とパネル、見出しの帯と本体。つなげる方法は、(1) `.tab-page` の負の `top`、(2) タブ列の下線（`.tab-row` の `border-bottom`）をパネルの上辺にして、`.tab-page` の `border-top` を消す、(3) 帯と本体で枠を共有する、のいずれか | (1) RevoClassic（-4px）、RubberWhite（-2px）。(2) AuroraFlow、SoftSlate。(3) AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `.sectionHeader` → `.sectionBody` | 間を空けると、つながって見える枠が切れるため |
 | `.section` の中の、枠の無い文字だけの見出しから本体までは 0 | `.section` の直下の `.sectionHeader` が枠も背景も持たず、文字だけで本体とひと続きに見える作り（見出しと本体を 1 つの組として見せる）。本体の `padding` が文字との間を作る | SakuraFlow、AromaHop の `.section > .sectionHeader` → `.sectionBody` | 見出しと本体の間を、本体の `padding` に任せるため。タブの中の見出し（`.tab-page .sectionHeader`）はこの例外ではなく、ブロックの間（`--space-3`）にする |
 | 負の `top` の分の広がり | 上の (1) の作り | RevoClassic、RubberWhite | `top` は描く位置だけをずらし、箱は元の場所に残る。タブの組の次のブロックまでの間は、`top` の絶対値の分だけ広く測れる。許容する |
+| スクロールする箱やリストの項目の間 | 箱の中で項目を縦に並べるもの。システムログの項目（`.system-log-entry`）、並べ替えリスト（`ul.sortableList li`）、親の選択のモーダル（`parent_picker`） | 全テーマ | ブロックの間ではなく、部品の内側の余白（対象外）のため。項目の間は画面や部品の規則が決める |
+| 別窓の画面 | `window.close()` で閉じる別窓で、`#mainPane` の中に入らない画面 | リソースの選択（a=84、`resource_selector`） | 縦に積むブロックが `#mainPane` に無いため |
+| `phpinfo()` の出力 | PHP の `phpinfo()` が出す HTML を、`.phpinfoReport` の中に閉じて整えている | `phpinfo`（a=200） | 出力の HTML は PHP が決め、ブロックの間を決まりで揃えられないため |
 | 狭い画面の `#actions` 用の余白 | 幅 1100px 以下で操作ボタン群 `#actions` を右下に移すとき、`#mainPane` の `padding-bottom` に 72px を足す | SoftSlate | 最後の項目がボタン群に隠れないようにするため |
 
 ## 対象外のテーマ
@@ -75,10 +85,12 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 
 画面の PHP から直書きの余白を消した分（`.resources-topic-path` の下・`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。
 
+#924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、コード欄とテンプレートの TV の一覧下のボタン列（`.code-editor` の帯の上 5px など）、下書きの公開（下 12px）、メッセージの返信欄（ボタン列の上 15px）。これらも手本にしない。
+
 ## 新しいテーマを作るとき
 
 1. `:root` に `--space-1` 〜 `--space-8` を、上の表の値で定義する
-2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`、`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`form > :has(+ #pagination)`、`.sectionBody > :is(div, table, fieldset)`。ほかに、決まりの表の例のセレクタ）を写す
+2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`、`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`form > :has(+ #pagination)`、`.sectionBody > :is(div, table, fieldset)`、`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`、`.tab-pane > ul.actionButtons`、`ul.actionButtons.messages-compose-actions`。ほかに、決まりの表の例のセレクタ）を写す。`.code-editor` と `.messages-compose-actions` は画面が付ける class なので、外部のテーマも規則を持たないと、その間が 0 になる
 3. `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" style.css | grep -E "^[0-9]+-\s+top:"` で、`.tab-page` を `top` でずらしていないか確かめる（出てよいのは、例外の負の値か `0` だけ）
 4. 管理画面の主な画面（ダッシュボード、サブリソース一覧、リソースの編集、システム設定、アクセス権限など）を開き、ページの端・見出し・ボタン列・表・タブとパネルの間が、決まりの表の値になっているか、ブラウザの開発者ツールで確かめる
 
