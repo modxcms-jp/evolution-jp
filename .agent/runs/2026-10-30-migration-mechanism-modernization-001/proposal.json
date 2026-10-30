@@ -4,7 +4,7 @@
     "run_id": "2026-10-30-migration-mechanism-modernization-001",
     "skill": "exec-plan-runner",
     "generated_at": "2026-10-30T23:30:00+09:00",
-    "status": "proposed",
+    "status": "applied",
     "source_files": [
         "learning.json",
         "pruning.json"
