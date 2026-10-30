@@ -850,7 +850,7 @@ return [
     "serveroffset_message" => 'サーバー設置場所とあなたの居場所の時差を選択してください。サーバーの現在時刻は<strong>[%s]</strong>です。オフセットを使用したサーバーの現在時刻は<strong>[%s]</strong>です。',
     "serveroffset_title" => 'サーバーオフセットタイム',
     "servertime" => 'サーバー時刻',
-    "settings_after_install" => '<p><strong style="color:red;">アップデートまたは新規インストール直後のため、各種設定を確認し更新する必要があります。設定を確認した後、データベースを更新するために「更新」ボタンをクリックしてください。</strong></p><p>※この設定は後で自由に変更できます(ツール→グローバル設定)。今の時点では公開ステータス(公開・メンテナンス中など)の設定のみ確認しておくといいでしょう。</p>',
+    "settings_after_install" => '<p><strong style="color:red;">新規インストール直後のため、各種設定を確認してください。確認したら「更新」ボタンで保存します（保存するまでは、ログインのたびにこの画面を開きます）。</strong></p><p>※この設定は後で自由に変更できます(ツール→グローバル設定)。今の時点では公開ステータス(公開・メンテナンス中など)の設定のみ確認しておくといいでしょう。</p>',
     "settings_config" => '設定',
     "settings_dependencies" => '関連付け',
     "settings_events" => 'システムイベント',
@@ -1307,5 +1307,6 @@ return [
     "parent_not_found" => '指定した親リソース（ID: %s）が見つかりません。',
     "update_in_progress_title" => 'メンテナンス中です',
     "update_in_progress_message" => 'システムのアップデート中です。しばらくしてからもう一度お試しいただくか、管理者にお問い合わせください。',
+    "update_upload_installer_message" => 'データベースの更新が必要です。アップデーター（install/ フォルダ）をサイトに置いて実行してください。',
     "go_back" => '戻る',
 ];

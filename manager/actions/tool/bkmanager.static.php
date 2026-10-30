@@ -54,7 +54,7 @@ if ($mode === 'backup') {
             sprintf(
                 'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
                 strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
-                preg_replace('/[^0-9A-Za-z._-]/', '-', (string) config('settings_version'))
+                preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
             )
         );
     }

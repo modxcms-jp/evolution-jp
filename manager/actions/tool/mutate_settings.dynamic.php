@@ -20,10 +20,6 @@ if (1 < db()->count($rs)) {
     }
 }
 
-if ($settings_version && $settings_version != $modx_version) {
-    include_once(MODX_CORE_PATH . 'upgrades/upgrades.php');
-}
-
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
 
@@ -91,7 +87,7 @@ foreach ($dir as $filename) {
         <input type="hidden" name="settings_version" value="<?= $modx_version ?>"/>
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
         <?php
-        if (!isset($settings_version) || $settings_version != $modx_version) {
+        if (!isset($settings_version) || in_array((string) $settings_version, ['', '0'], true)) {
             ?>
             <div class='sectionBody'><p><?= lang('settings_after_install') ?></p></div>
             <?php

@@ -74,7 +74,6 @@
     --color-error: #900;
     --color-error-light: #c00;
     --color-warning: #444;
-    --color-warning-mismatch: #ffff8a;
     --color-info: #3CB371;
 
     /* Color - Section Header */
@@ -540,10 +539,6 @@ hr {
 #supplementalNav .supplementalNav__version-label {
     font-weight: 600;
     letter-spacing: .02em;
-}
-
-#supplementalNav .supplementalNav__version-label--mismatch {
-    color: var(--color-warning-mismatch);
 }
 
 /* ============================================================================

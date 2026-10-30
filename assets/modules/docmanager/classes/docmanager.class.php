@@ -102,7 +102,6 @@ class DocManager
             } elseif (strpos($tpl, 'class="DatePicker"') !== false) {
                 $tpl .= $this->getDatePicker();
             }
-            $ph['settings_version'] = $modx->config('settings_version');
             return preg_replace(
                 '/(\[\+.*?\+\])/',
                 '',

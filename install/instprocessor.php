@@ -229,17 +229,39 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 
 // install/update database
 
+require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+
 if (sessionv('is_upgradeable')) {
     log_install_event('Upgrade path selected');
-    if (db()->tableExists('[+prefix+]site_revision') && !db()->fieldExists('elmid', '[+prefix+]site_revision')) {
-        log_install_event('Dropping legacy site_revision table');
-        db()->query(
-            str_replace(
-                '[+prefix+]',
-                sessionv('table_prefix'),
-                'DROP TABLE IF EXISTS `[+prefix+]site_revision`'
-            )
-        );
+
+    // マイグレーションは create_tables.sql より前に流す。古い形の表を baseline が直してから、
+    // create_tables.sql が今の形で足りない表を作る（列を縮める処理も、utf8mb4 への変換より前に済ませる）。
+    // 大きなサイトでは表の作り直しに数分かかるので、要求が切られても、時間切れにならずに最後まで進める
+    ignore_user_abort(true);
+    set_time_limit(0);
+
+    log_install_event('Running migrations');
+    // 記録は、create_tables.sql 以降の必須の処理がすべて済んでからまとめて行う（途中で失敗したら、次のアップデーターで流し直す）
+    $migration = (new EvoMigrator())->run(false);
+    if ($migration['applied']) {
+        log_install_event('Migrations applied', ['migrations' => $migration['applied']]);
+    }
+    if ($migration['error'] !== null) {
+        $errors += 1;
+        log_install_event('Migration failed', [
+            'migration' => $migration['failed'],
+            'error' => $migration['error']
+        ]);
+        printf('<p><span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
+        // 失敗した ID が無いとき（ロックを取れない、記録の表を作れない、ID が長すぎるなど）は、ID を含まない文にする
+        printf('<p>%s</p>', hsc(
+            $migration['failed'] !== null
+                ? sprintf(lang('migration_failed'), $migration['failed'])
+                : lang('migration_runner_failed')
+        ));
+        printf('<p class="mono">%s</p>', nl2br(hsc($migration['error'])));
+        printf('<p>%s</p>', lang('some_tables_not_updated'));
+        return;
     }
 }
 
@@ -260,11 +282,10 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-// 新規インストールで失敗したときは、テーブルの修正に進まない。
-// 欠けたテーブルへの ALTER TABLE でエラーになると処理ごと止まり、下で作ったテーブルを片付けられない
+// 新規インストールで失敗したときは、イベント名の同期と適用済みの記録に進まない（欠けたテーブルへの書き込みで、エラーが重なるため）
 if (sessionv('is_upgradeable') || !$sqlParser->installFailed) {
-    include MODX_SETUP_PATH . 'sql/fix_settings.php';
-    log_install_event('Applied settings fix script');
+    $sqlParser->intoDB('system_eventnames.sql');
+    log_install_event('Synchronized system event names');
 }
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
@@ -280,7 +301,7 @@ if ($sqlParser->installFailed == true) {
     printf('<p>%s</p>', lang('setup_couldnt_install'));
     printf('<p>%s<br /><br />', lang('installation_error_occured'));
     foreach ($sqlParser->mysqlErrors as $err) {
-        printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], lang('during_execution_of_sql'), strip_tags($err['sql']));
+        printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', hsc($err['error']), lang('during_execution_of_sql'), hsc(strip_tags($err['sql'] ?? '')));
     }
     echo '</p>';
     if (sessionv('is_upgradeable')) {
@@ -356,15 +377,6 @@ if (sessionv('is_upgradeable') == 0) {
         '[+prefix+]system_settings'
     );
 
-    // 新規インストールした版。settings_version が '0' のまま(設定未保存)でも、
-    // この版のコードなら公開側を止めない(version_mismatch_guard.php)
-    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
-    log_install_event('Recording install_version for fresh installation', ['version' => $modx_version]);
-    db()->replace(
-        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
-        '[+prefix+]system_settings'
-    );
-
     // サイトのURL：インストールしたときのURL（.env で決めている場合は書かない）
     $install_site_url = init::request_host() !== '' ? init::normalize_site_url(MODX_SITE_URL, MODX_BASE_URL) : '';
     if ($install_site_url !== '' && !init::env_site_url()) {
@@ -374,29 +386,6 @@ if (sessionv('is_upgradeable') == 0) {
             '[+prefix+]system_settings'
         );
     }
-} else {
-    $site_id = db()->getValue(
-        'setting_value',
-        '[+prefix+]system_settings',
-        "setting_name='site_id'"
-    );
-    // 未設定か、配布物に入っていた既定値のままのときだけ作り直す
-    if (!$site_id || $site_id === 'MzGeQ2faT4Dw06+U49x3') {
-        log_install_event('Regenerating site_id during upgrade');
-        db()->replace(
-            ['setting_name' => 'site_id', 'setting_value' => uniqid('')],
-            '[+prefix+]system_settings'
-        );
-    }
-
-    // 以前の「サイトのURL」（site_url）は URL の決定に使われておらず、設定を保存したときの URL が残っているだけなので消す。
-    // 今の「サイトのURL」は fixed_site_url に保存する
-    log_install_event('Removing unused site_url setting during upgrade');
-    db()->delete('[+prefix+]system_settings', "setting_name='site_url'");
-
-    // 以前のインストーラやリソースの複製が入れていた文字列 'NULL' を空に戻す（要素の登録でプロパティを引き継ぐより前に行う）
-    log_install_event('Cleaning up literal NULL strings in elements and resource aliases during upgrade');
-    cleanupNullStrings();
 }
 
 include 'processors/prc_insTemplates.inc.php'; // Install Templates
@@ -435,38 +424,28 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     log_install_event('Demo site installation completed successfully');
 }
 
-// アップグレードを通した版。管理画面が、アップデーターの実行前か後かを見分けるのに使う（welcome.static.php）
-if (sessionv('is_upgradeable') && $errors == 0) {
-    include MODX_BASE_PATH . 'manager/includes/version.inc.php';
-
-    // 一度も設定を保存していないサイト（settings_version が '0' か空）は前の版が分からず、このままでは
-    // 設定画面の更新処理（upgrades/upgrades.php は settings_version が空でないときだけ動く）を飛ばしたまま、
-    // install_version の記録で公開側の停止だけが解けてしまう。
-    // 新規インストール時の版（install_version）があればそれを、無ければ 1.0.7J を前の版として残し、通常のアップグレードと同じ流れにする。
-    // （1.0.7 未満向けの古い更新は、それ以降に一度も設定を保存していないサイトには当てはまらないので実行しない）
-    $settingsVersion = (string) db()->getValue(
-        'setting_value',
-        '[+prefix+]system_settings',
-        "setting_name='settings_version'"
-    );
-    if ($settingsVersion === '' || $settingsVersion === '0') {
-        $previousVersion = (string) db()->getValue(
-            'setting_value',
-            '[+prefix+]system_settings',
-            "setting_name='install_version'"
-        ) ?: '1.0.7J';
-        log_install_event('Recording previous settings_version for upgrade', ['version' => $previousVersion]);
-        db()->replace(
-            ['setting_name' => 'settings_version', 'setting_value' => db()->escape($previousVersion)],
-            '[+prefix+]system_settings'
-        );
+// マイグレーションの記録は、必須の処理がすべて成功したあとに行う。記録が済むと hasPending() が false になり、公開側の停止が解けるため。
+// 新規インストールは最終形をそのまま作ったので流さずに適用済みとだけ記録し、アップグレードは流した ID を記録する
+if ($errors == 0) {
+    try {
+        $migrator = new EvoMigrator();
+        if (sessionv('is_upgradeable')) {
+            $migrator->recordApplied($migration['applied']);
+            log_install_event('Recorded applied migrations', ['migrations' => $migration['applied']]);
+        } else {
+            $migrator->markAllApplied();
+            log_install_event('Recorded migrations as applied for fresh installation');
+        }
+    } catch (Throwable $e) {
+        $errors += 1;
+        log_install_event('Failed to record migrations', ['error' => $e->getMessage()]);
+        printf('<p><span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
+        printf('<p class="mono">%s</p>', nl2br(hsc($e->getMessage())));
+        printf('<p>%s</p>', lang('some_tables_not_updated'));
+        return;
     }
-
-    log_install_event('Recording install_version for upgrade', ['version' => $modx_version]);
-    db()->replace(
-        ['setting_name' => 'install_version', 'setting_value' => db()->escape($modx_version)],
-        '[+prefix+]system_settings'
-    );
+} else {
+    log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
 clean_up($sqlParser->prefix);

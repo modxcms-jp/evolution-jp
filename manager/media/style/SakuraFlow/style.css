@@ -609,10 +609,6 @@ hr {
     letter-spacing: .02em;
 }
 
-#supplementalNav .supplementalNav__version-label--mismatch {
-    color: #ffff8a;
-}
-
 /* ============================================================================
    6. Forms - Inputs, Selects, Textareas, Buttons
    Used in: All form elements throughout the application

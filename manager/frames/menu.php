@@ -336,19 +336,8 @@ if (!$isShellPartial) {
                 $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
                 $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="%s" data-evo-post="full">%s</a></span>', 'index.php?a=8', $logoutLabel);
 
-                $settings_version = db()->getValue(
-                    'setting_value',
-                    evo()->getFullTableName('system_settings'),
-                    'setting_name="settings_version"'
-                );
-                if (empty($settings_version)) {
-                    $settings_version = '0.0.0';
-                }
                 $versionLabelClass = 'supplementalNav__version-label';
-                if ($settings_version != $modx_version) {
-                    $versionLabelClass .= ' supplementalNav__version-label--mismatch';
-                }
-                $versionLabel = htmlspecialchars($settings_version, ENT_QUOTES, $charset);
+                $versionLabel = htmlspecialchars($modx_version, ENT_QUOTES, $charset);
                 $versionTitle = htmlspecialchars($site_name . ' – ' . $modx_full_appname, ENT_QUOTES, $charset);
                 $supplementalNavItems[] = sprintf(
                     '<span class="supplementalNav__item supplementalNav__item--version"><span class="%s" title="%s">%s</span></span>',

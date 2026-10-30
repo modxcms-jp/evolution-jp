@@ -22,25 +22,15 @@ class ManagerAPI
     }
 
     /**
-     * アップデーターをまだ通していない（install_version が今の版でない）かどうか。
-     * settings_version とは別に判定する。設定を先に保存したサイトでは settings_version だけが進んでいて、
-     * DB の更新を飛ばしたまま公開側の停止が解けているため。
-     * install/index.php が無いとき（インストーラーを消した後）は、戻す先が無いので false を返す。
+     * アップデート待ち（未適用のマイグレーションがある）かどうか。判定の正本は EvoMigrator::hasPending()。
+     * 戻す先の install/ があるかは見ない（呼び出し側が、ある・無いで案内を分ける）
      *
      * @return bool
      */
     public function isUpdatePending(): bool
     {
-        if (!is_file(MODX_BASE_PATH . 'install/index.php')) {
-            return false;
-        }
-        include MODX_BASE_PATH . 'manager/includes/version.inc.php';
-        $install_version = db()->getValue(
-            'setting_value',
-            evo()->getFullTableName('system_settings'),
-            'setting_name="install_version"'
-        );
-        return $install_version !== $modx_version;
+        require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+        return (new EvoMigrator())->hasPending();
     }
 
     public function initPageViewState($id = 0)

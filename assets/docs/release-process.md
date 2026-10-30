@@ -156,7 +156,7 @@ fi
 ---
 
 ## アップグレード時の注意
-（必要な場合のみ記載）
+（必要な場合のみ記載。アップデートでは `manager/` だけでなくルートの `index.php` も差し替える旨（古い `index.php` が残ると公開側が 500 になる）は、DB を変えた版では必ず書く）
 ```
 
 **注意事項:**
@@ -459,9 +459,11 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
 - [ ] ローカルでの動作確認（インストール・アップグレード）
+- [ ] DB を変えた版はマイグレーションを足し、`install/sql/create_tables.sql` にも同じ変更を入れた。DB にある同梱物を変えた版は入れ替えのマイグレーションを足した（書き方は [`migrations.md`](migrations.md)）
 - [ ] テストケースの実行
+- [ ] 新しいマイグレーションを、古い版の DB から確かめた（[`upgrade-fixtures.md`](../../.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md) の道具で）
 - [ ] ドキュメントの更新（`.agent/roadmap.md` など）
-- [ ] リリースノートの準備（GitHub Release の説明文）
+- [ ] リリースノートの準備（GitHub Release の説明文）。「アップグレード時の注意」に、アップデートでは `manager/` だけでなくルートの `index.php` も差し替えることを書く
 
 ## セキュリティ修正のリリース
 
