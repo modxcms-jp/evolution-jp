@@ -9,7 +9,7 @@
 - [x] (2026-10-27) ExecPlan を作った。直書きの棚卸し（Context and Orientation の表）まで済み
 - [x] (2026-10-30) M1: 修正前の計測（7 テーマ × 17 画面 × 全タブ = 329 パネル）と、棚卸しの仕分けの確定。結果は `<work>/spacing/m1-base/`、消した場合の差は `<work>/spacing/probe/probe.json`
 - [x] (2026-10-30) M2 の手順 0: 本人の確認（相談事項 1〜4。すべて推奨どおり。Decision Log を参照）
-- [ ] M2: 画面の HTML から直書きの余白を消し、6 テーマに決まりの規則を足す。RevoStyle には今の値を保つ規則を足す
+- [x] (2026-10-31) M2: 画面の HTML から直書きの余白を消し、6 テーマに決まりの規則を足す。RevoStyle には今の値を保つ規則を足す。修正後の計測は `<work>/spacing/m2-test/`（6 テーマは表の期待と一致、RevoStyle は `m1-base` と同じ）
 - [ ] M3: 通しの計測と、`theme-spacing.md` の例外と書き方の仕上げ
 
 ## Surprises & Discoveries
@@ -38,6 +38,13 @@ M1 の計測（2026-10-30、main の 90 コミット後の作業ツリー。検�
   - `sysinfo` の表の `margin-bottom:20px` を消すと、次の見出し（`h4`）までが 20px → 12px（RevoStyle は 6px になるので 20px を保つ規則が要る）
   - `:has(+ X)` の規則は、`bkmanager` のスナップショットのタブで当たらない: `form` と次の `.sectionHeader` の間に `<style>` があるため（`theme-spacing.md` に書いてある限界）。`<style>` を動かすか、class を付ける
 
+M2（2026-10-31）で分かったこと。
+
+- 足した `:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)` は、表に無い画面の「ブロック → ボタン列」の間も 12px にする。計測で確かめたのは a=83（`table.settings` → `ul.actionButtons`、0→12）と a=95（`form` の中の表 → `ul.actionButtons`、0→12）。自己レビューでは、ほかに a=76 の全タブ（`resources.static.php`）、a=75・a=99（ユーザー管理）、a=86（ロール管理）、ユーザー編集のアクセスタブ（グループが無いとき）、docmanager の並べ替えタブでも、前のブロックの下が 0 または約 6px から 12px になる見込みと分かった（M3 で測る）
+- RevoStyle の a=13 の保持の規則は、ボタン列が `form[name="logging"]` の中ではなく、タブの組（`#logPane`）の直下にあるので、`#logPane > ul.actionButtons` に直した（63a030805）
+- a=95 の結果画面（インポートの実行後）には、`:has()` で見分けられる要素が無い。RevoStyle で今の `margin:8px` を保つため、`.sectionBody` に `id="importSite"` を付けた（3a5926e6c）
+- `bkmanager.static.php` のスナップショットのタブは、`<div class="actionButtons">` が `</form>` の前で閉じておらず、HTML のパーサの補正でスナップショットの一覧が `#tabSnapshot` の中に入る。今回の `<style>` の移動と `.tab-page > :has(+ .sectionHeader)` は補正後の DOM が前提。閉じタグの欠けは元からのもので、直していない
+
 ## Decision Log
 
 - 2026-10-27 / yamamoto（planner）: ExecPlan を作る。
@@ -64,6 +71,9 @@ M1 の計測（2026-10-30、main の 90 コミット後の作業ツリー。検�
   2. 対象外の仕分けは表のとおり（a=40・a=91 の `li` の中の `form` の `margin-top: 0.5em`、a=301 の `padding-top:8px`、`mutate_plugin` の `.split`、小さな `margin:0` 類）。a=10 の返信欄の `ul.actionButtons` は class `.messages-compose-actions` を付け、`margin-top: var(--space-3)` にする
   3. エディタの帯の色と枠は別の Issue に分ける。この PR は帯の上の余白だけを扱う
   4. 新しく付ける class は `.code-editor` と `.messages-compose-actions` だけにし、ほかは既存の `:has(+ X)` の並びを広げて作る。TV が無いときの文字は `<p>` で包む
+- 2026-10-31 / yamamoto（runner、M2 の自己レビュー）: 足した `:has(+ :is(ul, div).actionButtons)` の規則の範囲は絞らない。表に無い画面の間も決まり（12px）に近づくが、決まりを横断して当てる方針（AGENTS.md の「局所的な新方式導入は禁止」）に合う。代わりに M3 の通しの計測に、その画面（a=76 の全タブ、a=75、a=99、a=86、ユーザー編集のアクセスタブ、docmanager の並べ替えタブ）を足し、PR に「表に無い変化」として書く
+  - 代替案: 規則の親を画面の class に限る。画面ごとに例外が増え、決まりが散らばるので採らない
+- 2026-10-31 / yamamoto（runner）: a=95 の RevoStyle の保持のため、`.sectionBody` に `id="importSite"` を足した。M1 の確認の決定 4（新しい class は 2 つだけ）の例外ではなく、class は増やしていない。結果画面に目印が無いため。M3 の報告で本人に伝える
 
 ## Outcomes & Retrospective
 
@@ -222,12 +232,16 @@ M3 では、7 テーマ × 対象画面 × 全タブを通しで測り、6 テ�
    - 例外の表に足す: スクロールする箱やリストの項目の間（システムログの項目、並べ替えリスト）、別窓の画面（`a=84`）、`phpinfo()` の出力（`a=200`）
    - 「書き方」に足す: 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る（`h3 { … }` のように要素だけで書かない。1 つの文書なので画面の外にも効くため）
    - 「対象外のテーマ」の RevoStyle の段落に、今回保った値を足す
+   - 「書き方」の「ブロックは margin-top を持たない」に、例外の 2 つ（`.tab-pane > ul.actionButtons`: 最後のタブが非表示でも当たるように、`.messages-compose-actions`: 表のセルの中で前の兄弟が無い）を書く
+   - 新しいテーマを作るときの「写す規則の並び」に、M2 で足した 4 つの規則を入れる。`.code-editor` と `.messages-compose-actions` を、テーマと画面の約束として書く。新しい規則の親が `:is(.sectionBody, .tab-page, form)` である理由も書く
+   - `:has()` に対応しないブラウザでは、コード欄の前とボタン列の前の間が 0 になることを、限界の項に書くか決める
    - 実行: doc-maintainer の `/doc-audit` を `theme-spacing.md` と、この ExecPlan に行う
    - 期待: 指摘 0 件
    - コミット: `docs(theme): 画面の直書きの余白をやめた後の例外と書き方を足す`
 2. 通しで確かめる。
    - 実行: `scripts/smoke.js` と、M2 の手順 6 の計測と比較をもう一度
    - 期待: smoke.js が PASS。比較の結果は M2 の手順 6 と同じ
+   - 足して測る画面（M2 の自己レビューで分かった、表に無い変化）: a=76 の全タブ、a=75、a=99、a=86、ユーザー編集（a=12）のアクセスタブ、docmanager の並べ替えタブ。6 テーマで前のブロックとボタン列の間が 12px であり、崩れ（重なり・はみ出し）が無いこと。RevoStyle は変わらないこと
 3. 残った直書きが対象外だけであることを確かめる。
    - 実行: `grep -rnE 'style="[^"]*(margin(-top|-bottom)?|padding(-top|-bottom)?)\s*:' manager/actions` の出力を、Context and Orientation の「対象外にするもの」と照らす
    - 期待: 出た行がすべて対象外の項に当てはまる
