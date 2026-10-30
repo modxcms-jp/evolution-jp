@@ -246,7 +246,7 @@ M3 では、7 テーマ × 対象画面 × 全タブを通しで測り、6 テ�
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/924
 - ブランチ: `refactor/924-inline-spacing`（ワークツリー `.claude/worktrees/issue-924`。計画を作ったブランチ `worktree-issue-924-theme-spacing` は Issue に紐づいていないため、計画のコミットをこのブランチへ移した）
-- PR: 未作成
+- PR: #971（下書き）
 - 関連: #917（PR #922）、`.agent/plans/archive/2026-10-25-theme-vertical-spacing.md`
 - 想定コミット（Concrete Steps の各手順）:
   - `docs(plan): #924 の修正前の計測と仕分けを記録する`
