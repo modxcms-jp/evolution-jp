@@ -655,3 +655,12 @@
 .evo-fb-contextmenu-danger {
     color: var(--color-error, #900);
 }
+
+.evo-fb-btn[hidden] {
+    display: none;
+}
+
+/* 切り取り中のファイル */
+.evo-fb-item.is-cut {
+    opacity: 0.5;
+}

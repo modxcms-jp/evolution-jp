@@ -1372,4 +1372,10 @@ return [
     "fb_err_same_folder" => '移動先が現在のフォルダと同じです。',
     "fb_err_dest_exists" => '移動先に同名のファイルが既に存在します。',
     "fb_err_move_failed" => '移動できませんでした。',
+    "fb_copy" => 'コピー',
+    "fb_cut" => '切り取り',
+    "fb_paste" => '貼り付け',
+    "fb_copy_partial_failed" => '一部のファイルをコピーできませんでした:',
+    "fb_copy_failed" => 'コピーに失敗しました: %s',
+    "fb_err_copy_failed" => 'コピーできませんでした。',
 ];

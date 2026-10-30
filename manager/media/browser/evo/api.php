@@ -12,6 +12,8 @@
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
  * POST action=move   (type, folder, files[], dest)              -> {moved:[...], errors:[{name,message}]}
+ * POST action=copy   (type, folder, files[], dest)              -> {copied:[{from,name}], errors:[{name,message}]}
+ *                     同名があれば 名前(1).拡張子 のように連番を付ける。上書きはしない。ファイルのみ(フォルダは errors)
  *
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系はCSRFトークン必須。
  */
@@ -108,6 +110,11 @@ switch ($action) {
     case 'move':
         checkCsrfToken();
         fbActionMove($resolver, $type);
+        break;
+
+    case 'copy':
+        checkCsrfToken();
+        fbActionCopy($resolver, $config, $modx, $type);
         break;
 
     default:
@@ -294,20 +301,7 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
             continue;
         }
 
-        // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
-        // 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
-        $dotPos = strrpos($safeName, '.');
-        $baseName = substr($safeName, 0, $dotPos);
-        $extension = substr($safeName, $dotPos);
-        $targetPath = null;
-        for ($suffix = 0; $suffix <= 200; $suffix++) {
-            $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
-            $candidatePath = $modx->sanitizeUploadedFilename($dir['real'] . $candidate);
-            if (!is_file($candidatePath)) {
-                $targetPath = $candidatePath;
-                break;
-            }
-        }
+        $targetPath = fbFindFreePath($modx, $dir['real'], $safeName);
         if ($targetPath === null) {
             $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_many_same_name')];
             continue;
@@ -336,6 +330,28 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
     }
 
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
+}
+
+/**
+ * 保存先のフォルダで空いているファイルのフルパスを探す。同名があれば 名前(1).拡張子 のように連番を付ける。
+ * 見つからなければ null。
+ *
+ * $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
+ * 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
+ */
+function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
+{
+    $dotPos = strrpos($safeName, '.');
+    $baseName = $dotPos === false ? $safeName : substr($safeName, 0, $dotPos);
+    $extension = $dotPos === false ? '' : substr($safeName, $dotPos);
+    for ($suffix = 0; $suffix <= 200; $suffix++) {
+        $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
+        $candidatePath = $modx->sanitizeUploadedFilename($dirReal . $candidate);
+        if (!is_file($candidatePath)) {
+            return $candidatePath;
+        }
+    }
+    return null;
 }
 
 function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
@@ -489,6 +505,60 @@ function fbActionMove(PathResolver $resolver, $type)
     }
 
     fbSendJson(['moved' => $moved, 'errors' => $errors]);
+}
+
+function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentParser $modx, $type)
+{
+    $dir = $resolver->resolveDir($type, anyv('folder', ''));
+    if ($dir === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    // 同じフォルダへの複製も許す（連番の名前になる）
+    $destDir = $resolver->resolveDir($type, postv('dest', ''));
+    if ($destDir === null) {
+        fbError('not_found', lang('fb_err_dest_not_found'), 404);
+    }
+
+    $files = (array) postv('files', []);
+    $copied = [];
+    $errors = [];
+    $permissions = octdec(ltrim($modx->config('new_file_permissions') ?: '0644', '0'));
+
+    foreach ($files as $name) {
+        $name = PathResolver::sanitizeSegment($name);
+        $sourcePath = $dir['real'] . $name;
+
+        if ($name === '' || !is_file($sourcePath)) {
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
+            continue;
+        }
+
+        // 複製先の名前も、アップロード・名前の変更と同じ拡張子の許可リストで確かめる
+        $safeName = $modx->sanitizeFilename($name);
+        if ($safeName === '' || !$config->isAllowedFilename($type, $safeName)) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_extension_not_allowed')];
+            continue;
+        }
+
+        $targetPath = fbFindFreePath($modx, $destDir['real'], $safeName);
+        if ($targetPath === null) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
+            continue;
+        }
+
+        if (!@copy($sourcePath, $targetPath)) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_copy_failed')];
+            continue;
+        }
+        // パーミッションを変えられない環境でも、複製できていれば成功として扱う
+        @chmod($targetPath, $permissions);
+
+        // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
+        $copied[] = ['from' => $name, 'name' => substr($targetPath, strrpos($targetPath, '/') + 1)];
+    }
+
+    fbSendJson(['copied' => $copied, 'errors' => $errors]);
 }
 
 function fbDeleteTree($path)

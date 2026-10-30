@@ -1371,4 +1371,10 @@ return [
     "fb_err_same_folder" => 'The destination is the same as the current folder.',
     "fb_err_dest_exists" => 'A file with the same name already exists in the destination.',
     "fb_err_move_failed" => 'Could not move.',
+    "fb_copy" => 'Copy',
+    "fb_cut" => 'Cut',
+    "fb_paste" => 'Paste',
+    "fb_copy_partial_failed" => 'Some files could not be copied:',
+    "fb_copy_failed" => 'Copy failed: %s',
+    "fb_err_copy_failed" => 'Could not copy.',
 ];

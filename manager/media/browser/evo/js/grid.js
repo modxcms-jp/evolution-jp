@@ -21,6 +21,7 @@ import { createMarquee } from './marquee.js';
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
+ * @param {(name: string) => boolean} ctx.isCut - 切り取り中のファイルか(一覧で薄く表示する)
  */
 export function createGrid(ctx) {
     var gridEl = ctx.gridEl;
@@ -68,7 +69,7 @@ export function createGrid(ctx) {
             : '';
 
         return '' +
-            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-path="' + escapeHtml(file.path) + '" data-kind="file">' +
+            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-path="' + escapeHtml(file.path) + '" data-kind="file">' +
             '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb">' +
             '    <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
             '  </button>' +
@@ -203,6 +204,13 @@ export function createGrid(ctx) {
             item.classList.toggle('is-checked', state.selection.has(item.getAttribute('data-name')));
         });
         updateSelectionBar();
+    }
+
+    // 切り取り中の表示を、クリップボードの今の状態に合わせる
+    function updateCutDom() {
+        gridEl.querySelectorAll('.evo-fb-item-file').forEach(function (item) {
+            item.classList.toggle('is-cut', ctx.isCut(item.getAttribute('data-name')));
+        });
     }
 
     function bindItemEvents() {
@@ -351,6 +359,7 @@ export function createGrid(ctx) {
         renderLoading: renderLoading,
         renderError: renderError,
         updateSelectionDom: updateSelectionDom,
+        updateCutDom: updateCutDom,
         updateSelectionBar: updateSelectionBar
     };
 }
