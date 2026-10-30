@@ -147,6 +147,8 @@ Codex のレビューは、PR を開いたときと「@codex review」のコメ�
 
 ## コマンド
 
+ここに挙げたコマンドは、このスキルの中の手順の名前で、Claude Code の入力欄からは直接呼べない（`Unknown command` になる）。入力欄では `/exec-plan-runner finish-task 667` のようにスキル名に続けて書くか、「#667 の完了処理をして」と言葉で頼む。ほかのスキルの手順（roadmap-manager の `/next-task` など）も同じ。人に案内するときも、この呼び方で書く。
+
 ### /run-issue <番号>
 
 ExecPlan の無い Issue を 1 件直す。

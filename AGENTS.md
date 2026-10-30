@@ -202,7 +202,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ### 新タスク着手時
 
-**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。
+**ショートカット**: `roadmap-manager` スキルの `/next-task` で次タスクを選び（`--run` を付けると、そのまま実行に渡す）、`exec-plan-runner` スキル（`/run-plan`・`/run-issue`）で実装から PR までを進める。PR のマージ後は `exec-plan-runner` スキルの `/finish-task <Issue 番号 | ExecPlan のパス>` で完了処理・ロードマップ同期を行う。これらはスキルの中の手順の名前で、入力欄からの呼び方は `.claude/skills/exec-plan-runner/SKILL.md` の「コマンド」を参照する。
 
 **手動手順**:
 
