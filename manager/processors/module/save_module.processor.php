@@ -15,7 +15,7 @@ if (postv('mode') == 108 && !$id) {
     alert()->dumpError();
 }
 
-$name = trim(postv('name') ?: 'Untitled module');
+$name = manager()->requireElementName(postv('name'), $_lang['module'], 107, 108, $id);
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
 if ((postv('icon', '') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon', '')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');

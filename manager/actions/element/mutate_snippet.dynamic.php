@@ -57,15 +57,7 @@ if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $_SESSION['itemname'] = "New snippet";
 }
 // restore saved form
-$formRestored = false;
-if (manager()->hasFormValues()) {
-    $form_v = manager()->loadFormValues();
-    $formRestored = true;
-}
-
-if ($formRestored) {
-    $content = array_merge($content, $form_v);
-}
+$content = manager()->restoreElementFormValues($content, 'snippet');
 
 function entity($key, $default = null)
 {

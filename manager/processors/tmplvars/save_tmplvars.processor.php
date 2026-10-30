@@ -12,7 +12,7 @@ if (postv('mode') == 301 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(trim(postv('name')));
+$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['tv'], 300, 301, $id));
 $description = db()->escape(postv('description', ''));
 $caption = db()->escape(postv('caption'));
 $type = db()->escape(postv('type', ''));
@@ -37,9 +37,6 @@ if (empty(postv('newcategory')) && postv('categoryid') > 0) {
     }
 }
 
-if ($name == '') {
-    $name = 'Untitled variable';
-}
 if ($caption == '') {
     $caption = $name;
 }

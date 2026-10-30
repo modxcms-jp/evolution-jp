@@ -60,6 +60,13 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $_SESSION['itemname'] = 'New Module';
     $content['wrap'] = '1';
 }
+
+// 名前の検証で差し戻されたときは、送信した入力を重ねる
+$content = manager()->restoreElementFormValues(
+    $content,
+    'modulecode',
+    ['disabled', 'wrap', 'locked', 'enable_resource', 'enable_sharedparams']
+);
 $modx->moduleObject = $content;
 
 function content($key, $default = null)

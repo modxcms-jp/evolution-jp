@@ -538,6 +538,7 @@ return [
     "mgrlog_user" => 'ユーザー',
     "mgrlog_username" => 'ユーザー名',
     "mgrlog_view" => '管理操作ログを見る',
+    "module" => 'モジュール',
     "module_code" => 'モジュール コード(php)',
     "module_config" => 'モジュール設定',
     "module_desc" => '説明',

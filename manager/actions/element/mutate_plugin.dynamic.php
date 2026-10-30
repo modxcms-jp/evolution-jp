@@ -51,6 +51,9 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     $_SESSION['itemname'] = 'New Plugin';
 }
 
+// 名前の検証で差し戻されたときは、送信した入力を重ねる
+$content = manager()->restoreElementFormValues($content, 'plugincode', ['disabled', 'locked']);
+
 function entity($key, $default = null)
 {
     global $content;

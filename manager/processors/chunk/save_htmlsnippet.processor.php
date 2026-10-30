@@ -16,7 +16,7 @@ if (postv('mode') == 78 && !$id) {
 function entity($key, $default = null)
 {
     if ($key === 'name') {
-        return is_string(postv('name')) ? trim(postv('name')) : '';
+        return manager()->normalizeElementName(postv('name'));
     }
     if ($key === 'locked') {
         return postv('locked') === 'on' ? 1 : 0;
@@ -74,15 +74,7 @@ function entity($key, $default = null)
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
-if (entity('name') === '') {
-    $mode = postv('mode') == 78 ? 78 : 77;
-    manager()->saveFormValues($mode);
-    evo()->webAlertAndQuit(
-        sprintf($_lang['element_name_required'], $_lang['chunk']),
-        $mode === 78 ? "index.php?a=78&id={$id}" : 'index.php?a=77'
-    );
-    exit;
-}
+manager()->requireElementName(postv('name'), $_lang['chunk'], 77, 78, $id);
 
 switch (postv('mode')) {
     case '77':

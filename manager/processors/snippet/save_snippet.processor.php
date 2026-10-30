@@ -11,7 +11,7 @@ if (postv('mode') == 22 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(trim(postv('name')));
+$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['snippet'], 23, 22, $id));
 $description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
@@ -50,10 +50,6 @@ if (empty(postv('newcategory')) && 0 < postv('categoryid')) {
     } else {
         $categoryid = manager()->newCategory(postv('newcategory'));
     }
-}
-
-if ($name == '') {
-    $name = 'Untitled snippet';
 }
 
 // disallow duplicate names

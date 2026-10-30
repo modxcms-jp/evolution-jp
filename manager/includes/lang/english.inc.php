@@ -536,6 +536,7 @@ return [
     "mgrlog_user" => 'User',
     "mgrlog_username" => 'Username',
     "mgrlog_view" => 'View manager logs',
+    "module" => 'Module',
     "module_code" => 'Module code (php)',
     "module_config" => 'Module configuration',
     "module_desc" => 'Description',
