@@ -6072,40 +6072,76 @@ class DocumentParser
     }
 
     /**
-     * アップロードファイル名を安全な文字列にサニタイズ
+     * フルパスのうち、最後の要素（ファイル名）だけを sanitizeFilename() で無害化する
      *
      * @param string $filepath フルパス
-     * @return string サニタイズされたフルパス
+     * @return string 無害化したフルパス
      */
     public function sanitizeUploadedFilename($filepath)
     {
-        $dir = dirname($filepath);
-        $filename = basename($filepath);
+        // basename() / dirname() はロケールによってマルチバイトの名前を崩すことがあるため使わない
+        $filepath = str_replace('\\', '/', (string) $filepath);
+        $pos = strrpos($filepath, '/');
+        if ($pos === false) {
+            return $this->sanitizeFilename($filepath);
+        }
 
-        // 拡張子を分離
-        $lastDot = strrpos($filename, '.');
-        if ($lastDot !== false) {
-            $name = substr($filename, 0, $lastDot);
-            $ext = substr($filename, $lastDot);
+        return substr($filepath, 0, $pos) . '/' . $this->sanitizeFilename(substr($filepath, $pos + 1));
+    }
+
+    /**
+     * ファイル名・フォルダー名（パスの 1 要素）を無害化する。
+     * アップロード・フォルダー作成・名前の変更など、利用者が名前を決める処理はすべてここを通す。
+     *
+     * - 既定（clean_uploaded_filename=0）: 日本語などのマルチバイト文字は残し、次を除く
+     *   制御文字・パスの区切り・Windows で使えない記号（: * ? " < > |）と、URL を切る # % は _ に置き換え、
+     *   文字の向きの制御文字・ゼロ幅文字は取り除く。Normalizer があれば NFC にそろえる
+     * - clean_uploaded_filename=1、または UTF-8 として正しくない名前: 英数字と . _ - だけにする
+     * - 先頭のドット・空白と、末尾の空白・ドットは取り除く
+     *
+     * 拡張子の確かめ（許可リスト）は呼び出し側で、この関数を通した後の名前に対して行う。
+     *
+     * @param string $name ファイル名・フォルダー名（ディレクトリを含まない）
+     * @param bool $fallback 空になったとき、日時と乱数の名前にする（false なら空文字を返す）
+     * @return string 無害化した名前
+     */
+    public function sanitizeFilename($name, $fallback = true)
+    {
+        // 前後の空白・ドットは、置き換えで _ になる前に除く（置き換えた後にも除く）
+        $name = rtrim(ltrim((string) $name, ' .'), ' .');
+        $asciiOnly = $this->config('clean_uploaded_filename') == 1 || !mb_check_encoding($name, 'UTF-8');
+
+        if (!$asciiOnly) {
+            if (class_exists('Normalizer')) {
+                $normalized = Normalizer::normalize($name, Normalizer::FORM_C);
+                if (is_string($normalized)) {
+                    $name = $normalized;
+                }
+            }
+            // 文字の向きの制御文字（拡張子の偽装に使われる）とゼロ幅文字は、見えないので取り除く
+            $name = preg_replace('/[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}]/u', '', $name);
+            // 制御文字（C0・DEL・C1）、パスの区切り、Windows で使えない記号と、
+            // URL に生のまま入れると切れる # ? %（フラグメント・クエリ・エンコードの始まり）
+            $name = preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}\/\\\\:*?"<>|#%]/u', '_', $name);
         } else {
-            $name = $filename;
-            $ext = '';
+            $lastDot = strrpos($name, '.');
+            if ($this->config('clean_uploaded_filename') == 1) {
+                // 拡張子を除いた部分だけを OnStripAlias（無ければ strip_tags）に通す
+                $name = $lastDot === false
+                    ? $this->stripAlias($name, ['file_manager'])
+                    : $this->stripAlias(substr($name, 0, $lastDot), ['file_manager']) . substr($name, $lastDot);
+            }
+            $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
         }
 
-        if ($this->config('clean_uploaded_filename') == 1) {
-            $name = $this->stripAlias($name, ['file_manager']);
+        // 先頭のドット（.htaccess などの隠しファイル）と空白、末尾の空白とドットを除く
+        $name = rtrim(ltrim($name, ' .'), ' .');
+
+        if ($name === '' && $fallback) {
+            $name = sprintf('%s-%s', date('Ymd'), substr(md5(uniqid(mt_rand(), true)), 0, 8));
         }
 
-        // 安全でない文字を除去
-        $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
-
-        if ($name === '') {
-            $timestamp = date('Ymd');
-            $random = substr(md5(uniqid(mt_rand(), true)), 0, 8);
-            $name = sprintf('%s-%s', $timestamp, $random);
-        }
-
-        return $dir . '/' . $name . $ext;
+        return $name;
     }
 
     private function resizeImage($tmp_path, $img, $target_path)
