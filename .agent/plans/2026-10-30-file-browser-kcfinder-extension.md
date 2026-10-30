@@ -8,13 +8,19 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 ## Progress
 
-- [ ] (2026-10-30) M1: UI 文言の多言語化
+- [x] (2026-10-30) M1: UI 文言の多言語化（言語ファイルに `fb_` のキーを 62 個、`js/i18n.js` を追加。日英の表示・API のエラー・既存操作を Docker で確認）
 - [ ] M2: 右クリックメニュー
 - [ ] M3: コピー・切り取り・貼り付け
 - [ ] M4: zip での一括ダウンロード
 - [ ] M5: 画像の簡易編集（トリミング・90° 回転・数値でのリサイズ）
 
 ## Surprises & Discoveries
+
+2026-10-30 (M1): ポップアップの `browser.php` は `<html lang>` を `globalv('modx_lang_attribute', 'ja')` で出していたが、`MODX_API_MODE` では言語の読み込み（`loadLexicon()`）が走らず、このグローバル変数が設定されない。そのため英語の画面でも常に `ja` になっていた。言語ファイルの `lang_attribute` を `lang()` で読む形に改めた。言語ファイルに `textdir` のキーは無いので `dir` は付けていない。
+
+2026-10-30 (M1): `js/utils.js` の `escapeHtml()` は DOM の `textContent` から `innerHTML` を取る作りで、`"` と `'` をエスケープしていなかった。`data-name` などの属性値に、FTP で直に置いた名前（`"` を含むもの）が入ると属性が壊れうる。`& < > " '` を置き換える形に改め、名前に `'` と `&` を含むファイルとフォルダで、表示・選択・名前の変更・移動・削除を確かめた。
+
+2026-10-30 (M1): `api.php` の `lang()` は、`getSettings()` が管理ユーザーの `user_settings` を `config` に重ねるので、利用者ごとの `manager_language` で効く（システム設定は日本語のまま、利用者だけ英語にして確かめた）。ウェブユーザーのセッションや未ログインのエラーでは、システム設定の言語になる。
 
 ## Decision Log
 
@@ -24,7 +30,9 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 2026-10-30 (yamamoto/Claude): 右クリックメニュー（M2）は、コピー・切り取り・貼り付け（M3）より先にする。M3 の操作を入れる場所を M2 で用意できるため。M2 のメニューの中身は、今ある処理（選択・プレビュー・名前の変更・削除・移動）を呼ぶだけにする。
 
-2026-10-30 (yamamoto/Claude): 文言は管理画面の言語ファイル `manager/includes/lang/*.inc.php` に、`fb_` で始まるキーで足す。ファイルブラウザ専用の言語ファイルは作らない。今ある `lang()` と `getLexicon()`（利用者の言語を見て、足りないキーを英語で補う）がそのまま使えるため、言語を読む仕組みを 2 つにしないで済む。JS には、`browser.php` が `fb_` のキーだけを、すでにある `data-config` の JSON に入れて渡す。JS 側で言語ファイルを取りに行く API は作らない。
+2026-10-30 (yamamoto/Claude): 文言は管理画面の言語ファイル `manager/includes/lang/*.inc.php` に、`fb_` で始まるキーで足す。ファイルブラウザ専用の言語ファイルは作らない。今ある `lang()` と `getLexicon()`（利用者の言語を見て、足りないキーを英語で補う）がそのまま使えるため、言語を読む仕組みを 2 つにしないで済む。JS には、`browser.php` が JS で使うキーだけを、すでにある `data-config` の JSON に入れて渡す。JS 側で言語ファイルを取りに行く API は作らない。
+
+2026-10-30 (yamamoto/Claude): 既存の汎用キーと英日の文言が同じもの（`move`・`delete`・`cancel`・`close`・`preview`）は既存のキーを使い、`fb_` はファイルブラウザ固有の言い回しにだけ付ける。同じ単語を 2 か所に持つと、翻訳を直すときにずれるため（M1 の自己レビューで変更）。`fb_rename`（名前を変更）は既存の `rename`（リネーム）と文言が違うので分ける。
 
 2026-10-17 (yamamoto): 画像編集は Cropper.js を使わず自作する（Issue #678 のコメント）。パッケージを小さく保つため。書き出しは canvas の `drawImage` で行い、トリミング範囲のドラッグは `js/marquee.js` の矩形選択の考え方を流用する。自由な角度の回転とズームは作らない。
 
@@ -52,7 +60,7 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 PHP 側では、`browser.php` の画面の文言（見出しの `$labels`、検索欄のプレースホルダ、並べ替えの選択肢、ボタン、ダイアログの見出し、「読み込み中...」、ドロップの案内）を `lang('fb_…')` に置き換え、出力の直前で `hsc()` をかける。`api.php` の `fbError()` と、エラーの配列に入れる `message` も `lang('fb_err_…')` にする。`error.code` は変えない（JS や外部のコードが判定に使っているかもしれないため）。
 
-JS 側には `js/i18n.js` を新しく作る。この中に、`setMessages(obj)`（文言の表を受け取る）と `t(key, ...args)`（キーの文言を返す）を置く。`t()` は文言の中の `%s` を、引数で順に置き換える。PHP の言語ファイルの書き方と同じにするため。キーが無ければキーの名前を返す。`browser.php` は `fb_` で始まるキーのうち JS で使うものを `$jsConfig['lang']` に入れる。`filebrowser.js` の `init()` の最初で `setMessages(config.lang || {})` を呼ぶ。各モジュールの日本語の文字列は `t('fb_…')` にする。`innerHTML` に入れる箇所では、今と同じく `escapeHtml()` を通す（翻訳の文言に `<` や `&` が入ってもよいように）。
+JS 側には `js/i18n.js` を新しく作る。この中に、`setMessages(obj)`（文言の表を受け取る）と `t(key, ...args)`（キーの文言を返す）を置く。`t()` は文言の中の `%s` を、引数で順に置き換える。PHP の言語ファイルの書き方と同じにするため。キーが無ければキーの名前を返す。`browser.php` は JS で使うキーを `$jsConfig['lang']` に入れる。`filebrowser.js` の `init()` の最初で `setMessages(config.lang || {})` を呼ぶ。各モジュールの日本語の文字列は `t('fb_…')`（汎用のキーで足りるものは `t('delete')` など）にする。`innerHTML` に入れる箇所では、今と同じく `escapeHtml()` を通す（翻訳の文言に `<` や `&` が入ってもよいように）。
 
 キーの名前は `fb_` に続けて、短い英語で中身を表す（例: `fb_loading`、`fb_new_folder`、`fb_confirm_delete_file`、`fb_err_folder_not_found`）。件数や名前が入る文言は `%s` を使う（例: `fb_selected_count` => `'%s件選択中'` / `'%s selected'`）。「ファイル」と「フォルダ」で文が変わる確認文は、言語によって語順が違うため、キーを分ける（`fb_confirm_delete_file` と `fb_confirm_delete_folder`）。
 
@@ -109,10 +117,11 @@ M1 は次をすべて満たせば完了とする。
 
 ## Idempotence and Recovery
 
-各段階は 1 つの PR で閉じる。途中で止まったときは、その段階のブランチを main に合わせ直してやり直せる。言語ファイルにキーを足す作業は、同じキーがすでにあれば足さない（`grep -n "'fb_" manager/includes/lang/english.inc.php` で確かめる）。M3 以降で API に操作を足すときも、今ある操作の動きは変えない。どの段階で止めても、ファイルブラウザは使える状態のままになる。
+各段階は 1 つの PR で閉じる。途中で止まったときは、その段階のブランチを main に合わせ直してやり直せる。言語ファイルにキーを足す作業は、同じキーがすでにあれば足さない（`grep -n '"fb_' manager/includes/lang/english.inc.php` で確かめる）。M3 以降で API に操作を足すときも、今ある操作の動きは変えない。どの段階で止めても、ファイルブラウザは使える状態のままになる。
 
 ## Artifacts and Notes
 
+- ブランチ: `feat/678-filebrowser-i18n`（M1〜M5 で同じブランチと PR を使う）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
 - 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）

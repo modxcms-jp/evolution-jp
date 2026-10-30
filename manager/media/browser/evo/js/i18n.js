@@ -1,4 +1,4 @@
-// UI 文言の表。PHP(browser.php)が data-config の lang に入れた fb_ のキーを受け取り、t() で引く。
+// UI 文言の表。PHP(browser.php)が data-config の lang に入れた言語のキーを受け取り、t() で引く。
 // 文言中の %s は引数で順に置き換える(PHP の言語ファイルの書き方と同じ)。
 
 var messages = {};
