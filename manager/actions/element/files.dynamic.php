@@ -1216,7 +1216,8 @@ function normalize_path($path)
 /**
  * パスが、設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）そのもの、またはその配下なら true。
  * 存在しないパスは、存在する親までを realpath() で解決して判定する（シンボリックリンクで外へ出ない）。
- * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
+ * 許可する側の照合なので大文字小文字を区別して比べる（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
+ * 区別しないファイルシステムでも、realpath() が実在する側の表記に正規化する。
  */
 function is_within_filemanager_path($path)
 {
@@ -1225,8 +1226,7 @@ function is_within_filemanager_path($path)
     if ($base === false || $realpath === false) {
         return false;
     }
-    $base = strtolower(rtrim($base, '/'));
-    $realpath = strtolower($realpath);
+    $base = rtrim($base, '/');
     return $realpath === $base || strpos($realpath, $base . '/') === 0;
 }
 
