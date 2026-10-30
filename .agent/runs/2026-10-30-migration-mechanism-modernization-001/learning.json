@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-30-migration-mechanism-modernization",
+    "run_id": "2026-10-30-migration-mechanism-modernization-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-30T23:30:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "bad_assumption",
+            "summary": "「済んだ」を表す印（成功の最後に書く値など）を別の仕組みに置き換えるときは、古い印を書いていた位置と新しい印を書く位置を比べる。新しい印が前に移ると、後ろの必須の処理が失敗しても「済んだ」になる。今回は自己レビューで気付かず、外部のレビューで見つかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-002",
+            "kind": "missing_instruction",
+            "summary": "/run-issue・/run-plan・/finish-task・/next-task などは、スキルの SKILL.md の中の手順の名前で、Claude Code の入力欄からは呼べない（Unknown command になる）。人に案内するときは、`/exec-plan-runner finish-task 667` のようにスキル名から呼ぶか、言葉で頼む形にする",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "validation_gap",
+            "summary": "検証環境を起動する前のポートの確認（environment.md の ss -ltn）を飛ばして、mailpit の起動に失敗した。手順は文書にあるので、文書の変更は要らない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "low"
+        }
+    ]
+}

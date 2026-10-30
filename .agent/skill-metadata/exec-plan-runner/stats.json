@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 12,
-            "used_runs": 12,
-            "helped_runs": 12,
+            "seen_runs": 14,
+            "used_runs": 14,
+            "helped_runs": 14,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 8
+            "active_runs": 10
         },
         "change-004": {
             "seen_runs": 1,
@@ -116,6 +116,24 @@
             "stale_runs": 0,
             "last_used_at": "2026-10-25T21:30:00+09:00",
             "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        "change-013": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-30T23:30:00+09:00",
+            "source": "2026-10-30-migration-mechanism-modernization-001"
+        },
+        "change-014": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-10-30T23:30:00+09:00",
+            "source": "2026-10-30-migration-mechanism-modernization-001"
         }
     }
 }

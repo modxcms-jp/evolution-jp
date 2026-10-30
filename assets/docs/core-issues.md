@@ -77,7 +77,7 @@
 ## アップデーターの要素の入れ直しで、利用者の紐付けが戻る
 
 - **発見日**: 2026-10-26
-- **発見元**: マイグレーション機構の ExecPlan（`.agent/plans/2026-05-06-migration-mechanism-modernization.md`）の着手前の調査
+- **発見元**: マイグレーション機構の ExecPlan（`.agent/plans/archive/2026-10-30-migration-mechanism-modernization.md`）の着手前の調査
 - **ファイル**: `install/processors/prc_insPlugins.inc.php`（106 行）、`install/processors/prc_insTVs.inc.php`（61 行）
 - **課題**: アップデーターは、同梱プラグインのイベントの紐付け（`site_plugin_events`）と、同梱 TV のテンプレートの割り当て（`site_tmplvar_templates`）を、その要素の分をすべて消してから入れ直す。利用者が外したイベントや付け替えたテンプレートは、アップデートのたびに配布の状態へ戻る（推測。実際の動きは未確認）。
 - **改善案**: 新しく入れた要素だけ紐付けを作り、既にある要素は配布で増えたイベントだけを足す。外したかどうかを見分ける記録が要るかを先に調べる。

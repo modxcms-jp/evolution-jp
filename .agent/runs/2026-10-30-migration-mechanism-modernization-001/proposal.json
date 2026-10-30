@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-30-migration-mechanism-modernization",
+    "run_id": "2026-10-30-migration-mechanism-modernization-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-30T23:30:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-013",
+            "action": "add",
+            "target": ".agent/agents/reviewer.md（観点）",
+            "summary": "「済んだ」を表す印や判定を別の仕組みに置き換えた変更では、古い印を書いていた位置と新しい印を書く位置を比べ、後ろの必須の処理が失敗したときにも「済んだ」にならないかを確かめる",
+            "source_ref": "finding-001",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-014",
+            "action": "add",
+            "target": "SKILL.md（コマンド）と AGENTS.md（新タスク着手時のショートカット）",
+            "summary": "/run-issue・/run-plan・/finish-task はスキルの中の手順の名前で、入力欄からは直接呼べないと書く。呼び方は `/exec-plan-runner run-issue <番号>` のようにスキル名から呼ぶか、言葉で頼む（roadmap-manager の /next-task なども同じ）",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        }
+    ]
+}
