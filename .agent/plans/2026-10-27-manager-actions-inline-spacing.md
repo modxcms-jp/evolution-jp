@@ -8,7 +8,7 @@
 
 - [x] (2026-10-27) ExecPlan を作った。直書きの棚卸し（Context and Orientation の表）まで済み
 - [x] (2026-10-30) M1: 修正前の計測（7 テーマ × 17 画面 × 全タブ = 329 パネル）と、棚卸しの仕分けの確定。結果は `<work>/spacing/m1-base/`、消した場合の差は `<work>/spacing/probe/probe.json`
-- [ ] M2 の手順 0: 本人の確認（相談事項 1〜4）
+- [x] (2026-10-30) M2 の手順 0: 本人の確認（相談事項 1〜4。すべて推奨どおり。Decision Log を参照）
 - [ ] M2: 画面の HTML から直書きの余白を消し、6 テーマに決まりの規則を足す。RevoStyle には今の値を保つ規則を足す
 - [ ] M3: 通しの計測と、`theme-spacing.md` の例外と書き方の仕上げ
 
@@ -59,6 +59,11 @@ M1 の計測（2026-10-30、main の 90 コミット後の作業ツリー。検�
   - 対象外に足す: a=301 の `padding-top:8px`、`mutate_plugin` の `.split`。a=40・a=91 の `li` の中の `form` の `margin-top: 0.5em` と、a=10 の `ul.actionButtons` は相談事項 2 に回す
   - 根拠: M1 の計測（`<work>/spacing/probe/probe.json`）。相談事項の材料は Surprises & Discoveries と表
   - 代替案: `.tab-pane > ul.actionButtons` を前の兄弟の `margin-bottom` で作る案は、最後の `.tab-page` が非表示のとき当たらないので採らない
+- 2026-10-30 / yamamoto（本人）: M1 の確認。相談事項 1〜4 はすべて推奨どおりにする。
+  1. `sysinfo` の `.sectionBody` の `padding:10px 20px` は消し、テーマの内側の余白に任せる。a=95 の `margin:8px` も消す。RevoStyle は今の値を保つ
+  2. 対象外の仕分けは表のとおり（a=40・a=91 の `li` の中の `form` の `margin-top: 0.5em`、a=301 の `padding-top:8px`、`mutate_plugin` の `.split`、小さな `margin:0` 類）。a=10 の返信欄の `ul.actionButtons` は class `.messages-compose-actions` を付け、`margin-top: var(--space-3)` にする
+  3. エディタの帯の色と枠は別の Issue に分ける。この PR は帯の上の余白だけを扱う
+  4. 新しく付ける class は `.code-editor` と `.messages-compose-actions` だけにし、ほかは既存の `:has(+ X)` の並びを広げて作る。TV が無いときの文字は `<p>` で包む
 
 ## Outcomes & Retrospective
 
