@@ -87,7 +87,7 @@ return [
     "change_password_confirm" => 'Confirm password',
     "change_password_message" => 'Please enter your new password, and then enter it again to confirm. Your password needs to be between 6 and 32 characters long.',
     "change_password_new" => 'New password',
-    "charset_message" => 'Select the default character encoding for the [(modx_charset)] system variable. This does not affect the Manager.',
+    "charset_message" => 'The character encoding of the site, available as the [(modx_charset)] system variable. Only UTF-8 is supported.',
     "charset_title" => 'Character encoding',
     "chunk" => 'Chunk',
     "chunk_code" => 'Chunk code (html)',
