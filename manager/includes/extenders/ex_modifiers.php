@@ -16,6 +16,8 @@ class MODIFIERS
     public $srcValue;
     public $condition = [];
     public $condModifiers;
+    // モディファイアの部品（mdf_memberof・mdf_moduser）が 1 リクエストの間だけ使う結果の控え
+    public $cache = [];
 
     public $key;
     public $value;
@@ -501,8 +503,13 @@ class MODIFIERS
             sprintf('%sassets/modifiers/mdf_%s.inc.php', MODX_BASE_PATH, $cmd),
             sprintf('%sassets/modifiers/%s.php', MODX_BASE_PATH, $cmd),
             sprintf('%sassets/plugins/phx/modifiers%s.phx.php', MODX_BASE_PATH, $cmd),
-            sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd),
         ];
+        // 条件系のモディファイアは getValueFromPreset() で $this->condition に積む。
+        // コアの同名ファイル（mdf_memberof.inc.php など）は真偽を返す部品なので、
+        // 単独のスニペットとして動かすと条件が積まれず、then・else の条件式が空になる
+        if (!in_array($cmd, explode(',', $this->condModifiers), true)) {
+            $_[] = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
+        }
         foreach ($_ as $mdf_path) {
             if (is_file($mdf_path)) {
                 break;

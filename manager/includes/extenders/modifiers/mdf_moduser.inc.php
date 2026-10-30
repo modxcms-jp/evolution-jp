@@ -1,11 +1,11 @@
 <?php
 $userid = intval($value);
-if (!isset($modx->filter->cache['ui'][$userid])) {
-    if ($userid < 0) $user = $modx->getWebUserInfo(abs($userid));
+if (!isset($this->cache['ui'][$userid])) {
+    if ($userid < 0) $user = evo()->getWebUserInfo(abs($userid));
     else             $user = evo()->getUserInfo($userid);
-    $modx->filter->cache['ui'][$userid] = $user;
+    $this->cache['ui'][$userid] = $user;
 } else {
-    $user = $modx->filter->cache['ui'][$userid];
+    $user = $this->cache['ui'][$userid];
 }
 if (!is_array($user)) {
     return '';
