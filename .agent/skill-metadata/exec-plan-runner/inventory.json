@@ -95,6 +95,22 @@
             "added_at": "2026-10-25T21:30:00+09:00",
             "last_used_at": "2026-10-25T21:30:00+09:00",
             "source": "2026-10-25-theme-vertical-spacing-001"
+        },
+        {
+            "id": "change-013",
+            "location": ".agent/agents/reviewer.md（観点）",
+            "status": "adopted",
+            "added_at": "2026-10-30T23:30:00+09:00",
+            "last_used_at": "2026-10-30T23:30:00+09:00",
+            "source": "2026-10-30-migration-mechanism-modernization-001"
+        },
+        {
+            "id": "change-014",
+            "location": "SKILL.md（コマンド）と AGENTS.md（新タスク着手時のショートカット）",
+            "status": "adopted",
+            "added_at": "2026-10-30T23:30:00+09:00",
+            "last_used_at": "2026-10-30T23:30:00+09:00",
+            "source": "2026-10-30-migration-mechanism-modernization-001"
         }
     ]
 }

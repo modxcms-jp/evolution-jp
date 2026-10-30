@@ -121,7 +121,7 @@ rm -rf temp/logs/system/*
 
 1.0.0J・1.0.5J・1.0.6J・1.0.7J・1.0.10J・1.0.14J.r9・1.0.16J・1.0.17J・1.0.20J・1.0.26J・1.1.0J・1.2.0J・1.2.1J・1.2.2J・1.2.3J
 
-1.0.0J のフィクスチャと今の新規インストールの差は、ExecPlan `.agent/plans/2026-05-06-migration-mechanism-modernization.md` の Context「1.0.0J と今の最終形の差」の表と同じ項目になる。
+1.0.0J のフィクスチャと今の新規インストールの差は、ExecPlan `.agent/plans/archive/2026-10-30-migration-mechanism-modernization.md` の Context「1.0.0J と今の最終形の差」の表と同じ項目になる。
 
 ## フィクスチャのデータ
 

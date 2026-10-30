@@ -1,7 +1,7 @@
 # #667 マイグレーション機構の通しの検証（M7 前半）
 
 日付: 2026-10-26 / 対象: `refactor/667-migrations` HEAD 2514d8632 / 検証者: tester
-ExecPlan: `.agent/plans/2026-05-06-migration-mechanism-modernization.md` の「Validation and Acceptance」
+ExecPlan: `.agent/plans/archive/2026-10-30-migration-mechanism-modernization.md` の「Validation and Acceptance」
 
 ## 環境とコマンドの要点
 

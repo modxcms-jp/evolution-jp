@@ -176,5 +176,5 @@ M1 分類表（2026-10-12、手順 1 の grep で 65 行）
 - `DBAPI::update()` が文字列の「null」を SQL の NULL にしなくなる。文字列「NULL」で NULL を指示しているサードパーティのコードは、`null` を渡すよう直す必要がある。リリースノートに記載する。
 - `DBAPI::insert()` / `insert_ignore()` / `replace()` が、PHP の `null` を空文字ではなく SQL の NULL として保存するようになる。NOT NULL の列に `null` を渡しているサードパーティのコードはエラーになる。リリースノートに記載する。
 - `active_users.id` と `documentgroup_names.private_memgroup` / `private_webgroup` が NOT NULL になる。これらに `null` を書き込むサードパーティのコードはエラーになるので、`0` を渡すよう直す必要がある。リリースノートに記載する。
-- ロードマップの「マイグレーション機構」（`.agent/plans/2026-05-06-migration-mechanism-modernization.md`、未着手）が先に入った場合は、手順 5 の列の定義の変更を `install/sql/fix_settings.php` ではなく、そのマイグレーションファイルとして書く。
+- ロードマップの「マイグレーション機構」（`.agent/plans/archive/2026-10-30-migration-mechanism-modernization.md`）が先に入り、`install/sql/fix_settings.php` は無くなった。手順 5 の列の定義の変更は、マイグレーションファイル（`manager/includes/migrations/`、書き方は `assets/docs/migrations.md`）として書く。
 - ロードマップの「PDO移行」（#453）のフェーズ 2 と関係する。今回の規則（PHP の `null` だけが NULL）は、値のバインドに移っても変わらない。
