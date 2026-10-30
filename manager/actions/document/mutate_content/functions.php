@@ -1194,7 +1194,6 @@ function resizeImage($imageData, $mimeType, $dimensions)
     );
 
     if ($resize === null) {
-        imagedestroy($sourceImage);
         return $imageData;
     }
 
@@ -1210,17 +1209,15 @@ function resizeImage($imageData, $mimeType, $dimensions)
         $mimeType
     );
 
-    imagedestroy($sourceImage);
+    // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
+    unset($sourceImage);
 
     if ($resizedImage === false) {
         return null;
     }
 
     // 画像を出力
-    $output = outputImage($resizedImage, $mimeType);
-    imagedestroy($resizedImage);
-
-    return $output;
+    return outputImage($resizedImage, $mimeType);
 }
 
 /**
@@ -1305,7 +1302,6 @@ function createResizedImage($sourceImage, $finalWidth, $finalHeight, $originalWi
     );
 
     if (!$success) {
-        imagedestroy($resizedImage);
         return false;
     }
 

@@ -3055,14 +3055,8 @@ class DocumentParser
 
     private function processBufferedError($type, array $errorInfo, $echo)
     {
-        $deprecatedTypes = [];
-        if (defined('E_STRICT')) {
-            $deprecatedTypes[] = E_STRICT;
-        }
-        if (defined('E_DEPRECATED')) {
-            $deprecatedTypes[] = E_DEPRECATED;
-        }
-        $errorSeverity = in_array($errorInfo['type'], $deprecatedTypes, true) ? 2 : 3;
+        // E_STRICT は PHP 8.4 で参照するだけで非推奨の通知が出る（PHP 7 以降は発生しない）ため扱わない
+        $errorSeverity = $errorInfo['type'] === E_DEPRECATED ? 2 : 3;
 
         if ($this->error_reporting > 1 || $errorSeverity > 2) {
             if ($echo === false) {
@@ -6160,8 +6154,6 @@ class DocumentParser
                 $rs = imagegif($new_image, $target_path);
                 break;
         }
-
-        imagedestroy($new_image);
 
         if (!$rs) {
             return false;
