@@ -476,9 +476,6 @@ function ls($curpath)
         echo 'Invalid path "', hsc($curpath), '"<br />';
         return;
     }
-    $editablefiles = add_dot(
-        explode(',', 'txt,php,tpl,shtml,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
-    );
     $uploadablefiles = add_dot(uploadablefiles());
     $inlineviewablefiles = add_dot(
         explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess,sample' . config('alias_suffix'))
@@ -609,7 +606,7 @@ function ls($curpath)
             } else {
                 $files_array[$filecounter]['unzip'] = '';
             }
-            if (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) {
+            if (is_editable_file($newpath) && is_writable($curpath) && is_writable($newpath)) {
                 $files_array[$filecounter]['edit'] = sprintf(
                     '<span style="width:20px;"><a href="index.php?a=31&mode=save&path=%s#file_editfile"><img src="%s" align="absmiddle" alt="%s" title="%s" /></a></span> ',
                     urlencode($newpath),
@@ -702,6 +699,18 @@ function getExtension($string)
         $ext = false;
     }
     return $ext;
+}
+
+/**
+ * 一覧で「編集できる」と扱う拡張子のファイルか。一覧の編集アイコンとテキストの保存で同じ判定を使う。
+ * 拡張子だけの名前（.htaccess）は、その名前全体を拡張子として照合する。拡張子の無い名前は編集できない。
+ */
+function is_editable_file($path)
+{
+    $editablefiles = add_dot(
+        explode(',', 'txt,php,tpl,shtml,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
+    );
+    return in_array(getExtension($path), $editablefiles, true);
 }
 
 /**
@@ -1051,9 +1060,8 @@ function textsave()
     if (!is_file(postv('path'))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
     }
-    // 拡張子は、アップロード・新規作成・zip の展開と同じ許可リストで確かめる
-    $path = str_replace('\\', '/', postv('path'));
-    if (!checkExtension(substr($path, strrpos($path, '/') + 1))) {
+    // 一覧で編集アイコンを出す種類（is_editable_file()）のファイルだけ保存する
+    if (!is_editable_file(postv('path'))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('files_filetype_notok') . '</b></span><br /><br />';
     }
     logFileChange('modify', postv('path'));
