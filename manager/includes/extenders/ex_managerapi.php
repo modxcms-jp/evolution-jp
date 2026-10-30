@@ -66,6 +66,47 @@ class ManagerAPI
         return false;
     }
 
+    /**
+     * 要素（チャンク・スニペット・テンプレート・TV・プラグイン・モジュール）の名前を正規化する。
+     * 前後の半角空白・改行と全角スペースを落とす
+     *
+     * @param mixed $name
+     * @return string
+     */
+    public function normalizeElementName($name): string
+    {
+        if (!is_string($name)) {
+            return '';
+        }
+        return (string)preg_replace('/^[\s\x{3000}]+|[\s\x{3000}]+$/u', '', $name);
+    }
+
+    /**
+     * 要素の保存で、正規化した名前を返す。空なら保存せず、入力を残して新規・編集の画面へ差し戻して終了する
+     *
+     * @param mixed $name 送信された名前
+     * @param string $typeLabel 種別名（$_lang['chunk'] など）
+     * @param int $newAction 新規作成画面のアクション番号
+     * @param int $editAction 編集画面のアクション番号（id を付けて戻す）
+     * @param int $id 編集対象の id（新規は 0）
+     * @return string
+     */
+    public function requireElementName($name, $typeLabel, $newAction, $editAction, $id = 0): string
+    {
+        $name = $this->normalizeElementName($name);
+        if ($name !== '') {
+            return $name;
+        }
+        global $_lang;
+        $isEdit = (bool)$id;
+        $this->saveFormValues($isEdit ? $editAction : $newAction);
+        evo()->webAlertAndQuit(
+            sprintf($_lang['element_name_required'], $typeLabel),
+            $isEdit ? "index.php?a={$editAction}&id=" . (int)$id : "index.php?a={$newAction}"
+        );
+        exit;
+    }
+
     // saved form post from $_POST
     public function saveFormValues($id = 0)
     {

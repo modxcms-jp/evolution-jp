@@ -12,7 +12,7 @@ if (postv('mode') == 16 && !$id) {
     alert()->dumpError();
 }
 
-$templatename = db()->escape(trim(postv('templatename')));
+$templatename = db()->escape(manager()->requireElementName(postv('templatename'), $_lang['template'], 19, 16, $id));
 $description = db()->escape(postv('description', ''));
 $parent = post_intvar('parent');
 
@@ -34,9 +34,6 @@ if (empty(postv('newcategory')) && postv('categoryid') > 0) {
     }
 }
 
-if ($templatename == '') {
-    $templatename = "Untitled template";
-}
 
 $field = [];
 $field['templatename'] = $templatename;

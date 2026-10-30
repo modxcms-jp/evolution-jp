@@ -13,7 +13,7 @@ if (postv('mode') == 102 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(trim(postv('name')));
+$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['plugin'], 101, 102, $id));
 $description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? '1' : '0';
 $plugincode = db()->escape(postv('post', ''));
@@ -44,9 +44,6 @@ if (!postv('newcategory') && postv('categoryid') > 0) {
     }
 }
 
-if ($name == '') {
-    $name = 'Untitled plugin';
-}
 
 switch (postv('mode')) {
     case '101':
