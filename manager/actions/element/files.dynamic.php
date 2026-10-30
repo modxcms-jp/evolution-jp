@@ -242,21 +242,31 @@ foreach ($requested_paths as $requested_path) {
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
             $failed = [];
-            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $failed);
+            $skipped = [];
+            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $failed, $skipped);
             if (!$err) {
                 echo sprintf(
                     '<span class="warning"><b>%s%s</b></span><br /><br />',
                     lang('file_unzip_fail'),
                     $err === 0 ? 'Missing zip library (php_zip.dll / zip.so)' : ''
                 );
-            } elseif ($failed) {
-                echo sprintf(
-                    '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
-                    lang('file_unzip_entry_failed'),
-                    implode('<br />', array_map('hsc', $failed))
-                );
             } else {
-                echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                if ($failed) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_entry_failed'),
+                        implode('<br />', array_map('hsc', $failed))
+                    );
+                } else {
+                    echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                }
+                if ($skipped) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_skipped'),
+                        implode('<br />', array_map('hsc', $skipped))
+                    );
+                }
             }
         }
         // End Unzip - Raymond
@@ -410,7 +420,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
         <div class="sectionBody">
             <?php
             $filename = anyv('path');
-            $buffer = file_get_contents($filename);
+            $buffer = is_file($filename) ? file_get_contents($filename) : false;
 
             // Log the change
             logFileChange('view', $filename);
@@ -696,6 +706,11 @@ function getExtension($string)
     return $ext;
 }
 
+/**
+ * 名前の拡張子が、アップロードを許している拡張子（uploadablefiles()）に含まれるかを返す。
+ * アップロード・新しいファイルの作成・zip の展開で同じ基準を使う。
+ * 名前は sanitizeFilename() を通した後のものを渡す。大文字小文字は区別せず、拡張子の無い名前は許さない。
+ */
 function checkExtension($path = '')
 {
     $uploadablefiles = add_dot(uploadablefiles());
@@ -747,9 +762,17 @@ function logFileChange($type, $filename)
     $action = 1;
 }
 
-// by patrick_allaert - php user notes
-// 展開できなかったエントリ（展開先からの相対パス）は $failed に加える
-function unzip($file, $path, &$failed = [])
+/**
+ * zip を展開する。by patrick_allaert - php user notes
+ * ファイルのエントリは、アップロードと同じ拡張子の許可リスト（checkExtension()）で確かめ、
+ * 許されていないものは展開せずに $skipped へ加える（名前の重なりの確かめより先に飛ばすので、名前を取らない）。
+ * フォルダーのエントリは確かめない。
+ *
+ * @param array $failed 展開できなかったエントリ（展開先からの相対パス）を加える
+ * @param array $skipped 拡張子が許されていないため展開しなかったエントリ（展開先からの相対パス）を加える
+ * @return bool|int 展開できたら true、zip を開けない・展開先が保護対象なら false、zip 拡張が無ければ 0
+ */
+function unzip($file, $path, &$failed = [], &$skipped = [])
 {
     // added by Raymond
     if (!extension_loaded('zip')) {
@@ -783,6 +806,13 @@ function unzip($file, $path, &$failed = [])
         }
         // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
         $is_dir_entry = substr(str_replace('\\', '/', $zip_entry_name), -1) === '/';
+        // 拡張子は、無害化した後の名前の最後の要素で確かめる。飛ばすエントリは、次の名前の割り当てに加えない
+        $slash_pos = strrpos($relative_name, '/');
+        $entry_filename = $slash_pos === false ? $relative_name : substr($relative_name, $slash_pos + 1);
+        if (!$is_dir_entry && !checkExtension($entry_filename)) {
+            $skipped[] = $relative_name;
+            continue;
+        }
         // 無害化で、この zip で先に展開したファイル・フォルダーと名前が重なったときは上書きせず、(1) などを付けた名前にする
         $complete_name = $path . unzip_unique_path($path, $relative_name, $is_dir_entry, $assigned);
         $complete_path = $is_dir_entry ? $complete_name : dirname($complete_name);
@@ -1019,6 +1049,10 @@ function fileupload()
 
 function textsave()
 {
+    // 保存は既にあるファイルの編集だけにする（新しいファイルは newfile で、拡張子を確かめて作る）
+    if (!is_file(postv('path'))) {
+        return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
+    }
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.

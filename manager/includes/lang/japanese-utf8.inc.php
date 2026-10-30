@@ -349,6 +349,7 @@ return [
     "file_unzip" => '解凍しました。',
     "file_unzip_entry_failed" => '解凍しましたが、次のファイル・フォルダーは展開できませんでした。',
     "file_unzip_fail" => '解凍できません。',
+    "file_unzip_skipped" => '次のファイルは、アップロードできない種類のため展開しませんでした。',
     "filemanager_path_message" => '<a href="index.php?a=31">「ファイル管理」</a>で扱える範囲を決定します。コンテンツ編集に利用するファイルブラウザと違い、同じサーバ内で権限を持つ領域であればどのディレクトリでも管理できます。ドキュメントルート外の指定も可能です。',
     "filemanager_path_title" => 'ファイル管理機能の<br />管理対象ディレクトリ<br />[(filemanager_path)]',
     "export_dir_message" => 'HTMLエクスポートの出力先ディレクトリです。ここで指定したディレクトリに静的なHTMLファイルを書き出します。出力の開始時に中身を消すため、temp/ ディレクトリの中（temp/ そのものは不可）だけを指定できます。',

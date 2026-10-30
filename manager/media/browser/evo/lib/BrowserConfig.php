@@ -78,6 +78,26 @@ class BrowserConfig
         return array_values(array_filter(array_map('trim', explode(',', $value))));
     }
 
+    /**
+     * 名前の拡張子が、この種別で許している拡張子（allowedExtensions()）に含まれるかを返す。
+     * アップロードと名前の変更で同じ基準を使うため、ここで確かめる。
+     * 名前は DocumentParser::sanitizeFilename() を通した後のものを渡す。大文字小文字は区別せず、拡張子の無い名前は許さない。
+     *
+     * @param string $type images / media / files
+     * @param string $name ファイル名（ディレクトリを含まない）
+     * @return bool
+     */
+    public function isAllowedFilename($type, $name)
+    {
+        $name = (string) $name;
+        $dotPos = strrpos($name, '.');
+        if ($dotPos === false) {
+            return false;
+        }
+
+        return in_array(strtolower(substr($name, $dotPos + 1)), $this->allowedExtensions($type), true);
+    }
+
     public function maxUploadSize()
     {
         $size = $this->modx->config('upload_maxsize');

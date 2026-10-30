@@ -97,7 +97,7 @@ switch ($action) {
 
     case 'rename':
         checkCsrfToken();
-        fbActionRename($resolver, $modx, $type);
+        fbActionRename($resolver, $config, $modx, $type);
         break;
 
     case 'delete':
@@ -266,7 +266,6 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
         fbError('no_files', 'アップロードするファイルがありません。', 400);
     }
 
-    $allowedExt = $config->allowedExtensions($type);
     $maxSize = $config->maxUploadSize();
 
     $uploaded = [];
@@ -285,9 +284,7 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
 
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
-        $dotPos = strrpos($safeName, '.');
-        $ext = $dotPos === false ? '' : strtolower(substr($safeName, $dotPos + 1));
-        if (!in_array($ext, $allowedExt, true)) {
+        if (!$config->isAllowedFilename($type, $safeName)) {
             $errors[] = ['name' => $originalName, 'message' => '許可されていない拡張子です。'];
             continue;
         }
@@ -299,6 +296,7 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
 
         // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
         // 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
+        $dotPos = strrpos($safeName, '.');
         $baseName = substr($safeName, 0, $dotPos);
         $extension = substr($safeName, $dotPos);
         $targetPath = null;
@@ -367,7 +365,7 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
     fbSendJson(['name' => $name]);
 }
 
-function fbActionRename(PathResolver $resolver, DocumentParser $modx, $type)
+function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentParser $modx, $type)
 {
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
@@ -385,6 +383,10 @@ function fbActionRename(PathResolver $resolver, DocumentParser $modx, $type)
     $sourcePath = $dir['real'] . $target;
     if (!file_exists($sourcePath)) {
         fbError('not_found', fbNotFoundMessage($target, '対象が見つかりません。'), 404);
+    }
+    // ファイルの名前は、アップロードと同じ拡張子の許可リストで確かめる（フォルダーは確かめない）
+    if (!is_dir($sourcePath) && !$config->isAllowedFilename($type, $newName)) {
+        fbError('invalid_extension', '許可されていない拡張子です。', 400);
     }
 
     $destPath = $dir['real'] . $newName;
