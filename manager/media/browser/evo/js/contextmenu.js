@@ -11,6 +11,10 @@ export function createContextMenu(ctx) {
     menuEl.className = 'evo-fb-contextmenu';
     menuEl.setAttribute('role', 'menu');
     menuEl.hidden = true;
+    // メニューの上での右クリック・Shift+F10 で、ブラウザ標準のメニューを重ねない
+    menuEl.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
     ctx.rootEl.appendChild(menuEl);
 
     var returnFocusEl = null;
@@ -90,8 +94,8 @@ export function createContextMenu(ctx) {
     /**
      * @param {number} x - 画面上の X(clientX)
      * @param {number} y - 画面上の Y(clientY)
-     * @param {string} label - メニューの aria-label(右クリックした対象の名前など)
      * @param {{label: string, onSelect: () => void, danger?: boolean}[]} items
+     * @param {string} label - メニューの aria-label(右クリックした対象の名前など)
      */
     function open(x, y, items, label) {
         close(false);

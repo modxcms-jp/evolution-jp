@@ -389,7 +389,13 @@ function init() {
             x = rect.left + 8;
             y = rect.top + 8;
         }
-        contextMenu.open(x, y, contextMenuItems(itemEl), itemEl ? itemEl.getAttribute('data-name') : t('fb_context_menu'));
+        var items = contextMenuItems(itemEl);
+        var label = t('fb_context_menu');
+        if (itemEl) {
+            var isMulti = itemEl.getAttribute('data-kind') === 'file' && state.selection.size > 1;
+            label = isMulti ? t('fb_selected_count', state.selection.size) : itemEl.getAttribute('data-name');
+        }
+        contextMenu.open(x, y, items, label);
     });
 
     tree.renderRoot();
