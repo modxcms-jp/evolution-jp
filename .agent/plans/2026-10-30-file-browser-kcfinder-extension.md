@@ -121,7 +121,7 @@ M1 は次をすべて満たせば完了とする。
 
 ## Artifacts and Notes
 
-- ブランチ: `feat/678-filebrowser-i18n`（M1〜M5 で同じブランチと PR を使う）
+- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（下書き。M1〜M5 で同じブランチと PR を使う）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
 - 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）
