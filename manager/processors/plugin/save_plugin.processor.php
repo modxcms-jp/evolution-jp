@@ -44,7 +44,6 @@ if (!postv('newcategory') && postv('categoryid') > 0) {
     }
 }
 
-
 switch (postv('mode')) {
     case '101':
 

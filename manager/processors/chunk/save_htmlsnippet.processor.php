@@ -74,7 +74,7 @@ function entity($key, $default = null)
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
-manager()->requireElementName(postv('name'), $_lang['chunk'], 77, 78, postv('mode') == 78 ? $id : 0);
+manager()->requireElementName(postv('name'), $_lang['chunk'], 77, 78, $id);
 
 switch (postv('mode')) {
     case '77':

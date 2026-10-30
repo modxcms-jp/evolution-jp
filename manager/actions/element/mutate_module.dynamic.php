@@ -60,6 +60,17 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $_SESSION['itemname'] = 'New Module';
     $content['wrap'] = '1';
 }
+
+// 名前の検証で差し戻されたときは、送信した入力を重ねる
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
+    $form_v['modulecode'] = $form_v['post'] ?? '';
+    $form_v['category'] = $form_v['categoryid'] ?? 0;
+    foreach (['disabled', 'wrap', 'locked', 'enable_resource', 'enable_sharedparams'] as $checkbox) {
+        $form_v[$checkbox] = ($form_v[$checkbox] ?? '') === 'on' ? 1 : 0;
+    }
+    $content = array_merge($content, $form_v);
+}
 $modx->moduleObject = $content;
 
 function content($key, $default = null)

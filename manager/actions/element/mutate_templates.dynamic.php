@@ -409,9 +409,11 @@ function getParentValues($parent)
 function template($key, $default = null)
 {
     static $tplObject = [];
-    if (isset($tplObject[$key])) {
-        return $tplObject[$key];
+    static $loaded = false;
+    if ($loaded) {
+        return evo()->array_get($tplObject, $key, $default);
     }
+    $loaded = true;
     if (get_intvar('id')) {
         $rs = db()->select('*', '[+prefix+]site_templates', "id='" . get_intvar('id') . "'");
         $total = db()->count($rs);
@@ -431,6 +433,14 @@ function template($key, $default = null)
         $_SESSION['itemname'] = 'New template';
     }
     $tplObject = array_merge($tplObject, $_POST);
+    // 名前の検証で差し戻されたときは、送信した入力を重ねる
+    if (manager()->hasFormValues()) {
+        $form_v = manager()->loadFormValues();
+        if (isset($form_v['categoryid'])) {
+            $form_v['category'] = $form_v['categoryid'];
+        }
+        $tplObject = array_merge($tplObject, $form_v);
+    }
     return evo()->array_get($tplObject, $key, $default);
 }
 

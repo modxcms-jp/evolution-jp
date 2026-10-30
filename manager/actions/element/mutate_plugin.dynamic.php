@@ -51,6 +51,17 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     $_SESSION['itemname'] = 'New Plugin';
 }
 
+// 名前の検証で差し戻されたときは、送信した入力を重ねる
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
+    $form_v['plugincode'] = $form_v['post'] ?? '';
+    $form_v['category'] = $form_v['categoryid'] ?? 0;
+    foreach (['disabled', 'locked'] as $checkbox) {
+        $form_v[$checkbox] = ($form_v[$checkbox] ?? '') === 'on' ? 1 : 0;
+    }
+    $content = array_merge($content, $form_v);
+}
+
 function entity($key, $default = null)
 {
     global $content;

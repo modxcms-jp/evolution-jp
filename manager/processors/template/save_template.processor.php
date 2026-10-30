@@ -34,7 +34,6 @@ if (empty(postv('newcategory')) && postv('categoryid') > 0) {
     }
 }
 
-
 $field = [];
 $field['templatename'] = $templatename;
 $field['description'] = $description;
