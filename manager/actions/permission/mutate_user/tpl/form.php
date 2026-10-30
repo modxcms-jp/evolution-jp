@@ -19,8 +19,8 @@
     }
 </style>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= evo()->input_get('a') ?>">
-    <input type="hidden" name="userid" value="<?= evo()->input_get('id') ?>">
+    <input type="hidden" name="mode" value="<?= (int)evo()->input_get('a') ?>">
+    <input type="hidden" name="userid" value="<?= (int)evo()->input_get('id') ?>">
     <input type="hidden" name="blockedmode" value="<?= blockedmode($user) ?>"/>
     <h1><?= lang('user_title') ?></h1>
     <div id="actions">

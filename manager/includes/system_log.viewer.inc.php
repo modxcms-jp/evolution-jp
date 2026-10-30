@@ -452,15 +452,7 @@ class SystemLogViewer
         }
 
         if (is_string($value)) {
-            if (function_exists('mb_convert_encoding')) {
-                return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
-            }
-            if (function_exists('iconv')) {
-                $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
-                if ($converted !== false) {
-                    return $converted;
-                }
-            }
+            return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
         }
 
         return $value;

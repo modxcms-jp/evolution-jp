@@ -24,7 +24,7 @@
             <td colspan="2">
                 <img src="<?= style('icons_user') ?>"/>
                 &nbsp;
-                <b><?= user('oldusername', user('username')) ?></b>
+                <b><?= hsc(user('oldusername', user('username'))) ?></b>
                 -
                 <span class="comment">
                 <a

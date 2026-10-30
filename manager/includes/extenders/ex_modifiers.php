@@ -16,6 +16,8 @@ class MODIFIERS
     public $srcValue;
     public $condition = [];
     public $condModifiers;
+    // モディファイアの部品（mdf_memberof・mdf_moduser）が 1 リクエストの間だけ使う結果の控え
+    public $cache = [];
 
     public $key;
     public $value;
@@ -29,9 +31,7 @@ class MODIFIERS
             $modx->config = $modx->getSiteCache();
         }
 
-        if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
-        }
+        mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
@@ -239,35 +239,6 @@ class MODIFIERS
         return $value;
     }
 
-    /**
-     * 読み込みを許すファイルの実パスを返す。サイトのルート配下かつ管理画面配下でなければ許可。
-     * 不可（存在しない・サイト外・管理画面下）の場合は false。
-     */
-    private function resolveReadablePath($path)
-    {
-        if (!is_string($path) || $path === '' || strpos($path, "\0") !== false) {
-            return false;
-        }
-        $real = realpath($path);
-        $base = realpath(MODX_BASE_PATH);
-        $manager = realpath(MODX_MANAGER_PATH);
-        if ($real === false || $base === false) {
-            return false;
-        }
-        $real = str_replace('\\', '/', $real);
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-        if (strpos($real, $base) !== 0) {
-            return false;
-        }
-        if ($manager !== false) {
-            $manager = rtrim(str_replace('\\', '/', $manager), '/') . '/';
-            if (strpos($real, $manager) === 0) {
-                return false;
-            }
-        }
-        return $real;
-    }
-
     // Parser: modifier detection and eXtended processing if needed
     public function Filter($key, $value, $cmd, $opt = '')
     {
@@ -473,7 +444,6 @@ class MODIFIERS
             E_USER_ERROR => 'USER_ERROR',
             E_USER_WARNING => 'USER_WARNING',
             E_USER_NOTICE => 'USER_NOTICE',
-            E_STRICT => 'STRICT',
             E_RECOVERABLE_ERROR => 'RECOVERABLE_ERROR',
             E_DEPRECATED => 'DEPRECATED',
             E_USER_DEPRECATED => 'USER_DEPRECATED',
@@ -504,8 +474,13 @@ class MODIFIERS
             sprintf('%sassets/modifiers/mdf_%s.inc.php', MODX_BASE_PATH, $cmd),
             sprintf('%sassets/modifiers/%s.php', MODX_BASE_PATH, $cmd),
             sprintf('%sassets/plugins/phx/modifiers%s.phx.php', MODX_BASE_PATH, $cmd),
-            sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd),
         ];
+        // 条件系のモディファイアは getValueFromPreset() で $this->condition に積む。
+        // コアの同名ファイル（mdf_memberof.inc.php など）は真偽を返す部品なので、
+        // 単独のスニペットとして動かすと条件が積まれず、then・else の条件式が空になる
+        if (!in_array($cmd, explode(',', $this->condModifiers), true)) {
+            $_[] = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
+        }
         foreach ($_ as $mdf_path) {
             if (is_file($mdf_path)) {
                 break;
@@ -660,10 +635,12 @@ class MODIFIERS
                 if (strpos($path, MODX_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, MODX_BASE_PATH) === false) {
-                    $path = ltrim($path, '/');
+                // サイトの中のパスだけを見る（ファイルブラウザが返す URL エンコードした値も探せる）
+                $real = $cmd === 'is_dir' ? false : evo()->resolveSitePath($path);
+                if ($real === false && $cmd !== 'is_file') {
+                    $real = evo()->resolveSitePath($path, true);
                 }
-                $this->condition[] = (int)($cmd($path) !== false);
+                $this->condition[] = (int)($real !== false && $cmd($real) !== false);
                 break;
             case 'is_image':
                 if (!$opt) {
@@ -671,7 +648,8 @@ class MODIFIERS
                 } else {
                     $path = $opt;
                 }
-                if (!is_file($path)) {
+                $path = evo()->resolveSitePath($path);
+                if ($path === false) {
                     $this->condition[] = '0';
                     break;
                 }
@@ -1240,11 +1218,12 @@ class MODIFIERS
             // File system
             case 'getimageinfo':
             case 'imageinfo':
-                if (!is_file($value)) {
+                $path = evo()->resolveSitePath($value);
+                if ($path === false) {
                     return '';
                 }
-                $_ = getimagesize($value);
-                if (!$_[0]) {
+                $_ = getimagesize($path);
+                if (!$_ || !$_[0]) {
                     return '';
                 }
                 $info['width'] = $_[0];
@@ -1287,17 +1266,12 @@ class MODIFIERS
 
             case 'file_get_contents':
             case 'readfile':
-                if (!is_file($value)) {
-                    return $value;
+                $path = evo()->resolveSitePath($value);
+                if ($path === false) {
+                    // ファイルでない値はそのまま返す。サイトの外・管理画面の下などのファイルは読まない
+                    return is_file($value) ? '' : $value;
                 }
-                $value = realpath($value);
-                if (strpos($value, MODX_MANAGER_PATH) !== false) {
-                    exit('Can not read core file');
-                }
-                $value = $this->resolveReadablePath($value);
-                if ($value === false) {
-                    return '';
-                }
+                $value = $path;
                 $ext = strtolower(substr($value, -4));
                 if ($ext === '.php') {
                     exit('Can not read php file');
@@ -1311,21 +1285,17 @@ class MODIFIERS
                     return '';
                 }
                 $filename = $value;
-
-                if (strpos($filename, MODX_SITE_URL) === 0) {
-                    $filename = substr($filename, strlen(MODX_SITE_URL));
-                }
-                $filename = trim($filename, '/');
-
+                // フォルダーを指定したときは、値をそのフォルダーからの相対パスとみなす
                 $opt = trim($opt, '/');
                 if ($opt !== '') {
-                    $opt .= '/';
+                    if (strpos($filename, MODX_SITE_URL) === 0) {
+                        $filename = substr($filename, strlen(MODX_SITE_URL));
+                    }
+                    $filename = $opt . '/' . trim($filename, '/');
                 }
 
-                $filename = MODX_BASE_PATH . $opt . $filename;
-
-                $filename = $this->resolveReadablePath($filename);
-                if ($filename !== false && is_file($filename)) {
+                $filename = evo()->resolveSitePath($filename);
+                if ($filename !== false) {
                     clearstatcache();
                     return filesize($filename);
                 }
@@ -1584,9 +1554,6 @@ class MODIFIERS
         if ($l === null) {
             $l = $this->strlen($str);
         }
-        if (!function_exists('mb_substr')) {
-            return substr($str, $s, $l);
-        }
         if (strpos($str, "\r") !== false) {
             $str = str_replace(["\r\n", "\r"], "\n", $str);
         }
@@ -1595,9 +1562,6 @@ class MODIFIERS
 
     private function strpos($haystack, $needle, $offset = 0)
     {
-        if (!function_exists('mb_strpos')) {
-            return strpos($haystack, $needle, $offset);
-        }
         return mb_strpos(
             $haystack,
             $needle,
@@ -1608,9 +1572,6 @@ class MODIFIERS
 
     private function strlen($str)
     {
-        if (!function_exists('mb_strlen')) {
-            return strlen($str);
-        }
         return mb_strlen(
             str_replace("\r\n", "\n", $str),
             evo()->config('modx_charset', 'utf-8')
@@ -1619,25 +1580,16 @@ class MODIFIERS
 
     private function strtolower($str)
     {
-        if (!function_exists('mb_strtolower')) {
-            return strtolower($str);
-        }
         return mb_strtolower($str);
     }
 
     private function strtoupper($str)
     {
-        if (!function_exists('mb_strtoupper')) {
-            return strtoupper($str);
-        }
         return mb_strtoupper($str);
     }
 
     private function ucfirst($str)
     {
-        if (!function_exists('mb_strtoupper')) {
-            return ucfirst($str);
-        }
         return mb_strtoupper(
                 $this->substr(
                     $str,
@@ -1653,9 +1605,6 @@ class MODIFIERS
 
     private function lcfirst($str)
     {
-        if (!function_exists('mb_strtolower')) {
-            return lcfirst($str);
-        }
         return mb_strtolower(
                 $this->substr(
                     $str,
@@ -1671,9 +1620,6 @@ class MODIFIERS
 
     private function ucwords($str)
     {
-        if (!function_exists('mb_convert_case')) {
-            return ucwords($str);
-        }
         return mb_convert_case($str, MB_CASE_TITLE);
     }
 

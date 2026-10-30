@@ -22,21 +22,24 @@ class PathResolver
     }
 
     /**
-     * ファイル名/フォルダ名の1セグメントを無害化する。
-     * スラッシュ・null byte・親ディレクトリ参照を許さない単一セグメント名にする。
+     * 既にあるファイル・フォルダーを指す名前（パスの 1 要素）を確かめる。
+     * 名前は書き換えずにそのまま返し、要素として使えないものは空文字を返す。
+     * - / \ NUL を含むもの（複数の要素にまたがる名前）
+     * - ドットと空白だけのもの（. や .. など。Windows では末尾のドット・空白が落ちて .. と同じになる）
+     * 名前の途中の .. （v1..2 など）はそのままの名前として扱う（作る側の sanitizeFilename() と揃える）。
      */
     public static function sanitizeSegment($value)
     {
-        $value = str_replace("\0", '', (string) $value);
-        $value = str_replace('\\', '/', $value);
-
-        while (strpos($value, '..') !== false) {
-            $value = str_replace('..', '', $value);
+        $value = (string) $value;
+        if (strpbrk($value, "/\\\0") !== false) {
+            return '';
+        }
+        $value = trim($value);
+        if (trim($value, '. ') === '') {
+            return '';
         }
 
-        $value = str_replace('/', '', $value);
-
-        return trim($value);
+        return $value;
     }
 
     /**
@@ -49,14 +52,15 @@ class PathResolver
     {
         $segments = [$type];
         foreach (explode('/', str_replace('\\', '/', (string) $folder)) as $segment) {
-            $segment = trim($segment);
-            if ($segment === '' || $segment === '.' || $segment === '..') {
+            if ($segment === '' || $segment === '.') {
                 continue;
             }
+            // .. などは、飛ばすと別のフォルダーを指してしまうため、見つからない扱いにする
             $clean = self::sanitizeSegment($segment);
-            if ($clean !== '') {
-                $segments[] = $clean;
+            if ($clean === '') {
+                return null;
             }
+            $segments[] = $clean;
         }
 
         $rel = implode('/', $segments);

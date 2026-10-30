@@ -770,12 +770,21 @@ class EvoSiteExporter
             ],
         ]);
         error_clear_last();
-        $body = @file_get_contents($url, false, $context);
+        $body = false;
+        $headers = [];
+        $fp = @fopen($url, 'rb', false, $context);
+        if ($fp !== false) {
+            // 応答ヘッダーはストリームのメタデータから読む（$http_response_header は PHP 8.5 で非推奨）
+            $meta = stream_get_meta_data($fp);
+            $headers = is_array($meta['wrapper_data'] ?? null) ? $meta['wrapper_data'] : [];
+            $body = stream_get_contents($fp);
+            fclose($fp);
+        }
         $status = 0;
         $location = '';
         $length = null;
-        if (!empty($http_response_header) && is_array($http_response_header)) {
-            foreach ($http_response_header as $line) {
+        if ($headers) {
+            foreach ($headers as $line) {
                 if (preg_match('@^HTTP/\S+\s+(\d{3})@', $line, $m)) {
                     $status = (int)$m[1];
                 } elseif (preg_match('@^Location:\s*(.+)$@i', $line, $m)) {
@@ -788,7 +797,7 @@ class EvoSiteExporter
         $error = '';
         if ($body === false && $status < 400) {
             $last = error_get_last();
-            $error = $last ? trim(preg_replace('@^file_get_contents\([^)]*\):\s*@', '', $last['message'])) : '';
+            $error = $last ? trim(preg_replace('@^fopen\([^)]*\):\s*@', '', $last['message'])) : '';
         } elseif ($body !== false && $status < 400 && $length !== null && strlen($body) < $length) {
             // 本文の途中で切れた（PHP は途中までを返す）
             $error = 'transfer closed with ' . ($length - strlen($body)) . ' bytes remaining to read';

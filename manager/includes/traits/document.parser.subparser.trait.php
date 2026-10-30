@@ -155,11 +155,7 @@ trait DocumentParserSubParserTrait
         }
 
         $title = (string)$title;
-        if (function_exists('mb_substr')) {
-            $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
-        } else {
-            $title = substr($title, 0, 100);
-        }
+        $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
 
         $levelMap = [
             1 => EvoLogger::INFO,
@@ -602,7 +598,9 @@ trait DocumentParserSubParserTrait
         } else {
             echo 'Error';
         }
-        ob_end_flush();
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
 
         exit;
     }
@@ -2540,6 +2538,50 @@ trait DocumentParserSubParserTrait
         $cache = new synccache();
         $cache->setCacheRefreshTime($unixtime);
         $cache->publishBasicConfig();
+    }
+
+    /*
+     * TV の値などで受け取った、サイトの中のファイル（$isDir なら フォルダー）を指すパスか URL を実パスにする。
+     * - サイトの URL（MODX_SITE_URL）や MODX_BASE_URL で始まる値は、その部分を除いてサイトのルートからのパスとみなす
+     * - サイトのルートの絶対パス（MODX_BASE_PATH で始まる値）はそのまま使う。それ以外はサイトのルートからの相対パス
+     * - ほかのホストの URL は扱わない
+     * ファイルブラウザが返す値は名前を URL エンコードしているため、まずそのままの値で探し、
+     * 無ければ rawurldecode() した値で探す（% を含む昔の名前を壊さないよう、そのままの値を先にする）。
+     * 場所の確かめは resolveBindFilePath() / resolveBindDirPath() と同じ（サイトのルートの下で、管理画面の下・読まない場所ではない）。
+     */
+    function resolveSitePath($value, $isDir = false)
+    {
+        $value = str_replace('\\', '/', trim((string) $value));
+        if ($value === '' || strpos($value, "\0") !== false) {
+            return false;
+        }
+
+        $base = str_replace('\\', '/', MODX_BASE_PATH);
+        if (strpos($value, MODX_SITE_URL) === 0) {
+            $value = $base . ltrim(substr($value, strlen(MODX_SITE_URL)), '/');
+        } elseif (strpos($value, $base) !== 0) {
+            if (strpos($value, '//') === 0 || preg_match('@^[a-z][a-z0-9+.\-]*:@i', $value)) {
+                return false;
+            }
+            if (MODX_BASE_URL !== '' && strpos($value, MODX_BASE_URL) === 0) {
+                $value = substr($value, strlen(MODX_BASE_URL));
+            }
+            $value = $base . ltrim($value, '/');
+        }
+
+        $candidates = [$value];
+        $decoded = rawurldecode($value);
+        if ($decoded !== $value) {
+            $candidates[] = $decoded;
+        }
+        foreach ($candidates as $candidate) {
+            $real = $isDir ? $this->resolveBindDirPath($candidate) : $this->resolveBindFilePath($candidate);
+            if ($real !== false) {
+                return $real;
+            }
+        }
+
+        return false;
     }
 
     /*

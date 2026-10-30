@@ -195,7 +195,7 @@ if (id()) {
                                 <input name="newcategory"
                                     type="text"
                                     maxlength="45"
-                                    value="<?= template('newcategory', '') ?>"
+                                    value="<?= hsc(template('newcategory', '')) ?>"
                                     class="inputBox" style="width:300px;">
                             </td>
                         </tr>

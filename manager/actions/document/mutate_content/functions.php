@@ -718,7 +718,7 @@ function getJScripts($docid)
     $browser_url = MODX_BASE_URL . 'manager/media/browser/evo/browser.php';
     $ph['imanager_url'] = config('imanager_url', $browser_url . '?type=images');
     $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?type=files');
-    $ph['preview_url'] = evo()->makeUrl($docid, '', '', 'full', true);
+    $ph['preview_url'] = js_literal(evo()->makeUrl($docid, '', '', 'full', true));
     $ph['preview_mode'] = config('preview_mode', 1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
@@ -1194,7 +1194,6 @@ function resizeImage($imageData, $mimeType, $dimensions)
     );
 
     if ($resize === null) {
-        imagedestroy($sourceImage);
         return $imageData;
     }
 
@@ -1210,17 +1209,15 @@ function resizeImage($imageData, $mimeType, $dimensions)
         $mimeType
     );
 
-    imagedestroy($sourceImage);
+    // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
+    unset($sourceImage);
 
     if ($resizedImage === false) {
         return null;
     }
 
     // 画像を出力
-    $output = outputImage($resizedImage, $mimeType);
-    imagedestroy($resizedImage);
-
-    return $output;
+    return outputImage($resizedImage, $mimeType);
 }
 
 /**
@@ -1305,7 +1302,6 @@ function createResizedImage($sourceImage, $finalWidth, $finalHeight, $originalWi
     );
 
     if (!$success) {
-        imagedestroy($resizedImage);
         return false;
     }
 

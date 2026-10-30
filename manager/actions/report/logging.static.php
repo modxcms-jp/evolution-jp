@@ -112,9 +112,9 @@ $icons_path = manager_style_image_path('icons');
                                         $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
-                                            $row['itemid'],
+                                            hsc($row['itemid']),
                                             $selectedtext,
-                                            $row['itemid']
+                                            hsc($row['itemid'])
                                         );
                                     }
                                     ?>
@@ -132,9 +132,9 @@ $icons_path = manager_style_image_path('icons');
                                     foreach ($logs_names as $row) {
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
-                                            $row['itemname'],
+                                            hsc($row['itemname']),
                                             $row['itemname'] == getv('itemname') ? ' selected="selected"' : '',
-                                            $row['itemname']
+                                            hsc($row['itemname'])
                                         );
                                     }
                                     ?>
@@ -225,24 +225,25 @@ $icons_path = manager_style_image_path('icons');
                     $where[] = sprintf('action=%d', (int)getv('action'));
                 }
                 if (getv('itemid') || getv('itemid') == '-') {
-                    $where[] = sprintf("itemid='%s'", getv('itemid'));
+                    $where[] = sprintf("itemid='%s'", db()->escape(getv('itemid')));
                 }
                 if (getv('itemname')) {
-                    $where[] = sprintf("itemname='%s'", getv('itemname'));
+                    $where[] = sprintf("itemname='%s'", db()->escape(getv('itemname')));
                 }
                 if (getv('message')) {
-                    $where[] = sprintf("message LIKE '%%%s%%'", getv('message'));
+                    $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(getv('message')));
                 }
                 // date stuff
                 if (getv('datefrom')) {
-                    $where[] = sprintf('timestamp > %s', evo()->toTimeStamp(getv('datefrom')));
+                    $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(getv('datefrom')));
                 }
                 if (getv('dateto')) {
-                    $where[] = sprintf('timestamp < %s', evo()->toTimeStamp(getv('dateto')));
+                    $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(getv('dateto')));
                 }
 
                 // Number of result to display on the page, will be in the LIMIT of the sql query also
-                $int_num_result = is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs');
+                $int_num_result = (int)(is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs'));
+                $int_cur_position = (int)evo()->input_get('int_cur_position', 0);
 
                 // build the sql
                 $total = db()->getValue(
@@ -258,7 +259,7 @@ $icons_path = manager_style_image_path('icons');
                     '[+prefix+]manager_log',
                     implode(' AND ', $where),
                     $orderby,
-                    sprintf('%s, %s', evo()->input_get('int_cur_position', 0), $int_num_result)
+                    sprintf('%d, %d', $int_cur_position, $int_num_result)
                 );
                 if ($total < 1) {
                     echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
@@ -269,22 +270,22 @@ $icons_path = manager_style_image_path('icons');
                     // New instance of the Paging class, you can modify the color and the width of the html table
                     $extargv = sprintf(
                         '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s',
-                        getv('searchuser'),
-                        getv('action'),
-                        getv('itemid'),
-                        getv('itemname'),
-                        getv('message'),
-                        getv('dateto'),
-                        getv('datefrom'),
+                        urlencode((string)getv('searchuser')),
+                        urlencode((string)getv('action')),
+                        urlencode((string)getv('itemid')),
+                        urlencode((string)getv('itemname')),
+                        urlencode((string)getv('message')),
+                        urlencode((string)getv('dateto')),
+                        urlencode((string)getv('datefrom')),
                         $int_num_result,
-                        getv('log_submit')
+                        urlencode((string)getv('log_submit'))
                     );
-                    $p = new Paging($total, evo()->input_get('int_cur_position', 0), $int_num_result, $extargv);
+                    $p = new Paging($total, $int_cur_position, $int_num_result, $extargv);
 
                     // Load up the 2 array in order to display result
                     $array_paging = $p->getPagingArray();
                     $array_row_paging = $p->getPagingRowArray();
-                    $current_row = (int)(evo()->input_get('int_cur_position', 0) / $int_num_result);
+                    $current_row = (int)($int_cur_position / $int_num_result);
 
                     // Display the result as you like...
                     echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);

@@ -15,10 +15,14 @@ if (evo()->getLoginUserType() !== 'manager') {
 // save folderstate
 
 if (getv('savestateonly')) {
-    $_SESSION['openedArray'] = getv('opened')
-        ? explode('|',getv('opened'))
-        : []
-    ;
+    // 開いているフォルダの ID（整数）だけを残す
+    $opened = getv('opened');
+    sessionv(
+        '*openedArray',
+        is_string($opened) && $opened !== ''
+            ? array_values(array_filter(array_map('intval', explode('|', $opened))))
+            : []
+    );
     exit('savestateonly');
 }
 
@@ -183,12 +187,10 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $ph['alt'] = getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb);
         $ph['parent'] = $parent;
         $ph['spacer'] = $spacer;
-        $pagetitle = addslashes($pagetitle);
-        $pagetitle = htmlspecialchars($pagetitle, ENT_QUOTES, $modx->config('modx_charset'));
-        $ph['pagetitle'] = "'{$pagetitle}'";
+        $ph['pagetitle'] = hsc(js_literal($pagetitle));
         $ph['nodetitle'] = "'" . addslashes($nodetitle) . "'";
         $url = $modx->makeUrl($id, '', '', 'full');
-        $ph['url'] = "'{$url}'";
+        $ph['url'] = hsc(js_literal($url));
         $ph['published'] = $published;
         $ph['deleted'] = $deleted;
         $hankaku_title = mb_convert_kana($nodetitle, 'Kas');
@@ -426,16 +428,17 @@ EOT;
 
 function get_tree_orderby()
 {
-    $orderby = sprintf('%s %s',
-        sessionv(
-            'tree_sortby',
-            config('resource_tree_sortby_default','menuindex')
-        ),
-        sessionv('tree_sortdir', 'asc')
-    );
+    // 並べ替えの列と向きは、ツリーの選択肢にあるものだけを使う
+    $sortby = sessionv('tree_sortby', config('resource_tree_sortby_default', 'menuindex'));
+    if (!in_array($sortby, ['isfolder', 'pagetitle', 'id', 'menuindex', 'createdon', 'editedon'], true)) {
+        $sortby = 'menuindex';
+    }
+    $sortdir = sessionv('tree_sortdir', 'asc');
+    $sortdir = is_string($sortdir) && strtoupper($sortdir) === 'DESC' ? 'DESC' : 'ASC';
+    $orderby = sprintf('sc.%s %s', $sortby, $sortdir);
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if (sessionv('tree_sortby') === 'isfolder') {
+    if ($sortby === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
     // 続きの読み込み（LIMIT）で順序が揺れないよう、一意なキーで並びを確定させる

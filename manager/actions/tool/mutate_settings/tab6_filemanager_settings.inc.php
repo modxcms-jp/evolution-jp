@@ -81,6 +81,22 @@
                 <?= form_text('new_folder_permissions', 4) ?><br/>
                 <?= $_lang["new_folder_permissions_message"] ?></td>
         </tr>
+        <tr>
+            <th><?= $_lang["clean_uploaded_filename"] ?></th>
+            <td>
+                <?= wrap_label($_lang["yes"],
+                    form_radio('clean_uploaded_filename', '1', $clean_uploaded_filename == '1')); ?><br/>
+                <?= wrap_label($_lang["no"],
+                    form_radio('clean_uploaded_filename', '0', $clean_uploaded_filename == '0')); ?><br/>
+                <?= $_lang["clean_uploaded_filename_message"] ?>
+            </td>
+        </tr>
+        <tr>
+            <th><?= $_lang["a17_image_limit_width_title"] ?></th>
+            <td>
+                <?= form_text('image_limit_width') ?>px<br/>
+                <?= $_lang["a17_image_limit_width_message"] ?></td>
+        </tr>
 
         <tr>
             <th><?= $_lang["rb_title"] ?></th>
@@ -136,22 +152,6 @@
             <td>
                 <?= $site_url . form_text('rb_base_url', 255) ?><br/>
                 <?= $_lang["rb_base_url_message"] ?></td>
-        </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
-            <th><?= $_lang["clean_uploaded_filename"] ?></th>
-            <td>
-                <?= wrap_label($_lang["yes"],
-                    form_radio('clean_uploaded_filename', '1', $clean_uploaded_filename == '1')); ?><br/>
-                <?= wrap_label($_lang["no"],
-                    form_radio('clean_uploaded_filename', '0', $clean_uploaded_filename == '0')); ?><br/>
-                <?= $_lang["clean_uploaded_filename_message"] ?>
-            </td>
-        </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
-            <th><?= $_lang["a17_image_limit_width_title"] ?></th>
-            <td>
-                <?= form_text('image_limit_width') ?>px<br/>
-                <?= $_lang["a17_image_limit_width_message"] ?></td>
         </tr>
 
         <tr class="row1" style="border-bottom:none;">

@@ -96,8 +96,8 @@ echo $cm->render();
 </script>
 <form action="index.php" name="resource" method="get">
     <input type="hidden" name="a" value="99" />
-    <input type="hidden" name="id" value="<?= $id ?? '' ?>" />
-    <input type="hidden" name="listmode" value="<?= $listmode ?>" />
+    <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
+    <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
     <input type="hidden" name="op" value="" />
 
     <h1><?= $_lang['web_user_management_title'] ?></h1>
@@ -146,7 +146,7 @@ echo $cm->render();
         <div>
         <?php
         $search = (string) anyv('search');
-        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked,'" . $_lang['yes'] . "','-') as 'blocked'" .
+        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked=1 OR wua.blockeduntil>" . time() . ",'" . $_lang['yes'] . "','-') as 'blocked'" .
             "FROM " . evo()->getFullTableName("web_users") . " wu " .
             "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
             ($search !== '' ? " WHERE (wu.username LIKE '" . db()->escape($search) . "%') OR (wua.fullname LIKE '%" . db()->escape($search) . "%') OR (wua.email LIKE '" . db()->escape($search) . "%')" : "") . " " .

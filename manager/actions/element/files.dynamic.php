@@ -40,7 +40,7 @@ if (anyv('file')) {
 }
 if (anyv('name')) {
     // 新規フォルダ・新規ファイルで実際に使う形で照合する
-    $requested_paths[] = $startpath . '/' . str_replace(['../', '..\\'], '', anyv('name'));
+    $requested_paths[] = $startpath . '/' . evo()->sanitizeFilename(anyv('name'), false);
 }
 foreach ($requested_paths as $requested_path) {
     if (is_protected_path($requested_path, $proteted_path)) {
@@ -103,7 +103,8 @@ foreach ($requested_paths as $requested_path) {
 <div class="section">
     <div class="sectionBody">
         <script type="text/javascript">
-            var current_path = '<?= $startpath; ?>';
+            // パスと名前は PHP で URL エンコードしたものを使う（UTF-8 でない名前も、そのままのバイト列で送り返せるように）
+            var current_path_q = <?= js_literal(rawurlencode($startpath)) ?>;
 
             function show_image(url) {
                 document.getElementById('imageviewer').style.border = "1px solid #ccc";
@@ -133,7 +134,7 @@ foreach ($requested_paths as $requested_path) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file);
+                    EvoCsrf.post("index.php?a=31&mode=unzip&path=" + current_path_q + '%2F&file=' + file);
                     return false;
                 }
             }
@@ -141,27 +142,27 @@ foreach ($requested_paths as $requested_path) {
             function getFolderName(a) {
                 var f;
                 f = window.prompt('Enter New Folder Name:', '')
-                if (f) a.href += escape(f);
+                if (f) a.href += encodeURIComponent(f);
                 return (f) ? true : false;
             }
 
             function getFileName(a) {
                 var f;
                 f = window.prompt('Enter New File Name:', '')
-                if (f) a.href += escape(f);
+                if (f) a.href += encodeURIComponent(f);
                 return (f) ? true : false;
             }
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder);
+                    EvoCsrf.post("index.php?a=31&mode=deletefolder&path=" + current_path_q + "&folderpath=" + current_path_q + '%2F' + folder);
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + current_path + '/' + file);
+                    EvoCsrf.post("index.php?a=31&mode=delete&path=" + current_path_q + '%2F' + file);
                     return false;
                 }
             }
@@ -207,25 +208,23 @@ foreach ($requested_paths as $requested_path) {
                     continue;
                 }
                 $path .= rtrim($v, '/') . '/';
+                // 名前は UTF-8 として扱う（推測で変換すると UTF-8 の日本語を取り違えて化ける）。不正なバイトは hsc() が置き換える
+                $label = hsc(trim($v, '/'));
                 if (1 < $count) {
                     $pieces[$i] = sprintf(
                         '<a href="%s">%s</a>',
-                        'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path),
-                        trim($v, '/')
+                        hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path)),
+                        $label
                     );
                 } else {
-                    $pieces[$i] = trim($v, '/');
+                    $pieces[$i] = $label;
                 }
                 $count--;
             }
             $topic_path = implode(' / ', $pieces);
         }
 
-        ?> <b><?= mb_convert_encoding(
-                        $topic_path,
-                        $modx_manager_charset,
-                        'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'
-                    ) ?></b>
+        ?> <b><?= $topic_path ?></b>
         <?php
         // check to see user isn't trying to move below the document_root
         if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace(
@@ -242,7 +241,9 @@ foreach ($requested_paths as $requested_path) {
 
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
-            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath));
+            $failed = [];
+            $skipped = [];
+            $err = unzip(realpath($startpath . '/' . anyv('file')), realpath($startpath), $failed, $skipped);
             if (!$err) {
                 echo sprintf(
                     '<span class="warning"><b>%s%s</b></span><br /><br />',
@@ -250,7 +251,22 @@ foreach ($requested_paths as $requested_path) {
                     $err === 0 ? 'Missing zip library (php_zip.dll / zip.so)' : ''
                 );
             } else {
-                echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                if ($failed) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_entry_failed'),
+                        implode('<br />', array_map('hsc', $failed))
+                    );
+                } else {
+                    echo '<span class="success"><b>' . lang('file_unzip') . '</b></span><br /><br />';
+                }
+                if ($skipped) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br />%s<br /><br />',
+                        lang('file_unzip_skipped'),
+                        implode('<br />', array_map('hsc', $skipped))
+                    );
+                }
             }
         }
         // End Unzip - Raymond
@@ -261,7 +277,12 @@ foreach ($requested_paths as $requested_path) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
                 $folder = anyv('folderpath');
-                if (!@rrmdir($folder)) {
+                if (!is_dir($folder)) {
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br /><br />',
+                        lang('file_folder_not_found')
+                    );
+                } elseif (!@rrmdir($folder)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_deleted')
@@ -277,8 +298,8 @@ foreach ($requested_paths as $requested_path) {
             // Create folder here
             if (anyv('mode') === 'newfolder') {
                 $old_umask = umask(0);
-                $foldername = str_replace(['../', '..\\'], '', anyv('name'));
-                if (!mkdirs($startpath . "/" . $foldername, 0777)) {
+                $foldername = evo()->sanitizeFilename(anyv('name'), false);
+                if ($foldername === '' || !mkdirs($startpath . "/" . $foldername, 0777)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_created')
@@ -299,16 +320,21 @@ foreach ($requested_paths as $requested_path) {
             // Create file here
             if (anyv('mode') === 'newfile') {
                 $old_umask = umask(0);
-                $filename = str_replace(['../', '..\\'], '', anyv('name'));
-                $filename = db()->escape($filename);
+                $filename = evo()->sanitizeFilename(anyv('name'), false);
 
-                if (!checkExtension($filename)) {
+                if ($filename === '') {
+                    echo lang('files_filename_invalid');
+                } elseif (!checkExtension($filename)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('files_filetype_notok')
                     );
-                } elseif (preg_match('@([/:;,*?"<>|])@', $filename) !== 0) {
-                    echo lang('files_filename_invalid');
+                } elseif (file_exists($startpath . '/' . $filename) || is_link($startpath . '/' . $filename)) {
+                    // 同じ名前のファイル・フォルダー（リンク切れのリンクも含む）があれば、空の中身で上書きしない
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br /><br />',
+                        lang('files_file_exists')
+                    );
                 } else {
                     $rs = file_put_contents($startpath . '/' . $filename, '');
                     if ($rs === false) {
@@ -369,7 +395,7 @@ if (is_writable($startpath)) {
             type="hidden" name="MAX_FILE_SIZE"
             value="<?= evo()->config('upload_maxsize', 32 * 1024 * 1024) ?>">
         <input type="hidden" name="a" value="31">
-        <input type="hidden" name="path" value="<?= $startpath ?>">
+        <input type="hidden" name="path" value="<?= hsc($startpath) ?>">
 
         <?php if (isset($information)) {
             echo $information;
@@ -405,7 +431,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
         <div class="sectionBody">
             <?php
             $filename = anyv('path');
-            $buffer = file_get_contents($filename);
+            $buffer = is_file($filename) ? file_get_contents($filename) : false;
 
             // Log the change
             logFileChange('view', $filename);
@@ -453,14 +479,14 @@ function ls($curpath)
         define('SCANDIR_SORT_ASCENDING', 0);
         define('SCANDIR_SORT_DESCENDING', 1);
     }
-    global $style_path, $_style, $modx_manager_charset;
+    global $style_path, $_style;
     global $enablefileunzip, $enablefiledownload, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $modx;
     $dircounter = 0;
     $filecounter = 0;
     $curpath = str_replace('//', '/', $curpath . '/');
 
     if (!is_dir($curpath)) {
-        echo 'Invalid path "', $curpath, '"<br />';
+        echo 'Invalid path "', hsc($curpath), '"<br />';
         return;
     }
     $editablefiles = add_dot(
@@ -495,7 +521,7 @@ function ls($curpath)
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
-                    $file
+                    hsc($file)
                 );
                 if (is_writable($curpath)) {
                     $dirs_array[$dircounter]['delete'] = sprintf(
@@ -508,12 +534,11 @@ function ls($curpath)
                     $dirs_array[$dircounter]['delete'] = '';
                 }
             } else {
-                $file = mb_convert_encoding($file, $modx_manager_charset, 'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path=%s"><b>%s</b></a>',
                     $_style['tree_folder'],
-                    urlencode($newpath),
-                    $file
+                    hsc(urlencode($newpath)),
+                    hsc($file)
                 );
 
                 $dfiles = scandir($newpath, SCANDIR_SORT_ASCENDING);
@@ -527,9 +552,9 @@ function ls($curpath)
                 }
                 if (is_writable($curpath)) {
                     $dirs_array[$dircounter]['delete'] = sprintf(
-                        '<span style="width:20px"><a href="javascript: deleteFolder(\'%s\',\'%s\');"><img src="%sicons/delete.gif" alt="%s" title="%s" /></a></span>',
-                        urlencode($file),
-                        (0 < count($dfiles)) ? 'file_exists' : '',
+                        '<span style="width:20px"><a href="#" onclick="deleteFolder(%s, %s);return false;"><img src="%sicons/delete.gif" alt="%s" title="%s" /></a></span>',
+                        hsc(js_literal(rawurlencode($file))),
+                        hsc(js_literal((0 < count($dfiles)) ? 'file_exists' : '')),
                         $style_path,
                         lang('file_delete_folder'),
                         lang('file_delete_folder')
@@ -545,12 +570,11 @@ function ls($curpath)
             $type = getExtension($newpath);
             $files_array[$filecounter]['file'] = $newpath;
             $files_array[$filecounter]['stats'] = lstat($newpath);
-            $files_array[$filecounter]['text'] = '<img src="' . $_style['tree_page'] . '" align="absmiddle" alt="" />' . $file;
+            $files_array[$filecounter]['text'] = '<img src="' . $_style['tree_page'] . '" align="absmiddle" alt="" />' . hsc($file);
             if (in_array($type, $viewablefiles)) {
                 $files_array[$filecounter]['view'] = sprintf(
-                    '<span style="cursor:pointer; width:20px;" onclick="show_image(\'%s%s\');"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
-                    webstart_path(),
-                    substr($newpath, $len, strlen($newpath)),
+                    '<span style="cursor:pointer; width:20px;" onclick="show_image(%s);"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
+                    hsc(js_literal(webstart_path() . implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len)))))),
                     $style_path,
                     lang('files_viewfile'),
                     lang('files_viewfile')
@@ -589,8 +613,8 @@ function ls($curpath)
             }
             if ($enablefileunzip && $type === '.zip') {
                 $files_array[$filecounter]['unzip'] = sprintf(
-                    '<span style="width:20px;"><a href="javascript:unzipFile(\'%s\');"><img src="%sicons/unzip.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    urlencode($file),
+                    '<span style="width:20px;"><a href="#" onclick="unzipFile(%s);return false;"><img src="%sicons/unzip.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
+                    hsc(js_literal(rawurlencode($file))),
                     $style_path,
                     lang('file_download_unzip'),
                     lang('file_download_unzip')
@@ -616,8 +640,8 @@ function ls($curpath)
             }
             if (is_writable($curpath) && is_writable($newpath)) {
                 $files_array[$filecounter]['delete'] = sprintf(
-                    '<span style="width:20px;"><a href="javascript:deleteFile(\'%s\');"><img src="%sicons/delete.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
-                    urlencode($file),
+                    '<span style="width:20px;"><a href="#" onclick="deleteFile(%s);return false;"><img src="%sicons/delete.gif" align="absmiddle" alt="%s" title="%s" /></a></span> ',
+                    hsc(js_literal(rawurlencode($file))),
                     $style_path,
                     lang('file_delete_file'),
                     lang('file_delete_file')
@@ -693,6 +717,11 @@ function getExtension($string)
     return $ext;
 }
 
+/**
+ * 名前の拡張子が、アップロードを許している拡張子（uploadablefiles()）に含まれるかを返す。
+ * アップロード・新しいファイルの作成・zip の展開で同じ基準を使う。
+ * 名前は sanitizeFilename() を通した後のものを渡す。大文字小文字は区別せず、拡張子の無い名前は許さない。
+ */
 function checkExtension($path = '')
 {
     $uploadablefiles = add_dot(uploadablefiles());
@@ -717,6 +746,8 @@ function mkdirs($strPath, $mode)
 
 function logFileChange($type, $filename)
 {
+    // UTF-8 でない名前（FTP で置いたものなど）は、そのままでは管理ログ（utf8mb4）に書けないため置き換える
+    $filename = mb_scrub((string) $filename, 'UTF-8');
     include_once(MODX_CORE_PATH . 'log.class.inc.php');
     $log = new logHandler();
 
@@ -742,8 +773,17 @@ function logFileChange($type, $filename)
     $action = 1;
 }
 
-// by patrick_allaert - php user notes
-function unzip($file, $path)
+/**
+ * zip を展開する。by patrick_allaert - php user notes
+ * ファイルのエントリは、アップロードと同じ拡張子の許可リスト（checkExtension()）で確かめ、
+ * 許されていないものは展開せずに $skipped へ加える（名前の重なりの確かめより先に飛ばすので、名前を取らない）。
+ * フォルダーのエントリは確かめない。
+ *
+ * @param array $failed 展開できなかったエントリ（展開先からの相対パス）を加える
+ * @param array $skipped 拡張子が許されていないため展開しなかったエントリ（展開先からの相対パス）を加える
+ * @return bool|int 展開できたら true、zip を開けない・展開先が保護対象なら false、zip 拡張が無ければ 0
+ */
+function unzip($file, $path, &$failed = [], &$skipped = [])
 {
     // added by Raymond
     if (!extension_loaded('zip')) {
@@ -759,33 +799,170 @@ function unzip($file, $path)
     // 展開先の外や保護対象へ書き込むエントリがあれば、何も展開しない
     $proteted_path = proteted_path();
     for ($i = 0; $i < $zip->numFiles; $i++) {
-        $zip_entry_name = str_replace('\\', '/', $zip->getNameIndex($i));
+        $zip_entry_name = str_replace('\\', '/', unzip_entry_name($zip, $i));
         if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
-            || is_protected_path($path . $zip_entry_name, $proteted_path)) {
+            || is_protected_path($path . unzip_entry_path($zip_entry_name), $proteted_path)) {
             $zip->close();
             return false;
         }
     }
 
     $old_umask = umask(0);
+    $assigned = ['dirs' => [], 'paths' => []];
     for ($i = 0; $i < $zip->numFiles; $i++) {
-        $zip_entry_name = $zip->getNameIndex($i);
-        $complete_path = $path . str_replace('\\', '/', dirname($zip_entry_name));
-        $complete_name = $path . str_replace('\\', '/', $zip_entry_name);
-        if (!is_dir($complete_path)) {
-            $tmp = '';
-            foreach (explode('/', $complete_path) as $k) {
-                $tmp .= $k . '/';
-                if (!is_dir($tmp)) {
-                    mkdir($tmp, 0777);
-                }
-            }
+        $zip_entry_name = unzip_entry_name($zip, $i);
+        $relative_name = unzip_entry_path($zip_entry_name);
+        if ($relative_name === '') {
+            continue;
         }
-        copy("zip://" . $file . "#" . $zip_entry_name, $complete_name);
+        // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
+        $is_dir_entry = substr(str_replace('\\', '/', $zip_entry_name), -1) === '/';
+        // 拡張子は、無害化した後の名前の最後の要素で確かめる。飛ばすエントリは、次の名前の割り当てに加えない
+        $slash_pos = strrpos($relative_name, '/');
+        $entry_filename = $slash_pos === false ? $relative_name : substr($relative_name, $slash_pos + 1);
+        if (!$is_dir_entry && !checkExtension($entry_filename)) {
+            $skipped[] = $relative_name;
+            continue;
+        }
+        // 無害化で、この zip で先に展開したファイル・フォルダーと名前が重なったときは上書きせず、(1) などを付けた名前にする
+        $complete_name = $path . unzip_unique_path($path, $relative_name, $is_dir_entry, $assigned);
+        $complete_path = $is_dir_entry ? $complete_name : dirname($complete_name);
+        // 書けないエントリは警告で画面を止めず、残りを展開してから一覧で知らせる（ログにも残す）
+        if (!is_dir($complete_path) && !@mkdir($complete_path, 0777, true)) {
+            $failed[] = $relative_name;
+            continue;
+        }
+        if ($is_dir_entry) {
+            continue;
+        }
+        if (!unzip_copy_entry($zip, $i, $complete_name)) {
+            $failed[] = $relative_name;
+        }
+    }
+    if ($failed) {
+        evo()->logEvent(0, 2, 'Some zip entries could not be extracted', 'unzip', [
+            'zip' => $file,
+            'entries' => $failed,
+        ]);
     }
     umask($old_umask);
     $zip->close();
     return true;
+}
+
+/**
+ * zip のエントリ $index の中身を $target へ書き出す。
+ * zip://<アーカイブのパス>#<エントリ名> の形は、アーカイブのパスにある # を区切りと読むため使わず、
+ * 開いている ZipArchive から読む。大きなエントリでもメモリに載せないよう、ストリームで写す。
+ * getStream() には getNameIndex() の既定の名前を渡す（zip の中で名前を探すときと同じ形。Shift_JIS の名前も開ける）。
+ */
+function unzip_copy_entry($zip, $index, $target)
+{
+    $stat = $zip->statIndex($index);
+    $in = $stat ? $zip->getStream($zip->getNameIndex($index)) : false;
+    if (!$in) {
+        return false;
+    }
+    $out = @fopen($target, 'wb');
+    if (!$out) {
+        fclose($in);
+        return false;
+    }
+    $copied = stream_copy_to_stream($in, $out);
+    fclose($in);
+    $closed = fclose($out);
+    return $closed && $copied === (int) $stat['size'];
+}
+
+/**
+ * zip のエントリ名を UTF-8 で返す。
+ * Windows で作った zip は名前を Shift_JIS（CP932）で持つことが多い。getNameIndex() の既定では
+ * CP437 とみなして変換した別の文字列（\ を含むこともある）になるため、元のバイト列から変換する。
+ */
+function unzip_entry_name($zip, $index)
+{
+    $raw = $zip->getNameIndex($index, ZipArchive::FL_ENC_RAW);
+    if (mb_check_encoding($raw, 'UTF-8') || !mb_check_encoding($raw, 'SJIS-win')) {
+        return $raw;
+    }
+    return mb_convert_encoding($raw, 'UTF-8', 'SJIS-win');
+}
+
+/**
+ * zip のエントリ名を、展開先からの相対パスにする。
+ * 各要素をアップロードと同じ規則（sanitizeFilename()）で無害化する。
+ * UTF-8 にも Shift_JIS にもならない名前は、英数字に置き換わる。
+ */
+function unzip_entry_path($zip_entry_name)
+{
+    $segments = [];
+    foreach (explode('/', str_replace('\\', '/', $zip_entry_name)) as $segment) {
+        if ($segment === '' || $segment === '.') {
+            continue;
+        }
+        $segments[] = evo()->sanitizeFilename($segment);
+    }
+    return implode('/', $segments);
+}
+
+/**
+ * 展開するエントリの相対パスを、同じ zip で先に展開したファイル・フォルダーと重ならないパスにして返す。
+ * パスの各要素を確かめ、重なったときは、新しいファイルブラウザのアップロードと同じく名前に (1)・(2)… を付ける。
+ * - ファイルは、先に展開したファイル・フォルダーと同じ名前にしない
+ * - フォルダーは、同じ名前のフォルダーとは一つにまとめ、ファイルとは同じ名前にしない
+ * - 付け直したフォルダーは、同じ zip の配下のエントリすべてに同じ付け直しを当てる
+ * 展開先に前からあるファイルは、これまでどおり上書きする（同じ zip を展開し直して更新する使い方のため）。
+ *
+ * @param string $path 展開先（末尾に /）
+ * @param string $relative_name unzip_entry_path() の結果
+ * @param bool $is_dir フォルダーのエントリか
+ * @param array $assigned これまでの割り当て。dirs: 無害化した後のフォルダーのパス => 付け直した後のパス、
+ *                        paths: 割り当てたパス => 'file' | 'dir'。この関数が書き足す
+ */
+function unzip_unique_path($path, $relative_name, $is_dir, array &$assigned)
+{
+    $segments = explode('/', $relative_name);
+    $last = count($segments) - 1;
+    $key = '';
+    $parent = '';
+    foreach ($segments as $i => $segment) {
+        $key .= ($key === '' ? '' : '/') . $segment;
+        if ($i < $last || $is_dir) {
+            if (!isset($assigned['dirs'][$key])) {
+                $dir = unzip_free_name($path, $parent, $segment, 'dir', $assigned['paths']);
+                $assigned['dirs'][$key] = $dir;
+                $assigned['paths'][$dir] = 'dir';
+            }
+            $parent = $assigned['dirs'][$key];
+            continue;
+        }
+        $file = unzip_free_name($path, $parent, $segment, 'file', $assigned['paths']);
+        $assigned['paths'][$file] = 'file';
+        return $file;
+    }
+    return $parent;
+}
+
+/**
+ * unzip_unique_path() の下請け。$parent の下で $name が使えるか確かめ、使えなければ (1)・(2)… を付けた名前を返す。
+ */
+function unzip_free_name($path, $parent, $name, $kind, array $paths)
+{
+    $prefix = $parent === '' ? '' : $parent . '/';
+    $dot_pos = $kind === 'file' ? strrpos($name, '.') : false;
+    $base = $dot_pos === false ? $name : substr($name, 0, $dot_pos);
+    $ext = $dot_pos === false ? '' : substr($name, $dot_pos);
+    for ($i = 0; ; $i++) {
+        $candidate = $prefix . ($i === 0 ? $name : evo()->sanitizeFilename($base . '(' . $i . ')' . $ext));
+        if ($kind === 'dir') {
+            $taken = (isset($paths[$candidate]) && $paths[$candidate] !== 'dir') || is_file($path . $candidate);
+        } else {
+            $taken = isset($paths[$candidate]) || is_dir($path . $candidate);
+        }
+        if (!$taken) {
+            return $candidate;
+        }
+    }
 }
 
 function rrmdir($dir)
@@ -809,26 +986,27 @@ function fileupload()
     if (filev('userfile.tmp_name')) {
         $userfile['tmp_name'] = filev('userfile.tmp_name');
         $userfile['error'] = filev('userfile.error');
-        $name = filev('userfile.name');
-        if (evo()->config('clean_uploaded_filename') == 1) {
-            $nameparts = explode('.', $name);
-            $nameparts = array_map([$modx, 'stripAlias'], $nameparts, ['file_manager']);
-            $name = implode('.', $nameparts);
-        }
-        $userfile['name'] = $name;
+        $userfile['name'] = filev('userfile.name');
         $userfile['type'] = filev('userfile.type');
     }
 
+    // 保存先は $modx->move_uploaded_file() と同じ無害化をかけて決める。
+    // 表示・拡張子の確かめ・イベント・ログには、元の名前ではなく実際に保存する名前を使う
+    $targetPath = $modx->sanitizeUploadedFilename(postv('path') . '/' . $userfile['name']);
+    $savedName = substr($targetPath, strrpos($targetPath, '/') + 1);
+
     // this seems to be an upload action.
-    $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
-    $path = rtrim($path, '/') . '/' . $userfile['name'];
-    $msg .= $path;
+    $relPath = ltrim(rtrim(substr($startpath, strlen(config('filemanager_path'))), '/') . '/' . $savedName, '/');
+    $path = MODX_SITE_URL . $relPath;
+    // 画像の src には、名前の # や % などで切れないよう要素ごとにエンコードした URL を使う
+    $url = MODX_SITE_URL . implode('/', array_map('rawurlencode', explode('/', $relPath)));
+    $msg .= hsc($path);
     if ($userfile['error'] == 0) {
-        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . $path . '" height="75" />' : '';
+        $img = (strpos($userfile['type'], 'image') !== false) ? '<br /><img src="' . hsc($url) . '" height="75" />' : '';
         $msg .= sprintf(
             '<p>%s%s, %s%s</p>',
             lang('files_file_type'),
-            $userfile['type'],
+            hsc($userfile['type']),
             $modx->nicesize(filesize($userfile['tmp_name'])),
             $img
         );
@@ -861,30 +1039,31 @@ function fileupload()
         return $msg . '</span><br />';
     }
     // file is uploaded file, process it!
-    if (!checkExtension($userfile['name'])) {
+    if (!checkExtension($savedName)) {
         return $msg . '<p><span class="warning">' . lang('files_filetype_notok') . '</span></p>';
     }
 
-    $rs = $modx->move_uploaded_file(
-        $userfile['tmp_name'],
-        postv('path') . '/' . $userfile['name']
-    );
+    $rs = $modx->move_uploaded_file($userfile['tmp_name'], $targetPath);
     if (!$rs) {
         return $msg . '<p><span class="warning">' . lang('files_upload_copyfailed') . '</span> ' . lang('files_upload_permissions_error') . '</p>';
     }
     // invoke OnFileManagerUpload event
     $tmp = [
         'filepath' => postv('path'),
-        'filename' => $userfile['name']
+        'filename' => $savedName
     ];
     evo()->invokeEvent('OnFileManagerUpload', $tmp);
     // Log the change
-    logFileChange('upload', postv('path') . '/' . $userfile['name']);
+    logFileChange('upload', $targetPath);
     return $msg . '<p><span class="success">' . lang('files_upload_ok') . '</span></p>';
 }
 
 function textsave()
 {
+    // 保存は既にあるファイルの編集だけにする（新しいファイルは newfile で、拡張子を確かめて作る）
+    if (!is_file(postv('path'))) {
+        return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
+    }
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.
@@ -898,10 +1077,14 @@ function textsave()
 
 function delete_file()
 {
+    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
+
+    // 無いもの・フォルダーは unlink() に渡さない（PHP の警告になる）。リンクはリンク自体を消す
+    if (!is_file(anyv('path')) && !is_link(anyv('path'))) {
+        return $msg . '<span class="warning"><b>' . lang('file_not_found') . '</b></span><br /><br />';
+    }
 
     logFileChange('delete', anyv('path'));
-
-    $msg = sprintf(lang('deleting_file'), str_replace('\\', '/', anyv('path')));
 
     if (!unlink(anyv('path'))) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
