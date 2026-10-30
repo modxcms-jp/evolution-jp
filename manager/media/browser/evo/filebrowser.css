@@ -616,3 +616,42 @@
     font-weight: bold;
     color: var(--color-text-primary, #333);
 }
+
+/* 右クリックメニュー */
+
+.evo-fb-contextmenu {
+    position: fixed;
+    z-index: 20;
+    min-width: 160px;
+    padding: var(--space-1, 4px) 0;
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    border-radius: var(--radius-md, 3px);
+    background: var(--color-surface, #fff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.evo-fb-contextmenu[hidden] {
+    display: none;
+}
+
+.evo-fb-contextmenu-item {
+    display: block;
+    width: 100%;
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    border: 0;
+    background: transparent;
+    color: var(--color-text-primary, #333);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.evo-fb-contextmenu-item:hover,
+.evo-fb-contextmenu-item:focus {
+    outline: none;
+    background: var(--gray-100, #f5f5f5);
+}
+
+.evo-fb-contextmenu-danger {
+    color: var(--color-error, #900);
+}

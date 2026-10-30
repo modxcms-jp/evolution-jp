@@ -11,6 +11,7 @@ import { createTree } from './js/tree.js';
 import { createGrid } from './js/grid.js';
 import { createUpload } from './js/upload.js';
 import { createMoveDialog, createPreview } from './js/dialogs.js';
+import { createContextMenu } from './js/contextmenu.js';
 
 function init() {
     var root = document.getElementById('evoFileBrowser');
@@ -275,19 +276,21 @@ function init() {
 
     // --- フォルダ作成 ---
 
+    function createFolder() {
+        var name = window.prompt(t('fb_mkdir_prompt'));
+        if (!name) {
+            return;
+        }
+        postForm(config, state, 'mkdir', { name: name })
+            .then(load)
+            .catch(function (err) {
+                window.alert(t('fb_mkdir_failed', err.message));
+            });
+    }
+
     var mkdirBtn = root.querySelector('[data-action="mkdir"]');
     if (mkdirBtn) {
-        mkdirBtn.addEventListener('click', function () {
-            var name = window.prompt(t('fb_mkdir_prompt'));
-            if (!name) {
-                return;
-            }
-            postForm(config, state, 'mkdir', { name: name })
-                .then(load)
-                .catch(function (err) {
-                    window.alert(t('fb_mkdir_failed', err.message));
-                });
-        });
+        mkdirBtn.addEventListener('click', createFolder);
     }
 
     // --- 一括操作 ---
@@ -297,7 +300,7 @@ function init() {
         grid.updateSelectionDom();
     });
 
-    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', function () {
+    function bulkDelete() {
         var names = Array.from(state.selection);
         if (names.length === 0) {
             return;
@@ -310,13 +313,83 @@ function init() {
             .catch(function (err) {
                 window.alert(t('fb_delete_failed', err.message));
             });
-    });
+    }
 
-    root.querySelector('[data-action="bulk-move"]').addEventListener('click', function () {
+    function bulkMove() {
         if (state.selection.size === 0) {
             return;
         }
         moveDialog.open(state.folder);
+    }
+
+    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', bulkDelete);
+    root.querySelector('[data-action="bulk-move"]').addEventListener('click', bulkMove);
+
+    // --- 右クリックメニュー ---
+    // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。
+
+    var contextMenu = createContextMenu({ rootEl: root, scrollEl: dropzoneEl });
+    var uploadBtn = root.querySelector('[data-action="upload"]');
+
+    function contextMenuItems(itemEl) {
+        if (!itemEl) {
+            return [
+                { label: t('fb_new_folder'), onSelect: createFolder },
+                { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
+            ];
+        }
+        var name = itemEl.getAttribute('data-name');
+        if (itemEl.getAttribute('data-kind') === 'folder') {
+            return [
+                { label: t('open'), onSelect: function () { navigateTo(joinPath(state.folder, name)); } },
+                { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
+                { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, true); } }
+            ];
+        }
+        // 選択に入っていないファイルは、エクスプローラと同じく選択をそのファイルだけにする
+        if (!state.selection.has(name)) {
+            state.selection.clear();
+            state.selection.add(name);
+            grid.updateSelectionDom();
+        }
+        if (state.selection.size > 1) {
+            return [
+                { label: t('move'), onSelect: bulkMove },
+                { label: t('delete'), danger: true, onSelect: bulkDelete }
+            ];
+        }
+        var file = findFile(name);
+        var items = [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(itemEl.getAttribute('data-path')); } }];
+        if (file) {
+            items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
+        }
+        items.push(
+            { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
+            { label: t('move'), onSelect: bulkMove },
+            { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, false); } }
+        );
+        return items;
+    }
+
+    dropzoneEl.addEventListener('contextmenu', function (e) {
+        // 名前変更中の入力欄などでは、ブラウザ標準のメニュー(コピー・貼り付け)を残す
+        if (e.target.closest('input, select, textarea')) {
+            return;
+        }
+        e.preventDefault();
+        var itemEl = e.target.closest('.evo-fb-item');
+        var x = e.clientX;
+        var y = e.clientY;
+        // メニューキー・Shift+F10 のときは座標が無いので、フォーカス中の要素の位置に出す
+        if (e.button !== 2 && x === 0 && y === 0) {
+            var focused = document.activeElement;
+            var anchor = focused && dropzoneEl.contains(focused) ? focused : null;
+            itemEl = anchor ? anchor.closest('.evo-fb-item') : null;
+            var rect = (anchor || dropzoneEl).getBoundingClientRect();
+            x = rect.left + 8;
+            y = rect.top + 8;
+        }
+        contextMenu.open(x, y, contextMenuItems(itemEl));
     });
 
     tree.renderRoot();
