@@ -347,7 +347,8 @@ function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
     for ($suffix = 0; $suffix <= 200; $suffix++) {
         $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
         $candidatePath = $modx->sanitizeUploadedFilename($dirReal . $candidate);
-        if (!is_file($candidatePath)) {
+        // 壊れたシンボリックリンクや同名のフォルダも「使用中」として次の番号へ進む
+        if (!file_exists($candidatePath) && !is_link($candidatePath)) {
             return $candidatePath;
         }
     }
@@ -523,13 +524,13 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
     $files = (array) postv('files', []);
     $copied = [];
     $errors = [];
-    $permissions = octdec(ltrim($modx->config('new_file_permissions') ?: '0644', '0'));
 
     foreach ($files as $name) {
         $name = PathResolver::sanitizeSegment($name);
-        $sourcePath = $dir['real'] . $name;
 
-        if ($name === '' || !is_file($sourcePath)) {
+        // シンボリックリンクの先の実体が許可された場所の中にあるものだけを複製する
+        $sourcePath = $resolver->resolveFile($dir['real'], $name);
+        if ($sourcePath === null) {
             $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
@@ -541,18 +542,45 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
             continue;
         }
 
-        $targetPath = fbFindFreePath($modx, $destDir['real'], $safeName);
+        // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成（x）して、使われていたら次の候補へ
+        $targetPath = null;
+        $out = false;
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $targetPath = fbFindFreePath($modx, $destDir['real'], $safeName);
+            if ($targetPath === null) {
+                break;
+            }
+            $out = @fopen($targetPath, 'xb');
+            if ($out !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
+                break;
+            }
+        }
         if ($targetPath === null) {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
             continue;
         }
 
-        if (!@copy($sourcePath, $targetPath)) {
+        $in = $out === false ? false : @fopen($sourcePath, 'rb');
+        $ok = $in !== false && @stream_copy_to_stream($in, $out) !== false;
+        if ($in !== false) {
+            fclose($in);
+        }
+        if ($out !== false) {
+            fclose($out);
+        }
+        if (!$ok) {
+            if ($out !== false) {
+                @unlink($targetPath);
+            }
+            $modx->logEvent(0, 3, 'Failed to copy a file in the file browser', 'File browser', [
+                'from' => $sourcePath,
+                'to' => $targetPath,
+            ]);
             $errors[] = ['name' => $name, 'message' => lang('fb_err_copy_failed')];
             continue;
         }
         // パーミッションを変えられない環境でも、複製できていれば成功として扱う
-        @chmod($targetPath, $permissions);
+        @chmod($targetPath, $modx->newFilePermissions());
 
         // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
         $copied[] = ['from' => $name, 'name' => substr($targetPath, strrpos($targetPath, '/') + 1)];

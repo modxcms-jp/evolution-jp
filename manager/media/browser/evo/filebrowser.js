@@ -154,6 +154,17 @@ function init() {
         grid.updateCutDom();
     }
 
+    // 切り取ったファイルが別の方法で動いたり消えたりしたときは、一覧に無い名前を外す
+    function pruneClipboard() {
+        if (!clipboard || clipboard.folder !== state.folder) {
+            return;
+        }
+        clipboard.names = clipboard.names.filter(function (n) { return !!findFile(n); });
+        if (clipboard.names.length === 0) {
+            clipboard = null;
+        }
+    }
+
     function setClipboard(mode) {
         if (state.selection.size === 0) {
             return;
@@ -281,6 +292,8 @@ function init() {
     function load(selectName) {
         var allowInitialFallback = isInitialLoad;
         isInitialLoad = false;
+        // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
+        var hadFocus = root.contains(document.activeElement);
         grid.renderLoading();
         renderPath();
         state.selection.clear();
@@ -298,7 +311,12 @@ function init() {
                 }
                 grid.renderList();
                 grid.updateSelectionBar();
+                pruneClipboard();
                 updateClipboardUi();
+                if (hadFocus && document.activeElement === document.body) {
+                    var focusEl = gridEl.querySelector('.evo-fb-item.is-checked [data-role="name"]') || dropzoneEl;
+                    focusEl.focus({ preventScroll: true });
+                }
                 tree.syncWithList(state.folder, data.folders, data.files);
                 tree.revealPath(state.folder);
             })
@@ -390,6 +408,13 @@ function init() {
     root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
     root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
+
+    // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
+    dropzoneEl.addEventListener('click', function (e) {
+        if (!e.target.closest('button, input, select, textarea, .evo-fb-item')) {
+            dropzoneEl.focus({ preventScroll: true });
+        }
+    });
 
     // Ctrl/Cmd + C・X・V。#evoFileBrowser の中にフォーカスがあるときだけ受ける
     // (リスナーは root に付けるので、モーダルを閉じて root が消えれば一緒に消える)

@@ -664,3 +664,13 @@
 .evo-fb-item.is-cut {
     opacity: 0.5;
 }
+
+/* 一覧へのフォーカスは、キーボード操作のときだけ枠を出す */
+.evo-fb-main:focus {
+    outline: none;
+}
+
+.evo-fb-main:focus-visible {
+    outline: var(--border-thin, 1px) solid var(--color-link, #1285a4);
+    outline-offset: -1px;
+}

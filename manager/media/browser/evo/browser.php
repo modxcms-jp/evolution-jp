@@ -100,7 +100,7 @@ $markup .= '    <button type="button" class="evo-fb-btn" data-action="clear-sele
 $markup .= '  </div>';
 $markup .= '  <div class="evo-fb-body">';
 $markup .= '    <div class="evo-fb-tree" data-role="tree"></div>';
-$markup .= '    <div class="evo-fb-main" data-role="dropzone">';
+$markup .= '    <div class="evo-fb-main" data-role="dropzone" tabindex="-1">';
 $markup .= '      <div class="evo-fb-grid" data-role="grid"><div class="evo-fb-empty" data-role="loading">' . hsc(lang('fb_loading')) . '</div></div>';
 $markup .= '      <div class="evo-fb-dropoverlay" data-role="dropoverlay">' . hsc(lang('fb_drop_to_upload')) . '</div>';
 $markup .= '    </div>';
