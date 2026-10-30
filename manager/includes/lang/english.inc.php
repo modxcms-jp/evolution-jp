@@ -94,7 +94,7 @@ return [
     "chunk_no_exist" => 'Chunk does not exist.',
     "cleaningup" => 'Cleaning up',
     "clean_uploaded_filename" => 'Restrict File Names to ASCII',
-    "clean_uploaded_filename_message" => 'How names are handled when files are uploaded and when files or folders are created or renamed. When set to Yes, every character other than letters, digits and &quot;. _ -&quot; is replaced with &quot;_&quot; (the part before the extension is first converted by an OnStripAlias plugin such as TransAlias). When set to No, non-ASCII characters such as Japanese are kept, and only control characters and characters that cannot be used in file names, such as &quot;\\ / : * ? &lt; &gt; |&quot;, are replaced. In both cases, leading dots and trailing spaces or dots are removed.',
+    "clean_uploaded_filename_message" => 'How names are handled when files are uploaded and when files or folders are created or renamed. When set to Yes, every character other than letters, digits and &quot;. _ -&quot; is replaced with &quot;_&quot; (the part before the extension is first converted by an OnStripAlias plugin such as TransAlias). When set to No, non-ASCII characters such as Japanese are kept, and only control characters and characters that cannot be used in file names, such as &quot;\\ / : * ? &lt; &gt; |&quot;, and &quot;# %&quot;, which break URLs, are replaced. In both cases, leading dots and trailing spaces or dots are removed.',
     "click_to_context" => 'Click to access context menu',
     "click_to_edit_title" => 'Click here to edit this record',
     "click_to_view_details" => 'Click here to view details',

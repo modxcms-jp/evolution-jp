@@ -6100,7 +6100,7 @@ class DocumentParser
      * アップロード・フォルダー作成・名前の変更など、利用者が名前を決める処理はすべてここを通す。
      *
      * - 既定（clean_uploaded_filename=0）: 日本語などのマルチバイト文字は残し、次を除く
-     *   制御文字・パスの区切り・Windows で使えない記号（: * ? " < > |）は _ に置き換え、
+     *   制御文字・パスの区切り・Windows で使えない記号（: * ? " < > |）と、URL を切る # % は _ に置き換え、
      *   文字の向きの制御文字・ゼロ幅文字は取り除く。Normalizer があれば NFC にそろえる
      * - clean_uploaded_filename=1、または UTF-8 として正しくない名前: 英数字と . _ - だけにする
      * - 先頭のドット・空白と、末尾の空白・ドットは取り除く
@@ -6126,8 +6126,9 @@ class DocumentParser
             }
             // 文字の向きの制御文字（拡張子の偽装に使われる）とゼロ幅文字は、見えないので取り除く
             $name = preg_replace('/[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}]/u', '', $name);
-            // 制御文字（C0・DEL・C1）、パスの区切り、Windows で使えない記号
-            $name = preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}\/\\\\:*?"<>|]/u', '_', $name);
+            // 制御文字（C0・DEL・C1）、パスの区切り、Windows で使えない記号と、
+            // URL に生のまま入れると切れる # ? %（フラグメント・クエリ・エンコードの始まり）
+            $name = preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}\/\\\\:*?"<>|#%]/u', '_', $name);
         } else {
             $lastDot = strrpos($name, '.');
             if ($this->config('clean_uploaded_filename') == 1) {
