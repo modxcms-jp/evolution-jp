@@ -1342,6 +1342,7 @@ return [
     "fb_delete_failed" => 'Delete failed: %s',
     "fb_mkdir_prompt" => 'Enter a new folder name',
     "fb_mkdir_failed" => 'Could not create the folder: %s',
+    "fb_context_menu" => 'File actions',
     "fb_err_bad_encoding" => 'The name is not encoded in UTF-8 and cannot be handled here. Rename it via FTP or a similar tool.',
     "fb_err_unauthorized" => 'Your login session could not be verified.',
     "fb_err_forbidden" => 'You are not allowed to use the file browser.',

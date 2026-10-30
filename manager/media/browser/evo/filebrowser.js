@@ -389,7 +389,7 @@ function init() {
             x = rect.left + 8;
             y = rect.top + 8;
         }
-        contextMenu.open(x, y, contextMenuItems(itemEl));
+        contextMenu.open(x, y, contextMenuItems(itemEl), itemEl ? itemEl.getAttribute('data-name') : t('fb_context_menu'));
     });
 
     tree.renderRoot();

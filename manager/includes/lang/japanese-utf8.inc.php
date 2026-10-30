@@ -1343,6 +1343,7 @@ return [
     "fb_delete_failed" => '削除に失敗しました: %s',
     "fb_mkdir_prompt" => '新しいフォルダ名を入力してください',
     "fb_mkdir_failed" => 'フォルダを作成できませんでした: %s',
+    "fb_context_menu" => 'ファイル操作',
     "fb_err_bad_encoding" => '名前の文字コードが UTF-8 でないため、この画面では操作できません。FTP などで名前を付け直してください。',
     "fb_err_unauthorized" => 'ログインセッションが確認できません。',
     "fb_err_forbidden" => 'ファイルブラウザの利用が許可されていません。',

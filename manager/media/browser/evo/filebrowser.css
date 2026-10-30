@@ -627,7 +627,7 @@
     border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
     border-radius: var(--radius-md, 3px);
     background: var(--color-surface, #fff);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-xl, 0 2px 15px rgba(0, 0, 0, 0.2));
 }
 
 .evo-fb-contextmenu[hidden] {

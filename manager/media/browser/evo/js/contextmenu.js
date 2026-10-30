@@ -14,6 +14,8 @@ export function createContextMenu(ctx) {
     ctx.rootEl.appendChild(menuEl);
 
     var returnFocusEl = null;
+    var openedScrollTop = 0;
+    var openedScrollLeft = 0;
 
     function buttons() {
         return Array.from(menuEl.querySelectorAll('[role="menuitem"]'));
@@ -23,7 +25,8 @@ export function createContextMenu(ctx) {
         return !menuEl.hidden;
     }
 
-    function close() {
+    // restoreFocus: Esc・Tab・項目選択のときだけ、右クリックした要素へフォーカスを戻す
+    function close(restoreFocus) {
         if (!isOpen()) {
             return;
         }
@@ -31,19 +34,30 @@ export function createContextMenu(ctx) {
         menuEl.textContent = '';
         document.removeEventListener('mousedown', onOutside, true);
         document.removeEventListener('keydown', onKeydown, true);
-        window.removeEventListener('resize', close);
-        document.removeEventListener('evoshell:modalclose', close);
-        ctx.scrollEl.removeEventListener('scroll', close);
+        window.removeEventListener('resize', closeQuietly);
+        document.removeEventListener('evoshell:modalclose', closeQuietly);
+        ctx.scrollEl.removeEventListener('scroll', onScroll);
         var target = returnFocusEl;
         returnFocusEl = null;
-        if (target && target.isConnected && typeof target.focus === 'function') {
-            target.focus();
+        if (restoreFocus === true && target && target.isConnected && typeof target.focus === 'function') {
+            target.focus({ preventScroll: true });
+        }
+    }
+
+    function closeQuietly() {
+        close(false);
+    }
+
+    // フォーカス移動に伴う遅れたスクロールで閉じないよう、位置が変わったときだけ閉じる
+    function onScroll() {
+        if (ctx.scrollEl.scrollTop !== openedScrollTop || ctx.scrollEl.scrollLeft !== openedScrollLeft) {
+            close(false);
         }
     }
 
     function onOutside(e) {
         if (!menuEl.contains(e.target)) {
-            close();
+            close(false);
         }
     }
 
@@ -53,7 +67,7 @@ export function createContextMenu(ctx) {
         if (e.key === 'Escape') {
             e.preventDefault();
             e.stopPropagation();
-            close();
+            close(true);
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             items[(index + 1) % items.length].focus();
@@ -68,7 +82,7 @@ export function createContextMenu(ctx) {
             items[items.length - 1].focus();
         } else if (e.key === 'Tab') {
             e.preventDefault();
-            close();
+            close(true);
         }
         // Enter / Space はフォーカス中の <button> の click が処理する
     }
@@ -76,14 +90,16 @@ export function createContextMenu(ctx) {
     /**
      * @param {number} x - 画面上の X(clientX)
      * @param {number} y - 画面上の Y(clientY)
+     * @param {string} label - メニューの aria-label(右クリックした対象の名前など)
      * @param {{label: string, onSelect: () => void, danger?: boolean}[]} items
      */
-    function open(x, y, items) {
-        close();
+    function open(x, y, items, label) {
+        close(false);
         if (items.length === 0) {
             return;
         }
         returnFocusEl = document.activeElement;
+        menuEl.setAttribute('aria-label', label || '');
         items.forEach(function (item) {
             var btn = document.createElement('button');
             btn.type = 'button';
@@ -92,8 +108,8 @@ export function createContextMenu(ctx) {
             btn.textContent = item.label;
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                // フォーカスを戻す先が操作で消える場合があるため、先に閉じてから実行する
-                close();
+                // 項目の処理(prompt やダイアログ)のフォーカス移動を邪魔しないよう、先に閉じて戻す
+                close(true);
                 item.onSelect();
             });
             menuEl.appendChild(btn);
@@ -112,10 +128,12 @@ export function createContextMenu(ctx) {
         buttons()[0].focus();
         document.addEventListener('mousedown', onOutside, true);
         document.addEventListener('keydown', onKeydown, true);
-        window.addEventListener('resize', close);
-        document.addEventListener('evoshell:modalclose', close);
-        ctx.scrollEl.addEventListener('scroll', close);
+        openedScrollTop = ctx.scrollEl.scrollTop;
+        openedScrollLeft = ctx.scrollEl.scrollLeft;
+        window.addEventListener('resize', closeQuietly);
+        document.addEventListener('evoshell:modalclose', closeQuietly);
+        ctx.scrollEl.addEventListener('scroll', onScroll);
     }
 
-    return { open: open, close: close, isOpen: isOpen };
+    return { open: open, close: closeQuietly, isOpen: isOpen };
 }

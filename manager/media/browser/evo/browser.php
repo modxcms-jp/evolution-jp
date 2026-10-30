@@ -54,7 +54,7 @@ $jsLangKeys = [
     'fb_move_partial_failed', 'fb_move_failed', 'fb_rename_failed', 'fb_rename_prompt',
     'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed',
     'fb_mkdir_prompt', 'fb_mkdir_failed',
-    'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload',
+    'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
 ];
 $jsMessages = [];
 foreach ($jsLangKeys as $jsLangKey) {
