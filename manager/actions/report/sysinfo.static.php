@@ -96,7 +96,7 @@ global $database_connection_method, $lastInstallTime;
         <div class="tab-page" id="sysinfoDesc">
             <h2 class="tab"><?= lang('click_to_view_details') ?></h2>
             <div class="sectionHeader">サポートに必要な情報</div>
-            <div class="sectionBody" style="padding:10px 20px;">
+            <div class="sectionBody">
                 <p>
                     <a href="http://forum.modx.jp/" target="_blank">公式フォーラム</a>でサポートを受けることができます。以下の情報を付記いただくと解決の助けとなります。<br />
                     <a href="index.php?a=114"><?= hsc(lang('system_log', 'システムログ')) ?></a>に重要なヒントが記録されていることもあります。
@@ -126,13 +126,13 @@ global $database_connection_method, $lastInstallTime;
 
                 echo '<p>' . getenv('SERVER_SOFTWARE') . '</p>' . "\n" . "\n";
 
-                echo '<table style="margin-bottom:20px;">';
+                echo '<table>';
                 foreach ($info as $key => $value) {
                     echo '<tr><td style="padding-right:30px;vertical-align:top;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
                 }
                 echo '</table>' . "\n";
                 echo '<h4>mbstring</h4>' . "\n" . "\n";
-                echo '<table style="margin-bottom:20px;">';
+                echo '<table>';
                 $mb_get_info = mb_get_info();
                 $mb_get_info['http_input'] = ini_get('mbstring.http_input');
                 foreach ($mb_get_info as $key => $value) {
@@ -145,7 +145,7 @@ global $database_connection_method, $lastInstallTime;
 
                 //Mysql char set
                 echo '<h4>MySQLの文字コード情報</h4>' . "\n" . "\n";
-                echo '<table style="margin-bottom:20px;">';
+                echo '<table>';
                 $res = db()->query("SHOW VARIABLES LIKE 'collation_database';");
                 $collation = db()->getRow($res, 'num');
 
