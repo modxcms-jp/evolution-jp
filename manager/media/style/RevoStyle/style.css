@@ -1922,8 +1922,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin-bottom: 10px;
 }
 
-/* a=95 import_site.static.php: 本体の margin:8px（取り込み前のフォームの画面） */
-.section > .sectionBody:has(> fieldset > form[name="importFrm"]) {
+/* a=95 import_site.static.php: 本体の margin:8px（取り込み前のフォームと実行後の結果の両方の画面） */
+#importSite.sectionBody {
     margin: 8px;
 }
 
