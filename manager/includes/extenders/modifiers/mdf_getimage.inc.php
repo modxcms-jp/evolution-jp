@@ -1,14 +1,10 @@
 <?php
-/** @var MODIFIERS $value */
-/** @var MODIFIERS $opt */
+/** @var string $value */
+/** @var string $opt */
 $pattern = '/<img[\s\n]+[^>]*src=[\s\n]*"([^"]+\.(jpg|jpeg|png|gif))"[^>]*>/i';
 preg_match_all($pattern, $value, $images);
 if ($opt === '') {
-    if ($images[1][0]) {
-        return $images[1][0];
-    }
-
-    return '';
+    return $images[1][0] ?? '';
 }
 
 if (3 <= strlen($opt) && preg_match('/^[jpg].*$/i', $opt)) {
