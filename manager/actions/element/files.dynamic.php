@@ -28,12 +28,7 @@ if (anyv('path')) {
 }
 $startpath = rtrim($startpath, '/');
 
-if (!is_readable($startpath)) {
-    echo lang('not_readable_dir');
-    exit;
-}
-
-// ファイル操作より前に、要求されたすべてのパスを保護対象と照合する
+// ファイル操作より前に、要求されたすべてのパスを、対象ディレクトリの中か・保護対象でないかを照合する
 $requested_paths = array_filter([$startpath, getv('path'), postv('path'), anyv('folderpath')]);
 if (anyv('file')) {
     $requested_paths[] = $startpath . '/' . anyv('file');
@@ -43,10 +38,15 @@ if (anyv('name')) {
     $requested_paths[] = $startpath . '/' . evo()->sanitizeFilename(anyv('name'), false);
 }
 foreach ($requested_paths as $requested_path) {
-    if (is_protected_path($requested_path, $proteted_path)) {
+    if (!is_within_filemanager_path($requested_path) || is_protected_path($requested_path, $proteted_path)) {
         echo lang('files_dir_not_viewable');
         exit;
     }
+}
+
+if (!is_readable($startpath)) {
+    echo lang('not_readable_dir');
+    exit;
 }
 
 ?>
@@ -226,19 +226,6 @@ foreach ($requested_paths as $requested_path) {
 
         ?> <b><?= $topic_path ?></b>
         <?php
-        // check to see user isn't trying to move below the document_root
-        if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace(
-            '//',
-            '/',
-            config('filemanager_path') . '/'
-        ))) {
-            echo lang('files_access_denied') ?>
-    </div>
-
-<?php
-            exit;
-        }
-
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
             $failed = [];
@@ -1064,6 +1051,11 @@ function textsave()
     if (!is_file(postv('path'))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
     }
+    // 拡張子は、アップロード・新規作成・zip の展開と同じ許可リストで確かめる
+    $path = str_replace('\\', '/', postv('path'));
+    if (!checkExtension(substr($path, strrpos($path, '/') + 1))) {
+        return lang('editing_file') . '<span class="warning"><b>' . lang('files_filetype_notok') . '</b></span><br /><br />';
+    }
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.
@@ -1211,6 +1203,23 @@ function normalize_path($path)
         $segments[] = $segment;
     }
     return implode('/', $segments);
+}
+
+/**
+ * パスが、設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）そのもの、またはその配下なら true。
+ * 存在しないパスは、存在する親までを realpath() で解決して判定する（シンボリックリンクで外へ出ない）。
+ * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
+ */
+function is_within_filemanager_path($path)
+{
+    $base = normalize_path(config('filemanager_path') ?: MODX_BASE_PATH);
+    $realpath = normalize_path($path);
+    if ($base === false || $realpath === false) {
+        return false;
+    }
+    $base = strtolower(rtrim($base, '/'));
+    $realpath = strtolower($realpath);
+    return $realpath === $base || strpos($realpath, $base . '/') === 0;
 }
 
 function uploadablefiles()

@@ -6054,6 +6054,7 @@ class DocumentParser
         if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
             $msg = "Can't upload to '{$target_path}'.";
             $this->logEvent(1, 3, $msg, 'move_uploaded_file');
+            return false;
         }
 
         $img = getimagesize($tmp_path);
