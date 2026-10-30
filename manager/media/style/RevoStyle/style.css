@@ -1900,3 +1900,72 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 .system-log-summary {
     margin: 0 0 10px;
 }
+
+/* 同じく、画面（manager/actions/）の PHP から消した直書きの縦の余白（#924）を、凍結のため同じ値で保つ。
+   画面ごとに、消した箇所へ当たる範囲で書く。6 テーマの決まりへ寄せる規則は足さない */
+/* a=53 sysinfo.static.php: 本体の padding:10px 20px と、表の下の margin-bottom:20px */
+#sysinfoDesc > .sectionBody {
+    padding: 10px 20px;
+}
+
+#sysinfoDesc > .sectionBody > table {
+    margin-bottom: 20px;
+}
+
+/* a=93 bkmanager.static.php: 復元・スナップショットのボタン列の margin-top:10px（スナップショットは下も 10px） */
+#tabRestore div.actionButtons {
+    margin-top: 10px;
+}
+
+#tabSnapshot div.actionButtons {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* a=95 import_site.static.php: 本体の margin:8px（取り込み前のフォームの画面） */
+.section > .sectionBody:has(> fieldset > form[name="importFrm"]) {
+    margin: 8px;
+}
+
+/* a=13 logging.static.php: 検索フォームの下のボタン列の margin-top:1em（12px） */
+form[name="logging"] > ul.actionButtons {
+    margin-top: 12px;
+}
+
+/* a=83 export_site.static.php: 埋め込みの <style> から消した #exportNotice と #exportResult dl の margin */
+#exportNotice {
+    margin: 1em 0;
+}
+
+#exportResult dl {
+    margin: 0.5em 0;
+}
+
+/* a=16・a=19 mutate_templates.dynamic.php ほか: コード欄の帯の margin-top:5px、テンプレート名の div の margin-bottom:10px、
+   TV の一覧の下のボタン列の margin-top:15px */
+.code-editor > div:first-child {
+    margin-top: 5px;
+}
+
+#tabTemplate > div:first-of-type {
+    margin-bottom: 10px;
+}
+
+#templatesPane #tabInfo ul.actionButtons {
+    margin-top: 15px;
+}
+
+/* a=31 files.dynamic.php: アップロード欄の margin-top:10px */
+#uploader {
+    margin-top: 10px;
+}
+
+/* a=133 publish_draft.dynamic.php: 採用の選択の div の margin-bottom:1em（12px） */
+div:has(> label > input[name="publishoption"]) {
+    margin-bottom: 12px;
+}
+
+/* a=10 messages.static.php: 返信欄のボタン列の margin-top:15px */
+ul.actionButtons.messages-compose-actions {
+    margin-top: 15px;
+}
