@@ -228,6 +228,7 @@ return [
     "element_categories" => 'Combined View',
     "element_management" => 'Manage Elements',
     "element_name" => 'Element name',
+    "element_name_required" => 'Please enter a name for the %s.',
     "element_selector_msg" => 'Select the Elements(s) from the list below and click the \'Insert\' button.',
     "element_selector_title" => 'Element Selector',
     "elements" => 'Elements',
