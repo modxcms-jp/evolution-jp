@@ -302,7 +302,7 @@ function init() {
         if (names.length === 0) {
             return;
         }
-        if (!window.confirm(t('fb_confirm_delete_files', names.length))) {
+        if (!window.confirm((names.length === 1 ? t('fb_confirm_delete_file', names[0]) : t('fb_confirm_delete_files', names.length)))) {
             return;
         }
         postForm(config, state, 'delete', { 'files[]': names })

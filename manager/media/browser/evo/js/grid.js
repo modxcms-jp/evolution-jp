@@ -31,12 +31,12 @@ export function createGrid(ctx) {
 
     function itemActionsHtml(isFolder) {
         var preview = isFolder ? '' :
-            '  <button type="button" class="evo-fb-icon-btn" data-role="preview" title="' + escapeHtml(t('fb_preview')) + '">' + ICON_PREVIEW + '</button>';
+            '  <button type="button" class="evo-fb-icon-btn" data-role="preview" title="' + escapeHtml(t('preview')) + '">' + ICON_PREVIEW + '</button>';
         return '' +
             '<span class="evo-fb-item-actions">' +
             preview +
             '  <button type="button" class="evo-fb-icon-btn" data-role="rename" title="' + escapeHtml(t('fb_rename')) + '">' + ICON_RENAME + '</button>' +
-            '  <button type="button" class="evo-fb-icon-btn evo-fb-icon-danger" data-role="delete" title="' + escapeHtml(t('fb_delete')) + '">' + ICON_DELETE + '</button>' +
+            '  <button type="button" class="evo-fb-icon-btn evo-fb-icon-danger" data-role="delete" title="' + escapeHtml(t('delete')) + '">' + ICON_DELETE + '</button>' +
             '</span>';
     }
 

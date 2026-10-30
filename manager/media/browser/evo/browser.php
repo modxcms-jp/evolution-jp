@@ -48,7 +48,7 @@ $labels = [
 
 // JS(js/i18n.js の t())へ渡すキー。JS で使うキーはここだけに列挙する
 $jsLangKeys = [
-    'fb_loading', 'fb_preview', 'fb_rename', 'fb_delete',
+    'fb_loading', 'preview', 'fb_rename', 'delete',
     'fb_selected_count', 'fb_no_match', 'fb_empty_folder', 'fb_load_failed', 'fb_no_subfolders',
     'fb_upload_failed', 'fb_network_error',
     'fb_move_partial_failed', 'fb_move_failed', 'fb_rename_failed', 'fb_rename_prompt',
@@ -89,8 +89,8 @@ $markup .= '    </div>';
 $markup .= '  </div>';
 $markup .= '  <div class="evo-fb-selectionbar" data-role="selectionbar" hidden>';
 $markup .= '    <span data-role="selection-count"></span>';
-$markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-move">' . hsc(lang('fb_move')) . '</button>';
-$markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-delete">' . hsc(lang('fb_delete')) . '</button>';
+$markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-move">' . hsc(lang('move')) . '</button>';
+$markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-delete">' . hsc(lang('delete')) . '</button>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="clear-selection">' . hsc(lang('fb_clear_selection')) . '</button>';
 $markup .= '  </div>';
 $markup .= '  <div class="evo-fb-body">';
@@ -107,7 +107,7 @@ $markup .= '      <div class="evo-fb-overlay-header">' . hsc(lang('fb_move_dest_
 $markup .= '      <div class="evo-fb-path" data-role="move-path"></div>';
 $markup .= '      <div class="evo-fb-grid evo-fb-grid-folders" data-role="move-grid"></div>';
 $markup .= '      <div class="evo-fb-overlay-footer">';
-$markup .= '        <button type="button" class="evo-fb-btn" data-role="move-cancel">' . hsc(lang('fb_cancel')) . '</button>';
+$markup .= '        <button type="button" class="evo-fb-btn" data-role="move-cancel">' . hsc(lang('cancel')) . '</button>';
 $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="move-confirm">' . hsc(lang('fb_move_here')) . '</button>';
 $markup .= '      </div>';
 $markup .= '    </div>';
@@ -117,7 +117,7 @@ $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel">';
 $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt="">';
 $markup .= '      <div class="evo-fb-preview-meta" data-role="preview-meta"></div>';
 $markup .= '      <div class="evo-fb-overlay-footer">';
-$markup .= '        <button type="button" class="evo-fb-btn" data-role="preview-close">' . hsc(lang('fb_close')) . '</button>';
+$markup .= '        <button type="button" class="evo-fb-btn" data-role="preview-close">' . hsc(lang('close')) . '</button>';
 $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="preview-pick">' . hsc(lang('fb_pick_this_file')) . '</button>';
 $markup .= '      </div>';
 $markup .= '    </div>';
@@ -141,7 +141,7 @@ if ($isModal) {
 $theme = $modx->config('manager_theme');
 ?>
 <!DOCTYPE html>
-<html lang="<?= globalv('modx_lang_attribute', 'ja') ?>">
+<html lang="<?= hsc(lang('lang_attribute', 'en')) ?>">
 <head>
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($labels[$type]) ?></title>

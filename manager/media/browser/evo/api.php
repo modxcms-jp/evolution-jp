@@ -239,7 +239,7 @@ function fbActionThumb(PathResolver $resolver, $type)
 
     $file = $resolver->resolveFile($dir['real'], getv('file', ''));
     if ($file === null) {
-        fbError('not_found', lang('fb_err_file_not_found_specified'), 404);
+        fbError('not_found', lang('fb_err_file_not_found'), 404);
     }
 
     $thumbs = new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/');
@@ -419,7 +419,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_file($path)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_file_not_found'))];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
         if (unlink($path)) {
@@ -433,7 +433,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_dir($path)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_folder_entry_not_found'))];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_folder_not_found'))];
             continue;
         }
         if (fbDeleteTree($path)) {
@@ -474,7 +474,7 @@ function fbActionMove(PathResolver $resolver, $type)
         $destPath = $destDir['real'] . $name;
 
         if ($name === '' || !is_file($sourcePath)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_file_not_found'))];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
         if (file_exists($destPath)) {
