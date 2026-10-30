@@ -53,10 +53,7 @@ if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $_SESSION['itemname'] = "New Template Variable";
 }
 
-$form_v = manager()->loadFormValues();
-if ($form_v) {
-    $content = array_merge($content, $form_v);
-}
+$content = manager()->restoreElementFormValues($content);
 
 // get available RichText Editors
 $RTEditors = '';

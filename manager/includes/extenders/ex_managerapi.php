@@ -119,6 +119,34 @@ class ManagerAPI
         return true;
     }
 
+    /**
+     * 要素の編集画面で、差し戻された入力があれば $content に重ねて返す。
+     * フォームの項目名を画面が読む形に直す（categoryid → category、post → $codeKey、
+     * チェックボックスは 0/1）。差し戻しでなければ $content をそのまま返す
+     *
+     * @param array $content DB から読んだ値
+     * @param string $codeKey コードの項目名（plugincode など）。フォームの post をここへ写す。無ければ空文字
+     * @param string[] $checkboxes チェックボックスの項目名（locked など）
+     * @return array
+     */
+    public function restoreElementFormValues(array $content, string $codeKey = '', array $checkboxes = ['locked']): array
+    {
+        if (!$this->hasFormValues()) {
+            return $content;
+        }
+        $values = $this->loadFormValues();
+        if (isset($values['categoryid'])) {
+            $values['category'] = $values['categoryid'];
+        }
+        if ($codeKey !== '' && isset($values['post'])) {
+            $values[$codeKey] = $values['post'];
+        }
+        foreach ($checkboxes as $name) {
+            $values[$name] = !empty($values[$name]) && $values[$name] !== '0' ? 1 : 0;
+        }
+        return array_merge($content, $values);
+    }
+
     // load saved form values into $_POST
     public function loadFormValues()
     {

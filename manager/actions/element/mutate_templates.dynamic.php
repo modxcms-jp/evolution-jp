@@ -434,13 +434,7 @@ function template($key, $default = null)
     }
     $tplObject = array_merge($tplObject, $_POST);
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
-    if (manager()->hasFormValues()) {
-        $form_v = manager()->loadFormValues();
-        if (isset($form_v['categoryid'])) {
-            $form_v['category'] = $form_v['categoryid'];
-        }
-        $tplObject = array_merge($tplObject, $form_v);
-    }
+    $tplObject = manager()->restoreElementFormValues($tplObject);
     return evo()->array_get($tplObject, $key, $default);
 }
 

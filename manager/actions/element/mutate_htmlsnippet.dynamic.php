@@ -66,16 +66,10 @@ if (preg_match('@^[1-9][0-9]*$@', $id)) {
 }
 
 // restore saved form
-$formRestored = false;
-if (manager()->hasFormValues()) {
-    $form_v = manager()->loadFormValues();
-    $formRestored = true;
-} else {
-    $form_v = $_POST;
-}
-
-if ($formRestored == true || postv('changeMode')) {
-    $content = array_merge($content, $form_v);
+$formRestored = manager()->hasFormValues();
+$content = manager()->restoreElementFormValues($content, 'snippet');
+if (!$formRestored && postv('changeMode')) {
+    $content = array_merge($content, $_POST);
     $content['content'] = postv('ta');
 }
 
@@ -101,8 +95,8 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 
-if (isset($form_v['which_editor'])) {
-    $which_editor = postv('which_editor');
+if (isset($content['which_editor'])) {
+    $which_editor = $content['which_editor'];
 } elseif (!entity('editor_type')) {
     $which_editor = 'none';
 }
