@@ -9,7 +9,7 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 ## Progress
 
 - [x] (2026-10-30) M1: UI 文言の多言語化（言語ファイルに `fb_` のキーを 62 個、`js/i18n.js` を追加。日英の表示・API のエラー・既存操作を Docker で確認）
-- [ ] M2: 右クリックメニュー
+- [x] (2026-10-31) M2: 右クリックメニュー（`js/contextmenu.js` を追加。一覧のファイル・フォルダ・何も無い所で今ある操作を呼ぶ。モーダル・ポップアップ・TinyMCE のダイアログ、日英で Docker で確認）
 - [ ] M3: コピー・切り取り・貼り付け
 - [ ] M4: zip での一括ダウンロード
 - [ ] M5: 画像の簡易編集（トリミング・90° 回転・数値でのリサイズ）
@@ -110,7 +110,7 @@ M1 と M2 の手順を書く。M3 以降の手順は、その段階に着手す�
 
 ### M2
 
-1. `manager/media/browser/evo/js/contextmenu.js` を作る。`createContextMenu({ rootEl, gridEl, state, getActions })` のように、メニューの DOM を 1 つだけ作って使い回し、`open(x, y, items)` と `close()` を持たせる。項目は `{ label, onSelect, danger }` の配列で受け取り、メニューは中身を知らない。DOM は `role="menu"`、項目は `role="menuitem"` の `<button>` にし、文字は `textContent` で入れる（`innerHTML` を使わない）。
+1. `manager/media/browser/evo/js/contextmenu.js` を作る。`createContextMenu({ rootEl, scrollEl })` で、メニューの DOM を 1 つだけ作って使い回し、`open(x, y, items, label)`（`label` は読み上げ用の `aria-label`）と `close()` を持たせる。`scrollEl` は、スクロールしたら閉じる対象の一覧（`dropzoneEl`）。項目は `{ label, onSelect, danger }` の配列で受け取り、メニューは中身を知らない。DOM は `role="menu"`、項目は `role="menuitem"` の `<button>` にし、文字は `textContent` で入れる（`innerHTML` を使わない）。
 
 2. `filebrowser.js` で一覧（`gridEl`）の `contextmenu` イベントを受け、`preventDefault()` してから、右クリックした所で項目を決める。
    - ファイルの上: そのファイルが選択に入っていなければ、選択をそのファイルだけにする（エクスプローラーと同じ）。選択が 1 件なら「選択」（項目名は既存の `fb_pick_this_file`）「プレビュー」「名前の変更」「移動」「削除」。2 件以上なら「移動」「削除」だけにし、選択バーのボタンと同じ処理を呼ぶ。
