@@ -60,7 +60,7 @@ if (db()->count($rs) < 1) {
                 </thead>
                 <tr class="row1">
                     <td>
-                        <form method="post" action="index.php" name="accesspermissions" style="margin: 0px;"
+                        <form method="post" action="index.php" name="accesspermissions"
                               enctype="multipart/form-data">
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_user_group"/>
@@ -136,7 +136,7 @@ if (db()->count($rs) < 1) {
                 </thead>
                 <tr class="row1">
                     <td>
-                        <form method="post" action="index.php" name="accesspermissions" style="margin: 0px;"
+                        <form method="post" action="index.php" name="accesspermissions"
                               enctype="multipart/form-data">
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_document_group"/>
@@ -168,7 +168,7 @@ if (db()->count($rs) < 1) {
                             echo "</td></tr>\n";
                         } // close previous one
 
-                        echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" style="margin: 0px;" enctype="multipart/form-data">' . "\n" .
+                        echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" enctype="multipart/form-data">' . "\n" .
                             '<input type="hidden" name="a" value="41" />' . "\n" .
                             '<input type="hidden" name="groupid" value="' . $row['id'] . '" />' . "\n" .
                             '<input type="hidden" name="operation" value="rename_document_group" />' . "\n" .
@@ -220,7 +220,7 @@ if (db()->count($rs) < 1) {
                     </thead>
                     <tr class="row1">
                         <td>
-                            <form method="post" action="index.php" name="accesspermissions" style="margin: 0px;">
+                            <form method="post" action="index.php" name="accesspermissions">
                                 <input type="hidden" name="a" value="41"/>
                                 <input type="hidden" name="operation" value="add_document_group_to_user_group"/>
                                 <?= $_lang["access_permissions_link_user_group"] ?>

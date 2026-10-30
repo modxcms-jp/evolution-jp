@@ -351,7 +351,7 @@ $location = getv('id') ? '10' : '2';
                     <tr>
                         <td></td>
                         <td>
-                            <ul class="actionButtons" style="margin-top:15px;">
+                            <ul class="actionButtons messages-compose-actions">
                                 <li><a href="#" class="primary"
                                         onclick="documentDirty=false; document.messagefrm.submit();"><?= $_lang['messages_send'] ?>
                                     </a></li>
