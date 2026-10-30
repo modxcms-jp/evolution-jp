@@ -7,7 +7,7 @@
 ## Progress
 
 - [x] (2026-10-27) ExecPlan を作った。直書きの棚卸し（Context and Orientation の表）まで済み
-- [ ] M1: 修正前の計測（6 テーマ + RevoStyle × 対象画面 × 全タブ）と、棚卸しの仕分けの確定
+- [x] (2026-10-30) M1: 修正前の計測（7 テーマ × 17 画面 × 全タブ = 329 パネル）と、棚卸しの仕分けの確定。結果は `<work>/spacing/m1-base/`、消した場合の差は `<work>/spacing/probe/probe.json`
 - [ ] M2 の手順 0: 本人の確認（相談事項 1〜4）
 - [ ] M2: 画面の HTML から直書きの余白を消し、6 テーマに決まりの規則を足す。RevoStyle には今の値を保つ規則を足す
 - [ ] M3: 通しの計測と、`theme-spacing.md` の例外と書き方の仕上げ
@@ -22,6 +22,21 @@
 - `manager/actions/tool/import_site.static.php` の 33 行は `.sectionBody` に `style="margin:8px;"` を書いている（外側の余白。ブロックの間に当たる）。
 - `manager/actions/element/resource_selector.static.php`（`a=84`）は、`window.close()` で閉じる別窓の画面で、`#mainPane` の中に入らない。決まりの対象外（ポップアップ）。
 - `manager/actions/report/phpinfo.static.php`（`a=200`）の埋め込みの `<style>` は、PHP の `phpinfo()` が出す HTML を整えるもので、`.phpinfoReport` の中に閉じている。
+
+M1 の計測（2026-10-30、main の 90 コミット後の作業ツリー。検証環境 `evo-validate-924`、127.0.0.24、mailpit だけ 18025 番）で分かったこと。
+
+- 棚卸しの表は今の main でも合っている（行番号だけ動いた: `files.dynamic.php` の `#uploader` は 375→404 行、`div` の `padding:10px 20px` は 438→467 行）。増えたのは、対象外に当たる `publish_draft.dynamic.php` 61 行と `mutate_content/fields.php` の `td`/`span` の `margin:0`（文字の小さな表示）、`resource_selector` 160 行の `margin:1em`（別窓）、`mutate_templates` 392 行の `$divstyle`（枠・色・`padding:1em` の入れ物）、`mutate_plugin` 147 行の引数の表（`margin-top:20px;margin-bottom:20px`、JS の表）。埋め込みの `<style>` は 20 ファイルのまま
+- `document_data.static.php`（a=3）の埋め込みの `h3` の規則は、今は何にも当たらない。a=3 の `#mainPane` の中に `h3` が 1 つも無い（id=1・2・5 で確認）。消しても見た目は変わらない（先々 `h3` を足したときに決まりを打ち消す芽を摘む作業）。計画の「`.sectionBody h3` を打ち消す」は、今は起きていない
+- 計測のための環境の整備が要った。`use_udperms` が 0 だと a=91 は権限エラー（a=40 も中身が空）。管理ユーザーが 1 人だけだと `messages` 権限が 0 にされ、a=10 は権限エラーの警告になる（`ex_managerapi.php` 522 行）。検証環境に、`use_udperms=1`、文書グループ・ユーザーグループ・ウェブグループを各 1 つ、2 人目の管理ユーザー `second` を SQL で足した（リポジトリの外。環境を作り直したら同じ手順が要る）
+- a=133（下書きの公開）は、下書きが無くても画面が出る（`id=1`）。下書きを作らずに測った
+- 直書きを消した場合の差は、画面ごとに JS で外して測った（`probe.js`。コードは変えていない）。主な結果は Context and Orientation の表の「M1 の結果」。分かったこと:
+  - 消すだけで見た目が変わらない: a=40・a=91 の `form` の `margin: 0px`、a=31 の `#uploader` の `margin-top:10px`（前のブロックの下の 12px に相殺される）、a=133 の `div` の `margin-bottom:1em`（12px = 決まりと同じ）、a=3 の `<style>`
+  - 消すと間が 0 になり、規則が要る: a=93 の 2 か所、`mutate_templates` の `div` と帯、4 つのエディタの帯（表の下の 5px が 0 になる）、a=13 の `ul`（12px が 0 になる）、a=16 の `ul.actionButtons`（15px が 0 になる）、a=83 の `#exportNotice`（上下の 12px が 0 になる）
+  - 表のセルの中: a=10 の `ul.actionButtons`（textarea の下の 15px が 0 になり、ボタンが欄に付く）、a=301 の `padding-top:8px`（ウィジェット設定の行は、種類によって出る。隠れた行）、`mutate_plugin` の `.split`（AromaHop・SakuraFlow では `display:none`。そのほかの 4 テーマで 10px ずつ）
+  - `import_site` の `margin:8px` は縦の間を変えない（相殺される）が、横は変わる。AromaHop・SakuraFlow は `.sectionBody` の外側の横が 8px → 0（幅 1148 → 1164）、RevoStyle は 8px → 15px。RevoClassic・AuroraFlow・RubberWhite・SoftSlate は変わらない（テーマの値が 8px）
+  - `sysinfo` の `.sectionBody` の `padding:10px 20px` を消すと、テーマの `.sectionBody` の値に変わる: AromaHop・SakuraFlow は 20px（縦 +10px ずつ、横は同じ）、AuroraFlow・RevoClassic は 16px（縦 +6px ずつ、横 -4px ずつ）、RubberWhite・SoftSlate・RevoStyle は 15px（縦 +5px ずつ、横 -5px ずつ）
+  - `sysinfo` の表の `margin-bottom:20px` を消すと、次の見出し（`h4`）までが 20px → 12px（RevoStyle は 6px になるので 20px を保つ規則が要る）
+  - `:has(+ X)` の規則は、`bkmanager` のスナップショットのタブで当たらない: `form` と次の `.sectionHeader` の間に `<style>` があるため（`theme-spacing.md` に書いてある限界）。`<style>` を動かすか、class を付ける
 
 ## Decision Log
 
@@ -38,6 +53,12 @@
 - 2026-10-27 / yamamoto（planner）: 修正前の状態は #917 と同じく、Playwright で `**/manager/media/style/*/style.css*` を横取りして `<base>` の中身を返す方法で作る。ただし今回は画面の PHP も変えるので、横取りだけでは修正前を再現できない。M1 の計測は、未変更の作業ツリー（このブランチの M1 の時点）で行い、結果を `<work>/spacing/m1-base/` に残して修正前の基準にする。
   - 根拠: #917 の学び（基準の版を報告に書かないと読み違える）。M2 以降の比較の基準は、常に `m1-base`（コミット `<base>` の表示）と書く。
 - 2026-10-27 / yamamoto（planner）: 計測の条件は #917 と同じ（幅 1440px・高さ 900px、0.5px に丸め、決まりとの差が ±0.5px 以内なら一致）。2 枚目以降のタブは、タブの見出し（`.tab-row .tab`）を順にクリックして、パネルごとに測る。
+- 2026-10-30 / yamamoto（worker、M1。本人の確認は M2 の手順 0 で取る）: M1 の仕分けの案を Context and Orientation の表のとおりにする。
+  - 消すだけ: a=3 の `<style>`、a=40・a=91 の `form` の `margin: 0px`、a=31 の `#uploader`、a=133 の `div`、`sysinfo` の表、a=83 の `dl`
+  - 規則を足す: 既存の `:has(+ X)` の並びを広げ、class は `.code-editor` だけを新しく付ける見込み。a=13 は `.tab-pane > ul.actionButtons` の `margin-top`
+  - 対象外に足す: a=301 の `padding-top:8px`、`mutate_plugin` の `.split`。a=40・a=91 の `li` の中の `form` の `margin-top: 0.5em` と、a=10 の `ul.actionButtons` は相談事項 2 に回す
+  - 根拠: M1 の計測（`<work>/spacing/probe/probe.json`）。相談事項の材料は Surprises & Discoveries と表
+  - 代替案: `.tab-pane > ul.actionButtons` を前の兄弟の `margin-bottom` で作る案は、最後の `.tab-page` が非表示のとき当たらないので採らない
 
 ## Outcomes & Retrospective
 
@@ -54,23 +75,37 @@
 - 直書き: 画面の HTML の `style="…"` 属性や、画面が出す `<style>` の中で余白の px を書くこと。`style` 属性は `!important` 無しでは `style.css` から上書きできない
 - 画面の番号: 管理画面の URL の `index.php?a=<番号>`。番号とファイルの対応は `manager/index.php` の `switch` の `case`
 
-棚卸し（2026-10-27。ブロックの間に当たるものだけ。行は計画作成時）:
+棚卸し（2026-10-27 に作り、2026-10-30 の M1 で今の main に合わせて仕分けを確定した。ブロックの間に当たるものだけ。行番号は 2026-10-30）。
 
-| 画面 | ファイル | 直書き | 見込みの扱い |
-| --- | --- | --- | --- |
-| a=53 システム情報 | `manager/actions/report/sysinfo.static.php` | 99 行 `.sectionBody` の `padding:10px 20px`、129・135・148 行 `<table style="margin-bottom:20px;">`（2 枚目のタブ） | `padding` を消してテーマの値に任せる。表の下は `.sectionBody > :is(div, table, fieldset)` で 12px |
-| a=93 バックアップ | `manager/actions/tool/bkmanager.static.php` | 294 行 `div.actionButtons` の `margin-top:10px`、325 行 `margin-top:10px;margin-bottom:10px` | 消す。前の兄弟の `margin-bottom` で作る |
-| a=95 インポート | `manager/actions/tool/import_site.static.php` | 33 行 `.sectionBody` の `margin:8px` | 消す |
-| a=40・a=91 アクセス権限 | `manager/actions/permission/access_permissions.dynamic.php`・`web_access_permissions.dynamic.php` | `form` の `margin: 0px`（5 か所ずつ）、`li` の中の `form` の `margin-top: 0.5em` | `margin: 0` はテーマの既定と同じなら消す。`0.5em` は M1 で測って決める |
-| a=10 メッセージ | `manager/actions/permission/messages.static.php` | 354 行 `ul.actionButtons` の `margin-top:15px` | 消す |
-| a=16・a=19 テンプレート | `manager/actions/element/mutate_templates.dynamic.php` | 105 行 `div` の `margin-bottom:10px`、151 行 帯の `margin-top:5px`、273 行 `ul.actionButtons` の `margin-top:15px` | 消す |
-| a=22・a=23 スニペット、a=78・a=77 チャンク、a=108 モジュール、a=102 プラグイン | `mutate_snippet`・`mutate_htmlsnippet`・`mutate_module`・`mutate_plugin`（各 `manager/actions/element/*.dynamic.php`） | 帯の `margin-top:5px`。プラグインは 659・668 行 `.split` の `margin:10px 0` | 帯の `margin-top` を消す。`.split` は M1 で測って決める |
-| a=301 テンプレート変数 | `manager/actions/element/mutate_tmplvars.dynamic.php` | 498 行 `div` の `padding-top:8px` | M1 で測って決める |
-| a=13 ログ | `manager/actions/report/logging.static.php` | 188 行 `ul.actionButtons` の `margin-top:1em`（横の `margin-left:5px` は残す） | 縦だけ消す |
-| a=31 ファイル管理 | `manager/actions/element/files.dynamic.php` | 375 行 `#uploader` の `margin-top:10px` | 消す |
-| a=133 下書きの公開 | `manager/actions/document/publish_draft.dynamic.php` | 106 行 `div` の `margin-bottom:1em` | 消す |
-| a=3 リソースの情報 | `manager/actions/document/document_data.static.php` | 206〜212 行 埋め込みの `h3 { padding-bottom:0; margin-bottom:0 }`（範囲を絞っていない） | 消す（Surprises & Discoveries） |
-| a=83 エクスポート | `manager/actions/tool/export_site.static.php` | 埋め込みの `#exportNotice { margin: 1em 0 }`、`#exportResult dl { margin: 0.5em 0 }` | `#exportNotice` は消してブロックの間に。`dl` はリセット規則の対象なので消す |
+「消した場合」は、6 テーマ（RevoStyle を除く）で直書きを JS で外して測った差（`<work>/spacing/probe/probe.json`）。「期待する間」は、M2 の後に 6 テーマで測って一致を見る値（px、±0.5px）。RevoStyle は「保つ」に書いた値を、RevoStyle の `style.css` の凍結の規則で保つ。
+
+| 画面 | ファイル（行） | 直書き | 消した場合（M1 の結果） | 決めた扱い | 期待する間 | RevoStyle で保つ値 |
+| --- | --- | --- | --- | --- | --- | --- |
+| a=53 システム情報 | `report/sysinfo.static.php`（99 行） | `.sectionBody` の `padding:10px 20px` | テーマの値に変わる。AromaHop・SakuraFlow は 20px（縦 +10 ずつ、横は同じ）、AuroraFlow・RevoClassic は 16px（縦 +6、横 -4）、RubberWhite・SoftSlate は 15px（縦 +5、横 -5） | 消す（相談事項 1） | 内側の余白はテーマの値（上の値のとおり） | `padding:10px 20px` |
+| 同（2 枚目のタブ） | 同（129・135・148 行） | `<table style="margin-bottom:20px;">` ×3 | 表の下が 20px → 12px（次の `h4` まで） | 消すだけ | 表の下 12 | 20px（消すと 6px になる） |
+| a=93 バックアップ（復元のタブ） | `tool/bkmanager.static.php`（294 行） | `div.actionButtons` の `margin-top:10px` | ファイル欄の `div` とボタンの間が 10 → 0 | 規則を足す。前の兄弟の下に `form > :has(+ div.actionButtons)`（既存の `form > :has(+ …)` の並びに足す） | 12 | `margin-top:10px` |
+| 同（スナップショットのタブ） | 同（325 行） | `margin-top:10px;margin-bottom:10px` | 表とボタンの間 10 → 0、ボタンと次の `.sectionHeader` の間 10 → 0 | 規則を足す。上は上と同じ規則。下は `form` と `.sectionHeader` の間に `<style>` が挟まって `.tab-page > :has(+ .sectionHeader)` が当たらないので、`<style>` を `form` の前へ移す（class は増やさない） | 上 12、下 12 | `margin-top:10px;margin-bottom:10px` |
+| a=95 インポート | `tool/import_site.static.php`（33 行） | `.sectionBody` の `margin:8px` | 縦の間は変わらない。横が変わる（AromaHop・SakuraFlow は 8px → 0、幅 1148 → 1164。RevoClassic・AuroraFlow・RubberWhite・SoftSlate はテーマの値が同じ 8px で変わらない） | 消す（相談事項 1 に並べる。横の外側の余白が AromaHop・SakuraFlow で変わる） | 縦は変わらない | `margin:8px` |
+| a=40・a=91 アクセス権限 | `permission/access_permissions.dynamic.php`・`web_access_permissions.dynamic.php`（5 か所ずつ） | `form` の `margin: 0px` | 差なし（テーマの `form` は 0） | 消すだけ | 変わらない | 不要 |
+| 同 | 同（93・96 行） | `li` の中の `form` の `margin-top: 0.5em`（6px） | 項目の間が 8〜9px → 2〜3px | 対象外（リストの項目の間。相談事項 2）。消すなら項目の間の規則が要る | 変えない（6px のまま） | 不要 |
+| a=10 メッセージ | `permission/messages.static.php`（354 行） | 返信の表のセルの中の `ul.actionButtons` の `margin-top:15px` | textarea の行とボタンの間が 15 → 0（ボタンが欄に付く） | 相談事項 2: セルの中として対象外にするか、class `.messages-compose-actions` を付けて `margin-top: var(--space-3)`（15 → 12）にする。推奨は後者 | 12 | `margin-top:15px` |
+| a=16・a=19 テンプレート | `element/mutate_templates.dynamic.php`（105 行） | `div` の `margin-bottom:10px` | 帯の `margin-top:5px` も消すと、名前の `div` とコード欄の間が 10 → 0（片方だけ消すと 5 になる） | 規則を足す（下の `.code-editor`） | 12 | 10px |
+| 同（151 行） | 同 | 帯の `margin-top:5px` | 同上 | 同上 | 同上 | 5px |
+| 同（273 行） | 同 | `ul.actionButtons` の `margin-top:15px`（タブ 3。TV の一覧の下） | 一覧の `ul` の下の 6px だけになる。TV が無いときは文字の直後で 0 | 規則を足す。TV が無いときの文字を `<p>` で包み、`:is(.sectionBody, .tab-page, form) > :has(+ ul.actionButtons)` の `margin-bottom` で作る | 12 | 15px |
+| a=22・a=23 スニペット、a=78・a=77 チャンク、a=108・a=107 モジュール、a=102 プラグイン | `mutate_snippet`（336 行）・`mutate_htmlsnippet`（241 行）・`mutate_module`（387 行）・`mutate_plugin`（539 行） | 帯の `margin-top:5px` | 表の下が 5 → 0 | 規則を足す。コード欄の入れ物（帯とテキスト欄を入れる `div`）に class `.code-editor` を付け、前の兄弟の `margin-bottom`（`:has(+ .code-editor)`）で作る | 12 | 5px |
+| 同 | `mutate_plugin`（659・668 行） | `.split` の `margin:10px 0` | AromaHop・SakuraFlow は `display:none`（差なし）。ほかの 4 テーマは 10px ずつ → 0 | 対象外（表の行の中の区切り線。部品の内側） | 変えない | 不要 |
+| a=301 テンプレート変数 | `mutate_tmplvars.dynamic.php`（498 行） | ラベルのセルの中の `div` の `padding-top:8px` | ウィジェットの設定の行が出たときだけ。行の中の位置が 8px ずれる | 対象外（表のセルの中。部品の内側） | 変えない | 不要 |
+| a=13 ログ | `report/logging.static.php`（188 行） | `ul.actionButtons` の `margin-top:1em;margin-left:5px` | 縦 12 → 0（タブのパネルとボタンの間。RevoClassic は 16 → 4、RubberWhite は 14 → 2） | 縦だけ消す。`.tab-pane > ul.actionButtons` に `margin-top: var(--space-3)` を足す（最後の `.tab-page` が非表示のことがあり、`:has(+ ul)` が当たらないため。上の兄弟が無い作りなので相殺は起きない） | 12（RevoClassic 16・RubberWhite 14 は負の `top` の分で、今と同じ） | `margin-top:12px` |
+| a=31 ファイル管理 | `element/files.dynamic.php`（404 行） | `#uploader` の `margin-top:10px` | 差なし（前のブロックの下の 12px に相殺されていた） | 消すだけ | 12 | 10px |
+| a=133 下書きの公開 | `document/publish_draft.dynamic.php`（106 行） | `div` の `margin-bottom:1em` | 差なし（12px。決まりと同じ） | 消すだけ | 12 | 12px（消すと 0 になる） |
+| a=3 リソースの情報 | `document/document_data.static.php`（206〜212 行） | 埋め込みの `h3 { padding-bottom:0; margin-bottom:0 }` | 差なし（a=3 の中に `h3` が無い。今は何にも当たらない） | 消す | 変わらない | 不要 |
+| a=83 エクスポート | `tool/export_site.static.php`（83・144 行） | 埋め込みの `#exportNotice { margin: 1em 0 }`、`#exportResult dl { margin: 0.5em 0 }` | `#exportNotice` は上下 12 → 0。`dl` は上 6 → 0（下は 6 のまま） | `#exportNotice` は消して、下の間を `:has(+ ul.actionButtons)` で作る。`dl` は消すだけ（リセット規則の `margin-bottom` が残る） | notice の下 12、`dl` どうし 6 | `#exportNotice` の `margin: 1em 0` |
+
+M2 で足す規則の見込み（新しい class は `.code-editor` と、相談事項 2 で決まれば `.messages-compose-actions` だけ）:
+
+- `:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:has(+ .code-editor)` の `margin-bottom: var(--space-3)`（`:has` は別の規則に分ける）
+- `.tab-pane > ul.actionButtons` の `margin-top: var(--space-3)`（a=13）
+- 6 テーマに同じ規則を足す。RevoStyle は上の「RevoStyle で保つ値」の px を、画面ごとの class・要素の規則で書く
 
 対象外にするもの（理由）:
 
@@ -79,7 +114,10 @@
 - `fieldset style="width:300px;padding:0;"`（ユーザーの編集）、`div style="padding-left:20px"`: 部品の内側・横の余白
 - 並べ替えリスト（`mutate_template_tv_rank`・`mutate_plugin_priority` の `ul.sortableList li`）、親の選択のモーダル（`parent_picker`）、システムログのスクロールする箱の中の項目（`eventlog` の `.system-log-entry` など）: 部品の内側・モーダル。`theme-spacing.md` の例外に「スクロールする箱やリストの項目の間」として書く
 - `resource_selector`（a=84、別窓）、`phpinfo`（a=200、`phpinfo()` の出力を整える `.phpinfoReport` の中）: 対象外の画面。`theme-spacing.md` の例外に書く
-- `import_site` の `fieldset style="padding:10px;…"`、`files.dynamic.php` 438 行の `div` の `padding:10px 20px`: 入れ物の内側の余白（色も直書き）。この作業では扱わない
+- `import_site` の `fieldset style="padding:10px;…"`、`files.dynamic.php` 467 行の `div` の `padding:10px 20px`、`mutate_templates` 392 行の `$divstyle`（`padding:1em`・枠・背景色）: 入れ物の内側の余白（色も直書き）。この作業では扱わない
+- `mutate_snippet`・`mutate_module`・`mutate_tmplvars`・`mutate_plugin` の JS が組み立てる引数の表（`margin-bottom:3px`、`mutate_plugin` 147 行の `margin-top:20px;margin-bottom:20px` など）、`mutate_plugin` 219 行の `padding-bottom:10px`: 入力部品の一部（M1 で追加）
+- `mutate_plugin` の `.split` の `margin:10px 0`、`mutate_tmplvars` 498 行の `padding-top:8px`: 表のセルの中。M1 の計測で、消すと行の中の位置が動くだけで、ブロックの間ではないと確認した（M1 で追加）
+- `publish_draft` 61 行・`mutate_content/fields.php` の `margin:0`（小さな文字の表示）、`resource_selector` 160 行の `margin:1em`（別窓）: 縦のブロックの間ではない（M1 で追加）
 
 関係するファイル:
 
