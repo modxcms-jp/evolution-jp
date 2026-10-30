@@ -185,7 +185,7 @@ $icons_path = manager_style_image_path('icons');
                     </tbody>
                 </table>
             </div>
-            <ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
+            <ul class="actionButtons" style="margin-left:5px;">
                 <li><a
                         href="#" class="default"
                         onclick="documentDirty=false;document.logging.log_submit.click();">

@@ -1730,6 +1730,28 @@ form > :has(+ #pagination) {
     margin-bottom: var(--space-3);
 }
 
+/* 画面から直書きを消した分の間。画面は余白を書かず、前のブロックの margin-bottom と class で決まりを受ける。
+   :has を使う規則は別の規則に分け、:has 非対応のブラウザで一緒に捨てられないようにする */
+/* 操作ボタン列の前（バックアップ・エクスポート・テンプレートの TV の一覧など） */
+:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
+    margin-bottom: var(--space-3);
+}
+
+/* コード欄（帯とテキスト欄の入れ物）の前（テンプレート・スニペット・チャンク・モジュール・プラグイン） */
+:is(.sectionBody, .tab-page, form) > :has(+ .code-editor) {
+    margin-bottom: var(--space-3);
+}
+
+/* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
+.tab-pane > ul.actionButtons {
+    margin-top: var(--space-3);
+}
+
+/* メッセージの返信欄（表のセルの中）の欄とボタンの間 */
+ul.actionButtons.messages-compose-actions {
+    margin-top: var(--space-3);
+}
+
 .actionButtons li {
     list-style: none;
     margin-right: var(--space-2);

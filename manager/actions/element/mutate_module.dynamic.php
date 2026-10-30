@@ -389,9 +389,9 @@ function content($key, $default = null)
                 </table>
 
                 <!-- PHP text editor start -->
-                <div style="position:relative">
+                <div class="code-editor" style="position:relative">
                     <div
-                        style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                        style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;">
                         <span style="float:left;font-weight:bold;"><?= $_lang['module_code'] ?></span>
                         <span style="float:right; color:#707070"><?= $_lang['wrap_lines'] ?><input name="wrap"
                                 type="checkbox" <?= content('wrap') == 1 ? ' checked="checked"' : '' ?> class="inputBox"

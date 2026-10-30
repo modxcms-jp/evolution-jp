@@ -79,10 +79,6 @@ foreach ($exportJsKeys as $key) {
                         display: none !important;
                     }
 
-                    #exportNotice {
-                        margin: 1em 0;
-                    }
-
                     /* 外枠が残りの色、中身（#exportBarFill）が進んだ部分。色はテーマの変数（assets/docs/theme-variables.md） */
                     #exportBar {
                         position: relative;
@@ -138,10 +134,6 @@ foreach ($exportJsKeys as $key) {
 
                     #exportEta {
                         margin-left: 1em;
-                    }
-
-                    #exportResult dl {
-                        margin: 0.5em 0;
                     }
 
                     #exportResult dt {

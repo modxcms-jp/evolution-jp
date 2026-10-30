@@ -103,7 +103,7 @@ function getTplDraft()
 	<p class="okmsg">
 	下書きを保存しました。
 	</p>
-		<div style="margin-bottom:1em;">
+		<div>
 			<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
 			<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
 			<label class="label-disabled"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>

@@ -203,13 +203,6 @@ function entity($key, $default = null)
 <div class="sectionBody">
     <div class="tab-pane" id="docInfo">
 
-        <style type="text/css">
-            h3 {
-                font-size: 1em;
-                padding-bottom: 0;
-                margin-bottom: 0;
-            }
-        </style>
         <!-- General -->
         <div class="tab-page" id="tabDocInfo">
             <h2 class="tab"><?= $_lang['information'] ?></h2>

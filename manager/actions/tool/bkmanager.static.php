@@ -291,7 +291,7 @@ if (sessionv('result_msg')) {
                 <div>
                     <input type="file" name="sqlfile" id="sqlfile" size="70" />
                 </div>
-                <div class="actionButtons" style="margin-top:10px;">
+                <div class="actionButtons">
                     <a
                         href="#"
                         class="primary"
@@ -309,6 +309,17 @@ if (sessionv('result_msg')) {
                 $_lang["bkmgr_snapshot_msg"],
                 ['snapshot_path' => hsc($backup->dir())]
             ); ?>
+            <style type="text/css">
+                /* シェル化でツリー等と同一documentになったため、コンテンツ領域内に限定する */
+                #mainPane table, body > .tab-page table {
+                    background-color: #fff;
+                    border-collapse: collapse;
+                }
+
+                #mainPane table td, body > .tab-page table td {
+                    padding: 4px;
+                }
+            </style>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />
                 <input type="hidden" name="mode" value="snapshot" />
@@ -322,24 +333,13 @@ if (sessionv('result_msg')) {
                         <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText($_lang["bkmgr_file_name_hint"], ['keep' => EvoBackupManager::KEEP]) ?></td>
                     </tr>
                 </table>
-                <div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
+                <div class="actionButtons">
                     <a href="#" class="primary" onclick="document.snapshot.save.click();">
                         <?= $_lang["bkmgr_snapshot_submit"] ?>
                     </a>
                     <input type="submit" name="save" style="display:none;" />
             </form>
         </div>
-        <style type="text/css">
-            /* シェル化でツリー等と同一documentになったため、コンテンツ領域内に限定する */
-            #mainPane table, body > .tab-page table {
-                background-color: #fff;
-                border-collapse: collapse;
-            }
-
-            #mainPane table td, body > .tab-page table td {
-                padding: 4px;
-            }
-        </style>
         <div class="sectionHeader"><?= $_lang["bkmgr_snapshot_list_title"] ?></div>
         <div class="sectionBody">
             <form method="post" name="restore2" action="index.php">
