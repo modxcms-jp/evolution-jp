@@ -27,9 +27,13 @@ RUN groupmod -g ${GROUP_ID} www-data && \
 RUN echo 'sendmail_path = "/usr/bin/msmtp -t -i"' > /usr/local/etc/php/conf.d/msmtp.ini && \
     ln -sf /usr/bin/msmtp /usr/sbin/sendmail
 
-# Apache を 8080 で動かす（www-data はポート 80 にバインドできないため）
-RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf && \
-    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
+# Apache を 80 と 8080 で動かす
+# - ホストからは 8080 へつなぐ（compose.yml などの ports）
+# - 80 は、コンテナの中からサイトの URL（ポートなし）で自サイトを取りに行く処理のため（HTML エクスポートなど）
+# - Docker 20.10 以降の bridge ネットワークでは、コンテナの中の net.ipv4.ip_unprivileged_port_start が 0 になるので、www-data のままで 80 を開ける
+#   （host ネットワークなどではこの前提が成り立たない）
+RUN sed -i 's/^Listen 80$/Listen 80\nListen 8080/' /etc/apache2/ports.conf && \
+    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:80 *:8080>/' /etc/apache2/sites-enabled/000-default.conf
 
 # Apache起動
 COPY manager/docker/entrypoint.sh /entrypoint.sh
