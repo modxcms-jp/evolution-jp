@@ -40,9 +40,17 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         $columnsDataTemp = explode('||', $columnsData);
         $columnsData = [];
         foreach ($columnsDataTemp as $value) {
+            $value = trim($value);
+            //JSON はそのまま渡す（PHP として評価すると "$" や "\u…" の意味が変わる）
+            if (is_array(json_decode($value, true))) {
+                $columnsData[] = $value;
+                continue;
+            }
+            //PHP の配列の書き方（[...]・array(...)）は、値を返す形にしてから評価する
+            $code = preg_match('/^(\[|array\s*\()/i', $value) ? "return {$value};" : $value;
             //Евалим знение и записываем результат или исходное значени
             try {
-                $eval = eval($value);
+                $eval = eval($code);
             } catch (\Throwable $e) {
                 $eval = null; // not PHP code: use the value as is
             }
@@ -451,13 +459,19 @@ makeSelect: function(value, title, data, width, fieldCol){
     var select = document.createElement("select");
     select.className = "ddField";
     if (data){
-        var dataMas = JSON.parse(data);
-        var options = "";
+        var dataMas = null;
+        try {
+            dataMas = JSON.parse(data);
+        } catch (e) {
+            console.warn("mm_ddMultipleFields: columnsData を読めません", data);
+        }
         //配列でもオブジェクトでも回す
-        Object.keys(dataMas).forEach(function(index){
-            options += "<option value=\""+ dataMas[index][0] +"\">" + (dataMas[index][1] ? dataMas[index][1] : dataMas[index][0]) +"</option>";
+        Object.keys(dataMas && typeof dataMas === "object" ? dataMas : {}).forEach(function(index){
+            var option = document.createElement("option");
+            option.value = dataMas[index][0];
+            option.textContent = dataMas[index][1] ? dataMas[index][1] : dataMas[index][0];
+            select.appendChild(option);
         });
-        select.insertAdjacentHTML("beforeend", options);
     }
     if (value) select.value = value;
     fieldCol.appendChild(select);
