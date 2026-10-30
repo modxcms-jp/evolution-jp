@@ -3,6 +3,7 @@
 // ファイル移動ドラッグ(dnd.jsのDND_TYPE)とはisOsFileDrag()で区別して共存する。
 
 import { escapeHtml } from './utils.js';
+import { t } from './i18n.js';
 import { isOsFileDrag } from './dnd.js';
 
 /**
@@ -88,14 +89,14 @@ export function createUpload(ctx) {
                 });
             } else {
                 rows.forEach(function (row) {
-                    row.done(false, 'アップロードに失敗しました');
+                    row.done(false, t('fb_upload_failed'));
                 });
             }
             ctx.onDone();
         });
         xhr.addEventListener('error', function () {
             rows.forEach(function (row) {
-                row.done(false, '通信エラー');
+                row.done(false, t('fb_network_error'));
             });
         });
         xhr.send(formData);

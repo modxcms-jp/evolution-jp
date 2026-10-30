@@ -3,6 +3,7 @@
 // 追加リクエストなしに同期する。
 
 import { escapeHtml, joinPath, folderIcon, fileIcon, ICON_TREE_ARROW } from './utils.js';
+import { t } from './i18n.js';
 import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
 
 /**
@@ -120,7 +121,7 @@ export function createTree(ctx) {
         if (node.dataset.loaded) {
             return Promise.resolve();
         }
-        children.innerHTML = '<div class="evo-fb-tree-loading">読み込み中...</div>';
+        children.innerHTML = '<div class="evo-fb-tree-loading">' + escapeHtml(t('fb_loading')) + '</div>';
         return ctx.fetchLight(path)
             .then(function (data) {
                 renderTreeChildren(node, data.folders, data.files);

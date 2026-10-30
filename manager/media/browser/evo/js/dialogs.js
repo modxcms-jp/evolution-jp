@@ -2,6 +2,7 @@
 // どちらもEvoShellのモーダルではなく、filebrowser.js自身が描画する軽量オーバーレイ。
 
 import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, renderBreadcrumb } from './utils.js';
+import { t } from './i18n.js';
 import { apiUrl, fetchJson } from './api.js';
 
 /**
@@ -35,12 +36,12 @@ export function createMoveDialog(ctx) {
             moveFolder = path;
             load();
         });
-        ctx.gridEl.innerHTML = '<div class="evo-fb-empty">読み込み中...</div>';
+        ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_loading')) + '</div>';
 
         fetchJson(apiUrl(ctx.config, { action: 'list', type: ctx.state.type, folder: moveFolder }))
             .then(function (data) {
                 if (data.folders.length === 0) {
-                    ctx.gridEl.innerHTML = '<div class="evo-fb-empty">サブフォルダはありません</div>';
+                    ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_no_subfolders')) + '</div>';
                     return;
                 }
                 ctx.gridEl.innerHTML = data.folders.map(function (folder) {

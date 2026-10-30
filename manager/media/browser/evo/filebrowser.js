@@ -4,6 +4,7 @@
 // グローバル関数として公開し、断片内のインラインscriptから毎回呼び直す。
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
+import { setMessages, t } from './js/i18n.js';
 import { apiUrl, fetchJson, postForm } from './js/api.js';
 import { bindMoveDropTarget } from './js/dnd.js';
 import { createTree } from './js/tree.js';
@@ -29,6 +30,7 @@ function init() {
     }
 
     var config = JSON.parse(root.getAttribute('data-config') || '{}');
+    setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
     var initialFallbackTried = false;
@@ -91,14 +93,14 @@ function init() {
         postForm(config, state, 'move', { 'files[]': names, dest: dest }, sourceFolder)
             .then(function (result) {
                 if (result.errors && result.errors.length) {
-                    window.alert('一部のファイルを移動できませんでした:\n' + result.errors.map(function (err) {
+                    window.alert(t('fb_move_partial_failed') + '\n' + result.errors.map(function (err) {
                         return err.name + ': ' + err.message;
                     }).join('\n'));
                 }
                 load();
             })
             .catch(function (err) {
-                window.alert('移動に失敗しました: ' + err.message);
+                window.alert(t('fb_move_failed', err.message));
             });
     }
 
@@ -109,23 +111,23 @@ function init() {
         postForm(config, state, 'rename', { target: name, newName: newName })
             .then(load)
             .catch(function (err) {
-                window.alert('名前の変更に失敗しました: ' + err.message);
+                window.alert(t('fb_rename_failed', err.message));
             });
     }
 
     function renameEntry(name) {
-        performRename(name, window.prompt('新しい名前を入力してください', name));
+        performRename(name, window.prompt(t('fb_rename_prompt'), name));
     }
 
     function deleteEntry(name, isFolder) {
-        if (!window.confirm((isFolder ? 'フォルダ' : 'ファイル') + '「' + name + '」を削除しますか?')) {
+        if (!window.confirm(t(isFolder ? 'fb_confirm_delete_folder' : 'fb_confirm_delete_file', name))) {
             return;
         }
         var fields = isFolder ? { 'folders[]': [name] } : { 'files[]': [name] };
         postForm(config, state, 'delete', fields)
             .then(load)
             .catch(function (err) {
-                window.alert('削除に失敗しました: ' + err.message);
+                window.alert(t('fb_delete_failed', err.message));
             });
     }
 
@@ -276,14 +278,14 @@ function init() {
     var mkdirBtn = root.querySelector('[data-action="mkdir"]');
     if (mkdirBtn) {
         mkdirBtn.addEventListener('click', function () {
-            var name = window.prompt('新しいフォルダ名を入力してください');
+            var name = window.prompt(t('fb_mkdir_prompt'));
             if (!name) {
                 return;
             }
             postForm(config, state, 'mkdir', { name: name })
                 .then(load)
                 .catch(function (err) {
-                    window.alert('フォルダを作成できませんでした: ' + err.message);
+                    window.alert(t('fb_mkdir_failed', err.message));
                 });
         });
     }
@@ -300,13 +302,13 @@ function init() {
         if (names.length === 0) {
             return;
         }
-        if (!window.confirm(names.length + '件のファイルを削除しますか?')) {
+        if (!window.confirm(t('fb_confirm_delete_files', names.length))) {
             return;
         }
         postForm(config, state, 'delete', { 'files[]': names })
             .then(load)
             .catch(function (err) {
-                window.alert('削除に失敗しました: ' + err.message);
+                window.alert(t('fb_delete_failed', err.message));
             });
     });
 
