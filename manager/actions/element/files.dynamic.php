@@ -401,7 +401,7 @@ if (is_writable($startpath)) {
             echo $information;
         } ?>
 
-        <div id="uploader" class="actionButtons" style="margin-top:10px;">
+        <div id="uploader" class="actionButtons">
             <input type="file" name="userfile" onchange="document.upload.submit();">
             <a
                 class="default" href="#" onclick="document.upload.submit()"

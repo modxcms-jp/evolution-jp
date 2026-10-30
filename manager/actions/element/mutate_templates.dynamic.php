@@ -102,7 +102,7 @@ if (id()) {
             <div class="tab-pane" id="templatesPane">
                 <div class="tab-page" id="tabTemplate">
                     <h2 class="tab"><?= lang('template_edit_tab') ?></h2>
-                    <div style="margin-bottom:10px;">
+                    <div>
                         <b><?= lang('template_name') ?></b>
                         <input name="templatename" type="text" maxlength="100"
                             value="<?= evo()->hsc(template('templatename')) ?>"
@@ -146,9 +146,9 @@ if (id()) {
                         $foot = $parent['foot'] ?? '';
                     }
                     ?>
-                    <div style="width:100%;position:relative">
+                    <div class="code-editor" style="width:100%;position:relative">
                         <div
-                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;">
                             <span style="float:left;font-weight:bold;"><?= lang('template_code') ?></span>
                         </div>
                         <?php if (isset($head)) {
@@ -266,11 +266,11 @@ if (id()) {
                                 }
                                 $tvList .= '</ul>';
                             } else {
-                                $tvList = lang('template_no_tv');
+                                $tvList = '<p>' . lang('template_no_tv') . '</p>';
                             }
                             echo $tvList;
                             ?>
-                            <ul class="actionButtons" style="margin-top:15px;">
+                            <ul class="actionButtons">
                                 <?php
                                 $query = get_intvar('id') ? '&amp;tpl=' . get_intvar('id') : '';
                                 ?>
