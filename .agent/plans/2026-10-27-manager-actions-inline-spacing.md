@@ -133,6 +133,7 @@ M2 で足す規則の見込み（新しい class は `.code-editor` と、相談
 - `mutate_snippet`・`mutate_module`・`mutate_tmplvars`・`mutate_plugin` の JS が組み立てる引数の表（`margin-bottom:3px`、`mutate_plugin` 147 行の `margin-top:20px;margin-bottom:20px` など）、`mutate_plugin` 219 行の `padding-bottom:10px`: 入力部品の一部（M1 で追加）
 - `mutate_plugin` の `.split` の `margin:10px 0`、`mutate_tmplvars` 498 行の `padding-top:8px`: 表のセルの中。M1 の計測で、消すと行の中の位置が動くだけで、ブロックの間ではないと確認した（M1 で追加）
 - `publish_draft` 61 行・`mutate_content/fields.php` の `margin:0`（小さな文字の表示）、`resource_selector` 160 行の `margin:1em`（別窓）: 縦のブロックの間ではない（M1 で追加）
+- エディタ型 5 画面の帯の `padding:3px 8px`（`mutate_templates`・`mutate_plugin`・`mutate_module`・`mutate_htmlsnippet`・`mutate_snippet`）: 帯の内側の余白。色と枠の直書きと一緒に別の Issue で扱う（M1 の確認の決定 3。M3 の照合で追加）
 
 関係するファイル:
 
