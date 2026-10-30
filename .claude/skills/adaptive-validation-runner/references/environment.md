@@ -9,7 +9,7 @@
 
 | サービス | コンテナ名 | 公開ポート | 備考 |
 | --- | --- | --- | --- |
-| app | `<名前>-app` | `<アドレス>:80` → 8080 | php:8.4-apache。作業ツリーを `/var/www/html` にマウント |
+| app | `<名前>-app` | `<アドレス>:80` → 8080 | php:8.4-apache（標準の版。ほかの版は「ほかの PHP の版で検証するとき」）。作業ツリーを `/var/www/html` にマウント |
 | db | `<名前>-db` | なし | mariadb:11（DB `evodb`、ユーザー `user` / `password`） |
 | mailpit | `<名前>-mailpit` | `<アドレス>:8025` → 8025 | app の mail() は msmtp 経由で mailpit へ届く |
 
@@ -141,6 +141,23 @@ git status --short
 - 確認のために止めたほかのコンテナは、ユーザーの指示に従って戻すか止めたままにする
 - 作業用ディレクトリ（Playwright・確認スクリプト）は、リポジトリの外なので PR には入らない。不要なら消す
 - ユーザーが目視で確かめたい場合は、`down` せずにログイン情報と URL を伝える
+
+## ほかの PHP の版で検証するとき
+
+標準の版（`manager/docker/Dockerfile` の `FROM`）以外で確かめるときは、Dockerfile を作業用ディレクトリ（リポジトリの外）へコピーし、`FROM` だけ変えてビルドする。関数単体の確認なら、公式イメージ（`php:<版>-cli`）で足りる。
+
+```bash
+sed '1s/.*/FROM php:8.5-apache/' manager/docker/Dockerfile > <work>/Dockerfile.8.5
+docker build -t <イメージ名> -f <work>/Dockerfile.8.5 .   # リポジトリのルートで実行する（COPY の基準）
+docker run --rm --entrypoint php <イメージ名> -m          # 拡張がそろっているか
+```
+
+- **PHP 8.5 以降**: OPcache は PHP 本体に組み込まれ、`docker-php-ext-install opcache` は失敗する（`cp: cannot stat 'modules/*'`）。Dockerfile は OPcache が読み込まれていないときだけビルドするので、`FROM` を変えるだけで通る
+- **PHP 7.4（`php:7.4-apache`、Debian 11）**: apt のリポジトリがアーカイブへ移り、`deb.debian.org` のままでは `apt-get install` が 404 で止まる。コピーした Dockerfile の `FROM` の直後に、取得先をアーカイブへ向ける行を足す
+
+  ```dockerfile
+  RUN sed -i 's|deb.debian.org|archive.debian.org|' /etc/apt/sources.list
+  ```
 
 ## 1.2 系（保守ブランチ・リリースタグ）で検証するとき
 

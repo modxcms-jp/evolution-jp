@@ -25,6 +25,7 @@
 - 2026-05-06 / yamamoto: バックアップ先は `temp/backup/migrate/YYYYMMDD_HHMMSS/`。`migrate/` サブディレクトリでDB（`db-backup.php` が使う `temp/backup/`）との混在を回避。
 - 2026-05-06 / yamamoto: ロールバックはジャーナル配列に操作を記録し、エラー時に逆順で戻す方式。DBバックアップは自動ロールバック対象外（ファイルのみ戻す）。
 - 2026-05-06 / yamamoto: ブラウザ操作が必要なアップグレード画面（install/）の自動化は対象外。
+- 2026-10-30 / yamamoto: GitHub API の応答ヘッダーは `$http_response_header` ではなく、`fopen()` ＋ `stream_get_meta_data()` の `wrapper_data` で読む。`$http_response_header` は PHP 8.5 で非推奨になり、参照するだけでコンパイル時に Deprecated が出るため（main の動作要件は PHP 7.4 以上で、7.4〜8.5 のどれでも通知が出ない書き方にそろえる）。
 
 ## Outcomes & Retrospective
 
@@ -110,7 +111,8 @@ foreach ($args as $arg) {
 
 ### Step 2: GitHub API で最新リリース情報取得
 
-エラー抑制演算子（`@`）は使わず、`$http_response_header` と `error_get_last()` で失敗原因をユーザーに提示して中断する。
+エラー抑制演算子（`@`）は使わず、応答ヘッダー（`stream_get_meta_data()` の `wrapper_data`）と `error_get_last()` で失敗原因をユーザーに提示して中断する。
+`$http_response_header` は PHP 8.5 で非推奨（参照するだけで Deprecated が出る）のため使わない。`fopen()` で開いたストリームのメタデータから応答ヘッダーを読む（PHP 7.4〜8.5 のどれでも通知が出ない。PR #954 で `manager/includes/site_exporter.class.inc.php` の `requestByStream()` に入れたものと同じ方式）。
 
 ```php
 $apiUrl = $tag !== ''
@@ -123,14 +125,23 @@ $ctx = stream_context_create(['http' => [
     'timeout'         => 30,
     'ignore_errors'   => true,   // 4xx/5xx でも本文を取得してエラー内容を表示できるようにする
 ]]);
-$json = file_get_contents($apiUrl, false, $ctx);
-if ($json === false) {
+$fp = fopen($apiUrl, 'rb', false, $ctx);
+if ($fp === false) {
     $err = error_get_last();
     cli_usage('GitHub API 取得失敗: ' . ($err['message'] ?? '不明なエラー'));
 }
-// HTTP ステータス確認（$http_response_header[0] 例: "HTTP/1.1 404 Not Found"）
-if (!isset($http_response_header[0]) || strpos($http_response_header[0], '200') === false) {
-    cli_usage('GitHub API エラー: ' . ($http_response_header[0] ?? '不明') . "\n" . substr($json, 0, 200));
+$meta = stream_get_meta_data($fp);
+$json = stream_get_contents($fp);
+fclose($fp);
+// HTTP ステータス確認（ステータス行の例: "HTTP/1.1 404 Not Found"）。リダイレクトを辿ったときは最後のステータス行が最終応答
+$statusLine = '';
+foreach ((array)($meta['wrapper_data'] ?? []) as $line) {
+    if (strpos($line, 'HTTP/') === 0) {
+        $statusLine = $line;
+    }
+}
+if (!preg_match('@^HTTP/\S+\s+200\b@', $statusLine)) {
+    cli_usage('GitHub API エラー: ' . ($statusLine ?: '不明') . "\n" . substr((string)$json, 0, 200));
 }
 $release = json_decode($json, true);
 if (!is_array($release) || empty($release['zipball_url'])) {
