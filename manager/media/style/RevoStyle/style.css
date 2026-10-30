@@ -1927,8 +1927,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin: 8px;
 }
 
-/* a=13 logging.static.php: 検索フォームの下のボタン列の margin-top:1em（12px） */
-form[name="logging"] > ul.actionButtons {
+/* a=13 logging.static.php: タブの組の下のボタン列の margin-top:1em（12px） */
+#logPane > ul.actionButtons {
     margin-top: 12px;
 }
 
