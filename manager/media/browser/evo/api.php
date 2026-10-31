@@ -435,6 +435,7 @@ function fbActionDelete(PathResolver $resolver, $type)
 
     $deleted = [];
     $errors = [];
+    $failures = [];
 
     foreach ($files as $name) {
         $name = PathResolver::sanitizeSegment($name);
@@ -446,7 +447,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         if (@unlink($path)) {
             $deleted[] = $name;
         } else {
-            fbLogDeleteFailure($path);
+            $failures[] = $path;
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
         }
     }
@@ -458,11 +459,18 @@ function fbActionDelete(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_folder_not_found'))];
             continue;
         }
-        if (fbDeleteTree($path)) {
+        if (fbDeleteTree($path, $failures)) {
             $deleted[] = $name;
         } else {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_partial')];
         }
+    }
+
+    if ($failures) {
+        evo()->logEvent(0, 3, 'Failed to delete entries in the file browser', 'File browser', [
+            'count' => count($failures),
+            'paths' => array_slice($failures, 0, 20),
+        ]);
     }
 
     fbSendJson(['deleted' => $deleted, 'errors' => $errors]);
@@ -597,27 +605,32 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
     fbSendJson(['copied' => $copied, 'errors' => $errors]);
 }
 
-function fbLogDeleteFailure($path)
-{
-    evo()->logEvent(0, 3, 'Failed to delete an entry in the file browser', 'File browser', [
-        'path' => $path,
-    ]);
-}
-
-// 最後まで消して、消せないものがあれば false を返す。シンボリックリンクはリンクだけを消し、先へは入らない
-function fbDeleteTree($path)
+// 最後まで消して、消せないものがあれば false を返し、失敗したパスを $failures に集める。
+// シンボリックリンクはリンクだけを消し、先へは入らない。$root は中へ入ってよい範囲(実パス・末尾スラッシュ付き)
+function fbDeleteTree($path, array &$failures, $root = null)
 {
     if (is_link($path)) {
         if (@unlink($path)) {
             return true;
         }
-        fbLogDeleteFailure($path);
+        $failures[] = $path;
+        return false;
+    }
+
+    if ($root === null) {
+        $real = realpath($path);
+        $root = $real === false ? '' : rtrim(str_replace('\\', '/', $real), '/') . '/';
+    }
+    $real = realpath($path);
+    $real = $real === false ? '' : rtrim(str_replace('\\', '/', $real), '/') . '/';
+    if ($root === '' || strpos($real, $root) !== 0) {
+        $failures[] = $path;
         return false;
     }
 
     $entries = @scandir($path);
     if ($entries === false) {
-        fbLogDeleteFailure($path);
+        $failures[] = $path;
         return false;
     }
 
@@ -629,16 +642,16 @@ function fbDeleteTree($path)
         $full = $path . '/' . $entry;
         if (is_link($full) || !is_dir($full)) {
             if (!@unlink($full)) {
-                fbLogDeleteFailure($full);
+                $failures[] = $full;
                 $ok = false;
             }
-        } elseif (!fbDeleteTree($full)) {
+        } elseif (!fbDeleteTree($full, $failures, $root)) {
             $ok = false;
         }
     }
 
     if ($ok && !@rmdir($path)) {
-        fbLogDeleteFailure($path);
+        $failures[] = $path;
         $ok = false;
     }
 

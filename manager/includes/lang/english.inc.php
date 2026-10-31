@@ -1378,6 +1378,6 @@ return [
     "fb_copy_partial_failed" => 'Some files could not be copied:',
     "fb_copy_failed" => 'Copy failed: %s',
     "fb_err_copy_failed" => 'Could not copy.',
-    "fb_delete_partial_failed" => 'Some files could not be deleted:',
+    "fb_delete_partial_failed" => 'Some items could not be deleted:',
     "fb_err_delete_partial" => 'Some items could not be deleted.',
 ];
