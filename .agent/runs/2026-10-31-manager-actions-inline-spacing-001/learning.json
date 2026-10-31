@@ -1,0 +1,66 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-actions-inline-spacing",
+    "run_id": "2026-10-31-manager-actions-inline-spacing-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-31T20:50:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "横断的な CSS の規則（:has(+ ul.actionButtons) など）を足したとき、計測は計画の表の画面だけで、規則が当たるほかの画面（a=76・a=75・a=99・a=86・docmanager）を測っていなかった。M2 の自己レビューで grep から見つかり、M3 で測り直した",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "worker が theme-spacing.md に書いた理由（規則の親を 3 つに絞る理由、相殺しない理由）と例のファイルが、実際の画面の HTML と合わず、自己レビューで 2 回直した。理由を CSS の規則の構造から推測して書いていた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/worker.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "missing_instruction",
+            "summary": "ExecPlan を作ったときのブランチ（worktree-issue-924-theme-spacing）が gh issue develop で作られておらず Issue に紐づかなかったため、/run-plan で新しいブランチを作り、計画のコミットを cherry-pick して引き継いだ",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-004",
+            "kind": "missing_instruction",
+            "summary": "同じセッションで続けて回した #908・#909 は、10/27 の実行がコミットまで済んで push と PR の前に止まっていた（紐づくブランチはあるが、リモートには main にない変更が無く、ローカルのワークツリーにだけコミットがあった）。止まる条件「紐づくブランチがある」に当たったが、本人の作業の続きとして引き継いだ。#909 では、その後 main に別の正本（DocumentParser::newFilePermissions）が入っていて、古いコミットをそのまま使えなかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-005",
+            "kind": "missing_instruction",
+            "summary": "非公開アドバイザリとの重なりを確かめる相手（スキャン担当のセッション）が見つからず、アドバイザリの一覧と非公開フォークの PR を直接調べた。その結果、フォークも計画も無い下書き 2 件（管理の流れから漏れていたもの）が見つかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

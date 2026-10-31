@@ -111,6 +111,46 @@
             "added_at": "2026-10-30T23:30:00+09:00",
             "last_used_at": "2026-10-30T23:30:00+09:00",
             "source": "2026-10-30-migration-mechanism-modernization-001"
+        },
+        {
+            "id": "change-015",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-10-31T20:50:00+09:00",
+            "last_used_at": "2026-10-31T20:50:00+09:00",
+            "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        {
+            "id": "change-016",
+            "location": ".agent/agents/worker.md（ドキュメントを書くとき）",
+            "status": "adopted",
+            "added_at": "2026-10-31T20:50:00+09:00",
+            "last_used_at": "2026-10-31T20:50:00+09:00",
+            "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        {
+            "id": "change-017",
+            "location": ".claude/skills/exec-plan/SKILL.md（/create-plan でブランチを作るとき）",
+            "status": "adopted",
+            "added_at": "2026-10-31T20:50:00+09:00",
+            "last_used_at": "2026-10-31T20:50:00+09:00",
+            "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        {
+            "id": "change-018",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 1「事前確認」）",
+            "status": "adopted",
+            "added_at": "2026-10-31T20:50:00+09:00",
+            "last_used_at": "2026-10-31T20:50:00+09:00",
+            "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        {
+            "id": "change-019",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 1「非公開アドバイザリとの重なり」）",
+            "status": "adopted",
+            "added_at": "2026-10-31T20:50:00+09:00",
+            "last_used_at": "2026-10-31T20:50:00+09:00",
+            "source": "2026-10-31-manager-actions-inline-spacing-001"
         }
     ]
 }
