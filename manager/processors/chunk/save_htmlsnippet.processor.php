@@ -91,12 +91,12 @@ switch (postv('mode')) {
         );
         $count = db()->getValue($rs);
         if ($count > 0) {
-            manager()->saveFormValues(77);
-            evo()->webAlertAndQuit(
+            manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
-                'index.php?a=77'
+                77,
+                78,
+                0
             );
-            exit;
         }
         $field = [
             'name' => entity('name'),
@@ -141,12 +141,12 @@ switch (postv('mode')) {
         evo()->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
         if (check_exist_name(entity('name')) !== false) {
-            manager()->saveFormValues(78);
-            evo()->webAlertAndQuit(
+            manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
-                "index.php?a=78&id=" . $id
+                77,
+                78,
+                $id
             );
-            exit;
         }
 
         //do stuff to save the edited doc

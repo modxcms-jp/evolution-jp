@@ -105,6 +105,7 @@ class ManagerAPI
             $editAction,
             $id
         );
+        exit; // redirectToElementForm() は戻らない
     }
 
     /**
@@ -116,15 +117,19 @@ class ManagerAPI
      * @param int $newAction 新規作成画面のアクション番号
      * @param int $editAction 編集画面のアクション番号
      * @param int $id 編集対象の id（新規は 0）
+     * @return void 戻らない（webAlertAndQuit() が出力して終了する。@return never 相当）
      */
     public function redirectToElementForm($message, $newAction, $editAction, $id = 0): void
     {
         $isEdit = (bool)$id;
         $this->saveFormValues($isEdit ? $editAction : $newAction);
-        evo()->webAlertAndQuit(
-            $message,
-            $isEdit ? "index.php?a={$editAction}&id=" . (int)$id : "index.php?a={$newAction}"
-        );
+        $url = $isEdit ? "index.php?a={$editAction}&id=" . (int)$id : "index.php?a={$newAction}";
+        // 保存後の動作の選択（stay）は許可した値だけ引き継ぐ
+        $stay = postv('stay');
+        if ($stay === '1' || $stay === '2') {
+            $url .= "&stay={$stay}";
+        }
+        evo()->webAlertAndQuit($message, $url);
         exit;
     }
 

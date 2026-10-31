@@ -432,7 +432,6 @@ function template($key, $default = null)
     } else {
         $_SESSION['itemname'] = 'New template';
     }
-    $tplObject = array_merge($tplObject, $_POST);
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
     $tplObject = manager()->restoreElementFormValues($tplObject);
     return evo()->array_get($tplObject, $key, $default);

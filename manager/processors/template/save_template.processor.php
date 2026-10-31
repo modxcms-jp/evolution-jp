@@ -12,7 +12,8 @@ if (postv('mode') == 16 && !$id) {
     alert()->dumpError();
 }
 
-$templatename = db()->escape(manager()->requireElementName(postv('templatename'), $_lang['template'], 19, 16, $id));
+$rawName = manager()->requireElementName(postv('templatename'), $_lang['template'], 19, 16, $id);
+$templatename = db()->escape($rawName);
 $description = db()->escape(postv('description', ''));
 $parent = post_intvar('parent');
 
@@ -56,16 +57,12 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
-            // prepare a few request/post variables for form redisplay...
-            $_REQUEST['a'] = '19';
-            $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
-            $_POST['category'] = $categoryid;
-            $_GET['stay'] = postv('stay');
-            include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
-            include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
+                19,
+                16,
+                0
+            );
         }
 
         //do stuff to save the new doc
@@ -106,16 +103,12 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], hsc($templatename)));
-            // prepare a few request/post variables for form redisplay...
-            $_REQUEST['a'] = '16';
-            $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
-            $_POST['category'] = $categoryid;
-            $_GET['stay'] = postv('stay');
-            include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
-            include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
+                19,
+                16,
+                $id
+            );
         }
 
         //do stuff to save the edited doc
