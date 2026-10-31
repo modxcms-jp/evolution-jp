@@ -235,3 +235,5 @@ $_lang["upgrade_auth_required_title"] = 'アップグレードには管理者認
 $_lang["upgrade_auth_required_message"] = '<p>アップグレードを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
 $_lang["upgrade_auth_login_link"] = '管理画面にログイン';
 $_lang["upgrade_auth_after_login"] = 'ログイン後、このページに戻ってアップグレードを続行してください。';
+$_lang["upgrade_permission_required_title"] = 'アップグレードを実行する権限がありません';
+$_lang["upgrade_permission_required_message"] = 'アップグレードを実行するには、システム設定（settings）の権限が必要です。権限のある管理者に依頼してください。';

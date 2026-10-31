@@ -815,11 +815,32 @@ function isManagerAuthenticated()
     return sessionv('mgrValidated') && sessionv('mgrInternalKey');
 }
 
+// アップデーターを通せるのは、管理画面と同じく settings の権限がある人だけ（manager/index.php の未適用時の振り分けと同じ基準）
 function guardUpgradeAccess()
 {
     if (!isManagerAuthenticated()) {
         renderUpgradeAuthRequired();
     }
+    if (!evo()->hasPermission('settings')) {
+        renderUpgradePermissionRequired();
+    }
+}
+
+function renderUpgradePermissionRequired()
+{
+    http_response_code(403);
+    $ph = ph();
+    $ph['content'] = sprintf(
+        '<div class="sectionBody"><h2>%s</h2><p>%s</p></div>',
+        lang('upgrade_permission_required_title'),
+        lang('upgrade_permission_required_message')
+    );
+
+    echo evo()->parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+        $ph
+    );
+    exit;
 }
 
 function renderUpgradeAuthRequired()
