@@ -11,7 +11,7 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 - [x] (2026-10-30) M1: UI 文言の多言語化（言語ファイルに `fb_` のキーを 62 個、`js/i18n.js` を追加。日英の表示・API のエラー・既存操作を Docker で確認）
 - [x] (2026-10-31) M2: 右クリックメニュー（`js/contextmenu.js` を追加。一覧のファイル・フォルダ・何も無い所で今ある操作を呼ぶ。モーダル・ポップアップ・TinyMCE のダイアログ、日英で Docker で確認）
 - [x] (2026-10-31) M3: コピー・切り取り・貼り付け（API に `copy`、クリップボードはメモリ、切り取りは既存の `move`。選択バー・ツールバー・右クリック・Ctrl+C/X/V。モーダル・ポップアップ・TinyMCE、日英で Docker で確認）
-- [ ] M4: zip での一括ダウンロード
+- [ ] (2026-10-31) M4: zip での一括ダウンロード
 - [ ] M5: 画像の簡易編集（トリミング・90° 回転・数値でのリサイズ）
 
 ## Surprises & Discoveries
@@ -45,6 +45,8 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 2026-10-31 (yamamoto/Claude): 一覧を描き直すとフォーカスが失われ、Ctrl+V を続けられなかった。一覧に `tabindex="-1"` を付け、何も無い所をクリックしたら一覧へ、描き直す前にフォーカスがファイルブラウザの中にあったときだけ、描き直した後に選択中の項目か一覧へ戻す（スクロールさせない。外の入力欄からは奪わない）。
 
 2026-10-31 (yamamoto): PR の分け方を改める。当初は 1 段階を 1 PR にする予定だったが、実際には exec-plan-runner の作り（1 つの ExecPlan を 1 つの PR に積む）に沿って、M1〜M3 を #965 にまとめた。差分が大きくなってきたので、#965 は M1〜M3 でレビューに出してマージし、M4・M5 はそれぞれ新しい PR にする。M4・M5 の PR では、対象の Issue を `Refs #678` で挙げ、最後の M5 で `Closes #678` にする。
+
+2026-10-31 (yamamoto/Claude): M4 は下調べの結果をもとに、次のとおり決めた。ZipArchive は README の必須拡張ではなく、公式の PHP イメージにも入っていないので、`BrowserConfig::canCreateZip()` を API と画面の両方で使い、使えない環境では 2 件以上のダウンロードを出さない（1 件はそのまま送れる）。上限は件数 200・合計 256MB とし、定数で持つ（設定項目にはしない）。200MB を zip にしてもメモリは 2MB ほどで、圧縮の時間も数秒で済む（実測）。1 つでも条件を満たさないファイルがあれば全体を拒否する。送るときは POST で受け、`fetch` で受け取って保存させる（エラーを画面に出せるため）。ダウンロードは書き込みではないが、ファイルを外へ出すので CSRF トークンを確かめる。thumb・move・delete は拡張子を見ていないが、ダウンロードでは許可された拡張子だけに絞り、`resolveFile()` で実体を確かめる。フォルダごとのダウンロードは扱わない。
 
 2026-10-17 (yamamoto): 画像編集は Cropper.js を使わず自作する（Issue #678 のコメント）。パッケージを小さく保つため。書き出しは canvas の `drawImage` で行い、トリミング範囲のドラッグは `js/marquee.js` の矩形選択の考え方を流用する。自由な角度の回転とズームは作らない。
 
@@ -96,7 +98,7 @@ API に `download`（POST。`type`、`folder`、`files[]`。CSRF トークンを
 
 ## Concrete Steps
 
-M1〜M3 の手順を書く。M4 以降の手順は、その段階に着手するときにこの節へ足す。
+M1〜M4 の手順を書く。M5 の手順は、その段階に着手するときにこの節へ足す。
 
 ### M1
 
@@ -160,6 +162,29 @@ M1〜M3 の手順を書く。M4 以降の手順は、その段階に着手する
 
 6. 確認（「Validation and Acceptance」の M3 の手順）。
 
+### M4
+
+1. `manager/media/browser/evo/lib/BrowserConfig.php` に `canCreateZip()`（中身は `extension_loaded('zip')`。旧ファイル管理の `files.dynamic.php` の判定と同じ）と、上限の定数（件数 200、合計 256MB）を足す。設定項目は増やさない。
+
+2. `manager/media/browser/evo/lib/ZipService.php` を新しく作る（`ThumbnailService` と同じ位置づけ）。一時ファイルは `MODX_BASE_PATH . 'temp/zip/'` に `tempnam()` で作り、`ZipArchive::OVERWRITE` で開く。各 `addFile()` と `close()` の戻り値を確かめ、1 件でも失敗すれば一時ファイルを消して失敗を返す（存在しないファイルを `addFile()` すると、戻り値を見ないと中身の無い zip ができるため）。エントリ名はファイル名だけ（フォルダを入れない）で、UTF-8 の原名のまま（libzip が UTF-8 の印を付ける）。同じ名前は呼び出し側で重複を除く。圧縮済みの拡張子（jpg・jpeg・png・gif・webp・mp4・zip など）は `setCompressionName(…, ZipArchive::CM_STORE)` にする。古い一時ファイルの掃除は、`ThumbnailService` のごみ集め（確率で古いファイルを消す）と同じ作りにする。
+
+3. `manager/media/browser/evo/api.php` に `download`（POST。`type`・`folder`・`files[]`）を足す。`checkCsrfToken()` に加えて `is_post()` で POST だけを受ける（`csrf_token` は GET でも受け取れてしまうため）。手順は次の順に行う。
+   - `folder` を `resolveDir()` で解決する。
+   - `files[]` の重複を除き、件数の上限を確かめる。
+   - 各名前を `PathResolver::sanitizeSegment()` で 1 要素にし、ドットで始まる名前を除き、許可された拡張子（`BrowserConfig::allowedExtensions()`）だけにする。一覧に出ないファイル（`.php` など）を取り出させないため。
+   - `$resolver->resolveFile()` で実体のパスを確かめ（許可された場所の外を指すシンボリックリンクは拒否）、`is_readable()` も確かめる。名前の文字コードが UTF-8 でないものは `fbNotFoundMessage()` と同じく `bad_encoding` で拒否する。
+   - 合計サイズの上限を確かめる。
+   - 1 つでも満たさないものがあれば、全体を拒否する（中身が黙って欠けた zip を作らない）。
+   - 1 件だけなら zip にせず、そのファイルを `readfile()` で送る。ファイル名は日本語を含みうるので、`Content-Disposition` に `filename*=UTF-8''…`（RFC 5987）を付ける。
+   - 2 件以上なら `ZipService` で作って送る。zip の名前は `{type}-{YYYYMMDD-HHMMSS}.zip`（英数字だけ）にし、`filename=` だけで足りるようにする。`Content-Type`・`Content-Length` を付け、送り終えたら（途中で切れても）`register_shutdown_function()` で一時ファイルを消す。
+   - zip が使えない環境で 2 件以上を求められたら、`fbError('zip_unavailable', …, 501)` を返す。そのほかのエラーも `fbError()` で JSON を返し、文言は言語ファイルに `fb_err_…` で足す。
+
+4. `manager/media/browser/evo/browser.php` の `$jsConfig` に `zip`（`canCreateZip()` の結果）を入れる。選択バーに「ダウンロード」を足す（zip が使えない環境では、2 件以上を選んでいるときは出さない）。右クリックメニューのファイルの項目にも「ダウンロード」を足す。文言は言語ファイルに `fb_` で足し、JS で使うものは `$jsLangKeys` にも足す。
+
+5. `manager/media/browser/evo/js/download.js` を新しく作る。`FormData`（`csrf_token` を含む）で POST し、応答の `Content-Type` が JSON ならエラーとして表示し、そうでなければ `res.blob()` を `a.download` で保存させる。保存する名前は `Content-Disposition` から取る（`filename*=` を先に見る）。作っている間は「準備中」を表示する。`filebrowser.js` は配線だけにする。ポップアップ（単独のページ）でも動くよう、管理画面の `shell.js` には頼らない。
+
+6. 確認（「Validation and Acceptance」の M4 の手順）。PHP の構文は、検証用イメージと、zip 拡張を入れた `php:7.4-cli`（`libzip-dev` を入れて `docker-php-ext-install zip`）の両方で確かめ、7.4 でも実際に zip ができることを確かめる。
+
 ## Validation and Acceptance
 
 確認は Docker の検証環境で行う（`compose.yml`。手順は `adaptive-validation-runner` スキル）。
@@ -191,13 +216,22 @@ M3 は次をすべて満たせば完了とする。確認は Docker の検証環
 - curl で `copy` を呼ぶとき、CSRF トークンが無ければ拒否される。`files[]` や `dest` に `../` を入れても、許可された場所の外には書けない。許可されていない拡張子のファイルは複製されず、`errors` に入る
 - 日本語と英語の画面で文言が合い、言語のキーの名前が画面に出ない。今ある操作（M1・M2 の確認項目）がこれまでどおり動く
 
+M4 は次をすべて満たせば完了とする。確認は Docker の検証環境で、Playwright（ヘッドレス）と curl で行う。
+
+- 2 件以上を選んでダウンロードすると zip が保存され、開くと中の件数が選んだ数と同じで、各ファイルの中身（sha256）が元と一致する。日本語のファイル名はそのまま入る（Linux の `unzip -l` で確かめる。Windows では確かめていないと記録する）
+- 1 件だけなら zip にならず、元と同じ中身のファイルが元の名前（日本語を含む）で保存される
+- zip 拡張の無い構成（公式の `php:8.4-apache` など）では、2 件以上のときのボタンと右クリックの項目が出ず、API に直接 POST すると `zip_unavailable`（501）が返る。1 件のダウンロードはできる
+- 201 件や合計 256MB を超えると拒否され、`temp/zip/` に一時ファイルが残らない。ダウンロードの途中で切っても残らない
+- GET、CSRF トークンが無い、`../`、許可されていない拡張子（`.php` など）、ドットで始まる名前、外を指すシンボリックリンク、文字コードが UTF-8 でない名前は、どれも拒否され、中身は返らない
+- 日本語と英語の画面で文言が合い、言語のキーの名前が画面に出ない。モーダル・ポップアップ・TinyMCE のダイアログで動き、今ある操作（M1〜M3 と #969 の確認項目）がこれまでどおり動く
+
 ## Idempotence and Recovery
 
 各段階は 1 つの PR で閉じる。途中で止まったときは、その段階のブランチを main に合わせ直してやり直せる。言語ファイルにキーを足す作業は、同じキーがすでにあれば足さない（`grep -n '"fb_' manager/includes/lang/english.inc.php` で確かめる）。M3 以降で API に操作を足すときも、今ある操作の動きは変えない。どの段階で止めても、ファイルブラウザは使える状態のままになる。
 
 ## Artifacts and Notes
 
-- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3）。M4・M5 は、#965 のマージ後に main から新しいブランチと PR を作る（Decision Log の 2026-10-31）
+- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3、マージ済み）。M4 はブランチ `feat/678-filebrowser-zip`。M5 は M4 のマージ後に main から新しいブランチと PR を作る（Decision Log の 2026-10-31）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
 - 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）
