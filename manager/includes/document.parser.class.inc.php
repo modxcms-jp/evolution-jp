@@ -6066,20 +6066,25 @@ class DocumentParser
 
     /**
      * 新しく作るファイル・ディレクトリのパーミッションを chmod() などに渡せる値で返す。
-     * 設定が 3〜4 桁の 8 進数（保存時の確かめと同じ）で 0 でないときはその値、
-     * それ以外（空・0・読めない値）は default.config.php の既定値を使う
+     * 設定が 3〜4 桁の 8 進数で 0 でないときはその値、
+     * それ以外（空・0・読めない値）は default.config.php の既定値を使う。
+     * 保存時（save_settings.processor.php）は 3 桁のとき先頭に 0 を足すだけで値を確かめないので、読むときに確かめる
      *
      * @param string $type 'file' か 'folder'
      * @return int
      */
     private function newPermissions($type)
     {
+        static $defaults = null;
+
         $key = "new_{$type}_permissions";
         $value = trim((string) $this->config($key));
         if (preg_match('/^[0-7]{3,4}$/', $value) && octdec($value) > 0) {
             return octdec($value);
         }
-        $defaults = include MODX_CORE_PATH . 'default.config.php';
+        if ($defaults === null) {
+            $defaults = include MODX_CORE_PATH . 'default.config.php';
+        }
         return octdec($defaults[$key]);
     }
 
