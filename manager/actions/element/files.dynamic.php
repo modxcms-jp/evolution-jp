@@ -19,6 +19,17 @@ $enablefiledownload = true;
 $newfolderaccessmode = $modx->config['new_folder_permissions'] ? octdec($modx->config['new_folder_permissions']) : 0777;
 $new_file_permissions = config('new_file_permissions') ? octdec(config('new_file_permissions')) : 0666;
 
+// 受け取ったパスは、使う前に、絶対パス（file:// などの形や相対パスでない）で .. を含まないことを確かめる
+foreach ([anyv('path'), getv('path'), postv('path'), anyv('folderpath')] as $received_path) {
+    if ($received_path === null || $received_path === '') {
+        continue;
+    }
+    if (!is_string($received_path) || !is_absolute_local_path($received_path) || has_parent_reference($received_path)) {
+        echo lang('files_dir_not_viewable');
+        exit;
+    }
+}
+
 // get the current work directory
 if (anyv('path')) {
     $startpath = is_dir(anyv('path')) ? anyv('path') : removeLastPath(anyv('path'));
@@ -38,7 +49,8 @@ if (anyv('name')) {
 }
 foreach ($requested_paths as $requested_path) {
     // 操作に使う値そのものを照合する（値を書き換えない）。親ディレクトリへのたどり（..）を含むパスは受け付けない
-    if (has_parent_reference($requested_path)
+    if (!is_absolute_local_path($requested_path)
+        || has_parent_reference($requested_path)
         || !is_within_filemanager_path($requested_path)
         || is_protected_path($requested_path, $proteted_path)) {
         echo lang('files_dir_not_viewable');
@@ -1209,7 +1221,8 @@ function is_protected_path($path, $proteted_path)
  */
 function normalize_path($path)
 {
-    if (strpos($path, "\0") !== false) {
+    // ヌルバイトを含むもの、絶対パスでないもの（file:// などの形、相対パス）は解決しない
+    if (strpos($path, "\0") !== false || !is_absolute_local_path($path)) {
         return false;
     }
     $is_windows = DIRECTORY_SEPARATOR === '\\';
@@ -1246,7 +1259,23 @@ function normalize_path($path)
         $segments[] = $segment;
     }
     $result = implode('/', $segments);
+    if ($result === '') {
+        // 一番上まで上がったときは、realpath('') がカレントを返すため、ルートを返す
+        $result = '/';
+    }
     return $folded ? normalize_path($result) : $result;
+}
+
+/**
+ * ローカルの絶対パスなら true。Linux は / で始まるもの、Windows は ドライブ文字 + : + 区切り で始まるものだけを受け付ける。
+ * file:// や php:// や phar:// などの形と、相対パスは受け付けない（PHP のファイル関数は URL の形を別の場所として扱うため）。
+ */
+function is_absolute_local_path($path)
+{
+    if (DIRECTORY_SEPARATOR === '\\') {
+        return (bool) preg_match('@^[A-Za-z]:[\\\\/]@', $path);
+    }
+    return strpos($path, '/') === 0;
 }
 
 /**
