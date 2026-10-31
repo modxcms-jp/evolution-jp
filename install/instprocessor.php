@@ -491,8 +491,7 @@ if ($errors > 0) {
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
-// アップデートで管理画面にログイン中なら、ログインを保つ（install.php は $keep_login のときセッションを破棄しない）
-$keep_login = sessionv('is_upgradeable') && isManagerAuthenticated();
+// ログインを保つか（$keep_login）は install.php が処理の前に決め、セッションの後始末も install.php が行う
 echo "<p>" . lang($keep_login ? 'to_log_into_content_manager_keep_login' : 'to_log_into_content_manager') . "</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
 
@@ -503,12 +502,6 @@ if (sessionv('is_upgradeable') == 0) {
 }
 
 echo '</p>';
-
-if ($keep_login) {
-    keepManagerLoginAfterUpgrade();
-} else {
-    $_SESSION = [];
-}
 
 function deleteCacheDirectory($cachePath)
 {

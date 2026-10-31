@@ -1,7 +1,10 @@
 <?php
 $errors = 0;
 $install_aborted = false;
-$keep_login = false;
+// インストール済みのサイトで管理画面にログイン中なら、結果（成功・エラー・中断）によらずログインを保つ。
+// セッションの is_upgradeable は使わない（インストーラの値が無い中断のときは、index.php が 0 にし直すため）。
+// managerConfigInstalled() は入口の保護で最初に呼ばれた結果を返すので、新規インストールで config.inc.php を書いたあとも false のまま
+$keep_login = managerConfigInstalled() && isManagerAuthenticated();
 ob_start();
 include_once(MODX_SETUP_PATH . 'instprocessor.php');
 $content = ob_get_contents();
@@ -19,7 +22,11 @@ if ($install_aborted) {
 <h2><?= $results_title ?></h2>
 <?php
 echo $content;
-if (empty($keep_login)) {
+// インストーラの値（DB のパスワードなど）は残さない。ログインを保つときは、インストーラの値だけを消す
+if ($keep_login) {
+    keepManagerLoginAfterUpgrade();
+} else {
+    $_SESSION = [];
     session_destroy();
 }
 

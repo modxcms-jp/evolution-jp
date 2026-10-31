@@ -1038,7 +1038,7 @@ function installerSessionKeys()
     ];
 }
 
-// アップデートの完了時に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、作成時刻を更新する
+// アップデートの終わり（成功・エラー・中断）に、管理画面のログインを保ったままインストーラの作業用の値だけを消し、作成時刻を更新する
 // 権限は管理画面の次のリクエストで読み直される（accesscontrol.inc.php）
 function keepManagerLoginAfterUpgrade()
 {
