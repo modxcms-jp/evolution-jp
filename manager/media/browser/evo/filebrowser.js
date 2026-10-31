@@ -119,7 +119,7 @@ function init() {
             return;
         }
         postForm(config, state, 'rename', { target: name, newName: newName })
-            .then(load)
+            .then(function () { load(); })
             .catch(function (err) {
                 window.alert(t('fb_rename_failed', err.message));
             });
@@ -135,7 +135,10 @@ function init() {
         }
         var fields = isFolder ? { 'folders[]': [name] } : { 'files[]': [name] };
         postForm(config, state, 'delete', fields)
-            .then(load)
+            .then(function (result) {
+                alertPartialErrors('fb_delete_partial_failed', result.errors);
+                load();
+            })
             .catch(function (err) {
                 window.alert(t('fb_delete_failed', err.message));
             });
@@ -363,7 +366,7 @@ function init() {
             return;
         }
         postForm(config, state, 'mkdir', { name: name })
-            .then(load)
+            .then(function () { load(); })
             .catch(function (err) {
                 window.alert(t('fb_mkdir_failed', err.message));
             });
@@ -390,7 +393,10 @@ function init() {
             return;
         }
         postForm(config, state, 'delete', { 'files[]': names })
-            .then(load)
+            .then(function (result) {
+                alertPartialErrors('fb_delete_partial_failed', result.errors);
+                load();
+            })
             .catch(function (err) {
                 window.alert(t('fb_delete_failed', err.message));
             });
