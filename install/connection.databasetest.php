@@ -48,17 +48,17 @@ if (!$connected) {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
 }
 
-$db_name              = trim(postv('dbase'), '`');
+$db_name              = trim(postv('dbase', ''), '`');
 if ($db_name === '') {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed_could_not_create_database')));
 }
 
-$table_prefix         = trim(postv('table_prefix'));
+$table_prefix         = trim(postv('table_prefix', ''));
 if ($table_prefix) {
     $table_prefix = rtrim($table_prefix, '_') . '_';
 }
-$db_collation         = trim(postv('database_collation'));
-$db_connection_method = trim(postv('database_connection_method'));
+$db_collation         = trim(postv('database_collation', ''));
+$db_connection_method = trim(postv('database_connection_method', ''));
 $underscorePos        = strpos($db_collation, '_');
 $db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 
