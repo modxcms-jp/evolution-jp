@@ -58,12 +58,15 @@ $jsLangKeys = [
     'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
     'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',
     'fb_download', 'fb_download_preparing', 'fb_download_failed',
+    'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed',
+    'fb_err_too_large',
 ];
 $jsMessages = [];
 foreach ($jsLangKeys as $jsLangKey) {
     $jsMessages[$jsLangKey] = lang($jsLangKey);
 }
 
+$browserConfig = new BrowserConfig($modx);
 $jsConfig = [
     // モーダル断片は/manager/index.php上で動くため、相対パスの基準が異なる
     'apiUrl' => $isModal ? 'media/browser/evo/api.php' : 'api.php',
@@ -72,7 +75,11 @@ $jsConfig = [
     'initialFolder' => getv('folder', ''),
     'initialSelect' => getv('select', ''),
     // zip を作れない環境では、2 件以上のダウンロードを出さない(1 件はそのまま送れる)
-    'zip' => (new BrowserConfig($modx))->canCreateZip(),
+    'zip' => $browserConfig->canCreateZip(),
+    // 画像の編集: 編集できる拡張子、書き出しの長い辺の上限(px)、保存できるファイルの大きさの上限(バイト)。API も同じ値で確かめる
+    'editableExtensions' => BrowserConfig::EDITABLE_EXTENSIONS,
+    'editMaxDimension' => BrowserConfig::EDIT_MAX_DIMENSION,
+    'maxUploadSize' => $browserConfig->maxUploadSize(),
     'lang' => $jsMessages,
 ];
 
@@ -128,7 +135,47 @@ $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt=""
 $markup .= '      <div class="evo-fb-preview-meta" data-role="preview-meta"></div>';
 $markup .= '      <div class="evo-fb-overlay-footer">';
 $markup .= '        <button type="button" class="evo-fb-btn" data-role="preview-close">' . hsc(lang('close')) . '</button>';
+$markup .= '        <button type="button" class="evo-fb-btn" data-role="preview-edit" hidden>' . hsc(lang('fb_edit')) . '</button>';
 $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="preview-pick">' . hsc(lang('fb_pick_this_file')) . '</button>';
+$markup .= '      </div>';
+$markup .= '    </div>';
+$markup .= '  </div>';
+$markup .= '  <div class="evo-fb-overlay" data-role="edit-overlay" hidden>';
+$markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbEditTitle" data-role="edit-panel">';
+$markup .= '      <div class="evo-fb-overlay-header" id="evoFbEditTitle">' . hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span></div>';
+$markup .= '      <div class="evo-fb-edit-body">';
+$markup .= '      <div class="evo-fb-edit-stage" data-role="edit-stage"><div class="evo-fb-edit-wrap" data-role="edit-wrap"><canvas data-role="edit-canvas"></canvas><div class="evo-fb-edit-crop" data-role="edit-crop" hidden></div></div></div>';
+$markup .= '      <div class="evo-fb-edit-controls">';
+$markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_rotate')) . '</legend>';
+$markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-rotate-left">' . hsc(lang('fb_edit_rotate_left')) . '</button>';
+$markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-rotate-right">' . hsc(lang('fb_edit_rotate_right')) . '</button>';
+$markup .= '        </fieldset>';
+$markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_crop')) . '</legend>';
+$markup .= '          <label>X <input type="number" min="0" step="1" data-role="edit-crop-x"></label>';
+$markup .= '          <label>Y <input type="number" min="0" step="1" data-role="edit-crop-y"></label>';
+$markup .= '          <label>' . hsc(lang('fb_edit_width')) . ' <input type="number" min="1" step="1" data-role="edit-crop-w"></label>';
+$markup .= '          <label>' . hsc(lang('fb_edit_height')) . ' <input type="number" min="1" step="1" data-role="edit-crop-h"></label>';
+$markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-crop-clear">' . hsc(lang('fb_edit_crop_clear')) . '</button>';
+$markup .= '          <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_crop_hint')) . '</div>';
+$markup .= '        </fieldset>';
+$markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_resize')) . '</legend>';
+$markup .= '          <label>' . hsc(lang('fb_edit_width')) . ' <input type="number" min="1" step="1" data-role="edit-out-w"></label>';
+$markup .= '          <label>' . hsc(lang('fb_edit_height')) . ' <input type="number" min="1" step="1" data-role="edit-out-h"></label>';
+$markup .= '          <label class="evo-fb-edit-check"><input type="checkbox" data-role="edit-keep-ratio" checked> ' . hsc(lang('fb_edit_keep_ratio')) . '</label>';
+$markup .= '          <div class="evo-fb-edit-note">' . hsc(sprintf(lang('fb_edit_resize_hint'), BrowserConfig::EDIT_MAX_DIMENSION)) . '</div>';
+$markup .= '        </fieldset>';
+$markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_save_as')) . '</legend>';
+$markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="copy" data-role="edit-mode" checked> ' . hsc(lang('fb_edit_save_copy')) . '</label>';
+$markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="overwrite" data-role="edit-mode"> ' . hsc(lang('fb_edit_save_overwrite')) . '</label>';
+$markup .= '        </fieldset>';
+$markup .= '      </div>';
+$markup .= '      <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_exif_notice')) . '</div>';
+$markup .= '      </div>';
+$markup .= '      <div class="evo-fb-edit-note" role="status" data-role="edit-status"></div>';
+$markup .= '      <div class="evo-fb-edit-error" role="alert" data-role="edit-error" hidden></div>';
+$markup .= '      <div class="evo-fb-overlay-footer">';
+$markup .= '        <button type="button" class="evo-fb-btn" data-role="edit-cancel">' . hsc(lang('cancel')) . '</button>';
+$markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="edit-save">' . hsc(lang('save')) . '</button>';
 $markup .= '      </div>';
 $markup .= '    </div>';
 $markup .= '  </div>';

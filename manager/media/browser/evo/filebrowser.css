@@ -674,3 +674,129 @@
     outline: var(--border-thin, 1px) solid var(--color-link, #1285a4);
     outline-offset: -1px;
 }
+
+/* 画像の編集ダイアログ */
+
+/* 見出しと下のボタンは常に見えるよう、中身(画像と操作欄)だけをスクロールさせる */
+.evo-fb-edit-panel {
+    width: min(900px, 96%);
+    max-height: 96%;
+    box-sizing: border-box;
+}
+
+.evo-fb-edit-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2, 8px);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+}
+
+.evo-fb-edit-name {
+    font-weight: normal;
+    color: var(--color-text-muted, #606060);
+    word-break: break-all;
+}
+
+.evo-fb-edit-stage {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-2, 8px);
+    background: var(--gray-100, #f5f5f5);
+    border-radius: var(--radius-md, 3px);
+}
+
+/* 表示の大きさと canvas の画素数を同じにして、座標の換算を単純にする。画像の上のドラッグでトリミングの範囲を描く */
+.evo-fb-edit-wrap {
+    position: relative;
+    overflow: hidden;
+    line-height: 0;
+    cursor: crosshair;
+    touch-action: none;
+    user-select: none;
+}
+
+.evo-fb-edit-wrap canvas {
+    display: block;
+}
+
+.evo-fb-edit-crop {
+    position: absolute;
+    box-sizing: border-box;
+    border: var(--border-thin, 1px) dashed #fff;
+    outline: var(--border-thin, 1px) solid rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+}
+
+.evo-fb-edit-crop[hidden] {
+    display: none;
+}
+
+.evo-fb-edit-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--space-2, 8px);
+}
+
+.evo-fb-edit-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    gap: var(--space-2, 8px);
+    margin: 0;
+    padding: var(--space-2, 8px);
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    border-radius: var(--radius-md, 3px);
+    min-width: 0;
+}
+
+.evo-fb-edit-group legend {
+    padding: 0 var(--space-1, 4px);
+    font-weight: bold;
+}
+
+.evo-fb-edit-group input[type="number"] {
+    width: 5.5em;
+    box-sizing: border-box;
+    padding: 1px var(--space-1, 4px);
+    color: var(--color-text-primary, #333);
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    border-radius: var(--radius-sm, 2px);
+    background: var(--color-surface, #fff);
+}
+
+.evo-fb-edit-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1, 4px);
+    flex: 1 1 100%;
+}
+
+.evo-fb-edit-group .evo-fb-edit-note {
+    flex: 1 1 100%;
+}
+
+.evo-fb-edit-note {
+    color: var(--color-text-muted, #606060);
+    font-size: 0.9em;
+}
+
+.evo-fb-edit-note:empty {
+    display: none;
+}
+
+.evo-fb-edit-error {
+    color: var(--color-error, #900);
+}
+
+.evo-fb-edit-error[hidden] {
+    display: none;
+}
+
+.evo-fb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
