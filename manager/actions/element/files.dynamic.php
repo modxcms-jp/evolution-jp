@@ -19,22 +19,27 @@ $enablefiledownload = true;
 $newfolderaccessmode = $modx->config['new_folder_permissions'] ? octdec($modx->config['new_folder_permissions']) : 0777;
 $new_file_permissions = config('new_file_permissions') ? octdec(config('new_file_permissions')) : 0666;
 
+// 受け取ったパスは、使う前に、絶対パス（file:// などの形や相対パスでない）で .. を含まないことを確かめる
+foreach ([anyv('path'), getv('path'), postv('path'), anyv('folderpath')] as $received_path) {
+    if ($received_path === null || $received_path === '') {
+        continue;
+    }
+    if (!is_string($received_path) || !is_absolute_local_path($received_path) || has_parent_reference($received_path)) {
+        echo lang('files_dir_not_viewable');
+        exit;
+    }
+}
+
 // get the current work directory
 if (anyv('path')) {
-    $_REQUEST['path'] = str_replace('..', '', anyv('path'));
     $startpath = is_dir(anyv('path')) ? anyv('path') : removeLastPath(anyv('path'));
 } else {
     $startpath = config('filemanager_path');
 }
 $startpath = rtrim($startpath, '/');
 
-if (!is_readable($startpath)) {
-    echo lang('not_readable_dir');
-    exit;
-}
-
-// ファイル操作より前に、要求されたすべてのパスを保護対象と照合する
-$requested_paths = array_filter([$startpath, getv('path'), postv('path'), anyv('folderpath')]);
+// ファイル操作より前に、要求されたすべてのパスを、対象ディレクトリの中か・保護対象でないかを照合する
+$requested_paths = array_filter([$startpath, anyv('path'), getv('path'), postv('path'), anyv('folderpath')]);
 if (anyv('file')) {
     $requested_paths[] = $startpath . '/' . anyv('file');
 }
@@ -43,10 +48,19 @@ if (anyv('name')) {
     $requested_paths[] = $startpath . '/' . evo()->sanitizeFilename(anyv('name'), false);
 }
 foreach ($requested_paths as $requested_path) {
-    if (is_protected_path($requested_path, $proteted_path)) {
+    // 操作に使う値そのものを照合する（値を書き換えない）。親ディレクトリへのたどり（..）を含むパスは受け付けない
+    if (!is_absolute_local_path($requested_path)
+        || has_parent_reference($requested_path)
+        || !is_within_filemanager_path($requested_path)
+        || is_protected_path($requested_path, $proteted_path)) {
         echo lang('files_dir_not_viewable');
         exit;
     }
+}
+
+if (!is_readable($startpath)) {
+    echo lang('not_readable_dir');
+    exit;
 }
 
 ?>
@@ -226,19 +240,6 @@ foreach ($requested_paths as $requested_path) {
 
         ?> <b><?= $topic_path ?></b>
         <?php
-        // check to see user isn't trying to move below the document_root
-        if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace(
-            '//',
-            '/',
-            config('filemanager_path') . '/'
-        ))) {
-            echo lang('files_access_denied') ?>
-    </div>
-
-<?php
-            exit;
-        }
-
         // Unzip .zip files - by Raymond
         if ($enablefileunzip && anyv('mode') === 'unzip' && is_writable($startpath)) {
             $failed = [];
@@ -277,7 +278,13 @@ foreach ($requested_paths as $requested_path) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
                 $folder = anyv('folderpath');
-                if (!is_dir($folder)) {
+                if (is_filemanager_root($folder)) {
+                    // 対象ディレクトリそのものは削除しない
+                    echo sprintf(
+                        '<span class="warning"><b>%s</b></span><br /><br />',
+                        lang('file_folder_not_deleted')
+                    );
+                } elseif (!is_dir($folder)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_found')
@@ -489,9 +496,6 @@ function ls($curpath)
         echo 'Invalid path "', hsc($curpath), '"<br />';
         return;
     }
-    $editablefiles = add_dot(
-        explode(',', 'txt,php,tpl,shtml,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
-    );
     $uploadablefiles = add_dot(uploadablefiles());
     $inlineviewablefiles = add_dot(
         explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess,sample' . config('alias_suffix'))
@@ -622,7 +626,7 @@ function ls($curpath)
             } else {
                 $files_array[$filecounter]['unzip'] = '';
             }
-            if (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) {
+            if (is_editable_file($newpath) && is_writable($curpath) && is_writable($newpath)) {
                 $files_array[$filecounter]['edit'] = sprintf(
                     '<span style="width:20px;"><a href="index.php?a=31&mode=save&path=%s#file_editfile"><img src="%s" align="absmiddle" alt="%s" title="%s" /></a></span> ',
                     urlencode($newpath),
@@ -718,6 +722,18 @@ function getExtension($string)
 }
 
 /**
+ * 一覧で「編集できる」と扱う拡張子のファイルか。一覧の編集アイコンとテキストの保存で同じ判定を使う。
+ * 拡張子だけの名前（.htaccess）は、その名前全体を拡張子として照合する。拡張子の無い名前は編集できない。
+ */
+function is_editable_file($path)
+{
+    $editablefiles = add_dot(
+        explode(',', 'txt,php,tpl,shtml,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
+    );
+    return in_array(getExtension($path), $editablefiles, true);
+}
+
+/**
  * 名前の拡張子が、アップロードを許している拡張子（uploadablefiles()）に含まれるかを返す。
  * アップロード・新しいファイルの作成・zip の展開で同じ基準を使う。
  * 名前は sanitizeFilename() を通した後のものを渡す。大文字小文字は区別せず、拡張子の無い名前は許さない。
@@ -796,11 +812,12 @@ function unzip($file, $path, &$failed = [], &$skipped = [])
     }
 
     $path = rtrim($path, '/') . '/';
-    // 展開先の外や保護対象へ書き込むエントリがあれば、何も展開しない
+    // 展開先の外（展開先の中のリンクが指す先を含む）や対象ディレクトリの外・保護対象へ書き込むエントリがあれば、何も展開しない
     $proteted_path = proteted_path();
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = str_replace('\\', '/', unzip_entry_name($zip, $i));
         if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
+            || !is_within_filemanager_path($path . unzip_entry_path($zip_entry_name))
             || is_protected_path($path . unzip_entry_path($zip_entry_name), $proteted_path)) {
             $zip->close();
             return false;
@@ -1043,6 +1060,11 @@ function fileupload()
         return $msg . '<p><span class="warning">' . lang('files_filetype_notok') . '</span></p>';
     }
 
+    // ファイル名まで含めた保存先が、対象ディレクトリの中かを保存の前に確かめる
+    if (!is_within_filemanager_path($targetPath)) {
+        return $msg . '<p><span class="warning">' . lang('files_dir_not_viewable') . '</span></p>';
+    }
+
     $rs = $modx->move_uploaded_file($userfile['tmp_name'], $targetPath);
     if (!$rs) {
         return $msg . '<p><span class="warning">' . lang('files_upload_copyfailed') . '</span> ' . lang('files_upload_permissions_error') . '</p>';
@@ -1064,6 +1086,10 @@ function textsave()
     if (!is_file(postv('path'))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
     }
+    // 一覧で編集アイコンを出す種類（is_editable_file()）のファイルだけ保存する
+    if (!is_editable_file(postv('path'))) {
+        return lang('editing_file') . '<span class="warning"><b>' . lang('files_filetype_notok') . '</b></span><br /><br />';
+    }
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.
@@ -1078,6 +1104,10 @@ function textsave()
 function delete_file()
 {
     $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
+
+    if (is_filemanager_root(anyv('path'))) {
+        return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
+    }
 
     // 無いもの・フォルダーは unlink() に渡さない（PHP の警告になる）。リンクはリンク自体を消す
     if (!is_file(anyv('path')) && !is_link(anyv('path'))) {
@@ -1162,6 +1192,10 @@ function is_protected_path($path, $proteted_path)
     if (!$proteted_path) {
         return false;
     }
+    // ヌルバイトを含むパスは、止める側に倒す
+    if (strpos($path, "\0") !== false) {
+        return true;
+    }
     $realpath = normalize_path($path);
     if ($realpath === false) {
         return false;
@@ -1182,10 +1216,19 @@ function is_protected_path($path, $proteted_path)
 
 /**
  * 存在する部分は realpath() で解決し、存在しない残りは文字列のまま . と .. を畳んでつなぐ。
+ * .. を畳んだときは、畳んだ結果をもう一度解決する（畳んで現れた、存在する部分のリンクをたどるため）。
+ * ヌルバイトを含むパスは解決できないものとして false を返す。
  */
 function normalize_path($path)
 {
-    $path = str_replace('\\', '/', $path);
+    // ヌルバイトを含むもの、絶対パスでないもの（file:// などの形、相対パス）は解決しない
+    if (strpos($path, "\0") !== false || !is_absolute_local_path($path)) {
+        return false;
+    }
+    $is_windows = DIRECTORY_SEPARATOR === '\\';
+    if ($is_windows) {
+        $path = str_replace('\\', '/', $path);
+    }
     $rest = [];
     $realpath = realpath($path);
     while ($realpath === false) {
@@ -1197,12 +1240,17 @@ function normalize_path($path)
         $path = $parent;
         $realpath = realpath($path);
     }
-    $segments = explode('/', rtrim(str_replace('\\', '/', $realpath), '/'));
+    if ($is_windows) {
+        $realpath = str_replace('\\', '/', $realpath);
+    }
+    $segments = explode('/', rtrim($realpath, '/'));
+    $folded = false;
     foreach ($rest as $segment) {
         if ($segment === '' || $segment === '.') {
             continue;
         }
         if ($segment === '..') {
+            $folded = true;
             if (count($segments) > 1) {
                 array_pop($segments);
             }
@@ -1210,7 +1258,68 @@ function normalize_path($path)
         }
         $segments[] = $segment;
     }
-    return implode('/', $segments);
+    $result = implode('/', $segments);
+    if ($result === '') {
+        // 一番上まで上がったときは、realpath('') がカレントを返すため、ルートを返す
+        $result = '/';
+    }
+    return $folded ? normalize_path($result) : $result;
+}
+
+/**
+ * ローカルの絶対パスなら true。Linux は / で始まるもの、Windows は ドライブ文字 + : + 区切り で始まるものだけを受け付ける。
+ * file:// や php:// や phar:// などの形と、相対パスは受け付けない（PHP のファイル関数は URL の形を別の場所として扱うため）。
+ */
+function is_absolute_local_path($path)
+{
+    if (DIRECTORY_SEPARATOR === '\\') {
+        return (bool) preg_match('@^[A-Za-z]:[\\\\/]@', $path);
+    }
+    return strpos($path, '/') === 0;
+}
+
+/**
+ * パスの要素に .. があれば true。区切りは / と、Windows のときは \ も扱う。
+ */
+function has_parent_reference($path)
+{
+    $separators = DIRECTORY_SEPARATOR === '\\' ? '/\\\\' : '/';
+    return (bool) preg_match('@(^|[' . $separators . '])\.\.([' . $separators . ']|$)@', $path);
+}
+
+/**
+ * 設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）を正規化したパス。解決できなければ false。
+ */
+function filemanager_base_path()
+{
+    $base = normalize_path(config('filemanager_path') ?: MODX_BASE_PATH);
+    return $base === false ? false : rtrim($base, '/');
+}
+
+/**
+ * パスが、対象ディレクトリそのものなら true。
+ */
+function is_filemanager_root($path)
+{
+    $base = filemanager_base_path();
+    $realpath = normalize_path($path);
+    return $base !== false && $realpath !== false && rtrim($realpath, '/') === $base;
+}
+
+/**
+ * パスが、設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）そのもの、またはその配下なら true。
+ * 存在しないパスは、存在する親までを realpath() で解決して判定する（シンボリックリンクで外へ出ない）。
+ * 許可する側の照合なので大文字小文字を区別して比べる（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
+ * 区別しないファイルシステムでも、realpath() が実在する側の表記に正規化する。
+ */
+function is_within_filemanager_path($path)
+{
+    $base = filemanager_base_path();
+    $realpath = normalize_path($path);
+    if ($base === false || $realpath === false) {
+        return false;
+    }
+    return $realpath === $base || strpos($realpath, $base . '/') === 0;
 }
 
 function uploadablefiles()
