@@ -1379,4 +1379,6 @@ return [
     "fb_copy_partial_failed" => '一部のファイルをコピーできませんでした:',
     "fb_copy_failed" => 'コピーに失敗しました: %s',
     "fb_err_copy_failed" => 'コピーできませんでした。',
+    "fb_delete_partial_failed" => '一部のファイルを削除できませんでした:',
+    "fb_err_delete_partial" => '一部を削除できませんでした。',
 ];

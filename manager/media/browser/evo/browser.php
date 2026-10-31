@@ -52,7 +52,7 @@ $jsLangKeys = [
     'fb_selected_count', 'fb_no_match', 'fb_empty_folder', 'fb_load_failed', 'fb_no_subfolders',
     'fb_upload_failed', 'fb_network_error',
     'fb_move_partial_failed', 'fb_move_failed', 'fb_rename_failed', 'fb_rename_prompt',
-    'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed',
+    'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed', 'fb_delete_partial_failed',
     'fb_mkdir_prompt', 'fb_mkdir_failed',
     'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
     'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',

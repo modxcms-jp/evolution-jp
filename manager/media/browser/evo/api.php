@@ -443,9 +443,10 @@ function fbActionDelete(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
-        if (unlink($path)) {
+        if (@unlink($path)) {
             $deleted[] = $name;
         } else {
+            fbLogDeleteFailure($path);
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
         }
     }
@@ -460,7 +461,7 @@ function fbActionDelete(PathResolver $resolver, $type)
         if (fbDeleteTree($path)) {
             $deleted[] = $name;
         } else {
-            $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_partial')];
         }
     }
 
@@ -596,26 +597,50 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
     fbSendJson(['copied' => $copied, 'errors' => $errors]);
 }
 
+function fbLogDeleteFailure($path)
+{
+    evo()->logEvent(0, 3, 'Failed to delete an entry in the file browser', 'File browser', [
+        'path' => $path,
+    ]);
+}
+
+// 最後まで消して、消せないものがあれば false を返す。シンボリックリンクはリンクだけを消し、先へは入らない
 function fbDeleteTree($path)
 {
-    $entries = @scandir($path);
-    if ($entries === false) {
+    if (is_link($path)) {
+        if (@unlink($path)) {
+            return true;
+        }
+        fbLogDeleteFailure($path);
         return false;
     }
 
+    $entries = @scandir($path);
+    if ($entries === false) {
+        fbLogDeleteFailure($path);
+        return false;
+    }
+
+    $ok = true;
     foreach ($entries as $entry) {
         if ($entry === '.' || $entry === '..') {
             continue;
         }
         $full = $path . '/' . $entry;
-        if (is_dir($full)) {
-            if (!fbDeleteTree($full)) {
-                return false;
+        if (is_link($full) || !is_dir($full)) {
+            if (!@unlink($full)) {
+                fbLogDeleteFailure($full);
+                $ok = false;
             }
-        } elseif (!unlink($full)) {
-            return false;
+        } elseif (!fbDeleteTree($full)) {
+            $ok = false;
         }
     }
 
-    return rmdir($path);
+    if ($ok && !@rmdir($path)) {
+        fbLogDeleteFailure($path);
+        $ok = false;
+    }
+
+    return $ok;
 }
