@@ -687,6 +687,7 @@ function fbActionDownload(PathResolver $resolver, BrowserConfig $config, $type)
         $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name);
         $disposition = 'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . rawurlencode($name);
     } else {
+        @set_time_limit(0);
         $zipPath = (new ZipService(MODX_BASE_PATH . 'temp/zip/'))->create($entries);
         if ($zipPath === null) {
             evo()->logEvent(0, 3, 'Failed to create a zip in the file browser', 'File browser', [

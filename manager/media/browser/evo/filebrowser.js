@@ -148,6 +148,7 @@ function init() {
     // クリップボード: { mode: 'copy' | 'cut', folder, names }。フォルダを移っても残り、モーダルを閉じると状態ごと消える
     var clipboard = null;
     var pasteBtn = root.querySelector('[data-action="paste"]');
+    var downloadBtn = root.querySelector('[data-action="bulk-download"]');
 
     function isCutName(name) {
         return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
@@ -227,6 +228,10 @@ function init() {
         renameInline: performRename,
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
+        onSelectionChange: function (count) {
+            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを隠す
+            downloadBtn.hidden = !canDownload(count);
+        },
         isCut: isCutName
     });
 
@@ -433,14 +438,7 @@ function init() {
     root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
 
-    var downloadBtn = root.querySelector('[data-action="bulk-download"]');
     downloadBtn.addEventListener('click', bulkDownload);
-    if (!config.zip) {
-        // 選択の数が変わるたびに選択バーの件数表示が書き換わるので、それに合わせて 2 件以上のときはボタンを隠す
-        new MutationObserver(function () {
-            downloadBtn.hidden = !canDownload(state.selection.size);
-        }).observe(root.querySelector('[data-role="selection-count"]'), { childList: true, characterData: true, subtree: true });
-    }
 
     // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
     dropzoneEl.addEventListener('click', function (e) {

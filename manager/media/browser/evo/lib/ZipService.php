@@ -43,6 +43,12 @@ class ZipService
             return null;
         }
 
+        // temp/zip/ に作れないと、tempnam() はシステムの一時フォルダに作る。そこには残さない
+        if (realpath(dirname($tmp)) !== realpath($this->tempDir)) {
+            @unlink($tmp);
+            return null;
+        }
+
         $zip = new ZipArchive();
         if ($zip->open($tmp, ZipArchive::OVERWRITE) !== true) {
             @unlink($tmp);
