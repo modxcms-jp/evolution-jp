@@ -75,7 +75,7 @@ function nextDimension(current, target) {
  * @param {object} ctx
  * @param {HTMLElement} ctx.overlayEl - 編集のダイアログの外側の要素(中の要素は data-role で探す)
  * @param {object} ctx.state - type / folder
- * @param {object} ctx.config - apiUrl / csrfToken / editableExtensions / editMaxDimension / maxUploadSize
+ * @param {object} ctx.config - apiUrl / csrfToken / editableExtensions / editMaxDimension / editMaxPixels / maxUploadSize
  * @param {(name: string) => void} ctx.onSaved - 保存できたとき。保存した名前を渡す
  * @returns {{open: (file: object) => void, canEdit: (file: object) => boolean}}
  */
@@ -118,6 +118,10 @@ export function createImageEditor(ctx) {
 
     function canEdit(file) {
         if (!file || !file.url || (ctx.config.editableExtensions || []).indexOf(extensionOf(file.name)) === -1) {
+            return false;
+        }
+        // 画素数が多すぎる画像は、ブラウザが展開するときのメモリが足りなくなるので編集しない(寸法が分からないものは出す)
+        if (file.width && file.height && file.width * file.height > (ctx.config.editMaxPixels || Infinity)) {
             return false;
         }
         // 別のオリジンの画像は、canvas が汚染されて書き出せない(toBlob が例外になる)ので編集できない

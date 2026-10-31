@@ -18,7 +18,7 @@
  *                     許可された拡張子のファイルだけ。1つでも満たさないものがあれば全体を拒否する。zip は PHP の zip 拡張が必要(無ければ 501 zip_unavailable)
  * POST action=saveImage (type, folder, target, mode, image(ファイル1つ)) -> {name}
  *                     画面で編集した画像を保存する。mode は copy(別名。名前(1).拡張子 のように連番。OnFileBrowserUpload を発火) か
- *                     overwrite(target を置き換える。イベントは発火しない)。編集できるのは jpg・jpeg・png だけ。
+ *                     overwrite(target を置き換える。リンクは not_editable で断る。イベントは発火しない)。編集できるのは jpg・jpeg・png だけ。
  *                     画像の種類は target の拡張子と一致し、長い辺は 4096px 以下、大きさは upload_maxsize 以下であること。
  *                     image_limit_width では縮めない。エラーコード: method_not_allowed / invalid_mode / invalid_name /
  *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
@@ -649,7 +649,8 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
 /**
  * 画面(canvas)で編集した画像を保存する。入力は信用せず、拡張子・画像の種類・大きさ・名前をここで確かめる。
  * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、OnFileBrowserUpload を発火する
- * - overwrite: target の実体を置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)
+ * - overwrite: target のファイルを置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)。
+ *   元のパーミッションを引き継ぐ。target がシンボリックリンクのときは断る
  * image_limit_width による縮小は行わない(利用者が編集で決めた大きさを保つため)。
  * canvas で書き出すと EXIF は消える(画面でその旨を表示している)。
  */
@@ -758,10 +759,23 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
         fbSendJson(['name' => $savedName]);
     }
 
-    // overwrite: 実体(シンボリックリンクの先を含む)と同じフォルダの一時ファイルに受けてから置き換える
+    // overwrite: 一覧に見えているファイルそのものだけを置き換える。リンクの先の実体は、名前・拡張子・置き場所を
+    // 確かめていないので、リンクは断る(別名で保存すれば、一覧に見える場所に新しいファイルができる)
+    if (is_link($dir['real'] . $target)) {
+        fbError('not_editable', lang('fb_err_overwrite_link'), 400);
+    }
+
+    // 同じフォルダの一時ファイルに受けてから置き換える
     $realDir = substr($realPath, 0, strrpos($realPath, '/') + 1);
     $stagePath = @tempnam($realDir, '.evo-save-');
+    // Windows の tempnam() は区切りに \ を返すので、$realDir(/ 区切り)と比べる前にそろえる
+    if ($stagePath !== false) {
+        $stagePath = str_replace('\\', '/', $stagePath);
+    }
     $oldMtime = @filemtime($realPath);
+    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)。取れなければ新しいファイルの既定
+    $oldPerms = @fileperms($realPath);
+    $newPerms = $oldPerms !== false ? ($oldPerms & 0777) : $modx->newFilePermissions();
     $saved = false;
     if ($stagePath !== false && strpos($stagePath, $realDir) !== 0) {
         // 書き込めないフォルダだと、tempnam() は別の場所(システムの一時フォルダ)に作る。そこからの置き換えはしない
@@ -771,7 +785,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
     if ($stagePath !== false) {
         // 一時ファイル(tempnam が作った空のファイル)を、アップロードされた中身で置き換える
         $saved = @move_uploaded_file($tmpPath, $stagePath)
-            && @chmod($stagePath, $modx->newFilePermissions())
+            && @chmod($stagePath, $newPerms)
             && @rename($stagePath, $realPath);
         if (!$saved) {
             @unlink($stagePath);

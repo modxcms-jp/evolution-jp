@@ -1418,4 +1418,5 @@ return [
     "fb_err_invalid_image" => '画像が正しくありません。',
     "fb_err_image_type_mismatch" => '画像の種類がファイルの拡張子と一致しません。',
     "fb_err_image_too_big" => '画像が大きすぎます。長い辺は %d px 以下にしてください。',
+    "fb_err_overwrite_link" => 'このファイルはリンクなので上書きできません。別のファイルとして保存してください。',
 ];

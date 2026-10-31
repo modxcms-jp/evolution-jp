@@ -1417,4 +1417,5 @@ return [
     "fb_err_invalid_image" => 'The image is invalid.',
     "fb_err_image_type_mismatch" => 'The image type does not match the file extension.',
     "fb_err_image_too_big" => 'The image is too large. The longest side must be %d px or less.',
+    "fb_err_overwrite_link" => 'The file is a link, so it cannot be overwritten. Save it as a new file instead.',
 ];

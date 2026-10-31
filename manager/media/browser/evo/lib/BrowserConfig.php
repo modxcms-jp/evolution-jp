@@ -17,6 +17,8 @@ class BrowserConfig
      */
     const EDITABLE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
     const EDIT_MAX_DIMENSION = 4096;
+    /** 画面で編集を出す画像の画素数(幅×高さ)の上限。ブラウザが元の画像を展開するときのメモリを守る(5000 万画素で RGBA 約 200MB) */
+    const EDIT_MAX_PIXELS = 50000000;
 
     /** @var DocumentParser */
     private $modx;

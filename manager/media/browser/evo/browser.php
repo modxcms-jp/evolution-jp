@@ -79,6 +79,7 @@ $jsConfig = [
     // 画像の編集: 編集できる拡張子、書き出しの長い辺の上限(px)、保存できるファイルの大きさの上限(バイト)。API も同じ値で確かめる
     'editableExtensions' => BrowserConfig::EDITABLE_EXTENSIONS,
     'editMaxDimension' => BrowserConfig::EDIT_MAX_DIMENSION,
+    'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
     'maxUploadSize' => $browserConfig->maxUploadSize(),
     'lang' => $jsMessages,
 ];
