@@ -6044,12 +6044,13 @@ class DocumentParser
 
     /**
      * 新しいファイルのパーミッション（設定 new_file_permissions）。空・0・8進数でない値のときは 0644
+     * 新しいファイルのパーミッションの正本。ほかの場所で計算しない
      *
      * @return int
      */
     public function newFilePermissions()
     {
-        $value = ltrim((string) $this->config('new_file_permissions'), '0');
+        $value = ltrim(trim((string) $this->config('new_file_permissions')), '0');
         if ($value === '' || !preg_match('/^[0-7]+$/', $value)) {
             return 0644;
         }

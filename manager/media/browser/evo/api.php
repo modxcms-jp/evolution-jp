@@ -148,6 +148,10 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
         }
 
         $fullPath = $dir['real'] . $entry;
+        // 壊れたシンボリックリンクは使えないので一覧に出さない
+        if (is_link($fullPath) && !file_exists($fullPath)) {
+            continue;
+        }
         $relPath = $dir['rel'] . '/' . $entry;
 
         if (is_dir($fullPath)) {
@@ -201,8 +205,8 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
 
         $files[] = [
             'name' => $entry,
-            'size' => filesize($fullPath),
-            'mtime' => filemtime($fullPath),
+            'size' => @filesize($fullPath),
+            'mtime' => @filemtime($fullPath),
             'url' => $fileUrl,
             'path' => $filePath,
             'thumb' => $thumbUrl,
@@ -561,7 +565,10 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
         }
 
         $in = $out === false ? false : @fopen($sourcePath, 'rb');
-        $ok = $in !== false && @stream_copy_to_stream($in, $out) !== false;
+        $expectedSize = @filesize($sourcePath);
+        $copiedSize = $in !== false ? @stream_copy_to_stream($in, $out) : false;
+        // 書き込みの途中で失敗した（容量不足など）ときも、元のサイズと一致しなければ失敗として扱う
+        $ok = $copiedSize !== false && $expectedSize !== false && $copiedSize === $expectedSize;
         if ($in !== false) {
             fclose($in);
         }
@@ -572,7 +579,7 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
             if ($out !== false) {
                 @unlink($targetPath);
             }
-            $modx->logEvent(0, 3, 'Failed to copy a file in the file browser', 'File browser', [
+            evo()->logEvent(0, 3, 'Failed to copy a file in the file browser', 'File browser', [
                 'from' => $sourcePath,
                 'to' => $targetPath,
             ]);
