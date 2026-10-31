@@ -16,8 +16,6 @@ $proteted_path = proteted_path();
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = $modx->config['new_folder_permissions'] ? octdec($modx->config['new_folder_permissions']) : 0777;
-$new_file_permissions = config('new_file_permissions') ? octdec(config('new_file_permissions')) : 0666;
 
 // 受け取ったパスは、使う前に、絶対パス（file:// などの形や相対パスでない）で .. を含まないことを確かめる
 foreach ([anyv('path'), getv('path'), postv('path'), anyv('folderpath')] as $received_path) {
@@ -311,7 +309,7 @@ if (!is_readable($startpath)) {
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_created')
                     );
-                } elseif (!@chmod($startpath . '/' . $foldername, $newfolderaccessmode)) {
+                } elseif (!@chmod($startpath . '/' . $foldername, evo()->newFolderPermissions())) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_chmod_error')
@@ -347,6 +345,7 @@ if (!is_readable($startpath)) {
                     if ($rs === false) {
                         echo '<span class="warning"><b>' . lang('file_folder_not_created') . '</b></span><br /><br />';
                     } else {
+                        @chmod($startpath . '/' . $filename, evo()->newFilePermissions());
                         echo lang('files_textfile_created');
                     }
                     umask($old_umask);
