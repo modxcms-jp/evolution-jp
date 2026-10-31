@@ -1604,13 +1604,19 @@ class DocumentParser
             return $a[0];
         }
 
-        if ($this->config('cache_type') && $this->http_status_code == 404) {
+        $docObj = unserialize(trim($a[0]), ['allowed_classes' => false]); // rebuild document object
+        if (!is_array($docObj)) {
+            // cache_type=2 で保存したキャッシュは、先頭が contentType で本文が出力全体なので、そのまま返す
             return $a[1];
         }
-
-        $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
-        if ($this->session('mgrRole') != 1 && $docObj['privateweb'] && isset($docObj['__MODxDocGroups__'])) {
+        // エラーページは、キャッシュを使わないときも prepareResponse() でアクセス権を確かめないので、ここでも確かめない
+        if (
+            $this->http_status_code != 404
+            && $this->session('mgrRole') != 1
+            && $docObj['privateweb']
+            && isset($docObj['__MODxDocGroups__'])
+        ) {
             $pass = false;
             $usrGrps = $this->getUserDocGroups();
             $docGrps = explode(',', $docObj['__MODxDocGroups__']);
