@@ -44,6 +44,8 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 2026-10-31 (yamamoto/Claude): 一覧を描き直すとフォーカスが失われ、Ctrl+V を続けられなかった。一覧に `tabindex="-1"` を付け、何も無い所をクリックしたら一覧へ、描き直す前にフォーカスがファイルブラウザの中にあったときだけ、描き直した後に選択中の項目か一覧へ戻す（スクロールさせない。外の入力欄からは奪わない）。
 
+2026-10-31 (yamamoto): PR の分け方を改める。当初は 1 段階を 1 PR にする予定だったが、実際には exec-plan-runner の作り（1 つの ExecPlan を 1 つの PR に積む）に沿って、M1〜M3 を #965 にまとめた。差分が大きくなってきたので、#965 は M1〜M3 でレビューに出してマージし、M4・M5 はそれぞれ新しい PR にする。M4・M5 の PR では、対象の Issue を `Refs #678` で挙げ、最後の M5 で `Closes #678` にする。
+
 2026-10-17 (yamamoto): 画像編集は Cropper.js を使わず自作する（Issue #678 のコメント）。パッケージを小さく保つため。書き出しは canvas の `drawImage` で行い、トリミング範囲のドラッグは `js/marquee.js` の矩形選択の考え方を流用する。自由な角度の回転とズームは作らない。
 
 ## Outcomes & Retrospective
@@ -195,12 +197,12 @@ M3 は次をすべて満たせば完了とする。確認は Docker の検証環
 
 ## Artifacts and Notes
 
-- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（下書き。M1〜M5 で同じブランチと PR を使う）
+- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3）。M4・M5 は、#965 のマージ後に main から新しいブランチと PR を作る（Decision Log の 2026-10-31）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
 - 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）
 
-想定するコミットの分け方（1 段階 1 PR）:
+想定するコミットの分け方:
 
 - M1: `feat(filebrowser): UI 文言を言語ファイルへ移す`
 - M2: `feat(filebrowser): 右クリックメニューを追加`
