@@ -12,7 +12,7 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 - [x] (2026-10-31) M2: 右クリックメニュー（`js/contextmenu.js` を追加。一覧のファイル・フォルダ・何も無い所で今ある操作を呼ぶ。モーダル・ポップアップ・TinyMCE のダイアログ、日英で Docker で確認）
 - [x] (2026-10-31) M3: コピー・切り取り・貼り付け（API に `copy`、クリップボードはメモリ、切り取りは既存の `move`。選択バー・ツールバー・右クリック・Ctrl+C/X/V。モーダル・ポップアップ・TinyMCE、日英で Docker で確認）
 - [x] (2026-10-31) M4: zip での一括ダウンロード（API に `download`、`lib/ZipService.php`、`js/download.js`。1 件はそのまま、2 件以上は zip。モーダル・ポップアップ・TinyMCE、日英、zip 無しの構成で Docker で確認）
-- [ ] M5: 画像の簡易編集（トリミング・90° 回転・数値でのリサイズ）
+- [x] (2026-10-31) M5: 画像の簡易編集（トリミング・90° 回転・数値でのリサイズ）（API に `saveImage`、`js/imageEditor.js`・`js/overlay.js`。jpg・png、別名が既定。モーダル・ポップアップ・TinyMCE、日英、PHP 7.4 と 8.4 で Docker で確認）
 
 ## Surprises & Discoveries
 
@@ -50,9 +50,19 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 2026-10-31 (yamamoto/Claude): M4 の自己レビューで、次を決めた。1 件のダウンロードは、画面が `fetch` で受けたファイル全体をブラウザのメモリに持ってから保存する。数 GB の動画などでは負担が大きいが、別の作り（隠したフォームで送る）にすると画面にエラーを出せなくなるので、今のままにする。シンボリックリンクやハードリンクを使うと、実体がベースディレクトリの中にある別の種類のファイル（例: images の名前で files のファイル）を取り出せるが、リンクを置くにはサーバーのファイルに触れる必要があり、実体も公開の範囲にあるので、扱わない。ファイルブラウザを使える利用者は、その種類の許可された拡張子のファイルを取り出せる（`.htaccess` で Web から読めなくしたフォルダの中身も含む）。M3 のコピーで公開のフォルダへ移すこともできるので、新しく増えた権限ではない。CSRF トークンが合わないときの表示が「HTTP 403」だけになる件は、#983（エラー表示の統一）で扱う。
 
+2026-10-31 (yamamoto): M5 で次を決めた。保存すると EXIF（撮影日時・機種・位置情報など）は消えるのを受け入れ、保存の前にそう表示する（向きは見た目どおりに焼き込む。位置情報が消えるのは、公開サイトでは利点にもなる）。保存の既定は別名で、上書きは選んだときだけ確認を出す（元の画像は取り戻せないため）。編集できる形式は jpg・png だけにする（gif は書き出すと png になり拡張子と中身が食い違い、webp はブラウザによって書き出せず既定の許可リストにも無いため）。`image_limit_width` は編集した画像には当てない（編集で指定した大きさを保つため）。あわせて、書き出しの長い辺は 4096px まで・元より大きくする拡大はしない・保存するファイルにも `upload_maxsize` を当てる・同じオリジンの画像だけ編集できる・別名で保存したときだけ `OnFileBrowserUpload` を発火する・トリミング範囲は描き直しと数値欄で指定する（端をつまむ操作は付けない）・保存は新しい操作 `saveImage` で行う、とする。編集のダイアログには、フォーカスと Esc の扱いをまとめた `js/overlay.js` を作り、プレビューと移動のダイアログへの適用は #984 で行う。
+
+2026-10-31 (yamamoto/Claude): M5 の自己レビューで、次を決めた。上書き保存は、対象がシンボリックリンクなら断る（確かめた名前と書き換える実体が食い違わないように。一覧に見えるファイルそのものだけを上書きできる）。上書きでは、元のファイルのパーミッションを引き継ぐ（FTP と共同で編集しているサイトで、上書きの後に FTP から書き換えられなくならないように。所有者は PHP の利用者に変わる）。受け取った画像の中身は `getimagesize()` で種類と寸法を確かめるだけで、GD で読み直して書き出すことはしない（画質がもう一度落ちるため。拡張子を jpg・png に限っているので、アップロードと同じ水準とする）。画素の数が多すぎる画像には「編集」を出さない（ブラウザのメモリのため）。上書きの途中で異常終了したときの一時ファイル（`.evo-save-*`。一覧には出ず、0600）の残りは受け入れる。別名で保存したときは `OnFileBrowserUpload` を発火するので、アップロードと同じくプラグインの処理（縮小など）を受ける。なお `OnFileBrowserUpload` はイベントの一覧（`system_eventnames`）に登録されておらず、素の環境ではプラグインを付けられない（M5 より前からの状態）。
+
 2026-10-17 (yamamoto): 画像編集は Cropper.js を使わず自作する（Issue #678 のコメント）。パッケージを小さく保つため。書き出しは canvas の `drawImage` で行い、トリミング範囲のドラッグは `js/marquee.js` の矩形選択の考え方を流用する。自由な角度の回転とズームは作らない。
 
 ## Outcomes & Retrospective
+
+2026-10-31: M1〜M5 をすべて終えた。ファイルブラウザは、管理画面の言語での表示、右クリックメニュー、コピー・切り取り・貼り付け、選んだファイルのダウンロード（2 件以上は zip）、画像のトリミング・回転・リサイズができるようになった。PR は #965（M1〜M3）、#993（M4）、M5 の PR の 3 つ。途中で、削除の失敗が表示されない不具合（#969、#988 で修正）も直した。
+
+教訓は 3 つある。1 つ目は、ファイルを読み書きする操作を足すたびに、シンボリックリンクの扱いの穴が見つかったこと（コピー元の実体、削除でリンクの先へ入る、上書きでリンクの先を置き換える）。ファイルの操作を足すときは、最初から `resolveFile()` と「リンクをたどらない」を前提にするのがよい。2 つ目は、PHP の警告が管理画面のエラーハンドラーに拾われて HTML の 500 になり、JSON のエラーに届かない作りが、何度も問題になったこと（削除・一覧の壊れたリンク・コピー）。API ではファイル操作の戻り値を確かめ、警告で止まらないようにそろえるとよい。3 つ目は、当初は 1 段階 1 PR の予定だったのに、M1〜M3 を 1 つの PR にまとめたため、差分が大きくなったこと。M4 からは 1 段階 1 PR に戻した。
+
+残した課題は Issue にした。エラー表示の統一（#983）、プレビュー・移動のダイアログのフォーカス（#984。M5 の `js/overlay.js` を使う）、パーミッションの計算の残り（#985）。
 
 ## Context and Orientation
 
@@ -100,7 +110,7 @@ API に `download`（POST。`type`、`folder`、`files[]`。CSRF トークンを
 
 ## Concrete Steps
 
-M1〜M4 の手順を書く。M5 の手順は、その段階に着手するときにこの節へ足す。
+M1〜M5 の手順を書く。
 
 ### M1
 
@@ -185,7 +195,43 @@ M1〜M4 の手順を書く。M5 の手順は、その段階に着手するとき
 
 5. `manager/media/browser/evo/js/download.js` を新しく作る。`FormData`（`csrf_token` を含む）で POST し、応答の `Content-Type` が JSON ならエラーとして表示し、そうでなければ `res.blob()` を `a.download` で保存させる。保存する名前は `Content-Disposition` から取る（`filename*=` を先に見る）。作っている間は「準備中」を表示する。`filebrowser.js` は配線だけにする。ポップアップ（単独のページ）でも動くよう、管理画面の `shell.js` には頼らない。
 
-6. 確認（「Validation and Acceptance」の M4 の手順）。PHP の構文は、検証用イメージと、zip 拡張を入れた `php:7.4-cli`（`libzip-dev` を入れて `docker-php-ext-install zip`）の両方で確かめ、7.4 でも実際に zip ができることを確かめる。
+6. 確認（「Validation and Acceptance」の M4 の手順）。
+
+### M5
+
+1. `manager/media/browser/evo/lib/ThumbnailService.php` に `forget($sourceFile)` を足す。キャッシュのキーは `md5(絶対パス)_更新時刻` なので、同じ元ファイルのキャッシュを、今ある `cleanupStale()` の先頭一致の処理で消す（キーの作りを知っているのはこのクラスだけにする）。
+
+2. `manager/includes/document.parser.class.inc.php` の `move_uploaded_file()` に、既定が `true` の任意の引数（例: `$resize = true`）を足し、`false` のときは `image_limit_width` による縮小（`resizeImage()`）を行わない。今ある呼び出しは変えない。
+
+3. `manager/media/browser/evo/api.php` に `saveImage`（POST。`checkCsrfToken()`）を足す。入力は `type`・`folder`・`image`（`$_FILES` の 1 ファイル）・`mode`（`copy` か `overwrite`）・`target`（元のファイル名）。
+   - 編集できる拡張子は jpg・jpeg・png だけ。`BrowserConfig` に 1 か所で持ち（例: `EDITABLE_EXTENSIONS`）、画面にも `$jsConfig` で渡す。`target` の拡張子が許可された拡張子（`isAllowedFilename()`）で、かつ編集できる拡張子であることを確かめる。
+   - `target` は `rename` と同じく、既にある名前として `PathResolver::sanitizeSegment()` で 1 要素に直し、`resolveFile()` で実体を確かめる（`sanitizeFilename()` を通すと、FTP で置いた名前が別の名前になるため）。
+   - 受け取った画像は `getimagesize()` で確かめ、種類（`IMAGETYPE_JPEG`・`IMAGETYPE_PNG`）が `target` の拡張子と一致すること、長い辺が 4096px 以下であること、大きさが `upload_maxsize`（`BrowserConfig::maxUploadSize()`）以下であることを確かめる。画面の判定は信用しない。
+   - `copy` のときは、M3 の `fbFindFreePath()` で `名前(1).拡張子` のような空いている名前を探し、2 の引数で縮小せずに `$modx->move_uploaded_file()` で保存する。新しいファイルなので、アップロードと同じく `OnFileBrowserUpload` を発火する。
+   - `overwrite` のときは、`target` の実体のパスへ保存する。`move_uploaded_file()` は保存先の名前を無害化しなおすので、名前が変わらないことを確かめてから使うか、`move_uploaded_file()`（PHP の関数）で一時ファイルに受けてから `rename()` で置き換える。イベントは発火しない。パーミッションは `newFilePermissions()` にする。
+   - 保存したら 1 の `forget()` で古いサムネイルを消す。
+   - 返り値は `{name}`（保存した名前）。エラーは `fbError()` で、文言は言語ファイルに `fb_err_…` で足す。PHP の警告で HTML の 500 にならないようにする（M3・#969 と同じ）。
+
+4. `manager/media/browser/evo/js/overlay.js` を新しく作る。ダイアログを開く・閉じる共通の関数（例: `openOverlay(overlayEl, panelEl, initialEl)` が `close(restoreFocus)` を返す）を置く。開いたら、開く前にフォーカスのあった要素を覚えて中の最初の要素へフォーカスし、document の keydown を capture で受けて、Esc はダイアログだけを閉じ（`stopPropagation` で管理画面の `shell.js` に届かせない）、Tab は中で循環させる。閉じたら覚えた要素へ `focus({ preventScroll: true })` で戻す。フォーカスを戻す処理は、右クリックメニュー（`js/contextmenu.js`）と共通の小さな関数にまとめる。プレビューと移動のダイアログへの適用は #984 で行う（M5 では編集のダイアログだけに使う）。
+
+5. `manager/media/browser/evo/js/imageEditor.js` を新しく作る（`createImageEditor(ctx)`）。
+   - 編集のダイアログは、`browser.php` の既存の `.evo-fb-overlay` と同じ作りで、プレビューの後ろに置く。`role="dialog"`・`aria-modal="true"`・見出しの `aria-labelledby` を付ける。背景のクリックでは閉じない（編集中の内容が消えるため）。
+   - 中身: 画像の表示、トリミング範囲（マウスのドラッグで描き直す。`js/marquee.js` と同じ座標の換算の考え方）、トリミングの x・y・幅・高さの数値欄、左右 90° の回転のボタン、幅・高さの数値欄（縦横比を保つかのチェック。元より大きくはできない）、保存のしかた（別名が既定、上書きは選んだときだけ確認を出す）、「撮影情報は消えます」の注意、キャンセルと保存。
+   - 書き出しは、回転 → トリミング → リサイズ の順に canvas の `drawImage` で行う。座標の基準は回転後の作業用の canvas の幅・高さにする（`naturalWidth` をそのまま使わない）。`imageSmoothingQuality = 'high'` にする。
+   - `toBlob()` の形式は元の拡張子に合わせる（jpg は `image/jpeg` で品質 0.92、png は `image/png`）。保存の前に `blob.type` が求めた形式か確かめる。
+   - 保存は `FormData`（`csrf_token` を含む）で `saveImage` に送り、成功したら一覧を読み直し、保存した名前を選択する。
+   - 画像が管理画面と同じオリジンでない（`rb_base_url` に別のホストが入っている）ときは、canvas から書き出せないので、編集のボタンを出さない。
+
+6. 入口。プレビューに「編集」のボタンを足す（編集できる拡張子のときだけ）。右クリックメニューのファイル 1 件の項目にも「編集」を足す。`js/dialogs.js` の `createPreview` に `onEdit` を足し、`filebrowser.js` で結線する。
+
+7. 本体の `move_uploaded_file()` に足す引数は既定が `true` なので、今ある呼び出し（旧ファイル管理・マネージャー API・アップロード）の動きは変わらない。この関数は DocumentParser の `executeParser()`・`prepareResponse()`・`parseDocumentSource()`・`postProcess()` のどこからも呼ばれず、ページの描画の流れにもキャッシュにも影響しない。
+
+8. サムネイルとプレビューの URL に、一覧の `mtime` を `&v=<mtime>` として付ける（`js/grid.js` の `thumbSrc()` と、プレビューの画像の URL）。上書きした後に、ブラウザのキャッシュで古い画像が出ないようにするため。
+
+9. 文言は言語ファイルに `fb_` で足し（`fb_edit`・`fb_edit_rotate_left` など）、JS で使うものは `$jsLangKeys` にも足す。既存のキー（`cancel`・`save` など）で足りるものは既存を使う。
+
+10. 確認（「Validation and Acceptance」の M5 の手順）。
+PHP の構文は、検証用イメージと、zip 拡張を入れた `php:7.4-cli`（`libzip-dev` を入れて `docker-php-ext-install zip`）の両方で確かめ、7.4 でも実際に zip ができることを確かめる。
 
 ## Validation and Acceptance
 
@@ -227,13 +273,23 @@ M4 は次をすべて満たせば完了とする。確認は Docker の検証環
 - GET、CSRF トークンが無い、`../`、許可されていない拡張子（`.php` など）、ドットで始まる名前、外を指すシンボリックリンク、文字コードが UTF-8 でない名前は、どれも拒否され、中身は返らない
 - 日本語と英語の画面で文言が合い、言語のキーの名前が画面に出ない。モーダル・ポップアップ・TinyMCE のダイアログで動き、今ある操作（M1〜M3 と #969 の確認項目）がこれまでどおり動く
 
+M5 は次をすべて満たせば完了とする。確認は Docker の検証環境で、Playwright（ヘッドレス）と curl で行う。
+
+- jpg と png の画像を、トリミング・左右の回転・数値でのリサイズの組み合わせで編集して保存すると、画面で見たとおりの向きと範囲と大きさで保存される（`getimagesize()` で寸法を、画面写真で見た目を確かめる）。jpg は jpg、png は png のまま保存される
+- 向きの情報（EXIF の Orientation）付きの JPEG を編集して保存すると、表示どおりの向きで保存され、Orientation は残らない
+- 既定の「別名で保存」では `名前(1).jpg` のような名前で保存され、元のファイルは残る。上書きは確認の後に元のファイルが新しくなり、一覧のサムネイルとプレビューも新しい画像になる（読み直しても古い画像が出ない）
+- `image_limit_width` を設定していても、編集した画像は縮まない。元より大きいリサイズと、長い辺が 4096px を超える書き出しはできない
+- gif・webp・svg などでは編集のボタンが出ず、API に直接送っても断られる。png の中身を jpg の名前で保存しようとしても断られる。CSRF トークンが無い、`target` に `../` を含む、外を指すシンボリックリンクの `target` も断られる
+- 編集のダイアログは、開くとフォーカスが中へ移り、Tab が中で循環し、Esc で編集のダイアログだけが閉じ（管理画面のモーダルは残る）、閉じると元の要素にフォーカスが戻る
+- 日本語と英語の画面で文言が合い、言語のキーの名前が画面に出ない。モーダル・ポップアップ・TinyMCE のダイアログで動き、今ある操作（M1〜M4 と #969 の確認項目）がこれまでどおり動く
+
 ## Idempotence and Recovery
 
 各段階は 1 つの PR で閉じる。途中で止まったときは、その段階のブランチを main に合わせ直してやり直せる。言語ファイルにキーを足す作業は、同じキーがすでにあれば足さない（`grep -n '"fb_' manager/includes/lang/english.inc.php` で確かめる）。M3 以降で API に操作を足すときも、今ある操作の動きは変えない。どの段階で止めても、ファイルブラウザは使える状態のままになる。
 
 ## Artifacts and Notes
 
-- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3、マージ済み）。M4 はブランチ `feat/678-filebrowser-zip`。M5 は M4 のマージ後に main から新しいブランチと PR を作る（Decision Log の 2026-10-31）
+- ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3、マージ済み）。M4 はブランチ `feat/678-filebrowser-zip`、PR: #993（マージ済み）。M5 はブランチ `feat/678-filebrowser-image-edit`（Decision Log の 2026-10-31）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
 - 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）

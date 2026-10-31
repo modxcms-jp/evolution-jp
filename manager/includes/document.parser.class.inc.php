@@ -6094,7 +6094,15 @@ class DocumentParser
         return octdec($defaults[$key]);
     }
 
-    public function move_uploaded_file($tmp_path, $target_path)
+    /**
+     * アップロードされたファイルを保存する。
+     *
+     * @param string $tmp_path 一時ファイル
+     * @param string $target_path 保存先のフルパス(最後の要素は sanitizeFilename() で無害化される)
+     * @param bool $resize false のとき、画像を image_limit_width で縮小しない(利用者が大きさを決めた画像用)
+     * @return bool
+     */
+    public function move_uploaded_file($tmp_path, $target_path, $resize = true)
     {
         $target_path = str_replace('\\', '/', $target_path);
 
@@ -6108,7 +6116,7 @@ class DocumentParser
             $this->logEvent(1, 3, $msg, 'move_uploaded_file');
         }
 
-        $img = getimagesize($tmp_path);
+        $img = $resize ? getimagesize($tmp_path) : false;
 
         if ($img) {
             return $this->resizeImage($tmp_path, $img, $target_path);
