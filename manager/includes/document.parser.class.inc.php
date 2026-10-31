@@ -6043,18 +6043,44 @@ class DocumentParser
     }
 
     /**
-     * 新しいファイルのパーミッション（設定 new_file_permissions）。空・0・8進数でない値のときは 0644
+     * 新しいファイルのパーミッション（設定 new_file_permissions）。
      * 新しいファイルのパーミッションの正本。ほかの場所で計算しない
      *
      * @return int
      */
     public function newFilePermissions()
     {
-        $value = ltrim(trim((string) $this->config('new_file_permissions')), '0');
-        if ($value === '' || !preg_match('/^[0-7]+$/', $value)) {
-            return 0644;
+        return $this->newPermissions('file');
+    }
+
+    /**
+     * 新しいディレクトリのパーミッション（設定 new_folder_permissions）。
+     * 新しいディレクトリのパーミッションの正本。ほかの場所で計算しない
+     *
+     * @return int
+     */
+    public function newFolderPermissions()
+    {
+        return $this->newPermissions('folder');
+    }
+
+    /**
+     * 新しく作るファイル・ディレクトリのパーミッションを chmod() などに渡せる値で返す。
+     * 設定が 3〜4 桁の 8 進数（保存時の確かめと同じ）で 0 でないときはその値、
+     * それ以外（空・0・読めない値）は default.config.php の既定値を使う
+     *
+     * @param string $type 'file' か 'folder'
+     * @return int
+     */
+    private function newPermissions($type)
+    {
+        $key = "new_{$type}_permissions";
+        $value = trim((string) $this->config($key));
+        if (preg_match('/^[0-7]{3,4}$/', $value) && octdec($value) > 0) {
+            return octdec($value);
         }
-        return octdec($value);
+        $defaults = include MODX_CORE_PATH . 'default.config.php';
+        return octdec($defaults[$key]);
     }
 
     public function move_uploaded_file($tmp_path, $target_path)

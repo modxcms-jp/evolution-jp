@@ -305,12 +305,12 @@ class EvoSiteExporter
 
     private function filePermission()
     {
-        return octdec((string)evo()->config('new_file_permissions')) ?: 0644;
+        return evo()->newFilePermissions();
     }
 
     private function folderPermission()
     {
-        return octdec((string)evo()->config('new_folder_permissions')) ?: 0755;
+        return evo()->newFolderPermissions();
     }
 
     private function makeDir($dir)

@@ -377,7 +377,7 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
         fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
-    $folderPermissions = octdec($modx->config('new_folder_permissions') ?: '0755');
+    $folderPermissions = $modx->newFolderPermissions();
     if (!mkdir($target, $folderPermissions)) {
         fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
