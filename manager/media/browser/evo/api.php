@@ -14,8 +14,10 @@
  * POST action=move   (type, folder, files[], dest)              -> {moved:[...], errors:[{name,message}]}
  * POST action=copy   (type, folder, files[], dest)              -> {copied:[{from,name}], errors:[{name,message}]}
  *                     同名があれば 名前(1).拡張子 のように連番を付ける。上書きはしない。ファイルのみ(フォルダは errors)
+ * POST action=download (type, folder, files[])                  -> ファイルのバイナリ(1件はそのまま、2件以上は zip)。エラーは JSON
+ *                     許可された拡張子のファイルだけ。1つでも満たさないものがあれば全体を拒否する。zip は PHP の zip 拡張が必要(無ければ 501 zip_unavailable)
  *
- * 読み取り系(list/thumb)はセッション検証のみ。書き込み系はCSRFトークン必須。
+ * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
 
 define('IN_MANAGER_MODE', 'true');
@@ -27,6 +29,7 @@ require_once $base_path . 'manager/includes/document.parser.class.inc.php';
 require_once __DIR__ . '/lib/PathResolver.php';
 require_once __DIR__ . '/lib/BrowserConfig.php';
 require_once __DIR__ . '/lib/ThumbnailService.php';
+require_once __DIR__ . '/lib/ZipService.php';
 
 $modx = new DocumentParser();
 $modx->getSettings();
@@ -115,6 +118,15 @@ switch ($action) {
     case 'copy':
         checkCsrfToken();
         fbActionCopy($resolver, $config, $modx, $type);
+        break;
+
+    case 'download':
+        // csrf_token は GET でも受け取れてしまうため、POST だけを受ける
+        if (!is_post()) {
+            fbError('method_not_allowed', lang('fb_err_method_not_allowed'), 405);
+        }
+        checkCsrfToken();
+        fbActionDownload($resolver, $config, $type);
         break;
 
     default:
@@ -603,6 +615,114 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
     }
 
     fbSendJson(['copied' => $copied, 'errors' => $errors]);
+}
+
+/**
+ * 選んだファイルを送る。1 件はそのまま、2 件以上は zip にして送る。
+ * ファイルを外へ出す操作なので、1 つでも条件(許可された拡張子・ドットで始まらない・許可された場所の中の実体・読める)を
+ * 満たさなければ全体を拒否する(中身が黙って欠けた zip を作らない)。
+ */
+function fbActionDownload(PathResolver $resolver, BrowserConfig $config, $type)
+{
+    $dir = $resolver->resolveDir($type, anyv('folder', ''));
+    if ($dir === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    $names = postv('files', []);
+    if (!is_array($names) || !$names) {
+        fbError('no_files', lang('fb_err_download_no_files'), 400);
+    }
+    foreach ($names as $name) {
+        if (!is_string($name)) {
+            fbError('invalid_name', lang('fb_err_invalid_name'), 400);
+        }
+    }
+    $names = array_values(array_unique($names));
+
+    $isZip = count($names) > 1;
+    if ($isZip && !$config->canCreateZip()) {
+        fbError('zip_unavailable', lang('fb_err_zip_unavailable'), 501);
+    }
+    if (count($names) > BrowserConfig::ZIP_MAX_FILES) {
+        fbError('too_many_files', sprintf(lang('fb_err_download_too_many'), BrowserConfig::ZIP_MAX_FILES), 413);
+    }
+
+    $entries = [];
+    $totalSize = 0;
+    foreach ($names as $name) {
+        // UTF-8 でない名前（一覧では置き換え文字になる）は、zip に正しく入れられず実体とも一致しない
+        if (strpos($name, "\u{FFFD}") !== false || preg_match('//u', $name) !== 1) {
+            fbError('bad_encoding', lang('fb_err_bad_encoding'), 400);
+        }
+        $clean = PathResolver::sanitizeSegment($name);
+        if ($clean === '' || $clean !== $name || strpos($clean, '.') === 0 || !$config->isAllowedFilename($type, $clean)) {
+            fbError('extension_not_allowed', lang('fb_err_extension_not_allowed'), 400);
+        }
+
+        // シンボリックリンクの先の実体が許可された場所の中にあるものだけを送る
+        $real = $resolver->resolveFile($dir['real'], $clean);
+        if ($real === null || !is_readable($real)) {
+            fbError('not_found', lang('fb_err_entry_file_not_found'), 404);
+        }
+
+        $size = @filesize($real);
+        if ($size === false) {
+            fbError('not_found', lang('fb_err_entry_file_not_found'), 404);
+        }
+        $totalSize += $size;
+        $entries[$clean] = $real;
+    }
+
+    // 1 件はそのまま送るので、サイズの上限は zip にするときだけ
+    if ($isZip && $totalSize > BrowserConfig::ZIP_MAX_BYTES) {
+        fbError('too_large', sprintf(lang('fb_err_download_too_large'), (int) (BrowserConfig::ZIP_MAX_BYTES / 1048576)), 413);
+    }
+
+    if (!$isZip) {
+        $name = (string) array_key_first($entries);
+        $sendPath = $entries[$name];
+        $contentType = 'application/octet-stream';
+        // ASCII だけの名前は filename= で足り、それ以外は RFC 5987 の filename* で UTF-8 の名前を渡す
+        $fallback = preg_replace('/[^A-Za-z0-9._-]/', '_', $name);
+        $disposition = 'attachment; filename="' . $fallback . '"; filename*=UTF-8\'\'' . rawurlencode($name);
+    } else {
+        $zipPath = (new ZipService(MODX_BASE_PATH . 'temp/zip/'))->create($entries);
+        if ($zipPath === null) {
+            evo()->logEvent(0, 3, 'Failed to create a zip in the file browser', 'File browser', [
+                'folder' => $dir['rel'],
+                'count' => count($entries),
+            ]);
+            fbError('zip_failed', lang('fb_err_zip_failed'), 500);
+        }
+        // 送り終えたあと(途中で切れたときも)一時ファイルを消す
+        register_shutdown_function(function () use ($zipPath) {
+            @unlink($zipPath);
+        });
+        $sendPath = $zipPath;
+        $contentType = 'application/zip';
+        $disposition = 'attachment; filename="' . $type . '-' . date('Ymd-His') . '.zip"';
+    }
+
+    $length = @filesize($sendPath);
+    if ($length === false) {
+        fbError('not_found', lang('fb_err_entry_file_not_found'), 404);
+    }
+
+    // 警告などの出力がバイナリに混ざらないようにする
+    @ini_set('display_errors', '0');
+    @set_time_limit(0);
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    http_response_code(200);
+    header('Content-Type: ' . $contentType);
+    header('Content-Disposition: ' . $disposition);
+    header('Content-Length: ' . $length);
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: private, no-store');
+    @readfile($sendPath);
+    exit;
 }
 
 // 最後まで消して、消せないものがあれば false を返し、失敗したパスを $failures に集める。

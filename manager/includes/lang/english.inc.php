@@ -1380,4 +1380,13 @@ return [
     "fb_err_copy_failed" => 'Could not copy.',
     "fb_delete_partial_failed" => 'Some items could not be deleted:',
     "fb_err_delete_partial" => 'Some items could not be deleted.',
+    "fb_download" => 'Download',
+    "fb_download_preparing" => 'Preparing download...',
+    "fb_download_failed" => 'Download failed: %s',
+    "fb_err_method_not_allowed" => 'This request must be sent with POST.',
+    "fb_err_download_no_files" => 'No files were specified.',
+    "fb_err_zip_unavailable" => 'This server cannot create zip files (the PHP zip extension is not enabled).',
+    "fb_err_download_too_many" => 'Too many files. You can download up to %d files at once.',
+    "fb_err_download_too_large" => 'The total size is too large. You can download up to %d MB at once.',
+    "fb_err_zip_failed" => 'The zip file could not be created.',
 ];

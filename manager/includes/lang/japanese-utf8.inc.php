@@ -1381,4 +1381,13 @@ return [
     "fb_err_copy_failed" => 'コピーできませんでした。',
     "fb_delete_partial_failed" => '削除できなかったものがあります:',
     "fb_err_delete_partial" => '一部を削除できませんでした。',
+    "fb_download" => 'ダウンロード',
+    "fb_download_preparing" => 'ダウンロードを準備しています...',
+    "fb_download_failed" => 'ダウンロードに失敗しました: %s',
+    "fb_err_method_not_allowed" => 'このリクエストは POST で送る必要があります。',
+    "fb_err_download_no_files" => 'ファイルが指定されていません。',
+    "fb_err_zip_unavailable" => 'このサーバーでは zip を作れません（PHP の zip 拡張が有効ではありません）。',
+    "fb_err_download_too_many" => 'ファイルの数が多すぎます。一度にダウンロードできるのは %d 件までです。',
+    "fb_err_download_too_large" => '合計サイズが大きすぎます。一度にダウンロードできるのは %d MB までです。',
+    "fb_err_zip_failed" => 'zip を作れませんでした。',
 ];

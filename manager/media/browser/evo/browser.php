@@ -13,6 +13,7 @@ define('MODX_API_MODE', true);
 $self = 'manager/media/browser/evo/browser.php';
 $base_path = str_replace($self, '', str_replace('\\', '/', __FILE__));
 require_once $base_path . 'manager/includes/document.parser.class.inc.php';
+require_once __DIR__ . '/lib/BrowserConfig.php';
 
 $modx = new DocumentParser();
 $modx->getSettings();
@@ -56,6 +57,7 @@ $jsLangKeys = [
     'fb_mkdir_prompt', 'fb_mkdir_failed',
     'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
     'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',
+    'fb_download', 'fb_download_preparing', 'fb_download_failed',
 ];
 $jsMessages = [];
 foreach ($jsLangKeys as $jsLangKey) {
@@ -69,6 +71,8 @@ $jsConfig = [
     'csrfToken' => function_exists('getCurrentCsrfToken') ? getCurrentCsrfToken() : '',
     'initialFolder' => getv('folder', ''),
     'initialSelect' => getv('select', ''),
+    // zip を作れない環境では、2 件以上のダウンロードを出さない(1 件はそのまま送れる)
+    'zip' => (new BrowserConfig($modx))->canCreateZip(),
     'lang' => $jsMessages,
 ];
 
@@ -94,6 +98,7 @@ $markup .= '  <div class="evo-fb-selectionbar" data-role="selectionbar" hidden>'
 $markup .= '    <span data-role="selection-count"></span>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-copy">' . hsc(lang('fb_copy')) . '</button>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-cut">' . hsc(lang('fb_cut')) . '</button>';
+$markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-download">' . hsc(lang('fb_download')) . '</button>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-move">' . hsc(lang('move')) . '</button>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="bulk-delete">' . hsc(lang('delete')) . '</button>';
 $markup .= '    <button type="button" class="evo-fb-btn" data-action="clear-selection">' . hsc(lang('fb_clear_selection')) . '</button>';
