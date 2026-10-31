@@ -12,6 +12,8 @@
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
  * POST action=move   (type, folder, files[], dest)              -> {moved:[...], errors:[{name,message}]}
+ * POST action=copy   (type, folder, files[], dest)              -> {copied:[{from,name}], errors:[{name,message}]}
+ *                     同名があれば 名前(1).拡張子 のように連番を付ける。上書きはしない。ファイルのみ(フォルダは errors)
  *
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系はCSRFトークン必須。
  */
@@ -50,7 +52,7 @@ function fbError($code, $message, $status = 400)
 function fbNotFoundMessage($name, $message)
 {
     if (strpos((string) $name, "\u{FFFD}") !== false) {
-        return '名前の文字コードが UTF-8 でないため、この画面では操作できません。FTP などで名前を付け直してください。';
+        return lang('fb_err_bad_encoding');
     }
     return $message;
 }
@@ -59,18 +61,18 @@ function fbNotFoundMessage($name, $message)
 // 「ウェブユーザーのファイルブラウザ利用」(rb_webuser) が有効なときだけ許可する（既定は無効）。
 if (!sessionv('mgrValidated')) {
     if (!sessionv('webValidated') || (int) $modx->config('rb_webuser') !== 1) {
-        fbError('unauthorized', 'ログインセッションが確認できません。', 403);
+        fbError('unauthorized', lang('fb_err_unauthorized'), 403);
     }
 }
 
 $config = new BrowserConfig($modx);
 if (!$config->isBrowserEnabled()) {
-    fbError('forbidden', 'ファイルブラウザの利用が許可されていません。', 403);
+    fbError('forbidden', lang('fb_err_forbidden'), 403);
 }
 
 $type = anyv('type', 'images');
 if (!$config->isValidType($type)) {
-    fbError('invalid_type', '不正なファイル種別です。', 400);
+    fbError('invalid_type', lang('fb_err_invalid_type'), 400);
 }
 
 $resolver = new PathResolver($config->baseDir());
@@ -110,8 +112,13 @@ switch ($action) {
         fbActionMove($resolver, $type);
         break;
 
+    case 'copy':
+        checkCsrfToken();
+        fbActionCopy($resolver, $config, $modx, $type);
+        break;
+
     default:
-        fbError('invalid_action', '不明なactionです。', 400);
+        fbError('invalid_action', lang('fb_err_invalid_action'), 400);
 }
 
 function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
@@ -119,12 +126,12 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
     $folder = getv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', fbNotFoundMessage($folder, '指定されたフォルダが見つかりません。'), 404);
+        fbError('not_found', fbNotFoundMessage($folder, lang('fb_err_folder_not_found')), 404);
     }
 
     $entries = @scandir($dir['real']);
     if ($entries === false) {
-        fbError('not_found', 'フォルダを読み取れません。', 404);
+        fbError('not_found', lang('fb_err_folder_unreadable'), 404);
     }
 
     $folders = [];
@@ -141,6 +148,10 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
         }
 
         $fullPath = $dir['real'] . $entry;
+        // 壊れたシンボリックリンクは使えないので一覧に出さない
+        if (is_link($fullPath) && !file_exists($fullPath)) {
+            continue;
+        }
         $relPath = $dir['rel'] . '/' . $entry;
 
         if (is_dir($fullPath)) {
@@ -194,8 +205,8 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
 
         $files[] = [
             'name' => $entry,
-            'size' => filesize($fullPath),
-            'mtime' => filemtime($fullPath),
+            'size' => @filesize($fullPath),
+            'mtime' => @filemtime($fullPath),
             'url' => $fileUrl,
             'path' => $filePath,
             'thumb' => $thumbUrl,
@@ -234,19 +245,19 @@ function fbActionThumb(PathResolver $resolver, $type)
     $folder = getv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     $file = $resolver->resolveFile($dir['real'], getv('file', ''));
     if ($file === null) {
-        fbError('not_found', '指定されたファイルが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_file_not_found'), 404);
     }
 
     $thumbs = new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/');
     $cacheFile = $thumbs->getOrCreate($file);
 
     if ($cacheFile === null) {
-        fbError('not_an_image', 'サムネイルを生成できないファイルです。', 404);
+        fbError('not_an_image', lang('fb_err_not_an_image'), 404);
     }
 
     $thumbs->outputWithCacheHeaders($cacheFile);
@@ -258,12 +269,12 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     $uploadedFiles = $_FILES['files'] ?? null;
     if (!$uploadedFiles || !is_array($uploadedFiles['name'])) {
-        fbError('no_files', 'アップロードするファイルがありません。', 400);
+        fbError('no_files', lang('fb_err_no_files'), 400);
     }
 
     $maxSize = $config->maxUploadSize();
@@ -278,38 +289,25 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
         $errorCode = $uploadedFiles['error'][$i];
 
         if ($errorCode !== UPLOAD_ERR_OK) {
-            $errors[] = ['name' => $originalName, 'message' => 'アップロードに失敗しました(エラーコード ' . $errorCode . ')。'];
+            $errors[] = ['name' => $originalName, 'message' => sprintf(lang('fb_err_upload_failed'), $errorCode)];
             continue;
         }
 
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
         if (!$config->isAllowedFilename($type, $safeName)) {
-            $errors[] = ['name' => $originalName, 'message' => '許可されていない拡張子です。'];
+            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_extension_not_allowed')];
             continue;
         }
 
         if ($uploadedFiles['size'][$i] > $maxSize) {
-            $errors[] = ['name' => $originalName, 'message' => '許可されている最大サイズを超えています。'];
+            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_large')];
             continue;
         }
 
-        // $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
-        // 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
-        $dotPos = strrpos($safeName, '.');
-        $baseName = substr($safeName, 0, $dotPos);
-        $extension = substr($safeName, $dotPos);
-        $targetPath = null;
-        for ($suffix = 0; $suffix <= 200; $suffix++) {
-            $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
-            $candidatePath = $modx->sanitizeUploadedFilename($dir['real'] . $candidate);
-            if (!is_file($candidatePath)) {
-                $targetPath = $candidatePath;
-                break;
-            }
-        }
+        $targetPath = fbFindFreePath($modx, $dir['real'], $safeName);
         if ($targetPath === null) {
-            $errors[] = ['name' => $originalName, 'message' => '同じ名前のファイルが多すぎるため保存できません。'];
+            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_many_same_name')];
             continue;
         }
         // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
@@ -317,7 +315,7 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
         if (!$modx->move_uploaded_file($tmpPath, $targetPath)) {
-            $errors[] = ['name' => $originalName, 'message' => '保存に失敗しました。'];
+            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
             continue;
         }
 
@@ -338,27 +336,50 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
+/**
+ * 保存先のフォルダで空いているファイルのフルパスを探す。同名があれば 名前(1).拡張子 のように連番を付ける。
+ * 見つからなければ null。
+ *
+ * $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
+ * 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける
+ */
+function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
+{
+    $dotPos = strrpos($safeName, '.');
+    $baseName = $dotPos === false ? $safeName : substr($safeName, 0, $dotPos);
+    $extension = $dotPos === false ? '' : substr($safeName, $dotPos);
+    for ($suffix = 0; $suffix <= 200; $suffix++) {
+        $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
+        $candidatePath = $modx->sanitizeUploadedFilename($dirReal . $candidate);
+        // 壊れたシンボリックリンクや同名のフォルダも「使用中」として次の番号へ進む
+        if (!file_exists($candidatePath) && !is_link($candidatePath)) {
+            return $candidatePath;
+        }
+    }
+    return null;
+}
+
 function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
 {
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     $name = $modx->sanitizeFilename(postv('name', ''), false);
     if ($name === '') {
-        fbError('invalid_name', '不正なフォルダ名です。', 400);
+        fbError('invalid_name', lang('fb_err_invalid_folder_name'), 400);
     }
 
     $target = $dir['real'] . $name;
     if (file_exists($target)) {
-        fbError('already_exists', '同名のフォルダまたはファイルが既に存在します。', 409);
+        fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
     $folderPermissions = octdec($modx->config('new_folder_permissions') ?: '0755');
     if (!mkdir($target, $folderPermissions)) {
-        fbError('mkdir_failed', 'フォルダを作成できませんでした。', 500);
+        fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
     @chmod($target, $folderPermissions);
 
@@ -370,32 +391,32 @@ function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentP
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
     $target = PathResolver::sanitizeSegment(postv('target', ''));
     $newName = $modx->sanitizeFilename(postv('newName', ''), false);
     if ($target === '' || $newName === '') {
-        fbError('invalid_name', '不正な名前です。', 400);
+        fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
 
     $sourcePath = $dir['real'] . $target;
     if (!file_exists($sourcePath)) {
-        fbError('not_found', fbNotFoundMessage($target, '対象が見つかりません。'), 404);
+        fbError('not_found', fbNotFoundMessage($target, lang('fb_err_target_not_found')), 404);
     }
     // ファイルの名前は、アップロードと同じ拡張子の許可リストで確かめる（フォルダーは確かめない）
     if (!is_dir($sourcePath) && !$config->isAllowedFilename($type, $newName)) {
-        fbError('invalid_extension', '許可されていない拡張子です。', 400);
+        fbError('invalid_extension', lang('fb_err_extension_not_allowed'), 400);
     }
 
     $destPath = $dir['real'] . $newName;
     if (file_exists($destPath)) {
-        fbError('already_exists', '同名のフォルダまたはファイルが既に存在します。', 409);
+        fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
     if (!rename($sourcePath, $destPath)) {
-        fbError('rename_failed', '名前を変更できませんでした。', 500);
+        fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
 
     fbSendJson(['name' => $newName]);
@@ -406,7 +427,7 @@ function fbActionDelete(PathResolver $resolver, $type)
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     $files = (array) postv('files', []);
@@ -419,13 +440,13 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_file($path)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'ファイルが見つかりません。')];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
         if (unlink($path)) {
             $deleted[] = $name;
         } else {
-            $errors[] = ['name' => $name, 'message' => '削除できませんでした。'];
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
         }
     }
 
@@ -433,13 +454,13 @@ function fbActionDelete(PathResolver $resolver, $type)
         $name = PathResolver::sanitizeSegment($name);
         $path = $dir['real'] . $name;
         if ($name === '' || !is_dir($path)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'フォルダが見つかりません。')];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_folder_not_found'))];
             continue;
         }
         if (fbDeleteTree($path)) {
             $deleted[] = $name;
         } else {
-            $errors[] = ['name' => $name, 'message' => '削除できませんでした。'];
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
         }
     }
 
@@ -451,17 +472,17 @@ function fbActionMove(PathResolver $resolver, $type)
     $folder = anyv('folder', '');
     $dir = $resolver->resolveDir($type, $folder);
     if ($dir === null) {
-        fbError('not_found', '指定されたフォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     $destFolder = postv('dest', '');
     $destDir = $resolver->resolveDir($type, $destFolder);
     if ($destDir === null) {
-        fbError('not_found', '移動先フォルダが見つかりません。', 404);
+        fbError('not_found', lang('fb_err_dest_not_found'), 404);
     }
 
     if (rtrim($destDir['real'], '/') === rtrim($dir['real'], '/')) {
-        fbError('same_folder', '移動先が現在のフォルダと同じです。', 400);
+        fbError('same_folder', lang('fb_err_same_folder'), 400);
     }
 
     $files = (array) postv('files', []);
@@ -474,21 +495,105 @@ function fbActionMove(PathResolver $resolver, $type)
         $destPath = $destDir['real'] . $name;
 
         if ($name === '' || !is_file($sourcePath)) {
-            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, 'ファイルが見つかりません。')];
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
         if (file_exists($destPath)) {
-            $errors[] = ['name' => $name, 'message' => '移動先に同名のファイルが既に存在します。'];
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_dest_exists')];
             continue;
         }
         if (rename($sourcePath, $destPath)) {
             $moved[] = $name;
         } else {
-            $errors[] = ['name' => $name, 'message' => '移動できませんでした。'];
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
         }
     }
 
     fbSendJson(['moved' => $moved, 'errors' => $errors]);
+}
+
+function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentParser $modx, $type)
+{
+    $dir = $resolver->resolveDir($type, anyv('folder', ''));
+    if ($dir === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    // 同じフォルダへの複製も許す（連番の名前になる）
+    $destDir = $resolver->resolveDir($type, postv('dest', ''));
+    if ($destDir === null) {
+        fbError('not_found', lang('fb_err_dest_not_found'), 404);
+    }
+
+    $files = (array) postv('files', []);
+    $copied = [];
+    $errors = [];
+
+    foreach ($files as $name) {
+        $name = PathResolver::sanitizeSegment($name);
+
+        // シンボリックリンクの先の実体が許可された場所の中にあるものだけを複製する
+        $sourcePath = $resolver->resolveFile($dir['real'], $name);
+        if ($sourcePath === null) {
+            $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
+            continue;
+        }
+
+        // 複製先の名前も、アップロード・名前の変更と同じ拡張子の許可リストで確かめる
+        $safeName = $modx->sanitizeFilename($name);
+        if ($safeName === '' || !$config->isAllowedFilename($type, $safeName)) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_extension_not_allowed')];
+            continue;
+        }
+
+        // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成（x）して、使われていたら次の候補へ
+        $targetPath = null;
+        $out = false;
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $targetPath = fbFindFreePath($modx, $destDir['real'], $safeName);
+            if ($targetPath === null) {
+                break;
+            }
+            $out = @fopen($targetPath, 'xb');
+            if ($out !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
+                break;
+            }
+        }
+        if ($targetPath === null) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
+            continue;
+        }
+
+        $in = $out === false ? false : @fopen($sourcePath, 'rb');
+        $expectedSize = @filesize($sourcePath);
+        $copiedSize = $in !== false ? @stream_copy_to_stream($in, $out) : false;
+        // 書き込みの途中で失敗した（容量不足など）ときも、元のサイズと一致しなければ失敗として扱う
+        $ok = $copiedSize !== false && $expectedSize !== false && $copiedSize === $expectedSize;
+        if ($in !== false) {
+            fclose($in);
+        }
+        if ($out !== false) {
+            fclose($out);
+        }
+        if (!$ok) {
+            if ($out !== false) {
+                @unlink($targetPath);
+            }
+            evo()->logEvent(0, 3, 'Failed to copy a file in the file browser', 'File browser', [
+                'from' => $sourcePath,
+                'to' => $targetPath,
+            ]);
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_copy_failed')];
+            continue;
+        }
+        // パーミッションを変えられない環境でも、複製できていれば成功として扱う
+        @chmod($targetPath, $modx->newFilePermissions());
+
+        // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
+        $copied[] = ['from' => $name, 'name' => substr($targetPath, strrpos($targetPath, '/') + 1)];
+    }
+
+    fbSendJson(['copied' => $copied, 'errors' => $errors]);
 }
 
 function fbDeleteTree($path)

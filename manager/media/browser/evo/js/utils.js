@@ -1,9 +1,12 @@
 // 状態を持たない純粋なヘルパー群(HTMLエスケープ・表示整形・パス結合・アイコン)。
 
 export function escapeHtml(value) {
-    var div = document.createElement('div');
-    div.textContent = value == null ? '' : String(value);
-    return div.innerHTML;
+    return (value == null ? '' : String(value))
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 export function formatSize(bytes) {

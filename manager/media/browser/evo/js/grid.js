@@ -2,6 +2,7 @@
 // D&D移動のドラッグソース/ドロップ先バインドを担う。
 
 import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, fileIcon, ICON_RENAME, ICON_DELETE, ICON_PREVIEW } from './utils.js';
+import { t } from './i18n.js';
 import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
 import { apiUrl } from './api.js';
 import { createMarquee } from './marquee.js';
@@ -20,6 +21,7 @@ import { createMarquee } from './marquee.js';
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
+ * @param {(name: string) => boolean} ctx.isCut - 切り取り中のファイルか(一覧で薄く表示する)
  */
 export function createGrid(ctx) {
     var gridEl = ctx.gridEl;
@@ -30,12 +32,12 @@ export function createGrid(ctx) {
 
     function itemActionsHtml(isFolder) {
         var preview = isFolder ? '' :
-            '  <button type="button" class="evo-fb-icon-btn" data-role="preview" title="プレビュー">' + ICON_PREVIEW + '</button>';
+            '  <button type="button" class="evo-fb-icon-btn" data-role="preview" title="' + escapeHtml(t('preview')) + '">' + ICON_PREVIEW + '</button>';
         return '' +
             '<span class="evo-fb-item-actions">' +
             preview +
-            '  <button type="button" class="evo-fb-icon-btn" data-role="rename" title="名前を変更">' + ICON_RENAME + '</button>' +
-            '  <button type="button" class="evo-fb-icon-btn evo-fb-icon-danger" data-role="delete" title="削除">' + ICON_DELETE + '</button>' +
+            '  <button type="button" class="evo-fb-icon-btn" data-role="rename" title="' + escapeHtml(t('fb_rename')) + '">' + ICON_RENAME + '</button>' +
+            '  <button type="button" class="evo-fb-icon-btn evo-fb-icon-danger" data-role="delete" title="' + escapeHtml(t('delete')) + '">' + ICON_DELETE + '</button>' +
             '</span>';
     }
 
@@ -67,7 +69,7 @@ export function createGrid(ctx) {
             : '';
 
         return '' +
-            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-path="' + escapeHtml(file.path) + '" data-kind="file">' +
+            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-path="' + escapeHtml(file.path) + '" data-kind="file">' +
             '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb">' +
             '    <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
             '  </button>' +
@@ -193,7 +195,7 @@ export function createGrid(ctx) {
     function updateSelectionBar() {
         var count = state.selection.size;
         ctx.selectionBarEl.hidden = count === 0;
-        ctx.selectionCountEl.textContent = count + '件選択中';
+        ctx.selectionCountEl.textContent = t('fb_selected_count', count);
     }
 
     // state.selectionをグリッドDOM(ハイライト)へ反映する
@@ -202,6 +204,13 @@ export function createGrid(ctx) {
             item.classList.toggle('is-checked', state.selection.has(item.getAttribute('data-name')));
         });
         updateSelectionBar();
+    }
+
+    // 切り取り中の表示を、クリップボードの今の状態に合わせる
+    function updateCutDom() {
+        gridEl.querySelectorAll('.evo-fb-item-file').forEach(function (item) {
+            item.classList.toggle('is-cut', ctx.isCut(item.getAttribute('data-name')));
+        });
     }
 
     function bindItemEvents() {
@@ -317,7 +326,7 @@ export function createGrid(ctx) {
         gridEl.classList.toggle('evo-fb-grid--list', state.view === 'list');
 
         if (data.folders.length === 0 && data.files.length === 0) {
-            gridEl.innerHTML = '<div class="evo-fb-empty">' + (state.search ? '一致するファイルがありません' : 'このフォルダは空です') + '</div>';
+            gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t(state.search ? 'fb_no_match' : 'fb_empty_folder')) + '</div>';
             return;
         }
 
@@ -326,11 +335,11 @@ export function createGrid(ctx) {
     }
 
     function renderError(message) {
-        gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">読み込みに失敗しました: ' + escapeHtml(message) + '</div>';
+        gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(t('fb_load_failed', message)) + '</div>';
     }
 
     function renderLoading() {
-        gridEl.innerHTML = '<div class="evo-fb-empty">読み込み中...</div>';
+        gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_loading')) + '</div>';
     }
 
     createMarquee({
@@ -350,6 +359,7 @@ export function createGrid(ctx) {
         renderLoading: renderLoading,
         renderError: renderError,
         updateSelectionDom: updateSelectionDom,
+        updateCutDom: updateCutDom,
         updateSelectionBar: updateSelectionBar
     };
 }

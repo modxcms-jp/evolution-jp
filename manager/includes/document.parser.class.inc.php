@@ -6042,6 +6042,21 @@ class DocumentParser
         exit;
     }
 
+    /**
+     * 新しいファイルのパーミッション（設定 new_file_permissions）。空・0・8進数でない値のときは 0644
+     * 新しいファイルのパーミッションの正本。ほかの場所で計算しない
+     *
+     * @return int
+     */
+    public function newFilePermissions()
+    {
+        $value = ltrim(trim((string) $this->config('new_file_permissions')), '0');
+        if ($value === '' || !preg_match('/^[0-7]+$/', $value)) {
+            return 0644;
+        }
+        return octdec($value);
+    }
+
     public function move_uploaded_file($tmp_path, $target_path)
     {
         $target_path = str_replace('\\', '/', $target_path);
@@ -6049,7 +6064,7 @@ class DocumentParser
         // ファイル名のサニタイズ処理を追加
         $target_path = $this->sanitizeUploadedFilename($target_path);
 
-        $new_file_permissions = octdec(ltrim($this->config('new_file_permissions'), '0'));
+        $new_file_permissions = $this->newFilePermissions();
 
         if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
             $msg = "Can't upload to '{$target_path}'.";
@@ -6154,7 +6169,7 @@ class DocumentParser
             }
             // パーミッションを変えられなくても、保存できていれば成功として扱う
             @chmod(
-                $target_path, octdec(ltrim($this->config('new_file_permissions'), '0'))
+                $target_path, $this->newFilePermissions()
             );
             return true;
         }
@@ -6196,7 +6211,7 @@ class DocumentParser
         }
 
         // パーミッションを変えられなくても、保存できていれば成功として扱う
-        @chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
+        @chmod($target_path, $this->newFilePermissions());
         return true;
     }
 

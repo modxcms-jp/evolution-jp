@@ -4,12 +4,14 @@
 // グローバル関数として公開し、断片内のインラインscriptから毎回呼び直す。
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
+import { setMessages, t } from './js/i18n.js';
 import { apiUrl, fetchJson, postForm } from './js/api.js';
 import { bindMoveDropTarget } from './js/dnd.js';
 import { createTree } from './js/tree.js';
 import { createGrid } from './js/grid.js';
 import { createUpload } from './js/upload.js';
 import { createMoveDialog, createPreview } from './js/dialogs.js';
+import { createContextMenu } from './js/contextmenu.js';
 
 function init() {
     var root = document.getElementById('evoFileBrowser');
@@ -29,6 +31,7 @@ function init() {
     }
 
     var config = JSON.parse(root.getAttribute('data-config') || '{}');
+    setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
     var initialFallbackTried = false;
@@ -84,21 +87,30 @@ function init() {
         console.log('[filebrowser] picked', path);
     }
 
-    function moveFilesTo(dest, names, sourceFolder) {
+    // 一部が失敗したときの表示(移動・コピーで共通)
+    function alertPartialErrors(titleKey, errors) {
+        if (errors && errors.length) {
+            window.alert(t(titleKey) + '\n' + errors.map(function (err) {
+                return err.name + ': ' + err.message;
+            }).join('\n'));
+        }
+    }
+
+    // onDone(result): 通信が成功したときに、一覧を読み直す前に呼ぶ
+    function moveFilesTo(dest, names, sourceFolder, onDone) {
         if (dest === sourceFolder || names.length === 0) {
             return;
         }
         postForm(config, state, 'move', { 'files[]': names, dest: dest }, sourceFolder)
             .then(function (result) {
-                if (result.errors && result.errors.length) {
-                    window.alert('一部のファイルを移動できませんでした:\n' + result.errors.map(function (err) {
-                        return err.name + ': ' + err.message;
-                    }).join('\n'));
+                alertPartialErrors('fb_move_partial_failed', result.errors);
+                if (onDone) {
+                    onDone(result);
                 }
                 load();
             })
             .catch(function (err) {
-                window.alert('移動に失敗しました: ' + err.message);
+                window.alert(t('fb_move_failed', err.message));
             });
     }
 
@@ -109,23 +121,86 @@ function init() {
         postForm(config, state, 'rename', { target: name, newName: newName })
             .then(load)
             .catch(function (err) {
-                window.alert('名前の変更に失敗しました: ' + err.message);
+                window.alert(t('fb_rename_failed', err.message));
             });
     }
 
     function renameEntry(name) {
-        performRename(name, window.prompt('新しい名前を入力してください', name));
+        performRename(name, window.prompt(t('fb_rename_prompt'), name));
     }
 
     function deleteEntry(name, isFolder) {
-        if (!window.confirm((isFolder ? 'フォルダ' : 'ファイル') + '「' + name + '」を削除しますか?')) {
+        if (!window.confirm(t(isFolder ? 'fb_confirm_delete_folder' : 'fb_confirm_delete_file', name))) {
             return;
         }
         var fields = isFolder ? { 'folders[]': [name] } : { 'files[]': [name] };
         postForm(config, state, 'delete', fields)
             .then(load)
             .catch(function (err) {
-                window.alert('削除に失敗しました: ' + err.message);
+                window.alert(t('fb_delete_failed', err.message));
+            });
+    }
+
+    // クリップボード: { mode: 'copy' | 'cut', folder, names }。フォルダを移っても残り、モーダルを閉じると状態ごと消える
+    var clipboard = null;
+    var pasteBtn = root.querySelector('[data-action="paste"]');
+
+    function isCutName(name) {
+        return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
+    }
+
+    function updateClipboardUi() {
+        pasteBtn.hidden = !canPasteTo(state.folder);
+        grid.updateCutDom();
+    }
+
+    // 切り取ったファイルが別の方法で動いたり消えたりしたときは、一覧に無い名前を外す
+    function pruneClipboard() {
+        if (!clipboard || clipboard.folder !== state.folder) {
+            return;
+        }
+        clipboard.names = clipboard.names.filter(function (n) { return !!findFile(n); });
+        if (clipboard.names.length === 0) {
+            clipboard = null;
+        }
+    }
+
+    function setClipboard(mode) {
+        if (state.selection.size === 0) {
+            return;
+        }
+        clipboard = { mode: mode, folder: state.folder, names: Array.from(state.selection) };
+        updateClipboardUi();
+    }
+
+    // 切り取りは、元のフォルダと同じ所へは貼れない
+    function canPasteTo(dest) {
+        return !!clipboard && !(clipboard.mode === 'cut' && clipboard.folder === dest);
+    }
+
+    function pasteTo(dest) {
+        if (!canPasteTo(dest)) {
+            return;
+        }
+        var clip = clipboard;
+        if (clip.mode === 'cut') {
+            moveFilesTo(dest, clip.names, clip.folder, function (result) {
+                // 移せたものだけクリップボードから外す(失敗したものは残して貼り直せる)
+                var moved = result.moved || [];
+                clip.names = clip.names.filter(function (n) { return moved.indexOf(n) === -1; });
+                if (clip.names.length === 0 && clipboard === clip) {
+                    clipboard = null;
+                }
+            });
+            return;
+        }
+        postForm(config, state, 'copy', { 'files[]': clip.names, dest: dest }, clip.folder)
+            .then(function (result) {
+                alertPartialErrors('fb_copy_partial_failed', result.errors);
+                load();
+            })
+            .catch(function (err) {
+                window.alert(t('fb_copy_failed', err.message));
             });
     }
 
@@ -147,7 +222,8 @@ function init() {
         renameEntry: renameEntry,
         renameInline: performRename,
         deleteEntry: deleteEntry,
-        onDropMove: moveFilesTo
+        onDropMove: moveFilesTo,
+        isCut: isCutName
     });
 
     var tree = createTree({
@@ -216,6 +292,8 @@ function init() {
     function load(selectName) {
         var allowInitialFallback = isInitialLoad;
         isInitialLoad = false;
+        // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
+        var hadFocus = root.contains(document.activeElement);
         grid.renderLoading();
         renderPath();
         state.selection.clear();
@@ -233,6 +311,12 @@ function init() {
                 }
                 grid.renderList();
                 grid.updateSelectionBar();
+                pruneClipboard();
+                updateClipboardUi();
+                if (hadFocus && document.activeElement === document.body) {
+                    var focusEl = gridEl.querySelector('.evo-fb-item.is-checked [data-role="name"]') || dropzoneEl;
+                    focusEl.focus({ preventScroll: true });
+                }
                 tree.syncWithList(state.folder, data.folders, data.files);
                 tree.revealPath(state.folder);
             })
@@ -273,19 +357,21 @@ function init() {
 
     // --- フォルダ作成 ---
 
+    function createFolder() {
+        var name = window.prompt(t('fb_mkdir_prompt'));
+        if (!name) {
+            return;
+        }
+        postForm(config, state, 'mkdir', { name: name })
+            .then(load)
+            .catch(function (err) {
+                window.alert(t('fb_mkdir_failed', err.message));
+            });
+    }
+
     var mkdirBtn = root.querySelector('[data-action="mkdir"]');
     if (mkdirBtn) {
-        mkdirBtn.addEventListener('click', function () {
-            var name = window.prompt('新しいフォルダ名を入力してください');
-            if (!name) {
-                return;
-            }
-            postForm(config, state, 'mkdir', { name: name })
-                .then(load)
-                .catch(function (err) {
-                    window.alert('フォルダを作成できませんでした: ' + err.message);
-                });
-        });
+        mkdirBtn.addEventListener('click', createFolder);
     }
 
     // --- 一括操作 ---
@@ -295,26 +381,161 @@ function init() {
         grid.updateSelectionDom();
     });
 
-    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', function () {
+    function bulkDelete() {
         var names = Array.from(state.selection);
         if (names.length === 0) {
             return;
         }
-        if (!window.confirm(names.length + '件のファイルを削除しますか?')) {
+        if (!window.confirm((names.length === 1 ? t('fb_confirm_delete_file', names[0]) : t('fb_confirm_delete_files', names.length)))) {
             return;
         }
         postForm(config, state, 'delete', { 'files[]': names })
             .then(load)
             .catch(function (err) {
-                window.alert('削除に失敗しました: ' + err.message);
+                window.alert(t('fb_delete_failed', err.message));
             });
-    });
+    }
 
-    root.querySelector('[data-action="bulk-move"]').addEventListener('click', function () {
+    function bulkMove() {
         if (state.selection.size === 0) {
             return;
         }
         moveDialog.open(state.folder);
+    }
+
+    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', bulkDelete);
+    root.querySelector('[data-action="bulk-move"]').addEventListener('click', bulkMove);
+    root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
+    root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
+    pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
+
+    // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
+    dropzoneEl.addEventListener('click', function (e) {
+        if (!e.target.closest('button, input, select, textarea, .evo-fb-item')) {
+            dropzoneEl.focus({ preventScroll: true });
+        }
+    });
+
+    // Ctrl/Cmd + C・X・V。#evoFileBrowser の中にフォーカスがあるときだけ受ける
+    // (リスナーは root に付けるので、モーダルを閉じて root が消えれば一緒に消える)
+    root.addEventListener('keydown', function (e) {
+        if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || e.defaultPrevented) {
+            return;
+        }
+        var key = e.key.toLowerCase();
+        if (key !== 'c' && key !== 'x' && key !== 'v') {
+            return;
+        }
+        // 入力欄での通常のコピー・貼り付けや、選択した文字のコピーを横取りしない
+        if (e.target.closest('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+            return;
+        }
+        var selection = window.getSelection();
+        if (selection && selection.toString() !== '') {
+            return;
+        }
+        if (key === 'v') {
+            if (!canPasteTo(state.folder)) {
+                return;
+            }
+            e.preventDefault();
+            pasteTo(state.folder);
+            return;
+        }
+        if (state.selection.size === 0) {
+            return;
+        }
+        e.preventDefault();
+        setClipboard(key === 'c' ? 'copy' : 'cut');
+    });
+
+    // --- 右クリックメニュー ---
+    // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。
+
+    var contextMenu = createContextMenu({ rootEl: root, scrollEl: dropzoneEl });
+    var uploadBtn = root.querySelector('[data-action="upload"]');
+
+    function contextMenuItems(itemEl) {
+        if (!itemEl) {
+            var folderItems = [
+                { label: t('fb_new_folder'), onSelect: createFolder },
+                { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
+            ];
+            if (canPasteTo(state.folder)) {
+                folderItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(state.folder); } });
+            }
+            return folderItems;
+        }
+        var name = itemEl.getAttribute('data-name');
+        if (itemEl.getAttribute('data-kind') === 'folder') {
+            var subFolder = joinPath(state.folder, name);
+            var subItems = [{ label: t('open'), onSelect: function () { navigateTo(subFolder); } }];
+            if (canPasteTo(subFolder)) {
+                subItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(subFolder); } });
+            }
+            subItems.push(
+                { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
+                { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, true); } }
+            );
+            return subItems;
+        }
+        // 選択に入っていないファイルは、エクスプローラと同じく選択をそのファイルだけにする
+        if (!state.selection.has(name)) {
+            state.selection.clear();
+            state.selection.add(name);
+            grid.updateSelectionDom();
+        }
+        if (state.selection.size > 1) {
+            return [
+                { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
+                { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
+                { label: t('move'), onSelect: bulkMove },
+                { label: t('delete'), danger: true, onSelect: bulkDelete }
+            ];
+        }
+        var file = findFile(name);
+        var items = [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(itemEl.getAttribute('data-path')); } }];
+        if (file) {
+            items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
+        }
+        items.push(
+            { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
+            { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
+            { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
+            { label: t('move'), onSelect: bulkMove },
+            { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, false); } }
+        );
+        return items;
+    }
+
+    dropzoneEl.addEventListener('contextmenu', function (e) {
+        // 名前変更中の入力欄などでは、ブラウザ標準のメニュー(コピー・貼り付け)を残す
+        if (e.target.closest('input, select, textarea')) {
+            return;
+        }
+        e.preventDefault();
+        var itemEl = e.target.closest('.evo-fb-item');
+        var x = e.clientX;
+        var y = e.clientY;
+        // メニューキー・Shift+F10 のときは座標が無いので、フォーカス中の要素の位置に出す
+        if (e.button !== 2 && x === 0 && y === 0) {
+            var focused = document.activeElement;
+            var anchor = focused && dropzoneEl.contains(focused) ? focused : null;
+            itemEl = anchor ? anchor.closest('.evo-fb-item') : null;
+            var rect = (anchor || dropzoneEl).getBoundingClientRect();
+            x = rect.left + 8;
+            y = rect.top + 8;
+        }
+        var items = contextMenuItems(itemEl);
+        var label = t('fb_context_menu');
+        if (itemEl) {
+            var isMulti = itemEl.getAttribute('data-kind') === 'file' && state.selection.size > 1;
+            label = isMulti ? t('fb_selected_count', state.selection.size) : itemEl.getAttribute('data-name');
+        }
+        contextMenu.open(x, y, items, label);
     });
 
     tree.renderRoot();
