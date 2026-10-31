@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-actions-inline-spacing",
+    "run_id": "2026-10-31-manager-actions-inline-spacing-001",
+    "skill": "exec-plan-runner",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-10-31T20:48:10+09:00",
+    "status": "completed",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}

@@ -79,7 +79,12 @@ M2（2026-10-31）で分かったこと。
 
 ## Outcomes & Retrospective
 
-実装後に記載。
+2026-10-31 に PR #971 をマージし、#924 を閉じた。
+
+- 結果: `manager/actions/` の画面の直書きの縦の余白を消し、6 テーマは `theme-spacing.md` の決まりの値に揃った（7 テーマ × 17 画面 × 全タブの計測で、表の期待と一致）。RevoStyle は修正前と同じ見た目を保った。新しい class は `.code-editor` と `.messages-compose-actions` の 2 つ、RevoStyle の保持のために `id="importSite"` を 1 つ足した
+- 想定と違ったこと: 足した `:has(+ :is(ul, div).actionButtons)` の規則は、表に無い画面（a=76・a=75・a=99・a=86・a=83・a=95・docmanager）の間も決まりの値にした。決まりを横断して当てる方針どおりとして受け入れ、M3 で測った
+- 自己レビューで、文書（`theme-spacing.md`）に書いた理由と例が実際の CSS・HTML と合わない指摘が 2 回出た。文書の理由は、規則の構造から推測せず、実際の画面を読んでから書く
+- 後に回したもの: エディタの帯の色と枠（#973）、画面が埋め込む `<style>` の範囲（#974）、バックアップのスナップショットのタブの閉じタグの欠け（#975）
 
 ## Context and Orientation
 

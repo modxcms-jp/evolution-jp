@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-actions-inline-spacing",
+    "run_id": "2026-10-31-manager-actions-inline-spacing-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-31T20:50:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-015",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "CSS の規則やセレクタを足した・広げた変更では、計画の表の画面だけでなく、その規則が当たる画面を grep（manager/actions/ と同梱のモジュール・プラグインのテンプレート）で洗い出し、検証の対象に入れる",
+            "source_ref": "finding-001",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-016",
+            "action": "add",
+            "target": ".agent/agents/worker.md（ドキュメントを書くとき）",
+            "summary": "文書に理由や例を書くときは、規則の構造から推測せず、実際の画面（PHP・テンプレート）を読んで確かめてから書く。例に挙げるファイルは、述べている作りになっているかを開いて確かめる",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-017",
+            "action": "add",
+            "target": ".claude/skills/exec-plan/SKILL.md（/create-plan でブランチを作るとき）",
+            "summary": "ExecPlan を作るためにブランチを切るときも、gh issue develop で Issue に紐づけたブランチを作り、ExecPlan の Artifacts and Notes にブランチ名を書く（後から紐づけられないため）",
+            "source_ref": "finding-003",
+            "confidence": "high"
+        },
+        {
+            "id": "change-018",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 1「事前確認」）",
+            "summary": "紐づくブランチがあっても、リモートに main にない変更が無く、ローカルのワークツリーにだけ未 push のコミットがある場合は、本人の中断した run の続きとして引き継いでよい（止まらずに報告に書く）。引き継ぐ前に、そのコミットの後で main に同じ役割の処理（正本）が入っていないかを確かめ、入っていればそちらにそろえて作り直す",
+            "source_ref": "finding-004",
+            "confidence": "high"
+        },
+        {
+            "id": "change-019",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 1「非公開アドバイザリとの重なり」）",
+            "summary": "確かめる相手がいないときは、本人に聞く前に、アドバイザリの一覧（下書き・審査中）と各非公開フォークの PR の変更ファイルを調べ、Issue の対象ファイルと照らす。フォークの無い下書きが見つかったら、内容に触れずに本人に知らせる",
+            "source_ref": "finding-005",
+            "confidence": "medium"
+        }
+    ]
+}

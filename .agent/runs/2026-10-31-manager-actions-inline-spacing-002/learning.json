@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-actions-inline-spacing",
+    "run_id": "2026-10-31-manager-actions-inline-spacing-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-10-31T20:49:21+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}
