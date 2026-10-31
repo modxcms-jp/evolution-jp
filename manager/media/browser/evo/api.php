@@ -679,6 +679,9 @@ function fbActionDownload(PathResolver $resolver, BrowserConfig $config, $type)
         fbError('too_large', sprintf(lang('fb_err_download_too_large'), (int) (BrowserConfig::ZIP_MAX_BYTES / 1048576)), 413);
     }
 
+    // 確かめは済んだ。送信に時間がかかる間、同じ利用者の別の操作を待たせないよう、セッションのロックを手放す
+    session_write_close();
+
     if (!$isZip) {
         $name = (string) array_key_first($entries);
         $sendPath = $entries[$name];
