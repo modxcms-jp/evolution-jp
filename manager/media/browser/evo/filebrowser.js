@@ -12,6 +12,7 @@ import { createGrid } from './js/grid.js';
 import { createUpload } from './js/upload.js';
 import { createMoveDialog, createPreview } from './js/dialogs.js';
 import { createContextMenu } from './js/contextmenu.js';
+import { createDownload } from './js/download.js';
 
 function init() {
     var root = document.getElementById('evoFileBrowser');
@@ -147,6 +148,7 @@ function init() {
     // クリップボード: { mode: 'copy' | 'cut', folder, names }。フォルダを移っても残り、モーダルを閉じると状態ごと消える
     var clipboard = null;
     var pasteBtn = root.querySelector('[data-action="paste"]');
+    var downloadBtn = root.querySelector('[data-action="bulk-download"]');
 
     function isCutName(name) {
         return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
@@ -226,6 +228,10 @@ function init() {
         renameInline: performRename,
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
+        onSelectionChange: function (count) {
+            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを隠す
+            downloadBtn.hidden = !canDownload(count);
+        },
         isCut: isCutName
     });
 
@@ -276,6 +282,23 @@ function init() {
         config: config,
         onDone: load
     });
+
+    var downloader = createDownload({
+        uploadsEl: root.querySelector('[data-role="uploads"]'),
+        state: state,
+        config: config
+    });
+
+    // zip を作れない環境では、1 件だけならそのまま送れるが、2 件以上は送れない
+    function canDownload(count) {
+        return count > 0 && (count === 1 || !!config.zip);
+    }
+
+    function bulkDownload() {
+        if (canDownload(state.selection.size)) {
+            downloader.download(Array.from(state.selection));
+        }
+    }
 
     function navigateTo(path, selectName) {
         state.folder = path;
@@ -415,6 +438,8 @@ function init() {
     root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
 
+    downloadBtn.addEventListener('click', bulkDownload);
+
     // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
     dropzoneEl.addEventListener('click', function (e) {
         if (!e.target.closest('button, input, select, textarea, .evo-fb-item')) {
@@ -495,12 +520,16 @@ function init() {
             grid.updateSelectionDom();
         }
         if (state.selection.size > 1) {
-            return [
+            var multiItems = [];
+            if (canDownload(state.selection.size)) {
+                multiItems.push({ label: t('fb_download'), onSelect: bulkDownload });
+            }
+            return multiItems.concat([
                 { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
                 { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
                 { label: t('move'), onSelect: bulkMove },
                 { label: t('delete'), danger: true, onSelect: bulkDelete }
-            ];
+            ]);
         }
         var file = findFile(name);
         var items = [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(itemEl.getAttribute('data-path')); } }];
@@ -508,6 +537,7 @@ function init() {
             items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
         }
         items.push(
+            { label: t('fb_download'), onSelect: bulkDownload },
             { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
             { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
             { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },

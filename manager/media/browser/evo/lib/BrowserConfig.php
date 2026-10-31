@@ -7,6 +7,10 @@ class BrowserConfig
 {
     const TYPES = ['images', 'media', 'files'];
 
+    /** zip でまとめてダウンロードできるファイル数と、合計サイズ(バイト)の上限 */
+    const ZIP_MAX_FILES = 200;
+    const ZIP_MAX_BYTES = 268435456;
+
     /** @var DocumentParser */
     private $modx;
 
@@ -103,5 +107,13 @@ class BrowserConfig
         $size = $this->modx->config('upload_maxsize');
 
         return empty($size) ? 5000000 : (int) $size;
+    }
+
+    /**
+     * zip を作れる環境か(PHP の zip 拡張があるか)。API と画面の両方でこれを使う
+     */
+    public function canCreateZip()
+    {
+        return extension_loaded('zip') && class_exists('ZipArchive');
     }
 }

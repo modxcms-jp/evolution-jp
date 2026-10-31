@@ -21,6 +21,7 @@ import { createMarquee } from './marquee.js';
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
+ * @param {(count: number) => void} ctx.onSelectionChange - 選択バーを更新するたびに、選択の件数を通知する
  * @param {(name: string) => boolean} ctx.isCut - 切り取り中のファイルか(一覧で薄く表示する)
  */
 export function createGrid(ctx) {
@@ -196,6 +197,7 @@ export function createGrid(ctx) {
         var count = state.selection.size;
         ctx.selectionBarEl.hidden = count === 0;
         ctx.selectionCountEl.textContent = t('fb_selected_count', count);
+        ctx.onSelectionChange(count);
     }
 
     // state.selectionをグリッドDOM(ハイライト)へ反映する
