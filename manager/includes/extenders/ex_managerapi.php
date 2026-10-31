@@ -99,10 +99,30 @@ class ManagerAPI
             return $name;
         }
         global $_lang;
+        $this->redirectToElementForm(
+            sprintf($_lang['element_name_required'], $typeLabel),
+            $newAction,
+            $editAction,
+            $id
+        );
+    }
+
+    /**
+     * 要素の保存を中断し、入力を残して新規・編集の画面へ差し戻して終了する。
+     * 入力は差し戻し先のアクション番号で残す（新規は $newAction、編集は $editAction + id）。
+     * 編集画面側は restoreElementFormValues() が id の一致を確かめて読む
+     *
+     * @param string $message 画面に出すメッセージ（生の文字列。出力時にエスケープされる）
+     * @param int $newAction 新規作成画面のアクション番号
+     * @param int $editAction 編集画面のアクション番号
+     * @param int $id 編集対象の id（新規は 0）
+     */
+    public function redirectToElementForm($message, $newAction, $editAction, $id = 0): void
+    {
         $isEdit = (bool)$id;
         $this->saveFormValues($isEdit ? $editAction : $newAction);
         evo()->webAlertAndQuit(
-            sprintf($_lang['element_name_required'], $typeLabel),
+            $message,
             $isEdit ? "index.php?a={$editAction}&id=" . (int)$id : "index.php?a={$newAction}"
         );
         exit;
@@ -127,14 +147,20 @@ class ManagerAPI
      * @param array $content DB から読んだ値
      * @param string $codeKey コードの項目名（plugincode など）。フォームの post をここへ写す。無ければ空文字
      * @param string[] $checkboxes チェックボックスの項目名（locked など）
+     * @param string[] $lists チェックボックスの複数選択の項目名（sysevents・usrgroups など）。
+     *                        未選択だと送信されないので、差し戻しのときは空配列にして DB の値と区別する
      * @return array
      */
-    public function restoreElementFormValues(array $content, string $codeKey = '', array $checkboxes = ['locked']): array
+    public function restoreElementFormValues(array $content, string $codeKey = '', array $checkboxes = ['locked'], array $lists = []): array
     {
         if (!$this->hasFormValues()) {
             return $content;
         }
         $values = $this->loadFormValues();
+        // 別の要素（新規か id が違う）向けの入力は混ぜない
+        if ((int)($values['id'] ?? 0) !== (int)getv('id', 0)) {
+            return $content;
+        }
         if (isset($values['categoryid'])) {
             $values['category'] = $values['categoryid'];
         }
@@ -143,6 +169,9 @@ class ManagerAPI
         }
         foreach ($checkboxes as $name) {
             $values[$name] = !empty($values[$name]) ? 1 : 0;
+        }
+        foreach ($lists as $name) {
+            $values[$name] = (array)($values[$name] ?? []);
         }
         return array_merge($content, $values);
     }
