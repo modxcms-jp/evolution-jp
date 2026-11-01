@@ -27,7 +27,7 @@
         <tr>
             <th><?= lang('sitename_title') ?></th>
             <td>
-                <?= form_text_tag('site_name', config('site_name')) ?><br />
+                <?= form_text('site_name') ?><br />
                 <?= lang('sitename_message') ?>
             </td>
         </tr>

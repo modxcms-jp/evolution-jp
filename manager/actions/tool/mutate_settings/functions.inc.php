@@ -67,39 +67,6 @@ function get_lang_options($key = null, $selected_lang = null)
     return implode("\n", $lang_options);
 }
 
-function form_text_tag($name, $value, $attr = [])
-{
-    return sprintf(
-        strpos($value, '"') === false
-            ? '<input type="text" name="%s" value="%s" %s>' : '<input type="text" name="%s" value=\'%s\' %s>',
-        $name,
-        $value,
-        join_attr($attr)
-    );
-}
-
-function join_attr($attr = [])
-{
-    if (!$attr) {
-        return '';
-    }
-    $rs = [];
-    foreach ($attr as $k => $v) {
-        if ($v === false) {
-            continue;
-        }
-        if ($v === true) {
-            $v = $k;
-        }
-        $rs[] = sprintf(
-            '%s="%s"',
-            $k,
-            $v
-        );
-    }
-    return implode(' ', $rs);
-}
-
 function form_text($name, $maxlength = '255', $add = '', $readonly = false)
 {
     if (!$maxlength) {
@@ -218,19 +185,4 @@ function settings()
         $settings['base_url'] = MODX_BASE_URL;
     }
     return $settings;
-}
-
-class Form
-{
-    public static function text($name, $value, $attr = [])
-    {
-        return sprintf(
-            strpos($value, '"') === false
-                ? '<input type="text" name="%s" value="%s" %s>'
-                : '<input type="text" name="%s" value=\'%s\' %s>',
-            $name,
-            $value,
-            join_attr($attr)
-        );
-    }
 }

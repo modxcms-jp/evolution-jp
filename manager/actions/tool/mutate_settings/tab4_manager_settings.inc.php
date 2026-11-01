@@ -45,12 +45,7 @@
             <th><?= $_lang["manager_docs_orderby_title"] ?></th>
             <td>
                 <?=
-                    Form::text(
-                        'manager_docs_orderby',
-                        config('manager_docs_orderby'), [
-                            'style' => 'width:500px;'
-                        ]
-                    )
+                    form_text('manager_docs_orderby', 255, 'style="width:500px;"')
                 ?>
                 <p><?= $_lang["manager_docs_orderby_message"] ?></p>
             </td>
