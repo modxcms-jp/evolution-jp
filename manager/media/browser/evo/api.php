@@ -57,6 +57,14 @@ function fbError($code, $message, $status = 400)
 }
 
 /**
+ * 直前に @ で抑止した警告の文を返す。失敗のログに原因として添える
+ */
+function fbLastErrorMessage()
+{
+    return (error_get_last() ?: [])['message'] ?? '';
+}
+
+/**
  * 名前が見つからないときの文言。一覧で置き換え文字（U+FFFD）になった名前は実体と一致せず操作できないため、その旨を返す
  */
 function fbNotFoundMessage($name, $message)
@@ -87,6 +95,11 @@ if (!$config->isValidType($type)) {
 
 $resolver = new PathResolver($config->baseDir());
 $action = anyv('action', '');
+
+// 合計が post_max_size を超えると PHP が $_POST と $_FILES を空にするため、action が読めず invalid_action になってしまう
+if (is_post() && !postv() && !$_FILES && (int) serverv('CONTENT_LENGTH', 0) > 0) {
+    fbError('too_large', lang('fb_err_too_large'), 413);
+}
 
 switch ($action) {
     case 'list':
@@ -343,6 +356,11 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
         if (!@$modx->move_uploaded_file($tmpPath, $targetPath)) {
+            evo()->logEvent(0, 3, 'Failed to save an uploaded file in the file browser', 'File browser', [
+                'name' => $originalName,
+                'to' => $targetPath,
+                'reason' => fbLastErrorMessage(),
+            ]);
             $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
             continue;
         }
@@ -429,6 +447,10 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
 
     $folderPermissions = $modx->newFolderPermissions();
     if (!@mkdir($target, $folderPermissions)) {
+        evo()->logEvent(0, 3, 'Failed to create a folder in the file browser', 'File browser', [
+            'to' => $target,
+            'reason' => fbLastErrorMessage(),
+        ]);
         fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
     @chmod($target, $folderPermissions);
@@ -466,6 +488,11 @@ function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentP
     }
 
     if (!@rename($sourcePath, $destPath)) {
+        evo()->logEvent(0, 3, 'Failed to rename an entry in the file browser', 'File browser', [
+            'from' => $sourcePath,
+            'to' => $destPath,
+            'reason' => fbLastErrorMessage(),
+        ]);
         fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
 
@@ -547,6 +574,7 @@ function fbActionMove(PathResolver $resolver, $type)
     $files = (array) postv('files', []);
     $moved = [];
     $errors = [];
+    $failures = [];
 
     foreach ($files as $name) {
         $name = PathResolver::sanitizeSegment($name);
@@ -564,8 +592,16 @@ function fbActionMove(PathResolver $resolver, $type)
         if (@rename($sourcePath, $destPath)) {
             $moved[] = $name;
         } else {
+            $failures[] = ['from' => $sourcePath, 'to' => $destPath, 'reason' => fbLastErrorMessage()];
             $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
         }
+    }
+
+    if ($failures) {
+        evo()->logEvent(0, 3, 'Failed to move entries in the file browser', 'File browser', [
+            'count' => count($failures),
+            'entries' => array_slice($failures, 0, 20),
+        ]);
     }
 
     fbSendJson(['moved' => $moved, 'errors' => $errors]);
