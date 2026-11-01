@@ -53,7 +53,7 @@ $modx->event->vars = [];
 $html = is_array($evtOut) ? implode('', $evtOut) : '';
 evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
-evo()->setPlaceholder('site_name', evo()->config('site_name'));
+evo()->setPlaceholder('site_name', hsc(evo()->config('site_name')));
 evo()->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
 evo()->setPlaceholder('login_message', $_lang["login_message"]);
 evo()->setPlaceholder('year', date('Y'));

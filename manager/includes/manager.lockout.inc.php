@@ -13,7 +13,7 @@ evo()->toPlaceholders(
     [
         'modx_charset' => $modx_manager_charset,
         'theme' => evo()->config('manager_theme'),
-        'site_name' => evo()->config('site_name'),
+        'site_name' => hsc(evo()->config('site_name')),
         'logo_slogan' => $_lang['logo_slogan'],
         'manager_lockout_message' => $_lang['manager_lockout_message'],
         'home' => $_lang['home'],
@@ -26,9 +26,9 @@ evo()->toPlaceholders(
 );
 
 if (evo()->config('manager_login_startup')) {
-    evo()->setPlaceholder('homeurl', evo()->makeUrl(evo()->config('manager_login_startup')));
+    evo()->setPlaceholder('homeurl', hsc(evo()->makeUrl(evo()->config('manager_login_startup'))));
 } else {
-    evo()->setPlaceholder('homeurl', evo()->makeUrl(evo()->config('site_start')));
+    evo()->setPlaceholder('homeurl', hsc(evo()->makeUrl(evo()->config('site_start'))));
 }
 
 // merge placeholders

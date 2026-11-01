@@ -188,7 +188,6 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $ph['parent'] = $parent;
         $ph['spacer'] = $spacer;
         $ph['pagetitle'] = hsc(js_literal($pagetitle));
-        $ph['nodetitle'] = "'" . addslashes($nodetitle) . "'";
         $url = $modx->makeUrl($id, '', '', 'full');
         $ph['url'] = hsc(js_literal($url));
         $ph['published'] = $published;
@@ -607,8 +606,7 @@ function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
     $_[] = "{$_lang['page_data_web_access']}: " . ($privateweb ? $_lang['private'] : $_lang['public']);
     $_[] = "{$_lang['page_data_mgr_access']}: " . ($privatemgr ? $_lang['private'] : $_lang['public']);
     $alt = implode("\n", $_);
-    $alt = addslashes($alt);
-    return htmlspecialchars($alt, ENT_QUOTES, $modx->config('modx_charset'));
+    return hsc($alt);
 }
 
 function moreNode($indent, $parent, $offset, $remaining)

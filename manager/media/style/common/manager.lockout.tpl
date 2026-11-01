@@ -21,9 +21,6 @@
             form.submit();
         }
 
-        function gotoHome() {
-            top.location = '[+homeurl+]';
-        }
     </script>
 
     <script type="text/javascript">
@@ -45,7 +42,7 @@
             <h1 class="siteName">[+site_name+]</h1>
             <div class="loginMessage">[+manager_lockout_message+]</div>
             <br/>
-            <input type="button" id="submitButton" value="[+home+]" onclick="return gotoHome();"/>&nbsp;
+            <input type="button" id="submitButton" value="[+home+]" data-href="[+homeurl+]" onclick="top.location = this.dataset.href; return false;"/>&nbsp;
             <input type="button" id="submitButton" value="[+logout+]" onclick="return doLogout();"/>
         </div>
         <br style="clear:both;height: 1px"/>

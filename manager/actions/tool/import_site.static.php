@@ -47,7 +47,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                         <tr>
                             <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
                             <td>&nbsp;</td>
-                            <td><b><span id="parentName">0 (<?= evo()->config('site_name') ?>)</span></b>
+                            <td><b><span id="parentName">0 (<?= hsc(evo()->config('site_name')) ?>)</span></b>
                             </td>
                         </tr>
                         <tr>
