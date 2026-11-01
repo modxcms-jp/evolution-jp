@@ -29,6 +29,14 @@ export function formatDate(unixTime) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
+// ファイルの URL に更新時刻を付ける。上書きしたあとに、ブラウザのキャッシュで古い画像が出ないようにする
+export function withVersion(url, mtime) {
+    if (!url || !mtime) {
+        return url;
+    }
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + 'v=' + encodeURIComponent(mtime);
+}
+
 export function joinPath(base, name) {
     return base ? base + '/' + name : name;
 }

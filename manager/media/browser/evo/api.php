@@ -16,6 +16,13 @@
  *                     同名があれば 名前(1).拡張子 のように連番を付ける。上書きはしない。ファイルのみ(フォルダは errors)
  * POST action=download (type, folder, files[])                  -> ファイルのバイナリ(1件はそのまま、2件以上は zip)。エラーは JSON
  *                     許可された拡張子のファイルだけ。1つでも満たさないものがあれば全体を拒否する。zip は PHP の zip 拡張が必要(無ければ 501 zip_unavailable)
+ * POST action=saveImage (type, folder, target, mode, image(ファイル1つ)) -> {name}
+ *                     画面で編集した画像を保存する。mode は copy(別名。名前(1).拡張子 のように連番。OnFileBrowserUpload を発火) か
+ *                     overwrite(target を置き換える。リンクは not_editable で断る。イベントは発火しない)。編集できるのは jpg・jpeg・png だけ。
+ *                     画像の種類は target の拡張子と一致し、長い辺は 4096px 以下、大きさは upload_maxsize 以下であること。
+ *                     image_limit_width では縮めない。エラーコード: method_not_allowed / invalid_mode / invalid_name /
+ *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
+ *                     invalid_image / type_mismatch / image_too_big / too_many_same_name / save_failed
  *
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
@@ -127,6 +134,15 @@ switch ($action) {
         }
         checkCsrfToken();
         fbActionDownload($resolver, $config, $type);
+        break;
+
+    case 'saveImage':
+        // csrf_token は GET でも受け取れてしまうため、POST だけを受ける
+        if (!is_post()) {
+            fbError('method_not_allowed', lang('fb_err_method_not_allowed'), 405);
+        }
+        checkCsrfToken();
+        fbActionSaveImage($resolver, $config, $modx, $type);
         break;
 
     default:
@@ -371,6 +387,28 @@ function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
     return null;
 }
 
+/**
+ * fbFindFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
+ * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
+ *
+ * @return array{path:string,handle:resource|false}|null 空きが見つからなければ null。
+ *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補)
+ */
+function fbCreateFreeFile(DocumentParser $modx, $dirReal, $safeName)
+{
+    for ($attempt = 0; $attempt < 5; $attempt++) {
+        $targetPath = fbFindFreePath($modx, $dirReal, $safeName);
+        if ($targetPath === null) {
+            return null;
+        }
+        $handle = @fopen($targetPath, 'xb');
+        if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
+            return ['path' => $targetPath, 'handle' => $handle];
+        }
+    }
+    return null;
+}
+
 function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
 {
     $folder = anyv('folder', '');
@@ -567,23 +605,14 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
             continue;
         }
 
-        // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成（x）して、使われていたら次の候補へ
-        $targetPath = null;
-        $out = false;
-        for ($attempt = 0; $attempt < 5; $attempt++) {
-            $targetPath = fbFindFreePath($modx, $destDir['real'], $safeName);
-            if ($targetPath === null) {
-                break;
-            }
-            $out = @fopen($targetPath, 'xb');
-            if ($out !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
-                break;
-            }
-        }
-        if ($targetPath === null) {
+        // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
+        $free = fbCreateFreeFile($modx, $destDir['real'], $safeName);
+        if ($free === null) {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
             continue;
         }
+        $targetPath = $free['path'];
+        $out = $free['handle'];
 
         $in = $out === false ? false : @fopen($sourcePath, 'rb');
         $expectedSize = @filesize($sourcePath);
@@ -615,6 +644,169 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
     }
 
     fbSendJson(['copied' => $copied, 'errors' => $errors]);
+}
+
+/**
+ * 画面(canvas)で編集した画像を保存する。入力は信用せず、拡張子・画像の種類・大きさ・名前をここで確かめる。
+ * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、OnFileBrowserUpload を発火する
+ * - overwrite: target のファイルを置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)。
+ *   元のパーミッションを引き継ぐ。target がシンボリックリンクのときは断る
+ * image_limit_width による縮小は行わない(利用者が編集で決めた大きさを保つため)。
+ * canvas で書き出すと EXIF は消える(画面でその旨を表示している)。
+ */
+function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, DocumentParser $modx, $type)
+{
+    $dir = $resolver->resolveDir($type, anyv('folder', ''));
+    if ($dir === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    $mode = postv('mode', 'copy');
+    if ($mode !== 'copy' && $mode !== 'overwrite') {
+        fbError('invalid_mode', lang('fb_err_invalid_mode'), 400);
+    }
+
+    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
+    $targetName = postv('target', '');
+    $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
+    if ($target === '' || strpos($target, '.') === 0) {
+        fbError('invalid_name', lang('fb_err_invalid_name'), 400);
+    }
+    if (!$config->isAllowedFilename($type, $target)) {
+        fbError('extension_not_allowed', lang('fb_err_extension_not_allowed'), 400);
+    }
+    if (!BrowserConfig::isEditableFilename($target)) {
+        fbError('not_editable', lang('fb_err_not_editable'), 400);
+    }
+
+    // シンボリックリンクの先の実体が許可された場所の中にあるものだけを対象にする
+    $realPath = $resolver->resolveFile($dir['real'], $target);
+    if ($realPath === null) {
+        fbError('not_found', fbNotFoundMessage($target, lang('fb_err_target_not_found')), 404);
+    }
+
+    $image = $_FILES['image'] ?? null;
+    if (!is_array($image) || !isset($image['error'], $image['tmp_name']) || is_array($image['error'])) {
+        fbError('no_image', lang('fb_err_no_image'), 400);
+    }
+    if ($image['error'] === UPLOAD_ERR_INI_SIZE || $image['error'] === UPLOAD_ERR_FORM_SIZE) {
+        fbError('too_large', lang('fb_err_too_large'), 413);
+    }
+    if ($image['error'] !== UPLOAD_ERR_OK) {
+        fbError('upload_failed', sprintf(lang('fb_err_upload_failed'), $image['error']), 400);
+    }
+    $tmpPath = (string) $image['tmp_name'];
+    if (!is_uploaded_file($tmpPath)) {
+        fbError('invalid_image', lang('fb_err_invalid_image'), 400);
+    }
+
+    // 保存するファイルにも、アップロードと同じサイズの上限を当てる
+    $size = @filesize($tmpPath);
+    if ($size === false || $size > $config->maxUploadSize()) {
+        fbError('too_large', lang('fb_err_too_large'), 413);
+    }
+
+    // 画像の中身を確かめる(画面の判定は信用しない)。展開はしないので、寸法の上限を先に確かめる
+    $info = @getimagesize($tmpPath);
+    if (!$info || $info[0] < 1 || $info[1] < 1) {
+        fbError('invalid_image', lang('fb_err_invalid_image'), 400);
+    }
+    $ext = strtolower(substr($target, strrpos($target, '.') + 1));
+    $expectedType = $ext === 'png' ? IMAGETYPE_PNG : IMAGETYPE_JPEG;
+    if ($info[2] !== $expectedType) {
+        fbError('type_mismatch', lang('fb_err_image_type_mismatch'), 400);
+    }
+    if (max($info[0], $info[1]) > BrowserConfig::EDIT_MAX_DIMENSION) {
+        fbError('image_too_big', sprintf(lang('fb_err_image_too_big'), BrowserConfig::EDIT_MAX_DIMENSION), 413);
+    }
+
+    if ($mode === 'copy') {
+        $safeName = $modx->sanitizeFilename($target);
+        if ($safeName === '' || !$config->isAllowedFilename($type, $safeName) || !BrowserConfig::isEditableFilename($safeName)) {
+            fbError('extension_not_allowed', lang('fb_err_extension_not_allowed'), 400);
+        }
+
+        // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
+        $free = fbCreateFreeFile($modx, $dir['real'], $safeName);
+        if ($free === null) {
+            fbError('too_many_same_name', lang('fb_err_too_many_same_name'), 409);
+        }
+        $targetPath = $free['path'];
+        if ($free['handle'] !== false) {
+            fclose($free['handle']);
+        }
+        // basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
+        $savedName = substr($targetPath, strrpos($targetPath, '/') + 1);
+
+        // 確保した(空の)ファイルへ保存する。第 3 引数 false で image_limit_width による縮小をしない
+        if ($free['handle'] === false || !@$modx->move_uploaded_file($tmpPath, $targetPath, false)) {
+            if ($free['handle'] !== false) {
+                @unlink($targetPath);
+            }
+            evo()->logEvent(0, 3, 'Failed to save an edited image in the file browser', 'File browser', [
+                'mode' => $mode,
+                'to' => $targetPath,
+            ]);
+            fbError('save_failed', lang('fb_err_save_failed'), 500);
+        }
+
+        $eventParams = [
+            'filepath' => $dir['real'],
+            'filename' => $savedName,
+        ];
+        $modx->invokeEvent('OnFileBrowserUpload', $eventParams);
+
+        fbSendJson(['name' => $savedName]);
+    }
+
+    // overwrite: 一覧に見えているファイルそのものだけを置き換える。リンクの先の実体は、名前・拡張子・置き場所を
+    // 確かめていないので、リンクは断る(別名で保存すれば、一覧に見える場所に新しいファイルができる)
+    if (is_link($dir['real'] . $target)) {
+        fbError('not_editable', lang('fb_err_overwrite_link'), 400);
+    }
+
+    // 同じフォルダの一時ファイルに受けてから置き換える
+    $realDir = substr($realPath, 0, strrpos($realPath, '/') + 1);
+    $stagePath = @tempnam($realDir, '.evo-save-');
+    // Windows の tempnam() は区切りに \ を返すので、$realDir(/ 区切り)と比べる前にそろえる
+    if ($stagePath !== false) {
+        $stagePath = str_replace('\\', '/', $stagePath);
+    }
+    $oldMtime = @filemtime($realPath);
+    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)。取れなければ新しいファイルの既定
+    $oldPerms = @fileperms($realPath);
+    $newPerms = $oldPerms !== false ? ($oldPerms & 0777) : $modx->newFilePermissions();
+    $saved = false;
+    if ($stagePath !== false && strpos($stagePath, $realDir) !== 0) {
+        // 書き込めないフォルダだと、tempnam() は別の場所(システムの一時フォルダ)に作る。そこからの置き換えはしない
+        @unlink($stagePath);
+        $stagePath = false;
+    }
+    if ($stagePath !== false) {
+        // 一時ファイル(tempnam が作った空のファイル)を、アップロードされた中身で置き換える
+        $saved = @move_uploaded_file($tmpPath, $stagePath)
+            && @chmod($stagePath, $newPerms)
+            && @rename($stagePath, $realPath);
+        if (!$saved) {
+            @unlink($stagePath);
+        }
+    }
+    if (!$saved) {
+        evo()->logEvent(0, 3, 'Failed to save an edited image in the file browser', 'File browser', [
+            'mode' => $mode,
+            'to' => $realPath,
+        ]);
+        fbError('save_failed', lang('fb_err_save_failed'), 500);
+    }
+
+    // 更新時刻が必ず前より新しくなるようにする(同じ秒の上書きでも、更新時刻をキーにしたキャッシュや URL が切り替わる)
+    clearstatcache(true, $realPath);
+    if ($oldMtime !== false && (int) @filemtime($realPath) <= $oldMtime) {
+        @touch($realPath, $oldMtime + 1);
+    }
+    (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget($realPath);
+
+    fbSendJson(['name' => $target]);
 }
 
 /**
