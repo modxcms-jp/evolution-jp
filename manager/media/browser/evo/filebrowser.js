@@ -13,6 +13,7 @@ import { createUpload } from './js/upload.js';
 import { createMoveDialog, createPreview } from './js/dialogs.js';
 import { createContextMenu } from './js/contextmenu.js';
 import { createDownload } from './js/download.js';
+import { createImageEditor } from './js/imageEditor.js';
 
 function init() {
     var root = document.getElementById('evoFileBrowser');
@@ -264,13 +265,28 @@ function init() {
         onConfirm: moveFilesTo
     });
 
+    var imageEditor = createImageEditor({
+        overlayEl: root.querySelector('[data-role="edit-overlay"]'),
+        state: state,
+        config: config,
+        onSaved: function (name) {
+            // 保存したファイルが変わったので、プレビューは閉じて一覧を読み直し、保存した名前を選ぶ
+            preview.close();
+            dropzoneEl.focus({ preventScroll: true });
+            load(name);
+        }
+    });
+
     var preview = createPreview({
         overlayEl: root.querySelector('[data-role="preview-overlay"]'),
         imgEl: root.querySelector('[data-role="preview-img"]'),
         metaEl: root.querySelector('[data-role="preview-meta"]'),
         closeBtn: root.querySelector('[data-role="preview-close"]'),
         pickBtn: root.querySelector('[data-role="preview-pick"]'),
-        onPick: pickFile
+        editBtn: root.querySelector('[data-role="preview-edit"]'),
+        onPick: pickFile,
+        canEdit: imageEditor.canEdit,
+        onEdit: imageEditor.open
     });
 
     createUpload({
@@ -535,6 +551,9 @@ function init() {
         var items = [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(itemEl.getAttribute('data-path')); } }];
         if (file) {
             items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
+            if (imageEditor.canEdit(file)) {
+                items.push({ label: t('fb_edit'), onSelect: function () { imageEditor.open(file); } });
+            }
         }
         items.push(
             { label: t('fb_download'), onSelect: bulkDownload },

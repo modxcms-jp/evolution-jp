@@ -76,6 +76,18 @@ class ThumbnailService
         return $saved ? $cacheFile : null;
     }
 
+    /**
+     * 元ファイルのサムネイルのキャッシュをすべて消す(元ファイルを上書きしたとき用)。
+     * キーに元ファイルの更新時刻を含めているが、同じ秒のうちに上書きすると同じキーになるため、明示的に消す。
+     * キャッシュのキーの作りを知っているのは、このクラスだけにする
+     *
+     * @param string $sourceFile getOrCreate() に渡す元ファイルの絶対パス(実パス)
+     */
+    public function forget($sourceFile)
+    {
+        $this->cleanupStale($sourceFile, '');
+    }
+
     public function outputWithCacheHeaders($cacheFile)
     {
         $mime = (strtolower(pathinfo($cacheFile, PATHINFO_EXTENSION)) === 'jpg') ? 'image/jpeg' : 'image/png';
@@ -144,11 +156,12 @@ class ThumbnailService
     }
 
     /**
-     * 元ファイルのmtimeが変わって参照されなくなった古いキャッシュを間引く。
+     * 元ファイルのmtimeが変わって参照されなくなった古いキャッシュを間引く($currentCacheFile 以外の、同じ元ファイルのキャッシュを消す)。
      */
     private function cleanupStale($sourceFile, $currentCacheFile)
     {
         $prefix = md5($sourceFile) . '_';
+        // 残すキャッシュが無いとき(forget())は空文字。basename('') も空文字なので、どのキャッシュとも一致しない
         $keepName = basename($currentCacheFile);
         foreach (glob($this->cacheDir . $prefix . '*') ?: [] as $stale) {
             if (basename($stale) !== $keepName) {

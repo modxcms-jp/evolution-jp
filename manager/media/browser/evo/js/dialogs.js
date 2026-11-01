@@ -1,7 +1,7 @@
 // 単純なオーバーレイ型ダイアログ2つ: 移動先フォルダ選択・プレビュー拡大。
 // どちらもEvoShellのモーダルではなく、filebrowser.js自身が描画する軽量オーバーレイ。
 
-import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, renderBreadcrumb } from './utils.js';
+import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, renderBreadcrumb, withVersion } from './utils.js';
 import { t } from './i18n.js';
 import { apiUrl, fetchJson } from './api.js';
 
@@ -84,13 +84,20 @@ export function createMoveDialog(ctx) {
  * @param {HTMLElement} ctx.metaEl
  * @param {HTMLElement} ctx.closeBtn
  * @param {HTMLElement} ctx.pickBtn
+ * @param {HTMLElement} ctx.editBtn - 画像の編集を開くボタン(編集できるファイルのときだけ出す)
  * @param {(path: string) => void} ctx.onPick
+ * @param {(file: object) => boolean} ctx.canEdit
+ * @param {(file: object) => void} ctx.onEdit - 編集のダイアログを開く。プレビューは開いたまま(編集をやめたら戻れる)
  */
 export function createPreview(ctx) {
     var currentPath = '';
+    var currentFile = null;
 
     function open(file) {
-        ctx.imgEl.src = file.url;
+        currentFile = file;
+        // 上書きしたあとに古い画像がキャッシュから出ないよう、更新時刻を付けて読む
+        ctx.imgEl.src = withVersion(file.url, file.mtime);
+        ctx.editBtn.hidden = !ctx.canEdit(file);
         ctx.imgEl.alt = file.name;
         var dims = file.width ? (file.width + ' × ' + file.height + 'px') : '';
         ctx.metaEl.innerHTML = '' +
@@ -101,8 +108,16 @@ export function createPreview(ctx) {
         ctx.overlayEl.hidden = false;
     }
 
-    ctx.closeBtn.addEventListener('click', function () {
+    function close() {
         ctx.overlayEl.hidden = true;
+    }
+
+    ctx.closeBtn.addEventListener('click', close);
+
+    ctx.editBtn.addEventListener('click', function () {
+        if (currentFile) {
+            ctx.onEdit(currentFile);
+        }
     });
 
     ctx.pickBtn.addEventListener('click', function () {
@@ -110,5 +125,5 @@ export function createPreview(ctx) {
         ctx.onPick(currentPath);
     });
 
-    return { open: open };
+    return { open: open, close: close };
 }

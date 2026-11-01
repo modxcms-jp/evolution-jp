@@ -1,6 +1,8 @@
 // 右クリックメニュー。DOM を 1 つだけ作って使い回し、項目の中身は呼び出し側が決める。
 // 閉じる条件: Esc・メニュー外のクリック・スクロール・リサイズ・モーダルを閉じたとき。
 
+import { restoreFocus } from './overlay.js';
+
 /**
  * @param {object} ctx
  * @param {HTMLElement} ctx.rootEl - メニューの DOM を置く要素
@@ -29,8 +31,8 @@ export function createContextMenu(ctx) {
         return !menuEl.hidden;
     }
 
-    // restoreFocus: Esc・Tab・項目選択のときだけ、右クリックした要素へフォーカスを戻す
-    function close(restoreFocus) {
+    // restoreFocusToTarget: Esc・Tab・項目選択のときだけ、右クリックした要素へフォーカスを戻す
+    function close(restoreFocusToTarget) {
         if (!isOpen()) {
             return;
         }
@@ -43,8 +45,8 @@ export function createContextMenu(ctx) {
         ctx.scrollEl.removeEventListener('scroll', onScroll);
         var target = returnFocusEl;
         returnFocusEl = null;
-        if (restoreFocus === true && target && target.isConnected && typeof target.focus === 'function') {
-            target.focus({ preventScroll: true });
+        if (restoreFocusToTarget === true) {
+            restoreFocus(target);
         }
     }
 

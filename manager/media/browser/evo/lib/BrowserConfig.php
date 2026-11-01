@@ -11,6 +11,15 @@ class BrowserConfig
     const ZIP_MAX_FILES = 200;
     const ZIP_MAX_BYTES = 268435456;
 
+    /**
+     * 画面で編集できる画像の拡張子(編集した結果を、元の拡張子のまま canvas から書き出せるものだけ)と、
+     * 編集して保存できる画像の長い辺の上限(px)。画面と API の両方でこれを使う
+     */
+    const EDITABLE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
+    const EDIT_MAX_DIMENSION = 4096;
+    /** 画面で編集を出す画像の画素数(幅×高さ)の上限。ブラウザが元の画像を展開するときのメモリを守る(5000 万画素で RGBA 約 200MB) */
+    const EDIT_MAX_PIXELS = 50000000;
+
     /** @var DocumentParser */
     private $modx;
 
@@ -100,6 +109,23 @@ class BrowserConfig
         }
 
         return in_array(strtolower(substr($name, $dotPos + 1)), $this->allowedExtensions($type), true);
+    }
+
+    /**
+     * 名前の拡張子が、画面で編集できる拡張子(EDITABLE_EXTENSIONS)か。大文字小文字は区別しない
+     *
+     * @param string $name ファイル名(ディレクトリを含まない)
+     * @return bool
+     */
+    public static function isEditableFilename($name)
+    {
+        $name = (string) $name;
+        $dotPos = strrpos($name, '.');
+        if ($dotPos === false) {
+            return false;
+        }
+
+        return in_array(strtolower(substr($name, $dotPos + 1)), self::EDITABLE_EXTENSIONS, true);
     }
 
     public function maxUploadSize()
