@@ -351,7 +351,8 @@
     padding: var(--space-6, 24px);
 }
 
-.evo-fb-empty.evo-fb-error {
+.evo-fb-empty.evo-fb-error,
+.evo-fb-tree-loading.evo-fb-error {
     color: var(--color-error, #900);
 }
 

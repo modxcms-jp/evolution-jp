@@ -16,7 +16,14 @@ export function apiError(message) {
     return err;
 }
 
-// 失敗の通知の文言を決める唯一の場所。API の文言はそのまま、それ以外(通信エラー等)は前置き(prefixKey)を付ける
+// 応答の本文(パース済みの JSON。JSON でなければ null)から Error を作る。
+// API の error.message があれば apiError、無ければ(JSON でない応答など)通信エラー
+export function responseError(data) {
+    var message = data && data.error && data.error.message;
+    return message ? apiError(message) : new Error(t('fb_network_error'));
+}
+
+// 書き込み系の操作の失敗の文言を決める場所。API の文言はそのまま、それ以外(通信エラー等)は前置き(prefixKey)を付ける
 export function failureMessage(err, prefixKey) {
     if (err && err.fromApi) {
         return err.message;
@@ -24,7 +31,11 @@ export function failureMessage(err, prefixKey) {
     return t(prefixKey, (err && err.message) || t('fb_network_error'));
 }
 
-// API の JSON でない応答や通信の失敗は、すべて既存の fb_network_error の文言の Error にそろえる
+// 読み込み系の失敗の文言。API の文言にも前置き(fb_load_failed)を付ける
+export function loadFailureMessage(err) {
+    return t('fb_load_failed', (err && err.message) || t('fb_network_error'));
+}
+
 // fetch の失敗(reject)を fb_network_error の Error にそろえる、生の fetch の唯一の入口
 export function apiFetch(url, options) {
     return fetch(url, Object.assign({ credentials: 'same-origin' }, options))
@@ -33,19 +44,17 @@ export function apiFetch(url, options) {
         });
 }
 
+// API の JSON でない応答や通信の失敗は、すべて既存の fb_network_error の文言の Error にそろえる
 export function fetchJson(url, options) {
     return apiFetch(url, options)
         .then(function (res) {
             var contentType = res.headers.get('Content-Type') || '';
-            if (contentType.indexOf('application/json') !== 0) {
-                throw new Error(t('fb_network_error'));
-            }
-            return res.json().catch(function () {
-                throw new Error(t('fb_network_error'));
+            var parsing = contentType.indexOf('application/json') === 0 ? res.json() : Promise.resolve(null);
+            return parsing.catch(function () {
+                return null;
             }).then(function (data) {
-                if (!res.ok) {
-                    var message = data && data.error && data.error.message;
-                    throw message ? apiError(message) : new Error(t('fb_network_error'));
+                if (!res.ok || data === null) {
+                    throw responseError(data);
                 }
                 return data;
             });

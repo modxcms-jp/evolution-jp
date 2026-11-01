@@ -4,7 +4,7 @@
 import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, fileIcon, ICON_RENAME, ICON_DELETE, ICON_PREVIEW } from './utils.js';
 import { t } from './i18n.js';
 import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
-import { apiUrl } from './api.js';
+import { apiUrl, loadFailureMessage } from './api.js';
 import { createMarquee } from './marquee.js';
 
 /**
@@ -336,8 +336,8 @@ export function createGrid(ctx) {
         bindItemEvents();
     }
 
-    function renderError(message) {
-        gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(t('fb_load_failed', message)) + '</div>';
+    function renderError(err) {
+        gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
     }
 
     function renderLoading() {

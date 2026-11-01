@@ -1331,7 +1331,6 @@ return [
     "fb_empty_folder" => 'This folder is empty',
     "fb_load_failed" => 'Failed to load: %s',
     "fb_no_subfolders" => 'No subfolders',
-    "fb_upload_failed" => 'Upload failed',
     "fb_network_error" => 'Network error',
     "fb_move_partial_failed" => 'Some files could not be moved:',
     "fb_move_failed" => 'Move failed: %s',

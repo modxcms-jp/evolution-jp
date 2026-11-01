@@ -368,7 +368,7 @@ function init() {
                     navigateTo('', initialSelect);
                     return;
                 }
-                grid.renderError(err.message);
+                grid.renderError(err);
             });
     }
 
