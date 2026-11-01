@@ -3145,16 +3145,9 @@ class DocumentParser
                 continue;
             }
             if (stripos($call, '@include:') === 0) {
-                $path = trim(str_ireplace('@include:', '', $call));
-                if (is_file($path)) {
-                    ob_start();
-                    $return = include $path;
-                }
-                $content = str_replace(
-                    $matches[0][$i],
-                    ob_get_clean() ?: $return,
-                    $content
-                );
+                // 読むファイルの場所と種類は、バインドの @INCLUDE と同じ判定に従う
+                $value = $this->atBindInclude('@INCLUDE ' . trim(substr($call, strlen('@include:'))));
+                $content = str_replace($matches[0][$i], is_scalar($value) ? (string) $value : '', $content);
                 continue;
             }
             $value = $this->_get_snip_result($call);
