@@ -57,11 +57,21 @@ function fbError($code, $message, $status = 400)
 }
 
 /**
- * 直前に @ で抑止した警告の文を返す。失敗のログに原因として添える
+ * $fn を呼ぶ間だけ警告を横取りし、外へ出さない(evo の phpError に拾われて HTML の 500 になるのを防ぐ)。
+ * 警告の文は $reason に入る。set_error_handler の中では error_get_last() が更新されないため、自前で受け取る。
  */
-function fbLastErrorMessage()
+function fbAttempt(callable $fn, &$reason = null)
 {
-    return (error_get_last() ?: [])['message'] ?? '';
+    $reason = '';
+    set_error_handler(function ($no, $message) use (&$reason) {
+        $reason = $reason === '' ? $message : $reason;
+        return true;
+    });
+    try {
+        return $fn();
+    } finally {
+        restore_error_handler();
+    }
 }
 
 /**
@@ -355,11 +365,14 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
         $targetName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
-        if (!@$modx->move_uploaded_file($tmpPath, $targetPath)) {
+        $saved = fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
+            return $modx->move_uploaded_file($tmpPath, $targetPath);
+        }, $reason);
+        if (!$saved) {
             evo()->logEvent(0, 3, 'Failed to save an uploaded file in the file browser', 'File browser', [
                 'name' => $originalName,
                 'to' => $targetPath,
-                'reason' => fbLastErrorMessage(),
+                'reason' => $reason,
             ]);
             $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
             continue;
@@ -446,10 +459,13 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
     }
 
     $folderPermissions = $modx->newFolderPermissions();
-    if (!@mkdir($target, $folderPermissions)) {
+    $created = fbAttempt(function () use ($target, $folderPermissions) {
+        return mkdir($target, $folderPermissions);
+    }, $reason);
+    if (!$created) {
         evo()->logEvent(0, 3, 'Failed to create a folder in the file browser', 'File browser', [
             'to' => $target,
-            'reason' => fbLastErrorMessage(),
+            'reason' => $reason,
         ]);
         fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
@@ -487,11 +503,14 @@ function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentP
         fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
-    if (!@rename($sourcePath, $destPath)) {
+    $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+        return rename($sourcePath, $destPath);
+    }, $reason);
+    if (!$renamed) {
         evo()->logEvent(0, 3, 'Failed to rename an entry in the file browser', 'File browser', [
             'from' => $sourcePath,
             'to' => $destPath,
-            'reason' => fbLastErrorMessage(),
+            'reason' => $reason,
         ]);
         fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
@@ -589,10 +608,13 @@ function fbActionMove(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => lang('fb_err_dest_exists')];
             continue;
         }
-        if (@rename($sourcePath, $destPath)) {
+        $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+            return rename($sourcePath, $destPath);
+        }, $reason);
+        if ($renamed) {
             $moved[] = $name;
         } else {
-            $failures[] = ['from' => $sourcePath, 'to' => $destPath, 'reason' => fbLastErrorMessage()];
+            $failures[] = ['from' => $sourcePath, 'to' => $destPath, 'reason' => $reason];
             $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
         }
     }
