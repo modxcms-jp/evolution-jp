@@ -291,6 +291,10 @@ function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false
     return $tpl;
 }
 
+/**
+ * HTML タグを組み立てる。属性値も中身もエスケープしない。
+ * DB や設定の値は、呼び出し側で hsc() してから渡す。中身には HTML を渡せる。
+ */
 function html_tag($tag_name, $attrib = [], $content = null)
 {
     return evo()->html_tag($tag_name, $attrib, $content);

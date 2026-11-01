@@ -6476,6 +6476,10 @@ class DocumentParser
     }
 
     // End of class.
+    /**
+     * HTML タグを組み立てる。属性値も中身もエスケープしない。
+     * DB や設定の値は、呼び出し側で hsc() してから渡す。中身には HTML を渡せる。
+     */
     public function html_tag($tag_name, $attrib = [], $content = null)
     {
         $tag_name = trim($tag_name, '<>');

@@ -27,7 +27,7 @@
         <tr>
             <th><?= lang('sitename_title') ?></th>
             <td>
-                <?= form_text_tag('site_name', config('site_name')) ?><br />
+                <?= form_text('site_name') ?><br />
                 <?= lang('sitename_message') ?>
             </td>
         </tr>
@@ -37,7 +37,7 @@
                 <textarea
                     name="site_slogan"
                     id="site_slogan"
-                    style="display:block;width:300px;height:4em;"><?= config('site_slogan') ?></textarea>
+                    style="display:block;width:300px;height:4em;"><?= hsc(config('site_slogan')) ?></textarea>
                 <?= lang('site_slogan_message') ?>
             </td>
         </tr>
@@ -120,7 +120,7 @@
                     name="site_unavailable_message"
                     id="site_unavailable_message_textarea"
                     style="width:100%; height: 120px;display:block;"><?php
-                                                                        echo config('site_unavailable_message', lang('siteunavailable_message_default'));
+                                                                        echo hsc(config('site_unavailable_message', lang('siteunavailable_message_default')));
                                                                         ?></textarea>
                 <input
                     type="hidden"

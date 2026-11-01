@@ -27,7 +27,7 @@
                 <textarea
                     name="manager_inline_style" id="manager_inline_style"
                     style="width:95%; height: 9em;"
-                ><?= config('manager_inline_style') ?></textarea><br/>
+                ><?= hsc(config('manager_inline_style')) ?></textarea><br/>
                 <?= $_lang["a17_manager_inline_style_message"] ?>
             </td>
         </tr>
@@ -45,12 +45,7 @@
             <th><?= $_lang["manager_docs_orderby_title"] ?></th>
             <td>
                 <?=
-                    Form::text(
-                        'manager_docs_orderby',
-                        config('manager_docs_orderby'), [
-                            'style' => 'width:500px;'
-                        ]
-                    )
+                    form_text('manager_docs_orderby', 255, 'style="width:500px;"')
                 ?>
                 <p><?= $_lang["manager_docs_orderby_message"] ?></p>
             </td>
