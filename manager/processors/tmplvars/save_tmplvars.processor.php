@@ -12,7 +12,8 @@ if (postv('mode') == 301 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['tv'], 300, 301, $id));
+$rawName = manager()->requireElementName(postv('name'), $_lang['tv'], 300, 301, $id);
+$name = db()->escape($rawName);
 $description = db()->escape(postv('description', ''));
 $caption = db()->escape(postv('caption'));
 $type = db()->escape(postv('type', ''));
@@ -49,16 +50,20 @@ switch (postv('mode')) {
         ];
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
-            $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
-            manager()->saveFormValues(300);
-            $modx->webAlertAndQuit($msg, 'index.php?a=300');
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
+                300,
+                301,
+                0
+            );
         }
         if (check_reserved_names($name) !== false) {
-            $msg = sprintf($_lang['reserved_name_warning'], $name);
-            manager()->saveFormValues(300);
-            $modx->webAlertAndQuit($msg, 'index.php?a=300');
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['reserved_name_warning'], $rawName),
+                300,
+                301,
+                0
+            );
         }
 
         // Add new TV
@@ -109,16 +114,20 @@ switch (postv('mode')) {
         ];
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
-            $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
-            manager()->saveFormValues(301);
-            $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
+                300,
+                301,
+                $id
+            );
         }
         if (check_reserved_names($name) !== false) {
-            $msg = sprintf($_lang['reserved_name_warning'], $name);
-            manager()->saveFormValues(301);
-            $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['reserved_name_warning'], $rawName),
+                300,
+                301,
+                $id
+            );
         }
         // update TV
         $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));

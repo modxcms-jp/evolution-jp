@@ -11,7 +11,8 @@ if (postv('mode') == 22 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['snippet'], 23, 22, $id));
+$rawName = manager()->requireElementName(postv('name'), $_lang['snippet'], 23, 22, $id);
+$name = db()->escape($rawName);
 $description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
@@ -60,10 +61,12 @@ if ($id) {
 $rs = db()->select('COUNT(id)', '[+prefix+]site_snippets', $where);
 $count = db()->getValue($rs);
 if ($count > 0) {
-    $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name);
-    manager()->saveFormValues(23);
-    $modx->webAlertAndQuit($msg, 'index.php?a=23');
-    exit;
+    manager()->redirectToElementForm(
+        sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $rawName),
+        23,
+        22,
+        $id
+    );
 }
 
 switch (postv('mode')) {

@@ -52,7 +52,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
 }
 
 // 名前の検証で差し戻されたときは、送信した入力を重ねる
-$content = manager()->restoreElementFormValues($content, 'plugincode', ['disabled', 'locked']);
+$content = manager()->restoreElementFormValues($content, 'plugincode', ['disabled', 'locked'], ['sysevents']);
 
 function entity($key, $default = null)
 {
@@ -624,7 +624,10 @@ function entity($key, $default = null)
                     <?php
 
                     // get selected events
-                    if (getv('id')) {
+                    if (isset($content['sysevents'])) {
+                        // 差し戻された入力があれば、DB よりそちらを優先する
+                        $evts = array_map('intval', (array)$content['sysevents']);
+                    } elseif (getv('id')) {
                         $evts = [];
                         $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", getv('id')));
                         while ($row = db()->getRow($rs)) {

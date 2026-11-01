@@ -13,7 +13,8 @@ if (postv('mode') == 102 && !$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$name = db()->escape(manager()->requireElementName(postv('name'), $_lang['plugin'], 101, 102, $id));
+$rawName = manager()->requireElementName(postv('name'), $_lang['plugin'], 101, 102, $id);
+$name = db()->escape($rawName);
 $description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? '1' : '0';
 $plugincode = db()->escape(postv('post', ''));
@@ -59,28 +60,12 @@ switch (postv('mode')) {
             $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
             $count = db()->getValue($rs);
             if ($count > 0) {
-                manager()->saveFormValues(101);
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
-
-                // prepare a few variables prior to redisplaying form...
-                $content = [];
-                $_REQUEST['a'] = '101';
-                $_GET['a'] = '101';
-                $_GET['stay'] = postv('stay');
-                $content = array_merge($content, $_POST);
-                $content['locked'] = $locked;
-                $content['plugincode'] = postv('post');
-                $content['category'] = post_intvar('categoryid');
-                $content['disabled'] = $disabled;
-                $content['properties'] = $properties;
-                $content['moduleguid'] = $moduleguid;
-                $content['sysevents'] = $sysevents;
-
-                include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-                include(MODX_MANAGER_PATH . 'actions/element/mutate_plugin.dynamic.php');
-                include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-
-                exit;
+                manager()->redirectToElementForm(
+                    sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
+                    101,
+                    102,
+                    0
+                );
             }
         }
 
@@ -128,28 +113,12 @@ switch (postv('mode')) {
             $rs = db()->select('COUNT(*)', '[+prefix+]site_plugins',
                 "name='{$name}' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
-                manager()->saveFormValues();
-                $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], hsc($name)));
-
-                // prepare a few variables prior to redisplaying form...
-                $content = [];
-                $_REQUEST['a'] = '102';
-                $_GET['a'] = '102';
-                $_GET['stay'] = postv('stay');
-                $content = array_merge($content, $_POST);
-                $content['locked'] = $locked;
-                $content['plugincode'] = postv('post');
-                $content['category'] = post_intvar('categoryid');
-                $content['disabled'] = $disabled;
-                $content['properties'] = $properties;
-                $content['moduleguid'] = $moduleguid;
-                $content['sysevents'] = $sysevents;
-
-                include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-                include(MODX_MANAGER_PATH . 'actions/element/mutate_plugin.dynamic.php');
-                include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-
-                exit;
+                manager()->redirectToElementForm(
+                    sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
+                    101,
+                    102,
+                    $id
+                );
             }
         }
         //do stuff to save the edited plugin

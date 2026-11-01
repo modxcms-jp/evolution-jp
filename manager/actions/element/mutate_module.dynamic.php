@@ -65,7 +65,8 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
 $content = manager()->restoreElementFormValues(
     $content,
     'modulecode',
-    ['disabled', 'wrap', 'locked', 'enable_resource', 'enable_sharedparams']
+    ['disabled', 'wrap', 'locked', 'enable_resource', 'enable_sharedparams'],
+    ['usrgroups']
 );
 $modx->moduleObject = $content;
 
@@ -585,11 +586,16 @@ function content($key, $default = null)
                     <?php
                     // fetch user access permissions for the module
                     $groupsarray = [];
-                    $rs = db()->select('*', '[+prefix+]site_module_access', "module='{$id}'");
-                    $total = db()->count($rs);
-                    for ($i = 0; $i < $total; $i++) {
-                        $currentgroup = db()->getRow($rs);
-                        $groupsarray[$i] = $currentgroup['usergroup'];
+                    if (isset($content['usrgroups'])) {
+                        // 差し戻された入力があれば、DB よりそちらを優先する
+                        $groupsarray = array_map('intval', (array)$content['usrgroups']);
+                    } elseif (is_numeric($id) && $id > 0) {
+                        $rs = db()->select('*', '[+prefix+]site_module_access', sprintf("module='%d'", (int)$id));
+                        $total = db()->count($rs);
+                        for ($i = 0; $i < $total; $i++) {
+                            $currentgroup = db()->getRow($rs);
+                            $groupsarray[$i] = $currentgroup['usergroup'];
+                        }
                     }
 
                     if (evo()->hasPermission('access_permissions')) {
@@ -628,7 +634,6 @@ function content($key, $default = null)
                     $total = db()->count($rs);
                     for ($i = 0; $i < $total; $i++) {
                         $row = db()->getRow($rs);
-                        $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : [];
                         $checked = in_array($row['id'], $groupsarray);
                         if (evo()->hasPermission('access_permissions')) {
                             if ($checked) {

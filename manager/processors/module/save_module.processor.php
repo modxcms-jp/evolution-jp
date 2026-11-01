@@ -54,31 +54,12 @@ switch (postv('mode')) {
         $rs = db()->select('COUNT(id)', $tbl_site_modules, where('name', db()->escape($name)));
         $count = db()->getValue($rs);
         if ($count > 0) {
-            $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], hsc($name)));
-
-            // prepare a few variables prior to redisplaying form...
-            $content = [];
-            $_REQUEST['a'] = '107';
-            $_GET['a'] = '107';
-            $_GET['stay'] = postv('stay');
-            $content = array_merge($content, $_POST);
-            $content['wrap'] = $wrap;
-            $content['disabled'] = $disabled;
-            $content['locked'] = $locked;
-            $content['plugincode'] = postv('post');
-            $content['category'] = post_intvar('categoryid');
-            $content['properties'] = postv('properties');
-            $content['modulecode'] = postv('post');
-            $content['enable_resource'] = $enable_resource;
-            $content['enable_sharedparams'] = $enable_sharedparams;
-            $content['usrgroups'] = postv('usrgroups');
-
-
-            include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            include(MODX_MANAGER_PATH . 'actions/element/mutate_module.dynamic.php');
-            include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-
-            exit;
+            manager()->redirectToElementForm(
+                sprintf($_lang['duplicate_name_found_module'], $name),
+                107,
+                108,
+                0
+            );
         }
 
         // save the new module
