@@ -1969,3 +1969,12 @@ div:has(> label > input[name="publishoption"]) {
 ul.actionButtons.messages-compose-actions {
     margin-top: 15px;
 }
+
+/* a=16・a=19 ほか: コード欄の上の帯（#973）。画面の直書きだった padding・色・枠を、凍結のため同じ値で保つ */
+.code-editor-header {
+    padding: 3px 8px;
+    overflow: hidden;
+    background-color: #eeeeee;
+    border: 1px solid #c3c3c3;
+    border-bottom: none;
+}
