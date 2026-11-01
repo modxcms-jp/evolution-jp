@@ -114,8 +114,8 @@
                 <br/>
                 <?= wrap_label('error + warning + information',
                     form_radio('send_errormail', '1', $send_errormail == '1')); ?><br/>
-                <?= $modx->parseText($_lang['send_errormail_message'],
-                    ['emailsender' => hsc($modx->config['emailsender'])]); ?></td>
+                <?= evo()->parseText(lang('send_errormail_message'),
+                    ['emailsender' => hsc(config('emailsender'))]); ?></td>
         </tr>
         <?php
         // Check for GD before allowing captcha to be enabled

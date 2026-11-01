@@ -150,7 +150,7 @@
         <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["rb_base_url_title"] ?></th>
             <td>
-                <?= $site_url . form_text('rb_base_url', 255) ?><br/>
+                <?= hsc($site_url) . form_text('rb_base_url', 255) ?><br/>
                 <?= $_lang["rb_base_url_message"] ?></td>
         </tr>
 

@@ -6,7 +6,7 @@
             <th><?= lang('defaulttemplate_title') ?></th>
             <td>
                 <select name="default_template" class="inputBox"
-                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?= (int)config('default_template') ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
+                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if((this.options[this.selectedIndex].value|0) != <?= (int)config('default_template') ?>){wrap.style.display='block';}else{wrap.style.display='none';}"
                         style="width:150px">
                     <option value="">(blank)</option>
                     <?php

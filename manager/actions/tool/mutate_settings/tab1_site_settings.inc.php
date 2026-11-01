@@ -120,7 +120,7 @@
                     name="site_unavailable_message"
                     id="site_unavailable_message_textarea"
                     style="width:100%; height: 120px;display:block;"><?php
-                                                                        echo config('site_unavailable_message', lang('siteunavailable_message_default'));
+                                                                        echo hsc(config('site_unavailable_message', lang('siteunavailable_message_default')));
                                                                         ?></textarea>
                 <input
                     type="hidden"
