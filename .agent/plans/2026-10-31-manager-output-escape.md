@@ -228,6 +228,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 ## Artifacts and Notes
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/895
+- ブランチ: `fix/895-manager-output-escape`（ワークツリー `.claude/worktrees/issue-895`）。PR はマイルストーンごとに 1 本（D12）
 - 関連: #885（設定画面の `form_text()`）、#891（設定画面とリソース編集画面の一部の欄）
 - 出力のエスケープの取り決め: `AGENTS.md` の「補助ルール」→「出力のエスケープ」
 - 既存のエスケープの例: `manager/includes/error.class.inc.php:53-63`（`js_literal(hsc())` の使い分けの説明）、`manager/actions/document/move_document.dynamic.php:95-104`（`textContent` で組み立てる例）、`manager/frames/nodes.php:190, 193`（`hsc(js_literal())` の例）
