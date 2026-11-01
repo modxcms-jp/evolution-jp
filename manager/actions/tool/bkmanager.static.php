@@ -338,8 +338,8 @@ if (sessionv('result_msg')) {
                         <?= $_lang["bkmgr_snapshot_submit"] ?>
                     </a>
                     <input type="submit" name="save" style="display:none;" />
+                </div>
             </form>
-        </div>
         <div class="sectionHeader"><?= $_lang["bkmgr_snapshot_list_title"] ?></div>
         <div class="sectionBody">
             <form method="post" name="restore2" action="index.php">
