@@ -1947,6 +1947,15 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin-top: 5px;
 }
 
+/* コード欄の上の帯。RevoStyle は凍結テーマなので、画面の直書きだった値をそのまま書く */
+.code-editor-header {
+    padding: 3px 8px;
+    overflow: hidden;
+    background-color: #eeeeee;
+    border: 1px solid #c3c3c3;
+    border-bottom: none;
+}
+
 #tabTemplate > div:first-of-type {
     margin-bottom: 10px;
 }

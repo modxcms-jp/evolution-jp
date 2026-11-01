@@ -63,7 +63,8 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - テーマが持つテンプレート（`welcome.tpl` など）と、画面の HTML（`manager/actions/` の PHP やテンプレート）には、`style` 属性や埋め込みの `<style>` で、ブロックの間の余白を書かない。`style.css` から揃えられなくなる
 - 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になる。`shell.js`（`manager/media/script/shell.js`、`hoistStylesheets`）が `<head>` へ持ち上げるのは `link[rel=stylesheet]` だけで、埋め込みの `<style>` は画面を切り替えると消えるが、表示中は同じ文書のツリー・メニュー・ヘッダーにも効くため。今の画面に残る範囲の広い `<style>`（`label {}`、`table td {}` など）は、別の Issue で扱う
 - 画面とテーマの約束として、次の class をテーマが受ける。画面は余白を書かず、class だけを持つ
-  - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る。帯の色と枠は、まだ画面の直書き（別の Issue）
+  - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る
+  - `.code-editor-header`: コード欄の上の帯。色・枠・内側の余白（`padding`）はテーマが決める。色は `--color-text-primary`・`--color-surface`・`--color-border-default` で書く（RevoStyle は凍結のため従来の直書きと同じ値）
   - `.messages-compose-actions`: メッセージの返信欄のボタン列（`ul.actionButtons` と併用）。上を `--space-3` にする
 
 ## 例外

@@ -147,8 +147,7 @@ if (id()) {
                     }
                     ?>
                     <div class="code-editor" style="width:100%;position:relative">
-                        <div
-                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;">
+                        <div class="code-editor-header">
                             <span style="float:left;font-weight:bold;"><?= lang('template_code') ?></span>
                         </div>
                         <?php if (isset($head)) {

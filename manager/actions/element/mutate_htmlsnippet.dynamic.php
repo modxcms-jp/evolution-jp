@@ -231,8 +231,7 @@ if (isset($content['which_editor'])) {
                 </table>
 
                 <div class="code-editor">
-                    <div
-                        style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;">
+                    <div class="code-editor-header">
                         <span style="font-weight:bold;"><?= $_lang['chunk_code'] ?></span>
                     </div>
                     <textarea

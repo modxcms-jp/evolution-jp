@@ -1913,6 +1913,15 @@ form > :has(+ #pagination) {
     margin-bottom: var(--space-3);
 }
 
+/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ、枠は通常の枠の色にする。テーマの色に従う */
+.code-editor-header {
+    padding: var(--space-1) var(--space-2);
+    overflow: hidden; /* 中の float を包む */
+    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
+    border: 1px solid var(--color-border-default);
+    border-bottom: none;
+}
+
 /* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
 .tab-pane > ul.actionButtons {
     margin-top: var(--space-3);
