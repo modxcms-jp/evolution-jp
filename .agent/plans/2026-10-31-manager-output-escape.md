@@ -9,7 +9,7 @@ Issue: #895
 ## Progress
 
 - [x] (2026-11-01) M0: Decision Log の「要確認」（D1・D3・D4）をユーザーに確かめて確定する（D1 は呼び出し側で `hsc()`、D3 は B、D4 はすべて `hsc()`。どれも推奨どおり）
-- [ ] M1: 設定画面とヘルパーの方針（`html_tag()` の説明、`form_text_tag()`・`Form::text()` の廃止）
+- [x] (2026-11-01) M1: 設定画面とヘルパーの方針（`html_tag()` の説明、`form_text_tag()`・`Form::text()` の廃止）。自己レビューの指摘で `site_unavailable_message`・`default_template` の比較・`emailsender` の文言・ファイル管理タブの `site_url` も直した
 - [ ] M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名
 - [ ] M3: リソースの編集・情報・子リソース一覧
 - [ ] M4: 要素（一覧・編集画面・テンプレート変数）
@@ -32,6 +32,10 @@ Issue: #895
 - 2026-10-31: ロックアウト画面のテンプレートは設定 `manager_lockout_tpl` で、ログイン画面は `manager_login_tpl` で差し替えられる。リソース編集の `jscripts.tpl` は `file_get_contents()` で固定のパスから読み（`mutate_content/functions.php:741`）、差し替えられない。
 - 2026-10-31: PHP 7.4 の `htmlspecialchars()` の既定フラグは `ENT_COMPAT | ENT_HTML401`（`'` を変換しない）。8.1 から `ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401`。`hsc()` は版によらず `ENT_QUOTES | ENT_SUBSTITUTE`。
 - 2026-10-31: `nodes.php:191` の `$ph['nodetitle']`（`addslashes()`）はどのテンプレートでも使われていない。`getAlt()`（`nodes.php:598-612`）は `addslashes()` のあとに `htmlspecialchars()` しており、エイリアスに `'` があるとツールチップにバックスラッシュが出る。
+
+- 2026-11-01: M1 の自己レビューで、同じ設定画面に取りこぼしが見つかった。`tab1_site_settings.inc.php` の `site_unavailable_message`（`textarea`）と、`tab6_filemanager_settings.inc.php` の `rb_base_url` の前に出す `$site_url`。どちらも M1 で `hsc()` にした（`tab6` は M1 の書き込むファイルに足した）。また `default_template` を `(int)` にしたため、JS の比較も数で行うようにした（保存値が空のとき「(blank)」に戻すとリセット欄が隠れるように）。
+- 2026-11-01: M1 の検証で、修正前は設定画面の値を開いて何も変えずに保存し直すと、`site_name` と `manager_docs_orderby` が途中で切れて保存されることを確かめた（`form_text()` に置き換えて直った）。
+- 2026-11-01: 設定画面の言語文字列を `value` 属性に `addslashes()` で出している箇所が複数ある（`tab1_site_settings.inc.php`・`tab3_user_settings.inc.php`）。D11 で言語文字列は範囲外としたので触っていない。属性の文脈に `addslashes()` は合わないので、別の Issue の候補。
 
 ## Decision Log
 
