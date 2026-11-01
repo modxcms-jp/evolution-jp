@@ -53,6 +53,9 @@ export function createMoveDialog(ctx) {
                         load();
                     });
                 });
+            })
+            .catch(function (err) {
+                ctx.gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(t('fb_load_failed', err.message)) + '</div>';
             });
     }
 

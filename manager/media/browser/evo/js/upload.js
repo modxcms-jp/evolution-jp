@@ -88,8 +88,10 @@ export function createUpload(ctx) {
                     rows[i].done(!failed, failed);
                 });
             } else {
+                // API の理由があればそれを、JSON でない応答は通信エラーとして出す
+                var reason = result && result.error && result.error.message;
                 rows.forEach(function (row) {
-                    row.done(false, t('fb_upload_failed'));
+                    row.done(false, reason || t('fb_network_error'));
                 });
             }
             ctx.onDone();

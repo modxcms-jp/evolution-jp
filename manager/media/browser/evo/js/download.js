@@ -4,6 +4,7 @@
 
 import { escapeHtml } from './utils.js';
 import { t } from './i18n.js';
+import { apiError, failureMessage } from './api.js';
 
 // Content-Disposition から保存名を取り出す。filename*(RFC 5987)を先に見る
 function parseFilename(disposition) {
@@ -81,16 +82,16 @@ export function createDownload(ctx) {
             .then(function (res) {
                 var contentType = res.headers.get('Content-Type') || '';
                 if (contentType.indexOf('application/json') === 0 || !res.ok) {
-                    // エラーは JSON。CSRF トークンの不一致などは JSON でないので、状態コードを出す
+                    // エラーは JSON。CSRF トークンの不一致などは JSON でないので、通信エラーとして扱う
                     return res.text().then(function (text) {
-                        var message = 'HTTP ' + res.status;
+                        var message = '';
                         try {
                             var data = JSON.parse(text);
-                            message = (data && data.error && data.error.message) || message;
+                            message = (data && data.error && data.error.message) || '';
                         } catch (e) {
-                            // JSON でなければ状態コードのまま
+                            // JSON でなければ通信エラーのまま
                         }
-                        throw new Error(message);
+                        throw message ? apiError(message) : new Error(t('fb_network_error'));
                     });
                 }
                 var fallback = names.length === 1 ? names[0] : 'download.zip';
@@ -101,8 +102,7 @@ export function createDownload(ctx) {
                 });
             })
             .catch(function (err) {
-                var message = err && err.message === 'Failed to fetch' ? t('fb_network_error') : (err && err.message) || '';
-                row.fail(t('fb_download_failed', message));
+                row.fail(failureMessage(err, 'fb_download_failed'));
             });
     }
 

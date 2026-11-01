@@ -126,8 +126,8 @@ export function createTree(ctx) {
             .then(function (data) {
                 renderTreeChildren(node, data.folders, data.files);
             })
-            .catch(function () {
-                children.innerHTML = '';
+            .catch(function (err) {
+                children.innerHTML = '<div class="evo-fb-tree-loading evo-fb-error">' + escapeHtml(t('fb_load_failed', err.message)) + '</div>';
             });
     }
 
