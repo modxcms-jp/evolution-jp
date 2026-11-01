@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 19,
-            "used_runs": 19,
-            "helped_runs": 19,
+            "seen_runs": 22,
+            "used_runs": 22,
+            "helped_runs": 22,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 12
+            "active_runs": 14
         },
         "change-004": {
             "seen_runs": 1,
@@ -179,6 +179,33 @@
             "stale_runs": 0,
             "last_used_at": "2026-10-31T20:50:00+09:00",
             "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        "change-020": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        "change-021": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        "change-022": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
         }
     }
 }
