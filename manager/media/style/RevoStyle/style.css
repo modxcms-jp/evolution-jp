@@ -1947,15 +1947,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin-top: 5px;
 }
 
-/* コード欄の上の帯。RevoStyle は凍結テーマなので、画面の直書きだった値をそのまま書く */
-.code-editor-header {
-    padding: 3px 8px;
-    overflow: hidden;
-    background-color: #eeeeee;
-    border: 1px solid #c3c3c3;
-    border-bottom: none;
-}
-
 #tabTemplate > div:first-of-type {
     margin-bottom: 10px;
 }
@@ -1977,4 +1968,13 @@ div:has(> label > input[name="publishoption"]) {
 /* a=10 messages.static.php: 返信欄のボタン列の margin-top:15px */
 ul.actionButtons.messages-compose-actions {
     margin-top: 15px;
+}
+
+/* a=16・a=19 ほか: コード欄の上の帯（#973）。画面の直書きだった padding・色・枠を、凍結のため同じ値で保つ */
+.code-editor-header {
+    padding: 3px 8px;
+    overflow: hidden;
+    background-color: #eeeeee;
+    border: 1px solid #c3c3c3;
+    border-bottom: none;
 }
