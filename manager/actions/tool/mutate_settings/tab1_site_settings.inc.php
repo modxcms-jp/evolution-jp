@@ -37,7 +37,7 @@
                 <textarea
                     name="site_slogan"
                     id="site_slogan"
-                    style="display:block;width:300px;height:4em;"><?= config('site_slogan') ?></textarea>
+                    style="display:block;width:300px;height:4em;"><?= hsc(config('site_slogan')) ?></textarea>
                 <?= lang('site_slogan_message') ?>
             </td>
         </tr>

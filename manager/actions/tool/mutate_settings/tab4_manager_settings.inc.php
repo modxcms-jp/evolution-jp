@@ -27,7 +27,7 @@
                 <textarea
                     name="manager_inline_style" id="manager_inline_style"
                     style="width:95%; height: 9em;"
-                ><?= config('manager_inline_style') ?></textarea><br/>
+                ><?= hsc(config('manager_inline_style')) ?></textarea><br/>
                 <?= $_lang["a17_manager_inline_style_message"] ?>
             </td>
         </tr>

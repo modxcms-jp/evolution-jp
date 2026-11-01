@@ -6,7 +6,7 @@
             <th><?= lang('defaulttemplate_title') ?></th>
             <td>
                 <select name="default_template" class="inputBox"
-                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?= config('default_template') ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
+                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?= (int)config('default_template') ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
                         style="width:150px">
                     <option value="">(blank)</option>
                     <?php
@@ -38,12 +38,12 @@
                                 '<option value="%s"%s>%s</option>',
                                 $template['id'],
                                 $template['selected'] ? ' selected' : '',
-                                $template['name']
+                                hsc($template['name'])
                             );
                         }
                         $echo[] = sprintf(
                             '<optgroup label="%s">%s</optgroup>',
-                            $category,
+                            hsc($category),
                             implode("\n", $group)
                         );
                     }
@@ -72,7 +72,7 @@
                             <?= wrap_label(
                                 sprintf(
                                     lang('template_reset_specific'),
-                                    $savedTmpName
+                                    hsc($savedTmpName)
                                 ),
                                 form_radio('reset_template', 2)
                             ); ?>

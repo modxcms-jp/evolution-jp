@@ -117,6 +117,7 @@ function get_role_list()
     $options = "\n";
     while ($ph = db()->getRow($rs)) {
         $ph['selected'] = $default_role == $ph['id'] ? 'selected' : '';
+        $ph['name'] = hsc($ph['name']);
         $options .= evo()->parseText(
             '<option value="[+id+]" [+selected+]>[+name+]</option>',
             $ph

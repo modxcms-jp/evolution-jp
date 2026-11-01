@@ -115,7 +115,7 @@
                 <?= wrap_label('error + warning + information',
                     form_radio('send_errormail', '1', $send_errormail == '1')); ?><br/>
                 <?= $modx->parseText($_lang['send_errormail_message'],
-                    ['emailsender' => $modx->config['emailsender']]); ?></td>
+                    ['emailsender' => hsc($modx->config['emailsender'])]); ?></td>
         </tr>
         <?php
         // Check for GD before allowing captcha to be enabled
@@ -288,7 +288,7 @@
                 <textarea
                     id="signupemail_message_textarea" name="signupemail_message"
                     style="width:100%; height: 120px;"
-                ><?= $signupemail_message ?></textarea>
+                ><?= hsc($signupemail_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_signup_default" id="system_email_signup_hidden"
                     value="<?= addslashes($_lang['system_email_signup']) ?>"
@@ -309,7 +309,7 @@
                 <textarea
                     id="websignupemail_message_textarea" name="websignupemail_message"
                     style="width:100%; height: 120px;"
-                ><?= $websignupemail_message ?></textarea>
+                ><?= hsc($websignupemail_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_websignup_default" id="system_email_websignup_hidden"
                     value="<?= addslashes($_lang['system_email_websignup']) ?>"/><br/>
@@ -327,7 +327,7 @@
             <td>
                 <textarea
                     id="system_email_webreminder_textarea" name="webpwdreminder_message"
-                    style="width:100%; height: 120px;"><?= $webpwdreminder_message ?></textarea>
+                    style="width:100%; height: 120px;"><?= hsc($webpwdreminder_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden"
                     value="<?= addslashes($_lang['system_email_webreminder']) ?>"/><br/>
