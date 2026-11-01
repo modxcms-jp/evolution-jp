@@ -25,11 +25,16 @@ export function failureMessage(err, prefixKey) {
 }
 
 // API の JSON でない応答や通信の失敗は、すべて既存の fb_network_error の文言の Error にそろえる
-export function fetchJson(url, options) {
+// fetch の失敗(reject)を fb_network_error の Error にそろえる、生の fetch の唯一の入口
+export function apiFetch(url, options) {
     return fetch(url, Object.assign({ credentials: 'same-origin' }, options))
         .catch(function () {
             throw new Error(t('fb_network_error'));
-        })
+        });
+}
+
+export function fetchJson(url, options) {
+    return apiFetch(url, options)
         .then(function (res) {
             var contentType = res.headers.get('Content-Type') || '';
             if (contentType.indexOf('application/json') !== 0) {

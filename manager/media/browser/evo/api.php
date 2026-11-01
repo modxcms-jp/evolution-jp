@@ -342,7 +342,7 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
         $targetName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
-        if (!$modx->move_uploaded_file($tmpPath, $targetPath)) {
+        if (!@$modx->move_uploaded_file($tmpPath, $targetPath)) {
             $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
             continue;
         }
@@ -428,7 +428,7 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
     }
 
     $folderPermissions = $modx->newFolderPermissions();
-    if (!mkdir($target, $folderPermissions)) {
+    if (!@mkdir($target, $folderPermissions)) {
         fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
     @chmod($target, $folderPermissions);
@@ -465,7 +465,7 @@ function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentP
         fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
-    if (!rename($sourcePath, $destPath)) {
+    if (!@rename($sourcePath, $destPath)) {
         fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
 
@@ -561,7 +561,7 @@ function fbActionMove(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => lang('fb_err_dest_exists')];
             continue;
         }
-        if (rename($sourcePath, $destPath)) {
+        if (@rename($sourcePath, $destPath)) {
             $moved[] = $name;
         } else {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
