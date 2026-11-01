@@ -151,6 +151,30 @@
             "added_at": "2026-10-31T20:50:00+09:00",
             "last_used_at": "2026-10-31T20:50:00+09:00",
             "source": "2026-10-31-manager-actions-inline-spacing-001"
+        },
+        {
+            "id": "change-020",
+            "location": ".agent/agents/reviewer.md（観点）",
+            "status": "adopted",
+            "added_at": "2026-11-01T21:40:00+09:00",
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        {
+            "id": "change-021",
+            "location": "assets/docs/core-issues.md",
+            "status": "adopted",
+            "added_at": "2026-11-01T21:40:00+09:00",
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        {
+            "id": "change-022",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（/run-plan の手順 4）",
+            "status": "adopted",
+            "added_at": "2026-11-01T21:40:00+09:00",
+            "last_used_at": "2026-11-01T21:40:00+09:00",
+            "source": "2026-10-30-file-browser-kcfinder-extension-001"
         }
     ]
 }

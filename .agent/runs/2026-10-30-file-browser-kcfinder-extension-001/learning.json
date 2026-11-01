@@ -1,0 +1,66 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-30-file-browser-kcfinder-extension",
+    "run_id": "2026-10-30-file-browser-kcfinder-extension-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-01T21:40:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "missing_instruction",
+            "summary": "ファイルを読み書きする API を足すたびに、シンボリックリンクの扱いの穴が自己レビューで見つかった（M3 のコピー元がリンク先の実体を確かめていない、#969 の削除がフォルダを指すリンクの先へ入って中身を消す、M5 の上書きがリンク先の実体を名前・拡張子を確かめずに置き換える）。どれも自己レビューで見つけて直したが、worker への指示と reviewer の観点に最初から「ファイル操作は resolveFile で実体を確かめ、リンクをたどらない・リンクの先を書き換えない」があれば、往復が減った",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "API（MODX_API_MODE）でも、PHP の警告（unlink・filesize の Permission denied など）が MODX のエラーハンドラーに拾われて HTML のエラーページ（HTTP 500）になり、JSON のエラーを返す分岐に届かない。display_errors=Off でも起きる。#969 の削除、壊れたリンクでの一覧、M3 のコピーで繰り返し問題になった。API ではファイル操作の戻り値を確かめ、警告で止まらないようにする必要がある",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": "assets/docs/core-issues.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "ExecPlan で「1 段階を 1 PR」と決めていたのに、exec-plan-runner の /run-plan の作り（1 つの ExecPlan を 1 つの PR に積む）に沿って M1〜M3 を 1 つの PR（#965）にまとめ、差分が大きくなった。途中で ExecPlan の決定を改め、M4・M5 は別の PR にした。runner は、ExecPlan が段階ごとの PR の分け方を決めているときはそれに従う形にするとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "process_gap",
+            "summary": "非公開アドバイザリとの重なり確認が、確かめる相手（並走のスキャン担当のセッション）がいないと毎回本人に聞くことになり、答えようのない確認が続いた。#966 で「security ラベル、または認証・権限・エスケープ・リクエストの受け取り方を変える Issue だけ確かめる」に絞って反映済み",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-005",
+            "kind": "validation_gap",
+            "summary": "検証環境が作業ツリーをマウントするので、tester の検証中に worker が同じ作業ツリーのコードを変えると検証の途中で中身が変わる。修正を頼むのは検証の後にした。また、検証で作られた追跡外の manager/includes/config.inc.php や、コンテナ内で root が作ったファイル（外を指すシンボリックリンクを含む）が作業ツリーに残り、次の検証の邪魔になったことがある。片付けの手順は adaptive-validation-runner にあるので、文書の変更は要らない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/adaptive-validation-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

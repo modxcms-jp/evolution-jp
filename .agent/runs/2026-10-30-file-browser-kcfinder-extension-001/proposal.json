@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-30-file-browser-kcfinder-extension",
+    "run_id": "2026-10-30-file-browser-kcfinder-extension-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-01T21:40:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-020",
+            "action": "add",
+            "target": ".agent/agents/reviewer.md（観点）",
+            "summary": "ファイルを読み書き・削除する変更では、対象の実体を resolveFile などで確かめているか、シンボリックリンク（ファイル・フォルダ・壊れたもの）をたどったり、その先を書き換えたりしないかを確かめる",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-021",
+            "action": "add",
+            "target": "assets/docs/core-issues.md",
+            "summary": "「API（MODX_API_MODE）でも PHP の警告が HTML のエラーページ（HTTP 500）になり、JSON のエラーに届かない」を課題として記録し、改善案（API の入口で警告を JSON に変える、またはエラーハンドラーが API_MODE では HTML を出さない）を添える",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-022",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（/run-plan の手順 4）",
+            "summary": "ExecPlan が段階ごとの PR の分け方を決めているときは、それに従って段階ごとに新しいブランチと PR を作る。決めていなければ今のとおり 1 つの PR に積む",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        }
+    ]
+}
