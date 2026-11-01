@@ -88,7 +88,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 9. **push と PR**: メインがブランチを push し、PR を作る。
    - タイトル・本文・ラベルは `.github/codex-pr-rules.md` に従う。「確認手順」に検証の結果、「備考」に自己レビューの結果（指摘と対応、または問題なし）を書く。
    - `/run-issue` では `Closes #<番号>` を入れ、下書きにしない（自己レビューを通したものだけを出すため）。
-   - `/run-plan` では、PR がまだ無ければ最初のマイルストーンで下書きの PR を作り、対象の Issue すべてを `Refs #<番号>` で挙げる。作ったブランチと PR は、次の push の前に ExecPlan の Artifacts and Notes に記録する。2 つめ以降は同じ PR に push し、本文を更新する。最後のマイルストーンで、対象の Issue すべてを `Closes #<番号>` に改める。
+   - `/run-plan` では、PR がまだ無ければ最初のマイルストーンで下書きの PR を作り、対象の Issue すべてを `Refs #<番号>` で挙げる。作ったブランチと PR は、次の push の前に ExecPlan の Artifacts and Notes に記録する。2 つめ以降は同じ PR に push し、本文を更新する。最後のマイルストーンで、対象の Issue すべてを `Closes #<番号>` に改める。ただし ExecPlan が段階ごとの PR の分け方を決めているとき（Decision Log や Artifacts and Notes に「1 段階を 1 PR」などとあるとき）は、それに従い、分ける段階ごとに前の PR のマージを待ってから main から新しいブランチと PR を作る（その PR は下書きにしない）。最後の PR で `Closes #<番号>` にし、それまでは `Refs #<番号>` にする。
    - push のあと `gh pr checks <PR番号> --watch` で CI を待つ。PR を作った直後で「no checks reported」と出たときは失敗とみなさず、少しおいてやり直す。やり直しても変わらないときは、`gh pr view <PR番号> --json mergeable` が `CONFLICTING` でないかを確かめる（main と衝突していると、pull_request のワークフローが動かない。衝突は止まる条件）。
 
 PR に付くほかのレビュー（Codex など）への対応は、この繰り返しに含めない。次の `/run-issue` に入る前に、runner が前の PR について review-agent の `/resolve-review <PR番号>` を行う（このときは runner の実行中として、下の「確認を省く範囲」に従う）。仕分けは reviewer、修正は worker、push と GitHub への書き込みはメインが行う。review-agent が「ユーザー判断を仰ぐ」に分類した指摘があれば、止まって人に返す。人が runner とは別に `/resolve-review` を頼んだときは、review-agent の通常の確認に従う。
@@ -164,7 +164,7 @@ ExecPlan をマイルストーンごとに進める。
 1. ExecPlan を読み、Progress の最初の未完了のマイルストーンを特定する。対象の Issue は、ExecPlan の Artifacts and Notes に挙がった Issue（無ければ、その ExecPlan を指すロードマップ項目の `Issue:`）のすべてとする。事前確認は、対象の Issue すべてに対して行う。
 2. ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されていれば、それとそのワークツリーを使う（ワークツリーが無ければ、そのブランチで `git worktree add` する）。roadmap-manager の `/next-task --run` で作った ExecPlan は、この形でブランチが記録されている。記録が無ければ、「作業場所」の手順で新しく用意する。`gh issue develop` で紐づけるのは、対象の Issue のうち先頭に書かれたもの 1 件にする（ロードマップの `Issue:` は優先順に並んでいる）。
 3. マイルストーンごとに「1 件ごとの繰り返し」を行う。worker に渡す書き込み範囲は、そのマイルストーンの Plan of Work と Concrete Steps に挙がったファイルにする（ExecPlan の記録はメインが行う）。
-4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。
+4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。ExecPlan が段階ごとの PR の分け方を決めているときは、「1 件ごとの繰り返し」の手順 9 のとおり段階ごとに PR を分け、前の PR のマージを人に任せて止まる（マージ後に `/run-plan` を呼び直すと、次の段階から続ける）。
 5. すべてのマイルストーンが終わり CI が通ったら、`gh pr ready <PR番号>` で下書きを解除し、報告して終える。マージはしない。完了処理は `/finish-task` で行う。
 
 ### /finish-task <Issue 番号 | ExecPlan のパス>
