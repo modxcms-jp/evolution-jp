@@ -316,7 +316,7 @@ function content($key, $default = null)
         echo implode('', $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= content('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) content('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>

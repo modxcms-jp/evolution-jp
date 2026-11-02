@@ -278,7 +278,7 @@ function entity($key, $default = null)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= entity('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
@@ -406,7 +406,7 @@ function entity($key, $default = null)
                                     if (strtolower(entity('type')) == strtolower($k)) {
                                         $selected = 'selected="selected"';
                                     }
-                                    $row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
+                                    $row[$k] = '<option value="' . hsc($k) . '" ' . $selected . '>' . hsc($v) . '</option>';
                                 }
                                 echo implode("\n", $row);
                                 ?>

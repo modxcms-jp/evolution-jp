@@ -261,7 +261,7 @@ function entity($key, $default = null)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= entity('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <div id="actions">

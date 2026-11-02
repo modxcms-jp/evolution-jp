@@ -466,7 +466,7 @@ function entity($key, $default = null)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= entity('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
@@ -671,7 +671,7 @@ function entity($key, $default = null)
                                     echoEventRows($evtnames);
                                 }
                                 echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
-                                echo '<tr><td colspan="2"><b>' . "[{$g}] " . $row['groupname'] . '</b></td></tr>';
+                                echo '<tr><td colspan="2"><b>' . "[{$g}] " . hsc($row['groupname']) . '</b></td></tr>';
                                 $grpName = $row['groupname'];
                             }
                             $evtid = $row['id'];
