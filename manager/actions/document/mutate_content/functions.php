@@ -274,7 +274,7 @@ function getUDGroups($id)
                     . html_tag(
                         'label',
                         ['for' => 'group-' . $row['id']],
-                        $row['name']
+                        hsc($row['name'])
                     )
             );
     }
@@ -716,16 +716,16 @@ function getJScripts($docid)
 {
     $ph = [];
     $browser_url = MODX_BASE_URL . 'manager/media/browser/evo/browser.php';
-    $ph['imanager_url'] = config('imanager_url', $browser_url . '?type=images');
-    $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?type=files');
+    $ph['imanager_url'] = js_literal(config('imanager_url', $browser_url . '?type=images'));
+    $ph['fmanager_url'] = js_literal(config('fmanager_url', $browser_url . '?type=files'));
     $ph['preview_url'] = js_literal(evo()->makeUrl($docid, '', '', 'full', true));
-    $ph['preview_mode'] = config('preview_mode', 1);
+    $ph['preview_mode'] = (int)config('preview_mode', 1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
     $ph['id'] = $docid;
-    $ph['docParent'] = doc('parent');
-    $ph['docIsFolder'] = doc('isfolder');
+    $ph['docParent'] = (int) doc('parent');
+    $ph['docIsFolder'] = (int) doc('isfolder');
     $ph['docMode'] = evo()->doc->mode;
     $ph['lang_confirm_reset_pub_dates'] = lang('confirm_reset_pub_dates');
     $ph['style_tree_folder'] = style('tree_folder');
@@ -735,7 +735,7 @@ function getJScripts($docid)
     $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
     $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = manager()->action;
-    $ph['suffix'] = config('friendly_url_suffix');
+    $ph['suffix'] = js_literal(config('friendly_url_suffix'));
 
     return parseText(
         file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl'),
@@ -773,7 +773,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
         'token' => sessionv('token'),
-        'upload_maxsize' => config('upload_maxsize', 32 * 1024 * 1024),
+        'upload_maxsize' => (int) config('upload_maxsize', 32 * 1024 * 1024),
         'mode' => manager()->action,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),

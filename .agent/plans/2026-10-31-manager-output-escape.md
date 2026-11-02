@@ -11,7 +11,7 @@ Issue: #895
 - [x] (2026-11-01) M0: Decision Log の「要確認」（D1・D3・D4）をユーザーに確かめて確定する（D1 は呼び出し側で `hsc()`、D3 は B、D4 はすべて `hsc()`。どれも推奨どおり）
 - [x] (2026-11-01) M1: 設定画面とヘルパーの方針（`html_tag()` の説明、`form_text_tag()`・`Form::text()` の廃止）。自己レビューの指摘で `site_unavailable_message`・`default_template` の比較・`emailsender` の文言・ファイル管理タブの `site_url` も直した
 - [x] (2026-11-02) M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名。自己レビューの指摘で、メニューの `mail_check_timeperiod` とツリーの `site_start` を `(int)` にし（D7。menu.php 冒頭の「空なら 0」の 3 行は不要になり削除）、インポート画面のファイル名・フォルダ名・エラー文も `hsc()` にした
-- [ ] M3: リソースの編集・情報・子リソース一覧
+- [x] (2026-11-03) M3: リソースの編集・情報・子リソース一覧。自己レビューの指摘で、子リソース一覧の JS の `site_start`、編集画面の `upload_maxsize`・`docParent`・`docIsFolder` も `(int)` にし（D7）、`element_description_html()` は対になったタグだけを戻す形にした
 - [ ] M4: 要素（一覧・編集画面・テンプレート変数）
 - [ ] M5: ユーザー・ロール・権限
 - [ ] M6: ファイル管理・レポート・ログ
@@ -42,6 +42,10 @@ Issue: #895
 - 2026-11-02: ツリーの `$ph['nodetitle']` を削除したので、`OnManagerNodePrerender`・`OnManagerNodeRender` のプラグインに渡る値から `nodetitle` が消えた。同梱のテンプレートとプラグインは使っていない。
 - 2026-11-02: `manager_theme` は、`menu.php`・`tree.php`・`header.inc.php`・`welcome.static.php`・`manager.lockout.inc.php`・`accesscontrol-not-mgr.inc.php`・`document.parser.subparser.trait.php` でエスケープせずに出し、`resource_selector.static.php` だけが `hsc()` している。ユーザーごとの設定でも上書きでき、パスにも使うので、保存時の検証と出力時の `hsc()` をそろえる別の Issue の候補（M2 では触らない）。
 - 2026-11-02: M2 の手順 4 のテーマの一覧には SoftSlate が抜けていた。SoftSlate の `login.tpl` も `[+site_name+]` を HTML の本文と `alt` 属性にしか使っておらず、テンプレートを変える必要はない。
+- 2026-11-03: M3 の検証で、修正前はテンプレート変数の説明に書いた `<script>` がリソースの編集画面で実行されること、`imanager_url`・`friendly_url_suffix` に `'` があると編集画面の JS が壊れ（`imanager_url is not defined` など）、画像の挿入やサフィックスの切り替えが動かないことを確かめた。子リソース一覧の「表示」は、エイリアスの `'` は `makeUrl()` が `%27` にするので壊れず、`friendly_url_suffix` に `'` があると壊れる。修正後はどれも動く。
+- 2026-11-03: M3 の自己レビューで、子リソース一覧の JS の `site_start`（修正前は `abc` で「非公開」の操作が JS のエラー）、編集画面の `upload_maxsize`（`"` で属性が壊れる。ユーザーごとの設定でも上書きできる）、`docParent`・`docIsFolder`（入力の差し戻しで送信値が重なる）を生のまま出していたことが分かった。D7 の対象に足して `(int)` にした。同じ `upload_maxsize` は `files.dynamic.php:402` でも生のまま出しているので、M6 の手順に足した。
+- 2026-11-03: `element_description_html()` を最初は開きタグ・閉じタグを 1 つずつ戻す形にしたが、閉じ忘れの `<strong>` が後ろの `<li>` まで太字を広げうる（M4 の要素一覧は `<li>` の形）ので、対になったものだけを戻す形にした。
+- 2026-11-03: テンプレート変数の説明は、DocManager の `assets/modules/docmanager/tv.ajax.php:59` と QuickManager の `assets/plugins/qm/inc/edit_tv.inc.php:134` では `hsc()` だけで出しており、D3 の B の規則と食い違う（`<strong>` が文字で出る）。選択肢のラベル（D4）はこの 2 つも `renderFormElement()` を通るので M3 でそろった。説明を M4 か M7 で範囲に入れるかは、着手時に決める。
 
 ## Decision Log
 
@@ -135,7 +139,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 4. `document.parser.subparser.trait.php`: `:1655`（ドロップダウン・リスト）、`:1698`（チェックボックス）、`:1726`（ラジオ）の `'label' => $label` を `evo()->hsc($label)` にする（D4）。`isSelected()` に渡す `$label` はエスケープ前のまま。
 5. `document_data.static.php:221`: テンプレート名 `$templatename` を `hsc($templatename)` にする。`entity()` の出力には足さない（D10。`:107-109` で一括 `hsc()` 済み）。
 6. `resources_list.static.php:179-180`: `$prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));` にする（`sprintf($tpl, …)` の `onclick="%s"` に入るので `hsc(js_literal())`）。`$id == 0` のとき `makeUrl(0)` はサイトの開始リソースの URL になる（今と同じ）。
-7. D3 で B のとき: `helpers.php` に `element_description_html($text)` を足す。中身は `hsc()` のあと、`&lt;b&gt;`・`&lt;/b&gt;`・`&lt;strong&gt;`・`&lt;/strong&gt;`（大文字小文字を問わない）だけを元のタグに戻す。属性付きのタグは戻さない。docblock に「要素の説明を一覧に出すとき用。ほかのタグは文字として出る」と書く。
+7. D3 で B のとき: `helpers.php` に `element_description_html(?string $text): string` を足す。中身は `hsc((string) $text)` のあと、対になった属性なしの `<b>…</b>`・`<strong>…</strong>`（大文字小文字を問わない）だけを元のタグに戻す。入れ子も戻るよう、変化がなくなるまで最大 10 回繰り返す（それより深い入れ子の内側は文字のまま）。対の取れない開きタグ・閉じタグと、属性付きのタグは文字として出る。交差した入れ子（`<b><strong>x</b></strong>`）はそのまま戻すが、どのタグも対になっていて、ブラウザが組み直すので説明の外へ太字は漏れない。docblock に「要素の説明を管理画面に出すとき用」と書く。
 
 期待される観測結果: エイリアスやテンプレート変数の選択肢に `&`・`<`・`"`・`'` を含む値があっても、リソースの編集画面・情報画面・子リソース一覧が崩れず、プレビューや「表示」ボタンが正しい URL を開く。エイリアスの入力でサフィックスの表示が切り替わる。テンプレート変数の選択肢を選んで保存し、開き直すと選んだ状態が保たれる。
 
@@ -181,6 +185,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 2. `files.dynamic.php:587-596`: ダウンロードのリンクの `href` を `hsc(webstart_path() . implode(…))` にする。
 3. `files.dynamic.php:110`: キャンセルの `document.location.href='index.php?<?= $href ?>'` を `document.location.href=<?= hsc(js_literal('index.php?' . $href)) ?>` にそろえる（`$href` は `urlencode()` 済みで今も壊れないが、属性の中の JS の書き方を一つにする）。
 4. `logging.static.php:343` の `[+message+]` に入る `$row['message']` を、`:351` の `itemname` と並べて `hsc()` する（ログの文言の多くはコードが決めるが、呼び出し元から渡る文言もあるため）。
+5. `files.dynamic.php:402` の `MAX_FILE_SIZE` の `value` に入る `evo()->config('upload_maxsize', …)` を `(int)` にする（D7。M3 でリソースの編集画面の同じ値を `(int)` にしたのとそろえる）。
 
 期待される観測結果: ファイル管理で、`&` や `'` を含む名前のフォルダ・ファイル（アップロードや FTP で置いたもの）を表示・移動・ダウンロード・削除できる。管理ログの一覧が崩れない。
 
@@ -239,7 +244,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/895
 - ブランチ: `fix/895-manager-output-escape`（ワークツリー `.claude/worktrees/issue-895`）。PR はマイルストーンごとに 1 本（D12）
-- PR: M1 は #1009（マージ済み）。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
+- PR: M1 は #1009、M2 は #1015（どちらもマージ済み）。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
 - 関連: #885（設定画面の `form_text()`）、#891（設定画面とリソース編集画面の一部の欄）
 - 出力のエスケープの取り決め: `AGENTS.md` の「補助ルール」→「出力のエスケープ」
 - 既存のエスケープの例: `manager/includes/error.class.inc.php:53-63`（`js_literal(hsc())` の使い分けの説明）、`manager/actions/document/move_document.dynamic.php:95-104`（`textContent` で組み立てる例）、`manager/frames/nodes.php:190, 193`（`hsc(js_literal())` の例）
@@ -247,7 +252,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 ## Interfaces and Dependencies
 
-- `hsc()`・`js_literal()`（`manager/includes/helpers.php`）を使う。新しく足すのは、D3 で B を選んだときの `element_description_html(string $text): string`（`manager/includes/helpers.php`）だけ。
+- `hsc()`・`js_literal()`（`manager/includes/helpers.php`）を使う。新しく足すのは、D3 で B を選んだときの `element_description_html(?string $text): string`（`manager/includes/helpers.php`。M3 で追加済み。対になった属性なしの b・strong だけを戻す）だけ。
 - 削除する関数: `form_text_tag()`・`join_attr()`・`Form::text()`（`manager/actions/tool/mutate_settings/functions.inc.php`）。設定画面の中だけで使われていて、外部から呼ばれる前提のものではない。
 - 振る舞いが変わる公開の部分: `DocumentParser::renderFormElement()` が作るテンプレート変数の選択肢のラベルがエスケープされる（D4。ラベルに HTML を書いていたサイトでは、タグが文字として見える）。差し替えたログイン・ダッシュボード・ロックアウトのテンプレートに渡る `[+site_name+]`・`[+homeurl+]` が `hsc()` 済みの値になる（D5）。`html_tag()` の振る舞いは変えない（D1）。
 - PHP 7.4 以上。外部のライブラリは使わない。

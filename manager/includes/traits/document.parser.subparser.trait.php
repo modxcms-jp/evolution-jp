@@ -1652,7 +1652,7 @@ trait DocumentParserSubParserTrait
             $options[] = evo()->parseText(
                 '<option value="[+value+]" [+selected+]>[+label+]</option>',
                 [
-                    'label' => $label,
+                    'label' => evo()->hsc($label),
                     'value' => evo()->hsc($value),
                     'selected' => in_array($value, $field_values) ? 'selected="selected"' : ''
                 ]
@@ -1695,7 +1695,7 @@ trait DocumentParserSubParserTrait
                     'name' => 'tv' . $field_id . '[]',
                     'value' => evo()->hsc($value),
                     'tvtype' => $field_type,
-                    'label' => $label,
+                    'label' => evo()->hsc($label),
                     'checked' => $this->isSelected($label, $value, $item, $field_value) ?
                         ' checked' : ''
                 ]
@@ -1723,7 +1723,7 @@ trait DocumentParserSubParserTrait
                     'id'      => $field_id,
                     'checked' => $this->isSelected($label, $value, $item, $field_value)
                         ? 'checked="checked"' : '',
-                    'label' => $label
+                    'label' => evo()->hsc($label)
                 ]
             );
             $i++;

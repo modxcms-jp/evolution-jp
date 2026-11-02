@@ -1,7 +1,7 @@
 <script type="text/javascript">
 
-    var imanager_url = '[+imanager_url+]';
-    var fmanager_url = '[+fmanager_url+]';
+    var imanager_url = [+imanager_url+];
+    var fmanager_url = [+fmanager_url+];
     var prevWin;
     var docMode = '[+docMode+]';
 
@@ -255,8 +255,8 @@
     function change_url_suffix() {
         var a = document.getElementById("field_alias");
         var s = document.getElementById("url_suffix");
-        if (0 < a.value.indexOf('.')) s.innerHTML = '';
-        else s.innerHTML = '[+suffix+]';
+        if (0 < a.value.indexOf('.')) s.textContent = '';
+        else s.textContent = [+suffix+];
     }
 
 </script>
