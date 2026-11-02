@@ -37,7 +37,7 @@ M1 の実装と検証でわかったこと（2026-11-03）。
 - D5（2026-11-02、planner）プラグインとテンプレート変数の保存処理の `compact()` は、カテゴリの値を組み立て直すのに合わせて、同じキーの配列リテラルに書き直す。AGENTS.md が `compact()` を禁じていて、カテゴリの行を触るついでに直せるため（項目と値は変えない）。M1 の中で別のコミットにする。
 - D6（2026-11-02、planner）security-lint（`.github/scripts/security-lint.php`）の `SAFE_FUNCS` に `resolveElementCategory` を足す。理由: 保存処理は `postv()` の値をこのメソッドに渡し、戻り値を `db()->insert()` の配列に入れる。戻り値は整数なので安全だが、一覧に無いと「リクエストの値を DB へ渡している」と検出される。`newCategory`・`checkCategory` が同じ理由で一覧に入っている（既存の作法にそろえる）。この 2 つは公開のメソッドとして残るので、一覧からは外さない。
 - D7（2026-11-02、planner）差し戻した画面のカテゴリの選択肢は、`ManagerAPI` に `elementCategoryOptions($selectedId): string` を置いて 6 画面で使う。「カテゴリーなし」（0）・既存のカテゴリ・「>> カテゴリー作成」（-1）の `<option>` を返し、`$selectedId` と一致するものに `selected` を付ける（-1 のときは「>> カテゴリー作成」）。名前は出力の直前で `hsc()` を通す。理由: 今は 6 画面が同じ選択肢の組み立てを別々の書き方で持ち、「-1 を選ぶ」決まりを 6 か所に足すことになるため（SSOT・DRY）。表の行（`th`・`td`・幅の指定）は画面ごとに違うので、行ごとまとめることはしない（見た目を変えないため。KISS）。
-- D8（2026-11-02、planner）新しいカテゴリの欄の表示・非表示は、共通の JS `manager/media/script/element-category.js`（`EvoElementCategory`）にまとめる。選択が `-1` なら欄を出し、それ以外なら隠して名前を空にする。この判定を、画面を開いたとき（差し戻しで `-1` が選ばれていれば欄が出る）と `change` のときの両方で行う。PHP 側は欄に `style="display:none;"` を付けたまま出し、出すかどうかは JS だけが決める（決まりを 1 か所に置く）。欄の行は `input[name="newcategory"]` の `closest('tr')` で見つけ、綴りの誤った `id="newcategry"` には頼らない（ID は外のプラグインが使っている可能性があるので、変えずに残す）。トップレベルは `var` で定義し、状態は呼ぶたびに作り直す（シェルの画面遷移で同じ window に読み直されるため。`assets/docs/jquery-migration.md` の決まり）。プラグインの docblock からの自動入力も、この JS を通して「>> カテゴリー作成」を選び、欄を出す。
+- D8（2026-11-02、planner）新しいカテゴリの欄の表示・非表示は、共通の JS `manager/media/script/element-category.js`（`EvoElementCategory`）にまとめる。選択が `-1` なら欄を出し、それ以外なら隠して名前を空にする。この判定を、画面を開いたとき（差し戻しで `-1` が選ばれていれば欄が出る）と `change` のときの両方で行う。PHP 側は欄に `style="display:none;"` を付けたまま出し、出すかどうかは JS だけが決める（決まりを 1 か所に置く）。欄の行は `input[name="newcategory"]` の `closest('tr')` で見つけ、綴りの誤った `id="newcategry"` には頼らない（ID は外のプラグインが使っている可能性があるので、変えずに残す）。トップレベルは `var` で定義し、状態は呼ぶたびに作り直す（シェルの画面遷移で同じ window に読み直されるため。`assets/docs/jquery-migration.md` の決まり）。プラグインの docblock からの自動入力も、この JS を通して「>> カテゴリー作成」を選び、欄を出す。docblock に `@modx_category` が無いときは、カテゴリの選択にも欄にも触れない（2026-11-03 の自己レビューで追加。main はこの経路で欄の名前に触れておらず、触れると入力中の名前が消えるため）。フォームの中の欄は `form.elements` ではなく `form.querySelector('[name="…"]')` で探す（2026-11-03 の検証で追加。テンプレート変数の画面には `name="elements"` の欄があり、`form.elements` がその欄で上書きされるため）。
 - D9（2026-11-02、planner）6 画面とも、新しいカテゴリの欄の値を差し戻しの値（`newcategory`）で戻す（出力の直前で `hsc()`）。チャンクの選択の値は `entity('categoryid', entity('category'))` にする（差し戻しとエディタの切り替えの POST では送った `categoryid`、ふだんは DB の `category`）。今の `postv('categoryid')` を画面の中で読む書き方はやめる。
 - D10（2026-11-02、planner）PR は 1 つにし、M1 で下書きの PR を作って `Refs #1000`、M2 で `Closes #1000` にする。M1 だけでは差し戻した画面の見た目は直らないが、M1 だけの状態で後退するところは無い（今も差し戻した画面から保存し直すと、プラグインなどでは新しいカテゴリが失われる）。
 - 要相談の点は無い。DB のスキーマは変えない。互換に関わるのは D2（`"0"` を名前として扱う・前後の空白を落とす）と D4（数として読める名前の比べ方）だけで、どちらも今の動きが誤っている場合に限られる。
@@ -141,7 +141,7 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
 
 1. `ex_managerapi.php` の `getCategories()` のあとに `elementCategoryOptions($selectedId): string` を足す（D7）。`<option value="0">`（`lang('no_category')`）、`getCategories()` の各カテゴリ、`<option value="-1">&gt;&gt; ` + `lang('new_category')` の順に組み、`(int)$selectedId` と値が一致するものに ` selected="selected"` を付ける。id は `(int)`、名前と文言は `hsc()` を出力の直前で通す。
 2. `manager/media/script/element-category.js` を作る。先頭のコメントに用途と使い方を書き、`var EvoElementCategory = (function () { … })();` で次の 3 つを出す（D8）。
-   - `init(form)`: `form.elements['categoryid']` の `change` で `sync(form)` を呼ぶようにし、すぐに 1 回 `sync(form)` する。
+   - `init(form)`: `form.querySelector('[name="categoryid"]')` の `change` で `sync(form)` を呼ぶようにし、すぐに 1 回 `sync(form)` する（欄は `form.elements` ではなく名前で探す。D8）。
    - `sync(form)`: 選択が `-1` なら `newcategory` の欄の行（`closest('tr')`）を出し、それ以外なら隠して欄を空にする。
    - `useNew(form, name)`: 選択を `-1` にし、欄に `name` を入れて `sync(form)` する。
    要素が無いときは何もしない（素の JS では `null` への操作が例外になる）。
@@ -196,6 +196,7 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
 | 通常の編集画面で「>> カテゴリー作成」を選ぶ / ほかを選ぶ | 欄が出る / 隠れて空になる | 同じ |
 | 通常の編集画面を開いたとき（新規・既存のカテゴリ付き・カテゴリなし） | 選択が DB の値、欄は隠れている | 同じ |
 | プラグインのコード欄に `@modx_category` が既存の名前の docblock を貼る / 無い名前の docblock を貼る / 空にする | 既存は選ばれる / 無い名前は欄が隠れたまま値だけ入る / 選択が外れる | 既存は選ばれて欄が隠れる / 「>> カテゴリー作成」が選ばれ欄に名前が見える / 「カテゴリーなし」で欄が隠れて空 |
+| プラグインで「>> カテゴリー作成」と名前を入れた画面（通常・差し戻し）で、`@modx_category` の無い docblock があるコード欄から離れる | 名前が残り、保存するとその名前のカテゴリ | 同じ（選択と欄に触れない） |
 | シェルでチャンク → プラグイン → チャンクの編集画面へ移り、カテゴリの選択を切り替える | — | 切り替えが効き、`pageerror` とコンソールのエラーが 0 件 |
 | 選択肢の並びと文字 | — | main と同じ（「カテゴリーなし」、既存のカテゴリの名前順、「>> カテゴリー作成」）。名前の `<`・`&`・`"`・`'` がそのまま文字として見える（`\` は `getCategories()` の `stripslashes()` で欠ける。main と同じで範囲外） |
 
