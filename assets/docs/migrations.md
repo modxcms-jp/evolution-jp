@@ -24,6 +24,8 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 | CLI | `php evo migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
 | 最終形の定義 | `install/sql/create_tables.sql`、`install/sql/system_eventnames.sql` | 表の定義とイベント名。毎回そろえる |
 
+`system_eventnames.sql` に同梱のイベントを足すときは、1000 より小さい空き番号を使う。1001 以上は AUTO_INCREMENT で利用者の独自イベントに割り当てられる領域なので、同梱では使わない。
+
 アップデーター（`install/`）で上げるときの順序は次のとおり。
 
 1. ランナー（未適用のマイグレーションを流す。この時点では記録しない）
