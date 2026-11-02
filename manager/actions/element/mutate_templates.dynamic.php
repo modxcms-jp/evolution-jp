@@ -64,7 +64,7 @@ if (id()) {
                 <?php if (evo()->hasPermission('save_template')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                            onclick="document.querySelectorAll('#templatesPane select').forEach(function(el){el.disabled=false;});documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
+                            onclick="documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
@@ -338,8 +338,15 @@ if (id()) {
                     el.readOnly = checked;
                 });
                 paneSelects(function (el) {
-                    el.disabled = true;
-                    el.classList.toggle('readonly');
+                    el.disabled = checked;
+                    el.classList.toggle('readonly', checked);
+                });
+            });
+            // 無効な select は送信されないため、どの経路の送信でも送信の直前に有効へ戻す
+            const mutateForm = document.getElementById('mutate');
+            if (mutateForm) mutateForm.addEventListener('submit', function () {
+                paneSelects(function (el) {
+                    el.disabled = false;
                 });
             });
             // このテンプレートを使うリソースの一覧（HTML の断片）を取得する
