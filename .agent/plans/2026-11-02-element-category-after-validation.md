@@ -210,7 +210,7 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
 - Issue: #1000（関連: #976・PR #998 の差し戻しの整理、#1001 テンプレートのロックでカテゴリの選択が送られない件、#895 の M4・M4b で同じ編集画面が変わった）
 - ブランチ: `fix/1000-element-category-after-validation`（`gh issue develop` で #1000 に紐づけ済み）
 - ワークツリー: `/home/yamamoto/ghq/github.com/modxcms-jp/evolution-jp/.claude/worktrees/issue-1000`（作成時の HEAD `863d1754c`）
-- PR: 未作成（D10。M1 で下書きを作り `Refs #1000`、M2 で `Closes #1000`）
+- PR: #1028（下書き。D10。M1 で作成して `Refs #1000`、M2 で `Closes #1000` に改める）
 - 想定するコミット: M1 は 2 つ（`fix(manager): 要素の保存で新しいカテゴリを名前の確かめのあとに作る`、`refactor(manager): プラグインと TV の保存の項目を compact() から配列に書き直す`）。M2 は 1〜2 つ（Concrete Steps の M2 手順 4）。ExecPlan の記録はメインがコミットする（`docs(plans): …`）。
 
 ## Interfaces and Dependencies
