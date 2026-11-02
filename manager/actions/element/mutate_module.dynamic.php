@@ -244,8 +244,8 @@ function content($key, $default = null)
                 <!-- PHP text editor start -->
                 <div class="code-editor" style="position:relative">
                     <div class="code-editor-header">
-                        <span style="float:left;font-weight:bold;"><?= $_lang['module_code'] ?></span>
-                        <span style="float:right; color:#707070"><?= $_lang['wrap_lines'] ?><input name="wrap"
+                        <span class="code-editor-title"><?= $_lang['module_code'] ?></span>
+                        <span class="code-editor-options"><?= $_lang['wrap_lines'] ?><input name="wrap"
                                 type="checkbox" <?= content('wrap') == 1 ? ' checked="checked"' : '' ?> class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
