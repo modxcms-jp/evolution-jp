@@ -16,7 +16,7 @@ Issue: #895
 - [x] (2026-11-04) M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）。プラグイン・スニペット・モジュールは共通の JS `element-properties.js` にまとめ、テンプレート変数はその画面の中で DOM で組み立てた（D16）。検証で見つかったシェル遷移での再評価の後退と、自己レビューの指摘（選択欄の幅・背景の指定）も直した
 - [x] (2026-11-05) M5: ユーザー・ロール・権限。差し戻しで送信値がそのまま出る id やログイン回数なども `(int)` にした。自己レビューの指摘で、管理ユーザーの編集画面の写真選択の JS（`mutate_user/tpl/javascript.php`）とエディター名の選択肢も直した
 - [x] (2026-11-05) M6: ファイル管理・レポート・ログ
-- [ ] M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）
+- [x] (2026-11-05) M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）。PHP 7.4 の検証環境でも実際に動かした
 
 ## Surprises & Discoveries
 
@@ -82,6 +82,15 @@ Issue: #895
 - 2026-11-04 / メイン D16: M4b では、プラグイン・スニペット・モジュールの `showParameters()`・`setParameter()`・`implodeParameters()`・`encode`・`decode`・`currentParams` を、共通の JS `manager/media/script/element-properties.js`（グローバル `EvoElementProperties`。`configure`・`show`・`set`・`params`）にまとめた。3 画面はほぼ同じ実装で、違い（表の属性・見出し・1 列か 2 列か・style）は `configure` に渡す。基準はプラグインの実装（`list-multi` に対応し、入力欄に id を付けている）。テンプレート変数の画面は、保存先が `params`、値の形が `&key=value`、`encode` の対象が広い、`widgetParams`・`lastmod`・`resetParameters` があるなど作りが違うので共通にせず、その画面の中で DOM で組み立てた。組み立ては `createElement`・`textContent`・`value`・`addEventListener` だけで、エスケープ用の JS の関数は作っていない。消したグローバル関数・変数（`setParameter`・`implodeParameters`・`encode`・`decode`・`currentParams`）は、同梱のコードからは使われておらず、互換のための別名は残さない。選択欄の幅は、元のスニペット・モジュールに合わせて全種類 168px にそろえた。
 
 ## Outcomes & Retrospective
+
+2026-11-05（M7 の時点）:
+
+- 管理画面の保存された値を、出力の直前で文脈に合ったヘルパーに通す形に、M1〜M6 でそろえた。PR は M1 #1009、M2 #1015、M3 #1018、M4 #1022（#1003 もあわせて閉じた）、M4b #1024、M5 #1027、M6・M7 は最後の PR（`Closes #895`）。
+- 修正前と修正後の比較（各段階で Docker の PHP 8.4・MariaDB 11、Playwright）: 修正前は、設定値・ロール名・要素の名前や説明・プロパティ・ユーザーの設定・ファイル名などで生の値が出て、`<script>` が実行される画面（テンプレート変数の説明・要素の一覧・プロパティの設定表）や、何も変えずに保存すると値が切れる画面（設定・ロール・モジュールなど）があった。修正後はどの段階も検証項目がすべて PASS。
+- M7 の横断の確認: M1〜M6 で変えた PHP 47 件は `php:7.4-cli` で `php -l` が通り、JS 2 件は `node --check` が通った。security-lint は `0 violations`。PHP 7.4.33 の検証環境（`php:7.4-apache`）でインストール・`smoke.js`（6/6）・各段階の確認スクリプトを流し、PHP 8.4 のときと同じ判定だった。コンテナのログに PHP の警告・エラーは出なかった。
+- 計画から変わったこと: M4 の手順 2 は DataGrid に列の種類 `description` を足す形にした（D13）。DocManager・QuickManager の説明を M4 に入れた（D14）。プロパティの設定表を M4b に分け、共通の JS にまとめた（D15・D16）。各段階の自己レビューで、数として使う設定値（`site_start`・`mail_check_timeperiod`・`upload_maxsize` など）の `(int)` や、差し戻しで送信値が出る id の `(int)` を足した。
+- 学び: 出力のエスケープの漏れは、「画面を開いて何も変えずに保存し直すと値が変わる」形で表に出ることが多く、検証の項目として効いた。管理画面のシェルは画面の JS を同じ window で読み直すので、共通の JS は `var` か `window` への代入で定義し、状態を作り直す（`assets/docs/jquery-migration.md`）。
+- 残したもの（別の Issue の候補。Surprises に詳細）: インポートでファイル名に `'` があると SQL の構文エラーになる件、`manager_theme` の出力、ユーザーの保存後の画面のユーザー名・パスワード・`stay` の URL、ファイル管理の `filemanager_path` の末尾の `/` と `webstart_path()` の URL エンコード、イベント名に `'` があるとキャッシュが壊れる件、テンプレート変数の入力タイプの選択肢の `$row` の使い回し、`selected()` の空白、設定画面の言語文字列の `addslashes()`。
 
 ## Context and Orientation
 
