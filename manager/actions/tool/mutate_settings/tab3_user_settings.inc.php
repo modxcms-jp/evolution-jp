@@ -160,7 +160,7 @@
                 <?= form_text('captcha_words', 255, 'id="captcha_words_input" style="width:400px"') ?><br/>
                 <input
                     type="hidden" name="captcha_words_default" id="captcha_words_default_hidden"
-                    value="<?= addslashes($_lang["captcha_words_default"]) ?>"/><br/>
+                    value="<?= hsc($_lang["captcha_words_default"]) ?>"/><br/>
                 <?= $_lang["captcha_words_message"] ?></td>
         </tr>
         <tr>
@@ -272,7 +272,7 @@
                 <?= form_text('emailsubject', null, 'id="emailsubject_field"') ?><br/>
                 <input
                     type="hidden" name="emailsubject_default" id="emailsubject_default_hidden"
-                    value="<?= addslashes($_lang['emailsubject_default']) ?>"/><br/>
+                    value="<?= hsc($_lang['emailsubject_default']) ?>"/><br/>
                 <?= $_lang["emailsubject_message"] ?></td>
         </tr>
         <tr>
@@ -291,7 +291,7 @@
                 ><?= hsc($signupemail_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_signup_default" id="system_email_signup_hidden"
-                    value="<?= addslashes($_lang['system_email_signup']) ?>"
+                    value="<?= hsc($_lang['system_email_signup']) ?>"
                 /><br/>
                 <?= $_lang["signupemail_message"] ?></td>
         </tr>
@@ -312,7 +312,7 @@
                 ><?= hsc($websignupemail_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_websignup_default" id="system_email_websignup_hidden"
-                    value="<?= addslashes($_lang['system_email_websignup']) ?>"/><br/>
+                    value="<?= hsc($_lang['system_email_websignup']) ?>"/><br/>
                 <?= $_lang["websignupemail_message"] ?></td>
         </tr>
         <tr>
@@ -330,7 +330,7 @@
                     style="width:100%; height: 120px;"><?= hsc($webpwdreminder_message) ?></textarea>
                 <input
                     type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden"
-                    value="<?= addslashes($_lang['system_email_webreminder']) ?>"/><br/>
+                    value="<?= hsc($_lang['system_email_webreminder']) ?>"/><br/>
                 <?= $_lang["webpwdreminder_message"] ?></td>
         </tr>
         <tr>
