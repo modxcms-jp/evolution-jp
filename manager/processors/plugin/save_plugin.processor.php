@@ -58,7 +58,16 @@ switch (postv('mode')) {
         $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the new plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = [
+            'name' => $name,
+            'description' => $description,
+            'plugincode' => $plugincode,
+            'disabled' => $disabled,
+            'moduleguid' => $moduleguid,
+            'locked' => $locked,
+            'properties' => $properties,
+            'category' => $category
+        ];
         $f['error_reporting'] = $pluginErrorReporting;
         $newid = db()->insert($f, '[+prefix+]site_plugins');
         if (!$newid) {
@@ -112,7 +121,16 @@ switch (postv('mode')) {
         $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the edited plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = [
+            'name' => $name,
+            'description' => $description,
+            'plugincode' => $plugincode,
+            'disabled' => $disabled,
+            'moduleguid' => $moduleguid,
+            'locked' => $locked,
+            'properties' => $properties,
+            'category' => $category
+        ];
         $f['error_reporting'] = $pluginErrorReporting;
         $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {

@@ -55,10 +55,19 @@ switch (postv('mode')) {
         $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         // Add new TV
-        $field = compact(explode(
-            ',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
-        ));
+        $field = [
+            'name' => $name,
+            'description' => $description,
+            'caption' => $caption,
+            'type' => $type,
+            'elements' => $elements,
+            'default_text' => $default_text,
+            'display' => $display,
+            'display_params' => $display_params,
+            'rank' => $rank,
+            'locked' => $locked,
+            'category' => $category
+        ];
         $newid = db()->insert($field, '[+prefix+]site_tmplvars');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -121,10 +130,19 @@ switch (postv('mode')) {
 
         // update TV
         $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
-        $field = compact(explode(
-            ',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
-        ));
+        $field = [
+            'name' => $name,
+            'description' => $description,
+            'caption' => $caption,
+            'type' => $type,
+            'elements' => $elements,
+            'default_text' => $default_text,
+            'display' => $display,
+            'display_params' => $display_params,
+            'rank' => $rank,
+            'locked' => $locked,
+            'category' => $category
+        ];
         $rs = db()->update($field, '[+prefix+]site_tmplvars', "id='{$id}'");
 
         if (!$rs) {
