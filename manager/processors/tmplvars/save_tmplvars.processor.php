@@ -126,6 +126,7 @@ switch (postv('mode')) {
                 $id
             );
         }
+
         $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         // update TV

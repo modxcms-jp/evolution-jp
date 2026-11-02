@@ -446,14 +446,14 @@ class ManagerAPI
      * 要素の保存で使うカテゴリの id を返す。新しいカテゴリ名が空でなければ、同じ名前を探し、無ければ作る。
      * 名前の確かめ（空・重複・予約名）をすべて通ったあと、insert・update の直前に呼ぶ（差し戻しでカテゴリを残さないため）。
      *
-     * @param mixed $categoryId 送信された categoryid
+     * @param mixed $categoryId 送信された categoryid（to_intvar() で読む。0 以下や整数の形でない値は 0）
      * @param mixed $newCategory 送信された newcategory（生の値。エスケープしない）
      */
     public function resolveElementCategory($categoryId, $newCategory): int
     {
         $name = $this->normalizeElementName($newCategory);
         if ($name === '') {
-            return max(0, (int)$categoryId);
+            return to_intvar($categoryId);
         }
         $id = $this->checkCategory($name);
         if ($id) {

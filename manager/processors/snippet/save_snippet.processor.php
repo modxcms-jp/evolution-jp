@@ -54,8 +54,6 @@ if ($count > 0) {
     );
 }
 
-$categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
-
 switch (postv('mode')) {
     case '23':
         // invoke OnBeforeSnipFormSave event
@@ -64,6 +62,8 @@ switch (postv('mode')) {
             'id' => ''
         ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
+
+        $categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the new doc
         $field = [];
@@ -106,6 +106,8 @@ switch (postv('mode')) {
             'id' => $id
         ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
+
+        $categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the edited doc
         $field = [];

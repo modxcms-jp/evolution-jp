@@ -118,6 +118,7 @@ switch (postv('mode')) {
                 );
             }
         }
+
         $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the edited plugin
