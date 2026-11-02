@@ -2,9 +2,6 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_check_timeperiod'])) {
-    $modx->config['mail_check_timeperiod'] = 0;
-}
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 $isShellPartial = defined('EVO_SHELL_PARTIAL');
 if (!$isShellPartial) {
@@ -46,7 +43,7 @@ if (!$isShellPartial) {
             }
 
             Evo.ready(function () {
-                initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
+                initMenuState(msgcheck, <?= (int) config('mail_check_timeperiod');?>);
             });
 
             // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す。
@@ -276,7 +273,7 @@ if (!$isShellPartial) {
             if (window.mainMenu && typeof window.mainMenu.initMenuState === 'function') {
                 window.mainMenu.initMenuState(
                     <?= evo()->hasPermission('messages') ? 1 : 0;?>,
-                    <?= config('mail_check_timeperiod');?>
+                    <?= (int) config('mail_check_timeperiod');?>
                 );
             }
         </script>

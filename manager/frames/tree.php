@@ -526,7 +526,7 @@ if (is_array($evtOut)) {
                     }
                     break;
                 case '62' : // unpublish
-                    if (itemToChange != <?= config('site_start') ?>) {
+                    if (itemToChange != <?= (int) config('site_start') ?>) {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_unpublish'] ?>") == true) {
                             setActiveFromContextMenu(itemToChange);
                             EvoCsrf.post("index.php?a=62&id=" + itemToChange);
