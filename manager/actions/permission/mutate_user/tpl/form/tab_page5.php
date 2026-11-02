@@ -92,7 +92,7 @@
                 echo "<option value='none'" . selected($edt == 'none') . ">" . lang('none') . "</option>\n";
                 if (is_array($evtOut)) {
                     foreach ($evtOut as $editor) {
-                        echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
+                        echo sprintf('<option value="%s"%s>%s</option>', hsc($editor), selected($edt == $editor), hsc($editor));
                     }
                 }
                 ?>

@@ -65,12 +65,12 @@
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
+        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = "<?= $base_url ?>" + url;
+        document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
     }
 
     tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?> );

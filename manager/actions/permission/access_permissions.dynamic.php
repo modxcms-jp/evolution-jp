@@ -188,7 +188,7 @@ if (db()->count($rs) < 1) {
                     if ($pid == $row['id']) {
                         echo ", \n";
                     }
-                    echo '<a href="index.php?a=3&amp;id=' . (int) $row['doc_id'] . '" title="' . hsc($row['doc_title']) . '">' . $row['doc_id'] . '</a>';
+                    echo '<a href="index.php?a=3&amp;id=' . (int) $row['doc_id'] . '" title="' . hsc($row['doc_title']) . '">' . (int) $row['doc_id'] . '</a>';
                     $pid = $row['id'];
                 }
                 echo '</table>';
