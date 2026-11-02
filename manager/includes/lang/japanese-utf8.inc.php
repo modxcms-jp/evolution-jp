@@ -1332,7 +1332,6 @@ return [
     "fb_empty_folder" => 'このフォルダは空です',
     "fb_load_failed" => '読み込みに失敗しました: %s',
     "fb_no_subfolders" => 'サブフォルダはありません',
-    "fb_upload_failed" => 'アップロードに失敗しました',
     "fb_network_error" => '通信エラー',
     "fb_move_partial_failed" => '一部のファイルを移動できませんでした:',
     "fb_move_failed" => '移動に失敗しました: %s',

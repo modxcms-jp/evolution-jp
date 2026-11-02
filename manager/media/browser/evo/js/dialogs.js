@@ -3,7 +3,7 @@
 
 import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, renderBreadcrumb, withVersion } from './utils.js';
 import { t } from './i18n.js';
-import { apiUrl, fetchJson } from './api.js';
+import { apiUrl, fetchJson, loadFailureMessage } from './api.js';
 
 /**
  * 移動先フォルダ選択ダイアログ。既存のlist APIを再利用したミニブラウザ(フォルダのみ)。
@@ -53,6 +53,9 @@ export function createMoveDialog(ctx) {
                         load();
                     });
                 });
+            })
+            .catch(function (err) {
+                ctx.gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
             });
     }
 

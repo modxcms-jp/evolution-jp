@@ -57,6 +57,30 @@ function fbError($code, $message, $status = 400)
 }
 
 /**
+ * $fn を呼ぶ間だけ警告を横取りし、外へ出さない(evo の phpError に拾われて HTML の 500 になるのを防ぐ)。
+ * 警告の文は $reason に入る。set_error_handler の中では error_get_last() が更新されないため、自前で受け取る。
+ */
+function fbAttempt(callable $fn, &$reason = null)
+{
+    $reason = '';
+    // 警告だけを受ける。E_DEPRECATED・E_NOTICE などは元のハンドラへ渡し、本当の原因を隠さない
+    // (set_error_handler の種類の指定では、外れた種類は元のハンドラでなく PHP 標準の処理に行ってしまう)
+    $previous = null;
+    $previous = set_error_handler(function ($no, $message, $file = '', $line = 0) use (&$reason, &$previous) {
+        if (!($no & (E_WARNING | E_USER_WARNING))) {
+            return $previous ? $previous($no, $message, $file, $line) : false;
+        }
+        $reason = $reason === '' ? $message : $reason;
+        return true;
+    });
+    try {
+        return $fn();
+    } finally {
+        restore_error_handler();
+    }
+}
+
+/**
  * 名前が見つからないときの文言。一覧で置き換え文字（U+FFFD）になった名前は実体と一致せず操作できないため、その旨を返す
  */
 function fbNotFoundMessage($name, $message)
@@ -87,6 +111,11 @@ if (!$config->isValidType($type)) {
 
 $resolver = new PathResolver($config->baseDir());
 $action = anyv('action', '');
+
+// 合計が post_max_size を超えると PHP が $_POST と $_FILES を空にするため、action が読めず invalid_action になってしまう
+if (is_post() && !postv() && !$_FILES && (int) serverv('CONTENT_LENGTH', 0) > 0) {
+    fbError('too_large', lang('fb_err_too_large'), 413);
+}
 
 switch ($action) {
     case 'list':
@@ -342,7 +371,15 @@ function fbActionUpload(PathResolver $resolver, BrowserConfig $config, DocumentP
         $targetName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う
-        if (!$modx->move_uploaded_file($tmpPath, $targetPath)) {
+        $saved = fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
+            return $modx->move_uploaded_file($tmpPath, $targetPath);
+        }, $reason);
+        if (!$saved) {
+            evo()->logEvent(0, 3, 'Failed to save an uploaded file in the file browser', 'File browser', [
+                'name' => $originalName,
+                'to' => $targetPath,
+                'reason' => $reason,
+            ]);
             $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
             continue;
         }
@@ -391,8 +428,8 @@ function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
  * fbFindFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
  * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
  *
- * @return array{path:string,handle:resource|false}|null 空きが見つからなければ null。
- *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補)
+ * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
+ *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
  */
 function fbCreateFreeFile(DocumentParser $modx, $dirReal, $safeName)
 {
@@ -401,9 +438,12 @@ function fbCreateFreeFile(DocumentParser $modx, $dirReal, $safeName)
         if ($targetPath === null) {
             return null;
         }
-        $handle = @fopen($targetPath, 'xb');
+        $handle = fbAttempt(function () use ($targetPath) {
+            return fopen($targetPath, 'xb');
+        }, $reason);
         if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
-            return ['path' => $targetPath, 'handle' => $handle];
+            // 'reason' は handle が false(権限など)のときの失敗の理由。名前が既にあった場合はループで次を探す
+            return ['path' => $targetPath, 'handle' => $handle, 'reason' => $reason];
         }
     }
     return null;
@@ -428,7 +468,14 @@ function fbActionMkdir(PathResolver $resolver, DocumentParser $modx, $type)
     }
 
     $folderPermissions = $modx->newFolderPermissions();
-    if (!mkdir($target, $folderPermissions)) {
+    $created = fbAttempt(function () use ($target, $folderPermissions) {
+        return mkdir($target, $folderPermissions);
+    }, $reason);
+    if (!$created) {
+        evo()->logEvent(0, 3, 'Failed to create a folder in the file browser', 'File browser', [
+            'to' => $target,
+            'reason' => $reason,
+        ]);
         fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
     }
     @chmod($target, $folderPermissions);
@@ -465,7 +512,15 @@ function fbActionRename(PathResolver $resolver, BrowserConfig $config, DocumentP
         fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
-    if (!rename($sourcePath, $destPath)) {
+    $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+        return rename($sourcePath, $destPath);
+    }, $reason);
+    if (!$renamed) {
+        evo()->logEvent(0, 3, 'Failed to rename an entry in the file browser', 'File browser', [
+            'from' => $sourcePath,
+            'to' => $destPath,
+            'reason' => $reason,
+        ]);
         fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
 
@@ -494,10 +549,13 @@ function fbActionDelete(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => fbNotFoundMessage($name, lang('fb_err_entry_file_not_found'))];
             continue;
         }
-        if (@unlink($path)) {
+        $unlinked = fbAttempt(function () use ($path) {
+            return unlink($path);
+        }, $reason);
+        if ($unlinked) {
             $deleted[] = $name;
         } else {
-            $failures[] = $path;
+            $failures[$path] = $reason;
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
         }
     }
@@ -519,7 +577,8 @@ function fbActionDelete(PathResolver $resolver, $type)
     if ($failures) {
         evo()->logEvent(0, 3, 'Failed to delete entries in the file browser', 'File browser', [
             'count' => count($failures),
-            'paths' => array_slice($failures, 0, 20),
+            'paths' => array_slice(array_keys($failures), 0, 20),
+            'reason' => (array_values(array_filter($failures)) ?: [''])[0],
         ]);
     }
 
@@ -547,6 +606,7 @@ function fbActionMove(PathResolver $resolver, $type)
     $files = (array) postv('files', []);
     $moved = [];
     $errors = [];
+    $failures = [];
 
     foreach ($files as $name) {
         $name = PathResolver::sanitizeSegment($name);
@@ -561,11 +621,22 @@ function fbActionMove(PathResolver $resolver, $type)
             $errors[] = ['name' => $name, 'message' => lang('fb_err_dest_exists')];
             continue;
         }
-        if (rename($sourcePath, $destPath)) {
+        $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+            return rename($sourcePath, $destPath);
+        }, $reason);
+        if ($renamed) {
             $moved[] = $name;
         } else {
+            $failures[] = ['from' => $sourcePath, 'to' => $destPath, 'reason' => $reason];
             $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
         }
+    }
+
+    if ($failures) {
+        evo()->logEvent(0, 3, 'Failed to move entries in the file browser', 'File browser', [
+            'count' => count($failures),
+            'entries' => array_slice($failures, 0, 20),
+        ]);
     }
 
     fbSendJson(['moved' => $moved, 'errors' => $errors]);
@@ -614,9 +685,15 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
         $targetPath = $free['path'];
         $out = $free['handle'];
 
-        $in = $out === false ? false : @fopen($sourcePath, 'rb');
-        $expectedSize = @filesize($sourcePath);
-        $copiedSize = $in !== false ? @stream_copy_to_stream($in, $out) : false;
+        list($in, $expectedSize, $copiedSize) = fbAttempt(function () use ($out, $sourcePath) {
+            $in = $out === false ? false : fopen($sourcePath, 'rb');
+            $expectedSize = filesize($sourcePath);
+            $copiedSize = $in !== false ? stream_copy_to_stream($in, $out) : false;
+            return [$in, $expectedSize, $copiedSize];
+        }, $reason);
+        if ($out === false) {
+            $reason = $free['reason'];
+        }
         // 書き込みの途中で失敗した（容量不足など）ときも、元のサイズと一致しなければ失敗として扱う
         $ok = $copiedSize !== false && $expectedSize !== false && $copiedSize === $expectedSize;
         if ($in !== false) {
@@ -632,6 +709,7 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
             evo()->logEvent(0, 3, 'Failed to copy a file in the file browser', 'File browser', [
                 'from' => $sourcePath,
                 'to' => $targetPath,
+                'reason' => $reason,
             ]);
             $errors[] = ['name' => $name, 'message' => lang('fb_err_copy_failed')];
             continue;
@@ -739,13 +817,18 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
         $savedName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 確保した(空の)ファイルへ保存する。第 3 引数 false で image_limit_width による縮小をしない
-        if ($free['handle'] === false || !@$modx->move_uploaded_file($tmpPath, $targetPath, false)) {
+        $reason = $free['reason'];
+        $saved = $free['handle'] !== false && fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
+            return $modx->move_uploaded_file($tmpPath, $targetPath, false);
+        }, $reason);
+        if (!$saved) {
             if ($free['handle'] !== false) {
                 @unlink($targetPath);
             }
             evo()->logEvent(0, 3, 'Failed to save an edited image in the file browser', 'File browser', [
                 'mode' => $mode,
                 'to' => $targetPath,
+                'reason' => $reason,
             ]);
             fbError('save_failed', lang('fb_err_save_failed'), 500);
         }
@@ -767,7 +850,9 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
 
     // 同じフォルダの一時ファイルに受けてから置き換える
     $realDir = substr($realPath, 0, strrpos($realPath, '/') + 1);
-    $stagePath = @tempnam($realDir, '.evo-save-');
+    $stagePath = fbAttempt(function () use ($realDir) {
+        return tempnam($realDir, '.evo-save-');
+    }, $stageReason);
     // Windows の tempnam() は区切りに \ を返すので、$realDir(/ 区切り)と比べる前にそろえる
     if ($stagePath !== false) {
         $stagePath = str_replace('\\', '/', $stagePath);
@@ -777,16 +862,20 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
     $oldPerms = @fileperms($realPath);
     $newPerms = $oldPerms !== false ? ($oldPerms & 0777) : $modx->newFilePermissions();
     $saved = false;
+    $reason = '';
     if ($stagePath !== false && strpos($stagePath, $realDir) !== 0) {
         // 書き込めないフォルダだと、tempnam() は別の場所(システムの一時フォルダ)に作る。そこからの置き換えはしない
+        $reason = 'Could not create a temporary file in the target folder';
         @unlink($stagePath);
         $stagePath = false;
     }
     if ($stagePath !== false) {
         // 一時ファイル(tempnam が作った空のファイル)を、アップロードされた中身で置き換える
-        $saved = @move_uploaded_file($tmpPath, $stagePath)
-            && @chmod($stagePath, $newPerms)
-            && @rename($stagePath, $realPath);
+        $saved = fbAttempt(function () use ($tmpPath, $stagePath, $newPerms, $realPath) {
+            return move_uploaded_file($tmpPath, $stagePath)
+                && chmod($stagePath, $newPerms)
+                && rename($stagePath, $realPath);
+        }, $reason);
         if (!$saved) {
             @unlink($stagePath);
         }
@@ -795,6 +884,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
         evo()->logEvent(0, 3, 'Failed to save an edited image in the file browser', 'File browser', [
             'mode' => $mode,
             'to' => $realPath,
+            'reason' => $reason ?: $stageReason,
         ]);
         fbError('save_failed', lang('fb_err_save_failed'), 500);
     }
@@ -921,15 +1011,17 @@ function fbActionDownload(PathResolver $resolver, BrowserConfig $config, $type)
     exit;
 }
 
-// 最後まで消して、消せないものがあれば false を返し、失敗したパスを $failures に集める。
+// 最後まで消して、消せないものがあれば false を返し、失敗したパスを $failures に(パス => 理由 で)集める。
 // シンボリックリンクはリンクだけを消し、先へは入らない。$root は中へ入ってよい範囲(実パス・末尾スラッシュ付き)
 function fbDeleteTree($path, array &$failures, $root = null)
 {
     if (is_link($path)) {
-        if (@unlink($path)) {
+        if (fbAttempt(function () use ($path) {
+            return unlink($path);
+        }, $reason)) {
             return true;
         }
-        $failures[] = $path;
+        $failures[$path] = $reason;
         return false;
     }
 
@@ -940,13 +1032,15 @@ function fbDeleteTree($path, array &$failures, $root = null)
     $real = realpath($path);
     $real = $real === false ? '' : rtrim(str_replace('\\', '/', $real), '/') . '/';
     if ($root === '' || strpos($real, $root) !== 0) {
-        $failures[] = $path;
+        $failures[$path] = '';
         return false;
     }
 
-    $entries = @scandir($path);
+    $entries = fbAttempt(function () use ($path) {
+        return scandir($path);
+    }, $reason);
     if ($entries === false) {
-        $failures[] = $path;
+        $failures[$path] = $reason;
         return false;
     }
 
@@ -957,8 +1051,10 @@ function fbDeleteTree($path, array &$failures, $root = null)
         }
         $full = $path . '/' . $entry;
         if (is_link($full) || !is_dir($full)) {
-            if (!@unlink($full)) {
-                $failures[] = $full;
+            if (!fbAttempt(function () use ($full) {
+                return unlink($full);
+            }, $reason)) {
+                $failures[$full] = $reason;
                 $ok = false;
             }
         } elseif (!fbDeleteTree($full, $failures, $root)) {
@@ -966,8 +1062,10 @@ function fbDeleteTree($path, array &$failures, $root = null)
         }
     }
 
-    if ($ok && !@rmdir($path)) {
-        $failures[] = $path;
+    if ($ok && !fbAttempt(function () use ($path) {
+        return rmdir($path);
+    }, $reason)) {
+        $failures[$path] = $reason;
         $ok = false;
     }
 

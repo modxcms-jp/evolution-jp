@@ -5,6 +5,7 @@
 import { escapeHtml } from './utils.js';
 import { t } from './i18n.js';
 import { isOsFileDrag } from './dnd.js';
+import { responseError } from './api.js';
 
 /**
  * @param {object} ctx
@@ -88,8 +89,10 @@ export function createUpload(ctx) {
                     rows[i].done(!failed, failed);
                 });
             } else {
+                // API の理由があればそれを、JSON でない応答は通信エラーとして出す
+                var reason = responseError(result).message;
                 rows.forEach(function (row) {
-                    row.done(false, t('fb_upload_failed'));
+                    row.done(false, reason);
                 });
             }
             ctx.onDone();

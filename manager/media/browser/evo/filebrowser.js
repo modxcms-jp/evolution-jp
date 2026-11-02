@@ -5,7 +5,7 @@
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
-import { apiUrl, fetchJson, postForm } from './js/api.js';
+import { apiUrl, failureMessage, fetchJson, postForm } from './js/api.js';
 import { bindMoveDropTarget } from './js/dnd.js';
 import { createTree } from './js/tree.js';
 import { createGrid } from './js/grid.js';
@@ -112,7 +112,7 @@ function init() {
                 load();
             })
             .catch(function (err) {
-                window.alert(t('fb_move_failed', err.message));
+                window.alert(failureMessage(err, 'fb_move_failed'));
             });
     }
 
@@ -123,7 +123,7 @@ function init() {
         postForm(config, state, 'rename', { target: name, newName: newName })
             .then(function () { load(); })
             .catch(function (err) {
-                window.alert(t('fb_rename_failed', err.message));
+                window.alert(failureMessage(err, 'fb_rename_failed'));
             });
     }
 
@@ -142,7 +142,7 @@ function init() {
                 load();
             })
             .catch(function (err) {
-                window.alert(t('fb_delete_failed', err.message));
+                window.alert(failureMessage(err, 'fb_delete_failed'));
             });
     }
 
@@ -206,7 +206,7 @@ function init() {
                 load();
             })
             .catch(function (err) {
-                window.alert(t('fb_copy_failed', err.message));
+                window.alert(failureMessage(err, 'fb_copy_failed'));
             });
     }
 
@@ -368,7 +368,7 @@ function init() {
                     navigateTo('', initialSelect);
                     return;
                 }
-                grid.renderError(err.message);
+                grid.renderError(err);
             });
     }
 
@@ -407,7 +407,7 @@ function init() {
         postForm(config, state, 'mkdir', { name: name })
             .then(function () { load(); })
             .catch(function (err) {
-                window.alert(t('fb_mkdir_failed', err.message));
+                window.alert(failureMessage(err, 'fb_mkdir_failed'));
             });
     }
 
@@ -437,7 +437,7 @@ function init() {
                 load();
             })
             .catch(function (err) {
-                window.alert(t('fb_delete_failed', err.message));
+                window.alert(failureMessage(err, 'fb_delete_failed'));
             });
     }
 

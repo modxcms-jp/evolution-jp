@@ -1,5 +1,7 @@
 // api.php とのJSON通信。configとstateは呼び出し側から明示的に渡す(暗黙の状態共有をしない)。
 
+import { t } from './i18n.js';
+
 export function apiUrl(config, params) {
     var query = Object.keys(params).map(function (key) {
         return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
@@ -7,13 +9,52 @@ export function apiUrl(config, params) {
     return config.apiUrl + '?' + query;
 }
 
-export function fetchJson(url, options) {
+// API が返した理由(JSON の error.message)を運ぶエラー。通信エラーや JSON でない応答とは区別する
+export function apiError(message) {
+    var err = new Error(message);
+    err.fromApi = true;
+    return err;
+}
+
+// 応答の本文(パース済みの JSON。JSON でなければ null)から Error を作る。
+// API の error.message があれば apiError、無ければ(JSON でない応答など)通信エラー
+export function responseError(data) {
+    var message = data && data.error && data.error.message;
+    return message ? apiError(message) : new Error(t('fb_network_error'));
+}
+
+// 書き込み系の操作の失敗の文言を決める場所。API の文言はそのまま、それ以外(通信エラー等)は前置き(prefixKey)を付ける
+export function failureMessage(err, prefixKey) {
+    if (err && err.fromApi) {
+        return err.message;
+    }
+    return t(prefixKey, (err && err.message) || t('fb_network_error'));
+}
+
+// 読み込み系の失敗の文言。API の文言にも前置き(fb_load_failed)を付ける
+export function loadFailureMessage(err) {
+    return t('fb_load_failed', (err && err.message) || t('fb_network_error'));
+}
+
+// fetch の失敗(reject)を fb_network_error の Error にそろえる、生の fetch の唯一の入口
+export function apiFetch(url, options) {
     return fetch(url, Object.assign({ credentials: 'same-origin' }, options))
+        .catch(function () {
+            throw new Error(t('fb_network_error'));
+        });
+}
+
+// API の JSON でない応答や通信の失敗は、すべて既存の fb_network_error の文言の Error にそろえる
+export function fetchJson(url, options) {
+    return apiFetch(url, options)
         .then(function (res) {
-            return res.json().then(function (data) {
-                if (!res.ok) {
-                    var message = (data && data.error && data.error.message) || ('HTTP ' + res.status);
-                    throw new Error(message);
+            var contentType = res.headers.get('Content-Type') || '';
+            var parsing = contentType.indexOf('application/json') === 0 ? res.json() : Promise.resolve(null);
+            return parsing.catch(function () {
+                return null;
+            }).then(function (data) {
+                if (!res.ok || data === null) {
+                    throw responseError(data);
                 }
                 return data;
             });

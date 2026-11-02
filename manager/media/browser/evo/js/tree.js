@@ -4,6 +4,7 @@
 
 import { escapeHtml, joinPath, folderIcon, fileIcon, ICON_TREE_ARROW } from './utils.js';
 import { t } from './i18n.js';
+import { loadFailureMessage } from './api.js';
 import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
 
 /**
@@ -126,8 +127,8 @@ export function createTree(ctx) {
             .then(function (data) {
                 renderTreeChildren(node, data.folders, data.files);
             })
-            .catch(function () {
-                children.innerHTML = '';
+            .catch(function (err) {
+                children.innerHTML = '<div class="evo-fb-tree-loading evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
             });
     }
 

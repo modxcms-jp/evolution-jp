@@ -4,7 +4,7 @@
 // 保存は API の saveImage へ FormData で送る。EXIF は canvas で書き出すと消える(画面にその旨を表示している)。
 
 import { t } from './i18n.js';
-import { fetchJson } from './api.js';
+import { failureMessage, fetchJson } from './api.js';
 import { openOverlay } from './overlay.js';
 import { withVersion } from './utils.js';
 
@@ -443,8 +443,7 @@ export function createImageEditor(ctx) {
             })
             .catch(function (err) {
                 setBusy(false);
-                var message = err && err.message === 'Failed to fetch' ? t('fb_network_error') : (err && err.message) || '';
-                showError(t('fb_edit_save_failed', message));
+                showError(failureMessage(err, 'fb_edit_save_failed'));
                 saveBtn.focus({ preventScroll: true });
             });
     }
