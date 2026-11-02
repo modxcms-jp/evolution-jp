@@ -13,8 +13,7 @@
  * - 見出しの中身は <span> で包む（テーマの CSS と mm_renameTab が前提にしている）
  */
 
-// クラスは var への代入で定義する。管理画面のシェルが document.write で画面全体を
-// 差し替えると同じ window でこのファイルが再評価され、class 宣言だと二重宣言エラーになるため
+// クラスは var への代入で定義する。シェルの画面遷移で再評価されるため（assets/docs/jquery-migration.md を参照）
 var WebFXTabPane = class WebFXTabPane {
     constructor(el, bUseCookie) {
         if (el == null) return;

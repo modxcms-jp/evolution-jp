@@ -13,6 +13,7 @@
 | `Evo.post(url, data)` | `$j.post(url, data, …)` | `data` はオブジェクト・`FormData`・`URLSearchParams`・文字列（`a=1&b=2` の形）。配列の値は `key[]` で送る（入れ子のオブジェクトは扱わない） |
 
 - `DOMContentLoaded` へ単純に書き換えない。シェルの画面遷移で差し込まれたスクリプトでは、すでに発火していて実行されない。
+- シェルの画面遷移では、画面の `<script>`（`src` のものも含む）が同じ window で読み直される。トップレベルは `const`・`let`・`class` で宣言せず、`var` か `window` への代入で定義する（二重宣言のエラーになる）。状態は読み直すたびに作り直し、前の画面の設定が残らないようにする（例: `manager/media/script/tabpane.js`、`manager/media/script/element-properties.js`）。
 - `fetch` は 404・500 などでも reject しない。`$j.post` の失敗時の処理にあたるものは `response.ok` を見て書く。
 - `X-CSRF-Token` は `csrf.js` が XHR と `fetch` の全体にも付けている。`Evo.fetch` は読み込み順に頼らずに付ける。
 
