@@ -487,6 +487,35 @@ class ManagerAPI
         return $resourceArray;
     }
 
+    /**
+     * 要素の編集画面のカテゴリの選択（select）の option 一式を返す。
+     * 「カテゴリーなし」(0)・既存のカテゴリ・「>> カテゴリー作成」(-1) の順。
+     * $selectedId と値が一致する option に selected を付ける（-1 は差し戻した画面で新しいカテゴリを戻すときに使う）。
+     *
+     * @param mixed $selectedId 選ぶ option の値
+     * @return string エスケープ済みの HTML
+     */
+    public function elementCategoryOptions($selectedId): string
+    {
+        $selectedId = (int)$selectedId;
+        $options = [[0, lang('no_category')]];
+        foreach ($this->getCategories() as $row) {
+            $options[] = [(int)$row['id'], $row['category']];
+        }
+        $options[] = [-1, '>> ' . lang('new_category')];
+
+        $html = '';
+        foreach ($options as [$id, $label]) {
+            $html .= sprintf(
+                '<option value="%d"%s>%s</option>',
+                $id,
+                $id === $selectedId ? ' selected="selected"' : '',
+                hsc($label)
+            );
+        }
+        return $html;
+    }
+
     //Delete category & associations
     public function deleteCategory($catId = 0)
     {

@@ -103,6 +103,7 @@ if (isset($content['which_editor'])) {
 
 // Print RTE Javascript function
 ?>
+<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
 <script>
     // Added for RTE selection
     function changeRTE() {
@@ -304,16 +305,7 @@ if (isset($content['which_editor'])) {
                         <th align="left"><?= $_lang['existing_category'] ?></th>
                         <td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
                             <select name="categoryid" style="width:300px;">
-                                <option value="0"><?= $_lang["no_category"] ?></option>
-                                <?php
-                                $ds = manager()->getCategories();
-                                if ($ds) {
-                                    foreach ($ds as $n => $v) {
-                                        echo "\t\t\t\t" . '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] || (empty(entity('category')) && postv('categoryid') == $v['id']) ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";
-                                    }
-                                }
-                                ?>
-                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
+                                <?= manager()->elementCategoryOptions(entity('categoryid', entity('category'))) ?>
                             </select>
                         </td>
                     </tr>
@@ -400,19 +392,7 @@ if (isset($content['which_editor'])) {
                 });
             });
         });
-        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
-            el.addEventListener('change', function(event) {
-                const row = document.getElementById('newcategry');
-                if (event.currentTarget.value == '-1') {
-                    if (row) row.style.display = '';
-                } else {
-                    if (row) row.style.display = 'none';
-                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
-                        input.value = '';
-                    });
-                }
-            });
-        });
+        EvoElementCategory.init(document.forms['mutate']);
     })();
     // EvoShellは画面の再表示時にこのscriptを同じwindowで再実行するため、
     // 最上位でconst/letを宣言すると再宣言エラーで保存ハンドラが登録されなくなる

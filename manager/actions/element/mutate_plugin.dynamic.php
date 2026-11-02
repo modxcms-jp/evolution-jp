@@ -62,6 +62,7 @@ function entity($key, $default = null)
 }
 ?>
 <script src="media/script/element-properties.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-properties.js') ?>" type="text/javascript"></script>
+<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     Evo.ready(function() {
         let readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
@@ -93,19 +94,7 @@ function entity($key, $default = null)
             });
         });
         setTimeout('showParameters()', 10);
-        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
-            el.addEventListener('change', function(event) {
-                const row = document.getElementById('newcategry');
-                if (event.currentTarget.value == '-1') {
-                    if (row) row.style.display = '';
-                } else {
-                    if (row) row.style.display = 'none';
-                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
-                        input.value = '';
-                    });
-                }
-            });
-        });
+        EvoElementCategory.init(document.forms['mutate']);
     });
 
     function duplicaterecord() {
@@ -153,13 +142,13 @@ function entity($key, $default = null)
                 document.querySelectorAll('input[name="sysevents[]"]').forEach(function(el) {
                     el.checked = false;
                 });
-                ['pluginName', 'pluginDescription', 'propertiesBox', 'newcategory'].forEach(function(id) {
+                ['pluginName', 'pluginDescription', 'propertiesBox'].forEach(function(id) {
                     const el = document.getElementById(id);
                     if (el) el.value = '';
                 });
-                document.querySelectorAll('#categoryid option').forEach(function(el) {
-                    el.selected = false;
-                });
+                const categorySelect = document.getElementById('categoryid');
+                if (categorySelect) categorySelect.value = '0';
+                EvoElementCategory.sync(document.forms['mutate']);
                 showParameters(document.getElementById('propertiesBox'));
                 return;
             }
@@ -282,17 +271,16 @@ function entity($key, $default = null)
             var modx_category = (theParams.modx_category || '').trim();
             document.querySelectorAll('#categoryid option').forEach(function(opt) {
                 opt.selected = false;
-                if (modx_category && opt.text.trim() == modx_category) {
+                if (modx_category && opt.value !== '-1' && opt.text.trim() == modx_category) {
                     opt.selected = true;
                     modx_category_found = true;
                 }
             });
-
+            EvoElementCategory.sync(document.forms['mutate']);
 
             // If not found in the dropdown, create a new category
-            const newCategoryEl = document.getElementById('newcategory');
-            if (!modx_category_found && modx_category && newCategoryEl) {
-                newCategoryEl.value = modx_category;
+            if (!modx_category_found && modx_category) {
+                EvoElementCategory.useNew(document.forms['mutate'], modx_category);
             }
 
         });
@@ -549,21 +537,7 @@ function entity($key, $default = null)
                         <th align="left"><?= $_lang['existing_category'] ?>:&nbsp;&nbsp;</th>
                         <td align="left">
                             <select name="categoryid" id="categoryid" style="width:300px;">
-                                <option value="0"><?= $_lang["no_category"] ?></option>
-                                <?php
-                                $ds = manager()->getCategories();
-                                if ($ds) {
-                                    foreach ($ds as $n => $v) {
-                                        echo sprintf(
-                                            "<option value='%s' %s>%s</option>",
-                                            $v['id'],
-                                            selected(entity('category') == $v["id"]),
-                                            hsc($v["category"])
-                                        );
-                                    }
-                                }
-                                ?>
-                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
+                                <?= manager()->elementCategoryOptions(entity('category')) ?>
                             </select>
                         </td>
                     </tr>
@@ -574,7 +548,7 @@ function entity($key, $default = null)
                         <td align="left" valign="top" style="padding-top:5px;">
                             <input name="newcategory"
                                 id="newcategory" type="text"
-                                maxlength="45" value=""
+                                maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
                                 class="inputBox"
                                 style="width:300px;">
                         </td>
