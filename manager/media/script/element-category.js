@@ -17,9 +17,11 @@ var EvoElementCategory = (function () {
     const NEW_CATEGORY = '-1';
 
     function fields(form) {
-        if (!form || !form.elements) return null;
-        const select = form.elements['categoryid'];
-        const input = form.elements['newcategory'];
+        // form.elements は使わない。フォームに name="elements" の欄（TV の編集画面など）があると、
+        // form.elements がその欄に上書きされるため、名前で querySelector する
+        if (!form || !form.querySelector) return null;
+        const select = form.querySelector('[name="categoryid"]');
+        const input = form.querySelector('[name="newcategory"]');
         if (!select || !input) return null;
         return {select: select, input: input, row: input.closest('tr')};
     }
