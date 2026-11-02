@@ -87,7 +87,7 @@ function fieldAlias($id)
                         return '';
                     }
                     if (!str_contains(doc('alias'), '.')) {
-                        return config('friendly_url_suffix');
+                        return hsc(config('friendly_url_suffix'));
                     }
                     return '';
                 })
@@ -358,7 +358,7 @@ function fieldsTV()
         } else {
             $ph = [];
             $ph['caption'] = evo()->hsc($tv['caption']);
-            $ph['description'] = $tv['description'];
+            $ph['description'] = element_description_html($tv['description']);
             $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
             $ph['FormElement'] = evo()->renderFormElement(
                 $tv['type'],

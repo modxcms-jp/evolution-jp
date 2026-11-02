@@ -177,6 +177,23 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
+/**
+ * 要素（テンプレート変数など）の説明を HTML として出すための変換。
+ * 要素の説明を一覧に出すとき用。hsc() のあと、属性なしの b・strong タグだけを元に戻す。
+ * ほかのタグは文字として出る。
+ *
+ * @param mixed $text
+ * @return string
+ */
+function element_description_html($text): string
+{
+    return preg_replace(
+        '@&lt;(/?)(b|strong)&gt;@i',
+        '<$1$2>',
+        hsc($text)
+    );
+}
+
 function manager_safe_mode_can_toggle()
 {
     return defined('IN_MANAGER_MODE')

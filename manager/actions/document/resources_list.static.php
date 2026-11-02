@@ -176,8 +176,7 @@ echo get_jscript($id, $cm);
                 echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
             }
 
-            $url = evo()->makeUrl($id);
-            $prev = "window.open('" . $url . "','previeWin')";
+            $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
             echo sprintf($tpl, 'Button6', $prev,
                 $id == 0 ? $_lang["view_site"] : $_lang['view_resource']);
             $action = "documentDirty=false;document.location.href='" . getReturnAction($current) . "'";

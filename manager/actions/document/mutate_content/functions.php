@@ -274,7 +274,7 @@ function getUDGroups($id)
                     . html_tag(
                         'label',
                         ['for' => 'group-' . $row['id']],
-                        $row['name']
+                        hsc($row['name'])
                     )
             );
     }
@@ -716,10 +716,10 @@ function getJScripts($docid)
 {
     $ph = [];
     $browser_url = MODX_BASE_URL . 'manager/media/browser/evo/browser.php';
-    $ph['imanager_url'] = config('imanager_url', $browser_url . '?type=images');
-    $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?type=files');
+    $ph['imanager_url'] = js_literal(config('imanager_url', $browser_url . '?type=images'));
+    $ph['fmanager_url'] = js_literal(config('fmanager_url', $browser_url . '?type=files'));
     $ph['preview_url'] = js_literal(evo()->makeUrl($docid, '', '', 'full', true));
-    $ph['preview_mode'] = config('preview_mode', 1);
+    $ph['preview_mode'] = (int)config('preview_mode', 1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
@@ -735,7 +735,7 @@ function getJScripts($docid)
     $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
     $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = manager()->action;
-    $ph['suffix'] = config('friendly_url_suffix');
+    $ph['suffix'] = js_literal(config('friendly_url_suffix'));
 
     return parseText(
         file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl'),

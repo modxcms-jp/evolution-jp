@@ -218,7 +218,7 @@ function entity($key, $default = null)
                         <td><?php
                             echo sprintf(
                                 '%s(id:%s)',
-                                $templatename,
+                                hsc($templatename),
                                 entity('template')
                             );
                             ?>
