@@ -13,7 +13,7 @@ Issue: #895
 - [x] (2026-11-02) M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名。自己レビューの指摘で、メニューの `mail_check_timeperiod` とツリーの `site_start` を `(int)` にし（D7。menu.php 冒頭の「空なら 0」の 3 行は不要になり削除）、インポート画面のファイル名・フォルダ名・エラー文も `hsc()` にした
 - [x] (2026-11-03) M3: リソースの編集・情報・子リソース一覧。自己レビューの指摘で、子リソース一覧の JS の `site_start`、編集画面の `upload_maxsize`・`docParent`・`docIsFolder` も `(int)` にし（D7）、`element_description_html()` は対になったタグだけを戻す形にした
 - [x] (2026-11-04) M4: 要素（一覧・編集画面・テンプレート変数）。手順 2 は DataGrid の `description` 型で行い（D13）、DocManager・QuickManager のテンプレート変数の説明もそろえた（D14）。#1003（説明欄の `&amp;`）もここで閉じる。自己レビューの指摘で、テンプレート変数の入力タイプの選択肢・イベントのグループ名・隠しフィールドの id も直した
-- [ ] M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）
+- [x] (2026-11-04) M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）。プラグイン・スニペット・モジュールは共通の JS `element-properties.js` にまとめ、テンプレート変数はその画面の中で DOM で組み立てた（D16）。検証で見つかったシェル遷移での再評価の後退と、自己レビューの指摘（選択欄の幅・背景の指定）も直した
 - [ ] M5: ユーザー・ロール・権限
 - [ ] M6: ファイル管理・レポート・ログ
 - [ ] M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）
@@ -51,6 +51,10 @@ Issue: #895
 - 2026-11-04: `mutate_tmplvars.dynamic.php` の入力タイプの選択肢を組み立てる所は、`$row` を DB の読み込みと選択肢の配列の両方に使っている。`input:` の要素が 1 件でもあると、ループを出たとき `$row === false` に配列として書き込むので、PHP 8.1 以降で非推奨の警告が出る（修正前から。出力のエスケープとは別）。
 - 2026-11-04: `system_eventnames` のイベント名に `'` があると、キャッシュの `siteCache.idx.php` が壊れて管理画面が 500 になる（DB を直接書いたときだけ。キャッシュ生成側の問題で、範囲外）。
 - 2026-11-04: `mutate_module_resources.dynamic.php:213` の隠しフィールドの id は `$content['id']` のまま（DB から読んだ整数なので害はない。ほかの 4 画面は `(int)`）。
+- 2026-11-04: M4b の検証で、修正前はプロパティの説明に `<img src=x onerror=…>` を入れると設定表で実行され、値の `"` で入力欄が切れることを確かめた。修正後は実行されず、値も文字のまま保たれる。
+- 2026-11-04: 修正前のスニペット・モジュールの `list-multi` は、選択肢が二重に出て、選んだ値（`ar[3]`）を保てずに書き戻していた（プラグインは正しかった）。共通の JS にまとめて直った。実行時の `parseProperties()`（`document.parser.class.inc.php`）が `ar[3]` を見るのは `list` だけなので、スニペットやモジュールが受け取る値は変わらない。
+- 2026-11-04: `menu` の選択値（`;b`）は、3 画面とも書き戻らない（修正前から。M4b では変えていない。実行時にも `menu` の選択値は使われない）。`if (currentParams[key] == ar[2])` の行は、配列と文字列の比較で成り立たないので消した。
+- 2026-11-04: M4b の検証で、管理画面のシェルが画面を移るとき、同じ window で `<script src>` を読み直すことが分かった。最初は共通の JS を `const` で宣言していたので、2 回目以降に二重宣言のエラーになり、前の画面の設定（見出し・余白）も持ち越した。`tabpane.js` と同じく `var` への代入にし、`configure()` を既定値から作り直して直した。この決まりを `assets/docs/jquery-migration.md` に書いた。
 
 ## Decision Log
 
@@ -69,6 +73,7 @@ Issue: #895
 - 2026-11-04 / メイン（ユーザーが選択）D13: M4 の手順 2 は、DataGrid が DB の結果か区切り文字の文字列しか受け付けず、変換済みの配列を渡せないと分かった。DataGrid の列の種類に `description` を足し、`formatColumnValue()` で `element_description_html()` を通す形にした。代替案は「説明の列を `colEscapes` で `hsc()` だけにする」（同梱の要素の `<strong>版</strong>` がこの 2 画面だけ文字で出て D3 と食い違う）と「M4 では触らず後で決める」。列の種類なら呼び出し側は `colTypes` を書くだけで、説明の規則が全画面で 1 つになる（SSOT）。`description` の列は `colEscapes` を無視する（二重にしないため）。
 - 2026-11-04 / メイン D14: DocManager と QuickManager のテンプレート変数の説明（M3 の Surprises）は、M4 に入れて `element_description_html()` にそろえた。QuickManager はフロントで動くが、`document.parser.class.inc.php` → `initialize.inc.php` → `helpers.php` と読み込まれるので使える。
 - 2026-11-04 / メイン D15: M4 の自己レビューで、プロパティの設定表を JS で組み立てるときに保存された値を `innerHTML` に生で入れていると分かった（4 画面）。M4 には入れず、M4b に分けた。4 画面の JS をまとめて書き換え、共通にするかの判断も伴うため。M4 で悪くなった所ではない（M4 の前は `</textarea>` で入力欄ごと抜けられたが、M4 でふさいだ）。プロパティを書けるのは要素を編集できる人で、もともと PHP を実行できる。
+- 2026-11-04 / メイン D16: M4b では、プラグイン・スニペット・モジュールの `showParameters()`・`setParameter()`・`implodeParameters()`・`encode`・`decode`・`currentParams` を、共通の JS `manager/media/script/element-properties.js`（グローバル `EvoElementProperties`。`configure`・`show`・`set`・`params`）にまとめた。3 画面はほぼ同じ実装で、違い（表の属性・見出し・1 列か 2 列か・style）は `configure` に渡す。基準はプラグインの実装（`list-multi` に対応し、入力欄に id を付けている）。テンプレート変数の画面は、保存先が `params`、値の形が `&key=value`、`encode` の対象が広い、`widgetParams`・`lastmod`・`resetParameters` があるなど作りが違うので共通にせず、その画面の中で DOM で組み立てた。組み立ては `createElement`・`textContent`・`value`・`addEventListener` だけで、エスケープ用の JS の関数は作っていない。消したグローバル関数・変数（`setParameter`・`implodeParameters`・`encode`・`decode`・`currentParams`）は、同梱のコードからは使われておらず、互換のための別名は残さない。選択欄の幅は、元のスニペット・モジュールに合わせて全種類 168px にそろえた。
 
 ## Outcomes & Retrospective
 
@@ -174,7 +179,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 ### M4b: 要素の編集画面のプロパティの設定表
 
-書き込むファイル: `manager/actions/element/` の `mutate_plugin.dynamic.php`・`mutate_snippet.dynamic.php`・`mutate_module.dynamic.php`・`mutate_tmplvars.dynamic.php`。4 画面の `showParameters()` を共通の JS にまとめるなら、その JS（`manager/media/` の下）も。着手時に、4 画面の実装の違いを比べて決める（D15）。
+書き込むファイル: `manager/actions/element/` の `mutate_plugin.dynamic.php`・`mutate_snippet.dynamic.php`・`mutate_module.dynamic.php`・`mutate_tmplvars.dynamic.php`、新しく作る共通の JS `manager/media/script/element-properties.js`（D16）。検証と自己レビューで、`manager/media/script/tabpane.js`（コメントだけ）と `assets/docs/jquery-migration.md`（シェルで読み直す JS の決まり）も足した。
 
 1. 4 画面の `showParameters()` は、プロパティの説明（`desc`）・値（`value`）・リストの項目（`ls[i]`）を文字列の連結で HTML にして `innerHTML` に入れている（`mutate_tmplvars` は `&` と `"` だけ置き換え、`<` は置き換えていない）。`onchange="setParameter('" + key + "', …)"` は、HTML の属性の中に JS の文字列がある二重の文脈になっている。
 2. エスケープ用の JS の関数は作らず、`createElement` と `textContent`・`value`・`addEventListener` で組み立てて、エスケープを要らなくする（Plan of Work の 4）。4 画面がほぼ同じ実装なら、1 つの共通の JS にまとめる（SSOT）。
@@ -265,7 +270,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/895
 - ブランチ: `fix/895-manager-output-escape`（ワークツリー `.claude/worktrees/issue-895`）。PR はマイルストーンごとに 1 本（D12）
-- PR: M1 は #1009、M2 は #1015、M3 は #1018（どれもマージ済み）。M4 は #1003 もあわせて閉じる。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
+- PR: M1 は #1009、M2 は #1015、M3 は #1018、M4 は #1022（#1003 もあわせて閉じた。どれもマージ済み）。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
 - 関連: #885（設定画面の `form_text()`）、#891（設定画面とリソース編集画面の一部の欄）
 - 出力のエスケープの取り決め: `AGENTS.md` の「補助ルール」→「出力のエスケープ」
 - 既存のエスケープの例: `manager/includes/error.class.inc.php:53-63`（`js_literal(hsc())` の使い分けの説明）、`manager/actions/document/move_document.dynamic.php:95-104`（`textContent` で組み立てる例）、`manager/frames/nodes.php:190, 193`（`hsc(js_literal())` の例）
