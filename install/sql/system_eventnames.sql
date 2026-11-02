@@ -127,6 +127,6 @@ REPLACE INTO `{PREFIX}system_eventnames` (id,name,service,groupname) VALUES
 ('302','OnExportExec','2',''),
 ('303','OnGetConfig','1',''),
 ('304','OnCallChunk','1','Chunks'),
+('305','OnFileBrowserUpload','2',''),
 ('999','OnPageUnauthorized','1',''),
-('1000','OnPageNotFound','1',''),
-('1001','OnFileBrowserUpload','2','');
+('1000','OnPageNotFound','1','');
