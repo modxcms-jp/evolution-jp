@@ -724,8 +724,8 @@ function getJScripts($docid)
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
     $ph['id'] = $docid;
-    $ph['docParent'] = doc('parent');
-    $ph['docIsFolder'] = doc('isfolder');
+    $ph['docParent'] = (int) doc('parent');
+    $ph['docIsFolder'] = (int) doc('isfolder');
     $ph['docMode'] = evo()->doc->mode;
     $ph['lang_confirm_reset_pub_dates'] = lang('confirm_reset_pub_dates');
     $ph['style_tree_folder'] = style('tree_folder');
@@ -773,7 +773,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
         'token' => sessionv('token'),
-        'upload_maxsize' => config('upload_maxsize', 32 * 1024 * 1024),
+        'upload_maxsize' => (int) config('upload_maxsize', 32 * 1024 * 1024),
         'mode' => manager()->action,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),

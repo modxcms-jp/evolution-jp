@@ -376,6 +376,8 @@ function get_jscript($id, $cm)
     // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
     $page = (getv('page')) ? " + '&page=" . (int)getv('page') . "'" : '';
 
+    $siteStart = (int) evo()->config('site_start');
+
     $block = <<< EOT
 <style type="text/css">
 a span.withmenu {border:1px solid transparent;}
@@ -448,7 +450,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 }
                 break;
             case 62:        // unpublish
-                if (id != {$modx->config['site_start']})
+                if (id != {$siteStart})
                 {
                     if(confirm("{$_lang['confirm_unpublish']}")==true)
                     {
