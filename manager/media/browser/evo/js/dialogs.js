@@ -36,11 +36,20 @@ export function createMoveDialog(ctx) {
     }
 
     function load() {
+        // 押したボタンはパンくずと一覧の描き直しで DOM から消える。ダイアログ内にフォーカスがあったかを先に覚える
+        var hadFocus = ctx.panelEl.contains(document.activeElement);
         renderBreadcrumb(ctx.pathEl, escapeHtml(ctx.state.type), moveFolder, function (path) {
             moveFolder = path;
             load();
         });
         ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_loading')) + '</div>';
+        // 描き直しでフォーカスが body に落ちたら、今いるフォルダ(パンくずの最後)へ戻す
+        if (hadFocus && (!document.activeElement || document.activeElement === document.body)) {
+            var crumbs = ctx.pathEl.querySelectorAll('.evo-fb-crumb');
+            if (crumbs.length) {
+                crumbs[crumbs.length - 1].focus({ preventScroll: true });
+            }
+        }
 
         fetchJson(apiUrl(ctx.config, { action: 'list', type: ctx.state.type, folder: moveFolder }))
             .then(function (data) {
