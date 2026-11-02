@@ -12,12 +12,16 @@
  *   rowStyle:  stacked のときの入力欄の div に付ける style
  *   cellStyle: 2 列のときの td に付ける style
  */
-const EvoElementProperties = (function () {
+// var への代入で定義する。管理画面のシェルが画面を差し替えると同じ window でこのファイルが再評価され、
+// const 宣言だと二重宣言エラーになるうえ、前の画面の設定も残るため（tabpane.js と同じ）
+var EvoElementProperties = (function () {
     'use strict';
+
+    const DEFAULTS = {table: {}, head: null, stacked: true, rowStyle: '', cellStyle: ''};
 
     const state = {
         params: {},
-        options: {table: {}, head: null, stacked: true, rowStyle: '', cellStyle: ''}
+        options: Object.assign({}, DEFAULTS)
     };
 
     function encode(s) {
@@ -33,7 +37,7 @@ const EvoElementProperties = (function () {
     }
 
     function configure(options) {
-        state.options = Object.assign({}, state.options, options || {});
+        state.options = Object.assign({}, DEFAULTS, options || {});
     }
 
     function getForm(ctrl) {
