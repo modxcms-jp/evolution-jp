@@ -428,8 +428,8 @@ function fbFindFreePath(DocumentParser $modx, $dirReal, $safeName)
  * fbFindFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
  * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
  *
- * @return array{path:string,handle:resource|false}|null 空きが見つからなければ null。
- *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補)
+ * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
+ *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
  */
 function fbCreateFreeFile(DocumentParser $modx, $dirReal, $safeName)
 {
@@ -438,9 +438,12 @@ function fbCreateFreeFile(DocumentParser $modx, $dirReal, $safeName)
         if ($targetPath === null) {
             return null;
         }
-        $handle = @fopen($targetPath, 'xb');
+        $handle = fbAttempt(function () use ($targetPath) {
+            return fopen($targetPath, 'xb');
+        }, $reason);
         if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
-            return ['path' => $targetPath, 'handle' => $handle];
+            // 'reason' は handle が false(権限など)のときの失敗の理由。名前が既にあった場合はループで次を探す
+            return ['path' => $targetPath, 'handle' => $handle, 'reason' => $reason];
         }
     }
     return null;
@@ -688,6 +691,9 @@ function fbActionCopy(PathResolver $resolver, BrowserConfig $config, DocumentPar
             $copiedSize = $in !== false ? stream_copy_to_stream($in, $out) : false;
             return [$in, $expectedSize, $copiedSize];
         }, $reason);
+        if ($out === false) {
+            $reason = $free['reason'];
+        }
         // 書き込みの途中で失敗した（容量不足など）ときも、元のサイズと一致しなければ失敗として扱う
         $ok = $copiedSize !== false && $expectedSize !== false && $copiedSize === $expectedSize;
         if ($in !== false) {
@@ -811,7 +817,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
         $savedName = substr($targetPath, strrpos($targetPath, '/') + 1);
 
         // 確保した(空の)ファイルへ保存する。第 3 引数 false で image_limit_width による縮小をしない
-        $reason = '';
+        $reason = $free['reason'];
         $saved = $free['handle'] !== false && fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
             return $modx->move_uploaded_file($tmpPath, $targetPath, false);
         }, $reason);
@@ -859,6 +865,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserConfig $config, Docume
     $reason = '';
     if ($stagePath !== false && strpos($stagePath, $realDir) !== 0) {
         // 書き込めないフォルダだと、tempnam() は別の場所(システムの一時フォルダ)に作る。そこからの置き換えはしない
+        $reason = 'Could not create a temporary file in the target folder';
         @unlink($stagePath);
         $stagePath = false;
     }
