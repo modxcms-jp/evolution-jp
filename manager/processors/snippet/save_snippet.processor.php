@@ -38,21 +38,6 @@ $properties = db()->escape(postv('properties', ''));
 $moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
 
-//Kyle Jaebker - added category support
-if (empty(postv('newcategory')) && 0 < postv('categoryid')) {
-    $categoryid = post_intvar('categoryid');
-} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
-    $categoryid = 0;
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-
-    if ($catCheck) {
-        $categoryid = $catCheck;
-    } else {
-        $categoryid = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 // disallow duplicate names
 $where = "name='{$name}'";
 if ($id) {
@@ -68,6 +53,8 @@ if ($count > 0) {
         $id
     );
 }
+
+$categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
 switch (postv('mode')) {
     case '23':

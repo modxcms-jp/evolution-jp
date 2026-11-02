@@ -26,21 +26,6 @@ $locked = postv('locked') === 'on' ? 1 : 0;
 $enable_sharedparams = postv('enable_sharedparams') === 'on' ? 1 : 0;
 $createdon = $editedon = time();
 
-//Kyle Jaebker - added category support
-if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = post_intvar('categoryid');
-} elseif (!postv('newcategory') && postv('categoryid') <= 0) {
-    $category = 0;
-} else {
-    $newcategory = postv('newcategory');
-    $catCheck = manager()->checkCategory(db()->escape($newcategory));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory($newcategory);
-    }
-}
-
 switch (postv('mode')) {
     case '107':
         // invoke OnBeforeModFormSave event
@@ -61,6 +46,8 @@ switch (postv('mode')) {
                 0
             );
         }
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         // save the new module
 
@@ -115,6 +102,8 @@ switch (postv('mode')) {
             'id' => $id
         ];
         evo()->invokeEvent('OnBeforeModFormSave', $eventParams);
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         // save the edited module
         $f = [

@@ -56,18 +56,7 @@ function entity($key, $default = null)
     }
 
     if ($key === 'category') {
-        if (postv('newcategory')) {
-            $catCheck = manager()->checkCategory(postv('newcategory'));
-            if ($catCheck) {
-                return $catCheck;
-            } else {
-                return manager()->newCategory(postv('newcategory'));
-            }
-        } elseif (0 < postv('categoryid')) {
-            return post_intvar('categoryid');
-        } else {
-            return 0;
-        }
+        return manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
     }
 
     return postv($key, $default);

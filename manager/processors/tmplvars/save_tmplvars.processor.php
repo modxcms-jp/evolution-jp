@@ -24,20 +24,6 @@ $display = db()->escape(postv('display', ''));
 $display_params = db()->escape(postv('params', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 
-//Kyle Jaebker - added category support
-if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $category = post_intvar('categoryid');
-} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
-    $category = 0;
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 if ($caption == '') {
     $caption = $name;
 }
@@ -65,6 +51,8 @@ switch (postv('mode')) {
                 0
             );
         }
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         // Add new TV
         $field = compact(explode(
@@ -129,6 +117,8 @@ switch (postv('mode')) {
                 $id
             );
         }
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         // update TV
         $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
         $field = compact(explode(

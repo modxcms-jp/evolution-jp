@@ -21,26 +21,11 @@ $locked = postv('locked') == 'on' ? 1 : 0;
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
-//Kyle Jaebker - added category support
-if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $categoryid = post_intvar('categoryid');
-} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
-    $categoryid = 0;
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-    if ($catCheck) {
-        $categoryid = $catCheck;
-    } else {
-        $categoryid = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 $field = [];
 $field['templatename'] = $templatename;
 $field['description'] = $description;
 $field['content'] = db()->escape(postv('content', ''));
 $field['locked'] = $locked;
-$field['category'] = $categoryid;
 $field['parent'] = $parent;
 
 switch (postv('mode')) {
@@ -64,6 +49,8 @@ switch (postv('mode')) {
                 0
             );
         }
+
+        $field['category'] = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the new doc
         $newid = db()->insert($field, $tbl_site_templates);
@@ -110,6 +97,8 @@ switch (postv('mode')) {
                 $id
             );
         }
+
+        $field['category'] = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the edited doc
         $rs = db()->update($field, $tbl_site_templates, "id='{$id}'");

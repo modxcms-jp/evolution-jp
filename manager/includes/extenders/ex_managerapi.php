@@ -435,11 +435,31 @@ class ManagerAPI
         }
 
         while ($row = db()->getRow($rs)) {
-            if ($row['category'] == $newCat) {
+            if ((string)$row['category'] === (string)$newCat) {
                 return $row['id'];
             }
         }
         return 0;
+    }
+
+    /**
+     * 要素の保存で使うカテゴリの id を返す。新しいカテゴリ名が空でなければ、同じ名前を探し、無ければ作る。
+     * 名前の確かめ（空・重複・予約名）をすべて通ったあと、insert・update の直前に呼ぶ（差し戻しでカテゴリを残さないため）。
+     *
+     * @param mixed $categoryId 送信された categoryid
+     * @param mixed $newCategory 送信された newcategory（生の値。エスケープしない）
+     */
+    public function resolveElementCategory($categoryId, $newCategory): int
+    {
+        $name = $this->normalizeElementName($newCategory);
+        if ($name === '') {
+            return max(0, (int)$categoryId);
+        }
+        $id = $this->checkCategory($name);
+        if ($id) {
+            return (int)$id;
+        }
+        return (int)$this->newCategory($name);
     }
 
     //Get all categories

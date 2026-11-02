@@ -31,20 +31,6 @@ if (empty($sysevents)) {
     $sysevents[] = 90;
 } // Default OnWebPageInit
 
-//Kyle Jaebker - added category support
-if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = post_intvar('categoryid');
-} elseif (!postv('newcategory') && postv('categoryid') <= 0) {
-    $category = '0';
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 switch (postv('mode')) {
     case '101':
 
@@ -68,6 +54,8 @@ switch (postv('mode')) {
                 );
             }
         }
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
 
         //do stuff to save the new plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
@@ -121,6 +109,8 @@ switch (postv('mode')) {
                 );
             }
         }
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         //do stuff to save the edited plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
         $f['error_reporting'] = $pluginErrorReporting;
