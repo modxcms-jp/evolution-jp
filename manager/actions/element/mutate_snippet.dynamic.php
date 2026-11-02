@@ -383,7 +383,7 @@ function entity($key, $default = null)
                         </th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
-                                style="padding:0;height:4em;"><?= entity('description') ?></textarea>
+                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
                         </td>
                     </tr>
                     <?php $snippetErrorReporting = entity('error_reporting', 'inherit'); ?>
@@ -442,7 +442,7 @@ function entity($key, $default = null)
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
-                            $options .= "<option value='" . $row['guid'] . "'" . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . hsc($row['name']) . "</option>";
+                            $options .= '<option value="' . hsc($row['guid']) . '"' . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . hsc($row['name']) . "</option>";
                         }
                     }
                     ?>
@@ -467,7 +467,7 @@ function entity($key, $default = null)
                         <td align="left" valign="top">
                             <textarea name="properties" maxlength="65535"
                                 class="inputBox phptextarea"
-                                onChange="showParameters(this);"><?= entity('properties') ?></textarea>
+                                onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea>
                         </td>
                     </tr>
                     <tr id="displayparamrow">

@@ -57,7 +57,7 @@ if ($total > 0) {
 
         $output .= '<tr class="mutate-tv-row">
                         <td class="mutate-tv-label">
-                                <label class="mutate-field-title" for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . hsc($row['caption']) . '</label><br /><span class="comment">' . hsc($row['description']) . '</span>
+                                <label class="mutate-field-title" for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . hsc($row['caption']) . '</label><br /><span class="comment">' . element_description_html($row['description']) . '</span>
                         </td>
                         <td class="mutate-tv-value">';
         $output .= renderFormElement(

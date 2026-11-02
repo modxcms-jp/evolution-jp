@@ -534,7 +534,7 @@ function entity($key, $default = null)
 
                                     $ph['checked'] = $checked ? 'checked' : '';
                                     $ph['id'] = $row['id'];
-                                    $ph['templatename'] = $row['templatename'];
+                                    $ph['templatename'] = hsc($row['templatename']);
                                     echo $modx->parseText(
                                         '<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] /> [[+id+]] [+templatename+]</label>',
                                         $ph
@@ -652,7 +652,7 @@ function entity($key, $default = null)
                                 if ($checked) {
                                     $notPublic = true;
                                 }
-                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
+                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
                                 $number_of_g++;
                             } elseif ($checked) {
                                 echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
