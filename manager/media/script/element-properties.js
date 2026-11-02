@@ -12,8 +12,7 @@
  *   rowStyle:  stacked のときの入力欄の div に付ける style
  *   cellStyle: 2 列のときの td に付ける style
  */
-// var への代入で定義する。管理画面のシェルが画面を差し替えると同じ window でこのファイルが再評価され、
-// const 宣言だと二重宣言エラーになるうえ、前の画面の設定も残るため（tabpane.js と同じ）
+// var への代入で定義する。シェルの画面遷移で再評価されるため（assets/docs/jquery-migration.md を参照）
 var EvoElementProperties = (function () {
     'use strict';
 
@@ -75,6 +74,7 @@ var EvoElementProperties = (function () {
                 items = String(ar[2]).split(',');
                 const selectedValue = ar[3];
                 ctrl = document.createElement('select');
+                ctrl.style.width = '168px';
                 if (dt === 'list') ctrl.size = items.length;
                 createOptions(ctrl, items, function (item) {
                     return item == selectedValue;

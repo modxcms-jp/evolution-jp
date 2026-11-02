@@ -219,7 +219,7 @@ function entity($key, $default = null)
                 const row = document.createElement('tr');
                 [desc, ctrl].forEach(function(content) {
                     const cell = document.createElement('td');
-                    cell.setAttribute('bgcolor', '#FFFFFF');
+                    cell.style.backgroundColor = '#FFFFFF';
                     cell.width = '50%';
                     if (typeof content === 'string') cell.textContent = content;
                     else cell.appendChild(content);
