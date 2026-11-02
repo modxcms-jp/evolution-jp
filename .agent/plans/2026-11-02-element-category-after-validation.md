@@ -8,7 +8,7 @@ Issue: #1000
 
 ## Progress
 
-- [ ] M1: カテゴリを決める処理を `ManagerAPI::resolveElementCategory()` にまとめ、6 つの保存処理で名前の確かめのあとに呼ぶ
+- [x] M1（2026-11-03）: カテゴリを決める処理を `ManagerAPI::resolveElementCategory()` にまとめ、6 つの保存処理で名前の確かめのあとに呼ぶ。Docker で main と比べ、M1 の受け入れ表の全行（6 種類 × 85 件）、整数の形でない `categoryid`、名前 `"0"`（D2）、`10` と `1e1`（D4）、スニペットのイベントで処理を止めた場合を確かめた。自己レビューの低 3 件は対応済み（`to_intvar()`、スニペットの呼ぶ位置、D3 の互換の書き方）
 - [ ] M2: 差し戻した編集画面で「>> カテゴリー作成」と名前を戻し、カテゴリの選択肢と新しいカテゴリの欄の切り替えを共通にする
 
 ## Surprises & Discoveries
@@ -22,11 +22,17 @@ Issue: #1000
 - プラグインの画面は、コード欄の docblock の `@modx_category` から新しいカテゴリの欄へ名前を入れるが、欄は隠れたままで選択も「>> カテゴリー作成」にしない（見えない値が保存される）。
 - 範囲外として残すもの（この ExecPlan では直さない）: `categories.category` は `varchar(45)` で、`maxlength` を迂回した長い名前は、DB の設定によって切り詰められる（毎回別のカテゴリになる）か挿入に失敗する（カテゴリなしになる）。`getCategories()` は名前に `stripslashes()` をかけるので、`\` を含む名前が選択肢で欠けて見える。モジュールの更新で名前の重複を確かめていない（PR #998 の備考）。テンプレートのロックの切り替えでカテゴリの `select` が無効になる件は #1001。
 
+M1 の実装と検証でわかったこと（2026-11-03）。
+
+- 保存を止める仕組みはイベントに無い。`stopPropagation()` は後続のプラグインを止めるだけで、保存処理は `invokeEvent()` の戻り値を見ない。プラグインが `exit` で止めた場合、main はスニペットなどでカテゴリだけが残るが、このブランチでは残らない。
+- モジュールの新規保存が、まれに `Data too long for column 'guid'` で失敗する（main でも起きる。フォームの `createGUID()` が作る値の長さの問題とみられる）。この ExecPlan の範囲外。
+- 保存処理は関数の外で読み込まれるので、`$category` などはグローバル変数になる（D3 の互換の注意）。
+
 ## Decision Log
 
 - D1（2026-11-02、planner）カテゴリを決める処理は `ManagerAPI` に `resolveElementCategory($categoryId, $newCategory): int` として 1 か所に置き、6 つの保存処理（チャンクも）はこれを呼ぶだけにする。理由: 今は同じ分岐が 6 か所に写されていて、5 か所が引用符の扱いを誤っている（Surprises の 1 つ目）。チャンクの `entity('category')` の形にそろえるだけでは、分岐の写しが 6 つ残る（SSOT・DRY）。カテゴリの読み書き（`newCategory()`・`checkCategory()`・`getCategories()`）がすでに `ManagerAPI` にあり、要素の保存の補助（`requireElementName()`・`redirectToElementForm()`）も同じクラスにある。引数は呼び出し側から渡し、メソッドの中でリクエストを読まない（`requireElementName()` と同じ形。入力を変えて確かめやすい）。代替案: チャンクの形（processor ごとの `entity()`）にそろえる → 分岐の写しが残るので採らない。
-- D2（2026-11-02、planner）`resolveElementCategory()` の動き: 新しいカテゴリ名を `normalizeElementName()` で前後の空白（全角スペースを含む）を落とし、空でなければ同じ名前のカテゴリを `checkCategory()` に生の名前で探し、無ければ `newCategory()` で作ってその id を返す。名前が空なら `categoryid` を `(int)` にして、0 より大きければその値、そうでなければ 0 を返す。新しいカテゴリ名が `categoryid` より優先する、という今の決まりは変えない（プラグインの docblock からの自動入力や、外から POST する作りが、`categoryid` を `-1` にしないで名前だけ送る可能性があるため）。前後の空白を落とすのは、要素の名前と同じ正規化に合わせ、` foo` と `foo` が別のカテゴリにならないようにするため。文字列でない値（配列で送られた等）は空とみなす（`normalizeElementName()` の決まり）。今は `"0"` を `empty()` で空とみなしているが、`"0"` も 1 つの名前として扱う（正規化のあとの空文字だけを空とする）。
-- D3（2026-11-02、planner）各保存処理で `resolveElementCategory()` を呼ぶ位置は、その処理の差し戻し（名前の重複・予約名）の確かめをすべて通ったあと、DB への insert・update の直前にする。新規と更新で確かめの場所が違う処理（テンプレート・プラグイン・モジュール・テンプレート変数）は、`switch` の各 `case` の中で呼ぶ。`OnBefore*FormSave` イベントを名前の確かめより先に出す今の順は変えない（イベントの意味が変わるため。Issue の範囲外）。これで、カテゴリはイベントのあとに作られるようになるが、イベントにカテゴリの id は渡していないので、プラグインから見た違いは無い。
+- D2（2026-11-02、planner）`resolveElementCategory()` の動き: 新しいカテゴリ名を `normalizeElementName()` で前後の空白（全角スペースを含む）を落とし、空でなければ同じ名前のカテゴリを `checkCategory()` に生の名前で探し、無ければ `newCategory()` で作ってその id を返す。名前が空なら `categoryid` を `to_intvar()` で読んで返す（0 以下・整数の形でない値・配列は 0。main の `post_intvar('categoryid')` と同じ扱い。2026-11-03 の自己レビューで素の `(int)` から改めた）。新しいカテゴリ名が `categoryid` より優先する、という今の決まりは変えない（プラグインの docblock からの自動入力や、外から POST する作りが、`categoryid` を `-1` にしないで名前だけ送る可能性があるため）。前後の空白を落とすのは、要素の名前と同じ正規化に合わせ、` foo` と `foo` が別のカテゴリにならないようにするため。文字列でない値（配列で送られた等）は空とみなす（`normalizeElementName()` の決まり）。今は `"0"` を `empty()` で空とみなしているが、`"0"` も 1 つの名前として扱う（正規化のあとの空文字だけを空とする）。
+- D3（2026-11-02、planner）各保存処理で `resolveElementCategory()` を呼ぶ位置は、その処理の差し戻し（名前の重複・予約名）の確かめをすべて通ったあと、DB への insert・update の直前にする。新規と更新で確かめの場所が違う処理（テンプレート・スニペット・プラグイン・モジュール・テンプレート変数）は、`switch` の各 `case` の中で呼ぶ（スニペットは計画では `switch` の前としていたが、イベントが処理を止めたときや `mode` が不正なときにカテゴリが残るので、2026-11-03 の自己レビューで `case` の中へ移した）。`OnBefore*FormSave` イベントを名前の確かめより先に出す今の順は変えない（イベントの意味が変わるため。Issue の範囲外）。これで、カテゴリはイベントのあとに作られる。互換の注意: 保存処理は関数の外で読み込まれるので、`$category`・`$field['category']` はグローバル変数になる。main ではイベントの時点でテンプレートの `$field['category']`、プラグイン・モジュール・テンプレート変数の `$category` が決まっていたが、このあとはイベントの時点では決まっていない。逆に、イベントの中で `$_POST['categoryid']`・`$_POST['newcategory']` を書き換えると保存に反映される。これらに頼るプラグインはまず無いと見て、PR の備考に書く。
 - D4（2026-11-02、planner）`checkCategory()` の比べ方を `(string)` どうしの `===` にする。理由: 緩い比較では数として読める別の名前が同じとみなされる。比べ方を SQL の `WHERE` に移すことはしない（DB の照合順序によって大文字・小文字や末尾の空白を同じとみなすようになり、今の「PHP で厳密に比べる」動きが変わるため）。
 - D5（2026-11-02、planner）プラグインとテンプレート変数の保存処理の `compact()` は、カテゴリの値を組み立て直すのに合わせて、同じキーの配列リテラルに書き直す。AGENTS.md が `compact()` を禁じていて、カテゴリの行を触るついでに直せるため（項目と値は変えない）。M1 の中で別のコミットにする。
 - D6（2026-11-02、planner）security-lint（`.github/scripts/security-lint.php`）の `SAFE_FUNCS` に `resolveElementCategory` を足す。理由: 保存処理は `postv()` の値をこのメソッドに渡し、戻り値を `db()->insert()` の配列に入れる。戻り値は整数なので安全だが、一覧に無いと「リクエストの値を DB へ渡している」と検出される。`newCategory`・`checkCategory` が同じ理由で一覧に入っている（既存の作法にそろえる）。この 2 つは公開のメソッドとして残るので、一覧からは外さない。
@@ -91,12 +97,12 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
 
 手順:
 
-1. `ex_managerapi.php` の `checkCategory()` のあとに `resolveElementCategory($categoryId, $newCategory): int` を足す。DocBlock に「要素の保存で使うカテゴリの id を返す。新しいカテゴリ名が空でなければ、同じ名前を探し、無ければ作る。名前の確かめ（空・重複・予約名）をすべて通ったあと、insert・update の直前に呼ぶ（差し戻しでカテゴリを残さないため）」と書く。中身は D2 のとおり（`normalizeElementName()` → `checkCategory()` に生の名前 → 無ければ `newCategory()`、戻り値は `(int)`。名前が空なら `max(0, (int)$categoryId)`）。
+1. `ex_managerapi.php` の `checkCategory()` のあとに `resolveElementCategory($categoryId, $newCategory): int` を足す。DocBlock に「要素の保存で使うカテゴリの id を返す。新しいカテゴリ名が空でなければ、同じ名前を探し、無ければ作る。名前の確かめ（空・重複・予約名）をすべて通ったあと、insert・update の直前に呼ぶ（差し戻しでカテゴリを残さないため）」と書く。中身は D2 のとおり（`normalizeElementName()` → `checkCategory()` に生の名前 → 無ければ `newCategory()`、戻り値は `(int)`。名前が空なら `to_intvar($categoryId)`）。
 2. 同じファイルの `checkCategory()` の比較を `(string)$row['category'] === (string)$newCat` にする（D4）。
 3. 各保存処理から、今のカテゴリの分岐（`//Kyle Jaebker - added category support` の塊、チャンクは `entity()` の `category` の分岐）を消し、次の位置で `manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'))` を呼ぶ。
    - テンプレート: `switch` の前の `$field['category'] = $categoryid;` を消し、`case '19'` と `case '16'` の重複の確かめのあと、`db()->insert()`・`db()->update()` の前で `$field['category'] = …` を入れる。
    - チャンク: `entity()` の `if ($key === 'category')` の中身を、この呼び出しを返すだけにする（`$field` は確かめのあとで組んでいるので、位置は変えない）。
-   - スニペット: 重複の確かめ（`switch` の前）のあと、`switch` の前で `$categoryid = …` とする。
+   - スニペット: 重複の確かめ（`switch` の前）のあと、`case '23'`・`case '22'` の中の `OnBeforeSnipFormSave` のあと、`$field` を組む前で `$categoryid = …` とする（D3）。
    - プラグイン: 各 `case` の `if ($disabled == '0') { … }` のあと、`$f` を組む前で `$category = …` とする。
    - モジュール: `case '107'` は重複の確かめのあと、`case '108'` は `$f` を組む前で `$category = …` とする。
    - TV: 各 `case` の予約名の確かめのあと、`$field` を組む前で `$category = …` とする。
@@ -205,7 +211,7 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
 - ブランチ: `fix/1000-element-category-after-validation`（`gh issue develop` で #1000 に紐づけ済み）
 - ワークツリー: `/home/yamamoto/ghq/github.com/modxcms-jp/evolution-jp/.claude/worktrees/issue-1000`（作成時の HEAD `863d1754c`）
 - PR: 未作成（D10。M1 で下書きを作り `Refs #1000`、M2 で `Closes #1000`）
-- 想定するコミット: M1 は 2 つ（`fix(manager): 要素の保存で新しいカテゴリを名前の確かめのあとに作る`、`refactor(manager): プラグインと TV の保存の項目を compact() から配列に書き直す`）。M2 は 1〜2 つ（Concrete Steps の M2 手順 4）。ExecPlan の記録はメインがコミットする（`docs(plan): …`）。
+- 想定するコミット: M1 は 2 つ（`fix(manager): 要素の保存で新しいカテゴリを名前の確かめのあとに作る`、`refactor(manager): プラグインと TV の保存の項目を compact() から配列に書き直す`）。M2 は 1〜2 つ（Concrete Steps の M2 手順 4）。ExecPlan の記録はメインがコミットする（`docs(plans): …`）。
 
 ## Interfaces and Dependencies
 
