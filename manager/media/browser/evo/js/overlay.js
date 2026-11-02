@@ -1,6 +1,8 @@
 // オーバーレイ型ダイアログの共通の振る舞い: フォーカスの移動・Tab の循環・Esc でそのダイアログだけを閉じる・
 // 閉じたらフォーカスを戻す。リスナーは開いている間だけ付け、閉じたら必ず外す。
-// 編集のダイアログで使う。プレビューと移動のダイアログへの適用は別に行う(#984)。
+// 編集・プレビュー・移動のダイアログで使う。
+// プレビューの上に編集のダイアログが重なるように、複数が同時に開くことがある。
+// keydown は「開いているダイアログのスタック」の一番上だけが扱う(下のものは Esc でも Tab でも反応しない)。
 
 /**
  * フォーカスを戻す(スクロールさせない)。右クリックメニューとダイアログで共通。
@@ -23,6 +25,34 @@ function focusableIn(panelEl) {
     });
 }
 
+// 開いているダイアログのスタック(末尾が一番上)。keydown の listener は 1 つだけ、スタックが空でない間だけ付ける
+var stack = [];
+
+function onDocumentKeydown(e) {
+    var top = stack[stack.length - 1];
+    if (top) {
+        top.onKeydown(e);
+    }
+}
+
+function pushEntry(entry) {
+    if (stack.length === 0) {
+        document.addEventListener('keydown', onDocumentKeydown, true);
+    }
+    stack.push(entry);
+}
+
+// 途中のダイアログが先に閉じられても、他のものの順序は変えない
+function removeEntry(entry) {
+    var i = stack.indexOf(entry);
+    if (i !== -1) {
+        stack.splice(i, 1);
+    }
+    if (stack.length === 0) {
+        document.removeEventListener('keydown', onDocumentKeydown, true);
+    }
+}
+
 /**
  * ダイアログを開く。
  *
@@ -43,7 +73,7 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
         }
         closed = true;
         overlayEl.hidden = true;
-        document.removeEventListener('keydown', onKeydown, true);
+        removeEntry(entry);
         document.removeEventListener('evoshell:modalclose', onModalClose);
         if (restoreFocusToOpener === true) {
             restoreFocus(returnEl);
@@ -92,13 +122,14 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
         }
     }
 
+    var entry = { onKeydown: onKeydown };
     overlayEl.hidden = false;
     var focusEl = initialEl || focusableIn(panelEl)[0] || panelEl;
     if (focusEl === panelEl && !panelEl.hasAttribute('tabindex')) {
         panelEl.setAttribute('tabindex', '-1');
     }
     focusEl.focus({ preventScroll: true });
-    document.addEventListener('keydown', onKeydown, true);
+    pushEntry(entry);
     document.addEventListener('evoshell:modalclose', onModalClose);
 
     return close;
