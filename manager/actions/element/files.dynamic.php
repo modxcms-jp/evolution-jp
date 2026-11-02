@@ -107,7 +107,7 @@ if (!is_readable($startpath)) {
         <li id="Button5" class="mutate">
             <a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"><?= lang('cancel') ?></a>
+                onclick="documentDirty=false;document.location.href=<?= hsc(js_literal('index.php?' . $href)) ?>;"><?= lang('cancel') ?></a>
         </li>
     </ul>
 </div>
@@ -197,8 +197,8 @@ if (!is_readable($startpath)) {
             $ph = [
                 'image' => $_style['tree_folder'],
                 'subject' => sprintf(
-                    '<a href="index.php?a=31&mode=drill&path=%s">Top</b></a> / ',
-                    config('filemanager_path')
+                    '<a href="%s">Top</a> / ',
+                    hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path')))
                 )
             ];
         }
@@ -399,7 +399,7 @@ if (is_writable($startpath)) {
     <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
         <input
             type="hidden" name="MAX_FILE_SIZE"
-            value="<?= evo()->config('upload_maxsize', 32 * 1024 * 1024) ?>">
+            value="<?= (int) evo()->config('upload_maxsize', 32 * 1024 * 1024) ?>">
         <input type="hidden" name="a" value="31">
         <input type="hidden" name="path" value="<?= hsc($startpath) ?>">
 
@@ -585,13 +585,12 @@ function ls($curpath)
             } else {
                 if ($enablefiledownload && in_array($type, $uploadablefiles)) {
                     $files_array[$filecounter]['view'] = sprintf(
-                        '<a href="%s%s" style="cursor:pointer; width:20px;"><img src="%smisc/ed_save.gif" align="absmiddle" alt="%s" title="%s" /></a> ',
-                        webstart_path(),
-                        implode('/', array_map('rawurlencode', explode('/', substr(
+                        '<a href="%s" style="cursor:pointer; width:20px;"><img src="%smisc/ed_save.gif" align="absmiddle" alt="%s" title="%s" /></a> ',
+                        hsc(webstart_path() . implode('/', array_map('rawurlencode', explode('/', substr(
                             $newpath,
                             $len,
                             strlen($newpath)
-                        )))),
+                        ))))),
                         $style_path,
                         lang('file_download_file'),
                         lang('file_download_file')

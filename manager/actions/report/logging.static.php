@@ -350,6 +350,7 @@ EOT;
                             while ($row = db()->getRow($rs)) {
                                 $row['itemname'] = evo()->hsc($row['itemname']);
                                 $row['username'] = hsc($row['username']);
+                                $row['message'] = hsc($row['message']);
                                 if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                                     $row['title'] = '<div style="text-align:center;">-</div>';
                                 } elseif (in_array($row['action'], [3, 27, 5])) {
