@@ -4,7 +4,7 @@
         <th><?= lang('filemanager_path_title') ?></th>
         <td>
             <input type="text" maxlength="255" style="width: 300px;" name="filemanager_path"
-                value="<?= htmlspecialchars(isset($user['filemanager_path']) ? $user['filemanager_path'] : "") ?>">
+                value="<?= hsc($user['filemanager_path'] ?? '') ?>">
             <div><?= lang('filemanager_path_message') ?></div>
         </td>
     </tr>
@@ -12,7 +12,7 @@
         <th><?= lang('uploadable_images_title') ?></th>
         <td>
             <input type="text" maxlength='255' style="width: 250px;" name="upload_images"
-                value="<?= isset($user['upload_images']) ? $user['upload_images'] : "" ?>">
+                value="<?= hsc($user['upload_images'] ?? '') ?>">
             &nbsp;&nbsp;
             <label>
                 <input type="checkbox" name="default_upload_images"
@@ -26,7 +26,7 @@
         <th><?= lang('uploadable_media_title') ?></th>
         <td>
             <input type="text" maxlength='255' style="width: 250px;" name="upload_media"
-                value="<?= isset($user['upload_media']) ? $user['upload_media'] : "" ?>">
+                value="<?= hsc($user['upload_media'] ?? '') ?>">
             &nbsp;&nbsp;
             <label>
                 <input type="checkbox" name="default_upload_media"
@@ -40,7 +40,7 @@
         <th><?= lang('uploadable_files_title') ?></th>
         <td>
             <input type="text" maxlength='255' style="width: 250px;" name="upload_files"
-                value="<?= isset($user['upload_files']) ? $user['upload_files'] : "" ?>">
+                value="<?= hsc($user['upload_files'] ?? '') ?>">
             &nbsp;&nbsp;
             <label>
                 <input type="checkbox" name="default_upload_files"
@@ -65,7 +65,7 @@
         <th><?= lang('rb_base_dir_title') ?></th>
         <td>
             <input type="text" maxlength='255' style="width: 300px;" name="rb_base_dir"
-                value="<?= isset($user["rb_base_dir"]) ? $user["rb_base_dir"] : "" ?>" />
+                value="<?= hsc($user['rb_base_dir'] ?? '') ?>" />
             <div><?= lang('rb_base_dir_message') ?></div>
         </td>
     </tr>
@@ -73,7 +73,7 @@
         style="display: <?= $modx->config['use_browser'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('rb_base_url_title') ?></th>
         <td><input type="text" maxlength='255' style="width: 300px;" name="rb_base_url"
-                value="<?= isset($user["rb_base_url"]) ? $user["rb_base_url"] : "" ?>" />
+                value="<?= hsc($user['rb_base_url'] ?? '') ?>" />
             <div><?= lang('rb_base_url_message') ?></div>
         </td>
     </tr>

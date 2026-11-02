@@ -137,12 +137,12 @@ function role($key, $default = null)
                 <table>
                     <tr>
                         <td><?= $_lang['role_name'] ?>:</td>
-                        <td><input name="name" type="text" maxlength="50" value="<?= role('name') ?>">
+                        <td><input name="name" type="text" maxlength="50" value="<?= hsc(role('name')) ?>">
                         </td>
                     </tr>
                     <tr>
                         <td><?= $_lang['resource_description'] ?>:</td>
-                        <td><textarea name="description"><?= role('description') ?></textarea></td>
+                        <td><textarea name="description"><?= hsc(role('description')) ?></textarea></td>
                     </tr>
                 </table>
             </fieldset>

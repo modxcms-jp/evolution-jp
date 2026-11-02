@@ -49,14 +49,14 @@ if (!evo()->hasPermission('edit_role')) {
             while ($row = db()->getRow($rs)) {
                 if ($row['id'] == 1) {
                     ?>
-                    <li><span style="width: 200px"><i><?= "({$row['id']}) {$row['name']}" ?></i></span> -
+                    <li><span style="width: 200px"><i><?= "({$row['id']}) " . hsc($row['name']) ?></i></span> -
                         <i><?= $_lang['administrator_role_message'] ?></i></li>
                     <?php
                 } else {
                     ?>
                     <li><span style="width: 200px"><a
-                                href="index.php?id=<?= $row['id'] ?>&a=35"><?= "({$row['id']}) {$row['name']}" ?></a></span>
-                        - <?= $row['description'] ?></li>
+                                href="index.php?id=<?= (int)$row['id'] ?>&a=35"><?= "({$row['id']}) " . hsc($row['name']) ?></a></span>
+                        - <?= hsc($row['description']) ?></li>
                     <?php
                 }
             }
