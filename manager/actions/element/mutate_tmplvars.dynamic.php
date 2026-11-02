@@ -149,51 +149,85 @@ function entity($key, $default = null)
         dp = (widgetParams[df]) ? widgetParams[df].split("&") : "";
         if (!dp) tr.style.display = 'none';
         else {
-            t = '<table width="400" style="margin-bottom:3px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?= $_lang['parameter'] ?></td><td width="50%"><?= $_lang['value'] ?></td></tr></thead>';
+            // 値・選択肢は textContent / value で DOM に入れる（HTML の文字列にしない）
+            const table = document.createElement('table');
+            table.width = '400';
+            table.setAttribute('style', 'margin-bottom:3px;background-color:#EEEEEE');
+            table.setAttribute('cellpadding', '2');
+            table.setAttribute('cellspacing', '1');
+            const headRow = document.createElement('tr');
+            [<?= js_literal($_lang['parameter']) ?>, <?= js_literal($_lang['value']) ?>].forEach(function(label) {
+                const th = document.createElement('td');
+                th.width = '50%';
+                th.textContent = label;
+                headRow.appendChild(th);
+            });
+            const thead = document.createElement('thead');
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+
             for (p = 0; p < dp.length; p++) {
                 dp[p] = (dp[p] + '').replace(/^\s|\s$/, ""); // trim
                 ar = dp[p].split("=");
-                key = ar[0]; // param
+                const key = ar[0]; // param
                 ar = (ar[1] + '').split(";");
-                desc = ar[0]; // description
-                dt = ar[1]; // data type
-                value = decode((currentParams[key]) ? currentParams[key] : (dt == 'list') ? ar[3] : (ar[2]) ? ar[2] : '');
+                const desc = ar[0]; // description
+                const dt = ar[1]; // data type
+                let value = decode((currentParams[key]) ? currentParams[key] : (dt == 'list') ? ar[3] : (ar[2]) ? ar[2] : '');
                 if (value != currentParams[key]) currentParams[key] = value;
                 value = (value + '').replace(/^\s|\s$/, ""); // trim
-                value = value.replace(/&/g, "&amp;"); // replace & with &quot;
-                value = value.replace(/\"/g, "&quot;"); // replace double quotes with &quot;
-                if (dt) {
-                    switch (dt) {
-                        case 'int':
-                        case 'float':
-                            c = '<input type="text" name="prop_' + key + '" value="' + value + '" size="30" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" />';
-                            break;
-                        case 'list':
-                            c = '<select name="prop_' + key + '" height="1" style="width:168px" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)">';
-                            ls = (ar[2] + '').split(",");
-                            if (!currentParams[key] || currentParams[key] == 'undefined') {
-                                currentParams[key] = ls[0]; // use first list item as default
-                            }
-                            for (i = 0; i < ls.length; i++) {
-                                c += '<option value="' + decode(ls[i]) + '"' + ((decode(ls[i]) == value) ? ' selected="selected"' : '') + '>' + decode(ls[i]) + '</option>';
-                            }
-                            c += '</select>';
-                            break;
-                        case 'textarea':
-                            c = '<textarea class="inputBox phptextarea" name="prop_' + key + '" cols="25" style="width:320px;" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" >' + value + '</textarea>';
-                            break;
-                        default: // string
-                            c = '<input type="text" name="prop_' + key + '" value="' + value + '" size="30" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" />';
-                            break;
+                if (!dt) continue;
 
+                let ctrl;
+                switch (dt) {
+                    case 'list': {
+                        ctrl = document.createElement('select');
+                        ctrl.setAttribute('height', '1');
+                        ctrl.style.width = '168px';
+                        const items = (ar[2] + '').split(",");
+                        if (!currentParams[key] || currentParams[key] == 'undefined') {
+                            currentParams[key] = items[0]; // use first list item as default
+                        }
+                        items.forEach(function(item) {
+                            const option = document.createElement('option');
+                            option.value = decode(item);
+                            option.textContent = decode(item);
+                            option.selected = (decode(item) == value);
+                            ctrl.appendChild(option);
+                        });
+                        break;
                     }
-                    t += '<tr><td bgcolor="#FFFFFF" width="50%">' + desc + '</td><td bgcolor="#FFFFFF" width="50%">' + c + '</td></tr>';
+                    case 'textarea':
+                        ctrl = document.createElement('textarea');
+                        ctrl.className = 'inputBox phptextarea';
+                        ctrl.cols = 25;
+                        ctrl.style.width = '320px';
+                        ctrl.value = value;
+                        break;
+                    default: // int, float, string
+                        ctrl = document.createElement('input');
+                        ctrl.type = 'text';
+                        ctrl.size = 30;
+                        ctrl.value = value;
+                        break;
                 }
+                ctrl.name = 'prop_' + key;
+                ctrl.addEventListener('change', function() {
+                    setParameter(key, dt, ctrl);
+                });
 
+                const row = document.createElement('tr');
+                [desc, ctrl].forEach(function(content) {
+                    const cell = document.createElement('td');
+                    cell.setAttribute('bgcolor', '#FFFFFF');
+                    cell.width = '50%';
+                    if (typeof content === 'string') cell.textContent = content;
+                    else cell.appendChild(content);
+                    row.appendChild(cell);
+                });
+                table.appendChild(row);
             }
-            t += '</table>';
-            td = document.getElementById('displayparams');
-            td.innerHTML = t;
+            document.getElementById('displayparams').replaceChildren(table);
             tr.style.display = '';
         }
         implodeParameters();
