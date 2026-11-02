@@ -126,7 +126,7 @@
                     type="hidden"
                     name="siteunavailable_message_default"
                     id="siteunavailable_message_default_hidden"
-                    value="<?= addslashes(lang('siteunavailable_message_default')) ?>" />
+                    value="<?= hsc(lang('siteunavailable_message_default')) ?>" />
                 <?= lang('siteunavailable_message') ?>
             </td>
         </tr>
