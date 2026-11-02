@@ -267,20 +267,22 @@ function entity($key, $default = null)
             }
 
             // Select the correct dropdown value
-            var modx_category_found = false;
+            // @modx_category が無いときは、選択にも新しいカテゴリの欄にも触れない
             var modx_category = (theParams.modx_category || '').trim();
-            document.querySelectorAll('#categoryid option').forEach(function(opt) {
-                opt.selected = false;
-                if (modx_category && opt.value !== '-1' && opt.text.trim() == modx_category) {
-                    opt.selected = true;
-                    modx_category_found = true;
+            if (modx_category) {
+                var modx_category_found = false;
+                document.querySelectorAll('#categoryid option').forEach(function(opt) {
+                    opt.selected = false;
+                    if (opt.value !== '-1' && opt.text.trim() == modx_category) {
+                        opt.selected = true;
+                        modx_category_found = true;
+                    }
+                });
+                if (modx_category_found) {
+                    EvoElementCategory.sync(document.forms['mutate']);
+                } else {
+                    EvoElementCategory.useNew(document.forms['mutate'], modx_category);
                 }
-            });
-            EvoElementCategory.sync(document.forms['mutate']);
-
-            // If not found in the dropdown, create a new category
-            if (!modx_category_found && modx_category) {
-                EvoElementCategory.useNew(document.forms['mutate'], modx_category);
             }
 
         });

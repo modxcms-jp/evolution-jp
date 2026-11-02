@@ -48,13 +48,9 @@ var EvoElementCategory = (function () {
     function init(form) {
         const f = fields(form);
         if (!f) return;
-        // 画面の再表示で同じ form に二重に登録しない（form は新しい要素だが、念のため一度だけ）
-        if (!f.select.dataset.evoCategoryBound) {
-            f.select.dataset.evoCategoryBound = '1';
-            f.select.addEventListener('change', function () {
-                sync(form);
-            });
-        }
+        f.select.addEventListener('change', function () {
+            sync(form);
+        });
         sync(form);
     }
 
