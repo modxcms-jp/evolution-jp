@@ -217,9 +217,9 @@ switch ($rt) {
                             $grd->itemClass = "gridItem";
                             $grd->altItemClass = "gridAltItem";
                             $grd->columns = $_lang["name"] . " ," . $_lang["description"];
-                            $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>";
+                            $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>" . ($rt === 'doc' ? '' : '||description');
                             $grd->fields = "name,description";
-                            $grd->colEscapes = $rt === 'doc' ? '1,1' : '1,'; // DB の値を出す列をエスケープ（要素の説明だけ HTML として出す。文書のロングタイトルは説明の列に入るのでエスケープする）
+                            $grd->colEscapes = $rt === 'doc' ? '1,1' : '1,'; // DB の値を出す列をエスケープ（要素の説明は description 型が自分で無害化する。文書のロングタイトルは説明の列に入るのでエスケープする）
                             if (anyv('listmode') == 1) {
                                 $grd->pageSize = 0;
                             }
