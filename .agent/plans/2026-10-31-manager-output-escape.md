@@ -10,7 +10,7 @@ Issue: #895
 
 - [x] (2026-11-01) M0: Decision Log の「要確認」（D1・D3・D4）をユーザーに確かめて確定する（D1 は呼び出し側で `hsc()`、D3 は B、D4 はすべて `hsc()`。どれも推奨どおり）
 - [x] (2026-11-01) M1: 設定画面とヘルパーの方針（`html_tag()` の説明、`form_text_tag()`・`Form::text()` の廃止）。自己レビューの指摘で `site_unavailable_message`・`default_template` の比較・`emailsender` の文言・ファイル管理タブの `site_url` も直した
-- [ ] M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名
+- [x] (2026-11-02) M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名。自己レビューの指摘で、メニューの `mail_check_timeperiod` とツリーの `site_start` を `(int)` にし（D7。menu.php 冒頭の「空なら 0」の 3 行は不要になり削除）、インポート画面のファイル名・フォルダ名・エラー文も `hsc()` にした
 - [ ] M3: リソースの編集・情報・子リソース一覧
 - [ ] M4: 要素（一覧・編集画面・テンプレート変数）
 - [ ] M5: ユーザー・ロール・権限
@@ -36,6 +36,12 @@ Issue: #895
 - 2026-11-01: M1 の自己レビューで、同じ設定画面に取りこぼしが見つかった。`tab1_site_settings.inc.php` の `site_unavailable_message`（`textarea`）と、`tab6_filemanager_settings.inc.php` の `rb_base_url` の前に出す `$site_url`。どちらも M1 で `hsc()` にした（`tab6` は M1 の書き込むファイルに足した）。また `default_template` を `(int)` にしたため、JS の比較も数で行うようにした（保存値が空のとき「(blank)」に戻すとリセット欄が隠れるように）。
 - 2026-11-01: M1 の検証で、修正前は設定画面の値を開いて何も変えずに保存し直すと、`site_name` と `manager_docs_orderby` が途中で切れて保存されることを確かめた（`form_text()` に置き換えて直った）。
 - 2026-11-01: 設定画面の言語文字列を `value` 属性に `addslashes()` で出している箇所が複数ある（`tab1_site_settings.inc.php`・`tab3_user_settings.inc.php`）。D11 で言語文字列は範囲外としたので触っていない。属性の文脈に `addslashes()` は合わないので、別の Issue の候補。
+- 2026-11-02: M2 の検証で、修正前はサイト名に `"` や `'` があるとツリーの根の `onclick` が壊れ（`addslashes()` は HTML の属性を守れない）、JS のエラーで「移動」や「親の選択」で根を選べないことを確かめた。修正後は選べる。
+- 2026-11-02: M2 の自己レビューで、`mail_check_timeperiod`（メニュー）と `site_start`（ツリー）を JS に生のまま出していたことが分かった。どちらも保存時に検証していないので、数でない値で JS が止まる（修正前は `abc` で pageerror 4 件を確かめた）。D7 の対象に足して `(int)` にした。
+- 2026-11-02: `import_site.static.php` は、ファイル名・フォルダ名・DB のエラー文をそのまま出していた（M2 で `hsc()` にした）。同じファイルで、`description`・`alias` を `db()->escape()` を通さずに `db()->insert()` に渡しており、ファイル名に `'` があるとインポートが SQL の構文エラーで止まる（修正前から。出力のエスケープとは別なので、別の Issue の候補）。
+- 2026-11-02: ツリーの `$ph['nodetitle']` を削除したので、`OnManagerNodePrerender`・`OnManagerNodeRender` のプラグインに渡る値から `nodetitle` が消えた。同梱のテンプレートとプラグインは使っていない。
+- 2026-11-02: `manager_theme` は、`menu.php`・`tree.php`・`header.inc.php`・`welcome.static.php`・`manager.lockout.inc.php`・`accesscontrol-not-mgr.inc.php`・`document.parser.subparser.trait.php` でエスケープせずに出し、`resource_selector.static.php` だけが `hsc()` している。ユーザーごとの設定でも上書きでき、パスにも使うので、保存時の検証と出力時の `hsc()` をそろえる別の Issue の候補（M2 では触らない）。
+- 2026-11-02: M2 の手順 4 のテーマの一覧には SoftSlate が抜けていた。SoftSlate の `login.tpl` も `[+site_name+]` を HTML の本文と `alt` 属性にしか使っておらず、テンプレートを変える必要はない。
 
 ## Decision Log
 
@@ -233,6 +239,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/895
 - ブランチ: `fix/895-manager-output-escape`（ワークツリー `.claude/worktrees/issue-895`）。PR はマイルストーンごとに 1 本（D12）
+- PR: M1 は #1009（マージ済み）。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
 - 関連: #885（設定画面の `form_text()`）、#891（設定画面とリソース編集画面の一部の欄）
 - 出力のエスケープの取り決め: `AGENTS.md` の「補助ルール」→「出力のエスケープ」
 - 既存のエスケープの例: `manager/includes/error.class.inc.php:53-63`（`js_literal(hsc())` の使い分けの説明）、`manager/actions/document/move_document.dynamic.php:95-104`（`textContent` で組み立てる例）、`manager/frames/nodes.php:190, 193`（`hsc(js_literal())` の例）
