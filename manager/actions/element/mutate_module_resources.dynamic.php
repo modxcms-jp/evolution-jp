@@ -220,7 +220,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
     </div>
 
     <div class="section">
-        <div class="sectionHeader"><?= $content["name"] . " - " . $_lang['module_resource_title'] ?></div>
+        <div class="sectionHeader"><?= hsc($content["name"]) . " - " . $_lang['module_resource_title'] ?></div>
         <div class="sectionBody">
             <p><img src="<?= $_style["icons_modules"] ?>" alt=""
                     align="left" /><?= $_lang['module_resource_msg'] ?></p>

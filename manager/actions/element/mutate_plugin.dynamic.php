@@ -466,7 +466,7 @@ function entity($key, $default = null)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= entity('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
@@ -571,7 +571,7 @@ function entity($key, $default = null)
                 if ($guid_total > 0) {
                     $options = '';
                     while ($row = db()->getRow($ds)) {
-                        $options .= "<option value='" . $row['guid'] . "'" . selected(entity('moduleguid') == $row["guid"]) . ">" . hsc($row["name"]) . "</option>";
+                        $options .= '<option value="' . hsc($row['guid']) . '"' . selected(entity('moduleguid') == $row["guid"]) . ">" . hsc($row["name"]) . "</option>";
                     }
                 }
                 ?>
@@ -602,7 +602,7 @@ function entity($key, $default = null)
                         <td align="left" valign="top">
                             <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
                                 onblur='showParameters(this);'
-                                onChange="showParameters(this);"><?= entity('properties') ?></textarea><br />
+                                onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea><br />
                             <input
                                 type="button" value="<?= $_lang['update_params'] ?>"
                                 onclick="showParameters(this);" />
@@ -671,17 +671,17 @@ function entity($key, $default = null)
                                     echoEventRows($evtnames);
                                 }
                                 echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
-                                echo '<tr><td colspan="2"><b>' . "[{$g}] " . $row['groupname'] . '</b></td></tr>';
+                                echo '<tr><td colspan="2"><b>' . "[{$g}] " . hsc($row['groupname']) . '</b></td></tr>';
                                 $grpName = $row['groupname'];
                             }
                             $evtid = $row['id'];
                             $evtnames[] = '<input name="sysevents[]" type="checkbox"' . checked(in_array(
                                 $row['id'],
                                 $evts
-                            )) . ' class="inputBox" value="' . $row['id'] . '" id="' . $row['name'] . '"/><label for="' . $row['name'] . '"' . bold(in_array(
+                            )) . ' class="inputBox" value="' . $row['id'] . '" id="' . hsc($row['name']) . '"/><label for="' . hsc($row['name']) . '"' . bold(in_array(
                                 $row['id'],
                                 $evts
-                            )) . '>' . "[{$evtid}] " . $row['name'] . '</label>' . "\n";
+                            )) . '>' . "[{$evtid}] " . hsc($row['name']) . '</label>' . "\n";
                             if (count($evtnames) == 2) {
                                 echoEventRows($evtnames);
                             }
@@ -741,7 +741,7 @@ function entity($key, $default = null)
                         <th align="left"><?= $_lang['plugin_desc'] ?>:&nbsp;&nbsp;</th>
                         <td align="left">
                             <textarea id="pluginDescription" name="description"
-                                style="padding:0;height:4em;"><?= entity('description') ?></textarea>
+                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
                         </td>
                     </tr>
                     <?php $pluginErrorReporting = entity('error_reporting', 'inherit'); ?>

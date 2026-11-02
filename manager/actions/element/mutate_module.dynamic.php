@@ -300,7 +300,7 @@ function content($key, $default = null)
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
+        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
@@ -316,7 +316,7 @@ function content($key, $default = null)
         echo implode('', $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= content('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) content('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
@@ -424,7 +424,7 @@ function content($key, $default = null)
                                 $ds = manager()->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo "\t\t\t" . '<option value="' . $v['id'] . '"' . (content('category') == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . "</option>\n";
+                                        echo "\t\t\t" . '<option value="' . $v['id'] . '"' . (content('category') == $v['id'] ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";
                                     }
                                 }
                                 ?>
@@ -443,13 +443,13 @@ function content($key, $default = null)
                     <tr>
                         <td align="left"><?= $_lang['module_desc'] ?>:</td>
                         <td align="left"><textarea name="description"
-                                style="padding:0;width:300px;height:4em;"><?= content('description') ?></textarea>
+                                style="padding:0;width:300px;height:4em;"><?= hsc(content('description')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
                         <td align="left"><?= $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
                         <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon"
-                                value="<?= content('icon') ?>" /> <input type="button"
+                                value="<?= hsc(content('icon')) ?>" /> <input type="button"
                                 value="<?= $_lang['insert'] ?>"
                                 onclick="BrowseServer();" />
                         </td>
@@ -462,7 +462,7 @@ function content($key, $default = null)
                                 title="<?= $_lang['enable_resource'] ?>"><?= $_lang["element"] ?></span>:
                         </td>
                         <td align="left"><input name="resourcefile" type="text" maxlength="255"
-                                value="<?= content('resourcefile') ?>" class="inputBox" />
+                                value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_module') == 1) { ?>
@@ -483,7 +483,7 @@ function content($key, $default = null)
                                 style="display:block;"
                                 maxlength="65535"
                                 class="inputBox phptextarea"
-                                onchange="showParameters(this);"><?= content('properties') ?></textarea>
+                                onchange="showParameters(this);"><?= hsc(content('properties')) ?></textarea>
                             <input type="button" value="<?= $_lang['update_params'] ?>"
                                 style="width:16px; margin-left:2px;" title="<?= $_lang['update_params'] ?>" />
                         </td>
@@ -525,7 +525,7 @@ function content($key, $default = null)
                                     <input
                                         name="guid" type="text" maxlength="32"
                                         value="<?=
-                                                content('guid') ?: createGUID()
+                                                hsc(content('guid') ?: createGUID())
                                                 ?>"
                                         class="inputBox" /><br />
                                     <span class="comment"><?= $_lang['enable_sharedparams_msg'] ?></span><br />
@@ -638,7 +638,7 @@ function content($key, $default = null)
                             if ($checked) {
                                 $notPublic = true;
                             }
-                            $chks .= '<label><input type="checkbox" name="usrgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . "</label><br />\n";
+                            $chks .= '<label><input type="checkbox" name="usrgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
                         } elseif ($checked) {
                             $chks = '<input type="hidden" name="usrgroups[]"  value="' . $row['id'] . '" />' . "\n" . $chks;
                         }

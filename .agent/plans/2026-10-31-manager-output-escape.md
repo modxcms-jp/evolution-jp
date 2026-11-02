@@ -12,7 +12,8 @@ Issue: #895
 - [x] (2026-11-01) M1: 設定画面とヘルパーの方針（`html_tag()` の説明、`form_text_tag()`・`Form::text()` の廃止）。自己レビューの指摘で `site_unavailable_message`・`default_template` の比較・`emailsender` の文言・ファイル管理タブの `site_url` も直した
 - [x] (2026-11-02) M2: 管理画面の枠（ログイン・ロックアウト・ダッシュボード・メニュー・ツリー）とサイト名。自己レビューの指摘で、メニューの `mail_check_timeperiod` とツリーの `site_start` を `(int)` にし（D7。menu.php 冒頭の「空なら 0」の 3 行は不要になり削除）、インポート画面のファイル名・フォルダ名・エラー文も `hsc()` にした
 - [x] (2026-11-03) M3: リソースの編集・情報・子リソース一覧。自己レビューの指摘で、子リソース一覧の JS の `site_start`、編集画面の `upload_maxsize`・`docParent`・`docIsFolder` も `(int)` にし（D7）、`element_description_html()` は対になったタグだけを戻す形にした
-- [ ] M4: 要素（一覧・編集画面・テンプレート変数）
+- [x] (2026-11-04) M4: 要素（一覧・編集画面・テンプレート変数）。手順 2 は DataGrid の `description` 型で行い（D13）、DocManager・QuickManager のテンプレート変数の説明もそろえた（D14）。#1003（説明欄の `&amp;`）もここで閉じる。自己レビューの指摘で、テンプレート変数の入力タイプの選択肢・イベントのグループ名・隠しフィールドの id も直した
+- [ ] M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）
 - [ ] M5: ユーザー・ロール・権限
 - [ ] M6: ファイル管理・レポート・ログ
 - [ ] M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）
@@ -45,7 +46,11 @@ Issue: #895
 - 2026-11-03: M3 の検証で、修正前はテンプレート変数の説明に書いた `<script>` がリソースの編集画面で実行されること、`imanager_url`・`friendly_url_suffix` に `'` があると編集画面の JS が壊れ（`imanager_url is not defined` など）、画像の挿入やサフィックスの切り替えが動かないことを確かめた。子リソース一覧の「表示」は、エイリアスの `'` は `makeUrl()` が `%27` にするので壊れず、`friendly_url_suffix` に `'` があると壊れる。修正後はどれも動く。
 - 2026-11-03: M3 の自己レビューで、子リソース一覧の JS の `site_start`（修正前は `abc` で「非公開」の操作が JS のエラー）、編集画面の `upload_maxsize`（`"` で属性が壊れる。ユーザーごとの設定でも上書きできる）、`docParent`・`docIsFolder`（入力の差し戻しで送信値が重なる）を生のまま出していたことが分かった。D7 の対象に足して `(int)` にした。同じ `upload_maxsize` は `files.dynamic.php:402` でも生のまま出しているので、M6 の手順に足した。
 - 2026-11-03: `element_description_html()` を最初は開きタグ・閉じタグを 1 つずつ戻す形にしたが、閉じ忘れの `<strong>` が後ろの `<li>` まで太字を広げうる（M4 の要素一覧は `<li>` の形）ので、対になったものだけを戻す形にした。
-- 2026-11-03: テンプレート変数の説明は、DocManager の `assets/modules/docmanager/tv.ajax.php:59` と QuickManager の `assets/plugins/qm/inc/edit_tv.inc.php:134` では `hsc()` だけで出しており、D3 の B の規則と食い違う（`<strong>` が文字で出る）。選択肢のラベル（D4）はこの 2 つも `renderFormElement()` を通るので M3 でそろった。説明を M4 か M7 で範囲に入れるかは、着手時に決める。
+- 2026-11-03: テンプレート変数の説明は、DocManager の `assets/modules/docmanager/tv.ajax.php:59` と QuickManager の `assets/plugins/qm/inc/edit_tv.inc.php:134` では `hsc()` だけで出しており、D3 の B の規則と食い違う（`<strong>` が文字で出る）。選択肢のラベル（D4）はこの 2 つも `renderFormElement()` を通るので M3 でそろった。説明を M4 か M7 で範囲に入れるかは、着手時に決める。（2026-11-04: M4 に入れた。D14）
+- 2026-11-04: M4 の検証で、修正前は要素の一覧で説明の `<script>` が実行され、閉じ忘れの `<strong>` が隣の行まで太字にしていたこと、モジュール・プラグイン・スニペットの編集画面を何も変えずに保存すると、guid・アイコン・リソースファイルが `"` や `&` で切れ、プロパティの `</textarea>` 以降が消えることを確かめた。修正後はどれも起きない。DataGrid のほかの利用者（ユーザー一覧・Web ユーザー一覧・モジュール一覧・DocManager・テンプレート変数の datagrid 出力）の表は、修正前と同じ HTML だった。
+- 2026-11-04: `mutate_tmplvars.dynamic.php` の入力タイプの選択肢を組み立てる所は、`$row` を DB の読み込みと選択肢の配列の両方に使っている。`input:` の要素が 1 件でもあると、ループを出たとき `$row === false` に配列として書き込むので、PHP 8.1 以降で非推奨の警告が出る（修正前から。出力のエスケープとは別）。
+- 2026-11-04: `system_eventnames` のイベント名に `'` があると、キャッシュの `siteCache.idx.php` が壊れて管理画面が 500 になる（DB を直接書いたときだけ。キャッシュ生成側の問題で、範囲外）。
+- 2026-11-04: `mutate_module_resources.dynamic.php:213` の隠しフィールドの id は `$content['id']` のまま（DB から読んだ整数なので害はない。ほかの 4 画面は `(int)`）。
 
 ## Decision Log
 
@@ -61,6 +66,9 @@ Issue: #895
 - 2026-10-31 / planner D10: `document_data.static.php` の代入時の一括 `hsc()` は今回動かさない。今は安全で、`entity()` の出力 30 か所余りを出力直前の形へ移すのは別の整理になる。今回は一括エスケープを通らないテンプレート名（`:221`）だけに `hsc()` を足す。
 - 2026-10-31 / planner D11: 範囲外にするもの。言語ファイルの文字列（コアが書く HTML）、`$_style` の値・`MODX_*` の定数・`manager_style_image_path()` など、コードが決める値。`<head>` へ出す `manager_inline_style`（`tree.php:33` など。HTML を差し込む設定として意図した出力）。ただし設定画面の `textarea` での表示（`tab4_manager_settings.inc.php:30`）は範囲に入れる。
 - 2026-10-31 / planner D12: PR はマイルストーンごとに 1 本に分ける（Issue の対応案どおり、画面のまとまりごと）。M1 は D1・D2 の方針を含むので最初に出す。M2〜M6 は互いに依存しないが、D3・D4 の決定を待つのは M3・M4 だけ。
+- 2026-11-04 / メイン（ユーザーが選択）D13: M4 の手順 2 は、DataGrid が DB の結果か区切り文字の文字列しか受け付けず、変換済みの配列を渡せないと分かった。DataGrid の列の種類に `description` を足し、`formatColumnValue()` で `element_description_html()` を通す形にした。代替案は「説明の列を `colEscapes` で `hsc()` だけにする」（同梱の要素の `<strong>版</strong>` がこの 2 画面だけ文字で出て D3 と食い違う）と「M4 では触らず後で決める」。列の種類なら呼び出し側は `colTypes` を書くだけで、説明の規則が全画面で 1 つになる（SSOT）。`description` の列は `colEscapes` を無視する（二重にしないため）。
+- 2026-11-04 / メイン D14: DocManager と QuickManager のテンプレート変数の説明（M3 の Surprises）は、M4 に入れて `element_description_html()` にそろえた。QuickManager はフロントで動くが、`document.parser.class.inc.php` → `initialize.inc.php` → `helpers.php` と読み込まれるので使える。
+- 2026-11-04 / メイン D15: M4 の自己レビューで、プロパティの設定表を JS で組み立てるときに保存された値を `innerHTML` に生で入れていると分かった（4 画面）。M4 には入れず、M4b に分けた。4 画面の JS をまとめて書き換え、共通にするかの判断も伴うため。M4 で悪くなった所ではない（M4 の前は `</textarea>` で入力欄ごと抜けられたが、M4 でふさいだ）。プロパティを書けるのは要素を編集できる人で、もともと PHP を実行できる。
 
 ## Outcomes & Retrospective
 
@@ -147,20 +155,33 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 ### M4: 要素（一覧・編集画面・テンプレート変数）
 
-書き込むファイル: `manager/actions/element/resources.static.php`、`mutate_module.dynamic.php`、`mutate_plugin.dynamic.php`、`mutate_snippet.dynamic.php`、`mutate_templates.dynamic.php`、`mutate_tmplvars.dynamic.php`、`mutate_module_resources.dynamic.php`、D3 で B のとき `modules.static.php`・`resource_selector.static.php`（いずれも `manager/actions/element/` の下）。計 7〜9 ファイル。D3 の決定後に着手する。
+書き込むファイル: `manager/actions/element/resources.static.php`、`mutate_module.dynamic.php`、`mutate_plugin.dynamic.php`、`mutate_snippet.dynamic.php`、`mutate_templates.dynamic.php`、`mutate_tmplvars.dynamic.php`、`mutate_module_resources.dynamic.php`、`modules.static.php`、`resource_selector.static.php`（いずれも `manager/actions/element/` の下）、`manager/includes/controls/datagrid.class.php`（D13）、`assets/modules/docmanager/tv.ajax.php`・`assets/plugins/qm/inc/edit_tv.inc.php`（D14）。計 12 ファイル。
 
 1. `resources.static.php`: `:141` と `:338` の説明を D3 に従ってそろえる（B なら両方 `element_description_html()`。`:338` は `' - ' .` の後ろに通す）。`:319`・`:321` のカテゴリー名を `hsc($v['category'])` にする（`:130` の一覧と同じ形）。`:321` の `deleteCategory('…')` に入る `catid` は整数なので `(int)` にする。`:336` の `htmlspecialchars($v['name'], ENT_QUOTES, …)` は `hsc()` にそろえる（D9）。
-2. D3 で B のとき: `modules.static.php:160-161` と `resource_selector.static.php:221-222` で、説明の列を `element_description_html()` で変換した配列を DataGrid に渡す（DataGrid は配列も受け取る。`datagrid.class.php` の `render()`）。説明の列の `colEscapes` は空のまま（変換済みの HTML を出すため）。
+2. `datagrid.class.php` の `formatColumnValue()` に列の種類 `description` を足し、`element_description_html()` を通す（D13。`colEscapes` は無視する）。`modules.static.php` と `resource_selector.static.php`（要素のとき。文書（`rt=doc`）のときは説明の列にロングタイトルが入るので、従来どおり全部エスケープ）の説明の列の `colTypes` を `description` にする。
 3. `mutate_module.dynamic.php`: `:446` の説明、`:452` のアイコン、`:465` のリソースファイル、`:486` のプロパティを `hsc(content(…))` にする。`:528` の `guid` を `hsc()`。`:637` のユーザーグループ名を `hsc($row['name'])`。`:302` の `"<?= $base_url ?>manager/…"` を `js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images')` にする（M5 の同じ形とそろえる）。
 4. `mutate_plugin.dynamic.php`: `:742` の説明と `:606` のプロパティを `hsc(entity(…))`、`:575` の `guid` を `hsc()`（`value='…'` を `value="…"` にそろえる）、`:679-682` のイベント名（`id`・`for` 属性と本文）を `hsc($row['name'])` にする。
 5. `mutate_snippet.dynamic.php`: `:387` の説明と `:471` のプロパティを `hsc(entity(…))`、`:446` の `guid` を `hsc()` にする。`:344` の `$code` は `:336-338` で `hsc()` 済みなので触らない。
 6. `mutate_templates.dynamic.php:262-264`: テンプレート変数の名前を `hsc($row['name'])`、説明（`$row['desc']`）を D3 に従ってそろえる（B なら `element_description_html()`）。
 7. `mutate_tmplvars.dynamic.php`: `:537` のテンプレート名を `hsc($row['templatename'])`、`:655` の文書グループ名を `hsc($row['name'])` にする。
 8. `mutate_module_resources.dynamic.php:223`: モジュール名を `hsc($content['name'])` にする。依存関係の一覧（`:255-257`）は `colEscapes` 済み。
+9. `tv.ajax.php`（DocManager）と `edit_tv.inc.php`（QuickManager）のテンプレート変数の説明を、`hsc()` から `element_description_html()` にする（D14）。
+10. 自己レビューで足したもの: `mutate_tmplvars.dynamic.php` の入力タイプの選択肢（名前が `input:` で始まるスニペット・プラグインの名前）を `hsc()`、`mutate_plugin.dynamic.php` のイベントのグループ名を `hsc()`、module・plugin・snippet・tmplvars の隠しフィールドの id を `(int)`。
 
 期待される観測結果: 要素の名前・説明・カテゴリー名・プロパティに `&`・`<`・`"`・`'` を含む値を入れて保存しても、要素の一覧と各編集画面が崩れず、何も変えずに保存し直しても値が変わらない。同梱の要素の説明の版番号の表示は D3 の選択どおり（B なら太字のまま）。
 
 推奨コミット: `fix(manager): 要素の一覧と編集画面で保存された値をエスケープする`
+
+### M4b: 要素の編集画面のプロパティの設定表
+
+書き込むファイル: `manager/actions/element/` の `mutate_plugin.dynamic.php`・`mutate_snippet.dynamic.php`・`mutate_module.dynamic.php`・`mutate_tmplvars.dynamic.php`。4 画面の `showParameters()` を共通の JS にまとめるなら、その JS（`manager/media/` の下）も。着手時に、4 画面の実装の違いを比べて決める（D15）。
+
+1. 4 画面の `showParameters()` は、プロパティの説明（`desc`）・値（`value`）・リストの項目（`ls[i]`）を文字列の連結で HTML にして `innerHTML` に入れている（`mutate_tmplvars` は `&` と `"` だけ置き換え、`<` は置き換えていない）。`onchange="setParameter('" + key + "', …)"` は、HTML の属性の中に JS の文字列がある二重の文脈になっている。
+2. エスケープ用の JS の関数は作らず、`createElement` と `textContent`・`value`・`addEventListener` で組み立てて、エスケープを要らなくする（Plan of Work の 4）。4 画面がほぼ同じ実装なら、1 つの共通の JS にまとめる（SSOT）。
+
+期待される観測結果: プロパティの説明・値・リストの項目に `&`・`<`・`"`・`'`・`</textarea>`・`<img src=x onerror=…>` を入れても、設定表が崩れず、何も実行されない。値に `"` があっても入力欄が崩れず、何も変えずに保存し直しても値が変わらない（修正前は `value="' + value + '"` で崩れる）。
+
+推奨コミット: `fix(manager): 要素の編集画面のプロパティの設定表を DOM で組み立てる`
 
 ### M5: ユーザー・ロール・権限
 
@@ -244,7 +265,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/895
 - ブランチ: `fix/895-manager-output-escape`（ワークツリー `.claude/worktrees/issue-895`）。PR はマイルストーンごとに 1 本（D12）
-- PR: M1 は #1009、M2 は #1015（どちらもマージ済み）。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
+- PR: M1 は #1009、M2 は #1015、M3 は #1018（どれもマージ済み）。M4 は #1003 もあわせて閉じる。#1009 のマージで、ブランチの Issue との紐づけにより #895 が閉じたので開き直した。ブランチはその後に作り直したので、Issue とは紐づいていない（M2 以降の PR は `Refs #895` にし、M7 の最後の PR だけ `Closes #895` にする）
 - 関連: #885（設定画面の `form_text()`）、#891（設定画面とリソース編集画面の一部の欄）
 - 出力のエスケープの取り決め: `AGENTS.md` の「補助ルール」→「出力のエスケープ」
 - 既存のエスケープの例: `manager/includes/error.class.inc.php:53-63`（`js_literal(hsc())` の使い分けの説明）、`manager/actions/document/move_document.dynamic.php:95-104`（`textContent` で組み立てる例）、`manager/frames/nodes.php:190, 193`（`hsc(js_literal())` の例）
@@ -254,5 +275,5 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 - `hsc()`・`js_literal()`（`manager/includes/helpers.php`）を使う。新しく足すのは、D3 で B を選んだときの `element_description_html(?string $text): string`（`manager/includes/helpers.php`。M3 で追加済み。対になった属性なしの b・strong だけを戻す）だけ。
 - 削除する関数: `form_text_tag()`・`join_attr()`・`Form::text()`（`manager/actions/tool/mutate_settings/functions.inc.php`）。設定画面の中だけで使われていて、外部から呼ばれる前提のものではない。
-- 振る舞いが変わる公開の部分: `DocumentParser::renderFormElement()` が作るテンプレート変数の選択肢のラベルがエスケープされる（D4。ラベルに HTML を書いていたサイトでは、タグが文字として見える）。差し替えたログイン・ダッシュボード・ロックアウトのテンプレートに渡る `[+site_name+]`・`[+homeurl+]` が `hsc()` 済みの値になる（D5）。`html_tag()` の振る舞いは変えない（D1）。
+- 振る舞いが変わる公開の部分: `DocumentParser::renderFormElement()` が作るテンプレート変数の選択肢のラベルがエスケープされる（D4。ラベルに HTML を書いていたサイトでは、タグが文字として見える）。差し替えたログイン・ダッシュボード・ロックアウトのテンプレートに渡る `[+site_name+]`・`[+homeurl+]` が `hsc()` 済みの値になる（D5）。`html_tag()` の振る舞いは変えない（D1）。DataGrid の列の種類に `description` が加わる（D13）。テンプレート変数の出力ウィジェット datagrid の `ctype` や `db()->getHTMLGrid()` の `colTypes` で `description` を指定していた場合は、`colEscapes` に関係なく `element_description_html()` を通るようになる（安全側の変化。同梱の利用者はいない）。
 - PHP 7.4 以上。外部のライブラリは使わない。

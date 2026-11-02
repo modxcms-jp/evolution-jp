@@ -278,7 +278,7 @@ function entity($key, $default = null)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= entity('id') ?>">
+    <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
@@ -406,7 +406,7 @@ function entity($key, $default = null)
                                     if (strtolower(entity('type')) == strtolower($k)) {
                                         $selected = 'selected="selected"';
                                     }
-                                    $row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
+                                    $row[$k] = '<option value="' . hsc($k) . '" ' . $selected . '>' . hsc($v) . '</option>';
                                 }
                                 echo implode("\n", $row);
                                 ?>
@@ -534,7 +534,7 @@ function entity($key, $default = null)
 
                                     $ph['checked'] = $checked ? 'checked' : '';
                                     $ph['id'] = $row['id'];
-                                    $ph['templatename'] = $row['templatename'];
+                                    $ph['templatename'] = hsc($row['templatename']);
                                     echo $modx->parseText(
                                         '<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] /> [[+id+]] [+templatename+]</label>',
                                         $ph
@@ -652,7 +652,7 @@ function entity($key, $default = null)
                                 if ($checked) {
                                     $notPublic = true;
                                 }
-                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
+                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
                                 $number_of_g++;
                             } elseif ($checked) {
                                 echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';

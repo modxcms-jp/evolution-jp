@@ -40,7 +40,8 @@ class DataGrid
     public $colColors = '';
     public $colEscapes = ''; // 列ごとに値を hsc() で無害化するか。1 で有効（例: 1,,1）。既定は無害化しない
     public $colTypes = ''; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
-    // data type: integer,float,currency,date
+    // data type: integer,float,currency,date,boolean,template,description
+    // description: 要素の説明。hsc() で無害化したうえで、対になった属性なしの b・strong だけを戻す（colEscapes は無視）
 
     public $header;
     public $footer;
@@ -200,7 +201,7 @@ class DataGrid
             [$type, $type_format] = explode(":", $type, 2);
         }
         // 値がそのまま HTML に出る列（template・型の指定なし）だけが対象。数値・日付などの整形後の値は影響を受けない
-        $isRawType = !in_array(strtolower($type), ['integer', 'float', 'currency', 'date', 'boolean'], true);
+        $isRawType = !in_array(strtolower($type), ['integer', 'float', 'currency', 'date', 'boolean', 'description'], true);
         if ($escape && $isRawType) {
             $value = hsc($value);
             if (is_array($row) || is_object($row)) {
@@ -269,6 +270,10 @@ class DataGrid
                 } else {
                     $value = '&nbsp;';
                 }
+                break;
+
+            case "description":
+                $value = element_description_html((string)$value);
                 break;
 
             case "template":

@@ -138,7 +138,7 @@ function createResourceList($element_name, $action, $nameField = 'name')
             $ph['id'] = $row['id'];
             $ph['class'] = addclass($element_name, $row);
             $ph['name'] = hsc($row['name']);
-            $ph['description'] = strip_tags($row['description'], '<b><strong>');
+            $ph['description'] = element_description_html($row['description']);
             $ph['locked'] = $row['locked'] ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
             $src = title($element_name);
             foreach ($ph as $k => $v) {
@@ -316,9 +316,9 @@ function createCategoryList()
             if ($preCat !== $v['category']) {
                 echo $insideUl ? '</ul>' : '';
                 if ($v['category'] == $_lang['no_category'] || !$delPerm) {
-                    echo '<li><strong>' . $v['category'] . '</strong><ul>';
+                    echo '<li><strong>' . hsc($v['category']) . '</strong><ul>';
                 } else {
-                    echo '<li><strong>' . $v['category'] . '</strong> (<a href="javascript:deleteCategory(\'' . $v['catid'] . '\');">' . $_lang['delete_category'] . '</a>)<ul>';
+                    echo '<li><strong>' . hsc($v['category']) . '</strong> (<a href="javascript:deleteCategory(\'' . (int)$v['catid'] . '\');">' . $_lang['delete_category'] . '</a>)<ul>';
                 }
                 $insideUl = 1;
             }
@@ -333,9 +333,9 @@ function createCategoryList()
             }
             $ph['id'] = $v['id'];
             $ph['action'] = $v['action'];
-            $ph['name'] = htmlspecialchars($v['name'], ENT_QUOTES, $modx->config['modx_charset']);
+            $ph['name'] = hsc($v['name']);
             $ph['type'] = $v['type'];
-            $ph['description'] = (!empty($v['description'])) ? ' - ' . $v['description'] : '';
+            $ph['description'] = (!empty($v['description'])) ? ' - ' . element_description_html($v['description']) : '';
             $ph['locked'] = ($v['locked']) ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
             $tpl = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]</a></span> ([+type+])[+description+][+locked+]</li>';
             foreach ($ph as $k => $value) {

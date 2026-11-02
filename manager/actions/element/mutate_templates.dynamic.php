@@ -259,8 +259,8 @@ if (id()) {
                                     $tvList .= sprintf(
                                         '<li><a href="index.php?id=%s&amp;a=301">%s</a>%s</li>',
                                         $row['id'],
-                                        $row['name'],
-                                        $row['desc'] ? sprintf(' (%s)', $row['desc']) : ''
+                                        hsc($row['name']),
+                                        $row['desc'] ? sprintf(' (%s)', element_description_html($row['desc'])) : ''
                                     );
                                 }
                                 $tvList .= '</ul>';
