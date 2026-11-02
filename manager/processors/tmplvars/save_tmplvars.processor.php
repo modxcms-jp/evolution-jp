@@ -301,10 +301,5 @@ function check_reserved_names($name)
         ',',
         'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu'
     );
-    if (in_array($name, $reserved_names)) {
-        $_POST['name'] = '';
-        return true;
-    } else {
-        return false;
-    }
+    return in_array($name, $reserved_names);
 }
