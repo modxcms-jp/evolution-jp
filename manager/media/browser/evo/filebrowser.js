@@ -255,6 +255,7 @@ function init() {
 
     var moveDialog = createMoveDialog({
         overlayEl: root.querySelector('[data-role="move-overlay"]'),
+        panelEl: root.querySelector('[data-role="move-panel"]'),
         pathEl: root.querySelector('[data-role="move-path"]'),
         gridEl: root.querySelector('[data-role="move-grid"]'),
         cancelBtn: root.querySelector('[data-role="move-cancel"]'),
@@ -279,6 +280,7 @@ function init() {
 
     var preview = createPreview({
         overlayEl: root.querySelector('[data-role="preview-overlay"]'),
+        panelEl: root.querySelector('[data-role="preview-panel"]'),
         imgEl: root.querySelector('[data-role="preview-img"]'),
         metaEl: root.querySelector('[data-role="preview-meta"]'),
         closeBtn: root.querySelector('[data-role="preview-close"]'),

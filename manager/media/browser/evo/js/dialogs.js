@@ -1,8 +1,10 @@
 // 単純なオーバーレイ型ダイアログ2つ: 移動先フォルダ選択・プレビュー拡大。
 // どちらもEvoShellのモーダルではなく、filebrowser.js自身が描画する軽量オーバーレイ。
+// フォーカスの移動・Tabの循環・Escで閉じる・フォーカスを戻す、は overlay.js の openOverlay に任せる。
 
 import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, renderBreadcrumb, withVersion } from './utils.js';
 import { t } from './i18n.js';
+import { openOverlay } from './overlay.js';
 import { apiUrl, fetchJson, loadFailureMessage } from './api.js';
 
 /**
@@ -10,6 +12,7 @@ import { apiUrl, fetchJson, loadFailureMessage } from './api.js';
  *
  * @param {object} ctx
  * @param {HTMLElement} ctx.overlayEl
+ * @param {HTMLElement} ctx.panelEl - ダイアログ本体(Tabを循環させる範囲)
  * @param {HTMLElement} ctx.pathEl
  * @param {HTMLElement} ctx.gridEl
  * @param {HTMLElement} ctx.cancelBtn
@@ -22,6 +25,7 @@ import { apiUrl, fetchJson, loadFailureMessage } from './api.js';
 export function createMoveDialog(ctx) {
     var moveFolder = '';
     var sourceFolder = '';
+    var closeOverlay = null;
 
     function folderRowHtml(name) {
         return '' +
@@ -62,16 +66,27 @@ export function createMoveDialog(ctx) {
     function open(currentFolder) {
         moveFolder = currentFolder;
         sourceFolder = currentFolder;
-        ctx.overlayEl.hidden = false;
+        if (closeOverlay) {
+            closeOverlay(false);
+        }
+        // パンくずを描いてから開く(初期フォーカスは中の最初の要素)
         load();
+        closeOverlay = openOverlay(ctx.overlayEl, ctx.panelEl, null);
     }
 
-    ctx.cancelBtn.addEventListener('click', function () {
-        ctx.overlayEl.hidden = true;
-    });
+    // 閉じて、開く前にフォーカスのあった要素へ戻す。Escは openOverlay が同じ動きで閉じる
+    function closeAndRestore() {
+        if (closeOverlay) {
+            var fn = closeOverlay;
+            closeOverlay = null;
+            fn(true);
+        }
+    }
+
+    ctx.cancelBtn.addEventListener('click', closeAndRestore);
 
     ctx.confirmBtn.addEventListener('click', function () {
-        ctx.overlayEl.hidden = true;
+        closeAndRestore();
         ctx.onConfirm(moveFolder, ctx.getSelection(), sourceFolder);
     });
 
@@ -83,6 +98,7 @@ export function createMoveDialog(ctx) {
  *
  * @param {object} ctx
  * @param {HTMLElement} ctx.overlayEl
+ * @param {HTMLElement} ctx.panelEl - ダイアログ本体(Tabを循環させる範囲)
  * @param {HTMLElement} ctx.imgEl
  * @param {HTMLElement} ctx.metaEl
  * @param {HTMLElement} ctx.closeBtn
@@ -95,6 +111,7 @@ export function createMoveDialog(ctx) {
 export function createPreview(ctx) {
     var currentPath = '';
     var currentFile = null;
+    var closeOverlay = null;
 
     function open(file) {
         currentFile = file;
@@ -108,14 +125,32 @@ export function createPreview(ctx) {
             '<div>' + [dims, formatSize(file.size), formatDate(file.mtime)].filter(Boolean).join(' / ') + '</div>' +
             '<div class="evo-fb-preview-url">' + escapeHtml(file.path) + '</div>';
         currentPath = file.path;
-        ctx.overlayEl.hidden = false;
+        if (closeOverlay) {
+            closeOverlay(false);
+        }
+        closeOverlay = openOverlay(ctx.overlayEl, ctx.panelEl, ctx.closeBtn, { onEscape: closeAndRestore });
     }
 
+    // 閉じる。restoreFocusToOpener が true のときだけ、開く前にフォーカスのあった要素へ戻す
+    function closeWith(restoreFocusToOpener) {
+        if (!closeOverlay) {
+            return;
+        }
+        var fn = closeOverlay;
+        closeOverlay = null;
+        fn(restoreFocusToOpener);
+    }
+
+    function closeAndRestore() {
+        closeWith(true);
+    }
+
+    // 外から呼ぶ close は、フォーカスを戻さない(呼び出し側が閉じたあとにフォーカスを決める)
     function close() {
-        ctx.overlayEl.hidden = true;
+        closeWith(false);
     }
 
-    ctx.closeBtn.addEventListener('click', close);
+    ctx.closeBtn.addEventListener('click', closeAndRestore);
 
     ctx.editBtn.addEventListener('click', function () {
         if (currentFile) {
@@ -124,7 +159,7 @@ export function createPreview(ctx) {
     });
 
     ctx.pickBtn.addEventListener('click', function () {
-        ctx.overlayEl.hidden = true;
+        closeWith(false);
         ctx.onPick(currentPath);
     });
 
