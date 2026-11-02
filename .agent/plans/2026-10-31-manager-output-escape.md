@@ -14,7 +14,7 @@ Issue: #895
 - [x] (2026-11-03) M3: リソースの編集・情報・子リソース一覧。自己レビューの指摘で、子リソース一覧の JS の `site_start`、編集画面の `upload_maxsize`・`docParent`・`docIsFolder` も `(int)` にし（D7）、`element_description_html()` は対になったタグだけを戻す形にした
 - [x] (2026-11-04) M4: 要素（一覧・編集画面・テンプレート変数）。手順 2 は DataGrid の `description` 型で行い（D13）、DocManager・QuickManager のテンプレート変数の説明もそろえた（D14）。#1003（説明欄の `&amp;`）もここで閉じる。自己レビューの指摘で、テンプレート変数の入力タイプの選択肢・イベントのグループ名・隠しフィールドの id も直した
 - [x] (2026-11-04) M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）。プラグイン・スニペット・モジュールは共通の JS `element-properties.js` にまとめ、テンプレート変数はその画面の中で DOM で組み立てた（D16）。検証で見つかったシェル遷移での再評価の後退と、自己レビューの指摘（選択欄の幅・背景の指定）も直した
-- [ ] M5: ユーザー・ロール・権限
+- [x] (2026-11-05) M5: ユーザー・ロール・権限。差し戻しで送信値がそのまま出る id やログイン回数なども `(int)` にした。自己レビューの指摘で、管理ユーザーの編集画面の写真選択の JS（`mutate_user/tpl/javascript.php`）とエディター名の選択肢も直した
 - [ ] M6: ファイル管理・レポート・ログ
 - [ ] M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）
 
@@ -55,6 +55,10 @@ Issue: #895
 - 2026-11-04: 修正前のスニペット・モジュールの `list-multi` は、選択肢が二重に出て、選んだ値（`ar[3]`）を保てずに書き戻していた（プラグインは正しかった）。共通の JS にまとめて直った。実行時の `parseProperties()`（`document.parser.class.inc.php`）が `ar[3]` を見るのは `list` だけなので、スニペットやモジュールが受け取る値は変わらない。
 - 2026-11-04: `menu` の選択値（`;b`）は、3 画面とも書き戻らない（修正前から。M4b では変えていない。実行時にも `menu` の選択値は使われない）。`if (currentParams[key] == ar[2])` の行は、配列と文字列の比較で成り立たないので消した。
 - 2026-11-04: M4b の検証で、管理画面のシェルが画面を移るとき、同じ window で `<script src>` を読み直すことが分かった。最初は共通の JS を `const` で宣言していたので、2 回目以降に二重宣言のエラーになり、前の画面の設定（見出し・余白）も持ち越した。`tabpane.js` と同じく `var` への代入にし、`configure()` を既定値から作り直して直した。この決まりを `assets/docs/jquery-migration.md` に書いた。
+- 2026-11-05: M5 の検証で、修正前はロールの編集画面を何も変えずに保存すると名前が `E&<b>` で切れること、ユーザーごとの設定（`editor_css_path`・`rb_base_dir` など）を 1 項目変えて保存すると、その値が `"` で切れて保存されること、入力エラーで差し戻した画面で値が切れて戻ることを確かめた。ユーザー編集とプロフィールの保存は、画面で変えた項目だけを送る（`changed_settings`）ので、何も変えずに保存したときは修正前も値が変わらない。修正後はどの経路でも値のまま保たれる。
+- 2026-11-05: 管理ユーザーの編集画面の写真選択の JS（`mutate_user/tpl/javascript.php`）は、M5 の書き込むファイルに入っていなかったが、手順 6 と同じ形だったので M5 で直した。`tab_profile.php`・`mutate_user/functions.php`・`tpl/form.php`・`tpl/changed_settings.php`、ユーザー一覧（DataGrid の `colEscapes` 済み）、`messages.static.php` は対処済みか、出すのが言語文字列・コードの値・DB の整数だけだった。
+- 2026-11-05: 範囲外で見つけたもの（別の Issue の候補）: ユーザーの保存の処理（`manager/processors/permission/save_web_user.processor.php`・`save_user.functions.php`）は、保存後の画面でユーザー名とパスワードを、`<strong>%s</strong>` を含む言語文字列 `password_msg` に生のまま入れている。同じファイルの `href="<?= $stayUrl ?>"` も `postv('stay')` を生のまま含む。どれも送信した本人の値だが、出力の直前でエスケープしていない。
+- 2026-11-05: `selected()`（`mutate_user/functions.php`・`mutate_user_pf.dynamic.php`）は、前に空白を付けずに `selected` を返すので、`<option value="X"selected>` になる（ブラウザは解釈する。修正前から。出力のエスケープとは別）。
 
 ## Decision Log
 
@@ -190,7 +194,7 @@ DocumentParser（`manager/includes/document.parser.class.inc.php`）への影響
 
 ### M5: ユーザー・ロール・権限
 
-書き込むファイル: `manager/actions/permission/role_management.static.php`、`mutate_role.dynamic.php`、`access_permissions.dynamic.php`、`web_access_permissions.dynamic.php`、`mutate_web_user.dynamic.php`、`mutate_user_pf.dynamic.php`、`mutate_user/tpl/form/tab_access.php`、`mutate_user/tpl/form/tab_general.php`、`mutate_user/tpl/form/tab_page5.php`、`mutate_user/tpl/form/tab_page7.php`、`mutate_user/tpl/form/tab_settings.php`（いずれも `manager/actions/permission/` の下）。計 11 ファイル。
+書き込むファイル: `manager/actions/permission/role_management.static.php`、`mutate_role.dynamic.php`、`access_permissions.dynamic.php`、`web_access_permissions.dynamic.php`、`mutate_web_user.dynamic.php`、`mutate_user_pf.dynamic.php`、`mutate_user/tpl/form/tab_access.php`、`mutate_user/tpl/form/tab_general.php`、`mutate_user/tpl/form/tab_page5.php`、`mutate_user/tpl/form/tab_page7.php`、`mutate_user/tpl/form/tab_settings.php`（いずれも `manager/actions/permission/` の下）。計 11 ファイル。自己レビューで `mutate_user/tpl/javascript.php` を足した（計 12 ファイル）。
 
 1. `role_management.static.php`: `:52`・`:58` のロール名を `hsc($row['name'])`、`:59` の説明を `hsc($row['description'])` にする。
 2. `mutate_role.dynamic.php`: `:140` を `hsc(role('name'))`、`:145` を `hsc(role('description'))` にする。
