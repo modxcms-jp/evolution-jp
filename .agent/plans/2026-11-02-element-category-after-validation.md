@@ -9,7 +9,7 @@ Issue: #1000
 ## Progress
 
 - [x] M1（2026-11-03）: カテゴリを決める処理を `ManagerAPI::resolveElementCategory()` にまとめ、6 つの保存処理で名前の確かめのあとに呼ぶ。Docker で main と比べ、M1 の受け入れ表の全行（6 種類 × 85 件）、整数の形でない `categoryid`、名前 `"0"`（D2）、`10` と `1e1`（D4）、スニペットのイベントで処理を止めた場合を確かめた。自己レビューの低 3 件は対応済み（`to_intvar()`、スニペットの呼ぶ位置、D3 の互換の書き方）
-- [ ] M2: 差し戻した編集画面で「>> カテゴリー作成」と名前を戻し、カテゴリの選択肢と新しいカテゴリの欄の切り替えを共通にする
+- [x] M2（2026-11-03）: 差し戻した編集画面で「>> カテゴリー作成」と名前を戻し、カテゴリの選択肢と新しいカテゴリの欄の切り替えを共通にする。Docker で main と比べ、M2 の受け入れ表の全行（差し戻しの 13 画面、通常の画面 18 通り、プラグインの docblock、シェルの遷移）と、M1 の正常な保存 36 通りを確かめた。検証でテンプレート変数の画面だけ JS が効かない不具合（`form.elements` の上書き）を見つけて直し、自己レビューの中 1 件（docblock に `@modx_category` が無いとき入力中の名前が消える）・低 3 件も対応済み
 
 ## Surprises & Discoveries
 
@@ -44,7 +44,11 @@ M1 の実装と検証でわかったこと（2026-11-03）。
 
 ## Outcomes & Retrospective
 
-実装後に記載。
+（2026-11-03）M1・M2 とも完了。要素の保存で、名前の重複・予約名で差し戻したときに新しいカテゴリが作られなくなり、差し戻した画面では「>> カテゴリー作成」と入れた名前がそのまま戻るようになった。カテゴリを決める処理（`resolveElementCategory()`）、選択肢（`elementCategoryOptions()`）、欄の切り替え（`element-category.js`）がそれぞれ 1 か所にまとまり、6 種類の要素で同じ動きになった。あわせて、引用符などを含む名前で同じカテゴリが増える不具合と、差し戻した画面から保存し直すとプラグイン・スニペット・モジュール・テンプレート変数で新しいカテゴリが失われる不具合も直った。
+
+学び: 画面の JS で `form.elements` を使うと、フォームに `name="elements"` の欄がある画面（テンプレート変数）で上書きされる。共通の JS を複数の画面で使うときは、欄を名前で `querySelector` する。静的な確認とスタブでは見つからず、6 画面すべてを実際に操作する検証で見つかった。
+
+残したもの（範囲外）: Surprises & Discoveries の「範囲外として残すもの」と、モジュールの新規保存がまれに `guid` の長さで失敗する件。
 
 ## Context and Orientation
 
@@ -149,7 +153,7 @@ M2 では、差し戻した画面で「>> カテゴリー作成」と入れた�
    - カテゴリの `<select>` の中身（`<option value="0">` から `<option value="-1">` まで）を `<?= manager()->elementCategoryOptions(<値>) ?>` に置き換える。`<値>` は、テンプレート `template('category')`、チャンク `entity('categoryid', entity('category'))`（D9）、スニペット・プラグイン・TV `entity('category')`、モジュール `content('category')`。
    - 新しいカテゴリの欄の `value` を `<?= hsc(<アクセサ>('newcategory', '')) ?>` にする（テンプレート・チャンクはすでにこの形。残り 4 画面を直す）。行の `style="display:none;"` と `id="newcategry"` は残す。
    - 画面の `<script src="media/script/element-properties.js?…">` と同じ書き方（`filemtime()` を付ける）で `element-category.js` を読み込み、今の `select[name="categoryid"]` の `change` の処理を消して、同じ場所で `EvoElementCategory.init(document.forms['mutate'])` を呼ぶ。
-   - プラグインの docblock の自動入力（`src == ''` の分岐と、`@modx_category` で選ぶ処理）を、選択肢を変えたあと `EvoElementCategory.sync(form)` を呼び、見つからなかったときは `EvoElementCategory.useNew(form, modx_category)` を呼ぶ形にする。
+   - プラグインの docblock の自動入力を次の形にする。`src == ''` の分岐では「カテゴリーなし」にして `EvoElementCategory.sync(form)`。`@modx_category` があれば、既存と一致したときはそれを選んで `sync(form)`、一致しなければ `EvoElementCategory.useNew(form, modx_category)`。`@modx_category` が無ければ選択にも欄にも触れない（D8）。
    - 各画面の、使わなくなった `$ds = manager()->getCategories()` の行と、ローカルの `selected()` が使われなくなったらその関数も消す（ほかで使っていれば残す）。
 4. コミット（推奨）: 2 つに分けるなら `refactor(manager): 要素の編集画面のカテゴリの選択肢と新しいカテゴリの欄の切り替えを共通にする`（選択肢のメソッドと JS、6 画面の置き換え）と `fix(manager): 差し戻した要素の画面で新しいカテゴリの選択と名前を戻す`（欄の値の復元）。分けにくければ後者 1 つにまとめる。
 
