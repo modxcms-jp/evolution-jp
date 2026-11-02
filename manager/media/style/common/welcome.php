@@ -147,7 +147,7 @@ function tabYourInfo()
     }
 
     $ph['UserName'] = hsc($modx->getLoginUserName());
-    $ph['name'] = sessionv('mgrPermissions.name');
+    $ph['name'] = hsc(sessionv('mgrPermissions.name'));
     $ph['Lastlogin'] = $Lastlogin;
     $ph['Logincount'] = sessionv('mgrLogincount', 0) + 1;
 

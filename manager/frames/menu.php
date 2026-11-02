@@ -2,9 +2,6 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_check_timeperiod'])) {
-    $modx->config['mail_check_timeperiod'] = 0;
-}
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 $isShellPartial = defined('EVO_SHELL_PARTIAL');
 if (!$isShellPartial) {
@@ -46,7 +43,7 @@ if (!$isShellPartial) {
             }
 
             Evo.ready(function () {
-                initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
+                initMenuState(msgcheck, <?= (int) config('mail_check_timeperiod');?>);
             });
 
             // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す。
@@ -276,7 +273,7 @@ if (!$isShellPartial) {
             if (window.mainMenu && typeof window.mainMenu.initMenuState === 'function') {
                 window.mainMenu.initMenuState(
                     <?= evo()->hasPermission('messages') ? 1 : 0;?>,
-                    <?= config('mail_check_timeperiod');?>
+                    <?= (int) config('mail_check_timeperiod');?>
                 );
             }
         </script>
@@ -360,7 +357,7 @@ if (!$isShellPartial) {
 
                 // Site Menu
                     $item['home'] = item($_lang['home'], 2);             // home
-                    $item['preview'] = item($_lang['view_site'], config("site_url"), 1,
+                    $item['preview'] = item($_lang['view_site'], hsc(config('site_url')), 1,
                         'target="_blank"'); // preview
                     $item['refresh_site'] = item($_lang['refresh_site'], 26,
                         evo()->hasPermission('empty_cache'), 'data-evo-post');    // clear-cache
@@ -412,7 +409,7 @@ if (!$isShellPartial) {
                         while ($content = db()->getRow($rs)) {
                             // 断片出力のモジュールはシェル内に表示される。
                             // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
-                            $item['modules'][$content['name']] = item($content['name'],
+                            $item['modules'][$content['name']] = item(hsc($content['name']),
                                 "index.php?a=112&amp;id={$content['id']}");
                         }
                         $modulemenu = $item['modules'];

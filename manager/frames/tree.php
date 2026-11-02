@@ -432,7 +432,7 @@ if (is_array($evtOut)) {
         }
         ?>
         <div><?= $_style['tree_showtree'] ?>&nbsp;<span class="rootNode"
-                                                                onclick="treeAction(0, '<?= addslashes($site_name) ?>');"><b><?= $site_name ?></b></span>
+                                                                onclick="treeAction(0, <?= hsc(js_literal($site_name)) ?>);"><b><?= hsc($site_name) ?></b></span>
             <div id="treeRoot"></div>
         </div>
         <?php
@@ -526,7 +526,7 @@ if (is_array($evtOut)) {
                     }
                     break;
                 case '62' : // unpublish
-                    if (itemToChange != <?= config('site_start') ?>) {
+                    if (itemToChange != <?= (int) config('site_start') ?>) {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_unpublish'] ?>") == true) {
                             setActiveFromContextMenu(itemToChange);
                             EvoCsrf.post("index.php?a=62&id=" + itemToChange);

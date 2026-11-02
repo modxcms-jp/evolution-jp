@@ -47,7 +47,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                         <tr>
                             <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
                             <td>&nbsp;</td>
-                            <td><b><span id="parentName">0 (<?= evo()->config('site_name') ?>)</span></b>
+                            <td><b><span id="parentName">0 (<?= hsc(evo()->config('site_name')) ?>)</span></b>
                             </td>
                         </tr>
                         <tr>
@@ -199,7 +199,7 @@ function importFiles($parent, $filedir, $files, $mode)
             if (substr($alias, 0, 2) === 'd#') {
                 $alias = substr($alias, 2);
             }
-            echo "<span>{$alias}/</span>";
+            echo "<span>" . hsc($alias) . "/</span>";
             $field = [];
             $field['type'] = 'document';
             $field['contentType'] = 'text/html';
@@ -234,7 +234,7 @@ function importFiles($parent, $filedir, $files, $mode)
                     $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
-                        db()->getLastError()
+                        hsc(db()->getLastError())
                     ];
                     echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
                     exit;
@@ -261,7 +261,7 @@ function importFiles($parent, $filedir, $files, $mode)
                     $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
-                        db()->getLastError()
+                        hsc(db()->getLastError())
                     ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
@@ -276,7 +276,7 @@ function importFiles($parent, $filedir, $files, $mode)
             $fparts = explode('.', $value);
             $alias = $fparts[0];
             $ext = (count($fparts) > 1) ? $fparts[count($fparts) - 1] : "";
-            echo "<span>{$filename}</span>";
+            echo "<span>" . hsc($filename) . "</span>";
 
             if (!in_array($ext, $allowedfiles)) {
                 echo sprintf(' - <span class="fail">%s</span><br />', $_lang['import_site_skip']) . "\n";
@@ -310,7 +310,7 @@ function importFiles($parent, $filedir, $files, $mode)
                     $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
-                        db()->getLastError()
+                        hsc(db()->getLastError())
                     ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
@@ -370,7 +370,7 @@ function getFiles($directory, $listing = [], $count = 0)
             '<p><span class="fail">%s</span> %s %s</p>',
             $_lang['import_site_failed'],
             $_lang['import_site_failed_no_open_dir'],
-            $directory
+            hsc($directory)
         );
     }
     return ($listing);
@@ -381,7 +381,7 @@ function getFileContent($filepath)
     global $_lang;
     // get the file
     if (!$buffer = file_get_contents($filepath)) {
-        $vs = [$_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], $filepath];
+        $vs = [$_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], hsc($filepath)];
         echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
     } else {
         return $buffer;

@@ -42,7 +42,7 @@ $modx->regClientScript($script);
 $modx->setPlaceholder('theme', $manager_theme ? $manager_theme : '');
 $modx->setPlaceholder('home', $_lang["home"]);
 $modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
-$modx->setPlaceholder('site_name', $site_name);
+$modx->setPlaceholder('site_name', hsc($site_name));
 $modx->setPlaceholder('welcome_title', $_lang['welcome_title']);
 $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
@@ -188,7 +188,7 @@ if (evo()->hasPermission('exec_module')) {
             $content['icon'] = $_style['icons_modules'];
         }
         $action = 'index.php?a=112&amp;id=' . $content['id'];
-        $modulemenu[] = get_icon($content['name'], $action, $content['icon'], $content['name']);
+        $modulemenu[] = get_icon(hsc($content['name']), $action, hsc($content['icon']), hsc($content['name']));
     }
 }
 $modules = '';
