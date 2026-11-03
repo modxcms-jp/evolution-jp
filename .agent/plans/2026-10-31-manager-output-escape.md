@@ -15,14 +15,14 @@ Issue: #895
 - [x] (2026-11-04) M4: 要素（一覧・編集画面・テンプレート変数）。手順 2 は DataGrid の `description` 型で行い（D13）、DocManager・QuickManager のテンプレート変数の説明もそろえた（D14）。#1003（説明欄の `&amp;`）もここで閉じる。自己レビューの指摘で、テンプレート変数の入力タイプの選択肢・イベントのグループ名・隠しフィールドの id も直した
 - [x] (2026-11-04) M4b: 要素の編集画面のプロパティの設定表（JS で組み立てる所。D15）。プラグイン・スニペット・モジュールは共通の JS `element-properties.js` にまとめ、テンプレート変数はその画面の中で DOM で組み立てた（D16）。検証で見つかったシェル遷移での再評価の後退と、自己レビューの指摘（選択欄の幅・背景の指定）も直した
 - [x] (2026-11-05) M5: ユーザー・ロール・権限。差し戻しで送信値がそのまま出る id やログイン回数なども `(int)` にした。自己レビューの指摘で、管理ユーザーの編集画面の写真選択の JS（`mutate_user/tpl/javascript.php`）とエディター名の選択肢も直した
-- [ ] M6: ファイル管理・レポート・ログ
-- [ ] M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）
+- [x] (2026-11-05) M6: ファイル管理・レポート・ログ
+- [x] (2026-11-05) M7: 横断の確認（main との比較、PHP 7.4 の構文確認、security-lint）。PHP 7.4 の検証環境でも実際に動かした
 
 ## Surprises & Discoveries
 
 - 2026-10-31: Issue の対象のうち次は、今の main ですでに出力直前のエスケープになっている。M1〜M6 では触らず、二重エスケープを足さないよう確認だけする。`manager/actions/tool/export_site.static.php`（セッションから戻す値はすべて `hsc()`）、要素の編集画面のカテゴリー名（`mutate_snippet.dynamic.php:362`、`mutate_plugin.dynamic.php:717`、`mutate_tmplvars.dynamic.php:562`、`mutate_templates.dynamic.php:181`、`mutate_htmlsnippet.dynamic.php:313`）、プラグイン・スニペットの「パラメーターの取り込み」のモジュール名（`mutate_plugin.dynamic.php:575`、`mutate_snippet.dynamic.php:446`）、要素の名前（各編集画面の `name` 欄）、リソースの編集画面のタイトル・説明などの入力欄（`mutate_content/fields.php`）。
 - 2026-10-31: #895 の洗い出しで追加で見つかった箇所のうち、次は今の main で対処済みだった（確認だけ）。リソースツリーのタイトルと URL（`manager/frames/nodes.php:190, 193`。`hsc(js_literal())`）、ツリーから渡るタイトルの受け取り（`move_document.dynamic.php:95-104`、`mutate_content` の `setParent()`（`manager/media/style/common/jscripts.tpl:202-215`）、`import_site.static.php:16-20`。いずれも `textContent`）、移動画面の一覧（`move_document.dynamic.php:83`）、ダッシュボードの最近編集したリソースとユーザー名（`manager/media/style/common/welcome.php:149, 197-199`）、システム情報（`sysinfo.static.php:234-235`）、リソース情報の作成者・編集者（`document_data.static.php:294, 302`）、権限画面のユーザー名（`access_permissions.dynamic.php:114`、`web_access_permissions.dynamic.php:117`）、ユーザー編集の見出し（`mutate_user/tpl/form/tab_general.php:27`）、ログの項目名・ユーザー名（`logging.static.php:112-138, 351-352`）、`makeUrl()` の戻り値（`document_data.static.php:176`、`mutate_content/functions.php:721` → `jscripts.tpl:79`、`site_schedule.static.php:167-171`）、ファイル管理のパンくず・パス・フォルダ名・ファイル名・画像の表示（`files.dynamic.php`）。ファイル管理の新規フォルダ名は `evo()->sanitizeFilename()`（`document.parser.class.inc.php:6160`）で、`"`・`<`・`>`・制御文字などを `_` に置き換えてから作っている（`files.dynamic.php:306`）。
-- 2026-10-31: 同じく追加で見つかった箇所のうち、まだエスケープしていないものが残っている。ダッシュボードのロール名（`welcome.php:150` の `[+name+]`）、子リソース一覧の「表示」ボタン（`resources_list.static.php:179-180`。`makeUrl()` を JS の `'…'` へ）、ロックアウト画面の戻り先（`manager.lockout.inc.php:29, 31` → `manager.lockout.tpl:25`）、ファイル管理の最上位へのリンク（`files.dynamic.php:200-201` の `filemanager_path`）とダウンロードのリンク（`files.dynamic.php:589` の `webstart_path()`）。
+- 2026-10-31: 同じく追加で見つかった箇所のうち、まだエスケープしていないものが残っている。ダッシュボードのロール名（`welcome.php:150` の `[+name+]`）、子リソース一覧の「表示」ボタン（`resources_list.static.php:179-180`。`makeUrl()` を JS の `'…'` へ）、ロックアウト画面の戻り先（`manager.lockout.inc.php:29, 31` → `manager.lockout.tpl:25`）、ファイル管理の最上位へのリンク（`files.dynamic.php:200-201` の `filemanager_path`）とダウンロードのリンク（`files.dynamic.php:589` の `webstart_path()`）。（2026-11-05: どれも M2・M3・M6 で直した）
 - 2026-10-31: `makeUrl()`（`document.parser.class.inc.php:4299`）は、エイリアスを `xhtml_urls` が有効なときしか `urlencode()` しない。エイリアスは保存時に `stripAlias()`（既定は `strip_tags()` だけ）を通るだけなので、`'`・`"`・`&` が残りうる。参照（ウェブリンク）のリソースは、内容の URL をそのまま返す。戻り値は出力側で必ずエスケープする。
 - 2026-10-31: インストーラは要素の説明を `<strong>版</strong> 説明` の形で保存する（`install/setup.info.php:207-212` の `add_version_strings()`）。同梱の要素はすべて説明に `<strong>` を含む。要素一覧（`resources.static.php:141`）が `strip_tags()` で `<b><strong>` だけ残しているのはこのため。モジュール一覧（`modules.static.php:161`）とリソースセレクタ（`resource_selector.static.php:222`）は、説明の列だけ HTML として出すと決めてある（コメントあり）。Issue は説明もエスケープの対象に挙げており、扱いが食い違う。D3 で決める。
 - 2026-10-31: `form_text_tag()` と同じ作り（値に `"` があれば `'…'` で囲むだけ）の `Form::text()` がもう一つある（`mutate_settings/functions.inc.php:223-236`、呼び出しは `tab4_manager_settings.inc.php:48` の `manager_docs_orderby`）。
@@ -59,6 +59,8 @@ Issue: #895
 - 2026-11-05: 管理ユーザーの編集画面の写真選択の JS（`mutate_user/tpl/javascript.php`）は、M5 の書き込むファイルに入っていなかったが、手順 6 と同じ形だったので M5 で直した。`tab_profile.php`・`mutate_user/functions.php`・`tpl/form.php`・`tpl/changed_settings.php`、ユーザー一覧（DataGrid の `colEscapes` 済み）、`messages.static.php` は対処済みか、出すのが言語文字列・コードの値・DB の整数だけだった。
 - 2026-11-05: 範囲外で見つけたもの（別の Issue の候補）: ユーザーの保存の処理（`manager/processors/permission/save_web_user.processor.php`・`save_user.functions.php`）は、保存後の画面でユーザー名とパスワードを、`<strong>%s</strong>` を含む言語文字列 `password_msg` に生のまま入れている。同じファイルの `href="<?= $stayUrl ?>"` も `postv('stay')` を生のまま含む。どれも送信した本人の値だが、出力の直前でエスケープしていない。
 - 2026-11-05: `selected()`（`mutate_user/functions.php`・`mutate_user_pf.dynamic.php`）は、前に空白を付けずに `selected` を返すので、`<option value="X"selected>` になる（ブラウザは解釈する。修正前から。出力のエスケープとは別）。
+- 2026-11-05: M6 の検証で、修正前はファイル管理の場所（`filemanager_path`）に `&`・`'` があると最上位へのリンクが壊れて最上位を開けず、`"` があるとダウンロードのリンクが壊れることを確かめた。修正後はどれも動く。管理ログの `message` は、`logHandler` が `db()->escape()` だけで保存し、同梱の書き込み元（`getAction()`・サイトのエクスポート・ログイン・ファイル管理・DocManager）の文言は実体参照もタグも含まないので、一覧での `hsc()` は二重にならない。
+- 2026-11-05: 範囲外で見つけたもの（別の Issue の候補。どれも M6 より前から）: ファイル管理は、`filemanager_path` の末尾の `/` の有無の前提が箇所ごとに混ざっている。末尾に `/` がないと、パンくずとダウンロードのパスが 1 文字ずれる（`$len` の計算）。末尾に `/` があると、最上位を開いても Top がリンクのままになる（`rtrim($startpath, '/') == config('filemanager_path')`）。全体の設定は保存時に `/` を付けるが、ユーザーごとの設定は付けない。また `webstart_path()` はファイルシステムのパスを URL エンコードせずに返すので、ディレクトリ名に `#`・`?`・`%`・空白があると、画像の表示とダウンロードの URL が切れる。
 
 ## Decision Log
 
@@ -80,6 +82,15 @@ Issue: #895
 - 2026-11-04 / メイン D16: M4b では、プラグイン・スニペット・モジュールの `showParameters()`・`setParameter()`・`implodeParameters()`・`encode`・`decode`・`currentParams` を、共通の JS `manager/media/script/element-properties.js`（グローバル `EvoElementProperties`。`configure`・`show`・`set`・`params`）にまとめた。3 画面はほぼ同じ実装で、違い（表の属性・見出し・1 列か 2 列か・style）は `configure` に渡す。基準はプラグインの実装（`list-multi` に対応し、入力欄に id を付けている）。テンプレート変数の画面は、保存先が `params`、値の形が `&key=value`、`encode` の対象が広い、`widgetParams`・`lastmod`・`resetParameters` があるなど作りが違うので共通にせず、その画面の中で DOM で組み立てた。組み立ては `createElement`・`textContent`・`value`・`addEventListener` だけで、エスケープ用の JS の関数は作っていない。消したグローバル関数・変数（`setParameter`・`implodeParameters`・`encode`・`decode`・`currentParams`）は、同梱のコードからは使われておらず、互換のための別名は残さない。選択欄の幅は、元のスニペット・モジュールに合わせて全種類 168px にそろえた。
 
 ## Outcomes & Retrospective
+
+2026-11-05（M7 の時点）:
+
+- 管理画面の保存された値を、出力の直前で文脈に合ったヘルパーに通す形に、M1〜M6 でそろえた。PR は M1 #1009、M2 #1015、M3 #1018、M4 #1022（#1003 もあわせて閉じた）、M4b #1024、M5 #1027、M6・M7 は最後の PR（`Closes #895`）。
+- 修正前と修正後の比較（各段階で Docker の PHP 8.4・MariaDB 11、Playwright）: 修正前は、設定値・ロール名・要素の名前や説明・プロパティ・ユーザーの設定・ファイル名などで生の値が出て、`<script>` が実行される画面（テンプレート変数の説明・要素の一覧・プロパティの設定表）や、何も変えずに保存すると値が切れる画面（設定・ロール・モジュールなど）があった。修正後はどの段階も検証項目がすべて PASS。
+- M7 の横断の確認: M1〜M6 で変えた PHP 47 件は `php:7.4-cli` で `php -l` が通り、JS 2 件は `node --check` が通った。security-lint は `0 violations`。PHP 7.4.33 の検証環境（`php:7.4-apache`）でインストール・`smoke.js`（6/6）・各段階の確認スクリプトを流し、PHP 8.4 のときと同じ判定だった。コンテナのログに PHP の警告・エラーは出なかった。
+- 計画から変わったこと: M4 の手順 2 は DataGrid に列の種類 `description` を足す形にした（D13）。DocManager・QuickManager の説明を M4 に入れた（D14）。プロパティの設定表を M4b に分け、共通の JS にまとめた（D15・D16）。各段階の自己レビューで、数として使う設定値（`site_start`・`mail_check_timeperiod`・`upload_maxsize` など）の `(int)` や、差し戻しで送信値が出る id の `(int)` を足した。
+- 学び: 出力のエスケープの漏れは、「画面を開いて何も変えずに保存し直すと値が変わる」形で表に出ることが多く、検証の項目として効いた。管理画面のシェルは画面の JS を同じ window で読み直すので、共通の JS は `var` か `window` への代入で定義し、状態を作り直す（`assets/docs/jquery-migration.md`）。
+- 残したもの（別の Issue の候補。Surprises に詳細）: インポートでファイル名に `'` があると SQL の構文エラーになる件、`manager_theme` の出力、ユーザーの保存後の画面のユーザー名・パスワード・`stay` の URL、ファイル管理の `filemanager_path` の末尾の `/` と `webstart_path()` の URL エンコード、イベント名に `'` があるとキャッシュが壊れる件、テンプレート変数の入力タイプの選択肢の `$row` の使い回し、`selected()` の空白、設定画面の言語文字列の `addslashes()`。
 
 ## Context and Orientation
 
