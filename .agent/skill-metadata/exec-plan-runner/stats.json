@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 22,
-            "used_runs": 22,
-            "helped_runs": 22,
+            "seen_runs": 28,
+            "used_runs": 28,
+            "helped_runs": 28,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 14
+            "active_runs": 16
         },
         "change-004": {
             "seen_runs": 1,
@@ -206,6 +206,60 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-01T21:40:00+09:00",
             "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        "change-023": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-024": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-025": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-026": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-027": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-028": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         }
     }
 }
