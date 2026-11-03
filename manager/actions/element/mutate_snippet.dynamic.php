@@ -338,7 +338,7 @@ function entity($key, $default = null)
     (function() {
         EvoElementLock.init(document.forms['mutate'], {
             locked: <?= entity('locked') == 1 ? 'true' : 'false' ?>,
-            saveButton: document.getElementById('Button1')
+            saveButton: '#Button1'
         });
         EvoElementCategory.init(document.forms['mutate']);
     })();

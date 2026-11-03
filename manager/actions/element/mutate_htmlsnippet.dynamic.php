@@ -367,7 +367,7 @@ if (isset($content['which_editor'])) {
     (function() {
         EvoElementLock.init(document.forms['mutate'], {
             locked: <?= entity('locked') == 1 ? 'true' : 'false' ?>,
-            saveButton: document.getElementById('save')
+            saveButton: '#save'
         });
         EvoElementCategory.init(document.forms['mutate']);
     })();

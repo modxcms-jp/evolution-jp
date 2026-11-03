@@ -68,7 +68,7 @@ function entity($key, $default = null)
     Evo.ready(function() {
         EvoElementLock.init(document.forms['mutate'], {
             locked: <?= entity('locked') == 1 ? 'true' : 'false' ?>,
-            saveButton: document.getElementById('Button1')
+            saveButton: '#Button1'
         });
         setTimeout('showParameters()', 10);
         EvoElementCategory.init(document.forms['mutate']);

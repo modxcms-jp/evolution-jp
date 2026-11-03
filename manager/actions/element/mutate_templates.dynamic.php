@@ -303,7 +303,7 @@ if (id()) {
         (function () {
             EvoElementLock.init(document.forms['mutate'], {
                 locked: <?= template('locked') == 1 ? 'true' : 'false' ?>,
-                saveButton: document.getElementById('Button1')
+                saveButton: '#Button1'
             });
             // このテンプレートを使うリソースの一覧（HTML の断片）を取得する
             Evo.fetch('index.php?' + new URLSearchParams({

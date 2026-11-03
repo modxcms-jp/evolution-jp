@@ -10,9 +10,10 @@
  * - 開いたときにロックされていれば、ロックを外すまで保存ボタンを隠す。
  *   開いたあとにロックしたときは隠さない（ロックしたことを保存できるようにするため）
  *
- * 使い方: EvoElementLock.init(document.forms['mutate'], {locked: true, saveButton: el});
+ * 使い方: EvoElementLock.init(document.forms['mutate'], {locked: true, saveButton: '#Button1'});
  *   locked:     保存されているロックの状態（開いたときの状態）
- *   saveButton: 保存ボタンの要素（無ければ省く）
+ *   saveButton: 保存ボタンのセレクタ（無ければ省く）。フォームの中から探す。
+ *               シェルではツリーにも id="Button1" の要素があり、document から探すとそちらが見つかるため
  */
 // var への代入で定義する。シェルの画面遷移で再評価されるため（assets/docs/jquery-migration.md を参照）
 var EvoElementLock = (function () {
@@ -61,7 +62,7 @@ var EvoElementLock = (function () {
         if (!form || !form.querySelector) return;
         const opts = options || {};
         const savedLocked = !!opts.locked;
-        const saveButton = opts.saveButton || null;
+        const saveButton = opts.saveButton ? form.querySelector(opts.saveButton) : null;
         const lockInput = form.querySelector('input[name="locked"]');
         const isLocked = function () {
             return lockInput ? lockInput.checked : savedLocked;

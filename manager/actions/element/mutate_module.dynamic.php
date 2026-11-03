@@ -84,7 +84,7 @@ function content($key, $default = null)
     Evo.ready(function() {
         EvoElementLock.init(document.forms['mutate'], {
             locked: <?= content('locked') == 1 ? 'true' : 'false' ?>,
-            saveButton: document.getElementById('Button1')
+            saveButton: '#Button1'
         });
         EvoElementCategory.init(document.forms['mutate']);
         const sharedInputs = document.querySelectorAll('input[name="enable_sharedparams"]');
