@@ -35,6 +35,7 @@
 - 主な操作の色を 2 色で描くか単色で描くかは、テーマが決める。`--color-primary` と `-start` / `-end` の両方を必ず定義し、共通部がどちらを読んでも主ボタンと同じ系統の色になるようにする
 - 共通部は、変数を既定値付き（`var(--color-primary, #375665)`）で参照する。テーマが読み込まれない画面や、変数が足りない外部のテーマでも崩れないようにするため。共通部に色を直接書かない
 - 契約の変数に無い中間の面の色（コード欄の上の帯 `.code-editor-header` の背景など）は、`color-mix(in srgb, <変数> N%, <変数>)` で契約の変数から作ってよい（例: `color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface))`）。新しい変数は足さない。`color-mix()` に対応しないブラウザ（Chrome 110 以前、Safari 16.1 以前など）では、その背景が透明になる。許容する（枠と余白は残り、表示は崩れない）
+- コード欄の帯の右側の文字（`.code-editor-options`）は、まず `--color-text-muted` を使う。帯の背景（上の `color-mix`）に対して 4.5:1 に足りないテーマは、`--color-text-primary` や、それと `--color-surface` の `color-mix` に替える（RevoStyle は凍結のため `#707070` のまま。[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」を参照。AromaHop は `--color-text-primary`、RubberWhite は `color-mix(in srgb, var(--color-text-primary) 75%, var(--color-surface))`。`color-mix()` に対応しないブラウザでは宣言が捨てられ、親の文字色になる。濃くなる側なので許容する）
 - どの枠の変数（`--color-border-default`・`--color-border-light`）を使うかは、テーマが決める。隣の部品の枠とつなげて見せるときは、つながる方に近い方を選ぶ（例: AromaHop の `.code-editor-header` は、真下のテキスト欄の緑の枠に近い `--color-border-light`）
 - 影（`box-shadow`・`text-shadow` の `rgba()` など）は対象外。テーマが好きな色で書いてよい
 

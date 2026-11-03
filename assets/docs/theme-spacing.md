@@ -64,7 +64,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になる。`shell.js`（`manager/media/script/shell.js`、`hoistStylesheets`）が `<head>` へ持ち上げるのは `link[rel=stylesheet]` だけで、埋め込みの `<style>` は画面を切り替えると消えるが、表示中は同じ文書のツリー・メニュー・ヘッダーにも効くため。今の画面に残る範囲の広い `<style>`（`label {}`、`table td {}` など）は、別の Issue で扱う
 - 画面とテーマの約束として、次の class をテーマが受ける。画面は余白を書かず、class だけを持つ
   - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る
-  - `.code-editor-header`: コード欄の上の帯。内側の余白（`padding`）はテーマが決める。`overflow: hidden` は、画面の float を包むために必須（決める余地は無い）。色と枠は [theme-variables.md](theme-variables.md) の「書き方」に従う
+  - `.code-editor-header`: コード欄の上の帯。内側の余白（`padding`）はテーマが決める。画面は float を使わず class だけを付ける。テーマは帯を `display: flex; flex-wrap: wrap; justify-content: space-between` にして、左の `.code-editor-title`（太字）と右の `.code-editor-options` を並べる（狭い幅では右側が次の行に折り返る）。縦の揃えは既定（stretch）のまま、`.code-editor-title`・`.code-editor-options` に背景や枠を付けない。`overflow: hidden` は要らない。色（右側の文字を含む）と枠は [theme-variables.md](theme-variables.md) の「書き方」に従う
   - `.messages-compose-actions`: メッセージの返信欄のボタン列（`ul.actionButtons` と併用）。上を `--space-3` にする
 
 ## 例外
@@ -88,12 +88,12 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 
 #924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、ファイル管理（a=31）のアップロード欄（`#uploader`）の上 10px、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）、メッセージの返信欄（ボタン列の上 15px）。これらも手本にしない。
 
-#973 で画面の直書きを消したコード欄の帯（`.code-editor-header`）も、`padding`・色・枠を同じ値で保つ。これも手本にしない。
+#973 で画面の直書きを消したコード欄の帯（`.code-editor-header`）も、`padding`・色・枠を同じ値で保つ。#1004 で足した中の文字（`.code-editor-title` の太字、`.code-editor-options` の `#707070`。帯の背景に対して 4.5:1 に届かないが、凍結のため変えない）も同じ。これも手本にしない。
 
 ## 新しいテーマを作るとき
 
 1. `:root` に `--space-1` 〜 `--space-8` を、上の表の値で定義する
-2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`、`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`form > :has(+ #pagination)`、`.sectionBody > :is(div, table, fieldset)`、`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`、`.tab-pane > ul.actionButtons`、`ul.actionButtons.messages-compose-actions`。ほかに、決まりの表の例のセレクタ）を写す。`.code-editor` と `.messages-compose-actions` は画面が付ける class なので、外部のテーマも規則を持たないと、その間が 0 になる。コード欄の上の帯 `.code-editor-header` の規則（`padding`・`overflow`・背景・枠）も写す。無いと帯の飾りが消え、`overflow: hidden` も無いので float の中身だけの画面（テンプレート・スニペット・モジュール・プラグイン）では帯の高さが 0 になる
+2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。同梱テーマの `/* 縦の余白の決まり */` の規則の並び（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`#pagination` と `#pagination:last-child`、`.resources-topic-path`、`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`form > :has(+ #pagination)`、`.sectionBody > :is(div, table, fieldset)`、`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`、`.tab-pane > ul.actionButtons`、`ul.actionButtons.messages-compose-actions`。ほかに、決まりの表の例のセレクタ）を写す。`.code-editor` と `.messages-compose-actions` は画面が付ける class なので、外部のテーマも規則を持たないと、その間が 0 になる。コード欄の上の帯 `.code-editor-header` の規則（`display: flex`・`flex-wrap: wrap`・`justify-content: space-between`・`padding`・背景・枠）と、中の `.code-editor-title`・`.code-editor-options` の規則も写す。無いと帯の飾りが消え、左右の文字が並ばない
 3. `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" style.css | grep -E "^[0-9]+-\s+top:"` で、`.tab-page` を `top` でずらしていないか確かめる（出てよいのは、例外の負の値か `0` だけ）
 4. 管理画面の主な画面（ダッシュボード、サブリソース一覧、リソースの編集、システム設定、アクセス権限など）を開き、ページの端・見出し・ボタン列・表・タブとパネルの間が、決まりの表の値になっているか、ブラウザの開発者ツールで確かめる
 

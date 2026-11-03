@@ -232,7 +232,7 @@ if (isset($content['which_editor'])) {
 
                 <div class="code-editor">
                     <div class="code-editor-header">
-                        <span style="font-weight:bold;"><?= $_lang['chunk_code'] ?></span>
+                        <span class="code-editor-title"><?= $_lang['chunk_code'] ?></span>
                     </div>
                     <textarea
                         dir="ltr" class="phptextarea" name="post"

@@ -170,8 +170,8 @@ function entity($key, $default = null)
                 <!-- PHP text editor start -->
                 <div class="code-editor">
                     <div class="code-editor-header">
-                        <span style="float:left;font-weight:bold;"><?= $_lang['snippet_code'] ?></span>
-                        <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
+                        <span class="code-editor-title"><?= $_lang['snippet_code'] ?></span>
+                        <span class="code-editor-options"><?= $_lang['wrap_lines'] ?>
                             <input name="wrap" type="checkbox" checked="checked" class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>

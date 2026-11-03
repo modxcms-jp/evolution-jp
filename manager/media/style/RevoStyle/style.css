@@ -1970,11 +1970,21 @@ ul.actionButtons.messages-compose-actions {
     margin-top: 15px;
 }
 
-/* a=16・a=19 ほか: コード欄の上の帯（#973）。画面の直書きだった padding・色・枠を、凍結のため同じ値で保つ */
+/* a=16・a=19 ほか: コード欄の上の帯（#973・#1004）。画面の直書きだった padding・色・枠と、中の文字の太字・#707070（#1004）を、凍結のため同じ値で保つ */
 .code-editor-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
     padding: 3px 8px;
-    overflow: hidden;
     background-color: #eeeeee;
     border: 1px solid #c3c3c3;
     border-bottom: none;
+}
+
+.code-editor-title {
+    font-weight: bold;
+}
+
+.code-editor-options {
+    color: #707070;
 }
