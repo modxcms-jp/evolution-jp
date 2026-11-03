@@ -40,11 +40,6 @@ if (!evo()->hasPermission('edit_role')) {
         }
         ?>
         <ul>
-            <style type="text/css">
-                li span {
-                    width: 200px;
-                }
-            </style>
             <?php
             while ($row = db()->getRow($rs)) {
                 if ($row['id'] == 1) {

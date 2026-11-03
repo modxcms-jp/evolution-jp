@@ -61,7 +61,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - 間を、ブロック自身の `padding-bottom` で作らない（`ul.actionButtons { padding-bottom: 10px }` など）。箱の端が間の分だけ広がり、決まりの値が読めなくなる
 - 余白の px を直書きしない。`var(--space-N)` で書く。`margin` を一括で書くときは、横の値を元のまま保つ。縦だけを変えるなら `margin-bottom` などを使う
 - テーマが持つテンプレート（`welcome.tpl` など）と、画面の HTML（`manager/actions/` の PHP やテンプレート）には、`style` 属性や埋め込みの `<style>` で、ブロックの間の余白を書かない。`style.css` から揃えられなくなる
-- 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になる。`shell.js`（`manager/media/script/shell.js`、`hoistStylesheets`）が `<head>` へ持ち上げるのは `link[rel=stylesheet]` だけで、埋め込みの `<style>` は画面を切り替えると消えるが、表示中は同じ文書のツリー・メニュー・ヘッダーにも効くため。今の画面に残る範囲の広い `<style>`（`label {}`、`table td {}` など）は、別の Issue で扱う
+- 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になる。`shell.js`（`manager/media/script/shell.js`、`hoistStylesheets`）が `<head>` へ持ち上げるのは `link[rel=stylesheet]` だけで、埋め込みの `<style>` は画面を切り替えると消えるが、表示中は同じ文書のツリー・メニュー・ヘッダーにも効くため
 - 画面とテーマの約束として、次の class をテーマが受ける。画面は余白を書かず、class だけを持つ
   - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る
   - `.code-editor-header`: コード欄の上の帯。内側の余白（`padding`）はテーマが決める。画面は float を使わず class だけを付ける。テーマは帯を `display: flex; flex-wrap: wrap; justify-content: space-between` にして、左の `.code-editor-title`（太字）と右の `.code-editor-options` を並べる（狭い幅では右側が次の行に折り返る）。縦の揃えは既定（stretch）のまま、`.code-editor-title`・`.code-editor-options` に背景や枠を付けない。`overflow: hidden` は要らない。色（右側の文字を含む）と枠は [theme-variables.md](theme-variables.md) の「書き方」に従う

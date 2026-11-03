@@ -310,13 +310,12 @@ if (sessionv('result_msg')) {
                 ['snapshot_path' => hsc($backup->dir())]
             ); ?>
             <style type="text/css">
-                /* シェル化でツリー等と同一documentになったため、コンテンツ領域内に限定する */
-                #mainPane table, body > .tab-page table {
+                #dbmPane table {
                     background-color: #fff;
                     border-collapse: collapse;
                 }
 
-                #mainPane table td, body > .tab-page table td {
+                #dbmPane td {
                     padding: 4px;
                 }
             </style>

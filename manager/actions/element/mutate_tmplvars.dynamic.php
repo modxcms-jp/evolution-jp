@@ -542,7 +542,7 @@ function entity($key, $default = null)
                 <h2 class="tab"><?= $_lang['tmplvar_tmpl_access'] ?></h2>
                 <p><?= $_lang['tmplvar_tmpl_access_msg'] ?></p>
                 <style type="text/css">
-                    label {
+                    #tabPerm label {
                         display: block;
                     }
                 </style>
