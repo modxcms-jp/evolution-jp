@@ -435,11 +435,31 @@ class ManagerAPI
         }
 
         while ($row = db()->getRow($rs)) {
-            if ($row['category'] == $newCat) {
+            if ((string)$row['category'] === (string)$newCat) {
                 return $row['id'];
             }
         }
         return 0;
+    }
+
+    /**
+     * 要素の保存で使うカテゴリの id を返す。新しいカテゴリ名が空でなければ、同じ名前を探し、無ければ作る。
+     * 名前の確かめ（空・重複・予約名）をすべて通ったあと、insert・update の直前に呼ぶ（差し戻しでカテゴリを残さないため）。
+     *
+     * @param mixed $categoryId 送信された categoryid（to_intvar() で読む。0 以下や整数の形でない値は 0）
+     * @param mixed $newCategory 送信された newcategory（生の値。エスケープしない）
+     */
+    public function resolveElementCategory($categoryId, $newCategory): int
+    {
+        $name = $this->normalizeElementName($newCategory);
+        if ($name === '') {
+            return to_intvar($categoryId);
+        }
+        $id = $this->checkCategory($name);
+        if ($id) {
+            return (int)$id;
+        }
+        return (int)$this->newCategory($name);
     }
 
     //Get all categories
@@ -465,6 +485,35 @@ class ManagerAPI
             ];
         }
         return $resourceArray;
+    }
+
+    /**
+     * 要素の編集画面のカテゴリの選択（select）の option 一式を返す。
+     * 「カテゴリーなし」(0)・既存のカテゴリ・「>> カテゴリー作成」(-1) の順。
+     * $selectedId と値が一致する option に selected を付ける（-1 は差し戻した画面で新しいカテゴリを戻すときに使う）。
+     *
+     * @param mixed $selectedId 選ぶ option の値
+     * @return string エスケープ済みの HTML
+     */
+    public function elementCategoryOptions($selectedId): string
+    {
+        $selectedId = (int)$selectedId;
+        $options = [[0, lang('no_category')]];
+        foreach ($this->getCategories() as $row) {
+            $options[] = [(int)$row['id'], $row['category']];
+        }
+        $options[] = [-1, '>> ' . lang('new_category')];
+
+        $html = '';
+        foreach ($options as [$id, $label]) {
+            $html .= sprintf(
+                '<option value="%d"%s>%s</option>',
+                $id,
+                $id === $selectedId ? ' selected="selected"' : '',
+                hsc($label)
+            );
+        }
+        return $html;
     }
 
     //Delete category & associations

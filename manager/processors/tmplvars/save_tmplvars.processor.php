@@ -24,20 +24,6 @@ $display = db()->escape(postv('display', ''));
 $display_params = db()->escape(postv('params', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
 
-//Kyle Jaebker - added category support
-if (empty(postv('newcategory')) && postv('categoryid') > 0) {
-    $category = post_intvar('categoryid');
-} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
-    $category = 0;
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 if ($caption == '') {
     $caption = $name;
 }
@@ -66,11 +52,22 @@ switch (postv('mode')) {
             );
         }
 
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         // Add new TV
-        $field = compact(explode(
-            ',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
-        ));
+        $field = [
+            'name' => $name,
+            'description' => $description,
+            'caption' => $caption,
+            'type' => $type,
+            'elements' => $elements,
+            'default_text' => $default_text,
+            'display' => $display,
+            'display_params' => $display_params,
+            'rank' => $rank,
+            'locked' => $locked,
+            'category' => $category
+        ];
         $newid = db()->insert($field, '[+prefix+]site_tmplvars');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -129,12 +126,24 @@ switch (postv('mode')) {
                 $id
             );
         }
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         // update TV
         $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
-        $field = compact(explode(
-            ',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
-        ));
+        $field = [
+            'name' => $name,
+            'description' => $description,
+            'caption' => $caption,
+            'type' => $type,
+            'elements' => $elements,
+            'default_text' => $default_text,
+            'display' => $display,
+            'display_params' => $display_params,
+            'rank' => $rank,
+            'locked' => $locked,
+            'category' => $category
+        ];
         $rs = db()->update($field, '[+prefix+]site_tmplvars', "id='{$id}'");
 
         if (!$rs) {

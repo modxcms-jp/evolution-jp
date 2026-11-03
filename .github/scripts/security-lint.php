@@ -226,7 +226,7 @@ const SAFE_FUNCS = [
     'md5', 'sha1', 'hash', 'crc32', 'password_hash', 'password_verify', 'preg_match', 'strpos', 'stripos',
     'strcmp', 'strcasecmp', 'hash_equals', 'max', 'min', 'round', 'floor', 'ceil', 'number_format',
     'filter_var', 'checkdate', 'strtotime', 'date', 'gmdate', 'mktime', 'is_file', 'is_dir', 'file_exists',
-    'hasPermission', 'isCsrfProtectedAction', 'validateCsrfToken', 'HashPassword', 'newCategory', 'checkCategory',
+    'hasPermission', 'isCsrfProtectedAction', 'validateCsrfToken', 'HashPassword', 'newCategory', 'checkCategory', 'resolveElementCategory',
 ];
 
 // SQL を受け取る DBAPI のメソッド

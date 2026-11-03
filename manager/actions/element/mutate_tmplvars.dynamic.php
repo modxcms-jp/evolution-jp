@@ -87,6 +87,7 @@ function entity($key, $default = null)
 }
 
 ?>
+<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
@@ -588,23 +589,14 @@ function entity($key, $default = null)
                         <th align="left"><?= $_lang['existing_category'] ?></th>
                         <td align="left">
                             <select name="categoryid" style="width:300px;">
-                                <option value="0"><?= $_lang["no_category"] ?></option>
-                                <?php
-                                $ds = manager()->getCategories();
-                                if ($ds) {
-                                    foreach ($ds as $n => $v) {
-                                        echo "<option value='" . $v['id'] . "'" . (entity("category") == $v["id"] ? " selected='selected'" : "") . ">" . hsc($v["category"]) . "</option>";
-                                    }
-                                }
-                                ?>
-                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
+                                <?= manager()->elementCategoryOptions(entity('category')) ?>
                             </select>
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
                         <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?></th>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                maxlength="45" value=""
+                                maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
                                 class="inputBox"
                                 style="width:300px;"></td>
                     </tr>
@@ -750,19 +742,7 @@ function entity($key, $default = null)
                 });
             });
         });
-        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
-            el.addEventListener('change', function(event) {
-                const row = document.getElementById('newcategry');
-                if (event.currentTarget.value == '-1') {
-                    if (row) row.style.display = '';
-                } else {
-                    if (row) row.style.display = 'none';
-                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
-                        input.value = '';
-                    });
-                }
-            });
-        });
+        EvoElementCategory.init(document.forms['mutate']);
     })();
     var itype = document.getElementById('type');
     if (itype) itype.addEventListener('change', function() {

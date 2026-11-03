@@ -31,20 +31,6 @@ if (empty($sysevents)) {
     $sysevents[] = 90;
 } // Default OnWebPageInit
 
-//Kyle Jaebker - added category support
-if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = post_intvar('categoryid');
-} elseif (!postv('newcategory') && postv('categoryid') <= 0) {
-    $category = '0';
-} else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory(postv('newcategory'));
-    }
-}
-
 switch (postv('mode')) {
     case '101':
 
@@ -69,8 +55,19 @@ switch (postv('mode')) {
             }
         }
 
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         //do stuff to save the new plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = [
+            'name' => $name,
+            'description' => $description,
+            'plugincode' => $plugincode,
+            'disabled' => $disabled,
+            'moduleguid' => $moduleguid,
+            'locked' => $locked,
+            'properties' => $properties,
+            'category' => $category
+        ];
         $f['error_reporting'] = $pluginErrorReporting;
         $newid = db()->insert($f, '[+prefix+]site_plugins');
         if (!$newid) {
@@ -121,8 +118,20 @@ switch (postv('mode')) {
                 );
             }
         }
+
+        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+
         //do stuff to save the edited plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = [
+            'name' => $name,
+            'description' => $description,
+            'plugincode' => $plugincode,
+            'disabled' => $disabled,
+            'moduleguid' => $moduleguid,
+            'locked' => $locked,
+            'properties' => $properties,
+            'category' => $category
+        ];
         $f['error_reporting'] = $pluginErrorReporting;
         $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {

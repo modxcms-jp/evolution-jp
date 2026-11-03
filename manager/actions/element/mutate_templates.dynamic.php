@@ -30,6 +30,7 @@ if (id()) {
 }
 
 ?>
+    <script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
     <script type="text/javascript">
         function duplicaterecord() {
             if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
@@ -168,21 +169,7 @@ if (id()) {
                         <tr>
                             <th><?= lang('existing_category') ?>:</th>
                             <td><select id="categoryid" name="categoryid" style="width:300px;">
-                                    <option value="0"><?= lang('no_category') ?></option>
-                                    <?php
-                                    $ds = evo()->manager->getCategories();
-                                    if ($ds) {
-                                        foreach ($ds as $n => $v) {
-                                            echo sprintf(
-                                                '<option value="%s" %s>%s</option>',
-                                                $v['id'],
-                                                selected(template('category') == $v['id']),
-                                                evo()->hsc($v['category'])
-                                            );
-                                        }
-                                    }
-                                    ?>
-                                    <option value="-1">&gt;&gt; <?= lang('new_category') ?></option>
+                                    <?= manager()->elementCategoryOptions(template('category')) ?>
                                 </select>
                             </td>
                         </tr>
@@ -365,18 +352,7 @@ if (id()) {
                     if (target) target.innerHTML = data;
                 })
                 .catch(function () {});
-            const categorySelect = document.querySelector('select#categoryid');
-            if (categorySelect) categorySelect.addEventListener('change', function (event) {
-                const row = document.getElementById('newcategry');
-                if (event.currentTarget.value == '-1') {
-                    if (row) row.style.display = '';
-                } else {
-                    if (row) row.style.display = 'none';
-                    document.querySelectorAll('input[name="newcategory"]').forEach(function (input) {
-                        input.value = '';
-                    });
-                }
-            });
+            EvoElementCategory.init(document.forms['mutate']);
         })();
     </script>
 <?php

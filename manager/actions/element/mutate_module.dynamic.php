@@ -77,22 +77,11 @@ function content($key, $default = null)
 }
 ?>
 <script src="media/script/element-properties.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-properties.js') ?>" type="text/javascript"></script>
+<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
 <script type="text/javascript">
     var docid = <?= request_intvar('id') ?>;
     Evo.ready(function() {
-        document.querySelectorAll('select[name="categoryid"]').forEach(function(el) {
-            el.addEventListener('change', function(event) {
-                const row = document.getElementById('newcategry');
-                if (event.currentTarget.value == '-1') {
-                    if (row) row.style.display = '';
-                } else {
-                    if (row) row.style.display = 'none';
-                    document.querySelectorAll('input[name="newcategory"]').forEach(function(input) {
-                        input.value = '';
-                    });
-                }
-            });
-        });
+        EvoElementCategory.init(document.forms['mutate']);
         const sharedInputs = document.querySelectorAll('input[name="enable_sharedparams"]');
         sharedInputs.forEach(function(el) {
             el.addEventListener('change', function() {
@@ -271,16 +260,7 @@ function content($key, $default = null)
                         <td align="left"><?= $_lang['existing_category'] ?>:</td>
                         <td align="left">
                             <select name="categoryid">
-                                <option value="0"><?= $_lang["no_category"] ?></option>
-                                <?php
-                                $ds = manager()->getCategories();
-                                if ($ds) {
-                                    foreach ($ds as $n => $v) {
-                                        echo "\t\t\t" . '<option value="' . $v['id'] . '"' . (content('category') == $v['id'] ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";
-                                    }
-                                }
-                                ?>
-                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
+                                <?= manager()->elementCategoryOptions(content('category')) ?>
                             </select>
                         </td>
                     </tr>
@@ -289,7 +269,7 @@ function content($key, $default = null)
                             :
                         </td>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                maxlength="45" value=""
+                                maxlength="45" value="<?= hsc(content('newcategory', '')) ?>"
                                 class="inputBox"></td>
                     </tr>
                     <tr>
