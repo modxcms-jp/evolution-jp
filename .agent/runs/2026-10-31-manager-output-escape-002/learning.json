@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-output-escape",
+    "run_id": "2026-10-31-manager-output-escape-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:21:41+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}

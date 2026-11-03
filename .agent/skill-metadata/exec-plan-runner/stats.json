@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 26,
-            "used_runs": 26,
-            "helped_runs": 26,
+            "seen_runs": 32,
+            "used_runs": 32,
+            "helped_runs": 32,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 16
+            "active_runs": 18
         },
         "change-004": {
             "seen_runs": 1,
@@ -213,8 +213,8 @@
             "helped_runs": 1,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-11-03T10:20:00+09:00",
-            "source": "2026-11-03-element-category-after-validation-001"
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         },
         "change-024": {
             "seen_runs": 1,
@@ -222,10 +222,46 @@
             "helped_runs": 1,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-11-03T10:20:00+09:00",
-            "source": "2026-11-03-element-category-after-validation-001"
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         },
         "change-025": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-026": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-027": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-028": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        "change-029": {
             "seen_runs": 1,
             "used_runs": 1,
             "helped_runs": 1,
@@ -234,7 +270,25 @@
             "last_used_at": "2026-11-03T10:20:00+09:00",
             "source": "2026-11-03-element-category-after-validation-001"
         },
-        "change-026": {
+        "change-030": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
+        },
+        "change-031": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
+        },
+        "change-032": {
             "seen_runs": 1,
             "used_runs": 1,
             "helped_runs": 1,
