@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-03-element-category-after-validation",
+    "run_id": "2026-11-03-element-category-after-validation-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:20:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-023",
+            "action": "add",
+            "target": "assets/docs/jquery-migration.md（素の JS で書くときの決まり）",
+            "summary": "フォームの中の欄は form.elements['name'] ではなく form.querySelector('[name=\"…\"]') で探す。フォームに name=\"elements\" などの欄があると form.elements が上書きされる（テンプレート変数の画面）",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-024",
+            "action": "add",
+            "target": ".agent/agents/planner.md（決定を書くとき）",
+            "summary": "リクエストの値の読み方を決めるときは、既存のヘルパー（to_intvar()・post_intvar() など）と main の今の扱いを確かめ、それより緩い読み方（素の (int) など）を新しく決めない",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-025",
+            "action": "add",
+            "target": ".agent/agents/planner.md（受け入れの表を書くとき）",
+            "summary": "既存の処理を共通の部品に通す・書き換えるときは、直す経路だけでなく、その処理を通る今の経路（main で値を保っている場合を含む）も受け入れの表に入れ、main と同じであることを確かめる",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-026",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 2「準備」）",
+            "summary": "Issue の原因が「未確認」「候補」と書かれているときは、実装の前に tester に main で再現させ、原因をファイルと行で確かめる。再現しないときや原因が違うときは止まる条件（直し方が Issue と違う）に当たる",
+            "source_ref": "finding-004",
+            "confidence": "medium"
+        }
+    ]
+}

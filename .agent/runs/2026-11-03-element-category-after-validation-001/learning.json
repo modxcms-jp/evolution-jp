@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-03-element-category-after-validation",
+    "run_id": "2026-11-03-element-category-after-validation-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:20:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "共通の JS が form.elements['categoryid'] で欄を探していて、name=\"elements\" の欄を持つテンプレート変数の画面だけ動かなかった。node --check と簡易スタブでは見つからず、6 画面すべてを実際に操作した検証で見つかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": "assets/docs/jquery-migration.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "ExecPlan がリクエストの id を素の (int) で読むと決めていて、既存の to_intvar()（post_intvar）より緩くなった。計画のとおりに実装され、自己レビューで直した",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/planner.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "validation_gap",
+            "summary": "既存の処理を共通の部品に通したとき、受け入れ表が新しく直す経路だけを挙げ、main で値を保っていた経路（docblock に @modx_category が無い場合）を比べていなかったため、後退が入った。自己レビューで見つかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/planner.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "missing_instruction",
+            "summary": "Issue の原因が「未確認」のとき、実装の前に tester に main で再現させたら、症状は再現せず別の不具合が見つかった。runner の手順に、実装の前に再現させる段階が無い",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}
