@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-output-escape",
+    "run_id": "2026-10-31-manager-output-escape-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:30:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-023",
+            "action": "add",
+            "target": "SKILL.md（作業場所 と 1 件ごとの繰り返しの手順 9「段階ごとに PR を分けるとき」）",
+            "summary": "ExecPlan が段階ごとに PR を分けるときは、ブランチを gh issue develop で Issue に紐づけない（紐づいたブランチの PR は、本文が Refs でもマージで Issue を閉じる）。最後の PR の本文の Closes で閉じる",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-024",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 9「段階ごとに PR を分けるとき」）",
+            "summary": "段階ごとの PR をマージするときは、後の段階で同じブランチを使うので --delete-branch を付けない。最後の PR のマージ後に /finish-task で片付ける",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-025",
+            "action": "add",
+            "target": ".agent/agents/planner.md（手順を書くとき）",
+            "summary": "既存の部品（DataGrid・ヘルパー・DBAPI など）に値を渡す手順を書くときは、その部品が受け取れる形を実装で確かめてから書く。確かめていない前提は Decision Log に「要確認」と書く",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-026",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "管理画面の JS（画面の <script> と、画面が読む共通の JS）を足した・変えたときは、単独で開くだけでなく、一覧からリンクで画面を行き来する（シェルの画面遷移）検証を入れる。JS が同じ window で読み直されるため（assets/docs/jquery-migration.md）",
+            "source_ref": "finding-004",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-027",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "保存し直して値が変わらないかを確かめるときは、何も変えずに保存するだけでなく、1 項目だけ変えて保存する確認と、入力エラーで差し戻した画面の確認も入れる（変えた項目だけを送る画面や、送信値を重ねて戻す画面があるため）",
+            "source_ref": "finding-005",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-028",
+            "action": "add",
+            "target": "SKILL.md（/run-plan の手順 4、段階ごとに PR を分けるとき）",
+            "summary": "前の段階の PR がマージ待ちのとき（本人の不在で自動モードがマージを止めたときなど）は、次の段階を同じブランチの手元のコミット（push しない）で検証・自己レビューまで進めてよい。マージ後に main へ載せ直してから push し、PR を作る",
+            "source_ref": "finding-006",
+            "confidence": "medium"
+        }
+    ]
+}
