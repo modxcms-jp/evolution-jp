@@ -73,6 +73,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - Issue タイプ: `gh issue edit <番号> --type <Bug・Feature・Task>`
    - ラベル: 不具合なら `fix`、必要なら `security`
    - 必要なら explorer に下調べを任せる。explorer の結果は手がかりとして使い、原因の根拠は worker と reviewer が自分で裏を取る。
+   - Issue の原因が「未確認」「候補」と書かれているときは、実装の前に tester に main で再現させ、原因をファイルと行で確かめる。再現しない・原因が違うときは、直し方が Issue と違うので止まる。
 3. **実装**: worker に、Issue（またはマイルストーン）、作業ディレクトリ、書き込んでよいファイル、確認のしかたを渡す。worker はコミットまで行う。
 4. **範囲の照合**: メインが `git -C <パス> diff --name-only <開始時の HEAD>..HEAD` で、この 1 件の変更が割り当てたファイルに収まっていることを確かめる（`/run-plan` では、前のマイルストーンの変更を含めないため）。PHP を変えた場合は、変えたファイルに `php -l` が通ることを確かめる。
 5. **検証**: tester が、Issue に書かれた症状が直ったこと（`/run-plan` では、そのマイルストーンの Concrete Steps の期待どおりであること）を確かめる。画面や DB が絡む場合は adaptive-validation-runner を使う。
