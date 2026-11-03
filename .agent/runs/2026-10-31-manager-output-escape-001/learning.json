@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "plan_id": "2026-10-31-manager-output-escape",
+    "run_id": "2026-10-31-manager-output-escape-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:30:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "missing_instruction",
+            "summary": "段階ごとに PR を分ける ExecPlan で、ブランチを gh issue develop で Issue に紐づけていたため、M1 の PR（本文は Refs #895）のマージで GitHub が Issue を閉じた。本文の Refs/Closes に関係なく、紐づいたブランチの PR のマージで閉じる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "missing_instruction",
+            "summary": "段階ごとの PR を gh pr merge --delete-branch でマージしたため、後の段階で使うブランチが消えた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "bad_assumption",
+            "summary": "ExecPlan の手順が既存の部品（DataGrid）の受け取れる形を確かめずに前提にしていて、worker が実装の途中で止まった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".agent/agents/planner.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "validation_gap",
+            "summary": "管理画面の JS を足した・変えたとき、シェルの画面遷移で同じ window に読み直される経路を最初の検証に入れていなかった",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-005",
+            "kind": "validation_gap",
+            "summary": "「何も変えずに保存し直す」だけでは、変えた項目だけを送る画面（ユーザー編集・プロフィール）で不具合を捉えられなかった。1 項目だけ変えて保存する確認と、入力エラーで差し戻した画面の確認が要った",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-006",
+            "kind": "missing_instruction",
+            "summary": "本人が不在の間、段階ごとの PR のマージが自動モードの判定で拒否された。次の段階を手元のコミットで進め、マージ後に main へ載せ直す形で進められた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

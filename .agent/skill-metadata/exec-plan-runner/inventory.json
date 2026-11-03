@@ -175,6 +175,54 @@
             "added_at": "2026-11-01T21:40:00+09:00",
             "last_used_at": "2026-11-01T21:40:00+09:00",
             "source": "2026-10-30-file-browser-kcfinder-extension-001"
+        },
+        {
+            "id": "change-023",
+            "location": "SKILL.md（作業場所 と 1 件ごとの繰り返しの手順 9「段階ごとに PR を分けるとき」）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-024",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 9「段階ごとに PR を分けるとき」）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-025",
+            "location": ".agent/agents/planner.md（手順を書くとき）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-026",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-027",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-028",
+            "location": "SKILL.md（/run-plan の手順 4、段階ごとに PR を分けるとき）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:30:00+09:00",
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         }
     ]
 }
