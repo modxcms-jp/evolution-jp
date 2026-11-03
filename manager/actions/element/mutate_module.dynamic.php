@@ -78,9 +78,14 @@ function content($key, $default = null)
 ?>
 <script src="media/script/element-properties.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-properties.js') ?>" type="text/javascript"></script>
 <script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
+<script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script type="text/javascript">
     var docid = <?= request_intvar('id') ?>;
     Evo.ready(function() {
+        EvoElementLock.init(document.forms['mutate'], {
+            locked: <?= content('locked') == 1 ? 'true' : 'false' ?>,
+            saveButton: document.getElementById('Button1')
+        });
         EvoElementCategory.init(document.forms['mutate']);
         const sharedInputs = document.querySelectorAll('input[name="enable_sharedparams"]');
         sharedInputs.forEach(function(el) {
@@ -238,14 +243,7 @@ function content($key, $default = null)
                                 type="checkbox" <?= content('wrap') == 1 ? ' checked="checked"' : '' ?> class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
-                    <?php
-                    if (content('locked') == 1) {
-                        $readonly = 'readonly';
-                    } else {
-                        $readonly = '';
-                    }
-                    ?>
-                    <textarea dir="ltr" <?= $readonly ?> class="phptextarea" name="post"
+                    <textarea dir="ltr" class="phptextarea" name="post"
                         style="width:100%; height:370px;"
                         wrap="<?= content('wrap') == 1 ? 'soft' : 'off' ?>"><?= hsc(content('modulecode')) ?></textarea>
                 </div>
