@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-03-element-category-after-validation",
+    "run_id": "2026-11-03-element-category-after-validation-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:19:38+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}

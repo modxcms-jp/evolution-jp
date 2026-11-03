@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-03-element-category-after-validation",
+    "run_id": "2026-11-03-element-category-after-validation-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-03T10:19:38+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": []
+}

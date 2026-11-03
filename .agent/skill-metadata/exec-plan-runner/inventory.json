@@ -223,6 +223,38 @@
             "added_at": "2026-11-03T10:30:00+09:00",
             "last_used_at": "2026-11-03T10:30:00+09:00",
             "source": "2026-10-31-manager-output-escape-001"
+        },
+        {
+            "id": "change-029",
+            "location": "assets/docs/jquery-migration.md（素の JS で書くときの決まり）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:20:00+09:00",
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
+        },
+        {
+            "id": "change-030",
+            "location": ".agent/agents/planner.md（決定を書くとき）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:20:00+09:00",
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
+        },
+        {
+            "id": "change-031",
+            "location": ".agent/agents/planner.md（受け入れの表を書くとき）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:20:00+09:00",
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
+        },
+        {
+            "id": "change-032",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 2「準備」）",
+            "status": "adopted",
+            "added_at": "2026-11-03T10:20:00+09:00",
+            "last_used_at": "2026-11-03T10:20:00+09:00",
+            "source": "2026-11-03-element-category-after-validation-001"
         }
     ]
 }
