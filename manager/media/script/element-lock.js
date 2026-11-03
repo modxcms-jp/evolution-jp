@@ -4,14 +4,15 @@
  *
  * - テキスト欄・テキストエリア（textarea, input[type=text]）は readOnly にする
  * - 選択（select）は readOnly が効かないので disabled にし、readonly の class を付ける
- * - 効く範囲は渡したフォームの中だけ。この JS がロックで変えた欄だけを戻すので、
- *   もともと読み取り専用・無効の欄は、ロックを外しても変えない
+ * - 効く範囲は渡したフォームの中だけ。操作ボタンの領域（.actionButtons。「保存後の動作」の選択など）は除く。
+ *   この JS がロックで変えた欄だけを戻すので、もともと読み取り専用・無効の欄は、ロックを外しても変えない
+ * - あとから作られる欄（パラメーターの表など）には効かない
  * - 無効の select は送信されないので、送信の直前に有効へ戻し、送信のあとロックの状態に戻す
  * - 開いたときにロックされていれば、ロックを外すまで保存ボタンを隠す。
  *   開いたあとにロックしたときは隠さない（ロックしたことを保存できるようにするため）
  *
  * 使い方: EvoElementLock.init(document.forms['mutate'], {locked: true, saveButton: '#Button1'});
- *   locked:     保存されているロックの状態（開いたときの状態）
+ *   locked:     開いたときのロックの状態（差し戻しの再表示では、送信したチェックの状態）
  *   saveButton: 保存ボタンのセレクタ（無ければ省く）。フォームの中から探す。
  *               シェルではツリーにも id="Button1" の要素があり、document から探すとそちらが見つかるため
  */
@@ -49,13 +50,23 @@ var EvoElementLock = (function () {
         delete el.dataset[MARK_DISABLED];
     }
 
-    function apply(form, locked) {
-        form.querySelectorAll(TEXT_FIELDS).forEach(function (el) {
-            setReadOnly(el, locked);
+    function targets(form, selector) {
+        return Array.from(form.querySelectorAll(selector)).filter(function (el) {
+            return !el.closest('.actionButtons');
         });
-        form.querySelectorAll('select').forEach(function (el) {
+    }
+
+    function applySelects(form, locked) {
+        targets(form, 'select').forEach(function (el) {
             setDisabled(el, locked);
         });
+    }
+
+    function apply(form, locked) {
+        targets(form, TEXT_FIELDS).forEach(function (el) {
+            setReadOnly(el, locked);
+        });
+        applySelects(form, locked);
     }
 
     function init(form, options) {
@@ -75,11 +86,11 @@ var EvoElementLock = (function () {
 
         if (lockInput) lockInput.addEventListener('change', sync);
         form.addEventListener('submit', function () {
-            apply(form, false);
-            // 送信の値はこの submit の中で集められるので、そのあとで欄をロックの状態に戻す。
+            applySelects(form, false);
+            // 送信の値はこの submit の中で集められるので、そのあとで選択をロックの状態に戻す。
             // 保存ボタンは送信中に隠されていることがあるので触らない
             setTimeout(function () {
-                apply(form, isLocked());
+                applySelects(form, isLocked());
             }, 0);
         });
         sync();
