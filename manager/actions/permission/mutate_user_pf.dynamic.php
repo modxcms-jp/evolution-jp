@@ -129,12 +129,12 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
+        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = "<?= $base_url ?>" + url;
+        document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
     }
 </script>
 
@@ -151,7 +151,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
     ?>
     <input type="hidden" name="mode" value="74">
-    <input type="hidden" name="userid" value="<?= $userid ?>">
+    <input type="hidden" name="userid" value="<?= (int) $userid ?>">
     <input type="hidden" name="newusername" value="<?= hsc($usernamedata['username']) ?>" />
     <input type="hidden" name="role" value="<?= (int)userData('role') ?>" />
     <input type="hidden" name="failedlogincount" value="<?= (int)userData('failedlogincount') ?>">
@@ -398,7 +398,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang["a17_manager_inline_style_title"] ?></th>
                         <td>
                             <textarea name="manager_inline_style" id="manager_inline_style"
-                                style="width:95%; height: 9em;"><?= setting('manager_inline_style') ?></textarea><br />
+                                style="width:95%; height: 9em;"><?= hsc(setting('manager_inline_style')) ?></textarea><br />
                             &nbsp;&nbsp; <label><input type="checkbox" id="default_manager_inline_style"
                                     name="default_manager_inline_style"
                                     value="1" <?= isset($usersettings['manager_inline_style']) ? '' : 'checked' ?> /> <?= $_lang["user_use_config"] ?>
@@ -466,7 +466,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["editor_css_path_title"] ?></th>
                         <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
-                                value="<?= setting('editor_css_path') ?>" />
+                                value="<?= hsc(setting('editor_css_path')) ?>" />
                             <div><?= $_lang["editor_css_path_message"] ?></div>
                         </td>
                     </tr>

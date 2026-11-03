@@ -103,7 +103,7 @@
     <tr>
         <th><?= lang('login_allowed_ip') ?></th>
         <td><input type="text" maxlength='255' style="width: 300px;" name="allowed_ip"
-                value="<?= user('allowed_ip') ?>" />
+                value="<?= hsc(user('allowed_ip')) ?>" />
             <div><?= lang('login_allowed_ip_message') ?></div>
         </td>
     </tr>

@@ -198,10 +198,10 @@
                 $options[] = html_tag(
                     'option',
                     [
-                        'value' => $row['id'],
+                        'value' => (int) $row['id'],
                         'selected' => $selected ? null : ''
                     ],
-                    $row['name']
+                    hsc($row['name'])
                 );
             }
             ?>

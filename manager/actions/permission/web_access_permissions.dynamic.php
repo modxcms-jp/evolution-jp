@@ -16,7 +16,7 @@ if (db()->count($rs) < 1) {
 } else {
     $docgroupselector = '<select name="docgroup">' . "\n";
     while ($row = db()->getRow($rs)) {
-        $docgroupselector .= "\t" . '<option value="' . $row['id'] . '">' . $row['name'] . "</option>\n";
+        $docgroupselector .= "\t" . '<option value="' . (int) $row['id'] . '">' . hsc($row['name']) . "</option>\n";
     }
     $docgroupselector .= "</select>\n";
 }
@@ -27,7 +27,7 @@ if (db()->count($rs) < 1) {
 } else {
     $usrgroupselector = '<select name="usergroup">' . "\n";
     while ($row = db()->getRow($rs)) {
-        $usrgroupselector .= "\t" . '<option value="' . $row['id'] . '">' . $row['name'] . "</option>\n";
+        $usrgroupselector .= "\t" . '<option value="' . (int) $row['id'] . '">' . hsc($row['name']) . "</option>\n";
     }
     $usrgroupselector .= "</select>\n";
 }
@@ -95,9 +95,9 @@ if (db()->count($rs) < 1) {
                         // display the current user group with a rename/delete form
                         echo '<li><form method="post" action="index.php" name="accesspermissions" style="margin-top: 0.5em;" enctype="multipart/form-data">' . "\n" .
                             '	<input type="hidden" name="a" value="92" />' . "\n" .
-                            '	<input type="hidden" name="groupid" value="' . $row['id'] . '" />' . "\n" .
+                            '	<input type="hidden" name="groupid" value="' . (int) $row['id'] . '" />' . "\n" .
                             '	<input type="hidden" name="operation" value="rename_user_group" />' . "\n" .
-                            '	<input type="text" name="newgroupname" value="' . htmlspecialchars($row['name']) . '" />&nbsp;' . "\n" .
+                            '	<input type="text" name="newgroupname" value="' . hsc($row['name']) . '" />&nbsp;' . "\n" .
                             '	<input type="submit" value="' . $_lang['rename'] . '" />&nbsp;' . "\n" .
                             '	<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=92&usergroup=' . (int) $row['id'] . '&operation=delete_user_group') . '" />' . "\n" .
                             '</form>';
@@ -114,7 +114,7 @@ if (db()->count($rs) < 1) {
                     if ($pid == $row['id']) {
                         echo ', ';
                     } // comma separation :)
-                    echo '<a href="index.php?a=88&amp;id=' . $row['user_id'] . '">' . hsc($row['user_name']) . '</a>';
+                    echo '<a href="index.php?a=88&amp;id=' . (int) $row['user_id'] . '">' . hsc($row['user_name']) . '</a>';
                     $pid = $row['id'];
                 }
                 echo "</li></ul></li>\n";
@@ -178,9 +178,9 @@ if (db()->count($rs) < 1) {
 
                         echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" enctype="multipart/form-data">' . "\n" .
                             '	<input type="hidden" name="a" value="92" />' . "\n" .
-                            '	<input type="hidden" name="groupid" value="' . $row['id'] . '" />' . "\n" .
+                            '	<input type="hidden" name="groupid" value="' . (int) $row['id'] . '" />' . "\n" .
                             '	<input type="hidden" name="operation" value="rename_document_group" />' . "\n" .
-                            '	<input type="text" name="newgroupname" value="' . htmlspecialchars($row['name']) . '">&nbsp;' . "\n" .
+                            '	<input type="text" name="newgroupname" value="' . hsc($row['name']) . '">&nbsp;' . "\n" .
                             '	<input type="submit" value="' . $_lang['rename'] . '">' . "\n" .
                             '	<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=92&documentgroup=' . (int) $row['id'] . '&operation=delete_document_group') . '" />' . "\n" .
                             '</form>';
@@ -196,7 +196,7 @@ if (db()->count($rs) < 1) {
                     if ($pid == $row['id']) {
                         echo ", \n";
                     }
-                    echo '<a href="index.php?a=3&amp;id=' . $row['doc_id'] . '" title="' . htmlspecialchars($row['doc_title']) . '">' . $row['doc_id'] . '</a>';
+                    echo '<a href="index.php?a=3&amp;id=' . (int) $row['doc_id'] . '" title="' . hsc($row['doc_title']) . '">' . (int) $row['doc_id'] . '</a>';
                     $pid = $row['id'];
                 }
                 echo "</table>";
@@ -254,7 +254,7 @@ if (db()->count($rs) < 1) {
                         if ($pid != '') {
                             echo "</ul></li>\n";
                         } // close previous one
-                        echo '<li><b>' . $row['name'] . '</b>';
+                        echo '<li><b>' . hsc($row['name']) . '</b>';
 
                         if (!$row['dg_id']) {
                             echo ' &raquo; <i>' . $_lang['no_groups_found'] . "</i></li>\n";
@@ -267,7 +267,7 @@ if (db()->count($rs) < 1) {
                     if (!$row['dg_id']) {
                         continue;
                     }
-                    echo "\t<li>" . $row['dg_name'];
+                    echo "\t<li>" . hsc($row['dg_name']);
                     echo ' <small><i>(<a href="' . hsc('index.php?a=92&coupling=' . (int) $row['link_id'] . '&operation=remove_document_group_from_user_group') . '" data-evo-post>';
                     echo $_lang['remove'] . '</a>)</i></small>';
                     echo "</li>\n";

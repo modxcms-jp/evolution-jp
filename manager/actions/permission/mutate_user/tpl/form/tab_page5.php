@@ -43,7 +43,7 @@
         <td>
             <input
                 name="manager_login_startup"
-                value="<?= user('manager_login_startup') ?: '' ?>"
+                value="<?= hsc(user('manager_login_startup') ?: '') ?>"
                 type="text"
                 maxlength="50"
                 style="width: 100px;">
@@ -92,7 +92,7 @@
                 echo "<option value='none'" . selected($edt == 'none') . ">" . lang('none') . "</option>\n";
                 if (is_array($evtOut)) {
                     foreach ($evtOut as $editor) {
-                        echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
+                        echo sprintf('<option value="%s"%s>%s</option>', hsc($editor), selected($edt == $editor), hsc($editor));
                     }
                 }
                 ?>
@@ -104,7 +104,7 @@
         style="display: <?= $modx->config['use_editor'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('editor_css_path_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path"
-                value="<?= user("editor_css_path") ?>" />
+                value="<?= hsc(user('editor_css_path')) ?>" />
             <div><?= lang('editor_css_path_message') ?></div>
         </td>
     </tr>

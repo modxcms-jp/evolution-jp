@@ -29,9 +29,9 @@
         while ($row = db()->getRow($rs)) {
             $src = $tpl;
             $ph = [];
-            $ph['id'] = $row['id'];
+            $ph['id'] = (int) $row['id'];
             $ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
-            $ph['name'] = $row['name'];
+            $ph['name'] = hsc($row['name']);
             echo $modx->parseText($src, $ph);
         }
     }

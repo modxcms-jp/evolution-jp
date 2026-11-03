@@ -201,12 +201,12 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
+        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = "<?= $base_url ?>" + url;
+        document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
     }
 </script>
 
@@ -504,7 +504,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <?php if (getv('a') == 88): ?>
                         <tr>
                             <th><?= $_lang['user_logincount'] ?>:</th>
-                            <td><?= attribute('logincount') ?></td>
+                            <td><?= (int) attribute('logincount') ?></td>
                         </tr>
                         <tr>
                             <th><?= $_lang['user_prevlogin'] ?>:</th>
@@ -521,8 +521,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_failedlogincount'] ?>:</th>
                             <td>
                                 <input type="hidden" name="failedlogincount"
-                                    value="<?= attribute('failedlogincount') ?>">
-                                <span id='failed'><?= attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
+                                    value="<?= (int) attribute('failedlogincount') ?>">
+                                <span id='failed'><?= (int) attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
                                     href="javascript:resetFailed()"><?= $_lang['reset_failedlogins'] ?></a>]
                             </td>
                         </tr>
@@ -652,13 +652,13 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
                         while ($row = db()->getRow($rs)) {
                             $echo = $tpl;
-                            $echo = str_replace('[+id+]', $row['id'], $echo);
+                            $echo = str_replace('[+id+]', (int) $row['id'], $echo);
                             $echo = str_replace(
                                 '[+checked+]',
                                 (in_array($row['id'], $groupsarray) ? 'checked="checked"' : ''),
                                 $echo
                             );
-                            $echo = str_replace('[+name+]', $row['name'], $echo);
+                            $echo = str_replace('[+name+]', hsc($row['name']), $echo);
                             echo $echo;
                         }
                         ?>
