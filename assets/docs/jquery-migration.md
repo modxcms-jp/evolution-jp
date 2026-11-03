@@ -57,6 +57,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 ## 気をつけること
 
+- フォームの中の欄は `form.elements['name']` ではなく `form.querySelector('[name="name"]')` で探す。フォームに `name="elements"` などの欄があると、`form.elements` がその欄で上書きされる（テンプレート変数の編集画面）。いくつかの画面で使う共通の JS では特に気をつける（例: `manager/media/script/element-category.js`）。
 - `form.submit()` は `submit` イベントを発火しない。jQuery の `.submit()`（引数なし）は発火するため、置き換えでは `form.requestSubmit()` を使う（シェルの送信の横取りや、送信前の確認が動く）。
 - 要素が無いとき、jQuery は何もしないが、素の JS では `null` への操作で例外になる。無いことがある要素は先に確かめる。
 
