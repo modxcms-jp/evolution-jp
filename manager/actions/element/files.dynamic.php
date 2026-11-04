@@ -188,7 +188,9 @@ if (!is_readable($startpath)) {
             echo delete_file();
         }
 
-        if (rtrim($startpath, '/') == config('filemanager_path')) {
+        // 設定値の末尾の / の有無に左右されないよう、/ 1 つにそろえて比べる・つなぐ
+        $base_path = rtrim(config('filemanager_path'), '/') . '/';
+        if ($startpath . '/' === $base_path) {
             $ph = [
                 'image' => $_style['tree_deletedfolder'],
                 'subject' => '<span class="file-disabled">Top</span>'
@@ -198,7 +200,7 @@ if (!is_readable($startpath)) {
                 'image' => $_style['tree_folder'],
                 'subject' => sprintf(
                     '<a href="%s">Top</a> / ',
-                    hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path')))
+                    hsc('index.php?a=31&mode=drill&path=' . urlencode($base_path))
                 )
             ];
         }
@@ -207,11 +209,10 @@ if (!is_readable($startpath)) {
             $ph
         );
 
-        $len = strlen(config('filemanager_path'));
-        if (substr($startpath, $len) == '') {
+        $topic_path = (string) substr($startpath . '/', strlen($base_path));
+        if ($topic_path === '') {
             $topic_path = '/';
         } else {
-            $topic_path = substr($startpath, $len);
             $pieces = explode('/', rtrim($topic_path, '/'));
             $path = '';
             $count = count($pieces);
@@ -225,7 +226,7 @@ if (!is_readable($startpath)) {
                 if (1 < $count) {
                     $pieces[$i] = sprintf(
                         '<a href="%s">%s</a>',
-                        hsc('index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path)),
+                        hsc('index.php?a=31&mode=drill&path=' . urlencode($base_path . $path)),
                         $label
                     );
                 } else {
