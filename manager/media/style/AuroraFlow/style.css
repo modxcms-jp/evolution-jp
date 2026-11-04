@@ -1089,12 +1089,6 @@ div.treeNode {
     color: #777;
 }
 
-/* File manager disabled items */
-.file-disabled {
-    color: #999;
-    cursor: default;
-}
-
 /* Welcome page inbox title */
 .inbox-title {
     color: #909090;

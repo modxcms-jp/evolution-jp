@@ -41,9 +41,19 @@ class ManageScope implements BrowserScope
         return new self($modx, $config);
     }
 
+    /**
+     * ファイル管理のルート(設定 filemanager_path。空ならサイトのルート)。ルートの決め方はここだけに置く
+     *
+     * @return string
+     */
+    public static function rootPath(DocumentParser $modx)
+    {
+        return $modx->config('filemanager_path') ?: MODX_BASE_PATH;
+    }
+
     public function baseDir()
     {
-        return $this->modx->config('filemanager_path') ?: MODX_BASE_PATH;
+        return self::rootPath($this->modx);
     }
 
     public function guard()
@@ -115,7 +125,8 @@ class ManageScope implements BrowserScope
         if ($root === false) {
             return '/';
         }
-        $label = substr($root, (int) strrpos($root, '/') + 1);
+        $pos = strrpos($root, '/');
+        $label = $pos === false ? $root : substr($root, $pos + 1);
 
         return $label === '' ? '/' : $label;
     }

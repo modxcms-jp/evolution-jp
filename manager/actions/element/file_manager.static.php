@@ -14,9 +14,9 @@ require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/BrowserScope.php';
 require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/ManageScope.php';
 require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/BrowserView.php';
 
-$fb_config = new BrowserConfig($modx);
+$fb_config = new BrowserConfig(evo());
 // 管理モードを使ってよいかの条件は、API と同じもの(ManageScope::authorize())を使う。画面を出すだけで、API の認可の代わりにはならない
-$fb_scope = ManageScope::authorize($modx, $fb_config);
+$fb_scope = ManageScope::authorize(evo(), $fb_config);
 if (is_array($fb_scope)) {
     alert()->setError(3);
     alert()->dumpError();
@@ -26,7 +26,7 @@ $fb_folder = getv('folder', '');
 $fb_select = getv('select', '');
 
 echo BrowserView::managePane(
-    BrowserView::jsConfig($modx, $fb_config, [
+    BrowserView::jsConfig(evo(), $fb_config, [
         'entry' => 'manage',
         'apiUrl' => 'media/browser/evo/api.php',
         'apiParams' => ['scope' => 'manage'],

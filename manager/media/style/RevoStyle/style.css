@@ -955,12 +955,6 @@ div.treeNode {
     color: #777;
 }
 
-/* File manager disabled items */
-.file-disabled {
-    color: #999;
-    cursor: default;
-}
-
 /* Welcome page inbox title */
 .inbox-title {
     color: #909090;
@@ -1953,11 +1947,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 #templatesPane #tabInfo ul.actionButtons {
     margin-top: 15px;
-}
-
-/* a=31 files.dynamic.php: アップロード欄の margin-top:10px */
-#uploader {
-    margin-top: 10px;
 }
 
 /* a=133 publish_draft.dynamic.php: 採用の選択の div の margin-bottom:1em（12px） */

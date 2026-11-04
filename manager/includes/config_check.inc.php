@@ -149,30 +149,31 @@ function hideTemplateSwitcherWarning(){
     }
 
     /**
+     * ファイル管理(a=31)の folder に渡す値。$path がファイル管理のルートの中にあれば、ルートからの相対パスを URL エンコードしたもの。
+     * ルートの外にあるとき(filemanager_path がサイトのルートの下の別の場所のとき)や、解決できないときは空(ルートを開く)
+     */
+    private function fileManagerFolderFor($path) {
+        $libPath = MODX_MANAGER_PATH . 'media/browser/evo/lib/';
+        require_once $libPath . 'PathGuard.php';
+        require_once $libPath . 'BrowserScope.php';
+        require_once $libPath . 'ManageScope.php';
+        $rootPath = ManageScope::rootPath(evo());
+        $root = PathGuard::normalize($rootPath);
+        $target = PathGuard::normalize($path);
+        if ($root === false || $target === false || !(new PathGuard($rootPath))->isWithinBase($path)) {
+            return '';
+        }
+        $root = rtrim($root, '/') . '/';
+
+        return rawurlencode(trim(substr($target . '/', strlen($root)), '/'));
+    }
+
+    /**
      * DBから設定値を直接取得（キャッシュをバイパス）
      *
      * @param string $key 設定キー
      * @return string|null 設定値（見つからない場合はnull）
      */
-    /**
-     * ファイル管理(a=31)の folder に渡す値。$path がファイル管理のルートの中にあれば、ルートからの相対パスを URL エンコードしたもの。
-     * ルートの外にあるとき(filemanager_path がサイトのルートの下の別の場所のとき)や、解決できないときは空(ルートを開く)
-     */
-    private function fileManagerFolderFor($path) {
-        require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/PathGuard.php';
-        $root = PathGuard::normalize(evo()->config('filemanager_path') ?: MODX_BASE_PATH);
-        $target = PathGuard::normalize($path);
-        if ($root === false || $target === false) {
-            return '';
-        }
-        $root = rtrim($root, '/') . '/';
-        if (strpos($target . '/', $root) !== 0) {
-            return '';
-        }
-
-        return rawurlencode(trim(substr($target . '/', strlen($root)), '/'));
-    }
-
     private function getConfigFromDB($key) {
         $result = db()->getValue(
             db()->select('setting_value', db()->getFullTableName('system_settings'), "setting_name = '" . db()->escape($key) . "'")
