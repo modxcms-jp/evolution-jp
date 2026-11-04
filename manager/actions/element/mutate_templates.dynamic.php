@@ -31,6 +31,7 @@ if (id()) {
 
 ?>
     <script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
+    <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
     <script type="text/javascript">
         function duplicaterecord() {
             if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
@@ -298,43 +299,11 @@ if (id()) {
     <script>
         var tpstatus = <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?>;
         tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
-        var readonly = <?= (template('locked') == 1 || template('locked') === 'on') ? '1' : '0' ?>;
         // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
         (function () {
-            const saveButton = document.getElementById('Button1');
-            const lockInput = document.querySelector('input#locked');
-            const paneSelects = function (fn) {
-                document.querySelectorAll('#templatesPane select').forEach(fn);
-            };
-            if (readonly) {
-                document.querySelectorAll('#templatesPane textarea,input[type=text]').forEach(function (el) {
-                    el.readOnly = true;
-                });
-                paneSelects(function (el) {
-                    el.classList.add('readonly');
-                    el.disabled = true;
-                });
-                if (saveButton) saveButton.style.display = 'none';
-                if (lockInput) lockInput.addEventListener('click', function () {
-                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
-                });
-            }
-            if (lockInput) lockInput.addEventListener('click', function (event) {
-                const checked = event.currentTarget.checked;
-                document.querySelectorAll('#templatesPane textarea,input[type=text]').forEach(function (el) {
-                    el.readOnly = checked;
-                });
-                paneSelects(function (el) {
-                    el.disabled = checked;
-                    el.classList.toggle('readonly', checked);
-                });
-            });
-            // 無効な select は送信されないため、どの経路の送信でも送信の直前に有効へ戻す
-            const mutateForm = document.getElementById('mutate');
-            if (mutateForm) mutateForm.addEventListener('submit', function () {
-                paneSelects(function (el) {
-                    el.disabled = false;
-                });
+            EvoElementLock.init(document.forms['mutate'], {
+                locked: <?= template('locked') == 1 ? 'true' : 'false' ?>,
+                saveButton: '#Button1'
             });
             // このテンプレートを使うリソースの一覧（HTML の断片）を取得する
             Evo.fetch('index.php?' + new URLSearchParams({

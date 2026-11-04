@@ -88,6 +88,7 @@ function entity($key, $default = null)
 
 ?>
 <script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
+<script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
@@ -712,35 +713,11 @@ function entity($key, $default = null)
 </form>
 <script>
     tpTmplvars = new WebFXTabPane(document.getElementById("tmplvarsPane"), false);
-    var readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
     // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
     (function() {
-        const saveButton = document.getElementById('Button1');
-        const lockInputs = document.querySelectorAll('input[name="locked"]');
-        if (readonly == 1) {
-            document.querySelectorAll('textarea,input[type=text]').forEach(function(el) {
-                el.readOnly = true;
-            });
-            document.querySelectorAll('select').forEach(function(el) {
-                el.classList.add('readonly');
-            });
-            if (saveButton) saveButton.style.display = 'none';
-            lockInputs.forEach(function(el) {
-                el.addEventListener('click', function() {
-                    if (saveButton) saveButton.style.display = (saveButton.style.display === 'none') ? '' : 'none';
-                });
-            });
-        }
-        lockInputs.forEach(function(el) {
-            el.addEventListener('click', function(event) {
-                const checked = event.currentTarget.checked;
-                document.querySelectorAll('textarea,input[type=text]').forEach(function(input) {
-                    input.readOnly = checked;
-                });
-                document.querySelectorAll('select').forEach(function(select) {
-                    select.classList.toggle('readonly');
-                });
-            });
+        EvoElementLock.init(document.forms['mutate'], {
+            locked: <?= entity('locked') == 1 ? 'true' : 'false' ?>,
+            saveButton: '#Button1'
         });
         EvoElementCategory.init(document.forms['mutate']);
     })();
