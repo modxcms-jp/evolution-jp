@@ -1,21 +1,19 @@
 // 左ペインのフォルダツリー。開閉状態(expandedPaths)はこのモジュール内に閉じる。
-// グリッド側のファイル一覧(state.rawFolders/rawFiles)とは syncWithList() で
+// グリッド側のフォルダ一覧(state.rawFolders)とは syncWithList() で
 // 追加リクエストなしに同期する。
 
-import { escapeHtml, joinPath, folderIcon, fileIcon, ICON_TREE_ARROW } from './utils.js';
+import { escapeHtml, joinPath, folderIcon, ICON_TREE_ARROW } from './utils.js';
 import { t } from './i18n.js';
 import { loadFailureMessage } from './api.js';
-import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
+import { bindMoveDropTarget } from './dnd.js';
 
 /**
  * @param {object} ctx
  * @param {HTMLElement} ctx.treeEl
  * @param {string} ctx.type - ルートノードのラベル(images/media/files)
- * @param {(path: string) => Promise<{folders, files}>} ctx.fetchLight - light=1でのlist取得
+ * @param {(path: string) => Promise<{folders}>} ctx.fetchFolders - foldersOnly=1でのlist取得
  * @param {() => string} ctx.getCurrentFolder
- * @param {(path: string, selectName?: string) => void} ctx.onNavigate
- * @param {(name: string) => void} ctx.onSelectInPlace - 現在フォルダ内のファイルをクリックしたとき
- * @param {(path: string) => void} ctx.onPickFile - ファイルをダブルクリックしたとき
+ * @param {(path: string) => void} ctx.onNavigate
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
  */
 export function createTree(ctx) {
@@ -38,38 +36,6 @@ export function createTree(ctx) {
             '  </div>' +
             '  <div class="evo-fb-tree-children" hidden></div>' +
             '</div>';
-    }
-
-    function treeFileHtml(file, folderPath) {
-        return '' +
-            '<div class="evo-fb-tree-row evo-fb-tree-file" draggable="true"' +
-            ' data-name="' + escapeHtml(file.name) + '"' +
-            ' data-file-path="' + escapeHtml(file.path) + '"' +
-            ' data-folder="' + escapeHtml(folderPath) + '">' +
-            '  <span class="evo-fb-tree-toggle evo-fb-tree-toggle-none"></span>' +
-            '  <button type="button" class="evo-fb-tree-label">' +
-            fileIcon(14) +
-            '    <span class="evo-fb-tree-name">' + escapeHtml(file.name) + '</span>' +
-            '  </button>' +
-            '</div>';
-    }
-
-    function bindTreeFile(row) {
-        var name = row.dataset.name;
-        var folderPath = row.dataset.folder;
-        var label = row.querySelector('.evo-fb-tree-label');
-
-        label.addEventListener('click', function () {
-            if (ctx.getCurrentFolder() === folderPath) {
-                ctx.onSelectInPlace(name);
-            } else {
-                ctx.onNavigate(folderPath, name);
-            }
-        });
-        label.addEventListener('dblclick', function () {
-            ctx.onPickFile(row.dataset.filePath);
-        });
-        bindFileDragSource(row, function () { return [name]; }, function () { return folderPath; });
     }
 
     function findTreeNode(path) {
@@ -123,9 +89,9 @@ export function createTree(ctx) {
             return Promise.resolve();
         }
         children.innerHTML = '<div class="evo-fb-tree-loading">' + escapeHtml(t('fb_loading')) + '</div>';
-        return ctx.fetchLight(path)
+        return ctx.fetchFolders(path)
             .then(function (data) {
-                renderTreeChildren(node, data.folders, data.files);
+                renderTreeChildren(node, data.folders);
             })
             .catch(function (err) {
                 children.innerHTML = '<div class="evo-fb-tree-loading evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
@@ -138,15 +104,13 @@ export function createTree(ctx) {
         node.querySelector(':scope > .evo-fb-tree-children').hidden = true;
     }
 
-    function renderTreeChildren(node, folders, files) {
+    function renderTreeChildren(node, folders) {
         var path = node.dataset.path;
         var children = node.querySelector(':scope > .evo-fb-tree-children');
         node.dataset.loaded = '1';
 
         children.innerHTML = folders.map(function (folder) {
             return treeNodeHtml(folder.name, joinPath(path, folder.name), folder.hasChildren);
-        }).join('') + (files || []).map(function (file) {
-            return treeFileHtml(file, path);
         }).join('');
 
         children.querySelectorAll(':scope > .evo-fb-tree-node').forEach(function (child) {
@@ -156,7 +120,6 @@ export function createTree(ctx) {
                 expandTreeNode(child);
             }
         });
-        children.querySelectorAll(':scope > .evo-fb-tree-file').forEach(bindTreeFile);
         setActiveTreePath(ctx.getCurrentFolder());
     }
 
@@ -189,13 +152,13 @@ export function createTree(ctx) {
     }
 
     // グリッドのlist応答からツリーの現在ノードを同期する(追加リクエスト不要)
-    function syncWithList(folder, folders, files) {
+    function syncWithList(folder, folders) {
         var node = findTreeNode(folder);
         if (!node) {
             return;
         }
-        renderTreeChildren(node, folders, files);
-        if (folders.length > 0 || (files && files.length > 0)) {
+        renderTreeChildren(node, folders);
+        if (folders.length > 0) {
             expandedPaths.add(folder);
             setTreeToggleState(node, true);
             node.querySelector(':scope > .evo-fb-tree-children').hidden = false;

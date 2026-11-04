@@ -3,8 +3,8 @@
 /**
  * ファイルブラウザ新JSON API。
  *
- * GET  action=list   (type, folder, light?)                   -> {folders:[{name,hasChildren}], files:[{name,size,mtime,url,path,thumb,width,height}]}
- *                     light=1はツリー展開用(filesはname/pathのみ。画像寸法等の収集を省く)
+ * GET  action=list   (type, folder, foldersOnly?)             -> {folders:[{name,hasChildren}], files:[{name,size,mtime,url,path,thumb,width,height}]}
+ *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ
  * POST action=upload (type, folder, files[])                  -> {uploaded:[{name,size,url}], errors:[{name,message}]}
@@ -196,8 +196,8 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
     $baseUrl = $config->baseUrl();
     $urlPrefix = $config->urlPrefix();
     $allowedExt = $config->allowedExtensions($type);
-    // ツリー展開用の軽量モード: filesはname/pathのみ(getimagesize等の重い処理を省く)
-    $light = anyv('light') === '1';
+    // ツリー展開用: ツリーにはフォルダだけを出すので、ファイルは集めない
+    $foldersOnly = anyv('foldersOnly') === '1';
 
     foreach ($entries as $entry) {
         if ($entry === '.' || $entry === '..' || strpos($entry, '.') === 0) {
@@ -215,6 +215,9 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
             $folders[] = ['name' => $entry, 'hasChildren' => fbDirHasSubdirs($fullPath)];
             continue;
         }
+        if ($foldersOnly) {
+            continue;
+        }
 
         // typeに応じた許可拡張子のみを一覧に含める(旧mcpukのGetFoldersAndFilesと同様、
         // imagesブラウザにindex.html等の非対象ファイルが混ざらないようにする)
@@ -227,14 +230,6 @@ function fbActionList(PathResolver $resolver, BrowserConfig $config, $type)
         // FTP などで置かれた名前の % # ? だけは URL が切れないようエンコードする(% を最初に置き換える)
         $filePath = ($urlPrefix !== '' ? $urlPrefix . '/' : '')
             . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
-
-        if ($light) {
-            $files[] = [
-                'name' => $entry,
-                'path' => $filePath,
-            ];
-            continue;
-        }
 
         $isSvg = ($ext === 'svg');
         $isRaster = ThumbnailService::isRasterImageExtension($ext);

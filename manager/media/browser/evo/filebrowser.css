@@ -287,8 +287,7 @@
 
 /* D&D移動のフィードバック */
 
-.evo-fb-item.is-dragging,
-.evo-fb-tree-file.is-dragging {
+.evo-fb-item.is-dragging {
     opacity: 0.5;
 }
 

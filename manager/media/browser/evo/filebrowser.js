@@ -241,18 +241,11 @@ function init() {
     var tree = createTree({
         treeEl: treeEl,
         type: state.type,
-        fetchLight: function (path) {
-            return fetchJson(apiUrl(config, { action: 'list', type: state.type, folder: path, light: '1' }));
+        fetchFolders: function (path) {
+            return fetchJson(apiUrl(config, { action: 'list', type: state.type, folder: path, foldersOnly: '1' }));
         },
         getCurrentFolder: function () { return state.folder; },
         onNavigate: navigateTo,
-        onSelectInPlace: function (name) {
-            state.selection.clear();
-            state.selection.add(name);
-            grid.updateSelectionDom();
-            scrollToSelected(true);
-        },
-        onPickFile: pickFile,
         onDropMove: moveFilesTo
     });
 
@@ -391,7 +384,7 @@ function init() {
                     var focusEl = gridEl.querySelector('.evo-fb-item.is-checked [data-role="name"]') || dropzoneEl;
                     focusEl.focus({ preventScroll: true });
                 }
-                tree.syncWithList(state.folder, data.folders, data.files);
+                tree.syncWithList(state.folder, data.folders);
                 tree.revealPath(state.folder);
             })
             .catch(function (err) {
