@@ -278,8 +278,8 @@ if (!is_readable($startpath)) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
                 $folder = anyv('folderpath');
-                if ($guard->isBase($folder)) {
-                    // 対象ディレクトリそのものは削除しない
+                if ($guard->isBase($folder) || $guard->containsProtected($folder)) {
+                    // 対象ディレクトリそのもの、中に守る場所を含むフォルダは削除しない
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
                         lang('file_folder_not_deleted')
