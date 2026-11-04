@@ -13,6 +13,7 @@ Issue: #1046
 - [x] (2026-11-04) 要相談の 3 点を決定（モードの決め方・拡張子は案のとおり、記録は管理操作ログにも残す）。補足の指示（互換の維持、a=13 の記録の中身、権限の確認の分離、zip のエントリごとの確認、共通化の範囲）を反映
 - [x] (2026-11-04) 共通化を処理ごとに照らし合わせ直した（一覧とアップロードは範囲ごとの関数に分け、`thumb` はピッカーだけにする）。zip の展開後の上限（256MB）は根拠を確かめて取り下げ、旧と同じにした
 - [x] (2026-11-04) `upload_maxsize` が空のときの上限を範囲ごとに今の動きで保つ形に直した（旧は 32MB ではなく本体の上限なしと PHP 7.4 で確認）。zip の展開の安全確認を点検し、ぶら下がったリンク・書く直前の確かめ・0777 のパーミッション・zip そのもののリンク・PHP 7.4 の `basename()` の対策を足した
+- [x] (2026-11-04) 管理モードの起動（`a=31`）と API の認可（要求ごとの `file_manager`）を分けて書き、権限を持つ人が API へ直に `scope=manage` を付けて使えることを明記した。管理操作ログの 51 件目より後を `trace_id` でシステムログから追える形にし、ロードマップの到達条件に管理操作ログへの記録を加えた
 - [ ] M2: 管理モード（`PickerScope`・`ManageScope`・`BrowserView`、範囲を見て分けるのは入口だけ）
 - [ ] M3: テキストの表示・編集、新しいファイル、zip の展開、変更の記録
 - [ ] M4: `a=31` でファイルブラウザを表示、リンクの置き換え、ツリーの開閉とイベントの入口、`files.dynamic.php` の削除と言語キーの整理
@@ -68,9 +69,21 @@ Issue: #1046
 
   代わりの案として、範囲の違いを 1 つのクラスに集め、`isManage()` などで分ける案（最初の計画）と、ファイル操作をすべて共通にして範囲のクラスに細かく尋ねる案（2 つ目の計画）を考えた。前者は操作のあちこちに範囲の `if` が散らばり、権限の確認も 1 つのメソッドに混ざる。後者は一覧とアップロードで、範囲のクラスへの問いが増えて実質の分岐になる。どちらも採らない。管理モード用に API のファイルを丸ごと別に作る案は、責務と振る舞いが同じ操作まで 2 か所に分かれるので採らない。
 
+2026-11-04 (yamamoto) 決定: 管理操作ログの行数の抑え方。管理操作ログには 1 回の要求で 50 行までを書き、それより後のファイルは、システムログの同じ要求の行から追えるようにする。2 つのログを結ぶ手がかりには、システムログが要求ごとにすでに付けている `trace_id`（`EvoLogger` が `X-Request-ID` か乱数から作り、同じ要求の行すべてに入る）を使い、新しい ID は作らない。
+
+  確かめたこと: システムログ（`temp/logs/system/YYYY/MM/`）は、`logEvent()` の情報（type 1）も必ず書き、`context` の配列を件数や長さで切り詰めない（`EvoLogger::sanitizeValue()` は値を伏せるだけ）。1 つのファイルが `system_log_max_bytes`（既定 100MB）を超えると、`.1`〜`.10` の世代に回して残す。管理操作ログは `manager_log_limit`（既定 2000 行）を超えると、`manager_log_trim`（既定 100 行）ずつ古い行から消える。つまり、50 行で打ち切った分を、今の書き方の管理操作ログからたどる手がかりは無く、システムログの行にパスが全件あっても、どの行かを見つけにくい。
+
+  設計: `EvoLogger` に、今の要求の `trace_id` を返す公開の静的メソッド `EvoLogger::traceId()` を足す（中身は今の `getTraceId()` と同じで、`collectCommonContext()` もこれを使う。ID の作り方の正本を 1 つに保つ）。`ChangeLog::record()` は、50 行を超えたとき最後の行を `ほか N 件（trace_id=<trace_id>）` にする。50 行に収まるときも、システムログの同じ要求の行に `trace_id` が入るので、管理操作ログの日時・利用者から、システムログの行を引ける。全件は `php evo log:search <trace_id>` で、システムログの 1 行（`context.paths` に全件、`context.operation`・`context.scope`、`context.user`、`context.request.ip`）として取り出せる。
+
+  50 行にした理由: 1 回の zip の展開や一括の削除で数千件の行を書くと、`manager_log_limit` の 2000 行を 1 回で使い切り、ほかの利用者や別の操作の記録まで押し出す。そうなると、全体の追いやすさがかえって下がる。50 行は既定の上限の 2.5% で、手で選んで行う操作（数件〜数十件）なら全件が管理操作ログに載る。
+
+  代わりの案: (a) 上限を設けず、管理操作ログに全件を書く。1 回の操作でほかの記録を押し出すので採らない。(b) 1 回の要求で 1 行の要約だけを書く。管理操作ログで「どのファイルに」が分からなくなり、補足の指示（a=13 で誰が・いつ・どのファイルに・何をしたか）に合わないので採らない。(c) 管理操作ログの列を足す、または別の表を作る。表の形を変えるマイグレーションが要り、この計画の範囲を超えるので採らない。
+
+  限界: 51 件目より後を追えるのは、システムログのその月のファイルが残っている間だけ。システムログの世代や `temp/logs/` を消すと追えない。この点は PR の本文に書く。
+
 2026-11-04 (yamamoto) 決定: 管理モードとピッカーで今の振る舞いが違うものは、無理にそろえず、範囲ごとにそれぞれの今の振る舞いを保つ（目的は旧ファイル管理の置き換えで、ピッカーの利用者の動きも変えない）。当てはまるのは、アップロードで同じ名前があるときの扱い（管理モードは上書き、ピッカーは別の名前）と、`upload_maxsize` が空のときの上限（管理モードは本体では制限せず PHP の上限だけ、ピッカーは 5,000,000 バイト）。上限は `BrowserScope::maxUploadSize()` で範囲ごとに返す。`ManageScope` は `upload_maxsize` が正の数ならその値、空なら `null`（本体では制限しない）。`PickerScope` は `BrowserConfig::maxUploadSize()`。旧は、値があるときにフォームの `MAX_FILE_SIZE` で PHP に断らせていた。新は fetch で送るので `MAX_FILE_SIZE` を使わず、サーバーで `$_FILES` の大きさと比べて断る（同じ値で断るので、利用者から見た動きは同じ）。既定値をそろえる（たとえば両方を PHP の上限に合わせる）案は、どちらかの今の動きを変えるので、この計画では採らない。
 
-2026-11-04 (yamamoto) 決定: 管理モードを決める仕組みは、次の案のとおりにする。`a=31` の画面だけが、サーバーで作る JS の設定（`data-config`）に `scope: 'manage'` を入れ、JS（`js/api.js`）はすべての要求にこれを付ける。API は `scope=manage` を受けたら、その都度、管理画面のセッションで `file_manager` の権限があるかを確かめ、無ければ 403 で断る（ピッカーへは戻さない）。ピッカーの画面（`browser.php`）は、URL に何を付けても `scope` を設定に入れない。画面の切り替えは URL の値ではできず、API に手で `scope=manage` を付けても、権限のある人が `a=31` でできることしかできない。代わりの案は 2 つ。(a) `a=31` を開いたときにセッションへ使い捨ての合言葉を置き、API はそれと照合する。権限のある人が自分で付ける場合と比べて守れるものが増えず、タブを複数開いたときの扱いが増える。(b) 管理モード用の入口を別に作る。上の SSOT の判断と食い違う。どちらも採らない。
+2026-11-04 (yamamoto) 決定: 管理モードを決める仕組み。画面の起動と API の認可は、別のものとして扱う。起動: `a=31` の画面だけが、サーバーで作る JS の設定（`data-config`）の `apiParams` に `scope: 'manage'` を入れ、JS（`js/api.js`）はすべての要求にこれを付ける。ピッカーの画面（`browser.php`）は、URL に何を付けても `scope` を設定に入れない。これは画面をどの範囲で出すかを決めるだけで、権限の確認ではない。認可: API は、要求が `a=31` の画面から来たかを確かめない（確かめる手段も持たない）。`scope=manage` の要求を受けるたびに、`ManageScope::authorize()` で管理画面のセッションと `file_manager` の権限を確かめ、通れば管理モードで処理し、通らなければ 403 で断る（ピッカーへは戻さない）。そのため、`file_manager` の権限を持つ人は、`a=31` を開かずに API へ直に `scope=manage` を付けて呼んでも、管理モードの操作ができる。これは設計どおりとする。その人は `a=31` の画面で同じ操作ができるので、直に呼べても守るべきものは増えない（管理モードに入れるかの境目は権限で、入口の画面ではない）。権限の無い人（ピッカーだけを使う人、ウェブユーザーのセッション）は、`scope=manage` を付けても 403 になる。代わりの案は 2 つ。(a) `a=31` を開いたときにセッションへ使い捨ての合言葉を置き、API はそれと照合する。権限のある人が自分で付ける場合と比べて守れるものが増えず、タブを複数開いたときの扱いが増える。(b) 管理モード用の入口を別に作る。共通の操作が 2 か所に分かれる。どちらも採らない。
 
 2026-11-04 (yamamoto) 決定: 管理モードとピッカーの権限の確認は分けて持つ。`api.php` の入口が `PickerScope::authorize()` か `ManageScope::authorize()` のどちらかを呼び、それぞれのクラスが自分の条件だけを確かめる（Decision Log の「共通化する処理と分離する処理」）。ピッカーは今の条件（管理画面のセッション、またはウェブユーザーのセッションと `rb_webuser`。加えて `use_browser`）を変えない。管理モードは管理画面のセッションと `file_manager` だけを見て、ウェブユーザーのセッションは認めず、`use_browser` も見ない。管理モードだけの操作（`readText`・`saveText`・`newfile`・`unzip`）は、ピッカーの範囲では 403 にする。一方の条件をもう一方に流用しない（`file_manager` を持つ人がピッカーで管理モードの範囲を見られる、`use_browser` を切ると `a=31` が使えなくなる、のどちらも起こさない）。
 
@@ -78,7 +91,7 @@ Issue: #1046
 
 2026-11-04 (yamamoto) 決定: 管理モードでの拡張子の許可リストは、旧ファイル管理と同じ水準を保つ（既存の設定を守る）。新しい名前のファイルを作る操作（アップロード、新しいファイル、zip の展開の各エントリ）は、`upload_files`・`upload_images`・`upload_media` を合わせた許可リスト（旧 `uploadablefiles()`）で確かめる。名前の変更は、拡張子が変わらないなら許し、変わるときは同じ許可リストで確かめる（旧ファイル管理には名前の変更が無く、`.php` のファイルの名前を変えられないと困るため）。一覧・表示・編集・削除・移動・コピー・ダウンロードは拡張子を問わない（コピーは元と同じ拡張子になる）。zip の展開では、エントリを 1 件ずつ、名前の無害化（`sanitizeFilename()`）・許可リスト・ルートの中か・守る場所でないかで確かめ、通らないものは飛ばして名前を返す。代わりの案は、管理モードでは許可リストを一切当てない（`file_manager` の権限を持つ人は `.php` を編集できるので、拡張子で止める意味は薄い）が、既存の設定を守るため採らない。
 
-2026-11-04 (yamamoto) 決定: 変更の記録は、管理操作ログ（`a=13`、`manager_log`）に個々のファイル操作を残し、あわせてシステムログ（`evo()->logEvent()`）にも書く。管理操作ログの列で「誰が・いつ・どのファイルに・何をしたか」が分かるようにする。誰が: `internalKey` と `username`（`logHandler` がログイン中の利用者を入れる）。いつ: `timestamp`。どのファイルに: `itemname` にルートからの相対パス（移動と名前の変更は `from → to`）。UTF-8 でない名前は旧と同じく `mb_scrub()` し、255 文字を超えるものは先頭を省いて末尾を残す。何をしたか: `message` に操作の名前（`Uploaded File`・`Created Folder`・`Created File`・`Renamed`・`Deleted File`・`Deleted Folder`・`Moved`・`Copied`・`Saved Image`・`Modified File`・`Unzipped`）。`action` は今の旧の不具合（文字列を渡して 0 になる）を直して `31` を入れ、`itemid` は `x`。何件もまとめた操作（複数の削除・移動・コピー、zip の展開）は 1 件ごとに 1 行とし、1 回の要求で 50 行を超える分は書かずに、最後に「ほか N 件」の 1 行を足す（ログの回転で古い記録が押し出されすぎないため）。システムログには、範囲（`scope`）と全件のパスを入れた 1 行を書く。記録するのは成功した変更だけで、表示（旧の「Viewing File」）は記録しない（一覧やプレビューのたびに増え、変更の追跡には要らないため）。ピッカーの範囲でも同じ関数で記録し、`message` の先頭に範囲が分かる印（`[picker]`）を付ける。代わりの案は、システムログだけに書く（`a=13` に個々の操作が載らない）だったが、管理操作ログで追えることを優先して採らない。
+2026-11-04 (yamamoto) 決定: 変更の記録は、管理操作ログ（`a=13`、`manager_log`）に個々のファイル操作を残し、あわせてシステムログ（`evo()->logEvent()`）にも書く。管理操作ログの列で「誰が・いつ・どのファイルに・何をしたか」が分かるようにする。誰が: `internalKey` と `username`（`logHandler` がログイン中の利用者を入れる）。いつ: `timestamp`。どのファイルに: `itemname` にルートからの相対パス（移動と名前の変更は `from → to`）。UTF-8 でない名前は旧と同じく `mb_scrub()` し、255 文字を超えるものは先頭を省いて末尾を残す。何をしたか: `message` に操作の名前（`Uploaded File`・`Created Folder`・`Created File`・`Renamed`・`Deleted File`・`Deleted Folder`・`Moved`・`Copied`・`Saved Image`・`Modified File`・`Unzipped`）。`action` は今の旧の不具合（文字列を渡して 0 になる）を直して `31` を入れ、`itemid` は `x`。何件もまとめた操作（複数の削除・移動・コピー、zip の展開）は 1 件ごとに 1 行とし、1 回の要求で 50 行を超える分は書かずに、最後に「ほか N 件（trace_id=…）」の 1 行を足す。システムログには、範囲（`scope`）・操作の名前・全件のパスを入れた 1 行を書く。51 件目より後の追い方と、50 行にした理由は、次の「管理操作ログの行数の抑え方」に書く。記録するのは成功した変更だけで、表示（旧の「Viewing File」）は記録しない（一覧やプレビューのたびに増え、変更の追跡には要らないため）。ピッカーの範囲でも同じ関数で記録し、`message` の先頭に範囲が分かる印（`[picker]`）を付ける。代わりの案は、システムログだけに書く（`a=13` に個々の操作が載らない）だったが、管理操作ログで追えることを優先して採らない。
 
 2026-11-04 (yamamoto/Claude): 管理モードのアップロードでは、旧ファイル管理と同じ `OnFileManagerUpload` を発火し、ピッカーでは今までどおり `OnFileBrowserUpload` を発火する。旧ファイル管理に付けたプラグインが動き続けるようにするため（AGENTS.md「既存フック位置を無視して新イベントを追加する」を避ける）。渡す値は `filepath`（保存先のフォルダの確かめた実パス）と `filename`。旧ファイル管理ではリクエストで受けたパスだったので、`assets/docs/events-and-plugins.md` にその違いを書く。
 
@@ -204,7 +217,7 @@ Issue: #1046
 - 管理モードのアップロードは旧と同じく同じ名前のファイルを上書きする。上書きの前に画面で確かめる（旧には確かめが無かった）。上限は旧と同じ（`upload_maxsize` が空なら本体では制限せず、PHP の上限だけが効く）。ピッカーの上限（空なら 5,000,000 バイト）は変えない。上書きの前の確かめが増えることを PR の本文に書く。
 - `OnFileManagerUpload` に付けたプラグインは動き続ける必要がある。渡す `filepath` が「リクエストで受けた値」から「確かめた実パス」に変わるので、`assets/docs/events-and-plugins.md` に書く。
 - 旧の URL（`a=31&mode=drill&path=...`、`mode=view`・`mode=save`）は効かなくなる。本体の中のリンクは M4 で置き換えるが、利用者がブックマークや自作のモジュールで使っている場合に備え、PR の本文に書く。互換のための読み替えは残さない（`path` の絶対パスを受けると、ルートの外を指す値を受け取る口が残るため）。
-- 管理操作ログの行が増える。1 回の要求で 50 行までにし、`manager_log_limit`・`manager_log_trim` によるログの回転で古い記録が押し出されることを PR の本文に書く。
+- 管理操作ログの行が増える。1 回の要求で 50 行までにし、`manager_log_limit`・`manager_log_trim` によるログの回転で古い記録が押し出されることと、51 件目より後はシステムログ（`trace_id` で引く）にだけ残ることを PR の本文に書く。
 - ピッカーの応答と振る舞いは変えない（`list` の応答は `writable` が増えるだけ）。TV の欄・TinyMCE・QuickManager から開くピッカーを、M2 と M4 で main と比べる。
 - PHP 7.4 で動く書き方にする（共用型、`str_starts_with()`、`match` を使わない）。
 
@@ -302,7 +315,7 @@ JS は、共通の部品（`filebrowser.js` の `init()`、`js/grid.js`・`js/tr
 
 `lib/ZipService.php` に `extract()` を足し、旧 `unzip()` と下請けの関数を移す。旧の確認はそのまま移し、Decision Log の「zip の展開の安全確認」の対策（ぶら下がったリンクで止める、書く直前の確かめ、`umask(0)` と 0777 をやめて設定のパーミッションを当てる、zip そのもののリンクの確認）を足す。書く直前の確かめのため、`extract()` は `PathGuard` に加えて `PathResolver` を受け取る。旧の関数のうち `evo()->sanitizeFilename()` を呼ぶ所は、引数で受けた `DocumentParser` を使う。
 
-変更の記録は、`lib/ChangeLog.php` に `ChangeLog::record(BrowserScope $scope, $operation, array $paths)` を 1 つ置き、`api.php` の成功した変更の後に呼ぶ（Decision Log の「変更の記録」のとおり）。管理操作ログへは `logHandler::initAndWriteLog($message, '', '', 31, 'x', $itemname)` を 1 件ごとに呼ぶ（`$message` は操作の名前、ピッカーでは先頭に `[picker]`。`$itemname` はルートからの相対パスで、移動と名前の変更は `from → to`。`mb_scrub()` し、255 文字を超えるものは末尾を残して先頭を省く）。1 回の要求で 50 行を超える分は書かず、最後に `ほか N 件` の 1 行を足す。システムログへは `evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', ['scope' => ..., 'operation' => ..., 'paths' => ...])` を 1 行書く（`paths` は全件）。zip の展開は、展開できたファイルを 1 件ずつ記録する。失敗の記録（今の `logEvent(0, 3, ...)`）はそのまま。M1 では、旧 `logFileChange()` の `action` が 0 になる不具合は直さない（M4 で旧ごと消すため）。
+変更の記録は、`lib/ChangeLog.php` に `ChangeLog::record(BrowserScope $scope, $operation, array $paths)` を 1 つ置き、`api.php` の成功した変更の後に呼ぶ（Decision Log の「変更の記録」のとおり）。管理操作ログへは `logHandler::initAndWriteLog($message, '', '', 31, 'x', $itemname)` を 1 件ごとに呼ぶ（`$message` は操作の名前、ピッカーでは先頭に `[picker]`。`$itemname` はルートからの相対パスで、移動と名前の変更は `from → to`。`mb_scrub()` し、255 文字を超えるものは末尾を残して先頭を省く）。1 回の要求で 50 行を超える分は書かず、最後に `ほか N 件（trace_id=<trace_id>）` の 1 行を足す（`trace_id` は `EvoLogger::traceId()` から受け取る。`manager/includes/logger.class.php` にこのメソッドを足し、`collectCommonContext()` もこれを使う形にする）。システムログへは `evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', ['scope' => ..., 'operation' => ..., 'paths' => ...])` を 1 行書く（`paths` は全件）。zip の展開は、展開できたファイルを 1 件ずつ記録する。失敗の記録（今の `logEvent(0, 3, ...)`）はそのまま。M1 では、旧 `logFileChange()` の `action` が 0 になる不具合は直さない（M4 で旧ごと消すため）。
 
 画面は `js/textEditor.js` を新しく作る。`createTextEditor(ctx)` が、ファイルブラウザの中のダイアログ（`js/overlay.js`）に、エレメントの編集画面と同じ形のコードの欄（`div.code-editor` > `div.code-editor-header`（ファイル名と「行を折り返す」のチェックボックス）、`textarea.phptextarea`（`dir="ltr"`、`wrap="soft"`））と、保存・閉じるのボタンを出す。HTML は `BrowserView::managePane()` の側で足す（`markup()` には足さない）。`js/textEditor.js` は `js/manage.js` だけが読む。開くと `readText` を呼び、`readOnly` なら欄を読み取り専用にして理由を出す。書き換えたら `window.documentDirty = true`（EvoShell が離れるときに確かめる）、保存したり閉じたりしたら `false` に戻す。変更があるまま閉じるときは確かめる。保存が 409 なら「ほかで書き換えられています」を出し、上書きはさせない。
 
@@ -509,7 +522,7 @@ API は、Playwright でログインしたページの `page.request`（クッ�
 | 展開する zip そのものが、ルートの外の zip を指すシンボリックリンク | 開かれず、理由が出る |
 | ピッカーの範囲で `readText`・`saveText`・`newfile`・`unzip` を `page.request` で呼ぶ | 400（表に無い action）。ファイルは変わらない |
 | アップロード・新しいフォルダ・名前の変更・削除・移動・コピー・画像の保存・テキストの保存を、管理モードとピッカーで 1 回ずつ | 管理操作ログ（`a=13` の画面と `php evo db:count manager_log --where="action=31"`）に、操作ごとに利用者の名前・日時・相対パス・操作の名前の 1 行が増える。ピッカーの行は `message` が `[picker]` で始まる。`action` が 0 の行は増えない。`php evo log:search "File changed in the file browser"` にも操作ごとに 1 行あり、`scope` が合っている |
-| 60 件のファイルをまとめて削除 | 管理操作ログには 50 行と `ほか 10 件` の 1 行。システムログの 1 行の `paths` は 60 件 |
+| 60 件のファイルをまとめて削除 | 管理操作ログには 50 行と `ほか 10 件（trace_id=…）` の 1 行。その `trace_id` で `php evo log:search <trace_id>` を流すと、`context.paths` に 60 件すべてが入った 1 行が出る（51〜60 件目の名前が入っている） |
 | 一覧・プレビュー・テキストの表示だけを行う | 管理操作ログに個々の操作の行は増えない（`a=31` を開いた「Using file manager」だけ） |
 
 ### M4（`a=31` の表示と、旧ファイル管理が無いこと）
@@ -536,7 +549,7 @@ API は、Playwright でログインしたページの `page.request`（クッ�
 
 PHP 7.4 での確認: `references/environment.md` の「ほかの PHP の版で検証するとき」に従い、`FROM php:7.4-apache` の Dockerfile（apt の取得先をアーカイブへ向ける行を足す）でアプリのイメージを作り、M4 の表のうち「メニューから開く」「`folder` と `select`」「テキストの編集と保存」「zip の展開」「アップロード」「ピッカーで選ぶ」を流す。期待: 標準の版と同じ結果で、システムログに PHP の警告・非推奨の記録が無い（`php evo log:search "Deprecated" --limit=5` と `--level=error` で何も出ない）。
 
-完了の条件: M1〜M4 の表がすべて期待どおりで、メニューの「ファイル管理」からファイルブラウザでサイトのファイルを一覧・アップロード・削除・名前の変更・移動・コピー・ダウンロード・テキストの編集・zip の展開ができ、`files.dynamic.php` がリポジトリに無いこと。
+完了の条件: M1〜M4 の表がすべて期待どおりで、成功した変更が管理操作ログ（`a=13`）に 1 件ごとに残り（1 回の操作で 50 行まで、それより後は `trace_id` でシステムログから全件を追える）、メニューの「ファイル管理」からファイルブラウザでサイトのファイルを一覧・アップロード・削除・名前の変更・移動・コピー・ダウンロード・テキストの編集・zip の展開ができ、`files.dynamic.php` がリポジトリに無いこと。
 
 ## Idempotence and Recovery
 
@@ -596,6 +609,9 @@ PHP のクラス（すべて `manager/media/browser/evo/lib/`、PHP 7.4 で動�
     ChangeLog（M3）
         static record(BrowserScope $scope, $operation, array $paths)
 
+    EvoLogger（既存。manager/includes/logger.class.php に足す。M3）
+        static traceId(): string             // 今の要求の trace_id。collectCommonContext() もこれを使う
+
     PathResolver（既存に足す）
         resolveNewChild($dirReal, $name)     // string|null
 
@@ -618,6 +634,6 @@ JS（`manager/media/browser/evo/`）: `data-config` に `apiParams`・`rootLabel
 
 設定: `filemanager_path`（管理モードのルート。空ならサイトのルート）、`rb_base_dir`・`rb_base_url`・`use_browser`・`rb_webuser`（ピッカー）、`upload_files`・`upload_images`・`upload_media`（許可リスト）、`upload_maxsize`、`new_file_permissions`・`new_folder_permissions`、`image_limit_width`。新しい設定は足さない。
 
-ログ: 成功した変更は `ChangeLog::record()` が、管理操作ログ（`manager_log`。`action=31`、`itemid='x'`、`itemname` に相対パス、`message` に操作の名前）に 1 件ごとに 1 行（1 回の要求で 50 行まで）と、システムログ（`evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', [...])`、`temp/logs/system/YYYY/MM/`）に 1 行を書く。
+ログ: 成功した変更は `ChangeLog::record()` が、管理操作ログ（`manager_log`。`action=31`、`itemid='x'`、`itemname` に相対パス、`message` に操作の名前）に 1 件ごとに 1 行（1 回の要求で 50 行まで。超えたら最後の行に `trace_id`）と、システムログ（`evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', [...])`、`temp/logs/system/YYYY/MM/`）に 1 行を書く。
 
 外部のもの: PHP の zip 拡張（展開とまとめてのダウンロード。無ければ 501）、mbstring（文字コードの変換）。新しいライブラリは使わない。
