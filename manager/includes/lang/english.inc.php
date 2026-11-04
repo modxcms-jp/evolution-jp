@@ -1432,6 +1432,7 @@ return [
     "fb_err_create_failed" => 'The file could not be created.',
     "fb_err_not_zip" => 'This is not a zip file.',
     "fb_err_dir_not_writable" => 'You cannot write to this folder.',
+    "fb_err_file_not_writable" => 'You cannot write to this file.',
     "fb_err_unzip_unavailable" => 'This server cannot extract zip files (the PHP zip extension is not enabled).',
     "fb_err_zip_open" => 'The zip file could not be opened.',
     "fb_err_unsafe_zip" => 'Nothing was extracted, because the zip contains an entry that would be written outside the destination or into a protected location, or on top of a link.',

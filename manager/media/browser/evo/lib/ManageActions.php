@@ -5,7 +5,7 @@
  * ピッカーの範囲では action の表に載らず 400 になる(操作の中で範囲は確かめない)。
  * api.php から読まれ、api.php の fbSendJson() / fbError() / fbAttempt() / fbNotFoundMessage() を使う。
  *
- * GET  readText (folder, file)                          -> {name, content, hash, writable, readOnly, encoding}
+ * GET  readText (folder, file)                          -> {name, content, hash, writable, readOnly, readOnlyReason(link|permission|encoding|''), encoding}
  * POST saveText (folder, target, content, hash)         -> {name, hash}
  * POST newfile  (folder, name)                          -> {name}
  * POST unzip    (folder, target)                        -> {extracted, failed:[...], skipped:[...]}
@@ -15,7 +15,7 @@
  * ファイルの文字コードが黙って変わるため。保存のときは、開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る
  * (FTP などで同時に書き換えられたものを上書きしないため)。
  * エラーコード: invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified / invalid_content /
- * save_failed / extension_not_allowed / protected / already_exists / create_failed / not_zip / not_writable / zip_unavailable / invalid_zip / unsafe_zip
+ * save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip / not_writable / zip_unavailable / invalid_zip / unsafe_zip
  */
 class ManageActions
 {
@@ -43,14 +43,25 @@ class ManageActions
             $content = mb_convert_encoding($buffer, 'UTF-8', $encoding);
         }
 
+        // 読み取り専用で開くときは、その理由も返す(画面が理由の文言を出す)。保存を断る条件(saveText)と同じ 3 つ:
+        // link(リンクは書き換えない)・permission(書き込めない)・encoding(UTF-8 でない)
         $writable = is_writable($realPath);
+        $readOnlyReason = '';
+        if (is_link($dir['real'] . $name)) {
+            $readOnlyReason = 'link';
+        } elseif (!$writable) {
+            $readOnlyReason = 'permission';
+        } elseif ($encoding !== 'UTF-8') {
+            $readOnlyReason = 'encoding';
+        }
         header('X-Content-Type-Options: nosniff');
         fbSendJson([
             'name' => $name,
             'content' => $content,
             'hash' => sha1($buffer),
             'writable' => $writable,
-            'readOnly' => !$writable || $encoding !== 'UTF-8',
+            'readOnly' => $readOnlyReason !== '',
+            'readOnlyReason' => $readOnlyReason,
             'encoding' => $encoding,
         ]);
     }
@@ -67,8 +78,12 @@ class ManageActions
         if (is_link($dir['real'] . $name)) {
             fbError('not_editable', lang('fb_err_text_link'), 400);
         }
+        if (!is_writable($realPath)) {
+            fbError('not_writable', lang('fb_err_file_not_writable'), 403);
+        }
 
-        $content = postv('content', '');
+        // content が無い要求は、空の中身で上書きしない(下の is_string() の確認で 400 にする)
+        $content = postv('content');
         if (!is_string($content) || !mb_check_encoding($content, 'UTF-8') || strpos($content, "\0") !== false) {
             fbError('invalid_content', lang('fb_err_not_text'), 400);
         }
@@ -113,6 +128,9 @@ class ManageActions
     public static function newfile(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
         $dir = self::dirOrFail($resolver);
+        if (!is_writable($dir['real'])) {
+            fbError('not_writable', lang('fb_err_dir_not_writable'), 403);
+        }
         $name = $modx->sanitizeFilename(postv('name', ''), false);
         if ($name === '') {
             fbError('invalid_name', lang('fb_err_invalid_name'), 400);

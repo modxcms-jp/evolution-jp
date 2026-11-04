@@ -27,7 +27,7 @@ class BrowserView
         'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed',
         'fb_err_too_large', 'fb_confirm_overwrite',
         // 管理モードだけが使う(js/manage.js・js/textEditor.js)
-        'fb_text_open', 'fb_text_loading', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
+        'fb_text_open', 'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
         'fb_text_saving', 'fb_text_saved', 'fb_text_save_failed', 'fb_text_discard_confirm',
         'fb_new_file', 'fb_new_file_prompt', 'fb_new_file_failed',
         'fb_unzip', 'fb_confirm_unzip', 'fb_unzip_failed', 'fb_unzip_done', 'fb_unzip_skipped', 'fb_unzip_entry_failed',

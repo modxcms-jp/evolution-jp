@@ -1433,6 +1433,7 @@ return [
     "fb_err_create_failed" => 'ファイルを作成できませんでした。',
     "fb_err_not_zip" => 'zip ファイルではありません。',
     "fb_err_dir_not_writable" => 'このフォルダには書き込めません。',
+    "fb_err_file_not_writable" => 'このファイルには書き込めません。',
     "fb_err_unzip_unavailable" => 'このサーバーでは zip を展開できません（PHP の zip 拡張が有効ではありません）。',
     "fb_err_zip_open" => 'zip を開けませんでした。',
     "fb_err_unsafe_zip" => 'zip の中に、展開先の外や保護された場所へ書き込むもの、またはリンクの上に展開するものがあるため、何も展開しませんでした。',

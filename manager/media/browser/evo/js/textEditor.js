@@ -136,13 +136,13 @@ export function createTextEditor(ctx) {
                 areaEl.readOnly = readOnly;
                 areaEl.wrap = wrapEl.checked ? 'soft' : 'off';
                 loaded = true;
-                if (!data.writable) {
-                    statusEl.textContent = t('fb_text_readonly_write');
-                } else if (data.encoding !== 'UTF-8') {
-                    statusEl.textContent = t('fb_text_readonly_encoding', data.encoding);
-                } else {
-                    statusEl.textContent = '';
-                }
+                // 読み取り専用で開くときは、サーバーが返した理由(readOnlyReason)の文言を出す
+                var reasons = {
+                    link: t('fb_err_text_link'),
+                    permission: t('fb_text_readonly_write'),
+                    encoding: t('fb_text_readonly_encoding', data.encoding)
+                };
+                statusEl.textContent = reasons[data.readOnlyReason] || '';
                 updateButtons();
                 areaEl.focus({ preventScroll: true });
             })
