@@ -224,28 +224,42 @@
             margin-bottom: 24px;
         }
 
-        /* パスワード表示/非表示切り替えアイコン */
+        /* パスワード表示/非表示切り替えアイコン（処理は media/script/login.js） */
+        .password-wrapper #password {
+            padding-right: 44px;
+        }
+
         .toggle-password {
-            background: none;
-            border: 0;
-            padding: 0;
-            color: inherit;
-            font: inherit;
-            line-height: 1;
             position: absolute;
-            right: 12px;
+            right: 6px;
             top: 50%;
             transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            color: #9ca3af;
+            background: none;
+            border: 0;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-            opacity: 0.4;
-            transition: opacity 0.2s ease;
+            transition: color 0.2s ease, background-color 0.2s ease;
             z-index: 10;
         }
 
+        .toggle-password svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .toggle-password:hover {
-            opacity: 0.7;
+            color: #4a5568;
+        }
+
+        .toggle-password[aria-pressed="true"] {
+            color: #4a6fa5;
         }
 
         /* オートフィル時のスタイル */
@@ -476,9 +490,9 @@
         }
 
         .toggle-password:focus-visible {
-            outline: 2px solid currentColor;
-            outline-offset: 2px;
-            opacity: 1;
+            outline: none;
+            color: #4a6fa5;
+            box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.35);
         }
 
         .toggle-password[aria-pressed="true"] .icon-hidden,
@@ -507,8 +521,8 @@
                 <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
                 <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
                         aria-label="[+show_password+]" title="[+show_password+]">
-                    <span class="icon-hidden" aria-hidden="true">👁️</span>
-                    <span class="icon-visible" aria-hidden="true">🙈</span>
+                    <svg class="icon-hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+                    <svg class="icon-visible" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
             </div>
             [+login_captcha_message+]
