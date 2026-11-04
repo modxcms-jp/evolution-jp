@@ -546,6 +546,55 @@
             border: 2px solid #e9ecef !important;
         }
 
+        /* パスワードの表示切り替え（処理は media/script/login.js） */
+        #mx_loginbox .password-wrapper {
+            position: relative;
+        }
+
+        #mx_loginbox .password-wrapper input.text {
+            padding-right: 52px !important;
+        }
+
+        #mx_loginbox .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            color: #6c757d;
+            background: none;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        #mx_loginbox .toggle-password:hover {
+            color: #2c5364;
+            background: rgba(44, 83, 100, 0.08);
+        }
+
+        #mx_loginbox .toggle-password:focus-visible {
+            outline: none;
+            color: #2c5364;
+            box-shadow: 0 0 0 3px rgba(44, 83, 100, 0.25);
+        }
+
+        #mx_loginbox .toggle-password svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        #mx_loginbox .toggle-password[aria-pressed="true"] .icon-hidden,
+        #mx_loginbox .toggle-password[aria-pressed="false"] .icon-visible {
+            display: none;
+        }
+
         /* Captcha */
         #mx_loginbox img.loginCaptcha {
             border: 2px solid #e9ecef !important;
@@ -730,7 +779,14 @@
             <label for="username">[+username+]</label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" autocomplete="username"/>
             <label for="password">[+password+]</label>
-            <input type="password" class="text" name="password" id="password" tabindex="2" value="" autocomplete="current-password"/>
+            <div class="password-wrapper">
+                <input type="password" class="text" name="password" id="password" tabindex="2" value="" autocomplete="current-password"/>
+                <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
+                        aria-label="[+show_password+]" title="[+show_password+]">
+                    <svg class="icon-hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+                    <svg class="icon-visible" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
             [+login_captcha_message+]
             [+captcha_image+]
             [+captcha_input+]

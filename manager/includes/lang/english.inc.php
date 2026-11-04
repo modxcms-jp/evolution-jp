@@ -865,6 +865,7 @@ return [
     "settings_title" => 'System configuration',
     "settings_ui" => 'Interface &amp; Features',
     "settings_users" => 'Security',
+    "show_password" => 'Show password',
     "show_tree" => 'Show Site Tree',
     "showing" => 'Showing',
     "signupemail_message" => 'Set the email message sent to users when creating accounts including their username and password.<br /><b>Note:</b> The following Placeholders are replaced by the Content Manager when the message is sent: <br /><br />[+sname+] - Name of your web site, <br />[+saddr+] - Your web site email address, <br />[+surl+] - Your site url, <br />[+uid+] - User\'s Login name or id, <br />[+pwd+] - User\'s password, <br />[+ufn+] - User\'s full name. <br /><br /><b>Leave the [+uid+] and [+pwd+] in the e-mail, or else the username and password won\'t be sent in the mail and your users won\'t know their username or password!</b>',

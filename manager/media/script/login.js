@@ -6,6 +6,8 @@
  *   キャプチャの画像を作り直す
  * - 「ログイン名を記憶する」（#rememberme）は、チェックしたときだけ 1 を送る
  * - 送っている間はボタンに .loading を付け、押せなくする
+ * - パスワードの表示切り替え（.toggle-password の button）で、#password の type を text と password で切り替え、
+ *   状態を aria-pressed で示す。アイコンの出し分けは、各テーマの CSS が aria-pressed を見て行う
  */
 (function () {
     'use strict';
@@ -70,6 +72,18 @@
             .catch(done);
     }
 
+    function setupPasswordToggle(password) {
+        const toggle = document.querySelector('.toggle-password');
+        if (!toggle || !password) {
+            return;
+        }
+        toggle.addEventListener('click', function () {
+            const show = password.type === 'password';
+            password.type = show ? 'text' : 'password';
+            toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+        });
+    }
+
     function setup() {
         const button = document.getElementById('submitButton');
         if (button) {
@@ -87,6 +101,7 @@
         } else if (username) {
             username.focus();
         }
+        setupPasswordToggle(password);
     }
 
     if (document.readyState === 'loading') {
