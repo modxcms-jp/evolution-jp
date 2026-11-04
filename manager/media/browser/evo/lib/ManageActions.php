@@ -5,7 +5,7 @@
  * ピッカーの範囲では action の表に載らず 400 になる(操作の中で範囲は確かめない)。
  * api.php から読まれ、api.php の fbSendJson() / fbError() / fbAttempt() / fbNotFoundMessage() を使う。
  *
- * GET  readText (folder, file)                          -> {name, content, hash, writable, readOnly, readOnlyReason(link|permission|encoding|''), encoding}
+ * GET  readText (folder, file)                          -> {name, content, hash, readOnly, readOnlyReason(link|permission|encoding|''), encoding}
  * POST saveText (folder, target, content, hash)         -> {name, hash}
  * POST newfile  (folder, name)                          -> {name}
  * POST unzip    (folder, target)                        -> {extracted, failed:[...], skipped:[...]}
@@ -15,7 +15,7 @@
  * ファイルの文字コードが黙って変わるため。保存のときは、開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る
  * (FTP などで同時に書き換えられたものを上書きしないため)。
  * エラーコード: invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified / invalid_content /
- * save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip / not_writable / zip_unavailable / invalid_zip / unsafe_zip
+ * save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip / zip_unavailable / invalid_zip / unsafe_zip
  */
 class ManageActions
 {
@@ -45,11 +45,10 @@ class ManageActions
 
         // 読み取り専用で開くときは、その理由も返す(画面が理由の文言を出す)。保存を断る条件(saveText)と同じ 3 つ:
         // link(リンクは書き換えない)・permission(書き込めない)・encoding(UTF-8 でない)
-        $writable = is_writable($realPath);
         $readOnlyReason = '';
         if (is_link($dir['real'] . $name)) {
             $readOnlyReason = 'link';
-        } elseif (!$writable) {
+        } elseif (!is_writable($realPath)) {
             $readOnlyReason = 'permission';
         } elseif ($encoding !== 'UTF-8') {
             $readOnlyReason = 'encoding';
@@ -59,7 +58,6 @@ class ManageActions
             'name' => $name,
             'content' => $content,
             'hash' => sha1($buffer),
-            'writable' => $writable,
             'readOnly' => $readOnlyReason !== '',
             'readOnlyReason' => $readOnlyReason,
             'encoding' => $encoding,

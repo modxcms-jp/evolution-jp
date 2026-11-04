@@ -40,7 +40,7 @@
  *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
  *                     invalid_image / type_mismatch / image_too_big / too_many_same_name / save_failed
  *
- * GET  action=readText (folder, file)                          -> {name,content,hash,writable,readOnly,encoding}(管理モードだけ。詳しくは lib/ManageActions.php)
+ * GET  action=readText (folder, file)                          -> {name,content,hash,readOnly,readOnlyReason,encoding}(管理モードだけ。詳しくは lib/ManageActions.php)
  * POST action=saveText (folder, target, content, hash)         -> {name,hash}(管理モードだけ。hash は開いたときの中身の sha1。違えば 409 modified)
  * POST action=newfile  (folder, name)                          -> {name}(管理モードだけ。空のテキストファイルを作る)
  * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],skipped:[...]}(管理モードだけ。zip を同じフォルダへ展開する)
