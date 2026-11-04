@@ -97,14 +97,17 @@ export function createUpload(ctx) {
             }
 
             if (ok && result) {
-                var errorByName = {};
+                // サーバーは、受けた順番(index)で結果を返す。名前では照らさない
+                // (名前に " や \ があると、ブラウザの名前とサーバーが受けた名前が一致しない)。
+                // index は、この要求で送ったファイルの順番で、送り直しのときも同じ
+                var errorByIndex = {};
                 (result.errors || []).forEach(function (err) {
-                    errorByName[err.name] = err;
+                    errorByIndex[err.index] = err;
                 });
                 // 同じ名前があって保存しなかったファイル。上書きしてよいかを、保存される名前を並べて尋ねる
                 var conflicts = [];
                 files.forEach(function (file, i) {
-                    var err = errorByName[file.name];
+                    var err = errorByIndex[i];
                     if (err && err.code === 'exists' && !overwrite) {
                         conflicts.push({ file: file, targetName: err.targetName || file.name, row: rows[i], message: err.message });
                         return;

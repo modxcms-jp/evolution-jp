@@ -32,11 +32,12 @@ class ThumbnailService
     }
 
     /**
-     * ブラウザが <img> で表示する画像の拡張子か（ラスター画像と svg）。プレビューに画像を出してよいかの判断の元
+     * ブラウザが <img> で表示できる形式の拡張子か。プレビューに画像を出してよいかを決める 1 か所
+     * （一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ）
      */
     public static function isDisplayableImageExtension($ext)
     {
-        return self::isRasterImageExtension($ext) || strtolower($ext) === 'svg';
+        return in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg'], true);
     }
 
     /**

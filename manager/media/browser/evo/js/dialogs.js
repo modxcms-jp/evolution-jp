@@ -120,7 +120,7 @@ export function createPreview(ctx) {
     var currentFile = null;
     var closeOverlay = null;
 
-    // 画像を出すのは、サーバーが画像と決めたファイル(一覧の応答の thumb か image)だけ。.php を GET で実行したり、
+    // 画像を出すのは、サーバーが画像と決めたファイル(一覧の応答の image)だけ。.php を GET で実行したり、
     // 大きなファイルを丸ごと読んだりしない。公開URLが無いファイル(ルートがサイトの外)や、画像として読めないファイルも出さない
     ctx.imgEl.addEventListener('error', function () {
         ctx.imgEl.hidden = true;
@@ -144,7 +144,7 @@ export function createPreview(ctx) {
     function open(file) {
         currentFile = file;
         // 上書きしたあとに古い画像がキャッシュから出ないよう、更新時刻を付けて読む
-        if (file.url && (file.thumb || file.image)) {
+        if (file.url && file.image) {
             ctx.imgEl.hidden = false;
             ctx.imgEl.src = withVersion(file.url, file.mtime);
         } else {

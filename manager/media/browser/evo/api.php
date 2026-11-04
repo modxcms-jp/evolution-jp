@@ -11,14 +11,15 @@
  * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren}], files:[...], writable}
  *                     ピッカーの files の項目: {name,size,mtime,url,path,thumb,width,height}。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
- *                     管理モードの files の項目: {name,size,mtime,url,writable} と、ブラウザが表示できる画像(ラスターと svg)なら image: true、
- *                     ラスターなら width,height。画面は image か thumb があるときだけプレビューに画像を出す
+ *                     管理モードの files の項目: {name,size,mtime,url,writable} と、ブラウザが <img> で表示できる画像(ThumbnailService::isDisplayableImageExtension())なら image: true、
+ *                     ラスターなら width,height。画面は image があるときだけプレビューに画像を出す
  *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの項目の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(ピッカーだけ)
- * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{name,size,url}], errors:[{name,message,code?,targetName?}]}
+ * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,url}], errors:[{index,name,message,code?,targetName?}]}
+ *                     index は files[] の順番(0 から)。画面はこれで、送ったファイルと結果を対応づける
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
  *                     管理モードは overwrite=1 のときだけ同名のファイルを上書きし(ファイルだけ。フォルダ・リンクは断る)、
  *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
@@ -270,7 +271,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             $thumbUrl = $fileUrl;
         }
 
-        $files[] = [
+        $item = [
             'name' => $file['name'],
             'size' => $file['size'],
             'mtime' => $file['mtime'],
@@ -280,6 +281,11 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             'width' => $width,
             'height' => $height,
         ];
+        // 画面は、image があるファイルだけをプレビューに <img> で出す
+        if (ThumbnailService::isDisplayableImageExtension($ext)) {
+            $item['image'] = true;
+        }
+        $files[] = $item;
     }
 
     fbSendJson([
@@ -379,7 +385,7 @@ function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParse
 /**
  * アップロードされたファイル($_FILES['files'])を 1 件ずつの配列にして返す。無ければ 400
  *
- * @return array[] 各要素は {name, tmp, error, size}
+ * @return array[] 各要素は {index(受けた順番。結果の対応づけに使う), name, tmp, error, size}
  */
 function fbUploadedFiles()
 {
@@ -392,6 +398,7 @@ function fbUploadedFiles()
     $count = count($uploadedFiles['name']);
     for ($i = 0; $i < $count; $i++) {
         $files[] = [
+            'index' => $i,
             'name' => $uploadedFiles['name'][$i],
             'tmp' => $uploadedFiles['tmp_name'][$i],
             'error' => $uploadedFiles['error'][$i],
@@ -425,6 +432,15 @@ function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPat
 }
 
 /**
+ * アップロードの結果の errors の 1 件。画面は name(ブラウザが送った名前)でなく index(受けた順番)で、送ったファイルと対応づける
+ * (名前に " や \ があると、ブラウザの名前とサーバーが受けた名前が一致しない)
+ */
+function fbUploadError(array $file, $message, array $extra = [])
+{
+    return ['index' => $file['index'], 'name' => $file['name'], 'message' => $message] + $extra;
+}
+
+/**
  * パスの最後の要素(名前)。basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
  */
 function fbBaseName($path)
@@ -453,36 +469,37 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
         $originalName = $file['name'];
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            $errors[] = ['name' => $originalName, 'message' => sprintf(lang('fb_err_upload_failed'), $file['error'])];
+            $errors[] = fbUploadError($file, sprintf(lang('fb_err_upload_failed'), $file['error']));
             continue;
         }
 
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
         if (!$scope->isAllowedNewName($safeName)) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_extension_not_allowed')];
+            $errors[] = fbUploadError($file, lang('fb_err_extension_not_allowed'));
             continue;
         }
 
         if ($file['size'] > $maxSize) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_large')];
+            $errors[] = fbUploadError($file, lang('fb_err_too_large'));
             continue;
         }
 
         $targetPath = fbFindFreePath($resolver, $modx, $dir['real'], $safeName);
         if ($targetPath === null) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_many_same_name')];
+            $errors[] = fbUploadError($file, lang('fb_err_too_many_same_name'));
             continue;
         }
         $targetName = fbBaseName($targetPath);
 
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
+            $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
         $uploaded[] = [
+            'index' => $file['index'],
             'name' => $targetName,
             'size' => filesize($targetPath),
         ];
@@ -523,20 +540,20 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         $originalName = $file['name'];
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            $errors[] = ['name' => $originalName, 'message' => sprintf(lang('fb_err_upload_failed'), $file['error'])];
+            $errors[] = fbUploadError($file, sprintf(lang('fb_err_upload_failed'), $file['error']));
             continue;
         }
 
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
         if (!$scope->isAllowedNewName($safeName)) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_extension_not_allowed')];
+            $errors[] = fbUploadError($file, lang('fb_err_extension_not_allowed'));
             continue;
         }
 
         // null は本体では制限しない(PHP の upload_max_filesize と post_max_size だけが効く)
         if ($maxSize !== null && $file['size'] > $maxSize) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_too_large')];
+            $errors[] = fbUploadError($file, lang('fb_err_too_large'));
             continue;
         }
 
@@ -544,38 +561,34 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         $targetPath = $modx->sanitizeUploadedFilename($dir['real'] . $safeName);
         $targetName = fbBaseName($targetPath);
         if ($resolver->resolveNewChild($dir['real'], $targetName) === null) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_protected')];
+            $errors[] = fbUploadError($file, lang('fb_err_protected'));
             continue;
         }
 
         // 同じ名前があるときは上書きする。置き換えてよいのは、書き込めるふつうのファイルだけ
         if (file_exists($targetPath) || is_link($targetPath)) {
             if (is_link($targetPath) || !is_file($targetPath)) {
-                $errors[] = ['name' => $originalName, 'message' => lang('fb_err_already_exists')];
+                $errors[] = fbUploadError($file, lang('fb_err_already_exists'));
                 continue;
             }
             if (!is_writable($targetPath)) {
-                $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
+                $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
                 continue;
             }
             if (!$overwrite) {
-                $errors[] = [
-                    'name' => $originalName,
-                    'message' => lang('fb_err_already_exists'),
-                    'code' => 'exists',
-                    'targetName' => $targetName,
-                ];
+                $errors[] = fbUploadError($file, lang('fb_err_already_exists'), ['code' => 'exists', 'targetName' => $targetName]);
                 continue;
             }
         }
 
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
-            $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
+            $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
         $uploaded[] = [
+            'index' => $file['index'],
             'name' => $targetName,
             'size' => filesize($targetPath),
         ];
