@@ -172,7 +172,7 @@ function content($key, $default = null)
             <?php if (evo()->hasPermission('save_module')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                        onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});">
+                        onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();">
                         <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>

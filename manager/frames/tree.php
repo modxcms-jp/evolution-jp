@@ -262,7 +262,7 @@ if (!$isShellPartial) {
 
         // show state of recycle bin
         function showBinFull() {
-            var a = document.getElementById('Button10');
+            var a = document.getElementById('treeEmptyTrash');
             var title = '<?= $_lang['empty_recycle_bin'] ?>';
             if (a) {
                 if (!a.setAttribute) a.title = title;
@@ -274,7 +274,7 @@ if (!$isShellPartial) {
         }
 
         function showBinEmpty() {
-            var a = document.getElementById('Button10');
+            var a = document.getElementById('treeEmptyTrash');
             var title = <?= js_literal($_lang['empty_recycle_bin_empty']) ?>;
             if (a) {
                 if (!a.setAttribute) a.title = title;
@@ -315,29 +315,29 @@ if (is_array($evtOut)) {
             <td>
                 <table cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                        <td><a href="#" class="treeButton" id="Button1" onclick="expandTree();"
+                        <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
                                 title="<?= $_lang['expand_tree'] ?>"><?= $_style['expand_tree'] ?></a>
                         </td>
-                        <td><a href="#" class="treeButton" id="Button2" onclick="collapseTree();"
+                        <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
                                 title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
                         </td>
                         <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
-                            <td><a href="#" class="treeButton" id="Button3a"
+                            <td><a href="#" class="treeButton" id="treeNewResource"
                                     onclick="EvoShell.navigate('index.php?a=4');return false;"
                                     title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
                             </td>
-                            <td><a href="#" class="treeButton" id="Button3c"
+                            <td><a href="#" class="treeButton" id="treeNewWeblink"
                                     onclick="EvoShell.navigate('index.php?a=72');return false;"
                                     title="<?= $_lang['add_weblink'] ?>"><?= $_style['add_weblink_tree'] ?></a>
                             </td>
                         <?php } ?>
-                        <td><a href="#" class="treeButton" id="Button4" onclick="top.mainMenu.reloadtree();"
+                        <td><a href="#" class="treeButton" id="treeRefresh" onclick="top.mainMenu.reloadtree();"
                                 title="<?= $_lang['refresh_tree'] ?>"><?= $_style['refresh_tree'] ?></a>
                         </td>
-                        <td><a href="#" class="treeButton" id="Button5" onclick="showSorter(event);return false;"
+                        <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
                                 title="<?= $_lang['sort_tree'] ?>"><?= $_style['sort_tree'] ?></a></td>
                         <?php if (evo()->hasPermission('empty_trash')) { ?>
-                            <td><a href="#" id="Button10" class="treeButtonDisabled"
+                            <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
                                     title="<?= $_lang['empty_recycle_bin_empty'] ?>"><?= $_style['empty_recycle_bin_empty'] ?></a>
                             </td>
                         <?php } ?>
@@ -347,7 +347,7 @@ if (is_array($evtOut)) {
             <td align="right">
                 <table cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                        <td><a href="#" class="treeButton" id="Button6" onclick="top.mainMenu.hideTreeFrame();"
+                        <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
                                 title="<?= $_lang['hide_tree'] ?>"><?= $_style['hide_tree'] ?></a></td>
                     </tr>
                 </table>

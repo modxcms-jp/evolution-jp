@@ -14,7 +14,7 @@
  * 使い方: EvoElementLock.init(document.forms['mutate'], {locked: true, saveButton: '#Button1'});
  *   locked:     開いたときのロックの状態（差し戻しの再表示では、送信したチェックの状態）
  *   saveButton: 保存ボタンのセレクタ（無ければ省く）。フォームの中から探す。
- *               シェルではツリーにも id="Button1" の要素があり、document から探すとそちらが見つかるため
+ *               シェルではツリーやヘッダーも同じ document にあり、ID が重なっても取り違えないようにするため
  */
 // var への代入で定義する。シェルの画面遷移で再評価されるため（assets/docs/jquery-migration.md を参照）
 var EvoElementLock = (function () {
@@ -87,8 +87,7 @@ var EvoElementLock = (function () {
         if (lockInput) lockInput.addEventListener('change', sync);
         form.addEventListener('submit', function () {
             applySelects(form, false);
-            // 送信の値はこの submit の中で集められるので、そのあとで選択をロックの状態に戻す。
-            // 保存ボタンは送信中に隠されていることがあるので触らない
+            // 送信の値はこの submit の中で集められるので、そのあとで選択をロックの状態に戻す
             setTimeout(function () {
                 applySelects(form, isLocked());
             }, 0);
