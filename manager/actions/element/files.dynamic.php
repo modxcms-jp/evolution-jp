@@ -11,7 +11,8 @@ global $_style;
 $style_path = parseText('[+site_url+]manager/media/style/common/images/', $modx->config);
 $alias_suffix = (!empty($friendly_url_suffix)) ? ',' . ltrim($friendly_url_suffix, '.') : '';
 
-$proteted_path = proteted_path();
+require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/PathGuard.php';
+$guard = new PathGuard(config('filemanager_path') ?: MODX_BASE_PATH, PathGuard::protectedPathsFor(evo()));
 
 // Mod added by Raymond
 $enablefileunzip = true;
@@ -22,7 +23,7 @@ foreach ([anyv('path'), getv('path'), postv('path'), anyv('folderpath')] as $rec
     if ($received_path === null || $received_path === '') {
         continue;
     }
-    if (!is_string($received_path) || !is_absolute_local_path($received_path) || has_parent_reference($received_path)) {
+    if (!is_string($received_path) || !PathGuard::isAbsoluteLocal($received_path) || PathGuard::hasParentReference($received_path)) {
         echo lang('files_dir_not_viewable');
         exit;
     }
@@ -47,10 +48,10 @@ if (anyv('name')) {
 }
 foreach ($requested_paths as $requested_path) {
     // 操作に使う値そのものを照合する（値を書き換えない）。親ディレクトリへのたどり（..）を含むパスは受け付けない
-    if (!is_absolute_local_path($requested_path)
-        || has_parent_reference($requested_path)
-        || !is_within_filemanager_path($requested_path)
-        || is_protected_path($requested_path, $proteted_path)) {
+    if (!PathGuard::isAbsoluteLocal($requested_path)
+        || PathGuard::hasParentReference($requested_path)
+        || !$guard->isWithinBase($requested_path)
+        || $guard->isProtected($requested_path)) {
         echo lang('files_dir_not_viewable');
         exit;
     }
@@ -277,7 +278,7 @@ if (!is_readable($startpath)) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
                 $folder = anyv('folderpath');
-                if (is_filemanager_root($folder)) {
+                if ($guard->isBase($folder)) {
                     // 対象ディレクトリそのものは削除しない
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
@@ -504,7 +505,7 @@ function ls($curpath)
         explode(',', 'jpg,gif,png,ico')
     );
 
-    $proteted_path = proteted_path();
+    global $guard;
 
     $dir = scandir($curpath, SCANDIR_SORT_ASCENDING);
 
@@ -521,7 +522,7 @@ function ls($curpath)
                 continue;
             }
 
-            if (is_protected_path($newpath, $proteted_path)) {
+            if ($guard->isProtected($newpath)) {
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
@@ -812,12 +813,12 @@ function unzip($file, $path, &$failed = [], &$skipped = [])
 
     $path = rtrim($path, '/') . '/';
     // 展開先の外（展開先の中のリンクが指す先を含む）や対象ディレクトリの外・保護対象へ書き込むエントリがあれば、何も展開しない
-    $proteted_path = proteted_path();
+    global $guard;
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $zip_entry_name = str_replace('\\', '/', unzip_entry_name($zip, $i));
         if (preg_match('@(^|/)\.\.(/|$)@', $zip_entry_name)
-            || !is_within_filemanager_path($path . unzip_entry_path($zip_entry_name))
-            || is_protected_path($path . unzip_entry_path($zip_entry_name), $proteted_path)) {
+            || !$guard->isWithinBase($path . unzip_entry_path($zip_entry_name))
+            || $guard->isProtected($path . unzip_entry_path($zip_entry_name))) {
             $zip->close();
             return false;
         }
@@ -1059,8 +1060,10 @@ function fileupload()
         return $msg . '<p><span class="warning">' . lang('files_filetype_notok') . '</span></p>';
     }
 
+    global $guard;
+
     // ファイル名まで含めた保存先が、対象ディレクトリの中かを保存の前に確かめる
-    if (!is_within_filemanager_path($targetPath)) {
+    if (!$guard->isWithinBase($targetPath)) {
         return $msg . '<p><span class="warning">' . lang('files_dir_not_viewable') . '</span></p>';
     }
 
@@ -1102,9 +1105,11 @@ function textsave()
 
 function delete_file()
 {
+    global $guard;
+
     $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
 
-    if (is_filemanager_root(anyv('path'))) {
+    if ($guard->isBase(anyv('path'))) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
     }
 
@@ -1143,183 +1148,6 @@ function webstart_path()
     return '../' . $webstart_path;
 }
 
-function proteted_path()
-{
-    if (manager()->isAdmin()) {
-        return [];
-    }
-
-    $proteted_path = [
-        base_path() . 'manager',
-        base_path() . 'temp/backup',
-        base_path() . 'assets/backup'
-    ];
-
-    if (!evo()->hasPermission('save_plugin')) {
-        $proteted_path[] = base_path() . 'assets/plugins';
-    }
-    if (!evo()->hasPermission('save_snippet')) {
-        $proteted_path[] = base_path() . 'assets/snippets';
-    }
-    if (!evo()->hasPermission('save_template')) {
-        $proteted_path[] = base_path() . 'assets/templates';
-    }
-    if (!evo()->hasPermission('save_module')) {
-        $proteted_path[] = base_path() . 'assets/modules';
-    }
-    if (!evo()->hasPermission('empty_cache')) {
-        $proteted_path[] = rtrim(MODX_CACHE_PATH, '/');
-    }
-    if (!evo()->hasPermission('import_static')) {
-        $proteted_path[] = base_path() . 'temp/import';
-        $proteted_path[] = base_path() . 'assets/import';
-    }
-    if (!evo()->hasPermission('export_static')) {
-        $proteted_path[] = base_path() . 'temp/export';
-        $proteted_path[] = base_path() . 'assets/export';
-    }
-    return $proteted_path;
-}
-
-/**
- * 保護対象そのもの、またはその配下なら true。
- * どちらもまだ存在しなくてよい（アップロード先、作成するフォルダ、未作成のバックアップフォルダなど）。
- * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
- */
-function is_protected_path($path, $proteted_path)
-{
-    if (!$proteted_path) {
-        return false;
-    }
-    // ヌルバイトを含むパスは、止める側に倒す
-    if (strpos($path, "\0") !== false) {
-        return true;
-    }
-    $realpath = normalize_path($path);
-    if ($realpath === false) {
-        return false;
-    }
-    $realpath = strtolower($realpath);
-    foreach ($proteted_path as $protected) {
-        $protected = normalize_path($protected);
-        if ($protected === false) {
-            continue;
-        }
-        $protected = strtolower($protected);
-        if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * 存在する部分は realpath() で解決し、存在しない残りは文字列のまま . と .. を畳んでつなぐ。
- * .. を畳んだときは、畳んだ結果をもう一度解決する（畳んで現れた、存在する部分のリンクをたどるため）。
- * ヌルバイトを含むパスは解決できないものとして false を返す。
- */
-function normalize_path($path)
-{
-    // ヌルバイトを含むもの、絶対パスでないもの（file:// などの形、相対パス）は解決しない
-    if (strpos($path, "\0") !== false || !is_absolute_local_path($path)) {
-        return false;
-    }
-    $is_windows = DIRECTORY_SEPARATOR === '\\';
-    if ($is_windows) {
-        $path = str_replace('\\', '/', $path);
-    }
-    $rest = [];
-    $realpath = realpath($path);
-    while ($realpath === false) {
-        $parent = dirname($path);
-        if ($parent === $path) {
-            return false;
-        }
-        array_unshift($rest, basename($path));
-        $path = $parent;
-        $realpath = realpath($path);
-    }
-    if ($is_windows) {
-        $realpath = str_replace('\\', '/', $realpath);
-    }
-    $segments = explode('/', rtrim($realpath, '/'));
-    $folded = false;
-    foreach ($rest as $segment) {
-        if ($segment === '' || $segment === '.') {
-            continue;
-        }
-        if ($segment === '..') {
-            $folded = true;
-            if (count($segments) > 1) {
-                array_pop($segments);
-            }
-            continue;
-        }
-        $segments[] = $segment;
-    }
-    $result = implode('/', $segments);
-    if ($result === '') {
-        // 一番上まで上がったときは、realpath('') がカレントを返すため、ルートを返す
-        $result = '/';
-    }
-    return $folded ? normalize_path($result) : $result;
-}
-
-/**
- * ローカルの絶対パスなら true。Linux は / で始まるもの、Windows は ドライブ文字 + : + 区切り で始まるものだけを受け付ける。
- * file:// や php:// や phar:// などの形と、相対パスは受け付けない（PHP のファイル関数は URL の形を別の場所として扱うため）。
- */
-function is_absolute_local_path($path)
-{
-    if (DIRECTORY_SEPARATOR === '\\') {
-        return (bool) preg_match('@^[A-Za-z]:[\\\\/]@', $path);
-    }
-    return strpos($path, '/') === 0;
-}
-
-/**
- * パスの要素に .. があれば true。区切りは / と、Windows のときは \ も扱う。
- */
-function has_parent_reference($path)
-{
-    $separators = DIRECTORY_SEPARATOR === '\\' ? '/\\\\' : '/';
-    return (bool) preg_match('@(^|[' . $separators . '])\.\.([' . $separators . ']|$)@', $path);
-}
-
-/**
- * 設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）を正規化したパス。解決できなければ false。
- */
-function filemanager_base_path()
-{
-    $base = normalize_path(config('filemanager_path') ?: MODX_BASE_PATH);
-    return $base === false ? false : rtrim($base, '/');
-}
-
-/**
- * パスが、対象ディレクトリそのものなら true。
- */
-function is_filemanager_root($path)
-{
-    $base = filemanager_base_path();
-    $realpath = normalize_path($path);
-    return $base !== false && $realpath !== false && rtrim($realpath, '/') === $base;
-}
-
-/**
- * パスが、設定の対象ディレクトリ（filemanager_path。空ならサイトのルート）そのもの、またはその配下なら true。
- * 存在しないパスは、存在する親までを realpath() で解決して判定する（シンボリックリンクで外へ出ない）。
- * 許可する側の照合なので大文字小文字を区別して比べる（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
- * 区別しないファイルシステムでも、realpath() が実在する側の表記に正規化する。
- */
-function is_within_filemanager_path($path)
-{
-    $base = filemanager_base_path();
-    $realpath = normalize_path($path);
-    if ($base === false || $realpath === false) {
-        return false;
-    }
-    return $realpath === $base || strpos($realpath, $base . '/') === 0;
-}
 
 function uploadablefiles()
 {
