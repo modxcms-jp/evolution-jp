@@ -39,6 +39,15 @@
 } img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;} label {display: block;font-weight: bold;} input {margin: 0 0 10px 0;} input.checkbox {float: left;clear: left;margin-right: 3px;} form input.text, input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background-color: #fff;border:1px solid #ccc;padding:3px;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background-color: #EAECEE;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} input#FMP-email {width:300px;} label#FMP-email_label
 
         {padding-left:0;}
+
+        /* パスワードの表示切り替え（処理は media/script/login.js） */
+        .password-wrapper {position: relative;width: 408px;}
+        form .password-wrapper input.text {width: 374px;padding-right: 29px;}
+        .toggle-password {position: absolute;top: 2px;right: 4px;width: 22px;height: 22px;padding: 2px;color: #777;background: none;border: 0;cursor: pointer;}
+        .toggle-password:hover, .toggle-password:focus-visible {color: #333;}
+        .toggle-password svg {display: block;width: 18px;height: 18px;}
+        .toggle-password[aria-pressed="true"] .icon-hidden,
+        .toggle-password[aria-pressed="false"] .icon-visible {display: none;}
     </style>
 
     <script src="media/script/evo-dialog.js" type="text/javascript"></script>
@@ -57,7 +66,14 @@
             <label for="username">[+username+] </label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]"/>
             <label for="password">[+password+] </label>
-            <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
+            <div class="password-wrapper">
+                <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
+                <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
+                        aria-label="[+show_password+]" title="[+show_password+]">
+                    <svg class="icon-hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+                    <svg class="icon-visible" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
             [+login_captcha_message+]
             [+captcha_image+]
             [+captcha_input+]

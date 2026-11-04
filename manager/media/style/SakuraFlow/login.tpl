@@ -218,6 +218,12 @@
         }
 
         .toggle-password {
+            background: none;
+            border: 0;
+            padding: 0;
+            color: inherit;
+            font: inherit;
+            line-height: 1;
             position: absolute;
             right: 12px;
             top: 50%;
@@ -377,6 +383,17 @@
             .header { padding: 18px 18px 12px; }
             .body { padding: 0 18px 22px; }
         }
+
+        .toggle-password:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 2px;
+            opacity: 1;
+        }
+
+        .toggle-password[aria-pressed="true"] .icon-hidden,
+        .toggle-password[aria-pressed="false"] .icon-visible {
+            display: none;
+        }
     </style>
 
     <script src="media/script/evo-dialog.js" type="text/javascript"></script>
@@ -401,7 +418,11 @@
                 <label for="password">[+password+]</label>
                 <div class="input-field">
                     <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
-                    <span class="toggle-password" onclick="togglePassword()">♡</span>
+                    <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
+                            aria-label="[+show_password+]" title="[+show_password+]">
+                        <span class="icon-hidden" aria-hidden="true">♡</span>
+                        <span class="icon-visible" aria-hidden="true">ꕥ</span>
+                    </button>
                 </div>
             </div>
             <div class="captcha-wrapper">
@@ -428,18 +449,5 @@
     &copy; 2005-[[$_SERVER['REQUEST_TIME']:date(Y)]] by the <a href="http://modx.com/" target="_blank">MODX</a>.
     <strong>MODX</strong>&trade; is licensed under the GPL.
 </p>
-<script>
-    function togglePassword() {
-        var passwordField = document.getElementById('password');
-        var toggleIcon = document.querySelector('.toggle-password');
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            toggleIcon.textContent = 'ꕥ';
-        } else {
-            passwordField.type = 'password';
-            toggleIcon.textContent = '♡';
-        }
-    }
-</script>
 </body>
 </html>

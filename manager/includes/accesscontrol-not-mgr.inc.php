@@ -112,6 +112,7 @@ evo()->setPlaceholder(
 );
 evo()->setPlaceholder('username', $_lang["username"]);
 evo()->setPlaceholder('password', $_lang["password"]);
+evo()->setPlaceholder('show_password', $_lang['show_password']);
 
 // remember me
 evo()->setPlaceholder(

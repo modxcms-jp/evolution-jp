@@ -867,6 +867,7 @@ return [
     "settings_title" => 'グローバル設定',
     "settings_ui" => '管理画面の設定',
     "settings_users" => 'セキュリティ',
+    "show_password" => 'パスワードを表示',
     "show_tree" => 'リソースツリーの表示',
     "showing" => '表示中',
     "signupemail_message" => 'ユーザ管理画面でユーザーアカウントを作成した時に、ログイン名とパスワードを記載したメールを送信することができます。このメールの内容は変更できます<br /><strong>参考:</strong> 下記の差し込み文字列は送信時に自動的に置き換えられます。<br /><br />[(site_name)] - サイトの名前<br />[+manager_email+] - サイト管理者のメールアドレス<br />[(site_url)] - サイトのURL<br />[+username+] - ログイン名<br />[+password+] - パスワード<br />[+fullname+] - フルネーム',
