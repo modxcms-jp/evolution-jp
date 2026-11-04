@@ -571,7 +571,7 @@ M4 で `files.dynamic.php` を消した後に問題が見つかったときは�
 - 新しく作るファイル: `manager/media/browser/evo/lib/PathGuard.php`（M1）、`lib/BrowserScope.php`・`lib/PickerScope.php`・`lib/ManageScope.php`・`lib/BrowserView.php`・`js/picker.js`・`js/manage.js`（M2）、`lib/ManageActions.php`・`lib/ChangeLog.php`・`js/textEditor.js`（M3）、`manager/actions/element/file_manager.static.php`（M4）
 - 消すファイル: `manager/actions/element/files.dynamic.php`（M4）
 - PR は段階ごとに分ける。M1〜M3 の PR は `Refs #1046`、M4 の PR で `Closes #1046` にする
-- M1: ブランチ `feat/1046-m1-path-guard`（`gh issue develop` で #1046 に紐づけ）
+- M1: ブランチ `feat/1046-m1-path-guard`（`gh issue develop` で #1046 に紐づけ）、PR #1048
 
 ## Interfaces and Dependencies
 
