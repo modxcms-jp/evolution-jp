@@ -129,15 +129,6 @@ class PathGuard
     }
 
     /**
-     * パスの要素に .. があれば true。区切りは / と、Windows のときは \ も扱う。
-     */
-    public static function hasParentReference($path)
-    {
-        $separators = DIRECTORY_SEPARATOR === '\\' ? '/\\\\' : '/';
-        return (bool) preg_match('@(^|[' . $separators . '])\.\.([' . $separators . ']|$)@', $path);
-    }
-
-    /**
      * パスが、対象ディレクトリそのもの、またはその配下なら true。
      * 許可する側の照合なので大文字小文字を区別して比べる（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
      * 区別しないファイルシステムでも、realpath() が実在する側の表記に正規化する。
@@ -149,15 +140,6 @@ class PathGuard
             return false;
         }
         return $realpath === $this->baseDir || strpos($realpath, $this->baseDir . '/') === 0;
-    }
-
-    /**
-     * パスが、対象ディレクトリそのものなら true。
-     */
-    public function isBase($path)
-    {
-        $realpath = self::normalize($path);
-        return $this->baseDir !== false && $realpath !== false && rtrim($realpath, '/') === $this->baseDir;
     }
 
     /**
