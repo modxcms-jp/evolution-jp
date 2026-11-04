@@ -103,6 +103,23 @@ class ManageScope implements BrowserScope
         return $size > 0 ? $size : null;
     }
 
+    /**
+     * ツリーとパンくずの一番上に出す名前(ルートのフォルダの名前。ルートが / のときは /)。
+     * 最後の要素は basename() で取らない(PHP 7.4 は、ロケールによってマルチバイトの名前を正しく扱えない)
+     *
+     * @return string
+     */
+    public function rootLabel()
+    {
+        $root = PathGuard::normalize($this->baseDir());
+        if ($root === false) {
+            return '/';
+        }
+        $label = substr($root, (int) strrpos($root, '/') + 1);
+
+        return $label === '' ? '/' : $label;
+    }
+
     public function downloadName()
     {
         return 'files';

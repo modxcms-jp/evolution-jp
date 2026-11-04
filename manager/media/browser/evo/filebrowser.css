@@ -22,6 +22,26 @@
     height: 100vh;
 }
 
+/* メインの領域(メニューの「ファイル管理」)。見出しと本体の入れ物がメインの領域の高さいっぱいになり、
+   本体は見出しを除いた残りを使う。メインの領域自体はスクロールさせず、ツリーと一覧の中だけがスクロールする。
+   メインの領域が低すぎるときは、本体の最低の高さを守り、メインの領域がスクロールする */
+.evo-fb-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.evo-fb-pane > h1 {
+    flex: 0 0 auto;
+}
+
+.evo-fb-page {
+    flex: 1 1 auto;
+    height: auto;
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+}
+
 /* EvoShellモーダル内: ファイルブラウザ表示中だけモーダルを広げ、高さを確保する。
    :has()未対応ブラウザでも確実に効くよう、クラス付与はfilebrowser.js側で行う。
    shell.css側の body.evo-shell #evoShellModal { max-width: ... } と詳細度で

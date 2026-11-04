@@ -350,7 +350,7 @@ return [
     "file_unzip_entry_failed" => 'Unzipped, but the following files or folders could not be extracted:',
     "file_unzip_fail" => 'Unzip Failed!',
     "file_unzip_skipped" => 'The following files were not extracted because uploading this kind of file is not allowed:',
-    "filemanager_path_message" => 'IIS often does not populate the document_root setting properly, which is used by the file manager to determine what you can see. If you are having problems using the file manager, make sure this path points to the root of your MODX installation.',
+    "filemanager_path_message" => 'Sets the range that <a href="index.php?a=31">File Management</a> can handle. Unlike the File Browser used while editing content, it can manage any directory on this server that you have permission for, including directories outside the document root. IIS often does not populate the document_root setting properly. If you are having problems using File Management, make sure this path points to the root of your MODX installation.',
     "filemanager_path_title" => 'File Manager path',
     "export_dir_message" => 'The directory where static HTML files are written by the HTML export. Its contents are deleted when an export starts, so only a directory inside temp/ (not temp/ itself) can be used.',
     "export_dir_title" => 'Export output<br />directory',
@@ -672,7 +672,7 @@ return [
     "rb_base_dir_title" => 'File base path',
     "rb_base_url_message" => 'Enter the virtual path to files directory. This setting is usually automatically generated. If you\'re using IIS, however, MODX may not be able to work the URL out on it\'s own, causing the File Browser to show an error. In that case, you can enter the URL to the images directory here (the URL as you\'d enter it on Internet Explorer).',
     "rb_base_url_title" => 'File Browser URL',
-    "rb_message" => 'Select yes to enable the File Browser. This will allow your users to browse and upload files such as images and media files on the server.',
+    "rb_message" => 'Select yes to enable the File Browser. This will allow your users to browse and upload files such as images and media files on the server. The File Browser is opened from the editing screens to pick files and handles mainly the files used by the content (the images, files and media directories). <a href="index.php?a=31">File Management</a> uses the same kind of screen, but covers a wider range of the site.',
     "rb_title" => 'Enable File Browser',
     "rb_webuser_message" => 'Do you want to allow a web user the ability to use the file browser? <b>WARNING:</b> Allowing web users the use of the file browser exposes the files available to manager users.  Only use this option for trusted web users.',
     "rb_webuser_title" => 'Web Users?',
@@ -1201,7 +1201,7 @@ return [
     "a17_manager_inline_style_message" => 'Append manager style',
 
     "configcheck_mgr_tpl" => 'Extension of manager template filename',
-    "configcheck_mgr_tpl_msg" => 'Should be delete <a href="index.php?a=31&mode=drill&path=[+path+]assets/templates">assets/templates/manager/</a> directory',
+    "configcheck_mgr_tpl_msg" => 'Should be delete <a href="index.php?a=31&folder=[+folder+]">assets/templates/manager/</a> directory',
 
     "not_readable_dir" => 'Can not read this directory.',
 

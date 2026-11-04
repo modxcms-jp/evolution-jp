@@ -703,7 +703,7 @@ switch (manager()->action) {
         break;
         // file manager
     case 31: // get the page to manage files
-        include_once($action_path . 'element/files.dynamic.php');
+        include_once($action_path . 'element/file_manager.static.php');
         break;
     case 40: // access permissions
         include_once($action_path . 'permission/access_permissions.dynamic.php');

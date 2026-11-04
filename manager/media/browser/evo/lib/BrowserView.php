@@ -84,12 +84,13 @@ class BrowserView
      *
      * @param array $jsConfig jsConfig() の戻り値
      * @param string $extras 本体の末尾に足す HTML(管理モードは manageExtras())
+     * @param string $classes 本体の要素に足す class(置かれる場所の外側が決める。メインの領域は evo-fb-page)
      * @return string
      */
-    public static function markup(array $jsConfig, $extras = '')
+    public static function markup(array $jsConfig, $extras = '', $classes = '')
     {
         $markup = '';
-        $markup .= '<div class="evo-fb" id="evoFileBrowser" data-config="' . htmlspecialchars(json_encode($jsConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') . '">';
+        $markup .= '<div class="evo-fb' . ($classes === '' ? '' : ' ' . hsc($classes)) . '" id="evoFileBrowser" data-config="' . htmlspecialchars(json_encode($jsConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') . '">';
         $markup .= '  <div class="evo-fb-toolbar">';
         $markup .= '    <div class="evo-fb-path" data-role="path"></div>';
         $markup .= '    <div class="evo-fb-toolbar-actions">';
@@ -237,11 +238,46 @@ class BrowserView
         echo '<h1>' . hsc($title) . '</h1>';
         echo '<link rel="stylesheet" href="media/browser/evo/filebrowser.css?' . self::cssVersion() . '">';
         echo self::markup($jsConfig);
-        echo '<script type="module" src="media/browser/evo/js/' . hsc($jsConfig['entry']) . '.js?' . self::jsVersion($jsConfig['entry']) . '"></script>';
-        // shell.jsのexecuteScriptsは同一srcを再実行しないため、2回目以降の
-        // モーダルオープンはこのインラインscriptが初期化を担う。入口の登録表から、この画面の入口だけを呼ぶ
+        echo self::entryScripts($jsConfig);
+    }
+
+    /**
+     * メインの領域(メニューの「ファイル管理」、a=31)に出す断片。/manager/index.php が、メニューからの fetch でも、
+     * 直に開かれたときの全体の読み込みでも、そのまま出す(戻り値を echo する)
+     *
+     * 見出しと本体を、メインの領域の高さいっぱいに使う入れ物(evo-fb-pane)に入れる。本体(evo-fb-page)は、
+     * 見出しを除いた残りの高さを使い、一覧とツリーの中だけがスクロールする(CSS は filebrowser.css)。
+     *
+     * @param array $jsConfig jsConfig() の戻り値(apiUrl は media/browser/evo/api.php)
+     * @param string $title 見出し
+     * @return string
+     */
+    public static function managePane(array $jsConfig, $title)
+    {
+        $html = '<div class="evo-fb-pane">';
+        $html .= '<h1>' . hsc($title) . '</h1>';
+        $html .= '<link rel="stylesheet" href="media/browser/evo/filebrowser.css?' . self::cssVersion() . '">';
+        $html .= self::markup($jsConfig, self::manageExtras(), 'evo-fb-page');
+        $html .= self::entryScripts($jsConfig);
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
+     * 入口の JS(モジュール)と、その入口を呼び直すインラインの script。/manager/index.php の上に差し込む断片(モーダルとメインの領域)が使う。
+     * shell.js の executeScripts は同一 src を再実行しないため、2 回目以降に断片を差し込んだときは、このインラインの script が初期化を担う
+     * (入口の登録表から、この画面の入口だけを呼ぶ)。全体の読み込みでは、モジュールが後から動くので、インラインの時点では登録表が無く何もしない
+     * (モジュールが読み込まれたときに、自分で初期化する)。
+     *
+     * @return string
+     */
+    private static function entryScripts(array $jsConfig)
+    {
         $entry = js_literal($jsConfig['entry']);
-        echo '<script>(function (entries) { if (entries && entries[' . $entry . ']) { entries[' . $entry . '](); } })(window.EvoFileBrowserEntries);</script>';
+
+        return '<script type="module" src="media/browser/evo/js/' . hsc($jsConfig['entry']) . '.js?' . self::jsVersion($jsConfig['entry']) . '"></script>'
+            . '<script>(function (entries) { if (entries && entries[' . $entry . ']) { entries[' . $entry . '](); } })(window.EvoFileBrowserEntries);</script>';
     }
 
     /**

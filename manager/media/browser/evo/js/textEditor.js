@@ -67,6 +67,8 @@ export function createTextEditor(ctx) {
         updateButtons();
     }
 
+    // 後始末。overlay.js が、閉じたときに 1 度だけ呼ぶ(閉じるボタンでも、モーダルや画面ごと閉じられたときでも。
+    // 外から閉じられたときに状態が残ると、次に開けなくなる)
     function release() {
         generation++;
         closeOverlay = null;
@@ -87,10 +89,8 @@ export function createTextEditor(ctx) {
         if (!closeOverlay) {
             return;
         }
-        var fn = closeOverlay;
         var changed = saved;
-        fn(restoreFocus);
-        release();
+        closeOverlay(restoreFocus);
         if (changed) {
             ctx.onChanged();
         }
@@ -121,7 +121,7 @@ export function createTextEditor(ctx) {
         statusEl.textContent = t('fb_text_loading');
         showError('');
         updateButtons();
-        closeOverlay = openOverlay(overlayEl, panelEl, areaEl, { onEscape: requestClose });
+        closeOverlay = openOverlay(overlayEl, panelEl, areaEl, { onEscape: requestClose, onClose: release });
 
         fetchJson(apiUrl(ctx.config, { action: 'readText', folder: folder, file: name }))
             .then(function (data) {

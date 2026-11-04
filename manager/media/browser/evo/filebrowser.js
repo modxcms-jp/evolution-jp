@@ -31,7 +31,10 @@ import { createImageEditor } from './js/imageEditor.js';
 // 入口の JS が呼ぶ。登録表に開始の関数を置き、今のページの画面を一度だけ初期化する
 export function registerEntry(entry, behaviors) {
     function start() {
-        init(document.getElementById('evoFileBrowser'), entry, behaviors);
+        // メインの領域とモーダルに同時に出ていても(id が重なる)、この入口の画面を見つけて初期化する
+        document.querySelectorAll('#evoFileBrowser').forEach(function (root) {
+            init(root, entry, behaviors);
+        });
     }
     window.EvoFileBrowserEntries = window.EvoFileBrowserEntries || {};
     window.EvoFileBrowserEntries[entry] = start;
