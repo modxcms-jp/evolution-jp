@@ -6200,7 +6200,9 @@ class DocumentParser
     private function resizeImage($tmp_path, $img, $target_path)
     {
         $limitWidth = $this->config('image_limit_width');
-        if (!$limitWidth || $img[0] <= $limitWidth || empty($img[2])) {
+        // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
+        $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
+        if (!$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true)) {
             $moved = move_uploaded_file($tmp_path, $target_path);
             if (!$moved) {
                 return false;

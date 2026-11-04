@@ -2891,6 +2891,8 @@ trait DocumentParserSubParserTrait
             return false;
         }
 
+        // 読み込むファイルからは $modx でパーサーを使える（@INCLUDE で読むテンプレートなどの PHP が前提にしている）
+        $modx = evo();
         ob_start();
         $result = include($file_path);
         if ($result === 1) {
