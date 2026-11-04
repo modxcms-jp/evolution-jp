@@ -5,7 +5,7 @@
 import { escapeHtml } from './utils.js';
 import { t } from './i18n.js';
 import { isOsFileDrag } from './dnd.js';
-import { responseError } from './api.js';
+import { responseError, withApiParams } from './api.js';
 
 /**
  * @param {object} ctx
@@ -15,6 +15,7 @@ import { responseError } from './api.js';
  * @param {HTMLElement} ctx.dropzoneEl
  * @param {object} ctx.state
  * @param {object} ctx.config
+ * @param {(files: File[]) => boolean} ctx.beforeUpload - 送る前に呼ぶ。false なら送らない
  * @param {() => void} ctx.onDone - アップロード完了後の再読み込み
  */
 export function createUpload(ctx) {
@@ -46,12 +47,14 @@ export function createUpload(ctx) {
         if (files.length === 0) {
             return;
         }
+        // 入口の JS が、送る前に確かめる(管理モードは、同じ名前のファイルを上書きしてよいかを尋ねる)
+        if (ctx.beforeUpload && !ctx.beforeUpload(files)) {
+            return;
+        }
 
-        var formData = new FormData();
+        var formData = withApiParams(ctx.config, new FormData());
         formData.set('action', 'upload');
-        formData.set('type', ctx.state.type);
         formData.set('folder', ctx.state.folder);
-        formData.set('csrf_token', ctx.config.csrfToken);
         files.forEach(function (file) {
             formData.append('files[]', file, file.name);
         });

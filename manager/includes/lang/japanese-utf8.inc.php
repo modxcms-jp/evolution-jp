@@ -1419,4 +1419,8 @@ return [
     "fb_err_image_type_mismatch" => '画像の種類がファイルの拡張子と一致しません。',
     "fb_err_image_too_big" => '画像が大きすぎます。長い辺は %d px 以下にしてください。',
     "fb_err_overwrite_link" => 'このファイルはリンクなので上書きできません。別のファイルとして保存してください。',
+    "fb_err_manage_forbidden" => 'ファイル管理を利用する権限がありません。',
+    "fb_err_protected" => 'この場所は保護されているため、操作できません。',
+    "fb_not_writable" => 'このフォルダには書き込めないため、新しいフォルダの作成・アップロード・貼り付けはできません。',
+    "fb_confirm_overwrite" => '同じ名前のファイルがあります。上書きしてよいですか？: %s',
 ];

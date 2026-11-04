@@ -86,9 +86,42 @@ class BrowserConfig
             return [];
         }
 
-        $value = strtolower((string) $this->modx->config($key));
+        return $this->extensionsOf($key);
+    }
+
+    /**
+     * upload_files・upload_images・upload_media を合わせた拡張子の許可リスト（旧ファイル管理の uploadablefiles() と同じ範囲）
+     *
+     * @return string[]
+     */
+    public function allowedExtensionsAll()
+    {
+        return array_values(array_unique(array_merge(
+            $this->extensionsOf('upload_files'),
+            $this->extensionsOf('upload_images'),
+            $this->extensionsOf('upload_media')
+        )));
+    }
+
+    private function extensionsOf($settingKey)
+    {
+        $value = strtolower((string) $this->modx->config($settingKey));
 
         return array_values(array_filter(array_map('trim', explode(',', $value))));
+    }
+
+    /**
+     * 名前の拡張子（最後の . より後ろ）を小文字で返す。拡張子が無ければ空文字
+     *
+     * @param string $name ファイル名（ディレクトリを含まない）
+     * @return string
+     */
+    public static function extensionOf($name)
+    {
+        $name = (string) $name;
+        $dotPos = strrpos($name, '.');
+
+        return $dotPos === false ? '' : strtolower(substr($name, $dotPos + 1));
     }
 
     /**
@@ -102,13 +135,23 @@ class BrowserConfig
      */
     public function isAllowedFilename($type, $name)
     {
-        $name = (string) $name;
-        $dotPos = strrpos($name, '.');
-        if ($dotPos === false) {
-            return false;
-        }
+        return self::hasExtensionIn($name, $this->allowedExtensions($type));
+    }
 
-        return in_array(strtolower(substr($name, $dotPos + 1)), $this->allowedExtensions($type), true);
+    /**
+     * 名前の拡張子が、合わせた許可リスト（allowedExtensionsAll()）に含まれるかを返す。判定の仕方は isAllowedFilename() と同じ
+     *
+     * @param string $name ファイル名（ディレクトリを含まない）
+     * @return bool
+     */
+    public function isAllowedFilenameAll($name)
+    {
+        return self::hasExtensionIn($name, $this->allowedExtensionsAll());
+    }
+
+    private static function hasExtensionIn($name, array $allowed)
+    {
+        return strrpos((string) $name, '.') !== false && in_array(self::extensionOf($name), $allowed, true);
     }
 
     /**

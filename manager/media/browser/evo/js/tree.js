@@ -10,7 +10,7 @@ import { bindMoveDropTarget } from './dnd.js';
 /**
  * @param {object} ctx
  * @param {HTMLElement} ctx.treeEl
- * @param {string} ctx.type - ルートノードのラベル(images/media/files)
+ * @param {string} ctx.rootLabel - ルートノードのラベル(ルートのフォルダの名前)
  * @param {(path: string) => Promise<{folders}>} ctx.fetchFolders - foldersOnly=1でのlist取得
  * @param {() => string} ctx.getCurrentFolder
  * @param {(path: string) => void} ctx.onNavigate
@@ -166,7 +166,7 @@ export function createTree(ctx) {
     }
 
     function renderRoot() {
-        treeEl.innerHTML = treeNodeHtml(ctx.type, '', true);
+        treeEl.innerHTML = treeNodeHtml(ctx.rootLabel, '', true);
         var rootNode = treeEl.querySelector('.evo-fb-tree-node');
         bindTreeNode(rootNode);
         setTreeToggleState(rootNode, true);

@@ -2,11 +2,23 @@
 
 import { t } from './i18n.js';
 
+// config.apiParams(サーバーが作る。ピッカーは { type }、管理モードは { scope: 'manage' })は、すべての要求にそのまま付ける。
+// 範囲(ピッカー・管理モード)を見て分けるのはサーバーだけで、ここでは中身を見ない
 export function apiUrl(config, params) {
-    var query = Object.keys(params).map(function (key) {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+    var all = Object.assign({}, config.apiParams, params);
+    var query = Object.keys(all).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(all[key]);
     }).join('&');
     return config.apiUrl + '?' + query;
+}
+
+// POST の本体(URLSearchParams か FormData)に apiParams と CSRF トークンを付けて返す
+export function withApiParams(config, body) {
+    Object.keys(config.apiParams || {}).forEach(function (key) {
+        body.set(key, config.apiParams[key]);
+    });
+    body.set('csrf_token', config.csrfToken);
+    return body;
 }
 
 // API が返した理由(JSON の error.message)を運ぶエラー。通信エラーや JSON でない応答とは区別する
@@ -62,11 +74,9 @@ export function fetchJson(url, options) {
 }
 
 export function postForm(config, state, action, fields, folderOverride) {
-    var body = new URLSearchParams();
+    var body = withApiParams(config, new URLSearchParams());
     body.set('action', action);
-    body.set('type', state.type);
     body.set('folder', folderOverride != null ? folderOverride : state.folder);
-    body.set('csrf_token', config.csrfToken);
     Object.keys(fields || {}).forEach(function (key) {
         var val = fields[key];
         if (Array.isArray(val)) {

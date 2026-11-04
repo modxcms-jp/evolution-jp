@@ -1418,4 +1418,8 @@ return [
     "fb_err_image_type_mismatch" => 'The image type does not match the file extension.',
     "fb_err_image_too_big" => 'The image is too large. The longest side must be %d px or less.',
     "fb_err_overwrite_link" => 'The file is a link, so it cannot be overwritten. Save it as a new file instead.',
+    "fb_err_manage_forbidden" => 'You do not have permission to use the file manager.',
+    "fb_err_protected" => 'This location is protected and cannot be changed.',
+    "fb_not_writable" => 'You cannot write to this folder, so creating, uploading and pasting are unavailable.',
+    "fb_confirm_overwrite" => 'These files already exist and will be overwritten: %s. Continue?',
 ];

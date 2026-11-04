@@ -38,7 +38,7 @@ export function createMoveDialog(ctx) {
     function load() {
         // 押したボタンはパンくずと一覧の描き直しで DOM から消える。ダイアログ内にフォーカスがあったかを先に覚える
         var hadFocus = ctx.panelEl.contains(document.activeElement);
-        renderBreadcrumb(ctx.pathEl, escapeHtml(ctx.state.type), moveFolder, function (path) {
+        renderBreadcrumb(ctx.pathEl, escapeHtml(ctx.config.rootLabel), moveFolder, function (path) {
             moveFolder = path;
             load();
         });
@@ -49,7 +49,7 @@ export function createMoveDialog(ctx) {
             restoreFocus(crumbs[crumbs.length - 1]);
         }
 
-        fetchJson(apiUrl(ctx.config, { action: 'list', type: ctx.state.type, folder: moveFolder }))
+        fetchJson(apiUrl(ctx.config, { action: 'list', folder: moveFolder }))
             .then(function (data) {
                 if (data.folders.length === 0) {
                     ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_no_subfolders')) + '</div>';
@@ -102,6 +102,7 @@ export function createMoveDialog(ctx) {
 
 /**
  * ファイルのプレビュー拡大ダイアログ。実寸URL・寸法・サイズを表示する。
+ * 画像の編集のほかに足すボタン(ピッカーの「このファイルを選択」など)は、入口の JS が getActions() で決める。
  *
  * @param {object} ctx
  * @param {HTMLElement} ctx.overlayEl
@@ -109,29 +110,54 @@ export function createMoveDialog(ctx) {
  * @param {HTMLElement} ctx.imgEl
  * @param {HTMLElement} ctx.metaEl
  * @param {HTMLElement} ctx.closeBtn
- * @param {HTMLElement} ctx.pickBtn
+ * @param {HTMLElement} ctx.actionsEl - 入口の JS が決めるボタンを並べる場所
  * @param {HTMLElement} ctx.editBtn - 画像の編集を開くボタン(編集できるファイルのときだけ出す)
- * @param {(path: string) => void} ctx.onPick
+ * @param {(file: object) => Array<{label: string, primary?: boolean, onSelect: () => void}>} ctx.getActions - 足すボタン。押すとプレビューを閉じてから onSelect を呼ぶ
  * @param {(file: object) => boolean} ctx.canEdit
  * @param {(file: object) => void} ctx.onEdit - 編集のダイアログを開く。プレビューは開いたまま(編集をやめたら戻れる)
  */
 export function createPreview(ctx) {
-    var currentPath = '';
     var currentFile = null;
     var closeOverlay = null;
+
+    // 公開URLが無いファイル(ルートがサイトの外)や、画像として読めないファイルは、画像を出さない
+    ctx.imgEl.addEventListener('error', function () {
+        ctx.imgEl.hidden = true;
+    });
+
+    function renderActions(file) {
+        ctx.actionsEl.textContent = '';
+        ctx.getActions(file).forEach(function (action) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'evo-fb-btn' + (action.primary ? ' evo-fb-btn-primary' : '');
+            btn.textContent = action.label;
+            btn.addEventListener('click', function () {
+                closeWith(false);
+                action.onSelect();
+            });
+            ctx.actionsEl.appendChild(btn);
+        });
+    }
 
     function open(file) {
         currentFile = file;
         // 上書きしたあとに古い画像がキャッシュから出ないよう、更新時刻を付けて読む
-        ctx.imgEl.src = withVersion(file.url, file.mtime);
+        if (file.url) {
+            ctx.imgEl.hidden = false;
+            ctx.imgEl.src = withVersion(file.url, file.mtime);
+        } else {
+            ctx.imgEl.hidden = true;
+            ctx.imgEl.removeAttribute('src');
+        }
         ctx.editBtn.hidden = !ctx.canEdit(file);
+        renderActions(file);
         ctx.imgEl.alt = file.name;
         var dims = file.width ? (file.width + ' × ' + file.height + 'px') : '';
         ctx.metaEl.innerHTML = '' +
             '<div class="evo-fb-preview-name">' + escapeHtml(file.name) + '</div>' +
             '<div>' + [dims, formatSize(file.size), formatDate(file.mtime)].filter(Boolean).join(' / ') + '</div>' +
-            '<div class="evo-fb-preview-url">' + escapeHtml(file.path) + '</div>';
-        currentPath = file.path;
+            (file.path ? '<div class="evo-fb-preview-url">' + escapeHtml(file.path) + '</div>' : '');
         if (closeOverlay) {
             closeOverlay(false);
         }
@@ -163,11 +189,6 @@ export function createPreview(ctx) {
         if (currentFile) {
             ctx.onEdit(currentFile);
         }
-    });
-
-    ctx.pickBtn.addEventListener('click', function () {
-        closeWith(false);
-        ctx.onPick(currentPath);
     });
 
     return { open: open, close: close };
