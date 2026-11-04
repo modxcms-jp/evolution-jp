@@ -66,7 +66,7 @@ if (id()) {
                 <?php if (evo()->hasPermission('save_template')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                            onclick="documentDirty=false;document.getElementById('Button1').style.display='none';document.querySelectorAll('input,textarea,select').forEach(function(el){el.classList.add('readonly');});var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
+                            onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
