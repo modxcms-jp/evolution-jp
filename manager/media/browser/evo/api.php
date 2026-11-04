@@ -40,6 +40,10 @@
  *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
  *                     invalid_image / type_mismatch / image_too_big / too_many_same_name / save_failed
  *
+ * GET  action=readText (folder, file)                          -> {name,content,hash,writable,readOnly,encoding}(管理モードだけ。詳しくは lib/ManageActions.php)
+ * POST action=saveText (folder, target, content, hash)         -> {name,hash}(管理モードだけ。hash は開いたときの中身の sha1。違えば 409 modified)
+ * POST action=newfile  (folder, name)                          -> {name}(管理モードだけ。空のテキストファイルを作る)
+ *
  * 成功した変更(upload / mkdir / rename / delete / move / copy / saveImage / saveText / newfile / unzip)は、ChangeLog::record() が
  * 管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示(list / readText など)は記録しない。
  *
@@ -62,6 +66,7 @@ require_once __DIR__ . '/lib/BrowserConfig.php';
 require_once __DIR__ . '/lib/ThumbnailService.php';
 require_once __DIR__ . '/lib/ZipService.php';
 require_once __DIR__ . '/lib/ChangeLog.php';
+require_once __DIR__ . '/lib/ManageActions.php';
 
 $modx = new DocumentParser();
 $modx->getSettings();

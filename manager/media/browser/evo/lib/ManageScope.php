@@ -158,6 +158,10 @@ class ManageScope implements BrowserScope
         return [
             'list' => ['handler' => 'fbManageList'],
             'upload' => ['handler' => 'fbManageUpload', 'csrf' => true],
+            // テキストの表示・編集と新しいファイルは管理モードだけ(lib/ManageActions.php)。ピッカーの表には載らないので 400
+            'readText' => ['handler' => 'ManageActions::readText'],
+            'saveText' => ['handler' => 'ManageActions::saveText', 'csrf' => true, 'post' => true],
+            'newfile' => ['handler' => 'ManageActions::newfile', 'csrf' => true, 'post' => true],
         ];
     }
 }

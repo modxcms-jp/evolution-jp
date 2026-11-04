@@ -113,6 +113,9 @@ export function createGrid(ctx) {
     }
 
     function schedulePendingPreview(name) {
+        // ダブルクリックは click が 2 回続いてから dblclick になる。1 回目の予約を残すと、dblclick で打ち消せず、
+        // ファイルを開いた(テキストのダイアログなど)あとにプレビューが重なって開いてしまう
+        cancelPendingPreview();
         pendingPreviewTimer = setTimeout(function () {
             pendingPreviewTimer = null;
             ctx.openPreview(name);

@@ -20,6 +20,14 @@ class BrowserConfig
     /** 画面で編集を出す画像の画素数(幅×高さ)の上限。ブラウザが元の画像を展開するときのメモリを守る(5000 万画素で RGBA 約 200MB) */
     const EDIT_MAX_PIXELS = 50000000;
 
+    /**
+     * 管理モードでテキストとして表示・編集できる拡張子(旧ファイル管理の is_editable_file() と一覧の表示用の一覧を合わせたもの。小文字)。
+     * .htaccess のような拡張子だけの名前は、名前全体(htaccess)をこの一覧と照らす。json・md などが必要になったら、ここへ足すだけでよい
+     */
+    const TEXT_EXTENSIONS = ['txt', 'php', 'tpl', 'shtml', 'html', 'htm', 'xml', 'js', 'css', 'pagecache', 'htaccess', 'sample'];
+    /** テキストとして開くファイルの大きさの上限(バイト)。これを超えるものは開かない */
+    const TEXT_MAX_BYTES = 2097152;
+
     /** @var DocumentParser */
     private $modx;
 
@@ -169,6 +177,19 @@ class BrowserConfig
         }
 
         return in_array(strtolower(substr($name, $dotPos + 1)), self::EDITABLE_EXTENSIONS, true);
+    }
+
+    /**
+     * 名前の拡張子が、テキストとして表示・編集できる拡張子(TEXT_EXTENSIONS)か。大文字小文字は区別しない。
+     * 拡張子だけの名前(.htaccess)は、名前全体を拡張子として照らす(extensionOf() が最後のドットより後ろを返すので同じ形になる)。
+     * 拡張子の無い名前は対象にしない
+     *
+     * @param string $name ファイル名(ディレクトリを含まない)
+     * @return bool
+     */
+    public static function isTextFilename($name)
+    {
+        return in_array(self::extensionOf($name), self::TEXT_EXTENSIONS, true);
     }
 
     public function maxUploadSize()
