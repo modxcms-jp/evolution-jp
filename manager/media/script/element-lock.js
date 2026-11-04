@@ -87,8 +87,7 @@ var EvoElementLock = (function () {
         if (lockInput) lockInput.addEventListener('change', sync);
         form.addEventListener('submit', function () {
             applySelects(form, false);
-            // 送信の値はこの submit の中で集められるので、そのあとで選択をロックの状態に戻す。
-            // 保存ボタンは送信中に隠されていることがあるので触らない
+            // 送信の値はこの submit の中で集められるので、そのあとで選択をロックの状態に戻す
             setTimeout(function () {
                 applySelects(form, isLocked());
             }, 0);
