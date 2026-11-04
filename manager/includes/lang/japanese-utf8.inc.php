@@ -1319,6 +1319,7 @@ return [
     "fb_sort_mtime" => '更新日順',
     "fb_sort_size" => 'サイズ順',
     "fb_toggle_view" => '表示切替',
+    "fb_toggle_tree" => 'フォルダツリーの表示・非表示',
     "fb_new_folder" => '新規フォルダ',
     "fb_upload" => 'アップロード',
     "fb_clear_selection" => '選択解除',

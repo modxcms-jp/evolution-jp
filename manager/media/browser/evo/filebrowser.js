@@ -15,6 +15,11 @@
 //   confirmOverwrite(names, host)      サーバーが同じ名前のファイルがあると返したとき、サーバーが保存する名前(names)を並べて
 //                                      上書きしてよいかを確かめる。true なら、そのファイルだけを上書きで送り直す
 //                                      (別名で保存するサーバーは返さないので、呼ばれない)
+//
+// 外の JS 向けのイベント(#evoFileBrowser から、bubbles: true の CustomEvent で出す。detail の scope は画面の入口の名前 picker / manage):
+//   evofb:navigate          一覧を読み終えたとき。detail は { scope, folder }(folder はルートからの相対パス)
+//   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }(names は選んだファイルの名前)
+// 外からファイルブラウザを操作する入口(フォルダを開かせるなど)は、使う所ができたときに足す。
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
@@ -80,8 +85,12 @@ function init(root, entry, behaviors) {
         view: localStorage.getItem('evoFbView') || 'grid',
         selection: new Set(),
         // 開いているフォルダに書き込めるか(一覧の応答の writable)
-        writable: true
+        writable: true,
+        // フォルダツリーを出しているか(畳んだ状態は evoFbTree に残す)
+        treeOpen: localStorage.getItem('evoFbTree') !== 'closed'
     };
+    // evofb:selectionchange を出した最後の選択(同じ選択では出し直さない)
+    var lastSelectionKey = '[]';
 
     var pathEl = root.querySelector('[data-role="path"]');
     var treeEl = root.querySelector('[data-role="tree"]');
@@ -93,9 +102,26 @@ function init(root, entry, behaviors) {
     var mkdirBtn = root.querySelector('[data-action="mkdir"]');
     var uploadBtn = root.querySelector('[data-action="upload"]');
     var noticeEl = root.querySelector('[data-role="notice"]');
+    var treeToggleBtn = root.querySelector('[data-action="toggle-tree"]');
 
     // 入口の JS の behaviors へ渡す。preview は作ったあとに入れる
     var host = { root: root, config: config, state: state, preview: null, reload: function () { load(); } };
+
+    // 外の JS へ知らせる。範囲は入口の名前(config.entry)をそのまま渡す
+    function emit(type, detail) {
+        detail.scope = config.entry;
+        root.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: detail }));
+    }
+
+    function notifySelection() {
+        var names = Array.from(state.selection);
+        var key = JSON.stringify(names);
+        if (key === lastSelectionKey) {
+            return;
+        }
+        lastSelectionKey = key;
+        emit('evofb:selectionchange', { folder: state.folder, names: names });
+    }
 
     function findFile(name) {
         return state.rawFiles.find(function (f) { return f.name === name; });
@@ -257,6 +283,7 @@ function init(root, entry, behaviors) {
         onSelectionChange: function (count) {
             // zip を作れない環境では、2 件以上のときはダウンロードのボタンを隠す
             downloadBtn.hidden = !canDownload(count);
+            notifySelection();
         },
         isCut: isCutName
     });
@@ -407,6 +434,7 @@ function init(root, entry, behaviors) {
                     scrollToSelected(hasShownList && !instant);
                 }
                 hasShownList = true;
+                emit('evofb:navigate', { folder: state.folder });
                 pruneClipboard();
                 updateClipboardUi();
                 if (hadFocus && document.activeElement === document.body) {
@@ -450,6 +478,20 @@ function init(root, entry, behaviors) {
             grid.renderList();
         });
     }
+
+    // --- フォルダツリーの開閉 ---
+
+    function applyTreeOpen() {
+        treeEl.hidden = !state.treeOpen;
+        treeToggleBtn.setAttribute('aria-expanded', state.treeOpen ? 'true' : 'false');
+    }
+
+    treeToggleBtn.addEventListener('click', function () {
+        state.treeOpen = !state.treeOpen;
+        localStorage.setItem('evoFbTree', state.treeOpen ? 'open' : 'closed');
+        applyTreeOpen();
+    });
+    applyTreeOpen();
 
     // --- フォルダ作成 ---
 

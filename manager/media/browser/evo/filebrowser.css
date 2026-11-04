@@ -203,6 +203,10 @@
     background: var(--gray-50, #f9fafb);
 }
 
+.evo-fb-tree[hidden] {
+    display: none;
+}
+
 .evo-fb-tree-children {
     padding-left: var(--space-4, 16px);
 }

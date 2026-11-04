@@ -1318,6 +1318,7 @@ return [
     "fb_sort_mtime" => 'Date modified',
     "fb_sort_size" => 'Size',
     "fb_toggle_view" => 'Toggle view',
+    "fb_toggle_tree" => 'Show or hide the folder tree',
     "fb_new_folder" => 'New folder',
     "fb_upload" => 'Upload',
     "fb_clear_selection" => 'Clear selection',

@@ -92,6 +92,7 @@ class BrowserView
         $markup = '';
         $markup .= '<div class="evo-fb' . ($classes === '' ? '' : ' ' . hsc($classes)) . '" id="evoFileBrowser" data-config="' . htmlspecialchars(json_encode($jsConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') . '">';
         $markup .= '  <div class="evo-fb-toolbar">';
+        $markup .= '    <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-action="toggle-tree" aria-expanded="true" aria-controls="evoFbTree" title="' . hsc(lang('fb_toggle_tree')) . '" aria-label="' . hsc(lang('fb_toggle_tree')) . '">☰</button>';
         $markup .= '    <div class="evo-fb-path" data-role="path"></div>';
         $markup .= '    <div class="evo-fb-toolbar-actions">';
         $markup .= '      <input type="search" class="evo-fb-search" data-role="search" placeholder="' . hsc(lang('fb_search_placeholder')) . '">';
@@ -118,7 +119,7 @@ class BrowserView
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-notice" role="status" data-role="notice" hidden>' . hsc(lang('fb_not_writable')) . '</div>';
         $markup .= '  <div class="evo-fb-body">';
-        $markup .= '    <div class="evo-fb-tree" data-role="tree"></div>';
+        $markup .= '    <div class="evo-fb-tree" id="evoFbTree" data-role="tree"></div>';
         $markup .= '    <div class="evo-fb-main" data-role="dropzone" tabindex="-1">';
         $markup .= '      <div class="evo-fb-grid" data-role="grid"><div class="evo-fb-empty" data-role="loading">' . hsc(lang('fb_loading')) . '</div></div>';
         $markup .= '      <div class="evo-fb-dropoverlay" data-role="dropoverlay">' . hsc(lang('fb_drop_to_upload')) . '</div>';
