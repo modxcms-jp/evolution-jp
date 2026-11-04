@@ -2,7 +2,7 @@
 // filebrowser.js の registerEntry() に渡す。ファイルを「選んで閉じる」ことはしない。
 // 断片をメインの領域へ差し込むとき、shell.jsがscriptを再実行しないため、開始の関数を入口の登録表
 // (window.EvoFileBrowserEntries.manage)に置き、断片内のインラインscriptから毎回呼び直す(ピッカーと同じ)。
-// この入口だけが、テキストの表示・編集(js/textEditor.js)・新しいファイルを足す(共通の部品には足さない)。
+// この入口だけが、テキストの表示・編集(js/textEditor.js)・新しいファイル・zip の展開を足す(共通の部品には足さない)。
 
 import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
@@ -54,6 +54,27 @@ function createFile(host) {
         });
 }
 
+function unzipFile(host, name) {
+    if (!window.confirm(t('fb_confirm_unzip', name))) {
+        return;
+    }
+    postForm(host.config, host.state, 'unzip', { target: name }, host.state.folder)
+        .then(function (result) {
+            var lines = [t('fb_unzip_done', result.extracted)];
+            if (result.failed && result.failed.length) {
+                lines.push('', t('fb_unzip_entry_failed'), result.failed.join('\n'));
+            }
+            if (result.skipped && result.skipped.length) {
+                lines.push('', t('fb_unzip_skipped'), result.skipped.join('\n'));
+            }
+            window.alert(lines.join('\n'));
+            host.reload();
+        })
+        .catch(function (err) {
+            window.alert(failureMessage(err, 'fb_unzip_failed'));
+        });
+}
+
 var behaviors = {
     // ダブルクリックと Enter: テキストならテキストのダイアログ、それ以外はプレビュー
     openFile: function (entry, host) {
@@ -67,8 +88,8 @@ var behaviors = {
     previewActions: function () {
         return [];
     },
-    // 右クリックメニューに足す項目。ファイル 1 件には「表示・編集」(テキスト)を、何も無い所には「新しいファイル」を足す。
-    // 書き込めないフォルダでは、作る項目は出さない(サーバーも断る)
+    // 右クリックメニューに足す項目。ファイル 1 件には「表示・編集」(テキスト)と「展開」(.zip)を、何も無い所には「新しいファイル」を足す。
+    // 書き込めないフォルダでは、作る・展開する項目は出さない(サーバーも断る)
     contextMenuItems: function (entry, host) {
         var items = [];
         if (!entry) {
@@ -79,6 +100,9 @@ var behaviors = {
         }
         if (isTextFile(host.config, entry.name)) {
             items.push({ label: t('fb_text_open'), onSelect: function () { editorFor(host).open(entry.name, host.state.folder); } });
+        }
+        if (extensionOf(entry.name) === 'zip' && host.state.writable) {
+            items.push({ label: t('fb_unzip'), onSelect: function () { unzipFile(host, entry.name); } });
         }
         return items;
     },

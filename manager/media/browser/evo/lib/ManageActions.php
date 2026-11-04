@@ -8,13 +8,14 @@
  * GET  readText (folder, file)                          -> {name, content, hash, writable, readOnly, encoding}
  * POST saveText (folder, target, content, hash)         -> {name, hash}
  * POST newfile  (folder, name)                          -> {name}
+ * POST unzip    (folder, target)                        -> {extracted, failed:[...], skipped:[...]}
  *
  * テキストとして扱うのは、拡張子が BrowserConfig::TEXT_EXTENSIONS にあり、大きさが TEXT_MAX_BYTES 以下で、NUL を含まないファイルだけ。
  * UTF-8 でない中身(Shift_JIS・EUC-JP)は UTF-8 に変換して表示するが、保存はさせない(readOnly)。変換した UTF-8 で書き戻すと、
  * ファイルの文字コードが黙って変わるため。保存のときは、開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る
  * (FTP などで同時に書き換えられたものを上書きしないため)。
  * エラーコード: invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified / invalid_content /
- * save_failed / extension_not_allowed / protected / already_exists / create_failed
+ * save_failed / extension_not_allowed / protected / already_exists / create_failed / not_zip / not_writable / zip_unavailable / invalid_zip / unsafe_zip
  */
 class ManageActions
 {
@@ -149,6 +150,54 @@ class ManageActions
 
         ChangeLog::record($scope, 'Created File', [ChangeLog::relPath($dir, $name)]);
         fbSendJson(['name' => $name]);
+    }
+
+    /**
+     * zip を、同じフォルダへ展開する。確かめと展開の手順は ZipService::extract() にある
+     */
+    public static function unzip(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
+    {
+        $dir = self::dirOrFail($resolver);
+        $name = self::nameOrFail(postv('target', ''));
+        if (BrowserConfig::extensionOf($name) !== 'zip') {
+            fbError('not_zip', lang('fb_err_not_zip'), 400);
+        }
+        if (!is_writable($dir['real'])) {
+            fbError('not_writable', lang('fb_err_dir_not_writable'), 403);
+        }
+        // zip そのものは、ルートの中にある守る場所でないふつうのファイルに限る(リンクは断る)
+        if (is_link($dir['real'] . $name)) {
+            fbError('unsafe_zip', lang('fb_err_zip_link'), 400);
+        }
+        $zipPath = $resolver->resolveFile($dir['real'], $name);
+        if ($zipPath === null) {
+            fbError('not_found', fbNotFoundMessage($name, lang('fb_err_target_not_found')), 404);
+        }
+
+        @set_time_limit(0);
+        $result = ZipService::extract($zipPath, $dir['real'], $resolver, $scope->guard(), [$scope, 'isAllowedNewName'], $modx);
+        if (!$result['ok']) {
+            $errors = [
+                'unavailable' => ['zip_unavailable', 'fb_err_unzip_unavailable', 501],
+                'open_failed' => ['invalid_zip', 'fb_err_zip_open', 400],
+                'unsafe' => ['unsafe_zip', 'fb_err_unsafe_zip', 400],
+            ];
+            $error = $errors[$result['reason']] ?? ['invalid_zip', 'fb_err_zip_open', 400];
+            fbError($error[0], lang($error[1]), $error[2]);
+        }
+
+        // 展開できたファイルを 1 件ずつ記録する(フォルダは記録しない)
+        $paths = [];
+        foreach ($result['files'] as $relative) {
+            $paths[] = ChangeLog::relPath($dir, $relative);
+        }
+        ChangeLog::record($scope, 'Unzipped', $paths);
+
+        fbSendJson([
+            'extracted' => $result['extracted'],
+            'failed' => $result['failed'],
+            'skipped' => $result['skipped'],
+        ]);
     }
 
     /**

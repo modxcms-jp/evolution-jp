@@ -43,6 +43,7 @@
  * GET  action=readText (folder, file)                          -> {name,content,hash,writable,readOnly,encoding}(管理モードだけ。詳しくは lib/ManageActions.php)
  * POST action=saveText (folder, target, content, hash)         -> {name,hash}(管理モードだけ。hash は開いたときの中身の sha1。違えば 409 modified)
  * POST action=newfile  (folder, name)                          -> {name}(管理モードだけ。空のテキストファイルを作る)
+ * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],skipped:[...]}(管理モードだけ。zip を同じフォルダへ展開する)
  *
  * 成功した変更(upload / mkdir / rename / delete / move / copy / saveImage / saveText / newfile / unzip)は、ChangeLog::record() が
  * 管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示(list / readText など)は記録しない。
