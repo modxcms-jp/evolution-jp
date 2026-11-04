@@ -15,7 +15,7 @@ Issue: #1046
 - [x] (2026-11-04) `upload_maxsize` が空のときの上限を範囲ごとに今の動きで保つ形に直した（旧は 32MB ではなく本体の上限なしと PHP 7.4 で確認）。zip の展開の安全確認を点検し、ぶら下がったリンク・書く直前の確かめ・0777 のパーミッション・zip そのもののリンク・PHP 7.4 の `basename()` の対策を足した
 - [x] (2026-11-04) 管理モードの起動（`a=31`）と API の認可（要求ごとの `file_manager`）を分けて書き、権限を持つ人が API へ直に `scope=manage` を付けて使えることを明記した。管理操作ログの 51 件目より後を `trace_id` でシステムログから追える形にし、ロードマップの到達条件に管理操作ログへの記録を加えた
 - [x] (2026-11-05) M2: 管理モード（`PickerScope`・`ManageScope`・`BrowserView`、範囲を見て分けるのは入口だけ）。M1 の PR #1048 のマージ待ちのため、M1 のブランチの上に積んで進めた。ピッカーは main と比べて応答のキーが増えただけで、TV の欄・QuickManager・TinyMCE から選べることを確かめた
-- [ ] M3: テキストの表示・編集、新しいファイル、zip の展開、変更の記録
+- [x] (2026-11-05) M3: テキストの表示・編集、新しいファイル、zip の展開、変更の記録。M2 のブランチの上に積んで進めた。Validation の M3 の表を main と作業ブランチで比べ、期待に外れた行は無かった
 - [ ] M4: `a=31` でファイルブラウザを表示、リンクの置き換え、ツリーの開閉とイベントの入口、`files.dynamic.php` の削除と言語キーの整理
 
 ## Surprises & Discoveries
@@ -26,7 +26,7 @@ Issue: #1046
 
 2026-11-04（計画時）: 旧ファイル管理の拡張子の一覧（`is_editable_file()` と一覧の表示用）は `'...htaccess' . config('alias_suffix')` と、区切りの `,` を挟まずに設定をつないでいる。設定 `alias_suffix` は本体のどこにも無いので、常に空の文字列がつながるだけで、実害は無い。新しい一覧には持ち込まない。
 
-2026-11-04（計画時）: 旧ファイル管理のテキストの保存は、`<form>` の送信で `textarea` の中身を送る。HTML の仕様では、フォームの送信で改行が CRLF にそろえられるため、LF のファイルを保存すると CRLF に変わるはず（要確認。M3 で main の旧ファイル管理を使って確かめ、結果をここに書く）。ファイルブラウザの `js/api.js` の `postForm()` は `URLSearchParams` で送るので、改行はそろえられない。
+2026-11-04（計画時）: 旧ファイル管理のテキストの保存は、`<form>` の送信で `textarea` の中身を送る。HTML の仕様では、フォームの送信で改行が CRLF にそろえられるため、LF のファイルを保存すると CRLF に変わるはず（M3 で main の旧ファイル管理を使って確かめた: `a\nb\n` のファイルを開いてそのまま保存すると `a\r\nb\r\n` になる。新しい `saveText` は元のファイルの改行に合わせるので、LF は LF のまま、CRLF は CRLF のまま）。ファイルブラウザの `js/api.js` の `postForm()` は `URLSearchParams` で送るので、改行はそろえられない。
 
 2026-11-04（計画時）: アップロードで同じ名前のファイルがあるとき、旧ファイル管理は上書きし（`$modx->move_uploaded_file()` に同じパスを渡す）、ファイルブラウザは `fbFindFreePath()` で `名前(1).拡張子` のように別の名前にする。同じ「アップロード」でも振る舞いが違うので、共通にせず範囲ごとの関数にする（Decision Log）。
 
@@ -41,6 +41,10 @@ Issue: #1046
 2026-11-05（M2）: 計画に無かった細部を次のとおり決めた。`BrowserScope` に `listsFolder()`（ピッカーはドットで始まるフォルダを出さない）、`downloadName()`（zip の名前の先頭）、`uploadEvent()`（ピッカーは `OnFileBrowserUpload`、管理モードは `OnFileManagerUpload`。画像の別名の保存も同じ）を足した。`logLabel()` は使う所ができる M3 で足す。`PickerScope::authorize()` は `browser.php` が直した `type` を第 3 引数で受ける。言語キー `fb_confirm_overwrite` を足した。管理モードの上書きはふつうのファイルだけ（フォルダとリンクは断る）。Enter で `openFile` を呼ぶのは、一覧か選んだファイルの名前のボタンにフォーカスがあるときだけ（ピッカーでは、名前のボタンで 2 度目の Enter が名前の変更ではなく選択の確定になる）。書き込めないフォルダへのドロップも止める。POST でも `apiParams` を URL に付ける（`post_max_size` を超えて本文が捨てられたとき、`scope` が落ちてピッカーの認可に回らないように）。
 
 2026-11-05（M2）: ピッカーのルートが `rb_base_dir/<type>` になったので、種類のフォルダの中から別の種類のフォルダを指すリンクは開けなくなり、種類のフォルダそのものがリンクのときは開けるようになった。`OnFileManagerUpload` の `filepath` は末尾に `/` が付く（旧は `postv('path')` で付かない）。管理モードで `.htaccess` を複製すると `sanitizeFilename()` が先頭のドットを落として `htaccess` になる（M3 までに扱いを決める）。アップロードの成功を「エラーに無いこと」で決めているので、PHP の `max_file_uploads` を超えて捨てられたファイルも成功と出る（main と同じ。`uploaded[].index` を使えば直せる）。`OnFileManagerUpload` の `filepath` の形と `uploadEvent()` は、M4 で `events-and-plugins.md` に書く。
+
+2026-11-05（M3）: 次のとおり決めた。(1) 旧ファイル管理も `.htaccess` のようなドットで始まる名前を新しく作れなかった（`sanitizeFilename()` が先頭のドットを落とし、拡張子の無い名前が許可リストに通らない）ので、`newfile` も同じにした。既にある `.htaccess` の表示・編集・保存・削除・移動・ダウンロードはできる。(2) 管理モードでドットで始まるファイルの複製は断る（`isAllowedCopy($sourceName, $newName)`、文言 `fb_err_copy_not_allowed`。ピッカーで断るときの文言もこれに変わる。断る範囲は同じ）。(3) ウェブユーザーのセッションのピッカーの変更は、管理操作ログには書かずシステムログだけに書く（`manager_log.internalKey` は管理ユーザーの ID で、`logHandler` は ID が取れないと HTML のエラーを出して JSON を壊すため）。(4) 管理操作ログの 50 行の上限は 1 回の要求全体で数える（同じ要求で `record()` を 2 回呼んで両方が超えると「ほか N 件」の行が 2 つになることがある）。複製も `from → to` で書き、フォルダの削除はフォルダ 1 行で書く。(5) システムログは計画どおり `logEvent(0, 1, …)`。`send_errormail` を 1（情報以上）にしたサイトでは変更を伴う要求ごとにメールが 1 通届く（本文に操作やパスは入らない）。本体のほかの情報の記録（システムログの削除など）と同じ動きで、既定の 3 では届かない。(6) `readText` は読み取り専用の理由を `readOnlyReason`（`link`・`permission`・`encoding`）で返し、`saveText`・`newfile` は書き込めなければ 403 `not_writable`。(7) `js/grid.js` で、ダブルクリックの 1 回目のクリックが予約したプレビューが残り、開いた約 250ms 後に重なって開く既存の不具合を直した（main のピッカーでも選択の確定の上にプレビューが開いていた）。(8) コミットは、`saveText`・`newfile` が `ChangeLog` を使うので、記録 → テキストと新しいファイル → zip の順にした。
+
+2026-11-05（M3、残したこと）: PHP 7.4 の `mb_detect_encoding()` は、EUC-JP のファイルを候補の並び（`SJIS-win,SJIS,EUCJP-win,EUC-JP`）の先頭の SJIS-win と判別し、化けて表示する（8.4 では正しく判別する）。読み取り専用で開くのでファイルは壊れない。旧ファイル管理も同じ並びで、並びを変えると半角カナだけの Shift_JIS が EUC と誤るので、変えていない。テキストのダイアログは、`evoshell:modalclose` などで外から閉じられたときに後始末（`release()`）が動かず、開き直せなくなりうる（M4 で `evoshell:unload` の後始末と一緒に、`openOverlay()` の `onClose` で直す）。管理操作ログの DB への書き込みに失敗すると、`logHandler` が HTML のエラーを出すので、ファイルは変わったのに応答が JSON にならない（`logHandler` の今の作りによる）。モーダルの断片（`modalFragment()`）には `manageExtras()` を足していないので、M4 の `managePane()` で必ず足す（足さないと `manage.js` の `editorFor()` が止まる）。
 
 2026-11-04（M1、検証時）: 旧ファイル管理の一覧を出す応答に `Deprecated: substr(): Passing null to parameter #2 ($offset)` が出る。`ls()` の `$len` が未定義のまま使われているためで、main にもある。M4 で `files.dynamic.php` ごと消えるので直さない。
 
@@ -275,7 +279,7 @@ PHP 7.4 で動く書き方にする（引数と戻り値の型の宣言に `stri
 - `listsFile($name)`: 一覧に出し、ダウンロードの対象にしてよいか。`PickerScope` は種類の許可リストにあり、ドットで始まらないもの。`ManageScope` はすべて。
 - `isAllowedNewName($name)`: 新しい名前のファイルを作ってよい拡張子か。`PickerScope` は `BrowserConfig::isAllowedFilename($type, $name)`、`ManageScope` は合わせた許可リスト（`BrowserConfig::allowedExtensionsAll()` を足す）。
 - `isAllowedRename($oldName, $newName)`: `PickerScope` は今の `isAllowedFilename($type, $newName)`、`ManageScope` は拡張子が同じなら真、違えば `isAllowedNewName($newName)`。
-- `isAllowedCopy($name)`: `PickerScope` は今の確認、`ManageScope` は真（元と同じ拡張子のため）。
+- `isAllowedCopy($sourceName, $newName)`: `PickerScope` は今の確認、`ManageScope` は元の名前がドットで始まらなければ真（元と同じ拡張子のため。ドットで始まる名前は `sanitizeFilename()` が先頭のドットを落とすので、黙って別の名前にせず断る。M3 で決めた）。
 - `maxUploadSize()`: アップロードの上限（バイト）か `null`（本体では制限しない）。`PickerScope` は `BrowserConfig::maxUploadSize()`（空なら 5,000,000）、`ManageScope` は `upload_maxsize` が正の数ならその値、空なら `null`（旧と同じ。Decision Log）。
 - `logLabel()`: 記録の `message` の先頭に付ける印（`PickerScope` は `[picker] `、`ManageScope` は `''`）。
 - `actions()`: その範囲にだけある操作の表（action の名前 → 関数）。`PickerScope` は `list`（`fbPickerList`）・`thumb`・`upload`（`fbPickerUpload`）。`ManageScope` は `list`（`fbManageList`）・`upload`（`fbManageUpload`）と、M3 の `readText`・`saveText`・`newfile`・`unzip`。
@@ -327,7 +331,7 @@ JS は、共通の部品（`filebrowser.js` の `init()`、`js/grid.js`・`js/tr
 
 変更の記録は、`lib/ChangeLog.php` に `ChangeLog::record(BrowserScope $scope, $operation, array $paths)` を 1 つ置き、`api.php` の成功した変更の後に呼ぶ（Decision Log の「変更の記録」のとおり）。管理操作ログへは `logHandler::initAndWriteLog($message, '', '', 31, 'x', $itemname)` を 1 件ごとに呼ぶ（`$message` は操作の名前、ピッカーでは先頭に `[picker]`。`$itemname` はルートからの相対パスで、移動と名前の変更は `from → to`。`mb_scrub()` し、255 文字を超えるものは末尾を残して先頭を省く）。1 回の要求で 50 行を超える分は書かず、最後に `ほか N 件（trace_id=<trace_id>）` の 1 行を足す（`trace_id` は `EvoLogger::traceId()` から受け取る。`manager/includes/logger.class.php` にこのメソッドを足し、`collectCommonContext()` もこれを使う形にする）。システムログへは `evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', ['scope' => ..., 'operation' => ..., 'paths' => ...])` を 1 行書く（`paths` は全件）。zip の展開は、展開できたファイルを 1 件ずつ記録する。失敗の記録（今の `logEvent(0, 3, ...)`）はそのまま。M1 では、旧 `logFileChange()` の `action` が 0 になる不具合は直さない（M4 で旧ごと消すため）。
 
-画面は `js/textEditor.js` を新しく作る。`createTextEditor(ctx)` が、ファイルブラウザの中のダイアログ（`js/overlay.js`）に、エレメントの編集画面と同じ形のコードの欄（`div.code-editor` > `div.code-editor-header`（ファイル名と「行を折り返す」のチェックボックス）、`textarea.phptextarea`（`dir="ltr"`、`wrap="soft"`））と、保存・閉じるのボタンを出す。HTML は `BrowserView::managePane()` の側で足す（`markup()` には足さない）。`js/textEditor.js` は `js/manage.js` だけが読む。開くと `readText` を呼び、`readOnly` なら欄を読み取り専用にして理由を出す。書き換えたら `window.documentDirty = true`（EvoShell が離れるときに確かめる）、保存したり閉じたりしたら `false` に戻す。変更があるまま閉じるときは確かめる。保存が 409 なら「ほかで書き換えられています」を出し、上書きはさせない。
+画面は `js/textEditor.js` を新しく作る。`createTextEditor(ctx)` が、ファイルブラウザの中のダイアログ（`js/overlay.js`）に、エレメントの編集画面と同じ形のコードの欄（`div.code-editor` > `div.code-editor-header`（ファイル名と「行を折り返す」のチェックボックス）、`textarea.phptextarea`（`dir="ltr"`、`wrap="soft"`））と、保存・閉じるのボタンを出す。HTML は `BrowserView::manageExtras()` にまとめ、管理モードの外側（M3 の一時的な入口の `standalonePage()`、M4 の `managePane()`）が `markup($jsConfig, $extras)` に渡す（`markup()` の中で範囲を見て分けない）。`js/textEditor.js` は `js/manage.js` だけが読む。開くと `readText` を呼び、`readOnly` なら欄を読み取り専用にして理由を出す。書き換えたら `window.documentDirty = true`（EvoShell が離れるときに確かめる）、保存したり閉じたりしたら `false` に戻す。変更があるまま閉じるときは確かめる。保存が 409 なら「ほかで書き換えられています」を出し、上書きはさせない。
 
 `js/manage.js` の `behaviors.contextMenuItems()` で、右クリックメニューに「表示・編集」（テキストの拡張子のファイル）、「展開」（`.zip`）、何も無い所に「新しいファイル」を足す（共通の `js/contextmenu.js` は、渡された項目を並べるだけ）。新しいファイルを作ったら、そのままテキストのダイアログで開く。展開の前には確かめ（旧の `confirm_unzip_file` に当たる文言を `fb_confirm_unzip` として足す）、結果（展開した件数、飛ばしたもの、失敗したもの）を出して一覧を読み直す。文言は `fb_` のキーで言語ファイルに足し、`BrowserView` の JS 用キーの一覧に入れる。
 
@@ -424,7 +428,7 @@ JS は、共通の部品（`filebrowser.js` の `init()`、`js/grid.js`・`js/tr
 
         docker exec -w /var/www/html <app> php evo log:search "File changed in the file browser" --limit=20
 
-   期待: 操作ごとに 1 行、`context` に `scope`・`action`・`paths`、`user` に利用者の ID。
+   期待: 操作ごとに 1 行、`context` に `scope`・`operation`・`paths`、`user` に利用者の ID。
 
 7. コミットの案: `feat(filebrowser): 管理モードにテキストの表示・編集と新しいファイルを追加`、`feat(filebrowser): 管理モードに zip の展開を追加`、`feat(filebrowser): 成功したファイルの変更をシステムログに残す`。
 
@@ -580,6 +584,7 @@ M4 で `files.dynamic.php` を消した後に問題が見つかったときは�
 - PR は段階ごとに分ける。M1〜M3 の PR は `Refs #1046`、M4 の PR で `Closes #1046` にする
 - M1: ブランチ `feat/1046-m1-path-guard`（`gh issue develop` で #1046 に紐づけ）、PR #1048
 - M2: ブランチ `feat/1046-m2-manage-scope`（M1 のブランチの上に積んだ。#1048 のマージ後に main へ載せ直して PR にする）
+- M3: ブランチ `feat/1046-m3-text-zip-log`（M2 のブランチの上に積んだ。M2 の PR のマージ後に main へ載せ直して PR にする）
 
 ## Interfaces and Dependencies
 
@@ -598,11 +603,12 @@ PHP のクラス（すべて `manager/media/browser/evo/lib/`、PHP 7.4 で動�
 
     BrowserScope（interface）
         baseDir(): string / guard(): PathGuard
-        listsFile($name): bool
-        isAllowedNewName($name): bool / isAllowedRename($oldName, $newName): bool / isAllowedCopy($name): bool
+        listsFile($name): bool / listsFolder($name): bool       // M2 で listsFolder を足した
+        isAllowedNewName($name): bool / isAllowedRename($oldName, $newName): bool / isAllowedCopy($sourceName, $newName): bool
         maxUploadSize(): ?int                // PHP 7.4 で使える ?int。null は本体では制限しない
-        logLabel(): string
-        actions(): array                     // その範囲にだけある action の名前 => callable
+        downloadName(): string / uploadEvent(): string           // M2
+        name(): string / logRoot(): string / logLabel(): string  // M3。name は 'picker' か 'manage'、logRoot は記録のパスの頭（ピッカーは種類のフォルダ）
+        actions(): array                     // その範囲にだけある action の名前 => 関数と、CSRF・POST の要否
 
     api.php の関数（共通）
         fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $foldersOnly): array
@@ -620,7 +626,8 @@ PHP のクラス（すべて `manager/media/browser/evo/lib/`、PHP 7.4 で動�
         readText / saveText / newfile / unzip
 
     ChangeLog（M3）
-        static record(BrowserScope $scope, $operation, array $paths)
+        static record(BrowserScope $scope, $operation, array $paths)   // $paths の要素は文字列か [元, 先]
+        static relPath(array $dir, $name)
 
     EvoLogger（既存。manager/includes/logger.class.php に足す。M3）
         static traceId(): string             // 今の要求の trace_id。collectCommonContext() もこれを使う
@@ -629,15 +636,20 @@ PHP のクラス（すべて `manager/media/browser/evo/lib/`、PHP 7.4 で動�
         resolveNewChild($dirReal, $name)     // string|null
 
     ZipService（既存に足す）
-        extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, callable $isAllowedName, DocumentParser $modx): array
-        // ['ok' => bool, 'reason' => 'unavailable'|'unsafe'|'open_failed'|'', 'extracted' => int, 'failed' => [], 'skipped' => []]
+        static extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, callable $isAllowedName, DocumentParser $modx): array
+        // ['ok' => bool, 'reason' => 'unavailable'|'unsafe'|'open_failed'|'', 'extracted' => int, 'files' => [], 'failed' => [], 'skipped' => []]
+        // files は展開できたファイルの一覧（ChangeLog の 1 件ごとの記録に使う）
+
+    BrowserConfig（既存に足す。M3）
+        TEXT_EXTENSIONS / TEXT_MAX_BYTES / static isTextFilename($name): bool
 
     BrowserView
         static jsConfig(DocumentParser $modx, BrowserConfig $config, array $options): array
-        static markup(array $jsConfig): string
+        static markup(array $jsConfig, $extras = ''): string     // $extras は外側が作る用途ごとの HTML。markup() の中で範囲を見て分けない
+        static manageExtras(): string                            // 管理モードだけの HTML（テキストのダイアログ）。M3
         static modalFragment(array $jsConfig, $title): string    // browser.php?modal=1
-        static standalonePage(array $jsConfig, $title): string   // browser.php（ポップアップ）と M2・M3 の一時的な入口
-        static managePane(array $jsConfig, $title): string       // a=31（M4）
+        static standalonePage(DocumentParser $modx, array $jsConfig, $title, $extras = ''): string   // browser.php（ポップアップ）と M2・M3 の一時的な入口
+        static managePane(array $jsConfig, $title): string       // a=31（M4）。markup($jsConfig, self::manageExtras()) を使う
 
 API（`manager/media/browser/evo/api.php`）: すべての要求で `scope`（`manage` か、省略でピッカー）を受け、入口で `ManageScope::authorize()` か `PickerScope::authorize()` を呼ぶ。`manage` は管理画面のセッションと `file_manager` の権限が要り、`type` は見ない。足す action は `readText`（GET）、`saveText`・`newfile`・`unzip`（POST、CSRF トークン）で、`ManageScope::actions()` だけが登録する。`thumb` は `PickerScope::actions()` だけが登録する。`list` は範囲ごとの関数で、ピッカーの応答は今の形に `writable` と `image`（表示できる画像だけ）を足しただけ、管理モードの応答は `name`・`size`・`mtime`・`url`・`writable` と、表示できる画像の `image`、ラスター画像の `width`・`height`（`path`・`thumb` のキーを持たない）。`upload` の応答の `uploaded` と `errors` は受けた順の `index` を持ち、管理モードの `upload` は `overwrite=1` が無いと同じ名前のファイルを `code: exists`（と `targetName`）で返して保存しない。エラーは今までどおり `{error:{code,message}}` とステータス。足すコードは `protected`、`modified`、`not_text`、`too_large`（既存）、`unsafe_zip`、`zip_unavailable`（既存）。
 
