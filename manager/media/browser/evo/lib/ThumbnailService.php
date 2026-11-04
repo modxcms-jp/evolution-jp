@@ -32,6 +32,14 @@ class ThumbnailService
     }
 
     /**
+     * ブラウザが <img> で表示する画像の拡張子か（ラスター画像と svg）。プレビューに画像を出してよいかの判断の元
+     */
+    public static function isDisplayableImageExtension($ext)
+    {
+        return self::isRasterImageExtension($ext) || strtolower($ext) === 'svg';
+    }
+
+    /**
      * サムネイルファイルの絶対パスを返す(必要なら生成する)。失敗時は null。
      */
     public function getOrCreate($sourceFile)

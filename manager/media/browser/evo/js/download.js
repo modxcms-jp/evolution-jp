@@ -4,7 +4,7 @@
 
 import { escapeHtml } from './utils.js';
 import { t } from './i18n.js';
-import { apiFetch, responseError, failureMessage, withApiParams } from './api.js';
+import { apiFetch, postUrl, responseError, failureMessage, withApiParams } from './api.js';
 
 // Content-Disposition から保存名を取り出す。filename*(RFC 5987)を先に見る
 function parseFilename(disposition) {
@@ -76,7 +76,7 @@ export function createDownload(ctx) {
         });
 
         var row = addRow(t('fb_download_preparing'));
-        apiFetch(ctx.config.apiUrl, { method: 'POST', body: body })
+        apiFetch(postUrl(ctx.config), { method: 'POST', body: body })
             .then(function (res) {
                 var contentType = res.headers.get('Content-Type') || '';
                 if (contentType.indexOf('application/json') === 0 || !res.ok) {

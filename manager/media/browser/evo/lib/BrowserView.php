@@ -197,8 +197,9 @@ class BrowserView
         echo self::markup($jsConfig);
         echo '<script type="module" src="media/browser/evo/js/' . hsc($jsConfig['entry']) . '.js?' . self::jsVersion($jsConfig['entry']) . '"></script>';
         // shell.jsのexecuteScriptsは同一srcを再実行しないため、2回目以降の
-        // モーダルオープンはこのインラインscriptが初期化を担う
-        echo '<script>if (window.EvoFileBrowserInit) { window.EvoFileBrowserInit(); }</script>';
+        // モーダルオープンはこのインラインscriptが初期化を担う。入口の登録表から、この画面の入口だけを呼ぶ
+        $entry = js_literal($jsConfig['entry']);
+        echo '<script>(function (entries) { if (entries && entries[' . $entry . ']) { entries[' . $entry . '](); } })(window.EvoFileBrowserEntries);</script>';
     }
 
     /**

@@ -1,8 +1,8 @@
-// ピッカーの入口(browser.php が読む)。ファイルを選ぶ用途の振る舞い(behaviors)を作って、filebrowser.js の init() に渡す。
-// モーダル再オープン時はshell.jsがscriptを再実行しないため、初期化を
-// グローバル関数として公開し、断片内のインラインscriptから毎回呼び直す。
+// ピッカーの入口(browser.php が読む)。ファイルを選ぶ用途の振る舞い(behaviors)を作って、filebrowser.js の registerEntry() に渡す。
+// モーダル再オープン時はshell.jsがscriptを再実行しないため、開始の関数を入口の登録表
+// (window.EvoFileBrowserEntries.picker)に置き、断片内のインラインscriptから毎回呼び直す。
 
-import { init } from '../filebrowser.js';
+import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
 
 // ファイルブラウザは3通りの埋め込まれ方をし、それぞれ選択結果の返し方が異なる。
@@ -51,15 +51,10 @@ var behaviors = {
         }
         return [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(entry.path); } }];
     },
-    // サーバーが同じ名前のファイルを別の名前(名前(1).拡張子)にして保存するので、そのまま進める
-    beforeUpload: function () {
-        return true;
+    // サーバーが同じ名前のファイルを別の名前(名前(1).拡張子)にして保存するので、上書きの確認は起きない
+    confirmOverwrite: function () {
+        return false;
     }
 };
 
-function start() {
-    init(document.getElementById('evoFileBrowser'), behaviors);
-}
-
-window.EvoFileBrowserInit = start;
-start();
+registerEntry('picker', behaviors);

@@ -23,14 +23,17 @@ class ManageScope implements BrowserScope
 
     /**
      * この範囲を使ってよいかを、要求のたびに確かめる。管理画面のセッションと file_manager の権限だけを見る。
+     * 権限はロールから読み直す（旧ファイル管理は、管理画面の要求ごとに読み直していた。ロールの変更をログインし直さずに反映する）。
+     * 守る場所（guard()）も、読み直した権限から作る。
      *
      * @return ManageScope|array よければインスタンス、だめなら ['code' => コード, 'lang' => 言語キー, 'status' => HTTP ステータス]
      */
     public static function authorize(DocumentParser $modx, BrowserConfig $config)
     {
-        if (!sessionv('mgrValidated')) {
+        if (!sessionv('mgrValidated') || sessionv('usertype') !== 'manager') {
             return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
         }
+        manager()->refreshMgrPermissions();
         if (!$modx->hasPermission('file_manager')) {
             return ['code' => 'forbidden', 'lang' => 'fb_err_manage_forbidden', 'status' => 403];
         }
@@ -125,6 +128,11 @@ class ManageScope implements BrowserScope
 
         return rtrim($this->modx->config('site_url'), '/') . '/'
             . implode('/', array_map('rawurlencode', explode('/', $path)));
+    }
+
+    public function uploadEvent()
+    {
+        return 'OnFileManagerUpload';
     }
 
     public function actions()

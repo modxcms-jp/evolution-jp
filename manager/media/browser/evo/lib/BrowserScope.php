@@ -78,6 +78,14 @@ interface BrowserScope
     public function downloadName();
 
     /**
+     * ファイルを保存したあとに発火するイベントの名前（アップロード・画像の別名保存）。
+     * ピッカーは OnFileBrowserUpload、管理モードは旧ファイル管理と同じ OnFileManagerUpload
+     *
+     * @return string
+     */
+    public function uploadEvent();
+
+    /**
      * この範囲にだけある操作の表（action の名前 => ['handler' => 関数名, 'csrf' => bool, 'post' => bool]）。
      * 共通の操作は api.php が持つ。表に無い action は 400 になる（操作の中で範囲を確かめない）。
      *

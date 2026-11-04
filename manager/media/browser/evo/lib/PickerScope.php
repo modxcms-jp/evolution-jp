@@ -108,6 +108,11 @@ class PickerScope implements BrowserScope
         return $this->type;
     }
 
+    public function uploadEvent()
+    {
+        return 'OnFileBrowserUpload';
+    }
+
     public function actions()
     {
         return [

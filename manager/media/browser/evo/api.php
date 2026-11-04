@@ -11,15 +11,18 @@
  * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren}], files:[...], writable}
  *                     ピッカーの files の項目: {name,size,mtime,url,path,thumb,width,height}。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
- *                     管理モードの files の項目: {name,size,mtime,url,writable} と、画像なら width,height。
+ *                     管理モードの files の項目: {name,size,mtime,url,writable} と、ブラウザが表示できる画像(ラスターと svg)なら image: true、
+ *                     ラスターなら width,height。画面は image か thumb があるときだけプレビューに画像を出す
  *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの項目の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(ピッカーだけ)
- * POST action=upload (type, folder, files[])                  -> {uploaded:[{name,size,url}], errors:[{name,message}]}
+ * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{name,size,url}], errors:[{name,message,code?,targetName?}]}
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
- *                     管理モードは同名を上書きし(ファイルだけ。フォルダ・リンクは断る)、OnFileManagerUpload を発火する
+ *                     管理モードは overwrite=1 のときだけ同名のファイルを上書きし(ファイルだけ。フォルダ・リンクは断る)、
+ *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
+ *                     サーバーが保存する名前(無害化した後)の targetName を入れて返す。画面はそれを並べて確かめ、よければ該当のファイルだけ overwrite=1 で送り直す
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
@@ -29,7 +32,7 @@
  * POST action=download (type, folder, files[])                  -> ファイルのバイナリ(1件はそのまま、2件以上は zip)。エラーは JSON
  *                     一覧に出す対象(BrowserScope::listsFile())だけ。1つでも満たさないものがあれば全体を拒否する。zip は PHP の zip 拡張が必要(無ければ 501 zip_unavailable)
  * POST action=saveImage (type, folder, target, mode, image(ファイル1つ)) -> {name}
- *                     画面で編集した画像を保存する。mode は copy(別名。名前(1).拡張子 のように連番。OnFileBrowserUpload を発火) か
+ *                     画面で編集した画像を保存する。mode は copy(別名。名前(1).拡張子 のように連番。範囲のアップロードのイベントを発火) か
  *                     overwrite(target を置き換える。リンクは not_editable で断る。イベントは発火しない)。編集できるのは jpg・jpeg・png だけ。
  *                     画像の種類は target の拡張子と一致し、長い辺は 4096px 以下、大きさはアップロードの上限以下であること。
  *                     image_limit_width では縮めない。エラーコード: method_not_allowed / invalid_mode / invalid_name /
@@ -305,7 +308,12 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
             'url' => $scope->publicUrl($file['relPath']),
             'writable' => is_writable($file['fullPath']),
         ];
-        if (ThumbnailService::isRasterImageExtension(strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)))) {
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        // 画面は、画像と決まったものだけをプレビューに <img> で出す(.php を GET で実行したり、大きなファイルを丸ごと読んだりしない)
+        if (ThumbnailService::isDisplayableImageExtension($ext)) {
+            $item['image'] = true;
+        }
+        if (ThumbnailService::isRasterImageExtension($ext)) {
             $dimensions = @getimagesize($file['fullPath']);
             if ($dimensions) {
                 $item['width'] = $dimensions[0];
@@ -484,14 +492,16 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
             'filepath' => $dir['real'],
             'filename' => $targetName,
         ];
-        $modx->invokeEvent('OnFileBrowserUpload', $eventParams);
+        $modx->invokeEvent($scope->uploadEvent(), $eventParams);
     }
 
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
 /**
- * 管理モードのアップロード。旧ファイル管理と同じく、合わせた許可リストで確かめ、同じ名前があれば上書きし、OnFileManagerUpload を発火する。
+ * 管理モードのアップロード。旧ファイル管理と同じく、合わせた許可リストで確かめ、OnFileManagerUpload を発火する。
+ * 同じ名前があるときは、overwrite=1 のときだけ上書きする。付いていなければ、保存せずに code: exists の errors で返す
+ * (サーバーが実際に保存する名前を targetName に入れる。画面はそれを並べて確かめ、よければ overwrite=1 で送り直す)。
  * 上書きするのは、書き込めるふつうのファイルだけ(フォルダ・リンクは断る)。
  */
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
@@ -504,6 +514,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
 
     $uploadedFiles = fbUploadedFiles();
     $maxSize = $scope->maxUploadSize();
+    $overwrite = postv('overwrite') === '1';
 
     $uploaded = [];
     $errors = [];
@@ -547,6 +558,15 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
                 $errors[] = ['name' => $originalName, 'message' => lang('fb_err_save_failed')];
                 continue;
             }
+            if (!$overwrite) {
+                $errors[] = [
+                    'name' => $originalName,
+                    'message' => lang('fb_err_already_exists'),
+                    'code' => 'exists',
+                    'targetName' => $targetName,
+                ];
+                continue;
+            }
         }
 
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
@@ -565,7 +585,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
             'filepath' => $dir['real'],
             'filename' => $targetName,
         ];
-        $modx->invokeEvent('OnFileManagerUpload', $eventParams);
+        $modx->invokeEvent($scope->uploadEvent(), $eventParams);
     }
 
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
@@ -926,7 +946,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
 /**
  * 画面(canvas)で編集した画像を保存する。入力は信用せず、拡張子・画像の種類・大きさ・名前をここで確かめる。
- * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、OnFileBrowserUpload を発火する
+ * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、範囲のアップロードのイベント(BrowserScope::uploadEvent())を発火する
  * - overwrite: target のファイルを置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)。
  *   元のパーミッションを引き継ぐ。target がシンボリックリンクのときは断る
  * image_limit_width による縮小は行わない(利用者が編集で決めた大きさを保つため)。
@@ -1037,7 +1057,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
             'filepath' => $dir['real'],
             'filename' => $savedName,
         ];
-        $modx->invokeEvent('OnFileBrowserUpload', $eventParams);
+        $modx->invokeEvent($scope->uploadEvent(), $eventParams);
 
         fbSendJson(['name' => $savedName]);
     }

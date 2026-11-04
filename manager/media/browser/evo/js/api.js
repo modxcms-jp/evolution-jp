@@ -12,6 +12,12 @@ export function apiUrl(config, params) {
     return config.apiUrl + '?' + query;
 }
 
+// POST の送り先。本文が post_max_size を超えると PHP は本文(scope など)を捨てるので、apiParams は URL にも付ける
+// (付けないと、管理モードの要求がピッカーとして認可される)
+export function postUrl(config) {
+    return apiUrl(config, {});
+}
+
 // POST の本体(URLSearchParams か FormData)に apiParams と CSRF トークンを付けて返す
 export function withApiParams(config, body) {
     Object.keys(config.apiParams || {}).forEach(function (key) {
@@ -87,5 +93,5 @@ export function postForm(config, state, action, fields, folderOverride) {
             body.set(key, val);
         }
     });
-    return fetchJson(config.apiUrl, { method: 'POST', body: body });
+    return fetchJson(postUrl(config), { method: 'POST', body: body });
 }

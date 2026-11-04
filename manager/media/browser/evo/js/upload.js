@@ -5,7 +5,7 @@
 import { escapeHtml } from './utils.js';
 import { t } from './i18n.js';
 import { isOsFileDrag } from './dnd.js';
-import { responseError, withApiParams } from './api.js';
+import { postUrl, responseError, withApiParams } from './api.js';
 
 /**
  * @param {object} ctx
@@ -15,7 +15,9 @@ import { responseError, withApiParams } from './api.js';
  * @param {HTMLElement} ctx.dropzoneEl
  * @param {object} ctx.state
  * @param {object} ctx.config
- * @param {(files: File[]) => boolean} ctx.beforeUpload - 送る前に呼ぶ。false なら送らない
+ * @param {(names: string[]) => boolean} ctx.confirmOverwrite - サーバーが「同じ名前がある」(code: exists)と返したファイルについて、
+ *        サーバーが保存する名前(targetName)の一覧を渡して呼ぶ。true なら、そのファイルだけを overwrite=1 で送り直す。
+ *        false なら、そのファイルは保存しない(別名で保存する範囲のサーバーは、この code を返さない)
  * @param {() => void} ctx.onDone - アップロード完了後の再読み込み
  */
 export function createUpload(ctx) {
@@ -30,6 +32,10 @@ export function createUpload(ctx) {
             setProgress: function (percent) {
                 row.querySelector('progress').value = percent;
             },
+            // 結果を出さずに消す(同じ名前のファイルを上書きして送り直すとき、新しい行に置き換わる)
+            dismiss: function () {
+                row.remove();
+            },
             done: function (ok, message) {
                 row.classList.add(ok ? 'is-done' : 'is-error');
                 if (!ok && message) {
@@ -43,18 +49,26 @@ export function createUpload(ctx) {
     }
 
     function uploadFiles(fileList) {
+        // 書き込めないフォルダへは送らない(ボタンは使えなくしてあるが、ドラッグ＆ドロップはここで止める)
+        if (!ctx.state.writable) {
+            return;
+        }
         var files = Array.prototype.slice.call(fileList);
         if (files.length === 0) {
             return;
         }
-        // 入口の JS が、送る前に確かめる(管理モードは、同じ名前のファイルを上書きしてよいかを尋ねる)
-        if (ctx.beforeUpload && !ctx.beforeUpload(files)) {
-            return;
-        }
+        sendFiles(files, ctx.state.folder, false);
+    }
 
+    // folder は送る時点のフォルダ(送り直しの間にフォルダを移っても、同じ所へ送る)。
+    // overwrite が true のときは、同じ名前のファイルの上書きまで許して送る
+    function sendFiles(files, folder, overwrite) {
         var formData = withApiParams(ctx.config, new FormData());
         formData.set('action', 'upload');
-        formData.set('folder', ctx.state.folder);
+        formData.set('folder', folder);
+        if (overwrite) {
+            formData.set('overwrite', '1');
+        }
         files.forEach(function (file) {
             formData.append('files[]', file, file.name);
         });
@@ -64,7 +78,7 @@ export function createUpload(ctx) {
         });
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', ctx.config.apiUrl, true);
+        xhr.open('POST', postUrl(ctx.config), true);
         xhr.upload.addEventListener('progress', function (e) {
             if (e.lengthComputable) {
                 var percent = Math.round((e.loaded / e.total) * 100);
@@ -85,12 +99,26 @@ export function createUpload(ctx) {
             if (ok && result) {
                 var errorByName = {};
                 (result.errors || []).forEach(function (err) {
-                    errorByName[err.name] = err.message;
+                    errorByName[err.name] = err;
                 });
+                // 同じ名前があって保存しなかったファイル。上書きしてよいかを、保存される名前を並べて尋ねる
+                var conflicts = [];
                 files.forEach(function (file, i) {
-                    var failed = errorByName[file.name];
-                    rows[i].done(!failed, failed);
+                    var err = errorByName[file.name];
+                    if (err && err.code === 'exists' && !overwrite) {
+                        conflicts.push({ file: file, targetName: err.targetName || file.name, row: rows[i], message: err.message });
+                        return;
+                    }
+                    rows[i].done(!err, err && err.message);
                 });
+                if (conflicts.length > 0 && ctx.confirmOverwrite(conflicts.map(function (c) { return c.targetName; }))) {
+                    conflicts.forEach(function (c) { c.row.dismiss(); });
+                    // 送り直しの完了で一覧を読み直す
+                    sendFiles(conflicts.map(function (c) { return c.file; }), folder, true);
+                    ctx.onDone();
+                    return;
+                }
+                conflicts.forEach(function (c) { c.row.done(false, c.message); });
             } else {
                 // API の理由があればそれを、JSON でない応答は通信エラーとして出す
                 var reason = responseError(result).message;
@@ -120,19 +148,25 @@ export function createUpload(ctx) {
 
     if (ctx.dropzoneEl) {
         var dragCounter = 0;
+        // 書き込めないフォルダでは、ドロップを受けない。ブラウザがファイルを開いてしまわないよう、ドラッグ自体は止める
         ctx.dropzoneEl.addEventListener('dragenter', function (e) {
             if (!isOsFileDrag(e)) {
                 return;
             }
             e.preventDefault();
             dragCounter++;
-            ctx.dropzoneEl.classList.add('is-dragover');
+            if (ctx.state.writable) {
+                ctx.dropzoneEl.classList.add('is-dragover');
+            }
         });
         ctx.dropzoneEl.addEventListener('dragover', function (e) {
             if (!isOsFileDrag(e)) {
                 return;
             }
             e.preventDefault();
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = ctx.state.writable ? 'copy' : 'none';
+            }
         });
         ctx.dropzoneEl.addEventListener('dragleave', function () {
             dragCounter = Math.max(0, dragCounter - 1);

@@ -1,14 +1,20 @@
 // ファイルブラウザの構成ルート。状態(state)を保持し、
 // js/*.js の各モジュールへ必要な参照とコールバックだけを渡して結線する。
-// 用途(ピッカー・管理モード)ごとの入口は js/picker.js と js/manage.js で、それぞれの振る舞い(behaviors)を渡して
-// init() を呼ぶ。ここには、範囲を見て分ける処理を書かない(違いは behaviors と、サーバーが作る設定の値だけで表す)。
+// 用途(ピッカー・管理モード)ごとの入口は js/picker.js と js/manage.js で、それぞれの名前(entry)と振る舞い(behaviors)を渡して
+// registerEntry() を呼ぶ。ここには、範囲を見て分ける処理を書かない(違いは behaviors と、サーバーが作る設定の値だけで表す)。
+//
+// 入口の登録表: window.EvoFileBrowserEntries[entry] に、その入口の開始の関数を置く。EvoShell は ES モジュールを同じ URL では
+// 2 度目に実行しないので、断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す
+// (入口が違うと、別の入口の振る舞いで初期化されない)。
 //
 // behaviors(どれも入口の JS が決める。host は { config, state, preview, reload }):
 //   openFile(entry, host)              ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
 //   previewActions(entry, host)        プレビューに足すボタンの配列 [{ label, primary, onSelect }]
 //   contextMenuItems(entry, host)      右クリックメニューに足す項目。entry があれば(ファイル 1 件)メニューの先頭に、
 //                                      null なら(何も無い所)メニューの最後に足す
-//   beforeUpload(files, existingNames, host)  アップロードの前に呼ぶ。false を返すと送らない
+//   confirmOverwrite(names, host)      サーバーが同じ名前のファイルがあると返したとき、サーバーが保存する名前(names)を並べて
+//                                      上書きしてよいかを確かめる。true なら、そのファイルだけを上書きで送り直す
+//                                      (別名で保存するサーバーは返さないので、呼ばれない)
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
@@ -22,11 +28,26 @@ import { createContextMenu } from './js/contextmenu.js';
 import { createDownload } from './js/download.js';
 import { createImageEditor } from './js/imageEditor.js';
 
-export function init(root, behaviors) {
+// 入口の JS が呼ぶ。登録表に開始の関数を置き、今のページの画面を一度だけ初期化する
+export function registerEntry(entry, behaviors) {
+    function start() {
+        init(document.getElementById('evoFileBrowser'), entry, behaviors);
+    }
+    window.EvoFileBrowserEntries = window.EvoFileBrowserEntries || {};
+    window.EvoFileBrowserEntries[entry] = start;
+    start();
+}
+
+// entry は、画面(data-config の entry)を作った入口の名前。違う入口の behaviors では初期化しない
+function init(root, entry, behaviors) {
     if (!root || root.dataset.fbInitialized) {
         return;
     }
-    root.dataset.fbInitialized = '1';
+    var config = JSON.parse(root.getAttribute('data-config') || '{}');
+    if (config.entry !== entry) {
+        return;
+    }
+    root.dataset.fbInitialized = entry;
 
     // EvoShellモーダル内で開いている場合、モーダルを広げる(:has()未対応ブラウザ対策でJSでクラス付与)。
     // closeModal()側のevoshell:modalcloseで剥がし、次に別種のモーダルが開いても幅へ影響しないようにする
@@ -38,7 +59,6 @@ export function init(root, behaviors) {
         }, { once: true });
     }
 
-    var config = JSON.parse(root.getAttribute('data-config') || '{}');
     setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
@@ -296,8 +316,8 @@ export function init(root, behaviors) {
         dropzoneEl: dropzoneEl,
         state: state,
         config: config,
-        beforeUpload: function (files) {
-            return behaviors.beforeUpload(files, state.rawFiles.map(function (f) { return f.name; }), host);
+        confirmOverwrite: function (names) {
+            return behaviors.confirmOverwrite(names, host);
         },
         onDone: load
     });
@@ -528,6 +548,36 @@ export function init(root, behaviors) {
         }
         e.preventDefault();
         setClipboard(key === 'c' ? 'copy' : 'cut');
+    });
+
+    // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
+    // 一覧の中(一覧そのもの・ファイルの名前のボタン。サムネイルのボタンの Enter は、これまでどおりプレビューを開く)にフォーカスがあるときだけ受ける。
+    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
+    root.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
+            return;
+        }
+        if (state.selection.size !== 1 || e.target.closest('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+            return;
+        }
+        var name = Array.from(state.selection)[0];
+        if (e.target !== dropzoneEl) {
+            var itemBtn = e.target.closest('[data-role="name"]');
+            var itemEl = itemBtn && itemBtn.closest('.evo-fb-item-file');
+            if (!itemEl || itemEl.getAttribute('data-name') !== name) {
+                return;
+            }
+        }
+        var file = findFile(name);
+        if (!file) {
+            return;
+        }
+        // フォーカスのあるボタンを Enter で押したことにはしない(名前の変更の開始などが重ならないように)
+        e.preventDefault();
+        behaviors.openFile(file, host);
     });
 
     // --- 右クリックメニュー ---

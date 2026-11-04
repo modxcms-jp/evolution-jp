@@ -4,7 +4,7 @@
 // 保存は API の saveImage へ FormData で送る。EXIF は canvas で書き出すと消える(画面にその旨を表示している)。
 
 import { t } from './i18n.js';
-import { failureMessage, fetchJson, withApiParams } from './api.js';
+import { failureMessage, fetchJson, postUrl, withApiParams } from './api.js';
 import { openOverlay } from './overlay.js';
 import { withVersion } from './utils.js';
 
@@ -433,7 +433,7 @@ export function createImageEditor(ctx) {
                 body.set('mode', mode);
                 body.set('target', savedTarget);
                 body.set('image', blob, savedTarget);
-                return fetchJson(ctx.config.apiUrl, { method: 'POST', body: body });
+                return fetchJson(postUrl(ctx.config), { method: 'POST', body: body });
             })
             .then(function (result) {
                 setBusy(false);
