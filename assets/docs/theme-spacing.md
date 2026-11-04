@@ -86,7 +86,7 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 
 画面の PHP から直書きの余白を消した分（`.resources-topic-path` の下・`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。
 
-#924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、ファイル管理（a=31）のアップロード欄（`#uploader`）の上 10px、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）、メッセージの返信欄（ボタン列の上 15px）。これらも手本にしない。
+#924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）、メッセージの返信欄（ボタン列の上 15px）。これらも手本にしない。
 
 #973 で画面の直書きを消したコード欄の帯（`.code-editor-header`）も、`padding`・色・枠を同じ値で保つ。#1004 で足した中の文字（`.code-editor-title` の太字、`.code-editor-options` の `#707070`。帯の背景に対して 4.5:1 に届かないが、凍結のため変えない）も同じ。これも手本にしない。
 
