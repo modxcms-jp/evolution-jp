@@ -38,6 +38,8 @@ function init() {
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
     var initialFallbackTried = false;
     var isInitialLoad = true;
+    // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
+    var hasShownList = false;
 
     var state = {
         type: config.type,
@@ -333,6 +335,25 @@ function init() {
         });
     }
 
+    // 選んだ状態のファイルを、一覧の真ん中あたりまでスクロールする。
+    // scrollIntoView はモーダルの外の画面まで動かすことがあるので、一覧の入れ物だけを動かす。
+    // 開いたときは毎回同じ動きになるので、すぐその位置を出す。開いたあとの移動（ツリーのファイルのクリックなど）は、
+    // どこへ移ったかを目で追えるようにスムーズにする。動きを減らす設定のときは、いつもすぐ移る
+    function scrollToSelected(smooth) {
+        var item = gridEl.querySelector('.evo-fb-item.is-checked');
+        if (!item) {
+            return;
+        }
+        var boxRect = dropzoneEl.getBoundingClientRect();
+        var itemRect = item.getBoundingClientRect();
+        var offset = itemRect.top - boxRect.top - (dropzoneEl.clientHeight - itemRect.height) / 2;
+        var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        dropzoneEl.scrollTo({
+            top: dropzoneEl.scrollTop + offset,
+            behavior: (smooth && !reduceMotion) ? 'smooth' : 'auto'
+        });
+    }
+
     function load(selectName) {
         var allowInitialFallback = isInitialLoad;
         isInitialLoad = false;
@@ -350,11 +371,16 @@ function init() {
                 state.rawFolders = data.folders;
                 state.rawFiles = data.files;
                 // ツリーのファイルクリック等からの遷移時、対象ファイルを選択状態にする
-                if (selectName && findFile(selectName)) {
+                var selected = !!(selectName && findFile(selectName));
+                if (selected) {
                     state.selection.add(selectName);
                 }
                 grid.renderList();
                 grid.updateSelectionBar();
+                if (selected) {
+                    scrollToSelected(hasShownList);
+                }
+                hasShownList = true;
                 pruneClipboard();
                 updateClipboardUi();
                 if (hadFocus && document.activeElement === document.body) {
