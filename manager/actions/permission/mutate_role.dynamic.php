@@ -101,7 +101,7 @@ function role($key, $default = null)
         );
     }
 </script>
-<form action="index.php?a=36" method="post" name="userform" enctype="multipart/form-data">
+<form action="index.php?a=36" method="post" name="userform" class="role-form" enctype="multipart/form-data">
     <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
     <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
 
@@ -148,11 +148,11 @@ function role($key, $default = null)
             </fieldset>
             <label><input type="checkbox" id="allcheck" /> Select all</label>
             <style type="text/css">
-                label {
+                .role-form label {
                     display: block;
                 }
 
-                table td {
+                .role-form td {
                     vertical-align: top;
                 }
             </style>
