@@ -14,7 +14,7 @@ Issue: #1046
 - [x] (2026-11-04) 共通化を処理ごとに照らし合わせ直した（一覧とアップロードは範囲ごとの関数に分け、`thumb` はピッカーだけにする）。zip の展開後の上限（256MB）は根拠を確かめて取り下げ、旧と同じにした
 - [x] (2026-11-04) `upload_maxsize` が空のときの上限を範囲ごとに今の動きで保つ形に直した（旧は 32MB ではなく本体の上限なしと PHP 7.4 で確認）。zip の展開の安全確認を点検し、ぶら下がったリンク・書く直前の確かめ・0777 のパーミッション・zip そのもののリンク・PHP 7.4 の `basename()` の対策を足した
 - [x] (2026-11-04) 管理モードの起動（`a=31`）と API の認可（要求ごとの `file_manager`）を分けて書き、権限を持つ人が API へ直に `scope=manage` を付けて使えることを明記した。管理操作ログの 51 件目より後を `trace_id` でシステムログから追える形にし、ロードマップの到達条件に管理操作ログへの記録を加えた
-- [ ] M2: 管理モード（`PickerScope`・`ManageScope`・`BrowserView`、範囲を見て分けるのは入口だけ）
+- [x] (2026-11-05) M2: 管理モード（`PickerScope`・`ManageScope`・`BrowserView`、範囲を見て分けるのは入口だけ）。M1 の PR #1048 のマージ待ちのため、M1 のブランチの上に積んで進めた。ピッカーは main と比べて応答のキーが増えただけで、TV の欄・QuickManager・TinyMCE から選べることを確かめた
 - [ ] M3: テキストの表示・編集、新しいファイル、zip の展開、変更の記録
 - [ ] M4: `a=31` でファイルブラウザを表示、リンクの置き換え、ツリーの開閉とイベントの入口、`files.dynamic.php` の削除と言語キーの整理
 
@@ -35,6 +35,12 @@ Issue: #1046
 2026-11-04（計画時）: ファイルブラウザの API（`manager/media/browser/evo/api.php`）は、管理画面のセッション（またはウェブユーザーのセッションと設定 `rb_webuser`）と設定 `use_browser` だけを確かめ、ロールの権限（`hasPermission()`）は見ていない。守る場所の確認も無い。ピッカーのルート（`rb_base_dir`、既定は `content/`）が守る場所と重ならない前提で成り立っている。
 
 2026-11-04（M1）: `PathGuard::normalize()` の最後の要素は、`strrpos()` の前に `rtrim($path, '/')` をかけて取る。`basename()` は末尾の `/` を除いてから最後の要素を返すので、それに合わせないと `/app/no/such/` のような値で結果が変わる。`containsProtected()` は、ルートを `normalize()` で解決するため、守る場所を指すフォルダへのリンクを `folderpath` に渡したときも断る（旧は `rrmdir()` がリンク先をたどって中身を消せた）。リンクの場合は作業ブランチで確かめていない（コードの読み）。
+
+2026-11-05（M2）: 自己レビューで次が分かり、M2 の中で直した。(1) ピッカーと管理モードの入口が `window.EvoFileBrowserInit` を取り合い、EvoShell の中で往復すると、先に評価された入口の振る舞いで動く（ES モジュールは同じ URL を 2 度評価しない）。入口ごとの登録表 `window.EvoFileBrowserEntries` に改めた。(2) プレビューが `url` をどのファイルでも `<img>` で読むので、管理モードでは `.php` を GET で実行してしまう。表示できる画像かをサーバー（`ThumbnailService::isDisplayableImageExtension()`、jpg・jpeg・png・gif・webp・avif・bmp・ico・svg）で決めて `image: true` を付け、プレビューはそれだけを見る。ピッカーでも .tif などで壊れた画像が出なくなる。(3) API は `accesscontrol.inc.php` を通らないので、セッションに残った古い権限で判定していた。`ManageScope::authorize()` で `refreshMgrPermissions()` を呼んでから判定する。ピッカーは要求の数が多く、開いた管理画面が直前に読み直しているので読み直さない。(4) 上書きの確認をブラウザの名前で比べると、サーバーが無害化した名前（NFC、記号の置き換え、`"` や `\`）と違うときに確認が漏れる。サーバーが `code: exists` と `targetName` を返す形にし、結果の対応も名前ではなく受けた順の `index` にした。代わりに、同じ名前のファイルは確認の前に 1 度送られる（大きいファイルでは通信が 2 回になる）。
+
+2026-11-05（M2）: 計画に無かった細部を次のとおり決めた。`BrowserScope` に `listsFolder()`（ピッカーはドットで始まるフォルダを出さない）、`downloadName()`（zip の名前の先頭）、`uploadEvent()`（ピッカーは `OnFileBrowserUpload`、管理モードは `OnFileManagerUpload`。画像の別名の保存も同じ）を足した。`logLabel()` は使う所ができる M3 で足す。`PickerScope::authorize()` は `browser.php` が直した `type` を第 3 引数で受ける。言語キー `fb_confirm_overwrite` を足した。管理モードの上書きはふつうのファイルだけ（フォルダとリンクは断る）。Enter で `openFile` を呼ぶのは、一覧か選んだファイルの名前のボタンにフォーカスがあるときだけ（ピッカーでは、名前のボタンで 2 度目の Enter が名前の変更ではなく選択の確定になる）。書き込めないフォルダへのドロップも止める。POST でも `apiParams` を URL に付ける（`post_max_size` を超えて本文が捨てられたとき、`scope` が落ちてピッカーの認可に回らないように）。
+
+2026-11-05（M2）: ピッカーのルートが `rb_base_dir/<type>` になったので、種類のフォルダの中から別の種類のフォルダを指すリンクは開けなくなり、種類のフォルダそのものがリンクのときは開けるようになった。`OnFileManagerUpload` の `filepath` は末尾に `/` が付く（旧は `postv('path')` で付かない）。管理モードで `.htaccess` を複製すると `sanitizeFilename()` が先頭のドットを落として `htaccess` になる（M3 までに扱いを決める）。アップロードの成功を「エラーに無いこと」で決めているので、PHP の `max_file_uploads` を超えて捨てられたファイルも成功と出る（main と同じ。`uploaded[].index` を使えば直せる）。`OnFileManagerUpload` の `filepath` の形と `uploadEvent()` は、M4 で `events-and-plugins.md` に書く。
 
 2026-11-04（M1、検証時）: 旧ファイル管理の一覧を出す応答に `Deprecated: substr(): Passing null to parameter #2 ($offset)` が出る。`ls()` の `$len` が未定義のまま使われているためで、main にもある。M4 で `files.dynamic.php` ごと消えるので直さない。
 
@@ -222,7 +228,7 @@ Issue: #1046
 - `OnFileManagerUpload` に付けたプラグインは動き続ける必要がある。渡す `filepath` が「リクエストで受けた値」から「確かめた実パス」に変わるので、`assets/docs/events-and-plugins.md` に書く。
 - 旧の URL（`a=31&mode=drill&path=...`、`mode=view`・`mode=save`）は効かなくなる。本体の中のリンクは M4 で置き換えるが、利用者がブックマークや自作のモジュールで使っている場合に備え、PR の本文に書く。互換のための読み替えは残さない（`path` の絶対パスを受けると、ルートの外を指す値を受け取る口が残るため）。
 - 管理操作ログの行が増える。1 回の要求で 50 行までにし、`manager_log_limit`・`manager_log_trim` によるログの回転で古い記録が押し出されることと、51 件目より後はシステムログ（`trace_id` で引く）にだけ残ることを PR の本文に書く。
-- ピッカーの応答と振る舞いは変えない（`list` の応答は `writable` が増えるだけ）。TV の欄・TinyMCE・QuickManager から開くピッカーを、M2 と M4 で main と比べる。
+- ピッカーの応答と振る舞いは変えない（`list` の応答は `writable` と、表示できる画像の項目の `image` が増えるだけ。upload の応答は `index` が増えるだけ）。TV の欄・TinyMCE・QuickManager から開くピッカーを、M2 と M4 で main と比べる。
 - PHP 7.4 で動く書き方にする（共用型、`str_starts_with()`、`match` を使わない）。
 
 実装時の注意（セキュリティ）:
@@ -300,7 +306,7 @@ JS は、共通の部品（`filebrowser.js` の `init()`、`js/grid.js`・`js/tr
 - `openFile(entry)`: ダブルクリックと Enter で動く。ピッカーは選んだファイルの確定（`pickFile()`）、管理モードはテキストならテキストのダイアログ（M3）、それ以外はプレビュー。
 - `previewActions(entry)`: プレビューに出すボタン。ピッカーは「このファイルを選択」、管理モードは無し。
 - `contextMenuItems(entry)`: 右クリックメニューに足す項目。ピッカーは無し、管理モードは M3 の「表示・編集」「展開」「新しいファイル」。
-- `beforeUpload(files, existingNames)`: アップロードの前に呼ぶ。ピッカーはそのまま進める（サーバーが別の名前にする）。管理モードは、同じ名前のファイルがあれば名前を並べて上書きしてよいかを確かめる（旧は確かめずに上書きしていた。上書きできることは保ち、確かめを足す）。
+- `confirmOverwrite(names)`: 管理モードの upload が `overwrite=1` なしで同じ名前のファイルに当たると、サーバーは保存せずに `errors` に `code: exists` と無害化した後の名前（`targetName`）を返す。画面はその名前を並べてこれに尋ね、真なら該当のファイルだけを `overwrite=1` で送り直す（旧は確かめずに上書きしていた。上書きできることは保ち、確かめを足す）。ピッカーのサーバーは `exists` を返さない（別の名前にする）。M2 の実装で、元は `beforeUpload(files, existingNames)` としていたものを改めた（ブラウザの名前とサーバーが無害化した名前が違うと確認が漏れるため）。
 
 `picker.js` と `manage.js` は、それぞれの `behaviors` を作って `init()` を呼ぶだけにする。`browser.php` は `picker.js` を、`a=31` は `manage.js` を読む（`jsConfig` の `entry`）。`js/api.js` は、設定の `apiParams`（ピッカーは `{ type }`、管理モードは `{ scope: 'manage' }`。サーバーの `jsConfig()` が作る）を、すべての要求にそのまま付ける。
 
@@ -327,7 +333,7 @@ JS は、共通の部品（`filebrowser.js` の `init()`、`js/grid.js`・`js/tr
 
 ### M4: `a=31` でファイルブラウザを表示し、旧ファイル管理を消す
 
-`manager/actions/element/file_manager.static.php` を新しく作る。先頭で `if (!isset($modx) || !evo()->isLoggedin()) { exit; }`、`file_manager` の権限が無ければ `alert()->setError(3); alert()->dumpError();`（旧と同じ）。`BrowserView::managePane()` に `scope: 'manage'`、`apiUrl: 'media/browser/evo/api.php'`、`initialFolder: getv('folder', '')`、`initialSelect: getv('select', '')`、見出し `lang('manage_files')` を渡して出す。最後に `EvoFileBrowserInit()` を呼ぶインラインの `<script>` を出す（モーダルと同じ理由）。`manager/index.php` の `case 31` はこのファイルを読む。
+`manager/actions/element/file_manager.static.php` を新しく作る。先頭で `if (!isset($modx) || !evo()->isLoggedin()) { exit; }`、`file_manager` の権限が無ければ `alert()->setError(3); alert()->dumpError();`（旧と同じ）。`BrowserView::managePane()` に `scope: 'manage'`、`apiUrl: 'media/browser/evo/api.php'`、`initialFolder: getv('folder', '')`、`initialSelect: getv('select', '')`、見出し `lang('manage_files')` を渡して出す。最後に `window.EvoFileBrowserEntries['manage']` を呼ぶインラインの `<script>` を出す（モーダルと同じ理由。M2 で `EvoFileBrowserInit()` から入口ごとの登録表に改めた）。`manager/index.php` の `case 31` はこのファイルを読む。
 
 メインの領域での見た目を整える。`#evoFileBrowser` に `evo-fb-page` のクラスを付け、`filebrowser.css` で高さをメインの領域の見える高さに合わせ、一覧とツリーの中だけがスクロールするようにする。テーマの CSS 変数を使い、色を直に書かない（RevoStyle は凍結テーマなので、崩れないことだけを確かめる）。
 
@@ -492,7 +498,7 @@ API は、Playwright でログインしたページの `page.request`（クッ�
 | 管理モードで `thumb` を `page.request` で呼ぶ | 400（表に無い action） |
 | `upload_maxsize` を空にし、PHP の `upload_max_filesize`・`post_max_size` を 64M にした検証環境で、40MB のファイルをアップロード | 管理モードでは受け付けられる（main の旧ファイル管理と同じ）。ピッカーでは今と同じく大きさの上限で断られる |
 | `upload_maxsize` を 1000000 にして、2MB のファイルをアップロード | 管理モードもピッカーも断られる（main の旧ファイル管理も断る） |
-| 管理モードの `list` の応答 | 項目のキーが `name`・`size`・`mtime`・`url`・`writable` だけ |
+| 管理モードの `list` の応答 | 画像でない項目のキーは `name`・`size`・`mtime`・`url`・`writable` だけ。表示できる画像には `image`、ラスター画像には `width`・`height` も付く（Decision Log の「寸法は今までどおり返す」） |
 | 管理モードのアップロード | `OnFileManagerUpload` が発火し、`OnFileBrowserUpload` は発火しない（イベントの名前と値をシステムログに書く一時的なプラグインで確かめ、終わったら消す） |
 | ピッカー（TV の画像の欄の「挿入」から開くモーダル）で、一覧・アップロード・名前の変更・削除・移動・コピー・ダウンロード・画像の編集・選択の確定 | main と同じ（`list` の応答のキーと値が main と同じで、`writable` が増えただけ。サムネイルが出る） |
 | ポップアップ（QuickManager）と TinyMCE のダイアログからのピッカー | main と同じく開いて選べる |
@@ -539,7 +545,8 @@ API は、Playwright でログインしたページの `page.request`（クッ�
 | `a=31&folder=assets/images&select=<ある画像>` | そのフォルダが開き、その画像が選ばれて見える位置にある |
 | `a=31&mode=drill&path=/var/www/html/manager` | ルートが開く（旧の引数は効かない）。`editor` では `manager` が一覧に無い |
 | `file_manager` の権限が無い利用者で `a=31` | 権限が無い旨の画面（旧と同じ） |
-| 別の画面へ移って戻る、を 3 回 | 毎回、一覧が出る（`EvoFileBrowserInit()` が呼び直される）。コンソールにエラーが無い |
+| 別の画面へ移って戻る、を 3 回 | 毎回、一覧が出る（`EvoFileBrowserEntries['manage']` が呼び直される）。コンソールにエラーが無い |
+| `a=31` → TV の欄からピッカーのモーダル → `a=31` → ピッカー、と往復する | ピッカーはダブルクリックで選択が確定し、`a=31` はプレビューと上書きの確認が出る（入口の振る舞いが入れ替わらない） |
 | テキストのダイアログを開いたまま別の画面へ移る | 変更が無ければそのまま移り、ダイアログの受け手が残らない（移った先で Esc を押しても何も起きない）。変更があれば確認が出る |
 | ツリーの開閉のボタン | ツリーが畳まれ、再読み込みしても畳まれたまま。ピッカーのモーダルでも同じボタンが効く |
 | `document.addEventListener('evofb:navigate', …)` と `evofb:selectionchange` を Playwright で付け、フォルダを移る・ファイルを選ぶ | `detail` に `scope: 'manage'`・`folder`・`names` が入って届く |
@@ -572,6 +579,7 @@ M4 で `files.dynamic.php` を消した後に問題が見つかったときは�
 - 消すファイル: `manager/actions/element/files.dynamic.php`（M4）
 - PR は段階ごとに分ける。M1〜M3 の PR は `Refs #1046`、M4 の PR で `Closes #1046` にする
 - M1: ブランチ `feat/1046-m1-path-guard`（`gh issue develop` で #1046 に紐づけ）、PR #1048
+- M2: ブランチ `feat/1046-m2-manage-scope`（M1 のブランチの上に積んだ。#1048 のマージ後に main へ載せ直して PR にする）
 
 ## Interfaces and Dependencies
 
@@ -631,9 +639,9 @@ PHP のクラス（すべて `manager/media/browser/evo/lib/`、PHP 7.4 で動�
         static standalonePage(array $jsConfig, $title): string   // browser.php（ポップアップ）と M2・M3 の一時的な入口
         static managePane(array $jsConfig, $title): string       // a=31（M4）
 
-API（`manager/media/browser/evo/api.php`）: すべての要求で `scope`（`manage` か、省略でピッカー）を受け、入口で `ManageScope::authorize()` か `PickerScope::authorize()` を呼ぶ。`manage` は管理画面のセッションと `file_manager` の権限が要り、`type` は見ない。足す action は `readText`（GET）、`saveText`・`newfile`・`unzip`（POST、CSRF トークン）で、`ManageScope::actions()` だけが登録する。`thumb` は `PickerScope::actions()` だけが登録する。`list` は範囲ごとの関数で、ピッカーの応答は今の形に `writable` を足しただけ、管理モードの応答は `name`・`size`・`mtime`・`url`・`writable` だけ（`path`・`thumb`・`width`・`height` のキーを持たない）。エラーは今までどおり `{error:{code,message}}` とステータス。足すコードは `protected`、`modified`、`not_text`、`too_large`（既存）、`unsafe_zip`、`zip_unavailable`（既存）。
+API（`manager/media/browser/evo/api.php`）: すべての要求で `scope`（`manage` か、省略でピッカー）を受け、入口で `ManageScope::authorize()` か `PickerScope::authorize()` を呼ぶ。`manage` は管理画面のセッションと `file_manager` の権限が要り、`type` は見ない。足す action は `readText`（GET）、`saveText`・`newfile`・`unzip`（POST、CSRF トークン）で、`ManageScope::actions()` だけが登録する。`thumb` は `PickerScope::actions()` だけが登録する。`list` は範囲ごとの関数で、ピッカーの応答は今の形に `writable` と `image`（表示できる画像だけ）を足しただけ、管理モードの応答は `name`・`size`・`mtime`・`url`・`writable` と、表示できる画像の `image`、ラスター画像の `width`・`height`（`path`・`thumb` のキーを持たない）。`upload` の応答の `uploaded` と `errors` は受けた順の `index` を持ち、管理モードの `upload` は `overwrite=1` が無いと同じ名前のファイルを `code: exists`（と `targetName`）で返して保存しない。エラーは今までどおり `{error:{code,message}}` とステータス。足すコードは `protected`、`modified`、`not_text`、`too_large`（既存）、`unsafe_zip`、`zip_unavailable`（既存）。
 
-JS（`manager/media/browser/evo/`）: `data-config` に `apiParams`・`rootLabel`・`entry` を足す。`filebrowser.js` の `init(root, behaviors)` は `openFile`・`previewActions`・`contextMenuItems` を受け取り、入口の `js/picker.js` と `js/manage.js` がそれぞれ渡す。`#evoFileBrowser` から `evofb:navigate`（`detail: { scope, folder }`）と `evofb:selectionchange`（`detail: { scope, folder, names }`）を `bubbles: true` で出す。`window.EvoFileBrowserInit()` と `window.EvoFileBrowserPick()`、`SetUrl()` の規約は変えない。
+JS（`manager/media/browser/evo/`）: `data-config` に `apiParams`・`rootLabel`・`entry` を足す。`filebrowser.js` の `registerEntry(entry, behaviors)` が `window.EvoFileBrowserEntries[entry]` に起動の関数を置き、behaviors（`openFile`・`previewActions`・`contextMenuItems`・`confirmOverwrite`）は入口の `js/picker.js` と `js/manage.js` がそれぞれ渡す。画面の `data-config` の `entry` と違う入口では初期化しない。`#evoFileBrowser` から `evofb:navigate`（`detail: { scope, folder }`）と `evofb:selectionchange`（`detail: { scope, folder, names }`）を `bubbles: true` で出す。`window.EvoFileBrowserPick()` と `SetUrl()` の規約は変えない。`window.EvoFileBrowserInit()` は M2 で `window.EvoFileBrowserEntries[entry]` に置き換えた（ピッカーと管理モードの入口が 1 つのグローバルを取り合い、EvoShell の中で往復すると振る舞いが入れ替わるため。呼んでいたのは本体の断片だけ）。
 
 イベント: 管理モードのアップロードで `OnFileManagerUpload`（`filepath`・`filename`）、ピッカーで `OnFileBrowserUpload`（今までどおり）。新しいイベントは足さない。
 
