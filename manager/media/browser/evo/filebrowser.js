@@ -250,6 +250,7 @@ function init() {
             state.selection.clear();
             state.selection.add(name);
             grid.updateSelectionDom();
+            scrollToSelected(true);
         },
         onPickFile: pickFile,
         onDropMove: moveFilesTo
@@ -276,7 +277,8 @@ function init() {
             // 保存したファイルが変わったので、プレビューは閉じて一覧を読み直し、保存した名前を選ぶ
             preview.close();
             dropzoneEl.focus({ preventScroll: true });
-            load(name);
+            // フォルダは移っていないので、保存した画像の位置はすぐ出す
+            load(name, { instant: true });
         }
     });
 
@@ -337,8 +339,9 @@ function init() {
 
     // 選んだ状態のファイルを、一覧の真ん中あたりまでスクロールする。
     // scrollIntoView はモーダルの外の画面まで動かすことがあるので、一覧の入れ物だけを動かす。
-    // 開いたときは毎回同じ動きになるので、すぐその位置を出す。開いたあとの移動（ツリーのファイルのクリックなど）は、
-    // どこへ移ったかを目で追えるようにスムーズにする。動きを減らす設定のときは、いつもすぐ移る
+    // 開いたときと、フォルダを移らない読み直し（画像の保存のあと）は、すぐその位置を出す。
+    // 開いたあとの移動（ツリーのファイルのクリックなど）は、どこへ移ったかを目で追えるようにスムーズにする。
+    // 動きを減らす設定のときは、いつもすぐ移る
     function scrollToSelected(smooth) {
         var item = gridEl.querySelector('.evo-fb-item.is-checked');
         if (!item) {
@@ -354,7 +357,8 @@ function init() {
         });
     }
 
-    function load(selectName) {
+    function load(selectName, options) {
+        var instant = !!(options && options.instant);
         var allowInitialFallback = isInitialLoad;
         isInitialLoad = false;
         // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
@@ -378,7 +382,7 @@ function init() {
                 grid.renderList();
                 grid.updateSelectionBar();
                 if (selected) {
-                    scrollToSelected(hasShownList);
+                    scrollToSelected(hasShownList && !instant);
                 }
                 hasShownList = true;
                 pruneClipboard();
