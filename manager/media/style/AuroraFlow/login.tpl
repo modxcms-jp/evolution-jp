@@ -291,28 +291,40 @@
             position: relative;
         }
 
-        /* パスワード表示/非表示切り替えアイコン */
+        /* パスワード表示/非表示切り替えアイコン（処理は media/script/login.js） */
+        .password-wrapper #password {
+            padding-right: 48px;
+        }
+
         .toggle-password {
-            background: none;
-            border: 0;
-            padding: 0;
-            color: inherit;
-            font: inherit;
-            line-height: 1;
             position: absolute;
-            right: 12px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            color: rgba(147, 197, 253, 0.55);
+            background: none;
+            border: 0;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-            opacity: 0.5;
-            transition: opacity 0.3s ease;
+            transition: color 0.3s ease, filter 0.3s ease, background-color 0.3s ease;
             z-index: 10;
         }
 
-        .toggle-password:hover {
-            opacity: 0.8;
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toggle-password:hover,
+        .toggle-password[aria-pressed="true"] {
+            color: rgba(59, 130, 246, 1);
+            filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
         }
 
         /* オートフィル時の黄色背景を上書き */
@@ -559,9 +571,10 @@
         }
 
         .toggle-password:focus-visible {
-            outline: 2px solid currentColor;
-            outline-offset: 2px;
-            opacity: 1;
+            outline: none;
+            color: rgba(59, 130, 246, 1);
+            background: rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6), 0 0 12px rgba(59, 130, 246, 0.35);
         }
 
         .toggle-password[aria-pressed="true"] .icon-hidden,
@@ -590,8 +603,8 @@
                 <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
                 <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
                         aria-label="[+show_password+]" title="[+show_password+]">
-                    <span class="icon-hidden" aria-hidden="true">👁️</span>
-                    <span class="icon-visible" aria-hidden="true">🙈</span>
+                    <svg class="icon-hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+                    <svg class="icon-visible" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
             </div>
             [+login_captcha_message+]
