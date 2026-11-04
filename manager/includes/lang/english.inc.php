@@ -1422,4 +1422,6 @@ return [
     "fb_err_protected" => 'This location is protected and cannot be changed.',
     "fb_not_writable" => 'You cannot write to this folder, so creating, uploading and pasting are unavailable.',
     "fb_confirm_overwrite" => 'These files already exist and will be overwritten: %s. Continue?',
+    "fb_err_copy_not_allowed" => 'This file cannot be copied (the name starts with a dot, or the extension is not allowed).',
+    "fb_log_omitted" => '%d more (trace_id=%s)',
 ];

@@ -93,9 +93,9 @@ class PickerScope implements BrowserScope
         return $this->config->isAllowedFilename($this->type, $newName);
     }
 
-    public function isAllowedCopy($name)
+    public function isAllowedCopy($sourceName, $newName)
     {
-        return $this->config->isAllowedFilename($this->type, $name);
+        return $this->config->isAllowedFilename($this->type, $newName);
     }
 
     public function maxUploadSize()
@@ -111,6 +111,21 @@ class PickerScope implements BrowserScope
     public function uploadEvent()
     {
         return 'OnFileBrowserUpload';
+    }
+
+    public function name()
+    {
+        return 'picker';
+    }
+
+    public function logLabel()
+    {
+        return '[picker] ';
+    }
+
+    public function logRoot()
+    {
+        return $this->type . '/';
     }
 
     public function actions()

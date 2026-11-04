@@ -83,11 +83,14 @@ class ManageScope implements BrowserScope
     }
 
     /**
-     * 複製は元と同じ拡張子になるので、確かめない
+     * 複製は元と同じ拡張子になるので、拡張子は確かめない。
+     * ドットで始まる名前(.htaccess など)は複製しない。新しい名前は sanitizeFilename() を通り、先頭のドットが落ちて
+     * 別の名前(htaccess)のファイルになってしまうため。アップロード・新しいファイル・名前の変更と同じく、
+     * 管理モードからは、ドットで始まる名前のファイルを新しく作らない(あるものの表示・編集・削除・移動・ダウンロードはできる)
      */
-    public function isAllowedCopy($name)
+    public function isAllowedCopy($sourceName, $newName)
     {
-        return true;
+        return strpos($sourceName, '.') !== 0;
     }
 
     /**
@@ -133,6 +136,21 @@ class ManageScope implements BrowserScope
     public function uploadEvent()
     {
         return 'OnFileManagerUpload';
+    }
+
+    public function name()
+    {
+        return 'manage';
+    }
+
+    public function logLabel()
+    {
+        return '';
+    }
+
+    public function logRoot()
+    {
+        return '';
     }
 
     public function actions()

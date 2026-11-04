@@ -40,6 +40,9 @@
  *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
  *                     invalid_image / type_mismatch / image_too_big / too_many_same_name / save_failed
  *
+ * 成功した変更(upload / mkdir / rename / delete / move / copy / saveImage / saveText / newfile / unzip)は、ChangeLog::record() が
+ * 管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示(list / readText など)は記録しない。
+ *
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
@@ -58,6 +61,7 @@ require_once __DIR__ . '/lib/PathResolver.php';
 require_once __DIR__ . '/lib/BrowserConfig.php';
 require_once __DIR__ . '/lib/ThumbnailService.php';
 require_once __DIR__ . '/lib/ZipService.php';
+require_once __DIR__ . '/lib/ChangeLog.php';
 
 $modx = new DocumentParser();
 $modx->getSettings();
@@ -464,6 +468,7 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
 
     $uploaded = [];
     $errors = [];
+    $changed = [];
 
     foreach ($uploadedFiles as $file) {
         $originalName = $file['name'];
@@ -503,6 +508,7 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
             'name' => $targetName,
             'size' => filesize($targetPath),
         ];
+        $changed[] = ChangeLog::relPath($dir, $targetName);
 
         // invokeEvent() の第2引数は参照渡しなので、変数に入れてから渡す
         $eventParams = [
@@ -512,6 +518,7 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
         $modx->invokeEvent($scope->uploadEvent(), $eventParams);
     }
 
+    ChangeLog::record($scope, 'Uploaded File', $changed);
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
@@ -535,6 +542,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
 
     $uploaded = [];
     $errors = [];
+    $changed = [];
 
     foreach ($uploadedFiles as $file) {
         $originalName = $file['name'];
@@ -592,6 +600,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
             'name' => $targetName,
             'size' => filesize($targetPath),
         ];
+        $changed[] = ChangeLog::relPath($dir, $targetName);
 
         // 旧ファイル管理と同じイベント(付けてあるプラグインが動き続けるように)。filepath は確かめた保存先のフォルダ
         $eventParams = [
@@ -601,6 +610,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         $modx->invokeEvent($scope->uploadEvent(), $eventParams);
     }
 
+    ChangeLog::record($scope, 'Uploaded File', $changed);
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
@@ -690,6 +700,7 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
     }
     @chmod($target, $folderPermissions);
 
+    ChangeLog::record($scope, 'Created Folder', [ChangeLog::relPath($dir, $name)]);
     fbSendJson(['name' => $name]);
 }
 
@@ -742,6 +753,7 @@ function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentPar
         fbError('rename_failed', lang('fb_err_rename_failed'), 500);
     }
 
+    ChangeLog::record($scope, 'Renamed', [[ChangeLog::relPath($dir, $target), ChangeLog::relPath($dir, $newName)]]);
     fbSendJson(['name' => $newName]);
 }
 
@@ -757,6 +769,8 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
     $folders = (array) postv('folders', []);
 
     $deleted = [];
+    $deletedFiles = [];
+    $deletedFolders = [];
     $errors = [];
     $failures = [];
     $guard = $scope->guard();
@@ -777,6 +791,7 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
         }, $reason);
         if ($unlinked) {
             $deleted[] = $name;
+            $deletedFiles[] = ChangeLog::relPath($dir, $name);
         } else {
             $failures[$path] = $reason;
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_failed')];
@@ -797,6 +812,7 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
         }
         if (fbDeleteTree($path, $failures)) {
             $deleted[] = $name;
+            $deletedFolders[] = ChangeLog::relPath($dir, $name);
         } else {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_delete_partial')];
         }
@@ -810,6 +826,8 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
         ]);
     }
 
+    ChangeLog::record($scope, 'Deleted File', $deletedFiles);
+    ChangeLog::record($scope, 'Deleted Folder', $deletedFolders);
     fbSendJson(['deleted' => $deleted, 'errors' => $errors]);
 }
 
@@ -833,6 +851,7 @@ function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
     $files = (array) postv('files', []);
     $moved = [];
+    $movedPaths = [];
     $errors = [];
     $failures = [];
     $guard = $scope->guard();
@@ -860,6 +879,7 @@ function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParse
         }, $reason);
         if ($renamed) {
             $moved[] = $name;
+            $movedPaths[] = [ChangeLog::relPath($dir, $name), ChangeLog::relPath($destDir, $name)];
         } else {
             $failures[] = ['from' => $sourcePath, 'to' => $destPath, 'reason' => $reason];
             $errors[] = ['name' => $name, 'message' => lang('fb_err_move_failed')];
@@ -873,6 +893,7 @@ function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParse
         ]);
     }
 
+    ChangeLog::record($scope, 'Moved', $movedPaths);
     fbSendJson(['moved' => $moved, 'errors' => $errors]);
 }
 
@@ -891,6 +912,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
     $files = (array) postv('files', []);
     $copied = [];
+    $copiedPaths = [];
     $errors = [];
 
     foreach ($files as $name) {
@@ -905,8 +927,8 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
         // 複製先の名前も、範囲ごとの拡張子の確かめ方で確かめる
         $safeName = $modx->sanitizeFilename($name);
-        if ($safeName === '' || !$scope->isAllowedCopy($safeName)) {
-            $errors[] = ['name' => $name, 'message' => lang('fb_err_extension_not_allowed')];
+        if ($safeName === '' || !$scope->isAllowedCopy($name, $safeName)) {
+            $errors[] = ['name' => $name, 'message' => lang('fb_err_copy_not_allowed')];
             continue;
         }
 
@@ -952,8 +974,10 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
         @chmod($targetPath, $modx->newFilePermissions());
 
         $copied[] = ['from' => $name, 'name' => fbBaseName($targetPath)];
+        $copiedPaths[] = [ChangeLog::relPath($dir, $name), ChangeLog::relPath($destDir, fbBaseName($targetPath))];
     }
 
+    ChangeLog::record($scope, 'Copied', $copiedPaths);
     fbSendJson(['copied' => $copied, 'errors' => $errors]);
 }
 
@@ -1072,6 +1096,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         ];
         $modx->invokeEvent($scope->uploadEvent(), $eventParams);
 
+        ChangeLog::record($scope, 'Saved Image', [ChangeLog::relPath($dir, $savedName)]);
         fbSendJson(['name' => $savedName]);
     }
 
@@ -1129,6 +1154,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
     (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget($realPath);
 
+    ChangeLog::record($scope, 'Saved Image', [ChangeLog::relPath($dir, $target)]);
     fbSendJson(['name' => $target]);
 }
 
