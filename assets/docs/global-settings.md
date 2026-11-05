@@ -55,7 +55,7 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 | `tab2_furl_settings.inc.php` | Friendly URL 設定 |
 | `tab3_user_settings.inc.php` | ユーザー設定 |
 | `tab4_manager_settings.inc.php` | 管理画面設定 |
-| `tab6_filemanager_settings.inc.php` | ファイル管理設定 |
+| `tab6_filemanager_settings.inc.php` | ファイルマネージャーの設定 |
 
 ## 注意事項
 
