@@ -106,7 +106,7 @@
     const height = Math.max(Math.min(Math.round(maxHeight * 0.8), 800), 400);
 
     return editor.windowManager.openUrl({
-      title: 'ファイルブラウザ',
+      title: 'ファイルピッカー',
       url: url,
       width: width,
       height: height,
@@ -204,7 +204,7 @@
     const browserWindow = openWindow(buildUrl(baseUrl, meta, value));
     if (!browserWindow) {
       restore();
-      global.alert('ファイルブラウザを開けませんでした。ポップアップを許可してください。');
+      global.alert('ファイルピッカーを開けませんでした。ポップアップを許可してください。');
       return;
     }
 
