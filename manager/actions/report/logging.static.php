@@ -45,7 +45,7 @@ $icons_path = manager_style_image_path('icons');
                                     name="message"
                                     class="inputbox"
                                     style="width:240px"
-                                    value="<?= hsc(getv('message')) ?>" />
+                                    value="<?= hsc(get_strvar('message')) ?>" />
                             </td>
                         </tr>
                         <tr>
@@ -60,7 +60,7 @@ $icons_path = manager_style_image_path('icons');
                                         echo sprintf(
                                             '<option value="%s" %s>%s</option>',
                                             $row['internalKey'],
-                                            $row['internalKey'] == getv('searchuser') ? 'selected="selected"' : '',
+                                            $row['internalKey'] == get_intvar('searchuser') ? 'selected="selected"' : '',
                                             hsc($row['username'])
                                         ) . "\n";
                                     }
@@ -91,7 +91,7 @@ $icons_path = manager_style_image_path('icons');
                                         echo sprintf(
                                             '<option value="%s" %s>%s - %s</option>',
                                             $row['action'],
-                                            $row['action'] == getv('action') ? 'selected="selected"' : '',
+                                            $row['action'] == get_intvar('action') ? 'selected="selected"' : '',
                                             $row['action'],
                                             $action
                                         ) . "\n";
@@ -109,7 +109,7 @@ $icons_path = manager_style_image_path('icons');
                                     // get all itemid currently in logging
                                     $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
                                     foreach ($logs_items as $row) {
-                                        $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
+                                        $selectedtext = $row['itemid'] == get_strvar('itemid') ? ' selected="selected"' : '';
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
                                             hsc($row['itemid']),
@@ -133,7 +133,7 @@ $icons_path = manager_style_image_path('icons');
                                         echo sprintf(
                                             '<option value="%s"%s>%s</option>',
                                             hsc($row['itemname']),
-                                            $row['itemname'] == getv('itemname') ? ' selected="selected"' : '',
+                                            $row['itemname'] == get_strvar('itemname') ? ' selected="selected"' : '',
                                             hsc($row['itemname'])
                                         );
                                     }
@@ -145,7 +145,7 @@ $icons_path = manager_style_image_path('icons');
                             <td><b><?= lang('mgrlog_datefr') ?></b></td>
                             <td align="right">
                                 <input type="text" id="datefrom" name="datefrom" class="DatePicker"
-                                    value="<?= hsc(getv('datefrom', '')) ?>" />
+                                    value="<?= hsc(get_strvar('datefrom')) ?>" />
                                 <a
                                     onclick="document.logging.datefrom.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img
@@ -161,7 +161,7 @@ $icons_path = manager_style_image_path('icons');
                                     id="dateto"
                                     name="dateto"
                                     class="DatePicker"
-                                    value="<?= hsc(getv('dateto', '')) ?>" />
+                                    value="<?= hsc(get_strvar('dateto')) ?>" />
                                 <a
                                     onclick="document.logging.dateto.value=''; return true;"
                                     style="cursor:pointer; cursor:hand">
@@ -278,7 +278,7 @@ $icons_path = manager_style_image_path('icons');
                         urlencode(get_strvar('dateto')),
                         urlencode(get_strvar('datefrom')),
                         $int_num_result,
-                        urlencode((string)getv('log_submit'))
+                        urlencode(get_strvar('log_submit'))
                     );
                     $p = new Paging($total, $int_cur_position, $int_num_result, $extargv);
 

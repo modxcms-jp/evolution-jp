@@ -12,14 +12,14 @@ if (!evo()->hasPermission('view_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]+$@', anyv('id', ''))) {
+if (!preg_match('@^[0-9]+$@', request_strvar('id'))) {
     alert()->setError(1);
     alert()->dumpError();
 }
 
 $icons_path = manager_style_image_path('icons');
 
-$id = anyv('id');
+$id = request_strvar('id');
 if (!manager()->isAllowed($id)) {
     alert()->setError(3);
     alert()->dumpError();
