@@ -8,7 +8,7 @@
  * 範囲ごとにだけある操作は BrowserScope::actions() の表に載り、表に無い action は 400。
  * 以下の説明で type は、ピッカーだけが付けるパラメーター(images / media / files)。管理モードは付けない。
  *
- * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren}], files:[...], writable}
+ * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren,mtime}], files:[...], writable}
  *                     ピッカーの files の項目: {name,size,mtime,url,path,thumb,width,height}。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
  *                     管理モードの files の項目: {name,size,mtime,url,writable} と、ブラウザが <img> で表示できる画像(ThumbnailService::isDisplayableImageExtension())なら image: true、
@@ -210,7 +210,7 @@ function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $folder
 
         if (is_dir($fullPath)) {
             if ($scope->listsFolder($entry)) {
-                $folders[] = ['name' => $entry, 'hasChildren' => fbDirHasSubdirs($fullPath, $scope)];
+                $folders[] = ['name' => $entry, 'hasChildren' => fbDirHasSubdirs($fullPath, $scope), 'mtime' => @filemtime($fullPath)];
             }
             continue;
         }

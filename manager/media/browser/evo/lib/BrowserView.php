@@ -8,15 +8,26 @@
  */
 class BrowserView
 {
-    /** 入口の JS(js/<entry>.js)。ピッカーと管理モード */
-    const ENTRIES = ['picker', 'manage'];
+    /**
+     * 入口の JS(js/<entry>.js)と、その入口で画面を開いたときの既定の状態。入口ごとの既定はここだけで決める。
+     * 利用者が切り替えた状態は、ブラウザに入口ごとに残り(js/prefs.js)、次に開いたときはそちらが優先する。
+     * - view: 一覧の表示。grid(サムネイルを並べる)か list(1 行ずつ)
+     * - tree: フォルダツリー。open(出す)か closed(畳む)
+     */
+    const ENTRIES = [
+        // ピッカー: 画像などを見て選ぶので、サムネイルとツリーを出す
+        'picker' => ['view' => 'grid', 'tree' => 'open'],
+        // ファイル管理(a=31): 名前・大きさ・日時で見比べるので 1 行ずつ。広く使えるようツリーは畳む
+        'manage' => ['view' => 'list', 'tree' => 'closed'],
+    ];
 
     /**
      * JS(js/i18n.js の t())へ渡すキー。JS で使うキーはここだけに列挙する
      */
     const JS_LANG_KEYS = [
         'fb_loading', 'preview', 'fb_rename', 'delete',
-        'fb_selected_count', 'fb_no_match', 'fb_empty_folder', 'fb_load_failed', 'fb_no_subfolders',
+        'fb_selected_count', 'fb_no_match', 'fb_empty_folder',
+        'fb_col_name', 'fb_col_mtime', 'fb_col_type', 'fb_col_size', 'fb_type_folder', 'fb_type_file', 'fb_type_file_noext', 'fb_load_failed', 'fb_no_subfolders',
         'fb_network_error',
         'fb_move_partial_failed', 'fb_move_failed', 'fb_rename_failed', 'fb_rename_prompt',
         'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed', 'fb_delete_partial_failed',
@@ -48,7 +59,7 @@ class BrowserView
      */
     public static function jsConfig(DocumentParser $modx, BrowserConfig $config, array $options)
     {
-        if (!in_array($options['entry'], self::ENTRIES, true)) {
+        if (!isset(self::ENTRIES[$options['entry']])) {
             throw new InvalidArgumentException('Unknown entry: ' . $options['entry']);
         }
 
@@ -59,6 +70,8 @@ class BrowserView
 
         return [
             'entry' => $options['entry'],
+            // 開いたときの既定の状態(ENTRIES)。JS は入口を見て分けず、この値を使う
+            'defaults' => self::ENTRIES[$options['entry']],
             'apiUrl' => $options['apiUrl'],
             'apiParams' => $options['apiParams'],
             'csrfToken' => function_exists('getCurrentCsrfToken') ? getCurrentCsrfToken() : '',
@@ -100,6 +113,7 @@ class BrowserView
         $markup .= '        <option value="name">' . hsc(lang('fb_sort_name')) . '</option>';
         $markup .= '        <option value="mtime">' . hsc(lang('fb_sort_mtime')) . '</option>';
         $markup .= '        <option value="size">' . hsc(lang('fb_sort_size')) . '</option>';
+        $markup .= '        <option value="type">' . hsc(lang('fb_sort_type')) . '</option>';
         $markup .= '      </select>';
         $markup .= '      <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-role="view-toggle" title="' . hsc(lang('fb_toggle_view')) . '">☷</button>';
         $markup .= '      <button type="button" class="evo-fb-btn" data-action="mkdir">' . hsc(lang('fb_new_folder')) . '</button>';

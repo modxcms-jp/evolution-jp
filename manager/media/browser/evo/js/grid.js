@@ -23,6 +23,7 @@ import { createMarquee } from './marquee.js';
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
  * @param {(count: number) => void} ctx.onSelectionChange - 選択バーを更新するたびに、選択の件数を通知する
  * @param {(name: string) => boolean} ctx.isCut - 切り取り中のファイルか(一覧で薄く表示する)
+ * @param {(key: string) => void} ctx.onSort - 一覧表示の見出しを押したとき。並べ替えの状態は呼び出し側が持つ
  */
 export function createGrid(ctx) {
     var gridEl = ctx.gridEl;
@@ -42,12 +43,60 @@ export function createGrid(ctx) {
             '</span>';
     }
 
+    // --- 一覧表示(1 行ずつ)の列。見出しと各行は、この並びで同じ幅の列を出す ---
+
+    var LIST_COLUMNS = [
+        { key: 'name', label: 'fb_col_name' },
+        { key: 'mtime', label: 'fb_col_mtime' },
+        { key: 'type', label: 'fb_col_type' },
+        { key: 'size', label: 'fb_col_size' }
+    ];
+
+    // 拡張子(小文字。無ければ空)。種類の列と、種類での並べ替えに使う
+    function extensionOf(name) {
+        var dot = name.lastIndexOf('.');
+        return dot > 0 ? name.slice(dot + 1).toLowerCase() : '';
+    }
+
+    function typeLabel(entry, isFolder) {
+        if (isFolder) {
+            return t('fb_type_folder');
+        }
+        var ext = extensionOf(entry.name);
+        return ext ? t('fb_type_file', ext.toUpperCase()) : t('fb_type_file_noext');
+    }
+
+    // 名前の列のあとに並ぶ列(更新日時・種類・サイズ)。一覧表示のときだけ出す
+    function listMetaHtml(entry, isFolder) {
+        if (state.view !== 'list') {
+            return '';
+        }
+        return '<span class="evo-fb-meta">' +
+            '<span class="evo-fb-meta-date">' + (entry.mtime ? formatDate(entry.mtime) : '') + '</span>' +
+            '<span class="evo-fb-meta-type">' + escapeHtml(typeLabel(entry, isFolder)) + '</span>' +
+            '<span class="evo-fb-meta-size">' + (isFolder ? '' : formatSize(entry.size)) + '</span>' +
+            '</span>';
+    }
+
+    // 一覧表示の見出し。押すとその列で並べ替える(同じ列をもう一度押すと逆順)
+    function listHeadHtml() {
+        return '<div class="evo-fb-list-head" role="row">' + LIST_COLUMNS.map(function (col) {
+            var active = state.sortKey === col.key;
+            var ariaSort = active ? (state.sortDir === 'asc' ? 'ascending' : 'descending') : 'none';
+            var arrow = active ? (state.sortDir === 'asc' ? ' ▲' : ' ▼') : '';
+            return '<button type="button" class="evo-fb-list-col evo-fb-list-col-' + col.key + (active ? ' is-active' : '') + '"' +
+                ' data-sort="' + col.key + '" role="columnheader" aria-sort="' + ariaSort + '">' +
+                escapeHtml(t(col.label)) + '<span class="evo-fb-list-sort" aria-hidden="true">' + arrow + '</span></button>';
+        }).join('') + '</div>';
+    }
+
     function folderItemHtml(folder) {
         return '' +
             '<div class="evo-fb-item evo-fb-item-folder" data-name="' + escapeHtml(folder.name) + '" data-kind="folder">' +
             '  <button type="button" class="evo-fb-item-main">' +
             '    <span class="evo-fb-thumb evo-fb-thumb-folder" aria-hidden="true">' + folderIcon(40) + '</span>' +
             '    <span class="evo-fb-name">' + escapeHtml(folder.name) + '</span>' +
+            listMetaHtml(folder, true) +
             '  </button>' +
             itemActionsHtml(true) +
             '</div>';
@@ -65,9 +114,7 @@ export function createGrid(ctx) {
         var thumb = src
             ? '<img class="evo-fb-thumb-img" src="' + escapeHtml(src) + '" alt="" loading="lazy">'
             : fileIcon(40);
-        var meta = state.view === 'list'
-            ? '<span class="evo-fb-meta"><span class="evo-fb-meta-size">' + formatSize(file.size) + '</span><span class="evo-fb-meta-date">' + formatDate(file.mtime) + '</span></span>'
-            : '';
+        var meta = listMetaHtml(file, false);
 
         return '' +
             '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-kind="file">' +
@@ -316,7 +363,13 @@ export function createGrid(ctx) {
         var key = state.sortKey;
         function cmp(a, b) {
             if (key === 'mtime' || key === 'size') {
-                return (a[key] - b[key]) * dir;
+                return ((a[key] || 0) - (b[key] || 0)) * dir;
+            }
+            if (key === 'type') {
+                var byType = extensionOf(a.name).localeCompare(extensionOf(b.name), 'ja');
+                if (byType !== 0) {
+                    return byType * dir;
+                }
             }
             return a.name.localeCompare(b.name, 'ja') * dir;
         }
@@ -335,7 +388,13 @@ export function createGrid(ctx) {
             return;
         }
 
-        gridEl.innerHTML = data.folders.map(folderItemHtml).join('') + data.files.map(fileItemHtml).join('');
+        gridEl.innerHTML = (state.view === 'list' ? listHeadHtml() : '') +
+            data.folders.map(folderItemHtml).join('') + data.files.map(fileItemHtml).join('');
+        gridEl.querySelectorAll('.evo-fb-list-head [data-sort]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                ctx.onSort(btn.getAttribute('data-sort'));
+            });
+        });
         bindItemEvents();
     }
 

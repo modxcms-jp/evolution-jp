@@ -32,6 +32,7 @@ import { createMoveDialog, createPreview } from './js/dialogs.js';
 import { createContextMenu } from './js/contextmenu.js';
 import { createDownload } from './js/download.js';
 import { createImageEditor } from './js/imageEditor.js';
+import { createPrefs } from './js/prefs.js';
 
 // 入口の JS が呼ぶ。登録表に開始の関数を置き、今のページの画面を一度だけ初期化する
 export function registerEntry(entry, behaviors) {
@@ -75,6 +76,9 @@ function init(root, entry, behaviors) {
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
     var hasShownList = false;
 
+    // 表示の状態。既定は入口ごとにサーバー(BrowserView::ENTRIES)が決め、利用者が切り替えたものは入口ごとに残す
+    var prefs = createPrefs(config.entry, config.defaults);
+
     var state = {
         folder: initialFolder,
         rawFolders: [],
@@ -82,12 +86,12 @@ function init(root, entry, behaviors) {
         search: '',
         sortKey: 'name',
         sortDir: 'asc',
-        view: localStorage.getItem('evoFbView') || 'grid',
+        view: prefs.get('view'),
         selection: new Set(),
         // 開いているフォルダに書き込めるか(一覧の応答の writable)
         writable: true,
-        // フォルダツリーを出しているか(畳んだ状態は evoFbTree に残す)
-        treeOpen: localStorage.getItem('evoFbTree') !== 'closed'
+        // フォルダツリーを出しているか
+        treeOpen: prefs.get('tree') === 'open'
     };
     // evofb:selectionchange を出した最後の選択(同じ選択では出し直さない)
     var lastSelectionKey = '[]';
@@ -264,6 +268,10 @@ function init(root, entry, behaviors) {
         state: state,
         config: config,
         onNavigate: navigateTo,
+        onSort: function (key) {
+            // 一覧表示の見出し: 同じ列なら逆順にし、別の列ならその列で昇順にする
+            setSort(key, state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc');
+        },
         openPreview: function (name) {
             var file = findFile(name);
             if (file) {
@@ -463,18 +471,27 @@ function init(root, entry, behaviors) {
         });
     }
 
+    // 並べ替えの状態を変える所はここだけ(ツールバーの選択と、一覧表示の見出しの両方から呼ぶ)
+    function setSort(key, dir) {
+        state.sortKey = key;
+        state.sortDir = dir;
+        if (sortEl) {
+            sortEl.value = key;
+        }
+        grid.renderList();
+    }
+
     if (sortEl) {
         sortEl.value = state.sortKey;
         sortEl.addEventListener('change', function () {
-            state.sortKey = sortEl.value;
-            grid.renderList();
+            setSort(sortEl.value, 'asc');
         });
     }
 
     if (viewToggleBtn) {
         viewToggleBtn.addEventListener('click', function () {
             state.view = state.view === 'grid' ? 'list' : 'grid';
-            localStorage.setItem('evoFbView', state.view);
+            prefs.set('view', state.view);
             grid.renderList();
         });
     }
@@ -488,7 +505,7 @@ function init(root, entry, behaviors) {
 
     treeToggleBtn.addEventListener('click', function () {
         state.treeOpen = !state.treeOpen;
-        localStorage.setItem('evoFbTree', state.treeOpen ? 'open' : 'closed');
+        prefs.set('tree', state.treeOpen ? 'open' : 'closed');
         applyTreeOpen();
     });
     applyTreeOpen();
