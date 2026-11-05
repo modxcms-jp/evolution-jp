@@ -6,30 +6,34 @@ if (!evo()->hasPermission('save_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+// 新規（19）と更新（16）以外は拒否する
+$mode = post_choicevar('mode', [16, 19], 0);
 $id = post_intvar('id');
-if (postv('mode') == 16 && !$id) {
+if (!$mode || ($mode === 16 && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(postv('templatename'), $_lang['template'], 19, 16, $id);
-$templatename = db()->escape($rawName);
-$description = db()->escape(postv('description', ''));
-$parent = post_intvar('parent');
+// 本文は文字列だけを受ける。配列で送られたときは、空で上書きせず保存しない
+$content = postv('content', '');
+if (!is_string($content)) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
 
-$locked = postv('locked') == 'on' ? 1 : 0;
+$rawName = manager()->requireElementName(post_strvar('templatename'), $_lang['template'], 19, 16, $id);
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
 $field = [];
-$field['templatename'] = $templatename;
-$field['description'] = $description;
-$field['content'] = db()->escape(postv('content', ''));
-$field['locked'] = $locked;
-$field['parent'] = $parent;
+$field['templatename'] = $rawName;
+$field['description'] = post_strvar('description');
+$field['content'] = $content;
+$field['locked'] = postv('locked') === 'on' ? 1 : 0;
+$field['parent'] = post_intvar('parent');
 
-switch (postv('mode')) {
-    case '19':
+switch ($mode) {
+    case 19:
 
         // invoke OnBeforeTempFormSave event
         $tmp = [
@@ -39,7 +43,7 @@ switch (postv('mode')) {
         evo()->invokeEvent("OnBeforeTempFormSave", $tmp);
 
         // disallow duplicate names for new templates
-        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
+        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '" . db()->escape($rawName) . "'");
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
@@ -50,10 +54,10 @@ switch (postv('mode')) {
             );
         }
 
-        $field['category'] = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $field['category'] = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the new doc
-        $newid = db()->insert($field, $tbl_site_templates);
+        $newid = db()->insert(db()->escape($field), $tbl_site_templates);
         if (!$newid) {
             echo "Couldn't get last insert key!";
             exit;
@@ -69,15 +73,16 @@ switch (postv('mode')) {
         // empty cache
         $modx->clearCache();
         // finished emptying cache - redirect
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "16&id=$newid" : "19";
-            $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+        $stay = post_choicevar('stay', [1, 2], 0);
+        if ($stay) {
+            $a = ($stay === 2) ? "16&id=$newid" : "19";
+            $header = "Location: index.php?a={$a}&stay={$stay}";
         } else {
             $header = "Location: index.php?a=76";
         }
         header($header);
         break;
-    case '16':
+    case 16:
 
         // invoke OnBeforeTempFormSave event
         $tmp = [
@@ -87,7 +92,7 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeTempFormSave', $tmp);
 
         // disallow duplicate names for new templates
-        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
+        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '" . db()->escape($rawName) . "' AND id != '{$id}'");
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
@@ -98,10 +103,10 @@ switch (postv('mode')) {
             );
         }
 
-        $field['category'] = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $field['category'] = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the edited doc
-        $rs = db()->update($field, $tbl_site_templates, "id='{$id}'");
+        $rs = db()->update(db()->escape($field), $tbl_site_templates, "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited template not saved!";
         } else {
@@ -115,17 +120,14 @@ switch (postv('mode')) {
             // first empty the cache
             $modx->clearCache();
             // finished emptying cache - redirect
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "16&id=$id" : "19";
-                $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+            $stay = post_choicevar('stay', [1, 2], 0);
+            if ($stay) {
+                $a = ($stay === 2) ? "16&id=$id" : "19";
+                $header = "Location: index.php?a={$a}&stay={$stay}";
             } else {
                 $header = "Location: index.php?a=76";
             }
             header($header);
         }
         break;
-    default:
-        ?>
-        Erm... You supposed to be here now?
-    <?php
 }

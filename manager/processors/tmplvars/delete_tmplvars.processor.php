@@ -11,7 +11,7 @@ if (!$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$forced = getv('force', 0);
+$forced = get_boolvar('force');
 
 $tbl_site_content = evo()->getFullTableName('site_content');
 $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
