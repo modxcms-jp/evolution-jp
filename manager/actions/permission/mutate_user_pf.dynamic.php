@@ -30,17 +30,6 @@ while ($row = db()->getRow($rs)) {
 
 $icons_path = manager_style_image_path('icons');
 
-// manually extract so that user display settings are not overwritten
-foreach ($usersettings as $k => $v) {
-    switch ($k) {
-        case 'manager_language':
-        case 'manager_theme':
-            break;
-        default:
-            ${$k} = $v;
-    }
-}
-
 // get user name
 $rs = db()->select('*', '[+prefix+]manager_users', "id='{$userid}'");
 $total = db()->count($rs);
@@ -62,7 +51,6 @@ if (manager()->hasFormValues()) {
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
     $usersettings = array_merge($usersettings, $userdata);
-    extract($usersettings, EXTR_OVERWRITE);
 }
 
 function userData($key, $default = null)
@@ -119,12 +107,12 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
+        window.evoOpenFilePicker(<?= js_literal(evo()->config('base_url') . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
+        document.images['iphoto'].src = <?= js_literal(evo()->config('base_url')) ?> + url;
     }
 </script>
 
@@ -426,7 +414,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <div><?= $_lang["language_message"] ?></div>
                         </td>
                     </tr>
-                    <tr id="editorRow0" style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
+                    <tr id="editorRow0" style="display: <?= setting('use_editor') == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["which_editor_title"] ?></th>
                         <td>
                             <select name="which_editor" class="inputBox">
@@ -448,7 +436,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         </td>
                     </tr>
                     <tr id="editorRow14" class="row3"
-                        style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
+                        style="display: <?= setting('use_editor') == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["editor_css_path_title"] ?></th>
                         <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
                                 value="<?= hsc(setting('editor_css_path')) ?>" />
