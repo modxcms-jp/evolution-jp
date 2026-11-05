@@ -1303,6 +1303,7 @@ return [
     "fb_err_unauthorized" => 'ログインセッションが確認できません。',
     "fb_err_forbidden" => 'ファイルブラウザの利用が許可されていません。',
     "fb_err_invalid_type" => '不正なファイル種別です。',
+    "fb_err_invalid_root" => 'この種類のフォルダが、ファイルの置き場所（rb_base_dir）の外を指しているため、利用できません。',
     "fb_err_invalid_action" => '不明なactionです。',
     "fb_err_folder_not_found" => '指定されたフォルダが見つかりません。',
     "fb_err_folder_unreadable" => 'フォルダを読み取れません。',
