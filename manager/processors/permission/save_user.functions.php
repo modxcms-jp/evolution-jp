@@ -399,7 +399,7 @@ function validEmail()
     if (!postv('email')) {
         return false;
     }
-    if (!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", postv('email'))) {
+    if (!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", postv('email', ''))) {
         return false;
     }
     return true;

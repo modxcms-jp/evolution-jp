@@ -15,7 +15,7 @@ $rawName = manager()->requireElementName(postv('name'), $_lang['snippet'], 23, 2
 $name = db()->escape($rawName);
 $description = db()->escape(postv('description', ''));
 $locked = postv('locked') == 'on' ? 1 : 0;
-$snippet = db()->escape(trim(postv('post')));
+$snippet = db()->escape(trim(postv('post', '')));
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 $errorReporting = db()->escape(postv('error_reporting', 'inherit'));

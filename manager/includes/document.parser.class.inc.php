@@ -480,7 +480,7 @@ class DocumentParser
 
     private function sanitizeVars()
     {
-        if (strpos(urldecode(serverv('QUERY_STRING')), chr(0)) !== false) {
+        if (strpos(urldecode(serverv('QUERY_STRING', '')), chr(0)) !== false) {
             exit();
         }
 
@@ -719,6 +719,28 @@ class DocumentParser
         return $content;
     }
 
+    /**
+     * トップページの URL（index.php?id=1 や別名の URL）を MODX_SITE_URL に揃える
+     *
+     * URL がそこで終わっているか、# や ? が続くときだけ置き換える（index.php?id=101 や about-us の先頭を巻き込まない）
+     */
+    private function normalizeSiteStartUrl($content)
+    {
+        $start_url = $this->makeUrl($this->config('site_start'), '', '', 'rel');
+        if (!$start_url) {
+            return $content;
+        }
+        $unstrict_url = MODX_SITE_URL . $start_url;
+        if (strpos($content, $unstrict_url) === false) {
+            return $content;
+        }
+        return preg_replace(
+            '@' . preg_quote($unstrict_url, '@') . '(?=["\'\s<>#?)]|$)@',
+            MODX_SITE_URL,
+            $content
+        );
+    }
+
     private function outputContent($noEvent = false)
     {
         $content = $this->documentContent;
@@ -750,10 +772,7 @@ class DocumentParser
                 $content
             );
         }
-        $unstrict_url = MODX_SITE_URL . $this->makeUrl($this->config('site_start'), '', '', 'rel');
-        if (strpos($content, $unstrict_url) !== false) {
-            $content = str_replace($unstrict_url, MODX_SITE_URL, $content);
-        }
+        $content = $this->normalizeSiteStartUrl($content);
 
         $this->documentOutput = $content;
 
@@ -5963,11 +5982,11 @@ class DocumentParser
 
     public function gotoSetup()
     {
-        if (strpos(serverv('SCRIPT_NAME'), 'install/index.php') !== false) {
+        if (strpos(serverv('SCRIPT_NAME', ''), 'install/index.php') !== false) {
             return false;
         }
 
-        if (strpos(serverv('SCRIPT_NAME'), 'install/connection.') !== false) {
+        if (strpos(serverv('SCRIPT_NAME', ''), 'install/connection.') !== false) {
             return false;
         }
 

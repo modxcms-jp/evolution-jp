@@ -8,7 +8,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
+if (preg_match('@^[1-9][0-9]*$@', getv('id', ''))) {
     $id = getv('id');
 } else {
     alert()->setError(2);
