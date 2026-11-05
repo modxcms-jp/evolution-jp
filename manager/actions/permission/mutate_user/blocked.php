@@ -2,12 +2,11 @@
 /**
  * ユーザーがブロック中かを判定する（ユーザー・Web ユーザー・プロフィールの画面で共通）
  *
- * 差し戻しの再表示では日時が空文字になることがあるので、比べる前に整数にそろえる。
+ * 日時はタイムスタンプで受ける（差し戻しの値は、呼び出し側で ConvertDate() で戻す）。空文字などは整数にそろえて 0 として扱う。
  *
- * @param array $row blocked / blockeduntil / blockedafter / failedlogins を持つ配列
- * @param bool $withFailedLogins ログイン失敗の回数（4 回以上）もブロック扱いにするか
+ * @param array $row blocked / blockeduntil / blockedafter を持つ配列
  */
-function isUserBlocked($row, $withFailedLogins = true)
+function isUserBlocked($row)
 {
     if (!is_array($row)) {
         return false;
@@ -21,6 +20,5 @@ function isUserBlocked($row, $withFailedLogins = true)
 
     return $int('blocked') === 1
         || ($until !== 0 && $until > $now)
-        || ($after !== 0 && $after < $now)
-        || ($withFailedLogins && $int('failedlogins') > 3);
+        || ($after !== 0 && $after < $now);
 }

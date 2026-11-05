@@ -44,6 +44,8 @@ if (manager()->hasFormValues()) {
     // restore post values
     $user = array_merge($user, $form_v);
     $user['dob'] = !empty($user['dob']) ? ConvertDate($user['dob']) : '';
+    $user['blockeduntil'] = ConvertDate($user['blockeduntil'] ?? '');
+    $user['blockedafter'] = ConvertDate($user['blockedafter'] ?? '');
     $user['username'] = $form_v['newusername'] ?? '';
     if (is_array($form_v['allowed_days']??null)) {
         $user['allowed_days'] = implode(',', $form_v['allowed_days']);

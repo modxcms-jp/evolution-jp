@@ -93,6 +93,8 @@ if (manager()->hasFormValues()) {
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
+    $userdata['blockeduntil'] = ConvertDate($userdata['blockeduntil'] ?? '');
+    $userdata['blockedafter'] = ConvertDate($userdata['blockedafter'] ?? '');
     $usernamedata['username'] = $userdata['newusername'];
     if (isset($form_v['oldusername'])) {
         $usernamedata['oldusername'] = $form_v['oldusername'];
@@ -529,7 +531,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <tr>
                             <th><?= $_lang['user_block'] ?>:</th>
                             <td><input name="blockedcheck" type="checkbox"
-                                    onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata, false) ? " checked='checked'" : "" ?> /><input
+                                    onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata) ? " checked='checked'" : "" ?> /><input
                                     type="hidden" name="blocked"
                                     value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
                             </td>
