@@ -12,7 +12,7 @@ if (!evo()->hasPermission('view_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]+$@', anyv('id'))) {
+if (!preg_match('@^[0-9]+$@', anyv('id', ''))) {
     alert()->setError(1);
     alert()->dumpError();
 }

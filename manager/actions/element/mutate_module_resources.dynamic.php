@@ -38,88 +38,68 @@ if ($limit > 1) {
 // end check for lock
 
 // take action
+// 対象の ID は先に整数の配列にそろえ、空なら何もしない（count(null) や IN () を作らない）
+$depTypes = ['chunk' => 10, 'doc' => 20, 'plug' => 30, 'snip' => 40, 'tpl' => 50, 'tv' => 60];
 switch (anyv('op')) {
     case 'add':
-        $opids = explode(',', anyv('newids'));
-        if (count($opids) > 0) {
-            // 1-snips, 2-tpls, 3-tvs, 4-chunks, 5-plugins, 6-docs
-            $rt = strtolower(anyv('rt'));
-            if ($rt === 'chunk') {
-                $type = 10;
-            }
-            if ($rt === 'doc') {
-                $type = 20;
-            }
-            if ($rt === 'plug') {
-                $type = 30;
-            }
-            if ($rt === 'snip') {
-                $type = 40;
-            }
-            if ($rt === 'tpl') {
-                $type = 50;
-            }
-            if ($rt === 'tv') {
-                $type = 60;
-            }
-            $v = [];
-            foreach ($opids as $opid) {
-                $opid = intval($opid);
-                $v[] = "('{$id}','{$opid}','{$type}')";
-            }
-            $values = implode(',', $v);
-            $del_opids = implode(',', $opids);
-            db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
-            $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
-            if (!$ds) {
-                echo '<script type="text/javascript">' .
-                    'function jsalert(){ alert(\'An error occured while trying to update the database. \'' . db()->getLastError() . ');' .
-                    'setTimeout(\'jsalert()\',100)' .
-                    '</script>';
-            }
+        $opids = array_values(array_filter(array_map('intval', explode(',', (string) anyv('newids', '')))));
+        $type = $depTypes[strtolower((string) anyv('rt', ''))] ?? 0;
+        if (!$opids || !$type) {
+            break;
+        }
+        $v = [];
+        foreach ($opids as $opid) {
+            $v[] = "('{$id}','{$opid}','{$type}')";
+        }
+        $values = implode(',', $v);
+        $del_opids = implode(',', $opids);
+        db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
+        $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
+        if (!$ds) {
+            echo '<script type="text/javascript">' .
+                'function jsalert(){ alert(\'An error occured while trying to update the database. \'' . db()->getLastError() . ');' .
+                'setTimeout(\'jsalert()\',100)' .
+                '</script>';
         }
         break;
     case 'del':
-        $opids = anyv('depid');
-        for ($i = 0, $iMax = count($opids); $i < $iMax; $i++) {
-            $opids[$i] = (int)$opids[$i]; // convert ids to numbers
+        $opids = array_values(array_filter(array_map('intval', (array) anyv('depid', []))));
+        if (!$opids) {
+            break;
         }
+        $opids = implode(',', $opids);
         // get resources that needs to be removed
-        $ds = db()->query("SELECT * FROM " . $tbl_site_module_depobj . " WHERE id IN (" . implode(",", $opids) . ")");
+        $ds = db()->query("SELECT * FROM " . $tbl_site_module_depobj . " WHERE id IN ({$opids})");
         if ($ds) {
             // loop through resources and look for plugins and snippets
-            $i = 0;
             $plids = [];
-            $snid = [];
+            $snids = [];
             while ($row = db()->getRow($ds)) {
                 if ($row['type'] == '30') {
-                    $plids[$i] = $row['resource'];
+                    $plids[] = (int) $row['resource'];
                 }
                 if ($row['type'] == '40') {
-                    $snids[$i] = $row['resource'];
+                    $snids[] = (int) $row['resource'];
                 }
-            }
-            // get guid
-            $ds = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
-            if ($ds) {
-                $row = db()->getRow($ds);
-                $guid = $row['guid'];
             }
             // reset moduleguid for deleted resources
-            if (($cp = count($plids)) || ($cs = count($snids))) {
-                $plids = implode(',', $plids);
-                $snids = implode(',', $snids);
-                if ($cp) {
-                    db()->update("moduleguid=''", $tbl_site_plugins, "id IN ({$plids}) AND moduleguid='{$guid}'");
+            if ($plids || $snids) {
+                $guid = '';
+                $ds = db()->select('guid', '[+prefix+]site_modules', "id='{$id}'");
+                if ($ds) {
+                    $row = db()->getRow($ds);
+                    $guid = db()->escape($row['guid'] ?? '');
                 }
-                if ($cs) {
-                    db()->update("moduleguid=''", $tbl_site_snippets, "id IN ({$snids}) AND moduleguid='{$guid}'");
+                if ($plids) {
+                    db()->update("moduleguid=''", $tbl_site_plugins, "id IN (" . implode(',', $plids) . ") AND moduleguid='{$guid}'");
+                }
+                if ($snids) {
+                    db()->update("moduleguid=''", $tbl_site_snippets, "id IN (" . implode(',', $snids) . ") AND moduleguid='{$guid}'");
                 }
                 // reset cache
                 $modx->clearCache();
             }
         }
-        $opids = implode(',', $opids);
         db()->delete($tbl_site_module_depobj, "id IN ({$opids})");
         break;
 }

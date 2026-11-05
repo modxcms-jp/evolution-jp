@@ -503,7 +503,8 @@ function exprintf()
 function getv($key = null, $default = null)
 {
     $request = $_GET;
-    if(isset($request[$key]) && $request[$key]==='') {
+    // 引数なし（全件）のときは添字に null を使わない（PHP 8.5 で非推奨）
+    if ($key !== null && isset($request[$key]) && $request[$key] === '') {
         unset($request[$key]);
     }
     return array_get($request, $key, $default);

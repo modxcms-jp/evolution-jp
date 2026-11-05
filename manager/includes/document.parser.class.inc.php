@@ -480,7 +480,7 @@ class DocumentParser
 
     private function sanitizeVars()
     {
-        if (strpos(urldecode(serverv('QUERY_STRING')), chr(0)) !== false) {
+        if (strpos(urldecode(serverv('QUERY_STRING', '')), chr(0)) !== false) {
             exit();
         }
 
@@ -5982,11 +5982,11 @@ class DocumentParser
 
     public function gotoSetup()
     {
-        if (strpos(serverv('SCRIPT_NAME'), 'install/index.php') !== false) {
+        if (strpos(serverv('SCRIPT_NAME', ''), 'install/index.php') !== false) {
             return false;
         }
 
-        if (strpos(serverv('SCRIPT_NAME'), 'install/connection.') !== false) {
+        if (strpos(serverv('SCRIPT_NAME', ''), 'install/connection.') !== false) {
             return false;
         }
 

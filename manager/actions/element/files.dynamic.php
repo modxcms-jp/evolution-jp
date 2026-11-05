@@ -277,7 +277,7 @@ if (!is_readable($startpath)) {
         if (is_writable($startpath)) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
-                $folder = anyv('folderpath');
+                $folder = anyv('folderpath', '');
                 if ($guard->isBase($folder) || $guard->containsProtected($folder)) {
                     // 対象ディレクトリそのもの、中に守る場所を含むフォルダは削除しない
                     echo sprintf(
@@ -361,9 +361,6 @@ if (!is_readable($startpath)) {
         $folders = 0;
         $dirs_array = [];
         $files_array = [];
-        if (strlen(MODX_BASE_PATH) < strlen(config('filemanager_path'))) {
-            $len--;
-        }
 
         echo '<br />';
 ?>
@@ -438,7 +435,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
             id="file_editfile"><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
         <div class="sectionBody">
             <?php
-            $filename = anyv('path');
+            $filename = anyv('path', '');
             $buffer = is_file($filename) ? file_get_contents($filename) : false;
 
             // Log the change
@@ -488,7 +485,7 @@ function ls($curpath)
         define('SCANDIR_SORT_DESCENDING', 1);
     }
     global $style_path, $_style;
-    global $enablefileunzip, $enablefiledownload, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $modx;
+    global $enablefileunzip, $enablefiledownload, $folders, $files, $filesizes, $dirs_array, $files_array, $modx;
     $dircounter = 0;
     $filecounter = 0;
     $curpath = str_replace('//', '/', $curpath . '/');
@@ -579,7 +576,7 @@ function ls($curpath)
             if (in_array($type, $viewablefiles)) {
                 $files_array[$filecounter]['view'] = sprintf(
                     '<span style="cursor:pointer; width:20px;" onclick="show_image(%s);"><img src="%sicons/context_view.gif" align="absmiddle" alt="%s" title="%s" /></span> ',
-                    hsc(js_literal(webstart_path() . implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len)))))),
+                    hsc(js_literal(file_web_url($newpath))),
                     $style_path,
                     lang('files_viewfile'),
                     lang('files_viewfile')
@@ -588,11 +585,7 @@ function ls($curpath)
                 if ($enablefiledownload && in_array($type, $uploadablefiles)) {
                     $files_array[$filecounter]['view'] = sprintf(
                         '<a href="%s" style="cursor:pointer; width:20px;"><img src="%smisc/ed_save.gif" align="absmiddle" alt="%s" title="%s" /></a> ',
-                        hsc(webstart_path() . implode('/', array_map('rawurlencode', explode('/', substr(
-                            $newpath,
-                            $len,
-                            strlen($newpath)
-                        ))))),
+                        hsc(file_web_url($newpath)),
                         $style_path,
                         lang('file_download_file'),
                         lang('file_download_file')
@@ -1085,7 +1078,7 @@ function fileupload()
 function textsave()
 {
     // 保存は既にあるファイルの編集だけにする（新しいファイルは newfile で、拡張子を確かめて作る）
-    if (!is_file(postv('path'))) {
+    if (!is_file(postv('path', ''))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
     }
     // 一覧で編集アイコンを出す種類（is_editable_file()）のファイルだけ保存する
@@ -1107,20 +1100,22 @@ function delete_file()
 {
     global $guard;
 
-    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
+    $path = anyv('path', '');
 
-    if ($guard->isBase(anyv('path'))) {
+    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', $path)));
+
+    if ($guard->isBase($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
     }
 
     // 無いもの・フォルダーは unlink() に渡さない（PHP の警告になる）。リンクはリンク自体を消す
-    if (!is_file(anyv('path')) && !is_link(anyv('path'))) {
+    if (!is_file($path) && !is_link($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_found') . '</b></span><br /><br />';
     }
 
-    logFileChange('delete', anyv('path'));
+    logFileChange('delete', $path);
 
-    if (!unlink(anyv('path'))) {
+    if (!unlink($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
     }
 
@@ -1146,6 +1141,17 @@ function webstart_path()
         return '..' . $webstart_path;
     }
     return '../' . $webstart_path;
+}
+
+/**
+ * ファイル管理の対象ディレクトリの中のファイルを、管理画面から開く URL にする。
+ * 設定値の末尾の / の有無に左右されないよう、/ 1 つにそろえた基準から相対パスを切り出す。
+ */
+function file_web_url($path)
+{
+    $base_path = rtrim(config('filemanager_path'), '/') . '/';
+    $relative = (string) substr($path, strlen($base_path));
+    return rtrim(webstart_path(), '/') . '/' . implode('/', array_map('rawurlencode', explode('/', $relative)));
 }
 
 
