@@ -19,9 +19,9 @@ $tbl_membergroup_names = evo()->getFullTableName('membergroup_names');
 
 $updategroupaccess = false;
 
-switch ($_REQUEST['operation']) {
+switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 'delete_user_group', 'delete_document_group', 'rename_user_group', 'rename_document_group', 'add_document_group_to_user_group', 'remove_document_group_from_user_group'], '')) {
     case "add_user_group" :
-        $groupname = $_REQUEST['newusergroup'];
+        $groupname = request_strvar('newusergroup');
         if (empty($groupname)) {
             warning("no group name specified");
         } else {
@@ -39,7 +39,7 @@ switch ($_REQUEST['operation']) {
         }
         break;
     case "add_document_group" :
-        $groupname = $_REQUEST['newdocgroup'];
+        $groupname = request_strvar('newdocgroup');
         if (empty($groupname)) {
             warning("no group name specified");
         } else {
@@ -59,7 +59,7 @@ switch ($_REQUEST['operation']) {
         break;
     case "delete_user_group" :
         $updategroupaccess = true;
-        $usergroup = (int)$_REQUEST['usergroup'];
+        $usergroup = request_intvar('usergroup');
         if (empty($usergroup)) {
             warning("No user group name specified for deletion");
         } else {
@@ -75,7 +75,7 @@ switch ($_REQUEST['operation']) {
         }
         break;
     case "delete_document_group" :
-        $group = (int)$_REQUEST['documentgroup'];
+        $group = request_intvar('documentgroup');
         if (empty($group)) {
             warning("No document group name specified for deletion");
         } else {
@@ -91,12 +91,12 @@ switch ($_REQUEST['operation']) {
         }
         break;
     case "rename_user_group" :
-        $newgroupname = db()->escape($_REQUEST['newgroupname']);
+        $newgroupname = db()->escape(request_strvar('newgroupname'));
         if (empty($newgroupname)) {
             warning("no group name specified");
         }
 
-        $groupid = (int)$_REQUEST['groupid'];
+        $groupid = request_intvar('groupid');
         if (empty($groupid)) {
             warning("No group id specified");
         }
@@ -107,12 +107,12 @@ switch ($_REQUEST['operation']) {
         }
         break;
     case "rename_document_group" :
-        $newgroupname = db()->escape($_REQUEST['newgroupname']);
+        $newgroupname = db()->escape(request_strvar('newgroupname'));
         if (empty($newgroupname)) {
             warning("no group name specified");
         }
 
-        $groupid = (int)$_REQUEST['groupid'];
+        $groupid = request_intvar('groupid');
         if (empty($groupid)) {
             warning("No group id specified");
         }
@@ -123,8 +123,8 @@ switch ($_REQUEST['operation']) {
         break;
     case "add_document_group_to_user_group" :
         $updategroupaccess = true;
-        $usergroup = (int)$_REQUEST['usergroup'];
-        $docgroup = (int)$_REQUEST['docgroup'];
+        $usergroup = request_intvar('usergroup');
+        $docgroup = request_intvar('docgroup');
         $where = "membergroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $limit = db()->getValue(db()->select('count(*)', $tbl_membergroup_access, $where));
         if ($limit <= 0) {
@@ -140,7 +140,7 @@ switch ($_REQUEST['operation']) {
         break;
     case "remove_document_group_from_user_group" :
         $updategroupaccess = true;
-        $coupling = (int)$_REQUEST['coupling'];
+        $coupling = request_intvar('coupling');
         if (!db()->delete($tbl_membergroup_access, "id='{$coupling}'")) {
             warning("Failed to remove document group from user group");
         }

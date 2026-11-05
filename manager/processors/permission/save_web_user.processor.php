@@ -8,36 +8,39 @@ if (!evo()->hasPermission('save_web_user')) {
 }
 global $_style;
 $id = post_intvar('id');
-$oldusername = postv('oldusername');
-$newusername = trim(postv('newusername', 'New User'));
-$fullname = db()->escape(postv('fullname', ''));
-$genpassword = postv('newpassword');
-$passwordgenmethod = postv('passwordgenmethod');
-$passwordnotifymethod = postv('passwordnotifymethod');
-$specifiedpassword = postv('specifiedpassword');
-$email = db()->escape(postv('email', ''));
-$oldemail = postv('oldemail');
-$phone = db()->escape(postv('phone', ''));
-$mobilephone = db()->escape(postv('mobilephone', ''));
-$fax = db()->escape(postv('fax', ''));
-$dob = postv('dob') ? $modx->toTimeStamp(postv('dob')) : 0;
-$country = db()->escape(postv('country', ''));
-$street = db()->escape(postv('street', ''));
-$city = db()->escape(postv('city', ''));
-$state = db()->escape(postv('state', ''));
-$zip = db()->escape(postv('zip', ''));
+$oldusername = post_strvar('oldusername');
+$newusername = trim(post_strvar('newusername', 'New User'));
+$fullname = db()->escape(post_strvar('fullname'));
+$genpassword = post_intvar('newpassword');
+$passwordgenmethod = post_strvar('passwordgenmethod');
+$passwordnotifymethod = post_strvar('passwordnotifymethod');
+$specifiedpassword = post_strvar('specifiedpassword');
+$email = db()->escape(post_strvar('email'));
+$oldemail = post_strvar('oldemail');
+$phone = db()->escape(post_strvar('phone'));
+$mobilephone = db()->escape(post_strvar('mobilephone'));
+$fax = db()->escape(post_strvar('fax'));
+$dob = post_strvar('dob') ? $modx->toTimeStamp(post_strvar('dob')) : 0;
+$country = db()->escape(post_strvar('country'));
+$street = db()->escape(post_strvar('street'));
+$city = db()->escape(post_strvar('city'));
+$state = db()->escape(post_strvar('state'));
+$zip = db()->escape(post_strvar('zip'));
 $gender = post_intvar('gender');
-$photo = db()->escape(postv('photo', ''));
-$comment = db()->escape(postv('comment', ''));
+$photo = db()->escape(post_strvar('photo'));
+$comment = db()->escape(post_strvar('comment'));
 $role = post_intvar('role');
 $failedlogincount = post_intvar('failedlogincount');
 $blocked = post_intvar('blocked');
-$blockeduntil = postv('blockeduntil') ? $modx->toTimeStamp(postv('blockeduntil')) : 0;
-$blockedafter = postv('blockedafter') ? $modx->toTimeStamp(postv('blockedafter')) : 0;
-$user_groups = postv('user_groups');
+$blockeduntil = post_strvar('blockeduntil') ? $modx->toTimeStamp(post_strvar('blockeduntil')) : 0;
+$blockedafter = post_strvar('blockedafter') ? $modx->toTimeStamp(post_strvar('blockedafter')) : 0;
+$user_groups = post_idsvar('user_groups');
+// 新規（87）と更新（88）以外は 0 にして、どちらにも当てはめない
+$mode = post_choicevar('mode', [87, 88], 0);
+$stay = post_choicevar('stay', [1, 2], 0);
 
 // verify password
-if ($passwordgenmethod === 'spec' && postv('specifiedpassword') != postv('confirmpassword')) {
+if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirmpassword')) {
     webAlert('Password typed is mismatched');
     exit;
 }
@@ -54,8 +57,8 @@ if ($modx->config['required_email_wuser']) {
     }
 }
 
-switch (postv('mode')) {
-    case '87': // new user
+switch ($mode) {
+    case 87: // new user
         // check if this user name already exist
         $rs = db()->select(
             'id',
@@ -176,19 +179,17 @@ switch (postv('mode')) {
         // put the user in the user_groups he/ she should be in
         // first, check that up_perms are switched on!
         if ($modx->config['use_udperms'] == 1) {
-            if ($user_groups) {
-                $field = [];
-                foreach ($user_groups as $user_group) {
-                    $field['webgroup'] = (int)$user_group;
-                    $field['webuser'] = $internalKey;
-                    $rs = db()->insert(
-                        $field,
-                        '[+prefix+]web_groups'
-                    );
-                    if (!$rs) {
-                        webAlert("An error occurred while attempting to add the user to a web group.");
-                        exit;
-                    }
+            $field = [];
+            foreach ($user_groups as $user_group) {
+                $field['webgroup'] = $user_group;
+                $field['webuser'] = $internalKey;
+                $rs = db()->insert(
+                    $field,
+                    '[+prefix+]web_groups'
+                );
+                if (!$rs) {
+                    webAlert("An error occurred while attempting to add the user to a web group.");
+                    exit;
                 }
             }
         }
@@ -196,17 +197,17 @@ switch (postv('mode')) {
 
         if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "88&id=" . $internalKey : '87';
-                $header = "Location: index.php?a=" . $a . "&stay=" . postv('stay');
+            if ($stay) {
+                $a = ($stay === 2) ? "88&id=" . $internalKey : '87';
+                $header = "Location: index.php?a=" . $a . "&stay=" . $stay;
             } else {
                 $header = 'Location: index.php?a=99';
             }
             header($header);
         } else {
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "88&id=" . $internalKey : '87';
-                $stayUrl = "index.php?a=" . $a . "&stay=" . postv('stay');
+            if ($stay) {
+                $a = ($stay === 2) ? "88&id=" . $internalKey : '87';
+                $stayUrl = "index.php?a=" . $a . "&stay=" . $stay;
             } else {
                 $stayUrl = 'index.php?a=99';
             }
@@ -217,7 +218,7 @@ switch (postv('mode')) {
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= $stayUrl ?>"><?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
@@ -226,7 +227,7 @@ switch (postv('mode')) {
                 <div class="sectionBody">
                     <div id="disp">
                         <p>
-                            <?= sprintf($_lang['password_msg'], $newusername, $newpassword) ?>
+                            <?= sprintf($_lang['password_msg'], hsc($newusername), hsc($newpassword)) ?>
                         </p>
                     </div>
                 </div>
@@ -235,9 +236,9 @@ switch (postv('mode')) {
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         }
         break;
-    case '88': // edit user
+    case 88: // edit user
         // generate a new password for this user
-        if ($genpassword == 1) {
+        if ($genpassword === 1) {
             if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
                 if (strlen($specifiedpassword) < 6) {
                     webAlert("Password is too short!");
@@ -362,8 +363,8 @@ switch (postv('mode')) {
             'userpassword' => $newpassword ?? '',
             'useremail' => $email,
             'userfullname' => $fullname,
-            'oldusername' => ($oldusername != $newusername) ? $oldusername : '',
-            'olduseremail' => ($oldemail != $email) ? $oldemail : ''
+            'oldusername' => ($oldusername !== $newusername) ? $oldusername : '',
+            'olduseremail' => ($oldemail !== $email) ? $oldemail : ''
         ];
         evo()->invokeEvent('OnWebSaveUser', $tmp);
 
@@ -394,33 +395,31 @@ switch (postv('mode')) {
                 webAlert("An error occurred while attempting to delete previous user_groups entries.");
                 exit;
             }
-            if ($user_groups) {
-                foreach ($user_groups as $group) {
-                    $sql = sprintf(
-                        "INSERT INTO %s (webgroup, webuser) VALUES('%s', '%s')",
-                        evo()->getFullTableName('web_groups'),
-                        (int)$group,
-                        $id
+            foreach ($user_groups as $group) {
+                $sql = sprintf(
+                    "INSERT INTO %s (webgroup, webuser) VALUES('%d', '%d')",
+                    evo()->getFullTableName('web_groups'),
+                    $group,
+                    $id
+                );
+                if (!db()->query($sql)) {
+                    webAlert(
+                        sprintf(
+                            'An error occurred while attempting to add the user to a user_group.<br />%s;',
+                            $sql
+                        )
                     );
-                    if (!db()->query($sql)) {
-                        webAlert(
-                            sprintf(
-                                'An error occurred while attempting to add the user to a user_group.<br />%s;',
-                                $sql
-                            )
-                        );
-                        exit;
-                    }
+                    exit;
                 }
             }
         }
         // end of user_groups stuff!
         /*******************************************************************************/
 
-        if ($genpassword == 1 && $passwordnotifymethod === 's') {
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "88&id=" . $id : "87";
-                $stayUrl = "index.php?a=" . $a . "&stay=" . postv('stay');
+        if ($genpassword === 1 && $passwordnotifymethod === 's') {
+            if ($stay) {
+                $a = ($stay === 2) ? "88&id=" . $id : "87";
+                $stayUrl = "index.php?a=" . $a . "&stay=" . $stay;
             } else {
                 $stayUrl = "index.php?a=99";
             }
@@ -431,7 +430,7 @@ switch (postv('mode')) {
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= $stayUrl ?>"><?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
@@ -439,7 +438,7 @@ switch (postv('mode')) {
                 <div class="sectionHeader"><?= $_lang['web_user_title'] ?></div>
                 <div class="sectionBody">
                     <div id="disp">
-                        <p><?= sprintf($_lang["password_msg"], $newusername, $newpassword) ?></p>
+                        <p><?= sprintf($_lang["password_msg"], hsc($newusername), hsc($newpassword)) ?></p>
                     </div>
                 </div>
             </div>
@@ -447,9 +446,9 @@ switch (postv('mode')) {
 
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         } else {
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "88&id=$id" : "87";
-                $header = "Location: index.php?a=" . $a . "&stay=" . postv('stay');
+            if ($stay) {
+                $a = ($stay === 2) ? "88&id=$id" : "87";
+                $header = "Location: index.php?a=" . $a . "&stay=" . $stay;
             } else {
                 $header = "Location: index.php?a=99";
             }
@@ -524,9 +523,8 @@ function saveUserSettings($id)
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    global $id, $modx;
-    $mode = postv('mode');
-    $url = "index.php?a=" . $mode . ($mode == '88' ? "&id=" . $id : '');
+    global $id, $modx, $mode;
+    $url = "index.php?a=" . ($mode ?: 99) . ($mode === 88 ? "&id=" . $id : '');
     manager()->saveFormValues($mode);
     $modx->webAlertAndQuit($msg, $url);
 }
