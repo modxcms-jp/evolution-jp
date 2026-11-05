@@ -10,10 +10,10 @@ Issue: #1059
 
 - [x] (2026-11-05) M1: 型つきヘルパー 12 関数と `to_*()` 4 つを `manager/includes/helpers.php` に足し、決まりを `assets/docs/request-input.md` に書いた。`*_strvar` を security-lint の検出対象に入れた（PR は Artifacts and Notes）
 - [x] (2026-11-05) M2: `getv()` の特例をやめ、全 221 行を読んで空の値で動きが変わる 9 か所（7 ファイル）を型つきに直した。エラー画面の操作の番号も型つきで読むようにした（PR は Artifacts and Notes）
-- [ ] M3: `manager/actions/` の置き換え（3 つに分ける。M3a: document・main・tool・report と直下、M3b: element、M3c: permission）
+- [x] (2026-11-05) M3: `manager/actions/` の置き換え（3 つに分ける。M3a: document・main・tool・report と直下、M3b: element、M3c: permission）
   - [x] (2026-11-05) M3a: 15 ファイルで型つきへ置き換え（`evo()->input_*()` を含む）。出力する値も `*_strvar()` で取り出すよう決まりを改めた（PR は Artifacts and Notes）
   - [x] (2026-11-05) M3b: `manager/actions/element/` の 13 ファイルで型つきへ置き換え。テンプレートとテンプレート変数の画面の、操作の番号による権限の判定をほかのエレメントの画面と同じ形にそろえた（PR は Artifacts and Notes）
-  - [ ] M3c: `manager/actions/permission/`
+  - [x] (2026-11-05) M3c: `manager/actions/permission/` の 14 ファイルで型つきへ置き換え。入口で操作の番号と id を 1 回だけ読む形にそろえ、フォームの差し戻しの値から変数を作る `extract()` を消した（PR は Artifacts and Notes）
 - [ ] M4: `manager/processors/` の置き換え
 - [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
@@ -35,6 +35,9 @@ Issue: #1059
 - 2026-11-05（M3a の検証）: 管理画面の既定の設定は `display_errors=Off` なので、応答の本文だけでは PHP の警告を見逃す。検証では、コンテナの中だけで `display_errors=On` と `error_log` を stderr にする ini を置き、本文と stderr の両方で数える（作業ツリーには書かない）。
 - 2026-11-05（M3b の自己レビュー）: `manager/index.php` は `(int)anyv('a')` で画面を振り分けるので、`a` の書き方（先頭の 0 など）が違っても同じ画面に入る。画面の側で `get_intvar('a') === 16` のように「当てはまるときだけ権限を確かめる」形にすると、当てはまらない値で権限の判定が働かない。テンプレートとテンプレート変数の画面を、ほかのエレメントの画面と同じく `switch (request_intvar('a'))` で当てはまらない値を拒否する形にそろえた。これで、main にあった POST だけで送る経路も閉じた。振り分け側（`manager/index.php`）の読み方は M5 で扱う。
 - 2026-11-05（M3b の自己レビュー）: テンプレートの画面は、フォームのイベント（OnTempFormPrerender など）に `id()` の戻り値を渡していて、これは文字列（新規は `''`）。チャンク・スニペット・テンプレート変数の画面は int の `$id` を渡している。
+- 2026-11-06（M3c の自己レビュー）: ユーザー・Web ユーザー・ロールの画面は、権限の判定は `request_intvar('a')` で、データの読み込み（所属グループ）と hidden は `get_intvar('a')` / `get_intvar('id')` で、受け取り元が食い違っていた（修正前から）。新規の権限だけを持つ利用者が、受け取り元を食い違わせて他人の所属グループを見られる経路があった。入口で `$action` と id を 1 回だけ読み、権限の判定・データの読み込み・テンプレートの分岐・hidden をすべてその値で作る形にそろえた（M3b のエレメントの画面と同じ）。新規の画面では id を 0 にする。
+- 2026-11-06（M3c の検証）: 検証環境（公式の Docker イメージ。php.ini を持たない）では `request_order` が空で、`$_REQUEST` に cookie が入り、同じ名前があると cookie の値が優先される。`anyv()` を通るヘルパーはすべて影響を受ける。#1073 に分けた（本人の判断で保留）。
+- 2026-11-06（M3c の自己レビュー）: Web ユーザーの画面とプロフィールの画面は、保存に失敗したときの差し戻しの値（セッションに保存したフォームの値）を `extract()` で変数にしていて、入口で決めた `$user`・`$action` やテーブル名の変数を上書きできた。入口の値を使う形にそろえた直後に、上書きされた値が SQL と hidden に入る経路ができていたので、`extract()`（とプロフィールの画面の `${$k} = $v`）を消し、値は `setting()` などの関数で読み、SQL に入れる id は直前で `(int)` にした。プロフィールの画面の `use_editor` は、個人の設定が無いときはシステム設定に戻す（修正前の動き）。
 
 ## Decision Log
 
@@ -53,6 +56,8 @@ Issue: #1059
 - 2026-11-05 / Claude（M3b）: プラグインの画面がフォームのイベント（OnPluginFormPrerender / OnPluginFormRender）に渡す `id` を `get_intvar('id')`（新規は 0）にした。M2 では「直さない」としていたが、チャンク・スニペット・テンプレート変数の画面が int の `$id` を渡しているのにそろえるため改めた。違いが出るのは、受け取る側が `isset()` / `is_null()` / `=== null` で判定する場合だけ。
 - 2026-11-05 / Claude（M3b）: 操作の番号（`a`）などで権限を分ける判定は、型つきで読み、当てはまらない値は拒否する（`switch` の `default` でエラー）。空で送ることに意味がある検索語（モジュール一覧の `search`）は生の値で受けて `is_string()` で確かめる。どちらも `assets/docs/request-input.md` に書いた。
 - 2026-11-05 / yamamoto: GET と POST の両方を読むヘルパーの名前（生の値は `anyv()`、型つきは `request_*var()`）のずれは、型つきを `any_*var()` にそろえる。ただし、多くの呼び出しは実際には GET か POST の片方からしか呼ばれないので、受け取り元を入口に合わせて `get_` / `post_` に絞る作業とあわせて #1070 で行う。この計画では `request_*var()` の名前のまま置き換えを続ける。
+- 2026-11-06 / yamamoto: `extract()` はできるだけ使わない。リクエスト由来のものは #1059 で消す（M3c で 2 画面、`send_message.processor.php` は M4）。設定値などをグローバル変数にするもの（`manager/index.php:54` など）は #1074 に分ける。スニペット・プラグイン・モジュールに引数を変数で渡すもの（MODX の作法）と、Ditto の request extender（許可の一覧に載ったものだけ）は残す。
+- 2026-11-06 / yamamoto: プロフィールの画面（必ず自分自身）の削除ボタンは出さない。削除の処理が自分自身の削除を断るので、押しても必ず断られていた。管理画面の操作ボタンに非活性の作りは無いので、ユーザーの編集画面で自分を開いたときと同じく、出さない形にした。
 
 ## Outcomes & Retrospective
 
@@ -150,7 +155,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（base は M3a のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（base は M3b のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
