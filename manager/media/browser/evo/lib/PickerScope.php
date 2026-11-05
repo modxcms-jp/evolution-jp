@@ -46,6 +46,13 @@ class PickerScope implements BrowserScope
             return ['code' => 'invalid_type', 'lang' => 'fb_err_invalid_type', 'status' => 400];
         }
 
+        // 種類のフォルダは設定で決めたルートではないので、その実体が rb_base_dir の実体の中にあることを確かめる
+        // （種類のフォルダ自体が外を指すリンクなら、リンク先をピッカーのルートにしない）。assets/docs/file-storage.md を参照
+        $base = new PathGuard($config->baseDir());
+        if (!$base->isWithinBase($config->baseDir() . $type)) {
+            return ['code' => 'invalid_root', 'lang' => 'fb_err_invalid_root', 'status' => 403];
+        }
+
         return new self($modx, $config, $type);
     }
 
