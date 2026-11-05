@@ -53,10 +53,11 @@
     <tr class='row2'>
         <th><?= lang('upload_maxsize_title') ?></th>
         <td>
+            <?php $limit_size = manager()->getUploadMaxsize(); ?>
             <input type="text" maxlength='255' style="width: 300px;" name="upload_maxsize"
-                value="<?= hsc(user('upload_maxsize') ?: (systemSetting('upload_maxsize') ?: (manager()->getUploadMaxsize() ?: ''))) ?>">
+                value="<?= hsc(user('upload_maxsize') ?: (systemSetting('upload_maxsize') ?: ($limit_size ?: ''))) ?>">
             <div>
-                <?= manager()->getUploadMaxsize() > 0 ? sprintf(lang('upload_maxsize_message'), evo()->nicesize(manager()->getUploadMaxsize())) : '' ?>
+                <?= $limit_size > 0 ? sprintf(lang('upload_maxsize_message'), evo()->nicesize($limit_size)) : '' ?>
             </div>
         </td>
     </tr>

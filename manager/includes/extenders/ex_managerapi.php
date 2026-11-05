@@ -1138,7 +1138,7 @@ class ManagerAPI
     private function convertToBytes($input)
     {
         $input = trim((string)$input);
-        if (!preg_match('/^(-?\d+)\s*([KMG]?)B?$/i', $input, $m)) {
+        if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', $input, $m)) {
             return 0;
         }
         $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
