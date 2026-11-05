@@ -5,11 +5,11 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 $ph['_lang_cleaningup'] = $_lang['cleaningup'];
 $ph['_lang_actioncomplete'] = $_lang['actioncomplete'];
 
-if (anyv('r') == 10) {
+if (request_intvar('r') === 10) {
     $ph['reload'] = 'top.mainMenu.reloadPane(10);';
-} elseif (anyv('dv') == 1 && anyv('id') != '') {
+} elseif (request_intvar('dv') === 1 && request_intvar('id')) {
     $ph['reload'] = sprintf(
-        "EvoShell.navigate('index.php?a=3&id=%d');", (int)anyv('id')
+        "EvoShell.navigate('index.php?a=3&id=%d');", request_intvar('id')
     );
 } else {
     $ph['reload'] = 'EvoShell.navigate("index.php?a=2");';

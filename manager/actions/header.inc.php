@@ -129,8 +129,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
         Evo.ready(function() {
             evoBindDirtyTracking(<?= (int)manager()->action ?>);
-            <?php if (anyv('r')) {
-                echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
+            <?php if (request_intvar('r')) {
+                echo sprintf("doRefresh(%s);\n", request_intvar('r'));
             }
             ?>
         });

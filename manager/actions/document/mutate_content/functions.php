@@ -175,8 +175,8 @@ function getUDGroups($id)
 
     if (manager()->action == 27 && $id) {
         $docid = $id;
-    } elseif (anyv('pid')) {
-        $docid = anyv('pid');
+    } elseif (request_intvar('pid')) {
+        $docid = request_intvar('pid');
     } else {
         $docid = doc('parent');
     }
@@ -394,7 +394,7 @@ function get_alias_path($id)
         return MODX_BASE_URL;
     }
 
-    $pid = (int)anyv('pid', 0);
+    $pid = request_intvar('pid');
 
     if (!$id && !$pid) {
         return MODX_BASE_URL;

@@ -96,32 +96,32 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 <?php
 if (getv('submitok')) {
 
-    if (getv('url')) {
-        $searchid = evo()->getIdFromUrl(getv('url'));
+    if (get_strvar('url')) {
+        $searchid = evo()->getIdFromUrl(get_strvar('url'));
         if (!$searchid) {
             $searchid = 'x';
         }
     } else {
-        $searchid = getv('searchid', 0);
+        $searchid = get_strvar('searchid');
     }
 
     $where = [];
     if ($searchid) {
         $where[] = "id='" . db()->escape($searchid) . "' ";
     }
-    $searchtitle = trim((string) getv('pagetitle'));
+    $searchtitle = trim(get_strvar('pagetitle'));
     if ($searchtitle != '') {
         $where[] = "pagetitle LIKE '%" . db()->escape($searchtitle) . "%' ";
     }
-    $searchlongtitle = trim((string) getv('longtitle'));
+    $searchlongtitle = trim(get_strvar('longtitle'));
     if ($searchlongtitle != '') {
         $where[] = "longtitle LIKE '%" . db()->escape($searchlongtitle) . "%' ";
     }
-    $search_alias = trim((string) getv('alias'));
+    $search_alias = trim(get_strvar('alias'));
     if ($search_alias != '') {
         $where[] = "alias LIKE '%" . db()->escape($search_alias) . "%' ";
     }
-    $searchcontent = getv('content', '');
+    $searchcontent = get_strvar('content');
     if ($searchcontent != '') {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }

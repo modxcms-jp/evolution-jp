@@ -218,31 +218,31 @@ $icons_path = manager_style_image_path('icons');
             if (getv('log_submit')) {
                 // get the selections the user made.
                 $where = [];
-                if (getv('searchuser')) {
-                    $where[] = sprintf("internalKey='%d'", (int)getv('searchuser'));
+                if (get_intvar('searchuser')) {
+                    $where[] = sprintf("internalKey='%d'", get_intvar('searchuser'));
                 }
-                if (getv('action')) {
-                    $where[] = sprintf('action=%d', (int)getv('action'));
+                if (get_intvar('action')) {
+                    $where[] = sprintf('action=%d', get_intvar('action'));
                 }
-                if (getv('itemid') || getv('itemid') == '-') {
-                    $where[] = sprintf("itemid='%s'", db()->escape(getv('itemid')));
+                if (get_strvar('itemid')) {
+                    $where[] = sprintf("itemid='%s'", db()->escape(get_strvar('itemid')));
                 }
-                if (getv('itemname')) {
-                    $where[] = sprintf("itemname='%s'", db()->escape(getv('itemname')));
+                if (get_strvar('itemname')) {
+                    $where[] = sprintf("itemname='%s'", db()->escape(get_strvar('itemname')));
                 }
-                if (getv('message')) {
-                    $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(getv('message')));
+                if (get_strvar('message')) {
+                    $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(get_strvar('message')));
                 }
                 // date stuff
-                if (getv('datefrom')) {
-                    $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(getv('datefrom')));
+                if (get_strvar('datefrom')) {
+                    $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(get_strvar('datefrom')));
                 }
-                if (getv('dateto')) {
-                    $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(getv('dateto')));
+                if (get_strvar('dateto')) {
+                    $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(get_strvar('dateto')));
                 }
 
                 // Number of result to display on the page, will be in the LIMIT of the sql query also
-                $int_num_result = (int)(is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs'));
+                $int_num_result = get_intvar('nrresults') ?: (int)config('number_of_logs');
                 $int_cur_position = (int)evo()->input_get('int_cur_position', 0);
 
                 // build the sql
@@ -270,13 +270,13 @@ $icons_path = manager_style_image_path('icons');
                     // New instance of the Paging class, you can modify the color and the width of the html table
                     $extargv = sprintf(
                         '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s',
-                        urlencode((string)getv('searchuser')),
-                        urlencode((string)getv('action')),
-                        urlencode((string)getv('itemid')),
-                        urlencode((string)getv('itemname')),
-                        urlencode((string)getv('message')),
-                        urlencode((string)getv('dateto')),
-                        urlencode((string)getv('datefrom')),
+                        urlencode((string)(get_intvar('searchuser') ?: '')),
+                        urlencode((string)(get_intvar('action') ?: '')),
+                        urlencode(get_strvar('itemid')),
+                        urlencode(get_strvar('itemname')),
+                        urlencode(get_strvar('message')),
+                        urlencode(get_strvar('dateto')),
+                        urlencode(get_strvar('datefrom')),
                         $int_num_result,
                         urlencode((string)getv('log_submit'))
                     );

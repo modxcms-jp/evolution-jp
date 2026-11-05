@@ -188,9 +188,9 @@ function entity($key, $default = null)
                 if (isset($content['parent']) && $content['parent'] != 0) {
                     $tpl = 'document.location.href=\'index.php?a=120&id=%s\';';
                     echo sprintf($tpl, entity('parent'));
-                } elseif (getv('pid')) {
+                } elseif (get_intvar('pid')) {
                     $tpl = 'document.location.href=\'index.php?a=120&id=%d\';';
-                    echo sprintf($tpl, (int)getv('pid'));
+                    echo sprintf($tpl, get_intvar('pid'));
                 } else {
                     echo 'document.location.href=\'index.php?a=2\';';
                 }
