@@ -21,7 +21,11 @@ class BrowserConfig
     const EDIT_MAX_PIXELS = 50000000;
 
     /** 管理モードでテキストとして表示・編集できる拡張子(小文字)。拡張子だけの名前(.htaccess)は、名前全体(htaccess)をこの一覧と照らす */
-    const TEXT_EXTENSIONS = ['txt', 'php', 'tpl', 'shtml', 'html', 'htm', 'xml', 'js', 'css', 'pagecache', 'htaccess', 'sample'];
+    const TEXT_EXTENSIONS = [
+        'txt', 'php', 'tpl', 'shtml', 'html', 'htm', 'xml', 'js', 'css', 'pagecache', 'htaccess', 'sample',
+        // メンテナンスで触る文書・設定・記録の形式(旧ファイル管理には無かった)
+        'md', 'markdown', 'json', 'yml', 'yaml', 'ini', 'log', 'csv',
+    ];
     /** テキストとして開くファイルの大きさの上限(バイト) */
     const TEXT_MAX_BYTES = 2097152;
 
