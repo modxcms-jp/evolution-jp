@@ -1122,35 +1122,27 @@ class ManagerAPI
         return evo()->hasPermission('save_role') || (bool)evo()->config('udperms_allowroot');
     }
 
+    // PHP の設定から求めたアップロードサイズの上限（バイト数）。無制限なら 0
     public function getUploadMaxsize()
     {
-        return min(
-            $this->convertToBytes(ini_get('upload_max_filesize')),
-            $this->convertToBytes(ini_get('post_max_size')),
-            $this->convertToBytes(ini_get('memory_limit'))
-        );
+        $limits = [];
+        foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $key) {
+            $bytes = $this->convertToBytes(ini_get($key));
+            if ($bytes > 0) {
+                $limits[] = $bytes;
+            }
+        }
+        return $limits ? min($limits) : 0;
     }
 
     private function convertToBytes($input)
     {
-        $unit = strtoupper(substr($input, -1));
-        $numericValue = substr($input, 0, -1);
-        $validUnits = ['B', 'K', 'M', 'T'];
-
-        if (!in_array($unit, $validUnits)) {
-            return $numericValue;
+        $input = trim((string)$input);
+        if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', $input, $m)) {
+            return 0;
         }
-
-        $bytes = $numericValue;
-
-        foreach ($validUnits as $validUnit) {
-            if ($validUnit === $unit) {
-                return $bytes;
-            }
-            $bytes *= 1024;
-        }
-
-        return $bytes;
+        $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
+        return (int)$m[1] * $multipliers[strtoupper($m[2])];
     }
 
     public function getTplModule()
