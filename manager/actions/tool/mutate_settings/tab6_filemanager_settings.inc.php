@@ -49,25 +49,12 @@
             <td>
                 <?php
                 $limit_size = manager()->getUploadMaxsize();
-                if (empty($modx->config['upload_maxsize'])) {
-                    $last = substr($limit_size, -1);
-                    $limit_size = substr($limit_size, 0, -1);
-                    switch (strtolower($last)) {
-                        case 'g':
-                            $limit_size *= 1024;
-                        case 'm':
-                            $limit_size *= 1024;
-                        case 'k':
-                            $limit_size *= 1024;
-                            break;
-                        default:
-                            $limit_size = 5000000;
-                    }
+                if (!evo()->config('upload_maxsize') && $limit_size > 0) {
                     $settings['upload_maxsize'] = $limit_size;
                 }
                 ?>
                 <?= form_text('upload_maxsize', 255) ?><br/>
-                <?= sprintf($_lang["upload_maxsize_message"], evo()->nicesize($limit_size)) ?></td>
+                <?= $limit_size > 0 ? sprintf($_lang["upload_maxsize_message"], evo()->nicesize($limit_size)) : '' ?></td>
         </tr>
         <tr>
             <th><?= $_lang["new_file_permissions_title"] ?></th>

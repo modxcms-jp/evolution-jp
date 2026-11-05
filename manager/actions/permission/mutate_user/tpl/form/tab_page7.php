@@ -56,7 +56,7 @@
             <input type="text" maxlength='255' style="width: 300px;" name="upload_maxsize"
                 value="<?= hsc(user('upload_maxsize') ?: (systemSetting('upload_maxsize') ?: manager()->getUploadMaxsize())) ?>">
             <div>
-                <?= sprintf(lang('upload_maxsize_message'), manager()->getUploadMaxsize()) ?>
+                <?= manager()->getUploadMaxsize() > 0 ? sprintf(lang('upload_maxsize_message'), evo()->nicesize(manager()->getUploadMaxsize())) : '' ?>
             </div>
         </td>
     </tr>
