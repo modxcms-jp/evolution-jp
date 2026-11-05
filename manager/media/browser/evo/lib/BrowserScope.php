@@ -58,10 +58,11 @@ interface BrowserScope
     /**
      * ファイルを複製してよいか
      *
-     * @param string $name 複製先の名前（元の名前を sanitizeFilename() に通したもの）
+     * @param string $sourceName 複製元の名前
+     * @param string $newName 複製先の名前（元の名前を sanitizeFilename() に通したもの。先頭のドットは落ちている）
      * @return bool
      */
-    public function isAllowedCopy($name);
+    public function isAllowedCopy($sourceName, $newName);
 
     /**
      * アップロードの上限（バイト）。null は本体では制限しない（PHP の上限だけが効く）
@@ -84,6 +85,28 @@ interface BrowserScope
      * @return string
      */
     public function uploadEvent();
+
+    /**
+     * 範囲の名前（システムログの scope に書く値）。picker か manage
+     *
+     * @return string
+     */
+    public function name();
+
+    /**
+     * 記録に書くパスの頭に付ける部分。記録に書くパスは、ルートからの相対パスのままでは、ピッカーの種類(images など)が分からなくなるため。
+     * ピッカーは "images/" などの種類のフォルダ、管理モードは空
+     *
+     * @return string
+     */
+    public function logRoot();
+
+    /**
+     * 管理操作ログの message の先頭に付ける印（ピッカーは "[picker] "、管理モードは空）
+     *
+     * @return string
+     */
+    public function logLabel();
 
     /**
      * この範囲にだけある操作の表（action の名前 => ['handler' => 関数名, 'csrf' => bool, 'post' => bool]）。

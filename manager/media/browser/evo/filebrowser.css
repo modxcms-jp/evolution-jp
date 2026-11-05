@@ -822,6 +822,32 @@
     display: none;
 }
 
+/* テキストの表示・編集ダイアログ(管理モード)。コードの欄の見た目(.code-editor-header・.phptextarea)はテーマの CSS を使う */
+.evo-fb-text-panel {
+    width: min(900px, 96%);
+    max-height: 96%;
+    box-sizing: border-box;
+}
+
+.evo-fb-text-editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.evo-fb-text-editor .code-editor-title {
+    word-break: break-all;
+}
+
+.evo-fb-text-area {
+    box-sizing: border-box;
+    width: 100%;
+    height: 50vh;
+    min-height: 160px;
+    resize: vertical;
+}
+
 .evo-fb-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;

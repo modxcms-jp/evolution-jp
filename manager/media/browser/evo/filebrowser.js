@@ -7,7 +7,7 @@
 // 2 度目に実行しないので、断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す
 // (入口が違うと、別の入口の振る舞いで初期化されない)。
 //
-// behaviors(どれも入口の JS が決める。host は { config, state, preview, reload }):
+// behaviors(どれも入口の JS が決める。host は { root, config, state, preview, reload }。root は画面の要素(入口が足すダイアログを探す)):
 //   openFile(entry, host)              ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
 //   previewActions(entry, host)        プレビューに足すボタンの配列 [{ label, primary, onSelect }]
 //   contextMenuItems(entry, host)      右クリックメニューに足す項目。entry があれば(ファイル 1 件)メニューの先頭に、
@@ -92,7 +92,7 @@ function init(root, entry, behaviors) {
     var noticeEl = root.querySelector('[data-role="notice"]');
 
     // 入口の JS の behaviors へ渡す。preview は作ったあとに入れる
-    var host = { config: config, state: state, preview: null, reload: function () { load(); } };
+    var host = { root: root, config: config, state: state, preview: null, reload: function () { load(); } };
 
     function findFile(name) {
         return state.rawFiles.find(function (f) { return f.name === name; });

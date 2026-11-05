@@ -26,6 +26,11 @@ class BrowserView
         'fb_download', 'fb_download_preparing', 'fb_download_failed',
         'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed',
         'fb_err_too_large', 'fb_confirm_overwrite',
+        // 管理モードだけが使う(js/manage.js・js/textEditor.js)
+        'fb_text_open', 'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
+        'fb_text_saving', 'fb_text_saved', 'fb_text_save_failed', 'fb_text_discard_confirm',
+        'fb_new_file', 'fb_new_file_prompt', 'fb_new_file_failed',
+        'fb_unzip', 'fb_confirm_unzip', 'fb_unzip_failed', 'fb_unzip_done', 'fb_unzip_skipped', 'fb_unzip_entry_failed',
     ];
 
     /**
@@ -66,18 +71,22 @@ class BrowserView
             'editableExtensions' => BrowserConfig::EDITABLE_EXTENSIONS,
             'editMaxDimension' => BrowserConfig::EDIT_MAX_DIMENSION,
             'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
+            // テキストとして開ける拡張子(管理モードの js/manage.js が使う。サーバーの readText も同じ一覧で確かめる)
+            'textExtensions' => BrowserConfig::TEXT_EXTENSIONS,
             'maxUploadSize' => $options['maxUploadSize'],
             'lang' => $messages,
         ];
     }
 
     /**
-     * 画面の本体(ツールバー・選択バー・ツリー・一覧・ダイアログの枠)。範囲によらず同じ
+     * 画面の本体(ツールバー・選択バー・ツリー・一覧・ダイアログの枠)。範囲によらず同じ。
+     * 用途ごとに足すダイアログなどは $extras で受け、本体の末尾(#evoFileBrowser の中)へ入れる(ここでは範囲を見て分けない)
      *
      * @param array $jsConfig jsConfig() の戻り値
+     * @param string $extras 本体の末尾に足す HTML(管理モードは manageExtras())
      * @return string
      */
-    public static function markup(array $jsConfig)
+    public static function markup(array $jsConfig, $extras = '')
     {
         $markup = '';
         $markup .= '<div class="evo-fb" id="evoFileBrowser" data-config="' . htmlspecialchars(json_encode($jsConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') . '">';
@@ -176,9 +185,42 @@ class BrowserView
         $markup .= '      </div>';
         $markup .= '    </div>';
         $markup .= '  </div>';
+        $markup .= $extras;
         $markup .= '</div>';
 
         return $markup;
+    }
+
+    /**
+     * 管理モードにだけあるダイアログ(テキストの表示・編集)。markup() の $extras へ渡す(管理モードの外側が使う)。
+     * エレメントの編集画面と同じ形のコードの欄(div.code-editor の見出しと「行の折り返し」の切り替え、textarea.phptextarea)を出し、
+     * 見た目はテーマの CSS をそのまま使う。js/textEditor.js が data-role で見つけて動かす
+     *
+     * @return string
+     */
+    public static function manageExtras()
+    {
+        $html = '';
+        $html .= '  <div class="evo-fb-overlay" data-role="text-overlay" hidden>';
+        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbTextTitle" data-role="text-panel">';
+        $html .= '      <div class="evo-fb-overlay-header" id="evoFbTextTitle">' . hsc(lang('fb_text_title')) . '</div>';
+        $html .= '      <div class="code-editor evo-fb-text-editor">';
+        $html .= '        <div class="code-editor-header">';
+        $html .= '          <span class="code-editor-title" data-role="text-name"></span>';
+        $html .= '          <label class="code-editor-options">' . hsc(lang('fb_text_wrap')) . ' <input type="checkbox" class="inputBox" checked data-role="text-wrap"></label>';
+        $html .= '        </div>';
+        $html .= '        <textarea class="phptextarea evo-fb-text-area" dir="ltr" wrap="soft" spellcheck="false" aria-labelledby="evoFbTextTitle" data-role="text-area"></textarea>';
+        $html .= '      </div>';
+        $html .= '      <div class="evo-fb-edit-note" role="status" data-role="text-status"></div>';
+        $html .= '      <div class="evo-fb-edit-error" role="alert" data-role="text-error" hidden></div>';
+        $html .= '      <div class="evo-fb-overlay-footer">';
+        $html .= '        <button type="button" class="evo-fb-btn" data-role="text-close">' . hsc(lang('close')) . '</button>';
+        $html .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="text-save" disabled>' . hsc(lang('save')) . '</button>';
+        $html .= '      </div>';
+        $html .= '    </div>';
+        $html .= '  </div>';
+
+        return $html;
     }
 
     /**
@@ -207,8 +249,9 @@ class BrowserView
      *
      * @param array $jsConfig jsConfig() の戻り値(apiUrl は api.php)
      * @param string $title 見出し
+     * @param string $extras 画面の本体の末尾に足す HTML(管理モードは manageExtras())
      */
-    public static function standalonePage(DocumentParser $modx, array $jsConfig, $title)
+    public static function standalonePage(DocumentParser $modx, array $jsConfig, $title, $extras = '')
     {
         $theme = $modx->config('manager_theme');
         ?>
@@ -221,7 +264,7 @@ class BrowserView
     <link rel="stylesheet" href="filebrowser.css?<?= self::cssVersion() ?>">
 </head>
 <body class="evo-fb-standalone">
-<?= self::markup($jsConfig) ?>
+<?= self::markup($jsConfig, $extras) ?>
 <script type="module" src="js/<?= hsc($jsConfig['entry']) ?>.js?<?= self::jsVersion($jsConfig['entry']) ?>"></script>
 </body>
 </html>

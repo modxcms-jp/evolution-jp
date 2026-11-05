@@ -157,7 +157,7 @@ class EvoLogger
                 'ua' => serverv('HTTP_USER_AGENT', ''),
             ],
             'request_started_at' => $this->formatRequestStartedAt(),
-            'trace_id' => $this->getTraceId(),
+            'trace_id' => self::traceId(),
             'user' => $this->getCurrentUserId(),
         ];
 
@@ -203,13 +203,17 @@ class EvoLogger
         return $context;
     }
 
-    private function getTraceId(): string
+    /**
+     * 今の要求の trace_id。システムログの同じ要求の行すべてに入る(X-Request-ID か、要求ごとの乱数)。
+     * 別のログ(管理操作ログなど)から、システムログの同じ要求の行を引く手がかりとして使う
+     */
+    public static function traceId(): string
     {
         if (self::$runtimeTraceId !== '') {
             return self::$runtimeTraceId;
         }
 
-        $requestId = $this->normalizeIdentifier(serverv('HTTP_X_REQUEST_ID', ''));
+        $requestId = self::normalizeIdentifier(serverv('HTTP_X_REQUEST_ID', ''));
         if ($requestId !== '') {
             self::$runtimeTraceId = $requestId;
             return self::$runtimeTraceId;
@@ -225,7 +229,7 @@ class EvoLogger
     }
 
     /** @param mixed $value */
-    private function normalizeIdentifier($value): string
+    private static function normalizeIdentifier($value): string
     {
         $value = trim((string)$value);
         if ($value === '') {
