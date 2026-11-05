@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-04-filemanager-to-file-browser",
+    "run_id": "2026-11-04-filemanager-to-file-browser-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-05T19:07:47+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}
