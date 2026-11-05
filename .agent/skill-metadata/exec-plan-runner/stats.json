@@ -208,22 +208,22 @@
             "source": "2026-10-30-file-browser-kcfinder-extension-001"
         },
         "change-023": {
-            "seen_runs": 2,
-            "used_runs": 2,
-            "helped_runs": 2,
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-11-05T19:05:00+09:00",
-            "source": "2026-11-04-filemanager-to-file-browser-001"
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         },
         "change-024": {
-            "seen_runs": 2,
-            "used_runs": 2,
-            "helped_runs": 2,
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
             "conflicted_runs": 0,
             "stale_runs": 0,
-            "last_used_at": "2026-11-05T19:05:00+09:00",
-            "source": "2026-11-04-filemanager-to-file-browser-001"
+            "last_used_at": "2026-11-03T10:30:00+09:00",
+            "source": "2026-10-31-manager-output-escape-001"
         },
         "change-025": {
             "seen_runs": 1,
@@ -296,6 +296,24 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-03T10:20:00+09:00",
             "source": "2026-11-03-element-category-after-validation-001"
+        },
+        "change-033": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-05T19:05:00+09:00",
+            "source": "2026-11-04-filemanager-to-file-browser-001"
+        },
+        "change-034": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-05T19:05:00+09:00",
+            "source": "2026-11-04-filemanager-to-file-browser-001"
         }
     }
 }
