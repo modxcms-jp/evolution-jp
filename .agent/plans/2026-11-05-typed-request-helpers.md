@@ -21,6 +21,7 @@ Issue: #1059
 
 - 2026-11-05: 型つきの取り出し口は、ID 専用の `get_intvar()` / `post_intvar()` / `request_intvar()` / `to_intvar()` / `abort_if_invalid_id()` として既にある（`manager/includes/helpers.php`、呼び出し元は約 150 か所）。新しい仕組みは作らず、この一族を広げる。
 - 2026-11-05: #1058 で、`getv()` の引数なし呼び出しによる null 添字、リクエスト値の既定値 `null` を `preg_match()` などへ渡す約 20 か所、モジュールの依存関係の削除で `count(null)` が TypeError になる不具合を直した。いずれもこの計画で防ぎたい形の実例。
+- 2026-11-05: `getv()` の特例をやめると、既定値を省いた `getv()` も空の値で `null` ではなく `''` を返すようになる（PR #1060 のレビューで指摘）。たとえば `manager/frames/nodes.php:54` は `getv('offset') !== null` で分岐していて、`offset=&expandAll=1` は今は通常の展開に進むが、特例をやめるとページ送りの分岐に入り `expandAll` を無視する。そのため M2 の確認は既定値つきの呼び出しに限らず、`getv()` の全呼び出しを対象にする。
 
 ## Decision Log
 
@@ -47,7 +48,7 @@ Issue: #1059
 
 - 呼び出し元は `getv` 238・`postv` 544・`anyv` 235 か所。ディレクトリごとでは `manager/actions/` 360、`manager/processors/` 363、`manager/includes/` 66、`manager/media/` 32、`manager/frames/` 14、`assets/snippets/` 37、`assets/plugins/` 46、`assets/modules/` 40、`install/` 44。
 - 取り出した後に自分で確かめる書き方が散らばっている: ID の形式チェック `preg_match('@^[1-9][0-9]*$@', getv('id'))` が 16 か所、`(int)` / `intval()` の後付けが 55 か所、`is_numeric()` / `ctype_digit()` が 4 か所。
-- `getv()` だけが、空の値（`?k=`）を「無い」とみなして既定値を返す。既定値つきの `getv()` は 35 か所あり、そのうち空のときに既定値へ戻ることを期待しているものがある（例: `manager/actions/header.inc.php` の `getv('tab', 1)` と `getv('f', 'mainpane')`、`manager/actions/report/logging.static.php` の `getv('nrresults', config('number_of_logs'))`、`manager/actions/report/eventlog.dynamic.php` の `getv('period', 'latest')`、`manager/media/browser/evo/browser.php` の `getv('type', getv('Type', 'images'))`）。
+- `getv()` だけが、空の値（`?k=`）を「無い」とみなして既定値（既定値を省いたときは `null`）を返す。この特例に頼っている形は 2 つある。1 つは既定値を省いて `null` と比べるもので、直接比べている箇所は `manager/frames/nodes.php:54` の `getv('offset') !== null` と `manager/actions/document/mutate_content/functions.php:504` の `getv('pid') === null`（変数に入れてから比べる形は M2 で追う）。もう 1 つは既定値つきの `getv()`（35 か所）で、空のときに既定値へ戻ることを期待しているもの（例: `manager/actions/header.inc.php` の `getv('tab', 1)` と `getv('f', 'mainpane')`、`manager/actions/report/logging.static.php` の `getv('nrresults', config('number_of_logs'))`、`manager/actions/report/eventlog.dynamic.php` の `getv('period', 'latest')`、`manager/media/browser/evo/browser.php` の `getv('type', getv('Type', 'images'))`）。
 
 ## Plan of Work
 
@@ -59,7 +60,7 @@ M1 で型つきのヘルパーを足し、決まりを文書にする。足す�
 - `*_idsvar($key)`: 正の整数の配列（`to_intvar()` を各要素に使い、0 を除く）。配列でもカンマ区切りの文字列でも受ける。
 - `*_intvar()` は今のまま（正の整数、それ以外は 0）。0 や負の数が意味を持つ数値（並びのずれなど）が要る場所が置き換えの途中で見つかったら、そのときに `*_numvar()` を足すかを決め、Decision Log に書く。
 
-M2 で `getv()` の空の値の特例をやめる。動きが変わるのは「空の値を送り、既定値つきで受けている」呼び出し元だけなので、M2 の中で既定値つきの `getv()` 35 か所をすべて確かめ、空なら既定値に戻ることを期待しているものを型つきへ置き換える。特例をやめる変更と置き換えは同じ PR にする（途中の版で動きが変わらないように）。
+M2 で `getv()` の空の値の特例をやめる。動きが変わるのは、空の値が送られたときに、戻り値が既定値（省いたときは `null`）から `''` に変わる呼び出し元である。既定値の有無に関わらず `getv()` の全呼び出し（238 か所）を確かめ、空の値と無い値で動きが分かれるもの（既定値に戻ることを期待する、`null` と比べる、戻り値を入れた変数を `null` や `isset()` で判定する）を型つきへ置き換えるか、`=== null` の判定を「空か無いか」の判定に直す。特例をやめる変更と置き換えは同じ PR にする（途中の版で動きが変わらないように）。
 
 M3〜M6 でディレクトリごとに置き換える。置き換えの規則は次の表のとおり。生の値のまま残してよいのは、文字列として厳密に比べるだけのもの（`postv('mode') === 'save'`）と、値を加工せずに保存するもの（`db()->escape(postv('content', ''))` のように既定値 `''` を付けて渡すもの）、配列のまま扱う項目（テンプレート変数の値など）。
 
@@ -91,7 +92,8 @@ M1:
 M2:
 
 - 編集: `getv()` から空の値を消す処理を取り除き、`postv()` と同じく `array_get($_GET, $key, $default)` だけにする。
-- 確認: `grep -rnE "getv\('[^']+', ?[^)]" --include=*.php manager assets install` の 35 か所を 1 つずつ読み、空のときに既定値へ戻る前提のものを型つきへ置き換える。置き換えた箇所と、そのままにした理由を PR 本文に表で書く。
+- 確認: `grep -rnE "\bgetv\(" --include=*.php manager assets install`（tinymce を除く 238 か所）を 1 つずつ読み、空の値と無い値で動きが分かれるものを Plan of Work の規則で直す。直接 `null` と比べる箇所は `grep -rnE "getv\('[^']+'\) *(!==|===) *null|is_null\(getv\(" --include=*.php manager assets install` で拾えるが、変数に入れてから比べる形はこれで拾えないので、全呼び出しを読む。直した箇所と、そのままにした理由を PR 本文に表で書く。
+- 確認: 検証環境で、`manager/frames/nodes.php` を `offset=&expandAll=1` で呼び、修正前と同じくツリーをすべて展開した結果が返ることを確かめる。
 - 確認: 検証環境で、置き換えた画面を空の値で開き（例: `a=114&period=`、`a=13&nrresults=`）、修正前と同じ表示になることを確かめる。
 
 M3〜M6（各マイルストーンで同じ手順）:
