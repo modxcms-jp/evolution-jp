@@ -9,7 +9,7 @@ Issue: #1059
 ## Progress
 
 - [x] (2026-11-05) M1: 型つきヘルパー 12 関数と `to_*()` 4 つを `manager/includes/helpers.php` に足し、決まりを `assets/docs/request-input.md` に書いた。`*_strvar` を security-lint の検出対象に入れた（PR は Artifacts and Notes）
-- [ ] M2: `getv()` の空の値の特例をやめ、特例に頼る呼び出し元を型つきへ置き換える
+- [x] (2026-11-05) M2: `getv()` の特例をやめ、全 221 行を読んで空の値で動きが変わる 9 か所（7 ファイル）を型つきに直した。エラー画面の操作の番号も型つきで読むようにした（PR は Artifacts and Notes）
 - [ ] M3: `manager/actions/` の置き換え
 - [ ] M4: `manager/processors/` の置き換え
 - [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
@@ -24,6 +24,9 @@ Issue: #1059
 - 2026-11-05: `getv()` の特例をやめると、既定値を省いた `getv()` も空の値で `null` ではなく `''` を返すようになる（PR #1060 のレビューで指摘）。たとえば `manager/frames/nodes.php:54` は `getv('offset') !== null` で分岐していて、`offset=&expandAll=1` は今は通常の展開に進むが、特例をやめるとページ送りの分岐に入り `expandAll` を無視する。そのため M2 の確認は既定値つきの呼び出しに限らず、`getv()` の全呼び出しを対象にする。
 - 2026-11-05（M1 の自己レビュー）: `.github/scripts/security-lint.php` の sql-embed は `REQUEST_FUNCS`（`getv` / `anyv` / `postv` / `cookiev`）の名前で照合している。中身をそのまま返す `*_strvar()` に置き換えると SQL への埋め込みが検出から外れるため、M1 で `*_strvar` を `REQUEST_FUNCS` に足した。`*_intvar` / `*_boolvar` / `*_choicevar` / `*_idsvar` は返す値がコードで決まるので足さない。
 - 2026-11-05（M1 の自己レビュー）: ID の一覧を読む既存の処理は動きが揃っていない。`manager/processors/document/move_document.processor.php` は 1 つでも不正な id があればエラーで止め、`manager/actions/element/mutate_module_resources.dynamic.php` は読めた id だけを使う。`*_idsvar()` は読めない要素を黙って捨てるので、全体を拒否したい処理は置き換えないか、要素数を比べる（`assets/docs/request-input.md` に記載）。
+- 2026-11-05（M2）: `getv()` の約 205 行は、空の値でも結果が変わらない使い方だった（真偽判定、`(int)`・`hsc()`・`empty()`、`== ''` 比較、既定値が `''` のもの、全件取得）。`isset(getv())`・`is_null(getv())`・`??`・strict な `in_array`・配列の添字に使う形は 0 件。`install/` には `getv()` が無い。`evo()->input_get()` は `$_GET` を直接読むので、この変更の影響を受けない。
+- 2026-11-05（M2 の自己レビュー）: エラー画面（`manager/includes/traits/document.parser.subparser.trait.php`）の操作の番号は、`a[]=1` のとき PHP 8 で TypeError になり、値をエスケープせずに出力していた（M2 の前から）。`get_intvar('a') ?: post_intvar('a')` で読むようにして、M2 と一緒に直した。
+- 2026-11-05（M2 の検証）: `manager/frames/nodes.php` は直接開くと `$modx` が無く空の 200 で終わる。実際の呼び出しは `index.php?a=1&f=nodes&...`（tree.js）なので、検証はこの形で行う。
 
 ## Decision Log
 
@@ -31,6 +34,8 @@ Issue: #1059
 - 2026-11-05 / yamamoto・Claude: 空の値は「生の値はそのまま、型つきは既定値」にする。`getv()` / `postv()` / `anyv()` はキーがあれば空文字をそのまま返し、既定値はキーが無いときだけ使う（Symfony の InputBag と同じ）。型つきの取り出し口は、空・形式違い・配列などの想定外の型を、すべて既定値にする。代替案の「すべて空なら既定値」は、保存で項目を空にしたい場合に既定値が入る恐れがあり、`postv()` の約 540 か所の確認が重いため採らない。「型つきも空はそのまま」は、型つきで空を受けたときの値が型ごとにばらつくため採らない。
 - 2026-11-05 / Claude（M1 の自己レビュー）: `*_choicevar()` の `$default` は必須にする。省けると形式違いのときに `null` が返り、この計画が防ぎたい「null を文字列関数へ渡す」形がまた生まれるため。
 - 2026-11-05 / Claude（M1 の自己レビュー）: `*_idsvar()` は、文字列で受けたときだけカンマで分けた各要素の前後の空白を除く（`'3, 4'` は `[3, 4]`）。配列の要素は除かない。既存の `move_document.processor.php` が各要素を `trim()` してから読んでいるのに合わせた。1 つの値を読む `*_intvar()` は今のまま空白を許さない。
+- 2026-11-05 / Claude（M2）: `manager/actions/element/mutate_plugin.dynamic.php` の `["id" => getv('id')]`（プラグインのイベント OnPluginFormPrerender / OnPluginFormRender に渡す値）は直さない。`id=` を明示して開いたときだけ null から `''` に変わり、違いが出るのは受け取る側が `isset()` / `is_null()` で判定するときだけ（標準添付のプラグインに該当なし）。`get_intvar('id') ?: null` にすると、逆に `'abc'` などで値が変わる。
+- 2026-11-05 / Claude（M2）: `manager/actions/header.inc.php` の `tab` は `get_strvar('tab', '1')` で読む。既定値が int の 1 から文字列の `'1'` に変わるが、`setcookie()` が文字列にして送るので、ブラウザに届く値は同じ。
 
 ## Outcomes & Retrospective
 
@@ -40,7 +45,7 @@ Issue: #1059
 
 - リクエスト値: ブラウザが送ってくる値。URL の `?id=5` のようなクエリ（GET）と、フォームの送信内容（POST）がある。PHP では `$_GET` / `$_POST` / `$_REQUEST` に入るが、このプロジェクトでは直接触らず、ヘルパーを通す（AGENTS.md の「スーパーグローバル変数の禁止」）。
 - 生の値のヘルパー: `getv($key, $default)`（GET）、`postv()`（POST）、`anyv()`（GET と POST の両方）。値を変換せずに返す。キーを省略すると全件を配列で返す。中身は `array_get()`。
-- 型つきのヘルパー: 決まった型の値だけを返し、それ以外は既定値を返すヘルパー。今は ID 用の `*_intvar()` だけがある。
+- 型つきのヘルパー: 決まった型の値だけを返し、それ以外は既定値を返すヘルパー。計画の開始時は ID 用の `*_intvar()` だけがあり、M1 で文字列・真偽値・選択肢・ID の配列を足した。
 
 関係するファイル:
 
@@ -58,7 +63,7 @@ Issue: #1059
 
 M1 で型つきのヘルパー（`*_strvar` / `*_boolvar` / `*_choicevar` / `*_idsvar`）を足し、決まりを文書にする（M1 で完了）。それぞれ `get_` / `post_` / `request_` の 3 つの受け取り元を用意し（ID 用の `*_intvar()` と同じ並び）、変換の本体は受け取り元に依らない `to_*()` に置く。各ヘルパーの戻り値の規則、空白と大文字小文字の扱い、0 や負の数が意味を持つ値の扱い（`*_numvar()` は置き換えの途中で要るとわかったら足すかを決め、Decision Log に書く）は、`assets/docs/request-input.md` を正本とする。
 
-M2 で `getv()` の空の値の特例をやめる。動きが変わるのは、空の値が送られたときに、戻り値が既定値（省いたときは `null`）から `''` に変わる呼び出し元である。既定値の有無に関わらず `getv()` の全呼び出し（238 か所）を確かめ、空の値と無い値で動きが分かれるもの（既定値に戻ることを期待する、`null` と比べる、戻り値を入れた変数を `null` や `isset()` で判定する）を型つきへ置き換えるか、`=== null` の判定を「空か無いか」の判定に直す。特例をやめる変更と置き換えは同じ PR にする（途中の版で動きが変わらないように）。
+M2 で `getv()` の空の値の特例をやめる。動きが変わるのは、空の値が送られたときに、戻り値が既定値（省いたときは `null`）から `''` に変わる呼び出し元である。既定値の有無に関わらず `getv()` の全呼び出し（2026-11-05 時点で 238 か所・221 行）を確かめ、空の値と無い値で動きが分かれるもの（既定値に戻ることを期待する、`null` と比べる、戻り値を入れた変数を `null` や `isset()` で判定する）を型つきへ置き換えるか、`=== null` の判定を「空か無いか」の判定に直す。特例をやめる変更と置き換えは同じ PR にする（途中の版で動きが変わらないように）。
 
 M3〜M6 でディレクトリごとに置き換える。置き換えの規則（置き換えの表、生の値のまま残してよい形、`*_boolvar()` や `*_idsvar()` に置き換える前に確かめること）は `assets/docs/request-input.md` を正本とし、ここには写さない。
 
@@ -82,7 +87,7 @@ M1:
 M2:
 
 - 編集: `getv()` から空の値を消す処理を取り除き、`postv()` と同じく `array_get($_GET, $key, $default)` だけにする。
-- 確認: `grep -rnE "\bgetv\(" --include=*.php manager assets install`（tinymce を除く 238 か所）を 1 つずつ読み、空の値と無い値で動きが分かれるものを Plan of Work の規則で直す。直接 `null` と比べる箇所は `grep -rnE "getv\('[^']+'\) *(!==|===) *null|is_null\(getv\(" --include=*.php manager assets install` で拾えるが、変数に入れてから比べる形はこれで拾えないので、全呼び出しを読む。直した箇所と、そのままにした理由を PR 本文に表で書く。
+- 確認: `grep -rnE "\bgetv\(" --include=*.php manager assets install`（tinymce を除く 238 か所・221 行）を 1 つずつ読み、空の値と無い値で動きが分かれるものを Plan of Work の規則で直す。直接 `null` と比べる箇所は `grep -rnE "getv\('[^']+'\) *(!==|===) *null|is_null\(getv\(" --include=*.php manager assets install` で拾えるが、変数に入れてから比べる形はこれで拾えないので、全呼び出しを読む。直した箇所と、そのままにした理由を PR 本文に表で書く。
 - 確認: 検証環境で、`manager/frames/nodes.php` を `offset=&expandAll=1` で呼び、修正前と同じくツリーをすべて展開した結果が返ることを確かめる。
 - 確認: 検証環境で、置き換えた画面を空の値で開き（例: `a=114&period=`、`a=13&nrresults=`）、修正前と同じ表示になることを確かめる。
 
@@ -126,7 +131,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（base は M1 のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
