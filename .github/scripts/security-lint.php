@@ -3,7 +3,7 @@
  * 管理画面のリクエスト値の扱いと、JS への埋め込みの逸脱を検出する（Issue #493 の M3）。
  *
  * 検出するもの:
- *   sql-embed   processor の中で、リクエストの値（getv() / anyv() / postv() / cookiev() / $_GET など）を
+ *   sql-embed   processor の中で、リクエストの値（getv() / anyv() / postv() / cookiev() / *_strvar() / $_GET など）を
  *               db()->escape() や (int)・*_intvar() を通さずに、SQL の文字列へ埋め込む・DB の呼び出しや where() へ渡す書き方。
  *               値を代入した変数・配列も追う（同じファイルの中で、上から順に）
  *   js-escape   <script> の中へ埋め込む値に addslashes() や db()->escape() を使う書き方（js_literal() を使う）
@@ -215,7 +215,7 @@ function statements($toks)
 // sql-embed
 // ---------------------------------------------------------------------------
 
-const REQUEST_FUNCS = ['getv', 'anyv', 'postv', 'cookiev'];
+const REQUEST_FUNCS = ['getv', 'anyv', 'postv', 'cookiev', 'get_strvar', 'post_strvar', 'request_strvar'];
 const REQUEST_VARS = ['$_GET', '$_POST', '$_REQUEST', '$_COOKIE'];
 
 // 引数の値が、そのまま文字列として結果に出てこない関数（判定・整数化・エスケープ・ハッシュなど）

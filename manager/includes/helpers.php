@@ -419,17 +419,8 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
-// リクエスト値の取り出し方は 2 通りある。詳しくは assets/docs/request-input.md
-//
-// - 生の値: getv() / postv() / anyv()。値を変換せずに返す。文字列として厳密に比べるだけのもの、加工せずに保存するもの、配列のまま扱うものに使う
-// - 型つきの値: *_intvar()（id・正の整数）/ *_strvar()（文字列）/ *_boolvar()（真偽値）/ *_choicevar()（選択肢の中の値）/ *_idsvar()（id の配列）。
-//   決まった型の値だけを返し、空・形式違い・配列などの想定外の型は既定値にする。型が決まっている値は、こちらで取り出す
-//
-// 受け取り元は接頭辞で選ぶ。その処理が実際に呼ばれる方法に合わせる
-// （GET だけなら get_*、POST だけなら post_*、GET と POST の両方で呼ばれる処理だけ request_*）。
-// 変換の本体は受け取り元に依らない to_*() にある
-//
-// id は正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。(int) は "5abc" を 5 にしてしまうので、id は *_intvar() で読む
+// リクエスト値の取り出し方（生の値と型つき、受け取り元の選び方）は assets/docs/request-input.md を参照。
+// id は (int) で読まない。(int) は "5abc" を 5 にしてしまうので、*_intvar() で読む（正の整数なら int、それ以外は 0）
 
 // GET の値だけを id として読む
 function get_intvar($key)
@@ -508,7 +499,7 @@ function to_boolvar($value, $default = false)
 }
 
 // $value（文字列か int）が $choices のいずれかと文字列として一致したら、その $choices の要素（元の型）を返す。それ以外は $default
-function to_choicevar($value, array $choices, $default = null)
+function to_choicevar($value, array $choices, $default)
 {
     if (!is_string($value) && !is_int($value)) {
         return $default;
@@ -522,11 +513,11 @@ function to_choicevar($value, array $choices, $default = null)
     return $default;
 }
 
-// 配列、またはカンマ区切りの文字列の各要素を id として読み、0 と重複を除いた int の配列にする。それ以外は []
+// 配列、またはカンマ区切りの文字列（区切りの前後の空白は除く）の各要素を id として読み、0 と重複を除いた int の配列にする。それ以外は []
 function to_idsvar($value)
 {
     if (is_string($value)) {
-        $value = explode(',', $value);
+        $value = array_map('trim', explode(',', $value));
     }
     if (!is_array($value)) {
         return [];
@@ -574,17 +565,17 @@ function request_boolvar($key, $default = false)
 }
 
 // 選択肢の中の値として読む（GET / POST / 両方）
-function get_choicevar($key, array $choices, $default = null)
+function get_choicevar($key, array $choices, $default)
 {
     return to_choicevar(getv($key), $choices, $default);
 }
 
-function post_choicevar($key, array $choices, $default = null)
+function post_choicevar($key, array $choices, $default)
 {
     return to_choicevar(postv($key), $choices, $default);
 }
 
-function request_choicevar($key, array $choices, $default = null)
+function request_choicevar($key, array $choices, $default)
 {
     return to_choicevar(anyv($key), $choices, $default);
 }
