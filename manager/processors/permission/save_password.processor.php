@@ -9,7 +9,7 @@ if (!evo()->hasPermission('save_password')) {
 
 $password = post_strvar('pass1');
 
-if ($password != post_strvar('pass2')) {
+if ($password !== post_strvar('pass2')) {
     $msg = '<p class="fail">passwords don\'t match!</p>';
 } elseif (empty($password)) {
     $msg = '<p class="fail">passwords don\'t empty!</p>';

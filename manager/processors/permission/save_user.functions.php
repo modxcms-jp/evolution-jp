@@ -425,6 +425,16 @@ function validEmail()
     return true;
 }
 
+// 送られたロールが、空（未送信を含む）か、0 以上の整数として読めるか。それ以外は保存しない
+function validRole()
+{
+    $role = userformv('role');
+    if ($role === null || $role === '' || $role === 0 || $role === '0') {
+        return true;
+    }
+    return userformv_int('role') > 0;
+}
+
 function validate()
 {
     $fields = [

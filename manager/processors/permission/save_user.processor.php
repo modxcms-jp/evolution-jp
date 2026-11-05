@@ -22,6 +22,12 @@ if (!validEmail()) {
     exit;
 }
 
+// verify role
+if (!validRole()) {
+    webAlert('Invalid role');
+    exit;
+}
+
 // verify admin security
 if (!verifyPermission()) {
     // Check to see if user tried to spoof a "1" (admin) role
