@@ -8,7 +8,7 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
     alert()->dumpError();
 }
 
-$userid = evo()->getLoginUserID();
+$userid = (int) evo()->getLoginUserID();
 
 // get user attribute
 $rs = db()->select('*', '[+prefix+]user_attributes', "internalKey='{$userid}'");
@@ -108,16 +108,6 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
         }
     }
 
-    function deleteuser() {
-        <?php if ($userid === (int) evo()->getLoginUserID()) { ?>
-            alert("<?= $_lang['alert_delete_self'] ?>");
-        <?php } else { ?>
-            if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
-                EvoCsrf.post("index.php?id=" + document.userform.userid.value + "&a=33");
-            }
-        <?php } ?>
-    }
-
     // change name
     function changeName() {
         if (confirm("<?= $_lang['confirm_name_change'] ?>") == true) {
@@ -175,11 +165,6 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         value="" <?= selected(request_intvar('stay') === 0) ?>><?= $_lang['close'] ?></option>
                 </select>
             </li>
-            <?php
-            if ($action === 74) { ?>
-                <li id="Button3"><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?>
-                    </a></li>
-            <?php } ?>
             <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>

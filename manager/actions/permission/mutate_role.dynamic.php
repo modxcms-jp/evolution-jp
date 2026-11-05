@@ -24,6 +24,9 @@ switch ($action) {
 }
 
 $role = request_intvar('id');
+if ($action === 38) {
+    $role = 0; // 新規は id を使わない
+}
 
 // check to see the role editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");

@@ -15,6 +15,9 @@ if (!hasUserPermission($action)) {
 }
 
 $userid = request_intvar('id');
+if ($action === 11) {
+    $userid = 0; // 新規は id を使わない
+}
 
 if ($userid && !activeUserCheck($userid)) {
     alert()->dumpError();

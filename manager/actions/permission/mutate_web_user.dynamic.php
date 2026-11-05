@@ -32,6 +32,9 @@ switch ($action) {
 $icons_path = manager_style_image_path('icons');
 
 $user = request_intvar('id');
+if ($action === 87) {
+    $user = 0; // 新規は id を使わない
+}
 
 
 // check to see the snippet editor isn't locked
