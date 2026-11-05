@@ -9,7 +9,7 @@ Issue: #1046
 ## Progress
 
 - [x] (2026-11-04) ExecPlan を作成（方針・マイルストーンの分け方・対象外はユーザーと合意済み）
-- [ ] M1: 安全確認の共通化（`lib/PathGuard.php` を作り、旧ファイル管理がそれを使う）
+- [x] (2026-11-04) M1: 安全確認の共通化（`lib/PathGuard.php` を作り、旧ファイル管理がそれを使う）。Validation の M1 の表を main と作業ブランチで比べ、違いは `editor` の `assets` の削除を断ることだけだった
 - [x] (2026-11-04) 要相談の 3 点を決定（モードの決め方・拡張子は案のとおり、記録は管理操作ログにも残す）。補足の指示（互換の維持、a=13 の記録の中身、権限の確認の分離、zip のエントリごとの確認、共通化の範囲）を反映
 - [x] (2026-11-04) 共通化を処理ごとに照らし合わせ直した（一覧とアップロードは範囲ごとの関数に分け、`thumb` はピッカーだけにする）。zip の展開後の上限（256MB）は根拠を確かめて取り下げ、旧と同じにした
 - [x] (2026-11-04) `upload_maxsize` が空のときの上限を範囲ごとに今の動きで保つ形に直した（旧は 32MB ではなく本体の上限なしと PHP 7.4 で確認）。zip の展開の安全確認を点検し、ぶら下がったリンク・書く直前の確かめ・0777 のパーミッション・zip そのもののリンク・PHP 7.4 の `basename()` の対策を足した
@@ -33,6 +33,10 @@ Issue: #1046
 2026-11-04（計画時、PHP 7.4 で確認済み）: 設定 `upload_maxsize` が空のとき、旧ファイル管理には本体の上限が無い。旧のフォームは `MAX_FILE_SIZE` に `evo()->config('upload_maxsize', 32 * 1024 * 1024)` を入れているが、`default.config.php` に `'upload_maxsize' => ''` があり、`array_get()` は `isset()` で確かめるので、空の文字列が返って `(int)` で 0 になる（32MB の既定は使われない）。PHP は `MAX_FILE_SIZE` が 0 のとき大きさを確かめない。`php:7.4-cli` の組み込みサーバーに 40MB を送って確かめた（`upload_max_filesize=64M`）: `MAX_FILE_SIZE=0` では `error: 0` で受け付け、`MAX_FILE_SIZE=1000000` では `error: 2`（`UPLOAD_ERR_FORM_SIZE`）。つまり旧で効いていたのは、PHP の `upload_max_filesize` と `post_max_size` だけ。一方、ファイルブラウザ（ピッカー）は `BrowserConfig::maxUploadSize()` で、空のとき 5,000,000 バイトを当てている。2 つは今の時点で振る舞いが違い、どちらも今の利用者が前提にしているので、範囲ごとにそれぞれの今の振る舞いを保つ（Decision Log）。設定の画面（`tab6_filemanager_settings.inc.php`）は空のときに PHP の上限（`manager()->getUploadMaxsize()`）を初期値として出し、保存すると値が入る。値が入っているサイトでは、旧も新も同じ値で断る。
 
 2026-11-04（計画時）: ファイルブラウザの API（`manager/media/browser/evo/api.php`）は、管理画面のセッション（またはウェブユーザーのセッションと設定 `rb_webuser`）と設定 `use_browser` だけを確かめ、ロールの権限（`hasPermission()`）は見ていない。守る場所の確認も無い。ピッカーのルート（`rb_base_dir`、既定は `content/`）が守る場所と重ならない前提で成り立っている。
+
+2026-11-04（M1）: `PathGuard::normalize()` の最後の要素は、`strrpos()` の前に `rtrim($path, '/')` をかけて取る。`basename()` は末尾の `/` を除いてから最後の要素を返すので、それに合わせないと `/app/no/such/` のような値で結果が変わる。`containsProtected()` は、ルートを `normalize()` で解決するため、守る場所を指すフォルダへのリンクを `folderpath` に渡したときも断る（旧は `rrmdir()` がリンク先をたどって中身を消せた）。リンクの場合は作業ブランチで確かめていない（コードの読み）。
+
+2026-11-04（M1、検証時）: 旧ファイル管理の一覧を出す応答に `Deprecated: substr(): Passing null to parameter #2 ($offset)` が出る。`ls()` の `$len` が未定義のまま使われているためで、main にもある。M4 で `files.dynamic.php` ごと消えるので直さない。
 
 2026-11-04（計画時）: 2026-07-11 のファイルブラウザ刷新の ExecPlan（`.agent/plans/2026-07-11-file-browser-modal-rewrite.md`）は全段階が完了しているが、`archive/` へ移されていない。この計画では動かさない。
 
@@ -567,6 +571,7 @@ M4 で `files.dynamic.php` を消した後に問題が見つかったときは�
 - 新しく作るファイル: `manager/media/browser/evo/lib/PathGuard.php`（M1）、`lib/BrowserScope.php`・`lib/PickerScope.php`・`lib/ManageScope.php`・`lib/BrowserView.php`・`js/picker.js`・`js/manage.js`（M2）、`lib/ManageActions.php`・`lib/ChangeLog.php`・`js/textEditor.js`（M3）、`manager/actions/element/file_manager.static.php`（M4）
 - 消すファイル: `manager/actions/element/files.dynamic.php`（M4）
 - PR は段階ごとに分ける。M1〜M3 の PR は `Refs #1046`、M4 の PR で `Closes #1046` にする
+- M1: ブランチ `feat/1046-m1-path-guard`（`gh issue develop` で #1046 に紐づけ）、PR #1048
 
 ## Interfaces and Dependencies
 
