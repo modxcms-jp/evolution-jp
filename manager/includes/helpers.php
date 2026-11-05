@@ -419,9 +419,17 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
-// id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
-// (int) は "5abc" を 5 にしてしまうので、id は次の 3 つで読む。受け取り元は、その処理が実際に呼ばれる方法に合わせて選ぶ
-// （GET だけなら get_intvar()、POST だけなら post_intvar()、GET と POST の両方で呼ばれる処理だけ request_intvar()）
+// リクエスト値の取り出し方は 2 通りある。詳しくは assets/docs/request-input.md
+//
+// - 生の値: getv() / postv() / anyv()。値を変換せずに返す。文字列として厳密に比べるだけのもの、加工せずに保存するもの、配列のまま扱うものに使う
+// - 型つきの値: *_intvar()（id・正の整数）/ *_strvar()（文字列）/ *_boolvar()（真偽値）/ *_choicevar()（選択肢の中の値）/ *_idsvar()（id の配列）。
+//   決まった型の値だけを返し、空・形式違い・配列などの想定外の型は既定値にする。型が決まっている値は、こちらで取り出す
+//
+// 受け取り元は接頭辞で選ぶ。その処理が実際に呼ばれる方法に合わせる
+// （GET だけなら get_*、POST だけなら post_*、GET と POST の両方で呼ばれる処理だけ request_*）。
+// 変換の本体は受け取り元に依らない to_*() にある
+//
+// id は正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。(int) は "5abc" を 5 にしてしまうので、id は *_intvar() で読む
 
 // GET の値だけを id として読む
 function get_intvar($key)
@@ -466,6 +474,135 @@ function to_intvar($value)
     }
     $int = (int) $value;
     return (string) $int === $value ? $int : 0;
+}
+
+// 空でない文字列ならそのまま、それ以外（null・空文字・配列・数値など）は $default
+function to_strvar($value, $default = '')
+{
+    return is_string($value) && $value !== '' ? $value : $default;
+}
+
+// bool はそのまま。1・0 の int と、'1'・'on'・'true'・'yes' / '0'・'off'・'false'・'no'（前後の空白と大文字小文字は無視）を真偽値にする。それ以外は $default
+function to_boolvar($value, $default = false)
+{
+    if (is_bool($value)) {
+        return $value;
+    }
+    if ($value === 1) {
+        return true;
+    }
+    if ($value === 0) {
+        return false;
+    }
+    if (!is_string($value)) {
+        return $default;
+    }
+    $value = strtolower(trim($value));
+    if (in_array($value, ['1', 'on', 'true', 'yes'], true)) {
+        return true;
+    }
+    if (in_array($value, ['0', 'off', 'false', 'no'], true)) {
+        return false;
+    }
+    return $default;
+}
+
+// $value（文字列か int）が $choices のいずれかと文字列として一致したら、その $choices の要素（元の型）を返す。それ以外は $default
+function to_choicevar($value, array $choices, $default = null)
+{
+    if (!is_string($value) && !is_int($value)) {
+        return $default;
+    }
+    $value = (string) $value;
+    foreach ($choices as $choice) {
+        if ((is_string($choice) || is_int($choice)) && (string) $choice === $value) {
+            return $choice;
+        }
+    }
+    return $default;
+}
+
+// 配列、またはカンマ区切りの文字列の各要素を id として読み、0 と重複を除いた int の配列にする。それ以外は []
+function to_idsvar($value)
+{
+    if (is_string($value)) {
+        $value = explode(',', $value);
+    }
+    if (!is_array($value)) {
+        return [];
+    }
+    $ids = [];
+    foreach ($value as $v) {
+        $id = to_intvar($v);
+        if ($id) {
+            $ids[$id] = $id;
+        }
+    }
+    return array_values($ids);
+}
+
+// 文字列として読む（GET / POST / 両方）
+function get_strvar($key, $default = '')
+{
+    return to_strvar(getv($key), $default);
+}
+
+function post_strvar($key, $default = '')
+{
+    return to_strvar(postv($key), $default);
+}
+
+function request_strvar($key, $default = '')
+{
+    return to_strvar(anyv($key), $default);
+}
+
+// 真偽値として読む（GET / POST / 両方）
+function get_boolvar($key, $default = false)
+{
+    return to_boolvar(getv($key), $default);
+}
+
+function post_boolvar($key, $default = false)
+{
+    return to_boolvar(postv($key), $default);
+}
+
+function request_boolvar($key, $default = false)
+{
+    return to_boolvar(anyv($key), $default);
+}
+
+// 選択肢の中の値として読む（GET / POST / 両方）
+function get_choicevar($key, array $choices, $default = null)
+{
+    return to_choicevar(getv($key), $choices, $default);
+}
+
+function post_choicevar($key, array $choices, $default = null)
+{
+    return to_choicevar(postv($key), $choices, $default);
+}
+
+function request_choicevar($key, array $choices, $default = null)
+{
+    return to_choicevar(anyv($key), $choices, $default);
+}
+
+// id の配列として読む（GET / POST / 両方）
+function get_idsvar($key)
+{
+    return to_idsvar(getv($key));
+}
+
+function post_idsvar($key)
+{
+    return to_idsvar(postv($key));
+}
+
+function request_idsvar($key)
+{
+    return to_idsvar(anyv($key));
 }
 
 /**
