@@ -384,6 +384,9 @@ function init(root, entry, behaviors) {
 
     function renderPath() {
         renderBreadcrumb(pathEl, escapeHtml(config.rootLabel), state.folder, navigateTo);
+        // ルートでは出さない(戻る先が無く、ウェブサイトのトップページにパンくずを出さないのと同じ)。
+        // 移動先を選ぶダイアログのパンくずは、ルートでも行き先を示すので出す(js/dialogs.js)
+        pathEl.hidden = state.folder === '';
         // パンくずもエクスプローラ同様にドロップ先にする(上位フォルダへの移動)
         pathEl.querySelectorAll('.evo-fb-crumb').forEach(function (btn) {
             bindMoveDropTarget(btn, function () {
