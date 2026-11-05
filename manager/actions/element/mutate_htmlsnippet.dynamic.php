@@ -9,7 +9,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a', 0)) {
+switch (request_intvar('a')) {
     case 78:
         if (!evo()->hasPermission('edit_chunk')) {
             alert()->setError(3);
@@ -27,13 +27,9 @@ switch ((int)anyv('a', 0)) {
         alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 78);
+abort_if_invalid_id('id', request_intvar('a') === 78);
 
-$id = anyv('id', 0);
-if (!preg_match('@^[0-9]+$@', $id)) {
-    alert()->setError(3);
-    alert()->dumpError();
-}
+$id = request_intvar('id');
 
 // Get table names (alphabetical)
 
@@ -50,7 +46,7 @@ if (db()->count($rs) > 1) {
 }
 
 $content = [];
-if (preg_match('@^[1-9][0-9]*$@', $id)) {
+if ($id) {
     $rs = db()->select('*', '[+prefix+]site_htmlsnippets', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -70,7 +66,7 @@ $formRestored = manager()->hasFormValues();
 $content = manager()->restoreElementFormValues($content, 'snippet', ['published', 'editor_type', 'locked']);
 if (!$formRestored && postv('changeMode')) {
     $content = array_merge($content, $_POST);
-    $content['content'] = postv('ta');
+    $content['content'] = post_strvar('ta');
 }
 
 function entity($key, $default = null)
@@ -163,7 +159,7 @@ if (isset($content['which_editor'])) {
     ?>
     <input type="hidden" name="a" value="79" />
     <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
-    <input type="hidden" name="mode" value="<?= (int)anyv('a') ?>" />
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>" />
     <input type="hidden" name="changeMode" value="" />
 
     <h1><?= $_lang['htmlsnippet_title'] ?></h1>
@@ -179,17 +175,17 @@ if (isset($content['which_editor'])) {
                     <select id="stay" name="stay">
                         <?php if (evo()->hasPermission('new_chunk')) { ?>
                             <option id="stay1"
-                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                                value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <?php } ?>
                         <option id="stay2"
-                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (anyv('a') == '78') {
+            if (request_intvar('a') === 78) {
                 if (evo()->hasPermission('new_chunk')) {
                     echo manager()->ab(
                         [
@@ -356,7 +352,7 @@ if (isset($content['which_editor'])) {
         </div>
         <script>
             var stay = <?=
-                        ((evo()->config('remember_last_tab') == 2) || (getv('stay') == 2)) ? 'true' : 'false'
+                        ((evo()->config('remember_last_tab') == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false'
                         ?>;
             chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), stay);
         </script>

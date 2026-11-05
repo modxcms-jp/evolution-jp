@@ -21,16 +21,16 @@ if (is_array($fb_scope)) {
     alert()->dumpError();
 }
 
-$fb_folder = getv('folder', '');
-$fb_select = getv('select', '');
+$fb_folder = get_strvar('folder');
+$fb_select = get_strvar('select');
 
 echo BrowserView::managePane(
     BrowserView::jsConfig(evo(), $fb_config, [
         'entry' => 'manage',
         'apiUrl' => 'media/browser/evo/api.php',
         'apiParams' => ['scope' => 'manage'],
-        'initialFolder' => is_string($fb_folder) ? $fb_folder : '',
-        'initialSelect' => is_string($fb_select) ? $fb_select : '',
+        'initialFolder' => $fb_folder,
+        'initialSelect' => $fb_select,
         'rootLabel' => $fb_scope->rootLabel(),
         'maxUploadSize' => $fb_scope->maxUploadSize(),
     ]),

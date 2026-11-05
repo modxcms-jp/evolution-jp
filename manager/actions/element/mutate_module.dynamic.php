@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a')) {
+switch (request_intvar('a')) {
     case 107:
         if (!evo()->hasPermission('new_module')) {
             alert()->setError(3);
@@ -21,9 +21,9 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 108);
+abort_if_invalid_id('id', request_intvar('a') === 108);
 
-$id = preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0;
+$id = request_intvar('id');
 
 // Check to see the editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
@@ -45,7 +45,7 @@ if (!is_numeric($id)) {
     exit('Passed ID is NaN!');
 }
 
-if (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
+if (get_intvar('id')) {
     $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -163,7 +163,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) content('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 
@@ -179,17 +179,17 @@ function content($key, $default = null)
                     <select id="stay" name="stay">
                         <?php if (evo()->hasPermission('new_module')) { ?>
                             <option id="stay1"
-                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                                value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <?php } ?>
                         <option id="stay2"
-                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 108) {
+            if (get_intvar('a') === 108) {
                 if (evo()->hasPermission('delete_module')) {
                     echo manager()->ab(
                         [
@@ -325,9 +325,9 @@ function content($key, $default = null)
                 </table>
             </div>
 
-            <?php if (anyv('a') == '107') { ?>
+            <?php if (request_intvar('a') === 107) { ?>
                 <input name="guid" type="hidden" value="<?= createGUID() ?>" />
-            <?php } elseif (anyv('a') == '108') { ?>
+            <?php } elseif (request_intvar('a') === 108) { ?>
                 <!-- Dependencies -->
                 <div class="tab-page" id="tabDepend">
                     <h2 class="tab"><?= $_lang['settings_dependencies'] ?></h2>
@@ -494,7 +494,7 @@ function content($key, $default = null)
     ?>
 </form>
 <script type="text/javascript">
-    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
+    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
     tpModule = new WebFXTabPane(document.getElementById("modulePane"), tpstatus);
     setTimeout('showParameters();', 10);
 </script>

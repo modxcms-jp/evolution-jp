@@ -2,16 +2,16 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!hasPermission('edit_template') && anyv('a') == 301) {
+if (!hasPermission('edit_template') && request_intvar('a') === 301) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (!hasPermission('new_template') && anyv('a') == 300) {
+if (!hasPermission('new_template') && request_intvar('a') === 300) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 301);
+abort_if_invalid_id('id', request_intvar('a') === 301);
 
 $id = request_intvar('id');
 
@@ -37,7 +37,7 @@ if (!is_numeric($id)) {
 
 global $content;
 $content = [];
-if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
+if (get_intvar('id')) {
     $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -316,7 +316,7 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
@@ -334,16 +334,16 @@ function entity($key, $default = null)
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                            value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 301) {
+            if (get_intvar('a') === 301) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']
@@ -558,9 +558,9 @@ function entity($key, $default = null)
                             <?php
                             if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
-                                    if (anyv('a') == 300 && config('default_template') == $row['id']) {
+                                    if (request_intvar('a') === 300 && config('default_template') == $row['id']) {
                                         $checked = true;
-                                    } elseif (getv('tpl') == $row['id']) {
+                                    } elseif (get_intvar('tpl') && (int)$row['id'] === get_intvar('tpl')) {
                                         $checked = true;
                                     } elseif ($id == 0 && is_array(entity('template'))) {
                                         $checked = in_array($row['id'], entity('template'));
