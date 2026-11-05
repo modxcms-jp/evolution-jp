@@ -81,7 +81,7 @@ function getEditors($editors)
             '<option>',
             [
                 'value' => $editor,
-                'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
+                'selected' => post_strvar('which_editor', config('which_editor')) === $editor ? null : ''
             ],
             $editor
         );
@@ -214,15 +214,12 @@ function getUDGroups($id)
             'name'
         );
     }
-    // retain selected doc groups between post
+    // retain selected doc groups between post（配列でないときは空として扱う）
+    $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
     if ($docid) {
-        if (postv('docgroups')) {
-            $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
-        } else {
-            $groupsarray = getGroups($docid);
-        }
+        $groupsarray = array_merge(getGroups($docid), $postedDocgroups);
     } else {
-        $groupsarray = postv('docgroups', []);
+        $groupsarray = $postedDocgroups;
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
@@ -527,8 +524,8 @@ function checkPermissions($id)
             alert()->setError(3);
             alert()->dumpError();
         }
-        if (evo()->input_any('pid')) {
-            if (!evo()->checkPermissions(evo()->input_any('pid', 0))) {
+        if (request_intvar('pid')) {
+            if (!evo()->checkPermissions(request_intvar('pid'))) {
                 alert()->setError(3);
                 alert()->dumpError();
             }

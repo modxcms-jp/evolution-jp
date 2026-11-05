@@ -60,7 +60,7 @@ $icons_path = manager_style_image_path('icons');
                                         echo sprintf(
                                             '<option value="%s" %s>%s</option>',
                                             $row['internalKey'],
-                                            $row['internalKey'] == get_intvar('searchuser') ? 'selected="selected"' : '',
+                                            get_intvar('searchuser') && (int)$row['internalKey'] === get_intvar('searchuser') ? 'selected="selected"' : '',
                                             hsc($row['username'])
                                         ) . "\n";
                                     }
@@ -91,7 +91,7 @@ $icons_path = manager_style_image_path('icons');
                                         echo sprintf(
                                             '<option value="%s" %s>%s - %s</option>',
                                             $row['action'],
-                                            $row['action'] == get_intvar('action') ? 'selected="selected"' : '',
+                                            get_intvar('action') && (int)$row['action'] === get_intvar('action') ? 'selected="selected"' : '',
                                             $row['action'],
                                             $action
                                         ) . "\n";
@@ -243,7 +243,7 @@ $icons_path = manager_style_image_path('icons');
 
                 // Number of result to display on the page, will be in the LIMIT of the sql query also
                 $int_num_result = get_intvar('nrresults') ?: (int)config('number_of_logs');
-                $int_cur_position = (int)evo()->input_get('int_cur_position', 0);
+                $int_cur_position = get_intvar('int_cur_position');
 
                 // build the sql
                 $total = db()->getValue(
