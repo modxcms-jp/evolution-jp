@@ -90,7 +90,7 @@ if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
     // restore post values
     $userdata = array_merge($userdata, $form_v);
-    $userdata['dob'] = ConvertDate($userdata['dob']);
+    $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
     $usernamedata['username'] = $userdata['newusername'];
     if (isset($form_v['oldusername'])) {
         $usernamedata['oldusername'] = $form_v['oldusername'];

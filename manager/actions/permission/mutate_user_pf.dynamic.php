@@ -49,7 +49,7 @@ if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
     // restore post values
     $userdata = array_merge($userdata, $form_v);
-    $userdata['dob'] = ConvertDate($userdata['dob']);
+    $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
     $usersettings = array_merge($usersettings, $userdata);
 }
 
@@ -414,7 +414,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <div><?= $_lang["language_message"] ?></div>
                         </td>
                     </tr>
-                    <tr id="editorRow0" style="display: <?= setting('use_editor') == 1 ? 'table-row' : 'none' ?>">
+                    <tr id="editorRow0" style="display: <?= setting('use_editor', evo()->config('use_editor')) == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["which_editor_title"] ?></th>
                         <td>
                             <select name="which_editor" class="inputBox">
@@ -436,7 +436,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         </td>
                     </tr>
                     <tr id="editorRow14" class="row3"
-                        style="display: <?= setting('use_editor') == 1 ? 'table-row' : 'none' ?>">
+                        style="display: <?= setting('use_editor', evo()->config('use_editor')) == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["editor_css_path_title"] ?></th>
                         <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
                                 value="<?= hsc(setting('editor_css_path')) ?>" />
