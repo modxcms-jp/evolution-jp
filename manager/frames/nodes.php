@@ -51,13 +51,13 @@ $closed2 = [];
 
 $expandAll = (int)getv('expandAll');
 
-if (getv('offset') !== null) {
+if (get_strvar('offset') !== '') {
     // 件数超過で省略したリソースの続き
-    echo getNodes(getv('indent', 0), getv('parent', 0), 0, '', max(0, (int)getv('offset')));
+    echo getNodes(get_intvar('indent'), get_intvar('parent'), 0, '', max(0, (int)getv('offset')));
     exit;
 }
 
-$output = getNodes(getv('indent',0), getv('parent',0), $expandAll);
+$output = getNodes(get_intvar('indent'), get_intvar('parent'), $expandAll);
 
 // check for deleted documents on reload
 if ($expandAll == 2) {

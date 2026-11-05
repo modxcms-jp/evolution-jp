@@ -501,7 +501,7 @@ function checkPermissions($id)
     // 新規作成（4・72）で pid を指定したときは、ここでは止めない
     // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
     $isEditAction = in_array(manager()->action, [27, 131, 132]);
-    if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
+    if (!$isAllowed && ($isEditAction || get_strvar('pid') === '')) {
         alert()->setError(3);
         alert()->dumpError();
     }

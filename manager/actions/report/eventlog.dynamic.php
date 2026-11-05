@@ -15,7 +15,7 @@ $files = SystemLogViewer::files($logRoot);
 $latestFiles = SystemLogViewer::latestFiles($files, 100);
 $isDownload = getv('download') === '1';
 $isEntriesApi = getv('ajax') === 'entries';
-$period = SystemLogViewer::period((string)getv('period', 'latest'));
+$period = SystemLogViewer::period(get_strvar('period', 'latest'));
 $isLatest = $period === 'latest' && !$isDownload;
 $isYearPeriod = strpos($period, 'year:') === 0;
 $months = SystemLogViewer::months($files, $period);

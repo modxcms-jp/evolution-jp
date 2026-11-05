@@ -422,7 +422,7 @@ trait DocumentParserSubParserTrait
         $str .= sprintf('<td>%s</td>', hsc(urldecode(evo()->server('REQUEST_URI'))));
         $str .= '</tr>';
 
-        $action = getv('a', postv('a'));
+        $action = getv('a') ?: postv('a');
 
         if (isset($action) && $action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');

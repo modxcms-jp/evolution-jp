@@ -14,7 +14,7 @@ if (evoIsPaneResponse()) {
 if ($modx->config('remember_last_tab') != 2) {
     setcookie(
         'webfxtab_childPane',
-        getv('tab', 1), [
+        get_strvar('tab', '1'), [
             'expires' => time() + 3600,
             'path' => MODX_BASE_URL,
             'domain' => '',
@@ -178,7 +178,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <script type="text/javascript">
         // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
         // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の

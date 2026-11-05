@@ -178,7 +178,7 @@ $icons_path = manager_style_image_path('icons');
                                 <input
                                     type="text" name="nrresults"
                                     class="inputbox" style="width:100px"
-                                    value="<?= hsc(getv('nrresults', config('number_of_logs'))) ?>" />
+                                    value="<?= hsc(get_strvar('nrresults', config('number_of_logs'))) ?>" />
                                 <img src="<?= style('tx') ?>" border="0" />
                             </td>
                         </tr>
