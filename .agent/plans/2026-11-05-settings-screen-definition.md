@@ -53,11 +53,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - **条件で出し入れする行は `data-show-if="<名前>=<値>"` と 1 つの共通の JS にする**。初めの表示はサーバーが決め（条件に合わない行に `style="display:none"`）、ラジオを切り替えたときだけ JS が同じ属性の要素を出し入れする。今の 6 組（`use_udperms=1`・`use_editor=1`・`use_browser=1`・`friendly_urls=1`・`use_captcha=1`・`email_method=smtp`）はすべて「1 つのラジオがある値のとき」の形で書ける。TinyMCE 7 の表も同じ属性（`data-show-if="use_editor=1"`）を持つように直す（M4）。プラグインの出力はサーバーが初めの表示を決められないので、段階 2（M6）で JS が読み込み時にも 1 回当てるようにする（段階 1 は、main と同じく切り替えたときだけ）。代替案の「今のクラス名（`editorRow` など）を残す」は、名前ごとに JS が要り、行の型として 1 つにならないため採らない。TinyMCE 3 などクラス名に頼る外部プラグインの欄は切り替えに追従しなくなる（ユーザーさんの判断の範囲）。
 - **廃止するもの**: `checkConfig()`（効いていない）、SJIS の変換（PHP 7.4 以上では害になる）、`manager/includes/charsets.php`（`UTF-8` だけの select で、ほかから使われていない）、SMTP の欄の `onchange`（共通の変更検知と重複）、3 か所のインラインの切り替えスクリプト（共通の JS に置き換える）。`lang_chg` は `js_literal()` で埋め込む。
 - **段階 1 の「同じ」の定義**: 欄の一覧（名前・種類・値・選択・無効・表示）が main と完全に同じで、保存後の `system_settings` が main と同じこと。見た目はタブごとの画面写真を並べて見比べる。許す違いは Validation and Acceptance の「段階 1 で許す違い」に挙げたものだけにし、ほかの違いは失敗とする。
-- **段階 2 の構成は Plan of Work の表のとおりにする**（9 タブ）。ユーザーさんが構成を任せたので計画で決めるが、見た目の判断なので報告で挙げ、PR 2 の画面写真で確かめてもらう。
-- **小見出しは既存の `.sectionHeader` と `.sectionBody` をタブの中で使う**。ユーザー編集画面の `tab_access.php`・バックアップ（`bkmanager.static.php`）が既にこの形で、`assets/docs/theme-spacing.md` の決まり（`.tab-page .sectionHeader` → `.sectionBody`）も 6 テーマに入っている。テーマの CSS を足さずに済む。代替案の `h3` と各テーマの CSS は、7 テーマに規則を足すことになるため採らない。
+- **段階 2 の構成は Plan of Work の表のとおりにする**（9 タブ、2026-11-05 にユーザーさんが了承）。ユーザーさんの画面（表示幅 約 1,360px）で、今の 7 タブは約 1,210px。名前から「設定」を外すので、9 タブでも約 1,260px の見込みで 1 段に収まる。狭い画面は M5 の折り返しで 2 段にする。PR 2 の画面写真で幅を確かめ、余裕が足りなければ「キャッシュ」（5 行）を「サイト」に入れて 8 タブにする。
+- **小見出しは軽い見出し（`<h3 class="settings-section">`）にし、規則は共通部に 1 か所だけ置く**（2026-11-05、ユーザーさんが決めた）。既存の `.sectionHeader` と `.sectionBody`（帯と白い枠）は、タブの中に並べると重く見えるため採らない。7 テーマそれぞれに規則を足す形もコードが増えるため採らず、`manager/media/style/common/shell.css` に 1 つの規則を置き、色と余白はテーマの変数（`assets/docs/theme-variables.md`・`theme-spacing.md` の決まりにある `--color-*`・`--space-*`、既定値付き）で読む。RevoStyle は凍結のため、既定値で崩れなければよい。新しく変数が要るときは `theme-variables.md` に書く。
 - **タブ列は 6 テーマの `.dynamic-tab-pane-control .tab-row` を `display: flex; flex-wrap: wrap` にする**。flex の子には `float` が効かないので、折り返しても段違いにならない。RevoStyle は廃止予定で凍結のため対象外にし、`theme-spacing.md` にそう書く。代替案の `common/shell.css` での一括指定は、テーマの同じ詳細度の規則との読み込み順で結果が変わるため採らない。タブの並びが変わると、覚えたタブの番号（Cookie `webfxtab_settingsPane`）が別のタブを指すことがある。1 回だけのことなので許す。
 - **イベントの位置**: 段階 1 は今の位置のまま（`OnSiteSettingsRender` の 3 回も含む）。段階 2 で、`OnSiteSettingsRender` はサイトのタブの末尾で 1 回、`OnInterfaceSettingsRender` はエディターのタブの末尾（受けるのは TinyMCE 7 と TinyMCE 3 で、どちらもエディターの設定のため）、`OnMiscSettingsRender` はファイルのタブの末尾、`OnFriendlyURLSettingsRender`・`OnUserSettingsRender` は今のタブの末尾、`OnSystemSettingsRender` は全タブの後ろにする。
-- **段階 3 にプロフィール（`a=74`）を含める**。同じ行の 3 つめの手書きで、`profileSettingNames()` の名前の重複も定義から引けば消せるため。ウェブユーザーの編集画面（`a=88`）は、グローバル設定と重なる設定が無いので対象外。ユーザー画面のタブは、グローバル設定と同じタブ名・小見出し・順で、ユーザーごとに変えられる行だけを出す。#1066 の「ユーザー編集画面のタブも同じ順・同じ小見出しにそろえる」は段階 3 で満たす（段階 2 では、言語キーの改名に合わせて `tab_page7.php` の見出しのキーだけを直す）。
+- **段階 3 にプロフィール（`a=74`）を含める**（2026-11-05、ユーザーさんが了承）。同じ行の 3 つめの手書きで、`profileSettingNames()` の名前の重複も定義から引けば消せるため。ウェブユーザーの編集画面（`a=88`）は、グローバル設定と重なる設定が無いので対象外。ユーザー画面のタブは、グローバル設定と同じタブ名・小見出し・順で、ユーザーごとに変えられる行だけを出す。#1066 の「ユーザー編集画面のタブも同じ順・同じ小見出しにそろえる」は段階 3 で満たす（段階 2 では、言語キーの改名に合わせて `tab_page7.php` の見出しのキーだけを直す）。
 - **比較の道具は `adaptive-validation-runner` の同梱スクリプトとして足す**（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js`）。3 段階のすべてと、ほかのフォームの作り替えでも使えるため。`.claude/` は配布の zip に入らない（`.gitattributes` の `export-ignore`）。
 
 ## Outcomes & Retrospective
@@ -156,7 +156,7 @@ M4 で、セキュリティと管理画面を移し、後片付けをする。�
 
 ### 段階 2（M5〜M6、PR 2）: 構成を整理する
 
-M5 で、まず main（段階 1 の後）でタブ列が崩れることを再現する（幅 768px、RevoClassic など）。6 テーマの `.dynamic-tab-pane-control .tab-row` に `display: flex; flex-wrap: wrap;` を足し（`display: flow-root` を持つテーマはそれを置き換える）、崩れないことを確かめる。`theme-spacing.md` の「画面とテーマの約束」に、タブ列を折り返せる作りにすることと、RevoStyle が対象外であることを書く。あわせて、定義の小見出し（section の `title`）を `.sectionHeader` と `.sectionBody` で描けるようにする（見出しの無い section は今の表だけ）。
+M5 で、まず main（段階 1 の後）でタブ列が崩れることを再現する（幅 768px、RevoClassic など）。6 テーマの `.dynamic-tab-pane-control .tab-row` に `display: flex; flex-wrap: wrap;` を足し（`display: flow-root` を持つテーマはそれを置き換える）、崩れないことを確かめる。`theme-spacing.md` の「画面とテーマの約束」に、タブ列を折り返せる作りにすることと、RevoStyle が対象外であることを書く。あわせて、定義の小見出し（section の `title`）を、共通部の 1 つの規則で描く軽い見出しとして出せるようにする（見出しの無い section は今の表だけ）。
 
 M6 で、定義を下の表の構成に組み替える。設定キーは 1 つも増減させない。タブの id は `settingsTab` に英語の名前を付けたもの（`settingsTabSite` など）にする。
 
@@ -286,12 +286,12 @@ PR 1 を出す（Artifacts and Notes のブランチ、`Refs #1067`）。本文�
 
 ### M5: タブ列と小見出し
 
-編集対象: `manager/media/style/{AromaHop,AuroraFlow,RevoClassic,RubberWhite,SakuraFlow,SoftSlate}/style.css`（`.dynamic-tab-pane-control .tab-row` の規則）、`assets/docs/theme-spacing.md`、`EvoSettingsForm`（section の `title` を `.sectionHeader` と `.sectionBody` で描く）。
+編集対象: `manager/media/style/{AromaHop,AuroraFlow,RevoClassic,RubberWhite,SakuraFlow,SoftSlate}/style.css`（`.dynamic-tab-pane-control .tab-row` の規則）、`assets/docs/theme-spacing.md`、`manager/media/style/common/shell.css`（小見出しの規則 1 つ）、`assets/docs/theme-variables.md`（新しい変数を使うときだけ）、`EvoSettingsForm`（section の `title` を小見出しとして描く）。
 
 1. 再現: main（段階 1 の後）の検証環境で、テーマを順に `UPDATE modx_system_settings SET setting_value='<テーマ>' WHERE setting_name='manager_theme'` にしてキャッシュを消し、`form-snapshot.js --path 'index.php?a=17' --width 768 --out <work>/main/tabs-<テーマ>.json --shots <work>/main/tabs-<テーマ>` を撮る。`tabRow` のどの 2 つの箱も重ならないか、同じ行のタブの `y` がそろうかを、`node -e` で `tabRow` を読んで確かめる。崩れたテーマと幅を Surprises に書く。768px で再現しなければ 600px で撮り直す。それでも再現しなければ「main では崩れを再現できなかった」と Surprises に書き、2 の CSS は、段階 2 でタブが 9 つに増えても折り返しで段違いにならないための予防として入れる
 2. 6 テーマに `display: flex; flex-wrap: wrap;` を足す（`display: flow-root` は置き換える。`white-space: nowrap` は残す）。RevoStyle は変えない
 3. `theme-spacing.md` の「画面とテーマの約束」に、`.tab-row` を `flex-wrap: wrap` で折り返す作りにすること、RevoStyle は対象外のことを書く
-4. 定義の section に `title` があれば `<div class="sectionHeader">見出し</div><div class="sectionBody"><table class="settings">…</table></div>` で描く（この時点の定義には `title` が無いので、画面は変わらない）
+4. 定義の section に `title` があれば `<h3 class="settings-section">見出し</h3><table class="settings">…</table>` で描く（この時点の定義には `title` が無いので、画面は変わらない）。`shell.css` に `.tab-page .settings-section` の規則を 1 つ足し、色・大きさ・上下の余白はテーマの変数を既定値付きで読む。テーマの `style.css` には足さない
 
 期待: 6 テーマとも、幅 768px・1024px・1280px で `tabRow` の箱が重ならず、同じ行のタブの `y` がそろう（main で崩れたものが直る）。RevoStyle の画面写真は main と同じ。リソースの編集画面（`a=27`）のタブも崩れない。
 
