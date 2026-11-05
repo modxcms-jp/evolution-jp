@@ -147,6 +147,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `theme-spacing.md`      | テーマの縦の余白 |
 | `core-issues.md`        | コア課題   |
 | `migrations.md`         | マイグレーション・アップグレード |
+| `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 
 ---
 
