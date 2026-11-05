@@ -50,7 +50,7 @@ if (!$forced) {
         echo "<p>" . $_lang['tmplvar_inuse'] . "</p>";
         echo "<ul>";
         while ($row = db()->getRow($rs)) {
-            echo '<li><span style="width: 200px"><a href="index.php?id=' . $row['id'] . '&a=27">' . $row['pagetitle'] . '</a></span>' . ($row['description'] != '' ? ' - ' . $row['description'] : '') . '</li>';
+            echo '<li><span style="width: 200px"><a href="index.php?id=' . (int)$row['id'] . '&a=27">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
         }
         echo "</ul>";
         echo '</div>';

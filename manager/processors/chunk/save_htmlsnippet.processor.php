@@ -171,9 +171,10 @@ switch ($mode) {
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
-            $chunkName = db()->escape(str_replace("'", "''", entity('name')));
-            $was_name = db()->escape(str_replace("'", "''", $was_name));
-            if ($chunkName !== $was_name) {
+            if (entity('name') !== $was_name) {
+                // 生の名前を SQL に入れる直前に 1 回だけエスケープする
+                $chunkName = db()->escape(entity('name'));
+                $was_name = db()->escape($was_name);
                 db()->update(
                     sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $chunkName),
                     '[+prefix+]site_content'
