@@ -67,6 +67,7 @@ export function fileIcon(size) {
 }
 
 export const ICON_TREE_ARROW = '<svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M9 5l8 7-8 7z"/></svg>';
-export const ICON_RENAME = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zm17.71-10.04a1 1 0 000-1.41l-2.51-2.51a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75z"/></svg>';
+// 名前の変更: 入力欄の枠を、文字のカーソル(I の形)が横切る形。ペン(中身の編集)と見分けられるようにする
+export const ICON_RENAME = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 7h11v2H4v6h9v2H2zm17 0h3v10h-3v-2h1V9h-1zM13 3h6v2h-2v14h2v2h-6v-2h2V5h-2z"/></svg>';
 export const ICON_DELETE = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M6 7h12l-1 14H7zm3-3h6l1 2H8zM4 6h16v2H4z"/></svg>';
 export const ICON_PREVIEW = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1114 9.5 4.5 4.5 0 019.5 14z"/></svg>';
