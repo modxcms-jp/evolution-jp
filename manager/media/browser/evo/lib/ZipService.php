@@ -1,10 +1,8 @@
 <?php
 
 /**
- * 複数のファイルを 1 つの zip にまとめる(create())。zip を展開する(extract())。
- *
- * 一時ファイルは temp/zip/ に作る。呼び出し側が送り終えたら消す（失敗したときはここで消す）。
- * 古い一時ファイルは、確率的なごみ集めで消す（ThumbnailService と同じ作り）。
+ * 複数のファイルを zip にまとめる(create())。zip を展開する(extract())。
+ * 一時ファイルは temp/zip/ に作って呼び出し側が消し、古いものは確率的に消す(ThumbnailService と同じ作り)。
  */
 class ZipService
 {
@@ -26,10 +24,6 @@ class ZipService
         }
     }
 
-    /**
-     * @param array $files [zip 内の名前(UTF-8) => 実ファイルの絶対パス]
-     * @return string|null 一時ファイルの絶対パス。1 つでも入れられなかったとき・作れなかったときは null(一時ファイルは消してある)
-     */
     public function create(array $files)
     {
         $this->maybeCollectGarbage();
@@ -85,32 +79,15 @@ class ZipService
     }
 
     /**
-     * zip を展開先のフォルダへ展開する(管理モードだけが使う)。旧ファイル管理の unzip() の確認を引き継ぎ、足りなかった所を足してある。
+     * zip を展開先のフォルダへ展開する(管理モードだけ)。展開の前に全エントリを照らし合わせ、次のどれかに当たるものが
+     * 1 件でもあれば何も展開しない(reason: unsafe): 名前に .. の要素がある(\ は / にしてから見る) / 展開先がルートの外か
+     * 守る場所(存在する部分は realpath() で解決する) / 展開先のパスの途中にシンボリックリンクがある(リンク先の無いリンクは
+     * realpath() で解決できず、書くときにたどってルートの外へ書けるため、リンクは一切たどらない)。
+     * ファイルは無害化後の名前を $isAllowedName で確かめ、通らないものは skipped。書く直前にもパスを確かめ直し(付け直した後の
+     * パスは事前と同じとは限らない)、通らないものは failed。zip 内のシンボリックリンクは、リンク先の文字列を中身にしたふつうのファイルにする。
+     * 前からあるふつうのファイルは上書きし、展開後の大きさと数に上限は設けない(旧と同じ)。umask は変えない。
      *
-     * 展開の前に全エントリを照らし合わせ、次のどれかに当たるものが 1 件でもあれば、何も展開しない(reason: unsafe)。
-     * - 名前に .. の要素がある(バックスラッシュは / に置き換えてから見る)
-     * - 展開先がルートの外になる、または守る場所に当たる(存在する部分は realpath() で解決するので、リンク先が外を指す場合も含む)
-     * - 展開先のパスの途中に、シンボリックリンクがある(リンク先が無いぶら下がったリンクは realpath() で解決できず、
-     *   「まだ無いパス」として通ってしまい、書くときにリンクをたどってルートの外へ書けるため。リンクは一切たどらない)
-     * 名前は要素ごとに sanitizeFilename() で無害化する(先頭の / やドライブの名前はルートの中の相対パスになる)。
-     * ファイルのエントリは、無害化した後の名前を $isAllowedName に渡して確かめ、通らないものは飛ばして skipped に入れる。
-     * 同じ zip の中で、無害化した名前が重なったものには (1) などを付ける。展開先に前からあるふつうのファイルは上書きする。
-     * zip の中のシンボリックリンクは、リンクとしては作らず、リンク先の文字列を中身にしたふつうのファイルとして書く。
-     * 展開後の大きさとエントリの数には上限を設けない(旧と同じ。ディスクがいっぱいになったら、展開できたものと失敗したものを返す)。
-     *
-     * 照らし合わせから書き込みまでの間に、書く先とその親がリンクにされた場合に備え、エントリを書く直前にもパスを確かめ直す
-     * (付け直した後のパスは、事前に照らし合わせたパスと同じとは限らないため)。通らないものは書かず、failed に入れる。
-     * umask は変えず、作ったフォルダに newFolderPermissions()、新しく作ったファイルに newFilePermissions() を当てる(上書きしたファイルは変えない)。
-     *
-     * @param string $zipPath 展開する zip(PathResolver::resolveFile() が返した実パス)
-     * @param string $destDir 展開先のフォルダ(PathResolver::resolveDir() が返した実パス。末尾の / は有っても無くてもよい)
-     * @param PathResolver $resolver 書く直前の確かめに使う
-     * @param PathGuard $guard ルートと守る場所
-     * @param callable $isAllowedName 無害化した後のファイル名を受け取り、新しく作ってよい拡張子かを返す
-     * @param DocumentParser $modx
-     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],skipped:string[]}
-     *         reason は unavailable(zip 拡張が無い)・open_failed(zip を開けない)・unsafe(上の照らし合わせに当たった)・''。
-     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス
+     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],skipped:string[]} reason は unavailable・open_failed・unsafe・''
      */
     public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, callable $isAllowedName, DocumentParser $modx)
     {
@@ -128,7 +105,6 @@ class ZipService
 
         $path = rtrim(str_replace('\\', '/', $destDir), '/') . '/';
 
-        // 事前の照らし合わせ。1 件でも当たれば、何も展開しない
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $rawName = str_replace('\\', '/', self::entryName($zip, $i));
             $relative = self::entryPath($modx, $rawName);
@@ -151,17 +127,15 @@ class ZipService
             if ($relative === '') {
                 continue;
             }
-            // フォルダーのエントリ（名前が / で終わる）は、フォルダーを作るだけにする
             $isDirEntry = substr(str_replace('\\', '/', $entryName), -1) === '/';
             // 拡張子は、無害化した後の名前の最後の要素で確かめる。飛ばすエントリは、次の名前の割り当てに加えない
             if (!$isDirEntry && !call_user_func($isAllowedName, self::lastSegment($relative))) {
                 $result['skipped'][] = $relative;
                 continue;
             }
-            // 無害化で、この zip で先に展開したファイル・フォルダーと名前が重なったときは上書きせず、(1) などを付けた名前にする
+            // 無害化で先に展開したものと名前が重なったときは、上書きせず (1) などを付ける
             $completeRelative = self::uniquePath($modx, $path, $relative, $isDirEntry, $assigned);
 
-            // 書く直前の確かめ。通らないものは書かない
             $targetPath = self::checkedTarget($resolver, $guard, $path, $completeRelative, $isDirEntry);
             $folderRelative = $isDirEntry ? $completeRelative : self::parentOf($completeRelative);
             if ($targetPath === null || !self::makeFolders($path, $folderRelative, $folderPermissions)) {
@@ -190,11 +164,7 @@ class ZipService
         return $result;
     }
 
-    /**
-     * zip のエントリ名を UTF-8 で返す。
-     * Windows で作った zip は名前を Shift_JIS（CP932）で持つことが多い。getNameIndex() の既定では
-     * CP437 とみなして変換した別の文字列（バックスラッシュを含むこともある）になるため、元のバイト列から変換する。
-     */
+    /** エントリ名を UTF-8 で返す。Windows の zip は Shift_JIS(CP932) が多く、getNameIndex() の既定は CP437 とみなして崩すため、元のバイト列から変換する */
     private static function entryName(ZipArchive $zip, $index)
     {
         $raw = $zip->getNameIndex($index, ZipArchive::FL_ENC_RAW);
@@ -204,11 +174,6 @@ class ZipService
         return mb_convert_encoding($raw, 'UTF-8', 'SJIS-win');
     }
 
-    /**
-     * zip のエントリ名を、展開先からの相対パスにする。
-     * 各要素をアップロードと同じ規則（sanitizeFilename()）で無害化する。
-     * UTF-8 にも Shift_JIS にもならない名前は、英数字に置き換わる。
-     */
     private static function entryPath(DocumentParser $modx, $entryName)
     {
         $segments = [];
@@ -221,10 +186,7 @@ class ZipService
         return implode('/', $segments);
     }
 
-    /**
-     * 展開先($path)の下の相対パス($relative)の、存在する要素に、シンボリックリンク(リンク先の無いものも)があるか。
-     * ある要素より先は、その要素が無ければ無いので、見つからない要素で打ち切る
-     */
+    /** 相対パスの存在する要素に、シンボリックリンク(リンク先の無いものも)があるか */
     private static function hasLinkInPath($path, $relative)
     {
         $current = rtrim($path, '/');
@@ -243,13 +205,7 @@ class ZipService
         return false;
     }
 
-    /**
-     * 書く直前の確かめ。付け直した後のパスの、各要素を 1 つずつ確かめる。
-     * 要素として使える名前で、守る場所に当たらず、存在するものがリンクでないこと。
-     * 途中の要素はフォルダ、最後の要素は、フォルダのエントリならフォルダ、ファイルのエントリならふつうのファイル(置き換えてよいもの)であること。
-     *
-     * @return string|null 書くパス。通らなければ null
-     */
+    /** 書く直前の確かめ。各要素が使える名前で、守る場所に当たらず、リンクでなく、途中はフォルダ・最後は種類が合うこと。通らなければ null */
     private static function checkedTarget(PathResolver $resolver, PathGuard $guard, $path, $relative, $isDir)
     {
         $segments = explode('/', $relative);
@@ -275,9 +231,6 @@ class ZipService
         return $current;
     }
 
-    /**
-     * 展開先($path)の下に、相対パスのフォルダを、足りない階層ごとに作る。作ったフォルダに $permissions を当てる(umask は変えない)
-     */
     private static function makeFolders($path, $relative, $permissions)
     {
         $current = rtrim($path, '/');
@@ -298,12 +251,9 @@ class ZipService
     }
 
     /**
-     * zip のエントリ $index の中身を $target へ書き出す。
-     * zip://<アーカイブのパス>#<エントリ名> の形は、アーカイブのパスにある # を区切りと読むため使わず、
-     * 開いている ZipArchive から読む。大きなエントリでもメモリに載せないよう、ストリームで写す。
-     * getStream() には getNameIndex() の既定の名前を渡す（zip の中で名前を探すときと同じ形。Shift_JIS の名前も開ける）。
-     * 前からあるファイルは中身だけを置き換えて(パーミッションは変えない)、新しいファイルは排他的に作って(x: 同時に置かれたリンクをたどらない)
-     * $filePermissions を当てる。新しく作ったファイルが書けなかったときは、途中のファイルを残さない
+     * エントリ $index の中身を $target へ書き出す。zip://パス#名前 は、パスの # を区切りと読むため使わず、開いている ZipArchive から読む
+     * (getStream() には getNameIndex() の既定の名前を渡す。Shift_JIS の名前も開ける)。前からあるファイルは中身だけを置き換え、
+     * 新しいファイルは排他的に作り(x: 同時に置かれたリンクをたどらない)、書けなければ途中のファイルを残さない
      */
     private static function copyEntry(ZipArchive $zip, $index, $target, $filePermissions)
     {
@@ -333,18 +283,9 @@ class ZipService
     }
 
     /**
-     * 展開するエントリの相対パスを、同じ zip で先に展開したファイル・フォルダーと重ならないパスにして返す。
-     * パスの各要素を確かめ、重なったときは、ファイルブラウザのアップロードと同じく名前に (1)・(2)… を付ける。
-     * - ファイルは、先に展開したファイル・フォルダーと同じ名前にしない
-     * - フォルダーは、同じ名前のフォルダーとは一つにまとめ、ファイルとは同じ名前にしない
-     * - 付け直したフォルダーは、同じ zip の配下のエントリすべてに同じ付け直しを当てる
-     * 展開先に前からあるファイルは、上書きする（同じ zip を展開し直して更新する使い方のため）。
-     *
-     * @param string $path 展開先（末尾に /）
-     * @param string $relative entryPath() の結果
-     * @param bool $isDir フォルダーのエントリか
-     * @param array $assigned これまでの割り当て。dirs: 無害化した後のフォルダーのパス => 付け直した後のパス、
-     *                        paths: 割り当てたパス => 'file' | 'dir'。この関数が書き足す
+     * 展開するエントリの相対パスを、先に展開したものと重ならないパスにして返す(重なったら (1)・(2)… を付ける)。
+     * フォルダーは同名のフォルダーとは一つにまとめ、ファイルとは重ねない。付け直したフォルダーは配下にも同じ付け直しを当てる。
+     * $assigned: dirs は 無害化後のフォルダーのパス => 付け直した後のパス、paths は割り当てたパス => 'file' | 'dir'
      */
     private static function uniquePath(DocumentParser $modx, $path, $relative, $isDir, array &$assigned)
     {
@@ -370,9 +311,6 @@ class ZipService
         return $parent;
     }
 
-    /**
-     * uniquePath() の下請け。$parent の下で $name が使えるか確かめ、使えなければ (1)・(2)… を付けた名前を返す。
-     */
     private static function freeName(DocumentParser $modx, $path, $parent, $name, $kind, array $paths)
     {
         $prefix = $parent === '' ? '' : $parent . '/';
@@ -405,9 +343,7 @@ class ZipService
         return $pos === false ? '' : substr($relative, 0, $pos);
     }
 
-    /**
-     * 送り忘れ・異常終了で残った古い一時ファイルを確率的に消して temp/zip/ に溜めない。
-     */
+    /** 送り忘れ・異常終了で残った古い一時ファイルを確率的に消す */
     private function maybeCollectGarbage()
     {
         if (mt_rand(1, self::GC_PROBABILITY_DIVISOR) !== 1) {

@@ -1,16 +1,13 @@
 <?php
 
 /**
- * パスの安全確認（対象ディレクトリの中か、守る場所か）をまとめたクラス。
- * 存在しないパスも、存在する親までを realpath() で解決して判定する。
+ * パスの安全確認（対象ディレクトリの中か、守る場所か）をまとめたクラス。存在しないパスも、存在する親までを realpath() で解決して判定する。
  */
 class PathGuard
 {
-    /** @var string|false */
     private $baseDir;
-    /** @var array */
     private $protectedPaths;
-    /** @var string[]|null normalize() して小文字にした守る場所（一覧の項目ごとに解決し直さないよう、初めて使うときに作る） */
+    /** @var string[]|null normalize() して小文字にした守る場所（初めて使うときに作る） */
     private $normalizedProtected;
 
     public function __construct($baseDir, array $protectedPaths = [])
@@ -20,9 +17,7 @@ class PathGuard
         $this->protectedPaths = $protectedPaths;
     }
 
-    /**
-     * 権限の無い利用者に対して守る場所の一覧。管理者は空。
-     */
+    /** 権限の無い利用者に対して守る場所の一覧。管理者は空 */
     public static function protectedPathsFor(DocumentParser $modx)
     {
         if (manager()->isAdmin()) {
@@ -63,8 +58,7 @@ class PathGuard
 
     /**
      * 存在する部分は realpath() で解決し、存在しない残りは文字列のまま . と .. を畳んでつなぐ。
-     * .. を畳んだときは、畳んだ結果をもう一度解決する（畳んで現れた、存在する部分のリンクをたどるため）。
-     * ヌルバイトを含むパスは解決できないものとして false を返す。
+     * .. を畳んだときは、畳んだ結果をもう一度解決する（現れた存在する部分のリンクをたどるため）。解決できないパスは false
      */
     public static function normalize($path)
     {
@@ -117,8 +111,8 @@ class PathGuard
     }
 
     /**
-     * ローカルの絶対パスなら true。Linux は / で始まるもの、Windows は ドライブ文字 + : + 区切り で始まるものだけを受け付ける。
-     * file:// や php:// や phar:// などの形と、相対パスは受け付けない（PHP のファイル関数は URL の形を別の場所として扱うため）。
+     * ローカルの絶対パスなら true（Linux は / で始まるもの、Windows は ドライブ文字 + : + 区切り で始まるもの）。
+     * file:// や php:// や phar:// などの形と相対パスは受け付けない（PHP のファイル関数は URL の形を別の場所として扱うため）。
      */
     public static function isAbsoluteLocal($path)
     {
@@ -130,8 +124,7 @@ class PathGuard
 
     /**
      * パスが、対象ディレクトリそのもの、またはその配下なら true。
-     * 許可する側の照合なので大文字小文字を区別して比べる（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
-     * 区別しないファイルシステムでも、realpath() が実在する側の表記に正規化する。
+     * 許可する側の照合なので大文字小文字を区別する（区別しないと、名前の大小だけが違う別のディレクトリまで許してしまう）。
      */
     public function isWithinBase($path)
     {
@@ -143,8 +136,7 @@ class PathGuard
     }
 
     /**
-     * 守る場所そのもの、またはその配下なら true。
-     * どちらもまだ存在しなくてよい（アップロード先、作成するフォルダ、未作成のバックアップフォルダなど）。
+     * 守る場所そのもの、またはその配下なら true。どちらもまだ存在しなくてよい（アップロード先、作成するフォルダなど）。
      * 大文字小文字を区別しないファイルシステムもあるため、区別せずに照合する。
      */
     public function isProtected($path)
@@ -170,8 +162,7 @@ class PathGuard
     }
 
     /**
-     * 守る場所のどれかが、パスの配下にあれば true。
-     * そのパスを消す・名前を変えると、中の守る場所ごと動いてしまう（パスそのものが守る場所の場合は isProtected() で見る）。
+     * 守る場所のどれかが、パスの配下にあれば true（そのパスを消す・名前を変えると、中の守る場所ごと動いてしまう）。
      */
     public function containsProtected($path)
     {
@@ -195,11 +186,7 @@ class PathGuard
         return false;
     }
 
-    /**
-     * 守る場所を normalize() して小文字にしたもの（解決できないものは除く）
-     *
-     * @return string[]
-     */
+    /** 守る場所を normalize() して小文字にしたもの（解決できないものは除く） */
     private function normalizedProtected()
     {
         if ($this->normalizedProtected === null) {

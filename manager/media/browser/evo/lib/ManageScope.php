@@ -1,18 +1,14 @@
 <?php
 
 /**
- * 管理モード（メニューの「ファイル管理」の範囲）。
- * ルートは設定 filemanager_path（既定はサイトのルート）で、拡張子を問わずすべてのファイルを扱う。
+ * 管理モード（メニューの「ファイル管理」の範囲）。ルートは設定 filemanager_path（既定はサイトのルート）で、拡張子を問わず扱う。
  * 権限はロールの権限 file_manager だけで決める（設定 use_browser やウェブユーザーのセッションは見ない）。
  * 新しい名前のファイルを作る操作だけは、upload_files・upload_images・upload_media を合わせた許可リストで確かめる。
  */
 class ManageScope implements BrowserScope
 {
-    /** @var DocumentParser */
     private $modx;
-    /** @var BrowserConfig */
     private $config;
-    /** @var PathGuard|null */
     private $guard;
 
     private function __construct(DocumentParser $modx, BrowserConfig $config)
@@ -22,11 +18,10 @@ class ManageScope implements BrowserScope
     }
 
     /**
-     * この範囲を使ってよいかを、要求のたびに確かめる。管理画面のセッションと file_manager の権限だけを見る。
-     * 権限はロールから読み直す（旧ファイル管理は、管理画面の要求ごとに読み直していた。ロールの変更をログインし直さずに反映する）。
-     * 守る場所（guard()）も、読み直した権限から作る。
+     * 要求のたびに確かめる。管理画面のセッションと file_manager の権限だけを見る。
+     * 権限はロールから読み直す（ロールの変更をログインし直さずに反映する。旧ファイル管理と同じ）。守る場所（guard()）もその権限から作る。
      *
-     * @return ManageScope|array よければインスタンス、だめなら ['code' => コード, 'lang' => 言語キー, 'status' => HTTP ステータス]
+     * @return ManageScope|array よければインスタンス、だめなら ['code', 'lang', 'status']
      */
     public static function authorize(DocumentParser $modx, BrowserConfig $config)
     {
@@ -41,11 +36,7 @@ class ManageScope implements BrowserScope
         return new self($modx, $config);
     }
 
-    /**
-     * ファイル管理のルート(設定 filemanager_path。空ならサイトのルート)。ルートの決め方はここだけに置く
-     *
-     * @return string
-     */
+    /** ファイル管理のルート(設定 filemanager_path。空ならサイトのルート)。ルートの決め方はここだけに置く */
     public static function rootPath(DocumentParser $modx)
     {
         return $modx->config('filemanager_path') ?: MODX_BASE_PATH;
@@ -80,9 +71,7 @@ class ManageScope implements BrowserScope
         return $this->config->isAllowedFilenameAll($name);
     }
 
-    /**
-     * 拡張子が変わらないなら許し（.php のファイルの名前を変えられるように）、変わるときは新しい名前の許可リストで確かめる
-     */
+    /** 拡張子が変わらないなら許し（.php のファイルの名前を変えられるように）、変わるときは新しい名前の許可リストで確かめる */
     public function isAllowedRename($oldName, $newName)
     {
         if (BrowserConfig::extensionOf($oldName) === BrowserConfig::extensionOf($newName)) {
@@ -93,19 +82,15 @@ class ManageScope implements BrowserScope
     }
 
     /**
-     * 複製は元と同じ拡張子になるので、拡張子は確かめない。
-     * ドットで始まる名前(.htaccess など)は複製しない。新しい名前は sanitizeFilename() を通り、先頭のドットが落ちて
-     * 別の名前(htaccess)のファイルになってしまうため。アップロード・新しいファイル・名前の変更と同じく、
-     * 管理モードからは、ドットで始まる名前のファイルを新しく作らない(あるものの表示・編集・削除・移動・ダウンロードはできる)
+     * 複製は元と同じ拡張子なので拡張子は確かめない。ドットで始まる名前(.htaccess など)は複製しない
+     * （sanitizeFilename() で先頭のドットが落ちて別の名前になるため。管理モードは、ドットで始まる名前のファイルを新しく作らない）
      */
     public function isAllowedCopy($sourceName, $newName)
     {
         return strpos($sourceName, '.') !== 0;
     }
 
-    /**
-     * upload_maxsize が正の数ならその値。空なら null（本体では制限せず、PHP の upload_max_filesize と post_max_size だけが効く。旧ファイル管理と同じ）
-     */
+    /** upload_maxsize が正の数ならその値。空なら null（本体では制限せず、PHP の上限だけが効く。旧ファイル管理と同じ） */
     public function maxUploadSize()
     {
         $size = (int) $this->modx->config('upload_maxsize');
@@ -114,10 +99,8 @@ class ManageScope implements BrowserScope
     }
 
     /**
-     * ツリーとパンくずの一番上に出す名前(ルートのフォルダの名前。ルートが / のときは /)。
-     * 最後の要素は basename() で取らない(PHP 7.4 は、ロケールによってマルチバイトの名前を正しく扱えない)
-     *
-     * @return string
+     * ツリーとパンくずの一番上の名前(ルートのフォルダの名前。ルートが / のときは /)。
+     * basename() は PHP 7.4 でロケールによってマルチバイトの名前を崩すことがあるため使わない
      */
     public function rootLabel()
     {
@@ -136,12 +119,7 @@ class ManageScope implements BrowserScope
         return 'files';
     }
 
-    /**
-     * ルートからの相対パスに対する、サイトの公開 URL。ルートがサイトのルート（MODX_BASE_PATH）の外にあるときは null
-     *
-     * @param string $relPath ルートからの相対パス（/ 区切り）
-     * @return string|null
-     */
+    /** ルートからの相対パス($relPath)に対する公開 URL。ルートがサイトのルート（MODX_BASE_PATH）の外にあるときは null */
     public function publicUrl($relPath)
     {
         $sitePath = realpath(MODX_BASE_PATH);
@@ -186,7 +164,7 @@ class ManageScope implements BrowserScope
         return [
             'list' => ['handler' => 'fbManageList'],
             'upload' => ['handler' => 'fbManageUpload', 'csrf' => true],
-            // テキストの表示・編集、新しいファイル、zip の展開は管理モードだけ(lib/ManageActions.php)。ピッカーの表には載らないので 400
+            // 管理モードだけ(lib/ManageActions.php)。ピッカーの表には載らないので 400
             'readText' => ['handler' => 'ManageActions::readText'],
             'saveText' => ['handler' => 'ManageActions::saveText', 'csrf' => true, 'post' => true],
             'newfile' => ['handler' => 'ManageActions::newfile', 'csrf' => true, 'post' => true],

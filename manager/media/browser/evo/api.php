@@ -1,20 +1,18 @@
 <?php
 
 /**
- * ファイルブラウザ新JSON API。
+ * ファイルブラウザ JSON API。
  *
- * 範囲(scope): scope=manage ならメニューの「ファイル管理」の範囲(管理モード)、それ以外はピッカー。
- * 範囲を決めるのは下の入口の 1 行だけで、権限は要求のたびにその範囲のクラス(ManageScope / PickerScope)が確かめる。
- * 範囲ごとにだけある操作は BrowserScope::actions() の表に載り、表に無い action は 400。
- * 以下の説明で type は、ピッカーだけが付けるパラメーター(images / media / files)。管理モードは付けない。
+ * scope=manage ならメニューの「ファイル管理」(管理モード)、それ以外はピッカー。範囲は下の入口の 1 行で決まり、権限は要求のたびに
+ * 範囲のクラス(ManageScope / PickerScope)が確かめる。範囲ごとの操作は BrowserScope::actions() の表に載り、表に無い action は 400。
+ * type はピッカーだけが付けるパラメーター(images / media / files)。管理モードは付けない。
  *
  * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren,mtime}], files:[...], writable}
- *                     ピッカーの files の項目: {name,size,mtime,url,path,thumb,width,height}。
+ *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
- *                     管理モードの files の項目: {name,size,mtime,url,writable} と、ブラウザが <img> で表示できる画像(ThumbnailService::isDisplayableImageExtension())なら image: true、
- *                     ラスターなら width,height。画面は image があるときだけプレビューに画像を出す
+ *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true、ラスターなら width,height。
  *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
- *                     writable は今のフォルダに書き込めるか(管理モードの項目の writable はファイルごと)
+ *                     writable は今のフォルダに書き込めるか
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(ピッカーだけ)
@@ -23,7 +21,7 @@
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
  *                     管理モードは overwrite=1 のときだけ同名のファイルを上書きし(ファイルだけ。フォルダ・リンクは断る)、
  *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
- *                     サーバーが保存する名前(無害化した後)の targetName を入れて返す。画面はそれを並べて確かめ、よければ該当のファイルだけ overwrite=1 で送り直す
+ *                     保存する名前(無害化した後)の targetName を入れて返す。画面は確かめた上で、該当のファイルだけ overwrite=1 で送り直す
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
@@ -40,14 +38,13 @@
  *                     extension_not_allowed / not_editable / not_found / no_image / upload_failed / too_large /
  *                     invalid_image / type_mismatch / image_too_big / too_many_same_name / save_failed
  *
- * GET  action=readText (folder, file)                          -> {name,content,hash,readOnly,readOnlyReason,encoding}(管理モードだけ。詳しくは lib/ManageActions.php)
- * POST action=saveText (folder, target, content, hash)         -> {name,hash}(管理モードだけ。hash は開いたときの中身の sha1。違えば 409 modified)
- * POST action=newfile  (folder, name)                          -> {name}(管理モードだけ。空のテキストファイルを作る)
- * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],skipped:[...]}(管理モードだけ。zip を同じフォルダへ展開する)
+ * 管理モードだけ(詳しくは lib/ManageActions.php):
+ * GET  action=readText (folder, file)                          -> {name,content,hash,readOnly,readOnlyReason,encoding}
+ * POST action=saveText (folder, target, content, hash)         -> {name,hash}(hash は開いたときの中身の sha1。違えば 409 modified)
+ * POST action=newfile  (folder, name)                          -> {name}(空のテキストファイルを作る)
+ * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],skipped:[...]}(zip を同じフォルダへ展開する)
  *
- * 成功した変更(upload / mkdir / rename / delete / move / copy / saveImage / saveText / newfile / unzip)は、ChangeLog::record() が
- * 管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示(list / readText など)は記録しない。
- *
+ * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示系は記録しない。
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
@@ -124,8 +121,7 @@ function fbNotFoundMessage($name, $message)
 
 $config = new BrowserConfig($modx);
 
-// 範囲を決めるのはここだけ。権限はこの要求のたびに、その範囲のクラスが確かめる
-// (scope=manage は file_manager の権限が無ければ 403 で、ピッカーへは戻さない)
+// scope=manage は file_manager の権限が無ければ 403 で、ピッカーへは戻さない
 $scope = anyv('scope') === 'manage' ? ManageScope::authorize($modx, $config) : PickerScope::authorize($modx, $config);
 if (is_array($scope)) {
     fbError($scope['code'], lang($scope['lang']), $scope['status']);
@@ -139,7 +135,7 @@ if (is_post() && !postv() && !filev() && (int) serverv('CONTENT_LENGTH', 0) > 0)
     fbError('too_large', lang('fb_err_too_large'), 413);
 }
 
-// 操作の表: 共通の操作 + その範囲にだけある操作。表に無い action(範囲に無い操作を含む)は 400
+// 表に無い action(範囲に無い操作を含む)は 400
 $actions = fbCommonActions() + $scope->actions();
 if (!is_string($action) || !isset($actions[$action])) {
     fbError('invalid_action', lang('fb_err_invalid_action'), 400);
@@ -154,9 +150,6 @@ if (!empty($operation['csrf'])) {
 }
 call_user_func($operation['handler'], $resolver, $scope, $modx);
 
-/**
- * 範囲によらず同じ振る舞いの操作。範囲で変わるのは、BrowserScope に尋ねる yes / no の問いだけ
- */
 function fbCommonActions()
 {
     return [
@@ -170,13 +163,7 @@ function fbCommonActions()
     ];
 }
 
-/**
- * フォルダを読み、守る場所と一覧に出さないものを除き、フォルダとファイルに分けて並べて返す(範囲によらず共通)。
- * 何を出すかは BrowserScope の listsFolder() / listsFile() に尋ねる。
- *
- * @param bool $foldersOnly true ならファイルは集めない(ツリー展開用)
- * @return array{dir:array{rel:string,real:string},folders:array,files:array} files の項目は {name, fullPath, relPath(ルートからの相対), size, mtime}
- */
+/** フォルダを読み、守る場所と一覧に出さないものを除いて、フォルダとファイルに分けて並べて返す(範囲共通)。files の項目は {name, fullPath, relPath, size, mtime} */
 function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $foldersOnly)
 {
     $dir = $resolver->resolveDir($folder);
@@ -203,7 +190,6 @@ function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $folder
         if (is_link($fullPath) && !file_exists($fullPath)) {
             continue;
         }
-        // 守る場所は、一覧にもツリーにも出さない
         if ($guard->isProtected($fullPath)) {
             continue;
         }
@@ -233,9 +219,6 @@ function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $folder
     return ['dir' => $dir, 'folders' => $folders, 'files' => $files];
 }
 
-/**
- * ピッカーの一覧。項目は選ぶための情報(SetUrl へ渡すパス・サムネイル・画像の寸法)を持つ
- */
 function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
@@ -291,7 +274,6 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             'width' => $width,
             'height' => $height,
         ];
-        // 画面は、image があるファイルだけをプレビューに <img> で出す
         if (ThumbnailService::isDisplayableImageExtension($ext)) {
             $item['image'] = true;
         }
@@ -306,10 +288,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
     ]);
 }
 
-/**
- * 管理モードの一覧。項目は管理のための情報(公開 URL・書き込めるか・画像の寸法)を持ち、サムネイルは作らない
- * (vendor のような数の多いフォルダを開いても、temp/thumbs/ へ大量に書き出さないため)
- */
+/** 管理モードの一覧。サムネイルは作らない(vendor のような数の多いフォルダでも temp/thumbs/ へ大量に書き出さないため) */
 function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
@@ -325,7 +304,7 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
             'writable' => is_writable($file['fullPath']),
         ];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        // 画面は、画像と決まったものだけをプレビューに <img> で出す(.php を GET で実行したり、大きなファイルを丸ごと読んだりしない)
+        // 画像と決まったものだけ <img> で出す(.php を GET で実行したり、大きなファイルを丸ごと読んだりしない)
         if (ThumbnailService::isDisplayableImageExtension($ext)) {
             $item['image'] = true;
         }
@@ -392,11 +371,6 @@ function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParse
     exit;
 }
 
-/**
- * アップロードされたファイル($_FILES['files'])を 1 件ずつの配列にして返す。無ければ 400
- *
- * @return array[] 各要素は {index(受けた順番。結果の対応づけに使う), name, tmp, error, size}
- */
 function fbUploadedFiles()
 {
     $uploadedFiles = filev('files');
@@ -420,10 +394,8 @@ function fbUploadedFiles()
 }
 
 /**
- * アップロードされたファイルを保存先へ置く。ピッカーと管理モードで共通なのは、この呼び出しだけ
- * (大きさの確認・同名のときの扱い・拡張子の確認・イベントは、範囲ごとの関数が行う)。
- * 画像の縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。
- * 失敗したときはシステムログに残して false を返す
+ * アップロードされたファイルを保存先へ置く。縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。
+ * 失敗したらシステムログに残して false を返す
  */
 function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPath)
 {
@@ -441,26 +413,18 @@ function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPat
     return $saved;
 }
 
-/**
- * アップロードの結果の errors の 1 件。画面は name(ブラウザが送った名前)でなく index(受けた順番)で、送ったファイルと対応づける
- * (名前に " や \ があると、ブラウザの名前とサーバーが受けた名前が一致しない)
- */
+/** アップロードの errors の 1 件。画面は name でなく index で、送ったファイルと対応づける(名前に " や \ があると一致しない) */
 function fbUploadError(array $file, $message, array $extra = [])
 {
     return ['index' => $file['index'], 'name' => $file['name'], 'message' => $message] + $extra;
 }
 
-/**
- * パスの最後の要素(名前)。basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない
- */
+/** パスの最後の要素。basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない */
 function fbBaseName($path)
 {
     return substr($path, strrpos($path, '/') + 1);
 }
 
-/**
- * ピッカーのアップロード。種類の許可リストで確かめ、同じ名前があれば 名前(1).拡張子 の別の名前で保存し、OnFileBrowserUpload を発火する
- */
 function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
     $folder = anyv('folder', '');
@@ -528,12 +492,6 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
-/**
- * 管理モードのアップロード。旧ファイル管理と同じく、合わせた許可リストで確かめ、OnFileManagerUpload を発火する。
- * 同じ名前があるときは、overwrite=1 のときだけ上書きする。付いていなければ、保存せずに code: exists の errors で返す
- * (サーバーが実際に保存する名前を targetName に入れる。画面はそれを並べて確かめ、よければ overwrite=1 で送り直す)。
- * 上書きするのは、書き込めるふつうのファイルだけ(フォルダ・リンクは断る)。
- */
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
     $folder = anyv('folder', '');
@@ -608,7 +566,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         ];
         $changed[] = ChangeLog::relPath($dir, $targetName);
 
-        // 旧ファイル管理と同じイベント(付けてあるプラグインが動き続けるように)。filepath は確かめた保存先のフォルダ
+        // 旧ファイル管理と同じイベント(付けてあるプラグインが動き続けるように)
         $eventParams = [
             'filepath' => $dir['real'],
             'filename' => $targetName,
@@ -989,11 +947,8 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
 /**
  * 画面(canvas)で編集した画像を保存する。入力は信用せず、拡張子・画像の種類・大きさ・名前をここで確かめる。
- * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、範囲のアップロードのイベント(BrowserScope::uploadEvent())を発火する
- * - overwrite: target のファイルを置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)。
- *   元のパーミッションを引き継ぐ。target がシンボリックリンクのときは断る
- * image_limit_width による縮小は行わない(利用者が編集で決めた大きさを保つため)。
- * canvas で書き出すと EXIF は消える(画面でその旨を表示している)。
+ * overwrite は一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない。
+ * image_limit_width では縮めない(利用者が編集で決めた大きさを保つため)。canvas で書き出すと EXIF は消える。
  */
 function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
@@ -1007,7 +962,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         fbError('invalid_mode', lang('fb_err_invalid_mode'), 400);
     }
 
-    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
+    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
     $targetName = postv('target', '');
     $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
     if ($target === '' || strpos($target, '.') === 0) {
@@ -1107,7 +1062,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
 
     // overwrite: 一覧に見えているファイルそのものだけを置き換える。リンクの先の実体は、名前・拡張子・置き場所を
-    // 確かめていないので、リンクは断る(別名で保存すれば、一覧に見える場所に新しいファイルができる)
+    // 確かめていないので、リンクは断る
     if (is_link($dir['real'] . $target)) {
         fbError('not_editable', lang('fb_err_overwrite_link'), 400);
     }
@@ -1122,7 +1077,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         $stagePath = str_replace('\\', '/', $stagePath);
     }
     $oldMtime = @filemtime($realPath);
-    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)。取れなければ新しいファイルの既定
+    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)
     $oldPerms = @fileperms($realPath);
     $newPerms = $oldPerms !== false ? ($oldPerms & 0777) : $modx->newFilePermissions();
     $saved = false;
@@ -1165,9 +1120,8 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
 }
 
 /**
- * 選んだファイルを送る。1 件はそのまま、2 件以上は zip にして送る。
- * ファイルを外へ出す操作なので、1 つでも条件(許可された拡張子・ドットで始まらない・許可された場所の中の実体・読める)を
- * 満たさなければ全体を拒否する(中身が黙って欠けた zip を作らない)。
+ * 選んだファイルを送る(2 件以上は zip)。ファイルを外へ出す操作なので、1 つでも条件を満たさなければ全体を拒否する
+ * (中身が黙って欠けた zip を作らない)。
  */
 function fbActionDownload(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {

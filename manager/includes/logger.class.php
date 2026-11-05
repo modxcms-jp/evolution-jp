@@ -203,10 +203,7 @@ class EvoLogger
         return $context;
     }
 
-    /**
-     * 今の要求の trace_id。システムログの同じ要求の行すべてに入る(X-Request-ID か、要求ごとの乱数)。
-     * 別のログ(管理操作ログなど)から、システムログの同じ要求の行を引く手がかりとして使う
-     */
+    /** 今の要求の trace_id。システムログの同じ要求の行すべてに入り、別のログ(管理操作ログなど)から引く手がかりになる */
     public static function traceId(): string
     {
         if (self::$runtimeTraceId !== '') {

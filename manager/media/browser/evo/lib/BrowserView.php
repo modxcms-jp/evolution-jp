@@ -1,18 +1,14 @@
 <?php
 
 /**
- * ファイルブラウザの画面(HTML と、JS へ渡す設定)。
- * 画面の本体(markup())は共通で、置かれる場所ごとの外側(モーダルの断片・単独のページ)だけを分ける。
- * 範囲(ピッカー・管理モード)の違いは、JS の設定の値(apiParams など)と、入口の JS(entry)だけで表す。
- * 管理モードにだけあるボタンやダイアログは、markup() の中で範囲を見て分けず、管理モード用の外側で足す。
+ * ファイルブラウザの画面(HTML と、JS へ渡す設定)。画面の本体(markup())は共通で、置かれる場所ごとの外側だけを分ける。
+ * 範囲の違いは JS の設定の値(apiParams など)と入口の JS(entry)だけで表し、管理モードにだけあるダイアログは外側で足す。
  */
 class BrowserView
 {
     /**
-     * 入口の JS(js/<entry>.js)と、その入口で画面を開いたときの既定の状態。入口ごとの既定はここだけで決める。
-     * 利用者が切り替えた状態は、ブラウザに入口ごとに残り(js/prefs.js)、次に開いたときはそちらが優先する。
-     * - view: 一覧の表示。grid(サムネイルを並べる)か list(1 行ずつ)
-     * - tree: フォルダツリー。open(出す)か closed(畳む)
+     * 入口の JS(js/<entry>.js)と、開いたときの既定の状態(view: grid|list、tree: open|closed)。
+     * 利用者が切り替えた状態は js/prefs.js が入口ごとに残し、そちらが優先する
      */
     const ENTRIES = [
         // ピッカー: 画像などを見て選ぶので、サムネイルとツリーを出す
@@ -21,9 +17,7 @@ class BrowserView
         'manage' => ['view' => 'list', 'tree' => 'closed'],
     ];
 
-    /**
-     * JS(js/i18n.js の t())へ渡すキー。JS で使うキーはここだけに列挙する
-     */
+    /** JS(js/i18n.js の t())へ渡すキー。JS で使うキーはここだけに列挙する */
     const JS_LANG_KEYS = [
         'fb_loading', 'preview', 'fb_rename', 'delete',
         'fb_selected_count', 'fb_no_match', 'fb_empty_folder',
@@ -45,17 +39,8 @@ class BrowserView
     ];
 
     /**
-     * JS の設定。サーバーで作り、画面の data-config に JSON で入れる。
-     *
-     * $options:
-     * - entry: 入口の JS。picker(js/picker.js)か manage(js/manage.js)
-     * - apiUrl: API の URL(モーダル断片は /manager/index.php 上で動くため、相対パスの基準が呼び出し側で違う)
-     * - apiParams: JS がすべての要求に付けるパラメーター(ピッカーは ['type' => 種類]、管理モードは ['scope' => 'manage'])
-     * - initialFolder / initialSelect: 開くフォルダーと、選んで見せるファイル名
-     * - rootLabel: ツリーとパンくずの一番上に出す名前
-     * - maxUploadSize: アップロードの上限(バイト)。null は本体では制限しない
-     *
-     * @return array
+     * JS の設定。画面の data-config に JSON で入れる。apiUrl は呼び出し側で相対パスの基準が違う(モーダル断片は /manager/index.php 上で動く)。
+     * apiParams は JS がすべての要求に付ける(ピッカーは ['type' => 種類]、管理モードは ['scope' => 'manage'])。maxUploadSize の null は本体では制限しない
      */
     public static function jsConfig(DocumentParser $modx, BrowserConfig $config, array $options)
     {
@@ -80,26 +65,18 @@ class BrowserView
             'rootLabel' => $options['rootLabel'],
             // zip を作れない環境では、2 件以上のダウンロードを出さない(1 件はそのまま送れる)
             'zip' => $config->canCreateZip(),
-            // 画像の編集: 編集できる拡張子、書き出しの長い辺の上限(px)、保存できるファイルの大きさの上限(バイト)。API も同じ値で確かめる
+            // 画像の編集: 編集できる拡張子、長い辺の上限(px)、大きさの上限。API も同じ値で確かめる
             'editableExtensions' => BrowserConfig::EDITABLE_EXTENSIONS,
             'editMaxDimension' => BrowserConfig::EDIT_MAX_DIMENSION,
             'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
-            // テキストとして開ける拡張子(管理モードの js/manage.js が使う。サーバーの readText も同じ一覧で確かめる)
+            // テキストとして開ける拡張子(サーバーの readText も同じ一覧で確かめる)
             'textExtensions' => BrowserConfig::TEXT_EXTENSIONS,
             'maxUploadSize' => $options['maxUploadSize'],
             'lang' => $messages,
         ];
     }
 
-    /**
-     * 画面の本体(ツールバー・選択バー・ツリー・一覧・ダイアログの枠)。範囲によらず同じ。
-     * 用途ごとに足すダイアログなどは $extras で受け、本体の末尾(#evoFileBrowser の中)へ入れる(ここでは範囲を見て分けない)
-     *
-     * @param array $jsConfig jsConfig() の戻り値
-     * @param string $extras 本体の末尾に足す HTML(管理モードは manageExtras())
-     * @param string $classes 本体の要素に足す class(置かれる場所の外側が決める。メインの領域は evo-fb-page)
-     * @return string
-     */
+    /** 画面の本体(範囲によらず同じ)。用途ごとのダイアログなどは $extras で受けて末尾へ入れる。$classes は本体の要素に足す class */
     public static function markup(array $jsConfig, $extras = '', $classes = '')
     {
         $markup = '';
@@ -207,13 +184,7 @@ class BrowserView
         return $markup;
     }
 
-    /**
-     * 管理モードにだけあるダイアログ(テキストの表示・編集)。markup() の $extras へ渡す(管理モードの外側が使う)。
-     * エレメントの編集画面と同じ形のコードの欄(div.code-editor の見出しと「行の折り返し」の切り替え、textarea.phptextarea)を出し、
-     * 見た目はテーマの CSS をそのまま使う。js/textEditor.js が data-role で見つけて動かす
-     *
-     * @return string
-     */
+    /** 管理モードにだけあるダイアログ(テキストの表示・編集)。markup() の $extras へ渡す。見た目はテーマの CSS をそのまま使う */
     public static function manageExtras()
     {
         $html = '';
@@ -239,12 +210,7 @@ class BrowserView
         return $html;
     }
 
-    /**
-     * ピッカーの画面の断片。EvoShell のモーダルが /manager/index.php の上へ差し込む
-     *
-     * @param array $jsConfig jsConfig() の戻り値(apiUrl は media/browser/evo/api.php)
-     * @param string $title 見出し
-     */
+    /** ピッカーの画面の断片。EvoShell のモーダルが /manager/index.php の上へ差し込む */
     public static function modalFragment(array $jsConfig, $title)
     {
         header('Content-Type: text/html; charset=utf-8');
@@ -256,17 +222,7 @@ class BrowserView
         echo self::entryScripts($jsConfig);
     }
 
-    /**
-     * メインの領域(メニューの「ファイル管理」、a=31)に出す断片。/manager/index.php が、メニューからの fetch でも、
-     * 直に開かれたときの全体の読み込みでも、そのまま出す(戻り値を echo する)
-     *
-     * 見出しと本体を、メインの領域の高さいっぱいに使う入れ物(evo-fb-pane)に入れる。本体(evo-fb-page)は、
-     * 見出しを除いた残りの高さを使い、一覧とツリーの中だけがスクロールする(CSS は filebrowser.css)。
-     *
-     * @param array $jsConfig jsConfig() の戻り値(apiUrl は media/browser/evo/api.php)
-     * @param string $title 見出し
-     * @return string
-     */
+    /** メインの領域(メニューの「ファイル管理」、a=31)に出す断片。/manager/index.php が、fetch でも直に開かれたときでも、そのまま出す */
     public static function managePane(array $jsConfig, $title)
     {
         $html = '<div class="evo-fb-pane">';
@@ -280,12 +236,8 @@ class BrowserView
     }
 
     /**
-     * 入口の JS(モジュール)と、その入口を呼び直すインラインの script。/manager/index.php の上に差し込む断片(モーダルとメインの領域)が使う。
-     * shell.js の executeScripts は同一 src を再実行しないため、2 回目以降に断片を差し込んだときは、このインラインの script が初期化を担う
-     * (入口の登録表から、この画面の入口だけを呼ぶ)。全体の読み込みでは、モジュールが後から動くので、インラインの時点では登録表が無く何もしない
-     * (モジュールが読み込まれたときに、自分で初期化する)。
-     *
-     * @return string
+     * 入口の JS(モジュール)と、その入口を呼び直すインラインの script。shell.js の executeScripts は同一 src を再実行しないため、
+     * 2 回目以降に断片を差し込んだときはインラインの script が初期化を担う(全体の読み込みでは、モジュールが自分で初期化する)。
      */
     private static function entryScripts(array $jsConfig)
     {
@@ -295,13 +247,7 @@ class BrowserView
             . '<script>(function (entries) { if (entries && entries[' . $entry . ']) { entries[' . $entry . '](); } })(window.EvoFileBrowserEntries);</script>';
     }
 
-    /**
-     * テーマの CSS を読み込んだ単独の完全な HTML(chromeless フォールバックのポップアップや、単独の確認用)
-     *
-     * @param array $jsConfig jsConfig() の戻り値(apiUrl は api.php)
-     * @param string $title 見出し
-     * @param string $extras 画面の本体の末尾に足す HTML(管理モードは manageExtras())
-     */
+    /** テーマの CSS を読み込んだ単独の完全な HTML(chromeless フォールバックのポップアップや、単独の確認用) */
     public static function standalonePage(DocumentParser $modx, array $jsConfig, $title, $extras = '')
     {
         $theme = $modx->config('manager_theme');

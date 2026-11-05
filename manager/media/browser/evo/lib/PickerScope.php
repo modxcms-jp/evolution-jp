@@ -6,13 +6,10 @@
  */
 class PickerScope implements BrowserScope
 {
-    /** @var DocumentParser */
     private $modx;
-    /** @var BrowserConfig */
     private $config;
-    /** @var string images / media / files */
+    /** images / media / files */
     private $type;
-    /** @var PathGuard|null */
     private $guard;
 
     private function __construct(DocumentParser $modx, BrowserConfig $config, $type)
@@ -23,12 +20,9 @@ class PickerScope implements BrowserScope
     }
 
     /**
-     * この範囲を使ってよいかを確かめる。管理画面のセッションは常に許可。ウェブユーザーのセッションは、
-     * システム設定「ウェブユーザーのファイルブラウザ利用」(rb_webuser) が有効なときだけ許可する（既定は無効）。
+     * 管理画面のセッションは常に許可。ウェブユーザーのセッションは、設定 rb_webuser が有効なときだけ許可する（既定は無効）。
      * どちらも設定 use_browser が有効で、種類が images / media / files のどれかであること。
-     *
-     * @param string|null $type 種類。null なら type のリクエスト値（無ければ images）
-     * @return PickerScope|array よければインスタンス、だめなら ['code' => コード, 'lang' => 言語キー, 'status' => HTTP ステータス]
+     * 戻り値は、よければインスタンス、だめなら ['code', 'lang', 'status']
      */
     public static function authorize(DocumentParser $modx, BrowserConfig $config, $type = null)
     {

@@ -15,9 +15,8 @@ import { postUrl, responseError, withApiParams } from './api.js';
  * @param {HTMLElement} ctx.dropzoneEl
  * @param {object} ctx.state
  * @param {object} ctx.config
- * @param {(names: string[]) => boolean} ctx.confirmOverwrite - サーバーが「同じ名前がある」(code: exists)と返したファイルについて、
- *        サーバーが保存する名前(targetName)の一覧を渡して呼ぶ。true なら、そのファイルだけを overwrite=1 で送り直す。
- *        false なら、そのファイルは保存しない(別名で保存する範囲のサーバーは、この code を返さない)
+ * @param {(names: string[]) => boolean} ctx.confirmOverwrite - サーバーが code: exists と返したファイルの、保存される名前(targetName)を渡して呼ぶ。
+ *        true ならそのファイルだけを overwrite=1 で送り直し、false なら保存しない
  * @param {() => void} ctx.onDone - アップロード完了後の再読み込み
  */
 export function createUpload(ctx) {
@@ -32,7 +31,6 @@ export function createUpload(ctx) {
             setProgress: function (percent) {
                 row.querySelector('progress').value = percent;
             },
-            // 結果を出さずに消す(同じ名前のファイルを上書きして送り直すとき、新しい行に置き換わる)
             dismiss: function () {
                 row.remove();
             },
@@ -49,7 +47,7 @@ export function createUpload(ctx) {
     }
 
     function uploadFiles(fileList) {
-        // 書き込めないフォルダへは送らない(ボタンは使えなくしてあるが、ドラッグ＆ドロップはここで止める)
+        // 書き込めないフォルダへは送らない(ドラッグ＆ドロップはここで止める)
         if (!ctx.state.writable) {
             return;
         }
@@ -60,8 +58,7 @@ export function createUpload(ctx) {
         sendFiles(files, ctx.state.folder, false);
     }
 
-    // folder は送る時点のフォルダ(送り直しの間にフォルダを移っても、同じ所へ送る)。
-    // overwrite が true のときは、同じ名前のファイルの上書きまで許して送る
+    // folder は送る時点のフォルダ(送り直しの間に移っても同じ所へ送る)。overwrite が true なら同じ名前の上書きまで許す
     function sendFiles(files, folder, overwrite) {
         var formData = withApiParams(ctx.config, new FormData());
         formData.set('action', 'upload');
@@ -97,14 +94,11 @@ export function createUpload(ctx) {
             }
 
             if (ok && result) {
-                // サーバーは、受けた順番(index)で結果を返す。名前では照らさない
-                // (名前に " や \ があると、ブラウザの名前とサーバーが受けた名前が一致しない)。
-                // index は、この要求で送ったファイルの順番で、送り直しのときも同じ
+                // サーバーは受けた順番(index)で結果を返す。名前では照らさない(名前に " や \ があると一致しない)
                 var errorByIndex = {};
                 (result.errors || []).forEach(function (err) {
                     errorByIndex[err.index] = err;
                 });
-                // 同じ名前があって保存しなかったファイル。上書きしてよいかを、保存される名前を並べて尋ねる
                 var conflicts = [];
                 files.forEach(function (file, i) {
                     var err = errorByIndex[i];
@@ -116,7 +110,6 @@ export function createUpload(ctx) {
                 });
                 if (conflicts.length > 0 && ctx.confirmOverwrite(conflicts.map(function (c) { return c.targetName; }))) {
                     conflicts.forEach(function (c) { c.row.dismiss(); });
-                    // 送り直しの完了で一覧を読み直す
                     sendFiles(conflicts.map(function (c) { return c.file; }), folder, true);
                     ctx.onDone();
                     return;
@@ -151,7 +144,7 @@ export function createUpload(ctx) {
 
     if (ctx.dropzoneEl) {
         var dragCounter = 0;
-        // 書き込めないフォルダでは、ドロップを受けない。ブラウザがファイルを開いてしまわないよう、ドラッグ自体は止める
+        // 書き込めないフォルダでは、ドロップを受けない(ブラウザがファイルを開かないよう、ドラッグ自体は止める)
         ctx.dropzoneEl.addEventListener('dragenter', function (e) {
             if (!isOsFileDrag(e)) {
                 return;

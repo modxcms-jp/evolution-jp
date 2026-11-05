@@ -1,8 +1,6 @@
-// 管理モードの入口(メニューの「ファイル管理」の画面が読む)。サイトのファイルを管理する用途の振る舞い(behaviors)を作って、
-// filebrowser.js の registerEntry() に渡す。ファイルを「選んで閉じる」ことはしない。
-// 断片をメインの領域へ差し込むとき、shell.jsがscriptを再実行しないため、開始の関数を入口の登録表
-// (window.EvoFileBrowserEntries.manage)に置き、断片内のインラインscriptから毎回呼び直す(ピッカーと同じ)。
-// この入口だけが、テキストの表示・編集(js/textEditor.js)・新しいファイル・zip の展開を足す(共通の部品には足さない)。
+// 管理モードの入口(メニューの「ファイル管理」)。振る舞い(behaviors)を作って filebrowser.js の registerEntry() に渡す。ファイルを「選んで閉じる」ことはしない。
+// 開始の関数は入口の登録表 window.EvoFileBrowserEntries.manage に置き、断片内のインライン script から呼び直す(shell.js が script を再実行しないため。ピッカーと同じ)。
+// テキストの表示・編集・新しいファイル・zip の展開を足すのはこの入口だけ(共通の部品には足さない)。
 
 import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
@@ -14,8 +12,8 @@ function extensionOf(name) {
     return dot === -1 ? '' : String(name).slice(dot + 1).toLowerCase();
 }
 
-// テキストとして開けるファイルか。拡張子の一覧(サーバーの BrowserConfig::TEXT_EXTENSIONS)は設定で受ける。
-// .htaccess のような拡張子だけの名前は、最後のドットより後ろ(htaccess)が一覧にあれば開ける(サーバーと同じ照合)
+// テキストとして開けるか。拡張子の一覧(サーバーの BrowserConfig::TEXT_EXTENSIONS)は設定で受け、
+// .htaccess のような名前は最後のドットより後ろ(htaccess)で照合する(サーバーと同じ)
 function isTextFile(config, name) {
     return (config.textExtensions || []).indexOf(extensionOf(name)) !== -1;
 }
@@ -29,7 +27,6 @@ function editorFor(host) {
         editor = createTextEditor({
             overlayEl: host.root.querySelector('[data-role="text-overlay"]'),
             config: host.config,
-            // 保存したあとは、一覧の更新時刻とサイズが変わっている
             onChanged: function () { host.reload(); }
         });
         editors.set(host, editor);
@@ -46,7 +43,6 @@ function createFile(host) {
     postForm(host.config, host.state, 'newfile', { name: name }, folder)
         .then(function (result) {
             host.reload();
-            // 作ったファイルは、そのままテキストのダイアログで開く
             editorFor(host).open(result.name, folder);
         })
         .catch(function (err) {
@@ -76,7 +72,6 @@ function unzipFile(host, name) {
 }
 
 var behaviors = {
-    // ダブルクリックと Enter: テキストならテキストのダイアログ、それ以外はプレビュー
     openFile: function (entry, host) {
         if (isTextFile(host.config, entry.name)) {
             editorFor(host).open(entry.name, host.state.folder);
@@ -84,12 +79,10 @@ var behaviors = {
         }
         host.preview.open(entry);
     },
-    // プレビューに足すボタンは無い
     previewActions: function () {
         return [];
     },
-    // 右クリックメニューに足す項目。ファイル 1 件には「表示・編集」(テキスト)と「展開」(.zip)を、何も無い所には「新しいファイル」を足す。
-    // 書き込めないフォルダでは、作る・展開する項目は出さない(サーバーも断る)
+    // 右クリックメニューに足す項目(ファイルには「表示・編集」「展開」、何も無い所には「新しいファイル」)。書き込めないフォルダでは作る・展開する項目は出さない
     contextMenuItems: function (entry, host) {
         var items = [];
         if (!entry) {
@@ -106,7 +99,7 @@ var behaviors = {
         }
         return items;
     },
-    // サーバーは、overwrite=1 が付かない限り同じ名前のファイルを上書きしない。サーバーが保存する名前(無害化した後)を並べて確かめる
+    // サーバーは overwrite=1 が付かない限り上書きしない。保存される名前(無害化した後)を並べて確かめる
     confirmOverwrite: function (names) {
         return window.confirm(t('fb_confirm_overwrite', names.join(', ')));
     }

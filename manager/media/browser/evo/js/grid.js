@@ -13,17 +13,17 @@ import { createMarquee } from './marquee.js';
  * @param {HTMLElement} ctx.dropzoneEl - 矩形選択を受け付ける領域(gridElの親)
  * @param {HTMLElement} ctx.selectionBarEl
  * @param {HTMLElement} ctx.selectionCountEl
- * @param {object} ctx.state - folder/selection/rawFolders/rawFiles/search/sortKey/sortDir/view
+ * @param {object} ctx.state
  * @param {object} ctx.config
  * @param {(path: string) => void} ctx.onNavigate - フォルダへ移動(joinPath済みのpathを渡す)
  * @param {(name: string) => void} ctx.openPreview
- * @param {(name: string) => void} ctx.openFile - ダブルクリックで開く(何が起きるかは、入口の JS の behaviors.openFile が決める)
+ * @param {(name: string) => void} ctx.openFile - ダブルクリックで開く(入口の behaviors.openFile が決める)
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
  * @param {(count: number) => void} ctx.onSelectionChange - 選択バーを更新するたびに、選択の件数を通知する
  * @param {(name: string) => boolean} ctx.isCut - 切り取り中のファイルか(一覧で薄く表示する)
- * @param {(key: string) => void} ctx.onSort - 一覧表示の見出しを押したとき。並べ替えの状態は呼び出し側が持つ
+ * @param {(key: string) => void} ctx.onSort - 一覧表示の見出しを押したとき
  */
 export function createGrid(ctx) {
     var gridEl = ctx.gridEl;
@@ -43,8 +43,6 @@ export function createGrid(ctx) {
             '</span>';
     }
 
-    // --- 一覧表示(1 行ずつ)の列。見出しと各行は、この並びで同じ幅の列を出す ---
-
     var LIST_COLUMNS = [
         { key: 'name', label: 'fb_col_name' },
         { key: 'mtime', label: 'fb_col_mtime' },
@@ -52,7 +50,6 @@ export function createGrid(ctx) {
         { key: 'size', label: 'fb_col_size' }
     ];
 
-    // 拡張子(小文字。無ければ空)。種類の列と、種類での並べ替えに使う
     function extensionOf(name) {
         var dot = name.lastIndexOf('.');
         return dot > 0 ? name.slice(dot + 1).toLowerCase() : '';
@@ -66,7 +63,6 @@ export function createGrid(ctx) {
         return ext ? t('fb_type_file', ext.toUpperCase()) : t('fb_type_file_noext');
     }
 
-    // 名前の列のあとに並ぶ列(更新日時・種類・サイズ)。一覧表示のときだけ出す
     function listMetaHtml(entry, isFolder) {
         if (state.view !== 'list') {
             return '';
@@ -78,7 +74,6 @@ export function createGrid(ctx) {
             '</span>';
     }
 
-    // 一覧表示の見出し。押すとその列で並べ替える(同じ列をもう一度押すと逆順)
     function listHeadHtml() {
         return '<div class="evo-fb-list-head" role="row">' + LIST_COLUMNS.map(function (col) {
             var active = state.sortKey === col.key;
@@ -160,8 +155,7 @@ export function createGrid(ctx) {
     }
 
     function schedulePendingPreview(name) {
-        // ダブルクリックは click が 2 回続いてから dblclick になる。1 回目の予約を残すと、dblclick で打ち消せず、
-        // ファイルを開いた(テキストのダイアログなど)あとにプレビューが重なって開いてしまう
+        // dblclick の前に click が 2 回続くため、1 回目の予約を残すと、ファイルを開いたあとにプレビューが重なって開く
         cancelPendingPreview();
         pendingPreviewTimer = setTimeout(function () {
             pendingPreviewTimer = null;
@@ -285,10 +279,8 @@ export function createGrid(ctx) {
                 var thumbBtn = item.querySelector('[data-role="thumb"]');
                 var nameBtn = item.querySelector('[data-role="name"]');
 
-                // サムネイルは選択に関与せず、常にプレビュー(拡大と、入口の JS が足すボタン)を開く。
-                // ダブルクリックはファイルを開くショートカット(ピッカーなら選択の確定)。プレビューは即座に開くと
-                // オーバーレイが2回目のクリックを奪いdblclickが成立しなくなるため、
-                // 一呼吸おいてから開く(ダブルクリック時はcancelPendingPreviewで打ち消す)
+                // サムネイルは選択に関与せず、常にプレビューを開く。即座に開くとオーバーレイが 2 回目のクリックを奪い
+                // dblclick が成立しないため、一呼吸おく(ダブルクリック時は cancelPendingPreview で打ち消す)
                 thumbBtn.addEventListener('click', function () {
                     cancelPendingRename();
                     schedulePendingPreview(name);
@@ -323,7 +315,7 @@ export function createGrid(ctx) {
                     updateSelectionDom();
 
                     if (wasSoleSelected) {
-                        // ダブルクリック(ファイルを開く)と区別するため、一呼吸おいてから編集を開始する
+                        // ダブルクリックと区別するため、一呼吸おく
                         schedulePendingRename(item, name);
                     }
                 });

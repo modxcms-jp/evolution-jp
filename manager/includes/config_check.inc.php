@@ -149,8 +149,8 @@ function hideTemplateSwitcherWarning(){
     }
 
     /**
-     * ファイル管理(a=31)の folder に渡す値。$path がファイル管理のルートの中にあれば、ルートからの相対パスを URL エンコードしたもの。
-     * ルートの外にあるとき(filemanager_path がサイトのルートの下の別の場所のとき)や、解決できないときは空(ルートを開く)
+     * ファイル管理(a=31)の folder に渡す値。$path がファイル管理のルートの中なら、ルートからの相対パスを URL エンコードしたもの。
+     * ルートの外にあるとき(filemanager_path がサイトのルートの下の別の場所のとき)や解決できないときは空(ルートを開く)
      */
     private function fileManagerFolderFor($path) {
         $libPath = MODX_MANAGER_PATH . 'media/browser/evo/lib/';

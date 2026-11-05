@@ -1,25 +1,20 @@
-// ファイルブラウザの構成ルート。状態(state)を保持し、
-// js/*.js の各モジュールへ必要な参照とコールバックだけを渡して結線する。
-// 用途(ピッカー・管理モード)ごとの入口は js/picker.js と js/manage.js で、それぞれの名前(entry)と振る舞い(behaviors)を渡して
-// registerEntry() を呼ぶ。ここには、範囲を見て分ける処理を書かない(違いは behaviors と、サーバーが作る設定の値だけで表す)。
+// ファイルブラウザの構成ルート。状態(state)を保持し、js/*.js の各モジュールへ必要な参照とコールバックだけを渡して結線する。
+// 入口は js/picker.js と js/manage.js で、名前(entry)と振る舞い(behaviors)を渡して registerEntry() を呼ぶ。
+// ここには範囲を見て分ける処理を書かない(違いは behaviors と、サーバーが作る設定の値だけで表す)。
 //
-// 入口の登録表: window.EvoFileBrowserEntries[entry] に、その入口の開始の関数を置く。EvoShell は ES モジュールを同じ URL では
-// 2 度目に実行しないので、断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す
-// (入口が違うと、別の入口の振る舞いで初期化されない)。
+// 入口の登録表: window.EvoFileBrowserEntries[entry] に開始の関数を置く。EvoShell は ES モジュールを同じ URL では 2 度目に実行しないので、
+// 断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す。
 //
-// behaviors(どれも入口の JS が決める。host は { root, config, state, preview, reload }。root は画面の要素(入口が足すダイアログを探す)):
-//   openFile(entry, host)              ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
-//   previewActions(entry, host)        プレビューに足すボタンの配列 [{ label, primary, onSelect }]
-//   contextMenuItems(entry, host)      右クリックメニューに足す項目。entry があれば(ファイル 1 件)メニューの先頭に、
-//                                      null なら(何も無い所)メニューの最後に足す
-//   confirmOverwrite(names, host)      サーバーが同じ名前のファイルがあると返したとき、サーバーが保存する名前(names)を並べて
-//                                      上書きしてよいかを確かめる。true なら、そのファイルだけを上書きで送り直す
-//                                      (別名で保存するサーバーは返さないので、呼ばれない)
+// behaviors(host は { root, config, state, preview, reload }):
+//   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
+//   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
+//   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
+//   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
+//                                  true なら、そのファイルだけを上書きで送り直す
 //
-// 外の JS 向けのイベント(#evoFileBrowser から、bubbles: true の CustomEvent で出す。detail の scope は画面の入口の名前 picker / manage):
+// 外の JS 向けのイベント(#evoFileBrowser から bubbles: true の CustomEvent で出す。detail.scope は入口の名前 picker / manage):
 //   evofb:navigate          一覧を読み終えたとき。detail は { scope, folder }(folder はルートからの相対パス)
-//   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }(names は選んだファイルの名前)
-// 外からファイルブラウザを操作する入口(フォルダを開かせるなど)は、使う所ができたときに足す。
+//   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
@@ -76,7 +71,6 @@ function init(root, entry, behaviors) {
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
     var hasShownList = false;
 
-    // 表示の状態。既定は入口ごとにサーバー(BrowserView::ENTRIES)が決め、利用者が切り替えたものは入口ごとに残す
     var prefs = createPrefs(config.entry, config.defaults);
 
     var state = {
@@ -88,12 +82,9 @@ function init(root, entry, behaviors) {
         sortDir: 'asc',
         view: prefs.get('view'),
         selection: new Set(),
-        // 開いているフォルダに書き込めるか(一覧の応答の writable)
         writable: true,
-        // フォルダツリーを出しているか
         treeOpen: prefs.get('tree') === 'open'
     };
-    // evofb:selectionchange を出した最後の選択(同じ選択では出し直さない)
     var lastSelectionKey = '[]';
 
     var pathEl = root.querySelector('[data-role="path"]');
@@ -108,10 +99,9 @@ function init(root, entry, behaviors) {
     var noticeEl = root.querySelector('[data-role="notice"]');
     var treeToggleBtn = root.querySelector('[data-action="toggle-tree"]');
 
-    // 入口の JS の behaviors へ渡す。preview は作ったあとに入れる
+    // preview は作ったあとに入れる
     var host = { root: root, config: config, state: state, preview: null, reload: function () { load(); } };
 
-    // 外の JS へ知らせる。範囲は入口の名前(config.entry)をそのまま渡す
     function emit(type, detail) {
         detail.scope = config.entry;
         root.dispatchEvent(new CustomEvent(type, { bubbles: true, detail: detail }));
@@ -202,7 +192,6 @@ function init(root, entry, behaviors) {
         grid.updateCutDom();
     }
 
-    // 開いているフォルダに書き込めないときは、新しいフォルダ・アップロード・貼り付けを使えなくして、注意を出す
     function applyWritable() {
         mkdirBtn.disabled = !state.writable;
         uploadBtn.disabled = !state.writable;
@@ -269,7 +258,6 @@ function init(root, entry, behaviors) {
         config: config,
         onNavigate: navigateTo,
         onSort: function (key) {
-            // 一覧表示の見出し: 同じ列なら逆順にし、別の列ならその列で昇順にする
             setSort(key, state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc');
         },
         openPreview: function (name) {
@@ -384,8 +372,7 @@ function init(root, entry, behaviors) {
 
     function renderPath() {
         renderBreadcrumb(pathEl, escapeHtml(config.rootLabel), state.folder, navigateTo);
-        // ルートでは出さない(戻る先が無く、ウェブサイトのトップページにパンくずを出さないのと同じ)。
-        // 移動先を選ぶダイアログのパンくずは、ルートでも行き先を示すので出す(js/dialogs.js)
+        // ルートでは出さない(戻る先が無く、ウェブサイトのトップページにパンくずを出さないのと同じ)。移動先のダイアログのパンくずはルートでも出す
         pathEl.hidden = state.folder === '';
         // パンくずもエクスプローラ同様にドロップ先にする(上位フォルダへの移動)
         pathEl.querySelectorAll('.evo-fb-crumb').forEach(function (btn) {
@@ -474,7 +461,6 @@ function init(root, entry, behaviors) {
         });
     }
 
-    // 並べ替えの状態を変える所はここだけ(ツールバーの選択と、一覧表示の見出しの両方から呼ぶ)
     function setSort(key, dir) {
         state.sortKey = key;
         state.sortDir = dir;
@@ -498,8 +484,6 @@ function init(root, entry, behaviors) {
             grid.renderList();
         });
     }
-
-    // --- フォルダツリーの開閉 ---
 
     function applyTreeOpen() {
         treeEl.hidden = !state.treeOpen;
@@ -616,8 +600,7 @@ function init(root, entry, behaviors) {
     });
 
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
-    // 一覧の中(一覧そのもの・ファイルの名前のボタン。サムネイルのボタンの Enter は、これまでどおりプレビューを開く)にフォーカスがあるときだけ受ける。
-    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
+    // 一覧の中にフォーカスがあるときだけ受ける(入力欄・ダイアログ・右クリックメニュー・ほかのボタンの Enter は動かさない)
     root.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
             return;
@@ -733,7 +716,6 @@ function init(root, entry, behaviors) {
             y = rect.top + 8;
         }
         var items = contextMenuItems(itemEl);
-        // 書き込めないフォルダの何も無い所など、出す項目が無いときはメニューを開かない
         if (items.length === 0) {
             return;
         }
