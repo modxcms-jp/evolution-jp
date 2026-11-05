@@ -10,10 +10,14 @@ Issue: #1059
 
 - [x] (2026-11-05) M1: 型つきヘルパー 12 関数と `to_*()` 4 つを `manager/includes/helpers.php` に足し、決まりを `assets/docs/request-input.md` に書いた。`*_strvar` を security-lint の検出対象に入れた（PR は Artifacts and Notes）
 - [x] (2026-11-05) M2: `getv()` の特例をやめ、全 221 行を読んで空の値で動きが変わる 9 か所（7 ファイル）を型つきに直した。エラー画面の操作の番号も型つきで読むようにした（PR は Artifacts and Notes）
-- [ ] M3: `manager/actions/` の置き換え
+- [ ] M3: `manager/actions/` の置き換え（3 つに分ける。M3a: document・main・tool・report と直下、M3b: element、M3c: permission）
+  - [x] (2026-11-05) M3a: 15 ファイルで型つきへ置き換え（`evo()->input_*()` を含む）。出力する値も `*_strvar()` で取り出すよう決まりを改めた（PR は Artifacts and Notes）
+  - [ ] M3b: `manager/actions/element/`
+  - [ ] M3c: `manager/actions/permission/`
 - [ ] M4: `manager/processors/` の置き換え
 - [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
+- [ ] M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消す（M3〜M6 で本体の呼び出しを置き換えたあと）
 - [ ] M7: 置き換え漏れを検出する検査を `security-lint.php` に足す
 - [ ] M8: PHP 8.5 と PHP 7.4 での横断の確認と振り返り
 
@@ -27,6 +31,8 @@ Issue: #1059
 - 2026-11-05（M2）: `getv()` の約 205 行は、空の値でも結果が変わらない使い方だった（真偽判定、`(int)`・`hsc()`・`empty()`、`== ''` 比較、既定値が `''` のもの、全件取得）。`isset(getv())`・`is_null(getv())`・`??`・strict な `in_array`・配列の添字に使う形は 0 件。`install/` には `getv()` が無い。`evo()->input_get()` は `$_GET` を直接読むので、この変更の影響を受けない。
 - 2026-11-05（M2 の自己レビュー）: エラー画面（`manager/includes/traits/document.parser.subparser.trait.php`）の操作の番号は、`a[]=1` のとき PHP 8 で TypeError になり、値をエスケープせずに出力していた（M2 の前から）。`get_intvar('a') ?: post_intvar('a')` で読むようにして、M2 と一緒に直した。
 - 2026-11-05（M2 の検証）: `manager/frames/nodes.php` は直接開くと `$modx` が無く空の 200 で終わる。実際の呼び出しは `index.php?a=1&f=nodes&...`（tree.js）なので、検証はこの形で行う。
+- 2026-11-05（M3a の検証）: 範囲外の 3 か所が、配列を送ると TypeError になる（修正前から）。`manager/includes/accesscontrol.inc.php:90` の `preg_match(..., anyv('id', 0))`（`id[]=1` を送るとどの画面でも出る）、`manager/includes/extenders/ex_maketable.php:351` の `getv('page')`、`manager/includes/traits/document.parser.subparser.trait.php` の `checkPermissions()`（`$docid` を文字列として扱う）。M5 で扱う。
+- 2026-11-05（M3a の検証）: 管理画面の既定の設定は `display_errors=Off` なので、応答の本文だけでは PHP の警告を見逃す。検証では、コンテナの中だけで `display_errors=On` と `error_log` を stderr にする ini を置き、本文と stderr の両方で数える（作業ツリーには書かない）。
 
 ## Decision Log
 
@@ -36,6 +42,12 @@ Issue: #1059
 - 2026-11-05 / Claude（M1 の自己レビュー）: `*_idsvar()` は、文字列で受けたときだけカンマで分けた各要素の前後の空白を除く（`'3, 4'` は `[3, 4]`）。配列の要素は除かない。既存の `move_document.processor.php` が各要素を `trim()` してから読んでいるのに合わせた。1 つの値を読む `*_intvar()` は今のまま空白を許さない。
 - 2026-11-05 / Claude（M2）: `manager/actions/element/mutate_plugin.dynamic.php` の `["id" => getv('id')]`（プラグインのイベント OnPluginFormPrerender / OnPluginFormRender に渡す値）は直さない。`id=` を明示して開いたときだけ null から `''` に変わり、違いが出るのは受け取る側が `isset()` / `is_null()` で判定するときだけ（標準添付のプラグインに該当なし）。`get_intvar('id') ?: null` にすると、逆に `'abc'` などで値が変わる。
 - 2026-11-05 / Claude（M2）: `manager/actions/header.inc.php` の `tab` は `get_strvar('tab', '1')` で読む。既定値が int の 1 から文字列の `'1'` に変わるが、`setcookie()` が文字列にして送るので、ブラウザに届く値は同じ。
+- 2026-11-05 / Claude（M3a）: M3 は対象が約 300 か所あるので、`manager/actions/` のサブディレクトリで 3 つに分ける（M3a: document・main・tool・report と直下の約 110 か所、M3b: element の約 100 か所、M3c: permission の約 100 か所）。それぞれ 1 つの PR にする。
+- 2026-11-05 / Claude（M3a の自己レビュー）: `evo()->input_get()` / `input_post()` / `input_any()` は、中身が `getv()` / `postv()` / `anyv()` と同じ生の値なので、置き換えの対象に入れる（受け取り元の対応は `input_get` → `get_`、`input_post` → `post_`、`input_any` → `request_`）。
+- 2026-11-05 / yamamoto: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()`（2018 年に足した DocumentParser の公開メソッド）は、本体からの呼び出しを置き換えたあと、1.3 で消す（M6b）。代替案の「非推奨にして 1.4 で消す」「残す」は採らない。
+- 2026-11-05 / Claude（M3a の検証）: `hsc(getv('x'))` のように出力するものは、配列が来ると Array to string の警告になる。「出力するものは生の値のまま残してよい」を改め、出力するものは `*_strvar()` で取り出す、とした（`assets/docs/request-input.md`）。あわせて、残してよい形に「送られたかどうか（真偽）だけを見るもの」を足し、配列だけを受ける項目（配列でないときは `[]`）と、文字列と配列のどちらも正しい値になる項目（テンプレート変数の値。生の値のまま受ける）を分けて書いた。
+- 2026-11-05 / Claude（M3a）: 置き換えで、意味のない値のときに動きが変わるものは許容した。記録の件数（`logging.static.php` の `nrresults`）の 0・負数・小数は設定値になる、`wait.static.php` の `dv=1&id=0` は `a=3&id=0` ではなく `a=2` へ移る、`bkmanager.static.php` の `r=0` で `doRefresh(0)` を出さない（`reloadPane(0)` は何もしない）、`parent_picker.dynamic.php` の重複した id は 1 つになる。正常な値の動きは変えていない（PHP 8.5 で修正前後を 314 ケース比べて同一）。
+- 2026-11-05 / Claude（M3a の自己レビュー）: `bkmanager.static.php` の `doRefresh` の行は、`header.inc.php` と同じ条件だが消さない。`header.inc.php` はシェルの断片の要求（`$isPaneRequest`）では読み込まれず、消すとその場合の再読み込みが失われるため。
 
 ## Outcomes & Retrospective
 
@@ -67,7 +79,9 @@ M2 で `getv()` の空の値の特例をやめる。動きが変わるのは、�
 
 M3〜M6 でディレクトリごとに置き換える。置き換えの規則（置き換えの表、生の値のまま残してよい形、`*_boolvar()` や `*_idsvar()` に置き換える前に確かめること）は `assets/docs/request-input.md` を正本とし、ここには写さない。
 
-M7 で、置き換え漏れを検出する規則を `security-lint.php` に足す。対象は、生の値のヘルパーの戻り値を、既定値なしのまま文字列関数（`preg_match`・`trim`・`strpos`・`strtolower`・`explode`・`is_file` など）や `count()` に直接渡す書き方。走査範囲は `manager/`・`assets/`（`assets/plugins/*/tinymce*/` を除く）・`install/`。M3〜M6 が終わった時点で違反 0 件にし、CI で守る。
+M6b で、本体からの呼び出しが無くなった `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を `manager/includes/document.parser.class.inc.php` から消す（Decision Log の 2026-11-05 の決定）。消す前に `grep -rnE "input_(get|post|any|cookie)\(" --include=*.php manager assets install` が 0 件であることを確かめ、`assets/docs/request-input.md` の該当の 1 行も消す。サイト側のスニペットやプラグインで使っていると Fatal error になるので、PR に `仕様変更` を付け、代わりの書き方（`getv()` や型つきヘルパー）を本文に書く。
+
+M7 で、置き換え漏れを検出する規則を `security-lint.php` に足す。対象は、生の値のヘルパー（`getv()` / `postv()` / `anyv()`）の戻り値を、既定値なしのまま文字列関数（`preg_match`・`trim`・`strpos`・`strtolower`・`explode`・`is_file` など）や `count()`、出力の関数（`hsc`・`htmlspecialchars`・`urlencode`・`rawurlencode`）に直接渡す書き方。走査範囲は `manager/`・`assets/`（`assets/plugins/*/tinymce*/` を除く）・`install/`。M3〜M6 が終わった時点で違反 0 件にし、CI で守る。
 
 M8 で、PHP 8.5 と PHP 7.4 の検証環境で横断の確認をする。
 
@@ -131,7 +145,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（base は M1 のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（base は M2 のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
