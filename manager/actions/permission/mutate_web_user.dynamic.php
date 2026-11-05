@@ -3,11 +3,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$tbl_active_users = evo()->getFullTableName('active_users');
-$tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
-$tbl_web_users = evo()->getFullTableName('web_users');
-$tbl_web_groups = evo()->getFullTableName('web_groups');
-$tbl_webgroup_names = evo()->getFullTableName('webgroup_names');
 
 $action = request_intvar('a');
 
@@ -38,7 +33,7 @@ if ($action === 87) {
 
 
 // check to see the snippet editor isn't locked
-$rs = db()->select('internalKey, username', $tbl_active_users, "action='88' AND id='{$user}'");
+$rs = db()->select('internalKey, username', evo()->getFullTableName('active_users'), "action='88' AND id='" . (int) $user . "'");
 $limit = db()->count($rs);
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
@@ -54,7 +49,7 @@ if ($limit > 1) {
 
 if ($action === 88) {
     // get user attributes
-    $rs = db()->select('*', evo()->getFullTableName('web_user_attributes'), "internalKey='{$user}'");
+    $rs = db()->select('*', evo()->getFullTableName('web_user_attributes'), "internalKey='" . (int) $user . "'");
     $limit = db()->count($rs);
     if (!$limit) {
         echo "No user returned!<p>";
@@ -63,15 +58,14 @@ if ($action === 88) {
     $userdata = db()->getRow($rs);
 
     // get user settings
-    $rs = db()->select('*', $tbl_web_user_settings, "webuser='{$user}'");
+    $rs = db()->select('*', evo()->getFullTableName('web_user_settings'), "webuser='" . (int) $user . "'");
     $usersettings = [];
     while ($row = db()->getRow($rs)) {
         $usersettings[$row['setting_name']] = $row['setting_value'];
     }
-    extract($usersettings, EXTR_OVERWRITE);
 
     // get user name
-    $rs = db()->select('*', $tbl_web_users, "id='{$user}'");
+    $rs = db()->select('*', evo()->getFullTableName('web_users'), "id='" . (int) $user . "'");
     $limit = db()->count($rs);
     if ($limit > 1) {
         echo "More than one user returned while getting username!<p>";
@@ -104,7 +98,6 @@ if (manager()->hasFormValues()) {
     $usersettings = array_merge($usersettings, $form_v);
     $allowedDays = $form_v['allowed_days'] ?? '';
     $usersettings['allowed_days'] = is_array($allowedDays) ? implode(",", $allowedDays) : $allowedDays;
-    extract($usersettings, EXTR_OVERWRITE);
 }
 
 function setting($name, $default = null)
@@ -246,8 +239,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="mode" value="<?= $action ?>" />
-    <input type="hidden" name="id" value="<?= $user ?>" />
+    <input type="hidden" name="mode" value="<?= (int) $action ?>" />
+    <input type="hidden" name="id" value="<?= (int) $user ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0) || attribute('failedlogins') > 3) ? "1" : "0" ?>" />
 
@@ -631,8 +624,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 $groupsarray = [];
 
                 if ($action === 88) { // only do this bit if the user is being edited
-                    $uid = $user;
-                    $rs = db()->select('*', $tbl_web_groups, "webuser='{$uid}'");
+                    $rs = db()->select('*', evo()->getFullTableName('web_groups'), "webuser='" . (int) $user . "'");
                     $limit = db()->count($rs);
                     for ($i = 0; $i < $limit; $i++) {
                         $currentgroup = db()->getRow($rs);
@@ -653,7 +645,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <div class="sectionBody">
                         <?php
                         echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-                        $rs = db()->select('name,id', $tbl_webgroup_names, '', 'name');
+                        $rs = db()->select('name,id', evo()->getFullTableName('webgroup_names'), '', 'name');
                         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
                         while ($row = db()->getRow($rs)) {
                             $echo = $tpl;
