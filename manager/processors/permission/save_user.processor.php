@@ -56,7 +56,7 @@ if (postv('mode') == 11) { // new user
 }
 
 if (in_array(postv('mode'), [12, 74])) {
-    if (!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
+    if (!preg_match('@^[1-9][0-9]*$@', postv('userid', ''))) {
         webAlert('Missing user id!');
     }
     if (trim((string)userformv('newusername')) === '') {

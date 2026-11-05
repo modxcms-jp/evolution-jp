@@ -8,7 +8,7 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]*$@', postv('id')) || (mode() === 'edit' && !postv('id'))) {
+if (!preg_match('@^[0-9]*$@', postv('id', '')) || (mode() === 'edit' && !postv('id'))) {
     alert()->setError(2);
     alert()->dumpError();
 }

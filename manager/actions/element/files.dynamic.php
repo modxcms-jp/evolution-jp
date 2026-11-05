@@ -277,7 +277,7 @@ if (!is_readable($startpath)) {
         if (is_writable($startpath)) {
             // Delete Folder
             if (anyv('mode') === 'deletefolder') {
-                $folder = anyv('folderpath');
+                $folder = anyv('folderpath', '');
                 if ($guard->isBase($folder) || $guard->containsProtected($folder)) {
                     // 対象ディレクトリそのもの、中に守る場所を含むフォルダは削除しない
                     echo sprintf(
@@ -435,7 +435,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
             id="file_editfile"><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
         <div class="sectionBody">
             <?php
-            $filename = anyv('path');
+            $filename = anyv('path', '');
             $buffer = is_file($filename) ? file_get_contents($filename) : false;
 
             // Log the change
@@ -1078,7 +1078,7 @@ function fileupload()
 function textsave()
 {
     // 保存は既にあるファイルの編集だけにする（新しいファイルは newfile で、拡張子を確かめて作る）
-    if (!is_file(postv('path'))) {
+    if (!is_file(postv('path', ''))) {
         return lang('editing_file') . '<span class="warning"><b>' . lang('file_not_saved') . '</b></span><br /><br />';
     }
     // 一覧で編集アイコンを出す種類（is_editable_file()）のファイルだけ保存する
@@ -1100,20 +1100,22 @@ function delete_file()
 {
     global $guard;
 
-    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', anyv('path'))));
+    $path = anyv('path', '');
 
-    if ($guard->isBase(anyv('path'))) {
+    $msg = sprintf(lang('deleting_file'), hsc(str_replace('\\', '/', $path)));
+
+    if ($guard->isBase($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
     }
 
     // 無いもの・フォルダーは unlink() に渡さない（PHP の警告になる）。リンクはリンク自体を消す
-    if (!is_file(anyv('path')) && !is_link(anyv('path'))) {
+    if (!is_file($path) && !is_link($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_found') . '</b></span><br /><br />';
     }
 
-    logFileChange('delete', anyv('path'));
+    logFileChange('delete', $path);
 
-    if (!unlink(anyv('path'))) {
+    if (!unlink($path)) {
         return $msg . '<span class="warning"><b>' . lang('file_not_deleted') . '</b></span><br /><br />';
     }
 

@@ -462,7 +462,7 @@ EOT;
      */
     public function handlePaging()
     {
-        $offset = (preg_match('@^[1-9][0-9]*$@', getv('page'))) ? getv('page') - 1 : 0;
+        $offset = (preg_match('@^[1-9][0-9]*$@', getv('page', ''))) ? getv('page') - 1 : 0;
         return sprintf(' LIMIT %s,%s', $offset * $this->pageLimit, $this->pageLimit);
     }
 
