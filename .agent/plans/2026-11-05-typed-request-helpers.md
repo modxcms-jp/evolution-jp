@@ -8,7 +8,7 @@ Issue: #1059
 
 ## Progress
 
-- [ ] (2026-11-05) M1: 型つきヘルパーの追加と、決まりの文書
+- [x] (2026-11-05) M1: 型つきヘルパー 12 関数と `to_*()` 4 つを `manager/includes/helpers.php` に足し、決まりを `assets/docs/request-input.md` に書いた。`*_strvar` を security-lint の検出対象に入れた（PR は Artifacts and Notes）
 - [ ] M2: `getv()` の空の値の特例をやめ、特例に頼る呼び出し元を型つきへ置き換える
 - [ ] M3: `manager/actions/` の置き換え
 - [ ] M4: `manager/processors/` の置き換え
@@ -22,11 +22,15 @@ Issue: #1059
 - 2026-11-05: 型つきの取り出し口は、ID 専用の `get_intvar()` / `post_intvar()` / `request_intvar()` / `to_intvar()` / `abort_if_invalid_id()` として既にある（`manager/includes/helpers.php`、呼び出し元は約 150 か所）。新しい仕組みは作らず、この一族を広げる。
 - 2026-11-05: #1058 で、`getv()` の引数なし呼び出しによる null 添字、リクエスト値の既定値 `null` を `preg_match()` などへ渡す約 20 か所、モジュールの依存関係の削除で `count(null)` が TypeError になる不具合を直した。いずれもこの計画で防ぎたい形の実例。
 - 2026-11-05: `getv()` の特例をやめると、既定値を省いた `getv()` も空の値で `null` ではなく `''` を返すようになる（PR #1060 のレビューで指摘）。たとえば `manager/frames/nodes.php:54` は `getv('offset') !== null` で分岐していて、`offset=&expandAll=1` は今は通常の展開に進むが、特例をやめるとページ送りの分岐に入り `expandAll` を無視する。そのため M2 の確認は既定値つきの呼び出しに限らず、`getv()` の全呼び出しを対象にする。
+- 2026-11-05（M1 の自己レビュー）: `.github/scripts/security-lint.php` の sql-embed は `REQUEST_FUNCS`（`getv` / `anyv` / `postv` / `cookiev`）の名前で照合している。中身をそのまま返す `*_strvar()` に置き換えると SQL への埋め込みが検出から外れるため、M1 で `*_strvar` を `REQUEST_FUNCS` に足した。`*_intvar` / `*_boolvar` / `*_choicevar` / `*_idsvar` は返す値がコードで決まるので足さない。
+- 2026-11-05（M1 の自己レビュー）: ID の一覧を読む既存の処理は動きが揃っていない。`manager/processors/document/move_document.processor.php` は 1 つでも不正な id があればエラーで止め、`manager/actions/element/mutate_module_resources.dynamic.php` は読めた id だけを使う。`*_idsvar()` は読めない要素を黙って捨てるので、全体を拒否したい処理は置き換えないか、要素数を比べる（`assets/docs/request-input.md` に記載）。
 
 ## Decision Log
 
 - 2026-11-05 / yamamoto・Claude: 取り出し口の形は、既存の `*_intvar()` を広げる（受け取り元の接頭辞 `get_` / `post_` / `request_` × 型）。代替案の `request()->query()->int('id')` のような 1 つの入口は Symfony に近いが、既存の約 150 か所も置き換えになり、今の作法から外れるため採らない。
 - 2026-11-05 / yamamoto・Claude: 空の値は「生の値はそのまま、型つきは既定値」にする。`getv()` / `postv()` / `anyv()` はキーがあれば空文字をそのまま返し、既定値はキーが無いときだけ使う（Symfony の InputBag と同じ）。型つきの取り出し口は、空・形式違い・配列などの想定外の型を、すべて既定値にする。代替案の「すべて空なら既定値」は、保存で項目を空にしたい場合に既定値が入る恐れがあり、`postv()` の約 540 か所の確認が重いため採らない。「型つきも空はそのまま」は、型つきで空を受けたときの値が型ごとにばらつくため採らない。
+- 2026-11-05 / Claude（M1 の自己レビュー）: `*_choicevar()` の `$default` は必須にする。省けると形式違いのときに `null` が返り、この計画が防ぎたい「null を文字列関数へ渡す」形がまた生まれるため。
+- 2026-11-05 / Claude（M1 の自己レビュー）: `*_idsvar()` は、文字列で受けたときだけカンマで分けた各要素の前後の空白を除く（`'3, 4'` は `[3, 4]`）。配列の要素は除かない。既存の `move_document.processor.php` が各要素を `trim()` してから読んでいるのに合わせた。1 つの値を読む `*_intvar()` は今のまま空白を許さない。
 
 ## Outcomes & Retrospective
 
@@ -40,7 +44,7 @@ Issue: #1059
 
 関係するファイル:
 
-- `manager/includes/helpers.php`: `array_get()`（373 行付近、4 つ目の引数 `$validate` で値を確かめられる）、`*_intvar()` と `to_intvar()`（425〜470 行付近）、`getv()` / `postv()` / `anyv()`（503〜551 行付近）。
+- `manager/includes/helpers.php`: `array_get()`（373 行付近、4 つ目の引数 `$validate` で値を確かめられる）、`*_intvar()` と `to_intvar()`、M1 で足した型つきヘルパー（420〜600 行付近）、`getv()` / `postv()` / `anyv()`（630〜680 行付近）。行番号は 2026-11-05 の M1 の時点のもの。
 - `.github/scripts/security-lint.php`: processor の中でリクエスト値を無害化せずに SQL へ入れる書き方などを検出する。CI（`.github/workflows/security-lint.yml`）で動く。
 - 文書: ヘルパーの決まりは今は AGENTS.md の「スーパーグローバル変数の禁止」にしか無い。
 
@@ -52,25 +56,11 @@ Issue: #1059
 
 ## Plan of Work
 
-M1 で型つきのヘルパーを足し、決まりを文書にする。足すのは次の型で、それぞれ `get_` / `post_` / `request_` の 3 つの受け取り元を用意する（ID 用の `*_intvar()` と同じ並び）。変換の本体は受け取り元に依らない `to_*()` に置き、`to_intvar()` と同じ形にする。
-
-- `*_strvar($key, $default = '')`: 文字列。配列などの文字列でない値と空文字は既定値。
-- `*_boolvar($key, $default = false)`: 真偽値。`'1'`・`'on'`・`'true'`・`'yes'` を true、`'0'`・`'off'`・`'false'`・`'no'` を false、それ以外は既定値。
-- `*_choicevar($key, array $choices, $default)`: 選択肢の中の値だけ。それ以外は既定値。
-- `*_idsvar($key)`: 正の整数の配列（`to_intvar()` を各要素に使い、0 を除く）。配列でもカンマ区切りの文字列でも受ける。
-- `*_intvar()` は今のまま（正の整数、それ以外は 0）。0 や負の数が意味を持つ数値（並びのずれなど）が要る場所が置き換えの途中で見つかったら、そのときに `*_numvar()` を足すかを決め、Decision Log に書く。
+M1 で型つきのヘルパー（`*_strvar` / `*_boolvar` / `*_choicevar` / `*_idsvar`）を足し、決まりを文書にする（M1 で完了）。それぞれ `get_` / `post_` / `request_` の 3 つの受け取り元を用意し（ID 用の `*_intvar()` と同じ並び）、変換の本体は受け取り元に依らない `to_*()` に置く。各ヘルパーの戻り値の規則、空白と大文字小文字の扱い、0 や負の数が意味を持つ値の扱い（`*_numvar()` は置き換えの途中で要るとわかったら足すかを決め、Decision Log に書く）は、`assets/docs/request-input.md` を正本とする。
 
 M2 で `getv()` の空の値の特例をやめる。動きが変わるのは、空の値が送られたときに、戻り値が既定値（省いたときは `null`）から `''` に変わる呼び出し元である。既定値の有無に関わらず `getv()` の全呼び出し（238 か所）を確かめ、空の値と無い値で動きが分かれるもの（既定値に戻ることを期待する、`null` と比べる、戻り値を入れた変数を `null` や `isset()` で判定する）を型つきへ置き換えるか、`=== null` の判定を「空か無いか」の判定に直す。特例をやめる変更と置き換えは同じ PR にする（途中の版で動きが変わらないように）。
 
-M3〜M6 でディレクトリごとに置き換える。置き換えの規則は次の表のとおり。生の値のまま残してよいのは、文字列として厳密に比べるだけのもの（`postv('mode') === 'save'`）と、値を加工せずに保存するもの（`db()->escape(postv('content', ''))` のように既定値 `''` を付けて渡すもの）、配列のまま扱う項目（テンプレート変数の値など）。
-
-    今の書き方                                         置き換え先
-    preg_match('@^[1-9][0-9]*$@', getv('id')) ...      get_intvar('id')（0 なら無い扱い）
-    (int) postv('parent') / intval(anyv('x'))          post_intvar('parent') など
-    getv('force', 0) を真偽として使う                  get_boolvar('force')
-    getv('period', 'latest') を選択肢として使う        get_choicevar('period', [...], 'latest')
-    anyv('depid') を ID の配列として使う               request_idsvar('depid')
-    trim(postv('q')) / strtolower(getv('x'))           trim(post_strvar('q')) など
+M3〜M6 でディレクトリごとに置き換える。置き換えの規則（置き換えの表、生の値のまま残してよい形、`*_boolvar()` や `*_idsvar()` に置き換える前に確かめること）は `assets/docs/request-input.md` を正本とし、ここには写さない。
 
 M7 で、置き換え漏れを検出する規則を `security-lint.php` に足す。対象は、生の値のヘルパーの戻り値を、既定値なしのまま文字列関数（`preg_match`・`trim`・`strpos`・`strtolower`・`explode`・`is_file` など）や `count()` に直接渡す書き方。走査範囲は `manager/`・`assets/`（`assets/plugins/*/tinymce*/` を除く）・`install/`。M3〜M6 が終わった時点で違反 0 件にし、CI で守る。
 
@@ -98,7 +88,7 @@ M2:
 
 M3〜M6（各マイルストーンで同じ手順）:
 
-- 編集: 対象ディレクトリの呼び出し元を、Plan of Work の表に沿って置き換える。1 つの PR は 1 つのマイルストーン（大きければサブディレクトリ単位）にする。
+- 編集: 対象ディレクトリの呼び出し元を、`assets/docs/request-input.md` の置き換えの表に沿って置き換える。1 つの PR は 1 つのマイルストーン（大きければサブディレクトリ単位）にする。
 - 確認: 下の Validation の巡回スクリプトを、対象の画面に絞って修正前と修正後で流し、警告が増えていないこと、パラメータを欠いた・空の・配列を送ったリクエストで警告が 0 件であることを確かめる。保存を伴う画面は、`.claude/skills/adaptive-validation-runner/scripts/smoke.js` と、その画面の保存を 1 回ずつ確かめる。
 
 M7:
@@ -136,6 +126,16 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`。
+- M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
+    to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
+    to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
+                 'yes'→true / 'no'→false / ('abc', 'd')→'d' / (['1'], 'd')→'d' / (1.0, 'd')→'d'
+    to_choicevar: ('a', ['a','b'], 'd')→'a' / ('z', …)→'d' / ('', …)→'d' / ('2', [1,2,3], 0)→2（元の型）/ (3, ['1','3'], null)→'3'
+                 (['a'], ['a'], 'd')→'d' / ('a', [0], 'd')→'d' / ('01', [1,2], 0)→0 / 引数 2 つ→ArgumentCountError
+    to_idsvar:   null→[] / ''→[] / '1,2,3'→[1,2,3] / '3, 4'→[3,4] / ' 3 , x, 4'→[3,4] / '3'→[3] / ' 3 '→[3]
+                 '3,2,abc,0,3,-1,,5'→[3,2,5] / ['4',5,'x','4',['1']]→[4,5] / [' 3']→[] / 5→[] / ['0','7']→[7]
+    受け取り元:  12 関数が存在する。$_GET / $_POST / $_REQUEST に値を入れて get_ / post_ / request_ の各型が上と同じ規則で返す
 - 想定のコミット単位: M1 は「feat(helpers): リクエスト値を型ごとに取り出すヘルパーを足す」と「docs: リクエスト値の取り出し方の決まりを書く」。M2 は「refactor(helpers): getv() の空の値の特例をやめ、GET と POST の扱いをそろえる」。M3〜M6 は「refactor(<範囲>): リクエスト値を型つきのヘルパーで取り出す」をサブディレクトリ単位で。M7 は「ci(security-lint): リクエスト値を確かめずに文字列関数へ渡す書き方を検出する」。
 
 ## Interfaces and Dependencies
