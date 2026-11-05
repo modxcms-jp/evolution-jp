@@ -276,7 +276,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
 
@@ -300,7 +300,7 @@ function entity($key, $default = null)
                 </li>
             <?php endif; ?>
             <?php
-            if (get_intvar('a') === 102) {
+            if (request_intvar('a') === 102) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']

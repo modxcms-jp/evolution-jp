@@ -3,13 +3,22 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (
-    (get_intvar('a') === 16 && !hasPermission('edit_template'))
-    ||
-    (get_intvar('a') === 19 && !hasPermission('new_template'))
-) {
-    alert()->setError(3);
-    alert()->dumpError();
+switch (request_intvar('a')) {
+    case 16:
+        if (!hasPermission('edit_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    case 19:
+        if (!hasPermission('new_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    default:
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 abort_if_invalid_id('id', request_intvar('a') === 16);
@@ -58,7 +67,7 @@ if (id()) {
         ?>
         <input type="hidden" name="a" value="20">
         <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
-        <input type="hidden" name="mode" value="<?= get_intvar('a') ?>">
+        <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
         <h1><?= lang('template_title') ?></h1>
         <div id="actions">
@@ -78,7 +87,7 @@ if (id()) {
                     </li>
                 <?php endif; ?>
                 <?php
-                if (get_intvar('a') === 16) {
+                if (request_intvar('a') === 16) {
                     if (evo()->hasPermission('new_template')) {
                         echo evo()->manager->ab([
                             'onclick' => 'duplicaterecord();',
@@ -210,7 +219,7 @@ if (id()) {
                 </div>
 
                 <?php
-                if (get_intvar('a') === 16) {
+                if (request_intvar('a') === 16) {
                     $rs = db()->select(
                         [
                             'name' => 'tv.name',

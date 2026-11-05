@@ -109,7 +109,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
     <div id="actions">
         <ul class="actionButtons">
@@ -131,7 +131,7 @@ function entity($key, $default = null)
                 </li>
             <?php endif; ?>
             <?php
-            if (get_intvar('a') === 22) {
+            if (request_intvar('a') === 22) {
                 if (evo()->hasPermission('new_snippet')) {
                     echo manager()->ab([
                         'onclick' => 'duplicaterecord();',

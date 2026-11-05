@@ -2,13 +2,22 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!hasPermission('edit_template') && request_intvar('a') === 301) {
-    alert()->setError(3);
-    alert()->dumpError();
-}
-if (!hasPermission('new_template') && request_intvar('a') === 300) {
-    alert()->setError(3);
-    alert()->dumpError();
+switch (request_intvar('a')) {
+    case 301:
+        if (!hasPermission('edit_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    case 300:
+        if (!hasPermission('new_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    default:
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 abort_if_invalid_id('id', request_intvar('a') === 301);
@@ -28,12 +37,6 @@ if ($total > 1) {
     }
 }
 // end check for lock
-
-// make sure the id's a number
-if (!is_numeric($id)) {
-    echo 'Passed ID is NaN!';
-    exit;
-}
 
 global $content;
 $content = [];
@@ -316,7 +319,7 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
@@ -343,7 +346,7 @@ function entity($key, $default = null)
                 </li>
             <?php endif; ?>
             <?php
-            if (get_intvar('a') === 301) {
+            if (request_intvar('a') === 301) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']

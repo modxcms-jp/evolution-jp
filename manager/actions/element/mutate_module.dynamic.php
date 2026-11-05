@@ -40,11 +40,6 @@ if ($total > 1) {
 }
 // end check for lock
 
-// make sure the id's a number
-if (!is_numeric($id)) {
-    exit('Passed ID is NaN!');
-}
-
 if (get_intvar('id')) {
     $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
     $total = db()->count($rs);
@@ -163,7 +158,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) content('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(get_strvar('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 
@@ -189,7 +184,7 @@ function content($key, $default = null)
                 </li>
             <?php endif; ?>
             <?php
-            if (get_intvar('a') === 108) {
+            if (request_intvar('a') === 108) {
                 if (evo()->hasPermission('delete_module')) {
                     echo manager()->ab(
                         [

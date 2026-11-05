@@ -65,8 +65,7 @@ if ($id) {
 $formRestored = manager()->hasFormValues();
 $content = manager()->restoreElementFormValues($content, 'snippet', ['published', 'editor_type', 'locked']);
 if (!$formRestored && postv('changeMode')) {
-    $content = array_merge($content, $_POST);
-    $content['content'] = post_strvar('ta');
+    $content = array_merge($content, array_filter(postv(), 'is_string'));
 }
 
 function entity($key, $default = null)
