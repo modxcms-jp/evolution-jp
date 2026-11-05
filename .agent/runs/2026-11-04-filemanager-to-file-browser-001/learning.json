@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-04-filemanager-to-file-browser",
+    "run_id": "2026-11-04-filemanager-to-file-browser-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-05T19:05:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "process_gap",
+            "summary": "ExecPlan は「1 段階を 1 PR、前の PR のマージを待つ」と決めていたが、夜間は自動モードがマージを止めるため、M1 の PR（#1048）のマージ待ちの間に M2〜M4 をブランチに積んで進め、PR を作らなかった。翌朝、PR の一覧には M1 しか無く、ブランチと ExecPlan の Progress を見ないと進み具合が分からなかった（メインが「M2 以降は手を付けていない」と誤って報告した）。積んで進めるなら、段階ごとに前のブランチを base にした PR を作っておくと、進み具合が PR の一覧で見え、マージの後に base を main へ切り替えるだけで済む",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "missing_instruction",
+            "summary": "M2 でピッカーのルートを rb_base_dir から rb_base_dir/<種類> に変えたことで、種類のフォルダそのものが外を指すシンボリックリンクだと、リンク先がそのままルートになった（Codex のレビューで判明）。境界の決め方を変える変更なのに、リンクの扱いの決まりが正本として無く、自己レビューと Validation の表がルートそのものがリンクの場合を見ていなかった。決まりを assets/docs/file-storage.md にまとめ、reviewer.md の観点からそこを参照させた（#1055 で反映済み）",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": "assets/docs/file-storage.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "積んだブランチのうち最後の M4 は、旧ファイル管理（files.dynamic.php）を消す段階だった。積んでいる間に main へ入った別の PR（#1058、PHP 8.5 の非推奨対策）が同じファイルを直していて、M4 の PR の base を main に切り替えたところで衝突した。消す側で解決したが、main 側の変更が新しい実装に要るか（今回は旧ファイルだけの修正で不要）を確かめる必要があった。積んで進めた段階を main へ載せるときは、先に main を取り込み、消したファイル・移したファイルへの main 側の変更を確かめる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "validation_gap",
+            "summary": "PR を後からまとめて作ったので、PR 本文の確認手順は実装時の ExecPlan の記録から写すことになり、流し直していないことを備考に書いた。レビュー対応（種類のフォルダのリンクを断る）の確認も、画面や API を通さず PickerScope::authorize() を php:7.4-cli で直に呼ぶ形だった。finding-001 のとおり段階ごとに PR を作っていれば、その時点の検証結果をそのまま本文に書ける",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

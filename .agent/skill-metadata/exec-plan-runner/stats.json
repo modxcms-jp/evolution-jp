@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 32,
-            "used_runs": 32,
-            "helped_runs": 32,
+            "seen_runs": 34,
+            "used_runs": 34,
+            "helped_runs": 34,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 18
+            "active_runs": 20
         },
         "change-004": {
             "seen_runs": 1,
@@ -296,6 +296,24 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-03T10:20:00+09:00",
             "source": "2026-11-03-element-category-after-validation-001"
+        },
+        "change-033": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-05T19:05:00+09:00",
+            "source": "2026-11-04-filemanager-to-file-browser-001"
+        },
+        "change-034": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-05T19:05:00+09:00",
+            "source": "2026-11-04-filemanager-to-file-browser-001"
         }
     }
 }
