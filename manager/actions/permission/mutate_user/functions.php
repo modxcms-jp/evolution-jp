@@ -214,9 +214,9 @@ function aButtonSave()
     );
 }
 
-function aButtonDelete($userid)
+function aButtonDelete($action, $userid)
 {
-    if (request_intvar('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
+    if ($action !== 12 || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
         return '';
     }
 

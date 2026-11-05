@@ -19,15 +19,15 @@
     }
 </style>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= get_intvar('a') ?>">
-    <input type="hidden" name="userid" value="<?= get_intvar('id') ?>">
+    <input type="hidden" name="mode" value="<?= $action ?>">
+    <input type="hidden" name="userid" value="<?= $userid ?>">
     <input type="hidden" name="blockedmode" value="<?= blockedmode($user) ?>"/>
     <h1><?= lang('user_title') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <?php
             echo aButtonSave();
-            echo aButtonDelete($userid);
+            echo aButtonDelete($action, $userid);
             echo aButtonCancel();
             ?>
         </ul>

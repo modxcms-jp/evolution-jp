@@ -6,7 +6,9 @@ global $_style;
 
 include_once __DIR__ . '/mutate_user/functions.php';
 
-if (!hasUserPermission(request_intvar('a'))) {
+$action = request_intvar('a');
+
+if (!hasUserPermission($action)) {
     alert()->setError(3);
     alert()->dumpError();
     return;
@@ -20,7 +22,7 @@ if ($userid && !activeUserCheck($userid)) {
 }
 
 global $user;
-if (request_intvar('a') === 12) {
+if ($action === 12) {
     $user = getUser($userid);
     if (!$user) {
         exit('No user returned while getting username!<p>');

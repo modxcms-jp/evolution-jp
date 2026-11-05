@@ -9,7 +9,9 @@ $tbl_web_users = evo()->getFullTableName('web_users');
 $tbl_web_groups = evo()->getFullTableName('web_groups');
 $tbl_webgroup_names = evo()->getFullTableName('webgroup_names');
 
-switch (request_intvar('a')) {
+$action = request_intvar('a');
+
+switch ($action) {
     case 88:
         if (!evo()->hasPermission('edit_web_user')) {
             alert()->setError(3);
@@ -47,7 +49,7 @@ if ($limit > 1) {
 }
 // end check for lock
 
-if (request_intvar('a') === 88) {
+if ($action === 88) {
     // get user attributes
     $rs = db()->select('*', evo()->getFullTableName('web_user_attributes'), "internalKey='{$user}'");
     $limit = db()->count($rs);
@@ -241,8 +243,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="mode" value="<?= get_intvar('a') ?>" />
-    <input type="hidden" name="id" value="<?= get_intvar('id') ?>" />
+    <input type="hidden" name="mode" value="<?= $action ?>" />
+    <input type="hidden" name="id" value="<?= $user ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0) || attribute('failedlogins') > 3) ? "1" : "0" ?>" />
 
@@ -265,7 +267,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     </select>
                 </li>
             <?php endif; ?>
-            <?php if (request_intvar('a') === 88) { ?>
+            <?php if ($action === 88) { ?>
                 <li><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?></a>
                 </li>
             <?php } ?>
@@ -288,7 +290,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     </tr>
                     <?php if (attribute('id')) { ?>
                         <tr id="showname"
-                            style="display: <?= (get_intvar('a') === 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
+                            style="display: <?= ($action === 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
                             <td colspan="2">
                                 <img src="<?= $_style['icons_user'] ?>"
                                     alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
@@ -300,22 +302,22 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         </tr>
                     <?php } ?>
                     <tr id="editname"
-                        style="display:<?= get_intvar('a') === 87 || (webuser('oldusername') && webuser('oldusername') != webuser('username')) ? 'table-row' : 'none' ?>">
+                        style="display:<?= $action === 87 || (webuser('oldusername') && webuser('oldusername') != webuser('username')) ? 'table-row' : 'none' ?>">
                         <th><?= $_lang['username'] ?>:</th>
                         <td><input type="text" name="newusername" class="inputBox" autocomplete="username"
                                 value="<?= hsc(post_strvar('newusername', webuser('username'))) ?>"
                                 maxlength="100" /></td>
                     </tr>
                     <tr>
-                        <th valign="top"><?= get_intvar('a') === 87 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                        <th valign="top"><?= $action === 87 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
                         <td>
-                            <?php if (request_intvar('a') !== 87): ?>
+                            <?php if ($action !== 87): ?>
                                 <input name="newpasswordcheck" type="checkbox"
                                     onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);">
                             <?php endif; ?>
                             <input type="hidden" name="newpassword"
-                                value="<?= request_intvar('a') === 87 ? 1 : 0 ?>" /><br />
-                            <div style="display:<?= request_intvar('a') === 87 ? "block" : "none" ?>"
+                                value="<?= $action === 87 ? 1 : 0 ?>" /><br />
+                            <div style="display:<?= $action === 87 ? "block" : "none" ?>"
                                 id="passwordBlock">
                                 <fieldset style="width:300px;padding:0;">
                                     <label><input type=radio name="passwordgenmethod"
@@ -501,7 +503,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <div><?= $_lang["login_homepage_message"] ?></div>
                         </td>
                     </tr>
-                    <?php if (get_intvar('a') === 88): ?>
+                    <?php if ($action === 88): ?>
                         <tr>
                             <th><?= $_lang['user_logincount'] ?>:</th>
                             <td><?= (int) attribute('logincount') ?></td>
@@ -625,8 +627,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
             if ($modx->config['use_udperms'] == 1) {
                 $groupsarray = [];
 
-                if (get_intvar('a') === 88) { // only do this bit if the user is being edited
-                    $uid = get_intvar('id');
+                if ($action === 88) { // only do this bit if the user is being edited
+                    $uid = $user;
                     $rs = db()->select('*', $tbl_web_groups, "webuser='{$uid}'");
                     $limit = db()->count($rs);
                     for ($i = 0; $i < $limit; $i++) {

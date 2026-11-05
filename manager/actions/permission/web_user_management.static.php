@@ -23,7 +23,7 @@ if (request_strvar('op') === 'reset') {
 }
 
 // get & save listmode
-$listmode = request_strvar('listmode', array_get($_PAGE, 'vs.lm'));
+$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 

@@ -2,7 +2,8 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (request_intvar('a') !== 74 || !evo()->hasPermission('change_password')) {
+$action = request_intvar('a');
+if ($action !== 74 || !evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -61,7 +62,6 @@ if (manager()->hasFormValues()) {
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
     $usersettings = array_merge($usersettings, $userdata);
-    $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
     extract($usersettings, EXTR_OVERWRITE);
 }
 
@@ -109,7 +109,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
 
     function deleteuser() {
-        <?php if (get_intvar('id') === (int) evo()->getLoginUserID()) { ?>
+        <?php if ($userid === (int) evo()->getLoginUserID()) { ?>
             alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
             if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
@@ -176,7 +176,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 </select>
             </li>
             <?php
-            if (request_intvar('a') === 74) { ?>
+            if ($action === 74) { ?>
                 <li id="Button3"><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?>
                     </a></li>
             <?php } ?>
@@ -212,12 +212,12 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 <h2 class="tab"><?= $_lang["profile"] ?></h2>
                 <table class="settings">
                     <tr>
-                        <th valign="top"><?= get_intvar('a') === 11 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                        <th valign="top"><?= $_lang['change_password_new'] . ":" ?></th>
                         <td><label><input name="newpasswordcheck" type="checkbox"
-                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);" <?= request_intvar('a') === 11 ? " checked disabled" : "" ?>><input
+                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"><input
                                     type="hidden" name="newpassword"
-                                    value="<?= request_intvar('a') === 11 ? 1 : 0 ?>" /></label><br />
-                            <span style="display:<?= request_intvar('a') === 11 ? "block" : "none" ?>"
+                                    value="0" /></label><br />
+                            <span style="display:none"
                                 id="passwordBlock">
                                 <fieldset style="width:300px">
                                     <legend><b><?= $_lang['password_gen_method'] ?></b></legend>

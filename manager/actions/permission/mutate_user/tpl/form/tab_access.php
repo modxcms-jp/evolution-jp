@@ -3,7 +3,7 @@
 <div class="sectionBody">
     <?php
     $groupsarray = [];
-    if (get_intvar('a') === 12) { // only do this bit if the user is being edited
+    if ($action === 12) { // only do this bit if the user is being edited
         $rs = db()->select(
             '*',
             '[+prefix+]member_groups',

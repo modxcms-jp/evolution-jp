@@ -55,7 +55,7 @@
     }
 
     function deleteuser() {
-        <?php if(get_intvar('id') === (int) evo()->getLoginUserID()) { ?>
+        <?php if($userid === (int) evo()->getLoginUserID()) { ?>
         alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
         if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {

@@ -16,7 +16,7 @@ $uid = evo()->getLoginUserID();
 ?>
 <h1><?= $_lang['messages_title'] ?></h1>
 <?php
-$location = get_intvar('id') ? '10' : '2';
+$location = $msgid ? '10' : '2';
 ?>
 <div id="actions">
     <ul class="actionButtons">

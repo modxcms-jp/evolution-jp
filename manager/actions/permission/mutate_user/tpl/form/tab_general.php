@@ -1,4 +1,4 @@
-<?php if (get_intvar('id') === (int) evo()->getLoginUserID()) { ?>
+<?php if ($userid === (int) evo()->getLoginUserID()) { ?>
     <p><?= lang('user_edit_self_msg') ?></p>
 <?php } ?>
 <h2 class="tab"><?= lang('login_settings') ?></h2>
@@ -16,7 +16,7 @@
         <tr
             id="showname"
             <?php
-            if (get_intvar('a') === 11) {
+            if ($action === 11) {
                 echo 'style="display:none";';
             }
             ?>
@@ -43,7 +43,7 @@
     <tr
         id="editname"
         <?php
-        if (get_intvar('a') === 12) {
+        if ($action === 12) {
             echo 'style="display:none";';
         }
         ?>
@@ -62,10 +62,10 @@
     </tr>
     <tr>
         <th valign="top">
-            <?= get_intvar('a') === 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
+            <?= $action === 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
         </th>
         <td>
-            <?php if (request_intvar('a') === 12): ?>
+            <?php if ($action === 12): ?>
                 <input
                     name="newpasswordcheck"
                     type="checkbox"
@@ -74,11 +74,11 @@
             <?php endif; ?>
             <input
                 name="newpassword"
-                value="<?= request_intvar('a') === 11 ? 1 : 0 ?>"
+                value="<?= $action === 11 ? 1 : 0 ?>"
                 type="hidden"
             />
             <span
-                style="display:<?= request_intvar('a') === 11 ? "block" : "none" ?>"
+                style="display:<?= $action === 11 ? "block" : "none" ?>"
                 id="passwordBlock"
             >
                 <fieldset style="width:300px;padding:0;">
@@ -190,7 +190,7 @@
             );
             $options = [];
             while ($row = db()->getRow($rs)) {
-                if (request_intvar('a') === 11) {
+                if ($action === 11) {
                     $selected = ($row['id'] == evo()->config['default_role']);
                 } else {
                     $selected = ($row['id'] == user('role'));
