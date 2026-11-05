@@ -1,10 +1,8 @@
 // テキストファイルの表示・編集ダイアログ(管理モードだけ。js/manage.js だけが読む)。
-// ファイルブラウザの中のダイアログ(overlay.js)に、エレメントの編集画面と同じ形のコードの欄
-// (div.code-editor > div.code-editor-header と textarea.phptextarea)を出す。テーマの CSS をそのまま使う。
-// 中身は textarea の value に入れ(innerHTML を使わない)、ファイル名も textContent で出す。
-// 開くと API の readText を呼び、保存は saveText へ「開いたときの中身の hash」を付けて送る。
-// サーバーは、今のファイルが hash と違えば(ほかで書き換えられていれば)409 で断るので、上書きはしない。
-// 書き換えたら window.documentDirty = true にする(EvoShell が画面を離れるときに確かめる)。保存したり閉じたりしたら false に戻す。
+// overlay.js のダイアログに、エレメントの編集画面と同じ形のコードの欄(div.code-editor と textarea.phptextarea)を出し、テーマの CSS をそのまま使う。
+// 中身は textarea の value、ファイル名は textContent で入れる(innerHTML を使わない)。
+// 保存は saveText へ「開いたときの中身の hash」を付けて送り、今のファイルと違えば(ほかで書き換えられていれば)サーバーが 409 で断る。
+// 書き換えたら window.documentDirty = true にする(EvoShell が画面を離れるときに確かめる)。保存・閉じたら false に戻す。
 
 import { t } from './i18n.js';
 import { apiUrl, failureMessage, fetchJson, loadFailureMessage, postForm } from './api.js';
@@ -12,10 +10,9 @@ import { openOverlay } from './overlay.js';
 
 /**
  * @param {object} ctx
- * @param {HTMLElement} ctx.overlayEl - ダイアログの外側の要素(BrowserView::manageExtras() が作る)
+ * @param {HTMLElement} ctx.overlayEl - BrowserView::manageExtras() が作るダイアログの外側の要素
  * @param {object} ctx.config
- * @param {() => void} ctx.onChanged - 保存してから閉じたとき(一覧の更新時刻とサイズが変わるので、読み直してもらう)
- * @returns {{open: (name: string, folder: string) => void}}
+ * @param {() => void} ctx.onChanged - 保存してから閉じたとき(一覧を読み直してもらう)
  */
 export function createTextEditor(ctx) {
     var overlayEl = ctx.overlayEl;
@@ -31,7 +28,6 @@ export function createTextEditor(ctx) {
     var closeBtn = el('text-close');
     var saveBtn = el('text-save');
 
-    // 開いている間の状態
     var closeOverlay = null;
     var target = '';
     var folder = '';
@@ -67,6 +63,7 @@ export function createTextEditor(ctx) {
         updateButtons();
     }
 
+    // 後始末。overlay.js が閉じたときに 1 度だけ呼ぶ(外から閉じられたときに状態が残ると、次に開けなくなる)
     function release() {
         generation++;
         closeOverlay = null;
@@ -87,10 +84,8 @@ export function createTextEditor(ctx) {
         if (!closeOverlay) {
             return;
         }
-        var fn = closeOverlay;
         var changed = saved;
-        fn(restoreFocus);
-        release();
+        closeOverlay(restoreFocus);
         if (changed) {
             ctx.onChanged();
         }
@@ -121,7 +116,7 @@ export function createTextEditor(ctx) {
         statusEl.textContent = t('fb_text_loading');
         showError('');
         updateButtons();
-        closeOverlay = openOverlay(overlayEl, panelEl, areaEl, { onEscape: requestClose });
+        closeOverlay = openOverlay(overlayEl, panelEl, areaEl, { onEscape: requestClose, onClose: release });
 
         fetchJson(apiUrl(ctx.config, { action: 'readText', folder: folder, file: name }))
             .then(function (data) {
@@ -136,7 +131,6 @@ export function createTextEditor(ctx) {
                 areaEl.readOnly = readOnly;
                 areaEl.wrap = wrapEl.checked ? 'soft' : 'off';
                 loaded = true;
-                // 読み取り専用で開くときは、サーバーが返した理由(readOnlyReason)の文言を出す
                 var reasons = {
                     link: t('fb_err_text_link'),
                     permission: t('fb_text_readonly_write'),
@@ -169,7 +163,6 @@ export function createTextEditor(ctx) {
                 if (generation !== current) {
                     return;
                 }
-                // 次の保存の基準を、今保存した中身にする
                 hash = result.hash;
                 loadedValue = content;
                 saved = true;

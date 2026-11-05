@@ -1384,12 +1384,6 @@ div.treeNode {
     color: var(--gray-800);
 }
 
-/* File manager disabled items */
-.file-disabled {
-    color: var(--gray-700);
-    cursor: default;
-}
-
 /* Welcome page inbox title */
 .inbox-title {
     color: var(--gray-800);

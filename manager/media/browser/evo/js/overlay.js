@@ -1,6 +1,7 @@
 // オーバーレイ型ダイアログの共通の振る舞い: フォーカスの移動・Tab の循環・Esc でそのダイアログだけを閉じる・
 // 閉じたらフォーカスを戻す。リスナーは開いている間だけ付け、閉じたら必ず外す。
-// 編集・プレビュー・移動のダイアログで使う。
+// 編集・プレビュー・移動・テキストのダイアログで使う。管理画面のモーダルが閉じられたとき(evoshell:modalclose)と、
+// メインの領域が別の画面へ差し替わるとき(evoshell:unload)は、開いているダイアログを閉じる(document の keydown の受け手を残さない)。
 // プレビューの上に編集のダイアログが重なるように、複数が同時に開くことがある。
 // keydown は「開いているダイアログのスタック」の一番上だけが扱う(下のものは Esc でも Tab でも反応しない)。
 
@@ -59,11 +60,13 @@ function removeEntry(entry) {
  * @param {HTMLElement} overlayEl - 表示を切り替える外側の要素
  * @param {HTMLElement} panelEl - ダイアログ本体(Tab を循環させる範囲)
  * @param {HTMLElement|null} initialEl - 開いたときにフォーカスする要素(省略時は中の最初の要素)
- * @param {{onEscape?: () => void}} [options] - onEscape: Esc が押されたときの処理(省略時は、フォーカスを戻して閉じる)
+ * @param {{onEscape?: () => void, onClose?: () => void}} [options] - onEscape: Esc の処理(省略時はフォーカスを戻して閉じる)。
+ *   onClose: 閉じたときに 1 度だけ呼ぶ後始末
  * @returns {(restoreFocusToOpener?: boolean) => void} 閉じる関数。true を渡すと、開く前にフォーカスのあった要素へ戻す
  */
 export function openOverlay(overlayEl, panelEl, initialEl, options) {
     var onEscape = options && options.onEscape;
+    var onClose = options && options.onClose;
     var returnEl = document.activeElement;
     var closed = false;
 
@@ -74,15 +77,19 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
         closed = true;
         overlayEl.hidden = true;
         removeEntry(entry);
-        document.removeEventListener('evoshell:modalclose', onModalClose);
+        document.removeEventListener('evoshell:modalclose', onScreenGone);
+        document.removeEventListener('evoshell:unload', onScreenGone);
         if (restoreFocusToOpener === true) {
             restoreFocus(returnEl);
         }
         returnEl = null;
+        if (onClose) {
+            onClose();
+        }
     }
 
-    // 管理画面のモーダルごと閉じられるときは、フォーカスを戻す先も無いので、リスナーだけ外す
-    function onModalClose() {
+    // モーダルごと、またはメインの領域ごと閉じられるときは、フォーカスを戻す先も無いので、リスナーだけ外す
+    function onScreenGone() {
         close(false);
     }
 
@@ -130,7 +137,8 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
     }
     focusEl.focus({ preventScroll: true });
     pushEntry(entry);
-    document.addEventListener('evoshell:modalclose', onModalClose);
+    document.addEventListener('evoshell:modalclose', onScreenGone);
+    document.addEventListener('evoshell:unload', onScreenGone);
 
     return close;
 }

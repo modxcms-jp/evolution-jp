@@ -110,7 +110,7 @@ export function createMoveDialog(ctx) {
  * @param {HTMLElement} ctx.imgEl
  * @param {HTMLElement} ctx.metaEl
  * @param {HTMLElement} ctx.closeBtn
- * @param {HTMLElement} ctx.actionsEl - 入口の JS が決めるボタンを並べる場所
+ * @param {HTMLElement} ctx.actionsEl
  * @param {HTMLElement} ctx.editBtn - 画像の編集を開くボタン(編集できるファイルのときだけ出す)
  * @param {(file: object) => Array<{label: string, primary?: boolean, onSelect: () => void}>} ctx.getActions - 足すボタン。押すとプレビューを閉じてから onSelect を呼ぶ
  * @param {(file: object) => boolean} ctx.canEdit
@@ -120,8 +120,7 @@ export function createPreview(ctx) {
     var currentFile = null;
     var closeOverlay = null;
 
-    // 画像を出すのは、サーバーが画像と決めたファイル(一覧の応答の image)だけ。.php を GET で実行したり、
-    // 大きなファイルを丸ごと読んだりしない。公開URLが無いファイル(ルートがサイトの外)や、画像として読めないファイルも出さない
+    // 画像を出すのは、サーバーが画像と決めたファイル(一覧の応答の image)だけ(.php を GET で実行したり、大きなファイルを丸ごと読んだりしない)
     ctx.imgEl.addEventListener('error', function () {
         ctx.imgEl.hidden = true;
     });

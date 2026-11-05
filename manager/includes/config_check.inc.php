@@ -149,6 +149,26 @@ function hideTemplateSwitcherWarning(){
     }
 
     /**
+     * ファイル管理(a=31)の folder に渡す値。$path がファイル管理のルートの中なら、ルートからの相対パスを URL エンコードしたもの。
+     * ルートの外にあるとき(filemanager_path がサイトのルートの下の別の場所のとき)や解決できないときは空(ルートを開く)
+     */
+    private function fileManagerFolderFor($path) {
+        $libPath = MODX_MANAGER_PATH . 'media/browser/evo/lib/';
+        require_once $libPath . 'PathGuard.php';
+        require_once $libPath . 'BrowserScope.php';
+        require_once $libPath . 'ManageScope.php';
+        $rootPath = ManageScope::rootPath(evo());
+        $root = PathGuard::normalize($rootPath);
+        $target = PathGuard::normalize($path);
+        if ($root === false || $target === false || !(new PathGuard($rootPath))->isWithinBase($path)) {
+            return '';
+        }
+        $root = rtrim($root, '/') . '/';
+
+        return rawurlencode(trim(substr($target . '/', strlen($root)), '/'));
+    }
+
+    /**
      * DBから設定値を直接取得（キャッシュをバイパス）
      *
      * @param string $key 設定キー
@@ -202,7 +222,7 @@ function hideTemplateSwitcherWarning(){
                 'message' => evo()->parseText(
                     $this->_lang['configcheck_mgr_tpl_msg'],
                     [
-                        'path' => urlencode(MODX_BASE_PATH)
+                        'folder' => $this->fileManagerFolderFor(MODX_BASE_PATH . 'assets/templates/manager')
                     ]
                 )
             ];

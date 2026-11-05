@@ -22,6 +22,26 @@
     height: 100vh;
 }
 
+/* メインの領域(メニューの「ファイル管理」)。見出しと本体の入れ物がメインの領域の高さいっぱいになり、
+   本体は見出しを除いた残りを使う。メインの領域自体はスクロールさせず、ツリーと一覧の中だけがスクロールする。
+   メインの領域が低すぎるときは、本体の最低の高さを守り、メインの領域がスクロールする */
+.evo-fb-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.evo-fb-pane > h1 {
+    flex: 0 0 auto;
+}
+
+.evo-fb-page {
+    flex: 1 1 auto;
+    height: auto;
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+}
+
 /* EvoShellモーダル内: ファイルブラウザ表示中だけモーダルを広げ、高さを確保する。
    :has()未対応ブラウザでも確実に効くよう、クラス付与はfilebrowser.js側で行う。
    shell.css側の body.evo-shell #evoShellModal { max-width: ... } と詳細度で
@@ -144,6 +164,10 @@
     gap: var(--space-1, 4px);
 }
 
+.evo-fb-path[hidden] {
+    display: none;
+}
+
 .evo-fb-crumb {
     flex: 0 0 auto;
     width: auto;
@@ -181,6 +205,10 @@
     padding: var(--space-2, 8px) var(--space-1, 4px);
     border-right: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
     background: var(--gray-50, #f9fafb);
+}
+
+.evo-fb-tree[hidden] {
+    display: none;
 }
 
 .evo-fb-tree-children {
@@ -561,6 +589,108 @@
     gap: var(--space-3, 12px);
     color: var(--color-text-subtle, #999);
     flex: 0 0 auto;
+}
+
+/* 一覧表示の列(名前・更新日時・種類・サイズ)。見出しと各行で同じ幅にする。
+   右端は、項目に重ねて出す操作のボタン(.evo-fb-item-actions)の分を空ける */
+.evo-fb-grid--list {
+    --evo-fb-col-mtime: 140px;
+    --evo-fb-col-type: 120px;
+    --evo-fb-col-size: 84px;
+    --evo-fb-col-actions: 72px;
+    /* 名前の列の左: 行の枠線 + 行の左の余白 + アイコン + アイコンと名前の間 */
+    --evo-fb-col-name-indent: calc(var(--border-thin, 1px) + var(--space-6, 24px) + 28px + var(--space-2, 8px));
+}
+
+.evo-fb-grid--list .evo-fb-item {
+    padding-right: var(--evo-fb-col-actions);
+}
+
+/* テーマがボタンに付ける外側の余白を打ち消し、列の位置がテーマで変わらないようにする */
+.evo-fb-grid--list .evo-fb-item-main,
+.evo-fb-grid--list .evo-fb-item-thumb-btn,
+.evo-fb-grid--list .evo-fb-item-name-btn {
+    margin: 0;
+}
+
+/* ファイルのアイコンと名前の間を、フォルダー(.evo-fb-item-main の gap)と同じにする */
+.evo-fb-grid--list .evo-fb-item-thumb-btn {
+    padding-right: var(--space-2, 8px);
+}
+
+.evo-fb-grid--list .evo-fb-item-actions {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.evo-fb-grid--list .evo-fb-meta {
+    gap: 0;
+}
+
+.evo-fb-grid--list .evo-fb-meta > span,
+.evo-fb-list-col {
+    box-sizing: border-box;
+    padding: 0 var(--space-2, 8px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.evo-fb-meta-date,
+.evo-fb-list-col-mtime {
+    width: var(--evo-fb-col-mtime);
+}
+
+.evo-fb-meta-type,
+.evo-fb-list-col-type {
+    width: var(--evo-fb-col-type);
+}
+
+.evo-fb-meta-size,
+.evo-fb-list-col-size {
+    width: var(--evo-fb-col-size);
+    text-align: right;
+}
+
+.evo-fb-list-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: stretch;
+    /* 行の名前ボタンの右の余白(8px)と、操作のボタンの分をそろえる */
+    padding-right: calc(var(--evo-fb-col-actions) + var(--space-2, 8px) + var(--border-thin, 1px));
+    border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ddd);
+    background: var(--color-surface, #fff);
+}
+
+.evo-fb-list-col {
+    flex: 0 0 auto;
+    /* テーマがボタンに付ける外側の余白・最小幅を打ち消し、行の列と同じ幅にする */
+    margin: 0;
+    min-width: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-muted, #606060);
+    font: inherit;
+    text-align: left;
+    line-height: 2;
+    cursor: pointer;
+}
+
+.evo-fb-list-col:hover,
+.evo-fb-list-col.is-active {
+    color: var(--color-text-primary, #333);
+}
+
+.evo-fb-list-col-name {
+    flex: 1 1 auto;
+    padding-left: var(--evo-fb-col-name-indent);
+}
+
+/* サイズの列は値を右にそろえるので、見出しも右にそろえる(.evo-fb-list-col の左寄せより後で効かせる) */
+.evo-fb-list-col.evo-fb-list-col-size {
+    text-align: right;
 }
 
 .evo-fb-grid--list .evo-fb-item.is-checked .evo-fb-meta {

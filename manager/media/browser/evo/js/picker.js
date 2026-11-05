@@ -1,6 +1,5 @@
-// ピッカーの入口(browser.php が読む)。ファイルを選ぶ用途の振る舞い(behaviors)を作って、filebrowser.js の registerEntry() に渡す。
-// モーダル再オープン時はshell.jsがscriptを再実行しないため、開始の関数を入口の登録表
-// (window.EvoFileBrowserEntries.picker)に置き、断片内のインラインscriptから毎回呼び直す。
+// ピッカーの入口(browser.php が読む)。振る舞い(behaviors)を作って filebrowser.js の registerEntry() に渡す。
+// モーダル再オープン時は shell.js が script を再実行しないため、開始の関数を入口の登録表(window.EvoFileBrowserEntries.picker)に置き、断片内のインライン script から呼び直す。
 
 import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
@@ -32,11 +31,9 @@ function pickFile(path) {
 }
 
 var behaviors = {
-    // ダブルクリック: 選んだファイルの確定
     openFile: function (entry) {
         pickFile(entry.path);
     },
-    // プレビューに「このファイルを選択」を足す
     previewActions: function (entry) {
         return [{
             label: t('fb_pick_this_file'),
@@ -44,14 +41,14 @@ var behaviors = {
             onSelect: function () { pickFile(entry.path); }
         }];
     },
-    // 右クリックメニューの先頭に「このファイルを選択」を足す(何も無い所には足さない)
+    // 右クリックメニューの先頭に「このファイルを選択」を足す
     contextMenuItems: function (entry) {
         if (!entry) {
             return [];
         }
         return [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(entry.path); } }];
     },
-    // サーバーが同じ名前のファイルを別の名前(名前(1).拡張子)にして保存するので、上書きの確認は起きない
+    // サーバーは同じ名前を別の名前(名前(1).拡張子)で保存するので、上書きの確認は起きない
     confirmOverwrite: function () {
         return false;
     }

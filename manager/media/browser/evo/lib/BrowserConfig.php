@@ -20,12 +20,13 @@ class BrowserConfig
     /** 画面で編集を出す画像の画素数(幅×高さ)の上限。ブラウザが元の画像を展開するときのメモリを守る(5000 万画素で RGBA 約 200MB) */
     const EDIT_MAX_PIXELS = 50000000;
 
-    /**
-     * 管理モードでテキストとして表示・編集できる拡張子(旧ファイル管理の is_editable_file() と一覧の表示用の一覧を合わせたもの。小文字)。
-     * .htaccess のような拡張子だけの名前は、名前全体(htaccess)をこの一覧と照らす。json・md などが必要になったら、ここへ足すだけでよい
-     */
-    const TEXT_EXTENSIONS = ['txt', 'php', 'tpl', 'shtml', 'html', 'htm', 'xml', 'js', 'css', 'pagecache', 'htaccess', 'sample'];
-    /** テキストとして開くファイルの大きさの上限(バイト)。これを超えるものは開かない */
+    /** 管理モードでテキストとして表示・編集できる拡張子(小文字)。拡張子だけの名前(.htaccess)は、名前全体(htaccess)をこの一覧と照らす */
+    const TEXT_EXTENSIONS = [
+        'txt', 'php', 'tpl', 'shtml', 'html', 'htm', 'xml', 'js', 'css', 'pagecache', 'htaccess', 'sample',
+        // メンテナンスで触る文書・設定・記録の形式(旧ファイル管理には無かった)
+        'md', 'markdown', 'json', 'yml', 'yaml', 'ini', 'log', 'csv',
+    ];
+    /** テキストとして開くファイルの大きさの上限(バイト) */
     const TEXT_MAX_BYTES = 2097152;
 
     /** @var DocumentParser */
@@ -97,11 +98,7 @@ class BrowserConfig
         return $this->extensionsOf($key);
     }
 
-    /**
-     * upload_files・upload_images・upload_media を合わせた拡張子の許可リスト（旧ファイル管理の uploadablefiles() と同じ範囲）
-     *
-     * @return string[]
-     */
+    /** upload_files・upload_images・upload_media を合わせた拡張子の許可リスト（旧ファイル管理の uploadablefiles() と同じ範囲） */
     public function allowedExtensionsAll()
     {
         return array_values(array_unique(array_merge(
@@ -118,12 +115,6 @@ class BrowserConfig
         return array_values(array_filter(array_map('trim', explode(',', $value))));
     }
 
-    /**
-     * 名前の拡張子（最後の . より後ろ）を小文字で返す。拡張子が無ければ空文字
-     *
-     * @param string $name ファイル名（ディレクトリを含まない）
-     * @return string
-     */
     public static function extensionOf($name)
     {
         $name = (string) $name;
@@ -146,12 +137,7 @@ class BrowserConfig
         return self::hasExtensionIn($name, $this->allowedExtensions($type));
     }
 
-    /**
-     * 名前の拡張子が、合わせた許可リスト（allowedExtensionsAll()）に含まれるかを返す。判定の仕方は isAllowedFilename() と同じ
-     *
-     * @param string $name ファイル名（ディレクトリを含まない）
-     * @return bool
-     */
+    /** 合わせた許可リスト（allowedExtensionsAll()）に含まれるか。判定は isAllowedFilename() と同じ */
     public function isAllowedFilenameAll($name)
     {
         return self::hasExtensionIn($name, $this->allowedExtensionsAll());
@@ -179,14 +165,7 @@ class BrowserConfig
         return in_array(strtolower(substr($name, $dotPos + 1)), self::EDITABLE_EXTENSIONS, true);
     }
 
-    /**
-     * 名前の拡張子が、テキストとして表示・編集できる拡張子(TEXT_EXTENSIONS)か。大文字小文字は区別しない。
-     * 拡張子だけの名前(.htaccess)は、名前全体を拡張子として照らす(extensionOf() が最後のドットより後ろを返すので同じ形になる)。
-     * 拡張子の無い名前は対象にしない
-     *
-     * @param string $name ファイル名(ディレクトリを含まない)
-     * @return bool
-     */
+    /** 名前の拡張子が TEXT_EXTENSIONS か（大文字小文字は区別しない。拡張子の無い名前は対象にしない） */
     public static function isTextFilename($name)
     {
         return in_array(self::extensionOf($name), self::TEXT_EXTENSIONS, true);

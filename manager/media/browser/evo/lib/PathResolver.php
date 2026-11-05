@@ -9,7 +9,6 @@ class PathResolver
 {
     /** @var string realpath済み・末尾スラッシュ付きのベースディレクトリ */
     private $baseDir;
-    /** @var PathGuard */
     private $guard;
 
     public function __construct(BrowserScope $scope)
@@ -51,7 +50,7 @@ class PathResolver
      * ルート配下のfolder(ルートからの相対パス)をベースディレクトリ内へ解決する。
      * 存在しない・ベースディレクトリ外に出る・守る場所に当たる場合は null。
      *
-     * @return array{rel:string,real:string}|null rel はルートからの相対パス(ルートそのものは空文字)
+     * @return array{rel:string,real:string}|null rel はルートからの相対パス(ルートそのものは空文字)、real は realpath 済みで末尾 / 付き
      */
     public function resolveDir($folder)
     {
@@ -84,9 +83,7 @@ class PathResolver
         return ['rel' => $rel, 'real' => $real];
     }
 
-    /**
-     * dirReal直下のfileNameを解決する。ベースディレクトリ外・サブディレクトリ越え・守る場所は null。
-     */
+    /** dirReal直下のfileNameを解決する。ベースディレクトリ外・サブディレクトリ越え・守る場所は null */
     public function resolveFile($dirReal, $fileName)
     {
         $name = self::sanitizeSegment($fileName);

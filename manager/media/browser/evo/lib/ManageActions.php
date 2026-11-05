@@ -1,21 +1,16 @@
 <?php
 
 /**
- * 管理モード(メニューの「ファイル管理」の範囲)だけで受ける操作。ManageScope::actions() だけが登録するので、
- * ピッカーの範囲では action の表に載らず 400 になる(操作の中で範囲は確かめない)。
- * api.php から読まれ、api.php の fbSendJson() / fbError() / fbAttempt() / fbNotFoundMessage() を使う。
+ * 管理モードだけで受ける操作。ManageScope::actions() だけが登録するので、ピッカーの範囲では表に載らず 400 になる。
+ * api.php の fbSendJson() / fbError() / fbAttempt() / fbNotFoundMessage() を使う。
  *
- * GET  readText (folder, file)                          -> {name, content, hash, writable, readOnly, readOnlyReason(link|permission|encoding|''), encoding}
- * POST saveText (folder, target, content, hash)         -> {name, hash}
- * POST newfile  (folder, name)                          -> {name}
- * POST unzip    (folder, target)                        -> {extracted, failed:[...], skipped:[...]}
- *
+ * readText は {name, content, hash, readOnly, readOnlyReason(link|permission|encoding|''), encoding} を返す。
  * テキストとして扱うのは、拡張子が BrowserConfig::TEXT_EXTENSIONS にあり、大きさが TEXT_MAX_BYTES 以下で、NUL を含まないファイルだけ。
- * UTF-8 でない中身(Shift_JIS・EUC-JP)は UTF-8 に変換して表示するが、保存はさせない(readOnly)。変換した UTF-8 で書き戻すと、
- * ファイルの文字コードが黙って変わるため。保存のときは、開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る
- * (FTP などで同時に書き換えられたものを上書きしないため)。
- * エラーコード: invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified / invalid_content /
- * save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip / not_writable / zip_unavailable / invalid_zip / unsafe_zip
+ * UTF-8 でない中身(Shift_JIS・EUC-JP)は変換して表示するが、保存はさせない(readOnly。書き戻すと文字コードが黙って変わるため)。
+ * 保存のときは開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る(FTP などの同時の書き換えを上書きしないため)。
+ * エラーコード(この一覧が正本): invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified /
+ * invalid_content / save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip /
+ * zip_unavailable / invalid_zip / unsafe_zip
  */
 class ManageActions
 {
@@ -45,21 +40,20 @@ class ManageActions
 
         // 読み取り専用で開くときは、その理由も返す(画面が理由の文言を出す)。保存を断る条件(saveText)と同じ 3 つ:
         // link(リンクは書き換えない)・permission(書き込めない)・encoding(UTF-8 でない)
-        $writable = is_writable($realPath);
         $readOnlyReason = '';
         if (is_link($dir['real'] . $name)) {
             $readOnlyReason = 'link';
-        } elseif (!$writable) {
+        } elseif (!is_writable($realPath)) {
             $readOnlyReason = 'permission';
         } elseif ($encoding !== 'UTF-8') {
             $readOnlyReason = 'encoding';
         }
+        // 中身は利用者が置いた任意のテキスト。JSON のまま扱わせ、ブラウザに HTML などと推測させない
         header('X-Content-Type-Options: nosniff');
         fbSendJson([
             'name' => $name,
             'content' => $content,
             'hash' => sha1($buffer),
-            'writable' => $writable,
             'readOnly' => $readOnlyReason !== '',
             'readOnlyReason' => $readOnlyReason,
             'encoding' => $encoding,
@@ -82,7 +76,7 @@ class ManageActions
             fbError('not_writable', lang('fb_err_file_not_writable'), 403);
         }
 
-        // content が無い要求は、空の中身で上書きしない(下の is_string() の確認で 400 にする)
+        // 既定値を付けない。content が無い要求は、下の is_string() の確認で 400 にし、空の中身で上書きしない
         $content = postv('content');
         if (!is_string($content) || !mb_check_encoding($content, 'UTF-8') || strpos($content, "\0") !== false) {
             fbError('invalid_content', lang('fb_err_not_text'), 400);
@@ -163,16 +157,13 @@ class ManageActions
             fbError('create_failed', lang('fb_err_create_failed'), 500);
         }
         fclose($handle);
-        // パーミッションを変えられない環境でも、作れていれば成功として扱う
         @chmod($target, $modx->newFilePermissions());
 
         ChangeLog::record($scope, 'Created File', [ChangeLog::relPath($dir, $name)]);
         fbSendJson(['name' => $name]);
     }
 
-    /**
-     * zip を、同じフォルダへ展開する。確かめと展開の手順は ZipService::extract() にある
-     */
+    /** zip を、同じフォルダへ展開する。確かめと展開の手順は ZipService::extract() にある */
     public static function unzip(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
         $dir = self::dirOrFail($resolver);

@@ -1,5 +1,5 @@
 // 右クリックメニュー。DOM を 1 つだけ作って使い回し、項目の中身は呼び出し側が決める。
-// 閉じる条件: Esc・メニュー外のクリック・スクロール・リサイズ・モーダルを閉じたとき。
+// 閉じる条件: Esc・メニュー外のクリック・スクロール・リサイズ・モーダルを閉じたとき・メインの領域が別の画面に差し替わるとき。
 
 import { restoreFocus } from './overlay.js';
 
@@ -42,6 +42,7 @@ export function createContextMenu(ctx) {
         document.removeEventListener('keydown', onKeydown, true);
         window.removeEventListener('resize', closeQuietly);
         document.removeEventListener('evoshell:modalclose', closeQuietly);
+        document.removeEventListener('evoshell:unload', closeQuietly);
         ctx.scrollEl.removeEventListener('scroll', onScroll);
         var target = returnFocusEl;
         returnFocusEl = null;
@@ -138,6 +139,7 @@ export function createContextMenu(ctx) {
         openedScrollLeft = ctx.scrollEl.scrollLeft;
         window.addEventListener('resize', closeQuietly);
         document.addEventListener('evoshell:modalclose', closeQuietly);
+        document.addEventListener('evoshell:unload', closeQuietly);
         ctx.scrollEl.addEventListener('scroll', onScroll);
     }
 
