@@ -130,23 +130,7 @@ function activeUserCheck($userid)
 
 function blockedmode($user)
 {
-    if (!$user) {
-        return '0';
-    }
-
-    if ($user['blocked']??null == 1) {
-        return '1';
-    }
-    if ($user['blockeduntil']??null && $user['blockeduntil'] > time()) {
-        return '1';
-    }
-    if ($user['blockedafter']??null && $user['blockedafter'] < time()) {
-        return '1';
-    }
-    if (isset($user['failedlogins']) && 3 < $user['failedlogins']) {
-        return '1';
-    }
-    return '0';
+    return isUserBlocked($user) ? '1' : '0';
 }
 
 function saveOptions()

@@ -4,6 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 global $_style;
 
+include_once __DIR__ . '/mutate_user/blocked.php';
 include_once __DIR__ . '/mutate_user/functions.php';
 
 $action = request_intvar('a');

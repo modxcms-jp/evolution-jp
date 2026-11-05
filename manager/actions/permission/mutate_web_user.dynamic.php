@@ -4,6 +4,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 
+include_once __DIR__ . '/mutate_user/blocked.php';
+
 $action = request_intvar('a');
 
 switch ($action) {
@@ -242,7 +244,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     <input type="hidden" name="mode" value="<?= (int) $action ?>" />
     <input type="hidden" name="id" value="<?= (int) $user ?>" />
     <input type="hidden" name="blockedmode"
-        value="<?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0) || attribute('failedlogins') > 3) ? "1" : "0" ?>" />
+        value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />
 
     <h1><?= $_lang['web_user_title'] ?></h1>
 
@@ -280,7 +282,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                     <tr>
                         <td>
                             <span id="blocked"
-                                class="warning"><?php if (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil')) || (attribute('blockedafter') < time() && attribute('blockedafter')) || attribute('failedlogins') > 3) { ?>
+                                class="warning"><?php if (isUserBlocked($userdata)) { ?>
                                     <b><?= $_lang['user_is_blocked'] ?></b><?php } ?></span>
                         </td>
                     </tr>
@@ -527,7 +529,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <tr>
                             <th><?= $_lang['user_block'] ?>:</th>
                             <td><input name="blockedcheck" type="checkbox"
-                                    onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= (attribute('blocked') == 1 || (attribute('blockeduntil') > time() && attribute('blockeduntil') != 0) || (attribute('blockedafter') < time() && attribute('blockedafter') != 0)) ? " checked='checked'" : "" ?> /><input
+                                    onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata, false) ? " checked='checked'" : "" ?> /><input
                                     type="hidden" name="blocked"
                                     value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
                             </td>

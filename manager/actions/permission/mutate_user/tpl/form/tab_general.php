@@ -4,7 +4,7 @@
 <h2 class="tab"><?= lang('login_settings') ?></h2>
 <table class="settings">
     <?php
-    if (user('blocked') == 1 || (user('blockeduntil') > time() && user('blockeduntil') != 0) || user('failedlogins') > 3) {
+    if (isUserBlocked($user)) {
         ?>
         <tr>
             <td colspan="2">

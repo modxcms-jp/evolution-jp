@@ -8,6 +8,8 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
     alert()->dumpError();
 }
 
+include_once __DIR__ . '/mutate_user/blocked.php';
+
 $userid = (int) evo()->getLoginUserID();
 
 // get user attribute
@@ -134,7 +136,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     <input type="hidden" name="role" value="<?= (int)userData('role') ?>" />
     <input type="hidden" name="failedlogincount" value="<?= (int)userData('failedlogincount') ?>">
     <input type="hidden" name="blockedmode"
-        value="<?= (userData('blocked') == 1 || (userData('blockeduntil') > time() && userData('blockeduntil') != 0) || (userData('blockedafter') < time() && userData('blockedafter') != 0) || userData('failedlogins') > 3) ? "1" : "0" ?>" />
+        value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />
 
     <h1><?= $_lang['profile'] ?></h1>
     <div id="actions">
