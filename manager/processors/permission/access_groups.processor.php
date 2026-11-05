@@ -91,7 +91,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         }
         break;
     case "rename_user_group" :
-        $newgroupname = db()->escape(request_strvar('newgroupname'));
+        $newgroupname = request_strvar('newgroupname');
         if (empty($newgroupname)) {
             warning("no group name specified");
         }
@@ -101,13 +101,13 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
             warning("No group id specified");
         }
 
-        $f['name'] = $newgroupname;
+        $f['name'] = db()->escape($newgroupname);
         if (!db()->update($f, $tbl_membergroup_names, "id='{$groupid}'", '', '1')) {
             warning("Failed to update group name. Possible duplicate group name?");
         }
         break;
     case "rename_document_group" :
-        $newgroupname = db()->escape(request_strvar('newgroupname'));
+        $newgroupname = request_strvar('newgroupname');
         if (empty($newgroupname)) {
             warning("no group name specified");
         }
@@ -116,7 +116,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         if (empty($groupid)) {
             warning("No group id specified");
         }
-        $f['name'] = $newgroupname;
+        $f['name'] = db()->escape($newgroupname);
         if (!db()->update($f, $tbl_documentgroup_names, "id='{$groupid}'", '', '1')) {
             warning("Failed to update group name. Possible duplicate group name?");
         }

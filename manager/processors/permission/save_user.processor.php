@@ -38,7 +38,11 @@ if (!verifyPermission()) {
 $mode = saveUserMode();
 
 if ($mode === 11) { // new user
-    if (userid_byname(userformv_str('newusername', 'New User'))) {
+    if (trim(userformv_str('newusername')) === '') {
+        webAlert('Missing user name!');
+        exit;
+    }
+    if (userid_byname(userformv_str('newusername'))) {
         webAlert('User name is already in use!');
         exit;
     }

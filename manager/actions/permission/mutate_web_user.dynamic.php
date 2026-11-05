@@ -5,6 +5,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 
 include_once __DIR__ . '/mutate_user/blocked.php';
+include_once __DIR__ . '/mutate_user/form_values.php';
 
 $action = request_intvar('a');
 
@@ -90,17 +91,14 @@ if ($action === 88) {
 $formRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
-    // 差し戻す値は文字列だけにする（配列は、配列で受ける項目の、文字列だけの配列に限る）
-    $form_v = array_filter($form_v, static function ($v, $k) {
-        return is_string($v)
-            || (is_array($v) && in_array($k, ['user_groups', 'allowed_days'], true) && $v === array_filter($v, 'is_string'));
-    }, ARRAY_FILTER_USE_BOTH);
+    // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
+    $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
     $userdata['blockeduntil'] = ConvertDate($userdata['blockeduntil'] ?? '');
     $userdata['blockedafter'] = ConvertDate($userdata['blockedafter'] ?? '');
-    $usernamedata['username'] = $userdata['newusername'];
+    $usernamedata['username'] = $userdata['newusername'] ?? '';
     if (isset($form_v['oldusername'])) {
         $usernamedata['oldusername'] = $form_v['oldusername'];
     }
@@ -640,11 +638,9 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         $groupsarray[$i] = $currentgroup['webgroup'];
                     }
                 }
-                // retain selected user groups between post
-                if (is_array(postv('user_groups'))) {
-                    foreach (postv('user_groups', []) as $n => $v) {
-                        $groupsarray[] = $v;
-                    }
+                // 保存に失敗した差し戻しなら、送った所属グループを使う
+                if (is_array($userdata['user_groups'] ?? null)) {
+                    $groupsarray = $userdata['user_groups'];
                 }
             ?>
                 <!-- Access -->

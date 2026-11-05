@@ -371,7 +371,7 @@ function role_byuserid($userid)
 
 function hasOldUserName()
 {
-    return (post_strvar('oldusername') !== userformv_str('newusername', 'New User'));
+    return (post_strvar('oldusername') !== userformv_str('newusername'));
 }
 
 function hasOldUserEmail()
@@ -483,7 +483,7 @@ function newUser()
 
     // build the SQL
     $internalKey = db()->insert(
-        ['username' => db()->escape(userformv_str('newusername', 'New User'))],
+        ['username' => db()->escape(userformv_str('newusername'))],
         '[+prefix+]manager_users'
     );
     if (!$internalKey) {
@@ -514,7 +514,7 @@ function newUser()
     $tmp = [
         'mode' => 'new',
         'userid' => $internalKey,
-        'username' => userformv_str('newusername', 'New User'),
+        'username' => userformv_str('newusername'),
         'userpassword' => newPassword(),
         'useremail' => post_strvar('email'),
         'userfullname' => post_strvar('fullname'),
@@ -563,7 +563,7 @@ function newUser()
     if (post_strvar('passwordnotifymethod') === 'e') {
         sendMailMessage(
             post_strvar('email'),
-            userformv_str('newusername', 'New User'),
+            userformv_str('newusername'),
             newPassword(),
             post_strvar('fullname')
         );
@@ -588,7 +588,7 @@ function newUser()
             <div id="disp">
                 <p>
                     <?php
-                    echo sprintf(lang('password_msg'), hsc(userformv_str('newusername', 'New User')), hsc(newPassword()));
+                    echo sprintf(lang('password_msg'), hsc(userformv_str('newusername')), hsc(newPassword()));
                     ?>
                 </p>
             </div>
@@ -602,7 +602,7 @@ function newUser()
 function updateUser()
 {
     $userid = post_intvar('userid');
-    $username = userformv_str('newusername', 'New User');
+    $username = userformv_str('newusername');
     $changePassword = post_intvar('newpassword') === 1;
     $notifyMethod = post_strvar('passwordnotifymethod');
     $isSelf = $userid === (int)evo()->getLoginUserID();
@@ -715,7 +715,7 @@ function updateUser()
     }
     evo()->getSettings();
     if ($isSelf && (string)sessionv('mgrRole') !== (string)userformv_int('role')) {
-        $_SESSION['mgrRole'] = (string)userformv_int('role');
+        sessionv('*mgrRole', (string)userformv_int('role'));
         evo()->webAlertAndQuit(lang('save_user_relogin'), 'index.php?a=75');
         exit;
     }

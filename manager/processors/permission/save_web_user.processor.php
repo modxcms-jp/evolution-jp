@@ -9,34 +9,33 @@ if (!evo()->hasPermission('save_web_user')) {
 global $_style;
 $id = post_intvar('id');
 $oldusername = post_strvar('oldusername');
-$newusername = trim(post_strvar('newusername', 'New User'));
-$fullname = db()->escape(post_strvar('fullname'));
+$newusername = trim(post_strvar('newusername'));
+$fullname = post_strvar('fullname');
 $genpassword = post_intvar('newpassword');
 $passwordgenmethod = post_strvar('passwordgenmethod');
 $passwordnotifymethod = post_strvar('passwordnotifymethod');
 $specifiedpassword = post_strvar('specifiedpassword');
-$email = db()->escape(post_strvar('email'));
+$email = post_strvar('email');
 $oldemail = post_strvar('oldemail');
-$phone = db()->escape(post_strvar('phone'));
-$mobilephone = db()->escape(post_strvar('mobilephone'));
-$fax = db()->escape(post_strvar('fax'));
+$phone = post_strvar('phone');
+$mobilephone = post_strvar('mobilephone');
+$fax = post_strvar('fax');
 $dob = post_strvar('dob') ? $modx->toTimeStamp(post_strvar('dob')) : 0;
-$country = db()->escape(post_strvar('country'));
-$street = db()->escape(post_strvar('street'));
-$city = db()->escape(post_strvar('city'));
-$state = db()->escape(post_strvar('state'));
-$zip = db()->escape(post_strvar('zip'));
+$country = post_strvar('country');
+$street = post_strvar('street');
+$city = post_strvar('city');
+$state = post_strvar('state');
+$zip = post_strvar('zip');
 $gender = post_intvar('gender');
-$photo = db()->escape(post_strvar('photo'));
-$comment = db()->escape(post_strvar('comment'));
+$photo = post_strvar('photo');
+$comment = post_strvar('comment');
 $role = post_intvar('role');
 $failedlogincount = post_intvar('failedlogincount');
 $blocked = post_intvar('blocked');
 $blockeduntil = post_strvar('blockeduntil') ? $modx->toTimeStamp(post_strvar('blockeduntil')) : 0;
 $blockedafter = post_strvar('blockedafter') ? $modx->toTimeStamp(post_strvar('blockedafter')) : 0;
 $user_groups = post_idsvar('user_groups');
-// 新規（87）と更新（88）以外は 0 にして、どちらにも当てはめない
-$mode = post_choicevar('mode', [87, 88], 0);
+$mode = saveWebUserMode();
 $stay = post_choicevar('stay', [1, 2], 0);
 
 // verify password
@@ -59,6 +58,10 @@ if ($modx->config['required_email_wuser']) {
 
 switch ($mode) {
     case 87: // new user
+        if ($newusername === '') {
+            webAlert('Missing user name!');
+            exit;
+        }
         // check if this user name already exist
         $rs = db()->select(
             'id',
@@ -75,7 +78,7 @@ switch ($mode) {
             $rs = db()->select(
                 'id',
                 '[+prefix+]web_user_attributes',
-                sprintf("email='%s'", $email)
+                sprintf("email='%s'", db()->escape($email))
             );
             if (!$rs) {
                 webAlert(sprintf('An error occurred while attempting to retrieve all users with email %s.', $email));
@@ -146,7 +149,7 @@ switch ($mode) {
             'blockedafter'
         );
         $rs = db()->insert(
-            $fields,
+            db()->escape($fields),
             '[+prefix+]web_user_attributes'
         );
         if (!$rs) {
@@ -237,6 +240,14 @@ switch ($mode) {
         }
         break;
     case 88: // edit user
+        if (!$id) {
+            webAlert('Missing user id!');
+            exit;
+        }
+        if ($newusername === '') {
+            webAlert('Missing user name!');
+            exit;
+        }
         // generate a new password for this user
         if ($genpassword === 1) {
             if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
@@ -285,7 +296,7 @@ switch ($mode) {
             $rs = db()->select(
                 'internalKey',
                 '[+prefix+]web_user_attributes',
-                sprintf("email='%s'", $email)
+                sprintf("email='%s'", db()->escape($email))
             );
             if (!$rs) {
                 webAlert("An error occurred while attempting to retrieve all users with email $email.");
@@ -343,7 +354,7 @@ switch ($mode) {
             'blockedafter'
         );
         $rs = db()->update(
-            $fields,
+            db()->escape($fields),
             evo()->getFullTableName('web_user_attributes'),
             sprintf("internalKey='%s'", $id)
         );
@@ -460,6 +471,12 @@ switch ($mode) {
         exit;
 }
 
+// 保存の種類。新規（87）と更新（88）以外は 0 にして、どちらにも当てはめない
+function saveWebUserMode()
+{
+    return post_choicevar('mode', [87, 88], 0);
+}
+
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
@@ -523,7 +540,8 @@ function saveUserSettings($id)
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    global $id, $modx, $mode;
+    global $id, $modx;
+    $mode = saveWebUserMode();
     $url = "index.php?a=" . ($mode ?: 99) . ($mode === 88 ? "&id=" . $id : '');
     manager()->saveFormValues($mode);
     $modx->webAlertAndQuit($msg, $url);

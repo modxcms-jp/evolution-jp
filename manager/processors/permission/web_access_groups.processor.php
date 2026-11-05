@@ -66,7 +66,7 @@ switch ($operation) {
             if (!$rs = db()->delete($tbl_webgroup_access, "webgroup='{$usergroup}'")) {
                 exit('Unable to delete group from access table. SQL failed.');
             }
-            if (!$rs = db()->delete('[+prefix+]web_groups', "webuser='{$usergroup}'")) {
+            if (!$rs = db()->delete('[+prefix+]web_groups', "webgroup='{$usergroup}'")) {
                 exit('Unable to delete user-group links. SQL failed.');
             }
         }
@@ -88,7 +88,7 @@ switch ($operation) {
         }
         break;
     case 'rename_user_group' :
-        $newgroupname = db()->escape(request_strvar('newgroupname'));
+        $newgroupname = request_strvar('newgroupname');
         if (empty($newgroupname)) {
             exit("no group name specified");
         }
@@ -96,13 +96,13 @@ switch ($operation) {
         if (empty($groupid)) {
             exit("No group id specified");
         }
-        $f['name'] = $newgroupname;
+        $f['name'] = db()->escape($newgroupname);
         if (!$rs = db()->update($f, '[+prefix+]webgroup_names', "id='{$groupid}'", '', 1)) {
             exit("Failed to update group name. Possible duplicate group name?");
         }
         break;
     case 'rename_document_group' :
-        $newgroupname = db()->escape(request_strvar('newgroupname'));
+        $newgroupname = request_strvar('newgroupname');
         if (empty($newgroupname)) {
             exit("no group name specified");
         }
@@ -110,7 +110,7 @@ switch ($operation) {
         if (empty($groupid)) {
             exit("No group id specified");
         }
-        $f['name'] = $newgroupname;
+        $f['name'] = db()->escape($newgroupname);
         if (!$rs = db()->update($f, $tbl_documentgroup_names, "id='{$groupid}'", '', 1)) {
             exit("Failed to update group name. Possible duplicate group name?");
         }

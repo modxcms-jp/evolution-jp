@@ -9,6 +9,7 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
 }
 
 include_once __DIR__ . '/mutate_user/blocked.php';
+include_once __DIR__ . '/mutate_user/form_values.php';
 
 $userid = (int) evo()->getLoginUserID();
 
@@ -49,11 +50,8 @@ $_SESSION['itemname'] = $usernamedata['username'];
 $formRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
-    // 差し戻す値は文字列だけにする（配列は、配列で受ける項目の、文字列だけの配列に限る）
-    $form_v = array_filter($form_v, static function ($v, $k) {
-        return is_string($v)
-            || (is_array($v) && in_array($k, ['user_groups', 'allowed_days'], true) && $v === array_filter($v, 'is_string'));
-    }, ARRAY_FILTER_USE_BOTH);
+    // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
+    $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');

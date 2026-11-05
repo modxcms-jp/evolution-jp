@@ -42,6 +42,11 @@ if ($mode === 38) {
     }
     $rs = db()->select('name', '[+prefix+]user_roles', "id='{$id}'");
     $row = db()->getRow($rs);
+    if (!$row) {
+        alert()->setError(2);
+        alert()->dumpError();
+        exit;
+    }
     if ($row['name'] !== $name) {
         $search_name = $row['name'];
     }
