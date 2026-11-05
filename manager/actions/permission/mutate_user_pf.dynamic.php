@@ -2,7 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (anyv('a') != 74 || !evo()->hasPermission('change_password')) {
+if (request_intvar('a') !== 74 || !evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -109,7 +109,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     }
 
     function deleteuser() {
-        <?php if (getv('id') == evo()->getLoginUserID()) { ?>
+        <?php if (get_intvar('id') === (int) evo()->getLoginUserID()) { ?>
             alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
             if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
@@ -168,15 +168,15 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 <span class="and"> + </span>
                 <select id="stay" name="stay">
                     <option id="stay1"
-                        value="1" <?= selected(anyv('stay') == 1) ?>><?= $_lang['stay_new'] ?></option>
+                        value="1" <?= selected(request_intvar('stay') === 1) ?>><?= $_lang['stay_new'] ?></option>
                     <option id="stay2"
-                        value="2" <?= selected(anyv('stay') == 2) ?>><?= $_lang['stay'] ?></option>
+                        value="2" <?= selected(request_intvar('stay') === 2) ?>><?= $_lang['stay'] ?></option>
                     <option id="stay3"
-                        value="" <?= selected(anyv('stay') == '') ?>><?= $_lang['close'] ?></option>
+                        value="" <?= selected(request_intvar('stay') === 0) ?>><?= $_lang['close'] ?></option>
                 </select>
             </li>
             <?php
-            if (anyv('a') == 74) { ?>
+            if (request_intvar('a') === 74) { ?>
                 <li id="Button3"><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?>
                     </a></li>
             <?php } ?>
@@ -212,19 +212,19 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 <h2 class="tab"><?= $_lang["profile"] ?></h2>
                 <table class="settings">
                     <tr>
-                        <th valign="top"><?= getv('a') == 11 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                        <th valign="top"><?= get_intvar('a') === 11 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
                         <td><label><input name="newpasswordcheck" type="checkbox"
-                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);" <?= anyv('a') == 11 ? " checked disabled" : "" ?>><input
+                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);" <?= request_intvar('a') === 11 ? " checked disabled" : "" ?>><input
                                     type="hidden" name="newpassword"
-                                    value="<?= anyv('a') == 11 ? 1 : 0 ?>" /></label><br />
-                            <span style="display:<?= anyv('a') == 11 ? "block" : "none" ?>"
+                                    value="<?= request_intvar('a') === 11 ? 1 : 0 ?>" /></label><br />
+                            <span style="display:<?= request_intvar('a') === 11 ? "block" : "none" ?>"
                                 id="passwordBlock">
                                 <fieldset style="width:300px">
                                     <legend><b><?= $_lang['password_gen_method'] ?></b></legend>
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="g" <?= postv('passwordgenmethod') == "spec" ? "" : 'checked="checked"' ?> /><?= $_lang['password_gen_gen'] ?></label><br />
+                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= $_lang['password_gen_gen'] ?></label><br />
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="spec" <?= postv('passwordgenmethod') == "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br />
+                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br />
                                     <div style="padding-left:20px">
                                         <label for="specifiedpassword" style="width:120px"><?= $_lang['change_password_new'] ?>:</label>
                                         <input type="password" id="specifiedpassword" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
@@ -294,7 +294,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang['user_country'] ?>:</th>
                         <td>
                             <select size="1" name="country" class="inputBox" autocomplete="country-name">
-                                <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
+                                <?php $chosenCountry = post_strvar('country', $userdata['country']); ?>
                                 <option value="" <?= selected(empty($chosenCountry)) ?>>&nbsp;</option>
                                 <?php
                                 foreach ($_country_lang as $key => $country) {
@@ -347,8 +347,8 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <div><?= $_lang["user_photo_message"] ?></div>
                             <div>
                                 <?php
-                                if (isset($_POST['photo'])) {
-                                    $photo = $_POST['photo'];
+                                if (post_strvar('photo')) {
+                                    $photo = post_strvar('photo');
                                 } elseif (!empty($userdata['photo'])) {
                                     $photo = $userdata['photo'];
                                 } else {
@@ -409,7 +409,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     <tr>
                         <th><?= $_lang["mgr_login_start"] ?></th>
                         <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                value="<?= hsc(postv('manager_login_startup', setting('manager_login_startup'))) ?>">
+                                value="<?= hsc(post_strvar('manager_login_startup', setting('manager_login_startup'))) ?>">
                             <div><?= $_lang["mgr_login_start_message"] ?></div>
                         </td>
                     </tr>
@@ -502,7 +502,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
 <script type="text/javascript">
-    var remember = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
+    var remember = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
 <?php

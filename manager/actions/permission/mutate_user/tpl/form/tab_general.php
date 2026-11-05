@@ -1,4 +1,4 @@
-<?php if (getv('id') == evo()->getLoginUserID()) { ?>
+<?php if (get_intvar('id') === (int) evo()->getLoginUserID()) { ?>
     <p><?= lang('user_edit_self_msg') ?></p>
 <?php } ?>
 <h2 class="tab"><?= lang('login_settings') ?></h2>
@@ -16,7 +16,7 @@
         <tr
             id="showname"
             <?php
-            if (getv('a') == 11) {
+            if (get_intvar('a') === 11) {
                 echo 'style="display:none";';
             }
             ?>
@@ -43,7 +43,7 @@
     <tr
         id="editname"
         <?php
-        if (getv('a') == 12) {
+        if (get_intvar('a') === 12) {
             echo 'style="display:none";';
         }
         ?>
@@ -62,10 +62,10 @@
     </tr>
     <tr>
         <th valign="top">
-            <?= getv('a') == 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
+            <?= get_intvar('a') === 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
         </th>
         <td>
-            <?php if (anyv('a') == 12): ?>
+            <?php if (request_intvar('a') === 12): ?>
                 <input
                     name="newpasswordcheck"
                     type="checkbox"
@@ -74,11 +74,11 @@
             <?php endif; ?>
             <input
                 name="newpassword"
-                value="<?= anyv('a') == 11 ? 1 : 0 ?>"
+                value="<?= request_intvar('a') === 11 ? 1 : 0 ?>"
                 type="hidden"
             />
             <span
-                style="display:<?= anyv('a') == 11 ? "block" : "none" ?>"
+                style="display:<?= request_intvar('a') === 11 ? "block" : "none" ?>"
                 id="passwordBlock"
             >
                 <fieldset style="width:300px;padding:0;">
@@ -87,7 +87,7 @@
                             name="passwordgenmethod"
                             value="g"
                             type=radio
-                            <?= postv('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?>
+                            <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?>
                         />
                         <?= lang('password_gen_gen') ?>
                     </label><br/>
@@ -96,7 +96,7 @@
                             name="passwordgenmethod"
                             value="spec"
                             type=radio
-                            <?= postv('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>
+                            <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>
                         >
                         <?= lang('password_gen_specify') ?>
                     </label><br/>
@@ -137,7 +137,7 @@
                             name="passwordnotifymethod"
                             value="e"
                             type="radio"
-                            <?= postv('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?>
+                            <?= post_strvar('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?>
                         /><?= lang('password_method_email') ?>
                     </label><br/>
                     <label>
@@ -145,7 +145,7 @@
                             type="radio"
                             name="passwordnotifymethod"
                             value="s"
-                            <?= postv('passwordnotifymethod') === 'e' ? '' : 'checked="checked"' ?>
+                            <?= post_strvar('passwordnotifymethod') === 'e' ? '' : 'checked="checked"' ?>
                         /><?= lang('password_method_screen') ?>
                     </label>
                 </fieldset>
@@ -190,7 +190,7 @@
             );
             $options = [];
             while ($row = db()->getRow($rs)) {
-                if (anyv('a') == 11) {
+                if (request_intvar('a') === 11) {
                     $selected = ($row['id'] == evo()->config['default_role']);
                 } else {
                     $selected = ($row['id'] == user('role'));

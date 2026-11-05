@@ -156,7 +156,7 @@ function saveOptions()
         'option',
         [
             'value' => 'next',
-            'selected' => evo()->input_any('save_action') == 'next' ? null : ''
+            'selected' => request_strvar('save_action') === 'next' ? null : ''
         ],
         lang('stay_new')
     );
@@ -164,7 +164,7 @@ function saveOptions()
         'option',
         [
             'value' => 'stay',
-            'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
+            'selected' => request_strvar('save_action') === 'stay' ? null : ''
         ],
         lang('stay')
     );
@@ -172,7 +172,7 @@ function saveOptions()
         'option',
         [
             'value' => 'close',
-            'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
+            'selected' => request_strvar('save_action', 'close') === 'close' ? null : ''
         ],
         lang('close')
     );

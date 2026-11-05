@@ -12,7 +12,7 @@ if (!hasUserPermission(request_intvar('a'))) {
     return;
 }
 
-$userid = (int)evo()->input_any('id', 0);
+$userid = request_intvar('id');
 
 if ($userid && !activeUserCheck($userid)) {
     alert()->dumpError();
@@ -20,7 +20,7 @@ if ($userid && !activeUserCheck($userid)) {
 }
 
 global $user;
-if (anyv('a') == 12) {
+if (request_intvar('a') === 12) {
     $user = getUser($userid);
     if (!$user) {
         exit('No user returned while getting username!<p>');
