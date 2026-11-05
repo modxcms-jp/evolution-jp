@@ -47,12 +47,7 @@
         <tr>
             <th><?= $_lang["upload_maxsize_title"] ?></th>
             <td>
-                <?php
-                $limit_size = manager()->getUploadMaxsize();
-                if (!evo()->config('upload_maxsize') && $limit_size > 0) {
-                    $settings['upload_maxsize'] = $limit_size;
-                }
-                ?>
+                <?php $limit_size = manager()->getUploadMaxsize(); ?>
                 <?= form_text('upload_maxsize', 255) ?><br/>
                 <?= $limit_size > 0 ? sprintf($_lang["upload_maxsize_message"], evo()->nicesize($limit_size)) : '' ?></td>
         </tr>
