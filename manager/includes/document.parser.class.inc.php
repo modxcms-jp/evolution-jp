@@ -722,7 +722,7 @@ class DocumentParser
     /**
      * トップページの URL（index.php?id=1 や別名の URL）を MODX_SITE_URL に揃える
      *
-     * URL がそこで終わっているときだけ置き換える（index.php?id=101 や about-us の先頭を巻き込まない）
+     * URL がそこで終わっているか、# や ? が続くときだけ置き換える（index.php?id=101 や about-us の先頭を巻き込まない）
      */
     private function normalizeSiteStartUrl($content)
     {
@@ -735,7 +735,7 @@ class DocumentParser
             return $content;
         }
         return preg_replace(
-            '@' . preg_quote($unstrict_url, '@') . '(?=["\'\s<>#)]|$)@',
+            '@' . preg_quote($unstrict_url, '@') . '(?=["\'\s<>#?)]|$)@',
             MODX_SITE_URL,
             $content
         );
