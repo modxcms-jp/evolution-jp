@@ -1,8 +1,10 @@
 <?php
 
 /**
- * 複数のファイルを zip にまとめる(create())。zip を展開する(extract())。
- * 一時ファイルは temp/zip/ に作って呼び出し側が消し、古いものは確率的に消す(ThumbnailService と同じ作り)。
+ * 複数のファイルを 1 つの zip にまとめる(create())。zip を展開する(extract())。
+ *
+ * 一時ファイルは temp/zip/ に作る。呼び出し側が送り終えたら消す（失敗したときはここで消す）。
+ * 古い一時ファイルは、確率的なごみ集めで消す（ThumbnailService と同じ作り）。
  */
 class ZipService
 {
@@ -24,6 +26,10 @@ class ZipService
         }
     }
 
+    /**
+     * @param array $files [zip 内の名前(UTF-8) => 実ファイルの絶対パス]
+     * @return string|null 一時ファイルの絶対パス。1 つでも入れられなかったとき・作れなかったときは null(一時ファイルは消してある)
+     */
     public function create(array $files)
     {
         $this->maybeCollectGarbage();
@@ -87,7 +93,11 @@ class ZipService
      * パスは事前と同じとは限らない)、通らないものは failed。zip 内のシンボリックリンクは、リンク先の文字列を中身にしたふつうのファイルにする。
      * 前からあるふつうのファイルは上書きし、展開後の大きさと数に上限は設けない(旧と同じ)。umask は変えない。
      *
-     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],skipped:string[]} reason は unavailable・open_failed・unsafe・''
+     * @param string $zipPath resolveFile() で確かめた zip の実パス
+     * @param string $destDir resolveDir() で確かめた展開先の実パス
+     * @param callable $isAllowedName 無害化した後のファイル名を受け取り、新しく作ってよい拡張子かを bool で返す
+     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],skipped:string[]} reason は unavailable・open_failed・unsafe・''。
+     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス
      */
     public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, callable $isAllowedName, DocumentParser $modx)
     {
@@ -251,8 +261,9 @@ class ZipService
     }
 
     /**
-     * エントリ $index の中身を $target へ書き出す。zip://パス#名前 は、パスの # を区切りと読むため使わず、開いている ZipArchive から読む
-     * (getStream() には getNameIndex() の既定の名前を渡す。Shift_JIS の名前も開ける)。前からあるファイルは中身だけを置き換え、
+     * エントリ $index の中身を $target へ書き出す。zip://パス#名前 は、パスの # を区切りと読むため使わず、開いている ZipArchive から読む。
+     * 大きなエントリでもメモリに載せないよう、ストリームで写す。
+     * getStream() には getNameIndex() の既定の名前を渡す(Shift_JIS の名前も開ける)。前からあるファイルは中身だけを置き換え(パーミッションは変えない)、
      * 新しいファイルは排他的に作り(x: 同時に置かれたリンクをたどらない)、書けなければ途中のファイルを残さない
      */
     private static function copyEntry(ZipArchive $zip, $index, $target, $filePermissions)
@@ -285,6 +296,7 @@ class ZipService
     /**
      * 展開するエントリの相対パスを、先に展開したものと重ならないパスにして返す(重なったら (1)・(2)… を付ける)。
      * フォルダーは同名のフォルダーとは一つにまとめ、ファイルとは重ねない。付け直したフォルダーは配下にも同じ付け直しを当てる。
+     * 展開先に前からあるファイルは上書きする（同じ zip を展開し直して更新する使い方のため）。
      * $assigned: dirs は 無害化後のフォルダーのパス => 付け直した後のパス、paths は割り当てたパス => 'file' | 'dir'
      */
     private static function uniquePath(DocumentParser $modx, $path, $relative, $isDir, array &$assigned)
@@ -343,7 +355,9 @@ class ZipService
         return $pos === false ? '' : substr($relative, 0, $pos);
     }
 
-    /** 送り忘れ・異常終了で残った古い一時ファイルを確率的に消す */
+    /**
+     * 送り忘れ・異常終了で残った古い一時ファイルを確率的に消して temp/zip/ に溜めない。
+     */
     private function maybeCollectGarbage()
     {
         if (mt_rand(1, self::GC_PROBABILITY_DIVISOR) !== 1) {

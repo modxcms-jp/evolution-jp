@@ -47,8 +47,10 @@ class PathResolver
     }
 
     /**
-     * ルート配下のfolder(ルートからの相対パス)をベースディレクトリ内へ解決する。存在しない・ベースディレクトリ外に出る・守る場所に当たる場合は null。
-     * 戻り値の rel はルートからの相対パス(ルートそのものは空文字)
+     * ルート配下のfolder(ルートからの相対パス)をベースディレクトリ内へ解決する。
+     * 存在しない・ベースディレクトリ外に出る・守る場所に当たる場合は null。
+     *
+     * @return array{rel:string,real:string}|null rel はルートからの相対パス(ルートそのものは空文字)、real は realpath 済みで末尾 / 付き
      */
     public function resolveDir($folder)
     {

@@ -14,7 +14,7 @@
 //
 // 外の JS 向けのイベント(#evoFileBrowser から bubbles: true の CustomEvent で出す。detail.scope は入口の名前 picker / manage):
 //   evofb:navigate          一覧を読み終えたとき。detail は { scope, folder }(folder はルートからの相対パス)
-//   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }
+//   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }(names は選んだファイルの名前)。同じ選択では出さない
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
@@ -600,7 +600,8 @@ function init(root, entry, behaviors) {
     });
 
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
-    // 一覧の中にフォーカスがあるときだけ受ける(入力欄・ダイアログ・右クリックメニュー・ほかのボタンの Enter は動かさない)
+    // フォーカスが一覧そのものか、選んでいるファイルの名前のボタンにあるときだけ受ける(サムネイルのボタンの Enter は、これまでどおりプレビューを開く)。
+    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
     root.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
             return;

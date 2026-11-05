@@ -279,8 +279,10 @@ export function createGrid(ctx) {
                 var thumbBtn = item.querySelector('[data-role="thumb"]');
                 var nameBtn = item.querySelector('[data-role="name"]');
 
-                // サムネイルは選択に関与せず、常にプレビューを開く。即座に開くとオーバーレイが 2 回目のクリックを奪い
-                // dblclick が成立しないため、一呼吸おく(ダブルクリック時は cancelPendingPreview で打ち消す)
+                // サムネイルは選択に関与せず、常にプレビュー(拡大と、入口の JS が足すボタン)を開く。
+                // ダブルクリックはファイルを開くショートカット(ピッカーなら選択の確定)。プレビューは即座に開くと
+                // オーバーレイが2回目のクリックを奪いdblclickが成立しなくなるため、
+                // 一呼吸おいてから開く(ダブルクリック時はcancelPendingPreviewで打ち消す)
                 thumbBtn.addEventListener('click', function () {
                     cancelPendingRename();
                     schedulePendingPreview(name);

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ファイルブラウザ JSON API。
+ * ファイルブラウザ新JSON API。
  *
  * scope=manage ならメニューの「ファイル管理」(管理モード)、それ以外はピッカー。範囲は下の入口の 1 行で決まり、権限は要求のたびに
  * 範囲のクラス(ManageScope / PickerScope)が確かめる。範囲ごとの操作は BrowserScope::actions() の表に載り、表に無い action は 400。
@@ -12,7 +12,7 @@
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
  *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true、ラスターなら width,height。
  *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
- *                     writable は今のフォルダに書き込めるか
+ *                     writable は今のフォルダに書き込めるか(管理モードの files の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(ピッカーだけ)
@@ -163,7 +163,15 @@ function fbCommonActions()
     ];
 }
 
-/** フォルダを読み、守る場所と一覧に出さないものを除いて、フォルダとファイルに分けて並べて返す(範囲共通)。files の項目は {name, fullPath, relPath, size, mtime} */
+/**
+ * フォルダを読み、守る場所と一覧に出さないものを除き、フォルダとファイルに分けて並べて返す(範囲によらず共通)。
+ * 何を出すかは BrowserScope の listsFolder() / listsFile() に尋ねる。
+ *
+ * @param bool $foldersOnly true ならファイルは集めない(ツリー展開用)
+ * @return array{dir:array{rel:string,real:string},folders:array,files:array}
+ *         dir は PathResolver::resolveDir() の戻り値(real は末尾 / 付き)。folders の項目は {name, hasChildren, mtime}、
+ *         files の項目は {name, fullPath, relPath(ルートからの相対), size, mtime}
+ */
 function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $foldersOnly)
 {
     $dir = $resolver->resolveDir($folder);
@@ -394,8 +402,9 @@ function fbUploadedFiles()
 }
 
 /**
- * アップロードされたファイルを保存先へ置く。縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。
- * 失敗したらシステムログに残して false を返す
+ * アップロードされたファイルを保存先へ置く。ピッカーと管理モードで共通なのは、この呼び出しだけ
+ * (拡張子・大きさ・同名のときの扱いの確認とイベントは、範囲ごとの関数が行う)。
+ * 縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。失敗したらシステムログに残して false を返す
  */
 function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPath)
 {
@@ -947,8 +956,11 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
 /**
  * 画面(canvas)で編集した画像を保存する。入力は信用せず、拡張子・画像の種類・大きさ・名前をここで確かめる。
- * overwrite は一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない。
- * image_limit_width では縮めない(利用者が編集で決めた大きさを保つため)。canvas で書き出すと EXIF は消える。
+ * - copy: 元の名前から空いている名前(名前(1).拡張子)を探して新しいファイルとして保存し、範囲のアップロードのイベント(BrowserScope::uploadEvent())を発火する
+ * - overwrite: target のファイルを置き換える(一時ファイルに受けてから rename するので、途中で失敗しても元は壊れない)。
+ *   元のパーミッションを引き継ぐ。target がシンボリックリンクのときは断る
+ * image_limit_width による縮小は行わない(利用者が編集で決めた大きさを保つため)。
+ * canvas で書き出すと EXIF は消える(画面でその旨を表示している)。
  */
 function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
@@ -962,7 +974,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         fbError('invalid_mode', lang('fb_err_invalid_mode'), 400);
     }
 
-    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
+    // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
     $targetName = postv('target', '');
     $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
     if ($target === '' || strpos($target, '.') === 0) {
@@ -1062,7 +1074,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
 
     // overwrite: 一覧に見えているファイルそのものだけを置き換える。リンクの先の実体は、名前・拡張子・置き場所を
-    // 確かめていないので、リンクは断る
+    // 確かめていないので、リンクは断る(別名で保存すれば、一覧に見える場所に新しいファイルができる)
     if (is_link($dir['real'] . $target)) {
         fbError('not_editable', lang('fb_err_overwrite_link'), 400);
     }
@@ -1077,7 +1089,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         $stagePath = str_replace('\\', '/', $stagePath);
     }
     $oldMtime = @filemtime($realPath);
-    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)
+    // 元のファイルのパーミッションを引き継ぐ(FTP と共同で編集していても、上書き後に書き換えられなくならないように)。取れなければ新しいファイルの既定
     $oldPerms = @fileperms($realPath);
     $newPerms = $oldPerms !== false ? ($oldPerms & 0777) : $modx->newFilePermissions();
     $saved = false;
@@ -1120,8 +1132,9 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
 }
 
 /**
- * 選んだファイルを送る(2 件以上は zip)。ファイルを外へ出す操作なので、1 つでも条件を満たさなければ全体を拒否する
- * (中身が黙って欠けた zip を作らない)。
+ * 選んだファイルを送る。1 件はそのまま、2 件以上は zip にして送る。
+ * ファイルを外へ出す操作なので、1 つでも条件(許可された拡張子・ドットで始まらない・許可された場所の中の実体・読める)を
+ * 満たさなければ全体を拒否する(中身が黙って欠けた zip を作らない)。
  */
 function fbActionDownload(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
