@@ -13,11 +13,11 @@ import { createMarquee } from './marquee.js';
  * @param {HTMLElement} ctx.dropzoneEl - 矩形選択を受け付ける領域(gridElの親)
  * @param {HTMLElement} ctx.selectionBarEl
  * @param {HTMLElement} ctx.selectionCountEl
- * @param {object} ctx.state - type/folder/selection/rawFolders/rawFiles/search/sortKey/sortDir/view
+ * @param {object} ctx.state - folder/selection/rawFolders/rawFiles/search/sortKey/sortDir/view
  * @param {object} ctx.config
  * @param {(path: string) => void} ctx.onNavigate - フォルダへ移動(joinPath済みのpathを渡す)
  * @param {(name: string) => void} ctx.openPreview
- * @param {(path: string) => void} ctx.pickFile
+ * @param {(name: string) => void} ctx.openFile - ダブルクリックで開く(何が起きるかは、入口の JS の behaviors.openFile が決める)
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
  * @param {(dest: string, names: string[], sourceFolder: string) => void} ctx.onDropMove
@@ -55,7 +55,7 @@ export function createGrid(ctx) {
 
     function thumbSrc(file) {
         if (file.thumb === 'api') {
-            return apiUrl(ctx.config, { action: 'thumb', type: state.type, folder: state.folder, file: file.name, v: file.mtime });
+            return apiUrl(ctx.config, { action: 'thumb', folder: state.folder, file: file.name, v: file.mtime });
         }
         return file.thumb;
     }
@@ -70,7 +70,7 @@ export function createGrid(ctx) {
             : '';
 
         return '' +
-            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-path="' + escapeHtml(file.path) + '" data-kind="file">' +
+            '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-kind="file">' +
             '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb">' +
             '    <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
             '  </button>' +
@@ -235,8 +235,8 @@ export function createGrid(ctx) {
                 var thumbBtn = item.querySelector('[data-role="thumb"]');
                 var nameBtn = item.querySelector('[data-role="name"]');
 
-                // サムネイルは選択に関与せず、常にプレビュー(拡大+「このファイルを選択」)を開く。
-                // ダブルクリックは選択確定のショートカット。プレビューは即座に開くと
+                // サムネイルは選択に関与せず、常にプレビュー(拡大と、入口の JS が足すボタン)を開く。
+                // ダブルクリックはファイルを開くショートカット(ピッカーなら選択の確定)。プレビューは即座に開くと
                 // オーバーレイが2回目のクリックを奪いdblclickが成立しなくなるため、
                 // 一呼吸おいてから開く(ダブルクリック時はcancelPendingPreviewで打ち消す)
                 thumbBtn.addEventListener('click', function () {
@@ -246,11 +246,11 @@ export function createGrid(ctx) {
                 thumbBtn.addEventListener('dblclick', function () {
                     cancelPendingRename();
                     cancelPendingPreview();
-                    ctx.pickFile(item.getAttribute('data-path'));
+                    ctx.openFile(name);
                 });
 
                 // エクスプローラ準拠: ファイル名クリック=選択、Ctrl/Cmd+クリック=追加選択、
-                // Shift+クリック=直前の選択位置から範囲選択、ダブルクリック=選択確定、
+                // Shift+クリック=直前の選択位置から範囲選択、ダブルクリック=ファイルを開く、
                 // 単独選択中の項目を修飾キーなしでもう一度クリック=名前をインライン編集
                 nameBtn.addEventListener('click', function (e) {
                     cancelPendingRename();
@@ -273,13 +273,13 @@ export function createGrid(ctx) {
                     updateSelectionDom();
 
                     if (wasSoleSelected) {
-                        // ダブルクリック(選択確定)と区別するため、一呼吸おいてから編集を開始する
+                        // ダブルクリック(ファイルを開く)と区別するため、一呼吸おいてから編集を開始する
                         schedulePendingRename(item, name);
                     }
                 });
                 nameBtn.addEventListener('dblclick', function () {
                     cancelPendingRename();
-                    ctx.pickFile(item.getAttribute('data-path'));
+                    ctx.openFile(name);
                 });
 
                 item.querySelector('[data-role="preview"]').addEventListener('click', function (e) {

@@ -4,7 +4,7 @@
 // 保存は API の saveImage へ FormData で送る。EXIF は canvas で書き出すと消える(画面にその旨を表示している)。
 
 import { t } from './i18n.js';
-import { failureMessage, fetchJson } from './api.js';
+import { failureMessage, fetchJson, postUrl, withApiParams } from './api.js';
 import { openOverlay } from './overlay.js';
 import { withVersion } from './utils.js';
 
@@ -74,8 +74,8 @@ function nextDimension(current, target) {
 /**
  * @param {object} ctx
  * @param {HTMLElement} ctx.overlayEl - 編集のダイアログの外側の要素(中の要素は data-role で探す)
- * @param {object} ctx.state - type / folder
- * @param {object} ctx.config - apiUrl / csrfToken / editableExtensions / editMaxDimension / editMaxPixels / maxUploadSize
+ * @param {object} ctx.state - folder
+ * @param {object} ctx.config - apiUrl / apiParams / csrfToken / editableExtensions / editMaxDimension / editMaxPixels / maxUploadSize
  * @param {(name: string) => void} ctx.onSaved - 保存できたとき。保存した名前を渡す
  * @returns {{open: (file: object) => void, canEdit: (file: object) => boolean}}
  */
@@ -423,18 +423,17 @@ export function createImageEditor(ctx) {
         var savedTarget = target;
         exportBlob(mimeFor(savedTarget))
             .then(function (blob) {
-                if (blob.size > ctx.config.maxUploadSize) {
+                // maxUploadSize が null のときは、本体では制限しない(サーバーの PHP の上限だけが効く)
+                if (ctx.config.maxUploadSize != null && blob.size > ctx.config.maxUploadSize) {
                     throw new Error(t('fb_err_too_large'));
                 }
-                var body = new FormData();
+                var body = withApiParams(ctx.config, new FormData());
                 body.set('action', 'saveImage');
-                body.set('type', ctx.state.type);
                 body.set('folder', savedFolder);
-                body.set('csrf_token', ctx.config.csrfToken);
                 body.set('mode', mode);
                 body.set('target', savedTarget);
                 body.set('image', blob, savedTarget);
-                return fetchJson(ctx.config.apiUrl, { method: 'POST', body: body });
+                return fetchJson(postUrl(ctx.config), { method: 'POST', body: body });
             })
             .then(function (result) {
                 setBusy(false);

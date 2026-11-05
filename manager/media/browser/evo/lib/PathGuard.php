@@ -10,6 +10,8 @@ class PathGuard
     private $baseDir;
     /** @var array */
     private $protectedPaths;
+    /** @var string[]|null normalize() して小文字にした守る場所（一覧の項目ごとに解決し直さないよう、初めて使うときに作る） */
+    private $normalizedProtected;
 
     public function __construct($baseDir, array $protectedPaths = [])
     {
@@ -177,12 +179,7 @@ class PathGuard
             return false;
         }
         $realpath = strtolower($realpath);
-        foreach ($this->protectedPaths as $protected) {
-            $protected = self::normalize($protected);
-            if ($protected === false) {
-                continue;
-            }
-            $protected = strtolower($protected);
+        foreach ($this->normalizedProtected() as $protected) {
             if ($realpath === $protected || strpos($realpath, $protected . '/') === 0) {
                 return true;
             }
@@ -208,15 +205,31 @@ class PathGuard
             return false;
         }
         $prefix = strtolower(rtrim($realpath, '/')) . '/';
-        foreach ($this->protectedPaths as $protected) {
-            $protected = self::normalize($protected);
-            if ($protected === false) {
-                continue;
-            }
-            if (strpos(strtolower($protected), $prefix) === 0) {
+        foreach ($this->normalizedProtected() as $protected) {
+            if (strpos($protected, $prefix) === 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 守る場所を normalize() して小文字にしたもの（解決できないものは除く）
+     *
+     * @return string[]
+     */
+    private function normalizedProtected()
+    {
+        if ($this->normalizedProtected === null) {
+            $this->normalizedProtected = [];
+            foreach ($this->protectedPaths as $protected) {
+                $protected = self::normalize($protected);
+                if ($protected !== false) {
+                    $this->normalizedProtected[] = strtolower($protected);
+                }
+            }
+        }
+
+        return $this->normalizedProtected;
     }
 }

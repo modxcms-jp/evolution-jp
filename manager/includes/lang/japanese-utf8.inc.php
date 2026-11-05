@@ -1349,6 +1349,7 @@ return [
     "fb_err_unauthorized" => 'ログインセッションが確認できません。',
     "fb_err_forbidden" => 'ファイルブラウザの利用が許可されていません。',
     "fb_err_invalid_type" => '不正なファイル種別です。',
+    "fb_err_invalid_root" => 'この種類のフォルダが、ファイルの置き場所（rb_base_dir）の外を指しているため、利用できません。',
     "fb_err_invalid_action" => '不明なactionです。',
     "fb_err_folder_not_found" => '指定されたフォルダが見つかりません。',
     "fb_err_folder_unreadable" => 'フォルダを読み取れません。',
@@ -1419,4 +1420,8 @@ return [
     "fb_err_image_type_mismatch" => '画像の種類がファイルの拡張子と一致しません。',
     "fb_err_image_too_big" => '画像が大きすぎます。長い辺は %d px 以下にしてください。',
     "fb_err_overwrite_link" => 'このファイルはリンクなので上書きできません。別のファイルとして保存してください。',
+    "fb_err_manage_forbidden" => 'ファイル管理を利用する権限がありません。',
+    "fb_err_protected" => 'この場所は保護されているため、操作できません。',
+    "fb_not_writable" => 'このフォルダには書き込めないため、新しいフォルダの作成・アップロード・貼り付けはできません。',
+    "fb_confirm_overwrite" => '同じ名前のファイルがあります。上書きしてよいですか？: %s',
 ];

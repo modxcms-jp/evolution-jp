@@ -120,6 +120,23 @@
     display: none;
 }
 
+/* 開いているフォルダに書き込めないときの注意(一覧の上) */
+.evo-fb-notice {
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    background: var(--gray-100, #f5f5f5);
+    border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    color: var(--color-text-muted, #606060);
+}
+
+.evo-fb-notice[hidden] {
+    display: none;
+}
+
+.evo-fb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .evo-fb-path {
     display: flex;
     align-items: center;
@@ -599,6 +616,15 @@
 .evo-fb-preview-panel {
     align-items: center;
     text-align: center;
+}
+
+.evo-fb-preview-img[hidden] {
+    display: none;
+}
+
+/* 入口の JS が足すボタンの入れ物。フッターの並びにそのまま加わる */
+.evo-fb-preview-actions {
+    display: contents;
 }
 
 .evo-fb-preview-img {

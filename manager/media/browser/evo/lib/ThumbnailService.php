@@ -32,6 +32,15 @@ class ThumbnailService
     }
 
     /**
+     * ブラウザが <img> で表示できる形式の拡張子か。プレビューに画像を出してよいかを決める 1 か所
+     * （一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ）
+     */
+    public static function isDisplayableImageExtension($ext)
+    {
+        return in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg'], true);
+    }
+
+    /**
      * サムネイルファイルの絶対パスを返す(必要なら生成する)。失敗時は null。
      */
     public function getOrCreate($sourceFile)

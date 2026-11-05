@@ -1,7 +1,20 @@
-// ファイルブラウザのエントリ(構成ルート)。状態(state)を保持し、
+// ファイルブラウザの構成ルート。状態(state)を保持し、
 // js/*.js の各モジュールへ必要な参照とコールバックだけを渡して結線する。
-// モーダル再オープン時はshell.jsがscriptを再実行しないため、初期化を
-// グローバル関数として公開し、断片内のインラインscriptから毎回呼び直す。
+// 用途(ピッカー・管理モード)ごとの入口は js/picker.js と js/manage.js で、それぞれの名前(entry)と振る舞い(behaviors)を渡して
+// registerEntry() を呼ぶ。ここには、範囲を見て分ける処理を書かない(違いは behaviors と、サーバーが作る設定の値だけで表す)。
+//
+// 入口の登録表: window.EvoFileBrowserEntries[entry] に、その入口の開始の関数を置く。EvoShell は ES モジュールを同じ URL では
+// 2 度目に実行しないので、断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す
+// (入口が違うと、別の入口の振る舞いで初期化されない)。
+//
+// behaviors(どれも入口の JS が決める。host は { config, state, preview, reload }):
+//   openFile(entry, host)              ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
+//   previewActions(entry, host)        プレビューに足すボタンの配列 [{ label, primary, onSelect }]
+//   contextMenuItems(entry, host)      右クリックメニューに足す項目。entry があれば(ファイル 1 件)メニューの先頭に、
+//                                      null なら(何も無い所)メニューの最後に足す
+//   confirmOverwrite(names, host)      サーバーが同じ名前のファイルがあると返したとき、サーバーが保存する名前(names)を並べて
+//                                      上書きしてよいかを確かめる。true なら、そのファイルだけを上書きで送り直す
+//                                      (別名で保存するサーバーは返さないので、呼ばれない)
 
 import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
@@ -15,12 +28,26 @@ import { createContextMenu } from './js/contextmenu.js';
 import { createDownload } from './js/download.js';
 import { createImageEditor } from './js/imageEditor.js';
 
-function init() {
-    var root = document.getElementById('evoFileBrowser');
+// 入口の JS が呼ぶ。登録表に開始の関数を置き、今のページの画面を一度だけ初期化する
+export function registerEntry(entry, behaviors) {
+    function start() {
+        init(document.getElementById('evoFileBrowser'), entry, behaviors);
+    }
+    window.EvoFileBrowserEntries = window.EvoFileBrowserEntries || {};
+    window.EvoFileBrowserEntries[entry] = start;
+    start();
+}
+
+// entry は、画面(data-config の entry)を作った入口の名前。違う入口の behaviors では初期化しない
+function init(root, entry, behaviors) {
     if (!root || root.dataset.fbInitialized) {
         return;
     }
-    root.dataset.fbInitialized = '1';
+    var config = JSON.parse(root.getAttribute('data-config') || '{}');
+    if (config.entry !== entry) {
+        return;
+    }
+    root.dataset.fbInitialized = entry;
 
     // EvoShellモーダル内で開いている場合、モーダルを広げる(:has()未対応ブラウザ対策でJSでクラス付与)。
     // closeModal()側のevoshell:modalcloseで剥がし、次に別種のモーダルが開いても幅へ影響しないようにする
@@ -32,7 +59,6 @@ function init() {
         }, { once: true });
     }
 
-    var config = JSON.parse(root.getAttribute('data-config') || '{}');
     setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
@@ -42,7 +68,6 @@ function init() {
     var hasShownList = false;
 
     var state = {
-        type: config.type,
         folder: initialFolder,
         rawFolders: [],
         rawFiles: [],
@@ -50,7 +75,9 @@ function init() {
         sortKey: 'name',
         sortDir: 'asc',
         view: localStorage.getItem('evoFbView') || 'grid',
-        selection: new Set()
+        selection: new Set(),
+        // 開いているフォルダに書き込めるか(一覧の応答の writable)
+        writable: true
     };
 
     var pathEl = root.querySelector('[data-role="path"]');
@@ -60,35 +87,15 @@ function init() {
     var searchEl = root.querySelector('[data-role="search"]');
     var sortEl = root.querySelector('[data-role="sort"]');
     var viewToggleBtn = root.querySelector('[data-role="view-toggle"]');
+    var mkdirBtn = root.querySelector('[data-action="mkdir"]');
+    var uploadBtn = root.querySelector('[data-action="upload"]');
+    var noticeEl = root.querySelector('[data-role="notice"]');
+
+    // 入口の JS の behaviors へ渡す。preview は作ったあとに入れる
+    var host = { config: config, state: state, preview: null, reload: function () { load(); } };
 
     function findFile(name) {
         return state.rawFiles.find(function (f) { return f.name === name; });
-    }
-
-    // ファイルブラウザは3通りの埋め込まれ方をし、それぞれ選択結果の返し方が異なる。
-    // 上から順に判定し、該当する経路だけを実行する:
-    //   1. EvoShellモーダル断片(TV入力・ユーザー写真・モジュールアイコン等)
-    //      → shell.jsが公開するグローバルフックを直接呼ぶ
-    //   2. chromeless(QuickManager等)のポップアップウィンドウ
-    //      → window.opener.SetUrl(旧mcpuk互換の規約)
-    //   3. TinyMCEのeditor.windowManager.openUrl()によるiframeダイアログ
-    //      → postMessageでmcpuk-picker.jsのonMessageハンドラへ返す
-    function pickFile(path) {
-        if (typeof window.EvoFileBrowserPick === 'function') {
-            window.EvoFileBrowserPick(path);
-            return;
-        }
-        if (window.opener && typeof window.opener.SetUrl === 'function') {
-            window.opener.SetUrl(path);
-            window.close();
-            return;
-        }
-        if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ mceAction: 'evoFbPick', url: path }, window.location.origin);
-            return;
-        }
-        // eslint-disable-next-line no-console
-        console.log('[filebrowser] picked', path);
     }
 
     // 一部が失敗したときの表示(移動・コピーで共通)
@@ -162,6 +169,14 @@ function init() {
         grid.updateCutDom();
     }
 
+    // 開いているフォルダに書き込めないときは、新しいフォルダ・アップロード・貼り付けを使えなくして、注意を出す
+    function applyWritable() {
+        mkdirBtn.disabled = !state.writable;
+        uploadBtn.disabled = !state.writable;
+        pasteBtn.disabled = !state.writable;
+        noticeEl.hidden = state.writable;
+    }
+
     // 切り取ったファイルが別の方法で動いたり消えたりしたときは、一覧に無い名前を外す
     function pruneClipboard() {
         if (!clipboard || clipboard.folder !== state.folder) {
@@ -187,7 +202,7 @@ function init() {
     }
 
     function pasteTo(dest) {
-        if (!canPasteTo(dest)) {
+        if (!canPasteTo(dest) || (dest === state.folder && !state.writable)) {
             return;
         }
         var clip = clipboard;
@@ -226,7 +241,12 @@ function init() {
                 preview.open(file);
             }
         },
-        pickFile: pickFile,
+        openFile: function (name) {
+            var file = findFile(name);
+            if (file) {
+                behaviors.openFile(file, host);
+            }
+        },
         renameEntry: renameEntry,
         renameInline: performRename,
         deleteEntry: deleteEntry,
@@ -240,9 +260,9 @@ function init() {
 
     var tree = createTree({
         treeEl: treeEl,
-        type: state.type,
+        rootLabel: config.rootLabel,
         fetchFolders: function (path) {
-            return fetchJson(apiUrl(config, { action: 'list', type: state.type, folder: path, foldersOnly: '1' }));
+            return fetchJson(apiUrl(config, { action: 'list', folder: path, foldersOnly: '1' }));
         },
         getCurrentFolder: function () { return state.folder; },
         onNavigate: navigateTo,
@@ -281,20 +301,24 @@ function init() {
         imgEl: root.querySelector('[data-role="preview-img"]'),
         metaEl: root.querySelector('[data-role="preview-meta"]'),
         closeBtn: root.querySelector('[data-role="preview-close"]'),
-        pickBtn: root.querySelector('[data-role="preview-pick"]'),
+        actionsEl: root.querySelector('[data-role="preview-actions"]'),
         editBtn: root.querySelector('[data-role="preview-edit"]'),
-        onPick: pickFile,
+        getActions: function (file) { return behaviors.previewActions(file, host); },
         canEdit: imageEditor.canEdit,
         onEdit: imageEditor.open
     });
+    host.preview = preview;
 
     createUpload({
         uploadsEl: root.querySelector('[data-role="uploads"]'),
         fileInputEl: root.querySelector('[data-role="file-input"]'),
-        uploadBtn: root.querySelector('[data-action="upload"]'),
+        uploadBtn: uploadBtn,
         dropzoneEl: dropzoneEl,
         state: state,
         config: config,
+        confirmOverwrite: function (names) {
+            return behaviors.confirmOverwrite(names, host);
+        },
         onDone: load
     });
 
@@ -321,7 +345,7 @@ function init() {
     }
 
     function renderPath() {
-        renderBreadcrumb(pathEl, escapeHtml(state.type), state.folder, navigateTo);
+        renderBreadcrumb(pathEl, escapeHtml(config.rootLabel), state.folder, navigateTo);
         // パンくずもエクスプローラ同様にドロップ先にする(上位フォルダへの移動)
         pathEl.querySelectorAll('.evo-fb-crumb').forEach(function (btn) {
             bindMoveDropTarget(btn, function () {
@@ -361,12 +385,14 @@ function init() {
         state.selection.clear();
         grid.updateSelectionBar();
 
-        fetchJson(apiUrl(config, { action: 'list', type: state.type, folder: state.folder }), {
+        fetchJson(apiUrl(config, { action: 'list', folder: state.folder }), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(function (data) {
                 state.rawFolders = data.folders;
                 state.rawFiles = data.files;
+                state.writable = data.writable !== false;
+                applyWritable();
                 // ツリーのファイルクリック等からの遷移時、対象ファイルを選択状態にする
                 var selected = !!(selectName && findFile(selectName));
                 if (selected) {
@@ -425,6 +451,9 @@ function init() {
     // --- フォルダ作成 ---
 
     function createFolder() {
+        if (!state.writable) {
+            return;
+        }
         var name = window.prompt(t('fb_mkdir_prompt'));
         if (!name) {
             return;
@@ -436,10 +465,7 @@ function init() {
             });
     }
 
-    var mkdirBtn = root.querySelector('[data-action="mkdir"]');
-    if (mkdirBtn) {
-        mkdirBtn.addEventListener('click', createFolder);
-    }
+    mkdirBtn.addEventListener('click', createFolder);
 
     // --- 一括操作 ---
 
@@ -524,22 +550,54 @@ function init() {
         setClipboard(key === 'c' ? 'copy' : 'cut');
     });
 
+    // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
+    // 一覧の中(一覧そのもの・ファイルの名前のボタン。サムネイルのボタンの Enter は、これまでどおりプレビューを開く)にフォーカスがあるときだけ受ける。
+    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
+    root.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
+            return;
+        }
+        if (state.selection.size !== 1 || e.target.closest('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+            return;
+        }
+        var name = Array.from(state.selection)[0];
+        if (e.target !== dropzoneEl) {
+            var itemBtn = e.target.closest('[data-role="name"]');
+            var itemEl = itemBtn && itemBtn.closest('.evo-fb-item-file');
+            if (!itemEl || itemEl.getAttribute('data-name') !== name) {
+                return;
+            }
+        }
+        var file = findFile(name);
+        if (!file) {
+            return;
+        }
+        // フォーカスのあるボタンを Enter で押したことにはしない(名前の変更の開始などが重ならないように)
+        e.preventDefault();
+        behaviors.openFile(file, host);
+    });
+
     // --- 右クリックメニュー ---
     // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。
 
     var contextMenu = createContextMenu({ rootEl: root, scrollEl: dropzoneEl });
-    var uploadBtn = root.querySelector('[data-action="upload"]');
 
     function contextMenuItems(itemEl) {
         if (!itemEl) {
-            var folderItems = [
-                { label: t('fb_new_folder'), onSelect: createFolder },
-                { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
-            ];
-            if (canPasteTo(state.folder)) {
-                folderItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(state.folder); } });
+            var folderItems = [];
+            if (state.writable) {
+                folderItems.push(
+                    { label: t('fb_new_folder'), onSelect: createFolder },
+                    { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
+                );
+                if (canPasteTo(state.folder)) {
+                    folderItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(state.folder); } });
+                }
             }
-            return folderItems;
+            return folderItems.concat(behaviors.contextMenuItems(null, host));
         }
         var name = itemEl.getAttribute('data-name');
         if (itemEl.getAttribute('data-kind') === 'folder') {
@@ -573,7 +631,7 @@ function init() {
             ]);
         }
         var file = findFile(name);
-        var items = [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(itemEl.getAttribute('data-path')); } }];
+        var items = file ? behaviors.contextMenuItems(file, host).slice() : [];
         if (file) {
             items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
             if (imageEditor.canEdit(file)) {
@@ -610,6 +668,10 @@ function init() {
             y = rect.top + 8;
         }
         var items = contextMenuItems(itemEl);
+        // 書き込めないフォルダの何も無い所など、出す項目が無いときはメニューを開かない
+        if (items.length === 0) {
+            return;
+        }
         var label = t('fb_context_menu');
         if (itemEl) {
             var isMulti = itemEl.getAttribute('data-kind') === 'file' && state.selection.size > 1;
@@ -622,5 +684,3 @@ function init() {
     load(initialSelect);
 }
 
-window.EvoFileBrowserInit = init;
-init();
