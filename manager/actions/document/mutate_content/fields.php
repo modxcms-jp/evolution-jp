@@ -404,7 +404,7 @@ function fieldPublished()
             'name' => 'publishedcheck',
             'checked' => $published() ? null : '',
             'onclick' => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled' => (!evo()->hasPermission('publish_document') || evo()->input_any('id') === config('site_start')) ? null : ''
+            'disabled' => (!evo()->hasPermission('publish_document') || request_intvar('id') === (int)config('site_start')) ? null : ''
         ]
     );
     $body .= html_tag(
