@@ -30,7 +30,7 @@ if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (!isset($_SESSION['webValidated'])) {
-    $username = hsc(trim(webLoginString(postv('username'))), ENT_QUOTES);
+    $username = hsc(trim(post_strvar('username')), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -91,7 +91,7 @@ EOT;
     // display login
     $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
-    $refurl = webLoginString(anyv('refurl'));
+    $refurl = request_strvar('refurl');
     $ref = $refurl !== '' ? ['refurl' => urlencode($refurl)] : [];
     $form = str_replace("[+action+]", preserveUrl($modx->documentIdentifier, '', $ref), $form);
     $form = str_replace("[+rememberme+]", (isset($cookieSet) ? 1 : 0), $form);
@@ -108,11 +108,7 @@ EOT;
 } else {
     $_SESSION['ip'] = real_ip();
 
-    if (anyv('id') && is_numeric(anyv('id'))) {
-        $itemid = anyv('id');
-    } else {
-        $itemid = 0;
-    }
+    $itemid = request_intvar('id');
     $sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')",
         evo()->getFullTableName('active_users'),

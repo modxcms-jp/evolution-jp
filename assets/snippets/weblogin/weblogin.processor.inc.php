@@ -28,7 +28,7 @@ if ($isPWDActivate == 1) {
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token === '' || $token !== anyv('token')) {
+    if ($token === '' || $token !== request_strvar('token')) {
         if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
@@ -71,7 +71,7 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = webLoginString(postv('txtwebemail', ''));
+    $email = post_strvar('txtwebemail');
     // 未入力のままメールアドレスが空のアカウントに一致させない
     if (trim($email) === '') {
         $output = webLoginAlert("Please enter your email address.");
@@ -212,10 +212,10 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = webLoginString(postv('username'));
-$givenPassword = webLoginString(postv('password'));
-$captcha_code = postv('captcha_code', '');
-$rememberme = postv('rememberme');
+$username = post_strvar('username');
+$givenPassword = post_strvar('password');
+$captcha_code = post_strvar('captcha_code');
+$rememberme = post_strvar('rememberme');
 
 // invoke OnBeforeWebLogin event
 $v = [];
@@ -437,7 +437,7 @@ if (!$ok) // check if a login home id page was set
 // update active users list if redirectinq to another page
 if ($id != $modx->documentIdentifier) {
     sessionv('*ip', real_ip());
-    $itemid = anyv('id');
+    $itemid = request_intvar('id');
     $lasthittime = time();
     $a = 998;
     if ($a != 1) {
@@ -466,12 +466,12 @@ $tmp = [
     "userid" => $internalKey,
     "username" => $username,
     "userpassword" => $givenPassword,
-    "rememberme" => postv('rememberme')
+    "rememberme" => $rememberme
 ];
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = webLoginString(anyv('refurl'));
+$refUrl = request_strvar('refurl');
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;

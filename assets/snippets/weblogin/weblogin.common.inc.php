@@ -81,12 +81,6 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
     return true;
 }
 
-// リクエストの値を文字列として取り出す。配列など文字列以外は空文字にする
-function webLoginString($value)
-{
-    return is_string($value) ? $value : '';
-}
-
 function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = false)
 {
     $array_get = getv();
