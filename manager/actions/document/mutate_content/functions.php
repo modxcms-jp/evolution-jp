@@ -656,17 +656,28 @@ function mergeReloadValues($docObject)
     }
 
     if (evo()->array_get($docObject, 'pub_date')) {
-        $docObject['pub_date'] = evo()->toTimeStamp($docObject['pub_date']);
+        // 解釈できない差し戻しの入力は、入力した文字列のまま残す
+        $docObject['pub_date'] = evo()->toTimeStamp($docObject['pub_date']) ?: $docObject['pub_date'];
     } else {
         $docObject['pub_date'] = '';
     }
 
     if (evo()->array_get($docObject, 'unpub_date')) {
-        $docObject['unpub_date'] = evo()->toTimeStamp($docObject['unpub_date']);
+        // 解釈できない差し戻しの入力は、入力した文字列のまま残す
+        $docObject['unpub_date'] = evo()->toTimeStamp($docObject['unpub_date']) ?: $docObject['unpub_date'];
     } else {
         $docObject['unpub_date'] = '';
     }
     return $docObject;
+}
+
+// 日付の欄の値（出力用にエスケープ済み）。数値なら日付の書式に直し、解釈できない差し戻しの入力は文字列のまま
+function dateInputValue($value)
+{
+    if (is_numeric($value) || $value === null || $value === '') {
+        return evo()->toDateFormat($value);
+    }
+    return hsc($value);
 }
 
 function checkViewUnpubDocPerm($published, $editedby)

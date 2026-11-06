@@ -35,9 +35,10 @@ evo()->loadExtension('DocAPI');
 foreach (['pub_date', 'unpub_date'] as $dateField) {
     $dateValue = postv($dateField, '');
     if ($dateValue !== '' && evo()->toTimeStamp($dateValue) === '') {
+        manager()->saveFormValues(131);
         evo()->webAlertAndQuit(
             lang('mgrlog_dateinvalid'),
-            sprintf('index.php?a=27&id=%s', $id)
+            sprintf('index.php?a=131&id=%s', $id)
         );
         exit;
     }

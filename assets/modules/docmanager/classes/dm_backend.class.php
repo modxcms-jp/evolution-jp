@@ -467,7 +467,7 @@ class DocManagerBackend
 
         // 解釈できない日付があるときは、DB に何も書かずにエラーとして知らせる
         if ($dateError !== '') {
-            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $dateError;
+            $this->dm->ph['update.message'] = $dateError;
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
         }
 
