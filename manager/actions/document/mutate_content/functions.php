@@ -70,7 +70,7 @@ function rteContent($htmlcontent, $editors)
 function currentEditor()
 {
     $restored = reloadFormValues() ?: [];
-    return evo()->array_get($restored, 'which_editor') ?: post_strvar('which_editor', config('which_editor'));
+    return to_strvar(evo()->array_get($restored, 'which_editor')) ?: post_strvar('which_editor', config('which_editor'));
 }
 
 function getEditors($editors)
