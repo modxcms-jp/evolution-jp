@@ -80,6 +80,23 @@ foreach ($request as $name => $value) {
         $variables[$saneName] = trim($value);
     }
 }
+// Numeric settings: read as a non-negative integer (leading zeros allowed, "05" is 5, "0" stays 0).
+// An empty or malformed value is the same as not specified, so the default or the snippet call value is used.
+// display and total also accept "all".
+foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
+    if (!isset($variables[$numericName])) {
+        continue;
+    }
+    if (in_array($numericName, ['display', 'total'], true) && $variables[$numericName] === 'all') {
+        continue;
+    }
+    $numericValue = to_uintvar($variables[$numericName]);
+    if ($numericValue === null) {
+        unset($variables[$numericName]);
+    } else {
+        $variables[$numericName] = $numericValue;
+    }
+}
 /*
 	Param: dbg
 
