@@ -106,9 +106,14 @@ if (!isset($dateFilterDefault)) $dateFilterDefault = 0;
 	0
 */
 if ($source === 'get') {
-    $year = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'year')) ? (int)$raw : 0;
-    $month = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'month')) ? (int)$raw : 0;
-    $day = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'day')) ? (int)$raw : 0;
+    // 先頭のゼロも含めて 4 桁まで（'02' は 2、'02026' は 0）
+    $readDatePart = static function ($name) use ($dittoID) {
+        $raw = get_strvar($dittoID . $name);
+        return strlen($raw) <= 4 ? to_uintvar($raw, 0) : 0;
+    };
+    $year = $readDatePart('year');
+    $month = $readDatePart('month');
+    $day = $readDatePart('day');
 } elseif ($source === 'params') {
     $month = isset($month) ? (int)$month : 0;
     /*

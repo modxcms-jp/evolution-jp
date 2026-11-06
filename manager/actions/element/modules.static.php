@@ -23,7 +23,7 @@ if (anyv('op') === 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
     // 空の検索語は「検索語を消す」操作なので、送られたかどうかで保存済みの値と使い分ける
-    $query = anyv('search');
+    $query = request_textvar('search');
     if (!is_string($query)) {
         $query = array_get($_PAGE, 'vs.search', '');
     }

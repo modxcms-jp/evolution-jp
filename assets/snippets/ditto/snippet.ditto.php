@@ -725,7 +725,9 @@ if (isset($hiddenFields)) {
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-$start = !empty($paginate) && preg_match('/\A[0-9]{1,9}\z/', $rawStart = get_strvar($dittoID . 'start')) ? (int)$rawStart : 0;
+// 先頭のゼロも含めて 9 桁まで
+$rawStart = !empty($paginate) ? get_strvar($dittoID . 'start') : '';
+$start = strlen($rawStart) <= 9 ? to_uintvar($rawStart, 0) : 0;
 /*
     Param: start
 

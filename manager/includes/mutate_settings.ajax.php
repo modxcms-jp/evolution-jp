@@ -7,23 +7,28 @@ if (postv('action') === null) {
     exit;
 }
 // key・value・lang は文字列だけを受ける（配列は拒否）
-if (!is_string(postv('key', '')) || !is_string(postv('value', '')) || !is_string(postv('lang', ''))) {
+foreach (['key', 'value', 'lang'] as $name) {
+    if (postv($name) !== null && post_textvar($name) === null) {
+        exit;
+    }
+}
+$key = post_textvar('key', '');
+$value = post_textvar('value', '');
+$lang = post_textvar('lang', '');
+if (preg_match('@[^A-Za-z0-9_\-\./]@', $key)) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('key', ''))) {
+if (preg_match('@[^A-Za-z0-9_\-\./]@', $value)) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('value', ''))) {
-    exit;
-}
-if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', postv('lang', ''))) {
+if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', $lang)) {
     exit;
 }
 
 // 上で許可した文字だけなので引用符は含まないが、DB に渡す文字列の組み立ての前に念のためエスケープする
-$post_lang = db()->escape(postv('lang', ''));
-$post_key = db()->escape(postv('key', ''));
-$post_value = db()->escape(postv('value', ''));
+$post_lang = db()->escape($lang);
+$post_key = db()->escape($key);
+$post_value = db()->escape($value);
 
 if (postv('action') === 'get') {
     echo getStringFromLangFile($post_key, $post_lang);
@@ -34,7 +39,7 @@ $output = '';
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
-        if (strpos(postv('key', ''), '_hide_configcheck_') === 0 && postv('value', '') === '1') {
+        if (strpos($key, '_hide_configcheck_') === 0 && $value === '1') {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;

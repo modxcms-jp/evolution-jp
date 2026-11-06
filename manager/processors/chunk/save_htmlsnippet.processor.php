@@ -16,7 +16,7 @@ if (!$mode || ($mode === 78 && !$id)) {
 }
 
 // 本文は文字列だけを受ける。配列で送られたときは、空で上書きせず保存しない
-if (!is_string(postv('post', ''))) {
+if (postv('post') !== null && post_textvar('post') === null) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -30,7 +30,7 @@ function entity($key)
         return post_strvar('description');
     }
     if ($key === 'post') {
-        return postv('post', '');
+        return post_textvar('post', '');
     }
     if ($key === 'locked') {
         return postv('locked') === 'on' ? 1 : 0;

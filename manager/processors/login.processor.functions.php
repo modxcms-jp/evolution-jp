@@ -29,15 +29,14 @@ function jsAlert($msg)
 // 送られたユーザー名。POST を優先し、無ければ GET。文字列でなければ空（配列は文字列関数に渡せないため）
 function loginUsername()
 {
-    $username = postv('username', getv('username'));
-    return is_string($username) ? $username : '';
+    // POST に username があれば、文字列でなくても GET には替えない（配列なら '' にする）
+    return postv('username') === null ? get_textvar('username', '') : post_textvar('username', '');
 }
 
 // 送られたパスワード。加工しない。無い・文字列でないときは null
 function loginPassword()
 {
-    $password = postv('password');
-    return is_string($password) ? $password : null;
+    return post_textvar('password');
 }
 
 function validateLoginInput()

@@ -51,11 +51,12 @@ class DocManagerBackend
         }
 
         $resource = [];
-        if (preg_match('/\A[0-9]+\z/', $id)) {
+        $parentId = to_uintvar($id);
+        if ($parentId !== null) {
             $rs = db()->select(
                 'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
                 '[+prefix+]site_content',
-                where('parent', '=', (int)$id),
+                where('parent', '=', $parentId),
                 'menuindex ASC'
             );
             if (!$rs) {
@@ -139,9 +140,10 @@ class DocManagerBackend
         $pids = $results[0];
         $error = $results[1];
 
-        if ($pids !== '' && preg_match('/\A[0-9]+\z/', $template)) {
+        $templateId = to_uintvar($template);
+        if ($pids !== '' && $templateId !== null) {
             $values = rtrim($pids, ' OR ');
-            $fields = ['template' => (int)$template];
+            $fields = ['template' => $templateId];
             db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
@@ -164,7 +166,7 @@ class DocManagerBackend
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $updateError = '';
         $updated = false;
-        $templateId = post_strvar('template_id');
+        $templateId = post_uintvar('template_id');
 
         $results = $this->processRange($pids, 'id', 0);
         $pids = $results[0];
@@ -219,7 +221,7 @@ class DocManagerBackend
                 }
 
                 $row = db()->getRow($tempSQL);
-                if (!preg_match('/\A[0-9]+\z/', $templateId) || (int)$row['template'] !== (int)$templateId) {
+                if ($templateId === null || (int)$row['template'] !== $templateId) {
                     $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
                     continue;
                 }

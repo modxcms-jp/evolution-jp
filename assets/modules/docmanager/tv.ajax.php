@@ -26,12 +26,11 @@ checkCsrfToken();
 
 $output = '';
 
-$tplID = post_strvar('tplID');
-if (!preg_match('/\A[0-9]+\z/', $tplID)) {
+$tplID = post_uintvar('tplID');
+if ($tplID === null) {
     return;
 }
 
-$tplID = (int)$tplID;
 $rs = db()->select(
     'tv.*, tvtpl.rank AS template_rank',
     ["[+prefix+]site_tmplvars tv", "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tv.id = tvtpl.tmplvarid"],
