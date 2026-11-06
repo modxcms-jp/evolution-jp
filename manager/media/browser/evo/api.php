@@ -113,7 +113,7 @@ function fbAttempt(callable $fn, &$reason = null)
  */
 function fbNotFoundMessage($name, $message)
 {
-    if (strpos((string) $name, "\u{FFFD}") !== false) {
+    if (is_string($name) && strpos($name, "\u{FFFD}") !== false) {
         return lang('fb_err_bad_encoding');
     }
     return $message;
