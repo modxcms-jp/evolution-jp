@@ -56,8 +56,11 @@ class PathResolver
      */
     public function resolveDir($folder)
     {
+        if (!is_string($folder)) {
+            return null;
+        }
         $segments = [];
-        foreach (explode('/', str_replace('\\', '/', (string) $folder)) as $segment) {
+        foreach (explode('/', str_replace('\\', '/', $folder)) as $segment) {
             if ($segment === '' || $segment === '.') {
                 continue;
             }

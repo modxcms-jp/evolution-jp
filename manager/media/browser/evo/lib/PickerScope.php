@@ -35,7 +35,7 @@ class PickerScope implements BrowserScope
             return ['code' => 'forbidden', 'lang' => 'fb_err_forbidden', 'status' => 403];
         }
 
-        $type = $type === null ? request_strvar('type', 'images') : $type;
+        $type = $type === null ? anyv('type', 'images') : $type;
         if (!$config->isValidType($type)) {
             return ['code' => 'invalid_type', 'lang' => 'fb_err_invalid_type', 'status' => 400];
         }

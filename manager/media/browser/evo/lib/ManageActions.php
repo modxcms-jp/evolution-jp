@@ -214,7 +214,7 @@ class ManageActions
      */
     private static function dirOrFail(PathResolver $resolver)
     {
-        $folder = request_strvar('folder');
+        $folder = anyv('folder', '');
         $dir = $resolver->resolveDir($folder);
         if ($dir === null) {
             fbError('not_found', fbNotFoundMessage($folder, lang('fb_err_folder_not_found')), 404);
@@ -228,7 +228,7 @@ class ManageActions
      */
     private static function nameOrFail($value)
     {
-        $name = is_string($value) ? PathResolver::sanitizeSegment($value) : '';
+        $name = PathResolver::sanitizeSegment($value);
         if ($name === '') {
             fbError('invalid_name', lang('fb_err_invalid_name'), 400);
         }
