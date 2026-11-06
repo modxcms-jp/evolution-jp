@@ -484,7 +484,7 @@ function to_intvar($value)
     return (string) $int === $value ? $int : 0;
 }
 
-// 0 以上の int はそのまま。数字だけの文字列（先頭のゼロを除いて 18 桁以下）は int。それ以外は $default
+// 0 以上の int はそのまま。数字だけの文字列（先頭のゼロを除いて PHP_INT_MAX 以下）は int。それ以外は $default
 function to_uintvar($value, $default = null)
 {
     if (is_int($value)) {
@@ -494,7 +494,11 @@ function to_uintvar($value, $default = null)
         return $default;
     }
     $digits = ltrim($value, '0');
-    return strlen($digits) <= 18 ? (int) $value : $default;
+    if ($digits === '') {
+        return 0;
+    }
+    $int = (int) $digits;
+    return (string) $int === $digits ? $int : $default;
 }
 
 // 空でない文字列ならそのまま、それ以外（null・空文字・配列・数値など）は $default

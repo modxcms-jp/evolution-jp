@@ -30,7 +30,7 @@
 | 関数 | 戻り値 |
 | --- | --- |
 | `*_intvar($key)` | 正の整数なら int。それ以外（数字以外を含む・0・負数・配列・空）は 0 |
-| `*_uintvar($key, $default = null)` | 0 以上の整数なら int（先頭のゼロも受ける。`'02'` は 2、`'0'` は 0）。それ以外（負数・符号・小数・空白・指数・空・配列、先頭のゼロを除いて 19 桁以上）は `$default`。既定値が null なので、「読めない」と「0」を呼び出し側で区別できる |
+| `*_uintvar($key, $default = null)` | 0 以上の整数なら int（先頭のゼロも受ける。`'02'` は 2、`'0'` は 0）。それ以外（負数・符号・小数・空白・指数・空・配列、先頭のゼロを除いて PHP_INT_MAX を超える）は `$default`。既定値が null なので、「読めない」と「0」を呼び出し側で区別できる |
 | `*_strvar($key, $default = '')` | 空でない文字列ならそのまま。それ以外（無い・空文字・配列）は `$default` |
 | `*_textvar($key, $default = null)` | 文字列ならそのまま（空・空白だけでも加工しない）。それ以外（無い・配列）は `$default`。空を既定値にする `*_strvar()` と違い、空も値として受ける |
 | `*_boolvar($key, $default = false)` | `'1'`・`'on'`・`'true'`・`'yes'` なら true、`'0'`・`'off'`・`'false'`・`'no'` なら false。それ以外は `$default` |
@@ -70,6 +70,7 @@
 | `(int) postv('parent')` / `intval(anyv('x'))` | `post_intvar('parent')` など |
 | `getv('force', 0)` を真偽として使う | `get_boolvar('force')` |
 | `getv('period', 'latest')` を選択肢として使う | `get_choicevar('period', [...], 'latest')` |
+| `preg_match('/\A[0-9]+\z/', post_strvar('x')) ? (int)… : …`（0 以上の整数） | `post_uintvar('x')`（読めなければ null） |
 | `anyv('depid')` を id の配列として使う | `request_idsvar('depid')` |
 | `trim(postv('q'))` / `strtolower(getv('x'))` | `trim(post_strvar('q'))` など |
 

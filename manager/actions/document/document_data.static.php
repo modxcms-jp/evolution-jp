@@ -12,14 +12,14 @@ if (!evo()->hasPermission('view_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]+$@', request_strvar('id'))) {
+$id = request_intvar('id');
+if (!$id) {
     alert()->setError(1);
     alert()->dumpError();
 }
 
 $icons_path = manager_style_image_path('icons');
 
-$id = request_strvar('id');
 if (!manager()->isAllowed($id)) {
     alert()->setError(3);
     alert()->dumpError();
@@ -33,7 +33,7 @@ evo()->updatePublishStatus();
 
 // Get the document content
 $where = [
-    sprintf("sc.id ='%s'", $id)
+    sprintf("sc.id=%d", $id)
 ];
 if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
     $where[] = sprintf(
