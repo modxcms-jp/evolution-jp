@@ -325,6 +325,16 @@ if ($allowedDays !== '') {
     }
 }
 
+// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
+// 失敗回数に数えずに案内だけを出す。パスワードの成否に関わらず同じ応答にする
+if ($useCaptcha === 1) {
+    $sessionVeriword = sessionv('veriword');
+    if (!is_string($sessionVeriword) || $sessionVeriword === '') {
+        $output = webLoginAlert('Please enter the security code shown in the image.');
+        return;
+    }
+}
+
 // invoke OnWebAuthentication event
 $tmp = [
     "userid" => $internalKey,
@@ -344,8 +354,7 @@ if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
 }
 
 if ($useCaptcha === 1) {
-    $veriword = sessionv('veriword');
-    if (!is_string($veriword) || $veriword === '' || !hash_equals($veriword, $captcha_code)) {
+    if (!hash_equals($sessionVeriword, $captcha_code)) {
         $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }

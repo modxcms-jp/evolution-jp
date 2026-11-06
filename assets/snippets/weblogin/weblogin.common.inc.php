@@ -54,7 +54,13 @@ function webLoginGeneratePassword($length = 10, $allow_chars = '')
     if (empty($allow_chars)) {
         $allow_chars = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     }
-    return substr(str_shuffle($allow_chars), 0, $length);
+    // 重複なしの並べ替え（str_shuffle() と同じ形）を、暗号用の乱数で行う
+    $chars = str_split($allow_chars);
+    for ($i = count($chars) - 1; $i > 0; $i--) {
+        $j = random_int(0, $i);
+        [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+    }
+    return substr(implode('', $chars), 0, $length);
 }
 
 // Send new password to the user
@@ -106,7 +112,9 @@ function fmplang($key, $ph = [])
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',
         'Your new password was successfully activated.' => 'アクティベーションしました。新しいパスワードでログインできます。',
         'Incorrect username or password entered!' => 'メールアドレスまたはパスワードが間違っています。',
-        'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。'
+        'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。',
+        'Please enter the security code shown in the image.' => '画像のセキュリティコードを入力してください。',
+        'Security code' => 'セキュリティコード'
     ];
 
     // 翻訳が無いメッセージはそのまま返す
