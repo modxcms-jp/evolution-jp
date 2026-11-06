@@ -217,6 +217,14 @@ $givenPassword = post_strvar('password');
 $captcha_code = post_strvar('captcha_code');
 $rememberme = post_strvar('rememberme');
 
+// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
+// 失敗回数に数えずに案内だけを出す。ユーザー名やパスワードに関わらず同じ応答にするため、ユーザーを探す前に行う
+$sessionVeriword = sessionv('veriword');
+if ((int)config('use_captcha', 0) === 1 && (!is_string($sessionVeriword) || $sessionVeriword === '')) {
+    $output = webLoginAlert('Please enter the security code shown in the image.');
+    return;
+}
+
 // invoke OnBeforeWebLogin event
 $v = [];
 $v['username'] = $username;
@@ -325,16 +333,6 @@ if ($allowedDays !== '') {
     }
 }
 
-// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
-// 失敗回数に数えずに案内だけを出す。パスワードの成否に関わらず同じ応答にする
-if ($useCaptcha === 1) {
-    $sessionVeriword = sessionv('veriword');
-    if (!is_string($sessionVeriword) || $sessionVeriword === '') {
-        $output = webLoginAlert('Please enter the security code shown in the image.');
-        return;
-    }
-}
-
 // invoke OnWebAuthentication event
 $tmp = [
     "userid" => $internalKey,
@@ -354,7 +352,7 @@ if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
 }
 
 if ($useCaptcha === 1) {
-    if (!hash_equals($sessionVeriword, $captcha_code)) {
+    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
         $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }

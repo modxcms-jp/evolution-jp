@@ -156,8 +156,7 @@ function getWebLogintpl()
     <form method="post" name="loginfrm" action="[+action+]">
     <input type="hidden" value="[+rememberme+]" name="rememberme" />
     User : <input type="text" name="username" onkeypress="return webLoginEnter(document.loginfrm.password);" size="8" style="width: 150px;" value="[+username+]" /><br />
-    Password : <input type="password" name="password" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /><br />
-    [+captcha+]
+    Password : <input type="password" name="password" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /><br />[+captcha+]
     Remember me : <input type="checkbox" id="chkbox" name="chkbox" value="" [+checkbox+] onclick="webLoginCheckRemember()" /><br />
     <input type="submit" value="[+logintext+]" name="cmdweblogin" /><br />
     <a href="#" onclick="webLoginShowForm(2);return false;">Forget Password?</a>
