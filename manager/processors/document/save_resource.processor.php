@@ -583,16 +583,18 @@ function getInputValues($id = 0, $mode = 'new')
 function checkStartDoc($id, $published, $pub_date, $unpub_date)
 {
     if ($published == 0) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot be unpublished!',
-            sprintf('index.php?a=27&id=%s', $id)
+            formReturnUrl()
         );
         exit;
     }
     if ($pub_date > request_time() || $unpub_date) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot have publish or unpublish dates set!',
-            sprintf('index.php?a=27&id=%s', $id)
+            formReturnUrl()
         );
     }
 }

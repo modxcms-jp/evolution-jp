@@ -117,7 +117,7 @@ if (config('use_editor') === '1') {
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = [
-            'editor' => post_strvar('which_editor', config('which_editor')),
+            'editor' => currentEditor(),
             'elements' => $rte_fields
         ];
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
