@@ -4,7 +4,7 @@
  *
  * 検出するもの:
  *   sql-embed   processor の中で、リクエストの値（getv() / anyv() / postv() / cookiev() / *_strvar() / *_textvar() / $_GET など）を
- *               db()->escape() や (int)・*_intvar() を通さずに、SQL の文字列へ埋め込む・DB の呼び出しや where() へ渡す書き方。
+ *               db()->escape() や (int)・*_intvar()・*_uintvar() を通さずに、SQL の文字列へ埋め込む・DB の呼び出しや where() へ渡す書き方。
  *               値を代入した変数・配列も追う（同じファイルの中で、上から順に）
  *   js-escape   <script> の中へ埋め込む値に addslashes() や db()->escape() を使う書き方（js_literal() を使う）
  *   csrf-action manager/index.php で processor を読み込むアクションのうち、
@@ -222,7 +222,7 @@ const REQUEST_VARS = ['$_GET', '$_POST', '$_REQUEST', '$_COOKIE'];
 const SAFE_FUNCS = [
     'isset', 'empty', 'is_numeric', 'is_array', 'is_string', 'is_int', 'is_scalar', 'ctype_digit',
     'in_array', 'array_key_exists', 'array_search', 'count', 'strlen', 'mb_strlen', 'intval', 'floatval', 'boolval', 'abs',
-    'to_intvar', 'get_intvar', 'post_intvar', 'request_intvar', 'escape', 'where_in', 'and_where_in',
+    'to_intvar', 'get_intvar', 'post_intvar', 'request_intvar', 'to_uintvar', 'get_uintvar', 'post_uintvar', 'request_uintvar', 'escape', 'where_in', 'and_where_in',
     'md5', 'sha1', 'hash', 'crc32', 'password_hash', 'password_verify', 'preg_match', 'strpos', 'stripos',
     'strcmp', 'strcasecmp', 'hash_equals', 'max', 'min', 'round', 'floor', 'ceil', 'number_format',
     'filter_var', 'checkdate', 'strtotime', 'date', 'gmdate', 'mktime', 'is_file', 'is_dir', 'file_exists',

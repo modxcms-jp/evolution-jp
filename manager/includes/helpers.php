@@ -440,6 +440,23 @@ function request_intvar($key)
     return to_intvar(anyv($key, 0));
 }
 
+// 0 以上の整数として読む（GET / POST / 両方）。読めないときは $default（既定は null。0 と区別できる）。
+// 先頭のゼロは受ける（'02' は 2）。*_intvar()（正の整数だけ、読めなければ 0）と違い、0 も値になる
+function get_uintvar($key, $default = null)
+{
+    return to_uintvar(getv($key), $default);
+}
+
+function post_uintvar($key, $default = null)
+{
+    return to_uintvar(postv($key), $default);
+}
+
+function request_uintvar($key, $default = null)
+{
+    return to_uintvar(anyv($key), $default);
+}
+
 // id が整数として読めないときは、エラーで止める（新規作成など別の処理として続けない）。
 // $required が false（新規作成の画面など）なら、id が無いときと 0 のときは通す。
 // 編集の画面のように id が必ず要るときは $required を true にする
@@ -465,6 +482,19 @@ function to_intvar($value)
     }
     $int = (int) $value;
     return (string) $int === $value ? $int : 0;
+}
+
+// 0 以上の int はそのまま。数字だけの文字列（先頭のゼロを除いて 18 桁以下）は int。それ以外は $default
+function to_uintvar($value, $default = null)
+{
+    if (is_int($value)) {
+        return $value >= 0 ? $value : $default;
+    }
+    if (!is_string($value) || !preg_match('@\A[0-9]+\z@', $value)) {
+        return $default;
+    }
+    $digits = ltrim($value, '0');
+    return strlen($digits) <= 18 ? (int) $value : $default;
 }
 
 // 空でない文字列ならそのまま、それ以外（null・空文字・配列・数値など）は $default
