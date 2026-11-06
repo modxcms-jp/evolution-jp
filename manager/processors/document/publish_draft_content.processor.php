@@ -44,8 +44,10 @@ if ($draft) {
     }
 }
 
-if (postv('publishoption') === 'reserve' && post_strvar('pub_date')) {
-    $pub_date = evo()->toTimeStamp(post_strvar('pub_date'));
+// 空白だけの日付は空の日付（即時公開）として扱う
+$reserveDate = trim(post_strvar('pub_date'));
+if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
+    $pub_date = evo()->toTimeStamp($reserveDate);
     if ($pub_date === '') {
         // 解釈できない日付で即時に公開しない
         evo()->webAlertAndQuit(
