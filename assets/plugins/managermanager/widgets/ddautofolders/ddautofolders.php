@@ -109,12 +109,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
-    $docGroups = [];
-    if (postv('chkalldocs') !== 'on') {
-        foreach ((array)postv('docgroups', []) as $docGroup) {
-            $docGroups[] = (int)$docGroup;
-        }
-    }
+    $docGroups = postv('chkalldocs') !== 'on' ? post_idsvar('docgroups') : [];
 
     //年・月のフォルダを作る（値は DB 操作の直前にエスケープする）
     $createDocument = function ($fields, $groups) {

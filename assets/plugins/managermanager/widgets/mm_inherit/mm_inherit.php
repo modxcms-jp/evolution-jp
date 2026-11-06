@@ -27,7 +27,7 @@ function mm_inherit($fields, $roles = '', $templates = '')
     }
 
     // Get the parent info
-    $parentID = to_intvar(anyv('pid')) ?: to_intvar(anyv('parent'));
+    $parentID = request_intvar('pid') ?: request_intvar('parent');
 
     if (!$parentID) {
         return;

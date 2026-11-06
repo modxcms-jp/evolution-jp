@@ -28,13 +28,14 @@ class ForgotManagerPassword
             $this->OnManagerMainFrameHeaderHTMLBlock();
             return;
         }
-        if (getv('fmpkey')) {
+        $fmpkey = get_strvar('fmpkey');
+        if ($fmpkey) {
             if ($i === 'OnManagerLoginFormPrerender') {
-                $this->OnManagerLoginFormPrerender(getv('fmpkey'));
+                $this->OnManagerLoginFormPrerender($fmpkey);
                 return;
             }
             if ($i === 'OnManagerAuthentication') {
-                event()->output($this->OnManagerAuthentication(getv('fmpkey')));
+                event()->output($this->OnManagerAuthentication($fmpkey));
                 return;
             }
         }
@@ -53,7 +54,7 @@ class ForgotManagerPassword
         }
 
         if (getv('action') === 'send_email') {
-            $_SESSION['fmp_sent'] = $this->sendFmpMail(getv('email'))
+            $_SESSION['fmp_sent'] = $this->sendFmpMail(get_strvar('email'))
                 ? $this->lang('email_sent')
                 : $this->getErrorOutput() . $this->formLink();
             $this->removeLoginTouchFile();
@@ -74,8 +75,9 @@ class ForgotManagerPassword
         }
         if ($user_id) {
             $_SESSION['goto_pwd_edit'] = '1';
-            if (getv('captcha_code')) {
-                $_SESSION['veriword'] = getv('captcha_code');
+            $captchaCode = get_strvar('captcha_code');
+            if ($captchaCode) {
+                $_SESSION['veriword'] = $captchaCode;
             }
             $this->unBlock($user_id);
         }

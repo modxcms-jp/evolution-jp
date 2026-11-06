@@ -6,7 +6,7 @@ if (!evo()->hasPermission('save_document') || !$this->checkAccess()) {
     return 'Error: Access denied.';
 }
 // 編集できるのは、組み込みの項目とこの文書の TV だけ
-$tvName = (string)getv('tvname');
+$tvName = get_strvar('tvname');
 $tv = $this->getField($tvName, $docID);
 if (!$tv) {
     return 'Error: Unknown field.';

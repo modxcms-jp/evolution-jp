@@ -20,7 +20,7 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
         return;
     }
 
-    if (!in_array((int)getv('id'), makeArray($ids))) {
+    if (!in_array(get_intvar('id'), makeArray($ids))) {
         return;
     }
 
