@@ -18,9 +18,9 @@ Issue: #1059
   - [x] (2026-11-06) M4a: `manager/processors/permission/` の保存の処理で型つきへ置き換え。mode は型つきで読んで当てはまらない値を拒否し、形式違いのロール・空のユーザー名を拒否するようにした（PR は Artifacts and Notes）
   - [x] (2026-11-06) M4b: エレメントの保存の処理（`module`・`tmplvars`・`plugin`・`snippet`・`chunk`・`template`）で型つきへ置き換え。本文は加工せず、DB に渡す直前だけエスケープする。名前変更による参照の置き換えの SQL を直した（PR は Artifacts and Notes）
   - [x] (2026-11-06) M4c: リソース・下書き・ログイン・システム設定・メッセージ・バックアップ・テーブルの最適化・サイトの書き出し・カテゴリの削除の処理で型つきへ置き換え。メッセージの送信の `extract()` を消した（PR は Artifacts and Notes）
-- [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
+- [x] (2026-11-06) M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
   - [x] (2026-11-06) M5a: `manager/includes/`・`frames/`・`manager/` 直下（入口の振り分け・アクセス制御・ロックアウト・DocumentParser など 18 ファイル）で型つきへ置き換え。本体の `evo()->input_*()` の呼び出しが無くなった（PR は Artifacts and Notes）
-  - [ ] M5b: `manager/media/`（ファイルブラウザ）
+  - [x] (2026-11-06) M5b: `manager/media/`（ファイルブラウザ）で型つきへ置き換え。文字列でないフォルダ・名前は、パスを解決する 1 か所（`PathResolver`）で拒否する（PR は Artifacts and Notes）
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
 - [ ] M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消す（M3〜M6 で本体の呼び出しを置き換えたあと）
 - [ ] M7: 置き換え漏れを検出する検査を `security-lint.php` に足す
@@ -58,6 +58,7 @@ Issue: #1059
 - 2026-11-06（M5a の検証）: PHP 8 で 500 になる修正前からの不具合を 2 つ直した。自動ログインのトークンと「ログイン状態を保持」を一緒に使うと、`token_auth()` が設定の読み込み前に設定の値を読んでいた。`makeUrl()` は未定義の変数を読む経路があった。
 - 2026-11-06（M5a の自己レビュー）: MakeTable（`ex_maketable.php`）の並び替えの部品は、URL の `orderby`・`orderdir` を無害化せずに `ORDER BY` の文字列にしていた（release-1.2.4J も同じ）。本体と同梱のコードからは呼ばれず、サイト側のスニペットが使ったときだけ問題になる作り。サイト側の責任の範囲と判断し、main で決まった形（列名と asc・desc）だけを受けるように直した。1.2 系には載せない。受ける列名は、先頭が英字かアンダースコアで、別名用の `.` を 1 つまで含むものに狭まった（カンマ区切りの複数の列やバッククォートは受けない）。
 - 2026-11-06（M5a の検証）: リソースの公開日に解釈できない日付を入れて保存すると、strict モードで 500 になる（修正前から）。#1089 に分けた。
+- 2026-11-06（M5b の自己レビュー・検証）: ファイルブラウザのフォルダ（`folder`・`dest`）を `*_strvar()` で読むと、配列が空文字になり、空のフォルダ名は「ルート」を指すので、形式違いの要求でルートのファイルを削除・移動できてしまった（最初の置き換えで入った。許可した場所の外には届かない）。空で送ることに意味がある値なので、生の値で受けて、パスを解決する `PathResolver::resolveDir()` の 1 か所で文字列か確かめて拒否する形にした（`sanitizeSegment()` と同じ）。種類（`type`）は厳密な比較だけに使うので、生の値のまま残した。
 
 ## Decision Log
 
@@ -188,7 +189,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（base は M4c のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（base は M5a のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
