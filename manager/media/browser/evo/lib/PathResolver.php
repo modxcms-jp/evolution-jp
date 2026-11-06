@@ -34,7 +34,9 @@ class PathResolver
      */
     public static function sanitizeSegment($value)
     {
-        $value = (string) $value;
+        if (!is_string($value)) {
+            return '';
+        }
         if (strpbrk($value, "/\\\0") !== false) {
             return '';
         }
