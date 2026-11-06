@@ -28,7 +28,7 @@ if ($isPWDActivate == 1) {
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token === '' || $token !== request_strvar('token')) {
+    if ($token === '' || !hash_equals($token, request_strvar('token'))) {
         if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
@@ -337,14 +337,15 @@ $rt = evo()->invokeEvent("OnWebAuthentication", $tmp);
 // check if plugin authenticated the user
 if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
     // check user password - local authentication
-    if ($dbasePassword != md5($givenPassword)) {
+    if (!hash_equals((string)$dbasePassword, md5($givenPassword))) {
         $output = webLoginAlert("Incorrect username or password entered!");
         $newloginerror = 1;
     }
 }
 
 if ($useCaptcha === 1) {
-    if (sessionv('veriword') != $captcha_code) {
+    $veriword = sessionv('veriword');
+    if (!is_string($veriword) || $veriword === '' || !hash_equals($veriword, $captcha_code)) {
         $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
