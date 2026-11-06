@@ -19,8 +19,7 @@ $site_mgr_path = MODX_CACHE_PATH . 'siteManager.php';
 if (!is_file($site_mgr_path)) {
     $src = "<?php\n";
     $src .= "define('MGR_DIR', '{$mgr_dir}');\n";
-    $rs = file_put_contents($site_mgr_path, $src);
-    if (!$rs) {
+    if (!file_put_contents($site_mgr_path, $src)) {
         exit('siteManager.php write error');
     }
     define('MGR_DIR', $mgr_dir);

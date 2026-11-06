@@ -36,7 +36,7 @@ if (postv('action') === 'get') {
 }
 
 $output = '';
-$rs = null; // 権限が無いなど、どの更新も行わないときは false の応答にする（ほかで使われた $rs を引き継がない）
+$rs = null; // 権限が無いなど、どの更新も行わないときは false の応答にする（このファイルは include されるので、呼び出し側の変数を引き継がない）
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
