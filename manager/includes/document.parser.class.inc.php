@@ -366,6 +366,11 @@ class DocumentParser
             // これまでどおり文字列で返す（documentIdentifier の型を変えない）
             return (string) get_intvar('id');
         }
+        // 桁数が多く int に収まらない正の整数は、これまでどおりその値のまま（存在しない文書として 404 になる）
+        $digits = get_strvar('id');
+        if (preg_match('@\A[1-9][0-9]*\z@', $digits)) {
+            return $digits;
+        }
 
         $parsedUri = parse_url($uri, PHP_URL_PATH);
         if ($parsedUri === MODX_BASE_URL) {
@@ -1213,7 +1218,7 @@ class DocumentParser
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
         $_SESSION['modx.mgr.session.cookie.lifetime'] = request_strvar('rememberme')
-            ? (int)$this->config['session.cookie.lifetime']
+            ? (int)($this->config['session.cookie.lifetime'] ?? 0)
             : 0
         ;
         setcookie(
@@ -4354,6 +4359,7 @@ class DocumentParser
             $makeurl = "index.php?id={$id}";
         } else {
             $alPath = '';
+            $al = null;
             if (!$alias) {
                 $al = $this->getAliasListing($orgId ? $orgId : $id);
                 $alias = $orgId ? $orgId : $id;
@@ -4381,7 +4387,7 @@ class DocumentParser
 
             if (strpos($alias, '.') !== false && $this->config('suffix_mode')) {
                 $f_url_suffix = '';
-            } elseif ($al['isfolder'] == 1 && $this->config('make_folders') && $id != $this->config('site_start')) {
+            } elseif (($al['isfolder'] ?? 0) == 1 && $this->config('make_folders') && $id != $this->config('site_start')) {
                 $f_url_suffix = '/';
             } else {
                 $f_url_suffix = $this->config('friendly_url_suffix');

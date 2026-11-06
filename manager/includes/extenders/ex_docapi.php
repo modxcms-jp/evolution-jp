@@ -335,12 +335,6 @@ class DocAPI
         return $tv[$key];
     }
 
-    // 保存の画面の操作の番号（新規・ウェブリンク・更新）。当てはまらない値は 0
-    private function postedMode()
-    {
-        return post_choicevar('mode', [4, 72, 27], 0);
-    }
-
     public function initValue($form_v)
     {
         $fields = explode(
@@ -350,6 +344,11 @@ class DocAPI
         if (isset($form_v['ta'])) {
             $form_v['content'] = $form_v['ta'];
             unset($form_v['ta']);
+        }
+        // ta は上で content に移しているので、content も配列を拒否する
+        if (isset($form_v['content']) && is_array($form_v['content'])) {
+            alert()->setError(2);
+            alert()->dumpError();
         }
         foreach ($fields as $key) {
             if (!isset($form_v[$key])) {
@@ -429,7 +428,11 @@ class DocAPI
         return $form_v;
     }
 
-    public function setValue($form_v)
+    /**
+     * @param array $form_v
+     * @param int $mode 保存の画面の操作の番号（4: 新規、72: ウェブリンク、27: 更新）。呼び出し元が決める
+     */
+    public function setValue($form_v, $mode = 0)
     {
         global $_lang;
 
@@ -482,17 +485,17 @@ class DocAPI
         if (!empty($form_v['pub_date'])) {
             $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
             if (!$form_v['pub_date']) {
-                evo()->manager->saveFormValues($this->postedMode());
+                evo()->manager->saveFormValues($mode);
                 if (array_get($form_v, 'id')) {
                     evo()->webAlertAndQuit(
                         $_lang['mgrlog_dateinvalid'],
-                        "index.php?a=" . $this->postedMode() . "&id=" . array_get($form_v, 'id')
+                        "index.php?a=" . $mode . "&id=" . array_get($form_v, 'id')
                     );
                     exit;
                 }
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
-                    "index.php?a=" . $this->postedMode()
+                    "index.php?a=" . $mode
                 );
                 exit;
             }
@@ -506,8 +509,8 @@ class DocAPI
         if (!empty($form_v['unpub_date'])) {
             $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
             if (!$form_v['unpub_date']) {
-                evo()->manager->saveFormValues($this->postedMode());
-                $url = "index.php?a=" . $this->postedMode();
+                evo()->manager->saveFormValues($mode);
+                $url = "index.php?a=" . $mode;
                 if (array_get($form_v, 'id')) {
                     $url .= "&id=" . array_get($form_v, 'id');
                 }
@@ -518,7 +521,7 @@ class DocAPI
         }
 
         // deny publishing if not permitted
-        if ($this->postedMode() === 27) {
+        if ($mode === 27) {
             return $form_v;
         }
 

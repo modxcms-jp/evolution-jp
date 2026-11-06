@@ -495,7 +495,7 @@ EOT;
     private function requestedOrderBy()
     {
         $orderby = get_strvar('orderby');
-        return preg_match('@\A[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?\z@', $orderby) ? $orderby : '';
+        return preg_match('@\A[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?\z@', $orderby) ? $orderby : '';
     }
 
     /**
@@ -513,6 +513,7 @@ EOT;
      * @param $key The $fieldsArray key for the column to sort by.
      * @param $text The text for the link (e.g. table column header).
      * @param $qs An optional query string to append to the order by link.
+     *            エスケープしない生のクエリを渡す（この中で hsc() を通す）。
      */
     public function prepareOrderByLink($key, $text, $qs = '')
     {

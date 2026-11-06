@@ -1043,7 +1043,8 @@ function validated($key = null, $default = null)
         $form_v = evo()->doc->setValue(
             evo()->doc->initValue(
                 evo()->doc->fixTvNest(postv())
-            )
+            ),
+            postedMode()
         );
     }
 
