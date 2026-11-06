@@ -8,15 +8,15 @@ if (!evo()->hasPermission('messages')) {
     alert()->dumpError();
 }
 $icons_path = manager_style_image_path('icons');
-$msgid = (int) anyv('id', 0);
-$messageMode = (string) anyv('m', '');
+$msgid = request_intvar('id');
+$messageMode = request_strvar('m');
 $subjecttext = '';
 $messagetext = '';
 $uid = evo()->getLoginUserID();
 ?>
 <h1><?= $_lang['messages_title'] ?></h1>
 <?php
-$location = getv('id') ? '10' : '2';
+$location = $msgid ? '10' : '2';
 ?>
 <div id="actions">
     <ul class="actionButtons">
@@ -129,7 +129,7 @@ $location = getv('id') ? '10' : '2';
         // ==============================================================
 
         // If current position is not set, set it to zero
-        $int_cur_position = (int) anyv('int_cur_position', 0);
+        $int_cur_position = request_intvar('int_cur_position');
         if ($int_cur_position < 0) {
             $int_cur_position = 0;
         }

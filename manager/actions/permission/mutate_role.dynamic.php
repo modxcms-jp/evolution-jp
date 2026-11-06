@@ -3,7 +3,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a')) {
+$action = request_intvar('a');
+
+switch ($action) {
     case 35:
         if (!evo()->hasPermission('edit_role')) {
             alert()->setError(3);
@@ -21,7 +23,10 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-$role = (int)anyv('id');
+$role = request_intvar('id');
+if ($action === 38) {
+    $role = 0; // 新規は id を使わない
+}
 
 // check to see the role editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
@@ -39,7 +44,7 @@ if ($total > 1) {
 // end check for lock
 
 
-if (anyv('a') == 35) {
+if ($action === 35) {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -102,8 +107,8 @@ function role($key, $default = null)
     }
 </script>
 <form action="index.php?a=36" method="post" name="userform" class="role-form" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
-    <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
+    <input type="hidden" name="mode" value="<?= $action ?>">
+    <input type="hidden" name="id" value="<?= $role ?>">
 
     <h1><?= $_lang['role_title'] ?></h1>
 
@@ -113,7 +118,7 @@ function role($key, $default = null)
                 <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a></li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 35) {
+            if ($action === 35) {
                 $params = [
                     'onclick' => 'deletedocument();',
                     'label' => $_lang['delete']

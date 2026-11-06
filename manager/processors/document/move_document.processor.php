@@ -12,12 +12,13 @@ if (!evo()->hasPermission('edit_document')) {
 }
 
 // 移動するリソース（カンマ区切りで複数可）。一部だけを移動しないよう、1 つでも整数として読めなければ全体を止める
-if (!is_string(anyv('id')) || trim(anyv('id')) === '') {
+$rawIds = request_strvar('id');
+if (trim($rawIds) === '') {
     alert()->setError(601);
     alert()->dumpError();
 }
 $doc_ids = [];
-foreach (explode(',', anyv('id')) as $v) {
+foreach (explode(',', $rawIds) as $v) {
     $v = to_intvar(trim($v));
     if (!$v) {
         alert()->setError(2);
@@ -29,9 +30,9 @@ foreach (explode(',', anyv('id')) as $v) {
 }
 $doc_id = $doc_ids[0];
 
-// 移動先。ルート（0）も正しい値なので "0" は受け付け、それ以外の整数として読めない値は移動先なしとして扱う
-$new_parent = anyv('new_parent') === '0' ? 0 : request_intvar('new_parent');
-if (!$new_parent && anyv('new_parent') !== '0') {
+// 移動先。ルート（0）も正しい値なので "0" は受け付け、整数として読めない値は移動先なしとして扱う
+$new_parent = request_uintvar('new_parent');
+if ($new_parent === null) {
     alert()->setError(602);
     alert()->dumpError();
 }

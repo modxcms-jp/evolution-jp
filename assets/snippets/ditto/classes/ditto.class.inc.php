@@ -1161,7 +1161,7 @@ class ditto
         global $dittoID;
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = [];
-        foreach ($_GET as $param => $value) {
+        foreach (getv() as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $clean_param = rawurlencode($param);
                 if (is_array($value)) {

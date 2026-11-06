@@ -142,7 +142,7 @@ function run()
         db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
     }
 
-    $parent = (int)postv('parent', 0);
+    $parent = post_intvar('parent');
 
     if (is_dir(MODX_BASE_PATH . 'temp/import')) {
         $filedir = MODX_BASE_PATH . 'temp/import/';

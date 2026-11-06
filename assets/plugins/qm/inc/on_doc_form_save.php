@@ -1,5 +1,5 @@
 <?php
-if ((int)anyv('quickmanager') != 1) {
+if (request_intvar('quickmanager') !== 1) {
     return;
 }
 
@@ -14,4 +14,4 @@ evo()->clearCache();
 
 global $modx;
 $modx->config['xhtml_urls'] = 0;
-exit(sprintf('<script>parent.location.href=%s;</script>', js_literal(evo()->makeUrl((int)postv('qmrefresh', $id)))));
+exit(sprintf('<script>parent.location.href=%s;</script>', js_literal(evo()->makeUrl(post_intvar('qmrefresh') ?: (int)$id))));

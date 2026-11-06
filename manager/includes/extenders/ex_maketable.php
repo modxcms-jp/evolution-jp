@@ -348,7 +348,7 @@ EOT;
     {
         global $_lang, $modx;
 
-        $currentPage = getv('page') && preg_match('@^[1-9][0-9]*$@', getv('page')) ? getv('page') : 1;
+        $currentPage = get_intvar('page') ?: 1;
 
         $totalPages = ceil($totalRecords / $this->pageLimit);
         if ($totalPages < 2) {
@@ -407,11 +407,11 @@ EOT;
         if (empty($path)) {
             $p = [];
             $p[] = "page={$pageNum}";
-            if (getv('orderby')) {
-                $p[] = 'orderby=' . getv('orderby');
+            if ($this->requestedOrderBy() !== '') {
+                $p[] = 'orderby=' . rawurlencode($this->requestedOrderBy());
             }
-            if (getv('orderdir')) {
-                $p[] = 'orderdir=' . getv('orderdir');
+            if ($this->requestedOrderDir() !== '') {
+                $p[] = 'orderdir=' . rawurlencode($this->requestedOrderDir());
             }
             if (!empty($qs)) {
                 $p[] = trim($qs, '?&');
@@ -462,7 +462,7 @@ EOT;
      */
     public function handlePaging()
     {
-        $offset = (preg_match('@^[1-9][0-9]*$@', getv('page', ''))) ? getv('page') - 1 : 0;
+        $offset = get_intvar('page') ? get_intvar('page') - 1 : 0;
         return sprintf(' LIMIT %s,%s', $offset * $this->pageLimit, $this->pageLimit);
     }
 
@@ -477,15 +477,33 @@ EOT;
         if ($natural_order) {
             return '';
         }
-        if (!getv('orderby')) {
+        if ($this->requestedOrderBy() === '') {
             return '';
         }
 
         return sprintf(
             ' ORDER BY %s %s',
-            getv('orderby'),
-            !getv('orderdir') ? 'DESC' : getv('orderdir')
+            $this->requestedOrderBy(),
+            strtoupper($this->requestedOrderDir() ?: 'desc')
         );
+    }
+
+    /**
+     * 並び替えの列名（orderby）。列名の形（英数字・アンダースコア、テーブルの別名のための . を 1 つまで）だけを受け、
+     * それ以外（配列・空・記号を含む値）は空（並び替えなし）
+     */
+    private function requestedOrderBy()
+    {
+        $orderby = get_strvar('orderby');
+        return preg_match('@\A[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?\z@', $orderby) ? $orderby : '';
+    }
+
+    /**
+     * 並び替えの向き（orderdir）。asc / desc（大文字小文字は問わない）だけを受け、小文字で返す。それ以外は空
+     */
+    private function requestedOrderDir()
+    {
+        return to_choicevar(strtolower(get_strvar('orderdir')), ['asc', 'desc'], '');
     }
 
     /**
@@ -495,15 +513,16 @@ EOT;
      * @param $key The $fieldsArray key for the column to sort by.
      * @param $text The text for the link (e.g. table column header).
      * @param $qs An optional query string to append to the order by link.
+     *            エスケープしない生のクエリを渡す（この中で hsc() を通す）。
      */
     public function prepareOrderByLink($key, $text, $qs = '')
     {
         return sprintf(
             '<a href="[~%s~]?%s&orderby=%s&orderdir=%s">%s</a>',
-            evo()->documentIdentifier,
-            rtrim($qs, '&'),
-            $key,
-            getv('orderdir') && strtolower(getv('orderdir')) === 'desc' ? 'desc' : 'asc',
+            hsc(evo()->documentIdentifier),
+            hsc(rtrim($qs, '&')),
+            hsc(rawurlencode($key)),
+            $this->requestedOrderDir() === 'desc' ? 'desc' : 'asc',
             $text
         );
     }

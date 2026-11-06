@@ -27,7 +27,7 @@
             <div><?= lang('user_allowed_parents_message') ?></div>
         </td>
     </tr>
-    <?php if (getv('a') == 12): ?>
+    <?php if ($action === 12): ?>
         <tr>
             <th><?= lang('user_logincount') ?>:</th>
             <td><?= (int)user('logincount') ?></td>

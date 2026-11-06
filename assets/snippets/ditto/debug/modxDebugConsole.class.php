@@ -85,7 +85,7 @@ class modxDebugConsole
     {
         global $modx;
         $query = [];
-        foreach ($_GET as $param => $value) {
+        foreach (getv() as $param => $value) {
             if ($param !== 'id' && $param !== 'q' && !is_array($value)) {
                 $query[rawurlencode($param)] = rawurlencode($value);
             }

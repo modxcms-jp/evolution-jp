@@ -87,7 +87,7 @@ if (manager()->action != 1) {
         'username'    => (string) sessionv('mgrShortname'),
         'lasthit'     => (int) serverv('REQUEST_TIME', time()),
         'action'      => (int) manager()->action,
-        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? (int) anyv('id') : 0,
+        'id'          => request_intvar('id'),
         'ip'          => (string) real_ip()
     ];
 
@@ -149,10 +149,8 @@ function installGoingOn()
     if (checkInstallProc()) {
         return 1;
     }
-    if (getv('installGoingOn')) {
-        return getv('installGoingOn');
-    }
-    return false;
+    // login_message の番号（1・2）だけを受ける。それ以外（配列を含む）は無いものとして扱う
+    return get_choicevar('installGoingOn', [1, 2], false);
 }
 
 function checkInstallProc()

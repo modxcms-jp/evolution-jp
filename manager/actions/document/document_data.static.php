@@ -12,14 +12,14 @@ if (!evo()->hasPermission('view_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]+$@', anyv('id', ''))) {
+$id = request_intvar('id');
+if (!$id) {
     alert()->setError(1);
     alert()->dumpError();
 }
 
 $icons_path = manager_style_image_path('icons');
 
-$id = anyv('id');
 if (!manager()->isAllowed($id)) {
     alert()->setError(3);
     alert()->dumpError();
@@ -33,7 +33,7 @@ evo()->updatePublishStatus();
 
 // Get the document content
 $where = [
-    sprintf("sc.id ='%s'", $id)
+    sprintf("sc.id=%d", $id)
 ];
 if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
     $where[] = sprintf(
@@ -188,9 +188,9 @@ function entity($key, $default = null)
                 if (isset($content['parent']) && $content['parent'] != 0) {
                     $tpl = 'document.location.href=\'index.php?a=120&id=%s\';';
                     echo sprintf($tpl, entity('parent'));
-                } elseif (getv('pid')) {
+                } elseif (get_intvar('pid')) {
                     $tpl = 'document.location.href=\'index.php?a=120&id=%d\';';
-                    echo sprintf($tpl, (int)getv('pid'));
+                    echo sprintf($tpl, get_intvar('pid'));
                 } else {
                     echo 'document.location.href=\'index.php?a=2\';';
                 }

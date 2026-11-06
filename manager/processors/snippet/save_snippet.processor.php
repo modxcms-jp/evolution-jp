@@ -6,23 +6,29 @@ if (!evo()->hasPermission('save_snippet')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+// 新規（23）と更新（22）以外は拒否する
+$mode = post_choicevar('mode', [22, 23], 0);
 $id = post_intvar('id');
-if (postv('mode') == 22 && !$id) {
+if (!$mode || ($mode === 22 && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$rawName = manager()->requireElementName(postv('name'), $_lang['snippet'], 23, 22, $id);
-$name = db()->escape($rawName);
-$description = db()->escape(postv('description', ''));
-$locked = postv('locked') == 'on' ? 1 : 0;
-$snippet = db()->escape(trim(postv('post', '')));
+
+// 本文と設定は文字列だけを受ける。配列で送られたときは、空で上書きせず保存しない
+$snippet = postv('post', '');
+$properties = postv('properties', '');
+if (!is_string($snippet) || !is_string($properties)) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+$snippet = trim($snippet);
+
+$rawName = manager()->requireElementName(post_strvar('name'), $_lang['snippet'], 23, 22, $id);
+$description = post_strvar('description');
+$locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
-$errorReporting = db()->escape(postv('error_reporting', 'inherit'));
-$validErrorLevels = ['inherit', '0', '1', '2', '99'];
-if (!in_array($errorReporting, $validErrorLevels, true)) {
-    $errorReporting = 'inherit';
-}
+$errorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
 
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {
@@ -34,12 +40,10 @@ if (strncmp($snippet, '<?', 2) == 0) {
         $snippet = substr($snippet, 0, -2);
     }
 }
-$properties = db()->escape(postv('properties', ''));
-$moduleguid = db()->escape(postv('moduleguid', ''));
-$sysevents = postv('sysevents');
+$moduleguid = post_strvar('moduleguid');
 
 // disallow duplicate names
-$where = "name='{$name}'";
+$where = "name='" . db()->escape($rawName) . "'";
 if ($id) {
     $where .= ' AND id!=' . $id;
 }
@@ -54,8 +58,8 @@ if ($count > 0) {
     );
 }
 
-switch (postv('mode')) {
-    case '23':
+switch ($mode) {
+    case 23:
         // invoke OnBeforeSnipFormSave event
         $tmp = [
             'mode' => 'new',
@@ -63,11 +67,11 @@ switch (postv('mode')) {
         ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
-        $categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $categoryid = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the new doc
         $field = [];
-        $field['name'] = $name;
+        $field['name'] = $rawName;
         $field['description'] = $description;
         $field['snippet'] = $snippet;
         $field['moduleguid'] = $moduleguid;
@@ -75,7 +79,7 @@ switch (postv('mode')) {
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
         $field['error_reporting'] = $errorReporting;
-        $newid = db()->insert($field, $tbl_site_snippets);
+        $newid = db()->insert(db()->escape($field), $tbl_site_snippets);
         if (!$newid) {
             echo '$newid not set! New snippet not saved!';
             exit;
@@ -90,16 +94,17 @@ switch (postv('mode')) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "22&id={$newid}" : '23';
-            $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+        $stay = post_choicevar('stay', [1, 2], 0);
+        if ($stay) {
+            $a = ($stay === 2) ? "22&id={$newid}" : '23';
+            $header = "Location: index.php?a={$a}&stay={$stay}";
         } else {
             $header = 'Location: index.php?a=76';
         }
         header($header);
         break;
 
-    case '22':
+    case 22:
         // invoke OnBeforeSnipFormSave event
         $tmp = [
             'mode' => 'upd',
@@ -107,11 +112,11 @@ switch (postv('mode')) {
         ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
-        $categoryid = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $categoryid = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the edited doc
         $field = [];
-        $field['name'] = $name;
+        $field['name'] = $rawName;
         $field['description'] = $description;
         $field['snippet'] = $snippet;
         $field['moduleguid'] = $moduleguid;
@@ -119,7 +124,7 @@ switch (postv('mode')) {
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
         $field['error_reporting'] = $errorReporting;
-        $rs = db()->update($field, $tbl_site_snippets, "id='{$id}'");
+        $rs = db()->update(db()->escape($field), $tbl_site_snippets, "id='{$id}'");
         if (!$rs) {
             echo '$rs not set! Edited snippet not saved!';
             exit;
@@ -133,15 +138,14 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnSnipFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache
-        //if(postv('runsnippet')) run_snippet($snippet);
         // finished emptying cache - redirect
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "22&id={$id}" : '23';
-            $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+        $stay = post_choicevar('stay', [1, 2], 0);
+        if ($stay) {
+            $a = ($stay === 2) ? "22&id={$id}" : '23';
+            $header = "Location: index.php?a={$a}&stay={$stay}";
         } else {
             $header = 'Location: index.php?a=76';
         }
         header($header);
         break;
-    default:
 }

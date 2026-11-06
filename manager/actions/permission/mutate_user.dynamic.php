@@ -4,15 +4,22 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 global $_style;
 
+include_once __DIR__ . '/mutate_user/blocked.php';
+include_once __DIR__ . '/mutate_user/form_values.php';
 include_once __DIR__ . '/mutate_user/functions.php';
 
-if (!hasUserPermission(request_intvar('a'))) {
+$action = request_intvar('a');
+
+if (!hasUserPermission($action)) {
     alert()->setError(3);
     alert()->dumpError();
     return;
 }
 
-$userid = (int)evo()->input_any('id', 0);
+$userid = request_intvar('id');
+if ($action === 11) {
+    $userid = 0; // 新規は id を使わない
+}
 
 if ($userid && !activeUserCheck($userid)) {
     alert()->dumpError();
@@ -20,7 +27,7 @@ if ($userid && !activeUserCheck($userid)) {
 }
 
 global $user;
-if (anyv('a') == 12) {
+if ($action === 12) {
     $user = getUser($userid);
     if (!$user) {
         exit('No user returned while getting username!<p>');
@@ -35,9 +42,13 @@ if (anyv('a') == 12) {
 $formRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
+    // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
+    $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $user = array_merge($user, $form_v);
     $user['dob'] = !empty($user['dob']) ? ConvertDate($user['dob']) : '';
+    $user['blockeduntil'] = ConvertDate($user['blockeduntil'] ?? '');
+    $user['blockedafter'] = ConvertDate($user['blockedafter'] ?? '');
     $user['username'] = $form_v['newusername'] ?? '';
     if (is_array($form_v['allowed_days']??null)) {
         $user['allowed_days'] = implode(',', $form_v['allowed_days']);

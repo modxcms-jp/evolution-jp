@@ -8,12 +8,23 @@ function setOption($fieldName, $value = '')
 
 function getOption($fieldName)
 {
-    return postv($fieldName,
+    return post_strvar($fieldName,
         sessionv($fieldName,
             globalv($fieldName),
             false
         )
     );
+}
+
+// オプション画面の選択をセッションに保存する
+function saveInstallSelection()
+{
+    sessionv('*installdata', post_boolvar('installdata') ? 1 : '');
+    foreach (['template', 'tv', 'chunk', 'snippet', 'plugin', 'module'] as $key) {
+        $value = postv($key);
+        // 配列の中の文字列だけを残す
+        sessionv('*' . $key, is_array($value) ? array_values(array_filter($value, 'is_string')) : []);
+    }
 }
 
 function browser_lang()
@@ -677,10 +688,10 @@ function result($status = 'ok', $ph = [])
 function get_langs()
 {
     $langs = [];
-    foreach (glob('langs/*.inc.php') as $path) {
-        if (substr($path, 6, 1) === '.') continue;
-        $incPos = strpos($path, '.inc.php');
-        $langs[] = $incPos !== false ? substr($path, 6, $incPos - 6) : substr($path, 6);
+    foreach (glob(MODX_SETUP_PATH . 'langs/*.inc.php') ?: [] as $path) {
+        $name = basename($path, '.inc.php');
+        if ($name[0] === '.') continue;
+        $langs[] = $name;
     }
     sort($langs);
     return $langs;
@@ -925,9 +936,10 @@ function getLast($array = [])
 
 function lang_name()
 {
-    if (postv('install_language')) {
-        sessionv('*install_language', postv('install_language'));
-        return postv('install_language');
+    $selected = post_choicevar('install_language', get_langs(), null);
+    if ($selected !== null) {
+        sessionv('*install_language', $selected);
+        return $selected;
     }
 
     return sessionv('install_language', browser_lang());

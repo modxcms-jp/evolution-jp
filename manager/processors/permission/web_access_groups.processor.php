@@ -15,11 +15,11 @@ $tbl_documentgroup_names = evo()->getFullTableName('documentgroup_names');
 $tbl_webgroup_access = evo()->getFullTableName('webgroup_access');
 
 $updategroupaccess = false;
-$operation = $_REQUEST['operation'];
+$operation = request_choicevar('operation', ['add_user_group', 'add_document_group', 'delete_user_group', 'delete_document_group', 'rename_user_group', 'rename_document_group', 'add_document_group_to_user_group', 'remove_document_group_from_user_group'], '');
 
 switch ($operation) {
     case 'add_user_group' :
-        $newgroup = $_REQUEST['newusergroup'];
+        $newgroup = request_strvar('newusergroup');
         if (empty($newgroup)) {
             exit('no group name specified');
         } else {
@@ -37,7 +37,7 @@ switch ($operation) {
         }
         break;
     case 'add_document_group' :
-        $newgroup = $_REQUEST['newdocgroup'];
+        $newgroup = request_strvar('newdocgroup');
         if (empty($newgroup)) {
             exit('no group name specified');
         } else {
@@ -56,7 +56,7 @@ switch ($operation) {
         break;
     case 'delete_user_group' :
         $updategroupaccess = true;
-        $usergroup = (int)$_REQUEST['usergroup'];
+        $usergroup = request_intvar('usergroup');
         if (empty($usergroup)) {
             exit("No user group name specified for deletion");
         } else {
@@ -66,13 +66,13 @@ switch ($operation) {
             if (!$rs = db()->delete($tbl_webgroup_access, "webgroup='{$usergroup}'")) {
                 exit('Unable to delete group from access table. SQL failed.');
             }
-            if (!$rs = db()->delete('[+prefix+]web_groups', "webuser='{$usergroup}'")) {
+            if (!$rs = db()->delete('[+prefix+]web_groups', "webgroup='{$usergroup}'")) {
                 exit('Unable to delete user-group links. SQL failed.');
             }
         }
         break;
     case 'delete_document_group' :
-        $group = (int)$_REQUEST['documentgroup'];
+        $group = request_intvar('documentgroup');
         if (empty($group)) {
             exit("No document group name specified for deletion");
         } else {
@@ -88,37 +88,37 @@ switch ($operation) {
         }
         break;
     case 'rename_user_group' :
-        $newgroupname = db()->escape($_REQUEST['newgroupname']);
-        if (empty($_REQUEST['newgroupname'])) {
+        $newgroupname = request_strvar('newgroupname');
+        if (empty($newgroupname)) {
             exit("no group name specified");
         }
-        $groupid = intval($_REQUEST['groupid']);
+        $groupid = request_intvar('groupid');
         if (empty($groupid)) {
             exit("No group id specified");
         }
-        $f['name'] = db()->escape($_REQUEST['newgroupname']);
+        $f['name'] = db()->escape($newgroupname);
         if (!$rs = db()->update($f, '[+prefix+]webgroup_names', "id='{$groupid}'", '', 1)) {
             exit("Failed to update group name. Possible duplicate group name?");
         }
         break;
     case 'rename_document_group' :
-        $newgroupname = db()->escape($_REQUEST['newgroupname']);
-        if (empty($_REQUEST['newgroupname'])) {
+        $newgroupname = request_strvar('newgroupname');
+        if (empty($newgroupname)) {
             exit("no group name specified");
         }
-        $groupid = (int)$_REQUEST['groupid'];
+        $groupid = request_intvar('groupid');
         if (empty($groupid)) {
             exit("No group id specified");
         }
-        $f['name'] = db()->escape($_REQUEST['newgroupname']);
+        $f['name'] = db()->escape($newgroupname);
         if (!$rs = db()->update($f, $tbl_documentgroup_names, "id='{$groupid}'", '', 1)) {
             exit("Failed to update group name. Possible duplicate group name?");
         }
         break;
     case 'add_document_group_to_user_group' :
         $updategroupaccess = true;
-        $usergroup = (int)$_REQUEST['usergroup'];
-        $docgroup = (int)$_REQUEST['docgroup'];
+        $usergroup = request_intvar('usergroup');
+        $docgroup = request_intvar('docgroup');
         $where = "webgroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $total = db()->getValue(db()->select('count(*)', $tbl_webgroup_access, $where));
         if ($total <= 0) {
@@ -131,7 +131,7 @@ switch ($operation) {
         break;
     case 'remove_document_group_from_user_group' :
         $updategroupaccess = true;
-        $coupling = (int)$_REQUEST['coupling'];
+        $coupling = request_intvar('coupling');
         if (!$rs = db()->delete($tbl_webgroup_access, "id='{$coupling}'")) {
             exit("Failed to remove document group from user group");
         }

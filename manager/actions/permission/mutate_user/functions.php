@@ -130,23 +130,7 @@ function activeUserCheck($userid)
 
 function blockedmode($user)
 {
-    if (!$user) {
-        return '0';
-    }
-
-    if ($user['blocked']??null == 1) {
-        return '1';
-    }
-    if ($user['blockeduntil']??null && $user['blockeduntil'] > time()) {
-        return '1';
-    }
-    if ($user['blockedafter']??null && $user['blockedafter'] < time()) {
-        return '1';
-    }
-    if (isset($user['failedlogins']) && 3 < $user['failedlogins']) {
-        return '1';
-    }
-    return '0';
+    return isUserBlocked($user) ? '1' : '0';
 }
 
 function saveOptions()
@@ -156,7 +140,7 @@ function saveOptions()
         'option',
         [
             'value' => 'next',
-            'selected' => evo()->input_any('save_action') == 'next' ? null : ''
+            'selected' => request_strvar('save_action') === 'next' ? null : ''
         ],
         lang('stay_new')
     );
@@ -164,7 +148,7 @@ function saveOptions()
         'option',
         [
             'value' => 'stay',
-            'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
+            'selected' => request_strvar('save_action') === 'stay' ? null : ''
         ],
         lang('stay')
     );
@@ -172,7 +156,7 @@ function saveOptions()
         'option',
         [
             'value' => 'close',
-            'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
+            'selected' => request_strvar('save_action', 'close') === 'close' ? null : ''
         ],
         lang('close')
     );
@@ -214,9 +198,9 @@ function aButtonSave()
     );
 }
 
-function aButtonDelete($userid)
+function aButtonDelete($action, $userid)
 {
-    if (request_intvar('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
+    if ($action !== 12 || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
         return '';
     }
 

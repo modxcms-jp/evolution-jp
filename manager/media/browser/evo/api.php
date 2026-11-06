@@ -113,7 +113,7 @@ function fbAttempt(callable $fn, &$reason = null)
  */
 function fbNotFoundMessage($name, $message)
 {
-    if (strpos((string) $name, "\u{FFFD}") !== false) {
+    if (is_string($name) && strpos($name, "\u{FFFD}") !== false) {
         return lang('fb_err_bad_encoding');
     }
     return $message;
@@ -363,7 +363,7 @@ function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParse
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $file = $resolver->resolveFile($dir['real'], getv('file', ''));
+    $file = $resolver->resolveFile($dir['real'], get_strvar('file'));
     if ($file === null) {
         fbError('not_found', lang('fb_err_file_not_found'), 404);
     }
@@ -647,7 +647,7 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $name = $modx->sanitizeFilename(postv('name', ''), false);
+    $name = $modx->sanitizeFilename(post_strvar('name'), false);
     if ($name === '') {
         fbError('invalid_name', lang('fb_err_invalid_folder_name'), 400);
     }
@@ -686,8 +686,8 @@ function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentPar
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
-    $target = PathResolver::sanitizeSegment(postv('target', ''));
-    $newName = $modx->sanitizeFilename(postv('newName', ''), false);
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
+    $newName = $modx->sanitizeFilename(post_strvar('newName'), false);
     if ($target === '' || $newName === '') {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
@@ -975,8 +975,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
-    $targetName = postv('target', '');
-    $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
     if ($target === '' || strpos($target, '.') === 0) {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }

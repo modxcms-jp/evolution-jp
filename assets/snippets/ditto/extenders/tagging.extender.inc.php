@@ -203,8 +203,8 @@ if (!class_exists('tagging')) {
         {
             global $dittoID;
 
-            $rawTags = getv($dittoID . 'tags');
-            $getTags = (is_string($rawTags) && $rawTags !== '') ? trim($rawTags) : false;
+            $rawTags = get_strvar($dittoID . 'tags');
+            $getTags = $rawTags !== '' ? trim($rawTags) : false;
             // Get tags from the getv array
 
             $tags1 = [];

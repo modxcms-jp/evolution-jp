@@ -17,7 +17,7 @@ $dm->ph['datetime.format'] = config('datetime_format', 'YYYY/mm/dd');
 $dm->ph['csrf_token'] = csrfTokenField();
 $dm->ph['csrf_meta'] = csrfTokenMeta();
 
-if (postv('tabAction')) {
+if (post_strvar('tabAction')) {
     $dmb->handlePostback();
 } else {
     $dmf->getViews();

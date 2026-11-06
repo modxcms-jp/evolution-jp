@@ -8,31 +8,33 @@ if (!evo()->hasPermission('save_plugin')) {
     alert()->dumpError();
 }
 
+// 新規（101）と更新（102）以外は拒否する
+$mode = post_choicevar('mode', [101, 102], 0);
 $id = post_intvar('id');
-if (postv('mode') == 102 && !$id) {
+if (!$mode || ($mode === 102 && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$rawName = manager()->requireElementName(postv('name'), $_lang['plugin'], 101, 102, $id);
-$name = db()->escape($rawName);
-$description = db()->escape(postv('description', ''));
-$locked = postv('locked') == 'on' ? '1' : '0';
-$plugincode = db()->escape(postv('post', ''));
-$properties = db()->escape(postv('properties', ''));
-$disabled = postv('disabled') == "on" ? '1' : '0';
-$moduleguid = db()->escape(postv('moduleguid', ''));
-$sysevents = postv('sysevents');
-$pluginErrorReporting = db()->escape(postv('error_reporting', 'inherit'));
-$validErrorLevels = ['inherit', '0', '1', '2', '99'];
-if (!in_array($pluginErrorReporting, $validErrorLevels, true)) {
-    $pluginErrorReporting = 'inherit';
-}
-if (empty($sysevents)) {
-    $sysevents[] = 90;
-} // Default OnWebPageInit
 
-switch (postv('mode')) {
-    case '101':
+// 本文と設定は文字列だけを受ける。配列で送られたときは、空で上書きせず保存しない
+$plugincode = postv('post', '');
+$properties = postv('properties', '');
+if (!is_string($plugincode) || !is_string($properties)) {
+    alert()->setError(2);
+    alert()->dumpError();
+}
+
+$rawName = manager()->requireElementName(post_strvar('name'), $_lang['plugin'], 101, 102, $id);
+$description = post_strvar('description');
+$locked = postv('locked') === 'on' ? '1' : '0';
+$disabled = postv('disabled') === 'on' ? '1' : '0';
+$moduleguid = post_strvar('moduleguid');
+// 不正な値は読み捨てる。選ばれていなければ OnWebPageInit（90）にする
+$sysevents = post_idsvar('sysevents') ?: [90];
+$pluginErrorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
+
+switch ($mode) {
+    case 101:
 
         // invoke OnBeforePluginFormSave event
         $tmp = [
@@ -43,7 +45,7 @@ switch (postv('mode')) {
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
-            $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
+            $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='" . db()->escape($rawName) . "' AND disabled='0'");
             $count = db()->getValue($rs);
             if ($count > 0) {
                 manager()->redirectToElementForm(
@@ -55,11 +57,11 @@ switch (postv('mode')) {
             }
         }
 
-        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the new plugin
         $f = [
-            'name' => $name,
+            'name' => $rawName,
             'description' => $description,
             'plugincode' => $plugincode,
             'disabled' => $disabled,
@@ -69,14 +71,14 @@ switch (postv('mode')) {
             'category' => $category
         ];
         $f['error_reporting'] = $pluginErrorReporting;
-        $newid = db()->insert($f, '[+prefix+]site_plugins');
+        $newid = db()->insert(db()->escape($f), '[+prefix+]site_plugins');
         if (!$newid) {
             echo "Couldn't get last insert key!";
             exit;
         }
 
         // save event listeners
-        saveEventListeners($newid, $sysevents, postv('mode'));
+        saveEventListeners($newid, $sysevents, $mode);
 
         // invoke OnPluginFormSave event
         $tmp = [
@@ -88,15 +90,16 @@ switch (postv('mode')) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "102&id={$newid}" : "101";
-            $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+        $stay = post_choicevar('stay', [1, 2], 0);
+        if ($stay) {
+            $a = ($stay === 2) ? "102&id={$newid}" : "101";
+            $header = "Location: index.php?a={$a}&stay={$stay}";
         } else {
             $header = "Location: index.php?a=76";
         }
         header($header);
         break;
-    case '102':
+    case 102:
 
         // invoke OnBeforePluginFormSave event
         $tmp = [
@@ -108,7 +111,7 @@ switch (postv('mode')) {
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
             $rs = db()->select('COUNT(*)', '[+prefix+]site_plugins',
-                "name='{$name}' AND id!='{$id}' AND disabled='0'");
+                "name='" . db()->escape($rawName) . "' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
                 manager()->redirectToElementForm(
                     sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
@@ -119,11 +122,11 @@ switch (postv('mode')) {
             }
         }
 
-        $category = manager()->resolveElementCategory(postv('categoryid'), postv('newcategory'));
+        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
 
         //do stuff to save the edited plugin
         $f = [
-            'name' => $name,
+            'name' => $rawName,
             'description' => $description,
             'plugincode' => $plugincode,
             'disabled' => $disabled,
@@ -133,12 +136,12 @@ switch (postv('mode')) {
             'category' => $category
         ];
         $f['error_reporting'] = $pluginErrorReporting;
-        $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
+        $rs = db()->update(db()->escape($f), '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited plugin not saved!";
         } else {
             // save event listeners
-            saveEventListeners($id, $sysevents, postv('mode'));
+            saveEventListeners($id, $sysevents, $mode);
 
             // invoke OnPluginFormSave event
             $tmp = [
@@ -150,54 +153,43 @@ switch (postv('mode')) {
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            if (postv('stay') != '') {
-                $a = (postv('stay') == '2') ? "102&id={$id}" : "101";
-                $header = "Location: index.php?a={$a}&stay=" . postv('stay');
+            $stay = post_choicevar('stay', [1, 2], 0);
+            if ($stay) {
+                $a = ($stay === 2) ? "102&id={$id}" : "101";
+                $header = "Location: index.php?a={$a}&stay={$stay}";
             } else {
                 $header = 'Location: index.php?a=76';
             }
             header($header);
         }
         break;
-    default:
-        ?>
-        Erm... You supposed to be here now?
-    <?php
 }
 
 
 # Save Plugin Event Listeners
-function saveEventListeners($id, $sysevents, $mode)
+// $sysevents は id の int の配列、$mode は 101（新規）か 102（更新）
+function saveEventListeners($id, array $sysevents, $mode)
 {
-    global $modx;
     // save selected system events
     $tblSitePluginEvents = evo()->getFullTableName('site_plugin_events');
-    $sql = "INSERT INTO {$tblSitePluginEvents} (pluginid,evtid,priority) VALUES ";
-    for ($i = 0, $iMax = count($sysevents); $i < $iMax; $i++) {
-        $event = $sysevents[$i];
-        if (!preg_match('/^[0-9]+\z/', $event)) {
-            continue;
-        } //ignore invalid data
-
-        if ($mode == '101') {
+    $values = [];
+    foreach ($sysevents as $event) {
+        if ($mode === 101) {
             $prioritySql = "select max(priority) as priority from {$tblSitePluginEvents} where evtid={$event}";
         } else {
             $prioritySql = "select priority from {$tblSitePluginEvents} where evtid={$event} and pluginid={$id}";
         }
         $rs = db()->query($prioritySql);
         $prevPriority = db()->getRow($rs);
-        if ($mode == '101') {
+        if ($mode === 101) {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] + 1 : 1;
         } else {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] : 1;
         }
-        if ($i > 0) {
-            $sql .= ",";
-        }
-        $sql .= "(" . $id . "," . $event . "," . $priority . ")";
+        $values[] = "(" . $id . "," . $event . "," . (int)$priority . ")";
     }
     db()->query("DELETE FROM {$tblSitePluginEvents} WHERE pluginid={$id}");
-    if (count($sysevents) > 0) {
-        db()->query($sql);
+    if ($values) {
+        db()->query("INSERT INTO {$tblSitePluginEvents} (pluginid,evtid,priority) VALUES " . implode(',', $values));
     }
 }

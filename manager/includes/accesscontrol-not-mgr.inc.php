@@ -107,7 +107,7 @@ evo()->setPlaceholder(
     preg_replace(
         '/[^a-zA-Z0-9\-_@.]*/',
         '',
-        evo()->input_cookie('modx_remember_manager', '')
+        to_strvar(cookiev('modx_remember_manager'))
     )
 );
 evo()->setPlaceholder('username', $_lang["username"]);

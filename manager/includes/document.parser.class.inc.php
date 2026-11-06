@@ -362,8 +362,14 @@ class DocumentParser
 
     private function getDocumentIdentifier($uri)
     {
-        if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
-            return getv('id');
+        if (get_intvar('id')) {
+            // これまでどおり文字列で返す（documentIdentifier の型を変えない）
+            return (string) get_intvar('id');
+        }
+        // 桁数が多く int に収まらない正の整数は、これまでどおりその値のまま（存在しない文書として 404 になる）
+        $digits = get_strvar('id');
+        if (preg_match('@\A[1-9][0-9]*\z@', $digits)) {
+            return $digits;
         }
 
         $parsedUri = parse_url($uri, PHP_URL_PATH);
@@ -1147,7 +1153,8 @@ class DocumentParser
 
     private function token_auth()
     {
-        if (!$this->input_get('auth_token')) {
+        $authToken = get_strvar('auth_token');
+        if (!$authToken) {
             return null;
         }
         if (!$this->db) {
@@ -1159,7 +1166,7 @@ class DocumentParser
             [
                 where('setting_name', '=', 'auth_token'),
                 'AND',
-                where('setting_value', '=', db()->escape($this->input_get('auth_token')))
+                where('setting_value', '=', db()->escape($authToken))
             ]
         );
         if (!$rs) {
@@ -1210,15 +1217,15 @@ class DocumentParser
         $_SESSION['modx.session.created.time'] = request_time();
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
-        $_SESSION['modx.mgr.session.cookie.lifetime'] = $this->input_any('rememberme')
-            ? (int)$this->config['session.cookie.lifetime']
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = request_strvar('rememberme')
+            ? (int)($this->config['session.cookie.lifetime'] ?? 0)
             : 0
         ;
         setcookie(
             'modx_remember_manager',
             $user['username'],
             [
-                'expires' => $this->input_any('rememberme')
+                'expires' => request_strvar('rememberme')
                     ? (int) strtotime('+1 month')
                     : request_time() - 3600,
                 'path' => MODX_BASE_URL,
@@ -1434,7 +1441,7 @@ class DocumentParser
             return false;
         }
 
-        if ($this->input_any('z') === 'manprev') {
+        if (request_strvar('z') === 'manprev') {
             return true;
         }
 
@@ -1584,7 +1591,7 @@ class DocumentParser
             $filename
         );
 
-        if ($this->session('mgrValidated') || $this->input_post()) {
+        if ($this->session('mgrValidated') || postv()) {
             $this->config['cache_type'] = '1';
             $GLOBALS['cache_type'] = 1;
         }
@@ -3647,15 +3654,6 @@ class DocumentParser
         return false;
     }
 
-    private function is_int($string)
-    {
-        if (is_int($string)) {
-            return true;
-        }
-
-        return is_string($string) && preg_match('@^[1-9][0-9]*$@', $string);
-    }
-
     /**
      * name: getDocumentObject  - used by parser
      * desc: returns a document object - $method: alias, id
@@ -3669,8 +3667,8 @@ class DocumentParser
             }
         }
 
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && $this->is_int($this->input_post('id'))) {
-            $postToken = $this->input_post('token');
+        if ($this->isLoggedIn() && $mode === 'prepareResponse' && post_intvar('id')) {
+            $postToken = post_strvar('token');
             $sessionToken = $this->session('token');
 
             if (!$postToken || !$sessionToken || $postToken !== $sessionToken) {
@@ -3688,7 +3686,7 @@ class DocumentParser
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
             $this->previewObject = $previewObject;
-        } elseif ($this->input_get('revision')) {
+        } elseif (get_strvar('revision')) {
             if (!$this->isLoggedIn()) {
                 $_SESSION['save_uri'] = request_uri();
                 header('location:' . MODX_MANAGER_URL);
@@ -4361,6 +4359,7 @@ class DocumentParser
             $makeurl = "index.php?id={$id}";
         } else {
             $alPath = '';
+            $al = null;
             if (!$alias) {
                 $al = $this->getAliasListing($orgId ? $orgId : $id);
                 $alias = $orgId ? $orgId : $id;
@@ -4388,7 +4387,7 @@ class DocumentParser
 
             if (strpos($alias, '.') !== false && $this->config('suffix_mode')) {
                 $f_url_suffix = '';
-            } elseif ($al['isfolder'] == 1 && $this->config('make_folders') && $id != $this->config('site_start')) {
+            } elseif (($al['isfolder'] ?? 0) == 1 && $this->config('make_folders') && $id != $this->config('site_start')) {
                 $f_url_suffix = '/';
             } else {
                 $f_url_suffix = $this->config('friendly_url_suffix');
@@ -6272,26 +6271,6 @@ class DocumentParser
         // パーミッションを変えられなくても、保存できていれば成功として扱う
         @chmod($target_path, $this->newFilePermissions());
         return true;
-    }
-
-    public function input_get($key = null, $default = null)
-    {
-        return $this->array_get($_GET, $key, $default);
-    }
-
-    public function input_post($key = null, $default = null)
-    {
-        return $this->array_get($_POST, $key, $default);
-    }
-
-    public function input_cookie($key = null, $default = null)
-    {
-        return $this->array_get($_COOKIE, $key, $default);
-    }
-
-    public function input_any($key = null, $default = null)
-    {
-        return anyv($key, $default);
     }
 
     public function server($key = null, $default = null)

@@ -81,7 +81,7 @@ function getEditors($editors)
             '<option>',
             [
                 'value' => $editor,
-                'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
+                'selected' => post_strvar('which_editor', config('which_editor')) === $editor ? null : ''
             ],
             $editor
         );
@@ -175,8 +175,8 @@ function getUDGroups($id)
 
     if (manager()->action == 27 && $id) {
         $docid = $id;
-    } elseif (anyv('pid')) {
-        $docid = anyv('pid');
+    } elseif (request_intvar('pid')) {
+        $docid = request_intvar('pid');
     } else {
         $docid = doc('parent');
     }
@@ -214,15 +214,12 @@ function getUDGroups($id)
             'name'
         );
     }
-    // retain selected doc groups between post
+    // retain selected doc groups between post（配列でないときは空として扱う）
+    $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
     if ($docid) {
-        if (postv('docgroups')) {
-            $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
-        } else {
-            $groupsarray = getGroups($docid);
-        }
+        $groupsarray = array_merge(getGroups($docid), $postedDocgroups);
     } else {
-        $groupsarray = postv('docgroups', []);
+        $groupsarray = $postedDocgroups;
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
@@ -394,7 +391,7 @@ function get_alias_path($id)
         return MODX_BASE_URL;
     }
 
-    $pid = (int)anyv('pid', 0);
+    $pid = request_intvar('pid');
 
     if (!$id && !$pid) {
         return MODX_BASE_URL;
@@ -501,7 +498,7 @@ function checkPermissions($id)
     // 新規作成（4・72）で pid を指定したときは、ここでは止めない
     // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
     $isEditAction = in_array(manager()->action, [27, 131, 132]);
-    if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
+    if (!$isAllowed && ($isEditAction || get_strvar('pid') === '')) {
         alert()->setError(3);
         alert()->dumpError();
     }
@@ -527,8 +524,8 @@ function checkPermissions($id)
             alert()->setError(3);
             alert()->dumpError();
         }
-        if (evo()->input_any('pid')) {
-            if (!evo()->checkPermissions(evo()->input_any('pid', 0))) {
+        if (request_intvar('pid')) {
+            if (!evo()->checkPermissions(request_intvar('pid'))) {
                 alert()->setError(3);
                 alert()->dumpError();
             }
@@ -783,7 +780,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
-        'remember_last_tab' => (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
+        'remember_last_tab' => (config('remember_last_tab') === '2' || get_strvar('stay') === '2') ? 'true' : 'false'
     ];
 }
 

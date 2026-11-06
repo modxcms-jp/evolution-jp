@@ -32,7 +32,7 @@ evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
 $fields = $modx->doc->fixPubStatus(
-    $modx->doc->fixTvNest($_POST)
+    $modx->doc->fixTvNest(postv())
 );
 
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
@@ -51,25 +51,26 @@ if ($parent !== $currentParent) {
     }
 }
 
-if (postv('stay') === 'save_standby') {
+$stay = post_choicevar('stay', ['new', 'stay', 'save_draft', 'save_standby'], '');
+if ($stay === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {
     $rs = $modx->revision->save($id, $fields, 'draft');
 }
 
-if (postv('stay') === 'new') {
+if ($stay === 'new') {
     header(
         sprintf('Location: index.php?a=131&id=%s&r=1', $id)
     );
     return;
 }
-if (postv('stay') === 'stay') {
+if ($stay === 'stay') {
     header(
         sprintf('Location: index.php?a=131&id=%s&stay=stay', $id)
     );
     return;
 }
-if (in_array(postv('stay'), ['save_draft', 'save_standby'])) {
+if (in_array($stay, ['save_draft', 'save_standby'], true)) {
     header(
         sprintf('Location: index.php?a=133&id=%s&r=1', $id)
     );

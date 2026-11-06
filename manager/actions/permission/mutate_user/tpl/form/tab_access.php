@@ -3,7 +3,7 @@
 <div class="sectionBody">
     <?php
     $groupsarray = [];
-    if (evo()->input_get('a') == 12) { // only do this bit if the user is being edited
+    if ($action === 12) { // only do this bit if the user is being edited
         $rs = db()->select(
             '*',
             '[+prefix+]member_groups',
@@ -14,11 +14,9 @@
         }
     }
 
-    // retain selected doc groups between post
-    if (is_array(postv('user_groups'))) {
-        foreach (postv('user_groups') as $v) {
-            $groupsarray[] = $v;
-        }
+    // 保存に失敗した差し戻しなら、送った所属グループを使う
+    if (is_array($user['user_groups'] ?? null)) {
+        $groupsarray = $user['user_groups'];
     }
     echo "<p>" . lang('access_permissions_user_message') . "</p>";
     $rs = db()->select('name, id', '[+prefix+]membergroup_names', '', 'name');
