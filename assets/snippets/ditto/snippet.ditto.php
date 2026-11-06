@@ -725,11 +725,7 @@ if (isset($hiddenFields)) {
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-if (empty($paginate) || !getv($dittoID . 'start')) {
-    $start = 0;
-} else {
-    $start = (int)getv($dittoID . 'start');
-}
+$start = empty($paginate) ? 0 : get_intvar($dittoID . 'start');
 /*
     Param: start
 
@@ -1387,7 +1383,8 @@ if ($count > 0) {
 
 if ($debug == 1) {
     $ditto_params =& event()->params;
-    if (!getv("ditto_{$dittoID}debug")) {
+    $debugAction = get_choicevar("ditto_{$dittoID}debug", ['open', 'save'], '');
+    if ($debugAction === '') {
         $_SESSION["ditto_debug_" . $dittoID] = $ditto->debug->render_popup(
             $ditto,
             $ditto_base,
@@ -1405,8 +1402,8 @@ if ($debug == 1) {
             $resource ?? []
         );
     }
-    if (getv("ditto_{$dittoID}debug")) {
-        switch (getv("ditto_{$dittoID}debug")) {
+    if ($debugAction !== '') {
+        switch ($debugAction) {
             case "open":
                 exit($_SESSION["ditto_debug_{$dittoID}"]);
                 break;

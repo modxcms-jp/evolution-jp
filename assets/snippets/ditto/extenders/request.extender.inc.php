@@ -93,8 +93,7 @@ foreach ($request as $name => $value) {
         Default:
         0 - off
 */
-$debugRequest = anyv($dittoID . "dbg", 0);
-if ($debugRequest == 1 && !empty($debug)) {
+if (request_intvar($dittoID . "dbg") === 1 && !empty($debug)) {
     echo hsc(print_r($variables, true));
 }
 extract($variables);

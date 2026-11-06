@@ -106,21 +106,9 @@ if (!isset($dateFilterDefault)) $dateFilterDefault = 0;
 	0
 */
 if ($source === 'get') {
-    if (!empty(getv($dittoID . 'year')) && getv($dittoID . 'year') != 'false') {
-        $year = (int)getv($dittoID . 'year');
-    } else {
-        $year = 0;
-    }
-    if (!empty(getv($dittoID . 'month')) && getv($dittoID . 'month') != 'false') {
-        $month = (int)getv($dittoID . 'month');
-    } else {
-        $month = 0;
-    }
-    if (!empty(getv($dittoID . 'day')) && getv($dittoID . 'day') != 'false') {
-        $day = (int)getv($dittoID . 'day');
-    } else {
-        $day = 0;
-    }
+    $year = get_intvar($dittoID . 'year');
+    $month = get_intvar($dittoID . 'month');
+    $day = get_intvar($dittoID . 'day');
 } elseif ($source === 'params') {
     $month = isset($month) ? (int)$month : 0;
     /*
@@ -163,8 +151,9 @@ if ($source === 'get') {
     */
 } else {
     $year = $month = $day = 0;
-    if (anyv($dittoID . $source)) {
-        $date = getdate(strtotime(anyv($dittoID . $source)));
+    $sourceValue = request_strvar($dittoID . $source);
+    if ($sourceValue) {
+        $date = getdate(strtotime($sourceValue));
         $year = $date['year'];
         $month = $date['mon'];
         $day = $date['mday'];
