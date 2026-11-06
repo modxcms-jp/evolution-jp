@@ -8,7 +8,10 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]*$@', postv('id', '')) || (mode() === 'edit' && !postv('id'))) {
+// 保存の画面（新規・更新）以外から来た値は止める。id は、新規なら無くてよいが、送られたなら正の整数で、更新では必須
+$postedId = postv('id');
+$hasPostedId = $postedId !== null && $postedId !== '' && $postedId !== '0';
+if (!postedMode() || ($hasPostedId && !post_intvar('id')) || (mode() === 'edit' && !post_intvar('id'))) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -46,7 +49,7 @@ if (mode() === 'new') {
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
-        evo()->webAlertAndQuit($msg, 'index.php?a=' . getv('a'));
+        evo()->webAlertAndQuit($msg, 'index.php?a=' . get_intvar('a'));
     }
 
     if (!empty($param['tv_vars'])) {
@@ -181,7 +184,7 @@ function renumberAliasAfterParentChange($param)
     return evo()->config('friendly_urls')
         && (int)evo()->config('automatic_alias') === 2
         && (string) array_get($param['doc_vars'], 'alias', '') === (string) validated('alias')
-        && trim((string) postv('alias', '')) === '';
+        && trim(post_strvar('alias')) === '';
 }
 
 // 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件）
@@ -399,16 +402,17 @@ function _check_duplicate_alias($id, $alias, $parent)
     if (!$docid) {
         return $alias;
     }
-    evo()->manager->saveFormValues(postv('mode'));
-    $url = sprintf('index.php?a=%s', postv('mode'));
+    evo()->manager->saveFormValues(postedMode());
+    $url = sprintf('index.php?a=%s', postedMode());
     if (mode() === 'edit') {
         $url .= sprintf('&id=%s', $id);
     } elseif (request_intvar('pid')) {
         $url .= sprintf('&pid=%s', request_intvar('pid'));
     }
 
-    if (anyv('stay')) {
-        $url .= '&stay=' . anyv('stay');
+    $stay = request_choicevar('stay', ['new', 'stay', 'close', 'save_draft', 'save_standby'], '');
+    if ($stay) {
+        $url .= '&stay=' . $stay;
     }
 
     evo()->webAlertAndQuit(
@@ -433,8 +437,8 @@ function checkParent()
         return;
     }
     // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
-    evo()->manager->saveFormValues(postv('mode'));
-    $url = sprintf('index.php?a=%s', postv('mode'));
+    evo()->manager->saveFormValues(postedMode());
+    $url = sprintf('index.php?a=%s', postedMode());
     if (mode() === 'edit') {
         $url .= sprintf('&id=%s', validated('id'));
     } elseif (request_intvar('pid')) {
@@ -1014,15 +1018,20 @@ function getDocGroups()
     if (postv('chkalldocs') === 'on') {
         return [];
     }
-    return postv('docgroups', []);
+    // チェックボックスの組。配列でないとき・文字列でない要素は無いものとして扱う
+    $groups = postv('docgroups', []);
+    return is_array($groups) ? array_values(array_filter($groups, 'is_string')) : [];
+}
+
+// 保存の画面の mode（4: リソース・72: ウェブリンクの新規、27: 更新）。それ以外は 0
+function postedMode()
+{
+    return post_choicevar('mode', [4, 72, 27], 0);
 }
 
 function mode()
 {
-    if (postv('mode') == 27) {
-        return 'edit';
-    }
-    return 'new';
+    return postedMode() === 27 ? 'edit' : 'new';
 }
 
 function validated($key = null, $default = null)
@@ -1033,7 +1042,7 @@ function validated($key = null, $default = null)
         evo()->loadExtension('DocAPI');
         $form_v = evo()->doc->setValue(
             evo()->doc->initValue(
-                evo()->doc->fixTvNest($_POST)
+                evo()->doc->fixTvNest(postv())
             )
         );
     }

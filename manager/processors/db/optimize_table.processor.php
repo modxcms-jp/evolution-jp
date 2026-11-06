@@ -7,7 +7,9 @@ if (!hasPermission('settings') || (!hasPermission('logs') && !hasPermission('bk_
     alert()->dumpError();
 }
 
-if (!anyv('t') && !anyv('u')) {
+$table = request_strvar('t');
+$truncateTarget = request_strvar('u');
+if (!$table && !$truncateTarget) {
     alert()->setError(10);
     alert()->dumpError();
 }
@@ -19,10 +21,10 @@ $truncateable = [
     db()->table_prefix . 'manager_log',
 ];
 
-if (anyv('t')) {
+if ($table) {
     // optimize（最適化）は非破壊だが、他DBや無関係なテーブルを触らせないよう
     // 自サイトの接頭辞を持つテーブル名に限定する
-    $t = (string) anyv('t');
+    $t = $table;
     if (preg_match('@^' . preg_quote(db()->table_prefix, '@') . '[0-9a-zA-Z_]+$@', $t)) {
         db()->optimize($t);
     } else {
@@ -30,8 +32,8 @@ if (anyv('t')) {
         alert()->dumpError();
     }
 }
-if (anyv('u')) {
-    $u = (string) anyv('u');
+if ($truncateTarget) {
+    $u = $truncateTarget;
     if (in_array($u, $truncateable, true)) {
         db()->truncate($u);
     } else {
@@ -40,4 +42,4 @@ if (anyv('u')) {
     }
 }
 
-header('Location: index.php?a=' . (int)anyv('mode') . '&s=4');
+header('Location: index.php?a=' . request_intvar('mode') . '&s=4');

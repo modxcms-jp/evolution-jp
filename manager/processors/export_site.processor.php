@@ -28,40 +28,46 @@ if (!hasPermission('export_static')) {
 
 $job = new EvoSiteExportJob();
 
-switch (postv('op')) {
+switch (post_choicevar('op', ['start', 'step', 'status', 'cancel'], '')) {
     case 'start':
         $target = 'all';
         $ids = '';
-        if (postv('target') === 'allow_ids' && trim((string)postv('allow_ids')) !== '') {
+        $postedTarget = post_choicevar('target', ['all', 'allow_ids', 'ignore_ids'], '');
+        $allowIds = post_strvar('allow_ids');
+        $ignoreIds = post_strvar('ignore_ids');
+        $replBefore = post_strvar('repl_before');
+        $replAfter = post_strvar('repl_after');
+        $includeNoncache = post_boolvar('includenoncache');
+        if ($postedTarget === 'allow_ids' && trim($allowIds) !== '') {
             $target = 'allow';
-            $ids = postv('allow_ids');
-        } elseif (postv('target') === 'ignore_ids' && trim((string)postv('ignore_ids')) !== '') {
+            $ids = $allowIds;
+        } elseif ($postedTarget === 'ignore_ids' && trim($ignoreIds) !== '') {
             $target = 'ignore';
-            $ids = postv('ignore_ids');
+            $ids = $ignoreIds;
         }
 
         // 次に画面を開いたときの既定値
-        sessionv('*export_allow_ids', postv('allow_ids'));
-        sessionv('*export_ignore_ids', postv('ignore_ids'));
-        sessionv('*export_target', postv('target'));
-        sessionv('*export_includenoncache', postv('includenoncache', 0));
-        sessionv('*export_repl_before', postv('repl_before'));
-        sessionv('*export_repl_after', postv('repl_after'));
+        sessionv('*export_allow_ids', $allowIds);
+        sessionv('*export_ignore_ids', $ignoreIds);
+        sessionv('*export_target', $postedTarget);
+        sessionv('*export_includenoncache', $includeNoncache);
+        sessionv('*export_repl_before', $replBefore);
+        sessionv('*export_repl_after', $replAfter);
         // 処理中でも中止などの要求を受けられるよう、セッションのロックを手放す
         session_write_close();
 
         $result = $job->start([
             'target'           => $target,
-            'ids'              => array_map('intval', array_map('trim', explode(',', (string)$ids))),
-            'include_noncache' => postv('includenoncache', 0) == 1,
-            'repl_before'      => postv('repl_before'),
-            'repl_after'       => postv('repl_after'),
+            'ids'              => array_map('intval', array_map('trim', explode(',', $ids))),
+            'include_noncache' => $includeNoncache,
+            'repl_before'      => $replBefore,
+            'repl_after'       => $replAfter,
         ]);
         exportSiteLog('HTML export: start', $result);
         break;
     case 'step':
         session_write_close();
-        $result = $job->step(EvoSiteExportJob::screenBudget(), '', (string)postv('job_id', ''));
+        $result = $job->step(EvoSiteExportJob::screenBudget(), '', post_strvar('job_id'));
         break;
     case 'status':
         session_write_close();
