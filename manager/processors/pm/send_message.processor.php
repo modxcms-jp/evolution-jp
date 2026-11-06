@@ -15,8 +15,8 @@ $rs = db()->select(
 $from = db()->getRow($rs);
 
 $sendto = request_choicevar('sendto', ['u', 'g', 'a'], '');
-$subject = request_strvar('messagesubject', '(no subject)');
-$message = request_strvar('messagebody', '(no message)');
+$subject = request_strvar('messagesubject');
+$message = request_strvar('messagebody');
 
 if ($sendto === 'u') {
     if (!request_intvar('user')) {
