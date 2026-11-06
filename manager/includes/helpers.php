@@ -473,6 +473,12 @@ function to_strvar($value, $default = '')
     return is_string($value) && $value !== '' ? $value : $default;
 }
 
+// 文字列ならそのまま（空・空白だけでも加工しない）、それ以外（null・配列・数値など）は $default
+function to_textvar($value, $default = null)
+{
+    return is_string($value) ? $value : $default;
+}
+
 // bool はそのまま。1・0 の int と、'1'・'on'・'true'・'yes' / '0'・'off'・'false'・'no'（前後の空白と大文字小文字は無視）を真偽値にする。それ以外は $default
 function to_boolvar($value, $default = false)
 {
@@ -546,6 +552,22 @@ function post_strvar($key, $default = '')
 function request_strvar($key, $default = '')
 {
     return to_strvar(anyv($key), $default);
+}
+
+// 文字列として読む。空や空白もそのまま（GET / POST / 両方）
+function get_textvar($key, $default = null)
+{
+    return to_textvar(getv($key), $default);
+}
+
+function post_textvar($key, $default = null)
+{
+    return to_textvar(postv($key), $default);
+}
+
+function request_textvar($key, $default = null)
+{
+    return to_textvar(anyv($key), $default);
 }
 
 // 真偽値として読む（GET / POST / 両方）

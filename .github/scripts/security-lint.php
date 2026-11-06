@@ -215,7 +215,7 @@ function statements($toks)
 // sql-embed
 // ---------------------------------------------------------------------------
 
-const REQUEST_FUNCS = ['getv', 'anyv', 'postv', 'cookiev', 'get_strvar', 'post_strvar', 'request_strvar'];
+const REQUEST_FUNCS = ['getv', 'anyv', 'postv', 'cookiev', 'get_strvar', 'post_strvar', 'request_strvar', 'get_textvar', 'post_textvar', 'request_textvar'];
 const REQUEST_VARS = ['$_GET', '$_POST', '$_REQUEST', '$_COOKIE'];
 
 // 引数の値が、そのまま文字列として結果に出てこない関数（判定・整数化・エスケープ・ハッシュなど）

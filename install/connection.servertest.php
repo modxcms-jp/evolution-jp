@@ -9,9 +9,9 @@ $_lang = includeLang(sessionv('install_language', 'english'));
 guardInstallerRequest();
 
 // POSTデータを取得
-$host = post_text('host', '');
-$username = post_text('uid', '');
-$password = post_text('pwd', '');
+$host = post_textvar('host', '');
+$username = post_textvar('uid', '');
+$password = post_textvar('pwd', '');
 
 // POSTデータが送信されていない場合はエラー
 if (!$host) {

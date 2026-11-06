@@ -16,29 +16,14 @@ function getOption($fieldName)
     );
 }
 
-// 加工せずに文字列で読む（パスワードなど、空や空白をそのまま受ける値用）。無い・配列のときは $default
-function post_text($key, $default = null)
-{
-    $value = postv($key);
-    return is_string($value) ? $value : $default;
-}
-
-// 同梱の部品の選択（チェックボックスの組）。配列の中の文字列だけを残す
-function post_selection($key)
-{
-    $value = postv($key);
-    if (!is_array($value)) {
-        return [];
-    }
-    return array_values(array_filter($value, 'is_string'));
-}
-
 // オプション画面の選択をセッションに保存する
 function saveInstallSelection()
 {
     sessionv('*installdata', post_boolvar('installdata') ? 1 : '');
     foreach (['template', 'tv', 'chunk', 'snippet', 'plugin', 'module'] as $key) {
-        sessionv('*' . $key, post_selection($key));
+        $value = postv($key);
+        // 配列の中の文字列だけを残す
+        sessionv('*' . $key, is_array($value) ? array_values(array_filter($value, 'is_string')) : []);
     }
 }
 
@@ -703,10 +688,10 @@ function result($status = 'ok', $ph = [])
 function get_langs()
 {
     $langs = [];
-    foreach (glob('langs/*.inc.php') as $path) {
-        if (substr($path, 6, 1) === '.') continue;
-        $incPos = strpos($path, '.inc.php');
-        $langs[] = $incPos !== false ? substr($path, 6, $incPos - 6) : substr($path, 6);
+    foreach (glob(MODX_SETUP_PATH . 'langs/*.inc.php') ?: [] as $path) {
+        $name = basename($path, '.inc.php');
+        if ($name[0] === '.') continue;
+        $langs[] = $name;
     }
     sort($langs);
     return $langs;

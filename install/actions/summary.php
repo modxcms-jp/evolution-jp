@@ -4,13 +4,13 @@ $chkagree = post_boolvar('chkagree', (bool) sessionv('chkagree'));
 $isUpgrade = sessionv('is_upgradeable');
 if ($isUpgrade) {
     $chkagree = 1;
-    $_SESSION['chkagree'] = 1;
+    sessionv('*chkagree', 1);
 }
 
 if (sessionv('prevAction') === 'options') {
     saveInstallSelection();
     if (sessionv('is_upgradeable')) {
-        $_SESSION['convert_to_utf8mb4'] = post_strvar('convert_to_utf8mb4', '1') === '0' ? 0 : 1;
+        sessionv('*convert_to_utf8mb4', post_strvar('convert_to_utf8mb4', '1') === '0' ? 0 : 1);
     }
 }
 

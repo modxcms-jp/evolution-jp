@@ -6,17 +6,17 @@ if (postv('chkagree') !== null) {
     sessionv('*chkagree', post_boolvar('chkagree') ? 1 : 0);
 }
 
-if (post_text('adminname') !== null) {
-    sessionv('*adminname', post_text('adminname'));
+if (post_textvar('adminname') !== null) {
+    sessionv('*adminname', post_textvar('adminname'));
 }
-if (post_text('adminemail') !== null) {
-    sessionv('*adminemail', post_text('adminemail'));
+if (post_textvar('adminemail') !== null) {
+    sessionv('*adminemail', post_textvar('adminemail'));
 }
-if (post_text('adminpass') !== null) {
-    sessionv('*adminpass', post_text('adminpass'));
+if (post_textvar('adminpass') !== null) {
+    sessionv('*adminpass', post_textvar('adminpass'));
 }
-if (post_text('adminpassconfirm') !== null) {
-    sessionv('*adminpassconfirm', post_text('adminpassconfirm'));
+if (post_textvar('adminpassconfirm') !== null) {
+    sessionv('*adminpassconfirm', post_textvar('adminpassconfirm'));
 }
 
 if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
