@@ -17,7 +17,9 @@
  *               リクエストは配列や空の値も送れるので、PHP 8 以降で警告や TypeError になる。型つきのヘルパー（get_strvar() など）で
  *               取り出すか、is_string() / is_array() で確かめてから渡す（assets/docs/request-input.md）。
  *               既定値を渡しても配列は届くので、既定値の有無は問わない。直接の入れ子（trim(getv('x'))）だけを見て、
- *               変数を経由する形（$x = getv('x'); trim($x);）は追わない。走査は manager/・assets/（tinymce を除く）・install/
+ *               変数を経由する形（$x = getv('x'); trim($x);）は追わない。走査は manager/・assets/（assets/plugins 配下の各プラグインの tinymce で始まるディレクトリを除く）・install/。
+ *               既知の取りこぼし: 括弧で包む（trim((getv('x')))）・@ を付ける（trim(@getv('x'))）・連結する（hsc(getv('x') . 'a')）形。
+ *               メソッドは evo()->hsc() / ->htmlspecialchars() だけ対象にする。(string) の直後の生の値も検出する
  *
  * 実行: php .github/scripts/security-lint.php
  * 違反がなければ "0 violations" と出して終了コード 0、あれば 1 で終わる。
@@ -49,7 +51,7 @@ function main($root, $csrfExcludedActions)
     }
     foreach (['manager', 'assets', 'install'] as $dir) {
         foreach (phpFiles($root . '/' . $dir) as $file) {
-            if (preg_match('@/tinymce[^/]*/@', relPath($file))) {
+            if (preg_match('@^assets/plugins/[^/]+/tinymce[^/]*/@', relPath($file))) {
                 continue;
             }
             foreach (lintRawInput($file) as $v) {
@@ -436,7 +438,7 @@ function isNeutralized($toks, $i, $end, $from, $to)
         return true;
     }
     // 三項演算子の条件（?: は値が流れる）
-    if ($next && $next[0] === '?' && !isTok($toks[$end + 2] ?? null, ':')) {
+    if ($next && $next[0] === '?' && !isElvisAt($toks, $end + 1)) {
         return true;
     }
     // 配列の添字として使う（$a[getv('x')]）
@@ -646,7 +648,49 @@ const RAW_SINK_FIRST_ARG = ['in_array'];
 function isRawSinkFunc($name)
 {
     $name = strtolower($name);
-    return in_array($name, RAW_SINK_FUNCS, true) || (bool)preg_match('/^(str|mb_str)/', $name);
+    return in_array($name, RAW_SINK_FUNCS, true) || (bool)preg_match('/^(str|mb_str)(?!eam_)/', $name);
+}
+
+// $i の '?' が、?: （短縮の三項演算子）の一部か
+function isElvisAt($toks, $i)
+{
+    return ($toks[$i][0] ?? null) === '?' && isTok($toks[$i + 1] ?? null, ':');
+}
+
+/**
+ * $i が関数呼び出しの名前なら [名前, 名前の始まりの位置, メソッドか]。そうでなければ null。
+ * 先頭の \ は落とす。Foo\trim や namespace\trim のような修飾つきの名前、new・function・:: の直後は対象外
+ */
+function callAt($toks, $i)
+{
+    $t = $toks[$i] ?? null;
+    if ($t === null || !isTok($toks[$i + 1] ?? null, '(')) {
+        return null;
+    }
+    $first = $i;
+    if ($t[0] === T_STRING) {
+        $name = $t[1];
+        if (isTok($toks[$i - 1] ?? null, T_NS_SEPARATOR)) {
+            $first = $i - 1;
+            $before = $toks[$i - 2] ?? null;
+            if ($before && in_array($before[0], [T_STRING, T_NAMESPACE], true)) {
+                return null;
+            }
+        }
+    } elseif (defined('T_NAME_FULLY_QUALIFIED') && $t[0] === constant('T_NAME_FULLY_QUALIFIED')) {
+        $name = substr($t[1], 1);
+        if (strpos($name, '\\') !== false) {
+            return null;
+        }
+    } else {
+        return null;
+    }
+    $prev = $toks[$first - 1][0] ?? null;
+    if (in_array($prev, [T_DOUBLE_COLON, T_FUNCTION, T_NEW], true)) {
+        return null;
+    }
+    $isMethod = $prev === T_OBJECT_OPERATOR || (defined('T_NULLSAFE_OBJECT_OPERATOR') && $prev === constant('T_NULLSAFE_OBJECT_OPERATOR'));
+    return [$name, $first, $isMethod];
 }
 
 function lintRawInput($file)
@@ -655,13 +699,17 @@ function lintRawInput($file)
     $out = [];
     $n = count($toks);
     for ($i = 0; $i < $n; $i++) {
-        $t = $toks[$i];
-        if ($t[0] !== T_STRING || !isTok($toks[$i + 1] ?? null, '(')
-            || in_array($toks[$i - 1][0] ?? null, [T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW], true)) {
+        $call = callAt($toks, $i);
+        if ($call === null) {
             continue;
         }
-        $first = in_array(strtolower($t[1]), RAW_SINK_FIRST_ARG, true);
-        if (!$first && !isRawSinkFunc($t[1])) {
+        [$name, , $isMethod] = $call;
+        // メソッドは、出力の関数（evo()->hsc() など）だけ対象にする
+        if ($isMethod && !in_array(strtolower($name), ['hsc', 'htmlspecialchars'], true)) {
+            continue;
+        }
+        $first = in_array(strtolower($name), RAW_SINK_FIRST_ARG, true);
+        if (!$first && !isRawSinkFunc($name)) {
             continue;
         }
         $close = matchParen($toks, $i + 1);
@@ -669,7 +717,7 @@ function lintRawInput($file)
         $depth = 0;
         for ($j = $i + 2; $j <= $close; $j++) {
             $id = $toks[$j][0];
-            if ($id === '(' || $id === '[' || $id === '{') {
+            if ($id === '(' || $id === '[' || $id === '{' || $id === T_CURLY_OPEN || $id === T_DOLLAR_OPEN_CURLY_BRACES) {
                 $depth++;
             } elseif ($id === ')' || $id === ']' || $id === '}') {
                 $depth--;
@@ -677,17 +725,23 @@ function lintRawInput($file)
             if (!($j === $close || ($depth === 0 && $id === ','))) {
                 continue;
             }
-            // 引数 $argStart..$j-1 が、生の値のヘルパーの呼び出しで始まるか（あとに ?: / ?? が続く形も、値がそのまま流れる）
-            $a = $toks[$argStart] ?? null;
-            if ($a && $a[0] === T_STRING && in_array(strtolower($a[1]), RAW_FUNCS, true)
-                && isTok($toks[$argStart + 1] ?? null, '(')
-                && !in_array($toks[$argStart - 1][0] ?? null, [T_OBJECT_OPERATOR, T_DOUBLE_COLON], true)) {
-                $end = matchParen($toks, $argStart + 1);
+            // 引数 $argStart..$j-1 が、生の値のヘルパーの呼び出しで始まるか。
+            // あとに ?: / ?? が続く形も、値がそのまま流れる（? : の三項演算子は条件なので対象外）。(string) の直後なら、配列で警告になる
+            $s = $argStart;
+            $cast = isTok($toks[$s] ?? null, T_STRING_CAST);
+            if ($cast) {
+                $s++;
+            }
+            // PHP 7 は \getv を T_NS_SEPARATOR と T_STRING に分けるので、名前の位置は 1 つ後ろ
+            $nameAt = isTok($toks[$s] ?? null, T_NS_SEPARATOR) ? $s + 1 : $s;
+            $src = callAt($toks, $nameAt);
+            if ($src !== null && !$src[2] && $src[1] === $s && in_array(strtolower($src[0]), RAW_FUNCS, true)) {
+                $end = matchParen($toks, $nameAt + 1);
                 $next = $toks[$end + 1] ?? null;
-                if ($next && ($end + 1 === $j || $next[0] === '?' || $next[0] === T_COALESCE)) {
-                    $arg = $toks[$argStart + 2][1] ?? '';
-                    $out[] = violation($file, $a[2], 'raw-input',
-                        sprintf('%s() へ、型を確かめていない %s(%s) をそのまま渡している（型つきのヘルパーで取り出すか、is_string() / is_array() で確かめる）', $t[1], $a[1], $arg));
+                if ($cast || ($next && ($end + 1 === $j || isElvisAt($toks, $end + 1) || $next[0] === T_COALESCE))) {
+                    $arg = $toks[$nameAt + 2][1] ?? '';
+                    $out[] = violation($file, $toks[$s][2], 'raw-input',
+                        sprintf('%s() へ、型を確かめていない %s(%s) をそのまま渡している（型つきのヘルパーで取り出すか、is_string() / is_array() で確かめる）', $name, $src[0], $arg));
                 }
             }
             if ($first) {
