@@ -404,9 +404,6 @@ function _check_duplicate_alias($id, $alias, $parent)
     }
     evo()->manager->saveFormValues(postedMode());
     $url = formReturnUrl();
-    if (mode() === 'new' && request_intvar('pid')) {
-        $url .= sprintf('&pid=%s', request_intvar('pid'));
-    }
 
     $stay = request_choicevar('stay', ['new', 'stay', 'close', 'save_draft', 'save_standby'], '');
     if ($stay) {
@@ -437,9 +434,6 @@ function checkParent()
     // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
     evo()->manager->saveFormValues(postedMode());
     $url = formReturnUrl();
-    if (mode() === 'new' && request_intvar('pid')) {
-        $url .= sprintf('&pid=%s', request_intvar('pid'));
-    }
     evo()->webAlertAndQuit($message, $url);
 }
 

@@ -215,8 +215,13 @@ function getUDGroups($id)
         );
     }
     // retain selected doc groups between post（配列でないときは空として扱う）
+    $restored = reloadFormValues();
     $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
-    if ($docid) {
+    if ($restored !== null && !postv()) {
+        // GET で差し戻されたときは、差し戻しの選択だけにする（外したグループも外れたまま）
+        $docgroups = evo()->array_get($restored, 'docgroups', []);
+        $groupsarray = is_array($docgroups) ? $docgroups : [];
+    } elseif ($docid) {
         $groupsarray = array_merge(getGroups($docid), $postedDocgroups);
     } else {
         $groupsarray = $postedDocgroups;
@@ -639,6 +644,16 @@ if (!function_exists('default_value')) {
     }
 }
 
+// mergeReloadValues() で重ねた差し戻しの入力。無ければ null（TV・ドキュメントグループの描画が読む）
+function reloadFormValues($values = false)
+{
+    static $restored = null;
+    if ($values !== false) {
+        $restored = $values;
+    }
+    return $restored;
+}
+
 // restore saved form
 // POST での開き直しと、保存の処理が入力エラーで GET に戻したときの、どちらも自分の画面のキーの差し戻しを読む
 function mergeReloadValues($docObject)
@@ -651,6 +666,13 @@ function mergeReloadValues($docObject)
     if (!$populate || (int)evo()->array_get($populate, 'id', 0) !== request_intvar('id')) {
         return $docObject;
     }
+    // GET で戻った新規で URL に pid があり、差し戻しの親と違えば、別の新規作成の画面なので重ねない
+    // （差し戻しの戻り先の URL には pid を付けない）
+    if (!postv() && !request_intvar('id') && request_intvar('pid')
+        && request_intvar('pid') !== (int)evo()->array_get($populate, 'parent', 0)) {
+        return $docObject;
+    }
+    reloadFormValues($populate);
     $docObject = array_merge($docObject, $populate);
     if (evo()->array_get($populate, 'ta')) {
         $docObject['content'] = $populate['ta'];

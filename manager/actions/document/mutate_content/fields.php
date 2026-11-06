@@ -318,7 +318,7 @@ function fieldsTV()
         return '';
     }
 
-    $form_v = $_POST ? $_POST : [];
+    $form_v = reloadFormValues() ?: [];
     $i = 0;
     $output = [];
     $hidden = [];
