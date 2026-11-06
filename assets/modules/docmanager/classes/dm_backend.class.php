@@ -430,7 +430,7 @@ class DocManagerBackend
 
         /* document date settings */
         $dateval = [];
-        $dateError = '';
+        $invalidInputs = [];
 
         $dateFields = [
             'pub_date' => 'pubdate',
@@ -439,12 +439,13 @@ class DocManagerBackend
             'editedon' => 'editedon',
         ];
         foreach ($dateFields as $column => $inputName) {
-            if (post_strvar($inputName) === '') {
+            $input = trim(post_strvar($inputName));
+            if ($input === '') {
                 continue;
             }
-            $timestamp = evo()->toTimeStamp(post_strvar($inputName));
+            $timestamp = evo()->toTimeStamp($input);
             if ($timestamp === '') {
-                $dateError .= '<br />' . $this->dm->lang['DM_process_date_invalid'] . ' (' . hsc(post_strvar($inputName)) . ')';
+                $invalidInputs[] = hsc($input);
                 continue;
             }
             $dateval[$column] = $timestamp;
@@ -466,8 +467,9 @@ class DocManagerBackend
         $values = rtrim($pids, ' OR ');
 
         // 解釈できない日付があるときは、DB に何も書かずにエラーとして知らせる
-        if ($dateError !== '') {
-            $this->dm->ph['update.message'] = $dateError;
+        if ($invalidInputs) {
+            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_date_invalid']
+                . '<br />' . implode('<br />', $invalidInputs);
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
         }
 

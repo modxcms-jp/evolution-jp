@@ -46,6 +46,14 @@ if ($draft) {
 
 if (postv('publishoption') === 'reserve' && post_strvar('pub_date')) {
     $pub_date = evo()->toTimeStamp(post_strvar('pub_date'));
+    if ($pub_date === '') {
+        // 解釈できない日付で即時に公開しない
+        evo()->webAlertAndQuit(
+            lang('mgrlog_dateinvalid'),
+            sprintf('index.php?a=133&id=%s', $docid)
+        );
+        exit;
+    }
     if (request_time() < $pub_date) {
         setStandBy($docid, $pub_date);
         evo()->setCacheRefreshTime($pub_date);
