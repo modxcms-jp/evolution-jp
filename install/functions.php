@@ -8,12 +8,38 @@ function setOption($fieldName, $value = '')
 
 function getOption($fieldName)
 {
-    return postv($fieldName,
+    return post_strvar($fieldName,
         sessionv($fieldName,
             globalv($fieldName),
             false
         )
     );
+}
+
+// 加工せずに文字列で読む（パスワードなど、空や空白をそのまま受ける値用）。無い・配列のときは $default
+function post_text($key, $default = null)
+{
+    $value = postv($key);
+    return is_string($value) ? $value : $default;
+}
+
+// 同梱の部品の選択（チェックボックスの組）。配列の中の文字列だけを残す
+function post_selection($key)
+{
+    $value = postv($key);
+    if (!is_array($value)) {
+        return [];
+    }
+    return array_values(array_filter($value, 'is_string'));
+}
+
+// オプション画面の選択をセッションに保存する
+function saveInstallSelection()
+{
+    sessionv('*installdata', post_boolvar('installdata') ? 1 : '');
+    foreach (['template', 'tv', 'chunk', 'snippet', 'plugin', 'module'] as $key) {
+        sessionv('*' . $key, post_selection($key));
+    }
 }
 
 function browser_lang()
@@ -925,9 +951,10 @@ function getLast($array = [])
 
 function lang_name()
 {
-    if (postv('install_language')) {
-        sessionv('*install_language', postv('install_language'));
-        return postv('install_language');
+    $selected = post_choicevar('install_language', get_langs(), null);
+    if ($selected !== null) {
+        sessionv('*install_language', $selected);
+        return $selected;
     }
 
     return sessionv('install_language', browser_lang());

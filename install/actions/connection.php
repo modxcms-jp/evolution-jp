@@ -1,13 +1,7 @@
 <?php
 
 if (sessionv('prevAction') === 'options') {
-    sessionv('*installdata', postv('installdata', ''));
-    sessionv('*template', postv('template', []));
-    sessionv('*tv', postv('tv', []));
-    sessionv('*chunk', postv('chunk', []));
-    sessionv('*snippet', postv('snippet', []));
-    sessionv('*plugin', postv('plugin', []));
-    sessionv('*module', postv('module', []));
+    saveInstallSelection();
 }
 
 $ph = array_merge(

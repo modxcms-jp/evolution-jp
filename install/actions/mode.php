@@ -1,14 +1,14 @@
 <?php
 
 //back from next
-if (postv('adminemail') !== null) {
-    sessionv('*adminemail', postv('adminemail'));
+if (post_text('adminemail') !== null) {
+    sessionv('*adminemail', post_text('adminemail'));
 }
-if (postv('adminpass') !== null) {
-    sessionv('*adminpass', postv('adminpass'));
+if (post_text('adminpass') !== null) {
+    sessionv('*adminpass', post_text('adminpass'));
 }
-if (postv('adminpassconfirm') !== null) {
-    sessionv('*adminpassconfirm', postv('adminpassconfirm'));
+if (post_text('adminpassconfirm') !== null) {
+    sessionv('*adminpassconfirm', post_text('adminpassconfirm'));
 }
 
 $ph['is_upgradeable'] = sessionv('is_upgradeable');

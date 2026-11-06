@@ -8,17 +8,17 @@ $modx = new DocumentParser;
 require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
 require_once(MODX_BASE_PATH . 'install/functions.php');
 
-includeLang(postv('language') ?: getOption('install_language'));
+includeLang(post_strvar('language', getOption('install_language')));
 guardInstallerRequest();
 
 // AJAXリクエストで送信された接続情報を使用
 // JavaScriptは 'host', 'uid', 'pwd' という名前で送信している
-$database_server = postv('host');
-$database_user = postv('uid');
-$database_password = postv('pwd');
+$database_server = post_text('host', '');
+$database_user = post_text('uid', '');
+$database_password = post_text('pwd', '');
 
 // POSTデータが送信されていない場合はエラー
-if (!$database_server && !postv('dbase')) {
+if (!$database_server && !post_text('dbase')) {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', 'データベース接続情報を入力してください'));
 }
 
@@ -48,17 +48,17 @@ if (!$connected) {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
 }
 
-$db_name              = trim(postv('dbase', ''), '`');
+$db_name              = trim(post_text('dbase', ''), '`');
 if ($db_name === '') {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed_could_not_create_database')));
 }
 
-$table_prefix         = trim(postv('table_prefix', ''));
+$table_prefix         = trim(post_text('table_prefix', ''));
 if ($table_prefix) {
     $table_prefix = rtrim($table_prefix, '_') . '_';
 }
-$db_collation         = trim(postv('database_collation', ''));
-$db_connection_method = trim(postv('database_connection_method', ''));
+$db_collation         = trim(post_text('database_collation', ''));
+$db_connection_method = trim(post_text('database_connection_method', ''));
 $underscorePos        = strpos($db_collation, '_');
 $db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 

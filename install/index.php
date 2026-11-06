@@ -52,7 +52,7 @@ if (!install_sessionCheck()) {
 }
 
 sessionv('*prevAction', sessionv('currentAction', ''));
-$action = anyv('action', 'mode');
+$action = request_choicevar('action', ['mode', 'connection', 'options', 'summary', 'install'], 'mode');
 sessionv('*currentAction', $action);
 
 // データベース接続があれば接続して、テーブルの存在で判定
