@@ -407,7 +407,7 @@ if (is_array($evtOut)) {
                                 <?= isSelectedTreeSortDir('ASC') ?>
                             ><?= $_lang['sort_asc'] ?></option>
                         </select>
-                        <input type="hidden" name="dt" value="<?= htmlspecialchars(anyv('dt', '')) ?>"/>
+                        <input type="hidden" name="dt" value="<?= hsc(request_strvar('dt')) ?>"/>
                     </td>
                     <td width="1%"><a
                         href="#"

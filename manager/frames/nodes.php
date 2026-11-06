@@ -16,10 +16,10 @@ if (evo()->getLoginUserType() !== 'manager') {
 
 if (getv('savestateonly')) {
     // 開いているフォルダの ID（整数）だけを残す
-    $opened = getv('opened');
+    $opened = get_strvar('opened');
     sessionv(
         '*openedArray',
-        is_string($opened) && $opened !== ''
+        $opened !== ''
             ? array_values(array_filter(array_map('intval', explode('|', $opened))))
             : []
     );
@@ -27,12 +27,12 @@ if (getv('savestateonly')) {
 }
 
 // setup sorting
-if(anyv('tree_sortby')) {
-    $_SESSION['tree_sortby'] = anyv('tree_sortby');
+if (request_strvar('tree_sortby')) {
+    $_SESSION['tree_sortby'] = request_strvar('tree_sortby');
 }
 
-if(anyv('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = anyv('tree_sortdir');
+if (request_strvar('tree_sortdir')) {
+    $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
 }
 
 global $opened, $opened2, $closed2;
@@ -49,11 +49,11 @@ if (sessionv('openedArray')) {
 $opened2 = [];
 $closed2 = [];
 
-$expandAll = (int)getv('expandAll');
+$expandAll = get_intvar('expandAll');
 
 if (get_strvar('offset') !== '') {
     // 件数超過で省略したリソースの続き
-    echo getNodes(get_intvar('indent'), get_intvar('parent'), 0, '', max(0, (int)getv('offset')));
+    echo getNodes(get_intvar('indent'), get_intvar('parent'), 0, '', get_intvar('offset'));
     exit;
 }
 

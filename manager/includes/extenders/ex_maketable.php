@@ -348,7 +348,7 @@ EOT;
     {
         global $_lang, $modx;
 
-        $currentPage = getv('page') && preg_match('@^[1-9][0-9]*$@', getv('page')) ? getv('page') : 1;
+        $currentPage = get_intvar('page') ?: 1;
 
         $totalPages = ceil($totalRecords / $this->pageLimit);
         if ($totalPages < 2) {
@@ -462,7 +462,7 @@ EOT;
      */
     public function handlePaging()
     {
-        $offset = (preg_match('@^[1-9][0-9]*$@', getv('page', ''))) ? getv('page') - 1 : 0;
+        $offset = get_intvar('page') ? get_intvar('page') - 1 : 0;
         return sprintf(' LIMIT %s,%s', $offset * $this->pageLimit, $this->pageLimit);
     }
 
@@ -503,7 +503,7 @@ EOT;
             evo()->documentIdentifier,
             rtrim($qs, '&'),
             $key,
-            getv('orderdir') && strtolower(getv('orderdir')) === 'desc' ? 'desc' : 'asc',
+            strtolower(get_strvar('orderdir')) === 'desc' ? 'desc' : 'asc',
             $text
         );
     }

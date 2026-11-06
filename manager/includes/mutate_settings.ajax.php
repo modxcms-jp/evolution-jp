@@ -3,7 +3,11 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-if (!isset($_POST['action'])) {
+if (postv('action') === null) {
+    exit;
+}
+// key・value・lang は文字列だけを受ける（配列は拒否）
+if (!is_string(postv('key', '')) || !is_string(postv('value', '')) || !is_string(postv('lang', ''))) {
     exit;
 }
 if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('key', ''))) {
@@ -16,10 +20,10 @@ if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', postv('lang', ''))) {
     exit;
 }
 
-$post = db()->escape($_POST);
-$post_lang = isset($post['lang']) ? $post['lang'] : '';
-$post_key = isset($post['key']) ? $post['key'] : '';
-$post_value = isset($post['value']) ? $post['value'] : '';
+// 上で許可した文字だけなので引用符は含まないが、DB に渡す文字列の組み立ての前に念のためエスケープする
+$post_lang = db()->escape(postv('lang', ''));
+$post_key = db()->escape(postv('key', ''));
+$post_value = db()->escape(postv('value', ''));
 
 if (postv('action') === 'get') {
     echo getStringFromLangFile($post_key, $post_lang);

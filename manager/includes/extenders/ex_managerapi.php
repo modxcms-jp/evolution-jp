@@ -163,7 +163,7 @@ class ManagerAPI
         }
         $values = $this->loadFormValues();
         // 別の要素（新規か id が違う）向けの入力は混ぜない
-        if ((int)($values['id'] ?? 0) !== (int)getv('id', 0)) {
+        if ((int)($values['id'] ?? 0) !== get_intvar('id')) {
             return $content;
         }
         if (isset($values['categoryid'])) {
@@ -992,11 +992,13 @@ class ManagerAPI
         global $modx;
 
         if (!$id) {
-            if (!evo()->input_any('pid')) {
+            // pid が送られたかどうかだけを見る（'0'・空は無いものと同じ）
+            if (!anyv('pid')) {
                 return true;
             }
 
-            $id = evo()->input_any('pid');
+            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ下で拒否される
+            $id = request_intvar('pid');
         }
 
         if (!evo()->conf_var('allowed_parents')) {

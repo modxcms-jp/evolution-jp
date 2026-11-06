@@ -1096,7 +1096,11 @@ trait DocumentParserSubParserTrait
 
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
-        if (strpos($docid, ',') !== false) {
+        // 配列など文字列・数値でない値（id[]=1 を渡したときなど）は、権限があるとみなさない
+        if (is_array($docid) || is_object($docid)) {
+            return false;
+        }
+        if (is_string($docid) && strpos($docid, ',') !== false) {
             $docid = substr($docid, 0, strpos($docid, ','));
         }
 
