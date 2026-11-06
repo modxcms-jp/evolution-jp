@@ -54,9 +54,9 @@ class ForgotManagerPassword
         }
 
         if (getv('action') === 'send_email') {
-            $_SESSION['fmp_sent'] = $this->sendFmpMail(get_strvar('email'))
+            sessionv('*fmp_sent', $this->sendFmpMail(get_strvar('email'))
                 ? $this->lang('email_sent')
-                : $this->getErrorOutput() . $this->formLink();
+                : $this->getErrorOutput() . $this->formLink());
             $this->removeLoginTouchFile();
             evo()->sendRedirect(MODX_MANAGER_URL);
             exit;
@@ -74,10 +74,10 @@ class ForgotManagerPassword
             $user_id = false;
         }
         if ($user_id) {
-            $_SESSION['goto_pwd_edit'] = '1';
+            sessionv('*goto_pwd_edit', '1');
             $captchaCode = get_strvar('captcha_code');
             if ($captchaCode) {
-                $_SESSION['veriword'] = $captchaCode;
+                sessionv('*veriword', $captchaCode);
             }
             $this->unBlock($user_id);
         }

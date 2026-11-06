@@ -106,9 +106,9 @@ if (!isset($dateFilterDefault)) $dateFilterDefault = 0;
 	0
 */
 if ($source === 'get') {
-    $year = get_intvar($dittoID . 'year');
-    $month = get_intvar($dittoID . 'month');
-    $day = get_intvar($dittoID . 'day');
+    $year = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'year')) ? (int)$raw : 0;
+    $month = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'month')) ? (int)$raw : 0;
+    $day = preg_match('/\A[0-9]{1,4}\z/', $raw = get_strvar($dittoID . 'day')) ? (int)$raw : 0;
 } elseif ($source === 'params') {
     $month = isset($month) ? (int)$month : 0;
     /*

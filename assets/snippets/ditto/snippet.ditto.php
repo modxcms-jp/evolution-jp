@@ -725,7 +725,7 @@ if (isset($hiddenFields)) {
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-$start = empty($paginate) ? 0 : get_intvar($dittoID . 'start');
+$start = !empty($paginate) && preg_match('/\A[0-9]{1,9}\z/', $rawStart = get_strvar($dittoID . 'start')) ? (int)$rawStart : 0;
 /*
     Param: start
 
