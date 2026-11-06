@@ -19,6 +19,8 @@ Issue: #1059
   - [x] (2026-11-06) M4b: エレメントの保存の処理（`module`・`tmplvars`・`plugin`・`snippet`・`chunk`・`template`）で型つきへ置き換え。本文は加工せず、DB に渡す直前だけエスケープする。名前変更による参照の置き換えの SQL を直した（PR は Artifacts and Notes）
   - [x] (2026-11-06) M4c: リソース・下書き・ログイン・システム設定・メッセージ・バックアップ・テーブルの最適化・サイトの書き出し・カテゴリの削除の処理で型つきへ置き換え。メッセージの送信の `extract()` を消した（PR は Artifacts and Notes）
 - [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
+  - [x] (2026-11-06) M5a: `manager/includes/`・`frames/`・`manager/` 直下（入口の振り分け・アクセス制御・ロックアウト・DocumentParser など 18 ファイル）で型つきへ置き換え。本体の `evo()->input_*()` の呼び出しが無くなった（PR は Artifacts and Notes）
+  - [ ] M5b: `manager/media/`（ファイルブラウザ）
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
 - [ ] M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消す（M3〜M6 で本体の呼び出しを置き換えたあと）
 - [ ] M7: 置き換え漏れを検出する検査を `security-lint.php` に足す
@@ -52,6 +54,10 @@ Issue: #1059
 - 2026-11-06（M4c の検証）: 形式違いの値を `(int)` で丸めて使っていたため、意図しない対象を操作していた箇所があった（修正前から）。カテゴリの削除は `catId[]` で id 1 のカテゴリを、`1e1` で id 10 のカテゴリを消していた。テンプレートの一括変更は、読めない値を 0 にして全リソースのテンプレートを書き換えていた。リソースの保存は、形式違いの `mode` を新規として保存していた。メッセージの宛先は、形式違いの値で別の利用者に送っていた。どれも型つきで読み、当てはまらない値は拒否する形にした。
 - 2026-11-06（M4c の自己レビュー）: システム設定の既定のテンプレートの「(blank)」は、画面から空文字で届く。0（テンプレートなし）として受けないと、一括変更が働かなくなる（最初の置き換えで入った回帰。直した）。画面が送る値を確かめずに型を絞ると、こうした回帰が入るので、選択肢の値は画面のテンプレートで確かめる。
 - 2026-11-06（M4c）: ログインの処理（ログインしていない利用者から届く経路）は、成否・ロック・失敗回数・パスワードの照合・セッション・cookie を変えていない（修正前後で同じことを画面から確かめた）。ユーザー名・パスワードが配列のときは、修正前は 500 になり、修正後は入力の確認で拒否する。
+- 2026-11-06（M5a の検証）: 画面の振り分け（`manager/index.php`）とロックアウトは `(int)` や緩い比較で `a` を読んでいて、`a=08` のような書き方で、管理画面の利用を止めた利用者がロックアウトを素通りしてログアウトの処理に入れた。振り分け・アクセス制御（POST 限定の判定）・ロックアウトを、すべて同じ `request_intvar('a')` で読む形にそろえた。正の整数以外の `a` は未実装の画面に進む。
+- 2026-11-06（M5a の検証）: PHP 8 で 500 になる修正前からの不具合を 2 つ直した。自動ログインのトークンと「ログイン状態を保持」を一緒に使うと、`token_auth()` が設定の読み込み前に設定の値を読んでいた。`makeUrl()` は未定義の変数を読む経路があった。
+- 2026-11-06（M5a の自己レビュー）: MakeTable（`ex_maketable.php`）の並び替えの部品は、URL の `orderby`・`orderdir` を無害化せずに `ORDER BY` の文字列にしていた（release-1.2.4J も同じ）。本体と同梱のコードからは呼ばれず、サイト側のスニペットが使ったときだけ問題になる作り。サイト側の責任の範囲と判断し、main で決まった形（列名と asc・desc）だけを受けるように直した。1.2 系には載せない。受ける列名は、先頭が英字かアンダースコアで、別名用の `.` を 1 つまで含むものに狭まった（カンマ区切りの複数の列やバッククォートは受けない）。
+- 2026-11-06（M5a の検証）: リソースの公開日に解釈できない日付を入れて保存すると、strict モードで 500 になる（修正前から）。#1089 に分けた。
 
 ## Decision Log
 
@@ -82,6 +88,9 @@ Issue: #1059
 - 2026-11-06 / Claude（M4b）: チャンクの公開日・公開終了日による公開の切り替えが効いていない件は、直すと保存される値が変わるので #1080 に分けた。
 - 2026-11-06 / Claude（M4c）: 0 が意味を持つ id（システム設定のテンプレート、リソースの保存の id が「無い・0 なら新規」）は、それぞれの処理の中の小さな関数で読んだ（`postedTemplateId()`、`$hasPostedId`）。`*_numvar()` を足すか、`abort_if_invalid_id()` が受け取り元を選べるようにするかは、M5 以降で同じ形がそろってから決める。
 - 2026-11-06 / Claude（M4c）: ログインの `ajax` の判定は `post_boolvar('ajax')` にそろえた（画面は `1` だけを送る。`true`・`yes`・`on` も ajax として扱うようになる）。
+- 2026-11-06 / Claude（M5a）: `manager/index.php` は、`a` が指定されたかどうかを生の値の真偽で見て、値は `request_intvar('a')` で読む（`a=0`・`a=` は修正前と同じく未指定として扱う）。「GET と POST の両方で `a` が送られた」の判定は、型つきにすると配列や `'0'` が漏れて拒否の範囲が狭まるので、生の値の真偽のまま残した。
+- 2026-11-06 / Claude（M5a の自己レビュー）: 保存のモードの規則（4・72・27）は `save_resource.processor.php` の `postedMode()` を正本にし、DocAPI（`ex_docapi.php`）は `setValue($form_v, $mode)` で呼び出し元から受け取る（汎用の API はリクエストを読まない）。
+- 2026-11-06 / Claude（M5a の自己レビュー）: 公開側の `getDocumentIdentifier()` は、正の整数の `id` を文字列のまま返す（修正前と同じ型）。整数に収まらない桁数の `id` も、修正前どおり存在しない文書（404）として扱う。
 
 ## Outcomes & Retrospective
 
@@ -179,7 +188,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（base は M4b のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（base は M4c のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
