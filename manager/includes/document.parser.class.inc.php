@@ -6273,26 +6273,6 @@ class DocumentParser
         return true;
     }
 
-    public function input_get($key = null, $default = null)
-    {
-        return $this->array_get($_GET, $key, $default);
-    }
-
-    public function input_post($key = null, $default = null)
-    {
-        return $this->array_get($_POST, $key, $default);
-    }
-
-    public function input_cookie($key = null, $default = null)
-    {
-        return $this->array_get($_COOKIE, $key, $default);
-    }
-
-    public function input_any($key = null, $default = null)
-    {
-        return anyv($key, $default);
-    }
-
     public function server($key = null, $default = null)
     {
         if (!isset($_SERVER)) {

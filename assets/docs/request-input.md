@@ -91,8 +91,6 @@
 
 `hsc()` などで出力するものは、生の値のまま渡さない。配列が来ると PHP 8 以降で警告や TypeError になるので、`*_strvar()` で取り出す（`hsc(get_strvar('q'))`）。選択状態を決めるための `==` の比較も、比べる値の型に合わせて `*_intvar()` / `*_strvar()` で取り出す。数値の比較は、値が無いときの 0 が 0 の行に一致しないよう、`get_intvar('x') && (int)$row['x'] === get_intvar('x')` の形にする。
 
-`evo()->input_get()` / `input_post()` / `input_any()` は、`getv()` / `postv()` / `anyv()` と同じ生の値を返す。同じ規則で読み、`get_` / `post_` / `request_` の型つきヘルパーに置き換える。
-
 ## 関連
 
 - SQL に入れる値の無害化は、型つきヘルパーの役目ではない。DB 操作の直前に `db()->escape()` か `(int)` で行う（`AGENTS.md` の「DB操作のセキュリティ」）。
