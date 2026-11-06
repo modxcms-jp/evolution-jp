@@ -151,10 +151,10 @@ switch ($mode) {
         }
 
         // update all references to this TV
-        $name = db()->escape($rawName);
-        $was_name_raw = $was_name;
-        $was_name = db()->escape($was_name);
-        if ($rawName !== $was_name_raw) {
+        if ($rawName !== $was_name) {
+            // 生の名前を SQL に入れる直前に 1 回だけエスケープする
+            $name = db()->escape($rawName);
+            $was_name = db()->escape($was_name);
             db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
             db()->update(
                 "content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",

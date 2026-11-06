@@ -71,8 +71,11 @@ function entity($key)
         return $unpub_date;
     }
 
-    // category
-    return manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+    if ($key === 'category') {
+        return manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+    }
+
+    return null;
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない

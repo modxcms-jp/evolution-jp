@@ -498,7 +498,6 @@ function content($key, $default = null)
 // create globally unique identifiers (guid)
 function createGUID()
 {
-    mt_srand((float)microtime() * 1000000);
     return md5(
         uniqid(getmypid() . mt_rand() . (float)microtime() * 1000000, 1)
     );
