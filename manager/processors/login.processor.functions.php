@@ -15,7 +15,7 @@ function checkSafedUri()
 function jsAlert($msg)
 {
     header('Content-Type: text/html; charset=UTF-8');
-    if (postv('ajax') == 1) {
+    if (post_boolvar('ajax')) {
         echo $msg;
     } else {
         echo sprintf(
@@ -26,10 +26,24 @@ function jsAlert($msg)
     }
 }
 
-function validateLoginInput()
+// 送られたユーザー名。POST を優先し、無ければ GET。文字列でなければ空（配列は文字列関数に渡せないため）
+function loginUsername()
 {
     $username = postv('username', getv('username'));
+    return is_string($username) ? $username : '';
+}
+
+// 送られたパスワード。加工しない。無い・文字列でないときは null
+function loginPassword()
+{
     $password = postv('password');
+    return is_string($password) ? $password : null;
+}
+
+function validateLoginInput()
+{
+    $username = loginUsername();
+    $password = loginPassword();
 
     if (!$username || trim((string)$username) === '') {
         jsAlert('ユーザー名とパスワードを入力してください');
@@ -147,10 +161,10 @@ function input($key, $default = null)
     }
 
     $input = [
-        'username'     => postv('username', getv('username')),
-        'password'     => postv('password'),
-        'captcha_code' => postv('captcha_code', ''),
-        'rememberme'   => postv('rememberme', '')
+        'username'     => loginUsername(),
+        'password'     => loginPassword(),
+        'captcha_code' => post_strvar('captcha_code'),
+        'rememberme'   => post_strvar('rememberme')
     ];
     if (strpos($input['username'], ':roleid=') !== false) {
         [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
@@ -370,7 +384,7 @@ function redirectAfterLogin()
 {
     if (user_config('manager_login_startup')) {
         $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
-        if (evo()->input_post('ajax')) {
+        if (post_strvar('ajax')) {
             exit($header);
         }
         header($header);
@@ -384,7 +398,7 @@ function redirectAfterLogin()
         $uri = MODX_MANAGER_URL;
     }
     $header = 'Location: ' . $uri;
-    if (evo()->input_post('ajax') == 1) {
+    if (post_boolvar('ajax')) {
         exit($header);
     }
     header($header);
@@ -427,7 +441,7 @@ function managerLogin()
     $_SESSION['modx.session.created.time'] = request_time();
     $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(user('internalKey'));
 
-    if (anyv('rememberme')) {
+    if (request_strvar('rememberme')) {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
         setcookie(
             'modx_remember_manager',
