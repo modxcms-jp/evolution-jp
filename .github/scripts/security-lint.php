@@ -11,6 +11,13 @@
  *               csrfProtectedActions() の一覧にも、このスクリプトの除外リストにも載っていないもの
  *   csrf-get    非推奨の csrfUrl() / EvoCsrf.url() の使用。状態を変える操作は GET では受け付けない（405）ので、
  *               リンク・ボタンには data-evo-post 属性を付け、JS からは EvoCsrf.post() で送る
+ *   raw-input   生の値のヘルパー（getv() / postv() / anyv() / cookiev()）の戻り値を、型を確かめずに、そのまま文字列の関数
+ *               （preg_*・trim 系・str* 系・substr・explode・implode・sprintf など）、ファイルの関数（is_file・file_exists など）、
+ *               count()・in_array() の第 1 引数、出力の関数（hsc・htmlspecialchars・urlencode・rawurlencode）の引数に渡す書き方。
+ *               リクエストは配列や空の値も送れるので、PHP 8 以降で警告や TypeError になる。型つきのヘルパー（get_strvar() など）で
+ *               取り出すか、is_string() / is_array() で確かめてから渡す（assets/docs/request-input.md）。
+ *               既定値を渡しても配列は届くので、既定値の有無は問わない。直接の入れ子（trim(getv('x'))）だけを見て、
+ *               変数を経由する形（$x = getv('x'); trim($x);）は追わない。走査は manager/・assets/（tinymce を除く）・install/
  *
  * 実行: php .github/scripts/security-lint.php
  * 違反がなければ "0 violations" と出して終了コード 0、あれば 1 で終わる。
@@ -38,6 +45,16 @@ function main($root, $csrfExcludedActions)
     foreach (phpFiles($root . '/manager', ['manager/includes/controls/', 'manager/media/']) as $file) {
         foreach (lintJsEscape($file) as $v) {
             $violations[] = $v;
+        }
+    }
+    foreach (['manager', 'assets', 'install'] as $dir) {
+        foreach (phpFiles($root . '/' . $dir) as $file) {
+            if (preg_match('@/tinymce[^/]*/@', relPath($file))) {
+                continue;
+            }
+            foreach (lintRawInput($file) as $v) {
+                $violations[] = $v;
+            }
         }
     }
     foreach (lintCsrfActions($root, $csrfExcludedActions) as $v) {
@@ -606,6 +623,80 @@ function looksSql($text, $isFormat)
     return (bool)preg_match('/(^|[\s(,`.])`?[A-Za-z_][\w`.]*`?\s*(=|<>|!=|<=|>=|<|>|\sLIKE|\sIN\s*\()\s*[\'"(]\s*$/i', $text)
         || (bool)preg_match('/(^|[\s(,`])`?[A-Za-z_][\w`.]*`?\s*(=|<>|!=|<=|>=|\sIN\s*\()\s*$/i', $text) && !preg_match('/[?&]\w*=\s*$|https?:|index\.php|Location:/i', $text)
         || (bool)preg_match('/\b(SELECT|UPDATE|INSERT INTO|DELETE FROM|WHERE|ORDER BY|LIMIT)\b/', $text);
+}
+
+// ---------------------------------------------------------------------------
+// raw-input
+// ---------------------------------------------------------------------------
+
+// 生の値のヘルパー（型を確かめない）
+const RAW_FUNCS = ['getv', 'postv', 'anyv', 'cookiev'];
+
+// 文字列や配列でない値が来ると、PHP 8 以降で警告・TypeError になる関数のうち、全引数を見るもの
+const RAW_SINK_FUNCS = [
+    'trim', 'ltrim', 'rtrim', 'chop', 'substr', 'mb_substr', 'explode', 'implode', 'join', 'sprintf', 'vsprintf', 'printf',
+    'is_file', 'file_exists', 'is_dir', 'is_readable', 'is_writable', 'is_link', 'realpath', 'basename', 'dirname', 'pathinfo',
+    'count', 'sizeof', 'hsc', 'htmlspecialchars', 'htmlspecialchars_decode', 'html_entity_decode', 'htmlentities', 'urlencode', 'rawurlencode',
+    'urldecode', 'rawurldecode', 'nl2br', 'ucfirst', 'lcfirst', 'ucwords', 'addslashes', 'stripslashes', 'json_decode', 'parse_str',
+    'preg_match', 'preg_match_all', 'preg_replace', 'preg_replace_callback', 'preg_split', 'preg_quote', 'preg_grep',
+];
+// 第 1 引数だけを見る関数（第 2 引数以降は配列などが正しい）
+const RAW_SINK_FIRST_ARG = ['in_array'];
+
+function isRawSinkFunc($name)
+{
+    $name = strtolower($name);
+    return in_array($name, RAW_SINK_FUNCS, true) || (bool)preg_match('/^(str|mb_str)/', $name);
+}
+
+function lintRawInput($file)
+{
+    $toks = tokens($file);
+    $out = [];
+    $n = count($toks);
+    for ($i = 0; $i < $n; $i++) {
+        $t = $toks[$i];
+        if ($t[0] !== T_STRING || !isTok($toks[$i + 1] ?? null, '(')
+            || in_array($toks[$i - 1][0] ?? null, [T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW], true)) {
+            continue;
+        }
+        $first = in_array(strtolower($t[1]), RAW_SINK_FIRST_ARG, true);
+        if (!$first && !isRawSinkFunc($t[1])) {
+            continue;
+        }
+        $close = matchParen($toks, $i + 1);
+        $argStart = $i + 2;
+        $depth = 0;
+        for ($j = $i + 2; $j <= $close; $j++) {
+            $id = $toks[$j][0];
+            if ($id === '(' || $id === '[' || $id === '{') {
+                $depth++;
+            } elseif ($id === ')' || $id === ']' || $id === '}') {
+                $depth--;
+            }
+            if (!($j === $close || ($depth === 0 && $id === ','))) {
+                continue;
+            }
+            // 引数 $argStart..$j-1 が、生の値のヘルパーの呼び出しで始まるか（あとに ?: / ?? が続く形も、値がそのまま流れる）
+            $a = $toks[$argStart] ?? null;
+            if ($a && $a[0] === T_STRING && in_array(strtolower($a[1]), RAW_FUNCS, true)
+                && isTok($toks[$argStart + 1] ?? null, '(')
+                && !in_array($toks[$argStart - 1][0] ?? null, [T_OBJECT_OPERATOR, T_DOUBLE_COLON], true)) {
+                $end = matchParen($toks, $argStart + 1);
+                $next = $toks[$end + 1] ?? null;
+                if ($next && ($end + 1 === $j || $next[0] === '?' || $next[0] === T_COALESCE)) {
+                    $arg = $toks[$argStart + 2][1] ?? '';
+                    $out[] = violation($file, $a[2], 'raw-input',
+                        sprintf('%s() へ、型を確かめていない %s(%s) をそのまま渡している（型つきのヘルパーで取り出すか、is_string() / is_array() で確かめる）', $t[1], $a[1], $arg));
+                }
+            }
+            if ($first) {
+                break;
+            }
+            $argStart = $j + 1;
+        }
+    }
+    return $out;
 }
 
 // ---------------------------------------------------------------------------
