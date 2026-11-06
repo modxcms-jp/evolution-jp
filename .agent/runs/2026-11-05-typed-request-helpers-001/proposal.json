@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-05-typed-request-helpers",
+    "run_id": "2026-11-05-typed-request-helpers-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-07T03:40:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-035",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "summary": "リクエストの値の読み方（型・既定値・許可する値）を変える変更では、修正前後の比較の入力に、画面のフォームとリンクが実際に送る値と、空文字を必ず入れる。修正前に空文字がそのまま使われていたなら、修正後も同じ結果になることを確かめる",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-036",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "summary": "tester が作業ツリー（またはそれをマウントした検証環境）で確かめている間は、worker にその作業ツリーを編集させない。直しが要るときは、tester の結果を受け取ってから worker に渡す",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        }
+    ]
+}

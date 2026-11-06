@@ -21,7 +21,7 @@ Issue: #1059
 - [x] (2026-11-06) M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
   - [x] (2026-11-06) M5a: `manager/includes/`・`frames/`・`manager/` 直下（入口の振り分け・アクセス制御・ロックアウト・DocumentParser など 18 ファイル）で型つきへ置き換え。本体の `evo()->input_*()` の呼び出しが無くなった（PR は Artifacts and Notes）
   - [x] (2026-11-06) M5b: `manager/media/`（ファイルブラウザ）で型つきへ置き換え。文字列でないフォルダ・名前は、パスを解決する 1 か所（`PathResolver`）で拒否する（PR は Artifacts and Notes）
-- [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
+- [x] (2026-11-06) M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
   - [x] (2026-11-06) M6a: 同梱のスニペット（Ditto・eForm・WebLogin）とプラグイン（QuickManager・ManagerManager・FMP）で型つきへ置き換え。WebLogin の照合を厳密な比較にそろえ、キャプチャを使うときは既定のフォームに欄を出す（PR は Artifacts and Notes）
   - [x] (2026-11-06) M6d: DocManager モジュール（`assets/modules/docmanager/`）で型つきへ置き換え。形式違いの値で意図しないリソースを書き換えていた経路を止めた（PR は Artifacts and Notes）
   - [x] (2026-11-06) M6i: インストーラ（`install/`）で型つきへ置き換え。空でも加工しない文字列のための `*_textvar()` を helpers.php に足した（PR は Artifacts and Notes）
@@ -125,6 +125,8 @@ Issue: #1059
 改善できること: 型つきのヘルパーを足す判断（`*_uintvar`・`*_textvar`）が、置き換えの途中まで先送りになり、その間に処理ごとの小さな関数や正規表現が増えた。同じ形が 2 回出た時点で、共通のヘルパーにするかを決めるとよい。検証の初回で、CMS 自身のエラー画面の形式を見落とす、同じ作業ツリーを tester と worker が同時に触りかける、などの手順の穴もあった。
 
 残したこと（別の Issue）: `anyv()` / `request_*()` を get / post に絞り、残りを `any_*` へ改名する（#1070）、`$_REQUEST` にクッキーが混ざる件（#1073）、設定の `extract()`（#1074）、ほかに #1076・#1078・#1080・#1089・#1103・#1109・#1110。変数を経由して生の値を文字列関数へ渡す形は、lint では検出しない（M7 の判断）。
+
+マージ後（2026-11-07）: 実サイトでのレビューで、500 や正常な値の結果の変化は無かった。空文字を保っていた 2 か所（管理ログの項目の id、インストーラーの `getOption()`）が `*_strvar` で既定値に変わっていたので、`*_textvar` に戻した（#1112）。`*_strvar` へ置き換えるときは、修正前に空文字がそのまま使われていたかを確かめる。管理ユーザーの生年月日が保存で変換されない件は #1076 に足した。
 
 ## Context and Orientation
 

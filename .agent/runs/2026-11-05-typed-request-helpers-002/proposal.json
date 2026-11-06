@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-05-typed-request-helpers",
+    "run_id": "2026-11-05-typed-request-helpers-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-07T03:32:11+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": []
+}

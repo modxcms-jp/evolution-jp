@@ -271,6 +271,22 @@
             "added_at": "2026-11-05T19:05:00+09:00",
             "last_used_at": "2026-11-05T19:05:00+09:00",
             "source": "2026-11-04-filemanager-to-file-browser-001"
+        },
+        {
+            "id": "change-035",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-07T03:40:00+09:00",
+            "last_used_at": "2026-11-07T03:40:00+09:00",
+            "source": "2026-11-05-typed-request-helpers-001"
+        },
+        {
+            "id": "change-036",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-07T03:40:00+09:00",
+            "last_used_at": "2026-11-07T03:40:00+09:00",
+            "source": "2026-11-05-typed-request-helpers-001"
         }
     ]
 }

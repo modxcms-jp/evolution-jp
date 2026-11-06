@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-05-typed-request-helpers",
+    "run_id": "2026-11-05-typed-request-helpers-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-07T03:40:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "型を絞る置き換えで入った回帰は、どれも「画面が実際に送る値」か「修正前に意味のあった空文字・特別な形」から出ていた（ddAutoFolders の「ID,印」、Ditto のゼロで詰めた月、既定のテンプレートの「(blank)」の空文字、ファイルブラウザの配列のフォルダがルートになる件）。段階ごとの tester の比較で多くは PR の前に見つけたが、管理ログの項目の id とインストーラーの getOption() の空文字（*_strvar で既定値に変わった）は、マージ後に実サイトのレビューで見つかった（#1112）。入力の読み方を変える変更では、tester の比較の入力に、画面のフォームとリンクが送る値と、空文字（修正前にそのまま使われていたか）を必ず入れるとよい",
+            "evidence": [
+                "trace.jsonl",
+                ".agent/plans/archive/2026-11-07-typed-request-helpers.md"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "process_gap",
+            "summary": "検証の初回で、tester が作業ツリーをマウントした検証環境で比べている間に、worker が同じ作業ツリーを編集しかけた。比べている途中でファイルが変わると、修正前後の比較が成り立たない。tester が作業ツリーを使っている間は worker に編集させない、という順番の決まりが runner に無かった（以降の段階では、worker → tester → reviewer を直列にして避けた）",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "共通のヘルパーを足す判断（*_uintvar・*_textvar）が置き換えの途中まで先送りになり、その間に処理ごとの小さな関数や正規表現が増え、後の段階（M6n）で置き換え直した。同じ形が 2 回出た時点で、共通のヘルパーにするかを決めると手戻りが減る。ExecPlan の振り返りに書いたので、スキルへの反映はしない",
+            "evidence": [
+                ".agent/plans/archive/2026-11-07-typed-request-helpers.md"
+            ],
+            "suggested_action": "none",
+            "target": ".agent/plans/archive/2026-11-07-typed-request-helpers.md",
+            "confidence": "medium"
+        }
+    ]
+}
