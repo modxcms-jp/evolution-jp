@@ -83,7 +83,7 @@ foreach ($request as $name => $value) {
 // Numeric settings: read as a non-negative integer (leading zeros allowed, "05" is 5, "0" stays 0).
 // An empty or malformed value is the same as not specified, so the default or the snippet call value is used.
 // display, total and summarize (an alias of display) also accept "all".
-foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks', 'start'] as $numericName) {
+foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
     if (!isset($variables[$numericName])) {
         continue;
     }
