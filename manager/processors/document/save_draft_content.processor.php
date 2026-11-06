@@ -31,6 +31,18 @@ manager()->saveFormValues(4);
 evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
+// 解釈できない日付は DB に渡す前に拒否して、編集画面へ戻す（通常の保存と同じ規則）
+foreach (['pub_date', 'unpub_date'] as $dateField) {
+    $dateValue = postv($dateField, '');
+    if ($dateValue !== '' && evo()->toTimeStamp($dateValue) === '') {
+        evo()->webAlertAndQuit(
+            lang('mgrlog_dateinvalid'),
+            sprintf('index.php?a=27&id=%s', $id)
+        );
+        exit;
+    }
+}
+
 $fields = $modx->doc->fixPubStatus(
     $modx->doc->fixTvNest(postv())
 );

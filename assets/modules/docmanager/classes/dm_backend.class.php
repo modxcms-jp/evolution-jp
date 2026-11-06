@@ -430,18 +430,24 @@ class DocManagerBackend
 
         /* document date settings */
         $dateval = [];
+        $dateError = '';
 
-        if (post_strvar('pubdate') !== '') {
-            $dateval['pub_date'] = evo()->toTimeStamp(post_strvar('pubdate'));
-        }
-        if (post_strvar('unpubdate') !== '') {
-            $dateval['unpub_date'] = evo()->toTimeStamp(post_strvar('unpubdate'));
-        }
-        if (post_strvar('createdon') !== '') {
-            $dateval['createdon'] = evo()->toTimeStamp(post_strvar('createdon'));
-        }
-        if (post_strvar('editedon') !== '') {
-            $dateval['editedon'] = evo()->toTimeStamp(post_strvar('editedon'));
+        $dateFields = [
+            'pub_date' => 'pubdate',
+            'unpub_date' => 'unpubdate',
+            'createdon' => 'createdon',
+            'editedon' => 'editedon',
+        ];
+        foreach ($dateFields as $column => $inputName) {
+            if (post_strvar($inputName) === '') {
+                continue;
+            }
+            $timestamp = evo()->toTimeStamp(post_strvar($inputName));
+            if ($timestamp === '') {
+                $dateError .= '<br />' . $this->dm->lang['DM_process_date_invalid'] . ' (' . hsc(post_strvar($inputName)) . ')';
+                continue;
+            }
+            $dateval[$column] = $timestamp;
         }
 
         /* document author settings */
@@ -458,6 +464,12 @@ class DocManagerBackend
         $pids = $results[0];
         $error = $results[1];
         $values = rtrim($pids, ' OR ');
+
+        // 解釈できない日付があるときは、DB に何も書かずにエラーとして知らせる
+        if ($dateError !== '') {
+            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $dateError;
+            return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
+        }
 
         // setoption「-」のときは、公開状態などの項目は変えない
         if ($pids !== '' && $fieldval !== '' && $newvalue !== -1) {

@@ -392,7 +392,8 @@ class DocAPI
                     if ($value === '') {
                         $value = 0;
                     } else {
-                        $value = evo()->toTimeStamp($value);
+                        // 解釈できない日付は元の入力を残し、setValue() で拒否させる
+                        $value = evo()->toTimeStamp($value) ?: $value;
                     }
                     break;
                 case 'editedon':
