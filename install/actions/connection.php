@@ -24,6 +24,10 @@ $ph = array_merge(
 if ($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';
 }
+// value="…" に入れる値は、出力の直前にエスケープする
+foreach (['adminname', 'database_server', 'table_prefix', 'adminemail', 'adminpass', 'adminpassconfirm', 'database_user', 'dbase'] as $key) {
+    $ph[$key] = hsc($ph[$key]);
+}
 echo $modx->parseText(
     file_get_contents(
         MODX_BASE_PATH . 'install/tpl/connection.tpl'
