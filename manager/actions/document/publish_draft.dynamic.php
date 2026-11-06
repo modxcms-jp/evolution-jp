@@ -46,7 +46,19 @@ function fieldDraftPub_date($docid)
     $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
     $tpl = implode("\n", $tpl);
-    $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
+    // 日付のエラーで差し戻されたときは、入力した日付を欄に残す（差し戻しの id が同じときだけ）
+    $restored = [];
+    if (manager()->hasFormValues()) {
+        $restored = manager()->loadFormValues();
+        if ((int)array_get($restored, 'id', 0) !== (int)$docid) {
+            $restored = [];
+        }
+    }
+    if (isset($restored['pub_date'])) {
+        $ph['pub_date'] = dateInputValue(trim((string)$restored['pub_date']));
+    } else {
+        $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
+    }
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
     $ph['remove_date'] = $_lang['remove_date'];
     $ph['datetime_format'] = $modx->config['datetime_format'];

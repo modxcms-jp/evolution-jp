@@ -640,19 +640,23 @@ if (!function_exists('default_value')) {
 }
 
 // restore saved form
+// POST での開き直しと、保存の処理が入力エラーで GET に戻したときの、どちらも自分の画面のキーの差し戻しを読む
 function mergeReloadValues($docObject)
 {
-    if (manager()->hasFormValues()) {
-        $populate = manager()->loadFormValues();
-        if ($populate) {
-            $docObject = array_merge($docObject, $populate);
-            if (evo()->array_get($populate, 'ta')) {
-                $docObject['content'] = $populate['ta'];
-            }
-            if (evo()->array_get($populate, 'which_editor')) {
-                $docObject['which_editor'] = $populate['which_editor'];
-            }
-        }
+    if (!manager()->hasFormValues()) {
+        return $docObject;
+    }
+    $populate = manager()->loadFormValues();
+    // 別のリソース（新規か id が違う）向けの入力は混ぜない
+    if (!$populate || (int)evo()->array_get($populate, 'id', 0) !== request_intvar('id')) {
+        return $docObject;
+    }
+    $docObject = array_merge($docObject, $populate);
+    if (evo()->array_get($populate, 'ta')) {
+        $docObject['content'] = $populate['ta'];
+    }
+    if (evo()->array_get($populate, 'which_editor')) {
+        $docObject['which_editor'] = $populate['which_editor'];
     }
 
     if (evo()->array_get($docObject, 'pub_date')) {

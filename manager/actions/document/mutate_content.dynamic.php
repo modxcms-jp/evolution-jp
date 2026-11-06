@@ -49,9 +49,7 @@ $tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
 $docObject += $tmplVars;
 
 manager()->saveFormValues();
-if (postv()) {
-    $docObject = mergeReloadValues($docObject);
-}
+$docObject = mergeReloadValues($docObject);
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = &$docObject;

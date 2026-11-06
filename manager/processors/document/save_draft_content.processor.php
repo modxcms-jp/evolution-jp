@@ -26,8 +26,6 @@ if (!manager()->isInAllowedParents($id)) {
     return;
 }
 
-manager()->saveFormValues(4);
-
 evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
@@ -43,7 +41,7 @@ foreach (['pub_date', 'unpub_date'] as $dateField) {
         manager()->saveFormValues(131);
         evo()->webAlertAndQuit(
             lang('mgrlog_dateinvalid'),
-            sprintf('index.php?a=131&id=%s', $id)
+            manager()->formReturnUrl(131, $id, array_get($post, 'template'))
         );
         exit;
     }

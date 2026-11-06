@@ -488,16 +488,9 @@ class DocAPI
             $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
             if (!$form_v['pub_date']) {
                 evo()->manager->saveFormValues($mode);
-                if (array_get($form_v, 'id')) {
-                    evo()->webAlertAndQuit(
-                        $_lang['mgrlog_dateinvalid'],
-                        "index.php?a=" . $mode . "&id=" . array_get($form_v, 'id')
-                    );
-                    exit;
-                }
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
-                    "index.php?a=" . $mode
+                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
                 exit;
             }
@@ -512,11 +505,10 @@ class DocAPI
             $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
             if (!$form_v['unpub_date']) {
                 evo()->manager->saveFormValues($mode);
-                $url = "index.php?a=" . $mode;
-                if (array_get($form_v, 'id')) {
-                    $url .= "&id=" . array_get($form_v, 'id');
-                }
-                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
+                evo()->webAlertAndQuit(
+                    $_lang['mgrlog_dateinvalid'],
+                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
+                );
             } elseif ($form_v['unpub_date'] < request_time()) {
                 $form_v['published'] = 0;
             }

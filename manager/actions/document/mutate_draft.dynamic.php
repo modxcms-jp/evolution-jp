@@ -61,9 +61,7 @@ if (manager()->action == 131 && request_intvar('id')) {
 }
 
 manager()->saveFormValues();
-if (postv()) {
-    $docObject = mergeReloadValues($docObject);
-}
+$docObject = mergeReloadValues($docObject);
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = &$docObject;

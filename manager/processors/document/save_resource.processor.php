@@ -27,8 +27,6 @@ $document_groups = getDocGroups();
 
 checkDocPermission(validated('id'), $document_groups);
 
-evo()->manager->saveFormValues();
-
 checkParent();
 checkAllowedParents(validated('id'));
 
@@ -49,7 +47,8 @@ if (mode() === 'new') {
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
-        evo()->webAlertAndQuit($msg, 'index.php?a=' . get_intvar('a'));
+        evo()->manager->saveFormValues(postedMode());
+        evo()->webAlertAndQuit($msg, formReturnUrl());
     }
 
     if (!empty($param['tv_vars'])) {
@@ -109,12 +108,13 @@ if (mode() === 'edit') {
         sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             sprintf(
                 "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>.",
                 db()->lastQuery()
             ),
-            sprintf('index.php?a=27&id=%s', validated('id'))
+            formReturnUrl()
         );
     }
 
@@ -403,10 +403,8 @@ function _check_duplicate_alias($id, $alias, $parent)
         return $alias;
     }
     evo()->manager->saveFormValues(postedMode());
-    $url = sprintf('index.php?a=%s', postedMode());
-    if (mode() === 'edit') {
-        $url .= sprintf('&id=%s', $id);
-    } elseif (request_intvar('pid')) {
+    $url = formReturnUrl();
+    if (mode() === 'new' && request_intvar('pid')) {
         $url .= sprintf('&pid=%s', request_intvar('pid'));
     }
 
@@ -438,10 +436,8 @@ function checkParent()
     }
     // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
     evo()->manager->saveFormValues(postedMode());
-    $url = sprintf('index.php?a=%s', postedMode());
-    if (mode() === 'edit') {
-        $url .= sprintf('&id=%s', validated('id'));
-    } elseif (request_intvar('pid')) {
+    $url = formReturnUrl();
+    if (mode() === 'new' && request_intvar('pid')) {
         $url .= sprintf('&pid=%s', request_intvar('pid'));
     }
     evo()->webAlertAndQuit($message, $url);
@@ -464,14 +460,8 @@ function checkDocPermission($id, $document_groups = [])
                 )
             );
             if (!$count) {
-                if (mode() === 'new') {
-                    $url = 'index.php?a=4';
-                } else {
-                    $url = 'index.php?a=27&id=' . $id;
-                }
-
-                evo()->manager->saveFormValues();
-                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), $url);
+                evo()->manager->saveFormValues(postedMode());
+                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), formReturnUrl());
             }
         }
     }
@@ -494,7 +484,6 @@ function checkDocPermission($id, $document_groups = [])
 
         // 保存しようとしている文書そのものにアクセスできるか
         if (!evo()->checkPermissions($id)) {
-            evo()->manager->saveFormValues();
             evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
         }
 
@@ -504,13 +493,11 @@ function checkDocPermission($id, $document_groups = [])
         }
 
         if (!evo()->checkPermissions(validated('parent'))) {
-            if (mode() === 'new') {
-                $url = 'index.php?a=4';
-            } else {
-                $url = "index.php?a=27&id={$id}";
-            }
-            evo()->manager->saveFormValues();
-            evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, validated('alias')), $url);
+            evo()->manager->saveFormValues(postedMode());
+            evo()->webAlertAndQuit(
+                sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
+                formReturnUrl()
+            );
         }
     } elseif (validated('parent') == 0 && !manager()->isAllowroot()) {
         alert()->setError(3);
@@ -537,7 +524,6 @@ function checkAllowedParents($id)
     }
 
     if (!manager()->isInAllowedParents($id)) {
-        evo()->manager->saveFormValues();
         evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
     }
 
@@ -548,8 +534,8 @@ function checkAllowedParents($id)
         return;
     }
     if (!manager()->isInAllowedParents(validated('parent'))) {
-        evo()->manager->saveFormValues();
-        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), sprintf('index.php?a=27&id=%d', (int)$id));
+        evo()->manager->saveFormValues(postedMode());
+        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), formReturnUrl());
     }
 }
 
@@ -1027,6 +1013,12 @@ function getDocGroups()
 function postedMode()
 {
     return post_choicevar('mode', [4, 72, 27], 0);
+}
+
+// 入力エラーで保存の画面（postedMode()）へ戻す URL。入力は saveFormValues(postedMode()) で差し戻す
+function formReturnUrl()
+{
+    return evo()->manager->formReturnUrl(postedMode(), post_intvar('id'), post_intvar('template'));
 }
 
 function mode()
