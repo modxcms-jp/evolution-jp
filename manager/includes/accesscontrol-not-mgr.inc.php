@@ -137,7 +137,7 @@ evo()->setPlaceholder(
 $loginTplOutput = evo()->parseDocumentSource($loginTplOutput);
 clearstatcache(true, $touch_path);
 if (is_file($touch_path) && $loginTplOutput) {
-    unlink($touch_path);
+    @unlink($touch_path);
 }
 
 // little tweak for newer parsers

@@ -110,7 +110,7 @@ manager()->refreshMgrPermissions();
 
 clearstatcache(true, $touch_path);
 if ($touch_path && is_file($touch_path)) {
-    unlink($touch_path);
+    @unlink($touch_path);
 }
 
 function loadLoginTpl($html) {
@@ -167,7 +167,7 @@ function checkInstallProc()
     }
 
     if ((serverv('REQUEST_TIME', time()) - $installStartTime) > 5 * 60) {
-        unlink($instcheck_path);
+        @unlink($instcheck_path);
         return false;
     }
 
