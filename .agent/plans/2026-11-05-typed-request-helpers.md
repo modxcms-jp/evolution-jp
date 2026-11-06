@@ -28,7 +28,7 @@ Issue: #1059
   - [x] (2026-11-06) M6n: 0 以上の整数を読む `*_uintvar()` を足し、文字列と正規表現で読んでいた箇所（DocManager・Ditto・システム設定のテンプレート・リソースの移動の新しい親・リソースの情報の画面の id）と、生の値と `is_string()` で読んでいた箇所（ログイン・設定の ajax・チャンクの保存・モジュール一覧の検索）を型つきへ置き換え（PR は Artifacts and Notes）
 - [x] (2026-11-06) M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消した（本体・同梱の部品・インストーラからの呼び出しは 0 件、動的な呼び出しも無いことを確かめた。PR は Artifacts and Notes）
 - [x] (2026-11-06) M7: `security-lint.php` に規則 `raw-input` を足した。初回の違反は 0 件で、本体は変えていない（PR は Artifacts and Notes）
-- [ ] M8: PHP 8.5 と PHP 7.4 での横断の確認と振り返り
+- [x] (2026-11-06) M8: PHP 8.5・8.4・7.4 で M1〜M7 を積んだ状態を横断で確かめた（管理画面 99 画面・公開側 57 ページ、パラメータ 5 通り、版ごとに約 7〜8 万リクエスト）。PHP の Deprecated・Warning・Notice は 0 件、smoke.js は全 PASS、security-lint は 0 violations。振り返りは Outcomes & Retrospective
 
 ## Surprises & Discoveries
 
@@ -69,6 +69,7 @@ Issue: #1059
 - 2026-11-06（M6d の検証）: DocManager の一括変更は、修正前は形式違いの値を `(int)` で丸めてそのまま書き込んでいた（テンプレート `1e1` を 10 に、`abc` をブランクに、スイッチ `2` をそのまま、並べ替えの `item_1e1` で ID 10 の並び順を書き換えるなど）。範囲の指定（`1-10,15,20-25`・`5*`・`5**`）は独自の書式なので `*_idsvar()` に置き換えず、解釈を変えずに受け取る値だけを文字列にそろえた。範囲のエラー文が入力をエスケープせずに出していたので、ついでに直した。一括変更の日付に解釈できない値を入れると、そのまま書き込もうとする（#1089 に追記、範囲外）。
 - 2026-11-06（M6i の自己レビュー・検証）: インストーラの画面の切り替えの値（`action`）が、入口の確かめの後で、エスケープせずにエラー文へ出され、読み込むファイルのパスにも入っていた（修正前から。1.2 系にも同じコード）。決まった 5 つの画面から選ぶ形にして塞いだ。言語（`install_language`）も一覧に無い値をセッションに入れ、配列では Fatal error になっていた。接続の画面は、セッションの値を入力欄にエスケープせずに出し、`"` を含むパスワードが「戻る」で切れていた（ついでに直した）。
 - 2026-11-06（M6n の検証）: 設定の画面の ajax（`mutate_settings.ajax.php`）は、権限が無くて何も更新しないときも `true` を返し、キャッシュも消していた。include されるファイルで、管理画面の入口（`manager/index.php`）が `siteManager.php` を作り直したときの `$rs` を引き継いでいた。`$rs` を初期化し、入口の側でも汎用の名前の変数を残さないようにした（ついでの修正）。同じファイルの `setsetting` が権限を確かめていない件は #1103 に分けた。リソースの情報の画面（`document_data.static.php`）は、id を `^[0-9]+$` で確かめていたので末尾の改行と先頭のゼロ（`05` で id 5 を表示）を通していた。`request_intvar()` で読み、SQL には int を渡すようにした。
+- 2026-11-06（M8 の検証）: 同じ巡回を main で流すと、管理画面だけで警告 19 種・881 件（HTTP 500 が 265 件）が出た（`id[]=1` での `preg_match()` の TypeError、`tab[]` での `setcookie()` の TypeError、`indent[]` でのメモリ超過など）。M1〜M7 を積んだ状態では 0 件。残った警告は、どれも main にもあり、#1059 の範囲外だった: `a=29` が読む `error_dialog.static.php` が無い（`assets/docs/core-issues.md` に記録済み）、Ditto の `ditto_display=` などの空の値で PHP 8.4 以降に 500（#1109）、キャッシュの印のファイルの削除が同時のリクエストで競合する（#1110）、非キャッシュで置いた RSS の Ditto で関数が二重に宣言される（検証用の配置でだけ起きる）。
 
 ## Decision Log
 
@@ -112,6 +113,18 @@ Issue: #1059
 - 2026-11-06 / Claude（M7）: 規則 `raw-input` は、Plan of Work の最初の記述から次の 3 点を変えた。(1) 既定値の有無を問わず検出する（既定値を渡しても配列は届くため）。(2) `cookiev()` も対象に含める（クッキーもクライアントが配列で送れる。読み取りを型つきに寄せるかは #1073 で扱う）。(3) 引数に直接置いた形だけを検出し、変数を経由する形（`$x = getv('x'); trim($x);`）は追わない。sql-embed の変数の追跡は DB の呼び出しの判定と結びついていて、`is_string()` で確かめた後の変数まで誤検出するため。変数を経由する形は、M3〜M6 での読み込みと M8 の巡回で確かめる。あわせて、メソッド版の `hsc()` / `htmlspecialchars()` と `(string)` のキャストも検出する。`trim((getv()))`・`trim(@getv())`・`hsc(getv() . 'a')` は既知の取りこぼしとして lint の先頭のコメントに書いた。
 
 ## Outcomes & Retrospective
+
+2026-11-06 時点で M1〜M8 を終えた。PR は段階ごとに 1 つずつ積んだ（Artifacts and Notes）。
+
+達成したこと: リクエスト値を型ごとに取り出すヘルパー（`*_intvar` に加えて `*_strvar` / `*_textvar` / `*_uintvar` / `*_boolvar` / `*_choicevar` / `*_idsvar`、それぞれ `get_` / `post_` / `request_`）をそろえ、決まりを `assets/docs/request-input.md` にまとめた。`getv()` の空の値の特例をやめ、GET と POST の扱いをそろえた（M2）。管理画面・保存の処理・共通の処理・ファイルブラウザ・同梱のスニペットとプラグイン・DocManager・インストーラの呼び出しを、型つきに置き換えた（M3〜M6）。`evo()->input_*()` を消し（M6b）、確かめずに文字列や出力の関数へ渡す書き方を security-lint で検出するようにした（M7）。M8 の巡回では、main で 881 件出ていた管理画面の警告が 0 件になった。
+
+置き換えのついでに直した修正前からの不具合が多かった。形式違いの値を `(int)` で丸めて意図しない対象を操作していたもの（カテゴリの削除、テンプレートの一括変更、DocManager の一括変更・並べ替え）、権限や状態の確かめを通り抜けられたもの（`a=016` のような操作の番号、ロックアウト、設定の ajax の誤った応答）、照合が緩かったもの（WebLogin のパスワード・キャプチャ・再設定のトークン）、出力のエスケープ漏れ（インストーラ、DocManager の範囲のエラー文）など。どれも中立的に書いて main で直した。インストーラの `action` の件だけ本人に判断を仰ぎ、main で中立的に直すと決まった。
+
+うまくいったこと: 段階ごとに worker・tester・reviewer を分け、tester が修正前と修正後を並べて比べたことで、置き換えで入った回帰（ddAutoFolders の「ID,印」の値、Ditto のゼロで詰めた値、既定のテンプレートの「(blank)」、ファイルブラウザの配列のフォルダなど）を PR の前に見つけて直せた。「正常な値で結果を変えず、形式違いは拒否か既定値にする」という基準が、判断の拠り所になった。
+
+改善できること: 型つきのヘルパーを足す判断（`*_uintvar`・`*_textvar`）が、置き換えの途中まで先送りになり、その間に処理ごとの小さな関数や正規表現が増えた。同じ形が 2 回出た時点で、共通のヘルパーにするかを決めるとよい。検証の初回で、CMS 自身のエラー画面の形式を見落とす、同じ作業ツリーを tester と worker が同時に触りかける、などの手順の穴もあった。
+
+残したこと（別の Issue）: `anyv()` / `request_*()` を get / post に絞り、残りを `any_*` へ改名する（#1070）、`$_REQUEST` にクッキーが混ざる件（#1073）、設定の `extract()`（#1074）、ほかに #1076・#1078・#1080・#1089・#1103・#1109・#1110。変数を経由して生の値を文字列関数へ渡す形は、lint では検出しない（M7 の判断）。
 
 ## Context and Orientation
 
@@ -207,7 +220,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（PR #1094、base は M5b のブランチ）、M6d は `refactor/1059-m6d-docmanager`（PR #1097、base は M6a のブランチ）、M6i は `refactor/1059-m6i-installer`（PR #1100、base は M6d のブランチ）、M6n は `refactor/1059-m6n-numvar-textvar`（PR #1106、base は M6i のブランチ）、M6b は `refactor/1059-m6b-remove-input-methods`（PR #1107、base は M6n のブランチ）、M7 は `ci/1059-m7-lint-raw-request`（base は M6b のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（PR #1094、base は M5b のブランチ）、M6d は `refactor/1059-m6d-docmanager`（PR #1097、base は M6a のブランチ）、M6i は `refactor/1059-m6i-installer`（PR #1100、base は M6d のブランチ）、M6n は `refactor/1059-m6n-numvar-textvar`（PR #1106、base は M6i のブランチ）、M6b は `refactor/1059-m6b-remove-input-methods`（PR #1107、base は M6n のブランチ）、M7 は `ci/1059-m7-lint-raw-request`（PR #1108、base は M6b のブランチ）、M8 は `docs/1059-m8-cross-verify`（base は M7 のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
