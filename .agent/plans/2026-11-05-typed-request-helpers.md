@@ -27,7 +27,7 @@ Issue: #1059
   - [x] (2026-11-06) M6i: インストーラ（`install/`）で型つきへ置き換え。空でも加工しない文字列のための `*_textvar()` を helpers.php に足した（PR は Artifacts and Notes）
   - [x] (2026-11-06) M6n: 0 以上の整数を読む `*_uintvar()` を足し、文字列と正規表現で読んでいた箇所（DocManager・Ditto・システム設定のテンプレート・リソースの移動の新しい親・リソースの情報の画面の id）と、生の値と `is_string()` で読んでいた箇所（ログイン・設定の ajax・チャンクの保存・モジュール一覧の検索）を型つきへ置き換え（PR は Artifacts and Notes）
 - [x] (2026-11-06) M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消した（本体・同梱の部品・インストーラからの呼び出しは 0 件、動的な呼び出しも無いことを確かめた。PR は Artifacts and Notes）
-- [ ] M7: 置き換え漏れを検出する検査を `security-lint.php` に足す
+- [x] (2026-11-06) M7: `security-lint.php` に規則 `raw-input` を足した。初回の違反は 0 件で、本体は変えていない（PR は Artifacts and Notes）
 - [ ] M8: PHP 8.5 と PHP 7.4 での横断の確認と振り返り
 
 ## Surprises & Discoveries
@@ -109,6 +109,7 @@ Issue: #1059
 - 2026-11-06 / yamamoto（M6i）: インストーラの `action` の件は、非公開のアドバイザリにせず、M6i で中立的に直す（main だけ。1.2 系には積まない）。インストーラは「不要になったら削除する」決まりなので、install/ を残したサイトだけで起きる問題は重い問題に数えない。
 - 2026-11-06 / Claude（M6i）: 空でも、前後の空白を含んでも意味のある文字列（DB の接続情報、パスワード、検索語）を読む型つきヘルパー `*_textvar()` を helpers.php に足す。文字列ならそのまま返し、それ以外は既定値（null）を返す。インストーラの中だけの関数（最初の置き換えの `post_text()`）は、局所的な新方式になるので採らない。インストーラの外の同じ形の置き換えは M6n で行う（それまで request-input.md のモジュール一覧の `search` の記述と実装が一時的に合わない）。
 - 2026-11-06 / Claude（M6n）: 0 以上の整数を読む型つきヘルパーを `*_uintvar()` とする（M4b・M4c・M6d で先送りしていた判断の結論。仮の名前の `*_numvar()` は数値全般に読めるので採らない）。先頭のゼロを受け（`02` は 2）、上限は `*_intvar()` と同じ PHP_INT_MAX まで。読めないときは既定値 null を返し、0 と区別する。桁数に上限がある値（Ditto の年・月・日・ページ送り）は、`strlen()` で確かめてから `to_uintvar()` に通す。システム設定のテンプレートと、リソースの移動の新しい親は、先頭のゼロを受けるようになる（id なので害はない）。置き換えから外したもの: TV の並び順（`rank`）は負の数に意味があるので文字列のまま、リソースの保存の `$hasPostedId` は空を「無い」、形式違いを拒否と分ける必要があるのでそのまま。`save_draft_content` の `parent` は DocAPI の `initValue()` と同じ規則にそろえているので、直すなら一緒に扱う。
+- 2026-11-06 / Claude（M7）: 規則 `raw-input` は、Plan of Work の最初の記述から次の 3 点を変えた。(1) 既定値の有無を問わず検出する（既定値を渡しても配列は届くため）。(2) `cookiev()` も対象に含める（クッキーもクライアントが配列で送れる。読み取りを型つきに寄せるかは #1073 で扱う）。(3) 引数に直接置いた形だけを検出し、変数を経由する形（`$x = getv('x'); trim($x);`）は追わない。sql-embed の変数の追跡は DB の呼び出しの判定と結びついていて、`is_string()` で確かめた後の変数まで誤検出するため。変数を経由する形は、M3〜M6 での読み込みと M8 の巡回で確かめる。あわせて、メソッド版の `hsc()` / `htmlspecialchars()` と `(string)` のキャストも検出する。`trim((getv()))`・`trim(@getv())`・`hsc(getv() . 'a')` は既知の取りこぼしとして lint の先頭のコメントに書いた。
 
 ## Outcomes & Retrospective
 
@@ -142,7 +143,7 @@ M3〜M6 でディレクトリごとに置き換える。置き換えの規則（
 
 M6b で、本体からの呼び出しが無くなった `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を `manager/includes/document.parser.class.inc.php` から消す（Decision Log の 2026-11-05 の決定）。消す前に `grep -rnE "input_(get|post|any|cookie)\(" --include=*.php manager assets install` が 0 件であることを確かめ、`assets/docs/request-input.md` の該当の 1 行も消す。サイト側のスニペットやプラグインで使っていると Fatal error になるので、PR に `仕様変更` を付け、代わりの書き方（`getv()` や型つきヘルパー）を本文に書く。
 
-M7 で、置き換え漏れを検出する規則を `security-lint.php` に足す。対象は、生の値のヘルパー（`getv()` / `postv()` / `anyv()`）の戻り値を、既定値なしのまま文字列関数（`preg_match`・`trim`・`strpos`・`strtolower`・`explode`・`is_file` など）や `count()`、出力の関数（`hsc`・`htmlspecialchars`・`urlencode`・`rawurlencode`）に直接渡す書き方。走査範囲は `manager/`・`assets/`（`assets/plugins/*/tinymce*/` を除く）・`install/`。M3〜M6 が終わった時点で違反 0 件にし、CI で守る。
+M7 で、置き換え漏れを検出する規則を `security-lint.php` に足す。対象は、生の値のヘルパー（`getv()` / `postv()` / `anyv()` / `cookiev()`）の戻り値を、既定値の有無を問わず、文字列関数（`preg_match`・`trim`・`strpos`・`strtolower`・`explode`・`is_file` など）や `count()`、出力の関数（`hsc`・`htmlspecialchars`・`urlencode`・`rawurlencode`）に直接渡す書き方。走査範囲は `manager/`・`assets/`（`assets/plugins/*/tinymce*/` を除く）・`install/`。M3〜M6 が終わった時点で違反 0 件にし、CI で守る。検出するのは引数に直接置いた形だけで、変数を経由する形は追わない（Decision Log の M7 を参照）。
 
 M8 で、PHP 8.5 と PHP 7.4 の検証環境で横断の確認をする。
 
@@ -206,7 +207,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（PR #1094、base は M5b のブランチ）、M6d は `refactor/1059-m6d-docmanager`（PR #1097、base は M6a のブランチ）、M6i は `refactor/1059-m6i-installer`（PR #1100、base は M6d のブランチ）、M6n は `refactor/1059-m6n-numvar-textvar`（PR #1106、base は M6i のブランチ）、M6b は `refactor/1059-m6b-remove-input-methods`（base は M6n のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（PR #1094、base は M5b のブランチ）、M6d は `refactor/1059-m6d-docmanager`（PR #1097、base は M6a のブランチ）、M6i は `refactor/1059-m6i-installer`（PR #1100、base は M6d のブランチ）、M6n は `refactor/1059-m6n-numvar-textvar`（PR #1106、base は M6i のブランチ）、M6b は `refactor/1059-m6b-remove-input-methods`（PR #1107、base は M6n のブランチ）、M7 は `ci/1059-m7-lint-raw-request`（base は M6b のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
