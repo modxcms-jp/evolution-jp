@@ -16,7 +16,7 @@ Issue: #1059
   - [x] (2026-11-05) M3c: `manager/actions/permission/` の 14 ファイルで型つきへ置き換え。入口で操作の番号と id を 1 回だけ読む形にそろえ、フォームの差し戻しの値から変数を作る `extract()` を消した（PR は Artifacts and Notes）
 - [ ] M4: `manager/processors/` の置き換え
   - [x] (2026-11-06) M4a: `manager/processors/permission/` の保存の処理で型つきへ置き換え。mode は型つきで読んで当てはまらない値を拒否し、形式違いのロール・空のユーザー名を拒否するようにした（PR は Artifacts and Notes）
-  - [ ] M4b: エレメントの保存の処理（`module`・`tmplvars`・`plugin`・`snippet`・`chunk`・`template`）
+  - [x] (2026-11-06) M4b: エレメントの保存の処理（`module`・`tmplvars`・`plugin`・`snippet`・`chunk`・`template`）で型つきへ置き換え。本文は加工せず、DB に渡す直前だけエスケープする。名前変更による参照の置き換えの SQL を直した（PR は Artifacts and Notes）
   - [ ] M4c: `document`・`pm`・`db`・`backup` と `manager/processors/` 直下
 - [ ] M5: `manager/includes/`・`manager/media/`・`manager/frames/` ほか `manager/` 直下の置き換え
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
@@ -46,6 +46,9 @@ Issue: #1059
 - 2026-11-06（M4a の検証）: 保存の処理の `mode` は緩い比較（`== 12` など）で、PHP 7 では `012`・`12.0`・前後に空白の付いた値が通っていた。権限の弱い利用者が `mode=011` で新規作成でき、パスワードの変更の権限だけの利用者が `mode=074` などで保存の経路に入れた。`post_choicevar()` で 1 回だけ読んで当てはまらない値を拒否する形にした（ユーザーは `saveUserMode()`、Web ユーザーは `saveWebUserMode()`）。パスワードの確認欄も緩い比較で、`1000000` と `1.0e6` が一致していた（4 つの保存の処理とパスワードの変更）。
 - 2026-11-06（M4a の自己レビュー）: Web グループの削除は、`web_groups` を `webuser` の列で消していて、グループと同じ番号の Web ユーザーの所属が消えていた（修正前から）。`webgroup` の列で消すように直した。Web ユーザーの保存は、エスケープ済みの値をイベント（OnWebSaveUser など）とメールにも渡していたので、エスケープを DB に渡す直前に移した。
 - 2026-11-06（M4a の自己レビュー）: `save_web_user.processor.php` には `compact()`（AGENTS.md で使わない決まり）が残っている（修正前から）。M4a では範囲を広げず、そのままにした。
+- 2026-11-06（M4b の自己レビュー・検証）: TV の名前変更による参照の置き換えは `str_replace("'", "''")` で SQL の文字列を作っていて、名前の末尾が `\` と `'` のときに文字列を抜けられ、`\` を含む名前では参照が壊れていた。チャンクの名前変更は二重にエスケープしていて、引用符を含む名前では置き換えが効かなかった。どちらも、生の名前どうしで比べて SQL に入れる直前に 1 回だけ `db()->escape()` する形にそろえた。TV の削除の確認画面はリソース名をエスケープせずに出力していた。
+- 2026-11-06（M4b の検証）: モジュールの新規画面とモジュールの複製で GUID を作る `createGUID()` の `mt_srand((float)microtime()*1000000)` が、PHP 8.1 以降で float から int への暗黙の変換の非推奨を出すことがあり、その文言が hidden の値に入って保存に失敗することがあった（修正前から）。`mt_srand()` の呼び出しをやめた（PHP 7.1 以降は自動で種が入る）。
+- 2026-11-06（M4b の検証）: TV の並び順（`rank`）は、数値でない値（`abc`・全角の数字）を送ると strict モードで保存に失敗する（修正前と同じ）。0 や負の数に意味があるので `*_intvar()` は使えず、今は文字列のまま読む。`*_numvar()` を足すかは、同じ形がほかにも出てきたら決める。
 
 ## Decision Log
 
@@ -71,6 +74,9 @@ Issue: #1059
 - 2026-11-06 / Claude（M4a）: イベント（OnBeforeUserFormSave・OnUserFormSave・OnManagerSaveUser・OnManagerChangePassword）に渡す id・ロールは int にした。M3b でフォームのイベントに渡す id を int にそろえたのと同じ向き。同梱のプラグインに、これらのイベントを受け取るものは無い。
 - 2026-11-06 / Claude（M4a）: 保存に失敗したあとの差し戻しは、`restorableFormValues()`（`manager/actions/permission/mutate_user/form_values.php`）で、文字列と、配列だけを受ける項目（`user_groups`・`allowed_days`）に絞る。再表示の所属グループのチェックは、差し戻しの値があればそれで決める（修正前は POST を見ていて、リダイレクトの後は空だった）。
 - 2026-11-06 / Claude（M4a）: Web ユーザーの保存で、パスワードを変えない更新にも OnWebChangePassword が前のイベントの値で呼ばれる件は、イベントの呼び出しの仕様にかかわるので #1078 に分けた。
+- 2026-11-06 / Claude（M4b）: エレメントの保存で、本文（コード・HTML・既定値）は `is_string()` で確かめた生の値を、DB に渡す直前で `db()->escape()` する。trim などの加工は足さない（スニペットの前後の空白と PHP タグの除去は修正前から）。本文が配列なら拒否する。チェックボックスは `postv(...) === 'on'` のまま残す（`*_boolvar()` にすると `1`・`true`・`yes` も真になり、受け付ける範囲が広がる）。
+- 2026-11-06 / Claude（M4b の自己レビュー）: モジュールの保存で本文などを読む時点が、保存前のイベント（OnBeforeModFormSave）より前になった。スニペット・プラグイン・テンプレート・TV は修正前からイベントより前に読んでいるので、モジュールもそれにそろえる（イベントで `$_POST` を書き換えても保存される値に反映されない）。同梱のプラグインにこのイベントを受けるものは無い。各保存の処理で消したグローバル変数（エスケープ済みの `$name` など）も、プラグインから `global` で参照できなくなった。
+- 2026-11-06 / Claude（M4b）: チャンクの公開日・公開終了日による公開の切り替えが効いていない件は、直すと保存される値が変わるので #1080 に分けた。
 
 ## Outcomes & Retrospective
 
@@ -168,7 +174,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（base は M3c のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（base は M4a のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
