@@ -164,6 +164,7 @@ class DocManagerBackend
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $updateError = '';
         $updated = false;
+        $templateId = post_strvar('template_id');
 
         $results = $this->processRange($pids, 'id', 0);
         $pids = $results[0];
@@ -192,7 +193,7 @@ class DocManagerBackend
                 if ($row['type'] === 'url') {
                     $tmplvar = normalize_url_tv_value(
                         post_strvar("tv" . $row['id']),
-                        post_strvar("tv" . $row['id'] . '_prefix', '--')
+                        post_choicevar("tv" . $row['id'] . '_prefix', tv_url_prefixes(), '--')
                     );
                 } elseif ($row['type'] === 'file') {
                     $tmplvar = post_strvar("tv" . $row['id']);
@@ -218,7 +219,7 @@ class DocManagerBackend
                 }
 
                 $row = db()->getRow($tempSQL);
-                if ($row['template'] != post_strvar('template_id')) {
+                if (!preg_match('/\A[0-9]+\z/', $templateId) || (int)$row['template'] !== (int)$templateId) {
                     $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
                     continue;
                 }
@@ -525,7 +526,7 @@ class DocManagerBackend
                 $match = explode('-', $value);
 
                 if (($match[1] - $match[0]) < 0) {
-                    $error = $this->dm->lang['DM_process_limits_error'] . $value . '<br />';
+                    $error = $this->dm->lang['DM_process_limits_error'] . hsc($value) . '<br />';
                 }
 
                 $loop = $match[1] - $match[0];
@@ -601,7 +602,7 @@ class DocManagerBackend
                     $pids .= $column . "='" . (int) $value . "' OR ";
                 }
             } else {
-                $error .= $this->dm->lang['DM_process_invalid_error'] . $value . '<br />';
+                $error .= $this->dm->lang['DM_process_invalid_error'] . hsc($value) . '<br />';
             }
         }
 
