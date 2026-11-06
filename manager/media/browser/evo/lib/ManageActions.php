@@ -23,7 +23,7 @@ class ManageActions
     public static function readText(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
         $dir = self::dirOrFail($resolver);
-        $name = self::nameOrFail(getv('file', ''));
+        $name = self::nameOrFail(get_strvar('file'));
         $realPath = self::textFileOrFail($resolver, $dir, $name);
 
         $buffer = self::readOrFail($realPath);
@@ -66,7 +66,7 @@ class ManageActions
     public static function saveText(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
         $dir = self::dirOrFail($resolver);
-        $name = self::nameOrFail(postv('target', ''));
+        $name = self::nameOrFail(post_strvar('target'));
         $realPath = self::textFileOrFail($resolver, $dir, $name);
         // 一覧に見えているファイルそのものだけを書き換える(リンクの先は、名前・拡張子・置き場所を確かめていない)
         if (is_link($dir['real'] . $name)) {
@@ -87,7 +87,7 @@ class ManageActions
         if (!mb_check_encoding($current, 'UTF-8')) {
             fbError('read_only', lang('fb_err_text_encoding'), 400);
         }
-        if (!hash_equals(sha1($current), (string) postv('hash', ''))) {
+        if (!hash_equals(sha1($current), post_strvar('hash'))) {
             fbError('modified', lang('fb_err_text_modified'), 409);
         }
 
@@ -125,7 +125,7 @@ class ManageActions
         if (!is_writable($dir['real'])) {
             fbError('not_writable', lang('fb_err_dir_not_writable'), 403);
         }
-        $name = $modx->sanitizeFilename(postv('name', ''), false);
+        $name = $modx->sanitizeFilename(post_strvar('name'), false);
         if ($name === '') {
             fbError('invalid_name', lang('fb_err_invalid_name'), 400);
         }
@@ -167,7 +167,7 @@ class ManageActions
     public static function unzip(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
         $dir = self::dirOrFail($resolver);
-        $name = self::nameOrFail(postv('target', ''));
+        $name = self::nameOrFail(post_strvar('target'));
         if (BrowserConfig::extensionOf($name) !== 'zip') {
             fbError('not_zip', lang('fb_err_not_zip'), 400);
         }
@@ -214,7 +214,7 @@ class ManageActions
      */
     private static function dirOrFail(PathResolver $resolver)
     {
-        $folder = anyv('folder', '');
+        $folder = request_strvar('folder');
         $dir = $resolver->resolveDir($folder);
         if ($dir === null) {
             fbError('not_found', fbNotFoundMessage($folder, lang('fb_err_folder_not_found')), 404);

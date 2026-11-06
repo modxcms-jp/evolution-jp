@@ -51,8 +51,8 @@ $jsConfig = BrowserView::jsConfig($modx, $browserConfig, [
     // モーダル断片は/manager/index.php上で動くため、相対パスの基準が異なる
     'apiUrl' => $isModal ? 'media/browser/evo/api.php' : 'api.php',
     'apiParams' => ['type' => $type],
-    'initialFolder' => getv('folder', ''),
-    'initialSelect' => getv('select', ''),
+    'initialFolder' => get_strvar('folder'),
+    'initialSelect' => get_strvar('select'),
     'rootLabel' => $type,
     'maxUploadSize' => $scope->maxUploadSize(),
 ]);

@@ -229,7 +229,7 @@ function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $folder
 
 function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
-    $folder = getv('folder', '');
+    $folder = get_strvar('folder');
     // ツリー展開用: ツリーにはフォルダだけを出すので、ファイルは集めない
     $list = fbReadDir($resolver, $scope, $folder, anyv('foldersOnly') === '1');
 
@@ -299,7 +299,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
 /** 管理モードの一覧。サムネイルは作らない(vendor のような数の多いフォルダでも temp/thumbs/ へ大量に書き出さないため) */
 function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
-    $folder = getv('folder', '');
+    $folder = get_strvar('folder');
     $list = fbReadDir($resolver, $scope, $folder, anyv('foldersOnly') === '1');
 
     $files = [];
@@ -357,13 +357,13 @@ function fbDirHasSubdirs($dir, BrowserScope $scope)
 
 function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
-    $folder = getv('folder', '');
+    $folder = get_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $file = $resolver->resolveFile($dir['real'], getv('file', ''));
+    $file = $resolver->resolveFile($dir['real'], get_strvar('file'));
     if ($file === null) {
         fbError('not_found', lang('fb_err_file_not_found'), 404);
     }
@@ -436,7 +436,7 @@ function fbBaseName($path)
 
 function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
@@ -503,7 +503,7 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
 
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
@@ -641,13 +641,13 @@ function fbCreateFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal
 
 function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $name = $modx->sanitizeFilename(postv('name', ''), false);
+    $name = $modx->sanitizeFilename(post_strvar('name'), false);
     if ($name === '') {
         fbError('invalid_name', lang('fb_err_invalid_folder_name'), 400);
     }
@@ -679,15 +679,15 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
 
 function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
-    $target = PathResolver::sanitizeSegment(postv('target', ''));
-    $newName = $modx->sanitizeFilename(postv('newName', ''), false);
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
+    $newName = $modx->sanitizeFilename(post_strvar('newName'), false);
     if ($target === '' || $newName === '') {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
@@ -732,7 +732,7 @@ function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentPar
 
 function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
@@ -806,13 +806,13 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
 
 function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $folder = anyv('folder', '');
+    $folder = request_strvar('folder');
     $dir = $resolver->resolveDir($folder);
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $destFolder = postv('dest', '');
+    $destFolder = post_strvar('dest');
     $destDir = $resolver->resolveDir($destFolder);
     if ($destDir === null) {
         fbError('not_found', lang('fb_err_dest_not_found'), 404);
@@ -872,13 +872,13 @@ function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParse
 
 function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $dir = $resolver->resolveDir(anyv('folder', ''));
+    $dir = $resolver->resolveDir(request_strvar('folder'));
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
     // 同じフォルダへの複製も許す（連番の名前になる）
-    $destDir = $resolver->resolveDir(postv('dest', ''));
+    $destDir = $resolver->resolveDir(post_strvar('dest'));
     if ($destDir === null) {
         fbError('not_found', lang('fb_err_dest_not_found'), 404);
     }
@@ -964,7 +964,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
  */
 function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
-    $dir = $resolver->resolveDir(anyv('folder', ''));
+    $dir = $resolver->resolveDir(request_strvar('folder'));
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
@@ -975,8 +975,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
-    $targetName = postv('target', '');
-    $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
     if ($target === '' || strpos($target, '.') === 0) {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
@@ -1139,7 +1138,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
 function fbActionDownload(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
     $config = new BrowserConfig($modx);
-    $dir = $resolver->resolveDir(anyv('folder', ''));
+    $dir = $resolver->resolveDir(request_strvar('folder'));
     if ($dir === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
