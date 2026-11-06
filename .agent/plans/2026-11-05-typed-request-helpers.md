@@ -23,8 +23,9 @@ Issue: #1059
   - [x] (2026-11-06) M5b: `manager/media/`（ファイルブラウザ）で型つきへ置き換え。文字列でないフォルダ・名前は、パスを解決する 1 か所（`PathResolver`）で拒否する（PR は Artifacts and Notes）
 - [ ] M6: `assets/`（スニペット・プラグイン・モジュール）と `install/` の置き換え
   - [x] (2026-11-06) M6a: 同梱のスニペット（Ditto・eForm・WebLogin）とプラグイン（QuickManager・ManagerManager・FMP）で型つきへ置き換え。WebLogin の照合を厳密な比較にそろえ、キャプチャを使うときは既定のフォームに欄を出す（PR は Artifacts and Notes）
-  - [ ] M6d: DocManager モジュール（`assets/modules/docmanager/`）
+  - [x] (2026-11-06) M6d: DocManager モジュール（`assets/modules/docmanager/`）で型つきへ置き換え。形式違いの値で意図しないリソースを書き換えていた経路を止めた（PR は Artifacts and Notes）
   - [ ] M6i: インストーラ（`install/`）
+  - [ ] M6n: 0 以上の整数（先頭のゼロも受ける）の型つきヘルパーを足し、`*_strvar()` と `preg_match` で読んでいた箇所（M4b の並び順、M4c のテンプレート、Ditto、DocManager など）を置き換える
 - [ ] M6b: `evo()->input_get()` / `input_post()` / `input_any()` / `input_cookie()` を DocumentParser から消す（M3〜M6 で本体の呼び出しを置き換えたあと）
 - [ ] M7: 置き換え漏れを検出する検査を `security-lint.php` に足す
 - [ ] M8: PHP 8.5 と PHP 7.4 での横断の確認と振り返り
@@ -65,6 +66,7 @@ Issue: #1059
 - 2026-11-06（M6a の自己レビュー・検証）: WebLogin（公開側のログイン）の照合に、修正前から緩い比較が残っていた。キャプチャは、セッションに単語が無いとき空の入力で一致し、管理画面の「キャプチャを使う」を有効にしても、キャプチャの欄の無い既定のフォームでは実質効いていなかった。パスワード（md5）とキャプチャと再設定のトークンを `hash_equals()` の厳密な比較にそろえた。いずれも、外部からログインそのものを通り抜けるものではなく、条件もまれなので、メモの基準により非公開のアドバイザリにせず main で中立的に直した。
 - 2026-11-06（M6a の自己レビュー）: キャプチャの単語が無いときの確認を、ユーザーを探す処理の後に置くと、ユーザー名の有無で返す案内が変わり、ユーザー名の有無を確かめられてしまう（最初の修正で入った。直した）。認証の前の確認は、ユーザーを探す前に置き、どの入力でも同じ答えにする。
 - 2026-11-06（M6a の検証）: ManagerManager の ddAutoFolders は、`docgroups[]` を「ID,印」（`1,new`）の形で受ける。`*_idsvar()` に置き換えると要素が落ち、年・月のフォルダにグループが付かなくなった（最初の置き換えで入った回帰。直した）。Ditto の年・月・日・ページ送りは、ゼロで詰めた値（`month=02`）を受ける必要がある。どちらも `assets/docs/request-input.md` に読み方を書いた。
+- 2026-11-06（M6d の検証）: DocManager の一括変更は、修正前は形式違いの値を `(int)` で丸めてそのまま書き込んでいた（テンプレート `1e1` を 10 に、`abc` をブランクに、スイッチ `2` をそのまま、並べ替えの `item_1e1` で ID 10 の並び順を書き換えるなど）。範囲の指定（`1-10,15,20-25`・`5*`・`5**`）は独自の書式なので `*_idsvar()` に置き換えず、解釈を変えずに受け取る値だけを文字列にそろえた。範囲のエラー文が入力をエスケープせずに出していたので、ついでに直した。一括変更の日付に解釈できない値を入れると、そのまま書き込もうとする（#1089 に追記、範囲外）。
 
 ## Decision Log
 
@@ -101,6 +103,7 @@ Issue: #1059
 - 2026-11-06 / yamamoto: 管理画面の「キャプチャを使う」を有効にしたサイトでは、WebLogin の既定のフォームにキャプチャの画像と欄を出す（修正前は欄が無く、キャプチャが効いていなかった）。キャプチャの単語が無いときは拒否するが、失敗回数には数えない。独自のテンプレートには `[+captcha+]`（または画像と `captcha_code` の欄）が要るので、仕様変更として PR に書く。代替案の「修正前と同じく照合しない」「拒否するだけ」は採らない。
 - 2026-11-06 / Claude（M6）: M6 は 3 つに分ける。M6a（同梱のスニペットとプラグイン。公開側の経路が中心）、M6d（DocManager モジュール）、M6i（インストーラ）。`input_*` を消す段階を M6b と先に名付けているので、名前が重ならないようにした。
 - 2026-11-06 / Claude（M6a）: WebLogin のパスワードの再設定のトークンと新しいパスワードは、FMP と同じく暗号用の乱数（`random_int()`）で作る（修正前は `str_shuffle()`）。文字の種類と長さは変えない。
+- 2026-11-06 / Claude（M6d）: 0 を含む整数（親・テンプレート・並び順・ゼロで詰めた日付）を `*_strvar()` で取り出して `preg_match('/\A[0-9]+\z/')` で確かめる形が 4 か所目になったので、型つきのヘルパーを足すと決める（M4b・M4c で「同じ形がそろってから決める」と先送りしていた判断）。既存の箇所もまとめて置き換えるため、M6i のあとに独立した段階 M6n として行う。名前と仕様（先頭のゼロ・上限）は M6n で決める。
 
 ## Outcomes & Retrospective
 
@@ -198,7 +201,7 @@ M7:
 - Issue: #1059
 - 前段の修正: PR #1058（PHP 8.5 の非推奨の警告とモジュールの依存関係の不具合）
 - 参考にした作法: Laravel の `$request->integer()` / `boolean()` / `string()` / `enum()` と `has()` / `filled()`、Symfony の InputBag の `getInt()` / `getDigits()` / `getBoolean()` / `getString()` / `getEnum()`
-- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（base は M5b のブランチ）。
+- 段階ごとのブランチ（`origin/main` から `git switch -c` で作り、Issue には紐づけない。後の段階は前の段階のブランチの上に積み、PR の base も前の段階のブランチにする。本人の指示、2026-11-05）: M1 は `feat/1059-m1-typed-helpers`（PR #1062）、M2 は `feat/1059-m2-getv-empty`（PR #1064、base は M1 のブランチ）、M3a は `refactor/1059-m3a-actions`（PR #1068、base は M2 のブランチ）、M3b は `refactor/1059-m3b-element`（PR #1071、base は M3a のブランチ）、M3c は `refactor/1059-m3c-permission`（PR #1077、base は M3b のブランチ）、M4a は `refactor/1059-m4a-permission-processors`（PR #1079、base は M3c のブランチ）、M4b は `refactor/1059-m4b-element-processors`（PR #1081、base は M4a のブランチ）、M4c は `refactor/1059-m4c-other-processors`（PR #1084、base は M4b のブランチ）、M5a は `refactor/1059-m5a-includes`（PR #1090、base は M4c のブランチ）、M5b は `refactor/1059-m5b-file-browser`（PR #1092、base は M5a のブランチ）、M6a は `refactor/1059-m6a-snippets-plugins`（PR #1094、base は M5b のブランチ）、M6d は `refactor/1059-m6d-docmanager`（base は M6a のブランチ）。
 - M1 の確認ケース（`to_*()` を直接呼び、php:7.4-cli・8.4-cli・8.5-cli で ALL PASS、警告 0。`error_reporting(E_ALL)` で警告を FAIL にし、`require 'manager/includes/helpers.php'` だけで読み込める）。M2 以降で境界を確かめ直すときは、同じ表で作り直す。
     to_strvar:   null→'' / ''→'' / ('', 'x')→'x' / 'abc'→'abc' / ['a']→既定 / 5→既定 / '0'→'0' / ' '→' '
     to_boolvar:  null→false / ('', true)→true / true→true / 1→true / (2, 'd')→'d' / '1'→true / ' On '→true / 'OFF'→false
