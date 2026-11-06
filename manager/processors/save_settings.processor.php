@@ -291,17 +291,21 @@ function save_settiongs()
     );
 }
 
-// テンプレートの id。0（テンプレートなし）も正しい値なので、0 以上の整数の文字列だけを受け付ける。それ以外は null
-function postedTemplateId($key)
+// テンプレートの id。0（テンプレートなし）も正しい値なので、0 以上の整数の文字列だけを受け付ける。それ以外は null。
+// $emptyIsBlank が true なら、空文字も 0 とする（設定画面の「(blank)」は value="" で送られる）
+function postedTemplateId($key, $emptyIsBlank = false)
 {
     $value = postv($key);
+    if ($emptyIsBlank && $value === '') {
+        return 0;
+    }
     return is_string($value) && preg_match('@\A(0|[1-9][0-9]{0,18})\z@', $value) ? (int)$value : null;
 }
 
 function reset_template()
 {
     $mode = post_choicevar('reset_template', [1, 2], 0);
-    $defaultTemplate = postedTemplateId('default_template');
+    $defaultTemplate = postedTemplateId('default_template', true);
     if ($defaultTemplate === null) {
         return;
     }

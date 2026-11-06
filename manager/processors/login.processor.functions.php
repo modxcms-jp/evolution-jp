@@ -384,7 +384,7 @@ function redirectAfterLogin()
 {
     if (user_config('manager_login_startup')) {
         $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
-        if (post_strvar('ajax')) {
+        if (post_boolvar('ajax')) {
             exit($header);
         }
         header($header);

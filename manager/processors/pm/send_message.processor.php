@@ -15,8 +15,9 @@ $rs = db()->select(
 $from = db()->getRow($rs);
 
 $sendto = request_choicevar('sendto', ['u', 'g', 'a'], '');
-$subject = request_strvar('messagesubject');
-$message = request_strvar('messagebody');
+// キーが無いときだけ既定の文言。空で送られたときは空のまま、配列のときは空
+$subject = anyv('messagesubject') === null ? '(no subject)' : request_strvar('messagesubject');
+$message = anyv('messagebody') === null ? '(no message)' : request_strvar('messagebody');
 
 if ($sendto === 'u') {
     if (!request_intvar('user')) {
