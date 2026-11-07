@@ -18,6 +18,8 @@ if (get_strvar('tok') !== md5(session_id())) {
     exit('{"status":null}');
 }
 
+// 予約の反映（updatePublishStatus()）はトップページなどの設定を使うので、既定値ではなく保存した設定を読んでおく
+$modx->getSettings();
 $modx->updatePublishStatus();
 db()->update(
     "lasthit=" . request_time(),

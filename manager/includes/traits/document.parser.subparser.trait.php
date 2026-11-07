@@ -3046,7 +3046,7 @@ trait DocumentParserSubParserTrait
         $rs = db()->select(
             '*',
             '[+prefix+]site_revision',
-            sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
+            sprintf("pub_date!=0 AND pub_date<=%s AND status='standby' AND element='resource'", $now)
         );
 
         if (!db()->count($rs)) {

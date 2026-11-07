@@ -59,9 +59,7 @@ if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
     }
     if (request_time() < $pub_date) {
         // トップページで採用できない下書きは、予約も受け付けない（今すぐ採用と同じ警告で戻す）
-        if ($draft) {
-            adoptableDraft($docid, $draft);
-        }
+        adoptableDraft($docid, $draft);
         setStandBy($docid, $pub_date);
         evo()->setCacheRefreshTime($pub_date);
     } else {
@@ -112,15 +110,8 @@ function adoptableDraft($docid, $draft)
 function publishDraft($docid)
 {
     evo()->loadExtension('DocAPI');
-    $draft = evo()->revision->getDraft($docid);
-    // 下書きが無いときは日付を 0 で上書きしないよう、規則をかけずに published だけ今の値を渡す
-    if ($draft) {
-        $draft = adoptableDraft($docid, $draft);
-    } else {
-        $draft['published'] = db()->getValue(
-            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
-        );
-    }
+    // 下書きが無いときは、日付に規則をかけず published だけ今の値を渡す（DocAPI::draftForAdoption()）
+    $draft = adoptableDraft($docid, evo()->revision->getDraft($docid));
     evo()->doc->update($draft, $docid);
     db()->delete(
         '[+prefix+]site_revision',

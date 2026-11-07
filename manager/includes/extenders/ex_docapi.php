@@ -186,13 +186,18 @@ class DocAPI
      * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
      * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
      * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
      * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
      */
     public function draftForAdoption($docid, $draft, $canPublish = true)
     {
-        $draft['published'] = (int)db()->getValue(
+        $published = (int)db()->getValue(
             db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
         );
+        if (!$draft) {
+            return [['published' => $published], ''];
+        }
+        $draft['published'] = $published;
         $ruled = $this->setPubStatus($draft);
         if ($canPublish) {
             $draft = $ruled;
