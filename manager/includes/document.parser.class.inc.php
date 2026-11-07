@@ -3301,10 +3301,10 @@ class DocumentParser
             $value = $this->applyFilter($value, $modifiers, $key);
         }
 
-        // リクエストの値は、記事にそのまま置いても安全なように、修飾子の後で HTML としてエスケープする。
-        // 修飾子の :hsc などで既にエスケープした文字参照は、二重にしない（double_encode = false）
-        if (!$raw && preg_match('/^\$_(GET|POST|REQUEST)(\[|$)/', $key)) {
-            $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする。
+        // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
+        if (!$raw && in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true)) {
+            $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
 
         return $value;
@@ -3320,7 +3320,8 @@ class DocumentParser
             return [true, false];
         }
         if (strpos($modifiers, 'raw:') === 0) {
-            return [true, substr($modifiers, strlen('raw:'))];
+            $rest = substr($modifiers, strlen('raw:'));
+            return [true, $rest === '' ? false : $rest];
         }
 
         return [false, $modifiers];
@@ -3328,17 +3329,33 @@ class DocumentParser
 
     private function isSuperGlobalAccessor($key)
     {
-        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key) === 1;
+        return $this->superGlobalName($key) !== '';
+    }
+
+    // '$_GET[...]' の 'GET' のように、タグが指すスーパーグローバルの名前を返す。当たらなければ空文字
+    private function superGlobalName($key)
+    {
+        return $this->matchSuperGlobal($key)[1] ?? '';
+    }
+
+    private function matchSuperGlobal($key)
+    {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+            return [];
+        }
+
+        return $matches;
     }
 
     private function fetchSuperGlobalValue($key, $session)
     {
-        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+        $matches = $this->matchSuperGlobal($key);
+        if (!$matches) {
             return '';
         }
 
         $target = $matches[1];
-        $path = $this->convertBracketToDot($matches[2]);
+        $path = $this->convertBracketToDot($matches[2] ?? '');
         $superGlobal = $this->getSuperGlobalSource($target, $session);
 
         if ($path === '') {
