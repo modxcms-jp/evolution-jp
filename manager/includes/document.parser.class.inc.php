@@ -1426,7 +1426,8 @@ class DocumentParser
 
     public function getUserFromName($username)
     {
-        $field = 'mu.*, ua.*';
+        // 2 つの表に同じ名前の列 id がある。ユーザーの ID は manager_users.id なので、後ろに書いて読む
+        $field = 'ua.*, mu.id, mu.username, mu.password';
         $from = [
             '[+prefix+]manager_users mu',
             'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
