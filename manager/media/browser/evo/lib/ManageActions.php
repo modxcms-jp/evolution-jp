@@ -2,7 +2,7 @@
 
 /**
  * 管理モードだけで受ける操作。ManageScope::actions() だけが登録するので、ピッカーの範囲では表に載らず 400 になる。
- * api.php の fbSendJson() / fbError() / fbAttempt() / fbNotFoundMessage() を使う。
+ * api.php の fbSendJson() / fbError() / fbNotFoundMessage() と Filesystem::attempt() を使う。
  *
  * readText は {name, content, hash, readOnly, readOnlyReason(link|permission|encoding|''), encoding} を返す。
  * テキストとして扱うのは、拡張子が BrowserConfig::TEXT_EXTENSIONS にあり、大きさが TEXT_MAX_BYTES 以下で、NUL を含まないファイルだけ。
@@ -101,7 +101,7 @@ class ManageActions
         }
 
         // 既にあるファイルへ書くので、パーミッションは保たれる
-        $written = fbAttempt(function () use ($realPath, $content) {
+        $written = Filesystem::attempt(function () use ($realPath, $content) {
             return file_put_contents($realPath, $content, LOCK_EX);
         }, $reason);
         if ($written === false || $written !== strlen($content)) {
@@ -143,7 +143,7 @@ class ManageActions
         }
 
         // x: 同時に同じ名前が作られても上書きしない。既にあるリンクもたどらない
-        $handle = fbAttempt(function () use ($target) {
+        $handle = Filesystem::attempt(function () use ($target) {
             return fopen($target, 'xb');
         }, $reason);
         if ($handle === false) {
@@ -266,7 +266,7 @@ class ManageActions
      */
     private static function readOrFail($realPath)
     {
-        $buffer = fbAttempt(function () use ($realPath) {
+        $buffer = Filesystem::attempt(function () use ($realPath) {
             return file_get_contents($realPath, false, null, 0, BrowserConfig::TEXT_MAX_BYTES + 1);
         });
         if ($buffer === false) {
