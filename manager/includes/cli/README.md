@@ -28,6 +28,7 @@ php evo export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
 php evo health:check
 php evo log:tail --lines=20
 php evo log:search "インストーラー" --level=error --limit=10
+php evo log:clear --before=2026-01-01
 php evo db:console
 php evo make:command cache:clear
 php evo migrate
@@ -82,6 +83,7 @@ php evo skill:sync --skill=issue-resolver
 `migrate:status` は `applied <ID> <日時>` と `pending <ID>` を並べ、最後に `N applied, M pending` を表示します。記録の表がまだ無いときは、先頭に `Migrations table not found (every migration is pending).` を表示します。記録はあるのにファイルが無いマイグレーションは `applied <ID> <日時> (file missing)` と表示します。
 `make:migration <説明>` は `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形を作ります。説明は `a-z`・`0-9`・`_` だけで、合わなければ終了コード 1 です。
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。
+`log:clear` は `temp/logs/system/` 配下のシステムログ（`system-日付.log` とローテーション分）を削除し、空になった `YYYY/MM`・`YYYY` のフォルダも消します。実行前に `[y/N]` で確認し、STDIN が対話でないとき（対話かどうかを判定できない環境も含む）は `--force` がなければ終了コード 1 で拒否します。`n` などで取り消したときも終了コード 1 です。`--before=YYYY-MM-DD` はファイル名の日付がその日より前のものだけを消します（値が空・日付の形が不正なら、何も消さず終了コード 1）。`Deleted: N` と `Failed: M` を表示し、消せなかったパス（読めないフォルダを含む。読めるところは消します）は標準エラーへ出して終了コード 1 にします。削除のあと、システムログに「Cleared system logs」を 1 件記録します。ウェブサーバーと同じユーザーで実行してください（別のユーザーで動かすと、作り直されたログのフォルダとファイルの所有者が変わり、ウェブ側から書けなくなることがあります）。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。
 - 取り込みの前に、今の DB を `pre-restore-<自動の名前>.sql` として保存先へ保存します（`mysqldump` を使い、`db:backup` と同じくプレフィックスの表だけ、トリガーなし）。保存できなければ、何も取り込まずに終了コード 1 で終わります。プレフィックスの表がまだ無い DB（空の DB への取り込み）では保存するものが無いので、このスナップショットは作りません（`Pre-restore snapshot: skipped (...)` と表示）。
 - 出力は `Pre-restore snapshot: <ファイル名>` と、完了時の `Import completed. Executed: N, Skipped: M` です。

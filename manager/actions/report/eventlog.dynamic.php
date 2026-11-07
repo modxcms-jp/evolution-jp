@@ -71,10 +71,41 @@ if ($query !== '') {
 $deleteActionUrl = 'index.php?' . http_build_query($deleteActionParams);
 $deleteError = '';
 
+$clearNotice = '';
+if (is_post() && postv('clear_logs') === '1') {
+    if (!$canDeleteLog) {
+        $deleteError = lang('access_permission_denied', 'アクセス権限がありません。');
+    } else {
+        $result = SystemLogViewer::clear($logRoot);
+        $redirectUrl = 'index.php?' . http_build_query([
+            'a' => '114',
+            'cleared' => (int)$result['deleted'],
+            'clear_failed' => count($result['failed']),
+        ]);
+        if (!headers_sent()) {
+            header('Location: ' . $redirectUrl);
+        } else {
+            echo '<script>window.location.href=' . js_literal($redirectUrl) . ';</script>';
+        }
+        exit;
+    }
+} elseif (getv('cleared', '') !== '') {
+    $clearNotice = sprintf(
+        lang('system_log_cleared', 'システムログのファイルを %d 件削除しました。'),
+        get_intvar('cleared')
+    );
+    if (get_intvar('clear_failed') > 0) {
+        $clearNotice .= ' ' . sprintf(
+            lang('system_log_clear_failed', '%d 件は削除できませんでした。'),
+            get_intvar('clear_failed')
+        );
+    }
+}
+
 if (is_post() && postv('delete_log') === '1') {
     if (!$canDeleteLog) {
         $deleteError = lang('access_permission_denied', 'アクセス権限がありません。');
-    } elseif ($selectedPath !== '' && @unlink($selectedPath)) {
+    } elseif ($selectedPath !== '' && SystemLogViewer::deleteFiles([$selectedPath], $logRoot)['deleted'] === 1) {
         if (basename($selectedPath) !== 'system-' . date('Y-m-d') . '.log') {
             evo()->logEvent(0, 1, 'Deleted system log file', 'SystemLogViewer', [
                 'file' => $selectedFile,
@@ -141,6 +172,13 @@ if (getv('download') === '1' && $selectedPath !== '') {
                 <?= lang('cancel') ?>
             </a>
         </li>
+        <?php if ($canDeleteLog) { ?>
+        <li id="Button6" class="mutate">
+            <a href="#" id="systemLogClearButton">
+                <img src="<?= style('icons_delete') ?>" alt="" /> <?= hsc(lang('delete_all_system_logs', 'すべて削除')) ?>
+            </a>
+        </li>
+        <?php } ?>
     </ul>
 </div>
 
@@ -275,6 +313,9 @@ if (getv('download') === '1' && $selectedPath !== '') {
     <p><?= hsc(lang('system_log_msg', 'システムログはJSONLines形式で保存されたエラー・警告・情報メッセージを表示します。')) ?></p>
 
     <div class="sectionBody">
+        <?php if ($clearNotice !== '') { ?>
+            <div class="system-log-summary"><?= hsc($clearNotice) ?></div>
+        <?php } ?>
         <?php if (!$files) { ?>
             <div class="system-log-empty"><?= hsc(lang('no_records_found')) ?></div>
         <?php } else { ?>
@@ -361,7 +402,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     <form
                         method="post"
                         action="<?= hsc($deleteActionUrl) ?>"
-                        onsubmit="return confirm('<?= hsc(lang('confirm_delete_system_log', 'このシステムログを削除します。よろしいですか？')) ?>');"
+                        onsubmit="return confirm(<?= hsc(js_literal(lang('confirm_delete_system_log', 'このシステムログを削除します。よろしいですか？'))) ?>);"
                     >
                         <?= csrfTokenField() ?>
                         <input type="hidden" name="delete_log" value="1" />
@@ -384,6 +425,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     id="systemLogStream"
                     class="system-log-stream"
                     data-period="<?= hsc($period) ?>"
+                    data-month="<?= hsc($selectedMonth) ?>"
                     data-file="<?= hsc($selectedFile) ?>"
                     data-level="<?= hsc($level) ?>"
                     data-source="<?= hsc($source) ?>"
@@ -396,7 +438,24 @@ if (getv('download') === '1' && $selectedPath !== '') {
     </div>
 </div>
 
-<?php if ($isLatest || $selectedPath !== '') { ?>
+<?php if ($canDeleteLog) { ?>
+<form id="systemLogClearForm" method="post" action="index.php?a=114">
+    <?= csrfTokenField() ?>
+    <input type="hidden" name="clear_logs" value="1" />
+</form>
+<script>
+document.getElementById('systemLogClearButton').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (confirm(<?= js_literal(lang('confirm_clear_system_log', 'システムログをすべて削除します。元に戻せません。')) ?>)) {
+        documentDirty = false;
+        document.getElementById('systemLogClearForm').submit();
+    }
+});
+</script>
+<?php } ?>
+
+<?php // ログが 1 件も無いときは絞り込みのフォームも一覧も出さないので、それを前提にした script も出さない ?>
+<?php if ($files && ($isLatest || $selectedPath !== '')) { ?>
 <script>
 function downloadSystemLog(url) {
     dontShowWorker = true;
@@ -414,6 +473,7 @@ function downloadSystemLog(url) {
     const filterForm = fileSelect.form;
     const stream = document.getElementById('systemLogStream');
     const period = stream.dataset.period;
+    const month = stream.dataset.month;
     const file = stream.dataset.file;
     const level = stream.dataset.level;
     const source = stream.dataset.source;
@@ -542,6 +602,10 @@ function downloadSystemLog(url) {
                 params.set('cursor_file', olderCursorFile);
             }
         } else {
+            // 年の期間では、サーバーは month で絞った中から file を探す。送らないと最新の月で絞られ、別のファイルが出る
+            if (month) {
+                params.set('month', month);
+            }
             params.set('file', file);
         }
         if (level) {
