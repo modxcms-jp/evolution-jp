@@ -235,7 +235,12 @@ function saveUserSettings($id)
     // システム設定と同じ値は保存しない（あとでシステム設定を変えたときに、そのユーザーも追従させる）
     $system = systemSettings();
     foreach ($settings as $k => $v) {
-        if (array_key_exists($k, $system) && (string)$system[$k] === (string)$v) {
+        $systemValue = $system[$k] ?? null;
+        if ($k === 'rb_base_url' && $systemValue !== null && trim((string)$systemValue) !== '') {
+            // 比べるためだけにそろえる（DB に残る古い形の値と食い違わないように）
+            $systemValue = init::normalize_rb_base_url($systemValue, config('site_url'), MODX_BASE_URL);
+        }
+        if ($systemValue !== null && (string)$systemValue === (string)$v) {
             unset($settings[$k]);
         }
     }

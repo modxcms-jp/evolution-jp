@@ -222,6 +222,7 @@ class init
      * rb_base_url（ファイルの URL の頭）を保存・利用する形にそろえる。
      * 自サイトのホストを含む値と、設置パス（$base_url）で始まるパスは、サイトの URL からの相対パス（content/）にする。
      * 別ホスト（CDN など）の値と、設置パスの外のパスはそのまま（末尾の / だけそろえる）。
+     * 注意: サブディレクトリ設置で、設置パスの外を指すルートからのパス（/sub/ 設置の /content/）は正しく扱えない（ホスト付きの URL なら扱える）。
      * サイトの直下（空・/・設置パスそのもの）は / を返す。$site_url は自サイトの URL、$base_url は設置パス（MODX_BASE_URL）
      */
     public static function normalize_rb_base_url($value, $site_url, $base_url = '/')
