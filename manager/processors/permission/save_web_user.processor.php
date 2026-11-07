@@ -268,7 +268,8 @@ switch ($mode) {
             }
             $updatepasswordsql = ", password=MD5('" . db()->escape($newpassword) . "') ";
         }
-        if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
+        // パスワードを変えたときだけ、新しいパスワードを知らせる
+        if (!empty($updatepasswordsql) && $modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
         }
 
@@ -386,8 +387,8 @@ switch ($mode) {
                 'username' => $newusername,
                 'userpassword' => $newpassword ?? ''
             ];
+            evo()->invokeEvent('OnWebChangePassword', $tmp);
         }
-        evo()->invokeEvent('OnWebChangePassword', $tmp);
 
         // invoke OnWUsrFormSave event
         $tmp = [
