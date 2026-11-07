@@ -363,15 +363,18 @@ final class DataTableSettings
         $names = [];
 
         if (db()->isResult($source)) {
-            $rows = [];
-            while ($row = db()->getRow($source)) {
-                $rows[] = $row;
-            }
+            // 列のキーは、行の有無にかかわらず結果の列の情報から取る（0 件でも見出しを出すため。行を読む前に取る）
             $fields = trim((string) ($settings['fields'] ?? ''));
             if ($fields !== '') {
                 $keys = array_map('trim', explode(',', $fields));
-            } elseif ($rows) {
-                $keys = array_keys($rows[0]);
+            } else {
+                for ($i = 0, $n = db()->numFields($source); $i < $n; $i++) {
+                    $keys[] = db()->fieldName($source, $i);
+                }
+            }
+            $rows = [];
+            while ($row = db()->getRow($source)) {
+                $rows[] = $row;
             }
             $names = self::splitList((string) ($settings['columns'] ?? ''));
             if (!$names) {
