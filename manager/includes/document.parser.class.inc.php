@@ -4939,7 +4939,9 @@ class DocumentParser
         if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
             return '';
         }
-        return (int)mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
+        return $timeStamp === false ? '' : $timeStamp;
     }
 
     /**
@@ -4966,7 +4968,11 @@ class DocumentParser
                 return 0;
             }
             if (preg_match('/^-?[0-9]+$/', $value)) {
-                $timestamp = (int)$value;
+                // 整数に収まらない桁（32bit の PHP では 11 桁など）は、(int) で上限に丸めず解釈できない値にする
+                $timestamp = $value + 0;
+                if (!is_int($timestamp)) {
+                    return null;
+                }
             } else {
                 $timestamp = $this->toTimeStamp($value);
                 if ($timestamp === '') {
