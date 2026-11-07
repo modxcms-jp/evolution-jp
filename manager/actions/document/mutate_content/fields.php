@@ -363,7 +363,7 @@ function fieldsTV()
         } else {
             $ph = [];
             $ph['caption'] = evo()->hsc($tv['caption']);
-            $ph['description'] = element_description_html($tv['description']);
+            $ph['description'] = tv_input_description_html($tv['description']);
             $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
             $ph['FormElement'] = evo()->renderFormElement(
                 $tv['type'],
