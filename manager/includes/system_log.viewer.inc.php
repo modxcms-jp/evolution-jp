@@ -1,7 +1,11 @@
 <?php
 
+require_once __DIR__ . '/filesystem.class.inc.php';
+
 class SystemLogViewer
 {
+    private const LOG_NAME_PATTERN = '/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/';
+
     public static function files(string $root): array
     {
         if (!is_dir($root)) {
@@ -23,7 +27,7 @@ class SystemLogViewer
                 continue;
             }
             $name = $file->getFilename();
-            if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', $name)) {
+            if (!preg_match(self::LOG_NAME_PATTERN, $name)) {
                 continue;
             }
 
@@ -66,6 +70,79 @@ class SystemLogViewer
         });
 
         return $items;
+    }
+
+    /**
+     * YYYY-MM-DD の形で、実在する日付か。
+     */
+    public static function isValidDate(string $date): bool
+    {
+        if (!preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $date, $m)) {
+            return false;
+        }
+        return checkdate((int)$m[2], (int)$m[3], (int)$m[1]);
+    }
+
+    /**
+     * ログファイルの削除の芯。ファイル名がログのパターンに合うものだけを消し、最後まで進める。
+     * 消したあとに空になった YYYY/MM・YYYY のフォルダを消す($root は残す)。
+     *
+     * @param string[] $paths 消すファイルのパス
+     * @return array{deleted:int, failed:array<string,string>} failed は パス => 理由
+     */
+    public static function deleteFiles(array $paths, string $root): array
+    {
+        $deleted = 0;
+        $failed = [];
+        foreach ($paths as $path) {
+            $path = (string)$path;
+            if (!preg_match(self::LOG_NAME_PATTERN, basename($path))) {
+                $failed[$path] = '';
+                continue;
+            }
+            $ok = Filesystem::attempt(function () use ($path) {
+                return unlink($path);
+            }, $reason);
+            if ($ok) {
+                $deleted++;
+            } else {
+                $failed[$path] = (string)$reason;
+            }
+        }
+        Filesystem::pruneEmptyDirs($root);
+
+        return ['deleted' => $deleted, 'failed' => $failed];
+    }
+
+    /**
+     * ログをすべて消す。$before(YYYY-MM-DD)があれば、ファイル名の日付がその日より前のものだけ。
+     * 終わったあと、システムログに 1 件記録する(画面・CLI 共通。呼び出し側では書かない)。
+     *
+     * @return array{deleted:int, failed:array<string,string>}
+     */
+    public static function clear(string $root, string $before = ''): array
+    {
+        $paths = [];
+        foreach (self::files($root) as $file) {
+            if ($before !== ''
+                && (!preg_match('/^system-([0-9]{4}-[0-9]{2}-[0-9]{2})\.log/', (string)$file['name'], $m) || $m[1] >= $before)
+            ) {
+                continue;
+            }
+            $paths[] = $file['path'];
+        }
+        $result = self::deleteFiles($paths, $root);
+
+        $context = [
+            'deleted' => $result['deleted'],
+            'failed' => count($result['failed']),
+        ];
+        if ($before !== '') {
+            $context['before'] = $before;
+        }
+        evo()->logEvent(0, count($result['failed']) ? 2 : 1, 'Cleared system logs', 'SystemLogViewer', $context);
+
+        return $result;
     }
 
     public static function latestFiles(array $files, int $limit = 100): array
@@ -225,7 +302,7 @@ class SystemLogViewer
         if (strpos($path, $rootPath) !== 0) {
             return '';
         }
-        if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', basename($path))) {
+        if (!preg_match(self::LOG_NAME_PATTERN, basename($path))) {
             return '';
         }
 
