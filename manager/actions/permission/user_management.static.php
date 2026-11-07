@@ -153,111 +153,111 @@ echo $cm->render();
                 </tr>
             </table>
         </div>
-            <?php
-            include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-            $tbl_manager_users = evo()->getFullTableName('manager_users');
-            $tbl_user_attributes = evo()->getFullTableName('user_attributes');
-            $tbl_user_roles = evo()->getFullTableName('user_roles');
-            $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount,mua.blocked';
-            $from = "{$tbl_manager_users} AS mu";
-            $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
-            $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
-            // Build WHERE clause: combine search conditions and role restriction
-            $search = request_strvar('search');
-            $whereParts = [];
+        <?php
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        $tbl_manager_users = evo()->getFullTableName('manager_users');
+        $tbl_user_attributes = evo()->getFullTableName('user_attributes');
+        $tbl_user_roles = evo()->getFullTableName('user_roles');
+        $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount,mua.blocked';
+        $from = "{$tbl_manager_users} AS mu";
+        $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
+        $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
+        // Build WHERE clause: combine search conditions and role restriction
+        $search = request_strvar('search');
+        $whereParts = [];
 
-            if ($search) {
-                $keyword = db()->escape($search);
-                $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
-            }
+        if ($search) {
+            $keyword = db()->escape($search);
+            $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
+        }
 
-            // Non-admins should not see users with role == 1
-            if (sessionv('mgrRole') != 1) {
-                $whereParts[] = 'mua.role != 1';
-            }
+        // Non-admins should not see users with role == 1
+        if (sessionv('mgrRole') != 1) {
+            $whereParts[] = 'mua.role != 1';
+        }
 
-            $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
-            $orderby = 'mua.blocked ASC, mua.thislogin DESC';
+        $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
+        $orderby = 'mua.blocked ASC, mua.thislogin DESC';
 
-            // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
-            $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
-            $page = request_strvar('op') === 'reset'
-                ? 1
-                : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
-            $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
-            $pager = new DataTablePager($total, $perPage, $page);
-            if ($perPage > 0 && $total > 0) {
-                $_PAGE['vs']['page'] = $pager->page();
-            }
-            $params = ['a' => 75];
-            if ($search) {
-                $params['search'] = $search;
-            }
-            $links = new DataTableLinks('index.php', $params, $pager->page());
+        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
+        $page = request_strvar('op') === 'reset'
+            ? 1
+            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
+        $pager = new DataTablePager($total, $perPage, $page);
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
+        }
+        $params = ['a' => 75];
+        if ($search) {
+            $params['search'] = $search;
+        }
+        $links = new DataTableLinks('index.php', $params, $pager->page());
 
-            $ds = db()->select(
-                $field,
-                $from,
-                $where,
-                $orderby,
-                $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
-            );
-            $rows = db()->getRows($ds) ?: [];
+        $ds = db()->select(
+            $field,
+            $from,
+            $where,
+            $orderby,
+            $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
+        );
+        $rows = db()->getRows($ds) ?: [];
 
-            $columns = [
-                [
-                    'key' => 'username',
-                    'label' => $_lang['username'],
-                    'html' => true,
-                    'format' => function ($value, array $row) use ($_style, $_lang) {
-                        $id = (int) $row['id'];
-                        return sprintf(
-                            '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
-                            . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
-                            $id,
-                            hsc($_lang['click_to_context']),
-                            hsc($_style['icons_user']),
-                            $row['blocked'] ? 'unpublished' : 'published',
-                            $id,
-                            hsc($_lang['click_to_edit_title']),
-                            hsc($value)
-                        );
-                    },
-                ],
-                ['key' => 'fullname', 'label' => $_lang['user_full_name']],
-                ['key' => 'email', 'label' => $_lang['email']],
-                ['key' => 'rolename', 'label' => $_lang['role']],
-                [
-                    'key' => 'thislogin',
-                    'label' => $_lang['login_button'],
-                    'format' => function ($value) {
-                        if (!$value) {
-                            return '-';
-                        }
-                        return evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', $value);
-                    },
-                ],
-                ['key' => 'logincount', 'label' => $_lang['user_logincount']],
-                [
-                    'key' => 'blocked',
-                    'label' => $_lang['user_block'],
-                    'format' => function ($value) use ($_lang) {
-                        return $value ? $_lang['yes'] : '-';
-                    },
-                ],
-            ];
-            $table = new DataTable($columns, [
-                'id' => 'users',
-                'tableClass' => 'grid',
-                'rowClasses' => ['gridItem', 'gridAltItem'],
-                'emptyMessage' => $_lang['no_records_found'],
-            ]);
-            $nav = $pager->render($links, [
-                'label' => lang('pagination_label'),
-                'first' => lang('pagination_table_first'),
-                'last' => lang('pagination_table_last'),
-            ]);
-            echo $nav . $table->render($rows, $links) . $nav;
-            ?>
+        $columns = [
+            [
+                'key' => 'username',
+                'label' => $_lang['username'],
+                'html' => true,
+                'format' => function ($value, array $row) use ($_style, $_lang) {
+                    $id = (int) $row['id'];
+                    return sprintf(
+                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
+                        . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
+                        $id,
+                        hsc($_lang['click_to_context']),
+                        hsc($_style['icons_user']),
+                        $row['blocked'] ? 'unpublished' : 'published',
+                        $id,
+                        hsc($_lang['click_to_edit_title']),
+                        hsc($value)
+                    );
+                },
+            ],
+            ['key' => 'fullname', 'label' => $_lang['user_full_name']],
+            ['key' => 'email', 'label' => $_lang['email']],
+            ['key' => 'rolename', 'label' => $_lang['role']],
+            [
+                'key' => 'thislogin',
+                'label' => $_lang['login_button'],
+                'format' => function ($value) {
+                    if (!$value) {
+                        return '-';
+                    }
+                    return evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', $value);
+                },
+            ],
+            ['key' => 'logincount', 'label' => $_lang['user_logincount']],
+            [
+                'key' => 'blocked',
+                'label' => $_lang['user_block'],
+                'format' => function ($value) use ($_lang) {
+                    return $value ? $_lang['yes'] : '-';
+                },
+            ],
+        ];
+        $table = new DataTable($columns, [
+            'id' => 'users',
+            'tableClass' => 'grid',
+            'rowClasses' => ['gridItem', 'gridAltItem'],
+            'emptyMessage' => $_lang['no_records_found'],
+        ]);
+        $nav = $pager->render($links, [
+            'label' => lang('pagination_label'),
+            'first' => lang('pagination_table_first'),
+            'last' => lang('pagination_table_last'),
+        ]);
+        echo $nav . $table->render($rows, $links) . $nav;
+        ?>
     </div>
 </form>
