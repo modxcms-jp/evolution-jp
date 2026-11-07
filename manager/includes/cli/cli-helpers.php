@@ -45,6 +45,9 @@ function cli_system_log_format_entry(array $entry): string
  * Create a temporary MySQL option file for secure credential passing.
  * Pass it with --defaults-file (as the first option) so that the client reads
  * only this file and ~/.my.cnf etc. cannot override the connection settings.
+ * MySQL clients still read ~/.mylogin.cnf even with --defaults-file, so this
+ * also points MYSQL_TEST_LOGIN_FILE at a path that does not exist (MariaDB
+ * clients have no login path file and ignore it).
  * Returns the temp file path. The file is auto-deleted on shutdown.
  */
 function cli_mysql_defaults_file()
@@ -80,7 +83,13 @@ function cli_mysql_defaults_file()
         db()->config['pass'],
         $sslLine
     );
+    // /etc/my.cnf is no longer read, so pass the charset the site connects with
+    $charset = db()->config['charset'] ?? '';
+    if ($charset !== '') {
+        $content .= "default-character-set={$charset}\n";
+    }
     file_put_contents($tmpFile, $content);
+    putenv('MYSQL_TEST_LOGIN_FILE=' . $tmpFile . '.nologin');
 
     return $tmpFile;
 }
