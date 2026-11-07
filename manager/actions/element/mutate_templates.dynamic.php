@@ -371,7 +371,7 @@ function template($key, $default = null)
     static $tplObject = [];
     static $loaded = false;
     if ($loaded) {
-        return evo()->array_get($tplObject, $key, $default);
+        return array_get($tplObject, $key, $default);
     }
     $loaded = true;
     if (get_intvar('id')) {
@@ -394,7 +394,7 @@ function template($key, $default = null)
     }
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
     $tplObject = manager()->restoreElementFormValues($tplObject);
-    return evo()->array_get($tplObject, $key, $default);
+    return array_get($tplObject, $key, $default);
 }
 
 // 編集するテンプレートの id。新規作成のときは空文字

@@ -24,7 +24,7 @@ function checkbox($name, $value, $label, $cond)
 function user($key, $default = null)
 {
     global $user;
-    return evo()->array_get($user, $key, $default);
+    return array_get($user, $key, $default);
 }
 
 // システム設定の値。evo()->config には編集している管理者自身のユーザー設定が重なっているので、テーブルから読む。

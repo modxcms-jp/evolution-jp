@@ -39,7 +39,7 @@ class errorHandler
             $this->errormessage = $message;
             return;
         }
-        $this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
+        $this->errormessage = array_get($this->errors, $errorcode, $errorcode);
     }
 
     public function hasError()

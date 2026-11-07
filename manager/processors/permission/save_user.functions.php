@@ -198,7 +198,7 @@ function saveUserSettings($id)
     }
 
     foreach ($defaults as $k) {
-        if (evo()->array_get($settings, 'default_' . $k) == 1) {
+        if (array_get($settings, 'default_' . $k) == 1) {
             unset($settings[$k]);
         }
         unset($settings['default_' . $k]);
