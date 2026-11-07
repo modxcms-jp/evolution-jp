@@ -48,14 +48,17 @@ class MODIFIERS
     // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（parsePhx() を参照）
     public function phxFilter($key, $value, $modifiers, $breakTags = false)
     {
-        if (strpos($modifiers, 'id(') !== 0) {
-            // 修飾子は文字列の値を受ける前提で、配列は下の strpos() などで止まる（PHP 8 は TypeError、7.4 は警告から 500）。
-            // 配列（?b[]=x のようなリクエストの値、配列を入れたプレースホルダー、配列を返すスニペット）は、
-            // 修飾子を当てずに空にする。修飾子の無いタグも配列は差し込まず空になるので、それとそろえる。
-            // id( で始まる列は値を使わずに文書の項目を読むので、配列でもそのまま当てる（今までどおり）
-            if (is_array($value)) {
+        $startsWithId = strpos($modifiers, 'id(') === 0;
+        // 修飾子は文字列の値を受ける前提で、配列は下の strpos() などで止まる（PHP 8 は TypeError、7.4 は警告から 500）。
+        // 配列（?b[]=x のようなリクエストの値、配列を入れたプレースホルダー、配列を返すスニペット）は、
+        // 修飾子を当てずに空にする。修飾子の無いタグも配列は差し込まず空になるので、それとそろえる。
+        // 例外は id(5) のように括弧の中に値がある列だけ。値を使わずに文書の項目を読むので、配列でもそのまま当てる。
+        // 括弧の中が空の id() は値をそのまま返し、続く修飾子に配列が届くので、例外にしない
+        if (is_array($value)) {
+            if (!$startsWithId || !preg_match('/^id\(\s*[^\s)]/', $modifiers)) {
                 return '';
             }
+        } elseif (!$startsWithId) {
             $value = $this->parseDocumentSource($value);
         }
         $this->srcValue = $value;
