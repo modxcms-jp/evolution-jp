@@ -4,19 +4,6 @@ if (!isset($modx) || !evo()->isLoggedin()) exit;
 $GLOBALS['style_images_path'] = manager_style_image_path();
 $GLOBALS['style_tree_path'] = manager_style_image_path('tree');
 
-function iconMessage()
-{
-    global $modx, $_lang;
-
-    if (!manager_is_dashboard_action()) return;
-    if (evo()->hasPermission('messages')) {
-        $ph['imgsrc'] = (sessionv('nrnewmessages', 0) > 0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
-        $ph['action'] = 'index.php?a=10';
-        $ph['title'] = $_lang['inbox'];
-        $modx->setPlaceholder('iconMessage', $modx->parseText(icontpl(), $ph));
-    }
-}
-
 function iconElements()
 {
     global $modx, $_lang;

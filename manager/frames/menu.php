@@ -20,20 +20,13 @@ if (!$isShellPartial) {
         <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>" type="text/javascript"></script>
 <?php } ?>
         <script type="text/javascript">
-            var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;
-
-            function initMenuState(nextMsgcheck, mailinterval) {
-                msgcheck = nextMsgcheck;
+            function initMenuState() {
                 // シェルでのメニュー再読込時にタイマーが多重登録されないよう、一旦解除する
                 if (window.__menuTimers) {
                     window.__menuTimers.forEach(clearInterval);
                 }
                 window.__menuTimers = [];
                 window.__menuTimers.push(window.setInterval(keepMeAlive, 1000 * 60));
-                if (msgcheck != 0) updateMail(true); // First run update
-                if (mailinterval != '' && mailinterval != 0) {
-                    if (msgcheck != 0) window.__menuTimers.push(setInterval(function () { updateMail(true); }, mailinterval * 1000));
-                }
 
                 if (top.__hideTree) {
                     hideTreeFrame();
@@ -43,7 +36,7 @@ if (!$isShellPartial) {
             }
 
             Evo.ready(function () {
-                initMenuState(msgcheck, <?= (int) config('mail_check_timeperiod');?>);
+                initMenuState();
             });
 
             // シェル遷移ではメニューが再描画されないため、表示中の画面が変わるたびに付け直す。
@@ -125,34 +118,6 @@ if (!$isShellPartial) {
                         if (resp && resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
                     })
                     .catch(function () {});
-            }
-
-            function updateMail(now) {
-                try {
-                    // if 'now' is set, runs immediate ajax request (avoids problem on initial loading where periodical waits for time period before making first request)
-                    if (now && msgcheck != 0) {
-                        Evo.post('index.php', {"updateMsgCount": "true"})
-                            .then(function (response) {
-                                return response.ok ? response.text() : null;
-                            })
-                            .then(function (request) {
-                                if (request !== null) showResponse(request);
-                            })
-                            .catch(function () {});
-                    }
-                    return false;
-                } catch (oException) {
-                    // Delay first run until we're ready...
-                    if (msgcheck != 0) setTimeout('updateMail(true)', 1000 * 60);
-                }
-            }
-
-            function showResponse(request) {
-                var counts = request.split(',');
-                var elm = document.getElementById('msgCounter');
-                if (elm) elm.innerHTML = '(' + counts[0] + ' / ' + counts[1] + ')';
-                var elm = document.getElementById('newMail');
-                if (elm) elm.style.display = counts[0] > 0 ? 'inline' : 'none';
             }
 
             function hideTreeFrame() {
@@ -248,7 +213,6 @@ if (!$isShellPartial) {
 
             // 旧フレーム参照(top.mainMenu.X)の互換API。シェルではこのオブジェクトが窓口になる
             window.mainMenu = {
-                updateMail: updateMail,
                 keepMeAlive: keepMeAlive,
                 hideTreeFrame: hideTreeFrame,
                 defaultTreeFrame: defaultTreeFrame,
@@ -271,10 +235,7 @@ if (!$isShellPartial) {
         <script type="text/javascript">
             // シェルの部分再取得では#topMenu内のscriptだけが実行されるため、メニュー状態を再初期化する
             if (window.mainMenu && typeof window.mainMenu.initMenuState === 'function') {
-                window.mainMenu.initMenuState(
-                    <?= evo()->hasPermission('messages') ? 1 : 0;?>,
-                    <?= (int) config('mail_check_timeperiod');?>
-                );
+                window.mainMenu.initMenuState();
             }
         </script>
 <?php } ?>
@@ -299,26 +260,6 @@ if (!$isShellPartial) {
                     $loginMarkup = $loginName;
                 }
                 $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--user">%s</span>', $loginMarkup);
-
-                if (evo()->hasPermission('messages')) {
-                    $messagesLabel = htmlspecialchars($_lang['messages'], ENT_QUOTES, $charset);
-                    $mailTooltip = htmlspecialchars($_lang['you_got_mail'], ENT_QUOTES, $charset);
-                    $mailIcon = sprintf(
-                        '<span id="newMail"><a href="index.php?a=10" title="%s"><img src="%s" alt="%s" /></a></span>',
-                        $mailTooltip,
-                        htmlspecialchars($_style['icons_mail'], ENT_QUOTES, $charset),
-                        $messagesLabel
-                    );
-                    $messagesLink = sprintf(
-                        '<a onclick="this.blur();" href="index.php?a=10">%s <span id="msgCounter">( ? / ? )</span></a>',
-                        $messagesLabel
-                    );
-                    $supplementalNavItems[] = sprintf(
-                        '<span class="supplementalNav__item supplementalNav__item--messages">%s%s</span>',
-                        $mailIcon,
-                        $messagesLink
-                    );
-                }
 
                 if (evo()->hasPermission('help')) {
                     $helpLabel = htmlspecialchars($_lang['help'], ENT_QUOTES, $charset);
@@ -456,7 +397,6 @@ if (!$isShellPartial) {
                         evo()->hasPermission('change_password'));// change password
                     $item['change_password'] = item($_lang['change_password'], 28,
                         evo()->hasPermission('change_password'));// change password
-                    $item['messages'] = item($_lang['messages'], 10, evo()->hasPermission('messages'));// messages
 
                     $sitemenu = buildMenu('site', $item);
                     $elementmenu = buildMenu('element', $item);
