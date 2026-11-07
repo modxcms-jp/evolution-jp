@@ -76,25 +76,14 @@ $doc_id = request_intvar('id') ?: request_intvar('pid');
 
 // Add action buttons
 // アイコンは付けない（どのテーマも .actionButtons a img を隠す。テーマに images/icons も無い）
-if ($this->conf('prop_loadtb')) {
-    $mc->addLine(
-        sprintf(
-            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\">%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\">%s</a></li></ul></div>";',
-            $_lang['save'],
-            evo()->makeUrl($doc_id, '', '', 'full'),
-            $_lang['cancel']
-        )
-    );
-} else {
-    $mc->addLine(
-        sprintf(
-            'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\">%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\">%s</a></li></ul></div>";',
-            $_lang['save'],
-            evo()->makeUrl($doc_id, '', '', 'full'),
-            $_lang['cancel']
-        )
-    );
-}
+// HTML は PHP で組み（文言は hsc()、onclick の中の URL は js_literal() してから hsc()）、全体を js_literal() で JS に渡す。
+// makeUrl() は設定（xhtml_urls）で & を &amp; にして返すので、JS の値にする前に元へ戻す
+$cancelUrl = html_entity_decode(evo()->makeUrl($doc_id, '', '', 'full'), ENT_QUOTES | ENT_HTML401, 'UTF-8');
+$controls = '<div style="padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000" id="qmcontrols" class="actionButtons"><ul>'
+    . '<li class="primary"><a href="#" onclick="documentDirty=false;gotosave=true;document.mutate.save.click();return false;">' . hsc(lang('save')) . '</a></li>'
+    . '<li><a href="#" id="cancel" onclick="parent.location.href=' . hsc(js_literal($cancelUrl)) . ';return false;">' . hsc(lang('cancel')) . '</a></li>'
+    . '</ul></div>';
+$mc->addLine('var controls = ' . js_literal($controls) . ';');
 
 // Modify head
 $mc->head = '<script>document.body.style.display="none";</script>';
