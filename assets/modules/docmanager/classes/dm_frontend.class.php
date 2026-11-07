@@ -7,7 +7,7 @@ class DocManagerFrontend
     function __construct(&$dm)
     {
         $this->dm = &$dm;
-        include(MODX_CORE_PATH . 'controls/datagrid.class.php');
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
     }
 
     function getViews()
@@ -21,64 +21,111 @@ class DocManagerFrontend
         $this->renderDocumentSelect();
     }
 
+    /**
+     * 先頭にラジオ、続けて ID・名前（・説明）の列を持つ表を描く。
+     * 名前・説明は既定でエスケープする（説明は要素の説明として b・strong だけ戻す）。
+     */
+    private function radioTable(array $rows, string $tableId, string $radioHtml, array $labels, string $emptyMessage, bool $hasDescription): string
+    {
+        $columns = [
+            [
+                'key' => 'id',
+                'label' => '',
+                'class' => 'is-shrink',
+                'html' => true,
+                'format' => function ($value) use ($radioHtml) {
+                    $id = (int) $value;
+                    return strtr($radioHtml, ['[+id+]' => $id]);
+                },
+            ],
+            ['key' => 'id', 'label' => $labels['id'], 'class' => 'is-shrink'],
+            ['key' => 'name', 'label' => $labels['name']],
+        ];
+        if ($hasDescription) {
+            $columns[] = [
+                'key' => 'description',
+                'label' => $labels['description'],
+                'html' => true,
+                'format' => function ($value) {
+                    return element_description_html((string) $value);
+                },
+            ];
+        }
+        $table = new DataTable($columns, [
+            'id' => $tableId,
+            'tableClass' => 'grid',
+            'rowClasses' => ['gridItem', 'gridAltItem'],
+            'emptyMessage' => $emptyMessage,
+        ]);
+        return $table->render($rows);
+    }
+
+    private function templateRows(): array
+    {
+        return db()->getRows(
+            db()->select('id,templatename AS name,description', '[+prefix+]site_templates', '', 'id ASC')
+        ) ?: [];
+    }
+
+    private function templateLabels(): array
+    {
+        return [
+            'id' => $this->dm->lang['DM_tpl_column_id'],
+            'name' => $this->dm->lang['DM_tpl_column_name'],
+            'description' => $this->dm->lang['DM_tpl_column_description'],
+        ];
+    }
+
     function renderTemplates()
     {
-        $grd = new DataGrid(
-            '',
-            db()->select('id,templatename,description', '[+prefix+]site_templates', '', 'id ASC')
+        // 「テンプレート無し」(id 0) は表の先頭の行にする
+        $rows = array_merge(
+            [['id' => 0, 'name' => $this->dm->lang['DM_tpl_blank_template'], 'description' => '']],
+            $this->templateRows()
         );
-        $grd->noRecordMsg = $this->dm->lang['DM_tpl_no_templates'];
-        $grd->cssClass = "grid";
-        $grd->columnHeaderClass = "gridHeader";
-        $grd->itemClass = "gridItem";
-        $grd->altItemClass = "gridAltItem";
-        $grd->columns = " ," . $this->dm->lang['DM_tpl_column_id'] . "," . $this->dm->lang['DM_tpl_column_name'] . "," . $this->dm->lang['DM_tpl_column_description'];
-        $grd->colTypes = "template:<input type='radio' name='id' value='[+id+]' />";
-        $grd->colWidths = "5%,5%,40%,50%";
-        $grd->fields = "template,id,templatename,description";
 
         $this->dm->ph['baseurl'] = MODX_BASE_URL;
-        $this->dm->ph['templates.grid'] = $grd->render();
+        $this->dm->ph['templates.grid'] = $this->radioTable(
+            $rows,
+            'dm-templates',
+            '<input type="radio" name="id" value="[+id+]">',
+            $this->templateLabels(),
+            $this->dm->lang['DM_tpl_no_templates'],
+            true
+        );
         $this->dm->ph['view.templates'] = $this->dm->parseTemplate('templates.tpl', $this->dm->ph);
     }
 
     function renderTemplateVars()
     {
-        $grd = new DataGrid(
-            '',
-            db()->select('id,templatename,description', '[+prefix+]site_templates', '', 'id ASC')
+        $this->dm->ph['templatevars.grid'] = $this->radioTable(
+            $this->templateRows(),
+            'dm-templatevars',
+            '<input type="radio" name="tid" value="[+id+]" data-template-id="[+id+]">',
+            $this->templateLabels(),
+            $this->dm->lang['DM_tpl_no_templates'],
+            true
         );
-        $grd->noRecordMsg = $this->dm->lang['DM_tpl_no_templates'];
-        $grd->cssClass = "grid";
-        $grd->columnHeaderClass = "gridHeader";
-        $grd->itemClass = "gridItem";
-        $grd->altItemClass = "gridAltItem";
-        $grd->columns = " ," . $this->dm->lang['DM_tpl_column_id'] . "," . $this->dm->lang['DM_tpl_column_name'] . "," . $this->dm->lang['DM_tpl_column_description'];
-        $grd->colTypes = 'template:<input name="tid" type="radio" value="[+id+]" onclick="loadTemplateVars(\'[+id+]\');" />';
-        $grd->colWidths = "5%,5%,40%,50%";
-        $grd->fields = "template,id,templatename,description";
-
-        $this->dm->ph['templatevars.grid'] = $grd->render();
         $this->dm->ph['view.templatevars'] = $this->dm->parseTemplate('templatevars.tpl', $this->dm->ph);
     }
 
     function renderDocGroups()
     {
-        $grd = new DataGrid(
-            '',
+        $rows = db()->getRows(
             db()->select('id,name', '[+prefix+]documentgroup_names', '', 'id ASC')
-        );
-        $grd->noRecordMsg = $this->dm->lang['DM_doc_no_docs'];
-        $grd->cssClass = "grid";
-        $grd->columnHeaderClass = "gridHeader";
-        $grd->itemClass = "gridItem";
-        $grd->altItemClass = "gridAltItem";
-        $grd->columns = " ," . $this->dm->lang['DM_doc_column_id'] . "," . $this->dm->lang['DM_doc_column_name'];
-        $grd->colTypes = "template:<input type='radio' name='docgroupid' value='[+id+]' />";
-        $grd->colWidths = "5%,5%,40%,50%";
-        $grd->fields = "template,id,name";
+        ) ?: [];
 
-        $this->dm->ph['documentgroups.grid'] = $grd->render();
+        $this->dm->ph['documentgroups.grid'] = $this->radioTable(
+            $rows,
+            'dm-documentgroups',
+            '<input type="radio" name="docgroupid" value="[+id+]">',
+            [
+                'id' => $this->dm->lang['DM_doc_column_id'],
+                'name' => $this->dm->lang['DM_doc_column_name'],
+            ],
+            $this->dm->lang['DM_doc_no_docs'],
+            false
+        );
         $this->dm->ph['view.documentgroups'] = $this->dm->parseTemplate('documentgroups.tpl', $this->dm->ph);
     }
 

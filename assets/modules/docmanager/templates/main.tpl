@@ -115,6 +115,20 @@
         <script type="text/javascript">
             tpDM = new WebFXTabPane(document.getElementById('docManagerPane'));
         </script>
+        <script type="text/javascript">
+            // フォームは画面の差し替えで消えるので、リスナーは積み重ならない
+            Evo.ready(function () {
+                const form = document.templatevariables;
+                if (!form) {
+                    return;
+                }
+                form.addEventListener('change', function (e) {
+                    if (e.target.name === 'tid') {
+                        loadTemplateVars(e.target.dataset.templateId);
+                    }
+                });
+            });
+        </script>
     </div>
 </div>
 [+view.documents+]
