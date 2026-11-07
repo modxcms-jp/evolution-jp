@@ -8,8 +8,13 @@ include_once __DIR__ . '/data_table.class.php';
 
 final class ChildDocumentListState
 {
-    /** URL の orderby に使える値（許可リスト） */
-    public const SORT_KEYS = ['id', 'pagetitle', 'publishedon', 'editedon'];
+    /** URL の orderby に使える値と、対応する SQL の列名（キーが許可リスト） */
+    public const SORT_COLUMNS = [
+        'id' => 'sc.id',
+        'pagetitle' => 'sc.pagetitle',
+        'publishedon' => 'sc.publishedon',
+        'editedon' => 'sc.editedon',
+    ];
 
     /** 今のリクエストの page・orderby・orderdir を読む。parent は a=120 の id */
     public static function links(int $parent): DataTableLinks
@@ -17,8 +22,18 @@ final class ChildDocumentListState
         return DataTableLinks::fromRequest(
             'index.php',
             $parent ? ['a' => 120, 'id' => $parent] : ['a' => 120],
-            self::SORT_KEYS
+            array_keys(self::SORT_COLUMNS)
         );
+    }
+
+    /** 並べ替え中の ORDER BY。並べ替えが無ければ null（呼び出し側が既定の順を使う） */
+    public static function orderBy(DataTableLinks $links): ?string
+    {
+        $column = self::SORT_COLUMNS[$links->orderby()] ?? null;
+        if ($column === null) {
+            return null;
+        }
+        return sprintf('%s %s, sc.id DESC', $column, $links->orderdir() === 'desc' ? 'DESC' : 'ASC');
     }
 
     /** 一覧へ戻る URL（エスケープ前）。今の page と並べ替えを引き継ぐ */

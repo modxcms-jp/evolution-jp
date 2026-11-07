@@ -111,8 +111,7 @@ final class DataTablePager
     {
         $this->total = max(0, $total);
         $this->perPage = max(0, $perPage);
-        $count = $this->perPage > 0 ? max(1, (int) ceil($this->total / $this->perPage)) : 1;
-        $this->page = ($requestedPage >= 1 && $requestedPage <= $count) ? $requestedPage : 1;
+        $this->page = ($requestedPage >= 1 && $requestedPage <= $this->pageCount()) ? $requestedPage : 1;
     }
 
     public function page(): int
@@ -293,10 +292,16 @@ final class DataTable
 
     private function renderRow(array $row, int $index): string
     {
-        $classes = (array) $this->options['rowClasses'];
-        $attr = $classes ? $this->classAttr([$classes[$index % count($classes)]]) : '';
+        $rowClasses = (array) $this->options['rowClasses'];
+        $class = $rowClasses ? [$rowClasses[$index % count($rowClasses)]] : [];
+        $attr = '';
         if (is_callable($this->options['rowAttributes'])) {
             foreach ((array) call_user_func($this->options['rowAttributes'], $row) as $name => $value) {
+                // class は rowClasses の値と 1 つの属性にまとめる
+                if (strtolower((string) $name) === 'class') {
+                    $class[] = (string) $value;
+                    continue;
+                }
                 if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_:-]*$/', (string) $name) || stripos((string) $name, 'on') === 0
                     || in_array(strtolower((string) $name), ['style', 'width', 'align', 'bgcolor'], true)) {
                     continue;
@@ -304,6 +309,7 @@ final class DataTable
                 $attr .= sprintf(' %s="%s"', $name, hsc((string) $value));
             }
         }
+        $attr = $this->classAttr($class) . $attr;
 
         $cells = '';
         foreach ($this->columns as $col) {

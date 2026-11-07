@@ -72,23 +72,9 @@ if (!$numRecords) {
     $perPage = (int) evo()->config('number_of_results') ?: 20;
     $links = ChildDocumentListState::links($id);
     $pager = new DataTablePager($numRecords, $perPage, $links->page());
-    if ($links->orderby() !== '') {
-        $sortColumns = [
-            'id' => 'sc.id',
-            'pagetitle' => 'sc.pagetitle',
-            'publishedon' => 'sc.publishedon',
-            'editedon' => 'sc.editedon',
-        ];
-        $orderBy = sprintf(
-            '%s %s, sc.id DESC',
-            $sortColumns[$links->orderby()],
-            $links->orderdir() === 'desc' ? 'DESC' : 'ASC'
-        );
-    } else {
-        $orderBy = transformOrderBy(
-            evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
-        );
-    }
+    $orderBy = ChildDocumentListState::orderBy($links) ?? transformOrderBy(
+        evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
+    );
     $rs = db()->select(
         $f,
         [
@@ -507,9 +493,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 break;
         }
     }
-    document.addEventListener('click', function(){
-        contextm.style.visibility = "hidden";
-    });
+    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
+    if (!window.evoChildListMenuClose) {
+        window.evoChildListMenuClose = true;
+        document.addEventListener('click', function(){
+            contextm.style.visibility = "hidden";
+        });
+    }
 </script>
 EOT;
     return $block;
