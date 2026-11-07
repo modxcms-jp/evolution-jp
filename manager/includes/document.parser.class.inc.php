@@ -1730,7 +1730,8 @@ class DocumentParser
             }
         }
         if ($draft_ids) {
-            $this->updateDraft();
+            // OnDocPublished は、実際に反映した文書にだけ出す（反映を見送った予約を含めない）
+            $draft_ids = $this->updateDraft();
         }
 
         // now, check for documents that need publishing

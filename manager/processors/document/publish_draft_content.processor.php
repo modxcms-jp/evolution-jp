@@ -58,6 +58,10 @@ if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
         exit;
     }
     if (request_time() < $pub_date) {
+        // トップページで採用できない下書きは、予約も受け付けない（今すぐ採用と同じ警告で戻す）
+        if ($draft) {
+            adoptableDraft($docid, $draft);
+        }
         setStandBy($docid, $pub_date);
         evo()->setCacheRefreshTime($pub_date);
     } else {
@@ -85,38 +89,37 @@ function setStandBy($docid, $pub_date)
     return 'set_standby';
 }
 
+/**
+ * 下書きを採用するときの値を、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
+ * （DocAPI::draftForAdoption()。公開の権限が無いときは published だけ今の値を引き継ぐ）。
+ * トップページで許さない公開の状態になるなら、文書も下書きも変えずに警告を出して下書きの編集画面へ戻す
+ */
+function adoptableDraft($docid, $draft)
+{
+    evo()->loadExtension('DocAPI');
+    [$draft, $error] = evo()->doc->draftForAdoption(
+        $docid,
+        $draft,
+        evo()->hasPermission('publish_document')
+    );
+    if ($error !== '') {
+        evo()->webAlertAndQuit($error, sprintf('index.php?a=131&id=%s', $docid));
+        exit;
+    }
+    return $draft;
+}
+
 function publishDraft($docid)
 {
     evo()->loadExtension('DocAPI');
-    $rs = db()->select(
-        '*',
-        '[+prefix+]site_content',
-        sprintf("id='%s'", $docid)
-    );
-    $documentObject = db()->getRow($rs);
     $draft = evo()->revision->getDraft($docid);
-    // 今の文書の公開の状態を起点に、リソースの保存と同じ規則（DocAPI::setPubStatus()）で
-    // 下書きの公開日・公開終了日から published を決める。公開の権限が無いときは、published だけ今の値を引き継ぐ。
-    // 下書きが無いときは日付を 0 で上書きしないよう、規則をかけない
-    $hasDraft = !empty($draft);
-    $draft['published'] = $documentObject['published'];
-    if ($hasDraft) {
-        $ruled = evo()->doc->setPubStatus($draft);
-        if (evo()->hasPermission('publish_document')) {
-            $draft = $ruled;
-        }
-        // トップページは、通常の保存と同じく非公開にも予約にもしない（文書も下書きも変えずに戻す）
-        if ((int)$docid === (int)evo()->config('site_start')) {
-            $error = evo()->doc->startDocPubError(
-                $draft['published'],
-                $ruled['pub_date'],
-                $ruled['unpub_date']
-            );
-            if ($error !== '') {
-                evo()->webAlertAndQuit($error, sprintf('index.php?a=131&id=%s', $docid));
-                exit;
-            }
-        }
+    // 下書きが無いときは日付を 0 で上書きしないよう、規則をかけずに published だけ今の値を渡す
+    if ($draft) {
+        $draft = adoptableDraft($docid, $draft);
+    } else {
+        $draft['published'] = db()->getValue(
+            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
+        );
     }
     evo()->doc->update($draft, $docid);
     db()->delete(
