@@ -204,19 +204,19 @@ class synccache
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s',
-            config('recent_update', 0),
-            date('Y-m-d H:i:s', config('recent_update', 0))
+            (int) config('recent_update', 0),
+            date('Y-m-d H:i:s', (int) config('recent_update', 0))
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
         $content[] = sprintf(
             '$cacheRefreshTime = %s; // %s',
-            $cacheRefreshTime,
-            date('Y-m-d H:i:s', $cacheRefreshTime)
+            (int) $cacheRefreshTime,
+            date('Y-m-d H:i:s', (int) $cacheRefreshTime)
         );
         $content[] = sprintf(
             '$cache_type = %s;',
-            config('cache_type', 1)
+            (int) config('cache_type', 1)
         );
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
@@ -227,7 +227,7 @@ class synccache
 
         $content[] = sprintf(
             '$site_status = %s;',
-            config('site_status', 1)
+            (int) config('site_status', 1)
         );
         $content[] = sprintf(
             '$error_reporting = %s;',
