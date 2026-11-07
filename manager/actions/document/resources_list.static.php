@@ -204,30 +204,6 @@ echo get_jscript($id, $cm);
 <input type="hidden" name="a" value="51" />
 {$children_output}
 </form>
-<script type="text/javascript">
-    (function () {
-        // 表は画面の差し替えで消えるので、リスナーは積み重ならない
-        const table = document.querySelector('[data-table="children"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
-            if (el && el.tagName === 'IMG') {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-        table.addEventListener('contextmenu', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    })();
-</script>
 EOT;
             ?>
             <style type="text/css">
@@ -500,12 +476,35 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         }
     }
     // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
-    if (!window.evoChildListMenuClose) {
-        window.evoChildListMenuClose = true;
+    if (!window.evoContextMenuClose) {
+        window.evoContextMenuClose = true;
         document.addEventListener('click', function(){
             contextm.style.visibility = "hidden";
         });
     }
+
+    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
+    Evo.ready(function () {
+        const table = document.querySelector('[data-table="children"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
+            if (el && el.tagName === 'IMG') {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+        table.addEventListener('contextmenu', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 EOT;
     return $block;

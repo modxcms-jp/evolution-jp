@@ -93,7 +93,11 @@
 - インラインの `onclick` を出さない。Vanilla JS で書く。
 - 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。
 - 画面ごとの動き（右クリックのメニューを開くなど）は、各画面のスクリプトが表を包む要素（`[data-table="<id>"]`）にリスナーを付ける。要素は画面の差し替えで消えるので、リスナーが積み重ならない。行のアイコンやタイトルには `data-row-menu="<id>"` を付け、リスナーは `e.target.closest('[data-row-menu]')` で受ける。
+- 画面ごとのリスナーは、画面のインラインの `<script>` の中で `Evo.ready()` に包んで付け、その `<script>` は表より前に置く。表の後ろや入れ物の末尾には置かない（入れ物の `:last-child` や `:has(+ X)` の余白の規則がずれるため）。全体の読み込みでは表より前のスクリプトが先に動くので、`Evo.ready()` で表ができてから登録する。
+- シェルの外の別窓の画面（リソースセレクタなど）は `evo.js` を読まないので、`document` への委譲で受けてよい。
 
 ## 戻り先で状態を引き継ぐ
 
 一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。
+
+画面状態で覚える一覧（`manager()->initPageViewState()` を使うユーザー管理・Web ユーザー管理・モジュール）は、`$_PAGE['vs']['page']` に今のページを覚えて書き戻し、`op=reset` で 1 に戻す（例: `manager/actions/permission/user_management.static.php`）。全件表示（`perPage` が 0 以下）と 0 件のときは書き戻さない。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
