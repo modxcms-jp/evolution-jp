@@ -125,8 +125,7 @@ echo $cm->render();
         });
     }
 
-    // 表は画面の差し替えで消える。リスナーを登録する <script> を表の後ろに置くと入れ物の最後の子が
-    // <script> になり余白の規則が当たらないため、Evo.ready で表が出来てから登録する
+    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
     Evo.ready(function () {
         const table = document.querySelector('[data-table="modules"]');
         if (!table) {

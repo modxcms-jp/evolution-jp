@@ -97,6 +97,21 @@ echo $cm->render();
             contextm.style.visibility = "hidden";
         });
     }
+
+    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
+    Evo.ready(function () {
+        const table = document.querySelector('[data-table="web-users"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 <form action="index.php" name="resource" method="get">
     <input type="hidden" name="a" value="99" />
@@ -246,19 +261,3 @@ echo $cm->render();
             ?>
     </div>
 </form>
-<script type="text/javascript">
-    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
-    (function () {
-        const table = document.querySelector('[data-table="web-users"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    })();
-</script>
