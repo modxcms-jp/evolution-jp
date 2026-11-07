@@ -94,4 +94,4 @@
 ## 関連
 
 - SQL に入れる値の無害化は、型つきヘルパーの役目ではない。DB 操作の直前に `db()->escape()` か `(int)` で行う（`AGENTS.md` の「DB操作のセキュリティ」）。
-- 経緯と進め方: `.agent/plans/2026-11-05-typed-request-helpers.md`（Issue #1059）
+- 経緯と進め方: `.agent/plans/archive/2026-11-07-typed-request-helpers.md`（Issue #1059）
