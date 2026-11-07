@@ -97,7 +97,7 @@ function content($key, $default = null)
 
     function loadDependencies() {
         if (documentDirty) {
-            if (!confirm("<?= $_lang['confirm_load_depends'] ?>")) {
+            if (!confirm(<?= js_literal($_lang['confirm_load_depends']) ?>)) {
                 return;
             }
         }
@@ -106,14 +106,14 @@ function content($key, $default = null)
     }
 
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal($_lang['confirm_duplicate_record']) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + docid + "&a=111");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
+        if (confirm(<?= js_literal($_lang['confirm_delete_module']) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=110");
         }
@@ -275,16 +275,16 @@ function content($key, $default = null)
                         <td align="left"><?= $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
                         <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon"
                                 value="<?= hsc(content('icon')) ?>" /> <input type="button"
-                                value="<?= $_lang['insert'] ?>"
+                                value=<?= js_literal($_lang['insert']) ?>
                                 onclick="BrowseServer();" />
                         </td>
                     </tr>
                     <tr style="display:none;">
-                        <td align="left"><input name="enable_resource" title="<?= $_lang['enable_resource'] ?>"
+                        <td align="left"><input name="enable_resource" title=<?= js_literal($_lang['enable_resource']) ?>
                                 type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
                                 class="inputBox" /> <span style="cursor:pointer"
                                 onclick="document.mutate.enable_resource.click();"
-                                title="<?= $_lang['enable_resource'] ?>"><?= $_lang["element"] ?></span>:
+                                title=<?= js_literal($_lang['enable_resource']) ?>><?= $_lang["element"] ?></span>:
                         </td>
                         <td align="left"><input name="resourcefile" type="text" maxlength="255"
                                 value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
@@ -309,8 +309,8 @@ function content($key, $default = null)
                                 maxlength="65535"
                                 class="inputBox phptextarea"
                                 onchange="showParameters(this);"><?= hsc(content('properties')) ?></textarea>
-                            <input type="button" value="<?= $_lang['update_params'] ?>"
-                                style="width:16px; margin-left:2px;" title="<?= $_lang['update_params'] ?>" />
+                            <input type="button" value=<?= js_literal($_lang['update_params']) ?>
+                                style="width:16px; margin-left:2px;" title=<?= js_literal($_lang['update_params']) ?> />
                         </td>
                     </tr>
                     <tr id="displayparamrow">
