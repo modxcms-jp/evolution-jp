@@ -179,8 +179,9 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
 
 /**
  * 要素（テンプレート変数など）の説明を HTML として出すための変換。
- * 要素の説明を管理画面に出すとき用。hsc() のあと、属性なしで対になった b・strong タグだけを元に戻す。
+ * 要素の一覧など、説明を並べて出すとき用。hsc() のあと、属性なしで対になった b・strong タグだけを元に戻す。
  * 対の取れない開きタグ・閉じタグや、ほかのタグは文字として出る。
+ * テンプレート変数の入力欄に添える説明は tv_input_description_html() を使う。
  *
  * @param string|null $text 説明（DB の NULL は空文字として扱う）
  * @return string
@@ -200,6 +201,20 @@ function element_description_html(?string $text): string
         $html = $replaced;
     }
     return $html;
+}
+
+/**
+ * テンプレート変数の入力欄に添える説明を出す（リソースの編集画面・QuickManager・DocManager）。
+ * 説明は入力の手引きとして、テンプレート変数の編集者が書いた HTML をそのまま出す。
+ * テンプレート変数を編集できる人は @EVAL で PHP をもともと実行できるので、エスケープしない。
+ * 説明を並べて出す画面（要素の一覧など）は element_description_html() を使う。
+ *
+ * @param string|null $text 説明（DB の NULL は空文字として扱う）
+ * @return string
+ */
+function tv_input_description_html(?string $text): string
+{
+    return (string) $text;
 }
 
 function manager_safe_mode_can_toggle()

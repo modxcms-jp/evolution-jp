@@ -132,7 +132,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
         'lang_save' => lang('save'),
         'lang_cancel' => lang('cancel'),
         'caption' => hsc(tv('caption')),
-        'description' => element_description_html(tv('description', '')),
+        'description' => tv_input_description_html(tv('description', '')),
         'type' => hsc(tv('type')),
         'form' => $tvHtml,
         'img_preview' => $imagePreview,
