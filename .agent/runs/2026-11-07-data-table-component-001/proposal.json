@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-data-table-component",
+    "run_id": "2026-11-07-data-table-component-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T00:05:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-039",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 9 と /run-plan の手順 4、段階を積むとき）",
+            "summary": "前の段階のブランチを base にして積むときは、PR を作る前と、前の段階の PR をマージして base を main に切り替える前に、git merge-tree で main との衝突を確かめる。積んだ PR は base が main でないので、main との衝突が CI や mergeable に出ないため。衝突したら、前の段階のブランチに main を取り込んでから次の段階に取り込んで解く",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-040",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5 の管理画面の JS の検証）",
+            "summary": "「一覧からリンクで画面を行き来する（シェルの画面遷移）検証も入れる」を、「シェルの画面遷移と、全体の読み込み（F5・URL の直打ち）の両方で確かめる」にする。画面の script を置く位置によって、片方でだけ動かないことがあるため",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-041",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「作業場所」）",
+            "summary": "サブエージェントはセッションの作業ツリーの隔離を引き継ぐ。作業ツリーが複数ある（段階を積んでいる）ときは、worker や tester を起こす前に、メインが EnterWorktree でその作業ツリーに入る",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-042",
+            "action": "add",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md（「並走するとき」）",
+            "summary": "人が Windows 側のブラウザで目視する環境は、EVO_BIND_IP を 127.0.0.1 のままにし、80 番が埋まっていれば EVO_HTTP_PORT でポートを変える（127.0.0.2 などは WSL の中からしか開けない）。サイトの URL はインストール時に固まるので、インストールの前に決める",
+            "source_ref": "finding-005",
+            "confidence": "high"
+        }
+    ]
+}

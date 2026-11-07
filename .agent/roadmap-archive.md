@@ -465,3 +465,20 @@
 - 依存関係: なし
 - ExecPlan: `.agent/plans/archive/2026-11-05-filemanager-to-file-browser.md`
 - メモ/判断ログ: 2026-11-04: 4 段階（安全確認の共通化 → 管理モード → テキスト・zip・記録 → `a=31` の差し替え）で進めることを合意。段階ごとに PR を分ける。管理モードの決め方・拡張子の許可リストは案のとおり、変更の記録は管理操作ログ（a=13）にも 1 件ずつ残すと決定。共通にするのは範囲によって答えが変わらない処理だけにし、範囲を見て分けるのは入口だけにする（ExecPlan の Decision Log）。 2026-11-05: M1 は PR #1048、M2 は #1055、M3 は #1056、M4 は #1057 で完了。M2 のレビューを受けて、シンボリックリンクの扱いの決まりを `assets/docs/file-storage.md` にまとめた。
+
+### 表の部品（DataGrid・MakeTable）を作り直す
+
+- Status: `DONE`
+- Issue: #1087
+- 着手予定日: `2026-11-07`
+- 完了日: `2026-11-07`
+- 目的: 役割の重なる `DataGrid` と `MakeTable` を廃止し、今どきの組み方で表の部品を 1 つ作り直す
+- 背景/課題: どちらも「行の集まりを、ページ送り付きの HTML の表にする」部品で、ページ送りの実装も 2 つある。列の設定を区切り文字の文字列で書く、エスケープの既定が「しない」、`style` 属性やインラインの `onclick` を出す、DB から全件を取ってからページを切り出すなど、古い作りが多い。`DataGrid` は PHP の配列を受け取れないので、`MakeTable` をそのまま寄せることもできない
+- 到達条件（Definition of Done）:
+  - 行の配列と列の定義を受け取る新しい部品があり、エスケープが既定で有効になっている
+  - 管理画面とサイト側の利用箇所（TV の出力ウィジェット `datagrid`、修飾子 `:datagrid`、`db()->getHTMLGrid()`）が新しい部品を使っている
+  - `manager/includes/controls/datagrid.class.php`・`manager/includes/controls/datasetpager.class.php`・`manager/includes/extenders/ex_maketable.php`・`manager/includes/extenders/maketable.class.php` と `loadExtension('MakeTable')` の分岐が無い
+- 非対象（やらないこと）: 外部のスニペットが `$modx->table` や `DataGrid` を直接使っている場合の互換
+- 依存関係: なし
+- ExecPlan: `.agent/plans/archive/2026-11-07-data-table-component.md`
+- メモ/判断ログ: 2026-11-06 起票。進める順番の案と、着手時に決めること（TV の出力ウィジェット `datagrid` の保存済み設定の扱い、部品の置き場所と名前）は #1087 を正とする。 2026-11-07 完了。3 段階を #1160・#1198・#1216 で入れた（段階 2・3 は本人の判断で前の段階のマージを待たずに積んだ）。対象の外に残る自前の表とページ送りは「自前で組み立てている表とページ送りを DataTable に移す」（#1204）へ。

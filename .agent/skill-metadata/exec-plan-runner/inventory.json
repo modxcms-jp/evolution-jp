@@ -303,6 +303,38 @@
             "added_at": "2026-11-07T12:45:00+09:00",
             "last_used_at": "2026-11-07T12:45:00+09:00",
             "source": "2026-11-07-retire-manager-messages-001"
+        },
+        {
+            "id": "change-039",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 9 と /run-plan の手順 4、段階を積むとき）",
+            "status": "adopted",
+            "added_at": "2026-11-08T00:05:00+09:00",
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        {
+            "id": "change-040",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5 の管理画面の JS の検証）",
+            "status": "adopted",
+            "added_at": "2026-11-08T00:05:00+09:00",
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        {
+            "id": "change-041",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「作業場所」）",
+            "status": "adopted",
+            "added_at": "2026-11-08T00:05:00+09:00",
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        {
+            "id": "change-042",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（「並走するとき」）",
+            "status": "adopted",
+            "added_at": "2026-11-08T00:05:00+09:00",
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
         }
     ]
 }
