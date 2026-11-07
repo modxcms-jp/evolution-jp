@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-retire-manager-messages",
+    "run_id": "2026-11-07-retire-manager-messages-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-07T12:40:49+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}
