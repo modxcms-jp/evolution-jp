@@ -230,6 +230,7 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 // install/update database
 
 require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+require_once MODX_CORE_PATH . 'filesystem.class.inc.php';
 
 if (sessionv('is_upgradeable')) {
     log_install_event('Upgrade path selected');
@@ -477,7 +478,13 @@ if (is_file(MODX_CACHE_PATH . "installProc.inc.php")) {
 
 // assets/cacheディレクトリが存在する場合は、サブディレクトリも含めて全て削除
 if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
-    deleteCacheDirectory(MODX_BASE_PATH . 'assets/cache');
+    $cacheFailures = [];
+    if (!Filesystem::deleteTree(MODX_BASE_PATH . 'assets/cache', $cacheFailures)) {
+        log_install_event('Failed to remove the cache directory', [
+            'count' => count($cacheFailures),
+            'paths' => array_slice(array_keys($cacheFailures), 0, 20),
+        ]);
+    }
 }
 
 log_install_event('Installation processor finished');
@@ -502,24 +509,6 @@ if (sessionv('is_upgradeable') == 0) {
 }
 
 echo '</p>';
-
-function deleteCacheDirectory($cachePath)
-{
-    if (!is_dir($cachePath)) {
-        return;
-    }
-
-    $dir = new RecursiveDirectoryIterator($cachePath, FilesystemIterator::SKIP_DOTS);
-    $files = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
-    foreach ($files as $file) {
-        if ($file->isDir()) {
-            rmdir($file->getRealPath());
-        } else {
-            unlink($file->getRealPath());
-        }
-    }
-    rmdir($cachePath);
-}
 
 function ok($name, $msg)
 {
