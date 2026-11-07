@@ -326,7 +326,7 @@ Issue の「古い作りの例」が解消される段階:
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1087
 - ブランチ: 段階 1 `refactor/1087-data-table-stage1`（作成済み、PR はまだ無い）。段階 2・3 は `refactor/1087-data-table-stage2`・`refactor/1087-data-table-stage3` の予定（`gh issue develop` で Issue に紐づけず、前の PR のマージ後に `origin/main` から作る。紐づけると途中の段階の PR のマージで Issue が閉じるため）
-- PR: 1 段階を 1 PR にする（D3）。段階 1: #1160。段階 2: #1198（base は段階 1 のブランチ。D20）。段階 3 の PR 番号は作成時にここへ書く
+- PR: 1 段階を 1 PR にする（D3）。段階 1: #1160。段階 2: #1198（base は段階 1 のブランチ。D20）。段階 3: #1216（base は段階 2 のブランチ。Closes #1087）
 - 関連: `assets/docs/core-issues.md` の「表とページ送りの組み方が DataTable の外に残る」（D11 の後続の候補）、`.agent/plans/archive/2026-11-03-manager-output-escape.md`（D3: 要素の説明の扱い、D13: DataGrid の `description` 型）、`assets/docs/request-input.md`（型つきヘルパー）
 
 ## Interfaces and Dependencies
