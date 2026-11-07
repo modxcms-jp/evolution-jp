@@ -17,7 +17,7 @@
 
 描く処理（`DataTable::render()`・`DataTablePager::render()`）は、引数だけから HTML を作り、`evo()`・`db()`・リクエスト・グローバル変数に触れない（`DataTableSettings` だけは `evo()`・`db()`・`getv()` を使う）。リクエストのページ番号と並べ替えは `DataTableLinks::fromRequest()` が型つきヘルパー（`get_intvar()`・`get_choicevar()`。`request-input.md`）で読む。
 
-ページ送りは、件数を数える → `DataTablePager` → 本体の SQL に `LIMIT` を付けて、そのページの行だけを取る、の順で行う。全件を取ってから切り出さない。`perPage` が 0 以下のときは全件を 1 ページにし、`limit()` は 0 を返すので、SQL に `LIMIT` を付けない。
+ページ送りは、件数を数える → `DataTablePager` → 本体の SQL に `LIMIT` を付けて、そのページの行だけを取る、の順で行う。全件を取ってから切り出さない（サイト側の表の `DataTableSettings` は、値や DB の結果がすでに手元にあるので、配列を切り出す）。`perPage` が 0 以下のときは全件を 1 ページにし、`limit()` は 0 を返すので、SQL に `LIMIT` を付けない。
 
     $links = DataTableLinks::fromRequest('index.php', ['a' => 120], ['id', 'pagetitle']);
     $pager = new DataTablePager($total, $perPage, $links->page());
@@ -47,7 +47,7 @@
 | キー | 既定 | 内容 |
 | --- | --- | --- |
 | `id` | `''` | 表を包む `div` の `data-table` の値 |
-| `tableClass` | `grid` | `table` の class |
+| `tableClass` | `grid` | `table` の class（空なら class 属性を出さない） |
 | `rowClasses` | `[]` | 行（`tr`）に順に付ける class |
 | `headerClass` | `''` | `th` に足す class |
 | `caption` / `captionHtml` | なし / false | `caption`。`captionHtml` が真なら HTML のまま |
@@ -109,9 +109,9 @@
 
 | 入口 | `$id` | 設定 |
 | --- | --- | --- |
-| TV の出力ウィジェット `datagrid`（`docvars/outputfilter/datagrid.inc.php`） | `tv{TV 名}` | 表示パラメータ（下の表） |
-| 修飾子 `:datagrid`（`extenders/ex_modifiers.php`） | `mdf` | 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り |
-| `db()->getHTMLGrid($dsq, $params)`（`extenders/dbapi/mysqli.inc.php`） | `grid` | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`cssClass`（`tableClass`）・`itemClass`・`altItemClass`・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
+| TV の出力ウィジェット `datagrid`（`manager/includes/docvars/outputfilter/datagrid.inc.php`） | `tv{TV 名}` | 表示パラメータ（下の表） |
+| 修飾子 `:datagrid`（`manager/includes/extenders/ex_modifiers.php`） | `mdf` | 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り |
+| `db()->getHTMLGrid($dsq, $params)`（`manager/includes/extenders/dbapi/mysqli.inc.php`） | `$params['id']`（既定 `grid`） | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`id`（既定 `grid`）・`cssClass`（`tableClass`）・`itemClass`・`altItemClass`・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
 
 ### 読む設定と無視する設定
 
@@ -139,8 +139,14 @@
 
 ### エスケープ
 
-セルは既定でエスケープする。`template` 型は、テンプレートの文字列（設定した人が書いた HTML）はそのままで、差し込む `[+value+]`・`[+列のキー+]` の値だけをエスケープする。`head`・`foot` は設定した人が書いたものなので HTML のまま出す。
+セルと見出し（`cols`・`columns`・`first line` の見出し行）は既定でエスケープする。`template` 型は、テンプレートの文字列（設定した人が書いた HTML）はそのままで、差し込む `[+value+]`・`[+列のキー+]` の値だけをエスケープする。`head`・`foot` は設定した人が書いたものなので HTML のまま出す。
 
 ### ページ送り
 
-ページ番号の引数名は `{$id}_page`（TV なら `tvdgtest_page`）。1 ページに表が複数あっても重ならない。リンクは今のリクエストの引数のうち、`{$id}_page` とサイト側の `id` 以外を残す（`id` は `makeUrl()` が作る）。ページキャッシュは `id` 以外の引数のハッシュ（`genQsHash()`）で分かれるので、ページ送りの引数付きの URL は別のキャッシュになる。管理画面の言語は読まず、ページ送りの文言は `DataTablePager` の既定の記号（`«`・`<`・`>`・`»`）。
+ページ番号の引数名は `{$id}_page`（TV なら `tvdgtest_page`）。TV は TV 名ごと、`getHTMLGrid()` は `id` ごとに別になる。同じものを 1 ページに複数置くとページ番号を共有する。TV 名に空白・`.`・`[` があるときは、PHP が `$_GET` に入れるときの置き換えに合わせて `_` にした名前を引数名にする。リンクは今のリクエストの引数のうち、`{$id}_page` とサイト側の `id` 以外を残す（`id` は `makeUrl()` が作る）。ページキャッシュは `id` 以外の引数のハッシュ（`genQsHash()`）で分かれるので、ページ送りの引数付きの URL は別のキャッシュになる。管理画面の言語は読まず、ページ送りの文言は `DataTablePager` の既定の記号（`«`・`<`・`>`・`»`）。
+
+### サイトの CSS に影響する変化
+
+- `itmc`・`aitmc`（`getHTMLGrid()` の `itemClass`・`altItemClass`）の class は `tr` に付く（旧は `td`）。
+- 修飾子 `:datagrid` の `td` に、旧の既定の `class="cell"`・`class="altCell"` は付かない。
+- 列名（`cols`・`columns`・`first line` の見出し）もエスケープする（旧は HTML のまま）。
