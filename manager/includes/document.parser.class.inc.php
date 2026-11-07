@@ -1275,11 +1275,6 @@ class DocumentParser
     public function getSettings()
     {
         $this->settingsLoadStarted = true;
-        return $this->readSettings();
-    }
-
-    private function readSettings()
-    {
         $this->token_auth();
 
         $config = $this->isFrontend() ? $this->getSiteCache() : null;
