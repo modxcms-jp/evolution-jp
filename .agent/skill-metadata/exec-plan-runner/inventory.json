@@ -287,6 +287,22 @@
             "added_at": "2026-11-07T03:40:00+09:00",
             "last_used_at": "2026-11-07T03:40:00+09:00",
             "source": "2026-11-05-typed-request-helpers-001"
+        },
+        {
+            "id": "change-037",
+            "location": "assets/docs/migrations.md（「決まり」）",
+            "status": "adopted",
+            "added_at": "2026-11-07T12:45:00+09:00",
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
+        },
+        {
+            "id": "change-038",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「止まる条件」の main との衝突）",
+            "status": "adopted",
+            "added_at": "2026-11-07T12:45:00+09:00",
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
         }
     ]
 }

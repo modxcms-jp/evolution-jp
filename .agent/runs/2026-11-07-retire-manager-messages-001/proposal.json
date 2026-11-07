@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-retire-manager-messages",
+    "run_id": "2026-11-07-retire-manager-messages-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-07T12:45:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-037",
+            "action": "add",
+            "target": "assets/docs/migrations.md（「決まり」）",
+            "summary": "利用者のデータ（表の行）を消さない。機能を廃止して表や列が要らなくなっても、利用者が入れたデータが残っていれば表を残し、そのことをログに書く。消すのは空のときだけにする",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-038",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「止まる条件」の main との衝突）",
+            "summary": "main との衝突が .agent/roadmap.md の「最終更新」の行だけのときは止まらず、origin/main をブランチに merge し、両方の内容をまとめた 1 行にして解消する（強制 push はしない）。ほかの衝突は今までどおり止まる",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        }
+    ]
+}
