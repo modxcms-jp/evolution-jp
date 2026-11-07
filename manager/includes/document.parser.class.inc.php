@@ -3303,8 +3303,7 @@ class DocumentParser
 
         $name = $this->superGlobalName($key);
         // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE）と、HTML エスケープの対象（COOKIE を除く）を分ける。
-        // COOKIE の値の既定エスケープは行わない（#1177）。COOKIE はリクエストごとに違うので、
-        // $_COOKIE のタグを置くページ（タグ）はキャッシュしない
+        // COOKIE の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）
         $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE'], true);
         $escapeHtml = in_array($name, ['GET', 'POST', 'REQUEST'], true);
         if ($breakTags) {
