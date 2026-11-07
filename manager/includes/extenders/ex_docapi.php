@@ -131,7 +131,7 @@ class DocAPI
     }
 
     /**
-     * 公開日・公開終了日から published を決める（リソースの保存とチャンクの保存の共通の規則）。
+     * 公開日・公開終了日から published を決める（リソースの保存、チャンクの保存、下書きの保存と採用の共通の規則）。
      * 未来の公開日は非公開、過去の公開日は公開、公開終了日が過去なら非公開（公開日より優先）。
      * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に確かめる
      * （解釈できない値は空文字で返る）。整数（負を含む）の値はそのまま使う
@@ -560,35 +560,6 @@ class DocAPI
             return db()->getValue($rs);
         }
         return false;
-    }
-
-    public function fixPubStatus($f) // published, pub_date, unpub_date
-    {
-        if (isset($f['pub_date']) && !empty($f['pub_date'])) {
-            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
-
-            if ($f['pub_date'] < request_time()) {
-                $f['published'] = 1;
-            } else {
-                $f['published'] = 0;
-            }
-        } else {
-            $f['pub_date'] = 0;
-        }
-
-        if (!isset($f['unpub_date']) || empty($f['unpub_date'])) {
-            $f['unpub_date'] = 0;
-            return $f;
-        }
-
-        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-        if ($f['unpub_date'] < request_time()) {
-            $f['published'] = 0;
-            return $f;
-        }
-
-        $f['published'] = 1;
-        return $f;
     }
 
     public function fixTvNest($form_v)

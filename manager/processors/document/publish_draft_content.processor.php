@@ -95,7 +95,12 @@ function publishDraft($docid)
     );
     $documentObject = db()->getRow($rs);
     $draft = evo()->revision->getDraft($docid);
+    // 今の文書の公開の状態を起点に、リソースの保存と同じ規則（DocAPI::setPubStatus()）で
+    // 下書きの公開日・公開終了日から決める。公開の権限が無いときは、今の状態を引き継ぐ
     $draft['published'] = $documentObject['published'];
+    if (evo()->hasPermission('publish_document')) {
+        $draft = evo()->doc->setPubStatus($draft);
+    }
     evo()->doc->update($draft, $docid);
     db()->delete(
         '[+prefix+]site_revision',
