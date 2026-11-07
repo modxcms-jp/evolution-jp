@@ -335,6 +335,8 @@ if (count($extenders) > 0) {
 }
 
 //---Parameters------------------------------------------------------- /*
+// Aliases. When the canonical name is in $never of extenders/request.extender.inc.php,
+// list the alias there too, because the request extender runs before this mapping.
 if (isset($startID)) {
     $parents = $startID;
 }
