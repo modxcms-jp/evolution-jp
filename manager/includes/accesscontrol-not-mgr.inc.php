@@ -37,7 +37,8 @@ evo()->setPlaceholder('manager_theme_url',
 
 global $tpl, $_lang;
 
-if (is_file($touch_path) && request_time() < filemtime($touch_path) + 300) {
+$touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;
+if ($touch_mtime && request_time() < $touch_mtime + 300) {
     $modx->safeMode = 1;
     evo()->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
     $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
@@ -137,7 +138,7 @@ evo()->setPlaceholder(
 $loginTplOutput = evo()->parseDocumentSource($loginTplOutput);
 clearstatcache(true, $touch_path);
 if (is_file($touch_path) && $loginTplOutput) {
-    unlink($touch_path);
+    @unlink($touch_path);
 }
 
 // little tweak for newer parsers

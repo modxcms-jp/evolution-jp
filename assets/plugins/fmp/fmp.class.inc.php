@@ -221,7 +221,7 @@ class ForgotManagerPassword
     {
         $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
         if (is_file($touch_path)) {
-            unlink($touch_path);
+            @unlink($touch_path);
         }
     }
 
