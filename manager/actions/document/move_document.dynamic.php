@@ -86,8 +86,10 @@ function batch_move()
 
 function get_src_js()
 {
-    global $_lang;
     $newParentLabel = js_literal(lang('new_parent'));
+    // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻してから渡す（ex_managerapi.php と同じ）
+    $illegalParentSelf = js_literal(stripcslashes(lang('illegal_parent_self')));
+    $illegalParentChild = js_literal(stripcslashes(lang('illegal_parent_child')));
     $src = <<< EOT
 <script language="javascript">
 top.mainMenu.defaultTreeFrame();
@@ -119,22 +121,22 @@ function openParentPicker() {
     );
 }
 
-// check if the selected parent is a child of this document
+// 選んだ移動先が、移動するリソース（複数移動ではそのどれか）自身か子孫なら止める。
+// ツリーのノードは親を独自の属性 p に持つので getAttribute で読む
 function checkParentChildRelation(pId, pName) {
-    const id = document.newdocumentparent.id.value;
-    const tdoc = document; // シェルではツリーと同一document
-    let pn = tdoc.getElementById("node"+pId);
+    const ids = document.newdocumentparent.id.value.split(',');
+    let pn = document.getElementById("node"+pId);
     if (!pn) return false;
-    if (pn.id.substr(4)===id) {
-        alert("{$_lang['illegal_parent_self']}");
+    if (ids.includes(pn.id.substr(4))) {
+        alert({$illegalParentSelf});
         return false;
-    } else {
-        while (pn.p>0) {
-            pn = tdoc.getElementById("node"+pn.p);
-            if (pn.id.substr(4)===id) {
-                alert("{$_lang['illegal_parent_child']}");
-                return false;
-            }
+    }
+    while (pn.getAttribute("p") > 0) {
+        pn = document.getElementById("node"+pn.getAttribute("p"));
+        if (!pn) break;
+        if (ids.includes(pn.id.substr(4))) {
+            alert({$illegalParentChild});
+            return false;
         }
     }
     return true;
