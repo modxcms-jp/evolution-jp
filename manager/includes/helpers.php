@@ -415,6 +415,20 @@ function isUserBlocked($row)
         || ($after !== 0 && $after < $now);
 }
 
+/**
+ * isUserBlocked() と同じ規則の SQL の条件（ユーザーの一覧で、ブロック中の表示と並び順に使う）
+ *
+ * @param string $alias 属性の表の別名（例: 'mua'）。空なら列名だけ
+ */
+function userBlockedSqlCondition($alias = '')
+{
+    $col = $alias !== '' ? "{$alias}." : '';
+    $now = time();
+    return "({$col}blocked=1"
+        . " OR {$col}blockeduntil>{$now}"
+        . " OR ({$col}blockedafter<>0 AND {$col}blockedafter<{$now}))";
+}
+
 function array_get($array, $key = null, $default = null, $validate = null)
 {
     if ($key === null || trim($key) == '') {

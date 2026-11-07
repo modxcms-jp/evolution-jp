@@ -195,8 +195,8 @@ function user($key, $default = null)
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
-    // 期限の過ぎたロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
-    if (array_get($user, 'blockeduntil') && array_get($user, 'blockeduntil') < time()) {
+    // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
+    if (isExpiredTemporaryLock($user)) {
         $user['failedlogincount'] = '0';
     }
 
@@ -254,10 +254,10 @@ function isBlockedUser()
 // 以前の一時ロックは blocked も 1 にしていたので、それもあわせて外す
 function isExpiredTemporaryLock($row)
 {
-    $blockedUntil = (int) $row['blockeduntil'];
+    $blockedUntil = (int) array_get($row, 'blockeduntil', 0);
     return 0 < $blockedUntil
         && $blockedUntil <= request_time()
-        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
+        && (int) config('failed_login_attempts', 0) <= (int) array_get($row, 'failedlogincount', 0);
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
