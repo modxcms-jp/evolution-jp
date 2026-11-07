@@ -6,6 +6,7 @@
  * 描く処理（DataTable::render()・DataTablePager::render()）は引数だけから HTML を作り、
  * evo()・db()・リクエスト・グローバル変数に触れない。リクエストを読むのは
  * DataTableLinks::fromRequest() だけで、型つきのヘルパー（helpers.php）を使う。
+ * 保存済みの設定の文字列から表を作る入口の DataTableSettings だけは、evo()・db()・getv() を使う。
  */
 
 /**
@@ -232,9 +233,9 @@ final class DataTable
     {
         $o = $this->options;
         $out = sprintf(
-            '<div class="data-table" data-table="%s"><table class="%s">',
+            '<div class="data-table" data-table="%s"><table%s>',
             hsc((string) $o['id']),
-            hsc((string) $o['tableClass'])
+            $this->classAttr([$o['tableClass']])
         );
 
         if ($o['caption'] !== null && $o['caption'] !== '') {
@@ -331,5 +332,265 @@ final class DataTable
     {
         $class = trim(implode(' ', array_filter(array_map('strval', $classes), 'strlen')));
         return $class === '' ? '' : ' class="' . hsc($class) . '"';
+    }
+}
+
+/**
+ * サイト側の表（TV の出力ウィジェット datagrid・修飾子 :datagrid・db()->getHTMLGrid()）の入口。
+ * 保存済みの設定の文字列（区切り文字のテキスト・列名・型）から DataTable を作って描く。
+ * 3 つの呼び出し側は、それぞれの設定のキーを下の $settings の形に読み替えて render() を呼ぶ。
+ *
+ * この入口は evo()・db()・getv() を使う（DataTable・DataTablePager とは違う）。
+ *
+ * $source: DB の結果、または区切り文字のテキスト（1 行のファイルのパスも可）
+ * $settings のキー（無いキーは既定値）:
+ *   columns, fields, types, delimiter, wrapper, encoding, detectHeader, pageSize, pagerLocation,
+ *   header, footer, tableClass, itemClass, altItemClass, headerClass, pagerClass, emptyMessage
+ * 見た目の指定（style・width・align・bgcolor・cellpadding・cellspacing）は受けない。
+ */
+final class DataTableSettings
+{
+    public static function render($source, array $settings, string $id): string
+    {
+        $delimiter = (string) ($settings['delimiter'] ?? '');
+        if ($delimiter === 'tab') {
+            $delimiter = "\t";
+        } elseif ($delimiter === '') {
+            $delimiter = ',';
+        }
+        $wrapper = (string) ($settings['wrapper'] ?? '');
+        $keys = [];
+        $names = [];
+
+        if (db()->isResult($source)) {
+            // 列のキーは、行の有無にかかわらず結果の列の情報から取る（0 件でも見出しを出すため。行を読む前に取る）
+            $fields = trim((string) ($settings['fields'] ?? ''));
+            if ($fields !== '') {
+                $keys = array_map('trim', explode(',', $fields));
+            } else {
+                for ($i = 0, $n = db()->numFields($source); $i < $n; $i++) {
+                    $keys[] = db()->fieldName($source, $i);
+                }
+            }
+            $rows = [];
+            while ($row = db()->getRow($source)) {
+                $rows[] = $row;
+            }
+            $names = self::splitList((string) ($settings['columns'] ?? ''));
+            if (!$names) {
+                $names = array_map('strval', $keys);
+            }
+        } else {
+            $rows = self::readText(
+                (string) $source,
+                $delimiter,
+                $wrapper,
+                (string) ($settings['encoding'] ?? '')
+            );
+            if (($settings['detectHeader'] ?? '') === 'first line' && $rows) {
+                $names = array_map('strval', array_shift($rows));
+            } else {
+                $names = self::splitList((string) ($settings['columns'] ?? ''));
+            }
+            $count = count($names);
+            if (!$count) {
+                foreach ($rows as $row) {
+                    $count = max($count, count($row));
+                }
+            }
+            $keys = $count ? range(0, $count - 1) : [];
+        }
+
+        $types = array_map('trim', self::splitList((string) ($settings['types'] ?? '')));
+        $count = max(1, count($names) ?: count($keys));
+        $columns = [];
+        for ($i = 0; $i < $count; $i++) {
+            $columns[] = self::typedColumn(
+                ['key' => $keys[$i] ?? $i, 'label' => $names[$i] ?? ''],
+                $types[$i] ?? ''
+            );
+        }
+
+        $pagerLocation = 'top';
+        if (preg_match('/^(top|both|bottom)/', strtolower(trim((string) ($settings['pagerLocation'] ?? ''))), $m)) {
+            $pagerLocation = $m[1];
+        }
+        $pageSize = (int) ($settings['pageSize'] ?? 0);
+        $nav = '';
+        if ($pageSize > 0) {
+            $links = self::linksFor($id);
+            $pager = new DataTablePager(count($rows), $pageSize, $links->page());
+            $rows = array_slice($rows, $pager->offset(), $pager->limit());
+            $nav = $pager->render($links, ['class' => (string) ($settings['pagerClass'] ?? '') ?: 'pager']);
+        }
+
+        $itemClass = (string) ($settings['itemClass'] ?? '');
+        $altItemClass = (string) ($settings['altItemClass'] ?? '');
+        $options = [
+            'id' => $id,
+            'rowClasses' => ($itemClass !== '' || $altItemClass !== '') ? [$itemClass, $altItemClass] : [],
+            'headerClass' => (string) ($settings['headerClass'] ?? ''),
+            'caption' => (string) ($settings['header'] ?? ''),
+            'captionHtml' => true,
+            'emptyMessage' => (string) ($settings['emptyMessage'] ?? ''),
+            'showHeader' => (bool) $names,
+            // grid は管理画面のテーマの class。サイト側では頼まれた class だけを付ける（空なら付けない）
+            'tableClass' => (string) ($settings['tableClass'] ?? ''),
+        ];
+        $table = new DataTable($columns, $options);
+
+        $out = '<div class="gridwrap">';
+        $out .= ($pagerLocation === 'top' || $pagerLocation === 'both') ? $nav : '';
+        $out .= $table->render($rows);
+        $out .= ($pagerLocation === 'bottom' || $pagerLocation === 'both') ? $nav : '';
+        $footer = (string) ($settings['footer'] ?? '');
+        if ($footer !== '') {
+            $out .= '<div class="gridfooter">' . $footer . "</div>\n";
+        }
+        return $out . '</div>';
+    }
+
+    /**
+     * ページ送りのリンク。今のリクエストの引数のうち、ページ番号（{id}_page）と、
+     * サイト側では id（makeUrl() が作る）以外を残す。値は URL に入れるとき http_build_query() が、
+     * HTML に入れるとき DataTablePager が整える。
+     */
+    private static function linksFor(string $id): DataTableLinks
+    {
+        // PHP が書き換えない引数名にする（空白・. ・[ を _ にする）。リンクを作る側と読む側でこの名前を使う
+        $pageParam = str_replace([' ', '.', '['], '_', "{$id}_page");
+        $params = (array) getv();
+        unset($params[$pageParam]);
+        if (evo()->isFrontend()) {
+            unset($params['id']);
+            $baseUrl = evo()->makeUrl(evo()->documentIdentifier);
+        } else {
+            $baseUrl = 'index.php';
+        }
+        return DataTableLinks::fromRequest($baseUrl, $params, [], $pageParam);
+    }
+
+    /**
+     * 行ごと・区切り文字の文字列ごとに分ける。空の行は飛ばす。
+     * 1 行だけで、バインディングが有効で場所の判定を通るファイル（.php 以外）なら、その中身を読む。
+     */
+    private static function readText(string $text, string $delimiter, string $wrapper, string $encoding): array
+    {
+        $text = trim($text);
+        if ($text !== '' && strpos($text, "\n") === false && evo()->config('enable_bindings') == 1) {
+            $path = evo()->resolveBindFilePath($text);
+            if ($path !== false && evo()->getExtention($path) !== '.php') {
+                $text = trim((string) file_get_contents($path));
+                if ($text !== '' && $encoding !== '') {
+                    $text = mb_convert_encoding($text, evo()->config('modx_charset'), $encoding);
+                }
+            }
+        }
+        $rows = [];
+        foreach (explode("\n", str_replace(["\r\n", "\r"], "\n", $text)) as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            $cells = explode($delimiter, $line);
+            if ($wrapper !== '') {
+                $cells = array_map(function ($cell) use ($wrapper) {
+                    return trim($cell, $wrapper);
+                }, $cells);
+            }
+            $rows[] = $cells;
+        }
+        return $rows;
+    }
+
+    /** 列名・型の文字列は、`||` を含めば `||`、無ければ `,` で分ける */
+    private static function splitList(string $text): array
+    {
+        if ($text === '') {
+            return [];
+        }
+        return explode(strpos($text, '||') !== false ? '||' : ',', $text);
+    }
+
+    /**
+     * 型（integer・float[:桁]・currency[:桁]・date[:形]・boolean・description・template:文字列）の書式を、
+     * 列の定義に足す。型のある列は html => true で、値のエスケープは書式の側で行う。
+     * 型が無い・知らない型は、DataTable の既定のエスケープに任せる。
+     */
+    private static function typedColumn(array $column, string $spec): array
+    {
+        [$type, $format] = explode(':', $spec, 2) + ['', ''];
+        $type = strtolower(trim($type));
+        $decimals = is_numeric($format) ? (int) $format : 2;
+        // 数として読めない値は、書式を当てずにエスケープして出す
+        $numeric = function ($value, callable $fn) {
+            if (is_scalar($value) && is_numeric($value)) {
+                return $fn((float) $value);
+            }
+            return hsc(is_scalar($value) ? (string) $value : '');
+        };
+
+        switch ($type) {
+            case 'integer':
+                $column['format'] = function ($value) use ($numeric) {
+                    return $numeric($value, function ($n) {
+                        return number_format($n);
+                    });
+                };
+                break;
+            case 'float':
+                $column['format'] = function ($value) use ($numeric, $decimals) {
+                    return $numeric($value, function ($n) use ($decimals) {
+                        return number_format($n, $decimals);
+                    });
+                };
+                break;
+            case 'currency':
+                $column['format'] = function ($value) use ($numeric, $decimals) {
+                    return $numeric($value, function ($n) use ($decimals) {
+                        return '$' . number_format($n, $decimals);
+                    });
+                };
+                break;
+            case 'date':
+                $column['format'] = function ($value) use ($format) {
+                    if (!is_scalar($value) || empty($value)) {
+                        return '-';
+                    }
+                    $time = is_numeric($value) ? (int) $value : strtotime((string) $value);
+                    if ($time === false) {
+                        return hsc((string) $value);
+                    }
+                    return hsc((string) evo()->mb_strftime($format !== '' ? $format : '%A %d, %B %Y', $time));
+                };
+                break;
+            case 'boolean':
+                $column['format'] = function ($value) {
+                    return is_scalar($value) && is_numeric($value) && round((float) $value) != 0 ? '&bull;' : '';
+                };
+                break;
+            case 'description':
+                $column['format'] = function ($value) {
+                    return element_description_html(is_scalar($value) ? (string) $value : '');
+                };
+                break;
+            case 'template':
+                // テンプレートは設定した人の HTML のまま。差し込む値だけをエスケープする
+                // （strtr は置換後の文字列を走査し直さないので、値の中の [+…+] は展開されない）
+                $column['format'] = function ($value, array $row) use ($format) {
+                    $pairs = [];
+                    foreach ($row as $k => $v) {
+                        if (is_scalar($v)) {
+                            $pairs["[+{$k}+]"] = hsc((string) $v);
+                        }
+                    }
+                    $pairs['[+value+]'] = hsc(is_scalar($value) ? (string) $value : '');
+                    return strtr($format !== '' ? $format : '[+value+]', $pairs);
+                };
+                break;
+            default:
+                return $column;
+        }
+        $column['html'] = true;
+        return $column;
     }
 }

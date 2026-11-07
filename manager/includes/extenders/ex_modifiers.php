@@ -1420,19 +1420,17 @@ class MODIFIERS
                 $opt = evo()->parseText($opt, ['value' => $value]);
                 return $opt;
             case 'datagrid':
-                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                $grd = new DataGrid();
-                $grd->ds = trim($value);
-                $grd->itemStyle = '';
-                $grd->altItemStyle = '';
-                $pos = strpos($value, "\n");
-                if ($pos) {
-                    $_ = substr($value, 0, $pos);
-                } else {
-                    $_ = $pos;
+                include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                // 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り
+                $text = trim($value);
+                $firstLine = strstr($text, "\n", true);
+                if ($firstLine === false) {
+                    $firstLine = $text;
                 }
-                $grd->cdelim = strpos($_, "\t") !== false ? 'tab' : ',';
-                return $grd->render();
+                return DataTableSettings::render($text, [
+                    'delimiter' => strpos($firstLine, "\t") !== false ? "\t" : ',',
+                    'pageSize' => 0,
+                ], 'mdf');
             case 'rotate':
             case 'evenodd':
                 if (strpos($opt, ',') === false) {

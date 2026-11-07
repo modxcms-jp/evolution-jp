@@ -16,7 +16,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 
 - [x] (2026-11-07) 段階 1: `DataTable` を作り、子リソースの一覧を移して `MakeTable` を外す（ブランチ `refactor/1087-data-table-stage1`）。実装・検証（main と比較、7 テーマ）・自己レビュー（高・中なし）まで完了。右クリックのメニューの戻り先で並べ替えを保つため範囲を広げた（D19）。PR のマージ待ち
 - [x] (2026-11-07、ブランチ `refactor/1087-data-table-stage2`) 段階 2: 管理画面の `DataGrid` の利用箇所（ユーザー管理・Web ユーザー管理・モジュール・リソースセレクタ・モジュールの依存関係 2 画面・DocManager）を移す。実装・検証（main と比較、PHP 7.4 でも画面を開いた）・自己レビュー（高・中なし）まで完了。段階 1 のブランチの上に積み、PR のマージ待ち（D20）
-- [ ] 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す
+- [x] (2026-11-07、ブランチ `refactor/1087-data-table-stage3`) 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す。実装・検証（main と比較、PHP 8.4 と 7.4 で出力が一致）・自己レビュー（高・中なし）まで完了。段階 2 のブランチの上に積み、PR のマージ待ち。これで Purpose の DoD の 3 項目がそろう
 
 ## Surprises & Discoveries
 
@@ -38,6 +38,8 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07（段階 2 の検証）: main のリソースセレクタは 0 件で `restoreChkBoxes()` が JS エラーになっていた。触ったファイルなので直した。main のユーザー管理は、リセットの直後にページ送りの URL に `op=reset` が残って 2 ページ目へ進めなかったが、`DataTableLinks` に移したことで起きなくなった。
 - 2026-11-07（段階 2 の検証）: DocManager を開いたあとシェルで別の画面へ移ると、`assets/modules/docmanager/js/docmanager.js:104` の `hideInteraction` が `null.style` を読んでエラーになる。main でも同じで、#1087 で触っていないファイルなので直していない。
 - 2026-11-07（段階 2 の自己レビュー）: main と同じ動きの問題が 2 つある。リソースセレクタの「挿入」は今のページのチェックだけを集め、ほかのページで選んだものは捨てられる。ユーザー管理・Web ユーザー管理・モジュールで検索すると、覚えたページ番号のまま開く。どちらも直すと動きが変わるので、#1087 では扱わない（Issue の候補）。
+- 2026-11-07（段階 3 の検証、main の観測）: `head` を入れた TV のページは、PHP 8.4 の main では 500 になった（`datagrid.class.php:516` の `Undefined variable $o`。`<table>` の開始タグも代入されない）。`cdelim=||` は `[||\n]` の文字クラスで分かれ、`a|x` が 2 つのセルになり、行も列の数の `array_chunk` で決まるのでセルが次の行へずれた（3 行が 7 行になる）。`@SELECT` で `flds` が無いと、見出しは出るがセルが全部空だった。ほかに、main の `getHTMLGrid()` は `noRecordMsg` を渡さないと PHP 8.4 で 500（`mysqli.inc.php:1079` の `Undefined array key`）、`integer` 型に数でない値で TypeError の 500、`ploc` が空だと 2 ページ目へ行けない、修飾子は 20 行で切ってページ送りを出す、1 行だけのタブ区切りは分かれない、template 型は値をエスケープしない、ページ送りのリンクに `id` が残る、だった。段階 3 でどれも起きなくなった。
+- 2026-11-07（段階 3 の検証）: 計画の確認 9 は「保存すると捨てた項目が `display_params` から消える」としていたが、設定画面は保存済みのキーをそのまま書き戻すので残る（main も同じ）。D1 のとおり読まれないだけで無害なので、期待のほうを直した（D22 (8)）。
 
 ## Decision Log
 
@@ -66,6 +68,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07 / 本人 D19（段階 1 の検証で範囲を広げた）: 子リソースの一覧を並べ替えたまま右クリックのメニューで公開・非公開・削除・復元をすると、戻った一覧で並べ替えが外れていた（処理側が `page` だけを引き継いでいた）。一覧の状態（ページ・並べ替え）の読み取り、並べ替えのキーと SQL の列名の対応、戻り先の URL の組み立てを `manager/includes/controls/child_document_list_state.class.php` の `ChildDocumentListState` 1 か所にまとめ、一覧の画面（`resources_list.static.php`）と 4 つの処理（`manager/processors/document/{publish,unpublish,delete,undelete}_content.processor.php`）の両方がそれを使う。決まり: 一覧ごとの状態は、汎用の `DataTable`・`DataTableLinks` に一覧固有の知識（許可する並べ替えのキー、`a=120` など）を入れず、その一覧専用のクラス 1 か所に置き、画面と処理の両方から使う。クラスの名前は Document 系にする（Resource にしない）。段階 2 で画面状態を覚える一覧（D9）も、同じ形で専用のクラスにするかを着手時に決める。
 - 2026-11-07 / メイン D20（段階 2 の着手時）: 本人の指示で、段階 1 の PR（#1160）をマージせずに段階 2 へ進む。段階 2 のブランチは段階 1 のブランチから作り、PR の base を段階 1 のブランチにする（段階 1 を採用しないときは両方を閉じる）。D19 で段階 2 に残した 2 点はこう決めた: (1) メニューを閉じる `document` の `click` リスナーの印は、画面ごとにせず共通の `window.evoContextMenuClose` 1 つにし、子リソースの一覧（段階 1 の `window.evoChildListMenuClose`）もこれに寄せる。閉じる処理の中身（`contextm` の `visibility` を戻す）がどの画面も同じで、印を分けると同じ処理が画面の数だけ登録されるため。(2) ユーザー管理・Web ユーザー管理・モジュールの一覧には専用の状態のクラスを作らない。前に見たページは画面状態（D9）で覚えるので、処理から一覧へ戻ってもページが残り、戻り先の URL に状態を載せる必要が無いため。
 - 2026-11-07 / メイン D21（段階 2 の実装・検証・自己レビューで決めたこと）: (1) リスナーの書き方: 画面ごとの表のリスナーは、画面の最初の `<script>` の中で `Evo.ready()` に包み、表を包む要素（`data-table` 属性の `div`）に付ける。`<script>` を表の後ろや入れ物の末尾に置くと、全体の読み込みで表がまだ無い・入れ物の `:last-child` や `:has(+ X)` の余白の規則がずれる、のどちらかが起きるため。段階 1 の子リソースの一覧もこの形にそろえた。シェルの外の別窓（リソースセレクタ）は `evo.js` を読まないので `document` への委譲で受ける（`assets/docs/data-table.md` に例外として書いた）。(2) 余白: ページ送りの前の間を作る規則の親を `form` から `:is(.sectionBody, .tab-page, form)` に広げた（6 テーマ。RevoStyle は凍結テーマなので変えない）。ボタン列の前・コード欄の前の規則と同じ親の集合にそろえるため。3 画面の表とページ送りを包んでいた素の `div` は外した（`.sectionBody` の直下に並べて標準の親に載せるため。素の `div` を親に足すと規則が広がりすぎる）。モジュールの一覧は `div#actions` を説明の段落の前へ移した（段落の次がページ送りになり規則が当たる。ボタンの位置は 7 テーマで main と一致）。(3) Concrete Steps と違えた点: ユーザー管理の性別は一覧に出ない列なので `format` に移さず SQL から外した（手順 1）。リソースセレクタの選択の変更は `document.selector` ではなく `document` で受ける（別窓でスクリプトがフォームより先に読まれるため、手順 4）。DocManager の 3 つの表の共通部分を `radioTable()` にまとめた（手順 7）。(4) 画面状態（D9）は、全件表示と 0 件のときは書き戻さない（main の `DataSetPager` と同じ）。(6) ついでの修正（触ったファイルの、動きを変えずに直せるもとからの問題）: DocManager の作者の選択肢（`renderChangeAuthors()`）の値と名前をエスケープした。リソースセレクタの `saveSelection()` は 0 件のとき何もしない（`restoreChkBoxes()` と同じ）。モジュールの一覧とリソースセレクタの検索語のエスケープを、変数の宣言から WHERE を組む直前へ移した。確認のダイアログなど JS に入る言語の文字列は、main に #1169 で `js_literal(stripcslashes(lang(...)))` に替える直しが横断で入ったので、段階 2 では独自に直さず、main を取り込んでその形に合わせた（一度入れた独自の直しは取り消した）。 (5) 書き込んだファイルは計画の 9 件から、6 テーマの `style.css`・`theme-spacing.md`・`data-table.md`・段階 1 の `resources_list.static.php` に広がった（上の (1)(2) のため）。
+- 2026-11-07 / メイン D22（段階 3 の実装と検証で決めたこと）: (1) ページ送りの位置（`ploc`）が空なら上に出す（旧実装は出さず、2 ページ目以降へ行けなかった）。(2) 数値・日付の型で数として読めない値は、書式を当てずにエスケープして出す（旧実装は PHP 8 で TypeError）。`float:0` は小数 0 桁。(3) 修飾子 `:datagrid` は 1 行だけの値でも 1 行目のタブを見て分ける。(4) サイト側の表の class（`tblc`・`cssClass`・`tableClass`）が空なら class 属性を出さない（旧と同じ。管理画面の `grid` を付けない）。ページ送りの class の既定は `pager`。(5) `getHTMLGrid()` は DB の結果を `getRow()` で配列にし、`fields` が無ければ 1 行目のキーを列にする。表の class は実コードの `cssClass` を読み、docblock の `tableClass` も受ける。(6) 囲み文字（`cwrap`）は区切り文字のテキストのセルだけに当てる。(7) template 型は行のすべてのキーを置き換え（表示しない列も）、差し込む値はエスケープする。サイトのプレースホルダーは、TV の出力がこのあとページの解析にかかるのでそこで展開される。(8) 設定画面で保存し直しても、捨てた項目は `display_params` に残る（D1。読まれないので無害）。保存済みの古い `ploc`（`both-left` など）は先頭の語で読むが、設定画面の選択肢（`top,bottom,both`）に無いので画面では先頭の `top` に見える（保存しても元の値が残り、サイトでは元の値どおりに出る）。直すと設定画面の list の描き方を変えることになるので、記録にとどめた。(9) サイトの CSS に影響する変化: 行の class（`itmc`・`aitmc`、`getHTMLGrid()` の `itemClass`・`altItemClass`）は `tr` に付く（旧は `td`）。修飾子 `:datagrid` の `td` には旧の既定の `class="cell"`・`"altCell"` が付かない。列名（`cols`・`columns`・`first line` の見出し）もエスケープする（旧は HTML のまま）。(10) ページ送りの引数名は、PHP が GET の引数名の空白・`.`・`[` を `_` に置き換えるのに合わせてそろえる（TV 名に空白や `.` があっても 2 ページ目へ進める）。`getHTMLGrid()` は `id` を受け、1 ページに複数置くときは別の `id` を渡す（既定 `grid`）。
 
 ## Outcomes & Retrospective
 
@@ -306,7 +309,7 @@ Issue の「古い作りの例」が解消される段階:
 | 6. `@SELECT`（`dgsql`） | 見出しが `id`・`pagetitle`、セルに値 | main はセルが空（Surprises） |
 | 7. 修飾子 `:datagrid` | 見出しなし・ページ送りなしで全行。タブ区切りの値もタブで分かれる | 21 行以上でページ送りが出ない（D14） |
 | 8. `getHTMLGrid()` | 見出し `ID`・`Title`、2 行ずつのページ送り。PHP の警告が出ない | main は無いキーで警告が出る |
-| 9. ウィジェットの設定画面（a=301） | `datagrid` を選ぶと D1 の「残す」項目だけが出る。B の TV を開いて保存すると、捨てた項目が `display_params` から消える（`db:query` で確かめる） | 項目が減る |
+| 9. ウィジェットの設定画面（a=301） | `datagrid` を選ぶと D1 の「残す」項目だけが出る。B の TV を開いて保存しても、捨てた項目は `display_params` に残るが読まれない（D1 のとおり DB は書き換えない。設定画面は保存済みのキーをそのまま書き戻す） | 項目が減る。保存の動きは同じ |
 | 10. 残り | `datagrid.class.php`・`datasetpager.class.php` が無く、洗い出しのコマンドの結果が Concrete Steps 7 のものだけ | — |
 
 完了の条件（ExecPlan 全体）: 3 段階の表のすべてが期待どおりで、各段階の共通の確認が通り、Purpose の DoD の 3 項目を満たす。
@@ -323,7 +326,7 @@ Issue の「古い作りの例」が解消される段階:
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1087
 - ブランチ: 段階 1 `refactor/1087-data-table-stage1`（作成済み、PR はまだ無い）。段階 2・3 は `refactor/1087-data-table-stage2`・`refactor/1087-data-table-stage3` の予定（`gh issue develop` で Issue に紐づけず、前の PR のマージ後に `origin/main` から作る。紐づけると途中の段階の PR のマージで Issue が閉じるため）
-- PR: 1 段階を 1 PR にする（D3）。段階 1: #1160。段階 2: #1198（base は段階 1 のブランチ。D20）。段階 3 の PR 番号は作成時にここへ書く
+- PR: 1 段階を 1 PR にする（D3）。段階 1: #1160。段階 2: #1198（base は段階 1 のブランチ。D20）。段階 3: #1216（base は段階 2 のブランチ。Closes #1087）
 - 関連: `assets/docs/core-issues.md` の「表とページ送りの組み方が DataTable の外に残る」（D11 の後続の候補）、`.agent/plans/archive/2026-11-03-manager-output-escape.md`（D3: 要素の説明の扱い、D13: DataGrid の `description` 型）、`assets/docs/request-input.md`（型つきヘルパー）
 
 ## Interfaces and Dependencies
