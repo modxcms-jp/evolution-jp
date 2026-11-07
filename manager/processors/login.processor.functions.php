@@ -254,10 +254,8 @@ function isBlockedUser()
 // 以前の一時ロックは blocked も 1 にしていたので、それもあわせて外す
 function isExpiredTemporaryLock($row)
 {
-    $blockedUntil = (int) array_get($row, 'blockeduntil', 0);
-    return 0 < $blockedUntil
-        && $blockedUntil <= request_time()
-        && (int) config('failed_login_attempts', 0) <= (int) array_get($row, 'failedlogincount', 0);
+    return isTemporaryLoginLock($row)
+        && (int) array_get($row, 'blockeduntil', 0) <= request_time();
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）

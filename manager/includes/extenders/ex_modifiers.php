@@ -8,6 +8,18 @@ $this->filter = new MODIFIERS;
 
 class MODIFIERS
 {
+    // parsePhx() が結果を覚えない修飾子。
+    // ページの外（プレースホルダー・<head>・</body> の前）を書き換えるのが目的で、返す値は '' に決まっている。
+    // 覚えると 2 回目に書き換えが起きない（間で上書きされたプレースホルダーを setvar で設定し直せない など）。
+    // getValueFromPreset() にこの種の修飾子を足したときは、ここにも足す
+    private const PHX_UNCACHEABLE_MODIFIERS = [
+        'setvar',
+        'csstohead',
+        'htmltohead',
+        'htmltobottom',
+        'jstohead',
+        'jstobottom',
+    ];
 
     public $documentObject;
     public $placeholders = [];
@@ -18,6 +30,8 @@ class MODIFIERS
     public $condModifiers;
     // モディファイアの部品（mdf_memberof・mdf_moduser）が 1 リクエストの間だけ使う結果の控え
     public $cache = [];
+    // getSnippetFromFile() がコアの部品（extenders/modifiers/）から読んだ修飾子の名前。parsePhx() が覚えてよいかの判定に使う
+    private $coreModifierFiles = [];
 
     public $key;
     public $value;
@@ -248,10 +262,43 @@ class MODIFIERS
                 );
             }
         }
-        if ($cacheKey !== null) {
+        // 覚えない組は保存しないので、上の読み出しで当たるのは覚えてよい組だけ（当たったときの判定は要らない）
+        if ($cacheKey !== null && $this->isCacheablePhx($key, $modifiers)) {
             $cache[$cacheKey] = $value;
         }
         return $value;
+    }
+
+    // 結果が名前・値・修飾子だけで決まる組か。決まらない組を覚えると、同じ組の 2 回目に古い結果を返す
+    private function isCacheablePhx($key, $modifiers)
+    {
+        // Filter() が値の代わりに今の文書の id を使う
+        if ($key === 'documentObject') {
+            return false;
+        }
+        foreach ($modifiers as $m) {
+            $cmd = $m['cmd'];
+            // 名前にタグを含むと、Filter() で解析するまで何の修飾子か決まらない
+            if (strpos($cmd, '[') !== false || strpos($cmd, '{') !== false) {
+                return false;
+            }
+            $opt = $m['opt'];
+            $cmd = $this->normalizeCmd($cmd, $opt);
+            if (in_array($cmd, self::PHX_UNCACHEABLE_MODIFIERS, true)) {
+                return false;
+            }
+            // スニペット（DB・assets/modifiers などのファイル）を修飾子として呼ぶもの。中身は何でも書けるので、
+            // 時刻・カウンター・ほかのプレースホルダーを見ると、同じ組でも結果が変わる。
+            // コアの部品（extenders/modifiers/ の summary など）は値と修飾子だけで決まるので覚える
+            // （getValueFromPreset() が includeMdfFile() で同じファイルを呼ぶ場合と扱いをそろえる）。
+            // summary・addbreak は値に残ったタグを解析するが、値は phxFilter() が先に解析し切るので、
+            // タグが残るのは :id(...) で始まる修飾子などに限られる。
+            // Filter() で一度呼んだあとなので、snippetCache を見るだけで済む
+            if ($this->snippet_exists($cmd) && !isset($this->coreModifierFiles[$cmd])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Parser: modifier detection and eXtended processing if needed
@@ -260,19 +307,7 @@ class MODIFIERS
         if ($key === 'documentObject') {
             $value = evo()->documentIdentifier;
         }
-        $cmd = $this->parseDocumentSource($cmd);
-        if (preg_match('@^[1-9][/0-9]*$@', $cmd)) {
-            if (strpos($cmd, '/') !== false) {
-                $cmd = $this->substr($cmd, strrpos($cmd, '/') + 1);
-            }
-            $opt = $cmd;
-            $cmd = 'id';
-        }
-
-        $cmd = strtolower($cmd);
-        if ($cmd === 'encode_sha1') {
-            $cmd = 'sha1';
-        }
+        $cmd = $this->normalizeCmd($this->parseDocumentSource($cmd), $opt);
 
         if ($this->snippet_exists($cmd)) {
             $value = $this->getValueFromPHP($key, $value, $cmd, $opt);
@@ -289,6 +324,24 @@ class MODIFIERS
         }
 
         return str_replace('[+key+]', $key, $value);
+    }
+
+    // 修飾子の名前を Filter() で振り分ける形にそろえる。数字だけの名前（:5 や :1/5）は、id で文書を指す id 修飾子になる
+    private function normalizeCmd($cmd, &$opt)
+    {
+        if (preg_match('@^[1-9][/0-9]*$@', $cmd)) {
+            if (strpos($cmd, '/') !== false) {
+                $cmd = $this->substr($cmd, strrpos($cmd, '/') + 1);
+            }
+            $opt = $cmd;
+            $cmd = 'id';
+        }
+
+        $cmd = strtolower($cmd);
+        if ($cmd === 'encode_sha1') {
+            $cmd = 'sha1';
+        }
+        return $cmd;
     }
 
     public function snippet_exists($cmd)
@@ -493,8 +546,9 @@ class MODIFIERS
         // 条件系のモディファイアは getValueFromPreset() で $this->condition に積む。
         // コアの同名ファイル（mdf_memberof.inc.php など）は真偽を返す部品なので、
         // 単独のスニペットとして動かすと条件が積まれず、then・else の条件式が空になる
+        $corePath = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
         if (!in_array($cmd, explode(',', $this->condModifiers), true)) {
-            $_[] = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
+            $_[] = $corePath;
         }
         foreach ($_ as $mdf_path) {
             if (is_file($mdf_path)) {
@@ -505,6 +559,9 @@ class MODIFIERS
 
         if (empty($mdf_path)) {
             return false;
+        }
+        if ($mdf_path === $corePath) {
+            $this->coreModifierFiles[$cmd] = true;
         }
 
         $code = trim(@file_get_contents($mdf_path));
