@@ -368,7 +368,7 @@ function _getIconPath($doc)
 
 function get_jscript($id, $cm)
 {
-    global $modx, $_lang, $modx_textdir;
+    global $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
@@ -376,6 +376,12 @@ function get_jscript($id, $cm)
     $page = get_intvar('page') ? " + '&page=" . get_intvar('page') . "'" : '';
 
     $siteStart = (int) evo()->config('site_start');
+
+    $js_confirm_resource_duplicate = js_literal(stripcslashes(lang('confirm_resource_duplicate')));
+    $js_confirm_delete_resource = js_literal(stripcslashes(lang('confirm_delete_resource')));
+    $js_confirm_publish = js_literal(stripcslashes(lang('confirm_publish')));
+    $js_confirm_unpublish = js_literal(stripcslashes(lang('confirm_unpublish')));
+    $js_confirm_undelete = js_literal(stripcslashes(lang('confirm_undelete')));
 
     $block = <<< EOT
 <style type="text/css">
@@ -393,12 +399,12 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         }
     }
     function duplicatedocument() {
-        if (confirm("{$_lang['confirm_resource_duplicate']}") == true) {
+        if (confirm({$js_confirm_resource_duplicate}) == true) {
             EvoCsrf.post("index.php?id={$id}&a=94");
         }
     }
     function deletedocument() {
-        if (confirm("{$_lang['confirm_delete_resource']}") == true) {
+        if (confirm({$js_confirm_delete_resource}) == true) {
             EvoCsrf.post("index.php?id={$id}&a=6");
         }
     }
@@ -437,13 +443,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 gotoUrl('index.php?a=51&id='+id{$page});
                 break;
             case 94:        // duplicate
-                if(confirm("{$_lang['confirm_resource_duplicate']}")==true)
+                if(confirm({$js_confirm_resource_duplicate})==true)
                 {
                     EvoCsrf.post('index.php?a=94&id='+id{$page});
                 }
                 break;
             case 61:        // publish
-                if(confirm("{$_lang['confirm_publish']}")==true)
+                if(confirm({$js_confirm_publish})==true)
                 {
                     EvoCsrf.post('index.php?a=61&id='+id{$page});
                 }
@@ -451,7 +457,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 62:        // unpublish
                 if (id != {$siteStart})
                 {
-                    if(confirm("{$_lang['confirm_unpublish']}")==true)
+                    if(confirm({$js_confirm_unpublish})==true)
                     {
                         EvoCsrf.post("index.php?a=62&id=" + id{$page});
                     }
@@ -462,13 +468,13 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 }
                 break;
             case 6:         // delete
-                if(confirm("{$_lang['confirm_delete_resource']}")==true)
+                if(confirm({$js_confirm_delete_resource})==true)
                 {
                     EvoCsrf.post('index.php?a=6&id='+id{$page});
                 }
                 break;
             case 63:        // undelete
-                if(confirm("{$_lang['confirm_undelete']}")==true)
+                if(confirm({$js_confirm_undelete})==true)
                 {
                     EvoCsrf.post("index.php?a=63&id=" + id{$page});
                 }

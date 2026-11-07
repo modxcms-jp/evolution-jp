@@ -78,7 +78,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=12&id=' + id;
                 break;
             case 2: // delete
-                if (confirm("<?= $_lang['confirm_delete_user'] ?>")) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>)) {
                     EvoCsrf.post('index.php?a=33&id=' + id);
                 }
                 break;

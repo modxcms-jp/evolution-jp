@@ -719,7 +719,7 @@ function updateUser()
         <body bgcolor='#efefef'>
             <form id="evoLogoutForm" method="post" action="index.php?a=8" target="_top" data-no-ajax><?= csrfTokenField() ?></form>
             <script language="JavaScript">
-                alert("<?= lang('user_changeddata') ?>");
+                alert(<?= js_literal(stripcslashes(lang('user_changeddata'))) ?>);
                 document.getElementById('evoLogoutForm').submit();
             </script>
         </body>

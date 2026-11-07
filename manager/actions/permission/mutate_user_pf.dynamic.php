@@ -103,7 +103,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 
     // change name
     function changeName() {
-        if (confirm("<?= $_lang['confirm_name_change'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_name_change'))) ?>) == true) {
             var e1 = document.getElementById("showname");
             var e2 = document.getElementById("editname");
             e1.style.display = "none";

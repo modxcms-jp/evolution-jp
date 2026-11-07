@@ -159,23 +159,24 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
 
     function changeblockstate(element, checkelement) {
+        const blocked = document.getElementById('blocked');
         currval = eval(element).value;
         if (currval == 1) {
-            if (confirm("<?= $_lang['confirm_unblock'] ?>") == true) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_unblock'))) ?>) == true) {
                 document.userform.blocked.value = 0;
                 document.userform.blockeduntil.value = "";
                 document.userform.blockedafter.value = "";
                 document.userform.failedlogincount.value = 0;
-                blocked.innerHTML = "<b><?= $_lang['unblock_message'] ?></b>";
+                blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('unblock_message'))) ?>}));
                 blocked.className = "TD";
                 eval(element).value = 0;
             } else {
                 eval(checkelement).checked = true;
             }
         } else {
-            if (confirm("<?= $_lang['confirm_block'] ?>") == true) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_block'))) ?>) == true) {
                 document.userform.blocked.value = 1;
-                blocked.innerHTML = "<b><?= $_lang['block_message'] ?></b>";
+                blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('block_message'))) ?>}));
                 blocked.className = "warning";
                 eval(element).value = 1;
             } else {
@@ -190,14 +191,14 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
 
     function deleteuser() {
-        if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
             EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=90");
         }
     }
 
     // change name
     function changeName() {
-        if (confirm("<?= $_lang['confirm_name_change'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_name_change'))) ?>) == true) {
             var e1 = document.getElementById("showname");
             var e2 = document.getElementById("editname");
             e1.style.display = "none";
