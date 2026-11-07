@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-data-table-component",
+    "run_id": "2026-11-07-data-table-component-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T00:01:44+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}
