@@ -49,17 +49,22 @@ class ConfigCheck {
         $script =
             ">
 function deleteTemplateSwitcher(){
-    if(confirm('" . $_lang["confirm_delete_plugin"] . "')) {
-	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':'" . $tplName . "'}).then(function()
+    if(confirm(" . js_literal($_lang["confirm_delete_plugin"]) . ")) {
+	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':" . js_literal($tplName) . "}).then(templateSwitcherResponseBody).then(function(body)
 	{
-		hideTemplateSwitcherWarning();
-	});
+		if (body.trim() === 'true') hideTemplateSwitcherWarning();
+	}).catch(function(){});
+    }
 }
 function disableTemplateSwitcher(){
-    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':'" . $tplName . "','key':'disabled','value':'1'}).then(function()
+    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':" . js_literal($tplName) . ",'key':'disabled','value':'1'}).then(templateSwitcherResponseBody).then(function(body)
     {
-		hideTemplateSwitcherWarning();
-    });
+		if (body.trim() === 'true') hideTemplateSwitcherWarning();
+    }).catch(function(){});
+}
+function templateSwitcherResponseBody(response){
+	// 保存できたときだけ本文が true になる（mutate_settings.ajax.php）
+	return response.ok ? response.text() : '';
 }
 function hideTemplateSwitcherWarning(){
 	// 警告の入った fieldset を隠す
