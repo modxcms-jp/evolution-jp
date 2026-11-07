@@ -165,7 +165,7 @@ function templateSwitcherAction(id, op){
                 $links[] = sprintf(
                     '<a href="javascript:templateSwitcherAction(%d,\'disable\');">%s</a>',
                     $id,
-                    $this->_lang['configcheck_templateswitcher_present_disable']
+                    $this->_lang['configcheck_templateswitcher_disable_label']
                 );
                 $confirms[$id]['disable'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id);
             }
@@ -173,7 +173,7 @@ function templateSwitcherAction(id, op){
                 $links[] = sprintf(
                     '<a href="javascript:templateSwitcherAction(%d,\'delete\');">%s</a>',
                     $id,
-                    $this->_lang['configcheck_templateswitcher_present_delete']
+                    $this->_lang['configcheck_templateswitcher_delete_label']
                 );
                 $confirms[$id]['delete'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id);
             }
