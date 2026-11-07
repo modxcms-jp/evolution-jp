@@ -16,7 +16,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 
 - [x] (2026-11-07) 段階 1: `DataTable` を作り、子リソースの一覧を移して `MakeTable` を外す（ブランチ `refactor/1087-data-table-stage1`）。実装・検証（main と比較、7 テーマ）・自己レビュー（高・中なし）まで完了。右クリックのメニューの戻り先で並べ替えを保つため範囲を広げた（D19）。PR のマージ待ち
 - [x] (2026-11-07、ブランチ `refactor/1087-data-table-stage2`) 段階 2: 管理画面の `DataGrid` の利用箇所（ユーザー管理・Web ユーザー管理・モジュール・リソースセレクタ・モジュールの依存関係 2 画面・DocManager）を移す。実装・検証（main と比較、PHP 7.4 でも画面を開いた）・自己レビュー（高・中なし）まで完了。段階 1 のブランチの上に積み、PR のマージ待ち（D20）
-- [ ] 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す
+- [x] (2026-11-07、ブランチ `refactor/1087-data-table-stage3`) 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す。実装・検証（main と比較、PHP 8.4 と 7.4 で出力が一致）・自己レビュー（高・中なし）まで完了。段階 2 のブランチの上に積み、PR のマージ待ち。これで Purpose の DoD の 3 項目がそろう
 
 ## Surprises & Discoveries
 
