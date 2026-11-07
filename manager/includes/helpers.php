@@ -416,6 +416,43 @@ function isUserBlocked($row)
 }
 
 /**
+ * 失敗回数による一時ロックかを判定する（期限が過ぎたものも含む）
+ *
+ * 一時ロックは、失敗回数が failed_login_attempts 以上のときの blockeduntil で表す（blocked は使わない）。
+ * 管理者が付けた blockeduntil と同じ列なので、失敗回数で見分ける。
+ *
+ * @param array $row blockeduntil / failedlogincount を持つ配列
+ */
+function isTemporaryLoginLock($row)
+{
+    if (!is_array($row)) {
+        return false;
+    }
+    $until = isset($row['blockeduntil']) && is_scalar($row['blockeduntil']) ? (int)$row['blockeduntil'] : 0;
+    $failed = isset($row['failedlogincount']) && is_scalar($row['failedlogincount']) ? (int)$row['failedlogincount'] : 0;
+
+    return $until !== 0 && (int)config('failed_login_attempts', 0) <= $failed;
+}
+
+/**
+ * 失敗回数による一時ロックを除いて、ブロック中かを判定する（管理者が付けたブロック）
+ *
+ * パスワードの再設定は、これが真のユーザーには受け付けない。再設定で外してよいのは一時ロックだけ。
+ *
+ * @param array $row blocked / blockeduntil / blockedafter / failedlogincount を持つ配列
+ */
+function isUserBlockedByAdmin($row)
+{
+    if (!is_array($row)) {
+        return false;
+    }
+    if (isTemporaryLoginLock($row)) {
+        $row['blockeduntil'] = 0;
+    }
+    return isUserBlocked($row);
+}
+
+/**
  * isUserBlocked() と同じ規則の SQL の条件（ユーザーの一覧で、ブロック中の表示と並び順に使う）
  *
  * @param string $alias 属性の表の別名（例: 'mua'）。空なら列名だけ

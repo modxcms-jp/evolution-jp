@@ -913,11 +913,21 @@ trait DocumentParserSubParserTrait
             $f['cachepwd'] = '';
             $f = db()->escape($f);
             db()->update($f, '[+prefix+]web_users', "id='{$uid}'");
-            db()->update(
-                "blockeduntil='0'",
-                '[+prefix+]web_user_attributes',
-                "internalKey='" . $uid . "'"
+            // 外すのは失敗回数による一時ロックだけ。管理者が付けたブロックには触らない
+            $attributes = db()->getRow(
+                db()->select(
+                    'blockeduntil, failedlogincount',
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                )
             );
+            if (isTemporaryLoginLock($attributes)) {
+                db()->update(
+                    ['failedlogincount' => 0, 'blockeduntil' => 0],
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                );
+            }
             // invoke OnWebChangePassword event
             $tmp = [
                 'userid' => $row['id'],
