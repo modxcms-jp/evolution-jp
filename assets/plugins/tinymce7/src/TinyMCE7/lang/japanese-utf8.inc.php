@@ -16,6 +16,10 @@ $_lang['tinymce7_entermode_description'] = 'TinyMCE 7 で Enter キーを押し�
 $_lang['tinymce7_entermode_default'] = 'TinyMCE の既定（段落）';
 $_lang['tinymce7_entermode_p'] = '段落 <p> を挿入';
 $_lang['tinymce7_entermode_br'] = '改行 <br> を挿入';
+$_lang['tinymce7_body_id_label'] = '編集欄の body の id';
+$_lang['tinymce7_body_id_description'] = '編集欄の body に付ける id です。公開側で本文を囲む要素の id（例：center）を入れると、「CSSファイルへのパス」の CSS のうち、その id に向けて書いた指定が編集欄にも効きます。旧 TinyMCE の Custom Parameters の body_id は、アップデート時に引き継ぎます。';
+$_lang['tinymce7_body_class_label'] = '編集欄の body のクラス';
+$_lang['tinymce7_body_class_description'] = '編集欄の body に付けるクラスです。公開側で本文を囲む要素のクラスを入れると、「CSSファイルへのパス」の CSS のうち、そのクラスに向けて書いた指定が編集欄にも効きます。複数のときは半角スペースで区切ります。旧 TinyMCE の Custom Parameters の body_class は、アップデート時に引き継ぎます。';
 $_lang['tinymce7_css_selectors_label'] = 'CSSスタイルセレクタ';
 $_lang['tinymce7_css_selectors_description'] = 'ツールバーの「フォーマット」から選べる CSS クラスを「表示名=クラス名;表示名2=クラス名2」の形式で指定します（例：本のタイトル=booktitle;著者=author）。要素全体を選ぶとその要素に、文中の一部を選ぶと span でクラスを付けます。旧 TinyMCE の設定が残っていれば引き継ぎます。';
 

@@ -120,8 +120,29 @@ final class SystemSettingsRenderer
         $html[] = '    </td>';
         $html[] = '  </tr>';
 
-        // CSSスタイルセレクタとひな形はサイト共通の設定なので、システム設定画面だけに出す
+        // 編集欄の body の id・クラス、CSSスタイルセレクタ、ひな形はサイト共通の設定なので、システム設定画面だけに出す
         if ($isSystemSettingsScreen) {
+            $bodyFields = [
+                'tinymce7_body_id' => [
+                    $this->t('tinymce7_body_id_label', 'Editor body ID'),
+                    $preferences->detectBodyId(),
+                    $this->t('tinymce7_body_id_description', 'ID added to the body of the editing area.'),
+                ],
+                'tinymce7_body_class' => [
+                    $this->t('tinymce7_body_class_label', 'Editor body class'),
+                    $preferences->detectBodyClass(),
+                    $this->t('tinymce7_body_class_description', 'Classes added to the body of the editing area.'),
+                ],
+            ];
+            foreach ($bodyFields as $name => [$label, $value, $description]) {
+                $html[] = '  <tr class="row1">';
+                $html[] = '    <th><label for="' . $name . '">' . hsc($label) . '</label></th>';
+                $html[] = '    <td>';
+                $html[] = '      <input type="text" name="' . $name . '" id="' . $name . '" class="inputBox" style="width:400px;" value="' . hsc($value) . '">';
+                $html[] = '      <div>' . hsc($description) . '</div>';
+                $html[] = '    </td>';
+                $html[] = '  </tr>';
+            }
             $html[] = '  <tr class="row1">';
             $html[] = '    <th><label for="' . $cssSelectorsFieldId . '">' . hsc($this->t('tinymce7_css_selectors_label', 'CSS style selectors')) . '</label></th>';
             $html[] = '    <td>';
