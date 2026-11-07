@@ -95,7 +95,29 @@ function publishDraft($docid)
     );
     $documentObject = db()->getRow($rs);
     $draft = evo()->revision->getDraft($docid);
+    // 今の文書の公開の状態を起点に、リソースの保存と同じ規則（DocAPI::setPubStatus()）で
+    // 下書きの公開日・公開終了日から published を決める。公開の権限が無いときは、published だけ今の値を引き継ぐ。
+    // 下書きが無いときは日付を 0 で上書きしないよう、規則をかけない
+    $hasDraft = !empty($draft);
     $draft['published'] = $documentObject['published'];
+    if ($hasDraft) {
+        $ruled = evo()->doc->setPubStatus($draft);
+        if (evo()->hasPermission('publish_document')) {
+            $draft = $ruled;
+        }
+        // トップページは、通常の保存と同じく非公開にも予約にもしない（文書も下書きも変えずに戻す）
+        if ((int)$docid === (int)evo()->config('site_start')) {
+            $error = evo()->doc->startDocPubError(
+                $draft['published'],
+                $ruled['pub_date'],
+                $ruled['unpub_date']
+            );
+            if ($error !== '') {
+                evo()->webAlertAndQuit($error, sprintf('index.php?a=131&id=%s', $docid));
+                exit;
+            }
+        }
+    }
     evo()->doc->update($draft, $docid);
     db()->delete(
         '[+prefix+]site_revision',
