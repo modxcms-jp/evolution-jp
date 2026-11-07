@@ -30,6 +30,9 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07（同）: DocManager の 3 つの表は `colEscapes` を指定しておらず、テンプレート名・説明・文書グループ名がエスケープされずに出る。テンプレートの表の下には「空のテンプレート（id 0）」の行だけを別の `<table>` で `style` 属性付きで書いている（`templates.tpl`）。
 - 2026-11-07（同）: `manager/includes/paginate.inc.php` の `Paging` は、管理ログ（`report/logging.static.php`）とメッセージ（`permission/messages.static.php`）が使う 3 つ目のページ送り（引数 `int_cur_position`）。どちらも SQL の `LIMIT` で取っている。表は手書きで、`tablesort.js` でブラウザ側の並べ替えをしている。2026-11-07 の main でメッセージ機能が外され、利用者は管理ログだけになった（段階 1 のブランチへ main を取り込んだときに確認）。Issue の対象（DataGrid・MakeTable）の外なので、この Issue では移さず、`assets/docs/core-issues.md` に後続の候補として記録した（D11）。
 - 2026-11-07（同）: `manager/includes/migrations/`・`install/`・同梱のスニペットとプラグインに `DataGrid`・`MakeTable`・`getHTMLGrid` の利用は無い。`.agent/` の過去の ExecPlan と `assets/docs/troubleshooting/solved-issues.md` の言及は記録なので変えない（`.agent/plans/2026-07-08-pdo-migration-dbapi-refactor.md` は未完了の計画なので段階 3 で直す）。
+- 2026-11-07（段階 1 の検証）: main の `delete_content.processor.php` は `$page` を作っていたのに戻り先に使っておらず、2 ページ目から削除すると 1 ページ目に戻っていた（公開・非公開・復元は `page` を残す）。D19 で、4 つの処理とも `page` と並べ替えを残すようにそろえた。
+- 2026-11-07（段階 1 の検証）: 右クリックのメニューの戻り先に並べ替えを付けても、処理側の PHP が戻り先を決めているので、画面の JS だけを直しても残らなかった（D19 の発端）。複製（`a=94`）と移動（`a=51`）は main でも戻り先に `page` を引き継いでおらず、段階 1 では変えていない。
+- 2026-11-07（段階 1 の自己レビュー）: 一覧の `get_jscript()` が `document` に付けるメニューを閉じるリスナーは、シェルで一覧を開き直すたびに積み重なっていた（もとからある問題）。触ったファイルなので、動きを変えずに 1 回だけ登録する形に直した。
 
 ## Decision Log
 
@@ -55,6 +58,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07 / planner D16: TV の出力ウィジェット・修飾子・`getHTMLGrid()` の 3 つは、それぞれの設定のキーを共通の形に読み替えて `DataTableSettings::render()` に渡す。列名・型の文字列の分け方（`||` があれば `||`、無ければ `,`）と型の書式を 1 か所に置くため（SSOT）。`getHTMLGrid()` は DoD のとおり DBAPI に残し、中身だけ載せ替える。`params` のキーは今と同じ名前を受け、`style` 系（`columnHeaderStyle`・`cssStyle`・`itemStyle`・`altItemStyle`・`pagerStyle`）と `colWidths`・`colAligns`・`colColors`・`colWraps`・`cellPadding`・`cellSpacing` は無視する。無いキーは警告を出さずに既定値にする。
 - 2026-11-07 / planner D17: 新しい言語のキーを 2 つ足す（`english.inc.php`・`japanese-utf8.inc.php`）。`pagination_label`（ページ送りの `nav` の `aria-label`。「ページ送り」/「Pagination」）と `select_all`（「すべて選択」のチェックボックスの `aria-label`。「すべて選択」/「Select all」）。ページ送りの「先頭」「最後」は今の `pagination_table_first`・`pagination_table_last` を使う。`DataTablePager` は言語を読まず、文言を引数で受ける（D5）。
 - 2026-11-07 / planner D18: DocManager のテンプレートの表は、別の `<table>` で書いている「空のテンプレート（id 0）」の行を行の配列の先頭に入れ、1 つの表にする（`style` 属性の表を消す）。テンプレート名と文書グループ名はエスケープし、説明は管理画面のほかの要素の説明と同じ `element_description_html()` を通す。
+- 2026-11-07 / 本人 D19（段階 1 の検証で範囲を広げた）: 子リソースの一覧を並べ替えたまま右クリックのメニューで公開・非公開・削除・復元をすると、戻った一覧で並べ替えが外れていた（処理側が `page` だけを引き継いでいた）。一覧の状態（ページ・並べ替え）の読み取り、並べ替えのキーと SQL の列名の対応、戻り先の URL の組み立てを `manager/includes/controls/child_document_list_state.class.php` の `ChildDocumentListState` 1 か所にまとめ、一覧の画面（`resources_list.static.php`）と 4 つの処理（`manager/processors/document/{publish,unpublish,delete,undelete}_content.processor.php`）の両方がそれを使う。決まり: 一覧ごとの状態は、汎用の `DataTable`・`DataTableLinks` に一覧固有の知識（許可する並べ替えのキー、`a=120` など）を入れず、その一覧専用のクラス 1 か所に置き、画面と処理の両方から使う。クラスの名前は Document 系にする（Resource にしない）。段階 2 で画面状態を覚える一覧（D9）も、同じ形で専用のクラスにするかを着手時に決める。
 
 ## Outcomes & Retrospective
 
@@ -130,6 +134,7 @@ Issue の「古い作りの例」が解消される段階:
 - 新規: `manager/includes/controls/data_table.class.php`、`manager/media/script/data-table.js`、`assets/docs/data-table.md`
 - 変更: `manager/actions/document/resources_list.static.php`、`manager/includes/document.parser.class.inc.php`、`manager/includes/lang/english.inc.php`、`manager/includes/lang/japanese-utf8.inc.php`、`manager/media/style/AromaHop/style.css`、`manager/media/style/AuroraFlow/style.css`、`manager/media/style/RevoClassic/style.css`、`manager/media/style/RevoStyle/style.css`、`manager/media/style/RubberWhite/style.css`、`manager/media/style/SakuraFlow/style.css`、`manager/media/style/SoftSlate/style.css`、`assets/docs/theme-spacing.md`、`AGENTS.md`（ドキュメントマップに `data-table.md` の 1 行）
 - 削除: `manager/includes/extenders/ex_maketable.php`、`manager/includes/extenders/maketable.class.php`
+- 検証で広げた分（D19）: 新規 `manager/includes/controls/child_document_list_state.class.php`、変更 `manager/processors/document/publish_content.processor.php`・`unpublish_content.processor.php`・`delete_content.processor.php`・`undelete_content.processor.php`、`assets/docs/core-issues.md`（後続の候補の記述を data-table.md に合わせる）。手順 5 の `DataTableLinks::fromRequest()` と並べ替えの列名の対応は、一覧の画面で直接持たず `ChildDocumentListState` を通す
 
 1. `data_table.class.php` に `DataTable`・`DataTablePager`・`DataTableLinks` を書く（形は「Interfaces and Dependencies」）。PHP 7.4 で動く書き方にする（`match`・名前付き引数・nullsafe 演算子・`str_contains()`・union 型を使わない）。描く処理は `evo()`・`db()`・リクエスト・グローバル変数に触れない（D5）。出力の規則:
    - `<div class="data-table" data-table="{id}">` で包み、中に `<table class="{tableClass}">`。`caption` があれば `<caption>`。`showHeader` が真なら `<thead><tr><th scope="col" class="…">見出し</th>…</tr></thead>`。`<tbody>` に行。
