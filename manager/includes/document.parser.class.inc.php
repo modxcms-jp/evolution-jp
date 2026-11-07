@@ -4905,7 +4905,7 @@ class DocumentParser
             return $str;
         }
 
-        switch ($this->config('datetime_format')) {
+        switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
@@ -4939,14 +4939,58 @@ class DocumentParser
             default:
                 return $default;
         }
-        if (!$H && !$M && !$S) {
-            $H = 0;
-            $M = 0;
-            $S = 0;
+        // 時刻を省いた入力は 0 時 0 分 0 秒
+        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
+        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
+        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+            return '';
         }
-        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = (int)$timeStamp;
-        return $timeStamp;
+        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
+        return $timeStamp === false ? '' : $timeStamp;
+    }
+
+    /**
+     * 日付の入力を、DB の日時の列（signed int）に入れるタイムスタンプにする。保存の前の確かめは、すべてこれで行う。
+     * 空（空白だけを含む）は 0、解釈できない日付（toTimeStamp() が空文字を返すもの）と、
+     * 列に入らない日時（1901〜2038 年の外）は null を返す。整数と整数の文字列（負を含む。保存済みの時刻）は
+     * そのまま、範囲だけを確かめる（dateInputValue() と同じ見分け方）
+     *
+     * @param mixed $value 入力欄の文字列、または保存済みの時刻
+     */
+    public function parseDateInput($value): ?int
+    {
+        if (is_int($value)) {
+            $timestamp = $value;
+        } else {
+            if ($value === null) {
+                return 0;
+            }
+            if (!is_scalar($value)) {
+                return null;
+            }
+            $value = trim((string)$value);
+            if ($value === '') {
+                return 0;
+            }
+            if (preg_match('/^-?[0-9]+$/', $value)) {
+                // 整数に収まらない桁（32bit の PHP では 11 桁など）は、(int) で上限に丸めず解釈できない値にする
+                $timestamp = $value + 0;
+                if (!is_int($timestamp)) {
+                    return null;
+                }
+            } else {
+                $timestamp = $this->toTimeStamp($value);
+                if ($timestamp === '') {
+                    return null;
+                }
+                $timestamp = (int)$timestamp;
+            }
+        }
+        if ($timestamp < -2147483648 || 2147483647 < $timestamp) {
+            return null;
+        }
+        return $timestamp;
     }
 
     public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')

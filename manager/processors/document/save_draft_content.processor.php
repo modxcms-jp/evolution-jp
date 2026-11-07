@@ -37,7 +37,7 @@ foreach (['pub_date', 'unpub_date'] as $dateField) {
     if (isset($post[$dateField])) {
         $post[$dateField] = $dateValue;
     }
-    if ($dateValue !== '' && evo()->toTimeStamp($dateValue) === '') {
+    if (evo()->parseDateInput($dateValue) === null) {
         manager()->saveFormValues(131);
         evo()->webAlertAndQuit(
             lang('mgrlog_dateinvalid'),

@@ -110,7 +110,7 @@
         <td>
             <input
                 name="dob"
-                value="<?php echo(user('dob') ? evo()->toDateFormat(user('dob'), 'dateOnly') : ''); ?>"
+                value="<?= manager()->dateInputValue(user('dob'), 'dateOnly') ?>"
                 type="text"
                 id="dob"
                 class="DatePicker"

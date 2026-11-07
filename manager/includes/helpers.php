@@ -394,7 +394,8 @@ function alert()
  * blocked が 1、blockeduntil が未来、blockedafter が過去のどれかでブロック中とみなす。
  * 失敗回数による一時ロックは blockeduntil だけで表すので、期限が過ぎれば外れる。
  *
- * 日時はタイムスタンプで受ける（差し戻しの値は、呼び出し側で ConvertDate() で戻す）。空文字などは整数にそろえて 0 として扱う。
+ * 日時はタイムスタンプで受ける（差し戻しの値は、呼び出し側で ManagerAPI::restoredDateValue() で戻す）。
+ * 空文字や、解釈できずに文字列のまま差し戻した日付などの数値でない値は 0 として扱う。
  *
  * @param array $row blocked / blockeduntil / blockedafter を持つ配列
  */
@@ -404,7 +405,7 @@ function isUserBlocked($row)
         return false;
     }
     $int = static function ($key) use ($row) {
-        return isset($row[$key]) && is_scalar($row[$key]) ? (int)$row[$key] : 0;
+        return isset($row[$key]) && is_numeric($row[$key]) ? (int)$row[$key] : 0;
     };
     $now = time();
     $until = $int('blockeduntil');

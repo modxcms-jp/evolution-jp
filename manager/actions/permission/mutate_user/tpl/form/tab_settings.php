@@ -75,7 +75,7 @@
             <th><?= lang('user_blockedafter') ?>:</th>
             <td>
                 <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
-                    value="<?php echo (user('blockedafter') ? $modx->toDateFormat(user('blockedafter')) : ""); ?>"
+                    value="<?= manager()->dateInputValue(user('blockedafter')) ?>"
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockedafter.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -91,7 +91,7 @@
                     id="blockeduntil"
                     name="blockeduntil"
                     class="DatePicker"
-                    value="<?php echo (user('blockeduntil') ? $modx->toDateFormat(user('blockeduntil')) : ''); ?>"
+                    value="<?= manager()->dateInputValue(user('blockeduntil')) ?>"
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
