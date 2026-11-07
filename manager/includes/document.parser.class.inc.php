@@ -111,7 +111,7 @@ class DocumentParser
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
     private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
-    private $loadingSettings = false; // getSettings() の実行中は true（config() からの再入を防ぐ）
+    private $settingsLoadStarted = false; // 設定の読み込みを始めたら true（config() からの再入と、失敗後の再試行を防ぐ）
 
     public function __get($property_name)
     {
@@ -1261,12 +1261,12 @@ class DocumentParser
 
     /**
      * 設定がまだ読まれていなければ DB から読み込む（「設定が空なら読む」の唯一の入口）。
-     * getSettings() の実行中（token_auth() や OnGetConfig のプラグインから config() が呼ばれたとき）は、
-     * 二重に読み込まない。
+     * 読み込みは 1 リクエストで 1 回だけ試す。読み込みの最中に config() が呼ばれたときや、
+     * 読み込みに失敗したあとのエラー表示から config() が呼ばれたときは、読まずに既定値で答える
      */
     private function loadSettingsIfEmpty()
     {
-        if ($this->config || $this->loadingSettings) {
+        if ($this->config || $this->settingsLoadStarted) {
             return;
         }
         $this->getSettings();
@@ -1274,13 +1274,8 @@ class DocumentParser
 
     public function getSettings()
     {
-        $wasLoading = $this->loadingSettings;
-        $this->loadingSettings = true;
-        try {
-            return $this->readSettings();
-        } finally {
-            $this->loadingSettings = $wasLoading;
-        }
+        $this->settingsLoadStarted = true;
+        return $this->readSettings();
     }
 
     private function readSettings()
@@ -1309,7 +1304,7 @@ class DocumentParser
 
         // サーバーの掃除などでキャッシュファイルが消えていたら、その場で作り直す。
         // siteCache.idx.php が無いとプラグインのイベント登録が読めず、プラグインが一切動かない。
-        // 作り直しの中で config() から getSettings() が呼ばれても、二重には作り直さない
+        // 作り直し（setSiteCache()）の中から getSettings() が呼ばれても、二重には作り直さない
         static $rebuilding = false;
         if (!$rebuilding && !is_file(MODX_CACHE_PATH . 'siteCache.idx.php') && is_writable(MODX_CACHE_PATH)) {
             $rebuilding = true;
