@@ -42,7 +42,9 @@ function cli_system_log_format_entry(array $entry): string
 }
 
 /**
- * Create a temporary MySQL defaults-extra-file for secure credential passing.
+ * Create a temporary MySQL option file for secure credential passing.
+ * Pass it with --defaults-file (as the first option) so that the client reads
+ * only this file and ~/.my.cnf etc. cannot override the connection settings.
  * Returns the temp file path. The file is auto-deleted on shutdown.
  */
 function cli_mysql_defaults_file()
@@ -154,7 +156,7 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
 
     $routines = !array_key_exists('routines', $options) || $options['routines'];
     $cmd = sprintf(
-        'mysqldump --defaults-extra-file=%s --single-transaction %s --no-tablespaces %s',
+        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces %s',
         escapeshellarg($defaultsFile),
         $routines ? '--routines --triggers' : '--skip-triggers',
         escapeshellarg($dbname)
