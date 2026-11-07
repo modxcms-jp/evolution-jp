@@ -8,9 +8,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (preg_match('@^[1-9][0-9]*$@', getv('id', ''))) {
-    $id = getv('id');
-} else {
+$id = get_intvar('id');
+if (!$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -18,7 +17,7 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id', ''))) {
 $ph['id'] = $id;
 $ph['lang_cancel'] = $_lang['cancel'];
 
-switch (getv('mode')) {
+switch (get_choicevar('mode', ['deleted', 'nodeleted', 'publish_draft'], '')) {
     case 'deleted':
         $ph['title'] = '下書きを削除';
         $ph['msg'] = '下書きを削除しました。';

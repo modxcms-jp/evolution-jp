@@ -1,13 +1,7 @@
 <?php
 
 if (sessionv('prevAction') === 'options') {
-    sessionv('*installdata', postv('installdata', ''));
-    sessionv('*template', postv('template', []));
-    sessionv('*tv', postv('tv', []));
-    sessionv('*chunk', postv('chunk', []));
-    sessionv('*snippet', postv('snippet', []));
-    sessionv('*plugin', postv('plugin', []));
-    sessionv('*module', postv('module', []));
+    saveInstallSelection();
 }
 
 $ph = array_merge(
@@ -29,6 +23,10 @@ $ph = array_merge(
 );
 if ($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';
+}
+// value="…" に入れる値は、出力の直前にエスケープする
+foreach (['adminname', 'database_server', 'table_prefix', 'adminemail', 'adminpass', 'adminpassconfirm', 'database_user', 'dbase'] as $key) {
+    $ph[$key] = hsc($ph[$key]);
 }
 echo $modx->parseText(
     file_get_contents(

@@ -14,17 +14,22 @@ $rs = db()->select(
 );
 $from = db()->getRow($rs);
 
-if (anyv('sendto') === 'u') {
-    if (anyv('user') == 0) {
+$sendto = request_choicevar('sendto', ['u', 'g', 'a'], '');
+// キーが無いときだけ既定の文言。空で送られたときは空のまま、配列のときは空
+$subject = anyv('messagesubject') === null ? '(no subject)' : request_strvar('messagesubject');
+$message = anyv('messagebody') === null ? '(no message)' : request_strvar('messagebody');
+
+if ($sendto === 'u') {
+    if (!request_intvar('user')) {
         alert()->setError(13);
         alert()->dumpError();
     }
     send_pm(
         [
-            'recipient' => (int)anyv('user'),
+            'recipient' => request_intvar('user'),
             'sender' => evo()->getLoginUserID(),
-            'subject' => anyv('messagesubject', '(no subject)'),
-            'message' => anyv('messagebody', '(no message)'),
+            'subject' => $subject,
+            'message' => $message,
             'postdate' => request_time(),
             'type' => 'Message',
             'private' => 1
@@ -33,8 +38,8 @@ if (anyv('sendto') === 'u') {
     );
 }
 
-if (anyv('sendto') === 'g') {
-    if (anyv('group') == 0) {
+if ($sendto === 'g') {
+    if (!request_intvar('group')) {
         alert()->setError(14);
         alert()->dumpError();
     }
@@ -42,7 +47,7 @@ if (anyv('sendto') === 'g') {
         'internalKey',
         '[+prefix+]user_attributes',
         [
-            where('role', '=', (int)anyv('group')),
+            where('role', '=', request_intvar('group')),
             'AND blocked=0'
         ]
     );
@@ -54,8 +59,8 @@ if (anyv('sendto') === 'g') {
             [
                 'recipient' => $row['internalKey'],
                 'sender' => evo()->getLoginUserID(),
-                'subject' => anyv('messagesubject', '(no subject)'),
-                'message' => anyv('messagebody', '(no message)'),
+                'subject' => $subject,
+                'message' => $message,
                 'postdate' => request_time(),
                 'type' => 'Message',
                 'private' => 0
@@ -65,7 +70,7 @@ if (anyv('sendto') === 'g') {
     }
 }
 
-if (anyv('sendto') === 'a') {
+if ($sendto === 'a') {
     $rs = db()->select('id', '[+prefix+]manager_users');
     while ($row = db()->getRow($rs)) {
         if ($row['id'] == evo()->getLoginUserID()) {
@@ -75,8 +80,8 @@ if (anyv('sendto') === 'a') {
             [
                 'recipient' => $row['id'],
                 'sender' => evo()->getLoginUserID(),
-                'subject' => anyv('messagesubject', '(no subject)'),
-                'message' => anyv('messagebody', '(no message)'),
+                'subject' => $subject,
+                'message' => $message,
                 'postdate' => request_time(),
                 'type' => 'Message',
                 'private' => 0
@@ -95,8 +100,6 @@ function pm2email($from, $fields)
     if (evo()->config('pm2email', 0) == 0) {
         return;
     }
-
-    extract($fields, EXTR_PREFIX_ALL, 'f');
 
     $msg = array_get($fields, 'message') . "\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
     $msg = evo()->mergeSettingsContent($msg);

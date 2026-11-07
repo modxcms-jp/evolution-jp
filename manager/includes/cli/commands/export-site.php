@@ -83,7 +83,7 @@ if ($result['state'] !== EvoSiteExportJob::STATE_RUNNING) {
 
 // 操作ログ（manager_log）に CLI からの開始として残す。ログインユーザーがいないので、ユーザー名を CLI にする
 include_once MODX_CORE_PATH . 'log.class.inc.php';
-// CLI では input_any('a') が 0 になるため、画面からの開始と同じ action（308）を渡して書く
+// CLI では request_intvar('a') が 0 になるため、画面からの開始と同じ action（308）を渡して書く
 (new logHandler())->initAndWriteLog('HTML export: start (CLI)', '0', 'CLI', 308, 'x', '-');
 
 $printMessages = function (array $messages) use ($plain) {

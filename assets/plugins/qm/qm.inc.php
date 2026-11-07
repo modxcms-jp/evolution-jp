@@ -84,7 +84,7 @@ class Qm
     private function init()
     {
         global $modx;
-        if (getv('a') == 83) {
+        if (get_intvar('a') === 83) {
             return;
         }
 
@@ -454,7 +454,11 @@ class Qm
             if ($tvType === 'url') {
                 $tvContent = normalize_url_tv_value(
                     $tvContent,
-                    postv('tv' . $tvId . '_prefix', postv('tv' . $tvName . '_prefix', '--'))
+                    post_choicevar(
+                        'tv' . $tvId . '_prefix',
+                        tv_url_prefixes(),
+                        post_choicevar('tv' . $tvName . '_prefix', tv_url_prefixes(), '--')
+                    )
                 );
             }
         }

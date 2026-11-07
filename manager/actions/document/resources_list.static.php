@@ -9,8 +9,7 @@ if (!hasPermission('view_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$idParam = getv('id', '');
-$id = preg_match('@^[1-9][0-9]*$@', $idParam) ? (int)$idParam : 0;
+$id = get_intvar('id');
 if ($id && !evo()->checkPermissions($id)) {
     alert()->setError(3, lang('access_permission_denied'));
     alert()->dumpError();
@@ -68,8 +67,8 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    $pageParam = getv('page', '');
-    $offset = preg_match('@^[1-9][0-9]*$@', $pageParam) ? (int)$pageParam - 1 : 0;
+    $pageNumber = get_intvar('page');
+    $offset = $pageNumber ? $pageNumber - 1 : 0;
     $rs = db()->select(
         $f,
         [
@@ -374,7 +373,7 @@ function get_jscript($id, $cm)
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
-    $page = (getv('page')) ? " + '&page=" . (int)getv('page') . "'" : '';
+    $page = get_intvar('page') ? " + '&page=" . get_intvar('page') . "'" : '';
 
     $siteStart = (int) evo()->config('site_start');
 

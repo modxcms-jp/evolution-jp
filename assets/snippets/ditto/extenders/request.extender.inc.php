@@ -80,6 +80,27 @@ foreach ($request as $name => $value) {
         $variables[$saneName] = trim($value);
     }
 }
+// Numeric settings: read as a non-negative integer (leading zeros allowed, "05" is 5, "0" stays 0).
+// An empty or malformed value is the same as not specified, so the default or the snippet call value is used.
+// display, total and summarize (an alias of display) also accept "all".
+foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
+    if (!isset($variables[$numericName])) {
+        continue;
+    }
+    if (in_array($numericName, ['display', 'total', 'summarize'], true) && $variables[$numericName] === 'all') {
+        continue;
+    }
+    $numericValue = to_uintvar($variables[$numericName]);
+    if ($numericValue === null) {
+        unset($variables[$numericName]);
+    } else {
+        $variables[$numericName] = $numericValue;
+    }
+}
+// randomize takes 0, 1 or a field name, so it is not numeric. An empty value is the same as not specified.
+if (isset($variables['randomize']) && $variables['randomize'] === '') {
+    unset($variables['randomize']);
+}
 /*
 	Param: dbg
 
@@ -93,8 +114,7 @@ foreach ($request as $name => $value) {
         Default:
         0 - off
 */
-$debugRequest = anyv($dittoID . "dbg", 0);
-if ($debugRequest == 1 && !empty($debug)) {
+if (request_intvar($dittoID . "dbg") === 1 && !empty($debug)) {
     echo hsc(print_r($variables, true));
 }
 extract($variables);

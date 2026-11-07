@@ -8,7 +8,10 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (!preg_match('@^[0-9]*$@', postv('id', '')) || (mode() === 'edit' && !postv('id'))) {
+// 保存の画面（新規・更新）以外から来た値は止める。id は、新規なら無くてよいが、送られたなら正の整数で、更新では必須
+$postedId = postv('id');
+$hasPostedId = $postedId !== null && $postedId !== '' && $postedId !== '0';
+if (!postedMode() || ($hasPostedId && !post_intvar('id')) || (mode() === 'edit' && !post_intvar('id'))) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -23,8 +26,6 @@ $id = validated('id');
 $document_groups = getDocGroups();
 
 checkDocPermission(validated('id'), $document_groups);
-
-evo()->manager->saveFormValues();
 
 checkParent();
 checkAllowedParents(validated('id'));
@@ -46,7 +47,8 @@ if (mode() === 'new') {
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
-        evo()->webAlertAndQuit($msg, 'index.php?a=' . getv('a'));
+        evo()->manager->saveFormValues(postedMode());
+        evo()->webAlertAndQuit($msg, formReturnUrl());
     }
 
     if (!empty($param['tv_vars'])) {
@@ -106,12 +108,13 @@ if (mode() === 'edit') {
         sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             sprintf(
                 "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>.",
                 db()->lastQuery()
             ),
-            sprintf('index.php?a=27&id=%s', validated('id'))
+            formReturnUrl()
         );
     }
 
@@ -181,7 +184,7 @@ function renumberAliasAfterParentChange($param)
     return evo()->config('friendly_urls')
         && (int)evo()->config('automatic_alias') === 2
         && (string) array_get($param['doc_vars'], 'alias', '') === (string) validated('alias')
-        && trim((string) postv('alias', '')) === '';
+        && trim(post_strvar('alias')) === '';
 }
 
 // 親が変わったあとの別名の重複を確かめ直す（get_alias() の重複確認と同じ条件）
@@ -399,16 +402,12 @@ function _check_duplicate_alias($id, $alias, $parent)
     if (!$docid) {
         return $alias;
     }
-    evo()->manager->saveFormValues(postv('mode'));
-    $url = sprintf('index.php?a=%s', postv('mode'));
-    if (mode() === 'edit') {
-        $url .= sprintf('&id=%s', $id);
-    } elseif (request_intvar('pid')) {
-        $url .= sprintf('&pid=%s', request_intvar('pid'));
-    }
+    evo()->manager->saveFormValues(postedMode());
+    $url = formReturnUrl();
 
-    if (anyv('stay')) {
-        $url .= '&stay=' . anyv('stay');
+    $stay = request_choicevar('stay', ['new', 'stay', 'close', 'save_draft', 'save_standby'], '');
+    if ($stay) {
+        $url .= '&stay=' . $stay;
     }
 
     evo()->webAlertAndQuit(
@@ -433,13 +432,8 @@ function checkParent()
         return;
     }
     // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
-    evo()->manager->saveFormValues(postv('mode'));
-    $url = sprintf('index.php?a=%s', postv('mode'));
-    if (mode() === 'edit') {
-        $url .= sprintf('&id=%s', validated('id'));
-    } elseif (request_intvar('pid')) {
-        $url .= sprintf('&pid=%s', request_intvar('pid'));
-    }
+    evo()->manager->saveFormValues(postedMode());
+    $url = formReturnUrl();
     evo()->webAlertAndQuit($message, $url);
 }
 
@@ -460,14 +454,8 @@ function checkDocPermission($id, $document_groups = [])
                 )
             );
             if (!$count) {
-                if (mode() === 'new') {
-                    $url = 'index.php?a=4';
-                } else {
-                    $url = 'index.php?a=27&id=' . $id;
-                }
-
-                evo()->manager->saveFormValues();
-                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), $url);
+                evo()->manager->saveFormValues(postedMode());
+                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), formReturnUrl());
             }
         }
     }
@@ -490,7 +478,6 @@ function checkDocPermission($id, $document_groups = [])
 
         // 保存しようとしている文書そのものにアクセスできるか
         if (!evo()->checkPermissions($id)) {
-            evo()->manager->saveFormValues();
             evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
         }
 
@@ -500,13 +487,11 @@ function checkDocPermission($id, $document_groups = [])
         }
 
         if (!evo()->checkPermissions(validated('parent'))) {
-            if (mode() === 'new') {
-                $url = 'index.php?a=4';
-            } else {
-                $url = "index.php?a=27&id={$id}";
-            }
-            evo()->manager->saveFormValues();
-            evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, validated('alias')), $url);
+            evo()->manager->saveFormValues(postedMode());
+            evo()->webAlertAndQuit(
+                sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
+                formReturnUrl()
+            );
         }
     } elseif (validated('parent') == 0 && !manager()->isAllowroot()) {
         alert()->setError(3);
@@ -533,7 +518,6 @@ function checkAllowedParents($id)
     }
 
     if (!manager()->isInAllowedParents($id)) {
-        evo()->manager->saveFormValues();
         evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
     }
 
@@ -544,8 +528,8 @@ function checkAllowedParents($id)
         return;
     }
     if (!manager()->isInAllowedParents(validated('parent'))) {
-        evo()->manager->saveFormValues();
-        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), sprintf('index.php?a=27&id=%d', (int)$id));
+        evo()->manager->saveFormValues(postedMode());
+        evo()->webAlertAndQuit(lang('access_permission_parent_denied'), formReturnUrl());
     }
 }
 
@@ -599,16 +583,18 @@ function getInputValues($id = 0, $mode = 'new')
 function checkStartDoc($id, $published, $pub_date, $unpub_date)
 {
     if ($published == 0) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot be unpublished!',
-            sprintf('index.php?a=27&id=%s', $id)
+            formReturnUrl()
         );
         exit;
     }
     if ($pub_date > request_time() || $unpub_date) {
+        evo()->manager->saveFormValues(postedMode());
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot have publish or unpublish dates set!',
-            sprintf('index.php?a=27&id=%s', $id)
+            formReturnUrl()
         );
     }
 }
@@ -1014,15 +1000,26 @@ function getDocGroups()
     if (postv('chkalldocs') === 'on') {
         return [];
     }
-    return postv('docgroups', []);
+    // チェックボックスの組。配列でないとき・文字列でない要素は無いものとして扱う
+    $groups = postv('docgroups', []);
+    return is_array($groups) ? array_values(array_filter($groups, 'is_string')) : [];
+}
+
+// 保存の画面の mode（4: リソース・72: ウェブリンクの新規、27: 更新）。それ以外は 0
+function postedMode()
+{
+    return post_choicevar('mode', [4, 72, 27], 0);
+}
+
+// 入力エラーで保存の画面（postedMode()）へ戻す URL。入力は saveFormValues(postedMode()) で差し戻す
+function formReturnUrl()
+{
+    return evo()->manager->formReturnUrl(postedMode(), post_intvar('id'), post_intvar('template'));
 }
 
 function mode()
 {
-    if (postv('mode') == 27) {
-        return 'edit';
-    }
-    return 'new';
+    return postedMode() === 27 ? 'edit' : 'new';
 }
 
 function validated($key = null, $default = null)
@@ -1033,8 +1030,9 @@ function validated($key = null, $default = null)
         evo()->loadExtension('DocAPI');
         $form_v = evo()->doc->setValue(
             evo()->doc->initValue(
-                evo()->doc->fixTvNest($_POST)
-            )
+                evo()->doc->fixTvNest(postv())
+            ),
+            postedMode()
         );
     }
 

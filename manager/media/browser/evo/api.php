@@ -55,6 +55,7 @@ define('MODX_API_MODE', true);
 $self = 'manager/media/browser/evo/api.php';
 $base_path = str_replace($self, '', str_replace('\\', '/', __FILE__));
 require_once $base_path . 'manager/includes/document.parser.class.inc.php';
+require_once $base_path . 'manager/includes/filesystem.class.inc.php';
 require_once __DIR__ . '/lib/PathGuard.php';
 require_once __DIR__ . '/lib/BrowserScope.php';
 require_once __DIR__ . '/lib/PickerScope.php';
@@ -85,35 +86,11 @@ function fbError($code, $message, $status = 400)
 }
 
 /**
- * $fn を呼ぶ間だけ警告を横取りし、外へ出さない(evo の phpError に拾われて HTML の 500 になるのを防ぐ)。
- * 警告の文は $reason に入る。set_error_handler の中では error_get_last() が更新されないため、自前で受け取る。
- */
-function fbAttempt(callable $fn, &$reason = null)
-{
-    $reason = '';
-    // 警告だけを受ける。E_DEPRECATED・E_NOTICE などは元のハンドラへ渡し、本当の原因を隠さない
-    // (set_error_handler の種類の指定では、外れた種類は元のハンドラでなく PHP 標準の処理に行ってしまう)
-    $previous = null;
-    $previous = set_error_handler(function ($no, $message, $file = '', $line = 0) use (&$reason, &$previous) {
-        if (!($no & (E_WARNING | E_USER_WARNING))) {
-            return $previous ? $previous($no, $message, $file, $line) : false;
-        }
-        $reason = $reason === '' ? $message : $reason;
-        return true;
-    });
-    try {
-        return $fn();
-    } finally {
-        restore_error_handler();
-    }
-}
-
-/**
  * 名前が見つからないときの文言。一覧で置き換え文字（U+FFFD）になった名前は実体と一致せず操作できないため、その旨を返す
  */
 function fbNotFoundMessage($name, $message)
 {
-    if (strpos((string) $name, "\u{FFFD}") !== false) {
+    if (is_string($name) && strpos($name, "\u{FFFD}") !== false) {
         return lang('fb_err_bad_encoding');
     }
     return $message;
@@ -363,7 +340,7 @@ function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParse
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $file = $resolver->resolveFile($dir['real'], getv('file', ''));
+    $file = $resolver->resolveFile($dir['real'], get_strvar('file'));
     if ($file === null) {
         fbError('not_found', lang('fb_err_file_not_found'), 404);
     }
@@ -408,7 +385,7 @@ function fbUploadedFiles()
  */
 function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPath)
 {
-    $saved = fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
+    $saved = Filesystem::attempt(function () use ($modx, $tmpPath, $targetPath) {
         return $modx->move_uploaded_file($tmpPath, $targetPath);
     }, $reason);
     if (!$saved) {
@@ -628,7 +605,7 @@ function fbCreateFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal
         if ($targetPath === null) {
             return null;
         }
-        $handle = fbAttempt(function () use ($targetPath) {
+        $handle = Filesystem::attempt(function () use ($targetPath) {
             return fopen($targetPath, 'xb');
         }, $reason);
         if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
@@ -647,7 +624,7 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    $name = $modx->sanitizeFilename(postv('name', ''), false);
+    $name = $modx->sanitizeFilename(post_strvar('name'), false);
     if ($name === '') {
         fbError('invalid_name', lang('fb_err_invalid_folder_name'), 400);
     }
@@ -661,7 +638,7 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
     }
 
     $folderPermissions = $modx->newFolderPermissions();
-    $created = fbAttempt(function () use ($target, $folderPermissions) {
+    $created = Filesystem::attempt(function () use ($target, $folderPermissions) {
         return mkdir($target, $folderPermissions);
     }, $reason);
     if (!$created) {
@@ -686,8 +663,8 @@ function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentPar
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる
-    $target = PathResolver::sanitizeSegment(postv('target', ''));
-    $newName = $modx->sanitizeFilename(postv('newName', ''), false);
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
+    $newName = $modx->sanitizeFilename(post_strvar('newName'), false);
     if ($target === '' || $newName === '') {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
@@ -714,7 +691,7 @@ function fbActionRename(PathResolver $resolver, BrowserScope $scope, DocumentPar
         fbError('already_exists', lang('fb_err_already_exists'), 409);
     }
 
-    $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+    $renamed = Filesystem::attempt(function () use ($sourcePath, $destPath) {
         return rename($sourcePath, $destPath);
     }, $reason);
     if (!$renamed) {
@@ -759,7 +736,7 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
             $errors[] = ['name' => $name, 'message' => lang('fb_err_protected')];
             continue;
         }
-        $unlinked = fbAttempt(function () use ($path) {
+        $unlinked = Filesystem::attempt(function () use ($path) {
             return unlink($path);
         }, $reason);
         if ($unlinked) {
@@ -783,7 +760,7 @@ function fbActionDelete(PathResolver $resolver, BrowserScope $scope, DocumentPar
             $errors[] = ['name' => $name, 'message' => lang('fb_err_protected')];
             continue;
         }
-        if (fbDeleteTree($path, $failures)) {
+        if (Filesystem::deleteTree($path, $failures)) {
             $deleted[] = $name;
             $deletedFolders[] = ChangeLog::relPath($dir, $name);
         } else {
@@ -847,7 +824,7 @@ function fbActionMove(PathResolver $resolver, BrowserScope $scope, DocumentParse
             $errors[] = ['name' => $name, 'message' => lang('fb_err_dest_exists')];
             continue;
         }
-        $renamed = fbAttempt(function () use ($sourcePath, $destPath) {
+        $renamed = Filesystem::attempt(function () use ($sourcePath, $destPath) {
             return rename($sourcePath, $destPath);
         }, $reason);
         if ($renamed) {
@@ -914,7 +891,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
         $targetPath = $free['path'];
         $out = $free['handle'];
 
-        list($in, $expectedSize, $copiedSize) = fbAttempt(function () use ($out, $sourcePath) {
+        list($in, $expectedSize, $copiedSize) = Filesystem::attempt(function () use ($out, $sourcePath) {
             $in = $out === false ? false : fopen($sourcePath, 'rb');
             $expectedSize = filesize($sourcePath);
             $copiedSize = $in !== false ? stream_copy_to_stream($in, $out) : false;
@@ -975,8 +952,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)
-    $targetName = postv('target', '');
-    $target = is_string($targetName) ? PathResolver::sanitizeSegment($targetName) : '';
+    $target = PathResolver::sanitizeSegment(post_strvar('target'));
     if ($target === '' || strpos($target, '.') === 0) {
         fbError('invalid_name', lang('fb_err_invalid_name'), 400);
     }
@@ -1048,7 +1024,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
 
         // 確保した(空の)ファイルへ保存する。第 3 引数 false で image_limit_width による縮小をしない
         $reason = $free['reason'];
-        $saved = $free['handle'] !== false && fbAttempt(function () use ($modx, $tmpPath, $targetPath) {
+        $saved = $free['handle'] !== false && Filesystem::attempt(function () use ($modx, $tmpPath, $targetPath) {
             return $modx->move_uploaded_file($tmpPath, $targetPath, false);
         }, $reason);
         if (!$saved) {
@@ -1081,7 +1057,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
 
     // 同じフォルダの一時ファイルに受けてから置き換える
     $realDir = substr($realPath, 0, strrpos($realPath, '/') + 1);
-    $stagePath = fbAttempt(function () use ($realDir) {
+    $stagePath = Filesystem::attempt(function () use ($realDir) {
         return tempnam($realDir, '.evo-save-');
     }, $stageReason);
     // Windows の tempnam() は区切りに \ を返すので、$realDir(/ 区切り)と比べる前にそろえる
@@ -1102,7 +1078,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     }
     if ($stagePath !== false) {
         // 一時ファイル(tempnam が作った空のファイル)を、アップロードされた中身で置き換える
-        $saved = fbAttempt(function () use ($tmpPath, $stagePath, $newPerms, $realPath) {
+        $saved = Filesystem::attempt(function () use ($tmpPath, $stagePath, $newPerms, $realPath) {
             return move_uploaded_file($tmpPath, $stagePath)
                 && chmod($stagePath, $newPerms)
                 && rename($stagePath, $realPath);
@@ -1242,65 +1218,4 @@ function fbActionDownload(PathResolver $resolver, BrowserScope $scope, DocumentP
     header('Cache-Control: private, no-store');
     @readfile($sendPath);
     exit;
-}
-
-// 最後まで消して、消せないものがあれば false を返し、失敗したパスを $failures に(パス => 理由 で)集める。
-// シンボリックリンクはリンクだけを消し、先へは入らない。$root は中へ入ってよい範囲(実パス・末尾スラッシュ付き)
-function fbDeleteTree($path, array &$failures, $root = null)
-{
-    if (is_link($path)) {
-        if (fbAttempt(function () use ($path) {
-            return unlink($path);
-        }, $reason)) {
-            return true;
-        }
-        $failures[$path] = $reason;
-        return false;
-    }
-
-    if ($root === null) {
-        $real = realpath($path);
-        $root = $real === false ? '' : rtrim(str_replace('\\', '/', $real), '/') . '/';
-    }
-    $real = realpath($path);
-    $real = $real === false ? '' : rtrim(str_replace('\\', '/', $real), '/') . '/';
-    if ($root === '' || strpos($real, $root) !== 0) {
-        $failures[$path] = '';
-        return false;
-    }
-
-    $entries = fbAttempt(function () use ($path) {
-        return scandir($path);
-    }, $reason);
-    if ($entries === false) {
-        $failures[$path] = $reason;
-        return false;
-    }
-
-    $ok = true;
-    foreach ($entries as $entry) {
-        if ($entry === '.' || $entry === '..') {
-            continue;
-        }
-        $full = $path . '/' . $entry;
-        if (is_link($full) || !is_dir($full)) {
-            if (!fbAttempt(function () use ($full) {
-                return unlink($full);
-            }, $reason)) {
-                $failures[$full] = $reason;
-                $ok = false;
-            }
-        } elseif (!fbDeleteTree($full, $failures, $root)) {
-            $ok = false;
-        }
-    }
-
-    if ($ok && !fbAttempt(function () use ($path) {
-        return rmdir($path);
-    }, $reason)) {
-        $failures[$path] = $reason;
-        $ok = false;
-    }
-
-    return $ok;
 }

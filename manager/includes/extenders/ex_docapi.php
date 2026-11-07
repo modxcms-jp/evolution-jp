@@ -121,9 +121,9 @@ class DocAPI
 
         $f['deleted'] = '1';
         $f['published'] = '0';
-        $f['publishedon'] = '';
-        $f['pub_date'] = '';
-        $f['unpub_date'] = '';
+        $f['publishedon'] = 0;
+        $f['pub_date'] = 0;
+        $f['unpub_date'] = 0;
 
         db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
@@ -345,9 +345,19 @@ class DocAPI
             $form_v['content'] = $form_v['ta'];
             unset($form_v['ta']);
         }
+        // ta は上で content に移しているので、content も配列を拒否する
+        if (isset($form_v['content']) && is_array($form_v['content'])) {
+            alert()->setError(2);
+            alert()->dumpError();
+        }
         foreach ($fields as $key) {
             if (!isset($form_v[$key])) {
                 $form_v[$key] = '';
+            }
+            // フィールドは文字列だけを受ける。配列（pagetitle[]=x など）は形式違いとして拒否する
+            if (is_array($form_v[$key])) {
+                alert()->setError(2);
+                alert()->dumpError();
             }
             $value = trim($form_v[$key]);
             switch ($key) {
@@ -382,7 +392,9 @@ class DocAPI
                     if ($value === '') {
                         $value = 0;
                     } else {
-                        $value = evo()->toTimeStamp($value);
+                        // 解釈できない日付は元の入力を残し、setValue() で拒否させる
+                        $ts = evo()->toTimeStamp($value);
+                        $value = $ts === '' ? $value : $ts;
                     }
                     break;
                 case 'editedon':
@@ -418,7 +430,11 @@ class DocAPI
         return $form_v;
     }
 
-    public function setValue($form_v)
+    /**
+     * @param array $form_v
+     * @param int $mode 保存の画面の操作の番号（4: 新規、72: ウェブリンク、27: 更新）。呼び出し元が決める
+     */
+    public function setValue($form_v, $mode = 0)
     {
         global $_lang;
 
@@ -471,17 +487,10 @@ class DocAPI
         if (!empty($form_v['pub_date'])) {
             $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
             if (!$form_v['pub_date']) {
-                evo()->manager->saveFormValues(postv('mode'));
-                if (array_get($form_v, 'id')) {
-                    evo()->webAlertAndQuit(
-                        $_lang['mgrlog_dateinvalid'],
-                        "index.php?a=" . postv('mode') . "&id=" . array_get($form_v, 'id')
-                    );
-                    exit;
-                }
+                evo()->manager->saveFormValues($mode);
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
-                    "index.php?a=" . postv('mode')
+                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
                 exit;
             }
@@ -495,19 +504,18 @@ class DocAPI
         if (!empty($form_v['unpub_date'])) {
             $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
             if (!$form_v['unpub_date']) {
-                evo()->manager->saveFormValues(postv('mode'));
-                $url = "index.php?a=" . postv('mode');
-                if (array_get($form_v, 'id')) {
-                    $url .= "&id=" . array_get($form_v, 'id');
-                }
-                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
+                evo()->manager->saveFormValues($mode);
+                evo()->webAlertAndQuit(
+                    $_lang['mgrlog_dateinvalid'],
+                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
+                );
             } elseif ($form_v['unpub_date'] < request_time()) {
                 $form_v['published'] = 0;
             }
         }
 
         // deny publishing if not permitted
-        if (postv('mode') == 27) {
+        if ($mode === 27) {
             return $form_v;
         }
 

@@ -55,7 +55,7 @@
     }
 
     function deleteuser() {
-        <?php if(getv('id') == evo()->getLoginUserID()) { ?>
+        <?php if($userid === (int) evo()->getLoginUserID()) { ?>
         alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
         if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
@@ -73,5 +73,5 @@
         document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
     }
 
-    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?> );
+    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || get_intvar('stay') === 2) ? 'true' : 'false' ?> );
 </script>

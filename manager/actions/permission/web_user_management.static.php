@@ -14,16 +14,16 @@ $icons_path = manager_style_image_path('icons');
 
 global $_PAGE;
 
-if (anyv('op') == 'reset') {
+if (request_strvar('op') === 'reset') {
     $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
+    $query = request_strvar('search') ?: array_get($_PAGE, 'vs.search');
     $_PAGE['vs']['search'] = $query;
 }
 
 // get & save listmode
-$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
+$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 
@@ -122,7 +122,7 @@ echo $cm->render();
                                 <td><?= $_lang["search"] ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= hsc(anyv('search')) ?>" />
+                                        value="<?= hsc(request_strvar('search')) ?>" />
                                 </td>
                                 <td>
                                     <a class="default" href="#" title="<?= $_lang["search"] ?>"
@@ -145,7 +145,7 @@ echo $cm->render();
 
         <div>
         <?php
-        $search = (string) anyv('search');
+        $search = request_strvar('search');
         $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked=1 OR wua.blockeduntil>" . time() . ",'" . $_lang['yes'] . "','-') as 'blocked'" .
             "FROM " . evo()->getFullTableName("web_users") . " wu " .
             "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
@@ -168,7 +168,7 @@ echo $cm->render();
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }
-            if (anyv('op') == 'reset') {
+            if (request_strvar('op') === 'reset') {
                 $grd->pageNumber = 1;
             }
             // render grid

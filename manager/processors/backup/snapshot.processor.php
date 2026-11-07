@@ -10,7 +10,7 @@ if (!evo()->hasPermission('bk_manager')) {
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
-$filename = trim((string) postv('file_name', ''));
+$filename = trim(post_strvar('file_name'));
 if ($filename !== '') {
     if (strtolower(substr($filename, -4)) === '.sql') {
         $filename = substr($filename, 0, -4) . '.sql';
@@ -33,7 +33,7 @@ if (!$backup->ensureDir()) {
 }
 
 // 空なら自動の名前になる（古い世代の削除は createSnapshot() が行う）
-if ($backup->createSnapshot($filename, (bool) postv('contentsOnly')) !== false) {
+if ($backup->createSnapshot($filename, post_boolvar('contentsOnly')) !== false) {
     sessionv('*result_msg', 'snapshot_ok');
     header('Location: index.php?a=93');
     exit;

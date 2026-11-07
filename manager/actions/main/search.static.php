@@ -26,7 +26,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td width="120"><?= lang('search_criteria_id') ?></td>
                         <td width="20">&nbsp;</td>
                         <td width="120">
-                            <input name="searchid" type="text" value="<?= hsc(getv('searchid')) ?>"/>
+                            <input name="searchid" type="text" value="<?= hsc(get_strvar('searchid')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_id_msg') ?></td>
                     </tr>
@@ -34,7 +34,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_title') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="pagetitle" type="text" value="<?= hsc(getv('pagetitle')) ?>"/>
+                            <input name="pagetitle" type="text" value="<?= hsc(get_strvar('pagetitle')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_title_msg') ?></td>
                     </tr>
@@ -42,7 +42,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_longtitle') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="longtitle" type="text" value="<?= hsc(getv('longtitle')) ?>"/>
+                            <input name="longtitle" type="text" value="<?= hsc(get_strvar('longtitle')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_longtitle_msg') ?></td>
                     </tr>
@@ -50,7 +50,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td>Alias</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="alias" type="text" value="<?= hsc(getv('alias')) ?>"/>
+                            <input name="alias" type="text" value="<?= hsc(get_strvar('alias')) ?>"/>
                         </td>
                         <td></td>
                     </tr>
@@ -58,7 +58,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td>URL</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="url" type="text" size="50" value="<?= hsc(getv('url')) ?>"/>
+                            <input name="url" type="text" size="50" value="<?= hsc(get_strvar('url')) ?>"/>
                         </td>
                         <td></td>
                     </tr>
@@ -66,7 +66,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td><?= lang('search_criteria_content') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="content" type="text" value="<?= hsc(getv('content')) ?>"/>
+                            <input name="content" type="text" value="<?= hsc(get_strvar('content')) ?>"/>
                         </td>
                         <td><?= lang('search_criteria_content_msg') ?></td>
                     </tr>
@@ -96,32 +96,32 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 <?php
 if (getv('submitok')) {
 
-    if (getv('url')) {
-        $searchid = evo()->getIdFromUrl(getv('url'));
+    if (get_strvar('url')) {
+        $searchid = evo()->getIdFromUrl(get_strvar('url'));
         if (!$searchid) {
             $searchid = 'x';
         }
     } else {
-        $searchid = getv('searchid', 0);
+        $searchid = get_strvar('searchid');
     }
 
     $where = [];
     if ($searchid) {
         $where[] = "id='" . db()->escape($searchid) . "' ";
     }
-    $searchtitle = trim((string) getv('pagetitle'));
+    $searchtitle = trim(get_strvar('pagetitle'));
     if ($searchtitle != '') {
         $where[] = "pagetitle LIKE '%" . db()->escape($searchtitle) . "%' ";
     }
-    $searchlongtitle = trim((string) getv('longtitle'));
+    $searchlongtitle = trim(get_strvar('longtitle'));
     if ($searchlongtitle != '') {
         $where[] = "longtitle LIKE '%" . db()->escape($searchlongtitle) . "%' ";
     }
-    $search_alias = trim((string) getv('alias'));
+    $search_alias = trim(get_strvar('alias'));
     if ($search_alias != '') {
         $where[] = "alias LIKE '%" . db()->escape($search_alias) . "%' ";
     }
-    $searchcontent = getv('content', '');
+    $searchcontent = get_strvar('content');
     if ($searchcontent != '') {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }

@@ -1,6 +1,9 @@
 <?php
 function getTmplvars($docid, $template_id, $docgrp)
 {
+    // SQL に渡す直前に整数にそろえる（差し戻しの値が入ることがある）
+    $docid = (int)$docid;
+    $template_id = (int)$template_id;
 
     if (!$template_id) {
         return [];
@@ -24,7 +27,7 @@ function getTmplvars($docid, $template_id, $docgrp)
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
             $docid ?
                 sprintf(
-                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=%d",
                     $docid
                 )
                 :
@@ -32,7 +35,7 @@ function getTmplvars($docid, $template_id, $docgrp)
             'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
         ],
         sprintf(
-            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
+            "tvtpl.templateid=%d AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template_id,
             manager()->isAdmin() ? 1 : 0,
             $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
@@ -63,6 +66,13 @@ function rteContent($htmlcontent, $editors)
         . getEditors($editors);
 }
 
+// 選ばれているエディタ。差し戻しの値を優先する
+function currentEditor()
+{
+    $restored = reloadFormValues() ?: [];
+    return to_strvar(evo()->array_get($restored, 'which_editor')) ?: post_strvar('which_editor', config('which_editor'));
+}
+
 function getEditors($editors)
 {
     if (!is_array($editors)) {
@@ -81,7 +91,7 @@ function getEditors($editors)
             '<option>',
             [
                 'value' => $editor,
-                'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
+                'selected' => currentEditor() === $editor ? null : ''
             ],
             $editor
         );
@@ -160,7 +170,7 @@ function getGroups($docid)
     $rs = db()->select(
         'id, document_group',
         '[+prefix+]document_groups',
-        sprintf("document='%s'", $docid)
+        sprintf('document=%d', (int)$docid)
     );
     $groups = [];
     while ($row = db()->getRow($rs)) {
@@ -175,11 +185,12 @@ function getUDGroups($id)
 
     if (manager()->action == 27 && $id) {
         $docid = $id;
-    } elseif (anyv('pid')) {
-        $docid = anyv('pid');
+    } elseif (request_intvar('pid')) {
+        $docid = request_intvar('pid');
     } else {
-        $docid = doc('parent');
+        $docid = (int)doc('parent');
     }
+    $docid = (int)$docid;
 
     // Setup Basic attributes for each Input box
     $inputAttributes['type'] = 'checkbox';
@@ -199,7 +210,7 @@ function getUDGroups($id)
             [
                 '[+prefix+]documentgroup_names AS dgn',
                 sprintf(
-                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s',
+                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%d',
                     $docid
                 )
             ],
@@ -214,15 +225,21 @@ function getUDGroups($id)
             'name'
         );
     }
-    // retain selected doc groups between post
-    if ($docid) {
-        if (postv('docgroups')) {
-            $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
-        } else {
-            $groupsarray = getGroups($docid);
+    // retain selected doc groups between post（配列でないときは空として扱う）
+    $restored = reloadFormValues();
+    $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
+    if ($restored !== null && !postv()) {
+        // GET で差し戻されたときは、差し戻しの選択だけにする（外したグループも外れたまま）
+        $docgroups = evo()->array_get($restored, 'docgroups', []);
+        $restoredGroupIds = [];
+        foreach (is_array($docgroups) ? $docgroups : [] as $value) {
+            $restoredGroupIds[] = (int)strtok((string)$value, ',');
         }
+        $groupsarray = [];
+    } elseif ($docid) {
+        $groupsarray = array_merge(getGroups($docid), $postedDocgroups);
     } else {
-        $groupsarray = postv('docgroups', []);
+        $groupsarray = $postedDocgroups;
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
@@ -241,7 +258,10 @@ function getUDGroups($id)
             $row['link_id'] ? $row['link_id'] : 'new'
         );
 
-        $checked = in_array($inputValue, $groupsarray);
+        // 差し戻しは、リンクの id が表示と合わないことがあるので、グループの id で照合する
+        $checked = isset($restoredGroupIds)
+            ? in_array((int)$row['id'], $restoredGroupIds, true)
+            : in_array($inputValue, $groupsarray);
         if ($checked) {
             $notPublic = true;
             $inputAttributes['checked'] = 'checked';
@@ -394,7 +414,8 @@ function get_alias_path($id)
         return MODX_BASE_URL;
     }
 
-    $pid = (int)anyv('pid', 0);
+    // 新規で URL に pid が無いときは、差し戻しの親のパスを出す
+    $pid = request_intvar('pid') ?: (!$id ? (int)doc('parent') : 0);
 
     if (!$id && !$pid) {
         return MODX_BASE_URL;
@@ -466,8 +487,8 @@ if (!function_exists('getDefaultTemplate')) {
                 'template',
                 '[+prefix+]site_content',
                 sprintf(
-                    "id!='%s' AND isfolder=0 AND parent='%s'",
-                    config('site_start'),
+                    'id!=%d AND isfolder=0 AND parent=%d',
+                    (int)config('site_start'),
                     request_intvar('pid')
                 ),
                 'published DESC,menuindex ASC',
@@ -477,7 +498,7 @@ if (!function_exists('getDefaultTemplate')) {
             $rs = db()->select(
                 'template',
                 '[+prefix+]site_content',
-                sprintf("id='%s'", request_intvar('pid'))
+                sprintf('id=%d', request_intvar('pid'))
             );
         } else {
             $default_template = config('default_template');
@@ -501,7 +522,7 @@ function checkPermissions($id)
     // 新規作成（4・72）で pid を指定したときは、ここでは止めない
     // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
     $isEditAction = in_array(manager()->action, [27, 131, 132]);
-    if (!$isAllowed && ($isEditAction || getv('pid') === null)) {
+    if (!$isAllowed && ($isEditAction || get_strvar('pid') === '')) {
         alert()->setError(3);
         alert()->dumpError();
     }
@@ -527,8 +548,8 @@ function checkPermissions($id)
             alert()->setError(3);
             alert()->dumpError();
         }
-        if (evo()->input_any('pid')) {
-            if (!evo()->checkPermissions(evo()->input_any('pid', 0))) {
+        if (request_intvar('pid')) {
+            if (!evo()->checkPermissions(request_intvar('pid'))) {
                 alert()->setError(3);
                 alert()->dumpError();
             }
@@ -554,9 +575,9 @@ function checkDocLock($id)
         'internalKey, username',
         '[+prefix+]active_users',
         sprintf(
-            "action='%s' AND id='%s'",
+            "action='%s' AND id=%d",
             manager()->action,
-            $id
+            (int)$id
         )
     );
     if (db()->count($rs) <= 1) {
@@ -642,34 +663,68 @@ if (!function_exists('default_value')) {
     }
 }
 
+// mergeReloadValues() で重ねた差し戻しの入力。無ければ null（TV・ドキュメントグループの描画が読む）
+function reloadFormValues($values = false)
+{
+    static $restored = null;
+    if ($values !== false) {
+        $restored = $values;
+    }
+    return $restored;
+}
+
 // restore saved form
+// POST での開き直しと、保存の処理が入力エラーで GET に戻したときの、どちらも自分の画面のキーの差し戻しを読む
 function mergeReloadValues($docObject)
 {
-    if (manager()->hasFormValues()) {
-        $populate = manager()->loadFormValues();
-        if ($populate) {
-            $docObject = array_merge($docObject, $populate);
-            if (evo()->array_get($populate, 'ta')) {
-                $docObject['content'] = $populate['ta'];
-            }
-            if (evo()->array_get($populate, 'which_editor')) {
-                $docObject['which_editor'] = $populate['which_editor'];
-            }
-        }
+    if (!manager()->hasFormValues()) {
+        return $docObject;
+    }
+    $populate = manager()->loadFormValues();
+    // 別のリソース（新規か id が違う）向けの入力は混ぜない
+    if (!$populate || (int)evo()->array_get($populate, 'id', 0) !== request_intvar('id')) {
+        return $docObject;
+    }
+    // GET で戻った新規で URL に pid があり、差し戻しの親と違えば、別の新規作成の画面なので重ねない
+    // （差し戻しの戻り先の URL には pid を付けない）
+    if (!postv() && !request_intvar('id') && request_intvar('pid')
+        && request_intvar('pid') !== (int)evo()->array_get($populate, 'parent', 0)) {
+        return $docObject;
+    }
+    reloadFormValues($populate);
+    $docObject = array_merge($docObject, $populate);
+    if (array_key_exists('ta', $populate)) {
+        $docObject['content'] = $populate['ta'];
+    }
+    if (evo()->array_get($populate, 'which_editor')) {
+        $docObject['which_editor'] = $populate['which_editor'];
     }
 
     if (evo()->array_get($docObject, 'pub_date')) {
-        $docObject['pub_date'] = evo()->toTimeStamp($docObject['pub_date']);
+        // 解釈できない差し戻しの入力は、入力した文字列のまま残す
+        $ts = evo()->toTimeStamp($docObject['pub_date']);
+        $docObject['pub_date'] = $ts === '' ? $docObject['pub_date'] : $ts;
     } else {
         $docObject['pub_date'] = '';
     }
 
     if (evo()->array_get($docObject, 'unpub_date')) {
-        $docObject['unpub_date'] = evo()->toTimeStamp($docObject['unpub_date']);
+        // 解釈できない差し戻しの入力は、入力した文字列のまま残す
+        $ts = evo()->toTimeStamp($docObject['unpub_date']);
+        $docObject['unpub_date'] = $ts === '' ? $docObject['unpub_date'] : $ts;
     } else {
         $docObject['unpub_date'] = '';
     }
     return $docObject;
+}
+
+// 日付の欄の値（出力用にエスケープ済み）。数値なら日付の書式に直し、解釈できない差し戻しの入力は文字列のまま
+function dateInputValue($value)
+{
+    if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
+        return evo()->toDateFormat($value);
+    }
+    return hsc($value);
 }
 
 function checkViewUnpubDocPerm($published, $editedby)
@@ -694,7 +749,7 @@ function getMenuIndexAtNew($parent_id)
             db()->select(
                 'count(id)',
                 '[+prefix+]site_content',
-                sprintf("parent='%s'", $parent_id)
+                sprintf('parent=%d', (int)$parent_id)
             )
         ) + 1;
     }
@@ -783,7 +838,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
-        'remember_last_tab' => (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
+        'remember_last_tab' => (config('remember_last_tab') === '2' || get_strvar('stay') === '2') ? 'true' : 'false'
     ];
 }
 

@@ -3,13 +3,19 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
+// 保存の種類。新規（11）・更新（12）・プロフィール（74）以外は 0 にして、どれにも当てはめない
+function saveUserMode()
+{
+    return post_choicevar('mode', [11, 12, 74], 0);
+}
+
 // プロフィール（a=74）は自分自身の編集なので、画面を開ける change_password 権限で保存できる
 function canSaveUser()
 {
-    if (postv('mode') == 74) {
+    if (saveUserMode() === 74) {
         return evo()->hasPermission('change_password')
             && post_intvar('userid') === (int)evo()->getLoginUserID()
-            && (postv('newpassword') != 1 || evo()->hasPermission('save_password'));
+            && (post_intvar('newpassword') !== 1 || evo()->hasPermission('save_password'));
     }
     return evo()->hasPermission('save_user');
 }
@@ -18,13 +24,26 @@ function canSaveUser()
 function userformv($key, $default = null)
 {
     static $saved = null;
-    if (postv('mode') != 74) {
+    if (saveUserMode() !== 74) {
         return postv($key, $default);
     }
     if ($saved === null) {
         $saved = savedProfileValues();
     }
     return array_key_exists($key, $saved) ? $saved[$key] : postv($key, $default);
+}
+
+// userformv() の値を文字列として読む。文字列でも数値でもない値（配列など）と空は $default
+function userformv_str($key, $default = '')
+{
+    $value = userformv($key);
+    return is_scalar($value) ? to_strvar((string)$value, $default) : $default;
+}
+
+// userformv() の値を id として読む（正の整数だけ。それ以外は 0）
+function userformv_int($key)
+{
+    return to_intvar(userformv($key));
 }
 
 function savedProfileValues()
@@ -186,7 +205,7 @@ function saveUserSettings($id)
     }
 
     // プロフィールでは画面に出している設定だけを変え、それ以外（ファイル管理のパスなど）は保存済みの値を残す
-    if (postv('mode') == 74) {
+    if (saveUserMode() === 74) {
         $allowed = profileSettingNames();
         $settings = array_intersect_key($settings, array_flip($allowed));
         foreach (currentUserSettings($id) as $k => $v) {
@@ -239,10 +258,10 @@ function saveUserSettings($id)
 function changedSettingNames()
 {
     $json = postv('changed_settings');
-    if ($json === null) {
+    if (!is_string($json)) {
         return null;
     }
-    $names = json_decode((string)$json, true);
+    $names = json_decode($json, true);
     if (!is_array($names)) {
         return null;
     }
@@ -272,8 +291,8 @@ function systemSettings()
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    $mode = postv('mode');
-    $url = 'index.php?a=' . $mode . ($mode == '12' ? '&id=' . post_intvar('userid') : '');
+    $mode = saveUserMode();
+    $url = 'index.php?a=' . ($mode ?: 75) . ($mode === 12 ? '&id=' . post_intvar('userid') : '');
     evo()->manager->saveFormValues($mode);
     evo()->webAlertAndQuit($msg, $url);
 }
@@ -293,7 +312,7 @@ function verifyPermission()
     if (manager()->isAdmin()) {
         return true;
     }
-    if (userformv('role') != 1) {
+    if (userformv_int('role') !== 1) {
         return true;
     }
     if (!evo()->hasPermission('edit_role') || !evo()->hasPermission('save_role')) {
@@ -329,7 +348,7 @@ function userid_byemail($email)
     $rs = db()->select(
         'internalKey',
         '[+prefix+]user_attributes',
-        sprintf("email='%s'", $email)
+        sprintf("email='%s'", db()->escape($email))
     );
     if (!db()->count($rs)) {
         return false;
@@ -342,7 +361,7 @@ function role_byuserid($userid)
     $rs = db()->select(
         'role',
         '[+prefix+]user_attributes',
-        sprintf('internalKey=%s', $userid)
+        sprintf('internalKey=%d', $userid)
     );
     if (!db()->count($rs)) {
         return false;
@@ -352,12 +371,12 @@ function role_byuserid($userid)
 
 function hasOldUserName()
 {
-    return (postv('oldusername') != userformv('newusername', 'New User'));
+    return (post_strvar('oldusername') !== userformv_str('newusername'));
 }
 
 function hasOldUserEmail()
 {
-    return (postv('oldemail') != postv('email'));
+    return (post_strvar('oldemail') !== post_strvar('email'));
 }
 
 function newPassword()
@@ -368,9 +387,9 @@ function newPassword()
         return $password;
     }
 
-    switch (postv('passwordgenmethod')) {
+    switch (post_choicevar('passwordgenmethod', ['spec', 'g'], '')) {
         case 'spec':
-            $password = postv('specifiedpassword');
+            $password = post_strvar('specifiedpassword');
             break;
         case 'g':
             $password = generate_password(8);
@@ -385,10 +404,10 @@ function newPassword()
 
 function confirmPassword()
 {
-    if (postv('passwordgenmethod') !== 'spec') {
+    if (post_strvar('passwordgenmethod') !== 'spec') {
         return true;
     }
-    if (postv('specifiedpassword') == postv('confirmpassword')) {
+    if (post_strvar('specifiedpassword') === post_strvar('confirmpassword')) {
         return true;
     }
     return false;
@@ -396,13 +415,24 @@ function confirmPassword()
 
 function validEmail()
 {
-    if (!postv('email')) {
+    $email = post_strvar('email');
+    if (!$email) {
         return false;
     }
-    if (!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", postv('email', ''))) {
+    if (!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", $email)) {
         return false;
     }
     return true;
+}
+
+// 送られたロールが、空（未送信を含む）か、0 以上の整数として読めるか。それ以外は保存しない
+function validRole()
+{
+    $role = userformv('role');
+    if ($role === null || $role === '' || $role === 0 || $role === '0') {
+        return true;
+    }
+    return userformv_int('role') > 0;
 }
 
 function validate()
@@ -429,11 +459,18 @@ function validate()
     ];
     $rs = [];
     foreach ($fields as $field) {
-        if (in_array($field, ['dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter']) && !userformv($field)) {
-            $rs[$field] = 0;
+        if ($field === 'role') {
+            $rs[$field] = userformv_int('role');
             continue;
         }
-        $rs[$field] = userformv($field, $field === 'role' ? 0 : '');
+        $value = userformv_str($field);
+        if (in_array($field, ['dob', 'blockeduntil', 'blockedafter'])) {
+            // 入力欄の日付書式の文字列をタイムスタンプにする（空・解釈できない値は 0）
+            $value = (int)evo()->toTimeStamp($value);
+        } elseif (in_array($field, ['gender', 'blocked']) && !$value) {
+            $value = 0;
+        }
+        $rs[$field] = $value;
     }
     return $rs;
 }
@@ -449,7 +486,7 @@ function newUser()
 
     // build the SQL
     $internalKey = db()->insert(
-        ['username' => db()->escape(userformv('newusername', 'New User'))],
+        ['username' => db()->escape(userformv_str('newusername'))],
         '[+prefix+]manager_users'
     );
     if (!$internalKey) {
@@ -480,11 +517,11 @@ function newUser()
     $tmp = [
         'mode' => 'new',
         'userid' => $internalKey,
-        'username' => userformv('newusername', 'New User'),
+        'username' => userformv_str('newusername'),
         'userpassword' => newPassword(),
-        'useremail' => postv('email'),
-        'userfullname' => postv('fullname'),
-        'userroleid' => userformv('role', 0)
+        'useremail' => post_strvar('email'),
+        'userfullname' => post_strvar('fullname'),
+        'userroleid' => userformv_int('role')
     ];
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
@@ -498,43 +535,40 @@ function newUser()
     // put the user in the user_groups he/ she should be in
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
-        $user_groups = userformv('user_groups');
-        if ($user_groups) {
-            foreach ($user_groups as $user_group) {
-                $user_group = (int)$user_group;
-                $rs = db()->insert(
-                    ['user_group' => $user_group, 'member' => $internalKey],
-                    '[+prefix+]member_groups'
-                );
-                if (!$rs) {
-                    webAlert('An error occurred while attempting to add the user to a user_group.');
-                    exit;
-                }
+        foreach (to_idsvar(userformv('user_groups')) as $user_group) {
+            $rs = db()->insert(
+                ['user_group' => $user_group, 'member' => $internalKey],
+                '[+prefix+]member_groups'
+            );
+            if (!$rs) {
+                webAlert('An error occurred while attempting to add the user to a user_group.');
+                exit;
             }
         }
     }
     // end of user_groups stuff!
 
-    if (postv('stay') != '') {
-        if (postv('stay') == '2') {
+    $stay = post_choicevar('stay', [1, 2], 0);
+    if ($stay) {
+        if ($stay === 2) {
             $stayUrl = sprintf(
-                'index.php?r=3&a=11&stay=%s&id=%s',
-                postv('stay'),
+                'index.php?r=3&a=11&stay=%d&id=%d',
+                $stay,
                 $internalKey
             );
         } else {
-            $stayUrl = 'index.php?r=3&a=11&stay=' . postv('stay');
+            $stayUrl = 'index.php?r=3&a=11&stay=' . $stay;
         }
     } else {
         $stayUrl = 'index.php?r=3&a=75';
     }
 
-    if (postv('passwordnotifymethod') === 'e') {
+    if (post_strvar('passwordnotifymethod') === 'e') {
         sendMailMessage(
-            postv('email'),
-            userformv('newusername', 'New User'),
+            post_strvar('email'),
+            userformv_str('newusername'),
             newPassword(),
-            postv('fullname')
+            post_strvar('fullname')
         );
         header('Location: ' . $stayUrl);
         exit;
@@ -546,7 +580,7 @@ function newUser()
 
     <div id="actions">
         <ul class="actionButtons">
-            <li class="mutate"><a href="<?= $stayUrl ?>"><?= lang('close') ?>
+            <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?>
                 </a></li>
         </ul>
     </div>
@@ -557,7 +591,7 @@ function newUser()
             <div id="disp">
                 <p>
                     <?php
-                    echo sprintf(lang('password_msg'), userformv('newusername', 'New User'), newPassword());
+                    echo sprintf(lang('password_msg'), hsc(userformv_str('newusername')), hsc(newPassword()));
                     ?>
                 </p>
             </div>
@@ -570,22 +604,28 @@ function newUser()
 
 function updateUser()
 {
+    $userid = post_intvar('userid');
+    $username = userformv_str('newusername');
+    $changePassword = post_intvar('newpassword') === 1;
+    $notifyMethod = post_strvar('passwordnotifymethod');
+    $isSelf = $userid === (int)evo()->getLoginUserID();
+
     // invoke OnBeforeUserFormSave event
     $tmp = [
         'mode' => 'upd',
-        'id' => postv('userid')
+        'id' => $userid
     ];
     evo()->invokeEvent('OnBeforeUserFormSave', $tmp);
 
     // update user name and password
-    $field = ['username' => userformv('newusername', 'New User')];
-    if (postv('newpassword') == 1) {
+    $field = ['username' => $username];
+    if ($changePassword) {
         $field['password'] = evo()->phpass->HashPassword(newPassword());
     }
     $rs = db()->update(
         db()->escape($field),
         '[+prefix+]manager_users',
-        sprintf("id='%s'", post_intvar('userid'))
+        sprintf("id='%d'", $userid)
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's data.");
@@ -593,11 +633,11 @@ function updateUser()
     }
 
     $field = validate();
-    $field['failedlogincount'] = userformv('failedlogincount');
+    $field['failedlogincount'] = userformv_int('failedlogincount');
     $rs = db()->update(
         db()->escape($field),
         '[+prefix+]user_attributes',
-        sprintf("internalKey='%s'", post_intvar('userid'))
+        sprintf("internalKey='%d'", $userid)
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's attributes.");
@@ -605,40 +645,40 @@ function updateUser()
     }
 
     // Save user settings
-    saveUserSettings(post_intvar('userid'));
+    saveUserSettings($userid);
 
     // invoke OnManagerSaveUser event
     $tmp = [
         'mode' => 'upd',
-        'userid' => postv('userid'),
-        'username' => userformv('newusername', 'New User'),
+        'userid' => $userid,
+        'username' => $username,
         'userpassword' => newPassword(),
-        'useremail' => postv('email'),
-        'userfullname' => postv('fullname'),
-        'userroleid' => userformv('role', 0),
-        'oldusername' => hasOldUserName() ? postv('oldusername') : '',
-        'olduseremail' => hasOldUserEmail() ? postv('oldemail') : ''
+        'useremail' => post_strvar('email'),
+        'userfullname' => post_strvar('fullname'),
+        'userroleid' => userformv_int('role'),
+        'oldusername' => hasOldUserName() ? post_strvar('oldusername') : '',
+        'olduseremail' => hasOldUserEmail() ? post_strvar('oldemail') : ''
     ];
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
     // invoke OnManagerChangePassword event
-    if (postv('newpassword') == 1) {
+    if ($changePassword) {
         $tmp = [
-            'userid' => postv('userid'),
-            'username' => userformv('newusername', 'New User'),
+            'userid' => $userid,
+            'username' => $username,
             'userpassword' => newPassword()
         ];
         evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 
-    if (postv('passwordnotifymethod') === 'e' && postv('newpassword') == 1) {
-        sendMailMessage(postv('email'), userformv('newusername', 'New User'), newPassword(), postv('fullname'));
+    if ($notifyMethod === 'e' && $changePassword) {
+        sendMailMessage(post_strvar('email'), $username, newPassword(), post_strvar('fullname'));
     }
 
     // invoke OnUserFormSave event
     $tmp = [
         'mode' => 'upd',
-        'id' => postv('userid')
+        'id' => $userid
     ];
     evo()->invokeEvent('OnUserFormSave', $tmp);
     evo()->clearCache();
@@ -646,28 +686,24 @@ function updateUser()
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
         // as this is an existing user, delete his/ her entries in the groups before saving the new groups
-        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%s'", post_intvar('userid')));
+        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%d'", $userid));
         if (!$rs) {
             webAlert('An error occurred while attempting to delete previous user_groups entries.');
             exit;
         }
-        $user_groups = userformv('user_groups');
-        if ($user_groups) {
-            foreach ($user_groups as $user_group) {
-                $user_group = (int)$user_group;
-                $rs = db()->insert(
-                    ['user_group' => $user_group, 'member' => post_intvar('userid')],
-                    '[+prefix+]member_groups'
-                );
-                if (!$rs) {
-                    webAlert('An error occurred while attempting to add the user to a user_group.');
-                    exit;
-                }
+        foreach (to_idsvar(userformv('user_groups')) as $user_group) {
+            $rs = db()->insert(
+                ['user_group' => $user_group, 'member' => $userid],
+                '[+prefix+]member_groups'
+            );
+            if (!$rs) {
+                webAlert('An error occurred while attempting to add the user to a user_group.');
+                exit;
             }
         }
     }
     // end of user_groups stuff!
-    if (postv('userid') == evo()->getLoginUserID() && postv('newpassword') !== 1 && postv('passwordnotifymethod') !== 's') {
+    if ($isSelf && $notifyMethod !== 's') {
     ?>
 
         <body bgcolor='#efefef'>
@@ -681,29 +717,30 @@ function updateUser()
         exit;
     }
     evo()->getSettings();
-    if (postv('userid') == evo()->getLoginUserID() && sessionv('mgrRole') !== userformv('role', 0)) {
-        $_SESSION['mgrRole'] = userformv('role', 0);
+    if ($isSelf && (string)sessionv('mgrRole') !== (string)userformv_int('role')) {
+        sessionv('*mgrRole', (string)userformv_int('role'));
         evo()->webAlertAndQuit(lang('save_user_relogin'), 'index.php?a=75');
         exit;
     }
-    if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {
-        if (postv('mode') == 74) {
+    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], 'next');
+    if (!$changePassword || $notifyMethod !== 's') {
+        if (saveUserMode() === 74) {
             header('Location: ' . 'index.php?r=3&a=2');
             exit;
         }
-        if (postv('save_action') === 'stay') {
+        if ($saveAction === 'stay') {
             header(sprintf(
-                'Location: index.php?a=%s&id=%s&r=3&save_action=%s',
-                postv('mode'),
-                postv('userid'),
-                postv('save_action')
+                'Location: index.php?a=%d&id=%d&r=3&save_action=%s',
+                saveUserMode(),
+                $userid,
+                $saveAction
             ));
             exit;
         }
-        if (postv('save_action') !== 'close') {
+        if ($saveAction !== 'close') {
             header(sprintf(
                 'Location: index.php?a=11&r=3&save_action=%s',
-                postv('save_action')
+                $saveAction
             ));
             exit;
         }
@@ -711,13 +748,13 @@ function updateUser()
         exit;
     }
 
-    if (postv('userid') == evo()->getLoginUserID()) {
+    if ($isSelf) {
         $stayUrl = 'index.php?a=8';
-    } elseif (postv('save_action') !== 'close') {
+    } elseif ($saveAction !== 'close') {
         $stayUrl = sprintf(
             'index.php?a=%s&save_action=%s',
-            (postv('save_action') === 'stay') ? sprintf('%s&id=%s', postv('mode'), postv('userid')) : '11',
-            postv('save_action')
+            ($saveAction === 'stay') ? sprintf('%d&id=%d', saveUserMode(), $userid) : '11',
+            $saveAction
         );
     } else {
         $stayUrl = 'index.php?a=75';
@@ -729,7 +766,7 @@ function updateUser()
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate">
-                <a href="<?= hsc($stayUrl) ?>"<?= postv('userid') == evo()->getLoginUserID() ? ' data-evo-post="full"' : '' ?>><?= (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close') ?>
+                <a href="<?= hsc($stayUrl) ?>"<?= $isSelf ? ' data-evo-post="full"' : '' ?>><?= $isSelf ? lang('logout') : lang('close') ?>
                 </a>
             </li>
         </ul>
@@ -742,9 +779,9 @@ function updateUser()
                 <p>
                     <?= sprintf(
                         lang('password_msg'),
-                        userformv('newusername', 'New User'),
-                        newPassword()
-                    ) . ((postv('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
+                        hsc($username),
+                        hsc(newPassword())
+                    ) . ($isSelf ? ' ' . lang('user_changeddata') : ''); ?>
                 </p>
             </div>
         </div>

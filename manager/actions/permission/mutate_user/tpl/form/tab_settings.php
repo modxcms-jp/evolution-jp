@@ -27,7 +27,7 @@
             <div><?= lang('user_allowed_parents_message') ?></div>
         </td>
     </tr>
-    <?php if (getv('a') == 12): ?>
+    <?php if ($action === 12): ?>
         <tr>
             <th><?= lang('user_logincount') ?>:</th>
             <td><?= (int)user('logincount') ?></td>
@@ -54,12 +54,12 @@
         <tr>
             <th><?= lang('user_block') ?>:</th>
             <td>
-                <?php $blocked = (user('blocked') || (user('blockeduntil', 0) > time() && user('blockeduntil'))); ?>
+                <?php $blocked = isUserBlocked($user); ?>
                 <label>
                     <input
                         name="blockedcheck"
                         type="checkbox"
-                        onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"
+                        onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"
                         <?php
                         if ($blocked) {
                             echo "checked";
@@ -67,7 +67,7 @@
                     <input
                         type="hidden"
                         name="blocked"
-                        value="<?= $blocked ? 1 : 0 ?>">
+                        value="<?= user('blocked') ? 1 : 0 ?>">
                 </label>
             </td>
         </tr>

@@ -239,13 +239,15 @@ function manager_safe_mode_toggle_value()
     return $isSafeMode ? '0' : '1';
 }
 
+// 切り替えたあとは管理画面のトップへ移すので、シェル（shell.js）に横取りさせず画面全体で送る（data-no-ajax）。
+// エラーの表示は #mainPane の断片や、ファイルブラウザなどの iframe の中に出ることがあるため、送り先は最上位の画面にする（target="_top"）
 function manager_safe_mode_toggle_form($label, $className = '', $style = '')
 {
     $classAttr = $className !== '' ? ' class="' . hsc($className) . '"' : '';
     $styleAttr = $style !== '' ? ' style="' . hsc($style) . '"' : '';
 
     return sprintf(
-        '<form method="post" action="%s" style="display:inline;">'
+        '<form method="post" action="%s" style="display:inline;" target="_top" data-no-ajax>'
         . '<input type="hidden" name="a" value="1">'
         . '<input type="hidden" name="f" value="menu">'
         . '<input type="hidden" name="manager_safe_mode" value="%s">'
@@ -262,28 +264,27 @@ function manager_safe_mode_toggle_form($label, $className = '', $style = '')
     );
 }
 
+// ナビにはセーフモード中だけ「解除」を出す。セーフモードに入る入口は、エラーの表示のボタン（manager_safe_mode_button_html()）
 function manager_safe_mode_nav_item_html()
 {
-    if (!manager_safe_mode_can_toggle()) {
+    if (sessionv('safeMode') != 1 || !manager_safe_mode_can_toggle()) {
         return '';
     }
-
-    $isSafeMode = sessionv('safeMode') == 1;
-    $label = $isSafeMode ? lang('manager_safe_mode_nav_disable') : lang('manager_safe_mode_nav_enable');
 
     return sprintf(
         '<span class="supplementalNav__item supplementalNav__item--safe-mode">%s</span>',
         manager_safe_mode_toggle_form(
-            $label,
+            lang('manager_safe_mode_nav_disable'),
             'supplementalNav__link',
             'background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit;'
         )
     );
 }
 
+// 管理画面のどの画面のエラーの表示にも出す（ペインとして読み込まれた画面を含む）
 function manager_safe_mode_button_html()
 {
-    if (!manager_safe_mode_can_toggle() || getv('a') !== '1' || getv('f') !== 'menu') {
+    if (!manager_safe_mode_can_toggle()) {
         return '';
     }
 
@@ -291,8 +292,9 @@ function manager_safe_mode_button_html()
     $label = $isSafeMode ? lang('manager_safe_mode_button_disable') : lang('manager_safe_mode_button_enable');
     $background = $isSafeMode ? '#333' : '#c62828';
 
+    // 上部のメニュー（ログアウトなど）に重ならないよう、右下に出す
     return sprintf(
-        '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
+        '<div style="position:fixed;bottom:12px;right:12px;z-index:2147483647;">'
         . '%s</div>',
         manager_safe_mode_toggle_form(
             $label,
@@ -419,9 +421,8 @@ function array_set(&$array, $key, $value)
     return $array;
 }
 
-// id として読む。正の整数なら int、それ以外（数字以外を含む・0・配列など）は 0。
-// (int) は "5abc" を 5 にしてしまうので、id は次の 3 つで読む。受け取り元は、その処理が実際に呼ばれる方法に合わせて選ぶ
-// （GET だけなら get_intvar()、POST だけなら post_intvar()、GET と POST の両方で呼ばれる処理だけ request_intvar()）
+// リクエスト値の取り出し方（生の値と型つき、受け取り元の選び方）は assets/docs/request-input.md を参照。
+// id は (int) で読まない。(int) は "5abc" を 5 にしてしまうので、*_intvar() で読む（正の整数なら int、それ以外は 0）
 
 // GET の値だけを id として読む
 function get_intvar($key)
@@ -439,6 +440,23 @@ function post_intvar($key)
 function request_intvar($key)
 {
     return to_intvar(anyv($key, 0));
+}
+
+// 0 以上の整数として読む（GET / POST / 両方）。読めないときは $default（既定は null。0 と区別できる）。
+// 先頭のゼロは受ける（'02' は 2）。*_intvar()（正の整数だけ、読めなければ 0）と違い、0 も値になる
+function get_uintvar($key, $default = null)
+{
+    return to_uintvar(getv($key), $default);
+}
+
+function post_uintvar($key, $default = null)
+{
+    return to_uintvar(postv($key), $default);
+}
+
+function request_uintvar($key, $default = null)
+{
+    return to_uintvar(anyv($key), $default);
 }
 
 // id が整数として読めないときは、エラーで止める（新規作成など別の処理として続けない）。
@@ -466,6 +484,174 @@ function to_intvar($value)
     }
     $int = (int) $value;
     return (string) $int === $value ? $int : 0;
+}
+
+// 0 以上の int はそのまま。数字だけの文字列（先頭のゼロを除いて PHP_INT_MAX 以下）は int。それ以外は $default
+function to_uintvar($value, $default = null)
+{
+    if (is_int($value)) {
+        return $value >= 0 ? $value : $default;
+    }
+    if (!is_string($value) || !preg_match('@\A[0-9]+\z@', $value)) {
+        return $default;
+    }
+    $digits = ltrim($value, '0');
+    if ($digits === '') {
+        return 0;
+    }
+    $int = (int) $digits;
+    return (string) $int === $digits ? $int : $default;
+}
+
+// 空でない文字列ならそのまま、それ以外（null・空文字・配列・数値など）は $default
+function to_strvar($value, $default = '')
+{
+    return is_string($value) && $value !== '' ? $value : $default;
+}
+
+// 文字列ならそのまま（空・空白だけでも加工しない）、それ以外（null・配列・数値など）は $default
+function to_textvar($value, $default = null)
+{
+    return is_string($value) ? $value : $default;
+}
+
+// bool はそのまま。1・0 の int と、'1'・'on'・'true'・'yes' / '0'・'off'・'false'・'no'（前後の空白と大文字小文字は無視）を真偽値にする。それ以外は $default
+function to_boolvar($value, $default = false)
+{
+    if (is_bool($value)) {
+        return $value;
+    }
+    if ($value === 1) {
+        return true;
+    }
+    if ($value === 0) {
+        return false;
+    }
+    if (!is_string($value)) {
+        return $default;
+    }
+    $value = strtolower(trim($value));
+    if (in_array($value, ['1', 'on', 'true', 'yes'], true)) {
+        return true;
+    }
+    if (in_array($value, ['0', 'off', 'false', 'no'], true)) {
+        return false;
+    }
+    return $default;
+}
+
+// $value（文字列か int）が $choices のいずれかと文字列として一致したら、その $choices の要素（元の型）を返す。それ以外は $default
+function to_choicevar($value, array $choices, $default)
+{
+    if (!is_string($value) && !is_int($value)) {
+        return $default;
+    }
+    $value = (string) $value;
+    foreach ($choices as $choice) {
+        if ((is_string($choice) || is_int($choice)) && (string) $choice === $value) {
+            return $choice;
+        }
+    }
+    return $default;
+}
+
+// 配列、またはカンマ区切りの文字列（区切りの前後の空白は除く）の各要素を id として読み、0 と重複を除いた int の配列にする。それ以外は []
+function to_idsvar($value)
+{
+    if (is_string($value)) {
+        $value = array_map('trim', explode(',', $value));
+    }
+    if (!is_array($value)) {
+        return [];
+    }
+    $ids = [];
+    foreach ($value as $v) {
+        $id = to_intvar($v);
+        if ($id) {
+            $ids[$id] = $id;
+        }
+    }
+    return array_values($ids);
+}
+
+// 文字列として読む（GET / POST / 両方）
+function get_strvar($key, $default = '')
+{
+    return to_strvar(getv($key), $default);
+}
+
+function post_strvar($key, $default = '')
+{
+    return to_strvar(postv($key), $default);
+}
+
+function request_strvar($key, $default = '')
+{
+    return to_strvar(anyv($key), $default);
+}
+
+// 文字列として読む。空や空白もそのまま（GET / POST / 両方）
+function get_textvar($key, $default = null)
+{
+    return to_textvar(getv($key), $default);
+}
+
+function post_textvar($key, $default = null)
+{
+    return to_textvar(postv($key), $default);
+}
+
+function request_textvar($key, $default = null)
+{
+    return to_textvar(anyv($key), $default);
+}
+
+// 真偽値として読む（GET / POST / 両方）
+function get_boolvar($key, $default = false)
+{
+    return to_boolvar(getv($key), $default);
+}
+
+function post_boolvar($key, $default = false)
+{
+    return to_boolvar(postv($key), $default);
+}
+
+function request_boolvar($key, $default = false)
+{
+    return to_boolvar(anyv($key), $default);
+}
+
+// 選択肢の中の値として読む（GET / POST / 両方）
+function get_choicevar($key, array $choices, $default)
+{
+    return to_choicevar(getv($key), $choices, $default);
+}
+
+function post_choicevar($key, array $choices, $default)
+{
+    return to_choicevar(postv($key), $choices, $default);
+}
+
+function request_choicevar($key, array $choices, $default)
+{
+    return to_choicevar(anyv($key), $choices, $default);
+}
+
+// id の配列として読む（GET / POST / 両方）
+function get_idsvar($key)
+{
+    return to_idsvar(getv($key));
+}
+
+function post_idsvar($key)
+{
+    return to_idsvar(postv($key));
+}
+
+function request_idsvar($key)
+{
+    return to_idsvar(anyv($key));
 }
 
 /**
@@ -502,12 +688,7 @@ function exprintf()
 
 function getv($key = null, $default = null)
 {
-    $request = $_GET;
-    // 引数なし（全件）のときは添字に null を使わない（PHP 8.5 で非推奨）
-    if ($key !== null && isset($request[$key]) && $request[$key] === '') {
-        unset($request[$key]);
-    }
-    return array_get($request, $key, $default);
+    return array_get($_GET, $key, $default);
 }
 
 function postv($key = null, $default = null)

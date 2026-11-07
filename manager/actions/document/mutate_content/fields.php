@@ -318,7 +318,10 @@ function fieldsTV()
         return '';
     }
 
-    $form_v = $_POST ? $_POST : [];
+    $form_v = reloadFormValues() ?: [];
+    // GET で差し戻されたときは、送信されないと空になる種類の TV は、差し戻しに無ければ空として出す
+    // （保存の処理の扱いと同じ。POST の開き直しはテンプレートの切り替えを含むので従来どおり）
+    $isRestoredGet = $form_v && !postv();
     $i = 0;
     $output = [];
     $hidden = [];
@@ -340,6 +343,8 @@ function fieldsTV()
                 default:
                     $tvPBV = $form_v[$tvid];
             }
+        } elseif ($isRestoredGet && in_array($tv['type'], ['checkbox', 'listbox-multiple', 'custom_tv'], true)) {
+            $tvPBV = '';
         } else {
             $tvPBV = $tv['value'];
         }
@@ -404,7 +409,7 @@ function fieldPublished()
             'name' => 'publishedcheck',
             'checked' => $published() ? null : '',
             'onclick' => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled' => (!evo()->hasPermission('publish_document') || evo()->input_any('id') === config('site_start')) ? null : ''
+            'disabled' => (!evo()->hasPermission('publish_document') || request_intvar('id') === (int)config('site_start')) ? null : ''
         ]
     );
     $body .= html_tag(
@@ -425,7 +430,7 @@ function fieldPub_date($id = 0)
         [
             'name' => 'pub_date',
             'id' => 'pub_date',
-            'value' => evo()->toDateFormat(doc('pub_date')),
+            'value' => dateInputValue(doc('pub_date')),
             'class' => 'DatePicker imeoff',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]
@@ -461,7 +466,7 @@ function fieldUnpub_date($id)
             'id' => 'unpub_date',
             'name' => 'unpub_date',
             'class' => 'DatePicker imeoff',
-            'value' => evo()->toDateFormat(doc('unpub_date')),
+            'value' => dateInputValue(doc('unpub_date')),
             'onblur' => 'documentDirty=true;',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]
