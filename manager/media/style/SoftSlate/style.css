@@ -125,7 +125,6 @@
     --color-primary-hover-end: #33434f;
     --color-primary-active-start: #2f3d48;
     --color-primary-active-end: #253240;
-    --evo-submitting-style: spinner;
     --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */
@@ -146,6 +145,9 @@
     /* Component Colors - Draft/Unpublished */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: spinner;
 }
 
 /* ============================================================================

@@ -93,7 +93,6 @@
     --color-primary-hover-end: #2f5570;
     --color-primary-active-start: #2f5570;
     --color-primary-active-end: #253240;
-    --evo-submitting-style: stripes;
 
     /* Color - Secondary */
     --color-secondary-start: #e4e4e4;
@@ -193,6 +192,9 @@
     --border-thin: 1px;
     --border-medium: 2px;
     --border-thick: 3px;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: stripes;
 }
 
 /* ============================================================================

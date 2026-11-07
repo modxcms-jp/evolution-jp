@@ -112,7 +112,6 @@
     --color-primary-hover-end: #2d879b;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
-    --evo-submitting-style: stripes;
     --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */
@@ -166,6 +165,9 @@
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #195a70;
     --topnav-link-active-bg: #1b2e37;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: stripes;
 }
 
 /* ============================================================================

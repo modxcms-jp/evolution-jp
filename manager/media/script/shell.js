@@ -454,9 +454,11 @@
 
     // 押したボタンだけに出すアニメーションの種類(テーマの --evo-submitting-style)
     const SUBMITTING_STYLES = ['spinner', 'stripes', 'dots'];
-    const CLICK_TARGET_SELECTOR = '.actionButtons a, button, input[type="submit"], input[type="image"]';
+    const CLICK_TARGET_SELECTOR = '.actionButtons a, button[type="submit"], button:not([type]), input[type="submit"], input[type="image"]';
 
-    // 直前にクリックされた見えるボタン。submitterの無い送信(form.submit())で押したボタンを知るために使う
+    // 直前にクリックされた見えるボタン。submitterの無い送信(form.submit())で押したボタンを知るために使う。
+    // 同じクリックの処理の中で送信されたときだけ有効(クリックの直後のタスクで消す)。
+    // 送信しないボタンのクリックが残り、後の別の送信(入力欄でEnterなど)の押したボタンと取り違えないため
     let lastClicked = null;
 
     function isVisible(el) {
@@ -468,7 +470,7 @@
         const clicked = lastClicked;
         lastClicked = null;
         let trigger = null;
-        if (submitter && isVisible(submitter)) {
+        if (submitter instanceof Element && isVisible(submitter)) {
             trigger = submitter;
         } else if (clicked && clicked.isConnected && targets.some(function (t) {
             return t.contains(clicked);
@@ -482,7 +484,11 @@
         if (SUBMITTING_STYLES.indexOf(style) === -1) {
             return null;
         }
-        trigger.classList.add('evo-submitting-trigger', 'evo-submitting--' + style);
+        // inputは疑似要素を持てない(明滅のみ)ので、種類のクラスは付けない
+        trigger.classList.add('evo-submitting-trigger');
+        if (trigger.tagName !== 'INPUT') {
+            trigger.classList.add('evo-submitting--' + style);
+        }
         return { el: trigger, style: style };
     }
 
@@ -496,11 +502,14 @@
                     targets.push(el);
                 });
             }
+            // 先に登録する。途中で例外が出ても、解除(clear)が付けた印を確実に外せる
+            const state = { targets: targets, trigger: null };
+            submittingForms.set(form, state);
+            state.trigger = resolveTrigger(submitter, targets);
             targets.forEach(function (el) {
                 el.classList.add('evo-submitting');
                 el.setAttribute('aria-busy', 'true');
             });
-            submittingForms.set(form, { targets: targets, trigger: resolveTrigger(submitter, targets) });
             return;
         }
         const state = submittingForms.get(form);
@@ -756,6 +765,11 @@
             const el = e.target.closest ? e.target.closest(CLICK_TARGET_SELECTOR) : null;
             if (el && el.closest('#mainPane, #evoShellModal') && isVisible(el)) {
                 lastClicked = el;
+                setTimeout(function () {
+                    if (lastClicked === el) {
+                        lastClicked = null;
+                    }
+                }, 0);
             }
         }, true);
 
