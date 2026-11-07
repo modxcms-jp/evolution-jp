@@ -220,8 +220,8 @@ class synccache
         );
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
-                '$site_sessionname = "%s";',
-                $site_sessionname
+                '$site_sessionname = %s;',
+                var_export((string) $site_sessionname, true)
             );
         }
 
@@ -230,8 +230,8 @@ class synccache
             config('site_status', 1)
         );
         $content[] = sprintf(
-            '$error_reporting = "%s";',
-            config('error_reporting', 1)
+            '$error_reporting = %s;',
+            var_export((string) config('error_reporting', 1), true)
         );
 
         // 書き出したときのコードの版（index.php のフルページキャッシュの早い返しが、コードの版と照らす）
@@ -253,15 +253,15 @@ class synccache
         $base_url = array_get($config, 'base_url');
         if ($base_url && strpos($base_url, '[(') === false) {
             $content[] = sprintf(
-                '$base_url = "%s";',
-                $base_url
+                '$base_url = %s;',
+                var_export((string) $base_url, true)
             );
         }
 
         if (config('conditional_get')) {
             $content[] = sprintf(
-                '$conditional_get = "%s";',
-                config('conditional_get')
+                '$conditional_get = %s;',
+                var_export((string) config('conditional_get'), true)
             );
         }
 
