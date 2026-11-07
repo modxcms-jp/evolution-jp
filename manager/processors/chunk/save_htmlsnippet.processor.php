@@ -62,7 +62,8 @@ function resolvePublishFields(int $mode, int $id): array
             continue;
         }
         $timestamp = evo()->toTimeStamp($value);
-        if (!$timestamp) {
+        // 解釈できない日付と 1970 年より前の日付は、リソースの保存と同じく差し戻す
+        if ($timestamp === '' || (int)$timestamp < 0) {
             manager()->redirectToElementForm($_lang['mgrlog_dateinvalid'], 77, 78, $mode === 78 ? $id : 0);
         }
         $f[$key] = (int)$timestamp;
