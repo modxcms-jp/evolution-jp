@@ -1081,7 +1081,7 @@ class DBAPI
             'headerClass' => $params['columnHeaderClass'] ?? '',
             'pagerClass' => $params['pagerClass'] ?? '',
             'emptyMessage' => $params['noRecordMsg'] ?? '',
-        ], (string) ($params['id'] ?? 'grid'));
+        ], (string) (($params['id'] ?? '') ?: 'grid'));
     }
 
     public function optimize($table_name)
