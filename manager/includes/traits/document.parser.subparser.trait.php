@@ -3044,6 +3044,9 @@ trait DocumentParserSubParserTrait
         return $content;
     }
 
+    /**
+     * 時刻が来た下書きの予約を文書へ反映し、反映した文書の ID を返す
+     */
     function updateDraft()
     {
         global $modx;
@@ -3053,26 +3056,39 @@ trait DocumentParserSubParserTrait
         $rs = db()->select(
             '*',
             '[+prefix+]site_revision',
-            sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
+            sprintf("pub_date!=0 AND pub_date<=%s AND status='standby' AND element='resource'", $now)
         );
 
         if (!db()->count($rs)) {
-            return;
+            return [];
         }
 
         evo()->loadExtension('REVISION');
         evo()->loadExtension('DocAPI');
+        $updated = [];
         while ($row = db()->getRow($rs)) {
-            $draft = $modx->revision->getDraft($row['elmid']);
+            // 今すぐ採用と同じく、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
+            [$draft, $error] = evo()->doc->draftForAdoption(
+                $row['elmid'],
+                $modx->revision->getDraft($row['elmid'])
+            );
+            // 予約の後にトップページになった文書などで、許さない公開の状態になるときは反映せず、予約を残す
+            if ($error !== '') {
+                evo()->logEvent(0, 2, $error, 'Draft update skipped', [
+                    'docid' => (int)$row['elmid'],
+                    'draftid' => (int)$row['internalKey'],
+                ]);
+                continue;
+            }
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
-            $draft['published'] = 1;
 
             if ($modx->doc->update($draft, $row['elmid']) !== false) {
                 db()->delete(
                     '[+prefix+]site_revision',
                     sprintf('internalKey=%d', $row['internalKey'])
                 );
+                $updated[] = (int)$row['elmid'];
             }else{
                 $modx->logEvent(0,
                                 3,
@@ -3080,6 +3096,8 @@ trait DocumentParserSubParserTrait
                                 'Draft update error');
             }
         }
+
+        return $updated;
     }
 
     private function normalizeLogMessage($message): string

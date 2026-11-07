@@ -1725,23 +1725,8 @@ class DocumentParser
             return;
         }
 
-        $rs = db()->select(
-            'element,elmid',
-            '[+prefix+]site_revision',
-            sprintf(
-                "pub_date<=%s AND status='standby'",
-                $timeNow
-            )
-        );
-        $draft_ids = [];
-        while ($row = db()->getRow($rs)) {
-            if ($row['element'] === 'resource') {
-                $draft_ids[] = $row['elmid'];
-            }
-        }
-        if ($draft_ids) {
-            $this->updateDraft();
-        }
+        // 時刻が来た下書きの予約を反映する。OnDocPublished は、実際に反映した文書にだけ出す
+        $draft_ids = $this->updateDraft();
 
         // now, check for documents that need publishing
         $pub_ids = [];
