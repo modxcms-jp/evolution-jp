@@ -1,40 +1,28 @@
 <?php
 if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
-include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-$grd = new DataGrid('', $value);
-$grd->noRecordMsg = $params['egmsg'] ?? '';
+include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
 
-$grd->columnHeaderClass = $params['chdrc'] ?? '';
-$grd->cssClass = $params['tblc'] ?? '';
-$grd->itemClass = $params['itmc'] ?? '';
-$grd->altItemClass = $params['aitmc'] ?? '';
-
-$grd->columnHeaderStyle = $params['chdrs'] ?? '';
-$grd->cssStyle = $params['tbls'] ?? '';
-$grd->itemStyle = $params['itms'] ?? '';
-$grd->altItemStyle = $params['aitms'] ?? '';
-
-$grd->columns = $params['cols'] ?? '';
-$grd->fields = $params['flds'] ?? '';
-$grd->colWidths = $params['cwidth'] ?? '';
-$grd->colAligns = $params['calign'] ?? '';
-$grd->colColors = $params['ccolor'] ?? '';
-$grd->colTypes = $params['ctype'] ?? '';
-
-$grd->cellPadding = $params['cpad'] ?? '';
-$grd->cellSpacing = $params['cspace'] ?? '';
-$grd->header = $params['head'] ?? '';
-$grd->footer = $params['foot'] ?? '';
-$grd->pageSize = $params['psize'] ?? '';
-$grd->pagerLocation = $params['ploc'] ?? '';
-$grd->pagerClass = $params['pclass'] ?? '';
-$grd->pagerStyle = $params['pstyle'] ?? '';
-
-// 区切り文字と元の文字コードは、指定が無ければ DataGrid の既定値を使う（空文字だと 500 になるため）
-$grd->cdelim = ($params['cdelim'] ?? '') ?: $grd->cdelim;
-$grd->cwrap = $params['cwrap'] ?? '';
-$grd->src_encode = ($params['enc'] ?? '') ?: $grd->src_encode;
-$grd->detectHeader = $params['detecthead'] ?? '';
-
-return $grd->render();
+// 保存済みの表示パラメータのうち、意味のある設定だけを読む。
+// style・width・align・bgcolor・cellpadding・cellspacing の指定（tbls・itms・aitms・chdrs・pstyle・
+// ccolor・cwidth・cpad・cspace・calign）は読まない（DB は書き換えない）。
+// $id は tvProcessor() が作る "tv{TV 名}"
+return DataTableSettings::render($value, [
+    'columns' => $params['cols'] ?? '',
+    'fields' => $params['flds'] ?? '',
+    'types' => $params['ctype'] ?? '',
+    'delimiter' => $params['cdelim'] ?? '',
+    'wrapper' => $params['cwrap'] ?? '',
+    'encoding' => $params['enc'] ?? '',
+    'detectHeader' => $params['detecthead'] ?? '',
+    'pageSize' => $params['psize'] ?? 0,
+    'pagerLocation' => $params['ploc'] ?? '',
+    'header' => $params['head'] ?? '',
+    'footer' => $params['foot'] ?? '',
+    'tableClass' => $params['tblc'] ?? '',
+    'itemClass' => $params['itmc'] ?? '',
+    'altItemClass' => $params['aitmc'] ?? '',
+    'headerClass' => $params['chdrc'] ?? '',
+    'pagerClass' => $params['pclass'] ?? '',
+    'emptyMessage' => $params['egmsg'] ?? '',
+], $id);
