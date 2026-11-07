@@ -368,7 +368,7 @@ function _getIconPath($doc)
 
 function get_jscript($id, $cm)
 {
-    global $modx, $modx_textdir;
+    global $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';

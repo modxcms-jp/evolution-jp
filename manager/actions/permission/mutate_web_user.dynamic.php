@@ -159,6 +159,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
 
     function changeblockstate(element, checkelement) {
+        const blocked = document.getElementById('blocked');
         currval = eval(element).value;
         if (currval == 1) {
             if (confirm(<?= js_literal(stripcslashes(lang('confirm_unblock'))) ?>) == true) {
