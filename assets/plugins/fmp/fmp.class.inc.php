@@ -73,6 +73,10 @@ class ForgotManagerPassword
         if ($user_id && (int)$user_id !== (int)event()->param('userid')) {
             $user_id = false;
         }
+        // 管理者がブロックしたユーザーは、リンクを開いても受け付けない（リンクが無効なときと同じ応答）
+        if ($user_id && isUserBlockedByAdmin($this->getUserAttributes($user_id))) {
+            $user_id = false;
+        }
         if ($user_id) {
             sessionv('*goto_pwd_edit', '1');
             $captchaCode = get_strvar('captcha_code');
@@ -136,6 +140,10 @@ class ForgotManagerPassword
         $user_id = ($email === null || $email === '') ? 0 : $this->getUserIdByEmail($email);
         if (!$user_id) {
             // 登録の無いアドレスでも、送信したときと同じ応答にする（メールは送らない）
+            return true;
+        }
+        if (isUserBlockedByAdmin($this->getUserAttributes($user_id))) {
+            // 管理者がブロックしたユーザーにも、送信したときと同じ応答にする（メールは送らない）
             return true;
         }
         $this->sweepTransient($user_id);
@@ -225,16 +233,28 @@ class ForgotManagerPassword
         }
     }
 
+    // 外すのは失敗回数による一時ロックだけ。管理者が付けたブロック（blocked など）には触らない
     private function unBlock($user_id)
     {
+        $fields = ['failedlogincount' => 0];
+        if (isTemporaryLoginLock($this->getUserAttributes($user_id))) {
+            $fields['blockeduntil'] = 0;
+        }
         db()->update(
-            [
-                'blocked' => 0,
-                'blockeduntil' => 0,
-                'failedlogincount' => 0
-            ],
+            $fields,
             '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", $user_id)
+            sprintf("internalKey='%d'", $user_id)
+        );
+    }
+
+    private function getUserAttributes($user_id)
+    {
+        return db()->getRow(
+            db()->select(
+                'blocked, blockeduntil, blockedafter, failedlogincount',
+                '[+prefix+]user_attributes',
+                sprintf("internalKey='%d'", $user_id)
+            )
         );
     }
 

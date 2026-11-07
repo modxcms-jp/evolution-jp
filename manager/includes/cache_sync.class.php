@@ -204,34 +204,34 @@ class synccache
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s',
-            config('recent_update', 0),
-            date('Y-m-d H:i:s', config('recent_update', 0))
+            (int) config('recent_update', 0),
+            date('Y-m-d H:i:s', (int) config('recent_update', 0))
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
         $content[] = sprintf(
             '$cacheRefreshTime = %s; // %s',
-            $cacheRefreshTime,
-            date('Y-m-d H:i:s', $cacheRefreshTime)
+            (int) $cacheRefreshTime,
+            date('Y-m-d H:i:s', (int) $cacheRefreshTime)
         );
         $content[] = sprintf(
             '$cache_type = %s;',
-            config('cache_type', 1)
+            (int) config('cache_type', 1)
         );
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
-                '$site_sessionname = "%s";',
-                $site_sessionname
+                '$site_sessionname = %s;',
+                var_export((string) $site_sessionname, true)
             );
         }
 
         $content[] = sprintf(
             '$site_status = %s;',
-            config('site_status', 1)
+            (int) config('site_status', 1)
         );
         $content[] = sprintf(
-            '$error_reporting = "%s";',
-            config('error_reporting', 1)
+            '$error_reporting = %s;',
+            var_export((string) config('error_reporting', 1), true)
         );
 
         // 書き出したときのコードの版（index.php のフルページキャッシュの早い返しが、コードの版と照らす）
@@ -253,15 +253,15 @@ class synccache
         $base_url = array_get($config, 'base_url');
         if ($base_url && strpos($base_url, '[(') === false) {
             $content[] = sprintf(
-                '$base_url = "%s";',
-                $base_url
+                '$base_url = %s;',
+                var_export((string) $base_url, true)
             );
         }
 
         if (config('conditional_get')) {
             $content[] = sprintf(
-                '$conditional_get = "%s";',
-                config('conditional_get')
+                '$conditional_get = %s;',
+                var_export((string) config('conditional_get'), true)
             );
         }
 

@@ -75,14 +75,14 @@ function entity($key, $default = null)
     });
 
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=105");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_plugin'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_plugin'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=104");
         }

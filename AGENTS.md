@@ -22,7 +22,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 * **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
 * **スーパーグローバル変数の禁止**:
 
-  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`
+  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`（GET と POST だけ。cookie は含まない）
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
   * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
   * リクエストメソッド判定 → `is_post()` / `is_get()`

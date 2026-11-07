@@ -581,6 +581,35 @@ class ManagerAPI
     }
 
     /**
+     * プラグインを id で 1 件削除する（イベントの割り当ても消し、削除の前後のイベントを呼ぶ）。
+     * 権限の確かめとキャッシュの削除は呼び出し側で行う。
+     *
+     * @param int $id プラグインの id
+     * @return bool 削除の SQL がすべて通ったら true
+     */
+    public function deletePlugin($id)
+    {
+        $id = (int) $id;
+        if ($id < 1) {
+            return false;
+        }
+
+        $params = ['id' => $id];
+        evo()->invokeEvent('OnBeforePluginFormDelete', $params);
+
+        if (!db()->delete('[+prefix+]site_plugins', "id='{$id}'")) {
+            return false;
+        }
+        if (!db()->delete('[+prefix+]site_plugin_events', "pluginid='{$id}'")) {
+            return false;
+        }
+
+        $params = ['id' => $id];
+        evo()->invokeEvent('OnPluginFormDelete', $params);
+        return true;
+    }
+
+    /**
      *    System Alert Message Queue Display file
      *    Written By Raymond Irving, April, 2005
      *

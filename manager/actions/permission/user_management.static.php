@@ -78,7 +78,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=12&id=' + id;
                 break;
             case 2: // delete
-                if (confirm(<?= js_literal($_lang['confirm_delete_user']) ?>)) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>)) {
                     EvoCsrf.post('index.php?a=33&id=' + id);
                 }
                 break;
@@ -158,7 +158,8 @@ echo $cm->render();
         $tbl_manager_users = evo()->getFullTableName('manager_users');
         $tbl_user_attributes = evo()->getFullTableName('user_attributes');
         $tbl_user_roles = evo()->getFullTableName('user_roles');
-        $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount,mua.blocked';
+        $blocked = userBlockedSqlCondition('mua');
+        $field = "mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount,{$blocked} AS blocked";
         $from = "{$tbl_manager_users} AS mu";
         $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
         $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
@@ -177,7 +178,7 @@ echo $cm->render();
         }
 
         $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
-        $orderby = 'mua.blocked ASC, mua.thislogin DESC';
+        $orderby = "{$blocked} ASC, mua.thislogin DESC";
 
         // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));

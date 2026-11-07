@@ -83,7 +83,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=88&id=' + id;
                 break;
             case 2: // delete
-                if (confirm(<?= js_literal($_lang['confirm_delete_user']) ?>) == true) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
                     EvoCsrf.post('index.php?a=90&id=' + id);
                 }
                 break;
@@ -190,7 +190,7 @@ echo $cm->render();
         $links = new DataTableLinks('index.php', $params, $pager->page());
 
         $ds = db()->select(
-            'wu.id,wu.username,wua.fullname,wua.email,wua.gender,(wua.blocked=1 OR wua.blockeduntil>' . (int) time() . ') AS blocked',
+            'wu.id,wu.username,wua.fullname,wua.email,wua.gender,' . userBlockedSqlCondition('wua') . ' AS blocked',
             $from,
             $where,
             'wu.username',

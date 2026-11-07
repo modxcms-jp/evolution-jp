@@ -28,7 +28,15 @@ if ($isPWDActivate == 1) {
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token === '' || !hash_equals($token, request_strvar('token'))) {
+    $attributes = db()->getRow(
+        db()->select(
+            'blocked, blockeduntil, blockedafter, failedlogincount',
+            $tbl_web_user_attributes,
+            "internalKey={$uid}"
+        )
+    );
+    // 管理者がブロックしたユーザーの再設定は、キーが無効なときと同じ応答で受け付けない
+    if ($token === '' || !hash_equals($token, request_strvar('token')) || isUserBlockedByAdmin($attributes)) {
         if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
@@ -48,8 +56,15 @@ if ($isPWDActivate == 1) {
     $f['cachepwd'] = '';
     $rs = db()->update($f, $tbl_web_users, "id={$uid}");
 
-    // unblock user by resetting "blockeduntil"
-    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey={$uid}");
+    // 外すのは失敗回数による一時ロックだけ。管理者が付けたブロックには触らない
+    $rs2 = true;
+    if (isTemporaryLoginLock($attributes)) {
+        $rs2 = db()->update(
+            ['failedlogincount' => 0, 'blockeduntil' => 0],
+            $tbl_web_user_attributes,
+            "internalKey={$uid}"
+        );
+    }
 
     // invoke OnWebChangePassword event
     $tmp = [
@@ -88,17 +103,26 @@ if ($isPWDReminder == 1) {
     if (!isset($reminder_from)) $reminder_from = $modx->config('emailsender');
     if (!isset($reminder_fromname)) $reminder_fromname = $modx->config('site_name');
     // lookup account
-    $sql = "SELECT wu.*, wua.fullname, wua.email
+    $sql = "SELECT wu.*, wua.fullname, wua.email, wua.blocked, wua.blockeduntil, wua.blockedafter, wua.failedlogincount
 	FROM {$tbl_web_users} wu
 	INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id
 	WHERE wua.email='" . db()->escape($email) . "'";
 
     $ds = db()->query($sql);
     $limit = db()->count($ds);
-    if ($limit == 1) {
+    if ($limit != 1) {
+        if (empty($actUserNotFound)) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
+        else {
+            $url = $modx->makeURL($actUserNotFound, '', '', 'full');
+            $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
+        }
+        return;
+    }
+    $row = db()->getRow($ds);
+    // 管理者がブロックしたユーザーには、送信したときと同じ応答にする（メールは送らない）
+    if (!isUserBlockedByAdmin($row)) {
         $newpwd = webLoginGeneratePassword(8);
         $token = webLoginGeneratePassword(8); // activation key
-        $row = db()->getRow($ds);
         $uid = $row['id'];
         //save new password
         $f = [];
@@ -136,19 +160,13 @@ if ($isPWDReminder == 1) {
             $output = webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator", ['email' => $email]);
             return;
         }
+    }
 
-        if (!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.", ['email' => $email]);
-        else // redirect to password request notification page
-        {
-            $url = $modx->makeURL($pwdReqId, '', '', 'full');
-            $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
-        }
-    } else {
-        if (empty($actUserNotFound)) $output = webLoginAlert("We are sorry! We cannot locate an account using that email.");
-        else {
-            $url = $modx->makeURL($actUserNotFound, '', '', 'full');
-            $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
-        }
+    if (!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.", ['email' => $email]);
+    else // redirect to password request notification page
+    {
+        $url = $modx->makeURL($pwdReqId, '', '', 'full');
+        $modx->sendRedirect($url, 0, 'REDIRECT_REFRESH');
     }
     return;
 }
@@ -289,29 +307,16 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     $failedlogins = 0;
 }
 
-if ($blocked == '1') // this user has been blocked by an admin, so no way he's loggin in!
-{
+// ブロック中かは、管理画面の表示と同じ isUserBlocked() で決める
+if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate])) {
     session_destroy();
     session_unset();
-    $output = webLoginAlert("You are blocked and cannot log in!");
-    return;
-}
-
-// blockuntil
-if ($blockeduntildate > time()) // this user has a block until date
-{
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert("You are blocked and cannot log in! Please try again later.");
-    return;
-}
-
-// blockafter
-if ($blockedafterdate > 0 && $blockedafterdate < time()) // this user has a block after date
-{
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert('You are blocked and cannot log in! Please try again later.');
+    // 管理者によるブロックと、日時によるブロックで知らせ方を分ける
+    $output = webLoginAlert(
+        (int)$blocked === 1
+            ? 'You are blocked and cannot log in!'
+            : 'You are blocked and cannot log in! Please try again later.'
+    );
     return;
 }
 
@@ -479,7 +484,7 @@ $tmp = [
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = request_strvar('refurl');
+$refUrl = webLoginRefUrl();
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;

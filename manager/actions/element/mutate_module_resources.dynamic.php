@@ -127,7 +127,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
 ?>
 <script type="text/javascript">
     function removeDependencies() {
-        if (confirm("<?= $_lang['confirm_delete_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_record'))) ?>)) {
             documentDirty = false;
             document.mutate.op.value = "del";
             document.mutate.submit();

@@ -43,14 +43,14 @@ if (id()) {
     <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
     <script type="text/javascript">
         function duplicaterecord() {
-            if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
                 documentDirty = false;
                 EvoCsrf.post("index.php?id=<?= get_intvar('id') ?>&a=96");
             }
         }
 
         function deletedocument() {
-            if (confirm("<?= lang('confirm_delete_template') ?>")) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_template'))) ?>)) {
                 documentDirty = false;
                 EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=21");
             }

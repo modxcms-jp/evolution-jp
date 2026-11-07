@@ -319,31 +319,4 @@ class REVISION
 
         return $input;
     }
-
-    public function publishDraft($fields)
-    {
-        evo()->loadExtension('DocAPI');
-        $fields = evo()->doc->fixPubStatus(
-            evo()->doc->fixTvNest($fields)
-        );
-
-        if (request_time() < array_get($fields, 'pub_date', 0)) {
-            $this->save($fields['id'], $fields, 'standby');
-            db()->update(
-                ['pub_date' => array_get($fields, 'pub_date', 0)],
-                '[+prefix+]site_revision',
-                where('elmid', '=', $fields['id'])
-            );
-            evo()->setCacheRefreshTime(array_get($fields, 'pub_date', 0));
-
-            return 'standby';
-        }
-        evo()->doc->update(
-            db()->escape($fields),
-            $fields['id']
-        );
-        $this->delete($fields['id'], 'draft');
-
-        return 'published';
-    }
 }

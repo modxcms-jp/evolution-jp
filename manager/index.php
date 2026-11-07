@@ -488,8 +488,8 @@ if (in_array(manager()->action, [
 switch (manager()->action) {
     case 1: //frame management - show the requested frame
         // get the requested frame
-        if (isset($_REQUEST['f'])) {
-            $frame = $_REQUEST['f'];
+        $frame = anyv('f');
+        if ($frame !== null) {
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
                 return;
             }
@@ -498,7 +498,7 @@ switch (manager()->action) {
                 define('EVO_SHELL_PARTIAL', true);
             }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
-        } elseif (isset($_REQUEST['ajaxa'])) {
+        } elseif (anyv('ajaxa') !== null) {
             include(MODX_MANAGER_PATH . 'ajax.php');
         } // ajax-action
         break;
