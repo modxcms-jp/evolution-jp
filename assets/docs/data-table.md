@@ -130,7 +130,7 @@
 | `ploc` → `pagerLocation` | `top`・`bottom`・`both`（先頭の語で読む。`top-right` は `top`。空は `top`）。`-left`・`-right` は無視 |
 | `head` → `header` | 表の `<caption>`（HTML のまま） |
 | `foot` → `footer` | 表の後ろの `<div class="gridfooter">`（HTML のまま） |
-| `tblc`・`itmc`・`aitmc`・`chdrc`・`pclass` | 表・行（交互）・見出しのセル・ページ送りの class（表の既定は `grid`、ページ送りは `pager`） |
+| `tblc`・`itmc`・`aitmc`・`chdrc`・`pclass` | 表・行（交互）・見出しのセル・ページ送りの class（ページ送りの既定は `pager`。表は空なら class を付けない。`grid` は管理画面のテーマの class） |
 | `egmsg` → `emptyMessage` | 0 件のときの文言 |
 
 読まない: `tbls`・`itms`・`aitms`・`chdrs`・`pstyle`（`style`）、`ccolor`（`bgcolor`）、`cwidth`（`width`）、`cpad`・`cspace`、`calign`（`align`）。ウィジェットの設定画面にも出さない。

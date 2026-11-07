@@ -233,9 +233,9 @@ final class DataTable
     {
         $o = $this->options;
         $out = sprintf(
-            '<div class="data-table" data-table="%s"><table class="%s">',
+            '<div class="data-table" data-table="%s"><table%s>',
             hsc((string) $o['id']),
-            hsc((string) $o['tableClass'])
+            $this->classAttr([$o['tableClass']])
         );
 
         if ($o['caption'] !== null && $o['caption'] !== '') {
@@ -431,11 +431,9 @@ final class DataTableSettings
             'captionHtml' => true,
             'emptyMessage' => (string) ($settings['emptyMessage'] ?? ''),
             'showHeader' => (bool) $names,
+            // grid は管理画面のテーマの class。サイト側では頼まれた class だけを付ける（空なら付けない）
+            'tableClass' => (string) ($settings['tableClass'] ?? ''),
         ];
-        $tableClass = (string) ($settings['tableClass'] ?? '');
-        if ($tableClass !== '') {
-            $options['tableClass'] = $tableClass;
-        }
         $table = new DataTable($columns, $options);
 
         $out = '<div class="gridwrap">';
