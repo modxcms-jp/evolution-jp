@@ -250,7 +250,11 @@ $v['userpassword'] = $givenPassword;
 $v['rememberme'] = $rememberme;
 evo()->invokeEvent('OnBeforeWebLogin', $v);
 
-$field = 'web_users.*, user_attributes.*';
+// 2 つの表に同じ名前の列 id があるので、* でまとめて読まずに列を挙げる。ユーザーの ID は web_users.id
+$field = 'web_users.id AS internalKey, web_users.password'
+    . ', user_attributes.failedlogincount, user_attributes.blocked, user_attributes.blockeduntil'
+    . ', user_attributes.blockedafter, user_attributes.sessionid, user_attributes.role'
+    . ', user_attributes.lastlogin, user_attributes.logincount, user_attributes.fullname, user_attributes.email';
 $from = "{$tbl_web_users} as web_users, {$tbl_web_user_attributes} as user_attributes";
 $where = "BINARY web_users.username='" . db()->escape($username) . "' and user_attributes.internalKey=web_users.id";
 $ds = db()->select($field, $from, $where);
@@ -263,7 +267,7 @@ if ($limit == 0 || $limit > 1) {
 
 $row = db()->getRow($ds);
 
-$internalKey = $row['id'];
+$internalKey = $row['internalKey'];
 $dbasePassword = $row['password'];
 $failedlogins = $row['failedlogincount'];
 $blocked = $row['blocked'];
@@ -278,7 +282,7 @@ $email = $row['email'];
 
 // load user settings
 if ($internalKey) {
-    $rs = db()->select('setting_name, setting_value', $tbl_web_user_settings, "webuser='$internalKey'");
+    $rs = db()->select('setting_name, setting_value', $tbl_web_user_settings, 'webuser=' . (int)$internalKey);
     while ($row = db()->getRow($rs, 'both')) {
         $modx->config[$row[0]] = $row[1];
     }
@@ -303,7 +307,7 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     $f = [];
     $f['failedlogincount'] = '0';
     $f['blockeduntil'] = time() - 1;
-    $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
+    $ds = db()->update($f, $tbl_web_user_attributes, 'internalKey=' . (int)$internalKey);
     $failedlogins = 0;
 }
 
@@ -376,7 +380,7 @@ if (isset($newloginerror) && $newloginerror == 1) {
         $f = [];
         $f['failedlogincount'] = $failedlogins;
     }
-    $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
+    $ds = db()->update($f, $tbl_web_user_attributes, 'internalKey=' . (int)$internalKey);
 
     session_destroy();
     session_unset();
@@ -386,7 +390,7 @@ if (isset($newloginerror) && $newloginerror == 1) {
 $currentsessionid = session_id();
 
 if (sessionv('webValidated') === null) {
-    $sql = "update {$tbl_web_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=" . time() . ", sessionid='$currentsessionid' where internalKey=$internalKey";
+    $sql = "update {$tbl_web_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=" . time() . ", sessionid='" . db()->escape($currentsessionid) . "' where internalKey=" . (int)$internalKey;
     $ds = db()->query($sql);
 }
 
@@ -407,7 +411,7 @@ $tbl_webgroup_access = evo()->getFullTableName('webgroup_access');
 
 $from = ['[+prefix+]web_groups ug'];
 $from[] = 'INNER JOIN [+prefix+]webgroup_access uga ON uga.webgroup=ug.webgroup';
-$ds = db()->select('uga.documentgroup', $from, "ug.webuser='{$internalKey}'");
+$ds = db()->select('uga.documentgroup', $from, 'ug.webuser=' . (int)$internalKey);
 $i = 0;
 $dg = [];
 while ($row = db()->getRow($ds, 'num')) {
@@ -417,7 +421,7 @@ while ($row = db()->getRow($ds, 'num')) {
 sessionv('*webDocgroups', $dg);
 
 $from = ['[+prefix+]webgroup_names wgn'];
-$from[] = "INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
+$from[] = "INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser=" . (int)$internalKey;
 $grpNames = $this->db->getColumn('name', $this->db->select('wgn.name', $from));
 sessionv('*webUserGroupNames', $grpNames);
 
