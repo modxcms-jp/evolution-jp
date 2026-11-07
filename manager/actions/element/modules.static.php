@@ -100,12 +100,12 @@ echo $cm->render();
                 window.location.href = 'index.php?a=108&id=' + id;
                 break;
             case 3: // duplicate
-                if (confirm(<?= js_literal($_lang['confirm_duplicate_record']) ?>)) {
+                if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                     EvoCsrf.post('index.php?a=111&id=' + id);
                 }
                 break;
             case 4: // delete
-                if (confirm(<?= js_literal($_lang['confirm_delete_module']) ?>)) {
+                if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
                     EvoCsrf.post('index.php?a=110&id=' + id);
                 }
                 break;
