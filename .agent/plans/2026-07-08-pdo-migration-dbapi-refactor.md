@@ -24,7 +24,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 - **（追加調査）** `rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- '->conn\b' .` でPHP全体を再検索した結果、上記2エンドポイントと `manager/includes/document.parser.class.inc.php` の非推奨 `DocumentParser::dbConnect()` 以外に、生の接続オブジェクトへ直接アクセスする箇所はなかった。`rg -n --glob '*.php' --glob '!assets/plugins/*/tinymce/**' --glob '!vendor/**' --glob '!manager/includes/extenders/dbapi/mysqli.inc.php' -- 'mysqli_[A-Za-z0-9_]+\s*\(|new\s+mysqli\b|->(real_connect|escape_string|data_seek|fetch_assoc|fetch_row|fetch_array|fetch_field_direct)\s*\(' .` も0件であり、同様の問題を持つ別画面はない。したがって画面単位では接続設定画面1画面、処理ファイル単位ではAJAXエンドポイント2ファイルが改修対象となる。
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目の `DocumentParser::dbConnect()`（「deprecated db functions」とコメントされた非推奨メソッド）も `$this->rs = $this->db->conn;` で `$conn` に直接アクセスしている。ただしこのメソッド自体はリポジトリ全体で呼び出し箇所が0件（`dbConnect(`のgrepで確認済み）。
 - `dataSeek()` の外部呼び出しは0件（`DBAPI` 内部でも未使用）だが、公開メソッドである以上フェーズ1の「シグネチャ・返却値互換を変えない」要件の対象。省略はせず、行バッファ方式で互換実装する（Result ラッパー参照）。
-- `numFields()` / `fieldName()` は `manager/includes/controls/datagrid.class.php` と `manager/includes/traits/document.parser.subparser.trait.php` から使われている（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
+- `numFields()` / `fieldName()` は `manager/includes/traits/document.parser.subparser.trait.php` から使われている（`manager/includes/controls/datagrid.class.php` からも使われていたが、#1087 で `DataTable` に置き換えて消えた）（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
 - mysqli に直接依存する外部ファイルは4つあるが、いずれも実処理ではなく判定・表示用の文字列: `manager/includes/cli/bootstrap.php`（`extension_loaded('mysqli')` チェック）、`manager/includes/cli/commands/health-check.php`（同）、`install/instprocessor.php`（`$ph['database_type']='mysqli'` という表示用文字列）、`manager/includes/default.config.php`（文字コード関連のエラーメッセージ文言）。これらはPDO移行後に `pdo_mysql` 拡張の確認へ差し替える必要がある。
 - `manager/includes/mysql_dumper.class.inc.php` は `db()` 経由のみで mysqli 非依存。ただし `addslashes` ベースの独自エスケープ等、別の設計課題を抱えている（`assets/docs/core-issues.md` の「Mysqldumperクラスの設計上の制約」に記録済み、関連ロードマップ: 本タスク）。改修するかはフェーズ2以降で判断し、本フェーズのスコープには含めない。
 - 独立した `mysql_*()` 関数のポリフィルファイルは存在しなかった。ロードマップ記載の「既存 mysql_ 系互換レイヤーを整理」は、`mysqli.inc.php` の `DBAPI` クラス自体を新実装に置き換えることで満たされると解釈する。
@@ -236,7 +236,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 2. **CRUD確認**: `php evo db:query "SELECT * FROM {prefix}system_settings LIMIT 5"` が結果を返す。`php evo db:count site_content` が件数を返す
 3. **管理画面での動作確認**: ブラウザで管理画面にログインし、リソース一覧表示（`select`/`getRow`/`count` 経由）、リソースの新規作成・更新・削除（`insert`/`update`/`delete` 経由）が従来どおり動作する
 4. **エラー処理の互換確認**: 既に存在するカラムへの `ADD COLUMN`（errno 1060相当）や構文エラーのSQLを実行し、既定では `messageQuit()` で停止して `false` が返ること、`query($sql, false)` では停止せず `false` が返り `getLastErrorNo()` でエラー番号が取れることを確認する（インストーラは後者でエラーを集めている）
-5. **`getObject`/`getObjects`/`makeArray`/`getXML`/`getHTMLGrid` の確認**: 管理画面のデータグリッド表示（`datagrid.class.php` 経由、`numFields`/`fieldName` を使用）が崩れずに表示される
+5. **`getObject`/`getObjects`/`makeArray`/`getXML`/`getHTMLGrid` の確認**: `getHTMLGrid` の表（`data_table.class.php` の `DataTableSettings` 経由。DB の結果は `getRow()` で読み、`numFields`/`fieldName` は使わない）が崩れずに表示される
 6. **健全性チェック**: `php evo health:check` がエラーなく完了する
 7. **インストーラの動作確認**: インストーラのDB接続テスト画面（サーバ接続テスト・DB接続テスト）を実行し、`connection.servertest.php`/`connection.databasetest.php` がエラーなく応答する。既存DBが存在する状態で再テストしても（`isConnected()`→`disconnect()`経由の再接続が機能し）正常に完了する
 
@@ -251,7 +251,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 ## Artifacts and Notes
 
 - `manager/includes/extenders/ex_dbapi.php` — DBAPIのロード・グローバル設定箇所
-- `manager/includes/controls/datagrid.class.php` — `numFields`/`fieldName` の利用箇所
+- `manager/includes/controls/data_table.class.php` — `getHTMLGrid` の表を描く `DataTableSettings`（`getRow()` を使う。旧 `datagrid.class.php` は #1087 で削除）
 - `manager/includes/traits/document.parser.subparser.trait.php` — `numFields` の利用箇所
 - `install/connection.servertest.php` / `install/connection.databasetest.php` — インストーラのDB接続テスト画面。`$conn` への直接アクセス箇所（Step 3で修正）
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目 — 非推奨 `DocumentParser::dbConnect()`（呼び出し箇所0件、本フェーズの互換対象外）
