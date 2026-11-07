@@ -105,6 +105,14 @@ final class EditorInitializer
         $config = $this->applyEditorCssPath($config);
         $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
+        // 同梱の TinyMCE が後から読むプラグイン・スキン・言語ファイルのキャッシュ対策（利用者の cache_suffix を優先）
+        if (empty($config['cache_suffix'])) {
+            $cacheSuffix = $this->scriptFactory->bundledCacheSuffix($config);
+            if ($cacheSuffix !== '') {
+                $config['cache_suffix'] = $cacheSuffix;
+            }
+        }
+
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
 
         $configJson = $this->configRepository->encode($config);
@@ -121,12 +129,12 @@ final class EditorInitializer
         $scripts[] = $this->scriptFactory->inlineScript('window.tinymce7CropperConfig = ' . $imageCropperJson . ';');
 
         if (!empty($imageCropperOptions['enabled'])) {
-            $scripts[] = $this->scriptFactory->scriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/tinymce-cropper.js');
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tinymce-cropper.js'));
         }
 
         if ($fileBrowser === 'mcpuk') {
             $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript());
-            $scripts[] = $this->scriptFactory->scriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/mcpuk-picker.js');
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
         $output = [];
@@ -176,7 +184,7 @@ final class EditorInitializer
 
         $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
         $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
-        $externalPlugins['modxtemplate'] = MODX_BASE_URL . 'assets/plugins/tinymce7/js/modx-template.js';
+        $externalPlugins['modxtemplate'] = $this->scriptFactory->bundledAssetUrl('js/modx-template.js');
         $config['external_plugins'] = $externalPlugins;
         $config['modx_templates'] = $templates;
         $config['modx_template_labels'] = [
@@ -270,14 +278,6 @@ final class EditorInitializer
             return $cssUrl;
         }
 
-        $queryString = parse_url($cssUrl, PHP_URL_QUERY);
-        if (is_string($queryString)) {
-            parse_str($queryString, $queryParams);
-            if (isset($queryParams['v'])) {
-                return $cssUrl;
-            }
-        }
-
         $pathPart = parse_url($editorCssPath, PHP_URL_PATH);
         if (!is_string($pathPart) || $pathPart === '') {
             $pathPart = $editorCssPath;
@@ -287,17 +287,6 @@ final class EditorInitializer
             ? MODX_BASE_PATH . ltrim($pathPart, '/')
             : ltrim($pathPart, '/');
 
-        if (!is_file($localPath)) {
-            return $cssUrl;
-        }
-
-        $mtime = filemtime($localPath);
-        if ($mtime === false) {
-            return $cssUrl;
-        }
-
-        $separator = str_contains($cssUrl, '?') ? '&' : '?';
-
-        return $cssUrl . $separator . 'v=' . $mtime;
+        return $this->scriptFactory->versionedUrl($cssUrl, $localPath);
     }
 }

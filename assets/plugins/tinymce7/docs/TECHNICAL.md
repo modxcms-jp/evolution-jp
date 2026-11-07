@@ -58,6 +58,8 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 }
 ```
 
+プラグイン同梱の JS（`js/*.js`）と、ローカルの `tinymce.min.js` を使うときのその URL には、ファイルの更新時刻を `?v=` で付けます。ローカルの TinyMCE が後から読むプラグイン・スキン・言語ファイルには、`cache_suffix`（`v=` と `tinymce.min.js` の更新時刻）を設定します。設定ファイルに `cache_suffix` があればそれを優先し、CDN や `tinymce_script_url` を使うときは付けません。
+
 ### 言語ファイルの解決順序
 
 TinyMCE の UI 言語は `language` オプションで決まります（未指定時は EVO の manager_language を判定）。言語ファイルは次の優先度で解決します。
