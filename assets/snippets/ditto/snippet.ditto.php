@@ -335,8 +335,9 @@ if (count($extenders) > 0) {
 }
 
 //---Parameters------------------------------------------------------- /*
-// Aliases. When the canonical name is in $never of extenders/request.extender.inc.php,
-// list the alias there too, because the request extender runs before this mapping.
+// Aliases (startID, summarize, limit). When the canonical name is in $never of
+// extenders/request.extender.inc.php, list the alias there too, because the request
+// extender runs before this mapping. sortBy and sortDir below are not aliases of orderBy.
 if (isset($startID)) {
     $parents = $startID;
 }

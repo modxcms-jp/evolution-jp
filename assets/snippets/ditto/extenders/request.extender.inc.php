@@ -64,6 +64,7 @@ $request = (array) anyv();
 	"display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,
 	dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
 	Templates (tpl, tplAlt, ...) are set from the request only when listed in &good
+	Names in $never (including the aliases startID and limit) are never set, even when listed in &good
 */
 $variables = [];
 foreach ($request as $name => $value) {
