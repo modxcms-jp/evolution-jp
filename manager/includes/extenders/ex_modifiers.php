@@ -39,10 +39,10 @@ class MODIFIERS
 
     public function __construct()
     {
-        global $modx;
-
-        if (!$modx->config) {
-            $modx->config = $modx->getSiteCache();
+        // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
+        // executeParser() や __call() と同じく getSettings() で読み込む（getSettings() が config に入れる）
+        if (!evo()->config) {
+            evo()->getSettings();
         }
 
         mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
