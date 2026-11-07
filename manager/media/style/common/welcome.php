@@ -4,7 +4,6 @@ if (!isset($modx) || !evo()->isLoggedin()) exit;
 $GLOBALS['style_images_path'] = manager_style_image_path();
 $GLOBALS['style_tree_path'] = manager_style_image_path('tree');
 
-
 function iconElements()
 {
     global $modx, $_lang;
