@@ -116,21 +116,6 @@ echo $cm->render();
         }
     }
 
-    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
-    (function () {
-        const table = document.querySelector('[data-table="modules"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    })();
-
     // Hide context menu when clicking anywhere on the document
     // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
     if (!window.evoContextMenuClose) {
@@ -158,8 +143,7 @@ echo $cm->render();
         </ul>
     </div>
 
-    <div>
-        <?php
+    <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         $from = '[+prefix+]site_modules';
         if (!empty($sqlQuery)) {
@@ -246,5 +230,20 @@ echo $cm->render();
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
         ?>
-    </div>
 </div>
+<script type="text/javascript">
+    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
+    (function () {
+        const table = document.querySelector('[data-table="modules"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    })();
+</script>

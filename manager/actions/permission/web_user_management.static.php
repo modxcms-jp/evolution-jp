@@ -90,20 +90,6 @@ echo $cm->render();
         }
     }
 
-    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
-    (function () {
-        const table = document.querySelector('[data-table="web-users"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    })();
     // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
     if (!window.evoContextMenuClose) {
         window.evoContextMenuClose = true;
@@ -161,7 +147,6 @@ echo $cm->render();
             </table>
         </div>
 
-        <div>
         <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         $search = request_strvar('search');
@@ -259,6 +244,21 @@ echo $cm->render();
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
             ?>
-        </div>
     </div>
 </form>
+<script type="text/javascript">
+    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
+    (function () {
+        const table = document.querySelector('[data-table="web-users"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    })();
+</script>
