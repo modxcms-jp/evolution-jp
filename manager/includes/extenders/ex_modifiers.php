@@ -39,12 +39,7 @@ class MODIFIERS
 
     public function __construct()
     {
-        // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
-        // executeParser() や __call() と同じく getSettings() で読み込む（getSettings() が config に入れる）
-        if (!evo()->config) {
-            evo()->getSettings();
-        }
-
+        // 設定は DocumentParser::loadExtension() が、この部品を読み込む前に読み込んでいる
         mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';

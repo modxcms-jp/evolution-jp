@@ -252,6 +252,12 @@ class DocumentParser
             case 'modifiers': //Modfires
             case 'phx':
             case 'filter':
+                // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
+                // 部品を読み込む前に設定を読む。OnGetConfig のプラグインが修飾子を使っても、
+                // 部品の読み込みの途中（$this->filter が未設定）で呼ばれないようにするため
+                if (!$this->config) {
+                    $this->getSettings();
+                }
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
