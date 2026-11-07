@@ -742,11 +742,16 @@ function normalize_url_tv_value($value, $prefix = '--')
     return $prefix . $value;
 }
 
-// GET と POST の両方から読む。同じ名前は POST を優先する（php.ini-production の request_order = "GP" と同じ順）。
-// $_REQUEST は php.ini の設定次第で cookie を含むので読まない
+// GET と POST の両方から読む。$_REQUEST は php.ini の設定次第で cookie を含むので読まない。
+// まとめ方は php.ini-production の request_order = "GP" の $_REQUEST と同じ（同じ名前は POST を優先し、配列は入れ子までまとめる）。
+// 起動時に $_REQUEST を無害化したリクエスト（フロント）では、返す値も同じ処理で無害化する
 function anyv($key = null, $default = null)
 {
-    return array_get($_POST + $_GET, $key, $default);
+    $request = array_replace_recursive($_GET, $_POST);
+    if (evo() && evo()->requestSanitized) {
+        evo()->sanitize_gpc($request);
+    }
+    return array_get($request, $key, $default);
 }
 
 function serverv($key = null, $default = null)

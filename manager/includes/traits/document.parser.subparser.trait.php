@@ -741,7 +741,7 @@ trait DocumentParserSubParserTrait
 
         if ($count_attempts == 1) {
             // append the redirect count string to the url
-            $currentNumberOfRedirects = anyv('err', 0);
+            $currentNumberOfRedirects = request_uintvar('err', 0);
             if ($currentNumberOfRedirects > 3) {
                 $modx->messageQuit(
                     "Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>"
@@ -849,9 +849,7 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         // invoke OnPageUnauthorized event
-        // 転送先のログインフォーム（WebLogin）は refurl を anyv() で読むので $_GET にも入れる。
-        // $_REQUEST はこのイベントのプラグインが読んでいる場合に備えて残す
-        $_GET['refurl'] = $modx->documentIdentifier;
+        $modx->unauthorizedDocumentId = (int) $modx->documentIdentifier;
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
 

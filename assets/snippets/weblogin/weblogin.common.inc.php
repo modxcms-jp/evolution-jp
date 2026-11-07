@@ -87,6 +87,15 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
     return true;
 }
 
+// ログイン後の戻り先。権限が無くてログインページへ転送したときは、元の文書を優先する
+function webLoginRefUrl()
+{
+    if (evo()->unauthorizedDocumentId) {
+        return (string) evo()->unauthorizedDocumentId;
+    }
+    return request_strvar('refurl');
+}
+
 function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = false)
 {
     $array_get = getv();

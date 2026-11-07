@@ -104,6 +104,10 @@ class DocumentParser
     public $revisionObject;
     public $filter;
     public $tvfilter;
+    // sanitizeVars() が $_REQUEST を無害化したか。anyv() が返す値を同じく無害化するために見る
+    public $requestSanitized = false;
+    // 権限が無く転送したときの元の文書 id（sendUnauthorizedPage()）。ログインフォームの戻り先に使う
+    public $unauthorizedDocumentId = 0;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -508,6 +512,7 @@ class DocumentParser
         }
         $this->sanitize_gpc($_COOKIE);
         $this->sanitize_gpc($_REQUEST);
+        $this->requestSanitized = true;
     }
 
     private function setUaType()
