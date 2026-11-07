@@ -15,6 +15,8 @@ if ($id && !evo()->checkPermissions($id)) {
     alert()->dumpError();
 }
 
+include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
 
@@ -67,8 +69,30 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    $pageNumber = get_intvar('page');
-    $offset = $pageNumber ? $pageNumber - 1 : 0;
+    $perPage = (int) evo()->config('number_of_results') ?: 20;
+    $links = DataTableLinks::fromRequest(
+        'index.php',
+        $id ? ['a' => 120, 'id' => $id] : ['a' => 120],
+        ['id', 'pagetitle', 'publishedon', 'editedon']
+    );
+    $pager = new DataTablePager($numRecords, $perPage, $links->page());
+    if ($links->orderby() !== '') {
+        $sortColumns = [
+            'id' => 'sc.id',
+            'pagetitle' => 'sc.pagetitle',
+            'publishedon' => 'sc.publishedon',
+            'editedon' => 'sc.editedon',
+        ];
+        $orderBy = sprintf(
+            '%s %s, sc.id DESC',
+            $sortColumns[$links->orderby()],
+            $links->orderdir() === 'desc' ? 'DESC' : 'ASC'
+        );
+    } else {
+        $orderBy = transformOrderBy(
+            evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
+        );
+    }
     $rs = db()->select(
         $f,
         [
@@ -77,14 +101,8 @@ if (!$numRecords) {
             "LEFT JOIN [+prefix+]site_revision rev on rev.elmid=sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource'"
         ],
         $where,
-        transformOrderBy(
-            evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
-        ),
-        sprintf(
-            '%s,%s',
-            ($offset * evo()->config('number_of_results')),
-            evo()->config('number_of_results')
-        )
+        $orderBy,
+        sprintf('%d,%d', $pager->offset(), $pager->limit())
     );
     $docs = [];
     while ($row = db()->getRow($rs)) {
@@ -110,7 +128,7 @@ if (!$numRecords) {
         $doc['description'] = getDescription($doc);
 
         $col = [];
-        $col['checkbox'] = sprintf('<input type="checkbox" name="batch[]" value="%s" />', $docid);
+        $col['checkbox'] = sprintf('<input type="checkbox" name="batch[]" value="%d">', (int) $docid);
         $col['docid'] = $docid;
         $col['title'] = parseText($tpl, $doc);
         $col['publishedon'] = getPublishedOn($doc);
@@ -119,29 +137,25 @@ if (!$numRecords) {
         $rows[] = $col;
     }
 
-    evo()->loadExtension('MakeTable');
-
-    // CSS style for table
-    evo()->table->setTableClass('grid');
-    evo()->table->setRowHeaderClass('gridHeader');
-    evo()->table->setRowDefaultClass('gridItem');
-    evo()->table->setRowAlternateClass('gridAltItem');
-    evo()->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
-    evo()->table->setPageLimit(evo()->config('number_of_results'));
-
-    // Table header
-    $header['checkbox'] = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
-    $header['docid'] = $_lang['id'];
-    $header['title'] = $_lang['resource_title'];
-    $header['publishedon'] = $_lang['publish_date'];
-    $header['editedon'] = $_lang['editedon'];
-    $header['status'] = $_lang['page_data_status'];
-    $qs = 'a=120';
-    if ($id) {
-        $qs .= "&id=" . $id;
-    }
-    $pageNavBlock = evo()->table->renderPagingNavigation($numRecords, $qs);
-    $children_output = $pageNavBlock . evo()->table->renderTable($rows, $header) . $pageNavBlock;
+    $columns = [
+        ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'],
+        ['key' => 'docid', 'label' => $_lang['id'], 'class' => 'is-shrink', 'sort' => 'id'],
+        ['key' => 'title', 'label' => $_lang['resource_title'], 'html' => true, 'sort' => 'pagetitle'],
+        ['key' => 'publishedon', 'label' => $_lang['publish_date'], 'html' => true, 'sort' => 'publishedon'],
+        ['key' => 'editedon', 'label' => $_lang['editedon'], 'html' => true, 'sort' => 'editedon'],
+        ['key' => 'status', 'label' => $_lang['page_data_status'], 'html' => true],
+    ];
+    $table = new DataTable($columns, [
+        'id' => 'children',
+        'tableClass' => 'grid',
+        'rowClasses' => ['gridItem', 'gridAltItem'],
+    ]);
+    $nav = $pager->render($links, [
+        'label' => lang('pagination_label'),
+        'first' => lang('pagination_table_first'),
+        'last' => lang('pagination_table_last'),
+    ]);
+    $children_output = $nav . $table->render($rows, $links) . $nav;
     if (hasPermission('move_document')) {
         $children_output .= '<div class="resources-batch-actions"><input type="submit" value="' . $_lang["resources_list_move_checked"] . '" /></div>';
     }
@@ -155,7 +169,7 @@ echo getContextMenu($cm);
 echo get_jscript($id, $cm);
 
 ?>
-    <script type="text/javascript" src="media/script/tablesort.js"></script>
+    <script type="text/javascript" src="media/script/data-table.js"></script>
     <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
 
     <div id="actions">
@@ -203,20 +217,35 @@ echo get_jscript($id, $cm);
             <?php }
             $topicPath = $numRecords > 0 ? getTopicPath($id) : '';
             echo <<< EOT
-<script type="text/javascript">
-    function selectAll() {
-        var f = document.forms['mutate'];
-        var c = f.elements['batch[]'];
-        for(i=0;i<c.length;i++){
-            c[i].checked=f.chkselall.checked;
-        }
-    }
-</script>
 {$topicPath}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="a" value="51" />
 {$children_output}
 </form>
+<script type="text/javascript">
+    (function () {
+        // 表は画面の差し替えで消えるので、リスナーは積み重ならない
+        const table = document.querySelector('[data-table="children"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
+            if (el && el.tagName === 'IMG') {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+        table.addEventListener('contextmenu', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    })();
+</script>
 EOT;
             ?>
             <style type="text/css">
@@ -240,7 +269,7 @@ function getTitle($doc)
     global $_style;
 
     $doc['class'] = _getClasses($doc);
-    $tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
+    $tpl = '<span [+class+] data-row-menu="[+id+]">[+pagetitle+]</span>';
     $title = parseText($tpl, $doc);
     if ($doc['type'] === 'reference') {
         return sprintf('<img src="%s" /> ', $_style['tree_weblink']) . $title;
@@ -252,7 +281,7 @@ function getIcon($doc)
 {
     $doc['iconpath'] = _getIconPath($doc);
 
-    $tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
+    $tpl = '<img src="[+iconpath+]" data-row-menu="[+id+]" />';
     return parseText($tpl, $doc);
 }
 
