@@ -9,7 +9,7 @@ echo "Prefix: " . (db()->config['table_prefix'] ?? '') . "\n";
 echo "---\n";
 
 $cmd = sprintf(
-    'mysql --defaults-extra-file=%s %s',
+    'mysql --defaults-file=%s %s',
     escapeshellarg($defaultsFile),
     escapeshellarg($dbname)
 );
