@@ -84,6 +84,8 @@
 | `.is-center` | 中央寄せの列 |
 | `.data-table-empty` | 0 件のときのセル |
 
+並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。テーマは `.grid th[aria-sort] a::after` で向きの印（昇順 ▲・降順 ▼）を出す。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、色は `--color-primary`、間は `--space-1` を使う。凍結テーマの RevoStyle は持たない。
+
 外部のテーマはこの一覧を写す。
 
 ## JS の書き方
