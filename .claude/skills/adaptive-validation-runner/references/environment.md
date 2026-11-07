@@ -73,7 +73,7 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ログイン情報（既定。`EVO_ADMIN_USER` / `EVO_ADMIN_PASSWORD` で変えられる）:
 
-- 管理画面: `http://localhost/manager/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>/manager/`）
+- 管理画面: `http://localhost/manager/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>/manager/`）。curl で開くときは `-H 'Accept-Language: ja'` を付ける（無いと本文なしの 404 になる。ブラウザと同梱のスクリプトは送るので要らない）
 - 管理者: `admin` / `Passw0rd!2026`（ロール2 ウェブマスター）
 - 権限の弱いユーザー（`--editor`）: `editor` / 管理者と同じパスワード（ロール3 投稿担当者、`save_role` なし）
 - mailpit: `http://localhost:8025/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>:8025/`。API は `/api/v1/messages`）
