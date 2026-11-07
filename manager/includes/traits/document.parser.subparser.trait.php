@@ -849,6 +849,8 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         // invoke OnPageUnauthorized event
+        // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
+        // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す
         $modx->unauthorizedDocumentId = (int) $modx->documentIdentifier;
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
