@@ -453,7 +453,8 @@ document.getElementById('systemLogClearButton').addEventListener('click', functi
 </script>
 <?php } ?>
 
-<?php if ($isLatest || $selectedPath !== '') { ?>
+<?php // ログが 1 件も無いときは絞り込みのフォームも一覧も出さないので、それを前提にした script も出さない ?>
+<?php if ($files && ($isLatest || $selectedPath !== '')) { ?>
 <script>
 function downloadSystemLog(url) {
     dontShowWorker = true;
