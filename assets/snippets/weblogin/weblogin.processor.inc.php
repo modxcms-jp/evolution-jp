@@ -289,29 +289,16 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     $failedlogins = 0;
 }
 
-if ($blocked == '1') // this user has been blocked by an admin, so no way he's loggin in!
-{
+// ブロック中かは、管理画面の表示と同じ isUserBlocked() で決める
+if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate])) {
     session_destroy();
     session_unset();
-    $output = webLoginAlert("You are blocked and cannot log in!");
-    return;
-}
-
-// blockuntil
-if ($blockeduntildate > time()) // this user has a block until date
-{
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert("You are blocked and cannot log in! Please try again later.");
-    return;
-}
-
-// blockafter
-if ($blockedafterdate > 0 && $blockedafterdate < time()) // this user has a block after date
-{
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert('You are blocked and cannot log in! Please try again later.');
+    // 管理者によるブロックと、日時によるブロックで知らせ方を分ける
+    $output = webLoginAlert(
+        (int)$blocked === 1
+            ? 'You are blocked and cannot log in!'
+            : 'You are blocked and cannot log in! Please try again later.'
+    );
     return;
 }
 

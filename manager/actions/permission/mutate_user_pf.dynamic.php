@@ -8,7 +8,6 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
     alert()->dumpError();
 }
 
-include_once __DIR__ . '/mutate_user/blocked.php';
 include_once __DIR__ . '/mutate_user/form_values.php';
 
 $userid = (int) evo()->getLoginUserID();
