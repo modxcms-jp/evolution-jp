@@ -582,21 +582,13 @@ function getInputValues($id = 0, $mode = 'new')
 
 function checkStartDoc($id, $published, $pub_date, $unpub_date)
 {
-    if ($published == 0) {
-        evo()->manager->saveFormValues(postedMode());
-        evo()->webAlertAndQuit(
-            'Document is linked to site_start variable and cannot be unpublished!',
-            formReturnUrl()
-        );
-        exit;
+    $error = evo()->doc->startDocPubError($published, $pub_date, $unpub_date);
+    if ($error === '') {
+        return;
     }
-    if ($pub_date > request_time() || $unpub_date) {
-        evo()->manager->saveFormValues(postedMode());
-        evo()->webAlertAndQuit(
-            'Document is linked to site_start variable and cannot have publish or unpublish dates set!',
-            formReturnUrl()
-        );
-    }
+    evo()->manager->saveFormValues(postedMode());
+    evo()->webAlertAndQuit($error, formReturnUrl());
+    exit;
 }
 
 function checkFolderStatus($id)

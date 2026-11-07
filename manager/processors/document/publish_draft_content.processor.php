@@ -100,8 +100,23 @@ function publishDraft($docid)
     // 下書きが無いときは日付を 0 で上書きしないよう、規則をかけない
     $hasDraft = !empty($draft);
     $draft['published'] = $documentObject['published'];
-    if ($hasDraft && evo()->hasPermission('publish_document')) {
-        $draft = evo()->doc->setPubStatus($draft);
+    if ($hasDraft) {
+        $ruled = evo()->doc->setPubStatus($draft);
+        if (evo()->hasPermission('publish_document')) {
+            $draft = $ruled;
+        }
+        // トップページは、通常の保存と同じく非公開にも予約にもしない（文書も下書きも変えずに戻す）
+        if ((int)$docid === (int)evo()->config('site_start')) {
+            $error = evo()->doc->startDocPubError(
+                $draft['published'],
+                $ruled['pub_date'],
+                $ruled['unpub_date']
+            );
+            if ($error !== '') {
+                evo()->webAlertAndQuit($error, sprintf('index.php?a=131&id=%s', $docid));
+                exit;
+            }
+        }
     }
     evo()->doc->update($draft, $docid);
     db()->delete(

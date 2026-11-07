@@ -165,6 +165,22 @@ class DocAPI
         return $f;
     }
 
+    /**
+     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
+     */
+    public function startDocPubError($published, $pub_date, $unpub_date)
+    {
+        if ($published == 0) {
+            return 'Document is linked to site_start variable and cannot be unpublished!';
+        }
+        if ($pub_date > request_time() || $unpub_date) {
+            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+        }
+        return '';
+    }
+
     // type : 'create' or 'update'
     private function correctResourceFields($fields,$type='create')
     {
