@@ -47,7 +47,7 @@ class ConfigCheck {
         global $_lang;
 
         $script =
-            ">
+            "<script>
 function deleteTemplateSwitcher(){
     if(confirm(" . js_literal($_lang["confirm_delete_plugin"]) . ")) {
 	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':" . js_literal($tplName) . "}).then(templateSwitcherResponseBody).then(function(body)
