@@ -6,9 +6,9 @@
 
 ## Progress
 
-- [ ] M1: 画面と処理を外す（action 10・65・66、メニューの件数確認、ダッシュボードの受信トレイ）
-- [ ] M2: 権限・設定・言語・テーマを外す
-- [ ] M3: DB（新規インストールの定義とマイグレーション）
+- [x] (2026-11-07) M1: 画面と処理を外した（17 ファイル。grep の残りは M2 の 2 件だけ、`php -l` は PHP 7.4 で通過）
+- [x] (2026-11-07) M2: 権限・設定・言語・テーマを外した（言語キーは英語・日本語とも 34 個、画像 5 点、7 テーマの CSS、theme-spacing.md）
+- [x] (2026-11-07) M3: DB を変えた（マイグレーション `20261107_112600_retire_manager_messages`。初期データの SQL は 5 行とも列 72・値 72 で、`messages` 以外の列と値の対応は変更前と同じ）
 - [ ] M4: Docker での検証（新規インストール、メッセージのある DB からのアップグレード、画面）
 
 ## Surprises & Discoveries
@@ -127,7 +127,7 @@ M4（検証。`adaptive-validation-runner` を使う。手順と結果は Valida
 - Issue: #1069
 - ブランチ: `feat/1069-retire-manager-messages`（`gh issue develop` で Issue に紐づけ済み）
 - ワークツリー: `.claude/worktrees/issue-1069`
-- PR: 未作成（M1 のあとに下書きで作り、`Refs #1069`。最後のマイルストーンで `Closes #1069` に改める）
+- PR: #1131（下書き、`Refs #1069`。最後のマイルストーンで `Closes #1069` に改める）
 - 想定のコミット: M1・M2・M3 で 1 つずつ。ExecPlan とロードマップの更新は別のコミット
 - リリース記事に書くこと（`仕様変更`）: メッセージ機能の廃止、アップグレードで `user_messages` のデータが消えるのでバックアップを案内、外部のアドオンの `hasPermission('messages')` は常に偽、外部テーマの `[+MessageInfo+]`・`[+MessageIcon+]`・`[+iconMessage+]` は空になる
 
