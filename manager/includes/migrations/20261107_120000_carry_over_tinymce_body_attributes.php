@@ -63,8 +63,17 @@ return static function (EvoMigrationHelper $m) {
     }
 
     if (trim((string)$rest, " \t\r\n,") !== '') {
-        preg_match_all('/(?<![\w$])(["\']?)([A-Za-z_$][\w$]*)\1\s*:/', (string)$rest, $keys);
-        $skipped = array_merge($skipped, $keys[2]);
+        // 値の文字列の中（例: 'p{color:red}'）をキーと取り違えないよう、引用符付きの文字列を左から順に読み、
+        // 後ろに「:」が続くもの（キー）は引用符を外して残し、それ以外（値）は空にする
+        $withoutStrings = preg_replace_callback(
+            '/(["\'])((?:\\\\.|(?!\1).)*)\1(\s*:)?/s',
+            static function ($match) {
+                return isset($match[3]) ? $match[2] . $match[3] : "''";
+            },
+            (string)$rest
+        );
+        preg_match_all('/(?<![\w$])([A-Za-z_$][\w$]*)\s*:/', (string)$withoutStrings, $keys);
+        $skipped = array_merge($skipped, $keys[1]);
     }
     if ($skipped) {
         $m->log('Did not carry over some Custom Parameters of the old TinyMCE plugin', [
