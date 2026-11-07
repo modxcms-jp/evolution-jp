@@ -94,4 +94,4 @@
 
 ## 戻り先で状態を引き継ぐ
 
-一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/resource_list_state.class.php`（`ResourceListState`）。
+一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。

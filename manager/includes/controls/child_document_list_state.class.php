@@ -6,7 +6,7 @@
  */
 include_once __DIR__ . '/data_table.class.php';
 
-final class ResourceListState
+final class ChildDocumentListState
 {
     /** URL の orderby に使える値（許可リスト） */
     public const SORT_KEYS = ['id', 'pagetitle', 'publishedon', 'editedon'];

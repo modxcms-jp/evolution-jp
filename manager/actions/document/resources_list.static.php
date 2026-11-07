@@ -15,7 +15,7 @@ if ($id && !evo()->checkPermissions($id)) {
     alert()->dumpError();
 }
 
-include_once(MODX_CORE_PATH . 'controls/resource_list_state.class.php');
+include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
@@ -70,7 +70,7 @@ if (!$numRecords) {
     }
     $where[] = 'GROUP BY sc.id,rev.status';
     $perPage = (int) evo()->config('number_of_results') ?: 20;
-    $links = ResourceListState::links($id);
+    $links = ChildDocumentListState::links($id);
     $pager = new DataTablePager($numRecords, $perPage, $links->page());
     if ($links->orderby() !== '') {
         $sortColumns = [
@@ -398,7 +398,7 @@ function get_jscript($id, $cm)
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // メニューの操作後の戻り先に、今のページと並べ替えを残す
-    $returnQuery = ResourceListState::returnQuery();
+    $returnQuery = ChildDocumentListState::returnQuery();
     $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
     $siteStart = (int) evo()->config('site_start');
