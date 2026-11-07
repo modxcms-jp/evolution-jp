@@ -109,31 +109,34 @@ function hideInteraction() {
         if (interaction) {
             interaction.style.display = 'none';
         }
-        parent.tree.ca = 'move';
+        if (parent.tree) {
+            parent.tree.ca = 'move';
+        }
     } else {
         if (interaction) {
             interaction.style.display = '';
         }
-        parent.tree.ca = '';
+        if (parent.tree) {
+            parent.tree.ca = '';
+        }
     }
 
     return true;
 }
 
-// シェルの遷移では同じ window で script が読み直されるので、画面を離れるとき(evoshell:unload)に click の受け手を外す
-(function (handler) {
-    function onUnload() {
-        document.removeEventListener('click', handler, false);
-        document.removeEventListener('evoshell:unload', onUnload);
-    }
-    document.addEventListener('click', handler, false);
-    document.addEventListener('evoshell:unload', onUnload);
-
-    if (window.Evo && Evo.ready) {
-        Evo.ready(hideInteraction);
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hideInteraction, { once: true });
-    } else {
+// シェルの遷移では同じ window で script が読み直されるので、この script が文書から外れたら(画面が差し替わったら) click の受け手を外す。
+// モーダルの開け閉めでも evoshell:unload は出るので、それでは外さず isConnected で見る。
+// currentScript は classic script の実行中は取れる。取れない(null)ときは外せないので、そのまま残す。
+var docmanagerMarker = document.currentScript;
+(function (marker) {
+    function onClick() {
+        if (marker && !marker.isConnected) {
+            document.removeEventListener('click', onClick, false);
+            return;
+        }
         hideInteraction();
     }
-})(hideInteraction);
+    document.addEventListener('click', onClick, false);
+})(docmanagerMarker);
+
+Evo.ready(hideInteraction);
