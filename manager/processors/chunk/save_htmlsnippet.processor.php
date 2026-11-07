@@ -76,6 +76,7 @@ function resolvePublishFields(): array
         $f[$key] = (int)$timestamp;
     }
 
+    evo()->loadExtension('DocAPI');
     $fields = evo()->doc->setPubStatus($f);
     $fields['published'] = (int)$fields['published'];
     $fields['pub_date'] = (int)$fields['pub_date'];
