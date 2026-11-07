@@ -44,13 +44,17 @@ switch (postv('action')) {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;
-    case 'updateplugin':
-        if ($post_key == '_delete_') {
-            if (!empty($post_lang) && evo()->hasPermission('delete_plugin')) {
-                $rs = @ db()->delete('[+prefix+]site_plugins', "name='{$post_lang}'");
-            }
-        } elseif ($post_key === 'disabled' && $post_value === '1' && !empty($post_lang) && evo()->hasPermission('save_plugin')) {
-            $rs = @ db()->update([$post_key => $post_value], '[+prefix+]site_plugins', "name='{$post_lang}'");
+    // 設定の確認の TemplateSwitcher の警告から、プラグインを id で 1 件ずつ無効にする・削除する
+    case 'disableplugin':
+        $pluginId = post_intvar('id');
+        if ($pluginId && evo()->hasPermission('save_plugin')) {
+            $rs = db()->update(['disabled' => 1], '[+prefix+]site_plugins', "id='{$pluginId}'");
+        }
+        break;
+    case 'deleteplugin':
+        $pluginId = post_intvar('id');
+        if ($pluginId && evo()->hasPermission('delete_plugin')) {
+            $rs = manager()->deletePlugin($pluginId);
         }
         break;
 }
@@ -62,7 +66,7 @@ if (isset($rs) && !empty($rs)) {
 }
 
 if ($output === 'true') {
-    $modx->clearCache();
+    evo()->clearCache();
 }
 
 echo $output;

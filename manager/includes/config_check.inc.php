@@ -43,27 +43,42 @@ class ConfigCheck {
         return $this->warnings;
     }
 
-    private function get_src_TemplateSwitcher_js($tplName) {
-        $script =
-            "<script>
-function disableTemplateSwitcher(){
-    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':" . js_literal($tplName) . ",'key':'disabled','value':'1'}).then(templateSwitcherResponseBody).then(function(body)
-    {
-		if (body.trim() === 'true') hideTemplateSwitcherWarning();
+    /**
+     * 警告の「無効にする」「削除」の操作。確認の文言は対象ごとに PHP で組み立てて渡す
+     *
+     * @param array $confirms プラグインの id => ['disable' => 文言, 'delete' => 文言]
+     */
+    private function get_src_TemplateSwitcher_js(array $confirms) {
+        $entries = [];
+        foreach ($confirms as $id => $messages) {
+            $pairs = [];
+            foreach ($messages as $op => $message) {
+                $pairs[] = js_literal($op) . ':' . js_literal($message);
+            }
+            $entries[] = (int) $id . ':{' . implode(',', $pairs) . '}';
+        }
+        return "<script>
+var templateSwitcherConfirms = {" . implode(',', $entries) . "};
+function templateSwitcherAction(id, op){
+    var message = (templateSwitcherConfirms[id] || {})[op];
+    if (!message || !window.confirm(message)) return;
+    var action = op === 'delete' ? 'deleteplugin' : 'disableplugin';
+    Evo.post('index.php', {'a':'118','action':action,'id':String(id)}).then(function(response){
+        // 処理できたときだけ本文が true になる（mutate_settings.ajax.php）
+        return response.ok ? response.text() : '';
+    }).then(function(body){
+        if (body.trim() !== 'true') return;
+        var line = document.getElementById('templateswitcher_plugin_' + id);
+        var wrapper = line ? line.closest('#templateswitcher_present_warning_wrapper') : null;
+        if (line) line.remove();
+        // 対象が残っていなければ、警告の入った fieldset を隠す
+        if (wrapper && !wrapper.querySelector('.templateswitcher-plugin')) {
+            var fieldset = wrapper.closest('fieldset');
+            if (fieldset) fieldset.style.display = 'none';
+        }
     }).catch(function(){});
 }
-function templateSwitcherResponseBody(response){
-	// 保存できたときだけ本文が true になる（mutate_settings.ajax.php）
-	return response.ok ? response.text() : '';
-}
-function hideTemplateSwitcherWarning(){
-	// 警告の入った fieldset を隠す
-	var el = document.getElementById('templateswitcher_present_warning_wrapper');
-	var fieldset = el ? el.closest('fieldset') : null;
-	if (fieldset) fieldset.style.display = 'none';
-}
 </script>";
-        return $script;
     }
 
     private function get_sc_value($field, $id) {
@@ -113,34 +128,70 @@ function hideTemplateSwitcherWarning(){
         return false;
     }
 
-    private function checkTplSwitchPlugin() {
+    /**
+     * 有効な TemplateSwitcher のプラグイン（名前が一致するもの）の一覧。警告を出さないときは空
+     *
+     * @return array<int, array{id: string, name: string}>
+     */
+    private function findTplSwitchPlugins() {
         if (evo()->config('_hide_configcheck_templateswitcher_present')) {
-            return true;
+            return [];
         }
-        if (!sessionv('mgrPermissions.edit_plugin')) {
-            return true;
-        }
-        if (sessionv('mgrPermissions.edit_plugin') != 1) {
-            return true;
+        if (!evo()->hasPermission('edit_plugin')) {
+            return [];
         }
         $rs = db()->select(
-            'name, disabled',
+            'id, name',
             '[+prefix+]site_plugins',
-            [
-                "name IN ('TemplateSwitcher','Template Switcher','templateswitcher','template_switcher','template switcher')",
-                "OR plugincode LIKE '%TemplateSwitcher%'"
-            ]
+            "name='TemplateSwitcher' AND disabled=0",
+            'id ASC'
         );
+        $plugins = [];
         while ($row = db()->getRow($rs)) {
-            if ($row['disabled'] != 0) {
-                continue;
-            }
-            evo()->regClientScript(
-                $this->get_src_TemplateSwitcher_js($row['name'])
-            );
-            return false;
+            $plugins[] = $row;
         }
-        return true;
+        return $plugins;
+    }
+
+    private function templateSwitcherWarning(array $plugins) {
+        $canDisable = evo()->hasPermission('save_plugin');
+        $canDelete = evo()->hasPermission('delete_plugin');
+        $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
+        $confirms = [];
+        foreach ($plugins as $plugin) {
+            $id = (int) $plugin['id'];
+            $links = [];
+            if ($canDisable) {
+                $links[] = sprintf(
+                    '<a href="javascript:templateSwitcherAction(%d,\'disable\');">%s</a>',
+                    $id,
+                    $this->_lang['configcheck_templateswitcher_disable_label']
+                );
+                $confirms[$id]['disable'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id);
+            }
+            if ($canDelete) {
+                $links[] = sprintf(
+                    '<a href="javascript:templateSwitcherAction(%d,\'delete\');">%s</a>',
+                    $id,
+                    $this->_lang['configcheck_templateswitcher_delete_label']
+                );
+                $confirms[$id]['delete'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id);
+            }
+            $msg .= sprintf(
+                '<span class="templateswitcher-plugin" id="templateswitcher_plugin_%d" style="display:block">%s (ID: %d)%s</span>',
+                $id,
+                hsc($plugin['name']),
+                $id,
+                $links ? ' - ' . implode(' | ', $links) : ''
+            );
+        }
+        if ($confirms) {
+            evo()->regClientScript($this->get_src_TemplateSwitcher_js($confirms));
+        }
+        if (evo()->hasPermission('settings')) {
+            $msg .= sprintf($this->_lang['configcheck_hide_warning'], 'templateswitcher_present');
+        }
+        return '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n";
     }
 
     /**
@@ -246,17 +297,11 @@ function hideTemplateSwitcherWarning(){
             ];
         }
 
-        if (!$this->checkTplSwitchPlugin()) {
-            $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
-            if (sessionv('mgrPermissions.save_plugin') == 1) {
-                $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_disable"];
-            }
-            if (evo()->hasPermission('settings')) {
-                $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
-            }
+        $tplSwitchPlugins = $this->findTplSwitchPlugins();
+        if ($tplSwitchPlugins) {
             $warnings[] = [
                 'title' => 'configcheck_templateswitcher_present',
-                'message' => '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n"
+                'message' => $this->templateSwitcherWarning($tplSwitchPlugins)
             ];
         }
 
