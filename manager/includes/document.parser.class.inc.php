@@ -4316,7 +4316,8 @@ class DocumentParser
             $id = $this->documentIdentifier;
         }
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $alias, $args, $scheme, (bool) $ignoreReference]);
         if (isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
         }

@@ -201,9 +201,15 @@ class MODIFIERS
     public function parsePhx($key, $value, $modifiers)
     {
         static $cache = [];
-        $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s', $key, $value, print_r($modifiers, true)));
-        if (isset($cache[$cacheKey])) {
-            return $cache[$cacheKey];
+        $cacheKey = null;
+        // 覚えるのは値が文字列・数などのときだけ（オブジェクトや配列は serialize() できないことがある）
+        if (is_scalar($value) || $value === null) {
+            // 値に本文などの長い文字列が入るので、キーには 128 ビットのハッシュを使う（32 ビットでは別の引数と重なりうる）。
+            // serialize() は長さと型を含むので、名前・値・修飾子の境目がずれて同じ文字列になることもない
+            $cacheKey = md5(serialize([$key, $value, $modifiers]));
+            if (isset($cache[$cacheKey])) {
+                return $cache[$cacheKey];
+            }
         }
         if (empty($modifiers)) {
             return '';
@@ -235,7 +241,9 @@ class MODIFIERS
                 );
             }
         }
-        $cache[$cacheKey] = $value;
+        if ($cacheKey !== null) {
+            $cache[$cacheKey] = $value;
+        }
         return $value;
     }
 
