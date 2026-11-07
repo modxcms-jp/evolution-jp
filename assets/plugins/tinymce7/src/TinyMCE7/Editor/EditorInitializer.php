@@ -81,7 +81,11 @@ final class EditorInitializer
         if (empty($config['language_url'])) {
             $languageUrl = $this->language->languageUrl((string)$config['language']);
             if ($languageUrl !== '') {
-                $config['language_url'] = $languageUrl;
+                // languageUrl() はローカルの言語ファイル（MODX_BASE_URL 起点）だけを返す
+                $config['language_url'] = $this->scriptFactory->versionedUrl(
+                    $languageUrl,
+                    MODX_BASE_PATH . substr($languageUrl, strlen(MODX_BASE_URL))
+                );
             }
         }
 
