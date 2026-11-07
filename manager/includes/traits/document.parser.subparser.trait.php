@@ -2036,9 +2036,10 @@ trait DocumentParserSubParserTrait
     # Returns a record for the web user
     function getWebUserInfo($uid)
     {
-        $field = 'wu.username, wu.password, wua.*';
+        // 属性の表にも列 id がある。ユーザーの ID は web_users.id なので、後ろに書いて読む
+        $field = 'wua.*, wu.id, wu.username, wu.password';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
-        $rs = db()->select($field, $from, "wu.id='$uid'");
+        $rs = db()->select($field, $from, 'wu.id=' . (int)$uid);
         $limit = db()->count($rs);
         if ($limit == 1) {
             $row = db()->getRow($rs);
@@ -2054,12 +2055,13 @@ trait DocumentParserSubParserTrait
     function getUserInfo($uid)
     {
         $rs = db()->select(
-            'user.username, user.password, attrib.*',
+            // 属性の表にも列 id がある。ユーザーの ID は manager_users.id なので、後ろに書いて読む
+            'attrib.*, user.id, user.username, user.password',
             [
                 '[+prefix+]manager_users user',
                 'INNER JOIN [+prefix+]user_attributes attrib ON attrib.internalKey=user.id'
             ],
-            sprintf("user.id='%s'", db()->escape($uid))
+            'user.id=' . (int)$uid
         );
         if (db()->count($rs) == 1) {
             $row = db()->getRow($rs);

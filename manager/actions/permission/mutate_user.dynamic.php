@@ -45,9 +45,10 @@ if (manager()->hasFormValues()) {
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $user = array_merge($user, $form_v);
-    $user['dob'] = !empty($user['dob']) ? ConvertDate($user['dob']) : '';
-    $user['blockeduntil'] = ConvertDate($user['blockeduntil'] ?? '');
-    $user['blockedafter'] = ConvertDate($user['blockedafter'] ?? '');
+    // 日付は解釈できればタイムスタンプに、できなければ入力の文字列のまま残す（入力欄は dateInputValue() で出す）
+    foreach (['dob', 'blockeduntil', 'blockedafter'] as $dateField) {
+        $user[$dateField] = manager()->restoredDateValue($user[$dateField] ?? '');
+    }
     $user['username'] = $form_v['newusername'] ?? '';
     if (is_array($form_v['allowed_days']??null)) {
         $user['allowed_days'] = implode(',', $form_v['allowed_days']);

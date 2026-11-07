@@ -700,20 +700,11 @@ function mergeReloadValues($docObject)
         $docObject['which_editor'] = $populate['which_editor'];
     }
 
-    if (array_get($docObject, 'pub_date')) {
+    foreach (['pub_date', 'unpub_date'] as $dateField) {
         // 解釈できない差し戻しの入力は、入力した文字列のまま残す
-        $ts = evo()->toTimeStamp($docObject['pub_date']);
-        $docObject['pub_date'] = $ts === '' ? $docObject['pub_date'] : $ts;
-    } else {
-        $docObject['pub_date'] = '';
-    }
-
-    if (array_get($docObject, 'unpub_date')) {
-        // 解釈できない差し戻しの入力は、入力した文字列のまま残す
-        $ts = evo()->toTimeStamp($docObject['unpub_date']);
-        $docObject['unpub_date'] = $ts === '' ? $docObject['unpub_date'] : $ts;
-    } else {
-        $docObject['unpub_date'] = '';
+        $docObject[$dateField] = array_get($docObject, $dateField)
+            ? manager()->restoredDateValue($docObject[$dateField])
+            : '';
     }
     return $docObject;
 }

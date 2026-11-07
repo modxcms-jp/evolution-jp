@@ -53,7 +53,8 @@ if (manager()->hasFormValues()) {
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $userdata = array_merge($userdata, $form_v);
-    $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
+    // 生年月日は解釈できればタイムスタンプに、できなければ入力の文字列のまま残す（入力欄は dateInputValue() で出す）
+    $userdata['dob'] = manager()->restoredDateValue($userdata['dob'] ?? '');
     $usersettings = array_merge($usersettings, $userdata);
 }
 
@@ -285,10 +286,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang['user_dob'] ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?php echo (userData('dob') ? $modx->toDateFormat(
-                                            userData('dob'),
-                                            'dateOnly'
-                                        ) : ""); ?>" onblur="documentDirty=true;">
+                                value="<?= manager()->dateInputValue(userData('dob'), 'dateOnly') ?>" onblur="documentDirty=true;">
                             <a onclick="document.userform.dob.value=''; return true;"
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                     src="<?= $icons_path ?>cal_nodate.gif"
@@ -483,17 +481,6 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
 <?php
-
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date)
-{
-    global $modx;
-    if ($date == "") {
-        return "0";
-    } else {
-        return $modx->toTimeStamp($date);
-    }
-}
 
 // HTML の入力欄（input / select / textarea / button）の名前。コメントや script などの送信されない部分は見ない。
 // PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）

@@ -445,6 +445,17 @@ function validRole()
     return userformv_int('role') > 0;
 }
 
+// 日付の欄（生年月日・ブロックの日時）がすべて解釈できて、整数の列に入るか
+function validDates()
+{
+    foreach (['dob', 'blockeduntil', 'blockedafter'] as $field) {
+        if (evo()->parseDateInput(userformv_str($field)) === null) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function validate()
 {
     $fields = [
@@ -475,8 +486,8 @@ function validate()
         }
         $value = userformv_str($field);
         if (in_array($field, ['dob', 'blockeduntil', 'blockedafter'])) {
-            // 入力欄の日付書式の文字列をタイムスタンプにする（空・解釈できない値は 0）
-            $value = (int)evo()->toTimeStamp($value);
+            // 入力欄の日付書式の文字列をタイムスタンプにする（空は 0。解釈できない日付は validDates() で先に差し戻す）
+            $value = (int)evo()->parseDateInput($value);
         } elseif (in_array($field, ['gender', 'blocked']) && !$value) {
             $value = 0;
         }

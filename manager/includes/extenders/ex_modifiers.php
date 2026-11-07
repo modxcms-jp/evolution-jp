@@ -39,12 +39,7 @@ class MODIFIERS
 
     public function __construct()
     {
-        global $modx;
-
-        if (!$modx->config) {
-            $modx->config = $modx->getSiteCache();
-        }
-
+        // 設定は DocumentParser::loadExtension() が、この部品を読み込む前に読み込んでいる
         mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
@@ -53,6 +48,13 @@ class MODIFIERS
     public function phxFilter($key, $value, $modifiers)
     {
         if (strpos($modifiers, 'id(') !== 0) {
+            // 修飾子は文字列の値を受ける前提で、配列は下の strpos() などで止まる（PHP 8 は TypeError、7.4 は警告から 500）。
+            // 配列（?b[]=x のようなリクエストの値、配列を入れたプレースホルダー、配列を返すスニペット）は、
+            // 修飾子を当てずに空にする。修飾子の無いタグも配列は差し込まず空になるので、それとそろえる。
+            // id( で始まる列は値を使わずに文書の項目を読むので、配列でもそのまま当てる（今までどおり）
+            if (is_array($value)) {
+                return '';
+            }
             $value = $this->parseDocumentSource($value);
         }
         $this->srcValue = $value;

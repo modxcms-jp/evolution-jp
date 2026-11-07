@@ -28,6 +28,12 @@ if (!validRole()) {
     exit;
 }
 
+// 解釈できない日付は、知らせずに 0 にせず差し戻す
+if (!validDates()) {
+    webAlert(lang('mgrlog_dateinvalid'));
+    exit;
+}
+
 // verify admin security
 if (!verifyPermission()) {
     // Check to see if user tried to spoof a "1" (admin) role
