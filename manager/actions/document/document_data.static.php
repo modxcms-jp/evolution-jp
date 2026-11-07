@@ -117,13 +117,13 @@ function entity($key, $default = null)
 ?>
 <script type="text/javascript">
     function duplicatedocument() {
-        if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>)) {
             EvoCsrf.post("index.php?id=<?= $id ?>&a=94");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_resource'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>)) {
             EvoCsrf.post("index.php?id=<?= $id ?>&a=6");
         }
     }

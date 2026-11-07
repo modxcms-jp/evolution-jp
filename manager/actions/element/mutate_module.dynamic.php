@@ -97,7 +97,7 @@ function content($key, $default = null)
 
     function loadDependencies() {
         if (documentDirty) {
-            if (!confirm("<?= $_lang['confirm_load_depends'] ?>")) {
+            if (!confirm(<?= js_literal(stripcslashes(lang('confirm_load_depends'))) ?>)) {
                 return;
             }
         }
@@ -106,14 +106,14 @@ function content($key, $default = null)
     }
 
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + docid + "&a=111");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_module'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=110");
         }

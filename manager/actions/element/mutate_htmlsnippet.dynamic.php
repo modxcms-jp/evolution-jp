@@ -117,14 +117,14 @@ if (isset($content['which_editor'])) {
     }
 
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=97");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_htmlsnippet'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_htmlsnippet'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=80");
         }
@@ -132,7 +132,7 @@ if (isset($content['which_editor'])) {
 
     function resetpubdate() {
         if (document.mutate.pub_date.value != '' || document.mutate.unpub_date.value != '') {
-            if (confirm("<?= $_lang['confirm_reset_pub_dates'] ?>")) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_reset_pub_dates'))) ?>)) {
                 document.mutate.pub_date.value = '';
                 document.mutate.unpub_date.value = '';
             }

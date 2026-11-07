@@ -131,7 +131,7 @@ class DocAPI
     }
 
     /**
-     * 公開日・公開終了日から published を決める（リソースの保存とチャンクの保存の共通の規則）。
+     * 公開日・公開終了日から published を決める（リソースの保存、チャンクの保存、下書きの保存と採用の共通の規則）。
      * 未来の公開日は非公開、過去の公開日は公開、公開終了日が過去なら非公開（公開日より優先）。
      * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に確かめる
      * （解釈できない値は空文字で返る）。整数（負を含む）の値はそのまま使う
@@ -163,6 +163,52 @@ class DocAPI
             $f['published'] = 0;
         }
         return $f;
+    }
+
+    /**
+     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
+     */
+    public function startDocPubError($published, $pub_date, $unpub_date)
+    {
+        if ($published == 0) {
+            return 'Document is linked to site_start variable and cannot be unpublished!';
+        }
+        if ($pub_date > request_time() || $unpub_date) {
+            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+        }
+        return '';
+    }
+
+    /**
+     * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
+     * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
+     * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
+     * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
+     * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
+     */
+    public function draftForAdoption($docid, $draft, $canPublish = true)
+    {
+        $published = (int)db()->getValue(
+            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
+        );
+        if (!$draft) {
+            return [['published' => $published], ''];
+        }
+        $draft['published'] = $published;
+        $ruled = $this->setPubStatus($draft);
+        if ($canPublish) {
+            $draft = $ruled;
+        }
+        if ((int)$docid !== (int)evo()->config('site_start')) {
+            return [$draft, ''];
+        }
+        return [
+            $draft,
+            $this->startDocPubError($draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+        ];
     }
 
     // type : 'create' or 'update'
@@ -560,35 +606,6 @@ class DocAPI
             return db()->getValue($rs);
         }
         return false;
-    }
-
-    public function fixPubStatus($f) // published, pub_date, unpub_date
-    {
-        if (isset($f['pub_date']) && !empty($f['pub_date'])) {
-            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
-
-            if ($f['pub_date'] < request_time()) {
-                $f['published'] = 1;
-            } else {
-                $f['published'] = 0;
-            }
-        } else {
-            $f['pub_date'] = 0;
-        }
-
-        if (!isset($f['unpub_date']) || empty($f['unpub_date'])) {
-            $f['unpub_date'] = 0;
-            return $f;
-        }
-
-        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-        if ($f['unpub_date'] < request_time()) {
-            $f['published'] = 0;
-            return $f;
-        }
-
-        $f['published'] = 1;
-        return $f;
     }
 
     public function fixTvNest($form_v)

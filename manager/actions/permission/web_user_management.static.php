@@ -83,7 +83,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=88&id=' + id;
                 break;
             case 2: // delete
-                if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
                     EvoCsrf.post('index.php?a=90&id=' + id);
                 }
                 break;
@@ -146,7 +146,7 @@ echo $cm->render();
         <div>
         <?php
         $search = request_strvar('search');
-        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked=1 OR wua.blockeduntil>" . time() . ",'" . $_lang['yes'] . "','-') as 'blocked'" .
+        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(" . userBlockedSqlCondition('wua') . ",'" . $_lang['yes'] . "','-') as 'blocked'" .
             "FROM " . evo()->getFullTableName("web_users") . " wu " .
             "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
             ($search !== '' ? " WHERE (wu.username LIKE '" . db()->escape($search) . "%') OR (wua.fullname LIKE '%" . db()->escape($search) . "%') OR (wua.email LIKE '" . db()->escape($search) . "%')" : "") . " " .

@@ -218,7 +218,7 @@ function save_settiongs()
                 // 毎回自動で決まる値なので保存しない（固定するときは fixed_site_url）
                 continue 2;
             case 'rb_base_url':
-                $v = rtrim($v, '/') . '/';
+                $v = init::normalize_rb_base_url($v, config('site_url'), MODX_BASE_URL);
                 break;
             case 'export_dir':
                 $v = exportDirOrDefault($v);

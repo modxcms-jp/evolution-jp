@@ -38,7 +38,7 @@ foreach ($dir as $filename) {
 }
 ?>
 <script type="text/javascript">
-    var lang_chg = '<?= lang('confirm_setting_language_change') ?>';
+    var lang_chg = <?= js_literal(stripcslashes(lang('confirm_setting_language_change'))) ?>;
 </script>
 <script type="text/javascript" src="actions/tool/mutate_settings/functions.js"></script>
 <form name="settings" action="index.php" method="post" enctype="multipart/form-data">

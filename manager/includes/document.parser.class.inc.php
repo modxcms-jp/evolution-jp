@@ -104,8 +104,13 @@ class DocumentParser
     public $revisionObject;
     public $filter;
     public $tvfilter;
+    // sanitizeVars() が $_REQUEST を無害化したか。anyv() が返す値を同じく無害化するために見る
+    public $requestSanitized = false;
+    // 権限が無く転送したときの元の文書 id（sendUnauthorizedPage()）。ログインフォームの戻り先に使う
+    public $unauthorizedDocumentId = 0;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
+    private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
 
     public function __get($property_name)
     {
@@ -125,25 +130,28 @@ class DocumentParser
     public function __call($method_name, $arguments)
     {
         $this->loadExtension('DeprecatedAPI');
-        if (method_exists($this->old, $method_name)) {
-            $error_type = 1;
-        } else {
-            $error_type = 3;
-        }
+        $is_deprecated = method_exists($this->old, $method_name);
 
         if (!isset($this->config) || !$this->config) {
             $this->config = $this->getSettings();
         }
 
-        if (!$this->config('error_reporting') || 1 < $this->config('error_reporting')) {
-            if ($error_type == 1) {
+        // 定義の無いメソッドは検出レベルに関係なく、非推奨のメソッドは検出レベル 2・99 のときだけ残す。
+        // 1 リクエストの中では、同じメソッド名につき 1 件にまとめる
+        $key = strtolower($method_name);
+        $should_log = !$is_deprecated || 1 < (int)$this->config('error_reporting');
+        if ($should_log && !isset($this->loggedMagicCalls[$key])) {
+            $this->loggedMagicCalls[$key] = true;
+            if ($is_deprecated) {
+                $error_type = 1;
                 $title = 'Call deprecated method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
             } else {
+                $error_type = 3;
                 $title = 'Call undefined method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
-            $info = debug_backtrace();
+            $info = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
             $m = [];
             $m[] = $msg;
             if ($this->currentSnippet) {
@@ -152,12 +160,12 @@ class DocumentParser
                 $m[] = 'Plugin - ' . $this->event->activePlugin;
             }
             $m[] = $this->decoded_request_uri;
-            $m[] = str_replace('\\', '/', $info[0]['file']) . '(line:' . $info[0]['line'] . ')';
+            $m[] = str_replace('\\', '/', $info[0]['file'] ?? '') . '(line:' . ($info[0]['line'] ?? '') . ')';
             $msg = implode('<br />', $m);
             $this->logEvent(0, $error_type, $msg, $title);
         }
 
-        if (method_exists($this->old, $method_name)) {
+        if ($is_deprecated) {
             return call_user_func_array([$this->old, $method_name], $arguments);
         }
         return '';
@@ -504,6 +512,7 @@ class DocumentParser
         }
         $this->sanitize_gpc($_COOKIE);
         $this->sanitize_gpc($_REQUEST);
+        $this->requestSanitized = true;
     }
 
     private function setUaType()
@@ -1006,19 +1015,29 @@ class DocumentParser
             return '';
         }
 
-        $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
-        $r = [];
-        foreach ($s as $delimiter) {
-            [$open, $close] = str_split($delimiter, 1);
-            $r[] = " {$open} {$close} ";
-        }
-
-        array_walk_recursive($target, static function (&$value) use ($s, $r) {
-            $value = str_replace($s, $r, $value);
+        array_walk_recursive($target, static function (&$value) {
+            $value = self::breakTagDelimiters($value);
             $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
             $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
         });
         return $target;
+    }
+
+    // MODX のタグの記号（[[ ]]・{{ }}・[* *] など）の間に空白を入れ、タグとして解析されないようにする。
+    // 何度かけても結果は変わらない
+    private static function breakTagDelimiters($value)
+    {
+        static $search = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
+        static $replace = null;
+        if ($replace === null) {
+            $replace = [];
+            foreach ($search as $delimiter) {
+                [$open, $close] = str_split($delimiter, 1);
+                $replace[] = " {$open} {$close} ";
+            }
+        }
+
+        return str_replace($search, $replace, $value);
     }
 
     private function flattenToString($value)
@@ -1706,23 +1725,8 @@ class DocumentParser
             return;
         }
 
-        $rs = db()->select(
-            'element,elmid',
-            '[+prefix+]site_revision',
-            sprintf(
-                "pub_date<=%s AND status='standby'",
-                $timeNow
-            )
-        );
-        $draft_ids = [];
-        while ($row = db()->getRow($rs)) {
-            if ($row['element'] === 'resource') {
-                $draft_ids[] = $row['elmid'];
-            }
-        }
-        if ($draft_ids) {
-            $this->updateDraft();
-        }
+        // 時刻が来た下書きの予約を反映する。OnDocPublished は、実際に反映した文書にだけ出す
+        $draft_ids = $this->updateDraft();
 
         // now, check for documents that need publishing
         $pub_ids = [];
@@ -3264,6 +3268,7 @@ class DocumentParser
     { // Get super globals
         $key = $value;
         [$key, $modifiers] = $this->splitKeyAndFilter($key);
+        [$raw, $modifiers] = $this->splitRawModifier($modifiers);
 
         $key = str_replace(['(', ')'], ["['", "']"], $key);
         $session = null;
@@ -3287,26 +3292,93 @@ class DocumentParser
             $value = '';
         }
 
+        $isRequest = in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true);
+        if ($isRequest) {
+            // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
+            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
+            $values = [$value];
+            $this->sanitize_gpc($values);
+            // sanitize_gpc() は [ < # を含まない値を素通しするので、{{ }} だけの値のためにタグの記号も崩す
+            $value = $this->breakTagDelimitersRecursive($values[0]);
+        }
+
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
+            if ($isRequest) {
+                // :urldecode などで戻したタグの記号も崩す。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
+                $value = $this->breakTagDelimitersRecursive($value);
+            }
+        }
+
+        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
+        // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
+        if ($isRequest && !$raw) {
+            $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
 
         return $value;
     }
 
+    private function breakTagDelimitersRecursive($value)
+    {
+        if (!is_array($value)) {
+            return is_string($value) ? self::breakTagDelimiters($value) : $value;
+        }
+        array_walk_recursive($value, static function (&$item) {
+            if (is_string($item)) {
+                $item = self::breakTagDelimiters($item);
+            }
+        });
+
+        return $value;
+    }
+
+    // 最初の修飾子が raw なら、[[$_GET[...]]] などの自動のエスケープを外す。残りの修飾子はそのまま使う
+    private function splitRawModifier($modifiers)
+    {
+        if ($modifiers === false) {
+            return [false, false];
+        }
+        if ($modifiers === 'raw') {
+            return [true, false];
+        }
+        if (strpos($modifiers, 'raw:') === 0) {
+            $rest = substr($modifiers, strlen('raw:'));
+            return [true, $rest === '' ? false : $rest];
+        }
+
+        return [false, $modifiers];
+    }
+
     private function isSuperGlobalAccessor($key)
     {
-        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key) === 1;
+        return $this->superGlobalName($key) !== '';
+    }
+
+    // '$_GET[...]' の 'GET' のように、タグが指すスーパーグローバルの名前を返す。当たらなければ空文字
+    private function superGlobalName($key)
+    {
+        return $this->matchSuperGlobal($key)[1] ?? '';
+    }
+
+    private function matchSuperGlobal($key)
+    {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+            return [];
+        }
+
+        return $matches;
     }
 
     private function fetchSuperGlobalValue($key, $session)
     {
-        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+        $matches = $this->matchSuperGlobal($key);
+        if (!$matches) {
             return '';
         }
 
         $target = $matches[1];
-        $path = $this->convertBracketToDot($matches[2]);
+        $path = $this->convertBracketToDot($matches[2] ?? '');
         $superGlobal = $this->getSuperGlobalSource($target, $session);
 
         if ($path === '') {
@@ -3335,7 +3407,8 @@ class DocumentParser
             case 'POST':
                 return $_POST;
             case 'REQUEST':
-                return $_REQUEST;
+                // $_REQUEST は php.ini の設定次第で cookie を含むので、GET・POST だけを読む anyv() を使う
+                return anyv();
             case 'SESSION':
                 return $session ?? $_SESSION;
             case 'COOKIE':
@@ -3987,15 +4060,38 @@ class DocumentParser
     public function getChildIds($id, $depth = 10, $children = [])
     {
         static $cached = [];
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
-        if (isset($cached[$cacheKey])) {
+        // 文書の id として読めない値（空・数字以外を含む・'05' など）は、これまでどおり子なしとする
+        if (!is_int($id) && !(is_string($id) && preg_match('/\A(0|[1-9][0-9]*)\z/', $id))) {
+            return [];
+        }
+        $id = (int) $id;
+        // null は、これまでどおり 1 段だけ（0 以下は深さの制限なし）
+        $depth = $depth === null ? 1 : (int) $depth;
+        // 結果を決めるのは $id と $depth だけ。$children は呼び出し側が先に集めた分で、最後に重ねる
+        $cacheKey = "{$id}|{$depth}";
+        if (!isset($cached[$cacheKey])) {
+            $cached[$cacheKey] = $this->collectChildIds($id, $depth);
+        }
+        if (!$cached[$cacheKey]) {
+            return [];
+        }
+        if (!$children) {
             return $cached[$cacheKey];
         }
-        $cached[$cacheKey] = [];
+        // キーが重なったときは、こちらで見つけた値を優先する
+        return array_replace($children, $cached[$cacheKey]);
+    }
 
-        static $hasChildren = [];
+    /**
+     * $id の下の文書を、キーが「パス/別名」、値が id の配列で返す。
+     * 並びは、親ごとに menuindex の順で、深さ優先。$depth が 0 以下なら深さの制限なし
+     */
+    private function collectChildIds($id, $depth)
+    {
+        static $hasChildren = null;
 
-        if (!$hasChildren) {
+        if ($hasChildren === null) {
+            $hasChildren = [];
             $rs = db()->select('DISTINCT(parent)', '[+prefix+]site_content', 'deleted=0');
             while ($row = db()->getRow($rs)) {
                 $hasChildren[$row['parent']] = true;
@@ -4006,33 +4102,72 @@ class DocumentParser
             return [];
         }
 
-        $rs = db()->select(
-            'id',
-            '[+prefix+]site_content',
-            sprintf('deleted=0 AND parent=%s', $id),
-            'parent, menuindex'
-        );
-        $depth--;
-        while ($row = db()->getRow($rs)) {
-            $key = trim(
-                sprintf(
-                    '%s/%s',
-                    $this->getAliasListing($row['id'], 'path'),
-                    $this->getAliasListing($row['id'], 'alias')
-                ),
-                '/'
+        // 下の階層を 1 段ずつまとめて読む（問い合わせは階層の数だけ。読むのは $id の下だけ）。
+        // 別名（aliasListing）も、読んだ行と親の path から埋め、文書ごとに問い合わせない
+        if (0 < $id) {
+            $this->getAliasListing($id);
+        }
+        $useAliasPath = $this->config('use_alias_path') == '1';
+        $byParent = [];
+        $level = [$id];
+        $remaining = $depth;
+        while ($level && ($depth <= 0 || 0 < $remaining--)) {
+            $rs = db()->select(
+                'id,parent,alias,isfolder',
+                '[+prefix+]site_content',
+                sprintf('deleted=0 AND parent IN (%s)', implode(',', $level)),
+                'parent, menuindex'
             );
-            $children[$key] = $row['id'];
-
-            if ($depth) {
-                $subChildId = $this->getChildIds($row['id'], $depth);
-                if ($subChildId) {
-                    $children += $subChildId;
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                $docid = (int) $row['id'];
+                $parent = (int) $row['parent'];
+                $byParent[$parent][] = $row['id'];
+                if (isset($hasChildren[$docid])) {
+                    $level[] = $docid;
                 }
+                if (isset($this->aliasListing[$docid])) {
+                    continue;
+                }
+                $path = '';
+                if ($parent && $useAliasPath) {
+                    if (!isset($this->aliasListing[$parent])) {
+                        continue; // 親の別名が分からないときは getAliasListing() に任せる
+                    }
+                    $_ = $this->aliasListing[$parent];
+                    $path = (0 < $_['parent'] && $_['path'] != '') ? $_['path'] . '/' . $_['alias'] : $_['alias'];
+                }
+                $this->aliasListing[$docid] = [
+                    'id' => $docid,
+                    'alias' => $row['alias'] == '' ? $docid : $row['alias'],
+                    'parent' => $parent,
+                    'isfolder' => (int) $row['isfolder'],
+                    'path' => $path
+                ];
             }
         }
 
-        $cached[$cacheKey] = $children;
+        return $this->buildChildIds($byParent, $id, $depth);
+    }
+
+    private function buildChildIds(array $byParent, $parent, $depth)
+    {
+        $children = [];
+        $depth--;
+        foreach ($byParent[$parent] ?? [] as $docid) {
+            $key = trim(
+                sprintf(
+                    '%s/%s',
+                    $this->getAliasListing($docid, 'path'),
+                    $this->getAliasListing($docid, 'alias')
+                ),
+                '/'
+            );
+            $children[$key] = $docid;
+            if ($depth) {
+                $children += $this->buildChildIds($byParent, (int) $docid, $depth);
+            }
+        }
         return $children;
     }
 
@@ -4312,7 +4447,8 @@ class DocumentParser
             $id = $this->documentIdentifier;
         }
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $alias, $args, $scheme, (bool) $ignoreReference]);
         if (isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
         }
@@ -5904,11 +6040,11 @@ class DocumentParser
      * 基準時間の設定
      *
      * 引数がない場合は現在の時間を設定。
-     * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
+     * 次の条件を満たす場合 GET・POST の baseTime が利用される。
      *
      * ・引数がない
      * ・ログイン状態
-     * ・$_REQUEST['baseTime'] が存在する
+     * ・GET・POST に baseTime が存在する
      *
      * @param $t 時間(Unixtime or 日付フォーマット)
      * @return bool
@@ -5917,7 +6053,7 @@ class DocumentParser
     private function setBaseTime($t = '')
     {
         if (!$t) {
-            $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
+            $baseTime = anyv('baseTime', '');
             if (!empty($baseTime) && $this->isLoggedin()) {
                 $t = $baseTime;
             } else {
@@ -6378,19 +6514,6 @@ class DocumentParser
     public function conf_var($key = null, $default = null)
     {
         return $this->config($key, $default);
-    }
-
-    /** @deprecated helpers.php の array_get() を使う。次の版で消す */
-    public function array_get($array, $key = null, $default = null)
-    {
-        return array_get($array, $key, $default);
-    }
-
-    // from Laravel Arr::set()
-    /** @deprecated helpers.php の array_set() を使う。次の版で消す */
-    public function array_set(&$array, $key, $value)
-    {
-        return array_set($array, $key, $value);
     }
 
     public function get_docfield_type($field_name = '')

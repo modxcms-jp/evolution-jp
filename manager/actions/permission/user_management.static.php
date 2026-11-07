@@ -78,7 +78,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=12&id=' + id;
                 break;
             case 2: // delete
-                if (confirm("<?= $_lang['confirm_delete_user'] ?>")) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>)) {
                     EvoCsrf.post('index.php?a=33&id=' + id);
                 }
                 break;
@@ -141,8 +141,9 @@ echo $cm->render();
             $tbl_user_roles = evo()->getFullTableName('user_roles');
             $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
             $field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
-            $field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";
-            $field .= ",IF(mua.blocked,'unpublished','published') as class";
+            $blocked = userBlockedSqlCondition('mua');
+            $field .= ",IF({$blocked},'{$_lang['yes']}','-') as blocked";
+            $field .= ",IF({$blocked},'unpublished','published') as class";
             $from = "{$tbl_manager_users} AS mu";
             $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
             $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
@@ -161,7 +162,7 @@ echo $cm->render();
             }
 
             $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
-            $orderby = 'mua.blocked ASC, mua.thislogin DESC';
+            $orderby = "{$blocked} ASC, mua.thislogin DESC";
             $ds = db()->select($field, $from, $where, $orderby);
 
             include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');

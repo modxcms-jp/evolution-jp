@@ -47,8 +47,9 @@ foreach (['pub_date', 'unpub_date'] as $dateField) {
     }
 }
 
-$fields = $modx->doc->fixPubStatus(
-    $modx->doc->fixTvNest($post)
+// 公開日・公開終了日による published の決め方は、リソースの保存と同じ DocAPI::setPubStatus() を使う
+$fields = evo()->doc->setPubStatus(
+    evo()->doc->fixTvNest($post)
 );
 
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）

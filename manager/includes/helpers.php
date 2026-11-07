@@ -387,6 +387,85 @@ function alert()
     return $e;
 }
 
+/**
+ * ユーザーがブロック中かを判定する（管理ユーザー・Web ユーザーで共通）
+ *
+ * 編集画面の「ブロック中」の表示と、ログインの可否は、どちらもこれで決める。
+ * blocked が 1、blockeduntil が未来、blockedafter が過去のどれかでブロック中とみなす。
+ * 失敗回数による一時ロックは blockeduntil だけで表すので、期限が過ぎれば外れる。
+ *
+ * 日時はタイムスタンプで受ける（差し戻しの値は、呼び出し側で ConvertDate() で戻す）。空文字などは整数にそろえて 0 として扱う。
+ *
+ * @param array $row blocked / blockeduntil / blockedafter を持つ配列
+ */
+function isUserBlocked($row)
+{
+    if (!is_array($row)) {
+        return false;
+    }
+    $int = static function ($key) use ($row) {
+        return isset($row[$key]) && is_scalar($row[$key]) ? (int)$row[$key] : 0;
+    };
+    $now = time();
+    $until = $int('blockeduntil');
+    $after = $int('blockedafter');
+
+    return $int('blocked') === 1
+        || ($until !== 0 && $until > $now)
+        || ($after !== 0 && $after < $now);
+}
+
+/**
+ * 失敗回数による一時ロックかを判定する（期限が過ぎたものも含む）
+ *
+ * 一時ロックは、失敗回数が failed_login_attempts 以上のときの blockeduntil で表す（blocked は使わない）。
+ * 管理者が付けた blockeduntil と同じ列なので、失敗回数で見分ける。
+ *
+ * @param array $row blockeduntil / failedlogincount を持つ配列
+ */
+function isTemporaryLoginLock($row)
+{
+    if (!is_array($row)) {
+        return false;
+    }
+    $until = isset($row['blockeduntil']) && is_scalar($row['blockeduntil']) ? (int)$row['blockeduntil'] : 0;
+    $failed = isset($row['failedlogincount']) && is_scalar($row['failedlogincount']) ? (int)$row['failedlogincount'] : 0;
+
+    return $until !== 0 && (int)config('failed_login_attempts', 0) <= $failed;
+}
+
+/**
+ * 失敗回数による一時ロックを除いて、ブロック中かを判定する（管理者が付けたブロック）
+ *
+ * パスワードの再設定は、これが真のユーザーには受け付けない。再設定で外してよいのは一時ロックだけ。
+ *
+ * @param array $row blocked / blockeduntil / blockedafter / failedlogincount を持つ配列
+ */
+function isUserBlockedByAdmin($row)
+{
+    if (!is_array($row)) {
+        return false;
+    }
+    if (isTemporaryLoginLock($row)) {
+        $row['blockeduntil'] = 0;
+    }
+    return isUserBlocked($row);
+}
+
+/**
+ * isUserBlocked() と同じ規則の SQL の条件（ユーザーの一覧で、ブロック中の表示と並び順に使う）
+ *
+ * @param string $alias 属性の表の別名（例: 'mua'）。空なら列名だけ
+ */
+function userBlockedSqlCondition($alias = '')
+{
+    $col = $alias !== '' ? "{$alias}." : '';
+    $now = time();
+    return "({$col}blocked=1"
+        . " OR {$col}blockeduntil>{$now}"
+        . " OR ({$col}blockedafter<>0 AND {$col}blockedafter<{$now}))";
+}
+
 function array_get($array, $key = null, $default = null, $validate = null)
 {
     if ($key === null || trim($key) == '') {
@@ -451,7 +530,7 @@ function post_intvar($key)
     return to_intvar(postv($key, 0));
 }
 
-// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
+// GET と POST の両方（anyv()）から id として読む。両方で呼ばれる処理だけに使う
 function request_intvar($key)
 {
     return to_intvar(anyv($key, 0));
@@ -742,9 +821,16 @@ function normalize_url_tv_value($value, $prefix = '--')
     return $prefix . $value;
 }
 
+// GET と POST の両方から読む。$_REQUEST は php.ini の設定次第で cookie を含むので読まない。
+// まとめ方は php.ini-production の request_order = "GP" の $_REQUEST と同じ（同じ名前は POST を優先し、配列は入れ子までまとめる）。
+// 起動時に $_REQUEST を無害化したリクエスト（フロント）では、返す値も同じ処理で無害化する
 function anyv($key = null, $default = null)
 {
-    return array_get($_REQUEST, $key, $default);
+    $request = array_replace_recursive($_GET, $_POST);
+    if (evo() && evo()->requestSanitized) {
+        evo()->sanitize_gpc($request);
+    }
+    return array_get($request, $key, $default);
 }
 
 function serverv($key = null, $default = null)

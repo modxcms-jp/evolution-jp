@@ -4,7 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-$esc_request = db()->escape($_REQUEST);
+$esc_request = db()->escape(anyv());
 
 $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
@@ -49,17 +49,17 @@ if (!$isShellPartial) {
 
         // preload images
         var i = new Image(18, 18);
-        i.src = "<?= $_style["tree_page"]?>";
+        i.src = <?= js_literal($_style['tree_page']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_globe"]?>";
+        i.src = <?= js_literal($_style['tree_globe']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_minusnode"]?>";
+        i.src = <?= js_literal($_style['tree_minusnode']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_plusnode"]?>";
+        i.src = <?= js_literal($_style['tree_plusnode']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_folderopen"]?>";
+        i.src = <?= js_literal($_style['tree_folderopen']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_folder"]?>";
+        i.src = <?= js_literal($_style['tree_folder']) ?>;
 
 
         var rpcNode = null;
@@ -176,13 +176,13 @@ if (!$isShellPartial) {
 
             if (rpcNode.style.display === 'block') {
                 // collapse
-                signImg.src = '<?= $_style["tree_plusnode"] ?>';
+                signImg.src = <?= js_literal($_style['tree_plusnode']) ?>;
                 //rpcNode.innerHTML = '';
                 rpcNode.style.display = 'none';
                 openedArray[id] = 0;
             } else {
                 // expand
-                signImg.src = '<?= $_style["tree_minusnode"] ?>';
+                signImg.src = <?= js_literal($_style['tree_minusnode']) ?>;
 
                 rpcNodeText = rpcNode.innerHTML;
                 openedArray[id] = 1;
@@ -217,7 +217,7 @@ if (!$isShellPartial) {
         }
 
         function emptyTrash() {
-            if (confirm("<?= $_lang['confirm_empty_trash'] ?>") == true) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_empty_trash'))) ?>) == true) {
                 EvoCsrf.post("index.php?a=64");
             }
         }
@@ -229,7 +229,7 @@ if (!$isShellPartial) {
                 try {
                     main.setMoveValue(id, name);
                 } catch (oException) {
-                    alert('<?= $_lang['unable_set_parent'] ?>');
+                    alert(<?= js_literal(stripcslashes(lang('unable_set_parent'))) ?>);
                 }
             }
             if (tree.ca == "open" || tree.ca == "docinfo" || tree.ca == "doclist") {
@@ -248,14 +248,14 @@ if (!$isShellPartial) {
                 try {
                     main.setParent(id, name);
                 } catch (oException) {
-                    alert('<?= $_lang['unable_set_parent'] ?>');
+                    alert(<?= js_literal(stripcslashes(lang('unable_set_parent'))) ?>);
                 }
             }
             if (tree.ca == "link") {
                 try {
                     main.setLink(id);
                 } catch (oException) {
-                    alert('<?= $_lang['unable_set_link'] ?>');
+                    alert(<?= js_literal(stripcslashes(lang('unable_set_link'))) ?>);
                 }
             }
         }
@@ -263,11 +263,11 @@ if (!$isShellPartial) {
         // show state of recycle bin
         function showBinFull() {
             var a = document.getElementById('treeEmptyTrash');
-            var title = '<?= $_lang['empty_recycle_bin'] ?>';
+            var title = <?= js_literal(stripcslashes(lang('empty_recycle_bin'))) ?>;
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = '<?= $_style['empty_recycle_bin'] ?>';
+                a.innerHTML = <?= js_literal($_style['empty_recycle_bin']) ?>;
                 a.className = 'treeButton';
                 a.onclick = emptyTrash;
             }
@@ -275,11 +275,11 @@ if (!$isShellPartial) {
 
         function showBinEmpty() {
             var a = document.getElementById('treeEmptyTrash');
-            var title = <?= js_literal($_lang['empty_recycle_bin_empty']) ?>;
+            var title = <?= js_literal(stripcslashes(lang('empty_recycle_bin_empty'))) ?>;
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = '<?= $_style['empty_recycle_bin_empty'] ?>';
+                a.innerHTML = <?= js_literal($_style['empty_recycle_bin_empty']) ?>;
                 a.className = 'treeButtonDisabled';
                 a.onclick = '';
             }
@@ -487,47 +487,47 @@ if (is_array($evtOut)) {
                     EvoShell.navigate("index.php?a=72&pid=" + itemToChange);
                     break;
                 case '94' : // duplicate
-                    if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>") == true) {
+                    if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>) == true) {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=94&id=" + itemToChange);
                     }
                     break;
                 case '6' : // delete
                     if (selectedObjectDeleted == 0) {
-                        if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
+                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
                             EvoCsrf.post("index.php?a=6&id=" + itemToChange);
                         }
                     } else {
-                        alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
+                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
                     }
                     break;
                 case '63' : // undelete
                     if (selectedObjectDeleted == 0) {
-                        alert("'" + selectedObjectName + "' <?= $_lang['not_deleted'] ?>");
+                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>);
                     } else {
-                        if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_undelete'] ?>") == true) {
+                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_undelete'))) ?>) == true) {
                             EvoCsrf.post("index.php?a=63&id=" + itemToChange);
                         }
                     }
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
-                        if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
+                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
                             EvoCsrf.post("index.php?a=64&id=" + itemToChange);
                         }
                     } else {
-                        alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
+                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
                     }
                     break;
                 case '61' : // publish
-                    if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_publish'] ?>") == true) {
+                    if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_publish'))) ?>) == true) {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=61&id=" + itemToChange);
                     }
                     break;
                 case '62' : // unpublish
                     if (itemToChange != <?= (int) config('site_start') ?>) {
-                        if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_unpublish'] ?>") == true) {
+                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_unpublish'))) ?>) == true) {
                             setActiveFromContextMenu(itemToChange);
                             EvoCsrf.post("index.php?a=62&id=" + itemToChange);
                         }

@@ -63,7 +63,7 @@ class BrowserConfig
      */
     public function urlPrefix()
     {
-        $rbBaseUrl = (string) $this->modx->config('rb_base_url');
+        $rbBaseUrl = $this->rbBaseUrl();
         if ($this->rbBaseUrlHasHost()) {
             return rtrim($rbBaseUrl, '/');
         }
@@ -71,9 +71,19 @@ class BrowserConfig
         return trim($rbBaseUrl, '/');
     }
 
+    /** 設定の値を、自サイトの URL を含まない形にそろえたもの（既存の設定に残っている値も正しく扱うため、読むときにも通す） */
+    private function rbBaseUrl()
+    {
+        return init::normalize_rb_base_url(
+            (string) $this->modx->config('rb_base_url'),
+            (string) $this->modx->config('site_url'),
+            MODX_BASE_URL
+        );
+    }
+
     private function rbBaseUrlHasHost()
     {
-        $parsed = parse_url((string) $this->modx->config('rb_base_url'));
+        $parsed = parse_url($this->rbBaseUrl());
 
         return is_array($parsed) && !empty($parsed['host']);
     }

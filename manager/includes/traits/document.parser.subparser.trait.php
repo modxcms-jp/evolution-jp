@@ -741,7 +741,7 @@ trait DocumentParserSubParserTrait
 
         if ($count_attempts == 1) {
             // append the redirect count string to the url
-            $currentNumberOfRedirects = isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+            $currentNumberOfRedirects = request_uintvar('err', 0);
             if ($currentNumberOfRedirects > 3) {
                 $modx->messageQuit(
                     "Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>"
@@ -849,6 +849,9 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         // invoke OnPageUnauthorized event
+        // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
+        // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す
+        $modx->unauthorizedDocumentId = (int) $modx->documentIdentifier;
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
 
@@ -910,11 +913,21 @@ trait DocumentParserSubParserTrait
             $f['cachepwd'] = '';
             $f = db()->escape($f);
             db()->update($f, '[+prefix+]web_users', "id='{$uid}'");
-            db()->update(
-                "blockeduntil='0'",
-                '[+prefix+]web_user_attributes',
-                "internalKey='" . $uid . "'"
+            // 外すのは失敗回数による一時ロックだけ。管理者が付けたブロックには触らない
+            $attributes = db()->getRow(
+                db()->select(
+                    'blockeduntil, failedlogincount',
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                )
             );
+            if (isTemporaryLoginLock($attributes)) {
+                db()->update(
+                    ['failedlogincount' => 0, 'blockeduntil' => 0],
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                );
+            }
             // invoke OnWebChangePassword event
             $tmp = [
                 'userid' => $row['id'],
@@ -1249,8 +1262,8 @@ trait DocumentParserSubParserTrait
                 break;
             case '@INHERIT' :
                 $output = $param;
-                if (empty($docid) && isset($_REQUEST['pid'])) {
-                    $doc['parent'] = $_REQUEST['pid'];
+                if (empty($docid) && anyv('pid') !== null) {
+                    $doc['parent'] = anyv('pid');
                 } else {
                     $doc = $modx->getPageInfo($docid, 0, 'id,parent');
                 }
@@ -2166,7 +2179,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields, $where]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
@@ -2219,7 +2233,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
@@ -3029,6 +3044,9 @@ trait DocumentParserSubParserTrait
         return $content;
     }
 
+    /**
+     * 時刻が来た下書きの予約を文書へ反映し、反映した文書の ID を返す
+     */
     function updateDraft()
     {
         global $modx;
@@ -3038,26 +3056,39 @@ trait DocumentParserSubParserTrait
         $rs = db()->select(
             '*',
             '[+prefix+]site_revision',
-            sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
+            sprintf("pub_date!=0 AND pub_date<=%s AND status='standby' AND element='resource'", $now)
         );
 
         if (!db()->count($rs)) {
-            return;
+            return [];
         }
 
         evo()->loadExtension('REVISION');
         evo()->loadExtension('DocAPI');
+        $updated = [];
         while ($row = db()->getRow($rs)) {
-            $draft = $modx->revision->getDraft($row['elmid']);
+            // 今すぐ採用と同じく、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
+            [$draft, $error] = evo()->doc->draftForAdoption(
+                $row['elmid'],
+                $modx->revision->getDraft($row['elmid'])
+            );
+            // 予約の後にトップページになった文書などで、許さない公開の状態になるときは反映せず、予約を残す
+            if ($error !== '') {
+                evo()->logEvent(0, 2, $error, 'Draft update skipped', [
+                    'docid' => (int)$row['elmid'],
+                    'draftid' => (int)$row['internalKey'],
+                ]);
+                continue;
+            }
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
-            $draft['published'] = 1;
 
             if ($modx->doc->update($draft, $row['elmid']) !== false) {
                 db()->delete(
                     '[+prefix+]site_revision',
                     sprintf('internalKey=%d', $row['internalKey'])
                 );
+                $updated[] = (int)$row['elmid'];
             }else{
                 $modx->logEvent(0,
                                 3,
@@ -3065,6 +3096,8 @@ trait DocumentParserSubParserTrait
                                 'Draft update error');
             }
         }
+
+        return $updated;
     }
 
     private function normalizeLogMessage($message): string
