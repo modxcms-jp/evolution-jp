@@ -253,7 +253,7 @@ evo()->invokeEvent('OnBeforeWebLogin', $v);
 // 2 つの表に同じ名前の列 id があるので、* でまとめて読まずに列を挙げる。ユーザーの ID は web_users.id
 $field = 'web_users.id AS internalKey, web_users.password'
     . ', user_attributes.failedlogincount, user_attributes.blocked, user_attributes.blockeduntil'
-    . ', user_attributes.blockedafter, user_attributes.sessionid, user_attributes.role'
+    . ', user_attributes.blockedafter'
     . ', user_attributes.lastlogin, user_attributes.logincount, user_attributes.fullname, user_attributes.email';
 $from = "{$tbl_web_users} as web_users, {$tbl_web_user_attributes} as user_attributes";
 $where = "BINARY web_users.username='" . db()->escape($username) . "' and user_attributes.internalKey=web_users.id";
@@ -273,8 +273,6 @@ $failedlogins = $row['failedlogincount'];
 $blocked = $row['blocked'];
 $blockeduntildate = $row['blockeduntil'];
 $blockedafterdate = $row['blockedafter'];
-$registeredsessionid = $row['sessionid'];
-$role = $row['role'];
 $lastlogin = $row['lastlogin'];
 $nrlogins = $row['logincount'];
 $fullname = $row['fullname'];

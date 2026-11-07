@@ -2061,7 +2061,7 @@ trait DocumentParserSubParserTrait
                 '[+prefix+]manager_users user',
                 'INNER JOIN [+prefix+]user_attributes attrib ON attrib.internalKey=user.id'
             ],
-            sprintf("user.id='%s'", db()->escape($uid))
+            'user.id=' . (int)$uid
         );
         if (db()->count($rs) == 1) {
             $row = db()->getRow($rs);
