@@ -6,8 +6,14 @@ class SystemLogViewer
 {
     private const LOG_NAME_PATTERN = '/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/';
 
-    public static function files(string $root): array
+    /**
+     * ログファイルの一覧。読めないフォルダがあっても止まらず、読めるところを返す。
+     *
+     * @param string[]|null $unreadable 読めずに飛ばしたフォルダのパスが入る(省略可)
+     */
+    public static function files(string $root, array &$unreadable = null): array
     {
+        $unreadable = [];
         if (!is_dir($root)) {
             return [];
         }
@@ -18,11 +24,8 @@ class SystemLogViewer
         }
         $rootPath = str_replace('\\', '/', $rootPath);
         $items = [];
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($rootPath, FilesystemIterator::SKIP_DOTS)
-        );
 
-        foreach ($iterator as $file) {
+        foreach (self::walk($rootPath, $unreadable) as $file) {
             if (!$file->isFile()) {
                 continue;
             }
@@ -70,6 +73,32 @@ class SystemLogViewer
         });
 
         return $items;
+    }
+
+    /**
+     * フォルダを再帰して SplFileInfo を返す。シンボリックリンクのフォルダには入らない。
+     * 読めないフォルダは $unreadable に入れて飛ばす。
+     *
+     * @param string[] $unreadable
+     * @return Generator<SplFileInfo>
+     */
+    private static function walk(string $dir, array &$unreadable): Generator
+    {
+        try {
+            $children = new FilesystemIterator($dir, FilesystemIterator::SKIP_DOTS);
+            // 読めないフォルダは、例外でなく警告のみ出して空になる環境もあるため先頭の取得で確かめる
+            $children->rewind();
+        } catch (UnexpectedValueException $e) {
+            $unreadable[] = str_replace('\\', '/', $dir);
+            return;
+        }
+        foreach ($children as $child) {
+            if ($child->isDir() && !$child->isLink()) {
+                yield from self::walk($child->getPathname(), $unreadable);
+                continue;
+            }
+            yield $child;
+        }
     }
 
     /**
@@ -132,7 +161,7 @@ class SystemLogViewer
     public static function clear(string $root, string $before = ''): array
     {
         $paths = [];
-        foreach (self::files($root) as $file) {
+        foreach (self::files($root, $unreadable) as $file) {
             if ($before !== ''
                 && (!preg_match('/^system-([0-9]{4}-[0-9]{2}-[0-9]{2})\.log/', (string)$file['name'], $m) || $m[1] >= $before)
             ) {
@@ -141,6 +170,9 @@ class SystemLogViewer
             $paths[] = $file['path'];
         }
         $result = self::deleteFiles($paths, $root);
+        foreach ($unreadable as $dir) {
+            $result['failed'][$dir] = 'unreadable directory';
+        }
 
         $context = [
             'deleted' => $result['deleted'],
