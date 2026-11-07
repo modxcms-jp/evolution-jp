@@ -14,7 +14,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 
 ## Progress
 
-- [ ] (2026-11-07) 段階 1: `DataTable` を作り、子リソースの一覧を移して `MakeTable` を外す（ブランチ `refactor/1087-data-table-stage1`）
+- [x] (2026-11-07) 段階 1: `DataTable` を作り、子リソースの一覧を移して `MakeTable` を外す（ブランチ `refactor/1087-data-table-stage1`）。実装・検証（main と比較、7 テーマ）・自己レビュー（高・中なし）まで完了。右クリックのメニューの戻り先で並べ替えを保つため範囲を広げた（D19）。PR のマージ待ち
 - [ ] 段階 2: 管理画面の `DataGrid` の利用箇所（ユーザー管理・Web ユーザー管理・モジュール・リソースセレクタ・モジュールの依存関係 2 画面・DocManager）を移す
 - [ ] 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す
 
