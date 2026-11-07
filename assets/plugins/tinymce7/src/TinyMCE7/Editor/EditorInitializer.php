@@ -100,6 +100,7 @@ final class EditorInitializer
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyEnterMode($config);
         $config = $this->preferences->applyCssSelectors($config);
+        $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
         $config = $this->applyTemplates($config, empty($params['forfrontend']));

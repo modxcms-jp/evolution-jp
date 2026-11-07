@@ -1,6 +1,8 @@
 <?php
 // cache & synchronise class
 
+require_once __DIR__ . '/filesystem.class.inc.php';
+
 class synccache
 {
     public $cachePath;
@@ -132,6 +134,7 @@ class synccache
             return [0, 0, []];
         }
         $deletedfiles = [];
+        $failures = [];
         $cachedir_len = strlen($this->cachePath);
         while ($file_path = array_shift($files)) {
             $name = substr($file_path, $cachedir_len);
@@ -139,56 +142,16 @@ class synccache
                 continue;
             }
             $rs = null;
-            if (is_file($file_path)) {
+            if (is_dir($file_path)) {
+                $rs = Filesystem::deleteTree($file_path, $failures);
+            } elseif (is_file($file_path)) {
                 $rs = unlink($file_path);
-            } elseif (is_dir($file_path)) {
-                $rs = $this->removeDirectory($file_path);
             }
             if ($rs) {
                 $deletedfiles[] = $name;
             }
         }
         return [$filesincache, count($deletedfiles), $deletedfiles];
-    }
-
-    private function removeDirectory($directory)
-    {
-        $directory = rtrim($directory, '/');
-        if (
-            $directory === ''
-            || !defined('MODX_BASE_PATH')
-            || MODX_BASE_PATH === ''
-            || !str_starts_with($directory, MODX_BASE_PATH)
-        ) {
-            return false;
-        }
-
-        if (!is_dir($directory) || !is_readable($directory)) {
-            return false;
-        }
-
-        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
-
-        try {
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory, $flags),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-        } catch (UnexpectedValueException $exception) {
-            return false;
-        }
-
-        $result = true;
-        foreach ($iterator as $fileInfo) {
-            $path = $fileInfo->getPathname();
-            if ($fileInfo->isDir()) {
-                $result = rmdir($path) && $result;
-            } else {
-                $result = unlink($path) && $result;
-            }
-        }
-
-        return $result ? rmdir($directory) : false;
     }
 
     public function showReport($info)

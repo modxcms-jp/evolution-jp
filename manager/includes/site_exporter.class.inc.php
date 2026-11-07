@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/filesystem.class.inc.php';
+
 /**
  * 静的 HTML エクスポートの中身。
  * 対象の一覧・出力先の準備・ページの取得と書き出しを受け持つ。
@@ -115,7 +117,17 @@ class EvoSiteExporter
         if (!$this->isOutputDirValid()) {
             return false;
         }
-        return $this->removeDirectoryAll($this->exportDir);
+        // 出力先が MODX_BASE_PATH/temp/ の中にあることは isOutputDirValid() が確かめ済み
+        $failures = [];
+        $cleared = Filesystem::deleteTree($this->exportDir, $failures, true);
+        if ($failures) {
+            evo()->logEvent(0, 3, 'Failed to clear the export directory', 'Site export', [
+                'count' => count($failures),
+                'paths' => array_slice(array_keys($failures), 0, 20),
+                'reason' => (array_values(array_filter($failures)) ?: [''])[0],
+            ]);
+        }
+        return $cleared;
     }
 
     /**
@@ -323,45 +335,6 @@ class EvoSiteExporter
         mkdir($dir, $this->folderPermission(), true);
         umask($mask);
     }
-
-    private function removeDirectoryAll($directory)
-    {
-        $directory = rtrim($directory, '/');
-        if (empty($directory)) {
-            return false;
-        }
-        if (strpos($directory, MODX_BASE_PATH) !== 0) {
-            return false;
-        }
-        if (!is_dir($directory) || !is_readable($directory)) {
-            return false;
-        }
-
-        $entries = scandir($directory);
-        if ($entries === false) {
-            return false;
-        }
-
-        $rs = true;
-        foreach ($entries as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-            $path = $directory . '/' . $entry;
-            if (is_dir($path)) {
-                $rs = $this->removeDirectoryAll($path) && $rs;
-            } else {
-                $rs = unlink($path) && $rs;
-            }
-        }
-
-        if ($directory !== $this->exportDir && $rs) {
-            $rs = rmdir($directory);
-        }
-
-        return $rs;
-    }
-
 
     /**
      * 取得する URL。取得の先だけを替える（CLI ではサイトの URL が http://localhost/ になるため）。書き出す中身は替えない

@@ -239,13 +239,15 @@ function manager_safe_mode_toggle_value()
     return $isSafeMode ? '0' : '1';
 }
 
+// 切り替えたあとは管理画面のトップへ移すので、シェル（shell.js）に横取りさせず画面全体で送る（data-no-ajax）。
+// エラーの表示は #mainPane の断片や、ファイルブラウザなどの iframe の中に出ることがあるため、送り先は最上位の画面にする（target="_top"）
 function manager_safe_mode_toggle_form($label, $className = '', $style = '')
 {
     $classAttr = $className !== '' ? ' class="' . hsc($className) . '"' : '';
     $styleAttr = $style !== '' ? ' style="' . hsc($style) . '"' : '';
 
     return sprintf(
-        '<form method="post" action="%s" style="display:inline;">'
+        '<form method="post" action="%s" style="display:inline;" target="_top" data-no-ajax>'
         . '<input type="hidden" name="a" value="1">'
         . '<input type="hidden" name="f" value="menu">'
         . '<input type="hidden" name="manager_safe_mode" value="%s">'
@@ -262,28 +264,27 @@ function manager_safe_mode_toggle_form($label, $className = '', $style = '')
     );
 }
 
+// ナビにはセーフモード中だけ「解除」を出す。セーフモードに入る入口は、エラーの表示のボタン（manager_safe_mode_button_html()）
 function manager_safe_mode_nav_item_html()
 {
-    if (!manager_safe_mode_can_toggle()) {
+    if (sessionv('safeMode') != 1 || !manager_safe_mode_can_toggle()) {
         return '';
     }
-
-    $isSafeMode = sessionv('safeMode') == 1;
-    $label = $isSafeMode ? lang('manager_safe_mode_nav_disable') : lang('manager_safe_mode_nav_enable');
 
     return sprintf(
         '<span class="supplementalNav__item supplementalNav__item--safe-mode">%s</span>',
         manager_safe_mode_toggle_form(
-            $label,
+            lang('manager_safe_mode_nav_disable'),
             'supplementalNav__link',
             'background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit;'
         )
     );
 }
 
+// 管理画面のどの画面のエラーの表示にも出す（ペインとして読み込まれた画面を含む）
 function manager_safe_mode_button_html()
 {
-    if (!manager_safe_mode_can_toggle() || getv('a') !== '1' || getv('f') !== 'menu') {
+    if (!manager_safe_mode_can_toggle()) {
         return '';
     }
 
@@ -291,8 +292,9 @@ function manager_safe_mode_button_html()
     $label = $isSafeMode ? lang('manager_safe_mode_button_disable') : lang('manager_safe_mode_button_enable');
     $background = $isSafeMode ? '#333' : '#c62828';
 
+    // 上部のメニュー（ログアウトなど）に重ならないよう、右下に出す
     return sprintf(
-        '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
+        '<div style="position:fixed;bottom:12px;right:12px;z-index:2147483647;">'
         . '%s</div>',
         manager_safe_mode_toggle_form(
             $label,

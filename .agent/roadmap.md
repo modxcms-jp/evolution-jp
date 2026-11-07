@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` へ移す（このファイルには未完了の項目だけを置く）。
 
-最終更新: 2026-11-07 (1 節に「管理画面のメッセージ機能の廃止」を追加した)
+最終更新: 2026-11-07 (3 節に「表の部品（DataGrid・MakeTable）を作り直す」を、1 節に「管理画面のメッセージ機能の廃止」を追加した)
 
 ## 現在地（先に読む）
 
@@ -357,3 +357,20 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
 - 依存関係: なし
 - ExecPlan: `着手時に判断`
 - メモ/判断ログ: 2026-10-13 方針決定。着手はだいぶ先の予定。進め方は #586 を正とする（規約の案 → ExecPlan → 段階実施）。
+
+### 表の部品（DataGrid・MakeTable）を作り直す
+
+- Status: `NEXT`
+- Issue: #1087
+- 着手予定日: `未定`
+- 完了日: `未完了`
+- 目的: 役割の重なる `DataGrid` と `MakeTable` を廃止し、今どきの組み方で表の部品を 1 つ作り直す
+- 背景/課題: どちらも「行の集まりを、ページ送り付きの HTML の表にする」部品で、ページ送りの実装も 2 つある。列の設定を区切り文字の文字列で書く、エスケープの既定が「しない」、`style` 属性やインラインの `onclick` を出す、DB から全件を取ってからページを切り出すなど、古い作りが多い。`DataGrid` は PHP の配列を受け取れないので、`MakeTable` をそのまま寄せることもできない
+- 到達条件（Definition of Done）:
+  - 行の配列と列の定義を受け取る新しい部品があり、エスケープが既定で有効になっている
+  - 管理画面とサイト側の利用箇所（TV の出力ウィジェット `datagrid`、修飾子 `:datagrid`、`db()->getHTMLGrid()`）が新しい部品を使っている
+  - `manager/includes/controls/datagrid.class.php`・`manager/includes/controls/datasetpager.class.php`・`manager/includes/extenders/ex_maketable.php`・`manager/includes/extenders/maketable.class.php` と `loadExtension('MakeTable')` の分岐が無い
+- 非対象（やらないこと）: 外部のスニペットが `$modx->table` や `DataGrid` を直接使っている場合の互換
+- 依存関係: なし
+- ExecPlan: `着手時に判断`
+- メモ/判断ログ: 2026-11-06 起票。進める順番の案と、着手時に決めること（TV の出力ウィジェット `datagrid` の保存済み設定の扱い、部品の置き場所と名前）は #1087 を正とする。

@@ -438,7 +438,6 @@ return [
     "manager_safe_mode_button_disable" => 'Disable Safe Mode',
     "manager_safe_mode_button_enable" => 'View in Safe Mode',
     "manager_safe_mode_nav_disable" => 'Disable Safe Mode',
-    "manager_safe_mode_nav_enable" => 'Safe Mode',
     "manager_theme" => 'Manager Theme',
     "manager_theme_message" => 'Select the Theme for the Content Manager.',
     "mgr_access_permissions" => 'Manager access permissions',

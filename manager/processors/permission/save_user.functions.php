@@ -464,7 +464,10 @@ function validate()
             continue;
         }
         $value = userformv_str($field);
-        if (in_array($field, ['dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter']) && !$value) {
+        if (in_array($field, ['dob', 'blockeduntil', 'blockedafter'])) {
+            // 入力欄の日付書式の文字列をタイムスタンプにする（空・解釈できない値は 0）
+            $value = (int)evo()->toTimeStamp($value);
+        } elseif (in_array($field, ['gender', 'blocked']) && !$value) {
             $value = 0;
         }
         $rs[$field] = $value;
