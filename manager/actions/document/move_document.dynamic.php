@@ -87,8 +87,9 @@ function batch_move()
 function get_src_js()
 {
     $newParentLabel = js_literal(lang('new_parent'));
-    $illegalParentSelf = js_literal(lang('illegal_parent_self'));
-    $illegalParentChild = js_literal(lang('illegal_parent_child'));
+    // 文言は JS の文字列へそのまま埋め込む前提で改行を \n の 2 文字で持つので、改行に直してから渡す
+    $illegalParentSelf = js_literal(str_replace('\n', "\n", lang('illegal_parent_self')));
+    $illegalParentChild = js_literal(str_replace('\n', "\n", lang('illegal_parent_child')));
     $src = <<< EOT
 <script language="javascript">
 top.mainMenu.defaultTreeFrame();
