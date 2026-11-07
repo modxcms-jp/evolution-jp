@@ -49,6 +49,9 @@ final class FileBrowserResolver
             $snippets[] = 'window.MODX_SITE_URL = ' . json_encode(MODX_SITE_URL) . ';';
         }
 
+        $snippets[] = 'window.MODX_STRIP_IMAGE_PATHS = '
+            . json_encode((string) evo()->config('strip_image_paths') === '1') . ';';
+
         return implode('', $snippets);
     }
 }
