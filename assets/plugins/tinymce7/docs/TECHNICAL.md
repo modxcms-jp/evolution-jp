@@ -127,7 +127,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_file_browser` / `file_browser` | `mcpuk`（既定）または `none` を指定できます。|
 
 ## MCPuk ファイルブラウザー連携
-`tinymce7_file_browser` が `mcpuk` の場合、`js/mcpuk-picker.js` が `file_picker_callback` を上書きし、選択したファイルの URL を CMS のルートに合わせて正規化します。無効化すると TinyMCE の標準ダイアログが利用されます。
+`tinymce7_file_browser` が `mcpuk` の場合、`js/mcpuk-picker.js` が `file_picker_callback` を上書きし、選択したファイルの URL を CMS のルートに合わせて正規化します。グローバル設定「相対パスを渡す」（`strip_image_paths`）が「はい」なら相対パス（例: `assets/images/a.jpg`）のまま、「いいえ」ならサイトの URL を付けた絶対 URL で渡します（ホスト付きの値は、どちらでもそのまま渡します）。無効化すると TinyMCE の標準ダイアログが利用されます。
 
 ## ひな形の挿入
 TinyMCE 7 ではオープンソース版の `template` プラグインが廃止され、有償の Templates（advtemplate）に置き換わりました。本プラグインは MODX のリソースとチャンクをひな形として挿入する独自プラグイン `modxtemplate`（`js/modx-template.js`）を同梱しています。

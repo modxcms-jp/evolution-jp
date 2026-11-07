@@ -245,15 +245,16 @@ class synccache
 
         // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）。
         // URL の決定にパスは使わないので、スキーム・ホスト・ポートだけを書く（パスの文字でエスケープが入らないように）
-        $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''));
+        $fixed_site_url = init::normalize_site_url(array_get($config, 'fixed_site_url', ''));
         if ($fixed_site_url !== '') {
             $content[] = sprintf('$fixed_site_url = %s;', var_export($fixed_site_url, true));
         }
 
-        if (evo()->array_get($config, 'base_url') && strpos(evo()->array_get($config, 'base_url'), '[(') === false) {
+        $base_url = array_get($config, 'base_url');
+        if ($base_url && strpos($base_url, '[(') === false) {
             $content[] = sprintf(
                 '$base_url = "%s";',
-                evo()->array_get($config, 'base_url')
+                $base_url
             );
         }
 

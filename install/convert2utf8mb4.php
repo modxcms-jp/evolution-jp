@@ -88,7 +88,6 @@ class convert2utf8mb4 {
             'system_eventnames',
             'system_settings',
             'user_attributes',
-            'user_messages',
             'user_roles',
             'user_settings',
             'web_groups',

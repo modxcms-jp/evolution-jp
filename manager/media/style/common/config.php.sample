@@ -12,7 +12,6 @@ return [
     'iconResources' => 1,
     'iconNewDoc' => 1,
     'iconSearch' => 1,
-    'iconMessage' => 1,
     'iconElements' => 1,
     'iconSettings' => 1,
     'iconFileManager' => 1,

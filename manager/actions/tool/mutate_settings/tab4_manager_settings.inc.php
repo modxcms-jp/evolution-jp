@@ -225,26 +225,6 @@
             </td>
         </tr>
         <tr>
-            <th><?= $_lang["mail_check_timeperiod_title"] ?></th>
-            <td>
-                <?= form_text('mail_check_timeperiod', 5) ?><br/>
-                <?= $_lang["mail_check_timeperiod_message"] ?></td>
-        </tr>
-        <tr>
-            <th><?= $_lang["nomessages_title"] ?></th>
-            <td>
-                <?= form_text('number_of_messages', 5) ?><br/>
-                <?= $_lang["nomessages_message"] ?></td>
-        </tr>
-        <tr>
-            <th><?= $_lang["pm2email_title"] ?></th>
-            <td>
-                <?= wrap_label($_lang["yes"], form_radio('pm2email', '1', config('pm2email') == '1')) ?><br/>
-                <?= wrap_label($_lang["no"], form_radio('pm2email', '0', config('pm2email') == '0')) ?><br/>
-                <?= $_lang["pm2email_message"] ?>
-            </td>
-        </tr>
-        <tr>
             <th><?= $_lang["noresults_title"] ?></th>
             <td>
                 <?= form_text('number_of_results', 5) ?><br/>

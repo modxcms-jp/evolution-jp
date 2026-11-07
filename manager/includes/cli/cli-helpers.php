@@ -21,6 +21,24 @@ function cli_usage($message, $code = 1)
     exit($code);
 }
 
+/**
+ * 標準入力が端末（対話）か。判定できない環境では対話でないとみなす（確認なしに進めないため）
+ */
+function cli_stdin_is_interactive(): bool
+{
+    if (!defined('STDIN') || !is_resource(STDIN)) {
+        return false;
+    }
+    if (function_exists('stream_isatty')) {
+        return stream_isatty(STDIN);
+    }
+    if (function_exists('posix_isatty')) {
+        return posix_isatty(STDIN);
+    }
+
+    return false;
+}
+
 function cli_system_log_format_entry(array $entry): string
 {
     $level = strtoupper((string)array_get($entry, 'level', ''));

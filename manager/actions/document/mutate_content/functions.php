@@ -70,7 +70,7 @@ function rteContent($htmlcontent, $editors)
 function currentEditor()
 {
     $restored = reloadFormValues() ?: [];
-    return to_strvar(evo()->array_get($restored, 'which_editor')) ?: post_strvar('which_editor', config('which_editor'));
+    return to_strvar(array_get($restored, 'which_editor')) ?: post_strvar('which_editor', config('which_editor'));
 }
 
 function getEditors($editors)
@@ -230,7 +230,7 @@ function getUDGroups($id)
     $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
     if ($restored !== null && !postv()) {
         // GET で差し戻されたときは、差し戻しの選択だけにする（外したグループも外れたまま）
-        $docgroups = evo()->array_get($restored, 'docgroups', []);
+        $docgroups = array_get($restored, 'docgroups', []);
         $restoredGroupIds = [];
         foreach (is_array($docgroups) ? $docgroups : [] as $value) {
             $restoredGroupIds[] = (int)strtok((string)$value, ',');
@@ -682,13 +682,13 @@ function mergeReloadValues($docObject)
     }
     $populate = manager()->loadFormValues();
     // 別のリソース（新規か id が違う）向けの入力は混ぜない
-    if (!$populate || (int)evo()->array_get($populate, 'id', 0) !== request_intvar('id')) {
+    if (!$populate || (int)array_get($populate, 'id', 0) !== request_intvar('id')) {
         return $docObject;
     }
     // GET で戻った新規で URL に pid があり、差し戻しの親と違えば、別の新規作成の画面なので重ねない
     // （差し戻しの戻り先の URL には pid を付けない）
     if (!postv() && !request_intvar('id') && request_intvar('pid')
-        && request_intvar('pid') !== (int)evo()->array_get($populate, 'parent', 0)) {
+        && request_intvar('pid') !== (int)array_get($populate, 'parent', 0)) {
         return $docObject;
     }
     reloadFormValues($populate);
@@ -696,11 +696,11 @@ function mergeReloadValues($docObject)
     if (array_key_exists('ta', $populate)) {
         $docObject['content'] = $populate['ta'];
     }
-    if (evo()->array_get($populate, 'which_editor')) {
+    if (array_get($populate, 'which_editor')) {
         $docObject['which_editor'] = $populate['which_editor'];
     }
 
-    if (evo()->array_get($docObject, 'pub_date')) {
+    if (array_get($docObject, 'pub_date')) {
         // 解釈できない差し戻しの入力は、入力した文字列のまま残す
         $ts = evo()->toTimeStamp($docObject['pub_date']);
         $docObject['pub_date'] = $ts === '' ? $docObject['pub_date'] : $ts;
@@ -708,7 +708,7 @@ function mergeReloadValues($docObject)
         $docObject['pub_date'] = '';
     }
 
-    if (evo()->array_get($docObject, 'unpub_date')) {
+    if (array_get($docObject, 'unpub_date')) {
         // 解釈できない差し戻しの入力は、入力した文字列のまま残す
         $ts = evo()->toTimeStamp($docObject['unpub_date']);
         $docObject['unpub_date'] = $ts === '' ? $docObject['unpub_date'] : $ts;
@@ -716,15 +716,6 @@ function mergeReloadValues($docObject)
         $docObject['unpub_date'] = '';
     }
     return $docObject;
-}
-
-// 日付の欄の値（出力用にエスケープ済み）。数値なら日付の書式に直し、解釈できない差し戻しの入力は文字列のまま
-function dateInputValue($value)
-{
-    if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
-        return evo()->toDateFormat($value);
-    }
-    return hsc($value);
 }
 
 function checkViewUnpubDocPerm($published, $editedby)

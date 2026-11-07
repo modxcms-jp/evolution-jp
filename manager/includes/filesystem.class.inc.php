@@ -72,6 +72,8 @@ class Filesystem
     /**
      * $root の下で中が空になったフォルダを、下から消す。$root 自身は残す。
      * シンボリックリンクには入らず、消しもしない。消したフォルダの数を返す。
+     * $root 自体がシンボリックリンクのときは、呼び出し側が選んだ置き場所としてたどる
+     * (deleteTree の $keepRoot と同じ考え。$root の下のリンクには入らない)。
      */
     public static function pruneEmptyDirs($root)
     {

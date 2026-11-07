@@ -44,22 +44,17 @@ class ConfigCheck {
     }
 
     private function get_src_TemplateSwitcher_js($tplName) {
-        global $_lang;
-
         $script =
-            ">
-function deleteTemplateSwitcher(){
-    if(confirm('" . $_lang["confirm_delete_plugin"] . "')) {
-	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':'" . $tplName . "'}).then(function()
-	{
-		hideTemplateSwitcherWarning();
-	});
-}
+            "<script>
 function disableTemplateSwitcher(){
-    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':'" . $tplName . "','key':'disabled','value':'1'}).then(function()
+    Evo.post('index.php', {'a':'118','action':'updateplugin','lang':" . js_literal($tplName) . ",'key':'disabled','value':'1'}).then(templateSwitcherResponseBody).then(function(body)
     {
-		hideTemplateSwitcherWarning();
-    });
+		if (body.trim() === 'true') hideTemplateSwitcherWarning();
+    }).catch(function(){});
+}
+function templateSwitcherResponseBody(response){
+	// 保存できたときだけ本文が true になる（mutate_settings.ajax.php）
+	return response.ok ? response.text() : '';
 }
 function hideTemplateSwitcherWarning(){
 	// 警告の入った fieldset を隠す
@@ -256,10 +251,9 @@ function hideTemplateSwitcherWarning(){
             if (sessionv('mgrPermissions.save_plugin') == 1) {
                 $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_disable"];
             }
-            if (sessionv('mgrPermissions.delete_plugin') == 1) {
-                $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_delete"];
+            if (evo()->hasPermission('settings')) {
+                $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
             }
-            $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
             $warnings[] = [
                 'title' => 'configcheck_templateswitcher_present',
                 'message' => '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n"

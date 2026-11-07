@@ -2,6 +2,8 @@
 
 $this->doc = new DocAPI;
 
+// 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
+// ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
 class DocAPI
 {
 
@@ -128,12 +130,22 @@ class DocAPI
         db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
 
+    /**
+     * 公開日・公開終了日から published を決める（リソースの保存とチャンクの保存の共通の規則）。
+     * 未来の公開日は非公開、過去の公開日は公開、公開終了日が過去なら非公開（公開日より優先）。
+     * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に確かめる
+     * （解釈できない値は空文字で返る）。整数（負を含む）の値はそのまま使う
+     */
     public function setPubStatus($f)
     {
+        $toTime = function ($value) {
+            return is_int($value) ? $value : evo()->toTimeStamp($value);
+        };
+
         if (!isset($f['pub_date']) || empty($f['pub_date'])) {
             $f['pub_date'] = 0;
         } else {
-            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
+            $f['pub_date'] = $toTime($f['pub_date']);
             if ($f['pub_date'] < request_time()) {
                 $f['published'] = 1;
             } elseif ($f['pub_date'] > request_time()) {
@@ -146,7 +158,7 @@ class DocAPI
             return $f;
         }
 
-        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
+        $f['unpub_date'] = $toTime($f['unpub_date']);
         if ($f['unpub_date'] < request_time()) {
             $f['published'] = 0;
         }
@@ -494,11 +506,6 @@ class DocAPI
                 );
                 exit;
             }
-            if ($form_v['pub_date'] < request_time()) {
-                $form_v['published'] = 1;
-            } elseif ($form_v['pub_date'] > request_time()) {
-                $form_v['published'] = 0;
-            }
         }
 
         if (!empty($form_v['unpub_date'])) {
@@ -509,10 +516,10 @@ class DocAPI
                     $_lang['mgrlog_dateinvalid'],
                     evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
-            } elseif ($form_v['unpub_date'] < request_time()) {
-                $form_v['published'] = 0;
             }
         }
+        // 公開日・公開終了日による published の決め方は setPubStatus() に一本化している
+        $form_v = $this->setPubStatus($form_v);
 
         // deny publishing if not permitted
         if ($mode === 27) {

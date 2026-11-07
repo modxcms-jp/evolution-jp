@@ -363,7 +363,7 @@ function fieldsTV()
         } else {
             $ph = [];
             $ph['caption'] = evo()->hsc($tv['caption']);
-            $ph['description'] = element_description_html($tv['description']);
+            $ph['description'] = tv_input_description_html($tv['description']);
             $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
             $ph['FormElement'] = evo()->renderFormElement(
                 $tv['type'],
@@ -430,7 +430,7 @@ function fieldPub_date($id = 0)
         [
             'name' => 'pub_date',
             'id' => 'pub_date',
-            'value' => dateInputValue(doc('pub_date')),
+            'value' => manager()->dateInputValue(doc('pub_date')),
             'class' => 'DatePicker imeoff',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]
@@ -466,7 +466,7 @@ function fieldUnpub_date($id)
             'id' => 'unpub_date',
             'name' => 'unpub_date',
             'class' => 'DatePicker imeoff',
-            'value' => dateInputValue(doc('unpub_date')),
+            'value' => manager()->dateInputValue(doc('unpub_date')),
             'onblur' => 'documentDirty=true;',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]

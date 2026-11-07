@@ -3313,7 +3313,7 @@ class DocumentParser
             return $superGlobal;
         }
 
-        return $this->array_get($superGlobal, $path, '');
+        return array_get($superGlobal, $path, '');
     }
 
     private function convertBracketToDot($path)
@@ -4902,7 +4902,7 @@ class DocumentParser
             $docid = $this->documentIdentifier;
         }
 
-        if ($this->array_get($this->previewObject, 'template')) {
+        if (array_get($this->previewObject, 'template')) {
             $resource = $this->getDocument($docid, '*', null); //Ignore published when the preview.
             $resource['template'] = $this->previewObject['template'];
         } elseif ($docid == $this->documentIdentifier) {
@@ -6274,7 +6274,7 @@ class DocumentParser
         if (!isset($_SERVER)) {
             return $default;
         }
-        return $this->array_get($_SERVER, strtoupper($key), $default);
+        return array_get($_SERVER, strtoupper($key), $default);
     }
 
     public function server_var($key = null, $default = null)
@@ -6291,7 +6291,7 @@ class DocumentParser
         if (!isset($_SESSION)) {
             return $default;
         }
-        return $this->array_get($_SESSION, $key, $default);
+        return array_get($_SESSION, $key, $default);
     }
 
     public function session_var($key = null, $default = null)
@@ -6309,7 +6309,7 @@ class DocumentParser
         if (!isset($GLOBALS)) {
             return $default;
         }
-        return $this->array_get($GLOBALS, $key, $default);
+        return array_get($GLOBALS, $key, $default);
     }
 
     public function config($key = null, $default = null)
@@ -6334,7 +6334,7 @@ class DocumentParser
             $this->setConfig(str_replace(['.*', '*'], '', $key), $value);
             return $value;
         }
-        return $this->array_get($this->config, $key, $default);
+        return array_get($this->config, $key, $default);
     }
 
     public function setConfig($key, $value)
@@ -6364,7 +6364,7 @@ class DocumentParser
             array_set($this->documentObject, $key, $value);
             return $value;
         }
-        return $this->array_get($this->documentObject, $key, $default);
+        return array_get($this->documentObject, $key, $default);
     }
 
     public function output($string = null)
@@ -6380,33 +6380,14 @@ class DocumentParser
         return $this->config($key, $default);
     }
 
+    /** @deprecated helpers.php の array_get() を使う。次の版で消す */
     public function array_get($array, $key = null, $default = null)
     {
-        if ($key === null || trim($key) == '') {
-            return $array;
-        }
-
-        static $cache = [];
-        $cachekey = md5(print_r(func_get_args(), true));
-        if (isset($cache[$cachekey]) && $cache[$cachekey] !== null) {
-            return $cache[$cachekey];
-        }
-
-        if (isset($array[$key])) {
-            $cache[$cachekey] = $array[$key];
-            return $array[$key];
-        }
-        $segments = explode('.', $key);
-        foreach ($segments as $segment) {
-            if (!is_array($array) || !isset($array[$segment])) {
-                return $default;
-            }
-            $array = $array[$segment];
-        }
-        return $array;
+        return array_get($array, $key, $default);
     }
 
     // from Laravel Arr::set()
+    /** @deprecated helpers.php の array_set() を使う。次の版で消す */
     public function array_set(&$array, $key, $value)
     {
         return array_set($array, $key, $value);

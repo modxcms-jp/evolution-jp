@@ -19,8 +19,6 @@ class errorHandler
             7 => lang('error_no_results'),
             9 => lang('error_logging'),
             10 => lang('error_optimize_table_not_set'),
-            13 => lang('error_no_recipient_user'),
-            14 => lang('error_no_recipient_group'),
 
             100 => lang('error_double_action'),
             601 => lang('error_id_not_passed'),
@@ -39,7 +37,7 @@ class errorHandler
             $this->errormessage = $message;
             return;
         }
-        $this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
+        $this->errormessage = array_get($this->errors, $errorcode, $errorcode);
     }
 
     public function hasError()

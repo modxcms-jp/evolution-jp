@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 36,
-            "used_runs": 36,
-            "helped_runs": 36,
+            "seen_runs": 38,
+            "used_runs": 38,
+            "helped_runs": 38,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 22
+            "active_runs": 24
         },
         "change-004": {
             "seen_runs": 1,
@@ -332,6 +332,24 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-07T03:40:00+09:00",
             "source": "2026-11-05-typed-request-helpers-001"
+        },
+        "change-037": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
+        },
+        "change-038": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
         }
     }
 }

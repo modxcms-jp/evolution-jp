@@ -135,6 +135,10 @@
 
     url = url.replace(/^(?:\.\.\/)+/, '');
 
+    if (global.MODX_STRIP_IMAGE_PATHS === true) {
+      return sanitizePath(url);
+    }
+
     const siteUrl = String(global.MODX_SITE_URL || '').trim();
     if (siteUrl) {
       return sanitizeUrlSegment(siteUrl) + '/' + sanitizePath(url);

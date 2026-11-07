@@ -171,7 +171,6 @@ function accessDenied($lang_key)
 {
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <script type="text/javascript">parent.tree.ca = '';</script>
     <div class="sectionHeader"><?= lang('access_permissions') ?></div>
     <div class="sectionBody">
         <p><?= lang($lang_key) ?></p>

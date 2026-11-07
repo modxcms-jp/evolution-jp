@@ -192,6 +192,9 @@
     --border-thin: 1px;
     --border-medium: 2px;
     --border-thick: 3px;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: stripes;
 }
 
 /* ============================================================================
@@ -395,15 +398,6 @@ hr {
     padding: 0;
 }
 
-.messageRead {
-    color: var(--color-text-primary);
-}
-
-.messageUnread {
-    color: var(--color-info);
-    font-weight: bold;
-}
-
 .right {
     font-weight: bold;
     color: var(--color-text-primary);
@@ -513,27 +507,6 @@ hr {
 
 #supplementalNav .supplementalNav__item + .supplementalNav__item {
     padding-inline-start: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__item--messages {
-    gap: 6px;
-}
-
-#supplementalNav #newMail {
-    margin: 0;
-}
-
-#supplementalNav #newMail a {
-    align-items: center;
-    display: inline-flex;
-}
-
-#supplementalNav #newMail img {
-    display: block;
-}
-
-#supplementalNav #msgCounter {
-    margin-inline-start: 4px;
 }
 
 #supplementalNav .supplementalNav__version-label {
@@ -1148,23 +1121,6 @@ div.treeNode {
     color: var(--color-text-secondary);
 }
 
-/* Welcome page inbox title */
-.inbox-title {
-    color: var(--color-text-secondary);
-    font-size: 15px;
-    font-weight: bold;
-}
-
-/* New message count */
-.message-count-new {
-    color: var(--color-error);
-}
-
-/* Message quote */
-.message-quote {
-    color: var(--color-text-secondary);
-}
-
 /* Disabled label */
 .label-disabled {
     color: var(--color-text-muted);
@@ -1674,11 +1630,6 @@ form > :has(+ .pagination) {
 
 /* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
 .tab-pane > ul.actionButtons {
-    margin-top: var(--space-3);
-}
-
-/* メッセージの返信欄（表のセルの中）の欄とボタンの間 */
-ul.actionButtons.messages-compose-actions {
     margin-top: var(--space-3);
 }
 

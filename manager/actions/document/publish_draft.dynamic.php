@@ -60,7 +60,7 @@ function fieldDraftPub_date($docid, $restored = [])
     $tpl = implode("\n", $tpl);
     // 日付のエラーで差し戻されたときは、入力した日付を欄に残す
     if (isset($restored['pub_date'])) {
-        $ph['pub_date'] = dateInputValue(trim((string)$restored['pub_date']));
+        $ph['pub_date'] = manager()->dateInputValue(trim((string)$restored['pub_date']));
     } else {
         $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     }

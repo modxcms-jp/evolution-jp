@@ -26,8 +26,10 @@ $script = <<<JS
         function hideConfigCheckWarning(key){
             Evo.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'}).then(function(response)
             {
-                // 保存できたときだけ、警告の入った fieldset を隠す
-                if (!response.ok) return;
+                // 保存できたときだけ（本文が 'true'）、警告の入った fieldset を隠す
+                return response.ok ? response.text() : '';
+            }).then(function (body) {
+                if (body.trim() !== 'true') return;
                 var el = document.getElementById(key + '_warning_wrapper');
                 var fieldset = el ? el.closest('fieldset') : null;
                 if (fieldset) fieldset.style.display = 'none';
@@ -46,31 +48,6 @@ $modx->setPlaceholder('site_name', hsc($site_name));
 $modx->setPlaceholder('welcome_title', $_lang['welcome_title']);
 $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
-
-// setup message info
-if (evo()->hasPermission('messages')) {
-    $messages = manager()->getMessageCount();
-    sessionv('*nrtotalmessages', $messages['total']);
-    sessionv('*nrnewmessages', $messages['new']);
-
-    $msg = '<a href="index.php?a=10"><img src="' . $_style['icons_mail_large'] . '" /></a>
-    <span class="inbox-title">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span class='message-count-new'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
-    if (sessionv('nrnewmessages') > 0) {
-        $msg .= '<span class="comment">'
-            . sprintf(
-                $_lang["welcome_messages"],
-                sessionv('nrtotalmessages'),
-                "<span class='message-count-new'>" . sessionv('nrnewmessages') . "</span>"
-            ) . '</span>';
-        $mail_icon = $_style['icons_mail_new_large'];
-    } else {
-        $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
-        $mail_icon = $_style['icons_mail_large'];
-    }
-    $modx->setPlaceholder('MessageInfo', $msg);
-    $src = get_icon($_lang['inbox'], 10, $mail_icon, $_lang['inbox']);
-    $modx->setPlaceholder('MessageIcon', $src);
-}
 
 // setup icons
 if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
