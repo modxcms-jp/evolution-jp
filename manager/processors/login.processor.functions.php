@@ -225,7 +225,9 @@ function rejectBlockedUser()
 
 // ブロック中かを、画面と同じ isUserBlocked() で決める。
 // 期限の過ぎた一時ロックは、ここで外してから判定する（失敗回数による一時ロックの動きは変えない）
-function isBlockedUser()
+// 外すのは失敗回数と blockeduntil だけ。blocked は管理者が付けたブロックなので触らない
+// $legacyLock が真（以前の版の一時ロックで、マイグレーションの前）なら、ここでは止めない。認証の後で releaseLegacyLoginLock() が外す
+function isBlockedUser($legacyLock = false)
 {
     $row = userBlockStateInDb();
     if (!$row) {
@@ -236,7 +238,6 @@ function isBlockedUser()
     if (isExpiredTemporaryLock($row)) {
         $fields = [
             'failedlogincount' => 0,
-            'blocked' => 0,
             'blockeduntil' => 0
         ];
         db()->update(
@@ -247,15 +248,87 @@ function isBlockedUser()
         $row = array_merge($row, $fields);
     }
 
+    if ($legacyLock) {
+        $row['blocked'] = 0;
+    }
+
     return isUserBlocked($row);
 }
 
 // 失敗回数による一時ロックで、期限が過ぎたもの。
-// 以前の一時ロックは blocked も 1 にしていたので、それもあわせて外す
+// blocked=1 の行は含めない。外しても拒否されるうえ、以前の版の一時ロック（blocked も 1）の形を崩すと、
+// マイグレーションと releaseLegacyLoginLock() が拾えなくなるため
 function isExpiredTemporaryLock($row)
 {
     return isTemporaryLoginLock($row)
-        && (int) array_get($row, 'blockeduntil', 0) <= request_time();
+        && (int) array_get($row, 'blockeduntil', 0) <= request_time()
+        && (int) array_get($row, 'blocked', 0) !== 1;
+}
+
+// 以前の版の一時ロック（blocked も 1）の行を外すマイグレーション
+function legacyLoginLockMigrationId()
+{
+    return '20261107_180000_unblock_legacy_temporary_login_locks';
+}
+
+// ログインする本人の行が、以前の版の一時ロックで期限が過ぎたもので、マイグレーションがまだ外していないか。
+// 対象はマイグレーションが外す行（legacyTemporaryLoginLockSqlCondition()）のうち、本人の、期限が過ぎた行だけ
+function isLegacyLoginLockAwaitingMigration()
+{
+    if (!user('internalKey')) {
+        return false;
+    }
+    $matched = (bool) db()->getValue(
+        db()->select('COUNT(*)', '[+prefix+]user_attributes', legacyLoginLockWhere())
+    );
+    return $matched && !legacyLoginLockMigrationApplied();
+}
+
+// マイグレーションが記録済みか。記録を読めないときは記録済みとみなす（外さない側に倒す）。
+// マイグレーションのファイルが無い（baseline に取り込んで消した など）ときも、記録済みとみなす。
+// 記録の表が無い DB（マイグレーションの仕組みより前の版）は、未適用として扱う
+function legacyLoginLockMigrationApplied()
+{
+    try {
+        require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+        $migrator = new EvoMigrator();
+        if (!in_array(legacyLoginLockMigrationId(), $migrator->all(), true)) {
+            return true;
+        }
+        return isset($migrator->applied()[legacyLoginLockMigrationId()]);
+    } catch (Throwable $e) {
+        return true;
+    }
+}
+
+function legacyLoginLockWhere()
+{
+    return sprintf(
+        'internalKey=%d AND %s AND blockeduntil<=%d',
+        user('internalKey'),
+        legacyTemporaryLoginLockSqlCondition(config('failed_login_attempts', '')),
+        request_time()
+    );
+}
+
+// 認証が通った後で、以前の版の一時ロックを外す（マイグレーションと同じ変更に、期限切れの一時ロックの解除を合わせる）
+function releaseLegacyLoginLock()
+{
+    db()->update(
+        [
+            'blocked' => 0,
+            'failedlogincount' => 0,
+            'blockeduntil' => 0
+        ],
+        '[+prefix+]user_attributes',
+        legacyLoginLockWhere()
+    );
+    if (db()->getAffectedRows()) {
+        evo()->logEvent(0, 1, 'Unblocked a user locked by failed logins in the old way before the migration', 'Login', [
+            'internalKey' => (int) user('internalKey'),
+            'migration' => legacyLoginLockMigrationId(),
+        ]);
+    }
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）

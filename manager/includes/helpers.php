@@ -436,6 +436,22 @@ function isTemporaryLoginLock($row)
 }
 
 /**
+ * 以前の版の一時ロックの形（blocked も 1 にしていた）の SQL の条件
+ *
+ * 以前の版は、失敗回数が failed_login_attempts に達すると blockeduntil に加えて blocked も 1 にしていた。
+ * この形の行を外すマイグレーション（20261107_180000_unblock_legacy_temporary_login_locks）と、
+ * マイグレーションの前のログイン（manager/processors/login.processor.functions.php）で同じ条件を使う。
+ * 以前の版は失敗の直後に書くので、失敗回数は 1 以上。上限が 0 や空でも、期限のある blocked=1 をすべて対象にしない
+ *
+ * @param mixed $failedLoginAttempts グローバル設定 failed_login_attempts の値
+ */
+function legacyTemporaryLoginLockSqlCondition($failedLoginAttempts)
+{
+    $limit = max(1, (int)$failedLoginAttempts);
+    return "blocked=1 AND blockeduntil<>0 AND failedlogincount>={$limit}";
+}
+
+/**
  * 失敗回数による一時ロックを除いて、ブロック中かを判定する（管理者が付けたブロック）
  *
  * パスワードの再設定は、これが真のユーザーには受け付けない。再設定で外してよいのは一時ロックだけ。
