@@ -169,7 +169,6 @@ function role($key, $default = null)
                             <?php
                             echo render_form('frames', $_lang['role_frames'], 'disabled');
                             echo render_form('home', $_lang['role_home'], 'disabled');
-                            echo render_form('messages', $_lang['role_messages']);
                             echo render_form('logout', $_lang['role_logout'], 'disabled');
                             echo render_form('help', $_lang['role_help']);
                             echo render_form('action_ok', $_lang['role_actionok'], 'disabled');
