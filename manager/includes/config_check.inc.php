@@ -259,7 +259,9 @@ function hideTemplateSwitcherWarning(){
             if (sessionv('mgrPermissions.delete_plugin') == 1) {
                 $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_delete"];
             }
-            $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
+            if (evo()->hasPermission('settings')) {
+                $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
+            }
             $warnings[] = [
                 'title' => 'configcheck_templateswitcher_present',
                 'message' => '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n"

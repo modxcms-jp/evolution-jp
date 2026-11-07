@@ -26,8 +26,10 @@ $script = <<<JS
         function hideConfigCheckWarning(key){
             Evo.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'}).then(function(response)
             {
-                // 保存できたときだけ、警告の入った fieldset を隠す
-                if (!response.ok) return;
+                // 保存できたときだけ（本文が 'true'）、警告の入った fieldset を隠す
+                return response.ok ? response.text() : '';
+            }).then(function (body) {
+                if (body.trim() !== 'true') return;
                 var el = document.getElementById(key + '_warning_wrapper');
                 var fieldset = el ? el.closest('fieldset') : null;
                 if (fieldset) fieldset.style.display = 'none';
