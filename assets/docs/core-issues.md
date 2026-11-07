@@ -111,5 +111,5 @@
   - ページ送りの 3 つ目の実装 `Paging`（引数 `int_cur_position`）を、管理ログが使っている（メッセージの画面も使っていたが、メッセージ機能は本体から外された）。リンクの HTML を配列で返し、画面ごとに組み立て直している
   - 管理ログ・検索・スケジュールの表は手書きで、`border`・`cellpadding`・`bgcolor`・`width` の属性を出し、並べ替えはブラウザ側の `tablesort.js`（IE 向けの分岐を含む古いライブラリ）で行う
   - ManagerManager の設定の補助の表も、`gridItem`・`gridAltItem` を手で付けて組んでいる
-- **改善案**: これらの画面を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消す。並べ替えは `DataTableLinks` のサーバー側の並べ替えにそろえる。それまで、新しく書くページ送りと表は `DataTable` の部品だけを使い、`Paging` と `tablesort.js` を使うコードを増やさない（決まりは #1087 の段階 1 で作る `assets/docs/data-table.md` に書く）
+- **改善案**: これらの画面を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消す。並べ替えは `DataTableLinks` のサーバー側の並べ替えにそろえる。それまで、新しく書くページ送りと表は `DataTable` の部品だけを使い、`Paging` と `tablesort.js` を使うコードを増やさない（決まりは `assets/docs/data-table.md` に書いた）
 - **関連ロードマップ**: 表の部品（DataGrid・MakeTable）を作り直す（#1087）の後続の候補

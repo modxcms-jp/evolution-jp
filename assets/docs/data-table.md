@@ -16,7 +16,7 @@
 
 描く処理（`DataTable::render()`・`DataTablePager::render()`）は、引数だけから HTML を作り、`evo()`・`db()`・リクエスト・グローバル変数に触れない。リクエストのページ番号と並べ替えは `DataTableLinks::fromRequest()` が型つきヘルパー（`get_intvar()`・`get_choicevar()`。`request-input.md`）で読む。
 
-ページ送りは、件数を数える → `DataTablePager` → 本体の SQL に `LIMIT` を付けて、そのページの行だけを取る、の順で行う。全件を取ってから切り出さない。
+ページ送りは、件数を数える → `DataTablePager` → 本体の SQL に `LIMIT` を付けて、そのページの行だけを取る、の順で行う。全件を取ってから切り出さない。`perPage` が 0 以下のときは全件を 1 ページにし、`limit()` は 0 を返すので、SQL に `LIMIT` を付けない。
 
     $links = DataTableLinks::fromRequest('index.php', ['a' => 120], ['id', 'pagetitle']);
     $pager = new DataTablePager($total, $perPage, $links->page());
@@ -25,7 +25,7 @@
     $nav = $pager->render($links, ['label' => lang('pagination_label')]);
     echo $nav . $table->render($rows, $links) . $nav;
 
-`manager/includes/paginate.inc.php` の `Paging` は新しく使わない（後続の候補は `core-issues.md`）。
+`manager/includes/paginate.inc.php` の `Paging` と `manager/media/script/tablesort.js` は新しく使わない（後続の候補は `core-issues.md`）。
 
 ## 列の定義
 
@@ -52,7 +52,7 @@
 | `caption` / `captionHtml` | なし / false | `caption`。`captionHtml` が真なら HTML のまま |
 | `emptyMessage` | `''` | 0 件のときの文言（エスケープ） |
 | `showHeader` | true | `thead` を出すか |
-| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視） |
+| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` を返したときは `rowClasses` の値と 1 つの `class` 属性にまとめる） |
 
 `DataTable::render(array $rows, ?DataTableLinks $links = null)` に `DataTableLinks` を渡すと、`sort` のある列の見出しが並べ替えのリンクになり、今の列に `aria-sort` が付く。並べ替えのリンクではページが 1 に戻る。
 
