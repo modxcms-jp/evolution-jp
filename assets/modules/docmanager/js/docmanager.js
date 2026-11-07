@@ -100,30 +100,40 @@ function postForm() {
 
 function hideInteraction() {
     var tabActiveID = getCookie("webfxtab_docManagerPane");
-    if (tabActiveID == '1') {
-        document.getElementById('tvloading').style.display = 'none';
+    var tvloading = document.getElementById('tvloading');
+    var interaction = document.getElementById('interaction');
+    if (tabActiveID == '1' && tvloading) {
+        tvloading.style.display = 'none';
     }
     if (tabActiveID == '3') {
-        if (document.getElementById('interaction')) {
-            document.getElementById('interaction').style.display = 'none';
+        if (interaction) {
+            interaction.style.display = 'none';
         }
         parent.tree.ca = 'move';
     } else {
-        document.getElementById('interaction').style.display = '';
+        if (interaction) {
+            interaction.style.display = '';
+        }
         parent.tree.ca = '';
     }
 
     return true;
 }
 
-if (document.addEventListener) {
-    document.addEventListener('DOMContentLoaded', hideInteraction, false);
-    document.addEventListener('click', hideInteraction, false);
-} else if (document.attachEvent) {
-    document.attachEvent('onreadystatechange', function() {
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            hideInteraction();
-        }
-    });
-    document.attachEvent('onclick', hideInteraction);
-}
+// シェルの遷移では同じ window で script が読み直されるので、画面を離れるとき(evoshell:unload)に click の受け手を外す
+(function (handler) {
+    function onUnload() {
+        document.removeEventListener('click', handler, false);
+        document.removeEventListener('evoshell:unload', onUnload);
+    }
+    document.addEventListener('click', handler, false);
+    document.addEventListener('evoshell:unload', onUnload);
+
+    if (window.Evo && Evo.ready) {
+        Evo.ready(hideInteraction);
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideInteraction, { once: true });
+    } else {
+        hideInteraction();
+    }
+})(hideInteraction);
