@@ -282,7 +282,10 @@ class MODIFIERS
             }
             // スニペット（DB・assets/modifiers などのファイル）を修飾子として呼ぶもの。中身は何でも書けるので、
             // 時刻・カウンター・ほかのプレースホルダーを見ると、同じ組でも結果が変わる。
-            // コアの部品（extenders/modifiers/ の summary など）は値と修飾子だけで決まるので覚える。
+            // コアの部品（extenders/modifiers/ の summary など）は値と修飾子だけで決まるので覚える
+            // （getValueFromPreset() が includeMdfFile() で同じファイルを呼ぶ場合と扱いをそろえる）。
+            // summary・addbreak は値に残ったタグを解析するが、値は phxFilter() が先に解析し切るので、
+            // タグが残るのは :id(...) で始まる修飾子などに限られる。
             // Filter() で一度呼んだあとなので、snippetCache を見るだけで済む
             if ($this->snippet_exists($cmd) && !isset($this->coreModifierFiles[$cmd])) {
                 return false;
