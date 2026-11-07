@@ -38,10 +38,6 @@ function entity($key)
     if ($key === 'editor_type') {
         return post_intvar('editor_type') === 1 ? 1 : 0;
     }
-    if ($key === 'published' || $key === 'pub_date' || $key === 'unpub_date') {
-        return resolvePublishFields()[$key];
-    }
-
     if ($key === 'category') {
         return manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
     }
@@ -50,17 +46,13 @@ function entity($key)
 }
 
 /**
- * published・pub_date・unpub_date を、公開日・公開終了日と今の時刻から決める（1 回だけ計算する）。
+ * published・pub_date・unpub_date を、公開日・公開終了日と今の時刻から決める。
  * 日付が空ならチェックボックスの値のまま。空でない日付を解釈できなければ DB に渡さず編集画面へ戻す。
- * 公開日・公開終了日の意味はリソースの保存（ex_docapi の setPubStatus）に従う。
+ * 公開日・公開終了日による published の決め方は、リソースの保存と同じ DocAPI::setPubStatus() を使う。
  */
-function resolvePublishFields(): array
+function resolvePublishFields(int $mode, int $id): array
 {
-    global $_lang, $mode, $id;
-    static $fields = null;
-    if ($fields !== null) {
-        return $fields;
-    }
+    global $_lang;
 
     $f = ['published' => post_intvar('published') === 1 ? 1 : 0];
     foreach (['pub_date', 'unpub_date'] as $key) {
@@ -78,16 +70,17 @@ function resolvePublishFields(): array
 
     evo()->loadExtension('DocAPI');
     $fields = evo()->doc->setPubStatus($f);
-    $fields['published'] = (int)$fields['published'];
-    $fields['pub_date'] = (int)$fields['pub_date'];
-    $fields['unpub_date'] = (int)$fields['unpub_date'];
-    return $fields;
+    return [
+        'published' => (int)$fields['published'],
+        'pub_date' => (int)$fields['pub_date'],
+        'unpub_date' => (int)$fields['unpub_date'],
+    ];
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
 manager()->requireElementName(post_strvar('name'), $_lang['chunk'], 77, 78, $id);
 // 日付が解釈できないときは、イベントや DB に進む前に差し戻す
-resolvePublishFields();
+$publish = resolvePublishFields($mode, $id);
 
 switch ($mode) {
     case 77:
@@ -114,9 +107,9 @@ switch ($mode) {
         $field = [
             'name' => entity('name'),
             'description' => entity('description'),
-            'published' => entity('published'),
-            'pub_date' => entity('pub_date'),
-            'unpub_date' => entity('unpub_date'),
+            'published' => $publish['published'],
+            'pub_date' => $publish['pub_date'],
+            'unpub_date' => $publish['unpub_date'],
             'snippet' => entity('post'),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),
@@ -170,9 +163,9 @@ switch ($mode) {
         $field = [
             'name' => entity('name'),
             'description' => entity('description'),
-            'published' => entity('published'),
-            'pub_date' => entity('pub_date'),
-            'unpub_date' => entity('unpub_date'),
+            'published' => $publish['published'],
+            'pub_date' => $publish['pub_date'],
+            'unpub_date' => $publish['unpub_date'],
             'snippet' => entity('post'),
             'locked' => entity('locked'),
             'editor_type' => entity('editor_type'),

@@ -430,7 +430,7 @@ function fieldPub_date($id = 0)
         [
             'name' => 'pub_date',
             'id' => 'pub_date',
-            'value' => dateInputValue(doc('pub_date')),
+            'value' => manager()->dateInputValue(doc('pub_date')),
             'class' => 'DatePicker imeoff',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]
@@ -466,7 +466,7 @@ function fieldUnpub_date($id)
             'id' => 'unpub_date',
             'name' => 'unpub_date',
             'class' => 'DatePicker imeoff',
-            'value' => dateInputValue(doc('unpub_date')),
+            'value' => manager()->dateInputValue(doc('unpub_date')),
             'onblur' => 'documentDirty=true;',
             'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
         ]

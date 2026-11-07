@@ -718,15 +718,6 @@ function mergeReloadValues($docObject)
     return $docObject;
 }
 
-// 日付の欄の値（出力用にエスケープ済み）。数値なら日付の書式に直し、解釈できない差し戻しの入力は文字列のまま
-function dateInputValue($value)
-{
-    if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
-        return evo()->toDateFormat($value);
-    }
-    return hsc($value);
-}
-
 function checkViewUnpubDocPerm($published, $editedby)
 {
     if (manager()->action != 27 || hasPermission('view_unpublished') || $published) {
