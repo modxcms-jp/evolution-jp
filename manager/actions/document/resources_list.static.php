@@ -15,7 +15,7 @@ if ($id && !evo()->checkPermissions($id)) {
     alert()->dumpError();
 }
 
-include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+include_once(MODX_CORE_PATH . 'controls/resource_list_state.class.php');
 
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
@@ -70,11 +70,7 @@ if (!$numRecords) {
     }
     $where[] = 'GROUP BY sc.id,rev.status';
     $perPage = (int) evo()->config('number_of_results') ?: 20;
-    $links = DataTableLinks::fromRequest(
-        'index.php',
-        $id ? ['a' => 120, 'id' => $id] : ['a' => 120],
-        ['id', 'pagetitle', 'publishedon', 'editedon']
-    );
+    $links = ResourceListState::links($id);
     $pager = new DataTablePager($numRecords, $perPage, $links->page());
     if ($links->orderby() !== '') {
         $sortColumns = [
@@ -166,7 +162,7 @@ include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 180);
 echo getContextMenu($cm);
 
-echo get_jscript($id, $cm, $links ?? null);
+echo get_jscript($id, $cm);
 
 ?>
     <script type="text/javascript" src="media/script/data-table.js"></script>
@@ -395,20 +391,14 @@ function _getIconPath($doc)
     return $_style['tree_folder'];
 }
 
-function get_jscript($id, $cm, $links = null)
+function get_jscript($id, $cm)
 {
     global $modx, $_lang, $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // メニューの操作後の戻り先に、今のページと並べ替えを残す
-    $returnQuery = '';
-    if (get_intvar('page')) {
-        $returnQuery .= '&page=' . get_intvar('page');
-    }
-    if ($links instanceof DataTableLinks && $links->orderby() !== '') {
-        $returnQuery .= '&orderby=' . rawurlencode($links->orderby()) . '&orderdir=' . rawurlencode($links->orderdir());
-    }
+    $returnQuery = ResourceListState::returnQuery();
     $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
     $siteStart = (int) evo()->config('site_start');
