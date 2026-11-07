@@ -52,6 +52,12 @@ class MODIFIERS
 
     public function phxFilter($key, $value, $modifiers)
     {
+        // 修飾子は文字列の値を受ける前提で、配列を渡すと PHP 8 では TypeError になる。配列（?b[]=x のようなリクエストの値、
+        // 配列を入れたプレースホルダー、配列を返すスニペット）は、修飾子を当てずに空にする。
+        // 修飾子の無いタグも配列は差し込まず空になるので、それとそろえる
+        if (is_array($value)) {
+            return '';
+        }
         if (strpos($modifiers, 'id(') !== 0) {
             $value = $this->parseDocumentSource($value);
         }
