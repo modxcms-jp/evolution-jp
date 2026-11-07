@@ -102,7 +102,7 @@ if (id()) {
                     }
                 }
                 echo evo()->manager->ab([
-                    'onclick' => "EvoShell.go('index.php?a=76', {discard: true});",
+                    'onclick' => "EvoShell.go('index.php?a=76');",
                     'label' => lang('cancel')
                 ]);
                 ?>

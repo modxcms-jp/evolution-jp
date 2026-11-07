@@ -647,7 +647,7 @@
             if (opts && opts.discard) {
                 window.documentDirty = false;
             }
-            if (document.body.classList.contains('evo-shell')) {
+            if (document.body.classList.contains('evo-shell') && isManagerUrl(url)) {
                 EvoShell.navigate(url);
             } else {
                 window.location.href = url;

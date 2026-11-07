@@ -104,7 +104,6 @@
         onClick('cancel', function () {
             var docIsFolder = '[+docIsFolder+]';
             var docParent = '[+docParent+]';
-            documentDirty = false;
             if (docMode === 'draft') EvoShell.go('index.php?a=3&id=' + '[+id+]');
             else if (docIsFolder == 1) EvoShell.go('index.php?a=120&id=' + '[+id+]');
             else if (docParent != 0) EvoShell.go('index.php?a=120&id=' + '[+docParent+]');

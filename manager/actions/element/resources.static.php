@@ -16,7 +16,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?>
+            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['cancel'] ?>
                 </a></li>
         </ul>
     </div>

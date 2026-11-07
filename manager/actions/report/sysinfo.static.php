@@ -22,7 +22,6 @@ global $database_connection_method, $lastInstallTime;
 
 <script type="text/javascript">
     function viewPHPInfo() {
-        dontShowWorker = true; // prevent worker from being displayed
         EvoShell.go("index.php?a=200");
     }
 </script>

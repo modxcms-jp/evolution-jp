@@ -275,7 +275,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 <li><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?></a>
                 </li>
             <?php } ?>
-            <li><a href="#" onclick="EvoShell.go('index.php?a=99', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+            <li><a href="#" onclick="EvoShell.go('index.php?a=99');"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

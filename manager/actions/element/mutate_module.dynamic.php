@@ -196,7 +196,7 @@ function content($key, $default = null)
             }
             echo manager()->ab(
                 [
-                    'onclick' => "EvoShell.go('index.php?a=106', {discard: true});",
+                    'onclick' => "EvoShell.go('index.php?a=106');",
                     'label' => $_lang['cancel']
                 ]
             );

@@ -93,7 +93,6 @@ echo $cm->render();
         var id = selectedItem;
         switch (a) {
             case 1: // run module
-                dontShowWorker = true; // prevent worker from being displayed
                 EvoShell.go('index.php?a=112&id=' + id);
                 break;
             case 2: // edit

@@ -128,7 +128,7 @@ if ($insideUl) {
             if (el.closest('#evoShellModal')) {
                 window.EvoShell.closeModal();
             } else {
-                window.EvoShell.go(fallbackUrl, {discard: true});
+                window.EvoShell.go(fallbackUrl);
             }
         };
     })();

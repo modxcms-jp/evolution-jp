@@ -133,7 +133,7 @@ if (is_post() && postv('delete_log') === '1') {
         if (!headers_sent()) {
             header('Location: ' . $redirectUrl);
         } else {
-            echo '<script>EvoShell.go(' . json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ');</script>';
+            echo '<script>EvoShell.go(' . js_literal($redirectUrl) . ');</script>';
         }
         exit;
     } else {

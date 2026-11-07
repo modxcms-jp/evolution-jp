@@ -119,7 +119,7 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
             if (el.closest('#evoShellModal')) {
                 window.EvoShell.closeModal();
             } else {
-                window.EvoShell.go(fallbackUrl, {discard: true});
+                window.EvoShell.go(fallbackUrl);
             }
         };
     })();

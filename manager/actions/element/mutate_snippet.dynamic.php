@@ -146,7 +146,7 @@ function entity($key, $default = null)
                 }
             }
             echo manager()->ab([
-                'onclick' => "EvoShell.go('index.php?a=76', {discard: true});",
+                'onclick' => "EvoShell.go('index.php?a=76');",
                 'label' => $_lang['cancel']
             ]);
             ?>
