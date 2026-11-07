@@ -33,7 +33,9 @@ OnBeforeManagerLogin();
 // ブロック中は処理をここで止める。
 // パスワード再設定リンク（fmpkey）だけは OnManagerAuthentication（FMP）に判定を任せ、
 // FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）
-$isBlocked = isBlockedUser();
+// 以前の版の一時ロック（マイグレーションの前）は止めずに認証へ進め、認証が通った後で外す
+$legacyLock = isLegacyLoginLockAwaitingMigration();
+$isBlocked = isBlockedUser($legacyLock);
 if ($isBlocked && !getv('fmpkey')) {
     rejectBlockedUser();
     return;
@@ -67,9 +69,13 @@ if (!OnManagerAuthentication()) {
     }
 }
 
-// ブロック中のユーザーの認証が通った場合は、FMP がブロックを解除したことを DB で確かめる。
+if ($legacyLock && !$isBlocked) {
+    releaseLegacyLoginLock();
+}
+
+// ブロック中のユーザーの認証が通った場合は、FMP（または上の以前の版の一時ロックの解除）がブロックを解除したことを DB で確かめる。
 // OnManagerAuthentication はどのプラグインの成功でも true になるため、成否だけでは判断しない
-if ($isBlocked && isStillBlockedInDb()) {
+if (($isBlocked || $legacyLock) && isStillBlockedInDb()) {
     rejectBlockedUser();
     return;
 }
