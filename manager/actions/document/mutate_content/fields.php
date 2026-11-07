@@ -318,7 +318,10 @@ function fieldsTV()
         return '';
     }
 
-    $form_v = $_POST ? $_POST : [];
+    $form_v = reloadFormValues() ?: [];
+    // GET で差し戻されたときは、送信されないと空になる種類の TV は、差し戻しに無ければ空として出す
+    // （保存の処理の扱いと同じ。POST の開き直しはテンプレートの切り替えを含むので従来どおり）
+    $isRestoredGet = $form_v && !postv();
     $i = 0;
     $output = [];
     $hidden = [];
@@ -340,6 +343,8 @@ function fieldsTV()
                 default:
                     $tvPBV = $form_v[$tvid];
             }
+        } elseif ($isRestoredGet && in_array($tv['type'], ['checkbox', 'listbox-multiple', 'custom_tv'], true)) {
+            $tvPBV = '';
         } else {
             $tvPBV = $tv['value'];
         }

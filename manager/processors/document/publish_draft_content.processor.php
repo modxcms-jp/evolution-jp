@@ -50,6 +50,7 @@ if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
     $pub_date = evo()->toTimeStamp($reserveDate);
     if ($pub_date === '') {
         // 解釈できない日付で即時に公開しない
+        manager()->saveFormValues(133);
         evo()->webAlertAndQuit(
             lang('mgrlog_dateinvalid'),
             sprintf('index.php?a=133&id=%s', $docid)

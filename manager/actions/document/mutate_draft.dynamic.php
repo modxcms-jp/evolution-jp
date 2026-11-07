@@ -61,9 +61,7 @@ if (manager()->action == 131 && request_intvar('id')) {
 }
 
 manager()->saveFormValues();
-if (postv()) {
-    $docObject = mergeReloadValues($docObject);
-}
+$docObject = mergeReloadValues($docObject);
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = &$docObject;
@@ -130,7 +128,7 @@ if (config('use_editor') === '1') {
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = [
-            'editor' => post_strvar('which_editor', config('which_editor')),
+            'editor' => currentEditor(),
             'elements' => $rte_fields
         ];
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
