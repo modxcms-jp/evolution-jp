@@ -462,12 +462,6 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
             continue;
         }
 
-        // 上書きで置き換えたファイルの古いサムネイルを捨てる(同じ秒のうちの置き直しでも古い縮小が返らないように)
-        $thumbSource = realpath($targetPath);
-        if ($thumbSource !== false) {
-            (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget(str_replace('\\', '/', $thumbSource));
-        }
-
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
         $uploaded[] = [
             'index' => $file['index'],
@@ -552,6 +546,12 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
             $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
+        }
+
+        // 上書きで置き換えたファイルの古いサムネイルを捨てる(同じ秒のうちの置き直しでも古い縮小が返らないように)
+        $thumbSource = realpath($targetPath);
+        if ($thumbSource !== false) {
+            (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget(str_replace('\\', '/', $thumbSource));
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
