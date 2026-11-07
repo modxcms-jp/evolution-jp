@@ -3273,6 +3273,7 @@ class DocumentParser
     { // Get super globals
         $key = $value;
         [$key, $modifiers] = $this->splitKeyAndFilter($key);
+        [$raw, $modifiers] = $this->splitRawModifier($modifiers);
 
         $key = str_replace(['(', ')'], ["['", "']"], $key);
         $session = null;
@@ -3300,7 +3301,29 @@ class DocumentParser
             $value = $this->applyFilter($value, $modifiers, $key);
         }
 
+        // リクエストの値は、記事にそのまま置いても安全なように、修飾子の後で HTML としてエスケープする。
+        // 修飾子の :hsc などで既にエスケープした文字参照は、二重にしない（double_encode = false）
+        if (!$raw && preg_match('/^\$_(GET|POST|REQUEST)(\[|$)/', $key)) {
+            $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+        }
+
         return $value;
+    }
+
+    // 最初の修飾子が raw なら、[[$_GET[...]]] などの自動のエスケープを外す。残りの修飾子はそのまま使う
+    private function splitRawModifier($modifiers)
+    {
+        if ($modifiers === false) {
+            return [false, false];
+        }
+        if ($modifiers === 'raw') {
+            return [true, false];
+        }
+        if (strpos($modifiers, 'raw:') === 0) {
+            return [true, substr($modifiers, strlen('raw:'))];
+        }
+
+        return [false, $modifiers];
     }
 
     private function isSuperGlobalAccessor($key)
@@ -3344,7 +3367,8 @@ class DocumentParser
             case 'POST':
                 return $_POST;
             case 'REQUEST':
-                return $_REQUEST;
+                // $_REQUEST は php.ini の設定次第で cookie を含むので、GET・POST だけを読む anyv() を使う
+                return anyv();
             case 'SESSION':
                 return $session ?? $_SESSION;
             case 'COOKIE':
