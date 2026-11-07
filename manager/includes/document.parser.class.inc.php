@@ -6452,19 +6452,6 @@ class DocumentParser
         return $this->config($key, $default);
     }
 
-    /** @deprecated helpers.php の array_get() を使う。次の版で消す */
-    public function array_get($array, $key = null, $default = null)
-    {
-        return array_get($array, $key, $default);
-    }
-
-    // from Laravel Arr::set()
-    /** @deprecated helpers.php の array_set() を使う。次の版で消す */
-    public function array_set(&$array, $key, $value)
-    {
-        return array_set($array, $key, $value);
-    }
-
     public function get_docfield_type($field_name = '')
     {
         $type = [];
