@@ -2,6 +2,8 @@
 
 $this->doc = new DocAPI;
 
+// 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
+// ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
 class DocAPI
 {
 
