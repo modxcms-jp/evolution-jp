@@ -94,10 +94,19 @@ class SystemLogViewer
     {
         $deleted = 0;
         $failed = [];
+        $rootPath = realpath($root);
+        $rootPath = $rootPath === false ? '' : rtrim(str_replace('\\', '/', $rootPath), '/') . '/';
         foreach ($paths as $path) {
             $path = (string)$path;
             if (!preg_match(self::LOG_NAME_PATTERN, basename($path))) {
                 $failed[$path] = '';
+                continue;
+            }
+            // リンク自体を消せるよう、パスそのものではなく親フォルダの実体で $root の中かを確かめる
+            $dirPath = realpath(dirname($path));
+            $dirPath = $dirPath === false ? '' : rtrim(str_replace('\\', '/', $dirPath), '/') . '/';
+            if ($rootPath === '' || $dirPath === '/' || strpos($dirPath, $rootPath) !== 0) {
+                $failed[$path] = 'outside of log directory';
                 continue;
             }
             $ok = Filesystem::attempt(function () use ($path) {
@@ -139,6 +148,13 @@ class SystemLogViewer
         ];
         if ($before !== '') {
             $context['before'] = $before;
+        }
+        if ($result['failed']) {
+            $rootPath = rtrim(str_replace('\\', '/', (string)(realpath($root) ?: $root)), '/') . '/';
+            $context['failed_paths'] = array_map(function ($path) use ($rootPath) {
+                $path = str_replace('\\', '/', (string)$path);
+                return strpos($path, $rootPath) === 0 ? substr($path, strlen($rootPath)) : $path;
+            }, array_slice(array_keys($result['failed']), 0, 20));
         }
         evo()->logEvent(0, count($result['failed']) ? 2 : 1, 'Cleared system logs', 'SystemLogViewer', $context);
 

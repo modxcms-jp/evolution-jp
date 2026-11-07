@@ -1,7 +1,7 @@
 <?php
 
 $usage = 'Usage: php evo log:clear [--before=YYYY-MM-DD] [--force]';
-$before = '';
+$before = null;
 $force = false;
 
 foreach ($args as $arg) {
@@ -17,14 +17,27 @@ foreach ($args as $arg) {
     cli_usage($usage);
 }
 
-include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
+function cli_stdin_is_interactive(): bool
+{
+    if (function_exists('stream_isatty')) {
+        return stream_isatty(STDIN);
+    }
+    if (function_exists('posix_isatty')) {
+        return posix_isatty(STDIN);
+    }
 
-if ($before !== '' && !SystemLogViewer::isValidDate($before)) {
-    cli_usage($usage);
+    return false;
 }
 
+include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
+
+if ($before !== null && !SystemLogViewer::isValidDate($before)) {
+    cli_usage($usage);
+}
+$before = (string)$before;
+
 if (!$force) {
-    if (!defined('STDIN') || !is_resource(STDIN) || (function_exists('posix_isatty') && !posix_isatty(STDIN))) {
+    if (!defined('STDIN') || !is_resource(STDIN) || !cli_stdin_is_interactive()) {
         cli_err('Refusing to delete without confirmation. Use --force when STDIN is not interactive.');
         exit(1);
     }
