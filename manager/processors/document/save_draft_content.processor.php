@@ -31,8 +31,26 @@ manager()->saveFormValues(4);
 evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
+// 解釈できない日付は DB に渡す前に拒否して、編集画面へ戻す（通常の保存と同じ規則）
+$post = postv();
+foreach (['pub_date', 'unpub_date'] as $dateField) {
+    // 空白だけは空の日付（通常の保存の initValue() と同じ）
+    $dateValue = trim((string)array_get($post, $dateField, ''));
+    if (isset($post[$dateField])) {
+        $post[$dateField] = $dateValue;
+    }
+    if ($dateValue !== '' && evo()->toTimeStamp($dateValue) === '') {
+        manager()->saveFormValues(131);
+        evo()->webAlertAndQuit(
+            lang('mgrlog_dateinvalid'),
+            sprintf('index.php?a=131&id=%s', $id)
+        );
+        exit;
+    }
+}
+
 $fields = $modx->doc->fixPubStatus(
-    $modx->doc->fixTvNest(postv())
+    $modx->doc->fixTvNest($post)
 );
 
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）

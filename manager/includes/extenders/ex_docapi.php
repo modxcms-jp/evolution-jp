@@ -121,9 +121,9 @@ class DocAPI
 
         $f['deleted'] = '1';
         $f['published'] = '0';
-        $f['publishedon'] = '';
-        $f['pub_date'] = '';
-        $f['unpub_date'] = '';
+        $f['publishedon'] = 0;
+        $f['pub_date'] = 0;
+        $f['unpub_date'] = 0;
 
         db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
@@ -392,7 +392,9 @@ class DocAPI
                     if ($value === '') {
                         $value = 0;
                     } else {
-                        $value = evo()->toTimeStamp($value);
+                        // 解釈できない日付は元の入力を残し、setValue() で拒否させる
+                        $ts = evo()->toTimeStamp($value);
+                        $value = $ts === '' ? $value : $ts;
                     }
                     break;
                 case 'editedon':
