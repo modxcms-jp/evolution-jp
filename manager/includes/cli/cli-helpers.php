@@ -89,7 +89,8 @@ function cli_mysql_defaults_file()
         $content .= "default-character-set={$charset}\n";
     }
     file_put_contents($tmpFile, $content);
-    putenv('MYSQL_TEST_LOGIN_FILE=' . $tmpFile . '.nologin');
+    // Under a regular file, so nobody can create it
+    putenv('MYSQL_TEST_LOGIN_FILE=' . $tmpFile . '/nologin');
 
     return $tmpFile;
 }
