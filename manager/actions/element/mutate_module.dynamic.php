@@ -386,17 +386,20 @@ function content($key, $default = null)
                         if (!$ds) {
                             echo "An error occured while loading module dependencies.";
                         } else {
-                            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                            $grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
-                            $grd->noRecordMsg = $_lang['no_records_found'];
-                            $grd->cssClass = 'grid';
-                            $grd->columnHeaderClass = 'gridHeader';
-                            $grd->itemClass = 'gridItem';
-                            $grd->altItemClass = 'gridAltItem';
-                            $grd->columns = $_lang['element_name'] . " ," . $_lang['type'];
-                            $grd->fields = "name,type";
-                            $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
-                            echo $grd->render();
+                            include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                            $table = new DataTable(
+                                [
+                                    ['key' => 'name', 'label' => $_lang['element_name']],
+                                    ['key' => 'type', 'label' => $_lang['type']],
+                                ],
+                                [
+                                    'id' => 'module-depends',
+                                    'tableClass' => 'grid',
+                                    'rowClasses' => ['gridItem', 'gridAltItem'],
+                                    'emptyMessage' => $_lang['no_records_found'],
+                                ]
+                            );
+                            echo $table->render(db()->getRows($ds) ?: []);
                         } ?>
                     </div>
                 </div>

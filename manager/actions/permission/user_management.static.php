@@ -85,8 +85,27 @@ echo $cm->render();
         }
     }
 
-    document.addEventListener('click', function() {
-        contextm.style.visibility = "hidden";
+    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
+    if (!window.evoContextMenuClose) {
+        window.evoContextMenuClose = true;
+        document.addEventListener('click', function () {
+            contextm.style.visibility = "hidden";
+        });
+    }
+
+    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
+    Evo.ready(function () {
+        const table = document.querySelector('[data-table="users"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
     });
 </script>
 <form action="index.php" name="resource" method="get">
@@ -134,80 +153,112 @@ echo $cm->render();
                 </tr>
             </table>
         </div>
-        <div>
-            <?php
-            $tbl_manager_users = evo()->getFullTableName('manager_users');
-            $tbl_user_attributes = evo()->getFullTableName('user_attributes');
-            $tbl_user_roles = evo()->getFullTableName('user_roles');
-            $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
-            $field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
-            $blocked = userBlockedSqlCondition('mua');
-            $field .= ",IF({$blocked},'{$_lang['yes']}','-') as blocked";
-            $field .= ",IF({$blocked},'unpublished','published') as class";
-            $from = "{$tbl_manager_users} AS mu";
-            $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
-            $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
-            // Build WHERE clause: combine search conditions and role restriction
-            $search = request_strvar('search');
-            $whereParts = [];
+        <?php
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        $tbl_manager_users = evo()->getFullTableName('manager_users');
+        $tbl_user_attributes = evo()->getFullTableName('user_attributes');
+        $tbl_user_roles = evo()->getFullTableName('user_roles');
+        $blocked = userBlockedSqlCondition('mua');
+        $field = "mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount,{$blocked} AS blocked";
+        $from = "{$tbl_manager_users} AS mu";
+        $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
+        $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
+        // Build WHERE clause: combine search conditions and role restriction
+        $search = request_strvar('search');
+        $whereParts = [];
 
-            if ($search) {
-                $keyword = db()->escape($search);
-                $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
-            }
+        if ($search) {
+            $keyword = db()->escape($search);
+            $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
+        }
 
-            // Non-admins should not see users with role == 1
-            if (sessionv('mgrRole') != 1) {
-                $whereParts[] = 'mua.role != 1';
-            }
+        // Non-admins should not see users with role == 1
+        if (sessionv('mgrRole') != 1) {
+            $whereParts[] = 'mua.role != 1';
+        }
 
-            $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
-            $orderby = "{$blocked} ASC, mua.thislogin DESC";
-            $ds = db()->select($field, $from, $where, $orderby);
+        $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
+        $orderby = "{$blocked} ASC, mua.thislogin DESC";
 
-            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
+        $page = request_strvar('op') === 'reset'
+            ? 1
+            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
+        $pager = new DataTablePager($total, $perPage, $page);
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
+        }
+        $params = ['a' => 75];
+        if ($search) {
+            $params['search'] = $search;
+        }
+        $links = new DataTableLinks('index.php', $params, $pager->page());
 
-            $grd = new DataGrid('', $ds, $modx->config['number_of_results']); // set page size to 0 t show all items
-            $grd->noRecordMsg = $_lang['no_records_found'];
-            $grd->cssClass = 'grid';
-            $grd->itemClass = 'gridItem';
-            $grd->altItemClass = 'gridAltItem';
-            $grd->fields = 'username,fullname,email,rolename,thislogin,logincount,blocked';
-            $grd->colEscapes = '1,1,1,1,1,1,1'; // DB の値を出す列をエスケープ
-            $grd->colAligns = 'left,left,left,left,left,left,left';
-            $columns = [
-                $_lang['username'],
-                $_lang['user_full_name'],
-                $_lang['email'],
-                $_lang['role'],
-                $_lang['login_button'],
-                $_lang['user_logincount'],
-                $_lang['user_block']
-            ];
-            $grd->columns = implode(',', $columns);
-            $colTypes = [
-                sprintf(
-                    'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="' . $_style['icons_user'] . '" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="%s">[+value+]</a></span>',
-                    $_lang['click_to_context'],
-                    $_lang['click_to_edit_title']
-                ),
-                '[+fullname+]',
-                '[+email+]',
-                '[+rolename+]',
-                'date: ' . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M',
-                '[+logincount+]',
-                '[+blocked+]'
-            ];
-            $grd->colTypes = implode('||', $colTypes);
-            if ($listmode == '1') {
-                $grd->pageSize = 0;
-            }
-            if (request_strvar('op') === 'reset') {
-                $grd->pageNumber = 1;
-            }
-            // render grid
-            echo $grd->render();
-            ?>
-        </div>
+        $ds = db()->select(
+            $field,
+            $from,
+            $where,
+            $orderby,
+            $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
+        );
+        $rows = db()->getRows($ds) ?: [];
+
+        $columns = [
+            [
+                'key' => 'username',
+                'label' => $_lang['username'],
+                'html' => true,
+                'format' => function ($value, array $row) use ($_style, $_lang) {
+                    $id = (int) $row['id'];
+                    return sprintf(
+                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
+                        . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
+                        $id,
+                        hsc($_lang['click_to_context']),
+                        hsc($_style['icons_user']),
+                        $row['blocked'] ? 'unpublished' : 'published',
+                        $id,
+                        hsc($_lang['click_to_edit_title']),
+                        hsc($value)
+                    );
+                },
+            ],
+            ['key' => 'fullname', 'label' => $_lang['user_full_name']],
+            ['key' => 'email', 'label' => $_lang['email']],
+            ['key' => 'rolename', 'label' => $_lang['role']],
+            [
+                'key' => 'thislogin',
+                'label' => $_lang['login_button'],
+                'format' => function ($value) {
+                    if (!$value) {
+                        return '-';
+                    }
+                    return evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', $value);
+                },
+            ],
+            ['key' => 'logincount', 'label' => $_lang['user_logincount']],
+            [
+                'key' => 'blocked',
+                'label' => $_lang['user_block'],
+                'format' => function ($value) use ($_lang) {
+                    return $value ? $_lang['yes'] : '-';
+                },
+            ],
+        ];
+        $table = new DataTable($columns, [
+            'id' => 'users',
+            'tableClass' => 'grid',
+            'rowClasses' => ['gridItem', 'gridAltItem'],
+            'emptyMessage' => $_lang['no_records_found'],
+        ]);
+        $nav = $pager->render($links, [
+            'label' => lang('pagination_label'),
+            'first' => lang('pagination_table_first'),
+            'last' => lang('pagination_table_last'),
+        ]);
+        echo $nav . $table->render($rows, $links) . $nav;
+        ?>
     </div>
 </form>

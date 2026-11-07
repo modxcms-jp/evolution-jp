@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` へ移す（このファイルには未完了の項目だけを置く）。
 
-最終更新: 2026-11-07 (0 節の「型つきヘルパーへの置き換えで見つかった不具合の修正」と、1 節の「管理画面のメッセージ機能の廃止」を完了にしてアーカイブへ移した)
+最終更新: 2026-11-07 (3 節の「表の部品（DataGrid・MakeTable）を作り直す」の後ろに「自前で組み立てている表とページ送りを DataTable に移す」を追加した)
 
 ## 現在地（先に読む）
 
@@ -346,5 +346,21 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
   - `manager/includes/controls/datagrid.class.php`・`manager/includes/controls/datasetpager.class.php`・`manager/includes/extenders/ex_maketable.php`・`manager/includes/extenders/maketable.class.php` と `loadExtension('MakeTable')` の分岐が無い
 - 非対象（やらないこと）: 外部のスニペットが `$modx->table` や `DataGrid` を直接使っている場合の互換
 - 依存関係: なし
-- ExecPlan: `着手時に判断`
+- ExecPlan: `.agent/plans/2026-11-07-data-table-component.md`
 - メモ/判断ログ: 2026-11-06 起票。進める順番の案と、着手時に決めること（TV の出力ウィジェット `datagrid` の保存済み設定の扱い、部品の置き場所と名前）は #1087 を正とする。
+
+### 自前で組み立てている表とページ送りを DataTable に移す
+
+- Status: `NEXT`
+- Issue: #1204
+- 着手予定日: `未定`
+- 完了日: `未完了`
+- 目的: 表やページ送りを部品を使わずに組み立てている画面を、#1087 で作る表の部品 `DataTable` に移し、古いページ送り `Paging` とブラウザ側の並べ替え `tablesort.js` を消す
+- 背景/課題: #1087 は古い部品（`DataGrid`・`MakeTable`）を使う画面だけを対象にしている。管理ログ・検索・スケジュール・ManagerManager の表は手で組み、`border`・`bgcolor`・`width` などの属性を出している。管理ログのページ送りは `Paging`（`manager/includes/paginate.inc.php`）で、並べ替えは表示中のページの中でしか並べ替わらない `tablesort.js`。#1087 が終わっても、ページ送りの実装が 2 つ残る
+- 到達条件（Definition of Done）:
+  - 管理ログ・検索・スケジュール・ManagerManager の表が `DataTable` を使っている
+  - `manager/includes/paginate.inc.php` と `manager/media/script/tablesort.js` が無い
+- 非対象（やらないこと）: #1087 で移す画面（`DataGrid`・`MakeTable` を使っていた画面）
+- 依存関係: 表の部品（DataGrid・MakeTable）を作り直す
+- ExecPlan: `着手時に判断`
+- メモ/判断ログ: 2026-11-07 起票。#1087 の作業中に、対象の外に残る作りとして見つかった（#1087 では移さないと決めた）。画面ごとの今の作りと方針は #1204 を正とする。

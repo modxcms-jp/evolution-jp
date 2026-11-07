@@ -163,19 +163,37 @@ class ManagerAPI
 
     /**
      * 日付の入力欄（value 属性）に入れる値を返す。出力用にエスケープ済み。
-     * 数値（保存済みの時刻）は日付の書式に直し、差し戻された入力（解釈できない日付を含む）は文字列のまま返す
+     * 数値（保存済みの時刻）は日付の書式に直し（0 は日付なしとして空）、
+     * 差し戻された入力（解釈できない日付を含む）は文字列のまま返す
      *
      * @param int|string|null $value 時刻の数値、または差し戻された入力の文字列
+     * @param string $mode toDateFormat() の書式（日付だけなら 'dateOnly'）
      */
-    public function dateInputValue($value): string
+    public function dateInputValue($value, string $mode = ''): string
     {
         if (!is_scalar($value) && $value !== null) {
             return '';
         }
         if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
-            return (string)evo()->toDateFormat($value);
+            if ((int)$value === 0) {
+                return '';
+            }
+            return (string)evo()->toDateFormat($value, $mode);
         }
         return hsc($value);
+    }
+
+    /**
+     * 差し戻された日付の入力を、解釈できればタイムスタンプに、できなければ入力の文字列のまま返す。
+     * dateInputValue() で入力欄に出すと、解釈できない入力は打ったとおりに残る
+     *
+     * @param mixed $value 差し戻された入力
+     * @return int|mixed
+     */
+    public function restoredDateValue($value)
+    {
+        $timestamp = evo()->parseDateInput($value);
+        return $timestamp === null ? $value : $timestamp;
     }
 
     /**

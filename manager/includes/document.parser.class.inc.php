@@ -110,6 +110,7 @@ class DocumentParser
     public $unauthorizedDocumentId = 0;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
+    private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
 
     public function __get($property_name)
     {
@@ -129,25 +130,28 @@ class DocumentParser
     public function __call($method_name, $arguments)
     {
         $this->loadExtension('DeprecatedAPI');
-        if (method_exists($this->old, $method_name)) {
-            $error_type = 1;
-        } else {
-            $error_type = 3;
-        }
+        $is_deprecated = method_exists($this->old, $method_name);
 
         if (!isset($this->config) || !$this->config) {
             $this->config = $this->getSettings();
         }
 
-        if (!$this->config('error_reporting') || 1 < $this->config('error_reporting')) {
-            if ($error_type == 1) {
+        // 定義の無いメソッドは検出レベルに関係なく、非推奨のメソッドは検出レベル 2・99 のときだけ残す。
+        // 1 リクエストの中では、同じメソッド名につき 1 件にまとめる
+        $key = strtolower($method_name);
+        $should_log = !$is_deprecated || 1 < (int)$this->config('error_reporting');
+        if ($should_log && !isset($this->loggedMagicCalls[$key])) {
+            $this->loggedMagicCalls[$key] = true;
+            if ($is_deprecated) {
+                $error_type = 1;
                 $title = 'Call deprecated method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
             } else {
+                $error_type = 3;
                 $title = 'Call undefined method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
-            $info = debug_backtrace();
+            $info = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
             $m = [];
             $m[] = $msg;
             if ($this->currentSnippet) {
@@ -156,12 +160,12 @@ class DocumentParser
                 $m[] = 'Plugin - ' . $this->event->activePlugin;
             }
             $m[] = $this->decoded_request_uri;
-            $m[] = str_replace('\\', '/', $info[0]['file']) . '(line:' . $info[0]['line'] . ')';
+            $m[] = str_replace('\\', '/', $info[0]['file'] ?? '') . '(line:' . ($info[0]['line'] ?? '') . ')';
             $msg = implode('<br />', $m);
             $this->logEvent(0, $error_type, $msg, $title);
         }
 
-        if (method_exists($this->old, $method_name)) {
+        if ($is_deprecated) {
             return call_user_func_array([$this->old, $method_name], $arguments);
         }
         return '';
@@ -248,6 +252,12 @@ class DocumentParser
             case 'modifiers': //Modfires
             case 'phx':
             case 'filter':
+                // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
+                // 部品を読み込む前に設定を読む。OnGetConfig のプラグインが修飾子を使っても、
+                // 部品の読み込みの途中（$this->filter が未設定）で呼ばれないようにするため
+                if (!$this->config) {
+                    $this->getSettings();
+                }
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
@@ -256,10 +266,6 @@ class DocumentParser
             case 'modxmailer': // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail = new MODxMailer;
-                return true;
-            case 'maketable':
-                include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
-                $this->table = new MakeTable;
                 return true;
             case 'configmediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
@@ -1418,7 +1424,8 @@ class DocumentParser
 
     public function getUserFromName($username)
     {
-        $field = 'mu.*, ua.*';
+        // 2 つの表に同じ名前の列 id がある。ユーザーの ID は manager_users.id なので、後ろに書いて読む
+        $field = 'ua.*, mu.id, mu.username, mu.password';
         $from = [
             '[+prefix+]manager_users mu',
             'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
@@ -4895,7 +4902,7 @@ class DocumentParser
             return $str;
         }
 
-        switch ($this->config('datetime_format')) {
+        switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
@@ -4929,14 +4936,58 @@ class DocumentParser
             default:
                 return $default;
         }
-        if (!$H && !$M && !$S) {
-            $H = 0;
-            $M = 0;
-            $S = 0;
+        // 時刻を省いた入力は 0 時 0 分 0 秒
+        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
+        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
+        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+            return '';
         }
-        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = (int)$timeStamp;
-        return $timeStamp;
+        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
+        return $timeStamp === false ? '' : $timeStamp;
+    }
+
+    /**
+     * 日付の入力を、DB の日時の列（signed int）に入れるタイムスタンプにする。保存の前の確かめは、すべてこれで行う。
+     * 空（空白だけを含む）は 0、解釈できない日付（toTimeStamp() が空文字を返すもの）と、
+     * 列に入らない日時（1901〜2038 年の外）は null を返す。整数と整数の文字列（負を含む。保存済みの時刻）は
+     * そのまま、範囲だけを確かめる（dateInputValue() と同じ見分け方）
+     *
+     * @param mixed $value 入力欄の文字列、または保存済みの時刻
+     */
+    public function parseDateInput($value): ?int
+    {
+        if (is_int($value)) {
+            $timestamp = $value;
+        } else {
+            if ($value === null) {
+                return 0;
+            }
+            if (!is_scalar($value)) {
+                return null;
+            }
+            $value = trim((string)$value);
+            if ($value === '') {
+                return 0;
+            }
+            if (preg_match('/^-?[0-9]+$/', $value)) {
+                // 整数に収まらない桁（32bit の PHP では 11 桁など）は、(int) で上限に丸めず解釈できない値にする
+                $timestamp = $value + 0;
+                if (!is_int($timestamp)) {
+                    return null;
+                }
+            } else {
+                $timestamp = $this->toTimeStamp($value);
+                if ($timestamp === '') {
+                    return null;
+                }
+                $timestamp = (int)$timestamp;
+            }
+        }
+        if ($timestamp < -2147483648 || 2147483647 < $timestamp) {
+            return null;
+        }
+        return $timestamp;
     }
 
     public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')

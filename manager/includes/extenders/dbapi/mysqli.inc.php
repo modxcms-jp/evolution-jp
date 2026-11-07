@@ -1039,30 +1039,23 @@ class DBAPI
 
     /**
      * @name:  getHTMLGrid
-     * @param: $params: Data grid parameters
+     * @param: $params: Data grid parameters（DataTableSettings で描く。無いキーは既定値）
      *         columnHeaderClass
-     *         tableClass
+     *         cssClass            表の class（tableClass も可）
      *         itemClass
      *         altItemClass
-     *         columnHeaderStyle
-     *         tableStyle
-     *         itemStyle
-     *         altItemStyle
-     *         columns
-     *         fields
-     *         colWidths
-     *         colAligns
-     *         colColors
-     *         colTypes
-     *         cellPadding
-     *         cellSpacing
-     *         header
-     *         footer
-     *         pageSize
-     *         pagerLocation
+     *         columns             列名（`||` があれば `||`、無ければ `,` 区切り）
+     *         fields              出す列のキー（`,` 区切り。無ければ結果の列の順）
+     *         colTypes            列の型（integer・float・currency・date・boolean・description・template）
+     *         header              表の caption（HTML のまま）
+     *         footer              表の後ろの gridfooter（HTML のまま）
+     *         pageSize            0 なら全件
+     *         pagerLocation       top・bottom・both
      *         pagerClass
-     *         pagerStyle
-     *
+     *         noRecordMsg
+     *         id                  表の識別（既定 grid）。ページ番号の引数名は {id}_page。同じ id の表を 1 ページに複数置くとページ番号を共有するので、複数置くときは id を分ける
+     * style・width・align・bgcolor・cellpadding・cellspacing の指定は受け付けない。
+     * セルの値はエスケープして出す。
      */
     public function getHTMLGrid($dsq, $params)
     {
@@ -1073,39 +1066,22 @@ class DBAPI
             return null;
         }
 
-        include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-        $grd = new DataGrid('', $dsq);
-
-        $grd->noRecordMsg = $params['noRecordMsg'];
-
-        $grd->columnHeaderClass = $params['columnHeaderClass'];
-        $grd->cssClass = $params['cssClass'];
-        $grd->itemClass = $params['itemClass'];
-        $grd->altItemClass = $params['altItemClass'];
-
-        $grd->columnHeaderStyle = $params['columnHeaderStyle'];
-        $grd->cssStyle = $params['cssStyle'];
-        $grd->itemStyle = $params['itemStyle'];
-        $grd->altItemStyle = $params['altItemStyle'];
-
-        $grd->columns = $params['columns'];
-        $grd->fields = $params['fields'];
-        $grd->colWidths = $params['colWidths'];
-        $grd->colAligns = $params['colAligns'];
-        $grd->colColors = $params['colColors'];
-        $grd->colTypes = $params['colTypes'];
-        $grd->colWraps = $params['colWraps'];
-
-        $grd->cellPadding = $params['cellPadding'];
-        $grd->cellSpacing = $params['cellSpacing'];
-        $grd->header = $params['header'];
-        $grd->footer = $params['footer'];
-        $grd->pageSize = $params['pageSize'];
-        $grd->pagerLocation = $params['pagerLocation'];
-        $grd->pagerClass = $params['pagerClass'];
-        $grd->pagerStyle = $params['pagerStyle'];
-
-        return $grd->render();
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        return DataTableSettings::render($dsq, [
+            'columns' => $params['columns'] ?? '',
+            'fields' => $params['fields'] ?? '',
+            'types' => $params['colTypes'] ?? '',
+            'pageSize' => $params['pageSize'] ?? 0,
+            'pagerLocation' => $params['pagerLocation'] ?? '',
+            'header' => $params['header'] ?? '',
+            'footer' => $params['footer'] ?? '',
+            'tableClass' => $params['cssClass'] ?? $params['tableClass'] ?? '',
+            'itemClass' => $params['itemClass'] ?? '',
+            'altItemClass' => $params['altItemClass'] ?? '',
+            'headerClass' => $params['columnHeaderClass'] ?? '',
+            'pagerClass' => $params['pagerClass'] ?? '',
+            'emptyMessage' => $params['noRecordMsg'] ?? '',
+        ], (string) (($params['id'] ?? '') ?: 'grid'));
     }
 
     public function optimize($table_name)

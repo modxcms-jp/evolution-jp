@@ -18,15 +18,11 @@ manager()->initPageViewState();
 
 // get and save search string
 $query = '';
-$sqlQuery = '';
 if (anyv('op') === 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
     // 空の検索語は「検索語を消す」操作なので、送られたかどうかで保存済みの値と使い分ける
     $query = request_textvar('search') ?? array_get($_PAGE, 'vs.search', '');
-    if ($query !== '') {
-        $sqlQuery = db()->escape($query);
-    }
     $_PAGE['vs']['search'] = $query;
 }
 
@@ -117,18 +113,34 @@ echo $cm->render();
     }
 
     // Hide context menu when clicking anywhere on the document
-    document.addEventListener('click', function() {
-        contextm.style.visibility = "hidden";
-    });
+    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
+    if (!window.evoContextMenuClose) {
+        window.evoContextMenuClose = true;
+        document.addEventListener('click', function () {
+            contextm.style.visibility = "hidden";
+        });
+    }
 
+    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
+    Evo.ready(function () {
+        const table = document.querySelector('[data-table="modules"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 
 <h1><?= $_lang['module_management'] ?></h1>
 
 <div class="sectionBody">
     <!-- load modules -->
-    <p><?= $_lang['module_management_msg'] ?></p>
-
     <div id="actions">
         <ul class="actionButtons">
             <?php if ((evo()->hasPermission('new_module'))) {
@@ -139,39 +151,96 @@ echo $cm->render();
         </ul>
     </div>
 
-    <div>
-        <?php
-        $yes = $_lang['yes'];
-        $icons_modules = $_style['icons_modules'];
-        $field = "id,name,description,IF(locked,'{$yes}','-') as 'locked',IF(disabled,'{$yes}','-') as 'disabled',IF(icon<>'',icon,'{$icons_modules}') as'icon'";
-        if (!empty($sqlQuery)) {
-            $where = "(name LIKE '%{$sqlQuery}%') OR (description LIKE '%{$sqlQuery}%')";
+    <p><?= $_lang['module_management_msg'] ?></p>
+
+    <?php
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        $from = '[+prefix+]site_modules';
+        if ($query) {
+            $keyword = db()->escape($query);
+            $where = "(name LIKE '%{$keyword}%') OR (description LIKE '%{$keyword}%')";
         } else {
             $where = '';
         }
-        $orderby = 'editedon DESC, name ASC';
-        $ds = db()->select($field, '[+prefix+]site_modules', $where, $orderby);
-        include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-        $grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
-        $grd->noRecordMsg = $_lang["no_records_found"];
-        $grd->cssClass = "grid";
-        $grd->columnHeaderClass = "gridHeader";
-        $grd->itemClass = "gridItem";
-        $grd->altItemClass = "gridAltItem";
-        $grd->fields = "icon,name,description,locked,disabled";
-        $grd->colEscapes = '1,1,,1,1'; // DB の値を出す列をエスケープ（説明の列は description 型が自分で無害化する）
-        $grd->columns = $_lang["icon"] . " ," . $_lang["name"] . " ," . $_lang["description"] . " ," . $_lang["locked"] . " ," . $_lang["disabled"];
-        $grd->colWidths = "34,,,60,60";
-        $grd->colAligns = "center,,,center,center";
-        $grd->colTypes = "template:<a class='gridRowIcon' href='#' onclick='return showContentMenu([+id+],event);' title='" . $_lang["click_to_context"] . "'><img src='[+value+]' width='32' height='32' /></a>||template:<a href='index.php?a=108&id=[+id+]' title='" . $_lang["module_edit_click_title"] . "'>[+value+]</a>||description";
-        if ($listmode == '1') {
-            $grd->pageSize = 0;
+
+        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        $total = (int) db()->getValue(db()->select('COUNT(id)', $from, $where));
+        $page = anyv('op') === 'reset'
+            ? 1
+            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
+        $pager = new DataTablePager($total, $perPage, $page);
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
         }
-        if (anyv('op') === 'reset') {
-            $grd->pageNumber = 1;
+        $params = ['a' => 106];
+        if ($query !== '') {
+            $params['search'] = $query;
         }
-        // render grid
-        echo $grd->render();
+        $links = new DataTableLinks('index.php', $params, $pager->page());
+
+        $ds = db()->select(
+            'id,name,description,locked,disabled,icon',
+            $from,
+            $where,
+            'editedon DESC, name ASC',
+            $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
+        );
+        $rows = db()->getRows($ds) ?: [];
+
+        $yesOrDash = function ($value) use ($_lang) {
+            return $value ? $_lang['yes'] : '-';
+        };
+        $columns = [
+            [
+                'key' => 'icon',
+                'label' => $_lang['icon'],
+                'class' => 'is-shrink is-center',
+                'html' => true,
+                'format' => function ($value, array $row) use ($_style, $_lang) {
+                    return sprintf(
+                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
+                        (int) $row['id'],
+                        hsc($_lang['click_to_context']),
+                        hsc($value !== '' && $value !== null ? $value : $_style['icons_modules'])
+                    );
+                },
+            ],
+            [
+                'key' => 'name',
+                'label' => $_lang['name'],
+                'html' => true,
+                'format' => function ($value, array $row) use ($_lang) {
+                    return sprintf(
+                        '<a href="index.php?a=108&amp;id=%d" title="%s">%s</a>',
+                        (int) $row['id'],
+                        hsc($_lang['module_edit_click_title']),
+                        hsc($value)
+                    );
+                },
+            ],
+            [
+                'key' => 'description',
+                'label' => $_lang['description'],
+                'html' => true,
+                'format' => function ($value) {
+                    return element_description_html((string) $value);
+                },
+            ],
+            ['key' => 'locked', 'label' => $_lang['locked'], 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
+            ['key' => 'disabled', 'label' => $_lang['disabled'], 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
+        ];
+        $table = new DataTable($columns, [
+            'id' => 'modules',
+            'tableClass' => 'grid',
+            'rowClasses' => ['gridItem', 'gridAltItem'],
+            'emptyMessage' => $_lang['no_records_found'],
+        ]);
+        $nav = $pager->render($links, [
+            'label' => lang('pagination_label'),
+            'first' => lang('pagination_table_first'),
+            'last' => lang('pagination_table_last'),
+        ]);
+        echo $nav . $table->render($rows, $links) . $nav;
         ?>
-    </div>
 </div>

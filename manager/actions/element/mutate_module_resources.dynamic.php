@@ -224,19 +224,31 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             if (!$ds) {
                 echo "An error occured while loading module dependencies.";
             } else {
-                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                $grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
-                $grd->noRecordMsg = $_lang["no_records_found"];
-                $grd->cssClass = "grid";
-                $grd->columnHeaderClass = "gridHeader";
-                $grd->itemClass = "gridItem";
-                $grd->altItemClass = "gridAltItem";
-                $grd->columns = $_lang["element_name"] . " ," . $_lang["type"];
-                $grd->colTypes = "template:<label><input type='checkbox' name='depid[]' value='[+id+]'> [+value+]</label>";
-                $grd->fields = "name,type";
-                $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
-                $grd->colWidths = '200';
-                echo $grd->render();
+                include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                $table = new DataTable(
+                    [
+                        [
+                            'key' => 'name',
+                            'label' => $_lang['element_name'],
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                return sprintf(
+                                    '<label><input type="checkbox" name="depid[]" value="%d"> %s</label>',
+                                    (int) $row['id'],
+                                    hsc($value)
+                                );
+                            },
+                        ],
+                        ['key' => 'type', 'label' => $_lang['type']],
+                    ],
+                    [
+                        'id' => 'module-resources',
+                        'tableClass' => 'grid',
+                        'rowClasses' => ['gridItem', 'gridAltItem'],
+                        'emptyMessage' => $_lang['no_records_found'],
+                    ]
+                );
+                echo $table->render(db()->getRows($ds) ?: []);
             }
             ?>
             <ul class="actionButtons">

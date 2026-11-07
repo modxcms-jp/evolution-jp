@@ -94,9 +94,10 @@ if (manager()->hasFormValues()) {
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
     $userdata = array_merge($userdata, $form_v);
-    $userdata['dob'] = ConvertDate($userdata['dob'] ?? '');
-    $userdata['blockeduntil'] = ConvertDate($userdata['blockeduntil'] ?? '');
-    $userdata['blockedafter'] = ConvertDate($userdata['blockedafter'] ?? '');
+    // 日付は解釈できればタイムスタンプに、できなければ入力の文字列のまま残す（入力欄は dateInputValue() で出す）
+    foreach (['dob', 'blockeduntil', 'blockedafter'] as $dateField) {
+        $userdata[$dateField] = manager()->restoredDateValue($userdata[$dateField] ?? '');
+    }
     $usernamedata['username'] = $userdata['newusername'] ?? '';
     if (isset($form_v['oldusername'])) {
         $usernamedata['oldusername'] = $form_v['oldusername'];
@@ -440,7 +441,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <th><?= $_lang['user_dob'] ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?= hsc(post_strvar('dob', attribute('dob') ? $modx->toDateFormat(attribute('dob'), 'dateOnly') : "")) ?>" onblur='documentDirty=true;'>
+                                value="<?= manager()->dateInputValue(attribute('dob'), 'dateOnly') ?>" onblur='documentDirty=true;'>
                             <a onclick="document.userform.dob.value=''; return true;"
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                     src="<?= $icons_path ?>cal_nodate.gif"
@@ -543,7 +544,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_blockeduntil'] ?>:</th>
                             <td>
                                 <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker"
-                                    value="<?= hsc(post_strvar('blockeduntil', attribute('blockeduntil') ? $modx->toDateFormat(attribute('blockeduntil')) : "")) ?>"
+                                    value="<?= manager()->dateInputValue(attribute('blockeduntil')) ?>"
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -556,7 +557,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_blockedafter'] ?>:</th>
                             <td>
                                 <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
-                                    value="<?= hsc(post_strvar('blockedafter', attribute('blockedafter') ? $modx->toDateFormat(attribute('blockedafter')) : "")) ?>"
+                                    value="<?= manager()->dateInputValue(attribute('blockedafter')) ?>"
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockedafter.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -688,14 +689,3 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     tpUser = new WebFXTabPane(document.getElementById("webUserPane"), remember);
 </script>
 <?php
-
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date)
-{
-    global $modx;
-    if ($date == "") {
-        return "0";
-    } else {
-        return $modx->toTimeStamp($date);
-    }
-}
