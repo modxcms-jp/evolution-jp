@@ -10,5 +10,5 @@
 
 <ul class="actionButtons">
     <li id="sort_btn"><a href="#" onclick="save();">[+lang.DM_go+]</a></li>
-    <li id="cancel"><a href="#" onclick="document.location.href='index.php?a=2';">[+lang.DM_cancel+]</a></li>
+    <li id="cancel"><a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">[+lang.DM_cancel+]</a></li>
 </ul>

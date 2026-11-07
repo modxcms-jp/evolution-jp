@@ -128,7 +128,7 @@ function role($key, $default = null)
                 }
             }
             $params = [
-                'onclick' => "document.location.href='index.php?a=86';",
+                'onclick' => "EvoShell.go('index.php?a=86', {discard: true});",
                 'label' => $_lang['cancel']
             ];
             echo manager()->ab($params);

@@ -85,7 +85,7 @@ if (is_post() && postv('clear_logs') === '1') {
         if (!headers_sent()) {
             header('Location: ' . $redirectUrl);
         } else {
-            echo '<script>window.location.href=' . js_literal($redirectUrl) . ';</script>';
+            echo '<script>EvoShell.go(' . js_literal($redirectUrl) . ');</script>';
         }
         exit;
     }
@@ -133,7 +133,7 @@ if (is_post() && postv('delete_log') === '1') {
         if (!headers_sent()) {
             header('Location: ' . $redirectUrl);
         } else {
-            echo '<script>window.location.href=' . json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ';</script>';
+            echo '<script>EvoShell.go(' . json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ');</script>';
         }
         exit;
     } else {
@@ -168,7 +168,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate">
-            <a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';">
+            <a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">
                 <?= lang('cancel') ?>
             </a>
         </li>

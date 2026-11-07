@@ -27,6 +27,17 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
     .then(function (data) { … });
 ```
 
+## 画面の JS から別の画面へ移る
+
+キャンセル・ボタン・一覧の行クリックなど、管理画面の JS から別の管理画面へ移るときは `document.location.href = url` と書かず、`EvoShell.go(url)` を使う（`manager/media/script/shell.js`。`shell-fallback.js` にも同名の関数がある）。
+
+- シェルの中では `#mainPane` だけを入れ替え、左のツリーは読み直さない。シェルの外（別窓など）では、ページ全体で移る。`if (window.EvoShell) … else …` を画面ごとに書かない。
+- 未保存の変更があれば確認を出す。キャンセルのように確認を出さず捨てるときは `EvoShell.go(url, {discard: true})`（先に `documentDirty = false` にするのと同じ）。
+- URL の組み立ては今までどおり（PHP からの埋め込みは `js_literal()`）。
+- モーダル（`#evoShellModal`）の中の画面を閉じるだけなら `EvoShell.closeModal()`。
+- ログイン・ログアウト、エラー画面（`webAlert` 系）、別窓、ダウンロード、シェルの外で動く processor のように、ページ全体を読み直すのが正しいものは、これまでどおり `location` を使う。
+- ふつうのリンク `<a href="index.php?a=…">` は `shell.js` がクリックを拾うので、JS を書かずにリンクのままにしてよい。
+
 ## よく使う呼び出しの置き換え
 
 | jQuery | 素の JS |

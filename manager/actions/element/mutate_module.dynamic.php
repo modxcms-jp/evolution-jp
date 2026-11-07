@@ -102,7 +102,7 @@ function content($key, $default = null)
             }
         }
         documentDirty = false;
-        window.location.href = "index.php?id=" + docid + "&a=113";
+        EvoShell.go("index.php?id=" + docid + "&a=113");
     }
 
     function duplicaterecord() {
@@ -196,7 +196,7 @@ function content($key, $default = null)
             }
             echo manager()->ab(
                 [
-                    'onclick' => "document.location.href='index.php?a=106';",
+                    'onclick' => "EvoShell.go('index.php?a=106', {discard: true});",
                     'label' => $_lang['cancel']
                 ]
             );

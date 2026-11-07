@@ -13,7 +13,7 @@ global $database_connection_method, $lastInstallTime;
     <ul class="actionButtons">
         <li id="Button5" class="mutate">
             <a href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';">
+                onclick="EvoShell.go('index.php?a=2', {discard: true});">
                 <?= lang('cancel') ?>
             </a>
         </li>
@@ -23,7 +23,7 @@ global $database_connection_method, $lastInstallTime;
 <script type="text/javascript">
     function viewPHPInfo() {
         dontShowWorker = true; // prevent worker from being displayed
-        window.location.href = "index.php?a=200";
+        EvoShell.go("index.php?a=200");
     }
 </script>
 

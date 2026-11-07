@@ -23,7 +23,7 @@ $icons_path = manager_style_image_path('icons');
             class="mutate">
             <a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= lang('cancel') ?>
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?>
             </a>
         </li>
     </ul>

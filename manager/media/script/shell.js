@@ -640,6 +640,20 @@
             request(normalizeManagerUrl(url), { method: 'GET' }, push);
         },
 
+        // 画面の JS から別の画面へ移る(キャンセル・ボタン・行クリック)ときの入口。
+        // シェルの中なら #mainPane だけを入れ替え、シェルの外(別窓など)ならページ全体で移る。
+        // opts.discard === true なら、未保存の確認を出さずに移る(キャンセル用)
+        go: function (url, opts) {
+            if (opts && opts.discard) {
+                window.documentDirty = false;
+            }
+            if (document.body.classList.contains('evo-shell')) {
+                EvoShell.navigate(url);
+            } else {
+                window.location.href = url;
+            }
+        },
+
         submit: function (form, submitter) {
             if (submittingForms.has(form)) {
                 return;

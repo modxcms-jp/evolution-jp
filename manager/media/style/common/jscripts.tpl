@@ -40,10 +40,10 @@
             });
         });
         onClick('createdraft', function () {
-            document.location.href = 'index.php?a=132&id=[+id+]';
+            EvoShell.go('index.php?a=132&id=[+id+]');
         });
         onClick('opendraft', function () {
-            document.location.href = 'index.php?a=131&id=[+id+]';
+            EvoShell.go('index.php?a=131&id=[+id+]');
         });
         onClick('delete', function () {
             if (confirm([+lang_confirm_delete_resource+]))
@@ -61,7 +61,7 @@
             }
         });
         onClick('move', function () {
-            document.location.href = "index.php?id=[+id+]&a=51";
+            EvoShell.go("index.php?id=[+id+]&a=51");
         });
         onClick('duplicate', function () {
             if (confirm([+lang_confirm_resource_duplicate+]))
@@ -104,10 +104,11 @@
         onClick('cancel', function () {
             var docIsFolder = '[+docIsFolder+]';
             var docParent = '[+docParent+]';
-            if (docMode === 'draft') document.location.href = 'index.php?a=3&id=' + '[+id+]';
-            else if (docIsFolder == 1) document.location.href = 'index.php?a=120&id=' + '[+id+]';
-            else if (docParent != 0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
-            else document.location.href = 'index.php?a=2';
+            documentDirty = false;
+            if (docMode === 'draft') EvoShell.go('index.php?a=3&id=' + '[+id+]');
+            else if (docIsFolder == 1) EvoShell.go('index.php?a=120&id=' + '[+id+]');
+            else if (docParent != 0) EvoShell.go('index.php?a=120&id=' + '[+docParent+]');
+            else EvoShell.go('index.php?a=2');
         });
         bindClearDate('pub_date');
         bindClearDate('unpub_date');
@@ -177,7 +178,7 @@
 
     function setLink(lId) {
         if (!allowLinkSelection) {
-            window.location.href = "index.php?a=3&id=" + lId;
+            EvoShell.go("index.php?a=3&id=" + lId);
         } else {
             documentDirty = true;
             document.getElementById('field_weblink').value = lId;
@@ -201,7 +202,7 @@
 
     function setParent(pId, pName) {
         if (!allowParentSelection) {
-            window.location.href = "index.php?a=3&id=" + pId;
+            EvoShell.go("index.php?a=3&id=" + pId);
         } else {
             if (pId === 0 || checkParentChildRelation(pId, pName)) {
                 documentDirty = true;

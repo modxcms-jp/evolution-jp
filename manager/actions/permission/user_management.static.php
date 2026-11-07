@@ -75,7 +75,7 @@ echo $cm->render();
         var id = selectedItem;
         switch (a) {
             case 1: // edit
-                window.location.href = 'index.php?a=12&id=' + id;
+                EvoShell.go('index.php?a=12&id=' + id);
                 break;
             case 2: // delete
                 if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>)) {
@@ -119,7 +119,7 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

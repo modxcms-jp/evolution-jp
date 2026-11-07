@@ -106,7 +106,7 @@ function getTplDraft()
     <div id="actions">
     <ul class="actionButtons">
         <li class="mutate">
-        <a href="javascript:void(0)" onclick="document.location.href='index.php?a=131&id=[+id+]'">
+        <a href="javascript:void(0)" onclick="EvoShell.go('index.php?a=131&id=[+id+]');">
         [+lang_cancel+]
         </a>
         </li>
