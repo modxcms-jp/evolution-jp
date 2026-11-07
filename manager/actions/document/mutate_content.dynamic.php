@@ -45,7 +45,8 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+$tvTemplate = doc('template');
+$tmplVars = getTmplvars(request_intvar('id'), $tvTemplate, $docgrp);
 $docObject += $tmplVars;
 
 manager()->saveFormValues();
@@ -59,6 +60,15 @@ $modx->event->vars['documentObject'] = &$docObject;
 $tmp = ['id' => request_intvar('id')];
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = [];
+
+// 差し戻しやプラグイン（OnDocFormPrerender）でテンプレートが変わったら、そのテンプレートの入力欄に組み立て直す
+if ((int)doc('template') !== (int)$tvTemplate) {
+    foreach (array_keys($tmplVars) as $tvKey) {
+        unset($docObject[$tvKey]);
+    }
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+    $docObject += $tmplVars;
+}
 
 global $template; // For plugins (ManagerManager etc...)
 $template = doc('template');
