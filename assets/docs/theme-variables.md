@@ -27,6 +27,24 @@
 
 ファイルブラウザは、ほかに `--color-background-page`、`--color-success`、`--color-text-subtle`、`--gray-50`、`--gray-100` も既定値付きで読む。テーマが定義すればそれに従い、無ければ既定値で表示される。
 
+## 送信中の見た目
+
+色の変数とは別に、テーマは送信中（`EvoShell.submit`）の見た目を `:root` の `--evo-submitting-style` で選べる。共通部（`shell.css`）が、押したボタンにだけアニメーションを出す。
+
+| 値 | 見た目 |
+| --- | --- |
+| `spinner` | 文字の右で輪が回る |
+| `stripes` | ボタンの上を斜線が横へ流れる |
+| `dots` | 文字の右で 3 つの点が順に弾む |
+
+- 未指定、またはこの 3 つ以外の値は、アニメーションなし。送信中のボタンは今までどおり半透明になるだけ
+- アニメーションが付くのは押したボタン 1 つだけ。ほかの送信ボタンと `.actionButtons` のボタンは、半透明のまま
+- `<input type="submit">` / `<input type="image">` は疑似要素を持てないので、値によらず明滅（半透明との往復）になる
+- 色はボタンの文字色（`currentColor`）に従う。テーマ側で色を書かない。ボタンの `background` も上書きしない
+- `prefers-reduced-motion: reduce` の環境では、アニメーションを止めて半透明だけにする
+- 同梱テーマの割り当て: `spinner` は AuroraFlow・SoftSlate、`stripes` は RubberWhite・RevoClassic、`dots` は SakuraFlow・AromaHop
+- RevoStyle は凍結のため未指定（見た目は変わらない。[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」を参照）
+
 ## 書き方
 
 - 主ボタン（`.actionButtons #Button1 a`、`li.primary a`、`a.primary`、`a.default`。`:hover` / `:active` は `#Button1 a` と `a.default` に書く）の地・枠・文字の色は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない

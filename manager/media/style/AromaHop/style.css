@@ -91,6 +91,7 @@
     --color-primary-hover-end: #68a880;
     --color-primary-active-start: #88c4a0;
     --color-primary-active-end: #4a8a60;
+    --evo-submitting-style: dots;
     --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions (氷のガラス調) */

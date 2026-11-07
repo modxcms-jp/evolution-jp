@@ -112,6 +112,7 @@
     --color-primary-hover-end: #2d879b;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
+    --evo-submitting-style: stripes;
     --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions */

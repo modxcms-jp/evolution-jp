@@ -94,6 +94,7 @@
     --color-primary-hover-end: #dc6fb5;
     --color-primary-active-start: #e08cb8;
     --color-primary-active-end: #c04d97;
+    --evo-submitting-style: dots;
     --color-text-inverse: #fff;
 
     /* Component Colors - Secondary Actions (subtle, glass-like) */
