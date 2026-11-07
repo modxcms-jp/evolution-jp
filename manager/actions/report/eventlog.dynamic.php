@@ -425,6 +425,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     id="systemLogStream"
                     class="system-log-stream"
                     data-period="<?= hsc($period) ?>"
+                    data-month="<?= hsc($selectedMonth) ?>"
                     data-file="<?= hsc($selectedFile) ?>"
                     data-level="<?= hsc($level) ?>"
                     data-source="<?= hsc($source) ?>"
@@ -472,6 +473,7 @@ function downloadSystemLog(url) {
     const filterForm = fileSelect.form;
     const stream = document.getElementById('systemLogStream');
     const period = stream.dataset.period;
+    const month = stream.dataset.month;
     const file = stream.dataset.file;
     const level = stream.dataset.level;
     const source = stream.dataset.source;
@@ -600,6 +602,10 @@ function downloadSystemLog(url) {
                 params.set('cursor_file', olderCursorFile);
             }
         } else {
+            // 年の期間では、サーバーは month で絞った中から file を探す。送らないと最新の月で絞られ、別のファイルが出る
+            if (month) {
+                params.set('month', month);
+            }
             params.set('file', file);
         }
         if (level) {
