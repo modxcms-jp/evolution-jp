@@ -25,6 +25,7 @@
 - 2026-11-07 / yamamoto・Claude: Issue に挙がっていない上の箇所も、メッセージ機能のためだけにあるので、今回まとめて外す。`pm2email` は送信処理（`send_message.processor.php`）だけが読む設定で、送信が無くなれば意味が無い。エラーコード 13・14 も送信処理だけが使う。代替案の「Issue の列挙どおりにして残りは別 Issue」は、使われない設定・コード・CSS が残り、後で同じ棚卸しをやり直すことになるので採らない。
 - 2026-11-07 / yamamoto・Claude: 既存サイトの `topmenu_user` は、旧既定値 `change_user_pf,change_password,messages` のままのときだけ、マイグレーションで `change_user_pf,change_password` に直す。利用者が並べ替えた値は書き換えない（`assets/docs/migrations.md` の「利用者の設定を上書きしない」）。残った `messages` は `buildMenu()` が飛ばすので、害は無い。
 - 2026-11-07 / yamamoto・Claude: `00000000_baseline.php` は変えない。baseline は Administrator ロールが無いときに `messages` 列つきで入れ直すが、baseline は名前の順で新しいマイグレーションより先に流れ、その時点の古い DB には `messages` 列がある。新規インストールの DB はマイグレーションを流さず、すべてを適用済みとして記録する。baseline の見出しの決まり（`create_tables.sql` を変えたら、baseline を書き換えず同じ変更のマイグレーションを足す）にも合う。
+- 2026-11-07 / yamamoto: 既存サイトの `user_messages` は、空のときだけ消し、メッセージが残っていれば表ごと残す（PR #1131 で、Issue の「アップグレード時に削除」を改めた）。利用者のデータを、確認なしに消さないため。残した表はどのコードも読まないので動きに影響せず、要らなければ削除してよいことをシステムログ（種別 1）に書く。代替案のうち、アップデーターのオプション画面で「削除する／残す」を尋ねる案は、utf8mb4 の変換と同じ形で差し込めるが、画面の選択をマイグレーションに渡すと「条件は DB とファイルの状態で決める」（`assets/docs/migrations.md`）から外れ、CLI の `php evo migrate` では尋ねられないので採らない。常に残す案は、空の表まで残るので採らない。新規インストールの DB とは、使われない表 1 つだけ違うことになる。`install/convert2utf8mb4.php` の変換の対象には戻さない（読まない表のため）。
 - 2026-11-07 / yamamoto・Claude: 7 テーマの `:root` の `--color-info` は残す。使っていた規則は `.messageUnread` だけで、今回の変更で参照が無くなるが、error・success・warning・info と意味で分けた色の組の 1 つで、外部のテーマやプラグインが使うことがあるため。代替案の「7 テーマから外す」は、色の組が欠けるので採らない。
 - 2026-11-07 / yamamoto・Claude: アップグレードの前から開いたままの管理画面のタブは、古い JS のタイマーで `updateMsgCount` の POST を続け、ダッシュボードの HTML を受け取って上部の表示が崩れることがある。再読み込みで直るので、本体に互換の分岐は残さず、PR とリリース記事で再読み込みを案内する。
 - 2026-11-07 / yamamoto・Claude: PR は 1 つにまとめ、マイルストーンごとにコミットを積む。どのマイルストーンも単独で出すと、消した画面を指すリンクや、使わない列・設定が一時的に残るため。
@@ -91,7 +92,7 @@ M1 で画面と処理を外す。入口（action・メニュー・ダッシュ�
 
 M2 で、画面から参照されなくなった権限・設定・言語・テーマの部品を消す。言語キーは、キーごとに `grep -rn "<キー>"` で `manager/`・`assets/`・`install/` に参照が無いことを確かめてから消す（`$_lang['key']`・`$_lang["key"]`・`lang('key')`・`[%key%]` の形がある）。CSS は 7 テーマの該当の規則をまるごと消す。複数のセレクタをまとめた規則（例: RevoStyle の `#msgCounter, #newMail`）は、ほかのセレクタが残るならそれだけを外す。RevoStyle は凍結テーマだが、使われない規則を外すだけなので対象に含める。
 
-M3 で DB を変える。新規インストールは `create_tables.sql` と初期データの SQL から外す。既存サイトはマイグレーション 1 本で、`dropTableIfExists('user_messages')`、`dropColumnIfExists('user_roles', 'messages')`、`deleteSetting()` で `mail_check_timeperiod`・`number_of_messages`・`pm2email` を消し、`topmenu_user` が旧既定値のときだけ直す。補助は `manager/includes/migration_helper.class.inc.php` の既存メソッドだけで足りる。各処理は変えたときだけ `$m->log()` を残す（baseline の 9 番の書き方にそろえる）。
+M3 で DB を変える。新規インストールは `create_tables.sql` と初期データの SQL から外す。既存サイトはマイグレーション 1 本で、`user_messages` は空のときだけ `dropTableIfExists('user_messages')` で消し（行があれば残してログに書く）、`dropColumnIfExists('user_roles', 'messages')`、`deleteSetting()` で `mail_check_timeperiod`・`number_of_messages`・`pm2email` を消し、`topmenu_user` が旧既定値のときだけ直す。補助は `manager/includes/migration_helper.class.inc.php` の既存メソッドだけで足りる。各処理は変えたときだけ `$m->log()` を残す（baseline の 9 番の書き方にそろえる）。
 
 M4 で、新規インストールとアップグレードの両方を Docker で確かめる。
 
@@ -122,7 +123,7 @@ M4（検証。`adaptive-validation-runner` を使う。手順と結果は Valida
 ## Validation and Acceptance
 
 1. 新規インストール直後の DB に `user_messages` テーブルと `user_roles.messages` 列が無く、`system_settings` に `mail_check_timeperiod`・`number_of_messages`・`pm2email` が無い。3 つのロール（Administrator・Editor・Publisher）と custom の 2 つのロールの権限が、main で新規インストールしたものと、`messages` 以外の列で同じ値になる。
-2. main で新規インストールし、`user_messages` に行を入れ、`topmenu_user` を旧既定値にした DB を、このブランチのアップデーターで上げると、テーブル・列・3 つの設定が消え、`topmenu_user` が `change_user_pf,change_password` になる。`topmenu_user` を並べ替えた DB では値が変わらない。もう一度 `php evo migrate` を流しても何も変わらず、エラーにならない。
+2. main で新規インストールし、`user_messages` に行を入れ、`topmenu_user` を旧既定値にした DB を、このブランチのアップデーターで上げると、`user_messages` は行ごと残り、システムログに残したことが出る。`user_roles.messages` 列と 3 つの設定は消え、`topmenu_user` が `change_user_pf,change_password` になる。`user_messages` が空の DB では、表も消える。`topmenu_user` が `change_user_pf,change_password` になる。`topmenu_user` を並べ替えた DB では値が変わらない。もう一度 `php evo migrate` を流しても何も変わらず、エラーにならない。
 3. 管理画面の上部・ユーザーメニュー・ダッシュボードに、メッセージの表示とアイコンが出ない（テーマは既定と、welcome.tpl を持つ RevoStyle・AromaHop・SakuraFlow のうち 1 つ以上）。ブラウザの開発ツールで、`updateMsgCount` の POST が出ず、`session_keepalive.php` が 60 秒ごとに出る。シェルで画面を行き来したあとも同じ。
 4. `index.php?a=10`、`a=65`、`a=66` を直接開くと、ほかの存在しない action（例: `a=9999`）と同じ応答になり、PHP の警告がログに出ない。
 5. ロールの編集画面に「メッセージの表示および送信」が無く、ロールを保存できる。グローバル設定に「メッセージチェックの間隔」「メッセージ数」と、メッセージをメールにも送る設定が無く、保存できる。保存後も `system_settings` に 3 つの設定が戻らない。
@@ -139,7 +140,7 @@ M4（検証。`adaptive-validation-runner` を使う。手順と結果は Valida
 - ワークツリー: `.claude/worktrees/issue-1069`
 - PR: #1131（`Closes #1069`）
 - 想定のコミット: M1・M2・M3 で 1 つずつ。ExecPlan とロードマップの更新は別のコミット
-- リリース記事に書くこと（`仕様変更`）: メッセージ機能の廃止、アップグレードで `user_messages` のデータが消えるのでバックアップを案内、外部のアドオンの `hasPermission('messages')` は常に偽、外部テーマの `[+MessageInfo+]`・`[+MessageIcon+]`・`[+iconMessage+]` は空になる
+- リリース記事に書くこと（`仕様変更`）: メッセージ機能の廃止、保存済みのメッセージがあれば `user_messages` テーブルはアップグレード後も残り、要らなければ削除してよいこと、アップグレード後は開いている管理画面を再読み込みすること、外部のアドオンの `hasPermission('messages')` は常に偽、外部テーマの `[+MessageInfo+]`・`[+MessageIcon+]`・`[+iconMessage+]` は空になる
 
 ## Interfaces and Dependencies
 

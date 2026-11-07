@@ -3,14 +3,20 @@
 /**
  * 管理画面のメッセージ機能（Issue #1069）を廃止したので、その DB の跡を消す。
  *
- * - user_messages 表と、user_roles.messages 列（メッセージ機能の権限）を消す
+ * - user_messages 表は、空のときだけ消す。メッセージが残っていれば、利用者のデータなので表ごと残し、
+ *   要らなければ削除してよいことをログに書く（どのコードも読まなくなるので、残っても動きに影響しない）
+ * - user_roles.messages 列（メッセージ機能の権限）を消す
  * - 機能の設定 mail_check_timeperiod・number_of_messages・pm2email を消す
  * - 上部メニュー topmenu_user が旧既定値のままのときだけ、messages を外した今の既定値にする（変えた値は残す）
  * 2 回目は、消すものが無いので何もしない。
  */
 return static function (EvoMigrationHelper $m) {
-    if ($m->dropTableIfExists('user_messages')) {
-        $m->log('Dropped the table', ['table' => 'user_messages']);
+    if ($m->tableExists('user_messages')) {
+        if ($m->rows(sprintf('SELECT 1 FROM %s LIMIT 1', $m->table('user_messages')))) {
+            $m->log('Kept the table because it has messages. The messaging feature was removed, so it can be dropped if not needed', ['table' => 'user_messages']);
+        } elseif ($m->dropTableIfExists('user_messages')) {
+            $m->log('Dropped the table', ['table' => 'user_messages']);
+        }
     }
     if ($m->dropColumnIfExists('user_roles', 'messages')) {
         $m->log('Dropped the column', ['table' => 'user_roles', 'column' => 'messages']);
