@@ -20,3 +20,7 @@
 - `rb_base_dir` で外の置き場所を直に指定する
 
 `content/images` など、種類のフォルダだけを外へのリンクにする形は使えない（ピッカーが断る）。
+
+## rb_base_url（ファイルの URL の頭）の値
+
+`rb_base_url` には、サイトの URL からの相対パス（例 `content/`）を保存する。自サイトのホストを含む値（`http://example.com/content/`）や、設置パスから始まるパス（サブディレクトリ設置の `/sub/content/`）は、保存時と読むとき（`BrowserConfig`）に `init::normalize_rb_base_url()` で相対パスに直す。別ホスト（CDN など）の値はそのまま使う。サイトの直下は `/`。

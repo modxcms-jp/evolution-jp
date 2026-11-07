@@ -227,6 +227,11 @@ function saveUserSettings($id)
         }
     }
 
+    // ファイルの URL の頭は、自サイトの URL を含まない相対パスにそろえる（システム設定と同じ扱い）
+    if (isset($settings['rb_base_url']) && trim($settings['rb_base_url']) !== '') {
+        $settings['rb_base_url'] = init::normalize_rb_base_url($settings['rb_base_url'], config('site_url'), MODX_BASE_URL);
+    }
+
     // システム設定と同じ値は保存しない（あとでシステム設定を変えたときに、そのユーザーも追従させる）
     $system = systemSettings();
     foreach ($settings as $k => $v) {

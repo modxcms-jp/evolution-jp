@@ -218,6 +218,47 @@ class init
         return sprintf('%s://%s%s/', $url['https'] ? 'https' : 'http', $url['host'], rtrim($base_url, '/'));
     }
 
+    /**
+     * rb_base_url（ファイルの URL の頭）を保存・利用する形にそろえる。
+     * 自サイトのホストを含む値と、設置パス（$base_url）で始まるパスは、サイトの URL からの相対パス（content/）にする。
+     * 別ホスト（CDN など）の値と、設置パスの外のパスはそのまま（末尾の / だけそろえる）。
+     * サイトの直下（空・/・設置パスそのもの）は / を返す。$site_url は自サイトの URL、$base_url は設置パス（MODX_BASE_URL）
+     */
+    public static function normalize_rb_base_url($value, $site_url, $base_url = '/')
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '/';
+        }
+        $base = '/' . trim((string) $base_url, '/');
+        $base = $base === '/' ? '/' : $base . '/';
+
+        $hasHost = (bool) preg_match('@^(?:(https?):)?//([^/?#]*)(.*)$@i', $value, $m);
+        if ($hasHost) {
+            $site = static::parse_site_url($site_url);
+            if (!$site) {
+                return rtrim($value, '/') . '/';
+            }
+            $scheme = strtolower($m[1]);
+            $https = $scheme === '' ? $site['https'] : $scheme === 'https';
+            if (static::normalize_host($m[2], $https) !== $site['host'] || !preg_match('@^(/[^?#]*)?$@', $m[3])) {
+                return rtrim($value, '/') . '/';
+            }
+            $path = $m[3];
+        } elseif ($value[0] === '/') {
+            $path = $value;
+        } else {
+            return rtrim($value, '/') . '/';
+        }
+
+        $path = rtrim($path, '/') . '/';
+        if (strpos($path, $base) !== 0) {
+            return $hasHost ? rtrim($value, '/') . '/' : $path;
+        }
+        $relative = trim(substr($path, strlen($base)), '/');
+        return $relative === '' ? '/' : $relative . '/';
+    }
+
     // インストーラの中か、まだインストールしていない（設定ファイルが無い）
     public static function is_installing()
     {
