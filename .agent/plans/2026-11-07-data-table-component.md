@@ -32,7 +32,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07（同）: `manager/includes/migrations/`・`install/`・同梱のスニペットとプラグインに `DataGrid`・`MakeTable`・`getHTMLGrid` の利用は無い。`.agent/` の過去の ExecPlan と `assets/docs/troubleshooting/solved-issues.md` の言及は記録なので変えない（`.agent/plans/2026-07-08-pdo-migration-dbapi-refactor.md` は未完了の計画なので段階 3 で直す）。
 - 2026-11-07（段階 1 の検証）: main の `delete_content.processor.php` は `$page` を作っていたのに戻り先に使っておらず、2 ページ目から削除すると 1 ページ目に戻っていた（公開・非公開・復元は `page` を残す）。D19 で、4 つの処理とも `page` と並べ替えを残すようにそろえた。
 - 2026-11-07（段階 1 の検証）: 右クリックのメニューの戻り先に並べ替えを付けても、処理側の PHP が戻り先を決めているので、画面の JS だけを直しても残らなかった（D19 の発端）。複製（`a=94`）と移動（`a=51`）は main でも戻り先に `page` を引き継いでおらず、段階 1 では変えていない。
-- 2026-11-07（段階 1 の自己レビュー）: 一覧の `get_jscript()` が `document` に付けるメニューを閉じるリスナーは、シェルで一覧を開き直すたびに積み重なっていた（もとからある問題）。触ったファイルなので、動きを変えずに 1 回だけ登録する形に直した。
+- 2026-11-07（段階 1 の自己レビュー）: 一覧の `get_jscript()` が `document` に付けるメニューを閉じるリスナーは、シェルで一覧を開き直すたびに積み重なっていた（もとからある問題）。触ったファイルなので、動きを変えずに 1 回だけ登録する形に直した（`window.evoChildListMenuClose`）。同じ形の積み重なりが `modules.static.php:120`・`user_management.static.php:88`・`web_user_management.static.php:93` にもあり、段階 2 で同じように直す（印を画面ごとにするか、共通の 1 つにまとめて子リソースの一覧もそれに寄せるかは段階 2 の着手時に決める）。
 
 ## Decision Log
 
@@ -134,7 +134,7 @@ Issue の「古い作りの例」が解消される段階:
 - 新規: `manager/includes/controls/data_table.class.php`、`manager/media/script/data-table.js`、`assets/docs/data-table.md`
 - 変更: `manager/actions/document/resources_list.static.php`、`manager/includes/document.parser.class.inc.php`、`manager/includes/lang/english.inc.php`、`manager/includes/lang/japanese-utf8.inc.php`、`manager/media/style/AromaHop/style.css`、`manager/media/style/AuroraFlow/style.css`、`manager/media/style/RevoClassic/style.css`、`manager/media/style/RevoStyle/style.css`、`manager/media/style/RubberWhite/style.css`、`manager/media/style/SakuraFlow/style.css`、`manager/media/style/SoftSlate/style.css`、`assets/docs/theme-spacing.md`、`AGENTS.md`（ドキュメントマップに `data-table.md` の 1 行）
 - 削除: `manager/includes/extenders/ex_maketable.php`、`manager/includes/extenders/maketable.class.php`
-- 検証で広げた分（D19）: 新規 `manager/includes/controls/child_document_list_state.class.php`、変更 `manager/processors/document/publish_content.processor.php`・`unpublish_content.processor.php`・`delete_content.processor.php`・`undelete_content.processor.php`、`assets/docs/core-issues.md`（後続の候補の記述を data-table.md に合わせる）。手順 5 の `DataTableLinks::fromRequest()` と並べ替えの列名の対応は、一覧の画面で直接持たず `ChildDocumentListState` を通す
+- 検証で広げた分（D19）: 新規 `manager/includes/controls/child_document_list_state.class.php`、変更 `manager/processors/document/publish_content.processor.php`・`unpublish_content.processor.php`・`delete_content.processor.php`・`undelete_content.processor.php`、`assets/docs/core-issues.md`（後続の候補の記述を data-table.md に合わせる）
 
 1. `data_table.class.php` に `DataTable`・`DataTablePager`・`DataTableLinks` を書く（形は「Interfaces and Dependencies」）。PHP 7.4 で動く書き方にする（`match`・名前付き引数・nullsafe 演算子・`str_contains()`・union 型を使わない）。描く処理は `evo()`・`db()`・リクエスト・グローバル変数に触れない（D5）。出力の規則:
    - `<div class="data-table" data-table="{id}">` で包み、中に `<table class="{tableClass}">`。`caption` があれば `<caption>`。`showHeader` が真なら `<thead><tr><th scope="col" class="…">見出し</th>…</tr></thead>`。`<tbody>` に行。
@@ -146,8 +146,9 @@ Issue の「古い作りの例」が解消される段階:
 3. `DataTableLinks::url()` は、`baseUrl` に `?` が含まれていれば `&`、無ければ `?` でつなぎ、`params`（呼び出し側が渡す、残したい引数）→ 今の並べ替え（`orderby` が空でなければ `orderby`・`orderdir`）→ 上書きの順に重ねた配列を `http_build_query($q, '', '&')` にする。HTML に入れるときの `hsc()` は描く側が行う。
 4. `data-table.js` を書く。`window.EvoDataTable` があれば何もしない。`document` の `change` を委譲で受け、`input[type=checkbox][data-select-all]` が変わったら、同じ `.data-table` の中の `input[type=checkbox][name="{data-select-all の値}"]` の `checked` をそろえる。
 5. `resources_list.static.php` を移す:
-   - 件数（今の `:47-52`）を数えたあと、`$perPage = (int) evo()->config('number_of_results') ?: 20;`、`$links = DataTableLinks::fromRequest('index.php', $id ? ['a' => 120, 'id' => $id] : ['a' => 120], ['id', 'pagetitle', 'publishedon', 'editedon']);`、`$pager = new DataTablePager($numRecords, $perPage, $links->page());` を作り、本体の問い合わせ（`:72-88`）の `LIMIT` を `sprintf('%d,%d', $pager->offset(), $pager->limit())` にする。
-   - 並べ替え（D10）: `$links->orderby()` が空でなければ、`['id' => 'sc.id', 'pagetitle' => 'sc.pagetitle', 'publishedon' => 'sc.publishedon', 'editedon' => 'sc.editedon']` で列名に直し、`"{列} {ASC|DESC}, sc.id DESC"` を `ORDER BY` にする。空なら今の `transformOrderBy(…)`。
+   - 件数（今の `:47-52`）を数えたあと、`$perPage = (int) evo()->config('number_of_results') ?: 20;`、`$links = ChildDocumentListState::links($id);`（中で `DataTableLinks::fromRequest()` を `SORT_COLUMNS` のキーで呼ぶ。D19）、`$pager = new DataTablePager($numRecords, $perPage, $links->page());` を作り、本体の問い合わせ（`:72-88`）の `LIMIT` を `sprintf('%d,%d', $pager->offset(), $pager->limit())` にする。
+   - 並べ替え（D10・D19）: `ChildDocumentListState::orderBy($links) ?? transformOrderBy(…)` を `ORDER BY` にする。`orderBy()` は並べ替え中なら `SORT_COLUMNS` で列名に直した `"{列} {ASC|DESC}, sc.id DESC"`、そうでなければ null を返す。
+   - 右クリックのメニューの戻り先（D19）: `get_jscript()` は `ChildDocumentListState::returnQuery()` を `js_literal()` で埋め込み、4 つの処理は `ChildDocumentListState::returnUrl($pid)` で戻り先を作る。
    - 行（`:94-120`）は、今の各 `get*()` 関数が作る HTML を `html => true` の列で渡す。チェックボックスの列は `<input type="checkbox" name="batch[]" value="{id}">`（`class` は `is-shrink`）、ID の列はエスケープの既定のまま（`is-shrink`、`sort => 'id'`）、タイトルの列（`sort => 'pagetitle'`）、公開日（`sort => 'publishedon'`）、編集日（`sort => 'editedon'`）、状態。見出しのチェックボックスは `labelHtml => true` で `<input type="checkbox" data-select-all="batch[]" aria-label="{hsc(lang('select_all'))}">`。
    - `getIcon()`・`getTitle()` の `onclick`・`oncontextmenu` を消し、アイコンの `<img>` と タイトルの `<span>` に `data-row-menu="{id}"` を付ける（`id` は整数）。`$tpl`（`:95`）の `div.title`・`a` の構造は変えない。
    - `DataTable` の options は `['id' => 'children', 'tableClass' => 'grid', 'rowClasses' => ['gridItem', 'gridAltItem']]`。出力は `$nav . $table . $nav`（`$nav = $pager->render($links, ['label' => lang('pagination_label'), 'first' => lang('pagination_table_first'), 'last' => lang('pagination_table_last')])`）。
@@ -180,7 +181,7 @@ Issue の「古い作りの例」が解消される段階:
 
 共通の形: `include_once(MODX_CORE_PATH . 'controls/data_table.class.php');` → 件数を `db()->getValue(db()->select('COUNT(…)', $from, $where))` で数える → `DataTablePager` → 本体を `LIMIT` 付きで取って `db()->getRows()`（またはループ）で配列にする → `DataTable`。`listmode=1`（全件表示）のときは `perPage` を 0 にして `LIMIT` を付けない。
 
-1. `user_management.static.php`（`:136-212`）: 列は ユーザー名（アイコンの `<a class="gridRowIcon" href="#" data-row-menu="{id}" title="…"><img …></a>` と、`<span class="{published|unpublished}"><a href="index.php?a=12&amp;id={id}" title="…">{hsc(username)}</a></span>` を `html => true` の `format` で作る）・氏名・メール・ロール・最終ログイン（今の `date:` と同じ `evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', …)`。空なら `-`）・ログイン回数・ブロック（`blocked` から `lang('yes')` か `-` を作る）。SQL の `IF(…'{$_lang[…]}'…)` の 3 つ（性別・ブロック・class）は `format` に移して SQL から消す（Surprises）。検索と権限の `WHERE` は今のまま。ページは D9 の画面状態で保つ（`$page = get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1)`、`op=reset` なら 1。`new DataTableLinks('index.php', $params, $page)` で作り、`$_PAGE['vs']['page'] = $pager->page()`）。URL に残す引数は `a=75` と、空でなければ `search`。右クリックのメニューは、表を包む要素へのリスナーで `showContentMenu()` を呼ぶ（D12、段階 1 と同じ形）。
+1. `user_management.static.php`（`:136-212`）: 列は ユーザー名（アイコンの `<a class="gridRowIcon" href="#" data-row-menu="{id}" title="…"><img …></a>` と、`<span class="{published|unpublished}"><a href="index.php?a=12&amp;id={id}" title="…">{hsc(username)}</a></span>` を `html => true` の `format` で作る）・氏名・メール・ロール・最終ログイン（今の `date:` と同じ `evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', …)`。空なら `-`）・ログイン回数・ブロック（`blocked` から `lang('yes')` か `-` を作る）。SQL の `IF(…'{$_lang[…]}'…)` の 3 つ（性別・ブロック・class）は `format` に移して SQL から消す（Surprises）。検索と権限の `WHERE` は今のまま。ページは D9 の画面状態で保つ（`$page = get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1)`、`op=reset` なら 1。`new DataTableLinks('index.php', $params, $page)` で作り、`$_PAGE['vs']['page'] = $pager->page()`）。URL に残す引数は `a=75` と、空でなければ `search`。右クリックのメニューは、表を包む要素へのリスナーで `showContentMenu()` を呼ぶ（D12、段階 1 と同じ形）。メニューを閉じる `document` の `click` リスナー（`:88`）は、段階 1 の子リソースの一覧と同じく 1 回だけ登録する形にする（2・3 の画面も同じ。Surprises）。
 2. `web_user_management.static.php`（`:146-170`）: 1 と同じ形。列は アイコン（`is-shrink is-center`、`data-row-menu`）・ユーザー名（`a=88` へのリンク）・氏名・メール・性別（`is-center`。`gender` から `lang('user_male')`/`lang('user_female')`/`-`）・ブロック（`is-center`。`blocked=1` または `blockeduntil > 今` なら `lang('yes')`）。`a=99`。`$number_of_results`（`manager/index.php:53` の `extract()` から来る）は `(int) evo()->config('number_of_results') ?: 20` に替える。
 3. `modules.static.php`（`:141-170`）: 列は アイコン（`is-shrink is-center`。`<a class="gridRowIcon" href="#" data-row-menu="{id}" title="…"><img src="{hsc(icon)}" width="32" height="32" alt=""></a>`。`icon` が空ならテーマのモジュールのアイコン）・名前（`a=108` へのリンク）・説明（`element_description_html()`、`html => true`）・ロック・無効（`is-center`、`lang('yes')` か `-`）。SQL の `IF(…'{$yes}'…)`・`IF(icon<>''…)` も `format` に移す。`a=106`、`search`。
 4. `resource_selector.static.php`（`:203-220`）: 列は 名前（`<label><input type="checkbox|radio" name="id[]" value="{id}"> {hsc(name)}</label>`）・説明（要素なら `element_description_html()`、文書（`rt=doc`）なら既定のエスケープ。今の `colEscapes` の分け方と同じ）。`onclick='setCheckbox(this)'` を消し、フォーム `document.selector` の `change` を受けて `e.target.name === 'id[]'` なら `setCheckbox(e.target)` を呼ぶ。件数と `LIMIT`: `:42-80` の `$sql` を、`SELECT … FROM … WHERE …` の `FROM` 以降と列に分け、`COUNT(*)` と本体の 2 つにする（`ORDER BY` は本体だけ）。URL に残す引数は `a=84`・`rt`・`sm`・`cb`・空でなければ `search`・`listmode`（今のフォームの隠し項目と同じ）。この画面はシェルの外の別窓で、テーマの `style.css` だけを読むので、ページ送りは普通のリンクで動く。
@@ -344,7 +345,7 @@ Issue の「古い作りの例」が解消される段階:
         captionHtml   bool      caption を HTML のまま出す（既定 false）
         emptyMessage  string    0 件のときの文言（既定 ''、エスケープ）
         showHeader    bool      既定 true
-        rowAttributes callable|null  function (array $row): array  属性名 => 値（値はエスケープ）
+        rowAttributes callable|null  function (array $row): array  属性名 => 値（値はエスケープ。class は rowClasses の値と 1 つの class 属性にまとめる。on* は出さない）
 
     final class DataTablePager
         __construct(int $total, int $perPage, int $requestedPage)
@@ -362,6 +363,14 @@ Issue の「古い作りの例」が解消される段階:
             get_intvar($pageParam)・get_choicevar('orderby', $sortKeys, '')・get_choicevar('orderdir', ['asc', 'desc'], 'asc') で読む
         page(): int / orderby(): string / orderdir(): string
         url(array $overrides = []): string   エスケープ前の URL
+
+    子リソースの一覧の状態（段階 1、D19。manager/includes/controls/child_document_list_state.class.php）:
+    final class ChildDocumentListState
+        SORT_COLUMNS                 並べ替えのキー => SQL の列名（許可リストはこのキー）
+        static links(int $parent): DataTableLinks
+        static orderBy(DataTableLinks $links): ?string   並べ替え中でなければ null
+        static returnUrl(int $parent): string            処理（publish・unpublish・delete・undelete）の戻り先
+        static returnQuery(): string                     一覧の JS が処理へ渡す &page=…&orderby=…&orderdir=…
 
     段階 3 で足す:
     final class DataTableSettings
