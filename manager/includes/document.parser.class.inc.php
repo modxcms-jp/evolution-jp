@@ -3313,7 +3313,8 @@ class DocumentParser
             // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
             $values = [$value];
             $this->sanitize_gpc($values);
-            $value = $values[0];
+            // sanitize_gpc() は [ < # を含まない値を素通しするので、{{ }} だけの値のためにタグの記号も崩す
+            $value = $this->breakTagDelimitersRecursive($values[0]);
         }
 
         if ($modifiers !== false) {
