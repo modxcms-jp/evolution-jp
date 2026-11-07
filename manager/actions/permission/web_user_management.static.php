@@ -90,9 +90,27 @@ echo $cm->render();
         }
     }
 
-    document.addEventListener('click', function() {
-        contextm.style.visibility = "hidden";
-    });
+    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
+    (function () {
+        const table = document.querySelector('[data-table="web-users"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    })();
+    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
+    if (!window.evoContextMenuClose) {
+        window.evoContextMenuClose = true;
+        document.addEventListener('click', function () {
+            contextm.style.visibility = "hidden";
+        });
+    }
 </script>
 <form action="index.php" name="resource" method="get">
     <input type="hidden" name="a" value="99" />
@@ -145,34 +163,101 @@ echo $cm->render();
 
         <div>
         <?php
+        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         $search = request_strvar('search');
-        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked=1 OR wua.blockeduntil>" . time() . ",'" . $_lang['yes'] . "','-') as 'blocked'" .
-            "FROM " . evo()->getFullTableName("web_users") . " wu " .
-            "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
-            ($search !== '' ? " WHERE (wu.username LIKE '" . db()->escape($search) . "%') OR (wua.fullname LIKE '%" . db()->escape($search) . "%') OR (wua.email LIKE '" . db()->escape($search) . "%')" : "") . " " .
-            "ORDER BY username";
-            $ds = db()->query($sql);
-            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-            $grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
-            $grd->noRecordMsg = $_lang["no_records_found"];
-            $grd->cssClass = "grid";
-            $grd->columnHeaderClass = "gridHeader";
-            $grd->itemClass = "gridItem";
-            $grd->altItemClass = "gridAltItem";
-            $grd->fields = "id,username,fullname,email,gender,blocked";
-            $grd->colEscapes = '1,1,1,1,1,1'; // DB の値を出す列をエスケープ
-            $grd->columns = $_lang["icon"] . " ," . $_lang["username"] . " ," . $_lang["user_full_name"] . " ," . $_lang["email"] . " ," . $_lang["user_gender"] . " ," . $_lang["user_block"];
-            $grd->colWidths = "34,,,,40,34";
-            $grd->colAligns = "center,,,,center,center";
-            $grd->colTypes = 'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="' . $_lang["click_to_context"] . '"><img src="' . $_style['icons_user'] . '" /></a>||template:<a href="index.php?a=88&id=[+id+]" title="' . $_lang["click_to_edit_title"] . '">[+value+]</a>';
-            if ($listmode == '1') {
-                $grd->pageSize = 0;
-            }
-            if (request_strvar('op') === 'reset') {
-                $grd->pageNumber = 1;
-            }
-            // render grid
-            echo $grd->render();
+        $from = evo()->getFullTableName('web_users') . ' wu'
+            . ' INNER JOIN ' . evo()->getFullTableName('web_user_attributes') . ' wua ON wua.internalKey=wu.id';
+        $where = '';
+        if ($search !== '') {
+            $keyword = db()->escape($search);
+            $where = "(wu.username LIKE '{$keyword}%') OR (wua.fullname LIKE '%{$keyword}%') OR (wua.email LIKE '{$keyword}%')";
+        }
+
+        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        $total = (int) db()->getValue(db()->select('COUNT(wu.id)', $from, $where));
+        $page = request_strvar('op') === 'reset'
+            ? 1
+            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
+        $pager = new DataTablePager($total, $perPage, $page);
+        $_PAGE['vs']['page'] = $pager->page();
+        $params = ['a' => 99];
+        if ($search !== '') {
+            $params['search'] = $search;
+        }
+        $links = new DataTableLinks('index.php', $params, $pager->page());
+
+        $ds = db()->select(
+            'wu.id,wu.username,wua.fullname,wua.email,wua.gender,(wua.blocked=1 OR wua.blockeduntil>' . (int) time() . ') AS blocked',
+            $from,
+            $where,
+            'wu.username',
+            $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
+        );
+        $rows = db()->getRows($ds) ?: [];
+
+        $columns = [
+            [
+                'key' => 'id',
+                'label' => $_lang['icon'],
+                'class' => 'is-shrink is-center',
+                'html' => true,
+                'format' => function ($value) use ($_style, $_lang) {
+                    return sprintf(
+                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>',
+                        (int) $value,
+                        hsc($_lang['click_to_context']),
+                        hsc($_style['icons_user'])
+                    );
+                },
+            ],
+            [
+                'key' => 'username',
+                'label' => $_lang['username'],
+                'html' => true,
+                'format' => function ($value, array $row) use ($_lang) {
+                    return sprintf(
+                        '<a href="index.php?a=88&amp;id=%d" title="%s">%s</a>',
+                        (int) $row['id'],
+                        hsc($_lang['click_to_edit_title']),
+                        hsc($value)
+                    );
+                },
+            ],
+            ['key' => 'fullname', 'label' => $_lang['user_full_name']],
+            ['key' => 'email', 'label' => $_lang['email']],
+            [
+                'key' => 'gender',
+                'label' => $_lang['user_gender'],
+                'class' => 'is-shrink is-center',
+                'format' => function ($value) use ($_lang) {
+                    if ((int) $value === 1) {
+                        return $_lang['user_male'];
+                    }
+                    return (int) $value === 2 ? $_lang['user_female'] : '-';
+                },
+            ],
+            [
+                'key' => 'blocked',
+                'label' => $_lang['user_block'],
+                'class' => 'is-shrink is-center',
+                'format' => function ($value) use ($_lang) {
+                    return $value ? $_lang['yes'] : '-';
+                },
+            ],
+        ];
+        $table = new DataTable($columns, [
+            'id' => 'web-users',
+            'tableClass' => 'grid',
+            'rowClasses' => ['gridItem', 'gridAltItem'],
+            'emptyMessage' => $_lang['no_records_found'],
+        ]);
+        $nav = $pager->render($links, [
+            'label' => lang('pagination_label'),
+            'first' => lang('pagination_table_first'),
+            'last' => lang('pagination_table_last'),
+        ]);
+        echo $nav . $table->render($rows, $links) . $nav;
             ?>
         </div>
     </div>

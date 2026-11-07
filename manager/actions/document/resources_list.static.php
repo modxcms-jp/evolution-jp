@@ -494,8 +494,8 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         }
     }
     // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
-    if (!window.evoChildListMenuClose) {
-        window.evoChildListMenuClose = true;
+    if (!window.evoContextMenuClose) {
+        window.evoContextMenuClose = true;
         document.addEventListener('click', function(){
             contextm.style.visibility = "hidden";
         });
