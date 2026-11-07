@@ -30,7 +30,7 @@ class logHandler
         // action・itemid が渡されたらそれを使う。空なら今のリクエストの a・id
         $this->writeToLog(
             $action !== '' ? $action : request_intvar('a'),
-            $itemid !== '' ? $itemid : request_strvar('id', 'x')
+            $itemid !== '' ? $itemid : request_textvar('id', 'x')
         );
     }
 

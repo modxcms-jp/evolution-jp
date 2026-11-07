@@ -8,7 +8,7 @@ function setOption($fieldName, $value = '')
 
 function getOption($fieldName)
 {
-    return post_strvar($fieldName,
+    return post_textvar($fieldName,
         sessionv($fieldName,
             globalv($fieldName),
             false
