@@ -1011,7 +1011,9 @@ class DocumentParser
             return [];
         }
         $flattened = $this->flattenToString($target);
-        if (strpos($flattened, '[') === false && strpos($flattened, '<') === false && strpos($flattened, '#') === false) {
+        // 崩す対象（タグの記号・<script・&#数字;）に使う文字を 1 つも含まない値は、何もせずに返す。
+        // タグの記号はどれも [ ] { } のどれかを含むので、{{ }} や閉じる側だけの値も素通しさせない
+        if (strpbrk($flattened, '[]{}<#') === false) {
             return '';
         }
 
@@ -3313,8 +3315,7 @@ class DocumentParser
             // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
             $values = [$value];
             $this->sanitize_gpc($values);
-            // sanitize_gpc() は [ < # を含まない値を素通しするので、{{ }} だけの値のためにタグの記号も崩す
-            $value = $this->breakTagDelimitersRecursive($values[0]);
+            $value = $values[0];
         }
 
         if ($modifiers !== false) {
