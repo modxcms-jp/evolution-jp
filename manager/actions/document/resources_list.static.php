@@ -166,7 +166,7 @@ include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 180);
 echo getContextMenu($cm);
 
-echo get_jscript($id, $cm);
+echo get_jscript($id, $cm, $links ?? null);
 
 ?>
     <script type="text/javascript" src="media/script/data-table.js"></script>
@@ -395,14 +395,21 @@ function _getIconPath($doc)
     return $_style['tree_folder'];
 }
 
-function get_jscript($id, $cm)
+function get_jscript($id, $cm, $links = null)
 {
     global $modx, $_lang, $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
-    // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
-    $page = get_intvar('page') ? " + '&page=" . get_intvar('page') . "'" : '';
+    // メニューの操作後の戻り先に、今のページと並べ替えを残す
+    $returnQuery = '';
+    if (get_intvar('page')) {
+        $returnQuery .= '&page=' . get_intvar('page');
+    }
+    if ($links instanceof DataTableLinks && $links->orderby() !== '') {
+        $returnQuery .= '&orderby=' . rawurlencode($links->orderby()) . '&orderdir=' . rawurlencode($links->orderdir());
+    }
+    $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
     $siteStart = (int) evo()->config('site_start');
 
