@@ -162,6 +162,23 @@ class ManagerAPI
     }
 
     /**
+     * 日付の入力欄（value 属性）に入れる値を返す。出力用にエスケープ済み。
+     * 数値（保存済みの時刻）は日付の書式に直し、差し戻された入力（解釈できない日付を含む）は文字列のまま返す
+     *
+     * @param int|string|null $value 時刻の数値、または差し戻された入力の文字列
+     */
+    public function dateInputValue($value): string
+    {
+        if (!is_scalar($value) && $value !== null) {
+            return '';
+        }
+        if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
+            return (string)evo()->toDateFormat($value);
+        }
+        return hsc($value);
+    }
+
+    /**
      * 要素の編集画面で、差し戻された入力があれば $content に重ねて返す。
      * フォームの項目名を画面が読む形に直す（categoryid → category、post → $codeKey、
      * チェックボックスは 0/1）。差し戻しでなければ $content をそのまま返す

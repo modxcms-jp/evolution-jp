@@ -76,15 +76,11 @@ function entity($key, $default = null)
         $content['published'] = 1;
     }
     if ($key === 'pub_date') {
-        return !empty($content['pub_date'])
-            ? evo()->toDateFormat($content['pub_date'])
-            : '';
+        return manager()->dateInputValue($content['pub_date'] ?? '');
     }
 
     if ($key === 'unpub_date') {
-        return !empty($content['unpub_date'])
-            ? evo()->toDateFormat($content['unpub_date'])
-            : '';
+        return manager()->dateInputValue($content['unpub_date'] ?? '');
     }
 
     return $content[$key] ?? $default;
