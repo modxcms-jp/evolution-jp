@@ -1,0 +1,78 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-data-table-component",
+    "run_id": "2026-11-07-data-table-component-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T00:05:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "process_gap",
+            "summary": "段階を前の段階のブランチの上に積んでいる間に、main で同じファイルが変わり（#1124・#1169）、段階 2 が main と衝突した。runner は push 後の CI で衝突を見る（pull_request のワークフローが動かないときに mergeable を見る）だけで、積んだブランチは base が main でないので main との衝突が CI に出ない。自己レビューのあとに手元の git merge-tree で気づいた。積むときは、PR を作る前と前の段階をマージする前に、git merge-tree で main との衝突を確かめる、と runner に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "missing_instruction",
+            "summary": "runner の検証の決まりは、管理画面の JS を変えたら「シェルの画面遷移の検証も入れる」としているが、全体の読み込み（F5・URL 直打ち）だけで起きる不具合（表より前の script でリスナーを付けると、全体の読み込みでは表がまだ無い）を見落とした。シェルの遷移と全体の読み込みの両方で確かめる、と書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "tool_gap",
+            "summary": "サブエージェントはセッションの作業ツリーの隔離を引き継ぐので、セッションが別の作業ツリーに入っているときに起こした worker は、指示した作業ツリーに書けない。積んだ段階のように作業ツリーが複数あるときは、メインが EnterWorktree でその作業ツリーに入ってから worker を起こす、と runner の「作業場所」に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "bad_assumption",
+            "summary": "触ったファイルのもとからの問題を直すとき（ついでの修正）に、同じ直しが main に入っていないかを確かめず、#1169 と重なった。横断の直し（エスケープの書き方をそろえるなど）は main で進んでいることがあるので、ついでの修正の前に origin/main の同じ箇所を見る、とするとよい。件数は 1 件で、メモリの「ついでの修正の線引き」に書き足せば足りる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-005",
+            "kind": "tool_gap",
+            "summary": "ユーザーさんが目視する検証環境を 127.0.0.x の別アドレスに出したら、Windows のブラウザから開けなかった。environment.md は「127.0.0.1 に公開したものは Windows から localhost で開ける」と書いているが、並走のために別アドレスを使う手順が先に目に入る。人が目視する環境は 127.0.0.1 に出し、80 番が埋まっていれば EVO_HTTP_PORT でポートを変える（インストール前に決める。サイトの URL がインストール時に固まる）、と並走の節に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-006",
+            "kind": "bad_assumption",
+            "summary": "planner が書いた確認の期待（保存すると捨てた設定が消える）が、同じ計画の決定（DB を書き換えない）と食い違い、検証で FAIL になった。計画を作るとき、Validation の各期待を Decision Log とつき合わせる手順が exec-plan に無い。件数は 1 件で影響も小さいので、今回は記録だけにする",
+            "evidence": [
+                "trace.jsonl",
+                ".agent/plans/archive/2026-11-07-data-table-component.md"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan/SKILL.md",
+            "confidence": "low"
+        }
+    ]
+}

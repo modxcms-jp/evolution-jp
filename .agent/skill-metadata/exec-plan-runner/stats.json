@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 38,
-            "used_runs": 38,
-            "helped_runs": 38,
+            "seen_runs": 42,
+            "used_runs": 42,
+            "helped_runs": 42,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 24
+            "active_runs": 26
         },
         "change-004": {
             "seen_runs": 1,
@@ -350,6 +350,42 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-07T12:45:00+09:00",
             "source": "2026-11-07-retire-manager-messages-001"
+        },
+        "change-039": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-040": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-041": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-042": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
         }
     }
 }

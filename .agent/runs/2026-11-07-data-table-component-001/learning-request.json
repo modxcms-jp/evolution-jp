@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-07-data-table-component",
+    "run_id": "2026-11-07-data-table-component-001",
+    "skill": "exec-plan-runner",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-11-08T00:01:44+09:00",
+    "status": "completed",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}
