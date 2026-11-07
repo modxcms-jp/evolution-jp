@@ -44,18 +44,8 @@ class ConfigCheck {
     }
 
     private function get_src_TemplateSwitcher_js($tplName) {
-        global $_lang;
-
         $script =
             "<script>
-function deleteTemplateSwitcher(){
-    if(confirm(" . js_literal($_lang["confirm_delete_plugin"]) . ")) {
-	Evo.post('index.php',{'a':'118','action':'updateplugin','key':'_delete_','lang':" . js_literal($tplName) . "}).then(templateSwitcherResponseBody).then(function(body)
-	{
-		if (body.trim() === 'true') hideTemplateSwitcherWarning();
-	}).catch(function(){});
-    }
-}
 function disableTemplateSwitcher(){
     Evo.post('index.php', {'a':'118','action':'updateplugin','lang':" . js_literal($tplName) . ",'key':'disabled','value':'1'}).then(templateSwitcherResponseBody).then(function(body)
     {
@@ -260,9 +250,6 @@ function hideTemplateSwitcherWarning(){
             $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
             if (sessionv('mgrPermissions.save_plugin') == 1) {
                 $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_disable"];
-            }
-            if (sessionv('mgrPermissions.delete_plugin') == 1) {
-                $msg .= '<br />' . $this->_lang["configcheck_templateswitcher_present_delete"];
             }
             if (evo()->hasPermission('settings')) {
                 $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'templateswitcher_present');
