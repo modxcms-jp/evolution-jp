@@ -40,7 +40,7 @@ $rs = null; // 権限が無いなど、どの更新も行わないときは fals
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
-        if (strpos($key, '_hide_configcheck_') === 0 && $value === '1') {
+        if (strpos($key, '_hide_configcheck_') === 0 && $value === '1' && evo()->hasPermission('settings')) {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;
