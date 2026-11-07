@@ -4902,40 +4902,31 @@ class DocumentParser
             return $str;
         }
 
+        // 日付のあとに、空白 1 つ + 時刻（H:MM または H:MM:SS）を続けてよい。時刻は省ける
+        $time = '(?: ([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?)?';
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
-                if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$Y, $m, $d, $H, $M, $S] = array_pad($parts, 6, 0);
+                $pattern = '@^([0-9]{4})/([0-9]{2})/([0-9]{2})' . $time . '$@D';
+                $order = ['Y', 'm', 'd'];
                 break;
             case 'dd-mm-YYYY':
-                if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$d, $m, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $pattern = '@^([0-9]{2})-([0-9]{2})-([0-9]{4})' . $time . '$@D';
+                $order = ['d', 'm', 'Y'];
                 break;
             case 'mm/dd/YYYY':
-                if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$m, $d, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $pattern = '@^([0-9]{2})/([0-9]{2})/([0-9]{4})' . $time . '$@D';
+                $order = ['m', 'd', 'Y'];
                 break;
             default:
                 return $default;
         }
+        // 末尾の余計な記号・桁の多すぎる時刻・続けて入った空白は、解釈できない日付にする
+        if (!preg_match($pattern, $str, $match)) {
+            return '';
+        }
+        $date = array_combine($order, [$match[1], $match[2], $match[3]]);
+        [$Y, $m, $d] = [$date['Y'], $date['m'], $date['d']];
+        [$H, $M, $S] = [$match[4] ?? 0, $match[5] ?? 0, $match[6] ?? 0];
         // 時刻を省いた入力は 0 時 0 分 0 秒
         [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
         // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
