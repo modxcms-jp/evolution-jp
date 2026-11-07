@@ -4933,14 +4933,47 @@ class DocumentParser
             default:
                 return $default;
         }
-        if (!$H && !$M && !$S) {
-            $H = 0;
-            $M = 0;
-            $S = 0;
+        // 時刻を省いた入力は 0 時 0 分 0 秒
+        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
+        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
+        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+            return '';
         }
-        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = (int)$timeStamp;
-        return $timeStamp;
+        return (int)mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+    }
+
+    /**
+     * 日付の入力を、DB の日時の列（signed int）に入れるタイムスタンプにする。保存の前の確かめは、すべてこれで行う。
+     * 空（空白だけを含む）は 0、解釈できない日付（toTimeStamp() が空文字を返すもの）と、
+     * 列に入らない日時（1901〜2038 年の外）は null を返す。整数はそのまま、範囲だけを確かめる
+     *
+     * @param mixed $value 入力欄の文字列、または保存済みの時刻
+     */
+    public function parseDateInput($value): ?int
+    {
+        if (is_int($value)) {
+            $timestamp = $value;
+        } else {
+            if ($value === null) {
+                return 0;
+            }
+            if (!is_scalar($value)) {
+                return null;
+            }
+            $value = trim((string)$value);
+            if ($value === '') {
+                return 0;
+            }
+            $timestamp = $this->toTimeStamp($value);
+            if ($timestamp === '') {
+                return null;
+            }
+            $timestamp = (int)$timestamp;
+        }
+        if ($timestamp < -2147483648 || 2147483647 < $timestamp) {
+            return null;
+        }
+        return $timestamp;
     }
 
     public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')

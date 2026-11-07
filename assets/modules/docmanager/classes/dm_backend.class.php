@@ -443,8 +443,8 @@ class DocManagerBackend
             if ($input === '') {
                 continue;
             }
-            $timestamp = evo()->toTimeStamp($input);
-            if ($timestamp === '') {
+            $timestamp = evo()->parseDateInput($input);
+            if ($timestamp === null) {
                 $invalidInputs[] = hsc($input);
                 continue;
             }

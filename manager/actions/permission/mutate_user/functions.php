@@ -1,15 +1,5 @@
 <?php
 
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date)
-{
-    global $modx;
-    if (!$date) {
-        return "0";
-    }
-    return $modx->toTimeStamp($date);
-}
-
 function checkbox($name, $value, $label, $cond)
 {
     global $modx;

@@ -20,7 +20,8 @@ $oldemail = post_strvar('oldemail');
 $phone = post_strvar('phone');
 $mobilephone = post_strvar('mobilephone');
 $fax = post_strvar('fax');
-$dob = post_strvar('dob') ? $modx->toTimeStamp(post_strvar('dob')) : 0;
+// 日付は空なら 0、解釈できない・整数の列に入らないなら null（下で差し戻す）
+$dob = evo()->parseDateInput(post_strvar('dob'));
 $country = post_strvar('country');
 $street = post_strvar('street');
 $city = post_strvar('city');
@@ -32,8 +33,8 @@ $comment = post_strvar('comment');
 $role = post_intvar('role');
 $failedlogincount = post_intvar('failedlogincount');
 $blocked = post_intvar('blocked');
-$blockeduntil = post_strvar('blockeduntil') ? $modx->toTimeStamp(post_strvar('blockeduntil')) : 0;
-$blockedafter = post_strvar('blockedafter') ? $modx->toTimeStamp(post_strvar('blockedafter')) : 0;
+$blockeduntil = evo()->parseDateInput(post_strvar('blockeduntil'));
+$blockedafter = evo()->parseDateInput(post_strvar('blockedafter'));
 $user_groups = post_idsvar('user_groups');
 $mode = saveWebUserMode();
 $stay = post_choicevar('stay', [1, 2], 0);
@@ -54,6 +55,12 @@ if ($modx->config['required_email_wuser']) {
         webAlert("E-mail address doesn't seem to be valid!");
         exit;
     }
+}
+
+// 解釈できない日付は、DB に渡さず差し戻す
+if ($dob === null || $blockeduntil === null || $blockedafter === null) {
+    webAlert(lang('mgrlog_dateinvalid'));
+    exit;
 }
 
 switch ($mode) {

@@ -133,8 +133,8 @@ class DocAPI
     /**
      * 公開日・公開終了日から published を決める（リソースの保存、チャンクの保存、下書きの保存と採用の共通の規則）。
      * 未来の公開日は非公開、過去の公開日は公開、公開終了日が過去なら非公開（公開日より優先）。
-     * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に確かめる
-     * （解釈できない値は空文字で返る）。整数（負を含む）の値はそのまま使う
+     * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に
+     * evo()->parseDateInput() で確かめる。整数（負を含む）の値はそのまま使う
      */
     public function setPubStatus($f)
     {
@@ -447,13 +447,9 @@ class DocAPI
                     break;
                 case 'pub_date':
                 case 'unpub_date':
-                    if ($value === '') {
-                        $value = 0;
-                    } else {
-                        // 解釈できない日付は元の入力を残し、setValue() で拒否させる
-                        $ts = evo()->toTimeStamp($value);
-                        $value = $ts === '' ? $value : $ts;
-                    }
+                    // 空は 0。解釈できない日付は元の入力を残し、setValue() で拒否させる
+                    $ts = evo()->parseDateInput($value);
+                    $value = $ts === null ? $value : $ts;
                     break;
                 case 'editedon':
                     $value = request_time();
@@ -542,9 +538,10 @@ class DocAPI
             $form_v['alias'] = evo()->stripAlias($form_v['alias']);
         }
 
-        if (!empty($form_v['pub_date'])) {
-            $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
-            if (!$form_v['pub_date']) {
+        foreach (['pub_date', 'unpub_date'] as $dateField) {
+            $timestamp = evo()->parseDateInput(array_get($form_v, $dateField, ''));
+            // 解釈できない日付と 1970 年より前の日付は、DB に渡さず編集画面へ戻す
+            if ($timestamp === null || $timestamp < 0) {
                 evo()->manager->saveFormValues($mode);
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
@@ -552,17 +549,7 @@ class DocAPI
                 );
                 exit;
             }
-        }
-
-        if (!empty($form_v['unpub_date'])) {
-            $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
-            if (!$form_v['unpub_date']) {
-                evo()->manager->saveFormValues($mode);
-                evo()->webAlertAndQuit(
-                    $_lang['mgrlog_dateinvalid'],
-                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
-                );
-            }
+            $form_v[$dateField] = $timestamp;
         }
         // 公開日・公開終了日による published の決め方は setPubStatus() に一本化している
         $form_v = $this->setPubStatus($form_v);
