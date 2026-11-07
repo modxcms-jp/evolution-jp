@@ -12,7 +12,7 @@
  * failed_login_attempts はグローバル設定の値を使う（ユーザーごとに変える画面は無い）。
  */
 return static function (EvoMigrationHelper $m) {
-    // 設定が無いときは manager/includes/default.config.php の既定値
+    // 設定の行はインストールで必ず入る。無いときは manager/includes/default.config.php の既定値
     $limit = (int)$m->setting('failed_login_attempts', 5);
 
     foreach (['user_attributes', 'web_user_attributes'] as $table) {

@@ -225,7 +225,8 @@ function rejectBlockedUser()
 
 // ブロック中かを、画面と同じ isUserBlocked() で決める。
 // 期限の過ぎた一時ロックは、ここで外してから判定する（失敗回数による一時ロックの動きは変えない）
-// 外すのは失敗回数と blockeduntil だけ。blocked は管理者が付けたブロックなので触らない
+// 外すのは失敗回数と blockeduntil だけ。blocked は管理者が付けたブロックなので触らない。
+// blocked=1 の行は外しても拒否されるので書き換えない（以前の版の一時ロックの形を、マイグレーションが拾えるように残す）
 function isBlockedUser()
 {
     $row = userBlockStateInDb();
@@ -234,7 +235,7 @@ function isBlockedUser()
         return false;
     }
 
-    if (isExpiredTemporaryLock($row)) {
+    if (isExpiredTemporaryLock($row) && (int) array_get($row, 'blocked', 0) !== 1) {
         $fields = [
             'failedlogincount' => 0,
             'blockeduntil' => 0
