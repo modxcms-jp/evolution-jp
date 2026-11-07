@@ -110,6 +110,7 @@ class DocumentParser
     public $unauthorizedDocumentId = 0;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
+    private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
 
     public function __get($property_name)
     {
@@ -129,21 +130,24 @@ class DocumentParser
     public function __call($method_name, $arguments)
     {
         $this->loadExtension('DeprecatedAPI');
-        if (method_exists($this->old, $method_name)) {
-            $error_type = 1;
-        } else {
-            $error_type = 3;
-        }
+        $is_deprecated = method_exists($this->old, $method_name);
 
         if (!isset($this->config) || !$this->config) {
             $this->config = $this->getSettings();
         }
 
-        if (!$this->config('error_reporting') || 1 < $this->config('error_reporting')) {
-            if ($error_type == 1) {
+        // 定義の無いメソッドは検出レベルに関係なく、非推奨のメソッドは検出レベル 2・99 のときだけ残す。
+        // 1 リクエストの中では、同じメソッド名につき 1 件にまとめる
+        $key = strtolower($method_name);
+        $should_log = !$is_deprecated || 1 < (int)$this->config('error_reporting');
+        if ($should_log && !isset($this->loggedMagicCalls[$key])) {
+            $this->loggedMagicCalls[$key] = true;
+            if ($is_deprecated) {
+                $error_type = 1;
                 $title = 'Call deprecated method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
             } else {
+                $error_type = 3;
                 $title = 'Call undefined method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
@@ -161,7 +165,7 @@ class DocumentParser
             $this->logEvent(0, $error_type, $msg, $title);
         }
 
-        if (method_exists($this->old, $method_name)) {
+        if ($is_deprecated) {
             return call_user_func_array([$this->old, $method_name], $arguments);
         }
         return '';
