@@ -358,5 +358,5 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
   - `manager/includes/controls/datagrid.class.php`・`manager/includes/controls/datasetpager.class.php`・`manager/includes/extenders/ex_maketable.php`・`manager/includes/extenders/maketable.class.php` と `loadExtension('MakeTable')` の分岐が無い
 - 非対象（やらないこと）: 外部のスニペットが `$modx->table` や `DataGrid` を直接使っている場合の互換
 - 依存関係: なし
-- ExecPlan: `着手時に判断`
+- ExecPlan: `.agent/plans/2026-11-07-data-table-component.md`
 - メモ/判断ログ: 2026-11-06 起票。進める順番の案と、着手時に決めること（TV の出力ウィジェット `datagrid` の保存済み設定の扱い、部品の置き場所と名前）は #1087 を正とする。
