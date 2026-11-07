@@ -39,29 +39,41 @@ return static function (EvoMigrationHelper $m) {
     }
 
     // 文字列とコメントを左から順に取り出して目印（\x01番号\x01）に置き換え、値の中身（例: 'p{color:red}'）を
-    // キーや区切りと取り違えないようにする。閉じていない文字列（値の ; で切れたものなど）も取り出す
+    // キーや区切りと取り違えないようにする。閉じていない文字列（値の ; で切れたものなど）も取り出す。
+    // 値はエスケープを解かずにそのまま持つ（\ を含む値は引き継がないため）。
+    // 長い文字列で止まらないよう、戻り位置を積まない書き方（所有的な量指定子）にする
     $strings = [];
     $code = preg_replace_callback(
-        '~//[^\n]*|/\*.*?(?:\*/|$)|(["\'])((?:\\\\.|(?!\1).)*)(\1?)~s',
+        '~//[^\n]*+|/\*(?:[^*]++|\*(?!/))*+(?:\*/)?|\'((?:[^\'\\\\]++|\\\\.)*+)(\'?)|"((?:[^"\\\\]++|\\\\.)*+)("?)~s',
         static function ($match) use (&$strings) {
-            if (!isset($match[1]) || $match[1] === '') {
+            if (isset($match[4])) {
+                $strings[] = ['value' => $match[3], 'closed' => $match[4] !== ''];
+            } elseif (isset($match[2])) {
+                $strings[] = ['value' => $match[1], 'closed' => $match[2] !== ''];
+            } else {
                 return ' ';
             }
-            $strings[] = ['value' => stripslashes($match[2]), 'closed' => $match[3] !== ''];
             return "\x01" . (count($strings) - 1) . "\x01";
         },
         $customParams
     );
+    if ($code === null) {
+        $m->log('Could not read Custom Parameters of the old TinyMCE plugin', [
+            'plugin' => $plugins[0]['name'],
+            'error' => preg_last_error(),
+        ], 2);
+        return;
+    }
     // キーは名前か、名前の形をした引用符付きの文字列
     $keyName = static function ($name, $index) use ($strings) {
         $name = $name !== '' ? $name : $strings[(int)$index]['value'];
         return preg_match('/\A[A-Za-z_$][\w$]*\z/', $name) ? $name : '';
     };
-    // body_id・body_class に使える値。引用符・改行・: と、サイトのタグ（[* [( [+ [! [[ {{）を含むものは引き継がない
+    // body_id・body_class に使える値。引用符・\・:・改行と、サイトのタグ（[* [( [+ [! [[ [~ [^ {{）を含むものは引き継がない
     $isPlainValue = static function (array $string) {
         $value = trim($string['value']);
         return $string['closed'] && $value !== ''
-            && !preg_match('/["\'\\\\:\r\n]|\[[*(+!\[]|\{\{/', $value);
+            && !preg_match('/["\'\\\\:\r\n]|\[[*(+!\[~^]|\{\{/', $value);
     };
 
     $carried = [];
