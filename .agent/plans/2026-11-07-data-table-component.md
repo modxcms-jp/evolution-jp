@@ -15,7 +15,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 ## Progress
 
 - [x] (2026-11-07) 段階 1: `DataTable` を作り、子リソースの一覧を移して `MakeTable` を外す（ブランチ `refactor/1087-data-table-stage1`）。実装・検証（main と比較、7 テーマ）・自己レビュー（高・中なし）まで完了。右クリックのメニューの戻り先で並べ替えを保つため範囲を広げた（D19）。PR のマージ待ち
-- [ ] 段階 2: 管理画面の `DataGrid` の利用箇所（ユーザー管理・Web ユーザー管理・モジュール・リソースセレクタ・モジュールの依存関係 2 画面・DocManager）を移す
+- [ ] (2026-11-07 着手、ブランチ `refactor/1087-data-table-stage2`) 段階 2: 管理画面の `DataGrid` の利用箇所（ユーザー管理・Web ユーザー管理・モジュール・リソースセレクタ・モジュールの依存関係 2 画面・DocManager）を移す
 - [ ] 段階 3: TV の出力ウィジェット `datagrid`・修飾子 `:datagrid`・`db()->getHTMLGrid()` を載せ替え、`DataGrid`・`DataSetPager` を外す
 
 ## Surprises & Discoveries
@@ -59,6 +59,7 @@ Issue: #1087（ロードマップ「表の部品（DataGrid・MakeTable）を作
 - 2026-11-07 / planner D17: 新しい言語のキーを 2 つ足す（`english.inc.php`・`japanese-utf8.inc.php`）。`pagination_label`（ページ送りの `nav` の `aria-label`。「ページ送り」/「Pagination」）と `select_all`（「すべて選択」のチェックボックスの `aria-label`。「すべて選択」/「Select all」）。ページ送りの「先頭」「最後」は今の `pagination_table_first`・`pagination_table_last` を使う。`DataTablePager` は言語を読まず、文言を引数で受ける（D5）。
 - 2026-11-07 / planner D18: DocManager のテンプレートの表は、別の `<table>` で書いている「空のテンプレート（id 0）」の行を行の配列の先頭に入れ、1 つの表にする（`style` 属性の表を消す）。テンプレート名と文書グループ名はエスケープし、説明は管理画面のほかの要素の説明と同じ `element_description_html()` を通す。
 - 2026-11-07 / 本人 D19（段階 1 の検証で範囲を広げた）: 子リソースの一覧を並べ替えたまま右クリックのメニューで公開・非公開・削除・復元をすると、戻った一覧で並べ替えが外れていた（処理側が `page` だけを引き継いでいた）。一覧の状態（ページ・並べ替え）の読み取り、並べ替えのキーと SQL の列名の対応、戻り先の URL の組み立てを `manager/includes/controls/child_document_list_state.class.php` の `ChildDocumentListState` 1 か所にまとめ、一覧の画面（`resources_list.static.php`）と 4 つの処理（`manager/processors/document/{publish,unpublish,delete,undelete}_content.processor.php`）の両方がそれを使う。決まり: 一覧ごとの状態は、汎用の `DataTable`・`DataTableLinks` に一覧固有の知識（許可する並べ替えのキー、`a=120` など）を入れず、その一覧専用のクラス 1 か所に置き、画面と処理の両方から使う。クラスの名前は Document 系にする（Resource にしない）。段階 2 で画面状態を覚える一覧（D9）も、同じ形で専用のクラスにするかを着手時に決める。
+- 2026-11-07 / メイン D20（段階 2 の着手時）: 本人の指示で、段階 1 の PR（#1160）をマージせずに段階 2 へ進む。段階 2 のブランチは段階 1 のブランチから作り、PR の base を段階 1 のブランチにする（段階 1 を採用しないときは両方を閉じる）。D19 で段階 2 に残した 2 点はこう決めた: (1) メニューを閉じる `document` の `click` リスナーの印は、画面ごとにせず共通の `window.evoContextMenuClose` 1 つにし、子リソースの一覧（段階 1 の `window.evoChildListMenuClose`）もこれに寄せる。閉じる処理の中身（`contextm` の `visibility` を戻す）がどの画面も同じで、印を分けると同じ処理が画面の数だけ登録されるため。(2) ユーザー管理・Web ユーザー管理・モジュールの一覧には専用の状態のクラスを作らない。前に見たページは画面状態（D9）で覚えるので、処理から一覧へ戻ってもページが残り、戻り先の URL に状態を載せる必要が無いため。
 
 ## Outcomes & Retrospective
 
