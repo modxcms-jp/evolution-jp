@@ -151,7 +151,7 @@ class DocumentParser
                 $title = 'Call undefined method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
-            $info = debug_backtrace();
+            $info = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
             $m = [];
             $m[] = $msg;
             if ($this->currentSnippet) {
@@ -160,7 +160,7 @@ class DocumentParser
                 $m[] = 'Plugin - ' . $this->event->activePlugin;
             }
             $m[] = $this->decoded_request_uri;
-            $m[] = str_replace('\\', '/', $info[0]['file']) . '(line:' . $info[0]['line'] . ')';
+            $m[] = str_replace('\\', '/', $info[0]['file'] ?? '') . '(line:' . ($info[0]['line'] ?? '') . ')';
             $msg = implode('<br />', $m);
             $this->logEvent(0, $error_type, $msg, $title);
         }
