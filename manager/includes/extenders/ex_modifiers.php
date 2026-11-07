@@ -36,7 +36,8 @@ class MODIFIERS
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
 
-    public function phxFilter($key, $value, $modifiers)
+    // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（parsePhx() を参照）
+    public function phxFilter($key, $value, $modifiers, $breakTags = false)
     {
         if (strpos($modifiers, 'id(') !== 0) {
             $value = $this->parseDocumentSource($value);
@@ -51,7 +52,7 @@ class MODIFIERS
         $this->condition = [];
         $this->vars = [];
         $this->vars['name'] = &$key;
-        $value = $this->parsePhx($key, $value, $modifiers);
+        $value = $this->parsePhx($key, $value, $modifiers, $breakTags);
         $this->vars = [];
         return $value;
     }
@@ -198,15 +199,18 @@ class MODIFIERS
         return $result;
     }
 
-    public function parsePhx($key, $value, $modifiers)
+    // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す。
+    // リクエストの値（[[$_GET[...]]] など）で、:urldecode などで戻したタグを続く修飾子（:summary など）が解析しないため
+    public function parsePhx($key, $value, $modifiers, $breakTags = false)
     {
         static $cache = [];
         $cacheKey = null;
         // 覚えるのは値が文字列・数などのときだけ（オブジェクトや配列は serialize() できないことがある）
         if (is_scalar($value) || $value === null) {
             // 値に本文などの長い文字列が入るので、キーには 128 ビットのハッシュを使う（32 ビットでは別の引数と重なりうる）。
-            // serialize() は長さと型を含むので、名前・値・修飾子の境目がずれて同じ文字列になることもない
-            $cacheKey = md5(serialize([$key, $value, $modifiers]));
+            // serialize() は長さと型を含むので、名前・値・修飾子の境目がずれて同じ文字列になることもない。
+            // タグの記号を崩すかどうかで結果が変わるので、$breakTags もキーに含める
+            $cacheKey = md5(serialize([$key, $value, $modifiers, $breakTags]));
             if (isset($cache[$cacheKey])) {
                 return $cache[$cacheKey];
             }
@@ -230,6 +234,9 @@ class MODIFIERS
                 $fstart = evo()->getMicroTime();
             }
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
+            if ($breakTags) {
+                $value = evo()->breakTagDelimitersRecursive($value);
+            }
             if (evo()->debug) {
                 evo()->addLogEntry(
                     sprintf(

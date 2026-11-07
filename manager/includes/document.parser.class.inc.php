@@ -3318,11 +3318,9 @@ class DocumentParser
         }
 
         if ($modifiers !== false) {
-            $value = $this->applyFilter($value, $modifiers, $key);
-            if ($isRequest) {
-                // :urldecode などで戻したタグの記号も崩す。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
-                $value = $this->breakTagDelimitersRecursive($value);
-            }
+            // リクエストの値は、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（:urldecode などで戻したタグを、
+            // 続く :summary などが解析しないため）。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
+            $value = $this->applyFilter($value, $modifiers, $key, $isRequest);
         }
 
         // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
@@ -3334,7 +3332,8 @@ class DocumentParser
         return $value;
     }
 
-    private function breakTagDelimitersRecursive($value)
+    // 値（配列なら中の文字列すべて）のタグの記号を崩す。文字列でない値はそのまま返す
+    public function breakTagDelimitersRecursive($value)
     {
         if (!is_array($value)) {
             return is_string($value) ? self::breakTagDelimiters($value) : $value;
@@ -5671,13 +5670,14 @@ class DocumentParser
         return $o;
     }
 
-    public function applyFilter($value = '', $modifiers = false, $key = '')
+    // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（リクエストの値のタグで使う）
+    public function applyFilter($value = '', $modifiers = false, $key = '', $breakTags = false)
     {
         if ($modifiers === false || $modifiers === 'raw') {
             return $value;
         }
         $this->loadExtension('MODIFIERS');
-        return $this->filter->phxFilter($key, $value, trim($modifiers));
+        return $this->filter->phxFilter($key, $value, trim($modifiers), $breakTags);
     }
 
     public function addSnippet($name, $phpCode, $params = [])
