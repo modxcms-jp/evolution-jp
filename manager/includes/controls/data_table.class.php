@@ -454,7 +454,8 @@ final class DataTableSettings
      */
     private static function linksFor(string $id): DataTableLinks
     {
-        $pageParam = "{$id}_page";
+        // PHP は GET の引数名の空白・. ・[ を _ に置き換えて $_GET に入れる。読む側もリンクの側も、置き換えた後の名前にそろえる
+        $pageParam = str_replace([' ', '.', '['], '_', "{$id}_page");
         $params = (array) getv();
         unset($params[$pageParam]);
         if (evo()->isFrontend()) {

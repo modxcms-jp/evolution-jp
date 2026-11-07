@@ -1053,6 +1053,7 @@ class DBAPI
      *         pagerLocation       top・bottom・both
      *         pagerClass
      *         noRecordMsg
+     *         id                  表の識別（既定 grid）。ページ番号の引数名は {id}_page。同じ id の表を 1 ページに複数置くとページ番号を共有するので、複数置くときは id を分ける
      * style・width・align・bgcolor・cellpadding・cellspacing の指定は受け付けない。
      * セルの値はエスケープして出す。
      */
@@ -1080,7 +1081,7 @@ class DBAPI
             'headerClass' => $params['columnHeaderClass'] ?? '',
             'pagerClass' => $params['pagerClass'] ?? '',
             'emptyMessage' => $params['noRecordMsg'] ?? '',
-        ], 'grid');
+        ], (string) ($params['id'] ?? 'grid'));
     }
 
     public function optimize($table_name)
