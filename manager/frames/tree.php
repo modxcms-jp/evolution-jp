@@ -49,17 +49,17 @@ if (!$isShellPartial) {
 
         // preload images
         var i = new Image(18, 18);
-        i.src = "<?= $_style["tree_page"]?>";
+        i.src = <?= js_literal($_style['tree_page']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_globe"]?>";
+        i.src = <?= js_literal($_style['tree_globe']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_minusnode"]?>";
+        i.src = <?= js_literal($_style['tree_minusnode']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_plusnode"]?>";
+        i.src = <?= js_literal($_style['tree_plusnode']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_folderopen"]?>";
+        i.src = <?= js_literal($_style['tree_folderopen']) ?>;
         i = new Image(18, 18);
-        i.src = "<?= $_style["tree_folder"]?>";
+        i.src = <?= js_literal($_style['tree_folder']) ?>;
 
 
         var rpcNode = null;
@@ -176,13 +176,13 @@ if (!$isShellPartial) {
 
             if (rpcNode.style.display === 'block') {
                 // collapse
-                signImg.src = '<?= $_style["tree_plusnode"] ?>';
+                signImg.src = <?= js_literal($_style['tree_plusnode']) ?>;
                 //rpcNode.innerHTML = '';
                 rpcNode.style.display = 'none';
                 openedArray[id] = 0;
             } else {
                 // expand
-                signImg.src = '<?= $_style["tree_minusnode"] ?>';
+                signImg.src = <?= js_literal($_style['tree_minusnode']) ?>;
 
                 rpcNodeText = rpcNode.innerHTML;
                 openedArray[id] = 1;
@@ -267,7 +267,7 @@ if (!$isShellPartial) {
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = '<?= $_style['empty_recycle_bin'] ?>';
+                a.innerHTML = <?= js_literal($_style['empty_recycle_bin']) ?>;
                 a.className = 'treeButton';
                 a.onclick = emptyTrash;
             }
@@ -279,7 +279,7 @@ if (!$isShellPartial) {
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = '<?= $_style['empty_recycle_bin_empty'] ?>';
+                a.innerHTML = <?= js_literal($_style['empty_recycle_bin_empty']) ?>;
                 a.className = 'treeButtonDisabled';
                 a.onclick = '';
             }
