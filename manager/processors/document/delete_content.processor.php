@@ -77,9 +77,9 @@ evo()->invokeEvent("OnDocFormDelete", $params);
 // empty cache
 $modx->clearCache();
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-$page = get_intvar('page') ? '&page=' . get_intvar('page') : '';
+include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 if ($pid !== '0') {
-    $url = "index.php?r=1&a=120&id={$pid}";
+    $url = ChildDocumentListState::returnUrl((int) $pid);
 } else {
     $url = 'index.php?a=2&r=1';
 }

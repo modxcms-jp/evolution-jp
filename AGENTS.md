@@ -147,6 +147,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `theme-variables.md`    | テーマの色の変数 |
 | `theme-spacing.md`      | テーマの縦の余白 |
 | `core-issues.md`        | コア課題   |
+| `data-table.md`         | 表の部品   |
 | `migrations.md`         | マイグレーション・アップグレード |
 | `request-input.md`      | リクエスト値 |
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |

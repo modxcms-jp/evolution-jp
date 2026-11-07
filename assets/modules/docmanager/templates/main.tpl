@@ -74,6 +74,19 @@
         }
         return true;
     }
+
+    // フォームは画面の差し替えで消えるので、リスナーは積み重ならない
+    Evo.ready(function () {
+        const form = document.templatevariables;
+        if (!form) {
+            return;
+        }
+        form.addEventListener('change', function (e) {
+            if (e.target.name === 'tid') {
+                loadTemplateVars(e.target.dataset.templateId);
+            }
+        });
+    });
 </script>
 <h1>[+lang.DM_module_title+]</h1>
 <div id="actions">
