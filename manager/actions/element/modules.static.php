@@ -150,7 +150,7 @@ echo $cm->render();
     <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         $from = '[+prefix+]site_modules';
-        if ($query) {
+        if ($query !== '') {
             $keyword = db()->escape($query);
             $where = "(name LIKE '%{$keyword}%') OR (description LIKE '%{$keyword}%')";
         } else {
@@ -162,9 +162,7 @@ echo $cm->render();
         $page = $listState['page'];
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        if ($perPage > 0 && $total > 0) {
-            $_PAGE['vs']['page'] = $pager->page();
-        }
+        manager()->rememberListPage($pager, $perPage, $total);
         $params = ['a' => 106];
         if ($query !== '') {
             $params['search'] = $query;

@@ -101,7 +101,7 @@
 
 一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。
 
-画面状態で覚える一覧（`manager()->initPageViewState()` を使うユーザー管理・Web ユーザー管理・モジュール）は、`$_PAGE['vs']['page']` に今のページを覚えて書き戻し、`op=reset` で 1 に戻す（例: `manager/actions/permission/user_management.static.php`）。全件表示（`perPage` が 0 以下）と 0 件のときは書き戻さない。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
+画面状態で覚える一覧（`manager()->initPageViewState()` を使うユーザー管理・Web ユーザー管理・モジュール）は、検索語とページ番号の決め方を `manager()->resolveListViewState()`（`manager/includes/extenders/ex_managerapi.php`）の 1 か所に持つ。検索語を変えて送ったら 1 ページ目、検索語を送らずに開いたとき（編集画面からの戻りなど）は覚えた検索語とページ番号を使い、`op=reset` は検索語を外して 1 ページ目にする。件数で補正したページ番号を覚えるのは `manager()->rememberListPage()`（全件表示（`perPage` が 0 以下）と 0 件のときは覚えない）。例は `manager/actions/permission/user_management.static.php`。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
 
 ## サイト側の表（TV の出力ウィジェット・修飾子・`getHTMLGrid()`）
 

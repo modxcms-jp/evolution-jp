@@ -44,13 +44,17 @@ class ManagerAPI
         $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
     }
 
-    // 一覧の検索語とページ番号を、リクエストと画面状態（前に見た値）から決めて画面状態に覚える
-    // - op=reset: 検索語を外して 1 ページ目
-    // - 検索語が送られ、覚えた検索語と変わった: 1 ページ目（page の指定があればそれ）
-    // - 検索語が送られない（編集画面からの戻りなど）: 覚えた検索語と覚えたページ番号
-    // 空の検索語は「検索語を消す」操作なので、送られたかどうかで覚えた値と使い分ける
-    // 呼び出し前に initPageViewState() を済ませておく。ページ番号は件数で補正してから呼び出し側が vs.page に覚える
-    public function resolveListViewState()
+    /**
+     * 一覧の検索語とページ番号を、リクエストと画面状態（前に見た値）から決めて画面状態に覚える。
+     * - op=reset: 検索語を外して 1 ページ目
+     * - 検索語が送られ、覚えた検索語と変わった: 1 ページ目（page の指定があればそれ）
+     * - 検索語が送られない（編集画面からの戻りなど）: 覚えた検索語と覚えたページ番号
+     * 空の検索語は「検索語を消す」操作なので、送られたかどうかで覚えた値と使い分ける。
+     * initPageViewState() の後に呼ぶ。件数で補正したページ番号は rememberListPage() で覚える。
+     *
+     * @return array{search: string, page: int}
+     */
+    public function resolveListViewState(): array
     {
         global $_PAGE;
 
@@ -69,6 +73,19 @@ class ManagerAPI
         $_PAGE['vs']['search'] = $search;
 
         return ['search' => $search, 'page' => $page];
+    }
+
+    /**
+     * 件数で補正したページ番号を画面状態に覚える（resolveListViewState() と対）。
+     * 全件表示（$perPage が 0 以下）と 0 件のときは覚えない。
+     */
+    public function rememberListPage(DataTablePager $pager, int $perPage, int $total): void
+    {
+        global $_PAGE;
+
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
+        }
     }
 
     // save page view state - not really necessary,
