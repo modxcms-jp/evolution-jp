@@ -122,7 +122,7 @@ if (!$isShellPartial) {
 
             function hideTreeFrame() {
                 var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = "<a href='#' onclick='defaultTreeFrame();return false;'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>";
+                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc($_style['show_tree']) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
@@ -139,7 +139,7 @@ if (!$isShellPartial) {
             function reloadtree() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_loading_doc_tree']?>' />&nbsp;<?= $_lang['loading_doc_tree']?>";
+                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc($_style['icons_loading_doc_tree']) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_doc_tree')))) ?>;
                     elm.style.display = '';
                 }
                 top.tree.saveFolderState(); // save folder state
@@ -149,7 +149,7 @@ if (!$isShellPartial) {
             function reloadmenu() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_working']?>' />&nbsp;<?= $_lang['loading_menu']?>";
+                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc($_style['icons_working']) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_menu')))) ?>;
                     elm.style.display = '';
                 }
                 EvoShell.reloadMenu();
@@ -178,7 +178,7 @@ if (!$isShellPartial) {
             // These functions are used for showing the user the system is working
             window.work = function() { // parent.mainMenu.document
                 var workText = document.getElementById('workText');
-                if (workText) workText.innerHTML = '&nbsp;<img src="<?= $_style['icons_working']?>" />&nbsp;<?= $_lang['working']?>';
+                if (workText) workText.innerHTML = <?= js_literal('&nbsp;<img src="' . hsc($_style['icons_working']) . '" />&nbsp;' . hsc(stripcslashes(lang('working')))) ?>;
             }
 
             window.stopWork = function() {
@@ -188,7 +188,7 @@ if (!$isShellPartial) {
             // GENERAL FUNCTIONS - Remove locks
             // This function removes locks on documents, templates, parsers, and snippets
             function removeLocks() {
-                if (confirm("<?= $_lang['confirm_remove_locks']?>") == true) {
+                if (confirm(<?= js_literal(stripcslashes(lang('confirm_remove_locks'))) ?>) == true) {
                     EvoCsrf.post("index.php?a=67");
                 }
             }
