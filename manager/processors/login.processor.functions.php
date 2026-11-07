@@ -64,8 +64,8 @@ function failedLogin()
     $failedlogincount = user('failedlogincount') + 1;
     $fields = ['failedlogincount' => $failedlogincount];
 
+    // 一時的なロックは blockeduntil だけで表す（blocked は管理者によるブロック。Web ユーザーと同じ）
     if (config('failed_login_attempts', 0) <= $failedlogincount) {
-        $fields['blocked'] = 1;
         $fields['blockeduntil'] = request_time() + (config('blocked_minutes') * 60);
     }
 
@@ -195,9 +195,9 @@ function user($key, $default = null)
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
+    // 期限の過ぎたロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
     if (array_get($user, 'blockeduntil') && array_get($user, 'blockeduntil') < time()) {
         $user['failedlogincount'] = '0';
-        $user['blocked'] = '0';
     }
 
     if (isset($user[$key])) {
@@ -223,57 +223,60 @@ function rejectBlockedUser()
     jsAlert(alert()->errors[902]);
 }
 
+// ブロック中かを、画面と同じ isUserBlocked() で決める。
+// 期限の過ぎた一時ロックは、ここで外してから判定する（失敗回数による一時ロックの動きは変えない）
 function isBlockedUser()
 {
-    $blockedUntil = (int) user('blockeduntil', 0);
-    $failedLoginLimit = (int) config('failed_login_attempts', 0);
-    $failedLoginCount = (int) user('failedlogincount', 0);
-    $isTemporaryLock = 0 < $blockedUntil && $failedLoginLimit <= $failedLoginCount;
-
-    if ($isTemporaryLock && request_time() < $blockedUntil) {
-        return true;
-    }
-
-    if ($isTemporaryLock) {
-        db()->update(
-            [
-                'failedlogincount' => 0,
-                'blocked' => 0,
-                'blockeduntil' => 0
-            ],
-            '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", user('internalKey'))
-        );
+    $row = userBlockStateInDb();
+    if (!$row) {
+        // 属性の行が無いユーザーは、ブロックの記録も無い
         return false;
     }
 
-    if (user('blocked')) {
-        return true;
+    if (isExpiredTemporaryLock($row)) {
+        $fields = [
+            'failedlogincount' => 0,
+            'blocked' => 0,
+            'blockeduntil' => 0
+        ];
+        db()->update(
+            $fields,
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        );
+        $row = array_merge($row, $fields);
     }
 
-    return false;
+    return isUserBlocked($row);
+}
+
+// 失敗回数による一時ロックで、期限が過ぎたもの。
+// 以前の一時ロックは blocked も 1 にしていたので、それもあわせて外す
+function isExpiredTemporaryLock($row)
+{
+    $blockedUntil = (int) $row['blockeduntil'];
+    return 0 < $blockedUntil
+        && $blockedUntil <= request_time()
+        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
 function isStillBlockedInDb()
 {
-    $row = db()->getRow(
+    $row = userBlockStateInDb();
+    return !$row || isUserBlocked($row);
+}
+
+// ブロックの判定に使う列を、DB から読み直す
+function userBlockStateInDb()
+{
+    return db()->getRow(
         db()->select(
-            'blocked, blockeduntil, failedlogincount',
+            'blocked, blockeduntil, blockedafter, failedlogincount',
             '[+prefix+]user_attributes',
             sprintf("internalKey='%d'", user('internalKey'))
         )
     );
-    if (!$row) {
-        return true;
-    }
-    if ((int) $row['blocked']) {
-        return true;
-    }
-    $blockedUntil = (int) $row['blockeduntil'];
-    return 0 < $blockedUntil
-        && request_time() < $blockedUntil
-        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
 }
 
 function checkAllowedIp()
