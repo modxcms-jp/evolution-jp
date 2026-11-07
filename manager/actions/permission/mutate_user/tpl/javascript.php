@@ -22,13 +22,13 @@
         var blocked = document.getElementById('blocked');
         currval = eval(element).value;
         if (currval == 1) {
-            if (confirm("<?= $_lang['confirm_unblock'] ?>") == true) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_unblock'))) ?>) == true) {
                 document.userform.blocked.value = 0;
                 document.userform.blockeduntil.value = "";
                 document.userform.blockedafter.value = "";
                 document.userform.failedlogincount.value = 0;
                 if (blocked) {
-                    blocked.innerHTML = "<b><?= $_lang['unblock_message'] ?></b>";
+                    blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('unblock_message'))) ?>}));
                     blocked.className = "TD";
                 }
                 eval(element).value = 0;
@@ -36,10 +36,10 @@
                 eval(checkelement).checked = true;
             }
         } else {
-            if (confirm("<?= $_lang['confirm_block'] ?>") == true) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_block'))) ?>) == true) {
                 document.userform.blocked.value = 1;
                 if (blocked) {
-                    blocked.innerHTML = "<b><?= $_lang['block_message'] ?></b>";
+                    blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('block_message'))) ?>}));
                     blocked.className = "warning";
                 }
                 eval(element).value = 1;
@@ -56,9 +56,9 @@
 
     function deleteuser() {
         <?php if($userid === (int) evo()->getLoginUserID()) { ?>
-        alert("<?= $_lang['alert_delete_self'] ?>");
+        alert(<?= js_literal(stripcslashes(lang('alert_delete_self'))) ?>);
         <?php } else { ?>
-        if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
             EvoCsrf.post("index.php?id=" + document.userform.userid.value + "&a=33");
         }
         <?php } ?>

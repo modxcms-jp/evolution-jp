@@ -94,14 +94,14 @@ function entity($key, $default = null)
 <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>) == true) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=304");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_tmplvars'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_tmplvars'))) ?>) == true) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=303");
         }
