@@ -1217,6 +1217,23 @@ div.treeNode {
     border-top-right-radius: var(--radius-lg);
 }
 
+/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
+.grid th[aria-sort] a::after {
+    margin-left: var(--space-1);
+    font-size: 0.7em;
+    color: var(--color-primary);
+}
+
+.grid th[aria-sort="ascending"] a::after {
+    content: "\25B2";
+    content: "\25B2" / "";
+}
+
+.grid th[aria-sort="descending"] a::after {
+    content: "\25BC";
+    content: "\25BC" / "";
+}
+
 .gridItem {
     background-color: var(--color-surface);
     padding: var(--space-2);
