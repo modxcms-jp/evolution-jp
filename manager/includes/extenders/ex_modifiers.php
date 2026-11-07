@@ -48,6 +48,13 @@ class MODIFIERS
     public function phxFilter($key, $value, $modifiers)
     {
         if (strpos($modifiers, 'id(') !== 0) {
+            // 修飾子は文字列の値を受ける前提で、配列は下の strpos() などで止まる（PHP 8 は TypeError、7.4 は警告から 500）。
+            // 配列（?b[]=x のようなリクエストの値、配列を入れたプレースホルダー、配列を返すスニペット）は、
+            // 修飾子を当てずに空にする。修飾子の無いタグも配列は差し込まず空になるので、それとそろえる。
+            // id( で始まる列は値を使わずに文書の項目を読むので、配列でもそのまま当てる（今までどおり）
+            if (is_array($value)) {
+                return '';
+            }
             $value = $this->parseDocumentSource($value);
         }
         $this->srcValue = $value;
