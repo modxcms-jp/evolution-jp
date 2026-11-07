@@ -111,6 +111,7 @@ class DocumentParser
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
     private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
+    private $loadingSettings = false; // getSettings() の実行中は true（config() からの再入を防ぐ）
 
     public function __get($property_name)
     {
@@ -132,9 +133,7 @@ class DocumentParser
         $this->loadExtension('DeprecatedAPI');
         $is_deprecated = method_exists($this->old, $method_name);
 
-        if (!isset($this->config) || !$this->config) {
-            $this->config = $this->getSettings();
-        }
+        $this->loadSettingsIfEmpty();
 
         // 定義の無いメソッドは検出レベルに関係なく、非推奨のメソッドは検出レベル 2・99 のときだけ残す。
         // 1 リクエストの中では、同じメソッド名につき 1 件にまとめる
@@ -255,9 +254,7 @@ class DocumentParser
                 // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
                 // 部品を読み込む前に設定を読む。OnGetConfig のプラグインが修飾子を使っても、
                 // 部品の読み込みの途中（$this->filter が未設定）で呼ばれないようにするため
-                if (!$this->config) {
-                    $this->getSettings();
-                }
+                $this->loadSettingsIfEmpty();
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
@@ -287,9 +284,7 @@ class DocumentParser
         }
 
         // get the settings
-        if (!isset($this->config) || !$this->config) {
-            $this->config = $this->getSettings();
-        }
+        $this->loadSettingsIfEmpty();
 
         $this->setBaseTime();
         $this->sanitizeVars();
@@ -1264,7 +1259,31 @@ class DocumentParser
         }
     }
 
+    /**
+     * 設定がまだ読まれていなければ DB から読み込む（「設定が空なら読む」の唯一の入口）。
+     * getSettings() の実行中（token_auth() や OnGetConfig のプラグインから config() が呼ばれたとき）は、
+     * 二重に読み込まない。
+     */
+    private function loadSettingsIfEmpty()
+    {
+        if ($this->config || $this->loadingSettings) {
+            return;
+        }
+        $this->getSettings();
+    }
+
     public function getSettings()
+    {
+        $wasLoading = $this->loadingSettings;
+        $this->loadingSettings = true;
+        try {
+            return $this->readSettings();
+        } finally {
+            $this->loadingSettings = $wasLoading;
+        }
+    }
+
+    private function readSettings()
     {
         $this->token_auth();
 
@@ -6502,14 +6521,13 @@ class DocumentParser
 
     public function config($key = null, $default = null)
     {
+        // インストール中は DB の設定が無いので読まない。それ以外は DB から読み、
+        // 読み込みの最中（getSettings() の途中で呼ばれたとき）だけ既定値で答える
+        if (!$this->config && !defined('MODX_SETUP_PATH')) {
+            $this->loadSettingsIfEmpty();
+        }
         if (!$this->config) {
             $this->config = include MODX_CORE_PATH . 'default.config.php';
-        }
-
-        if (!defined('MODX_SETUP_PATH')) {
-            if (empty($this->config['site_url'])) {
-                $this->getSettings();
-            }
         }
         if ($this->config['site_url'] === '[(site_url)]') {
             $this->config['site_url'] = MODX_SITE_URL;
