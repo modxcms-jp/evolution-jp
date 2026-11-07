@@ -16,15 +16,9 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
 
 manager()->initPageViewState();
 
-// get and save search string
-$query = '';
-if (anyv('op') === 'reset') {
-    $_PAGE['vs']['search'] = '';
-} else {
-    // 空の検索語は「検索語を消す」操作なので、送られたかどうかで保存済みの値と使い分ける
-    $query = request_textvar('search') ?? array_get($_PAGE, 'vs.search', '');
-    $_PAGE['vs']['search'] = $query;
-}
+// get and save search string, page
+$listState = manager()->resolveListViewState();
+$query = $listState['search'];
 
 // get & save listmode
 $listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
@@ -165,9 +159,7 @@ echo $cm->render();
 
         // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(id)', $from, $where));
-        $page = anyv('op') === 'reset'
-            ? 1
-            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $page = $listState['page'];
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
         if ($perPage > 0 && $total > 0) {

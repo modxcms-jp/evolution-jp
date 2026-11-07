@@ -10,14 +10,9 @@ if (!evo()->hasPermission('edit_user')) {
 
 global $_PAGE, $_style;
 manager()->initPageViewState();
-// get and save search string
-if (request_strvar('op') === 'reset') {
-    $query = '';
-    $_PAGE['vs']['search'] = '';
-} else {
-    $query = request_strvar('search') ?: array_get($_PAGE, 'vs.search');
-    $_PAGE['vs']['search'] = $query;
-}
+// get and save search string, page
+$listState = manager()->resolveListViewState();
+$query = $listState['search'];
 
 // get & save listmode
 $listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
@@ -137,7 +132,7 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= hsc(request_strvar('search')) ?>" /></td>
+                                        value="<?= hsc($query) ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
@@ -164,7 +159,7 @@ echo $cm->render();
         $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
         $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
         // Build WHERE clause: combine search conditions and role restriction
-        $search = request_strvar('search');
+        $search = $query;
         $whereParts = [];
 
         if ($search) {
@@ -182,9 +177,7 @@ echo $cm->render();
 
         // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
-        $page = request_strvar('op') === 'reset'
-            ? 1
-            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $page = $listState['page'];
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
         if ($perPage > 0 && $total > 0) {

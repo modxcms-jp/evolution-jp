@@ -44,6 +44,33 @@ class ManagerAPI
         $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
     }
 
+    // 一覧の検索語とページ番号を、リクエストと画面状態（前に見た値）から決めて画面状態に覚える
+    // - op=reset: 検索語を外して 1 ページ目
+    // - 検索語が送られ、覚えた検索語と変わった: 1 ページ目（page の指定があればそれ）
+    // - 検索語が送られない（編集画面からの戻りなど）: 覚えた検索語と覚えたページ番号
+    // 空の検索語は「検索語を消す」操作なので、送られたかどうかで覚えた値と使い分ける
+    // 呼び出し前に initPageViewState() を済ませておく。ページ番号は件数で補正してから呼び出し側が vs.page に覚える
+    public function resolveListViewState()
+    {
+        global $_PAGE;
+
+        if (anyv('op') === 'reset') {
+            $_PAGE['vs']['search'] = '';
+            return ['search' => '', 'page' => 1];
+        }
+
+        $saved = (string) array_get($_PAGE, 'vs.search', '');
+        $sent = request_textvar('search');
+        $search = $sent ?? $saved;
+        $page = get_intvar('page');
+        if (!$page) {
+            $page = $search === $saved ? (int) array_get($_PAGE, 'vs.page', 1) : 1;
+        }
+        $_PAGE['vs']['search'] = $search;
+
+        return ['search' => $search, 'page' => $page];
+    }
+
     // save page view state - not really necessary,
     public function savePageViewState($id = 0)
     {

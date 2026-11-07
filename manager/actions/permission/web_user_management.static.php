@@ -14,13 +14,9 @@ $icons_path = manager_style_image_path('icons');
 
 global $_PAGE;
 
-if (request_strvar('op') === 'reset') {
-    $query = '';
-    $_PAGE['vs']['search'] = '';
-} else {
-    $query = request_strvar('search') ?: array_get($_PAGE, 'vs.search');
-    $_PAGE['vs']['search'] = $query;
-}
+// get and save search string, page
+$listState = manager()->resolveListViewState();
+$query = $listState['search'];
 
 // get & save listmode
 $listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
@@ -141,7 +137,7 @@ echo $cm->render();
                                 <td><?= $_lang["search"] ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= hsc(request_strvar('search')) ?>" />
+                                        value="<?= hsc($query) ?>" />
                                 </td>
                                 <td>
                                     <a class="default" href="#" title="<?= $_lang["search"] ?>"
@@ -164,7 +160,7 @@ echo $cm->render();
 
         <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-        $search = request_strvar('search');
+        $search = $query;
         $from = evo()->getFullTableName('web_users') . ' wu'
             . ' INNER JOIN ' . evo()->getFullTableName('web_user_attributes') . ' wua ON wua.internalKey=wu.id';
         $where = '';
@@ -175,9 +171,7 @@ echo $cm->render();
 
         // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(wu.id)', $from, $where));
-        $page = request_strvar('op') === 'reset'
-            ? 1
-            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $page = $listState['page'];
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
         if ($perPage > 0 && $total > 0) {
