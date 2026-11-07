@@ -125,14 +125,27 @@ echo $cm->render();
         });
     }
 
+    // 表は画面の差し替えで消える。リスナーを登録する <script> を表の後ろに置くと入れ物の最後の子が
+    // <script> になり余白の規則が当たらないため、Evo.ready で表が出来てから登録する
+    Evo.ready(function () {
+        const table = document.querySelector('[data-table="modules"]');
+        if (!table) {
+            return;
+        }
+        table.addEventListener('click', function (e) {
+            const el = e.target.closest('[data-row-menu]');
+            if (el) {
+                showContentMenu(Number(el.dataset.rowMenu), e);
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 
 <h1><?= $_lang['module_management'] ?></h1>
 
 <div class="sectionBody">
     <!-- load modules -->
-    <p><?= $_lang['module_management_msg'] ?></p>
-
     <div id="actions">
         <ul class="actionButtons">
             <?php if ((evo()->hasPermission('new_module'))) {
@@ -142,6 +155,8 @@ echo $cm->render();
                     onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
+
+    <p><?= $_lang['module_management_msg'] ?></p>
 
     <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
@@ -231,19 +246,3 @@ echo $cm->render();
         echo $nav . $table->render($rows, $links) . $nav;
         ?>
 </div>
-<script type="text/javascript">
-    // 表は画面の差し替えで消えるので、リスナーは積み重ならない
-    (function () {
-        const table = document.querySelector('[data-table="modules"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    })();
-</script>
