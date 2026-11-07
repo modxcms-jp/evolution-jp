@@ -8,10 +8,10 @@
  * type はピッカーだけが付けるパラメーター(images / media / files)。管理モードは付けない。
  *
  * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren,mtime}], files:[...], writable}
- *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。
+ *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。thumb はラスター画像なら 'api'(action=thumb で取る)、svg なら url、それ以外は null。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
- *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true、ラスターなら width,height。
- *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
+ *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true と thumb(ラスターは 'api'、svg は url、それ以外は null)、ラスターなら width,height。
+ *                     全ファイル(ドットで始まる名前も)を出す。一覧ではサムネイルを作らず、action=thumb で作る。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの files の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
@@ -276,7 +276,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
     ]);
 }
 
-/** 管理モードの一覧。サムネイルは一覧では作らず、画面が <img loading="lazy"> で見えた分だけ action=thumb で取りに来る */
+/** 管理モードの一覧。サムネイルは一覧では作らず、画面が <img loading="lazy"> で、見える位置に近づいた分だけ action=thumb で取りに来る */
 function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
@@ -460,6 +460,12 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
             $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
+        }
+
+        // 上書きで置き換えたファイルの古いサムネイルを捨てる(同じ秒のうちの置き直しでも古い縮小が返らないように)
+        $thumbSource = realpath($targetPath);
+        if ($thumbSource !== false) {
+            (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget(str_replace('\\', '/', $thumbSource));
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
