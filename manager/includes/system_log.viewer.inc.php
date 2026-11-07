@@ -11,7 +11,7 @@ class SystemLogViewer
      *
      * @param string[]|null $unreadable 読めずに飛ばしたフォルダのパスが入る(省略可)
      */
-    public static function files(string $root, array &$unreadable = null): array
+    public static function files(string $root, ?array &$unreadable = null): array
     {
         $unreadable = [];
         if (!is_dir($root)) {
