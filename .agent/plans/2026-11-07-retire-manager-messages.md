@@ -9,7 +9,7 @@
 - [x] (2026-11-07) M1: 画面と処理を外した（17 ファイル。grep の残りは M2 の 2 件だけ、`php -l` は PHP 7.4 で通過）
 - [x] (2026-11-07) M2: 権限・設定・言語・テーマを外した（言語キーは英語・日本語とも 34 個、画像 5 点、7 テーマの CSS、theme-spacing.md）
 - [x] (2026-11-07) M3: DB を変えた（マイグレーション `20261107_112600_retire_manager_messages`。初期データの SQL は 5 行とも列 72・値 72 で、`messages` 以外の列と値の対応は変更前と同じ）
-- [ ] M4: Docker での検証（新規インストール、メッセージのある DB からのアップグレード、画面）
+- [x] (2026-11-07) M4: Docker で検証した（Validation and Acceptance の 1〜6 をすべて満たした。結果は Outcomes & Retrospective）。自己レビューは高・中なし、低 3 件（空行を詰めた、`--color-info` は残す、開いたままのタブは PR の備考に書く）
 
 ## Surprises & Discoveries
 
@@ -25,9 +25,19 @@
 - 2026-11-07 / yamamoto・Claude: Issue に挙がっていない上の箇所も、メッセージ機能のためだけにあるので、今回まとめて外す。`pm2email` は送信処理（`send_message.processor.php`）だけが読む設定で、送信が無くなれば意味が無い。エラーコード 13・14 も送信処理だけが使う。代替案の「Issue の列挙どおりにして残りは別 Issue」は、使われない設定・コード・CSS が残り、後で同じ棚卸しをやり直すことになるので採らない。
 - 2026-11-07 / yamamoto・Claude: 既存サイトの `topmenu_user` は、旧既定値 `change_user_pf,change_password,messages` のままのときだけ、マイグレーションで `change_user_pf,change_password` に直す。利用者が並べ替えた値は書き換えない（`assets/docs/migrations.md` の「利用者の設定を上書きしない」）。残った `messages` は `buildMenu()` が飛ばすので、害は無い。
 - 2026-11-07 / yamamoto・Claude: `00000000_baseline.php` は変えない。baseline は Administrator ロールが無いときに `messages` 列つきで入れ直すが、baseline は名前の順で新しいマイグレーションより先に流れ、その時点の古い DB には `messages` 列がある。新規インストールの DB はマイグレーションを流さず、すべてを適用済みとして記録する。baseline の見出しの決まり（`create_tables.sql` を変えたら、baseline を書き換えず同じ変更のマイグレーションを足す）にも合う。
+- 2026-11-07 / yamamoto・Claude: 7 テーマの `:root` の `--color-info` は残す。使っていた規則は `.messageUnread` だけで、今回の変更で参照が無くなるが、error・success・warning・info と意味で分けた色の組の 1 つで、外部のテーマやプラグインが使うことがあるため。代替案の「7 テーマから外す」は、色の組が欠けるので採らない。
+- 2026-11-07 / yamamoto・Claude: アップグレードの前から開いたままの管理画面のタブは、古い JS のタイマーで `updateMsgCount` の POST を続け、ダッシュボードの HTML を受け取って上部の表示が崩れることがある。再読み込みで直るので、本体に互換の分岐は残さず、PR とリリース記事で再読み込みを案内する。
 - 2026-11-07 / yamamoto・Claude: PR は 1 つにまとめ、マイルストーンごとにコミットを積む。どのマイルストーンも単独で出すと、消した画面を指すリンクや、使わない列・設定が一時的に残るため。
 
 ## Outcomes & Retrospective
+
+2026-11-07: M1〜M4 を完了した。検証は Docker（PHP 8.4・mariadb 11）で、比較用に main を別の環境で立てた。PHP 7.4 は `php -l` だけで確かめた（変更はほぼ削除で、マイグレーションの SQL は DROP TABLE と ALTER ... DROP COLUMN だけ）。
+
+- 新規インストール: `user_messages` と `user_roles.messages` が無く、3 つの設定も無い。`topmenu_user` は `change_user_pf,change_password`。ロールの権限は `messages` 以外の列で main と一致した（default の 3 行、custom の 2 行）。
+- アップグレード: main の DB（メッセージ 3 行、ロールの `messages=1`、旧既定値の `topmenu_user`）をアップデーターで上げると、テーブル・列・3 設定が消え、`topmenu_user` が新しい既定値になった。並べ替えた `topmenu_user` は変わらなかった。`php evo migrate` の 2 回目は `Nothing to migrate.`。
+- 画面: RevoClassic・RevoStyle・AromaHop・SakuraFlow の上部・ユーザーメニュー・ダッシュボードに、メッセージの表示が無い。150 秒の間に `updateMsgCount` の POST は 0 回（main は 4 回）。`session_keepalive.php` は 1 分に 1 回で、シェルで画面を行き来しても多重にならない。JS のエラーは無い（RevoStyle の `images/misc/` の 404 は main からある）。
+- `a=10`・`a=65`・`a=66` は `a=9999` と同じ 200 のシェルになった（main では `a=65`・`a=66` の GET は 405）。ロールとグローバル設定の保存は通り、3 つの設定は戻らない。システムログと PHP のログに警告は無い。
+- 教訓: Issue の「対応」に挙がった箇所の倍近くが、メッセージ機能のためだけに残っていた（`index.php` の条件、CSRF の対象、互換 API、CSS、画像、関連する設定）。機能を廃止するときは、機能の名前だけでなく、画面・設定・言語キー・CSS の class・画像のファイル名ごとに grep する。
 
 ## Context and Orientation
 
@@ -127,7 +137,7 @@ M4（検証。`adaptive-validation-runner` を使う。手順と結果は Valida
 - Issue: #1069
 - ブランチ: `feat/1069-retire-manager-messages`（`gh issue develop` で Issue に紐づけ済み）
 - ワークツリー: `.claude/worktrees/issue-1069`
-- PR: #1131（下書き、`Refs #1069`。最後のマイルストーンで `Closes #1069` に改める）
+- PR: #1131（`Closes #1069`）
 - 想定のコミット: M1・M2・M3 で 1 つずつ。ExecPlan とロードマップの更新は別のコミット
 - リリース記事に書くこと（`仕様変更`）: メッセージ機能の廃止、アップグレードで `user_messages` のデータが消えるのでバックアップを案内、外部のアドオンの `hasPermission('messages')` は常に偽、外部テーマの `[+MessageInfo+]`・`[+MessageIcon+]`・`[+iconMessage+]` は空になる
 
