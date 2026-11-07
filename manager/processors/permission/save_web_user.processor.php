@@ -386,8 +386,8 @@ switch ($mode) {
                 'username' => $newusername,
                 'userpassword' => $newpassword ?? ''
             ];
+            evo()->invokeEvent('OnWebChangePassword', $tmp);
         }
-        evo()->invokeEvent('OnWebChangePassword', $tmp);
 
         // invoke OnWUsrFormSave event
         $tmp = [
