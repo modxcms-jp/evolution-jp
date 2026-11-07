@@ -28,7 +28,7 @@
 function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns = 'field', $columnsTitle = '', $colWidth = '180', $splY = '||', $splX = '::', $imgW = 300, $imgH = 100, $minRow = 0, $maxRow = 0, $columnsData = '')
 {
 
-    global $mm_current_page, $_lang;
+    global $mm_current_page;
 
     if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
@@ -271,7 +271,7 @@ makeFieldRow: function(id, val){
             //If is file or image
             if (ddMultiple[id].browseFuntion){
                 //Create Attach browse button
-                var button = ddMultiple.make("<input class=\"ddAttachButton\" type=\"button\" value=\"' . $_lang['insert'] . '\" />");
+                var button = ddMultiple.make(' . js_literal('<input class="ddAttachButton" type="button" value="' . hsc(lang('insert')) . '" />') . ');
                 field.after(button);
                 button.addEventListener("click", function(){
                     ddMultiple[id].currentField = ddMultiple.siblings(button, ".ddField")[0] || false;
