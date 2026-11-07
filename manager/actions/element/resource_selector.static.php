@@ -143,6 +143,7 @@ switch ($rt) {
         var a = window.opener.chkBoxArray;
         var f = document.selector;
         chk = f.elements['id[]'];
+        if (!chk) return; // 0 件のときは何もしない
         if (!chk.length) chk.checked = (a[chk.value]) ? true : false;
         else {
             for (i = 0; i < chk.length; i++) {
