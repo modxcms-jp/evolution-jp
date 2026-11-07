@@ -2166,7 +2166,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields, $where]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
@@ -2219,7 +2220,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
