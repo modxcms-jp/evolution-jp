@@ -240,14 +240,14 @@ function manager_safe_mode_toggle_value()
 }
 
 // 切り替えたあとは管理画面のトップへ移すので、シェル（shell.js）に横取りさせず画面全体で送る（data-no-ajax）。
-// エラーの表示は #mainPane の断片に入ることがあるため
+// エラーの表示は #mainPane の断片や、ファイルブラウザなどの iframe の中に出ることがあるため、送り先は最上位の画面にする（target="_top"）
 function manager_safe_mode_toggle_form($label, $className = '', $style = '')
 {
     $classAttr = $className !== '' ? ' class="' . hsc($className) . '"' : '';
     $styleAttr = $style !== '' ? ' style="' . hsc($style) . '"' : '';
 
     return sprintf(
-        '<form method="post" action="%s" style="display:inline;" data-no-ajax>'
+        '<form method="post" action="%s" style="display:inline;" target="_top" data-no-ajax>'
         . '<input type="hidden" name="a" value="1">'
         . '<input type="hidden" name="f" value="menu">'
         . '<input type="hidden" name="manager_safe_mode" value="%s">'
@@ -292,8 +292,9 @@ function manager_safe_mode_button_html()
     $label = $isSafeMode ? lang('manager_safe_mode_button_disable') : lang('manager_safe_mode_button_enable');
     $background = $isSafeMode ? '#333' : '#c62828';
 
+    // 上部のメニュー（ログアウトなど）に重ならないよう、右下に出す
     return sprintf(
-        '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
+        '<div style="position:fixed;bottom:12px;right:12px;z-index:2147483647;">'
         . '%s</div>',
         manager_safe_mode_toggle_form(
             $label,
