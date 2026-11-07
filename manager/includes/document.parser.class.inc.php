@@ -1727,23 +1727,8 @@ class DocumentParser
             return;
         }
 
-        $rs = db()->select(
-            'element,elmid',
-            '[+prefix+]site_revision',
-            sprintf(
-                "pub_date<=%s AND status='standby'",
-                $timeNow
-            )
-        );
-        $draft_ids = [];
-        while ($row = db()->getRow($rs)) {
-            if ($row['element'] === 'resource') {
-                $draft_ids[] = $row['elmid'];
-            }
-        }
-        if ($draft_ids) {
-            $this->updateDraft();
-        }
+        // 時刻が来た下書きの予約を反映する。OnDocPublished は、実際に反映した文書にだけ出す
+        $draft_ids = $this->updateDraft();
 
         // now, check for documents that need publishing
         $pub_ids = [];
@@ -6530,19 +6515,6 @@ class DocumentParser
     public function conf_var($key = null, $default = null)
     {
         return $this->config($key, $default);
-    }
-
-    /** @deprecated helpers.php の array_get() を使う。次の版で消す */
-    public function array_get($array, $key = null, $default = null)
-    {
-        return array_get($array, $key, $default);
-    }
-
-    // from Laravel Arr::set()
-    /** @deprecated helpers.php の array_set() を使う。次の版で消す */
-    public function array_set(&$array, $key, $value)
-    {
-        return array_set($array, $key, $value);
     }
 
     public function get_docfield_type($field_name = '')
