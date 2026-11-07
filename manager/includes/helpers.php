@@ -493,7 +493,7 @@ function post_intvar($key)
     return to_intvar(postv($key, 0));
 }
 
-// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
+// GET と POST の両方（anyv()）から id として読む。両方で呼ばれる処理だけに使う
 function request_intvar($key)
 {
     return to_intvar(anyv($key, 0));
@@ -784,9 +784,16 @@ function normalize_url_tv_value($value, $prefix = '--')
     return $prefix . $value;
 }
 
+// GET と POST の両方から読む。$_REQUEST は php.ini の設定次第で cookie を含むので読まない。
+// まとめ方は php.ini-production の request_order = "GP" の $_REQUEST と同じ（同じ名前は POST を優先し、配列は入れ子までまとめる）。
+// 起動時に $_REQUEST を無害化したリクエスト（フロント）では、返す値も同じ処理で無害化する
 function anyv($key = null, $default = null)
 {
-    return array_get($_REQUEST, $key, $default);
+    $request = array_replace_recursive($_GET, $_POST);
+    if (evo() && evo()->requestSanitized) {
+        evo()->sanitize_gpc($request);
+    }
+    return array_get($request, $key, $default);
 }
 
 function serverv($key = null, $default = null)

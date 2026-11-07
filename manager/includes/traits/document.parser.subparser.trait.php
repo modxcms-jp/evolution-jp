@@ -741,7 +741,7 @@ trait DocumentParserSubParserTrait
 
         if ($count_attempts == 1) {
             // append the redirect count string to the url
-            $currentNumberOfRedirects = isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+            $currentNumberOfRedirects = request_uintvar('err', 0);
             if ($currentNumberOfRedirects > 3) {
                 $modx->messageQuit(
                     "Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>"
@@ -849,6 +849,9 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         // invoke OnPageUnauthorized event
+        // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
+        // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す
+        $modx->unauthorizedDocumentId = (int) $modx->documentIdentifier;
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
 
@@ -1249,8 +1252,8 @@ trait DocumentParserSubParserTrait
                 break;
             case '@INHERIT' :
                 $output = $param;
-                if (empty($docid) && isset($_REQUEST['pid'])) {
-                    $doc['parent'] = $_REQUEST['pid'];
+                if (empty($docid) && anyv('pid') !== null) {
+                    $doc['parent'] = anyv('pid');
                 } else {
                     $doc = $modx->getPageInfo($docid, 0, 'id,parent');
                 }

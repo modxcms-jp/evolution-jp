@@ -104,6 +104,10 @@ class DocumentParser
     public $revisionObject;
     public $filter;
     public $tvfilter;
+    // sanitizeVars() が $_REQUEST を無害化したか。anyv() が返す値を同じく無害化するために見る
+    public $requestSanitized = false;
+    // 権限が無く転送したときの元の文書 id（sendUnauthorizedPage()）。ログインフォームの戻り先に使う
+    public $unauthorizedDocumentId = 0;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -508,6 +512,7 @@ class DocumentParser
         }
         $this->sanitize_gpc($_COOKIE);
         $this->sanitize_gpc($_REQUEST);
+        $this->requestSanitized = true;
     }
 
     private function setUaType()
@@ -5971,11 +5976,11 @@ class DocumentParser
      * 基準時間の設定
      *
      * 引数がない場合は現在の時間を設定。
-     * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
+     * 次の条件を満たす場合 GET・POST の baseTime が利用される。
      *
      * ・引数がない
      * ・ログイン状態
-     * ・$_REQUEST['baseTime'] が存在する
+     * ・GET・POST に baseTime が存在する
      *
      * @param $t 時間(Unixtime or 日付フォーマット)
      * @return bool
@@ -5984,7 +5989,7 @@ class DocumentParser
     private function setBaseTime($t = '')
     {
         if (!$t) {
-            $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
+            $baseTime = anyv('baseTime', '');
             if (!empty($baseTime) && $this->isLoggedin()) {
                 $t = $baseTime;
             } else {

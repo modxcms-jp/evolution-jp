@@ -4,7 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-$esc_request = db()->escape($_REQUEST);
+$esc_request = db()->escape(anyv());
 
 $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false

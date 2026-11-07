@@ -466,7 +466,7 @@ $tmp = [
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = request_strvar('refurl');
+$refUrl = webLoginRefUrl();
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;
