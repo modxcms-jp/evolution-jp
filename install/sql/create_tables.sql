@@ -337,20 +337,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_attributes`
     KEY `userid` (`internalKey`)
 ) {TABLE_OPTION} COMMENT ='Contains information about the backend users.';
 
-CREATE TABLE IF NOT EXISTS `{PREFIX}user_messages`
-(
-    `id`          int(10)     NOT NULL AUTO_INCREMENT,
-    `type`        varchar(15) NOT NULL DEFAULT '',
-    `subject`     varchar(60) NOT NULL DEFAULT '',
-    `message`     text,
-    `sender`      int(10)     NOT NULL DEFAULT '0',
-    `recipient`   int(10)     NOT NULL DEFAULT '0',
-    `private`     tinyint(4)  NOT NULL DEFAULT '0',
-    `postdate`    int(20)     NOT NULL DEFAULT '0',
-    `messageread` tinyint(1)  NOT NULL DEFAULT '0',
-    PRIMARY KEY (`id`)
-) {TABLE_OPTION} COMMENT ='Contains messages for the Content Manager messaging system.';
-
 CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles`
 (
     `id`                     int(10)      NOT NULL AUTO_INCREMENT,
@@ -368,7 +354,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles`
     `action_ok`              int(1)       NOT NULL DEFAULT '0',
     `logout`                 int(1)       NOT NULL DEFAULT '0',
     `help`                   int(1)       NOT NULL DEFAULT '0',
-    `messages`               int(1)       NOT NULL DEFAULT '0',
     `new_user`               int(1)       NOT NULL DEFAULT '0',
     `edit_user`              int(1)       NOT NULL DEFAULT '0',
     `logs`                   int(1)       NOT NULL DEFAULT '0',
