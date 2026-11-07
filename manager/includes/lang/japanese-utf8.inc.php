@@ -443,7 +443,6 @@ return [
     "manager_safe_mode_button_disable" => 'セーフモードを解除',
     "manager_safe_mode_button_enable" => 'セーフモードで表示',
     "manager_safe_mode_nav_disable" => 'セーフモード解除',
-    "manager_safe_mode_nav_enable" => 'セーフモード',
     "manager_theme" => '管理画面のテーマ',
     "manager_theme_message" => '管理画面で使用するデザインテーマを選択してください。',
     "messages" => 'メッセージ',
