@@ -668,8 +668,8 @@
             const clear = function () {
                 setSubmitting(form, false);
             };
-            setSubmitting(form, true, submitter);
             try {
+                setSubmitting(form, true, submitter);
                 request(action, {
                     method: 'POST',
                     body: formData,
