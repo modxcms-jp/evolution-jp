@@ -1015,19 +1015,29 @@ class DocumentParser
             return '';
         }
 
-        $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
-        $r = [];
-        foreach ($s as $delimiter) {
-            [$open, $close] = str_split($delimiter, 1);
-            $r[] = " {$open} {$close} ";
-        }
-
-        array_walk_recursive($target, static function (&$value) use ($s, $r) {
-            $value = str_replace($s, $r, $value);
+        array_walk_recursive($target, static function (&$value) {
+            $value = self::breakTagDelimiters($value);
             $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
             $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
         });
         return $target;
+    }
+
+    // MODX のタグの記号（[[ ]]・{{ }}・[* *] など）の間に空白を入れ、タグとして解析されないようにする。
+    // 何度かけても結果は変わらない
+    private static function breakTagDelimiters($value)
+    {
+        static $search = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
+        static $replace = null;
+        if ($replace === null) {
+            $replace = [];
+            foreach ($search as $delimiter) {
+                [$open, $close] = str_split($delimiter, 1);
+                $replace[] = " {$open} {$close} ";
+            }
+        }
+
+        return str_replace($search, $replace, $value);
     }
 
     private function flattenToString($value)
@@ -3273,6 +3283,7 @@ class DocumentParser
     { // Get super globals
         $key = $value;
         [$key, $modifiers] = $this->splitKeyAndFilter($key);
+        [$raw, $modifiers] = $this->splitRawModifier($modifiers);
 
         $key = str_replace(['(', ')'], ["['", "']"], $key);
         $session = null;
@@ -3296,26 +3307,93 @@ class DocumentParser
             $value = '';
         }
 
+        $isRequest = in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true);
+        if ($isRequest) {
+            // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
+            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
+            $values = [$value];
+            $this->sanitize_gpc($values);
+            // sanitize_gpc() は [ < # を含まない値を素通しするので、{{ }} だけの値のためにタグの記号も崩す
+            $value = $this->breakTagDelimitersRecursive($values[0]);
+        }
+
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
+            if ($isRequest) {
+                // :urldecode などで戻したタグの記号も崩す。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
+                $value = $this->breakTagDelimitersRecursive($value);
+            }
+        }
+
+        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
+        // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
+        if ($isRequest && !$raw) {
+            $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
 
         return $value;
     }
 
+    private function breakTagDelimitersRecursive($value)
+    {
+        if (!is_array($value)) {
+            return is_string($value) ? self::breakTagDelimiters($value) : $value;
+        }
+        array_walk_recursive($value, static function (&$item) {
+            if (is_string($item)) {
+                $item = self::breakTagDelimiters($item);
+            }
+        });
+
+        return $value;
+    }
+
+    // 最初の修飾子が raw なら、[[$_GET[...]]] などの自動のエスケープを外す。残りの修飾子はそのまま使う
+    private function splitRawModifier($modifiers)
+    {
+        if ($modifiers === false) {
+            return [false, false];
+        }
+        if ($modifiers === 'raw') {
+            return [true, false];
+        }
+        if (strpos($modifiers, 'raw:') === 0) {
+            $rest = substr($modifiers, strlen('raw:'));
+            return [true, $rest === '' ? false : $rest];
+        }
+
+        return [false, $modifiers];
+    }
+
     private function isSuperGlobalAccessor($key)
     {
-        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key) === 1;
+        return $this->superGlobalName($key) !== '';
+    }
+
+    // '$_GET[...]' の 'GET' のように、タグが指すスーパーグローバルの名前を返す。当たらなければ空文字
+    private function superGlobalName($key)
+    {
+        return $this->matchSuperGlobal($key)[1] ?? '';
+    }
+
+    private function matchSuperGlobal($key)
+    {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+            return [];
+        }
+
+        return $matches;
     }
 
     private function fetchSuperGlobalValue($key, $session)
     {
-        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(\[.*)?$/s', $key, $matches)) {
+        $matches = $this->matchSuperGlobal($key);
+        if (!$matches) {
             return '';
         }
 
         $target = $matches[1];
-        $path = $this->convertBracketToDot($matches[2]);
+        $path = $this->convertBracketToDot($matches[2] ?? '');
         $superGlobal = $this->getSuperGlobalSource($target, $session);
 
         if ($path === '') {
@@ -3344,7 +3422,8 @@ class DocumentParser
             case 'POST':
                 return $_POST;
             case 'REQUEST':
-                return $_REQUEST;
+                // $_REQUEST は php.ini の設定次第で cookie を含むので、GET・POST だけを読む anyv() を使う
+                return anyv();
             case 'SESSION':
                 return $session ?? $_SESSION;
             case 'COOKIE':
