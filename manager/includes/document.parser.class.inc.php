@@ -3991,15 +3991,38 @@ class DocumentParser
     public function getChildIds($id, $depth = 10, $children = [])
     {
         static $cached = [];
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
-        if (isset($cached[$cacheKey])) {
+        // 文書の id として読めない値（空・数字以外を含む・'05' など）は、これまでどおり子なしとする
+        if (!is_int($id) && !(is_string($id) && preg_match('/\A(0|[1-9][0-9]*)\z/', $id))) {
+            return [];
+        }
+        $id = (int) $id;
+        // null は、これまでどおり 1 段だけ（0 以下は深さの制限なし）
+        $depth = $depth === null ? 1 : (int) $depth;
+        // 結果を決めるのは $id と $depth だけ。$children は呼び出し側が先に集めた分で、最後に重ねる
+        $cacheKey = "{$id}|{$depth}";
+        if (!isset($cached[$cacheKey])) {
+            $cached[$cacheKey] = $this->collectChildIds($id, $depth);
+        }
+        if (!$cached[$cacheKey]) {
+            return [];
+        }
+        if (!$children) {
             return $cached[$cacheKey];
         }
-        $cached[$cacheKey] = [];
+        // キーが重なったときは、こちらで見つけた値を優先する
+        return array_replace($children, $cached[$cacheKey]);
+    }
 
-        static $hasChildren = [];
+    /**
+     * $id の下の文書を、キーが「パス/別名」、値が id の配列で返す。
+     * 並びは、親ごとに menuindex の順で、深さ優先。$depth が 0 以下なら深さの制限なし
+     */
+    private function collectChildIds($id, $depth)
+    {
+        static $hasChildren = null;
 
-        if (!$hasChildren) {
+        if ($hasChildren === null) {
+            $hasChildren = [];
             $rs = db()->select('DISTINCT(parent)', '[+prefix+]site_content', 'deleted=0');
             while ($row = db()->getRow($rs)) {
                 $hasChildren[$row['parent']] = true;
@@ -4010,33 +4033,72 @@ class DocumentParser
             return [];
         }
 
-        $rs = db()->select(
-            'id',
-            '[+prefix+]site_content',
-            sprintf('deleted=0 AND parent=%s', $id),
-            'parent, menuindex'
-        );
-        $depth--;
-        while ($row = db()->getRow($rs)) {
-            $key = trim(
-                sprintf(
-                    '%s/%s',
-                    $this->getAliasListing($row['id'], 'path'),
-                    $this->getAliasListing($row['id'], 'alias')
-                ),
-                '/'
+        // 下の階層を 1 段ずつまとめて読む（問い合わせは階層の数だけ。読むのは $id の下だけ）。
+        // 別名（aliasListing）も、読んだ行と親の path から埋め、文書ごとに問い合わせない
+        if (0 < $id) {
+            $this->getAliasListing($id);
+        }
+        $useAliasPath = $this->config('use_alias_path') == '1';
+        $byParent = [];
+        $level = [$id];
+        $remaining = $depth;
+        while ($level && ($depth <= 0 || 0 < $remaining--)) {
+            $rs = db()->select(
+                'id,parent,alias,isfolder',
+                '[+prefix+]site_content',
+                sprintf('deleted=0 AND parent IN (%s)', implode(',', $level)),
+                'parent, menuindex'
             );
-            $children[$key] = $row['id'];
-
-            if ($depth) {
-                $subChildId = $this->getChildIds($row['id'], $depth);
-                if ($subChildId) {
-                    $children += $subChildId;
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                $docid = (int) $row['id'];
+                $parent = (int) $row['parent'];
+                $byParent[$parent][] = $row['id'];
+                if (isset($hasChildren[$docid])) {
+                    $level[] = $docid;
                 }
+                if (isset($this->aliasListing[$docid])) {
+                    continue;
+                }
+                $path = '';
+                if ($parent && $useAliasPath) {
+                    if (!isset($this->aliasListing[$parent])) {
+                        continue; // 親の別名が分からないときは getAliasListing() に任せる
+                    }
+                    $_ = $this->aliasListing[$parent];
+                    $path = (0 < $_['parent'] && $_['path'] != '') ? $_['path'] . '/' . $_['alias'] : $_['alias'];
+                }
+                $this->aliasListing[$docid] = [
+                    'id' => $docid,
+                    'alias' => $row['alias'] == '' ? $docid : $row['alias'],
+                    'parent' => $parent,
+                    'isfolder' => (int) $row['isfolder'],
+                    'path' => $path
+                ];
             }
         }
 
-        $cached[$cacheKey] = $children;
+        return $this->buildChildIds($byParent, $id, $depth);
+    }
+
+    private function buildChildIds(array $byParent, $parent, $depth)
+    {
+        $children = [];
+        $depth--;
+        foreach ($byParent[$parent] ?? [] as $docid) {
+            $key = trim(
+                sprintf(
+                    '%s/%s',
+                    $this->getAliasListing($docid, 'path'),
+                    $this->getAliasListing($docid, 'alias')
+                ),
+                '/'
+            );
+            $children[$key] = $docid;
+            if ($depth) {
+                $children += $this->buildChildIds($byParent, (int) $docid, $depth);
+            }
+        }
         return $children;
     }
 
