@@ -21,7 +21,7 @@
 | `post_` | POST だけ | `postv()` |
 | `request_` | GET と POST の両方 | `anyv()` |
 
-`request_` は、GET と POST の両方で呼ばれる処理だけに使う。変換の本体は受け取り元に依らない `to_*()` にあり、`get_` などは `to_*(getv($key), ...)` のように呼ぶだけ。
+`request_` は、GET と POST の両方で呼ばれる処理だけに使う。`anyv()` は `$_POST + $_GET` から読み、同じ名前があれば POST の値を返す（php.ini-production の `request_order = "GP"` と同じ順）。`$_REQUEST` は php.ini の設定（`request_order` / `variables_order`）次第で cookie を含むので、本体では読まない。cookie は `cookiev()` で明示して読む。変換の本体は受け取り元に依らない `to_*()` にあり、`get_` などは `to_*(getv($key), ...)` のように呼ぶだけ。
 
 ## 型つきヘルパーの戻り値
 

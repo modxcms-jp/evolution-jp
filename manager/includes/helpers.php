@@ -451,7 +451,7 @@ function post_intvar($key)
     return to_intvar(postv($key, 0));
 }
 
-// GET と POST の両方（$_REQUEST）から id として読む。両方で呼ばれる処理だけに使う
+// GET と POST の両方（anyv()）から id として読む。両方で呼ばれる処理だけに使う
 function request_intvar($key)
 {
     return to_intvar(anyv($key, 0));
@@ -742,9 +742,11 @@ function normalize_url_tv_value($value, $prefix = '--')
     return $prefix . $value;
 }
 
+// GET と POST の両方から読む。同じ名前は POST を優先する（php.ini-production の request_order = "GP" と同じ順）。
+// $_REQUEST は php.ini の設定次第で cookie を含むので読まない
 function anyv($key = null, $default = null)
 {
-    return array_get($_REQUEST, $key, $default);
+    return array_get($_POST + $_GET, $key, $default);
 }
 
 function serverv($key = null, $default = null)

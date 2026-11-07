@@ -5908,11 +5908,11 @@ class DocumentParser
      * 基準時間の設定
      *
      * 引数がない場合は現在の時間を設定。
-     * 次の条件を満たす場合 $_REQUEST['baseTime'] が利用される。
+     * 次の条件を満たす場合 GET・POST の baseTime が利用される。
      *
      * ・引数がない
      * ・ログイン状態
-     * ・$_REQUEST['baseTime'] が存在する
+     * ・GET・POST に baseTime が存在する
      *
      * @param $t 時間(Unixtime or 日付フォーマット)
      * @return bool
@@ -5921,7 +5921,7 @@ class DocumentParser
     private function setBaseTime($t = '')
     {
         if (!$t) {
-            $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
+            $baseTime = anyv('baseTime', '');
             if (!empty($baseTime) && $this->isLoggedin()) {
                 $t = $baseTime;
             } else {
