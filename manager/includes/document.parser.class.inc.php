@@ -1015,19 +1015,29 @@ class DocumentParser
             return '';
         }
 
-        $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
-        $r = [];
-        foreach ($s as $delimiter) {
-            [$open, $close] = str_split($delimiter, 1);
-            $r[] = " {$open} {$close} ";
-        }
-
-        array_walk_recursive($target, static function (&$value) use ($s, $r) {
-            $value = str_replace($s, $r, $value);
+        array_walk_recursive($target, static function (&$value) {
+            $value = self::breakTagDelimiters($value);
             $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
             $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
         });
         return $target;
+    }
+
+    // MODX のタグの記号（[[ ]]・{{ }}・[* *] など）の間に空白を入れ、タグとして解析されないようにする。
+    // 何度かけても結果は変わらない
+    private static function breakTagDelimiters($value)
+    {
+        static $search = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
+        static $replace = null;
+        if ($replace === null) {
+            $replace = [];
+            foreach ($search as $delimiter) {
+                [$open, $close] = str_split($delimiter, 1);
+                $replace[] = " {$open} {$close} ";
+            }
+        }
+
+        return str_replace($search, $replace, $value);
     }
 
     private function flattenToString($value)
@@ -3297,15 +3307,42 @@ class DocumentParser
             $value = '';
         }
 
-        if ($modifiers !== false) {
-            $value = $this->applyFilter($value, $modifiers, $key);
+        $isRequest = in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true);
+        if ($isRequest) {
+            // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
+            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
+            $values = [$value];
+            $this->sanitize_gpc($values);
+            $value = $values[0];
         }
 
-        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする。
+        if ($modifiers !== false) {
+            $value = $this->applyFilter($value, $modifiers, $key);
+            if ($isRequest) {
+                // :urldecode などで戻したタグの記号も崩す。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
+                $value = $this->breakTagDelimitersRecursive($value);
+            }
+        }
+
+        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
         // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
-        if (!$raw && in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true)) {
+        if ($isRequest && !$raw) {
             $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
+
+        return $value;
+    }
+
+    private function breakTagDelimitersRecursive($value)
+    {
+        if (!is_array($value)) {
+            return is_string($value) ? self::breakTagDelimiters($value) : $value;
+        }
+        array_walk_recursive($value, static function (&$item) {
+            if (is_string($item)) {
+                $item = self::breakTagDelimiters($item);
+            }
+        });
 
         return $value;
     }
