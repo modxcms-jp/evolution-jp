@@ -78,7 +78,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=12&id=' + id;
                 break;
             case 2: // delete
-                if (confirm("<?= $_lang['confirm_delete_user'] ?>")) {
+                if (confirm(<?= js_literal($_lang['confirm_delete_user']) ?>)) {
                     EvoCsrf.post('index.php?a=33&id=' + id);
                 }
                 break;
@@ -186,7 +186,9 @@ echo $cm->render();
                 : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
             $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
             $pager = new DataTablePager($total, $perPage, $page);
-            $_PAGE['vs']['page'] = $pager->page();
+            if ($perPage > 0 && $total > 0) {
+                $_PAGE['vs']['page'] = $pager->page();
+            }
             $params = ['a' => 75];
             if ($search) {
                 $params['search'] = $search;

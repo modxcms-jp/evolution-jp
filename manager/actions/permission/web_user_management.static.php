@@ -83,7 +83,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=88&id=' + id;
                 break;
             case 2: // delete
-                if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
+                if (confirm(<?= js_literal($_lang['confirm_delete_user']) ?>) == true) {
                     EvoCsrf.post('index.php?a=90&id=' + id);
                 }
                 break;
@@ -180,7 +180,9 @@ echo $cm->render();
             : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        $_PAGE['vs']['page'] = $pager->page();
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
+        }
         $params = ['a' => 99];
         if ($search !== '') {
             $params['search'] = $search;
@@ -258,6 +260,6 @@ echo $cm->render();
             'last' => lang('pagination_table_last'),
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
-            ?>
+        ?>
     </div>
 </form>

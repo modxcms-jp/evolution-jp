@@ -3,6 +3,7 @@
 class DocManagerFrontend
 {
     var $dm = null;
+    private $templateRows = null;
 
     function __construct(&$dm)
     {
@@ -62,9 +63,13 @@ class DocManagerFrontend
 
     private function templateRows(): array
     {
-        return db()->getRows(
-            db()->select('id,templatename AS name,description', '[+prefix+]site_templates', '', 'id ASC')
-        ) ?: [];
+        // テンプレートの表と TV の表で同じ行を使うので 1 回だけ取る
+        if ($this->templateRows === null) {
+            $this->templateRows = db()->getRows(
+                db()->select('id,templatename AS name,description', '[+prefix+]site_templates', '', 'id ASC')
+            ) ?: [];
+        }
+        return $this->templateRows;
     }
 
     private function templateLabels(): array
@@ -150,7 +155,7 @@ class DocManagerFrontend
         $userOptions = '';
 
         while ($row = db()->getRow($users)) {
-            $userOptions .= '<option value="' . $row['id'] . '">' . $row['username'] . '</option>';
+            $userOptions .= '<option value="' . (int) $row['id'] . '">' . hsc($row['username']) . '</option>';
         }
         $this->dm->ph['changeauthors.options'] = $userOptions;
         $this->dm->ph['view.changeauthors'] = $this->dm->parseTemplate('changeauthors.tpl', $this->dm->ph);

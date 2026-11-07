@@ -18,15 +18,11 @@ manager()->initPageViewState();
 
 // get and save search string
 $query = '';
-$sqlQuery = '';
 if (anyv('op') === 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
     // 空の検索語は「検索語を消す」操作なので、送られたかどうかで保存済みの値と使い分ける
     $query = request_textvar('search') ?? array_get($_PAGE, 'vs.search', '');
-    if ($query !== '') {
-        $sqlQuery = db()->escape($query);
-    }
     $_PAGE['vs']['search'] = $query;
 }
 
@@ -160,8 +156,9 @@ echo $cm->render();
     <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         $from = '[+prefix+]site_modules';
-        if (!empty($sqlQuery)) {
-            $where = "(name LIKE '%{$sqlQuery}%') OR (description LIKE '%{$sqlQuery}%')";
+        if ($query) {
+            $keyword = db()->escape($query);
+            $where = "(name LIKE '%{$keyword}%') OR (description LIKE '%{$keyword}%')";
         } else {
             $where = '';
         }
@@ -173,7 +170,9 @@ echo $cm->render();
             : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        $_PAGE['vs']['page'] = $pager->page();
+        if ($perPage > 0 && $total > 0) {
+            $_PAGE['vs']['page'] = $pager->page();
+        }
         $params = ['a' => 106];
         if ($query !== '') {
             $params['search'] = $query;

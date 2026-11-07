@@ -36,12 +36,15 @@ $sm = strtolower(request_strvar('sm', 's')) === 'm' ? 'm' : 's';
 
 // get search string
 $query = request_strvar('search');
-$sqlQuery = db()->escape($query);
 
 // select SQL（件数と本体で FROM 以降を共有する。ORDER BY は本体だけ）
 $title = '';
-$likeWhere = function (string $nameCol, string $descCol) use ($sqlQuery) {
-    return $sqlQuery ? "({$nameCol} LIKE '%{$sqlQuery}%') OR ({$descCol} LIKE '%{$sqlQuery}%')" : '';
+$likeWhere = function (string $nameCol, string $descCol) use ($query) {
+    if (!$query) {
+        return '';
+    }
+    $keyword = db()->escape($query);
+    return "({$nameCol} LIKE '%{$keyword}%') OR ({$descCol} LIKE '%{$keyword}%')";
 };
 switch ($rt) {
     case "snip":
@@ -110,6 +113,7 @@ switch ($rt) {
     function saveSelection() {
         var ids = [];
         var ctrl = document.selector['id[]'];
+        if (!ctrl) return; // 0 件のときは何もしない
         if (!ctrl.length && ctrl.checked) ids[0] = ctrl.value;
         else
             for (i = 0; i < ctrl.length; i++) {
