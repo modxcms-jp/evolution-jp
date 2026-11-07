@@ -14,27 +14,10 @@ if (!$id) {
     alert()->dumpError();
 }
 
-// invoke OnBeforePluginFormDelete event
-$tmp = ['id' => $id];
-evo()->invokeEvent('OnBeforePluginFormDelete', $tmp);
-
-// delete the plugin.
-$rs = db()->delete('[+prefix+]site_plugins', "id='{$id}'");
-if (!$rs) {
+if (!manager()->deletePlugin($id)) {
     echo "Something went wrong while trying to delete the plugin...";
     exit;
 }
 
-// delete the plugin events.
-$rs = db()->delete('[+prefix+]site_plugin_events', "pluginid='{$id}'");
-if (!$rs) {
-    echo "Something went wrong while trying to delete the plugin events...";
-    exit;
-}
-
-// invoke OnPluginFormDelete event
-$tmp = ['id' => $id];
-evo()->invokeEvent('OnPluginFormDelete', $tmp);
-// empty cache
-$modx->clearCache();
+evo()->clearCache();
 header('Location: index.php?a=76');
