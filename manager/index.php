@@ -52,9 +52,6 @@ $modx->getSettings();
 
 extract($modx->config);
 
-if (postv('updateMsgCount') && evo()->hasPermission('messages')) {
-    manager()->getMessageCount();
-}
 
 // include_once the language file
 $modx->loadLexicon('manager');
@@ -69,7 +66,7 @@ $requestedAction = request_intvar('a');
 // a が指定されたか（値は見ない。'0'・空は未指定と同じ扱い）
 $isActionSpecified = (bool) anyv('a');
 manager()->action = anyv('a') === null ? 1 : $requestedAction;
-if (!$isActionSpecified && postv('updateMsgCount') === null && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
+if (!$isActionSpecified && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
     manager()->action = 2;
 }
 
@@ -146,7 +143,7 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // 旧framesetの入口。a未指定時はダッシュボードを既定表示にする
-if (!$isActionSpecified && !alert()->hasError() && postv('updateMsgCount') === null) {
+if (!$isActionSpecified && !alert()->hasError()) {
     if (sessionv('mainframe.a')) {
         $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
         sessionv('*mainframe', null);
@@ -172,7 +169,6 @@ if (
     manager_is_dashboard_action()
     && is_get()
     && !isEvoPaneRequest()
-    && postv('updateMsgCount') === null
 ) {
     $canonicalQuery = [];
     parse_str((string)parse_url(request_uri(), PHP_URL_QUERY), $canonicalQuery);
@@ -747,15 +743,6 @@ switch (manager()->action) {
         break;
     case 64: // get the Recycle bin emptier
         include_once($prc_path . 'document/remove_content.processor.php');
-        break;
-    case 10: // get the messages page
-        include_once($action_path . 'permission/messages.static.php');
-        break;
-    case 65: // get the message deleter
-        include_once($prc_path . 'pm/delete_message.processor.php');
-        break;
-    case 66: // get the message deleter
-        include_once($prc_path . 'pm/send_message.processor.php');
         break;
     case 67: // get the lock remover
         include_once($prc_path . 'remove_locks.processor.php');

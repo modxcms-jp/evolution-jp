@@ -619,39 +619,6 @@ class ManagerAPI
         return true;
     }
 
-    public function getMessageCount()
-    {
-        if (!evo()->hasPermission('messages')) {
-            return false;
-        }
-
-        $uid = evo()->getLoginUserID();
-
-        $new = db()->getValue(
-            db()->select(
-                'count(id)',
-                '[+prefix+]user_messages',
-                sprintf("recipient='%s' and messageread=0", $uid)
-            )
-        );
-
-        $total = db()->getValue(
-            db()->select(
-                'count(id)',
-                '[+prefix+]user_messages',
-                sprintf("recipient='%s'", $uid)
-            )
-        );
-
-        // ajax response
-        if (isset($_POST['updateMsgCount'])) {
-            echo "{$new},{$total}";
-            exit();
-        } else {
-            return ['new' => $new, 'total' => $total];
-        }
-    }
-
     // get user's document groups
     public function getMgrDocgroups($uid = 0)
     {
@@ -687,10 +654,6 @@ class ManagerAPI
         );
         if (!$row) {
             return [];
-        }
-        // 管理ユーザーが 1 人だけならメッセージ機能は使えないので無効にする
-        if ($row['messages'] == 1 && db()->getValue(db()->select('COUNT(*)', '[+prefix+]manager_users')) == 1) {
-            $row['messages'] = '0';
         }
         return $row;
     }

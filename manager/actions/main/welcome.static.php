@@ -47,31 +47,6 @@ $modx->setPlaceholder('welcome_title', $_lang['welcome_title']);
 $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
 
-// setup message info
-if (evo()->hasPermission('messages')) {
-    $messages = manager()->getMessageCount();
-    sessionv('*nrtotalmessages', $messages['total']);
-    sessionv('*nrnewmessages', $messages['new']);
-
-    $msg = '<a href="index.php?a=10"><img src="' . $_style['icons_mail_large'] . '" /></a>
-    <span class="inbox-title">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span class='message-count-new'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
-    if (sessionv('nrnewmessages') > 0) {
-        $msg .= '<span class="comment">'
-            . sprintf(
-                $_lang["welcome_messages"],
-                sessionv('nrtotalmessages'),
-                "<span class='message-count-new'>" . sessionv('nrnewmessages') . "</span>"
-            ) . '</span>';
-        $mail_icon = $_style['icons_mail_new_large'];
-    } else {
-        $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
-        $mail_icon = $_style['icons_mail_large'];
-    }
-    $modx->setPlaceholder('MessageInfo', $msg);
-    $src = get_icon($_lang['inbox'], 10, $mail_icon, $_lang['inbox']);
-    $modx->setPlaceholder('MessageIcon', $src);
-}
-
 // setup icons
 if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
     if (!isset($_style['icons_newdoc_large'])) {

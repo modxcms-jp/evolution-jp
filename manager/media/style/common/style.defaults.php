@@ -14,7 +14,6 @@ if (!function_exists('apply_manager_style_defaults')) {
             'iconResources' => 1,
             'iconNewDoc' => 1,
             'iconSearch' => 1,
-            'iconMessage' => 1,
             'iconElements' => 1,
             'iconSettings' => 1,
             'iconFileManager' => 1,
@@ -49,7 +48,6 @@ if (!function_exists('apply_manager_style_defaults')) {
         if ($config['iconResources'] == 1) iconResources();
         if ($config['iconNewDoc'] == 1) iconNewDoc();
         if ($config['iconSearch'] == 1) iconSearch();
-        if ($config['iconMessage'] == 1) iconMessage();
 
         if ($config['iconElements'] == 1) iconElements();
         if ($config['iconFileManager'] == 1) iconFileManager();
