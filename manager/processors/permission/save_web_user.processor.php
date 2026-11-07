@@ -543,8 +543,6 @@ function saveUserSettings($id)
     }
 }
 
-// converts date format dd-mm-yyyy to php date
-
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {

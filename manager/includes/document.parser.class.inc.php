@@ -4899,7 +4899,7 @@ class DocumentParser
             return $str;
         }
 
-        switch ($this->config('datetime_format')) {
+        switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
@@ -4945,7 +4945,8 @@ class DocumentParser
     /**
      * 日付の入力を、DB の日時の列（signed int）に入れるタイムスタンプにする。保存の前の確かめは、すべてこれで行う。
      * 空（空白だけを含む）は 0、解釈できない日付（toTimeStamp() が空文字を返すもの）と、
-     * 列に入らない日時（1901〜2038 年の外）は null を返す。整数はそのまま、範囲だけを確かめる
+     * 列に入らない日時（1901〜2038 年の外）は null を返す。整数と整数の文字列（負を含む。保存済みの時刻）は
+     * そのまま、範囲だけを確かめる（dateInputValue() と同じ見分け方）
      *
      * @param mixed $value 入力欄の文字列、または保存済みの時刻
      */
@@ -4964,11 +4965,15 @@ class DocumentParser
             if ($value === '') {
                 return 0;
             }
-            $timestamp = $this->toTimeStamp($value);
-            if ($timestamp === '') {
-                return null;
+            if (preg_match('/^-?[0-9]+$/', $value)) {
+                $timestamp = (int)$value;
+            } else {
+                $timestamp = $this->toTimeStamp($value);
+                if ($timestamp === '') {
+                    return null;
+                }
+                $timestamp = (int)$timestamp;
             }
-            $timestamp = (int)$timestamp;
         }
         if ($timestamp < -2147483648 || 2147483647 < $timestamp) {
             return null;
