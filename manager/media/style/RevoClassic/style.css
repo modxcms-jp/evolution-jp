@@ -165,6 +165,9 @@
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #195a70;
     --topnav-link-active-bg: #1b2e37;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: stripes;
 }
 
 /* ============================================================================

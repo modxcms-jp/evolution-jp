@@ -4,6 +4,8 @@
 
 共通部（`manager/media/style/common/shell.css`、`manager/media/script/evo-dialog.js`、ファイルブラウザ、日付ピッカー）は、テーマの中身を知らない。テーマが `:root` で定義する下の変数だけを頼りに色を決める。変数の名前と意味が、テーマと共通部の約束（契約）になる。
 
+色の変数のほかに、送信中の見た目を選ぶ変数（`--evo-submitting-style`）もこの文書で扱う（「送信中の見た目」の節を参照）。
+
 余白の変数（`--space-*`）と、ブロックの縦の間の決まりは [theme-spacing.md](theme-spacing.md) を参照する。
 
 ## 変数の一覧
@@ -26,6 +28,25 @@
 | `--color-error` | エラー・削除の色 | filebrowser.css、datepicker.css |
 
 ファイルブラウザは、ほかに `--color-background-page`、`--color-success`、`--color-text-subtle`、`--gray-50`、`--gray-100` も既定値付きで読む。テーマが定義すればそれに従い、無ければ既定値で表示される。
+
+## 送信中の見た目
+
+色の変数とは別に、テーマは送信中（`EvoShell.submit`）の見た目を `:root` の `--evo-submitting-style` で選べる。共通部（`shell.css`）が、押したボタンにだけアニメーションを出す。
+
+| 値 | 見た目 |
+| --- | --- |
+| `spinner` | 文字の右で輪が回る |
+| `stripes` | ボタンの上を斜線が横へ流れる |
+| `dots` | 文字の右で 3 つの点が順に弾む |
+
+- 未指定、またはこの 3 つ以外の値は、アニメーションなし。送信中のボタンは今までどおり半透明になるだけ
+- アニメーションが付くのは押したボタン 1 つだけ。ほかの送信ボタンと `.actionButtons` のボタンは、半透明のまま
+- `<input type="submit">` / `<input type="image">` は疑似要素を持てないので、値によらず明滅（半透明との往復）になる
+- 色はテーマの変数ではなく、ボタンの文字色（`currentColor`）に従う。文字色はボタンごとの地の色に必ず合うため。テーマ側で色を書かない。ボタンの `background` も上書きしない
+- `prefers-reduced-motion: reduce` の環境では、アニメーションを止めて半透明だけにする
+- 押したボタンが決まらない送信（見えない送信ボタンを使う Enter、スクリプトからの送信など）は、半透明だけになる
+- 同梱テーマの割り当て: `spinner` は AuroraFlow・SoftSlate、`stripes` は RubberWhite・RevoClassic、`dots` は SakuraFlow・AromaHop
+- RevoStyle は凍結のため未指定（見た目は変わらない。[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」を参照）
 
 ## 書き方
 

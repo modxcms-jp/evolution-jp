@@ -293,12 +293,121 @@ body.evo-shell #evoShellModal .evo-modal-close:focus-visible {
 }
 
 /* 送信中(EvoShell.submit)は送信ボタンとactionButtonsを押せない見た目にする */
+body.evo-shell form.evo-submitting button[type="submit"]:not(.evo-submitting-trigger),
+body.evo-shell form.evo-submitting button:not([type]):not(.evo-submitting-trigger),
+body.evo-shell form.evo-submitting input[type="submit"]:not(.evo-submitting-trigger),
+body.evo-shell form.evo-submitting input[type="image"]:not(.evo-submitting-trigger),
+body.evo-shell .actionButtons.evo-submitting a:not(.evo-submitting-trigger) {
+    opacity: .5;
+}
+
 body.evo-shell form.evo-submitting button[type="submit"],
 body.evo-shell form.evo-submitting button:not([type]),
 body.evo-shell form.evo-submitting input[type="submit"],
 body.evo-shell form.evo-submitting input[type="image"],
 body.evo-shell .actionButtons.evo-submitting a {
-    opacity: .5;
     pointer-events: none;
     cursor: progress;
+}
+
+/*
+ * 押したボタン(JSが evo-submitting-trigger と evo-submitting--<種類> を付ける)だけに、
+ * テーマの --evo-submitting-style (spinner / stripes / dots) のアニメーションを出す。
+ * 色はボタンの文字色(currentColor)に従う。ボタン自身の background は上書きしない
+ */
+body.evo-shell .evo-submitting-trigger {
+    opacity: 1;
+}
+
+/* spinner: 文字の右に回る輪 */
+body.evo-shell .evo-submitting--spinner::after {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    width: .9em;
+    height: .9em;
+    margin-left: .45em;
+    vertical-align: -.1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: evo-submitting-spin .7s linear infinite;
+}
+
+/* stripes: ボタンの上に重ねた斜線が横へ流れる */
+body.evo-shell .evo-submitting--stripes {
+    position: relative;
+    overflow: hidden;
+}
+
+body.evo-shell .evo-submitting--stripes::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: .2;
+    background-image: linear-gradient(45deg, currentColor 25%, transparent 25%, transparent 50%, currentColor 50%, currentColor 75%, transparent 75%, transparent);
+    background-size: 1rem 1rem;
+    animation: evo-submitting-stripes 1s linear infinite;
+}
+
+/* dots: 文字の右で3つの点が順に弾む */
+body.evo-shell .evo-submitting--dots::after {
+    content: "";
+    display: inline-block;
+    width: 1.6em;
+    height: 1em;
+    margin-left: .4em;
+    vertical-align: -.15em;
+    background-image:
+        radial-gradient(circle, currentColor 45%, transparent 50%),
+        radial-gradient(circle, currentColor 45%, transparent 50%),
+        radial-gradient(circle, currentColor 45%, transparent 50%);
+    background-size: .4em .4em;
+    background-repeat: no-repeat;
+    background-position: 0 100%, .6em 100%, 1.2em 100%;
+    animation: evo-submitting-dots 1s ease-in-out infinite;
+}
+
+/* input は疑似要素を持てないので、種類によらず明滅させる */
+body.evo-shell input.evo-submitting-trigger {
+    animation: evo-submitting-pulse 1s ease-in-out infinite;
+}
+
+@keyframes evo-submitting-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes evo-submitting-stripes {
+    from { background-position-x: 1rem; }
+    to { background-position-x: 0; }
+}
+
+@keyframes evo-submitting-dots {
+    0%, 100% { background-position: 0 100%, .6em 100%, 1.2em 100%; }
+    20% { background-position: 0 0, .6em 100%, 1.2em 100%; }
+    40% { background-position: 0 100%, .6em 0, 1.2em 100%; }
+    60% { background-position: 0 100%, .6em 100%, 1.2em 0; }
+    80% { background-position: 0 100%, .6em 100%, 1.2em 100%; }
+}
+
+@keyframes evo-submitting-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+}
+
+/* 動きを減らす設定では、アニメーションを止めて今と同じ半透明だけにする */
+@media (prefers-reduced-motion: reduce) {
+    body.evo-shell .evo-submitting-trigger,
+    body.evo-shell input.evo-submitting-trigger {
+        animation: none;
+        opacity: .5;
+    }
+
+    body.evo-shell .evo-submitting-trigger::before,
+    body.evo-shell .evo-submitting-trigger::after {
+        content: none;
+        animation: none;
+    }
 }

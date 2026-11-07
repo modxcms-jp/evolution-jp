@@ -145,6 +145,9 @@
     /* Component Colors - Draft/Unpublished */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: spinner;
 }
 
 /* ============================================================================

@@ -192,6 +192,9 @@
     --border-thin: 1px;
     --border-medium: 2px;
     --border-thick: 3px;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: stripes;
 }
 
 /* ============================================================================

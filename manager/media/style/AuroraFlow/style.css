@@ -142,6 +142,9 @@
     --transition-fast: 0.15s ease;
     --transition-normal: 0.18s ease;
     --transition-slow: 0.3s ease;
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: spinner;
 }
 
 /* ============================================================================

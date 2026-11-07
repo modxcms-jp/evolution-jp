@@ -151,6 +151,9 @@
     --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* 送信中の見た目(assets/docs/theme-variables.md) */
+    --evo-submitting-style: dots;
 }
 
 /* ============================================================================
