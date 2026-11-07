@@ -76,9 +76,9 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         Evo.ready(function () {
             // メニュー/ツリー部品のscriptが定義済みになった後に初期化する
             if (treeopen === 0 && window.mainMenu) mainMenu.hideTreeFrame();
-
-            // set tree to default action.
-            if (window.tree) tree.ca = "open";
+            // tree.ca は既定(開く)へここで戻さない。Evo.ready は画面のスクリプトより後に動き、
+            // 移動などの画面が設定した値を上書きしてしまう。戻すのは shell.js の applyFragment()
+            // (画面のスクリプトより前) と frames/tree.php (ツリーの読み込み時) が行う
         });
 
         // 編集系アクションで入力変更時にdocumentDirtyを立てる。
