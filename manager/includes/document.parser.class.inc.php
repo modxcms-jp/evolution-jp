@@ -4902,38 +4902,31 @@ class DocumentParser
             return $str;
         }
 
-        // 日付のあとに、空白 1 つ + 時刻（時 1〜2 桁、続けて任意で :分、さらに任意で :秒。各 1〜2 桁）を続けてよい。時刻は省ける
-        $time = '(?: ([0-9]{1,2})(?::([0-9]{1,2})(?::([0-9]{1,2}))?)?)?';
+        // 日付のあとは、空白 1 つと「時[:分[:秒]]」（各 1〜2 桁）だけを受け付け、ほかは解釈できない日付にする
+        $time = '(?: (?<H>[0-9]{1,2})(?::(?<M>[0-9]{1,2})(?::(?<S>[0-9]{1,2}))?)?)?';
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
-                $pattern = '@^([0-9]{4})/([0-9]{2})/([0-9]{2})' . $time . '$@D';
-                $order = ['Y', 'm', 'd'];
+                $date = '(?<Y>[0-9]{4})/(?<m>[0-9]{2})/(?<d>[0-9]{2})';
                 break;
             case 'dd-mm-YYYY':
-                $pattern = '@^([0-9]{2})-([0-9]{2})-([0-9]{4})' . $time . '$@D';
-                $order = ['d', 'm', 'Y'];
+                $date = '(?<d>[0-9]{2})-(?<m>[0-9]{2})-(?<Y>[0-9]{4})';
                 break;
             case 'mm/dd/YYYY':
-                $pattern = '@^([0-9]{2})/([0-9]{2})/([0-9]{4})' . $time . '$@D';
-                $order = ['m', 'd', 'Y'];
+                $date = '(?<m>[0-9]{2})/(?<d>[0-9]{2})/(?<Y>[0-9]{4})';
                 break;
             default:
                 return $default;
         }
-        // 末尾の余計な記号・桁の多すぎる時刻・続けて入った空白は、解釈できない日付にする
-        if (!preg_match($pattern, $str, $match)) {
+        if (!preg_match("@^{$date}{$time}$@D", $str, $match)) {
             return '';
         }
-        $date = array_combine($order, [$match[1], $match[2], $match[3]]);
-        [$Y, $m, $d] = [$date['Y'], $date['m'], $date['d']];
-        [$H, $M, $S] = [$match[4] ?? 0, $match[5] ?? 0, $match[6] ?? 0];
         // 時刻を省いた入力は 0 時 0 分 0 秒
-        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
+        [$Y, $m, $d, $H, $M, $S] = [(int)$match['Y'], (int)$match['m'], (int)$match['d'], (int)($match['H'] ?? 0), (int)($match['M'] ?? 0), (int)($match['S'] ?? 0)];
         // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
-        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+        if (!checkdate($m, $d, $Y) || $H > 23 || $M > 59 || $S > 59) {
             return '';
         }
-        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
         // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
         return $timeStamp === false ? '' : $timeStamp;
     }
