@@ -61,7 +61,7 @@ $tmp = ['id' => request_intvar('id')];
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = [];
 
-// プラグインがテンプレートを変えたら、そのテンプレートの入力欄に組み立て直す
+// 差し戻しやプラグイン（OnDocFormPrerender）でテンプレートが変わったら、そのテンプレートの入力欄に組み立て直す
 if ((int)doc('template') !== (int)$tvTemplate) {
     foreach (array_keys($tmplVars) as $tvKey) {
         unset($docObject[$tvKey]);
