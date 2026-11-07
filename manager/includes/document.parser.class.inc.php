@@ -267,10 +267,6 @@ class DocumentParser
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail = new MODxMailer;
                 return true;
-            case 'maketable':
-                include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
-                $this->table = new MakeTable;
-                return true;
             case 'configmediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);

@@ -1269,6 +1269,23 @@ div.treeNode {
     border-top-right-radius: var(--radius-lg);
 }
 
+/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
+.grid th[aria-sort] a::after {
+    margin-left: var(--space-1);
+    font-size: 0.7em;
+    color: var(--color-primary);
+}
+
+.grid th[aria-sort="ascending"] a::after {
+    content: "\25B2";
+    content: "\25B2" / "";
+}
+
+.grid th[aria-sort="descending"] a::after {
+    content: "\25BC";
+    content: "\25BC" / "";
+}
+
 .gridItem {
     background-color: rgba(253, 253, 251, 0.95);
     padding: var(--space-2);
@@ -1287,6 +1304,15 @@ div.treeNode {
 
 .gridAltItem:hover {
     background-color: rgba(234, 252, 207, 0.5);
+}
+
+.grid .is-shrink {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.grid .is-center {
+    text-align: center;
 }
 
 .gridRowIcon:hover {
@@ -2067,22 +2093,17 @@ table.sortabletable {
     margin: 10px 0;
 }
 
-#pagination {
+.pagination {
     margin-top: 0;
     margin-bottom: var(--space-3);
 }
 
-/* 入れ物の最後の子のときは、#pagination の詳細度が last-child の規則に勝つので、ここで 0 にする */
-#pagination:last-child {
-    margin-bottom: 0;
-}
-
-#pagination ul {
+.pagination ul {
     margin: 0;
     display: inline;
 }
 
-#pagination li {
+.pagination li {
     list-style: none;
     display: inline;
     width: 15px;
@@ -2090,8 +2111,8 @@ table.sortabletable {
     padding: 0;
 }
 
-#pagination li a,
-#pagination li span {
+.pagination li a,
+.pagination li span {
     padding: 3px var(--space-2);
     border: 1px solid var(--color-neutral-button-border);
     background: var(--color-neutral-button-start);
@@ -2100,12 +2121,12 @@ table.sortabletable {
     border-radius: var(--radius-sm);
 }
 
-#pagination li span {
+.pagination li span {
     color: var(--gray-400);
     cursor: default;
 }
 
-#pagination li.currentPage a, #pagination li a:hover {
+.pagination a[aria-current="page"], .pagination li a:hover {
     color: var(--color-surface);
     background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
     border: 1px solid var(--color-primary-end);
@@ -2176,7 +2197,7 @@ ul.actionButtons {
 /* 縦の余白の決まり（assets/docs/theme-spacing.md）。
    入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
    この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
-   これより詳細度が高いもの（#pagination など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
+   これより詳細度が高いもの（id セレクタを使う規則など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
    後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
 #mainPane > :last-child,
 :is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
@@ -2206,9 +2227,9 @@ ul.actionButtons {
 }
 
 /* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
-   表 → 下のページ送りの間も、同じ規則（form > :has(+ #pagination)）で作る。:has 非対応のブラウザでは捨てられる */
+   表 → 下のページ送りの間も、同じ規則（form > :has(+ .pagination)）で作る。:has 非対応のブラウザでは捨てられる */
 form > :has(+ .resources-batch-actions),
-form > :has(+ #pagination) {
+form > :has(+ .pagination) {
     margin-bottom: var(--space-3);
 }
 

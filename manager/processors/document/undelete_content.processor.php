@@ -65,9 +65,9 @@ evo()->invokeEvent("OnDocFormUnDelete", $params);
 $modx->clearCache();
 // finished emptying cache - redirect
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-$page = get_intvar('page') ? '&page=' . get_intvar('page') : '';
+include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 if ($pid !== '0') {
-    $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
+    $header = 'Location: ' . ChildDocumentListState::returnUrl((int) $pid);
 } else {
     $header = "Location: index.php?a=2&r=1";
 }
