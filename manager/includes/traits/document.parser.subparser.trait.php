@@ -3057,11 +3057,11 @@ trait DocumentParserSubParserTrait
         evo()->loadExtension('DocAPI');
         $updated = [];
         while ($row = db()->getRow($rs)) {
-            $draft = $modx->revision->getDraft($row['elmid']);
-            $draft['editedon'] = $row['editedon'];
-            $draft['editedby'] = $row['editedby'];
             // 今すぐ採用と同じく、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
-            [$draft, $error] = evo()->doc->draftForAdoption($row['elmid'], $draft);
+            [$draft, $error] = evo()->doc->draftForAdoption(
+                $row['elmid'],
+                $modx->revision->getDraft($row['elmid'])
+            );
             // 予約の後にトップページになった文書などで、許さない公開の状態になるときは反映せず、予約を残す
             if ($error !== '') {
                 evo()->logEvent(0, 2, $error, 'Draft update skipped', [
@@ -3070,6 +3070,8 @@ trait DocumentParserSubParserTrait
                 ]);
                 continue;
             }
+            $draft['editedon'] = $row['editedon'];
+            $draft['editedby'] = $row['editedby'];
 
             if ($modx->doc->update($draft, $row['elmid']) !== false) {
                 db()->delete(

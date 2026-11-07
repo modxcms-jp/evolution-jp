@@ -24,6 +24,6 @@ $modx->updatePublishStatus();
 db()->update(
     "lasthit=" . request_time(),
     '[+prefix+]active_users',
-    "internalKey='" . $_SESSION['mgrInternalKey'] . "'"
+    where('internalKey', '=', (int)sessionv('mgrInternalKey'))
 );
 echo '{"status":"ok"}';
