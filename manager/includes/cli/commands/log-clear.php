@@ -17,18 +17,6 @@ foreach ($args as $arg) {
     cli_usage($usage);
 }
 
-function cli_stdin_is_interactive(): bool
-{
-    if (function_exists('stream_isatty')) {
-        return stream_isatty(STDIN);
-    }
-    if (function_exists('posix_isatty')) {
-        return posix_isatty(STDIN);
-    }
-
-    return false;
-}
-
 include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
 
 if ($before !== null && !SystemLogViewer::isValidDate($before)) {
@@ -37,7 +25,7 @@ if ($before !== null && !SystemLogViewer::isValidDate($before)) {
 $before = (string)$before;
 
 if (!$force) {
-    if (!defined('STDIN') || !is_resource(STDIN) || !cli_stdin_is_interactive()) {
+    if (!cli_stdin_is_interactive()) {
         cli_err('Refusing to delete without confirmation. Use --force when STDIN is not interactive.');
         exit(1);
     }
