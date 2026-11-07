@@ -775,20 +775,25 @@ function getJScripts($docid)
     $ph['fmanager_url'] = js_literal(config('fmanager_url', $browser_url . '?type=files'));
     $ph['preview_url'] = js_literal(evo()->makeUrl($docid, '', '', 'full', true));
     $ph['preview_mode'] = (int)config('preview_mode', 1);
-    $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
-    $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
-    $ph['lang_confirm_undelete'] = lang('confirm_undelete');
+    // confirm()・alert() の文言。言語ファイルの文字列は JS 向けに \n を含むため、改行へ戻してから JS のリテラルにする
+    $langKeys = [
+        'confirm_delete_resource',
+        'confirm_delete_draft_resource',
+        'confirm_undelete',
+        'confirm_reset_pub_dates',
+        'confirm_resource_duplicate',
+        'illegal_parent_self',
+        'illegal_parent_child',
+    ];
+    foreach ($langKeys as $key) {
+        $ph['lang_' . $key] = js_literal(stripcslashes(lang($key)));
+    }
     $ph['id'] = $docid;
     $ph['docParent'] = (int) doc('parent');
     $ph['docIsFolder'] = (int) doc('isfolder');
     $ph['docMode'] = evo()->doc->mode;
-    $ph['lang_confirm_reset_pub_dates'] = lang('confirm_reset_pub_dates');
     $ph['style_tree_folder'] = style('tree_folder');
     $ph['style_icons_set_parent'] = style('icons_set_parent');
-    $ph['style_tree_folder'] = style('tree_folder');
-    $ph['lang_confirm_resource_duplicate'] = lang('confirm_resource_duplicate');
-    $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
-    $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = manager()->action;
     $ph['suffix'] = js_literal(config('friendly_url_suffix'));
 

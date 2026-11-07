@@ -46,15 +46,15 @@
             document.location.href = 'index.php?a=131&id=[+id+]';
         });
         onClick('delete', function () {
-            if (confirm("[+lang_confirm_delete_resource+]"))
+            if (confirm([+lang_confirm_delete_resource+]))
                 EvoCsrf.post("index.php?id=[+id+]&a=6");
         });
         onClick('undelete', function () {
-            if (confirm("[+lang_confirm_undelete+]"))
+            if (confirm([+lang_confirm_undelete+]))
                 EvoCsrf.post("index.php?id=[+id+]&a=63");
         });
         onClick('deletedraft', function () {
-            if (confirm("[+lang_confirm_delete_draft_resource+]")) {
+            if (confirm([+lang_confirm_delete_draft_resource+])) {
                 documentDirty = false;
                 document.mutate.a.value = 130;
                 submitMutate();
@@ -64,7 +64,7 @@
             document.location.href = "index.php?id=[+id+]&a=51";
         });
         onClick('duplicate', function () {
-            if (confirm("[+lang_confirm_resource_duplicate+]"))
+            if (confirm([+lang_confirm_resource_duplicate+]))
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
         });
 
@@ -151,7 +151,7 @@
 
     function resetpubdate() {
         if (document.mutate.pub_date.value !== '' || document.mutate.unpub_date.value !== '') {
-            if (confirm("[+lang_confirm_reset_pub_dates+]") === true) {
+            if (confirm([+lang_confirm_reset_pub_dates+]) === true) {
                 document.mutate.pub_date.value = '';
                 document.mutate.unpub_date.value = '';
             }
@@ -237,14 +237,15 @@
         let pn = tdoc.getElementById("node" + pId);
         if (!pn) return false;
         if (pn.id.substr(4) === id) {
-            alert("[+lang_illegal_parent_self+]");
+            alert([+lang_illegal_parent_self+]);
             return false;
         } else {
             while (pn.getAttribute("p") > 0) {
                 pId = pn.getAttribute("p");
                 pn = tdoc.getElementById("node" + pId);
+                if (!pn) break;
                 if (pn.id.substr(4) === id) {
-                    alert("[+lang_illegal_parent_child+]");
+                    alert([+lang_illegal_parent_child+]);
                     return false;
                 }
             }
