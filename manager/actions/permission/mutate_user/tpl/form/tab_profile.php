@@ -87,7 +87,7 @@
         <th><?= lang('user_country') ?>:</th>
         <td>
             <select size="1" name="country" class="inputBox" autocomplete="country-name">
-                <?php $chosenCountry = postv('country', user('country')); ?>
+                <?php $chosenCountry = post_strvar('country', user('country')); ?>
                 <option
                     value="" <?= selected(empty($chosenCountry)) ?>
                 >&nbsp;
@@ -174,8 +174,8 @@
             <div><?= lang('user_photo_message') ?></div>
             <div>
                 <?php
-                if (postv('photo')) {
-                    $photo = postv('photo');
+                if (post_strvar('photo')) {
+                    $photo = post_strvar('photo');
                 } elseif (user('photo')) {
                     $photo = user('photo');
                 } else {

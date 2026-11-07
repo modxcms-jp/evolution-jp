@@ -8,10 +8,10 @@ if (!evo()->hasPermission('edit_module')) {
     alert()->dumpError();
 }
 
-$id = anyv('id', 0);
+$id = request_intvar('id');
 
 // make sure the id's a number（SQL に組み込む前に確かめる）
-if (!is_numeric($id)) {
+if (!$id) {
     echo "Passed ID is not a valid number!";
     exit;
 }
@@ -40,10 +40,10 @@ if ($limit > 1) {
 // take action
 // 対象の ID は先に整数の配列にそろえ、空なら何もしない（count(null) や IN () を作らない）
 $depTypes = ['chunk' => 10, 'doc' => 20, 'plug' => 30, 'snip' => 40, 'tpl' => 50, 'tv' => 60];
-switch (anyv('op')) {
+switch (request_choicevar('op', ['add', 'del'], '')) {
     case 'add':
-        $opids = array_values(array_filter(array_map('intval', explode(',', (string) anyv('newids', '')))));
-        $type = $depTypes[strtolower((string) anyv('rt', ''))] ?? 0;
+        $opids = request_idsvar('newids');
+        $type = $depTypes[strtolower(request_strvar('rt'))] ?? 0;
         if (!$opids || !$type) {
             break;
         }
@@ -63,7 +63,7 @@ switch (anyv('op')) {
         }
         break;
     case 'del':
-        $opids = array_values(array_filter(array_map('intval', (array) anyv('depid', []))));
+        $opids = request_idsvar('depid');
         if (!$opids) {
             break;
         }

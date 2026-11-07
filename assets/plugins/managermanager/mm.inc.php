@@ -74,9 +74,9 @@ class MANAGERMANAGER
         $mm_current_page = [];
 
         if (postv('template') !== null) {
-            $mm_current_page['template'] = to_intvar(postv('template'));
-        } elseif (to_intvar(getv('newtemplate')) > 0) {
-            $mm_current_page['template'] = to_intvar(getv('newtemplate'));
+            $mm_current_page['template'] = post_intvar('template');
+        } elseif (get_intvar('newtemplate') > 0) {
+            $mm_current_page['template'] = get_intvar('newtemplate');
         } elseif (isset($content['template'])) {
             $mm_current_page['template'] = (int)$content['template'];
         } else {
@@ -252,8 +252,8 @@ class MANAGERMANAGER
 
             case 'OnManagerMainFrameHeaderHTMLBlock':
                 global $action;
-                if (empty($action) && getv('a')) {
-                    $action = getv('a');
+                if (empty($action) && get_intvar('a')) {
+                    $action = get_intvar('a');
                 }
                 switch ($action) {
                     case '4':

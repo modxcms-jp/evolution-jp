@@ -1,23 +1,23 @@
 <?php
 // If there is Qm call, add control buttons and modify to edit document page
-if ((int)anyv('quickmanager') != 1) {
+if (request_intvar('quickmanager') !== 1) {
     return;
 }
 
 global $docObject;
 
 // Set template for new document, action = 4
-if (getv('a') == 4) {
+if (get_intvar('a') === 4) {
     // Custom add button
-    if (getv('customaddtplid')) {
-        $docObject['template'] = (int)getv('customaddtplid');
+    if (get_intvar('customaddtplid')) {
+        $docObject['template'] = get_intvar('customaddtplid');
     } else {
         // Normal add button
         if ($this->tpltype === 'config') $this->tpltype = evo()->config['auto_template_logic'];
         switch ($this->tpltype) {
             case 'parent': // Template type is parent
                 // Get parent document id
-                $pid = $docObject['parent'] ? $docObject['parent'] : (int)anyv('pid');
+                $pid = $docObject['parent'] ? $docObject['parent'] : request_intvar('pid');
 
                 // Get parent document (unpublished parents too)
                 $parent = evo()->getDocument($pid, 'template', null);
@@ -32,7 +32,7 @@ if (getv('a') == 4) {
             case 'selected': // Template is inherited by Inherit Selected Template plugin
             case 'sibling':
                 // Get parent document id
-                $pid = $docObject['parent'] ? $docObject['parent'] : (int)anyv('pid');
+                $pid = $docObject['parent'] ? $docObject['parent'] : request_intvar('pid');
 
                 if (evo()->config['auto_template_logic'] === 'sibling') {
                     // Eoler: template_autologic in Evolution 1.0.5+
@@ -72,13 +72,7 @@ $mc = new Mcc();
 $mc->addLine('qmHide([document.getElementById("actions")]);');
 
 // Get doc id
-if (anyv('id')) {
-    $doc_id = (int)anyv('id');
-} elseif (anyv('pid')) {
-    $doc_id = (int)anyv('pid');
-} else {
-    $doc_id = 0;
-}
+$doc_id = request_intvar('id') ?: request_intvar('pid');
 
 // Add action buttons
 // アイコンは付けない（どのテーマも .actionButtons a img を隠す。テーマに images/icons も無い）
@@ -137,8 +131,8 @@ if ($this->hidesections != '') {
 $hiddenFields = '<input type="hidden" name="quickmanager" value="1" />';
 
 // Different doc to be refreshed?
-if (anyv('qmrefresh')) {
-    $hiddenFields .= '<input type="hidden" name="qmrefresh" value="' . (int)anyv('qmrefresh') . '" />';
+if (request_intvar('qmrefresh')) {
+    $hiddenFields .= '<input type="hidden" name="qmrefresh" value="' . request_intvar('qmrefresh') . '" />';
 }
 
 // Output

@@ -2,21 +2,21 @@
 
 global $tplTemplates, $tplTVs, $tplChunks, $tplModules, $tplPlugins, $tplSnippets;
 
-if (isset($_POST['chkagree'])) {
-    $_SESSION['chkagree'] = postv('chkagree');
+if (postv('chkagree') !== null) {
+    sessionv('*chkagree', post_boolvar('chkagree') ? 1 : 0);
 }
 
-if (isset($_POST['adminname'])) {
-    $_SESSION['adminname'] = postv('adminname');
+if (post_textvar('adminname') !== null) {
+    sessionv('*adminname', post_textvar('adminname'));
 }
-if (isset($_POST['adminemail'])) {
-    $_SESSION['adminemail'] = postv('adminemail');
+if (post_textvar('adminemail') !== null) {
+    sessionv('*adminemail', post_textvar('adminemail'));
 }
-if (isset($_POST['adminpass'])) {
-    $_SESSION['adminpass'] = postv('adminpass');
+if (post_textvar('adminpass') !== null) {
+    sessionv('*adminpass', post_textvar('adminpass'));
 }
-if (isset($_POST['adminpassconfirm'])) {
-    $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
+if (post_textvar('adminpassconfirm') !== null) {
+    sessionv('*adminpassconfirm', post_textvar('adminpassconfirm'));
 }
 
 if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {

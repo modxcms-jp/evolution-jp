@@ -1,22 +1,16 @@
 <?php
 
-$chkagree = postv('chkagree', sessionv('chkagree'));
+$chkagree = post_boolvar('chkagree', (bool) sessionv('chkagree'));
 $isUpgrade = sessionv('is_upgradeable');
 if ($isUpgrade) {
     $chkagree = 1;
-    $_SESSION['chkagree'] = 1;
+    sessionv('*chkagree', 1);
 }
 
 if (sessionv('prevAction') === 'options') {
-    $_SESSION['installdata'] = postv('installdata', '');
-    $_SESSION['template']    = postv('template', []);
-    $_SESSION['tv']          = postv('tv', []);
-    $_SESSION['chunk']       = postv('chunk', []);
-    $_SESSION['snippet']     = postv('snippet', []);
-    $_SESSION['plugin']      = postv('plugin', []);
-    $_SESSION['module']      = postv('module', []);
+    saveInstallSelection();
     if (sessionv('is_upgradeable')) {
-        $_SESSION['convert_to_utf8mb4'] = postv('convert_to_utf8mb4', '1') === '0' ? 0 : 1;
+        sessionv('*convert_to_utf8mb4', post_strvar('convert_to_utf8mb4', '1') === '0' ? 0 : 1);
     }
 }
 

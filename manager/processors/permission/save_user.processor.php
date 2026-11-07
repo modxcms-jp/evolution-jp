@@ -22,6 +22,12 @@ if (!validEmail()) {
     exit;
 }
 
+// verify role
+if (!validRole()) {
+    webAlert('Invalid role');
+    exit;
+}
+
 // verify admin security
 if (!verifyPermission()) {
     // Check to see if user tried to spoof a "1" (admin) role
@@ -29,25 +35,31 @@ if (!verifyPermission()) {
     exit;
 }
 
-if (postv('mode') == 11) { // new user
-    if (userid_byname(userformv('newusername', 'New User'))) {
+$mode = saveUserMode();
+
+if ($mode === 11) { // new user
+    if (trim(userformv_str('newusername')) === '') {
+        webAlert('Missing user name!');
+        exit;
+    }
+    if (userid_byname(userformv_str('newusername'))) {
         webAlert('User name is already in use!');
         exit;
     }
-    if (userid_byemail(postv('email'))) {
+    if (userid_byemail(post_strvar('email'))) {
         webAlert('Email is already in use!');
         exit;
     }
-    if (postv('passwordgenmethod') === 'spec') {
-        if (!postv('specifiedpassword')) {
+    if (post_strvar('passwordgenmethod') === 'spec') {
+        if (!post_strvar('specifiedpassword')) {
             webAlert("You didn't specify a password for this user!");
             exit;
         }
-        if (strlen(postv('specifiedpassword')) < 6) {
+        if (strlen(post_strvar('specifiedpassword')) < 6) {
             webAlert('Password is too short!');
             exit;
         }
-    } elseif (postv('passwordgenmethod') !== 'g') {
+    } elseif (post_strvar('passwordgenmethod') !== 'g') {
         webAlert('No password generation method specified!');
         exit;
     }
@@ -55,43 +67,48 @@ if (postv('mode') == 11) { // new user
     return;
 }
 
-if (in_array(postv('mode'), [12, 74])) {
-    if (!preg_match('@^[1-9][0-9]*$@', postv('userid', ''))) {
+if (in_array($mode, [12, 74], true)) {
+    $userid = post_intvar('userid');
+    if (!$userid) {
         webAlert('Missing user id!');
+        exit;
     }
-    if (trim((string)userformv('newusername')) === '') {
+    $username = userformv_str('newusername');
+    if (trim($username) === '') {
         webAlert('Missing user name!');
         exit;
     }
     // check if the username already exist
-    if (userid_byname(userformv('newusername')) && userid_byname(userformv('newusername')) != postv('userid')) {
+    $found = userid_byname($username);
+    if ($found && (int)$found !== $userid) {
         webAlert('User name is already in use!');
         exit;
     }
 
     // check if the email address already exists
-    if (userid_byemail(postv('email')) && userid_byemail(postv('email')) != postv('userid')) {
+    $found = userid_byemail(post_strvar('email'));
+    if ($found && (int)$found !== $userid) {
         webAlert('Email is already in use!');
         exit;
     }
 
     // generate a new password for this user
-    if (postv('newpassword') == 1) {
-        if (postv('passwordgenmethod') === 'spec') {
-            if (!postv('specifiedpassword')) {
+    if (post_intvar('newpassword') === 1) {
+        if (post_strvar('passwordgenmethod') === 'spec') {
+            if (!post_strvar('specifiedpassword')) {
                 webAlert("You didn't specify a password for this user!");
                 exit;
             }
-            if (strlen(postv('specifiedpassword')) < 6) {
+            if (strlen(post_strvar('specifiedpassword')) < 6) {
                 webAlert('Password is too short!');
                 exit;
             }
-        } elseif (postv('passwordgenmethod') !== 'g') {
+        } elseif (post_strvar('passwordgenmethod') !== 'g') {
             webAlert('No password generation method specified!');
             exit;
         }
     }
-    if (!manager()->isAdmin() && role_byuserid(postv('userid')) == 1) {
+    if (!manager()->isAdmin() && (int)role_byuserid($userid) === 1) {
         webAlert('You cannot alter an administrative user.');
         exit;
     }

@@ -15,16 +15,16 @@ $files = SystemLogViewer::files($logRoot);
 $latestFiles = SystemLogViewer::latestFiles($files, 100);
 $isDownload = getv('download') === '1';
 $isEntriesApi = getv('ajax') === 'entries';
-$period = SystemLogViewer::period((string)getv('period', 'latest'));
+$period = SystemLogViewer::period(get_strvar('period', 'latest'));
 $isLatest = $period === 'latest' && !$isDownload;
 $isYearPeriod = strpos($period, 'year:') === 0;
 $months = SystemLogViewer::months($files, $period);
-$selectedMonth = $isYearPeriod ? SystemLogViewer::selectedMonth((string)getv('month', ''), $months) : '';
+$selectedMonth = $isYearPeriod ? SystemLogViewer::selectedMonth(get_strvar('month'), $months) : '';
 $visibleFiles = SystemLogViewer::filterFiles($files, $period, $selectedMonth);
 if (!$isLatest && !$isDownload && !$isEntriesApi) {
     $visibleFiles = SystemLogViewer::withLineCounts($visibleFiles);
 }
-$selectedFile = $isLatest ? '' : getv('file', '');
+$selectedFile = $isLatest ? '' : get_strvar('file');
 $selectedFileInfo = SystemLogViewer::findFile($visibleFiles, $selectedFile);
 if (!$isLatest && ($selectedFile === '' || !SystemLogViewer::findFile($visibleFiles, $selectedFile)) && $visibleFiles) {
     $selectedFile = $visibleFiles[0]['relative'];
@@ -37,9 +37,9 @@ if (!$isLatest && !$selectedFileInfo && $files) {
 $selectedPath = $isLatest ? '' : SystemLogViewer::resolveFile($logRoot, $selectedFile);
 $fileList = SystemLogViewer::fileList($visibleFiles);
 $years = SystemLogViewer::years($files);
-$level = strtolower((string)getv('level', ''));
-$source = trim((string)getv('source', ''));
-$query = trim((string)getv('q', ''));
+$level = strtolower(get_strvar('level'));
+$source = trim(get_strvar('source'));
+$query = trim(get_strvar('q'));
 $allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
 if (!in_array($level, $allowedLevels, true)) {
     $level = '';
@@ -111,9 +111,9 @@ if (is_post() && postv('delete_log') === '1') {
 }
 
 if ($isEntriesApi) {
-    $olderBeforeLine = (int)getv('before', 0);
+    $olderBeforeLine = get_intvar('before');
     $result = $isLatest
-        ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $source, $query, (string)getv('cursor_file', ''), $olderBeforeLine, 20)
+        ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $source, $query, get_strvar('cursor_file'), $olderBeforeLine, 20)
         : ($selectedPath === ''
         ? ['entries' => [], 'has_more' => false, 'before_line' => 0]
         : SystemLogViewer::readEntries($selectedPath, $level, $source, $query, $olderBeforeLine, 20));

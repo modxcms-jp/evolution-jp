@@ -28,7 +28,7 @@ if ($isPWDActivate == 1) {
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token === '' || $token !== anyv('token')) {
+    if ($token === '' || !hash_equals($token, request_strvar('token'))) {
         if (empty($actInvalidKey))
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
@@ -71,7 +71,7 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = webLoginString(postv('txtwebemail', ''));
+    $email = post_strvar('txtwebemail');
     // 未入力のままメールアドレスが空のアカウントに一致させない
     if (trim($email) === '') {
         $output = webLoginAlert("Please enter your email address.");
@@ -212,10 +212,18 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = webLoginString(postv('username'));
-$givenPassword = webLoginString(postv('password'));
-$captcha_code = postv('captcha_code', '');
-$rememberme = postv('rememberme');
+$username = post_strvar('username');
+$givenPassword = post_strvar('password');
+$captcha_code = post_strvar('captcha_code');
+$rememberme = post_strvar('rememberme');
+
+// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
+// 失敗回数に数えずに案内だけを出す。ユーザー名やパスワードに関わらず同じ応答にするため、ユーザーを探す前に行う
+$sessionVeriword = sessionv('veriword');
+if ((int)config('use_captcha', 0) === 1 && (!is_string($sessionVeriword) || $sessionVeriword === '')) {
+    $output = webLoginAlert('Please enter the security code shown in the image.');
+    return;
+}
 
 // invoke OnBeforeWebLogin event
 $v = [];
@@ -337,14 +345,14 @@ $rt = evo()->invokeEvent("OnWebAuthentication", $tmp);
 // check if plugin authenticated the user
 if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
     // check user password - local authentication
-    if ($dbasePassword != md5($givenPassword)) {
+    if (!hash_equals((string)$dbasePassword, md5($givenPassword))) {
         $output = webLoginAlert("Incorrect username or password entered!");
         $newloginerror = 1;
     }
 }
 
 if ($useCaptcha === 1) {
-    if (sessionv('veriword') != $captcha_code) {
+    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
         $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
@@ -437,7 +445,7 @@ if (!$ok) // check if a login home id page was set
 // update active users list if redirectinq to another page
 if ($id != $modx->documentIdentifier) {
     sessionv('*ip', real_ip());
-    $itemid = anyv('id');
+    $itemid = request_intvar('id');
     $lasthittime = time();
     $a = 998;
     if ($a != 1) {
@@ -466,12 +474,12 @@ $tmp = [
     "userid" => $internalKey,
     "username" => $username,
     "userpassword" => $givenPassword,
-    "rememberme" => postv('rememberme')
+    "rememberme" => $rememberme
 ];
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-$refUrl = webLoginString(anyv('refurl'));
+$refUrl = request_strvar('refurl');
 if (!empty($refUrl)) {
     // last accessed page
     $targetPageId = $refUrl;

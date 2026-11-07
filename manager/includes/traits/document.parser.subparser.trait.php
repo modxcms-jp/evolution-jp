@@ -422,9 +422,9 @@ trait DocumentParserSubParserTrait
         $str .= sprintf('<td>%s</td>', hsc(urldecode(evo()->server('REQUEST_URI'))));
         $str .= '</tr>';
 
-        $action = getv('a', postv('a'));
+        $action = get_intvar('a') ?: post_intvar('a');
 
-        if (isset($action) && $action) {
+        if ($action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
             if (isset($action_list[$action])) {
@@ -1096,7 +1096,11 @@ trait DocumentParserSubParserTrait
 
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
-        if (strpos($docid, ',') !== false) {
+        // 配列など文字列・数値でない値（id[]=1 を渡したときなど）は、権限があるとみなさない
+        if (is_array($docid) || is_object($docid)) {
+            return false;
+        }
+        if (is_string($docid) && strpos($docid, ',') !== false) {
             $docid = substr($docid, 0, strpos($docid, ','));
         }
 

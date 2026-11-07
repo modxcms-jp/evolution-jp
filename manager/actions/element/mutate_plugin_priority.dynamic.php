@@ -14,7 +14,7 @@ if (postv('listSubmitted')) {
 
     $updatedCount = 0;
     foreach (postv() as $listName => $listValue) {
-        if ($listName === 'listSubmitted' || strpos($listName, 'list_') !== 0) {
+        if ($listName === 'listSubmitted' || strpos($listName, 'list_') !== 0 || !is_string($listValue)) {
             continue;
         }
         $orderArray = explode(',', $listValue);

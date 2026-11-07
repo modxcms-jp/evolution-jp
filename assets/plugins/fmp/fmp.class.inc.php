@@ -28,13 +28,14 @@ class ForgotManagerPassword
             $this->OnManagerMainFrameHeaderHTMLBlock();
             return;
         }
-        if (getv('fmpkey')) {
+        $fmpkey = get_strvar('fmpkey');
+        if ($fmpkey) {
             if ($i === 'OnManagerLoginFormPrerender') {
-                $this->OnManagerLoginFormPrerender(getv('fmpkey'));
+                $this->OnManagerLoginFormPrerender($fmpkey);
                 return;
             }
             if ($i === 'OnManagerAuthentication') {
-                event()->output($this->OnManagerAuthentication(getv('fmpkey')));
+                event()->output($this->OnManagerAuthentication($fmpkey));
                 return;
             }
         }
@@ -53,9 +54,9 @@ class ForgotManagerPassword
         }
 
         if (getv('action') === 'send_email') {
-            $_SESSION['fmp_sent'] = $this->sendFmpMail(getv('email'))
+            sessionv('*fmp_sent', $this->sendFmpMail(get_strvar('email'))
                 ? $this->lang('email_sent')
-                : $this->getErrorOutput() . $this->formLink();
+                : $this->getErrorOutput() . $this->formLink());
             $this->removeLoginTouchFile();
             evo()->sendRedirect(MODX_MANAGER_URL);
             exit;
@@ -73,9 +74,10 @@ class ForgotManagerPassword
             $user_id = false;
         }
         if ($user_id) {
-            $_SESSION['goto_pwd_edit'] = '1';
-            if (getv('captcha_code')) {
-                $_SESSION['veriword'] = getv('captcha_code');
+            sessionv('*goto_pwd_edit', '1');
+            $captchaCode = get_strvar('captcha_code');
+            if ($captchaCode) {
+                sessionv('*veriword', $captchaCode);
             }
             $this->unBlock($user_id);
         }
@@ -219,7 +221,7 @@ class ForgotManagerPassword
     {
         $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
         if (is_file($touch_path)) {
-            unlink($touch_path);
+            @unlink($touch_path);
         }
     }
 

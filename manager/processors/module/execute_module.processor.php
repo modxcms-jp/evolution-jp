@@ -14,7 +14,7 @@ $tbl_member_groups = evo()->getFullTableName('member_groups');
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
 // make sure the id's a number
-if (!is_numeric($id)) {
+if (!$id) {
     echo "Passed ID is NaN!";
     exit;
 }

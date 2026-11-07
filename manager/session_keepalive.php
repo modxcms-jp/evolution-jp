@@ -14,7 +14,7 @@ $modx = new DocumentParser;
 // Keep it alive
 header('Content-type: application/json');
 
-if ($modx->input_get('tok') !== md5(session_id())) {
+if (get_strvar('tok') !== md5(session_id())) {
     exit('{"status":null}');
 }
 

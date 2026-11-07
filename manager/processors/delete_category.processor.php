@@ -13,5 +13,5 @@ if (
     return;
 }
 
-manager()->deleteCategory((int)getv('catId'));
+manager()->deleteCategory(get_intvar('catId'));
 header('Location: index.php?a=76');

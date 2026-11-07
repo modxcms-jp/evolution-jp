@@ -20,25 +20,22 @@ $mxla = globalv('modx_lang_attribute') ?: 'en';
 
 // get name of callback function
 // 文字列かつ JS の識別子の形のときだけ受け付ける
-$cb = anyv('cb', '');
-if (!is_string($cb) || !preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
+$cb = request_strvar('cb');
+if (!preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
     $cb = '';
 }
 
 // get resource type
-$rt = anyv('rt', '');
-$rt = is_string($rt) ? strtolower($rt) : '';
+$rt = strtolower(request_strvar('rt'));
 if (!in_array($rt, ['snip', 'tpl', 'tv', 'chunk', 'plug', 'doc'], true)) {
     $rt = 'doc';
 }
 
 // get selection method: s - single (default), m - multiple
-$sm = anyv('sm', 's');
-$sm = is_string($sm) && strtolower($sm) === 'm' ? 'm' : 's';
+$sm = strtolower(request_strvar('sm', 's')) === 'm' ? 'm' : 's';
 
 // get search string
-$query = anyv('search', '');
-$query = is_string($query) ? $query : '';
+$query = request_strvar('search');
 $sqlQuery = db()->escape($query);
 
 // select SQL
@@ -150,9 +147,9 @@ switch ($rt) {
     setTimeout("restoreChkBoxes();", 100);
 </script>
 <form name="selector" method="get">
-    <input type="hidden" name="id" value="<?= (int)anyv('id') ?>"/>
-    <input type="hidden" name="a" value="<?= (int)anyv('a') ?>"/>
-    <input type="hidden" name="listmode" value="<?= hsc(anyv('listmode')) ?>"/>
+    <input type="hidden" name="id" value="<?= request_intvar('id') ?>"/>
+    <input type="hidden" name="a" value="<?= request_intvar('a') ?>"/>
+    <input type="hidden" name="listmode" value="<?= hsc(request_strvar('listmode')) ?>"/>
     <input type="hidden" name="op" value=""/>
     <input type="hidden" name="rt" value="<?= hsc($rt) ?>"/>
     <input type="hidden" name="sm" value="<?= hsc($sm) ?>"/>
@@ -220,7 +217,7 @@ switch ($rt) {
                             $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>" . ($rt === 'doc' ? '' : '||description');
                             $grd->fields = "name,description";
                             $grd->colEscapes = $rt === 'doc' ? '1,1' : '1,'; // DB の値を出す列をエスケープ（要素の説明は description 型が自分で無害化する。文書のロングタイトルは説明の列に入るのでエスケープする）
-                            if (anyv('listmode') == 1) {
+                            if (request_intvar('listmode') === 1) {
                                 $grd->pageSize = 0;
                             }
                             echo $grd->render();

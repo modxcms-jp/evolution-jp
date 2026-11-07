@@ -20,18 +20,12 @@ if (!evo()->hasPermission('save_document')) {
 
 const PARENT_PICKER_LIMIT = 50;
 
-$docIds = [];
-foreach (explode(',', (string)anyv('id', '')) as $v) {
-    $v = to_intvar(trim($v));
-    if ($v) {
-        $docIds[] = $v;
-    }
-}
+$docIds = request_idsvar('id');
 
 if (getv('ajax') === 'search') {
     header(sprintf('Content-Type: application/json; charset=%s', config('modx_charset', 'utf-8')));
     echo json_encode(
-        parent_picker_search(trim((string)getv('q', '')), $docIds),
+        parent_picker_search(trim(get_strvar('q')), $docIds),
         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
     );
     exit;

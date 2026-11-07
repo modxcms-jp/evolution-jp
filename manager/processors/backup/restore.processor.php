@@ -12,12 +12,13 @@ require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
 $source = '';
-if (postv('mode') === 'restore1') {
+$mode = post_choicevar('mode', ['restore1', 'restore2'], '');
+if ($mode === 'restore1') {
     if (filev('sqlfile.tmp_name')) {
         $source = (string) file_get_contents(filev('sqlfile.tmp_name'));
     }
-} elseif (postv('mode') === 'restore2') {
-    $path = $backup->path((string) postv('filename', ''));
+} elseif ($mode === 'restore2') {
+    $path = $backup->path(post_strvar('filename'));
     if ($path === false) {
         exit('Error');
     }
@@ -27,7 +28,7 @@ if (postv('mode') === 'restore1') {
 if ($source !== '') {
     $result = $backup->restore($source);
     sessionv('*restore_result', [
-        'mode'               => postv('mode'),
+        'mode'               => $mode,
         'ok'                 => $result['ok'],
         'error'              => $result['error'],
         'failed_at'          => $result['failed_at'],

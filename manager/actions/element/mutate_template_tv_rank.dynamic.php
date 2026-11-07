@@ -7,11 +7,11 @@ if (!evo()->hasPermission('save_template')) {
     alert()->dumpError();
 }
 
-if (!is_numeric(anyv('id'))) {
+$id = request_intvar('id');
+if (!$id) {
     echo 'Template ID is NaN';
     exit;
 }
-$id = intval(anyv('id'));
 
 $updateMsg = '';
 
@@ -20,7 +20,7 @@ if (postv('listSubmitted')) {
 
     $updatedCount = 0;
     foreach (postv() as $listName => $listValue) {
-        if ($listName === 'listSubmitted' || $listName === 'csrf_token') {
+        if ($listName === 'listSubmitted' || $listName === 'csrf_token' || !is_string($listValue)) {
             continue;
         }
         $orderArray = explode(';', rtrim($listValue, ';'));
@@ -75,7 +75,7 @@ if ($limit > 0) {
 }
 
 $misc_path = manager_style_image_path('misc');
-$cancelUrl = 'index.php?a=16&id=' . (int)anyv('id');
+$cancelUrl = 'index.php?a=16&id=' . $id;
 ?>
 <style type="text/css">
     ul.sortableList {

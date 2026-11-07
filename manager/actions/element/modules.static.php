@@ -22,7 +22,8 @@ $sqlQuery = '';
 if (anyv('op') === 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = anyv('search', array_get($_PAGE, 'vs.search', ''));
+    // 空の検索語は「検索語を消す」操作なので、送られたかどうかで保存済みの値と使い分ける
+    $query = request_textvar('search') ?? array_get($_PAGE, 'vs.search', '');
     if ($query !== '') {
         $sqlQuery = db()->escape($query);
     }
@@ -30,7 +31,7 @@ if (anyv('op') === 'reset') {
 }
 
 // get & save listmode
-$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
+$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 

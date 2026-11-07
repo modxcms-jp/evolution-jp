@@ -64,8 +64,8 @@ if (!function_exists('ditto_json_str')) {
     }
 }
 // JSONP: only a JavaScript identifier (e.g. callback or obj.method) is allowed as the callback name
-$jsonp = anyv($dittoID . 'jsonp', '');
-$jsonp = (is_string($jsonp) && preg_match('/^[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*$/', $jsonp)) ? $jsonp : '';
+$jsonp = request_strvar($dittoID . 'jsonp');
+$jsonp = (preg_match('/^[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*$/', $jsonp)) ? $jsonp : '';
 // values put inside the JSON strings of the header
 foreach (['json_lang', 'json_copyright', 'json_link'] as $k) {
     $json_placeholders[$k] = ditto_json_str($json_placeholders[$k] ?? '');

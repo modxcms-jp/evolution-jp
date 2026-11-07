@@ -61,9 +61,7 @@ if (manager()->action == 131 && request_intvar('id')) {
 }
 
 manager()->saveFormValues();
-if (postv()) {
-    $docObject = mergeReloadValues($docObject);
-}
+$docObject = mergeReloadValues($docObject);
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = &$docObject;
@@ -130,7 +128,7 @@ if (config('use_editor') === '1') {
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = [
-            'editor' => evo()->input_post('which_editor', config('which_editor')),
+            'editor' => currentEditor(),
             'elements' => $rte_fields
         ];
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
@@ -141,7 +139,7 @@ if (config('use_editor') === '1') {
 }
 
 $template = file_get_tpl('_template.tpl');
-if (evo()->input_any('pid')) {
+if (request_intvar('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
 $ph = collect_template_ph(

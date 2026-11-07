@@ -22,7 +22,7 @@ if (getv('quickmanagerclose')) {
 }
 
 // QM+ TV edit
-if (getv('quickmanagertv') == 1 && getv('tvname') != '' && $this->tvbuttons == 'true') {
+if (get_intvar('quickmanagertv') === 1 && get_strvar('tvname') !== '' && $this->tvbuttons == 'true') {
     $output = include 'edit_tv.inc.php';
 } // QM+ with toolbar
 else {
