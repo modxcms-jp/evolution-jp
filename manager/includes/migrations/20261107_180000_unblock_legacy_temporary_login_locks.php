@@ -14,6 +14,7 @@
  * failed_login_attempts はグローバル設定の値を使う（ユーザーごとに変える画面は無い）。
  * 外した行は、表ごとに internalKey の一覧をシステムログに残す。
  *
+ * ログインの処理（legacyLoginLockMigrationId()）がこの ID を見て、記録が無いあいだだけ同じ条件で本人の行を外す。
  * 記録（migrations の表の行）を手で消して、日を置いて流し直さない。その間に管理者が同じ形のブロックを付けた行も外れるため。
  */
 return static function (EvoMigrationHelper $m) {

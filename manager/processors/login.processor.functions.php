@@ -285,12 +285,17 @@ function isLegacyLoginLockAwaitingMigration()
 }
 
 // マイグレーションが記録済みか。記録を読めないときは記録済みとみなす（外さない側に倒す）。
+// マイグレーションのファイルが無い（baseline に取り込んで消した など）ときも、記録済みとみなす。
 // 記録の表が無い DB（マイグレーションの仕組みより前の版）は、未適用として扱う
 function legacyLoginLockMigrationApplied()
 {
     try {
         require_once MODX_CORE_PATH . 'migrator.class.inc.php';
-        return isset((new EvoMigrator())->applied()[legacyLoginLockMigrationId()]);
+        $migrator = new EvoMigrator();
+        if (!in_array(legacyLoginLockMigrationId(), $migrator->all(), true)) {
+            return true;
+        }
+        return isset($migrator->applied()[legacyLoginLockMigrationId()]);
     } catch (Throwable $e) {
         return true;
     }
