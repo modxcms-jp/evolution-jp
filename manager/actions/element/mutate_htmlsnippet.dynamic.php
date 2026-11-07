@@ -68,6 +68,15 @@ if (!$formRestored && postv('changeMode')) {
     $content = array_merge($content, array_filter(postv(), 'is_string'));
 }
 
+// 保存済みは時刻の数値、差し戻した入力は入力された文字列のまま（解釈できない日付を含む）
+function chunkDateValue($value)
+{
+    if (empty($value)) {
+        return '';
+    }
+    return is_numeric($value) ? evo()->toDateFormat($value) : hsc($value);
+}
+
 function entity($key, $default = null)
 {
     global $content;
@@ -76,15 +85,11 @@ function entity($key, $default = null)
         $content['published'] = 1;
     }
     if ($key === 'pub_date') {
-        return !empty($content['pub_date'])
-            ? evo()->toDateFormat($content['pub_date'])
-            : '';
+        return chunkDateValue($content['pub_date'] ?? '');
     }
 
     if ($key === 'unpub_date') {
-        return !empty($content['unpub_date'])
-            ? evo()->toDateFormat($content['unpub_date'])
-            : '';
+        return chunkDateValue($content['unpub_date'] ?? '');
     }
 
     return $content[$key] ?? $default;

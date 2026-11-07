@@ -38,37 +38,8 @@ function entity($key)
     if ($key === 'editor_type') {
         return post_intvar('editor_type') === 1 ? 1 : 0;
     }
-    if ($key === 'published') {
-        return post_intvar('published') === 1 ? 1 : 0;
-    }
-
-    $currentdate = time();
-
-    if ($key === 'pub_date') {
-        $pub_date = post_strvar('pub_date');
-        if (empty($pub_date)) {
-            return 0;
-        }
-        $pub_date = evo()->toTimeStamp($pub_date);
-        if ($pub_date < $currentdate) {
-            $_POST['published'] = 1;
-        } elseif ($pub_date > $currentdate) {
-            $_POST['published'] = 0;
-        }
-        return $pub_date;
-    }
-
-    // unpub_date
-    if ($key === 'unpub_date') {
-        $unpub_date = post_strvar('unpub_date');
-        if (empty($unpub_date)) {
-            return 0;
-        }
-        $unpub_date = evo()->toTimeStamp($unpub_date);
-        if ($unpub_date < $currentdate) {
-            $_POST['published'] = 0;
-        }
-        return $unpub_date;
+    if ($key === 'published' || $key === 'pub_date' || $key === 'unpub_date') {
+        return resolvePublishFields()[$key];
     }
 
     if ($key === 'category') {
@@ -78,8 +49,44 @@ function entity($key)
     return null;
 }
 
+/**
+ * published・pub_date・unpub_date を、公開日・公開終了日と今の時刻から決める（1 回だけ計算する）。
+ * 日付が空ならチェックボックスの値のまま。空でない日付を解釈できなければ DB に渡さず編集画面へ戻す。
+ * 公開日・公開終了日の意味はリソースの保存（ex_docapi の setPubStatus）に従う。
+ */
+function resolvePublishFields(): array
+{
+    global $_lang, $mode, $id;
+    static $fields = null;
+    if ($fields !== null) {
+        return $fields;
+    }
+
+    $f = ['published' => post_intvar('published') === 1 ? 1 : 0];
+    foreach (['pub_date', 'unpub_date'] as $key) {
+        $value = post_strvar($key);
+        if ($value === '') {
+            $f[$key] = 0;
+            continue;
+        }
+        $timestamp = evo()->toTimeStamp($value);
+        if (!$timestamp) {
+            manager()->redirectToElementForm($_lang['mgrlog_dateinvalid'], 77, 78, $mode === 78 ? $id : 0);
+        }
+        $f[$key] = (int)$timestamp;
+    }
+
+    $fields = evo()->doc->setPubStatus($f);
+    $fields['published'] = (int)$fields['published'];
+    $fields['pub_date'] = (int)$fields['pub_date'];
+    $fields['unpub_date'] = (int)$fields['unpub_date'];
+    return $fields;
+}
+
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
 manager()->requireElementName(post_strvar('name'), $_lang['chunk'], 77, 78, $id);
+// 日付が解釈できないときは、イベントや DB に進む前に差し戻す
+resolvePublishFields();
 
 switch ($mode) {
     case 77:
