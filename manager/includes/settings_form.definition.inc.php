@@ -938,6 +938,7 @@ return [
                     ],
                     [
                         'key' => 'editor_css_path',
+                        'userAttr' => ['style' => 'width: 250px;'],
                         'scope' => ['system', 'user', 'profile'],
                         'type' => 'text',
                         'label' => lang('editor_css_path_title'),
@@ -965,6 +966,7 @@ return [
                     ],
                     [
                         'key' => 'rb_base_dir',
+                        'userAttr' => ['style' => 'width: 300px;'],
                         'scope' => ['system', 'user'],
                         'type' => 'path',
                         'label' => lang('rb_base_dir_title'),
@@ -978,6 +980,7 @@ return [
                     ],
                     [
                         'key' => 'rb_base_url',
+                        'userAttr' => ['style' => 'width: 300px;'],
                         'scope' => ['system', 'user'],
                         'type' => 'text',
                         'label' => lang('rb_base_url_title'),
@@ -1008,6 +1011,7 @@ return [
                 'rows' => [
                     [
                         'key' => 'filemanager_path',
+                        'userAttr' => ['style' => 'width: 300px;'],
                         'scope' => ['system', 'user'],
                         'type' => 'path',
                         'label' => lang('filemanager_path_title'),
@@ -1049,6 +1053,7 @@ return [
                     ],
                     [
                         'key' => 'upload_maxsize',
+                        'userAttr' => ['style' => 'width: 300px;'],
                         'scope' => ['system', 'user'],
                         'type' => 'text',
                         'label' => lang('upload_maxsize_title'),

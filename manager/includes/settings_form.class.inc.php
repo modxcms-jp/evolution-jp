@@ -194,6 +194,10 @@ final class EvoSettingsForm
     table.settings th, table.settings td {
         padding: 5px;
     }
+
+    table.settings.user-scope td input[type=text] {
+        width: 250px;
+    }
 </style>
 
 HTML;
@@ -238,6 +242,8 @@ HTML;
     public function renderTab(array $tab): string
     {
         $html = '';
+        $visible = false;
+        $tableClass = $this->isSystem() ? 'settings' : 'settings user-scope';
         foreach ($tab['sections'] ?? [] as $section) {
             $rows = array_filter($section['rows'], function (array $row): bool {
                 return in_array($this->scope, $row['scope'] ?? ['system'], true);
@@ -246,23 +252,38 @@ HTML;
                 // その scope に出す行が無い小見出しは出さない
                 continue;
             }
+            // user・profile は、行が条件ですべて隠れるとき、小見出しと表も隠す（行は送るために残す）
+            $hidden = !$this->isSystem() && count(array_filter($rows, [$this, 'isConditionHidden'])) === count($rows);
+            $visible = $visible || !$hidden;
+            $style = $hidden ? ' style="display:none"' : '';
             if (!empty($section['title'])) {
-                $html .= '<h3 class="settings-section">' . $section['title'] . "</h3>\n";
+                $html .= '<h3 class="settings-section"' . $style . '>' . $section['title'] . "</h3>\n";
             }
-            $html .= "<table class=\"settings\">\n";
+            $html .= '<table class="' . $tableClass . '"' . $style . ">\n";
             foreach ($rows as $row) {
                 $html .= $this->renderRow($row);
             }
             $html .= "</table>\n";
         }
-        $html .= $this->renderEventSection($tab);
+        $event = $this->renderEventSection($tab);
+        $html .= $event;
         if ($html === '') {
             // その scope に出すものが無いタブは出さない
             return '';
         }
+        // 中身がすべて隠れるタブは、タブの見出しも隠す（tabpane.js は隠れた見出しのタブを選ばない）
+        $tabStyle = !$this->isSystem() && !$visible && $event === '' ? ' style="display:none"' : '';
         return '<div class="tab-page" id="' . hsc($tab['id']) . '">' . "\n"
-            . '<h2 class="tab">' . $tab['title'] . "</h2>\n"
+            . '<h2 class="tab"' . $tabStyle . '>' . $tab['title'] . "</h2>\n"
             . $html . "</div>\n";
+    }
+
+    /**
+     * user・profile で、条件（showIf）に合わず初めから隠れる行
+     */
+    private function isConditionHidden(array $row): bool
+    {
+        return isset($row['showIf']) && (string)($this->stored[$row['showIf'][0]] ?? '') !== (string)$row['showIf'][1];
     }
 
     /**
@@ -711,6 +732,18 @@ HTML;
     }
 
     /**
+     * 差し戻した画面では、送ったときのチェックを優先する。そうでなければ、ユーザーの値が無いとき
+     */
+    private function isFollowingSystem(string $key): bool
+    {
+        $sent = $this->values["default_{$key}"] ?? null;
+        if ($sent !== null) {
+            return (string)$sent === '1';
+        }
+        return ($this->values[$key] ?? null) === null;
+    }
+
+    /**
      * 「システム設定に従う」のチェックボックス（user・profile の userDefault の行）。
      * ユーザーの値が無いとき（保存すると値を持たない）にチェックを付ける
      */
@@ -722,7 +755,7 @@ HTML;
         return sprintf(
             '&nbsp;&nbsp;<label><input type="checkbox" name="default_%s" value="1"%s /> %s</label>',
             hsc($row['key']),
-            ($this->values[$row['key']] ?? null) === null ? ' checked="checked"' : '',
+            $this->isFollowingSystem($row['key']) ? ' checked="checked"' : '',
             lang('user_use_config')
         );
     }
