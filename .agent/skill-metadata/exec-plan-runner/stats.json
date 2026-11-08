@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 42,
-            "used_runs": 42,
-            "helped_runs": 42,
+            "seen_runs": 45,
+            "used_runs": 45,
+            "helped_runs": 45,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 26
+            "active_runs": 28
         },
         "change-004": {
             "seen_runs": 1,
@@ -386,6 +386,33 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-08T00:05:00+09:00",
             "source": "2026-11-07-data-table-component-001"
+        },
+        "change-043": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
+        },
+        "change-044": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
+        },
+        "change-045": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
         }
     }
 }

@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-08-settings-screen-definition",
+    "run_id": "2026-11-08-settings-screen-definition-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T16:30:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-043",
+            "action": "add",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md（「並走するとき」）",
+            "summary": "1 つの作業ツリーを 2 つの環境にマウントしない（config.inc.php を共有し、片方の setup-site・片付けがもう片方を壊す）。利用者に目視で渡す環境は別のワークツリー（detached）で立て、その作業ツリーで検証するときは目視用の環境をそのまま使う（down・setup-site・config.inc.php の削除をしない）",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-044",
+            "action": "add",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md（「既知の落とし穴」）",
+            "summary": "Apache の error.log は /dev/stderr へのリンクで、コンテナの中で tail すると止まる。PHP の警告は docker logs <名前>-app で見る",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-045",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "summary": "全画面を開く走査で確かめた変更では、走査で通らない変更行（POST の処理・メール・インポート・存在しない id・セッションの条件など）を差分から洗い出し、それぞれの入口で個別に確かめる",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        }
+    ]
+}

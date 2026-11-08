@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-08-settings-screen-definition",
+    "run_id": "2026-11-08-settings-screen-definition-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T16:30:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "tool_gap",
+            "summary": "1 つの作業ツリーを 2 つの検証環境にマウントすると、config.inc.php（git の無視対象）を共有するので、片方の setup-site・片付けがもう片方を壊す。ユーザーさんが目視に使っている環境と同じ作業ツリーで、worker に別の環境を立てさせかけた。目視用は別のワークツリー（detached）で立て、worker の検証は自分の作業ツリーの環境か、目視用の環境をそのまま使う、を決まりにするとよい。--reinstall の退避ファイル（config.inc.php.bak-<時刻>）がコミットに紛れた件は .gitignore で塞いだ（#1257）",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "tool_gap",
+            "summary": "php:8.4-apache の Apache の error.log は /dev/stderr へのリンクで、コンテナの中で tail しても何も出ず、止まる。PHP の警告は docker logs <名前>-app で見る。知らないと「警告なし」を誤って報告する",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".claude/skills/adaptive-validation-runner/references/environment.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "管理画面の全アクションを GET で開く走査は、POST の処理・メールの送信・インポート・存在しない id・セッションの条件などでしか通らない変更行を確かめない。#1074 では reviewer が差分から 6 か所を挙げ、tester が追加で確かめた。全画面の走査で確かめた変更では、走査で通らない変更行を差分から洗い出し、個別に確かめる、と runner の検証の手順に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "good_practice",
+            "summary": "見た目の決定（タブ名を短くすれば一段に収まるか）は、測定で見込みが外れたと分かった段階で、確認用の環境に仮の変更（仮のタブ・一律の余白）を当てて目視してもらい、本実装の前に決められた。段階を分けた PR をマージせずに積み、表示を見てから最終的に判断する進め方もうまくいった。runner の手順 9 の「本人に頼まれていて止まれないとき」で足りているので、反映はしない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}
