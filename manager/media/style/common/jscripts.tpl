@@ -79,22 +79,60 @@
         var previewWin = null;      // この画面から開いたプレビューの窓
         var autoOn = false;         // 窓を開いた後の自動更新が有効か
         var autoTimer = null;
-        var autoSending = false;
+        var autoSending = false;    // 送信中（手動・自動とも）
         var autoPending = false;    // 送信中に変更があった
+        var lastSentSig = null;     // 直前に成功した送信の内容（同じ内容を自動で重ねて送らない）
+        var sendGuard = null;
         var AUTO_DELAY = 1500;
+        var AUTO_TIMEOUT = 30000;   // Evo.fetch はログインへ移るときに解決しないので、送信中の印を戻す
         var previewMutate = document.getElementById('mutate');
+        var previewBaseUrl = [+preview_url+];
+        var previewable = [+preview_mode+] == 1 && !!previewMutate && !!'[+id+]' && '[+id+]' !== '0';
 
-        // 編集中の内容を a=309 へ送る。{url, changed（キーが新しくなったか）} を解決する
-        function postPreviewDraft() {
+        // 保存などでシェルが画面を読み直しても、開いたままのこの文書のプレビューの窓は自動更新を続ける
+        if (previewable && prevWin) {
+            try {
+                if (!prevWin.closed) {
+                    var cur = new URL(prevWin.location.href);
+                    var base = new URL(previewBaseUrl, location.href);
+                    var same = cur.origin === base.origin && cur.pathname === base.pathname && cur.searchParams.has('mgr_preview');
+                    base.searchParams.forEach(function (v, k) {
+                        if (k !== 'mgr_preview' && cur.searchParams.get(k) !== v) same = false;
+                    });
+                    if (same) {
+                        previewWin = prevWin;
+                        autoOn = true;
+                    }
+                }
+            } catch (err) {
+                // 別のオリジンで読めないときは引き継がない（もう一度「プレビュー」で再開）
+            }
+        }
+
+        // 編集中の内容を送る形にする。sig は File を除いた内容（キーを入れる前）で、同じ内容かの判定に使う
+        function buildPreviewForm() {
             // エディタの内容をフォームへ書き戻す（保存の submit でも同じ書き戻しが走る）
             if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
                 window.tinymce.triggerSave();
             }
-            var fd = new FormData(previewMutate);
+            // 下書きは postv() だけを使い $_FILES を見ないので、File は送らない
+            var fd = new FormData();
+            var pairs = [];
+            new FormData(previewMutate).forEach(function (value, name) {
+                if (typeof value !== 'string') return;
+                pairs.push([name, value]);
+                fd.append(name, value);
+            });
+            var sig = JSON.stringify(pairs);
             fd.set('a', 309);
             if (previewKey) fd.set('preview_key', previewKey);
+            return { fd: fd, sig: sig };
+        }
+
+        // 編集中の内容を a=309 へ送る。{url, changed（キーが新しくなったか）} を解決する
+        function postPreviewDraft(built) {
             // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
-            return Evo.post('index.php', fd)
+            return Evo.post('index.php', built.fd)
                 .then(function (response) {
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.json();
@@ -104,8 +142,25 @@
                     var key = data.key || null;
                     var changed = !key || key !== previewKey;
                     previewKey = key;
+                    lastSentSig = built.sig;
                     return { url: data.url, changed: changed };
                 });
+        }
+
+        function beginSending() {
+            autoSending = true;
+            autoPending = false;
+            if (sendGuard) clearTimeout(sendGuard);
+            sendGuard = setTimeout(function () {
+                sendGuard = null;
+                autoSending = false;
+            }, AUTO_TIMEOUT);
+        }
+
+        function endSending() {
+            autoSending = false;
+            if (sendGuard) clearTimeout(sendGuard);
+            sendGuard = null;
         }
 
         function stopAuto() {
@@ -123,17 +178,30 @@
             }
         }
 
-        function reloadPreview(result) {
+        // 窓に結果を出す。URL が同じなら再読み込み（スクロールの位置をブラウザが保つ）
+        function showPreview(win, result) {
+            var current = null;
+            try {
+                current = win.location.href;
+            } catch (err) {
+                // 別のオリジンで読めない
+            }
+            if (current !== null) {
+                if (current === 'about:blank' || current !== new URL(result.url).href) {
+                    win.location.href = result.url;
+                } else {
+                    win.location.reload();
+                }
+                return;
+            }
             if (result.changed) {
-                previewWin.location.href = result.url;
+                win.location.href = result.url;
                 return;
             }
             try {
-                // URL が同じなら再読み込み（スクロールの位置はブラウザが保つ）
-                previewWin.location.reload();
+                win.location.reload();
             } catch (err) {
-                // 別のオリジンで location に触れないとき
-                previewWin.location.href = result.url;
+                win.location.href = result.url;
             }
         }
 
@@ -158,16 +226,18 @@
                 stopAuto();
                 return;
             }
-            autoSending = true;
-            autoPending = false;
-            postPreviewDraft()
+            var built = buildPreviewForm();
+            // 直前に送った内容と同じなら送らない
+            if (built.sig === lastSentSig) return;
+            beginSending();
+            postPreviewDraft(built)
                 .then(function (result) {
-                    autoSending = false;
+                    endSending();
                     if (!autoOn || !previewMutate.isConnected || !previewWinOpen()) {
                         stopAuto();
                         return;
                     }
-                    reloadPreview(result);
+                    showPreview(previewWin, result);
                     if (autoPending) {
                         autoPending = false;
                         scheduleAuto();
@@ -175,16 +245,20 @@
                 })
                 .catch(function (err) {
                     // 入力のたびに出さないよう alert は出さない。手動の「プレビュー」で通常どおり知らせる
-                    autoSending = false;
+                    endSending();
                     autoPending = false;
                     console.warn('preview auto update failed', err);
                 });
         }
 
         // 編集の変更を拾う（自動更新が有効なときだけ送られる）。プレビューを開ける編集画面だけで結び付ける
-        if ([+preview_mode+] == 1 && previewMutate && '[+id+]' && '[+id+]' !== '0') {
+        if (previewable) {
             ['input', 'change', 'ddmultiple:change'].forEach(function (type) {
-                previewMutate.addEventListener(type, scheduleAuto);
+                previewMutate.addEventListener(type, function (e) {
+                    // 日本語の変換中は送らない（確定で input / change が来る）
+                    if (e.isComposing) return;
+                    scheduleAuto();
+                });
             });
             // 保存（や他の送信）で画面が移るので、自動更新を止める
             previewMutate.addEventListener('submit', stopAuto);
@@ -198,10 +272,8 @@
             e.preventDefault();
             e.stopPropagation();
             // 同じ名前の窓が開いていれば window.open がそれを返すので、閉じずに使い回す
-            var previewUrl = [+preview_url+];
-            var mutate = previewMutate;
-            var pmode = [+preview_mode+];
-            if (pmode != 1 || !mutate || !'[+id+]' || '[+id+]' === '0') {
+            var previewUrl = previewBaseUrl;
+            if (!previewable) {
                 // 保存済みの内容を見る（新規作成のときもここ）。自動更新はしない。mgr_preview（管理画面からのプレビュー）=1 で保存済みの内容を見る
                 previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'mgr_preview=1';
                 prevWin = window.open(previewUrl, 'prevWin');
@@ -222,10 +294,10 @@
             }
             var win = prevWin;
             previewWin = win;
+            autoOn = true;
             // 手動の送信と自動の送信がぶつからないよう、待っている自動の送信は取り消す
             if (autoTimer) clearTimeout(autoTimer);
             autoTimer = null;
-            autoPending = false;
             // 使い回しの窓の中身（前のプレビュー）は消さない。何も表示していない新しい窓だけ、失敗や画面の移動で閉じる
             var closeBlank = function () {
                 try {
@@ -237,17 +309,24 @@
             // セッション切れでログインへ移るとき（Evo.fetch は Promise を解決しない）、空の窓を残さない
             window.addEventListener('pagehide', closeBlank, { once: true });
             var failed = function () {
+                endSending();
                 window.removeEventListener('pagehide', closeBlank);
                 closeBlank();
                 alert([+lang_error_occurred+]);
             };
-            postPreviewDraft()
+            beginSending();
+            // 手動は内容が同じでも必ず送る（下書きの期限の延長と窓を開くため）
+            postPreviewDraft(buildPreviewForm())
                 .then(function (result) {
+                    endSending();
                     window.removeEventListener('pagehide', closeBlank);
-                    win.location.href = result.url;
+                    showPreview(win, result);
                     win.focus();
-                    // 窓が開いている間は、編集の変更を自動で反映する
-                    autoOn = true;
+                    // 送信中に入った変更を 1 回送る
+                    if (autoPending) {
+                        autoPending = false;
+                        scheduleAuto();
+                    }
                 })
                 .catch(failed);
         });
