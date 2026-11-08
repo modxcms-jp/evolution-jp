@@ -160,10 +160,10 @@ if (getv('submitok')) {
     }
 
     // 件数を数えてから、そのページの行だけを取る
-    $limit = (int) db()->getValue(
+    $total = (int) db()->getValue(
         db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $where))
     );
-    $pager = new DataTablePager($limit, (int) config('number_of_results') ?: 20, $links->page());
+    $pager = new DataTablePager($total, (int) config('number_of_results') ?: 20, $links->page());
     $rs = db()->select(
         'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
         '[+prefix+]site_content',
@@ -183,10 +183,10 @@ if (getv('submitok')) {
         <div class="sectionHeader"><?= lang('search_results') ?></div>
         <div class="sectionBody">
             <?php
-            if ($limit < 1) {
+            if ($total < 1) {
                 echo lang('search_empty');
             } else {
-                printf('<p>' . lang('search_results_returned_msg') . '</p>', $limit);
+                printf('<p>' . lang('search_results_returned_msg') . '</p>', $total);
 
                 // icons by content type
                 $icons = [
