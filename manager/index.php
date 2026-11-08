@@ -493,6 +493,12 @@ switch (manager()->action) {
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
                 return;
             }
+            // ツリーとメニューはシェルの部品で、単独のページとしては動かない（メニューやツリーの操作が互いを前提にしている）。
+            // URL を直接開いた・古いブックマークなどの全体の読み込みは、シェルのトップへ送る
+            if (!$isPaneRequest && $frame !== 'nodes' && serverv('HTTP_X_REQUESTED_WITH') !== 'XMLHttpRequest') {
+                header('Location: ' . MODX_MANAGER_URL);
+                exit;
+            }
             // シェルからの部分再取得(fetch)ではhtml/head無しの断片を返す
             if ($isPaneRequest && !defined('EVO_SHELL_PARTIAL')) {
                 define('EVO_SHELL_PARTIAL', true);
