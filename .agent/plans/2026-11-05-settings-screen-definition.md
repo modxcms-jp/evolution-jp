@@ -11,7 +11,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
 - [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で、写真の切れの警告を 4f5498afd で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [x] (2026-11-08) 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く（e5d1a7dfc。比較は `<work>/branch-m2/`、流すスクリプトは `<work>/run-branch.sh`）
-- [ ] 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く
+- [x] (2026-11-08) 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く（d785f7808。比較は `<work>/branch-m3/`。M2 の自己レビューで足した確認（イベントのプラグイン、古い絶対パス、シェルの遷移、英語の画面）も済み）
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
 - [ ] 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画
 - [ ] 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2
@@ -41,6 +41,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M2）: `lang_chg` は今の main で既に `js_literal()` を通っていた（Surprises の 2026-11-05 の記録は古い）。
 - 2026-11-08（M2）: `path` 行の既定値の後ろに出る `(絶対パス)` は、`filemanager_path`・`rb_base_dir` にはあり `export_dir` には無い。この違いを表すため、定義に `absHint` を足した（Interfaces の形に加える）。3 つのパスのリセットは、既定値の `<span id="default_<key>">` を読む形にそろえた（main は `filemanager_path`・`export_dir` が文字を直書きし、span を読むのは `rb_base_dir` だけで、`export_dir` の span には id が無かった。動きは同じ）。
 - 2026-11-08（M2 の自己レビュー）: `storedValues()` を `mutate_settings.dynamic.php` と `systemValues()` の中で 2 回呼び、さらに仮置きで `default.config.php` を読むので、1 回の表示で `default.config.php` を 3 回、`system_settings` を 2 回読んでいる。M3 で `systemValues()` が `storedValues()` の結果を受け取る形にし、1 回で済ませる。
+- 2026-11-08（M3）: `systemValues(array $stored)` にし、`mutate_settings.dynamic.php` で `storedValues()` を 1 回だけ作って `evo()->config` と共有した（`default.config.php` と `system_settings` は 1 回ずつ読む）。
+- 2026-11-08（M3）: 部品に項目を足した。event 行の `padded`（フレンドリーURLのタブの event 行は `td` に `padding:0` が無い）、select の `br`（`modx_charset` は display:block で、後ろの `<br/>` が main に無い）、`xhtml_urls`・`auto_pub_date` の `default => '0'`（main は `!config()` で「いいえ」を選ぶ）。`lang_text` は、空文字を保存した値を main と同じく空のまま出すため、`value()` の「空なら default」を通さず `$values[key] ?? lang(langKey)` にした。
+- 2026-11-08（M3）: M4 の `lang_text` に要る項目: `webpwdreminder_message` の読み込みの select の id は `reload_system_email_webreminder_select` で、`<reload>_select` の規則に合わないので `reloadId` のような項目が要る。`emailsubject`・`captcha_words` などは textarea でなく text で、hidden の後ろに `<br/>` がある。欄の種別と `<br/>` の有無を項目にする。
+- 2026-11-08（M3）: `fixed_site_url` の警告は、差し戻した後の値で判定する（Decision Log の「差し戻しを全行に重ねる」のとおり。C では差が出なかった）。
+- 2026-11-08（M3）: イベントのプラグイン（`OnMiscSettingsRender`・`OnSystemSettingsRender`）の欄の位置と保存、DB に絶対パスで入った古い `rb_base_dir` の表示（許す違いの 3）、シェルの遷移での条件の行の切り替え、英語の画面を確かめた。main の基準は、M1 より前の merge のコミット（bf3454495）の別のワークツリーと別の検証環境（`evo-validate-1067m`・127.0.0.6）で取った。M1 より前のコードには `form-snapshot.js` が無いので、作業ツリーのスクリプトで流す。
 - 2026-11-08（M2）: 入力欄とリセットのボタンの間の空白（改行）が無いとボタンが 3px ずれ、画面写真で見つかった。HTML の空白は欄の一覧に出ないので、写真の比較が要る。
 - 2026-11-08（M2）: `systemValues()` は差し戻しをセッションから取り出して消すので、1 回の表示で 1 回だけ呼ぶ前提。
 
@@ -471,6 +476,8 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'id'・'langKey'・'reload'・'warningHeading'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前・見出しのセルの形
       'defaultPath'  path の既定（文字列か関数）
       'absHint'  bool。path の既定値の後ろに「(絶対パス)」を出す（filemanager_path・rb_base_dir。M2 で足した）
+      'padded'   event 行の td に padding:0 を付けない（M3 で足した）
+      'br'       select の後ろの <br/> を出すか（既定 true。M3 で足した）
       label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
       段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'
 
