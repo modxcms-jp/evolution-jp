@@ -1588,7 +1588,7 @@ class MODIFIERS
         }
 
         // 文書が見つからない（false・空）ときは配列として読まず空を返す
-        if (!is_array($this->documentObject[$target]) || empty($this->documentObject[$target])) {
+        if (!is_array($this->documentObject[$target])) {
             return '';
         }
 
