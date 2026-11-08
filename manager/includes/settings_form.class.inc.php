@@ -17,13 +17,21 @@ final class EvoSettingsForm
     private $tabs;
     /** @var array */
     private $values;
+    /** @var array */
+    private $stored;
     /** @var string */
     private $scope;
 
-    public function __construct(array $tabs, array $values, string $scope = 'system')
+    /**
+     * @param array $values 欄に出す値（systemValues() の結果。差し戻しを含む）
+     * @param array $stored 保存されている値（storedValues() の結果。差し戻しを含まない）。
+     *                      「今の設定は何か」を判るのに使う（一括変更の基準など）
+     */
+    public function __construct(array $tabs, array $values, array $stored, string $scope = 'system')
     {
         $this->tabs = $tabs;
         $this->values = $values;
+        $this->stored = $stored;
         $this->scope = $scope;
     }
 
@@ -391,6 +399,7 @@ final class EvoSettingsForm
     {
         $key = $row['key'];
         $current = $this->value($key);
+        $saved = (string)($this->stored[$key] ?? '');
         $rs = db()->select(
             't.templatename, t.id, c.category',
             '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id',
@@ -402,7 +411,7 @@ final class EvoSettingsForm
         $savedName = '(blank)';
         while ($template = db()->getRow($rs)) {
             $selected = $current == $template['id'];
-            if ($selected && !$savedId) {
+            if ($saved == $template['id'] && !$savedId) {
                 $savedId = $template['id'];
                 $savedName = $template['templatename'];
             }
@@ -422,21 +431,27 @@ final class EvoSettingsForm
             "wrap=document.getElementById('template_reset_options_wrapper');"
             . "if((this.options[this.selectedIndex].value|0) != %d)"
             . "{wrap.style.display='block';}else{wrap.style.display='none';}",
-            (int)$current
+            (int)$saved
         );
+        // 保存されているテンプレートと違う値で差し戻されたとき（変えた状態で戻ったとき）は、一括変更の選択を初めから出す
+        $changed = (int)$current !== (int)$saved;
+        $reset = (string)($this->values['reset_template'] ?? '');
         return sprintf(
             '<select name="%s" class="inputBox" onchange="%s" style="width:150px">' . "\n"
             . '<option value="">(blank)</option>' . "\n"
             . '%s</select><br />' . "\n"
-            . '<div id="template_reset_options_wrapper" style="display:none;">' . "\n"
-            . '<label><input type="radio" name="reset_template" value="1" /> %s</label><br/>' . "\n"
-            . '<label><input type="radio" name="reset_template" value="2" /> %s</label>' . "\n"
+            . '<div id="template_reset_options_wrapper" style="display:%s;">' . "\n"
+            . '<label><input type="radio" name="reset_template" value="1"%s /> %s</label><br/>' . "\n"
+            . '<label><input type="radio" name="reset_template" value="2"%s /> %s</label>' . "\n"
             . '</div>' . "\n"
             . '<input type="hidden" name="old_template" value="%d"/>' . "\n",
             hsc($key),
             hsc($onchange),
             implode("\n", $options),
+            $changed ? 'block' : 'none',
+            $changed && $reset === '1' ? ' checked' : '',
             lang('template_reset_all'),
+            $changed && $reset === '2' ? ' checked' : '',
             sprintf(lang('template_reset_specific'), hsc($savedName)),
             (int)$savedId
         ) . $this->resolve($row['desc'] ?? '');

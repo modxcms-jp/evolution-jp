@@ -101,7 +101,7 @@ foreach ($dir as $filename) {
         <div class="tab-pane" id="settingsPane">
             <?php
             $settingsTabs = EvoSettingsForm::definition();
-            $settingsForm = new EvoSettingsForm($settingsTabs, $values);
+            $settingsForm = new EvoSettingsForm($settingsTabs, $values, $stored);
             foreach ($settingsTabs as $settingsTab) {
                 if (isset($settingsTab['legacy'])) {
                     include_once($inc_path . $settingsTab['legacy']);
