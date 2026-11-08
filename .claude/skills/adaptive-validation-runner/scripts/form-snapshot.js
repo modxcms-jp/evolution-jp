@@ -209,23 +209,26 @@ function writeJson(file, data) {
             const n = await tabs.count();
             for (let i = 0; i < n; i++) {
                 await tabs.nth(i).click();
-                // 管理画面の本文は画面の高さの中でスクロールするので、開いたタブの高さに合わせて撮る
+                // 管理画面の本文（#mainPane）は画面の高さの中でスクロールして、はみ出しは写らない。
+                // 枠の上端に枠全体の高さを足した高さまでビューポートを広げて撮る
                 const need = await page.evaluate(() => {
-                    const pane = document.querySelector('.tab-pane');
-                    const pages = Array.from(pane.querySelectorAll(':scope > .tab-page'));
-                    const open = pages.find(p => p.tabPage && p.tabPage.tab.classList.contains('selected'))
-                        || pages.find(p => getComputedStyle(p).display !== 'none');
-                    return Math.max(document.documentElement.scrollHeight, open ? open.scrollHeight + 300 : 0);
+                    const main = document.querySelector('#mainPane');
+                    if (main) { main.scrollTop = 0; }
+                    window.scrollTo(0, 0);
+                    const r = document.querySelector('.tab-pane').getBoundingClientRect();
+                    return Math.ceil(r.top + r.height);
                 });
-                await page.setViewportSize({ width: opts.width, height: Math.min(Math.max(need, 900), 8000) });
+                await page.setViewportSize({ width: opts.width, height: Math.min(Math.max(need + 40, 200), 8000) });
                 await page.waitForTimeout(300);
-                const shown = await page.evaluate(() => {
-                    const pane = document.querySelector('.tab-pane');
-                    const open = Array.from(pane.querySelectorAll(':scope > .tab-page')).find(p => getComputedStyle(p).display !== 'none');
-                    return { pane: Math.round(pane.getBoundingClientRect().height), page: open ? open.scrollHeight : 0 };
+                // 写す枠の下端が、切る側（#mainPane、無ければ画面）の下端を越えていれば、写真が途中で切れる
+                const clip = await page.evaluate(() => {
+                    const main = document.querySelector('#mainPane');
+                    const r = document.querySelector('.tab-pane').getBoundingClientRect();
+                    const limit = main ? main.getBoundingClientRect().bottom : innerHeight;
+                    return { bottom: Math.round(r.bottom), limit: Math.round(limit) };
                 });
-                if (shown.pane < shown.page) {
-                    console.log(`  [warn] tab${i}: 写す高さ ${shown.pane}px が .tab-page の ${shown.page}px に足りない`);
+                if (clip.bottom > clip.limit) {
+                    console.log(`  [warn] tab${i}: 枠の下端 ${clip.bottom}px が切る側の下端 ${clip.limit}px を越えている（写真が途中で切れる）`);
                 }
                 await page.locator('.tab-pane').first().screenshot({ path: path.join(opts.shots, `tab${i}.png`) });
             }
