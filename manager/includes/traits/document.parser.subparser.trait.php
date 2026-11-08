@@ -809,6 +809,8 @@ trait DocumentParserSubParserTrait
         if ($modx->forwards) {
             $modx->forwards--;
             $modx->documentIdentifier = $id;
+            $modx->forwardedResponse = true;
+            $modx->previewObject = '';
             if ($responseCode) {
                 header($responseCode);
             }
@@ -2392,6 +2394,83 @@ trait DocumentParserSubParserTrait
             );
             return [];
         }
+    }
+
+    /**
+     * プレビュー用の一時的な下書きの置き場（セッション preview_drafts）の決まり。
+     * 書く storePreviewDraft() と読む loadPreviewDraft() はこの 1 組だけを使う。
+     */
+    private static function previewDraftPolicy()
+    {
+        return ['max' => 5, 'ttl' => 3600];
+    }
+
+    /**
+     * 編集中の値を getPreviewObject() と同じ規則で変換し、プレビュー用の下書きとして置く。
+     *
+     * @param int   $docid 対象の文書 ID
+     * @param array $input 編集フォームの値
+     * @return string 32 桁の hex のキー
+     * @throws RuntimeException 下書きを作れないとき
+     */
+    public function storePreviewDraft($docid, array $input)
+    {
+        $policy = self::previewDraftPolicy();
+        $drafts = $this->purgePreviewDrafts((array)sessionv('preview_drafts'));
+
+        $data = $this->getPreviewObject($input);
+        if (!$data) {
+            // 変換に失敗すると空が返る。空の下書きを置くと保存済みのページが黙って出る
+            throw new RuntimeException('Failed to build the preview draft');
+        }
+        $key = bin2hex(random_bytes(16));
+        $drafts[$key] = [
+            'docid' => (int)$docid,
+            'created' => time(),
+            'data' => $data,
+        ];
+        // 上限を超えたら古いものから消す（連想配列は挿入順を保つ）
+        while (count($drafts) > $policy['max']) {
+            reset($drafts);
+            unset($drafts[key($drafts)]);
+        }
+        sessionv('*preview_drafts', $drafts);
+
+        return $key;
+    }
+
+    /**
+     * プレビュー用の下書きを読む。無い・期限切れ・文書が違うときは false。
+     *
+     * @param string $key   storePreviewDraft() が返したキー
+     * @param int    $docid プレビューしようとしている文書の ID
+     * @return array|false
+     */
+    public function loadPreviewDraft($key, $docid)
+    {
+        if (!is_string($key) || !preg_match('/^[0-9a-f]{32}$/', $key)) {
+            return false;
+        }
+        $all = (array)sessionv('preview_drafts');
+        $drafts = $this->purgePreviewDrafts($all);
+        if ($drafts !== $all) {
+            sessionv('*preview_drafts', $drafts);
+        }
+        if (!isset($drafts[$key]) || (int)$drafts[$key]['docid'] !== (int)$docid) {
+            return false;
+        }
+        return (array)$drafts[$key]['data'];
+    }
+
+    private function purgePreviewDrafts(array $drafts)
+    {
+        $limit = time() - self::previewDraftPolicy()['ttl'];
+        foreach ($drafts as $key => $draft) {
+            if (!is_array($draft) || (int)($draft['created'] ?? 0) < $limit) {
+                unset($drafts[$key]);
+            }
+        }
+        return $drafts;
     }
 
     function loadLexicon($target = 'manager')

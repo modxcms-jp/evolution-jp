@@ -82,7 +82,8 @@ class DocumentParser
     public $currentErrorContext;
     /** @var OldFunctions */
     public $old;
-    public $previewObject = ''; //プレビュー用のPOSTデータを保存
+    public $forwardedResponse = false; //sendForward() 経由の prepareResponse か（リクエストされた文書ではない）
+    public $previewObject = ''; //プレビュー用の下書き（a=309 が置いたもの、または revision の内容）を保存
     public $snipLapCount;
     public $chunkieCache;
     public $template_path;
@@ -272,6 +273,36 @@ class DocumentParser
         }
     }
 
+    /**
+     * プレビューのリクエストか。管理画面にログイン中で、GET の mgr_preview（管理画面からのプレビュー）か revision（リビジョン）があるとき。
+     * ログインしていなければ mgr_preview は無視し、通常どおりに扱う。
+     * プレビューの内容はページキャッシュに混ぜない（読まない・書かない）ので、cache_type=0 にする判断に使う。
+     */
+    private function isPreviewRequest()
+    {
+        if (!$this->isLoggedIn()) {
+            return false;
+        }
+        return $this->hasPreviewParam() || get_strvar('revision') !== '';
+    }
+
+    /**
+     * GET の mgr_preview（管理画面からのプレビュー）があるか。
+     * 値は、編集中の内容なら下書きのキー（32 桁の hex）、保存済みの内容なら 1。
+     */
+    private function hasPreviewParam()
+    {
+        return get_strvar('mgr_preview') !== '';
+    }
+
+    /**
+     * mgr_preview が下書きのキーを指しているか（値が 1 以外）。1 は保存済みの内容のプレビューで、下書きは使わない。
+     */
+    private function hasPreviewDraftParam()
+    {
+        return $this->hasPreviewParam() && get_strvar('mgr_preview') !== '1';
+    }
+
     public function executeParser()
     {
         ob_start();
@@ -279,7 +310,7 @@ class DocumentParser
 
         $this->http_status_code = '200';
 
-        if (serverv('REQUEST_METHOD') === 'POST') {
+        if (serverv('REQUEST_METHOD') === 'POST' || $this->isPreviewRequest()) {
             $GLOBALS['cache_type'] = 0;
         }
 
@@ -309,7 +340,7 @@ class DocumentParser
         }
         $this->uri_parent_dir = $_;
 
-        if (serverv('REQUEST_METHOD') === 'POST') {
+        if (serverv('REQUEST_METHOD') === 'POST' || $this->isPreviewRequest()) {
             $this->config['cache_type'] = 0;
             $GLOBALS['cache_type'] = 0;
         }
@@ -3695,26 +3726,27 @@ class DocumentParser
             }
         }
 
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && post_intvar('id')) {
-            $postToken = post_strvar('token');
-            $sessionToken = $this->session('token');
-
-            if (!$postToken || !$sessionToken || $postToken !== $sessionToken) {
+        // 下書きを当てるのは、リクエストされた文書の prepareResponse だけ。
+        // sendForward() 経由の prepareResponse（エラーページ・転送先）は別の文書なので、通常どおり出す。
+        // 存在しない文書では executeParser() が prepareResponse より先に sendErrorPage() を呼ぶため、
+        // previewObject の有無では見分けられない。sendForward() が印（forwardedResponse）を立て、previewObject も空にする。
+        // revision の内容も同じ扱い（転送先に元の文書の内容を出さない）。revision は mode を見ない
+        // （prepareResponse 以外の getDocumentObject でも、置いた previewObject を使い回すため）が、転送先では入らない。
+        if (!$this->forwardedResponse && $mode === 'prepareResponse' && $this->isLoggedIn() && $this->hasPreviewDraftParam()) {
+            // プレビュー用の下書き（a=309 が置いたもの）。保存済みの内容を黙って出さない
+            $previewObject = $this->loadPreviewDraft(get_strvar('mgr_preview'), $identifier);
+            if ($previewObject === false) {
                 $this->logEvent(
                     0,
-                    3,
-                    "Preview failed: Token validation failed. POST token=" . ($postToken ? 'exists' : 'missing') .
-                    ", Session token=" . ($sessionToken ? 'exists' : 'missing'),
-                    'Preview Token Validation Failed'
+                    2,
+                    'Preview failed: draft not found, expired or for another document. id=' . (int)$identifier,
+                    'Preview Draft Not Found'
                 );
                 exit('Can not preview');
             }
-
-            $previewObject = $this->getPreviewObject($_POST);
-            $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
             $this->previewObject = $previewObject;
-        } elseif (get_strvar('revision')) {
+        } elseif (!$this->forwardedResponse && get_strvar('revision')) {
             if (!$this->isLoggedIn()) {
                 $_SESSION['save_uri'] = request_uri();
                 header('location:' . MODX_MANAGER_URL);
