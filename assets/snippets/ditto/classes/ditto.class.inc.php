@@ -218,7 +218,13 @@ class ditto
                 $orderBy['parsed'][] = [$sortBy, $sortDir];
             }
         }
-        $orderBy['sql'] = implode(', ', $this->sqlOrderBy);
+        // ties (or no SQL sort key) follow the id in the direction of the first key, ascending without one
+        // (GROUP BY leaves the order to the query plan otherwise)
+        $sqlOrderBy = $this->sqlOrderBy;
+        if (!preg_grep('/^sc\.id (ASC|DESC)$/', $sqlOrderBy)) {
+            $sqlOrderBy[] = 'sc.id ' . ($sqlOrderBy ? substr($sqlOrderBy[0], strrpos($sqlOrderBy[0], ' ') + 1) : 'ASC');
+        }
+        $orderBy['sql'] = implode(', ', $sqlOrderBy);
         unset($orderBy['unparsed']);
         return $orderBy;
     }
