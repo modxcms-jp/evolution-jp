@@ -106,7 +106,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 
 - 段階 1〜3 で、グローバル設定（`a=17`）・ユーザー編集（`a=11`/`a=12`）・プロフィール（`a=74`）の設定の欄を、1 つの定義（`settings_form.definition.inc.php`、1,120 行）と 1 つの描画の部品（`settings_form.class.inc.php`、782 行）から描くようにした。行を手書きしていた 7 つのタブのファイル・`functions.inc.php`・`charsets.php`・ユーザー画面の `tab_page5.php`・`tab_page7.php` を消し、`profileSettingNames()` の固定の一覧も定義から引く。設定の欄の値・保存の結果は、どの段階でも main と同じ（許した違いは Surprises のとおり）
 - 段階 2 で、タブを役割ごとに 9 つにし、名前を短くそろえ、小見出しを付けた（#1066）。プラグインのイベントを 1 タブ 1 か所にし、同じ欄が 3 つ出ていたのをなくした。ユーザー画面のタブも同じ名前・小見出し・順になった
-- 配布の zip は 1,605,004 バイト（段階 1 の前）→ 1,603,632 バイト（−1,372）。段階 3 の差分は 12 ファイルで +305 / −449 行
+- 配布の zip は 1,605,004 バイト（段階 1 の前）→ 1,603,632 バイト（−1,372）。段階 3 のコードの差分は 11 ファイルで +298 / −448 行（88e1dccb2 の時点。計画ファイルを除く）
 - 学び: 見た目を変えない作り替えは、欄の一覧（名前・種類・値・選択・無効・表示）と保存の結果を前後で機械的に比べる道具（`form-snapshot.js`）を先に作ったことで、段階ごとに「同じ」を確かめられた。シェルの画面では、保存の後もシェルの部品のフォームが残るので、画面の切り替わりは `#mainPane` の中で判定する。ユーザーさんの目視で、タブの幅の見込み（名前を短くするだけでは狭くならない）を早く確かめられたのもよかった
 
 ## Context and Orientation
@@ -457,7 +457,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 | `use_editor=0` / `use_browser=0` のとき | エディターの 2 行・ピッカーの 2 行が隠れる | 同じ |
 | PHP 7.4 | — | `a=12`・`a=74` の表示と保存ができる |
 
-全体の完了条件: 3 つの PR がマージされ、#1067 と #1066 が閉じている。`manager/actions/tool/mutate_settings/` には `functions.js` だけが残り、設定の行の手書きが 3 画面とも無い（`grep -rn "<th><?= lang(" manager/actions/tool manager/actions/permission/mutate_user manager/actions/permission/mutate_user_pf.dynamic.php` に設定の行が出ない）。配布の zip が段階 1 の前より小さい。
+全体の完了条件: 3 つの PR がマージされ、#1067 と #1066 が閉じている。`manager/actions/tool/mutate_settings/` には `functions.js` だけが残り、設定の行の手書きが 3 画面とも無い（`grep -rn "<th><?= lang(" manager/actions/tool manager/actions/permission/mutate_user manager/actions/permission/mutate_user_pf.dynamic.php` に、グローバル設定と重なる設定の行が出ない。ユーザーの属性やログインの制限の行（`tab_profile.php`・`tab_general.php`・`tab_settings.php`）は出てよい）。配布の zip が段階 1 の前より小さい。
 
 ## Idempotence and Recovery
 
