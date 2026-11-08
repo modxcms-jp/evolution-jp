@@ -344,7 +344,6 @@ return [
     "filemanager_path_title" => 'ファイルマネージャーの<br />管理対象ディレクトリ<br />[(filemanager_path)]',
     "export_dir_message" => 'HTMLエクスポートの出力先ディレクトリです。ここで指定したディレクトリに静的なHTMLファイルを書き出します。出力の開始時に中身を消すため、temp/ ディレクトリの中（temp/ そのものは不可）だけを指定できます。',
     "export_dir_title" => 'エクスポート出力先<br />ディレクトリ',
-    "files_access_denied" => 'このアカウントは休止中です。',
     "folder" => 'コンテナ',
     "fmp_link_invalid" => 'パスワード再設定のリンクが無効か、有効期限が切れています。お手数ですが、もう一度パスワードの再設定を請求してください。',
     "forgot_password_email_fine_print" => '注意：上記のURLは30分間有効です。',

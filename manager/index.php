@@ -698,10 +698,6 @@ switch (manager()->action) {
     case 200: // show phpInfo
         include_once($action_path . 'report/phpinfo.static.php');
         break;
-        // errorpage
-    case 29: // get the error page
-        include_once($action_path . 'error_dialog.static.php');
-        break;
         // file manager
     case 31: // get the page to manage files
         include_once($action_path . 'element/file_manager.static.php');

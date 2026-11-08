@@ -27,10 +27,6 @@ function resizeTree() {
     tree.style.overflow = 'auto';
 }
 
-function getScrollY() {
-    return window.pageYOffset;
-}
-
 function hideMenu() {
     if (_rc) return false;
     var contextMenu = document.getElementById('mx_contextmenu');

@@ -32,7 +32,6 @@ $GLOBALS['action_list'] = [
     '26' => 'Refreshing site',
     '27' => 'Editing resource',
     '28' => 'Changing password',
-    '29' => 'Error',
     '30' => 'Saving settings',
     '31' => 'Using file manager',
     '32' => 'Saving user',

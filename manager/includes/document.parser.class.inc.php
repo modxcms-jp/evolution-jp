@@ -1057,11 +1057,6 @@ class DocumentParser
         return $result;
     }
 
-    private function getUaType()
-    {
-        return device();
-    }
-
     public function join($delim = ',', $array = [], $prefix = '')
     {
         foreach ($array as $i => $v) {
@@ -1468,19 +1463,6 @@ class DocumentParser
         return $this->isLoggedin();
     }
 
-    private function checkPreview()
-    {
-        if ($this->isLoggedin() != true) {
-            return false;
-        }
-
-        if (request_strvar('z') === 'manprev') {
-            return true;
-        }
-
-        return false;
-    }
-
     // check if site is offline
     private function checkSiteStatus()
     {
@@ -1590,11 +1572,6 @@ class DocumentParser
             '[+prefix+]system_settings',
             where('setting_name', '=', 'bearer_token_expire')
         );
-    }
-
-    private function checkCache($id)
-    {
-        return $this->getCache($id);
     }
 
     private function getCache($id)
@@ -2132,33 +2109,6 @@ class DocumentParser
         $cached[$parent] = true;
 
         return;
-    }
-
-    private function getAliasPath($docid)
-    {
-
-        if (isset($this->aliasPath[$docid])) {
-            return $this->aliasPath[$docid];
-        }
-
-        $parent = $docid;
-        $i = 0;
-        $_ = [];
-        while ($parent != 0) {
-            $_[] = $this->getAliasFromID($parent);
-            $parent = $this->getParentID($parent);
-            $i++;
-            if (20 < $i) {
-                break;
-            }
-        }
-
-        if ($_) {
-            $this->aliasPath[$docid] = implode('/', array_reverse($_));
-        } else {
-            $this->aliasPath[$docid] = '';
-        }
-        return $this->aliasPath[$docid];
     }
 
     public function getUltimateParentId($docid = null, $top = 0)
@@ -3264,22 +3214,6 @@ class DocumentParser
         $this->currentSnippetCall = $previousSnippetCall;
 
         return $result;
-    }
-
-    private function getAbsolutePath($path)
-    {
-        if (substr($path, 0, 1) === '/') {
-            if (!is_file($path)) {
-                $path = MODX_BASE_PATH . ltrim($path, '/');
-            }
-        }
-        if (strpos($path, MODX_MANAGER_PATH) === 0) {
-            return false;
-        }
-        if (!is_file($path)) {
-            return false;
-        }
-        return $path;
     }
 
     private function _getSGVar($value)
@@ -5311,11 +5245,6 @@ class DocumentParser
     }
 
     # returns the virtual relative path to the cache folder
-    private function getCachePath()
-    {
-        return MODX_CACHE_PATH;
-    }
-
     # Returns current user id
     public function getLoginUserID($context = '')
     {
@@ -6125,18 +6054,6 @@ class DocumentParser
             $this->baseTime = $tmp;
         }
         return true;
-    }
-
-    /*
-     * 基準時間の取得
-     *
-     * @param none
-     * @return int
-     *
-     */
-    private function getBaseTime()
-    {
-        return $this->baseTime;
     }
 
     //内部サポート用Class
