@@ -480,8 +480,7 @@ if (in_array(manager()->action, [
 }
 
 switch (manager()->action) {
-    case 1: //frame management - show the requested frame
-        // get the requested frame
+    case 1: // シェルの部品（メニュー・ツリー・ノード）と ajax.php
         $frame = anyv('f');
         if ($frame !== null) {
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {

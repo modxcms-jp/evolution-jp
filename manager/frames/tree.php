@@ -27,14 +27,6 @@ if (!sessionv('tree_sortdir')) {
         window.tree = window.tree || {};
         tree.ca = "open";
 
-        Evo.ready(function () {
-            resizeTree();
-            restoreTree();
-            window.addEventListener('resize', function () {
-                resizeTree();
-            });
-        });
-
         // preload images
         var i = new Image(18, 18);
         i.src = <?= js_literal($_style['tree_page']) ?>;
@@ -670,13 +662,7 @@ EOT;
         updateTree: updateTree,
         reload: function () { EvoShell.reloadTree(); }
     });
-    // シェルの部分再取得では#treePane内のscriptだけが実行されるため、ここで再初期化する
-    if (window.__evoTreePartialResize) {
-        window.removeEventListener('resize', window.__evoTreePartialResize);
-    }
-    window.__evoTreePartialResize = resizeTree;
-    window.addEventListener('resize', resizeTree);
-    resizeTree();
+    // ノードを読み込む。全体の読み込みでも、シェルの部分再取得（#treePane内のscriptだけが実行される）でも、ここで1回だけ行う
     restoreTree();
 </script>
 </aside>

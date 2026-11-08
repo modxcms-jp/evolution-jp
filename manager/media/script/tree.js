@@ -1,10 +1,5 @@
-// ツリー領域(#treePane)のサイズはシェルのCSSに任せる（以前に書いた値が残っていれば消す）
+// ツリー領域(#treePane)のサイズはシェルのCSSが決める。tree.resizeTree() を呼ぶ外部のコードのために名前だけ残す
 function resizeTree() {
-    var tree = document.getElementById('treeHolder');
-    if (!tree) return;
-    tree.style.width = '';
-    tree.style.height = '';
-    tree.style.overflow = '';
 }
 
 function hideMenu() {
@@ -141,7 +136,7 @@ function collapseTree() {
     }, rpcLoadData);
 }
 
-// new function used in body onload
+// セッションの開閉状態でノードを読み込む（tree.php の部品の初期化で呼ぶ）
 function restoreTree() {
     rpcNode = document.getElementById('treeRoot');
     loadTreeRequest({
