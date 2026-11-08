@@ -41,10 +41,15 @@ if (!isset($current['id'])) {
 $docgrp = sessionv('mgrDocgroups') ? implode(',', sessionv('mgrDocgroups')) : '';
 $in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : '';
 
+$keyword = ChildDocumentListState::keyword();
+$keywordCondition = ChildDocumentListState::keywordCondition($keyword);
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
 if (!manager()->isAdmin() && !evo()->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
+}
+if ($keywordCondition !== null) {
+    $where[] = $keywordCondition;
 }
 $rs = db()->select(
     'DISTINCT sc.id',
@@ -53,8 +58,32 @@ $rs = db()->select(
 );
 $numRecords = db()->count($rs);
 
+$links = ChildDocumentListState::links($id);
+
+// 並べ替えの解除と検索欄。表を包む POST のフォームの外に置く（フォームは入れ子にできない）
+$listTools = '<form class="child-list-tools" method="get" action="index.php">'
+    . '<input type="hidden" name="a" value="120">'
+    . ($id ? '<input type="hidden" name="id" value="' . (int) $id . '">' : '');
+if ($links->orderby() !== '') {
+    $listTools .= '<input type="hidden" name="orderby" value="' . hsc($links->orderby()) . '">'
+        . '<input type="hidden" name="orderdir" value="' . hsc($links->orderdir()) . '">';
+}
+$listTools .= '<input type="search" name="q" value="' . hsc($keyword) . '" maxlength="'
+    . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" placeholder="' . hsc($_lang['resources_list_search_placeholder'])
+    . '" aria-label="' . hsc($_lang['resources_list_search_placeholder']) . '"> '
+    . '<input type="submit" value="' . hsc($_lang['search']) . '">';
+if ($keyword !== '') {
+    $listTools .= ' <a href="' . hsc($links->url(['q' => null, 'page' => null])) . '">'
+        . hsc($_lang['resources_list_search_clear']) . '</a>';
+}
+if ($links->orderby() !== '') {
+    $listTools .= ' <a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '">'
+        . hsc($_lang['resources_list_reset_order']) . '</a>';
+}
+$listTools .= '</form>';
+
 if (!$numRecords) {
-    $children_output = "<p>" . $_lang['resources_in_container_no'] . "</p>";
+    $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
 } else {
     $children_output = '';
     $f = [];
@@ -68,9 +97,11 @@ if (!$numRecords) {
     if (!manager()->isAdmin() && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
+    if ($keywordCondition !== null) {
+        $where[] = $keywordCondition;
+    }
     $where[] = 'GROUP BY sc.id,rev.status';
     $perPage = (int) evo()->config('number_of_results') ?: 20;
-    $links = ChildDocumentListState::links($id);
     $pager = new DataTablePager($numRecords, $perPage, $links->page());
     $orderBy = ChildDocumentListState::orderBy($links) ?? transformOrderBy(
         evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
@@ -197,9 +228,10 @@ echo get_jscript($id, $cm);
                     </li>
                 </ul>
             <?php }
-            $topicPath = $numRecords > 0 ? getTopicPath($id) : '';
+            $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
             echo <<< EOT
 {$topicPath}
+{$listTools}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="a" value="51" />
 {$children_output}
