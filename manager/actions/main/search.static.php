@@ -159,13 +159,18 @@ if (getv('submitok')) {
         $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
     }
 
+    // 件数を数えてから、そのページの行だけを取る
+    $limit = (int) db()->getValue(
+        db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $where))
+    );
+    $pager = new DataTablePager($limit, (int) config('number_of_results') ?: 20, $links->page());
     $rs = db()->select(
         'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
         '[+prefix+]site_content',
         implode(' and ', $where),
-        $orderby
+        $orderby,
+        $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
     );
-    $limit = db()->count($rs);
     if (evo()->hasPermission('edit_document')) {
         $action = '27';
         $itemicon = style('icons_edit_document');
@@ -286,7 +291,12 @@ if (getv('submitok')) {
                     ],
                     ['id' => 'search-results', 'rowClasses' => ['gridItem', 'gridAltItem']]
                 );
-                echo $table->render($rows, $links);
+                $nav = $pager->render($links, [
+                    'label' => lang('pagination_label'),
+                    'first' => lang('pagination_table_first'),
+                    'last' => lang('pagination_table_last'),
+                ]);
+                echo $nav . $table->render($rows, $links) . $nav;
             }
             ?>
         </div>
