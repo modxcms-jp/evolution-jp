@@ -42,4 +42,10 @@ if ($truncateTarget) {
     }
 }
 
-header('Location: index.php?a=' . request_intvar('mode'));
+// 戻り先は画面の名前で受け、画面の番号に直す（無ければダッシュボード）
+$returnScreens = [
+    'sysinfo' => 53,
+    'bkmanager' => 93,
+];
+$from = request_choicevar('from', array_keys($returnScreens), '');
+header('Location: index.php?a=' . ($returnScreens[$from] ?? 2));
