@@ -2,6 +2,7 @@
 /.env
 /install/install-config.php
 /manager/includes/config.inc.php
+/manager/includes/config.inc.php.bak-*
 /manager/includes/extra.config.php
 
 # 個人操作履歴
