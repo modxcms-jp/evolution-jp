@@ -1450,7 +1450,7 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: 0 var(--space-1) -1px 0;
-    padding: 10px var(--space-4) 9px;
+    padding: 10px var(--space-3) 9px;
     z-index: 1;
     position: relative;
     top: 0;

@@ -2075,7 +2075,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
     color: #5c6670;
     font-weight: 500;
-    padding: 10px var(--space-5);
+    padding: 10px var(--space-4);
     transition: all 0.2s ease;
 }
 
