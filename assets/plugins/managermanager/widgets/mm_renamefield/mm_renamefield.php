@@ -31,14 +31,6 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
 
     switch ($field) {
         // Exceptions
-        case 'keywords':
-            $output .= sprintf($siblingsTitle, '"select[name*=keywords]"', $label);
-            break;
-
-        case 'metatags':
-            $output .= sprintf($siblingsTitle, '"select[name*=metatags]"', $label);
-            break;
-
         case 'hidemenu':
         case 'show_in_menu':
             $output .= sprintf($siblingsTitle, '"input[name=hidemenucheck]"', $label);

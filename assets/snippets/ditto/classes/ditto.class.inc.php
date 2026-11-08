@@ -606,7 +606,6 @@ class ditto
         $hidePrivate,
         $showInMenuOnly,
         $myWhere,
-        $keywords,
         $dateSource,
         $limit,
         $summarize,
@@ -631,7 +630,7 @@ class ditto
                 break;
         }
 
-        if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $keywords == 0) {
+        if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1) {
             $this->prefetch = false;
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
             $documentIDs = [];
@@ -661,10 +660,6 @@ class ditto
         $limit = ($limit == 0) ? '' : $limit;
 
         $customReset = $this->customReset;
-        if ($keywords) {
-            $this->addField('haskeywords', '*', 'db');
-            $this->addField('hasmetatags', '*', 'db');
-        }
         if ($this->debug) {
             $this->addField('pagetitle', 'backend', 'db');
         }
@@ -681,7 +676,6 @@ class ditto
             $hidePrivate,
             $where,
             $limit,
-            $keywords,
             $randomize,
             $dateSource
         );
@@ -913,38 +907,6 @@ class ditto
     }
 
     // ---------------------------------------------------
-    // Function: appendKeywords
-    // Append keywords's to the resource array
-    // ---------------------------------------------------
-
-    function appendKeywords($resource)
-    {
-        $keys = $this->fetchKeywords($resource);
-        $resource['keywords'] = $keys;
-        return $resource;
-    }
-
-    // ---------------------------------------------------
-    // Function: fetchKeywords
-    // Helper function to <appendKeywords>
-    // ---------------------------------------------------
-
-    function fetchKeywords($resource)
-    {
-        // keywords / META tags are not in the core any more (getKeywords() etc. may not exist)
-        $metas = [];
-        if (($resource['haskeywords'] ?? 0) == 1 && method_exists(evo(), 'getKeywords')) {
-            $metas = array_merge($metas, (array)evo()->getKeywords($resource['id']));
-        }
-        if (!empty($resource['hasmetatags']) && method_exists(evo(), 'getMETATags')) {
-            foreach ((array)evo()->getMETATags($resource['id']) as $col) {
-                $metas[] = $col['tagvalue'] ?? '';
-            }
-        }
-        return implode(',', $metas);
-    }
-
-    // ---------------------------------------------------
     // Function: getChildIDs
     // Get the IDs ready to be processed
     // Similar to the modx version by the same name but much faster
@@ -968,7 +930,7 @@ class ditto
     // Get documents and append TVs + Prefetch Data, and sort
     // ---------------------------------------------------
 
-    function getDocuments($ids = [], $fields=[], $TVs=[], $orderBy=[], $published = 1, $deleted = 0, $publicOnly = 1, $extraWhere = '', $limit = '', $keywords = 0, $randomize = 0, $dateSource = false)
+    function getDocuments($ids = [], $fields=[], $TVs=[], $orderBy=[], $published = 1, $deleted = 0, $publicOnly = 1, $extraWhere = '', $limit = '', $randomize = 0, $dateSource = false)
     {
         if (!$ids) {
             return false;
@@ -1032,9 +994,6 @@ class ditto
                     $row[$dateSource] = strtotime($row[$dateSource]);
                 }
                 $row[$dateSource] += evo()->config('server_offset_time');
-            }
-            if ($keywords) {
-                $row = $this->appendKeywords($row);
             }
 
             if ($this->prefetch == true && $this->sortOrder !== false) {

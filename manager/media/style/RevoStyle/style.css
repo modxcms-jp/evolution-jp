@@ -1768,31 +1768,6 @@ form#mutate fieldset#settings_page_settings select {
 }
 
 /*
-* Individual Styles for fieldset#meta_keywords
-*/
-form#mutate fieldset#meta_keywords select.inputBox {
-    display: block;
-    margin-bottom: 0;
-}
-
-form#mutate fieldset#meta_keywords dl.keywords {
-    float: left;
-    margin-right: 30px;
-}
-
-form#mutate fieldset#meta_keywords dl.metatags {
-    float: left;
-}
-
-form#mutate fieldset#meta_keywords dl dt label {
-    width: 100px;
-}
-
-form#mutate fieldset#meta_keywords dl dd {
-    margin-left: 110px;
-}
-
-/*
 * Individual Styles for fieldset#document_content
 */
 

@@ -863,23 +863,6 @@ if ($filter || $filters['custom'] !== false || $filters['parsed'] !== false) {
     - <globalFilterDelimiter>
     - <parseFilters>
 */
-if (!isset($keywords)) {
-    $keywords = 0;
-}
-/*
-    Param: keywords
-
-    Purpose:
-    Enable fetching of associated keywords for each document
-    Can be used as [+keywords+] or as a tagData source
-
-    Options:
-    0 - off
-    1 - on
-
-    Default:
-    0 - off
-*/
 
 if (!isset($randomize)) {
     $randomize = 0;
@@ -1044,7 +1027,6 @@ $documentIDs = $ditto->determineIDs(
     $hidePrivate,
     $showInMenuOnly,
     $where,
-    $keywords,
     $dateSource,
     $queryLimit,
     $display,
@@ -1313,7 +1295,6 @@ if ($count > 0) {
         $hidePrivate,
         $where,
         $queryLimit,
-        $keywords,
         $randomize,
         $dateSource
     );
