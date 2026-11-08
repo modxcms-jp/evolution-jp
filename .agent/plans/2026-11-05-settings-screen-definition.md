@@ -47,6 +47,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M4）: 部品に項目を足した。`topmenu`（入れ子の表で 6 欄、`items => [キー => ラベル]`）、`password`（`type="text"` のまま伏せ字。main と同じ）、`lang_text` の `field => 'text'`（`captcha_words`・`emailsubject`）・`hiddenBr`・`reloadId`、radio の `inline`（`email_method`・`smtp_auth`・`smtp_secure` の横並び）、text の `br => false`、select の options が `null` のとき説明だけを出す（`which_editor`）、`themes()`・`roles()`。Interfaces にあった radio の `value`（`use_captcha` は GD が無ければ 0）は、部品が読んでいなかったので M4 で実装した。
 - 2026-11-08（M4）: `default_role`・`which_editor` の select は main に `size`・`class` が無かったが、部品は `size="1" class="inputBox"` を付ける（画面写真は画素一致）。`send_errormail` の説明に差し込む `emailsender` は、差し戻した後の値になる（Decision Log のとおり）。`error_reporting` などで値がどの選択肢にも合わないとき、部品は `default` を選ぶ（main は何も選ばない。A・B・S では起きない）。
 - 2026-11-08（M4）: 配布の zip は、M1 より前の main（bf3454495）が 1,605,004 バイト、M4 の後が 1,601,986 バイト（−3,018）。Surprises の 2026-11-05 の値（1,571,241）は古く、main は既に 1.5MiB（1,572,864）を超えている（この計画の変更が原因ではない）。PR の本文では bf3454495 との差を書く。
+- 2026-11-08（段階 1 の自己レビュー）: M4 で分かった main との違い（説明文に差し込む差し戻しの値、選択肢に合わない・空の値のときの `default`、GD の無い環境の `captcha_words` の行、select の `size`・`class`）を、Validation and Acceptance の「段階 1 で許す違い」の 4〜7 に足した。SMTP のパスワードの伏せ字 `********************` は、部品の `PASSWORD_MASK` と `save_settings.processor.php` の 2 か所にある（SSOT）。段階 1 では保存の処理を変えないので、そろえるのは後の課題とする。
 - 2026-11-08（M4）: PHP 7.4 の確認は、同じ作業ツリーを二重にマウントすると `config.inc.php` とキャッシュを共有して壊すおそれがあるので、`git archive` で書き出したコピーを別の環境（`evo-validate-1067-74`）にマウントして行った。
 - 2026-11-08（M3 の直しの見直し）: テンプレートの一括変更のラジオを選んでから select を保存値に戻すと、wrapper は隠れるがラジオの選択は残って送られる（main も同じ）。差し戻しでラジオに checked を付けたので、起きる場面が増える。onchange で隠すときにラジオの選択も外す直しは、段階 1 の HTML の一致が崩れるので段階 2（M6）で行う。
 - 2026-11-08（M3）: `fixed_site_url` の警告は、差し戻した後の値で判定する（Decision Log の「差し戻しを全行に重ねる」のとおり。C では差が出なかった）。
@@ -293,7 +294,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 - `smtp_host`・`smtp_port`・`smtp_username` は `default`（`smtp_username` の既定は `emailsender` の値なので、`default` に関数を書ける形にする）
 - `which_editor` の選択肢の関数が `null` を返したら、欄を出さずに説明だけを出す
 - `manager_theme`・`manager_language`・`fe_editor_lang`・`default_role` の選択肢は関数（`EvoSettingsForm::themes()`・`languages()`・`roles()`）
-- 消したあとで `grep -rn "form_radio\|form_text\|wrap_label\|get_lang_options\|charsets.php\|checkConfig\|\$default_config\|tab[0-9]_[a-z_]*\.inc\.php" manager/ assets/ install/` が何も出さない（`$settings` は `mutate_settings.dynamic.php` に残っていないことを目で確かめる）（`install/functions.php` の別物の `get_lang_options()` は除く）
+- 消したあとで `grep -rn "form_radio\|form_text\|wrap_label\|get_lang_options\|charsets.php\|checkConfig\|\$default_config\|tab[0-9]_[a-z_]*\.inc\.php" manager/ assets/ install/` が何も出さない（`$settings` は `mutate_settings.dynamic.php` に残っていないことを目で確かめる）（`install/functions.php` の別物の `get_lang_options()`、`config_check.inc.php` の別物の `checkConfig()`、`manager/frames/menu.php`・`default.config.php`・`save_settings.processor.php` の別の用途の `$default_config`、docvars のテンプレート名 `form_text.tpl` などは除く）
 
 実行と期待: M2 と同じ比較に加え、次を行う。
 
@@ -301,7 +302,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 - TinyMCE 7: 管理画面のタブで「リッチテキストエディターの使用」を「いいえ」にすると `#editorRow_TinyMCE7` が隠れ、「はい」で戻る（Playwright）
 - `php .github/scripts/security-lint.php` が `0 violations`
 - PHP 7.4: 環境の文書のとおり `php:7.4-apache` の Dockerfile で別の環境（`EVO_VALIDATE_NAME=evo-validate-1067-74`、別のアドレス）を作り、インストールして A を書き出し、S1 で保存する。`docker exec -w /var/www/html evo-validate-1067-74-app php evo log:search "" --level=error --limit=10` にこの画面のエラーが無い。終わったら片付ける
-- 配布の大きさ: `git -C <作業ツリー> archive --format=zip HEAD | wc -c` が M1 の前（1,571,241 バイト）より小さい。差を PR の本文に書く
+- 配布の大きさ: `git -C <作業ツリー> archive --format=zip HEAD | wc -c` が M1 の前（bf3454495 で 1,605,004 バイト。Surprises の M4 を参照）より小さい。差を PR の本文に書く
 - `/doc-audit` を `global-settings.md` に対して流し、指摘を直す
 
 コミット（3 つに分ける）: `refactor(settings): セキュリティと管理画面のタブを定義から描き、旧ヘルパーを消す`、`refactor(tinymce7): 設定の表を data-show-if で切り替えられるようにする`、`docs(settings): 設定画面への追加手順を定義の書き方に改める`
@@ -398,6 +399,10 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 1. 差し戻しの画面（C）で、main が DB の値を出していた欄にも、打った値が出る
 2. 画面写真で、サイトのタブの `server_offset_time` の説明の時刻（撮った時刻で変わる）と、固定の操作ボタン（`#actions`）がタブの列の右上に入り込んで写る所
 3. DB に `[(base_path)]` を使わない絶対パスで入っている古いパスの設定は、`[(base_path)]…` の形で出る（保存すると main でも同じ形になる。A・B では起きない）
+4. 差し戻しの画面で、説明文に差し込む値も差し戻した後の値になる（`send_errormail` の説明の `emailsender`、`fixed_site_url` の警告）。Decision Log の「差し戻しを全行に重ねる」による
+5. 保存されている値が、ラジオ・select のどの選択肢にも合わないときや空のとき、部品は定義の `default` を選ぶ（main は何も選ばないか、空のまま出す）。そのまま保存すると、`default` の値が保存される（`send_errormail` に選択肢外の値があると、main は欄が送られず `default.config.php` の `'3'`、部品は `'0'`）。`smtp_host`・`smtp_port`・`smtp_username` に空文字が保存されているときは既定の値（`smtp.example.com`・`25`・送信者のアドレス）が出る。インストール直後の値（A・B・S）では起きない
+6. GD が無い環境で `use_captcha=1` が保存されていると、ラジオは「いいえ」を選ぶが、`captcha_words` の行は出たままになる（`showIf` は保存値で判定する。main は読み込み時の JS が隠していた）
+7. select の一部（`default_role`・`which_editor`）に `size="1" class="inputBox"` が付く（`.inputBox` の規則は設定画面には当たらず、画面写真は画素一致）
 
 インラインの属性（SMTP の欄の `onchange`、`style` の書き方）と HTML の空白は欄の一覧に出ないので、比べない。見た目に違いが出れば画面写真で見つかる。
 
@@ -445,7 +450,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 - PR は 1 段階を 1 PR にする（Decision Log）。ブランチと PR:
   - 計画: `refactor/1067-settings-screen-definition`（`gh issue develop` で #1067 に紐づけ済み）。ExecPlan のコミットはここに置く
   - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR はまだ）
-  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`
+  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする）
   - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`
   - 作業ツリーは 3 段階とも `.claude/worktrees/issue-1067` を使い、段階ごとにブランチを切り替える
   - PR の番号は、作ったときにここへ書く
@@ -453,7 +458,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 - 新しく作るファイル: `.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js`（M1）、`manager/includes/settings_form.class.inc.php`・`manager/includes/settings_form.definition.inc.php`（M2）
 - 消すファイル: `manager/actions/tool/mutate_settings/tab*.inc.php`（7 つ、M2〜M4）、`manager/actions/tool/mutate_settings/functions.inc.php`・`manager/includes/charsets.php`（M4）、`manager/actions/permission/mutate_user/tpl/form/tab_page5.php`・`tab_page7.php`（M7）
 - 確認の記録: `<work>/main/`・`<work>/branch/` の JSON・画面写真・TSV。PR の本文には比較の表と、代表の画面写真を載せる
-- 配布の zip: 1,571,241 バイト（2026-11-05、`7801541d0`）。各 PR で差を書く
+- 配布の zip: 1,571,241 バイト（2026-11-05、`7801541d0`）。段階 1 の比べる元は 1,605,004 バイト（M1 より前の main を取り込んだ bf3454495。main は既に 1.5MiB を超えている）。各 PR で差を書く
 - 関連の文書: `assets/docs/global-settings.md`、`assets/docs/theme-spacing.md`、`assets/docs/theme-variables.md`、`assets/docs/events-and-plugins.md`、`assets/docs/core-issues.md`（保存が許可リストを持たない件）
 
 ## Interfaces and Dependencies
@@ -465,7 +470,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
     タブ:    ['id' => 'tabPage7', 'title' => lang('settings_misc'), 'sections' => [section, …]]
     section: ['title' => null | lang('settings_section_files_picker'), 'rows' => [行, …]]
     行（共通）:
-      'key'      設定キー。送る欄の名前（必須。event 行は除く）
+      'key'      設定キー。送る欄の名前（必須。event 行と topmenu 行は除く）
       'type'     text | textarea | radio | yesno | enabled | select | event
                  | path | lang_text | content_types | template | topmenu | password
       'label'    見出し（HTML）
@@ -482,7 +487,10 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'defaultPath'  path の既定（文字列か関数）
       'absHint'  bool。path の既定値の後ろに「(絶対パス)」を出す（filemanager_path・rb_base_dir。M2 で足した）
       'padded'   event 行の td に padding:0 を付けない（M3 で足した）
-      'br'       select の後ろの <br/> を出すか（既定 true。M3 で足した）
+      'br'       select・text の後ろの <br/> を出すか（既定 true。M3 で足し、M4 で text にも広げた）
+      'items'    topmenu 行の [設定キー => ラベル]（6 欄を入れ子の表で並べる。段階 3 の names() はこれを展開する。M4 で足した）
+      'field'・'hiddenBr'・'reloadId'  lang_text の欄の種別（'text' なら input、既定は textarea）・hidden の後ろの <br/>・読み込みの select の id を直接指定（M4 で足した）
+      'inline'   radio の選択肢のあいだに <br/> を入れない（M4 で足した）
       label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
       段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'
 
