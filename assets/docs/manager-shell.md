@@ -14,6 +14,7 @@
 - `manager/actions/header.inc.php` が、メニューとツリーを部品として読み込み、本文の前に描く。`?chromeless=1` の画面と QuickManager の埋め込みでは、メニューとツリーを描かない（body に `evo-shell` が付かない）。
 - 画面の移動は `manager/media/script/shell.js`（`EvoShell`）が受け持つ。`X-Evo-Shell: 1` を付けて要求し、`#mainPane` だけを差し替える（応答は `X-Evo-Pane: 1` の断片）。
 - メニューとツリーの読み直しは `EvoShell.reloadMenu()` / `EvoShell.reloadTree()`。`index.php?a=1&f=menu|tree` を断片として取り直し、部品のルート要素ごと差し替える。部品の中の `<script>` だけが実行し直される。
+- 保存後の読み直しの受け口は `EvoShell.refresh(target)` 1 つ。processor が戻り先の URL に付ける `refresh` を、画面の移動のとき `shell.js` が読んで呼ぶ。`target` は `tree`（ツリー）・`menu`（メニュー）・`all`（ツリーとメニュー）・`page`（管理画面ごと読み直す）。シェルの画面でなければ（`chromeless`・QuickManager）何もしない。値の意味は `manager/includes/form_flow.class.inc.php` の docblock を正とする。
 - `a=1&f=tree` / `f=menu` を全体の読み込みで開くと（URL の直打ち・古いブックマーク）、管理画面のトップへ移る。部品は単独のページとしては出さない。
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 
@@ -25,7 +26,7 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 | --- | --- | --- |
 | `window.main` | 自分の window（`window.main = window`） | `manager/actions/header.inc.php` |
 | `window.tree` | ツリーの状態（`ca`）と操作（`saveFolderState`・`restoreTree`・`expandTree`・`collapseTree`・`updateTree`・`reload`・`resizeTree`） | `manager/frames/tree.php` |
-| `window.mainMenu` | メニューの操作（`reloadtree`・`reloadmenu`・`hideTreeFrame`・`defaultTreeFrame`・`reloadPane`・`removeLocks`・`showWin`・`keepMeAlive`・`work`・`stopWork` など） | `manager/frames/menu.php` |
+| `window.mainMenu` | メニューの操作（`reloadtree`・`reloadmenu`・`hideTreeFrame`・`defaultTreeFrame`・`removeLocks`・`showWin`・`keepMeAlive`・`work`・`stopWork` など） | `manager/frames/menu.php` |
 
 - シェルでは `top`・`parent` も自分の window を指すので、`top.tree` や `parent.mainMenu` と書いたコードも同じものに届く。
 - シェルのモーダル（`#evoShellModal`。シェルの中で開くファイルブラウザを含む）は iframe ではなく、断片を同じ window に差し込む。互換の名前はそのまま届く。
@@ -38,10 +39,10 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 
 新しく書く・書き換えるコードに当てはめる。
 
-- 互換の名前を使わない。画面の移動・メニューやツリーの読み直しは `EvoShell` の API（`go`・`navigate`・`reloadTree`・`reloadMenu`・`closeModal`）を使う。
+- 互換の名前を使わない。画面の移動・メニューやツリーの読み直しは `EvoShell` の API（`go`・`navigate`・`reloadTree`・`reloadMenu`・`refresh`・`closeModal`）を使う。
 - 例外は `window.tree` だけ。ツリーの状態 `ca` を変える API は `EvoShell` に無いので、`window.tree` を使う。`top.`・`parent.` を付けずに書き、無いとき（`chromeless`・QuickManager の埋め込み）は何もしない（例: `manager/media/style/common/jscripts.tpl` の `enableParentSelection()`）。
 
-互換の名前は、外部のプラグイン・モジュール・テーマのために残す。本体の中には、まだ `top.`・`parent.` の書き方で使っている箇所がある（`manager/frames/nodes.php` のノードの `onclick`、`move_document.dynamic.php`・`move_document.processor.php`、`import_site.static.php`、`wait.static.php`、同梱の docmanager など）。これらを書き換えても、互換の名前は消さない。消すときは、外部への影響を Issue で調べてから決める。
+互換の名前は、外部のプラグイン・モジュール・テーマのために残す。本体の中には、まだ `top.`・`parent.` の書き方で使っている箇所がある（`manager/frames/nodes.php` のノードの `onclick`、`move_document.dynamic.php`・`move_document.processor.php`、`import_site.static.php`、同梱の docmanager など）。これらを書き換えても、互換の名前は消さない。消すときは、外部への影響を Issue で調べてから決める。
 
 ## 残している名残
 
