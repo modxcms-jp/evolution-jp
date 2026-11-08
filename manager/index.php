@@ -63,7 +63,7 @@ $requestedAction = request_intvar('a');
 // a が指定されたか（値は見ない。'0'・空は未指定と同じ扱い）
 $isActionSpecified = (bool) anyv('a');
 manager()->action = anyv('a') === null ? 1 : $requestedAction;
-if (!$isActionSpecified && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
+if (!$isActionSpecified && !sessionv('mgrForgetPassword')) {
     manager()->action = 2;
 }
 
@@ -141,14 +141,8 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 }
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// 旧framesetの入口。a未指定時はダッシュボードを既定表示にする
+// a 未指定時はダッシュボードを既定表示にする。パスワードを忘れた人のログインだけはパスワード変更の画面へ送る
 if (!$isActionSpecified && !alert()->hasError()) {
-    if (sessionv('mainframe.a')) {
-        $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
-        sessionv('*mainframe', null);
-        header('Location: ' . MODX_MANAGER_URL . $mainurl);
-        exit;
-    }
     if (sessionv('mgrForgetPassword')) {
         header('Location: ' . MODX_MANAGER_URL . 'index.php?a=28');
         exit;

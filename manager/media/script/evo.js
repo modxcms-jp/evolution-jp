@@ -85,7 +85,9 @@
 
             return window.fetch(url, opts).then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
-                    window.location.href = 'index.php';
+                    // 今の画面を読み直してログイン画面を出す（ログイン画面はこの URL のまま出て、ログイン後にこの画面へ戻る）。
+                    // # を付けたままだと、同じ URL への代入でページが読み直されない
+                    window.location.href = window.location.href.split('#')[0];
                     return new Promise(function () {});
                 }
                 return response;

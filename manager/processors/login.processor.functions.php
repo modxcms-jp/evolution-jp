@@ -455,26 +455,66 @@ function validPassword($inputPassword = '', $savedPassword = '')
 
 function redirectAfterLogin()
 {
-    if (user_config('manager_login_startup')) {
-        $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
-        if (post_boolvar('ajax')) {
-            exit($header);
-        }
-        header($header);
-        return;
-    }
-
-    if (sessionv('save_uri')) {
-        $uri = sessionv('save_uri');
-        unset($_SESSION['save_uri']);
-    } else {
-        $uri = MODX_MANAGER_URL;
-    }
-    $header = 'Location: ' . $uri;
+    $header = 'Location: ' . loginRedirectUri();
     if (post_boolvar('ajax')) {
         exit($header);
     }
     header($header);
+}
+
+/**
+ * ログイン後の行き先。ログイン前に開こうとした画面を、ユーザー設定の初期ページより優先する
+ * - 管理画面: ログインフォームが持つ画面のクエリ（return。accesscontrol-not-mgr.inc.php が入れる）
+ * - 表側の下書きプレビュー: 管理画面のトップへ移ってからログインするので、URL はセッション（save_uri）に覚えてある
+ */
+function loginRedirectUri()
+{
+    $returnQuery = loginReturnQuery(post_strvar('return'));
+    if ($returnQuery !== '') {
+        sessionv('*save_uri', null);
+        return MODX_MANAGER_URL . 'index.php?' . $returnQuery;
+    }
+
+    $savedUri = (string) sessionv('save_uri', '');
+    sessionv('*save_uri', null);
+    if (isSameSiteUri($savedUri)) {
+        return $savedUri;
+    }
+    if (user_config('manager_login_startup')) {
+        return evo()->makeUrl(user_config('manager_login_startup'));
+    }
+    return MODX_MANAGER_URL;
+}
+
+/**
+ * ログインフォームから来た画面のクエリを、組み立て直して返す。画面の番号 a が無ければ空。
+ * 行き先は管理画面の index.php に固定して付けるので、クエリをどう書き換えられても外部へは出ない
+ */
+function loginReturnQuery($query)
+{
+    if (!is_string($query) || $query === '') {
+        return '';
+    }
+    parse_str($query, $params);
+    if (empty($params['a'])) {
+        return '';
+    }
+    return http_build_query($params);
+}
+
+/**
+ * サイトの中を指す URL か。サイトの URL で始まるものと、/ で始まるパスだけを受ける
+ * （//example.com や /\example.com は、ブラウザが外部のサイトとして解釈しうるので受けない）
+ */
+function isSameSiteUri($uri)
+{
+    if ($uri === '' || strpbrk($uri, "\r\n") !== false) {
+        return false;
+    }
+    if (strpos($uri, MODX_SITE_URL) === 0) {
+        return true;
+    }
+    return (bool) preg_match('@^/(?![/\\\\])@', $uri);
 }
 
 function managerLogin()
