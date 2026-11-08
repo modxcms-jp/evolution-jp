@@ -73,7 +73,7 @@ $listTools .= '<table border="0" style="float:right"><tr><td>' . $kw . '</td>'
     . '<td><input class="searchtext" name="q" type="text" size="15" maxlength="'
     . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
     . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '"></td>'
-    . '<td><a href="#" class="default" title="' . $kw . '" onclick="this.closest(\'form\').requestSubmit();return false;">'
+    . '<td><a href="#" class="default" title="' . $kw . '" data-search-submit>'
     . hsc($_lang['go']) . '</a></td>';
 if ($keyword !== '') {
     $listTools .= '<td><a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
@@ -405,7 +405,7 @@ function get_jscript($id, $cm)
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
-    // メニューの操作後の戻り先に、今のページと並べ替えを残す
+    // メニューの操作後の戻り先に、今のページ・並べ替え・検索語（q）を残す
     $returnQuery = ChildDocumentListState::returnQuery();
     $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
@@ -523,6 +523,15 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 
     // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
     Evo.ready(function () {
+        // 検索の実行ボタン。0 件・該当なしのときも効くよう、表の有無より前に結ぶ（画面の差し替えで要素ごと作り直される。二重に結ばない）
+        const submit = document.querySelector('[data-search-submit]');
+        if (submit && !submit.dataset.bound) {
+            submit.dataset.bound = '1';
+            submit.addEventListener('click', function (e) {
+                e.preventDefault();
+                submit.closest('form').requestSubmit();
+            });
+        }
         const table = document.querySelector('[data-table="children"]');
         if (!table) {
             return;

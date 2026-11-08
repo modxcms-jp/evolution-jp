@@ -1,6 +1,6 @@
 <?php
 /**
- * 子リソースの一覧（a=120）の状態（ページ・並べ替え）の読み方と、一覧へ戻るときの引数の作り方。
+ * 子リソースの一覧（a=120）の状態（ページ・並べ替え・検索語 q）の読み方と、一覧へ戻るときの引数の作り方。
  * 一覧の画面と、公開・非公開・削除・削除の取り消しの processor が同じ規則を使うための 1 か所。
  * 汎用の表の部品（data_table.class.php）には、一覧固有の知識を入れない。
  */
@@ -71,7 +71,7 @@ final class ChildDocumentListState
         return sprintf('%s %s, sc.id DESC', $column, $links->orderdir() === 'desc' ? 'DESC' : 'ASC');
     }
 
-    /** 一覧へ戻る URL（エスケープ前）。今の page と並べ替えを引き継ぐ */
+    /** 一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ */
     public static function returnUrl(int $parent): string
     {
         $q = ['r' => 1, 'a' => 120, 'id' => $parent] + self::returnParams();
