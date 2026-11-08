@@ -37,11 +37,11 @@ if ($limit > 1) {
 
 // take action
 // 対象の ID は先に整数の配列にそろえ、空なら何もしない（count(null) や IN () を作らない）
-$depTypes = ['chunk' => 10, 'doc' => 20, 'plug' => 30, 'snip' => 40, 'tpl' => 50, 'tv' => 60];
+$depTypes = ['chunk' => 10, 'document' => 20, 'plugin' => 30, 'snippet' => 40, 'template' => 50, 'tv' => 60];
 switch (request_choicevar('op', ['add', 'del'], '')) {
     case 'add':
         $opids = request_idsvar('newids');
-        $type = $depTypes[strtolower(request_strvar('rt'))] ?? 0;
+        $type = $depTypes[request_choicevar('type', array_keys($depTypes), '')] ?? 0;
         if (!$opids || !$type) {
             break;
         }
@@ -133,33 +133,33 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
     }
 
     function addSnippet() {
-        openSelector("snip", "m", "setResource");
+        openSelector("snippet", "multiple", "setResource");
     }
 
     function addDocument() {
-        openSelector("doc", "m", "setResource");
+        openSelector("document", "multiple", "setResource");
     }
 
     function addTemplate() {
-        openSelector("tpl", "m", "setResource");
+        openSelector("template", "multiple", "setResource");
     }
 
     function addTV() {
-        openSelector("tv", "m", "setResource");
+        openSelector("tv", "multiple", "setResource");
     }
 
     function addChunk() {
-        openSelector("chunk", "m", "setResource");
+        openSelector("chunk", "multiple", "setResource");
     }
 
     function addPlugin() {
-        openSelector("plug", "m", "setResource");
+        openSelector("plugin", "multiple", "setResource");
     }
 
-    function setResource(rt, ids) {
+    function setResource(type, ids) {
         if (ids.length == 0) return;
         document.mutate.op.value = "add";
-        document.mutate.rt.value = rt;
+        document.mutate.type.value = type;
         document.mutate.newids.value = ids.join(",");
         document.mutate.submit();
     }
@@ -168,7 +168,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
         var win
         w = w ? w : 700;
         h = h ? h : 400;
-        url = "index.php?a=84&sm=" + mode + "&rt=" + resource + "&cb=" + callback
+        url = "index.php?a=84&select=" + encodeURIComponent(mode) + "&type=" + encodeURIComponent(resource) + "&callback=" + encodeURIComponent(callback)
         // center on parent
         if (window.screenX) {
             var x = window.screenX + (window.outerWidth - w) / 2;
@@ -186,7 +186,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
 <form name="mutate" method="post" action="index.php">
     <input type="hidden" name="a" value="113" />
     <input type="hidden" name="op" value="" />
-    <input type="hidden" name="rt" value="" />
+    <input type="hidden" name="type" value="" />
     <input type="hidden" name="newids" value="" />
     <input type="hidden" name="id" value="<?= $content['id'] ?>" />
     <h1><?= $_lang['module_resource_title'] ?></h1>
