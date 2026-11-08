@@ -1511,7 +1511,7 @@ a.hometblink:hover {
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
     margin: 0 0 -1px var(--space-1);
-    padding: 8px 16px;
+    padding: 8px 12px;
 }
 
 .dynamic-tab-pane-control .tab-row .tab:hover {

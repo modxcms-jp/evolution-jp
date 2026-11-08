@@ -8,6 +8,7 @@
 return [
     [
         'id' => 'settingsTabSite',
+        'event' => 'OnSiteSettingsRender',
         'title' => lang('settings_site'),
         'sections' => [
             [
@@ -167,7 +168,6 @@ return [
                             );
                         },
                     ],
-                    ['type' => 'event', 'name' => 'OnSiteSettingsRender'],
                 ],
             ],
         ],
@@ -309,6 +309,9 @@ return [
     ],
     [
         'id' => 'settingsTabFurls',
+        'event' => 'OnFriendlyURLSettingsRender',
+        // このタブのプラグインの欄のセルだけ余白がある（今の画面のまま）
+        'eventPadded' => true,
         'title' => lang('settings_furls'),
         'sections' => [
             [
@@ -383,14 +386,13 @@ return [
                         'desc' => lang('automatic_alias_message'),
                         'showIf' => ['friendly_urls', '1'],
                     ],
-                    // この行のセルだけ余白がある（今の画面のまま）
-                    ['type' => 'event', 'name' => 'OnFriendlyURLSettingsRender', 'padded' => true],
                 ],
             ],
         ],
     ],
     [
         'id' => 'settingsTabSecurity',
+        'event' => 'OnUserSettingsRender',
         'title' => lang('settings_users'),
         'sections' => [
             [
@@ -534,7 +536,6 @@ return [
                         'label' => lang('enable_bindings_title'),
                         'desc' => lang('enable_bindings_message'),
                     ],
-                    ['type' => 'event', 'name' => 'OnUserSettingsRender'],
                 ],
             ],
         ],
@@ -871,6 +872,7 @@ return [
     ],
     [
         'id' => 'settingsTabEditor',
+        'event' => 'OnInterfaceSettingsRender',
         'title' => lang('settings_editor'),
         'sections' => [
             [
@@ -919,13 +921,13 @@ return [
                         'desc' => lang('editor_css_path_message'),
                         'showIf' => ['use_editor', '1'],
                     ],
-                    ['type' => 'event', 'name' => 'OnInterfaceSettingsRender'],
                 ],
             ],
         ],
     ],
     [
         'id' => 'settingsTabFiles',
+        'event' => 'OnMiscSettingsRender',
         'title' => lang('settings_files'),
         'sections' => [
             [
@@ -1065,7 +1067,6 @@ return [
                         'desc' => lang('export_dir_message'),
                         'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . 'temp/export/',
                     ],
-                    ['type' => 'event', 'name' => 'OnMiscSettingsRender'],
                 ],
             ],
         ],

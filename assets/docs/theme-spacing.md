@@ -41,6 +41,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 | ページの端と最後のブロック | `#mainPane` の最後の子の下は 0（共通部の `padding` だけ） | `#mainPane > :last-child` |
 | ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、ボタン列の前（`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`）、コード欄の前（`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`）、ページ送りの前（`:is(.sectionBody, .tab-page, form) > :has(+ .pagination)`）、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、`.sectionBody` の直下のブロック（`.sectionBody > :is(div, table, fieldset)`）の下、本体の中の小見出し（`.sectionBody h3`）の下、サブリソース一覧のパンくず（`.resources-topic-path`）の下、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
 | タブとパネルを離して見せる作り（丸いタブ）の、タブ列とパネルの間 | `--space-2`（8px） | `.dynamic-tab-pane-control .tab-row` → `.tab-page` |
+| 設定画面（`EvoSettingsForm`）のタブの中で、表と次の小見出しの間 | `--space-5`（20px） | `.tab-page > :has(+ .settings-section)`（直前の表の `margin-bottom`） |
 | 入れ物の最初の子の上・最後の子の下 | 外側の `margin` を足さない（0）。間は入れ物の内側の `padding` だけで作る。入れ物は `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` | `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` の最初と最後の子 |
 | 本文の流れの要素（リセット規則の対象）の間 | 本文の文字の大きさ × 0.5（`margin-bottom` だけ）。入れ物の最初の子の上・最後の子の下は 0（`.sectionBody h3` はブロックの間に従う） | `p`、`ul`、`ol`、`h2`〜`h6`、`pre`、`blockquote`、`dl`、`address` |
 

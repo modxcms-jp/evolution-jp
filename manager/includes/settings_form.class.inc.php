@@ -194,15 +194,37 @@ final class EvoSettingsForm
             }
             $html .= "</table>\n";
         }
-        return $html . "</div>\n";
+        return $html . $this->renderEventSection($tab) . "</div>\n";
+    }
+
+    /**
+     * タブの末尾でプラグインが返した HTML。出力が空なら何も出さない。
+     * タブに小見出しがあるときだけ、小見出し「プラグイン」を付ける
+     */
+    private function renderEventSection(array $tab): string
+    {
+        if (empty($tab['event'])) {
+            return '';
+        }
+        $output = evo()->invokeEvent($tab['event']);
+        $output = is_array($output) ? implode('', $output) : '';
+        if ($output === '') {
+            return '';
+        }
+        $heading = '';
+        foreach ($tab['sections'] ?? [] as $section) {
+            if (!empty($section['title'])) {
+                $heading = '<h3 class="settings-section">' . lang('settings_section_plugins') . "</h3>\n";
+                break;
+            }
+        }
+        return $heading . "<table class=\"settings\">\n"
+            . '<tr class="row1" style="border-bottom:none;"><td colspan="2"' . (empty($tab['eventPadded']) ? ' style="padding:0;"' : '') . '>'
+            . $output . "</td></tr>\n</table>\n";
     }
 
     private function renderRow(array $row): string
     {
-        if ($row['type'] === 'event') {
-            return $this->renderEvent($row['name'], !empty($row['padded']));
-        }
-
         $attr = '';
         if (isset($row['showIf'])) {
             [$name, $expected] = $row['showIf'];
@@ -245,17 +267,6 @@ final class EvoSettingsForm
             $options
         );
         return '<th>' . $label . "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select . '</th>';
-    }
-
-    /**
-     * プラグインが返した HTML を、表の中の 1 行として出す
-     */
-    private function renderEvent(string $name, bool $padded = false): string
-    {
-        $output = evo()->invokeEvent($name);
-        return '<tr class="row1" style="border-bottom:none;"><td colspan="2"' . ($padded ? '' : ' style="padding:0;"') . '>'
-            . (is_array($output) ? implode('', $output) : '')
-            . "</td></tr>\n";
     }
 
     private function renderCell(array $row): string
