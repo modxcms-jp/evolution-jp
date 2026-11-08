@@ -44,6 +44,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M3）: `systemValues(array $stored)` にし、`mutate_settings.dynamic.php` で `storedValues()` を 1 回だけ作って `evo()->config` と共有した（`default.config.php` と `system_settings` は 1 回ずつ読む）。
 - 2026-11-08（M3）: 部品に項目を足した。event 行の `padded`（フレンドリーURLのタブの event 行は `td` に `padding:0` が無い）、select の `br`（`modx_charset` は display:block で、後ろの `<br/>` が main に無い）、`xhtml_urls`・`auto_pub_date` の `default => '0'`（main は `!config()` で「いいえ」を選ぶ）。`lang_text` は、空文字を保存した値を main と同じく空のまま出すため、`value()` の「空なら default」を通さず `$values[key] ?? lang(langKey)` にした。
 - 2026-11-08（M3）: M4 の `lang_text` に要る項目: `webpwdreminder_message` の読み込みの select の id は `reload_system_email_webreminder_select` で、`<reload>_select` の規則に合わないので `reloadId` のような項目が要る。`emailsubject`・`captcha_words` などは textarea でなく text で、hidden の後ろに `<br/>` がある。欄の種別と `<br/>` の有無を項目にする。
+- 2026-11-08（M3 の直しの見直し）: テンプレートの一括変更のラジオを選んでから select を保存値に戻すと、wrapper は隠れるがラジオの選択は残って送られる（main も同じ）。差し戻しでラジオに checked を付けたので、起きる場面が増える。onchange で隠すときにラジオの選択も外す直しは、段階 1 の HTML の一致が崩れるので段階 2（M6）で行う。
 - 2026-11-08（M3）: `fixed_site_url` の警告は、差し戻した後の値で判定する（Decision Log の「差し戻しを全行に重ねる」のとおり。C では差が出なかった）。
 - 2026-11-08（M3）: イベントのプラグイン（`OnMiscSettingsRender`・`OnSystemSettingsRender`）の欄の位置と保存、DB に絶対パスで入った古い `rb_base_dir` の表示（許す違いの 3）、シェルの遷移での条件の行の切り替え、英語の画面を確かめた。main の基準は、M1 より前の merge のコミット（bf3454495）の別のワークツリーと別の検証環境（`evo-validate-1067m`・127.0.0.6）で取った。M1 より前のコードには `form-snapshot.js` が無いので、作業ツリーのスクリプトで流す。
 - 2026-11-08（M2）: 入力欄とリセットのボタンの間の空白（改行）が無いとボタンが 3px ずれ、画面写真で見つかった。HTML の空白は欄の一覧に出ないので、写真の比較が要る。
