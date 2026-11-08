@@ -77,8 +77,8 @@
             var mutate = document.getElementById('mutate');
             var pmode = [+preview_mode+];
             if (pmode != 1 || !mutate || !'[+id+]' || '[+id+]' === '0') {
-                // 保存済みの内容を見る（新規作成のときもここ）。z=manprev でプレビューモードにする
-                previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
+                // 保存済みの内容を見る（新規作成のときもここ）。mgr_preview（管理画面からのプレビュー）=1 で保存済みの内容を見る
+                previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'mgr_preview=1';
                 prevWin = window.open(previewUrl, 'prevWin');
                 if (prevWin) prevWin.focus();
                 return;

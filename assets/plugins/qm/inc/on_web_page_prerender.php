@@ -26,7 +26,7 @@ if (get_intvar('quickmanagertv') === 1 && get_strvar('tvname') !== '' && $this->
     $output = include 'edit_tv.inc.php';
 } // QM+ with toolbar
 else {
-    if (sessionv('mgrValidated') && anyv('z') !== 'manprev') {
+    if (sessionv('mgrValidated') && get_strvar('mgr_preview') === '') {
         // Edit button
 
         $editButton = '

@@ -3,7 +3,7 @@
  * プレビュー用の一時的な下書きの受け口（a=309）。POST のみ、JSON 応答。
  *
  * 編集中のフォームの値を、セッションの preview_drafts に置いてキーを返す。
- * 画面はこのキーを付けた文書の URL（?z=manprev&preview=<キー>）を GET で開く。
+ * 画面はこのキーを付けた文書の URL（?mgr_preview=<キー>。mgr_preview = 管理画面からのプレビュー）を GET で開く。
  * 置き場の決まり（件数の上限・期限）は DocumentParser の storePreviewDraft() / loadPreviewDraft() にある。
  *
  * 応答: {"url":"<文書の URL>"} か {"error":"…"}
@@ -38,7 +38,7 @@ try {
     previewDraftJson(['error' => lang('error_occurred')], 500);
 }
 
-$url .= (strpos($url, '?') === false ? '?' : '&') . 'z=manprev&preview=' . $key;
+$url .= (strpos($url, '?') === false ? '?' : '&') . 'mgr_preview=' . $key;
 previewDraftJson(['url' => $url]);
 
 function previewDraftJson(array $data, $status = 200)

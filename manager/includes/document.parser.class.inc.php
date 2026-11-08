@@ -82,6 +82,7 @@ class DocumentParser
     public $currentErrorContext;
     /** @var OldFunctions */
     public $old;
+    public $forwardedResponse = false; //sendForward() 経由の prepareResponse か（リクエストされた文書ではない）
     public $previewObject = ''; //プレビュー用の下書き（a=309 が置いたもの、または revision の内容）を保存
     public $snipLapCount;
     public $chunkieCache;
@@ -273,8 +274,8 @@ class DocumentParser
     }
 
     /**
-     * プレビューのリクエストか。管理画面にログイン中で、GET の preview（下書き）か revision（リビジョン）があるとき。
-     * ログインしていなければ preview は無視し、通常どおりに扱う。
+     * プレビューのリクエストか。管理画面にログイン中で、GET の mgr_preview（管理画面からのプレビュー）か revision（リビジョン）があるとき。
+     * ログインしていなければ mgr_preview は無視し、通常どおりに扱う。
      * プレビューの内容はページキャッシュに混ぜない（読まない・書かない）ので、cache_type=0 にする判断に使う。
      */
     private function isPreviewRequest()
@@ -282,15 +283,24 @@ class DocumentParser
         if (!$this->isLoggedIn()) {
             return false;
         }
-        return $this->hasPreviewDraftParam() || get_strvar('revision') !== '';
+        return $this->hasPreviewParam() || get_strvar('revision') !== '';
     }
 
     /**
-     * 下書きのプレビューの URL か。z=manprev と preview の両方があるときだけ（汎用的な名前の preview だけでは扱わない）。
+     * GET の mgr_preview（管理画面からのプレビュー）があるか。
+     * 値は、編集中の内容なら下書きのキー（32 桁の hex）、保存済みの内容なら 1。
+     */
+    private function hasPreviewParam()
+    {
+        return get_strvar('mgr_preview') !== '';
+    }
+
+    /**
+     * mgr_preview が下書きのキーを指しているか（値が 1 以外）。1 は保存済みの内容のプレビューで、下書きは使わない。
      */
     private function hasPreviewDraftParam()
     {
-        return get_strvar('z') === 'manprev' && get_strvar('preview') !== '';
+        return $this->hasPreviewParam() && get_strvar('mgr_preview') !== '1';
     }
 
     public function executeParser()
@@ -3716,10 +3726,13 @@ class DocumentParser
             }
         }
 
-        // previewObject が入っているのは 2 回目の処理（sendErrorPage・sendForward 先）。その文書は通常どおり出す
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && !$this->previewObject && $this->hasPreviewDraftParam()) {
+        // 下書きを当てるのは、リクエストされた文書の prepareResponse だけ。
+        // sendForward() 経由の prepareResponse（エラーページ・転送先）は別の文書なので、通常どおり出す。
+        // 存在しない文書では executeParser() が prepareResponse より先に sendErrorPage() を呼ぶため、
+        // previewObject の有無では見分けられない。sendForward() が印（forwardedResponse）を立てる。
+        if (!$this->forwardedResponse && $mode === 'prepareResponse' && $this->isLoggedIn() && $this->hasPreviewDraftParam()) {
             // プレビュー用の下書き（a=309 が置いたもの）。保存済みの内容を黙って出さない
-            $previewObject = $this->loadPreviewDraft(get_strvar('preview'), $identifier);
+            $previewObject = $this->loadPreviewDraft(get_strvar('mgr_preview'), $identifier);
             if ($previewObject === false) {
                 $this->logEvent(
                     0,
