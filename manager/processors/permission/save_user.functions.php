@@ -67,14 +67,8 @@ function savedProfileValues()
 // プロフィール画面に出している設定の名前。プラグインが足す欄（OnInterfaceSettingsRender）は、画面を表示したときに覚えた名前を使う
 function profileSettingNames()
 {
-    return array_merge([
-        'manager_theme',
-        'manager_inline_style',
-        'manager_login_startup',
-        'manager_language',
-        'which_editor',
-        'editor_css_path'
-    ], (array)sessionv('profileSettingNames', []));
+    require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
+    return array_merge(EvoSettingsForm::names('profile'), (array)sessionv('profileSettingNames', []));
 }
 
 // Send an email to the user
