@@ -317,12 +317,14 @@ echo get_jscript($id, $cm);
                 </table>
             </div>
             <?php
+            // チェックボックスなどでの Enter では送らない（既定の送信ボタンが無く、先頭の有効なボタン＝移動や公開が押されたことになるため）。
+            // フォームの属性に置くので、シェルの画面遷移で要素が作り直されても重ならない。ボタン・リンクの Enter は通常どおり
+            $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
             $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
             echo <<< EOT
 {$topicPath}
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
 <input type="hidden" name="parent" value="{$id}" />
-<input type="submit" disabled hidden aria-hidden="true" tabindex="-1" />
 {$children_output}
 </form>
 EOT;
