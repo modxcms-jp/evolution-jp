@@ -39,7 +39,8 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M1）: 保存のたびに `recent_update` が変わるので、S1・S2 の比較からは除く。S2 の値のうち、インストール直後の値と同じで変化の出ない 6 つ（`datetime_format`・`server_protocol`・`failed_login_attempts`・`rb_base_url`・`new_file_permissions`・`convert_datauri_to_file`）は別の値に変えた（`<work>/fill-s2.json`）。`export_dir` を空で送ると、保存後は既定の `[(base_path)]temp/export/` に戻る。`site_id` は環境ごとにランダムなので、比較は同じ環境で取った JSON 同士で行う。
 - 2026-11-08（M2）: `settings()` を消すと、まだ移していない管理画面のタブ（`tab4_manager_settings.inc.php`）が呼ぶ `checkConfig()` が、`settings()` の作っていたグローバルの `$settings`・`$default_config` を読めず、PHP 8 の警告でタブが途中で切れた。M2・M3 の間だけ `mutate_settings.dynamic.php` に `$settings = $values;` と `$default_config = include …default.config.php;` を仮に置いた。M4 で `checkConfig()` と一緒に消す。
 - 2026-11-08（M2）: `lang_chg` は今の main で既に `js_literal()` を通っていた（Surprises の 2026-11-05 の記録は古い）。
-- 2026-11-08（M2）: `path` 行の既定値の後ろに出る `(絶対パス)` は、`filemanager_path`・`rb_base_dir` にはあり `export_dir` には無い。この違いを表すため、定義に `absHint` を足した（Interfaces の形に加える）。3 つのパスのリセットは、既定値の `<span id="default_<key>">` を読む形にそろえた（main は `export_dir` だけ文字を直書き。動きは同じ）。
+- 2026-11-08（M2）: `path` 行の既定値の後ろに出る `(絶対パス)` は、`filemanager_path`・`rb_base_dir` にはあり `export_dir` には無い。この違いを表すため、定義に `absHint` を足した（Interfaces の形に加える）。3 つのパスのリセットは、既定値の `<span id="default_<key>">` を読む形にそろえた（main は `filemanager_path`・`export_dir` が文字を直書きし、span を読むのは `rb_base_dir` だけで、`export_dir` の span には id が無かった。動きは同じ）。
+- 2026-11-08（M2 の自己レビュー）: `storedValues()` を `mutate_settings.dynamic.php` と `systemValues()` の中で 2 回呼び、さらに仮置きで `default.config.php` を読むので、1 回の表示で `default.config.php` を 3 回、`system_settings` を 2 回読んでいる。M3 で `systemValues()` が `storedValues()` の結果を受け取る形にし、1 回で済ませる。
 - 2026-11-08（M2）: 入力欄とリセットのボタンの間の空白（改行）が無いとボタンが 3px ずれ、画面写真で見つかった。HTML の空白は欄の一覧に出ないので、写真の比較が要る。
 - 2026-11-08（M2）: `systemValues()` は差し戻しをセッションから取り出して消すので、1 回の表示で 1 回だけ呼ぶ前提。
 
@@ -191,7 +192,9 @@ M6 で、定義を下の表の構成に組み替える。設定キーは 1 つ�
 - その scope の行だけを、グローバル設定と同じタブ名・小見出し・順で出す。行の無いタブと小見出しは出さない
 - select の先頭に「システム設定に従う」（値は空）を足す
 - `userDefault` を持つ行（`manager_inline_style`・`upload_images`・`upload_media`・`upload_files`）に、`default_<キー>` のチェックボックスを付ける（ユーザーの値が無いと入る）
-- 条件の行は、システム設定の値で出すかどうかを決め、切り替えはしない
+- 条件の行は、システム設定の値で出すかどうかを決め、切り替えはしない。そのため、条件の判定に使うシステムの値（`storedValues()`）を、表示する値とは別にコンストラクタで受ける（M2 の部品は条件も既定の補いも `$this->values` から読むので、そのままではユーザーの値で判定してしまう）
+- system 以外の scope では、空の値を `default` で補わない（空は「システム設定に従う」のまま出す）
+- `mutate_user/functions.php` の `systemSetting()` は `storedValues()` と同じ処理なので、`storedValues()` に置き換える（SSOT）。`default.config.php` は `a=17` かどうかで返す中身が変わるので、a=12・a=74 や保存の処理から `storedValues()`・`names()` を呼ぶときの結果を確かめる
 - イベント行は、その scope に含まれるもの（`OnInterfaceSettingsRender`）だけを呼ぶ
 
 M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し、`form.php` で部品のタブ（管理画面・エディター・ファイル）を出す。値は今の `$user`（差し戻し込み）を渡す。テーマの `theme_refresher`、`upload_maxsize` の既定（ユーザーの値、無ければシステムの値、無ければサーバーの上限）、`upload_*` の説明の後ろの `user_upload_message` は、行の定義の項目（`userAttr`・`userValue`・`userDesc`）で書く。M8 で、プロフィールの `tabPage5` を部品のタブ（管理画面・エディター）に置き換え、`profileSettingNames()` の固定の一覧を `EvoSettingsForm::names('profile')` から引く。`table.settings` のインラインの `<style>` は、部品の `EvoSettingsForm::style()` から 3 画面で出す（中身は今と同じ）。
@@ -274,13 +277,13 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 
 ### M4: セキュリティ・管理画面と後片付け
 
-編集対象: 定義ファイル（`legacy` の項目を消す）、`EvoSettingsForm`（`topmenu`・`password` を足す）、`tab3_user_settings.inc.php`・`tab4_manager_settings.inc.php`・`functions.inc.php`・`manager/includes/charsets.php`（消す）、`mutate_settings.dynamic.php`（`extract()`・`$lang_keys`・`legacy` の分かれ道・残りの切り替えスクリプトを消し、`$form->render()` だけにする）、`functions.js`、`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`（表に `data-show-if="use_editor=1"` を足す）、`assets/docs/global-settings.md`（「3. 設定画面への表示」を定義の書き方に。表は段階 2）、`assets/docs/core-issues.md`（このとき解決したものがあれば付記）。
+編集対象: 定義ファイル（`legacy` の項目を消す）、`EvoSettingsForm`（`topmenu`・`password` を足す）、`tab3_user_settings.inc.php`・`tab4_manager_settings.inc.php`・`functions.inc.php`・`manager/includes/charsets.php`（消す）、`mutate_settings.dynamic.php`（`extract()`・`$lang_keys`・`legacy` の分かれ道・残りの切り替えスクリプトと、M2 の仮置きの `$settings = $values;`・`$default_config = include …` を消し、`$form->render()` だけにする）、`functions.js`、`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`（表に `data-show-if="use_editor=1"` を足す）、`assets/docs/global-settings.md`（「3. 設定画面への表示」を定義の書き方に。タブ構成の表は、ファイルの列を定義ファイルとタブの id に改める（消したタブのファイルを指したまま PR 1 にしない。タブ名と並びは段階 2））、`assets/docs/core-issues.md`（このとき解決したものがあれば付記）。
 
 - `use_captcha` は `disabled` と `value`（GD が無ければ `'0'`）で書く
 - `smtp_host`・`smtp_port`・`smtp_username` は `default`（`smtp_username` の既定は `emailsender` の値なので、`default` に関数を書ける形にする）
 - `which_editor` の選択肢の関数が `null` を返したら、欄を出さずに説明だけを出す
 - `manager_theme`・`manager_language`・`fe_editor_lang`・`default_role` の選択肢は関数（`EvoSettingsForm::themes()`・`languages()`・`roles()`）
-- 消したあとで `grep -rn "form_radio\|form_text\|wrap_label\|get_lang_options\|charsets.php\|checkConfig" manager/ assets/ install/` が何も出さない（`install/functions.php` の別物の `get_lang_options()` は除く）
+- 消したあとで `grep -rn "form_radio\|form_text\|wrap_label\|get_lang_options\|charsets.php\|checkConfig\|\$default_config\|tab[0-9]_[a-z_]*\.inc\.php" manager/ assets/ install/` が何も出さない（`$settings` は `mutate_settings.dynamic.php` に残っていないことを目で確かめる）（`install/functions.php` の別物の `get_lang_options()` は除く）
 
 実行と期待: M2 と同じ比較に加え、次を行う。
 
@@ -463,10 +466,12 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'attr'     欄に足す属性 [名前 => 値]（id・style など。値は部品が hsc() する）
       'before' / 'after'  欄の前後に出す HTML（rb_base_url の前のサイトの URL は定義で hsc() する）
       'showIf'   ['use_editor', '1'] … その値のときだけ行を出す
-      'disabled' bool、'value' function ($value): string（use_captcha）
+      'disabled' bool、'value' function (array $values): string（use_captcha。resolve() と同じく画面の値の配列を受ける）
       'name'     event 行のイベント名
       'id'・'langKey'・'reload'・'warningHeading'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前・見出しのセルの形
       'defaultPath'  path の既定（文字列か関数）
+      'absHint'  bool。path の既定値の後ろに「(絶対パス)」を出す（filemanager_path・rb_base_dir。M2 で足した）
+      label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
       段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'
 
 `yesno` は `['1' => lang('yes'), '0' => lang('no')]`、`enabled` は `['1' => lang('enabled'), '0' => lang('disabled')]` の radio の略。`disable_cache_at_login` のように値と表示が逆の行は `radio` で書く。
