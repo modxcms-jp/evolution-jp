@@ -69,8 +69,6 @@ function mm_requireFields($fields, $roles = '', $templates = '')
         //ignore for now
         switch ($field) {
             // fields for which this doesn't make sense - in my opinion anyway :)
-            case 'keywords':
-            case 'metatags':
             case 'hidemenu':
             case 'which_editor':
             case 'template':

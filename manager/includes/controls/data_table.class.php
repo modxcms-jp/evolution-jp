@@ -79,7 +79,7 @@ final class DataTableLinks
 
     /**
      * エスケープ前の URL。HTML に入れるときの hsc() は描く側が行う。
-     * params → 今の並べ替え → 上書き の順に重ねる。
+     * params → 今の並べ替え → 上書き の順に重ねる。上書きの値が null の引数は URL から外す。
      */
     public function url(array $overrides = []): string
     {
@@ -206,7 +206,7 @@ final class DataTablePager
  *
  * 列の定義: key, label, labelHtml, format, html, class, sort
  * options: id, tableClass, rowClasses, headerClass, caption, captionHtml,
- *          emptyMessage, showHeader, rowAttributes
+ *          emptyMessage, showHeader, rowAttributes, selection
  */
 final class DataTable
 {
@@ -226,6 +226,7 @@ final class DataTable
             'emptyMessage' => '',
             'showHeader' => true,
             'rowAttributes' => null,
+            'selection' => null,
         ];
     }
 
@@ -233,8 +234,9 @@ final class DataTable
     {
         $o = $this->options;
         $out = sprintf(
-            '<div class="data-table" data-table="%s"><table%s>',
+            '<div class="data-table" data-table="%s">%s<table%s>',
             hsc((string) $o['id']),
+            $this->renderSelectionBar(),
             $this->classAttr([$o['tableClass']])
         );
 
@@ -264,6 +266,49 @@ final class DataTable
         }
         $out .= '</tbody></table></div>';
         return $out;
+    }
+
+    /**
+     * 選んだ件数と「この一覧のすべてを選択」の帯（中身は data-table.js が作る）。
+     *
+     * options['selection'] = [
+     *   'name'   => 'batch[]',   // 行のチェックボックスの name（見出しの data-select-all と同じ）
+     *   'ids'    => [1, 2, ...], // この一覧の全ページ分の値（件数 = count）。整数に直して出す
+     *   'max'    => 900,         // 省略可。ids の件数がこれを超えるときは、全件の値を出さず「この一覧のすべて」を選べなくする
+     *   'labels' => ['selected' => ..., 'page' => ..., 'all' => ..., 'allSelected' => ..., 'clear' => ...],
+     * ]
+     * 文言の {n}（選んだ件数）・{total}（全件数）は JS が置き換える。文言は呼び出し側が言語ファイルから渡す。
+     */
+    private function renderSelectionBar(): string
+    {
+        $sel = $this->options['selection'];
+        if (!is_array($sel) || empty($sel['name']) || empty($sel['ids']) || !is_array($sel['ids'])) {
+            return '';
+        }
+        $labels = (array) ($sel['labels'] ?? []);
+        $keys = ['selected', 'page', 'all', 'allSelected', 'clear'];
+        foreach ($keys as $key) {
+            if (!isset($labels[$key]) || !is_scalar($labels[$key])) {
+                return '';
+            }
+        }
+        $ids = array_values(array_unique(array_map('intval', $sel['ids'])));
+        $total = count($ids);
+        // 全件の値を hidden で送ると、件数が max_input_vars を超えたときに PHP が黙って切り捨てる。超えるときは値を出さない
+        if (isset($sel['max']) && $total > (int) $sel['max']) {
+            $ids = [];
+        }
+        $attr = '';
+        foreach ($keys as $key) {
+            $attr .= sprintf(' data-label-%s="%s"', strtolower(preg_replace('/([A-Z])/', '-$1', $key)), hsc((string) $labels[$key]));
+        }
+        return sprintf(
+            '<div class="data-table-selection" role="status" data-selection="%s" data-total="%d" data-all-ids="%s"%s></div>',
+            hsc((string) $sel['name']),
+            $total,
+            hsc(json_encode($ids)),
+            $attr
+        );
     }
 
     private function renderHead(?DataTableLinks $links): string

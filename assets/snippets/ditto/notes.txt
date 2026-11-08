@@ -1,7 +1,6 @@
 In the next release:
 Finish PHx truncate extension
 Conditional Templating
-Optimize getKeywords
 Allow config to load extenders
 
 Documentation Changes TODO:
