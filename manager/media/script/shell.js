@@ -669,7 +669,9 @@
             const isModalForm = !!form.closest('#evoShellModal');
             const target = isModalForm ? 'modal' : undefined;
             const push = !isModalForm;
-            const action = form.getAttribute('action')
+            // 押したボタンの formaction があれば、フォームの action より優先する（ネイティブの送信と同じ）
+            const action = (submitter && submitter.getAttribute && submitter.getAttribute('formaction'))
+                || form.getAttribute('action')
                 || (isModalForm && currentModalUrl)
                 || window.location.href;
 
@@ -848,7 +850,7 @@
             if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
                 return;
             }
-            const action = form.getAttribute('action') || window.location.href;
+            const action = (e.submitter && e.submitter.getAttribute('formaction')) || form.getAttribute('action') || window.location.href;
             if (!isManagerUrl(action)) {
                 return;
             }
