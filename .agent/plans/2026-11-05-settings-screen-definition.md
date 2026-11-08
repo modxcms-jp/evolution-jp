@@ -11,7 +11,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
 - [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で、写真の切れの警告を 4f5498afd で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [x] (2026-11-08) 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く（e5d1a7dfc。比較は `<work>/branch-m2/`、流すスクリプトは `<work>/run-branch.sh`）
-- [x] (2026-11-08) 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く（d785f7808。比較は `<work>/branch-m3/`。M2 の自己レビューで足した確認（イベントのプラグイン、古い絶対パス、シェルの遷移、英語の画面）も済み）
+- [x] (2026-11-08) 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く（d785f7808。比較は `<work>/branch-m3/`。M2 の自己レビューで足した確認（イベントのプラグイン、古い絶対パス、シェルの遷移、英語の画面）も済み。自己レビューの指摘（差し戻した画面でテンプレートの一括変更の基準が打った値にすり替わる）を b31470bac で直し、部品のコンストラクタで保存値 `$stored` を受ける形にした。比較は `<work>/branch-m3b/`）
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
 - [ ] 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画
 - [ ] 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2
@@ -37,7 +37,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M1）: C（差し戻し）は Surprises の 1 件めのとおり。`use_browser`・`friendly_urls` は差し戻した値、`filemanager_path`・`site_name`・`upload_maxsize` は DB の値で出た。
 - 2026-11-08（M1）: 試しのプラグインで `OnSiteSettingsRender` の欄が 3 回出ることを確かめた。保存すると最後の欄（キャッシュのタブ）の値が勝つ（`system_settings` の値は `x`）。
 - 2026-11-08（M1）: 保存のたびに `recent_update` が変わるので、S1・S2 の比較からは除く。S2 の値のうち、インストール直後の値と同じで変化の出ない 6 つ（`datetime_format`・`server_protocol`・`failed_login_attempts`・`rb_base_url`・`new_file_permissions`・`convert_datauri_to_file`）は別の値に変えた（`<work>/fill-s2.json`）。`export_dir` を空で送ると、保存後は既定の `[(base_path)]temp/export/` に戻る。`site_id` は環境ごとにランダムなので、比較は同じ環境で取った JSON 同士で行う。
-- 2026-11-08（M2）: `settings()` を消すと、まだ移していない管理画面のタブ（`tab4_manager_settings.inc.php`）が呼ぶ `checkConfig()` が、`settings()` の作っていたグローバルの `$settings`・`$default_config` を読めず、PHP 8 の警告でタブが途中で切れた。M2・M3 の間だけ `mutate_settings.dynamic.php` に `$settings = $values;` と `$default_config = include …default.config.php;` を仮に置いた。M4 で `checkConfig()` と一緒に消す。
+- 2026-11-08（M2）: `settings()` を消すと、まだ移していない管理画面のタブ（`tab4_manager_settings.inc.php`）が呼ぶ `checkConfig()` が、`settings()` の作っていたグローバルの `$settings`・`$default_config` を読めず、PHP 8 の警告でタブが途中で切れた。M2・M3 の間だけ `mutate_settings.dynamic.php` に `$settings = $values;` と `$default_config = include …default.config.php;` を仮に置いた（M3 で `$default_config = $stored;` にした。`checkConfig()` の結果はどこからも読まれないので害はない）。M4 で `checkConfig()` と一緒に消す。
 - 2026-11-08（M2）: `lang_chg` は今の main で既に `js_literal()` を通っていた（Surprises の 2026-11-05 の記録は古い）。
 - 2026-11-08（M2）: `path` 行の既定値の後ろに出る `(絶対パス)` は、`filemanager_path`・`rb_base_dir` にはあり `export_dir` には無い。この違いを表すため、定義に `absHint` を足した（Interfaces の形に加える）。3 つのパスのリセットは、既定値の `<span id="default_<key>">` を読む形にそろえた（main は `filemanager_path`・`export_dir` が文字を直書きし、span を読むのは `rb_base_dir` だけで、`export_dir` の span には id が無かった。動きは同じ）。
 - 2026-11-08（M2 の自己レビュー）: `storedValues()` を `mutate_settings.dynamic.php` と `systemValues()` の中で 2 回呼び、さらに仮置きで `default.config.php` を読むので、1 回の表示で `default.config.php` を 3 回、`system_settings` を 2 回読んでいる。M3 で `systemValues()` が `storedValues()` の結果を受け取る形にし、1 回で済ませる。
@@ -282,7 +282,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 
 ### M4: セキュリティ・管理画面と後片付け
 
-編集対象: 定義ファイル（`legacy` の項目を消す）、`EvoSettingsForm`（`topmenu`・`password` を足す）、`tab3_user_settings.inc.php`・`tab4_manager_settings.inc.php`・`functions.inc.php`・`manager/includes/charsets.php`（消す）、`mutate_settings.dynamic.php`（`extract()`・`$lang_keys`・`legacy` の分かれ道・残りの切り替えスクリプトと、M2 の仮置きの `$settings = $values;`・`$default_config = include …` を消し、`$form->render()` だけにする）、`functions.js`、`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`（表に `data-show-if="use_editor=1"` を足す）、`assets/docs/global-settings.md`（「3. 設定画面への表示」を定義の書き方に。タブ構成の表は、ファイルの列を定義ファイルとタブの id に改める（消したタブのファイルを指したまま PR 1 にしない。タブ名と並びは段階 2））、`assets/docs/core-issues.md`（このとき解決したものがあれば付記）。
+編集対象: 定義ファイル（`legacy` の項目を消す）、`EvoSettingsForm`（`topmenu`・`password` を足す）、`tab3_user_settings.inc.php`・`tab4_manager_settings.inc.php`・`functions.inc.php`・`manager/includes/charsets.php`（消す）、`mutate_settings.dynamic.php`（`extract()`・`$lang_keys`・`legacy` の分かれ道・残りの切り替えスクリプトと、M2 の仮置きの `$settings = $values;`・`$default_config = $stored;` を消し、`$form->render()` だけにする）、`functions.js`、`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`（表に `data-show-if="use_editor=1"` を足す）、`assets/docs/global-settings.md`（「3. 設定画面への表示」を定義の書き方に。タブ構成の表は、ファイルの列を定義ファイルとタブの id に改める（消したタブのファイルを指したまま PR 1 にしない。タブ名と並びは段階 2））、`assets/docs/core-issues.md`（このとき解決したものがあれば付記）。
 
 - `use_captcha` は `disabled` と `value`（GD が無ければ `'0'`）で書く
 - `smtp_host`・`smtp_port`・`smtp_username` は `default`（`smtp_username` の既定は `emailsender` の値なので、`default` に関数を書ける形にする）
@@ -485,12 +485,14 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 
 ### 描画の部品 `final class EvoSettingsForm`（`manager/includes/settings_form.class.inc.php`）
 
-    public function __construct(array $tabs, array $values, string $scope = 'system')
+    public function __construct(array $tabs, array $values, array $stored, string $scope = 'system')
+                                                // $values は欄に出す値（差し戻し込み）、$stored は保存されている値（storedValues() の結果）。
+                                                // テンプレートの一括変更の基準（M3 の自己レビュー）と、段階 3 の条件の判定は $stored を使う
     public function render(): string            // すべての .tab-page の HTML（イベント行ではそのイベントを呼ぶ）
     public function renderTab(array $tab): string // 1 つの .tab-page（M2・M3 で、移したタブだけを描くため）
     public static function definition(): array
     public static function storedValues(): array // DB の system_settings に default.config.php を下敷きにした値（evo()->config の置き換え用）
-    public static function systemValues(): array // storedValues() にパスの置き換えと差し戻しを重ねた、欄に出す値（Decision Log の「値の出どころを 1 つにする」）
+    public static function systemValues(array $stored): array // storedValues() の結果にパスの置き換えと差し戻しを重ねた、欄に出す値（Decision Log の「値の出どころを 1 つにする」。M3 で引数を受ける形にした）
     public static function languages(): array    // [言語名 => 表示名]。lang フォルダの *.inc.php
     public static function languagesHavingKey(string $key): array
     public static function themes(): array
