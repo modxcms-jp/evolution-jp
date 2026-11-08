@@ -73,6 +73,9 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M8）: Apache の `error.log` は `/dev/stderr` へのリンクで、コンテナの中で tail しても何も出ない（止まる）。PHP の警告は `docker logs` で見る。M7 の「error.log に警告なし」はこの確認が無効だったが、M8 で `docker logs` を見て、8.4・7.4 とも Warning・Notice・Deprecated・Fatal が 0 件だった。
 - 2026-11-08（M8）: a=74 の欄は 41 件で main と同じ集まり。値の差は、ユーザーの値が無いときの `manager_inline_style` のテキストエリアにシステム設定の値を出すこと（「システム設定に従う」のチェックは付いたまま、保存の結果は同じ）と、言語の選択肢の並びの 2 件だけ。タブは「プロフィール・管理画面・エディター」になった。`names('profile')` は本体の欄の名前だけを返し、プラグインの欄はセッションで覚える今の仕組みのまま。
 
+- 2026-11-08（段階 3 の自己レビュー）: 高・中なし。プロフィールでセッションに覚える名前をプラグインの欄だけにした（本体の名前を `names('profile')` で除く）、`form-snapshot.js` の 2 つの穴（`#mainPane` にフォームが無いときの `--submit` の判定、隠れたタブの写真）を塞いだ、条件の判定を `isConditionHidden()` の 1 か所にした、文書を書き足した（2a0ba8506・0073ca0a3）。
+- 2026-11-08（段階 3 の自己レビュー）: TinyMCE 7 を無効にして `use_editor=0` にした状態で、a=12・a=74 を main（27c577f60）と比べた。M7 で「未確認」とした、エディターのプラグインが無いときの `which_editor` は、選択肢が「システム設定に従う」だけになり、保存済みの `none` が選択肢に出なかった。行の項目 `fallbackOptions` を足し、ユーザー画面では `none` を選択肢に出すようにして main と同じ表示にした。この状態の a=12・a=74 の欄と、何も変えずに保存・変えて保存した後の `user_settings` は main と同じ（`which_editor=none` も残る）。エディターのタブは、プラグインの出力が無く `use_editor=0` のとき見出しごと隠れる。
+
 ## Decision Log
 
 ユーザーさんと決めたこと（2026-11-05 / yamamoto・Claude）:
@@ -517,7 +520,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'field'・'hiddenBr'・'reloadId'  lang_text の欄の種別（'text' なら input、既定は textarea）・hidden の後ろの <br/>・読み込みの select の id を直接指定（M4 で足した）
       'inline'   radio の選択肢のあいだに <br/> を入れない（M4 で足した）
       label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
-      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'。タブには 'eventScope'（イベントを呼ぶ scope の配列。既定は ['system']。エディターのタブだけ system・user・profile）
+      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'、'fallbackOptions'（options が null のときにユーザー画面で使う選択肢。`which_editor` は ['none' => なし]。グローバル設定では options が null の行は欄を出さない）。タブには 'eventScope'（イベントを呼ぶ scope の配列。既定は ['system']。エディターのタブだけ system・user・profile）
 
 `yesno` は `['1' => lang('yes'), '0' => lang('no')]`、`enabled` は `['1' => lang('enabled'), '0' => lang('disabled')]` の radio の略。`disable_cache_at_login` のように値と表示が逆の行は `radio` で書く。
 
