@@ -5,8 +5,10 @@
     var prevWin;
     var docMode = '[+docMode+]';
 
-    // save tree folder state
-    if (parent.tree) parent.tree.saveFolderState();
+    // ツリーの開閉状態を保存する。ツリーが無い画面（QuickManager の編集など）では何もしない
+    if (window.tree && typeof window.tree.saveFolderState === 'function') {
+        window.tree.saveFolderState();
+    }
 
     Evo.ready(function () {
         // 要素が無い画面（下書きなど）もあるため、あるときだけ結び付ける
@@ -162,8 +164,12 @@
     var allowParentSelection = false;
     var allowLinkSelection = false;
 
+    // 親・リンクはツリーのクリックで選ぶ。ツリーが無い画面（QuickManager の編集など）では何もしない
     function enableLinkSelection(b) {
-        parent.tree.ca = "link";
+        if (!window.tree) {
+            return;
+        }
+        window.tree.ca = "link";
         var closed = "[+style_tree_folder+]";
         var opened = "[+style_icons_set_parent+]";
         if (b) {
@@ -187,7 +193,10 @@
     }
 
     function enableParentSelection(b) {
-        parent.tree.ca = "parent";
+        if (!window.tree) {
+            return;
+        }
+        window.tree.ca = "parent";
         var opened = "[+style_icons_set_parent+]";
         var closed = "[+style_tree_folder+]";
         if (b) {
