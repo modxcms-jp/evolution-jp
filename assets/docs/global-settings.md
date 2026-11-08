@@ -38,6 +38,7 @@
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
 - `default`: 値が無い・空のときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
 - `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、ラジオを切り替えたときには一緒に出し入れされる。ただし初めの表示はサーバーが行の `showIf` で決めるため、プラグインの出力には当たらない
+- タブの中を小見出しで分けるときは、`sections` の section の `title` に `lang('settings_section_…')` を書く。`<h3 class="settings-section">` の次に表が続く形で出る（`null` なら見出しなしの 1 つの表）。見た目は `manager/media/style/common/shell.css` の `.tab-page .settings-section` の 1 つの規則で決まり、テーマには足さない。文言は `label` と同じ信頼する HTML
 - 設定でない欄（hidden など）を足したときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする。設定の欄を足すだけなら触らない
 
 入力エラーで保存が止まって画面に戻ったときの打った値は、`EvoSettingsForm::systemValues()` が行に重ねるので、行ごとの対応は要らない。ただし `password` 型（`smtppw`）は伏せ字のまま。

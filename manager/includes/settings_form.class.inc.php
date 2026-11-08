@@ -185,6 +185,9 @@ final class EvoSettingsForm
         $html = '<div class="tab-page" id="' . hsc($tab['id']) . '">' . "\n"
             . '<h2 class="tab">' . $tab['title'] . "</h2>\n";
         foreach ($tab['sections'] ?? [] as $section) {
+            if (!empty($section['title'])) {
+                $html .= '<h3 class="settings-section">' . $section['title'] . "</h3>\n";
+            }
             $html .= "<table class=\"settings\">\n";
             foreach ($section['rows'] as $row) {
                 $html .= $this->renderRow($row);
