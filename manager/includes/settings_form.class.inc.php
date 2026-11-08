@@ -244,11 +244,7 @@ final class EvoSettingsForm
             hsc($onchange),
             $options
         );
-        $body = "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select;
-        if (!empty($row['warningHeading'])) {
-            return '<td nowrap class="warning" valign="top"><b>' . $label . '</b>' . $body . '</td>';
-        }
-        return '<th>' . $label . $body . '</th>';
+        return '<th>' . $label . "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select . '</th>';
     }
 
     /**
@@ -517,7 +513,9 @@ final class EvoSettingsForm
         $onchange = sprintf(
             "wrap=document.getElementById('template_reset_options_wrapper');"
             . "if((this.options[this.selectedIndex].value|0) != %d)"
-            . "{wrap.style.display='block';}else{wrap.style.display='none';}",
+            . "{wrap.style.display='block';}"
+            // 保存済みの値に戻したときは、一括変更の選択も外す（隠れたラジオが送られて保存の動きが変わらないように）
+            . "else{wrap.style.display='none';wrap.querySelectorAll('input[type=radio]').forEach(function(r){r.checked=false;});}",
             (int)$saved
         );
         // 保存されているテンプレートと違う値で差し戻されたとき（変えた状態で戻ったとき）は、一括変更の選択を初めから出す
