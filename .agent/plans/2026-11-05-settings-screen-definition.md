@@ -458,8 +458,8 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 - ロードマップ: `.agent/roadmap.md` の #1067・#1066 の項目
 - PR は 1 段階を 1 PR にする（Decision Log）。ブランチと PR:
   - 計画: `refactor/1067-settings-screen-definition`（`gh issue develop` で #1067 に紐づけ済み）。ExecPlan のコミットはここに置く
-  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR はまだ）
-  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする）
+  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR #1245）
+  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする。PR #1252）
   - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`
   - 作業ツリーは 3 段階とも `.claude/worktrees/issue-1067` を使い、段階ごとにブランチを切り替える
   - PR の番号は、作ったときにここへ書く
