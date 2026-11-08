@@ -29,7 +29,7 @@ if (!$isShellPartial) {
     <title>Document Tree</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
     <link rel="stylesheet"
-            href="media/style/<?= $manager_theme ?>/style.css?<?= $modx_version ?>"/>
+            href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
     <?= config('manager_inline_style') ?>
     <script src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>"></script>
     <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>"></script>
@@ -432,7 +432,7 @@ if (is_array($evtOut)) {
         }
         ?>
         <div><?= $_style['tree_showtree'] ?>&nbsp;<span class="rootNode"
-                                                                onclick="treeAction(0, <?= hsc(js_literal($site_name)) ?>);"><b><?= hsc($site_name) ?></b></span>
+                                                                onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span>
             <div id="treeRoot"></div>
         </div>
         <?php

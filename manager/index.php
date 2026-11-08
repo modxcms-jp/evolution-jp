@@ -50,8 +50,6 @@ evo()->loadExtension('ManagerAPI');
 
 $modx->getSettings();
 
-extract($modx->config);
-
 // include_once the language file
 $modx->loadLexicon('manager');
 

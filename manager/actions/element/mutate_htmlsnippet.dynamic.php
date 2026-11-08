@@ -378,7 +378,7 @@ if (isset($content['which_editor'])) {
 </script>
 <?php
 // invoke OnRichTextEditorInit event
-if ($use_editor == 1) {
+if (config('use_editor') == 1) {
     $tmp = [
         'editor' => $which_editor,
         'elements' => ['post']

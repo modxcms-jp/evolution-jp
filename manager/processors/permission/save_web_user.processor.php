@@ -488,10 +488,9 @@ function saveWebUserMode()
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
-    global $modx, $websignupemail_message;
-    global $emailsender;
-    global $site_name, $site_url;
-    $message = sprintf($websignupemail_message, $uid, $pwd); // use old method
+    global $modx;
+    $emailsender = config('emailsender');
+    $message = sprintf(config('websignupemail_message'), $uid, $pwd); // use old method
     // replace placeholders
     $ph['username'] = $uid;
     $ph['uid'] = $uid;
@@ -501,9 +500,9 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
     $ph['saddr'] = $emailsender;
     $ph['pwd'] = $pwd;
     $ph['password'] = $pwd;
-    $ph['sname'] = $site_name;
+    $ph['sname'] = config('site_name');
     $ph['semail'] = $emailsender;
-    $ph['surl'] = $site_url;
+    $ph['surl'] = config('site_url');
     $message = $modx->parseText($message, $ph);
     $message = $modx->mergeSettingsContent($message);
     $message = $modx->mergeChunkContent($message);

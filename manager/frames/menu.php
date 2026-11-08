@@ -276,7 +276,7 @@ if (!$isShellPartial) {
 
                 $versionLabelClass = 'supplementalNav__version-label';
                 $versionLabel = htmlspecialchars($modx_version, ENT_QUOTES, $charset);
-                $versionTitle = htmlspecialchars($site_name . ' – ' . $modx_full_appname, ENT_QUOTES, $charset);
+                $versionTitle = htmlspecialchars(config('site_name') . ' – ' . $modx_full_appname, ENT_QUOTES, $charset);
                 $supplementalNavItems[] = sprintf(
                     '<span class="supplementalNav__item supplementalNav__item--version"><span class="%s" title="%s">%s</span></span>',
                     $versionLabelClass,
