@@ -411,3 +411,14 @@ body.evo-shell input.evo-submitting-trigger {
         animation: none;
     }
 }
+
+/* リソースツリーのフォルダの開閉。高さと不透明度は tree.php が付け外しする */
+.treeSlide {
+    transition: height .18s ease-out, opacity .18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .treeSlide {
+        transition: none;
+    }
+}
