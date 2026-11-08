@@ -111,8 +111,9 @@
 - **改善案**: #1067 で設定の定義（`manager/includes/settings_form.definition.inc.php`）ができたら、保存するキーを「定義の設定キー + `default.config.php` のキー + プラグインが宣言したキー」に絞る。プラグインがキーを宣言する口（イベントの戻り値や定義への追加）を先に決める。#1067 では保存の処理を変えないと決めたので、別の課題として扱う
 - **関連ロードマップ**: #1067（設定の定義。非対象として切り出した）
 
-## 表とページ送りの組み方が DataTable の外に残る
+## 表とページ送りの組み方が DataTable の外に残る（解決済み）
 
+- **[解決済] 2026-11-08（#1204）**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消した。以下は当時の記録
 - **発見日**: 2026-11-07
 - **発見元**: 表の部品（DataGrid・MakeTable）を作り直す ExecPlan（`.agent/plans/archive/2026-11-07-data-table-component.md`、#1087）の利用箇所の洗い出し
 - **ファイル**: `manager/includes/paginate.inc.php`（`Paging`）、`manager/actions/report/logging.static.php`、`manager/actions/main/search.static.php`、`manager/actions/report/site_schedule.static.php`、`manager/media/script/tablesort.js`、`assets/plugins/managermanager/libs/OnPluginFormRender.inc.php`

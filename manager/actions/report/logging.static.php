@@ -215,173 +215,172 @@ $icons_path = manager_style_image_path('icons');
         <div class="sectionHeader"><?= lang('mgrlog_qresults') ?></div>
         <div class="sectionBody" id="lyr2">
             <?php
-            if (getv('log_submit')) {
-                // get the selections the user made.
-                $where = [];
-                if (get_intvar('searchuser')) {
-                    $where[] = sprintf("internalKey='%d'", get_intvar('searchuser'));
-                }
-                if (get_intvar('action')) {
-                    $where[] = sprintf('action=%d', get_intvar('action'));
-                }
-                if (get_strvar('itemid')) {
-                    $where[] = sprintf("itemid='%s'", db()->escape(get_strvar('itemid')));
-                }
-                if (get_strvar('itemname')) {
-                    $where[] = sprintf("itemname='%s'", db()->escape(get_strvar('itemname')));
-                }
-                if (get_strvar('message')) {
-                    $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(get_strvar('message')));
-                }
-                // date stuff
-                if (get_strvar('datefrom')) {
-                    $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(get_strvar('datefrom')));
-                }
-                if (get_strvar('dateto')) {
-                    $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(get_strvar('dateto')));
-                }
+            // get the selections the user made.
+            $where = [];
+            if (get_intvar('searchuser')) {
+                $where[] = sprintf("internalKey='%d'", get_intvar('searchuser'));
+            }
+            if (get_intvar('action')) {
+                $where[] = sprintf('action=%d', get_intvar('action'));
+            }
+            if (get_strvar('itemid')) {
+                $where[] = sprintf("itemid='%s'", db()->escape(get_strvar('itemid')));
+            }
+            if (get_strvar('itemname')) {
+                $where[] = sprintf("itemname='%s'", db()->escape(get_strvar('itemname')));
+            }
+            if (get_strvar('message')) {
+                $where[] = sprintf("message LIKE '%%%s%%'", db()->escape(get_strvar('message')));
+            }
+            // date stuff
+            if (get_strvar('datefrom')) {
+                $where[] = sprintf('timestamp > %d', (int)evo()->toTimeStamp(get_strvar('datefrom')));
+            }
+            if (get_strvar('dateto')) {
+                $where[] = sprintf('timestamp < %d', (int)evo()->toTimeStamp(get_strvar('dateto')));
+            }
 
-                // Number of result to display on the page, will be in the LIMIT of the sql query also
-                $int_num_result = get_intvar('nrresults') ?: (int)config('number_of_logs');
-                $int_cur_position = get_intvar('int_cur_position');
+            // Number of result to display on the page, will be in the LIMIT of the sql query also
+            $int_num_result = get_intvar('nrresults') ?: (int)config('number_of_logs');
 
-                // build the sql
-                $total = db()->getValue(
-                    db()->select(
-                        'COUNT(id)',
-                        '[+prefix+]manager_log',
-                        implode(' AND ', $where)
-                    )
-                );
-                $orderby = 'timestamp DESC, id DESC';
+            include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+
+            // 並べ替えのキー => ORDER BY の式（リクエストの値を直接 SQL に入れない）
+            $sortColumns = [
+                'timestamp' => 'timestamp',
+                'action' => 'action',
+                'itemid' => 'itemid',
+                'username' => 'username',
+            ];
+            $linkParams = [
+                'a' => 13,
+                'searchuser' => get_intvar('searchuser') ?: '',
+                'action' => get_intvar('action') ?: '',
+                'itemid' => get_strvar('itemid'),
+                'itemname' => get_strvar('itemname'),
+                'message' => get_strvar('message'),
+                'datefrom' => get_strvar('datefrom'),
+                'dateto' => get_strvar('dateto'),
+                'nrresults' => $int_num_result,
+                'log_submit' => get_strvar('log_submit'),
+            ];
+            $links = DataTableLinks::fromRequest(
+                'index.php',
+                array_filter($linkParams, function ($v) {
+                    return $v !== '';
+                }),
+                array_keys($sortColumns)
+            );
+            $orderby = 'timestamp DESC, id DESC';
+            if ($links->orderby() !== '') {
+                $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
+                $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
+            }
+
+            // build the sql
+            $total = (int)db()->getValue(
+                db()->select(
+                    'COUNT(id)',
+                    '[+prefix+]manager_log',
+                    implode(' AND ', $where)
+                )
+            );
+            if ($total < 1) {
+                echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
+            } else {
+                $pager = new DataTablePager($total, $int_num_result, $links->page());
                 $rs = db()->select(
                     '*',
                     '[+prefix+]manager_log',
                     implode(' AND ', $where),
                     $orderby,
-                    sprintf('%d, %d', $int_cur_position, $int_num_result)
+                    sprintf('%d, %d', $pager->offset(), $pager->limit())
                 );
-                if ($total < 1) {
-                    echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
-                } else {
-                    echo '<p>' . str_replace('href="index.php?a=55"', 'href="index.php?a=55" data-evo-post', lang('mgrlog_sortinst')) . '</p>';
-
-                    include_once(MODX_CORE_PATH . 'paginate.inc.php');
-                    // New instance of the Paging class, you can modify the color and the width of the html table
-                    $extargv = sprintf(
-                        '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s',
-                        urlencode((string)(get_intvar('searchuser') ?: '')),
-                        urlencode((string)(get_intvar('action') ?: '')),
-                        urlencode(get_strvar('itemid')),
-                        urlencode(get_strvar('itemname')),
-                        urlencode(get_strvar('message')),
-                        urlencode(get_strvar('dateto')),
-                        urlencode(get_strvar('datefrom')),
-                        $int_num_result,
-                        urlencode(get_strvar('log_submit'))
-                    );
-                    $p = new Paging($total, $int_cur_position, $int_num_result, $extargv);
-
-                    // Load up the 2 array in order to display result
-                    $array_paging = $p->getPagingArray();
-                    $array_row_paging = $p->getPagingRowArray();
-                    $current_row = (int)($int_cur_position / $int_num_result);
-
-                    // Display the result as you like...
-                    echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);
-                    echo sprintf(' %s %s', lang('paging_to'), $array_paging['upper']);
-                    echo sprintf(' (%s %s)<br />', $array_paging['total'], lang('paging_total'));
-                    $paging = sprintf(
-                        '%s%s%s',
-                        $array_paging['first_link'],
-                        lang('paging_first'),
-                        isset($array_paging['first_link']) ? '</a> ' : ' '
-                    );
-                    $paging .= $array_paging['previous_link'] . lang('paging_prev') . (isset($array_paging['previous_link']) ? "</a> " : " ");
-                    $pagesfound = sizeof($array_row_paging);
-                    if ($pagesfound > 6) {
-                        $start = max(0, min($current_row - 2, $pagesfound - 5));
-                        $end = min($pagesfound - 1, $start + 4);
-                        for ($i = $start; $i <= $end; $i++) {
-                            $paging .= $array_row_paging[$i];
-                        }
-                    } else {
-                        for ($i = 0; $i < $pagesfound; $i++) {
-                            $paging .= $array_row_paging[$i] . "&nbsp;";
-                        }
-                    }
-                    $paging .= sprintf(
-                        '%s%s%s ',
-                        $array_paging['next_link'],
-                        lang('paging_next'),
-                        isset($array_paging['next_link']) ? '</a> ' : ' '
-                    );
-                    $paging .= sprintf(
-                        '%s%s%s</p>',
-                        $array_paging['last_link'],
-                        lang('paging_last'),
-                        isset($array_paging['last_link']) ? '</a> ' : ' '
-                    );
-                    echo $paging;
-            ?>
-                    <script type="text/javascript" src="media/script/tablesort.js"></script>
-                    <table class="sortabletable rowstyle-even" id="table-1">
-                        <thead>
-                            <tr>
-                                <th class="sortable"><b><?= lang('mgrlog_time') ?></b></th>
-                                <th class="sortable"><b><?= lang('mgrlog_action') ?></b></th>
-                                <th class="sortable"><b><?= lang('mgrlog_itemid') ?></b></th>
-                                <th class="sortable"><b><?= lang('mgrlog_username') ?></b></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            // grab the entire log file...
-                            $tpl = <<< EOT
-<tr class="[+class+]">
-	<td>[+datetime+]</td>
-	<td>[[+action+]] [+message+]</td>
-	<td>[+title+]</td>
-	<td><a href="index.php?a=13&searchuser=[+internalKey+]&itemname=0&log_submit=true">[+username+]</a></td>
-</tr>
-EOT;
-                            $logentries = [];
-                            $i = 0;
-                            while ($row = db()->getRow($rs)) {
-                                $row['itemname'] = evo()->hsc($row['itemname']);
-                                $row['username'] = hsc($row['username']);
-                                $row['message'] = hsc($row['message']);
-                                if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
-                                    $row['title'] = '<div style="text-align:center;">-</div>';
-                                } elseif (in_array($row['action'], [3, 27, 5])) {
-                                    $row['title'] = evo()->parseText(
-                                        '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>',
-                                        $row
-                                    );
-                                } else {
-                                    $row['title'] = evo()->parseText('[[+itemid+]] [+itemname+]', $row);
-                                }
-                                $row['class'] = ($i % 2) ? 'even' : '';
-                                $row['datetime'] = evo()->toDateFormat($row['timestamp'] + config('server_offset_time'));
-                                echo evo()->parseText($tpl, $row);
-                                $i++;
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                <?php
-                    echo $paging;
+                $rows = [];
+                while ($row = db()->getRow($rs)) {
+                    $rows[] = $row;
                 }
-                ?>
+
+                echo '<p>' . str_replace('href="index.php?a=55"', 'href="index.php?a=55" data-evo-post', lang('mgrlog_sortinst')) . '</p>';
+
+                // 「X 件目から Y 件目（全 Z 件）」
+                $lower = $pager->offset() + 1;
+                $upper = min($total, $pager->offset() + count($rows));
+                echo sprintf(
+                    '<p>%s %d %s %d (%d %s)</p>',
+                    lang('paging_showing'),
+                    $lower,
+                    lang('paging_to'),
+                    $upper,
+                    $total,
+                    lang('paging_total')
+                );
+
+                $table = new DataTable(
+                    [
+                        [
+                            'key' => 'timestamp',
+                            'label' => lang('mgrlog_time'),
+                            'sort' => 'timestamp',
+                            'format' => function ($value) {
+                                return evo()->toDateFormat($value + config('server_offset_time'));
+                            },
+                        ],
+                        [
+                            'key' => 'action',
+                            'label' => lang('mgrlog_action'),
+                            'sort' => 'action',
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                return sprintf('[%s] %s', hsc($value), hsc($row['message']));
+                            },
+                        ],
+                        [
+                            'key' => 'itemid',
+                            'label' => lang('mgrlog_itemid'),
+                            'sort' => 'itemid',
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                if (!preg_match('/^[1-9][0-9]*$/', (string)$value)) {
+                                    return '-';
+                                }
+                                $label = sprintf('[%s] %s', hsc($value), hsc($row['itemname']));
+                                if (in_array($row['action'], [3, 27, 5])) {
+                                    return sprintf('<a href="index.php?a=3&amp;id=%s">%s</a>', hsc($value), $label);
+                                }
+                                return $label;
+                            },
+                        ],
+                        [
+                            'key' => 'username',
+                            'label' => lang('mgrlog_username'),
+                            'sort' => 'username',
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                return sprintf(
+                                    '<a href="index.php?a=13&amp;searchuser=%s&amp;itemname=0&amp;log_submit=true">%s</a>',
+                                    hsc(urlencode((string)$row['internalKey'])),
+                                    hsc($value)
+                                );
+                            },
+                        ],
+                    ],
+                    ['id' => 'mgrlog', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                );
+                $nav = $pager->render($links, [
+                    'label' => lang('pagination_label'),
+                    'first' => lang('pagination_table_first'),
+                    'last' => lang('pagination_table_last'),
+                ]);
+                echo $nav . $table->render($rows, $links) . $nav;
+            }
+            ?>
         </div>
     </div>
 <?php
-                global $action;
-                $action = 1;
-            } else {
-                echo lang('mgrlog_noquery');
-            }
-        endif;
+    global $action;
+    $action = 1;
+endif;
 
         function array_unique_multi($array, $checkKey)
         {

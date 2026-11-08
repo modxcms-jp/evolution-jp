@@ -141,11 +141,28 @@ if (getv('submitok')) {
         $where[] = '(' . $access . ')';
     }
 
+    include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+
+    // 並べ替えのキー => ORDER BY の式（リクエストの値を直接 SQL に入れない）
+    $sortColumns = ['id' => 'id', 'pagetitle' => 'pagetitle'];
+    $linkParams = ['a' => 71, 'submitok' => get_strvar('submitok')];
+    foreach (['searchid', 'pagetitle', 'longtitle', 'alias', 'url', 'content'] as $name) {
+        if (get_strvar($name) !== '') {
+            $linkParams[$name] = get_strvar($name);
+        }
+    }
+    $links = DataTableLinks::fromRequest('index.php', $linkParams, array_keys($sortColumns));
+    $orderby = 'id';
+    if ($links->orderby() !== '') {
+        $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
+        $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
+    }
+
     $rs = db()->select(
         'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
         '[+prefix+]site_content',
         implode(' and ', $where),
-        'id'
+        $orderby
     );
     $limit = db()->count($rs);
     if (evo()->hasPermission('edit_document')) {
@@ -164,90 +181,111 @@ if (getv('submitok')) {
                 echo lang('search_empty');
             } else {
                 printf('<p>' . lang('search_results_returned_msg') . '</p>', $limit);
-                ?>
-                <script type="text/javascript" src="media/script/tablesort.js"></script>
-                <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-2 rowstyle-even"
-                       id="table-1" width="90%">
-                    <thead>
-                    <tr style="background-color:#cccccc">
-                        <th width="20"></th>
-                        <th class="sortable"><b><?= lang('search_results_returned_id') ?></b></th>
-                        <th class="sortable"><b><?= lang('search_results_returned_title') ?></b></th>
-                        <th class="sortable"><b><?= lang('search_results_returned_desc') ?></b></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    // icons by content type
-                    $icons = [
-                        'application/rss+xml' => style('tree_page_rss'),
-                        'application/pdf' => style('tree_page_pdf'),
-                        'application/vnd.ms-word' => style('tree_page_word'),
-                        'application/vnd.ms-excel' => style('tree_page_excel'),
-                        'text/css' => style('tree_page_css'),
-                        'text/html' => style('tree_page_html'),
-                        'text/plain' => style('tree_page'),
-                        'text/xml' => style('tree_page_xml'),
-                        'text/javascript' => style('tree_page_js'),
-                        'image/gif' => style('tree_page_gif'),
-                        'image/jpg' => style('tree_page_jpg'),
-                        'image/png' => style('tree_page_png')
-                    ];
 
-                    while ($row = db()->getRow($rs)) {
-                        // figure out the icon for the document...
-                        $icon = '';
-                        if ($row['type'] === 'reference') {
-                            $icon .= style('tree_linkgo');
-                        } elseif ($row['isfolder'] == 0) {
-                            $icon .= isset($icons[$row['contenttype']]) ? $icons[$row['contenttype']] : style('tree_page_html');
-                        } else {
-                            $icon .= style('tree_folder');
-                        }
+                // icons by content type
+                $icons = [
+                    'application/rss+xml' => style('tree_page_rss'),
+                    'application/pdf' => style('tree_page_pdf'),
+                    'application/vnd.ms-word' => style('tree_page_word'),
+                    'application/vnd.ms-excel' => style('tree_page_excel'),
+                    'text/css' => style('tree_page_css'),
+                    'text/html' => style('tree_page_html'),
+                    'text/plain' => style('tree_page'),
+                    'text/xml' => style('tree_page_xml'),
+                    'text/javascript' => style('tree_page_js'),
+                    'image/gif' => style('tree_page_gif'),
+                    'image/jpg' => style('tree_page_jpg'),
+                    'image/png' => style('tree_page_png')
+                ];
 
-                        $tdClass = '';
-                        if ($row['published'] == 0) {
-                            $tdClass .= ' class="unpublishedNode"';
-                        }
-                        if ($row['deleted'] == 1) {
-                            $tdClass .= ' class="deletedNode"';
-                        }
-                        ?>
-                        <tr>
-                            <td align="center">
-                                <a href="index.php?a=<?= $action ?>&id=<?= $row['id'] ?>"
-                                   title="<?= lang('search_view_docdata') ?>">
-                                    <img src="<?= $itemicon ?>"/></a>
-                            </td>
-                            <td>
-                                <?php
-                                if ($row['isfolder'] == 1) {
-                                    ?>
-                                    <a href="index.php?a=120&id=<?= $row['id'] ?>"
-                                       title="<?= lang('search_view_docdata') ?>"><img
-                                            src="<?= style('tree_folder') ?>"/></a>
-                                    <?php
-                                }
-                                echo $row['id'];
-                                ?>
-                            </td>
-                            <td<?= $tdClass ?>
-                            <?php
-                            $pagetitle = mb_strlen($row['pagetitle'],
-                                $modx_manager_charset) > 70 ? evo()->hsc(mb_substr($row['pagetitle'], 0, 70,
-                                    $modx_manager_charset)) . "..." : evo()->hsc($row['pagetitle']);
-                            ?>
-                            <img src="<?= $icon ?>"/> <?= $pagetitle ?></td>
-                            <td<?= $tdClass ?>><?= mb_strlen($row['description'],
-                                    $modx_manager_charset) > 70 ? evo()->hsc(mb_substr($row['description'], 0, 70,
-                                        $modx_manager_charset)) . "..." : evo()->hsc($row['description']); ?></td>
-                        </tr>
-                        <?php
+                $rows = [];
+                while ($row = db()->getRow($rs)) {
+                    // figure out the icon for the document...
+                    if ($row['type'] === 'reference') {
+                        $row['icon'] = style('tree_linkgo');
+                    } elseif ($row['isfolder'] == 0) {
+                        $row['icon'] = $icons[$row['contenttype']] ?? style('tree_page_html');
+                    } else {
+                        $row['icon'] = style('tree_folder');
                     }
-                    ?>
-                    </tbody>
-                </table>
-                <?php
+                    $rows[] = $row;
+                }
+
+                // 公開していない・削除済みのリソースは、タイトルと説明の文字の色で示す（削除済みを優先）
+                $wrapNode = function ($html, array $row) {
+                    $class = '';
+                    if ($row['deleted'] == 1) {
+                        $class = 'deletedNode';
+                    } elseif ($row['published'] == 0) {
+                        $class = 'unpublishedNode';
+                    }
+                    return $class === '' ? $html : sprintf('<span class="%s">%s</span>', $class, $html);
+                };
+                $truncate = function ($text) use ($modx_manager_charset) {
+                    $text = (string) $text;
+                    return mb_strlen($text, $modx_manager_charset) > 70
+                        ? hsc(mb_substr($text, 0, 70, $modx_manager_charset)) . '...'
+                        : hsc($text);
+                };
+
+                $table = new DataTable(
+                    [
+                        [
+                            'key' => 'id',
+                            'class' => 'is-center is-shrink',
+                            'html' => true,
+                            'format' => function ($value, array $row) use ($action, $itemicon) {
+                                return sprintf(
+                                    '<a href="index.php?a=%s&amp;id=%d" title="%s"><img src="%s" alt="" /></a>',
+                                    $action,
+                                    (int) $row['id'],
+                                    hsc(lang('search_view_docdata')),
+                                    hsc($itemicon)
+                                );
+                            },
+                        ],
+                        [
+                            'key' => 'id',
+                            'label' => lang('search_results_returned_id'),
+                            'sort' => 'id',
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                $folder = '';
+                                if ($row['isfolder'] == 1) {
+                                    $folder = sprintf(
+                                        '<a href="index.php?a=120&amp;id=%d" title="%s"><img src="%s" alt="" /></a>',
+                                        (int) $row['id'],
+                                        hsc(lang('search_view_docdata')),
+                                        hsc(style('tree_folder'))
+                                    );
+                                }
+                                return $folder . (int) $row['id'];
+                            },
+                        ],
+                        [
+                            'key' => 'pagetitle',
+                            'label' => lang('search_results_returned_title'),
+                            'sort' => 'pagetitle',
+                            'html' => true,
+                            'format' => function ($value, array $row) use ($truncate, $wrapNode) {
+                                return $wrapNode(
+                                    sprintf('<img src="%s" alt="" /> %s', hsc($row['icon']), $truncate($value)),
+                                    $row
+                                );
+                            },
+                        ],
+                        [
+                            'key' => 'description',
+                            'label' => lang('search_results_returned_desc'),
+                            'html' => true,
+                            'format' => function ($value, array $row) use ($truncate, $wrapNode) {
+                                return $wrapNode($truncate($value), $row);
+                            },
+                        ],
+                    ],
+                    ['id' => 'search-results', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                );
+                echo $table->render($rows, $links);
             }
             ?>
         </div>

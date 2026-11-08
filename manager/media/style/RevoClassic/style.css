@@ -1534,37 +1534,6 @@ a.hometblink, a.hometblink img {
     padding: var(--space-4) var(--space-4) var(--space-5) !important;
 }
 
-/* New sortable table class */
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: var(--color-row-even);
-}
-
-.sortabletable td, .sortabletable th {
-    padding: var(--space-2);
-    border: var(--border-thin) solid var(--gray-400);
-}
-
-.sortabletable th {
-    text-align: left;
-    cursor: pointer;
-    color: var(--gray-900);
-}
-
-.sortabletable th a {
-    text-decoration: none;
-    color: var(--gray-900);
-}
-
-.sortabletable th:active {
-    background: var(--gray-400);
-    padding: var(--space-1) var(--space-1) var(--border-thin) var(--space-2);
-}
-
 /* Pagination table */
 #max-display-records {
     margin: var(--space-3) 0;

@@ -2057,37 +2057,6 @@ a.hometblink, a.hometblink img {
     padding: var(--space-4);
 }
 
-/* -------------------------[ New sortable table class ]--- */
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: rgba(234, 252, 207, 0.35);  /* #EAFCCF */
-}
-
-.sortabletable td, .sortabletable th {
-    padding: var(--space-2);
-    border: 1px solid var(--gray-400);
-}
-
-.sortabletable th {
-    text-align: left;
-    cursor: pointer;
-    color: var(--gray-900);
-}
-
-.sortabletable th a {
-    text-decoration: none;
-    color: var(--gray-900);
-}
-
-.sortabletable th:active {
-    background: var(--gray-400);
-    padding: 3px var(--space-1) 1px 6px;
-}
-
 /* -------------------------[ Pagination table ]--- */
 #max-display-records {
     margin: 10px 0;

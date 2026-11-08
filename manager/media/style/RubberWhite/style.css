@@ -1465,36 +1465,6 @@ a.hometblink, a.hometblink img {
    Used in: Resource lists, user management, data grids
    ============================================================================ */
 
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: var(--color-table-even-alt);
-}
-
-.sortabletable td, .sortabletable th {
-    padding: var(--space-2);
-    border: 1px solid var(--color-border-default);
-}
-
-.sortabletable th {
-    text-align: start;
-    cursor: pointer;
-    color: var(--color-text-primary);
-}
-
-.sortabletable th a {
-    text-decoration: none;
-    color: var(--color-text-primary);
-}
-
-.sortabletable th:active {
-    background: var(--color-border-default);
-    padding: 3px 4px 1px 6px;
-}
-
 /* -------------------------[ Pagination table ]--- */
 #max-display-records {
     margin: 10px 0;

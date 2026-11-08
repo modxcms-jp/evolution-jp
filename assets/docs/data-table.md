@@ -26,7 +26,7 @@
     $nav = $pager->render($links, ['label' => lang('pagination_label')]);
     echo $nav . $table->render($rows, $links) . $nav;
 
-`manager/includes/paginate.inc.php` の `Paging` と `manager/media/script/tablesort.js` は新しく使わない（後続の候補は `core-issues.md`）。
+古いページ送り `Paging`（`paginate.inc.php`）とブラウザ側の並べ替え `tablesort.js` は消えた。表とページ送りは `DataTable`・`DataTablePager` を使い、並べ替えは `DataTableLinks` のサーバー側で行う。
 
 ## 列の定義
 
