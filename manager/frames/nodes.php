@@ -66,12 +66,13 @@ if ($expandAll == 1) {
     );
 }
 
-// check for deleted documents on reload
-if ($expandAll == 2) {
+// ツリーの根を描くときは、ゴミ箱に中身があるかの印を付ける。tree.js の rpcLoadData() が根を描き直すたびに
+// この印でゴミ箱のボタンの表示を決めるので、すべて展開・折りたたむ・読み直しのどれでも付ける
+if (get_intvar('parent') === 0) {
     $rs = db()->select('COUNT(id)', '[+prefix+]site_content', 'deleted=1');
     if (db()->getValue($rs) > 0) {
         $output .= '<span id="binFull"></span>';
-    } // add a special element to let system now that the bin is full
+    }
 }
 
 echo $output;
