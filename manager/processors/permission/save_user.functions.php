@@ -296,7 +296,10 @@ function systemSettings()
 function webAlert($msg)
 {
     $mode = saveUserMode();
-    $url = 'index.php?a=' . ($mode ?: 75) . ($mode === 12 ? '&id=' . post_intvar('userid') : '');
+    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], '');
+    $url = 'index.php?a=' . ($mode ?: 75)
+        . ($mode === 12 ? '&id=' . post_intvar('userid') : '')
+        . ($saveAction !== '' ? '&save_action=' . $saveAction : '');
     evo()->manager->saveFormValues($mode);
     evo()->webAlertAndQuit($msg, $url);
 }
