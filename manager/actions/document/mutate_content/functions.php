@@ -1220,6 +1220,22 @@ function resizeImage($imageData, $mimeType, $dimensions)
         return null;
     }
 
+    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
+    $info = @getimagesizefromstring($imageData);
+    if ($info && $info[0] > 0 && $info[1] > 0) {
+        $resize = calculateResizeDimensions($info[0], $info[1], $dimensions);
+        if ($resize === null) {
+            return $imageData;
+        }
+        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $resize[0], $resize[1])) {
+            evo()->logEvent(
+                0, 2, 'Image not resized: not enough memory', 'convertSingleDataUri',
+                ['mime' => $mimeType, 'width' => $info[0], 'height' => $info[1], 'target_width' => $resize[0], 'target_height' => $resize[1], 'memory_limit' => ini_get('memory_limit')]
+            );
+            return null;
+        }
+    }
+
     $sourceImage = @imagecreatefromstring($imageData);
     if ($sourceImage === false) {
         return null;
@@ -1299,8 +1315,8 @@ function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
     $heightRatio = $targetHeight / $originalHeight;
     $ratio = min($widthRatio, $heightRatio);
 
-    $finalWidth = (int)($originalWidth * $ratio);
-    $finalHeight = (int)($originalHeight * $ratio);
+    $finalWidth = max(1, (int)($originalWidth * $ratio));
+    $finalHeight = max(1, (int)($originalHeight * $ratio));
 
     // サイズが変わらない場合はリサイズ不要
     if ($finalWidth == $originalWidth && $finalHeight == $originalHeight) {
