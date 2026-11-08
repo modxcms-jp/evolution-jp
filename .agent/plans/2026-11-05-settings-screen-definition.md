@@ -12,7 +12,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で、写真の切れの警告を 4f5498afd で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [x] (2026-11-08) 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く（e5d1a7dfc。比較は `<work>/branch-m2/`、流すスクリプトは `<work>/run-branch.sh`）
 - [x] (2026-11-08) 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く（d785f7808。比較は `<work>/branch-m3/`。M2 の自己レビューで足した確認（イベントのプラグイン、古い絶対パス、シェルの遷移、英語の画面）も済み。自己レビューの指摘（差し戻した画面でテンプレートの一括変更の基準が打った値にすり替わる）を b31470bac で直し、部品のコンストラクタで保存値 `$stored` を受ける形にした。比較は `<work>/branch-m3b/`）
-- [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
+- [x] (2026-11-08) 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1（727a7b30d・02c7dc209・75b2df9cd。比較は `<work>/branch-m4/`。PHP 7.4 の表示と保存も確かめた）
 - [ ] 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画
 - [ ] 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2
 - [ ] 段階 3・M7: ユーザー編集画面（`a=11`/`a=12`）の設定のタブを同じ定義から描く
@@ -44,6 +44,10 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M3）: `systemValues(array $stored)` にし、`mutate_settings.dynamic.php` で `storedValues()` を 1 回だけ作って `evo()->config` と共有した（`default.config.php` と `system_settings` は 1 回ずつ読む）。
 - 2026-11-08（M3）: 部品に項目を足した。event 行の `padded`（フレンドリーURLのタブの event 行は `td` に `padding:0` が無い）、select の `br`（`modx_charset` は display:block で、後ろの `<br/>` が main に無い）、`xhtml_urls`・`auto_pub_date` の `default => '0'`（main は `!config()` で「いいえ」を選ぶ）。`lang_text` は、空文字を保存した値を main と同じく空のまま出すため、`value()` の「空なら default」を通さず `$values[key] ?? lang(langKey)` にした。
 - 2026-11-08（M3）: M4 の `lang_text` に要る項目: `webpwdreminder_message` の読み込みの select の id は `reload_system_email_webreminder_select` で、`<reload>_select` の規則に合わないので `reloadId` のような項目が要る。`emailsubject`・`captcha_words` などは textarea でなく text で、hidden の後ろに `<br/>` がある。欄の種別と `<br/>` の有無を項目にする。
+- 2026-11-08（M4）: 部品に項目を足した。`topmenu`（入れ子の表で 6 欄、`items => [キー => ラベル]`）、`password`（`type="text"` のまま伏せ字。main と同じ）、`lang_text` の `field => 'text'`（`captcha_words`・`emailsubject`）・`hiddenBr`・`reloadId`、radio の `inline`（`email_method`・`smtp_auth`・`smtp_secure` の横並び）、text の `br => false`、select の options が `null` のとき説明だけを出す（`which_editor`）、`themes()`・`roles()`。Interfaces にあった radio の `value`（`use_captcha` は GD が無ければ 0）は、部品が読んでいなかったので M4 で実装した。
+- 2026-11-08（M4）: `default_role`・`which_editor` の select は main に `size`・`class` が無かったが、部品は `size="1" class="inputBox"` を付ける（画面写真は画素一致）。`send_errormail` の説明に差し込む `emailsender` は、差し戻した後の値になる（Decision Log のとおり）。`error_reporting` などで値がどの選択肢にも合わないとき、部品は `default` を選ぶ（main は何も選ばない。A・B・S では起きない）。
+- 2026-11-08（M4）: 配布の zip は、M1 より前の main（bf3454495）が 1,605,004 バイト、M4 の後が 1,601,986 バイト（−3,018）。Surprises の 2026-11-05 の値（1,571,241）は古く、main は既に 1.5MiB（1,572,864）を超えている（この計画の変更が原因ではない）。PR の本文では bf3454495 との差を書く。
+- 2026-11-08（M4）: PHP 7.4 の確認は、同じ作業ツリーを二重にマウントすると `config.inc.php` とキャッシュを共有して壊すおそれがあるので、`git archive` で書き出したコピーを別の環境（`evo-validate-1067-74`）にマウントして行った。
 - 2026-11-08（M3 の直しの見直し）: テンプレートの一括変更のラジオを選んでから select を保存値に戻すと、wrapper は隠れるがラジオの選択は残って送られる（main も同じ）。差し戻しでラジオに checked を付けたので、起きる場面が増える。onchange で隠すときにラジオの選択も外す直しは、段階 1 の HTML の一致が崩れるので段階 2（M6）で行う。
 - 2026-11-08（M3）: `fixed_site_url` の警告は、差し戻した後の値で判定する（Decision Log の「差し戻しを全行に重ねる」のとおり。C では差が出なかった）。
 - 2026-11-08（M3）: イベントのプラグイン（`OnMiscSettingsRender`・`OnSystemSettingsRender`）の欄の位置と保存、DB に絶対パスで入った古い `rb_base_dir` の表示（許す違いの 3）、シェルの遷移での条件の行の切り替え、英語の画面を確かめた。main の基準は、M1 より前の merge のコミット（bf3454495）の別のワークツリーと別の検証環境（`evo-validate-1067m`・127.0.0.6）で取った。M1 より前のコードには `form-snapshot.js` が無いので、作業ツリーのスクリプトで流す。
