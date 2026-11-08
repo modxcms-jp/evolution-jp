@@ -70,16 +70,154 @@
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
         });
 
+        // 前の画面（シェルの遷移では同じ window で JS が読み直される）の自動更新の後始末
+        if (typeof window.evoPreviewCleanup === 'function') window.evoPreviewCleanup();
+        window.evoPreviewCleanup = null;
+
+        // プレビューの状態は画面ごと（この関数の中）に持つ。別の文書へ移ったら持ち越さない
+        var previewKey = null;      // 最後に受け取った下書きのキー（次の送信で使い回す）
+        var previewWin = null;      // この画面から開いたプレビューの窓
+        var autoOn = false;         // 窓を開いた後の自動更新が有効か
+        var autoTimer = null;
+        var autoSending = false;
+        var autoPending = false;    // 送信中に変更があった
+        var AUTO_DELAY = 1500;
+        var previewMutate = document.getElementById('mutate');
+
+        // 編集中の内容を a=309 へ送る。{url, changed（キーが新しくなったか）} を解決する
+        function postPreviewDraft() {
+            // エディタの内容をフォームへ書き戻す（保存の submit でも同じ書き戻しが走る）
+            if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+                window.tinymce.triggerSave();
+            }
+            var fd = new FormData(previewMutate);
+            fd.set('a', 309);
+            if (previewKey) fd.set('preview_key', previewKey);
+            // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
+            return Evo.post('index.php', fd)
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data || !data.url) throw new Error('no url');
+                    var key = data.key || null;
+                    var changed = !key || key !== previewKey;
+                    previewKey = key;
+                    return { url: data.url, changed: changed };
+                });
+        }
+
+        function stopAuto() {
+            autoOn = false;
+            autoPending = false;
+            if (autoTimer) clearTimeout(autoTimer);
+            autoTimer = null;
+        }
+
+        function previewWinOpen() {
+            try {
+                return !!previewWin && !previewWin.closed;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function reloadPreview(result) {
+            if (result.changed) {
+                previewWin.location.href = result.url;
+                return;
+            }
+            try {
+                // URL が同じなら再読み込み（スクロールの位置はブラウザが保つ）
+                previewWin.location.reload();
+            } catch (err) {
+                // 別のオリジンで location に触れないとき
+                previewWin.location.href = result.url;
+            }
+        }
+
+        function scheduleAuto() {
+            if (!autoOn) return;
+            if (!previewMutate.isConnected || !previewWinOpen()) {
+                stopAuto();
+                return;
+            }
+            if (autoSending) {
+                autoPending = true;
+                return;
+            }
+            if (autoTimer) clearTimeout(autoTimer);
+            autoTimer = setTimeout(sendAuto, AUTO_DELAY);
+        }
+
+        function sendAuto() {
+            autoTimer = null;
+            if (!autoOn) return;
+            if (!previewMutate.isConnected || !previewWinOpen()) {
+                stopAuto();
+                return;
+            }
+            autoSending = true;
+            autoPending = false;
+            postPreviewDraft()
+                .then(function (result) {
+                    autoSending = false;
+                    if (!autoOn || !previewMutate.isConnected || !previewWinOpen()) {
+                        stopAuto();
+                        return;
+                    }
+                    reloadPreview(result);
+                    if (autoPending) {
+                        autoPending = false;
+                        scheduleAuto();
+                    }
+                })
+                .catch(function (err) {
+                    // 入力のたびに出さないよう alert は出さない。手動の「プレビュー」で通常どおり知らせる
+                    autoSending = false;
+                    autoPending = false;
+                    console.warn('preview auto update failed', err);
+                });
+        }
+
+        // 編集の変更を拾う（自動更新が有効なときだけ送られる）。プレビューを開ける編集画面だけで結び付ける
+        if ([+preview_mode+] == 1 && previewMutate && '[+id+]' && '[+id+]' !== '0') {
+            ['input', 'change', 'ddmultiple:change'].forEach(function (type) {
+                previewMutate.addEventListener(type, scheduleAuto);
+            });
+            // 保存（や他の送信）で画面が移るので、自動更新を止める
+            previewMutate.addEventListener('submit', stopAuto);
+
+            var bindEditor = function (ed) {
+                if (!ed || ed.evoPreviewBound || typeof ed.on !== 'function') return;
+                ed.evoPreviewBound = true;
+                ed.on('input change undo redo', scheduleAuto);
+            };
+            var onAddEditor = function (ev) {
+                bindEditor(ev && ev.editor);
+            };
+            var tiny = window.tinymce;
+            if (tiny && typeof tiny.on === 'function') {
+                (tiny.editors || []).forEach(bindEditor);
+                tiny.on('AddEditor', onAddEditor);
+            }
+            window.evoPreviewCleanup = function () {
+                stopAuto();
+                if (tiny && typeof tiny.off === 'function') tiny.off('AddEditor', onAddEditor);
+            };
+        }
+
         onClick('preview', function (e) {
             // 従来の return false と同じく、既定の動作と伝播を止める
             e.preventDefault();
             e.stopPropagation();
             // 同じ名前の窓が開いていれば window.open がそれを返すので、閉じずに使い回す
             var previewUrl = [+preview_url+];
-            var mutate = document.getElementById('mutate');
+            var mutate = previewMutate;
             var pmode = [+preview_mode+];
             if (pmode != 1 || !mutate || !'[+id+]' || '[+id+]' === '0') {
-                // 保存済みの内容を見る（新規作成のときもここ）。mgr_preview（管理画面からのプレビュー）=1 で保存済みの内容を見る
+                // 保存済みの内容を見る（新規作成のときもここ）。自動更新はしない。mgr_preview（管理画面からのプレビュー）=1 で保存済みの内容を見る
                 previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'mgr_preview=1';
                 prevWin = window.open(previewUrl, 'prevWin');
                 if (!prevWin) {
@@ -98,6 +236,11 @@
                 return;
             }
             var win = prevWin;
+            previewWin = win;
+            // 手動の送信と自動の送信がぶつからないよう、待っている自動の送信は取り消す
+            if (autoTimer) clearTimeout(autoTimer);
+            autoTimer = null;
+            autoPending = false;
             // 使い回しの窓の中身（前のプレビュー）は消さない。何も表示していない新しい窓だけ、失敗や画面の移動で閉じる
             var closeBlank = function () {
                 try {
@@ -108,28 +251,18 @@
             };
             // セッション切れでログインへ移るとき（Evo.fetch は Promise を解決しない）、空の窓を残さない
             window.addEventListener('pagehide', closeBlank, { once: true });
-            // エディタの内容をフォームへ書き戻す（保存の submit でも同じ書き戻しが走る）
-            if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
-                window.tinymce.triggerSave();
-            }
-            var fd = new FormData(mutate);
-            fd.set('a', 309);
             var failed = function () {
                 window.removeEventListener('pagehide', closeBlank);
                 closeBlank();
                 alert([+lang_error_occurred+]);
             };
-            // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
-            Evo.post('index.php', fd)
-                .then(function (response) {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    return response.json();
-                })
-                .then(function (data) {
-                    if (!data || !data.url) throw new Error('no url');
+            postPreviewDraft()
+                .then(function (result) {
                     window.removeEventListener('pagehide', closeBlank);
-                    win.location.href = data.url;
+                    win.location.href = result.url;
                     win.focus();
+                    // 窓が開いている間は、編集の変更を自動で反映する
+                    autoOn = true;
                 })
                 .catch(failed);
         });
