@@ -1450,7 +1450,6 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: 0 var(--space-1) -1px 0;
-    float: left;
     padding: 10px var(--space-4) 9px;
     z-index: 1;
     position: relative;
@@ -1535,8 +1534,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
-    /* float のタブを包み、下線をタブの下に引く */
-    display: flow-root;
+    /* タブを折り返して並べ、下線をタブの下に引く */
+    display: flex;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--color-card-border);
 }
 

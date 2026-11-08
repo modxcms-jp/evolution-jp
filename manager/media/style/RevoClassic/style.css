@@ -1389,7 +1389,6 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: var(--space-1) var(--space-1) var(--border-thin) 0;
-    float: left;
     padding: var(--space-2) var(--space-4);
     z-index: 1;
     position: relative;
@@ -1466,6 +1465,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
+    /* タブが増えても折り返して、段違いにならないようにする */
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .dynamic-tab-pane-control ul {

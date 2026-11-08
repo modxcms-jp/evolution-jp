@@ -1499,7 +1499,6 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: 0 var(--space-1) -1px 0;
-    float: left;
     padding: 8px 16px;
     z-index: 1;
     position: relative;
@@ -1512,7 +1511,6 @@ a.hometblink:hover {
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
     margin: 0 0 -1px var(--space-1);
-    float: right;
     padding: 8px 16px;
 }
 
@@ -1595,8 +1593,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
-    /* float のタブを包み、下線をタブの下に引く */
-    display: flow-root;
+    /* タブを折り返して並べ、下線をタブの下に引く */
+    display: flex;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--color-frame);
 }
 
