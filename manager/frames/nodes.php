@@ -332,6 +332,7 @@ function tplPageNode()
 	style="white-space: nowrap;"
 ><div>[+spacer+][+pad+]<img
 	id="p[+id+]"
+	align="absmiddle"
 	title="[+_lang_click_to_context+]"
 	style="cursor: pointer"
 	src="[+icon+]"
@@ -359,12 +360,14 @@ function tplFopenNode()
     $src = <<< EOT
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
 	id="s[+id+]"
+	align="absmiddle"
 	style="cursor:pointer;"
 	src="[+_style_tree_minusnode+]"
 	onclick="toggleNode(this,[+indent+],[+id+],0,[+private_status+]); return false;"
 	oncontextmenu="this.onclick(event); return false;"
 />&nbsp;<img
 	id="f[+id+]"
+	align="absmiddle"
 	title="[+_lang_click_to_context+]"
 	style="cursor: pointer"
 	src="[+icon+]"
@@ -392,6 +395,7 @@ function tplFcloseNode()
     $src = <<< EOT
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
 	id="s[+id+]"
+	align="absmiddle"
 	style="cursor: pointer"
 	src="[+_style_tree_plusnode+]"
 	onclick="toggleNode(this,[+indent+],[+id+],0,[+private_status+]); return false;"
@@ -399,6 +403,7 @@ function tplFcloseNode()
 />&nbsp;<img
 	id="f[+id+]"
 	title="[+_lang_click_to_context+]"
+	align="absmiddle"
 	style="cursor: pointer"
 	src="[+icon+]"
 	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
@@ -626,12 +631,12 @@ function moreNode($indent, $parent, $offset, $remaining)
 
 function tplMoreNode()
 {
-    return '<div class="moreNode" style="white-space:nowrap;">[+spacer+]<img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
+    return '<div class="moreNode" style="white-space:nowrap;">[+spacer+]<img align="absmiddle" src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()
 {
-    return '<div style="white-space:nowrap;">[+spacer+]<img src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
+    return '<div style="white-space:nowrap;">[+spacer+]<img align="absmiddle" src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
 
 }
 

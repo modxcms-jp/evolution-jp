@@ -2,7 +2,6 @@
  * 管理画面シェルレイアウト (frameset代替)
  * 上部メニュー / 左ツリー / メインコンテンツをCSS Gridで配置する。
  * テーマのstyle.cssより後に読み込み、配置に関する指定だけを上書きする。
- * リソースツリーの行(div#node… > div の1つめ)もここで揃える(全テーマ共通)。
  * 寸法は header.inc.php が出力するCSS変数 (--shell-menu-height / --shell-tree-width) で制御する。
  */
 
@@ -411,16 +410,4 @@ body.evo-shell input.evo-submitting-trigger {
         content: none;
         animation: none;
     }
-}
-
-/* リソースツリーの行: アイコンと文字を行の高さの中央にそろえる。
-   vertical-align: middle は欧文の x の高さが基準で、日本語の文字に対してアイコンが下がって見える */
-#treeRoot div[id^="node"] > div:first-child {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-}
-
-#treeRoot div[id^="node"] > div:first-child > * {
-    flex: none;
 }
