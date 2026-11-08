@@ -766,6 +766,7 @@ function getJScripts($docid)
         'confirm_resource_duplicate',
         'illegal_parent_self',
         'illegal_parent_child',
+        'error_occurred',
     ];
     foreach ($langKeys as $key) {
         $ph['lang_' . $key] = js_literal(stripcslashes(lang($key)));
@@ -805,16 +806,10 @@ function file_get_tpl($path)
 
 function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit)
 {
-    // セッションにトークンを保存してプレビューで使用できるようにする
-    if (!sessionv('token')) {
-        sessionv('*token', bin2hex(random_bytes(32)));
-    }
-
     return [
         'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
-        'token' => sessionv('token'),
         'upload_maxsize' => (int) config('upload_maxsize', 32 * 1024 * 1024),
         'mode' => manager()->action,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,

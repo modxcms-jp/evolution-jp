@@ -75,31 +75,39 @@
             if (prevWin && !prevWin.closed) {
                 prevWin.close();
             }
-            
+
             var previewUrl = [+preview_url+];
-            // z=manprev パラメータを追加してプレビューモードを有効化
-            previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
-            
-            prevWin = window.open(previewUrl, 'prevWin');
+            var mutate = document.getElementById('mutate');
             var pmode = [+preview_mode+];
-            if (pmode == 1) {
-                // プレビュー送信後は元の状態へ戻す。target が残ると以後の保存が
-                // シェルを経由しないネイティブ送信になり、別タブへ遷移してしまう
-                var mutate = document.getElementById('mutate');
-                if (mutate) {
-                    var orgAction = mutate.getAttribute('action');
-                    var orgTarget = mutate.getAttribute('target');
-                    mutate.setAttribute('action', previewUrl);
-                    mutate.setAttribute('target', 'prevWin');
-                    mutate.requestSubmit();
-                    mutate.setAttribute('action', orgAction);
-                    if (orgTarget === null) {
-                        mutate.removeAttribute('target');
-                    } else {
-                        mutate.setAttribute('target', orgTarget);
-                    }
-                }
+            if (pmode != 1 || !mutate || !'[+id+]' || '[+id+]' === '0') {
+                // 保存済みの内容を見る（新規作成のときもここ）。z=manprev でプレビューモードにする
+                previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
+                prevWin = window.open(previewUrl, 'prevWin');
+                return;
             }
+
+            // 編集中の内容を見る。ポップアップブロックを避けるため、窓はクリックの時点で先に開く
+            prevWin = window.open('', 'prevWin');
+            // エディタの内容をフォームへ書き戻す（保存の submit でも同じ書き戻しが走る）
+            if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
+                window.tinymce.triggerSave();
+            }
+            var fd = new FormData(mutate);
+            fd.set('a', 309);
+            var failed = function () {
+                if (prevWin && !prevWin.closed) prevWin.close();
+                alert([+lang_error_occurred+]);
+            };
+            Evo.post('index.php?a=309', fd)
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data || !data.url) throw new Error('no url');
+                    prevWin.location.href = data.url;
+                })
+                .catch(failed);
         });
         onClick('cancel', function () {
             var docIsFolder = '[+docIsFolder+]';

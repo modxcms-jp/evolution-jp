@@ -272,6 +272,19 @@ class DocumentParser
         }
     }
 
+    /**
+     * プレビューのリクエストか。管理画面にログイン中で、GET の preview（下書き）か revision（リビジョン）があるとき。
+     * ログインしていなければ preview は無視し、通常どおりに扱う。
+     * プレビューの内容はページキャッシュに混ぜない（読まない・書かない）ので、cache_type=0 にする判断に使う。
+     */
+    private function isPreviewRequest()
+    {
+        if (!$this->isLoggedIn()) {
+            return false;
+        }
+        return get_strvar('preview') !== '' || get_strvar('revision') !== '';
+    }
+
     public function executeParser()
     {
         ob_start();
@@ -279,7 +292,7 @@ class DocumentParser
 
         $this->http_status_code = '200';
 
-        if (serverv('REQUEST_METHOD') === 'POST') {
+        if (serverv('REQUEST_METHOD') === 'POST' || $this->isPreviewRequest()) {
             $GLOBALS['cache_type'] = 0;
         }
 
@@ -309,7 +322,7 @@ class DocumentParser
         }
         $this->uri_parent_dir = $_;
 
-        if (serverv('REQUEST_METHOD') === 'POST') {
+        if (serverv('REQUEST_METHOD') === 'POST' || $this->isPreviewRequest()) {
             $this->config['cache_type'] = 0;
             $GLOBALS['cache_type'] = 0;
         }
@@ -3695,23 +3708,18 @@ class DocumentParser
             }
         }
 
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && post_intvar('id')) {
-            $postToken = post_strvar('token');
-            $sessionToken = $this->session('token');
-
-            if (!$postToken || !$sessionToken || $postToken !== $sessionToken) {
+        if ($this->isLoggedIn() && $mode === 'prepareResponse' && get_strvar('preview') !== '') {
+            // プレビュー用の下書き（a=309 が置いたもの）。保存済みの内容を黙って出さない
+            $previewObject = $this->loadPreviewDraft(get_strvar('preview'), $identifier);
+            if ($previewObject === false) {
                 $this->logEvent(
                     0,
-                    3,
-                    "Preview failed: Token validation failed. POST token=" . ($postToken ? 'exists' : 'missing') .
-                    ", Session token=" . ($sessionToken ? 'exists' : 'missing'),
-                    'Preview Token Validation Failed'
+                    2,
+                    'Preview failed: draft not found, expired or for another document. id=' . (int)$identifier,
+                    'Preview Draft Not Found'
                 );
                 exit('Can not preview');
             }
-
-            $previewObject = $this->getPreviewObject($_POST);
-            $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
             $this->previewObject = $previewObject;
         } elseif (get_strvar('revision')) {

@@ -779,6 +779,9 @@ switch (manager()->action) {
     case 308: // HTML export job (JSON)
         include_once($prc_path . 'export_site.processor.php');
         break;
+    case 309: // preview draft (JSON)
+        include_once($prc_path . 'document/preview_draft.processor.php');
+        break;
     case 94: // get the duplicate processor
         include_once($prc_path . 'document/duplicate_content.processor.php');
         break;
