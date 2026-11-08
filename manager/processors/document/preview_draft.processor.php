@@ -38,7 +38,7 @@ try {
     previewDraftJson(['error' => lang('error_occurred')], 500);
 }
 
-$url .= (strpos($url, '?') === false ? '?' : '&') . 'mgr_preview=' . $key;
+$url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query(['mgr_preview' => $key]);
 previewDraftJson(['url' => $url]);
 
 function previewDraftJson(array $data, $status = 200)
