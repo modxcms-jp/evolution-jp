@@ -6,7 +6,6 @@
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
 return [
-    // まだ定義に移していないタブは 'legacy' に今のタブのファイル名だけを持つ（mutate_settings.dynamic.php が読む）
     [
         'id' => 'tabPage2',
         'title' => lang('settings_site'),
@@ -372,8 +371,482 @@ return [
             ],
         ],
     ],
-    ['id' => 'tabPage4', 'title' => lang('settings_users'), 'legacy' => 'tab3_user_settings.inc.php'],
-    ['id' => 'tabPage5', 'title' => lang('settings_ui'), 'legacy' => 'tab4_manager_settings.inc.php'],
+    [
+        'id' => 'tabPage4',
+        'title' => lang('settings_users'),
+        'sections' => [
+            [
+                'title' => null,
+                'rows' => [
+                    [
+                        'key' => 'use_udperms',
+                        'type' => 'yesno',
+                        'label' => lang('udperms_title'),
+                        'desc' => lang('udperms_message'),
+                    ],
+                    [
+                        'key' => 'udperms_allowroot',
+                        'type' => 'yesno',
+                        'label' => lang('udperms_allowroot_title'),
+                        'desc' => lang('udperms_allowroot_message'),
+                        'showIf' => ['use_udperms', '1'],
+                    ],
+                    [
+                        'key' => 'tree_show_protected',
+                        'type' => 'yesno',
+                        'label' => lang('tree_show_protected'),
+                        'desc' => lang('tree_show_protected_message'),
+                        'showIf' => ['use_udperms', '1'],
+                    ],
+                    [
+                        'key' => 'default_role',
+                        'type' => 'select',
+                        'label' => lang('default_role_title'),
+                        'options' => static function () {
+                            return EvoSettingsForm::roles();
+                        },
+                        'br' => false,
+                        'desc' => '<div>' . lang('default_role_message') . '</div>',
+                    ],
+                    [
+                        'key' => 'allow_mgr2web',
+                        'type' => 'yesno',
+                        'label' => lang('allow_mgr2web_title'),
+                        'desc' => lang('allow_mgr2web_message'),
+                    ],
+                    [
+                        'key' => 'failed_login_attempts',
+                        'type' => 'text',
+                        'size' => 3,
+                        'label' => lang('failed_login_title'),
+                        'desc' => lang('failed_login_message'),
+                    ],
+                    [
+                        'key' => 'blocked_minutes',
+                        'type' => 'text',
+                        'size' => 7,
+                        'label' => lang('blocked_minutes_title'),
+                        'desc' => lang('blocked_minutes_message'),
+                    ],
+                    [
+                        'key' => 'error_reporting',
+                        'type' => 'radio',
+                        'label' => lang('a17_error_reporting_title'),
+                        'options' => [
+                            '0' => lang('a17_error_reporting_opt0'),
+                            '1' => lang('a17_error_reporting_opt1'),
+                            '2' => lang('a17_error_reporting_opt2'),
+                            '99' => lang('a17_error_reporting_opt99'),
+                        ],
+                        'default' => '1',
+                        'desc' => lang('a17_error_reporting_msg'),
+                    ],
+                    [
+                        'key' => 'send_errormail',
+                        'type' => 'radio',
+                        'label' => lang('send_errormail_title'),
+                        'options' => [
+                            '0' => lang('send_errormail_none'),
+                            '3' => 'error',
+                            '2' => 'error + warning',
+                            '1' => 'error + warning + information',
+                        ],
+                        'default' => '0',
+                        // 送信者は DB の値なので hsc() する
+                        'desc' => static function (array $values) {
+                            return evo()->parseText(
+                                lang('send_errormail_message'),
+                                ['emailsender' => hsc($values['emailsender'] ?? '')]
+                            );
+                        },
+                    ],
+                    [
+                        'key' => 'warning_visibility',
+                        'type' => 'radio',
+                        'label' => lang('warning_visibility'),
+                        'options' => [
+                            '0' => lang('administrators'),
+                            '2' => lang('a17_warning_opt2'),
+                            '1' => lang('everybody'),
+                        ],
+                        'desc' => lang('warning_visibility_message'),
+                    ],
+                    [
+                        'key' => 'use_captcha',
+                        'type' => 'yesno',
+                        'label' => lang('captcha_title'),
+                        // GD が無いと、どちらのラジオも選べず「いいえ」になる
+                        'disabled' => !extension_loaded('gd'),
+                        'value' => static function (array $values) {
+                            return extension_loaded('gd') ? (string)($values['use_captcha'] ?? '') : '0';
+                        },
+                        'desc' => lang('captcha_message'),
+                    ],
+                    [
+                        'key' => 'captcha_words',
+                        'type' => 'lang_text',
+                        'field' => 'text',
+                        'label' => lang('captcha_words_title'),
+                        'desc' => lang('captcha_words_message'),
+                        'langKey' => 'captcha_words_default',
+                        'reload' => 'reload_captcha_words',
+                        'id' => 'captcha_words_input',
+                        'attr' => ['style' => 'width:400px'],
+                        'hiddenBr' => true,
+                        'showIf' => ['use_captcha', '1'],
+                    ],
+                    [
+                        'key' => 'emailsender',
+                        'type' => 'text',
+                        'label' => lang('emailsender_title'),
+                        'desc' => lang('emailsender_message'),
+                    ],
+                    [
+                        'key' => 'email_method',
+                        'type' => 'radio',
+                        'label' => lang('email_method_title'),
+                        'options' => ['mail' => lang('email_method_mail'), 'smtp' => lang('email_method_smtp')],
+                        'default' => 'mail',
+                        'inline' => true,
+                        'desc' => '<br/>',
+                    ],
+                    [
+                        'key' => 'modxmailer_log',
+                        'type' => 'yesno',
+                        'label' => lang('modxmailer_log_title'),
+                        'default' => '0',
+                        'desc' => lang('modxmailer_log_message'),
+                    ],
+                    [
+                        'key' => 'smtp_auth',
+                        'type' => 'yesno',
+                        'label' => lang('smtp_auth_title'),
+                        'default' => '0',
+                        'inline' => true,
+                        'desc' => '<br/>',
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'smtp_host',
+                        'type' => 'text',
+                        'label' => lang('smtp_host_title'),
+                        'default' => 'smtp.example.com',
+                        'attr' => ['style' => 'width: 250px;'],
+                        'br' => false,
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'smtp_port',
+                        'type' => 'text',
+                        'label' => lang('smtp_port_title'),
+                        'default' => '25',
+                        'attr' => ['style' => 'width: 250px;'],
+                        'br' => false,
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'smtp_username',
+                        'type' => 'text',
+                        'label' => lang('smtp_username_title'),
+                        // 既定は送信者のメールアドレス
+                        'default' => static function (array $values) {
+                            return (string)($values['emailsender'] ?? '');
+                        },
+                        'attr' => ['style' => 'width: 250px;'],
+                        'br' => false,
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'smtppw',
+                        'type' => 'password',
+                        'label' => lang('smtp_password_title'),
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'smtp_secure',
+                        'type' => 'radio',
+                        'label' => lang('smtp_secure_title'),
+                        'options' => ['' => lang('none'), 'ssl' => 'ssl', 'tls' => 'tls'],
+                        'default' => '',
+                        'inline' => true,
+                        'showIf' => ['email_method', 'smtp'],
+                    ],
+                    [
+                        'key' => 'emailsubject',
+                        'type' => 'lang_text',
+                        'field' => 'text',
+                        'label' => lang('emailsubject_title'),
+                        'desc' => lang('emailsubject_message'),
+                        'langKey' => 'emailsubject_default',
+                        'reload' => 'reload_emailsubject',
+                        'id' => 'emailsubject_field',
+                        'hiddenBr' => true,
+                    ],
+                    [
+                        'key' => 'signupemail_message',
+                        'type' => 'lang_text',
+                        'label' => lang('signupemail_title'),
+                        'desc' => lang('signupemail_message'),
+                        'langKey' => 'system_email_signup',
+                        'reload' => 'reload_signupemail_message',
+                        'id' => 'signupemail_message_textarea',
+                        'attr' => ['style' => 'width:100%; height: 120px;'],
+                        'warningHeading' => true,
+                        'hiddenBr' => true,
+                    ],
+                    [
+                        'key' => 'websignupemail_message',
+                        'type' => 'lang_text',
+                        'label' => lang('websignupemail_title'),
+                        'desc' => lang('websignupemail_message'),
+                        'langKey' => 'system_email_websignup',
+                        'reload' => 'reload_websignupemail_message',
+                        'id' => 'websignupemail_message_textarea',
+                        'attr' => ['style' => 'width:100%; height: 120px;'],
+                        'warningHeading' => true,
+                        'hiddenBr' => true,
+                    ],
+                    [
+                        'key' => 'webpwdreminder_message',
+                        'type' => 'lang_text',
+                        'label' => lang('webpwdreminder_title'),
+                        'desc' => lang('webpwdreminder_message'),
+                        'langKey' => 'system_email_webreminder',
+                        'reload' => 'reload_system_email_webreminder_message',
+                        'reloadId' => 'reload_system_email_webreminder_select',
+                        'id' => 'system_email_webreminder_textarea',
+                        'attr' => ['style' => 'width:100%; height: 120px;'],
+                        'warningHeading' => true,
+                        'hiddenBr' => true,
+                    ],
+                    [
+                        'key' => 'enable_bindings',
+                        'type' => 'yesno',
+                        'label' => lang('enable_bindings_title'),
+                        'desc' => lang('enable_bindings_message'),
+                    ],
+                    ['type' => 'event', 'name' => 'OnUserSettingsRender'],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'tabPage5',
+        'title' => lang('settings_ui'),
+        'sections' => [
+            [
+                'title' => null,
+                'rows' => [
+                    [
+                        'key' => 'manager_theme',
+                        'type' => 'select',
+                        'label' => lang('manager_theme'),
+                        'options' => static function () {
+                            return EvoSettingsForm::themes();
+                        },
+                        'desc' => lang('manager_theme_message'),
+                    ],
+                    [
+                        'key' => 'manager_inline_style',
+                        'type' => 'textarea',
+                        'label' => lang('a17_manager_inline_style_title'),
+                        'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
+                        'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
+                    ],
+                    [
+                        'key' => 'manager_language',
+                        'type' => 'select',
+                        'label' => lang('language_title'),
+                        'options' => static function () {
+                            return EvoSettingsForm::languages();
+                        },
+                        'desc' => lang('language_message'),
+                    ],
+                    [
+                        'key' => 'manager_docs_orderby',
+                        'type' => 'text',
+                        'label' => lang('manager_docs_orderby_title'),
+                        'attr' => ['style' => 'width:500px;'],
+                        'br' => false,
+                        'desc' => '<p>' . lang('manager_docs_orderby_message') . '</p>',
+                    ],
+                    [
+                        'key' => 'tree_pane_open_default',
+                        'type' => 'radio',
+                        'label' => lang('tree_pane_open_default_title'),
+                        'options' => ['1' => lang('open'), '0' => lang('close')],
+                        'desc' => lang('tree_pane_open_default_message'),
+                    ],
+                    [
+                        'type' => 'topmenu',
+                        'label' => lang('topmenu_items_title'),
+                        'items' => [
+                            'topmenu_site' => lang('site'),
+                            'topmenu_element' => lang('elements'),
+                            'topmenu_security' => lang('users'),
+                            'topmenu_user' => lang('user'),
+                            'topmenu_tools' => lang('tools'),
+                            'topmenu_reports' => lang('reports'),
+                        ],
+                        'desc' => lang('topmenu_items_message'),
+                    ],
+                    [
+                        'key' => 'limit_by_container',
+                        'type' => 'text',
+                        'size' => 4,
+                        'label' => lang('limit_by_container'),
+                        'desc' => lang('limit_by_container_message'),
+                    ],
+                    [
+                        'key' => 'tree_page_click',
+                        'type' => 'radio',
+                        'label' => lang('tree_page_click'),
+                        'options' => [
+                            '27' => lang('edit_resource'),
+                            '3' => lang('doc_data_title'),
+                            'auto' => lang('tree_page_click_option_auto'),
+                        ],
+                        'desc' => lang('tree_page_click_message'),
+                    ],
+                    [
+                        'key' => 'remember_last_tab',
+                        'type' => 'radio',
+                        'label' => lang('remember_last_tab'),
+                        'options' => [
+                            '2' => lang('yes') . ' (Full)',
+                            '1' => lang('yes') . ' (Stay mode)',
+                            '0' => lang('no'),
+                        ],
+                        'desc' => lang('remember_last_tab_message'),
+                    ],
+                    [
+                        'key' => 'resource_tree_sortby_default',
+                        'type' => 'select',
+                        'label' => lang('setting_resource_tree_sortby_default'),
+                        // 表示は [*値*]（今の画面のまま）
+                        'options' => [
+                            'isfolder' => '[*isfolder*]',
+                            'pagetitle' => '[*pagetitle*]',
+                            'id' => '[*id*]',
+                            'menuindex' => '[*menuindex*]',
+                            'createdon' => '[*createdon*]',
+                            'editedon' => '[*editedon*]',
+                        ],
+                        'desc' => lang('setting_resource_tree_sortby_default_desc'),
+                    ],
+                    [
+                        'key' => 'resource_tree_node_name',
+                        'type' => 'select',
+                        'label' => lang('setting_resource_tree_node_name'),
+                        'options' => [
+                            'pagetitle' => '[*pagetitle*]',
+                            'menutitle' => '[*menutitle*]',
+                            'alias' => '[*alias*]',
+                            'createdon' => '[*createdon*]',
+                            'editedon' => '[*editedon*]',
+                            'publishedon' => '[*publishedon*]',
+                        ],
+                        'desc' => lang('setting_resource_tree_node_name_desc'),
+                    ],
+                    [
+                        'key' => 'manager_treepane_trim_title',
+                        'type' => 'yesno',
+                        'label' => lang('manager_treepane_trim_title'),
+                        'desc' => lang('manager_treepane_trim_title_message'),
+                    ],
+                    [
+                        'key' => 'top_howmany',
+                        'type' => 'text',
+                        'size' => 3,
+                        'label' => lang('top_howmany_title'),
+                        'desc' => lang('top_howmany_message'),
+                    ],
+                    [
+                        'key' => 'datepicker_offset',
+                        'type' => 'text',
+                        'size' => 5,
+                        'label' => lang('datepicker_offset'),
+                        'desc' => lang('datepicker_offset_message'),
+                    ],
+                    [
+                        'key' => 'datetime_format',
+                        'type' => 'select',
+                        'label' => lang('datetime_format'),
+                        'options' => [
+                            'dd-mm-YYYY' => 'dd-mm-YYYY',
+                            'mm/dd/YYYY' => 'mm/dd/YYYY',
+                            'YYYY/mm/dd' => 'YYYY/mm/dd',
+                        ],
+                        'desc' => lang('datetime_format_message'),
+                    ],
+                    [
+                        'key' => 'number_of_logs',
+                        'type' => 'text',
+                        'size' => 3,
+                        'label' => lang('nologentries_title'),
+                        'desc' => lang('nologentries_message'),
+                    ],
+                    [
+                        'key' => 'automatic_optimize',
+                        'type' => 'yesno',
+                        'label' => lang('automatic_optimize_table_title'),
+                        'desc' => lang('automatic_optimize_table_message'),
+                    ],
+                    [
+                        'key' => 'number_of_results',
+                        'type' => 'text',
+                        'size' => 5,
+                        'label' => lang('noresults_title'),
+                        'desc' => lang('noresults_message'),
+                    ],
+                    [
+                        'key' => 'use_editor',
+                        'type' => 'yesno',
+                        'label' => lang('use_editor_title'),
+                        'desc' => lang('use_editor_message'),
+                    ],
+                    [
+                        'key' => 'which_editor',
+                        'type' => 'select',
+                        'label' => lang('which_editor_title'),
+                        // エディターのプラグインが無ければ null（欄を出さず説明だけを出す）
+                        'options' => static function () {
+                            $editors = evo()->invokeEvent('OnRichTextEditorRegister');
+                            if (!is_array($editors)) {
+                                return null;
+                            }
+                            $options = ['none' => lang('none')];
+                            foreach ($editors as $editor) {
+                                $options[$editor] = $editor;
+                            }
+                            return $options;
+                        },
+                        'desc' => lang('which_editor_message'),
+                        'showIf' => ['use_editor', '1'],
+                    ],
+                    [
+                        'key' => 'fe_editor_lang',
+                        'type' => 'select',
+                        'label' => lang('fe_editor_lang_title'),
+                        'options' => static function () {
+                            return EvoSettingsForm::languages();
+                        },
+                        'desc' => lang('fe_editor_lang_message'),
+                        'showIf' => ['use_editor', '1'],
+                    ],
+                    [
+                        'key' => 'editor_css_path',
+                        'type' => 'text',
+                        'label' => lang('editor_css_path_title'),
+                        'attr' => ['style' => 'width:400px;'],
+                        'desc' => lang('editor_css_path_message'),
+                        'showIf' => ['use_editor', '1'],
+                    ],
+                    ['type' => 'event', 'name' => 'OnInterfaceSettingsRender'],
+                ],
+            ],
+        ],
+    ],
     [
         'id' => 'tabPage7',
         'title' => lang('settings_misc'),

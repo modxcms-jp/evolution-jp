@@ -13,6 +13,9 @@ final class EvoSettingsForm
     /** パスの設定は、設置先の絶対パスをこの置き換え文字で保存する */
     const BASE_PATH_TOKEN = '[(base_path)]';
 
+    /** SMTP のパスワードは値を出さず、この伏せ字を出す（保存の処理がこの値を無視する） */
+    const PASSWORD_MASK = '********************';
+
     /** @var array */
     private $tabs;
     /** @var array */
@@ -111,6 +114,37 @@ final class EvoSettingsForm
     }
 
     /**
+     * 管理画面のテーマ [テーマ名 => 表示名]。manager/media/style/*\/style.php があるもの
+     */
+    public static function themes(): array
+    {
+        $themes = [];
+        foreach (glob(MODX_MANAGER_PATH . 'media/style/*/style.php') ?: [] as $file) {
+            $name = basename(dirname($file));
+            $themes[$name] = ucwords(str_replace('_', ' ', $name));
+        }
+        return $themes;
+    }
+
+    /**
+     * ユーザーのロール [id => 名前]（id 1 の管理者を除く）
+     */
+    public static function roles(): array
+    {
+        $rs = db()->select(
+            'id, name',
+            '[+prefix+]user_roles',
+            'id!=1',
+            'save_role DESC, new_role DESC, id ASC'
+        );
+        $roles = [];
+        while ($role = db()->getRow($rs)) {
+            $roles[$role['id']] = $role['name'];
+        }
+        return $roles;
+    }
+
+    /**
      * 言語キーを自分のファイルに持つ言語 [言語名 => 表示名]
      */
     public static function languagesHavingKey(string $key): array
@@ -201,8 +235,9 @@ final class EvoSettingsForm
             js_literal($row['id'])
         );
         $select = sprintf(
-            '<select name="%1$s" id="%1$s_select" onchange="%2$s">%3$s</select>',
+            '<select name="%s" id="%s" onchange="%s">%s</select>',
             hsc($reload),
+            hsc($row['reloadId'] ?? "{$reload}_select"),
             hsc($onchange),
             $options
         );
@@ -231,13 +266,22 @@ final class EvoSettingsForm
                 return $this->resolve($row['before'] ?? '')
                     . $this->textInput($row)
                     . $this->resolve($row['after'] ?? '')
-                    . '<br/>' . $this->resolve($row['desc'] ?? '');
+                    . (($row['br'] ?? true) ? '<br/>' : '') . $this->resolve($row['desc'] ?? '');
             case 'textarea':
                 return $this->textarea($row) . $this->resolve($row['desc'] ?? '');
             case 'select':
-                return $this->select($row)
+                $field = $this->select($row);
+                if ($field === '') {
+                    // 選択肢が無い（options が null）ときは、欄を出さず説明だけを出す
+                    return $this->resolve($row['desc'] ?? '');
+                }
+                return $field
                     . (($row['br'] ?? true) ? '<br/>' : '')
                     . $this->resolve($row['desc'] ?? '');
+            case 'password':
+                return $this->password($row);
+            case 'topmenu':
+                return $this->topmenu($row);
             case 'path':
                 return $this->path($row);
             case 'lang_text':
@@ -328,14 +372,16 @@ final class EvoSettingsForm
         if (!is_array($options)) {
             return '';
         }
-        $current = $this->value($row['key']);
+        $current = isset($row['value'])
+            ? (string)$this->resolve($row['value'])
+            : $this->value($row['key']);
         if (!array_key_exists($current, $options) && isset($row['default'])) {
             $current = (string)$this->resolve($row['default']);
         }
         $html = '';
         foreach ($options as $value => $label) {
             $html .= sprintf(
-                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label><br/>',
+                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label>' . (!empty($row['inline']) ? '' : '<br/>'),
                 hsc($row['key']),
                 hsc((string)$value),
                 (string)$value === $current ? ' checked="checked"' : '',
@@ -356,16 +402,54 @@ final class EvoSettingsForm
         // 初期文面の hidden（confirmLangChange() が、欄が初期文面のままかを見るのに読む）
         $hiddenName = substr($langKey, -8) === '_default' ? $langKey : $langKey . '_default';
         $value = $this->values[$key] ?? lang($langKey);
+        $value = is_scalar($value) ? (string)$value : '';
+        $attr = $this->attributes(['id' => $row['id']] + ($row['attr'] ?? []));
+        if (($row['field'] ?? 'textarea') === 'text') {
+            $field = sprintf(
+                '<input type="text" name="%s" value="%s" maxlength="255"%s /><br/>',
+                hsc($key),
+                hsc($value),
+                $attr
+            );
+        } else {
+            $field = sprintf('<textarea name="%s"%s>%s</textarea>', hsc($key), $attr, hsc($value));
+        }
+        return $field . "\n"
+            . sprintf(
+                '<input type="hidden" name="%s" id="%s_hidden" value="%s" />',
+                hsc($hiddenName),
+                hsc($langKey),
+                hsc(lang($langKey))
+            ) . "\n"
+            . (!empty($row['hiddenBr']) ? '<br/>' : '')
+            . $this->resolve($row['desc'] ?? '');
+    }
+
+    /**
+     * SMTP のパスワード。保存されている値は出さず、伏せ字を出す
+     */
+    private function password(array $row): string
+    {
         return sprintf(
-            '<textarea name="%s"%s>%s</textarea>' . "\n"
-            . '<input type="hidden" name="%s" id="%s_hidden" value="%s" />' . "\n",
-            hsc($key),
-            $this->attributes(['id' => $row['id']] + ($row['attr'] ?? [])),
-            hsc(is_scalar($value) ? (string)$value : ''),
-            hsc($hiddenName),
-            hsc($langKey),
-            hsc(lang($langKey))
-        ) . $this->resolve($row['desc'] ?? '');
+            '<input type="text" name="%s" maxlength="255" value="%s" autocomplete="off"%s />',
+            hsc($row['key']),
+            self::PASSWORD_MASK,
+            $this->attributes($row['attr'] ?? ['style' => 'width: 250px;'])
+        ) . "\n" . $this->resolve($row['desc'] ?? '');
+    }
+
+    /**
+     * 上部メニューの項目名（1 行の中の入れ子の表に、項目ごとの欄を並べる）
+     */
+    private function topmenu(array $row): string
+    {
+        $html = '<table>';
+        foreach ($row['items'] as $key => $label) {
+            $html .= '<tr><td>' . $label . '</td><td>'
+                . $this->textInput(['key' => $key, 'attr' => ['style' => 'width:350px;']])
+                . "</td></tr>\n";
+        }
+        return $html . '</table><div>' . $this->resolve($row['desc'] ?? '') . '</div>';
     }
 
     /**
