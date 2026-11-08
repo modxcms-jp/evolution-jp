@@ -43,6 +43,28 @@
 
 入力エラーで保存が止まって画面に戻ったときの打った値は、`EvoSettingsForm::systemValues()` が行に重ねるので、行ごとの対応は要らない。ただし `password` 型（`smtppw`）は伏せ字のまま。
 
+### ユーザー編集画面・プロフィールにも出す行
+
+ユーザーごとに変えられる設定（`user_settings` に入る）は、同じ行をユーザー編集画面（`a=11`・`a=12`）とプロフィール（`a=74`）でも描く。画面側は手書きせず、`new EvoSettingsForm(EvoSettingsForm::definition(), <そのユーザーの値>, EvoSettingsForm::storedValues(), 'user')`（プロフィールは `'profile'`）の `render()` を出す。`<そのユーザーの値>` は差し戻し込みの値、`storedValues()` はシステム設定の値（条件の判定と「システム設定に従う」の先の値）。`table.settings` の共通の見た目は `EvoSettingsForm::style()` を出す。
+
+行の項目:
+
+- `scope`: その行を出す画面の配列（`system`・`user`・`profile`。既定は `['system']`）。ユーザーに変えさせる行に `user`・`profile` を足す。ユーザーにしか無い設定（`manager_login_startup`）は `['user', 'profile']` だけにする
+- `userDefault`: `true` にすると、「システム設定に従う」のチェックボックス `default_<キー>` を付ける。ユーザーの値が無いときにチェックが付き、差し戻した画面では送ったときのチェックを優先する。保存の処理の `$defaults`（`save_user.functions.php` の `saveUserSettings()`）にも同じキーが要る
+- `userAttr`: user・profile のときだけ欄に足す属性（`attr` に重なる）
+- `userValue`: user・profile の欄の値を決める関数 `function (array $values, array $stored): string`（`$values` はそのユーザーの値、`$stored` はシステム設定）。ユーザーの値が無いときにシステム設定の値を見せたいときに使う
+- `userDesc`: user・profile のときの説明（`desc` の代わり）
+- タブの `eventScope`: そのタブの `event` を呼ぶ画面の配列（既定は `['system']`）。エディターのタブだけ `['system', 'user', 'profile']`（`OnInterfaceSettingsRender` の欄をユーザー画面にも出す）
+
+user・profile の描き方（グローバル設定との違い）:
+
+- その scope の行だけを、グローバル設定と同じタブ名・小見出し・順で出す。行の無い小見出しとタブは出さない
+- 条件の行（`showIf`）は、システム設定の値で初めから出すか隠すかだけを決め、切り替えはしない。小見出しの行がすべて隠れるときは小見出しと表も隠し、タブの中がすべて隠れるときはタブの見出しも隠す。行は送るために残す（保存は送られた値から作り直すので、送らないと設定が消える）
+- `select` の先頭に「システム設定に従う」（値は空）を足し、空の値を `default` で補わない。`path` 型は既定値の表示とリセットの無い文字の欄になる
+- `$names = EvoSettingsForm::names('profile')` は、その scope に出す設定キー。プロフィールで保存してよい名前（`save_user.functions.php` の `profileSettingNames()`）は、これにプラグインの欄の名前（画面を表示したときにセッションへ覚える）を足したもの
+
+ユーザー画面のタブ構成: `a=12` は 管理画面（表示）・エディター・ファイル（ファイルピッカー・ファイルマネージャー・アップロード）、`a=74` は 管理画面（表示）・エディター。ユーザーごとに変えられない行（HTML エクスポート、システム全体の設定）は出ない。
+
 ## 4. 設定値の反映
 
 - **新規インストール**: `default.config.php` の値が自動的に使用される
@@ -64,7 +86,7 @@
 | `settingsTabEditor` | エディター（`settings_editor`） | なし | `OnInterfaceSettingsRender` |
 | `settingsTabFiles` | ファイル（`settings_files`） | ファイルピッカー・ファイルマネージャー・アップロード・HTMLエクスポート | `OnMiscSettingsRender` |
 
-- ユーザー編集画面（`a=12`）の設定のタブの見出しも同じ言語キーを使う（`settings_ui`・`settings_files`）。プロフィール（`a=74`）は `settings_ui` だけ
+- ユーザー編集画面（`a=12`）とプロフィール（`a=74`）の設定のタブも、同じ定義から同じタブ名・小見出し・順で描く（`a=12` は管理画面・エディター・ファイル、`a=74` は管理画面・エディター）。行の書き方は「3. 設定画面への表示」の「ユーザー編集画面・プロフィールにも出す行」
 - 設定を足すときは、行の役割に合うタブと小見出しに置く。合うものが無ければ小見出しを足す（`settings_section_…` を日本語と英語の言語ファイルの両方に足す）
 - `OnSiteSettingsRender` はサイトのタブで 1 回だけ呼ぶ。プラグインの欄は同じフォームで送られ、同じ保存の処理で `system_settings` に入る
 - `showIf` の初めの表示はサーバーが行で決めるが、`functions.js` が読み込み時にも 1 回、ラジオの選択に合わせて `data-show-if` の要素を出し入れする。プラグインの出力（TinyMCE 7 の表など）も、`use_editor` が「いいえ」なら初めから隠れる
