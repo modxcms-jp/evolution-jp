@@ -42,4 +42,4 @@ if ($truncateTarget) {
     }
 }
 
-header('Location: index.php?a=' . request_intvar('mode') . '&tab=4');
+header('Location: index.php?a=' . request_intvar('mode'));
