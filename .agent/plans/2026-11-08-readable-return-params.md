@@ -9,7 +9,7 @@
 - [x] (2026-11-09) M0: 着手前の確認。Issue 本文と範囲が一致。#1278・#1285 は main にマージ済み、#1279（PR #1293）をブランチに取り込み済み。取りこぼしの grep で `refresh_site.dynamic.php` の `doRefresh(1)` と `assets/docs/manager-shell.md` を足した。修正前の戻り先を 308 行記録した（基準 0f915fda1。要約は Artifacts and Notes）
 - [x] (2026-11-09) M1: `EvoFormFlow` を作り、要素 6 種・Web ユーザー・ロールの processor と差し戻しを移した（2676fc4d2）。送る値は変えず、M1 の範囲 131 行が修正前の記録と完全一致、範囲外も差なし、PHP・JS のエラー 0。その後 main を取り込み（376cce09c）
 - [x] (2026-11-09) M2: 保存後の行き先を `after_save=new|stay|close` にそろえる（旧名の `stay`・`save_action` を置き換える。要素・文書・下書き・管理ユーザー・Web ユーザー）。タブの記憶を設定に従わせる（bf25d6698、自己レビューの低の手当て ad1965086。修正前の記録と旧名→新名の置き換えで突き合わせて一致し、違いは計画どおりの変更だけ。tester の独立の確認 7 項目すべて PASS: 差し戻しの入力値と選択 12 件、選択欄 19 画面・テーマ 7 種・権限による出し分け、未保存の警告、タブの記憶 30 件、文書の既定の記憶、user_settings に行ができない、エラー 0。自己レビューは高・中なし）
-- [ ] M3: 新規か更新かの `mode` を `new` / `edit` / `profile` にする
+- [x] (2026-11-09) M3: 新規か更新かの `mode` を `new` / `edit` / `profile` にする（d92153e03、自己レビューの低の手当て 2c3538fcc。M2 の記録と突き合わせ、保存後の Location と差し戻しの URL は文書-7（a=4 で種類をウェブリンクにして差し戻すと a=72）を除いて同じ、hidden の mode の違いは計画どおり。tester の確認 6 項目すべて PASS: 各画面の hidden の mode、文書-7 の入力の復元、文書・ウェブリンク・下書きの保存と採用の DB の値、プロフィールと管理ユーザー、旧い番号の拒否、エラー 0。自己レビューは高なし、中はリリースノートの文案の漏れで Interfaces に反映）
 - [ ] M4: `r` を `refresh` にし、`dv` を消す。再読み込みの受け口を `EvoShell.refresh()` 1 つにする
 - [ ] M5: テーブルの最適化・中身の削除の戻り先 `mode` を `from` にする（#1278 はマージ済み）
 - [ ] M6: ドキュメント・リリースノート・最終確認
@@ -395,7 +395,7 @@ Docker の検証環境（`adaptive-validation-runner` スキルの手順で起�
 リリースノートに書くこと（互換を壊す変更）:
 
 - 編集画面から保存の processor へ送る保存後の行き先のキーが `after_save` になり、値は `new`（続けて新規作成）・`stay`（この画面）・`close`（閉じる）になる（文書の下書きは、ほかに `save_draft` / `save_standby`）。旧名のキー `stay`（要素・Web ユーザーの `1` / `2`、文書の `new` / `stay` / `close`）と、管理ユーザーの `save_action`（`next` / `stay` / `close`）は受けない。保存後の URL の行き先も `after_save=…` になる。選択欄の `id="stay"` は変わらないので、テーマの CSS の `select#stay` はそのまま効く。行き先を送らないときは、どの画面も「閉じる」になる（管理ユーザーは今まで新規の画面だった）。
-- 新規か更新かを表す `mode` の値が、画面の番号（77 / 78 など）から `new` / `edit`（プロフィールは `profile`）になる。保存の processor へ直接 POST するコードは直す必要がある。`custom_tpl_dir` に置いた文書の画面のテンプレートは `[+mode+]` のままでよい。
+- 新規か更新かを表す `mode` の値が、画面の番号（77 / 78 など）から `new` / `edit`（プロフィールは `profile`）になる。保存の processor へ直接 POST するコードは直す必要がある。プラグインやサイトの JS で POST の `mode`（画面の番号。`$_POST['mode'] == 27` や `document.mutate.mode.value` など）を見ていた場合も、エラーにならずに別の分岐へ入るので直す必要がある。新規か更新かはイベントの引数 `mode`（`new` / `upd`）か POST の `mode`（`new` / `edit`）で、文書かウェブリンクかは `type` で判断する。下書きの画面の `mode` は空になる。旧い番号で送ると保存しない。`custom_tpl_dir` に置いた文書の画面のテンプレートは `[+mode+]` のままでよい。
 - 保存後の URL の再読み込みの引数 `r`（1・2・3・9・10）が `refresh`（`tree` / `menu` / `all` / `page`）になる。`dv` は無くなる。古い URL をブックマークしていても、読み直しが起きないだけでエラーにはならない。
 - JS の `top.mainMenu.reloadPane(n)` と、画面の `doRefresh(n)` が無くなる。ツリーやメニューを読み直すモジュールは `EvoShell.refresh('tree')` などを使う。
 - テーブルの最適化・中身の削除（`a=54`）の戻り先の引数 `mode` が `from`（`sysinfo` / `bkmanager`）になる。
