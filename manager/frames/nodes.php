@@ -35,7 +35,7 @@ if (request_strvar('tree_sortdir')) {
     $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
 }
 
-global $opened, $opened2, $closed2;
+global $opened, $opened2;
 
 if (sessionv('openedArray')) {
     $openedArray = sessionv('openedArray');
@@ -47,7 +47,6 @@ if (sessionv('openedArray')) {
     $opened = [];
 }
 $opened2 = [];
-$closed2 = [];
 
 $expandAll = get_intvar('expandAll');
 
@@ -58,6 +57,14 @@ if (get_strvar('offset') !== '') {
 }
 
 $output = getNodes(get_intvar('indent'), get_intvar('parent'), $expandAll);
+
+// すべて展開したときは、開いたフォルダの ID を返す。tree.js の expandTree() が開閉状態（openedArray）に入れて保存する
+if ($expandAll == 1) {
+    $output .= sprintf(
+        '<span hidden data-tree-opened="%s"></span>',
+        implode(',', array_map('intval', $opened2))
+    );
+}
 
 // check for deleted documents on reload
 if ($expandAll == 2) {
@@ -72,7 +79,7 @@ echo $output;
 function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
 {
     global $modx;
-    global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2;
+    global $_style, $modx_textdir, $_lang, $opened, $opened2;
 
     if ($parent == '') {
         $parent = 0;
@@ -296,22 +303,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                     $ph,
                     $id
                 );
-                $closed2[] = $id;
             }
-        }
-        // store vars in Javascript
-        $a = [];
-        if ($expandAll == 1 && !empty($opened2)) {
-            foreach ($opened2 as $d) {
-                $a[] = sprintf('parent.openedArray[%d] = 1;', $d);
-            }
-        } elseif ($expandAll == 0 && !empty($closed2)) {
-            foreach ($closed2 as $d) {
-                $a[] = sprintf('parent.openedArray[%d] = 0;', $d);
-            }
-        }
-        if (!empty($a)) {
-            $output .= '<script type="text/javascript">' . "\n" . implode("\n", $a) . "\n</script>";
         }
     endwhile;
 
