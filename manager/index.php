@@ -494,8 +494,8 @@ switch (manager()->action) {
                 return;
             }
             // ツリーとメニューはシェルの部品で、単独のページとしては動かない（メニューやツリーの操作が互いを前提にしている）。
-            // URL を直接開いた・古いブックマークなどの全体の読み込みは、シェルのトップへ送る
-            if (!$isPaneRequest && $frame !== 'nodes' && serverv('HTTP_X_REQUESTED_WITH') !== 'XMLHttpRequest') {
+            // シェルの断片の要求（shell.js の reloadPartial）以外は、シェルのトップへ送る（URL を直接開いた・古いブックマークなど）
+            if (!$isPaneRequest && $frame !== 'nodes') {
                 header('Location: ' . MODX_MANAGER_URL);
                 exit;
             }

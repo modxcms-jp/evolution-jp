@@ -5,8 +5,10 @@
     var prevWin;
     var docMode = '[+docMode+]';
 
-    // save tree folder state
-    if (parent.tree) parent.tree.saveFolderState();
+    // ツリーの開閉状態を保存する。ツリーが無い画面（QuickManager の編集など）では何もしない
+    if (window.tree && typeof window.tree.saveFolderState === 'function') {
+        window.tree.saveFolderState();
+    }
 
     Evo.ready(function () {
         // 要素が無い画面（下書きなど）もあるため、あるときだけ結び付ける
