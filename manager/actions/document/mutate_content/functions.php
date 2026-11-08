@@ -1100,9 +1100,11 @@ function convertSingleDataUri($dataUri, $docid, $dimensions = null)
     }
 
     // 画像のリサイズ処理
+    $isResized = false;
     if ($dimensions && strpos($mimeType, 'image/') === 0) {
-        $resized = resizeImage($fileData, $mimeType, $dimensions);
+        $resized = resizeImage($fileData, $mimeType, $dimensions, $docid);
         if ($resized !== null) {
+            $isResized = $resized !== $fileData;
             $fileData = $resized;
         }
     }
@@ -1116,10 +1118,10 @@ function convertSingleDataUri($dataUri, $docid, $dimensions = null)
     $logMsg = sprintf('Data URI converted: %s -> %s (size: %d bytes)',
         $mimeType, $savedPath, strlen($fileData)
     );
-    if ($dimensions) {
-        $logMsg .= sprintf(' [resized to %dx%d]',
-            $dimensions['width'] ?? 'auto',
-            $dimensions['height'] ?? 'auto'
+    if ($isResized) {
+        $logMsg .= sprintf(' [resized, requested %sx%s]',
+            !empty($dimensions['width']) ? $dimensions['width'] : 'auto',
+            !empty($dimensions['height']) ? $dimensions['height'] : 'auto'
         );
     }
     evo()->logEvent(0, 1, $logMsg, 'convertSingleDataUri');
@@ -1212,12 +1214,29 @@ function saveDataUriFile($data, $extension, $docid)
  * @param string $imageData 元の画像データ
  * @param string $mimeType MIME タイプ
  * @param array $dimensions ['width' => int, 'height' => int]
+ * @param int $docid ドキュメント ID（ログ用）
  * @return string|null リサイズ後の画像データ または null
  */
-function resizeImage($imageData, $mimeType, $dimensions)
+function resizeImage($imageData, $mimeType, $dimensions, $docid)
 {
     if (!function_exists('imagecreatefromstring')) {
         return null;
+    }
+
+    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
+    $info = @getimagesizefromstring($imageData);
+    if ($info && $info[0] > 0 && $info[1] > 0) {
+        $resize = calculateResizeDimensions($info[0], $info[1], $dimensions);
+        if ($resize === null) {
+            return $imageData;
+        }
+        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $resize[0], $resize[1])) {
+            evo()->logEvent(
+                0, 2, 'Image not resized: not enough memory', 'convertSingleDataUri',
+                ['docid' => $docid, 'mime' => $mimeType, 'width' => $info[0], 'height' => $info[1], 'target_width' => $resize[0], 'target_height' => $resize[1], 'memory_limit' => ini_get('memory_limit')]
+            );
+            return null;
+        }
     }
 
     $sourceImage = @imagecreatefromstring($imageData);
@@ -1272,19 +1291,16 @@ function resizeImage($imageData, $mimeType, $dimensions)
  */
 function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
 {
-    if (!isset($dimensions['width']) && !isset($dimensions['height'])) {
+    // 0 は「指定なし」とみなす
+    $requestedWidth = !empty($dimensions['width']) ? $dimensions['width'] : null;
+    $requestedHeight = !empty($dimensions['height']) ? $dimensions['height'] : null;
+    if ($requestedWidth === null && $requestedHeight === null) {
         return null;
     }
 
-    $targetWidth = $dimensions['width'] ?? $originalWidth;
-    $targetHeight = $dimensions['height'] ?? $originalHeight;
-
-    // アスペクト比を維持
-    if (!isset($dimensions['width'])) {
-        $targetWidth = (int)($originalWidth * ($targetHeight / $originalHeight));
-    } elseif (!isset($dimensions['height'])) {
-        $targetHeight = (int)($originalHeight * ($targetWidth / $originalWidth));
-    }
+    // 指定の無い側はアスペクト比から求める（丸めずに小数のまま比べる）
+    $targetWidth = $requestedWidth ?? $originalWidth * ($requestedHeight / $originalHeight);
+    $targetHeight = $requestedHeight ?? $originalHeight * ($requestedWidth / $originalWidth);
 
     // 拡大しない（縮小のみ）
     if ($targetWidth >= $originalWidth && $targetHeight >= $originalHeight) {
@@ -1292,15 +1308,10 @@ function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
     }
 
     // 指定サイズに収める（アスペクト比維持）
-    $targetWidth = min($targetWidth, $originalWidth);
-    $targetHeight = min($targetHeight, $originalHeight);
+    $ratio = min($targetWidth / $originalWidth, $targetHeight / $originalHeight, 1);
 
-    $widthRatio = $targetWidth / $originalWidth;
-    $heightRatio = $targetHeight / $originalHeight;
-    $ratio = min($widthRatio, $heightRatio);
-
-    $finalWidth = (int)($originalWidth * $ratio);
-    $finalHeight = (int)($originalHeight * $ratio);
+    $finalWidth = max(1, (int)round($originalWidth * $ratio));
+    $finalHeight = max(1, (int)round($originalHeight * $ratio));
 
     // サイズが変わらない場合はリサイズ不要
     if ($finalWidth == $originalWidth && $finalHeight == $originalHeight) {

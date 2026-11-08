@@ -52,7 +52,7 @@ foreach ($dir as $filename) {
                 </a>
             </li>
             <li id="Button5" class="mutate">
-                <a href="#" onclick="document.location.href='index.php?a=2';">
+                <a href="#" onclick="EvoShell.go('index.php?a=2');">
                     <?= lang('cancel') ?>
                 </a>
             </li>

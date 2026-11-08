@@ -11,6 +11,7 @@
 
     window.EvoShell = {
         navigate: navigate,
+        go: navigate,
         submit: function (form) {
             if (form && typeof form.submit === 'function') {
                 form.submit();

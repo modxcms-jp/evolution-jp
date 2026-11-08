@@ -174,7 +174,7 @@ echo get_jscript($id, $cm);
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
             echo sprintf($tpl, 'Button6', $prev,
                 $id == 0 ? $_lang["view_site"] : $_lang['view_resource']);
-            $action = "documentDirty=false;document.location.href='" . getReturnAction($current) . "'";
+            $action = "EvoShell.go('" . getReturnAction($current) . "', {discard: true});";
             echo sprintf($tpl, 'Button5', $action, $_lang['cancel']);
             ?>
         </ul>
@@ -379,13 +379,6 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 .disable {color:#777;}
 </style>
 <script type="text/javascript">
-    function gotoResourceListUrl(url) {
-        if (window.EvoShell) {
-            EvoShell.navigate(url);
-        } else {
-            window.location.href = url;
-        }
-    }
     function duplicatedocument() {
         if (confirm({$js_confirm_resource_duplicate}) == true) {
             EvoCsrf.post("index.php?id={$id}&a=94");
@@ -397,10 +390,10 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         }
     }
     function editdocument() {
-        gotoResourceListUrl("index.php?id={$id}&a=27");
+        EvoShell.go("index.php?id={$id}&a=27");
     }
     function movedocument() {
-        gotoResourceListUrl("index.php?id={$id}&a=51");
+        EvoShell.go("index.php?id={$id}&a=51");
     }
 
     // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
@@ -418,8 +411,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 
     function menuAction(a) {
         let id = selectedItem;
-        // シェルではAJAX遷移、未ロード時(単独表示)はフルリロードへフォールバック
-        const gotoUrl = gotoResourceListUrl;
+        const gotoUrl = EvoShell.go;
         switch(a) {
             case 27:        // edit
                 gotoUrl('index.php?a=27&id='+id);

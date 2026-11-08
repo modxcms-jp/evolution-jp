@@ -111,15 +111,20 @@ switch ($rt) {
 
 <script language="JavaScript" type="text/javascript">
     function saveSelection() {
+        var a = window.opener.chkBoxArray || {};
+        var ctrl = document.selector.elements['id[]'];
         var ids = [];
-        var ctrl = document.selector['id[]'];
-        if (!ctrl) return; // 0 件のときは何もしない
-        if (!ctrl.length && ctrl.checked) ids[0] = ctrl.value;
-        else
-            for (i = 0; i < ctrl.length; i++) {
-                if (ctrl[i].checked) ids[ids.length] = ctrl[i].value;
-            }
-        cb = window.opener[<?= js_literal($cb) ?>];
+        var list = !ctrl ? [] : (ctrl.length === undefined ? [ctrl] : Array.prototype.slice.call(ctrl));
+        // 今のページのチェックの状態を、ページをまたいで覚えている選択に反映する
+        list.forEach(function (c) {
+            a[c.value] = c.checked;
+        });
+        // 全ページで選ばれているものを渡す（チェックを外したものは除く）
+        Object.keys(a).forEach(function (id) {
+            if (a[id]) ids.push(id);
+        });
+        if (!ids.length && !list.length) return; // 0 件のときは何もしない
+        var cb = window.opener[<?= js_literal($cb) ?>];
         if (cb) cb(<?= js_literal($rt) ?>, ids);
         window.close();
     }
@@ -160,6 +165,12 @@ switch ($rt) {
     // set checkbox value
     function setCheckbox(chk) {
         var a = window.opener.chkBoxArray;
+        // 単一選択（radio）では、ほかのページで選んだものを残さない
+        if (chk.type === 'radio') {
+            Object.keys(a).forEach(function (id) {
+                a[id] = false;
+            });
+        }
         a[chk.value] = chk.checked;
     }
 

@@ -125,10 +125,10 @@ if ($insideUl) {
             }
         };
         window.evoCancelPluginPriority = function(el, fallbackUrl) {
-            if (el.closest('#evoShellModal') && window.EvoShell) {
+            if (el.closest('#evoShellModal')) {
                 window.EvoShell.closeModal();
             } else {
-                document.location.href = fallbackUrl;
+                window.EvoShell.go(fallbackUrl);
             }
         };
     })();

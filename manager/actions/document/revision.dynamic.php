@@ -43,7 +43,7 @@ function tpl()
 <div id="actions">
 <ul class="actionButtons">
     <li class="mutate">
-    <a href="javascript:void(0)" onclick="document.location.href='index.php?a=2'">
+    <a href="javascript:void(0)" onclick="EvoShell.go('index.php?a=2');">
     [+lang_cancel+]
     </a>
     </li>

@@ -4,7 +4,7 @@
  * サムネイル生成・キャッシュ。
  *
  * 保存先は temp/thumbs/ (コンテンツフォルダ直下に .thumb/ を作らない)。
- * キャッシュキーは type+相対パス+ファイル名のハッシュに元ファイルのmtimeを連結し、
+ * キャッシュキーは元ファイルの実体の絶対パスの md5 に元ファイルのmtimeを連結し、
  * 元ファイルの更新で自動的に新キーへ切り替わる(rename/move/delete追随処理が不要)。
  * 透過を持つ形式(PNG/GIF)はPNGで、JPEGはJPEGで出力し、白背景パディングをしない
  * (キャンバスは常に画像そのもののリサイズ後サイズにする)。
@@ -64,6 +64,10 @@ class ThumbnailService
 
         $this->cleanupStale($sourceFile, $cacheFile);
 
+        if (!$this->canLoad($sourceFile, $ext)) {
+            return null;
+        }
+
         $image = $this->loadImage($sourceFile, $ext);
         if ($image === null) {
             return null;
@@ -113,6 +117,24 @@ class ThumbnailService
         }
 
         readfile($cacheFile);
+    }
+
+    /**
+     * GD で読み込んでもメモリが足りるかを、読み込む前に見積もる(見積もりは gd_can_load_image())。
+     * 足りないものは作らずアイコン表示に回し、一覧のほかの画像まで巻き込んで止まるのを防ぐ。
+     * 画像のサイズを読めない(壊れた画像など)ときは従来どおり loadImage() に任せる。
+     */
+    private function canLoad($file, $ext)
+    {
+        $info = @getimagesize($file);
+        if (!$info || empty($info[0]) || empty($info[1])) {
+            return true;
+        }
+
+        // 形式は loadImage() と同じく拡張子で決める
+        $types = ['png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF];
+        $type = $types[$ext] ?? IMAGETYPE_JPEG;
+        return gd_can_load_image($info[0], $info[1], $type, self::MAX_DIM, self::MAX_DIM);
     }
 
     private function loadImage($file, $ext)

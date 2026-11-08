@@ -32,9 +32,9 @@ class ContextMenu
         if (substr($action, 0, 3) == "js:") {
             $action = substr($action, 3);
         } elseif (substr($action, 0, 3) == "hl:") {
-            $action = "window.location.href='" . substr($action, 3) . "'";
+            $action = "EvoShell.go('" . substr($action, 3) . "')";
         } else {
-            $action = "window.location.href='{$action}'";
+            $action = "EvoShell.go('{$action}')";
         }
         $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; hideCntxMenu('{$this->id}');\"";
         if ($disabled) {

@@ -45,7 +45,7 @@ function get_src_content($id, $parent)
 <div id="actions">
 	<ul class="actionButtons">
 	  <li><a href="#" onclick="document.newdocumentparent.submit();" class="primary">{$_lang['save']}</a></li>
-	  <li class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='{$redirect}'">{$_lang['cancel']}</a></li>
+	  <li class="mutate"><a href="#" onclick="EvoShell.go('{$redirect}', {discard: true});">{$_lang['cancel']}</a></li>
 	</ul>
 </div>
 

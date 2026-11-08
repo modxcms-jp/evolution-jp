@@ -8,23 +8,11 @@ if (!evo()->hasPermission('edit_web_user')) {
     alert()->dumpError();
 }
 
-manager()->initPageViewState();
-
 $icons_path = manager_style_image_path('icons');
 
-global $_PAGE;
-
-if (request_strvar('op') === 'reset') {
-    $query = '';
-    $_PAGE['vs']['search'] = '';
-} else {
-    $query = request_strvar('search') ?: array_get($_PAGE, 'vs.search');
-    $_PAGE['vs']['search'] = $query;
-}
-
-// get & save listmode
-$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+// 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
+$query = get_strvar('search');
+$listmode = get_choicevar('listmode', ['0', '1'], '0');
 
 
 // context menu
@@ -47,13 +35,11 @@ echo $cm->render();
 ?>
 <script language="JavaScript" type="text/javascript">
     function searchResource() {
-        document.resource.op.value = "srch";
         document.resource.submit();
     }
 
     function resetSearch() {
         document.resource.search.value = ''
-        document.resource.op.value = "reset";
         document.resource.submit();
     }
 
@@ -80,7 +66,7 @@ echo $cm->render();
         var id = selectedItem;
         switch (a) {
             case 1: // edit
-                window.location.href = 'index.php?a=88&id=' + id;
+                EvoShell.go('index.php?a=88&id=' + id);
                 break;
             case 2: // delete
                 if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
@@ -117,14 +103,13 @@ echo $cm->render();
     <input type="hidden" name="a" value="99" />
     <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
     <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
-    <input type="hidden" name="op" value="" />
 
     <h1><?= $_lang['web_user_management_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -141,7 +126,7 @@ echo $cm->render();
                                 <td><?= $_lang["search"] ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= hsc(request_strvar('search')) ?>" />
+                                        value="<?= hsc($query) ?>" />
                                 </td>
                                 <td>
                                     <a class="default" href="#" title="<?= $_lang["search"] ?>"
@@ -164,28 +149,22 @@ echo $cm->render();
 
         <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-        $search = request_strvar('search');
         $from = evo()->getFullTableName('web_users') . ' wu'
             . ' INNER JOIN ' . evo()->getFullTableName('web_user_attributes') . ' wua ON wua.internalKey=wu.id';
         $where = '';
-        if ($search !== '') {
-            $keyword = db()->escape($search);
+        if ($query !== '') {
+            $keyword = db()->escape($query);
             $where = "(wu.username LIKE '{$keyword}%') OR (wua.fullname LIKE '%{$keyword}%') OR (wua.email LIKE '{$keyword}%')";
         }
 
-        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        // listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(wu.id)', $from, $where));
-        $page = request_strvar('op') === 'reset'
-            ? 1
-            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $page = get_intvar('page') ?: 1;
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        if ($perPage > 0 && $total > 0) {
-            $_PAGE['vs']['page'] = $pager->page();
-        }
         $params = ['a' => 99];
-        if ($search !== '') {
-            $params['search'] = $search;
+        if ($query !== '') {
+            $params['search'] = $query;
         }
         $links = new DataTableLinks('index.php', $params, $pager->page());
 

@@ -8,20 +8,10 @@ if (!evo()->hasPermission('edit_user')) {
     alert()->dumpError();
 }
 
-global $_PAGE, $_style;
-manager()->initPageViewState();
-// get and save search string
-if (request_strvar('op') === 'reset') {
-    $query = '';
-    $_PAGE['vs']['search'] = '';
-} else {
-    $query = request_strvar('search') ?: array_get($_PAGE, 'vs.search');
-    $_PAGE['vs']['search'] = $query;
-}
-
-// get & save listmode
-$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+global $_style;
+// 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
+$query = get_strvar('search');
+$listmode = get_choicevar('listmode', ['0', '1'], '0');
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
@@ -42,13 +32,11 @@ echo $cm->render();
 ?>
 <script language="JavaScript" type="text/javascript">
     function searchResource() {
-        document.resource.op.value = "srch";
         document.resource.submit();
     }
 
     function resetSearch() {
         document.resource.search.value = ''
-        document.resource.op.value = "reset";
         document.resource.submit();
     }
 
@@ -75,7 +63,7 @@ echo $cm->render();
         var id = selectedItem;
         switch (a) {
             case 1: // edit
-                window.location.href = 'index.php?a=12&id=' + id;
+                EvoShell.go('index.php?a=12&id=' + id);
                 break;
             case 2: // delete
                 if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>)) {
@@ -112,14 +100,13 @@ echo $cm->render();
     <input type="hidden" name="a" value="75" />
     <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
     <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
-    <input type="hidden" name="op" value="" />
 
     <h1><?= $_lang['user_management_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -137,7 +124,7 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= hsc(request_strvar('search')) ?>" /></td>
+                                        value="<?= hsc($query) ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
@@ -164,11 +151,10 @@ echo $cm->render();
         $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
         $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
         // Build WHERE clause: combine search conditions and role restriction
-        $search = request_strvar('search');
         $whereParts = [];
 
-        if ($search) {
-            $keyword = db()->escape($search);
+        if ($query !== '') {
+            $keyword = db()->escape($query);
             $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
         }
 
@@ -180,19 +166,14 @@ echo $cm->render();
         $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
         $orderby = "{$blocked} ASC, mua.thislogin DESC";
 
-        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        // listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
-        $page = request_strvar('op') === 'reset'
-            ? 1
-            : (get_intvar('page') ?: (int) array_get($_PAGE, 'vs.page', 1));
+        $page = get_intvar('page') ?: 1;
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        if ($perPage > 0 && $total > 0) {
-            $_PAGE['vs']['page'] = $pager->page();
-        }
         $params = ['a' => 75];
-        if ($search) {
-            $params['search'] = $search;
+        if ($query !== '') {
+            $params['search'] = $query;
         }
         $links = new DataTableLinks('index.php', $params, $pager->page());
 

@@ -111,6 +111,7 @@ class DocumentParser
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
     private $loggedMagicCalls = []; // __call() で記録済みのメソッド名（1 リクエストで 1 件にまとめる）
+    private $settingsLoadStarted = false; // 設定の読み込みを始めたら true（config() からの再入と、失敗後の再試行を防ぐ）
 
     public function __get($property_name)
     {
@@ -132,9 +133,7 @@ class DocumentParser
         $this->loadExtension('DeprecatedAPI');
         $is_deprecated = method_exists($this->old, $method_name);
 
-        if (!isset($this->config) || !$this->config) {
-            $this->config = $this->getSettings();
-        }
+        $this->loadSettingsIfEmpty();
 
         // 定義の無いメソッドは検出レベルに関係なく、非推奨のメソッドは検出レベル 2・99 のときだけ残す。
         // 1 リクエストの中では、同じメソッド名につき 1 件にまとめる
@@ -255,9 +254,7 @@ class DocumentParser
                 // 設定を読む前に修飾子が使われたとき（index.php を API モードで読み込んだ外部スクリプトなど）は、
                 // 部品を読み込む前に設定を読む。OnGetConfig のプラグインが修飾子を使っても、
                 // 部品の読み込みの途中（$this->filter が未設定）で呼ばれないようにするため
-                if (!$this->config) {
-                    $this->getSettings();
-                }
+                $this->loadSettingsIfEmpty();
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
@@ -287,9 +284,7 @@ class DocumentParser
         }
 
         // get the settings
-        if (!isset($this->config) || !$this->config) {
-            $this->config = $this->getSettings();
-        }
+        $this->loadSettingsIfEmpty();
 
         $this->setBaseTime();
         $this->sanitizeVars();
@@ -1264,8 +1259,22 @@ class DocumentParser
         }
     }
 
+    /**
+     * 設定がまだ読まれていなければ DB から読み込む（「設定が空なら読む」の唯一の入口）。
+     * 読み込みは 1 リクエストで 1 回だけ試す。読み込みの最中に config() が呼ばれたときや、
+     * 読み込みに失敗したあとのエラー表示から config() が呼ばれたときは、読まずに既定値で答える
+     */
+    private function loadSettingsIfEmpty()
+    {
+        if ($this->config || $this->settingsLoadStarted) {
+            return;
+        }
+        $this->getSettings();
+    }
+
     public function getSettings()
     {
+        $this->settingsLoadStarted = true;
         $this->token_auth();
 
         $config = $this->isFrontend() ? $this->getSiteCache() : null;
@@ -1290,7 +1299,7 @@ class DocumentParser
 
         // サーバーの掃除などでキャッシュファイルが消えていたら、その場で作り直す。
         // siteCache.idx.php が無いとプラグインのイベント登録が読めず、プラグインが一切動かない。
-        // 作り直しの中で config() から getSettings() が呼ばれても、二重には作り直さない
+        // 作り直し（setSiteCache()）の中から getSettings() が呼ばれても、二重には作り直さない
         static $rebuilding = false;
         if (!$rebuilding && !is_file(MODX_CACHE_PATH . 'siteCache.idx.php') && is_writable(MODX_CACHE_PATH)) {
             $rebuilding = true;
@@ -3301,24 +3310,33 @@ class DocumentParser
             $value = '';
         }
 
-        $isRequest = in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true);
-        if ($isRequest) {
+        $name = $this->superGlobalName($key);
+        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE・SERVER）と、HTML エスケープの対象（GET・POST・REQUEST）を分ける。
+        // COOKIE・SERVER の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）。
+        // SERVER は HTTP_*・REQUEST_URI・QUERY_STRING などリクエストから来る値を含み、起動時の sanitizeVars() は
+        // その一部（4 キー）を hsc() するだけでタグの記号を崩さない。SERVER_NAME などサーバーの値にタグの記号は
+        // ふつう含まれず、崩しても実害が無いので、キーで分けず SERVER 全体を対象にする
+        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE', 'SERVER'], true);
+        $escapeHtml = in_array($name, ['GET', 'POST', 'REQUEST'], true);
+        if ($breakTags) {
             // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
-            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
+            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける。
+            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない。
+            // SERVER の一部は起動時に hsc() だけを受けている（タグの記号は残る）
             $values = [$value];
             $this->sanitize_gpc($values);
             $value = $values[0];
         }
 
         if ($modifiers !== false) {
-            // リクエストの値は、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（:urldecode などで戻したタグを、
+            // タグの記号を崩す対象の値は、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（:urldecode などで戻したタグを、
             // 続く :summary などが解析しないため）。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
-            $value = $this->applyFilter($value, $modifiers, $key, $isRequest);
+            $value = $this->applyFilter($value, $modifiers, $key, $breakTags);
         }
 
-        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
+        // HTML エスケープの対象は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
         // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
-        if ($isRequest && !$raw) {
+        if ($escapeHtml && !$raw) {
             $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
 
@@ -4902,47 +4920,31 @@ class DocumentParser
             return $str;
         }
 
+        // 日付のあとは、空白 1 つと「時[:分[:秒]]」（各 1〜2 桁）だけを受け付け、ほかは解釈できない日付にする
+        $time = '(?: (?<H>[0-9]{1,2})(?::(?<M>[0-9]{1,2})(?::(?<S>[0-9]{1,2}))?)?)?';
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
-                if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$Y, $m, $d, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<Y>[0-9]{4})/(?<m>[0-9]{2})/(?<d>[0-9]{2})';
                 break;
             case 'dd-mm-YYYY':
-                if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$d, $m, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<d>[0-9]{2})-(?<m>[0-9]{2})-(?<Y>[0-9]{4})';
                 break;
             case 'mm/dd/YYYY':
-                if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$m, $d, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<m>[0-9]{2})/(?<d>[0-9]{2})/(?<Y>[0-9]{4})';
                 break;
             default:
                 return $default;
         }
-        // 時刻を省いた入力は 0 時 0 分 0 秒
-        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
-        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
-        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+        if (!preg_match("@^{$date}{$time}$@D", $str, $match)) {
             return '';
         }
-        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        // 時刻を省いた入力は 0 時 0 分 0 秒
+        [$Y, $m, $d, $H, $M, $S] = [(int)$match['Y'], (int)$match['m'], (int)$match['d'], (int)($match['H'] ?? 0), (int)($match['M'] ?? 0), (int)($match['S'] ?? 0)];
+        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
+        if (!checkdate($m, $d, $Y) || $H > 23 || $M > 59 || $S > 59) {
+            return '';
+        }
+        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
         // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
         return $timeStamp === false ? '' : $timeStamp;
     }
@@ -6404,7 +6406,17 @@ class DocumentParser
         $limitWidth = $this->config('image_limit_width');
         // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
         $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
-        if (!$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true)) {
+        $cannotResize = !$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
+        $limitHeight = $cannotResize ? 0 : max(1, (int)(($img[1] / $img[0]) * $limitWidth));
+        // 読み込むメモリが足りない巨大な画像は、致命的エラーで止まらないよう縮めずにそのまま保存する
+        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $limitWidth, $limitHeight)) {
+            $cannotResize = true;
+            $this->logEvent(
+                0, 2, 'Image not resized: not enough memory', 'move_uploaded_file',
+                ['file' => basename($target_path), 'width' => $img[0], 'height' => $img[1], 'limit_width' => $limitWidth, 'memory_limit' => ini_get('memory_limit')]
+            );
+        }
+        if ($cannotResize) {
             $moved = move_uploaded_file($tmp_path, $target_path);
             if (!$moved) {
                 return false;
@@ -6430,11 +6442,10 @@ class DocumentParser
                 return false;
         }
 
-        $limit_height = (int)(($img[1] / $img[0]) * $limitWidth);
-        $new_image = imagecreatetruecolor($limitWidth, $limit_height);
+        $new_image = imagecreatetruecolor($limitWidth, $limitHeight);
 
         imagecopyresampled(
-            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limit_height, $img[0], $img[1]
+            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limitHeight, $img[0], $img[1]
         );
         switch ($img[2]) {
             case IMAGETYPE_JPEG:
@@ -6502,14 +6513,13 @@ class DocumentParser
 
     public function config($key = null, $default = null)
     {
+        // インストール中は DB の設定が無いので読まない。それ以外は DB から読み、
+        // 読み込みの最中（getSettings() の途中で呼ばれたとき）だけ既定値で答える
+        if (!$this->config && !defined('MODX_SETUP_PATH')) {
+            $this->loadSettingsIfEmpty();
+        }
         if (!$this->config) {
             $this->config = include MODX_CORE_PATH . 'default.config.php';
-        }
-
-        if (!defined('MODX_SETUP_PATH')) {
-            if (empty($this->config['site_url'])) {
-                $this->getSettings();
-            }
         }
         if ($this->config['site_url'] === '[(site_url)]') {
             $this->config['site_url'] = MODX_SITE_URL;

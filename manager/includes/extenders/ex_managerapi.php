@@ -7,8 +7,6 @@ $this->manager = new ManagerAPI;
 *
 */
 
-global $_PAGE; // page view state object. Usage $_PAGE['vs']['propertyname'] = $value;
-
 // Content manager wrapper class
 class ManagerAPI
 {
@@ -31,25 +29,6 @@ class ManagerAPI
     {
         require_once MODX_CORE_PATH . 'migrator.class.inc.php';
         return (new EvoMigrator())->hasPending();
-    }
-
-    public function initPageViewState($id = 0)
-    {
-        global $_PAGE;
-
-        if (sessionv('mgrPageViewSID', '') != $this->action) {
-            $_SESSION['mgrPageViewSDATA'] = []; // new view state
-            $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
-        }
-        $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
-    }
-
-    // save page view state - not really necessary,
-    public function savePageViewState($id = 0)
-    {
-        global $_PAGE;
-        $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
-        $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action;
     }
 
     // check for saved form
@@ -1173,22 +1152,12 @@ class ManagerAPI
     {
         $limits = [];
         foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $key) {
-            $bytes = $this->convertToBytes(ini_get($key));
+            $bytes = ini_size_to_bytes(ini_get($key));
             if ($bytes > 0) {
                 $limits[] = $bytes;
             }
         }
         return $limits ? min($limits) : 0;
-    }
-
-    private function convertToBytes($input)
-    {
-        $input = trim((string)$input);
-        if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', $input, $m)) {
-            return 0;
-        }
-        $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
-        return (int)$m[1] * $multipliers[strtoupper($m[2])];
     }
 
     public function getTplModule()

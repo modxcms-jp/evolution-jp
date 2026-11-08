@@ -158,7 +158,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         value="" <?= selected(request_intvar('stay') === 0) ?>><?= $_lang['close'] ?></option>
                 </select>
             </li>
-            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
     <!-- Tab Start -->

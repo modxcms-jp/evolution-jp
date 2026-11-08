@@ -116,10 +116,10 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
             }
         };
         window.evoCancelTvRank = function(el, fallbackUrl) {
-            if (el.closest('#evoShellModal') && window.EvoShell) {
+            if (el.closest('#evoShellModal')) {
                 window.EvoShell.closeModal();
             } else {
-                document.location.href = fallbackUrl;
+                window.EvoShell.go(fallbackUrl);
             }
         };
     })();

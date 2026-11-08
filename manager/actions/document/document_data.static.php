@@ -114,6 +114,13 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 
+if (isset($content['parent']) && $content['parent'] != 0) {
+    $cancelUrl = 'index.php?a=120&id=' . (int) $content['parent'];
+} elseif (get_intvar('pid')) {
+    $cancelUrl = 'index.php?a=120&id=' . get_intvar('pid');
+} else {
+    $cancelUrl = 'index.php?a=2';
+}
 ?>
 <script type="text/javascript">
     function duplicatedocument() {
@@ -129,11 +136,11 @@ function entity($key, $default = null)
     }
 
     function editdocument() {
-        document.location.href = "index.php?id=<?= $id ?>&a=27";
+        EvoShell.go("index.php?id=<?= $id ?>&a=27");
     }
 
     function movedocument() {
-        document.location.href = "index.php?id=<?= $id ?>&a=51";
+        EvoShell.go("index.php?id=<?= $id ?>&a=51");
     }
 </script>
 <h1><?= $_lang['doc_data_title'] ?></h1>
@@ -182,19 +189,7 @@ function entity($key, $default = null)
         </li>
         <li id="Button5" class="mutate"><a
                 href="#"
-                onclick="
-                documentDirty=false;
-                <?php
-                if (isset($content['parent']) && $content['parent'] != 0) {
-                    $tpl = 'document.location.href=\'index.php?a=120&id=%s\';';
-                    echo sprintf($tpl, entity('parent'));
-                } elseif (get_intvar('pid')) {
-                    $tpl = 'document.location.href=\'index.php?a=120&id=%d\';';
-                    echo sprintf($tpl, get_intvar('pid'));
-                } else {
-                    echo 'document.location.href=\'index.php?a=2\';';
-                }
-                ?>"
+                onclick="EvoShell.go(<?= hsc(js_literal($cancelUrl)) ?>, {discard: true});"
             ><?= $_lang['cancel'] ?></a>
         </li>
     </ul>

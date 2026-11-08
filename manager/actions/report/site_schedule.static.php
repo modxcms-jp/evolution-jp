@@ -16,7 +16,7 @@ if (!evo()->hasPermission('view_schedule')) {
             class="mutate">
             <a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"
             >
                 <?= lang('cancel') ?>
             </a>
