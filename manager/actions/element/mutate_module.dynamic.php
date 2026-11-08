@@ -461,8 +461,6 @@ function content($key, $default = null)
                                 $notPublic = true;
                             }
                             $chks .= '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
-                        } elseif ($checked) {
-                            $chks = '<input type="hidden" name="user_groups[]"  value="' . $row['id'] . '" />' . "\n" . $chks;
                         }
                     }
                     if (evo()->hasPermission('access_permissions')) {

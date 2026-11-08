@@ -161,6 +161,11 @@ function saveUserGroupAccessPermissons()
         return;
     }
 
+    // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
+    if (!evo()->hasPermission('access_permissions')) {
+        return;
+    }
+
     if ($newid) {
         $id = $newid;
     }

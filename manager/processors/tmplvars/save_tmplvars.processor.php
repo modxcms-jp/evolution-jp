@@ -227,6 +227,11 @@ function saveDocumentAccessPermissons()
     }
     $docgroups = postv('document_groups');
 
+    // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
+    if (!evo()->hasPermission('access_permissions')) {
+        return;
+    }
+
     // check for permission update access
     if ($modx->config['use_udperms'] == 1) {
         // delete old permissions on the tv

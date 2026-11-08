@@ -680,8 +680,6 @@ function entity($key, $default = null)
                                 }
                                 $chks .= '<label><input type="checkbox" name="document_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
                                 $number_of_g++;
-                            } elseif ($checked) {
-                                echo '<input type="hidden" name="document_groups[]"  value="' . $row['id'] . '" />';
                             }
                         }
                         if (evo()->hasPermission('access_permissions')) {
@@ -692,11 +690,6 @@ function entity($key, $default = null)
                         ?>
                     </div>
             <?php
-                } else {
-                    // 権限が無いときはタブを出さず、付いているグループだけを送って保存で外れないようにする
-                    foreach ($groupsarray as $groupId) {
-                        echo '<input type="hidden" name="document_groups[]" value="' . (int)$groupId . '" />' . "\n";
-                    }
                 }
             }
             ?>
