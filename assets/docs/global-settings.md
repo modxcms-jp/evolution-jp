@@ -63,3 +63,4 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 - `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
 - 設定画面に、設定ではない hidden などの項目を足すときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする
 - 設定値の取得: `evo()->getConfig('setting_name', 'default')`
+- 管理画面のコードは、設定値を `extract()` で変数にせず、`evo()->config('setting_name')`（ヘルパー `config()`）で読む。ユーザーごとの設定は重ねた後の値が返る
