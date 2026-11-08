@@ -6,7 +6,7 @@
             let notPublic = false;
             const f = document.forms['mutate'];
             let chkpub = f['chkalldocs'];
-            let chks = f['docgroups[]'];
+            let chks = f['document_groups[]'];
             if (!chks && chkpub) {
                 chkpub.checked = true;
                 return false;

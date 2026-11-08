@@ -12,7 +12,7 @@ $rs = db()->select('*', '[+prefix+]documentgroup_names', '', 'name');
 if (db()->count($rs) < 1) {
     $docgroupselector = '[no groups to add]';
 } else {
-    $docgroupselector = '<select name="docgroup">' . "\n";
+    $docgroupselector = '<select name="document_group">' . "\n";
     while ($row = db()->getRow($rs)) {
         $docgroupselector .= "\t" . '<option value="' . (int) $row['id'] . '">' . hsc($row['name']) . "</option>\n";
     }
@@ -23,7 +23,7 @@ $rs = db()->select('*', '[+prefix+]membergroup_names', '', 'name');
 if (db()->count($rs) < 1) {
     $usrgroupselector = '[no user groups]';
 } else {
-    $usrgroupselector = '<select name="usergroup">' . "\n";
+    $usrgroupselector = '<select name="user_group">' . "\n";
     while ($row = db()->getRow($rs)) {
         $usrgroupselector .= "\t" . '<option value="' . (int) $row['id'] . '">' . hsc($row['name']) . "</option>\n";
     }
@@ -92,11 +92,11 @@ if (db()->count($rs) < 1) {
                         // display the current user group with a rename/delete form
                         echo '<li><form method="post" action="index.php" name="accesspermissions" style="margin-top: 0.5em;" enctype="multipart/form-data">' . "\n" .
                             '<input type="hidden" name="a" value="41" />' . "\n" .
-                            '<input type="hidden" name="groupid" value="' . (int) $row['id'] . '" />' . "\n" .
+                            '<input type="hidden" name="user_group" value="' . (int) $row['id'] . '" />' . "\n" .
                             '<input type="hidden" name="operation" value="rename_user_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . hsc($row['name']) . '" />&nbsp;' . "\n" .
                             '<input type="submit" value="' . $_lang['rename'] . '" />&nbsp;' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&usergroup=' . (int) $row['id'] . '&operation=delete_user_group') . '" />' . "\n" .
+                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&user_group=' . (int) $row['id'] . '&operation=delete_user_group') . '" />' . "\n" .
                             '</form>';
 
                         echo "<ul>\n";
@@ -170,11 +170,11 @@ if (db()->count($rs) < 1) {
 
                         echo '<tr><td class="row3"><form method="post" action="index.php" name="accesspermissions" enctype="multipart/form-data">' . "\n" .
                             '<input type="hidden" name="a" value="41" />' . "\n" .
-                            '<input type="hidden" name="groupid" value="' . (int) $row['id'] . '" />' . "\n" .
+                            '<input type="hidden" name="document_group" value="' . (int) $row['id'] . '" />' . "\n" .
                             '<input type="hidden" name="operation" value="rename_document_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . hsc($row['name']) . '">&nbsp;' . "\n" .
                             '<input type="submit" value="' . $_lang['rename'] . '">' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&documentgroup=' . (int) $row['id'] . '&operation=delete_document_group') . '" />' . "\n" .
+                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&document_group=' . (int) $row['id'] . '&operation=delete_document_group') . '" />' . "\n" .
                             '</form>';
 
                         echo '</td></tr><tr><td class="row2">' . $_lang['access_permissions_resources_in_group'] . ' ';

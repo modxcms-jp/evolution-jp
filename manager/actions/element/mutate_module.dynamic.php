@@ -62,7 +62,7 @@ $content = manager()->restoreElementFormValues(
     $content,
     'modulecode',
     ['disabled', 'wrap', 'locked', 'enable_resource', 'enable_sharedparams'],
-    ['usrgroups']
+    ['user_groups']
 );
 $modx->moduleObject = $content;
 
@@ -414,9 +414,9 @@ function content($key, $default = null)
                     <?php
                     // fetch user access permissions for the module
                     $groupsarray = [];
-                    if (isset($content['usrgroups'])) {
+                    if (isset($content['user_groups'])) {
                         // 差し戻された入力があれば、DB よりそちらを優先する
-                        $groupsarray = array_map('intval', (array)$content['usrgroups']);
+                        $groupsarray = array_map('intval', (array)$content['user_groups']);
                     } elseif (is_numeric($id) && $id > 0) {
                         $rs = db()->select('*', '[+prefix+]site_module_access', sprintf("module='%d'", (int)$id));
                         $total = db()->count($rs);
@@ -434,7 +434,7 @@ function content($key, $default = null)
                                 var notPublic = false;
                                 var f = document.forms['mutate'];
                                 var chkpub = f['chkallgroups'];
-                                var chks = f['usrgroups[]'];
+                                var chks = f['user_groups[]'];
                                 if (!chks && chkpub) {
                                     chkpub.checked = true;
                                     return false;
@@ -467,9 +467,9 @@ function content($key, $default = null)
                             if ($checked) {
                                 $notPublic = true;
                             }
-                            $chks .= '<label><input type="checkbox" name="usrgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
+                            $chks .= '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
                         } elseif ($checked) {
-                            $chks = '<input type="hidden" name="usrgroups[]"  value="' . $row['id'] . '" />' . "\n" . $chks;
+                            $chks = '<input type="hidden" name="user_groups[]"  value="' . $row['id'] . '" />' . "\n" . $chks;
                         }
                     }
                     if (evo()->hasPermission('access_permissions')) {

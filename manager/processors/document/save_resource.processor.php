@@ -993,7 +993,7 @@ function getDocGroups()
         return [];
     }
     // チェックボックスの組。配列でないとき・文字列でない要素は無いものとして扱う
-    $groups = postv('docgroups', []);
+    $groups = postv('document_groups', []);
     return is_array($groups) ? array_values(array_filter($groups, 'is_string')) : [];
 }
 

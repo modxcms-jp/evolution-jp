@@ -111,7 +111,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
     // チェックボックスの値は「ID,印」の形（例: 1,new）。カンマの前を ID として読む
     $docGroups = [];
-    $postedGroups = postv('docgroups');
+    $postedGroups = postv('document_groups');
     if (postv('chkalldocs') !== 'on' && is_array($postedGroups)) {
         foreach ($postedGroups as $postedGroup) {
             $groupId = is_string($postedGroup) ? to_intvar(explode(',', $postedGroup)[0]) : 0;

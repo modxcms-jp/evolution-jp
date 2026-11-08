@@ -243,7 +243,7 @@ function saveDocumentAccessPermissons()
     if ($newid) {
         $id = $newid;
     }
-    $docgroups = postv('docgroups');
+    $docgroups = postv('document_groups');
 
     // check for permission update access
     if ($modx->config['use_udperms'] == 1) {

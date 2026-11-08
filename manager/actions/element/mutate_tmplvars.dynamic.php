@@ -649,7 +649,7 @@ function entity($key, $default = null)
                                 var notPublic = false;
                                 var f = document.forms['mutate'];
                                 var chkpub = f['chkalldocs'];
-                                var chks = f['docgroups[]'];
+                                var chks = f['document_groups[]'];
                                 if (!chks && chkpub) {
                                     chkpub.checked = true;
                                     return false;
@@ -673,8 +673,8 @@ function entity($key, $default = null)
                         $chks = '';
                         $notPublic = false;
                         $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
-                        if (empty($groupsarray) && is_array(entity('docgroups')) && empty(entity('id'))) {
-                            $groupsarray = entity('docgroups');
+                        if (empty($groupsarray) && is_array(entity('document_groups')) && empty(entity('id'))) {
+                            $groupsarray = entity('document_groups');
                         }
                         $number_of_g = 0;
                         while ($row = db()->getRow($rs)) {
@@ -683,10 +683,10 @@ function entity($key, $default = null)
                                 if ($checked) {
                                     $notPublic = true;
                                 }
-                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
+                                $chks .= '<label><input type="checkbox" name="document_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
                                 $number_of_g++;
                             } elseif ($checked) {
-                                echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
+                                echo '<input type="hidden" name="document_groups[]"  value="' . $row['id'] . '" />';
                             }
                         }
                         if (evo()->hasPermission('access_permissions')) {

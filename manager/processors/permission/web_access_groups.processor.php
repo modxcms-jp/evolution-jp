@@ -56,7 +56,7 @@ switch ($operation) {
         break;
     case 'delete_user_group' :
         $updategroupaccess = true;
-        $usergroup = request_intvar('usergroup');
+        $usergroup = request_intvar('user_group');
         if (empty($usergroup)) {
             exit("No user group name specified for deletion");
         } else {
@@ -72,7 +72,7 @@ switch ($operation) {
         }
         break;
     case 'delete_document_group' :
-        $group = request_intvar('documentgroup');
+        $group = request_intvar('document_group');
         if (empty($group)) {
             exit("No document group name specified for deletion");
         } else {
@@ -92,7 +92,7 @@ switch ($operation) {
         if (empty($newgroupname)) {
             exit("no group name specified");
         }
-        $groupid = request_intvar('groupid');
+        $groupid = request_intvar('user_group');
         if (empty($groupid)) {
             exit("No group id specified");
         }
@@ -106,7 +106,7 @@ switch ($operation) {
         if (empty($newgroupname)) {
             exit("no group name specified");
         }
-        $groupid = request_intvar('groupid');
+        $groupid = request_intvar('document_group');
         if (empty($groupid)) {
             exit("No group id specified");
         }
@@ -117,8 +117,8 @@ switch ($operation) {
         break;
     case 'add_document_group_to_user_group' :
         $updategroupaccess = true;
-        $usergroup = request_intvar('usergroup');
-        $docgroup = request_intvar('docgroup');
+        $usergroup = request_intvar('user_group');
+        $docgroup = request_intvar('document_group');
         $where = "webgroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $total = db()->getValue(db()->select('count(*)', $tbl_webgroup_access, $where));
         if ($total <= 0) {
