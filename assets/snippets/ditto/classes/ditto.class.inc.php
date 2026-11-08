@@ -630,7 +630,8 @@ class ditto
                 break;
         }
 
-        if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1) {
+        // 非公開の親の除外は後段でしか行わないため、&seeThruUnpub=0 のときは速い経路を通さない
+        if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $seeThruUnpub) {
             $this->prefetch = false;
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
             $documentIDs = [];

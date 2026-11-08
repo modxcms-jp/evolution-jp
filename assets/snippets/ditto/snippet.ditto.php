@@ -633,7 +633,7 @@ if (!isset($seeThruUnpub)) {
     1 - on
 
     Default:
-    0 - off
+    1 - on
 
     Related:
     - <hideFolders>
