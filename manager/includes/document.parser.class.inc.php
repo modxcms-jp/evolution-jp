@@ -6403,13 +6403,13 @@ class DocumentParser
         // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
         $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
         $cannotResize = !$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
-        $limitHeight = $cannotResize ? 0 : (int)(($img[1] / $img[0]) * $limitWidth);
+        $limitHeight = $cannotResize ? 0 : max(1, (int)(($img[1] / $img[0]) * $limitWidth));
         // 読み込むメモリが足りない巨大な画像は、致命的エラーで止まらないよう縮めずにそのまま保存する
         if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $limitWidth, $limitHeight)) {
             $cannotResize = true;
             $this->logEvent(
                 0, 2, 'Image not resized: not enough memory', 'move_uploaded_file',
-                ['width' => $img[0], 'height' => $img[1], 'memory_limit' => ini_get('memory_limit')]
+                ['file' => basename($target_path), 'width' => $img[0], 'height' => $img[1], 'limit_width' => $limitWidth, 'memory_limit' => ini_get('memory_limit')]
             );
         }
         if ($cannotResize) {

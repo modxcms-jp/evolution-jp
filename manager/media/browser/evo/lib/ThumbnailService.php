@@ -132,7 +132,8 @@ class ThumbnailService
         }
 
         // 形式は loadImage() と同じく拡張子で決める
-        $type = ($ext === 'png') ? IMAGETYPE_PNG : IMAGETYPE_JPEG;
+        $types = ['png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF];
+        $type = $types[$ext] ?? IMAGETYPE_JPEG;
         return gd_can_load_image($info[0], $info[1], $type, self::MAX_DIM, self::MAX_DIM);
     }
 
