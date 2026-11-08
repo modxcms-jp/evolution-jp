@@ -9,7 +9,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 ## Progress
 
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
-- [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
+- [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [ ] 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く
 - [ ] 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
@@ -214,7 +214,8 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 
 `form-snapshot.js` の仕様（`lib.js` の `login()`・`newPage()`・`clickAlertOk()` を使い、`smoke.js` を見本にする）:
 
-- 引数: `--path <manager からの相対 URL>`（必須）、`--out <JSON>`、`--shots <ディレクトリ>`、`--fill <JSON>`、`--submit <セレクター>`、`--width <px>`（既定 1280）、`--user <ログイン名>`（既定は管理者）
+- 引数: `--path <manager からの相対 URL>`（必須）、`--out <JSON>`、`--shots <ディレクトリ>`、`--fill <JSON>`、`--submit <セレクター>`、`--width <px>`（既定 1280）、`--user <ログイン名>`（既定は管理者）、`--sql <SQL>`（ログインしてからページを開く前に流し、キャッシュを消す。DB は元に戻さないので、戻すのは呼び出し側。M1 で足した）
+- `--shots` は、開いているタブの高さにビューポートを合わせて全体を撮る（高さが足りなければ `[warn]`）。`--submit` で 30 秒のうちにフォームが差し替わらなければ `FAIL` で終了コード 1。`row` はセルの最初の `<br>` かブロック要素までの文字（タブが開いているかに依らない）。`tabRow` の位置は `.tab-pane` からの相対。`csrf_token`・`sessToken` の値は伏せる
 - `--fill` の JSON は `{"名前": "値"}`。値は DOM に直接入れて `input` と `change` を起こす（隠れたタブや行の欄にも入れるため）。ラジオは同じ名前で値が合うものを選び、select は値を選び、hidden も値を入れ、チェックボックスは値が空でなければ入れ、空なら外す。文字の欄・select・hidden は、同じ名前の欄が複数あれば最初の 1 つだけに入れる（重複した欄の動きを確かめるため）
 - `--submit` があれば、`--fill` の後にそのセレクターを押し、確認のダイアログは受け入れ、`<dialog>` の警告は `clickAlertOk()` で閉じ、遷移が落ち着くのを待つ。`--out` があれば、着いたページを書き出す（JSON の `url` に着いた URL）
 - 書き出す JSON: `{"url", "tabs": [見出しの文字…], "tabRow": [{"text","x","y","w","h"}…], "fields": [{"tab","row","name","tag","type","value","checked","selected","disabled","visible"}…]}`。`fields` は `form` の中の名前のある欄を DOM の順に並べる。`tab` は最も近い `.tab-page` の `tabPage.tab` の文字（`tabpane.js` が `h2.tab` をタブ列へ移すので、`.tab-page` の中を探しても見つからない）、`row` は最も近い `table.settings` の直下の行の最初のセルの文字の 1 行目、`value` は select では選ばれた値、`selected` は select の選択肢の `[値, 表示]` の配列、`visible` はその欄から `.tab-page` までの祖先と自身の計算後の `display` に `none` が無いこと（タブが開いているかは問わない）。`csrf_token` の値は `"<masked>"` にする
@@ -226,14 +227,14 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 2. 状態 A に揃えて控える:
    `docker exec evo-validate-1067-db mariadb -uuser -ppassword evodb -e "REPLACE INTO modx_system_settings (setting_name, setting_value) VALUES ('use_udperms','0'),('use_editor','1'),('use_browser','1'),('friendly_urls','1'),('use_captcha','0'),('email_method','mail')"`、キャッシュを消し、`db-A.sql` に控える
 3. A: `form-snapshot.js --path 'index.php?a=17' --out <work>/main/A.json --shots <work>/main/A`
-4. B: 2 の 6 つを逆（`1`・`0`・`0`・`0`・`1`・`smtp`）にして書き出す（`main/B.json`・`main/B/`）。終わったら `db-A.sql` に戻す
+4. B: 2 の 6 つを逆（`1`・`0`・`0`・`0`・`1`・`smtp`）にして書き出す（`main/B.json`・`main/B/`）。`use_captcha=1` を先に DB へ入れるとログインできないので、`--sql "REPLACE INTO modx_system_settings ..."` で、ログインの後に入れる。終わったら `db-A.sql` に戻す
 5. C（差し戻し）: `--fill` に `{"filemanager_path":"/nonexistent-1067/","site_name":"restore-1067","upload_maxsize":"12345","use_browser":"0","friendly_urls":"0"}` を渡し、`--submit '#Button1 a' --out <work>/main/C.json`。`db-A.sql` に戻す
-6. S1: `--submit '#Button1 a'`（何も変えずに保存）→ `S1.tsv` を書き出し、`db-A.sql` に戻す
+6. S1: `--submit '#Button1 a'`（何も変えずに保存）→ `S1.tsv` を書き出し、`recent_update` が変わったこと（保存されたこと）を確かめてから、`db-A.sql` に戻す。比較では `recent_update` の行を除く
 7. S2: `<work>/fill-s2.json` を作り、`--fill` と `--submit` で保存 → `S2.tsv`、`db-A.sql` に戻す。中身は型ごとに 1 つ以上を変えるもの: `site_name`（`<b>"&'` を含む文字）、`site_slogan`（2 行）、`error_page`、`xhtml_urls`、`server_offset_time`（`3600`）、`server_protocol`（`https`）、`custom_contenttype`（hidden に `application/json,text/css`）、`auto_template_logic`（`parent`）、`enable_draft`、`cache_type`（`2`）、`friendly_url_suffix`（`.htm`）、`automatic_alias`（`1`）、`use_udperms`（`1`）、`udperms_allowroot`（`1`）、`default_role`（2 番目の選択肢）、`failed_login_attempts`（`5`）、`error_reporting`（`2`）、`send_errormail`（`3`）、`email_method`（`smtp`）、`smtp_host`、`smtp_secure`（`tls`）、`emailsubject`、`topmenu_site`、`resource_tree_node_name`（`menutitle`）、`datetime_format`（`YYYY/mm/dd`）、`use_editor`（`0`）、`which_editor`（`none`）、`filemanager_path`（`[(base_path)]assets/`）、`export_dir`（空）、`upload_maxsize`（`1048576`）、`new_file_permissions`（`644`）、`rb_base_url`（`content/`）、`convert_datauri_to_file`（`1`）、`tinymce7_toolbar_preset`（`simple`）。`smtppw` と `manager_language` は変えない（`smtppw` は保存時に乱数が付く。言語は次の画面の文言が変わる）
 8. 重複の確認: 試しのプラグインを入れる。
    `docker exec evo-validate-1067-db mariadb -uuser -ppassword evodb -e "INSERT INTO modx_site_plugins (name, plugincode) VALUES ('evo1067dup', 'if (evo()->event->name === ''OnSiteSettingsRender'') { evo()->event->output(''<table class=\"settings\"><tr><th>dup</th><td><input type=\"text\" name=\"evo1067_dup\" value=\"x\"></td></tr></table>''); }'); INSERT INTO modx_site_plugin_events (pluginid, evtid) VALUES (LAST_INSERT_ID(), 82)"`、キャッシュを消して A と同じく `main/dup.json` を書き出す。`db-A.sql` に戻す
 
-期待: `main/A.json` の `fields` が 120 件前後（設定の欄・設定でない欄・プラグインの欄）、`tabs` が今の 7 つ。B では条件の 24 行の欄の `visible` が A と逆（TinyMCE 7 の表は初めの表示が条件に従わないので逆にならない）。C では `use_browser`・`friendly_urls` は差し戻した値、`filemanager_path`・`site_name`・`upload_maxsize` は DB の値（Surprises の 1 件め）。`dup.json` に `evo1067_dup` が 3 件（サイト・リソース設定・キャッシュ設定のタブ）。`git -C <作業ツリー> status --short` に `form-snapshot.js` と `SKILL.md` 以外が無い。
+期待: `main/A.json` の `fields` が 120 件前後（設定の欄・設定でない欄・プラグインの欄。ラジオを選択肢ごとに数えると 201 件。Surprises を参照）、`tabs` が今の 7 つ。B では条件の 24 行の欄の `visible` が A と逆（TinyMCE 7 の表は初めの表示が条件に従わないので逆にならない）。C では `use_browser`・`friendly_urls` は差し戻した値、`filemanager_path`・`site_name`・`upload_maxsize` は DB の値（Surprises の 1 件め）。`dup.json` に `evo1067_dup` が 3 件（サイト・リソース設定・キャッシュ設定のタブ）。`git -C <作業ツリー> status --short` に `form-snapshot.js` と `SKILL.md` 以外が無い。
 
 コミット: `test(validation): フォームの欄と画面写真を書き出す確認スクリプトを足す`
 
