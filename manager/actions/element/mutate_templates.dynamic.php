@@ -38,6 +38,9 @@ if (id()) {
     }
 }
 
+// 出力を始める前に読み込む。存在しない id はここで権限エラーの画面になる
+template('id');
+
 ?>
     <script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
     <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
