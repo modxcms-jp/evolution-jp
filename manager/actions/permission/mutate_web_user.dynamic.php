@@ -130,9 +130,9 @@ function webuser($name, $default = null)
 
 // include the country list language file
 $_country_lang = [];
-$base_path = $modx->config['base_path'];
-if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php")) {
-    include_once(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php");
+$managerLanguage = config('manager_language');
+if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$managerLanguage}_country.inc.php")) {
+    include_once(MODX_CORE_PATH . "lang/country/{$managerLanguage}_country.inc.php");
 } else {
     include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
 }
@@ -207,12 +207,12 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     }
 
     function BrowseServer() {
-        window.evoOpenFilePicker(<?= js_literal($base_url . 'manager/media/browser/evo/browser.php?type=images') ?>);
+        window.evoOpenFilePicker(<?= js_literal(config('base_url') . 'manager/media/browser/evo/browser.php?type=images') ?>);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = <?= js_literal($base_url) ?> + url;
+        document.images['iphoto'].src = <?= js_literal(config('base_url')) ?> + url;
     }
 </script>
 
@@ -516,7 +516,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?= $_lang['user_prevlogin'] ?>:</th>
                             <?php
                             if (!empty(attribute('lastlogin'))) {
-                                $lastlogin = $modx->toDateFormat(attribute('lastlogin') + $server_offset_time);
+                                $lastlogin = $modx->toDateFormat(attribute('lastlogin') + config('server_offset_time'));
                             } else {
                                 $lastlogin = '-';
                             }

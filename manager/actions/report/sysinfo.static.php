@@ -6,7 +6,7 @@ if (!evo()->hasPermission('logs')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-global $database_connection_method, $lastInstallTime;
+global $database_connection_method;
 ?>
 <h1><?= lang('view_sysinfo') ?></h1>
 <div id="actions">

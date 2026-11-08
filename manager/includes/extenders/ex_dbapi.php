@@ -19,7 +19,7 @@ if (!$rs) {
     return true;
 }
 
-// getSettings() が config['lastInstallTime'] に入れ、管理画面の extract() でグローバル変数になる
+// config.inc.php の $lastInstallTime。getSettings() が config['lastInstallTime'] に入れ、管理画面は config('lastInstallTime') で読む
 $this->lastInstallTime = (int) $lastInstallTime;
 
 $this->db->hostname = $database_server;

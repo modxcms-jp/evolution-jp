@@ -13,7 +13,8 @@ if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
 }
 
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
+$lastInstallTime = (int) config('lastInstallTime');
+if ($lastInstallTime && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
     if (
         (sessionv('modx.session.created.time', 0) < $lastInstallTime)
         && serverv('REQUEST_METHOD') !== 'POST'

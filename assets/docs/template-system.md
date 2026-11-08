@@ -12,6 +12,7 @@
 ## 要素種別
 
 - **ドキュメントフィールド / TV**: `mergeDocumentContent()` がフィールド参照やフォールバック（`field|altField`）、親参照（`field@parent`）、モディファイアチェーン、`@` バインディングを処理します。TV の配列値は既定で `tvProcessor()` によって整形されます。
+- **テンプレート変数のファイル・コードに渡す変数**: `@INCLUDE`（`assets/tvs/` のファイルなど）と `@EVAL` には、フォーム部品を作る値が変数として渡されます（`$field_type`・`$field_id`・`$field_name`・`$name`・`$default_text`・`$field_value`・`$value`・`$field_style`。`$field_value`・`$value` は `hsc()` 済み）。この変数名は、既存のテンプレート変数のファイルとの受け渡しの決まりなので変えません。システム設定の値はここに含まれないので、`evo()->config('キー')` で読みます。
 - **システム設定**: `mergeSettingsContent()` が `[(setting)]` を置換し、モディファイアにより算出値を提供します。
 - **チャンク**: `mergeChunkContent()` がチャンク本文を読み込み、パラメータ付きプレースホルダーや入れ子のタグを再帰的に解析します。リテラルセクションは尊重されます。
 - **プレースホルダー**: `mergePlaceholderContent()` がネストしたタグを先に評価し、その後 `[+placeholder+]` を置換します。スニペットやプラグインが投入した値が対象です。
