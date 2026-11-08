@@ -125,7 +125,9 @@ if (is_file($theme_dir . 'style.php')) {
 }
 
 // check if user is allowed to access manager interface
-if (isset($allow_manager_access) && $allow_manager_access == 0) {
+// ユーザー設定が重なった後の値（allow_manager_access は user_settings の項目）
+$allowManagerAccess = config('allow_manager_access');
+if ($allowManagerAccess !== null && $allowManagerAccess == 0) {
     include_once(MODX_CORE_PATH . 'manager.lockout.inc.php');
 }
 
