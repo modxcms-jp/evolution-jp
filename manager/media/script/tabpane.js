@@ -4,7 +4,7 @@
  * <div class="tab-pane" id="…">
  *   <div class="tab-page" id="…"><h2 class="tab">見出し</h2> 中身 </div>
  * </div>
- * new WebFXTabPane(el, bUseCookie) / tp.addTabPage(el, callback) / setSelectedIndex() / getSelectedIndex()、
+ * new WebFXTabPane(el, bRestore) / tp.addTabPage(el, callback) / setSelectedIndex() / getSelectedIndex()、
  * setupAllTabs() / disposeAllTabs()、要素の tabPane / tabPage プロパティは今までと同じ。
  * テーマの CSS が使うクラス（dynamic-tab-pane-control / .tab-row / .tab / .selected）と、
  * 開いたタブを覚える Cookie（webfxtab_<id>）も変えない。
@@ -15,13 +15,14 @@
 
 // クラスは var への代入で定義する。シェルの画面遷移で再評価されるため（assets/docs/jquery-migration.md を参照）
 var WebFXTabPane = class WebFXTabPane {
-    constructor(el, bUseCookie) {
+    constructor(el, bRestore) {
         if (el == null) return;
 
         this.element = el;
         el.tabPane = this;
         this.pages = [];
-        this.useCookie = bUseCookie != null ? bUseCookie : true;
+        // 開いたとき、覚えたタブを Cookie から復元するか（既定は復元する）。切り替えの記録は復元の有無に関わらず常に残す
+        this.restore = bRestore != null ? bRestore : true;
         // 選ぶつもりのタブの番号（覚えた番号）。表示しているタブは shownIndex
         this.selectedIndex = 0;
         this.shownIndex = null;
@@ -33,9 +34,12 @@ var WebFXTabPane = class WebFXTabPane {
         this.tabRow.setAttribute('role', 'tablist');
         el.insertBefore(this.tabRow, el.firstChild);
 
-        if (this.useCookie) {
+        if (this.restore) {
             const n = Number(WebFXTabPane.getCookie('webfxtab_' + el.id));
             this.selectedIndex = Number.isInteger(n) && n >= 0 ? n : 0;
+        } else {
+            // 復元しないときは古い記録を消す。別の画面で前に選んだタブが、「この画面」で戻ったときに紛れ込まないようにする
+            WebFXTabPane.removeCookie('webfxtab_' + el.id);
         }
 
         this._onKeyDown = (e) => this.keyDown(e);
@@ -99,9 +103,8 @@ var WebFXTabPane = class WebFXTabPane {
         if (!this.pages[n]) return;
         this.selectedIndex = n;
         this.show(n);
-        if (this.useCookie) {
-            WebFXTabPane.setCookie('webfxtab_' + this.element.id, n); // session cookie
-        }
+        // 復元しない画面でも記録する。保存後に「この画面」で戻ったとき、1 回目から切り替えたタブを開くため
+        WebFXTabPane.setCookie('webfxtab_' + this.element.id, n); // session cookie
     }
 
     // 覚えた番号を返す。そのタブが無い・隠れているときは表示中のタブと違う（表示中の番号は shownIndex）

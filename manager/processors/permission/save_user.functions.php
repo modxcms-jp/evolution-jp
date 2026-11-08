@@ -296,7 +296,10 @@ function systemSettings()
 function webAlert($msg)
 {
     $mode = saveUserMode();
-    $url = 'index.php?a=' . ($mode ?: 75) . ($mode === 12 ? '&id=' . post_intvar('userid') : '');
+    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], '');
+    $url = 'index.php?a=' . ($mode ?: 75)
+        . ($mode === 12 ? '&id=' . post_intvar('userid') : '')
+        . ($saveAction !== '' ? '&save_action=' . $saveAction : '');
     evo()->manager->saveFormValues($mode);
     evo()->webAlertAndQuit($msg, $url);
 }
@@ -563,19 +566,17 @@ function newUser()
     }
     // end of user_groups stuff!
 
-    $stay = post_choicevar('stay', [1, 2], 0);
-    if ($stay) {
-        if ($stay === 2) {
-            $stayUrl = sprintf(
-                'index.php?r=3&a=11&stay=%d&id=%d',
-                $stay,
-                $internalKey
-            );
-        } else {
-            $stayUrl = 'index.php?r=3&a=11&stay=' . $stay;
-        }
+    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], 'next');
+    if ($saveAction === 'stay') {
+        $stayUrl = sprintf(
+            'index.php?a=12&id=%d&r=3&save_action=%s',
+            $internalKey,
+            $saveAction
+        );
+    } elseif ($saveAction === 'close') {
+        $stayUrl = 'index.php?a=75&r=3';
     } else {
-        $stayUrl = 'index.php?r=3&a=75';
+        $stayUrl = sprintf('index.php?a=11&r=3&save_action=%s', $saveAction);
     }
 
     if (post_strvar('passwordnotifymethod') === 'e') {
