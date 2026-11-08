@@ -135,7 +135,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
         $pluginSettingNames = fieldNames(implode("", $evtOut));
     }
     ?>
-    <input type="hidden" name="mode" value="profile">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">
     <input type="hidden" name="userid" value="<?= (int) $userid ?>">
     <input type="hidden" name="newusername" value="<?= hsc($usernamedata['username']) ?>" />
     <input type="hidden" name="role" value="<?= (int)userData('role') ?>" />

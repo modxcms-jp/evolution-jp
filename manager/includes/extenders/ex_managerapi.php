@@ -122,9 +122,9 @@ class ManagerAPI
      * 差し戻した入力（saveFormValues）の template を newtemplate で渡し、
      * 戻った画面がそのテンプレートの TV を読めるようにする。親（parent）は差し戻した入力で上書きされる
      */
-    public function formReturnUrl($mode, $id = 0, $template = 0): string
+    public function formReturnUrl($action, $id = 0, $template = 0): string
     {
-        $url = sprintf('index.php?a=%d', (int)$mode);
+        $url = sprintf('index.php?a=%d', (int)$action);
         if ((int)$id > 0) {
             $url .= sprintf('&id=%d', (int)$id);
         }
