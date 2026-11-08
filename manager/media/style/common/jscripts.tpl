@@ -134,7 +134,7 @@
             return { fd: fd, sig: sig };
         }
 
-        // 編集中の内容を a=309 へ送る。{url, changed（キーが新しくなったか）} を解決する
+        // 編集中の内容を a=309 へ送る。{url, key, sig} を解決する。previewKey は古い応答で書き換えないよう、呼ぶ側が番号を確かめてから更新する
         function postPreviewDraft(built) {
             // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
             return Evo.post('index.php', built.fd)
@@ -144,10 +144,7 @@
                 })
                 .then(function (data) {
                     if (!data || !data.url) throw new Error('no url');
-                    var key = data.key || null;
-                    var changed = !key || key !== previewKey;
-                    previewKey = key;
-                    return { url: data.url, changed: changed, sig: built.sig };
+                    return { url: data.url, key: data.key || null, sig: built.sig };
                 });
         }
 
@@ -246,6 +243,8 @@
                     if (seq !== sendSeq) return;
                     endSending(seq);
                     lastSentSig = built.sig;
+                    result.changed = !result.key || result.key !== previewKey;
+                    previewKey = result.key;
                     if (!autoOn || !previewMutate.isConnected || !previewWinOpen()) {
                         stopAuto();
                         return;
@@ -337,8 +336,9 @@
             window.addEventListener('pagehide', closeBlank, { once: true });
             var seq;
             var failed = function () {
-                endSending(seq);
                 window.removeEventListener('pagehide', closeBlank);
+                if (seq !== sendSeq) return;
+                endSending(seq);
                 closeBlank();
                 alert([+lang_error_occurred+]);
             };
@@ -351,6 +351,8 @@
                     if (seq !== sendSeq) return;
                     endSending(seq);
                     lastSentSig = result.sig;
+                    result.changed = !result.key || result.key !== previewKey;
+                    previewKey = result.key;
                     showPreview(win, result);
                     win.focus();
                     // 送信中に入った変更を 1 回送る
