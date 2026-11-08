@@ -14,8 +14,6 @@ class ThumbnailService
     const MAX_DIM = 128;
     const GC_PROBABILITY_DIVISOR = 200;
     const GC_MAX_AGE = 2592000;
-    /** 画像の展開に要るメモリの見積もりに足す余裕(バイト) */
-    const MEMORY_MARGIN = 4194304;
 
     /** @var string temp/thumbs/ の絶対パス(末尾スラッシュ付き) */
     private $cacheDir;
@@ -122,12 +120,8 @@ class ThumbnailService
     }
 
     /**
-     * GD で読み込んでもメモリが足りるかを、読み込む前に見積もる。
-     * imagecreatefrom*() はメモリ不足だと例外にならず致命的エラーで処理ごと止まり、
-     * 一覧のほかの画像まで巻き込むため、足りないものは作らずアイコン表示に回す。
-     * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まり、
-     * 固定値だと小さい上限のサーバでは守れず、大きい上限のサーバでは不要に断るため。
-     * memory_limit は K・M・G の書式を ini_size_to_bytes() で読み、-1・0・解釈できない書式(0 になる)は無制限として扱う。
+     * GD で読み込んでもメモリが足りるかを、読み込む前に見積もる(見積もりは gd_can_load_image())。
+     * 足りないものは作らずアイコン表示に回し、一覧のほかの画像まで巻き込んで止まるのを防ぐ。
      * 画像のサイズを読めない(壊れた画像など)ときは従来どおり loadImage() に任せる。
      */
     private function canLoad($file, $ext)
@@ -137,19 +131,9 @@ class ThumbnailService
             return true;
         }
 
-        $limit = ini_size_to_bytes(ini_get('memory_limit'));
-        if ($limit <= 0) {
-            return true;
-        }
-
-        // 1 画素あたりに GD が確保するバイト数(PHP 8.4 同梱の GD で memory_get_peak_usage(true) を測った値)。
-        // JPEG: 展開後の本体のみで約 4。PNG: 本体 4 + デコード領域(1 行分×高さ)約 4 で約 8
-        // (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
-        // GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。形式は loadImage() と同じく拡張子で決める
-        $bytesPerPixel = ($ext === 'png') ? 8 : 4;
-        // 縮小先(最大 MAX_DIM 四方)と、そのほかの確保の余裕
-        $need = $info[0] * $info[1] * $bytesPerPixel + self::MAX_DIM * self::MAX_DIM * 4 + self::MEMORY_MARGIN;
-        return $need <= $limit - memory_get_usage(true);
+        // 形式は loadImage() と同じく拡張子で決める
+        $type = ($ext === 'png') ? IMAGETYPE_PNG : IMAGETYPE_JPEG;
+        return gd_can_load_image($info[0], $info[1], $type, self::MAX_DIM, self::MAX_DIM);
     }
 
     private function loadImage($file, $ext)

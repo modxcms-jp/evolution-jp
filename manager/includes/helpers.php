@@ -1286,3 +1286,33 @@ function ini_size_to_bytes($value)
     $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
     return (int) $m[1] * $multipliers[strtoupper($m[2])];
 }
+
+/**
+ * GD で画像を読み込んで縮小しても、memory_limit の残りに収まるかを、読み込む前に見積もる。
+ * imagecreatefrom*() はメモリ不足だと例外にならず致命的エラーで処理ごと止まるため、呼び出し側は先にこれで確かめる。
+ * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まるため。
+ * memory_limit が -1・0・解釈できない書式のときは無制限として true を返す。
+ *
+ * 1 画素あたりに GD が確保するバイト数は、PHP 8.4 同梱の GD で memory_get_peak_usage(true) を測った値。
+ * JPEG: 展開後の本体のみで約 4。PNG: 本体 4 + デコード領域(1 行分×高さ)約 4 で約 8
+ * (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
+ * GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。縮小先は imagecreatetruecolor() で 4。
+ *
+ * @param int $width 元画像の幅
+ * @param int $height 元画像の高さ
+ * @param int $imageType IMAGETYPE_JPEG・IMAGETYPE_PNG・IMAGETYPE_GIF
+ * @param int $destWidth 縮小先の幅
+ * @param int $destHeight 縮小先の高さ
+ */
+function gd_can_load_image($width, $height, $imageType, $destWidth, $destHeight)
+{
+    $limit = ini_size_to_bytes(ini_get('memory_limit'));
+    if ($limit <= 0) {
+        return true;
+    }
+
+    $bytesPerPixel = ((int) $imageType === IMAGETYPE_PNG) ? 8 : 4;
+    // 縮小先と、そのほかの確保の余裕(4MB)
+    $need = $width * $height * $bytesPerPixel + $destWidth * $destHeight * 4 + 4194304;
+    return $need <= $limit - memory_get_usage(true);
+}
