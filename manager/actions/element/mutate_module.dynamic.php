@@ -47,7 +47,8 @@ if (get_intvar('id')) {
         exit('<p>Multiple modules sharing same unique id. Not good.<p>');
     }
     if ($total < 1) {
-        exit('<p>No record found for id: ' . $id . '.</p>');
+        alert()->setError(3);
+        alert()->dumpError();
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = content('name');

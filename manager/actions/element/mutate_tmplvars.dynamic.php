@@ -48,7 +48,8 @@ if (get_intvar('id')) {
         exit;
     }
     if ($total < 1) {
-        header("Location: /index.php?id=" . config('site_start'));
+        alert()->setError(3);
+        alert()->dumpError();
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = entity('caption');

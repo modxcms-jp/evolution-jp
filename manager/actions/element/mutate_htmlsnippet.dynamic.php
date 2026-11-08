@@ -53,7 +53,8 @@ if ($id) {
         exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
     }
     if (!$total) {
-        exit("<p>Chunk doesn't exist.</p>");
+        alert()->setError(3);
+        alert()->dumpError();
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = $content['name'];
