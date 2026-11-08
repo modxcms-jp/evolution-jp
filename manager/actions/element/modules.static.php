@@ -8,21 +8,14 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-global $_PAGE;
 if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') || evo()->hasPermission('exec_module'))) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
-manager()->initPageViewState();
-
-// get and save search string, page
-$listState = manager()->resolveListViewState();
-$query = $listState['search'];
-
-// get & save listmode
-$listmode = request_choicevar('listmode', ['0', '1'], array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+// 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
+$query = request_textvar('search') ?? '';
+$listmode = request_choicevar('listmode', ['0', '1'], '0');
 
 
 // context menu
@@ -157,12 +150,11 @@ echo $cm->render();
             $where = '';
         }
 
-        // 前に見たページは画面状態に覚える。listmode=1 は全件を 1 ページに出す
+        // listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(id)', $from, $where));
-        $page = $listState['page'];
+        $page = get_intvar('page') ?: 1;
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        manager()->rememberListPage($pager, $perPage, $total);
         $params = ['a' => 106];
         if ($query !== '') {
             $params['search'] = $query;
