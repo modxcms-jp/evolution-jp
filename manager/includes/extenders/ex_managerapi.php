@@ -7,8 +7,6 @@ $this->manager = new ManagerAPI;
 *
 */
 
-global $_PAGE; // page view state object. Usage $_PAGE['vs']['propertyname'] = $value;
-
 // Content manager wrapper class
 class ManagerAPI
 {
@@ -31,25 +29,6 @@ class ManagerAPI
     {
         require_once MODX_CORE_PATH . 'migrator.class.inc.php';
         return (new EvoMigrator())->hasPending();
-    }
-
-    public function initPageViewState($id = 0)
-    {
-        global $_PAGE;
-
-        if (sessionv('mgrPageViewSID', '') != $this->action) {
-            $_SESSION['mgrPageViewSDATA'] = []; // new view state
-            $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
-        }
-        $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
-    }
-
-    // save page view state - not really necessary,
-    public function savePageViewState($id = 0)
-    {
-        global $_PAGE;
-        $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
-        $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action;
     }
 
     // check for saved form
