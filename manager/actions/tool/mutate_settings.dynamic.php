@@ -38,7 +38,7 @@ foreach ($dir as $filename) {
 }
 ?>
 <script type="text/javascript">
-    var lang_chg = '<?= lang('confirm_setting_language_change') ?>';
+    var lang_chg = <?= js_literal(stripcslashes(lang('confirm_setting_language_change'))) ?>;
 </script>
 <script type="text/javascript" src="actions/tool/mutate_settings/functions.js"></script>
 <form name="settings" action="index.php" method="post" enctype="multipart/form-data">
@@ -52,7 +52,7 @@ foreach ($dir as $filename) {
                 </a>
             </li>
             <li id="Button5" class="mutate">
-                <a href="#" onclick="document.location.href='index.php?a=2';">
+                <a href="#" onclick="EvoShell.go('index.php?a=2');">
                     <?= lang('cancel') ?>
                 </a>
             </li>

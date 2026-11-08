@@ -3,7 +3,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-if (anyv('a') == '8' || !sessionv('mgrValidated')) {
+if (request_intvar('a') === 8 || !sessionv('mgrValidated')) {
     return;
 }
 

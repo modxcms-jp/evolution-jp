@@ -11,25 +11,26 @@ class DocManagerBackend
 
     public function handlePostback()
     {
-        switch (postv('tabAction')) {
+        $tabAction = post_strvar('tabAction');
+        switch ($tabAction) {
             case 'changeTemplate':
-                echo $this->changeTemplate(postv('pids'), postv('newvalue'));
+                echo $this->changeTemplate(post_strvar('pids'), post_strvar('newvalue'));
                 break;
             case 'changeTV':
-                echo $this->changeTemplateVariables(postv('pids'));
+                echo $this->changeTemplateVariables(post_strvar('pids'));
                 break;
             case 'pushDocGroup':
             case 'pullDocGroup':
-                echo $this->changeDocGroups(postv('pids'), postv('newvalue'), postv('tabAction'));
+                echo $this->changeDocGroups(post_strvar('pids'), post_intvar('newvalue'), $tabAction);
                 break;
             case 'changeOther':
-                echo $this->changeOther(postv('pids'));
+                echo $this->changeOther(post_strvar('pids'));
                 break;
             case 'sortMenu':
-                echo $this->showSortList(postv('new_parent'));
+                echo $this->showSortList(post_strvar('new_parent'));
                 break;
             case 'sortList':
-                echo $this->changeSort(postv('list'));
+                echo $this->changeSort(post_strvar('list'));
                 break;
             default:
                 echo 'No tab action defined';
@@ -50,11 +51,12 @@ class DocManagerBackend
         }
 
         $resource = [];
-        if (is_numeric($id)) {
+        $parentId = to_uintvar($id);
+        if ($parentId !== null) {
             $rs = db()->select(
                 'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
                 '[+prefix+]site_content',
-                where('parent', '=', (int)$id),
+                where('parent', '=', $parentId),
                 'menuindex ASC'
             );
             if (!$rs) {
@@ -112,8 +114,8 @@ class DocManagerBackend
             $items = explode(';', $items);
             foreach ($items as $key => $value) {
                 $key++;
-                $id = ltrim($value, 'item_');
-                if (is_numeric($id) && is_numeric($key)) {
+                $id = to_intvar(ltrim($value, 'item_'));
+                if ($id > 0) {
                     $sql = sprintf(
                         "UPDATE %s set menuindex=%s WHERE id=%s",
                         evo()->getFullTableName('site_content'),
@@ -138,9 +140,10 @@ class DocManagerBackend
         $pids = $results[0];
         $error = $results[1];
 
-        if ($pids !== '' && $template !== '') {
+        $templateId = to_uintvar($template);
+        if ($pids !== '' && $templateId !== null) {
             $values = rtrim($pids, ' OR ');
-            $fields = ['template' => (int)$template];
+            $fields = ['template' => $templateId];
             db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
@@ -163,6 +166,7 @@ class DocManagerBackend
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $updateError = '';
         $updated = false;
+        $templateId = post_uintvar('template_id');
 
         $results = $this->processRange($pids, 'id', 0);
         $pids = $results[0];
@@ -172,7 +176,7 @@ class DocManagerBackend
             $updateError .= $this->dm->lang['DM_tv_no_docs'] . '<br />';
         } else {
             $tmplVars = [];
-            foreach ($_POST as $key => $value) {
+            foreach (postv() as $key => $value) {
                 if (strpos($key, 'update_tv_') !== 0 || $value !== 'yes') {
                     continue;
                 }
@@ -190,21 +194,18 @@ class DocManagerBackend
                 }
                 if ($row['type'] === 'url') {
                     $tmplvar = normalize_url_tv_value(
-                        postv("tv" . $row['id']),
-                        postv("tv" . $row['id'] . '_prefix', '--')
+                        post_strvar("tv" . $row['id']),
+                        post_choicevar("tv" . $row['id'] . '_prefix', tv_url_prefixes(), '--')
                     );
                 } elseif ($row['type'] === 'file') {
-                    $tmplvar = postv("tv" . $row['id']);
+                    $tmplvar = post_strvar("tv" . $row['id']);
                 } else {
-                    if (is_array(postv("tv" . $tvKeyName))) {
-                        $feature_insert = [];
-                        $lst = postv("tv" . $row['id']);
-                        foreach ($lst as $feature_item) {
-                            $feature_insert[count($feature_insert)] = $feature_item;
-                        }
-                        $tmplvar = implode("||", $feature_insert);
+                    // 文字列か、チェックボックスなどの配列（文字列の要素だけを「||」でつなぐ）
+                    $lst = postv("tv" . $row['id']);
+                    if (is_array($lst)) {
+                        $tmplvar = implode('||', array_filter($lst, 'is_string'));
                     } else {
-                        $tmplvar = postv("tv" . $row['id']);
+                        $tmplvar = post_strvar("tv" . $row['id']);
                     }
                 }
                 $tmplVars[(string)($tvKeyName)] = $tmplvar;
@@ -220,7 +221,7 @@ class DocManagerBackend
                 }
 
                 $row = db()->getRow($tempSQL);
-                if ($row['template'] != postv('template_id')) {
+                if ($templateId === null || (int)$row['template'] !== $templateId) {
                     $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
                     continue;
                 }
@@ -307,7 +308,7 @@ class DocManagerBackend
         $doc_id = $doc_vals[0];
         $error = $doc_vals[1];
 
-        if (!empty($docgroup) && is_numeric($docgroup)) {
+        if ($docgroup > 0) {
             switch ($action) {
                 case 'pushDocGroup':
                     if (count($doc_id) <= 0) {
@@ -389,12 +390,13 @@ class DocManagerBackend
         /* misc document settings */
         $fieldval = '';
         $logAction = '';
-        switch (postv('setoption')) {
+        $newvalue = post_choicevar('newvalue', [1, 0], -1);
+        switch (post_choicevar('setoption', [1, 2, 3, 4, 5, 6], 0)) {
             case 1:
                 $fieldval = 'published';
                 $secondaryFields = [
-                    'publishedon' => postv('newvalue') == 1 ? time() : 0,
-                    'publishedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : 0
+                    'publishedon' => $newvalue === 1 ? time() : 0,
+                    'publishedby' => $newvalue === 1 ? sessionv('mgrInternalKey') : 0
                 ];
                 $logAction = 'publish';
                 break;
@@ -417,8 +419,8 @@ class DocManagerBackend
             case 6:
                 $fieldval = 'deleted';
                 $secondaryFields = [
-                    'deletedon' => postv('newvalue') == 1 ? time() : '0',
-                    'deletedby' => postv('newvalue') == 1 ? sessionv('mgrInternalKey') : '0'
+                    'deletedon' => $newvalue === 1 ? time() : '0',
+                    'deletedby' => $newvalue === 1 ? sessionv('mgrInternalKey') : '0'
                 ];
                 $logAction = 'delete';
                 break;
@@ -428,27 +430,34 @@ class DocManagerBackend
 
         /* document date settings */
         $dateval = [];
+        $invalidInputs = [];
 
-        if (postv('pubdate') != '') {
-            $dateval['pub_date'] = evo()->toTimeStamp(postv('pubdate'));
-        }
-        if (postv('unpubdate') != '') {
-            $dateval['unpub_date'] = evo()->toTimeStamp(postv('unpubdate'));
-        }
-        if (postv('createdon') != '') {
-            $dateval['createdon'] = evo()->toTimeStamp(postv('createdon'));
-        }
-        if (postv('editedon') != '') {
-            $dateval['editedon'] = evo()->toTimeStamp(postv('editedon'));
+        $dateFields = [
+            'pub_date' => 'pubdate',
+            'unpub_date' => 'unpubdate',
+            'createdon' => 'createdon',
+            'editedon' => 'editedon',
+        ];
+        foreach ($dateFields as $column => $inputName) {
+            $input = trim(post_strvar($inputName));
+            if ($input === '') {
+                continue;
+            }
+            $timestamp = evo()->parseDateInput($input);
+            if ($timestamp === null) {
+                $invalidInputs[] = hsc($input);
+                continue;
+            }
+            $dateval[$column] = $timestamp;
         }
 
         /* document author settings */
         $authorval = [];
-        if (postv('author_createdby') <> 0) {
-            $authorval['createdby'] = (int)postv('author_createdby');
+        if (post_intvar('author_createdby') > 0) {
+            $authorval['createdby'] = post_intvar('author_createdby');
         }
-        if (postv('author_editedby') <> 0) {
-            $authorval['editedby'] = (int)postv('author_editedby');
+        if (post_intvar('author_editedby') > 0) {
+            $authorval['editedby'] = post_intvar('author_editedby');
         }
 
         $new = false;
@@ -457,9 +466,16 @@ class DocManagerBackend
         $error = $results[1];
         $values = rtrim($pids, ' OR ');
 
+        // 解釈できない日付があるときは、DB に何も書かずにエラーとして知らせる
+        if ($invalidInputs) {
+            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_date_invalid']
+                . '<br />' . implode('<br />', $invalidInputs);
+            return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
+        }
+
         // setoption「-」のときは、公開状態などの項目は変えない
-        if ($pids !== '' && $fieldval !== '' && postv('newvalue', '') !== '') {
-            $fields = [$fieldval => (int)postv('newvalue')];
+        if ($pids !== '' && $fieldval !== '' && $newvalue !== -1) {
+            $fields = [$fieldval => $newvalue];
             if (isset($secondaryFields) && is_array($secondaryFields)) {
                 $fields = array_merge($fields, $secondaryFields);
             }
@@ -502,7 +518,7 @@ class DocManagerBackend
         $idarray = [];
         $error = '';
 
-        if (trim($pids) <> '') {
+        if (trim($pids) !== '') {
             $values = explode(',', $pids);
         } else {
             $error .= $this->dm->lang['DM_process_novalues'];
@@ -526,7 +542,7 @@ class DocManagerBackend
                 $match = explode('-', $value);
 
                 if (($match[1] - $match[0]) < 0) {
-                    $error = $this->dm->lang['DM_process_limits_error'] . $value . '<br />';
+                    $error = $this->dm->lang['DM_process_limits_error'] . hsc($value) . '<br />';
                 }
 
                 $loop = $match[1] - $match[0];
@@ -602,7 +618,7 @@ class DocManagerBackend
                     $pids .= $column . "='" . (int) $value . "' OR ";
                 }
             } else {
-                $error .= $this->dm->lang['DM_process_invalid_error'] . $value . '<br />';
+                $error .= $this->dm->lang['DM_process_invalid_error'] . hsc($value) . '<br />';
             }
         }
 

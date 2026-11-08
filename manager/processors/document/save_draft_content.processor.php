@@ -26,13 +26,30 @@ if (!manager()->isInAllowedParents($id)) {
     return;
 }
 
-manager()->saveFormValues(4);
-
 evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
-$fields = $modx->doc->fixPubStatus(
-    $modx->doc->fixTvNest($_POST)
+// 解釈できない日付は DB に渡す前に拒否して、編集画面へ戻す（通常の保存と同じ規則）
+$post = postv();
+foreach (['pub_date', 'unpub_date'] as $dateField) {
+    // 空白だけは空の日付（通常の保存の initValue() と同じ）
+    $dateValue = trim((string)array_get($post, $dateField, ''));
+    if (isset($post[$dateField])) {
+        $post[$dateField] = $dateValue;
+    }
+    if (evo()->parseDateInput($dateValue) === null) {
+        manager()->saveFormValues(131);
+        evo()->webAlertAndQuit(
+            lang('mgrlog_dateinvalid'),
+            manager()->formReturnUrl(131, $id, array_get($post, 'template'))
+        );
+        exit;
+    }
+}
+
+// 公開日・公開終了日による published の決め方は、リソースの保存と同じ DocAPI::setPubStatus() を使う
+$fields = evo()->doc->setPubStatus(
+    evo()->doc->fixTvNest($post)
 );
 
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
@@ -51,25 +68,26 @@ if ($parent !== $currentParent) {
     }
 }
 
-if (postv('stay') === 'save_standby') {
+$stay = post_choicevar('stay', ['new', 'stay', 'save_draft', 'save_standby'], '');
+if ($stay === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {
     $rs = $modx->revision->save($id, $fields, 'draft');
 }
 
-if (postv('stay') === 'new') {
+if ($stay === 'new') {
     header(
         sprintf('Location: index.php?a=131&id=%s&r=1', $id)
     );
     return;
 }
-if (postv('stay') === 'stay') {
+if ($stay === 'stay') {
     header(
         sprintf('Location: index.php?a=131&id=%s&stay=stay', $id)
     );
     return;
 }
-if (in_array(postv('stay'), ['save_draft', 'save_standby'])) {
+if (in_array($stay, ['save_draft', 'save_standby'], true)) {
     header(
         sprintf('Location: index.php?a=133&id=%s&r=1', $id)
     );

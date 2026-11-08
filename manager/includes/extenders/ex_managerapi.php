@@ -145,6 +145,58 @@ class ManagerAPI
     }
 
     /**
+     * 入力エラーで編集画面（4: 新規、72: ウェブリンク、27・131: 更新）へ戻すときの URL。
+     * 差し戻した入力（saveFormValues）の template を newtemplate で渡し、
+     * 戻った画面がそのテンプレートの TV を読めるようにする。親（parent）は差し戻した入力で上書きされる
+     */
+    public function formReturnUrl($mode, $id = 0, $template = 0): string
+    {
+        $url = sprintf('index.php?a=%d', (int)$mode);
+        if ((int)$id > 0) {
+            $url .= sprintf('&id=%d', (int)$id);
+        }
+        if ((int)$template > 0) {
+            $url .= sprintf('&newtemplate=%d', (int)$template);
+        }
+        return $url;
+    }
+
+    /**
+     * 日付の入力欄（value 属性）に入れる値を返す。出力用にエスケープ済み。
+     * 数値（保存済みの時刻）は日付の書式に直し（0 は日付なしとして空）、
+     * 差し戻された入力（解釈できない日付を含む）は文字列のまま返す
+     *
+     * @param int|string|null $value 時刻の数値、または差し戻された入力の文字列
+     * @param string $mode toDateFormat() の書式（日付だけなら 'dateOnly'）
+     */
+    public function dateInputValue($value, string $mode = ''): string
+    {
+        if (!is_scalar($value) && $value !== null) {
+            return '';
+        }
+        if ($value === null || $value === '' || is_int($value) || preg_match('/^-?[0-9]+$/', (string)$value)) {
+            if ((int)$value === 0) {
+                return '';
+            }
+            return (string)evo()->toDateFormat($value, $mode);
+        }
+        return hsc($value);
+    }
+
+    /**
+     * 差し戻された日付の入力を、解釈できればタイムスタンプに、できなければ入力の文字列のまま返す。
+     * dateInputValue() で入力欄に出すと、解釈できない入力は打ったとおりに残る
+     *
+     * @param mixed $value 差し戻された入力
+     * @return int|mixed
+     */
+    public function restoredDateValue($value)
+    {
+        $timestamp = evo()->parseDateInput($value);
+        return $timestamp === null ? $value : $timestamp;
+    }
+
+    /**
      * 要素の編集画面で、差し戻された入力があれば $content に重ねて返す。
      * フォームの項目名を画面が読む形に直す（categoryid → category、post → $codeKey、
      * チェックボックスは 0/1）。差し戻しでなければ $content をそのまま返す
@@ -163,7 +215,7 @@ class ManagerAPI
         }
         $values = $this->loadFormValues();
         // 別の要素（新規か id が違う）向けの入力は混ぜない
-        if ((int)($values['id'] ?? 0) !== (int)getv('id', 0)) {
+        if ((int)($values['id'] ?? 0) !== get_intvar('id')) {
             return $content;
         }
         if (isset($values['categoryid'])) {
@@ -547,6 +599,35 @@ class ManagerAPI
     }
 
     /**
+     * プラグインを id で 1 件削除する（イベントの割り当ても消し、削除の前後のイベントを呼ぶ）。
+     * 権限の確かめとキャッシュの削除は呼び出し側で行う。
+     *
+     * @param int $id プラグインの id
+     * @return bool 削除の SQL がすべて通ったら true
+     */
+    public function deletePlugin($id)
+    {
+        $id = (int) $id;
+        if ($id < 1) {
+            return false;
+        }
+
+        $params = ['id' => $id];
+        evo()->invokeEvent('OnBeforePluginFormDelete', $params);
+
+        if (!db()->delete('[+prefix+]site_plugins', "id='{$id}'")) {
+            return false;
+        }
+        if (!db()->delete('[+prefix+]site_plugin_events', "pluginid='{$id}'")) {
+            return false;
+        }
+
+        $params = ['id' => $id];
+        evo()->invokeEvent('OnPluginFormDelete', $params);
+        return true;
+    }
+
+    /**
      *    System Alert Message Queue Display file
      *    Written By Raymond Irving, April, 2005
      *
@@ -602,39 +683,6 @@ class ManagerAPI
         return true;
     }
 
-    public function getMessageCount()
-    {
-        if (!evo()->hasPermission('messages')) {
-            return false;
-        }
-
-        $uid = evo()->getLoginUserID();
-
-        $new = db()->getValue(
-            db()->select(
-                'count(id)',
-                '[+prefix+]user_messages',
-                sprintf("recipient='%s' and messageread=0", $uid)
-            )
-        );
-
-        $total = db()->getValue(
-            db()->select(
-                'count(id)',
-                '[+prefix+]user_messages',
-                sprintf("recipient='%s'", $uid)
-            )
-        );
-
-        // ajax response
-        if (isset($_POST['updateMsgCount'])) {
-            echo "{$new},{$total}";
-            exit();
-        } else {
-            return ['new' => $new, 'total' => $total];
-        }
-    }
-
     // get user's document groups
     public function getMgrDocgroups($uid = 0)
     {
@@ -670,10 +718,6 @@ class ManagerAPI
         );
         if (!$row) {
             return [];
-        }
-        // 管理ユーザーが 1 人だけならメッセージ機能は使えないので無効にする
-        if ($row['messages'] == 1 && db()->getValue(db()->select('COUNT(*)', '[+prefix+]manager_users')) == 1) {
-            $row['messages'] = '0';
         }
         return $row;
     }
@@ -992,11 +1036,13 @@ class ManagerAPI
         global $modx;
 
         if (!$id) {
-            if (!evo()->input_any('pid')) {
+            // pid が送られたかどうかだけを見る（'0'・空は無いものと同じ）
+            if (!anyv('pid')) {
                 return true;
             }
 
-            $id = evo()->input_any('pid');
+            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ下で拒否される
+            $id = request_intvar('pid');
         }
 
         if (!evo()->conf_var('allowed_parents')) {

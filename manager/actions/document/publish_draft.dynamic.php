@@ -9,11 +9,8 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (preg_match('@^[1-9][0-9]*$@', postv('id', ''))) {
-    $docid = postv('id');
-} elseif (preg_match('@^[1-9][0-9]*$@', getv('id', ''))) {
-    $docid = getv('id');
-} else {
+$docid = post_intvar('id') ?: get_intvar('id');
+if (!$docid) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -25,7 +22,19 @@ $ph['lang_cancel'] = lang('cancel');
 
 $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
-$ph['fieldDraftPub_date'] = fieldDraftPub_date($docid);
+// 日付のエラーで差し戻されたときの入力（差し戻しの id が同じときだけ）
+$restored = [];
+if (manager()->hasFormValues()) {
+    $restored = manager()->loadFormValues();
+    if ((int)array_get($restored, 'id', 0) !== (int)$docid) {
+        $restored = [];
+    }
+}
+$reserve = array_get($restored, 'publishoption') === 'reserve';
+$ph['checked_now'] = $reserve ? '' : ' checked';
+$ph['checked_reserve'] = $reserve ? ' checked' : '';
+$ph['pubdate_display'] = $reserve ? 'block' : 'none';
+$ph['fieldDraftPub_date'] = fieldDraftPub_date($docid, $restored);
 $ph['id'] = $docid;
 $ph['token'] = $modx->genTokenString();
 $_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理はコアで統一して管理する
@@ -33,7 +42,7 @@ $_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理は�
 echo $modx->parseText($tpl, $ph);
 
 
-function fieldDraftPub_date($docid)
+function fieldDraftPub_date($docid, $restored = [])
 {
     global $modx, $_lang, $_style;
 
@@ -49,7 +58,12 @@ function fieldDraftPub_date($docid)
     $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
     $tpl = implode("\n", $tpl);
-    $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
+    // 日付のエラーで差し戻されたときは、入力した日付を欄に残す
+    if (isset($restored['pub_date'])) {
+        $ph['pub_date'] = manager()->dateInputValue(trim((string)$restored['pub_date']));
+    } else {
+        $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
+    }
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
     $ph['remove_date'] = $_lang['remove_date'];
     $ph['datetime_format'] = $modx->config['datetime_format'];
@@ -92,7 +106,7 @@ function getTplDraft()
     <div id="actions">
     <ul class="actionButtons">
         <li class="mutate">
-        <a href="javascript:void(0)" onclick="document.location.href='index.php?a=131&id=[+id+]'">
+        <a href="javascript:void(0)" onclick="EvoShell.go('index.php?a=131&id=[+id+]');">
         [+lang_cancel+]
         </a>
         </li>
@@ -104,11 +118,11 @@ function getTplDraft()
 	下書きを保存しました。
 	</p>
 		<div class="draft-publish-options">
-			<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
-			<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
+			<label><input name="publishoption" type="radio" value="now"[+checked_now+] /> 今すぐ採用する</label>
+			<label><input name="publishoption" type="radio" value="reserve"[+checked_reserve+] /> 採用日時を指定する</label>
 			<label class="label-disabled"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
 		</div>
-		<div id="pubdate" style="display:none;">
+		<div id="pubdate" style="display:[+pubdate_display+];">
 			<table width="99%" border="0" cellspacing="5" cellpadding="0">
 				[+fieldDraftPub_date+]
 			</table>

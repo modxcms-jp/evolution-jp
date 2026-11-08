@@ -127,7 +127,8 @@ function eForm($modx, $params)
         ), $tpl);
     }
 
-    $validFormId = $formid == postv('formid') ? 1 : 0;
+    $postedFormId = postv('formid'); // 文字列だけを受け付ける（配列は不正）
+    $validFormId = is_string($postedFormId) && $formid == $postedFormId ? 1 : 0;
 
     # check if postback mode
     $efPostBack = ($validFormId && is_post() && (strpos(serverv('HTTP_REFERER', ''), config('site_url', MODX_SITE_URL)) !== false)) ? true : false; //retain old variable?
@@ -198,7 +199,7 @@ function eForm($modx, $params)
 
         # get user post back data
         $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
-        foreach ($_POST as $name => $value) {
+        foreach (postv() as $name => $value) {
             // 単一の値と配列の各値に同じ処理を通す（allowhtml と html 書式のときだけタグを許す）
             $cleanValue = function ($v) use ($allowhtml, $formats, $name, $modx) {
                 if (!$allowhtml || ($formats[$name][2] ?? '') != 'html') {
@@ -244,11 +245,11 @@ function eForm($modx, $params)
         if ($vericode) {
             //add support for captcha code - thanks to Djamoer
             $code = (string)(sessionv('veriword') ?: sessionv('eForm.VeriCode'));
-            $postedCode = postv('vericode');
+            $postedCode = post_strvar('vericode');
             // a code is used once; an empty expected code never matches
             sessionv('*veriword', null);
             sessionv('*eForm.VeriCode', null);
-            if ($code === '' || !is_string($postedCode) || !hash_equals($code, $postedCode)) {
+            if ($code === '' || !hash_equals($code, $postedCode)) {
                 $vMsg[count($vMsg)] = $_lang['ef_failed_vericode'];
                 $rClass['vericode'] = $invalidClass; //added in 1.4.4
             }

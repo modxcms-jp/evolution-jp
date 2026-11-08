@@ -138,9 +138,9 @@ trait DocumentParserSubParserTrait
     function logEvent($evtid, $type, $msg, $title = 'Parser', array $context = [])
     {
         global $modx;
-        if (!$modx->config && db()->isConnected()) {
+        if (!$this->config && db()->isConnected()) {
             try {
-                $modx->getSettings();
+                $this->loadSettingsIfEmpty();
             } catch (Throwable $e) {
                 error_log('Failed to load settings in logEvent: ' . $e->getMessage());
             }
@@ -422,9 +422,9 @@ trait DocumentParserSubParserTrait
         $str .= sprintf('<td>%s</td>', hsc(urldecode(evo()->server('REQUEST_URI'))));
         $str .= '</tr>';
 
-        $action = getv('a', postv('a'));
+        $action = get_intvar('a') ?: post_intvar('a');
 
-        if (isset($action) && $action) {
+        if ($action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
             if (isset($action_list[$action])) {
@@ -741,7 +741,7 @@ trait DocumentParserSubParserTrait
 
         if ($count_attempts == 1) {
             // append the redirect count string to the url
-            $currentNumberOfRedirects = isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+            $currentNumberOfRedirects = request_uintvar('err', 0);
             if ($currentNumberOfRedirects > 3) {
                 $modx->messageQuit(
                     "Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>"
@@ -849,6 +849,9 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         // invoke OnPageUnauthorized event
+        // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
+        // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す
+        $modx->unauthorizedDocumentId = (int) $modx->documentIdentifier;
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
 
@@ -910,11 +913,21 @@ trait DocumentParserSubParserTrait
             $f['cachepwd'] = '';
             $f = db()->escape($f);
             db()->update($f, '[+prefix+]web_users', "id='{$uid}'");
-            db()->update(
-                "blockeduntil='0'",
-                '[+prefix+]web_user_attributes',
-                "internalKey='" . $uid . "'"
+            // 外すのは失敗回数による一時ロックだけ。管理者が付けたブロックには触らない
+            $attributes = db()->getRow(
+                db()->select(
+                    'blockeduntil, failedlogincount',
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                )
             );
+            if (isTemporaryLoginLock($attributes)) {
+                db()->update(
+                    ['failedlogincount' => 0, 'blockeduntil' => 0],
+                    '[+prefix+]web_user_attributes',
+                    sprintf("internalKey='%d'", $uid)
+                );
+            }
             // invoke OnWebChangePassword event
             $tmp = [
                 'userid' => $row['id'],
@@ -1096,7 +1109,11 @@ trait DocumentParserSubParserTrait
 
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
-        if (strpos($docid, ',') !== false) {
+        // 配列など文字列・数値でない値（id[]=1 を渡したときなど）は、権限があるとみなさない
+        if (is_array($docid) || is_object($docid)) {
+            return false;
+        }
+        if (is_string($docid) && strpos($docid, ',') !== false) {
             $docid = substr($docid, 0, strpos($docid, ','));
         }
 
@@ -1245,8 +1262,8 @@ trait DocumentParserSubParserTrait
                 break;
             case '@INHERIT' :
                 $output = $param;
-                if (empty($docid) && isset($_REQUEST['pid'])) {
-                    $doc['parent'] = $_REQUEST['pid'];
+                if (empty($docid) && anyv('pid') !== null) {
+                    $doc['parent'] = anyv('pid');
                 } else {
                     $doc = $modx->getPageInfo($docid, 0, 'id,parent');
                 }
@@ -2019,9 +2036,10 @@ trait DocumentParserSubParserTrait
     # Returns a record for the web user
     function getWebUserInfo($uid)
     {
-        $field = 'wu.username, wu.password, wua.*';
+        // 属性の表にも列 id がある。ユーザーの ID は web_users.id なので、後ろに書いて読む
+        $field = 'wua.*, wu.id, wu.username, wu.password';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
-        $rs = db()->select($field, $from, "wu.id='$uid'");
+        $rs = db()->select($field, $from, 'wu.id=' . (int)$uid);
         $limit = db()->count($rs);
         if ($limit == 1) {
             $row = db()->getRow($rs);
@@ -2037,12 +2055,13 @@ trait DocumentParserSubParserTrait
     function getUserInfo($uid)
     {
         $rs = db()->select(
-            'user.username, user.password, attrib.*',
+            // 属性の表にも列 id がある。ユーザーの ID は manager_users.id なので、後ろに書いて読む
+            'attrib.*, user.id, user.username, user.password',
             [
                 '[+prefix+]manager_users user',
                 'INNER JOIN [+prefix+]user_attributes attrib ON attrib.internalKey=user.id'
             ],
-            sprintf("user.id='%s'", db()->escape($uid))
+            'user.id=' . (int)$uid
         );
         if (db()->count($rs) == 1) {
             $row = db()->getRow($rs);
@@ -2162,7 +2181,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields, $where]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
@@ -2215,7 +2235,8 @@ trait DocumentParserSubParserTrait
         global $modx;
         static $cache = [];
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
+        // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
+        $cacheKey = serialize([(string) $id, $sort, $dir, $fields]);
         if (isset($cache[$cacheKey])) {
             return $cache[$cacheKey];
         }
@@ -3025,6 +3046,9 @@ trait DocumentParserSubParserTrait
         return $content;
     }
 
+    /**
+     * 時刻が来た下書きの予約を文書へ反映し、反映した文書の ID を返す
+     */
     function updateDraft()
     {
         global $modx;
@@ -3034,26 +3058,39 @@ trait DocumentParserSubParserTrait
         $rs = db()->select(
             '*',
             '[+prefix+]site_revision',
-            sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
+            sprintf("pub_date!=0 AND pub_date<=%s AND status='standby' AND element='resource'", $now)
         );
 
         if (!db()->count($rs)) {
-            return;
+            return [];
         }
 
         evo()->loadExtension('REVISION');
         evo()->loadExtension('DocAPI');
+        $updated = [];
         while ($row = db()->getRow($rs)) {
-            $draft = $modx->revision->getDraft($row['elmid']);
+            // 今すぐ採用と同じく、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
+            [$draft, $error] = evo()->doc->draftForAdoption(
+                $row['elmid'],
+                $modx->revision->getDraft($row['elmid'])
+            );
+            // 予約の後にトップページになった文書などで、許さない公開の状態になるときは反映せず、予約を残す
+            if ($error !== '') {
+                evo()->logEvent(0, 2, $error, 'Draft update skipped', [
+                    'docid' => (int)$row['elmid'],
+                    'draftid' => (int)$row['internalKey'],
+                ]);
+                continue;
+            }
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
-            $draft['published'] = 1;
 
             if ($modx->doc->update($draft, $row['elmid']) !== false) {
                 db()->delete(
                     '[+prefix+]site_revision',
                     sprintf('internalKey=%d', $row['internalKey'])
                 );
+                $updated[] = (int)$row['elmid'];
             }else{
                 $modx->logEvent(0,
                                 3,
@@ -3061,6 +3098,8 @@ trait DocumentParserSubParserTrait
                                 'Draft update error');
             }
         }
+
+        return $updated;
     }
 
     private function normalizeLogMessage($message): string

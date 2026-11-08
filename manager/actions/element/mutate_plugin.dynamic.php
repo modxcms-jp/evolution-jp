@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a')) {
+switch (request_intvar('a')) {
     case 102:
         if (!evo()->hasPermission('edit_plugin')) {
             alert()->setError(3);
@@ -21,10 +21,10 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 102);
+abort_if_invalid_id('id', request_intvar('a') === 102);
 
 // check to see the plugin editor isn't locked
-$rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", getv('id')));
+$rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", get_intvar('id')));
 $row = db()->getRow($rs);
 if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
     $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['plugin']);
@@ -33,8 +33,8 @@ if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
 }
 // end check for lock
 
-if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
-    $rs = db()->select('*', '[+prefix+]site_plugins', sprintf("id='%d'", getv('id')));
+if (get_intvar('id')) {
+    $rs = db()->select('*', '[+prefix+]site_plugins', sprintf("id='%d'", get_intvar('id')));
     $total = db()->count($rs);
     $content = db()->getRow($rs);
 
@@ -75,14 +75,14 @@ function entity($key, $default = null)
     });
 
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=105");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_plugin'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_plugin'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=104");
         }
@@ -269,14 +269,14 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
     <?php
     // invoke OnPluginFormPrerender event
-    $tmp = ["id" => getv('id')];
+    $tmp = ["id" => get_intvar('id')];
     $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
 
@@ -291,16 +291,16 @@ function entity($key, $default = null)
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                            value="1" <?= selected(anyv('stay') == 1) ?>><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= selected(request_intvar('stay') === 1) ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                            value="2" <?= selected(anyv('stay') == 2) ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= selected(request_intvar('stay') === 2) ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= selected(anyv('stay') == '') ?>><?= $_lang['close'] ?></option>
+                            value="" <?= selected(!request_intvar('stay')) ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 102) {
+            if (request_intvar('a') === 102) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']
@@ -317,7 +317,7 @@ function entity($key, $default = null)
                 }
             }
             $params = [
-                'onclick' => "document.location.href='index.php?a=76';",
+                'onclick' => "EvoShell.go('index.php?a=76');",
                 'label' => $_lang['cancel']
             ];
             echo manager()->ab($params);
@@ -374,7 +374,7 @@ function entity($key, $default = null)
                 $from = '[+prefix+]site_modules sm ' .
                     'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
                     'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
-                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", getv('id'));
+                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", get_intvar('id'));
                 $ds = db()->select($field, $from, $where, 'sm.name');
                 $guid_total = db()->count($ds);
                 if ($guid_total > 0) {
@@ -435,9 +435,9 @@ function entity($key, $default = null)
                     if (isset($content['sysevents'])) {
                         // 差し戻された入力があれば、DB よりそちらを優先する
                         $evts = array_map('intval', (array)$content['sysevents']);
-                    } elseif (getv('id')) {
+                    } elseif (get_intvar('id')) {
                         $evts = [];
-                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", getv('id')));
+                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", get_intvar('id')));
                         while ($row = db()->getRow($rs)) {
                             $evts[] = $row['evtid'];
                         }
@@ -588,12 +588,12 @@ function entity($key, $default = null)
         </div>
     </div>
     <script>
-        var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false'; ?>;
+        var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false'; ?>;
         tp = new WebFXTabPane(document.getElementById("pluginPane"), tpstatus);
     </script>
     <?php
     // invoke OnPluginFormRender event
-    $tmp = ["id" => getv('id')];
+    $tmp = ["id" => get_intvar('id')];
     $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

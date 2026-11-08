@@ -1,6 +1,8 @@
 <?php
 // cache & synchronise class
 
+require_once __DIR__ . '/filesystem.class.inc.php';
+
 class synccache
 {
     public $cachePath;
@@ -132,6 +134,7 @@ class synccache
             return [0, 0, []];
         }
         $deletedfiles = [];
+        $failures = [];
         $cachedir_len = strlen($this->cachePath);
         while ($file_path = array_shift($files)) {
             $name = substr($file_path, $cachedir_len);
@@ -139,56 +142,16 @@ class synccache
                 continue;
             }
             $rs = null;
-            if (is_file($file_path)) {
+            if (is_dir($file_path)) {
+                $rs = Filesystem::deleteTree($file_path, $failures);
+            } elseif (is_file($file_path)) {
                 $rs = unlink($file_path);
-            } elseif (is_dir($file_path)) {
-                $rs = $this->removeDirectory($file_path);
             }
             if ($rs) {
                 $deletedfiles[] = $name;
             }
         }
         return [$filesincache, count($deletedfiles), $deletedfiles];
-    }
-
-    private function removeDirectory($directory)
-    {
-        $directory = rtrim($directory, '/');
-        if (
-            $directory === ''
-            || !defined('MODX_BASE_PATH')
-            || MODX_BASE_PATH === ''
-            || !str_starts_with($directory, MODX_BASE_PATH)
-        ) {
-            return false;
-        }
-
-        if (!is_dir($directory) || !is_readable($directory)) {
-            return false;
-        }
-
-        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
-
-        try {
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($directory, $flags),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-        } catch (UnexpectedValueException $exception) {
-            return false;
-        }
-
-        $result = true;
-        foreach ($iterator as $fileInfo) {
-            $path = $fileInfo->getPathname();
-            if ($fileInfo->isDir()) {
-                $result = rmdir($path) && $result;
-            } else {
-                $result = unlink($path) && $result;
-            }
-        }
-
-        return $result ? rmdir($directory) : false;
     }
 
     public function showReport($info)
@@ -241,34 +204,34 @@ class synccache
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s',
-            config('recent_update', 0),
-            date('Y-m-d H:i:s', config('recent_update', 0))
+            (int) config('recent_update', 0),
+            date('Y-m-d H:i:s', (int) config('recent_update', 0))
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
         $content[] = sprintf(
             '$cacheRefreshTime = %s; // %s',
-            $cacheRefreshTime,
-            date('Y-m-d H:i:s', $cacheRefreshTime)
+            (int) $cacheRefreshTime,
+            date('Y-m-d H:i:s', (int) $cacheRefreshTime)
         );
         $content[] = sprintf(
             '$cache_type = %s;',
-            config('cache_type', 1)
+            (int) config('cache_type', 1)
         );
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
-                '$site_sessionname = "%s";',
-                $site_sessionname
+                '$site_sessionname = %s;',
+                var_export((string) $site_sessionname, true)
             );
         }
 
         $content[] = sprintf(
             '$site_status = %s;',
-            config('site_status', 1)
+            (int) config('site_status', 1)
         );
         $content[] = sprintf(
-            '$error_reporting = "%s";',
-            config('error_reporting', 1)
+            '$error_reporting = %s;',
+            var_export((string) config('error_reporting', 1), true)
         );
 
         // 書き出したときのコードの版（index.php のフルページキャッシュの早い返しが、コードの版と照らす）
@@ -282,22 +245,23 @@ class synccache
 
         // サイトのURL（init::fixed_site_url() が、パーサより前にこの行を読む）。
         // URL の決定にパスは使わないので、スキーム・ホスト・ポートだけを書く（パスの文字でエスケープが入らないように）
-        $fixed_site_url = init::normalize_site_url(evo()->array_get($config, 'fixed_site_url', ''));
+        $fixed_site_url = init::normalize_site_url(array_get($config, 'fixed_site_url', ''));
         if ($fixed_site_url !== '') {
             $content[] = sprintf('$fixed_site_url = %s;', var_export($fixed_site_url, true));
         }
 
-        if (evo()->array_get($config, 'base_url') && strpos(evo()->array_get($config, 'base_url'), '[(') === false) {
+        $base_url = array_get($config, 'base_url');
+        if ($base_url && strpos($base_url, '[(') === false) {
             $content[] = sprintf(
-                '$base_url = "%s";',
-                evo()->array_get($config, 'base_url')
+                '$base_url = %s;',
+                var_export((string) $base_url, true)
             );
         }
 
         if (config('conditional_get')) {
             $content[] = sprintf(
-                '$conditional_get = "%s";',
-                config('conditional_get')
+                '$conditional_get = %s;',
+                var_export((string) config('conditional_get'), true)
             );
         }
 

@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a')) {
+switch (request_intvar('a')) {
     case 22:
         if (!evo()->hasPermission('edit_snippet')) {
             alert()->setError(3);
@@ -21,9 +21,9 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 22);
+abort_if_invalid_id('id', request_intvar('a') === 22);
 
-$id = (int)anyv('id', 0);
+$id = request_intvar('id');
 
 // check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
@@ -41,7 +41,7 @@ if ($limit > 1) {
 // end check for lock
 
 $content = [];
-if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
+if (get_intvar('id')) {
     $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
     $limit = db()->count($rs);
     if ($limit > 1) {
@@ -71,14 +71,14 @@ function entity($key, $default = null)
 <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script type="text/javascript">
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=98");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_snippet'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_snippet'))) ?>)) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=25");
         }
@@ -109,7 +109,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
     <div id="actions">
         <ul class="actionButtons">
@@ -122,16 +122,16 @@ function entity($key, $default = null)
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                            value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 22) {
+            if (request_intvar('a') === 22) {
                 if (evo()->hasPermission('new_snippet')) {
                     echo manager()->ab([
                         'onclick' => 'duplicaterecord();',
@@ -146,7 +146,7 @@ function entity($key, $default = null)
                 }
             }
             echo manager()->ab([
-                'onclick' => "document.location.href='index.php?a=76';",
+                'onclick' => "EvoShell.go('index.php?a=76');",
                 'label' => $_lang['cancel']
             ]);
             ?>
@@ -332,7 +332,7 @@ function entity($key, $default = null)
 
 <script type="text/javascript">
     setTimeout('showParameters();', 10);
-    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
+    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
     tpSnippet = new WebFXTabPane(document.getElementById("snipetPane"), tpstatus);
     // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
     (function() {

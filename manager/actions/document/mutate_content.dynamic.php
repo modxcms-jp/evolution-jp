@@ -45,13 +45,12 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+$tvTemplate = doc('template');
+$tmplVars = getTmplvars(request_intvar('id'), $tvTemplate, $docgrp);
 $docObject += $tmplVars;
 
 manager()->saveFormValues();
-if (postv()) {
-    $docObject = mergeReloadValues($docObject);
-}
+$docObject = mergeReloadValues($docObject);
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = &$docObject;
@@ -61,6 +60,15 @@ $modx->event->vars['documentObject'] = &$docObject;
 $tmp = ['id' => request_intvar('id')];
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = [];
+
+// 差し戻しやプラグイン（OnDocFormPrerender）でテンプレートが変わったら、そのテンプレートの入力欄に組み立て直す
+if ((int)doc('template') !== (int)$tvTemplate) {
+    foreach (array_keys($tmplVars) as $tvKey) {
+        unset($docObject[$tvKey]);
+    }
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+    $docObject += $tmplVars;
+}
 
 global $template; // For plugins (ManagerManager etc...)
 $template = doc('template');
@@ -119,7 +127,7 @@ if (config('use_editor') === '1') {
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = [
-            'editor' => evo()->input_post('which_editor', config('which_editor')),
+            'editor' => currentEditor(),
             'elements' => $rte_fields
         ];
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
@@ -130,7 +138,7 @@ if (config('use_editor') === '1') {
 }
 
 $template = file_get_tpl('_template.tpl');
-if (evo()->input_any('pid')) {
+if (request_intvar('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
 $ph = collect_template_ph(

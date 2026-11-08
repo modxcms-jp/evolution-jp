@@ -44,9 +44,22 @@ if ($draft) {
     }
 }
 
-if (postv('publishoption') === 'reserve' && postv('pub_date')) {
-    $pub_date = evo()->toTimeStamp(postv('pub_date'));
+// 空白だけの日付は空の日付（即時公開）として扱う
+$reserveDate = trim(post_strvar('pub_date'));
+if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
+    $pub_date = evo()->parseDateInput($reserveDate);
+    if ($pub_date === null) {
+        // 解釈できない日付で即時に公開しない
+        manager()->saveFormValues(133);
+        evo()->webAlertAndQuit(
+            lang('mgrlog_dateinvalid'),
+            sprintf('index.php?a=133&id=%s', $docid)
+        );
+        exit;
+    }
     if (request_time() < $pub_date) {
+        // トップページで採用できない下書きは、予約も受け付けない（今すぐ採用と同じ警告で戻す）
+        adoptableDraft($docid, $draft);
         setStandBy($docid, $pub_date);
         evo()->setCacheRefreshTime($pub_date);
     } else {
@@ -74,17 +87,31 @@ function setStandBy($docid, $pub_date)
     return 'set_standby';
 }
 
+/**
+ * 下書きを採用するときの値を、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
+ * （DocAPI::draftForAdoption()。公開の権限が無いときは published だけ今の値を引き継ぐ）。
+ * トップページで許さない公開の状態になるなら、文書も下書きも変えずに警告を出して下書きの編集画面へ戻す
+ */
+function adoptableDraft($docid, $draft)
+{
+    evo()->loadExtension('DocAPI');
+    [$draft, $error] = evo()->doc->draftForAdoption(
+        $docid,
+        $draft,
+        evo()->hasPermission('publish_document')
+    );
+    if ($error !== '') {
+        evo()->webAlertAndQuit($error, sprintf('index.php?a=131&id=%s', $docid));
+        exit;
+    }
+    return $draft;
+}
+
 function publishDraft($docid)
 {
     evo()->loadExtension('DocAPI');
-    $rs = db()->select(
-        '*',
-        '[+prefix+]site_content',
-        sprintf("id='%s'", $docid)
-    );
-    $documentObject = db()->getRow($rs);
-    $draft = evo()->revision->getDraft($docid);
-    $draft['published'] = $documentObject['published'];
+    // 下書きが無いときは、日付に規則をかけず published だけ今の値を渡す（DocAPI::draftForAdoption()）
+    $draft = adoptableDraft($docid, evo()->revision->getDraft($docid));
     evo()->doc->update($draft, $docid);
     db()->delete(
         '[+prefix+]site_revision',

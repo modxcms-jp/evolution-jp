@@ -30,7 +30,7 @@ if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (!isset($_SESSION['webValidated'])) {
-    $username = hsc(trim(webLoginString(postv('username'))), ENT_QUOTES);
+    $username = hsc(trim(post_strvar('username')), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -91,13 +91,14 @@ EOT;
     // display login
     $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
-    $refurl = webLoginString(anyv('refurl'));
+    $refurl = webLoginRefUrl();
     $ref = $refurl !== '' ? ['refurl' => urlencode($refurl)] : [];
     $form = str_replace("[+action+]", preserveUrl($modx->documentIdentifier, '', $ref), $form);
     $form = str_replace("[+rememberme+]", (isset($cookieSet) ? 1 : 0), $form);
     $form = str_replace("[+username+]", (isset($username) ? $username : ''), $form);
     $form = str_replace("[+checkbox+]", (isset($cookieSet) ? 'checked' : ''), $form);
     $form = str_replace("[+logintext+]", $loginText, $form);
+    $form = str_replace("[+captcha+]", webLoginCaptchaHtml(), $form);
     $focus = (!empty($username)) ? 'password' : 'username';
     $form .= <<< EOT
     <script type="text/javascript">
@@ -108,11 +109,7 @@ EOT;
 } else {
     $_SESSION['ip'] = real_ip();
 
-    if (anyv('id') && is_numeric(anyv('id'))) {
-        $itemid = anyv('id');
-    } else {
-        $itemid = 0;
-    }
+    $itemid = request_intvar('id');
     $sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')",
         evo()->getFullTableName('active_users'),
@@ -135,6 +132,21 @@ EOT;
     }
 }
 
+# キャプチャを使う設定のときだけ、画像と入力欄を返す（管理画面のログインと同じ画像の URL と欄の名前）
+function webLoginCaptchaHtml()
+{
+    if ((int)config('use_captcha', 0) !== 1) {
+        return '';
+    }
+    $label = hsc(fmplang('Security code'), ENT_QUOTES);
+    return sprintf(
+        '<img id="captcha_image" src="%sindex.php?get=captcha" alt="%s" style="cursor:pointer;" onclick="this.src=this.src.split(\'&\')[0]+\'&\'+Date.now();" /><br />%s : <input type="text" name="captcha_code" size="8" style="width: 150px;" value="" autocomplete="off" /><br />',
+        hsc(config('base_url', '/'), ENT_QUOTES),
+        $label,
+        $label
+    );
+}
+
 # Returns Default WebLogin tpl
 function getWebLogintpl()
 {
@@ -144,7 +156,7 @@ function getWebLogintpl()
     <form method="post" name="loginfrm" action="[+action+]">
     <input type="hidden" value="[+rememberme+]" name="rememberme" />
     User : <input type="text" name="username" onkeypress="return webLoginEnter(document.loginfrm.password);" size="8" style="width: 150px;" value="[+username+]" /><br />
-    Password : <input type="password" name="password" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /><br />
+    Password : <input type="password" name="password" onkeypress="return webLoginEnter(document.loginfrm.cmdweblogin);" style="width: 150px;" value="" /><br />[+captcha+]
     Remember me : <input type="checkbox" id="chkbox" name="chkbox" value="" [+checkbox+] onclick="webLoginCheckRemember()" /><br />
     <input type="submit" value="[+logintext+]" name="cmdweblogin" /><br />
     <a href="#" onclick="webLoginShowForm(2);return false;">Forget Password?</a>

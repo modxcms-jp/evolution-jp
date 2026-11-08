@@ -8,6 +8,18 @@ $this->filter = new MODIFIERS;
 
 class MODIFIERS
 {
+    // parsePhx() が結果を覚えない修飾子。
+    // ページの外（プレースホルダー・<head>・</body> の前）を書き換えるのが目的で、返す値は '' に決まっている。
+    // 覚えると 2 回目に書き換えが起きない（間で上書きされたプレースホルダーを setvar で設定し直せない など）。
+    // getValueFromPreset() にこの種の修飾子を足したときは、ここにも足す
+    private const PHX_UNCACHEABLE_MODIFIERS = [
+        'setvar',
+        'csstohead',
+        'htmltohead',
+        'htmltobottom',
+        'jstohead',
+        'jstobottom',
+    ];
 
     public $documentObject;
     public $placeholders = [];
@@ -18,6 +30,8 @@ class MODIFIERS
     public $condModifiers;
     // モディファイアの部品（mdf_memberof・mdf_moduser）が 1 リクエストの間だけ使う結果の控え
     public $cache = [];
+    // getSnippetFromFile() がコアの部品（extenders/modifiers/）から読んだ修飾子の名前。parsePhx() が覚えてよいかの判定に使う
+    private $coreModifierFiles = [];
 
     public $key;
     public $value;
@@ -25,20 +39,24 @@ class MODIFIERS
 
     public function __construct()
     {
-        global $modx;
-
-        if (!$modx->config) {
-            $modx->config = $modx->getSiteCache();
-        }
-
+        // 設定は DocumentParser::loadExtension() が、この部品を読み込む前に読み込んでいる
         mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
 
-    public function phxFilter($key, $value, $modifiers)
+    // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（parsePhx() を参照）
+    public function phxFilter($key, $value, $modifiers, $breakTags = false)
     {
+        // 修飾子は文字列の値を受ける前提で、配列は下の strpos() などで止まる（PHP 8 は TypeError、7.4 は警告から 500）。
+        // 配列（?b[]=x のようなリクエストの値、配列を入れたプレースホルダー、配列を返すスニペット）は、
+        // 修飾子を当てずに空にする。修飾子の無いタグも配列は差し込まず空になるので、それとそろえる。
+        // id( で始まる列は値を使わずに文書の項目を読むので、配列のまま当てる。
+        // 括弧の中が空と評価されたときは、id 修飾子（getValueFromPreset()）が配列なら空を返す
         if (strpos($modifiers, 'id(') !== 0) {
+            if (is_array($value)) {
+                return '';
+            }
             $value = $this->parseDocumentSource($value);
         }
         $this->srcValue = $value;
@@ -51,7 +69,7 @@ class MODIFIERS
         $this->condition = [];
         $this->vars = [];
         $this->vars['name'] = &$key;
-        $value = $this->parsePhx($key, $value, $modifiers);
+        $value = $this->parsePhx($key, $value, $modifiers, $breakTags);
         $this->vars = [];
         return $value;
     }
@@ -198,12 +216,21 @@ class MODIFIERS
         return $result;
     }
 
-    public function parsePhx($key, $value, $modifiers)
+    // $breakTags が true なら、修飾子を 1 つ当てるたびに結果のタグの記号を崩す。
+    // リクエストの値（[[$_GET[...]]] など）で、:urldecode などで戻したタグを続く修飾子（:summary など）が解析しないため
+    public function parsePhx($key, $value, $modifiers, $breakTags = false)
     {
         static $cache = [];
-        $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s', $key, $value, print_r($modifiers, true)));
-        if (isset($cache[$cacheKey])) {
-            return $cache[$cacheKey];
+        $cacheKey = null;
+        // 覚えるのは値が文字列・数などのときだけ（オブジェクトや配列は serialize() できないことがある）
+        if (is_scalar($value) || $value === null) {
+            // 値に本文などの長い文字列が入るので、キーには 128 ビットのハッシュを使う（32 ビットでは別の引数と重なりうる）。
+            // serialize() は長さと型を含むので、名前・値・修飾子の境目がずれて同じ文字列になることもない。
+            // タグの記号を崩すかどうかで結果が変わるので、$breakTags もキーに含める
+            $cacheKey = md5(serialize([$key, $value, $modifiers, $breakTags]));
+            if (isset($cache[$cacheKey])) {
+                return $cache[$cacheKey];
+            }
         }
         if (empty($modifiers)) {
             return '';
@@ -224,6 +251,9 @@ class MODIFIERS
                 $fstart = evo()->getMicroTime();
             }
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
+            if ($breakTags) {
+                $value = evo()->breakTagDelimitersRecursive($value);
+            }
             if (evo()->debug) {
                 evo()->addLogEntry(
                     sprintf(
@@ -235,8 +265,43 @@ class MODIFIERS
                 );
             }
         }
-        $cache[$cacheKey] = $value;
+        // 覚えない組は保存しないので、上の読み出しで当たるのは覚えてよい組だけ（当たったときの判定は要らない）
+        if ($cacheKey !== null && $this->isCacheablePhx($key, $modifiers)) {
+            $cache[$cacheKey] = $value;
+        }
         return $value;
+    }
+
+    // 結果が名前・値・修飾子だけで決まる組か。決まらない組を覚えると、同じ組の 2 回目に古い結果を返す
+    private function isCacheablePhx($key, $modifiers)
+    {
+        // Filter() が値の代わりに今の文書の id を使う
+        if ($key === 'documentObject') {
+            return false;
+        }
+        foreach ($modifiers as $m) {
+            $cmd = $m['cmd'];
+            // 名前にタグを含むと、Filter() で解析するまで何の修飾子か決まらない
+            if (strpos($cmd, '[') !== false || strpos($cmd, '{') !== false) {
+                return false;
+            }
+            $opt = $m['opt'];
+            $cmd = $this->normalizeCmd($cmd, $opt);
+            if (in_array($cmd, self::PHX_UNCACHEABLE_MODIFIERS, true)) {
+                return false;
+            }
+            // スニペット（DB・assets/modifiers などのファイル）を修飾子として呼ぶもの。中身は何でも書けるので、
+            // 時刻・カウンター・ほかのプレースホルダーを見ると、同じ組でも結果が変わる。
+            // コアの部品（extenders/modifiers/ の summary など）は値と修飾子だけで決まるので覚える
+            // （getValueFromPreset() が includeMdfFile() で同じファイルを呼ぶ場合と扱いをそろえる）。
+            // summary・addbreak は値に残ったタグを解析するが、値は phxFilter() が先に解析し切るので、
+            // タグが残るのは :id(...) で始まる修飾子などに限られる。
+            // Filter() で一度呼んだあとなので、snippetCache を見るだけで済む
+            if ($this->snippet_exists($cmd) && !isset($this->coreModifierFiles[$cmd])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Parser: modifier detection and eXtended processing if needed
@@ -245,19 +310,7 @@ class MODIFIERS
         if ($key === 'documentObject') {
             $value = evo()->documentIdentifier;
         }
-        $cmd = $this->parseDocumentSource($cmd);
-        if (preg_match('@^[1-9][/0-9]*$@', $cmd)) {
-            if (strpos($cmd, '/') !== false) {
-                $cmd = $this->substr($cmd, strrpos($cmd, '/') + 1);
-            }
-            $opt = $cmd;
-            $cmd = 'id';
-        }
-
-        $cmd = strtolower($cmd);
-        if ($cmd === 'encode_sha1') {
-            $cmd = 'sha1';
-        }
+        $cmd = $this->normalizeCmd($this->parseDocumentSource($cmd), $opt);
 
         if ($this->snippet_exists($cmd)) {
             $value = $this->getValueFromPHP($key, $value, $cmd, $opt);
@@ -274,6 +327,24 @@ class MODIFIERS
         }
 
         return str_replace('[+key+]', $key, $value);
+    }
+
+    // 修飾子の名前を Filter() で振り分ける形にそろえる。数字だけの名前（:5 や :1/5）は、id で文書を指す id 修飾子になる
+    private function normalizeCmd($cmd, &$opt)
+    {
+        if (preg_match('@^[1-9][/0-9]*$@', $cmd)) {
+            if (strpos($cmd, '/') !== false) {
+                $cmd = $this->substr($cmd, strrpos($cmd, '/') + 1);
+            }
+            $opt = $cmd;
+            $cmd = 'id';
+        }
+
+        $cmd = strtolower($cmd);
+        if ($cmd === 'encode_sha1') {
+            $cmd = 'sha1';
+        }
+        return $cmd;
     }
 
     public function snippet_exists($cmd)
@@ -478,8 +549,9 @@ class MODIFIERS
         // 条件系のモディファイアは getValueFromPreset() で $this->condition に積む。
         // コアの同名ファイル（mdf_memberof.inc.php など）は真偽を返す部品なので、
         // 単独のスニペットとして動かすと条件が積まれず、then・else の条件式が空になる
+        $corePath = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
         if (!in_array($cmd, explode(',', $this->condModifiers), true)) {
-            $_[] = sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd);
+            $_[] = $corePath;
         }
         foreach ($_ as $mdf_path) {
             if (is_file($mdf_path)) {
@@ -490,6 +562,9 @@ class MODIFIERS
 
         if (empty($mdf_path)) {
             return false;
+        }
+        if ($mdf_path === $corePath) {
+            $this->coreModifierFiles[$cmd] = true;
         }
 
         $code = trim(@file_get_contents($mdf_path));
@@ -1099,6 +1174,10 @@ class MODIFIERS
                 if ($opt) {
                     return $this->getDocumentObject($opt, $key);
                 }
+                // 括弧の中が空なら値をそのまま返すので、配列は続く修飾子に渡さず空にする
+                if (is_array($value)) {
+                    return '';
+                }
                 break;
             case 'type':
             case 'contenttype':
@@ -1353,19 +1432,17 @@ class MODIFIERS
                 $opt = evo()->parseText($opt, ['value' => $value]);
                 return $opt;
             case 'datagrid':
-                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                $grd = new DataGrid();
-                $grd->ds = trim($value);
-                $grd->itemStyle = '';
-                $grd->altItemStyle = '';
-                $pos = strpos($value, "\n");
-                if ($pos) {
-                    $_ = substr($value, 0, $pos);
-                } else {
-                    $_ = $pos;
+                include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                // 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り
+                $text = trim($value);
+                $firstLine = strstr($text, "\n", true);
+                if ($firstLine === false) {
+                    $firstLine = $text;
                 }
-                $grd->cdelim = strpos($_, "\t") !== false ? 'tab' : ',';
-                return $grd->render();
+                return DataTableSettings::render($text, [
+                    'delimiter' => strpos($firstLine, "\t") !== false ? "\t" : ',',
+                    'pageSize' => 0,
+                ], 'mdf');
             case 'rotate':
             case 'evenodd':
                 if (strpos($opt, ',') === false) {

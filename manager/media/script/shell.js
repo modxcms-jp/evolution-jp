@@ -449,11 +449,51 @@
     }
 
     // 応答待ちのフォーム。同じフォームの送信が重ならないよう、送信中は次の送信を無視する。
-    // 値は送信中の印を付けた要素(フォームが画面から外れても、その要素から確実に外す)
+    // 値は送信中の印を付けた要素と押したボタン(フォームが画面から外れても、その要素から確実に外す)
     const submittingForms = new WeakMap();
 
+    // 押したボタンだけに出すアニメーションの種類(テーマの --evo-submitting-style)
+    const SUBMITTING_STYLES = ['spinner', 'stripes', 'dots'];
+    const CLICK_TARGET_SELECTOR = '.actionButtons a, button[type="submit"], button:not([type]), input[type="submit"], input[type="image"]';
+
+    // 直前にクリックされた見えるボタン。submitterの無い送信(form.submit())で押したボタンを知るために使う。
+    // 同じクリックの処理の中で送信されたときだけ有効(クリックの直後のタスクで消す)。
+    // 送信しないボタンのクリックが残り、後の別の送信(入力欄でEnterなど)の押したボタンと取り違えないため
+    let lastClicked = null;
+
+    function isVisible(el) {
+        return el.getClientRects().length > 0;
+    }
+
+    // アニメーションを出すボタンを決める。決まらなければnull(今の半透明のまま)
+    function resolveTrigger(submitter, targets) {
+        const clicked = lastClicked;
+        lastClicked = null;
+        let trigger = null;
+        if (submitter instanceof Element && isVisible(submitter)) {
+            trigger = submitter;
+        } else if (clicked && clicked.isConnected && targets.some(function (t) {
+            return t.contains(clicked);
+        })) {
+            trigger = clicked;
+        }
+        if (!trigger) {
+            return null;
+        }
+        const style = getComputedStyle(trigger).getPropertyValue('--evo-submitting-style').trim();
+        if (SUBMITTING_STYLES.indexOf(style) === -1) {
+            return null;
+        }
+        // inputは疑似要素を持てない(明滅のみ)ので、種類のクラスは付けない
+        trigger.classList.add('evo-submitting-trigger');
+        if (trigger.tagName !== 'INPUT') {
+            trigger.classList.add('evo-submitting--' + style);
+        }
+        return { el: trigger, style: style };
+    }
+
     // 送信中の見た目。送信ボタンと、同じ画面(#mainPane/モーダル)のactionButtonsを押せない見た目にする
-    function setSubmitting(form, on) {
+    function setSubmitting(form, on, submitter) {
         if (on) {
             const container = form.closest('#mainPane, #evoShellModal');
             const targets = [form];
@@ -462,17 +502,27 @@
                     targets.push(el);
                 });
             }
+            // 先に登録する。途中で例外が出ても、解除(clear)が付けた印を確実に外せる
+            const state = { targets: targets, trigger: null };
+            submittingForms.set(form, state);
+            state.trigger = resolveTrigger(submitter, targets);
             targets.forEach(function (el) {
                 el.classList.add('evo-submitting');
                 el.setAttribute('aria-busy', 'true');
             });
-            submittingForms.set(form, targets);
             return;
         }
-        (submittingForms.get(form) || []).forEach(function (el) {
+        const state = submittingForms.get(form);
+        if (!state) {
+            return;
+        }
+        state.targets.forEach(function (el) {
             el.classList.remove('evo-submitting');
             el.removeAttribute('aria-busy');
         });
+        if (state.trigger) {
+            state.trigger.el.classList.remove('evo-submitting-trigger', 'evo-submitting--' + state.trigger.style);
+        }
         submittingForms.delete(form);
     }
 
@@ -590,6 +640,20 @@
             request(normalizeManagerUrl(url), { method: 'GET' }, push);
         },
 
+        // 画面の JS から別の画面へ移る(キャンセル・ボタン・行クリック)ときの入口。
+        // シェルの中なら #mainPane だけを入れ替え、シェルの外(別窓など)ならページ全体で移る。
+        // opts.discard === true なら、未保存の確認を出さずに移る(キャンセル用)
+        go: function (url, opts) {
+            if (opts && opts.discard) {
+                window.documentDirty = false;
+            }
+            if (document.body.classList.contains('evo-shell') && isManagerUrl(url)) {
+                EvoShell.navigate(url);
+            } else {
+                window.location.href = url;
+            }
+        },
+
         submit: function (form, submitter) {
             if (submittingForms.has(form)) {
                 return;
@@ -618,8 +682,8 @@
             const clear = function () {
                 setSubmitting(form, false);
             };
-            setSubmitting(form, true);
             try {
+                setSubmitting(form, true, submitter);
                 request(action, {
                     method: 'POST',
                     body: formData,
@@ -709,6 +773,19 @@
         }
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
+
+        // 直前に押したボタンを覚える。見えない要素(document.mutate.save.click()の合成クリック)は無視する
+        document.addEventListener('click', function (e) {
+            const el = e.target.closest ? e.target.closest(CLICK_TARGET_SELECTOR) : null;
+            if (el && el.closest('#mainPane, #evoShellModal') && isVisible(el)) {
+                lastClicked = el;
+                setTimeout(function () {
+                    if (lastClicked === el) {
+                        lastClicked = null;
+                    }
+                }, 0);
+            }
+        }, true);
 
         // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
         document.addEventListener('click', function (e) {

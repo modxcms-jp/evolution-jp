@@ -3,23 +3,32 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-if (!isset($_POST['action'])) {
+if (postv('action') === null) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('key', ''))) {
+// key・value・lang は文字列だけを受ける（配列は拒否）
+foreach (['key', 'value', 'lang'] as $name) {
+    if (postv($name) !== null && post_textvar($name) === null) {
+        exit;
+    }
+}
+$key = post_textvar('key', '');
+$value = post_textvar('value', '');
+$lang = post_textvar('lang', '');
+if (preg_match('@[^A-Za-z0-9_\-\./]@', $key)) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\-\./]@', postv('value', ''))) {
+if (preg_match('@[^A-Za-z0-9_\-\./]@', $value)) {
     exit;
 }
-if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', postv('lang', ''))) {
+if (preg_match('@[^A-Za-z0-9_\s\+\-\./]@', $lang)) {
     exit;
 }
 
-$post = db()->escape($_POST);
-$post_lang = isset($post['lang']) ? $post['lang'] : '';
-$post_key = isset($post['key']) ? $post['key'] : '';
-$post_value = isset($post['value']) ? $post['value'] : '';
+// 上で許可した文字だけなので引用符は含まないが、DB に渡す文字列の組み立ての前に念のためエスケープする
+$post_lang = db()->escape($lang);
+$post_key = db()->escape($key);
+$post_value = db()->escape($value);
 
 if (postv('action') === 'get') {
     echo getStringFromLangFile($post_key, $post_lang);
@@ -27,20 +36,25 @@ if (postv('action') === 'get') {
 }
 
 $output = '';
+$rs = null; // 権限が無いなど、どの更新も行わないときは false の応答にする（このファイルは include されるので、呼び出し側の変数を引き継がない）
 $tbl_system_settings = evo()->getFullTableName('system_settings');
 switch (postv('action')) {
     case 'setsetting':
-        if (strpos(postv('key', ''), '_hide_configcheck_') === 0 && postv('value', '') === '1') {
+        if (strpos($key, '_hide_configcheck_') === 0 && $value === '1' && evo()->hasPermission('settings')) {
             $rs = @ db()->query("REPLACE INTO {$tbl_system_settings} (setting_name, setting_value) VALUES('{$post_key}', '{$post_value}')");
         }
         break;
-    case 'updateplugin':
-        if ($post_key == '_delete_') {
-            if (!empty($post_lang) && evo()->hasPermission('delete_plugin')) {
-                $rs = @ db()->delete('[+prefix+]site_plugins', "name='{$post_lang}'");
-            }
-        } elseif ($post_key === 'disabled' && $post_value === '1' && !empty($post_lang) && evo()->hasPermission('save_plugin')) {
-            $rs = @ db()->update([$post_key => $post_value], '[+prefix+]site_plugins', "name='{$post_lang}'");
+    // 設定の確認の TemplateSwitcher の警告から、プラグインを id で 1 件ずつ無効にする・削除する
+    case 'disableplugin':
+        $pluginId = post_intvar('id');
+        if ($pluginId && evo()->hasPermission('save_plugin')) {
+            $rs = db()->update(['disabled' => 1], '[+prefix+]site_plugins', "id='{$pluginId}'");
+        }
+        break;
+    case 'deleteplugin':
+        $pluginId = post_intvar('id');
+        if ($pluginId && evo()->hasPermission('delete_plugin')) {
+            $rs = manager()->deletePlugin($pluginId);
         }
         break;
 }
@@ -52,7 +66,7 @@ if (isset($rs) && !empty($rs)) {
 }
 
 if ($output === 'true') {
-    $modx->clearCache();
+    evo()->clearCache();
 }
 
 echo $output;

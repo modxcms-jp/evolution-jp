@@ -6,7 +6,7 @@ if (evo()->getLoginUserType() !== 'manager') {
     exit('Not Logged In!');
 }
 
-if (anyv('ajaxa') == 16) {
+if (request_intvar('ajaxa') === 16) {
     echo include(MODX_MANAGER_PATH . 'actions/element/ajax/mutate_templates.php');
 }
 

@@ -19,8 +19,7 @@ $site_mgr_path = MODX_CACHE_PATH . 'siteManager.php';
 if (!is_file($site_mgr_path)) {
     $src = "<?php\n";
     $src .= "define('MGR_DIR', '{$mgr_dir}');\n";
-    $rs = file_put_contents($site_mgr_path, $src);
-    if (!$rs) {
+    if (!file_put_contents($site_mgr_path, $src)) {
         exit('siteManager.php write error');
     }
     define('MGR_DIR', $mgr_dir);
@@ -53,18 +52,20 @@ $modx->getSettings();
 
 extract($modx->config);
 
-if (postv('updateMsgCount') && evo()->hasPermission('messages')) {
-    manager()->getMessageCount();
-}
-
 // include_once the language file
 $modx->loadLexicon('manager');
 
 // send the charset header
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
-manager()->action = anyv('a', 1);
-if (!evo()->input_any('a') && postv('updateMsgCount') === null && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
+// 画面の振り分けの番号 a は、画面の側と同じ読み方（request_intvar）で 1 回だけ読む。
+// 正の整数だけを番号として受け、先頭の 0・数字以外を含む値・配列は、番号として当てはまらない値（0）にする。
+// 当てはまらない値は、下の振り分けで「未実装」の画面に進み、画面の側でも拒否される
+$requestedAction = request_intvar('a');
+// a が指定されたか（値は見ない。'0'・空は未指定と同じ扱い）
+$isActionSpecified = (bool) anyv('a');
+manager()->action = anyv('a') === null ? 1 : $requestedAction;
+if (!$isActionSpecified && !sessionv('mainframe.a') && !sessionv('mgrForgetPassword')) {
     manager()->action = 2;
 }
 
@@ -141,7 +142,7 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // 旧framesetの入口。a未指定時はダッシュボードを既定表示にする
-if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') === null) {
+if (!$isActionSpecified && !alert()->hasError()) {
     if (sessionv('mainframe.a')) {
         $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
         sessionv('*mainframe', null);
@@ -155,18 +156,18 @@ if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') ==
 }
 
 // OK, let's retrieve the action directive from the request
+// GET と POST の両方で a が送られたか（値は見ない。どちらの値で振り分けるかが曖昧なので拒否する）
 if (getv('a') && postv('a')) {
     alert()->setError(100);
     alert()->dumpError();
 } else {
-    $modx->manager->action = evo()->input_any('a') ? ((int)anyv('a') ?: '') : (int)manager()->action;
+    $modx->manager->action = $isActionSpecified ? ($requestedAction ?: '') : (int)manager()->action;
 }
 
 if (
     manager_is_dashboard_action()
     && is_get()
     && !isEvoPaneRequest()
-    && postv('updateMsgCount') === null
 ) {
     $canonicalQuery = [];
     parse_str((string)parse_url(request_uri(), PHP_URL_QUERY), $canonicalQuery);
@@ -187,8 +188,8 @@ if (
 
 manager()->setView(manager()->action);
 
-if (postv('stay') && postv('stay') !== 'new') {
-    $_SESSION['saveAfter'] = postv('stay');
+if (post_strvar('stay') && post_strvar('stay') !== 'new') {
+    $_SESSION['saveAfter'] = post_strvar('stay');
 }
 
 // invoke OnManagerPageInit event
@@ -487,8 +488,8 @@ if (in_array(manager()->action, [
 switch (manager()->action) {
     case 1: //frame management - show the requested frame
         // get the requested frame
-        if (isset($_REQUEST['f'])) {
-            $frame = $_REQUEST['f'];
+        $frame = anyv('f');
+        if ($frame !== null) {
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
                 return;
             }
@@ -497,7 +498,7 @@ switch (manager()->action) {
                 define('EVO_SHELL_PARTIAL', true);
             }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
-        } elseif (isset($_REQUEST['ajaxa'])) {
+        } elseif (anyv('ajaxa') !== null) {
             include(MODX_MANAGER_PATH . 'ajax.php');
         } // ajax-action
         break;
@@ -741,15 +742,6 @@ switch (manager()->action) {
         break;
     case 64: // get the Recycle bin emptier
         include_once($prc_path . 'document/remove_content.processor.php');
-        break;
-    case 10: // get the messages page
-        include_once($action_path . 'permission/messages.static.php');
-        break;
-    case 65: // get the message deleter
-        include_once($prc_path . 'pm/delete_message.processor.php');
-        break;
-    case 66: // get the message deleter
-        include_once($prc_path . 'pm/send_message.processor.php');
         break;
     case 67: // get the lock remover
         include_once($prc_path . 'remove_locks.processor.php');

@@ -1,9 +1,19 @@
 <?php
 
+require_once __DIR__ . '/filesystem.class.inc.php';
+
 class SystemLogViewer
 {
-    public static function files(string $root): array
+    private const LOG_NAME_PATTERN = '/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/';
+
+    /**
+     * ログファイルの一覧。読めないフォルダがあっても止まらず、読めるところを返す。
+     *
+     * @param string[]|null $unreadable 読めずに飛ばしたフォルダのパスが入る(省略可)
+     */
+    public static function files(string $root, ?array &$unreadable = null): array
     {
+        $unreadable = [];
         if (!is_dir($root)) {
             return [];
         }
@@ -14,16 +24,13 @@ class SystemLogViewer
         }
         $rootPath = str_replace('\\', '/', $rootPath);
         $items = [];
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($rootPath, FilesystemIterator::SKIP_DOTS)
-        );
 
-        foreach ($iterator as $file) {
+        foreach (self::walk($rootPath, $unreadable) as $file) {
             if (!$file->isFile()) {
                 continue;
             }
             $name = $file->getFilename();
-            if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', $name)) {
+            if (!preg_match(self::LOG_NAME_PATTERN, $name)) {
                 continue;
             }
 
@@ -66,6 +73,124 @@ class SystemLogViewer
         });
 
         return $items;
+    }
+
+    /**
+     * フォルダを再帰して SplFileInfo を返す。シンボリックリンクのフォルダには入らない。
+     * 読めないフォルダは $unreadable に入れて飛ばす。
+     *
+     * @param string[] $unreadable
+     * @return Generator<SplFileInfo>
+     */
+    private static function walk(string $dir, array &$unreadable): Generator
+    {
+        try {
+            $children = new FilesystemIterator($dir, FilesystemIterator::SKIP_DOTS);
+            // 読めないフォルダは、例外でなく警告のみ出して空になる環境もあるため先頭の取得で確かめる
+            $children->rewind();
+        } catch (UnexpectedValueException $e) {
+            $unreadable[] = str_replace('\\', '/', $dir);
+            return;
+        }
+        foreach ($children as $child) {
+            if ($child->isDir() && !$child->isLink()) {
+                yield from self::walk($child->getPathname(), $unreadable);
+                continue;
+            }
+            yield $child;
+        }
+    }
+
+    /**
+     * YYYY-MM-DD の形で、実在する日付か。
+     */
+    public static function isValidDate(string $date): bool
+    {
+        if (!preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $date, $m)) {
+            return false;
+        }
+        return checkdate((int)$m[2], (int)$m[3], (int)$m[1]);
+    }
+
+    /**
+     * ログファイルの削除の芯。ファイル名がログのパターンに合うものだけを消し、最後まで進める。
+     * 消したあとに空になった YYYY/MM・YYYY のフォルダを消す($root は残す)。
+     *
+     * @param string[] $paths 消すファイルのパス
+     * @return array{deleted:int, failed:array<string,string>} failed は パス => 理由
+     */
+    public static function deleteFiles(array $paths, string $root): array
+    {
+        $deleted = 0;
+        $failed = [];
+        $rootPath = realpath($root);
+        $rootPath = $rootPath === false ? '' : rtrim(str_replace('\\', '/', $rootPath), '/') . '/';
+        foreach ($paths as $path) {
+            $path = (string)$path;
+            if (!preg_match(self::LOG_NAME_PATTERN, basename($path))) {
+                $failed[$path] = '';
+                continue;
+            }
+            // リンク自体を消せるよう、パスそのものではなく親フォルダの実体で $root の中かを確かめる
+            $dirPath = realpath(dirname($path));
+            $dirPath = $dirPath === false ? '' : rtrim(str_replace('\\', '/', $dirPath), '/') . '/';
+            if ($rootPath === '' || $dirPath === '/' || strpos($dirPath, $rootPath) !== 0) {
+                $failed[$path] = 'outside of log directory';
+                continue;
+            }
+            $ok = Filesystem::attempt(function () use ($path) {
+                return unlink($path);
+            }, $reason);
+            if ($ok) {
+                $deleted++;
+            } else {
+                $failed[$path] = (string)$reason;
+            }
+        }
+        Filesystem::pruneEmptyDirs($root);
+
+        return ['deleted' => $deleted, 'failed' => $failed];
+    }
+
+    /**
+     * ログをすべて消す。$before(YYYY-MM-DD)があれば、ファイル名の日付がその日より前のものだけ。
+     * 終わったあと、システムログに 1 件記録する(画面・CLI 共通。呼び出し側では書かない)。
+     *
+     * @return array{deleted:int, failed:array<string,string>}
+     */
+    public static function clear(string $root, string $before = ''): array
+    {
+        $paths = [];
+        foreach (self::files($root, $unreadable) as $file) {
+            if ($before !== ''
+                && (!preg_match('/^system-([0-9]{4}-[0-9]{2}-[0-9]{2})\.log/', (string)$file['name'], $m) || $m[1] >= $before)
+            ) {
+                continue;
+            }
+            $paths[] = $file['path'];
+        }
+        $result = self::deleteFiles($paths, $root);
+        foreach ($unreadable as $dir) {
+            $result['failed'][$dir] = 'unreadable directory';
+        }
+
+        $context = [
+            'deleted' => $result['deleted'],
+            'failed' => count($result['failed']),
+        ];
+        if ($before !== '') {
+            $context['before'] = $before;
+        }
+        if ($result['failed']) {
+            $rootPath = rtrim(str_replace('\\', '/', (string)(realpath($root) ?: $root)), '/') . '/';
+            $context['failed_paths'] = array_map(function ($path) use ($rootPath) {
+                $path = str_replace('\\', '/', (string)$path);
+                return strpos($path, $rootPath) === 0 ? substr($path, strlen($rootPath)) : $path;
+            }, array_slice(array_keys($result['failed']), 0, 20));
+        }
+        evo()->logEvent(0, count($result['failed']) ? 2 : 1, 'Cleared system logs', 'SystemLogViewer', $context);
+
+        return $result;
     }
 
     public static function latestFiles(array $files, int $limit = 100): array
@@ -225,7 +350,7 @@ class SystemLogViewer
         if (strpos($path, $rootPath) !== 0) {
             return '';
         }
-        if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', basename($path))) {
+        if (!preg_match(self::LOG_NAME_PATTERN, basename($path))) {
             return '';
         }
 

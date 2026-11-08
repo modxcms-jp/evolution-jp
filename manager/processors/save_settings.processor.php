@@ -18,7 +18,7 @@ if (!save_settiongs()) {
     exit;
 }
 
-if (formv('reset_template')) {
+if (post_choicevar('reset_template', [1, 2], 0)) {
     reset_template();
 }
 
@@ -85,7 +85,7 @@ function formv($key, $default = null)
 {
     if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir'])) {
         $value = postv($key, $default);
-        if ($value === null) {
+        if (!is_string($value)) {
             $value = '';
         }
         return str_replace(MODX_BASE_PATH, '[(base_path)]', $value);
@@ -102,7 +102,7 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
-    if (formv('friendly_urls') != 1 || strpos(serverv('SERVER_SOFTWARE', ''), 'IIS') !== false) {
+    if (post_strvar('friendly_urls') !== '1' || strpos(serverv('SERVER_SOFTWARE', ''), 'IIS') !== false) {
         return $warnings;
     }
 
@@ -173,10 +173,21 @@ function nonSettingKeys()
     ];
 }
 
+// 文字列として加工してから保存する設定（配列は受け付けない）
+function stringSettingKeys()
+{
+    return [
+        'base_url', 'fixed_site_url', 'rb_base_url', 'export_dir', 'rb_base_dir', 'filemanager_path',
+        'error_page', 'unauthorized_page', 'site_start', 'manager_language', 'new_file_permissions',
+        'new_folder_permissions', 'smtppw', 'topmenu_site', 'topmenu_element', 'topmenu_security',
+        'topmenu_user', 'topmenu_tools', 'topmenu_reports',
+    ];
+}
+
 function save_settiongs()
 {
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
-    $form_v = $_POST + $default_config;
+    $form_v = postv() + $default_config;
     $form_v['settings_version'] = getNewVersion();
 
     $savethese = [];
@@ -187,6 +198,10 @@ function save_settiongs()
         }
         // 空のキーと 0 のキー（'0' は整数 0 として届く）は設定名にならないので保存しない
         if ($k === '' || $k === 0 || $k === '0') {
+            continue;
+        }
+        // 文字列として扱う設定は、配列で送られたら保存しない（今の値のまま）
+        if (is_array($v) && in_array($k, stringSettingKeys(), true)) {
             continue;
         }
         switch ($k) {
@@ -203,7 +218,7 @@ function save_settiongs()
                 // 毎回自動で決まる値なので保存しない（固定するときは fixed_site_url）
                 continue 2;
             case 'rb_base_url':
-                $v = rtrim($v, '/') . '/';
+                $v = init::normalize_rb_base_url($v, config('site_url'), MODX_BASE_URL);
                 break;
             case 'export_dir':
                 $v = exportDirOrDefault($v);
@@ -220,7 +235,7 @@ function save_settiongs()
             case 'error_page':
             case 'unauthorized_page':
                 if (trim($v) !== '' && !is_numeric($v)) {
-                    $v = formv('site_start');
+                    $v = post_strvar('site_start');
                 }
                 break;
 
@@ -278,19 +293,26 @@ function save_settiongs()
 
 function reset_template()
 {
-    if (formv('reset_template') == 1) {
+    $mode = post_choicevar('reset_template', [1, 2], 0);
+    // テンプレートの id。0（テンプレートなし）も正しい値。設定画面の「(blank)」は value="" で送られるので 0 とする。読めなければ null
+    $defaultTemplate = postv('default_template') === '' ? 0 : post_uintvar('default_template');
+    if ($defaultTemplate === null) {
+        return;
+    }
+    if ($mode === 1) {
         db()->update(
-            ['template' => (int)formv('default_template')],
+            ['template' => $defaultTemplate],
             '[+prefix+]site_content',
             where('type', 'document')
         );
         return;
     }
-    if (formv('reset_template') == 2) {
+    $oldTemplate = post_uintvar('old_template');
+    if ($mode === 2 && $oldTemplate !== null) {
         db()->update(
-            ['template' => (int)formv('default_template')],
+            ['template' => $defaultTemplate],
             '[+prefix+]site_content',
-            where('template', (int)formv('old_template'))
+            where('template', $oldTemplate)
         );
     }
 }

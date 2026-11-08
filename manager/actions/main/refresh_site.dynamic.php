@@ -42,7 +42,7 @@ $num_rows_unpub = db()->getAffectedRows();
         ?>
         <div>
             <ul class="actionButtons">
-                <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['close'] ?></a></li>
+                <li id="Button5"><a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['close'] ?></a></li>
             </ul>
         </div>
     </div>

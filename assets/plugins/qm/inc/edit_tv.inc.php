@@ -6,7 +6,7 @@ if (!evo()->hasPermission('save_document') || !$this->checkAccess()) {
     return 'Error: Access denied.';
 }
 // 編集できるのは、組み込みの項目とこの文書の TV だけ
-$tvName = (string)getv('tvname');
+$tvName = get_strvar('tvname');
 $tv = $this->getField($tvName, $docID);
 if (!$tv) {
     return 'Error: Unknown field.';
@@ -132,7 +132,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
         'lang_save' => lang('save'),
         'lang_cancel' => lang('cancel'),
         'caption' => hsc(tv('caption')),
-        'description' => element_description_html(tv('description', '')),
+        'description' => tv_input_description_html(tv('description', '')),
         'type' => hsc(tv('type')),
         'form' => $tvHtml,
         'img_preview' => $imagePreview,

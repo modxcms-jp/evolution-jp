@@ -37,11 +37,13 @@ $bad = isset($bad) ? explode(",", $bad) : ["seeThruUnpub", "showInMenuOnly", "sh
 	"seeThruUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID"
 */
 // Never set from the request: SQL conditions, access control, the documents to list,
-// and variables used inside the snippet
+// and variables used inside the snippet.
+// startID and limit are aliases that snippet.ditto.php copies to parents and queryLimit
+// after the extenders run, so they are listed here as well.
 $never = [
     "where", "hidePrivate", "seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "hideFolders",
-    "parents", "documents", "depth", "orderBy", "queryLimit", "debug", "config", "extenders", "dittoID",
-    "ditto", "modx", "placeholders", "filters", "_lang", "language", "format", "save",
+    "parents", "startID", "documents", "depth", "orderBy", "queryLimit", "limit", "debug", "config",
+    "extenders", "dittoID", "ditto", "modx", "placeholders", "filters", "_lang", "language", "format", "save",
 ];
 $good = isset($good)
     ? explode(",", $good)
@@ -62,6 +64,7 @@ $request = (array) anyv();
 	"display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,
 	dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
 	Templates (tpl, tplAlt, ...) are set from the request only when listed in &good
+	Names in $never (including the aliases startID and limit) are never set, even when listed in &good
 */
 $variables = [];
 foreach ($request as $name => $value) {
@@ -80,6 +83,27 @@ foreach ($request as $name => $value) {
         $variables[$saneName] = trim($value);
     }
 }
+// Numeric settings: read as a non-negative integer (leading zeros allowed, "05" is 5, "0" stays 0).
+// An empty or malformed value is the same as not specified, so the default or the snippet call value is used.
+// display, total and summarize (an alias of display) also accept "all".
+foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
+    if (!isset($variables[$numericName])) {
+        continue;
+    }
+    if (in_array($numericName, ['display', 'total', 'summarize'], true) && $variables[$numericName] === 'all') {
+        continue;
+    }
+    $numericValue = to_uintvar($variables[$numericName]);
+    if ($numericValue === null) {
+        unset($variables[$numericName]);
+    } else {
+        $variables[$numericName] = $numericValue;
+    }
+}
+// randomize takes 0, 1 or a field name, so it is not numeric. An empty value is the same as not specified.
+if (isset($variables['randomize']) && $variables['randomize'] === '') {
+    unset($variables['randomize']);
+}
 /*
 	Param: dbg
 
@@ -93,8 +117,7 @@ foreach ($request as $name => $value) {
         Default:
         0 - off
 */
-$debugRequest = anyv($dittoID . "dbg", 0);
-if ($debugRequest == 1 && !empty($debug)) {
+if (request_intvar($dittoID . "dbg") === 1 && !empty($debug)) {
     echo hsc(print_r($variables, true));
 }
 extract($variables);

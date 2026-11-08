@@ -15,7 +15,7 @@ function checkSafedUri()
 function jsAlert($msg)
 {
     header('Content-Type: text/html; charset=UTF-8');
-    if (postv('ajax') == 1) {
+    if (post_boolvar('ajax')) {
         echo $msg;
     } else {
         echo sprintf(
@@ -26,10 +26,23 @@ function jsAlert($msg)
     }
 }
 
+// 送られたユーザー名。POST を優先し、無ければ GET。文字列でなければ空（配列は文字列関数に渡せないため）
+function loginUsername()
+{
+    // POST に username があれば、文字列でなくても GET には替えない（配列なら '' にする）
+    return postv('username') === null ? get_textvar('username', '') : post_textvar('username', '');
+}
+
+// 送られたパスワード。加工しない。無い・文字列でないときは null
+function loginPassword()
+{
+    return post_textvar('password');
+}
+
 function validateLoginInput()
 {
-    $username = postv('username', getv('username'));
-    $password = postv('password');
+    $username = loginUsername();
+    $password = loginPassword();
 
     if (!$username || trim((string)$username) === '') {
         jsAlert('ユーザー名とパスワードを入力してください');
@@ -51,8 +64,8 @@ function failedLogin()
     $failedlogincount = user('failedlogincount') + 1;
     $fields = ['failedlogincount' => $failedlogincount];
 
+    // 一時的なロックは blockeduntil だけで表す（blocked は管理者によるブロック。Web ユーザーと同じ）
     if (config('failed_login_attempts', 0) <= $failedlogincount) {
-        $fields['blocked'] = 1;
         $fields['blockeduntil'] = request_time() + (config('blocked_minutes') * 60);
     }
 
@@ -147,10 +160,10 @@ function input($key, $default = null)
     }
 
     $input = [
-        'username'     => postv('username', getv('username')),
-        'password'     => postv('password'),
-        'captcha_code' => postv('captcha_code', ''),
-        'rememberme'   => postv('rememberme', '')
+        'username'     => loginUsername(),
+        'password'     => loginPassword(),
+        'captcha_code' => post_strvar('captcha_code'),
+        'rememberme'   => post_strvar('rememberme')
     ];
     if (strpos($input['username'], ':roleid=') !== false) {
         [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
@@ -182,9 +195,9 @@ function user($key, $default = null)
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
-    if (array_get($user, 'blockeduntil') && array_get($user, 'blockeduntil') < time()) {
+    // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
+    if (isExpiredTemporaryLock($user)) {
         $user['failedlogincount'] = '0';
-        $user['blocked'] = '0';
     }
 
     if (isset($user[$key])) {
@@ -210,57 +223,131 @@ function rejectBlockedUser()
     jsAlert(alert()->errors[902]);
 }
 
-function isBlockedUser()
+// ブロック中かを、画面と同じ isUserBlocked() で決める。
+// 期限の過ぎた一時ロックは、ここで外してから判定する（失敗回数による一時ロックの動きは変えない）
+// 外すのは失敗回数と blockeduntil だけ。blocked は管理者が付けたブロックなので触らない
+// $legacyLock が真（以前の版の一時ロックで、マイグレーションの前）なら、ここでは止めない。認証の後で releaseLegacyLoginLock() が外す
+function isBlockedUser($legacyLock = false)
 {
-    $blockedUntil = (int) user('blockeduntil', 0);
-    $failedLoginLimit = (int) config('failed_login_attempts', 0);
-    $failedLoginCount = (int) user('failedlogincount', 0);
-    $isTemporaryLock = 0 < $blockedUntil && $failedLoginLimit <= $failedLoginCount;
-
-    if ($isTemporaryLock && request_time() < $blockedUntil) {
-        return true;
-    }
-
-    if ($isTemporaryLock) {
-        db()->update(
-            [
-                'failedlogincount' => 0,
-                'blocked' => 0,
-                'blockeduntil' => 0
-            ],
-            '[+prefix+]user_attributes',
-            sprintf("internalKey='%s'", user('internalKey'))
-        );
+    $row = userBlockStateInDb();
+    if (!$row) {
+        // 属性の行が無いユーザーは、ブロックの記録も無い
         return false;
     }
 
-    if (user('blocked')) {
-        return true;
+    if (isExpiredTemporaryLock($row)) {
+        $fields = [
+            'failedlogincount' => 0,
+            'blockeduntil' => 0
+        ];
+        db()->update(
+            $fields,
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%d'", user('internalKey'))
+        );
+        $row = array_merge($row, $fields);
     }
 
-    return false;
+    if ($legacyLock) {
+        $row['blocked'] = 0;
+    }
+
+    return isUserBlocked($row);
+}
+
+// 失敗回数による一時ロックで、期限が過ぎたもの。
+// blocked=1 の行は含めない。外しても拒否されるうえ、以前の版の一時ロック（blocked も 1）の形を崩すと、
+// マイグレーションと releaseLegacyLoginLock() が拾えなくなるため
+function isExpiredTemporaryLock($row)
+{
+    return isTemporaryLoginLock($row)
+        && (int) array_get($row, 'blockeduntil', 0) <= request_time()
+        && (int) array_get($row, 'blocked', 0) !== 1;
+}
+
+// 以前の版の一時ロック（blocked も 1）の行を外すマイグレーション
+function legacyLoginLockMigrationId()
+{
+    return '20261107_180000_unblock_legacy_temporary_login_locks';
+}
+
+// ログインする本人の行が、以前の版の一時ロックで期限が過ぎたもので、マイグレーションがまだ外していないか。
+// 対象はマイグレーションが外す行（legacyTemporaryLoginLockSqlCondition()）のうち、本人の、期限が過ぎた行だけ
+function isLegacyLoginLockAwaitingMigration()
+{
+    if (!user('internalKey')) {
+        return false;
+    }
+    $matched = (bool) db()->getValue(
+        db()->select('COUNT(*)', '[+prefix+]user_attributes', legacyLoginLockWhere())
+    );
+    return $matched && !legacyLoginLockMigrationApplied();
+}
+
+// マイグレーションが記録済みか。記録を読めないときは記録済みとみなす（外さない側に倒す）。
+// マイグレーションのファイルが無い（baseline に取り込んで消した など）ときも、記録済みとみなす。
+// 記録の表が無い DB（マイグレーションの仕組みより前の版）は、未適用として扱う
+function legacyLoginLockMigrationApplied()
+{
+    try {
+        require_once MODX_CORE_PATH . 'migrator.class.inc.php';
+        $migrator = new EvoMigrator();
+        if (!in_array(legacyLoginLockMigrationId(), $migrator->all(), true)) {
+            return true;
+        }
+        return isset($migrator->applied()[legacyLoginLockMigrationId()]);
+    } catch (Throwable $e) {
+        return true;
+    }
+}
+
+function legacyLoginLockWhere()
+{
+    return sprintf(
+        'internalKey=%d AND %s AND blockeduntil<=%d',
+        user('internalKey'),
+        legacyTemporaryLoginLockSqlCondition(config('failed_login_attempts', '')),
+        request_time()
+    );
+}
+
+// 認証が通った後で、以前の版の一時ロックを外す（マイグレーションと同じ変更に、期限切れの一時ロックの解除を合わせる）
+function releaseLegacyLoginLock()
+{
+    db()->update(
+        [
+            'blocked' => 0,
+            'failedlogincount' => 0,
+            'blockeduntil' => 0
+        ],
+        '[+prefix+]user_attributes',
+        legacyLoginLockWhere()
+    );
+    if (db()->getAffectedRows()) {
+        evo()->logEvent(0, 1, 'Unblocked a user locked by failed logins in the old way before the migration', 'Login', [
+            'internalKey' => (int) user('internalKey'),
+            'migration' => legacyLoginLockMigrationId(),
+        ]);
+    }
 }
 
 // DB の最新の状態で、まだブロックされているかを確かめる（user() はキャッシュ済みの値を返すため使わない）
 function isStillBlockedInDb()
 {
-    $row = db()->getRow(
+    $row = userBlockStateInDb();
+    return !$row || isUserBlocked($row);
+}
+
+// ブロックの判定に使う列を、DB から読み直す
+function userBlockStateInDb()
+{
+    return db()->getRow(
         db()->select(
-            'blocked, blockeduntil, failedlogincount',
+            'blocked, blockeduntil, blockedafter, failedlogincount',
             '[+prefix+]user_attributes',
             sprintf("internalKey='%d'", user('internalKey'))
         )
     );
-    if (!$row) {
-        return true;
-    }
-    if ((int) $row['blocked']) {
-        return true;
-    }
-    $blockedUntil = (int) $row['blockeduntil'];
-    return 0 < $blockedUntil
-        && request_time() < $blockedUntil
-        && (int) config('failed_login_attempts', 0) <= (int) $row['failedlogincount'];
 }
 
 function checkAllowedIp()
@@ -370,7 +457,7 @@ function redirectAfterLogin()
 {
     if (user_config('manager_login_startup')) {
         $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
-        if (evo()->input_post('ajax')) {
+        if (post_boolvar('ajax')) {
             exit($header);
         }
         header($header);
@@ -384,7 +471,7 @@ function redirectAfterLogin()
         $uri = MODX_MANAGER_URL;
     }
     $header = 'Location: ' . $uri;
-    if (evo()->input_post('ajax') == 1) {
+    if (post_boolvar('ajax')) {
         exit($header);
     }
     header($header);
@@ -427,7 +514,7 @@ function managerLogin()
     $_SESSION['modx.session.created.time'] = request_time();
     $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(user('internalKey'));
 
-    if (anyv('rememberme')) {
+    if (request_strvar('rememberme')) {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
         setcookie(
             'modx_remember_manager',

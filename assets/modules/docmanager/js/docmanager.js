@@ -100,30 +100,43 @@ function postForm() {
 
 function hideInteraction() {
     var tabActiveID = getCookie("webfxtab_docManagerPane");
-    if (tabActiveID == '1') {
-        document.getElementById('tvloading').style.display = 'none';
+    var tvloading = document.getElementById('tvloading');
+    var interaction = document.getElementById('interaction');
+    if (tabActiveID == '1' && tvloading) {
+        tvloading.style.display = 'none';
     }
     if (tabActiveID == '3') {
-        if (document.getElementById('interaction')) {
-            document.getElementById('interaction').style.display = 'none';
+        if (interaction) {
+            interaction.style.display = 'none';
         }
-        parent.tree.ca = 'move';
+        if (parent.tree) {
+            parent.tree.ca = 'move';
+        }
     } else {
-        document.getElementById('interaction').style.display = '';
-        parent.tree.ca = '';
+        if (interaction) {
+            interaction.style.display = '';
+        }
+        if (parent.tree) {
+            parent.tree.ca = '';
+        }
     }
 
     return true;
 }
 
-if (document.addEventListener) {
-    document.addEventListener('DOMContentLoaded', hideInteraction, false);
-    document.addEventListener('click', hideInteraction, false);
-} else if (document.attachEvent) {
-    document.attachEvent('onreadystatechange', function() {
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            hideInteraction();
+// シェルの遷移では同じ window で script が読み直されるので、この script が文書から外れたら(画面が差し替わったら) click の受け手を外す。
+// モーダルの開け閉めでも evoshell:unload は出るので、それでは外さず isConnected で見る。
+// currentScript は classic script の実行中は取れる。取れない(null)ときは外せないので、そのまま残す。
+var docmanagerMarker = document.currentScript;
+(function (marker) {
+    function onClick() {
+        if (marker && !marker.isConnected) {
+            document.removeEventListener('click', onClick, false);
+            return;
         }
-    });
-    document.attachEvent('onclick', hideInteraction);
-}
+        hideInteraction();
+    }
+    document.addEventListener('click', onClick, false);
+})(docmanagerMarker);
+
+Evo.ready(hideInteraction);

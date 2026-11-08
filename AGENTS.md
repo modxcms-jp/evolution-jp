@@ -22,10 +22,11 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 * **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
 * **スーパーグローバル変数の禁止**:
 
-  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`
+  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`（GET と POST だけ。cookie は含まない）
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
   * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
   * リクエストメソッド判定 → `is_post()` / `is_get()`
+  * 型が決まっている値（id・0 以上の整数・文字列・加工しない文字列・真偽値・選択肢・id の配列）は、型つきヘルパー（`get_intvar()` / `post_strvar()` / `request_boolvar()` など）で取り出す。使い分けは `assets/docs/request-input.md`
 * **DB操作のセキュリティ**: 既存の DBAPI は値をエスケープしない。呼び出し側で、DB操作の直前に `db()->escape()` か `(int)` で安全化してから渡す。
 
   * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
@@ -146,7 +147,9 @@ fix(db): 実行直前でエスケープ処理を統一
 | `theme-variables.md`    | テーマの色の変数 |
 | `theme-spacing.md`      | テーマの縦の余白 |
 | `core-issues.md`        | コア課題   |
+| `data-table.md`         | 表の部品   |
 | `migrations.md`         | マイグレーション・アップグレード |
+| `request-input.md`      | リクエスト値 |
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 
 ---

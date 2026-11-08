@@ -116,6 +116,36 @@ final class PreferenceResolver
         return $this->ensureStylesButton($config);
     }
 
+    /**
+     * 編集欄の body に付ける id・クラスを body_id・body_class に渡す。
+     * 公開側の本文の入れ物と同じ id・クラスを付けると、「CSSファイルへのパス」の CSS が編集欄にも同じように効く。
+     * 設定がある項目は、設定ファイル（manager.json など）の値より優先する
+     */
+    public function applyBodyAttributes(array $config): array
+    {
+        $bodyId = $this->detectBodyId();
+        if ($bodyId !== '') {
+            $config['body_id'] = $bodyId;
+        }
+
+        $bodyClass = $this->detectBodyClass();
+        if ($bodyClass !== '') {
+            $config['body_class'] = $bodyClass;
+        }
+
+        return $config;
+    }
+
+    public function detectBodyId(): string
+    {
+        return $this->detectString(['tinymce7_body_id']);
+    }
+
+    public function detectBodyClass(): string
+    {
+        return $this->detectString(['tinymce7_body_class']);
+    }
+
     public function detectCssSelectors(): string
     {
         // 一度保存されたら空でも旧キーへは戻らない（空にして無効化できるようにする）

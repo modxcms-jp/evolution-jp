@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 34,
-            "used_runs": 34,
-            "helped_runs": 34,
+            "seen_runs": 42,
+            "used_runs": 42,
+            "helped_runs": 42,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 20
+            "active_runs": 26
         },
         "change-004": {
             "seen_runs": 1,
@@ -314,6 +314,78 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-05T19:05:00+09:00",
             "source": "2026-11-04-filemanager-to-file-browser-001"
+        },
+        "change-035": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T03:40:00+09:00",
+            "source": "2026-11-05-typed-request-helpers-001"
+        },
+        "change-036": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T03:40:00+09:00",
+            "source": "2026-11-05-typed-request-helpers-001"
+        },
+        "change-037": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
+        },
+        "change-038": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-07T12:45:00+09:00",
+            "source": "2026-11-07-retire-manager-messages-001"
+        },
+        "change-039": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-040": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-041": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
+        },
+        "change-042": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-08T00:05:00+09:00",
+            "source": "2026-11-07-data-table-component-001"
         }
     }
 }

@@ -2,6 +2,8 @@
 
 $this->doc = new DocAPI;
 
+// 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
+// ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
 class DocAPI
 {
 
@@ -121,19 +123,29 @@ class DocAPI
 
         $f['deleted'] = '1';
         $f['published'] = '0';
-        $f['publishedon'] = '';
-        $f['pub_date'] = '';
-        $f['unpub_date'] = '';
+        $f['publishedon'] = 0;
+        $f['pub_date'] = 0;
+        $f['unpub_date'] = 0;
 
         db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
 
+    /**
+     * 公開日・公開終了日から published を決める（リソースの保存、チャンクの保存、下書きの保存と採用の共通の規則）。
+     * 未来の公開日は非公開、過去の公開日は公開、公開終了日が過去なら非公開（公開日より優先）。
+     * 日付が空なら 0 にして published はそのまま。日付が解釈できないかは呼び出し側が先に
+     * evo()->parseDateInput() で確かめる。整数（負を含む）の値はそのまま使う
+     */
     public function setPubStatus($f)
     {
+        $toTime = function ($value) {
+            return is_int($value) ? $value : evo()->toTimeStamp($value);
+        };
+
         if (!isset($f['pub_date']) || empty($f['pub_date'])) {
             $f['pub_date'] = 0;
         } else {
-            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
+            $f['pub_date'] = $toTime($f['pub_date']);
             if ($f['pub_date'] < request_time()) {
                 $f['published'] = 1;
             } elseif ($f['pub_date'] > request_time()) {
@@ -146,11 +158,57 @@ class DocAPI
             return $f;
         }
 
-        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
+        $f['unpub_date'] = $toTime($f['unpub_date']);
         if ($f['unpub_date'] < request_time()) {
             $f['published'] = 0;
         }
         return $f;
+    }
+
+    /**
+     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
+     */
+    public function startDocPubError($published, $pub_date, $unpub_date)
+    {
+        if ($published == 0) {
+            return 'Document is linked to site_start variable and cannot be unpublished!';
+        }
+        if ($pub_date > request_time() || $unpub_date) {
+            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+        }
+        return '';
+    }
+
+    /**
+     * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
+     * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
+     * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
+     * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
+     * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
+     */
+    public function draftForAdoption($docid, $draft, $canPublish = true)
+    {
+        $published = (int)db()->getValue(
+            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
+        );
+        if (!$draft) {
+            return [['published' => $published], ''];
+        }
+        $draft['published'] = $published;
+        $ruled = $this->setPubStatus($draft);
+        if ($canPublish) {
+            $draft = $ruled;
+        }
+        if ((int)$docid !== (int)evo()->config('site_start')) {
+            return [$draft, ''];
+        }
+        return [
+            $draft,
+            $this->startDocPubError($draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+        ];
     }
 
     // type : 'create' or 'update'
@@ -345,9 +403,19 @@ class DocAPI
             $form_v['content'] = $form_v['ta'];
             unset($form_v['ta']);
         }
+        // ta は上で content に移しているので、content も配列を拒否する
+        if (isset($form_v['content']) && is_array($form_v['content'])) {
+            alert()->setError(2);
+            alert()->dumpError();
+        }
         foreach ($fields as $key) {
             if (!isset($form_v[$key])) {
                 $form_v[$key] = '';
+            }
+            // フィールドは文字列だけを受ける。配列（pagetitle[]=x など）は形式違いとして拒否する
+            if (is_array($form_v[$key])) {
+                alert()->setError(2);
+                alert()->dumpError();
             }
             $value = trim($form_v[$key]);
             switch ($key) {
@@ -379,11 +447,9 @@ class DocAPI
                     break;
                 case 'pub_date':
                 case 'unpub_date':
-                    if ($value === '') {
-                        $value = 0;
-                    } else {
-                        $value = evo()->toTimeStamp($value);
-                    }
+                    // 空は 0。解釈できない日付は元の入力を残し、setValue() で拒否させる
+                    $ts = evo()->parseDateInput($value);
+                    $value = $ts === null ? $value : $ts;
                     break;
                 case 'editedon':
                     $value = request_time();
@@ -418,7 +484,11 @@ class DocAPI
         return $form_v;
     }
 
-    public function setValue($form_v)
+    /**
+     * @param array $form_v
+     * @param int $mode 保存の画面の操作の番号（4: 新規、72: ウェブリンク、27: 更新）。呼び出し元が決める
+     */
+    public function setValue($form_v, $mode = 0)
     {
         global $_lang;
 
@@ -468,46 +538,24 @@ class DocAPI
             $form_v['alias'] = evo()->stripAlias($form_v['alias']);
         }
 
-        if (!empty($form_v['pub_date'])) {
-            $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
-            if (!$form_v['pub_date']) {
-                evo()->manager->saveFormValues(postv('mode'));
-                if (array_get($form_v, 'id')) {
-                    evo()->webAlertAndQuit(
-                        $_lang['mgrlog_dateinvalid'],
-                        "index.php?a=" . postv('mode') . "&id=" . array_get($form_v, 'id')
-                    );
-                    exit;
-                }
+        foreach (['pub_date', 'unpub_date'] as $dateField) {
+            $timestamp = evo()->parseDateInput(array_get($form_v, $dateField, ''));
+            // 解釈できない日付と 1970 年より前の日付は、DB に渡さず編集画面へ戻す
+            if ($timestamp === null || $timestamp < 0) {
+                evo()->manager->saveFormValues($mode);
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
-                    "index.php?a=" . postv('mode')
+                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
                 exit;
             }
-            if ($form_v['pub_date'] < request_time()) {
-                $form_v['published'] = 1;
-            } elseif ($form_v['pub_date'] > request_time()) {
-                $form_v['published'] = 0;
-            }
+            $form_v[$dateField] = $timestamp;
         }
-
-        if (!empty($form_v['unpub_date'])) {
-            $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
-            if (!$form_v['unpub_date']) {
-                evo()->manager->saveFormValues(postv('mode'));
-                $url = "index.php?a=" . postv('mode');
-                if (array_get($form_v, 'id')) {
-                    $url .= "&id=" . array_get($form_v, 'id');
-                }
-                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
-            } elseif ($form_v['unpub_date'] < request_time()) {
-                $form_v['published'] = 0;
-            }
-        }
+        // 公開日・公開終了日による published の決め方は setPubStatus() に一本化している
+        $form_v = $this->setPubStatus($form_v);
 
         // deny publishing if not permitted
-        if (postv('mode') == 27) {
+        if ($mode === 27) {
             return $form_v;
         }
 
@@ -545,35 +593,6 @@ class DocAPI
             return db()->getValue($rs);
         }
         return false;
-    }
-
-    public function fixPubStatus($f) // published, pub_date, unpub_date
-    {
-        if (isset($f['pub_date']) && !empty($f['pub_date'])) {
-            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
-
-            if ($f['pub_date'] < request_time()) {
-                $f['published'] = 1;
-            } else {
-                $f['published'] = 0;
-            }
-        } else {
-            $f['pub_date'] = 0;
-        }
-
-        if (!isset($f['unpub_date']) || empty($f['unpub_date'])) {
-            $f['unpub_date'] = 0;
-            return $f;
-        }
-
-        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-        if ($f['unpub_date'] < request_time()) {
-            $f['published'] = 0;
-            return $f;
-        }
-
-        $f['published'] = 1;
-        return $f;
     }
 
     public function fixTvNest($form_v)

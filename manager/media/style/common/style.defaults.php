@@ -14,7 +14,6 @@ if (!function_exists('apply_manager_style_defaults')) {
             'iconResources' => 1,
             'iconNewDoc' => 1,
             'iconSearch' => 1,
-            'iconMessage' => 1,
             'iconElements' => 1,
             'iconSettings' => 1,
             'iconFileManager' => 1,
@@ -49,7 +48,6 @@ if (!function_exists('apply_manager_style_defaults')) {
         if ($config['iconResources'] == 1) iconResources();
         if ($config['iconNewDoc'] == 1) iconNewDoc();
         if ($config['iconSearch'] == 1) iconSearch();
-        if ($config['iconMessage'] == 1) iconMessage();
 
         if ($config['iconElements'] == 1) iconElements();
         if ($config['iconFileManager'] == 1) iconFileManager();
@@ -136,9 +134,6 @@ if (!function_exists('apply_manager_style_defaults')) {
         $_style['icons_home'] = $icon_path . 'home.gif';
         $_style['icons_information'] = $icon_path . 'information.png';
         $_style['icons_loading_doc_tree'] = $icon_path . 'information.png';
-        $_style['icons_mail'] = $icon_path . 'email.png';
-        $_style['icons_message_forward'] = $icon_path . 'forward.gif';
-        $_style['icons_message_reply'] = $icon_path . 'reply.gif';
         $_style['icons_modules'] = $icon_path . '32x/modules.gif';
         $_style['icons_move_document'] = $icon_path . 'page_white_go.png';
         $_style['icons_new_document'] = $icon_path . 'page_white_add.png';
@@ -164,8 +159,6 @@ if (!function_exists('apply_manager_style_defaults')) {
 
         // Large Icons
         $_style['icons_backup_large'] = $icon_path . '32x/backup.png';
-        $_style['icons_mail_large'] = $icon_path . '32x/mail.png';
-        $_style['icons_mail_new_large'] = $icon_path . '32x/mail_new.png';
         $_style['icons_modules_large'] = $icon_path . '32x/modules.gif';
         $_style['icons_resources_large'] = $icon_path . '32x/resources.png';
         $_style['icons_elements_large'] = $icon_path . '32x/elements.png';

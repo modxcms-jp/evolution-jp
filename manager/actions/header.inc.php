@@ -14,7 +14,7 @@ if (evoIsPaneResponse()) {
 if ($modx->config('remember_last_tab') != 2) {
     setcookie(
         'webfxtab_childPane',
-        getv('tab', 1), [
+        get_strvar('tab', '1'), [
             'expires' => time() + 3600,
             'path' => MODX_BASE_URL,
             'domain' => '',
@@ -76,9 +76,9 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         Evo.ready(function () {
             // メニュー/ツリー部品のscriptが定義済みになった後に初期化する
             if (treeopen === 0 && window.mainMenu) mainMenu.hideTreeFrame();
-
-            // set tree to default action.
-            if (window.tree) tree.ca = "open";
+            // tree.ca は既定(開く)へここで戻さない。Evo.ready は画面のスクリプトより後に動き、
+            // 移動などの画面が設定した値を上書きしてしまう。戻すのは shell.js の applyFragment()
+            // (画面のスクリプトより前) と frames/tree.php (ツリーの読み込み時) が行う
         });
 
         // 編集系アクションで入力変更時にdocumentDirtyを立てる。
@@ -129,8 +129,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
         Evo.ready(function() {
             evoBindDirtyTracking(<?= (int)manager()->action ?>);
-            <?php if (anyv('r')) {
-                echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
+            <?php if (request_intvar('r')) {
+                echo sprintf("doRefresh(%s);\n", request_intvar('r'));
             }
             ?>
         });
@@ -178,7 +178,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <script type="text/javascript">
         // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
         // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の

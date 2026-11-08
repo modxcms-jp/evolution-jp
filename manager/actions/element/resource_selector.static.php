@@ -20,64 +20,79 @@ $mxla = globalv('modx_lang_attribute') ?: 'en';
 
 // get name of callback function
 // 文字列かつ JS の識別子の形のときだけ受け付ける
-$cb = anyv('cb', '');
-if (!is_string($cb) || !preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
+$cb = request_strvar('cb');
+if (!preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
     $cb = '';
 }
 
 // get resource type
-$rt = anyv('rt', '');
-$rt = is_string($rt) ? strtolower($rt) : '';
+$rt = strtolower(request_strvar('rt'));
 if (!in_array($rt, ['snip', 'tpl', 'tv', 'chunk', 'plug', 'doc'], true)) {
     $rt = 'doc';
 }
 
 // get selection method: s - single (default), m - multiple
-$sm = anyv('sm', 's');
-$sm = is_string($sm) && strtolower($sm) === 'm' ? 'm' : 's';
+$sm = strtolower(request_strvar('sm', 's')) === 'm' ? 'm' : 's';
 
 // get search string
-$query = anyv('search', '');
-$query = is_string($query) ? $query : '';
-$sqlQuery = db()->escape($query);
+$query = request_strvar('search');
 
-// select SQL
+// select SQL（件数と本体で FROM 以降を共有する。ORDER BY は本体だけ）
 $title = '';
+$likeWhere = function (string $nameCol, string $descCol) use ($query) {
+    if (!$query) {
+        return '';
+    }
+    $keyword = db()->escape($query);
+    return "({$nameCol} LIKE '%{$keyword}%') OR ({$descCol} LIKE '%{$keyword}%')";
+};
 switch ($rt) {
     case "snip":
         $title = $_lang["snippet"];
-        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_snippets") .
-            ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
+        $cols = 'id,name,description';
+        $from = evo()->getFullTableName('site_snippets');
+        $where = $likeWhere('name', 'description');
+        $orderby = 'name';
         break;
 
     case "tpl":
         $title = $_lang["template"];
-        $sql = "SELECT id,templatename as 'name',description FROM " . evo()->getFullTableName("site_templates") .
-            ($sqlQuery ? " WHERE (templatename LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY templatename";
+        $cols = "id,templatename as 'name',description";
+        $from = evo()->getFullTableName('site_templates');
+        $where = $likeWhere('templatename', 'description');
+        $orderby = 'templatename';
         break;
 
     case ("tv"):
         $title = $_lang["tv"];
-        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_tmplvars") .
-            ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
+        $cols = 'id,name,description';
+        $from = evo()->getFullTableName('site_tmplvars');
+        $where = $likeWhere('name', 'description');
+        $orderby = 'name';
         break;
 
     case ("chunk"):
         $title = $_lang["chunk"];
-        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_htmlsnippets") .
-            ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
+        $cols = 'id,name,description';
+        $from = evo()->getFullTableName('site_htmlsnippets');
+        $where = $likeWhere('name', 'description');
+        $orderby = 'name';
         break;
 
     case ("plug"):
         $title = $_lang["plugin"];
-        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_plugins") .
-            ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
+        $cols = 'id,name,description';
+        $from = evo()->getFullTableName('site_plugins');
+        $where = $likeWhere('name', 'description');
+        $orderby = 'name';
         break;
 
     case ("doc"):
         $title = $_lang["resource"];
-        $sql = "SELECT id,pagetitle as 'name',longtitle as 'description' FROM " . evo()->getFullTableName("site_content") .
-            ($sqlQuery ? " WHERE (pagetitle LIKE '%$sqlQuery%') OR (longtitle LIKE '%$sqlQuery%')" : "") . " ORDER BY pagetitle";
+        $cols = "id,pagetitle as 'name',longtitle as 'description'";
+        $from = evo()->getFullTableName('site_content');
+        $where = $likeWhere('pagetitle', 'longtitle');
+        $orderby = 'pagetitle';
         break;
 }
 
@@ -96,14 +111,20 @@ switch ($rt) {
 
 <script language="JavaScript" type="text/javascript">
     function saveSelection() {
+        var a = window.opener.chkBoxArray || {};
+        var ctrl = document.selector.elements['id[]'];
         var ids = [];
-        var ctrl = document.selector['id[]'];
-        if (!ctrl.length && ctrl.checked) ids[0] = ctrl.value;
-        else
-            for (i = 0; i < ctrl.length; i++) {
-                if (ctrl[i].checked) ids[ids.length] = ctrl[i].value;
-            }
-        cb = window.opener[<?= js_literal($cb) ?>];
+        var list = !ctrl ? [] : (ctrl.length === undefined ? [ctrl] : Array.prototype.slice.call(ctrl));
+        // 今のページのチェックの状態を、ページをまたいで覚えている選択に反映する
+        list.forEach(function (c) {
+            a[c.value] = c.checked;
+        });
+        // 全ページで選ばれているものを渡す（チェックを外したものは除く）
+        Object.keys(a).forEach(function (id) {
+            if (a[id]) ids.push(id);
+        });
+        if (!ids.length && !list.length) return; // 0 件のときは何もしない
+        var cb = window.opener[<?= js_literal($cb) ?>];
         if (cb) cb(<?= js_literal($rt) ?>, ids);
         window.close();
     }
@@ -131,6 +152,7 @@ switch ($rt) {
         var a = window.opener.chkBoxArray;
         var f = document.selector;
         chk = f.elements['id[]'];
+        if (!chk) return; // 0 件のときは何もしない
         if (!chk.length) chk.checked = (a[chk.value]) ? true : false;
         else {
             for (i = 0; i < chk.length; i++) {
@@ -143,16 +165,29 @@ switch ($rt) {
     // set checkbox value
     function setCheckbox(chk) {
         var a = window.opener.chkBoxArray;
+        // 単一選択（radio）では、ほかのページで選んだものを残さない
+        if (chk.type === 'radio') {
+            Object.keys(a).forEach(function (id) {
+                a[id] = false;
+            });
+        }
         a[chk.value] = chk.checked;
     }
+
+    // 表の入力の変更を受ける（インラインの onclick を出さない）
+    document.addEventListener('change', function (e) {
+        if (e.target.name === 'id[]') {
+            setCheckbox(e.target);
+        }
+    });
 
     // restore checkboxes
     setTimeout("restoreChkBoxes();", 100);
 </script>
 <form name="selector" method="get">
-    <input type="hidden" name="id" value="<?= (int)anyv('id') ?>"/>
-    <input type="hidden" name="a" value="<?= (int)anyv('a') ?>"/>
-    <input type="hidden" name="listmode" value="<?= hsc(anyv('listmode')) ?>"/>
+    <input type="hidden" name="id" value="<?= request_intvar('id') ?>"/>
+    <input type="hidden" name="a" value="<?= request_intvar('a') ?>"/>
+    <input type="hidden" name="listmode" value="<?= hsc(request_strvar('listmode')) ?>"/>
     <input type="hidden" name="op" value=""/>
     <input type="hidden" name="rt" value="<?= hsc($rt) ?>"/>
     <input type="hidden" name="sm" value="<?= hsc($sm) ?>"/>
@@ -204,27 +239,70 @@ switch ($rt) {
                 <tr>
                     <td valign="top" align="left">
                         <?php
-                        $ds = db()->query($sql);
+                        include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                        $total = (int) db()->getValue(db()->select('COUNT(*)', $from, $where));
+                        $listmode = request_intvar('listmode');
+                        $params = ['a' => 84, 'rt' => $rt, 'sm' => $sm, 'cb' => $cb];
+                        if ($query !== '') {
+                            $params['search'] = $query;
+                        }
+                        if ($listmode) {
+                            $params['listmode'] = $listmode;
+                        }
+                        $perPage = $listmode === 1 ? 0 : ((int) evo()->config('number_of_results', 20) ?: 20);
+                        $links = new DataTableLinks('index.php', $params, get_intvar('page'));
+                        $pager = new DataTablePager($total, $perPage, $links->page());
+                        $ds = db()->select(
+                            $cols,
+                            $from,
+                            $where,
+                            $orderby,
+                            $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
+                        );
                         if (!$ds) {
                             echo "An error occured while loading records.";
                             exit;
-                        } else {
-                            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                            $grd = new DataGrid('', $ds, (int)evo()->config('number_of_results', 20)); // set page size to 0 t show all items
-                            $grd->noRecordMsg = $_lang["no_records_found"];
-                            $grd->cssClass = "grid";
-                            $grd->columnHeaderClass = "gridHeader";
-                            $grd->itemClass = "gridItem";
-                            $grd->altItemClass = "gridAltItem";
-                            $grd->columns = $_lang["name"] . " ," . $_lang["description"];
-                            $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>" . ($rt === 'doc' ? '' : '||description');
-                            $grd->fields = "name,description";
-                            $grd->colEscapes = $rt === 'doc' ? '1,1' : '1,'; // DB の値を出す列をエスケープ（要素の説明は description 型が自分で無害化する。文書のロングタイトルは説明の列に入るのでエスケープする）
-                            if (anyv('listmode') == 1) {
-                                $grd->pageSize = 0;
-                            }
-                            echo $grd->render();
                         }
+                        $rows = db()->getRows($ds) ?: [];
+                        $inputType = $sm === 'm' ? 'checkbox' : 'radio';
+                        $columns = [
+                            [
+                                'key' => 'name',
+                                'label' => $_lang['name'],
+                                'html' => true,
+                                'format' => function ($value, array $row) use ($inputType) {
+                                    return sprintf(
+                                        '<label><input type="%s" name="id[]" value="%d"> %s</label>',
+                                        $inputType,
+                                        (int) $row['id'],
+                                        hsc($value)
+                                    );
+                                },
+                            ],
+                            // 要素の説明は無害化して b・strong だけ戻す。文書のロングタイトルは既定のエスケープ
+                            $rt === 'doc'
+                                ? ['key' => 'description', 'label' => $_lang['description']]
+                                : [
+                                    'key' => 'description',
+                                    'label' => $_lang['description'],
+                                    'html' => true,
+                                    'format' => function ($value) {
+                                        return element_description_html((string) $value);
+                                    },
+                                ],
+                        ];
+                        $table = new DataTable($columns, [
+                            'id' => 'selector',
+                            'tableClass' => 'grid',
+                            'rowClasses' => ['gridItem', 'gridAltItem'],
+                            'emptyMessage' => $_lang['no_records_found'],
+                        ]);
+                        $nav = $pager->render($links, [
+                            'label' => lang('pagination_label'),
+                            'first' => lang('pagination_table_first'),
+                            'last' => lang('pagination_table_last'),
+                        ]);
+                        echo $nav . $table->render($rows, $links) . $nav;
                         ?>
                     </td>
                 </tr>

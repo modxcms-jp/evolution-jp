@@ -8,10 +8,10 @@ if (!evo()->hasPermission('edit_module')) {
     alert()->dumpError();
 }
 
-$id = anyv('id', 0);
+$id = request_intvar('id');
 
 // make sure the id's a number（SQL に組み込む前に確かめる）
-if (!is_numeric($id)) {
+if (!$id) {
     echo "Passed ID is not a valid number!";
     exit;
 }
@@ -40,10 +40,10 @@ if ($limit > 1) {
 // take action
 // 対象の ID は先に整数の配列にそろえ、空なら何もしない（count(null) や IN () を作らない）
 $depTypes = ['chunk' => 10, 'doc' => 20, 'plug' => 30, 'snip' => 40, 'tpl' => 50, 'tv' => 60];
-switch (anyv('op')) {
+switch (request_choicevar('op', ['add', 'del'], '')) {
     case 'add':
-        $opids = array_values(array_filter(array_map('intval', explode(',', (string) anyv('newids', '')))));
-        $type = $depTypes[strtolower((string) anyv('rt', ''))] ?? 0;
+        $opids = request_idsvar('newids');
+        $type = $depTypes[strtolower(request_strvar('rt'))] ?? 0;
         if (!$opids || !$type) {
             break;
         }
@@ -63,7 +63,7 @@ switch (anyv('op')) {
         }
         break;
     case 'del':
-        $opids = array_values(array_filter(array_map('intval', (array) anyv('depid', []))));
+        $opids = request_idsvar('depid');
         if (!$opids) {
             break;
         }
@@ -127,7 +127,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
 ?>
 <script type="text/javascript">
     function removeDependencies() {
-        if (confirm("<?= $_lang['confirm_delete_record'] ?>")) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_record'))) ?>)) {
             documentDirty = false;
             document.mutate.op.value = "del";
             document.mutate.submit();
@@ -224,19 +224,31 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             if (!$ds) {
                 echo "An error occured while loading module dependencies.";
             } else {
-                include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-                $grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
-                $grd->noRecordMsg = $_lang["no_records_found"];
-                $grd->cssClass = "grid";
-                $grd->columnHeaderClass = "gridHeader";
-                $grd->itemClass = "gridItem";
-                $grd->altItemClass = "gridAltItem";
-                $grd->columns = $_lang["element_name"] . " ," . $_lang["type"];
-                $grd->colTypes = "template:<label><input type='checkbox' name='depid[]' value='[+id+]'> [+value+]</label>";
-                $grd->fields = "name,type";
-                $grd->colEscapes = '1,1'; // DB の値を出す列をエスケープ
-                $grd->colWidths = '200';
-                echo $grd->render();
+                include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+                $table = new DataTable(
+                    [
+                        [
+                            'key' => 'name',
+                            'label' => $_lang['element_name'],
+                            'html' => true,
+                            'format' => function ($value, array $row) {
+                                return sprintf(
+                                    '<label><input type="checkbox" name="depid[]" value="%d"> %s</label>',
+                                    (int) $row['id'],
+                                    hsc($value)
+                                );
+                            },
+                        ],
+                        ['key' => 'type', 'label' => $_lang['type']],
+                    ],
+                    [
+                        'id' => 'module-resources',
+                        'tableClass' => 'grid',
+                        'rowClasses' => ['gridItem', 'gridAltItem'],
+                        'emptyMessage' => $_lang['no_records_found'],
+                    ]
+                );
+                echo $table->render(db()->getRows($ds) ?: []);
             }
             ?>
             <ul class="actionButtons">

@@ -23,7 +23,6 @@
                                 [+iconNewDoc+]
                                 [+iconResources+]
                                 [+iconSearch+]
-                                [+iconMessage+]
                                 [+iconHelp+]
                             </div>
                             <div style="overflow:hidden;zoom:1;margin-bottom:20px;">

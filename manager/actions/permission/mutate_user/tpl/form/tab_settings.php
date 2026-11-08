@@ -27,7 +27,7 @@
             <div><?= lang('user_allowed_parents_message') ?></div>
         </td>
     </tr>
-    <?php if (getv('a') == 12): ?>
+    <?php if ($action === 12): ?>
         <tr>
             <th><?= lang('user_logincount') ?>:</th>
             <td><?= (int)user('logincount') ?></td>
@@ -54,12 +54,12 @@
         <tr>
             <th><?= lang('user_block') ?>:</th>
             <td>
-                <?php $blocked = (user('blocked') || (user('blockeduntil', 0) > time() && user('blockeduntil'))); ?>
+                <?php $blocked = isUserBlocked($user); ?>
                 <label>
                     <input
                         name="blockedcheck"
                         type="checkbox"
-                        onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"
+                        onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"
                         <?php
                         if ($blocked) {
                             echo "checked";
@@ -67,7 +67,7 @@
                     <input
                         type="hidden"
                         name="blocked"
-                        value="<?= $blocked ? 1 : 0 ?>">
+                        value="<?= user('blocked') ? 1 : 0 ?>">
                 </label>
             </td>
         </tr>
@@ -75,7 +75,7 @@
             <th><?= lang('user_blockedafter') ?>:</th>
             <td>
                 <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
-                    value="<?php echo (user('blockedafter') ? $modx->toDateFormat(user('blockedafter')) : ""); ?>"
+                    value="<?= manager()->dateInputValue(user('blockedafter')) ?>"
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockedafter.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
@@ -91,7 +91,7 @@
                     id="blockeduntil"
                     name="blockeduntil"
                     class="DatePicker"
-                    value="<?php echo (user('blockeduntil') ? $modx->toDateFormat(user('blockeduntil')) : ''); ?>"
+                    value="<?= manager()->dateInputValue(user('blockeduntil')) ?>"
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"

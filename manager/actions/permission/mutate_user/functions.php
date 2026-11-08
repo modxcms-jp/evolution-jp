@@ -1,15 +1,5 @@
 <?php
 
-// converts date format dd-mm-yyyy to php date
-function ConvertDate($date)
-{
-    global $modx;
-    if (!$date) {
-        return "0";
-    }
-    return $modx->toTimeStamp($date);
-}
-
 function checkbox($name, $value, $label, $cond)
 {
     global $modx;
@@ -24,7 +14,7 @@ function checkbox($name, $value, $label, $cond)
 function user($key, $default = null)
 {
     global $user;
-    return evo()->array_get($user, $key, $default);
+    return array_get($user, $key, $default);
 }
 
 // システム設定の値。evo()->config には編集している管理者自身のユーザー設定が重なっているので、テーブルから読む。
@@ -60,7 +50,8 @@ function selected($cond)
 
 function getUser($userid)
 {
-    $field = 'mu.*, ua.*';
+    // 2 つの表に同じ名前の列 id がある。ユーザーの ID は manager_users.id なので、後ろに書いて読む
+    $field = 'ua.*, mu.id, mu.username, mu.password';
     $from = [
         '[+prefix+]manager_users mu',
         'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
@@ -130,23 +121,7 @@ function activeUserCheck($userid)
 
 function blockedmode($user)
 {
-    if (!$user) {
-        return '0';
-    }
-
-    if ($user['blocked']??null == 1) {
-        return '1';
-    }
-    if ($user['blockeduntil']??null && $user['blockeduntil'] > time()) {
-        return '1';
-    }
-    if ($user['blockedafter']??null && $user['blockedafter'] < time()) {
-        return '1';
-    }
-    if (isset($user['failedlogins']) && 3 < $user['failedlogins']) {
-        return '1';
-    }
-    return '0';
+    return isUserBlocked($user) ? '1' : '0';
 }
 
 function saveOptions()
@@ -156,7 +131,7 @@ function saveOptions()
         'option',
         [
             'value' => 'next',
-            'selected' => evo()->input_any('save_action') == 'next' ? null : ''
+            'selected' => request_strvar('save_action') === 'next' ? null : ''
         ],
         lang('stay_new')
     );
@@ -164,7 +139,7 @@ function saveOptions()
         'option',
         [
             'value' => 'stay',
-            'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
+            'selected' => request_strvar('save_action') === 'stay' ? null : ''
         ],
         lang('stay')
     );
@@ -172,7 +147,7 @@ function saveOptions()
         'option',
         [
             'value' => 'close',
-            'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
+            'selected' => request_strvar('save_action', 'close') === 'close' ? null : ''
         ],
         lang('close')
     );
@@ -214,9 +189,9 @@ function aButtonSave()
     );
 }
 
-function aButtonDelete($userid)
+function aButtonDelete($action, $userid)
 {
-    if (request_intvar('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
+    if ($action !== 12 || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
         return '';
     }
 
@@ -232,7 +207,7 @@ function aButtonCancel()
 {
     return manager()->ab(
         [
-            'onclick' => "document.location.href='index.php?a=75';",
+            'onclick' => "EvoShell.go('index.php?a=75');",
             'label' => lang('cancel')
         ]
     );

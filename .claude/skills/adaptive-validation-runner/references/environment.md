@@ -34,6 +34,7 @@ docker ps -a --filter label=com.docker.compose.project=evo-validate-fix500 \
 - ほかの作業ツリーのものが出たら、それは別のセッションの環境。止めたり消したりせず、名前とアドレスを変えて起動する
 
 名前とアドレスは、作業ツリー名などから決める（例: `evo-validate-fix500` と `127.0.0.2`）。
+ただし、人が Windows 側のブラウザで目視する環境は、`EVO_BIND_IP` を `127.0.0.1` のままにする（`127.0.0.2` などは WSL の中からしか開けない）。80 番が埋まっていれば `EVO_HTTP_PORT` でポートを変える（例: `127.0.0.1:8087`）。サイトの URL はインストールのときに固まるので、アドレスとポートはインストールの前に決める（あとで変えるときは環境を作り直す）。
 AI のエージェントではシェルの状態がコマンドごとに引き継がれないことが多いため、`export` に頼らず、**docker compose と同梱スクリプトを実行するたびに、コマンドの先頭に付ける**。
 付け忘れると既定の名前 `evo-validate` で動き、その名前の環境が別のセッションのものなら、作り直したり消したりしてしまう。
 
@@ -73,7 +74,7 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ログイン情報（既定。`EVO_ADMIN_USER` / `EVO_ADMIN_PASSWORD` で変えられる）:
 
-- 管理画面: `http://localhost/manager/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>/manager/`）
+- 管理画面: `http://localhost/manager/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>/manager/`）。curl で開くときは `-H 'Accept-Language: ja'` を付ける（無いと本文なしの 404 になる。ブラウザと同梱のスクリプトは送るので要らない）
 - 管理者: `admin` / `Passw0rd!2026`（ロール2 ウェブマスター）
 - 権限の弱いユーザー（`--editor`）: `editor` / 管理者と同じパスワード（ロール3 投稿担当者、`save_role` なし）
 - mailpit: `http://localhost:8025/`（`EVO_BIND_IP` を変えたときは `http://<アドレス>:8025/`。API は `/api/v1/messages`）

@@ -3,16 +3,25 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (
-    (getv('a') == 16 && !hasPermission('edit_template'))
-    ||
-    (getv('a') == 19 && !hasPermission('new_template'))
-) {
-    alert()->setError(3);
-    alert()->dumpError();
+switch (request_intvar('a')) {
+    case 16:
+        if (!hasPermission('edit_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    case 19:
+        if (!hasPermission('new_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    default:
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 16);
+abort_if_invalid_id('id', request_intvar('a') === 16);
 
 if (id()) {
     $username = is_locked(id());
@@ -34,14 +43,14 @@ if (id()) {
     <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
     <script type="text/javascript">
         function duplicaterecord() {
-            if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
                 documentDirty = false;
                 EvoCsrf.post("index.php?id=<?= get_intvar('id') ?>&a=96");
             }
         }
 
         function deletedocument() {
-            if (confirm("<?= lang('confirm_delete_template') ?>")) {
+            if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_template'))) ?>)) {
                 documentDirty = false;
                 EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=21");
             }
@@ -58,7 +67,7 @@ if (id()) {
         ?>
         <input type="hidden" name="a" value="20">
         <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
-        <input type="hidden" name="mode" value="<?= (int)getv('a') ?>">
+        <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
 
         <h1><?= lang('template_title') ?></h1>
         <div id="actions">
@@ -71,14 +80,14 @@ if (id()) {
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
                             <option id="stay1"
-                                    value="1" <?= selected(getv('stay') == 1) ?>><?= lang('stay_new') ?></option>
-                            <option id="stay2" value="2" <?= selected(getv('stay') == 2) ?>><?= lang('stay') ?></option>
-                            <option id="stay3" value="" <?= selected(!getv('stay')) ?>><?= lang('close') ?></option>
+                                    value="1" <?= selected(get_intvar('stay') === 1) ?>><?= lang('stay_new') ?></option>
+                            <option id="stay2" value="2" <?= selected(get_intvar('stay') === 2) ?>><?= lang('stay') ?></option>
+                            <option id="stay3" value="" <?= selected(!get_intvar('stay')) ?>><?= lang('close') ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
                 <?php
-                if (getv('a') == 16) {
+                if (request_intvar('a') === 16) {
                     if (evo()->hasPermission('new_template')) {
                         echo evo()->manager->ab([
                             'onclick' => 'duplicaterecord();',
@@ -93,7 +102,7 @@ if (id()) {
                     }
                 }
                 echo evo()->manager->ab([
-                    'onclick' => "document.location.href='index.php?a=76';",
+                    'onclick' => "EvoShell.go('index.php?a=76');",
                     'label' => lang('cancel')
                 ]);
                 ?>
@@ -210,7 +219,7 @@ if (id()) {
                 </div>
 
                 <?php
-                if (getv('a') == '16') {
+                if (request_intvar('a') === 16) {
                     $rs = db()->select(
                         [
                             'name' => 'tv.name',
@@ -297,7 +306,7 @@ if (id()) {
         </div>
     </form>
     <script>
-        var tpstatus = <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?>;
+        var tpstatus = <?= (config('remember_last_tab') == 2 || get_intvar('stay') === 2) ? 'true' : 'false' ?>;
         tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
         // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
         (function () {
@@ -362,7 +371,7 @@ function template($key, $default = null)
     static $tplObject = [];
     static $loaded = false;
     if ($loaded) {
-        return evo()->array_get($tplObject, $key, $default);
+        return array_get($tplObject, $key, $default);
     }
     $loaded = true;
     if (get_intvar('id')) {
@@ -385,7 +394,7 @@ function template($key, $default = null)
     }
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
     $tplObject = manager()->restoreElementFormValues($tplObject);
-    return evo()->array_get($tplObject, $key, $default);
+    return array_get($tplObject, $key, $default);
 }
 
 // 編集するテンプレートの id。新規作成のときは空文字

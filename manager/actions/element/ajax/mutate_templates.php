@@ -3,8 +3,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (preg_match('@^[1-9][0-9]*$@', anyv('id', ''))) {
-    return get_resources_byajax(anyv('id'));
+if (request_intvar('id')) {
+    return get_resources_byajax(request_intvar('id'));
 }
 
 function get_resources_byajax($id)

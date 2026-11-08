@@ -21,6 +21,24 @@ function cli_usage($message, $code = 1)
     exit($code);
 }
 
+/**
+ * 標準入力が端末（対話）か。判定できない環境では対話でないとみなす（確認なしに進めないため）
+ */
+function cli_stdin_is_interactive(): bool
+{
+    if (!defined('STDIN') || !is_resource(STDIN)) {
+        return false;
+    }
+    if (function_exists('stream_isatty')) {
+        return stream_isatty(STDIN);
+    }
+    if (function_exists('posix_isatty')) {
+        return posix_isatty(STDIN);
+    }
+
+    return false;
+}
+
 function cli_system_log_format_entry(array $entry): string
 {
     $level = strtoupper((string)array_get($entry, 'level', ''));
@@ -42,7 +60,12 @@ function cli_system_log_format_entry(array $entry): string
 }
 
 /**
- * Create a temporary MySQL defaults-extra-file for secure credential passing.
+ * Create a temporary MySQL option file for secure credential passing.
+ * Pass it with --defaults-file (as the first option) so that the client reads
+ * only this file and ~/.my.cnf etc. cannot override the connection settings.
+ * MySQL clients still read ~/.mylogin.cnf even with --defaults-file, so this
+ * also points MYSQL_TEST_LOGIN_FILE at a path that does not exist (MariaDB
+ * clients have no login path file and ignore it).
  * Returns the temp file path. The file is auto-deleted on shutdown.
  */
 function cli_mysql_defaults_file()
@@ -78,7 +101,14 @@ function cli_mysql_defaults_file()
         db()->config['pass'],
         $sslLine
     );
+    // /etc/my.cnf is no longer read, so pass the charset the site connects with
+    $charset = db()->config['charset'] ?? '';
+    if ($charset !== '') {
+        $content .= "default-character-set={$charset}\n";
+    }
     file_put_contents($tmpFile, $content);
+    // Under a regular file, so nobody can create it
+    putenv('MYSQL_TEST_LOGIN_FILE=' . $tmpFile . '/nologin');
 
     return $tmpFile;
 }
@@ -154,7 +184,7 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
 
     $routines = !array_key_exists('routines', $options) || $options['routines'];
     $cmd = sprintf(
-        'mysqldump --defaults-extra-file=%s --single-transaction %s --no-tablespaces %s',
+        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces %s',
         escapeshellarg($defaultsFile),
         $routines ? '--routines --triggers' : '--skip-triggers',
         escapeshellarg($dbname)

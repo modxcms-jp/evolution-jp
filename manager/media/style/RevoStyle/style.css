@@ -363,15 +363,6 @@ hr {
     padding: 0;
 }
 
-.messageRead {
-    color: var(--color-text-primary);
-}
-
-.messageUnread {
-    color: var(--color-info);
-    font-weight: bold;
-}
-
 .right {
     font-weight: bold;
     color: var(--color-text-primary);
@@ -450,11 +441,6 @@ hr {
 #supplementalNav a {
     padding: 0;
     margin: 0;
-}
-
-#msgCounter, #newMail {
-    margin: 0;
-    padding: 0;
 }
 
 /* ============================================================================
@@ -937,6 +923,15 @@ div.treeNode {
     padding: 3px;
 }
 
+.grid .is-shrink {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.grid .is-center {
+    text-align: center;
+}
+
 .gridRowIcon:hover {
     background-color: #f5f5dc;
 }
@@ -953,23 +948,6 @@ div.treeNode {
 /* Resource description in grid */
 .resource-description {
     color: #777;
-}
-
-/* Welcome page inbox title */
-.inbox-title {
-    color: #909090;
-    font-size: 15px;
-    font-weight: bold;
-}
-
-/* New message count */
-.message-count-new {
-    color: red;
-}
-
-/* Message quote */
-.message-quote {
-    color: #666;
 }
 
 /* Disabled label */
@@ -1521,16 +1499,16 @@ table.sortabletable {
     margin: 10px 0;
 }
 
-#pagination {
+.pagination {
     margin: 10px 0;
 }
 
-#pagination ul {
+.pagination ul {
     margin: 10px 0;
     display: inline;
 }
 
-#pagination li {
+.pagination li {
     list-style: none;
     display: inline;
     width: 15px;
@@ -1538,20 +1516,20 @@ table.sortabletable {
     padding: 0;
 }
 
-#pagination li a,
-#pagination li span {
+.pagination li a,
+.pagination li span {
     padding: 3px 8px;
     border: 1px solid #D9E7C2;
     text-decoration: none;
     color: #333;
 }
 
-#pagination li span {
+.pagination li span {
     color: #D9E7C2;
     cursor: default;
 }
 
-#pagination li.currentPage a, #pagination li a:hover {
+.pagination a[aria-current="page"], .pagination li a:hover {
     color: #fff;
     background-color: #7fa53d;
     border: 1px solid #567959;
@@ -1952,11 +1930,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 /* a=133 publish_draft.dynamic.php: 採用の選択の div の margin-bottom:1em（12px） */
 div:has(> label > input[name="publishoption"]) {
     margin-bottom: 12px;
-}
-
-/* a=10 messages.static.php: 返信欄のボタン列の margin-top:15px */
-ul.actionButtons.messages-compose-actions {
-    margin-top: 15px;
 }
 
 /* a=16・a=19 ほか: コード欄の上の帯（#973・#1004）。画面の直書きだった padding・色・枠と、中の文字の太字・#707070（#1004）を、凍結のため同じ値で保つ */

@@ -2,16 +2,25 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!hasPermission('edit_template') && anyv('a') == 301) {
-    alert()->setError(3);
-    alert()->dumpError();
-}
-if (!hasPermission('new_template') && anyv('a') == 300) {
-    alert()->setError(3);
-    alert()->dumpError();
+switch (request_intvar('a')) {
+    case 301:
+        if (!hasPermission('edit_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    case 300:
+        if (!hasPermission('new_template')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        break;
+    default:
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
-abort_if_invalid_id('id', anyv('a') == 301);
+abort_if_invalid_id('id', request_intvar('a') === 301);
 
 $id = request_intvar('id');
 
@@ -29,15 +38,9 @@ if ($total > 1) {
 }
 // end check for lock
 
-// make sure the id's a number
-if (!is_numeric($id)) {
-    echo 'Passed ID is NaN!';
-    exit;
-}
-
 global $content;
 $content = [];
-if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
+if (get_intvar('id')) {
     $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -91,14 +94,14 @@ function entity($key, $default = null)
 <script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>) == true) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=304");
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_tmplvars'] ?>") == true) {
+        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_tmplvars'))) ?>) == true) {
             documentDirty = false;
             EvoCsrf.post("index.php?id=" + document.mutate.id.value + "&a=303");
         }
@@ -111,7 +114,7 @@ function entity($key, $default = null)
     widgetParams['delim'] = '&delim=Delimiter;string;,';
     widgetParams['hyperlink'] = '&text=Display Text;string; &title=Title;string; &linkclass=Class;string &linkstyle=Style;string &target=Target;string &linkattrib=Attributes;string';
     widgetParams['htmltag'] = '&tagoutput=Content;textarea;[+value+] &tagname=Tag Name;string;div &tagid=Tag ID;string &tagclass=Class;string &tagstyle=Style;string &tagattrib=Attributes;string';
-    widgetParams['datagrid'] = '&cdelim=Column Delimiter;list;%2C,tab,||,:: &cwrap=Column Wrapper;string;" &enc=Src Encode;list;utf-8,sjis-win,sjis,eucjp-win,euc-jp,jis,auto &detecthead=Detect Header;list;first line,none;first line &cols=Column Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;string; &cspace=Cell Spacing;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string; &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
+    widgetParams['datagrid'] = '&cdelim=Column Delimiter;list;%2C,tab,||,:: &cwrap=Column Wrapper;string;" &enc=Src Encode;list;utf-8,sjis-win,sjis,eucjp-win,euc-jp,jis,auto &detecthead=Detect Header;list;first line,none;first line &cols=Column Names;string &ctype=Column Types;string &psize=Page Size;int;100 &ploc=Pager Location;list;top,bottom,both;top &pclass=Pager Class;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &itmc=Item Class;string &aitmc=Alt Item Class;string &chdrc=Column Header Class;string &egmsg=Empty message;string;No records found';
     widgetParams['richtext'] = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?= $RTEditors ?>';
     widgetParams['image'] = '&imgoutput=Src;textarea;[+value+] &alttext=Alternate Text;string &align=Align;list;none,baseline,top,middle,bottom,texttop,absmiddle,absbottom,left,right &name=Name;string &imgclass=Class;string &id=ID;string &imgstyle=Style;string &imgattrib=Other Attribs;string';
     widgetParams['custom_widget'] = '&output=Output;textarea;[+value+]';
@@ -316,7 +319,7 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= hsc(getv('a')) ?>">
+    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
@@ -334,16 +337,16 @@ function entity($key, $default = null)
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                            value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
-            if (getv('a') == 301) {
+            if (request_intvar('a') === 301) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']
@@ -360,7 +363,7 @@ function entity($key, $default = null)
                 }
             }
             $params = [
-                'onclick' => "document.location.href='index.php?a=76';",
+                'onclick' => "EvoShell.go('index.php?a=76');",
                 'label' => $_lang['cancel']
             ];
             echo manager()->ab($params);
@@ -558,9 +561,9 @@ function entity($key, $default = null)
                             <?php
                             if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
-                                    if (anyv('a') == 300 && config('default_template') == $row['id']) {
+                                    if (request_intvar('a') === 300 && config('default_template') == $row['id']) {
                                         $checked = true;
-                                    } elseif (getv('tpl') == $row['id']) {
+                                    } elseif (get_intvar('tpl') && (int)$row['id'] === get_intvar('tpl')) {
                                         $checked = true;
                                     } elseif ($id == 0 && is_array(entity('template'))) {
                                         $checked = in_array($row['id'], entity('template'));
