@@ -16,7 +16,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-08) 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画（2c3a94b27・578319093。比べる元は `<work>/s1/`、結果は `<work>/branch-m5/`）
 - [x] (2026-11-08) 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2（80531880a・15bc82ad1・49290e203・407434f64。結果は `<work>/branch-m6/`）
 - [x] (2026-11-08) 段階 3・M7: ユーザー編集画面（`a=11`/`a=12`）の設定のタブを同じ定義から描く（1502f724b。基準は `<work>/s3-main/`、結果は `<work>/s3-branch/`）
-- [ ] 段階 3・M8: プロフィール（`a=74`）の設定のタブも同じ定義から描き、PHP 7.4 と配布の大きさを確かめて振り返る → PR 3
+- [x] (2026-11-08) 段階 3・M8: プロフィール（`a=74`）の設定のタブも同じ定義から描き、PHP 7.4 と配布の大きさを確かめて振り返る → PR 3（M7 の低の直し 13fcb7c97、M8 は 260142add・208d5870e・88e1dccb2。結果は `<work>/s3-branch2/`・`<work>/s3-m8/`）
 
 ## Surprises & Discoveries
 
@@ -68,6 +68,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M7）: `EvoSettingsForm::style()` は `table.settings` の共通の 4 規則だけを返す。グローバル設定だけの `input[type=text]{width:250px}` は `mutate_settings.dynamic.php` に残した。ユーザー画面のほかのタブ（ログイン設定・プロフィール）の欄の幅を変えないため。計画の「中身は今と同じ」は、全部を 1 つにすると他のタブが変わるので、この形にした。
 - 2026-11-08（M7）: `OnInterfaceSettingsRender` は、エディターのタブの末尾で呼ぶ（タブの `eventScope` を system・user・profile）。a=12 のタブは 5 から 6 になり、TinyMCE 7 の 3 欄は管理画面からエディターのタブへ移った。a=17 の A・B・S1・S2 は段階 2 の後と同じ。
 
+- 2026-11-08（M7 の自己レビュー）: 高・中なし。低のうち、user・profile で条件により行がすべて隠れる小見出し・タブを出さない（行は消さずに `display:none`。保存は送られた値から作り直すので、送らないと設定が消える）、差し戻し後も `default_<キー>` のチェックを残す（main からの不具合）、ユーザー画面の文字の欄の幅を main と同じにする（表に `user-scope` のクラスを付けて `style()` で範囲を絞る）の 3 件を直した（13fcb7c97）。上の M7 の「入力欄の幅は定義の共通の指定にした」は、この直しで main と同じ幅に戻した。
+- 2026-11-08（M8）: `form-snapshot.js` の `--submit` を、`#mainPane` があればその中のフォームだけに印を付けるように直した（260142add）。a=12・a=74・a=17 の保存がすべて通る。
+- 2026-11-08（M8）: Apache の `error.log` は `/dev/stderr` へのリンクで、コンテナの中で tail しても何も出ない（止まる）。PHP の警告は `docker logs` で見る。M7 の「error.log に警告なし」はこの確認が無効だったが、M8 で `docker logs` を見て、8.4・7.4 とも Warning・Notice・Deprecated・Fatal が 0 件だった。
+- 2026-11-08（M8）: a=74 の欄は 41 件で main と同じ集まり。値の差は、ユーザーの値が無いときの `manager_inline_style` のテキストエリアにシステム設定の値を出すこと（「システム設定に従う」のチェックは付いたまま、保存の結果は同じ）と、言語の選択肢の並びの 2 件だけ。タブは「プロフィール・管理画面・エディター」になった。`names('profile')` は本体の欄の名前だけを返し、プラグインの欄はセッションで覚える今の仕組みのまま。
+
 ## Decision Log
 
 ユーザーさんと決めたこと（2026-11-05 / yamamoto・Claude）:
@@ -98,6 +103,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - **比較の道具は `adaptive-validation-runner` の同梱スクリプトとして足す**（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js`）。3 段階のすべてと、ほかのフォームの作り替えでも使えるため。`.claude/` は配布の zip に入らない（`.gitattributes` の `export-ignore`）。
 
 ## Outcomes & Retrospective
+
+- 段階 1〜3 で、グローバル設定（`a=17`）・ユーザー編集（`a=11`/`a=12`）・プロフィール（`a=74`）の設定の欄を、1 つの定義（`settings_form.definition.inc.php`、1,120 行）と 1 つの描画の部品（`settings_form.class.inc.php`、782 行）から描くようにした。行を手書きしていた 7 つのタブのファイル・`functions.inc.php`・`charsets.php`・ユーザー画面の `tab_page5.php`・`tab_page7.php` を消し、`profileSettingNames()` の固定の一覧も定義から引く。設定の欄の値・保存の結果は、どの段階でも main と同じ（許した違いは Surprises のとおり）
+- 段階 2 で、タブを役割ごとに 9 つにし、名前を短くそろえ、小見出しを付けた（#1066）。プラグインのイベントを 1 タブ 1 か所にし、同じ欄が 3 つ出ていたのをなくした。ユーザー画面のタブも同じ名前・小見出し・順になった
+- 配布の zip は 1,605,004 バイト（段階 1 の前）→ 1,603,632 バイト（−1,372）。段階 3 の差分は 12 ファイルで +305 / −449 行
+- 学び: 見た目を変えない作り替えは、欄の一覧（名前・種類・値・選択・無効・表示）と保存の結果を前後で機械的に比べる道具（`form-snapshot.js`）を先に作ったことで、段階ごとに「同じ」を確かめられた。シェルの画面では、保存の後もシェルの部品のフォームが残るので、画面の切り替わりは `#mainPane` の中で判定する。ユーザーさんの目視で、タブの幅の見込み（名前を短くするだけでは狭くならない）を早く確かめられたのもよかった
 
 ## Context and Orientation
 
@@ -507,7 +517,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'field'・'hiddenBr'・'reloadId'  lang_text の欄の種別（'text' なら input、既定は textarea）・hidden の後ろの <br/>・読み込みの select の id を直接指定（M4 で足した）
       'inline'   radio の選択肢のあいだに <br/> を入れない（M4 で足した）
       label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
-      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'
+      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'。タブには 'eventScope'（イベントを呼ぶ scope の配列。既定は ['system']。エディターのタブだけ system・user・profile）
 
 `yesno` は `['1' => lang('yes'), '0' => lang('no')]`、`enabled` は `['1' => lang('enabled'), '0' => lang('disabled')]` の radio の略。`disable_cache_at_login` のように値と表示が逆の行は `radio` で書く。
 
