@@ -2410,10 +2410,11 @@ trait DocumentParserSubParserTrait
      *
      * @param int   $docid 対象の文書 ID
      * @param array $input 編集フォームの値
+     * @param string|null $reuseKey 使い回すキー。同じ文書の下書きとして本人のセッションにあれば内容を上書きして同じキーを返し、無い・形が違う・別文書・期限切れなら新しいキーを作る
      * @return string 32 桁の hex のキー
      * @throws RuntimeException 下書きを作れないとき
      */
-    public function storePreviewDraft($docid, array $input)
+    public function storePreviewDraft($docid, array $input, $reuseKey = null)
     {
         $policy = self::previewDraftPolicy();
         $drafts = $this->purgePreviewDrafts((array)sessionv('preview_drafts'));
@@ -2423,7 +2424,18 @@ trait DocumentParserSubParserTrait
             // 変換に失敗すると空が返る。空の下書きを置くと保存済みのページが黙って出る
             throw new RuntimeException('Failed to build the preview draft');
         }
-        $key = bin2hex(random_bytes(16));
+        if (
+            is_string($reuseKey)
+            && preg_match('/^[0-9a-f]{32}$/', $reuseKey)
+            && isset($drafts[$reuseKey])
+            && (int)$drafts[$reuseKey]['docid'] === (int)$docid
+        ) {
+            $key = $reuseKey;
+            // 上書きしたものは新しい扱いにするため、末尾へ移す
+            unset($drafts[$key]);
+        } else {
+            $key = bin2hex(random_bytes(16));
+        }
         $drafts[$key] = [
             'docid' => (int)$docid,
             'created' => time(),
