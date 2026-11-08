@@ -119,6 +119,9 @@ switch ($operation) {
         $updategroupaccess = true;
         $usergroup = request_intvar('user_group');
         $docgroup = request_intvar('document_group');
+        if (empty($usergroup) || empty($docgroup)) {
+            exit("No user group or document group specified for linking");
+        }
         $where = "webgroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $total = db()->getValue(db()->select('count(*)', $tbl_webgroup_access, $where));
         if ($total <= 0) {

@@ -125,6 +125,9 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         $updategroupaccess = true;
         $usergroup = request_intvar('user_group');
         $docgroup = request_intvar('document_group');
+        if (empty($usergroup) || empty($docgroup)) {
+            warning("No user group or document group specified for linking");
+        }
         $where = "membergroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $limit = db()->getValue(db()->select('count(*)', $tbl_membergroup_access, $where));
         if ($limit <= 0) {
