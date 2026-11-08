@@ -25,7 +25,7 @@
 
 - ヘルパーの `evo()->invokeEvent()` を利用し、常に共有の `DocumentParser` インスタンスを介してイベントを発行する。
 - 同一イベントで複数回実行される可能性があるため、`$modx->event->name` や `$modx->event->activePlugin` を確認して副作用を制御する。
-- リッチテキストのエディタ（TinyMCE など）は、内容が変わったら元の欄（textarea）へ bubbles の `input` イベントを送る。日本語などの変換中は送らず、確定（`compositionend`）で送る。iframe の中の変更はフォームから見えないため、フォームの `input` を拾う仕組み（ライブプレビューの自動更新など）はこれに頼る。
+- リッチテキストのエディタ（TinyMCE など）は、内容が変わったら元の欄（textarea）へ bubbles の `input` イベントを送る。日本語などの変換中は送らず、確定（`compositionend`）で送る。composition イベント（`compositionstart` / `compositionend`）も元の欄へ送る（フォーム側が変換中かを普通の欄と同じ処理で判定できる）。iframe の中の変更はフォームから見えないため、フォームの `input` を拾う仕組み（ライブプレビューの自動更新など）はこれに頼る。
 - テンプレートへデータを渡す場合は `$modx->setPlaceholder()` を用いてプレースホルダーに値を仕込み、標準の解析サイクルに乗せる。
 
 ## ファイルブラウザのイベント

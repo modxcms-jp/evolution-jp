@@ -186,12 +186,27 @@ final class EditorInitializer
         $output[] = '        };';
         // 変換中(compositionstart から compositionend まで)は、input・change・undo・redo・SetContent のどれでも送らず、確定(compositionend)で 1 回送る
         $output[] = '        let composing = false;';
+        // composition イベントも元の欄へ送り、フォーム側の変換中の判定を普通の欄と同じ処理にする。変換の途中で blur したら、compositionend が来なくても元の欄へ終わりを伝えて印を戻す
+        $output[] = '        const notifyComposition = function(type) {';
+        $output[] = '            const el = editor.getElement();';
+        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
+        $output[] = '                el.dispatchEvent(new CompositionEvent(type, {bubbles: true}));';
+        $output[] = '            }';
+        $output[] = '        };';
         $output[] = '        editor.on("compositionstart", function() {';
         $output[] = '            composing = true;';
+        $output[] = '            notifyComposition("compositionstart");';
         $output[] = '        });';
         $output[] = '        editor.on("compositionend", function() {';
         $output[] = '            composing = false;';
         $output[] = '            notifyInput();';
+        $output[] = '            notifyComposition("compositionend");';
+        $output[] = '        });';
+        $output[] = '        editor.on("blur", function() {';
+        $output[] = '            if (composing) {';
+        $output[] = '                composing = false;';
+        $output[] = '                notifyComposition("compositionend");';
+        $output[] = '            }';
         $output[] = '        });';
         $output[] = '        const notifyUnlessComposing = function() {';
         $output[] = '            if (!composing) {';

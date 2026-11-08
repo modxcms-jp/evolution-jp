@@ -83,6 +83,8 @@
         var autoPending = false;    // 送信中に変更があった
         var lastSentSig = null;     // 直前に成功した送信の内容（同じ内容を自動で重ねて送らない）
         var sendGuard = null;
+        var sendSeq = 0;            // 送信の番号。遅れて返った古い送信の結果で、今の状態を戻さないために使う
+        var previewComposing = false; // 変換中か（sendAuto が見る）
         var AUTO_DELAY = 1500;
         var AUTO_TIMEOUT = 30000;   // Evo.fetch はログインへ移るときに解決しないので、送信中の印を戻す
         var previewMutate = document.getElementById('mutate');
@@ -102,6 +104,9 @@
                     if (same) {
                         previewWin = prevWin;
                         autoOn = true;
+                        // 窓が見ている下書きのキーを引き継ぐ（サーバーがセッションの持ち主と文書を確かめる）。保存のたびに新しいキーを作らず、最初の更新も再読み込みになる
+                        var curKey = cur.searchParams.get('mgr_preview');
+                        if (curKey && curKey !== '1') previewKey = curKey;
                     }
                 }
             } catch (err) {
@@ -142,22 +147,25 @@
                     var key = data.key || null;
                     var changed = !key || key !== previewKey;
                     previewKey = key;
-                    lastSentSig = built.sig;
-                    return { url: data.url, changed: changed };
+                    return { url: data.url, changed: changed, sig: built.sig };
                 });
         }
 
         function beginSending() {
+            var seq = ++sendSeq;
             autoSending = true;
             autoPending = false;
             if (sendGuard) clearTimeout(sendGuard);
             sendGuard = setTimeout(function () {
                 sendGuard = null;
-                autoSending = false;
+                if (seq === sendSeq) autoSending = false;
             }, AUTO_TIMEOUT);
+            return seq;
         }
 
-        function endSending() {
+        // 最新の送信の終わりのときだけ印を戻す。古い送信の終わりは無視する
+        function endSending(seq) {
+            if (seq !== sendSeq) return;
             autoSending = false;
             if (sendGuard) clearTimeout(sendGuard);
             sendGuard = null;
@@ -187,7 +195,7 @@
                 // 別のオリジンで読めない
             }
             if (current !== null) {
-                if (current === 'about:blank' || current !== new URL(result.url).href) {
+                if (current === 'about:blank' || current !== new URL(result.url, location.href).href) {
                     win.location.href = result.url;
                 } else {
                     win.location.reload();
@@ -226,13 +234,18 @@
                 stopAuto();
                 return;
             }
+            // 変換中は送らない（確定の compositionend で scheduleAuto が呼ばれる）
+            if (previewComposing) return;
             var built = buildPreviewForm();
             // 直前に送った内容と同じなら送らない
             if (built.sig === lastSentSig) return;
-            beginSending();
+            var seq = beginSending();
             postPreviewDraft(built)
                 .then(function (result) {
-                    endSending();
+                    // 後の送信が始まっていれば、この古い結果は使わない
+                    if (seq !== sendSeq) return;
+                    endSending(seq);
+                    lastSentSig = built.sig;
                     if (!autoOn || !previewMutate.isConnected || !previewWinOpen()) {
                         stopAuto();
                         return;
@@ -245,8 +258,8 @@
                 })
                 .catch(function (err) {
                     // 入力のたびに出さないよう alert は出さない。手動の「プレビュー」で通常どおり知らせる
-                    endSending();
-                    autoPending = false;
+                    endSending(seq);
+                    if (seq === sendSeq) autoPending = false;
                     console.warn('preview auto update failed', err);
                 });
         }
@@ -255,17 +268,22 @@
         if (previewable) {
             // 日本語などの変換中は送らない。Chrome の順序は compositionstart, compositionupdate, input(isComposing) ×N, compositionend で、
             // 確定時の input も isComposing のままで compositionend の後に input は来ない。そのため印を持ち、compositionend で送る
-            var composing = false;
+            // 確定してすぐ次の変換を始めたとき、前の確定で待っている送信は取り消す。compositionend が来ないまま残らないよう、focusout でも戻す
             previewMutate.addEventListener('compositionstart', function () {
-                composing = true;
+                previewComposing = true;
+                if (autoTimer) clearTimeout(autoTimer);
+                autoTimer = null;
             });
             previewMutate.addEventListener('compositionend', function () {
-                composing = false;
+                previewComposing = false;
                 scheduleAuto();
+            });
+            previewMutate.addEventListener('focusout', function () {
+                previewComposing = false;
             });
             ['input', 'change', 'ddmultiple:change'].forEach(function (type) {
                 previewMutate.addEventListener(type, function (e) {
-                    if (composing || e.isComposing) return;
+                    if (previewComposing || e.isComposing) return;
                     scheduleAuto();
                 });
             });
@@ -317,18 +335,22 @@
             };
             // セッション切れでログインへ移るとき（Evo.fetch は Promise を解決しない）、空の窓を残さない
             window.addEventListener('pagehide', closeBlank, { once: true });
+            var seq;
             var failed = function () {
-                endSending();
+                endSending(seq);
                 window.removeEventListener('pagehide', closeBlank);
                 closeBlank();
                 alert([+lang_error_occurred+]);
             };
-            beginSending();
+            seq = beginSending();
             // 手動は内容が同じでも必ず送る（下書きの期限の延長と窓を開くため）
             postPreviewDraft(buildPreviewForm())
                 .then(function (result) {
-                    endSending();
                     window.removeEventListener('pagehide', closeBlank);
+                    // 後の送信が始まっていれば、この古い結果は使わない
+                    if (seq !== sendSeq) return;
+                    endSending(seq);
+                    lastSentSig = result.sig;
                     showPreview(win, result);
                     win.focus();
                     // 送信中に入った変更を 1 回送る
