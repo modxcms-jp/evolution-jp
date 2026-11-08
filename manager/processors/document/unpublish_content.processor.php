@@ -14,8 +14,15 @@ if (!$id) {
     alert()->dumpError();
 }
 
+include_once(__DIR__ . '/document_state.functions.php');
+
 // check permissions on the document
-if (!$modx->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
+$denied = docPublishCheck($id, false);
+if ($denied !== '' && $denied !== 'access_permission_denied') {
+    // サイト開始ページは非公開にできない
+    evo()->webAlertAndQuit($denied, 'javascript:history.back();');
+}
+if ($denied !== '') {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>
@@ -26,28 +33,9 @@ if (!$modx->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
     exit;
 }
 
-$doc = $modx->db->getObject('site_content', "id='" . $id . "'");
+docUnpublishExecute($id);
 
-// update the document
-$field['published'] = 0;
-if ($doc->pub_date < time()) {
-    $field['pub_date'] = 0;
-}
-$field['publishedby'] = 0;
-$field['publishedon'] = 0;
-$field['editedon'] = time();
-$field['editedby'] = evo()->getLoginUserID();
-
-$rs = db()->update($field, '[+prefix+]site_content', "id='" . $id . "'");
-if (!$rs) {
-    exit("An error occured while attempting to unpublish the document.");
-}
-
-// invoke OnDocUnPublished  event
-$tmp = ['docid' => $id, 'type' => 'manual'];
-evo()->invokeEvent('OnDocUnPublished', $tmp);
-
-$modx->clearCache();
+evo()->clearCache();
 
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='" . $id . "'"));
 include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
