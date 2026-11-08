@@ -3729,7 +3729,9 @@ class DocumentParser
         // 下書きを当てるのは、リクエストされた文書の prepareResponse だけ。
         // sendForward() 経由の prepareResponse（エラーページ・転送先）は別の文書なので、通常どおり出す。
         // 存在しない文書では executeParser() が prepareResponse より先に sendErrorPage() を呼ぶため、
-        // previewObject の有無では見分けられない。sendForward() が印（forwardedResponse）を立てる。
+        // previewObject の有無では見分けられない。sendForward() が印（forwardedResponse）を立て、previewObject も空にする。
+        // revision の内容も同じ扱い（転送先に元の文書の内容を出さない）。revision は mode を見ない
+        // （prepareResponse 以外の getDocumentObject でも、置いた previewObject を使い回すため）が、転送先では入らない。
         if (!$this->forwardedResponse && $mode === 'prepareResponse' && $this->isLoggedIn() && $this->hasPreviewDraftParam()) {
             // プレビュー用の下書き（a=309 が置いたもの）。保存済みの内容を黙って出さない
             $previewObject = $this->loadPreviewDraft(get_strvar('mgr_preview'), $identifier);
@@ -3744,7 +3746,7 @@ class DocumentParser
             }
             $this->documentIdentifier = $identifier;
             $this->previewObject = $previewObject;
-        } elseif (get_strvar('revision')) {
+        } elseif (!$this->forwardedResponse && get_strvar('revision')) {
             if (!$this->isLoggedIn()) {
                 $_SESSION['save_uri'] = request_uri();
                 header('location:' . MODX_MANAGER_URL);

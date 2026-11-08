@@ -196,7 +196,7 @@ updateTv: function(id){
 //Инициализация
 //Принимает id оригинального поля, его значения и родителя поля
 init: function(id, val, target){
-    //Делаем таблицу мульти-полей（元の欄への書き戻しは保存のときにまとめて行う）
+    //Делаем таблицу мульти-полей（元の欄への書き戻しは送信（保存・プレビュー）のときにまとめて行う）
     var table = ddMultiple.make("<table class=\"ddMultipleField\" id=\"" + id + "ddMultipleField\"></table>");
     target.appendChild(table);
 

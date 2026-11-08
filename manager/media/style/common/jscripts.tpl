@@ -80,7 +80,11 @@
                 // 保存済みの内容を見る（新規作成のときもここ）。mgr_preview（管理画面からのプレビュー）=1 で保存済みの内容を見る
                 previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'mgr_preview=1';
                 prevWin = window.open(previewUrl, 'prevWin');
-                if (prevWin) prevWin.focus();
+                if (!prevWin) {
+                    alert([+lang_error_occurred+]);
+                    return;
+                }
+                prevWin.focus();
                 return;
             }
 

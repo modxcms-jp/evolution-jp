@@ -810,6 +810,7 @@ trait DocumentParserSubParserTrait
             $modx->forwards--;
             $modx->documentIdentifier = $id;
             $modx->forwardedResponse = true;
+            $modx->previewObject = '';
             if ($responseCode) {
                 header($responseCode);
             }
