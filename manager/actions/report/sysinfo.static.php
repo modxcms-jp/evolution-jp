@@ -286,7 +286,7 @@ global $database_connection_method;
 
                                 if (evo()->hasPermission('settings')) {
                                     if ($log_status['Data_free']) {
-                                        echo "<td align='right'>" . ("<a href='" . hsc('index.php?a=54&mode=' . $action . '&t=' . $log_status['Name']) . "' data-evo-post title='" . lang('optimize_table') . "' ><span dir='ltr'>" . evo()->nicesize($log_status['Data_free']) . "</span></a>") . "</td>";
+                                        echo "<td align='right'>" . ("<a href='" . hsc('index.php?a=54&mode=' . $action . '&table=' . $log_status['Name']) . "' data-evo-post title='" . lang('optimize_table') . "' ><span dir='ltr'>" . evo()->nicesize($log_status['Data_free']) . "</span></a>") . "</td>";
                                     } else {
                                         echo "<td align='right'>" . ("-") . "</td>";
                                     }

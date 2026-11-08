@@ -59,7 +59,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         break;
     case "delete_user_group" :
         $updategroupaccess = true;
-        $usergroup = request_intvar('usergroup');
+        $usergroup = request_intvar('user_group');
         if (empty($usergroup)) {
             warning("No user group name specified for deletion");
         } else {
@@ -75,7 +75,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         }
         break;
     case "delete_document_group" :
-        $group = request_intvar('documentgroup');
+        $group = request_intvar('document_group');
         if (empty($group)) {
             warning("No document group name specified for deletion");
         } else {
@@ -96,7 +96,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
             warning("no group name specified");
         }
 
-        $groupid = request_intvar('groupid');
+        $groupid = request_intvar('user_group');
         if (empty($groupid)) {
             warning("No group id specified");
         }
@@ -112,7 +112,7 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
             warning("no group name specified");
         }
 
-        $groupid = request_intvar('groupid');
+        $groupid = request_intvar('document_group');
         if (empty($groupid)) {
             warning("No group id specified");
         }
@@ -123,8 +123,11 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         break;
     case "add_document_group_to_user_group" :
         $updategroupaccess = true;
-        $usergroup = request_intvar('usergroup');
-        $docgroup = request_intvar('docgroup');
+        $usergroup = request_intvar('user_group');
+        $docgroup = request_intvar('document_group');
+        if (empty($usergroup) || empty($docgroup)) {
+            warning("No user group or document group specified for linking");
+        }
         $where = "membergroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $limit = db()->getValue(db()->select('count(*)', $tbl_membergroup_access, $where));
         if ($limit <= 0) {

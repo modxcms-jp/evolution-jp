@@ -195,7 +195,7 @@ function getUDGroups($id)
     // Setup Basic attributes for each Input box
     $inputAttributes['type'] = 'checkbox';
     $inputAttributes['class'] = 'checkbox';
-    $inputAttributes['name'] = 'docgroups[]';
+    $inputAttributes['name'] = 'document_groups[]';
     $inputAttributes['onclick'] = 'makePublic(false)';
 
     $permissions = []; // New Permissions array list (this contains the HTML)
@@ -227,10 +227,10 @@ function getUDGroups($id)
     }
     // retain selected doc groups between post（配列でないときは空として扱う）
     $restored = reloadFormValues();
-    $postedDocgroups = is_array(postv('docgroups')) ? postv('docgroups') : [];
+    $postedDocgroups = is_array(postv('document_groups')) ? postv('document_groups') : [];
     if ($restored !== null && !postv()) {
         // GET で差し戻されたときは、差し戻しの選択だけにする（外したグループも外れたまま）
-        $docgroups = array_get($restored, 'docgroups', []);
+        $docgroups = array_get($restored, 'document_groups', []);
         $restoredGroupIds = [];
         foreach (is_array($docgroups) ? $docgroups : [] as $value) {
             $restoredGroupIds[] = (int)strtok((string)$value, ',');
@@ -820,7 +820,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
-        'remember_last_tab' => (config('remember_last_tab') === '2' || get_strvar('stay') === '2') ? 'true' : 'false'
+        'remember_last_tab' => (config('remember_last_tab') === '2' || (config('remember_last_tab') === '1' && get_strvar('stay') === 'stay')) ? 'true' : 'false'
     ];
 }
 

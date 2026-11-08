@@ -183,7 +183,7 @@ class ManagerAPI
      * @param array $content DB から読んだ値
      * @param string $codeKey コードの項目名（plugincode など）。フォームの post をここへ写す。無ければ空文字
      * @param string[] $checkboxes チェックボックスの項目名（locked など）
-     * @param string[] $lists チェックボックスの複数選択の項目名（sysevents・usrgroups など）。
+     * @param string[] $lists チェックボックスの複数選択の項目名（sysevents・user_groups など）。
      *                        未選択だと送信されないので、差し戻しのときは空配列にして DB の値と区別する
      * @return array
      */

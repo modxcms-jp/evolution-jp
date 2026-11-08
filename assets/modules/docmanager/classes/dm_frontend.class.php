@@ -123,7 +123,7 @@ class DocManagerFrontend
         $this->dm->ph['documentgroups.grid'] = $this->radioTable(
             $rows,
             'dm-documentgroups',
-            '<input type="radio" name="docgroupid" value="[+id+]">',
+            '<input type="radio" name="document_group" value="[+id+]">',
             [
                 'id' => $this->dm->lang['DM_doc_column_id'],
                 'name' => $this->dm->lang['DM_doc_column_name'],

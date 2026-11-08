@@ -78,4 +78,10 @@ if (is_array($evtOut)) {
 }
 include_once __DIR__ . '/mutate_user/tpl/javascript.php';
 include_once __DIR__ . '/mutate_user/tpl/form.php';
+?>
+<script type="text/javascript">
+    // #userPane を出力した後で作る。先に作ると、全体の読み込みでは要素が無く、第 2 引数（復元するか）が無視される
+    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || (config('remember_last_tab') == 1 && get_strvar('save_action') === 'stay')) ? 'true' : 'false' ?>);
+</script>
+<?php
 include_once __DIR__ . '/mutate_user/tpl/changed_settings.php';
