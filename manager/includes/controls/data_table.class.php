@@ -79,7 +79,7 @@ final class DataTableLinks
 
     /**
      * エスケープ前の URL。HTML に入れるときの hsc() は描く側が行う。
-     * params → 今の並べ替え → 上書き の順に重ねる。
+     * params → 今の並べ替え → 上書き の順に重ねる。上書きの値が null の引数は URL から外す。
      */
     public function url(array $overrides = []): string
     {

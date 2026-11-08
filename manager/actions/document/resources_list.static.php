@@ -41,10 +41,15 @@ if (!isset($current['id'])) {
 $docgrp = sessionv('mgrDocgroups') ? implode(',', sessionv('mgrDocgroups')) : '';
 $in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : '';
 
+$keyword = ChildDocumentListState::keyword();
+$keywordCondition = ChildDocumentListState::keywordCondition($keyword);
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
 if (!manager()->isAdmin() && !evo()->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
+}
+if ($keywordCondition !== null) {
+    $where[] = $keywordCondition;
 }
 $rs = db()->select(
     'DISTINCT sc.id',
@@ -53,8 +58,37 @@ $rs = db()->select(
 );
 $numRecords = db()->count($rs);
 
+$links = ChildDocumentListState::links($id);
+
+// 検索欄と、絞り込み・並べ替えの解除。ユーザー管理の一覧の検索欄と同じ作りで、表を包む POST のフォームの外に置く（フォームは入れ子にできない）
+$kw = hsc($_lang['search']);
+$listTools = '<form class="child-list-tools" name="childsearch" method="get" action="index.php">'
+    . '<input type="hidden" name="a" value="120">'
+    . ($id ? '<input type="hidden" name="id" value="' . (int) $id . '">' : '');
+if ($links->orderby() !== '') {
+    $listTools .= '<input type="hidden" name="orderby" value="' . hsc($links->orderby()) . '">'
+        . '<input type="hidden" name="orderdir" value="' . hsc($links->orderdir()) . '">';
+}
+$listTools .= '<table border="0" style="float:right"><tr><td>' . $kw . '</td>'
+    . '<td><input class="searchtext" name="q" type="text" size="15" maxlength="'
+    . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
+    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '"></td>'
+    . '<td><a href="#" class="default" title="' . $kw . '" data-search-submit>'
+    . hsc($_lang['go']) . '</a></td>';
+if ($keyword !== '') {
+    $listTools .= '<td><a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
+        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
+        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a></td>';
+}
+if ($links->orderby() !== '') {
+    $listTools .= '<td><a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
+        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
+        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a></td>';
+}
+$listTools .= '</tr></table></form>';
+
 if (!$numRecords) {
-    $children_output = "<p>" . $_lang['resources_in_container_no'] . "</p>";
+    $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
 } else {
     $children_output = '';
     $f = [];
@@ -68,9 +102,11 @@ if (!$numRecords) {
     if (!manager()->isAdmin() && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
+    if ($keywordCondition !== null) {
+        $where[] = $keywordCondition;
+    }
     $where[] = 'GROUP BY sc.id,rev.status';
     $perPage = (int) evo()->config('number_of_results') ?: 20;
-    $links = ChildDocumentListState::links($id);
     $pager = new DataTablePager($numRecords, $perPage, $links->page());
     $orderBy = ChildDocumentListState::orderBy($links) ?? transformOrderBy(
         evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
@@ -183,21 +219,31 @@ echo get_jscript($id, $cm);
     <div class="section">
         <div class="sectionBody">
             <!-- View Children -->
-            <?php if (hasPermission('new_document')) { ?>
-                <ul class="actionButtons">
-                    <li class="mutate">
-                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
-                            <?= $_lang['create_resource_here'] ?>
-                        </a>
-                    </li>
-                    <li class="mutate">
-                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
-                            <?= $_lang['create_weblink_here'] ?>
-                        </a>
-                    </li>
-                </ul>
-            <?php }
-            $topicPath = $numRecords > 0 ? getTopicPath($id) : '';
+            <div class="actionButtons">
+                <table border="0" style="width:100%">
+                    <tr>
+                        <td>
+                            <?php if (hasPermission('new_document')) { ?>
+                                <ul class="actionButtons">
+                                    <li class="mutate">
+                                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
+                                            <?= $_lang['create_resource_here'] ?>
+                                        </a>
+                                    </li>
+                                    <li class="mutate">
+                                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
+                                            <?= $_lang['create_weblink_here'] ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            <?php } ?>
+                        </td>
+                        <td nowrap="nowrap"><?= $listTools ?></td>
+                    </tr>
+                </table>
+            </div>
+            <?php
+            $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
             echo <<< EOT
 {$topicPath}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
@@ -359,7 +405,7 @@ function get_jscript($id, $cm)
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
-    // メニューの操作後の戻り先に、今のページと並べ替えを残す
+    // メニューの操作後の戻り先に、今のページ・並べ替え・検索語（q）を残す
     $returnQuery = ChildDocumentListState::returnQuery();
     $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
@@ -477,6 +523,15 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 
     // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
     Evo.ready(function () {
+        // 検索の実行ボタン。0 件・該当なしのときも効くよう、表の有無より前に結ぶ（画面の差し替えで要素ごと作り直される。二重に結ばない）
+        const submit = document.querySelector('[data-search-submit]');
+        if (submit && !submit.dataset.bound) {
+            submit.dataset.bound = '1';
+            submit.addEventListener('click', function (e) {
+                e.preventDefault();
+                submit.closest('form').requestSubmit();
+            });
+        }
         const table = document.querySelector('[data-table="children"]');
         if (!table) {
             return;
