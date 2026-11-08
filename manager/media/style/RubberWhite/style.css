@@ -1316,7 +1316,6 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: 3px 2px 1px 0;
-    float: left;
     padding: 8px 16px;
     z-index: 1;
     position: relative;
@@ -1393,6 +1392,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
+    /* タブが増えても折り返して、段違いにならないようにする */
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .dynamic-tab-pane-control ul {
@@ -2048,7 +2050,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
     color: #5c6670;
     font-weight: 500;
-    padding: 10px var(--space-5);
+    padding: 10px var(--space-4);
     transition: all 0.2s ease;
 }
 

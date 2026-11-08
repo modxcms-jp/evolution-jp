@@ -7,11 +7,12 @@
  */
 return [
     [
-        'id' => 'tabPage2',
+        'id' => 'settingsTabSite',
+        'event' => 'OnSiteSettingsRender',
         'title' => lang('settings_site'),
         'sections' => [
             [
-                'title' => null,
+                'title' => lang('settings_section_basics'),
                 'rows' => [
                     [
                         'key' => 'site_status',
@@ -33,6 +34,17 @@ return [
                         'attr' => ['id' => 'site_slogan', 'style' => 'display:block;width:300px;height:4em;'],
                         'desc' => lang('site_slogan_message'),
                     ],
+                    [
+                        'key' => 'track_visitors',
+                        'type' => 'yesno',
+                        'label' => lang('track_visitors_title'),
+                        'desc' => lang('track_visitors_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_url'),
+                'rows' => [
                     [
                         'key' => 'fixed_site_url',
                         'type' => 'text',
@@ -65,6 +77,25 @@ return [
                             return evo()->parseText(lang('base_url_message'), ['MODX_BASE_URL' => MODX_BASE_URL]);
                         },
                     ],
+                    [
+                        'key' => 'server_protocol',
+                        'type' => 'radio',
+                        'label' => lang('server_protocol_title'),
+                        'options' => ['http' => lang('server_protocol_http'), 'https' => lang('server_protocol_https')],
+                        'desc' => lang('server_protocol_message'),
+                    ],
+                    [
+                        'key' => 'xhtml_urls',
+                        'type' => 'yesno',
+                        'label' => lang('xhtml_urls_title'),
+                        'default' => '0',
+                        'desc' => lang('xhtml_urls_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_special_pages'),
+                'rows' => [
                     [
                         'key' => 'site_start',
                         'type' => 'text',
@@ -103,19 +134,11 @@ return [
                         'id' => 'site_unavailable_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;display:block;'],
                     ],
-                    [
-                        'key' => 'custom_contenttype',
-                        'type' => 'content_types',
-                        'label' => lang('custom_contenttype_title'),
-                        'desc' => lang('custom_contenttype_message'),
-                    ],
-                    [
-                        'key' => 'xhtml_urls',
-                        'type' => 'yesno',
-                        'label' => lang('xhtml_urls_title'),
-                        'default' => '0',
-                        'desc' => lang('xhtml_urls_message'),
-                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_charset_time'),
+                'rows' => [
                     [
                         'key' => 'modx_charset',
                         'type' => 'select',
@@ -145,30 +168,16 @@ return [
                             );
                         },
                     ],
-                    [
-                        'key' => 'server_protocol',
-                        'type' => 'radio',
-                        'label' => lang('server_protocol_title'),
-                        'options' => ['http' => lang('server_protocol_http'), 'https' => lang('server_protocol_https')],
-                        'desc' => lang('server_protocol_message'),
-                    ],
-                    [
-                        'key' => 'track_visitors',
-                        'type' => 'yesno',
-                        'label' => lang('track_visitors_title'),
-                        'desc' => lang('track_visitors_message'),
-                    ],
-                    ['type' => 'event', 'name' => 'OnSiteSettingsRender'],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPageDoc',
-        'title' => 'リソース設定',
+        'id' => 'settingsTabResources',
+        'title' => lang('settings_resources'),
         'sections' => [
             [
-                'title' => null,
+                'title' => lang('settings_section_new_resources'),
                 'rows' => [
                     [
                         'key' => 'default_template',
@@ -188,17 +197,22 @@ return [
                         'desc' => lang('defaulttemplate_logic_general_message'),
                     ],
                     [
-                        'key' => 'auto_pub_date',
-                        'type' => 'enabled',
-                        'label' => '公開開始日時自動設定',
-                        'default' => '0',
-                        'desc' => '公開開始日時(pub_date)を設定しない場合、公開日時(publishedon)の値を取得し設定します。',
-                    ],
-                    [
                         'key' => 'publish_default',
                         'type' => 'yesno',
                         'label' => lang('defaultpublish_title'),
                         'desc' => lang('defaultpublish_message'),
+                    ],
+                    [
+                        'key' => 'cache_default',
+                        'type' => 'yesno',
+                        'label' => lang('defaultcache_title'),
+                        'desc' => lang('defaultcache_message'),
+                    ],
+                    [
+                        'key' => 'search_default',
+                        'type' => 'yesno',
+                        'label' => lang('defaultsearch_title'),
+                        'desc' => lang('defaultsearch_message'),
                     ],
                     [
                         'key' => 'auto_menuindex',
@@ -206,6 +220,18 @@ return [
                         'label' => lang('defaultmenuindex_title'),
                         'desc' => lang('defaultmenuindex_message'),
                     ],
+                    [
+                        'key' => 'auto_pub_date',
+                        'type' => 'enabled',
+                        'label' => lang('auto_pub_date_title'),
+                        'default' => '0',
+                        'desc' => lang('auto_pub_date_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_creating_editing'),
+                'rows' => [
                     [
                         'key' => 'docid_incrmnt_method',
                         'type' => 'radio',
@@ -224,25 +250,18 @@ return [
                         'desc' => lang('enable_draft_message'),
                     ],
                     [
-                        'key' => 'cache_default',
-                        'type' => 'yesno',
-                        'label' => lang('defaultcache_title'),
-                        'desc' => lang('defaultcache_message'),
+                        'key' => 'custom_contenttype',
+                        'type' => 'content_types',
+                        'label' => lang('custom_contenttype_title'),
+                        'desc' => lang('custom_contenttype_message'),
                     ],
-                    [
-                        'key' => 'search_default',
-                        'type' => 'yesno',
-                        'label' => lang('defaultsearch_title'),
-                        'desc' => lang('defaultsearch_message'),
-                    ],
-                    ['type' => 'event', 'name' => 'OnSiteSettingsRender'],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPageCache',
-        'title' => 'キャッシュ設定',
+        'id' => 'settingsTabCache',
+        'title' => lang('settings_cache'),
         'sections' => [
             [
                 'title' => null,
@@ -281,16 +300,18 @@ return [
                     [
                         'key' => 'legacy_cache',
                         'type' => 'enabled',
-                        'label' => '旧式のキャッシュ機構',
-                        'desc' => '古いスニペット・プラグインは<a href="https://www.google.co.jp/search?q=modx+aliasListing+ddocumentMap+ocumentListing" target="_blank">旧式のキャッシュ機構</a>が有効でないと動作しないことがあります。その場合はこの設定を有効にしてください。このキャッシュ機構はサイトの規模が大きくなると負荷が高くなるため注意が必要です。',
+                        'label' => lang('setting_legacy_cache'),
+                        'desc' => lang('setting_legacy_cache_desc'),
                     ],
-                    ['type' => 'event', 'name' => 'OnSiteSettingsRender'],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPage3',
+        'id' => 'settingsTabFurls',
+        'event' => 'OnFriendlyURLSettingsRender',
+        // このタブのプラグインの欄のセルだけ余白がある（今の画面のまま）
+        'eventPadded' => true,
         'title' => lang('settings_furls'),
         'sections' => [
             [
@@ -359,25 +380,40 @@ return [
                         'label' => lang('automatic_alias_title'),
                         'options' => [
                             '1' => 'pagetitle',
-                            '2' => 'numbering in each folder',
+                            '2' => lang('automatic_alias_opt_numbering'),
                             '0' => lang('disabled'),
                         ],
                         'desc' => lang('automatic_alias_message'),
                         'showIf' => ['friendly_urls', '1'],
                     ],
-                    // この行のセルだけ余白がある（今の画面のまま）
-                    ['type' => 'event', 'name' => 'OnFriendlyURLSettingsRender', 'padded' => true],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPage4',
+        'id' => 'settingsTabSecurity',
+        'event' => 'OnUserSettingsRender',
         'title' => lang('settings_users'),
         'sections' => [
             [
-                'title' => null,
+                'title' => lang('settings_section_users_groups'),
                 'rows' => [
+                    [
+                        'key' => 'default_role',
+                        'type' => 'select',
+                        'label' => lang('default_role_title'),
+                        'options' => static function () {
+                            return EvoSettingsForm::roles();
+                        },
+                        'br' => false,
+                        'desc' => '<div>' . lang('default_role_message') . '</div>',
+                    ],
+                    [
+                        'key' => 'allow_mgr2web',
+                        'type' => 'yesno',
+                        'label' => lang('allow_mgr2web_title'),
+                        'desc' => lang('allow_mgr2web_message'),
+                    ],
                     [
                         'key' => 'use_udperms',
                         'type' => 'yesno',
@@ -398,22 +434,11 @@ return [
                         'desc' => lang('tree_show_protected_message'),
                         'showIf' => ['use_udperms', '1'],
                     ],
-                    [
-                        'key' => 'default_role',
-                        'type' => 'select',
-                        'label' => lang('default_role_title'),
-                        'options' => static function () {
-                            return EvoSettingsForm::roles();
-                        },
-                        'br' => false,
-                        'desc' => '<div>' . lang('default_role_message') . '</div>',
-                    ],
-                    [
-                        'key' => 'allow_mgr2web',
-                        'type' => 'yesno',
-                        'label' => lang('allow_mgr2web_title'),
-                        'desc' => lang('allow_mgr2web_message'),
-                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_login'),
+                'rows' => [
                     [
                         'key' => 'failed_login_attempts',
                         'type' => 'text',
@@ -427,49 +452,6 @@ return [
                         'size' => 7,
                         'label' => lang('blocked_minutes_title'),
                         'desc' => lang('blocked_minutes_message'),
-                    ],
-                    [
-                        'key' => 'error_reporting',
-                        'type' => 'radio',
-                        'label' => lang('a17_error_reporting_title'),
-                        'options' => [
-                            '0' => lang('a17_error_reporting_opt0'),
-                            '1' => lang('a17_error_reporting_opt1'),
-                            '2' => lang('a17_error_reporting_opt2'),
-                            '99' => lang('a17_error_reporting_opt99'),
-                        ],
-                        'default' => '1',
-                        'desc' => lang('a17_error_reporting_msg'),
-                    ],
-                    [
-                        'key' => 'send_errormail',
-                        'type' => 'radio',
-                        'label' => lang('send_errormail_title'),
-                        'options' => [
-                            '0' => lang('send_errormail_none'),
-                            '3' => 'error',
-                            '2' => 'error + warning',
-                            '1' => 'error + warning + information',
-                        ],
-                        'default' => '0',
-                        // 送信者は DB の値なので hsc() する
-                        'desc' => static function (array $values) {
-                            return evo()->parseText(
-                                lang('send_errormail_message'),
-                                ['emailsender' => hsc($values['emailsender'] ?? '')]
-                            );
-                        },
-                    ],
-                    [
-                        'key' => 'warning_visibility',
-                        'type' => 'radio',
-                        'label' => lang('warning_visibility'),
-                        'options' => [
-                            '0' => lang('administrators'),
-                            '2' => lang('a17_warning_opt2'),
-                            '1' => lang('everybody'),
-                        ],
-                        'desc' => lang('warning_visibility_message'),
                     ],
                     [
                         'key' => 'use_captcha',
@@ -495,6 +477,76 @@ return [
                         'hiddenBr' => true,
                         'showIf' => ['use_captcha', '1'],
                     ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_errors'),
+                'rows' => [
+                    [
+                        'key' => 'error_reporting',
+                        'type' => 'radio',
+                        'label' => lang('a17_error_reporting_title'),
+                        'options' => [
+                            '0' => lang('a17_error_reporting_opt0'),
+                            '1' => lang('a17_error_reporting_opt1'),
+                            '2' => lang('a17_error_reporting_opt2'),
+                            '99' => lang('a17_error_reporting_opt99'),
+                        ],
+                        'default' => '1',
+                        'desc' => lang('a17_error_reporting_msg'),
+                    ],
+                    [
+                        'key' => 'warning_visibility',
+                        'type' => 'radio',
+                        'label' => lang('warning_visibility'),
+                        'options' => [
+                            '0' => lang('administrators'),
+                            '2' => lang('a17_warning_opt2'),
+                            '1' => lang('everybody'),
+                        ],
+                        'desc' => lang('warning_visibility_message'),
+                    ],
+                    [
+                        'key' => 'send_errormail',
+                        'type' => 'radio',
+                        'label' => lang('send_errormail_title'),
+                        'options' => [
+                            '0' => lang('send_errormail_none'),
+                            '3' => 'error',
+                            '2' => 'error + warning',
+                            '1' => 'error + warning + information',
+                        ],
+                        'default' => '0',
+                        // 送信者は DB の値なので hsc() する
+                        'desc' => static function (array $values) {
+                            return evo()->parseText(
+                                lang('send_errormail_message'),
+                                ['emailsender' => hsc($values['emailsender'] ?? '')]
+                            );
+                        },
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_template_variables'),
+                'rows' => [
+                    [
+                        'key' => 'enable_bindings',
+                        'type' => 'yesno',
+                        'label' => lang('enable_bindings_title'),
+                        'desc' => lang('enable_bindings_message'),
+                    ],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'settingsTabMail',
+        'title' => lang('settings_mail'),
+        'sections' => [
+            [
+                'title' => lang('settings_section_mail_sending'),
+                'rows' => [
                     [
                         'key' => 'emailsender',
                         'type' => 'text',
@@ -509,13 +561,6 @@ return [
                         'default' => 'mail',
                         'inline' => true,
                         'desc' => '<br/>',
-                    ],
-                    [
-                        'key' => 'modxmailer_log',
-                        'type' => 'yesno',
-                        'label' => lang('modxmailer_log_title'),
-                        'default' => '0',
-                        'desc' => lang('modxmailer_log_message'),
                     ],
                     [
                         'key' => 'smtp_auth',
@@ -572,6 +617,18 @@ return [
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
+                        'key' => 'modxmailer_log',
+                        'type' => 'yesno',
+                        'label' => lang('modxmailer_log_title'),
+                        'default' => '0',
+                        'desc' => lang('modxmailer_log_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_mail_texts'),
+                'rows' => [
+                    [
                         'key' => 'emailsubject',
                         'type' => 'lang_text',
                         'field' => 'text',
@@ -591,7 +648,6 @@ return [
                         'reload' => 'reload_signupemail_message',
                         'id' => 'signupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'warningHeading' => true,
                         'hiddenBr' => true,
                     ],
                     [
@@ -603,7 +659,6 @@ return [
                         'reload' => 'reload_websignupemail_message',
                         'id' => 'websignupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'warningHeading' => true,
                         'hiddenBr' => true,
                     ],
                     [
@@ -616,26 +671,18 @@ return [
                         'reloadId' => 'reload_system_email_webreminder_select',
                         'id' => 'system_email_webreminder_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'warningHeading' => true,
                         'hiddenBr' => true,
                     ],
-                    [
-                        'key' => 'enable_bindings',
-                        'type' => 'yesno',
-                        'label' => lang('enable_bindings_title'),
-                        'desc' => lang('enable_bindings_message'),
-                    ],
-                    ['type' => 'event', 'name' => 'OnUserSettingsRender'],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPage5',
+        'id' => 'settingsTabManager',
         'title' => lang('settings_ui'),
         'sections' => [
             [
-                'title' => null,
+                'title' => lang('settings_section_display'),
                 'rows' => [
                     [
                         'key' => 'manager_theme',
@@ -647,13 +694,6 @@ return [
                         'desc' => lang('manager_theme_message'),
                     ],
                     [
-                        'key' => 'manager_inline_style',
-                        'type' => 'textarea',
-                        'label' => lang('a17_manager_inline_style_title'),
-                        'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
-                        'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
-                    ],
-                    [
                         'key' => 'manager_language',
                         'type' => 'select',
                         'label' => lang('language_title'),
@@ -663,50 +703,29 @@ return [
                         'desc' => lang('language_message'),
                     ],
                     [
-                        'key' => 'manager_docs_orderby',
-                        'type' => 'text',
-                        'label' => lang('manager_docs_orderby_title'),
-                        'attr' => ['style' => 'width:500px;'],
-                        'br' => false,
-                        'desc' => '<p>' . lang('manager_docs_orderby_message') . '</p>',
+                        'key' => 'manager_inline_style',
+                        'type' => 'textarea',
+                        'label' => lang('a17_manager_inline_style_title'),
+                        'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
+                        'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
                     ],
                     [
-                        'key' => 'tree_pane_open_default',
-                        'type' => 'radio',
-                        'label' => lang('tree_pane_open_default_title'),
-                        'options' => ['1' => lang('open'), '0' => lang('close')],
-                        'desc' => lang('tree_pane_open_default_message'),
-                    ],
-                    [
-                        'type' => 'topmenu',
-                        'label' => lang('topmenu_items_title'),
-                        'items' => [
-                            'topmenu_site' => lang('site'),
-                            'topmenu_element' => lang('elements'),
-                            'topmenu_security' => lang('users'),
-                            'topmenu_user' => lang('user'),
-                            'topmenu_tools' => lang('tools'),
-                            'topmenu_reports' => lang('reports'),
-                        ],
-                        'desc' => lang('topmenu_items_message'),
-                    ],
-                    [
-                        'key' => 'limit_by_container',
-                        'type' => 'text',
-                        'size' => 4,
-                        'label' => lang('limit_by_container'),
-                        'desc' => lang('limit_by_container_message'),
-                    ],
-                    [
-                        'key' => 'tree_page_click',
-                        'type' => 'radio',
-                        'label' => lang('tree_page_click'),
+                        'key' => 'datetime_format',
+                        'type' => 'select',
+                        'label' => lang('datetime_format'),
                         'options' => [
-                            '27' => lang('edit_resource'),
-                            '3' => lang('doc_data_title'),
-                            'auto' => lang('tree_page_click_option_auto'),
+                            'dd-mm-YYYY' => 'dd-mm-YYYY',
+                            'mm/dd/YYYY' => 'mm/dd/YYYY',
+                            'YYYY/mm/dd' => 'YYYY/mm/dd',
                         ],
-                        'desc' => lang('tree_page_click_message'),
+                        'desc' => lang('datetime_format_message'),
+                    ],
+                    [
+                        'key' => 'datepicker_offset',
+                        'type' => 'text',
+                        'size' => 5,
+                        'label' => lang('datepicker_offset'),
+                        'desc' => lang('datepicker_offset_message'),
                     ],
                     [
                         'key' => 'remember_last_tab',
@@ -718,6 +737,29 @@ return [
                             '0' => lang('no'),
                         ],
                         'desc' => lang('remember_last_tab_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_tree'),
+                'rows' => [
+                    [
+                        'key' => 'tree_pane_open_default',
+                        'type' => 'radio',
+                        'label' => lang('tree_pane_open_default_title'),
+                        'options' => ['1' => lang('open'), '0' => lang('close')],
+                        'desc' => lang('tree_pane_open_default_message'),
+                    ],
+                    [
+                        'key' => 'tree_page_click',
+                        'type' => 'radio',
+                        'label' => lang('tree_page_click'),
+                        'options' => [
+                            '27' => lang('edit_resource'),
+                            '3' => lang('doc_data_title'),
+                            'auto' => lang('tree_page_click_option_auto'),
+                        ],
+                        'desc' => lang('tree_page_click_message'),
                     ],
                     [
                         'key' => 'resource_tree_sortby_default',
@@ -755,29 +797,49 @@ return [
                         'desc' => lang('manager_treepane_trim_title_message'),
                     ],
                     [
+                        'key' => 'manager_docs_orderby',
+                        'type' => 'text',
+                        'label' => lang('manager_docs_orderby_title'),
+                        'attr' => ['style' => 'width:500px;'],
+                        'br' => false,
+                        'desc' => '<p>' . lang('manager_docs_orderby_message') . '</p>',
+                    ],
+                    [
+                        'key' => 'limit_by_container',
+                        'type' => 'text',
+                        'size' => 4,
+                        'label' => lang('limit_by_container'),
+                        'desc' => lang('limit_by_container_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_menu'),
+                'rows' => [
+                    [
+                        'type' => 'topmenu',
+                        'label' => lang('topmenu_items_title'),
+                        'items' => [
+                            'topmenu_site' => lang('site'),
+                            'topmenu_element' => lang('elements'),
+                            'topmenu_security' => lang('users'),
+                            'topmenu_user' => lang('user'),
+                            'topmenu_tools' => lang('tools'),
+                            'topmenu_reports' => lang('reports'),
+                        ],
+                        'desc' => lang('topmenu_items_message'),
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_counts'),
+                'rows' => [
+                    [
                         'key' => 'top_howmany',
                         'type' => 'text',
                         'size' => 3,
                         'label' => lang('top_howmany_title'),
                         'desc' => lang('top_howmany_message'),
-                    ],
-                    [
-                        'key' => 'datepicker_offset',
-                        'type' => 'text',
-                        'size' => 5,
-                        'label' => lang('datepicker_offset'),
-                        'desc' => lang('datepicker_offset_message'),
-                    ],
-                    [
-                        'key' => 'datetime_format',
-                        'type' => 'select',
-                        'label' => lang('datetime_format'),
-                        'options' => [
-                            'dd-mm-YYYY' => 'dd-mm-YYYY',
-                            'mm/dd/YYYY' => 'mm/dd/YYYY',
-                            'YYYY/mm/dd' => 'YYYY/mm/dd',
-                        ],
-                        'desc' => lang('datetime_format_message'),
                     ],
                     [
                         'key' => 'number_of_logs',
@@ -787,18 +849,35 @@ return [
                         'desc' => lang('nologentries_message'),
                     ],
                     [
-                        'key' => 'automatic_optimize',
-                        'type' => 'yesno',
-                        'label' => lang('automatic_optimize_table_title'),
-                        'desc' => lang('automatic_optimize_table_message'),
-                    ],
-                    [
                         'key' => 'number_of_results',
                         'type' => 'text',
                         'size' => 5,
                         'label' => lang('noresults_title'),
                         'desc' => lang('noresults_message'),
                     ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_other'),
+                'rows' => [
+                    [
+                        'key' => 'automatic_optimize',
+                        'type' => 'yesno',
+                        'label' => lang('automatic_optimize_table_title'),
+                        'desc' => lang('automatic_optimize_table_message'),
+                    ],
+                ],
+            ],
+        ],
+    ],
+    [
+        'id' => 'settingsTabEditor',
+        'event' => 'OnInterfaceSettingsRender',
+        'title' => lang('settings_editor'),
+        'sections' => [
+            [
+                'title' => null,
+                'rows' => [
                     [
                         'key' => 'use_editor',
                         'type' => 'yesno',
@@ -842,17 +921,64 @@ return [
                         'desc' => lang('editor_css_path_message'),
                         'showIf' => ['use_editor', '1'],
                     ],
-                    ['type' => 'event', 'name' => 'OnInterfaceSettingsRender'],
                 ],
             ],
         ],
     ],
     [
-        'id' => 'tabPage7',
-        'title' => lang('settings_misc'),
+        'id' => 'settingsTabFiles',
+        'event' => 'OnMiscSettingsRender',
+        'title' => lang('settings_files'),
         'sections' => [
             [
-                'title' => null,
+                'title' => lang('settings_section_files_picker'),
+                'rows' => [
+                    [
+                        'key' => 'use_browser',
+                        'type' => 'yesno',
+                        'label' => lang('rb_title'),
+                        'desc' => lang('rb_message'),
+                    ],
+                    [
+                        'key' => 'rb_base_dir',
+                        'type' => 'path',
+                        'label' => lang('rb_base_dir_title'),
+                        'desc' => lang('rb_base_dir_message'),
+                        'defaultPath' => static function () {
+                            return EvoSettingsForm::BASE_PATH_TOKEN
+                                . (is_dir(MODX_BASE_PATH . 'content') ? 'content/' : 'assets/');
+                        },
+                        'absHint' => true,
+                        'showIf' => ['use_browser', '1'],
+                    ],
+                    [
+                        'key' => 'rb_base_url',
+                        'type' => 'text',
+                        'label' => lang('rb_base_url_title'),
+                        'before' => static function (array $values) {
+                            return hsc($values['site_url'] ?? '');
+                        },
+                        'desc' => lang('rb_base_url_message'),
+                        'showIf' => ['use_browser', '1'],
+                    ],
+                    [
+                        'key' => 'rb_webuser',
+                        'type' => 'yesno',
+                        'label' => lang('rb_webuser_title'),
+                        'desc' => lang('rb_webuser_message'),
+                        'showIf' => ['use_browser', '1'],
+                    ],
+                    [
+                        'key' => 'strip_image_paths',
+                        'type' => 'yesno',
+                        'label' => lang('settings_strip_image_paths_title'),
+                        'desc' => lang('settings_strip_image_paths_message'),
+                        'showIf' => ['use_browser', '1'],
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_file_manager'),
                 'rows' => [
                     [
                         'key' => 'filemanager_path',
@@ -862,13 +988,11 @@ return [
                         'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN,
                         'absHint' => true,
                     ],
-                    [
-                        'key' => 'export_dir',
-                        'type' => 'path',
-                        'label' => lang('export_dir_title'),
-                        'desc' => lang('export_dir_message'),
-                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . 'temp/export/',
-                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_uploads'),
+                'rows' => [
                     [
                         'key' => 'upload_files',
                         'type' => 'text',
@@ -919,60 +1043,29 @@ return [
                         'desc' => lang('clean_uploaded_filename_message'),
                     ],
                     [
+                        'key' => 'convert_datauri_to_file',
+                        'type' => 'yesno',
+                        'label' => lang('setting_convert_datauri_to_file'),
+                        'desc' => lang('setting_convert_datauri_to_file_desc'),
+                    ],
+                    [
                         'key' => 'image_limit_width',
                         'type' => 'text',
                         'label' => lang('a17_image_limit_width_title'),
                         'after' => 'px',
                         'desc' => lang('a17_image_limit_width_message'),
                     ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_html_export'),
+                'rows' => [
                     [
-                        'key' => 'use_browser',
-                        'type' => 'yesno',
-                        'label' => lang('rb_title'),
-                        'desc' => lang('rb_message'),
-                    ],
-                    [
-                        'key' => 'strip_image_paths',
-                        'type' => 'yesno',
-                        'label' => lang('settings_strip_image_paths_title'),
-                        'desc' => lang('settings_strip_image_paths_message'),
-                        'showIf' => ['use_browser', '1'],
-                    ],
-                    [
-                        'key' => 'rb_webuser',
-                        'type' => 'yesno',
-                        'label' => lang('rb_webuser_title'),
-                        'desc' => lang('rb_webuser_message'),
-                        'showIf' => ['use_browser', '1'],
-                    ],
-                    [
-                        'key' => 'rb_base_dir',
+                        'key' => 'export_dir',
                         'type' => 'path',
-                        'label' => lang('rb_base_dir_title'),
-                        'desc' => lang('rb_base_dir_message'),
-                        'defaultPath' => static function () {
-                            return EvoSettingsForm::BASE_PATH_TOKEN
-                                . (is_dir(MODX_BASE_PATH . 'content') ? 'content/' : 'assets/');
-                        },
-                        'absHint' => true,
-                        'showIf' => ['use_browser', '1'],
-                    ],
-                    [
-                        'key' => 'rb_base_url',
-                        'type' => 'text',
-                        'label' => lang('rb_base_url_title'),
-                        'before' => static function (array $values) {
-                            return hsc($values['site_url'] ?? '');
-                        },
-                        'desc' => lang('rb_base_url_message'),
-                        'showIf' => ['use_browser', '1'],
-                    ],
-                    ['type' => 'event', 'name' => 'OnMiscSettingsRender'],
-                    [
-                        'key' => 'convert_datauri_to_file',
-                        'type' => 'yesno',
-                        'label' => lang('setting_convert_datauri_to_file'),
-                        'desc' => lang('setting_convert_datauri_to_file_desc'),
+                        'label' => lang('export_dir_title'),
+                        'desc' => lang('export_dir_message'),
+                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . 'temp/export/',
                     ],
                 ],
             ],

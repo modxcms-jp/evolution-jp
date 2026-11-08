@@ -13,8 +13,8 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-08) 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く（e5d1a7dfc。比較は `<work>/branch-m2/`、流すスクリプトは `<work>/run-branch.sh`）
 - [x] (2026-11-08) 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く（d785f7808。比較は `<work>/branch-m3/`。M2 の自己レビューで足した確認（イベントのプラグイン、古い絶対パス、シェルの遷移、英語の画面）も済み。自己レビューの指摘（差し戻した画面でテンプレートの一括変更の基準が打った値にすり替わる）を b31470bac で直し、部品のコンストラクタで保存値 `$stored` を受ける形にした。比較は `<work>/branch-m3b/`）
 - [x] (2026-11-08) 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1（727a7b30d・02c7dc209・75b2df9cd。比較は `<work>/branch-m4/`。PHP 7.4 の表示と保存も確かめた）
-- [ ] 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画
-- [ ] 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2
+- [x] (2026-11-08) 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画（2c3a94b27・578319093。比べる元は `<work>/s1/`、結果は `<work>/branch-m5/`）
+- [x] (2026-11-08) 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2（80531880a・15bc82ad1・49290e203・407434f64。結果は `<work>/branch-m6/`）
 - [ ] 段階 3・M7: ユーザー編集画面（`a=11`/`a=12`）の設定のタブを同じ定義から描く
 - [ ] 段階 3・M8: プロフィール（`a=74`）の設定のタブも同じ定義から描き、PHP 7.4 と配布の大きさを確かめて振り返る → PR 3
 
@@ -47,6 +47,13 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M4）: 部品に項目を足した。`topmenu`（入れ子の表で 6 欄、`items => [キー => ラベル]`）、`password`（`type="text"` のまま伏せ字。main と同じ）、`lang_text` の `field => 'text'`（`captcha_words`・`emailsubject`）・`hiddenBr`・`reloadId`、radio の `inline`（`email_method`・`smtp_auth`・`smtp_secure` の横並び）、text の `br => false`、select の options が `null` のとき説明だけを出す（`which_editor`）、`themes()`・`roles()`。Interfaces にあった radio の `value`（`use_captcha` は GD が無ければ 0）は、部品が読んでいなかったので M4 で実装した。
 - 2026-11-08（M4）: `default_role`・`which_editor` の select は main に `size`・`class` が無かったが、部品は `size="1" class="inputBox"` を付ける（画面写真は画素一致）。`send_errormail` の説明に差し込む `emailsender` は、差し戻した後の値になる（Decision Log のとおり）。`error_reporting` などで値がどの選択肢にも合わないとき、部品は `default` を選ぶ（main は何も選ばない。A・B・S では起きない）。
 - 2026-11-08（M4）: 配布の zip は、M1 より前の main（bf3454495）が 1,605,004 バイト、M4 の後が 1,601,986 バイト（−3,018）。Surprises の 2026-11-05 の値（1,571,241）は古く、main は既に 1.5MiB（1,572,864）を超えている（この計画の変更が原因ではない）。PR の本文では bf3454495 との差を書く。
+- 2026-11-08（M5）: タブ列の段違いは、1 つ目以外のタブを選んだときに再現した（選ばれたタブが 1px 低いテーマで、次の行がその下にぶら下がる）。RevoClassic は幅 600・768・1024px、RubberWhite は 600・768px、RevoStyle（凍結のため直さない）は 600・768・1024px で崩れた。AromaHop・AuroraFlow・SakuraFlow・SoftSlate は `flow-root` を持ち、選んだタブの高さも同じなので崩れない。`form-snapshot.js` の `--shots` は 1 つ目のタブを選んだ状態しか撮らないので、タブ列の崩れの測定には使えない（各タブを選んで測るスクリプトで確かめた）。崩れの判定は「行ごとに y がそろう」だけでなく「各行が同じ x から始まる」も見る。
+- 2026-11-08（M5）: flex の子には効かない `.tab` の `float` を外した（SoftSlate の `.rtl .tab` の `float: right` も。右からの並びは `.rtl .tab-pane` の `direction: rtl` を flex が引き継ぐ）。小見出しの規則は `common/shell.css` に 2 つ（`.tab-page .settings-section` と、直前の表の下の余白を `--space-5` にする `.tab-page > :has(+ .settings-section)`）。RevoStyle は変数の刻みが違い、余白が小さく出るが崩れない。
+- 2026-11-08（M5）: 9 つの短いタブ名の幅を、画面の中で見出しを書き換えて測った。今の 7 タブと比べて 0〜3% 狭いだけで、タブが増える分を名前が短くなる分がほぼ打ち消す。ユーザーさんの要望（一段に余裕を持って収める）のため、タブの左右の余白を詰めることにした（Decision Log）。
+- 2026-11-08（M6）: ユーザーさんが、仮の 9 タブ（中身の無い仮のタブと一律 12px の余白）を確認用の環境で目視し、違和感なしとした。
+- 2026-11-08（M6）: 計画の表の管理画面の小見出し「メッセージ（`pm2email`・`mail_check_timeperiod`・`number_of_messages`）」は、`20261107_112600_retire_manager_messages.php` で退役済みで定義に無かった。小見出しは「表示・ツリー・メニュー・件数・その他」の 5 つにした（英語の Messages も作らない）。欄は 201 件のまま、定義の行は余りも重複も無く並べ替えられた。
+- 2026-11-08（M6）: 余白は、`--space-4` のテーマ（AuroraFlow・RevoClassic）と 16px の SoftSlate を 12px に、20px のテーマ（AromaHop・SakuraFlow・RubberWhite）を変数の刻みに合わせて `--space-4`（16px）にした。RubberWhite は `.tab` の規則が 2 つあり、先の規則は後の規則に上書きされて効いていない。効いている後の規則だけを詰めた。一段に収まる最小のウィンドウの幅（ツリーを含む）は 1,034〜1,105px（RevoStyle は 987px）。6 テーマ × 幅 600・768・1024・1280 × 各タブの選択で崩れ 0 件。RevoStyle は幅 600 で 2 件が段違いになる（凍結のため直さない）。
+- 2026-11-08（M6）: 条件の行は `functions.js` で読み込み時にも 1 回当てるようにし、`use_editor=0` のとき TinyMCE 7 の表が初めから隠れる（B の欄の一覧の差はこの 9 欄だけ）。`SystemSettingsRenderer.php` と `mutate_settings.dynamic.php` は変えずに済んだ。試しのプラグインの欄は 1 件になり、保存した値が効く（main は 3 件で最後の欄が勝つ）。`OnMiscSettingsRender` はファイルのタブの末尾（HTMLエクスポートの表の後）に出る。
 - 2026-11-08（段階 1 の自己レビュー）: M4 で分かった main との違い（説明文に差し込む差し戻しの値、選択肢に合わない・空の値のときの `default`、GD の無い環境の `captcha_words` の行、select の `size`・`class`）を、Validation and Acceptance の「段階 1 で許す違い」の 4〜7 に足した。SMTP のパスワードの伏せ字 `********************` は、部品の `PASSWORD_MASK` と `save_settings.processor.php` の 2 か所にある（SSOT）。段階 1 では保存の処理を変えないので、そろえるのは後の課題とする。
 - 2026-11-08（M4）: PHP 7.4 の確認は、同じ作業ツリーを二重にマウントすると `config.inc.php` とキャッシュを共有して壊すおそれがあるので、`git archive` で書き出したコピーを別の環境（`evo-validate-1067-74`）にマウントして行った。
 - 2026-11-08（M3 の直しの見直し）: テンプレートの一括変更のラジオを選んでから select を保存値に戻すと、wrapper は隠れるがラジオの選択は残って送られる（main も同じ）。差し戻しでラジオに checked を付けたので、起きる場面が増える。onchange で隠すときにラジオの選択も外す直しは、段階 1 の HTML の一致が崩れるので段階 2（M6）で行う。
@@ -78,6 +85,8 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - **段階 2 の構成は Plan of Work の表のとおりにする**（9 タブ、2026-11-05 にユーザーさんが了承）。ユーザーさんの画面（表示幅 約 1,360px）で、今の 7 タブは約 1,210px。名前から「設定」を外すので、9 タブでも約 1,260px の見込みで 1 段に収まる。狭い画面は M5 の折り返しで 2 段にする。PR 2 の画面写真で幅を確かめ、余裕が足りなければ「キャッシュ」（5 行）を「サイト」に入れて 8 タブにする。
 - **小見出しは軽い見出し（`<h3 class="settings-section">`）にし、規則は共通部に 1 か所だけ置く**（2026-11-05、ユーザーさんが決めた）。既存の `.sectionHeader` と `.sectionBody`（帯と白い枠）は、タブの中に並べると重く見えるため採らない。7 テーマそれぞれに規則を足す形もコードが増えるため採らず、`manager/media/style/common/shell.css` に 1 つの規則を置き、色と余白はテーマの変数（`assets/docs/theme-variables.md`・`theme-spacing.md` の決まりにある `--color-*`・`--space-*`、既定値付き）で読む。RevoStyle は凍結のため、既定値で崩れなければよい。新しく変数が要るときは `theme-variables.md` に書く。
 - **タブ列は 6 テーマの `.dynamic-tab-pane-control .tab-row` を `display: flex; flex-wrap: wrap` にする**。flex の子には `float` が効かないので、折り返しても段違いにならない。RevoStyle は廃止予定で凍結のため対象外にし、`theme-spacing.md` にそう書く。代替案の `common/shell.css` での一括指定は、テーマの同じ詳細度の規則との読み込み順で結果が変わるため採らない。タブの並びが変わると、覚えたタブの番号（Cookie `webfxtab_settingsPane`）が別のタブを指すことがある。1 回だけのことなので許す。
+- **プラグインの欄は、小見出しのあるタブでは「プラグイン」の小見出しの下に出す**（2026-11-08、段階 2 の自己レビュー）。イベントの行を最後の section の表に入れると、プラグインの欄が「文字コードと時刻」などの関係の無い小見出しの下に見える。イベントの出力を別の表にし、そのタブに小見出しがあり、かつ出力が空でないときだけ小見出し「プラグイン」を付ける。小見出しの無いタブ（エディターの TinyMCE 7 など）は今のまま。代替案の「今の形を許して書いておく」は、見た目の誤解が残るので採らない。
+- **タブの左右の余白を 1 段階詰める**（2026-11-08、ユーザーさんが決めた）。M5 の測定で、9 つの短いタブ名を並べた幅は今の 7 タブとほぼ同じ（0〜3% 狭いだけ）と分かった。ユーザーさんの画面（タブ列の幅 約 1,300px）で、今の 7 タブは窮屈で、少し狭くすると二段になる。一段に余裕を持って収めるため、M6 で 6 テーマの `.dynamic-tab-pane-control .tab-row .tab` の左右の余白を 1 段階詰める（`--space-4` のテーマは `--space-3` に。AromaHop・SakuraFlow のように px で広く取っているテーマは同じ割合で）。タブの構成は 9 つのまま。リソースの編集画面など、ほかの画面のタブも同じように詰まる。代替案の「キャッシュをサイトに入れて 8 タブにする」は採らない。
 - **イベントの位置**: 段階 1 は今の位置のまま（`OnSiteSettingsRender` の 3 回も含む）。段階 2 で、`OnSiteSettingsRender` はサイトのタブの末尾で 1 回、`OnInterfaceSettingsRender` はエディターのタブの末尾（受けるのは TinyMCE 7 と TinyMCE 3 で、どちらもエディターの設定のため）、`OnMiscSettingsRender` はファイルのタブの末尾、`OnFriendlyURLSettingsRender`・`OnUserSettingsRender` は今のタブの末尾、`OnSystemSettingsRender` は全タブの後ろにする。
 - **段階 3 にプロフィール（`a=74`）を含める**（2026-11-05、ユーザーさんが了承）。同じ行の 3 つめの手書きで、`profileSettingNames()` の名前の重複も定義から引けば消せるため。ウェブユーザーの編集画面（`a=88`）は、グローバル設定と重なる設定が無いので対象外。ユーザー画面のタブは、グローバル設定と同じタブ名・小見出し・順で、ユーザーごとに変えられる行だけを出す。#1066 の「ユーザー編集画面のタブも同じ順・同じ小見出しにそろえる」は段階 3 で満たす（段階 2 では、言語キーの改名に合わせて `tab_page7.php` の見出しのキーだけを直す）。
 - **比較の道具は `adaptive-validation-runner` の同梱スクリプトとして足す**（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js`）。3 段階のすべてと、ほかのフォームの作り替えでも使えるため。`.claude/` は配布の zip に入らない（`.gitattributes` の `export-ignore`）。
@@ -276,7 +285,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 
 編集対象: 定義ファイル、`EvoSettingsForm`（`lang_text`・`content_types`・`template` と、`languages()`・`languagesHavingKey()` を足す）、`tab1_site_settings.inc.php`・`tab1_doc_settings.inc.php`・`tab2_cache_settings.inc.php`・`tab2_furl_settings.inc.php`（消す）。`functions.inc.php` の `get_lang_*()` は、まだ移していないセキュリティのタブが使うので M4 で消す。
 
-- `lang_text` は、見出しのセルに「言語から読み込む」select（名前は定義の `reload`、先頭に `language_title` の空の選択肢、その言語キーを持つ言語だけ）と、隠し欄（名前は `langKey` が `_default` で終われば `langKey`、そうでなければ `langKey . '_default'`、id は `langKey . '_hidden'`）を出す。select の `onchange` は `confirmLangChange(this, '<langKey>', '<欄の id>')`。欄の id は定義の `id`（今の id）。`warningHeading` が真なら見出しのセルを今と同じ `<td nowrap class="warning" valign="top"><b>…</b>` にする
+- `lang_text` は、見出しのセルに「言語から読み込む」select（名前は定義の `reload`、先頭に `language_title` の空の選択肢、その言語キーを持つ言語だけ）と、隠し欄（名前は `langKey` が `_default` で終われば `langKey`、そうでなければ `langKey . '_default'`、id は `langKey . '_hidden'`）を出す。select の `onchange` は `confirmLangChange(this, '<langKey>', '<欄の id>')`。欄の id は定義の `id`（今の id）。`warningHeading` が真なら見出しのセルを今と同じ `<td nowrap class="warning" valign="top"><b>…</b>` にする（段階 1 まで。段階 2 の M6 でやめ、ほかの行と同じ `th` にした）
 - `template` は今の `tab1_doc_settings.inc.php` の出力と同じ欄（optgroup、`(blank)`、一括変更のラジオ、`old_template`、`onchange`）を出す
 - 直書きの文言は、定義でそのまま文字で書く（例 `'label' => '公開開始日時自動設定'`）
 - 条件の行（`friendly_urls=1`）は `showIf`。`tab2_cache_settings.inc.php` の中の切り替えスクリプトは消す
@@ -449,8 +458,8 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 - ロードマップ: `.agent/roadmap.md` の #1067・#1066 の項目
 - PR は 1 段階を 1 PR にする（Decision Log）。ブランチと PR:
   - 計画: `refactor/1067-settings-screen-definition`（`gh issue develop` で #1067 に紐づけ済み）。ExecPlan のコミットはここに置く
-  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR はまだ）
-  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする）
+  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR #1245）
+  - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする。PR #1252）
   - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`
   - 作業ツリーは 3 段階とも `.claude/worktrees/issue-1067` を使い、段階ごとにブランチを切り替える
   - PR の番号は、作ったときにここへ書く
@@ -483,7 +492,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'showIf'   ['use_editor', '1'] … その値のときだけ行を出す
       'disabled' bool、'value' function (array $values): string（use_captcha。resolve() と同じく画面の値の配列を受ける）
       'name'     event 行のイベント名
-      'id'・'langKey'・'reload'・'warningHeading'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前・見出しのセルの形
+      'id'・'langKey'・'reload'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前
       'defaultPath'  path の既定（文字列か関数）
       'absHint'  bool。path の既定値の後ろに「(絶対パス)」を出す（filemanager_path・rb_base_dir。M2 で足した）
       'padded'   event 行の td に padding:0 を付けない（M3 で足した）
