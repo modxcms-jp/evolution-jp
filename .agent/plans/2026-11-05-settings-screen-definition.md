@@ -9,7 +9,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 ## Progress
 
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
-- [ ] 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る
+- [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [ ] 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く
 - [ ] 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
@@ -32,6 +32,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-05: `settings()` に、ロケールが `Japanese_Japan.932`（Windows）のとき 2 つのパスを SJIS から UTF-8 へ変える処理がある。PHP 7.1 から Windows のファイル関数は UTF-8 を受けるので、UTF-8 で保存された値を化けさせる側に働く。main の対象は PHP 7.4 以上。
 - 2026-11-05: SMTP の 4 つの欄の `onchange="documentDirty=true;"` は、`a=17` の共通の変更検知（`manager/actions/header.inc.php` の `evoBindDirtyTracking`）と重複している。
 - 2026-11-05: 配布の zip（`git archive --format=zip HEAD | wc -c`）は 1,571,241 バイト（HEAD `7801541d0`）。1.5MiB（1,572,864 バイト）まで 1.6KB しかない。この計画はコードを減らす方向なので、各 PR で差を測って本文に書く。
+- 2026-11-08（M1）: 欄の一覧はラジオを選択肢ごとに 1 件と数えるので、A は 201 件（計画の「120 件前後」は行の数え方の違い）。B で表示が A と逆になるのは 40 欄・24 行で、条件の行の数と一致した。TinyMCE 7 の表は逆にならない（計画どおり）。
+- 2026-11-08（M1）: 状態 B は `use_captcha=1` なので、先に DB へ入れるとログイン画面が captcha を求めて入れない。`form-snapshot.js` に、ログインしてからページを開く前に SQL を流してキャッシュを消す `--sql` を足した。
+- 2026-11-08（M1）: C（差し戻し）は Surprises の 1 件めのとおり。`use_browser`・`friendly_urls` は差し戻した値、`filemanager_path`・`site_name`・`upload_maxsize` は DB の値で出た。
+- 2026-11-08（M1）: 試しのプラグインで `OnSiteSettingsRender` の欄が 3 回出ることを確かめた。保存すると最後の欄（キャッシュのタブ）の値が勝つ（`system_settings` の値は `x`）。
+- 2026-11-08（M1）: 保存のたびに `recent_update` が変わるので、S1・S2 の比較からは除く。S2 の値のうち、インストール直後の値と同じで変化の出ない 6 つ（`datetime_format`・`server_protocol`・`failed_login_attempts`・`rb_base_url`・`new_file_permissions`・`convert_datauri_to_file`）は別の値に変えた（`<work>/fill-s2.json`）。`export_dir` を空で送ると、保存後は既定の `[(base_path)]temp/export/` に戻る。`site_id` は環境ごとにランダムなので、比較は同じ環境で取った JSON 同士で行う。
 
 ## Decision Log
 
@@ -420,7 +425,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 - ロードマップ: `.agent/roadmap.md` の #1067・#1066 の項目
 - PR は 1 段階を 1 PR にする（Decision Log）。ブランチと PR:
   - 計画: `refactor/1067-settings-screen-definition`（`gh issue develop` で #1067 に紐づけ済み）。ExecPlan のコミットはここに置く
-  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`
+  - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR はまだ）
   - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`
   - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`
   - 作業ツリーは 3 段階とも `.claude/worktrees/issue-1067` を使い、段階ごとにブランチを切り替える
