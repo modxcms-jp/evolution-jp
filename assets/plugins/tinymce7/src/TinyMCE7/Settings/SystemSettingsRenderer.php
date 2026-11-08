@@ -67,7 +67,8 @@ final class SystemSettingsRenderer
         $html = [];
         $cssUrl = MODX_BASE_URL . 'assets/plugins/tinymce7/css/tinymce7.settings.css';
         $html[] = '<link rel="stylesheet" type="text/css" href="' . hsc($cssUrl) . '">';
-        $html[] = '<table id="editorRow_TinyMCE7" class="settings editorRow">';
+        // グローバル設定では、functions.js が「リッチテキストエディターの使用」の切り替えで出し入れする
+        $html[] = '<table id="editorRow_TinyMCE7" class="settings" data-show-if="use_editor=1">';
         $html[] = '  <tr class="row1">';
         $html[] = '    <th colspan="2" class="tinymce7-settings__header"><h4 class="tinymce7-settings__title">' . hsc($this->t('tinymce7_settings_header', 'TinyMCE 7')) . '</h4></th>';
         $html[] = '  </tr>';

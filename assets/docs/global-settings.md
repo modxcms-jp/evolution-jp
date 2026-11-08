@@ -15,30 +15,32 @@
 `manager/includes/lang/japanese-utf8.inc.php` と `english.inc.php` に追加:
 
 ```php
-$_lang['setting_new_setting_name'] = '設定名';
-$_lang['setting_new_setting_name_desc'] = '設定の説明文';
+"setting_new_setting_name" => '設定名',
+"setting_new_setting_name_desc" => '設定の説明文',
 ```
 
 ## 3. 設定画面への表示
 
-`manager/actions/tool/mutate_settings/tab*.inc.php` のいずれかに追加:
+画面は `manager/includes/settings_form.definition.inc.php`（設定の定義）を、`manager/includes/settings_form.class.inc.php` の `EvoSettingsForm` が HTML にして出す。HTML は手で書かず、定義のタブの `rows` に 1 行足す:
 
 ```php
-<tr>
-    <th><?= lang('setting_new_setting_name') ?></th>
-    <td>
-        <?= wrap_label(
-            lang('yes'),
-            form_radio('new_setting_name', 1, config('new_setting_name') == 1)
-        ); ?><br/>
-        <?= wrap_label(
-            lang('no'),
-            form_radio('new_setting_name', 0, config('new_setting_name') == 0)
-        ); ?><br/>
-        <?= lang('setting_new_setting_name_desc') ?>
-    </td>
-</tr>
+[
+    'key' => 'new_setting_name',
+    'type' => 'yesno',
+    'label' => lang('setting_new_setting_name'),
+    'desc' => lang('setting_new_setting_name_desc'),
+],
 ```
+
+- `key`: 設定キー。送る欄の名前になり、値は `system_settings` の同じ名前から出る
+- `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select`・`event`（プラグインの出力）のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`）
+- `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
+- `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
+- `default`: 値が無い・空のときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
+- `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、ラジオを切り替えたときには一緒に出し入れされる。ただし初めの表示はサーバーが行の `showIf` で決めるため、プラグインの出力には当たらない
+- 設定でない欄（hidden など）を足したときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする。設定の欄を足すだけなら触らない
+
+入力エラーで保存が止まって画面に戻ったときの打った値は、`EvoSettingsForm::systemValues()` が行に重ねるので、行ごとの対応は要らない。ただし `password` 型（`smtppw`）は伏せ字のまま。
 
 ## 4. 設定値の反映
 
@@ -47,19 +49,21 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 
 ## 設定画面のタブ構成
 
-| ファイル | タブ名 |
+すべて `manager/includes/settings_form.definition.inc.php` に書かれている。
+
+| タブの id | タブ名（言語キー） |
 | --- | --- |
-| `tab1_site_settings.inc.php` | サイト設定 |
-| `tab1_doc_settings.inc.php` | リソース設定 |
-| `tab2_cache_settings.inc.php` | キャッシュ設定 |
-| `tab2_furl_settings.inc.php` | Friendly URL 設定 |
-| `tab3_user_settings.inc.php` | ユーザー設定 |
-| `tab4_manager_settings.inc.php` | 管理画面設定 |
-| `tab6_filemanager_settings.inc.php` | ファイルマネージャーの設定 |
+| `tabPage2` | サイト（`settings_site`） |
+| `tabPageDoc` | リソース設定（言語キーでなく、定義に直書きの見出し） |
+| `tabPageCache` | キャッシュ設定（言語キーでなく、定義に直書きの見出し） |
+| `tabPage3` | フレンドリーURL（`settings_furls`） |
+| `tabPage4` | セキュリティ（`settings_users`） |
+| `tabPage5` | 管理画面の設定（`settings_ui`） |
+| `tabPage7` | ファイルマネージャーの設定（`settings_misc`） |
 
 ## 注意事項
 
 - SQLファイルでの設定追加は不要（`default.config.php` のみで管理）
 - `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
-- 設定画面に、設定ではない hidden などの項目を足すときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする
+- 設定でない項目の扱いは「3. 設定画面への表示」の `nonSettingKeys()` を参照
 - 設定値の取得: `evo()->getConfig('setting_name', 'default')`

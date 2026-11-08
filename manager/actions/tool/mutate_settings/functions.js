@@ -74,3 +74,28 @@ function confirmLangChange(el, lkey, elupd) {
             .catch(function () {});
     }
 }
+
+/**
+ * 条件の行。data-show-if="<名前>=<値>" の要素を、同じ名前のラジオが切り替わったときに出し入れする。
+ * 初めの表示はサーバーが決める。
+ */
+Evo.ready(() => {
+    const form = document.forms.settings;
+    if (!form) {
+        return;
+    }
+    form.addEventListener('change', (event) => {
+        const radio = event.target;
+        if (!radio || radio.type !== 'radio' || !radio.checked) {
+            return;
+        }
+        document.querySelectorAll('[data-show-if]').forEach((el) => {
+            const condition = el.getAttribute('data-show-if');
+            const eq = condition.indexOf('=');
+            if (condition.slice(0, eq) !== radio.name) {
+                return;
+            }
+            el.style.display = condition.slice(eq + 1) === radio.value ? '' : 'none';
+        });
+    });
+});
