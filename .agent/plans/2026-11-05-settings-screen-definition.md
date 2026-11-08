@@ -10,7 +10,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
 - [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で、写真の切れの警告を 4f5498afd で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
-- [ ] 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く
+- [x] (2026-11-08) 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く（e5d1a7dfc。比較は `<work>/branch-m2/`、流すスクリプトは `<work>/run-branch.sh`）
 - [ ] 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
 - [ ] 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画
@@ -37,6 +37,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M1）: C（差し戻し）は Surprises の 1 件めのとおり。`use_browser`・`friendly_urls` は差し戻した値、`filemanager_path`・`site_name`・`upload_maxsize` は DB の値で出た。
 - 2026-11-08（M1）: 試しのプラグインで `OnSiteSettingsRender` の欄が 3 回出ることを確かめた。保存すると最後の欄（キャッシュのタブ）の値が勝つ（`system_settings` の値は `x`）。
 - 2026-11-08（M1）: 保存のたびに `recent_update` が変わるので、S1・S2 の比較からは除く。S2 の値のうち、インストール直後の値と同じで変化の出ない 6 つ（`datetime_format`・`server_protocol`・`failed_login_attempts`・`rb_base_url`・`new_file_permissions`・`convert_datauri_to_file`）は別の値に変えた（`<work>/fill-s2.json`）。`export_dir` を空で送ると、保存後は既定の `[(base_path)]temp/export/` に戻る。`site_id` は環境ごとにランダムなので、比較は同じ環境で取った JSON 同士で行う。
+- 2026-11-08（M2）: `settings()` を消すと、まだ移していない管理画面のタブ（`tab4_manager_settings.inc.php`）が呼ぶ `checkConfig()` が、`settings()` の作っていたグローバルの `$settings`・`$default_config` を読めず、PHP 8 の警告でタブが途中で切れた。M2・M3 の間だけ `mutate_settings.dynamic.php` に `$settings = $values;` と `$default_config = include …default.config.php;` を仮に置いた。M4 で `checkConfig()` と一緒に消す。
+- 2026-11-08（M2）: `lang_chg` は今の main で既に `js_literal()` を通っていた（Surprises の 2026-11-05 の記録は古い）。
+- 2026-11-08（M2）: `path` 行の既定値の後ろに出る `(絶対パス)` は、`filemanager_path`・`rb_base_dir` にはあり `export_dir` には無い。この違いを表すため、定義に `absHint` を足した（Interfaces の形に加える）。3 つのパスのリセットは、既定値の `<span id="default_<key>">` を読む形にそろえた（main は `export_dir` だけ文字を直書き。動きは同じ）。
+- 2026-11-08（M2）: 入力欄とリセットのボタンの間の空白（改行）が無いとボタンが 3px ずれ、画面写真で見つかった。HTML の空白は欄の一覧に出ないので、写真の比較が要る。
+- 2026-11-08（M2）: `systemValues()` は差し戻しをセッションから取り出して消すので、1 回の表示で 1 回だけ呼ぶ前提。
 
 ## Decision Log
 
