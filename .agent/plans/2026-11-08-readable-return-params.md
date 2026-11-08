@@ -380,7 +380,7 @@ Docker の検証環境（`adaptive-validation-runner` スキルの手順で起�
 ## Artifacts and Notes
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1277
-- ブランチ: `refactor/1277-readable-return-params`（`gh issue develop` で #1277 に紐づけ済み）。PR は未作成。
+- ブランチ: `refactor/1277-readable-return-params`（`gh issue develop` で #1277 に紐づけ済み）。PR: #1296（下書き、base は `main`。2026-11-09 に M1 まで入れて作成。最後のマイルストーンで下書きを解除する）。
 - base: `main`。#1279（PR #1293）は main にマージ済み（ccf2509be）で、このブランチに取り込んだ（376cce09c）。
 - 関連: #1278（PR #1286、マージ済み。`optimize_table.processor.php` の `t` / `u` を `table` / `truncate` にし、`s` を削除。`mode` は #1277 に残した）、#1285（PR #1292、マージ済み。管理ユーザーの保存後の行き先・タブの記憶・差し戻しの引き継ぎ・プロフィールの選択欄）、#1279（PR #1293、マージ済み。グループの項目名）、#1070（`request_*var()` を `any_*var()` に改名する予定。`EvoFormFlow::requestedAfterSave()` もその対象になる）、#560（グローバルな名前を増やさない）。
 - 修正前の戻り先の記録（2026-11-09、基準 0f915fda1＝M1 の直前）: 308 行。内訳は要素 6 種 × 18（新規・更新 × 3 種の選択と、名前の重複・名前が空 × 新規・更新 × 3 種の選択）、管理ユーザー 21 と `user_settings` の確認 1・プロフィール 1、Web ユーザー 21、ロール 2、文書 64（文書-1〜13 に当たる操作）、モジュールの複製・削除 4、最適化・中身の削除（POST）4、管理ログを空に 1、グローバル設定 2、QuickManager 1、サイトの更新 2、`r` 付きのフルページの読み込み 6、タブの記憶 54（9 画面 × 設定 0・1・2 × 保存後・開き直し）、差し戻しの入力の復元 2（モジュール・プラグイン）、バックアップ 2、画面の部品 12（`dom` の行。select の name・id・値と hidden の `mode`）。想定と違ったものは Surprises の「修正前の記録で分かったこと」に書いた。
