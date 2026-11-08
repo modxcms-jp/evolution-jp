@@ -508,9 +508,14 @@ if (typeof(SetUrl) != "undefined") {
 //Самбмит главной формы
 var form = document.getElementById("mutate");
 if (form){
-    form.addEventListener("submit", function(){
+    //new FormData(form)（保存・プレビュー）とネイティブの送信のどちらでも、送る値を最新にする
+    form.addEventListener("formdata", function(e){
         for (var i = 0, len = ddMultiple.ids.length; i < len; i++){
             ddMultiple.updateTv(ddMultiple.ids[i]);
+            var original = document.getElementById(ddMultiple.ids[i]);
+            if (original && original.name && e.formData.has(original.name)){
+                e.formData.set(original.name, original.value);
+            }
         }
     });
 }
