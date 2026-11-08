@@ -4916,47 +4916,31 @@ class DocumentParser
             return $str;
         }
 
+        // 日付のあとは、空白 1 つと「時[:分[:秒]]」（各 1〜2 桁）だけを受け付け、ほかは解釈できない日付にする
+        $time = '(?: (?<H>[0-9]{1,2})(?::(?<M>[0-9]{1,2})(?::(?<S>[0-9]{1,2}))?)?)?';
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
-                if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$Y, $m, $d, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<Y>[0-9]{4})/(?<m>[0-9]{2})/(?<d>[0-9]{2})';
                 break;
             case 'dd-mm-YYYY':
-                if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$d, $m, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<d>[0-9]{2})-(?<m>[0-9]{2})-(?<Y>[0-9]{4})';
                 break;
             case 'mm/dd/YYYY':
-                if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
-                    return '';
-                }
-                $parts = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
-                if ($parts === null) {
-                    return '';
-                }
-                [$m, $d, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
+                $date = '(?<m>[0-9]{2})/(?<d>[0-9]{2})/(?<Y>[0-9]{4})';
                 break;
             default:
                 return $default;
         }
-        // 時刻を省いた入力は 0 時 0 分 0 秒
-        [$H, $M, $S] = [(int)$H, (int)$M, (int)$S];
-        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
-        if (!checkdate((int)$m, (int)$d, (int)$Y) || $H > 23 || $M > 59 || $S > 59) {
+        if (!preg_match("@^{$date}{$time}$@D", $str, $match)) {
             return '';
         }
-        $timeStamp = mktime($H, $M, $S, (int)$m, (int)$d, (int)$Y);
+        // 時刻を省いた入力は 0 時 0 分 0 秒
+        [$Y, $m, $d, $H, $M, $S] = [(int)$match['Y'], (int)$match['m'], (int)$match['d'], (int)($match['H'] ?? 0), (int)($match['M'] ?? 0), (int)($match['S'] ?? 0)];
+        // 存在しない月日・時刻（13 月、2 月 30 日、25 時など）は、mktime() に繰り上げさせず解釈できない日付にする
+        if (!checkdate($m, $d, $Y) || $H > 23 || $M > 59 || $S > 59) {
+            return '';
+        }
+        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
         // 32bit の PHP は、表せない日時（1901〜2038 年の外）で false を返す。0（空）と区別できるよう解釈できない日付にする
         return $timeStamp === false ? '' : $timeStamp;
     }
