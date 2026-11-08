@@ -1310,8 +1310,8 @@ function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
     // 指定サイズに収める（アスペクト比維持）
     $ratio = min($targetWidth / $originalWidth, $targetHeight / $originalHeight, 1);
 
-    $finalWidth = max(1, (int)($originalWidth * $ratio));
-    $finalHeight = max(1, (int)($originalHeight * $ratio));
+    $finalWidth = max(1, (int)round($originalWidth * $ratio));
+    $finalHeight = max(1, (int)round($originalHeight * $ratio));
 
     // サイズが変わらない場合はリサイズ不要
     if ($finalWidth == $originalWidth && $finalHeight == $originalHeight) {

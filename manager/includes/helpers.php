@@ -1298,7 +1298,7 @@ function ini_size_to_bytes($value)
  * (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
  * GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。縮小先は imagecreatetruecolor() で 4。
  * BMP: 6000×6000 で約 4.1 (JPEG と同じ 4 に、4MB の余裕で収まる)。
- * WebP: 検証用イメージの GD は WebP を読めず測れていない。読めない環境では読み込み自体が失敗するだけなので、4 とする。
+ * WebP: 未測定（検証用イメージの GD は WebP を読めない）。読める環境では libwebp の展開領域が加わり 4 を超える可能性がある（残るリスク）。見積もりは 4 とする。
  *
  * @param int $width 元画像の幅
  * @param int $height 元画像の高さ
