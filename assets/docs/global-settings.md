@@ -21,24 +21,26 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 
 ## 3. 設定画面への表示
 
-`manager/actions/tool/mutate_settings/tab*.inc.php` のいずれかに追加:
+画面は `manager/includes/settings_form.definition.inc.php`（設定の定義）を、`manager/includes/settings_form.class.inc.php` の `EvoSettingsForm` が HTML にして出す。HTML は手で書かず、定義のタブの `rows` に 1 行足す:
 
 ```php
-<tr>
-    <th><?= lang('setting_new_setting_name') ?></th>
-    <td>
-        <?= wrap_label(
-            lang('yes'),
-            form_radio('new_setting_name', 1, config('new_setting_name') == 1)
-        ); ?><br/>
-        <?= wrap_label(
-            lang('no'),
-            form_radio('new_setting_name', 0, config('new_setting_name') == 0)
-        ); ?><br/>
-        <?= lang('setting_new_setting_name_desc') ?>
-    </td>
-</tr>
+[
+    'key' => 'new_setting_name',
+    'type' => 'yesno',
+    'label' => lang('setting_new_setting_name'),
+    'desc' => lang('setting_new_setting_name_desc'),
+],
 ```
+
+- `key`: 設定キー。送る欄の名前になり、値は `system_settings` の同じ名前から出る
+- `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select`・`event`（プラグインの出力）のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`）
+- `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
+- `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB から取る一覧は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
+- `default`: 値が無いときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
+- `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ一緒に切り替わる
+- 設定の欄を足したら、保存で `nonSettingKeys()` に触る必要があるのは、設定でない欄（`reload_*` など）を足したときだけ
+
+入力エラーで保存が止まって画面に戻ったときの打った値は、`EvoSettingsForm::systemValues()` がすべての行に重ねるので、行ごとの対応は要らない。
 
 ## 4. 設定値の反映
 
@@ -47,15 +49,17 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 
 ## 設定画面のタブ構成
 
-| ファイル | タブ名 |
+すべて `manager/includes/settings_form.definition.inc.php` に書かれている。
+
+| タブの id | タブ名（言語キー） |
 | --- | --- |
-| `tab1_site_settings.inc.php` | サイト設定 |
-| `tab1_doc_settings.inc.php` | リソース設定 |
-| `tab2_cache_settings.inc.php` | キャッシュ設定 |
-| `tab2_furl_settings.inc.php` | Friendly URL 設定 |
-| `tab3_user_settings.inc.php` | ユーザー設定 |
-| `tab4_manager_settings.inc.php` | 管理画面設定 |
-| `tab6_filemanager_settings.inc.php` | ファイルマネージャーの設定 |
+| `tabPage2` | サイト（`settings_site`） |
+| `tabPageDoc` | リソース設定 |
+| `tabPageCache` | キャッシュ設定 |
+| `tabPage3` | フレンドリーURL（`settings_furls`） |
+| `tabPage4` | セキュリティ（`settings_users`） |
+| `tabPage5` | 管理画面の設定（`settings_ui`） |
+| `tabPage7` | ファイルマネージャーの設定（`settings_misc`） |
 
 ## 注意事項
 
