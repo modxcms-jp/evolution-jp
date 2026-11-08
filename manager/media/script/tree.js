@@ -153,6 +153,10 @@ function collapseTree() {
         "expandAll": "0"
     }, function (response) {
         rpcLoadData(response, root);
+        if (response.indexOf('mx_loginbox') !== -1) {
+            // セッション切れ（rpcLoadData がログイン画面へ移す）
+            return;
+        }
         resetFolderState();
         saveFolderState();
     });
