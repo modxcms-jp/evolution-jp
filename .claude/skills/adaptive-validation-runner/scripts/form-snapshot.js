@@ -208,6 +208,9 @@ function writeJson(file, data) {
             const tabs = page.locator('.tab-pane').first().locator(':scope > .tab-row .tab');
             const n = await tabs.count();
             for (let i = 0; i < n; i++) {
+                if (!(await tabs.nth(i).isVisible())) {
+                    continue; // 隠れた見出しのタブ（クリックできない）は撮らない
+                }
                 await tabs.nth(i).click();
                 // 管理画面の本文（#mainPane）は画面の高さの中でスクロールして、はみ出しは写らない。
                 // 枠の上端に枠全体の高さを足した高さまでビューポートを広げて撮る
@@ -247,7 +250,10 @@ function writeJson(file, data) {
         }
 
         if (opts.submit) {
-            await page.evaluate(() => Array.from(document.forms).forEach(f => { f.dataset.snapOld = '1'; }));
+            // シェルの中のフォーム（menuForm など）は保存後も残るので、#mainPane の中にフォームがあればその中のフォームだけに印を付ける（無ければすべて）
+            await page.evaluate(() => Array.from(document.forms)
+                .filter(f => !document.querySelector('#mainPane form') || f.closest('#mainPane'))
+                .forEach(f => { f.dataset.snapOld = '1'; }));
             await page.click(opts.submit);
             const until = Date.now() + 30000;
             let done = false;

@@ -15,8 +15,8 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - [x] (2026-11-08) 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1（727a7b30d・02c7dc209・75b2df9cd。比較は `<work>/branch-m4/`。PHP 7.4 の表示と保存も確かめた）
 - [x] (2026-11-08) 段階 2・M5: タブ列が折り返しても崩れない CSS（6 テーマ）と、小見出しの描画（2c3a94b27・578319093。比べる元は `<work>/s1/`、結果は `<work>/branch-m5/`）
 - [x] (2026-11-08) 段階 2・M6: タブと小見出しを役割ごとに組み替え、名前を短くそろえ、イベントの位置を直す → PR 2（80531880a・15bc82ad1・49290e203・407434f64。結果は `<work>/branch-m6/`）
-- [ ] 段階 3・M7: ユーザー編集画面（`a=11`/`a=12`）の設定のタブを同じ定義から描く
-- [ ] 段階 3・M8: プロフィール（`a=74`）の設定のタブも同じ定義から描き、PHP 7.4 と配布の大きさを確かめて振り返る → PR 3
+- [x] (2026-11-08) 段階 3・M7: ユーザー編集画面（`a=11`/`a=12`）の設定のタブを同じ定義から描く（1502f724b。基準は `<work>/s3-main/`、結果は `<work>/s3-branch/`）
+- [x] (2026-11-08) 段階 3・M8: プロフィール（`a=74`）の設定のタブも同じ定義から描き、PHP 7.4 と配布の大きさを確かめて振り返る → PR 3（M7 の低の直し 13fcb7c97、M8 は 260142add・208d5870e・88e1dccb2。結果は `<work>/s3-branch2/`・`<work>/s3-m8/`）
 
 ## Surprises & Discoveries
 
@@ -62,6 +62,20 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - 2026-11-08（M2）: 入力欄とリセットのボタンの間の空白（改行）が無いとボタンが 3px ずれ、画面写真で見つかった。HTML の空白は欄の一覧に出ないので、写真の比較が要る。
 - 2026-11-08（M2）: `systemValues()` は差し戻しをセッションから取り出して消すので、1 回の表示で 1 回だけ呼ぶ前提。
 
+- 2026-11-08（M7）: 段階 3 は、段階 2 のマージ後の main（27c577f60）へ紐づいたブランチを早送りして始めた。main の基準（a=12 の U・US1・US2・差し戻し、M8 用の a=74 の P・PS1・PS2）は、変更の前に同じ検証環境で取った（`<work>/s3-main/`）。
+- 2026-11-08（M7）: `form-snapshot.js` の `--submit` は、a=12・a=74 の保存が成功しても 30 秒待って FAIL する。保存は成功している。`document.forms` 全体に印を付けるので、シェルの `menuForm` が保存後も残り、画面の切り替わりと判定されない（a=17 は全体を読み直すので出なかった）。M7 では `#mainPane` の中のフォームだけに印を付ける複製（`<work>/fs3/`）で確かめた。スクリプト本体は M8 で直す。
+- 2026-11-08（M7）: ユーザー画面の意図した違い。言語の select の並びが名前順になった（a=17 と同じ）。`manager_inline_style` の「システム設定に従う」のチェックを、`upload_*` と同じ「ユーザーの値が無いとき」にそろえた（main は空か `'0'` でも付いていた。標準の状態では差が出ない）。入力欄の幅は、ユーザー画面の個別の指定（250〜300px）をやめて定義の共通の指定にした。行ごとの色付け（row1〜row3）が無くなり、グローバル設定と同じ見た目になった。エディターのプラグインが 1 つも無い環境では、`which_editor` の select が「システム設定に従う」だけになる（未確認）。
+- 2026-11-08（M7）: `EvoSettingsForm::style()` は `table.settings` の共通の 4 規則だけを返す。グローバル設定だけの `input[type=text]{width:250px}` は `mutate_settings.dynamic.php` に残した。ユーザー画面のほかのタブ（ログイン設定・プロフィール）の欄の幅を変えないため。計画の「中身は今と同じ」は、全部を 1 つにすると他のタブが変わるので、この形にした。
+- 2026-11-08（M7）: `OnInterfaceSettingsRender` は、エディターのタブの末尾で呼ぶ（タブの `eventScope` を system・user・profile）。a=12 のタブは 5 から 6 になり、TinyMCE 7 の 3 欄は管理画面からエディターのタブへ移った。a=17 の A・B・S1・S2 は段階 2 の後と同じ。
+
+- 2026-11-08（M7 の自己レビュー）: 高・中なし。低のうち、user・profile で条件により行がすべて隠れる小見出し・タブを出さない（行は消さずに `display:none`。保存は送られた値から作り直すので、送らないと設定が消える）、差し戻し後も `default_<キー>` のチェックを残す（main からの不具合）、ユーザー画面の文字の欄の幅を main と同じにする（表に `user-scope` のクラスを付けて `style()` で範囲を絞る）の 3 件を直した（13fcb7c97）。上の M7 の「入力欄の幅は定義の共通の指定にした」は、この直しで main と同じ幅に戻した。
+- 2026-11-08（M8）: `form-snapshot.js` の `--submit` を、`#mainPane` があればその中のフォームだけに印を付けるように直した（260142add）。a=12・a=74・a=17 の保存がすべて通る。
+- 2026-11-08（M8）: Apache の `error.log` は `/dev/stderr` へのリンクで、コンテナの中で tail しても何も出ない（止まる）。PHP の警告は `docker logs` で見る。M7 の「error.log に警告なし」はこの確認が無効だったが、M8 で `docker logs` を見て、8.4・7.4 とも Warning・Notice・Deprecated・Fatal が 0 件だった。
+- 2026-11-08（M8）: a=74 の欄は 41 件で main と同じ集まり。値の差は、ユーザーの値が無いときの `manager_inline_style` のテキストエリアにシステム設定の値を出すこと（「システム設定に従う」のチェックは付いたまま、保存の結果は同じ）と、言語の選択肢の並びの 2 件だけ。タブは「プロフィール・管理画面・エディター」になった。`names('profile')` は本体の欄の名前だけを返し、プラグインの欄はセッションで覚える今の仕組みのまま。
+
+- 2026-11-08（段階 3 の自己レビュー）: 高・中なし。プロフィールでセッションに覚える名前をプラグインの欄だけにした（本体の名前を `names('profile')` で除く）、`form-snapshot.js` の 2 つの穴（`#mainPane` にフォームが無いときの `--submit` の判定、隠れたタブの写真）を塞いだ、条件の判定を `isConditionHidden()` の 1 か所にした、文書を書き足した（2a0ba8506・0073ca0a3）。
+- 2026-11-08（段階 3 の自己レビュー）: TinyMCE 7 を無効にして `use_editor=0` にした状態で、a=12・a=74 を main（27c577f60）と比べた。M7 で「未確認」とした、エディターのプラグインが無いときの `which_editor` は、選択肢が「システム設定に従う」だけになり、保存済みの `none` が選択肢に出なかった。行の項目 `fallbackOptions` を足し、ユーザー画面では `none` を選択肢に出すようにして main と同じ表示にした。この状態の a=12・a=74 の欄と、何も変えずに保存・変えて保存した後の `user_settings` は main と同じ（`which_editor=none` も残る）。エディターのタブは、プラグインの出力が無く `use_editor=0` のとき見出しごと隠れる。
+
 ## Decision Log
 
 ユーザーさんと決めたこと（2026-11-05 / yamamoto・Claude）:
@@ -92,6 +106,11 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - **比較の道具は `adaptive-validation-runner` の同梱スクリプトとして足す**（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js`）。3 段階のすべてと、ほかのフォームの作り替えでも使えるため。`.claude/` は配布の zip に入らない（`.gitattributes` の `export-ignore`）。
 
 ## Outcomes & Retrospective
+
+- 段階 1〜3 で、グローバル設定（`a=17`）・ユーザー編集（`a=11`/`a=12`）・プロフィール（`a=74`）の設定の欄を、1 つの定義（`settings_form.definition.inc.php`、1,120 行）と 1 つの描画の部品（`settings_form.class.inc.php`、782 行）から描くようにした。行を手書きしていた 7 つのタブのファイル・`functions.inc.php`・`charsets.php`・ユーザー画面の `tab_page5.php`・`tab_page7.php` を消し、`profileSettingNames()` の固定の一覧も定義から引く。設定の欄の値・保存の結果は、どの段階でも main と同じ（許した違いは Surprises のとおり）
+- 段階 2 で、タブを役割ごとに 9 つにし、名前を短くそろえ、小見出しを付けた（#1066）。プラグインのイベントを 1 タブ 1 か所にし、同じ欄が 3 つ出ていたのをなくした。ユーザー画面のタブも同じ名前・小見出し・順になった
+- 配布の zip は 1,605,004 バイト（段階 1 の前）→ 1,603,632 バイト（−1,372）。段階 3 のコードの差分は 11 ファイルで +298 / −448 行（88e1dccb2 の時点。計画ファイルを除く）
+- 学び: 見た目を変えない作り替えは、欄の一覧（名前・種類・値・選択・無効・表示）と保存の結果を前後で機械的に比べる道具（`form-snapshot.js`）を先に作ったことで、段階ごとに「同じ」を確かめられた。シェルの画面では、保存の後もシェルの部品のフォームが残るので、画面の切り替わりは `#mainPane` の中で判定する。ユーザーさんの目視で、タブの幅の見込み（名前を短くするだけでは狭くならない）を早く確かめられたのもよかった
 
 ## Context and Orientation
 
@@ -441,7 +460,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 | `use_editor=0` / `use_browser=0` のとき | エディターの 2 行・ピッカーの 2 行が隠れる | 同じ |
 | PHP 7.4 | — | `a=12`・`a=74` の表示と保存ができる |
 
-全体の完了条件: 3 つの PR がマージされ、#1067 と #1066 が閉じている。`manager/actions/tool/mutate_settings/` には `functions.js` だけが残り、設定の行の手書きが 3 画面とも無い（`grep -rn "<th><?= lang(" manager/actions/tool manager/actions/permission/mutate_user manager/actions/permission/mutate_user_pf.dynamic.php` に設定の行が出ない）。配布の zip が段階 1 の前より小さい。
+全体の完了条件: 3 つの PR がマージされ、#1067 と #1066 が閉じている。`manager/actions/tool/mutate_settings/` には `functions.js` だけが残り、設定の行の手書きが 3 画面とも無い（`grep -rn "<th><?= lang(" manager/actions/tool manager/actions/permission/mutate_user manager/actions/permission/mutate_user_pf.dynamic.php` に、グローバル設定と重なる設定の行が出ない。ユーザーの属性やログインの制限の行（`tab_profile.php`・`tab_general.php`・`tab_settings.php`）は出てよい）。配布の zip が段階 1 の前より小さい。
 
 ## Idempotence and Recovery
 
@@ -460,7 +479,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
   - 計画: `refactor/1067-settings-screen-definition`（`gh issue develop` で #1067 に紐づけ済み）。ExecPlan のコミットはここに置く
   - 段階 1（M1〜M4）: `refactor/1067-s1-settings-definition`。紐づけない。作業ツリーで ExecPlan のコミットの上から `git switch -c` で作る。PR 1 は `Refs #1067`（2026-11-08 に作り、今の main を取り込んで M1 から始めた。PR #1245）
   - 段階 2（M5〜M6）: `refactor/1067-s2-settings-layout`。紐づけない。PR 1 のマージ後に `origin/main` から作る（マージ前なら段階 1 のブランチの上に積む）。PR 2 は `Refs #1067`・`Refs #1066`（2026-11-08、ユーザーさんが段階 2 の表示を見てから最終的に判断したいとのことで、PR 1 はマージを待ち、段階 2 を段階 1 のブランチの上に積んで、PR 2 は段階 1 のブランチを base にする。PR #1252）
-  - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`
+  - 段階 3（M7〜M8）: 紐づいた `refactor/1067-settings-screen-definition` を使う。PR 2 のマージ後に `git merge --ff-only origin/main` で進めてから積む（マージ前なら段階 2 のブランチへ `--ff-only` で進めて積み、段階 2 のブランチを base にする）。このブランチには ExecPlan のコミットのほかに何も push しないので、早送りで進められる。PR 3 は `Closes #1067`・`Closes #1066`（2026-11-08、段階 2 のマージ後の main（27c577f60）へ早送りして始めた。PR #1268）
   - 作業ツリーは 3 段階とも `.claude/worktrees/issue-1067` を使い、段階ごとにブランチを切り替える
   - PR の番号は、作ったときにここへ書く
 - 想定コミット単位: Concrete Steps の各マイルストーンの「コミット」のとおり（段階 1 は 6、段階 2 は 5、段階 3 は 3）
@@ -501,7 +520,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'field'・'hiddenBr'・'reloadId'  lang_text の欄の種別（'text' なら input、既定は textarea）・hidden の後ろの <br/>・読み込みの select の id を直接指定（M4 で足した）
       'inline'   radio の選択肢のあいだに <br/> を入れない（M4 で足した）
       label・desc・before・after・options・default・defaultPath・value は、Closure なら画面の値の配列 $values を渡して呼ぶ（文字列は呼ばない）
-      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'
+      段階 3 で足す: 'scope'（既定 ['system']）、'userDefault'（bool）、'userAttr'、'userValue'（function）、'userDesc'、'fallbackOptions'（options が null のときにユーザー画面で使う選択肢。`which_editor` は ['none' => なし]。グローバル設定では options が null の行は欄を出さない）。タブには 'eventScope'（イベントを呼ぶ scope の配列。既定は ['system']。エディターのタブだけ system・user・profile）
 
 `yesno` は `['1' => lang('yes'), '0' => lang('no')]`、`enabled` は `['1' => lang('enabled'), '0' => lang('disabled')]` の radio の略。`disable_cache_at_login` のように値と表示が逆の行は `radio` で書く。
 

@@ -46,26 +46,8 @@ $values = EvoSettingsForm::systemValues($stored);
             </li>
         </ul>
     </div>
+    <?= EvoSettingsForm::style() ?>
     <style type="text/css">
-        table.settings {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        table.settings tr {
-            border-bottom: 1px dotted #ccc;
-        }
-
-        table.settings th {
-            font-size: inherit;
-            vertical-align: top;
-            text-align: left;
-        }
-
-        table.settings th, table.settings td {
-            padding: 5px;
-        }
-
         table.settings td input[type=text] {
             width: 250px;
         }

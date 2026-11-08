@@ -26,9 +26,11 @@ final class EvoSettingsForm
     private $scope;
 
     /**
-     * @param array $values 欄に出す値（systemValues() の結果。差し戻しを含む）
-     * @param array $stored 保存されている値（storedValues() の結果。差し戻しを含まない）。
-     *                      「今の設定は何か」を判るのに使う（一括変更の基準など）
+     * @param array $values 欄に出す値（system は systemValues() の結果、user・profile はそのユーザーの値。差し戻しを含む）
+     * @param array $stored 保存されているシステム設定（storedValues() の結果。差し戻しを含まない）。
+     *                      「今の設定は何か」を判るのに使う（一括変更の基準、user・profile の条件の行と「システム設定に従う」の値）
+     * @param string $scope system（グローバル設定）・user（ユーザー編集画面）・profile（プロフィール）。
+     *                      user・profile は、その scope の行だけを同じタブ・小見出し・順で出す
      */
     public function __construct(array $tabs, array $values, array $stored, string $scope = 'system')
     {
@@ -145,6 +147,63 @@ final class EvoSettingsForm
     }
 
     /**
+     * その scope の画面に出す設定キー（topmenu の欄も含む）。プロフィールで保存してよい名前の元になる
+     */
+    public static function names(string $scope): array
+    {
+        $names = [];
+        foreach (self::definition() as $tab) {
+            foreach ($tab['sections'] ?? [] as $section) {
+                foreach ($section['rows'] as $row) {
+                    if (!in_array($scope, $row['scope'] ?? ['system'], true)) {
+                        continue;
+                    }
+                    if (($row['type'] ?? '') === 'topmenu') {
+                        $names = array_merge($names, array_keys($row['items']));
+                    } elseif (isset($row['key'])) {
+                        $names[] = $row['key'];
+                    }
+                }
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * table.settings の表の共通の見た目（設定画面・ユーザー編集画面・プロフィールで同じものを出す）
+     */
+    public static function style(): string
+    {
+        return <<<'HTML'
+<style type="text/css">
+    table.settings {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    table.settings tr {
+        border-bottom: 1px dotted #ccc;
+    }
+
+    table.settings th {
+        font-size: inherit;
+        vertical-align: top;
+        text-align: left;
+    }
+
+    table.settings th, table.settings td {
+        padding: 5px;
+    }
+
+    table.settings.user-scope td input[type=text] {
+        width: 250px;
+    }
+</style>
+
+HTML;
+    }
+
+    /**
      * 言語キーを自分のファイルに持つ言語 [言語名 => 表示名]
      */
     public static function languagesHavingKey(string $key): array
@@ -182,19 +241,55 @@ final class EvoSettingsForm
      */
     public function renderTab(array $tab): string
     {
-        $html = '<div class="tab-page" id="' . hsc($tab['id']) . '">' . "\n"
-            . '<h2 class="tab">' . $tab['title'] . "</h2>\n";
+        $html = '';
+        $visible = false;
+        $tableClass = $this->isSystem() ? 'settings' : 'settings user-scope';
         foreach ($tab['sections'] ?? [] as $section) {
-            if (!empty($section['title'])) {
-                $html .= '<h3 class="settings-section">' . $section['title'] . "</h3>\n";
+            $rows = array_filter($section['rows'], function (array $row): bool {
+                return in_array($this->scope, $row['scope'] ?? ['system'], true);
+            });
+            if (!$rows) {
+                // その scope に出す行が無い小見出しは出さない
+                continue;
             }
-            $html .= "<table class=\"settings\">\n";
-            foreach ($section['rows'] as $row) {
+            // user・profile は、行が条件ですべて隠れるとき、小見出しと表も隠す（行は送るために残す）
+            $hidden = !$this->isSystem() && count(array_filter($rows, [$this, 'isConditionHidden'])) === count($rows);
+            $visible = $visible || !$hidden;
+            $style = $hidden ? ' style="display:none"' : '';
+            if (!empty($section['title'])) {
+                $html .= '<h3 class="settings-section"' . $style . '>' . $section['title'] . "</h3>\n";
+            }
+            $html .= '<table class="' . $tableClass . '"' . $style . ">\n";
+            foreach ($rows as $row) {
                 $html .= $this->renderRow($row);
             }
             $html .= "</table>\n";
         }
-        return $html . $this->renderEventSection($tab) . "</div>\n";
+        $event = $this->renderEventSection($tab);
+        $html .= $event;
+        if ($html === '') {
+            // その scope に出すものが無いタブは出さない
+            return '';
+        }
+        // 中身がすべて隠れるタブは、タブの見出しも隠す（tabpane.js は隠れた見出しのタブを選ばない）
+        $tabStyle = !$this->isSystem() && !$visible && $event === '' ? ' style="display:none"' : '';
+        return '<div class="tab-page" id="' . hsc($tab['id']) . '">' . "\n"
+            . '<h2 class="tab"' . $tabStyle . '>' . $tab['title'] . "</h2>\n"
+            . $html . "</div>\n";
+    }
+
+    /**
+     * 条件（showIf）に合わず初めから隠れる行。
+     * system は画面の値、user・profile は切り替える欄（ラジオ）が画面に無いのでシステム設定の値で決める
+     */
+    private function isConditionHidden(array $row): bool
+    {
+        if (!isset($row['showIf'])) {
+            return false;
+        }
+        [$name, $expected] = $row['showIf'];
+        $current = $this->isSystem() ? $this->value($name) : (string)($this->stored[$name] ?? '');
+        return $current !== (string)$expected;
     }
 
     /**
@@ -203,7 +298,7 @@ final class EvoSettingsForm
      */
     private function renderEventSection(array $tab): string
     {
-        if (empty($tab['event'])) {
+        if (empty($tab['event']) || !in_array($this->scope, $tab['eventScope'] ?? ['system'], true)) {
             return '';
         }
         $output = evo()->invokeEvent($tab['event']);
@@ -226,12 +321,12 @@ final class EvoSettingsForm
     private function renderRow(array $row): string
     {
         $attr = '';
-        if (isset($row['showIf'])) {
+        if (isset($row['showIf']) && $this->isSystem()) {
             [$name, $expected] = $row['showIf'];
             $attr = ' data-show-if="' . hsc("{$name}={$expected}") . '"';
-            if ($this->value($name) !== (string)$expected) {
-                $attr .= ' style="display:none"';
-            }
+        }
+        if ($this->isConditionHidden($row)) {
+            $attr .= ' style="display:none"';
         }
 
         return "<tr{$attr}>\n"
@@ -276,23 +371,30 @@ final class EvoSettingsForm
                 return $this->resolve($row['before'] ?? '')
                     . $this->textInput($row)
                     . $this->resolve($row['after'] ?? '')
-                    . (($row['br'] ?? true) ? '<br/>' : '') . $this->resolve($row['desc'] ?? '');
+                    . $this->userDefaultBox($row)
+                    . (($row['br'] ?? true) ? '<br/>' : '') . $this->desc($row);
             case 'textarea':
-                return $this->textarea($row) . $this->resolve($row['desc'] ?? '');
+                return $this->textarea($row)
+                    . ($this->userDefaultBox($row) !== '' ? '<br />' . $this->userDefaultBox($row) : '')
+                    . $this->desc($row);
             case 'select':
                 $field = $this->select($row);
                 if ($field === '') {
                     // 選択肢が無い（options が null）ときは、欄を出さず説明だけを出す
-                    return $this->resolve($row['desc'] ?? '');
+                    return $this->desc($row);
                 }
                 return $field
                     . (($row['br'] ?? true) ? '<br/>' : '')
-                    . $this->resolve($row['desc'] ?? '');
+                    . $this->desc($row);
             case 'password':
                 return $this->password($row);
             case 'topmenu':
                 return $this->topmenu($row);
             case 'path':
+                if (!$this->isSystem()) {
+                    // 既定値の表示とリセットは、グローバル設定だけ（空は「システム設定に従う」）
+                    return $this->textInput($row) . '<br/>' . $this->desc($row);
+                }
                 return $this->path($row);
             case 'lang_text':
                 return $this->langText($row);
@@ -323,7 +425,7 @@ final class EvoSettingsForm
             $size,
             $size <= 10 ? sprintf(' style="width:%dem;"', $size) : '',
             !empty($row['disabled']) ? ' disabled' : '',
-            $this->attributes($row['attr'] ?? [])
+            $this->rowAttributes($row)
         );
     }
 
@@ -333,7 +435,7 @@ final class EvoSettingsForm
         return sprintf(
             '<textarea name="%s"%s>%s</textarea>',
             hsc($key),
-            $this->attributes($row['attr'] ?? []),
+            $this->rowAttributes($row),
             hsc($this->value($key, $row))
         );
     }
@@ -342,7 +444,15 @@ final class EvoSettingsForm
     {
         $options = $this->resolve($row['options'] ?? []);
         if (!is_array($options)) {
-            return '';
+            if ($this->isSystem()) {
+                return '';
+            }
+            // ユーザー画面は欄を残す（保存済みの値を選択肢に出す）。選択肢は定義の fallbackOptions
+            $options = $row['fallbackOptions'] ?? [];
+        }
+        if (!$this->isSystem()) {
+            // 空の選択肢は「システム設定に従う」
+            $options = ['' => lang('user_use_config')] + $options;
         }
         $selected = $this->value($row['key'], $row);
         $html = '';
@@ -361,7 +471,7 @@ final class EvoSettingsForm
             '<select name="%s" size="1" class="inputBox"%s%s>%s</select>',
             hsc($row['key']),
             !empty($row['disabled']) ? ' disabled' : '',
-            $this->attributes($row['attr'] ?? []),
+            $this->rowAttributes($row),
             $html
         );
     }
@@ -399,7 +509,7 @@ final class EvoSettingsForm
                 $label
             ) . "\n";
         }
-        return $html . $this->resolve($row['desc'] ?? '');
+        return $html . $this->desc($row);
     }
 
     /**
@@ -432,7 +542,7 @@ final class EvoSettingsForm
                 hsc(lang($langKey))
             ) . "\n"
             . (!empty($row['hiddenBr']) ? '<br/>' : '')
-            . $this->resolve($row['desc'] ?? '');
+            . $this->desc($row);
     }
 
     /**
@@ -445,7 +555,7 @@ final class EvoSettingsForm
             hsc($row['key']),
             self::PASSWORD_MASK,
             $this->attributes($row['attr'] ?? ['style' => 'width: 250px;'])
-        ) . "\n" . $this->resolve($row['desc'] ?? '');
+        ) . "\n" . $this->desc($row);
     }
 
     /**
@@ -459,7 +569,7 @@ final class EvoSettingsForm
                 . $this->textInput(['key' => $key, 'attr' => ['style' => 'width:350px;']])
                 . "</td></tr>\n";
         }
-        return $html . '</table><div>' . $this->resolve($row['desc'] ?? '') . '</div>';
+        return $html . '</table><div>' . $this->desc($row) . '</div>';
     }
 
     /**
@@ -483,7 +593,7 @@ final class EvoSettingsForm
                 hsc(lang('remove'))
             )
             . "</td></tr></table>\n<br />\n"
-            . $this->resolve($row['desc'] ?? '');
+            . $this->desc($row);
     }
 
     /**
@@ -550,7 +660,7 @@ final class EvoSettingsForm
             $changed && $reset === '2' ? ' checked' : '',
             sprintf(lang('template_reset_specific'), hsc($savedName)),
             (int)$savedId
-        ) . $this->resolve($row['desc'] ?? '');
+        ) . $this->desc($row);
     }
 
     /**
@@ -578,7 +688,7 @@ final class EvoSettingsForm
                 hsc($reset),
                 hsc(lang('reset'))
             ) . "\n"
-            . $this->resolve($row['desc'] ?? '');
+            . $this->desc($row);
     }
 
     /**
@@ -586,12 +696,71 @@ final class EvoSettingsForm
      */
     private function value(string $key, array $row = []): string
     {
+        if (!$this->isSystem() && isset($row['userValue'])) {
+            return (string)$row['userValue']($this->values, $this->stored);
+        }
         $value = $this->values[$key] ?? '';
         $value = is_scalar($value) ? (string)$value : '';
-        if ($value === '' && isset($row['default'])) {
+        // user・profile は、空を既定値で補わない（空は「システム設定に従う」のまま出す）
+        if ($value === '' && isset($row['default']) && $this->isSystem()) {
             return (string)$this->resolve($row['default']);
         }
         return $value;
+    }
+
+    private function isSystem(): bool
+    {
+        return $this->scope === 'system';
+    }
+
+    /**
+     * 説明。user・profile は userDesc があればそれを出す
+     */
+    private function desc(array $row)
+    {
+        $desc = !$this->isSystem() && isset($row['userDesc']) ? $row['userDesc'] : ($row['desc'] ?? '');
+        return $this->resolve($desc);
+    }
+
+    /**
+     * 欄に足す属性。user・profile は userAttr を重ねる
+     */
+    private function rowAttributes(array $row): string
+    {
+        $attr = $row['attr'] ?? [];
+        if (!$this->isSystem()) {
+            $attr = array_merge($attr, $row['userAttr'] ?? []);
+        }
+        return $this->attributes($attr);
+    }
+
+    /**
+     * 差し戻した画面では、送ったときのチェックを優先する。そうでなければ、ユーザーの値が無いとき
+     */
+    private function isFollowingSystem(string $key): bool
+    {
+        $sent = $this->values["default_{$key}"] ?? null;
+        if ($sent !== null) {
+            return (string)$sent === '1';
+        }
+        return ($this->values[$key] ?? null) === null;
+    }
+
+    /**
+     * 「システム設定に従う」のチェックボックス（user・profile の userDefault の行）。
+     * ユーザーの値が無いとき（保存すると値を持たない）にチェックを付ける
+     */
+    private function userDefaultBox(array $row): string
+    {
+        if ($this->isSystem() || empty($row['userDefault'])) {
+            return '';
+        }
+        return sprintf(
+            '&nbsp;&nbsp;<label><input type="checkbox" name="default_%s" value="1"%s /> %s</label>',
+            hsc($row['key']),
+            $this->isFollowingSystem($row['key']) ? ' checked="checked"' : '',
+            lang('user_use_config')
+        );
     }
 
     /**

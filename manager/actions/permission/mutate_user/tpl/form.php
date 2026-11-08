@@ -1,23 +1,14 @@
-<style type="text/css">
-    table.settings {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    table.settings tr {
-        border-bottom: 1px dotted #ccc;
-    }
-
-    table.settings th {
-        font-size: inherit;
-        vertical-align: top;
-        text-align: left;
-    }
-
-    table.settings th, table.settings td {
-        padding: 5px;
-    }
-</style>
+<?php
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
+// 管理画面・エディター・ファイルのタブは、グローバル設定と同じ設定の定義から描く（ユーザーごとに変えられる行だけ）
+$settingsForm = new EvoSettingsForm(
+    EvoSettingsForm::definition(),
+    $user,
+    EvoSettingsForm::storedValues(),
+    'user'
+);
+echo EvoSettingsForm::style();
+?>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
     <input type="hidden" name="mode" value="<?= $action ?>">
     <input type="hidden" name="userid" value="<?= $userid ?>">
@@ -44,14 +35,8 @@
             <div class="tab-page" id="tabSettings">
                 <?php include __DIR__ . '/form/tab_settings.php'; ?>
             </div>
-            <!-- Interface & editor settings -->
-            <div class="tab-page" id="tabPage5">
-                <?php include __DIR__ . '/form/tab_page5.php'; ?>
-            </div>
-            <!-- Miscellaneous settings -->
-            <div class="tab-page" id="tabPage7">
-                <?php include __DIR__ . '/form/tab_page7.php'; ?>
-            </div>
+            <!-- 管理画面・エディター・ファイルの設定 -->
+            <?= $settingsForm->render() ?>
             <?php
             if ($modx->config['use_udperms'] == 1) {
                 echo '<div class="tab-page" id="tabAccess">';

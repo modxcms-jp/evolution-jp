@@ -9,6 +9,7 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
 }
 
 include_once __DIR__ . '/mutate_user/form_values.php';
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 $userid = (int) evo()->getLoginUserID();
 
@@ -65,12 +66,13 @@ function userData($key, $default = null)
     return $userdata[$key] ?? $default;
 }
 
-function setting($key, $default = null)
-{
-    global $usersettings;
-
-    return $usersettings[$key] ?? $default;
-}
+// 管理画面・エディターのタブ（値は差し戻し込みの $usersettings）
+$settingsForm = new EvoSettingsForm(
+    EvoSettingsForm::definition(),
+    $usersettings,
+    EvoSettingsForm::storedValues(),
+    'profile'
+);
 
 // include the country list language file
 $_country_lang = [];
@@ -163,27 +165,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     </div>
     <!-- Tab Start -->
     <div class="sectionBody">
-        <style type="text/css">
-            table.settings {
-                border-collapse: collapse;
-                width: 100%;
-            }
-
-            table.settings tr {
-                border-bottom: 1px dotted #ccc;
-            }
-
-            table.settings th {
-                font-size: inherit;
-                vertical-align: top;
-                text-align: left;
-            }
-
-            table.settings th,
-            table.settings td {
-                padding: 5px;
-            }
-        </style>
+        <?= EvoSettingsForm::style() ?>
         <div class="tab-pane" id="userPane">
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">
@@ -341,124 +323,16 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 </table>
             </div>
 
-            <!-- Interface & editor settings -->
-            <div class="tab-page" id="tabPage5">
-                <h2 class="tab"><?= $_lang["settings_ui"] ?></h2>
-                <table class="settings">
-                    <tr>
-                        <th><?= $_lang["manager_theme"] ?></th>
-                        <td><select name="manager_theme" size="1" class="inputBox"
-                                onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
-                                <option value=""><?= $_lang["user_use_config"] ?></option>
-                                <?php
-                                $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
-                                foreach ($files as $file) {
-                                    $file = str_replace('\\', '/', $file);
-                                    if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
-                                        $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
-                                        $selectedtext = $themename == setting('manager_theme') ? "selected='selected'" : "";
-                                        echo "<option value='$themename' $selectedtext>" . ucwords(str_replace(
-                                            "_",
-                                            " ",
-                                            $themename
-                                        )) . "</option>";
-                                    }
-                                }
-                                ?>
-                            </select><input type="hidden" name="theme_refresher" value="">
-                            <div><?= $_lang["manager_theme_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= $_lang["a17_manager_inline_style_title"] ?></th>
-                        <td>
-                            <textarea name="manager_inline_style" id="manager_inline_style"
-                                style="width:95%; height: 9em;"><?= hsc(setting('manager_inline_style')) ?></textarea><br />
-                            &nbsp;&nbsp; <label><input type="checkbox" id="default_manager_inline_style"
-                                    name="default_manager_inline_style"
-                                    value="1" <?= isset($usersettings['manager_inline_style']) ? '' : 'checked' ?> /> <?= $_lang["user_use_config"] ?>
-                            </label>
-                            <div><?= $_lang["a17_manager_inline_style_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= $_lang["mgr_login_start"] ?></th>
-                        <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                value="<?= hsc(post_strvar('manager_login_startup', setting('manager_login_startup'))) ?>">
-                            <div><?= $_lang["mgr_login_start_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= $_lang["language_title"] ?></th>
-                        <td><select name="manager_language" size="1" class="inputBox">
-                                <option value=""><?= $_lang["user_use_config"] ?></option>
-                                <?php
-                                $activelang = (!empty(setting('manager_language'))) ? setting('manager_language') : '';
-                                $dir = dir(MODX_CORE_PATH . 'lang');
-                                while ($file = $dir->read()) {
-                                    if (strpos($file, '.inc.php') !== false) {
-                                        $endpos = strpos($file, ".");
-                                        $languagename = trim(substr($file, 0, $endpos));
-                                        $selectedtext = selected($activelang === $languagename);
-                                ?>
-                                        <option
-                                            value="<?= $languagename ?>" <?= $selectedtext ?>><?= ucwords(str_replace(
-                                                                                                    "_",
-                                                                                                    " ",
-                                                                                                    $languagename
-                                                                                                )); ?></option>
-                                <?php
-                                    }
-                                }
-                                $dir->close();
-                                ?>
-                            </select>
-                            <div><?= $_lang["language_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr id="editorRow0" style="display: <?= setting('use_editor', evo()->config('use_editor')) == 1 ? 'table-row' : 'none' ?>">
-                        <th><?= $_lang["which_editor_title"] ?></th>
-                        <td>
-                            <select name="which_editor" class="inputBox">
-                                <option value=""><?= $_lang["user_use_config"] ?></option>
-                                <?php
-                                $edt = setting('which_editor');
-                                // invoke OnRichTextEditorRegister event
-                                $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
-                                echo '<option value="none"' . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
-                                if (is_array($evtOut)) {
-                                    for ($i = 0; $i < count($evtOut); $i++) {
-                                        $selected = selected($edt == $evtOut[$i]);
-                                        echo sprintf('<option value="%s"%s>%s</option>', hsc($evtOut[$i]), $selected, hsc($evtOut[$i]));
-                                    }
-                                }
-                                ?>
-                            </select>
-                            <div><?= $_lang["which_editor_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr id="editorRow14" class="row3"
-                        style="display: <?= setting('use_editor', evo()->config('use_editor')) == 1 ? 'table-row' : 'none' ?>">
-                        <th><?= $_lang["editor_css_path_title"] ?></th>
-                        <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
-                                value="<?= hsc(setting('editor_css_path')) ?>" />
-                            <div><?= $_lang["editor_css_path_message"] ?></div>
-                        </td>
-                    </tr>
-                    <tr class='row1'>
-                        <td colspan="2" style="padding:0;">
-                            <?php
-                            // invoke OnInterfaceSettingsRender event
-                            $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
-                            if (is_array($evtOut)) {
-                                echo implode('', $evtOut);
-                                $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode('', $evtOut)));
-                            }
-                            ?>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <!-- 管理画面・エディターの設定（グローバル設定と同じ定義から、プロフィールで変えられる行だけを描く） -->
+            <?php
+            $settingsHtml = $settingsForm->render();
+            echo $settingsHtml;
+            // 本体の欄の名前は names('profile') から引くので、プラグインの欄だけを覚える
+            $pluginSettingNames = array_merge(
+                $pluginSettingNames,
+                array_diff(fieldNames($settingsHtml), EvoSettingsForm::names('profile'))
+            );
+            ?>
         </div>
     </div>
     <input type="submit" name="save" style="display:none">
