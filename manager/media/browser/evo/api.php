@@ -8,14 +8,14 @@
  * type はピッカーだけが付けるパラメーター(images / media / files)。管理モードは付けない。
  *
  * GET  action=list   (type, folder, foldersOnly?)             -> {folder, folders:[{name,hasChildren,mtime}], files:[...], writable}
- *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。
+ *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。thumb はラスター画像なら 'api'(action=thumb で取る)、svg なら url、それ以外は null。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
- *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true、ラスターなら width,height。
- *                     全ファイル(ドットで始まる名前も)を出し、サムネイルは作らない。urlはサイトのルートの外なら null
+ *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true と thumb(ラスターは 'api'、svg は url、それ以外は null)、ラスターなら width,height。
+ *                     全ファイル(ドットで始まる名前も)を出す。一覧ではサムネイルを作らず、action=thumb で作る。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの files の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
- * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(ピッカーだけ)
+ * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(縮小したもの)
  * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,url}], errors:[{index,name,message,code?,targetName?}]}
  *                     index は files[] の順番(0 から)。画面はこれで、送ったファイルと結果を対応づける
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
@@ -204,6 +204,18 @@ function fbReadDir(PathResolver $resolver, BrowserScope $scope, $folder, $folder
     return ['dir' => $dir, 'folders' => $folders, 'files' => $files];
 }
 
+/**
+ * 一覧の thumb の値。ラスター画像は 'api'(フロントが apiUrl 基準で action=thumb の URL を組み立てる。
+ * モーダル時の相対パス差異を吸収する)、svg は元の URL、それ以外は null
+ */
+function fbThumbSource($ext, $fileUrl)
+{
+    if (ThumbnailService::isRasterImageExtension($ext)) {
+        return 'api';
+    }
+    return strtolower($ext) === 'svg' ? $fileUrl : null;
+}
+
 function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
@@ -225,7 +237,6 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
 
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $isSvg = ($ext === 'svg');
         $isRaster = ThumbnailService::isRasterImageExtension($ext);
 
         // url: ブラウザ内表示用の絶対URL。パスの要素ごとにエンコードする
@@ -241,21 +252,13 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             }
         }
 
-        // 'api': フロントがapiUrl基準でthumb URLを組み立てる(モーダル時の相対パス差異を吸収)
-        $thumbUrl = null;
-        if ($isRaster) {
-            $thumbUrl = 'api';
-        } elseif ($isSvg) {
-            $thumbUrl = $fileUrl;
-        }
-
         $item = [
             'name' => $file['name'],
             'size' => $file['size'],
             'mtime' => $file['mtime'],
             'url' => $fileUrl,
             'path' => $filePath,
-            'thumb' => $thumbUrl,
+            'thumb' => fbThumbSource($ext, $fileUrl),
             'width' => $width,
             'height' => $height,
         ];
@@ -273,7 +276,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
     ]);
 }
 
-/** 管理モードの一覧。サムネイルは作らない(vendor のような数の多いフォルダでも temp/thumbs/ へ大量に書き出さないため) */
+/** 管理モードの一覧。サムネイルは一覧では作らず、画面が <img loading="lazy"> で、見える位置に近づいた分だけ action=thumb で取りに来る */
 function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
@@ -292,6 +295,7 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
         // 画像と決まったものだけ <img> で出す(.php を GET で実行したり、大きなファイルを丸ごと読んだりしない)
         if (ThumbnailService::isDisplayableImageExtension($ext)) {
             $item['image'] = true;
+            $item['thumb'] = fbThumbSource($ext, $item['url']);
         }
         if (ThumbnailService::isRasterImageExtension($ext)) {
             $dimensions = @getimagesize($file['fullPath']);
@@ -332,7 +336,7 @@ function fbDirHasSubdirs($dir, BrowserScope $scope)
     return false;
 }
 
-function fbActionThumb(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
+function fbActionThumb(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
 {
     $folder = getv('folder', '');
     $dir = $resolver->resolveDir($folder);
@@ -542,6 +546,12 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
         if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
             $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
+        }
+
+        // 上書きで置き換えたファイルの古いサムネイルを捨てる(同じ秒のうちの置き直しでも古い縮小が返らないように)
+        $thumbSource = realpath($targetPath);
+        if ($thumbSource !== false) {
+            (new ThumbnailService(MODX_BASE_PATH . 'temp/thumbs/'))->forget(str_replace('\\', '/', $thumbSource));
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る

@@ -104,6 +104,16 @@ export function createGrid(ctx) {
         return file.thumb;
     }
 
+    // サムネイルを読めなかった(404・500 など)ときは、壊れた画像の印ではなくアイコンにする。
+    // img の error はバブリングしないので capture で受ける。gridEl はこの画面のもので、一覧を描き直しても残る
+    gridEl.addEventListener('error', function (e) {
+        var img = e.target;
+        if (!img || img.tagName !== 'IMG' || !img.classList.contains('evo-fb-thumb-img')) {
+            return;
+        }
+        img.parentNode.innerHTML = fileIcon(40);
+    }, true);
+
     function fileItemHtml(file) {
         var src = thumbSrc(file);
         var thumb = src

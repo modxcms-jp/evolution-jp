@@ -17,14 +17,20 @@ class PathGuard
         $this->protectedPaths = $protectedPaths;
     }
 
-    /** 権限の無い利用者に対して守る場所の一覧。管理者は空 */
+    /**
+     * 守る場所の一覧。temp/thumbs/(ThumbnailService の保存先)は管理者も含めて常に守る。
+     * 縮小版は元の画像の権限の確認を通らずに置かれるので、ここを一覧・ダウンロードで読ませると、元の画像の認可を迂回できてしまう。
+     * 縮小版は action=thumb が元の画像の確認を通した上で返す。ThumbnailService 自身の書き込みは、この一覧を通らない。
+     * 権限の無い利用者には、これに権限ごとの場所が加わる。管理者はこれだけ
+     */
     public static function protectedPathsFor(DocumentParser $modx)
     {
         if (manager()->isAdmin()) {
-            return [];
+            return [base_path() . 'temp/thumbs'];
         }
 
         $protected = [
+            base_path() . 'temp/thumbs',
             base_path() . 'manager',
             base_path() . 'temp/backup',
             base_path() . 'assets/backup'
