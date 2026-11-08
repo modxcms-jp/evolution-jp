@@ -92,10 +92,25 @@ body.evo-shell.tree-hidden > #treePane {
     display: none;
 }
 
+/* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */
+body.evo-shell #treeRoot {
+    margin-top: var(--space-1, 4px);
+}
+
 /* ツリー内の高さ計算をJSからCSSへ移行 */
 body.evo-shell #treeHolder {
     height: auto;
     overflow: visible;
+}
+
+/*
+ * ツリーの行のアイコン（＋/－・フォルダ・ページ）の縦位置を、日本語の文字の絵の中心に合わせる。
+ * 各テーマの vertical-align: middle は「ベースライン＋小文字xの高さの半分」に中心を置くため、
+ * 日本語では文字より下がって見える。行の高さが変わらないよう、位置だけを文字の大きさに比例して上げる。
+ */
+body.evo-shell #treeRoot div img {
+    position: relative;
+    top: -.08em;
 }
 
 body.evo-shell #floater {

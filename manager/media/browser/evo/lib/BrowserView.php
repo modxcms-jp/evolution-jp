@@ -82,7 +82,7 @@ class BrowserView
         $markup = '';
         $markup .= '<div class="evo-fb' . ($classes === '' ? '' : ' ' . hsc($classes)) . '" id="evoFileBrowser" data-config="' . htmlspecialchars(json_encode($jsConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') . '">';
         $markup .= '  <div class="evo-fb-toolbar">';
-        $markup .= '    <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-action="toggle-tree" aria-expanded="true" aria-controls="evoFbTree" title="' . hsc(lang('fb_toggle_tree')) . '" aria-label="' . hsc(lang('fb_toggle_tree')) . '">☰</button>';
+        $markup .= '    <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-action="toggle-tree" aria-expanded="true" aria-controls="evoFbTree" title="' . hsc(lang('fb_toggle_tree')) . '" aria-label="' . hsc(lang('fb_toggle_tree')) . '"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M3 4h18v16H3zm7 2v12h9V6z"/></svg></button>';
         $markup .= '    <div class="evo-fb-path" data-role="path"></div>';
         $markup .= '    <div class="evo-fb-toolbar-actions">';
         $markup .= '      <input type="search" class="evo-fb-search" data-role="search" placeholder="' . hsc(lang('fb_search_placeholder')) . '">';
@@ -92,7 +92,7 @@ class BrowserView
         $markup .= '        <option value="size">' . hsc(lang('fb_sort_size')) . '</option>';
         $markup .= '        <option value="type">' . hsc(lang('fb_sort_type')) . '</option>';
         $markup .= '      </select>';
-        $markup .= '      <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-role="view-toggle" title="' . hsc(lang('fb_toggle_view')) . '">☷</button>';
+        $markup .= '      <button type="button" class="evo-fb-btn evo-fb-icon-toggle" data-role="view-toggle" title="' . hsc(lang('fb_toggle_view')) . '" aria-label="' . hsc(lang('fb_toggle_view')) . '"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg></button>';
         $markup .= '      <button type="button" class="evo-fb-btn" data-action="mkdir">' . hsc(lang('fb_new_folder')) . '</button>';
         $markup .= '      <button type="button" class="evo-fb-btn" data-action="upload">' . hsc(lang('fb_upload')) . '</button>';
         $markup .= '      <button type="button" class="evo-fb-btn" data-action="paste" hidden>' . hsc(lang('fb_paste')) . '</button>';

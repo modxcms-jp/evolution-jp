@@ -122,9 +122,28 @@
     width: 12em;
 }
 
+/* アイコンだけのボタン。テーマの button { width: 112px } などを受けず、正方形にしてアイコンを真ん中に置く */
 .evo-fb-icon-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
     line-height: 1;
-    padding: var(--space-1, 4px) var(--space-2, 8px);
+    color: var(--color-text-muted, #555);
+}
+
+.evo-fb-icon-toggle svg {
+    display: block;
+}
+
+/* ツリーを開いているときは押された見た目にする */
+.evo-fb-icon-toggle[aria-expanded="true"] {
+    background: var(--gray-100, #f5f5f5);
+    color: var(--color-text-primary, #333);
 }
 
 .evo-fb-selectionbar {
