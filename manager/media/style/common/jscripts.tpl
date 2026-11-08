@@ -72,10 +72,7 @@
             // 従来の return false と同じく、既定の動作と伝播を止める
             e.preventDefault();
             e.stopPropagation();
-            if (prevWin && !prevWin.closed) {
-                prevWin.close();
-            }
-
+            // 同じ名前の窓が開いていれば window.open がそれを返すので、閉じずに使い回す
             var previewUrl = [+preview_url+];
             var mutate = document.getElementById('mutate');
             var pmode = [+preview_mode+];
@@ -83,11 +80,28 @@
                 // 保存済みの内容を見る（新規作成のときもここ）。z=manprev でプレビューモードにする
                 previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
                 prevWin = window.open(previewUrl, 'prevWin');
+                if (prevWin) prevWin.focus();
                 return;
             }
 
             // 編集中の内容を見る。ポップアップブロックを避けるため、窓はクリックの時点で先に開く
             prevWin = window.open('', 'prevWin');
+            if (!prevWin) {
+                // ポップアップがブロックされた
+                alert([+lang_error_occurred+]);
+                return;
+            }
+            var win = prevWin;
+            // 使い回しの窓の中身（前のプレビュー）は消さない。何も表示していない新しい窓だけ、失敗や画面の移動で閉じる
+            var closeBlank = function () {
+                try {
+                    if (!win.closed && win.location.href === 'about:blank') win.close();
+                } catch (err) {
+                    // 読めない窓は触らない
+                }
+            };
+            // セッション切れでログインへ移るとき（Evo.fetch は Promise を解決しない）、空の窓を残さない
+            window.addEventListener('pagehide', closeBlank, { once: true });
             // エディタの内容をフォームへ書き戻す（保存の submit でも同じ書き戻しが走る）
             if (window.tinymce && typeof window.tinymce.triggerSave === 'function') {
                 window.tinymce.triggerSave();
@@ -95,7 +109,8 @@
             var fd = new FormData(mutate);
             fd.set('a', 309);
             var failed = function () {
-                if (prevWin && !prevWin.closed) prevWin.close();
+                window.removeEventListener('pagehide', closeBlank);
+                closeBlank();
                 alert([+lang_error_occurred+]);
             };
             // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
@@ -106,7 +121,9 @@
                 })
                 .then(function (data) {
                     if (!data || !data.url) throw new Error('no url');
-                    prevWin.location.href = data.url;
+                    window.removeEventListener('pagehide', closeBlank);
+                    win.location.href = data.url;
+                    win.focus();
                 })
                 .catch(failed);
         });
