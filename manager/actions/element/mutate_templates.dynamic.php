@@ -81,11 +81,8 @@ template('id');
                             onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();"><?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
-                        <select id="stay" name="stay">
-                            <option id="stay1"
-                                    value="1" <?= selected(get_intvar('stay') === 1) ?>><?= lang('stay_new') ?></option>
-                            <option id="stay2" value="2" <?= selected(get_intvar('stay') === 2) ?>><?= lang('stay') ?></option>
-                            <option id="stay3" value="" <?= selected(!get_intvar('stay')) ?>><?= lang('close') ?></option>
+                        <select id="stay" name="after_save">
+                            <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), true) ?>
                         </select>
                     </li>
                 <?php endif; ?>
@@ -309,7 +306,7 @@ template('id');
         </div>
     </form>
     <script>
-        var tpstatus = <?= (config('remember_last_tab') == 2 || get_intvar('stay') === 2) ? 'true' : 'false' ?>;
+        var tpstatus = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
         tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
         // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
         (function () {

@@ -182,10 +182,6 @@ if (
 
 manager()->setView(manager()->action);
 
-if (post_strvar('stay') && post_strvar('stay') !== 'new') {
-    $_SESSION['saveAfter'] = post_strvar('stay');
-}
-
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin.
 //   ex)$modx->event->setGlobalVariable('action',999);

@@ -109,36 +109,6 @@ function blockedmode($user)
     return isUserBlocked($user) ? '1' : '0';
 }
 
-function saveOptions()
-{
-    $option = [];
-    $option[] = html_tag(
-        'option',
-        [
-            'value' => 'next',
-            'selected' => request_strvar('save_action') === 'next' ? null : ''
-        ],
-        lang('stay_new')
-    );
-    $option[] = html_tag(
-        'option',
-        [
-            'value' => 'stay',
-            'selected' => request_strvar('save_action') === 'stay' ? null : ''
-        ],
-        lang('stay')
-    );
-    $option[] = html_tag(
-        'option',
-        [
-            'value' => 'close',
-            'selected' => request_strvar('save_action', 'close') === 'close' ? null : ''
-        ],
-        lang('close')
-    );
-    return $option;
-}
-
 function aButtonSave()
 {
     if (!hasPermission('save_user')) {
@@ -167,9 +137,9 @@ function aButtonSave()
                 'select',
                 [
                     'id' => 'stay',
-                    'name' => 'save_action'
+                    'name' => 'after_save'
                 ],
-                implode("\n", saveOptions())
+                EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), true)
             )
     );
 }

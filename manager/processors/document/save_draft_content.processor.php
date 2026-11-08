@@ -68,26 +68,28 @@ if ($parent !== $currentParent) {
     }
 }
 
-$stay = post_choicevar('stay', ['new', 'stay', 'save_draft', 'save_standby'], '');
-if ($stay === 'save_standby') {
+$afterSave = EvoFormFlow::postedAfterSave(['save_draft', 'save_standby']);
+// 次に文書の画面を開いたときの既定として覚える（下書きの採用は覚えても文書の画面では「閉じる」になる）
+EvoFormFlow::rememberDocumentAfterSave($afterSave);
+if ($afterSave === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {
     $rs = $modx->revision->save($id, $fields, 'draft');
 }
 
-if ($stay === 'new') {
+if ($afterSave === 'new') {
     header(
         sprintf('Location: index.php?a=131&id=%s&r=1', $id)
     );
     return;
 }
-if ($stay === 'stay') {
+if ($afterSave === 'stay') {
     header(
-        sprintf('Location: index.php?a=131&id=%s&stay=stay', $id)
+        sprintf('Location: index.php?a=131&id=%s&after_save=stay', $id)
     );
     return;
 }
-if (in_array($stay, ['save_draft', 'save_standby'], true)) {
+if (in_array($afterSave, ['save_draft', 'save_standby'], true)) {
     header(
         sprintf('Location: index.php?a=133&id=%s&r=1', $id)
     );

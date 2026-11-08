@@ -820,7 +820,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
-        'remember_last_tab' => (config('remember_last_tab') === '2' || (config('remember_last_tab') === '1' && get_strvar('stay') === 'stay')) ? 'true' : 'false'
+        'remember_last_tab' => EvoFormFlow::rememberTab() ? 'true' : 'false'
     ];
 }
 

@@ -102,7 +102,7 @@ class ManagerAPI
     {
         $mode = $id ? 'edit' : 'new';
         $this->saveFormValues(EvoFormFlow::screen($kind, $mode));
-        evo()->webAlertAndQuit($message, EvoFormFlow::formUrl($kind, $mode, (int)$id));
+        evo()->webAlertAndQuit($message, EvoFormFlow::formUrl($kind, $mode, (int)$id, EvoFormFlow::postedAfterSave()));
         exit;
     }
 

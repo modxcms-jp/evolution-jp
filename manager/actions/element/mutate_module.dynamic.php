@@ -172,15 +172,8 @@ function content($key, $default = null)
                         <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
-                    <select id="stay" name="stay">
-                        <?php if (evo()->hasPermission('new_module')) { ?>
-                            <option id="stay1"
-                                value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
-                        <?php } ?>
-                        <option id="stay2"
-                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                    <select id="stay" name="after_save">
+                        <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), evo()->hasPermission('new_module')) ?>
                     </select>
                 </li>
             <?php endif; ?>
@@ -493,7 +486,7 @@ function content($key, $default = null)
     ?>
 </form>
 <script type="text/javascript">
-    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
+    var tpstatus = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
     tpModule = new WebFXTabPane(document.getElementById("modulePane"), tpstatus);
     setTimeout('showParameters();', 10);
 </script>

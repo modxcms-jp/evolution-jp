@@ -290,13 +290,8 @@ function entity($key, $default = null)
                         <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
-                    <select id="stay" name="stay">
-                        <option id="stay1"
-                            value="1" <?= selected(request_intvar('stay') === 1) ?>><?= $_lang['stay_new'] ?></option>
-                        <option id="stay2"
-                            value="2" <?= selected(request_intvar('stay') === 2) ?>><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                            value="" <?= selected(!request_intvar('stay')) ?>><?= $_lang['close'] ?></option>
+                    <select id="stay" name="after_save">
+                        <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), true) ?>
                     </select>
                 </li>
             <?php endif; ?>
@@ -589,7 +584,7 @@ function entity($key, $default = null)
         </div>
     </div>
     <script>
-        var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false'; ?>;
+        var tpstatus = <?= EvoFormFlow::rememberTab() ? 'true' : 'false'; ?>;
         tp = new WebFXTabPane(document.getElementById("pluginPane"), tpstatus);
     </script>
     <?php

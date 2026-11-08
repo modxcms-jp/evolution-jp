@@ -16,6 +16,10 @@ if (!postedMode() || ($hasPostedId && !post_intvar('id')) || (mode() === 'edit' 
     alert()->dumpError();
 }
 
+// 保存の画面で選んだ「保存後」を、次に文書の画面を開いたときの既定として覚える
+$afterSave = EvoFormFlow::postedAfterSave();
+EvoFormFlow::rememberDocumentAfterSave($afterSave);
+
 include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
 evo()->loadExtension('DocAPI');
 // global $form_v;
@@ -72,7 +76,7 @@ if (mode() === 'new') {
     evo()->event->vars = ['mode' => 'new', 'id' => $newid];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
-    goNextAction($newid, validated('parent'), validated('stay'), validated('type'));
+    goNextAction($newid, validated('parent'), $afterSave, validated('type'));
     return;
 }
 
@@ -147,7 +151,7 @@ if (mode() === 'edit') {
     // invoke OnDocFormSave event
     evo()->event->vars = ['mode' => 'upd', 'id' => validated('id')];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
-    goNextAction(validated('id'), validated('parent'), validated('stay'), validated('type'));
+    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'));
     return;
 }
 
@@ -405,10 +409,8 @@ function _check_duplicate_alias($id, $alias, $parent)
     evo()->manager->saveFormValues(postedMode());
     $url = formReturnUrl();
 
-    $stay = request_choicevar('stay', ['new', 'stay', 'close', 'save_draft', 'save_standby'], '');
-    if ($stay) {
-        $url .= '&stay=' . $stay;
-    }
+    // 戻った画面の選択欄の既定は直前の保存の選択（セッション）とは限らないので、close も含めて引き継ぐ
+    $url .= '&after_save=' . EvoFormFlow::postedAfterSave();
 
     evo()->webAlertAndQuit(
         sprintf(
@@ -858,24 +860,25 @@ function updateParentStatus($parent)
 }
 
 // redirect/stay options
-function goNextAction($id, $parent, $next, $type)
+function goNextAction($id, $parent, $afterSave, $type)
 {
-    if ($next === 'new') {
-        if ($type === 'document') {
-            header(
-                sprintf('Location: index.php?a=4&pid=%s&r=1&stay=new', $parent)
-            );
-            return;
-        }
-        header(
-            sprintf('Location: index.php?a=72&pid=%s&r=1&stay=new', $parent)
-        );
+    if ($afterSave === 'new') {
+        $kind = $type === 'document' ? 'document' : 'weblink';
+        header('Location: ' . EvoFormFlow::url([
+            'a' => EvoFormFlow::screen($kind, 'new'),
+            'pid' => $parent,
+            'r' => 1,
+            'after_save' => 'new',
+        ]));
         return;
     }
-    if ($next === 'stay') {
-        header(
-            sprintf('Location: index.php?a=27&id=%s&r=1&stay=stay', $id)
-        );
+    if ($afterSave === 'stay') {
+        header('Location: ' . EvoFormFlow::url([
+            'a' => EvoFormFlow::screen('document', 'edit'),
+            'id' => $id,
+            'r' => 1,
+            'after_save' => 'stay',
+        ]));
         return;
     }
     if ($parent) {

@@ -136,12 +136,11 @@ function saveUserSettings($id)
         'user_groups',
         'mode',
         'blockedmode',
-        'stay',
+        'after_save',
         'save',
         'theme_refresher',
         'userid',
         'csrf_token',
-        'save_action',
         'blockedcheck',
         'changed_settings'
     ];
@@ -295,13 +294,13 @@ function systemSettings()
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    $mode = saveUserMode();
-    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], '');
-    $url = 'index.php?a=' . ($mode ?: 75)
-        . ($mode === 12 ? '&id=' . post_intvar('userid') : '')
-        . ($saveAction !== '' ? '&save_action=' . $saveAction : '');
-    evo()->manager->saveFormValues($mode);
-    evo()->webAlertAndQuit($msg, $url);
+    $mode = EvoFormFlow::postedMode('user');
+    // 新規・更新・プロフィールでないとき（不正な mode）は、入力を残さずに一覧へ戻す
+    evo()->manager->saveFormValues($mode ? EvoFormFlow::screen('user', $mode) : 0);
+    evo()->webAlertAndQuit(
+        $msg,
+        EvoFormFlow::formUrl('user', $mode, post_intvar('userid'), EvoFormFlow::postedAfterSave())
+    );
 }
 
 // Generate password
@@ -566,18 +565,7 @@ function newUser()
     }
     // end of user_groups stuff!
 
-    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], 'next');
-    if ($saveAction === 'stay') {
-        $stayUrl = sprintf(
-            'index.php?a=12&id=%d&r=3&save_action=%s',
-            $internalKey,
-            $saveAction
-        );
-    } elseif ($saveAction === 'close') {
-        $stayUrl = 'index.php?a=75&r=3';
-    } else {
-        $stayUrl = sprintf('index.php?a=11&r=3&save_action=%s', $saveAction);
-    }
+    $stayUrl = EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['r' => 3]);
 
     if (post_strvar('passwordnotifymethod') === 'e') {
         sendMailMessage(
@@ -738,43 +726,18 @@ function updateUser()
         evo()->webAlertAndQuit(lang('save_user_relogin'), 'index.php?a=75');
         exit;
     }
-    $saveAction = post_choicevar('save_action', ['next', 'stay', 'close'], 'next');
+    $afterSave = EvoFormFlow::postedAfterSave();
     if (!$changePassword || $notifyMethod !== 's') {
         if (saveUserMode() === 74) {
             header('Location: ' . 'index.php?r=3&a=2');
             exit;
         }
-        if ($saveAction === 'stay') {
-            header(sprintf(
-                'Location: index.php?a=%d&id=%d&r=3&save_action=%s',
-                saveUserMode(),
-                $userid,
-                $saveAction
-            ));
-            exit;
-        }
-        if ($saveAction !== 'close') {
-            header(sprintf(
-                'Location: index.php?a=11&r=3&save_action=%s',
-                $saveAction
-            ));
-            exit;
-        }
-        header('Location: ' . 'index.php?a=75&r=3');
+        header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['r' => 3]));
         exit;
     }
 
-    if ($isSelf) {
-        $stayUrl = 'index.php?a=8';
-    } elseif ($saveAction !== 'close') {
-        $stayUrl = sprintf(
-            'index.php?a=%s&save_action=%s',
-            ($saveAction === 'stay') ? sprintf('%d&id=%d', saveUserMode(), $userid) : '11',
-            $saveAction
-        );
-    } else {
-        $stayUrl = 'index.php?a=75';
-    }
+    // パスワードを画面に表示するときの「閉じる」。ツリーの読み直し（r）は付けない
+    $stayUrl = $isSelf ? 'index.php?a=8' : EvoFormFlow::afterSaveUrl('user', $userid, $afterSave);
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <h1><?= lang('user_title') ?></h1>

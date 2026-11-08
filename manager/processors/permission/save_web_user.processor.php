@@ -521,7 +521,7 @@ function webAlert($msg)
     $mode = EvoFormFlow::postedMode('web_user');
     // 新規か更新でないとき（不正な mode）は、入力を今の画面の番号で残して一覧へ戻す
     manager()->saveFormValues($mode ? EvoFormFlow::screen('web_user', $mode) : 0);
-    $modx->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, (int)$id));
+    $modx->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, (int)$id, EvoFormFlow::postedAfterSave()));
 }
 
 // Generate password
