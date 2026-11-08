@@ -180,7 +180,6 @@ function run()
 function importFiles($parent, $filedir, $files, $mode)
 {
     global $_lang, $allowedfiles;
-    global $search_default, $cache_default, $publish_default;
 
     $createdby = evo()->getLoginUserID();
     if (!is_array($files)) {
@@ -203,13 +202,13 @@ function importFiles($parent, $filedir, $files, $mode)
             $field = [];
             $field['type'] = 'document';
             $field['contentType'] = 'text/html';
-            $field['published'] = $publish_default;
+            $field['published'] = config('publish_default');
             $field['parent'] = $parent;
             $field['alias'] = evo()->stripAlias($alias);
             $field['richtext'] = $richtext;
             $field['template'] = evo()->config('default_template');
-            $field['searchable'] = $search_default;
-            $field['cacheable'] = $cache_default;
+            $field['searchable'] = config('search_default');
+            $field['cacheable'] = config('cache_default');
             $field['createdby'] = $createdby;
             $field['isfolder'] = 1;
             $field['menuindex'] = 1;
@@ -293,13 +292,13 @@ function importFiles($parent, $filedir, $files, $mode)
                 $field['longtitle'] = $pagetitle;
                 $field['description'] = $description;
                 $field['alias'] = evo()->stripAlias($alias);
-                $field['published'] = $publish_default;
+                $field['published'] = config('publish_default');
                 $field['parent'] = $parent;
                 $field['content'] = db()->escape($content);
                 $field['richtext'] = $richtext;
                 $field['template'] = evo()->config('default_template');
-                $field['searchable'] = $search_default;
-                $field['cacheable'] = $cache_default;
+                $field['searchable'] = config('search_default');
+                $field['cacheable'] = config('cache_default');
                 $field['createdby'] = $createdby;
                 $field['createdon'] = $date;
                 $field['editedon'] = $date;

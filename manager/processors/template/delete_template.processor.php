@@ -27,7 +27,7 @@ if ($limit > 0) {
     exit;
 }
 
-if ($id == $default_template) {
+if ($id == config('default_template')) {
     echo "This template is set as the default template. Please choose a different default template in the MODx configuration before deleting this template.<br />";
     exit;
 }

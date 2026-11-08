@@ -86,6 +86,7 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 
+$which_editor = config('which_editor');
 if (isset($content['which_editor'])) {
     $which_editor = $content['which_editor'];
 } elseif (!entity('editor_type')) {
@@ -378,7 +379,7 @@ if (isset($content['which_editor'])) {
 </script>
 <?php
 // invoke OnRichTextEditorInit event
-if ($use_editor == 1) {
+if (config('use_editor') == 1) {
     $tmp = [
         'editor' => $which_editor,
         'elements' => ['post']

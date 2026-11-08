@@ -41,10 +41,10 @@ JS;
 $modx->regClientScript($script);
 
 // set placeholders
-$modx->setPlaceholder('theme', $manager_theme ? $manager_theme : '');
+$modx->setPlaceholder('theme', config('manager_theme') ?: '');
 $modx->setPlaceholder('home', $_lang["home"]);
 $modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
-$modx->setPlaceholder('site_name', hsc($site_name));
+$modx->setPlaceholder('site_name', hsc(config('site_name')));
 $modx->setPlaceholder('welcome_title', $_lang['welcome_title']);
 $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
