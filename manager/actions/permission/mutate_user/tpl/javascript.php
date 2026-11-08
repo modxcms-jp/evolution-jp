@@ -73,5 +73,5 @@
         document.images['iphoto'].src = <?= js_literal(config('base_url')) ?> + url;
     }
 
-    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || get_intvar('stay') === 2) ? 'true' : 'false' ?> );
+    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (config('remember_last_tab') == 2 || get_strvar('save_action') === 'stay') ? 'true' : 'false' ?> );
 </script>

@@ -547,7 +547,8 @@ function webAlert($msg)
 {
     global $id, $modx;
     $mode = saveWebUserMode();
-    $url = "index.php?a=" . ($mode ?: 99) . ($mode === 88 ? "&id=" . $id : '');
+    $stay = post_choicevar('stay', [1, 2], 0);
+    $url = "index.php?a=" . ($mode ?: 99) . ($mode === 88 ? "&id=" . (int)$id : '') . ($stay ? '&stay=' . $stay : '');
     manager()->saveFormValues($mode);
     $modx->webAlertAndQuit($msg, $url);
 }

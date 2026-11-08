@@ -150,15 +150,6 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                 <a href="#" onclick="documentDirty=false; document.userform.save.click();">
                     <?= $_lang['update'] ?>
                 </a>
-                <span class="and"> + </span>
-                <select id="stay" name="stay">
-                    <option id="stay1"
-                        value="1" <?= selected(request_intvar('stay') === 1) ?>><?= $_lang['stay_new'] ?></option>
-                    <option id="stay2"
-                        value="2" <?= selected(request_intvar('stay') === 2) ?>><?= $_lang['stay'] ?></option>
-                    <option id="stay3"
-                        value="" <?= selected(request_intvar('stay') === 0) ?>><?= $_lang['close'] ?></option>
-                </select>
             </li>
             <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['cancel'] ?></a></li>
         </ul>
@@ -351,7 +342,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
 <script type="text/javascript">
-    var remember = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
+    var remember = <?= ($modx->config['remember_last_tab'] == 2) ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
 <?php
