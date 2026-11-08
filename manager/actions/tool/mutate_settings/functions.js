@@ -74,3 +74,32 @@ function confirmLangChange(el, lkey, elupd) {
             .catch(function () {});
     }
 }
+
+/**
+ * 条件の行。data-show-if="<名前>=<値>" の要素を、同じ名前のラジオの選択に合わせて出し入れする。
+ * 読み込み時に 1 回当て（サーバーが初めの表示を決められないプラグインの出力も合わせる）、
+ * そのあとはラジオが切り替わるたびに当てる。
+ */
+Evo.ready(() => {
+    const form = document.forms.settings;
+    if (!form) {
+        return;
+    }
+    const apply = (name, value) => {
+        document.querySelectorAll('[data-show-if]').forEach((el) => {
+            const condition = el.getAttribute('data-show-if');
+            const eq = condition.indexOf('=');
+            if (condition.slice(0, eq) !== name) {
+                return;
+            }
+            el.style.display = condition.slice(eq + 1) === value ? '' : 'none';
+        });
+    };
+    form.addEventListener('change', (event) => {
+        const radio = event.target;
+        if (radio && radio.type === 'radio' && radio.checked) {
+            apply(radio.name, radio.value);
+        }
+    });
+    form.querySelectorAll('input[type=radio]:checked').forEach((radio) => apply(radio.name, radio.value));
+});

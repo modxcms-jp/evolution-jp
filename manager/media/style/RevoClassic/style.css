@@ -1389,8 +1389,7 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: var(--space-1) var(--space-1) var(--border-thin) 0;
-    float: left;
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-3);
     z-index: 1;
     position: relative;
     top: var(--border-thin);
@@ -1466,6 +1465,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
+    /* タブが増えても折り返して、段違いにならないようにする */
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .dynamic-tab-pane-control ul {
@@ -1892,29 +1894,6 @@ form#mutate fieldset#settings_page_settings input#unpub_date {
 
 form#mutate fieldset#settings_page_settings select {
     width: 155px;
-}
-
-/* Individual Styles for fieldset#meta_keywords */
-form#mutate fieldset#meta_keywords select.inputBox {
-    display: block;
-    margin-bottom: 0;
-}
-
-form#mutate fieldset#meta_keywords dl.keywords {
-    float: left;
-    margin-right: var(--space-8);
-}
-
-form#mutate fieldset#meta_keywords dl.metatags {
-    float: left;
-}
-
-form#mutate fieldset#meta_keywords dl dt label {
-    width: 100px;
-}
-
-form#mutate fieldset#meta_keywords dl dd {
-    margin-left: 110px;
 }
 
 /*

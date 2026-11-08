@@ -112,8 +112,6 @@ class MANAGERMANAGER
             'template' => ['select', 'template', 'template'],
             'content_type' => ['select', 'contentType', 'contentType'],
             'content_dispo' => ['select', 'content_dispo', 'content_dispo'],
-            'keywords' => ['select', 'keywords[]', ''],
-            'metatags' => ['select', 'metatags[]', ''],
             'which_editor' => ['select', 'which_editor', ''],
             'resource_type' => ['select', 'type', 'isfolder']
         ];

@@ -1,4 +1,4 @@
-<h2 class="tab"><?= lang('settings_misc') ?></h2>
+<h2 class="tab"><?= lang('settings_files') ?></h2>
 <table class="settings">
     <tr>
         <th><?= lang('filemanager_path_title') ?></th>

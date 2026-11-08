@@ -6,8 +6,7 @@ if (!evo()->hasPermission('settings')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$inc_path = MODX_MANAGER_PATH . 'actions/tool/mutate_settings/';
-include_once($inc_path . 'functions.inc.php');
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 // check to see the edit settings page isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', 'action=17');
 if (1 < db()->count($rs)) {
@@ -22,20 +21,9 @@ if (1 < db()->count($rs)) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-
-$settings = settings();
-extract($settings, EXTR_OVERWRITE);
-
-// load languages and keys
-$lang_keys = [];
-$dir = scandir(MODX_CORE_PATH . 'lang');
-foreach ($dir as $filename) {
-    if (substr($filename, -8) !== '.inc.php') {
-        continue;
-    }
-    $languagename = str_replace('.inc.php', '', $filename);
-    $lang_keys[$languagename] = get_lang_keys($filename);
-}
+$stored = EvoSettingsForm::storedValues();
+evo()->config = $stored;
+$values = EvoSettingsForm::systemValues($stored);
 ?>
 <script type="text/javascript">
     var lang_chg = <?= js_literal(stripcslashes(lang('confirm_setting_language_change'))) ?>;
@@ -83,11 +71,11 @@ foreach ($dir as $filename) {
         }
     </style>
     <div>
-        <input type="hidden" name="site_id" value="<?= $site_id ?>"/>
-        <input type="hidden" name="settings_version" value="<?= $modx_version ?>"/>
+        <input type="hidden" name="site_id" value="<?= hsc($values['site_id'] ?? '') ?>"/>
+        <input type="hidden" name="settings_version" value="<?= hsc(globalv('modx_version')) ?>"/>
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
         <?php
-        if (!isset($settings_version) || in_array((string) $settings_version, ['', '0'], true)) {
+        if (in_array((string)($values['settings_version'] ?? ''), ['', '0'], true)) {
             ?>
             <div class='sectionBody'><p><?= lang('settings_after_install') ?></p></div>
             <?php
@@ -95,13 +83,11 @@ foreach ($dir as $filename) {
         ?>
         <div class="tab-pane" id="settingsPane">
             <?php
-            include_once($inc_path . 'tab1_site_settings.inc.php');
-            include_once($inc_path . 'tab1_doc_settings.inc.php');
-            include_once($inc_path . 'tab2_cache_settings.inc.php');
-            include_once($inc_path . 'tab2_furl_settings.inc.php');
-            include_once($inc_path . 'tab3_user_settings.inc.php');
-            include_once($inc_path . 'tab4_manager_settings.inc.php');
-            include_once($inc_path . 'tab6_filemanager_settings.inc.php');
+            echo (new EvoSettingsForm(EvoSettingsForm::definition(), $values, $stored))->render();
+            $evtOut = evo()->invokeEvent('OnSystemSettingsRender');
+            if (is_array($evtOut)) {
+                echo implode('', $evtOut);
+            }
             ?>
         </div>
     </div>
@@ -111,24 +97,4 @@ foreach ($dir as $filename) {
         document.getElementById("settingsPane"),
         <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
     );
-    (function () {
-        // ラジオの切り替えで関連の行を出し入れする
-        const toggleRows = function (radioId, selector, show) {
-            const radio = document.getElementById(radioId);
-            if (!radio) {
-                return;
-            }
-            radio.addEventListener('change', function () {
-                document.querySelectorAll(selector).forEach(function (row) {
-                    row.style.display = show ? '' : 'none';
-                });
-            });
-        };
-        toggleRows('udPermsOn', '.udPerms', true);
-        toggleRows('udPermsOff', '.udPerms', false);
-        toggleRows('editorRowOn', '.editorRow', true);
-        toggleRows('editorRowOff', '.editorRow', false);
-        toggleRows('rbRowOn', '.rbRow', true);
-        toggleRows('rbRowOff', '.rbRow', false);
-    })();
 </script>

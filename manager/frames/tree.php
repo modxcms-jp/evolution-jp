@@ -166,28 +166,92 @@ if (!$isShellPartial) {
             setTimeout("_rc = 0;", 100);
         }
 
+        // 子の行の入れ物(#c<id>)を高さ 0 との間で短く広げ縮めする。
+        // 終わったら height / opacity / overflow を外し、今までと同じ素の状態に戻す。
+        var TREE_SLIDE_MS = 180;
+        function slideTreeBox(box, open, fromEmpty) {
+            var reduce = window.matchMedia
+                && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            // 途中から向きを変えるので、動いている最中の値を先に測ってから止める
+            var visible = box.style.display === 'block';
+            // fromEmpty: 取得したばかりの行を、高さ 0 から広げる
+            var from = visible && !fromEmpty ? box.getBoundingClientRect().height : 0;
+            var fromOpacity = visible && !fromEmpty ? parseFloat(getComputedStyle(box).opacity) : 0;
+            if (box.slideCancel) box.slideCancel();
+
+            function reset() {
+                box.classList.remove('treeSlide');
+                box.style.height = '';
+                box.style.opacity = '';
+                box.style.overflow = '';
+                delete box.slideCancel;
+            }
+            function finish() {
+                if (box.slideCancel) box.slideCancel();
+                if (!open) box.style.display = 'none';
+                delete box.dataset.closing;
+            }
+
+            if (open) {
+                delete box.dataset.closing;
+                box.style.display = 'block';
+            } else {
+                box.dataset.closing = '1';
+            }
+
+            var to = open ? box.scrollHeight : 0;
+            if (reduce || (from === 0 && to === 0)) {
+                finish();
+                return;
+            }
+
+            var timer = null;
+            function onEnd(e) {
+                if (e.target === box && e.propertyName === 'height') finish();
+            }
+            box.slideCancel = function () {
+                clearTimeout(timer);
+                box.removeEventListener('transitionend', onEnd);
+                reset();
+            };
+
+            box.style.overflow = 'hidden';
+            box.style.height = from + 'px';
+            box.style.opacity = fromOpacity;
+            void box.offsetHeight; // 開始の状態を確定させてから目的の値へ
+            box.classList.add('treeSlide');
+            box.style.height = to + 'px';
+            box.style.opacity = open ? 1 : 0;
+            box.addEventListener('transitionend', onEnd);
+            // transitionend が来なかったときの保険
+            timer = setTimeout(finish, TREE_SLIDE_MS + 120);
+        }
+
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
-            rpcNode = document.getElementById('c' + id);
+            var box = document.getElementById('c' + id);
             var rpcNodeText;
 
             var signImg = document.getElementById('s' + id);
             var folderImg = document.getElementById('f' + id);
 
-            if (rpcNode.style.display === 'block') {
+            if (box.style.display === 'block' && box.dataset.closing !== '1') {
                 // collapse
                 signImg.src = <?= js_literal($_style['tree_plusnode']) ?>;
-                //rpcNode.innerHTML = '';
-                rpcNode.style.display = 'none';
                 openedArray[id] = 0;
+                slideTreeBox(box, false);
             } else {
                 // expand
                 signImg.src = <?= js_literal($_style['tree_minusnode']) ?>;
 
-                rpcNodeText = rpcNode.innerHTML;
+                rpcNodeText = box.innerHTML;
                 openedArray[id] = 1;
 
-                if (rpcNodeText == '') {
+                if (box.dataset.loading === '1') {
+                    // 取得中に開き直したときは、取得を重ねず、応答を待つ
+                    box.style.display = 'block';
+                } else if (rpcNodeText == '') {
+                    box.dataset.loading = '1';
                     var folderState = getFolderState();
                     var params = new URLSearchParams({
                         "a": "1",
@@ -202,12 +266,21 @@ if (!$isShellPartial) {
                             return response.ok ? response.text() : null;
                         })
                         .then(function (html) {
-                            if (html !== null) rpcLoadData(html);
+                            delete box.dataset.loading;
+                            if (html === null) return;
+                            // 取得中に別の操作があっても、この行へ差し込む
+                            rpcLoadData(html, box);
+                            // 取得中に閉じられていたら、閉じたままにする
+                            if (openedArray[id] != 1) {
+                                box.style.display = 'none';
+                                return;
+                            }
+                            slideTreeBox(box, true, true);
                         })
-                        .catch(function () {});
-                    rpcNode.style.display = 'block';
+                        .catch(function () { delete box.dataset.loading; });
+                    box.style.display = 'block';
                 } else {
-                    rpcNode.style.display = 'block';
+                    slideTreeBox(box, true);
                 }
             }
 

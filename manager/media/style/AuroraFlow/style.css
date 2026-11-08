@@ -1450,8 +1450,7 @@ a.hometblink:hover {
     cursor: pointer;
     display: inline;
     margin: 0 var(--space-1) -1px 0;
-    float: left;
-    padding: 10px var(--space-4) 9px;
+    padding: 10px var(--space-3) 9px;
     z-index: 1;
     position: relative;
     top: 0;
@@ -1535,8 +1534,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
-    /* float のタブを包み、下線をタブの下に引く */
-    display: flow-root;
+    /* タブを折り返して並べ、下線をタブの下に引く */
+    display: flex;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--color-card-border);
 }
 
@@ -2014,31 +2014,6 @@ form#mutate fieldset#settings_page_settings input#unpub_date {
 
 form#mutate fieldset#settings_page_settings select {
     width: 155px;
-}
-
-/*
-* Individual Styles for fieldset#meta_keywords
-*/
-form#mutate fieldset#meta_keywords select.inputBox {
-    display: block;
-    margin-bottom: 0;
-}
-
-form#mutate fieldset#meta_keywords dl.keywords {
-    float: left;
-    margin-right: 30px;
-}
-
-form#mutate fieldset#meta_keywords dl.metatags {
-    float: left;
-}
-
-form#mutate fieldset#meta_keywords dl dt label {
-    width: 100px;
-}
-
-form#mutate fieldset#meta_keywords dl dd {
-    margin-left: 110px;
 }
 
 /*
