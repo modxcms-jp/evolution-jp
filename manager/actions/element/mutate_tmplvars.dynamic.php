@@ -697,6 +697,11 @@ function entity($key, $default = null)
                         ?>
                     </div>
             <?php
+                } else {
+                    // 権限が無いときはタブを出さず、付いているグループだけを送って保存で外れないようにする
+                    foreach ($groupsarray as $groupId) {
+                        echo '<input type="hidden" name="document_groups[]" value="' . (int)$groupId . '" />' . "\n";
+                    }
                 }
             }
             ?>
