@@ -2409,6 +2409,7 @@ trait DocumentParserSubParserTrait
      * @param int   $docid 対象の文書 ID
      * @param array $input 編集フォームの値
      * @return string 32 桁の hex のキー
+     * @throws RuntimeException 下書きを作れないとき
      */
     public function storePreviewDraft($docid, array $input)
     {
@@ -2416,6 +2417,10 @@ trait DocumentParserSubParserTrait
         $drafts = $this->purgePreviewDrafts((array)sessionv('preview_drafts'));
 
         $data = $this->getPreviewObject($input);
+        if (!$data) {
+            // 変換に失敗すると空が返る。空の下書きを置くと保存済みのページが黙って出る
+            throw new RuntimeException('Failed to build the preview draft');
+        }
         $key = bin2hex(random_bytes(16));
         $drafts[$key] = [
             'docid' => (int)$docid,

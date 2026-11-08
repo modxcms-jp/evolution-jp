@@ -82,7 +82,7 @@ class DocumentParser
     public $currentErrorContext;
     /** @var OldFunctions */
     public $old;
-    public $previewObject = ''; //プレビュー用のPOSTデータを保存
+    public $previewObject = ''; //プレビュー用の下書き（a=309 が置いたもの、または revision の内容）を保存
     public $snipLapCount;
     public $chunkieCache;
     public $template_path;
@@ -282,7 +282,15 @@ class DocumentParser
         if (!$this->isLoggedIn()) {
             return false;
         }
-        return get_strvar('preview') !== '' || get_strvar('revision') !== '';
+        return $this->hasPreviewDraftParam() || get_strvar('revision') !== '';
+    }
+
+    /**
+     * 下書きのプレビューの URL か。z=manprev と preview の両方があるときだけ（汎用的な名前の preview だけでは扱わない）。
+     */
+    private function hasPreviewDraftParam()
+    {
+        return get_strvar('z') === 'manprev' && get_strvar('preview') !== '';
     }
 
     public function executeParser()
@@ -3708,7 +3716,8 @@ class DocumentParser
             }
         }
 
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && get_strvar('preview') !== '') {
+        // previewObject が入っているのは 2 回目の処理（sendErrorPage・sendForward 先）。その文書は通常どおり出す
+        if ($this->isLoggedIn() && $mode === 'prepareResponse' && !$this->previewObject && $this->hasPreviewDraftParam()) {
             // プレビュー用の下書き（a=309 が置いたもの）。保存済みの内容を黙って出さない
             $previewObject = $this->loadPreviewDraft(get_strvar('preview'), $identifier);
             if ($previewObject === false) {

@@ -24,11 +24,20 @@ if ($docid <= 0) {
     previewDraftJson(['error' => 'Bad Request'], 400);
 }
 
+// 下書きを置く前に、開く先の URL を確かめる（エイリアスが無いと makeUrl() は空を返す）
+$url = evo()->makeUrl($docid, '', '', 'full', true);
+if (!$url) {
+    previewDraftJson(['error' => lang('error_occurred')], 500);
+}
+
 // 編集フォームのすべての項目（TV・配列を含む）を getPreviewObject() の規則で変換するため、全体を渡す。
 // 値は DB に入れず、セッションに置いてプレビューの表示にだけ使う。
-$key = evo()->storePreviewDraft($docid, postv());
+try {
+    $key = evo()->storePreviewDraft($docid, postv());
+} catch (Throwable $e) {
+    previewDraftJson(['error' => lang('error_occurred')], 500);
+}
 
-$url = evo()->makeUrl($docid, '', '', 'full', true);
 $url .= (strpos($url, '?') === false ? '?' : '&') . 'z=manprev&preview=' . $key;
 previewDraftJson(['url' => $url]);
 

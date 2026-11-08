@@ -10,7 +10,7 @@
 1. **ブートストラップ**: `executeParser()` がグローバル値をサニタイズし、ユーザーエージェント分類とドキュメント識別子の解決を行います。静的 HTML キャッシュが存在する場合はここでショートサーキットします。
 2. **初期化**: サイト公開状態や公開期限、HTTP ステータスの検証を行った後、最初のイベント `OnWebPageInit` が発火します。
 3. **ドキュメント解決**: `prepareResponse()` がページキャッシュを確認し、ミスした場合はリソース取得・権限チェック・`reference` タイプの解決・テンプレート継承の展開を実施します。
-   - 投稿画面のプレビューは、`index.php?a=309`（`preview_draft.processor.php`）が編集中の値をセッションの `preview_drafts` に一時的に置き、フロントを `?z=manprev&preview=<キー>` の GET で開きます。`getDocumentObject()` が `loadPreviewDraft()` で読み、`previewObject` として本文・TV に反映します（件数の上限 5 件・期限 1 時間）。
+   - 投稿画面のプレビューは、`index.php?a=309`（`preview_draft.processor.php`）が編集中の値をセッションの `preview_drafts` に一時的に置き、フロントを `?z=manprev&preview=<キー>` の GET で開きます。`getDocumentObject()` が `loadPreviewDraft()` で読み、`previewObject` として本文・TV に反映します（件数の上限と期限は `previewDraftPolicy()`）。
 4. **テンプレート組み立て**: TV をドキュメントオブジェクトへマージし、`parseDocumentSource()` がテンプレート内の MODX タグを段階的に解析します。
 5. **出力**: `outputContent()` が登録済みスクリプトの注入、`OnLogPageHit`/`OnWebPagePrerender` の発火、レスポンス出力を担当し、`postProcess()` を遅延実行として登録します。
 6. **後処理**: `postProcess()` がキャッシュエントリを生成し、セキュリティメタデータを付与した上でユーザーエージェント別に書き出し、最後に `OnWebPageComplete` を発火します。
