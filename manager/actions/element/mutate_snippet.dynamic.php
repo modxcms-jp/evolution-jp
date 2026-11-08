@@ -110,7 +110,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('snippet') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('snippet')) ?>">
 
     <div id="actions">
         <ul class="actionButtons">

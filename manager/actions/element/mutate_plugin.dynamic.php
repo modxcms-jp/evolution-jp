@@ -277,7 +277,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('plugin') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('plugin')) ?>">
 
     <h1><?= $_lang['plugin_title'] ?></h1>
 

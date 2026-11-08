@@ -156,7 +156,7 @@ if (isset($content['which_editor'])) {
     ?>
     <input type="hidden" name="a" value="79" />
     <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
-    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('chunk') ?>" />
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('chunk')) ?>" />
     <input type="hidden" name="changeMode" value="" />
 
     <h1><?= $_lang['htmlsnippet_title'] ?></h1>

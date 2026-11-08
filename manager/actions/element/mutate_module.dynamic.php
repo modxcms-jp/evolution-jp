@@ -159,7 +159,7 @@ function content($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) content('id') ?>">
-    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('module') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('module')) ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
 
