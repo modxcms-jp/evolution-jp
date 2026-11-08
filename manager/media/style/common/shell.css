@@ -418,11 +418,6 @@ body.evo-shell input.evo-submitting-trigger {
 #treeRoot div[id^="node"] > div:first-child {
     display: flex;
     align-items: center;
-    /* 行の高さは文字の行の高さ(line-height)に固定する。
-       flex の子になった span.treeNode はブロック化され、選択中・ホバーの padding と border の分だけ
-       行が伸びて下の行がずれるため。はみ出す枠は inline のときと同じく行の外に重なる */
-    height: 1lh;
-    min-height: 16px; /* アイコン(16px)が文字の行より高いテーマでは、アイコンの高さ */
     white-space: nowrap;
 }
 
