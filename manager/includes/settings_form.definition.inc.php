@@ -686,15 +686,20 @@ return [
                 'rows' => [
                     [
                         'key' => 'manager_theme',
+                        'scope' => ['system', 'user', 'profile'],
                         'type' => 'select',
                         'label' => lang('manager_theme'),
                         'options' => static function () {
                             return EvoSettingsForm::themes();
                         },
                         'desc' => lang('manager_theme_message'),
+                        // ユーザーのテーマを変えたら、再読み込みのために時刻を hidden に入れる
+                        'userAttr' => ['onchange' => 'document.userform.theme_refresher.value = Date.parse(new Date())'],
+                        'userDesc' => '<input type="hidden" name="theme_refresher" value="" />' . lang('manager_theme_message'),
                     ],
                     [
                         'key' => 'manager_language',
+                        'scope' => ['system', 'user', 'profile'],
                         'type' => 'select',
                         'label' => lang('language_title'),
                         'options' => static function () {
@@ -704,10 +709,25 @@ return [
                     ],
                     [
                         'key' => 'manager_inline_style',
+                        'scope' => ['system', 'user', 'profile'],
+                        'userDefault' => true,
                         'type' => 'textarea',
                         'label' => lang('a17_manager_inline_style_title'),
                         'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
                         'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
+                        // ユーザーの値が無いときは、「システム設定に従う」の先のシステム設定の値を出す
+                        'userValue' => static function (array $values, array $stored) {
+                            return (string)($values['manager_inline_style'] ?? $stored['manager_inline_style'] ?? '');
+                        },
+                    ],
+                    [
+                        'key' => 'manager_login_startup',
+                        'scope' => ['user', 'profile'],
+                        'type' => 'text',
+                        'size' => 50,
+                        'label' => lang('mgr_login_start'),
+                        'attr' => ['style' => 'width: 100px;'],
+                        'desc' => lang('mgr_login_start_message'),
                     ],
                     [
                         'key' => 'datetime_format',
@@ -873,6 +893,8 @@ return [
     [
         'id' => 'settingsTabEditor',
         'event' => 'OnInterfaceSettingsRender',
+        // エディターの設定のプラグインの欄は、ユーザー編集画面とプロフィールにも出す
+        'eventScope' => ['system', 'user', 'profile'],
         'title' => lang('settings_editor'),
         'sections' => [
             [
@@ -886,6 +908,7 @@ return [
                     ],
                     [
                         'key' => 'which_editor',
+                        'scope' => ['system', 'user', 'profile'],
                         'type' => 'select',
                         'label' => lang('which_editor_title'),
                         // エディターのプラグインが無ければ null（欄を出さず説明だけを出す）
@@ -915,6 +938,7 @@ return [
                     ],
                     [
                         'key' => 'editor_css_path',
+                        'scope' => ['system', 'user', 'profile'],
                         'type' => 'text',
                         'label' => lang('editor_css_path_title'),
                         'attr' => ['style' => 'width:400px;'],
@@ -941,6 +965,7 @@ return [
                     ],
                     [
                         'key' => 'rb_base_dir',
+                        'scope' => ['system', 'user'],
                         'type' => 'path',
                         'label' => lang('rb_base_dir_title'),
                         'desc' => lang('rb_base_dir_message'),
@@ -953,6 +978,7 @@ return [
                     ],
                     [
                         'key' => 'rb_base_url',
+                        'scope' => ['system', 'user'],
                         'type' => 'text',
                         'label' => lang('rb_base_url_title'),
                         'before' => static function (array $values) {
@@ -982,6 +1008,7 @@ return [
                 'rows' => [
                     [
                         'key' => 'filemanager_path',
+                        'scope' => ['system', 'user'],
                         'type' => 'path',
                         'label' => lang('filemanager_path_title'),
                         'desc' => lang('filemanager_path_message'),
@@ -995,26 +1022,40 @@ return [
                 'rows' => [
                     [
                         'key' => 'upload_files',
+                        'scope' => ['system', 'user'],
+                        'userDefault' => true,
                         'type' => 'text',
                         'label' => lang('uploadable_files_title'),
                         'desc' => lang('uploadable_files_message'),
+                        'userDesc' => lang('uploadable_files_message') . lang('user_upload_message'),
                     ],
                     [
                         'key' => 'upload_images',
+                        'scope' => ['system', 'user'],
+                        'userDefault' => true,
                         'type' => 'text',
                         'label' => lang('uploadable_images_title'),
                         'desc' => lang('uploadable_images_message'),
+                        'userDesc' => lang('uploadable_images_message') . lang('user_upload_message'),
                     ],
                     [
                         'key' => 'upload_media',
+                        'scope' => ['system', 'user'],
+                        'userDefault' => true,
                         'type' => 'text',
                         'label' => lang('uploadable_media_title'),
                         'desc' => lang('uploadable_media_message'),
+                        'userDesc' => lang('uploadable_media_message') . lang('user_upload_message'),
                     ],
                     [
                         'key' => 'upload_maxsize',
+                        'scope' => ['system', 'user'],
                         'type' => 'text',
                         'label' => lang('upload_maxsize_title'),
+                        // ユーザーの値、無ければシステム設定の値、無ければサーバーの上限
+                        'userValue' => static function (array $values, array $stored) {
+                            return (string)(($values['upload_maxsize'] ?? '') ?: ($stored['upload_maxsize'] ?? '') ?: (manager()->getUploadMaxsize() ?: ''));
+                        },
                         'desc' => static function () {
                             $limit = manager()->getUploadMaxsize();
                             return $limit > 0
