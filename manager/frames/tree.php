@@ -170,14 +170,14 @@ if (!$isShellPartial) {
         // 終わったら height / opacity / overflow を外し、今までと同じ素の状態に戻す。
         var TREE_SLIDE_MS = 180;
         function slideTreeBox(box, open, fromEmpty) {
-            if (box.slideCancel) box.slideCancel();
-
             var reduce = window.matchMedia
                 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            // 途中から向きを変えるので、動いている最中の値を先に測ってから止める
             var visible = box.style.display === 'block';
             // fromEmpty: 取得したばかりの行を、高さ 0 から広げる
             var from = visible && !fromEmpty ? box.getBoundingClientRect().height : 0;
             var fromOpacity = visible && !fromEmpty ? parseFloat(getComputedStyle(box).opacity) : 0;
+            if (box.slideCancel) box.slideCancel();
 
             function reset() {
                 box.classList.remove('treeSlide');
@@ -230,7 +230,6 @@ if (!$isShellPartial) {
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
             var box = document.getElementById('c' + id);
-            rpcNode = box;
             var rpcNodeText;
 
             var signImg = document.getElementById('s' + id);
@@ -248,7 +247,11 @@ if (!$isShellPartial) {
                 rpcNodeText = box.innerHTML;
                 openedArray[id] = 1;
 
-                if (rpcNodeText == '') {
+                if (box.dataset.loading === '1') {
+                    // 取得中に開き直したときは、取得を重ねず、応答を待つ
+                    box.style.display = 'block';
+                } else if (rpcNodeText == '') {
+                    box.dataset.loading = '1';
                     var folderState = getFolderState();
                     var params = new URLSearchParams({
                         "a": "1",
@@ -263,10 +266,10 @@ if (!$isShellPartial) {
                             return response.ok ? response.text() : null;
                         })
                         .then(function (html) {
+                            delete box.dataset.loading;
                             if (html === null) return;
-                            // 取得中に別の行を操作していても、この行へ差し込む
-                            rpcNode = box;
-                            rpcLoadData(html);
+                            // 取得中に別の操作があっても、この行へ差し込む
+                            rpcLoadData(html, box);
                             // 取得中に閉じられていたら、閉じたままにする
                             if (openedArray[id] != 1) {
                                 box.style.display = 'none';
@@ -274,7 +277,7 @@ if (!$isShellPartial) {
                             }
                             slideTreeBox(box, true, true);
                         })
-                        .catch(function () {});
+                        .catch(function () { delete box.dataset.loading; });
                     box.style.display = 'block';
                 } else {
                     slideTreeBox(box, true);

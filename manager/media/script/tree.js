@@ -111,13 +111,15 @@ function loadMoreNodes(el, indent, parent, offset) {
     });
 }
 
-function rpcLoadData(response) {
-    if (rpcNode == null) {
+// node: 差し込み先。省略時は直前に指定された rpcNode（子の取得中に別の読み込みが重なっても取り違えないよう、子の取得は node を渡す）
+function rpcLoadData(response, node) {
+    var target = node || rpcNode;
+    if (target == null) {
         return;
     }
-    rpcNode.innerHTML = response;
-    rpcNode.style.display = 'block';
-    rpcNode.loaded = true;
+    target.innerHTML = response;
+    target.style.display = 'block';
+    target.loaded = true;
     // シェルではメニューと同一document。フレーム時代のtop.mainMenu.documentは不要
     var elm = document.getElementById('buildText');
     if (elm) {
@@ -125,7 +127,7 @@ function rpcLoadData(response) {
         elm.style.display = 'none';
     }
     // check if bin is full
-    if (rpcNode.id === 'treeRoot') {
+    if (target.id === 'treeRoot') {
         if (document.getElementById('binFull')) {
             showBinFull();
         } else {
@@ -136,7 +138,7 @@ function rpcLoadData(response) {
     // check if our payload contains the login form :)
     if (document.getElementById('mx_loginbox')) {
         // yep! the seession has timed out
-        rpcNode.innerHTML = '';
+        target.innerHTML = '';
         top.location = 'index.php';
     }
 }
