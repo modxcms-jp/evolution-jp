@@ -155,14 +155,14 @@ evo()->clearCache();
 if ($new_parent !== 0) {
     header(
         sprintf(
-            'Location: index.php?a=120&id=%s&r=1',
+            'Location: index.php?a=120&id=%s&refresh=tree',
             $current_parent
         )
     );
     exit;
 }
 
-header("Location: index.php?a=2&r=1");
+header("Location: index.php?a=2&refresh=tree");
 
 exit;
 

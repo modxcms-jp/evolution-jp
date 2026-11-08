@@ -135,7 +135,6 @@ if (sessionv('result_msg')) {
         f.submit();
         return false;
     }
-    <?= request_intvar('r') ? ' doRefresh(' . request_intvar('r') . ');' : ''; ?>
 </script>
 <h1><?= $_lang['bk_manager'] ?></h1>
 

@@ -406,25 +406,9 @@
         });
     }
 
-    // processorのリダイレクトURLに付くr=Nはツリー/メニュー再読込の合図
+    // processorのリダイレクトURLに付くrefreshはツリー/メニュー再読込の合図
     function handleRefreshParam(url) {
-        const r = parseInt(new URL(url, window.location.href).searchParams.get('r'), 10);
-        if (!r) {
-            return;
-        }
-        if (r === 1 || r === 3) {
-            EvoShell.reloadTree();
-        }
-        if (r === 2) {
-            EvoShell.reloadMenu();
-        }
-        if (r === 9) {
-            EvoShell.reloadTree();
-            EvoShell.reloadMenu();
-        }
-        if (r === 10) {
-            window.location.href = 'index.php';
-        }
+        EvoShell.refresh(new URL(url, window.location.href).searchParams.get('refresh'));
     }
 
     // Content-Disposition: attachment の応答をファイル保存として処理する
@@ -746,6 +730,23 @@
                 return;
             }
             reloadPartial('index.php?a=1&f=menu', 'topMenu');
+        },
+
+        // 再読み込みの受け口。target は tree / menu / all(ツリーとメニュー) / page(管理画面ごと)。
+        // シェルの画面でなければ(QuickManager などのクロームレス)何もしない
+        refresh: function (target) {
+            if (!document.body.classList.contains('evo-shell')) {
+                return;
+            }
+            if (target === 'tree' || target === 'all') {
+                EvoShell.reloadTree();
+            }
+            if (target === 'menu' || target === 'all') {
+                EvoShell.reloadMenu();
+            }
+            if (target === 'page') {
+                window.location.href = 'index.php';
+            }
         }
     };
 

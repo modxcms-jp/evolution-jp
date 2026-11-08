@@ -20,7 +20,7 @@ $num_rows_unpub = db()->getAffectedRows();
 ?>
 
 <script type="text/javascript">
-    doRefresh(1);
+    EvoShell.refresh('tree');
 </script>
 <h1><?= $_lang['refresh_title'] ?></h1>
 <div class="section">

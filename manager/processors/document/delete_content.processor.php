@@ -35,6 +35,6 @@ include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 if ($pid !== '0') {
     $url = ChildDocumentListState::returnUrl((int) $pid);
 } else {
-    $url = 'index.php?a=2&r=1';
+    $url = 'index.php?a=2&refresh=tree';
 }
 header("Location: {$url}");

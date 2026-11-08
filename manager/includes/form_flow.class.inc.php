@@ -8,7 +8,8 @@
  * 引数の名前と値（ここを正とする）:
  * - after_save: 保存後の行き先。new（続けて新規作成）/ stay（この画面＝続けて編集）/ close（閉じる）
  * - mode: 新規か更新か。new / edit（ユーザーのプロフィールだけ profile）
- * - refresh: 保存後に読み直すもの
+ * - refresh: 保存後に読み直すもの。tree（ツリー）/ menu（メニュー）/ all（ツリーとメニュー）/ page（管理画面ごと）。
+ *   受け口は shell.js の EvoShell.refresh()
  *
  * refresh は呼び出し側が $extra で渡す。
  *

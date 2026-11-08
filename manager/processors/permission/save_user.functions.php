@@ -565,7 +565,7 @@ function newUser()
     }
     // end of user_groups stuff!
 
-    $stayUrl = EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['r' => 3]);
+    $stayUrl = EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']);
 
     if (post_strvar('passwordnotifymethod') === 'e') {
         sendMailMessage(
@@ -729,15 +729,15 @@ function updateUser()
     $afterSave = EvoFormFlow::postedAfterSave();
     if (!$changePassword || $notifyMethod !== 's') {
         if (saveUserMode() === 'profile') {
-            header('Location: ' . 'index.php?r=3&a=2');
+            header('Location: ' . 'index.php?refresh=tree&a=2');
             exit;
         }
-        header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['r' => 3]));
+        header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['refresh' => 'tree']));
         exit;
     }
 
-    // パスワードを画面に表示するときの「閉じる」。ツリーの読み直し（r）は付けない
-    $stayUrl = $isSelf ? 'index.php?a=8' : EvoFormFlow::afterSaveUrl('user', $userid, $afterSave);
+    // パスワードを画面に表示するときの「閉じる」。新規・メール通知と同じくツリーを読み直す
+    $stayUrl = $isSelf ? 'index.php?a=8' : EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['refresh' => 'tree']);
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <h1><?= lang('user_title') ?></h1>

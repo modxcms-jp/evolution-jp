@@ -27,7 +27,7 @@ fix_pulishedon();
 repairDocs();
 evo()->clearCache();
 setPermission();
-header("Location: index.php?a=7&r=10");
+header("Location: index.php?a=7&refresh=page");
 
 
 function setPermission()

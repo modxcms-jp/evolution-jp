@@ -867,7 +867,7 @@ function goNextAction($id, $parent, $afterSave, $type)
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen($kind, 'new'),
             'pid' => $parent,
-            'r' => 1,
+            'refresh' => 'tree',
             'after_save' => 'new',
         ]));
         return;
@@ -876,18 +876,18 @@ function goNextAction($id, $parent, $afterSave, $type)
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen('document', 'edit'),
             'id' => $id,
-            'r' => 1,
+            'refresh' => 'tree',
             'after_save' => 'stay',
         ]));
         return;
     }
     if ($parent) {
         header(
-            sprintf('Location: index.php?a=120&id=%s&r=1', $parent)
+            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
         );
         return;
     }
-    header("Location: index.php?a=3&id=" . $id . "&r=1");
+    header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
 }
 
 function setDocPermissionsEdit($document_groups, $id)

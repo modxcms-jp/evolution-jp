@@ -80,7 +80,7 @@ if ($afterSave === 'save_standby') {
 
 if ($afterSave === 'new') {
     header(
-        sprintf('Location: index.php?a=131&id=%s&r=1', $id)
+        sprintf('Location: index.php?a=131&id=%s&refresh=tree', $id)
     );
     return;
 }
@@ -92,9 +92,9 @@ if ($afterSave === 'stay') {
 }
 if (in_array($afterSave, ['save_draft', 'save_standby'], true)) {
     header(
-        sprintf('Location: index.php?a=133&id=%s&r=1', $id)
+        sprintf('Location: index.php?a=133&id=%s&refresh=tree', $id)
     );
     return;
 }
 
-header(sprintf('Location: index.php?a=3&id=%s&r=1', $id));
+header(sprintf('Location: index.php?a=3&id=%s&refresh=tree', $id));

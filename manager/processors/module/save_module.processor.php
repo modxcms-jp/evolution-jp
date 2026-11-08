@@ -93,7 +93,7 @@ switch ($mode) {
         ];
         evo()->invokeEvent("OnModFormSave", $eventParams);
 
-        $location = EvoFormFlow::afterSaveUrl('module', $newid, EvoFormFlow::postedAfterSave(), ['r' => 2]);
+        $location = EvoFormFlow::afterSaveUrl('module', $newid, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
         if ($enable_sharedparams !== 0) {
             $modx->clearCache();
         }
@@ -143,7 +143,7 @@ switch ($mode) {
         ];
         evo()->invokeEvent('OnModFormSave', $eventParams);
 
-        $location = EvoFormFlow::afterSaveUrl('module', $id, EvoFormFlow::postedAfterSave(), ['r' => 2]);
+        $location = EvoFormFlow::afterSaveUrl('module', $id, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
         if ($enable_sharedparams !== 0) {
             $modx->clearCache();
         }

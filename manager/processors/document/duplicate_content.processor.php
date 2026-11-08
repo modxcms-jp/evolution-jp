@@ -51,10 +51,10 @@ $pid = db()->getValue(
     )
 );
 if ($pid == 0) {
-    header("Location: index.php?r=1&a=3&id=" . $newid);
+    header("Location: index.php?refresh=tree&a=3&id=" . $newid);
     return;
 }
-header("Location: index.php?r=1&a=120&id=" . $pid);
+header("Location: index.php?refresh=tree&a=120&id=" . $pid);
 
 
 function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true)

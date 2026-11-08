@@ -75,7 +75,7 @@ final class ChildDocumentListState
     /** 一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ */
     public static function returnUrl(int $parent): string
     {
-        $q = ['r' => 1, 'a' => 120, 'id' => $parent] + self::returnParams();
+        $q = ['refresh' => 'tree', 'a' => 120, 'id' => $parent] + self::returnParams();
         return 'index.php?' . http_build_query($q, '', '&');
     }
 
