@@ -49,7 +49,8 @@ if (get_intvar('id')) {
         exit;
     }
     if ($limit < 1) {
-        header("Location: /index.php?id=" . $site_start);
+        alert()->setError(3);
+        alert()->dumpError();
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = $content['name'];

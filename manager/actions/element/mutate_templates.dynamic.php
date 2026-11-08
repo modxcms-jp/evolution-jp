@@ -383,9 +383,8 @@ function template($key, $default = null)
             exit;
         }
         if ($total < 1) {
-            echo "Oops, something went terribly wrong...<p>";
-            echo "No database record has been found for this template. <p>Aborting.";
-            exit;
+            alert()->setError(3);
+            alert()->dumpError();
         }
         $tplObject = db()->getRow($rs);
         $_SESSION['itemname'] = $tplObject['templatename'];

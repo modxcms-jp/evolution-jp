@@ -42,7 +42,8 @@ if (get_intvar('id')) {
         echo "Multiple plugins sharing same unique id. Not good.<p>";
         exit;
     elseif ($total < 1):
-        header("Location: " . MODX_SITE_URL);
+        alert()->setError(3);
+        alert()->dumpError();
     endif;
 
     $_SESSION['itemname'] = entity('name');
