@@ -85,6 +85,8 @@
         var sendGuard = null;
         var sendSeq = 0;            // 送信の番号。遅れて返った古い送信の結果で、今の状態を戻さないために使う
         var previewComposing = false; // 変換中か（sendAuto が見る）
+        var manualPending = null;   // 送信中に押された手動の「プレビュー」（{win, hide}）。今の送信が終わったら 1 本だけ送る
+        var scheduleAutoAfterInit = false;
         var AUTO_DELAY = 1500;
         var AUTO_TIMEOUT = 30000;   // Evo.fetch はログインへ移るときに解決しないので、送信中の印を戻す
         var previewMutate = document.getElementById('mutate');
@@ -107,6 +109,8 @@
                         // 窓が見ている下書きのキーを引き継ぐ（サーバーがセッションの持ち主と文書を確かめる）。保存のたびに新しいキーを作らず、最初の更新も再読み込みになる
                         var curKey = cur.searchParams.get('mgr_preview');
                         if (curKey && curKey !== '1') previewKey = curKey;
+                        // 待ちの間に保存したときも、窓を保存した内容へ更新する（lastSentSig は空なので 1 回送られる）
+                        scheduleAutoAfterInit = true;
                     }
                 }
             } catch (err) {
@@ -155,7 +159,10 @@
             if (sendGuard) clearTimeout(sendGuard);
             sendGuard = setTimeout(function () {
                 sendGuard = null;
-                if (seq === sendSeq) autoSending = false;
+                if (seq === sendSeq) {
+                    autoSending = false;
+                    flushManual();
+                }
             }, AUTO_TIMEOUT);
             return seq;
         }
@@ -171,8 +178,28 @@
         function stopAuto() {
             autoOn = false;
             autoPending = false;
+            if (manualPending) window.removeEventListener('pagehide', manualPending.hide);
+            manualPending = null;
             if (autoTimer) clearTimeout(autoTimer);
             autoTimer = null;
+        }
+
+        // 何も表示していない新しい窓だけ閉じる。使い回しの窓の中身（前のプレビュー）は消さない
+        function closeBlank(win) {
+            try {
+                if (!win.closed && win.location.href === 'about:blank') win.close();
+            } catch (err) {
+                // 読めない窓は触らない
+            }
+        }
+
+        // 保留した手動の送信があれば始める。始めたら true
+        function flushManual() {
+            if (!manualPending) return false;
+            var pending = manualPending;
+            manualPending = null;
+            sendManual(pending.win, pending.hide);
+            return true;
         }
 
         function previewWinOpen() {
@@ -250,6 +277,7 @@
                         return;
                     }
                     showPreview(previewWin, result);
+                    if (flushManual()) return;
                     if (autoPending) {
                         autoPending = false;
                         scheduleAuto();
@@ -260,8 +288,45 @@
                     endSending(seq);
                     if (seq === sendSeq) autoPending = false;
                     console.warn('preview auto update failed', err);
+                    if (seq === sendSeq) flushManual();
                 });
         }
+
+        // 手動の送信。手動は内容が同じでも必ず送る（下書きの期限の延長と窓を開くため）。失敗は従来どおり知らせる
+        function sendManual(win, hide) {
+            var seq = beginSending();
+            var failed = function () {
+                window.removeEventListener('pagehide', hide);
+                if (seq !== sendSeq) return;
+                endSending(seq);
+                // 続けて手動の送信があるときは窓を閉じない
+                if (!manualPending) closeBlank(win);
+                alert([+lang_error_occurred+]);
+                flushManual();
+            };
+            postPreviewDraft(buildPreviewForm())
+                .then(function (result) {
+                    window.removeEventListener('pagehide', hide);
+                    // 後の送信が始まっていれば、この古い結果は使わない
+                    if (seq !== sendSeq) return;
+                    endSending(seq);
+                    lastSentSig = result.sig;
+                    result.changed = !result.key || result.key !== previewKey;
+                    previewKey = result.key;
+                    showPreview(win, result);
+                    win.focus();
+                    if (flushManual()) return;
+                    // 送信中に入った変更を 1 回送る
+                    if (autoPending) {
+                        autoPending = false;
+                        scheduleAuto();
+                    }
+                })
+                .catch(failed);
+        }
+
+        // 保存後に窓を引き継いだときは更新を 1 回予約する（引き継がなかったときは何もしない）
+        if (previewable && scheduleAutoAfterInit) scheduleAuto();
 
         // 編集の変更を拾う（自動更新が有効なときだけ送られる）。プレビューを開ける編集画面だけで結び付ける
         if (previewable) {
@@ -324,44 +389,18 @@
             // 手動の送信と自動の送信がぶつからないよう、待っている自動の送信は取り消す
             if (autoTimer) clearTimeout(autoTimer);
             autoTimer = null;
-            // 使い回しの窓の中身（前のプレビュー）は消さない。何も表示していない新しい窓だけ、失敗や画面の移動で閉じる
-            var closeBlank = function () {
-                try {
-                    if (!win.closed && win.location.href === 'about:blank') win.close();
-                } catch (err) {
-                    // 読めない窓は触らない
-                }
-            };
             // セッション切れでログインへ移るとき（Evo.fetch は Promise を解決しない）、空の窓を残さない
-            window.addEventListener('pagehide', closeBlank, { once: true });
-            var seq;
-            var failed = function () {
-                window.removeEventListener('pagehide', closeBlank);
-                if (seq !== sendSeq) return;
-                endSending(seq);
-                closeBlank();
-                alert([+lang_error_occurred+]);
+            var hide = function () {
+                closeBlank(win);
             };
-            seq = beginSending();
-            // 手動は内容が同じでも必ず送る（下書きの期限の延長と窓を開くため）
-            postPreviewDraft(buildPreviewForm())
-                .then(function (result) {
-                    window.removeEventListener('pagehide', closeBlank);
-                    // 後の送信が始まっていれば、この古い結果は使わない
-                    if (seq !== sendSeq) return;
-                    endSending(seq);
-                    lastSentSig = result.sig;
-                    result.changed = !result.key || result.key !== previewKey;
-                    previewKey = result.key;
-                    showPreview(win, result);
-                    win.focus();
-                    // 送信中に入った変更を 1 回送る
-                    if (autoPending) {
-                        autoPending = false;
-                        scheduleAuto();
-                    }
-                })
-                .catch(failed);
+            window.addEventListener('pagehide', hide, { once: true });
+            // 送信中は直列にする。同じ下書きのキーへ古い送信が後から着いて上書きしないよう、今の送信が終わってから送る（保留中の押下は 1 本にまとめる）
+            if (autoSending) {
+                if (manualPending) window.removeEventListener('pagehide', manualPending.hide);
+                manualPending = { win: win, hide: hide };
+                return;
+            }
+            sendManual(win, hide);
         });
         onClick('cancel', function () {
             var docIsFolder = '[+docIsFolder+]';
