@@ -253,10 +253,19 @@
 
         // 編集の変更を拾う（自動更新が有効なときだけ送られる）。プレビューを開ける編集画面だけで結び付ける
         if (previewable) {
+            // 日本語などの変換中は送らない。Chrome の順序は compositionstart, compositionupdate, input(isComposing) ×N, compositionend で、
+            // 確定時の input も isComposing のままで compositionend の後に input は来ない。そのため印を持ち、compositionend で送る
+            var composing = false;
+            previewMutate.addEventListener('compositionstart', function () {
+                composing = true;
+            });
+            previewMutate.addEventListener('compositionend', function () {
+                composing = false;
+                scheduleAuto();
+            });
             ['input', 'change', 'ddmultiple:change'].forEach(function (type) {
                 previewMutate.addEventListener(type, function (e) {
-                    // 日本語の変換中は送らない（確定で input / change が来る）
-                    if (e.isComposing) return;
+                    if (composing || e.isComposing) return;
                     scheduleAuto();
                 });
             });
