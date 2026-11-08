@@ -294,7 +294,7 @@ $icons_path = manager_style_image_path('icons');
                     '[+prefix+]manager_log',
                     implode(' AND ', $where),
                     $orderby,
-                    sprintf('%d, %d', $pager->offset(), $pager->limit())
+                    $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
                 );
                 $rows = [];
                 while ($row = db()->getRow($rs)) {

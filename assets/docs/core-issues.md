@@ -113,8 +113,8 @@
 
 ## 表とページ送りの組み方が DataTable の外に残る（解決済み）
 
-- **[解決済] 2026-11-08（#1204）**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消した。以下は当時の記録
 - **発見日**: 2026-11-07
+- **解決日**: 2026-11-08
 - **発見元**: 表の部品（DataGrid・MakeTable）を作り直す ExecPlan（`.agent/plans/archive/2026-11-07-data-table-component.md`、#1087）の利用箇所の洗い出し
 - **ファイル**: `manager/includes/paginate.inc.php`（`Paging`）、`manager/actions/report/logging.static.php`、`manager/actions/main/search.static.php`、`manager/actions/report/site_schedule.static.php`、`manager/media/script/tablesort.js`、`assets/plugins/managermanager/libs/OnPluginFormRender.inc.php`
 - **課題**: #1087 で表の部品を `DataTable`（`manager/includes/controls/data_table.class.php`）にまとめるが、その対象（DataGrid・MakeTable）の外に、同じ役割の作りが残る
@@ -122,4 +122,5 @@
   - 管理ログ・検索・スケジュールの表は手書きで、`border`・`cellpadding`・`bgcolor`・`width` の属性を出し、並べ替えはブラウザ側の `tablesort.js`（IE 向けの分岐を含む古いライブラリ）で行う
   - ManagerManager の設定の補助の表も、`gridItem`・`gridAltItem` を手で付けて組んでいる
 - **改善案**: これらの画面を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消す。並べ替えは `DataTableLinks` のサーバー側の並べ替えにそろえる。それまで、新しく書くページ送りと表は `DataTable` の部品だけを使い、`Paging` と `tablesort.js` を使うコードを増やさない（決まりは `assets/docs/data-table.md` に書いた）
+- **対応**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し（#1204）、`paginate.inc.php` と `tablesort.js` を消した。並べ替えは `DataTableLinks` のサーバー側に替えた。
 - **関連ロードマップ**: 自前で組み立てている表とページ送りを DataTable に移す（#1204）

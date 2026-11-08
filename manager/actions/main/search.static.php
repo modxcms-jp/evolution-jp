@@ -152,7 +152,8 @@ if (getv('submitok')) {
         }
     }
     $links = DataTableLinks::fromRequest('index.php', $linkParams, array_keys($sortColumns));
-    $orderby = 'id';
+    // 並べ替えの指定が無いときの既定はタイトル昇順（見出しの aria-sort は付かない）
+    $orderby = 'pagetitle ASC, id ASC';
     if ($links->orderby() !== '') {
         $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
         $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);

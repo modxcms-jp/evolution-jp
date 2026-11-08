@@ -464,7 +464,6 @@ return [
     "mgrlog_itemid" => 'Item ID',
     "mgrlog_itemname" => 'Item name',
     "mgrlog_msg" => 'Message',
-    "mgrlog_noquery" => 'No search query entered yet.',
     "mgrlog_qresults" => 'Query results',
     "mgrlog_results" => 'No. of results',
     "mgrlog_searchlogs" => 'Search logs',

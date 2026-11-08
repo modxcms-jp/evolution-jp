@@ -13,7 +13,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -751,7 +751,6 @@ a img {
     border: 0;
 }
 
-/* -------------------------[ end sortable table ]--- */
 .disabledImage {
     width: 20px;
     opacity: 0.3;
@@ -1285,7 +1284,7 @@ a.hometblink:hover {
 
 
 /* ============================================================================
-   9. Tables & Grids (Data Tables, Settings, Sortable)
+   9. Tables & Grids (Data Tables, Settings)
    Used in: Configuration tables, data grids
    ============================================================================ */
 .settings {

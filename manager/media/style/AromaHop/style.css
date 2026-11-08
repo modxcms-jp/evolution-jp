@@ -16,7 +16,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -1065,16 +1065,6 @@ a img {
     border: 0;
 }
 
-/* 一覧表の行色 - モヒートパレット準拠 */
-.even {
-    background: rgba(234, 252, 207, 0.4);  /* #EAFCCF 40% */
-}
-
-.odd {
-    background: rgba(253, 253, 251, 0.95);  /* #FDFDFB */
-}
-
-/* -------------------------[ end sortable table ]--- */
 .disabledImage {
     width: 20px;
     opacity: 0.3;
@@ -1225,8 +1215,8 @@ div.treeNode {
 }
 
 /* ============================================================================
-   9. Tables & Grids - Data Tables, Sortable Tables
-   Used in: User lists, resource grids, sortable data tables
+   9. Tables & Grids - Data Tables
+   Used in: User lists, resource grids, data tables
    ============================================================================ */
 
 /* グリッド - モヒートパレット */

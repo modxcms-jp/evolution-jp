@@ -6,11 +6,11 @@ $plugin_editing_name = db()->getValue($result);
 // if it's the right plugin
 if (strtolower($plugin_editing_name) == 'managermanager') {
     include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-    $tableOptions = ['tableClass' => 'grid', 'rowClasses' => ['gridItem', 'gridAltItem']];
+    $tableOptions = ['rowClasses' => ['gridItem', 'gridAltItem']];
 
     // Get all templates
     $result = db()->select('templatename, id, description', evo()->getFullTableName('site_templates'), '', 'templatename ASC');
-    $all_templates = $modx->db->makeArray($result);
+    $all_templates = db()->makeArray($result);
     array_unshift($all_templates, ['id' => 0, 'templatename' => '(blank)', 'description' => 'Blank']);
     $template_table = (new DataTable(
         [
@@ -23,7 +23,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
 
     // Get all tvs
     $result = db()->select('name,caption,id', evo()->getFullTableName('site_tmplvars'), '', 'name ASC');
-    $all_tvs = $modx->db->makeArray($result);
+    $all_tvs = db()->makeArray($result);
     $tvs_table = (new DataTable(
         [
             ['key' => 'id', 'label' => 'ID'],
@@ -35,7 +35,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
 
     // Get all roles
     $result = db()->select('name, id', evo()->getFullTableName('user_roles'), '', 'name ASC');
-    $all_roles = $modx->db->makeArray($result);
+    $all_roles = db()->makeArray($result);
     $roles_table = (new DataTable(
         [
             ['key' => 'id', 'label' => 'ID'],

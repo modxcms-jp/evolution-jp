@@ -466,7 +466,6 @@ return [
     "mgrlog_itemid" => '操作対象のID',
     "mgrlog_itemname" => '操作対象名',
     "mgrlog_msg" => 'キーワード',
-    "mgrlog_noquery" => '検索されていません。',
     "mgrlog_qresults" => '結果',
     "mgrlog_results" => 'ページあたりの表示件数',
     "mgrlog_searchlogs" => '検索の履歴',

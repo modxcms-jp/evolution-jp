@@ -13,7 +13,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -805,14 +805,6 @@ a img {
     border: 0;
 }
 
-.even {
-    background: var(--color-row-highlight);
-}
-
-.odd {
-    background: var(--color-row-odd);
-}
-
 /* ============================================================================
    8. Tree Components (Site Tree, Context Menu)
    Used in: Resource tree, context menus, tree navigation
@@ -949,8 +941,8 @@ div.treeNode {
 }
 
 /* ============================================================================
-   9. Tables & Grids (Data Tables, Sortable)
-   Used in: Resource lists, data grids, sortable tables
+   9. Tables & Grids (Data Tables)
+   Used in: Resource lists, data grids, tables
    ============================================================================ */
 
 .grid {
