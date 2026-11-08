@@ -6,7 +6,9 @@
  * 画面はこのキーを付けた文書の URL（?mgr_preview=<キー>。mgr_preview = 管理画面からのプレビュー）を GET で開く。
  * 置き場の決まり（件数の上限・期限）は DocumentParser の storePreviewDraft() / loadPreviewDraft() にある。
  *
- * 応答: {"url":"<文書の URL>"} か {"error":"…"}
+ * POST の preview_key（任意）に、前に受け取ったキーを入れると、同じ文書の下書きとして残っていれば同じキーで上書きする。
+ *
+ * 応答: {"url":"<文書の URL>","key":"<キー>"} か {"error":"…"}
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -32,14 +34,17 @@ if (!$url) {
 
 // 編集フォームのすべての項目（TV・配列を含む）を getPreviewObject() の規則で変換するため、全体を渡す。
 // 値は DB に入れず、セッションに置いてプレビューの表示にだけ使う。
+// preview_key は使い回すキーの指定で、下書きの中身ではないので渡す前に取り除く
+$input = postv();
+unset($input['preview_key']);
 try {
-    $key = evo()->storePreviewDraft($docid, postv());
+    $key = evo()->storePreviewDraft($docid, $input, post_strvar('preview_key'));
 } catch (Throwable $e) {
     previewDraftJson(['error' => lang('error_occurred')], 500);
 }
 
 $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query(['mgr_preview' => $key]);
-previewDraftJson(['url' => $url]);
+previewDraftJson(['url' => $url, 'key' => $key]);
 
 function previewDraftJson(array $data, $status = 200)
 {

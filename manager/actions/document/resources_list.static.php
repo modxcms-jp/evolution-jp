@@ -17,6 +17,12 @@ if ($id && !evo()->checkPermissions($id)) {
 
 include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 
+// 一括の操作。ボタンは操作ごとの権限があるものだけ出し、チェックボックスと選択の部品はどれか 1 つの権限があれば出す
+$canBatchMove = hasPermission('move_document');
+$canBatchDelete = hasPermission('delete_document');
+$canBatchPublish = hasPermission('save_document') && hasPermission('publish_document');
+$canBatch = $canBatchMove || $canBatchDelete || $canBatchPublish;
+
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
 
@@ -70,10 +76,10 @@ $rs = db()->select(
 );
 $numRecords = db()->count($rs);
 // 「この一覧のすべてを選択」で使う全件の ID。件数を数えた問い合わせの結果を使い回す（DB の問い合わせは増やさない）。
-// ID を data 属性に入れて、移動の画面（a=51）の batch[] はそのまま受ける形にした（「親の id と q」を送る方式は、
-// 受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
+// ID を data 属性に入れて、一括操作（移動の a=51・削除・公開・非公開の a=121）の batch[] はそのまま受ける形にした
+// （「親の id と q」を送る方式は、受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
 // 表の行と同じく、一覧に見える（isContainAllowed()）ものだけを入れる。tree_show_protected=1 の管理者でない利用者には
-// has_access=0 の子も一覧に出るが、a=51 の checkPermissions() で移動全体が止まるので、全件の ID からは外す
+// has_access=0 の子も一覧に出るが、一括操作の checkPermissions() で操作全体が止まるので、全件の ID からは外す
 $allChildIds = [];
 while ($row = db()->getRow($rs)) {
     if (isset($row['has_access']) && !(int) $row['has_access']) {
@@ -172,7 +178,9 @@ if (!$numRecords) {
         $doc['description'] = getDescription($doc);
 
         $col = [];
-        $col['checkbox'] = sprintf('<input type="checkbox" name="batch[]" value="%d">', (int) $docid);
+        if ($canBatch) {
+            $col['checkbox'] = sprintf('<input type="checkbox" name="batch[]" value="%d">', (int) $docid);
+        }
         $col['docid'] = $docid;
         $col['title'] = parseText($tpl, $doc);
         $col['publishedon'] = getPublishedOn($doc);
@@ -181,23 +189,26 @@ if (!$numRecords) {
         $rows[] = $col;
     }
 
-    $columns = [
-        ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'],
+    $columns = [];
+    if ($canBatch) {
+        $columns[] = ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'];
+    }
+    $columns = array_merge($columns, [
         ['key' => 'docid', 'label' => $_lang['id'], 'class' => 'is-shrink', 'sort' => 'id'],
         ['key' => 'title', 'label' => $_lang['resource_title'], 'html' => true, 'sort' => 'pagetitle'],
         ['key' => 'publishedon', 'label' => $_lang['publish_date'], 'html' => true, 'sort' => 'publishedon'],
         ['key' => 'editedon', 'label' => $_lang['editedon'], 'html' => true, 'sort' => 'editedon'],
         ['key' => 'status', 'label' => $_lang['page_data_status'], 'html' => true],
-    ];
+    ]);
     $table = new DataTable($columns, [
         'id' => 'children',
         'tableClass' => 'grid',
         'rowClasses' => ['gridItem', 'gridAltItem'],
-        'selection' => hasPermission('move_document') ? [
+        'selection' => $canBatch ? [
             'name' => 'batch[]',
             'ids' => $allChildIds,
             // 全件を batch[] の hidden で送ると max_input_vars を超えたぶんを PHP が黙って切り捨てる。
-            // 上限は ini の値から、フォームのほかの値（a・送信ボタンなど）の余裕 50 を引いた数
+            // 上限は ini の値から、フォームのほかの値（parent・csrf_token・送信ボタンなど）の余裕 50 を引いた数
             'max' => max(0, (int) ini_get('max_input_vars') - 50),
             'labels' => [
                 'selected' => lang('data_table_selected'),
@@ -214,8 +225,31 @@ if (!$numRecords) {
         'last' => lang('pagination_table_last'),
     ]);
     $children_output = $nav . $table->render($rows, $links) . $nav;
-    if (hasPermission('move_document')) {
-        $children_output .= '<div class="resources-batch-actions"><input type="submit" value="' . $_lang["resources_list_move_checked"] . '" /></div>';
+    if ($canBatch) {
+        // ボタンごとの送り先は formaction（フォームに hidden の a を置くと、a の値が衝突する）。
+        // 操作の種類は URL の op で渡し、今のページ・並べ替え・検索語（q）も同じ URL で引き継ぐ。削除は確認のダイアログを出す
+        $returnQuery = ChildDocumentListState::returnQuery();
+        $button = function ($label, $a, $op = '', $confirm = '') use ($returnQuery) {
+            $url = 'index.php?a=' . $a . ($op !== '' ? '&op=' . $op . $returnQuery : '');
+            return sprintf(
+                '<input type="submit" value="%s" formaction="%s"%s /> ',
+                hsc($label),
+                hsc($url),
+                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : ''
+            );
+        };
+        $buttons = '';
+        if ($canBatchMove) {
+            $buttons .= $button($_lang['resources_list_move_checked'], 51);
+        }
+        if ($canBatchPublish) {
+            $buttons .= $button($_lang['resources_list_publish_checked'], 121, 'publish');
+            $buttons .= $button($_lang['resources_list_unpublish_checked'], 121, 'unpublish');
+        }
+        if ($canBatchDelete) {
+            $buttons .= $button($_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked']);
+        }
+        $children_output .= '<div class="resources-batch-actions">' . $buttons . '</div>';
     }
 }
 
@@ -283,11 +317,14 @@ echo get_jscript($id, $cm);
                 </table>
             </div>
             <?php
+            // チェックボックスなどでの Enter では送らない（既定の送信ボタンが無く、先頭の有効なボタン＝移動や公開が押されたことになるため）。
+            // フォームの属性に置くので、シェルの画面遷移で要素が作り直されても重ならない。ボタン・リンクの Enter は通常どおり
+            $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
             $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
             echo <<< EOT
 {$topicPath}
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
-<input type="hidden" name="a" value="51" />
+<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
+<input type="hidden" name="parent" value="{$id}" />
 {$children_output}
 </form>
 EOT;

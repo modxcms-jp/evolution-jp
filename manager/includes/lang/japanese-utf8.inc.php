@@ -1072,6 +1072,10 @@ return [
     "configcheck_filemanager_path" => 'ファイルマネージャーの対象ディレクトリのパス設定が正しくありません。',
 
     "resources_list_move_checked" => 'チェックしたリソースを移動',
+    "resources_list_publish_checked" => 'チェックしたリソースを公開',
+    "resources_list_unpublish_checked" => 'チェックしたリソースを非公開',
+    "resources_list_delete_checked" => 'チェックしたリソースを削除',
+    "resources_list_confirm_delete_checked" => 'チェックしたリソースを削除します。よろしいですか？\n子リソースもすべて削除されます。',
     "export_site_replace_before" => '文字列を置換(置換前)',
     "export_site_replace_after" => '文字列を置換(置換後)',
     "export_site_target_outside_temp" => 'エクスポート先は temp/ ディレクトリの中にしてください。',

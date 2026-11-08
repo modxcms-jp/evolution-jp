@@ -212,6 +212,7 @@ function csrfProtectedActions()
         63  => true, // 復元
         64  => true, // ごみ箱から完全に削除
         94  => true, // 複製
+        121 => true, // 一覧からの一括の削除・公開・非公開
         129 => true, // 下書きの公開
         134 => true, // 下書きの公開予約の取り消し
         // 要素

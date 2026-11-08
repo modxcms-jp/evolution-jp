@@ -14,8 +14,11 @@ if (!$id) {
     alert()->dumpError();
 }
 
+include_once(__DIR__ . '/document_state.functions.php');
+
 // check permissions on the document
-if (!$modx->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
+$denied = docPublishCheck($id, true);
+if ($denied === 'access_permission_denied') {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>
@@ -25,36 +28,16 @@ if (!$modx->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;
 }
-$doc = $modx->db->getObject('site_content', "id='{$id}'");
-if (!evo()->hasPermission('view_unpublished')) {
-    if (evo()->getLoginUserID() != $doc->publishedby) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
+if ($denied !== '') {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$now = time();
-// update the document
-$field['published'] = 1;
-if ($now < $doc->pub_date) {
-    $field['pub_date'] = 0;
-}
-if ($doc->unpub_date < $now) {
-    $field['unpub_date'] = 0;
-}
-$field['publishedby'] = evo()->getLoginUserID();
-$field['publishedon'] = $now;
-$field['editedon'] = $now;
-$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
-if (!$rs) {
-    exit("An error occured while attempting to publish the document.");
-}
+docPublishExecute($id);
 
-$modx->clearCache();
+evo()->clearCache();
 
-// invoke OnDocPublished  event
-$tmp = ['docid' => $id, 'type' => 'manual'];
-evo()->invokeEvent('OnDocPublished', $tmp);
+docPublishFireEvent($id);
 
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
 include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');

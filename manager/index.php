@@ -534,6 +534,9 @@ switch (manager()->action) {
     case 135: // get the parent resource picker (modal)
         include_once($action_path . 'document/parent_picker.dynamic.php');
         break;
+    case 121: // get the batch processor (delete / publish / unpublish checked resources)
+        include_once($prc_path . 'document/batch_content.processor.php');
+        break;
     case 61: // get the processor for publishing content
         include_once($prc_path . 'document/publish_content.processor.php');
         break;

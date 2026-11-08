@@ -1070,6 +1070,10 @@ return [
     "configcheck_filemanager_path" => 'The path setting of the target directory of the File Manager is not right.',
 
     "resources_list_move_checked" => 'Move checked resources',
+    "resources_list_publish_checked" => 'Publish checked resources',
+    "resources_list_unpublish_checked" => 'Unpublish checked resources',
+    "resources_list_delete_checked" => 'Delete checked resources',
+    "resources_list_confirm_delete_checked" => 'Are you sure you want to delete the checked Resources?\nAny children Resources will also be deleted.',
     "export_site_replace_before" => 'Replace string (before)',
     "export_site_replace_after" => 'Replace string (after)',
     "export_site_target_outside_temp" => 'The export directory must be inside the temp/ directory.',
