@@ -60,27 +60,32 @@ $numRecords = db()->count($rs);
 
 $links = ChildDocumentListState::links($id);
 
-// 並べ替えの解除と検索欄。表を包む POST のフォームの外に置く（フォームは入れ子にできない）
-$listTools = '<form class="child-list-tools" method="get" action="index.php">'
+// 検索欄と、絞り込み・並べ替えの解除。ユーザー管理の一覧の検索欄と同じ作りで、表を包む POST のフォームの外に置く（フォームは入れ子にできない）
+$kw = hsc($_lang['search']);
+$listTools = '<form class="child-list-tools" name="childsearch" method="get" action="index.php">'
     . '<input type="hidden" name="a" value="120">'
     . ($id ? '<input type="hidden" name="id" value="' . (int) $id . '">' : '');
 if ($links->orderby() !== '') {
     $listTools .= '<input type="hidden" name="orderby" value="' . hsc($links->orderby()) . '">'
         . '<input type="hidden" name="orderdir" value="' . hsc($links->orderdir()) . '">';
 }
-$listTools .= '<input type="search" name="q" value="' . hsc($keyword) . '" maxlength="'
-    . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" placeholder="' . hsc($_lang['resources_list_search_placeholder'])
-    . '" aria-label="' . hsc($_lang['resources_list_search_placeholder']) . '"> '
-    . '<input type="submit" value="' . hsc($_lang['search']) . '">';
+$listTools .= '<table border="0" style="float:right"><tr><td>' . $kw . '</td>'
+    . '<td><input class="searchtext" name="q" type="text" size="15" maxlength="'
+    . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
+    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '"></td>'
+    . '<td><a href="#" class="default" title="' . $kw . '" onclick="this.closest(\'form\').requestSubmit();return false;">'
+    . hsc($_lang['go']) . '</a></td>';
 if ($keyword !== '') {
-    $listTools .= ' <a href="' . hsc($links->url(['q' => null, 'page' => null])) . '">'
-        . hsc($_lang['resources_list_search_clear']) . '</a>';
+    $listTools .= '<td><a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
+        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
+        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a></td>';
 }
 if ($links->orderby() !== '') {
-    $listTools .= ' <a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '">'
-        . hsc($_lang['resources_list_reset_order']) . '</a>';
+    $listTools .= '<td><a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
+        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
+        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a></td>';
 }
-$listTools .= '</form>';
+$listTools .= '</tr></table></form>';
 
 if (!$numRecords) {
     $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
@@ -214,24 +219,33 @@ echo get_jscript($id, $cm);
     <div class="section">
         <div class="sectionBody">
             <!-- View Children -->
-            <?php if (hasPermission('new_document')) { ?>
-                <ul class="actionButtons">
-                    <li class="mutate">
-                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
-                            <?= $_lang['create_resource_here'] ?>
-                        </a>
-                    </li>
-                    <li class="mutate">
-                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
-                            <?= $_lang['create_weblink_here'] ?>
-                        </a>
-                    </li>
-                </ul>
-            <?php }
+            <div class="actionButtons">
+                <table border="0" style="width:100%">
+                    <tr>
+                        <td>
+                            <?php if (hasPermission('new_document')) { ?>
+                                <ul class="actionButtons">
+                                    <li class="mutate">
+                                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
+                                            <?= $_lang['create_resource_here'] ?>
+                                        </a>
+                                    </li>
+                                    <li class="mutate">
+                                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
+                                            <?= $_lang['create_weblink_here'] ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            <?php } ?>
+                        </td>
+                        <td nowrap="nowrap"><?= $listTools ?></td>
+                    </tr>
+                </table>
+            </div>
+            <?php
             $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
             echo <<< EOT
 {$topicPath}
-{$listTools}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="a" value="51" />
 {$children_output}
