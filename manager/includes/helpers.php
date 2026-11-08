@@ -1273,3 +1273,16 @@ if (!function_exists('manager_is_dashboard_action')) {
             && (int)manager()->action === 2;
     }
 }
+
+/**
+ * php.ini の容量表記(128M・1G・512K・数値のみ。K・M・G は大文字小文字を問わない)をバイト数にする。
+ * 解釈できない書式は 0。-1(無制限)は -1 のまま返す
+ */
+function ini_size_to_bytes($value)
+{
+    if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', trim((string) $value), $m)) {
+        return 0;
+    }
+    $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
+    return (int) $m[1] * $multipliers[strtoupper($m[2])];
+}
