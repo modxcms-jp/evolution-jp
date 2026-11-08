@@ -403,6 +403,7 @@
 <body id="login">
 <div id="mx_loginbox">
     <form method="post" name="loginfrm" id="loginfrm" action="processors/login.processor.php">
+        <input type="hidden" name="return" value="[+login_return+]"/>
         [+OnManagerLoginFormPrerender+]
         <div class="header">
             <a href="../" class="brand"><span class="icon">✦</span><span>[+site_name+]</span></a>

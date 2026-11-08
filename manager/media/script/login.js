@@ -34,7 +34,9 @@
             password: value('#password'),
             rememberme: remember && remember.checked ? '1' : '0',
             ajax: '1',
-            captcha_code: value('input[name="captcha_code"]')
+            captcha_code: value('input[name="captcha_code"]'),
+            // ログイン後に戻る画面のクエリ（サーバーがフォームに入れる。行き先は管理画面の中に限られる）
+            return: value('#loginfrm input[name="return"]')
         });
         const done = function () {
             button.classList.remove('loading');

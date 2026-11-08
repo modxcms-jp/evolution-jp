@@ -12,8 +12,12 @@ if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
     @session_destroy();
 }
 
-if (getv('frame')) {
-    $_SESSION['save_uri'] = serverv('REQUEST_URI');
+// ログイン画面は、開こうとした画面の URL のままで出る。ログイン後にその画面へ戻れるよう、
+// 画面のクエリをログインフォームに持たせる（行き先は login.processor.functions.php の loginRedirectUri()）。
+// POST と状態を変える操作は、開き直しても同じ画面にならないので持たせない
+$loginReturn = '';
+if (is_get() && anyv('a') && !isCsrfProtectedAction(manager()->action)) {
+    $loginReturn = serverv('QUERY_STRING', '');
 }
 // 言語は manager/index.php の loadLexicon() で読み込み済み
 
@@ -122,6 +126,12 @@ evo()->setPlaceholder(
 );
 evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
 evo()->setPlaceholder('login_button', $_lang["login_button"]);
+// ログイン画面は下の parseDocumentSource() で解析し直すので、リクエストから来た値に [ ] { } が残ると
+// タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
+evo()->setPlaceholder(
+    'login_return',
+    strtr(hsc($loginReturn), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;'])
+);
 
 $loginTplOutput = loadLoginTpl($tpl);
 $evtOut = evo()->invokeEvent('OnManagerLoginFormRender');

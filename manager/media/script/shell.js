@@ -144,6 +144,12 @@
         window.location.href = normalizeManagerUrl(url);
     }
 
+    // セッション切れのとき、ログイン画面を出すためにページ全体を読み直す。
+    // # を付けたままだと、今と同じ URL（戻る・進むの移動先など）への代入はページ内の移動になり、読み直されない
+    function reloadForLogin(url) {
+        window.location.href = normalizeManagerUrl(url).split('#')[0];
+    }
+
     function isFullDocumentHtml(text) {
         return /<\s*html\b/i.test(text);
     }
@@ -539,8 +545,9 @@
         return fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
-                    // セッション切れ。ログイン画面へフルリロードする
-                    fullReload('index.php');
+                    // セッション切れ。開こうとした画面（POST・モーダルなら今の画面）をフルリロードしてログイン画面を出す。
+                    // ログイン画面はその URL のまま出て、ログイン後にその画面へ戻る
+                    reloadForLogin(options.method === 'POST' || isModalTarget ? window.location.href : url);
                     return null;
                 }
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
@@ -596,7 +603,7 @@
         })
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
-                    fullReload('index.php');
+                    reloadForLogin(window.location.href);
                     return null;
                 }
                 return response.text();

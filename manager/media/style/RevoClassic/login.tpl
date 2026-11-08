@@ -769,6 +769,7 @@
 <body id="login">
 <div id="mx_loginbox">
     <form method="post" name="loginfrm" id="loginfrm" action="processors/login.processor.php">
+        <input type="hidden" name="return" value="[+login_return+]"/>
         <!-- anything to output before the login box via a plugin? -->
         [+OnManagerLoginFormPrerender+]
         <div class="header">
