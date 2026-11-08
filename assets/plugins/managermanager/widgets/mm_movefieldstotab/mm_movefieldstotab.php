@@ -106,8 +106,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
                 break;
 
             // We can't move these fields because they belong in a particular place
-            case 'keywords':
-            case 'metatags':
             case 'which_editor':
                 // Do nothing
                 break;
