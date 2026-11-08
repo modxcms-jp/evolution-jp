@@ -71,13 +71,20 @@ if (!window.EvoDataTable) {
             bar.append(body);
         }
 
-        // 「この一覧のすべて」: このページの行を選び、ほかのページの値を hidden として足す
+        // 「この一覧のすべて」: ids に含まれるこのページの行だけを選び（含まれない行は外す。見られない子など、
+        // 一括操作の権限の確認で全体が止まるものを送らない）、ほかのページの値を hidden として足す
         function selectAllInList(bar) {
             const form = bar.closest('form');
             let ids = [];
             try { ids = JSON.parse(bar.dataset.allIds || '[]'); } catch (err) { ids = []; }
+            const inList = new Set(ids.map(String));
             const onPage = new Set();
-            selectionRows(bar).forEach(function (c) { c.checked = true; onPage.add(c.value); });
+            selectionRows(bar).forEach(function (c) {
+                c.checked = inList.has(c.value);
+                if (c.checked) {
+                    onPage.add(c.value);
+                }
+            });
             const head = bar.closest('.data-table').querySelector('input[data-select-all]');
             if (head) {
                 head.checked = true;
