@@ -126,7 +126,12 @@ evo()->setPlaceholder(
 );
 evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
 evo()->setPlaceholder('login_button', $_lang["login_button"]);
-evo()->setPlaceholder('login_return', hsc($loginReturn));
+// ログイン画面は下の parseDocumentSource() で解析し直すので、リクエストから来た値に [ ] { } が残ると
+// タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
+evo()->setPlaceholder(
+    'login_return',
+    strtr(hsc($loginReturn), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;'])
+);
 
 $loginTplOutput = loadLoginTpl($tpl);
 $evtOut = evo()->invokeEvent('OnManagerLoginFormRender');
