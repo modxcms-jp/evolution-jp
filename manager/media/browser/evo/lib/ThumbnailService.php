@@ -64,6 +64,10 @@ class ThumbnailService
 
         $this->cleanupStale($sourceFile, $cacheFile);
 
+        if (!$this->canLoad($sourceFile)) {
+            return null;
+        }
+
         $image = $this->loadImage($sourceFile, $ext);
         if ($image === null) {
             return null;
@@ -113,6 +117,53 @@ class ThumbnailService
         }
 
         readfile($cacheFile);
+    }
+
+    /**
+     * GD で読み込んでもメモリが足りるかを、読み込む前に見積もる。
+     * imagecreatefrom*() はメモリ不足だと例外にならず致命的エラーで処理ごと止まり、
+     * 一覧のほかの画像まで巻き込むため、足りないものは作らずアイコン表示に回す。
+     * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まり、
+     * 固定値だと小さい上限のサーバでは守れず、大きい上限のサーバでは不要に断るため。
+     * 画像のサイズを読めない(壊れた画像など)ときは従来どおり loadImage() に任せる。
+     */
+    private function canLoad($file)
+    {
+        $info = @getimagesize($file);
+        if (!$info || empty($info[0]) || empty($info[1])) {
+            return true;
+        }
+
+        $limit = $this->memoryLimitBytes();
+        if ($limit < 0) {
+            return true;
+        }
+
+        // GD は常に 4 バイト/画素のトゥルーカラーで展開する。デコード中の作業領域として 1.7 倍、
+        // 縮小先(最大 MAX_DIM 四方)の分を足す
+        $need = (int) ($info[0] * $info[1] * 4 * 1.7) + self::MAX_DIM * self::MAX_DIM * 4;
+        return $need <= $limit - memory_get_usage();
+    }
+
+    /** memory_limit をバイト数で返す(128M・1G・数値のみに対応)。無制限(-1・0)は -1 */
+    private function memoryLimitBytes()
+    {
+        $raw = trim((string) ini_get('memory_limit'));
+        if ($raw === '' || (int) $raw <= 0) {
+            return -1;
+        }
+        $bytes = (int) $raw;
+        switch (strtolower(substr($raw, -1))) {
+            case 'g':
+                $bytes *= 1024;
+                // no break
+            case 'm':
+                $bytes *= 1024;
+                // no break
+            case 'k':
+                $bytes *= 1024;
+        }
+        return $bytes;
     }
 
     private function loadImage($file, $ext)
