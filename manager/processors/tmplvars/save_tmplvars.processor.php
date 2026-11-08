@@ -222,18 +222,18 @@ function saveDocumentAccessPermissons()
 {
     global $modx, $id, $newid;
 
-    if ($newid) {
-        $id = $newid;
-    }
-    $docgroups = postv('document_groups');
-
-    // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
-    if (!evo()->hasPermission('access_permissions')) {
-        return;
-    }
-
     // check for permission update access
     if ($modx->config['use_udperms'] == 1) {
+        // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
+        if (!evo()->hasPermission('access_permissions')) {
+            return;
+        }
+
+        if ($newid) {
+            $id = $newid;
+        }
+        $docgroups = postv('document_groups');
+
         // delete old permissions on the tv
         $rs = db()->delete('[+prefix+]site_tmplvar_access', "tmplvarid='{$id}'");
         if (!$rs) {
