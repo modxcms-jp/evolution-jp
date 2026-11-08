@@ -189,23 +189,8 @@
             // 保存（や他の送信）で画面が移るので、自動更新を止める
             previewMutate.addEventListener('submit', stopAuto);
 
-            var bindEditor = function (ed) {
-                if (!ed || ed.evoPreviewBound || typeof ed.on !== 'function') return;
-                ed.evoPreviewBound = true;
-                ed.on('input change undo redo', scheduleAuto);
-            };
-            var onAddEditor = function (ev) {
-                bindEditor(ev && ev.editor);
-            };
-            var tiny = window.tinymce;
-            if (tiny && typeof tiny.on === 'function') {
-                (tiny.editors || []).forEach(bindEditor);
-                tiny.on('AddEditor', onAddEditor);
-            }
-            window.evoPreviewCleanup = function () {
-                stopAuto();
-                if (tiny && typeof tiny.off === 'function') tiny.off('AddEditor', onAddEditor);
-            };
+            // リッチテキストのエディタは変更を元の欄の input イベントで知らせる決まりなので、上の委譲で拾える
+            window.evoPreviewCleanup = stopAuto;
         }
 
         onClick('preview', function (e) {
