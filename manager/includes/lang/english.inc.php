@@ -342,7 +342,6 @@ return [
     "filemanager_path_title" => 'File Manager path',
     "export_dir_message" => 'The directory where static HTML files are written by the HTML export. Its contents are deleted when an export starts, so only a directory inside temp/ (not temp/ itself) can be used.',
     "export_dir_title" => 'Export output<br />directory',
-    "files_access_denied" => 'Access denied!',
     "folder" => 'Folder',
     "fmp_link_invalid" => 'This password reset link is invalid or has expired. Please request a new one.',
     "forgot_password_email_fine_print" => '* The URL above will expire once you change your password or after today.',

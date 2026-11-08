@@ -46,14 +46,15 @@
 - **対応**: システムログをJSONLines形式のファイル保存へ移行し、旧DBログ用の表示・削除・エクスポート入口を削除した。CLI は `log:tail` / `log:search` で構造化ログを扱う。
 - **関連ロードマップ**: Phase 1 ログ機構の改修（構造化データ保存・HTML 保存の廃止）
 
-## a=29 (error_dialog.static.php) の欠損
+## a=29 (error_dialog.static.php) の欠損（解決済み）
 
 - **発見日**: 2026-07-07
+- **解決日**: 2026-11-08
 - **発見元**: 管理画面frameset廃止プラン（全アクション疎通チェック時）
 - **ファイル**: `manager/index.php` (case 29 の include)
 - **課題**: `manager/actions/error_dialog.static.php` がリポジトリに存在せず、`index.php?a=29` へアクセスすると include 失敗で500になる。git履歴上もファイルが存在した形跡がなく、frameset廃止以前からの既存欠陥。
-- **改善案**: case 29 の分岐を削除するか、汎用エラーダイアログを新設する。参照元（a=29へ誘導するコード）の有無を確認のうえ対応する。
-- **関連ロードマップ**: なし（新規候補）
+- **対応**: a=29 へ誘導するコードが無いことを確かめ、`manager/index.php` の case 29 と `manager/includes/actionlist.inc.php` の `29` を削除した。a=29 は、ほかの未定義の番号と同じ扱いになる。役割（user_roles）の `error_dialog` 列は、マイグレーションが要るので残している。
+- **関連ロードマップ**: なし
 
 ## EvoShellモーダルを閉じると背後ページのTinyMCEまで消える（解決済み）
 
