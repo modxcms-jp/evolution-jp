@@ -37,7 +37,7 @@
 - `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
 - `default`: 値が無い・空のときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
-- `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、ラジオを切り替えたときには一緒に出し入れされる。ただし初めの表示はサーバーが行の `showIf` で決めるため、プラグインの出力には当たらない
+- `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、読み込み時とラジオを切り替えたときに一緒に出し入れされる
 - タブの中を小見出しで分けるときは、`sections` の section の `title` に `lang('settings_section_…')` を書く。`<h3 class="settings-section">` の次に表が続く形で出る（`null` なら見出しなしの 1 つの表）。見た目は `manager/media/style/common/shell.css` の `.tab-page .settings-section` の 1 つの規則で決まり、テーマには足さない。文言は `label` と同じ信頼する HTML
 - 設定でない欄（hidden など）を足したときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする。設定の欄を足すだけなら触らない
 
@@ -50,17 +50,24 @@
 
 ## 設定画面のタブ構成
 
-すべて `manager/includes/settings_form.definition.inc.php` に書かれている。
+すべて `manager/includes/settings_form.definition.inc.php` に書かれている。タブの id は `settingsTab` に英語の名前を付けたもの。タブの末尾の列は、そのタブの末尾で呼ぶプラグイン用のイベント（`OnSystemSettingsRender` だけは全タブの後ろ・表の外）。
 
-| タブの id | タブ名（言語キー） |
-| --- | --- |
-| `tabPage2` | サイト（`settings_site`） |
-| `tabPageDoc` | リソース設定（言語キーでなく、定義に直書きの見出し） |
-| `tabPageCache` | キャッシュ設定（言語キーでなく、定義に直書きの見出し） |
-| `tabPage3` | フレンドリーURL（`settings_furls`） |
-| `tabPage4` | セキュリティ（`settings_users`） |
-| `tabPage5` | 管理画面の設定（`settings_ui`） |
-| `tabPage7` | ファイルマネージャーの設定（`settings_misc`） |
+| タブの id | タブ名（言語キー） | 小見出し（`settings_section_*`） | 末尾のイベント |
+| --- | --- | --- | --- |
+| `settingsTabSite` | サイト（`settings_site`） | 基本・URL・特別なページ・文字コードと時刻 | `OnSiteSettingsRender` |
+| `settingsTabResources` | リソース（`settings_resources`） | 新しいリソースの初期値・作成と編集 | |
+| `settingsTabCache` | キャッシュ（`settings_cache`） | なし | |
+| `settingsTabFurls` | フレンドリーURL（`settings_furls`） | なし | `OnFriendlyURLSettingsRender` |
+| `settingsTabSecurity` | セキュリティ（`settings_users`） | ユーザーとグループ・ログイン・エラー・テンプレート変数 | `OnUserSettingsRender` |
+| `settingsTabMail` | メール（`settings_mail`） | 送信・メールの文面 | |
+| `settingsTabManager` | 管理画面（`settings_ui`） | 表示・ツリー・メニュー・件数・その他 | |
+| `settingsTabEditor` | エディター（`settings_editor`） | なし | `OnInterfaceSettingsRender` |
+| `settingsTabFiles` | ファイル（`settings_files`） | ファイルピッカー・ファイルマネージャー・アップロード・HTMLエクスポート | `OnMiscSettingsRender` |
+
+- ユーザー編集画面（`a=12`）・プロフィール（`a=74`）の設定のタブの見出しも同じ言語キー（`settings_ui`・`settings_files`）を使う
+- 設定を足すときは、行の役割に合うタブと小見出しに置く。合うものが無ければ小見出しを足す（`settings_section_…` を日本語と英語の言語ファイルの両方に足す）
+- `OnSiteSettingsRender` はサイトのタブで 1 回だけ呼ぶ。プラグインの欄は同じフォームで送られ、同じ保存の処理で `system_settings` に入る
+- `showIf` の初めの表示はサーバーが行で決めるが、`functions.js` が読み込み時にも 1 回、ラジオの選択に合わせて `data-show-if` の要素を出し入れする。プラグインの出力（TinyMCE 7 の表など）も、`use_editor` が「いいえ」なら初めから隠れる
 
 ## 注意事項
 
