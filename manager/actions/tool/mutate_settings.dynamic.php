@@ -8,6 +8,7 @@ if (!evo()->hasPermission('settings')) {
 }
 $inc_path = MODX_MANAGER_PATH . 'actions/tool/mutate_settings/';
 include_once($inc_path . 'functions.inc.php');
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 // check to see the edit settings page isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', 'action=17');
 if (1 < db()->count($rs)) {
@@ -22,9 +23,12 @@ if (1 < db()->count($rs)) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-
-$settings = settings();
-extract($settings, EXTR_OVERWRITE);
+evo()->config = EvoSettingsForm::storedValues();
+$values = EvoSettingsForm::systemValues();
+// まだ定義に移していないタブ（legacy）のために残す。全部移したら消す
+$settings = $values; // checkConfig() が読む
+$default_config = include MODX_CORE_PATH . 'default.config.php'; // 同上
+extract($values, EXTR_OVERWRITE);
 
 // load languages and keys
 $lang_keys = [];
@@ -83,8 +87,8 @@ foreach ($dir as $filename) {
         }
     </style>
     <div>
-        <input type="hidden" name="site_id" value="<?= $site_id ?>"/>
-        <input type="hidden" name="settings_version" value="<?= $modx_version ?>"/>
+        <input type="hidden" name="site_id" value="<?= hsc($site_id) ?>"/>
+        <input type="hidden" name="settings_version" value="<?= hsc($modx_version) ?>"/>
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
         <?php
         if (!isset($settings_version) || in_array((string) $settings_version, ['', '0'], true)) {
@@ -95,13 +99,19 @@ foreach ($dir as $filename) {
         ?>
         <div class="tab-pane" id="settingsPane">
             <?php
-            include_once($inc_path . 'tab1_site_settings.inc.php');
-            include_once($inc_path . 'tab1_doc_settings.inc.php');
-            include_once($inc_path . 'tab2_cache_settings.inc.php');
-            include_once($inc_path . 'tab2_furl_settings.inc.php');
-            include_once($inc_path . 'tab3_user_settings.inc.php');
-            include_once($inc_path . 'tab4_manager_settings.inc.php');
-            include_once($inc_path . 'tab6_filemanager_settings.inc.php');
+            $settingsTabs = EvoSettingsForm::definition();
+            $settingsForm = new EvoSettingsForm($settingsTabs, $values);
+            foreach ($settingsTabs as $settingsTab) {
+                if (isset($settingsTab['legacy'])) {
+                    include_once($inc_path . $settingsTab['legacy']);
+                    continue;
+                }
+                echo $settingsForm->renderTab($settingsTab);
+            }
+            $evtOut = evo()->invokeEvent('OnSystemSettingsRender');
+            if (is_array($evtOut)) {
+                echo implode('', $evtOut);
+            }
             ?>
         </div>
     </div>
@@ -128,7 +138,5 @@ foreach ($dir as $filename) {
         toggleRows('udPermsOff', '.udPerms', false);
         toggleRows('editorRowOn', '.editorRow', true);
         toggleRows('editorRowOff', '.editorRow', false);
-        toggleRows('rbRowOn', '.rbRow', true);
-        toggleRows('rbRowOff', '.rbRow', false);
     })();
 </script>
