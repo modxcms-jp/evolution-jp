@@ -15,24 +15,24 @@ $mxla = globalv('modx_lang_attribute') ?: 'en';
  * Created by Raymond Irving May, 2005
  *
  * Selects a resource and returns the id values to the window.opener["callback"]() function as an array.
- * The name of the callback function is passed via the url as &cb
+ * The name of the callback function is passed via the url as &callback
  */
 
 // get name of callback function
 // 文字列かつ JS の識別子の形のときだけ受け付ける
-$cb = request_strvar('cb');
-if (!preg_match('/^[A-Za-z_$][\w$]*$/D', $cb)) {
-    $cb = '';
+$callback = request_strvar('callback');
+if (!preg_match('/^[A-Za-z_$][\w$]*$/D', $callback)) {
+    $callback = '';
 }
 
 // get resource type
-$rt = strtolower(request_strvar('rt'));
-if (!in_array($rt, ['snip', 'tpl', 'tv', 'chunk', 'plug', 'doc'], true)) {
-    $rt = 'doc';
+$type = strtolower(request_strvar('type'));
+if (!in_array($type, ['snippet', 'template', 'tv', 'chunk', 'plugin', 'document'], true)) {
+    $type = 'document';
 }
 
-// get selection method: s - single (default), m - multiple
-$sm = strtolower(request_strvar('sm', 's')) === 'm' ? 'm' : 's';
+// get selection mode: single (default) / multiple
+$selectMode = strtolower(request_strvar('select', 'single')) === 'multiple' ? 'multiple' : 'single';
 
 // get search string
 $query = request_strvar('search');
@@ -46,8 +46,8 @@ $likeWhere = function (string $nameCol, string $descCol) use ($query) {
     $keyword = db()->escape($query);
     return "({$nameCol} LIKE '%{$keyword}%') OR ({$descCol} LIKE '%{$keyword}%')";
 };
-switch ($rt) {
-    case "snip":
+switch ($type) {
+    case "snippet":
         $title = $_lang["snippet"];
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_snippets');
@@ -55,7 +55,7 @@ switch ($rt) {
         $orderby = 'name';
         break;
 
-    case "tpl":
+    case "template":
         $title = $_lang["template"];
         $cols = "id,templatename as 'name',description";
         $from = evo()->getFullTableName('site_templates');
@@ -79,7 +79,7 @@ switch ($rt) {
         $orderby = 'name';
         break;
 
-    case ("plug"):
+    case ("plugin"):
         $title = $_lang["plugin"];
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_plugins');
@@ -87,7 +87,7 @@ switch ($rt) {
         $orderby = 'name';
         break;
 
-    case ("doc"):
+    case ("document"):
         $title = $_lang["resource"];
         $cols = "id,pagetitle as 'name',longtitle as 'description'";
         $from = evo()->getFullTableName('site_content');
@@ -124,8 +124,8 @@ switch ($rt) {
             if (a[id]) ids.push(id);
         });
         if (!ids.length && !list.length) return; // 0 件のときは何もしない
-        var cb = window.opener[<?= js_literal($cb) ?>];
-        if (cb) cb(<?= js_literal($rt) ?>, ids);
+        var callback = window.opener[<?= js_literal($callback) ?>];
+        if (callback) callback(<?= js_literal($type) ?>, ids);
         window.close();
     }
 
@@ -189,9 +189,9 @@ switch ($rt) {
     <input type="hidden" name="a" value="<?= request_intvar('a') ?>"/>
     <input type="hidden" name="listmode" value="<?= hsc(request_strvar('listmode')) ?>"/>
     <input type="hidden" name="op" value=""/>
-    <input type="hidden" name="rt" value="<?= hsc($rt) ?>"/>
-    <input type="hidden" name="sm" value="<?= hsc($sm) ?>"/>
-    <input type="hidden" name="cb" value="<?= hsc($cb) ?>"/>
+    <input type="hidden" name="type" value="<?= hsc($type) ?>"/>
+    <input type="hidden" name="select" value="<?= hsc($selectMode) ?>"/>
+    <input type="hidden" name="callback" value="<?= hsc($callback) ?>"/>
     <div class="section" style="margin:1em;">
         <div class="sectionHeader"
             style="margin:0px"><?= $title . " - " . $_lang['element_selector_title'] ?></div>
@@ -242,7 +242,7 @@ switch ($rt) {
                         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                         $total = (int) db()->getValue(db()->select('COUNT(*)', $from, $where));
                         $listmode = request_intvar('listmode');
-                        $params = ['a' => 84, 'rt' => $rt, 'sm' => $sm, 'cb' => $cb];
+                        $params = ['a' => 84, 'type' => $type, 'select' => $selectMode, 'callback' => $callback];
                         if ($query !== '') {
                             $params['search'] = $query;
                         }
@@ -264,7 +264,7 @@ switch ($rt) {
                             exit;
                         }
                         $rows = db()->getRows($ds) ?: [];
-                        $inputType = $sm === 'm' ? 'checkbox' : 'radio';
+                        $inputType = $selectMode === 'multiple' ? 'checkbox' : 'radio';
                         $columns = [
                             [
                                 'key' => 'name',
@@ -280,7 +280,7 @@ switch ($rt) {
                                 },
                             ],
                             // 要素の説明は無害化して b・strong だけ戻す。文書のロングタイトルは既定のエスケープ
-                            $rt === 'doc'
+                            $type === 'document'
                                 ? ['key' => 'description', 'label' => $_lang['description']]
                                 : [
                                     'key' => 'description',

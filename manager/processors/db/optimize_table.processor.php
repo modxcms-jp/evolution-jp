@@ -7,8 +7,8 @@ if (!hasPermission('settings') || (!hasPermission('logs') && !hasPermission('bk_
     alert()->dumpError();
 }
 
-$table = request_strvar('t');
-$truncateTarget = request_strvar('u');
+$table = request_strvar('table');
+$truncateTarget = request_strvar('truncate');
 if (!$table && !$truncateTarget) {
     alert()->setError(10);
     alert()->dumpError();
@@ -42,4 +42,4 @@ if ($truncateTarget) {
     }
 }
 
-header('Location: index.php?a=' . request_intvar('mode') . '&s=4');
+header('Location: index.php?a=' . request_intvar('mode') . '&tab=4');
