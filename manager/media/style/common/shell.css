@@ -98,6 +98,16 @@ body.evo-shell #treeHolder {
     overflow: visible;
 }
 
+/*
+ * ツリーの行のアイコン（＋/－・フォルダ・ページ）の縦位置を、日本語の文字の絵の中心に合わせる。
+ * 各テーマの vertical-align: middle は「ベースライン＋小文字xの高さの半分」に中心を置くため、
+ * 日本語では文字より下がって見える。行の高さが変わらないよう、位置だけを文字の大きさに比例して上げる。
+ */
+body.evo-shell #treeRoot div img {
+    position: relative;
+    top: -.08em;
+}
+
 body.evo-shell #floater {
     left: auto;
     right: auto;
