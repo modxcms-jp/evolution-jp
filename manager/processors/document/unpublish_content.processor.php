@@ -17,7 +17,12 @@ if (!$id) {
 include_once(__DIR__ . '/document_state.functions.php');
 
 // check permissions on the document
-if (docPublishCheck($id, false) !== '') {
+$denied = docPublishCheck($id, false);
+if ($denied !== '' && $denied !== 'access_permission_denied') {
+    // サイト開始ページは非公開にできない
+    evo()->webAlertAndQuit($denied, 'javascript:history.back();');
+}
+if ($denied !== '') {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
     <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>

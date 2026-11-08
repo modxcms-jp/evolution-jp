@@ -76,10 +76,10 @@ $rs = db()->select(
 );
 $numRecords = db()->count($rs);
 // 「この一覧のすべてを選択」で使う全件の ID。件数を数えた問い合わせの結果を使い回す（DB の問い合わせは増やさない）。
-// ID を data 属性に入れて、移動の画面（a=51）の batch[] はそのまま受ける形にした（「親の id と q」を送る方式は、
-// 受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
+// ID を data 属性に入れて、一括操作（移動の a=51・削除・公開・非公開の a=121）の batch[] はそのまま受ける形にした
+// （「親の id と q」を送る方式は、受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
 // 表の行と同じく、一覧に見える（isContainAllowed()）ものだけを入れる。tree_show_protected=1 の管理者でない利用者には
-// has_access=0 の子も一覧に出るが、a=51 の checkPermissions() で移動全体が止まるので、全件の ID からは外す
+// has_access=0 の子も一覧に出るが、一括操作の checkPermissions() で操作全体が止まるので、全件の ID からは外す
 $allChildIds = [];
 while ($row = db()->getRow($rs)) {
     if (isset($row['has_access']) && !(int) $row['has_access']) {
@@ -208,7 +208,7 @@ if (!$numRecords) {
             'name' => 'batch[]',
             'ids' => $allChildIds,
             // 全件を batch[] の hidden で送ると max_input_vars を超えたぶんを PHP が黙って切り捨てる。
-            // 上限は ini の値から、フォームのほかの値（a・送信ボタンなど）の余裕 50 を引いた数
+            // 上限は ini の値から、フォームのほかの値（parent・csrf_token・送信ボタンなど）の余裕 50 を引いた数
             'max' => max(0, (int) ini_get('max_input_vars') - 50),
             'labels' => [
                 'selected' => lang('data_table_selected'),
@@ -322,6 +322,7 @@ echo get_jscript($id, $cm);
 {$topicPath}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php">
 <input type="hidden" name="parent" value="{$id}" />
+<input type="submit" disabled hidden aria-hidden="true" tabindex="-1" />
 {$children_output}
 </form>
 EOT;

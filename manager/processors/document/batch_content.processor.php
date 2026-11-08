@@ -69,7 +69,8 @@ if ($problems) {
     evo()->webAlertAndQuit(implode("\n", $problems), $returnUrl);
 }
 
-// 確かめたあとは 1 件ずつ更新してイベントを発火し、キャッシュの消去は最後に 1 回だけ行う
+// 確かめたあとは 1 件ずつ更新してイベントを発火し、キャッシュの消去は 1 回だけ行う。
+// 公開は 1 件の操作と同じく「更新 → キャッシュの消去 → イベント」の順にするため、全件を更新してから消去し、イベントは最後に 1 件ずつ発火する
 $done = 0;
 foreach ($ids as $docid) {
     if ($op === 'delete') {
@@ -81,7 +82,7 @@ foreach ($ids as $docid) {
             evo()->webAlertAndQuit(sprintf('ID:%d %s (%d / %d)', $docid, $interrupted, $done, count($ids)), $returnUrl);
         }
     } elseif ($op === 'publish') {
-        docPublishExecute($docid);
+        docPublishExecute($docid); // イベントは、キャッシュの消去のあとにまとめて発火する
     } else {
         docUnpublishExecute($docid);
     }
@@ -89,4 +90,9 @@ foreach ($ids as $docid) {
 }
 
 evo()->clearCache();
+if ($op === 'publish') {
+    foreach ($ids as $docid) {
+        docPublishFireEvent($docid);
+    }
+}
 header('Location: ' . $returnUrl);

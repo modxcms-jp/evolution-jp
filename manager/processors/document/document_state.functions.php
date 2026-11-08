@@ -49,26 +49,28 @@ function docDeleteChildren($parent)
         'site_unavailable_page' => 'Site unavailable page',
     ];
     $children = [];
-    $queue = [(int)$parent];
-    while ($queue) {
-        $rs = db()->select('id', '[+prefix+]site_content', "parent='" . array_shift($queue) . "' AND deleted='0'");
-        while ($row = db()->getRow($rs)) {
-            foreach ($protected as $key => $label) {
-                if ($row['id'] == evo()->config[$key]) {
-                    return [
-                        'warning' => sprintf(
-                            "The document you are trying to delete is a folder containing document %s. This document is registered as the '%s' document, and cannot be deleted. Please assign another document as your '%s' document and try again.",
-                            $row['id'],
-                            $label,
-                            $label
-                        ),
-                        'children' => [],
-                    ];
-                }
+    $rs = db()->select('id', '[+prefix+]site_content', "parent='" . (int)$parent . "' AND deleted='0'");
+    while ($row = db()->getRow($rs)) {
+        foreach ($protected as $key => $label) {
+            if ($row['id'] == evo()->config[$key]) {
+                return [
+                    'warning' => sprintf(
+                        "The document you are trying to delete is a folder containing document %s. This document is registered as the '%s' document, and cannot be deleted. Please assign another document as your '%s' document and try again.",
+                        $row['id'],
+                        $label,
+                        $label
+                    ),
+                    'children' => [],
+                ];
             }
-            $children[] = (int)$row['id'];
-            $queue[] = (int)$row['id'];
         }
+        // 深さ優先（子の次にその子孫）の並びで返す
+        $children[] = (int)$row['id'];
+        $sub = docDeleteChildren($row['id']);
+        if ($sub['warning'] !== '') {
+            return $sub;
+        }
+        $children = array_merge($children, $sub['children']);
     }
     return ['warning' => '', 'children' => $children];
 }
@@ -129,13 +131,18 @@ function docDeleteExecute($id, array $children)
  *
  * @param int $id
  * @param bool $publish 公開なら true（view_unpublished の確かめも行う）
- * @return string 止める理由の言語キー（空なら操作できる）
+ * @return string 止める理由（言語キー。非公開でサイト開始ページのときは文）。空なら操作できる
  */
 function docPublishCheck($id, $publish)
 {
     $id = (int)$id;
     if (!evo()->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
         return 'access_permission_denied';
+    }
+    if (!$publish && $id == evo()->config['site_start']) {
+        // サイト開始ページは非公開にできない（リソースの保存と同じ文言）
+        evo()->loadExtension('DocAPI');
+        return evo()->doc->startDocPubError(0, 0, 0);
     }
     if ($publish && !evo()->hasPermission('view_unpublished')) {
         $doc = db()->getObject('site_content', "id='{$id}'");
@@ -146,7 +153,7 @@ function docPublishCheck($id, $publish)
     return '';
 }
 
-// 文書を公開して OnDocPublished を発火する
+// 文書を公開する（イベントは docPublishFireEvent()。予約公開などと同じく、キャッシュの消去のあとに発火する）
 function docPublishExecute($id)
 {
     $id = (int)$id;
@@ -167,8 +174,12 @@ function docPublishExecute($id)
     if (!$rs) {
         exit('An error occured while attempting to publish the document.');
     }
+}
 
-    $tmp = ['docid' => $id, 'type' => 'manual'];
+// OnDocPublished を発火する
+function docPublishFireEvent($id)
+{
+    $tmp = ['docid' => (int)$id, 'type' => 'manual'];
     evo()->invokeEvent('OnDocPublished', $tmp);
 }
 
