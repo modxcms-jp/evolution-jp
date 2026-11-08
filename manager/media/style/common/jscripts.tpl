@@ -98,7 +98,8 @@
                 if (prevWin && !prevWin.closed) prevWin.close();
                 alert([+lang_error_occurred+]);
             };
-            Evo.post('index.php?a=309', fd)
+            // a は本文だけに入れる。URL にも付けると manager/index.php が GET と POST の両方にある a を拒否する
+            Evo.post('index.php', fd)
                 .then(function (response) {
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.json();
