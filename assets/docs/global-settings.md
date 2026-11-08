@@ -74,5 +74,6 @@
 - SQLファイルでの設定追加は不要（`default.config.php` のみで管理）
 - `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
 - 設定でない項目の扱いは「3. 設定画面への表示」の `nonSettingKeys()` を参照
-- 設定値の取得: `evo()->getConfig('setting_name', 'default')`
-- 管理画面のコードは、設定値を `extract()` で変数にせず、`evo()->config('setting_name')`（ヘルパー `config()`）で読む。ユーザーごとの設定は重ねた後の値が返る
+- 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。値が無いときの既定値は `null`。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
+- 管理画面では、設定値を `extract()` でグローバル変数にしない。`global $site_url`・`$GLOBALS['manager_theme']`・`$modx->event->getGlobalVariable('…')` では読めない。ユーザーごとの設定は重ねた後の値が返る
+- プラグイン・モジュールも `evo()->config('キー')` で読む。消した `settings.inc.php`・`user_settings.inc.php` は include しない。同梱のプラグイン・モジュール（TinyMCE 7 を含む）で、これらの変数に頼るものが無いことは確かめてある

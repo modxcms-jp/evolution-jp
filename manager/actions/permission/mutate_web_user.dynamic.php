@@ -130,7 +130,6 @@ function webuser($name, $default = null)
 
 // include the country list language file
 $_country_lang = [];
-$base_path = $modx->config['base_path'];
 $managerLanguage = config('manager_language');
 if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$managerLanguage}_country.inc.php")) {
     include_once(MODX_CORE_PATH . "lang/country/{$managerLanguage}_country.inc.php");
