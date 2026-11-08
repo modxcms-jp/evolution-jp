@@ -3311,14 +3311,18 @@ class DocumentParser
         }
 
         $name = $this->superGlobalName($key);
-        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE）と、HTML エスケープの対象（COOKIE を除く）を分ける。
-        // COOKIE の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）
-        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE'], true);
+        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE・SERVER）と、HTML エスケープの対象（GET・POST・REQUEST）を分ける。
+        // COOKIE・SERVER の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）。
+        // SERVER は HTTP_*・REQUEST_URI・QUERY_STRING などリクエストから来る値を含み、起動時の sanitizeVars() は
+        // その一部（4 キー）を hsc() するだけでタグの記号を崩さない。SERVER_NAME などサーバーの値にタグの記号は
+        // ふつう含まれず、崩しても実害が無いので、キーで分けず SERVER 全体を対象にする
+        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE', 'SERVER'], true);
         $escapeHtml = in_array($name, ['GET', 'POST', 'REQUEST'], true);
         if ($breakTags) {
             // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
             // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける。
-            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない
+            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない。
+            // SERVER の一部は起動時に hsc() だけを受けている（タグの記号は残る）
             $values = [$value];
             $this->sanitize_gpc($values);
             $value = $values[0];
