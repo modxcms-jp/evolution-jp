@@ -2,23 +2,8 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-$mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-$isShellPartial = defined('EVO_SHELL_PARTIAL');
-if (!$isShellPartial) {
+// シェルの部品（header.inc.php が描く。再読み込みは shell.js の reloadPartial）。単独のページとしては出さない
 ?>
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-    <html <?php if ($modx_textdir === 'rtl') {
-        echo 'dir="rtl"';
-    } ?>lang="<?= $mxla ?>" xml:lang="<?= $mxla ?>">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
-        <title>nav</title>
-        <link rel="stylesheet" type="text/css"
-              href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
-        <?= config('manager_inline_style') ?>
-        <script src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>" type="text/javascript"></script>
-        <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>" type="text/javascript"></script>
-<?php } ?>
         <script type="text/javascript">
             function initMenuState() {
                 // シェルでのメニュー再読込時にタイマーが多重登録されないよう、一旦解除する
@@ -176,7 +161,7 @@ if (!$isShellPartial) {
 
             // GENERAL FUNCTIONS - Work
             // These functions are used for showing the user the system is working
-            window.work = function() { // parent.mainMenu.document
+            window.work = function() {
                 var workText = document.getElementById('workText');
                 if (workText) workText.innerHTML = <?= js_literal('&nbsp;<img src="' . hsc($_style['icons_working']) . '" />&nbsp;' . hsc(stripcslashes(lang('working')))) ?>;
             }
@@ -226,11 +211,6 @@ if (!$isShellPartial) {
                 stopWork: function () { window.stopWork(); }
             };
         </script>
-<?php if (!$isShellPartial) { ?>
-    </head>
-
-    <body id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
-<?php } else { ?>
     <header id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
         <script type="text/javascript">
             // シェルの部分再取得では#topMenu内のscriptだけが実行されるため、メニュー状態を再初期化する
@@ -238,7 +218,6 @@ if (!$isShellPartial) {
                 window.mainMenu.initMenuState();
             }
         </script>
-<?php } ?>
 
     <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
@@ -447,12 +426,7 @@ if (!$isShellPartial) {
     </script>
 
     <div id="menuSplitter"></div>
-<?php if (!$isShellPartial) { ?>
-    </body>
-    </html>
-<?php } else { ?>
     </header>
-<?php } ?>
 
 <?php
 function item($name, $href, $display = 1, $attrib = '')

@@ -480,8 +480,7 @@ if (in_array(manager()->action, [
 }
 
 switch (manager()->action) {
-    case 1: //frame management - show the requested frame
-        // get the requested frame
+    case 1: // シェルの部品（メニュー・ツリー・ノード）と ajax.php
         $frame = anyv('f');
         if ($frame !== null) {
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
@@ -492,10 +491,6 @@ switch (manager()->action) {
             if (!$isPaneRequest && $frame !== 'nodes') {
                 header('Location: ' . MODX_MANAGER_URL);
                 exit;
-            }
-            // シェルからの部分再取得(fetch)ではhtml/head無しの断片を返す
-            if ($isPaneRequest && !defined('EVO_SHELL_PARTIAL')) {
-                define('EVO_SHELL_PARTIAL', true);
             }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
         } elseif (anyv('ajaxa') !== null) {
@@ -845,7 +840,7 @@ if ($isPaneRequest) {
     evoRenderPaneFooterExtras();
 }
 
-// log action, unless it's a frame request
+// 操作を記録する（シェルの部品の再取得 a=1 など、下に挙げた操作は記録しない）
 switch (manager()->action) {
     case 1:
     case 7:

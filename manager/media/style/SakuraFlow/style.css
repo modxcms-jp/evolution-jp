@@ -474,7 +474,7 @@ hr {
 
 /* ============================================================================
    5. Top Bar & Status Bar
-   Used in: Main navigation frame, status indicators
+   Used in: Main navigation, status indicators
    ============================================================================ */
 
 /* -------------------------[ Topbar ]--- */
@@ -1054,7 +1054,7 @@ a img {
 
 /* ============================================================================
    8. Tree Components - Site Tree, Context Menu
-   Used in: Left frame site tree, document tree navigation
+   Used in: Site tree, document tree navigation
    ============================================================================ */
 
 div.treeframebody {

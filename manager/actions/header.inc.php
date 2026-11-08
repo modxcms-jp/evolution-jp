@@ -200,14 +200,11 @@ if (!$evoShellChromeless) {
     $tmp = ['action' => manager()->action];
     evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 
-    if (!defined('EVO_SHELL_PARTIAL')) {
-        define('EVO_SHELL_PARTIAL', true);
-    }
     // 部品を独立スコープで実行し、部品側のローカル変数($tpl,$ph等)が
     // 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
     $evoShellIncludePartial = static function (string $evoShellPartialPath): void {
         // 部品が読むグローバル変数だけを明示する。設定値は config() で読む
-        global $modx, $_lang, $_style, $modx_version, $modx_full_appname, $modx_textdir, $modx_manager_charset, $modx_lang_attribute;
+        global $modx, $_lang, $_style, $modx_version, $modx_full_appname, $modx_textdir, $modx_manager_charset;
         include_once $evoShellPartialPath;
     };
     $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');
