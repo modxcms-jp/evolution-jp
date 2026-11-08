@@ -51,12 +51,33 @@ if (!manager()->isAdmin() && !evo()->config['tree_show_protected']) {
 if ($keywordCondition !== null) {
     $where[] = $keywordCondition;
 }
+// 管理者でないときは、表の行と同じ has_access も取る（GROUP BY sc.id なので件数は DISTINCT sc.id と同じ）
+if (manager()->isAdmin()) {
+    $countFields = 'DISTINCT sc.id';
+} else {
+    $countFields = sprintf('sc.id, MAX(IF(sc.privatemgr=0 %s, 1, 0)) AS has_access', $in_docgrp);
+    $where[] = 'GROUP BY sc.id';
+}
 $rs = db()->select(
-    'DISTINCT sc.id',
+    $countFields,
     "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id",
     $where
 );
 $numRecords = db()->count($rs);
+// 「この一覧のすべてを選択」で使う全件の ID。件数を数えた問い合わせの結果を使い回す（DB の問い合わせは増やさない）。
+// ID を data 属性に入れて、移動の画面（a=51）の batch[] はそのまま受ける形にした（「親の id と q」を送る方式は、
+// 受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
+// 表の行と同じく、一覧に見える（isContainAllowed()）ものだけを入れる。tree_show_protected=1 の管理者でない利用者には
+// has_access=0 の子も一覧に出るが、a=51 の checkPermissions() で移動全体が止まるので、全件の ID からは外す
+$allChildIds = [];
+while ($row = db()->getRow($rs)) {
+    if (isset($row['has_access']) && !(int) $row['has_access']) {
+        continue;
+    }
+    if (manager()->isContainAllowed($row['id'])) {
+        $allChildIds[] = (int) $row['id'];
+    }
+}
 
 $links = ChildDocumentListState::links($id);
 
@@ -167,6 +188,20 @@ if (!$numRecords) {
         'id' => 'children',
         'tableClass' => 'grid',
         'rowClasses' => ['gridItem', 'gridAltItem'],
+        'selection' => hasPermission('move_document') ? [
+            'name' => 'batch[]',
+            'ids' => $allChildIds,
+            // 全件を batch[] の hidden で送ると max_input_vars を超えたぶんを PHP が黙って切り捨てる。
+            // 上限は ini の値から、フォームのほかの値（a・送信ボタンなど）の余裕 50 を引いた数
+            'max' => max(0, (int) ini_get('max_input_vars') - 50),
+            'labels' => [
+                'selected' => lang('data_table_selected'),
+                'page' => lang('data_table_selected_page'),
+                'all' => lang('data_table_select_all_in_list'),
+                'allSelected' => lang('data_table_selected_all_in_list'),
+                'clear' => lang('data_table_clear_selection'),
+            ],
+        ] : null,
     ]);
     $nav = $pager->render($links, [
         'label' => lang('pagination_label'),
