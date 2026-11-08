@@ -22,7 +22,7 @@
 
 ## 管理画面の保存後の戻り先
 
-- 編集画面の保存後の行き先（`after_save`）・新規か更新か（`mode`）・保存後に読み直すもの（`refresh`）の名前と値は、`EvoFormFlow`（`manager/includes/form_flow.class.inc.php`）を正とします。画面の種類ごとの画面の番号の表と、戻り先・差し戻し先の URL の組み立てもここにあります。processor は画面の番号を書き写さず、これを通します。
+- 編集画面の保存後の行き先（`after_save`）・新規か更新か（`mode`）・保存後に読み直すもの（`refresh`）の名前と値は、`EvoFormFlow`（`manager/includes/form_flow.class.inc.php`）を正とします。画面の種類ごとの画面の番号の表と、戻り先・差し戻し先の URL の組み立てもここにあります。要素・ロール・管理ユーザー・Web ユーザーの編集画面の保存の processor は、画面の番号を書き写さずにこれを通します（文書の保存後の戻り先は、親や下書きで変わるので `save_resource.processor.php` の `goNextAction()` に残ります）。
 - `refresh` の受け口は `EvoShell.refresh()`（`manager/media/script/shell.js`）です。詳細は `manager-shell.md` を参照してください。
 
 ## データアクセスと拡張

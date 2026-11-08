@@ -406,7 +406,7 @@
         });
     }
 
-    // processorのリダイレクトURLに付くrefreshはツリー/メニュー再読込の合図
+    // processorのリダイレクトURLに付くrefreshは、ツリー・メニュー・管理画面の読み直しの合図（受け口はEvoShell.refresh）
     function handleRefreshParam(url) {
         EvoShell.refresh(new URL(url, window.location.href).searchParams.get('refresh'));
     }

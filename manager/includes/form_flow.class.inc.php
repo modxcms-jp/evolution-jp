@@ -6,7 +6,8 @@
  * processor が画面の番号（a）を書き写さないための部品。
  *
  * 引数の名前と値（ここを正とする）:
- * - after_save: 保存後の行き先。new（続けて新規作成）/ stay（この画面＝続けて編集）/ close（閉じる）
+ * - after_save: 保存後の行き先。new（続けて新規作成）/ stay（この画面＝続けて編集）/ close（閉じる）。
+ *   文書の下書きだけは save_draft / save_standby も受ける（呼び出し側が $extra で渡す）
  * - mode: 新規か更新か。new / edit（ユーザーのプロフィールだけ profile）
  * - refresh: 保存後に読み直すもの。tree（ツリー）/ menu（メニュー）/ all（ツリーとメニュー）/ page（管理画面ごと）。
  *   受け口は shell.js の EvoShell.refresh()

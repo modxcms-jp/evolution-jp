@@ -14,7 +14,7 @@
 - `manager/actions/header.inc.php` が、メニューとツリーを部品として読み込み、本文の前に描く。`?chromeless=1` の画面と QuickManager の埋め込みでは、メニューとツリーを描かない（body に `evo-shell` が付かない）。
 - 画面の移動は `manager/media/script/shell.js`（`EvoShell`）が受け持つ。`X-Evo-Shell: 1` を付けて要求し、`#mainPane` だけを差し替える（応答は `X-Evo-Pane: 1` の断片）。
 - メニューとツリーの読み直しは `EvoShell.reloadMenu()` / `EvoShell.reloadTree()`。`index.php?a=1&f=menu|tree` を断片として取り直し、部品のルート要素ごと差し替える。部品の中の `<script>` だけが実行し直される。
-- 保存後の読み直しの受け口は `EvoShell.refresh(target)` 1 つ。processor が戻り先の URL に付ける `refresh` を、画面の移動のとき `shell.js` が読んで呼ぶ。`target` は `tree`（ツリー）・`menu`（メニュー）・`all`（ツリーとメニュー）・`page`（管理画面ごと読み直す）。シェルの画面でなければ（`chromeless`・QuickManager）何もしない。値の意味は `manager/includes/form_flow.class.inc.php` の docblock を正とする。
+- 保存後の読み直しの受け口は `EvoShell.refresh(target)` 1 つ。processor が戻り先の URL に付ける `refresh` を、画面の移動のとき `shell.js` が読んで呼ぶ。`target` の値と意味は `manager/includes/form_flow.class.inc.php` の docblock を正とする（`page` は管理画面のトップ（`index.php`）を読み直す）。画面の script から `EvoShell.refresh()` を直接呼ぶ使い方もある（`refresh_site.dynamic.php`、`wait.static.php`）。全体の読み込み（再読み込み・URL の直打ち）では `refresh` を読まない。シェルの画面でなければ（`chromeless`・QuickManager）何もしない。
 - `a=1&f=tree` / `f=menu` を全体の読み込みで開くと（URL の直打ち・古いブックマーク）、管理画面のトップへ移る。部品は単独のページとしては出さない。
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 

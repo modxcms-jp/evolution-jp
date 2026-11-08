@@ -295,7 +295,7 @@ function systemSettings()
 function webAlert($msg)
 {
     $mode = saveUserMode();
-    // 新規・更新・プロフィールでないとき（不正な mode）は、入力を残さずに一覧へ戻す
+    // 新規・更新・プロフィールでないとき（不正な mode）は、入力を今の画面の番号で残して一覧へ戻す
     evo()->manager->saveFormValues($mode ? EvoFormFlow::screen('user', $mode) : 0);
     evo()->webAlertAndQuit(
         $msg,
