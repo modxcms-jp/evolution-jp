@@ -53,9 +53,41 @@
 | `caption` / `captionHtml` | なし / false | `caption`。`captionHtml` が真なら HTML のまま |
 | `emptyMessage` | `''` | 0 件のときの文言（エスケープ） |
 | `showHeader` | true | `thead` を出すか |
+| `selection` | なし | 表の上に「選んだ件数」と「この一覧のすべてを選択」の帯を出す（下の「選択の帯」） |
 | `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` を返したときは `rowClasses` の値と 1 つの `class` 属性にまとめる） |
 
 `DataTable::render(array $rows, ?DataTableLinks $links = null)` に `DataTableLinks` を渡すと、`sort` のある列の見出しが並べ替えのリンクになり、今の列に `aria-sort` が付く。並べ替えのリンクではページが 1 に戻る。
+
+## 選択の帯
+
+`options['selection']` に `name`（行のチェックボックスの name。見出しの `data-select-all` と同じ）・`ids`（この一覧の全ページ分の値の配列）・`labels`・`max`（省略可）を渡すと、表を包む `div` の中の表の前に、帯の外枠（`div.data-table-selection`、`role="status"`）を出す。外枠は常に出ていて中身は空で、`data-table.js` が選んだ件数に応じて中身（`.data-table-selection-body`）だけを出し入れする（空の外枠から出すと、読み上げに告知されないことがあるため）。`name` が空・`ids` が空・`labels` の 5 つのどれかが無いときは、外枠も出さない。表は `form` の中に置く（「この一覧のすべて」で足す hidden の置き場所のため。`form` の外では、そのリンクを出さない）。
+
+    'selection' => [
+        'name' => 'batch[]',
+        'ids' => $allIds, // 整数に直して出す
+        'max' => 900,     // 省略可。ids の件数がこれを超えるときは、全件の値を出さない
+        'labels' => [
+            'selected' => lang('data_table_selected'),                   // 「{n} 件を選択しています。」
+            'page' => lang('data_table_selected_page'),                  // 「このページの {n} 件すべてを選択しています。」
+            'all' => lang('data_table_select_all_in_list'),              // 「この一覧の {total} 件すべてを選択」（リンク）
+            'allSelected' => lang('data_table_selected_all_in_list'),    // 「この一覧の {total} 件すべてを選択しています。」
+            'clear' => lang('data_table_clear_selection'),               // 「選択を解除」（リンク）
+        ],
+    ],
+
+文言は呼び出し側が言語ファイルから渡す（`DataTable` は言語を読まない）。`{n}`（選んだ件数）と `{total}`（`ids` の件数）は `data-table.js` が置き換える。動きは次のとおり。
+
+| 操作 | 帯の中身 |
+| --- | --- |
+| 選んだ行が 0 件 | 空 |
+| 1 件以上選ぶ | `selected` |
+| そのページの行がすべてそろい、`ids` の件数がそのページの行より多い | `page`。全件の値が付いていて、表が `form` の中にあるときは、リンク `all` も出す |
+| リンク `all` を押す | `allSelected` ＋リンク `clear`。このページの行は `ids` に含まれるものだけを選び（含まれない行は外す）、ほかのページの値を、`name` と同じ名前の hidden として `form` に足す |
+| すべてを選んだあとで、チェックボックスを 1 つでも変える | ほかのページの hidden（`name` が同じものだけ）を外し、そのときの選び方に応じた表示（0 件なら空、ページの全件がそろえば `page`、それ以外は `selected`）に戻る |
+
+`max` は、全件の値を hidden で送ると、件数が `max_input_vars`（PHP の既定 1000）を超えたぶんを PHP が黙って切り捨て、一括操作に一部しか届かないために置く。`ids` の件数が `max` を超えるときは `data-all-ids` を空にして出さず、リンク `all` を出さない（ページの件数の帯だけになる）。呼び出し側は `ini_get('max_input_vars')` から、フォームのほかの値の数と余裕を引いた値を渡す（子リソースの一覧は 50 を引く）。
+
+受ける側（一括操作）は、今までどおり `name` の配列を受けるだけで変えない。全件の値は data 属性（`data-all-ids`）に JSON で入れる。件数が多い一覧で HTML が大きくなる欠点はあるが、「親の id と絞り込みの条件」を送って受ける側で直す方式は、一括操作ごとに絞り込みの組み直しと権限の確認が要るので採らない。`ids` は呼び出し側が、一覧の件数を数える問い合わせの結果から、一覧に見えるものだけで作る（例: 子リソースの一覧は `isContainAllowed()` を通す）。
 
 ## エスケープ
 
@@ -71,6 +103,8 @@
 | `page` | ページ番号。範囲外（0・総ページ数より大きい）は 1 ページ目 |
 | `orderby` | 並べ替えのキー。`sort` のキーにあるものだけ受ける（ホワイトリスト）。呼び出し側が自分の SQL の列名に対応づける |
 | `orderdir` | `asc` か `desc`。既定は `asc` |
+
+`DataTableLinks::url($overrides)` は、上書きの値が `null` の引数を URL から外す（絞り込みの解除は `q` とページを外し、並べ替えは残す。並べ替えの解除は `orderby`・`orderdir`・ページを外す）。
 
 ページ番号の引数名は `DataTableLinks` の `pageParam` で替えられる（1 画面に表が複数あるとき）。ページ送りは、今のページを中心に最大 9 個の番号と、前後の「先頭」「<」「>」「最後」を出す。行けないものは `<span>`。総ページ数が 2 未満なら何も出さない。
 
@@ -92,16 +126,16 @@
 ## JS の書き方
 
 - インラインの `onclick` を出さない。Vanilla JS で書く。
-- 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。
+- 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`、選択の帯）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。
 - 画面ごとの動き（右クリックのメニューを開くなど）は、各画面のスクリプトが表を包む要素（`[data-table="<id>"]`）にリスナーを付ける。要素は画面の差し替えで消えるので、リスナーが積み重ならない。行のアイコンやタイトルには `data-row-menu="<id>"` を付け、リスナーは `e.target.closest('[data-row-menu]')` で受ける。
 - 画面ごとのリスナーは、画面のインラインの `<script>` の中で `Evo.ready()` に包んで付け、その `<script>` は表より前に置く。表の後ろや入れ物の末尾には置かない（入れ物の `:last-child` や `:has(+ X)` の余白の規則がずれるため）。全体の読み込みでは表より前のスクリプトが先に動くので、`Evo.ready()` で表ができてから登録する。
 - シェルの外の別窓の画面（リソースセレクタなど）は `evo.js` を読まないので、`document` への委譲で受けてよい。
 
 ## 戻り先で状態を引き継ぐ
 
-一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。
+一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。子リソースの一覧は、並べ替えに加えて検索語 `q`（`get_strvar('q')`、100 文字まで）も URL に持ち、ページ送り・並べ替え・処理のあとの戻り先へ引き継ぐ。絞り込みは `pagetitle`・`longtitle`・`alias`・`content`（本文。HTML のタグ名にも一致する）の部分一致（数字だけなら `id` の一致も。LIKE の `%`・`_`・`\` は無害化してから `db()->escape()`）。表の上の検索欄（GET のフォームで、ページ番号は送らない）と「既定の並び順に戻す」（`orderby`・`orderdir`・ページを外し、`q` は残す）は、表を包む POST のフォームの外に置く。
 
-画面状態で覚える一覧（`manager()->initPageViewState()` を使うユーザー管理・Web ユーザー管理・モジュール）は、`$_PAGE['vs']['page']` に今のページを覚えて書き戻し、`op=reset` で 1 に戻す（例: `manager/actions/permission/user_management.static.php`）。全件表示（`perPage` が 0 以下）と 0 件のときは書き戻さない。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
+ユーザー管理・Web ユーザー管理・モジュールの一覧は、検索語（`search`）・ページ番号（`page`）・一覧モード（`listmode`）を URL だけで決め、画面状態（セッション）には覚えない。ページ送りのリンクは検索語を引き継ぎ、ユーザー管理・Web ユーザー管理の検索フォームはページ番号を送らない（検索すると 1 ページ目。モジュールの一覧には検索フォームが無い）。編集画面のキャンセルなど、パラメータなしで開いた一覧は絞り込みなしの 1 ページ目になる。検索した一覧へはブラウザの「戻る」で戻る（例: `manager/actions/permission/user_management.static.php`）。この 3 つの一覧は、削除・複製・保存などの処理のあとも、絞り込みなしの 1 ページ目に戻る（上の「今のページと並べ替えを引き継ぐ」の例外）。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
 
 ## サイト側の表（TV の出力ウィジェット・修飾子・`getHTMLGrid()`）
 

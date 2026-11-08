@@ -92,10 +92,25 @@ body.evo-shell.tree-hidden > #treePane {
     display: none;
 }
 
+/* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */
+body.evo-shell #treeRoot {
+    margin-top: var(--space-1, 4px);
+}
+
 /* ツリー内の高さ計算をJSからCSSへ移行 */
 body.evo-shell #treeHolder {
     height: auto;
     overflow: visible;
+}
+
+/*
+ * ツリーの行のアイコン（＋/－・フォルダ・ページ）の縦位置を、日本語の文字の絵の中心に合わせる。
+ * 各テーマの vertical-align: middle は「ベースライン＋小文字xの高さの半分」に中心を置くため、
+ * 日本語では文字より下がって見える。行の高さが変わらないよう、位置だけを文字の大きさに比例して上げる。
+ */
+body.evo-shell #treeRoot div img {
+    position: relative;
+    top: -.08em;
 }
 
 body.evo-shell #floater {
@@ -425,4 +440,29 @@ body.evo-shell input.evo-submitting-trigger {
         content: none;
         animation: none;
     }
+}
+
+/* リソースツリーのフォルダの開閉。高さと不透明度は tree.php が付け外しする */
+.treeSlide {
+    transition: height .18s ease-out, opacity .18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .treeSlide {
+        transition: none;
+    }
+}
+
+/* 表の上の、選んだ件数と「この一覧のすべてを選択」の帯（DataTable の options['selection']、data-table.js） */
+.data-table-selection-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2, 8px);
+    margin-bottom: var(--space-3, 12px);
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    color: var(--color-text-primary, #333);
+    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
+    border: 1px solid var(--color-border-light, #ddd);
 }

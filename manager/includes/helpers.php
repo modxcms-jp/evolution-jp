@@ -1273,3 +1273,48 @@ if (!function_exists('manager_is_dashboard_action')) {
             && (int)manager()->action === 2;
     }
 }
+
+/**
+ * php.ini の容量表記(128M・1G・512K・数値のみ。K・M・G は大文字小文字を問わない)をバイト数にする。
+ * 解釈できない書式は 0。-1(無制限)は -1 のまま返す
+ */
+function ini_size_to_bytes($value)
+{
+    if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', trim((string) $value), $m)) {
+        return 0;
+    }
+    $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
+    return (int) $m[1] * $multipliers[strtoupper($m[2])];
+}
+
+/**
+ * GD で画像を読み込んで縮小しても、memory_limit の残りに収まるかを、読み込む前に見積もる。
+ * imagecreatefrom*() はメモリ不足だと例外にならず致命的エラーで処理ごと止まるため、呼び出し側は先にこれで確かめる。
+ * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まるため。
+ * memory_limit が -1・0・解釈できない書式のときは無制限として true を返す。
+ *
+ * 1 画素あたりに GD が確保するバイト数は、PHP 8.4 同梱の GD で memory_get_peak_usage(true) を測った値。
+ * JPEG: 展開後の本体のみで約 4。PNG: 本体 4 + デコード領域(1 行分×高さ)約 4 で約 8
+ * (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
+ * GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。縮小先は imagecreatetruecolor() で 4。
+ * BMP: 6000×6000 で約 4.1 (JPEG と同じ 4 に、4MB の余裕で収まる)。
+ * WebP: 未測定（検証用イメージの GD は WebP を読めない）。読める環境では libwebp の展開領域が加わり 4 を超える可能性がある（残るリスク）。見積もりは 4 とする。
+ *
+ * @param int $width 元画像の幅
+ * @param int $height 元画像の高さ
+ * @param int $imageType IMAGETYPE_PNG は 8、それ以外(JPEG・GIF・BMP・WebP など)は 4 バイト/画素で見積もる
+ * @param int $destWidth 縮小先の幅
+ * @param int $destHeight 縮小先の高さ
+ */
+function gd_can_load_image($width, $height, $imageType, $destWidth, $destHeight)
+{
+    $limit = ini_size_to_bytes(ini_get('memory_limit'));
+    if ($limit <= 0) {
+        return true;
+    }
+
+    $bytesPerPixel = ((int) $imageType === IMAGETYPE_PNG) ? 8 : 4;
+    // 縮小先と、そのほかの確保の余裕(4MB)
+    $need = $width * $height * $bytesPerPixel + $destWidth * $destHeight * 4 + 4194304;
+    return $need <= $limit - memory_get_usage(true);
+}

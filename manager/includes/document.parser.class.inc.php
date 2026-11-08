@@ -3311,14 +3311,18 @@ class DocumentParser
         }
 
         $name = $this->superGlobalName($key);
-        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE）と、HTML エスケープの対象（COOKIE を除く）を分ける。
-        // COOKIE の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）
-        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE'], true);
+        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE・SERVER）と、HTML エスケープの対象（GET・POST・REQUEST）を分ける。
+        // COOKIE・SERVER の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）。
+        // SERVER は HTTP_*・REQUEST_URI・QUERY_STRING などリクエストから来る値を含み、起動時の sanitizeVars() は
+        // その一部（4 キー）を hsc() するだけでタグの記号を崩さない。SERVER_NAME などサーバーの値にタグの記号は
+        // ふつう含まれず、崩しても実害が無いので、キーで分けず SERVER 全体を対象にする
+        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE', 'SERVER'], true);
         $escapeHtml = in_array($name, ['GET', 'POST', 'REQUEST'], true);
         if ($breakTags) {
             // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
             // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける。
-            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない
+            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない。
+            // SERVER の一部は起動時に hsc() だけを受けている（タグの記号は残る）
             $values = [$value];
             $this->sanitize_gpc($values);
             $value = $values[0];
@@ -6402,7 +6406,17 @@ class DocumentParser
         $limitWidth = $this->config('image_limit_width');
         // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
         $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
-        if (!$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true)) {
+        $cannotResize = !$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
+        $limitHeight = $cannotResize ? 0 : max(1, (int)(($img[1] / $img[0]) * $limitWidth));
+        // 読み込むメモリが足りない巨大な画像は、致命的エラーで止まらないよう縮めずにそのまま保存する
+        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $limitWidth, $limitHeight)) {
+            $cannotResize = true;
+            $this->logEvent(
+                0, 2, 'Image not resized: not enough memory', 'move_uploaded_file',
+                ['file' => basename($target_path), 'width' => $img[0], 'height' => $img[1], 'limit_width' => $limitWidth, 'memory_limit' => ini_get('memory_limit')]
+            );
+        }
+        if ($cannotResize) {
             $moved = move_uploaded_file($tmp_path, $target_path);
             if (!$moved) {
                 return false;
@@ -6428,11 +6442,10 @@ class DocumentParser
                 return false;
         }
 
-        $limit_height = (int)(($img[1] / $img[0]) * $limitWidth);
-        $new_image = imagecreatetruecolor($limitWidth, $limit_height);
+        $new_image = imagecreatetruecolor($limitWidth, $limitHeight);
 
         imagecopyresampled(
-            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limit_height, $img[0], $img[1]
+            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limitHeight, $img[0], $img[1]
         );
         switch ($img[2]) {
             case IMAGETYPE_JPEG:
