@@ -427,6 +427,17 @@ body.evo-shell input.evo-submitting-trigger {
     }
 }
 
+/* リソースツリーのフォルダの開閉。高さと不透明度は tree.php が付け外しする */
+.treeSlide {
+    transition: height .18s ease-out, opacity .18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .treeSlide {
+        transition: none;
+    }
+}
+
 /* 表の上の、選んだ件数と「この一覧のすべてを選択」の帯（DataTable の options['selection']、data-table.js） */
 .data-table-selection-body {
     display: flex;
