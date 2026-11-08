@@ -3310,24 +3310,29 @@ class DocumentParser
             $value = '';
         }
 
-        $isRequest = in_array($this->superGlobalName($key), ['GET', 'POST', 'REQUEST'], true);
-        if ($isRequest) {
+        $name = $this->superGlobalName($key);
+        // タグの記号を崩す対象（GET・POST・REQUEST・COOKIE）と、HTML エスケープの対象（COOKIE を除く）を分ける。
+        // COOKIE の値は HTML エスケープしない（今までの出力を変えない。タグの記号だけ崩す）
+        $breakTags = in_array($name, ['GET', 'POST', 'REQUEST', 'COOKIE'], true);
+        $escapeHtml = in_array($name, ['GET', 'POST', 'REQUEST'], true);
+        if ($breakTags) {
             // 差し込む値にタグの記号を残さない。起動時と同じ無害化を、設定（sanitize_gpc）や
-            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける
+            // フロントの $_POST かどうかに依らずかける。修飾子が値をタグとして解析する前にかける。
+            // COOKIE は起動時に同じ無害化を受けていて（sanitize_gpc 有効時）、重ねてかけても結果は変わらない
             $values = [$value];
             $this->sanitize_gpc($values);
             $value = $values[0];
         }
 
         if ($modifiers !== false) {
-            // リクエストの値は、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（:urldecode などで戻したタグを、
+            // タグの記号を崩す対象の値は、修飾子を 1 つ当てるたびに結果のタグの記号を崩す（:urldecode などで戻したタグを、
             // 続く :summary などが解析しないため）。修飾子が作った文字参照は崩さないよう、タグの記号だけにする
-            $value = $this->applyFilter($value, $modifiers, $key, $isRequest);
+            $value = $this->applyFilter($value, $modifiers, $key, $breakTags);
         }
 
-        // リクエストの値は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
+        // HTML エスケープの対象は、HTML として解釈されないように、修飾子の後でエスケープする（:raw のときはしない）。
         // 修飾子を当てたときは、:hsc などで既にエスケープした文字参照を二重にしない（double_encode = false）
-        if ($isRequest && !$raw) {
+        if ($escapeHtml && !$raw) {
             $value = hsc($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, $modifiers === false);
         }
 
