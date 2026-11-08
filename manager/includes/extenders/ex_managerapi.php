@@ -1173,22 +1173,12 @@ class ManagerAPI
     {
         $limits = [];
         foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $key) {
-            $bytes = $this->convertToBytes(ini_get($key));
+            $bytes = to_bytes(ini_get($key));
             if ($bytes > 0) {
                 $limits[] = $bytes;
             }
         }
         return $limits ? min($limits) : 0;
-    }
-
-    private function convertToBytes($input)
-    {
-        $input = trim((string)$input);
-        if (!preg_match('/^(-?\d+)\s*([KMG]?)$/i', $input, $m)) {
-            return 0;
-        }
-        $multipliers = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
-        return (int)$m[1] * $multipliers[strtoupper($m[2])];
     }
 
     public function getTplModule()
