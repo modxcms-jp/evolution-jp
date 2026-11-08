@@ -43,7 +43,7 @@ if (!verifyPermission()) {
 
 $mode = saveUserMode();
 
-if ($mode === 11) { // new user
+if ($mode === 'new') { // new user
     if (trim(userformv_str('newusername')) === '') {
         webAlert('Missing user name!');
         exit;
@@ -73,7 +73,7 @@ if ($mode === 11) { // new user
     return;
 }
 
-if (in_array($mode, [12, 74], true)) {
+if (in_array($mode, ['edit', 'profile'], true)) {
     $userid = post_intvar('userid');
     if (!$userid) {
         webAlert('Missing user id!');

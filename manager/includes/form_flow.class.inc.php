@@ -73,20 +73,32 @@ final class EvoFormFlow
     }
 
     /**
-     * POST の mode を、その種類の表にある new・edit・profile だけ受けて名前にする。
-     * それ以外（送られていない・許可していない値）は空文字。
-     * 今は画面の番号で送られてくるので、番号を名前に直す
+     * POST の mode を、その種類の表にある new・edit・profile だけ受ける。
+     * それ以外（送られていない・許可していない値）は空文字
      */
     public static function postedMode(string $kind): string
     {
-        $modes = [];
-        foreach (self::screens($kind) as $mode => $number) {
-            if ($mode !== 'close') {
-                $modes[$number] = $mode;
-            }
-        }
-        $number = post_choicevar('mode', array_keys($modes), 0);
-        return $modes[$number] ?? '';
+        return post_choicevar('mode', self::modes($kind), '');
+    }
+
+    /**
+     * 画面側の mode。今開いている画面（manager()->action）が、その種類の表のどの値か。
+     * フォームの hidden の mode に出す。どれでもなければ空文字
+     */
+    public static function mode(string $kind): string
+    {
+        $mode = array_search((int)manager()->action, self::screens($kind), true);
+        return $mode === false || $mode === 'close' ? '' : $mode;
+    }
+
+    /**
+     * その種類で mode として受ける値（close を除く）
+     *
+     * @return string[]
+     */
+    private static function modes(string $kind): array
+    {
+        return array_values(array_diff(array_keys(self::screens($kind)), ['close']));
     }
 
     /**

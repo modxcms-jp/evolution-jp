@@ -811,7 +811,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
         'upload_maxsize' => (int) config('upload_maxsize', 32 * 1024 * 1024),
-        'mode' => manager()->action,
+        'mode' => EvoFormFlow::mode((int) manager()->action === 72 ? 'weblink' : 'document'),
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),
         'title' => (evo()->doc->mode === 'normal') ? lang('create_resource_title') : lang('create_draft_title'),

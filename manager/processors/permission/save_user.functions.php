@@ -3,16 +3,16 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-// 保存の種類。新規（11）・更新（12）・プロフィール（74）以外は 0 にして、どれにも当てはめない
+// 保存の種類。new・edit・profile 以外は空文字にして、どれにも当てはめない
 function saveUserMode()
 {
-    return post_choicevar('mode', [11, 12, 74], 0);
+    return EvoFormFlow::postedMode('user');
 }
 
-// プロフィール（a=74）は自分自身の編集なので、画面を開ける change_password 権限で保存できる
+// プロフィール（mode=profile）は自分自身の編集なので、画面を開ける change_password 権限で保存できる
 function canSaveUser()
 {
-    if (saveUserMode() === 74) {
+    if (saveUserMode() === 'profile') {
         return evo()->hasPermission('change_password')
             && post_intvar('userid') === (int)evo()->getLoginUserID()
             && (post_intvar('newpassword') !== 1 || evo()->hasPermission('save_password'));
@@ -24,7 +24,7 @@ function canSaveUser()
 function userformv($key, $default = null)
 {
     static $saved = null;
-    if (saveUserMode() !== 74) {
+    if (saveUserMode() !== 'profile') {
         return postv($key, $default);
     }
     if ($saved === null) {
@@ -198,7 +198,7 @@ function saveUserSettings($id)
     }
 
     // プロフィールでは画面に出している設定だけを変え、それ以外（ファイル管理のパスなど）は保存済みの値を残す
-    if (saveUserMode() === 74) {
+    if (saveUserMode() === 'profile') {
         $allowed = profileSettingNames();
         $settings = array_intersect_key($settings, array_flip($allowed));
         foreach (currentUserSettings($id) as $k => $v) {
@@ -294,7 +294,7 @@ function systemSettings()
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    $mode = EvoFormFlow::postedMode('user');
+    $mode = saveUserMode();
     // 新規・更新・プロフィールでないとき（不正な mode）は、入力を残さずに一覧へ戻す
     evo()->manager->saveFormValues($mode ? EvoFormFlow::screen('user', $mode) : 0);
     evo()->webAlertAndQuit(
@@ -728,7 +728,7 @@ function updateUser()
     }
     $afterSave = EvoFormFlow::postedAfterSave();
     if (!$changePassword || $notifyMethod !== 's') {
-        if (saveUserMode() === 74) {
+        if (saveUserMode() === 'profile') {
             header('Location: ' . 'index.php?r=3&a=2');
             exit;
         }

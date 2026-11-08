@@ -247,7 +247,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="mode" value="<?= (int) $action ?>" />
+    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('web_user') ?>" />
     <input type="hidden" name="id" value="<?= (int) $user ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />

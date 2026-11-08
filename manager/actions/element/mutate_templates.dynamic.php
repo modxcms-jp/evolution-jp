@@ -70,7 +70,7 @@ template('id');
         ?>
         <input type="hidden" name="a" value="20">
         <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
-        <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
+        <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('template') ?>">
 
         <h1><?= lang('template_title') ?></h1>
         <div id="actions">

@@ -320,7 +320,7 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
+    <input type="hidden" name="mode" value="<?= EvoFormFlow::mode('tmplvar') ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
