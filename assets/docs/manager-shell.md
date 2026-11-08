@@ -28,7 +28,8 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 | `window.mainMenu` | メニューの操作（`reloadtree`・`reloadmenu`・`hideTreeFrame`・`defaultTreeFrame`・`reloadPane`・`removeLocks`・`showWin`・`keepMeAlive`・`work`・`stopWork` など） | `manager/frames/menu.php` |
 
 - シェルでは `top`・`parent` も自分の window を指すので、`top.tree` や `parent.mainMenu` と書いたコードも同じものに届く。
-- シェルの中に置いた iframe（ファイルブラウザ、モーダルなど）では、iframe 自身の window には `tree`・`mainMenu` が無いが、`parent`・`top` からはシェルのものに届く。
+- シェルのモーダル（`#evoShellModal`。シェルの中で開くファイルブラウザを含む）は iframe ではなく、断片を同じ window に差し込む。互換の名前はそのまま届く。
+- シェルの中に置いた iframe（TinyMCE のダイアログなど）では、iframe 自身の window には `tree`・`mainMenu` が無いが、`parent`・`top` からはシェルのものに届く。
 - QuickManager が公開側のページに埋め込んだ編集画面では、`parent`・`top` が公開側のページを指すので、届かない（自分の window にも無い）。
 - `window.tree` は、ツリーの状態 `ca` を持つ。ツリーのノードを押したときの動き（開く・移動先にする・親にする・リンク先にする）は `ca` で決まり、移動・親の選択・リンク先の選択の画面が書き換える。画面を移るたびに `shell.js` が `open` に戻す。
 - `tree.resizeTree()` は何もしない。ツリーの大きさはシェルの CSS が決める。外部のコードが呼んでも壊れないよう、名前だけ残している。
@@ -50,7 +51,7 @@ frameset の名前やしくみが残っているが、理由があって残し�
 | --- | --- |
 | セーフモードの切り替えは `a=1&f=menu` へ POST する（`manager/includes/helpers.php` の `manager_safe_mode_toggle_form()` と `manager_apply_safe_mode_request()`） | 送り先と受け手の判定がそろっていて動いている。送り先を変えるなら両方を一緒に変える |
 | 画面の `body` の `id` は `f` から取り、既定は `mainpane`（`manager/actions/header.inc.php`） | テーマの CSS が `body#mainpane` を参照している |
-| ログイン画面とロックアウトの画面は、最上位の画面にフレーム（iframe）があれば、最上位の画面で開き直す（`manager/media/script/login.js`、`manager/media/style/common/manager.lockout.tpl` の `top.frames.length` の判定） | iframe の中（ファイルブラウザ、QuickManager の埋め込みなど）でセッションが切れたとき、ログイン画面を最上位に出すため |
+| ログイン画面とロックアウトの画面は、最上位の画面にフレーム（iframe）があれば、最上位の画面で開き直す（`manager/media/script/login.js`、`manager/media/style/common/manager.lockout.tpl` の `top.frames.length` の判定） | iframe の中（TinyMCE のダイアログ、QuickManager の埋め込みなど）でセッションが切れたとき、ログイン画面を最上位に出すため |
 | イベント名 `OnManagerMainFrameHeaderHTMLBlock`・`OnManagerPreFrameLoader`・`OnManagerFrameLoader` | プラグインの API なので改名しない |
 | ディレクトリ名 `manager/frames/`、テーマの CSS の `div.treeframebody` | テーマや拡張が参照しうる |
 | ロールの権限 `frames` | 本体では確かめていないが、DB の列の既定値が 0 で、外部の拡張が `hasPermission('frames')` を見ている可能性がある（#1265） |
