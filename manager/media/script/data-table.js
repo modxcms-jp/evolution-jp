@@ -18,12 +18,16 @@ if (!window.EvoDataTable) {
         function clearExtra(bar) {
             const form = bar.closest('form');
             if (form) {
-                form.querySelectorAll('input[' + extraAttr + ']').forEach(function (el) { el.remove(); });
+                form.querySelectorAll('input[' + extraAttr + ']').forEach(function (el) {
+                    if (el.name === bar.dataset.selection) {
+                        el.remove();
+                    }
+                });
             }
         }
 
         function fill(text, n, total) {
-            return text.replace('{n}', n).replace('{total}', total);
+            return text.split('{n}').join(n).split('{total}').join(total);
         }
 
         function actionLink(label, action) {
@@ -34,28 +38,37 @@ if (!window.EvoDataTable) {
             return a;
         }
 
+        // 全件の値が付いていて（件数が多すぎるときは DataTable が付けない）、足す先の form があるときだけ選べる
+        function canSelectAll(bar) {
+            return !!bar.closest('form') && (bar.dataset.allIds || '[]') !== '[]';
+        }
+
+        // bar は常に出ている role="status" の外枠。中身だけを出し入れして、読み上げに告知させる
         function renderSelection(bar) {
             const rows = selectionRows(bar);
             const checked = rows.filter(function (c) { return c.checked; }).length;
             const total = Number(bar.dataset.total) || 0;
             const d = bar.dataset;
-            const text = document.createElement('span');
             bar.textContent = '';
             if (checked === 0) {
-                bar.hidden = true;
                 return;
             }
-            bar.hidden = false;
+            const body = document.createElement('div');
+            body.className = 'data-table-selection-body';
+            const text = document.createElement('span');
+            body.append(text);
             if (bar.hasAttribute('data-all-selected')) {
                 text.textContent = fill(d.labelAllSelected, checked, total);
-                bar.append(text, ' ', actionLink(d.labelClear, 'clear'));
+                body.append(' ', actionLink(d.labelClear, 'clear'));
             } else if (checked === rows.length && total > rows.length) {
                 text.textContent = fill(d.labelPage, checked, total);
-                bar.append(text, ' ', actionLink(fill(d.labelAll, checked, total), 'all'));
+                if (canSelectAll(bar)) {
+                    body.append(' ', actionLink(fill(d.labelAll, checked, total), 'all'));
+                }
             } else {
                 text.textContent = fill(d.labelSelected, checked, total);
-                bar.append(text);
             }
+            bar.append(body);
         }
 
         // 「この一覧のすべて」: このページの行を選び、ほかのページの値を hidden として足す

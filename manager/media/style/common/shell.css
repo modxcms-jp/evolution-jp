@@ -413,7 +413,7 @@ body.evo-shell input.evo-submitting-trigger {
 }
 
 /* 表の上の、選んだ件数と「この一覧のすべてを選択」の帯（DataTable の options['selection']、data-table.js） */
-.data-table-selection {
+.data-table-selection-body {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -424,8 +424,4 @@ body.evo-shell input.evo-submitting-trigger {
     color: var(--color-text-primary, #333);
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
     border: 1px solid var(--color-border-light, #ddd);
-}
-
-.data-table-selection[hidden] {
-    display: none;
 }

@@ -274,6 +274,7 @@ final class DataTable
      * options['selection'] = [
      *   'name'   => 'batch[]',   // 行のチェックボックスの name（見出しの data-select-all と同じ）
      *   'ids'    => [1, 2, ...], // この一覧の全ページ分の値（件数 = count）。整数に直して出す
+     *   'max'    => 900,         // 省略可。ids の件数がこれを超えるときは、全件の値を出さず「この一覧のすべて」を選べなくする
      *   'labels' => ['selected' => ..., 'page' => ..., 'all' => ..., 'allSelected' => ..., 'clear' => ...],
      * ]
      * 文言の {n}（選んだ件数）・{total}（全件数）は JS が置き換える。文言は呼び出し側が言語ファイルから渡す。
@@ -292,14 +293,19 @@ final class DataTable
             }
         }
         $ids = array_values(array_unique(array_map('intval', $sel['ids'])));
+        $total = count($ids);
+        // 全件の値を hidden で送ると、件数が max_input_vars を超えたときに PHP が黙って切り捨てる。超えるときは値を出さない
+        if (isset($sel['max']) && $total > (int) $sel['max']) {
+            $ids = [];
+        }
         $attr = '';
         foreach ($keys as $key) {
             $attr .= sprintf(' data-label-%s="%s"', strtolower(preg_replace('/([A-Z])/', '-$1', $key)), hsc((string) $labels[$key]));
         }
         return sprintf(
-            '<div class="data-table-selection" role="status" data-selection="%s" data-total="%d" data-all-ids="%s"%s hidden></div>',
+            '<div class="data-table-selection" role="status" data-selection="%s" data-total="%d" data-all-ids="%s"%s></div>',
             hsc((string) $sel['name']),
-            count($ids),
+            $total,
             hsc(json_encode($ids)),
             $attr
         );
