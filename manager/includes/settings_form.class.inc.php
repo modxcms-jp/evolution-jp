@@ -50,12 +50,14 @@ final class EvoSettingsForm
     }
 
     /**
-     * 欄に出す値。storedValues() にパスの置き換えと差し戻しを重ねる。
+     * 欄に出す値。storedValues() の結果にパスの置き換えと差し戻しを重ねる。
      * 差し戻しは取り出すとセッションから消えるので、1 回の表示で 1 回だけ呼ぶ。
+     *
+     * @param array $stored storedValues() の結果（呼び出し側が 1 回だけ作って evo()->config と共有する）
      */
-    public static function systemValues(): array
+    public static function systemValues(array $stored): array
     {
-        $values = self::storedValues();
+        $values = $stored;
 
         foreach (['filemanager_path', 'rb_base_dir', 'export_dir'] as $key) {
             $path = (string)($values[$key] ?? '');
@@ -79,6 +81,46 @@ final class EvoSettingsForm
             $values['base_url'] = MODX_BASE_URL;
         }
         return $values;
+    }
+
+    /**
+     * 管理画面の言語 [言語名 => 表示名]。lang フォルダの *.inc.php
+     */
+    public static function languages(): array
+    {
+        $names = [];
+        foreach (scandir(MODX_CORE_PATH . 'lang') as $filename) {
+            if (substr($filename, -8) === '.inc.php') {
+                $names[] = substr($filename, 0, -8);
+            }
+        }
+        sort($names);
+        $languages = [];
+        foreach ($names as $name) {
+            $languages[$name] = ucwords(str_replace('_', ' ', $name));
+        }
+        return $languages;
+    }
+
+    /**
+     * 言語キーを自分のファイルに持つ言語 [言語名 => 表示名]
+     */
+    public static function languagesHavingKey(string $key): array
+    {
+        static $keysByLanguage = [];
+        $languages = [];
+        foreach (self::languages() as $name => $title) {
+            if (!isset($keysByLanguage[$name])) {
+                // 英語で補うと、すべての言語が英語のキーを持つことになるので、ファイル単体で読む
+                $keysByLanguage[$name] = array_keys(
+                    evo()->readLexiconFile(sprintf('%slang/%s.inc.php', MODX_CORE_PATH, $name))
+                );
+            }
+            if (in_array($key, $keysByLanguage[$name], true)) {
+                $languages[$name] = $title;
+            }
+        }
+        return $languages;
     }
 
     /**
@@ -113,7 +155,7 @@ final class EvoSettingsForm
     private function renderRow(array $row): string
     {
         if ($row['type'] === 'event') {
-            return $this->renderEvent($row['name']);
+            return $this->renderEvent($row['name'], !empty($row['padded']));
         }
 
         $attr = '';
@@ -126,18 +168,50 @@ final class EvoSettingsForm
         }
 
         return "<tr{$attr}>\n"
-            . '<th>' . $this->resolve($row['label'] ?? '') . "</th>\n"
+            . $this->renderHeading($row) . "\n"
             . '<td>' . $this->renderCell($row) . "</td>\n"
             . "</tr>\n";
     }
 
     /**
+     * 行の見出しのセル。lang_text は「言語から読み込む」select を見出しのセルに持つ
+     */
+    private function renderHeading(array $row): string
+    {
+        $label = $this->resolve($row['label'] ?? '');
+        if ($row['type'] !== 'lang_text') {
+            return '<th>' . $label . '</th>';
+        }
+        $reload = (string)$row['reload'];
+        $options = '<option value="">' . hsc(lang('language_title')) . "</option>\n";
+        foreach (self::languagesHavingKey($row['langKey']) as $name => $title) {
+            $options .= sprintf('<option value="%s">%s</option>' . "\n", hsc($name), hsc($title));
+        }
+        $onchange = sprintf(
+            'confirmLangChange(this, %s, %s);',
+            js_literal($row['langKey']),
+            js_literal($row['id'])
+        );
+        $select = sprintf(
+            '<select name="%1$s" id="%1$s_select" onchange="%2$s">%3$s</select>',
+            hsc($reload),
+            hsc($onchange),
+            $options
+        );
+        $body = "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select;
+        if (!empty($row['warningHeading'])) {
+            return '<td nowrap class="warning" valign="top"><b>' . $label . '</b>' . $body . '</td>';
+        }
+        return '<th>' . $label . $body . '</th>';
+    }
+
+    /**
      * プラグインが返した HTML を、表の中の 1 行として出す
      */
-    private function renderEvent(string $name): string
+    private function renderEvent(string $name, bool $padded = false): string
     {
         $output = evo()->invokeEvent($name);
-        return '<tr class="row1" style="border-bottom:none;"><td colspan="2" style="padding:0;">'
+        return '<tr class="row1" style="border-bottom:none;"><td colspan="2"' . ($padded ? '' : ' style="padding:0;"') . '>'
             . (is_array($output) ? implode('', $output) : '')
             . "</td></tr>\n";
     }
@@ -153,9 +227,17 @@ final class EvoSettingsForm
             case 'textarea':
                 return $this->textarea($row) . $this->resolve($row['desc'] ?? '');
             case 'select':
-                return $this->select($row) . '<br/>' . $this->resolve($row['desc'] ?? '');
+                return $this->select($row)
+                    . (($row['br'] ?? true) ? '<br/>' : '')
+                    . $this->resolve($row['desc'] ?? '');
             case 'path':
                 return $this->path($row);
+            case 'lang_text':
+                return $this->langText($row);
+            case 'content_types':
+                return $this->contentTypes($row);
+            case 'template':
+                return $this->template($row);
             case 'yesno':
                 $row['options'] = ['1' => lang('yes'), '0' => lang('no')];
                 return $this->radio($row);
@@ -254,6 +336,110 @@ final class EvoSettingsForm
             ) . "\n";
         }
         return $html . $this->resolve($row['desc'] ?? '');
+    }
+
+    /**
+     * 言語ファイルの文面を初期値に持つ複数行の欄。読み込みの select は見出しのセルに出す（renderHeading）
+     */
+    private function langText(array $row): string
+    {
+        $key = $row['key'];
+        $langKey = $row['langKey'];
+        // 初期文面の hidden（confirmLangChange() が、欄が初期文面のままかを見るのに読む）
+        $hiddenName = substr($langKey, -8) === '_default' ? $langKey : $langKey . '_default';
+        $value = $this->values[$key] ?? lang($langKey);
+        return sprintf(
+            '<textarea name="%s"%s>%s</textarea>' . "\n"
+            . '<input type="hidden" name="%s" id="%s_hidden" value="%s" />' . "\n",
+            hsc($key),
+            $this->attributes(['id' => $row['id']] + ($row['attr'] ?? [])),
+            hsc(is_scalar($value) ? (string)$value : ''),
+            hsc($hiddenName),
+            hsc($langKey),
+            hsc(lang($langKey))
+        ) . $this->resolve($row['desc'] ?? '');
+    }
+
+    /**
+     * コンテンツタイプの追加・削除（functions.js の addContentType() などが、欄の名前に頼る）
+     */
+    private function contentTypes(array $row): string
+    {
+        $value = $this->value($row['key']);
+        $options = '';
+        foreach (explode(',', $value) as $type) {
+            $options .= sprintf('<option value="%1$s">%1$s</option>' . "\n", hsc($type));
+        }
+        return '<input type="text" name="txt_custom_contenttype" value="" maxlength="100" style="width:200px;" />' . "\n"
+            . sprintf('<input type="button" value="%s" onclick="addContentType()" /><br />', hsc(lang('add'))) . "\n"
+            . '<table><tr><td valign="top">'
+            . '<select name="lst_custom_contenttype" style="width:200px;" size="5">' . $options . '</select>'
+            . sprintf('<input name="%s" type="hidden" value="%s" />', hsc($row['key']), hsc($value))
+            . '</td><td valign="top">'
+            . sprintf(
+                '&nbsp;<input name="removecontenttype" type="button" value="%s" onclick="removeContentType()" />',
+                hsc(lang('remove'))
+            )
+            . "</td></tr></table>\n<br />\n"
+            . $this->resolve($row['desc'] ?? '');
+    }
+
+    /**
+     * 既定のテンプレート。今と違うテンプレートを選ぶと、既存のリソースへの一括変更のラジオが出る
+     */
+    private function template(array $row): string
+    {
+        $key = $row['key'];
+        $current = $this->value($key);
+        $rs = db()->select(
+            't.templatename, t.id, c.category',
+            '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id',
+            '',
+            'c.category, t.templatename ASC'
+        );
+        $groups = [];
+        $savedId = 0;
+        $savedName = '(blank)';
+        while ($template = db()->getRow($rs)) {
+            $selected = $current == $template['id'];
+            if ($selected && !$savedId) {
+                $savedId = $template['id'];
+                $savedName = $template['templatename'];
+            }
+            $category = $template['category'] == null ? lang('no_category') : $template['category'];
+            $groups[$category][] = sprintf(
+                '<option value="%s"%s>%s</option>',
+                hsc($template['id']),
+                $selected ? ' selected' : '',
+                hsc($template['templatename'])
+            );
+        }
+        $options = [];
+        foreach ($groups as $category => $items) {
+            $options[] = sprintf('<optgroup label="%s">%s</optgroup>', hsc((string)$category), implode("\n", $items));
+        }
+        $onchange = sprintf(
+            "wrap=document.getElementById('template_reset_options_wrapper');"
+            . "if((this.options[this.selectedIndex].value|0) != %d)"
+            . "{wrap.style.display='block';}else{wrap.style.display='none';}",
+            (int)$current
+        );
+        return sprintf(
+            '<select name="%s" class="inputBox" onchange="%s" style="width:150px">' . "\n"
+            . '<option value="">(blank)</option>' . "\n"
+            . '%s</select><br />' . "\n"
+            . '<div id="template_reset_options_wrapper" style="display:none;">' . "\n"
+            . '<label><input type="radio" name="reset_template" value="1" /> %s</label><br/>' . "\n"
+            . '<label><input type="radio" name="reset_template" value="2" /> %s</label>' . "\n"
+            . '</div>' . "\n"
+            . '<input type="hidden" name="old_template" value="%d"/>' . "\n",
+            hsc($key),
+            hsc($onchange),
+            implode("\n", $options),
+            lang('template_reset_all'),
+            sprintf(lang('template_reset_specific'), hsc($savedName)),
+            (int)$savedId
+        ) . $this->resolve($row['desc'] ?? '');
     }
 
     /**

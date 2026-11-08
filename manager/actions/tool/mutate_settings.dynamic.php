@@ -23,11 +23,12 @@ if (1 < db()->count($rs)) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-evo()->config = EvoSettingsForm::storedValues();
-$values = EvoSettingsForm::systemValues();
+$stored = EvoSettingsForm::storedValues();
+evo()->config = $stored;
+$values = EvoSettingsForm::systemValues($stored);
 // まだ定義に移していないタブ（legacy）のために残す。全部移したら消す
 $settings = $values; // checkConfig() が読む
-$default_config = include MODX_CORE_PATH . 'default.config.php'; // 同上
+$default_config = $stored; // 同上（checkConfig() の結果はどこからも読まれない）
 extract($values, EXTR_OVERWRITE);
 
 // load languages and keys
