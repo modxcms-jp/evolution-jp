@@ -74,8 +74,8 @@ function postForm() {
 
         document.templatevariables.submit();
     } else if (tabActiveID == '2') {
-        document.getElementById('tabaction').value = getSelectedRadioValue(document.docgroups.tabAction);
-        document.getElementById('newvalue').value = getSelectedRadioValue(document.docgroups.docgroupid);
+        document.getElementById('tabaction').value = getSelectedRadioValue(document.document_groups.tabAction);
+        document.getElementById('newvalue').value = getSelectedRadioValue(document.document_groups.document_group);
 
         document.getElementById('range').submit();
     } else if (tabActiveID == '3') {

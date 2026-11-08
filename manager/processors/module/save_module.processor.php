@@ -186,7 +186,7 @@ function saveUserGroupAccessPermissons()
     }
 
     // 配列だけを受ける。配列でないときは何も登録しない
-    $usrgroups = postv('usrgroups');
+    $usrgroups = postv('user_groups');
     if (!is_array($usrgroups)) {
         return;
     }
