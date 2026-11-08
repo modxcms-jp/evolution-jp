@@ -163,6 +163,19 @@ final class EditorInitializer
         $output[] = '                delete config.file_picker_callback;';
         $output[] = '            }';
         $output[] = '    }';
+        // 本文の変更を管理画面の未保存の印(documentDirty)に反映する。iframe の中の変更は input 欄の change では拾えない。
+        // 設定ファイルやサイトが setup を持っていても上書きせず、その後ろに重ねる
+        $output[] = '    const userSetup = typeof config.setup === "function" ? config.setup : null;';
+        $output[] = '    config.setup = function(editor) {';
+        $output[] = '        if (userSetup) {';
+        $output[] = '            userSetup.call(this, editor);';
+        $output[] = '        }';
+        $output[] = '        editor.on("dirty", function() {';
+        $output[] = '            if ("documentDirty" in window) {';
+        $output[] = '                window.documentDirty = true;';
+        $output[] = '            }';
+        $output[] = '        });';
+        $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';
         $output[] = '</script>';
