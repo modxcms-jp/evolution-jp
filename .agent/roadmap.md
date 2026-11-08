@@ -359,5 +359,5 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
   - `manager/includes/paginate.inc.php` と `manager/media/script/tablesort.js` が無い
 - 非対象（やらないこと）: #1087 で移す画面（`DataGrid`・`MakeTable` を使っていた画面）
 - 依存関係: なし（表の部品（DataGrid・MakeTable）を作り直すは完了済み）
-- ExecPlan: `着手時に判断`
+- ExecPlan: `不要`
 - メモ/判断ログ: 2026-11-07 起票。#1087 の作業中に、対象の外に残る作りとして見つかった（#1087 では移さないと決めた）。画面ごとの今の作りと方針は #1204 を正とする。

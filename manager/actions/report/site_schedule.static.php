@@ -6,8 +6,8 @@ if (!evo()->hasPermission('view_schedule')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
 ?>
-<script type="text/javascript" src="media/script/tablesort.js"></script>
 <h1><?= lang('site_schedule') ?></h1>
 <div id="actions">
     <ul class="actionButtons">
@@ -34,42 +34,35 @@ if (!evo()->hasPermission('view_schedule')) {
             'pub_date > ' . request_time(),
             'pub_date ASC'
         );
-        $total = db()->count($rs);
-        if ($total < 1) {
+        $rows = [];
+        while ($row = db()->getRow($rs)) {
+            $rows[] = $row;
+        }
+        if (!$rows) {
             echo "<p>" . lang("no_docs_pending_publishing") . "</p>";
         } else {
-            ?>
-            <table
-                border="0"
-                cellpadding="2"
-                cellspacing="0"
-                class="sortabletable sortable-onload-3 rowstyle-even"
-                id="table-1"
-                width="100%"
-            >
-                <thead>
-                <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?= lang('id') ?></b></th>
-                    <th class="sortable"><b><?= lang('resource') ?></b></th>
-                    <th class="sortable"><b><?= lang('publish_date') ?></b></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                while ($row = db()->getRow($rs)) {
-                    ?>
-                    <tr>
-                        <td><?= $row['id'] ?></td>
-                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= hsc($row['pagetitle']) ?></a>
-                        </td>
-                        <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
-                    </tr>
-                    <?php
-                }
-                ?>
-                </tbody>
-            </table>
-            <?php
+            $table = new DataTable(
+                [
+                    ['key' => 'id', 'label' => lang('id')],
+                    [
+                        'key' => 'pagetitle',
+                        'label' => lang('resource'),
+                        'html' => true,
+                        'format' => function ($value, array $row) {
+                            return sprintf('<a href="index.php?a=3&amp;id=%d">%s</a>', (int)$row['id'], hsc($value));
+                        },
+                    ],
+                    [
+                        'key' => 'pub_date',
+                        'label' => lang('publish_date'),
+                        'format' => function ($value) {
+                            return evo()->toDateFormat($value + config('server_offset_time', 0));
+                        },
+                    ],
+                ],
+                ['id' => 'schedule-publish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+            );
+            echo $table->render($rows);
         }
         ?>
     </div>
@@ -77,44 +70,43 @@ if (!evo()->hasPermission('view_schedule')) {
 
 <div class="section">
     <div class="sectionHeader"><?= lang("unpublish_events") ?></div>
-    <div class="sectionBody" id="lyr2"><?php
-        //$db->debug = true;
+    <div class="sectionBody" id="lyr2">
+        <?php
         $rs = db()->select(
             'id, pagetitle, unpub_date',
             '[+prefix+]site_content',
             'unpub_date > ' . request_time(),
             'unpub_date ASC'
         );
-        $total = db()->count($rs);
-        if ($total < 1) {
+        $rows = [];
+        while ($row = db()->getRow($rs)) {
+            $rows[] = $row;
+        }
+        if (!$rows) {
             echo "<p>" . lang("no_docs_pending_unpublishing") . "</p>";
         } else {
-            ?>
-            <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-3 rowstyle-even"
-                   id="table-2" width="100%">
-                <thead>
-                <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?= lang('id') ?></b></th>
-                    <th class="sortable"><b><?= lang('resource') ?></b></th>
-                    <th class="sortable"><b><?= lang('unpublish_date') ?></b></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                while ($row = db()->getRow($rs)) {
-                    ?>
-                    <tr>
-                        <td><?= $row['id'] ?></td>
-                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= hsc($row['pagetitle']) ?></a>
-                        </td>
-                        <td><?= $modx->toDateFormat($row['unpub_date'] + config('server_offset_time', 0)) ?></td>
-                    </tr>
-                    <?php
-                }
-                ?>
-                </tbody>
-            </table>
-            <?php
+            $table = new DataTable(
+                [
+                    ['key' => 'id', 'label' => lang('id')],
+                    [
+                        'key' => 'pagetitle',
+                        'label' => lang('resource'),
+                        'html' => true,
+                        'format' => function ($value, array $row) {
+                            return sprintf('<a href="index.php?a=3&amp;id=%d">%s</a>', (int)$row['id'], hsc($value));
+                        },
+                    ],
+                    [
+                        'key' => 'unpub_date',
+                        'label' => lang('unpublish_date'),
+                        'format' => function ($value) {
+                            return evo()->toDateFormat($value + config('server_offset_time', 0));
+                        },
+                    ],
+                ],
+                ['id' => 'schedule-unpublish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+            );
+            echo $table->render($rows);
         }
         ?>
     </div>
@@ -122,8 +114,8 @@ if (!evo()->hasPermission('view_schedule')) {
 
 <div class="section">
     <div class="sectionHeader">更新を予定している下書きリソースの一覧</div>
-    <div class="sectionBody" id="lyr2"><?php
-        //$db->debug = true;
+    <div class="sectionBody" id="lyr2">
+        <?php
         $rs = db()->select(
             'rv.*, sc.*, rv.pub_date AS pub_date',
             [
@@ -133,57 +125,49 @@ if (!evo()->hasPermission('view_schedule')) {
             "0<rv.pub_date AND rv.status='standby' ",
             'rv.pub_date ASC'
         );
-        $total = db()->count($rs);
-        if ($total < 1) {
+        $rows = [];
+        while ($row = db()->getRow($rs)) {
+            $rows[] = $row;
+        }
+        if (!$rows) {
             echo "<p>更新を予定している下書きリソースはありません。</p>";
         } else {
+            $table = new DataTable(
+                [
+                    ['key' => 'elmid', 'label' => lang('id')],
+                    [
+                        'key' => 'pagetitle',
+                        'label' => lang('resource'),
+                        'html' => true,
+                        'format' => function ($value, array $row) {
+                            return sprintf('<a href="index.php?a=131&amp;id=%d">%s</a>', (int)$row['elmid'], hsc($value));
+                        },
+                    ],
+                    [
+                        'key' => 'pub_date',
+                        'label' => '更新予約日時',
+                        'format' => function ($value) {
+                            return evo()->toDateFormat($value + config('server_offset_time', 0));
+                        },
+                    ],
+                    [
+                        'key' => 'version',
+                        'label' => '操作',
+                        'html' => true,
+                        'format' => function ($value, array $row) {
+                            return sprintf(
+                                '<a href="%s" target="_blank">プレビュー</a> / '
+                                . '<a href="%s" data-evo-post class="unpub_draft">公開取り消し</a>',
+                                hsc(sprintf('%s?revision=%s', evo()->makeUrl($row['elmid']), $row['version'])),
+                                hsc('index.php?a=134&id=' . (int)$row['elmid'] . '&back=publist')
+                            );
+                        },
+                    ],
+                ],
+                ['id' => 'schedule-draft', 'rowClasses' => ['gridItem', 'gridAltItem']]
+            );
+            echo $table->render($rows);
             ?>
-            <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-2 rowstyle-even"
-                   id="table-2" width="100%">
-                <thead>
-                <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?= lang('id') ?></b></th>
-                    <th class="sortable"><b><?= lang('resource') ?></b></th>
-                    <th class="sortable">更新予約日時</th>
-                    <th class="sortable">操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-                while ($row = db()->getRow($rs)) {
-                    ?>
-                    <tr>
-                        <td><?= $row['elmid'] ?></td>
-                        <td>
-                            <a
-                                href="<?= 'index.php?a=131&id=' . $row['elmid'] ?>"
-                            >
-                                <?= hsc($row['pagetitle']) ?>
-                            </a>
-                        </td>
-                        <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
-                        <td>
-                            <a
-                                href="<?= hsc(sprintf(
-                                    '%s?revision=%s',
-                                    evo()->makeUrl($row['elmid']),
-                                    $row['version']
-                                )); ?>"
-                                target="_blank"
-                            >
-                                プレビュー
-                            </a>
-                            /
-                            <a
-                                href="<?= hsc('index.php?a=134&id=' . $row['elmid'] . '&back=publist') ?>" data-evo-post
-                                class="unpub_draft">公開取り消し</a>
-                        </td>
-                    </tr>
-                    <?php
-                }
-                ?>
-                </tbody>
-            </table>
             <script type="text/javascript">
                 document.querySelectorAll('.unpub_draft').forEach(function (link) {
                     link.addEventListener('click', function (e) {

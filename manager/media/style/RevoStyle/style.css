@@ -13,7 +13,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -751,15 +751,6 @@ a img {
     border: 0;
 }
 
-.even {
-    background: #D9E7C2;
-}
-
-.odd {
-    background: #fff;
-}
-
-/* -------------------------[ end sortable table ]--- */
 .disabledImage {
     width: 20px;
     opacity: 0.3;
@@ -1293,7 +1284,7 @@ a.hometblink:hover {
 
 
 /* ============================================================================
-   9. Tables & Grids (Data Tables, Settings, Sortable)
+   9. Tables & Grids (Data Tables, Settings)
    Used in: Configuration tables, data grids
    ============================================================================ */
 .settings {
@@ -1461,37 +1452,6 @@ a.hometblink, a.hometblink img {
     padding: 15px 15px 20px !important;
 }
 
-/* -------------------------[ New sortable table class ]--- */
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: #E9F0F3;
-}
-
-.sortabletable td, .sortabletable th {
-    padding: 3px 5px;
-    border: 1px solid #ccc;
-}
-
-.sortabletable th {
-    text-align: left;
-    cursor: pointer;
-    color: #333;
-}
-
-
-.sortabletable th a {
-    text-decoration: none;
-    color: #333;
-}
-
-.sortabletable th:active {
-    background: #ccc;
-    padding: 3px 4px 1px 6px;
-}
 
 
 /* -------------------------[ Pagination table ]--- */

@@ -268,9 +268,6 @@
                 preLoader.style.display = 'none';
             }
             // window.load / DOMContentLoaded 依存の既存ライブラリを再初期化する
-            if (window.fdTableSort && typeof window.fdTableSort.init === 'function') {
-                window.fdTableSort.init(false);
-            }
             if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
                 window.MODXSortable.init();
             }

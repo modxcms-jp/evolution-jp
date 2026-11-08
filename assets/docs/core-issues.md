@@ -112,9 +112,10 @@
 - **改善案**: #1067 で設定の定義（`manager/includes/settings_form.definition.inc.php`）ができたら、保存するキーを「定義の設定キー + `default.config.php` のキー + プラグインが宣言したキー」に絞る。プラグインがキーを宣言する口（イベントの戻り値や定義への追加）を先に決める。#1067 では保存の処理を変えないと決めたので、別の課題として扱う
 - **関連ロードマップ**: #1067（設定の定義。非対象として切り出した）
 
-## 表とページ送りの組み方が DataTable の外に残る
+## 表とページ送りの組み方が DataTable の外に残る（解決済み）
 
 - **発見日**: 2026-11-07
+- **解決日**: 2026-11-08
 - **発見元**: 表の部品（DataGrid・MakeTable）を作り直す ExecPlan（`.agent/plans/archive/2026-11-07-data-table-component.md`、#1087）の利用箇所の洗い出し
 - **ファイル**: `manager/includes/paginate.inc.php`（`Paging`）、`manager/actions/report/logging.static.php`、`manager/actions/main/search.static.php`、`manager/actions/report/site_schedule.static.php`、`manager/media/script/tablesort.js`、`assets/plugins/managermanager/libs/OnPluginFormRender.inc.php`
 - **課題**: #1087 で表の部品を `DataTable`（`manager/includes/controls/data_table.class.php`）にまとめるが、その対象（DataGrid・MakeTable）の外に、同じ役割の作りが残る
@@ -122,4 +123,5 @@
   - 管理ログ・検索・スケジュールの表は手書きで、`border`・`cellpadding`・`bgcolor`・`width` の属性を出し、並べ替えはブラウザ側の `tablesort.js`（IE 向けの分岐を含む古いライブラリ）で行う
   - ManagerManager の設定の補助の表も、`gridItem`・`gridAltItem` を手で付けて組んでいる
 - **改善案**: これらの画面を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消す。並べ替えは `DataTableLinks` のサーバー側の並べ替えにそろえる。それまで、新しく書くページ送りと表は `DataTable` の部品だけを使い、`Paging` と `tablesort.js` を使うコードを増やさない（決まりは `assets/docs/data-table.md` に書いた）
+- **対応**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し（#1204）、`paginate.inc.php` と `tablesort.js` を消した。並べ替えは `DataTableLinks` のサーバー側に替えた。
 - **関連ロードマップ**: 自前で組み立てている表とページ送りを DataTable に移す（#1204）

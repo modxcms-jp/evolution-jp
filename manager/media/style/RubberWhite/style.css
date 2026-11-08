@@ -13,7 +13,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -126,8 +126,6 @@
     --color-tree-protected: #77d;
 
     /* Color - Table */
-    --color-table-even: #e8eaed;
-    --color-table-even-alt: #E9F0F3;
     --color-table-row-alt: #d1d5da;
     --color-table-header: #d2d2d2;
     --color-table-hover: #e8eaed;
@@ -845,15 +843,6 @@ a img {
     border: 0;
 }
 
-.even {
-    background: var(--color-table-even);
-}
-
-.odd {
-    background: var(--color-surface);
-}
-
-/* -------------------------[ end sortable table ]--- */
 .disabledImage {
     width: 20px;
     opacity: 0.3;
@@ -1461,39 +1450,9 @@ a.hometblink, a.hometblink img {
 }
 
 /* ============================================================================
-   9. Tables & Grids (Data Tables, Sortable)
+   9. Tables & Grids (Data Tables)
    Used in: Resource lists, user management, data grids
    ============================================================================ */
-
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: var(--color-table-even-alt);
-}
-
-.sortabletable td, .sortabletable th {
-    padding: var(--space-2);
-    border: 1px solid var(--color-border-default);
-}
-
-.sortabletable th {
-    text-align: start;
-    cursor: pointer;
-    color: var(--color-text-primary);
-}
-
-.sortabletable th a {
-    text-decoration: none;
-    color: var(--color-text-primary);
-}
-
-.sortabletable th:active {
-    background: var(--color-border-default);
-    padding: 3px 4px 1px 6px;
-}
 
 /* -------------------------[ Pagination table ]--- */
 #max-display-records {

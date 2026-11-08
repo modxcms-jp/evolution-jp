@@ -13,7 +13,7 @@
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
  * 8. Tree Components (Site Tree, Context Menu)
- * 9. Tables & Grids (Data Tables, Sortable)
+ * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
  * 12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -146,7 +146,6 @@
     --color-tree-protected: #77d;
 
     /* Component Colors - Table Rows */
-    --color-row-even: #E9F0F3;
     --color-row-odd: #fff;
     --color-row-alt: #C8DAA2;
     --color-row-highlight: #D9E7C2;
@@ -805,14 +804,6 @@ a img {
     border: 0;
 }
 
-.even {
-    background: var(--color-row-highlight);
-}
-
-.odd {
-    background: var(--color-row-odd);
-}
-
 /* ============================================================================
    8. Tree Components (Site Tree, Context Menu)
    Used in: Resource tree, context menus, tree navigation
@@ -949,8 +940,8 @@ div.treeNode {
 }
 
 /* ============================================================================
-   9. Tables & Grids (Data Tables, Sortable)
-   Used in: Resource lists, data grids, sortable tables
+   9. Tables & Grids (Data Tables)
+   Used in: Resource lists, data grids, tables
    ============================================================================ */
 
 .grid {
@@ -1532,37 +1523,6 @@ a.hometblink, a.hometblink img {
 
 .sectionBody .tab-page {
     padding: var(--space-4) var(--space-4) var(--space-5) !important;
-}
-
-/* New sortable table class */
-table.sortabletable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sortabletable tr.even {
-    background: var(--color-row-even);
-}
-
-.sortabletable td, .sortabletable th {
-    padding: var(--space-2);
-    border: var(--border-thin) solid var(--gray-400);
-}
-
-.sortabletable th {
-    text-align: left;
-    cursor: pointer;
-    color: var(--gray-900);
-}
-
-.sortabletable th a {
-    text-decoration: none;
-    color: var(--gray-900);
-}
-
-.sortabletable th:active {
-    background: var(--gray-400);
-    padding: var(--space-1) var(--space-1) var(--border-thin) var(--space-2);
 }
 
 /* Pagination table */
