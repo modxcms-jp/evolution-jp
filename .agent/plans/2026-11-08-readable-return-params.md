@@ -10,7 +10,7 @@
 - [x] (2026-11-09) M1: `EvoFormFlow` を作り、要素 6 種・Web ユーザー・ロールの processor と差し戻しを移した（2676fc4d2）。送る値は変えず、M1 の範囲 131 行が修正前の記録と完全一致、範囲外も差なし、PHP・JS のエラー 0。その後 main を取り込み（376cce09c）
 - [x] (2026-11-09) M2: 保存後の行き先を `after_save=new|stay|close` にそろえる（旧名の `stay`・`save_action` を置き換える。要素・文書・下書き・管理ユーザー・Web ユーザー）。タブの記憶を設定に従わせる（bf25d6698、自己レビューの低の手当て ad1965086。修正前の記録と旧名→新名の置き換えで突き合わせて一致し、違いは計画どおりの変更だけ。tester の独立の確認 7 項目すべて PASS: 差し戻しの入力値と選択 12 件、選択欄 19 画面・テーマ 7 種・権限による出し分け、未保存の警告、タブの記憶 30 件、文書の既定の記憶、user_settings に行ができない、エラー 0。自己レビューは高・中なし）
 - [x] (2026-11-09) M3: 新規か更新かの `mode` を `new` / `edit` / `profile` にする（d92153e03、自己レビューの低の手当て 2c3538fcc。M2 の記録と突き合わせ、保存後の Location と差し戻しの URL は文書-7（a=4 で種類をウェブリンクにして差し戻すと a=72）を除いて同じ、hidden の mode の違いは計画どおり。tester の確認 6 項目すべて PASS: 各画面の hidden の mode、文書-7 の入力の復元、文書・ウェブリンク・下書きの保存と採用の DB の値、プロフィールと管理ユーザー、旧い番号の拒否、エラー 0。自己レビューは高なし、中はリリースノートの文案の漏れで Interfaces に反映）
-- [ ] M4: `r` を `refresh` にし、`dv` を消す。再読み込みの受け口を `EvoShell.refresh()` 1 つにする
+- [x] (2026-11-09) M4: `r` を `refresh` にし、`dv` を消す。再読み込みの受け口を `EvoShell.refresh()` 1 つにする（2ac1ba95d。M3 の記録と突き合わせ、違いは r → refresh の置き換え、パスワード表示の閉じるの refresh=tree、全体の読み込みで描画のあとの読み直しが無くなったこと、a=26 の読み直しの経路だけ。tester の確認すべて PASS: 保存後の読み直しの回数は修正前と同じか少ない（復元は 2 回 → 1 回）、refresh 付きの URL を全体の読み込みで開いても描画される、グローバル設定の保存はシェル・全体の読み込みのどちらからもダッシュボードへ、QuickManager は読み直さない、DocManager などで未定義のエラーなし、エラー 0。自己レビューは高・中なし）
 - [ ] M5: テーブルの最適化・中身の削除の戻り先 `mode` を `from` にする（#1278 はマージ済み）
 - [ ] M6: ドキュメント・リリースノート・最終確認
 
@@ -306,7 +306,7 @@ M6 ドキュメントと最終確認
         git grep -nE "v\('stay'|validated\('stay'\)|[?&]stay=|name=\"stay\"|save_action" -- manager assets install ':!manager/includes/migrations'
         git grep -nE "choicevar\('mode', \[[0-9]|intvar\('mode'\)|'mode' => manager\(\)->action|name=\"mode\" value=\"<\?= *(\(int\) *)?(\\\$action|request_intvar)|name=\"mode\" value=\"74\"" -- manager
     期待結果: どれも出力なし。2 つ目は旧名のキー `stay` と `save_action` を探す（値としての `'stay'` や、言語ファイルの `$_lang['stay']`、`id="stay"` には当たらない形にしてある）。マイグレーションを外すのは、`manager/includes/migrations/00000000_baseline.php:356` が、過去にユーザー設定へ紛れ込んだ `save_action` の行を消すために名前を持っているから（過去の掃除なので変えない）。df5a08619 の時点では、1 つ目が 51 行、2 つ目が 50 行（うち `validated('stay')` が 2 行）、3 つ目が 22 行当たる。
-28. `assets/docs/architecture.md` の管理画面の処理の流れの節（無ければ近い節）に、「保存後の戻り先・新規か更新か・再読み込みの値は `EvoFormFlow`（`manager/includes/form_flow.class.inc.php`）と `EvoShell.refresh()` を正とする」と 2〜3 行で書く。`assets/docs/manager-shell.md` の 16・28・41 行から `reloadPane` を消し、読み直しの API に `refresh`（`tree` / `menu` / `all` / `page`）を足す。`/doc-audit` を通す。
+28. `assets/docs/architecture.md` の管理画面の処理の流れの節（無ければ近い節）に、「保存後の戻り先・新規か更新か・再読み込みの値は `EvoFormFlow`（`manager/includes/form_flow.class.inc.php`）と `EvoShell.refresh()` を正とする」と 2〜3 行で書く。`assets/docs/manager-shell.md` の 16・28・41 行から `reloadPane` を消し、読み直しの API に `refresh`（`tree` / `menu` / `all` / `page`）を足す。54 行の「まだ `top.`・`parent.` の書き方で使っている箇所」の例から `wait.static.php` を消す（M4 で `top.mainMenu.reloadPane(10)` を消したため。M4 の自己レビューより）。`/doc-audit` を通す。
 29. PR の本文に Interfaces and Dependencies の「リリースノートに書くこと」を載せる。
 
 ## Validation and Acceptance
@@ -366,7 +366,7 @@ Docker の検証環境（`adaptive-validation-runner` スキルの手順で起�
 | 操作 | main | 変更後 |
 | --- | --- | --- |
 | グローバル設定を保存 | `a=7&r=10`、管理画面ごと読み直してダッシュボード | `a=7&refresh=page`、同じ |
-| バックアップからの復元（`a=305`） | `r=9&a=93`、ツリーとメニューが更新される。`a=93&r=9` をフルページで開くと、描画のあとツリーとメニューを 2 回読み直す（`doRefresh()` が 2 か所） | `a=93&refresh=all`、ツリーとメニューが更新される。フルページでは描画のあとの読み直しが無く、シェルでは 1 回 |
+| バックアップからの復元（`a=305`） | `r=9&a=93`、ツリーとメニューが更新される。`a=93&r=9` をフルページで開くと、描画のあとツリーとメニューを 2 回読み直す（`doRefresh()` が 2 か所） | `refresh=all&a=93`（引数の並びは旧のまま）、ツリーとメニューが更新される。フルページでは描画のあとの読み直しが無く、シェルでは 1 回 |
 | サイトの更新（`a=26`） | シェルではツリーを 1 回読み直す。フルページでは描画のあと `doRefresh(1)` で 1 回読み直す | シェルでは 1 回（`EvoShell.refresh('tree')`）。フルページでは main 以下（1 回以内）。コンソールにエラーが出ない |
 | `r` / `refresh` 付きの URL をブラウザで再読み込み（フルページ。`a=2&r=1`・`a=2&r=2`・`a=2&r=3`・`a=3&id=1&r=1`） | 描画のあと `doRefresh()` でツリーかメニューをもう 1 回読み直す | `refresh=tree` / `menu` で開き、描画のあとの読み直しが無い。ツリー・メニューが表示され、コンソールにエラーが出ない |
 | システム情報・バックアップの画面からテーブルを最適化・中身を削除 | `a=53` / `a=93`（#1278 で `&s=4` は削除済み）。Docker の検証環境ではリンクが出ないので、同じ URL（`a=54&mode=53&table=…` など）への POST で確かめた | `from=sysinfo` / `from=bkmanager` で同じ画面に戻る（同じく POST で確かめる） |
@@ -396,7 +396,7 @@ Docker の検証環境（`adaptive-validation-runner` スキルの手順で起�
 
 - 編集画面から保存の processor へ送る保存後の行き先のキーが `after_save` になり、値は `new`（続けて新規作成）・`stay`（この画面）・`close`（閉じる）になる（文書の下書きは、ほかに `save_draft` / `save_standby`）。旧名のキー `stay`（要素・Web ユーザーの `1` / `2`、文書の `new` / `stay` / `close`）と、管理ユーザーの `save_action`（`next` / `stay` / `close`）は受けない。保存後の URL の行き先も `after_save=…` になる。選択欄の `id="stay"` は変わらないので、テーマの CSS の `select#stay` はそのまま効く。行き先を送らないときは、どの画面も「閉じる」になる（管理ユーザーは今まで新規の画面だった）。
 - 新規か更新かを表す `mode` の値が、画面の番号（77 / 78 など）から `new` / `edit`（プロフィールは `profile`）になる。保存の processor へ直接 POST するコードは直す必要がある。プラグインやサイトの JS で POST の `mode`（画面の番号。`$_POST['mode'] == 27` や `document.mutate.mode.value` など）を見ていた場合も、エラーにならずに別の分岐へ入るので直す必要がある。新規か更新かはイベントの引数 `mode`（`new` / `upd`）か POST の `mode`（`new` / `edit`）で、文書かウェブリンクかは `type` で判断する。下書きの画面の `mode` は空になる。旧い番号で送ると保存しない。`custom_tpl_dir` に置いた文書の画面のテンプレートは `[+mode+]` のままでよい。
-- 保存後の URL の再読み込みの引数 `r`（1・2・3・9・10）が `refresh`（`tree` / `menu` / `all` / `page`）になる。`dv` は無くなる。古い URL をブックマークしていても、読み直しが起きないだけでエラーにはならない。
+- 保存後の URL の再読み込みの引数 `r`（1・2・3・9・10）が `refresh`（`tree` / `menu` / `all` / `page`）になる。`dv` は無くなる。古い URL をブックマークしていても、読み直しが起きないだけでエラーにはならない。外部のモジュールや processor が戻り先の URL に `r` を付けてツリーやメニューを読み直させていた場合は、`refresh` に直す（直さないとエラーにならずに読み直しが起きなくなる）。`EvoShell.refresh()` はシェルの外（`chromeless`・QuickManager）では何もしない（グローバル設定の保存後の画面を `chromeless` で開いても、ダッシュボードへ移らずにその画面に留まる）。
 - JS の `top.mainMenu.reloadPane(n)` と、画面の `doRefresh(n)` が無くなる。ツリーやメニューを読み直すモジュールは `EvoShell.refresh('tree')` などを使う。
 - テーブルの最適化・中身の削除（`a=54`）の戻り先の引数 `mode` が `from`（`sysinfo` / `bkmanager`）になる。
 - `ManagerAPI::requireElementName()` / `redirectToElementForm()` の引数が、画面の番号 2 つから種類の名前（`'chunk'` など）に変わる。
