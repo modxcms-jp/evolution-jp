@@ -145,11 +145,11 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
     }
 
     function addTV() {
-        openSelector("tv", "m", "setResource");
+        openSelector("tv", "multiple", "setResource");
     }
 
     function addChunk() {
-        openSelector("chunk", "m", "setResource");
+        openSelector("chunk", "multiple", "setResource");
     }
 
     function addPlugin() {
