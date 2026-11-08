@@ -279,11 +279,17 @@ HTML;
     }
 
     /**
-     * user・profile で、条件（showIf）に合わず初めから隠れる行
+     * 条件（showIf）に合わず初めから隠れる行。
+     * system は画面の値、user・profile は切り替える欄（ラジオ）が画面に無いのでシステム設定の値で決める
      */
     private function isConditionHidden(array $row): bool
     {
-        return isset($row['showIf']) && (string)($this->stored[$row['showIf'][0]] ?? '') !== (string)$row['showIf'][1];
+        if (!isset($row['showIf'])) {
+            return false;
+        }
+        [$name, $expected] = $row['showIf'];
+        $current = $this->isSystem() ? $this->value($name) : (string)($this->stored[$name] ?? '');
+        return $current !== (string)$expected;
     }
 
     /**
@@ -315,16 +321,12 @@ HTML;
     private function renderRow(array $row): string
     {
         $attr = '';
-        if (isset($row['showIf'])) {
+        if (isset($row['showIf']) && $this->isSystem()) {
             [$name, $expected] = $row['showIf'];
-            // user・profile は切り替える欄（ラジオ）が画面に無いので、システム設定の値で出すかどうかだけを決める
-            $current = $this->isSystem() ? $this->value($name) : (string)($this->stored[$name] ?? '');
-            if ($this->isSystem()) {
-                $attr = ' data-show-if="' . hsc("{$name}={$expected}") . '"';
-            }
-            if ($current !== (string)$expected) {
-                $attr .= ' style="display:none"';
-            }
+            $attr = ' data-show-if="' . hsc("{$name}={$expected}") . '"';
+        }
+        if ($this->isConditionHidden($row)) {
+            $attr .= ' style="display:none"';
         }
 
         return "<tr{$attr}>\n"
@@ -445,7 +447,8 @@ HTML;
             if ($this->isSystem()) {
                 return '';
             }
-            $options = [];
+            // ユーザー画面は欄を残す（保存済みの値を選択肢に出す）。選択肢は定義の fallbackOptions
+            $options = $row['fallbackOptions'] ?? [];
         }
         if (!$this->isSystem()) {
             // 空の選択肢は「システム設定に従う」

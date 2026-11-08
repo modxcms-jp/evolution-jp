@@ -327,7 +327,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
             <?php
             $settingsHtml = $settingsForm->render();
             echo $settingsHtml;
-            $pluginSettingNames = array_merge($pluginSettingNames, fieldNames($settingsHtml));
+            // 本体の欄の名前は names('profile') から引くので、プラグインの欄だけを覚える
+            $pluginSettingNames = array_merge(
+                $pluginSettingNames,
+                array_diff(fieldNames($settingsHtml), EvoSettingsForm::names('profile'))
+            );
             ?>
         </div>
     </div>

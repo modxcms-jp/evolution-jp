@@ -924,6 +924,8 @@ return [
                             return $options;
                         },
                         'desc' => lang('which_editor_message'),
+                        // エディターのプラグインが無いとき、ユーザー画面の選択肢（グローバル設定は欄ごと出さない）
+                        'fallbackOptions' => ['none' => lang('none')],
                         'showIf' => ['use_editor', '1'],
                     ],
                     [
