@@ -26,6 +26,11 @@ if (!$id) {
     $current = db()->getRow(
         db()->select('*', '[+prefix+]site_content', "id='" . $id . "'")
     );
+    // 存在しない id は、リソースの表示（document_data.static.php）と同じく権限エラーの画面にする
+    if (!$current) {
+        alert()->setError(3);
+        alert()->dumpError();
+    }
 
     $_SESSION['itemname'] = $current['pagetitle'];
 
