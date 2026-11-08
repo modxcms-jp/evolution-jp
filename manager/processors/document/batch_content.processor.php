@@ -49,7 +49,8 @@ $problems = [];
 $children = [];
 foreach ($ids as $docid) {
     $title = db()->getValue(db()->select('pagetitle', '[+prefix+]site_content', "id='" . $docid . "'"));
-    if ($title === false || $title === null) {
+    // 存在しない文書と操作できない文書は、タイトルを示さず ID と権限が無いことだけを示す
+    if ($title === false || $title === null || !docIsAccessible($docid)) {
         $problems[] = sprintf('ID:%d %s', $docid, lang('access_permission_denied'));
         continue;
     }

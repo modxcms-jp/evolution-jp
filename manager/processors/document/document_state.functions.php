@@ -6,6 +6,13 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 // 削除・公開・非公開の 1 件分の確かめと更新。1 件の操作（a=6・61・62）と、一覧からの一括の操作（a=121）の両方から呼ぶ。
 // 確かめる関数は更新せず、操作できない理由を返す。更新する関数は、確かめたあとの文書に使う。キャッシュの消去は呼び出し側が行う
 
+// 文書グループの権限と許可された親の範囲で、その文書を操作できるか
+function docIsAccessible($id)
+{
+    $id = (int)$id;
+    return evo()->checkPermissions($id) && manager()->isInAllowedParents($id);
+}
+
 /**
  * 削除できるかを確かめる（文書そのもの・リンクされていないか・子孫）
  *
@@ -21,9 +28,7 @@ function docDeleteCheck($id)
         $warning = "Document is 'Error page' and cannot be deleted!";
     } elseif ($id == evo()->config['site_unavailable_page']) {
         $warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
-    } elseif (!evo()->checkPermissions($id)) {
-        $warning = lang('access_permissions');
-    } elseif (!manager()->isInAllowedParents($id)) {
+    } elseif (!docIsAccessible($id)) {
         $warning = lang('access_permission_denied');
     } else {
         $linked = docDeleteLinkedBy($id);
@@ -136,7 +141,7 @@ function docDeleteExecute($id, array $children)
 function docPublishCheck($id, $publish)
 {
     $id = (int)$id;
-    if (!evo()->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
+    if (!docIsAccessible($id)) {
         return 'access_permission_denied';
     }
     if (!$publish && $id == evo()->config['site_start']) {
