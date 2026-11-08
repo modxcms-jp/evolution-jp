@@ -335,6 +335,30 @@
             "added_at": "2026-11-08T00:05:00+09:00",
             "last_used_at": "2026-11-08T00:05:00+09:00",
             "source": "2026-11-07-data-table-component-001"
+        },
+        {
+            "id": "change-043",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（「並走するとき」）",
+            "status": "adopted",
+            "added_at": "2026-11-08T16:30:00+09:00",
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
+        },
+        {
+            "id": "change-044",
+            "location": ".claude/skills/adaptive-validation-runner/references/environment.md（「既知の落とし穴」）",
+            "status": "adopted",
+            "added_at": "2026-11-08T16:30:00+09:00",
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
+        },
+        {
+            "id": "change-045",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-08T16:30:00+09:00",
+            "last_used_at": "2026-11-08T16:30:00+09:00",
+            "source": "2026-11-08-settings-screen-definition-001"
         }
     ]
 }

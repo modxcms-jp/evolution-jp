@@ -106,7 +106,7 @@
 ## グローバル設定の保存が、送られたキーをすべて保存する
 
 - **発見日**: 2026-11-05
-- **発見元**: グローバル設定の画面を定義から組む ExecPlan（`.agent/plans/2026-11-05-settings-screen-definition.md`）の着手前の調査
+- **発見元**: グローバル設定の画面を定義から組む ExecPlan（`.agent/plans/archive/2026-11-08-settings-screen-definition.md`）の着手前の調査
 - **ファイル**: `manager/processors/save_settings.processor.php`（`save_settiongs()`・`nonSettingKeys()`）
 - **課題**: 保存は `$_POST + default.config.php` のキーを許可リスト無しで `system_settings` に `REPLACE INTO` する。設定ではない欄（言語から文面を読み込む select、初期文面の hidden、テンプレートの一括変更など）は、`nonSettingKeys()` の一覧に手で足して除いている。画面に設定でない欄を足すたびに一覧を直す必要があり、漏れると不要な行が `system_settings` に残る。プラグインの欄（`On…SettingsRender`）も同じ仕組みで保存されるため、単純に許可リストへ替えるとプラグインの設定が保存されなくなる
 - **改善案**: #1067 で設定の定義（`manager/includes/settings_form.definition.inc.php`）ができたら、保存するキーを「定義の設定キー + `default.config.php` のキー + プラグインが宣言したキー」に絞る。プラグインがキーを宣言する口（イベントの戻り値や定義への追加）を先に決める。#1067 では保存の処理を変えないと決めたので、別の課題として扱う

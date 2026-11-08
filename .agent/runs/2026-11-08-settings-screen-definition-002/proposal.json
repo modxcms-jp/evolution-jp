@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-08-settings-screen-definition",
+    "run_id": "2026-11-08-settings-screen-definition-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-08T16:26:44+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": []
+}
