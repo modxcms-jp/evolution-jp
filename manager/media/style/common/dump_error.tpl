@@ -12,7 +12,8 @@
                 EvoShell.navigate(url);
                 return;
             }
-            top.main.document.location.href = url;
+            // シェルを読み込んでいない画面（ヘッダーより前で止まった処理など）
+            window.location.href = url;
         });
     })();
 </script>

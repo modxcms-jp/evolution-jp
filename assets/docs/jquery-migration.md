@@ -29,10 +29,10 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 ## 画面の JS から別の画面へ移る
 
-キャンセル・ボタン・一覧の行クリックなど、管理画面の JS から別の管理画面へ移るときは `document.location.href = url` と書かず、`EvoShell.go(url)` を使う（`manager/media/script/shell.js`。`shell-fallback.js` にも同名の関数がある）。
+キャンセル・ボタン・一覧の行クリックなど、管理画面の JS から別の管理画面へ移るときは `document.location.href = url` と書かず、`EvoShell.go(url)` を使う（`manager/media/script/shell.js`）。
 
 - シェルの中では `#mainPane` だけを入れ替え、左のツリーは読み直さない。body に `evo-shell` が無い画面（`?chromeless=1`・QuickManager の埋め込みなど）と、管理画面の URL でない移動先は、ページ全体で移る。`if (window.EvoShell) … else …` を画面ごとに書かない。
-- 未保存の変更があれば確認を出す。確認を出さずに捨てる（もともと `documentDirty = false` と明示していたキャンセルなど）ときだけ `EvoShell.go(url, {discard: true})`（先に `documentDirty = false` にするのと同じ）。編集画面のキャンセルは、確認を残すため `discard` を付けない。`shell-fallback.js` の `go` は `discard` を見ない（単独の menu.php・tree.php だけで使う）。
+- 未保存の変更があれば確認を出す。確認を出さずに捨てる（もともと `documentDirty = false` と明示していたキャンセルなど）ときだけ `EvoShell.go(url, {discard: true})`（先に `documentDirty = false` にするのと同じ）。編集画面のキャンセルは、確認を残すため `discard` を付けない。
 - URL の組み立ては今までどおり（PHP からの埋め込みは `js_literal()`）。
 - モーダル（`#evoShellModal`）の中の画面を閉じるだけなら `EvoShell.closeModal()`。
 - ログイン・ログアウト、エラー画面（`webAlert` 系）、別窓、ダウンロード、シェルの外で動く processor のように、ページ全体を読み直すのが正しいものは、これまでどおり `location` を使う。

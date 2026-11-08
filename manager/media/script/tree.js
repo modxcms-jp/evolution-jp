@@ -1,30 +1,10 @@
-// return window dimensions in array
-function getWindowDimension() {
-    return {
-        width: window.innerWidth,
-        height: window.innerHeight
-    };
-}
-
+// ツリー領域(#treePane)のサイズはシェルのCSSに任せる（以前に書いた値が残っていれば消す）
 function resizeTree() {
-
     var tree = document.getElementById('treeHolder');
     if (!tree) return;
-
-    // シェルレイアウトではツリー領域(#treePane)のサイズをCSSに任せる
-    var pane = document.getElementById('treePane');
-    if (pane) {
-        tree.style.width = '';
-        tree.style.height = '';
-        tree.style.overflow = '';
-        return;
-    }
-
-    // 旧フルページ表示(a=1&f=tree直アクセス)時はウィンドウ基準で計算する
-    var win = getWindowDimension();
-    tree.style.width = (win['width'] - 20) + 'px';
-    tree.style.height = (win['height'] - tree.offsetTop - 6) + 'px';
-    tree.style.overflow = 'auto';
+    tree.style.width = '';
+    tree.style.height = '';
+    tree.style.overflow = '';
 }
 
 function hideMenu() {

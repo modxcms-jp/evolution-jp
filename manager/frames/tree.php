@@ -3,7 +3,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 $esc_request = db()->escape(anyv());
 
 $resourceTreeNodeName = config('resource_tree_node_name', '');
@@ -21,19 +20,8 @@ if (!sessionv('tree_sortdir')) {
     );
 }
 
-$isShellPartial = defined('EVO_SHELL_PARTIAL');
-if (!$isShellPartial) {
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?= ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"' ?>>
-<head>
-    <title>Document Tree</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
-    <link rel="stylesheet"
-            href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
-    <?= config('manager_inline_style') ?>
-    <script src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>"></script>
-    <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>"></script>
-<?php } ?>
+// シェルの部品（header.inc.php が描く。再読み込みは shell.js の reloadPartial）。単独のページとしては出さない
+?>
     <script>
         // 旧フレーム参照(top.tree / parent.tree)の互換API。状態(ca)とツリー操作の窓口
         window.tree = window.tree || {};
@@ -360,10 +348,6 @@ if (!$isShellPartial) {
 
     </script>
     <script src="media/script/tree.js"></script>
-<?php if (!$isShellPartial) { ?>
-</head>
-<body onclick="hideMenu();" class="<?= $modx_textdir === 'rtl' ? ' rtl' : '' ?>">
-<?php } else { ?>
 <aside id="treePane">
     <script>
         // フレーム時代のbody onclick相当。コンテキストメニューを閉じる
@@ -372,7 +356,6 @@ if (!$isShellPartial) {
             document.addEventListener('click', function () { hideMenu(); });
         }
     </script>
-<?php } ?>
 <?php
 // invoke OnTreePrerender event
 $evtOut = evo()->invokeEvent('OnManagerTreeInit', $esc_request);
@@ -687,7 +670,6 @@ EOT;
         updateTree: updateTree,
         reload: function () { EvoShell.reloadTree(); }
     });
-<?php if ($isShellPartial) { ?>
     // シェルの部分再取得では#treePane内のscriptだけが実行されるため、ここで再初期化する
     if (window.__evoTreePartialResize) {
         window.removeEventListener('resize', window.__evoTreePartialResize);
@@ -696,14 +678,8 @@ EOT;
     window.addEventListener('resize', resizeTree);
     resizeTree();
     restoreTree();
-<?php } ?>
 </script>
-<?php if (!$isShellPartial) { ?>
-</body>
-</html>
-<?php } else { ?>
 </aside>
-<?php } ?>
 <?php
 function select($cond = false)
 {

@@ -5,7 +5,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 
 // action list
 $GLOBALS['action_list'] = [
-    '1' => 'Loading a frame(set)',
+    '1' => 'Loading the menu or tree',
     '2' => 'Viewing home page/ online users',
     '3' => 'Viewing data for resource',
     '4' => 'Creating a resource',

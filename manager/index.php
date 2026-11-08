@@ -493,10 +493,6 @@ switch (manager()->action) {
                 header('Location: ' . MODX_MANAGER_URL);
                 exit;
             }
-            // シェルからの部分再取得(fetch)ではhtml/head無しの断片を返す
-            if ($isPaneRequest && !defined('EVO_SHELL_PARTIAL')) {
-                define('EVO_SHELL_PARTIAL', true);
-            }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
         } elseif (anyv('ajaxa') !== null) {
             include(MODX_MANAGER_PATH . 'ajax.php');
@@ -845,7 +841,7 @@ if ($isPaneRequest) {
     evoRenderPaneFooterExtras();
 }
 
-// log action, unless it's a frame request
+// 操作を記録する（シェルの部品の再取得 a=1 など、下に挙げた操作は記録しない）
 switch (manager()->action) {
     case 1:
     case 7:

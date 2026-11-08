@@ -200,9 +200,6 @@ if (!$evoShellChromeless) {
     $tmp = ['action' => manager()->action];
     evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 
-    if (!defined('EVO_SHELL_PARTIAL')) {
-        define('EVO_SHELL_PARTIAL', true);
-    }
     // 部品を独立スコープで実行し、部品側のローカル変数($tpl,$ph等)が
     // 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
     $evoShellIncludePartial = static function (string $evoShellPartialPath): void {
