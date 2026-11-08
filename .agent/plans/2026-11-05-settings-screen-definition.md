@@ -85,6 +85,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 - **段階 2 の構成は Plan of Work の表のとおりにする**（9 タブ、2026-11-05 にユーザーさんが了承）。ユーザーさんの画面（表示幅 約 1,360px）で、今の 7 タブは約 1,210px。名前から「設定」を外すので、9 タブでも約 1,260px の見込みで 1 段に収まる。狭い画面は M5 の折り返しで 2 段にする。PR 2 の画面写真で幅を確かめ、余裕が足りなければ「キャッシュ」（5 行）を「サイト」に入れて 8 タブにする。
 - **小見出しは軽い見出し（`<h3 class="settings-section">`）にし、規則は共通部に 1 か所だけ置く**（2026-11-05、ユーザーさんが決めた）。既存の `.sectionHeader` と `.sectionBody`（帯と白い枠）は、タブの中に並べると重く見えるため採らない。7 テーマそれぞれに規則を足す形もコードが増えるため採らず、`manager/media/style/common/shell.css` に 1 つの規則を置き、色と余白はテーマの変数（`assets/docs/theme-variables.md`・`theme-spacing.md` の決まりにある `--color-*`・`--space-*`、既定値付き）で読む。RevoStyle は凍結のため、既定値で崩れなければよい。新しく変数が要るときは `theme-variables.md` に書く。
 - **タブ列は 6 テーマの `.dynamic-tab-pane-control .tab-row` を `display: flex; flex-wrap: wrap` にする**。flex の子には `float` が効かないので、折り返しても段違いにならない。RevoStyle は廃止予定で凍結のため対象外にし、`theme-spacing.md` にそう書く。代替案の `common/shell.css` での一括指定は、テーマの同じ詳細度の規則との読み込み順で結果が変わるため採らない。タブの並びが変わると、覚えたタブの番号（Cookie `webfxtab_settingsPane`）が別のタブを指すことがある。1 回だけのことなので許す。
+- **プラグインの欄は、小見出しのあるタブでは「プラグイン」の小見出しの下に出す**（2026-11-08、段階 2 の自己レビュー）。イベントの行を最後の section の表に入れると、プラグインの欄が「文字コードと時刻」などの関係の無い小見出しの下に見える。イベントの出力を別の表にし、そのタブに小見出しがあり、かつ出力が空でないときだけ小見出し「プラグイン」を付ける。小見出しの無いタブ（エディターの TinyMCE 7 など）は今のまま。代替案の「今の形を許して書いておく」は、見た目の誤解が残るので採らない。
 - **タブの左右の余白を 1 段階詰める**（2026-11-08、ユーザーさんが決めた）。M5 の測定で、9 つの短いタブ名を並べた幅は今の 7 タブとほぼ同じ（0〜3% 狭いだけ）と分かった。ユーザーさんの画面（タブ列の幅 約 1,300px）で、今の 7 タブは窮屈で、少し狭くすると二段になる。一段に余裕を持って収めるため、M6 で 6 テーマの `.dynamic-tab-pane-control .tab-row .tab` の左右の余白を 1 段階詰める（`--space-4` のテーマは `--space-3` に。AromaHop・SakuraFlow のように px で広く取っているテーマは同じ割合で）。タブの構成は 9 つのまま。リソースの編集画面など、ほかの画面のタブも同じように詰まる。代替案の「キャッシュをサイトに入れて 8 タブにする」は採らない。
 - **イベントの位置**: 段階 1 は今の位置のまま（`OnSiteSettingsRender` の 3 回も含む）。段階 2 で、`OnSiteSettingsRender` はサイトのタブの末尾で 1 回、`OnInterfaceSettingsRender` はエディターのタブの末尾（受けるのは TinyMCE 7 と TinyMCE 3 で、どちらもエディターの設定のため）、`OnMiscSettingsRender` はファイルのタブの末尾、`OnFriendlyURLSettingsRender`・`OnUserSettingsRender` は今のタブの末尾、`OnSystemSettingsRender` は全タブの後ろにする。
 - **段階 3 にプロフィール（`a=74`）を含める**（2026-11-05、ユーザーさんが了承）。同じ行の 3 つめの手書きで、`profileSettingNames()` の名前の重複も定義から引けば消せるため。ウェブユーザーの編集画面（`a=88`）は、グローバル設定と重なる設定が無いので対象外。ユーザー画面のタブは、グローバル設定と同じタブ名・小見出し・順で、ユーザーごとに変えられる行だけを出す。#1066 の「ユーザー編集画面のタブも同じ順・同じ小見出しにそろえる」は段階 3 で満たす（段階 2 では、言語キーの改名に合わせて `tab_page7.php` の見出しのキーだけを直す）。
@@ -284,7 +285,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 
 編集対象: 定義ファイル、`EvoSettingsForm`（`lang_text`・`content_types`・`template` と、`languages()`・`languagesHavingKey()` を足す）、`tab1_site_settings.inc.php`・`tab1_doc_settings.inc.php`・`tab2_cache_settings.inc.php`・`tab2_furl_settings.inc.php`（消す）。`functions.inc.php` の `get_lang_*()` は、まだ移していないセキュリティのタブが使うので M4 で消す。
 
-- `lang_text` は、見出しのセルに「言語から読み込む」select（名前は定義の `reload`、先頭に `language_title` の空の選択肢、その言語キーを持つ言語だけ）と、隠し欄（名前は `langKey` が `_default` で終われば `langKey`、そうでなければ `langKey . '_default'`、id は `langKey . '_hidden'`）を出す。select の `onchange` は `confirmLangChange(this, '<langKey>', '<欄の id>')`。欄の id は定義の `id`（今の id）。`warningHeading` が真なら見出しのセルを今と同じ `<td nowrap class="warning" valign="top"><b>…</b>` にする
+- `lang_text` は、見出しのセルに「言語から読み込む」select（名前は定義の `reload`、先頭に `language_title` の空の選択肢、その言語キーを持つ言語だけ）と、隠し欄（名前は `langKey` が `_default` で終われば `langKey`、そうでなければ `langKey . '_default'`、id は `langKey . '_hidden'`）を出す。select の `onchange` は `confirmLangChange(this, '<langKey>', '<欄の id>')`。欄の id は定義の `id`（今の id）。`warningHeading` が真なら見出しのセルを今と同じ `<td nowrap class="warning" valign="top"><b>…</b>` にする（段階 1 まで。段階 2 の M6 でやめ、ほかの行と同じ `th` にした）
 - `template` は今の `tab1_doc_settings.inc.php` の出力と同じ欄（optgroup、`(blank)`、一括変更のラジオ、`old_template`、`onchange`）を出す
 - 直書きの文言は、定義でそのまま文字で書く（例 `'label' => '公開開始日時自動設定'`）
 - 条件の行（`friendly_urls=1`）は `showIf`。`tab2_cache_settings.inc.php` の中の切り替えスクリプトは消す
@@ -491,7 +492,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
       'showIf'   ['use_editor', '1'] … その値のときだけ行を出す
       'disabled' bool、'value' function (array $values): string（use_captcha。resolve() と同じく画面の値の配列を受ける）
       'name'     event 行のイベント名
-      'id'・'langKey'・'reload'・'warningHeading'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前・見出しのセルの形
+      'id'・'langKey'・'reload'  lang_text の欄の id・初期文面の言語キー・読み込みの select の名前
       'defaultPath'  path の既定（文字列か関数）
       'absHint'  bool。path の既定値の後ろに「(絶対パス)」を出す（filemanager_path・rb_base_dir。M2 で足した）
       'padded'   event 行の td に padding:0 を付けない（M3 で足した）
