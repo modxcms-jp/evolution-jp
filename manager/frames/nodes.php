@@ -35,7 +35,7 @@ if (request_strvar('tree_sortdir')) {
     $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
 }
 
-global $opened, $opened2, $closed2;
+global $opened, $opened2;
 
 if (sessionv('openedArray')) {
     $openedArray = sessionv('openedArray');
@@ -47,7 +47,6 @@ if (sessionv('openedArray')) {
     $opened = [];
 }
 $opened2 = [];
-$closed2 = [];
 
 $expandAll = get_intvar('expandAll');
 
@@ -58,6 +57,14 @@ if (get_strvar('offset') !== '') {
 }
 
 $output = getNodes(get_intvar('indent'), get_intvar('parent'), $expandAll);
+
+// すべて展開したときは、開いたフォルダの ID を返す。tree.js の expandTree() が開閉状態（openedArray）に入れて保存する
+if ($expandAll == 1) {
+    $output .= sprintf(
+        '<span hidden data-tree-opened="%s"></span>',
+        implode(',', array_map('intval', $opened2))
+    );
+}
 
 // check for deleted documents on reload
 if ($expandAll == 2) {
@@ -72,7 +79,7 @@ echo $output;
 function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
 {
     global $modx;
-    global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2;
+    global $_style, $modx_textdir, $_lang, $opened, $opened2;
 
     if ($parent == '') {
         $parent = 0;
@@ -235,6 +242,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         } else {
             $ph['fid'] = "'f{$id}'";
             $ph['indent'] = $indent + 1;
+            $hasChildren = hasChildren($id);
             switch ($modx->config('tree_page_click')) {
                 case 27:
                     $ph['ca'] = 'open';
@@ -243,7 +251,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                     $ph['ca'] = 'docinfo';
                     break;
                 default  :
-                    $ph['ca'] = hasChildren($id) ? 'doclist' : 'open';
+                    $ph['ca'] = $hasChildren ? 'doclist' : 'open';
             }
 
             // 子コンテナの有無で開閉アイコンを決める。ループ中の $result を上書きしない
@@ -263,7 +271,8 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
             $ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 
             // expandAll: two type for partial expansion
-            if ($expandAll == 1 || ($expandAll == 2 && in_array($id, $opened))) {
+            // 子の無いフォルダは開かない（開くと閉じタグが余って入れ子が崩れ、開いた状態として保存もされてしまう）
+            if ($hasChildren && ($expandAll == 1 || ($expandAll == 2 && in_array($id, $opened)))) {
                 if ($expandAll == 1) {
                     $opened2[] = $id;
                 }
@@ -273,7 +282,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                     $ph['_style_tree_minusnode'] = $_style['tree_minusnode'];
                 }
                 $parseNode = parseNode(
-                    hasChildren($id) ? tplFopenNode() : tplPageNode(),
+                    tplFopenNode(),
                     $ph,
                     $id,
                     $parent
@@ -292,26 +301,11 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                     $ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
                 }
                 $output .= parseNode(
-                    hasChildren($id) ? tplFcloseNode() : tplPageNode(),
+                    $hasChildren ? tplFcloseNode() : tplPageNode(),
                     $ph,
                     $id
                 );
-                $closed2[] = $id;
             }
-        }
-        // store vars in Javascript
-        $a = [];
-        if ($expandAll == 1 && !empty($opened2)) {
-            foreach ($opened2 as $d) {
-                $a[] = sprintf('parent.openedArray[%d] = 1;', $d);
-            }
-        } elseif ($expandAll == 0 && !empty($closed2)) {
-            foreach ($closed2 as $d) {
-                $a[] = sprintf('parent.openedArray[%d] = 0;', $d);
-            }
-        }
-        if (!empty($a)) {
-            $output .= '<script type="text/javascript">' . "\n" . implode("\n", $a) . "\n</script>";
         }
     endwhile;
 

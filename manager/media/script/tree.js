@@ -114,26 +114,58 @@ function rpcLoadData(response, node) {
     }
 }
 
+// すべて展開・折りたたむ: 描き直したあと、開閉状態（openedArray）をそろえてセッションへ保存する。
+// 保存しないと、次に開閉状態を送るとき（編集画面を開くなど）に古い状態で上書きされ、ツリーを読み直すと元に戻る
 function expandTree() {
-    rpcNode = document.getElementById('treeRoot');
+    var root = document.getElementById('treeRoot');
+    rpcNode = root;
     loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
         "parent": "0",
         "expandAll": "1"
-    }, rpcLoadData);
+    }, function (response) {
+        rpcLoadData(response, root);
+        var state = root ? root.querySelector('[data-tree-opened]') : null;
+        if (!state) {
+            return;
+        }
+        resetFolderState();
+        state.getAttribute('data-tree-opened').split(',').forEach(function (id) {
+            if (id) {
+                openedArray[parseInt(id, 10)] = 1;
+            }
+        });
+        state.parentNode.removeChild(state);
+        saveFolderState();
+    });
 }
 
 function collapseTree() {
-    rpcNode = document.getElementById('treeRoot');
+    var root = document.getElementById('treeRoot');
+    rpcNode = root;
     loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
         "parent": "0",
         "expandAll": "0"
-    }, rpcLoadData);
+    }, function (response) {
+        rpcLoadData(response, root);
+        if (response.indexOf('mx_loginbox') !== -1) {
+            // セッション切れ（rpcLoadData がログイン画面へ移す）
+            return;
+        }
+        resetFolderState();
+        saveFolderState();
+    });
+}
+
+function resetFolderState() {
+    for (var key in openedArray) {
+        openedArray[key] = 0;
+    }
 }
 
 // セッションの開閉状態でノードを読み込む（tree.php の部品の初期化で呼ぶ）
