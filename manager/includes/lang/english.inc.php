@@ -669,7 +669,7 @@ return [
     "resource_type_weblink" => 'Weblink',
     "resource_type_webpage" => 'Web page',
     "resource_weblink_help" => 'Type the address of the object you wish to reference with this Weblink here.',
-    "resources_list_search_placeholder" => 'Filter by title, alias or ID',
+    "resources_list_search_placeholder" => 'Filter by title, alias, content or ID',
     "resources_list_search_clear" => 'Clear filter',
     "resources_list_search_no_match" => 'No child-Resources match the keyword.',
     "resources_list_reset_order" => 'Restore default order',
