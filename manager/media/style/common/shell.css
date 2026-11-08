@@ -92,6 +92,11 @@ body.evo-shell.tree-hidden > #treePane {
     display: none;
 }
 
+/* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */
+body.evo-shell #treeRoot {
+    margin-top: var(--space-1, 4px);
+}
+
 /* ツリー内の高さ計算をJSからCSSへ移行 */
 body.evo-shell #treeHolder {
     height: auto;
