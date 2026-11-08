@@ -8,10 +8,10 @@ if (!evo()->hasPermission('save_plugin')) {
     alert()->dumpError();
 }
 
-// 新規（101）と更新（102）以外は拒否する
-$mode = post_choicevar('mode', [101, 102], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('plugin');
 $id = post_intvar('id');
-if (!$mode || ($mode === 102 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -24,7 +24,7 @@ if (!is_string($plugincode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['plugin'], 101, 102, $id);
+$rawName = manager()->requireElementName(post_strvar('name'), $_lang['plugin'], 'plugin', $id);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? '1' : '0';
 $disabled = postv('disabled') === 'on' ? '1' : '0';
@@ -34,7 +34,7 @@ $sysevents = post_idsvar('sysevents') ?: [90];
 $pluginErrorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
 
 switch ($mode) {
-    case 101:
+    case 'new':
 
         // invoke OnBeforePluginFormSave event
         $tmp = [
@@ -50,8 +50,7 @@ switch ($mode) {
             if ($count > 0) {
                 manager()->redirectToElementForm(
                     sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
-                    101,
-                    102,
+                    'plugin',
                     0
                 );
             }
@@ -90,16 +89,9 @@ switch ($mode) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "102&id={$newid}" : "101";
-            $header = "Location: index.php?a={$a}&stay={$stay}";
-        } else {
-            $header = "Location: index.php?a=76";
-        }
-        header($header);
+        header('Location: ' . EvoFormFlow::afterSaveUrl('plugin', $newid, EvoFormFlow::postedAfterSave()));
         break;
-    case 102:
+    case 'edit':
 
         // invoke OnBeforePluginFormSave event
         $tmp = [
@@ -115,8 +107,7 @@ switch ($mode) {
             if (db()->getValue($rs) > 0) {
                 manager()->redirectToElementForm(
                     sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
-                    101,
-                    102,
+                    'plugin',
                     $id
                 );
             }
@@ -153,35 +144,28 @@ switch ($mode) {
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            $stay = post_choicevar('stay', [1, 2], 0);
-            if ($stay) {
-                $a = ($stay === 2) ? "102&id={$id}" : "101";
-                $header = "Location: index.php?a={$a}&stay={$stay}";
-            } else {
-                $header = 'Location: index.php?a=76';
-            }
-            header($header);
+            header('Location: ' . EvoFormFlow::afterSaveUrl('plugin', $id, EvoFormFlow::postedAfterSave()));
         }
         break;
 }
 
 
 # Save Plugin Event Listeners
-// $sysevents は id の int の配列、$mode は 101（新規）か 102（更新）
+// $sysevents は id の int の配列、$mode は new（新規）か edit（更新）
 function saveEventListeners($id, array $sysevents, $mode)
 {
     // save selected system events
     $tblSitePluginEvents = evo()->getFullTableName('site_plugin_events');
     $values = [];
     foreach ($sysevents as $event) {
-        if ($mode === 101) {
+        if ($mode === 'new') {
             $prioritySql = "select max(priority) as priority from {$tblSitePluginEvents} where evtid={$event}";
         } else {
             $prioritySql = "select priority from {$tblSitePluginEvents} where evtid={$event} and pluginid={$id}";
         }
         $rs = db()->query($prioritySql);
         $prevPriority = db()->getRow($rs);
-        if ($mode === 101) {
+        if ($mode === 'new') {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] + 1 : 1;
         } else {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] : 1;

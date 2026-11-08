@@ -1,4 +1,6 @@
 <?php
+require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
+
 $this->manager = new ManagerAPI;
 
 /*
@@ -66,12 +68,11 @@ class ManagerAPI
      *
      * @param mixed $name 送信された名前
      * @param string $typeLabel 種別名（$_lang['chunk'] など）
-     * @param int $newAction 新規作成画面のアクション番号
-     * @param int $editAction 編集画面のアクション番号（id を付けて戻す）
-     * @param int $id 編集対象の id（新規は 0）
+     * @param string $kind 要素の種類（EvoFormFlow の表のキー。chunk・snippet・template・tmplvar・plugin・module）
+     * @param int $id 編集対象の id（新規は 0。0 以外なら編集画面へ id を付けて戻す）
      * @return string
      */
-    public function requireElementName($name, $typeLabel, $newAction, $editAction, $id = 0): string
+    public function requireElementName($name, $typeLabel, string $kind, $id = 0): string
     {
         $name = $this->normalizeElementName($name);
         if ($name !== '') {
@@ -80,8 +81,7 @@ class ManagerAPI
         global $_lang;
         $this->redirectToElementForm(
             sprintf($_lang['element_name_required'], $typeLabel),
-            $newAction,
-            $editAction,
+            $kind,
             $id
         );
         exit; // redirectToElementForm() は戻らない
@@ -89,26 +89,20 @@ class ManagerAPI
 
     /**
      * 要素の保存を中断し、入力を残して新規・編集の画面へ差し戻して終了する。
-     * 入力は差し戻し先のアクション番号で残す（新規は $newAction、編集は $editAction + id）。
-     * 編集画面側は restoreElementFormValues() が id の一致を確かめて読む
+     * 入力は差し戻し先の画面の番号で残す（新規は new、編集は edit + id）。
+     * 編集画面側は restoreElementFormValues() が id の一致を確かめて読む。
+     * 戻り先の URL（保存後の行き先の引き継ぎを含む）は EvoFormFlow::formUrl() が決める
      *
      * @param string $message 画面に出すメッセージ（生の文字列。出力時にエスケープされる）
-     * @param int $newAction 新規作成画面のアクション番号
-     * @param int $editAction 編集画面のアクション番号
+     * @param string $kind 要素の種類（EvoFormFlow の表のキー）
      * @param int $id 編集対象の id（新規は 0）
      * @return void 戻らない（webAlertAndQuit() が出力して終了する。@return never 相当）
      */
-    public function redirectToElementForm($message, $newAction, $editAction, $id = 0): void
+    public function redirectToElementForm($message, string $kind, $id = 0): void
     {
-        $isEdit = (bool)$id;
-        $this->saveFormValues($isEdit ? $editAction : $newAction);
-        $url = $isEdit ? "index.php?a={$editAction}&id=" . (int)$id : "index.php?a={$newAction}";
-        // 保存後の動作の選択（stay）は許可した値だけ引き継ぐ
-        $stay = postv('stay');
-        if ($stay === '1' || $stay === '2') {
-            $url .= "&stay={$stay}";
-        }
-        evo()->webAlertAndQuit($message, $url);
+        $mode = $id ? 'edit' : 'new';
+        $this->saveFormValues(EvoFormFlow::screen($kind, $mode));
+        evo()->webAlertAndQuit($message, EvoFormFlow::formUrl($kind, $mode, (int)$id));
         exit;
     }
 

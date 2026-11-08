@@ -8,8 +8,8 @@ if (!evo()->hasPermission('save_role')) {
 }
 
 $name = trim(post_strvar('name'));
-// 新規（38）と更新（35）以外は拒否する
-$mode = post_choicevar('mode', [35, 38], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('role');
 $description = trim(post_strvar('description'));
 
 if ($name === '') {
@@ -29,9 +29,9 @@ foreach (explode(',',
 }
 
 $search_name = null;
-if ($mode === 38) {
+if ($mode === 'new') {
     $search_name = $name;
-} elseif ($mode === 35) {
+} elseif ($mode === 'edit') {
     $id = post_intvar('id');
     if (!$id) {
         alert()->setError(2);
@@ -52,7 +52,7 @@ if ($mode === 38) {
     $search_name = null;
 }
 
-if ($search_name && $mode === 38) {
+if ($search_name && $mode === 'new') {
     $rs = db()->select('id', '[+prefix+]user_roles', "name='{$search_name}'");
     if (0 < db()->count($rs)) {
         echo "An error occured while attempting to save the new role.";
@@ -61,10 +61,10 @@ if ($search_name && $mode === 38) {
 }
 
 switch ($mode) {
-    case 38 :
+    case 'new':
         $id = db()->insert($fields, '[+prefix+]user_roles');
         break;
-    case 35 :
+    case 'edit':
         // 変更はログイン中のユーザーにも次のリクエストで反映される（accesscontrol.inc.php）
         $rs = db()->update($fields, '[+prefix+]user_roles', "id='{$id}'");
         if (!$rs) {
@@ -76,4 +76,4 @@ switch ($mode) {
         echo "Erm... You supposed to be here now?";
         exit;
 }
-header('Location: index.php?a=86');
+header('Location: ' . EvoFormFlow::url(['a' => EvoFormFlow::screen('role', 'close')]));

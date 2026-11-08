@@ -7,10 +7,10 @@ if (!evo()->hasPermission('save_chunk')) {
     alert()->dumpError();
 }
 
-// 新規（77）と更新（78）以外は拒否する
-$mode = post_choicevar('mode', [77, 78], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('chunk');
 $id = post_intvar('id');
-if (!$mode || ($mode === 78 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -50,7 +50,7 @@ function entity($key)
  * 日付が空ならチェックボックスの値のまま。空でない日付を解釈できなければ DB に渡さず編集画面へ戻す。
  * 公開日・公開終了日による published の決め方は、リソースの保存と同じ DocAPI::setPubStatus() を使う。
  */
-function resolvePublishFields(int $mode, int $id): array
+function resolvePublishFields(string $mode, int $id): array
 {
     global $_lang;
 
@@ -59,7 +59,7 @@ function resolvePublishFields(int $mode, int $id): array
         // 空は 0。解釈できない日付と 1970 年より前の日付は、リソースの保存と同じく差し戻す
         $timestamp = evo()->parseDateInput(post_strvar($key));
         if ($timestamp === null || $timestamp < 0) {
-            manager()->redirectToElementForm($_lang['mgrlog_dateinvalid'], 77, 78, $mode === 78 ? $id : 0);
+            manager()->redirectToElementForm($_lang['mgrlog_dateinvalid'], 'chunk', $mode === 'edit' ? $id : 0);
         }
         $f[$key] = $timestamp;
     }
@@ -74,12 +74,12 @@ function resolvePublishFields(int $mode, int $id): array
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
-manager()->requireElementName(post_strvar('name'), $_lang['chunk'], 77, 78, $id);
+manager()->requireElementName(post_strvar('name'), $_lang['chunk'], 'chunk', $id);
 // 日付が解釈できないときは、イベントや DB に進む前に差し戻す
 $publish = resolvePublishFields($mode, $id);
 
 switch ($mode) {
-    case 77:
+    case 'new':
         $tmp = [
             'mode' => 'new',
             'id' => ''
@@ -95,8 +95,7 @@ switch ($mode) {
         if ($count > 0) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
-                77,
-                78,
+                'chunk',
                 0
             );
         }
@@ -125,16 +124,9 @@ switch ($mode) {
         // empty cache
         evo()->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if (!$stay) {
-            header('Location: index.php?a=76');
-            return;
-        }
-
-        $a = ($stay === 2) ? "78&id=" . $newid : '77';
-        header("Location: index.php?a=" . $a . "&stay=" . $stay);
+        header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $newid, EvoFormFlow::postedAfterSave()));
         break;
-    case 78:
+    case 'edit':
 
         // invoke OnBeforeChunkFormSave event
         $tmp = [
@@ -146,8 +138,7 @@ switch ($mode) {
         if (check_exist_name(entity('name'), $id) !== false) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
-                77,
-                78,
+                'chunk',
                 $id
             );
         }
@@ -235,14 +226,7 @@ switch ($mode) {
             // empty cache
             evo()->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            $stay = post_choicevar('stay', [1, 2], 0);
-            if (!$stay) {
-                header("Location: index.php?a=76");
-                return;
-            }
-
-            $a = ($stay === 2) ? "78&id=" . $id : "77";
-            header("Location: index.php?a=" . $a . "&stay=" . $stay);
+            header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $id, EvoFormFlow::postedAfterSave()));
         }
         break;
 }
