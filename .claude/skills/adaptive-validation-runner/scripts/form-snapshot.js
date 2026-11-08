@@ -247,7 +247,10 @@ function writeJson(file, data) {
         }
 
         if (opts.submit) {
-            await page.evaluate(() => Array.from(document.forms).forEach(f => { f.dataset.snapOld = '1'; }));
+            // シェルの中のフォーム（menuForm など）は保存後も残るので、#mainPane があればその中のフォームだけに印を付ける
+            await page.evaluate(() => Array.from(document.forms)
+                .filter(f => !document.querySelector('#mainPane') || f.closest('#mainPane'))
+                .forEach(f => { f.dataset.snapOld = '1'; }));
             await page.click(opts.submit);
             const until = Date.now() + 30000;
             let done = false;
