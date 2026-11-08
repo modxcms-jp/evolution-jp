@@ -26,13 +26,10 @@ if (!preg_match('/^[A-Za-z_$][\w$]*$/D', $callback)) {
 }
 
 // get resource type
-$type = strtolower(request_strvar('type'));
-if (!in_array($type, ['snippet', 'template', 'tv', 'chunk', 'plugin', 'document'], true)) {
-    $type = 'document';
-}
+$type = request_choicevar('type', ['snippet', 'template', 'tv', 'chunk', 'plugin', 'document'], 'document');
 
 // get selection mode: single (default) / multiple
-$selectMode = strtolower(request_strvar('select', 'single')) === 'multiple' ? 'multiple' : 'single';
+$selectMode = request_choicevar('select', ['single', 'multiple'], 'single');
 
 // get search string
 $query = request_strvar('search');

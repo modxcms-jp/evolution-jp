@@ -41,7 +41,7 @@ $depTypes = ['chunk' => 10, 'document' => 20, 'plugin' => 30, 'snippet' => 40, '
 switch (request_choicevar('op', ['add', 'del'], '')) {
     case 'add':
         $opids = request_idsvar('newids');
-        $type = $depTypes[strtolower(request_strvar('type'))] ?? 0;
+        $type = $depTypes[request_choicevar('type', array_keys($depTypes), '')] ?? 0;
         if (!$opids || !$type) {
             break;
         }
