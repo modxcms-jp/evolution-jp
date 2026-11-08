@@ -122,7 +122,7 @@ if (!evo()->hasPermission('logs')) {
             >
                 <a
                     href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=53';"
+                    onclick="EvoShell.go('index.php?a=53', {discard: true});"
                 ><?= lang('cancel') ?></a>
             </li>
         </ul>

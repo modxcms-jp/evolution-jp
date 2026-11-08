@@ -207,7 +207,7 @@ function aButtonCancel()
 {
     return manager()->ab(
         [
-            'onclick' => "document.location.href='index.php?a=75';",
+            'onclick' => "EvoShell.go('index.php?a=75');",
             'label' => lang('cancel')
         ]
     );

@@ -25,7 +25,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 
@@ -106,7 +106,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
             evo()->clearCache();
         ?>
             <ul class="actionButtons">
-                <li><a href="#" onclick="document.location.href='index.php?a=2';"><?= $_lang['close'] ?></a></li>
+                <li><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['close'] ?></a></li>
             </ul>
             <script type="text/javascript">
                 top.mainMenu.reloadtree();

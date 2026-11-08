@@ -93,11 +93,10 @@ echo $cm->render();
         var id = selectedItem;
         switch (a) {
             case 1: // run module
-                dontShowWorker = true; // prevent worker from being displayed
-                window.location.href = 'index.php?a=112&id=' + id;
+                EvoShell.go('index.php?a=112&id=' + id);
                 break;
             case 2: // edit
-                window.location.href = 'index.php?a=108&id=' + id;
+                EvoShell.go('index.php?a=108&id=' + id);
                 break;
             case 3: // duplicate
                 if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
@@ -147,7 +146,7 @@ echo $cm->render();
                 echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . $_lang["new_module"] . '</a></li>';
             } ?>
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

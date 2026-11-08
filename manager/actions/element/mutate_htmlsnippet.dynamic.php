@@ -200,7 +200,7 @@ if (isset($content['which_editor'])) {
             }
             echo manager()->ab(
                 [
-                    'onclick' => "document.location.href='index.php?a=76';",
+                    'onclick' => "EvoShell.go('index.php?a=76');",
                     'label' => $_lang['cancel']
                 ]
             );

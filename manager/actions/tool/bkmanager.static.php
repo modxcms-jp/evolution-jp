@@ -145,7 +145,7 @@ if (sessionv('result_msg')) {
             id="Button5"
             class="mutate"><a
                 href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"><?= $_lang['cancel'] ?></a></li>
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 

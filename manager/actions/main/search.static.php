@@ -13,7 +13,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                 class="mutate"
             ><a
                     href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"
                 ><?= lang('cancel') ?></a></li>
         </ul>
     </div>

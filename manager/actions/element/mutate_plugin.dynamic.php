@@ -317,7 +317,7 @@ function entity($key, $default = null)
                 }
             }
             $params = [
-                'onclick' => "document.location.href='index.php?a=76';",
+                'onclick' => "EvoShell.go('index.php?a=76');",
                 'label' => $_lang['cancel']
             ];
             echo manager()->ab($params);
