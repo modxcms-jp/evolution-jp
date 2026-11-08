@@ -859,7 +859,7 @@ function updateParentStatus($parent)
     );
 }
 
-// redirect/stay options
+// 保存後の行き先（after_save: new・stay・close）に従って移動する
 function goNextAction($id, $parent, $afterSave, $type)
 {
     if ($afterSave === 'new') {

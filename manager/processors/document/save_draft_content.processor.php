@@ -26,6 +26,10 @@ if (!manager()->isInAllowedParents($id)) {
     return;
 }
 
+$afterSave = EvoFormFlow::postedAfterSave(['save_draft', 'save_standby']);
+// 日付の誤りなどで差し戻されても選択が残るよう、先頭で覚える。次に文書の画面を開いたときの既定として覚える（下書きの採用は覚えても文書の画面では「閉じる」になる）
+EvoFormFlow::rememberDocumentAfterSave($afterSave);
+
 evo()->loadExtension('REVISION');
 evo()->loadExtension('DocAPI');
 
@@ -68,9 +72,6 @@ if ($parent !== $currentParent) {
     }
 }
 
-$afterSave = EvoFormFlow::postedAfterSave(['save_draft', 'save_standby']);
-// 次に文書の画面を開いたときの既定として覚える（下書きの採用は覚えても文書の画面では「閉じる」になる）
-EvoFormFlow::rememberDocumentAfterSave($afterSave);
 if ($afterSave === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {

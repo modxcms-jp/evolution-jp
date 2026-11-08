@@ -341,10 +341,10 @@ if (isset($content['which_editor'])) {
             </div>
         </div>
         <script>
-            var stay = <?=
+            var tpstatus = <?=
                         EvoFormFlow::rememberTab() ? 'true' : 'false'
                         ?>;
-            chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), stay);
+            chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), tpstatus);
         </script>
 </form>
 </div>
