@@ -9,7 +9,7 @@ Issue: #1067（親）、#1066（段階 2 の一部と段階 3）
 ## Progress
 
 - [x] (2026-11-05) ExecPlan を作成（ユーザーさんと決めた前提と、計画で決めた設計を Decision Log に記録）
-- [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
+- [x] (2026-11-08) 段階 1・M1: 比較の道具（`form-snapshot.js`）を足し、main の基準（欄の一覧・画面・保存結果）を取る（c006d37f5、自己レビューの指摘（画面写真が途中で切れる・row がタブの開閉で変わる・時間切れを成功扱い）を 18c09c3ad で、写真の切れの警告を 4f5498afd で直し、基準を取り直した。基準は作業用ディレクトリ `/home/yamamoto/.claude/jobs/be752b0b/tmp/evo-1067/main/`、検証環境 `evo-validate-1067`・`127.0.0.5`）
 - [ ] 段階 1・M2: 定義と描画の部品を作り、値の出どころを 1 つにして、ファイルのタブを定義から描く
 - [ ] 段階 1・M3: サイト・リソース・キャッシュ・フレンドリーURL のタブを定義から描く
 - [ ] 段階 1・M4: セキュリティ・管理画面のタブを定義から描き、旧ヘルパーとタブのファイルを消す（TinyMCE 7 を合わせ、文書を改める）→ PR 1
@@ -230,7 +230,7 @@ M7 で、ユーザー編集画面の `tab_page5.php`・`tab_page7.php` を消し
 4. B: 2 の 6 つを逆（`1`・`0`・`0`・`0`・`1`・`smtp`）にして書き出す（`main/B.json`・`main/B/`）。`use_captcha=1` を先に DB へ入れるとログインできないので、`--sql "REPLACE INTO modx_system_settings ..."` で、ログインの後に入れる。終わったら `db-A.sql` に戻す
 5. C（差し戻し）: `--fill` に `{"filemanager_path":"/nonexistent-1067/","site_name":"restore-1067","upload_maxsize":"12345","use_browser":"0","friendly_urls":"0"}` を渡し、`--submit '#Button1 a' --out <work>/main/C.json`。`db-A.sql` に戻す
 6. S1: `--submit '#Button1 a'`（何も変えずに保存）→ `S1.tsv` を書き出し、`recent_update` が変わったこと（保存されたこと）を確かめてから、`db-A.sql` に戻す。比較では `recent_update` の行を除く
-7. S2: `<work>/fill-s2.json` を作り、`--fill` と `--submit` で保存 → `S2.tsv`、`db-A.sql` に戻す。中身は型ごとに 1 つ以上を変えるもの: `site_name`（`<b>"&'` を含む文字）、`site_slogan`（2 行）、`error_page`、`xhtml_urls`、`server_offset_time`（`3600`）、`server_protocol`（`https`）、`custom_contenttype`（hidden に `application/json,text/css`）、`auto_template_logic`（`parent`）、`enable_draft`、`cache_type`（`2`）、`friendly_url_suffix`（`.htm`）、`automatic_alias`（`1`）、`use_udperms`（`1`）、`udperms_allowroot`（`1`）、`default_role`（2 番目の選択肢）、`failed_login_attempts`（`5`）、`error_reporting`（`2`）、`send_errormail`（`3`）、`email_method`（`smtp`）、`smtp_host`、`smtp_secure`（`tls`）、`emailsubject`、`topmenu_site`、`resource_tree_node_name`（`menutitle`）、`datetime_format`（`YYYY/mm/dd`）、`use_editor`（`0`）、`which_editor`（`none`）、`filemanager_path`（`[(base_path)]assets/`）、`export_dir`（空）、`upload_maxsize`（`1048576`）、`new_file_permissions`（`644`）、`rb_base_url`（`content/`）、`convert_datauri_to_file`（`1`）、`tinymce7_toolbar_preset`（`simple`）。`smtppw` と `manager_language` は変えない（`smtppw` は保存時に乱数が付く。言語は次の画面の文言が変わる）
+7. S2: `<work>/fill-s2.json` を作り、`--fill` と `--submit` で保存 → `S2.tsv`、`db-A.sql` に戻す。M2 以降は M1 で作った `<work>/fill-s2.json` をそのまま使う（下の一覧のうち `server_protocol`・`failed_login_attempts`・`datetime_format`・`new_file_permissions`・`rb_base_url`・`convert_datauri_to_file` は、インストール直後の値と同じで差が出ないため、実際のファイルでは `http`・`7`・`dd-mm-YYYY`・`600`・`media/`・`0` にした）。中身は型ごとに 1 つ以上を変えるもの: `site_name`（`<b>"&'` を含む文字）、`site_slogan`（2 行）、`error_page`、`xhtml_urls`、`server_offset_time`（`3600`）、`server_protocol`（`https`）、`custom_contenttype`（hidden に `application/json,text/css`）、`auto_template_logic`（`parent`）、`enable_draft`、`cache_type`（`2`）、`friendly_url_suffix`（`.htm`）、`automatic_alias`（`1`）、`use_udperms`（`1`）、`udperms_allowroot`（`1`）、`default_role`（2 番目の選択肢）、`failed_login_attempts`（`5`）、`error_reporting`（`2`）、`send_errormail`（`3`）、`email_method`（`smtp`）、`smtp_host`、`smtp_secure`（`tls`）、`emailsubject`、`topmenu_site`、`resource_tree_node_name`（`menutitle`）、`datetime_format`（`YYYY/mm/dd`）、`use_editor`（`0`）、`which_editor`（`none`）、`filemanager_path`（`[(base_path)]assets/`）、`export_dir`（空）、`upload_maxsize`（`1048576`）、`new_file_permissions`（`644`）、`rb_base_url`（`content/`）、`convert_datauri_to_file`（`1`）、`tinymce7_toolbar_preset`（`simple`）。`smtppw` と `manager_language` は変えない（`smtppw` は保存時に乱数が付く。言語は次の画面の文言が変わる）
 8. 重複の確認: 試しのプラグインを入れる。
    `docker exec evo-validate-1067-db mariadb -uuser -ppassword evodb -e "INSERT INTO modx_site_plugins (name, plugincode) VALUES ('evo1067dup', 'if (evo()->event->name === ''OnSiteSettingsRender'') { evo()->event->output(''<table class=\"settings\"><tr><th>dup</th><td><input type=\"text\" name=\"evo1067_dup\" value=\"x\"></td></tr></table>''); }'); INSERT INTO modx_site_plugin_events (pluginid, evtid) VALUES (LAST_INSERT_ID(), 82)"`、キャッシュを消して A と同じく `main/dup.json` を書き出す。`db-A.sql` に戻す
 
@@ -378,7 +378,7 @@ PR 3 を出す（`Closes #1067`、`Closes #1066`）。
 段階 1 で許す違い（これ以外の違いは失敗）:
 
 1. 差し戻しの画面（C）で、main が DB の値を出していた欄にも、打った値が出る
-2. 画面写真で、サイトのタブの `server_offset_time` の説明の時刻（撮った時刻で変わる）
+2. 画面写真で、サイトのタブの `server_offset_time` の説明の時刻（撮った時刻で変わる）と、固定の操作ボタン（`#actions`）がタブの列の右上に入り込んで写る所
 3. DB に `[(base_path)]` を使わない絶対パスで入っている古いパスの設定は、`[(base_path)]…` の形で出る（保存すると main でも同じ形になる。A・B では起きない）
 
 インラインの属性（SMTP の欄の `onchange`、`style` の書き方）と HTML の空白は欄の一覧に出ないので、比べない。見た目に違いが出れば画面写真で見つかる。
