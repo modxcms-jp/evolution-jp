@@ -546,6 +546,10 @@ class Wayfinder
             }
             $sortOrder = strtoupper(trim((string)$this->_config['sortOrder'])) === 'DESC' ? 'DESC' : 'ASC';
             $sort = implode(',', $_) . ' ' . $sortOrder;
+            // ties keep the id order (GROUP BY leaves it to the query plan otherwise)
+            if (!in_array('sc.id', $_, true)) {
+                $sort .= ', sc.id ASC';
+            }
         }
 
         //run the query
