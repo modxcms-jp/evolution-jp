@@ -1173,7 +1173,7 @@ class ManagerAPI
     {
         $limits = [];
         foreach (['upload_max_filesize', 'post_max_size', 'memory_limit'] as $key) {
-            $bytes = to_bytes(ini_get($key));
+            $bytes = ini_size_to_bytes(ini_get($key));
             if ($bytes > 0) {
                 $limits[] = $bytes;
             }

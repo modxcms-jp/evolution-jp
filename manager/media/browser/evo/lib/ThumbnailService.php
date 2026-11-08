@@ -127,7 +127,7 @@ class ThumbnailService
      * 一覧のほかの画像まで巻き込むため、足りないものは作らずアイコン表示に回す。
      * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まり、
      * 固定値だと小さい上限のサーバでは守れず、大きい上限のサーバでは不要に断るため。
-     * memory_limit は K・M・G の書式を to_bytes() で読み、-1・0 は無制限として扱う。
+     * memory_limit は K・M・G の書式を ini_size_to_bytes() で読み、-1・0・解釈できない書式(0 になる)は無制限として扱う。
      * 画像のサイズを読めない(壊れた画像など)ときは従来どおり loadImage() に任せる。
      */
     private function canLoad($file, $ext)
@@ -137,13 +137,14 @@ class ThumbnailService
             return true;
         }
 
-        $limit = to_bytes(ini_get('memory_limit'));
+        $limit = ini_size_to_bytes(ini_get('memory_limit'));
         if ($limit <= 0) {
             return true;
         }
 
         // 1 画素あたりに GD が確保するバイト数(PHP 8.4 同梱の GD で memory_get_peak_usage(true) を測った値)。
-        // JPEG: 展開後の本体のみで約 4。PNG: 本体 4 + デコード領域(1 行分×高さ)約 4 で約 8。
+        // JPEG: 展開後の本体のみで約 4。PNG: 本体 4 + デコード領域(1 行分×高さ)約 4 で約 8
+        // (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
         // GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。形式は loadImage() と同じく拡張子で決める
         $bytesPerPixel = ($ext === 'png') ? 8 : 4;
         // 縮小先(最大 MAX_DIM 四方)と、そのほかの確保の余裕
