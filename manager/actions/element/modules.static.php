@@ -14,8 +14,8 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
 }
 
 // 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
-$query = request_textvar('search') ?? '';
-$listmode = request_choicevar('listmode', ['0', '1'], '0');
+$query = get_strvar('search');
+$listmode = get_choicevar('listmode', ['0', '1'], '0');
 
 
 // context menu
