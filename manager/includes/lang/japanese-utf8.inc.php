@@ -666,7 +666,7 @@ return [
     "resource_type_weblink" => 'ウェブリンク',
     "resource_type_webpage" => 'ウェブページ',
     "resource_weblink_help" => 'ウェブリンクで参照したい対象のURLを入力してください。',
-    "resources_list_search_placeholder" => 'タイトル・エイリアス・IDで絞り込み',
+    "resources_list_search_placeholder" => 'タイトル・エイリアス・本文・IDで絞り込み',
     "resources_list_search_clear" => '絞り込みを解除',
     "resources_list_search_no_match" => '条件に合うサブリソースはありません。',
     "resources_list_reset_order" => '既定の並び順に戻す',

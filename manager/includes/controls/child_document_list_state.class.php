@@ -27,7 +27,7 @@ final class ChildDocumentListState
 
     /**
      * 検索語の絞り込み条件（sc は site_content の別名）。検索語が無ければ null。
-     * pagetitle・longtitle・alias の部分一致と、数字だけなら id の一致。
+     * pagetitle・longtitle・alias・content（本文）の部分一致と、数字だけなら id の一致。
      * LIKE の %・_・\ は無害化してから、DB へ渡す直前に db()->escape() を通す。
      */
     public static function keywordCondition(string $keyword): ?string
@@ -40,6 +40,7 @@ final class ChildDocumentListState
             "sc.pagetitle LIKE '%{$like}%'",
             "sc.longtitle LIKE '%{$like}%'",
             "sc.alias LIKE '%{$like}%'",
+            "sc.content LIKE '%{$like}%'",
         ];
         if (ctype_digit($keyword)) {
             $cond[] = 'sc.id=' . (int) $keyword;
