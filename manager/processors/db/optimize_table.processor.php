@@ -16,10 +16,8 @@ if (!$table && !$truncateTarget) {
 
 // 画面のリンクに頼らず、対象テーブル名をサーバー側でも検証する。
 // truncate（中身の全削除）は破壊的なので、画面で許可しているテーブルだけに厳格制限する。
-$truncateable = [
-    db()->table_prefix . 'event_log',
-    db()->table_prefix . 'manager_log',
-];
+require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
+$truncateable = EvoBackupManager::truncatableTables();
 
 if ($table) {
     // optimize（最適化）は非破壊だが、他DBや無関係なテーブルを触らせないよう

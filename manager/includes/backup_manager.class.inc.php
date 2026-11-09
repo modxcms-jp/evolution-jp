@@ -3,6 +3,7 @@
 /**
  * スナップショット（サーバー上の保存先に置く DB のバックアップ）の
  * 保存先・ファイル名・一覧・世代・作成・復元を受け持つ。
+ * あわせて、バックアップの画面のテーブル一覧で、中身を削除してよいテーブルを決める。
  */
 class EvoBackupManager
 {
@@ -12,6 +13,18 @@ class EvoBackupManager
     const KEEP = 10;
     const PRE_RESTORE_KEEP = 3;
     const HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
+
+    /**
+     * 管理画面から中身の全削除を許可するテーブル名（接頭辞付き）
+     * 画面のリンクの出し分けと、削除処理の許可判定が共有する
+     */
+    public static function truncatableTables(): array
+    {
+        return [
+            db()->table_prefix . 'event_log',
+            db()->table_prefix . 'manager_log',
+        ];
+    }
 
     public function dir()
     {
