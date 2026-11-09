@@ -109,11 +109,12 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
-    // 文書グループは、フォルダを実際に作るとき（$createDocument の中）に初めて求める（文書の保存と同じ判定は manager()->postedChangeableDocumentGroupIds()）
+    // 文書グループは、フォルダを実際に作るとき（$createDocument の中）に初めて求める（文書の保存と同じ判定は manager()->setNewDocumentGroups()。文書グループの権限は 1 回だけ求めて年・月で使い回す）
     // OnBeforeDocFormSave は save_resource.processor.php のほか qm.inc.php も呼ぶが、後者は doc_vars が無く途中で抜ける
 
     //年・月のフォルダを作る（値は DB 操作の直前にエスケープする）
-    $createDocument = function ($fields) {
+    $access = null;
+    $createDocument = function ($fields) use (&$access) {
         $fields['createdon'] = time();
         $fields['createdby'] = (int)evo()->getLoginUserID();
         //Если надо публиковать, поставим дату публикации текущей
@@ -125,7 +126,20 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             return false;
         }
         //文書グループは保存と同じ規則で付ける（親は $fields['parent']）
-        manager()->setNewDocumentGroups($id, (int)$fields['parent']);
+        $access = $access ?: manager()->documentGroupAccess();
+        $groups = manager()->setNewDocumentGroups($id, (int)$fields['parent'], $access);
+        if ($groups === false) {
+            evo()->logEvent(
+                0,
+                3,
+                sprintf(
+                    'ddAutoFolders: フォルダ（ID %d）に文書グループを付けられませんでした（親 ID %d）',
+                    (int)$id,
+                    (int)$fields['parent']
+                ),
+                'ddAutoFolders'
+            );
+        }
         //非公開の印は文書本体の保存と同じく、実際の所属から求める
         if (evo()->config('use_udperms')) {
             manager()->setWebDocsAsPrivate((int)$id);

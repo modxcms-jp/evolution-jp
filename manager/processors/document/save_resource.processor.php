@@ -941,7 +941,7 @@ function folder2doc($parent)
     echo 'An error occured while attempting to change the old parent to a regular document.';
 }
 
-// checkDocPermission() 用。保存の文書グループは ManagerAPI の postedChangeableDocumentGroupIds() で取る
+// checkDocPermission() 用。保存の文書グループは、新規は ManagerAPI の setNewDocumentGroups()、更新は postedChangeableDocumentGroupIds() で取る
 function getDocGroups()
 {
     if (postv('chkalldocs') === 'on') {

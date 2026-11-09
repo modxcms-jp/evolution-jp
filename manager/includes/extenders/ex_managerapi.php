@@ -1271,16 +1271,17 @@ class ManagerAPI
      *
      * @param int $docId 付ける先の新規の文書
      * @param int $parentId 親の文書（0 は引き継ぎなし）
+     * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
      * @return int[]|false 付けた文書グループの id（昇順）。DB の書き込みに失敗したら false
      */
-    public function setNewDocumentGroups($docId, $parentId)
+    public function setNewDocumentGroups($docId, $parentId, $access = null)
     {
         if (evo()->config('use_udperms') != 1) {
             return [];
         }
         $docId = (int)$docId;
         $parentId = (int)$parentId;
-        $access = $this->documentGroupAccess();
+        $access = $access ?: $this->documentGroupAccess();
         $groups = [];
         foreach ($this->postedChangeableDocumentGroupIds($access) as $groupId) {
             $groups[(int)$groupId] = true;
