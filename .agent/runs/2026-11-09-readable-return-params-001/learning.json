@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-readable-return-params",
+    "run_id": "2026-11-09-readable-return-params-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T12:07:15+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "tool_gap",
+            "summary": "/finish-task の手順 5 は git worktree add -b <同期用> <パス> origin/main で同期用のブランチを作るが、これだと追跡先が origin/main になり、引数なしの git push が main に向く（main へは GitHub のルールセットが拒否するが、手元の deny は文字列に main が出ないので止まらない）。--no-track を付ける、と手順に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "good_practice",
+            "summary": "段階を重ねる整理（M1 は動きを変えず、後の段階で名前と値を変える）で、着手の前に修正前の動き（戻り先・差し戻し・選択欄など）を同じスクリプトで記録し、段階ごとに突き合わせたところ、各段階の違いを「計画どおり」と「不具合」に行ごとに分けられた。動きを変えない段階を含む ExecPlan では、M0 で基準を記録し、段階ごとに同じスクリプトで突き合わせる、と runner の検証の手順に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "権限で扱いを変える処理の検証で、検証用の利用者がみなグループに所属していたため、既定のロールでどのグループにも所属しない利用者の退行を見逃した（reviewer が見つけた）。権限・グループで出し分ける変更では、既定のロール（インストール直後のもの）と、どのグループにも所属しない利用者を必ず検証に入れる、と runner の検証の手順に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-004",
+            "kind": "tool_gap",
+            "summary": "tester と worker が、報告を終えても検証環境を動かしたまま残ることがあった。役割の定義（tester.md・worker.md）に「検証環境を立てたら、報告の前に down -v --rmi local と git clean -fdX で片付け、git status --porcelain --ignored が空であることを確かめる」を書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/tester.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-005",
+            "kind": "process_gap",
+            "summary": "今回見つかった不具合の大半は、画面と保存処理が同じ条件（受け取る名前、権限、出すグループ）を別々に持ち、食い違っていたものだった。reviewer の観点に「画面の出し分けや送る名前と、保存処理の受け取り・権限の確かめが、同じ正（1 か所の関数や表）を使っているか」を足すとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-006",
+            "kind": "good_practice",
+            "summary": "worktree の隔離で git -C・&&・複雑なコマンドが拒否される役割は、スクリプトをジョブの一時ディレクトリに書いて bash で動かす回避で進められた。runner の「並走するとき」とエージェントへの依頼文で足りているので、反映はしない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

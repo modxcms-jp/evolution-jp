@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-readable-return-params",
+    "run_id": "2026-11-09-readable-return-params-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T12:06:45+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}
