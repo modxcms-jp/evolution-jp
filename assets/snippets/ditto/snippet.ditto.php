@@ -347,7 +347,8 @@ if (isset($summarize)) {
 if (isset($limit)) {
     $queryLimit = $limit;
 }
-if (isset($sortBy) || isset($sortDir) || $orderBy['unparsed'] === null) {
+// legacy &sortBy / &sortDir: the missing one defaults to createdon / DESC
+if (isset($sortBy) || isset($sortDir)) {
     $sortDir = isset($sortDir) ? strtoupper(trim($sortDir)) : 'DESC';
     if ($sortDir !== 'ASC') {
         $sortDir = 'DESC';
@@ -1001,10 +1002,11 @@ $orderBy = $ditto->parseOrderBy($orderBy, $randomize);
     Sort the result set
 
     Options:
-    Any valid MySQL style orderBy statement
+    Any valid MySQL style orderBy statement (a field without ASC/DESC sorts DESC)
 
     Default:
-    createdon DESC
+    id ASC (the rss format uses "[dateSource] DESC")
+    Documents with the same value follow the id in the direction of the first field.
 */
 //-------------------------------------------------------------------- */
 $templates = $ditto->template->process($templates);
