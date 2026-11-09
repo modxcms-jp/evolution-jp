@@ -572,6 +572,7 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2, 8px) var(--space-4, 16px);
+    margin-bottom: var(--space-3, 12px);
 }
 .resources-list-head .resources-topic-path,
 .resources-list-toolbar .pagination,
@@ -585,11 +586,36 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 .resources-list-pager-bottom .pagination {
     margin-left: auto;
 }
+/* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定し（18〜28px）、
+   button は width:112px（テーマの button の規則）なので、この中だけで打ち消す */
 .child-list-tools {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
     gap: var(--space-2, 8px);
+}
+.child-list-tools input.searchtext {
+    box-sizing: border-box;
+    height: auto;
+    width: 16em;
+    max-width: 100%;
+}
+.child-list-tools ul.actionButtons,
+.child-list-tools ul.actionButtons li {
+    display: flex;
+    float: none;
+    margin: 0;
+}
+.child-list-tools ul.actionButtons button {
+    float: none;
+    width: auto;
+    margin: 0;
+    font-family: inherit;
+    line-height: inherit;
+    cursor: pointer;
+}
+.child-list-tools > a {
+    align-self: center;
 }
 .resources-list-pager-bottom {
     display: flex;
