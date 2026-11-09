@@ -49,9 +49,13 @@ echo EvoSettingsForm::style();
                 'usersettings' => $user
             ];
             $evtOut = evo()->invokeEvent('OnUserFormRender', $tmp);
+            $pluginSettingNames = $settingsForm->pluginFieldNames();
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);
+                $pluginSettingNames = array_merge($pluginSettingNames, EvoSettingsForm::fieldNames(implode('', $evtOut)));
             }
+            // 保存（save_user.functions.php）が、プラグインが出した欄だけを設定として受けるために覚えておく
+            sessionv('*pluginSettingNames.user', array_values(array_unique($pluginSettingNames)));
             ?>
         </div>
     </div>

@@ -2,6 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 // 保存の種類。new・edit・profile 以外は空文字にして、どれにも当てはめない
 function saveUserMode()
@@ -64,11 +65,16 @@ function savedProfileValues()
     return $values;
 }
 
+// 設定の定義の scope。プロフィール以外のユーザー編集画面は user
+function userSettingScope()
+{
+    return saveUserMode() === 'profile' ? 'profile' : 'user';
+}
+
 // プロフィール画面に出している設定の名前。プラグインが足す欄（OnInterfaceSettingsRender）は、画面を表示したときに覚えた名前を使う
 function profileSettingNames()
 {
-    require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
-    return array_merge(EvoSettingsForm::names('profile'), (array)sessionv('profileSettingNames', []));
+    return array_merge(EvoSettingsForm::names('profile'), (array)sessionv('pluginSettingNames.profile', []));
 }
 
 // Send an email to the user
@@ -146,12 +152,7 @@ function saveUserSettings($id)
     ];
 
     // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
-    $defaults = [
-        'manager_inline_style',
-        'upload_images',
-        'upload_media',
-        'upload_files'
-    ];
+    $defaults = EvoSettingsForm::userDefaultNames(userSettingScope());
 
     // get user setting field names
     $settings = [];

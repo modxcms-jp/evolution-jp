@@ -132,7 +132,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     $evtOut = evo()->invokeEvent("OnUserFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
-        $pluginSettingNames = fieldNames(implode("", $evtOut));
+        $pluginSettingNames = EvoSettingsForm::fieldNames(implode("", $evtOut));
     }
     ?>
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">
@@ -316,13 +316,9 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 
             <!-- 管理画面・エディターの設定（グローバル設定と同じ定義から、プロフィールで変えられる行だけを描く） -->
             <?php
-            $settingsHtml = $settingsForm->render();
-            echo $settingsHtml;
+            echo $settingsForm->render();
             // 本体の欄の名前は names('profile') から引くので、プラグインの欄だけを覚える
-            $pluginSettingNames = array_merge(
-                $pluginSettingNames,
-                array_diff(fieldNames($settingsHtml), EvoSettingsForm::names('profile'))
-            );
+            $pluginSettingNames = array_merge($pluginSettingNames, $settingsForm->pluginFieldNames());
             ?>
         </div>
     </div>
@@ -334,10 +330,10 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     $evtOut = evo()->invokeEvent("OnUserFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
-        $pluginSettingNames = array_merge($pluginSettingNames, fieldNames(implode("", $evtOut)));
+        $pluginSettingNames = array_merge($pluginSettingNames, EvoSettingsForm::fieldNames(implode("", $evtOut)));
     }
     // 保存時に、プラグインが出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
-    sessionv('*profileSettingNames', $pluginSettingNames);
+    sessionv('*pluginSettingNames.profile', array_values(array_unique($pluginSettingNames)));
     ?>
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
@@ -346,31 +342,6 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
 <?php
-
-// HTML の入力欄（input / select / textarea / button）の名前。コメントや script などの送信されない部分は見ない。
-// PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
-function fieldNames($html)
-{
-    $html = preg_replace(
-        ['@<!--.*?-->@s', '@<(script|template|style|noscript)\b.*?</\1\s*>@is', '@(<textarea\b[^>]*>).*?</textarea\s*>@is'],
-        ['', '', '$1'],
-        $html
-    );
-    preg_match_all('@<(?:input|select|textarea|button)\b[^>]*>@i', $html, $tags);
-    $names = [];
-    foreach ($tags[0] as $tag) {
-        // disabled の欄は送信されない
-        if (preg_match('@\sdisabled\b@i', $tag)) {
-            continue;
-        }
-        if (!preg_match('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $tag, $m)) {
-            continue;
-        }
-        $name = html_entity_decode(implode('', array_slice($m, 1)), ENT_QUOTES);
-        $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
-    }
-    return $names;
-}
 
 function checkbox($name, $value, $label, $cond)
 {
