@@ -579,6 +579,7 @@ class ditto
     {
         // build the arguments of array_multisort() (a field missing in a row sorts as empty)
         $args = [];
+        $hasId = false;
         foreach ($orderBy['parsed'] as $sort) {
             $column = [];
             foreach ($resource as $uniqid => $row) {
@@ -586,9 +587,18 @@ class ditto
             }
             $args[] = $column;
             $args[] = strtoupper((string)$sort[1]) === 'DESC' ? SORT_DESC : SORT_ASC;
+            $hasId = $hasId || $sort[0] === 'id';
         }
         if (!$args) {
             return $resource;
+        }
+        // ties follow the id in the direction of the first key, as the SQL sort does
+        if (!$hasId) {
+            $args[] = array_map(function ($row) {
+                return (int)($row['id'] ?? 0);
+            }, $resource);
+            $args[] = $args[1];
+            $args[] = SORT_NUMERIC;
         }
         $args[] = &$resource;
         array_multisort(...$args);
