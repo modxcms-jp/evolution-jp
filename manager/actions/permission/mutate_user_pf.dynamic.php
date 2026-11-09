@@ -332,7 +332,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
         echo implode("", $evtOut);
         $pluginSettingNames = array_merge($pluginSettingNames, EvoSettingsForm::fieldNames(implode("", $evtOut)));
     }
-    // 保存時に、プラグインが出した設定だけを変えられるように覚えておく（save_user.functions.php の profileSettingNames()）
+    // 保存時に、プラグインが出した設定だけを変えられるように覚えておく（save_user.functions.php の allowedSettingNames()）
     sessionv('*pluginSettingNames.profile', array_values(array_unique($pluginSettingNames)));
     ?>
 </form>

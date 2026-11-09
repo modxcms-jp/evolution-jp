@@ -71,10 +71,14 @@ function userSettingScope()
     return saveUserMode() === 'profile' ? 'profile' : 'user';
 }
 
-// プロフィール画面に出している設定の名前。プラグインが足す欄（OnInterfaceSettingsRender）は、画面を表示したときに覚えた名前を使う
-function profileSettingNames()
+// ユーザー設定として保存してよい名前。本体の画面に出す設定（EvoSettingsForm）と、
+// 画面を表示したときにプラグインのイベントの出力から覚えた欄の名前（セッション pluginSettingNames.<scope>）
+function allowedSettingNames($scope)
 {
-    return array_merge(EvoSettingsForm::names('profile'), (array)sessionv('pluginSettingNames.profile', []));
+    return array_values(array_unique(array_merge(
+        EvoSettingsForm::names($scope),
+        (array)sessionv('pluginSettingNames.' . $scope, [])
+    )));
 }
 
 // Send an email to the user
@@ -107,106 +111,42 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 }
 
 // Save User Settings
+// 受ける名前は allowedSettingNames()（定義の scope・USER_TAB_KEYS・画面が覚えたプラグインの欄）だけ。
+// 一覧に無い名前のすでにある行（auth_token など）は、値を変えずに残す
 function saveUserSettings($id)
 {
-    $ignore = [
-        'id',
-        'oldusername',
-        'oldemail',
-        'newusername',
-        'fullname',
-        'newpassword',
-        'newpasswordcheck',
-        'passwordgenmethod',
-        'passwordnotifymethod',
-        'specifiedpassword',
-        'confirmpassword',
-        'email',
-        'phone',
-        'mobilephone',
-        'fax',
-        'dob',
-        'country',
-        'street',
-        'city',
-        'state',
-        'zip',
-        'gender',
-        'photo',
-        'comment',
-        'role',
-        'failedlogincount',
-        'blocked',
-        'blockeduntil',
-        'blockedafter',
-        'user_groups',
-        'mode',
-        'blockedmode',
-        'after_save',
-        'save',
-        'theme_refresher',
-        'userid',
-        'csrf_token',
-        'blockedcheck',
-        'changed_settings'
-    ];
+    $scope = userSettingScope();
+    $allowed = allowedSettingNames($scope);
+    // 「システム設定に従う」（default_{設定名}）が付く設定は、チェックを外せば空の値も保存できる
+    $defaults = EvoSettingsForm::userDefaultNames($scope);
+    // 画面で変えていない項目は、表示されていた値（既定値や、編集している管理者自身の値）ではなく保存済みの値を残す
+    $changed = changedSettingNames();
+    $current = currentUserSettings($id);
 
-    // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
-    $defaults = EvoSettingsForm::userDefaultNames(userSettingScope());
-
-    // get user setting field names
     $settings = [];
-    $post = postv();
-    foreach ($post as $k => $v) {
-        if (in_array($k, $ignore)) {
+    foreach ($allowed as $name) {
+        if ($changed !== null
+            && !in_array($name, $changed, true)
+            && !in_array('default_' . $name, $changed, true)) {
+            if (array_key_exists($name, $current)) {
+                $settings[$name] = $current[$name];
+            }
             continue;
-        } // ignore blacklist and empties
+        }
+        if (in_array($name, $defaults, true) && postv('default_' . $name) == 1) {
+            continue;
+        }
+        $v = postv($name);
+        if ($v === null) {
+            continue;
+        }
         if (is_array($v)) {
             $v = implode(',', $v);
         }
-        if (!in_array($k, $defaults) && trim($v) == '') {
+        if (!in_array($name, $defaults, true) && trim($v) == '') {
             continue;
-        } // ignore blacklist and empties
-
-        $settings[$k] = $v; // this value should be saved
-    }
-    // 画面で変えていない項目は、表示されていた値（既定値や、編集している管理者自身の値）ではなく保存済みの値を残す
-    $changed = changedSettingNames();
-    if ($changed !== null) {
-        $current = currentUserSettings($id);
-        foreach (array_keys($post) as $k) {
-            if (in_array($k, $ignore)) {
-                continue;
-            }
-            // 「システム設定に従う」チェックボックス（default_{設定名}）は、設定本体と一組で扱う
-            $name = strpos($k, 'default_') === 0 && in_array(substr($k, 8), $defaults) ? substr($k, 8) : $k;
-            if (in_array($name, $changed) || in_array('default_' . $name, $changed)) {
-                continue;
-            }
-            if (array_key_exists($k, $current)) {
-                $settings[$k] = $current[$k];
-            } else {
-                unset($settings[$k]);
-            }
         }
-    }
-
-    foreach ($defaults as $k) {
-        if (array_get($settings, 'default_' . $k) == 1) {
-            unset($settings[$k]);
-        }
-        unset($settings['default_' . $k]);
-    }
-
-    // プロフィールでは画面に出している設定だけを変え、それ以外（ファイル管理のパスなど）は保存済みの値を残す
-    if (saveUserMode() === 'profile') {
-        $allowed = profileSettingNames();
-        $settings = array_intersect_key($settings, array_flip($allowed));
-        foreach (currentUserSettings($id) as $k => $v) {
-            if (!in_array($k, $allowed)) {
-                $settings[$k] = $v;
-            }
-        }
+        $settings[$name] = $v;
     }
 
     // 言語とテーマは読み込むファイルのパスになるので、実在する名前だけを保存する
@@ -236,6 +176,13 @@ function saveUserSettings($id)
         }
         if ($systemValue !== null && (string)$systemValue === (string)$v) {
             unset($settings[$k]);
+        }
+    }
+
+    // 一覧に無い名前の行は、検査や整形をかけずにそのまま残す
+    foreach ($current as $k => $v) {
+        if (!in_array($k, $allowed, true)) {
+            $settings[$k] = $v;
         }
     }
 
