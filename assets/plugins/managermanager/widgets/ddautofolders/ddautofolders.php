@@ -109,13 +109,16 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
-    // チェックボックスの値は「ID,印」の形（例: 1,new）。カンマの前を ID として読む
+    // チェックボックスの値は「ID,印」の形（例: 1,new）。文書の保存（save_resource.processor.php）と同じく、
+    // 読み取りは postedGroupId()、対象は docGroupAccess() の変えてよいグループに絞る
+    // （OnBeforeDocFormSave は save_resource.processor.php からだけ呼ばれ、functions.php は呼ぶ前に読み込み済み）
     $docGroups = [];
     $postedGroups = postv('document_groups');
     if (postv('chkalldocs') !== 'on' && is_array($postedGroups)) {
+        $allowedGroups = docGroupAccess()['ids'];
         foreach ($postedGroups as $postedGroup) {
-            $groupId = is_string($postedGroup) ? to_intvar(explode(',', $postedGroup)[0]) : 0;
-            if ($groupId) {
+            $groupId = is_string($postedGroup) ? postedGroupId($postedGroup) : 0;
+            if ($groupId && isset($allowedGroups[$groupId])) {
                 $docGroups[$groupId] = $groupId;
             }
         }
