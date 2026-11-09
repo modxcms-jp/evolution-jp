@@ -509,9 +509,20 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-/* 地色が半透明のテーマでも、下の表が透けて読めなくならないよう、後ろをぼかす */
+/* テーマの地色が半透明（右上のボタン群と同じ値）でも、下の表が透けて文字が読めなくならないよう、
+   帯の後ろを白で塗りつぶす（brightness(0) で黒、invert(1) で白。帯の角の丸みにも従う）。
+   var(--color-surface) は半透明のテーマがあるので使わない。非対応のブラウザでは透けるだけで、機能は変わらない */
 .data-table-selection-dock:not(.is-empty) {
-    backdrop-filter: blur(6px);
+    backdrop-filter: brightness(0) invert(1);
+}
+/* 帯の中の文言とリンクは、地色（半透明のテーマもある）に対して 4.5:1 以上になるよう、本文の色を濃くして、
+   リンクは下線で区別する */
+.data-table-selection-dock .data-table-selection-body {
+    color: color-mix(in srgb, var(--color-text-primary, #333) 70%, #000);
+}
+.data-table-selection-dock .data-table-selection-body a {
+    color: inherit;
+    text-decoration: underline;
 }
 /* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める。
    テーマの ul.actionButtons・li の規則（float・margin）に負けないよう、ID を含めて詳しくする */
@@ -541,6 +552,6 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     margin-left: auto;
 }
 body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger button {
-    color: var(--color-error, #c62828);
+    color: color-mix(in srgb, var(--color-error, #c62828) 70%, #000);
     border-color: currentColor;
 }
