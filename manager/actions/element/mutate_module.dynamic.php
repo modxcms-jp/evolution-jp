@@ -399,7 +399,7 @@ function content($key, $default = null)
                 </div>
             <?php } ?>
             <?php
-            if ($modx->config['use_udperms'] == 1) {
+            if ($modx->config['use_udperms'] == 1 && evo()->hasPermission('access_permissions')) {
             ?>
                 <!-- Access permissions -->
                 <div class="tab-page" id="tabAccess">
@@ -419,7 +419,6 @@ function content($key, $default = null)
                         }
                     }
 
-                    if (evo()->hasPermission('access_permissions')) {
                     ?>
                         <!-- User Group Access Permissions -->
                         <script type="text/javascript">
@@ -448,7 +447,6 @@ function content($key, $default = null)
                         </script>
                         <p><?= $_lang['module_group_access_msg'] ?></p>
                     <?php
-                    }
                     $chks = '';
                     $notPublic = false;
                     $rs = db()->select('name, id', '[+prefix+]membergroup_names');
@@ -456,18 +454,12 @@ function content($key, $default = null)
                     for ($i = 0; $i < $total; $i++) {
                         $row = db()->getRow($rs);
                         $checked = in_array($row['id'], $groupsarray);
-                        if (evo()->hasPermission('access_permissions')) {
-                            if ($checked) {
-                                $notPublic = true;
-                            }
-                            $chks .= '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
-                        } elseif ($checked) {
-                            $chks = '<input type="hidden" name="user_groups[]"  value="' . $row['id'] . '" />' . "\n" . $chks;
+                        if ($checked) {
+                            $notPublic = true;
                         }
+                        $chks .= '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
                     }
-                    if (evo()->hasPermission('access_permissions')) {
-                        $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="mutate-field-title">' . $_lang['all_usr_groups'] . '</span></label><br />' . "\n" . $chks;
-                    }
+                    $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="mutate-field-title">' . $_lang['all_usr_groups'] . '</span></label><br />' . "\n" . $chks;
                     echo $chks;
                     ?>
                 </div>

@@ -674,29 +674,18 @@ function entity($key, $default = null)
                         $number_of_g = 0;
                         while ($row = db()->getRow($rs)) {
                             $checked = in_array($row['id'], $groupsarray);
-                            if (evo()->hasPermission('access_permissions')) {
-                                if ($checked) {
-                                    $notPublic = true;
-                                }
-                                $chks .= '<label><input type="checkbox" name="document_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
-                                $number_of_g++;
-                            } elseif ($checked) {
-                                echo '<input type="hidden" name="document_groups[]"  value="' . $row['id'] . '" />';
+                            if ($checked) {
+                                $notPublic = true;
                             }
+                            $chks .= '<label><input type="checkbox" name="document_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . '</label>';
+                            $number_of_g++;
                         }
-                        if (evo()->hasPermission('access_permissions')) {
-                            $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
-                            $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
-                        }
+                        $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
+                        $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
                         echo $chks;
                         ?>
                     </div>
             <?php
-                } else {
-                    // 権限が無いときはタブを出さず、付いているグループだけを送って保存で外れないようにする
-                    foreach ($groupsarray as $groupId) {
-                        echo '<input type="hidden" name="document_groups[]" value="' . (int)$groupId . '" />' . "\n";
-                    }
                 }
             }
             ?>
