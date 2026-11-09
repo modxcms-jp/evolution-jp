@@ -1002,11 +1002,14 @@ $orderBy = $ditto->parseOrderBy($orderBy, $randomize);
     Sort the result set
 
     Options:
-    Any valid MySQL style orderBy statement (a field without ASC/DESC sorts DESC)
+    Any valid MySQL style orderBy statement
+    A direction left out sorts DESC on the last field and ASC on the others;
+    write ASC or DESC for every field.
 
     Default:
-    id ASC (the rss format uses "[dateSource] DESC")
-    Documents with the same value follow the id in the direction of the first field.
+    id ASC (with &documents: the listed order; the rss format uses "[dateSource] DESC")
+    In SQL sorts (not TVs, pub_date, unpub_date, editedon, deletedon or publishedon),
+    documents with the same value follow the id in the direction of the first field.
 */
 //-------------------------------------------------------------------- */
 $templates = $ditto->template->process($templates);
