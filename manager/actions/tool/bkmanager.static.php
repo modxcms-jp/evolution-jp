@@ -193,10 +193,7 @@ if (sessionv('result_msg')) {
                             db()->dbname,
                             db()->table_prefix
                         ));
-                        $truncateable = [
-                            db()->table_prefix . 'event_log',
-                            db()->table_prefix . 'manager_log',
-                        ];
+                        $truncateable = db()->truncateableTables();
                         $i = 0;
                         $totaloverhead = 0;
                         $total = 0;

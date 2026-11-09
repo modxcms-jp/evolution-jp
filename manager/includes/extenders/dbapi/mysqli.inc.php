@@ -1093,6 +1093,18 @@ class DBAPI
         return $rs;
     }
 
+    /**
+     * 管理画面から中身の全削除を許可するテーブル名（接頭辞付き）の一覧
+     * バックアップ画面のリンク出し分けと、削除処理の許可判定が共有する
+     */
+    public function truncateableTables()
+    {
+        return [
+            $this->table_prefix . 'event_log',
+            $this->table_prefix . 'manager_log',
+        ];
+    }
+
     public function truncate($table_name)
     {
         return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
