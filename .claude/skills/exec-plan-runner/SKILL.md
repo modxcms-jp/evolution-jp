@@ -98,6 +98,8 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - 管理画面の JS（画面の `<script>` と、画面が読む共通の JS）を足した・変えた変更では、一覧からリンクで画面を行き来する（シェルの画面遷移）検証と、画面を全体の読み込み（F5・URL の直打ち）で開く検証の両方を入れる。シェルの遷移では同じ window で JS が読み直され（`assets/docs/jquery-migration.md`）、全体の読み込みでは表より前の `<script>` の時点で表がまだ無いなど、片方でだけ動かないことがあるため。
    - 保存した値が変わらないかを確かめるときは、何も変えずに保存するだけでなく、1 項目だけ変えて保存する確認と、入力エラーで差し戻した画面の確認も入れる。変えた項目だけを送る画面や、送信した値を重ねて戻す画面があるため。
    - リクエストの値の読み方（型・既定値・許可する値）を変えた変更では、比べる入力に、画面のフォームとリンクが実際に送る値と、空文字を必ず入れる。修正前に空文字がそのまま使われていたなら、修正後も同じ結果になることを確かめる。型を絞ると、画面が送る特別な形（ゼロで詰めた数、空文字で表す「なし」など）が既定値に変わることがあるため。
+   - 動きを変えない段階を含む ExecPlan や、名前・値を広く置き換える整理では、着手の前に修正前の動き（保存後の戻り先、差し戻しの URL、画面の項目など）を記録用のスクリプトで記録し、段階ごとに同じスクリプトで突き合わせる。違いを行ごとに「計画どおりの変化」と「不具合」に分ける。
+   - 権限やグループで出し分ける変更では、検証の利用者に、インストール直後の既定のロールと、どのグループにも所属しない利用者を必ず入れる。全員をグループに所属させると、画面が部品ごと隠す場合の退行を見逃すため。
    - tester が作業ディレクトリ（またはそれをマウントした検証環境）で確かめている間は、worker にその作業ディレクトリを編集させない。直しが要るときは、tester の結果を受け取ってから worker に渡す。確かめている途中でファイルが変わると、修正前後の比較が成り立たないため。
    - tester がテストを足したとき（tester はコミットしない）は、メインがそのファイルを範囲の照合（手順 4 と同じ）にかけてからコミットする。
 6. **自己レビュー**: メインが、未コミットの変更が残っていない（`git -C <パス> status --porcelain` が空）ことを確かめてから、レビュー前の `git -C <パス> status --porcelain` と `git -C <パス> rev-parse HEAD` を控える。残っていたら、手順 5 のとおりコミットするか、出どころを確かめる。reviewer には main との差分全体、Issue（または ExecPlan）、検証結果を渡す。reviewer は指摘を重大度（高・中・低）順に返し、無ければ「問題なし」と明記する。レビュー後に同じ 2 つを取り、変わっていないことを確かめる。変わっていたら止まる。
@@ -197,7 +199,7 @@ PR がマージされたあとの片付けと完了処理を行う。完了処�
 5. 確認が取れたら、メインが完了同期用のブランチとワークツリーを main から作る。ブランチ名には項目の短い名前を入れ、同じ日の同期と重ならないようにする。
    ```bash
    git fetch origin
-   ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)") && git worktree add -b docs/roadmap-sync-<YYYY-MM-DD>-<短い名前> "$ROOT/.claude/worktrees/roadmap-sync-<短い名前>" origin/main
+   ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)") && git worktree add --no-track -b docs/roadmap-sync-<YYYY-MM-DD>-<短い名前> "$ROOT/.claude/worktrees/roadmap-sync-<短い名前>" origin/main
    ```
 6. そのワークツリーで、ロードマップの更新を roadmap-manager の `/roadmap-sync` で、ExecPlan のアーカイブを `.agent/PLANS.md` のとおりに行う。スキル成長ループ（`.agent/PLANS.md` の手順 8）は省かない。次の順に行う。
    - 同期用のワークツリーをマウントした検証環境を、ほかと重ならない `EVO_VALIDATE_NAME`・`EVO_BIND_IP` で立てる（`EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose --project-directory <同期用のワークツリー> -f <同期用のワークツリー>/compose.yml -f <同期用のワークツリー>/.claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build`）。シェルの状態はコマンドをまたいで残らないので、`setup-site.js` と片付け（`down -v --rmi local`）のコマンドにも、同じ値を毎回先頭に付ける。起動の前に、`.claude/skills/adaptive-validation-runner/references/environment.md` の「並走するとき」の確認を行う。
