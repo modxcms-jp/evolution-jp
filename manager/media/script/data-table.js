@@ -1,7 +1,7 @@
 // DataTable の共通の動き（assets/docs/data-table.md）。
 // シェルは画面を開き直すたびにスクリプトを動かし直すので、登録は 1 回だけにする。
 if (!window.EvoDataTable) {
-    window.EvoDataTable = true;
+    window.EvoDataTable = {};
     (function () {
 
         // 選択の帯（DataTable の options['selection']）。ほかのページの値は、同じ name の hidden として form に足す
@@ -43,13 +43,45 @@ if (!window.EvoDataTable) {
             return !!bar.closest('form') && (bar.dataset.allIds || '[]') !== '[]';
         }
 
+        // 一括操作のボタンの欄（同じ form の中の data-selection-actions="<name>"）。あれば帯と一緒に
+        // 「操作の帯」（.data-table-selection-dock）にまとめ、選んだときだけ表の上に貼り付けて出す
+        function actionsFor(bar) {
+            const form = bar.closest('form');
+            if (!form) {
+                return null;
+            }
+            return Array.from(form.querySelectorAll('[data-selection-actions]')).find(function (el) {
+                return el.getAttribute('data-selection-actions') === bar.dataset.selection;
+            }) || null;
+        }
+
+        function dockFor(bar) {
+            const parent = bar.parentElement;
+            if (parent && parent.classList.contains('data-table-selection-dock')) {
+                return parent;
+            }
+            const actions = actionsFor(bar);
+            if (!actions) {
+                return null;
+            }
+            const dock = document.createElement('div');
+            dock.className = 'data-table-selection-dock';
+            bar.before(dock);
+            dock.append(bar, actions);
+            return dock;
+        }
+
         // bar は常に出ている role="status" の外枠。中身だけを出し入れして、読み上げに告知させる
         function renderSelection(bar) {
             const rows = selectionRows(bar);
             const checked = rows.filter(function (c) { return c.checked; }).length;
             const total = Number(bar.dataset.total) || 0;
             const d = bar.dataset;
+            const dock = dockFor(bar);
             bar.textContent = '';
+            if (dock) {
+                dock.hidden = checked === 0;
+            }
             if (checked === 0) {
                 return;
             }
@@ -68,8 +100,17 @@ if (!window.EvoDataTable) {
             } else {
                 text.textContent = fill(d.labelSelected, checked, total);
             }
+            // 操作の帯では、いつでも選択を解除できるようにする（すべてを選んだときは上で足している）
+            if (dock && !bar.hasAttribute('data-all-selected')) {
+                body.append(' ', actionLink(d.labelClear, 'clear'));
+            }
             bar.append(body);
         }
+
+        // 画面を開くたびに（シェルが同じ document でスクリプトを動かし直しても）使える、選択の帯の描き直し
+        window.EvoDataTable.renderSelections = function () {
+            document.querySelectorAll('.data-table-selection[data-selection]').forEach(renderSelection);
+        };
 
         // 「この一覧のすべて」: ids に含まれるこのページの行だけを選び（含まれない行は外す。見られない子など、
         // 一括操作の権限の確認で全体が止まるものを送らない）、ほかのページの値を hidden として足す
@@ -166,3 +207,10 @@ if (!window.EvoDataTable) {
         });
     })();
 }
+
+// 画面を開くたびに、選択の帯を今のチェックの状態で描く（操作の帯は、何も選んでいなければ隠す）。
+// このスクリプトは表より前で読まれることがあるので、組み立てが終わってから描く（何度描いても同じ）
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.EvoDataTable.renderSelections, {once: true});
+}
+setTimeout(window.EvoDataTable.renderSelections, 0);
