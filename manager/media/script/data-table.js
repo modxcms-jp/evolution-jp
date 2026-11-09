@@ -78,7 +78,7 @@ if (!window.EvoDataTable) {
             let top = 0;
             const pane = dock.closest('#mainPane');
             const actions = pane ? pane.querySelector('#actions') : null;
-            if (pane && actions && !dock.hidden && actions.getClientRects().length) {
+            if (pane && actions && !dock.classList.contains('is-empty') && actions.getClientRects().length) {
                 const paneBox = pane.getBoundingClientRect();
                 const stuckY = paneBox.top + (parseFloat(getComputedStyle(pane).paddingTop) || 0);
                 const box = actions.getBoundingClientRect();
@@ -90,7 +90,8 @@ if (!window.EvoDataTable) {
             dock.style.setProperty('--data-table-dock-top', top + 'px');
         }
 
-        // bar は常に出ている role="status" の外枠。中身だけを出し入れして、読み上げに告知させる
+        // bar は常に出ている role="status" の外枠。中身だけを出し入れして、読み上げに告知させる。
+        // 操作の帯の中でも bar は描いたままにし、0 件のときは帯の class（is-empty）で見た目だけを消す
         function renderSelection(bar) {
             const rows = selectionRows(bar);
             const checked = rows.filter(function (c) { return c.checked; }).length;
@@ -99,10 +100,12 @@ if (!window.EvoDataTable) {
             const dock = dockFor(bar);
             bar.textContent = '';
             if (dock) {
-                dock.hidden = checked === 0;
-                placeDock(dock);
+                dock.classList.toggle('is-empty', checked === 0);
             }
             if (checked === 0) {
+                if (dock) {
+                    placeDock(dock);
+                }
                 return;
             }
             const body = document.createElement('div');
@@ -125,6 +128,10 @@ if (!window.EvoDataTable) {
                 body.append(' ', actionLink(d.labelClear, 'clear'));
             }
             bar.append(body);
+            // 文言を入れて折り返したあとの高さで、貼り付く位置を決める
+            if (dock) {
+                placeDock(dock);
+            }
         }
 
         // 画面を開くたびに（シェルが同じ document でスクリプトを動かし直しても）使える、選択の帯の描き直し
@@ -232,9 +239,15 @@ if (!window.EvoDataTable) {
     })();
 }
 
-// 画面を開くたびに、選択の帯を今のチェックの状態で描く（操作の帯は、何も選んでいなければ隠す）。
-// このスクリプトは表より前で読まれることがあるので、組み立てが終わってから描く（何度描いても同じ）
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.EvoDataTable.renderSelections, {once: true});
+// 画面を開くたびに、選択の帯を今のチェックの状態で描く（操作の帯は、何も選んでいなければ見た目を消す）。
+// このスクリプトは表より前で読まれることがあるので、組み立てが終わってから描く（何度描いても同じ）。
+// 古い版（window.EvoDataTable が true）が残っているときは、描き直しの関数が無いので何もしない
+if (typeof window.EvoDataTable.renderSelections === 'function') {
+    if (window.Evo && typeof window.Evo.ready === 'function') {
+        window.Evo.ready(window.EvoDataTable.renderSelections);
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.EvoDataTable.renderSelections, {once: true});
+    } else {
+        setTimeout(window.EvoDataTable.renderSelections, 0);
+    }
 }
-setTimeout(window.EvoDataTable.renderSelections, 0);
