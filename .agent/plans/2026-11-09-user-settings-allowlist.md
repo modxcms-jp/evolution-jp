@@ -9,7 +9,7 @@
 - [x] (2026-11-09) M0: 着手前の確認と修正前の記録（main の動きを TSV に残す）（基準 0c8f41e18。a=11・a=12・a=74 が送る項目に、除外の一覧にも設定にも入らない名前は無く、手順 9 のマイグレーションは不要。S1〜S18 をすべて記録し、計画の表の期待値と一致）
 - [x] (2026-11-09) M1: 名前の取り出しを `EvoSettingsForm` に集め、画面がプラグインの欄の名前を覚える（保存の結果は変えない）（2e86e43f0、自己レビューの低の手当て 2c51a7816。M0 の記録と、ユーザー設定の行・フォームの欄・送られる項目名の 3 組とも完全一致。グローバル設定の保存はエラー 0。セッションに覚える名前は TinyMCE 7 の 3 つだけ。自己レビューは高・中なし）
 - [x] (2026-11-09) M2: `saveUserSettings()` を保存してよい名前の一覧で受け、除外の一覧をなくす（ecc86e0f0。M0 の記録との違いは計画どおりの S8・S10・S15 だけ。フォームの欄と送られる項目名は M0 と同じ。M1 で足した確認も同じ結果。エラー 0。自己レビューは高・中なし。低はリリースノートの文案の直し・ドキュメントへの注意の追加・openedArray の手当てとして M3 に入れた）
-- [ ] M3: ドキュメントと最終確認（PHP 7.4 を含む）。`tab_settings.php` の 4 つの設定を定義に移す課題を `assets/docs/core-issues.md` に書く
+- [x] (2026-11-09) M3: ドキュメントと最終確認（PHP 7.4 を含む）。`tab_settings.php` の 4 つの設定を定義に移す課題を `assets/docs/core-issues.md` に書く（c70d2d3bc・1b0300d9b、PR 全体の自己レビューの低の手当てを別コミット。PHP 8.4 で M2 の記録と完全一致、追加の確認 3 点（セッションに名前が無いときの a=12 の保存、引用符・空文字の値の往復、0 件の保存での openedArray）も PASS。PHP 7.4.33 の公式イメージでも S2〜S8・S12〜S14 が PHP 8.4 と同じ行。エラー 0。PR 全体の自己レビューは高・中なし）
 
 ## Surprises & Discoveries
 
@@ -90,7 +90,7 @@ M1 で分かったこと（2026-11-09）:
     manager/actions/permission/mutate_user/tpl/changed_settings.php  changed_settings を送る JS
     assets/docs/global-settings.md                               53 行（userDefault と $defaults）、66 行（names と profileSettingNames）
 
-DocumentParser への影響: `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のどれも変えない。`getSettings()` が重ねる `user_settings` の行の中身が「画面に出している設定だけ」になるだけで、重ね方は変わらない。キャッシュ: ユーザー設定はファイルのキャッシュに入らない（`getUserConfig()` のリクエスト内の static だけ）。`updateUser()` の `clearCache()` と `saveUserSettings()` の `unset($_SESSION['openedArray'])` は今のまま。
+DocumentParser への影響: `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のどれも変えない。`getSettings()` が重ねる `user_settings` の行の中身が「画面に出している設定だけ」になるだけで、重ね方は変わらない。キャッシュ: ユーザー設定はファイルのキャッシュに入らない（`getUserConfig()` のリクエスト内の static だけ）。`updateUser()` の `clearCache()` は今のまま。`saveUserSettings()` のツリーの開閉の記憶（セッション `openedArray`）は、M3 の手順 12b で `sessionv('*openedArray', null)` にし、保存する行が 0 件のときも消すようにした。
 
 前提: #1277（PR #1296）は main にマージ済み（2026-11-09T02:20Z、除外の一覧に `after_save`）。#1300（文書グループの付け外しの権限）は未マージで、触るファイルは重ならない（`manager/actions/document/mutate_content/`・`save_resource.processor.php`）が、着手は #1300 のマージ後とする（Interfaces and Dependencies）。
 
@@ -239,10 +239,11 @@ M1・M2 はコードだけの変更で、表の形は変えない。M1 は保存
 
 リリースノートに書くこと:
 
-- 管理ユーザーの編集画面（`a=11`・`a=12`）の保存は、ユーザー設定として、画面に出している設定だけを受ける（グローバル設定の定義でユーザーの画面に出す行、「ユーザー」タブのログインの制限の 4 つ、プラグインが画面の HTML に出した欄）。それ以外の POST の項目はユーザー設定に入らない。プロフィール（`a=74`）は前から同じ。プラグインの欄を JS で後から足している場合や、a=32 へ任意の名前を POST してユーザー設定にしていた場合は、保存されなくなる（イベントの出力の HTML に欄を書けば保存される）。
+- 管理ユーザーの編集画面（`a=11`・`a=12`）の保存は、ユーザー設定として、画面に出している設定だけを受ける（グローバル設定の定義でユーザーの画面に出す行、「ユーザー」タブの 4 つの設定（管理画面へのログインの許可・ツリーの起点・許可する IP・曜日）、プラグインが画面の HTML に出した欄）。それ以外の POST の項目はユーザー設定に入らない。プロフィール（`a=74`）は前から同じ。プラグインの欄を JS で後から足している場合や、a=32 へ任意の名前を POST してユーザー設定にしていた場合は、保存されなくなる（イベントの出力の HTML に欄を書けば保存される）。
 - ユーザーを保存しても、画面に出していない設定の行（DB に直接入れた `auth_token` など）を消さなくなる（ユーザー編集画面・プロフィールとも）。不要になった行（使わなくなったプラグインの設定や、以前に保存の処理へ直接送られて入った名前など）は、画面の保存では消えないので、消すときは DB を直接操作する。
 - プラグインがユーザーの画面に出す欄の名前は、そのままユーザー設定として保存される。本体のフォームと同じ名前（`csrf_token`・`mode`・`userid` など）をプラグインの欄に使わない。
 - 更新の前に開いていたユーザー編集画面・プロフィールから更新の後に保存すると、その 1 回だけプラグインの欄（TinyMCE 7 のツールバー構成など）が保存されない（行は残る）。開き直せば起きない。
+- ユーザーを保存すると、保存する設定の行が 0 件になったときも、保存した管理者のツリーの開閉の記憶を消し、次に開いたときに設定から作り直す（これまでは 1 件以上のときだけ消していた）。
 - 開発者向け: 設定の定義に `userDefault` の行を足すとき、保存の処理に名前を足す必要は無くなった。`mutate_user/tpl/form/tab_settings.php` に設定の欄を足すときは `EvoSettingsForm::USER_TAB_KEYS` に足す。`mutate_user_pf.dynamic.php` のグローバル関数 `fieldNames()` は `EvoSettingsForm::fieldNames()` になった。セッションの `profileSettingNames` は `pluginSettingNames.profile` になった。
 
 変えないもの: 表 `user_settings` の形、Web ユーザーの保存（`save_web_user.processor.php` の許可リスト）、プラグインのイベント（`OnBeforeUserFormSave`・`OnManagerSaveUser`・`OnUserFormSave` の引数と呼ぶ順）、画面の見た目と欄。
