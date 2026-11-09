@@ -191,6 +191,8 @@ function saveUserSettings($id)
     foreach ($settings as $k => $v) {
         $savethese[] = sprintf("(%s, '%s', '%s')", $id, db()->escape($k), db()->escape($v));
     }
+    // 開いていたツリーの記憶は、保存する行が 0 件のときも消す（次にツリーを開いたとき、設定から作り直す）
+    sessionv('*openedArray', null);
     if (empty($savethese)) {
         return;
     }
@@ -202,7 +204,6 @@ function saveUserSettings($id)
     if (!db()->query($sql)) {
         exit('Failed to update user settings!');
     }
-    unset($_SESSION['openedArray']);
 }
 
 // 画面で変えた項目名の一覧。送られていない（JS が動かなかった）ときは null を返し、送られた値をすべて保存する
