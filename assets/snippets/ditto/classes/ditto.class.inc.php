@@ -197,26 +197,23 @@ class ditto
             $this->checkAdvSort($item[0]);
         }
 
-        if ($orderBy['unparsed'] !== null) {
-            $inputs = explode(',', $orderBy['unparsed']);
-            foreach ($inputs as $input) {
-                $input = trim($input);
-                if ($input === '') {
-                    continue;
-                }
-                // "field" or "field dir" (split at the last space)
-                $position = strrpos($input, ' ');
-                if ($position === false) {
-                    $sortBy = $input;
-                    $sortDir = 'ASC';
-                } else {
-                    $sortBy = trim(substr($input, 0, $position));
-                    $sortDir = $this->normalizeSortDir(substr($input, $position), 'ASC');
-                }
-                $sortBy = $this->checkAdvSort($sortBy, $sortDir);
-                $this->addField($sortBy, 'backend');
-                $orderBy['parsed'][] = [$sortBy, $sortDir];
+        foreach (explode(',', (string)$orderBy['unparsed']) as $input) {
+            $input = trim($input);
+            if ($input === '') {
+                continue;
             }
+            // "field" or "field dir" (split at the last space)
+            $position = strrpos($input, ' ');
+            if ($position === false) {
+                $sortBy = $input;
+                $sortDir = 'ASC';
+            } else {
+                $sortBy = trim(substr($input, 0, $position));
+                $sortDir = $this->normalizeSortDir(substr($input, $position), 'ASC');
+            }
+            $sortBy = $this->checkAdvSort($sortBy, $sortDir);
+            $this->addField($sortBy, 'backend');
+            $orderBy['parsed'][] = [$sortBy, $sortDir];
         }
         // ties in the SQL sort follow the id in the direction of its first column, ascending without a SQL sort
         // (GROUP BY leaves the order to the query plan otherwise; TV and custom sorts reorder in PHP afterwards)
