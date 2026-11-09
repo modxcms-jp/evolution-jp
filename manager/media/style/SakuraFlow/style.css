@@ -1984,6 +1984,8 @@ h2#edit_document_title {
 /* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
 #actions,
 .data-table-selection-dock:not(.is-empty) {
+    border: 0;
+    box-shadow: none;
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     border-radius: var(--radius-lg);
 }

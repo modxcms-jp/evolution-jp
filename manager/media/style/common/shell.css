@@ -511,8 +511,11 @@ body.evo-shell input.evo-submitting-trigger {
 }
 /* テーマの地色が半透明（右上のボタン群と同じ値）でも、下の表が透けて文字が読めなくならないよう、
    帯の後ろを白で塗りつぶす（brightness(0) で黒、invert(1) で白。帯の角の丸みにも従う）。
-   var(--color-surface) は半透明のテーマがあるので使わない。非対応のブラウザでは透けるだけで、機能は変わらない */
-.data-table-selection-dock:not(.is-empty) {
+   白に決め打ちなので、暗い地のテーマには合わない（そのテーマは自分の規則でこの指定を上書きする）。
+   var(--color-surface) は半透明のテーマがあるので使わない。非対応のブラウザでは透けるだけで、機能は変わらない。
+   テーマの共有の規則（RubberWhite の blur など）より優先するため、詳細度を上げている */
+body.evo-shell .data-table-selection-dock:not(.is-empty) {
+    -webkit-backdrop-filter: brightness(0) invert(1);
     backdrop-filter: brightness(0) invert(1);
 }
 /* 帯の中の文言とリンクは、地色（半透明のテーマもある）に対して 4.5:1 以上になるよう、本文の色を濃くして、
@@ -546,6 +549,10 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     font-family: inherit;
     line-height: inherit;
     cursor: pointer;
+}
+/* テーマの .actionButtons:after（clear 用）が flex の並びの要素になり、右端から離れる・行が増えるのを防ぐ */
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons::after {
+    content: none;
 }
 /* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
 body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger {
