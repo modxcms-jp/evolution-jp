@@ -212,6 +212,12 @@ function docGroupAccess()
     return ['ids' => $ids, 'yes' => $yes, 'no' => $no];
 }
 
+// 送られてきた「グループの id,印」から、グループの id を取り出す
+function postedGroupId($value_pair)
+{
+    return (int)strtok((string)$value_pair, ',');
+}
+
 function getUDGroups($id)
 {
     global $permissions_yes, $permissions_no;
@@ -267,7 +273,7 @@ function getUDGroups($id)
         $docgroups = array_get($restored, 'document_groups', []);
         $restoredGroupIds = [];
         foreach (is_array($docgroups) ? $docgroups : [] as $value) {
-            $restoredGroupIds[] = (int)strtok((string)$value, ',');
+            $restoredGroupIds[] = postedGroupId($value);
         }
         $groupsarray = [];
     } elseif ($docid) {

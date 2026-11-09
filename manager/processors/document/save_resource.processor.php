@@ -839,12 +839,6 @@ function setDocPermissionsNew($document_groups, $newid)
     }
 }
 
-// 送られてきた「グループの id,印」から、グループの id を取り出す
-function postedGroupId($value_pair)
-{
-    return (int)strtok((string)$value_pair, ',');
-}
-
 function isPublic()
 {
     return !evo()->hasPermission('access_permissions') && !evo()->hasPermission('web_access_permissions');
