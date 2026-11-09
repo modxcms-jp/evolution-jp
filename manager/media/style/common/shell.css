@@ -542,9 +542,10 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     float: none;
     margin: 0;
 }
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button {
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button,
+.child-list-tools ul.actionButtons button {
     float: none;
-    width: auto; /* テーマの button { width: 112px } を打ち消す */
+    width: auto; /* テーマの button { width: 112px } を打ち消す（帯のボタンと、一覧の検索の送信ボタン） */
     margin: 0;
     font-family: inherit;
     line-height: inherit;
@@ -577,6 +578,7 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 .resources-list-head .resources-topic-path,
 .resources-list-toolbar .pagination,
 .resources-list-toolbar ul.actionButtons,
+.resources-list-pager-bottom .pagination,
 .child-list-tools ul.actionButtons {
     margin: 0;
     padding: 0;
@@ -586,8 +588,8 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 .resources-list-pager-bottom .pagination {
     margin-left: auto;
 }
-/* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定し（18〜28px）、
-   button は width:112px（テーマの button の規則）なので、この中だけで打ち消す */
+/* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
+   ボタンの width:112px の打ち消しは、帯のボタンの規則（上）にまとめてある */
 .child-list-tools {
     display: flex;
     flex-wrap: wrap;
@@ -607,20 +609,17 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 .child-list-tools ul.actionButtons li {
     display: flex;
     float: none;
-    margin: 0;
 }
-.child-list-tools ul.actionButtons button {
-    float: none;
-    width: auto;
+.child-list-tools ul.actionButtons li {
     margin: 0;
-    font-family: inherit;
-    line-height: inherit;
-    cursor: pointer;
 }
 .child-list-tools > a {
     align-self: center;
 }
 .resources-list-pager-bottom {
     display: flex;
-    margin-top: var(--space-3, 12px);
+}
+/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり） */
+#mutate > :has(+ .resources-list-pager-bottom) {
+    margin-bottom: var(--space-3, 12px);
 }

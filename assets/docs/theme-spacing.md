@@ -39,7 +39,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 | --- | --- | --- |
 | ページの端と最初のブロック | 共通部の `#mainPane` の `padding`（`--space-2`）だけ。テーマは足さない（最初のブロックの上の `margin` は 0） | `#mainPane > h1`、`#mainPane > form`、ダッシュボードの外枠 |
 | ページの端と最後のブロック | `#mainPane` の最後の子の下は 0（共通部の `padding` だけ） | `#mainPane > :last-child` |
-| ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、ボタン列の前（`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`）、コード欄の前（`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`）、ページ送りの前（`:is(.sectionBody, .tab-page, form) > :has(+ .pagination)`）、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、`.sectionBody` の直下のブロック（`.sectionBody > :is(div, table, fieldset)`）の下、本体の中の小見出し（`.sectionBody h3`）の下、サブリソース一覧のパンくず（`.resources-topic-path`）の下、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
+| ブロックとブロックの間 | `--space-3`（12px） | `h1` → `.section`、`ul.actionButtons` → 次のブロック、`.section` → `.section`、ボタン列の前（`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`）、コード欄の前（`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`）、ページ送りの前（`:is(.sectionBody, .tab-page, form) > :has(+ .pagination)`）、`.tab-page .sectionHeader` → `.sectionBody`（タブの中の見出し）、表など → 次の `.sectionHeader`（タブの中）、システムログ（a=114）の検索フォーム（`.system-log-toolbar`）と概要（`.system-log-summary`）の下、`.sectionBody` の直下のブロック（`.sectionBody > :is(div, table, fieldset)`）の下、本体の中の小見出し（`.sectionBody h3`）の下、サブリソース一覧の上の 2 行（`.resources-list-head`・`.resources-list-toolbar`）の下と、表と下のページ送り（`.resources-list-pager-bottom`）の間（`#mutate > :has(+ .resources-list-pager-bottom)`）。この 3 つは `common/shell.css` の規則で、テーマには書かない。パンくずの `.resources-topic-path` の下の余白は、この画面では `common/shell.css` が行の中で 0 にするので効かない、移動ボタン（`.resources-batch-actions`）の上（直前のブロックの `margin-bottom` で作る） |
 | タブとパネルを離して見せる作り（丸いタブ）の、タブ列とパネルの間 | `--space-2`（8px） | `.dynamic-tab-pane-control .tab-row` → `.tab-page` |
 | 設定画面（`EvoSettingsForm`）のタブの中で、表と次の小見出しの間 | `--space-5`（20px） | `.tab-page > :has(+ .settings-section)`（直前の表の `margin-bottom`） |
 | 入れ物の最初の子の上・最後の子の下 | 外側の `margin` を足さない（0）。間は入れ物の内側の `padding` だけで作る。入れ物は `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` | `#mainPane`、`.section`、`.sectionBody`、`.tab-page`、`fieldset`、`form` の最初と最後の子 |
@@ -84,7 +84,7 @@ RevoStyle は、旧デザインを保つためのテーマで、廃止予定の�
 
 RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-0` 〜 `--space-14`。`--space-1` が 2px、`--space-2` が 3px、`--space-8` が 10px）。共通部は `--space-2` を 8px のつもりで読むので、RevoStyle の `#mainPane` の内側の余白は 3px で表示される。この値は今のまま変えない。
 
-画面の PHP から直書きの余白を消した分（`.resources-topic-path` の下・`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。
+画面の PHP から直書きの余白を消した分（`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。RevoStyle の `.resources-topic-path { margin-bottom: 10px; }` も同じ経緯で残っているが、サブリソース一覧では `common/shell.css` の `.resources-list-head` の規則が 0 にする（テーマのファイルは直さない）。
 
 #924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）。これらも手本にしない。
 

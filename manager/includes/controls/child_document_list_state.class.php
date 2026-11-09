@@ -43,8 +43,9 @@ final class ChildDocumentListState
             "sc.alias LIKE '%{$like}%'",
             "sc.content LIKE '%{$like}%'",
         ];
-        if (ctype_digit($keyword)) {
-            $cond[] = 'sc.id=' . (int) $keyword;
+        $idKeyword = self::idKeyword($keyword);
+        if ($idKeyword !== null) {
+            $cond[] = 'sc.id=' . $idKeyword;
         }
         return 'AND (' . implode(' OR ', $cond) . ')';
     }
@@ -55,10 +56,14 @@ final class ChildDocumentListState
      */
     public static function prependIdMatch(string $keyword, string $orderBy): string
     {
-        if (!ctype_digit($keyword)) {
-            return $orderBy;
-        }
-        return 'sc.id=' . (int) $keyword . ' DESC, ' . $orderBy;
+        $idKeyword = self::idKeyword($keyword);
+        return $idKeyword === null ? $orderBy : 'sc.id=' . $idKeyword . ' DESC, ' . $orderBy;
+    }
+
+    /** 半角数字だけの検索語なら、ID として使う整数（SQL へ入れる前に (int) で安全化済み）。そうでなければ null */
+    private static function idKeyword(string $keyword): ?int
+    {
+        return ctype_digit($keyword) ? (int) $keyword : null;
     }
 
     /** 今のリクエストの page・orderby・orderdir・q を読む。parent は a=120 の id */
