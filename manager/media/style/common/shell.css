@@ -470,7 +470,7 @@ body.evo-shell input.evo-submitting-trigger {
 /* 一括操作のボタンの欄がある一覧では、選択の帯とボタンを 1 つの「操作の帯」にまとめ、表の上に貼り付ける（data-table.js） */
 .data-table-selection-dock {
     position: sticky;
-    top: 0;
+    top: var(--data-table-dock-top, 0);
     z-index: 5;
     display: flex;
     flex-wrap: wrap;
@@ -501,7 +501,8 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-.data-table-selection-dock .is-danger {
+/* テーマの form#mutate input { margin } に負けないよう、シェルの他の規則と同じく ID を含めて詳しくする */
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .is-danger {
     margin-left: auto;
     color: var(--color-error, #c62828);
     border-color: currentColor;
