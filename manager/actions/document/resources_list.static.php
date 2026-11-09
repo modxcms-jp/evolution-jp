@@ -101,23 +101,26 @@ if ($links->orderby() !== '') {
     $listTools .= '<input type="hidden" name="orderby" value="' . hsc($links->orderby()) . '">'
         . '<input type="hidden" name="orderdir" value="' . hsc($links->orderdir()) . '">';
 }
-$listTools .= '<table border="0" style="float:right"><tr><td>' . $kw . '</td>'
-    . '<td><input class="searchtext" name="q" type="text" size="15" maxlength="'
+// 見出しは置かない（入力欄の placeholder と aria-label で分かる）。送るのは本物の送信ボタン（Enter でも送れる）。
+// 並びは shell.css の .child-list-tools（flex）。ボタンの見た目は各テーマの .actionButtons の規則に任せる
+$listTools .= '<input class="searchtext" name="q" type="text" size="15" maxlength="'
     . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
-    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '"></td>'
-    . '<td><a href="#" class="default" title="' . $kw . '" data-search-submit>'
-    . hsc($_lang['go']) . '</a></td>';
+    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '">'
+    . '<ul class="actionButtons"><li><button type="submit">' . $kw . '</button></li></ul>';
 if ($keyword !== '') {
-    $listTools .= '<td><a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
+    $listTools .= '<a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
         . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
-        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a></td>';
+        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a>';
 }
 if ($links->orderby() !== '') {
-    $listTools .= '<td><a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
+    $listTools .= '<a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
         . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
-        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a></td>';
+        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a>';
 }
-$listTools .= '</tr></table></form>';
+$listTools .= '</form>';
+
+// 表の上の行に出すページ送り（0 件のときは無い）
+$navTop = '';
 
 if (!$numRecords) {
     $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
@@ -143,6 +146,8 @@ if (!$numRecords) {
     $orderBy = ChildDocumentListState::orderBy($links) ?? transformOrderBy(
         evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
     );
+    // 数字だけで探したときは、ID が一致した文書を 1 件目にする
+    $orderBy = ChildDocumentListState::prependIdMatch($keyword, $orderBy);
     $rs = db()->select(
         $f,
         [
@@ -224,7 +229,10 @@ if (!$numRecords) {
         'first' => lang('pagination_table_first'),
         'last' => lang('pagination_table_last'),
     ]);
-    $children_output = $nav . $table->render($rows, $links) . $nav;
+    // 上のページ送りは表の上の行（作成のボタンの右）に出し、下は右に寄せる
+    $navTop = $nav;
+    $children_output = $table->render($rows, $links)
+        . ($nav !== '' ? '<div class="resources-list-pager-bottom">' . $nav . '</div>' : '');
     if ($canBatch) {
         // ボタンごとの送り先は formaction（フォームに hidden の a を置くと、a の値が衝突する）。
         // 操作の種類は URL の op で渡し、今のページ・並べ替え・検索語（q）も同じ URL で引き継ぐ。削除は確認のダイアログを出す
@@ -298,38 +306,31 @@ echo get_jscript($id, $cm);
     <div class="section">
         <div class="sectionBody">
             <!-- View Children -->
-            <div class="actionButtons">
-                <table border="0" style="width:100%">
-                    <tr>
-                        <td>
-                            <?php if (hasPermission('new_document')) { ?>
-                                <ul class="actionButtons">
-                                    <li class="mutate">
-                                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
-                                            <?= $_lang['create_resource_here'] ?>
-                                        </a>
-                                    </li>
-                                    <li class="mutate">
-                                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
-                                            <?= $_lang['create_weblink_here'] ?>
-                                        </a>
-                                    </li>
-                                </ul>
-                            <?php } ?>
-                        </td>
-                        <td nowrap="nowrap"><?= $listTools ?></td>
-                    </tr>
-                </table>
-            </div>
             <?php
+            // 1 行目: パンくず（今どのフォルダか。0 件でも出す）と検索。検索は別のフォームなので、表のフォームの外に置く
+            echo '<div class="resources-list-head">' . getTopicPath($id) . $listTools . '</div>';
             // チェックボックスなどでの Enter では送らない（既定の送信ボタンが無く、先頭の有効なボタン＝移動や公開が押されたことになるため）。
             // フォームの属性に置くので、シェルの画面遷移で要素が作り直されても重ならない。ボタン・リンクの Enter は通常どおり
             $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
-            $topicPath = ($numRecords > 0 || $keyword !== '') ? getTopicPath($id) : '';
+            // 2 行目: 作成のボタン（表に子を足す操作）とページ送り。0 件でも作成のボタンは出す
+            $createButtons = '';
+            if (hasPermission('new_document')) {
+                $createButtons = sprintf(
+                    '<ul class="actionButtons resources-list-create">'
+                    . '<li class="mutate"><a href="index.php?a=4&amp;pid=%1$d">%2$s</a></li>'
+                    . '<li class="mutate"><a href="index.php?a=72&amp;pid=%1$d">%3$s</a></li>'
+                    . '</ul>',
+                    $id,
+                    $_lang['create_resource_here'],
+                    $_lang['create_weblink_here']
+                );
+            }
+            // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない
+            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="resources-list-toolbar">' . $createButtons . $navTop . '</div>' : '';
             echo <<< EOT
-{$topicPath}
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
 <input type="hidden" name="parent" value="{$id}" />
+{$toolbar}
 {$children_output}
 </form>
 EOT;
@@ -605,15 +606,6 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 
     // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
     Evo.ready(function () {
-        // 検索の実行ボタン。0 件・該当なしのときも効くよう、表の有無より前に結ぶ（画面の差し替えで要素ごと作り直される。二重に結ばない）
-        const submit = document.querySelector('[data-search-submit]');
-        if (submit && !submit.dataset.bound) {
-            submit.dataset.bound = '1';
-            submit.addEventListener('click', function (e) {
-                e.preventDefault();
-                submit.closest('form').requestSubmit();
-            });
-        }
         const table = document.querySelector('[data-table="children"]');
         if (!table) {
             return;

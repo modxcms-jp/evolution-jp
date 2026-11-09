@@ -542,9 +542,10 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     float: none;
     margin: 0;
 }
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button {
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button,
+.child-list-tools ul.actionButtons button {
     float: none;
-    width: auto; /* テーマの button { width: 112px } を打ち消す */
+    width: auto; /* テーマの button { width: 112px } を打ち消す（帯のボタンと、一覧の検索の送信ボタン） */
     margin: 0;
     font-family: inherit;
     line-height: inherit;
@@ -561,4 +562,64 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger button {
     color: color-mix(in srgb, var(--color-error, #c62828) 70%, #000);
     border-color: currentColor;
+}
+
+/* 子リソースの一覧の上の 2 行（resources_list.static.php）。
+   1 行目: パンくずと検索。2 行目: 作成のボタンとページ送り。狭いときは右のものが下に回り込む。
+   クラス名はこの画面専用。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
+.resources-list-head,
+.resources-list-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px) var(--space-4, 16px);
+    margin-bottom: var(--space-3, 12px);
+}
+.resources-list-head .resources-topic-path,
+.resources-list-toolbar .pagination,
+.resources-list-toolbar ul.actionButtons,
+.resources-list-pager-bottom .pagination,
+.child-list-tools ul.actionButtons {
+    margin: 0;
+    padding: 0;
+}
+.resources-list-head .child-list-tools,
+.resources-list-toolbar .pagination,
+.resources-list-pager-bottom .pagination {
+    margin-left: auto;
+}
+/* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
+   ボタンの width:112px の打ち消しは、帯のボタンの規則（上）にまとめてある */
+.child-list-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--space-2, 8px);
+}
+/* 余白は gap に任せる。テーマの「ul.actionButtons の直前の子に margin-bottom」の規則（:has(+ ...)、詳細度 (0,2,1)）が
+   入力欄に当たり、stretch の高さから引かれるので、それより高い詳細度 (0,3,1) で 0 にする */
+.resources-list-head .child-list-tools > input.searchtext {
+    margin: 0;
+    box-sizing: border-box;
+    height: auto;
+    width: 16em;
+    max-width: 100%;
+}
+.child-list-tools ul.actionButtons,
+.child-list-tools ul.actionButtons li {
+    display: flex;
+    float: none;
+}
+.child-list-tools ul.actionButtons li {
+    margin: 0;
+}
+.child-list-tools > a {
+    align-self: center;
+}
+.resources-list-pager-bottom {
+    display: flex;
+}
+/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり） */
+#mutate > :has(+ .resources-list-pager-bottom) {
+    margin-bottom: var(--space-3, 12px);
 }

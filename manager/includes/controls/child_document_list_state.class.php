@@ -27,7 +27,8 @@ final class ChildDocumentListState
 
     /**
      * 検索語の絞り込み条件（sc は site_content の別名）。検索語が無ければ null。
-     * pagetitle・longtitle・alias・content（本文）の部分一致と、数字だけなら id の一致。
+     * pagetitle・longtitle・alias・content（本文）の部分一致と、数字だけなら id の一致（どれかに当たれば出す）。
+     * 数字だけのときの並びは prependIdMatch() が、ID が一致した文書を先頭にする。
      * LIKE の %・_・\ は無害化してから、DB へ渡す直前に db()->escape() を通す。
      */
     public static function keywordCondition(string $keyword): ?string
@@ -42,10 +43,27 @@ final class ChildDocumentListState
             "sc.alias LIKE '%{$like}%'",
             "sc.content LIKE '%{$like}%'",
         ];
-        if (ctype_digit($keyword)) {
-            $cond[] = 'sc.id=' . (int) $keyword;
+        $idKeyword = self::idKeyword($keyword);
+        if ($idKeyword !== null) {
+            $cond[] = 'sc.id=' . $idKeyword;
         }
         return 'AND (' . implode(' OR ', $cond) . ')';
+    }
+
+    /**
+     * 数字だけの検索語のとき、ID が一致した文書を先頭にする ORDER BY を返す（それ以外は $orderBy のまま）。
+     * 数字で本文などを探すこともできるよう絞り込みは変えず、ID で探したときに目的の文書が 1 件目に来るようにする。
+     */
+    public static function prependIdMatch(string $keyword, string $orderBy): string
+    {
+        $idKeyword = self::idKeyword($keyword);
+        return $idKeyword === null ? $orderBy : 'sc.id=' . $idKeyword . ' DESC, ' . $orderBy;
+    }
+
+    /** 半角数字だけの検索語なら、ID として使う整数（SQL へ入れる前に (int) で安全化済み）。そうでなければ null */
+    private static function idKeyword(string $keyword): ?int
+    {
+        return ctype_digit($keyword) ? (int) $keyword : null;
     }
 
     /** 今のリクエストの page・orderby・orderdir・q を読む。parent は a=120 の id */
