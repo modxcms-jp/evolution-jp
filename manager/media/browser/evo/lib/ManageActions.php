@@ -5,7 +5,8 @@
  * api.php の fbSendJson() / fbError() / fbNotFoundMessage() と Filesystem::attempt() を使う。
  *
  * readText は {name, content, hash, readOnly, readOnlyReason(link|permission|encoding|''), encoding} を返す。
- * テキストとして扱うのは、拡張子が BrowserConfig::TEXT_EXTENSIONS にあり、大きさが TEXT_MAX_BYTES 以下で、NUL を含まないファイルだけ。
+ * テキストとして扱うのは、大きさが TEXT_MAX_BYTES 以下で、NUL を含まず、UTF-8 か LEGACY_ENCODINGS と判別できる中身のファイルだけ(拡張子では決めない。
+ * ただし画像・動画・音声の拡張子は、中身を見ずに not_text で断る)。
  * UTF-8 でない中身(Shift_JIS・EUC-JP)は変換して表示するが、保存はさせない(readOnly。書き戻すと文字コードが黙って変わるため)。
  * 保存のときは開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る(FTP などの同時の書き換えを上書きしないため)。
  * エラーコード(この一覧が正本): invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified /
@@ -237,8 +238,8 @@ class ManageActions
     }
 
     /**
-     * テキストとして扱えるファイルの実パス。ルートの中にあって守る場所でない(resolveFile())、拡張子が TEXT_EXTENSIONS にある、
-     * 大きさが TEXT_MAX_BYTES 以下であること。どれかを満たさなければ、その理由で失敗にする
+     * テキストとして扱えるファイルの実パス。ルートの中にあって守る場所でない(resolveFile())、画像・動画・音声の拡張子でない、
+     * 大きさが TEXT_MAX_BYTES 以下であること(中身の確かめは readOrFail() と readText())。どれかを満たさなければ、その理由で失敗にする
      */
     private static function textFileOrFail(PathResolver $resolver, array $dir, $name)
     {
@@ -246,7 +247,7 @@ class ManageActions
         if ($realPath === null) {
             fbError('not_found', fbNotFoundMessage($name, lang('fb_err_target_not_found')), 404);
         }
-        if (!BrowserConfig::isTextFilename($name)) {
+        if (BrowserConfig::isNonTextMediaFilename($name)) {
             fbError('not_text', lang('fb_err_not_text'), 400);
         }
         $size = @filesize($realPath);

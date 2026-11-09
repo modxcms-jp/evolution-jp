@@ -297,6 +297,11 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
             $item['image'] = true;
             $item['thumb'] = fbThumbSource($ext, $item['url']);
         }
+        // 再生できる動画・音声は、プレビューが <video>・<audio> で出す(種別の判定は BrowserConfig が持つ)
+        $media = BrowserConfig::mediaKindOf($file['name']);
+        if ($media !== '' && $item['url'] !== null) {
+            $item['media'] = $media;
+        }
         if (ThumbnailService::isRasterImageExtension($ext)) {
             $dimensions = @getimagesize($file['fullPath']);
             if ($dimensions) {

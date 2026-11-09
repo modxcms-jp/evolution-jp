@@ -108,6 +108,8 @@ export function createMoveDialog(ctx) {
  * @param {HTMLElement} ctx.overlayEl
  * @param {HTMLElement} ctx.panelEl - ダイアログ本体(Tabを循環させる範囲)
  * @param {HTMLElement} ctx.imgEl
+ * @param {HTMLElement} [ctx.videoEl] - 動画のプレーヤー(一覧の応答の media が video のファイルだけ出す)
+ * @param {HTMLElement} [ctx.audioEl] - 音声のプレーヤー(media が audio のファイルだけ出す)
  * @param {HTMLElement} ctx.metaEl
  * @param {HTMLElement} ctx.closeBtn
  * @param {HTMLElement} ctx.actionsEl
@@ -124,6 +126,29 @@ export function createPreview(ctx) {
     ctx.imgEl.addEventListener('error', function () {
         ctx.imgEl.hidden = true;
     });
+
+    // 動画・音声は公開 URL をそのままプレーヤーへ渡す(一覧の応答の media が video・audio のものだけ)。閉じるときは止めて src を外す
+    function setPlayer(el, file, kind) {
+        if (!el) {
+            return;
+        }
+        if (file.url && file.media === kind) {
+            el.hidden = false;
+            el.src = withVersion(file.url, file.mtime);
+            return;
+        }
+        stopPlayer(el);
+    }
+
+    function stopPlayer(el) {
+        if (!el) {
+            return;
+        }
+        el.pause();
+        el.removeAttribute('src');
+        el.load();
+        el.hidden = true;
+    }
 
     function renderActions(file) {
         ctx.actionsEl.textContent = '';
@@ -150,6 +175,8 @@ export function createPreview(ctx) {
             ctx.imgEl.hidden = true;
             ctx.imgEl.removeAttribute('src');
         }
+        setPlayer(ctx.videoEl, file, 'video');
+        setPlayer(ctx.audioEl, file, 'audio');
         ctx.editBtn.hidden = !ctx.canEdit(file);
         renderActions(file);
         ctx.imgEl.alt = file.name;
@@ -171,6 +198,8 @@ export function createPreview(ctx) {
         }
         var fn = closeOverlay;
         closeOverlay = null;
+        stopPlayer(ctx.videoEl);
+        stopPlayer(ctx.audioEl);
         fn(restoreFocusToOpener);
     }
 

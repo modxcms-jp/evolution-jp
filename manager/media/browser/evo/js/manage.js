@@ -1,10 +1,10 @@
 // 管理モードの入口(メニューの「ファイル管理」)。振る舞い(behaviors)を作って filebrowser.js の registerEntry() に渡す。ファイルを「選んで閉じる」ことはしない。
 // 開始の関数は入口の登録表 window.EvoFileBrowserEntries.manage に置き、断片内のインライン script から呼び直す(shell.js が script を再実行しないため。ピッカーと同じ)。
-// テキストの表示・編集・新しいファイル・zip の展開を足すのはこの入口だけ(共通の部品には足さない)。
+// テキストの表示・編集・新しいファイル・zip の展開・プレビューのダウンロードを足すのはこの入口だけ(共通の部品には足さない)。
 
 import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
-import { failureMessage, postForm } from './api.js';
+import { apiUrl, failureMessage, fetchJson, postForm } from './api.js';
 import { createTextEditor } from './textEditor.js';
 
 function extensionOf(name) {
@@ -12,8 +12,9 @@ function extensionOf(name) {
     return dot === -1 ? '' : String(name).slice(dot + 1).toLowerCase();
 }
 
-// テキストとして開けるか。拡張子の一覧(サーバーの BrowserConfig::TEXT_EXTENSIONS)は設定で受け、
-// .htaccess のような名前は最後のドットより後ろ(htaccess)で照合する(サーバーと同じ)
+// 最初からテキストエディターで開くか。拡張子の一覧(サーバーの BrowserConfig::TEXT_EXTENSIONS)は設定で受け、
+// .htaccess のような名前は最後のドットより後ろ(htaccess)で照合する(サーバーと同じ)。
+// 一覧に無いファイルも、openFile がサーバーに中身を確かめさせて、テキストなら開く
 function isTextFile(config, name) {
     return (config.textExtensions || []).indexOf(extensionOf(name)) !== -1;
 }
@@ -71,16 +72,34 @@ function unzipFile(host, name) {
         });
 }
 
+// 拡張子の一覧に無いファイルを開く。サーバー(readText)が中身をテキストと認めればエディターへ、
+// 認めない(テキストでない・大きすぎる・読めない)ときはエラーを出さずにプレビュー(情報とダウンロード)を出す。
+// 画像・動画・音声は、プレビューで見せるので確かめない
+function openByContent(entry, host) {
+    if (entry.image || entry.media) {
+        host.preview.open(entry);
+        return;
+    }
+    var folder = host.state.folder;
+    fetchJson(apiUrl(host.config, { action: 'readText', folder: folder, file: entry.name }))
+        .then(function () {
+            editorFor(host).open(entry.name, folder);
+        })
+        .catch(function () {
+            host.preview.open(entry);
+        });
+}
+
 var behaviors = {
     openFile: function (entry, host) {
         if (isTextFile(host.config, entry.name)) {
             editorFor(host).open(entry.name, host.state.folder);
             return;
         }
-        host.preview.open(entry);
+        openByContent(entry, host);
     },
-    previewActions: function () {
-        return [];
+    previewActions: function (entry, host) {
+        return [{ label: t('fb_download'), onSelect: function () { host.download([entry.name]); } }];
     },
     // 右クリックメニューに足す項目(ファイルには「表示・編集」「展開」、何も無い所には「新しいファイル」)。書き込めないフォルダでは作る・展開する項目は出さない
     contextMenuItems: function (entry, host) {

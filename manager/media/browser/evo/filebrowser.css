@@ -776,6 +776,20 @@
     display: contents;
 }
 
+.evo-fb-preview-media[hidden],
+.evo-fb-preview-audio[hidden] {
+    display: none;
+}
+
+.evo-fb-preview-media {
+    max-width: 100%;
+    max-height: 50vh;
+}
+
+.evo-fb-preview-audio {
+    max-width: 100%;
+}
+
 .evo-fb-preview-img {
     max-width: 100%;
     max-height: 50vh;

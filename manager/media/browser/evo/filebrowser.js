@@ -5,7 +5,7 @@
 // 入口の登録表: window.EvoFileBrowserEntries[entry] に開始の関数を置く。EvoShell は ES モジュールを同じ URL では 2 度目に実行しないので、
 // 断片の最後のインラインの <script> が、断片の設定の entry で該当の入口を呼び直す。
 //
-// behaviors(host は { root, config, state, preview, reload }):
+// behaviors(host は { root, config, state, preview, reload, download(names) }):
 //   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
 //   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
@@ -325,6 +325,8 @@ function init(root, entry, behaviors) {
         overlayEl: root.querySelector('[data-role="preview-overlay"]'),
         panelEl: root.querySelector('[data-role="preview-panel"]'),
         imgEl: root.querySelector('[data-role="preview-img"]'),
+        videoEl: root.querySelector('[data-role="preview-video"]'),
+        audioEl: root.querySelector('[data-role="preview-audio"]'),
         metaEl: root.querySelector('[data-role="preview-meta"]'),
         closeBtn: root.querySelector('[data-role="preview-close"]'),
         actionsEl: root.querySelector('[data-role="preview-actions"]'),
@@ -353,6 +355,9 @@ function init(root, entry, behaviors) {
         state: state,
         config: config
     });
+
+    // 入口の JS が、プレビューのボタンなどから同じダウンロードを使う
+    host.download = function (names) { downloader.download(names); };
 
     // zip を作れない環境では、1 件だけならそのまま送れるが、2 件以上は送れない
     function canDownload(count) {
