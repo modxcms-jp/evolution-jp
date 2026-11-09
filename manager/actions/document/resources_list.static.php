@@ -326,7 +326,7 @@ echo get_jscript($id, $cm);
                 );
             }
             // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない
-            $toolbar = $createButtons . $navTop !== '' ? '<div class="resources-list-toolbar">' . $createButtons . $navTop . '</div>' : '';
+            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="resources-list-toolbar">' . $createButtons . $navTop . '</div>' : '';
             echo <<< EOT
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
 <input type="hidden" name="parent" value="{$id}" />
