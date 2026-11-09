@@ -91,7 +91,7 @@
 
 ### 操作の帯
 
-同じ `form` の中に `data-selection-actions="<selection の name>"` を付けた要素（一括操作のボタンの欄）があると、`data-table.js` が帯とその欄を 1 つの「操作の帯」（`div.data-table-selection-dock`）にまとめる。表の直後（表を包む `div` の末尾。ページ送りの前）に置き、画面の下端に貼り付く（`position: sticky; bottom: 0`）。帯の外枠（`role="status"`）は 0 件のときも描いたままで、帯に `is-empty` を付けて枠・余白・影とボタンの欄だけを消し、1 件以上選んだときに見せる（空の外枠から出さないため）。帯の中には、すべてを選んだとき以外でも常に「選択を解除」のリンクを出す。ボタンの欄の中身と送り先は呼び出し側が決める。欄の中の `.is-danger` は右寄せの警告色になる。これはシェル（`body.evo-shell #mainPane`）の中で効き、テーマの `form#mutate input { margin }` に負けないよう、ID を含めて詳細度を上げている。シェルの右上のボタン群（`#actions`）は隠さず、常に出す。帯は下端に貼り付くので、右上のボタン群とは重ならない（SoftSlate の狭い幅で `#actions` が右下に移るときは、`#mainPane` の下の padding の内側で止まる）。欄が無い一覧は、これまでどおり帯だけを出す。見た目は `shell.css` の `.data-table-selection-dock`。
+同じ `form` の中に `data-selection-actions="<selection の name>"` を付けた要素（一括操作のボタンの欄）があると、`data-table.js` が帯とその欄を 1 つの「操作の帯」（`div.data-table-selection-dock`）にまとめる。表の直後（表を包む `div` の末尾。ページ送りの前）に置き、画面の下端に貼り付く（`position: sticky; bottom: 0`）。帯の外枠（`role="status"`）は 0 件のときも描いたままで、帯に `is-empty` を付けて枠・余白・影とボタンの欄だけを消し、1 件以上選んだときに見せる（空の外枠から出さないため）。帯の中には、すべてを選んだとき以外でも常に「選択を解除」のリンクを出す。ボタンの欄の中身と送り先は呼び出し側が決める。欄の中の `.is-danger` は右寄せの警告色になる。これはシェル（`body.evo-shell #mainPane`）の中で効き、テーマの `form#mutate input { margin }` に負けないよう、ID を含めて詳細度を上げている。シェルの右上のボタン群（`#actions`）は隠さず、常に出す。帯は下端に貼り付くので、右上のボタン群とは重ならない。欄が無い一覧は、これまでどおり帯だけを出す。見た目は `shell.css` の `.data-table-selection-dock`。
 
 ## エスケープ
 

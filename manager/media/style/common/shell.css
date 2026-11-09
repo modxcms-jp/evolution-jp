@@ -460,7 +460,7 @@ body.evo-shell input.evo-submitting-trigger {
     align-items: center;
     justify-content: center;
     gap: var(--space-2, 8px);
-    margin-top: var(--space-3, 12px);
+    margin-bottom: var(--space-3, 12px);
     padding: var(--space-2, 8px) var(--space-3, 12px);
     color: var(--color-text-primary, #333);
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
@@ -476,7 +476,7 @@ body.evo-shell input.evo-submitting-trigger {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2, 8px) var(--space-4, 16px);
-    margin-bottom: var(--space-3, 12px);
+    margin-top: var(--space-3, 12px);
     padding: var(--space-2, 8px) var(--space-3, 12px);
     color: var(--color-text-primary, #333);
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
