@@ -790,48 +790,10 @@ function update_tmplvars($docid, $tmplvars)
 }
 
 // document access permissions
-// 文書グループのタブが出る利用者（変えてよいグループがある）は、画面が送ったグループを付ける。
-// タブが出ない利用者は何も送れないので、親の文書グループをすべて引き継ぐ（親の守りを子に伝える）。
-// タブが出るかどうかは送られた値でなく文書グループの権限で決める（タブの中身をすべて外した場合と区別するため）
+// 規則は ManagerAPI の setNewDocumentGroups()（変えてよいグループは送られた値、よくないグループは親から引き継ぐ）
 function setDocPermissionsNew($newid)
 {
-    if (evo()->config('use_udperms') != 1) {
-        return;
-    }
-    $newid = (int)$newid;
-    $access = manager()->documentGroupAccess();
-    if ($access['ids']) {
-        $groups = manager()->postedChangeableDocumentGroupIds($access);
-        if (!$groups) {
-            return;
-        }
-        $values = [];
-        foreach ($groups as $group) {
-            $values[] = sprintf('(%d,%d)', $group, $newid);
-        }
-        $rs = db()->query(
-            sprintf(
-                'INSERT INTO %s (document_group, document) VALUES %s',
-                evo()->getFullTableName('document_groups'),
-                implode(',', $values)
-            )
-        );
-    } else {
-        $parent = (int)validated('parent');
-        if (!$parent) {
-            return;
-        }
-        $rs = db()->query(
-            sprintf(
-                'INSERT INTO %s (document_group, document) SELECT DISTINCT document_group, %d FROM %s WHERE document=%d',
-                evo()->getFullTableName('document_groups'),
-                $newid,
-                evo()->getFullTableName('document_groups'),
-                $parent
-            )
-        );
-    }
-    if (!$rs) {
+    if (manager()->setNewDocumentGroups($newid, (int)validated('parent')) === false) {
         evo()->webAlertAndQuit(
             'An error occured while attempting to add the document to a document_group.'
         );

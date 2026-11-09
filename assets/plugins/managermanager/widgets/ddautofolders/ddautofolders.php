@@ -114,13 +114,8 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
 
     //年・月のフォルダを作る（値は DB 操作の直前にエスケープする）
     $createDocument = function ($fields) {
-        $groups = manager()->postedChangeableDocumentGroupIds();
         $fields['createdon'] = time();
         $fields['createdby'] = (int)evo()->getLoginUserID();
-        //Если группы заданы, то это приватный документ
-        if ($groups) {
-            $fields['privatemgr'] = 1;
-        }
         //Если надо публиковать, поставим дату публикации текущей
         if ($fields['published'] == 1) {
             $fields['pub_date'] = $fields['createdon'];
@@ -129,11 +124,11 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         if (!$id) {
             return false;
         }
-        foreach ($groups as $group) {
-            db()->insert(
-                db()->escape(['document_group' => (int)$group, 'document' => (int)$id]),
-                '[+prefix+]document_groups'
-            );
+        //文書グループは保存と同じ規則で付ける（親は $fields['parent']）
+        $groups = manager()->setNewDocumentGroups($id, (int)$fields['parent']);
+        //Если группы заданы, то это приватный документ
+        if ($groups) {
+            db()->update('privatemgr=1', '[+prefix+]site_content', sprintf('id=%d', (int)$id));
         }
         return $id;
     };
