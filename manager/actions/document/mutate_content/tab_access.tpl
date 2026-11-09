@@ -7,6 +7,10 @@
             const f = document.forms['mutate'];
             let chkpub = f['chkalldocs'];
             let chks = f['document_groups[]'];
+            // 「すべての文書」が出ない（権限が両方は無い）ときは、切り替える相手が無い
+            if (!chkpub) {
+                return false;
+            }
             if (!chks && chkpub) {
                 chkpub.checked = true;
                 return false;

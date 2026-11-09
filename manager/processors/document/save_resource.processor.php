@@ -796,10 +796,15 @@ function setDocPermissionsNew($document_groups, $newid)
         return;
     }
     if (is_array($document_groups)) {
+        $changeable = docGroupAccess()['ids'];
         $new_groups = [];
         foreach ($document_groups as $value_pair) {
-            $group = (int)substr($value_pair, 0, strpos($value_pair, ','));
-            $new_groups[] = sprintf('(%s,%s)', $group, $newid);
+            $group = postedGroupId($value_pair);
+            // 変えてよくないグループは足さずに無視する
+            if (!isset($changeable[$group])) {
+                continue;
+            }
+            $new_groups[$group] = sprintf('(%s,%s)', $group, $newid);
         }
         if ($new_groups) {
             $rs = db()->query(
@@ -895,38 +900,39 @@ function setDocPermissionsEdit($document_groups, $id)
     if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
         return;
     }
-    $rs = db()->select(
-        '`groups`.id, `groups`.document_group',
-        [
-            '[+prefix+]document_groups AS `groups`',
-            'LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id=`groups`.document_group'
-        ],
-        sprintf(
-            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'",
-            (int)evo()->hasPermission('access_permissions'),
-            (int)evo()->hasPermission('web_access_permissions'),
-            $id
-        )
-    );
+    // 変えてよいグループだけを対象にする。変えてよくないグループは足さず、付いていれば残す
+    $changeable = docGroupAccess()['ids'];
     $exists_groups = [];
-    while ($row = db()->getRow($rs)) {
-        $exists_groups[$row['document_group']] = $row['id'];
+    if ($changeable) {
+        $rs = db()->select(
+            'document_group',
+            '[+prefix+]document_groups',
+            sprintf(
+                'document=%d AND document_group IN (%s)',
+                (int)$id,
+                implode(',', array_keys($changeable))
+            )
+        );
+        while ($row = db()->getRow($rs)) {
+            // 同じ組み合わせの行が重複していても、グループ単位で扱う
+            $exists_groups[(int)$row['document_group']] = (int)$row['document_group'];
+        }
     }
-    $new_groups = [];
+    $posted_groups = [];
     foreach ($document_groups as $value_pair) {
-        [$group, $link_id] = explode(',', $value_pair);
-        $new_groups[$group] = $link_id;
+        $posted_groups[postedGroupId($value_pair)] = true;
     }
+    // 送られてきて、まだ付いていなければ足す。送られてこなかったものは外す
     $insertions = [];
-    foreach ($new_groups as $group_id => $link_id) {
-        $group_id = (int)$group_id;
+    foreach (array_keys($posted_groups) as $group_id) {
+        if (!isset($changeable[$group_id])) {
+            continue;
+        }
         if (isset($exists_groups[$group_id])) {
             unset($exists_groups[$group_id]);
             continue;
         }
-        if ($link_id === 'new') {
-            $insertions[] = sprintf('(%s,%s)', $group_id, $id);
-        }
+        $insertions[] = sprintf('(%s,%s)', $group_id, (int)$id);
     }
     $saved = true;
     if ($insertions) {
@@ -943,17 +949,11 @@ function setDocPermissionsEdit($document_groups, $id)
     if ($exists_groups) {
         $rs = db()->delete(
             '[+prefix+]document_groups',
-            sprintf('id IN (%s)', implode(',', $exists_groups))
-        );
-        if (!$rs) {
-            $saved = false;
-        }
-    }
-    // necessary to remove all permissions as document is public
-    if (postv('chkalldocs') === 'on') {
-        $rs = db()->delete(
-            '[+prefix+]document_groups',
-            sprintf("document='%s'", $id)
+            sprintf(
+                'document=%d AND document_group IN (%s)',
+                (int)$id,
+                implode(',', $exists_groups)
+            )
         );
         if (!$rs) {
             $saved = false;
