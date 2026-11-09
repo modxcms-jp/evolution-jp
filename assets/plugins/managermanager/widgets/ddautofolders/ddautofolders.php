@@ -125,10 +125,11 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             return false;
         }
         //文書グループは保存と同じ規則で付ける（親は $fields['parent']）
-        $groups = manager()->setNewDocumentGroups($id, (int)$fields['parent']);
-        //Если группы заданы, то это приватный документ
-        if ($groups) {
-            db()->update('privatemgr=1', '[+prefix+]site_content', sprintf('id=%d', (int)$id));
+        manager()->setNewDocumentGroups($id, (int)$fields['parent']);
+        //非公開の印は文書本体の保存と同じく、実際の所属から求める
+        if (evo()->config('use_udperms')) {
+            manager()->setWebDocsAsPrivate((int)$id);
+            manager()->setMgrDocsAsPrivate((int)$id);
         }
         return $id;
     };
