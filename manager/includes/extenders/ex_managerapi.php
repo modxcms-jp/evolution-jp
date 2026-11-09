@@ -1350,46 +1350,46 @@ class ManagerAPI
 
     /**
      * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
-     * 集合のうち管理側で非公開のもの（membergroup_access に行がある）が 1 つ以上あり、
-     * 利用者がそのどの管理側のグループ（member_groups）にも所属しないときだけ false。
-     * 管理者、use_udperms が無効、管理側で非公開のグループが無いときは true。
-     * 文書の表示側の判定（checkPermissions()）と同じく、非公開の文書は所属するグループで開く
+     * 集合のうち管理側で非公開のもの（membergroup_access に行がある。setMgrDocsAsPrivate() と同じ定義）が
+     * 1 つ以上あり、利用者の所属（sessionv('mgrDocgroups')）にそのどれも無いときだけ false。
+     * save_role 権限、use_udperms が無効、管理側で非公開のグループが無いときは true。
+     * 文書の表示側の判定（checkPermissions()）と同じ条件・同じ値で判定する
      *
      * @param int[] $groupIds 文書に付く文書グループの id
      * @return bool
      */
     public function canOpenWithDocumentGroups($groupIds)
     {
-        if (evo()->config('use_udperms') != 1 || $this->isAdmin()) {
+        if (evo()->config('use_udperms') != 1 || evo()->hasPermission('save_role')) {
             return true;
         }
-        $groupIds = array_unique(array_filter(array_map('intval', (array)$groupIds)));
-        if (!$groupIds) {
-            return true;
-        }
-        $list = implode(',', $groupIds);
-        $private = (int)db()->getValue(
-            db()->select(
-                'COUNT(mga.id)',
-                '[+prefix+]membergroup_access mga',
-                sprintf('mga.documentgroup IN (%s)', $list)
-            )
-        );
+        $private = $this->mgrPrivateDocumentGroupIds($groupIds);
         if (!$private) {
             return true;
         }
-        $mine = (int)db()->getValue(
-            db()->select(
-                'COUNT(mg.id)',
-                '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
-                sprintf(
-                    'mga.membergroup=mg.user_group AND mga.documentgroup IN (%s) AND mg.member=%d',
-                    $list,
-                    (int)sessionv('mgrInternalKey')
-                )
-            )
+        $mine = array_map('intval', (array)sessionv('mgrDocgroups', []));
+        return (bool)array_intersect($private, $mine);
+    }
+
+    /**
+     * 文書グループのうち、管理側で非公開のもの（membergroup_access に行があるもの）の id。
+     * setMgrDocsAsPrivate() が privatemgr=1 を付ける定義と同じ
+     *
+     * @param int[] $groupIds
+     * @return int[]
+     */
+    public function mgrPrivateDocumentGroupIds($groupIds)
+    {
+        $groupIds = array_unique(array_filter(array_map('intval', (array)$groupIds)));
+        if (!$groupIds) {
+            return [];
+        }
+        $rs = db()->select(
+            'DISTINCT mga.documentgroup',
+            '[+prefix+]membergroup_access mga',
+            sprintf('mga.documentgroup IN (%s)', implode(',', $groupIds))
         );
-        return $mine > 0;
+        return array_map('intval', db()->getColumn('documentgroup', $rs) ?: []);
     }
 
     /**

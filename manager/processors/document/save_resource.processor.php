@@ -31,6 +31,7 @@ checkDocPermission(validated('id'));
 
 checkParent();
 checkAllowedParents(validated('id'));
+checkDocumentGroupsOpenable(validated('id'));
 
 if (postedMode() === 'new') {
     // invoke OnBeforeDocFormSave event
@@ -41,7 +42,12 @@ if (postedMode() === 'new') {
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
     $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
+    $parentBeforeEvent = (int)validated('parent');
     $param = syncParentAfterEvent($param);
+    if ((int)validated('parent') !== $parentBeforeEvent) {
+        // イベントで親が変わった（ddAutoFolders など）。保存される親で付くグループをもう一度確かめる
+        checkDocumentGroupsOpenable($id);
+    }
 
     $newid = db()->insert(
         db()->escape($param['doc_vars']),
@@ -439,15 +445,6 @@ function checkParent()
 
 function checkDocPermission($id)
 {
-    // 保存後の文書グループで、自分が管理画面からその文書を開けなくなるときは止める
-    $afterGroups = postedMode() === 'edit'
-        ? manager()->updatedDocumentGroupIds($id)
-        : manager()->newDocumentGroupIds(validated('parent'));
-    if (!manager()->canOpenWithDocumentGroups($afterGroups)) {
-        evo()->manager->saveFormValues(postedScreen());
-        evo()->webAlertAndQuit(lang('resource_permissions_error'), formReturnUrl());
-    }
-
     // get the document, but only if it already exists
     if (postedMode() === 'edit') {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
@@ -492,6 +489,20 @@ function checkDocPermission($id)
         alert()->setError(3);
         alert()->dumpError();
     }
+}
+
+// 保存後の文書グループで、自分が管理画面からその文書を開けなくなるときは止める
+// 新規は保存される親（validated('parent')）から付くグループで確かめる
+function checkDocumentGroupsOpenable($id)
+{
+    $afterGroups = postedMode() === 'edit'
+        ? manager()->updatedDocumentGroupIds($id)
+        : manager()->newDocumentGroupIds(validated('parent'));
+    if (manager()->canOpenWithDocumentGroups($afterGroups)) {
+        return;
+    }
+    evo()->manager->saveFormValues(postedScreen());
+    evo()->webAlertAndQuit(lang('resource_permissions_error'), formReturnUrl());
 }
 
 // 許可するリソースの範囲の外の文書の更新と、範囲の外の親への作成・移動を止める
