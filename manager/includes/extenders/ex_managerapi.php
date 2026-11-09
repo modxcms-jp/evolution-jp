@@ -1154,6 +1154,115 @@ class ManagerAPI
         return $limits ? min($limits) : 0;
     }
 
+    /**
+     * この利用者が付け外ししてよい文書グループ（画面と保存処理、ddAutoFolders の共通の判定）
+     * 変えてよいグループは、権限が無い側の非公開のグループを除き、
+     * 管理者でなければ出すグループのどれかに所属している場合に限る
+     *
+     * @return array ids: 変えてよいグループの id（キー）／ yes・no: 出すグループのうち、所属している数・いない数
+     */
+    public function documentGroupAccess()
+    {
+        $rs = db()->select(
+            'id, private_memgroup, private_webgroup',
+            '[+prefix+]documentgroup_names'
+        );
+        $ids = [];
+        $yes = 0;
+        $no = 0;
+        while ($row = db()->getRow($rs)) {
+            if (!evo()->hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+                continue;
+            }
+            if (!evo()->hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+                continue;
+            }
+            $groupId = (int)$row['id'];
+            $ids[$groupId] = true;
+            if ($this->countDocumentGroupMembership($groupId) > 0) {
+                ++$yes;
+            } else {
+                ++$no;
+            }
+        }
+        if (!$this->isAdmin() && !$yes && $no) {
+            $ids = [];
+        }
+        return ['ids' => $ids, 'yes' => $yes, 'no' => $no];
+    }
+
+    // 利用者が文書グループ $groupId にアクセスできる、マネージャーグループとウェブグループの数の合計
+    private function countDocumentGroupMembership($groupId)
+    {
+        $groupId = (int)$groupId;
+        $userId = (int)sessionv('mgrInternalKey');
+        $mgr = db()->getValue(
+            db()->select(
+                'COUNT(mg.id)',
+                '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
+                sprintf(
+                    'mga.membergroup=mg.user_group AND mga.documentgroup=%d AND mg.member=%d',
+                    $groupId,
+                    $userId
+                )
+            )
+        );
+        $web = db()->getValue(
+            db()->select(
+                'COUNT(mg.id)',
+                '[+prefix+]webgroup_access mga, [+prefix+]web_groups mg',
+                sprintf(
+                    'mga.webgroup=mg.webgroup AND mga.documentgroup=%d AND mg.webuser=%d',
+                    $groupId,
+                    $userId
+                )
+            )
+        );
+        return (int)$mgr + (int)$web;
+    }
+
+    /**
+     * 送られてきた「グループの id,印」（例: 1,new）から、グループの id を取り出す
+     *
+     * @param string $valuePair
+     * @return int
+     */
+    public function postedDocumentGroupId($valuePair)
+    {
+        return (int)strtok((string)$valuePair, ',');
+    }
+
+    /**
+     * 送られた文書グループ（document_groups）のうち、この利用者が変えてよいものの id の一覧。
+     * 文書グループの権限（use_udperms）が有効でないとき、「すべての文書グループ」（chkalldocs）が on のとき、
+     * 配列でないときは空。文字列でない要素は無いものとして扱う
+     *
+     * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
+     * @return int[]
+     */
+    public function postedChangeableDocumentGroupIds($access = null)
+    {
+        if (evo()->config('use_udperms') != 1 || postv('chkalldocs') === 'on') {
+            return [];
+        }
+        $posted = postv('document_groups');
+        if (!is_array($posted)) {
+            return [];
+        }
+        $access = $access ?: $this->documentGroupAccess();
+        $groupIds = [];
+        foreach ($posted as $valuePair) {
+            if (!is_string($valuePair)) {
+                continue;
+            }
+            $groupId = $this->postedDocumentGroupId($valuePair);
+            if ($groupId && isset($access['ids'][$groupId])) {
+                $groupIds[$groupId] = $groupId;
+            }
+        }
+        return array_values($groupIds);
+    }
+
     public function getTplModule()
     {
         ob_start();

@@ -179,45 +179,6 @@ function getGroups($docid)
     return $groups;
 }
 
-// この利用者が付け外ししてよい文書グループ（画面の getUDGroups() と保存の processor の共通の判定）
-// ids: 変えてよいグループの id（キー）。yes・no: 出すグループのうち、所属している数・いない数
-function docGroupAccess()
-{
-    $rs = db()->select(
-        'id, private_memgroup, private_webgroup',
-        '[+prefix+]documentgroup_names'
-    );
-    $ids = [];
-    $yes = 0;
-    $no = 0;
-    while ($row = db()->getRow($rs)) {
-        // 権限が無い側の非公開のグループは、変えてはいけない
-        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
-            continue;
-        }
-        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
-            continue;
-        }
-        $ids[(int)$row['id']] = true;
-        if (_mgroup((int)$row['id']) + _wgroup((int)$row['id']) > 0) {
-            ++$yes;
-        } else {
-            ++$no;
-        }
-    }
-    // 管理者でなく、出すグループのどれにも所属していなければ、変えてよいグループは無い
-    if (!manager()->isAdmin() && !$yes && $no) {
-        $ids = [];
-    }
-    return ['ids' => $ids, 'yes' => $yes, 'no' => $no];
-}
-
-// 送られてきた「グループの id,印」から、グループの id を取り出す
-function postedGroupId($value_pair)
-{
-    return (int)strtok((string)$value_pair, ',');
-}
-
 function getUDGroups($id)
 {
     global $permissions_yes, $permissions_no;
@@ -238,7 +199,7 @@ function getUDGroups($id)
     $inputAttributes['onclick'] = 'makePublic(false)';
 
     $permissions = []; // New Permissions array list (this contains the HTML)
-    $access = docGroupAccess();
+    $access = manager()->documentGroupAccess();
     $permissions_yes = $access['yes']; // 出すグループのうち、所属している数
     $permissions_no = $access['no']; // 出すグループのうち、所属していない数
     $notPublic = false; // true if the document belongs to any of the listed groups
@@ -273,7 +234,7 @@ function getUDGroups($id)
         $docgroups = array_get($restored, 'document_groups', []);
         $restoredGroupIds = [];
         foreach (is_array($docgroups) ? $docgroups : [] as $value) {
-            $restoredGroupIds[] = postedGroupId($value);
+            $restoredGroupIds[] = manager()->postedDocumentGroupId($value);
         }
         $groupsarray = [];
     } elseif ($docid) {
@@ -366,36 +327,6 @@ function getUDGroups($id)
     }
 
     return $permissions;
-}
-
-function _mgroup($group_id)
-{
-    return db()->getValue(
-        db()->select(
-            'COUNT(mg.id)',
-            '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
-            sprintf(
-                'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s',
-                $group_id,
-                sessionv('mgrInternalKey')
-            )
-        )
-    );
-}
-
-function _wgroup($group_id)
-{
-    return db()->getValue(
-        db()->select(
-            'COUNT(mg.id)',
-            '[+prefix+]webgroup_access mga, [+prefix+]web_groups mg',
-            sprintf(
-                'mga.webgroup=mg.webgroup AND mga.documentgroup=%s AND mg.webuser=%s',
-                $group_id,
-                sessionv('mgrInternalKey')
-            )
-        )
-    );
 }
 
 function mergeDraft($content, $draft)

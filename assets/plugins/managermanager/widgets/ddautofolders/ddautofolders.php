@@ -109,21 +109,12 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     }
 
     //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
-    // チェックボックスの値は「ID,印」の形（例: 1,new）。カンマの前を ID として読む
-    $docGroups = [];
-    $postedGroups = postv('document_groups');
-    if (postv('chkalldocs') !== 'on' && is_array($postedGroups)) {
-        foreach ($postedGroups as $postedGroup) {
-            $groupId = is_string($postedGroup) ? to_intvar(explode(',', $postedGroup)[0]) : 0;
-            if ($groupId) {
-                $docGroups[$groupId] = $groupId;
-            }
-        }
-        $docGroups = array_values($docGroups);
-    }
+    // 文書グループは、フォルダを実際に作るとき（$createDocument の中）に初めて求める（文書の保存と同じ判定は manager()->postedChangeableDocumentGroupIds()）
+    // OnBeforeDocFormSave は save_resource.processor.php のほか qm.inc.php も呼ぶが、後者は doc_vars が無く途中で抜ける
 
     //年・月のフォルダを作る（値は DB 操作の直前にエスケープする）
-    $createDocument = function ($fields, $groups) {
+    $createDocument = function ($fields) {
+        $groups = manager()->postedChangeableDocumentGroupIds();
         $fields['createdon'] = time();
         $fields['createdby'] = (int)evo()->getLoginUserID();
         //Если группы заданы, то это приватный документ
@@ -201,7 +192,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             //Да пусть будут тупо по году, сортироваться нормально зато будут
             'menuindex' => $ddDate['y'] - 2000,
             'published' => $ddYearPub
-        ], $docGroups);
+        ]);
     }
 
     //         if (!$monthId && $yearId){
@@ -224,7 +215,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             //Для месяца выставляем menuindex в соответствии с его порядковым номером
             'menuindex' => $ddDate['n'] - 1,
             'published' => $ddMonthPub
-        ], $docGroups);
+        ]);
     }
 
     //Ещё раз на всякий случай проверим, что с месяцем всё хорошо

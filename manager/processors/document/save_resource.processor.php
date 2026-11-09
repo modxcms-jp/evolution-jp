@@ -796,14 +796,9 @@ function setDocPermissionsNew($document_groups, $newid)
         return;
     }
     if (is_array($document_groups)) {
-        $changeable = docGroupAccess()['ids'];
         $new_groups = [];
-        foreach ($document_groups as $value_pair) {
-            $group = postedGroupId($value_pair);
-            // 変えてよくないグループは足さずに無視する
-            if (!isset($changeable[$group])) {
-                continue;
-            }
+        // 変えてよくないグループは足さずに無視する
+        foreach (manager()->postedChangeableDocumentGroupIds() as $group) {
             $new_groups[$group] = sprintf('(%s,%s)', $group, $newid);
         }
         if ($new_groups) {
@@ -901,7 +896,8 @@ function setDocPermissionsEdit($document_groups, $id)
         return;
     }
     // 変えてよいグループだけを対象にする。変えてよくないグループは足さず、付いていれば残す
-    $changeable = docGroupAccess()['ids'];
+    $access = manager()->documentGroupAccess();
+    $changeable = $access['ids'];
     $exists_groups = [];
     if ($changeable) {
         $rs = db()->select(
@@ -918,16 +914,10 @@ function setDocPermissionsEdit($document_groups, $id)
             $exists_groups[(int)$row['document_group']] = (int)$row['document_group'];
         }
     }
-    $posted_groups = [];
-    foreach ($document_groups as $value_pair) {
-        $posted_groups[postedGroupId($value_pair)] = true;
-    }
+    $posted_groups = manager()->postedChangeableDocumentGroupIds($access);
     // 送られてきて、まだ付いていなければ足す。送られてこなかったものは外す
     $insertions = [];
-    foreach (array_keys($posted_groups) as $group_id) {
-        if (!isset($changeable[$group_id])) {
-            continue;
-        }
+    foreach ($posted_groups as $group_id) {
         if (isset($exists_groups[$group_id])) {
             unset($exists_groups[$group_id]);
             continue;
