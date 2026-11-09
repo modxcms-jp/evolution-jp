@@ -1628,7 +1628,7 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-.actionButtons a {
+.actionButtons :is(a, button) {
     display: block;
     float: inline-start;
     border-radius: var(--space-1);
@@ -1642,12 +1642,12 @@ form > :has(+ .resources-batch-actions),
     background-color: var(--color-neutral-button-start);
 }
 
-.actionButtons a:hover {
+.actionButtons :is(a, button):hover {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-hover-end);
 }
 
-.actionButtons a:active {
+.actionButtons :is(a, button):active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
 }
@@ -2043,7 +2043,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 }
 
 /* ボタン */
-.actionButtons a {
+.actionButtons :is(a, button) {
     background: #f7f9fa;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: var(--radius-md);
@@ -2053,14 +2053,14 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     box-shadow: none;
 }
 
-.actionButtons a:hover {
+.actionButtons :is(a, button):hover {
     background: #eef2f5;
     border-color: rgba(0, 0, 0, 0.12);
     box-shadow: none;
     transform: translateY(-1px);
 }
 
-.actionButtons a:active {
+.actionButtons :is(a, button):active {
     background: #e2e7eb;
     transform: translateY(0);
     box-shadow: none;
@@ -2140,8 +2140,9 @@ form select:focus {
     outline: none;
 }
 
-/* アクションエリア */
-#actions {
+/* アクションエリア（操作の帯 data-table.js も同じ見た目にする） */
+#actions,
+.data-table-selection-dock:not(.is-empty) {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--clean-border);

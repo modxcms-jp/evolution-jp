@@ -229,27 +229,32 @@ if (!$numRecords) {
         // ボタンごとの送り先は formaction（フォームに hidden の a を置くと、a の値が衝突する）。
         // 操作の種類は URL の op で渡し、今のページ・並べ替え・検索語（q）も同じ URL で引き継ぐ。削除は確認のダイアログを出す
         $returnQuery = ChildDocumentListState::returnQuery();
-        $button = function ($label, $a, $op = '', $confirm = '') use ($returnQuery) {
+        // ボタンは選択件数の帯の隣に出す（data-table.js が data-selection-actions の欄を帯へ移す）。
+        // 帯に「n 件を選択」と出るので、ボタンは短い文言にし、元の長い文言は title に残す
+        $button = function ($label, $title, $a, $op = '', $confirm = '', $class = '') use ($returnQuery) {
             $url = 'index.php?a=' . $a . ($op !== '' ? '&op=' . $op . $returnQuery : '');
+            // 見た目は各テーマの .actionButtons の規則に任せる（リンクにはできないので button で formaction を使う）
             return sprintf(
-                '<input type="submit" value="%s" formaction="%s"%s /> ',
-                hsc($label),
+                '<li%s><button type="submit" title="%s" formaction="%s"%s>%s</button></li>',
+                $class !== '' ? ' class="' . hsc($class) . '"' : '',
+                hsc($title),
                 hsc($url),
-                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : ''
+                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : '',
+                hsc($label)
             );
         };
         $buttons = '';
         if ($canBatchMove) {
-            $buttons .= $button($_lang['resources_list_move_checked'], 51);
+            $buttons .= $button($_lang['move'], $_lang['resources_list_move_checked'], 51);
         }
         if ($canBatchPublish) {
-            $buttons .= $button($_lang['resources_list_publish_checked'], 121, 'publish');
-            $buttons .= $button($_lang['resources_list_unpublish_checked'], 121, 'unpublish');
+            $buttons .= $button($_lang['publish_resource'], $_lang['resources_list_publish_checked'], 121, 'publish');
+            $buttons .= $button($_lang['unpublish_resource'], $_lang['resources_list_unpublish_checked'], 121, 'unpublish');
         }
         if ($canBatchDelete) {
-            $buttons .= $button($_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked']);
+            $buttons .= $button($_lang['delete'], $_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked'], 'is-danger');
         }
-        $children_output .= '<div class="resources-batch-actions">' . $buttons . '</div>';
+        $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
 }
 
@@ -261,7 +266,7 @@ echo getContextMenu($cm);
 echo get_jscript($id, $cm);
 
 ?>
-    <script type="text/javascript" src="media/script/data-table.js"></script>
+    <script type="text/javascript" src="media/script/data-table.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/data-table.js') ?>"></script>
     <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
 
     <div id="actions">

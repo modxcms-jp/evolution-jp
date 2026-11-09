@@ -20,12 +20,12 @@
 | `--color-primary-active-start` / `--color-primary-active-end` | 同じ組の、押したときの色 | 共通部は参照しない（テーマの主ボタンが使う） |
 | `--color-text-inverse` | 主な操作の色の上に置く文字の色 | shell.css のモーダルの見出し、evo-dialog.js の OK の文字、filebrowser.css・datepicker.css の選択の上の文字 |
 | `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、filebrowser.css、datepicker.css |
-| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、filebrowser.css、datepicker.css |
+| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`・操作の帯 `.data-table-selection-dock`）、filebrowser.css、datepicker.css |
 | `--color-text-muted` | 補助的な文字の色 | filebrowser.css、datepicker.css |
 | `--color-border-default` | 通常の枠の色 | filebrowser.css、datepicker.css |
-| `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯の枠）、filebrowser.css、datepicker.css |
+| `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯と操作の帯の枠）、filebrowser.css、datepicker.css |
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
-| `--color-error` | エラー・削除の色 | filebrowser.css、datepicker.css |
+| `--color-error` | エラー・削除の色 | shell.css（操作の帯 `.data-table-selection-dock` の削除ボタン）、filebrowser.css、datepicker.css |
 
 ファイルブラウザは、ほかに `--color-background-page`、`--color-success`、`--color-text-subtle`、`--gray-50`、`--gray-100` も既定値付きで読む。テーマが定義すればそれに従い、無ければ既定値で表示される。
 
@@ -51,7 +51,8 @@
 ## 書き方
 
 - 主ボタン（`.actionButtons #Button1 a`、`li.primary a`、`a.primary`、`a.default`。`:hover` / `:active` は `#Button1 a` と `a.default` に書く）の地・枠・文字の色は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない
-- 主ボタンの規則は、一般のボタン（`.actionButtons a`）の規則より後ろに書く。詳細度が同じセレクタ（`a.primary` など）が、一般のボタンの `:hover` / `:active` に負けるため
+- 主ボタンの規則は、一般のボタン（`.actionButtons :is(a, button)`）の規則より後ろに書く。詳細度が同じセレクタ（`a.primary` など）が、一般のボタンの `:hover` / `:active` に負けるため
+- 一覧の操作の帯（`.data-table-selection-dock`。[data-table.md](data-table.md)）のボタンは `button` なので、一般のボタンの規則（通常・`:hover`・`:active`・`:focus-visible`）は `a` と `button` の両方に当たるように書く。帯の地色・枠・影・角は、`#actions` の規則に `.data-table-selection-dock:not(.is-empty)` を足して同じ値にする（外部のテーマはこれでそろう）。足さないテーマの帯は、テーマの `button` の見た目になる（幅は shell.css が auto に戻す）
 - テーマ固有の別名（`--color-accent-green-*` など）を作って主ボタンの色にしない。別名を挟むと、共通部と同じ色の根拠がなくなる
 - 主な操作の色を 2 色で描くか単色で描くかは、テーマが決める。`--color-primary` と `-start` / `-end` の両方を必ず定義し、共通部がどちらを読んでも主ボタンと同じ系統の色になるようにする
 - 共通部は、変数を既定値付き（`var(--color-primary, #375665)`）で参照する。テーマが読み込まれない画面や、変数が足りない外部のテーマでも崩れないようにするため。共通部に色を直接書かない

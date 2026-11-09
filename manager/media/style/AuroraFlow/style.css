@@ -1663,9 +1663,6 @@ h2#edit_document_title {
 
 /* 操作ボタンの浮遊バー。灰色の帯をやめ、カードと同じ白地と薄い枠・影にする */
 #actions {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid var(--color-card-border);
-    box-shadow: var(--shadow-card);
     margin: 0;
     padding: var(--space-2) var(--space-4) !important;
     position: fixed;
@@ -1673,6 +1670,14 @@ h2#edit_document_title {
     text-align: right;
     top: var(--space-2);
     z-index: 100;
+}
+
+/* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
+#actions,
+.data-table-selection-dock:not(.is-empty) {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid var(--color-card-border);
+    box-shadow: var(--shadow-card);
     border-radius: var(--radius-lg);
 }
 
@@ -1784,7 +1789,7 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-.actionButtons a {
+.actionButtons :is(a, button) {
     display: block;
     float: left;
     border-radius: var(--radius-md);
@@ -1802,20 +1807,20 @@ form > :has(+ .resources-batch-actions),
         box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
-.actionButtons a:hover {
+.actionButtons :is(a, button):hover {
     border-color: var(--color-neutral-button-border);
     background-color: #f3f6f8;
     color: var(--color-heading);
     box-shadow: var(--shadow-sm);
 }
 
-.actionButtons a:active {
+.actionButtons :is(a, button):active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
     box-shadow: none;
 }
 
-.actionButtons a:focus-visible {
+.actionButtons :is(a, button):focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
 }

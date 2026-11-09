@@ -89,6 +89,10 @@
 
 受ける側（一括操作）は、今までどおり `name` の配列を受けるだけで変えない。全件の値は data 属性（`data-all-ids`）に JSON で入れる。件数が多い一覧で HTML が大きくなる欠点はあるが、「親の id と絞り込みの条件」を送って受ける側で直す方式は、一括操作ごとに絞り込みの組み直しと権限の確認が要るので採らない。`ids` は呼び出し側が、一覧の件数を数える問い合わせの結果から、一覧に見えるものだけで作る（例: 子リソースの一覧は `isContainAllowed()` を通す）。
 
+### 操作の帯
+
+同じ `form` の中に `data-selection-actions="<selection の name>"` を付けた要素（一括操作のボタンの欄）があると、`data-table.js` が帯とその欄を 1 つの「操作の帯」（`div.data-table-selection-dock`）にまとめる。表の直後（表を包む `div` の末尾。ページ送りの前）に置き、画面の下端に貼り付く（`position: sticky; bottom: 0`）。帯の外枠（`role="status"`）は 0 件のときも描いたままで、帯に `is-empty` を付けて枠・余白・影とボタンの欄だけを消し、1 件以上選んだときに見せる（空の外枠から出さないため）。帯の中には、すべてを選んだとき以外でも常に「選択を解除」のリンクを出す。ボタンの欄の中身と送り先は呼び出し側が決める。ボタンは `<ul class="actionButtons"><li><button type="submit" formaction="…">` で並べる（送り先を変えるのでリンクにはできない）。見た目は右上のボタン群と同じにするため、各テーマの `.actionButtons :is(a, button)` の規則（通常・`:hover`・`:active`・`:focus-visible`）に任せ、新しい見た目の規則は足さない。`li.is-danger` は右寄せで、文字と枠を警告色にして区別する（`shell.css`。シェル `body.evo-shell #mainPane` の中で効き、テーマの `ul.actionButtons`・`li` の規則に負けないよう ID を含めて詳細度を上げている）。帯の地色・枠・影・角は、各テーマの `#actions` の規則に `.data-table-selection-dock:not(.is-empty)` を足して同じ値にする（値は 1 か所）。RevoClassic・AromaHop・SakuraFlow は `#actions` に枠も影も無いので、共有の規則に `border: 0; box-shadow: none;` を書いてそろえる。`shell.css` の既定の枠・影が残るのは、共有の規則を持たないテーマ（外部のテーマ・RevoStyle）だけ。半透明の地色でも下の表が透けて読めなくならないよう、帯の後ろは白で塗りつぶす（`backdrop-filter`。白に決め打ちなので、暗い地のテーマはテーマ側で上書きする）。帯の中の文言・リンク・削除の文字は、地色に対して 4.5:1 以上になるよう本文色・警告色を濃くし、リンクは下線で区別する。RevoStyle（凍結テーマ）は対象外で、帯の地色・枠・影は `shell.css` の既定、ボタンはテーマの素の `button` の見た目になる（テーマの操作ボタン群の見た目にはならない）。シェルの右上のボタン群（`#actions`）は隠さず、常に出す。帯は下端に貼り付くので、右上のボタン群とは重ならない。欄が無い一覧は、これまでどおり帯だけを出す。見た目は `shell.css` の `.data-table-selection-dock`。
+
 ## エスケープ
 
 - 既定ではセルも見出しもエスケープする（`hsc()`）。値が null・配列・オブジェクトなら空文字。
@@ -126,7 +130,7 @@
 ## JS の書き方
 
 - インラインの `onclick` を出さない。Vanilla JS で書く。
-- 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`、選択の帯）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。
+- 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`、選択の帯）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。`window.EvoDataTable` はオブジェクトで、選択の帯を描き直す `renderSelections()` を持つ。これは登録の有無にかかわらず、画面を開くたびに末尾から呼ぶ（最初の版の関数が残っていても、そのときの DOM を描ける）。
 - 画面ごとの動き（右クリックのメニューを開くなど）は、各画面のスクリプトが表を包む要素（`[data-table="<id>"]`）にリスナーを付ける。要素は画面の差し替えで消えるので、リスナーが積み重ならない。行のアイコンやタイトルには `data-row-menu="<id>"` を付け、リスナーは `e.target.closest('[data-row-menu]')` で受ける。
 - 画面ごとのリスナーは、画面のインラインの `<script>` の中で `Evo.ready()` に包んで付け、その `<script>` は表より前に置く。表の後ろや入れ物の末尾には置かない（入れ物の `:last-child` や `:has(+ X)` の余白の規則がずれるため）。全体の読み込みでは表より前のスクリプトが先に動くので、`Evo.ready()` で表ができてから登録する。
 - シェルの外の別窓の画面（リソースセレクタなど）は `evo.js` を読まないので、`document` への委譲で受けてよい。
