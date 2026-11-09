@@ -299,19 +299,6 @@ h1.draft {
     background-color: #F4E2C3;
 }
 
-/* 狭い画面では、右上に浮かぶ操作ボタン群(shell.css で fixed)がタイトルを覆うため、浮かせる位置を右下へ移す。
-   本文は押し下げず、最後の項目がボタン群に隠れないよう下側にだけ余白を足す */
-@media (max-width: 1100px) {
-    html body.evo-shell #mainPane #actions {
-        top: auto;
-        bottom: var(--space-2);
-    }
-
-    html body.evo-shell > #mainPane:has(#actions) {
-        padding-bottom: 72px;
-    }
-}
-
 h2 {
     font-size: 1.64em;
 }
