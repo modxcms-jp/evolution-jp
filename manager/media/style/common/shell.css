@@ -594,7 +594,10 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     align-items: stretch;
     gap: var(--space-2, 8px);
 }
-.child-list-tools input.searchtext {
+/* 余白は gap に任せる。テーマの「ul.actionButtons の直前の子に margin-bottom」の規則（:has(+ ...)、詳細度 (0,2,1)）が
+   入力欄に当たり、stretch の高さから引かれるので、それより高い詳細度 (0,3,1) で 0 にする */
+.resources-list-head .child-list-tools > input.searchtext {
+    margin: 0;
     box-sizing: border-box;
     height: auto;
     width: 16em;
