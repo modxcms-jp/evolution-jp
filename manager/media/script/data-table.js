@@ -71,25 +71,6 @@ if (!window.EvoDataTable) {
             return dock;
         }
 
-        // 貼り付いた操作の帯が、シェルの #actions（保存などのボタン。メニュー直下の右端に固定）の下に隠れないよう、
-        // 帯の貼り付く位置（--data-table-dock-top）を #actions の下端までずらす。#actions の高さはテーマと幅で変わるので測る。
-        // #actions が無い・表示されていない・帯の行より下に移っているとき、シェル外（#mainPane が無い）のときは 0
-        function placeDock(dock) {
-            let top = 0;
-            const pane = dock.closest('#mainPane');
-            const actions = pane ? pane.querySelector('#actions') : null;
-            if (pane && actions && !dock.classList.contains('is-empty') && actions.getClientRects().length) {
-                const paneBox = pane.getBoundingClientRect();
-                const stuckY = paneBox.top + (parseFloat(getComputedStyle(pane).paddingTop) || 0);
-                const box = actions.getBoundingClientRect();
-                const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--space-2')) || 8;
-                if (box.top < stuckY + dock.offsetHeight && box.bottom > stuckY) {
-                    top = Math.ceil(box.bottom + gap - stuckY);
-                }
-            }
-            dock.style.setProperty('--data-table-dock-top', top + 'px');
-        }
-
         // bar は常に出ている role="status" の外枠。中身だけを出し入れして、読み上げに告知させる。
         // 操作の帯の中でも bar は描いたままにし、0 件のときは帯の class（is-empty）で見た目だけを消す
         function renderSelection(bar) {
@@ -103,9 +84,6 @@ if (!window.EvoDataTable) {
                 dock.classList.toggle('is-empty', checked === 0);
             }
             if (checked === 0) {
-                if (dock) {
-                    placeDock(dock);
-                }
                 return;
             }
             const body = document.createElement('div');
@@ -128,10 +106,6 @@ if (!window.EvoDataTable) {
                 body.append(' ', actionLink(d.labelClear, 'clear'));
             }
             bar.append(body);
-            // 文言を入れて折り返したあとの高さで、貼り付く位置を決める
-            if (dock) {
-                placeDock(dock);
-            }
         }
 
         // 画面を開くたびに（シェルが同じ document でスクリプトを動かし直しても）使える、選択の帯の描き直し
@@ -185,10 +159,6 @@ if (!window.EvoDataTable) {
             bar.removeAttribute('data-all-selected');
             renderSelection(bar);
         }
-
-        window.addEventListener('resize', function () {
-            document.querySelectorAll('.data-table-selection-dock').forEach(placeDock);
-        });
 
         document.addEventListener('change', function (e) {
             const box = e.target;
