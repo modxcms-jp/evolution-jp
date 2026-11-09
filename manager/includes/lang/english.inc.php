@@ -978,7 +978,7 @@ return [
     "user_role" => 'User\'s role',
     "user_state" => 'State',
     "user_title" => 'Create/Edit User',
-    "user_upload_message" => ' To stop this user from uploading files of this category, make sure that the \'Use Main Configuration Setting\' checkbox is not ticked and leave the field blank. Then the File Picker rejects every upload, and the File Manager rejects every extension outside its built-in list.',
+    "user_upload_message" => ' To stop this user from uploading files of this category, make sure that the \'Use System Configuration Setting\' checkbox is not ticked and leave the field blank. Then the File Picker rejects uploads into this folder, and the File Manager no longer creates files whose extension is in neither its built-in list nor the other two settings (existing files can still be opened).',
     "user_use_config" => 'Use System Configuration Setting',
     "user_zip" => 'Zip',
     "username" => 'Username',
