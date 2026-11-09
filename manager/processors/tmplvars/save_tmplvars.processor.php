@@ -78,8 +78,8 @@ switch ($mode) {
         }
 
         // save access permissions
-        saveTemplateAccess();
-        saveDocumentAccessPermissons();
+        saveTemplateAccess($newid);
+        saveDocumentAccessPermissons($newid);
 
         // invoke OnTVFormSave event
         $tmp = [
@@ -169,8 +169,8 @@ switch ($mode) {
             );
         }
         // save access permissions
-        saveTemplateAccess();
-        saveDocumentAccessPermissons();
+        saveTemplateAccess($id);
+        saveDocumentAccessPermissons($id);
         // invoke OnTVFormSave event
         $tmp = [
             'mode' => 'upd',
@@ -184,14 +184,8 @@ switch ($mode) {
         break;
 }
 
-function saveTemplateAccess()
+function saveTemplateAccess($id)
 {
-    global $id, $newid;
-
-    if ($newid) {
-        $id = $newid;
-    }
-
     $getRankArray = [];
 
     $getRank = db()->select('templateid,`rank`', '[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
@@ -218,20 +212,15 @@ function saveTemplateAccess()
     }
 }
 
-function saveDocumentAccessPermissons()
+function saveDocumentAccessPermissons($id)
 {
-    global $modx, $id, $newid;
-
     // check for permission update access
-    if ($modx->config['use_udperms'] == 1) {
+    if (config('use_udperms') == 1) {
         // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
         if (!evo()->hasPermission('access_permissions')) {
             return;
         }
 
-        if ($newid) {
-            $id = $newid;
-        }
         $docgroups = postv('document_groups');
 
         // delete old permissions on the tv

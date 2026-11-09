@@ -52,14 +52,12 @@ function entity($key)
  */
 function resolvePublishFields(string $mode, int $id): array
 {
-    global $_lang;
-
     $f = ['published' => post_intvar('published') === 1 ? 1 : 0];
     foreach (['pub_date', 'unpub_date'] as $key) {
         // 空は 0。解釈できない日付と 1970 年より前の日付は、リソースの保存と同じく差し戻す
         $timestamp = evo()->parseDateInput(post_strvar($key));
         if ($timestamp === null || $timestamp < 0) {
-            manager()->redirectToElementForm($_lang['mgrlog_dateinvalid'], 'chunk', $mode === 'edit' ? $id : 0);
+            manager()->redirectToElementForm(lang('mgrlog_dateinvalid'), 'chunk', $mode === 'edit' ? $id : 0);
         }
         $f[$key] = $timestamp;
     }

@@ -84,7 +84,7 @@ switch ($mode) {
             exit;
         }
 
-        saveUserGroupAccessPermissons();
+        saveUserGroupAccessPermissons($newid);
 
         // invoke OnModFormSave event
         $eventParams = [
@@ -134,7 +134,7 @@ switch ($mode) {
         }
 
 // save user group access permissions
-        saveUserGroupAccessPermissons();
+        saveUserGroupAccessPermissons($id);
 
         // invoke OnModFormSave event
         $eventParams = [
@@ -152,10 +152,8 @@ switch ($mode) {
 }
 
 // saves module user group access
-function saveUserGroupAccessPermissons()
+function saveUserGroupAccessPermissons($id)
 {
-    global $id, $newid;
-
     // check for permission update access
     if (config('use_udperms') != 1) {
         return;
@@ -164,10 +162,6 @@ function saveUserGroupAccessPermissons()
     // グループのアクセス設定を変える権限が無いときは、今の設定を変えない（画面も欄を出さない）
     if (!evo()->hasPermission('access_permissions')) {
         return;
-    }
-
-    if ($newid) {
-        $id = $newid;
     }
 
     // delete old permissions on the module

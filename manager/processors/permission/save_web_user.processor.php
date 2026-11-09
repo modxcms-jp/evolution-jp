@@ -6,7 +6,6 @@ if (!evo()->hasPermission('save_web_user')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-global $_style;
 $id = post_intvar('id');
 $oldusername = post_strvar('oldusername');
 $newusername = trim(post_strvar('newusername'));
@@ -460,7 +459,6 @@ switch ($mode) {
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn)
 {
-    global $modx;
     $emailsender = config('emailsender');
     $message = sprintf(config('websignupemail_message'), $uid, $pwd); // use old method
     // replace placeholders
@@ -475,12 +473,12 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
     $ph['sname'] = config('site_name');
     $ph['semail'] = $emailsender;
     $ph['surl'] = config('site_url');
-    $message = $modx->parseText($message, $ph);
-    $message = $modx->mergeSettingsContent($message);
-    $message = $modx->mergeChunkContent($message);
-    $message = $modx->rewriteUrls($message);
+    $message = evo()->parseText($message, $ph);
+    $message = evo()->mergeSettingsContent($message);
+    $message = evo()->mergeChunkContent($message);
+    $message = evo()->rewriteUrls($message);
 
-    if ($modx->sendmail($email, $message) === false) //ignore mail errors in this cas
+    if (evo()->sendmail($email, $message) === false) //ignore mail errors in this cas
     {
         webAlert("Error while sending mail to " . $email);
         exit;
@@ -490,8 +488,6 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 // Save User Settings
 function saveUserSettings($id)
 {
-    global $modx;
-
     $settings = [
         'login_home',
         'allowed_ip',
@@ -517,11 +513,10 @@ function saveUserSettings($id)
 // Web alert -  sends an alert to web browser
 function webAlert($msg)
 {
-    global $id, $modx;
     $mode = EvoFormFlow::postedMode('web_user');
     // 新規か更新でないとき（不正な mode）は、入力を今の画面の番号で残して一覧へ戻す
     manager()->saveFormValues($mode ? EvoFormFlow::screen('web_user', $mode) : 0);
-    $modx->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, (int)$id, EvoFormFlow::postedAfterSave()));
+    evo()->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, post_intvar('id'), EvoFormFlow::postedAfterSave()));
 }
 
 // Generate password

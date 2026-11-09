@@ -140,7 +140,8 @@ if ($isFullDocument) {
 // evalModule
 function evalModule($moduleCode, $params)
 {
-    global $modx;
+    // モジュールのコードが $modx を使えるよう、この関数のローカル変数に置く
+    $modx = evo();
     $modx->event->params = &$params; // store params inside event object
     if (is_array($params)) {
         extract($params, EXTR_SKIP);
