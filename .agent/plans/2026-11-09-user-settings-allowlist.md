@@ -8,7 +8,7 @@
 
 - [x] (2026-11-09) M0: 着手前の確認と修正前の記録（main の動きを TSV に残す）（基準 0c8f41e18。a=11・a=12・a=74 が送る項目に、除外の一覧にも設定にも入らない名前は無く、手順 9 のマイグレーションは不要。S1〜S18 をすべて記録し、計画の表の期待値と一致）
 - [x] (2026-11-09) M1: 名前の取り出しを `EvoSettingsForm` に集め、画面がプラグインの欄の名前を覚える（保存の結果は変えない）（2e86e43f0、自己レビューの低の手当て 2c51a7816。M0 の記録と、ユーザー設定の行・フォームの欄・送られる項目名の 3 組とも完全一致。グローバル設定の保存はエラー 0。セッションに覚える名前は TinyMCE 7 の 3 つだけ。自己レビューは高・中なし）
-- [ ] M2: `saveUserSettings()` を保存してよい名前の一覧で受け、除外の一覧をなくす
+- [x] (2026-11-09) M2: `saveUserSettings()` を保存してよい名前の一覧で受け、除外の一覧をなくす（ecc86e0f0。M0 の記録との違いは計画どおりの S8・S10・S15 だけ。フォームの欄と送られる項目名は M0 と同じ。M1 で足した確認も同じ結果。エラー 0。自己レビューは高・中なし。低はリリースノートの文案の直し・ドキュメントへの注意の追加・openedArray の手当てとして M3 に入れた）
 - [ ] M3: ドキュメントと最終確認（PHP 7.4 を含む）。`tab_settings.php` の 4 つの設定を定義に移す課題を `assets/docs/core-issues.md` に書く
 
 ## Surprises & Discoveries
@@ -184,9 +184,12 @@ M3 ドキュメントと最終確認
     - 53 行の `userDefault` の説明から「保存の処理の `$defaults` にも同じキーが要る」を消し、「保存は `EvoSettingsForm::userDefaultNames()` でこの行を読み、`default_<キー>` を受ける」にする。
     - 66 行を、「`EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、ユーザー編集画面の『ユーザー』タブが手書きで出す `USER_TAB_KEYS` を含む）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッション `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す」という趣旨に直す。
     - 同じ節に、プラグインが JS で足した欄はユーザー設定に入らないこと（イベントの HTML に欄を書く）を 1 行足す。
+    - 同じ節に、プラグインの欄に本体のフォームと同じ名前（`csrf_token`・`mode`・`userid` など）を使わないこと（そのままユーザー設定として保存されるため）を 1 行足す（M2 の自己レビューより）。
     `doc-audit` の手順で、変えたファイルのパスの表記と参照を確かめる。
+    - `tab_settings.php:2` と `mutate_user/tpl/form.php:57` のコメントが、M2 の後の動きと合っていることを確かめる。
     - `assets/docs/core-issues.md` に、`tab_settings.php` の 4 つの設定（`USER_TAB_KEYS`）を設定の定義に移す課題を書く。課題には、`USER_TAB_KEYS` と画面が実際に送る名前（記録のスクリプトの S18 のフォームの欄）を突き合わせて確かめる手順も残す（M1 の自己レビューより）。
-13. 全体を取り直す（`1304-m3-*`）。M2 の記録と同じであること。PHP 7.4 の検証環境（`references/environment.md` の PHP 7.4 の節）で S2・S3・S5・S7・S8・S12・S13 を行い、PHP 8 側と同じ行になることを確かめる。
+12b. `manager/processors/permission/save_user.functions.php` の `saveUserSettings()`: 保存する行が 0 件のときに早く戻るため、セッションの `openedArray` を消す処理に届かない（修正前から）。消す処理を早期リターンより前に置き、`$_SESSION` を直接触らず `sessionv()` で消す（動きは、0 件のときも消すようになる以外は変えない。M2 の自己レビューより）。
+13. 全体を取り直す（`1304-m3-*`）。M2 の記録と同じであること。あわせて、a=12 でセッションに `pluginSettingNames.user` が無いときに TinyMCE 7 の欄を変えて保存すると、既存の `tinymce7_*` の行が残りエラーが出ないこと、一覧に無い行の値に `'`・`\`・空文字を入れておき a=12 で保存しても値が変わらないことを確かめる（M2 の自己レビューより）。PHP 7.4 の検証環境（`references/environment.md` の PHP 7.4 の節）で S2・S3・S5・S7・S8・S12・S13 を行い、PHP 8 側と同じ行になることを確かめる。
 14. PR の本文に、Validation の表（main と変更後）と、Interfaces のリリースノートの文案を写す。
 
 ## Validation and Acceptance
@@ -209,7 +212,7 @@ Docker の検証環境で、次の操作のあとの `user_settings` の行（�
 | S12 | A の `a=74` で `manager_inline_style` を書き、TinyMCE 7 のメニューバーを表示しないにして保存 | `manager_inline_style`・`tinymce7_menubar` の行 | 同じ |
 | S13 | A に `a=12` で `upload_maxsize` の行を作っておく。A の `a=74` を開き、hidden の `allow_manager_access=0`・`allowed_parents=5`・`rb_base_dir=/tmp/`・`foo=bar` を足して保存 | 足した 4 つは行にならず、`upload_maxsize` の行が残る | 同じ |
 | S14 | S12 のあと、`a=74` で `manager_inline_style` の「システム設定に従う」をチェックして保存 | `manager_inline_style` の行が消える | 同じ |
-| S15 | E に `auth_token=test1304` と `foo=bar` の行を DB で入れておき、`a=12` で `manager_theme` を変えて保存。続けて A に同じ 2 行を入れ、`a=74` で保存 | `a=12` では 2 行とも消える。`a=74` では残る | どちらでも残る（`a=12` は main と違う。Decision Log の 2 つ目。未決事項 1 の結論で変わる） |
+| S15 | E に `auth_token=test1304` と `foo=bar` の行を DB で入れておき、`a=12` で `manager_theme` を変えて保存。続けて A に同じ 2 行を入れ、`a=74` で保存 | `a=12` では 2 行とも消える。`a=74` では残る | どちらでも残る（`a=12` は main と違う。Decision Log の 2 つ目と、未決事項の節のメインの決定） |
 | S16 | a=32 へ `manager_language=../x`・`manager_theme=nosuch` を送る（`changed_settings` に含める） | 行にならない | 同じ |
 | S17 | `rb_base_url` に `http://<サイトの URL>/assets/` を入れて保存 | 相対パス `assets/` の行 | 同じ |
 | S18 | `a=11`・`a=12`・`a=74` のフォームの欄（名前・種類・値・チェック） | 記録した一覧 | 同じ（画面は変えない） |
@@ -237,7 +240,8 @@ M1・M2 はコードだけの変更で、表の形は変えない。M1 は保存
 リリースノートに書くこと:
 
 - 管理ユーザーの編集画面（`a=11`・`a=12`）の保存は、ユーザー設定として、画面に出している設定だけを受ける（グローバル設定の定義でユーザーの画面に出す行、「ユーザー」タブのログインの制限の 4 つ、プラグインが画面の HTML に出した欄）。それ以外の POST の項目はユーザー設定に入らない。プロフィール（`a=74`）は前から同じ。プラグインの欄を JS で後から足している場合や、a=32 へ任意の名前を POST してユーザー設定にしていた場合は、保存されなくなる（イベントの出力の HTML に欄を書けば保存される）。
-- ユーザーを保存しても、画面に出していない設定の行（DB に直接入れた `auth_token` など）を消さなくなる（未決事項 1 の結論しだい）。
+- ユーザーを保存しても、画面に出していない設定の行（DB に直接入れた `auth_token` など）を消さなくなる（ユーザー編集画面・プロフィールとも）。不要になった行（使わなくなったプラグインの設定や、以前に保存の処理へ直接送られて入った名前など）は、画面の保存では消えないので、消すときは DB を直接操作する。
+- プラグインがユーザーの画面に出す欄の名前は、そのままユーザー設定として保存される。本体のフォームと同じ名前（`csrf_token`・`mode`・`userid` など）をプラグインの欄に使わない。
 - 更新の前に開いていたユーザー編集画面・プロフィールから更新の後に保存すると、その 1 回だけプラグインの欄（TinyMCE 7 のツールバー構成など）が保存されない（行は残る）。開き直せば起きない。
 - 開発者向け: 設定の定義に `userDefault` の行を足すとき、保存の処理に名前を足す必要は無くなった。`mutate_user/tpl/form/tab_settings.php` に設定の欄を足すときは `EvoSettingsForm::USER_TAB_KEYS` に足す。`mutate_user_pf.dynamic.php` のグローバル関数 `fieldNames()` は `EvoSettingsForm::fieldNames()` になった。セッションの `profileSettingNames` は `pluginSettingNames.profile` になった。
 
