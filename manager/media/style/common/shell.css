@@ -509,9 +509,37 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-/* テーマの form#mutate input { margin } に負けないよう、シェルの他の規則と同じく ID を含めて詳しくする */
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .is-danger {
+/* 地色が半透明のテーマでも、下の表が透けて読めなくならないよう、後ろをぼかす */
+.data-table-selection-dock:not(.is-empty) {
+    backdrop-filter: blur(6px);
+}
+/* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める。
+   テーマの ul.actionButtons・li の規則（float・margin）に負けないよう、ID を含めて詳しくする */
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    margin: 0;
+    padding: 0;
+}
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li {
+    float: none;
+    margin: 0;
+}
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button {
+    float: none;
+    margin: 0;
+    font-family: inherit;
+    line-height: inherit;
+    cursor: pointer;
+}
+/* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger {
     margin-left: auto;
+}
+body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger button {
     color: var(--color-error, #c62828);
     border-color: currentColor;
 }

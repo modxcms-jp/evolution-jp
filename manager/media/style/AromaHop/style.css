@@ -2110,7 +2110,6 @@ h2#edit_document_title {
    ============================================================================ */
 
 #actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
     padding: var(--space-2) var(--space-4) !important;
     position: fixed;
@@ -2118,6 +2117,12 @@ h2#edit_document_title {
     text-align: right;
     top: var(--space-2);
     z-index: 100;
+}
+
+/* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
+#actions,
+.data-table-selection-dock:not(.is-empty) {
+    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     border-radius: var(--radius-lg);
 }
 
@@ -2226,7 +2231,7 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-.actionButtons a {
+.actionButtons :is(a, button) {
     display: block;
     float: left;
     border-radius: var(--radius-md);
@@ -2245,7 +2250,7 @@ form > :has(+ .resources-batch-actions),
     transition: all var(--transition-fast);
 }
 
-.actionButtons a:hover {
+.actionButtons :is(a, button):hover {
     border-color: rgba(160, 195, 175, 0.55);
     background: rgba(252, 255, 253, 0.96);
     color: #2d4838;
@@ -2253,7 +2258,7 @@ form > :has(+ .resources-batch-actions),
     transform: translateY(-1px);
 }
 
-.actionButtons a:active {
+.actionButtons :is(a, button):active {
     border-color: rgba(160, 195, 175, 0.55);
     background: rgba(248, 253, 250, 0.96);
     box-shadow: 0 1px 4px rgba(60, 90, 75, 0.08);

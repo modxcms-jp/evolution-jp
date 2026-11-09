@@ -233,13 +233,14 @@ if (!$numRecords) {
         // 帯に「n 件を選択」と出るので、ボタンは短い文言にし、元の長い文言は title に残す
         $button = function ($label, $title, $a, $op = '', $confirm = '', $class = '') use ($returnQuery) {
             $url = 'index.php?a=' . $a . ($op !== '' ? '&op=' . $op . $returnQuery : '');
+            // 見た目は各テーマの .actionButtons の規則に任せる（リンクにはできないので button で formaction を使う）
             return sprintf(
-                '<input type="submit" value="%s" title="%s" formaction="%s"%s%s /> ',
-                hsc($label),
+                '<li%s><button type="submit" title="%s" formaction="%s"%s>%s</button></li>',
+                $class !== '' ? ' class="' . hsc($class) . '"' : '',
                 hsc($title),
                 hsc($url),
-                $class !== '' ? ' class="' . hsc($class) . '"' : '',
-                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : ''
+                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : '',
+                hsc($label)
             );
         };
         $buttons = '';
@@ -253,7 +254,7 @@ if (!$numRecords) {
         if ($canBatchDelete) {
             $buttons .= $button($_lang['delete'], $_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked'], 'is-danger');
         }
-        $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]">' . $buttons . '</div>';
+        $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
 }
 
