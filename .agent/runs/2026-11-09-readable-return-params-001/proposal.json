@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-readable-return-params",
+    "run_id": "2026-11-09-readable-return-params-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T12:07:15+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-046",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（/finish-task の手順 5）",
+            "summary": "同期用のブランチを git worktree add -b ... --no-track ... origin/main で作り、origin/main を追跡させない（引数なしの git push が main に向かないようにする）",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-047",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "summary": "動きを変えない段階を含む ExecPlan や大きな整理では、着手の前に修正前の動きを記録用のスクリプトで記録し、段階ごとに同じスクリプトで突き合わせて、違いを計画どおりの変化と不具合に分ける",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-048",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "summary": "権限やグループで出し分ける変更では、インストール直後の既定のロールと、どのグループにも所属しない利用者を検証に必ず入れる",
+            "source_ref": "finding-003",
+            "confidence": "high"
+        },
+        {
+            "id": "change-049",
+            "action": "add",
+            "target": ".agent/agents/tester.md・.agent/agents/worker.md",
+            "summary": "検証環境を立てたら、報告の前に down -v --rmi local と git clean -fdX で片付け、git status --porcelain --ignored が空であることを確かめる。環境を動かしたまま報告しない",
+            "source_ref": "finding-004",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-050",
+            "action": "add",
+            "target": ".agent/agents/reviewer.md（観点）",
+            "summary": "画面の出し分けや送る名前と、保存処理の受け取り・権限の確かめが、同じ正（1 か所の関数や表）を使っているかを見る",
+            "source_ref": "finding-005",
+            "confidence": "medium"
+        }
+    ]
+}

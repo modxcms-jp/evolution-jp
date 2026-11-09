@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-readable-return-params",
+    "run_id": "2026-11-09-readable-return-params-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T12:09:13+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}

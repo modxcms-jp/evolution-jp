@@ -359,6 +359,46 @@
             "added_at": "2026-11-08T16:30:00+09:00",
             "last_used_at": "2026-11-08T16:30:00+09:00",
             "source": "2026-11-08-settings-screen-definition-001"
+        },
+        {
+            "id": "change-046",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（/finish-task の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-09T12:07:15+09:00",
+            "last_used_at": "2026-11-09T12:07:15+09:00",
+            "source": "2026-11-09-readable-return-params-001"
+        },
+        {
+            "id": "change-047",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-09T12:07:15+09:00",
+            "last_used_at": "2026-11-09T12:07:15+09:00",
+            "source": "2026-11-09-readable-return-params-001"
+        },
+        {
+            "id": "change-048",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」の手順 5）",
+            "status": "adopted",
+            "added_at": "2026-11-09T12:07:15+09:00",
+            "last_used_at": "2026-11-09T12:07:15+09:00",
+            "source": "2026-11-09-readable-return-params-001"
+        },
+        {
+            "id": "change-049",
+            "location": ".agent/agents/tester.md・.agent/agents/worker.md",
+            "status": "adopted",
+            "added_at": "2026-11-09T12:07:15+09:00",
+            "last_used_at": "2026-11-09T12:07:15+09:00",
+            "source": "2026-11-09-readable-return-params-001"
+        },
+        {
+            "id": "change-050",
+            "location": ".agent/agents/reviewer.md（観点）",
+            "status": "adopted",
+            "added_at": "2026-11-09T12:07:15+09:00",
+            "last_used_at": "2026-11-09T12:07:15+09:00",
+            "source": "2026-11-09-readable-return-params-001"
         }
     ]
 }
