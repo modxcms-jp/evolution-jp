@@ -50,7 +50,7 @@
 行の項目:
 
 - `scope`: その行を出す画面の配列（`system`・`user`・`profile`。既定は `['system']`）。ユーザーに変えさせる行に `user`・`profile` を足す。ユーザーにしか無い設定（`manager_login_startup`）は `['user', 'profile']` だけにする
-- `userDefault`: `true` にすると、「システム設定に従う」のチェックボックス `default_<キー>` を付ける。ユーザーの値が無いときにチェックが付き、差し戻した画面では送ったときのチェックを優先する。保存の処理の `$defaults`（`save_user.functions.php` の `saveUserSettings()`）にも同じキーが要る
+- `userDefault`: `true` にすると、「システム設定に従う」のチェックボックス `default_<キー>` を付ける。ユーザーの値が無いときにチェックが付き、差し戻した画面では送ったときのチェックを優先する。保存の処理（`save_user.functions.php`）は `EvoSettingsForm::userDefaultNames()` でこの行を読み、`default_<キー>` を受ける
 - `userAttr`: user・profile のときだけ欄に足す属性（`attr` に重なる）
 - `userValue`: user・profile の欄の値を決める関数 `function (array $values, array $stored): string`（`$values` はそのユーザーの値、`$stored` はシステム設定）。ユーザーの値が無いときにシステム設定の値を見せたいときに使う
 - `userDesc`: user・profile のときの説明（`desc` の代わり）
@@ -63,7 +63,9 @@ user・profile の描き方（グローバル設定との違い）:
 - `select` の先頭に「システム設定に従う」（値は空）を足し、空の値を `default` で補わない。`path` 型は既定値の表示とリセットの無い文字の欄になる。`options` が `null` を返すとき、グローバル設定は欄を出さないが、ユーザー画面は `fallbackOptions`（`which_editor` は `none`）を選択肢にして欄を残す
 - 表には `class="settings user-scope"` が付き、`style()` の `table.settings.user-scope td input[type=text]` の規則で文字の欄が 250px になる（幅を変えたい行は `userAttr` に `style` を書く）。グローバル設定の表にはこのクラスが付かない
 - ユーザー画面では `functions.js` を読まないので、プラグインの出力の `data-show-if` は切り替わらない。TinyMCE 7 の表は `use_editor` が「いいえ」でも出る
-- `EvoSettingsForm::names('profile')` は、その scope に出す設定キー。プロフィールで保存してよい名前（`save_user.functions.php` の `profileSettingNames()`）は、これにプラグインの欄の名前（画面を表示したときにセッションへ覚える）を足したもの
+- `EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、ユーザー編集画面の「ユーザー」タブが手書きで出す `EvoSettingsForm::USER_TAB_KEYS` を含む）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッションの `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す
+- プラグインが JS で足した欄は、イベントの出力に無いのでユーザー設定に入らない。欄はイベントの HTML に書く
+- プラグインの欄の名前に、本体のフォームの名前（`csrf_token`・`mode`・`userid` など）を使わない。イベントの出力にある名前はそのままユーザー設定として保存される
 
 ユーザー画面のタブ構成: `a=12` は 管理画面（表示）・エディター・ファイル（ファイルピッカー・ファイルマネージャー・アップロード）、`a=74` は 管理画面（表示）・エディター。ユーザーごとに変えられない行（HTML エクスポート、システム全体の設定）は出ない。
 
