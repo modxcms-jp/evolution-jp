@@ -530,6 +530,7 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
 }
 body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button {
     float: none;
+    width: auto; /* テーマの button { width: 112px } を打ち消す */
     margin: 0;
     font-family: inherit;
     line-height: inherit;
