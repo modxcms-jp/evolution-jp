@@ -59,7 +59,7 @@ if (postedMode() === 'new') {
         insert_tmplvars($newid, $param['tv_vars']);
     }
 
-    setDocPermissionsNew($document_groups, $newid);
+    setDocPermissionsNew($newid);
     updateParentStatus(validated('parent'));
 
     if (evo()->config('use_udperms')) {
@@ -126,7 +126,7 @@ if (postedMode() === 'edit') {
         update_tmplvars(validated('id'), $param['tv_vars']);
     }
 
-    setDocPermissionsEdit($document_groups, validated('id'));
+    setDocPermissionsEdit(validated('id'));
     updateParentStatus(validated('parent'));
 
     if ($db_v['parent'] != 0) {
@@ -790,53 +790,10 @@ function update_tmplvars($docid, $tmplvars)
 }
 
 // document access permissions
-function setDocPermissionsNew($document_groups, $newid)
+// 規則は ManagerAPI の setNewDocumentGroups()（変えてよいグループは送られた値、よくないグループは親から引き継ぐ）
+function setDocPermissionsNew($newid)
 {
-    if (evo()->config('use_udperms') != 1) {
-        return;
-    }
-    if (is_array($document_groups)) {
-        $new_groups = [];
-        // 変えてよくないグループは足さずに無視する
-        foreach (manager()->postedChangeableDocumentGroupIds() as $group) {
-            $new_groups[$group] = sprintf('(%s,%s)', $group, $newid);
-        }
-        if ($new_groups) {
-            $rs = db()->query(
-                sprintf(
-                    'INSERT INTO %s (document_group, document) VALUES %s',
-                    evo()->getFullTableName('document_groups'),
-                    implode(',', $new_groups)
-                )
-            );
-            if (!$rs) {
-                evo()->webAlertAndQuit(
-                    'An error occured while attempting to add the document to a document_group.'
-                );
-            }
-        }
-        return;
-    }
-    if (isPublic() && validated('parent')) {
-        $sql = sprintf(
-            "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'",
-            evo()->getFullTableName('document_groups'),
-            $newid,
-            evo()->getFullTableName('document_groups'),
-            validated('parent')
-        );
-        $rs = db()->query($sql);
-        if (!$rs) {
-            evo()->webAlertAndQuit(
-                'An error occured while attempting to add the document to a document_group.'
-            );
-        }
-    }
-}
-
-function isPublic()
-{
-    return !evo()->hasPermission('access_permissions') && !evo()->hasPermission('web_access_permissions');
+    manager()->setNewDocumentGroups($newid, (int)validated('parent'));
 }
 
 // update parent folder status
@@ -890,9 +847,9 @@ function goNextAction($id, $parent, $afterSave, $type)
     header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
 }
 
-function setDocPermissionsEdit($document_groups, $id)
+function setDocPermissionsEdit($id)
 {
-    if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
+    if (evo()->config('use_udperms') != 1) {
         return;
     }
     // 変えてよいグループだけを対象にする。変えてよくないグループは足さず、付いていれば残す
@@ -980,6 +937,7 @@ function folder2doc($parent)
     echo 'An error occured while attempting to change the old parent to a regular document.';
 }
 
+// checkDocPermission() 用。保存の文書グループは、新規は ManagerAPI の setNewDocumentGroups()、更新は postedChangeableDocumentGroupIds() で取る
 function getDocGroups()
 {
     if (postv('chkalldocs') === 'on') {

@@ -1263,6 +1263,62 @@ class ManagerAPI
         return array_values($groupIds);
     }
 
+    /**
+     * 新規の文書に文書グループを付ける。
+     * 変えてよいグループ（documentGroupAccess() の ids）は送られた値に従い、
+     * 変えてよくないグループは親から引き継ぐ（親の守りを子に伝える。ids が空ならすべて引き継ぐ）。
+     * use_udperms が無効、または親が 0 で送られた値も無いときは何もしない
+     *
+     * @param int $docId 付ける先の新規の文書
+     * @param int $parentId 親の文書（0 は引き継ぎなし）
+     * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
+     * @return int[] 付けた文書グループの id（昇順）。DB の書き込みの失敗は DBAPI の既定（messageQuit）に任せる
+     */
+    public function setNewDocumentGroups($docId, $parentId, $access = null)
+    {
+        if (evo()->config('use_udperms') != 1) {
+            return [];
+        }
+        $docId = (int)$docId;
+        $parentId = (int)$parentId;
+        $access = $access ?: $this->documentGroupAccess();
+        $groups = [];
+        foreach ($this->postedChangeableDocumentGroupIds($access) as $groupId) {
+            $groups[(int)$groupId] = true;
+        }
+        if ($parentId) {
+            $rs = db()->select(
+                'DISTINCT document_group',
+                '[+prefix+]document_groups',
+                sprintf('document=%d', $parentId),
+                'document_group'
+            );
+            while ($row = db()->getRow($rs)) {
+                $groupId = (int)$row['document_group'];
+                if (!isset($access['ids'][$groupId])) {
+                    $groups[$groupId] = true;
+                }
+            }
+        }
+        $groups = array_keys($groups);
+        sort($groups);
+        if (!$groups || !$docId) {
+            return [];
+        }
+        $values = [];
+        foreach ($groups as $groupId) {
+            $values[] = sprintf('(%d,%d)', $groupId, $docId);
+        }
+        db()->query(
+            sprintf(
+                'INSERT INTO %s (document_group, document) VALUES %s',
+                evo()->getFullTableName('document_groups'),
+                implode(',', $values)
+            )
+        );
+        return $groups;
+    }
+
     public function getTplModule()
     {
         ob_start();
