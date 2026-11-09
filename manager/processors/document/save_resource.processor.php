@@ -905,7 +905,7 @@ function setDocPermissionsEdit($document_groups, $id)
     $exists_groups = [];
     if ($changeable) {
         $rs = db()->select(
-            'id, document_group',
+            'document_group',
             '[+prefix+]document_groups',
             sprintf(
                 'document=%d AND document_group IN (%s)',
@@ -914,7 +914,8 @@ function setDocPermissionsEdit($document_groups, $id)
             )
         );
         while ($row = db()->getRow($rs)) {
-            $exists_groups[$row['document_group']] = $row['id'];
+            // 同じ組み合わせの行が重複していても、グループ単位で扱う
+            $exists_groups[(int)$row['document_group']] = (int)$row['document_group'];
         }
     }
     $posted_groups = [];
@@ -948,7 +949,11 @@ function setDocPermissionsEdit($document_groups, $id)
     if ($exists_groups) {
         $rs = db()->delete(
             '[+prefix+]document_groups',
-            sprintf('id IN (%s)', implode(',', $exists_groups))
+            sprintf(
+                'document=%d AND document_group IN (%s)',
+                (int)$id,
+                implode(',', $exists_groups)
+            )
         );
         if (!$rs) {
             $saved = false;
