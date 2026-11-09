@@ -4,7 +4,7 @@
 
 import { registerEntry } from '../filebrowser.js';
 import { t } from './i18n.js';
-import { apiUrl, failureMessage, fetchJson, postForm } from './api.js';
+import { apiUrl, failureMessage, fetchJson, loadFailureMessage, postForm } from './api.js';
 import { createTextEditor } from './textEditor.js';
 
 function extensionOf(name) {
@@ -73,7 +73,8 @@ function unzipFile(host, name) {
 }
 
 // 拡張子の一覧に無いファイルを開く。サーバー(readText)が中身をテキストと認めればエディターへ、
-// 認めない(テキストでない・大きすぎる・読めない)ときはエラーを出さずにプレビュー(情報とダウンロード)を出す。
+// 認めない(テキストでない not_text・大きすぎる too_large)ときはエラーを出さずにプレビュー(情報とダウンロード)を出す。
+// 権限・見つからない・読めないなどのほかの失敗は、通常の読み込みの失敗として知らせる。
 // 画像・動画・音声は、プレビューで見せるので確かめない
 function openByContent(entry, host) {
     if (entry.image || entry.media) {
@@ -85,8 +86,12 @@ function openByContent(entry, host) {
         .then(function () {
             editorFor(host).open(entry.name, folder);
         })
-        .catch(function () {
-            host.preview.open(entry);
+        .catch(function (err) {
+            if (err && (err.code === 'not_text' || err.code === 'too_large')) {
+                host.preview.open(entry);
+                return;
+            }
+            window.alert(loadFailureMessage(err));
         });
 }
 
@@ -110,8 +115,9 @@ var behaviors = {
             }
             return items;
         }
-        if (isTextFile(host.config, entry.name)) {
-            items.push({ label: t('fb_text_open'), onSelect: function () { editorFor(host).open(entry.name, host.state.folder); } });
+        // 画像・動画・音声はプレビューで見せるので出さない。ほかはすべて出し、テキストでなければ情報とダウンロードのプレビューになる
+        if (!entry.image && !entry.media) {
+            items.push({ label: t('fb_text_open'), onSelect: function () { behaviors.openFile(entry, host); } });
         }
         if (extensionOf(entry.name) === 'zip' && host.state.writable) {
             items.push({ label: t('fb_unzip'), onSelect: function () { unzipFile(host, entry.name); } });

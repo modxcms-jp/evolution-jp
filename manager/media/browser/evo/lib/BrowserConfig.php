@@ -20,18 +20,31 @@ class BrowserConfig
     /** 画面で編集を出す画像の画素数(幅×高さ)の上限。ブラウザが元の画像を展開するときのメモリを守る(5000 万画素で RGBA 約 200MB) */
     const EDIT_MAX_PIXELS = 50000000;
 
+    /** ブラウザが <img> で表示できる画像の拡張子。一覧の image: true の正本(ThumbnailService::isDisplayableImageExtension() もこれを見る) */
+    const DISPLAYABLE_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg'];
+
+    /** 画像の拡張子(表示できないもの tif・tiff・psd を含む)。管理モードでは、テキストとして開くのを断る */
+    const IMAGE_EXTENSIONS = [...self::DISPLAYABLE_IMAGE_EXTENSIONS, 'tif', 'tiff', 'psd'];
+
+    /** 管理モードのプレビューで <video>・<audio> として再生する拡張子(ブラウザが標準で再生できるもの)。一覧の応答の media が、この判定の正本 */
+    const VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogv', 'mov'];
+    const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'flac'];
+
     /**
-     * 管理モードで新しく作れる(アップロード・名前の変更・zip の展開・新しいファイルの)拡張子(小文字)。サーバーで実行・解釈されない形式だけを置く。
-     * php・phtml・phar・shtml・htaccess・ini・tpl・pagecache・cgi・pl・py・sh などは、置くと実行や設定の書き換えにつながるので入れない
+     * 管理モードで新しく作れる(アップロード・名前の変更・zip の展開・新しいファイルの)拡張子(小文字)。
+     * サーバーで実行されず、同じオリジンで開いてもスクリプトが動かない形式だけ。html・svg・js・xml などは設定で許したときだけ。
+     * php・phtml・phar・shtml・htaccess・ini・tpl・pagecache・cgi・pl・py・sh なども、置くと実行や設定の書き換えにつながるので入れない
      * (設定 upload_files・upload_images・upload_media に書けば、サイトの判断で足せる。isAllowedNewExtension())
      */
     const MANAGE_CREATABLE_EXTENSIONS = [
         // テキスト
-        'txt', 'md', 'markdown', 'json', 'yml', 'yaml', 'csv', 'tsv', 'log', 'xml', 'css', 'js', 'html', 'htm',
-        // 画像(IMAGE_EXTENSIONS)
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg', 'tif', 'tiff', 'psd',
+        'txt', 'md', 'markdown', 'json', 'yml', 'yaml', 'csv', 'tsv', 'log', 'css',
+        // ラスター画像(svg は含まない)
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'tif', 'tiff', 'psd',
         // 動画・音声
-        'mp3', 'mp4', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'ogv', 'webm', 'flac', 'mov', 'avi', 'mpg', 'mpeg', 'wmv', 'au',
+        ...self::VIDEO_EXTENSIONS,
+        ...self::AUDIO_EXTENSIONS,
+        'avi', 'mpg', 'mpeg', 'wmv', 'au',
         // 文書
         'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp',
         // アーカイブ
@@ -39,13 +52,6 @@ class BrowserConfig
         // フォント
         'woff', 'woff2', 'ttf', 'otf',
     ];
-
-    /** 画像の拡張子。管理モードでは、テキストとして開くのを断る */
-    const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg', 'tif', 'tiff', 'psd'];
-
-    /** 管理モードのプレビューで <video>・<audio> として再生する拡張子(ブラウザが標準で再生できるもの)。一覧の応答の media が、この判定の正本 */
-    const VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogv', 'mov'];
-    const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'flac'];
 
     /**
      * 管理モードで、最初からテキストエディターで開く(右クリックメニューに「表示・編集」を出す)拡張子(小文字)。拡張子だけの名前(.htaccess)は、名前全体(htaccess)をこの一覧と照らす。

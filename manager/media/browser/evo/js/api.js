@@ -28,9 +28,11 @@ export function withApiParams(config, body) {
 }
 
 // API が返した理由(JSON の error.message)を運ぶエラー。通信エラーや JSON でない応答とは区別する
-export function apiError(message) {
+// code はサーバーの error.code(あれば)。呼び出し側が失敗の種類で分けるときに使う
+export function apiError(message, code) {
     var err = new Error(message);
     err.fromApi = true;
+    err.code = code || '';
     return err;
 }
 
@@ -38,7 +40,7 @@ export function apiError(message) {
 // API の error.message があれば apiError、無ければ(JSON でない応答など)通信エラー
 export function responseError(data) {
     var message = data && data.error && data.error.message;
-    return message ? apiError(message) : new Error(t('fb_network_error'));
+    return message ? apiError(message, data.error.code) : new Error(t('fb_network_error'));
 }
 
 // 書き込み系の操作の失敗の文言を決める場所。API の文言はそのまま、それ以外(通信エラー等)は前置き(prefixKey)を付ける

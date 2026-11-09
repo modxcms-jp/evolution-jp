@@ -166,6 +166,10 @@ export function createPreview(ctx) {
     }
 
     function open(file) {
+        // 開いているものがあれば先に閉じる(onClose がプレーヤーを止めるので、新しい src を入れる前に行う)
+        if (closeOverlay) {
+            closeOverlay(false);
+        }
         currentFile = file;
         // 上書きしたあとに古い画像がキャッシュから出ないよう、更新時刻を付けて読む
         if (file.url && file.image) {
@@ -185,10 +189,15 @@ export function createPreview(ctx) {
             '<div class="evo-fb-preview-name">' + escapeHtml(file.name) + '</div>' +
             '<div>' + [dims, formatSize(file.size), formatDate(file.mtime)].filter(Boolean).join(' / ') + '</div>' +
             (file.path ? '<div class="evo-fb-preview-url">' + escapeHtml(file.path) + '</div>' : '');
-        if (closeOverlay) {
-            closeOverlay(false);
-        }
-        closeOverlay = openOverlay(ctx.overlayEl, ctx.panelEl, ctx.closeBtn, { onEscape: closeAndRestore });
+        // 閉じ方によらず(シェルが画面ごと閉じる場合も)、onClose でプレーヤーを止める
+        closeOverlay = openOverlay(ctx.overlayEl, ctx.panelEl, ctx.closeBtn, {
+            onEscape: closeAndRestore,
+            onClose: function () {
+                closeOverlay = null;
+                stopPlayer(ctx.videoEl);
+                stopPlayer(ctx.audioEl);
+            }
+        });
     }
 
     // 閉じる。restoreFocusToOpener が true のときだけ、開く前にフォーカスのあった要素へ戻す
@@ -196,11 +205,7 @@ export function createPreview(ctx) {
         if (!closeOverlay) {
             return;
         }
-        var fn = closeOverlay;
-        closeOverlay = null;
-        stopPlayer(ctx.videoEl);
-        stopPlayer(ctx.audioEl);
-        fn(restoreFocusToOpener);
+        closeOverlay(restoreFocusToOpener);
     }
 
     function closeAndRestore() {

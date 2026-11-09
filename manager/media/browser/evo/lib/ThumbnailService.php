@@ -34,7 +34,7 @@ class ThumbnailService
     /** ブラウザが <img> で表示できる形式の拡張子か(一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ) */
     public static function isDisplayableImageExtension($ext)
     {
-        return in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'svg'], true);
+        return in_array(strtolower($ext), BrowserConfig::DISPLAYABLE_IMAGE_EXTENSIONS, true);
     }
 
     /**

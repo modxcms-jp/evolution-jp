@@ -11,6 +11,7 @@
  *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。thumb はラスター画像なら 'api'(action=thumb で取る)、svg なら url、それ以外は null。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
  *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true と thumb(ラスターは 'api'、svg は url、それ以外は null)、ラスターなら width,height。
+ *                     動画・音声(BrowserConfig::mediaKindOf())で url が null でなければ media: 'video' / 'audio' を付ける(url が null のときは付けない)。
  *                     全ファイル(ドットで始まる名前も)を出す。一覧ではサムネイルを作らず、action=thumb で作る。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの files の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
