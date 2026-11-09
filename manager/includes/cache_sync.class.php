@@ -93,6 +93,10 @@ class synccache
             global $modx;
         }
 
+        // サイトキャッシュ（config.siteCache.idx.php）を作る前に更新時刻を進める。
+        // 後にすると、キャッシュに 1 回前の時刻が残り、条件付き GET（ETag / Last-Modified）が古い内容に 304 を返す
+        $this->recent_update();
+
         if (strpos($this->target, 'pagecache') !== false) {
             $result = $this->purgeCacheFiles();
         }
@@ -191,6 +195,11 @@ class synccache
         } else {
             db()->insert($f, '[+prefix+]system_settings');
         }
+        // 読み込み済みの設定も合わせる（このあと書くキャッシュが DB と同じ時刻になるように）
+        evo()->config['recent_update'] = $this->current_time;
+        if ($this->config) {
+            $this->config['recent_update'] = $this->current_time;
+        }
     }
 
     public function publishBasicConfig()
@@ -204,8 +213,8 @@ class synccache
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s',
-            (int) config('recent_update', 0),
-            date('Y-m-d H:i:s', (int) config('recent_update', 0))
+            (int) $this->current_time,
+            date('Y-m-d H:i:s', (int) $this->current_time)
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
