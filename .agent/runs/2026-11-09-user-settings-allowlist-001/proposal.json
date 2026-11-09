@@ -1,0 +1,54 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-user-settings-allowlist",
+    "run_id": "2026-11-09-user-settings-allowlist-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T19:10:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-051",
+            "action": "add",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」）",
+            "summary": "役割は 1 つの応答に 1 つずつ起こす（同じ応答で複数を起こすと自動モードの判定が通らないことがある）",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-052",
+            "action": "add",
+            "target": ".agent/agents/tester.md",
+            "summary": "報告は全項目の確認と片付けを終えてから 1 回だけ返す。裏で動かしている作業を待つ間は報告を返さない",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-053",
+            "action": "add",
+            "target": ".agent/agents/reviewer.md・.agent/agents/explorer.md（観点）",
+            "summary": "「使われていない」の判断は新規インストールのスキーマだけで決めず、古い版から上げたサイトに残るかを確かめる",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-054",
+            "action": "add",
+            "target": ".agent/agents/reviewer.md（観点）・.agent/agents/worker.md",
+            "summary": "画面・処理・プラグインが共有する判定は、すべての入口で読み込まれ責務の合うクラスに置く（画面用のファイルや DB の汎用の層に置かない）",
+            "source_ref": "finding-004",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-055",
+            "action": "add",
+            "target": ".agent/agents/tester.md",
+            "summary": "結果のファイル名にコミットか回を入れ、前回の結果を上書きしない",
+            "source_ref": "finding-005",
+            "confidence": "medium"
+        }
+    ]
+}

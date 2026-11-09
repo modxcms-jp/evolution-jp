@@ -58,7 +58,13 @@ M1 で分かったこと（2026-11-09）:
 
 ## Outcomes & Retrospective
 
-実装後に記載。
+2026-11-09 に PR #1315 でマージ（fdee0e90a）。#1304 は閉じた。
+
+- 管理ユーザーの設定の保存（`saveUserSettings()`）は、除外の一覧をやめ、`EvoSettingsForm` から取り出す「保存してよい名前の一覧」（画面の欄とプラグインの欄の名前）で受けるようになった。一覧に無い名前のすでにある行は、プロフィールでもユーザー編集画面でも残す。
+- 名前の取り出しを `EvoSettingsForm` に集めたので、画面の定義と保存の規則が 1 か所から決まる。プラグインの欄の名前は、画面がセッションに覚える（キー `pluginSettingNames.<scope>`）。
+- 保存の結果が変わるのは、計画の表の S8・S10・S15（一覧に無い行が消えなくなる）だけで、M0 の記録との比較で確かめた。PHP 7.4.33 でも同じ。
+- 振り返り: M0 で修正前の DB の行・フォームの欄・送られる項目名の 3 組を記録しておいたことで、各マイルストーンの「変わらないこと」を完全一致で確かめられた。保存の規則を変える作業では、この 3 組の記録を最初に取るのが効く。
+- 残した課題: `tab_settings.php` の 4 つの設定を設定の定義に移す（`assets/docs/core-issues.md`）。
 
 ## Context and Orientation
 
@@ -230,7 +236,7 @@ M1・M2 はコードだけの変更で、表の形は変えない。M1 は保存
 ## Artifacts and Notes
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1304
-- ブランチ: `refactor/1304-user-settings-allowlist`（`gh issue develop` で #1304 に紐づけ済み。base `main`）。PR: #1315（下書き。2026-11-09 に M1 まで入れて作成。最後のマイルストーンで下書きを解除する）。
+- ブランチ: `refactor/1304-user-settings-allowlist`（`gh issue develop` で #1304 に紐づけ済み。base `main`）。PR: #1315（2026-11-09 に M1 まで入れて下書きで作成し、M3 で下書きを解除。2026-11-09 にマージ、fdee0e90a）。
 - 関連: #1277（PR #1296、マージ済み。保存後の行き先を `after_save` にし、除外の一覧を書き換えた）、#1300（未マージ。文書グループの権限。ファイルは重ならない）、#611・#615・#640（漏れた名前の掃除。baseline の 355-363 行）、#621（`changed_settings`）、a38b69f3c（プロフィールのプラグインの欄の名前をセッションに覚える）。
 - 修正前の記録: 基準のコミット 0c8f41e18。ジョブの一時領域 `/home/yamamoto/.claude/jobs/62dfc916/tmp/` の `1304-m0-user_settings.tsv`（S1〜S17 のユーザー設定の行）・`1304-m0-forms.json`（a=11・a=12・a=74 のフォームの欄）・`1304-m0-post-names.json`（送られる項目名）。記録のスクリプトは同じ場所の `1304-m0.js`・`run1304.sh`（`bash run1304.sh <OUT 接頭辞>`）・`env1304.sh`・`setup1304.sh`。一時領域が消えたら、0c8f41e18 で取り直す。
 - 想定コミット単位は Plan of Work の 3 つ。

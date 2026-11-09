@@ -399,6 +399,46 @@
             "added_at": "2026-11-09T12:07:15+09:00",
             "last_used_at": "2026-11-09T12:07:15+09:00",
             "source": "2026-11-09-readable-return-params-001"
+        },
+        {
+            "id": "change-051",
+            "location": ".claude/skills/exec-plan-runner/SKILL.md（「1 件ごとの繰り返し」）",
+            "status": "adopted",
+            "added_at": "2026-11-09T19:10:00+09:00",
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        {
+            "id": "change-052",
+            "location": ".agent/agents/tester.md",
+            "status": "adopted",
+            "added_at": "2026-11-09T19:10:00+09:00",
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        {
+            "id": "change-053",
+            "location": ".agent/agents/reviewer.md・.agent/agents/explorer.md（観点）",
+            "status": "adopted",
+            "added_at": "2026-11-09T19:10:00+09:00",
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        {
+            "id": "change-054",
+            "location": ".agent/agents/reviewer.md（観点）・.agent/agents/worker.md",
+            "status": "adopted",
+            "added_at": "2026-11-09T19:10:00+09:00",
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        {
+            "id": "change-055",
+            "location": ".agent/agents/tester.md",
+            "status": "adopted",
+            "added_at": "2026-11-09T19:10:00+09:00",
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
         }
     ]
 }
