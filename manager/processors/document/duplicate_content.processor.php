@@ -59,8 +59,6 @@ header("Location: index.php?refresh=tree&a=120&id=" . $pid);
 
 function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true)
 {
-    global $_lang;
-
     // invoke OnBeforeDocDuplicate event
     $tmp = [
         'id' => $docid
@@ -80,7 +78,7 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
         $content['pagetitle'] = str_replace(
             '[+title+]',
             $content['pagetitle'],
-            $_lang['duplicate_title_string']
+            lang('duplicate_title_string')
         );
         $content['alias'] = '';
     } elseif (

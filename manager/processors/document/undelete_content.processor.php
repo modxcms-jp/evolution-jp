@@ -26,8 +26,7 @@ if (db()->count($rs) != 1) {
 }
 $deltime = db()->getValue($rs);
 
-$children = [];
-getChildren($id);
+$children = getChildren($id, $deltime);
 
 // invoke OnBeforeDocFormUnDelete event
 $params['id'] = $id;
@@ -74,30 +73,27 @@ if ($pid !== '0') {
 header($header);
 
 
-function getChildren($parent)
+// 削除時刻が同じ（一緒に削除された）子孫の id を返す
+function getChildren($parent, $deltime)
 {
-    global $children;
-    global $deltime, $modx;
-
+    $children = [];
     $rs = db()->select('id', '[+prefix+]site_content',
         "parent={$parent} AND deleted=1 AND deletedon='{$deltime}'");
-    if (db()->count($rs) > 0) {
-        // the document has children documents, we'll need to delete those too
-        while ($row = db()->getRow($rs)) {
-            $children[] = $row['id'];
-            getChildren($row['id']);
-        }
+    while ($row = db()->getRow($rs)) {
+        $children[] = $row['id'];
+        // 子の子も対象にする
+        $children = array_merge($children, getChildren($row['id'], $deltime));
     }
+    return $children;
 }
 
 function disp_access_permission_denied()
 {
-    global $_lang;
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>
+    <div class="sectionHeader"><?= lang('access_permissions') ?></div>
     <div class="sectionBody">
-    <p><?= $_lang['access_permission_denied'] ?></p>
+    <p><?= lang('access_permission_denied') ?></p>
     <?php
     include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;

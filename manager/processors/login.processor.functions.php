@@ -86,16 +86,14 @@ function loginPhpass($givenPassword, $dbasePassword)
 
 function loginV1($givenPassword, $dbasePassword, $internalKey)
 {
-    global $modx;
-
     $user_algo = manager()->getV1UserHashAlgorithm($internalKey);
 
     if (!config('pwd_hash_algo')) {
-        $modx->config['pwd_hash_algo'] = 'UNCRYPT';
+        evo()->config['pwd_hash_algo'] = 'UNCRYPT';
     }
 
-    if ($user_algo !== $modx->config['pwd_hash_algo']) {
-        $modx->config['pwd_hash_algo'] = $user_algo;
+    if ($user_algo !== evo()->config['pwd_hash_algo']) {
+        evo()->config['pwd_hash_algo'] = $user_algo;
     }
 
     if ($dbasePassword != manager()->genV1Hash($givenPassword, $internalKey)) {
@@ -519,8 +517,6 @@ function isSameSiteUri($uri)
 
 function managerLogin()
 {
-    global $modx;
-
     session_regenerate_id(true);
 
     $_SESSION['usertype'] = 'manager'; // user is a backend user
@@ -555,7 +551,7 @@ function managerLogin()
     $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(user('internalKey'));
 
     if (request_strvar('rememberme')) {
-        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)evo()->config('session.cookie.lifetime', 0);
         setcookie(
             'modx_remember_manager',
             user('username'),
