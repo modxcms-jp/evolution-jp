@@ -533,23 +533,29 @@ class Wayfinder
         if (strtolower($this->_config['sortBy']) === 'random') {
             $sort = 'rand()';
         } else {
-            // site_content columns only, with the sc. table reference
+            // each item is "field" or "field ASC|DESC" (site_content columns only);
+            // &sortOrder is the direction of the items without one
+            $sortOrder = strtoupper(trim((string)$this->_config['sortOrder'])) === 'DESC' ? 'DESC' : 'ASC';
             $_ = [];
+            $hasId = false;
             foreach (explode(',', $this->_config['sortBy']) as $v) {
-                $v = trim($v);
-                if (in_array($v, $this->contentColumns(), true)) {
-                    $_[] = 'sc.' . $v;
+                $parts = preg_split('/\s+/', trim($v));
+                $field = $parts[0];
+                $dir = isset($parts[1]) ? strtoupper($parts[1]) : $sortOrder;
+                if (count($parts) > 2 || !in_array($dir, ['ASC', 'DESC'], true) || !in_array($field, $this->contentColumns(), true)) {
+                    continue;
                 }
+                $_[] = "sc.{$field} {$dir}";
+                $hasId = $hasId || $field === 'id';
             }
             if (!$_) {
-                $_[] = 'sc.menuindex';
+                $_[] = "sc.menuindex {$sortOrder}";
             }
-            $sortOrder = strtoupper(trim((string)$this->_config['sortOrder'])) === 'DESC' ? 'DESC' : 'ASC';
-            $sort = implode(',', $_) . ' ' . $sortOrder;
             // ties keep the id order (GROUP BY leaves it to the query plan otherwise)
-            if (!in_array('sc.id', $_, true)) {
-                $sort .= ', sc.id ASC';
+            if (!$hasId) {
+                $_[] = 'sc.id ASC';
             }
+            $sort = implode(', ', $_);
         }
 
         //run the query

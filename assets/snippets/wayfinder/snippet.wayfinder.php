@@ -96,6 +96,8 @@ $wf->_config = [
     // FALSE: /about.html のようにルート相対で出す。TRUE: サイトの URL から出す
     'fullLink' => isset($fullLink) ? $fullLink : FALSE,
     'nl' => isset($removeNewLines) ? '' : "\n",
+    // sortBy: 列をカンマ区切りで並べる。列ごとに向きを書ける（例: menuindex DESC, pagetitle）
+    // sortOrder: 向きを書かない列の向き。同じ値どうしは最後に id の小さい順
     'sortOrder' => isset($sortOrder) ? strtoupper($sortOrder) : 'ASC',
     'sortBy' => isset($sortBy) ? $sortBy : 'menuindex',
     'limit' => isset($limit) ? $limit : 0,
