@@ -179,6 +179,39 @@ function getGroups($docid)
     return $groups;
 }
 
+// この利用者が付け外ししてよい文書グループ（画面の getUDGroups() と保存の processor の共通の判定）
+// ids: 変えてよいグループの id（キー）。yes・no: 出すグループのうち、所属している数・いない数
+function docGroupAccess()
+{
+    $rs = db()->select(
+        'id, private_memgroup, private_webgroup',
+        '[+prefix+]documentgroup_names'
+    );
+    $ids = [];
+    $yes = 0;
+    $no = 0;
+    while ($row = db()->getRow($rs)) {
+        // 権限が無い側の非公開のグループは、変えてはいけない
+        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+            continue;
+        }
+        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+            continue;
+        }
+        $ids[(int)$row['id']] = true;
+        if (_mgroup((int)$row['id']) + _wgroup((int)$row['id']) > 0) {
+            ++$yes;
+        } else {
+            ++$no;
+        }
+    }
+    // 管理者でなく、出すグループのどれにも所属していなければ、変えてよいグループは無い
+    if (!manager()->isAdmin() && !$yes && $no) {
+        $ids = [];
+    }
+    return ['ids' => $ids, 'yes' => $yes, 'no' => $no];
+}
+
 function getUDGroups($id)
 {
     global $permissions_yes, $permissions_no;
@@ -199,8 +232,9 @@ function getUDGroups($id)
     $inputAttributes['onclick'] = 'makePublic(false)';
 
     $permissions = []; // New Permissions array list (this contains the HTML)
-    $permissions_yes = 0; // count permissions the current mgr user has
-    $permissions_no = 0; // count permissions the current mgr user doesn't have
+    $access = docGroupAccess();
+    $permissions_yes = $access['yes']; // 出すグループのうち、所属している数
+    $permissions_no = $access['no']; // 出すグループのうち、所属していない数
     $notPublic = false; // true if the document belongs to any of the listed groups
 
     // Query the permissions and names from above
@@ -243,11 +277,8 @@ function getUDGroups($id)
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
-        // Skip the access permission if the user doesn't have access...
-        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
-            continue;
-        }
-        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+        // 変えてよいグループだけを出す
+        if (!isset($access['ids'][(int)$row['id']])) {
             continue;
         }
 
@@ -279,13 +310,6 @@ function getUDGroups($id)
             $inputString[] = sprintf('%s="%s"', $k, $v);
         }
 
-        // does user have this permission?
-        if (_mgroup($row['id']) + _wgroup($row['id']) > 0) {
-            ++$permissions_yes;
-        } else {
-            ++$permissions_no;
-        }
-
         $permissions[] = "\t\t"
             . html_tag(
                 '<li>',
@@ -300,12 +324,8 @@ function getUDGroups($id)
     }
 
     if (!$permissions) {
-        return false;
-    }
-
-    // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if (!manager()->isAdmin() && !$permissions_yes && $permissions_no) {
-        return [];
+        // 出すグループはあるが、どれにも所属していないときは、タブを出さない（空の配列）
+        return $permissions_no && !$access['ids'] ? [] : false;
     }
 
     // Add the "All Document Groups" item if we have rights in both contexts
