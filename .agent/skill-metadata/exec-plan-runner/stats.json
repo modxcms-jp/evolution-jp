@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 50,
-            "used_runs": 50,
-            "helped_runs": 50,
+            "seen_runs": 55,
+            "used_runs": 55,
+            "helped_runs": 55,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 30
+            "active_runs": 32
         },
         "change-004": {
             "seen_runs": 1,
@@ -458,6 +458,51 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-09T12:07:15+09:00",
             "source": "2026-11-09-readable-return-params-001"
+        },
+        "change-051": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        "change-052": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        "change-053": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        "change-054": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
+        },
+        "change-055": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-09T19:10:00+09:00",
+            "source": "2026-11-09-user-settings-allowlist-001"
         }
     }
 }

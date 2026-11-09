@@ -129,7 +129,7 @@
 ## ユーザー編集画面の「ユーザー」タブの設定が、設定の定義の外にある
 
 - **発見日**: 2026-11-09
-- **発見元**: 管理ユーザーの設定を保存してよい名前の一覧で受ける ExecPlan（`.agent/plans/2026-11-09-user-settings-allowlist.md`、#1304）
+- **発見元**: 管理ユーザーの設定を保存してよい名前の一覧で受ける ExecPlan（`.agent/plans/archive/2026-11-09-user-settings-allowlist.md`、#1304）
 - **ファイル**: `manager/actions/permission/mutate_user/tpl/form/tab_settings.php`、`manager/includes/settings_form.class.inc.php`（`USER_TAB_KEYS`）
 - **課題**: `allow_manager_access`・`allowed_parents`・`allowed_ip`・`allowed_days` の 4 つは、設定の定義（`settings_form.definition.inc.php`）に無く、画面が手書きで出す。保存してよい名前としては `EvoSettingsForm::USER_TAB_KEYS` に手で書いて合わせている（画面に欄を足したら一覧にも足す、というコメントだけが頼り）。同じ表に、設定ではない行（ログイン回数・ブロック。`user_attributes` の列）が挟まっている。`allowed_days` は複数のチェックボックス（`allowed_days[]`）で、`EvoSettingsForm` に対応する型が無い
 - **改善案**: 設定の行は定義に移し、設定でない行（ブロックなど）は別の表に分ける。`allowed_days` の複数のチェックボックスの型を `EvoSettingsForm` に足す。移したら `USER_TAB_KEYS` を消す

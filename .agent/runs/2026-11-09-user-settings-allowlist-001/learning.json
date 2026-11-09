@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-09-user-settings-allowlist",
+    "run_id": "2026-11-09-user-settings-allowlist-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-09T19:10:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "tool_gap",
+            "summary": "役割を 2 つ（tester と reviewer など）同じ応答で起こすと、自動モードの判定が「判定なし」で両方とも断られることが何度もあった。1 つずつ別の応答で起こすと通った。runner の手順に、役割は 1 応答に 1 つずつ起こすと書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "tool_gap",
+            "summary": "tester が検証の途中で「まだ途中」という報告を返して止まり、続きを頼むと最終の報告が 2 回目として断られて届かなかった（送り直しを頼んで受け取った）。tester.md に、報告は全項目と片付けが終わってから 1 回だけ返す、裏で動かしている作業を待つ間は報告を返さない、と書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/tester.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "process_gap",
+            "summary": "#1308 は「今のスキーマに無いテーブルを一覧から外す」として起票したが、アップデートしたサイトには残っていた。新規インストールのスキーマだけを見て「使われていない」と決めない、アップデートの経路（古い版から上げたサイト）で残るかを確かめる、を reviewer と explorer の観点に足すとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-004",
+            "kind": "process_gap",
+            "summary": "共有の判定を置く場所の指摘（中）が 2 件続いた（#1308 で DBAPI に置いた、#1306 でプラグインが画面用のファイルの関数に頼った）。画面と処理とプラグインが使う判定は、すべての入口で読み込まれ、責務の合うクラス（ManagerAPI・各マネージャーのクラス）に置く、を worker への依頼と reviewer の観点に書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/reviewer.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-005",
+            "kind": "tool_gap",
+            "summary": "確かめ直しで、検証のスクリプトが前回の結果のファイルを同じ名前で上書きし、前回との比較を会話に残った出力でしかできなかった。tester.md に、結果のファイル名にコミットか回を入れて上書きしない、と書くとよい",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_docs",
+            "target": ".agent/agents/tester.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-006",
+            "kind": "good_practice",
+            "summary": "M0 で修正前の DB の行・フォームの欄・送られる項目名の 3 組を記録し、各マイルストーンで完全一致を確かめた。change-047（基準を記録して段階ごとに突き合わせる）で足りているので、反映はしない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/exec-plan-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}
