@@ -796,10 +796,15 @@ function setDocPermissionsNew($document_groups, $newid)
         return;
     }
     if (is_array($document_groups)) {
+        $changeable = changeableGroupIds();
         $new_groups = [];
         foreach ($document_groups as $value_pair) {
-            $group = (int)substr($value_pair, 0, strpos($value_pair, ','));
-            $new_groups[] = sprintf('(%s,%s)', $group, $newid);
+            $group = (int)strtok($value_pair, ',');
+            // 変えてよくないグループは足さずに無視する
+            if (!isset($changeable[$group])) {
+                continue;
+            }
+            $new_groups[$group] = sprintf('(%s,%s)', $group, $newid);
         }
         if ($new_groups) {
             $rs = db()->query(
@@ -832,6 +837,26 @@ function setDocPermissionsNew($document_groups, $newid)
             );
         }
     }
+}
+
+// このユーザーが付け外ししてよい文書グループの id（画面の getUDGroups() が出すグループと同じ条件）
+function changeableGroupIds()
+{
+    $rs = db()->select(
+        'id, private_memgroup, private_webgroup',
+        '[+prefix+]documentgroup_names'
+    );
+    $ids = [];
+    while ($row = db()->getRow($rs)) {
+        if (!evo()->hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+            continue;
+        }
+        if (!evo()->hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+            continue;
+        }
+        $ids[(int)$row['id']] = true;
+    }
+    return $ids;
 }
 
 function isPublic()
@@ -895,27 +920,30 @@ function setDocPermissionsEdit($document_groups, $id)
     if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
         return;
     }
-    $rs = db()->select(
-        '`groups`.id, `groups`.document_group',
-        [
-            '[+prefix+]document_groups AS `groups`',
-            'LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id=`groups`.document_group'
-        ],
-        sprintf(
-            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'",
-            (int)evo()->hasPermission('access_permissions'),
-            (int)evo()->hasPermission('web_access_permissions'),
-            $id
-        )
-    );
+    $changeable = changeableGroupIds();
     $exists_groups = [];
-    while ($row = db()->getRow($rs)) {
-        $exists_groups[$row['document_group']] = $row['id'];
+    if ($changeable) {
+        $rs = db()->select(
+            'id, document_group',
+            '[+prefix+]document_groups',
+            sprintf(
+                'document=%d AND document_group IN (%s)',
+                (int)$id,
+                implode(',', array_keys($changeable))
+            )
+        );
+        while ($row = db()->getRow($rs)) {
+            $exists_groups[$row['document_group']] = $row['id'];
+        }
     }
     $new_groups = [];
     foreach ($document_groups as $value_pair) {
-        [$group, $link_id] = explode(',', $value_pair);
-        $new_groups[$group] = $link_id;
+        [$group, $link_id] = array_pad(explode(',', $value_pair), 2, '');
+        // 変えてよくないグループは足さずに無視する（付いていれば残る）
+        if (!isset($changeable[(int)$group])) {
+            continue;
+        }
+        $new_groups[(int)$group] = $link_id;
     }
     $insertions = [];
     foreach ($new_groups as $group_id => $link_id) {
@@ -950,10 +978,15 @@ function setDocPermissionsEdit($document_groups, $id)
         }
     }
     // necessary to remove all permissions as document is public
-    if (postv('chkalldocs') === 'on') {
+    // 変えてよいグループだけを外す
+    if (postv('chkalldocs') === 'on' && $changeable) {
         $rs = db()->delete(
             '[+prefix+]document_groups',
-            sprintf("document='%s'", $id)
+            sprintf(
+                'document=%d AND document_group IN (%s)',
+                (int)$id,
+                implode(',', array_keys($changeable))
+            )
         );
         if (!$rs) {
             $saved = false;
