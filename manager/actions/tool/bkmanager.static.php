@@ -193,7 +193,7 @@ if (sessionv('result_msg')) {
                             db()->dbname,
                             db()->table_prefix
                         ));
-                        $truncateable = db()->truncateableTables();
+                        $truncateable = EvoBackupManager::truncatableTables();
                         $i = 0;
                         $totaloverhead = 0;
                         $total = 0;
