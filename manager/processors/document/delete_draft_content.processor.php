@@ -28,5 +28,5 @@ evo()->loadExtension('REVISION');
 $modx->revision->delete($docid, 'draft');
 $modx->revision->delete($docid, 'standby');
 
-$header = "Location: index.php?a=3&id={$docid}&r=1";
+$header = "Location: index.php?a=3&id={$docid}&refresh=tree";
 header($header);

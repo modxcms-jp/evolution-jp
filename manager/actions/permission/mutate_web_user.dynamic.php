@@ -247,7 +247,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="mode" value="<?= (int) $action ?>" />
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('web_user')) ?>" />
     <input type="hidden" name="id" value="<?= (int) $user ?>" />
     <input type="hidden" name="blockedmode"
         value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />
@@ -259,15 +259,8 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             <?php if (evo()->hasPermission('save_web_user')): ?>
                 <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a><span
                         class="and"> + </span>
-                    <select id="stay" name="stay">
-                        <?php if (evo()->hasPermission('new_web_user')) { ?>
-                            <option id="stay1"
-                                value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
-                        <?php } ?>
-                        <option id="stay2"
-                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                            value="" <?= request_intvar('stay') === 0 ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                    <select id="stay" name="after_save">
+                        <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), evo()->hasPermission('new_web_user')) ?>
                     </select>
                 </li>
             <?php endif; ?>
@@ -685,7 +678,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
     ?>
 </form>
 <script type="text/javascript">
-    var remember = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
+    var remember = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("webUserPane"), remember);
 </script>
 <?php

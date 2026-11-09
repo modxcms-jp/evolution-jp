@@ -107,7 +107,7 @@ function role($key, $default = null)
     }
 </script>
 <form action="index.php?a=36" method="post" name="userform" class="role-form" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= $action ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('role')) ?>">
     <input type="hidden" name="id" value="<?= $role ?>">
 
     <h1><?= $_lang['role_title'] ?></h1>

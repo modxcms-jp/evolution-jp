@@ -6,10 +6,10 @@ if (!evo()->hasPermission('save_snippet')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-// 新規（23）と更新（22）以外は拒否する
-$mode = post_choicevar('mode', [22, 23], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('snippet');
 $id = post_intvar('id');
-if (!$mode || ($mode === 22 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -23,7 +23,7 @@ if (!is_string($snippet) || !is_string($properties)) {
 }
 $snippet = trim($snippet);
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['snippet'], 23, 22, $id);
+$rawName = manager()->requireElementName(post_strvar('name'), $_lang['snippet'], 'snippet', $id);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
@@ -52,14 +52,13 @@ $count = db()->getValue($rs);
 if ($count > 0) {
     manager()->redirectToElementForm(
         sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $rawName),
-        23,
-        22,
+        'snippet',
         $id
     );
 }
 
 switch ($mode) {
-    case 23:
+    case 'new':
         // invoke OnBeforeSnipFormSave event
         $tmp = [
             'mode' => 'new',
@@ -94,17 +93,10 @@ switch ($mode) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "22&id={$newid}" : '23';
-            $header = "Location: index.php?a={$a}&stay={$stay}";
-        } else {
-            $header = 'Location: index.php?a=76';
-        }
-        header($header);
+        header('Location: ' . EvoFormFlow::afterSaveUrl('snippet', $newid, EvoFormFlow::postedAfterSave()));
         break;
 
-    case 22:
+    case 'edit':
         // invoke OnBeforeSnipFormSave event
         $tmp = [
             'mode' => 'upd',
@@ -139,13 +131,6 @@ switch ($mode) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "22&id={$id}" : '23';
-            $header = "Location: index.php?a={$a}&stay={$stay}";
-        } else {
-            $header = 'Location: index.php?a=76';
-        }
-        header($header);
+        header('Location: ' . EvoFormFlow::afterSaveUrl('snippet', $id, EvoFormFlow::postedAfterSave()));
         break;
 }

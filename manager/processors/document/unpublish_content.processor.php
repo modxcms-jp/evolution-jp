@@ -42,7 +42,7 @@ include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 if ($pid !== '0') {
     $header = 'Location: ' . ChildDocumentListState::returnUrl((int) $pid);
 } else {
-    $header = "Location: index.php?a=2&r=1";
+    $header = "Location: index.php?a=2&refresh=tree";
 }
 
 header($header);

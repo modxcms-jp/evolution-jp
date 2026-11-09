@@ -11,10 +11,14 @@ if (!evo()->hasPermission('save_document')) {
 // 保存の画面（新規・更新）以外から来た値は止める。id は、新規なら無くてよいが、送られたなら正の整数で、更新では必須
 $postedId = postv('id');
 $hasPostedId = $postedId !== null && $postedId !== '' && $postedId !== '0';
-if (!postedMode() || ($hasPostedId && !post_intvar('id')) || (mode() === 'edit' && !post_intvar('id'))) {
+if (postedMode() === '' || ($hasPostedId && !post_intvar('id')) || (postedMode() === 'edit' && !post_intvar('id'))) {
     alert()->setError(2);
     alert()->dumpError();
 }
+
+// 保存の画面で選んだ「保存後」を、次に文書の画面を開いたときの既定として覚える
+$afterSave = EvoFormFlow::postedAfterSave();
+EvoFormFlow::rememberDocumentAfterSave($afterSave);
 
 include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
 evo()->loadExtension('DocAPI');
@@ -30,7 +34,7 @@ checkDocPermission(validated('id'), $document_groups);
 checkParent();
 checkAllowedParents(validated('id'));
 
-if (mode() === 'new') {
+if (postedMode() === 'new') {
     // invoke OnBeforeDocFormSave event
     $param = [
         'mode' => 'new',
@@ -47,7 +51,7 @@ if (mode() === 'new') {
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
-        evo()->manager->saveFormValues(postedMode());
+        evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit($msg, formReturnUrl());
     }
 
@@ -72,11 +76,11 @@ if (mode() === 'new') {
     evo()->event->vars = ['mode' => 'new', 'id' => $newid];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
-    goNextAction($newid, validated('parent'), validated('stay'), validated('type'));
+    goNextAction($newid, validated('parent'), $afterSave, validated('type'));
     return;
 }
 
-if (mode() === 'edit') {
+if (postedMode() === 'edit') {
     if (validated('id') == evo()->config('site_start')) {
         checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     }
@@ -108,7 +112,7 @@ if (mode() === 'edit') {
         sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
-        evo()->manager->saveFormValues(postedMode());
+        evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit(
             sprintf(
                 "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>.",
@@ -147,7 +151,7 @@ if (mode() === 'edit') {
     // invoke OnDocFormSave event
     evo()->event->vars = ['mode' => 'upd', 'id' => validated('id')];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
-    goNextAction(validated('id'), validated('parent'), validated('stay'), validated('type'));
+    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'));
     return;
 }
 
@@ -402,13 +406,11 @@ function _check_duplicate_alias($id, $alias, $parent)
     if (!$docid) {
         return $alias;
     }
-    evo()->manager->saveFormValues(postedMode());
+    evo()->manager->saveFormValues(postedScreen());
     $url = formReturnUrl();
 
-    $stay = request_choicevar('stay', ['new', 'stay', 'close', 'save_draft', 'save_standby'], '');
-    if ($stay) {
-        $url .= '&stay=' . $stay;
-    }
+    // 戻った画面の選択欄の既定は直前の保存の選択（セッション）とは限らないので、close も含めて引き継ぐ
+    $url .= '&after_save=' . EvoFormFlow::postedAfterSave();
 
     evo()->webAlertAndQuit(
         sprintf(
@@ -425,14 +427,14 @@ function _check_duplicate_alias($id, $alias, $parent)
 function checkParent()
 {
     $message = manager()->invalidParentMessage(
-        mode() === 'edit' ? [validated('id')] : [],
+        postedMode() === 'edit' ? [validated('id')] : [],
         validated('parent')
     );
     if ($message === '') {
         return;
     }
     // 戻った編集画面で入力内容を復元できるよう、戻り先のアクションで保存しておく
-    evo()->manager->saveFormValues(postedMode());
+    evo()->manager->saveFormValues(postedScreen());
     $url = formReturnUrl();
     evo()->webAlertAndQuit($message, $url);
 }
@@ -454,14 +456,14 @@ function checkDocPermission($id, $document_groups = [])
                 )
             );
             if (!$count) {
-                evo()->manager->saveFormValues(postedMode());
+                evo()->manager->saveFormValues(postedScreen());
                 evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), formReturnUrl());
             }
         }
     }
 
     // get the document, but only if it already exists
-    if (mode() === 'edit') {
+    if (postedMode() === 'edit') {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
         $total = db()->count($rs);
         if ($total > 1) {
@@ -487,7 +489,7 @@ function checkDocPermission($id, $document_groups = [])
         }
 
         if (!evo()->checkPermissions(validated('parent'))) {
-            evo()->manager->saveFormValues(postedMode());
+            evo()->manager->saveFormValues(postedScreen());
             evo()->webAlertAndQuit(
                 sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
                 formReturnUrl()
@@ -509,7 +511,7 @@ function checkDocPermission($id, $document_groups = [])
 // 許可するリソースの範囲の外の文書の更新と、範囲の外の親への作成・移動を止める
 function checkAllowedParents($id)
 {
-    if (mode() === 'new') {
+    if (postedMode() === 'new') {
         if (!manager()->isInAllowedParents(validated('parent'))) {
             alert()->setError(3, lang('access_permission_parent_denied'));
             alert()->dumpError();
@@ -528,7 +530,7 @@ function checkAllowedParents($id)
         return;
     }
     if (!manager()->isInAllowedParents(validated('parent'))) {
-        evo()->manager->saveFormValues(postedMode());
+        evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit(lang('access_permission_parent_denied'), formReturnUrl());
     }
 }
@@ -586,7 +588,7 @@ function checkStartDoc($id, $published, $pub_date, $unpub_date)
     if ($error === '') {
         return;
     }
-    evo()->manager->saveFormValues(postedMode());
+    evo()->manager->saveFormValues(postedScreen());
     evo()->webAlertAndQuit($error, formReturnUrl());
     exit;
 }
@@ -857,34 +859,35 @@ function updateParentStatus($parent)
     );
 }
 
-// redirect/stay options
-function goNextAction($id, $parent, $next, $type)
+// 保存後の行き先（after_save: new・stay・close）に従って移動する
+function goNextAction($id, $parent, $afterSave, $type)
 {
-    if ($next === 'new') {
-        if ($type === 'document') {
-            header(
-                sprintf('Location: index.php?a=4&pid=%s&r=1&stay=new', $parent)
-            );
-            return;
-        }
-        header(
-            sprintf('Location: index.php?a=72&pid=%s&r=1&stay=new', $parent)
-        );
+    if ($afterSave === 'new') {
+        $kind = $type === 'document' ? 'document' : 'weblink';
+        header('Location: ' . EvoFormFlow::url([
+            'a' => EvoFormFlow::screen($kind, 'new'),
+            'pid' => $parent,
+            'refresh' => 'tree',
+            'after_save' => 'new',
+        ]));
         return;
     }
-    if ($next === 'stay') {
-        header(
-            sprintf('Location: index.php?a=27&id=%s&r=1&stay=stay', $id)
-        );
+    if ($afterSave === 'stay') {
+        header('Location: ' . EvoFormFlow::url([
+            'a' => EvoFormFlow::screen('document', 'edit'),
+            'id' => $id,
+            'refresh' => 'tree',
+            'after_save' => 'stay',
+        ]));
         return;
     }
     if ($parent) {
         header(
-            sprintf('Location: index.php?a=120&id=%s&r=1', $parent)
+            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
         );
         return;
     }
-    header("Location: index.php?a=3&id=" . $id . "&r=1");
+    header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
 }
 
 function setDocPermissionsEdit($document_groups, $id)
@@ -997,21 +1000,27 @@ function getDocGroups()
     return is_array($groups) ? array_values(array_filter($groups, 'is_string')) : [];
 }
 
-// 保存の画面の mode（4: リソース・72: ウェブリンクの新規、27: 更新）。それ以外は 0
+// 保存の画面の mode（new: 新規、edit: 更新）。それ以外は空文字
 function postedMode()
 {
-    return post_choicevar('mode', [4, 72, 27], 0);
+    return EvoFormFlow::postedMode('document');
 }
 
-// 入力エラーで保存の画面（postedMode()）へ戻す URL。入力は saveFormValues(postedMode()) で差し戻す
+// 保存の画面の番号（4: 文書の新規、72: ウェブリンクの新規、27: 更新）。mode が無効なら 0。
+// 新規は送られた種類（type）で決める。設定タブで種類を変えたあとの差し戻しも、その種類の画面へ戻る
+function postedScreen()
+{
+    $mode = postedMode();
+    if ($mode === '') {
+        return 0;
+    }
+    return EvoFormFlow::screen(post_strvar('type') === 'reference' ? 'weblink' : 'document', $mode);
+}
+
+// 入力エラーで保存の画面（postedScreen()）へ戻す URL。入力は saveFormValues(postedScreen()) で差し戻す
 function formReturnUrl()
 {
-    return evo()->manager->formReturnUrl(postedMode(), post_intvar('id'), post_intvar('template'));
-}
-
-function mode()
-{
-    return postedMode() === 27 ? 'edit' : 'new';
+    return evo()->manager->formReturnUrl(postedScreen(), post_intvar('id'), post_intvar('template'));
 }
 
 function validated($key = null, $default = null)
@@ -1024,7 +1033,7 @@ function validated($key = null, $default = null)
             evo()->doc->initValue(
                 evo()->doc->fixTvNest(postv())
             ),
-            postedMode()
+            postedScreen()
         );
     }
 

@@ -7,10 +7,10 @@ if (!evo()->hasPermission('save_template')) {
     alert()->dumpError();
 }
 
-// 新規（300）と更新（301）以外は拒否する
-$mode = post_choicevar('mode', [300, 301], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('tmplvar');
 $id = post_intvar('id');
-if (!$mode || ($mode === 301 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -23,7 +23,7 @@ if (!is_string($elements) || !is_string($default_text)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['tv'], 300, 301, $id);
+$rawName = manager()->requireElementName(post_strvar('name'), $_lang['tv'], 'tmplvar', $id);
 $description = post_strvar('description');
 $caption = post_strvar('caption', $rawName);
 $type = post_strvar('type');
@@ -33,7 +33,7 @@ $display_params = post_strvar('params');
 $locked = postv('locked') === 'on' ? 1 : 0;
 
 switch ($mode) {
-    case 300:
+    case 'new':
         // invoke OnBeforeTVFormSave event
         $tmp = [
             'mode' => 'new',
@@ -43,16 +43,14 @@ switch ($mode) {
         if (check_exist_name($rawName, 0) !== false) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
-                300,
-                301,
+                'tmplvar',
                 0
             );
         }
         if (check_reserved_names($rawName) !== false) {
             manager()->redirectToElementForm(
                 sprintf($_lang['reserved_name_warning'], $rawName),
-                300,
-                301,
+                'tmplvar',
                 0
             );
         }
@@ -93,16 +91,9 @@ switch ($mode) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "301&id={$newid}" : '300';
-            $url = "index.php?a={$a}&stay={$stay}";
-        } else {
-            $url = "index.php?a=76";
-        }
-        header("Location: {$url}");
+        header('Location: ' . EvoFormFlow::afterSaveUrl('tmplvar', $newid, EvoFormFlow::postedAfterSave()));
         break;
-    case 301:
+    case 'edit':
         // invoke OnBeforeTVFormSave event
         $tmp = [
             'mode' => 'upd',
@@ -112,16 +103,14 @@ switch ($mode) {
         if (check_exist_name($rawName, $id) !== false) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
-                300,
-                301,
+                'tmplvar',
                 $id
             );
         }
         if (check_reserved_names($rawName) !== false) {
             manager()->redirectToElementForm(
                 sprintf($_lang['reserved_name_warning'], $rawName),
-                300,
-                301,
+                'tmplvar',
                 $id
             );
         }
@@ -191,14 +180,7 @@ switch ($mode) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "301&id={$id}" : '300';
-            $url = "index.php?a={$a}&stay={$stay}";
-        } else {
-            $url = 'index.php?a=76';
-        }
-        header("Location: {$url}");
+        header('Location: ' . EvoFormFlow::afterSaveUrl('tmplvar', $id, EvoFormFlow::postedAfterSave()));
         break;
 }
 

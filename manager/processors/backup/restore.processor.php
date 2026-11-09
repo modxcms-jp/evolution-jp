@@ -45,4 +45,4 @@ if ($source !== '') {
         sessionv('*result_msg', 'import_ok');
     }
 }
-header('Location: index.php?r=9&a=93');
+header('Location: index.php?refresh=all&a=93');

@@ -140,25 +140,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 EvoShell.reloadMenu();
             }
 
-            function reloadPane(rFrame) {
-                if (rFrame == 1) {
-                    window.setTimeout(reloadtree, 100);
-                }
-                if (rFrame == 2) {
-                    window.setTimeout(reloadmenu, 100);
-                }
-                if (rFrame == 3) {
-                    EvoShell.reloadTree();
-                }
-                if (rFrame == 9) {
-                    window.setTimeout(reloadmenu, 200);
-                    window.setTimeout(reloadtree, 100);
-                }
-                if (rFrame == 10) {
-                    window.top.location.href = "../manager/";
-                }
-            }
-
             // GENERAL FUNCTIONS - Work
             // These functions are used for showing the user the system is working
             window.work = function() {
@@ -203,7 +184,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 defaultTreeFrame: defaultTreeFrame,
                 reloadtree: reloadtree,
                 reloadmenu: reloadmenu,
-                reloadPane: reloadPane,
                 removeLocks: removeLocks,
                 showWin: showWin,
                 initMenuState: initMenuState,

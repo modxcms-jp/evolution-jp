@@ -135,7 +135,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
         $pluginSettingNames = fieldNames(implode("", $evtOut));
     }
     ?>
-    <input type="hidden" name="mode" value="74">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">
     <input type="hidden" name="userid" value="<?= (int) $userid ?>">
     <input type="hidden" name="newusername" value="<?= hsc($usernamedata['username']) ?>" />
     <input type="hidden" name="role" value="<?= (int)userData('role') ?>" />
@@ -342,7 +342,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
 </form>
 <?php include_once __DIR__ . '/mutate_user/tpl/changed_settings.php'; ?>
 <script type="text/javascript">
-    var remember = <?= ($modx->config['remember_last_tab'] == 2) ? 'true' : 'false' ?>;
+    var remember = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
 <?php

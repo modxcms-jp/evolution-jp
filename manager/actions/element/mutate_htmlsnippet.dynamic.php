@@ -156,7 +156,7 @@ if (isset($content['which_editor'])) {
     ?>
     <input type="hidden" name="a" value="79" />
     <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
-    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>" />
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('chunk')) ?>" />
     <input type="hidden" name="changeMode" value="" />
 
     <h1><?= $_lang['htmlsnippet_title'] ?></h1>
@@ -169,15 +169,8 @@ if (isset($content['which_editor'])) {
                         <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
-                    <select id="stay" name="stay">
-                        <?php if (evo()->hasPermission('new_chunk')) { ?>
-                            <option id="stay1"
-                                value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
-                        <?php } ?>
-                        <option id="stay2"
-                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                    <select id="stay" name="after_save">
+                        <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), evo()->hasPermission('new_chunk')) ?>
                     </select>
                 </li>
             <?php endif; ?>
@@ -348,10 +341,10 @@ if (isset($content['which_editor'])) {
             </div>
         </div>
         <script>
-            var stay = <?=
-                        ((evo()->config('remember_last_tab') == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false'
+            var tpstatus = <?=
+                        EvoFormFlow::rememberTab() ? 'true' : 'false'
                         ?>;
-            chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), stay);
+            chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), tpstatus);
         </script>
 </form>
 </div>

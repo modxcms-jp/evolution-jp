@@ -110,7 +110,7 @@ function entity($key, $default = null)
     }
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
-    <input type="hidden" name="mode" value="<?= request_intvar('a') ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('snippet')) ?>">
 
     <div id="actions">
         <ul class="actionButtons">
@@ -121,13 +121,8 @@ function entity($key, $default = null)
                         <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
-                    <select id="stay" name="stay">
-                        <option id="stay1"
-                            value="1" <?= request_intvar('stay') === 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
-                        <option id="stay2"
-                            value="2" <?= request_intvar('stay') === 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                            value="" <?= !request_intvar('stay') ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                    <select id="stay" name="after_save">
+                        <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), true) ?>
                     </select>
                 </li>
             <?php endif; ?>
@@ -333,7 +328,7 @@ function entity($key, $default = null)
 
 <script type="text/javascript">
     setTimeout('showParameters();', 10);
-    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (get_intvar('stay') === 2)) ? 'true' : 'false' ?>;
+    var tpstatus = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
     tpSnippet = new WebFXTabPane(document.getElementById("snipetPane"), tpstatus);
     // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
     (function() {

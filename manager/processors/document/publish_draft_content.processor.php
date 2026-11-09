@@ -70,7 +70,7 @@ if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
 }
 
 evo()->clearCache();
-$header = sprintf('Location: index.php?a=3&id=%s&r=1', $docid);
+$header = sprintf('Location: index.php?a=3&id=%s&refresh=tree', $docid);
 header($header);
 
 

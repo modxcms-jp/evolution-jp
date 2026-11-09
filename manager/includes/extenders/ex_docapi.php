@@ -486,9 +486,9 @@ class DocAPI
 
     /**
      * @param array $form_v
-     * @param int $mode 保存の画面の操作の番号（4: 新規、72: ウェブリンク、27: 更新）。呼び出し元が決める
+     * @param int $action 保存の画面の操作の番号（4: 新規、72: ウェブリンク、27: 更新）。呼び出し元が決める
      */
-    public function setValue($form_v, $mode = 0)
+    public function setValue($form_v, $action = 0)
     {
         global $_lang;
 
@@ -542,10 +542,10 @@ class DocAPI
             $timestamp = evo()->parseDateInput(array_get($form_v, $dateField, ''));
             // 解釈できない日付と 1970 年より前の日付は、DB に渡さず編集画面へ戻す
             if ($timestamp === null || $timestamp < 0) {
-                evo()->manager->saveFormValues($mode);
+                evo()->manager->saveFormValues($action);
                 evo()->webAlertAndQuit(
                     $_lang['mgrlog_dateinvalid'],
-                    evo()->manager->formReturnUrl($mode, array_get($form_v, 'id'), array_get($form_v, 'template'))
+                    evo()->manager->formReturnUrl($action, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
                 exit;
             }
@@ -555,7 +555,7 @@ class DocAPI
         $form_v = $this->setPubStatus($form_v);
 
         // deny publishing if not permitted
-        if ($mode === 27) {
+        if ($action === 27) {
             return $form_v;
         }
 

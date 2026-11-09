@@ -25,9 +25,9 @@ if (!manager()->isInAllowedParents($id)) {
 $modx->loadExtension('REVISION');
 if( $modx->revision->chStandbytoDraft($id) ){
 	if( getv('back') === 'publist' ){
-		$header = "Location: index.php?a=70&r=1";
+		$header = "Location: index.php?a=70&refresh=tree";
 	}else{
-		$header = "Location: index.php?a=3&id={$id}&r=1";
+		$header = "Location: index.php?a=3&id={$id}&refresh=tree";
 	}
 	header($header);
 	exit;

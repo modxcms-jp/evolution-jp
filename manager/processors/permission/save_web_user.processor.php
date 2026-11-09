@@ -36,8 +36,8 @@ $blocked = post_intvar('blocked');
 $blockeduntil = evo()->parseDateInput(post_strvar('blockeduntil'));
 $blockedafter = evo()->parseDateInput(post_strvar('blockedafter'));
 $user_groups = post_idsvar('user_groups');
-$mode = saveWebUserMode();
-$stay = post_choicevar('stay', [1, 2], 0);
+$mode = EvoFormFlow::postedMode('web_user');
+$afterSave = EvoFormFlow::postedAfterSave();
 
 // verify password
 if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirmpassword')) {
@@ -64,7 +64,7 @@ if ($dob === null || $blockeduntil === null || $blockedafter === null) {
 }
 
 switch ($mode) {
-    case 87: // new user
+    case 'new': // new user
         if ($newusername === '') {
             webAlert('Missing user name!');
             exit;
@@ -207,20 +207,9 @@ switch ($mode) {
 
         if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
-            if ($stay) {
-                $a = ($stay === 2) ? "88&id=" . $internalKey : '87';
-                $header = "Location: index.php?a=" . $a . "&stay=" . $stay;
-            } else {
-                $header = 'Location: index.php?a=99';
-            }
-            header($header);
+            header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave));
         } else {
-            if ($stay) {
-                $a = ($stay === 2) ? "88&id=" . $internalKey : '87';
-                $stayUrl = "index.php?a=" . $a . "&stay=" . $stay;
-            } else {
-                $stayUrl = 'index.php?a=99';
-            }
+            $stayUrl = EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave);
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 ?>
@@ -246,7 +235,7 @@ switch ($mode) {
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         }
         break;
-    case 88: // edit user
+    case 'edit': // edit user
         if (!$id) {
             webAlert('Missing user id!');
             exit;
@@ -436,12 +425,7 @@ switch ($mode) {
         /*******************************************************************************/
 
         if ($genpassword === 1 && $passwordnotifymethod === 's') {
-            if ($stay) {
-                $a = ($stay === 2) ? "88&id=" . $id : "87";
-                $stayUrl = "index.php?a=" . $a . "&stay=" . $stay;
-            } else {
-                $stayUrl = "index.php?a=99";
-            }
+            $stayUrl = EvoFormFlow::afterSaveUrl('web_user', $id, $afterSave);
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
@@ -465,24 +449,12 @@ switch ($mode) {
 
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         } else {
-            if ($stay) {
-                $a = ($stay === 2) ? "88&id=$id" : "87";
-                $header = "Location: index.php?a=" . $a . "&stay=" . $stay;
-            } else {
-                $header = "Location: index.php?a=99";
-            }
-            header($header);
+            header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $id, $afterSave));
         }
         break;
     default:
         webAlert('Unauthorized access');
         exit;
-}
-
-// 保存の種類。新規（87）と更新（88）以外は 0 にして、どちらにも当てはめない
-function saveWebUserMode()
-{
-    return post_choicevar('mode', [87, 88], 0);
 }
 
 // Send an email to the user
@@ -546,11 +518,10 @@ function saveUserSettings($id)
 function webAlert($msg)
 {
     global $id, $modx;
-    $mode = saveWebUserMode();
-    $stay = post_choicevar('stay', [1, 2], 0);
-    $url = "index.php?a=" . ($mode ?: 99) . ($mode === 88 ? "&id=" . (int)$id : '') . ($stay ? '&stay=' . $stay : '');
-    manager()->saveFormValues($mode);
-    $modx->webAlertAndQuit($msg, $url);
+    $mode = EvoFormFlow::postedMode('web_user');
+    // 新規か更新でないとき（不正な mode）は、入力を今の画面の番号で残して一覧へ戻す
+    manager()->saveFormValues($mode ? EvoFormFlow::screen('web_user', $mode) : 0);
+    $modx->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, (int)$id, EvoFormFlow::postedAfterSave()));
 }
 
 // Generate password

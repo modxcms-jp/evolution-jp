@@ -129,10 +129,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
         Evo.ready(function() {
             evoBindDirtyTracking(<?= (int)manager()->action ?>);
-            <?php if (request_intvar('r')) {
-                echo sprintf("doRefresh(%s);\n", request_intvar('r'));
-            }
-            ?>
         });
 
         Evo.ready(function() {
@@ -157,19 +153,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             if (preLoader) preLoader.style.display = '';
             if (!dontShowWorker && top.mainMenu) top.mainMenu.work();
         });
-
-        function doRefresh(r) {
-            // chromeless(QuickManager埋め込み等)ではmainMenuが存在せず、
-            // 例外→再試行を無限に繰り返してしまうため、事前に存在確認する
-            if (!top.mainMenu) {
-                return;
-            }
-            try {
-                top.mainMenu.reloadPane(r);
-            } catch (oException) {
-                window.setTimeout(function() { doRefresh(r); }, 200);
-            }
-        }
     </script>
 </head>
 

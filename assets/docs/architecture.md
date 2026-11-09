@@ -20,6 +20,11 @@
 - `DocumentParser::isBackend()` が `IN_MANAGER_MODE` 定数を確認し、`isFrontend()` がその逆を返します。
 - ヘルパーの `manager()` や `hasPermission()` はこれらの判定を内包しており、直接グローバル変数を参照する代わりに利用します。
 
+## 管理画面の保存後の戻り先
+
+- 編集画面の保存後の行き先（`after_save`）・新規か更新か（`mode`）・保存後に読み直すもの（`refresh`）の名前と値は、`EvoFormFlow`（`manager/includes/form_flow.class.inc.php`）を正とします。画面の種類ごとの画面の番号の表と、戻り先・差し戻し先の URL の組み立てもここにあります。要素・ロール・管理ユーザー・Web ユーザーの編集画面の保存の processor は、画面の番号を書き写さずにこれを通します（文書の保存後の戻り先は、親や下書きで変わるので `save_resource.processor.php` の `goNextAction()` に残ります）。
+- `refresh` の受け口は `EvoShell.refresh()`（`manager/media/script/shell.js`）です。詳細は `manager-shell.md` を参照してください。
+
 ## データアクセスと拡張
 
 - `loadExtension()` によって `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、必要な拡張のみを読み込みます。

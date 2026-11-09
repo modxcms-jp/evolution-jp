@@ -41,5 +41,5 @@ evo()->invokeEvent("OnModFormDelete", $tmp);
 $modx->clearCache(); // first empty the cache
 // finished emptying cache - redirect
 
-$header = "Location: index.php?a=106&r=2";
+$header = "Location: index.php?a=106&refresh=menu";
 header($header);

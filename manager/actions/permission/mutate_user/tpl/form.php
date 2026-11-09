@@ -10,7 +10,7 @@ $settingsForm = new EvoSettingsForm(
 echo EvoSettingsForm::style();
 ?>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
-    <input type="hidden" name="mode" value="<?= $action ?>">
+    <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">
     <input type="hidden" name="userid" value="<?= $userid ?>">
     <input type="hidden" name="blockedmode" value="<?= blockedmode($user) ?>"/>
     <h1><?= lang('user_title') ?></h1>

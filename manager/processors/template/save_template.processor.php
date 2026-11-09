@@ -6,10 +6,10 @@ if (!evo()->hasPermission('save_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-// 新規（19）と更新（16）以外は拒否する
-$mode = post_choicevar('mode', [16, 19], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('template');
 $id = post_intvar('id');
-if (!$mode || ($mode === 16 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -21,7 +21,7 @@ if (!is_string($content)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('templatename'), $_lang['template'], 19, 16, $id);
+$rawName = manager()->requireElementName(post_strvar('templatename'), $_lang['template'], 'template', $id);
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
@@ -33,7 +33,7 @@ $field['locked'] = postv('locked') === 'on' ? 1 : 0;
 $field['parent'] = post_intvar('parent');
 
 switch ($mode) {
-    case 19:
+    case 'new':
 
         // invoke OnBeforeTempFormSave event
         $tmp = [
@@ -48,8 +48,7 @@ switch ($mode) {
         if ($count > 0) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
-                19,
-                16,
+                'template',
                 0
             );
         }
@@ -73,16 +72,9 @@ switch ($mode) {
         // empty cache
         $modx->clearCache();
         // finished emptying cache - redirect
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "16&id=$newid" : "19";
-            $header = "Location: index.php?a={$a}&stay={$stay}";
-        } else {
-            $header = "Location: index.php?a=76";
-        }
-        header($header);
+        header('Location: ' . EvoFormFlow::afterSaveUrl('template', $newid, EvoFormFlow::postedAfterSave()));
         break;
-    case 16:
+    case 'edit':
 
         // invoke OnBeforeTempFormSave event
         $tmp = [
@@ -97,8 +89,7 @@ switch ($mode) {
         if ($count > 0) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
-                19,
-                16,
+                'template',
                 $id
             );
         }
@@ -120,14 +111,7 @@ switch ($mode) {
             // first empty the cache
             $modx->clearCache();
             // finished emptying cache - redirect
-            $stay = post_choicevar('stay', [1, 2], 0);
-            if ($stay) {
-                $a = ($stay === 2) ? "16&id=$id" : "19";
-                $header = "Location: index.php?a={$a}&stay={$stay}";
-            } else {
-                $header = "Location: index.php?a=76";
-            }
-            header($header);
+            header('Location: ' . EvoFormFlow::afterSaveUrl('template', $id, EvoFormFlow::postedAfterSave()));
         }
         break;
 }

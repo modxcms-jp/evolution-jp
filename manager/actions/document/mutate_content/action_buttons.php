@@ -75,35 +75,23 @@ function ab_save()
     $tpl = '<li id="save" class="primary mutate"><a href="#">[+label+]</a>[+select+]</li>';
     $ph['label'] = lang('update');
 
-    $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
-    $saveAfter = anyv('stay', sessionv('saveAfter', 'close'));
-    $selected = ['new' => '', 'stay' => '', 'close' => ''];
-    if (hasPermission('new_document')
-        && $saveAfter === 'new') {
-        $selected['new'] = 'selected';
-    } elseif ($saveAfter === 'stay') {
-        $selected['stay'] = 'selected';
-    } elseif ($saveAfter === 'close') {
-        $selected['close'] = 'selected';
-    } else {
-        $selected['close'] = 'selected';
-    }
-
-    if (evo()->doc->mode !== 'draft' && hasPermission('new_document') && hasPermission('save_document')) {
-        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], lang('stay_new'));
-    }
-
-    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>', $selected['stay'], lang('stay'));
+    // 下書きの画面だけの選択肢（採用する・採用日時を指定する）
+    $extra = [];
     if (evo()->doc->mode === 'draft' && hasPermission('publish_document')) {
         if (evo()->revision->hasStandby) {
-            $option[] = sprintf('<option id="stay4" value="save_standby">%s</option>', '下書採用日時を再指定');
+            $extra['save_standby'] = '下書採用日時を再指定';
         } else {
-            $option[] = sprintf('<option id="stay4" value="save_draft">%s</option>', '下書きを採用');
+            $extra['save_draft'] = '下書きを採用';
         }
     }
-    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>', $selected['close'], lang('close'));
+    $withNew = evo()->doc->mode !== 'draft' && hasPermission('new_document') && hasPermission('save_document');
+    $selected = EvoFormFlow::requestedAfterSave(['save_draft', 'save_standby'])
+        ?: EvoFormFlow::documentAfterSaveDefault();
 
-    $ph['select'] = sprintf($ph['select'], implode("\n", $option));
+    $ph['select'] = sprintf(
+        '<span class="and"> + </span><select id="stay" name="after_save">%s</select>',
+        EvoFormFlow::afterSaveOptions($selected, $withNew, $extra)
+    );
 
     return parseText($tpl, $ph);
 }

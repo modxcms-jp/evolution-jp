@@ -9,10 +9,10 @@ if (!evo()->hasPermission('save_module')) {
 
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
-// 新規（107）と更新（108）以外は拒否する
-$mode = post_choicevar('mode', [107, 108], 0);
+// 新規（new）と更新（edit）以外は拒否する
+$mode = EvoFormFlow::postedMode('module');
 $id = post_intvar('id');
-if (!$mode || ($mode === 108 && !$id)) {
+if (!$mode || ($mode === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
 }
@@ -25,7 +25,7 @@ if (!is_string($modulecode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$name = manager()->requireElementName(post_strvar('name'), $_lang['module'], 107, 108, $id);
+$name = manager()->requireElementName(post_strvar('name'), $_lang['module'], 'module', $id);
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
 $icon = post_strvar('icon');
 if ($icon !== '' && preg_match('@^(' . config('rb_base_url') . ')@', $icon) == 1) {
@@ -38,7 +38,7 @@ $enable_sharedparams = postv('enable_sharedparams') === 'on' ? 1 : 0;
 $createdon = $editedon = time();
 
 switch ($mode) {
-    case 107:
+    case 'new':
         // invoke OnBeforeModFormSave event
         $eventParams = [
             'mode' => 'new',
@@ -52,8 +52,7 @@ switch ($mode) {
         if ($count > 0) {
             manager()->redirectToElementForm(
                 sprintf($_lang['duplicate_name_found_module'], $name),
-                107,
-                108,
+                'module',
                 0
             );
         }
@@ -94,19 +93,13 @@ switch ($mode) {
         ];
         evo()->invokeEvent("OnModFormSave", $eventParams);
 
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "108&id={$newid}" : '107';
-            $header = "Location: index.php?a={$a}&r=2&stay={$stay}";
-        } else {
-            $header = "Location: index.php?a=106&r=2";
-        }
+        $location = EvoFormFlow::afterSaveUrl('module', $newid, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
         if ($enable_sharedparams !== 0) {
             $modx->clearCache();
         }
-        header($header);
+        header('Location: ' . $location);
         break;
-    case 108:
+    case 'edit':
         // invoke OnBeforeModFormSave event
         $eventParams = [
             'mode' => 'upd',
@@ -150,17 +143,11 @@ switch ($mode) {
         ];
         evo()->invokeEvent('OnModFormSave', $eventParams);
 
-        $stay = post_choicevar('stay', [1, 2], 0);
-        if ($stay) {
-            $a = ($stay === 2) ? "108&id={$id}" : "107";
-            $header = "Location: index.php?a={$a}&r=2&stay={$stay}";
-        } else {
-            $header = 'Location: index.php?a=106&r=2';
-        }
+        $location = EvoFormFlow::afterSaveUrl('module', $id, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
         if ($enable_sharedparams !== 0) {
             $modx->clearCache();
         }
-        header($header);
+        header('Location: ' . $location);
         break;
 }
 
