@@ -16,6 +16,12 @@ final class EvoSettingsForm
     /** SMTP のパスワードは値を出さず、この伏せ字を出す（保存の処理がこの値を無視する） */
     const PASSWORD_MASK = '********************';
 
+    /**
+     * ユーザー編集画面の「ユーザー」タブ（mutate_user/tpl/form/tab_settings.php）が手書きで出す設定。
+     * 欄を足したらここにも足す（ユーザー設定として保存してよい名前に含める）
+     */
+    const USER_TAB_KEYS = ['allow_manager_access', 'allowed_parents', 'allowed_ip', 'allowed_days'];
+
     /** @var array */
     private $tabs;
     /** @var array */
@@ -24,6 +30,8 @@ final class EvoSettingsForm
     private $stored;
     /** @var string */
     private $scope;
+    /** @var string[] render() の中でプラグインのイベントが出した欄の名前 */
+    private $pluginFieldNames = [];
 
     /**
      * @param array $values 欄に出す値（system は systemValues() の結果、user・profile はそのユーザーの値。差し戻しを含む）
@@ -147,26 +155,92 @@ final class EvoSettingsForm
     }
 
     /**
-     * その scope の画面に出す設定キー（topmenu の欄も含む）。プロフィールで保存してよい名前の元になる
+     * その scope の画面に出す設定キー（topmenu の欄も含む）。
+     * ユーザー設定として保存してよい本体の名前で、プラグインの欄は含まない。
+     * user には、ユーザー編集画面の「ユーザー」タブが手書きで出す USER_TAB_KEYS を含む
      */
     public static function names(string $scope): array
     {
         $names = [];
-        foreach (self::definition() as $tab) {
+        foreach (self::scopeRows($scope) as $row) {
+            if (($row['type'] ?? '') === 'topmenu') {
+                $names = array_merge($names, array_keys($row['items']));
+            } elseif (isset($row['key'])) {
+                $names[] = $row['key'];
+            }
+        }
+        return $scope === 'user' ? array_merge($names, self::USER_TAB_KEYS) : $names;
+    }
+
+    /**
+     * その scope の行のうち、「システム設定に従う」（userDefault）が付く設定キー。
+     * この設定は、チェックを外せば空の値も保存できる
+     */
+    public static function userDefaultNames(string $scope): array
+    {
+        $names = [];
+        foreach (self::scopeRows($scope) as $row) {
+            if (!empty($row['userDefault']) && isset($row['key'])) {
+                $names[] = $row['key'];
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * その scope に出す定義の行（names() と userDefaultNames() が同じ走査を使う。定義は 1 回だけ読む）
+     */
+    private static function scopeRows(string $scope): array
+    {
+        static $definition = null;
+        $definition = $definition ?? self::definition();
+        $rows = [];
+        foreach ($definition as $tab) {
             foreach ($tab['sections'] ?? [] as $section) {
                 foreach ($section['rows'] as $row) {
-                    if (!in_array($scope, $row['scope'] ?? ['system'], true)) {
-                        continue;
-                    }
-                    if (($row['type'] ?? '') === 'topmenu') {
-                        $names = array_merge($names, array_keys($row['items']));
-                    } elseif (isset($row['key'])) {
-                        $names[] = $row['key'];
+                    if (in_array($scope, $row['scope'] ?? ['system'], true)) {
+                        $rows[] = $row;
                     }
                 }
             }
         }
+        return $rows;
+    }
+
+    /**
+     * HTML の入力欄（input / select / textarea / button）の名前。コメントや script などの送信されない部分は見ない。
+     * PHP が POST を受け取るときと同じ形にそろえる（「[」より前だけを使い、「.」と空白は「_」になる）
+     */
+    public static function fieldNames(string $html): array
+    {
+        $html = preg_replace(
+            ['@<!--.*?-->@s', '@<(script|template|style|noscript)\b.*?</\1\s*>@is', '@(<textarea\b[^>]*>).*?</textarea\s*>@is'],
+            ['', '', '$1'],
+            $html
+        );
+        preg_match_all('@<(?:input|select|textarea|button)\b[^>]*>@i', $html, $tags);
+        $names = [];
+        foreach ($tags[0] as $tag) {
+            // disabled の欄は送信されない
+            if (preg_match('@\sdisabled\b@i', $tag)) {
+                continue;
+            }
+            if (!preg_match('@\sname\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'=<>`]+))@i', $tag, $m)) {
+                continue;
+            }
+            $name = html_entity_decode(implode('', array_slice($m, 1)), ENT_QUOTES);
+            $names[] = str_replace(['.', ' '], '_', strstr($name, '[', true) ?: $name);
+        }
         return $names;
+    }
+
+    /**
+     * render() の中でプラグインのイベント（OnInterfaceSettingsRender など）が出した欄の名前。
+     * ユーザーの画面（user・profile）でだけ集める。render() の後に呼ばないと空
+     */
+    public function pluginFieldNames(): array
+    {
+        return $this->pluginFieldNames;
     }
 
     /**
@@ -305,6 +379,9 @@ HTML;
         $output = is_array($output) ? implode('', $output) : '';
         if ($output === '') {
             return '';
+        }
+        if (!$this->isSystem()) {
+            $this->pluginFieldNames = array_merge($this->pluginFieldNames, self::fieldNames($output));
         }
         $heading = '';
         foreach ($tab['sections'] ?? [] as $section) {

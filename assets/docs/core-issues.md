@@ -125,3 +125,13 @@
 - **改善案**: これらの画面を `DataTable`・`DataTablePager` に移し、`paginate.inc.php` と `tablesort.js` を消す。並べ替えは `DataTableLinks` のサーバー側の並べ替えにそろえる。それまで、新しく書くページ送りと表は `DataTable` の部品だけを使い、`Paging` と `tablesort.js` を使うコードを増やさない（決まりは `assets/docs/data-table.md` に書いた）
 - **対応**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し（#1204）、`paginate.inc.php` と `tablesort.js` を消した。並べ替えは `DataTableLinks` のサーバー側に替えた。
 - **関連ロードマップ**: 自前で組み立てている表とページ送りを DataTable に移す（#1204）
+
+## ユーザー編集画面の「ユーザー」タブの設定が、設定の定義の外にある
+
+- **発見日**: 2026-11-09
+- **発見元**: 管理ユーザーの設定を保存してよい名前の一覧で受ける ExecPlan（`.agent/plans/2026-11-09-user-settings-allowlist.md`、#1304）
+- **ファイル**: `manager/actions/permission/mutate_user/tpl/form/tab_settings.php`、`manager/includes/settings_form.class.inc.php`（`USER_TAB_KEYS`）
+- **課題**: `allow_manager_access`・`allowed_parents`・`allowed_ip`・`allowed_days` の 4 つは、設定の定義（`settings_form.definition.inc.php`）に無く、画面が手書きで出す。保存してよい名前としては `EvoSettingsForm::USER_TAB_KEYS` に手で書いて合わせている（画面に欄を足したら一覧にも足す、というコメントだけが頼り）。同じ表に、設定ではない行（ログイン回数・ブロック。`user_attributes` の列）が挟まっている。`allowed_days` は複数のチェックボックス（`allowed_days[]`）で、`EvoSettingsForm` に対応する型が無い
+- **改善案**: 設定の行は定義に移し、設定でない行（ブロックなど）は別の表に分ける。`allowed_days` の複数のチェックボックスの型を `EvoSettingsForm` に足す。移したら `USER_TAB_KEYS` を消す
+- **確かめ方（移す前後と、欄を足すとき）**: ユーザー編集画面（`a=12`）を開き、`document.userform.elements` の `name` を集める（`allowed_days[]` の `[]` を除く）。そのうち設定として保存されるものを、保存が実際に受ける一覧（`EvoSettingsForm::names('user')` に、セッションの `pluginSettingNames.user` を足したもの。`save_user.functions.php` の `allowedSettingNames('user')` と同じ）と突き合わせ、過不足がないことを確かめる。集めた名前から除くのは、設定として保存されない名前（`user_attributes` の列・アカウントやプロフィールの項目・`csrf_token`・`mode`・`userid`・`changed_settings`・保存後の行き先 `after_save`・`theme_refresher`・「システム設定に従う」の `default_<キー>` など。`default_<キー>` は `EvoSettingsForm::userDefaultNames()` の行にだけ付く）。画面にあって一覧に無い名前は保存されず、一覧にあって画面に無い名前は無駄な許可になる
+- **関連ロードマップ**: なし（新規候補。#1304 では定数とコメントで 1 か所にして、定義への移動は採らなかった）

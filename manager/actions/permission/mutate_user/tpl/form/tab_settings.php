@@ -1,3 +1,6 @@
+<?php
+// ここに設定の欄を足したら EvoSettingsForm::USER_TAB_KEYS にも足す（保存はその一覧の名前だけを受ける）
+?>
 <h2 class="tab"><?= lang('settings_users') ?></h2>
 <table class="settings">
     <?php
