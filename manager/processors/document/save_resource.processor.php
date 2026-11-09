@@ -59,7 +59,7 @@ if (postedMode() === 'new') {
         insert_tmplvars($newid, $param['tv_vars']);
     }
 
-    setDocPermissionsNew($document_groups, $newid);
+    setDocPermissionsNew($newid);
     updateParentStatus(validated('parent'));
 
     if (evo()->config('use_udperms')) {
@@ -126,7 +126,7 @@ if (postedMode() === 'edit') {
         update_tmplvars(validated('id'), $param['tv_vars']);
     }
 
-    setDocPermissionsEdit($document_groups, validated('id'));
+    setDocPermissionsEdit(validated('id'));
     updateParentStatus(validated('parent'));
 
     if ($db_v['parent'] != 0) {
@@ -790,53 +790,52 @@ function update_tmplvars($docid, $tmplvars)
 }
 
 // document access permissions
-function setDocPermissionsNew($document_groups, $newid)
+// 文書グループのタブが出る利用者（変えてよいグループがある）は、画面が送ったグループを付ける。
+// タブが出ない利用者は何も送れないので、親の文書グループをすべて引き継ぐ（親の守りを子に伝える）。
+// タブが出るかどうかは送られた値でなく文書グループの権限で決める（タブの中身をすべて外した場合と区別するため）
+function setDocPermissionsNew($newid)
 {
     if (evo()->config('use_udperms') != 1) {
         return;
     }
-    if (is_array($document_groups)) {
-        $new_groups = [];
-        // 変えてよくないグループは足さずに無視する
-        foreach (manager()->postedChangeableDocumentGroupIds() as $group) {
-            $new_groups[$group] = sprintf('(%s,%s)', $group, $newid);
+    $newid = (int)$newid;
+    $access = manager()->documentGroupAccess();
+    if ($access['ids']) {
+        $groups = manager()->postedChangeableDocumentGroupIds($access);
+        if (!$groups) {
+            return;
         }
-        if ($new_groups) {
-            $rs = db()->query(
-                sprintf(
-                    'INSERT INTO %s (document_group, document) VALUES %s',
-                    evo()->getFullTableName('document_groups'),
-                    implode(',', $new_groups)
-                )
-            );
-            if (!$rs) {
-                evo()->webAlertAndQuit(
-                    'An error occured while attempting to add the document to a document_group.'
-                );
-            }
+        $values = [];
+        foreach ($groups as $group) {
+            $values[] = sprintf('(%d,%d)', $group, $newid);
         }
-        return;
-    }
-    if (isPublic() && validated('parent')) {
-        $sql = sprintf(
-            "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'",
-            evo()->getFullTableName('document_groups'),
-            $newid,
-            evo()->getFullTableName('document_groups'),
-            validated('parent')
+        $rs = db()->query(
+            sprintf(
+                'INSERT INTO %s (document_group, document) VALUES %s',
+                evo()->getFullTableName('document_groups'),
+                implode(',', $values)
+            )
         );
-        $rs = db()->query($sql);
-        if (!$rs) {
-            evo()->webAlertAndQuit(
-                'An error occured while attempting to add the document to a document_group.'
-            );
+    } else {
+        $parent = (int)validated('parent');
+        if (!$parent) {
+            return;
         }
+        $rs = db()->query(
+            sprintf(
+                'INSERT INTO %s (document_group, document) SELECT DISTINCT document_group, %d FROM %s WHERE document=%d',
+                evo()->getFullTableName('document_groups'),
+                $newid,
+                evo()->getFullTableName('document_groups'),
+                $parent
+            )
+        );
     }
-}
-
-function isPublic()
-{
-    return !evo()->hasPermission('access_permissions') && !evo()->hasPermission('web_access_permissions');
+    if (!$rs) {
+        evo()->webAlertAndQuit(
+            'An error occured while attempting to add the document to a document_group.'
+        );
+    }
 }
 
 // update parent folder status
@@ -890,9 +889,9 @@ function goNextAction($id, $parent, $afterSave, $type)
     header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
 }
 
-function setDocPermissionsEdit($document_groups, $id)
+function setDocPermissionsEdit($id)
 {
-    if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
+    if (evo()->config('use_udperms') != 1) {
         return;
     }
     // 変えてよいグループだけを対象にする。変えてよくないグループは足さず、付いていれば残す
@@ -980,6 +979,7 @@ function folder2doc($parent)
     echo 'An error occured while attempting to change the old parent to a regular document.';
 }
 
+// checkDocPermission() 用。保存の文書グループは ManagerAPI の postedChangeableDocumentGroupIds() で取る
 function getDocGroups()
 {
     if (postv('chkalldocs') === 'on') {
