@@ -6,12 +6,18 @@
 
 ## Progress
 
-- [ ] M0: 着手前の確認と修正前の記録（main の動きを TSV に残す）
-- [ ] M1: 名前の取り出しを `EvoSettingsForm` に集め、画面がプラグインの欄の名前を覚える（保存の結果は変えない）
+- [x] (2026-11-09) M0: 着手前の確認と修正前の記録（main の動きを TSV に残す）（基準 0c8f41e18。a=11・a=12・a=74 が送る項目に、除外の一覧にも設定にも入らない名前は無く、手順 9 のマイグレーションは不要。S1〜S18 をすべて記録し、計画の表の期待値と一致）
+- [x] (2026-11-09) M1: 名前の取り出しを `EvoSettingsForm` に集め、画面がプラグインの欄の名前を覚える（保存の結果は変えない）（2e86e43f0、自己レビューの低の手当て 2c51a7816。M0 の記録と、ユーザー設定の行・フォームの欄・送られる項目名の 3 組とも完全一致。グローバル設定の保存はエラー 0。セッションに覚える名前は TinyMCE 7 の 3 つだけ。自己レビューは高・中なし）
 - [ ] M2: `saveUserSettings()` を保存してよい名前の一覧で受け、除外の一覧をなくす
 - [ ] M3: ドキュメントと最終確認（PHP 7.4 を含む）。`tab_settings.php` の 4 つの設定を定義に移す課題を `assets/docs/core-issues.md` に書く
 
 ## Surprises & Discoveries
+
+M1 で分かったこと（2026-11-09）:
+
+- M1 で保存の結果が変わる経路が 1 つだけある。修正前はプロフィールが覚える名前に `theme_refresher` と `default_manager_inline_style` が混じっていたので、DB にこの 2 つの名前の行があると、プロフィールの保存で消えていた。M1 からは覚える名前に入らないので、保存済みの値のまま残る（検証で再現）。この行がある環境はまず無く、M2 の「一覧に無い行は残す」と同じ向きなので、直さない。
+- セッションのキーを `pluginSettingNames.<scope>` に変えたので、更新の前に開いたプロフィールから更新の後に保存すると、その 1 回だけ TinyMCE 7 などのプラグインの欄が保存されない（既存の行は残る。検証で再現）。Decision Log どおりで、出始めるのは M2 ではなく M1 から。
+- M1 の時点で、`assets/docs/global-settings.md:53` の「保存の処理の `$defaults` にも同じキーが要る」は当てはまらなくなった。`tab_settings.php:2` と `mutate_user/tpl/form.php:57` のコメントは M2 の後の動きを書いている。どれも M3 の手順 12 でそろえる。
 
 計画時（2026-11-09、main c5cdf5a00 で調査。#1300 のブランチは `save_user.functions.php` などユーザーのファイルに触れていない）に分かったこと:
 
@@ -179,6 +185,7 @@ M3 ドキュメントと最終確認
     - 66 行を、「`EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、ユーザー編集画面の『ユーザー』タブが手書きで出す `USER_TAB_KEYS` を含む）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッション `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す」という趣旨に直す。
     - 同じ節に、プラグインが JS で足した欄はユーザー設定に入らないこと（イベントの HTML に欄を書く）を 1 行足す。
     `doc-audit` の手順で、変えたファイルのパスの表記と参照を確かめる。
+    - `assets/docs/core-issues.md` に、`tab_settings.php` の 4 つの設定（`USER_TAB_KEYS`）を設定の定義に移す課題を書く。課題には、`USER_TAB_KEYS` と画面が実際に送る名前（記録のスクリプトの S18 のフォームの欄）を突き合わせて確かめる手順も残す（M1 の自己レビューより）。
 13. 全体を取り直す（`1304-m3-*`）。M2 の記録と同じであること。PHP 7.4 の検証環境（`references/environment.md` の PHP 7.4 の節）で S2・S3・S5・S7・S8・S12・S13 を行い、PHP 8 側と同じ行になることを確かめる。
 14. PR の本文に、Validation の表（main と変更後）と、Interfaces のリリースノートの文案を写す。
 
@@ -222,7 +229,7 @@ M1・M2 はコードだけの変更で、表の形は変えない。M1 は保存
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1304
 - ブランチ: `refactor/1304-user-settings-allowlist`（`gh issue develop` で #1304 に紐づけ済み。base `main`）。PR は未作成。
 - 関連: #1277（PR #1296、マージ済み。保存後の行き先を `after_save` にし、除外の一覧を書き換えた）、#1300（未マージ。文書グループの権限。ファイルは重ならない）、#611・#615・#640（漏れた名前の掃除。baseline の 355-363 行）、#621（`changed_settings`）、a38b69f3c（プロフィールのプラグインの欄の名前をセッションに覚える）。
-- 修正前の記録: M0 で `/home/yamamoto/.claude/jobs/62dfc916/tmp/1304-m0-settings.tsv`・`1304-m0-forms.json` に取る（基準のコミットはそのとき書く）。
+- 修正前の記録: 基準のコミット 0c8f41e18。ジョブの一時領域 `/home/yamamoto/.claude/jobs/62dfc916/tmp/` の `1304-m0-user_settings.tsv`（S1〜S17 のユーザー設定の行）・`1304-m0-forms.json`（a=11・a=12・a=74 のフォームの欄）・`1304-m0-post-names.json`（送られる項目名）。記録のスクリプトは同じ場所の `1304-m0.js`・`run1304.sh`（`bash run1304.sh <OUT 接頭辞>`）・`env1304.sh`・`setup1304.sh`。一時領域が消えたら、0c8f41e18 で取り直す。
 - 想定コミット単位は Plan of Work の 3 つ。
 
 ## Interfaces and Dependencies
