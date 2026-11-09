@@ -26,11 +26,12 @@ class MODxMailer extends PHPMailer
         if(evo()->config('email_method')==='smtp') {
             include_once MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php';
             $this->IsSMTP();
-            $this->Host = evo()->config('smtp_host') . ':' . evo()->config('smtp_port');
-            $this->SMTPAuth = evo()->config('smtp_auth') == 1 ? true : false;
-            $this->Username = evo()->config('smtp_username');
-            $this->Password = evo()->config('smtppw');
-            $this->SMTPSecure = evo()->config('smtp_secure');
+            // 未設定の項目は null で返るので、PHPMailer と strlen() に渡す前に空文字にそろえる
+            $this->Host = evo()->config('smtp_host', '') . ':' . evo()->config('smtp_port', '');
+            $this->SMTPAuth = evo()->config('smtp_auth') == 1;
+            $this->Username = evo()->config('smtp_username', '');
+            $this->Password = evo()->config('smtppw', '');
+            $this->SMTPSecure = evo()->config('smtp_secure', '');
             if (10 < strlen($this->Password)) {
                 $this->Password = substr($this->Password, 0, -7);
                 $this->Password = str_replace('%', '=', $this->Password);
