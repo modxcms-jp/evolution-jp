@@ -44,7 +44,7 @@ if (!window.EvoDataTable) {
         }
 
         // 一括操作のボタンの欄（同じ form の中の data-selection-actions="<name>"）。あれば帯と一緒に
-        // 「操作の帯」（.data-table-selection-dock）にまとめ、選んだときだけ表の上に貼り付けて出す
+        // 「操作の帯」（.data-table-selection-dock）にまとめ、選んだときだけ表の下端に貼り付けて出す
         function actionsFor(bar) {
             const form = bar.closest('form');
             if (!form) {
@@ -66,7 +66,12 @@ if (!window.EvoDataTable) {
             }
             const dock = document.createElement('div');
             dock.className = 'data-table-selection-dock';
-            bar.before(dock);
+            // 下端に貼り付けるので、表の直後（表を包む div の中の末尾）に置く。bar（外枠）も一緒に移す
+            const table = bar.closest('.data-table');
+            if (!table) {
+                return null;
+            }
+            table.append(dock);
             dock.append(bar, actions);
             return dock;
         }

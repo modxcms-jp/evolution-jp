@@ -460,17 +460,17 @@ body.evo-shell input.evo-submitting-trigger {
     align-items: center;
     justify-content: center;
     gap: var(--space-2, 8px);
-    margin-bottom: var(--space-3, 12px);
+    margin-top: var(--space-3, 12px);
     padding: var(--space-2, 8px) var(--space-3, 12px);
     color: var(--color-text-primary, #333);
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
     border: 1px solid var(--color-border-light, #ddd);
 }
 
-/* 一括操作のボタンの欄がある一覧では、選択の帯とボタンを 1 つの「操作の帯」にまとめ、表の上に貼り付ける（data-table.js） */
+/* 一括操作のボタンの欄がある一覧では、選択の帯とボタンを 1 つの「操作の帯」にまとめ、表の下端に貼り付ける（data-table.js） */
 .data-table-selection-dock {
     position: sticky;
-    top: 0;
+    bottom: 0;
     z-index: 5;
     display: flex;
     flex-wrap: wrap;
@@ -481,7 +481,7 @@ body.evo-shell input.evo-submitting-trigger {
     color: var(--color-text-primary, #333);
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
     border: 1px solid var(--color-border-light, #ddd);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+    box-shadow: 0 -2px 4px rgb(0 0 0 / 8%);
 }
 /* 何も選んでいないときは、role="status" の外枠は描いたまま、帯の見た目とボタンの欄だけを消す */
 .data-table-selection-dock.is-empty {
@@ -508,11 +508,6 @@ body.evo-shell input.evo-submitting-trigger {
     align-items: center;
     gap: var(--space-2, 8px);
     margin: 0;
-}
-/* 1 件でも選んでいる間は、シェルの右上のボタン群を隠す（操作の場所を操作の帯の 1 か所にする）。
-   モーダルのフッターへ移された #actions は #mainPane の外なので、これには掛からない */
-body.evo-shell #mainPane:has(.data-table-selection-dock:not(.is-empty)) #actions {
-    display: none;
 }
 /* テーマの form#mutate input { margin } に負けないよう、シェルの他の規則と同じく ID を含めて詳しくする */
 body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .is-danger {
