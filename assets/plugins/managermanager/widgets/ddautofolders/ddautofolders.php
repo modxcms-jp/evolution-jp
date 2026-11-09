@@ -127,19 +127,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         }
         //文書グループは保存と同じ規則で付ける（親は $fields['parent']）
         $access = $access ?: manager()->documentGroupAccess();
-        $groups = manager()->setNewDocumentGroups($id, (int)$fields['parent'], $access);
-        if ($groups === false) {
-            evo()->logEvent(
-                0,
-                3,
-                sprintf(
-                    'ddAutoFolders: フォルダ（ID %d）に文書グループを付けられませんでした（親 ID %d）',
-                    (int)$id,
-                    (int)$fields['parent']
-                ),
-                'ddAutoFolders'
-            );
-        }
+        manager()->setNewDocumentGroups($id, (int)$fields['parent'], $access);
         //非公開の印は文書本体の保存と同じく、実際の所属から求める
         if (evo()->config('use_udperms')) {
             manager()->setWebDocsAsPrivate((int)$id);

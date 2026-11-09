@@ -1272,7 +1272,7 @@ class ManagerAPI
      * @param int $docId 付ける先の新規の文書
      * @param int $parentId 親の文書（0 は引き継ぎなし）
      * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
-     * @return int[]|false 付けた文書グループの id（昇順）。DB の書き込みに失敗したら false
+     * @return int[] 付けた文書グループの id（昇順）。DB の書き込みの失敗は DBAPI の既定（messageQuit）に任せる
      */
     public function setNewDocumentGroups($docId, $parentId, $access = null)
     {
@@ -1309,14 +1309,14 @@ class ManagerAPI
         foreach ($groups as $groupId) {
             $values[] = sprintf('(%d,%d)', $groupId, $docId);
         }
-        $rs = db()->query(
+        db()->query(
             sprintf(
                 'INSERT INTO %s (document_group, document) VALUES %s',
                 evo()->getFullTableName('document_groups'),
                 implode(',', $values)
             )
         );
-        return $rs ? $groups : false;
+        return $groups;
     }
 
     public function getTplModule()

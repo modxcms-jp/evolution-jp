@@ -793,11 +793,7 @@ function update_tmplvars($docid, $tmplvars)
 // 規則は ManagerAPI の setNewDocumentGroups()（変えてよいグループは送られた値、よくないグループは親から引き継ぐ）
 function setDocPermissionsNew($newid)
 {
-    if (manager()->setNewDocumentGroups($newid, (int)validated('parent')) === false) {
-        evo()->webAlertAndQuit(
-            'An error occured while attempting to add the document to a document_group.'
-        );
-    }
+    manager()->setNewDocumentGroups($newid, (int)validated('parent'));
 }
 
 // update parent folder status
