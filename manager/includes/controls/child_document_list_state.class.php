@@ -27,7 +27,8 @@ final class ChildDocumentListState
 
     /**
      * 検索語の絞り込み条件（sc は site_content の別名）。検索語が無ければ null。
-     * pagetitle・longtitle・alias・content（本文）の部分一致と、数字だけなら id の一致。
+     * pagetitle・longtitle・alias・content（本文）の部分一致と、数字だけなら id の一致（どれかに当たれば出す）。
+     * 数字だけのときの並びは prependIdMatch() が、ID が一致した文書を先頭にする。
      * LIKE の %・_・\ は無害化してから、DB へ渡す直前に db()->escape() を通す。
      */
     public static function keywordCondition(string $keyword): ?string
@@ -46,6 +47,18 @@ final class ChildDocumentListState
             $cond[] = 'sc.id=' . (int) $keyword;
         }
         return 'AND (' . implode(' OR ', $cond) . ')';
+    }
+
+    /**
+     * 数字だけの検索語のとき、ID が一致した文書を先頭にする ORDER BY を返す（それ以外は $orderBy のまま）。
+     * 数字で本文などを探すこともできるよう絞り込みは変えず、ID で探したときに目的の文書が 1 件目に来るようにする。
+     */
+    public static function prependIdMatch(string $keyword, string $orderBy): string
+    {
+        if (!ctype_digit($keyword)) {
+            return $orderBy;
+        }
+        return 'sc.id=' . (int) $keyword . ' DESC, ' . $orderBy;
     }
 
     /** 今のリクエストの page・orderby・orderdir・q を読む。parent は a=120 の id */

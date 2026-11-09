@@ -562,3 +562,36 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     color: color-mix(in srgb, var(--color-error, #c62828) 70%, #000);
     border-color: currentColor;
 }
+
+/* 子リソースの一覧の上の 2 行（resources_list.static.php）。
+   1 行目: パンくずと検索。2 行目: 作成のボタンとページ送り。狭いときは右のものが下に回り込む。
+   クラス名はこの画面専用。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
+.resources-list-head,
+.resources-list-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px) var(--space-4, 16px);
+}
+.resources-list-head .resources-topic-path,
+.resources-list-toolbar .pagination,
+.resources-list-toolbar ul.actionButtons,
+.child-list-tools ul.actionButtons {
+    margin: 0;
+    padding: 0;
+}
+.resources-list-head .child-list-tools,
+.resources-list-toolbar .pagination,
+.resources-list-pager-bottom .pagination {
+    margin-left: auto;
+}
+.child-list-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px);
+}
+.resources-list-pager-bottom {
+    display: flex;
+    margin-top: var(--space-3, 12px);
+}
