@@ -235,7 +235,8 @@ final class EvoSettingsForm
     }
 
     /**
-     * render() の中でプラグインのイベント（OnInterfaceSettingsRender など）が出した欄の名前
+     * render() の中でプラグインのイベント（OnInterfaceSettingsRender など）が出した欄の名前。
+     * ユーザーの画面（user・profile）でだけ集める。render() の後に呼ばないと空
      */
     public function pluginFieldNames(): array
     {
@@ -379,7 +380,9 @@ HTML;
         if ($output === '') {
             return '';
         }
-        $this->pluginFieldNames = array_merge($this->pluginFieldNames, self::fieldNames($output));
+        if (!$this->isSystem()) {
+            $this->pluginFieldNames = array_merge($this->pluginFieldNames, self::fieldNames($output));
+        }
         $heading = '';
         foreach ($tab['sections'] ?? [] as $section) {
             if (!empty($section['title'])) {
