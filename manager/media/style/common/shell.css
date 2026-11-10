@@ -113,7 +113,20 @@ body.evo-shell #treeRoot div img {
     top: -.08em;
 }
 
+/* ツリー上部のボタンの並び。スクロールする箱は #treePane なので、その上端に貼り付ける。
+   背景はテーマの .treeframebody から引き継ぐ(透けるテーマは各テーマの style.css で上書きする)。
+   #floater(並べ替えの小窓)も入れ物の中に置き、位置の基準にしている。
+   下には薄い境界線を引いて、スクロールしたツリーとの境目を見せる */
+body.evo-shell .tree-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: inherit;
+    box-shadow: 0 1px 0 var(--color-border-default, rgba(0, 0, 0, .12));
+}
+
 body.evo-shell #floater {
+    top: 100%;
     left: auto;
     right: auto;
     inset-inline-start: 20px;
