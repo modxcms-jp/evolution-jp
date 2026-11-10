@@ -150,6 +150,15 @@ if (isset($result['total'])) {
     }
     cli_out(sprintf('Elapsed: %s sec', $result['elapsed']));
 
+    if ($result['skips']) {
+        cli_out('Skipped (not exported on purpose):');
+        foreach ($result['skips'] as $f) {
+            cli_out('  ' . $plain(sprintf('#%d %s: %s', $f['id'], $f['pagetitle'], $f['reason'])));
+        }
+        if ($result['skips_count'] > count($result['skips'])) {
+            cli_out(sprintf('  ... and %d more', $result['skips_count'] - count($result['skips'])));
+        }
+    }
     if ($result['failures']) {
         cli_err('Failures:');
         foreach ($result['failures'] as $f) {

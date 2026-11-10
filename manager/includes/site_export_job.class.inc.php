@@ -142,6 +142,8 @@ class EvoSiteExportJob
                 'skipped' => 0,
                 'failed' => 0,
                 'failures' => [],
+                'skips' => [],
+                'skips_count' => 0,
                 'messages' => [],
                 'elapsed' => 0,
                 'error' => $failed,
@@ -169,6 +171,8 @@ class EvoSiteExportJob
                 'skipped' => 0,
                 'failed' => 0,
                 'failures' => [],
+                'skips' => [],
+                'skips_count' => 0,
                 'messages' => $messages,
                 'elapsed' => microtime(true) - $began,
                 'error' => '',
@@ -262,7 +266,7 @@ class EvoSiteExportJob
                     } elseif ($result['status'] === 'success') {
                         $state['success']++;
                     } elseif ($result['status'] === 'skipped') {
-                        $state['skipped']++;
+                        $this->addSkip($state, $result);
                     } else {
                         $this->addFailure($state, $result);
                     }
@@ -435,6 +439,26 @@ class EvoSiteExportJob
         }
     }
 
+    /**
+     * スキップを数える。理由を知らせたいスキップ（ページを持たないフォルダ以外。Web の閲覧を制限したページなど）は、
+     * 失敗と同じく MAX_FAILURES 件まで一覧に残す。
+     */
+    private function addSkip(array &$state, array $result)
+    {
+        $state['skipped']++;
+        if ($result['reason'] === 'success_skip_dir') {
+            return;
+        }
+        $state['skips_count']++;
+        if (count($state['skips']) < self::MAX_FAILURES) {
+            $state['skips'][] = [
+                'id'        => (int)$result['id'],
+                'pagetitle' => (string)$result['pagetitle'],
+                'reason'    => (string)$result['reason'],
+            ];
+        }
+    }
+
     private function toResponse(array $state)
     {
         $failures = [];
@@ -443,6 +467,14 @@ class EvoSiteExportJob
                 'id'        => $f['id'],
                 'pagetitle' => $f['pagetitle'],
                 'reason'    => $this->reasonText($f['reason'], isset($f['detail']) ? $f['detail'] : ''),
+            ];
+        }
+        $skips = [];
+        foreach ($state['skips'] as $f) {
+            $skips[] = [
+                'id'        => $f['id'],
+                'pagetitle' => $f['pagetitle'],
+                'reason'    => $this->reasonText($f['reason']),
             ];
         }
         $finishedAt = $state['state'] === self::STATE_RUNNING || empty($state['finished_at'])
@@ -457,6 +489,9 @@ class EvoSiteExportJob
             'skipped'  => $state['skipped'],
             'failed'   => $state['failed'],
             'failures' => $failures,
+            // 理由を知らせたいスキップの一覧と、その件数（一覧に載せきれなかった分を含む）
+            'skips'       => $skips,
+            'skips_count' => $state['skips_count'],
             'messages' => $state['messages'],
             'elapsed'  => round($state['elapsed'], 3),
             'output'   => $state['output'],
@@ -474,6 +509,7 @@ class EvoSiteExportJob
             'failed_no_retrieve' => 'export_site_failed_no_retrieve',
             'failed_no_open'     => 'export_site_failed_no_open',
             'basic_auth'         => 'export_site_basic_auth_failed',
+            'success_skip_private' => 'export_site_skip_private',
         ];
         $text = isset($keys[$reason]) ? lang($keys[$reason]) : (string)$reason;
         return $detail !== '' ? "{$text} ({$detail})" : $text;
@@ -607,6 +643,8 @@ class EvoSiteExportJob
         if (!is_array($state) || !isset($state['state'], $state['ids'], $state['options'])) {
             return null;
         }
+        // スキップの一覧を持たない古い状態（更新の前に始めたジョブ）にも同じ形を持たせる
+        $state += ['skips' => [], 'skips_count' => 0];
         if ($state['state'] !== self::STATE_RUNNING && empty($state['finished_at'])) {
             // finished_at を持たない古い状態は、ファイルの更新日時を終わった日時とみなす
             $state['finished_at'] = (int)@filemtime($this->stateFile);

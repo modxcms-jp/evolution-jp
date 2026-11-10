@@ -8,7 +8,9 @@
  * op=cancel : 中止する
  *
  * 応答: {"state":"running|done|cancelled|busy|error|none","job_id":"…","total":…,"done":…,"success":…,"skipped":…,
- *        "failed":…,"failures":[{"id","pagetitle","reason"}],"messages":[…],"elapsed":…,"output":"","message":""}
+ *        "failed":…,"failures":[{"id","pagetitle","reason"}],"skips":[{"id","pagetitle","reason"}],"skips_count":…,
+ *        "messages":[…],"elapsed":…,"output":"","message":""}
+ * skips は理由を知らせたいスキップ（Web の閲覧を制限したページなど。ページを持たないフォルダは含まない）。
  * job_id は始めたジョブの識別子（start・step・status・cancel の応答に含む）。画面は別のジョブに替わったことの検出に使う。
  * messages はプラグインのイベントの出力（HTML）、message は言語ファイルの案内（HTML）。
  * pagetitle など利用者のデータは、画面で出すときに必ずエスケープする。
