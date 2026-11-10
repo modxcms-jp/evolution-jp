@@ -1352,10 +1352,10 @@ class ManagerAPI
      * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
      * 集合のうち管理側で非公開のもの（membergroup_access に行がある。setMgrDocsAsPrivate() と同じ定義）が
      * 1 つ以上あり、利用者の所属（sessionv('mgrDocgroups')）にそのどれも無いときだけ false。
-     * use_udperms が無効、管理者（manager()->isAdmin()）、管理側で非公開のグループが無いときは true。
-     * 条件は、編集画面が文書を読む db_value()（mutate_content/functions.php）に合わせている
-     * （isAdmin() のときだけ絞り込みを外し、privatemgr=0 または所属の文書グループを要求する）。
-     * 表示側の checkPermissions()（save_role で判定）とは違う。その食い違いは #1338 で扱う。
+     * use_udperms が無効、または管理側で非公開のグループが無いときは true。
+     * 編集画面は checkPermissions()（save_role で絞り込みを外す）と db_value()（isAdmin() で絞り込みを外す）の
+     * 両方を通って文書を開くので、両方を飛ばせる利用者（isAdmin() かつ save_role）だけ確認を省く。
+     * 2 つの条件の食い違いは #1338 で扱う。
      * sessionv('mgrDocgroups') は、管理画面のリクエストで accesscontrol.inc.php が読み直す値が前提
      * （管理画面のリクエストで使う）
      *
@@ -1364,7 +1364,10 @@ class ManagerAPI
      */
     public function canOpenWithDocumentGroups($groupIds)
     {
-        if (evo()->config('use_udperms') != 1 || manager()->isAdmin()) {
+        if (
+            evo()->config('use_udperms') != 1
+            || ($this->isAdmin() && evo()->hasPermission('save_role'))
+        ) {
             return true;
         }
         $private = $this->mgrPrivateDocumentGroupIds($groupIds);
