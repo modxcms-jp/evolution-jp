@@ -1451,6 +1451,26 @@ class ManagerAPI
     }
 
     /**
+     * 文書の編集画面（a=27）を、この利用者が開けるか。管理画面の入口（mutate_content/functions.php の
+     * checkPermissions()）と同じ条件: view_document の権限、許可するリソースの範囲（isInAllowedParents()）、
+     * 文書グループ（canAccessDocument()）。リクエストの値は読まない。QuickManager の編集ボタンと保存が使う。
+     * 保存できるかは save_document（呼ぶ側が見る）
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canOpenDocumentEditor($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId <= 0) {
+            return false;
+        }
+        return evo()->hasPermission('view_document')
+            && $this->isInAllowedParents($docId)
+            && $this->canAccessDocument($docId);
+    }
+
+    /**
      * 文書グループで絞るときの、TV（テンプレート変数）の SQL の条件式（前に AND は付けない）。絞らないときは空文字。
      * TV のアクセスの判定の正はここ（編集画面・保存・QuickManager が使う）。
      * 絞るかどうかは文書の判定と同じ restrictsByDocumentGroups()（#1338）。
