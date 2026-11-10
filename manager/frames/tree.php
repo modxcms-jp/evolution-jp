@@ -358,117 +358,119 @@ if (is_array($evtOut)) {
 <div class="treeframebody">
     <div id="treeSplitter"></div>
 
-    <table id="treeMenu" width="100%" border="0" cellpadding="0" cellspacing="0">
-        <tr>
-            <td>
-                <table cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
-                                title="<?= $_lang['expand_tree'] ?>"><?= $_style['expand_tree'] ?></a>
-                        </td>
-                        <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
-                                title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
-                        </td>
-                        <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
-                            <td><a href="#" class="treeButton" id="treeNewResource"
-                                    onclick="EvoShell.navigate('index.php?a=4');return false;"
-                                    title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
+    <div class="tree-toolbar">
+        <table id="treeMenu" width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
+                                    title="<?= $_lang['expand_tree'] ?>"><?= $_style['expand_tree'] ?></a>
                             </td>
-                            <td><a href="#" class="treeButton" id="treeNewWeblink"
-                                    onclick="EvoShell.navigate('index.php?a=72');return false;"
-                                    title="<?= $_lang['add_weblink'] ?>"><?= $_style['add_weblink_tree'] ?></a>
+                            <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
+                                    title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
                             </td>
-                        <?php } ?>
-                        <td><a href="#" class="treeButton" id="treeRefresh" onclick="top.mainMenu.reloadtree();"
-                                title="<?= $_lang['refresh_tree'] ?>"><?= $_style['refresh_tree'] ?></a>
-                        </td>
-                        <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
-                                title="<?= $_lang['sort_tree'] ?>"><?= $_style['sort_tree'] ?></a></td>
-                        <?php if (evo()->hasPermission('empty_trash')) { ?>
-                            <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
-                                    title="<?= $_lang['empty_recycle_bin_empty'] ?>"><?= $_style['empty_recycle_bin_empty'] ?></a>
+                            <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
+                                <td><a href="#" class="treeButton" id="treeNewResource"
+                                        onclick="EvoShell.navigate('index.php?a=4');return false;"
+                                        title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
+                                </td>
+                                <td><a href="#" class="treeButton" id="treeNewWeblink"
+                                        onclick="EvoShell.navigate('index.php?a=72');return false;"
+                                        title="<?= $_lang['add_weblink'] ?>"><?= $_style['add_weblink_tree'] ?></a>
+                                </td>
+                            <?php } ?>
+                            <td><a href="#" class="treeButton" id="treeRefresh" onclick="top.mainMenu.reloadtree();"
+                                    title="<?= $_lang['refresh_tree'] ?>"><?= $_style['refresh_tree'] ?></a>
                             </td>
-                        <?php } ?>
-                    </tr>
-                </table>
-            </td>
-            <td align="right">
-                <table cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                        <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
-                                title="<?= $_lang['hide_tree'] ?>"><?= $_style['hide_tree'] ?></a></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+                            <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
+                                    title="<?= $_lang['sort_tree'] ?>"><?= $_style['sort_tree'] ?></a></td>
+                            <?php if (evo()->hasPermission('empty_trash')) { ?>
+                                <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
+                                        title="<?= $_lang['empty_recycle_bin_empty'] ?>"><?= $_style['empty_recycle_bin_empty'] ?></a>
+                                </td>
+                            <?php } ?>
+                        </tr>
+                    </table>
+                </td>
+                <td align="right">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
+                                    title="<?= $_lang['hide_tree'] ?>"><?= $_style['hide_tree'] ?></a></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
-    <div id="floater">
-        <button
-            type="button"
-            class="tree-sorter-close"
-            onclick="hideSorter();return false;"
-            aria-label="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
-            title="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
-        >×</button>
-        <form name="sortFrm" id="sortFrm" action="menu.php">
-            <table style="width:100%;border:none;padding:0;margin:0">
-                <tr>
-                    <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
-                        <select name="sortby" style="font-size: 12px;">
-                            <option
-                                value="isfolder"
-                                <?= isSelectedTreeSortby('isfolder') ?>
-                            ><?= $_lang['folder'] ?></option>
-                            <option
-                                value="pagetitle"
-                                <?= isSelectedTreeSortby('pagetitle') ?>
-                            ><?= $_lang['pagetitle'] ?></option>
-                            <option
-                                value="id"
-                                <?= isSelectedTreeSortby('id') ?>
-                            ><?= $_lang['id'] ?></option>
-                            <option
-                                value="menuindex"
-                                <?= isSelectedTreeSortby('menuindex') ?>
-                            ><?= $_lang['resource_opt_menu_index'] ?></option>
-                            <option
-                                value="createdon"
-                                <?= isSelectedTreeSortby('createdon') ?>
-                            ><?= $_lang['createdon'] ?></option>
-                            <option
-                                value="editedon"
-                                <?= isSelectedTreeSortby('editedon') ?>
-                            ><?= $_lang['editedon'] ?></option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td width="99%" style="padding-left: 10px;padding-top: 1px;">
-                        <select name="sortdir" style="font-size: 12px;">
-                            <option
-                                value="DESC"
-                                <?= isSelectedTreeSortDir('DESC') ?>
-                            ><?= $_lang['sort_desc'] ?></option>
-                            <option
-                                value="ASC"
-                                <?= isSelectedTreeSortDir('ASC') ?>
-                            ><?= $_lang['sort_asc'] ?></option>
-                        </select>
-                        <input type="hidden" name="dt" value="<?= hsc(request_strvar('dt')) ?>"/>
-                    </td>
-                    <td width="1%"><a
-                        href="#"
-                        class="treeButton"
-                        id="button7"
-                        style="text-align:right"
-                        onclick="updateTree();hideSorter();"
-                        title="<?= $_lang['sort_tree'] ?>"
-                    ><?= $_lang['sort_tree'] ?></a>
-                    </td>
-                </tr>
-            </table>
-        </form>
+        <div id="floater">
+            <button
+                type="button"
+                class="tree-sorter-close"
+                onclick="hideSorter();return false;"
+                aria-label="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
+                title="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
+            >×</button>
+            <form name="sortFrm" id="sortFrm" action="menu.php">
+                <table style="width:100%;border:none;padding:0;margin:0">
+                    <tr>
+                        <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
+                            <select name="sortby" style="font-size: 12px;">
+                                <option
+                                    value="isfolder"
+                                    <?= isSelectedTreeSortby('isfolder') ?>
+                                ><?= $_lang['folder'] ?></option>
+                                <option
+                                    value="pagetitle"
+                                    <?= isSelectedTreeSortby('pagetitle') ?>
+                                ><?= $_lang['pagetitle'] ?></option>
+                                <option
+                                    value="id"
+                                    <?= isSelectedTreeSortby('id') ?>
+                                ><?= $_lang['id'] ?></option>
+                                <option
+                                    value="menuindex"
+                                    <?= isSelectedTreeSortby('menuindex') ?>
+                                ><?= $_lang['resource_opt_menu_index'] ?></option>
+                                <option
+                                    value="createdon"
+                                    <?= isSelectedTreeSortby('createdon') ?>
+                                ><?= $_lang['createdon'] ?></option>
+                                <option
+                                    value="editedon"
+                                    <?= isSelectedTreeSortby('editedon') ?>
+                                ><?= $_lang['editedon'] ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="99%" style="padding-left: 10px;padding-top: 1px;">
+                            <select name="sortdir" style="font-size: 12px;">
+                                <option
+                                    value="DESC"
+                                    <?= isSelectedTreeSortDir('DESC') ?>
+                                ><?= $_lang['sort_desc'] ?></option>
+                                <option
+                                    value="ASC"
+                                    <?= isSelectedTreeSortDir('ASC') ?>
+                                ><?= $_lang['sort_asc'] ?></option>
+                            </select>
+                            <input type="hidden" name="dt" value="<?= hsc(request_strvar('dt')) ?>"/>
+                        </td>
+                        <td width="1%"><a
+                            href="#"
+                            class="treeButton"
+                            id="button7"
+                            style="text-align:right"
+                            onclick="updateTree();hideSorter();"
+                            title="<?= $_lang['sort_tree'] ?>"
+                        ><?= $_lang['sort_tree'] ?></a>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
     </div>
 
     <div id="treeHolder">

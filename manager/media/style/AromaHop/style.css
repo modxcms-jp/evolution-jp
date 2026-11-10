@@ -1116,6 +1116,14 @@ html body.evo-shell > #treePane {
     border-inline-end-color: rgba(255, 255, 255, 0.6);
 }
 
+/* ボタンの並びは貼り付けて下のツリーに重なるため、泡と光の模様やツリーが透けて読みにくくならないよう氷白を濃くしてぼかす
+   (shell.css より後に効かせるため html を足して詳細度を上げる) */
+html body.evo-shell .tree-toolbar {
+    background: rgba(253, 253, 251, 0.82);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
 #treeMenu * {
     vertical-align: middle;
 }

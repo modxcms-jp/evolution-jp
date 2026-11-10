@@ -1486,7 +1486,7 @@ a.hometblink:hover {
 
 .treeButton:hover {
     border: var(--border-thin) solid #88939E;
-    padding: var(--space-1) var(--space-1);
+    padding: calc(var(--space-1) - var(--border-thin)) calc(var(--space-1) - var(--border-thin));
     background: var(--color-surface);
 }
 
