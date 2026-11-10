@@ -147,10 +147,7 @@
 }
 
 .evo-fb-selectionbar {
-    /* 一覧(.evo-fb-main)の下端に貼り付ける。一覧の中に置くので、出入りしても行の上端の位置は動かない */
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
+    /* 一覧(.evo-fb-main)の下に常に出す。選択の有無でボタンを隠さず無効にするだけなので、高さは変わらない */
     flex: 0 0 auto;
     display: flex;
     flex-wrap: wrap;
@@ -159,10 +156,6 @@
     padding: var(--space-1, 4px) var(--space-3, 12px);
     background: var(--gray-100, #f5f5f5);
     border-top: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
-}
-
-.evo-fb-selectionbar[hidden] {
-    display: none;
 }
 
 /* 開いているフォルダに書き込めないときの注意(一覧の上) */
@@ -318,18 +311,19 @@
 
 /* 右ペイン: ファイルグリッド(アップロードのドロップ受け) */
 
+/* 右ペイン: 一覧(スクロール領域)と、その下の選択の帯を縦に並べる */
+.evo-fb-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
 .evo-fb-main {
     position: relative;
     flex: 1 1 auto;
     min-width: 0;
     overflow: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 一覧は中身の高さだけ取り、余った高さは選択の帯の上の余白にする(帯を常に下端へ送るため) */
-.evo-fb-main > .evo-fb-grid {
-    flex: 1 0 auto;
 }
 
 .evo-fb-dropoverlay {
