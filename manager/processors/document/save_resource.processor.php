@@ -446,10 +446,20 @@ function checkDocPermission($id)
             alert()->setError(7);
             alert()->dumpError();
         }
+        $existingDocument = db()->getRow($rs);
+
+        // 親をルートへ変えるときは、use_udperms に関係なく、ルートに置いてよいかを確かめる
+        if ($existingDocument['parent'] != validated('parent') && validated('parent') == 0 && !manager()->canPlaceAtRoot()) {
+            evo()->manager->saveFormValues(postedScreen());
+            evo()->webAlertAndQuit(
+                sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
+                formReturnUrl()
+            );
+        }
+
         if (evo()->config('use_udperms') != 1) {
             return;
         }
-        $existingDocument = db()->getRow($rs);
 
         // 保存しようとしている文書そのものにアクセスできるか
         if (!evo()->checkPermissions($id)) {
@@ -461,14 +471,15 @@ function checkDocPermission($id)
             return;
         }
 
-        if (!evo()->checkPermissions(validated('parent'))) {
+        // ルートへの変更は上で確かめ済み
+        if (validated('parent') != 0 && !evo()->checkPermissions(validated('parent'))) {
             evo()->manager->saveFormValues(postedScreen());
             evo()->webAlertAndQuit(
                 sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
                 formReturnUrl()
             );
         }
-    } elseif (validated('parent') == 0 && !manager()->isAllowroot()) {
+    } elseif (validated('parent') == 0 && !manager()->canPlaceAtRoot()) {
         alert()->setError(3);
         alert()->dumpError();
     } elseif (!evo()->hasPermission('new_document')) {

@@ -1005,7 +1005,9 @@ class ManagerAPI
         if ($message) {
             return $message;
         }
-        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
+        // ルートへの変更は、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
+        $canPlace = $parentId === 0 ? $this->canPlaceAtRoot() : evo()->checkPermissions($parentId);
+        if (!$canPlace || !$this->isInAllowedParents($parentId)) {
             return lang('access_permission_parent_denied');
         }
         return '';
@@ -1147,6 +1149,24 @@ class ManagerAPI
     public function isAllowroot()
     {
         return $this->bypassesDocumentGroups() || (bool)evo()->config('udperms_allowroot');
+    }
+
+    /**
+     * 文書をルート（親が 0）に置いてよいか。ルートに置く入口（新規・保存での親の変更・移動・複製・
+     * 親の選択・作成のボタン）は、すべてこの判定を使う。
+     *
+     * 考え方（向き B）: udperms_allowroot は文書グループの設定の 1 つで、use_udperms が有効なときだけ効く
+     * （設定の画面でも有効なときだけ見える）。use_udperms が無効なら誰でもルートに置ける。
+     * 向き A（use_udperms に関係なく udperms_allowroot で決める）に切り替えるなら、この 1 行だけを
+     * isAllowroot() にすればよい。
+     *
+     * 許可するリソースの範囲（isInAllowedParents(0)）は別の判定なので、ここには混ぜない。
+     *
+     * @return bool
+     */
+    public function canPlaceAtRoot()
+    {
+        return evo()->config('use_udperms') != 1 || $this->isAllowroot();
     }
 
     // PHP の設定から求めたアップロードサイズの上限（バイト数）。無制限なら 0

@@ -1142,8 +1142,8 @@ trait DocumentParserSubParserTrait
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
-        if ($duplicateDoc == true && $parent == 0 && $allowroot == 0) {
-            return false; // deny duplicate document at root if Allow Root is No
+        if ($duplicateDoc == true && $parent == 0 && !manager()->canPlaceAtRoot()) {
+            return false; // ルートに置けないときは、ルートの文書の複製も止める
         }
 
         return manager()->canAccessDocument($docid);
