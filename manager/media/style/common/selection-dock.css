@@ -44,11 +44,6 @@
     box-shadow: none;
     cursor: pointer;
 }
-.selection-dock .selection-dock-link:disabled {
-    text-decoration: none;
-    opacity: .5;
-    cursor: not-allowed;
-}
 
 /* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
 .selection-dock ul.actionButtons {
