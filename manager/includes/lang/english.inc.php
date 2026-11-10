@@ -938,7 +938,7 @@ return [
     "untitled_weblink" => 'Untitled Weblink',
     "update_params" => 'Update parameter display',
     "update_settings_from_language" => 'Replace current with:',
-    "upload_maxsize_message" => 'Enter the maximum file size that can be uploaded via the File Picker and File Manager. Upload file size must be entered in bytes. <b>NOTE: Large files can take a very long time to upload!</b>',
+    "upload_maxsize_message" => 'Enter the maximum file size that can be uploaded via the File Picker and File Manager, in MB (e.g. 32). The server allows up to %s. <b>NOTE: Large files can take a very long time to upload!</b>',
     "upload_maxsize_title" => 'Maximum upload size',
     "uploadable_files_message" => 'Enter the extensions that can be uploaded into the files folder of the File Picker, separated by commas. The File Manager also handles these extensions, in addition to its built-in list.',
     "uploadable_files_title" => 'Uploadable File Types',

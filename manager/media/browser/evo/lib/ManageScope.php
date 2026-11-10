@@ -94,7 +94,7 @@ class ManageScope implements BrowserScope
     /** upload_maxsize が正の数ならその値。空なら null（本体では制限せず、PHP の上限だけが効く。旧ファイル管理と同じ） */
     public function maxUploadSize()
     {
-        $size = (int) $this->modx->config('upload_maxsize');
+        $size = (int) size_to_bytes($this->modx->config('upload_maxsize'));
 
         return $size > 0 ? $size : null;
     }

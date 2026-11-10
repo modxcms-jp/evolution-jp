@@ -37,6 +37,7 @@
 - `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
 - `default`: 値が無い・空のときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
+- `after`: `text` の欄の後ろに出す文字列（単位など）。`toInput`・`fromInput`: 保存の形と欄の形が違う設定（`upload_maxsize` はバイトで保存し、欄は MB の数）の変換の関数。`toInput` は保存の値 → 欄の値、`fromInput` は欄の値 → 保存の値（読めない値は `null`）。変換は行だけに書く。保存処理（`save_settiongs()`・`saveUserSettings()`）は全部の名前を `EvoSettingsForm::storedValue($key, $value)` に通し（`fromInput` の無い名前はそのまま返る。null は保存せず今の値を残す）、差し戻しは `EvoSettingsForm::restoredValues($formValues)` でまとめて保存の形に戻す
 - `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、読み込み時とラジオを切り替えたときに一緒に出し入れされる
 - タブの中を小見出しで分けるときは、`sections` の section の `title` に `lang('settings_section_…')` を書く。`<h3 class="settings-section">` の次に表が続く形で出る（`null` なら見出しなしの 1 つの表）。見た目は `manager/media/style/common/shell.css` の `.tab-page .settings-section` の 2 つの規則（小見出しの `.tab-page .settings-section` と、直前の表の下の余白の `.tab-page > :has(+ .settings-section)`）で決まり、テーマには足さない。文言は `label` と同じ信頼する HTML
 - 設定でない欄（hidden など）を足したときは、`save_settings.processor.php` の `nonSettingKeys()` に入れて保存しないようにする。設定の欄を足すだけなら触らない

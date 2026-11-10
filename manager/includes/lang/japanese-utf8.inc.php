@@ -940,7 +940,7 @@ return [
     "untitled_weblink" => 'タイトルがありません',
     "update_params" => 'パラメータ表示を更新',
     "update_settings_from_language" => '置き換え',
-    "upload_maxsize_message" => '管理画面を通じてアップロード可能なファイルの最大サイズ。このサーバでは上限%sまで設定できます。<br />※ブラウザ側で制限をかけるための設定です。サーバ側の調整が必要な場合は.htaccessやphp.iniで<a href="https://www.google.com/search?q=memory_limit+upload_max_filesize+post_max_size" target="_blank">設定を変更</a>してください。',
+    "upload_maxsize_message" => '管理画面を通じてアップロード可能なファイルの最大サイズを MB 単位で入れます（例: 32）。このサーバでは上限%sまで設定できます。<br />※ブラウザ側で制限をかけるための設定です。サーバ側の調整が必要な場合は.htaccessやphp.iniで<a href="https://www.google.com/search?q=memory_limit+upload_max_filesize+post_max_size" target="_blank">設定を変更</a>してください。',
     "upload_maxsize_title" => 'アップロードサイズの上限',
     "uploadable_files_message" => 'ファイルピッカーのfilesフォルダーにアップロードできる拡張子を、カンマで区切って入力します。ファイル管理では、本体で決めた一覧に加えて、この拡張子も扱えます。',
     "uploadable_files_title" => 'アップロード可能な文書ファイル',
