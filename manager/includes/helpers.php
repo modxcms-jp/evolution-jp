@@ -1156,8 +1156,8 @@ function manager_asset($path)
 }
 
 /**
- * サイト内の URL（MODX_BASE_URL から始まる）に版を付ける。
- * 外部の URL や、すでに ? や # を含む URL はそのまま返す。
+ * MODX_SITE_URL または MODX_BASE_URL から始まるサイト内の URL に版を付ける。
+ * 外部の URL、// で始まる URL、? や # を含む URL はそのまま返す。
  */
 function site_asset($url)
 {
