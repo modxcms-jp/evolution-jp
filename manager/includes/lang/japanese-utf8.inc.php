@@ -1137,6 +1137,7 @@ return [
     "a16_use_resources" => 'このテンプレートを使用しているリソース',
     "a16_many_resources" => 'リソース数が多いためここでは表示しません。',
     "a16_no_resource" => 'このテンプレートを使用しているリソースはありません。',
+    "a16_hidden_resources" => '権限が無いため表示しないリソースが %d 件あります。',
 
     'a17_error_reporting_title' => 'PHPエラーの検出レベル',
     'a17_error_reporting_msg' => 'PHPエラーの検出レベルを設定します。',

@@ -23,11 +23,18 @@ function get_resources_byajax($id)
         $where
     );
     $total = db()->count($rs);
+    // 絞る前の件数。絞った結果が 0 件でも、使われているテンプレートを未使用と読ませない
+    $hidden = (int)db()->getValue(
+        db()->select('COUNT(*)', '[+prefix+]site_content', "template='" . $id . "'")
+    ) - $total;
     if (evo()->config['limit_by_container'] < $total) {
         return sprintf('<p>%s</p>', $_lang['a16_many_resources']);
     }
     if ($total === 0) {
-        return sprintf('<p>%s</p>', $_lang['a16_no_resource']);
+        return sprintf(
+            '<p>%s</p>',
+            $hidden > 0 ? sprintf($_lang['a16_hidden_resources'], $hidden) : $_lang['a16_no_resource']
+        );
     }
 
     $items = [];
@@ -39,6 +46,10 @@ function get_resources_byajax($id)
             $ph
         );
     }
-    return sprintf('<p>%s</p>', implode(', ', $items));
+    $html = sprintf('<p>%s</p>', implode(', ', $items));
+    if ($hidden > 0) {
+        $html .= sprintf('<p>%s</p>', sprintf($_lang['a16_hidden_resources'], $hidden));
+    }
+    return $html;
 }
 
