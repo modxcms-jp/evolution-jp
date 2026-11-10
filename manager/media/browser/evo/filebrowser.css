@@ -619,7 +619,6 @@
 
 .evo-fb-grid--list .evo-fb-name {
     width: auto;
-    flex: 1 1 auto;
 }
 
 .evo-fb-meta {
@@ -636,6 +635,8 @@
     --evo-fb-col-type: 120px;
     --evo-fb-col-size: 84px;
     --evo-fb-col-actions: 94px;
+    /* 名前の列の最小幅。ペインが狭くて収まらない分は、右の列(サイズ・種類…)から見出しと行で同じように切れる */
+    --evo-fb-col-name-min: 120px;
     /* 名前の列の左: 行の枠線 + 行の左の余白 + アイコン + アイコンと名前の間 */
     --evo-fb-col-name-indent: calc(var(--border-thin, 1px) + var(--space-6, 24px) + 28px + var(--space-2, 8px));
 }
@@ -649,6 +650,19 @@
 .evo-fb-grid--list .evo-fb-item-thumb-btn,
 .evo-fb-grid--list .evo-fb-item-name-btn {
     margin: 0;
+}
+
+/* 行ごとに名前の長さが違っても、列の位置を見出しとそろえる。
+   名前の列は残りの幅を取る(基準の幅を 0 にする)。ボタンの最小幅を名前の長さで決めさせない */
+.evo-fb-grid--list .evo-fb-item-main,
+.evo-fb-grid--list .evo-fb-item-name-btn {
+    min-width: 0;
+}
+
+.evo-fb-grid--list .evo-fb-name,
+.evo-fb-grid--list .evo-fb-rename-input {
+    flex: 1 1 0;
+    min-width: var(--evo-fb-col-name-min);
 }
 
 /* ファイルのアイコンと名前の間を、フォルダー(.evo-fb-item-main の gap)と同じにする */
@@ -696,6 +710,8 @@
     z-index: 1;
     display: flex;
     align-items: stretch;
+    /* 名前の列の最小幅で収まらない分は、行(.evo-fb-item)と同じく切る */
+    overflow: hidden;
     /* 行の名前ボタンの右の余白(8px)と、操作のボタンの分をそろえる */
     padding-right: calc(var(--evo-fb-col-actions) + var(--space-2, 8px) + var(--border-thin, 1px));
     border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ddd);
@@ -721,8 +737,11 @@
     color: var(--color-text-primary, #333);
 }
 
+/* 行の名前の列(.evo-fb-grid--list .evo-fb-name)と同じく、残りの幅を取る */
 .evo-fb-list-col-name {
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    /* 行の名前の左(indent)・名前の最小幅・名前と更新日時の間(名前ボタンの gap)の分 */
+    min-width: calc(var(--evo-fb-col-name-indent) + var(--evo-fb-col-name-min) + var(--space-2, 8px));
     padding-left: var(--evo-fb-col-name-indent);
 }
 
