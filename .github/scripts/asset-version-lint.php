@@ -21,7 +21,6 @@ $root = dirname(__DIR__, 2);
 // 版を付けないファイル（相対パスの前方一致 => 理由）
 $excluded = [
     'assets/snippets/ditto/debug/' => 'Ditto のデバッグ表示。サイト側の出力で、管理画面の読み込みではない',
-    'assets/plugins/qm/inc/on_web_page_prerender.php' => 'QuickManager のサイト側の出力で、管理画面の読み込みではない',
 ];
 
 function relPath($root, $file)

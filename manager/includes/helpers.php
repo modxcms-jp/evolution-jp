@@ -1174,10 +1174,15 @@ function site_asset($url)
     if (strpos($url, '?') !== false || strpos($url, '#') !== false) {
         return $url;
     }
-    if (strpos($url, '//') !== false || strpos($url, MODX_BASE_URL) !== 0) {
+    // 絶対 URL（MODX_SITE_URL から始まる）と、サイトの根からの相対 URL（MODX_BASE_URL から始まる）だけ。
+    // // で始まるプロトコル相対や、ほかのホストの URL はそのまま返す
+    if (strpos($url, MODX_SITE_URL) === 0) {
+        $relative = substr($url, strlen(MODX_SITE_URL));
+    } elseif (strpos($url, '//') !== 0 && strpos($url, MODX_BASE_URL) === 0) {
+        $relative = substr($url, strlen(MODX_BASE_URL));
+    } else {
         return $url;
     }
-    $relative = substr($url, strlen(MODX_BASE_URL));
     return $url . '?' . asset_version(MODX_BASE_PATH . $relative);
 }
 

@@ -169,7 +169,7 @@ else {
 </ul>
 </div>';
         $css = '
-<link rel="stylesheet" type="text/css" href="' . MODX_SITE_URL . 'assets/plugins/qm/css/style.css" />
+<link rel="stylesheet" type="text/css" href="' . site_asset(MODX_SITE_URL . 'assets/plugins/qm/css/style.css') . '" />
 ';
 
         // Autohide toolbar? Default: true
@@ -183,9 +183,9 @@ else {
 
         // 編集画面を開くモーダル（loadtb）とツールバーの開閉。QM は jQuery を使わず、読み込みもしない
         $head = sprintf(
-            '<script type="text/javascript" src="%sassets/plugins/qm/js/qm.js"></script>'
+            '<script type="text/javascript" src="%s"></script>'
             . '<script type="text/javascript">QM.init({modal: %s, width: %s, height: %s});</script>',
-            MODX_SITE_URL,
+            site_asset(MODX_SITE_URL . 'assets/plugins/qm/js/qm.js'),
             $this->loadtb == 'true' ? 'true' : 'false',
             js_literal($this->tbwidth),
             js_literal($this->tbheight)
