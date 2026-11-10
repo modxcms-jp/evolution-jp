@@ -467,21 +467,14 @@ body.evo-shell input.evo-submitting-trigger {
     border: 1px solid var(--color-border-light, #ddd);
 }
 
-/* 一括操作のボタンの欄がある一覧では、選択の帯とボタンを 1 つの「操作の帯」にまとめ、表の下端に貼り付ける（data-table.js） */
+/* 一括操作のボタンの欄がある一覧では、選択の帯とボタンを 1 つの「操作の帯」にまとめ、表の下端に貼り付ける（data-table.js）。
+   見た目（地色・枠・並べ方・ボタンの欄・削除の警告色など）はファイルブラウザと共通の selection-dock.css の .selection-dock。
+   ここには、表の部品に固有の出し方（sticky・is-empty・中の帯）だけを書く */
 .data-table-selection-dock {
     position: sticky;
     bottom: 0;
     z-index: 5;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2, 8px) var(--space-4, 16px);
     margin-top: var(--space-3, 12px);
-    padding: var(--space-2, 8px) var(--space-3, 12px);
-    color: var(--color-text-primary, #333);
-    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
-    border: 1px solid var(--color-border-light, #ddd);
-    box-shadow: 0 -2px 4px rgb(0 0 0 / 8%);
 }
 /* 何も選んでいないときは、role="status" の外枠は描いたまま、帯の見た目とボタンの欄だけを消す */
 .data-table-selection-dock.is-empty {
@@ -498,6 +491,7 @@ body.evo-shell input.evo-submitting-trigger {
     justify-content: flex-start;
     margin: 0;
     padding: 0;
+    color: inherit; /* 帯の文言の色（.selection-dock）に従う */
     background: none;
     border: 0;
 }
@@ -509,59 +503,14 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-/* テーマの地色が半透明（右上のボタン群と同じ値）でも、下の表が透けて文字が読めなくならないよう、
-   帯の後ろを白で塗りつぶす（brightness(0) で黒、invert(1) で白。帯の角の丸みにも従う）。
-   白に決め打ちなので、暗い地のテーマには合わない（そのテーマは自分の規則でこの指定を上書きする）。
-   var(--color-surface) は半透明のテーマがあるので使わない。非対応のブラウザでは透けるだけで、機能は変わらない。
-   テーマの共有の規則（RubberWhite の blur など）より優先するため、詳細度を上げている */
-body.evo-shell .data-table-selection-dock:not(.is-empty) {
-    -webkit-backdrop-filter: brightness(0) invert(1);
-    backdrop-filter: brightness(0) invert(1);
-}
-/* 帯の中の文言とリンクは、地色（半透明のテーマもある）に対して 4.5:1 以上になるよう、本文の色を濃くして、
-   リンクは下線で区別する */
-.data-table-selection-dock .data-table-selection-body {
-    color: color-mix(in srgb, var(--color-text-primary, #333) 70%, #000);
-}
-.data-table-selection-dock .data-table-selection-body a {
-    color: inherit;
-    text-decoration: underline;
-}
-/* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める。
-   テーマの ul.actionButtons・li の規則（float・margin）に負けないよう、ID を含めて詳しくする */
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons {
-    display: flex;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2, 8px);
-    margin: 0;
-    padding: 0;
-}
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li {
-    float: none;
-    margin: 0;
-}
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons button,
+/* 一覧の検索の送信ボタンも、テーマの button { width: 112px } を打ち消す */
 .child-list-tools ul.actionButtons button {
     float: none;
-    width: auto; /* テーマの button { width: 112px } を打ち消す（帯のボタンと、一覧の検索の送信ボタン） */
+    width: auto;
     margin: 0;
     font-family: inherit;
     line-height: inherit;
     cursor: pointer;
-}
-/* テーマの .actionButtons:after（clear 用）が flex の並びの要素になり、右端から離れる・行が増えるのを防ぐ */
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons::after {
-    content: none;
-}
-/* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger {
-    margin-left: auto;
-}
-body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .actionButtons li.is-danger button {
-    color: color-mix(in srgb, var(--color-error, #c62828) 70%, #000);
-    border-color: currentColor;
 }
 
 /* 子リソースの一覧の上の 2 行（resources_list.static.php）。
@@ -589,7 +538,7 @@ body.evo-shell #mainPane .data-table-selection-dock [data-selection-actions] .ac
     margin-left: auto;
 }
 /* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
-   ボタンの width:112px の打ち消しは、帯のボタンの規則（上）にまとめてある */
+   ボタンの width:112px の打ち消しは、上の `.child-list-tools ul.actionButtons button` の規則で行う */
 .child-list-tools {
     display: flex;
     flex-wrap: wrap;

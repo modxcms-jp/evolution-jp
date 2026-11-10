@@ -146,25 +146,38 @@
     color: var(--color-text-primary, #333);
 }
 
-.evo-fb-selectionbar {
-    /* 一覧(.evo-fb-main)の下に常に出す。選択の有無でボタンを隠さず無効にするだけなので、高さは変わらない */
+/* 見た目（地色・枠・ボタンの並べ方・無効・削除の警告色）は子リソースの一覧の操作の帯と共通の .selection-dock
+   （style/common/selection-dock.css）。ここには、このブラウザでの出し方だけを書く */
+.evo-fb-selectionbar.selection-dock {
+    /* 一覧(.evo-fb-main)の下に置き、場所は常に取っておく。選択が無いときは is-hidden で見えなくするだけなので、
+       出し入れで一覧の位置も高さも変わらない(下端に重ねると、見えている最下行のダブルクリックが帯に当たる) */
     flex: 0 0 auto;
-    display: flex;
     /* 1 行に固定する。狭い幅では折り返さず横にスクロールし、帯の高さを変えない */
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: thin;
-    align-items: center;
-    gap: var(--space-2, 8px);
-    padding: var(--space-1, 4px) var(--space-3, 12px);
-    background: var(--gray-100, #f5f5f5);
-    border-top: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    margin: var(--space-2, 8px) var(--space-3, 12px);
+}
+
+/* display: none にしない(場所が消えて一覧の高さが変わる)。visibility なら中のボタンにも Tab で止まらない。
+   is-empty は使わない(テーマの .selection-dock:not(.is-empty) の枠が外れて、帯の高さが変わる) */
+.evo-fb-selectionbar.is-hidden {
+    visibility: hidden;
 }
 
 .evo-fb-selectionbar > * {
     flex-shrink: 0;
     white-space: nowrap;
+}
+
+.evo-fb-selectionbar.selection-dock ul.actionButtons {
+    flex: 1 0 auto;
+    flex-wrap: nowrap;
+}
+
+.evo-fb-selectionbar.selection-dock ul.actionButtons > li {
+    flex: 0 0 auto;
 }
 
 /* 件数の桁が変わっても帯の中身の幅を変えない(横スクロールバーの出入りで帯の高さが変わらないように) */

@@ -297,11 +297,9 @@ function init(root, entry, behaviors) {
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
         onSelectionChange: function (count) {
-            // 帯は常に出して高さを変えず、ボタンは選択が無いと無効にする。
-            // zip を作れない環境では、2 件以上のときはダウンロードのボタンも無効にする
-            selectionBarEl.querySelectorAll('button').forEach(function (btn) {
-                btn.disabled = count === 0;
-            });
+            // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)。
+            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを無効にする
+            selectionBarEl.classList.toggle('is-hidden', count === 0);
             downloadBtn.disabled = !canDownload(count);
             notifySelection();
         },

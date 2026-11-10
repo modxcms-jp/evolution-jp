@@ -65,7 +65,7 @@ if (!window.EvoDataTable) {
                 return null;
             }
             const dock = document.createElement('div');
-            dock.className = 'data-table-selection-dock';
+            dock.className = 'data-table-selection-dock selection-dock';
             // 下端に貼り付けるので、表の直後（表を包む div の中の末尾）に置く。bar（外枠）も一緒に移す
             const table = bar.closest('.data-table');
             if (!table) {

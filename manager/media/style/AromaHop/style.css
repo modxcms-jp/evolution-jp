@@ -2119,9 +2119,9 @@ h2#edit_document_title {
     z-index: 100;
 }
 
-/* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
+/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
 #actions,
-.data-table-selection-dock:not(.is-empty) {
+.selection-dock:not(.is-empty) {
     border: 0;
     box-shadow: none;
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
@@ -2265,6 +2265,11 @@ form > :has(+ .resources-batch-actions),
     background: rgba(248, 253, 250, 0.96);
     box-shadow: 0 1px 4px rgba(60, 90, 75, 0.08);
     transform: translateY(0);
+}
+
+.actionButtons :is(a, button):focus-visible {
+    outline: 2px solid var(--color-text-primary);
+    outline-offset: 2px;
 }
 
 .actionButtons a.disabled {
