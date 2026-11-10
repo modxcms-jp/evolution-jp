@@ -211,7 +211,7 @@ $searchUrl = 'index.php?' . http_build_query(['a' => 135, 'ajax' => 'search', 'i
 
 /**
  * タイトル・メニュータイトル・エイリアスの部分一致か ID の完全一致で、親の候補を探す。
- * ツリーと同じく、管理画面で非公開（privatemgr）のリソースは所属する文書グループのものだけを返す。
+ * 文書グループで開けない文書（parent_picker_access_where()、判定は ManagerAPI::documentAccessCondition()）は返さない。
  * allowed_parents の範囲外も返さない
  *
  * @param string $q
