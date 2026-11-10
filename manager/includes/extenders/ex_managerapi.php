@@ -739,6 +739,21 @@ class ManagerAPI
     }
 
     /**
+     * 1 つの文書の非公開の印（privatemgr・privateweb）を、実際の所属から求め直す。
+     * id が 0 や空だと setMgrDocsAsPrivate()・setWebDocsAsPrivate() は全文書を計算するので、
+     * その落とし穴をここで防ぎ、正の id のときだけ行う。
+     */
+    public function refreshDocumentPrivateFlags($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId < 1) {
+            return;
+        }
+        $this->setWebDocsAsPrivate($docId);
+        $this->setMgrDocsAsPrivate($docId);
+    }
+
+    /**
      *    Secure Manager Documents
      *    This script will mark manager documents as private
      *

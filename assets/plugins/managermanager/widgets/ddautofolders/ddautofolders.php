@@ -130,8 +130,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         manager()->setNewDocumentGroups($id, (int)$fields['parent'], $access);
         //非公開の印は文書本体の保存と同じく、実際の所属から求める
         if (evo()->config('use_udperms')) {
-            manager()->setWebDocsAsPrivate((int)$id);
-            manager()->setMgrDocsAsPrivate((int)$id);
+            manager()->refreshDocumentPrivateFlags($id);
         }
         return $id;
     };
