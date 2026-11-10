@@ -475,19 +475,14 @@ class Wayfinder
         $where = [];
         $where[] = 'sc.published=1';
         $where[] = 'AND sc.deleted=0';
-        if ($modx->isFrontend()) {
+        if (evo()->isFrontend()) {
             if (!$this->_config['showPrivate']) {
                 $where[] = 'AND sc.privateweb=0';
             }
-        } elseif (!$modx->managerBypassesDocumentGroups()) {
-            if ($modx->getUserDocGroups()) {
-                $where[] = sprintf(
-                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                    implode(',', $modx->getUserDocGroups()
-                    )
-                );
-            } else {
-                $where[] = 'AND sc.privatemgr=0';
+        } else {
+            $cond = manager()->documentAccessCondition('sc');
+            if ($cond !== '') {
+                $where[] = 'AND ' . $cond;
             }
         }
 

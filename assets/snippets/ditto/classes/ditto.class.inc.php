@@ -959,11 +959,8 @@ class ditto
                     'sc.privateweb=0 %s',
                     $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
-            } elseif (!evo()->managerBypassesDocumentGroups()) {
-                $access = sprintf(
-                    'sc.privatemgr=0 %s',
-                    $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
-                );
+            } else {
+                $access = manager()->documentAccessCondition('sc');
             }
         }
 
@@ -1082,11 +1079,11 @@ class ditto
                     'AND (sc.privateweb=0 OR dg.document_group IN (%s))',
                     implode(',', $docGroup)
                 );
-            } elseif (!evo()->managerBypassesDocumentGroups()) {
-                $where[] = sprintf(
-                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                    implode(',', $docGroup)
-                );
+            } else {
+                $cond = manager()->documentAccessCondition('sc');
+                if ($cond !== '') {
+                    $where[] = 'AND ' . $cond;
+                }
             }
             if ($published) {
                 $where[] = 'AND sc.published=1';
@@ -1102,8 +1099,11 @@ class ditto
             $where[] = 'AND deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';
-            } elseif (!evo()->managerBypassesDocumentGroups()) {
-                $where[] = 'AND privatemgr=0';
+            } else {
+                $cond = manager()->documentAccessCondition('');
+                if ($cond !== '') {
+                    $where[] = 'AND ' . $cond;
+                }
             }
             if ($published) {
                 $where[] = 'AND published=1';
