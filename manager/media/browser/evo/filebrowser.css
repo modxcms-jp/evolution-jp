@@ -167,6 +167,12 @@
     white-space: nowrap;
 }
 
+/* 件数の桁が変わっても帯の中身の幅を変えない(横スクロールバーの出入りで帯の高さが変わらないように) */
+.evo-fb-selectionbar [data-role="selection-count"] {
+    min-width: 7em;
+    font-variant-numeric: tabular-nums;
+}
+
 /* 開いているフォルダに書き込めないときの注意(一覧の上) */
 .evo-fb-notice {
     padding: var(--space-1, 4px) var(--space-3, 12px);
@@ -177,11 +183,6 @@
 
 .evo-fb-notice[hidden] {
     display: none;
-}
-
-.evo-fb-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .evo-fb-path {
@@ -318,8 +319,6 @@
     padding: 2px 4px;
 }
 
-/* 右ペイン: ファイルグリッド(アップロードのドロップ受け) */
-
 /* 右ペイン: 一覧(スクロール領域)と、その下の選択の帯を縦に並べる */
 .evo-fb-content {
     display: flex;
@@ -328,6 +327,7 @@
     min-width: 0;
 }
 
+/* 右ペイン: ファイルグリッド(アップロードのドロップ受け) */
 .evo-fb-main {
     position: relative;
     flex: 1 1 auto;

@@ -108,7 +108,7 @@ class BrowserView
         $markup .= '        <div class="evo-fb-dropoverlay" data-role="dropoverlay">' . hsc(lang('fb_drop_to_upload')) . '</div>';
         $markup .= '      </div>';
         $markup .= '      <div class="evo-fb-selectionbar" data-role="selectionbar">';
-        $markup .= '        <span data-role="selection-count"></span>';
+        $markup .= '        <span data-role="selection-count" role="status"></span>';
         $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-copy" disabled>' . hsc(lang('fb_copy')) . '</button>';
         $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-cut" disabled>' . hsc(lang('fb_cut')) . '</button>';
         $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-download" disabled>' . hsc(lang('fb_download')) . '</button>';

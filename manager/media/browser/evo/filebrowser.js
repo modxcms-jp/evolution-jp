@@ -525,6 +525,8 @@ function init(root, entry, behaviors) {
     root.querySelector('[data-action="clear-selection"]').addEventListener('click', function () {
         state.selection.clear();
         grid.updateSelectionDom();
+        // 押したボタン自身が無効になってフォーカスが body に落ちるので、一覧へ戻す(Ctrl+C などのキー操作を続けられるように)
+        dropzoneEl.focus({ preventScroll: true });
     });
 
     function bulkDelete() {
