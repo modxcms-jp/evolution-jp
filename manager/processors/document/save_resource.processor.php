@@ -27,12 +27,11 @@ evo()->loadExtension('DocAPI');
 
 $id = validated('id');
 
-$document_groups = getDocGroups();
-
-checkDocPermission(validated('id'), $document_groups);
+checkDocPermission(validated('id'));
 
 checkParent();
 checkAllowedParents(validated('id'));
+checkDocumentGroupsOpenable(validated('id'));
 
 if (postedMode() === 'new') {
     // invoke OnBeforeDocFormSave event
@@ -43,7 +42,12 @@ if (postedMode() === 'new') {
     ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
     $param['doc_vars'] = refreshNewDocId($param['doc_vars']);
+    $parentBeforeEvent = (int)validated('parent');
     $param = syncParentAfterEvent($param);
+    if ((int)validated('parent') !== $parentBeforeEvent) {
+        // イベントで親が変わった（ddAutoFolders など）。保存される親で付くグループをもう一度確かめる
+        checkDocumentGroupsOpenable($id);
+    }
 
     $newid = db()->insert(
         db()->escape($param['doc_vars']),
@@ -439,29 +443,8 @@ function checkParent()
     evo()->webAlertAndQuit($message, $url);
 }
 
-function checkDocPermission($id, $document_groups = [])
+function checkDocPermission($id)
 {
-    if (!manager()->isAdmin() && is_array($document_groups) && $document_groups) {
-        $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
-        if ($document_group_list) {
-            $count = db()->getValue(
-                db()->select(
-                    'COUNT(mg.id)',
-                    '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
-                    sprintf(
-                        "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'",
-                        $document_group_list,
-                        sessionv('mgrInternalKey')
-                    )
-                )
-            );
-            if (!$count) {
-                evo()->manager->saveFormValues(postedScreen());
-                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), formReturnUrl());
-            }
-        }
-    }
-
     // get the document, but only if it already exists
     if (postedMode() === 'edit') {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
@@ -506,6 +489,20 @@ function checkDocPermission($id, $document_groups = [])
         alert()->setError(3);
         alert()->dumpError();
     }
+}
+
+// 保存後の文書グループで、自分が管理画面からその文書を開けなくなるときは止める
+// 新規は保存される親（validated('parent')）から付くグループで確かめる
+function checkDocumentGroupsOpenable($id)
+{
+    $afterGroups = postedMode() === 'edit'
+        ? manager()->updatedDocumentGroupIds($id)
+        : manager()->newDocumentGroupIds(validated('parent'));
+    if (manager()->canOpenWithDocumentGroups($afterGroups)) {
+        return;
+    }
+    evo()->manager->saveFormValues(postedScreen());
+    evo()->webAlertAndQuit(lang('resource_permissions_error'), formReturnUrl());
 }
 
 // 許可するリソースの範囲の外の文書の更新と、範囲の外の親への作成・移動を止める
@@ -852,35 +849,14 @@ function setDocPermissionsEdit($id)
     if (evo()->config('use_udperms') != 1) {
         return;
     }
-    // 変えてよいグループだけを対象にする。変えてよくないグループは足さず、付いていれば残す
-    $access = manager()->documentGroupAccess();
-    $changeable = $access['ids'];
-    $exists_groups = [];
-    if ($changeable) {
-        $rs = db()->select(
-            'document_group',
-            '[+prefix+]document_groups',
-            sprintf(
-                'document=%d AND document_group IN (%s)',
-                (int)$id,
-                implode(',', array_keys($changeable))
-            )
-        );
-        while ($row = db()->getRow($rs)) {
-            // 同じ組み合わせの行が重複していても、グループ単位で扱う
-            $exists_groups[(int)$row['document_group']] = (int)$row['document_group'];
-        }
-    }
-    $posted_groups = manager()->postedChangeableDocumentGroupIds($access);
-    // 送られてきて、まだ付いていなければ足す。送られてこなかったものは外す
+    // 更新後のグループとの差で足す・外す（変えてよくないグループは残る）
+    $exists_groups = manager()->currentDocumentGroupIds($id);
+    $after_groups = manager()->updatedDocumentGroupIds($id, null, $exists_groups);
     $insertions = [];
-    foreach ($posted_groups as $group_id) {
-        if (isset($exists_groups[$group_id])) {
-            unset($exists_groups[$group_id]);
-            continue;
-        }
-        $insertions[] = sprintf('(%s,%s)', $group_id, (int)$id);
+    foreach (array_diff($after_groups, $exists_groups) as $group_id) {
+        $insertions[] = sprintf('(%d,%d)', $group_id, (int)$id);
     }
+    $exists_groups = array_diff($exists_groups, $after_groups);
     $saved = true;
     if ($insertions) {
         $sql_insert = sprintf(
@@ -935,17 +911,6 @@ function folder2doc($parent)
         return;
     }
     echo 'An error occured while attempting to change the old parent to a regular document.';
-}
-
-// checkDocPermission() 用。保存の文書グループは、新規は ManagerAPI の setNewDocumentGroups()、更新は postedChangeableDocumentGroupIds() で取る
-function getDocGroups()
-{
-    if (postv('chkalldocs') === 'on') {
-        return [];
-    }
-    // チェックボックスの組。配列でないとき・文字列でない要素は無いものとして扱う
-    $groups = postv('document_groups', []);
-    return is_array($groups) ? array_values(array_filter($groups, 'is_string')) : [];
 }
 
 // 保存の画面の mode（new: 新規、edit: 更新）。それ以外は空文字

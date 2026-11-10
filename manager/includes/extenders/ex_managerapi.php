@@ -1264,10 +1264,143 @@ class ManagerAPI
     }
 
     /**
-     * 新規の文書に文書グループを付ける。
+     * 新規の文書に付く文書グループの id。
      * 変えてよいグループ（documentGroupAccess() の ids）は送られた値に従い、
      * 変えてよくないグループは親から引き継ぐ（親の守りを子に伝える。ids が空ならすべて引き継ぐ）。
-     * use_udperms が無効、または親が 0 で送られた値も無いときは何もしない
+     * use_udperms が無効、または親が 0 で送られた値も無いときは空
+     *
+     * @param int $parentId 親の文書（0 は引き継ぎなし）
+     * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
+     * @return int[] 文書グループの id（昇順）
+     */
+    public function newDocumentGroupIds($parentId, $access = null)
+    {
+        if (evo()->config('use_udperms') != 1) {
+            return [];
+        }
+        $parentId = (int)$parentId;
+        $access = $access ?: $this->documentGroupAccess();
+        $groups = [];
+        foreach ($this->postedChangeableDocumentGroupIds($access) as $groupId) {
+            $groups[(int)$groupId] = true;
+        }
+        if ($parentId) {
+            foreach ($this->currentDocumentGroupIds($parentId) as $groupId) {
+                if (!isset($access['ids'][$groupId])) {
+                    $groups[$groupId] = true;
+                }
+            }
+        }
+        $groups = array_keys($groups);
+        sort($groups);
+        return $groups;
+    }
+
+    /**
+     * 更新後の文書に付く文書グループの id。
+     * 変えてよいグループは送られた値に置き換え、変えてよくないグループは今付いているものを残す。
+     * use_udperms が無効のときは今付いているものをそのまま返す（保存では変えない）
+     *
+     * @param int $docId 更新する文書
+     * @param array|null $access documentGroupAccess() の結果。すでに持っていれば渡して問い合わせを省く
+     * @param int[]|null $current currentDocumentGroupIds() の結果。すでに持っていれば渡して問い合わせを省く
+     * @return int[] 文書グループの id（昇順）
+     */
+    public function updatedDocumentGroupIds($docId, $access = null, $current = null)
+    {
+        $current = $current ?? $this->currentDocumentGroupIds($docId);
+        if (evo()->config('use_udperms') != 1) {
+            return $current;
+        }
+        $access = $access ?: $this->documentGroupAccess();
+        $groups = [];
+        foreach ($current as $groupId) {
+            if (!isset($access['ids'][$groupId])) {
+                $groups[$groupId] = true;
+            }
+        }
+        foreach ($this->postedChangeableDocumentGroupIds($access) as $groupId) {
+            $groups[(int)$groupId] = true;
+        }
+        $groups = array_keys($groups);
+        sort($groups);
+        return $groups;
+    }
+
+    /**
+     * 文書に今付いている文書グループの id
+     *
+     * @param int $docId
+     * @return int[] 昇順、重複なし
+     */
+    public function currentDocumentGroupIds($docId)
+    {
+        $groups = [];
+        $rs = db()->select(
+            'DISTINCT document_group',
+            '[+prefix+]document_groups',
+            sprintf('document=%d', (int)$docId),
+            'document_group'
+        );
+        while ($row = db()->getRow($rs)) {
+            $groups[] = (int)$row['document_group'];
+        }
+        return $groups;
+    }
+
+    /**
+     * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
+     * 編集画面が文書を開くときの 2 つの確認を、そのまま式にしたもの。
+     * - 到達できる（$reachable）: 集合に管理側で非公開のグループ（membergroup_access に行がある。
+     *   setMgrDocsAsPrivate() と同じ定義。これが privatemgr=1 の元）が無い、または利用者の所属
+     *   （sessionv('mgrDocgroups')）と重なる
+     * - checkPermissions()（document.parser.subparser.trait.php）: save_role があるか、$reachable
+     * - db_value()（mutate_content/functions.php）: isAdmin()、所属が空、または $reachable のとき絞り込みを省く
+     * 両方を通ったときだけ true。use_udperms が 1 でなければ常に true。
+     * 2 つの確認の食い違い自体は #1338 で 1 か所にまとめる。
+     * sessionv('mgrDocgroups') は、管理画面のリクエストで accesscontrol.inc.php が読み直す値が前提
+     * （管理画面のリクエストで使う）
+     *
+     * @param int[] $groupIds 文書に付く文書グループの id
+     * @return bool
+     */
+    public function canOpenWithDocumentGroups($groupIds)
+    {
+        if (evo()->config('use_udperms') != 1) {
+            return true;
+        }
+        $private = $this->mgrPrivateDocumentGroupIds($groupIds);
+        $mine = array_map('intval', (array)sessionv('mgrDocgroups', []));
+        $reachable = !$private || (bool)array_intersect($private, $mine);
+
+        $passCheckPermissions = evo()->hasPermission('save_role') || $reachable;
+        $passDbValue = $this->isAdmin() || !$mine || $reachable;
+        return $passCheckPermissions && $passDbValue;
+    }
+
+    /**
+     * 文書グループのうち、管理側で非公開のもの（membergroup_access に行があるもの）の id。
+     * setMgrDocsAsPrivate() が privatemgr=1 を付ける定義と同じ
+     *
+     * @param int[] $groupIds
+     * @return int[]
+     */
+    public function mgrPrivateDocumentGroupIds($groupIds)
+    {
+        $groupIds = array_unique(array_filter(array_map('intval', (array)$groupIds)));
+        if (!$groupIds) {
+            return [];
+        }
+        $rs = db()->select(
+            'DISTINCT mga.documentgroup',
+            '[+prefix+]membergroup_access mga',
+            sprintf('mga.documentgroup IN (%s)', implode(',', $groupIds))
+        );
+        return array_map('intval', db()->getColumn('documentgroup', $rs) ?: []);
+    }
+
+    /**
+     * 新規の文書に文書グループを付ける（付けるグループは newDocumentGroupIds() の規則）。
      *
      * @param int $docId 付ける先の新規の文書
      * @param int $parentId 親の文書（0 は引き継ぎなし）
@@ -1276,32 +1409,8 @@ class ManagerAPI
      */
     public function setNewDocumentGroups($docId, $parentId, $access = null)
     {
-        if (evo()->config('use_udperms') != 1) {
-            return [];
-        }
         $docId = (int)$docId;
-        $parentId = (int)$parentId;
-        $access = $access ?: $this->documentGroupAccess();
-        $groups = [];
-        foreach ($this->postedChangeableDocumentGroupIds($access) as $groupId) {
-            $groups[(int)$groupId] = true;
-        }
-        if ($parentId) {
-            $rs = db()->select(
-                'DISTINCT document_group',
-                '[+prefix+]document_groups',
-                sprintf('document=%d', $parentId),
-                'document_group'
-            );
-            while ($row = db()->getRow($rs)) {
-                $groupId = (int)$row['document_group'];
-                if (!isset($access['ids'][$groupId])) {
-                    $groups[$groupId] = true;
-                }
-            }
-        }
-        $groups = array_keys($groups);
-        sort($groups);
+        $groups = $this->newDocumentGroupIds($parentId, $access);
         if (!$groups || !$docId) {
             return [];
         }
