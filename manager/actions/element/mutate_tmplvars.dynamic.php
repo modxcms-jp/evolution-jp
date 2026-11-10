@@ -91,8 +91,8 @@ function entity($key, $default = null)
 }
 
 ?>
-<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
-<script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-category.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>) == true) {

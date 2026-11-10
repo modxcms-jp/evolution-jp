@@ -19,6 +19,16 @@
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 - ツリー上部のボタンの並びは `.tree-toolbar` が包む（`#treeMenu` と `#floater`）。`#treePane`（スクロールする箱）の上端に `position: sticky; top: 0` で貼り付き、並べ替えの小窓 `#floater` の位置の基準になる（`top: 100%` で並びの直下に出す）。背景はテーマの `.treeframebody` から引き継ぐ（`background: inherit`）。`.treeframebody` が透明・半透明のテーマは、下のツリーが透けて読めなくならないよう、テーマ側で `.tree-toolbar` の背景を上書きする（例: SakuraFlow・AromaHop は、ツリーの地に近い半透明の色を重ね、`backdrop-filter` でぼかす）。下の境界線は、既定では `--color-border-default` の 1px の線。テーマが帯の `box-shadow` を上書きして別の作りにしてよい（例: SakuraFlow は `#topMenu` と同じく、白い光の筋とやわらかい影）。規則は `manager/media/style/common/shell.css`。
 
+## JS・CSS の読み込みと版
+
+管理画面の静的な JS・CSS は、読み込みの URL に必ず版（ファイルの更新日時）を付ける。付けないと、アップグレード後にブラウザが古い JS・CSS をキャッシュから使い続け、画面が壊れる（#1358）。付け方は `manager/includes/helpers.php` のヘルパーにそろえる。
+
+- 版を計算するのは `asset_version($absPath)`（更新日時。読めないときは本体の版）だけ。渡すパスは `MODX_MANAGER_PATH . '…'` か `MODX_BASE_PATH . '…'` で書く（`__DIR__` 起点にしない）。
+- URL を作るヘルパーは 2 つ。管理画面の画面から `manager/` からの相対で読むときは `manager_asset('media/script/tree.js')`（`?版` を付けて返す）。URL をすでに持っている所（ManagerManager の `includeJs()` / `includeCss()`、QuickManager、TinyMCE 7 の設定 CSS など）は `site_asset($url)`（サイト内の URL にだけ版を付け、外部の URL・`//` で始まる URL・`?` や `#` を含む URL はそのまま返す）。
+- `.tpl`（PHP を使えない）: パスはそのまま見える形で書き、版だけを `?[+<ファイル名>_<拡張子>_ver+]` のプレースホルダーにする（ハイフンは `_`。例: `login.js?[+login_js_ver+]`）。値は、その tpl を置き換える PHP 側で `asset_version()` で作って渡す（例: `manager/includes/accesscontrol-not-mgr.inc.php`、`assets/modules/docmanager/classes/docmanager.class.php`）。置き換える所は、プレースホルダー名で grep して見つける。例外は 2 つ。テーマの `style.css` はテーマ名もプレースホルダーなので `theme_css_ver`、QuickManager の編集画面は `style.css` が 2 つ並ぶので自分の分を `qm_css_ver`。
+- 対象外: DocumentParser の `regClientScript()` / `regClientCSS()`（サイト側の汎用の入口）、外部の URL、`assets/plugins/*/tinymce/`、`install/`、TinyMCE 7 の `ScriptFactory`（TinyMCE 本体の `cache_suffix` の `v=` 形式に合わせた作りで、互換を守る対象）。
+- 付け忘れは CI の `.github/scripts/asset-version-lint.php`（`php .github/scripts/asset-version-lint.php`）が検出する（`token_get_all()` で PHP の文字列と HTML を読み、`<script src>`・`<link href>` の値が `.js`・`.css` で終わり `?` が無いものを拾う）。`'src="' . $x . '"'` のように連結で URL を組み立てる形は検査できないので、ヘルパーを通すこと。除外はそのスクリプトの先頭の一覧に、理由つきで書く。
+
 ## frameset 時代の名前の互換
 
 frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` のように、ほかのフレームの window を名前で指していた。シェルは 1 つのページなので、同じ名前を自分の window に用意して、そのまま動くようにしている。

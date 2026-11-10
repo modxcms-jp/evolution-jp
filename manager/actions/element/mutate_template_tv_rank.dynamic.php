@@ -104,7 +104,7 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
         opacity: 0.6;
     }
 </style>
-<script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
+<script type="text/javascript" src="<?= manager_asset('media/script/dragdrop-sort.js') ?>"></script>
 <script type="text/javascript">
     (function() {
         window.save = function() {

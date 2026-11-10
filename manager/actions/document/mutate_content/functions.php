@@ -728,6 +728,7 @@ function getJScripts($docid)
     foreach ($langKeys as $key) {
         $ph['lang_' . $key] = js_literal(stripcslashes(lang($key)));
     }
+    $ph['browser_js_ver'] = asset_version(MODX_MANAGER_PATH . 'media/browser/browser.js');
     $ph['id'] = $docid;
     $ph['docParent'] = (int) doc('parent');
     $ph['docIsFolder'] = (int) doc('isfolder');

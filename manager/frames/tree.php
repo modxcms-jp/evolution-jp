@@ -339,7 +339,7 @@ if (!sessionv('tree_sortdir')) {
         }
 
     </script>
-    <script src="media/script/tree.js"></script>
+    <script src="<?= manager_asset('media/script/tree.js') ?>"></script>
 <aside id="treePane">
     <script>
         // フレーム時代のbody onclick相当。コンテキストメニューを閉じる

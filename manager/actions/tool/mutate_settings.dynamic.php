@@ -28,7 +28,7 @@ $values = EvoSettingsForm::systemValues($stored);
 <script type="text/javascript">
     var lang_chg = <?= js_literal(stripcslashes(lang('confirm_setting_language_change'))) ?>;
 </script>
-<script type="text/javascript" src="actions/tool/mutate_settings/functions.js"></script>
+<script type="text/javascript" src="<?= manager_asset('actions/tool/mutate_settings/functions.js') ?>"></script>
 <form name="settings" action="index.php" method="post" enctype="multipart/form-data">
     <input type="hidden" name="a" value="30"/>
     <h1><?= lang('settings_title') ?></h1>
