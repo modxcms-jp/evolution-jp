@@ -11,6 +11,7 @@
  *                     ピッカーの files: {name,size,mtime,url,path,thumb,width,height}。thumb はラスター画像なら 'api'(action=thumb で取る)、svg なら url、それ以外は null。
  *                     urlはパスの要素ごとにURLエンコード済み。pathは生のパスで、% # ? だけをエンコード。nameは生の名前
  *                     管理モードの files: {name,size,mtime,url,writable}。ブラウザが <img> で表示できる画像なら image: true と thumb(ラスターは 'api'、svg は url、それ以外は null)、ラスターなら width,height。
+ *                     動画・音声(BrowserConfig::mediaKindOf())で url が null でなければ media: 'video' / 'audio' を付ける(url が null のときは付けない)。
  *                     全ファイル(ドットで始まる名前も)を出す。一覧ではサムネイルを作らず、action=thumb で作る。urlはサイトのルートの外なら null
  *                     writable は今のフォルダに書き込めるか(管理モードの files の writable はファイルごと)
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
@@ -296,6 +297,11 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
         if (ThumbnailService::isDisplayableImageExtension($ext)) {
             $item['image'] = true;
             $item['thumb'] = fbThumbSource($ext, $item['url']);
+        }
+        // 再生できる動画・音声は、プレビューが <video>・<audio> で出す(種別の判定は BrowserConfig が持つ)
+        $media = BrowserConfig::mediaKindOf($file['name']);
+        if ($media !== '' && $item['url'] !== null) {
+            $item['media'] = $media;
         }
         if (ThumbnailService::isRasterImageExtension($ext)) {
             $dimensions = @getimagesize($file['fullPath']);

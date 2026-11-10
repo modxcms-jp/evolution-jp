@@ -1006,26 +1006,6 @@ return [
                         'desc' => lang('settings_strip_image_paths_message'),
                         'showIf' => ['use_browser', '1'],
                     ],
-                ],
-            ],
-            [
-                'title' => lang('settings_section_file_manager'),
-                'rows' => [
-                    [
-                        'key' => 'filemanager_path',
-                        'userAttr' => ['style' => 'width: 300px;'],
-                        'scope' => ['system', 'user'],
-                        'type' => 'path',
-                        'label' => lang('filemanager_path_title'),
-                        'desc' => lang('filemanager_path_message'),
-                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN,
-                        'absHint' => true,
-                    ],
-                ],
-            ],
-            [
-                'title' => lang('settings_section_uploads'),
-                'rows' => [
                     [
                         'key' => 'upload_files',
                         'scope' => ['system', 'user'],
@@ -1053,6 +1033,26 @@ return [
                         'desc' => lang('uploadable_media_message'),
                         'userDesc' => lang('uploadable_media_message') . lang('user_upload_message'),
                     ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_file_manager'),
+                'rows' => [
+                    [
+                        'key' => 'filemanager_path',
+                        'userAttr' => ['style' => 'width: 300px;'],
+                        'scope' => ['system', 'user'],
+                        'type' => 'path',
+                        'label' => lang('filemanager_path_title'),
+                        'desc' => lang('filemanager_path_message'),
+                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN,
+                        'absHint' => true,
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_uploads'),
+                'rows' => [
                     [
                         'key' => 'upload_maxsize',
                         'userAttr' => ['style' => 'width: 300px;'],

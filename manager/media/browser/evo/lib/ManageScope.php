@@ -3,7 +3,8 @@
 /**
  * 管理モード（メニューの「ファイル管理」の範囲）。ルートは設定 filemanager_path（既定はサイトのルート）で、拡張子を問わず扱う。
  * 権限はロールの権限 file_manager だけで決める（設定 use_browser やウェブユーザーのセッションは見ない）。
- * 新しい名前のファイルを作る操作だけは、upload_files・upload_images・upload_media を合わせた許可リストで確かめる。
+ * 新しい名前のファイルを作る操作だけは、本体で決めた拡張子(BrowserConfig::MANAGE_CREATABLE_EXTENSIONS)と、
+ * upload_files・upload_images・upload_media を合わせた許可リストで確かめる。
  */
 class ManageScope implements BrowserScope
 {
@@ -68,7 +69,7 @@ class ManageScope implements BrowserScope
 
     public function isAllowedNewName($name)
     {
-        return $this->config->isAllowedFilenameAll($name);
+        return $this->config->isAllowedNewExtension($name);
     }
 
     /** 拡張子が変わらないなら許し（.php のファイルの名前を変えられるように）、変わるときは新しい名前の許可リストで確かめる */

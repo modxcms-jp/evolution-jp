@@ -31,6 +31,7 @@ function pickFile(path) {
 }
 
 var behaviors = {
+    itemActions: ['preview'],
     openFile: function (entry) {
         pickFile(entry.path);
     },

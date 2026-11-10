@@ -32,7 +32,7 @@ class BrowserView
         'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed',
         'fb_err_too_large', 'fb_confirm_overwrite',
         // 管理モードだけが使う(js/manage.js・js/textEditor.js)
-        'fb_text_open', 'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
+        'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
         'fb_text_saving', 'fb_text_saved', 'fb_text_save_failed', 'fb_text_discard_confirm',
         'fb_new_file', 'fb_new_file_prompt', 'fb_new_file_failed',
         'fb_unzip', 'fb_confirm_unzip', 'fb_unzip_failed', 'fb_unzip_done', 'fb_unzip_skipped', 'fb_unzip_entry_failed',
@@ -69,7 +69,7 @@ class BrowserView
             'editableExtensions' => BrowserConfig::EDITABLE_EXTENSIONS,
             'editMaxDimension' => BrowserConfig::EDIT_MAX_DIMENSION,
             'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
-            // テキストとして開ける拡張子(サーバーの readText も同じ一覧で確かめる)
+            // 最初からエディターで開く拡張子。ほかのファイルも、サーバーが中身をテキストと認めれば開ける
             'textExtensions' => BrowserConfig::TEXT_EXTENSIONS,
             'maxUploadSize' => $options['maxUploadSize'],
             'lang' => $messages,
@@ -131,6 +131,8 @@ class BrowserView
         $markup .= '  <div class="evo-fb-overlay" data-role="preview-overlay" hidden>';
         $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" role="dialog" aria-modal="true" aria-label="' . hsc(lang('preview')) . '" data-role="preview-panel">';
         $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt="">';
+        $markup .= '      <video class="evo-fb-preview-media" data-role="preview-video" controls preload="metadata" hidden></video>';
+        $markup .= '      <audio class="evo-fb-preview-audio" data-role="preview-audio" controls preload="metadata" hidden></audio>';
         $markup .= '      <div class="evo-fb-preview-meta" data-role="preview-meta"></div>';
         $markup .= '      <div class="evo-fb-overlay-footer">';
         $markup .= '        <button type="button" class="evo-fb-btn" data-role="preview-close">' . hsc(lang('close')) . '</button>';
