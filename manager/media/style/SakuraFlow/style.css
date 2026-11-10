@@ -2129,6 +2129,11 @@ form > :has(+ .resources-batch-actions),
     transform: translateY(0);
 }
 
+.actionButtons :is(a, button):focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+}
+
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
     padding: 2px var(--space-1);
