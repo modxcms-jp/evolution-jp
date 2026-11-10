@@ -10,12 +10,19 @@
 - [x] (2026-11-10) 決定の見直しを反映（管理者＝`isAdmin()` または `save_role`。判定は `bypassesDocumentGroups()`。Validation の変更後の列を計算し直した）
 - [x] (2026-11-10) M0: 修正前の記録（基準 f6e94f10d。V1〜V3 は 9 利用者、V4 は 3 利用者。表との違い A2・A5・C5・C6・D6 を Validation に反映。PHP の警告・JS のエラー 0 件）
 - [x] (2026-11-10) M1: `ManagerAPI` に判定を置き、`checkPermissions()`・`isAllowroot()`・`canOpenWithDocumentGroups()` をそれに通す（1118f9f74、自己レビューの低の手当て f58424d75。M0 との差は adminnosave の 112 行だけで、すべて表の B8・B9・B10・C11・D5 の期待どおり、見えなくなる向きの差は 0。V4 は差 0。PHP の警告・JS のエラー 0 件。自己レビューは高なし、中 1（#1318 の保存の確認の変化が表に無かった）を B12・B13 として表に足し M2 で確かめる）
-- [ ] M2: 管理画面の一覧と読み込み（ツリー・子の一覧・検索・親の選択・文書の情報・編集画面の `db_value()`）を同じ判定にする
+- [x] (2026-11-11) M2: 管理画面の一覧と読み込み（ツリー・子の一覧・検索・親の選択・文書の情報・編集画面の `db_value()`）を同じ判定にする（a448581e1、自己レビューの低の手当て 5eeb11cbf。M1 との差はすべて表の M2 の列どおり、期待に無い差 0。見えなくなる向きは A6 の 4 行だけ。B12・B13 は保存でき、保存のあと開ける。PHP の警告・JS のエラー 0 件。自己レビューは高・中なし）
 - [ ] M3: TV のアクセス（編集画面・保存・QuickManager）と QuickManager の編集ボタンを同じ判定にする
 - [ ] M4: DocumentParser の取得の関数（管理画面側の分岐は同じ判定、公開側は「ロールの ID が 1」を `bypassesDocumentGroups()` に）
 - [ ] M5: ドキュメント・PHP 7.4 での確認・最終の突き合わせ
 
 ## Surprises & Discoveries
+
+M2 で分かったこと（2026-11-11）:
+
+- M1 と M2 の間の一時的な食い違い（B12 の保存のあとの編集画面）は、`db_value()` を同じ判定にして消えた。
+- 管理者でない editor（G1）が f2（D2）の下に新規の文書を作ろうとすると、#1318 の `resource_permissions_error` に届く前に、親の確認（`checkParent()`）の `error_no_privileges` で止まる（入口の `a=4&pid=<f2>` はフォーム自体が出ない）。#1318 の確認は、変えてよいグループを持つ利用者（`access_permissions` を持ち G1 に所属する検証用の `accg`）で、D2 だけを付けると止まり、D1 を付けると保存できることで確かめた。
+- 文書グループを付けて保存する検証では、グループの無い文書で既定でオンの「すべての文書グループ」（`chkalldocs`）を外さないと、選んだグループが付かない（画面の仕様）。
+- 新しい式（`MAX(IF(… IN (SELECT …)),1,0))` と `IN` の副問い合わせ）は MariaDB 11 でしか動かしていない。README の動作要件の MySQL 5.7 でも、M5 で確かめる（手順 28 に足した）。
 
 M1 で分かったこと（2026-11-10）:
 
@@ -281,7 +288,7 @@ M4 DocumentParser の取得の関数
 M5 ドキュメントと最終確認
 
 27. `assets/docs/architecture.md` の「データアクセスと拡張」に、文書グループの判定の置き場所を 3〜5 行で書く（正は `ManagerAPI` の `bypassesDocumentGroups()`（管理者の定義）・`restrictsByDocumentGroups()`・`documentAccessCondition()`・`canAccessDocument()`・`canOpenWithDocumentGroups()`、`checkPermissions()` はこれを使う公開の API、`tree_show_protected` は表示だけ、公開側の `privateweb` の扱いは DocumentParser の `managerBypassesDocumentGroups()`）。詳しい規則は docblock を正にし、ドキュメントに複製しない。`assets/docs/core-issues.md` の「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の「関連ロードマップ」の「`isAdmin()` に置き換えるだけ」を「`bypassesDocumentGroups()` に置き換えるだけ」に直す。`doc-audit` の手順で、変えたファイルのパスの表記と参照を確かめる。
-28. PHP 7.4 の検証環境（`references/environment.md` の PHP 7.4 の節）で、V1 の admin・saveonly0・adminnosave・editor の T・I・E・X・F・M を取り、PHP 8 側の M4 の記録と同じになることを確かめる。
+28. PHP 7.4 の検証環境（`references/environment.md` の PHP 7.4 の節）で、V1 の admin・saveonly0・adminnosave・editor の T・I・E・X・F・M を取り、PHP 8 側の M4 の記録と同じになることを確かめる。あわせて、DB を `mysql:5.7` の公式イメージにした検証環境でも、V1 の editor・admin の T・L・S・P・I・E を取り、MariaDB 側の記録と同じになることを確かめる（ツリーと子の一覧の `MAX(IF(… IN (SELECT …)),1,0))` と `GROUP BY` の組み合わせ、`ONLY_FULL_GROUP_BY` で通ること）。
 29. `<tmp>/run-all.sh m5` で全体を取り直し、M4 と同じであること。ブラウザのコンソールと `log:tail` にエラーが無いこと。
 
 ## Validation and Acceptance
