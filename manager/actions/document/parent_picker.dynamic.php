@@ -270,24 +270,15 @@ function parent_picker_search($q, array $docIds)
 }
 
 /**
- * 管理画面で非公開（privatemgr）のリソースを、所属する文書グループのものだけに絞る条件（' AND ...'）
+ * 文書グループで開けないリソースを外す条件（' AND ...'）。判定は ManagerAPI::documentAccessCondition()。
+ * 親の選択は tree_show_protected を見ず、常に絞る
  *
  * @return string
  */
 function parent_picker_access_where()
 {
-    if (manager()->isAdmin()) {
-        return '';
-    }
-    $docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    if (!$docgroups) {
-        return ' AND sc.privatemgr=0';
-    }
-    return sprintf(
-        ' AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
-        db()->getFullTableName('document_groups'),
-        implode(',', $docgroups)
-    );
+    $cond = manager()->documentAccessCondition('sc');
+    return $cond === '' ? '' : ' AND ' . $cond;
 }
 
 /**

@@ -560,23 +560,22 @@ function getDocgrp()
     }
 }
 
-function db_value($id, $docgrp)
+function db_value($id)
 {
     if ($id === '0') {
         return [];
     }
 
+    // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()。絞らないときは空）
+    $where = [sprintf("sc.id='%d'", (int) $id)];
+    $cond = manager()->documentAccessCondition('sc');
+    if ($cond !== '') {
+        $where[] = 'AND ' . $cond;
+    }
     $rs = db()->select(
         'DISTINCT sc.*',
         '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id',
-        sprintf(
-            "sc.id='%s' %s",
-            $id,
-            (manager()->isAdmin() || !$docgrp) ? '' : sprintf(
-                'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                $docgrp
-            )
-        )
+        $where
     );
     $limit = db()->count($rs);
     if ($limit > 1) {

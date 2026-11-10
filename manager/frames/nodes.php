@@ -89,21 +89,15 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     // setup spacer
     $spacer = get_spacer($indent);
     $tree_orderby = get_tree_orderby();
-    $mgr_docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    $in_docgrp = $mgr_docgroups
-        ? sprintf('OR dg.document_group IN (%s)', implode(',', $mgr_docgroups))
-        : ''
-    ;
+    $cond = manager()->documentAccessCondition('sc');
 
     $access = tree_access_condition();
     $field = [];
     $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
     $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
-    if (!manager()->isAdmin()) {
-        $field[] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0)) AS has_access', $in_docgrp);
-    } else {
-        $field[] = '1 AS has_access';
-    }
+    $field[] = $cond === ''
+        ? '1 AS has_access'
+        : sprintf('MAX(IF(%s, 1, 0)) AS has_access', $cond);
     $field[] = 'rev.status AS status';
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
@@ -672,22 +666,17 @@ function parseNode($tpl, $param, $id)
 
 /**
  * ツリーに表示してよいリソースだけに絞る条件（getNodes() と hasChildren() で共通）
- * 管理者と tree_show_protected が有効なときは絞らない
+ * 文書グループで絞らない利用者と tree_show_protected が有効なときは絞らない
+ * （判定は ManagerAPI::documentAccessCondition()。tree_show_protected は表示だけの設定で、
+ * 開けない文書は has_access=0 の印つきで出す）
  */
 function tree_access_condition()
 {
-    if (config('tree_show_protected') || manager()->isAdmin()) {
+    if (config('tree_show_protected')) {
         return '';
     }
-    $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    if (!$groups) {
-        return 'AND sc.privatemgr=0';
-    }
-    return sprintf(
-        'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
-        db()->getFullTableName('document_groups'),
-        implode(',', $groups)
-    );
+    $cond = manager()->documentAccessCondition('sc');
+    return $cond === '' ? '' : 'AND ' . $cond;
 }
 
 function hasChildren($id) {

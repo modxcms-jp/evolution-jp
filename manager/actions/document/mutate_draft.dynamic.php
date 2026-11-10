@@ -25,7 +25,7 @@ $default_template = getDefaultTemplate();
 
 global $docObject;
 if (request_intvar('id')) {
-    $docObject = db_value(request_intvar('id'), $docgrp);
+    $docObject = db_value(request_intvar('id'));
 } else {
     $docObject = default_value(request_intvar('pid'), request_intvar('newtemplate'));
 }
