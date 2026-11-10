@@ -99,6 +99,11 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         ? '1 AS has_access'
         : sprintf('MAX(IF(%s, 1, 0)) AS has_access', $cond);
     $field[] = 'rev.status AS status';
+    // ノード名を日付にするときは、ツリーの行の問い合わせで日付も取る（文書ごとに getDocumentObject() を呼ばない）
+    $date_field = get_node_date_field();
+    if ($date_field !== null) {
+        $field[] = sprintf('sc.%s AS node_date', $date_field);
+    }
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
@@ -169,7 +174,8 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
         [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft] = $row;
-        $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
+        $nodeDate = $row[15] ?? null;
+        $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
 
@@ -458,7 +464,15 @@ function get_spacer($indent)
     return $spacer;
 }
 
-function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)
+function get_node_date_field()
+{
+    $source = evo()->config('resource_tree_node_name');
+    return in_array($source, ['createdon', 'editedon', 'publishedon', 'pub_date', 'unpub_date'], true)
+        ? $source
+        : null;
+}
+
+function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate = null)
 {
     global $modx;
 
@@ -483,10 +497,8 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
         case 'publishedon':
         case 'pub_date':
         case 'unpub_date':
-            $doc = $modx->getDocumentObject('id', $id);
-            $date = $doc[$node_name_source];
-            if (!empty($date)) {
-                $rs = $modx->toDateFormat($date);
+            if (!empty($nodeDate)) {
+                $rs = $modx->toDateFormat($nodeDate);
             } else {
                 $rs = '- - -';
             }
