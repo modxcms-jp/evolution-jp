@@ -1306,7 +1306,7 @@ function size_to_bytes($value, $defaultUnit = 1)
     // K・M・G が無く B があるときはバイト
     $multipliers = ['' => $m[3] === '' ? $defaultUnit : 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
     $bytes = round((float) $m[1] * $multipliers[$unit]);
-    return $bytes > PHP_INT_MAX ? null : (int) $bytes;
+    return $bytes >= PHP_INT_MAX ? null : (int) $bytes;
 }
 
 /**
