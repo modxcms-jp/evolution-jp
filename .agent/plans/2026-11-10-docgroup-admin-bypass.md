@@ -12,6 +12,7 @@
 - [x] (2026-11-10) M1: `ManagerAPI` に判定を置き、`checkPermissions()`・`isAllowroot()`・`canOpenWithDocumentGroups()` をそれに通す（1118f9f74、自己レビューの低の手当て f58424d75。M0 との差は adminnosave の 112 行だけで、すべて表の B8・B9・B10・C11・D5 の期待どおり、見えなくなる向きの差は 0。V4 は差 0。PHP の警告・JS のエラー 0 件。自己レビューは高なし、中 1（#1318 の保存の確認の変化が表に無かった）を B12・B13 として表に足し M2 で確かめる）
 - [x] (2026-11-11) M2: 管理画面の一覧と読み込み（ツリー・子の一覧・検索・親の選択・文書の情報・編集画面の `db_value()`）を同じ判定にする（a448581e1、自己レビューの低の手当て 5eeb11cbf。M1 との差はすべて表の M2 の列どおり、期待に無い差 0。見えなくなる向きは A6 の 4 行だけ。B12・B13 は保存でき、保存のあと開ける。PHP の警告・JS のエラー 0 件。自己レビューは高・中なし）
 - [x] (2026-11-11) M3: TV のアクセス（編集画面・保存・QuickManager）と QuickManager の編集ボタンを同じ判定にする（aa0aff040。TV の判定の重複を ManagerAPI の `tmplvarAccessCondition()`・`canAccessTmplvar()` に集めた 3a1a6934e、自己レビューの中 1（別名なしの式が外側の行を参照できない）と低 3 の手当て 40c9b4328。M2 との差は V・Q・QT の行だけで表の M3 の期待どおり、見えなくなる向き 0。C2（webmaster の TV の保存）が直った。TV の欄の並びは変わらず重複 0。PHP の警告・JS のエラー 0 件）
+- （2026-11-11）M1〜M3 を PR-A（#1361）にまとめ、下書きにした。1.3 には入れず、1.3 のリリース後に M4 から再開する（ユーザーさんの判断。Issue のコメント）。再開するときは、PR-A のブランチに origin/main を取り込み、M0 の手順 1 と同じく Context の行番号から動いたところを確かめてから M4 に入る
 - [ ] M4: DocumentParser の取得の関数（管理画面側の分岐は同じ判定、公開側は「ロールの ID が 1」を `bypassesDocumentGroups()` に）
 - [ ] M5: ドキュメント・PHP 7.4 での確認・最終の突き合わせ
 
@@ -387,6 +388,8 @@ M1〜M4 はコードだけの変更で、DB の形・設定・データは変え
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1338（「着手時の決定」と、最後のコメント「決定の見直し」）
 - ブランチ（メインが決めた）: `fix/1338-docgroup-bypass-condition` は `gh issue develop` で #1338 に紐づけ済み。紐づいたブランチの PR は本文が `Refs` でもマージで Issue を閉じるので、このブランチは最後の PR-B（M4。`Closes #1338`）に使う。この計画のコミットと M0〜M3（PR-A。`Refs #1338`）は、紐づけないブランチ `fix/1338-m1-admin-side` を origin/main から作って載せる。PR-B は、PR-A のブランチを紐づいたブランチに取り込んでから M4 を積み、base を PR-A のブランチにする。PR-A のマージ後に base を main に切り替える。
+- PR-A: #1361（`fix/1338-m1-admin-side`。2026-11-11 に作成し、1.3 のリリース後まで下書き）。PR-B と同じリリースに入れる（PR-A だけでは DocumentParser の取得の関数が古い判定のままで、新しく見える文書の値を取れない場面がある）。
+- M0〜M3 の記録: ジョブの一時領域 `/home/yamamoto/.claude/jobs/62dfc916/tmp/v1338m0/`（消えることがある。消えていたら M0 の手順で取り直す）。
 - 関連: #1318（PR #1349、マージ済み。`canOpenWithDocumentGroups()` と保存の確認）、#1353（`privatemgr` の付け方の食い違い。範囲外）、#1300・#1307（文書グループの付与の規則）。
 - 修正前の記録（M0）: 基準のコミット f6e94f10d（コードは origin/main 899a6ddea と同じ）。置き場所 `/home/yamamoto/.claude/jobs/62dfc916/tmp/v1338m0/`: 記録 `1338-m0.tsv`（V1〜V3）・`1338-m0-v4.tsv`（V4）、警告の件数 `logs-after-m0-count.txt`（0）、データ `1338-fixture.sql`・`1338-fixture-n.sql`、id の一覧 `1338-ids.txt`、記録のスクリプト `1338-m0.js`、全体の取り直し `run-all.sh <タグ>`、環境 `env.sh`・`up.sh`・`q.sh`、読み方の補助 `pivot.py`・`cmpset.py`（`cmprun.py` は M0 の 1 回目用。使わない）。検証環境の名前は `evo-validate-1338`（`127.0.0.38`）。
 - M0 で作った id（`1338-ids.txt`）: 文書 T=16・pub=17・m1=18・m2=19・w=20・f2=21・c2=22・u2=23・probe=24・n=25。モジュール u1338probe=2、TV u1338tv=2。管理側のユーザーグループ G1=1・G2=2、Web のグループ WG=1。文書グループ D1=1・D2=2・DW=3・DN（`1338-ids.txt` に無い。`1338-fixture-n.sql` の最後の SELECT が出す。4 件目なので 4 のはずだが、使う前に `SELECT id FROM modx_documentgroup_names WHERE name='u1338-DN'` で確かめる）。ロール R_S=4・R_P=5・R_A=6・R_W=7。
