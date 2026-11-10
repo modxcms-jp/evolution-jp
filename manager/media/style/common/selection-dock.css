@@ -1,0 +1,96 @@
+/* 一括操作の「操作の帯」の見た目（子リソースの一覧 data-table.js と、ファイルブラウザの選択の帯で共通）。
+   出し方（sticky で貼り付ける・常に一覧の下に出す）は使う側の class が決める。
+   シェルの外（ファイルピッカーの単独のページ）でも効くよう、shell.css とは別のファイルにして、
+   テーマの style.css の後ろで読み込む。詳細度は .selection-dock を前に付けて、テーマの
+   ul.actionButtons・.actionButtons li・.actionButtons :is(a, button)・button の規則（どれも (0,1,1) 以下）に勝つ。
+   地色・枠・影・角はテーマの .selection-dock:not(.is-empty) の規則（#actions と共有）が決める */
+.selection-dock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px) var(--space-4, 16px);
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    /* 帯の中の文言とリンクは、地色（半透明のテーマもある）に対して 4.5:1 以上になるよう本文の色を濃くする */
+    color: color-mix(in srgb, var(--color-text-primary, #333) 70%, #000);
+    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
+    border: 1px solid var(--color-border-light, #ddd);
+    box-shadow: 0 -2px 4px rgb(0 0 0 / 8%);
+}
+
+/* テーマの地色が半透明（右上のボタン群と同じ値）でも、下のものが透けて文字が読めなくならないよう、
+   帯の後ろを白で塗りつぶす（brightness(0) で黒、invert(1) で白。帯の角の丸みにも従う）。
+   白に決め打ちなので、暗い地のテーマには合わない（そのテーマは自分の規則でこの指定を上書きする）。
+   var(--color-surface) は半透明のテーマがあるので使わない。非対応のブラウザでは透けるだけで、機能は変わらない。
+   テーマの共有の規則（RubberWhite の blur）と詳細度が同じなので、テーマの style.css より後ろに読み込むことで上書きする */
+.selection-dock:not(.is-empty) {
+    -webkit-backdrop-filter: brightness(0) invert(1);
+    backdrop-filter: brightness(0) invert(1);
+}
+
+/* リンクは下線で区別する。「選択を解除」のように、押すとその場の操作をするもの（button）も同じ見た目にする */
+.selection-dock a,
+.selection-dock .selection-dock-link {
+    color: inherit;
+    text-decoration: underline;
+}
+.selection-dock .selection-dock-link {
+    display: inline;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+}
+.selection-dock .selection-dock-link:disabled {
+    text-decoration: none;
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
+.selection-dock ul.actionButtons {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+.selection-dock ul.actionButtons > li {
+    float: none;
+    margin: 0;
+}
+.selection-dock ul.actionButtons button {
+    float: none;
+    width: auto; /* テーマの button { width: 112px } を打ち消す */
+    margin: 0;
+    font-family: inherit;
+    line-height: inherit;
+    cursor: pointer;
+}
+/* テーマの .actionButtons:after（clear 用）が flex の並びの要素になり、右端から離れる・行が増えるのを防ぐ */
+.selection-dock ul.actionButtons::after {
+    content: none;
+}
+/* 押せないボタンは薄くして、押せないと分かるようにする（テーマの .actionButtons には無効の見た目が無い）。
+   hover・active でテーマの色が変わらないよう、ボタン自身はポインターを受けず、cursor は包む li に付ける */
+.selection-dock ul.actionButtons > li:has(> button:disabled) {
+    cursor: not-allowed;
+}
+.selection-dock ul.actionButtons button:disabled {
+    opacity: .5;
+    pointer-events: none;
+}
+/* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
+.selection-dock ul.actionButtons > li.is-danger {
+    margin-left: auto;
+}
+.selection-dock ul.actionButtons > li.is-danger button {
+    color: color-mix(in srgb, var(--color-error, #c62828) 70%, #000);
+    border-color: currentColor;
+}

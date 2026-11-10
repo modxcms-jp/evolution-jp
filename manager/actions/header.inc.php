@@ -37,6 +37,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?= csrfTokenMeta() ?>
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
     <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/shell.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="media/style/common/selection-dock.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>" />
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;

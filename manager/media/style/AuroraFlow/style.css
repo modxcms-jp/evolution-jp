@@ -1674,7 +1674,7 @@ h2#edit_document_title {
 
 /* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
 #actions,
-.data-table-selection-dock:not(.is-empty) {
+.selection-dock:not(.is-empty) {
     background: rgba(255, 255, 255, 0.94);
     border: 1px solid var(--color-card-border);
     box-shadow: var(--shadow-card);

@@ -107,14 +107,16 @@ class BrowserView
         $markup .= '        <div class="evo-fb-grid" data-role="grid"><div class="evo-fb-empty" data-role="loading">' . hsc(lang('fb_loading')) . '</div></div>';
         $markup .= '        <div class="evo-fb-dropoverlay" data-role="dropoverlay">' . hsc(lang('fb_drop_to_upload')) . '</div>';
         $markup .= '      </div>';
-        $markup .= '      <div class="evo-fb-selectionbar" data-role="selectionbar">';
+        $markup .= '      <div class="evo-fb-selectionbar selection-dock" data-role="selectionbar">';
         $markup .= '        <span data-role="selection-count" role="status"></span>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-copy" disabled>' . hsc(lang('fb_copy')) . '</button>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-cut" disabled>' . hsc(lang('fb_cut')) . '</button>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-download" disabled>' . hsc(lang('fb_download')) . '</button>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-move" disabled>' . hsc(lang('move')) . '</button>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="bulk-delete" disabled>' . hsc(lang('delete')) . '</button>';
-        $markup .= '        <button type="button" class="evo-fb-btn" data-action="clear-selection" disabled>' . hsc(lang('fb_clear_selection')) . '</button>';
+        $markup .= '        <button type="button" class="selection-dock-link" data-action="clear-selection" disabled>' . hsc(lang('fb_clear_selection')) . '</button>';
+        $markup .= '        <ul class="actionButtons">';
+        $markup .= '          <li><button type="button" data-action="bulk-copy" disabled>' . hsc(lang('fb_copy')) . '</button></li>';
+        $markup .= '          <li><button type="button" data-action="bulk-cut" disabled>' . hsc(lang('fb_cut')) . '</button></li>';
+        $markup .= '          <li><button type="button" data-action="bulk-download" disabled>' . hsc(lang('fb_download')) . '</button></li>';
+        $markup .= '          <li><button type="button" data-action="bulk-move" disabled>' . hsc(lang('move')) . '</button></li>';
+        $markup .= '          <li class="is-danger"><button type="button" data-action="bulk-delete" disabled>' . hsc(lang('delete')) . '</button></li>';
+        $markup .= '        </ul>';
         $markup .= '      </div>';
         $markup .= '    </div>';
         $markup .= '  </div>';
@@ -262,6 +264,7 @@ class BrowserView
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($title) ?></title>
     <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css">
+    <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= self::dockCssVersion() ?>">
     <link rel="stylesheet" href="filebrowser.css?<?= self::cssVersion() ?>">
 </head>
 <body class="evo-fb-standalone">
@@ -276,6 +279,12 @@ class BrowserView
     private static function cssVersion()
     {
         return filemtime(__DIR__ . '/../filebrowser.css');
+    }
+
+    // 帯の共通の見た目(シェルの外の単独のページでも、シェルの中の断片でも読む)
+    private static function dockCssVersion()
+    {
+        return filemtime(__DIR__ . '/../../../style/common/selection-dock.css');
     }
 
     // 入口の JS(js/<entry>.js)か、それが読み込む filebrowser.js のどちらかが更新されたら変わる

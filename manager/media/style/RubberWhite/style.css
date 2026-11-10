@@ -2142,7 +2142,7 @@ form select:focus {
 
 /* アクションエリア（操作の帯 data-table.js も同じ見た目にする） */
 #actions,
-.data-table-selection-dock:not(.is-empty) {
+.selection-dock:not(.is-empty) {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--clean-border);
