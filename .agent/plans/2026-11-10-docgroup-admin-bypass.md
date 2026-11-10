@@ -11,11 +11,17 @@
 - [x] (2026-11-10) M0: 修正前の記録（基準 f6e94f10d。V1〜V3 は 9 利用者、V4 は 3 利用者。表との違い A2・A5・C5・C6・D6 を Validation に反映。PHP の警告・JS のエラー 0 件）
 - [x] (2026-11-10) M1: `ManagerAPI` に判定を置き、`checkPermissions()`・`isAllowroot()`・`canOpenWithDocumentGroups()` をそれに通す（1118f9f74、自己レビューの低の手当て f58424d75。M0 との差は adminnosave の 112 行だけで、すべて表の B8・B9・B10・C11・D5 の期待どおり、見えなくなる向きの差は 0。V4 は差 0。PHP の警告・JS のエラー 0 件。自己レビューは高なし、中 1（#1318 の保存の確認の変化が表に無かった）を B12・B13 として表に足し M2 で確かめる）
 - [x] (2026-11-11) M2: 管理画面の一覧と読み込み（ツリー・子の一覧・検索・親の選択・文書の情報・編集画面の `db_value()`）を同じ判定にする（a448581e1、自己レビューの低の手当て 5eeb11cbf。M1 との差はすべて表の M2 の列どおり、期待に無い差 0。見えなくなる向きは A6 の 4 行だけ。B12・B13 は保存でき、保存のあと開ける。PHP の警告・JS のエラー 0 件。自己レビューは高・中なし）
-- [ ] M3: TV のアクセス（編集画面・保存・QuickManager）と QuickManager の編集ボタンを同じ判定にする
+- [x] (2026-11-11) M3: TV のアクセス（編集画面・保存・QuickManager）と QuickManager の編集ボタンを同じ判定にする（aa0aff040。TV の判定の重複を ManagerAPI の `tmplvarAccessCondition()`・`canAccessTmplvar()` に集めた 3a1a6934e、自己レビューの中 1（別名なしの式が外側の行を参照できない）と低 3 の手当て 40c9b4328。M2 との差は V・Q・QT の行だけで表の M3 の期待どおり、見えなくなる向き 0。C2（webmaster の TV の保存）が直った。TV の欄の並びは変わらず重複 0。PHP の警告・JS のエラー 0 件）
 - [ ] M4: DocumentParser の取得の関数（管理画面側の分岐は同じ判定、公開側は「ロールの ID が 1」を `bypassesDocumentGroups()` に）
 - [ ] M5: ドキュメント・PHP 7.4 での確認・最終の突き合わせ
 
 ## Surprises & Discoveries
+
+M3 で分かったこと（2026-11-11）:
+
+- 計画では TV のアクセスの条件を編集画面・保存・QuickManager の 3 か所にそれぞれ置き換える予定だったが、C2（webmaster の TV が保存されない）の原因そのものが「同じ条件が編集画面と保存の 2 か所にあって食い違った」ことだったので、`ManagerAPI` に `tmplvarAccessCondition($alias)`（SQL の条件の片）と `canAccessTmplvar($tmplvarId)`（1 つの TV）を置き、3 か所がそれを使う形にした（計画の Decision Log の「ManagerAPI に置く判定」に 2 つ加わる）。条件を副問い合わせにしたので、`getTmplvars()`・`get_tmplvars()` の `site_tmplvar_access` の LEFT JOIN は使わなくなり外した（計画の「JOIN は変えない」から外れるが、残すと行を重複させて DISTINCT で消すだけの結合になる）。返る TV と並びが変わらないことは、TV を一時的に足して確かめた。
+- 最初の式は、別名を空で渡すと副問い合わせの `id` が `site_tmplvar_access` 自身の id 列を指し、制限した TV が誰にでも通った（今の呼び出しはすべて別名 `tv` で影響なし）。`documentAccessCondition()` と同じく外側の行を参照しない形（`id NOT IN (…) OR id IN (…)`）にした。`tmplvarid` は NOT NULL なので NOT IN の NULL の問題は無い。
+- QuickManager の編集ボタンは、文書グループで開けるかだけを見て、許可された親の範囲と `edit_document` を見ない（修正前から）。#1360 に分けた。
 
 M2 で分かったこと（2026-11-11）:
 
@@ -401,7 +407,7 @@ M1〜M4 はコードだけの変更で、DB の形・設定・データは変え
 - QuickManager の編集ボタンは、管理画面で開ける文書なら出る（管理側で非公開でない文書グループに入った文書や、「文書グループの権限を使う」が「いいえ」のときも出る）。
 - 公開側（PR-B）: 管理画面にログインしたまま公開側を見るとき、Web 側で非公開の文書を見られる利用者を、ロールの ID が 1 から上の「管理者」に変えた。既定のロールでは、ウェブマスターも見られるようになる。「ログイン時のキャッシュ」を無効（キャッシュを使う）にしているサイトでは、管理者が見たときの一覧の部品の出力がページキャッシュに入ることがある（これまでも ID 1 で同じ）。
 - ロールの ID が 1 のロールから「ロールの保存」と 2 つの権限の管理を外しているサイトでは、そのロールの利用者は TV の保存・QuickManager の TV ボタン・文書の取得の関数で、ほかの利用者と同じく文書グループで絞られるようになる（ロールの ID では決めなくなった）。
-- 開発者向け: `ManagerAPI` に `bypassesDocumentGroups()`・`restrictsByDocumentGroups()`・`documentAccessCondition()`・`canAccessDocument()`・`userMgrDocumentGroupIds()` を、DocumentParser に `managerBypassesDocumentGroups()` を足した。文書グループで絞る問い合わせは、これらを使う。`isAdmin()` の意味は変えていない。`manager()` は公開側でも `ManagerAPI` を読み込んで返す。`checkPermissions()` の引数と戻り値は変えていない。`db_value()`・`getTmplvars()`（編集画面の関数）の引数が減り、`getDocgrp()` は無くなった。
+- 開発者向け: `ManagerAPI` に `bypassesDocumentGroups()`・`restrictsByDocumentGroups()`・`documentAccessCondition()`・`canAccessDocument()`・`userMgrDocumentGroupIds()`・`tmplvarAccessCondition()`・`canAccessTmplvar()` を、DocumentParser に `managerBypassesDocumentGroups()` を足した。文書グループで絞る問い合わせは、これらを使う。`isAdmin()` の意味は変えていない。`manager()` は公開側でも `ManagerAPI` を読み込んで返す。`checkPermissions()` の引数と戻り値は変えていない。`db_value()`・`getTmplvars()`（編集画面の関数）の引数が減り、`getDocgrp()` は無くなった。
 
 変えないもの: DB の形、`privatemgr`・`privateweb` の付け方（#1353）、`isAdmin()` の意味と文書グループ以外の使い道、`isAllowed()`・`isInAllowedParents()`（許可するリソースの範囲）、文書グループの付け方（`documentGroupAccess()` 以下、#1300・#1307・#1318）、公開側の `privateweb` の絞り方（ロールの ID の置き換えを除く）、ルートの入口ごとの `use_udperms` の扱い（#1356）、プラグインのイベント。
 
