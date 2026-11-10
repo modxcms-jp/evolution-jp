@@ -2145,7 +2145,7 @@ form select:focus {
     outline: none;
 }
 
-/* アクションエリア（操作の帯 data-table.js も同じ見た目にする） */
+/* アクションエリア（操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も同じ見た目にする） */
 #actions,
 .selection-dock:not(.is-empty) {
     background: rgba(255, 255, 255, 0.95);

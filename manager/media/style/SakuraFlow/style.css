@@ -1981,7 +1981,7 @@ h2#edit_document_title {
     z-index: 100;
 }
 
-/* 操作の帯（data-table.js）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
+/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
 #actions,
 .selection-dock:not(.is-empty) {
     border: 0;

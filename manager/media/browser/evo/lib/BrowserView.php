@@ -281,7 +281,7 @@ class BrowserView
         return filemtime(__DIR__ . '/../filebrowser.css');
     }
 
-    // 帯の共通の見た目(シェルの外の単独のページでも、シェルの中の断片でも読む)
+    // 帯の共通の見た目(単独のページ(standalonePage)で読む。シェルの中では header.inc.php が読む)
     private static function dockCssVersion()
     {
         return filemtime(__DIR__ . '/../../../style/common/selection-dock.css');

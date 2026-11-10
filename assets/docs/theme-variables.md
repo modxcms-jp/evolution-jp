@@ -19,11 +19,11 @@
 | `--color-primary-hover-start` / `--color-primary-hover-end` | 同じ組の、ホバー時の色 | 共通部は参照しない（テーマの主ボタンが使う） |
 | `--color-primary-active-start` / `--color-primary-active-end` | 同じ組の、押したときの色 | 共通部は参照しない（テーマの主ボタンが使う） |
 | `--color-text-inverse` | 主な操作の色の上に置く文字の色 | shell.css のモーダルの見出し、evo-dialog.js の OK の文字、filebrowser.css・datepicker.css の選択の上の文字 |
-| `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、filebrowser.css、datepicker.css |
-| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`・操作の帯 `.data-table-selection-dock`）、selection-dock.css（`.selection-dock`）、filebrowser.css、datepicker.css |
+| `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、selection-dock.css（`.selection-dock` の背景の color-mix）、filebrowser.css、datepicker.css |
+| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css |
 | `--color-text-muted` | 補助的な文字の色 | filebrowser.css、datepicker.css |
 | `--color-border-default` | 通常の枠の色 | filebrowser.css、datepicker.css |
-| `--color-border-light` | 薄い枠・区切り線の色 | shell.css・selection-dock.css（設定画面の小見出しの下線、表の選択の帯と操作の帯の枠）、filebrowser.css、datepicker.css |
+| `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯の枠）、selection-dock.css（操作の帯 `.selection-dock` の枠）、filebrowser.css、datepicker.css |
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
 | `--color-error` | エラー・削除の色 | selection-dock.css（操作の帯 `.selection-dock` の削除ボタン）、filebrowser.css、datepicker.css |
 

@@ -538,7 +538,7 @@ body.evo-shell input.evo-submitting-trigger {
     margin-left: auto;
 }
 /* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
-   ボタンの width:112px の打ち消しは、帯のボタンの規則（上）にまとめてある */
+   ボタンの width:112px の打ち消しは、上の `.child-list-tools ul.actionButtons button` の規則で行う */
 .child-list-tools {
     display: flex;
     flex-wrap: wrap;
