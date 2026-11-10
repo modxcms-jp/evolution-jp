@@ -20,11 +20,22 @@ function db()
 }
 
 /**
+ * 公開側でも、管理画面にログインした利用者の判定（文書グループ・QuickManager）に使うため、
+ * 未読み込みなら ManagerAPI を読み込んでから返す。
+ * 未定義のプロパティを読むと DocumentParser::__get() がログを残すので、isset() で見る
+ *
  * @return ManagerAPI
  */
 function manager()
 {
-    return evo()->manager;
+    $modx = evo();
+    if (!$modx) {
+        return null;
+    }
+    if (!isset($modx->manager)) {
+        $modx->loadExtension('ManagerAPI');
+    }
+    return $modx->manager;
 }
 
 function hasPermission($key = null)
