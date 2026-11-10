@@ -17,6 +17,7 @@
 - 保存後の読み直しの受け口は `EvoShell.refresh(target)` 1 つ。processor が戻り先の URL に付ける `refresh` を、画面の移動のとき `shell.js` が読んで呼ぶ。`target` の値と意味は `manager/includes/form_flow.class.inc.php` の docblock を正とする（`page` は管理画面のトップ（`index.php`）を読み直す）。画面の script から `EvoShell.refresh()` を直接呼ぶ使い方もある（`refresh_site.dynamic.php`、`wait.static.php`）。全体の読み込み（再読み込み・URL の直打ち）では `refresh` を読まない。シェルの画面でなければ（`chromeless`・QuickManager）何もしない。
 - `a=1&f=tree` / `f=menu` を全体の読み込みで開くと（URL の直打ち・古いブックマーク）、管理画面のトップへ移る。部品は単独のページとしては出さない。
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
+- ツリー上部のボタンの並びは `.tree-toolbar` が包む（`#treeMenu` と `#floater`）。`#treePane`（スクロールする箱）の上端に `position: sticky; top: 0` で貼り付き、並べ替えの小窓 `#floater` の位置の基準になる（`top: 100%` で並びの直下に出す）。背景はテーマの `.treeframebody` から引き継ぐ（`background: inherit`）。`.treeframebody` が透明・半透明のテーマは、下のツリーが透けて読めなくならないよう、テーマ側で `.tree-toolbar` の背景を上書きする（例: SakuraFlow・AromaHop は、ツリーの地に近い半透明の色を重ね、`backdrop-filter` でぼかす）。下の境界線は、既定では `--color-border-default` の 1px の線。テーマが帯の `box-shadow` を上書きして別の作りにしてよい（例: SakuraFlow は `#topMenu` と同じく、白い光の筋とやわらかい影）。規則は `manager/media/style/common/shell.css`。
 
 ## frameset 時代の名前の互換
 
