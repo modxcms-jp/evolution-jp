@@ -39,7 +39,7 @@ evo()->setPlaceholder('manager_theme_url',
     )
 );
 
-evo()->setPlaceholder('theme_css_ver', manager_theme_css_version());
+evo()->setPlaceholder('theme_css_ver', asset_version(MODX_MANAGER_PATH . 'media/style/' . evo()->config('manager_theme') . '/style.css'));
 evo()->setPlaceholder('evo_dialog_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js'));
 evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/login.js'));
 

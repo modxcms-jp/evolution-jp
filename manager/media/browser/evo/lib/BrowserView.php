@@ -223,7 +223,7 @@ class BrowserView
         // シェル(shell.js)がモーダルへ差し込む断片であることを示す
         header('X-Evo-Pane: 1');
         echo '<h1>' . hsc($title) . '</h1>';
-        echo '<link rel="stylesheet" href="media/browser/evo/filebrowser.css?' . self::cssVersion() . '">';
+        echo '<link rel="stylesheet" href="' . manager_asset('media/browser/evo/filebrowser.css') . '">';
         echo self::markup($jsConfig);
         echo self::entryScripts($jsConfig);
     }
@@ -233,7 +233,7 @@ class BrowserView
     {
         $html = '<div class="evo-fb-pane">';
         $html .= '<h1>' . hsc($title) . '</h1>';
-        $html .= '<link rel="stylesheet" href="media/browser/evo/filebrowser.css?' . self::cssVersion() . '">';
+        $html .= '<link rel="stylesheet" href="' . manager_asset('media/browser/evo/filebrowser.css') . '">';
         $html .= self::markup($jsConfig, self::manageExtras(), 'evo-fb-page');
         $html .= self::entryScripts($jsConfig);
         $html .= '</div>';
@@ -263,9 +263,9 @@ class BrowserView
 <head>
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($title) ?></title>
-    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css?<?= manager_theme_css_version($theme) ?>">
-    <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= self::dockCssVersion() ?>">
-    <link rel="stylesheet" href="filebrowser.css?<?= self::cssVersion() ?>">
+    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css?<?= asset_version(MODX_MANAGER_PATH . 'media/style/' . $theme . '/style.css') ?>">
+    <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= asset_version(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>">
+    <link rel="stylesheet" href="filebrowser.css?<?= asset_version(MODX_MANAGER_PATH . 'media/browser/evo/filebrowser.css') ?>">
 </head>
 <body class="evo-fb-standalone">
 <?= self::markup($jsConfig, $extras) ?>
@@ -275,21 +275,12 @@ class BrowserView
 <?php
     }
 
-    // CSSとJSは別々に更新されるため、キャッシュバスターもファイルごとに計算する
-    private static function cssVersion()
-    {
-        return asset_version(__DIR__ . '/../filebrowser.css');
-    }
-
-    // 帯の共通の見た目(単独のページ(standalonePage)で読む。シェルの中では header.inc.php が読む)
-    private static function dockCssVersion()
-    {
-        return asset_version(__DIR__ . '/../../../style/common/selection-dock.css');
-    }
-
     // 入口の JS(js/<entry>.js)か、それが読み込む filebrowser.js のどちらかが更新されたら変わる
     private static function jsVersion($entry)
     {
-        return max(asset_version(__DIR__ . '/../filebrowser.js'), asset_version(__DIR__ . '/../js/' . $entry . '.js'));
+        return max(
+            asset_version(MODX_MANAGER_PATH . 'media/browser/evo/filebrowser.js'),
+            asset_version(MODX_MANAGER_PATH . 'media/browser/evo/js/' . $entry . '.js')
+        );
     }
 }

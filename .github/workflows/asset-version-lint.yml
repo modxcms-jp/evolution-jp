@@ -15,6 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ubuntu-latest に入っている PHP をそのまま使う（正規表現だけなので拡張は要らない）
+      # ubuntu-latest に入っている PHP をそのまま使う（tokenizer（標準で有効）だけを使うので拡張は要らない）
       - name: Run asset version lint
         run: php .github/scripts/asset-version-lint.php

@@ -67,7 +67,7 @@ $output = parseText(
     [
         'theme' => $theme,
         'qm_css_ver' => asset_version(MODX_BASE_PATH . 'assets/plugins/qm/css/style.css'),
-        'theme_css_ver' => manager_theme_css_version($theme),
+        'theme_css_ver' => asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css"),
         'site_url' => MODX_SITE_URL
     ]
 );

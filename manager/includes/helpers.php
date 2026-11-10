@@ -1156,15 +1156,6 @@ function manager_asset($path)
 }
 
 /**
- * 現在の管理画面テーマの style.css の版（tpl のプレースホルダー用）。
- */
-function manager_theme_css_version($theme = null)
-{
-    $theme = $theme ?: config('manager_theme', '');
-    return asset_version(MODX_MANAGER_PATH . 'media/style/' . $theme . '/style.css');
-}
-
-/**
  * サイト内の URL（MODX_BASE_URL から始まる）に版を付ける。
  * 外部の URL や、すでに ? や # を含む URL はそのまま返す。
  */

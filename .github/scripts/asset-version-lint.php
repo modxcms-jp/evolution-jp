@@ -84,12 +84,11 @@ class Chunk
     }
 }
 
-/** .php を字句に分け、HTML と PHP の文字列（引用符つき・ヒアドキュメント）のまとまりにする */
+/** .php を字句に分け、HTML と PHP の文字列（引用符つき・ヒアドキュメント・nowdoc）のまとまりにする */
 function phpChunks($content)
 {
     $chunks = [];
     $html = new Chunk();
-    $inPhp = false;
     $interp = null; // 変数を埋め込む文字列（二重引用符・ヒアドキュメント）の中のまとまり
     $line = 1;
 
@@ -114,12 +113,9 @@ function phpChunks($content)
 
         if ($id === T_INLINE_HTML) {
             $html->add($text, $line);
-            $inPhp = false;
         } elseif ($id === T_OPEN_TAG || $id === T_OPEN_TAG_WITH_ECHO) {
             $html->addPhp($line);
-            $inPhp = true;
         } elseif ($id === T_CLOSE_TAG) {
-            $inPhp = false;
             $html->add(substr_count($text, "\n") ? "\n" : '', $line);
         } elseif ($id === T_CONSTANT_ENCAPSED_STRING) {
             $str = new Chunk();
@@ -127,11 +123,6 @@ function phpChunks($content)
             $chunks[] = $str;
         } elseif ($id === T_START_HEREDOC || ($id === null && $text === '"')) {
             $interp = new Chunk();
-        } elseif ($id === T_ENCAPSED_AND_WHITESPACE) {
-            // nowdoc の本文
-            $str = new Chunk();
-            $str->add($text, $line);
-            $chunks[] = $str;
         }
     }
     $chunks[] = $html;

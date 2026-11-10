@@ -13,7 +13,7 @@ evo()->toPlaceholders(
     [
         'modx_charset' => $modx_manager_charset,
         'theme' => evo()->config('manager_theme'),
-        'theme_css_ver' => manager_theme_css_version(),
+        'theme_css_ver' => asset_version(MODX_MANAGER_PATH . 'media/style/' . evo()->config('manager_theme') . '/style.css'),
         'site_name' => hsc(evo()->config('site_name')),
         'logo_slogan' => $_lang['logo_slogan'],
         'manager_lockout_message' => $_lang['manager_lockout_message'],

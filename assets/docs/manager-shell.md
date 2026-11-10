@@ -23,10 +23,10 @@
 
 管理画面の静的な JS・CSS は、読み込みの URL に必ず版（ファイルの更新日時）を付ける。付けないと、アップグレード後にブラウザが古い JS・CSS をキャッシュから使い続け、画面が壊れる（#1358）。付け方は `manager/includes/helpers.php` のヘルパーにそろえる。
 
-- PHP から読み込むとき: `manager_asset('media/script/tree.js')`（`manager/` からの相対パスに `?版` を付けて返す）。サイトの URL（`MODX_BASE_URL` から始まるもの）は `site_asset($url)`、版の値だけ欲しいときは `asset_version($absPath)`、現在のテーマの `style.css` の版は `manager_theme_css_version()`。ファイルが読めないときは本体の版を使う。
-- `.tpl`（PHP を使えない）: パスはそのまま見える形で書き、版だけを `?[+..._ver+]` のプレースホルダーにする（例: `login.tpl` の `login.js?[+login_js_ver+]`）。値は、その tpl を置き換える PHP 側で、ヘルパー（`asset_version()`・`manager_theme_css_version()`）で作って渡す。例: ログイン画面の `manager/includes/accesscontrol-not-mgr.inc.php`、docmanager の `assets/modules/docmanager/classes/docmanager.class.php`。置き換える所は、プレースホルダー名で grep して見つける。
-- ManagerManager の `includeJs()` / `includeCss()` は、サイト内の URL に自動で版を付ける。
-- 対象外: DocumentParser の `regClientScript()` / `regClientCSS()`（サイト側の汎用の入口）、外部の URL、`assets/plugins/*/tinymce/`、`install/`。
+- 版を計算するのは `asset_version($absPath)`（更新日時。読めないときは本体の版）だけ。渡すパスは `MODX_MANAGER_PATH . '…'` か `MODX_BASE_PATH . '…'` で書く（`__DIR__` 起点にしない）。
+- URL を作るヘルパーは 2 つ。管理画面の画面から `manager/` からの相対で読むときは `manager_asset('media/script/tree.js')`（`?版` を付けて返す）。URL をすでに持っている所（ManagerManager の `includeJs()` / `includeCss()`、QuickManager、TinyMCE 7 の設定 CSS など）は `site_asset($url)`（サイト内の URL にだけ版を付け、外部・`?` 付きはそのまま返す）。
+- `.tpl`（PHP を使えない）: パスはそのまま見える形で書き、版だけを `?[+<ファイル名>_<拡張子>_ver+]` のプレースホルダーにする（ハイフンは `_`。例: `login.js?[+login_js_ver+]`）。値は、その tpl を置き換える PHP 側で `asset_version()` で作って渡す（例: `manager/includes/accesscontrol-not-mgr.inc.php`、`assets/modules/docmanager/classes/docmanager.class.php`）。置き換える所は、プレースホルダー名で grep して見つける。例外は 2 つ。テーマの `style.css` はテーマ名もプレースホルダーなので `theme_css_ver`、QuickManager の編集画面は `style.css` が 2 つ並ぶので自分の分を `qm_css_ver`。
+- 対象外: DocumentParser の `regClientScript()` / `regClientCSS()`（サイト側の汎用の入口）、外部の URL、`assets/plugins/*/tinymce/`、`install/`、TinyMCE 7 の `ScriptFactory`（TinyMCE 本体の `cache_suffix` の `v=` 形式に合わせた作りで、互換を守る対象）。
 - 付け忘れは CI の `.github/scripts/asset-version-lint.php`（`php .github/scripts/asset-version-lint.php`）が検出する（`token_get_all()` で PHP の文字列と HTML を読み、`<script src>`・`<link href>` の値が `.js`・`.css` で終わり `?` が無いものを拾う）。`'src="' . $x . '"'` のように連結で URL を組み立てる形は検査できないので、ヘルパーを通すこと。除外はそのスクリプトの先頭の一覧に、理由つきで書く。
 
 ## frameset 時代の名前の互換
