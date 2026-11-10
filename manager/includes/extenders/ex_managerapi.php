@@ -1476,7 +1476,8 @@ class ManagerAPI
     /**
      * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
      * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
-     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは isAllowroot()。
+     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは、保存の処理と同じく
+     * isAllowroot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
      * リクエストの値は読まない。QuickManager の追加ボタンが使う
      *
      * @param int|string $parentId
@@ -1489,7 +1490,7 @@ class ManagerAPI
         }
         $parentId = (int)$parentId;
         if ($parentId <= 0) {
-            return $this->isAllowroot();
+            return $this->isAllowroot() && $this->isInAllowedParents(0);
         }
         return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
     }
