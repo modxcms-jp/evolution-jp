@@ -18,8 +18,6 @@ if (request_intvar('id')) {
     checkDocLock(request_intvar('id'));
 }
 
-$docgrp = getDocgrp();
-
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
@@ -48,7 +46,7 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+$tmplVars = getTmplvars(request_intvar('id'), doc('template'));
 $docObject += $tmplVars;
 if (manager()->action == 131 && request_intvar('id')) {
     $docObject = mergeDraft(

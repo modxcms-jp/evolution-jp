@@ -34,7 +34,6 @@ class Qm
     public $tvbclass = 'qm_tv';
     public $aliases = [];
     public $parents = [];
-    public $docGroup = '';
 
     public function __construct() {
         global $modx;
@@ -174,39 +173,11 @@ class Qm
 
     function checkAccess()
     {
-        if (manager()->isAdmin()) {
-            return true;
-        }
-
         if (empty(evo()->documentIdentifier)) {
             return false;
         }
-
-        $result = db()->select(
-            'id',
-            '[+prefix+]document_groups',
-            where('document', '=', evo()->documentIdentifier)
-        );
-        if (!db()->count($result)) {
-            return true;
-        }
-
-        if (!sessionv('mgrDocgroups')) {
-            return false;
-        }
-        $result = db()->select(
-            'id',
-            '[+prefix+]document_groups',
-            [
-                where('document', '=', evo()->documentIdentifier),
-                'AND',
-                where_in('document_group', sessionv('mgrDocgroups'))
-            ]
-        );
-        if (db()->count($result)) {
-            return true;
-        }
-        return false;
+        // 管理画面で開ける文書か。文書グループの判定は ManagerAPI が正（#1338）
+        return manager()->canAccessDocument(evo()->documentIdentifier);
     }
 
     // Function from: manager/processors/cache_sync.class.processor.php
@@ -269,7 +240,7 @@ class Qm
     //_____________________________________________________
     function checkTvAccess($tvId)
     {
-        if (sessionv('mgrRole') == 1) {
+        if (!manager()->restrictsByDocumentGroups()) {
             return true;
         }
 
@@ -282,8 +253,7 @@ class Qm
             return true;
         }
 
-        // read the groups from the session: the TV edit request does not set $this->docGroup
-        $docGroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+        $docGroups = manager()->userMgrDocumentGroupIds();
         if ($docGroups) {
             $result = db()->select(
                 'id',

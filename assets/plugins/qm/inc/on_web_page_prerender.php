@@ -211,11 +211,6 @@ else {
 
         // Search and create new document buttons in to the content
         if ($this->tvbuttons == 'true' && $access) {
-            // Set and get user doc groups for TV permissions
-            $this->docGroup = '';
-            $mrgDocGroups = sessionv('mgrDocgroups');
-            if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups);
-
             // Create TV buttons and check TV permissions
             $output = preg_replace_callback('/<!-- ' . preg_quote($this->tvbclass, '/') . ' ([^\\"\'\(\)<>!?]+) -->/', [&$this, 'createTvButtons'], $output);
         }

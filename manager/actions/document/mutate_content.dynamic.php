@@ -18,8 +18,6 @@ if (request_intvar('id')) {
     checkDocLock(request_intvar('id'));
 }
 
-$docgrp = getDocgrp();
-
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
@@ -46,7 +44,7 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
 }
 
 $tvTemplate = doc('template');
-$tmplVars = getTmplvars(request_intvar('id'), $tvTemplate, $docgrp);
+$tmplVars = getTmplvars(request_intvar('id'), $tvTemplate);
 $docObject += $tmplVars;
 
 manager()->saveFormValues();
@@ -66,7 +64,7 @@ if ((int)doc('template') !== (int)$tvTemplate) {
     foreach (array_keys($tmplVars) as $tvKey) {
         unset($docObject[$tvKey]);
     }
-    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'));
     $docObject += $tmplVars;
 }
 

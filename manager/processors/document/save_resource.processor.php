@@ -272,12 +272,9 @@ function get_tmplvars()
         return [];
     }
 
-    // get document groups for current user
-    $docgrp = sessionv('mgrDocgroups')
-        ? implode(',', sessionv('mgrDocgroups'))
-        : ''
-    ;
-
+    // 文書グループで絞るとき（#1338）: TV に行が無いか、所属のグループの行がある TV だけ。
+    // 編集画面の getTmplvars() と同じ条件
+    $docgrp = implode(',', manager()->userMgrDocumentGroupIds());
 
     $rs = db()->select(
         'DISTINCT tv.*',
@@ -289,7 +286,7 @@ function get_tmplvars()
         sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template,
-            sessionv('mgrRole'),
+            manager()->restrictsByDocumentGroups() ? 0 : 1,
             $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
         ),
         'tv.rank'

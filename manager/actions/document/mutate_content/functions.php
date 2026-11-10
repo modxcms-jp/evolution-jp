@@ -1,5 +1,5 @@
 <?php
-function getTmplvars($docid, $template_id, $docgrp)
+function getTmplvars($docid, $template_id)
 {
     // SQL に渡す直前に整数にそろえる（差し戻しの値が入ることがある）
     $docid = (int)$docid;
@@ -10,6 +10,9 @@ function getTmplvars($docid, $template_id, $docgrp)
     }
 
     $tmplVars = [];
+
+    // 文書グループで絞るとき（#1338）: TV に行が無いか、所属のグループの行がある TV だけ
+    $docgrp = implode(',', manager()->userMgrDocumentGroupIds());
 
     $rs = db()->select(
         [
@@ -37,7 +40,7 @@ function getTmplvars($docid, $template_id, $docgrp)
         sprintf(
             "tvtpl.templateid=%d AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template_id,
-            manager()->isAdmin() ? 1 : 0,
+            manager()->restrictsByDocumentGroups() ? 0 : 1,
             $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
         ),
         'tvtpl.rank,tv.rank, tv.id'
@@ -154,7 +157,7 @@ function rte_fields()
     if (config('use_editor') == 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
-    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), getDocgrp());
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'));
     foreach ($tmplVars as $tv) {
         // Go through and display all Template Variables
         if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
@@ -547,16 +550,6 @@ function checkDocLock($id)
         $msg = sprintf(lang('lock_msg'), $row['username'], lang('resource'));
         alert()->setError(5, $msg);
         alert()->dumpError();
-    }
-}
-
-// get document groups for current user
-function getDocgrp()
-{
-    if (sessionv('mgrDocgroups')) {
-        return implode(',', sessionv('mgrDocgroups'));
-    } else {
-        return '';
     }
 }
 
