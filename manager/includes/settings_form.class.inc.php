@@ -90,7 +90,7 @@ final class EvoSettingsForm
         if (manager()->hasFormValues()) {
             foreach (manager()->loadFormValues() as $key => $value) {
                 if (is_scalar($value)) {
-                    $values[$key] = (string)$value;
+                    $values[$key] = self::storedValue((string)$key, (string)$value) ?? (string)$value;
                 }
             }
         }
@@ -185,6 +185,26 @@ final class EvoSettingsForm
             }
         }
         return $names;
+    }
+
+    /**
+     * 欄の値を保存の形にする。その設定の行に fromInput があれば通し、無ければそのまま返す。
+     * 保存処理と差し戻しが使う（入力の形と保存の形の変換は、行の定義だけに置く）。
+     * 読めない値は null（保存しないことを表す。差し戻しでは入力のまま残す）
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function storedValue(string $key, $value)
+    {
+        foreach (['system', 'user'] as $scope) {
+            foreach (self::scopeRows($scope) as $row) {
+                if (($row['key'] ?? null) === $key && isset($row['fromInput'])) {
+                    return $row['fromInput']($value);
+                }
+            }
+        }
+        return $value;
     }
 
     /**
@@ -774,7 +794,8 @@ HTML;
     private function value(string $key, array $row = []): string
     {
         if (!$this->isSystem() && isset($row['userValue'])) {
-            return (string)$row['userValue']($this->values, $this->stored);
+            $value = (string)$row['userValue']($this->values, $this->stored);
+            return isset($row['toInput']) ? (string)$row['toInput']($value) : $value;
         }
         $value = $this->values[$key] ?? '';
         $value = is_scalar($value) ? (string)$value : '';
@@ -782,7 +803,8 @@ HTML;
         if ($value === '' && isset($row['default']) && $this->isSystem()) {
             return (string)$this->resolve($row['default']);
         }
-        return $value;
+        // 保存の形から、欄に出す形へ
+        return isset($row['toInput']) ? (string)$row['toInput']($value) : $value;
     }
 
     private function isSystem(): bool

@@ -1288,6 +1288,25 @@ function ini_size_to_bytes($value)
 }
 
 /**
+ * 「32mb」「32M」「1.5 KB」「1024」のようなサイズの表記をバイト数にする。
+ * 単位が無い値には $defaultUnit を掛ける（設定の読み手は 1=バイト、画面の入力は 1048576=MB）。
+ * 空や読めない値は null。結果は四捨五入した整数
+ *
+ * @param mixed $value
+ * @param int $defaultUnit 単位が無いときに掛ける数
+ * @return int|null
+ */
+function size_to_bytes($value, $defaultUnit = 1)
+{
+    if (!is_scalar($value)
+        || !preg_match('/^(\d+(?:\.\d+)?)\s*([KMG]?)B?$/i', trim((string) $value), $m)) {
+        return null;
+    }
+    $multipliers = ['' => $defaultUnit, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
+    return (int) round((float) $m[1] * $multipliers[strtoupper($m[2])]);
+}
+
+/**
  * GD で画像を読み込んで縮小しても、memory_limit の残りに収まるかを、読み込む前に見積もる。
  * imagecreatefrom*() はメモリ不足だと例外にならず致命的エラーで処理ごと止まるため、呼び出し側は先にこれで確かめる。
  * 固定の画素数の上限にしないのは、実害が memory_limit との差で決まるため。

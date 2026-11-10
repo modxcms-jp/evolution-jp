@@ -146,6 +146,17 @@ function saveUserSettings($id)
         if (!in_array($name, $defaults, true) && trim($v) == '') {
             continue;
         }
+        // 欄の形（upload_maxsize の MB など）を保存の形にする。読めない値は今の値を残す
+        $v = EvoSettingsForm::storedValue($name, $v);
+        if ($v === null) {
+            if (array_key_exists($name, $current)) {
+                $settings[$name] = $current[$name];
+            }
+            continue;
+        }
+        if (!in_array($name, $defaults, true) && trim($v) == '') {
+            continue;
+        }
         $settings[$name] = $v;
     }
 

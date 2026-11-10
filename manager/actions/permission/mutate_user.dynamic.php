@@ -37,12 +37,20 @@ if ($action === 12) {
     $_SESSION['itemname'] = 'New user';
 }
 
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
+
 // restore saved form
 $formRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
     // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
+    // 欄の形の値は保存の形に戻す（読めない値は入力のまま残す）
+    foreach ($form_v as $k => $v) {
+        if (is_string($v)) {
+            $form_v[$k] = EvoSettingsForm::storedValue((string)$k, $v) ?? $v;
+        }
+    }
     // restore post values
     $user = array_merge($user, $form_v);
     // 日付は解釈できればタイムスタンプに、できなければ入力の文字列のまま残す（入力欄は dateInputValue() で出す）

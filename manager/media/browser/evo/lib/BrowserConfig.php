@@ -183,9 +183,9 @@ class BrowserConfig
 
     public function maxUploadSize()
     {
-        $size = $this->modx->config('upload_maxsize');
+        $size = (int) size_to_bytes($this->modx->config('upload_maxsize'));
 
-        return empty($size) ? 5000000 : (int) $size;
+        return $size > 0 ? $size : 5000000;
     }
 
     /**

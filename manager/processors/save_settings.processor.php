@@ -13,6 +13,8 @@ if ($warnings) {
     evo()->webAlertAndQuit(implode("\n", $warnings), 'index.php?a=17');
     exit;
 }
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
+
 if (!save_settiongs()) {
     echo 'Failed to update setting value!';
     exit;
@@ -253,6 +255,13 @@ function save_settiongs()
             case 'new_folder_permissions':
                 if (strlen($v) == 3) {
                     $v = '0' . $v;
+                }
+                break;
+            case 'upload_maxsize':
+                // 欄は MB の数。バイトにして保存する（読めない値は保存せず、今の値を残す）
+                $v = EvoSettingsForm::storedValue($k, $v);
+                if ($v === null) {
+                    continue 2;
                 }
                 break;
             case 'smtppw':

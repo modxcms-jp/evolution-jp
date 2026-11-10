@@ -1055,10 +1055,31 @@ return [
                     ],
                     [
                         'key' => 'upload_maxsize',
-                        'userAttr' => ['style' => 'width: 300px;'],
                         'scope' => ['system', 'user'],
                         'type' => 'text',
+                        'size' => 8,
+                        'attr' => ['inputmode' => 'decimal'],
+                        'after' => ' MB',
                         'label' => lang('upload_maxsize_title'),
+                        // 保存はバイト、欄は MB の数。バイト → MB（小数 2 桁、末尾の 0 は落とす。読めない値はそのまま出す）
+                        'toInput' => static function ($value) {
+                            $bytes = size_to_bytes($value);
+                            if ($bytes === null) {
+                                return (string)$value;
+                            }
+                            return rtrim(rtrim(number_format($bytes / 1048576, 2, '.', ''), '0'), '.');
+                        },
+                        // 欄の値（MB の数。「32mb」のような単位付きも読む）→ バイトの文字列。空は空、読めない値は null
+                        'fromInput' => static function ($value) {
+                            if (!is_scalar($value)) {
+                                return null;
+                            }
+                            if (trim((string)$value) === '') {
+                                return '';
+                            }
+                            $bytes = size_to_bytes($value, 1048576);
+                            return $bytes === null ? null : (string)$bytes;
+                        },
                         // ユーザーの値、無ければシステム設定の値、無ければサーバーの上限
                         'userValue' => static function (array $values, array $stored) {
                             return (string)(($values['upload_maxsize'] ?? '') ?: ($stored['upload_maxsize'] ?? '') ?: (manager()->getUploadMaxsize() ?: ''));
