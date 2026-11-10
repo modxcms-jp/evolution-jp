@@ -7,6 +7,8 @@
 //
 // behaviors(host は { root, config, state, preview, reload, download(names) }):
 //   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
+//   itemActions                    ファイルの行のアイコンと右クリックの項目になる操作の種類の配列('open' | 'preview' | 'download')。
+//                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない
 //   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
@@ -16,7 +18,7 @@
 //   evofb:navigate          一覧を読み終えたとき。detail は { scope, folder }(folder はルートからの相対パス)
 //   evofb:selectionchange   選択が変わったとき。detail は { scope, folder, names }(names は選んだファイルの名前)。同じ選択では出さない
 
-import { escapeHtml, joinPath, renderBreadcrumb } from './js/utils.js';
+import { escapeHtml, joinPath, renderBreadcrumb, ICON_OPEN, ICON_PREVIEW, ICON_DOWNLOAD } from './js/utils.js';
 import { setMessages, t } from './js/i18n.js';
 import { apiUrl, failureMessage, fetchJson, postForm } from './js/api.js';
 import { bindMoveDropTarget } from './js/dnd.js';
@@ -28,6 +30,13 @@ import { createContextMenu } from './js/contextmenu.js';
 import { createDownload } from './js/download.js';
 import { createImageEditor } from './js/imageEditor.js';
 import { createPrefs } from './js/prefs.js';
+
+// ファイルの行の操作の種類ごとの定義。label は言語キー、run は (ファイル, behaviors, host) で動く
+var ITEM_ACTIONS = {
+    open: { label: 'open', icon: ICON_OPEN, run: function (file, behaviors, host) { behaviors.openFile(file, host); } },
+    preview: { label: 'preview', icon: ICON_PREVIEW, run: function (file, behaviors, host) { host.preview.open(file); } },
+    download: { label: 'fb_download', icon: ICON_DOWNLOAD, run: function (file, behaviors, host) { host.download([file.name]); } }
+};
 
 // 入口の JS が呼ぶ。登録表に開始の関数を置き、今のページの画面を一度だけ初期化する
 export function registerEntry(entry, behaviors) {
@@ -249,6 +258,7 @@ function init(root, entry, behaviors) {
             });
     }
 
+    var itemActionKinds = behaviors.itemActions || [];
     var grid = createGrid({
         gridEl: gridEl,
         dropzoneEl: dropzoneEl,
@@ -270,6 +280,15 @@ function init(root, entry, behaviors) {
             var file = findFile(name);
             if (file) {
                 behaviors.openFile(file, host);
+            }
+        },
+        itemActions: itemActionKinds.map(function (kind) {
+            return { kind: kind, label: t(ITEM_ACTIONS[kind].label), icon: ITEM_ACTIONS[kind].icon };
+        }),
+        runItemAction: function (kind, name) {
+            var file = findFile(name);
+            if (file) {
+                ITEM_ACTIONS[kind].run(file, behaviors, host);
             }
         },
         renameEntry: renameEntry,
@@ -687,13 +706,17 @@ function init(root, entry, behaviors) {
         var file = findFile(name);
         var items = file ? behaviors.contextMenuItems(file, host).slice() : [];
         if (file) {
-            items.push({ label: t('preview'), onSelect: function () { preview.open(file); } });
+            itemActionKinds.forEach(function (kind) {
+                items.push({ label: t(ITEM_ACTIONS[kind].label), onSelect: function () { ITEM_ACTIONS[kind].run(file, behaviors, host); } });
+            });
             if (imageEditor.canEdit(file)) {
                 items.push({ label: t('fb_edit'), onSelect: function () { imageEditor.open(file); } });
             }
         }
+        if (itemActionKinds.indexOf('download') === -1) {
+            items.push({ label: t('fb_download'), onSelect: bulkDownload });
+        }
         items.push(
-            { label: t('fb_download'), onSelect: bulkDownload },
             { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
             { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
             { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },

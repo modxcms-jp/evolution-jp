@@ -616,7 +616,7 @@
     --evo-fb-col-mtime: 140px;
     --evo-fb-col-type: 120px;
     --evo-fb-col-size: 84px;
-    --evo-fb-col-actions: 72px;
+    --evo-fb-col-actions: 94px;
     /* 名前の列の左: 行の枠線 + 行の左の余白 + アイコン + アイコンと名前の間 */
     --evo-fb-col-name-indent: calc(var(--border-thin, 1px) + var(--space-6, 24px) + 28px + var(--space-2, 8px));
 }

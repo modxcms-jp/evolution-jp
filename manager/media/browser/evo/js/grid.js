@@ -1,7 +1,7 @@
 // 右ペインのファイル/フォルダグリッド。一覧描画・選択(クリック/Ctrl/Shift/矩形選択)・
 // D&D移動のドラッグソース/ドロップ先バインドを担う。
 
-import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, fileIcon, ICON_RENAME, ICON_DELETE, ICON_PREVIEW } from './utils.js';
+import { escapeHtml, formatSize, formatDate, joinPath, folderIcon, fileIcon, ICON_RENAME, ICON_DELETE } from './utils.js';
 import { t } from './i18n.js';
 import { bindMoveDropTarget, bindFileDragSource } from './dnd.js';
 import { apiUrl, loadFailureMessage } from './api.js';
@@ -17,6 +17,8 @@ import { createMarquee } from './marquee.js';
  * @param {object} ctx.config
  * @param {(path: string) => void} ctx.onNavigate - フォルダへ移動(joinPath済みのpathを渡す)
  * @param {(name: string) => void} ctx.openPreview
+ * @param {Array<{kind: string, label: string, icon: string}>} ctx.itemActions - ファイルの行に並べる操作(入口ごとの内訳は filebrowser.js が決める。ここでは入口を判定しない)
+ * @param {(kind: string, name: string) => void} ctx.runItemAction
  * @param {(name: string) => void} ctx.openFile - ダブルクリックで開く(入口の behaviors.openFile が決める)
  * @param {(name: string) => void} ctx.renameEntry
  * @param {(name: string, isFolder: boolean) => void} ctx.deleteEntry
@@ -33,11 +35,12 @@ export function createGrid(ctx) {
     var lastClickedFile = null;
 
     function itemActionsHtml(isFolder) {
-        var preview = isFolder ? '' :
-            '  <button type="button" class="evo-fb-icon-btn" data-role="preview" title="' + escapeHtml(t('preview')) + '">' + ICON_PREVIEW + '</button>';
+        var extra = isFolder ? '' : ctx.itemActions.map(function (a) {
+            return '  <button type="button" class="evo-fb-icon-btn" data-role="action-' + escapeHtml(a.kind) + '" title="' + escapeHtml(a.label) + '">' + a.icon + '</button>';
+        }).join('');
         return '' +
             '<span class="evo-fb-item-actions">' +
-            preview +
+            extra +
             '  <button type="button" class="evo-fb-icon-btn" data-role="rename" title="' + escapeHtml(t('fb_rename')) + '">' + ICON_RENAME + '</button>' +
             '  <button type="button" class="evo-fb-icon-btn evo-fb-icon-danger" data-role="delete" title="' + escapeHtml(t('delete')) + '">' + ICON_DELETE + '</button>' +
             '</span>';
@@ -336,9 +339,11 @@ export function createGrid(ctx) {
                     ctx.openFile(name);
                 });
 
-                item.querySelector('[data-role="preview"]').addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    ctx.openPreview(name);
+                ctx.itemActions.forEach(function (a) {
+                    item.querySelector('[data-role="action-' + a.kind + '"]').addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        ctx.runItemAction(a.kind, name);
+                    });
                 });
             }
 

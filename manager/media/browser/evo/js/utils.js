@@ -70,4 +70,8 @@ export const ICON_TREE_ARROW = '<svg viewBox="0 0 24 24" width="12" height="12">
 // 名前の変更: 入力欄の枠を、文字のカーソル(I の形)が横切る形。ペン(中身の編集)と見分けられるようにする
 export const ICON_RENAME = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 7h11v2H4v6h9v2H2zm17 0h3v10h-3v-2h1V9h-1zM13 3h6v2h-2v14h2v2h-6v-2h2V5h-2z"/></svg>';
 export const ICON_DELETE = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M6 7h12l-1 14H7zm3-3h6l1 2H8zM4 6h16v2H4z"/></svg>';
+// 開く: 四角から右上へ出る矢印
+export const ICON_OPEN = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M14 3h7v7h-2V6.41l-8.29 8.3-1.42-1.42L17.59 5H14zM5 5h6v2H7v10h10v-4h2v6H5z"/></svg>';
+// ダウンロード: 下向きの矢印と受け皿
+export const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M11 3h2v9.17l3.59-3.58L18 10l-6 6-6-6 1.41-1.41L11 12.17zM5 18h14v2H5z"/></svg>';
 export const ICON_PREVIEW = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1114 9.5 4.5 4.5 0 019.5 14z"/></svg>';

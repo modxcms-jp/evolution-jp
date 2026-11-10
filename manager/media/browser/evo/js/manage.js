@@ -96,6 +96,7 @@ function openByContent(entry, host) {
 }
 
 var behaviors = {
+    itemActions: ['open', 'download'],
     openFile: function (entry, host) {
         if (isTextFile(host.config, entry.name)) {
             editorFor(host).open(entry.name, host.state.folder);
@@ -106,7 +107,7 @@ var behaviors = {
     previewActions: function (entry, host) {
         return [{ label: t('fb_download'), onSelect: function () { host.download([entry.name]); } }];
     },
-    // 右クリックメニューに足す項目(ファイルには「表示・編集」「展開」、何も無い所には「新しいファイル」)。書き込めないフォルダでは作る・展開する項目は出さない
+    // 右クリックメニューに足す項目(ファイルには「展開」、何も無い所には「新しいファイル」)。書き込めないフォルダでは作る・展開する項目は出さない
     contextMenuItems: function (entry, host) {
         var items = [];
         if (!entry) {
@@ -114,10 +115,6 @@ var behaviors = {
                 items.push({ label: t('fb_new_file'), onSelect: function () { createFile(host); } });
             }
             return items;
-        }
-        // 画像・動画・音声はプレビューで見せるので出さない。ほかはすべて出し、テキストでなければ情報とダウンロードのプレビューになる
-        if (!entry.image && !entry.media) {
-            items.push({ label: t('fb_text_open'), onSelect: function () { behaviors.openFile(entry, host); } });
         }
         if (extensionOf(entry.name) === 'zip' && host.state.writable) {
             items.push({ label: t('fb_unzip'), onSelect: function () { unzipFile(host, entry.name); } });
