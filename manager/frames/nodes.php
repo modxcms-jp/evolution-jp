@@ -173,8 +173,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft] = $row;
-        $nodeDate = $row[15] ?? null;
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $nodeDate] = array_pad($row, 17, null);
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
