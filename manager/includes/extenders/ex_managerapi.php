@@ -1451,10 +1451,13 @@ class ManagerAPI
     }
 
     /**
-     * 文書の編集画面（a=27）を、この利用者が開けるか。管理画面の入口（mutate_content/functions.php の
-     * checkPermissions()）と同じ条件: view_document の権限、許可するリソースの範囲（isInAllowedParents()）、
-     * 文書グループ（canAccessDocument()）。リクエストの値は読まない。QuickManager の編集ボタンと保存が使う。
-     * 保存できるかは save_document（呼ぶ側が見る）
+     * 文書の編集画面（a=27）を、この利用者が開けるか。view_document の権限、許可するリソースの範囲
+     * （isInAllowedParents()。保存の処理と同じ判定）、文書グループ（canAccessDocument()）を順に見る。
+     * リクエストの値は読まない。QuickManager のボタンの表示と TV の保存が使う。
+     * 保存できるかは save_document（呼ぶ側が見る）。
+     * 管理画面の入口（mutate_content/functions.php の checkPermissions()）は範囲に isAllowed() を使い、
+     * getChildIds の深さ（10 段）と削除済みの扱いが違うので、削除済みの文書の下などでは食い違う。
+     * 入口をこの判定にそろえるのは #1372 で扱う
      *
      * @param int|string $docId
      * @return bool
@@ -1468,6 +1471,27 @@ class ManagerAPI
         return evo()->hasPermission('view_document')
             && $this->isInAllowedParents($docId)
             && $this->canAccessDocument($docId);
+    }
+
+    /**
+     * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
+     * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
+     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは isAllowroot()。
+     * リクエストの値は読まない。QuickManager の追加ボタンが使う
+     *
+     * @param int|string $parentId
+     * @return bool
+     */
+    public function canCreateDocumentUnder($parentId)
+    {
+        if (!evo()->hasPermission('new_document')) {
+            return false;
+        }
+        $parentId = (int)$parentId;
+        if ($parentId <= 0) {
+            return $this->isAllowroot();
+        }
+        return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
     }
 
     /**
