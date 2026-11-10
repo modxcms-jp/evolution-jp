@@ -54,8 +54,6 @@ $values = EvoSettingsForm::systemValues($stored);
     </style>
     <div>
         <input type="hidden" name="site_id" value="<?= hsc($values['site_id'] ?? '') ?>"/>
-        <input type="hidden" name="settings_version" value="<?= hsc(globalv('modx_version')) ?>"/>
-        <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
         <?php
         if (in_array((string)($values['settings_version'] ?? ''), ['', '0'], true)) {
             ?>
