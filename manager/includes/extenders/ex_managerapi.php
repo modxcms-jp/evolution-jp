@@ -1455,7 +1455,9 @@ class ManagerAPI
      * TV のアクセスの判定の正はここ（編集画面・保存・QuickManager が使う）。
      * 絞るかどうかは文書の判定と同じ restrictsByDocumentGroups()（#1338）。
      * 「届く」TV: site_tmplvar_access に行が無い、または所属のグループの行がある。
-     * 結合に頼らない副問い合わせなので、どの問い合わせにも入れられる
+     * 副問い合わせは外側の行を参照しない（相関なし）。別名があってもなくても同じ式で、
+     * どの問い合わせにも入れられる。site_tmplvar_access.tmplvarid は NOT NULL
+     * （install/sql/create_tables.sql）なので、NOT IN が NULL で崩れることは無い
      *
      * @param string $alias site_tmplvars の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
      * @return string
@@ -1473,16 +1475,17 @@ class ManagerAPI
         $a = $alias === '' ? '' : $alias . '.';
         $table = db()->getFullTableName('site_tmplvar_access');
         $groupIds = $this->userMgrDocumentGroupIds();
-        $cond = sprintf('NOT EXISTS (SELECT 1 FROM %s WHERE tmplvarid=%sid)', $table, $a);
-        if ($groupIds) {
-            $cond .= sprintf(
-                ' OR %sid IN (SELECT tmplvarid FROM %s WHERE documentgroup IN (%s))',
-                $a,
-                $table,
-                implode(',', $groupIds)
-            );
+        $unrestricted = sprintf('%sid NOT IN (SELECT tmplvarid FROM %s)', $a, $table);
+        if (!$groupIds) {
+            return $unrestricted;
         }
-        return "({$cond})";
+        return sprintf(
+            '(%s OR %sid IN (SELECT tmplvarid FROM %s WHERE documentgroup IN (%s)))',
+            $unrestricted,
+            $a,
+            $table,
+            implode(',', $groupIds)
+        );
     }
 
     /**

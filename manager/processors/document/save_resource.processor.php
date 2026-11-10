@@ -281,7 +281,7 @@ function get_tmplvars()
             '[+prefix+]site_tmplvars AS tv',
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id'
         ],
-        sprintf("tvtpl.templateid='%s'", $template) . ($cond === '' ? '' : " AND {$cond}"),
+        sprintf('tvtpl.templateid=%d', (int)$template) . ($cond === '' ? '' : " AND {$cond}"),
         'tv.rank'
     );
 
