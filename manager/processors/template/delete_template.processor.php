@@ -32,7 +32,7 @@ if ($limit > 0) {
         echo (int)$row['id'] . " - " . hsc($row['pagetitle']) . "<br />\n";
     }
     if ($limit > $shown) {
-        echo hsc(sprintf(lang('a16_hidden_resources'), $limit - $shown)) . "<br />\n";
+        echo hsc(sprintf(lang('resources_hidden_by_permission'), $limit - $shown)) . "<br />\n";
     }
     exit;
 }

@@ -61,7 +61,7 @@ if (!$forced) {
         }
         echo "</ul>";
         if ($count > $shown) {
-            echo '<p>' . hsc(sprintf($_lang['a16_hidden_resources'], $count - $shown)) . '</p>';
+            echo '<p>' . hsc(sprintf($_lang['resources_hidden_by_permission'], $count - $shown)) . '</p>';
         }
         echo '</div>';
         echo '</div>';

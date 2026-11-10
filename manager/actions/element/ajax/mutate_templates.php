@@ -33,7 +33,7 @@ function get_resources_byajax($id)
     if ($total === 0) {
         return sprintf(
             '<p>%s</p>',
-            $hidden > 0 ? sprintf($_lang['a16_hidden_resources'], $hidden) : $_lang['a16_no_resource']
+            $hidden > 0 ? sprintf($_lang['resources_hidden_by_permission'], $hidden) : $_lang['a16_no_resource']
         );
     }
 
@@ -48,7 +48,7 @@ function get_resources_byajax($id)
     }
     $html = sprintf('<p>%s</p>', implode(', ', $items));
     if ($hidden > 0) {
-        $html .= sprintf('<p>%s</p>', sprintf($_lang['a16_hidden_resources'], $hidden));
+        $html .= sprintf('<p>%s</p>', sprintf($_lang['resources_hidden_by_permission'], $hidden));
     }
     return $html;
 }
