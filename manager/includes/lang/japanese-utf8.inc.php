@@ -1406,7 +1406,6 @@ return [
     "fb_err_zip_link" => 'リンクの zip は展開できません。',
     "fb_log_omitted" => 'ほか %d 件（trace_id=%s）',
     "fb_text_title" => 'テキストの表示・編集',
-    "fb_text_open" => '表示・編集',
     "fb_text_wrap" => '行の折り返し',
     "fb_text_loading" => '読み込んでいます...',
     "fb_text_readonly_write" => 'このファイルには書き込めないため、読み取り専用で開いています。',

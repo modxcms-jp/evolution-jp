@@ -1405,7 +1405,6 @@ return [
     "fb_err_zip_link" => 'A zip file that is a link cannot be extracted.',
     "fb_log_omitted" => '%d more (trace_id=%s)',
     "fb_text_title" => 'View / edit text',
-    "fb_text_open" => 'View / edit',
     "fb_text_wrap" => 'Wrap lines',
     "fb_text_loading" => 'Loading...',
     "fb_text_readonly_write" => 'This file is not writable, so it is opened read-only.',
