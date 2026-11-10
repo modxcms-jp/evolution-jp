@@ -2067,7 +2067,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 }
 
 .actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-link);
+    outline: 2px solid var(--color-text-primary);
     outline-offset: 2px;
 }
 
