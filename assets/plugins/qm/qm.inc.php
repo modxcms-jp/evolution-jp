@@ -240,35 +240,8 @@ class Qm
     //_____________________________________________________
     function checkTvAccess($tvId)
     {
-        if (!manager()->restrictsByDocumentGroups()) {
-            return true;
-        }
-
-        $tvId = (int)$tvId;
-        if (!$tvId) {
-            return false;
-        }
-        $result = db()->select('id', '[+prefix+]site_tmplvar_access', 'tmplvarid = ' . $tvId);
-        if (!db()->count($result)) {
-            return true;
-        }
-
-        $docGroups = manager()->userMgrDocumentGroupIds();
-        if ($docGroups) {
-            $result = db()->select(
-                'id',
-                '[+prefix+]site_tmplvar_access',
-                sprintf(
-                    'tmplvarid = %d AND documentgroup IN (%s)',
-                    $tvId,
-                    implode(',', $docGroups)
-                )
-            );
-            if (db()->count($result)) {
-                return true;
-            }
-        }
-        return false;
+        // 文書グループの判定は ManagerAPI が正（#1338）
+        return manager()->canAccessTmplvar($tvId);
     }
 
     // Get default TV ("build-in" TVs) captions

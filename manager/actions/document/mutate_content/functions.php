@@ -11,8 +11,8 @@ function getTmplvars($docid, $template_id)
 
     $tmplVars = [];
 
-    // 文書グループで絞るとき（#1338）: TV に行が無いか、所属のグループの行がある TV だけ
-    $docgrp = implode(',', manager()->userMgrDocumentGroupIds());
+    // 文書グループで絞る条件（#1338）。判定の正は ManagerAPI
+    $cond = manager()->tmplvarAccessCondition('tv');
 
     $rs = db()->select(
         [
@@ -34,15 +34,9 @@ function getTmplvars($docid, $template_id)
                     $docid
                 )
                 :
-                '',
-            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+                ''
         ],
-        sprintf(
-            "tvtpl.templateid=%d AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-            $template_id,
-            manager()->restrictsByDocumentGroups() ? 0 : 1,
-            $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
-        ),
+        sprintf('tvtpl.templateid=%d', $template_id) . ($cond === '' ? '' : " AND {$cond}"),
         'tvtpl.rank,tv.rank, tv.id'
     );
 

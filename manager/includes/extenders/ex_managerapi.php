@@ -1451,6 +1451,62 @@ class ManagerAPI
     }
 
     /**
+     * 文書グループで絞るときの、TV（テンプレート変数）の SQL の条件式（前に AND は付けない）。絞らないときは空文字。
+     * TV のアクセスの判定の正はここ（編集画面・保存・QuickManager が使う）。
+     * 絞るかどうかは文書の判定と同じ restrictsByDocumentGroups()（#1338）。
+     * 「届く」TV: site_tmplvar_access に行が無い、または所属のグループの行がある。
+     * 結合に頼らない副問い合わせなので、どの問い合わせにも入れられる
+     *
+     * @param string $alias site_tmplvars の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function tmplvarAccessCondition($alias = 'tv')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!$this->restrictsByDocumentGroups()) {
+            return '';
+        }
+        $a = $alias === '' ? '' : $alias . '.';
+        $table = db()->getFullTableName('site_tmplvar_access');
+        $groupIds = $this->userMgrDocumentGroupIds();
+        $cond = sprintf('NOT EXISTS (SELECT 1 FROM %s WHERE tmplvarid=%sid)', $table, $a);
+        if ($groupIds) {
+            $cond .= sprintf(
+                ' OR %sid IN (SELECT tmplvarid FROM %s WHERE documentgroup IN (%s))',
+                $a,
+                $table,
+                implode(',', $groupIds)
+            );
+        }
+        return "({$cond})";
+    }
+
+    /**
+     * TV を、この利用者が文書グループの面で扱ってよいか。絞らないなら true。
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない TV は false
+     *
+     * @param int|string $tmplvarId
+     * @return bool
+     */
+    public function canAccessTmplvar($tmplvarId)
+    {
+        $cond = $this->tmplvarAccessCondition('tv');
+        if ($cond === '') {
+            return true;
+        }
+        $rs = db()->select(
+            'COUNT(tv.id)',
+            '[+prefix+]site_tmplvars tv',
+            sprintf('tv.id=%d AND %s', (int)$tmplvarId, $cond)
+        );
+        return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
      * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか（#1318）。
      * 絞らない（restrictsByDocumentGroups() が false）、または集合が届く（管理側で非公開のグループが
      * 無い、または利用者の所属と重なる）とき true。documentAccessCondition() と同じ定義を、
