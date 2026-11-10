@@ -1430,7 +1430,8 @@ class ManagerAPI
 
     /**
      * 文書を、この利用者が文書グループの面で管理画面で扱ってよいか。絞らないなら true。
-     * 存在しない文書は false
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない文書は false。
+     * 絞らないときは id によらず true（checkPermissions() の修正前と同じ）
      *
      * @param int|string $docId
      * @return bool

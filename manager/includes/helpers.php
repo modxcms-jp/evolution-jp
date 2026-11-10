@@ -22,9 +22,8 @@ function db()
 /**
  * 公開側でも、管理画面にログインした利用者の判定（文書グループ・QuickManager）に使うため、
  * 未読み込みなら ManagerAPI を読み込んでから返す。
- * 未定義のプロパティを読むと DocumentParser::__get() がログを残すので、isset() で見る
  *
- * @return ManagerAPI
+ * @return ManagerAPI|null evo() が無いとき null
  */
 function manager()
 {
