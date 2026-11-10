@@ -82,11 +82,18 @@ function openByContent(entry, host) {
         return;
     }
     var folder = host.state.folder;
+    // 通信中に別のフォルダーへ移ったら、応答は捨てる(前のフォルダーのファイルを今の画面に出さない)
     fetchJson(apiUrl(host.config, { action: 'readText', folder: folder, file: entry.name }))
         .then(function () {
+            if (host.state.folder !== folder) {
+                return;
+            }
             editorFor(host).open(entry.name, folder);
         })
         .catch(function (err) {
+            if (host.state.folder !== folder) {
+                return;
+            }
             if (err && (err.code === 'not_text' || err.code === 'too_large')) {
                 host.preview.open(entry);
                 return;

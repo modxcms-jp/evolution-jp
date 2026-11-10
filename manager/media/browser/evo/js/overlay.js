@@ -17,7 +17,7 @@ export function restoreFocus(el) {
     }
 }
 
-var FOCUSABLE = 'button, input, select, textarea, a[href], [tabindex]';
+var FOCUSABLE = 'button, input, select, textarea, a[href], [tabindex], video[controls], audio[controls]';
 
 // 画面に出ていて、フォーカスできる要素(Tab の循環の端を決めるため)
 function focusableIn(panelEl) {
