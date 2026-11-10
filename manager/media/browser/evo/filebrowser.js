@@ -191,6 +191,7 @@ function init(root, entry, behaviors) {
     // クリップボード: { mode: 'copy' | 'cut', folder, names }。フォルダを移っても残り、モーダルを閉じると状態ごと消える
     var clipboard = null;
     var pasteBtn = root.querySelector('[data-action="paste"]');
+    var selectionBarEl = root.querySelector('[data-role="selectionbar"]');
     var downloadBtn = root.querySelector('[data-action="bulk-download"]');
 
     function isCutName(name) {
@@ -263,7 +264,6 @@ function init(root, entry, behaviors) {
     var grid = createGrid({
         gridEl: gridEl,
         dropzoneEl: dropzoneEl,
-        selectionBarEl: root.querySelector('[data-role="selectionbar"]'),
         selectionCountEl: root.querySelector('[data-role="selection-count"]'),
         state: state,
         config: config,
@@ -297,8 +297,12 @@ function init(root, entry, behaviors) {
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
         onSelectionChange: function (count) {
-            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを隠す
-            downloadBtn.hidden = !canDownload(count);
+            // 帯は常に出して高さを変えず、ボタンは選択が無いと無効にする。
+            // zip を作れない環境では、2 件以上のときはダウンロードのボタンも無効にする
+            selectionBarEl.querySelectorAll('button').forEach(function (btn) {
+                btn.disabled = count === 0;
+            });
+            downloadBtn.disabled = !canDownload(count);
             notifySelection();
         },
         isCut: isCutName
@@ -546,6 +550,8 @@ function init(root, entry, behaviors) {
     root.querySelector('[data-action="clear-selection"]').addEventListener('click', function () {
         state.selection.clear();
         grid.updateSelectionDom();
+        // 押したボタン自身が無効になってフォーカスが body に落ちるので、一覧へ戻す(Ctrl+C などのキー操作を続けられるように)
+        dropzoneEl.focus({ preventScroll: true });
     });
 
     function bulkDelete() {

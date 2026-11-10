@@ -11,7 +11,6 @@ import { createMarquee } from './marquee.js';
  * @param {object} ctx
  * @param {HTMLElement} ctx.gridEl
  * @param {HTMLElement} ctx.dropzoneEl - 矩形選択を受け付ける領域(gridElの親)
- * @param {HTMLElement} ctx.selectionBarEl
  * @param {HTMLElement} ctx.selectionCountEl
  * @param {object} ctx.state
  * @param {object} ctx.config
@@ -252,7 +251,6 @@ export function createGrid(ctx) {
 
     function updateSelectionBar() {
         var count = state.selection.size;
-        ctx.selectionBarEl.hidden = count === 0;
         ctx.selectionCountEl.textContent = t('fb_selected_count', count);
         ctx.onSelectionChange(count);
     }
