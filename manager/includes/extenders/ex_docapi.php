@@ -53,34 +53,25 @@ class DocAPI
 
         if ($groups) {
             foreach ($groups as $group) {
+                $group = (int)$group;
+                if ($group < 1) {
+                    continue;
+                }
                 db()->insert(
                     ['document_group' => $group, 'document' => $id],
                     '[+prefix+]document_groups'
                 );
             }
-            $this->refreshPrivateFlags((int)$id);
+            // DocAPI は use_udperms に関係なくグループを書くので、印も関係なく計算する
+            // ManagerAPI は公開側・CLI からも呼ばれるので、無ければ読み込む
+            // （#1338 の PR-A（#1361）で manager() が自分で読み込むようになったら不要）
+            if (!evo()->manager) {
+                evo()->loadExtension('ManagerAPI');
+            }
+            manager()->refreshDocumentPrivateFlags($id);
         }
         evo()->clearCache();
         return $id;
-    }
-
-    /**
-     * 文書の非公開の印（privatemgr・privateweb）を、実際の所属から求めて書く。
-     * 印の規則の正本は ManagerAPI の setMgrDocsAsPrivate()・setWebDocsAsPrivate()
-     * （管理側・Web 側のグループが付いた文書グループに属するときだけ 1）。保存の画面と同じく use_udperms のときだけ行う。
-     * id が 0 や空だと全文書が対象になるので、正の id のときだけ呼ぶ。
-     * 公開側・CLI からも呼ばれるので、ManagerAPI は無ければ読み込む
-     */
-    private function refreshPrivateFlags($id)
-    {
-        if ($id < 1 || !evo()->config('use_udperms')) {
-            return;
-        }
-        if (!evo()->manager) {
-            evo()->loadExtension('ManagerAPI');
-        }
-        manager()->setWebDocsAsPrivate($id);
-        manager()->setMgrDocsAsPrivate($id);
     }
 
     public function update($f = [], $docid = 0, $where = '')
