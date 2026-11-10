@@ -32,7 +32,7 @@
 - 管理画面での文書グループによる絞り込みの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）です。管理者（`isAdmin()` または `save_role`）は `bypassesDocumentGroups()`、絞るかどうかは `restrictsByDocumentGroups()`、文書は `documentAccessCondition()`・`canAccessDocument()`・`canOpenWithDocumentGroups()`、TV は `tmplvarAccessCondition()`・`canAccessTmplvar()` です。
 - `evo()->checkPermissions()` はこれらを使う公開の API です。文書グループで絞る問い合わせは、自前で条件を書かずにこれらを使います。
 - `tree_show_protected` は、開けない文書をツリーと子の一覧に印つきで出すかだけの設定で、アクセスの判定には使いません。
-- DocumentParser の取得の関数（`getDocumentObject()` など。公開側と管理画面側の分岐）を同じ判定にする作業は #1338 の後段で行います。詳しい規則は各メソッドの docblock を正とします。
+- DocumentParser の取得の関数（`getDocumentObject()`・`getDocuments()`・`getPageInfo()`・`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()`、ページキャッシュの読み込みの確認）は、管理画面側（`isFrontend()` が偽）の分岐が `documentAccessCondition()` を使い、公開側の `privateweb` の分岐は管理者の判定に `managerBypassesDocumentGroups()` を使います。ログインしていない閲覧では ManagerAPI を読み込みません。公開側で絞り込みを外す関数がどれかは関数ごとに違います（`core-issues.md`）。詳しい規則は各メソッドの docblock を正とします。
 
 ## イベントフローの概要
 

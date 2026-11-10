@@ -1676,11 +1676,11 @@ class DocumentParser
             // cache_type=2 で保存したキャッシュは、先頭が contentType で本文が出力全体なので、そのまま返す
             return $a[1];
         }
-        // add so - check page security(admin(mgrRole=1) is pass)
+        // add so - check page security(管理者(managerBypassesDocumentGroups)は通す)
         // エラーページは、キャッシュを使わないときも prepareResponse() でアクセス権を確かめないので、ここでも確かめない
         if (
             $this->http_status_code != 404
-            && $this->session('mgrRole') != 1
+            && !$this->managerBypassesDocumentGroups()
             && $docObj['privateweb']
             && isset($docObj['__MODxDocGroups__'])
         ) {
@@ -3784,32 +3784,33 @@ class DocumentParser
         }
 
         // get document (add so)
-        $_ = [];
+        // 絞り込みを受けない管理者は条件なし。管理画面側の判定は ManagerAPI に置く（#1338）
+        $access = '';
         if ($this->isFrontend()) {
-            $_[] = 'sc.privateweb=0';
+            if (!$this->managerBypassesDocumentGroups()) {
+                $_ = ['sc.privateweb=0'];
+                $docgrp = $this->getUserDocGroups();
+                if ($docgrp) {
+                    $_[] = where_in('dg.`document_group`', $docgrp);
+                }
+                $access = implode(' OR ', $_);
+            }
         } else {
-            $_[] = 'sc.privatemgr=0';
+            $access = manager()->documentAccessCondition('sc');
         }
-        $docgrp = $this->getUserDocGroups();
-        if ($docgrp) {
-            $_[] = where_in('dg.`document_group`', $docgrp);
-        }
-        if ($this->session('mgrRole')) {
-            $_[] = sprintf('1=%d', (int)$this->session('mgrRole'));
-        }
-        $access = implode(' OR ', $_);
 
+        $conditions = [where('`sc`.`id`', '=', (int)$identifier)];
+        if ($access !== '') {
+            $conditions[] = 'AND';
+            $conditions[] = '(' . $access . ')';
+        }
         $result = db()->select(
             'sc.*',
             [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
             ],
-            [
-                where('`sc`.`id`', '=', (int)$identifier),
-                'AND',
-                '(' . $access . ')'
-            ],
+            $conditions,
             '',
             1
         );
@@ -4187,6 +4188,18 @@ class DocumentParser
         return !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true');
     }
 
+    /**
+     * 公開側で、管理画面にログイン中の利用者が文書グループの絞り込みを受けないか（#1338）。
+     * 定義は ManagerAPI::bypassesDocumentGroups()。ログインしていない閲覧では ManagerAPI を読み込まない。
+     * 公開側の privateweb の判定に使い、use_udperms は見ない（管理画面側は ManagerAPI::documentAccessCondition()）
+     *
+     * @return bool
+     */
+    public function managerBypassesDocumentGroups()
+    {
+        return (bool)$this->isLoggedIn('mgr') && manager()->bypassesDocumentGroups();
+    }
+
     public function getDocuments(
         $ids = [],
         $published = 1,
@@ -4217,17 +4230,17 @@ class DocumentParser
             }
             $where[] = sprintf('AND sc.deleted=%d', $deleted);
 
-            if ($this->session('mgrRole') != 1) {
-                if ($this->isFrontend()) {
+            if ($this->isFrontend()) {
+                if (!$this->managerBypassesDocumentGroups()) {
                     $where[] = sprintf(
                         'AND (sc.privateweb=0 OR dg.document_group IN (%s))',
                         implode(',', $this->getUserDocGroups())
                     );
-                } else {
-                    $where[] = sprintf(
-                        'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                        implode(',', $this->getUserDocGroups())
-                    );
+                }
+            } else {
+                $cond = manager()->documentAccessCondition('sc');
+                if ($cond !== '') {
+                    $where[] = 'AND ' . $cond;
                 }
             }
             if ($extra_where) {
@@ -4252,11 +4265,14 @@ class DocumentParser
             }
             $where[] = sprintf('AND deleted=%d', $deleted);
 
-            if ($this->session('mgrRole') != 1) {
-                if ($this->isFrontend()) {
+            if ($this->isFrontend()) {
+                if (!$this->managerBypassesDocumentGroups()) {
                     $where[] = 'AND privateweb=0';
-                } else {
-                    $where[] = 'AND privatemgr=0';
+                }
+            } else {
+                $cond = manager()->documentAccessCondition('');
+                if ($cond !== '') {
+                    $where[] = 'AND ' . $cond;
                 }
             }
             if ($extra_where) {
@@ -4338,7 +4354,16 @@ class DocumentParser
         }
 
         // get document groups for current user
-        $docgrp = $this->getUserDocGroups();
+        if ($this->isFrontend()) {
+            $access = "sc.privateweb='0'";
+            $docgrp = $this->getUserDocGroups();
+            if ($docgrp) {
+                $access .= sprintf(' OR dg.document_group IN (%s)', implode(',', $docgrp));
+            }
+        } else {
+            // 管理画面側の判定は ManagerAPI に置く（#1338）
+            $access = manager()->documentAccessCondition('sc');
+        }
 
         $result = db()->select(
             $this->join(
@@ -4354,17 +4379,10 @@ class DocumentParser
                 'LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
             ],
             sprintf(
-                "(sc.id='%s' %s) AND (%s %s)",
+                "(sc.id='%s' %s) %s",
                 $docid,
                 ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '',
-                $this->isFrontend() ?
-                    "sc.privateweb='0'"
-                    :
-                    sprintf(
-                        "1='%s' OR sc.privatemgr='0'",
-                        $this->session('mgrRole')
-                    ),
-                ($docgrp) ? sprintf("OR dg.document_group IN (%s)", implode(',', $docgrp)) : ''
+                $access !== '' ? "AND ({$access})" : ''
             ),
             '',
             1
