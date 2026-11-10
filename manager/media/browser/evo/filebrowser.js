@@ -556,6 +556,9 @@ function init(root, entry, behaviors) {
 
     downloadBtn.addEventListener('click', bulkDownload);
 
+    // 帯は一覧の中にあるので、帯の空白を押しても矩形選択の「空白クリック=選択解除」にならないようにする
+    selectionBarEl.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+
     // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
     dropzoneEl.addEventListener('click', function (e) {
         if (!e.target.closest('button, input, select, textarea, .evo-fb-item')) {
