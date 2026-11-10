@@ -1352,15 +1352,19 @@ class ManagerAPI
      * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
      * 集合のうち管理側で非公開のもの（membergroup_access に行がある。setMgrDocsAsPrivate() と同じ定義）が
      * 1 つ以上あり、利用者の所属（sessionv('mgrDocgroups')）にそのどれも無いときだけ false。
-     * save_role 権限、use_udperms が無効、管理側で非公開のグループが無いときは true。
-     * 文書の表示側の判定（checkPermissions()）と同じ条件・同じ値で判定する
+     * use_udperms が無効、管理者（manager()->isAdmin()）、管理側で非公開のグループが無いときは true。
+     * 条件は、編集画面が文書を読む db_value()（mutate_content/functions.php）に合わせている
+     * （isAdmin() のときだけ絞り込みを外し、privatemgr=0 または所属の文書グループを要求する）。
+     * 表示側の checkPermissions()（save_role で判定）とは違う。その食い違いは #1338 で扱う。
+     * sessionv('mgrDocgroups') は、管理画面のリクエストで accesscontrol.inc.php が読み直す値が前提
+     * （管理画面のリクエストで使う）
      *
      * @param int[] $groupIds 文書に付く文書グループの id
      * @return bool
      */
     public function canOpenWithDocumentGroups($groupIds)
     {
-        if (evo()->config('use_udperms') != 1 || evo()->hasPermission('save_role')) {
+        if (evo()->config('use_udperms') != 1 || manager()->isAdmin()) {
             return true;
         }
         $private = $this->mgrPrivateDocumentGroupIds($groupIds);
