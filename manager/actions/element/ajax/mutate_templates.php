@@ -11,10 +11,16 @@ function get_resources_byajax($id)
 {
     global $_lang;
 
+    // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）
+    $where = "template='" . $id . "'";
+    $accessCond = manager()->documentAccessCondition('');
+    if ($accessCond !== '') {
+        $where .= ' AND ' . $accessCond;
+    }
     $rs = db()->select(
         'pagetitle,id',
         '[+prefix+]site_content',
-        "template='" . $id . "'"
+        $where
     );
     $total = db()->count($rs);
     if (evo()->config['limit_by_container'] < $total) {
