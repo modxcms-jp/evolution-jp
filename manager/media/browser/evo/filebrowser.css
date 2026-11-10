@@ -499,6 +499,9 @@
     justify-content: center;
     width: 20px;
     height: 20px;
+    /* テーマが button に付ける余白を打ち消す(並べたボタンが操作の列やタイルの幅を超えないように) */
+    margin: 0;
+    padding: 0;
     border: none;
     border-radius: var(--radius-sm, 2px);
     background: rgba(0, 0, 0, 0.5);

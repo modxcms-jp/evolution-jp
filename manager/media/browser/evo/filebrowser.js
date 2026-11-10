@@ -8,7 +8,8 @@
 // behaviors(host は { root, config, state, preview, reload, download(names) }):
 //   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
 //   itemActions                    ファイルの行のアイコンと右クリックの項目になる操作の種類の配列('open' | 'preview' | 'download')。
-//                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない
+//                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない。
+//                                  右クリック(ファイル 1 件)のダウンロードは、itemActions に 'download' が無い入口でも共通の項目として出す
 //   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
