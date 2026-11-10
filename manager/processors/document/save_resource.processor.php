@@ -448,36 +448,35 @@ function checkDocPermission($id)
         }
         $existingDocument = db()->getRow($rs);
 
-        // 親をルートへ変えるときは、use_udperms に関係なく、ルートに置いてよいかを確かめる
-        if ($existingDocument['parent'] != validated('parent') && validated('parent') == 0 && !manager()->canPlaceAtRoot()) {
-            evo()->manager->saveFormValues(postedScreen());
-            evo()->webAlertAndQuit(
-                sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
-                formReturnUrl()
-            );
-        }
-
-        if (evo()->config('use_udperms') != 1) {
-            return;
-        }
-
         // 保存しようとしている文書そのものにアクセスできるか
-        if (!evo()->checkPermissions($id)) {
+        if (evo()->config('use_udperms') == 1 && !evo()->checkPermissions($id)) {
             evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
         }
 
-        // check to see if the user is allowed to save the document in the place he wants to save it in
+        // 親が変わらないなら、置き場所の確認は要らない
         if ($existingDocument['parent'] == validated('parent')) {
             return;
         }
 
-        // ルートへの変更は上で確かめ済み
-        if (validated('parent') != 0 && !evo()->checkPermissions(validated('parent'))) {
+        $deniedParent = function () use ($id) {
             evo()->manager->saveFormValues(postedScreen());
             evo()->webAlertAndQuit(
                 sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
                 formReturnUrl()
             );
+        };
+
+        // ルートへは、use_udperms に関係なく、ルートに置いてよいかで決める
+        if (validated('parent') == 0) {
+            if (!manager()->canPlaceAtRoot()) {
+                $deniedParent();
+            }
+            return;
+        }
+
+        // 移動先の親にアクセスできるか
+        if (evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
+            $deniedParent();
         }
     } elseif (validated('parent') == 0 && !manager()->canPlaceAtRoot()) {
         alert()->setError(3);

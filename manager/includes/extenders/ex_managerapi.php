@@ -992,6 +992,7 @@ class ManagerAPI
      * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
      * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
      * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親がルート（0）のときは、文書グループの確認の代わりに canPlaceAtRoot() で決める。
      * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
      *
      * @param int[] $docIds 親を変える文書
@@ -1144,7 +1145,7 @@ class ManagerAPI
         return $modx->user_allowed_docs;
     }
 
-    // ルート直下にリソースを作ってよいか。
+    // udperms_allowroot の設定（向き A の材料）。ルートに置けるかの判定には canPlaceAtRoot() を使う。
     // udperms_allowroot は文書グループの設定の 1 つなので、文書グループの絞り込みと同じ管理者の判定を使う
     public function isAllowroot()
     {
