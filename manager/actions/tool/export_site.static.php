@@ -22,7 +22,7 @@ $exportJsKeys = [
     'export_site_busy', 'export_site_job_replaced', 'export_site_request_failed', 'export_site_unreadable',
     'export_site_result_success', 'export_site_result_skipped', 'export_site_result_failed',
     'export_site_result_elapsed', 'export_site_result_seconds', 'export_site_result_count',
-    'export_site_failures_title', 'export_site_failures_more', 'export_site_previous_title',
+    'export_site_failures_title', 'export_site_failures_more', 'export_site_skips_title', 'export_site_previous_title',
     'export_site_previous_title_cancelled', 'export_site_previous_title_error', 'export_site_progress_label',
     'export_site_done', 'export_site_done_with_failures', 'export_site_finished_at',
     'export_site_done_dialog_title', 'export_site_done_dialog', 'export_site_done_dialog_with_failures',
@@ -642,28 +642,34 @@ foreach ($exportJsKeys as $key) {
             els.result.textContent = '';
             els.result.appendChild(list);
 
-            const failures = res.failures || [];
-            if (failures.length > 0) {
-                const title = document.createElement('h3');
-                title.textContent = T.export_site_failures_title;
-                const ul = document.createElement('ul');
-                ul.id = 'exportFailures';
-                failures.forEach(function (f) {
-                    const li = document.createElement('li');
-                    // ページタイトルは利用者のデータなので textContent で入れる
-                    li.textContent = 'id=' + f.id + ' ' + f.pagetitle + ' - ' + f.reason;
-                    ul.appendChild(li);
-                });
-                els.result.appendChild(title);
-                els.result.appendChild(ul);
-                const more = Number(res.failed) - failures.length;
-                if (more > 0) {
-                    const p = document.createElement('p');
-                    p.textContent = fill(T.export_site_failures_more, {count: more});
-                    els.result.appendChild(p);
-                }
-            }
+            renderPages(T.export_site_failures_title, 'exportFailures', res.failures || [], Number(res.failed));
+            renderPages(T.export_site_skips_title, 'exportSkips', res.skips || [], Number(res.skips_count));
             els.result.hidden = false;
+        };
+
+        // 結果のページの一覧（失敗・理由を知らせたいスキップ）。count は一覧に載せきれなかった分を含む件数
+        const renderPages = function (titleText, id, pages, count) {
+            if (pages.length === 0) {
+                return;
+            }
+            const title = document.createElement('h3');
+            title.textContent = titleText;
+            const ul = document.createElement('ul');
+            ul.id = id;
+            pages.forEach(function (f) {
+                const li = document.createElement('li');
+                // ページタイトルは利用者のデータなので textContent で入れる
+                li.textContent = 'id=' + f.id + ' ' + f.pagetitle + ' - ' + f.reason;
+                ul.appendChild(li);
+            });
+            els.result.appendChild(title);
+            els.result.appendChild(ul);
+            const more = count - pages.length;
+            if (more > 0) {
+                const p = document.createElement('p');
+                p.textContent = fill(T.export_site_failures_more, {count: more});
+                els.result.appendChild(p);
+            }
         };
 
         // ジョブが無い状態（開始ボタン）に戻す

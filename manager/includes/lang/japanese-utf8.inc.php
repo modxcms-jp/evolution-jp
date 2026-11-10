@@ -318,6 +318,8 @@ return [
     "export_site_result_seconds" => '[+sec+] 秒',
     "export_site_result_count" => '[+count+] 件',
     "export_site_failures_title" => '失敗したページ',
+    "export_site_skips_title" => '書き出さなかったページ',
+    "export_site_skip_private" => 'Web ユーザーだけが閲覧できるページのため、書き出しません。',
     "export_site_previous_title" => '前回のエクスポート（[+datetime+] 完了）',
     "export_site_previous_title_cancelled" => '前回のエクスポート（[+datetime+] 中止）',
     "export_site_previous_title_error" => '前回のエクスポート（[+datetime+] エラーで停止）',

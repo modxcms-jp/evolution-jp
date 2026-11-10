@@ -316,6 +316,8 @@ return [
     "export_site_result_seconds" => '[+sec+] sec',
     "export_site_result_count" => '[+count+]',
     "export_site_failures_title" => 'Pages that failed',
+    "export_site_skips_title" => 'Pages not exported',
+    "export_site_skip_private" => 'Not exported because only web users can view this page.',
     "export_site_previous_title" => 'Previous export (completed [+datetime+])',
     "export_site_previous_title_cancelled" => 'Previous export (cancelled [+datetime+])',
     "export_site_previous_title_error" => 'Previous export (stopped by an error [+datetime+])',

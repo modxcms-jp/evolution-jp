@@ -146,7 +146,8 @@ class EvoSiteExporter
      * ファイルの作成・書き出しは、取得を終えたあとに ID の順に行う（1 件ずつ書き出すときと同じ並びで、フォルダ側の整理も同じ順で行う）。
      *
      * @param int[] $ids
-     * @return array ID の順の結果の配列。各要素は id, pagetitle, status('success'|'skipped'|'failed'), reason,
+     * @return array ID の順の結果の配列。各要素は id, pagetitle, status('success'|'skipped'|'failed'),
+     *               reason(スキップなら success_skip_dir(ページを持たない。フォルダだけ作る)・success_skip_private(Web の閲覧を制限している)),
      *               detail(失敗の詳しい内容。取得の失敗なら HTTP のステータスや通信のエラー。無ければ空)
      */
     public function exportMany(array $ids)
@@ -196,7 +197,7 @@ class EvoSiteExporter
         }
 
         $rs = db()->select(
-            "id, alias, pagetitle, type, isfolder, content, (content = '' AND template = 0) AS wasNull, published",
+            "id, alias, pagetitle, type, isfolder, content, (content = '' AND template = 0) AS wasNull, published, privateweb",
             '[+prefix+]site_content',
             sprintf('id=%d', $id)
         );
@@ -218,9 +219,12 @@ class EvoSiteExporter
         $isOuterLink = $row['type'] === 'reference' && $row['isfolder'] == 1
             && !$this->isInsideSite($url);
         $row['noPage'] = $row['wasNull'] || $row['published'] != 1 || $isOuterLink;
+        // Web ユーザーだけが閲覧できるページ。ログインせずに取得するので 403 になる。取得せずにスキップとして数える
+        // （フォルダは、下に誰でも見られるページがあり得るので今までどおり作る）
+        $row['isPrivate'] = !$row['noPage'] && $row['privateweb'] == 1;
 
         $item = ['row' => $row, 'baseDir' => $baseDir];
-        if (!$row['noPage']) {
+        if (!$row['noPage'] && !$row['isPrivate']) {
             $item['url'] = $url;
         }
         return $item;
@@ -240,6 +244,8 @@ class EvoSiteExporter
         $detail = '';
         if ($row['noPage']) {
             $reason = 'success_skip_dir';
+        } elseif ($row['isPrivate']) {
+            $reason = 'success_skip_private';
         } else {
             $docname = $this->getFileName(
                 $row['id'],
