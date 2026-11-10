@@ -36,9 +36,6 @@ if (!class_exists('ddTools')) {
             //Если не передано, кем документ создан, ставим 1
             if (!$fields['createdby']) $fields['createdby'] = 1;
 
-            //Если группы заданы, то это приватный документ
-            if ($groups) $fields['privatemgr'] = 1;
-
             //Если надо публиковать, поставим дату публикации текущей
             if ($fields['published'] == 1) $fields['pub_date'] = $fields['createdon'];
 
@@ -50,6 +47,11 @@ if (!class_exists('ddTools')) {
                 //Перебираем все группы
                 foreach ($groups as $gr) {
                     db()->insert(['document_group' => $gr, 'document' => $id], evo()->getFullTableName('document_groups'));
+                }
+                //Метки приватности считаются по фактической принадлежности (как при сохранении документа)
+                if ((int)$id > 0 && evo()->config('use_udperms')) {
+                    manager()->setWebDocsAsPrivate((int)$id);
+                    manager()->setMgrDocsAsPrivate((int)$id);
                 }
             }
 

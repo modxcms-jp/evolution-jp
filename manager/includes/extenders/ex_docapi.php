@@ -19,9 +19,6 @@ class DocAPI
 
         $f['editedon'] = $f['createdon'];
         $f['editedby'] = $f['createdby'];
-        if ($groups) {
-            $f['privatemgr'] = 1;
-        }
 
 //		$f = $this->setPubStatus($f);
         $newdocid = $this->getNewDocID();
@@ -61,9 +58,29 @@ class DocAPI
                     '[+prefix+]document_groups'
                 );
             }
+            $this->refreshPrivateFlags((int)$id);
         }
         evo()->clearCache();
         return $id;
+    }
+
+    /**
+     * 文書の非公開の印（privatemgr・privateweb）を、実際の所属から求めて書く。
+     * 印の規則の正本は ManagerAPI の setMgrDocsAsPrivate()・setWebDocsAsPrivate()
+     * （管理側・Web 側のグループが付いた文書グループに属するときだけ 1）。保存の画面と同じく use_udperms のときだけ行う。
+     * id が 0 や空だと全文書が対象になるので、正の id のときだけ呼ぶ。
+     * 公開側・CLI からも呼ばれるので、ManagerAPI は無ければ読み込む
+     */
+    private function refreshPrivateFlags($id)
+    {
+        if ($id < 1 || !evo()->config('use_udperms')) {
+            return;
+        }
+        if (!evo()->manager) {
+            evo()->loadExtension('ManagerAPI');
+        }
+        manager()->setWebDocsAsPrivate($id);
+        manager()->setMgrDocsAsPrivate($id);
     }
 
     public function update($f = [], $docid = 0, $where = '')
