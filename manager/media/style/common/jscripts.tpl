@@ -569,4 +569,4 @@
     }
 
 </script>
-<script type="text/javascript" src="media/browser/browser.js"></script>
+<script type="text/javascript" src="media/browser/browser.js?[+browser_js_ver+]"></script>

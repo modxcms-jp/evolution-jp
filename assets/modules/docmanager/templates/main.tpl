@@ -1,6 +1,6 @@
 <!-- Doc Manager: シェル(メニュー/ツリー)内に表示される断片テンプレート。
      evo.js/tabpane/CSSはシェル(header.inc.php)が読み込み済みのため含めない -->
-<script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
+<script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js?[+docmanager_js_ver+]"></script>
 <script type="text/javascript">
     if (window.stopWork) window.stopWork();
     var baseurl = '[+baseurl+]';

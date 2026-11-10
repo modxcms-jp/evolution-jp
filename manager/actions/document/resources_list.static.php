@@ -274,7 +274,7 @@ echo getContextMenu($cm);
 echo get_jscript($id, $cm);
 
 ?>
-    <script type="text/javascript" src="media/script/data-table.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/data-table.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
     <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
 
     <div id="actions">

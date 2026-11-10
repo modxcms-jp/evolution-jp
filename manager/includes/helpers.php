@@ -1132,6 +1132,55 @@ function manager_style_image_url($subdir = '')
     return MODX_MANAGER_URL . manager_style_image_path($subdir);
 }
 
+/**
+ * 静的ファイルの版（更新日時）を返す。読めないときは本体の版を返す。
+ * ブラウザのキャッシュが古い JS・CSS を使い続けないよう、URL の ?版 に使う。
+ */
+function asset_version($absPath)
+{
+    $mtime = is_file($absPath) ? @filemtime($absPath) : false;
+    if ($mtime) {
+        return (string)$mtime;
+    }
+    return rawurlencode((string)evo()->getVersionData('version'));
+}
+
+/**
+ * 管理画面（manager/）からの相対パスに版を付ける。例: manager_asset('media/script/tree.js')
+ * URL の前置き（MODX_MANAGER_URL など）は呼び出し側が付ける。
+ */
+function manager_asset($path)
+{
+    $path = ltrim((string)$path, '/');
+    return $path . '?' . asset_version(MODX_MANAGER_PATH . $path);
+}
+
+/**
+ * 現在の管理画面テーマの style.css の版（tpl のプレースホルダー用）。
+ */
+function manager_theme_css_version($theme = null)
+{
+    $theme = $theme ?: config('manager_theme', '');
+    return asset_version(MODX_MANAGER_PATH . 'media/style/' . $theme . '/style.css');
+}
+
+/**
+ * サイト内の URL（MODX_BASE_URL から始まる）に版を付ける。
+ * 外部の URL や、すでに ? や # を含む URL はそのまま返す。
+ */
+function site_asset($url)
+{
+    $url = (string)$url;
+    if (strpos($url, '?') !== false || strpos($url, '#') !== false) {
+        return $url;
+    }
+    if (strpos($url, '//') !== false || strpos($url, MODX_BASE_URL) !== 0) {
+        return $url;
+    }
+    $relative = substr($url, strlen(MODX_BASE_URL));
+    return $url . '?' . asset_version(MODX_BASE_PATH . $relative);
+}
+
 function manager_style_placeholders()
 {
     static $paths = null;

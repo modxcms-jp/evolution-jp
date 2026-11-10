@@ -129,6 +129,8 @@ function makeSqlList($arr)
 //       それ以外では <script> を head に足す素の JS を返す（非同期に読み込まれる）
 function includeJs($url, $output_type = 'js')
 {
+    // サイト内の URL には版を付ける。重複の判定は版を付けた後の URL で行う（同じファイルは同じ版になる）
+    $url = site_asset($url);
     if ($output_type === 'js') {
         if (mm_registerInclude('js', $url)) {
             return '';
@@ -150,6 +152,7 @@ function includeJs($url, $output_type = 'js')
 // 'js' の動きは includeJs() と同じ
 function includeCss($url, $output_type = 'js')
 {
+    $url = site_asset($url);
     if ($output_type === 'js') {
         if (mm_registerInclude('css', $url)) {
             return '';

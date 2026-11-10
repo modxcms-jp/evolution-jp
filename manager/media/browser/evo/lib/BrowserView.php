@@ -263,7 +263,7 @@ class BrowserView
 <head>
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($title) ?></title>
-    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css">
+    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css?<?= manager_theme_css_version($theme) ?>">
     <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= self::dockCssVersion() ?>">
     <link rel="stylesheet" href="filebrowser.css?<?= self::cssVersion() ?>">
 </head>
@@ -278,18 +278,18 @@ class BrowserView
     // CSSとJSは別々に更新されるため、キャッシュバスターもファイルごとに計算する
     private static function cssVersion()
     {
-        return filemtime(__DIR__ . '/../filebrowser.css');
+        return asset_version(__DIR__ . '/../filebrowser.css');
     }
 
     // 帯の共通の見た目(単独のページ(standalonePage)で読む。シェルの中では header.inc.php が読む)
     private static function dockCssVersion()
     {
-        return filemtime(__DIR__ . '/../../../style/common/selection-dock.css');
+        return asset_version(__DIR__ . '/../../../style/common/selection-dock.css');
     }
 
     // 入口の JS(js/<entry>.js)か、それが読み込む filebrowser.js のどちらかが更新されたら変わる
     private static function jsVersion($entry)
     {
-        return max(filemtime(__DIR__ . '/../filebrowser.js'), filemtime(__DIR__ . '/../js/' . $entry . '.js'));
+        return max(asset_version(__DIR__ . '/../filebrowser.js'), asset_version(__DIR__ . '/../js/' . $entry . '.js'));
     }
 }

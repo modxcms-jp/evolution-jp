@@ -585,8 +585,8 @@ trait DocumentParserSubParserTrait
                 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
                 echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-                echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
-                MODX_SITE_URL, evo()->config('manager_theme'));
+                echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/%s" />',
+                MODX_SITE_URL, manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css'));
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }
@@ -1969,7 +1969,7 @@ trait DocumentParserSubParserTrait
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
-            <link rel=\"stylesheet\" type=\"text/css\" href=\"media/style/{$modx->config['manager_theme']}/style.css\" />
+            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . $modx->config['manager_theme'] . '/style.css') . "\" />
             <script>
                 function __alertQuit() {
                     alert(" . $msg . ");

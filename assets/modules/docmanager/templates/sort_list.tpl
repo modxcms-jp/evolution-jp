@@ -1,6 +1,6 @@
 <!-- Doc Manager: シェル内に表示される断片テンプレート。evo.js/CSSはシェルが読み込み済み -->
-<script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
-<script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
+<script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js?[+docmanager_js_ver+]"></script>
+<script type="text/javascript" src="media/script/dragdrop-sort.js?[+dragdrop_sort_js_ver+]"></script>
 <script type="text/javascript">
     (function() {
         // シェルの差し替えでも動くように Evo.ready で待つ
