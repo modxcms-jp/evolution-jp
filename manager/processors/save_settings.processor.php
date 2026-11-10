@@ -206,6 +206,11 @@ function save_settiongs()
         if (is_array($v) && in_array($k, stringSettingKeys(), true)) {
             continue;
         }
+        // 欄の形（upload_maxsize の MB など）を保存の形にする。読めない値は保存せず、今の値を残す
+        $v = EvoSettingsForm::storedValue((string)$k, $v);
+        if ($v === null) {
+            continue;
+        }
         switch ($k) {
             case 'base_url':
                 if ($v !== '' && $v !== '/') {
@@ -255,13 +260,6 @@ function save_settiongs()
             case 'new_folder_permissions':
                 if (strlen($v) == 3) {
                     $v = '0' . $v;
-                }
-                break;
-            case 'upload_maxsize':
-                // 欄は MB の数。バイトにして保存する（読めない値は保存せず、今の値を残す）
-                $v = EvoSettingsForm::storedValue($k, $v);
-                if ($v === null) {
-                    continue 2;
                 }
                 break;
             case 'smtppw':

@@ -1067,7 +1067,14 @@ return [
                             if ($bytes === null) {
                                 return (string)$value;
                             }
-                            return rtrim(rtrim(number_format($bytes / 1048576, 2, '.', ''), '0'), '.');
+                            // 2 桁で元のバイトに戻れるときだけ 2 桁、戻れないときは戻る桁数まで出す（保存し直してもずれないように）
+                            for ($digits = 2; $digits <= 10; $digits++) {
+                                $mb = rtrim(rtrim(number_format($bytes / 1048576, $digits, '.', ''), '0'), '.');
+                                if (size_to_bytes($mb, 1048576) === $bytes) {
+                                    break;
+                                }
+                            }
+                            return $mb === '' ? '0' : $mb;
                         },
                         // 欄の値（MB の数。「32mb」のような単位付きも読む）→ バイトの文字列。空は空、読めない値は null
                         'fromInput' => static function ($value) {

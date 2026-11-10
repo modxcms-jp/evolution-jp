@@ -88,9 +88,9 @@ final class EvoSettingsForm
         }
 
         if (manager()->hasFormValues()) {
-            foreach (manager()->loadFormValues() as $key => $value) {
+            foreach (self::restoredValues(manager()->loadFormValues()) as $key => $value) {
                 if (is_scalar($value)) {
-                    $values[$key] = self::storedValue((string)$key, (string)$value) ?? (string)$value;
+                    $values[$key] = (string)$value;
                 }
             }
         }
@@ -197,14 +197,32 @@ final class EvoSettingsForm
      */
     public static function storedValue(string $key, $value)
     {
-        foreach (['system', 'user'] as $scope) {
-            foreach (self::scopeRows($scope) as $row) {
-                if (($row['key'] ?? null) === $key && isset($row['fromInput'])) {
-                    return $row['fromInput']($value);
+        static $converters = null;
+        if ($converters === null) {
+            $converters = [];
+            foreach (['system', 'user'] as $scope) {
+                foreach (self::scopeRows($scope) as $row) {
+                    if (isset($row['key'], $row['fromInput'])) {
+                        $converters[$row['key']] = $row['fromInput'];
+                    }
                 }
             }
         }
-        return $value;
+        return isset($converters[$key]) ? $converters[$key]($value) : $value;
+    }
+
+    /**
+     * 差し戻す値を保存の形に戻す（欄の値はいつも保存の形で、表示の関数を 1 回だけ通る）。
+     * 文字列以外（配列など）はそのまま。読めない値（storedValue() が null）は入力のまま残す
+     */
+    public static function restoredValues(array $formValues): array
+    {
+        foreach ($formValues as $key => $value) {
+            if (is_string($value)) {
+                $formValues[$key] = self::storedValue((string)$key, $value) ?? $value;
+            }
+        }
+        return $formValues;
     }
 
     /**
