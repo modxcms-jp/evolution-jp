@@ -9,13 +9,18 @@
 - [x] (2026-11-10) 計画の作成（main ec7b45146 で調査。Context の表・Surprises・Decision Log）
 - [x] (2026-11-10) 決定の見直しを反映（管理者＝`isAdmin()` または `save_role`。判定は `bypassesDocumentGroups()`。Validation の変更後の列を計算し直した）
 - [x] (2026-11-10) M0: 修正前の記録（基準 f6e94f10d。V1〜V3 は 9 利用者、V4 は 3 利用者。表との違い A2・A5・C5・C6・D6 を Validation に反映。PHP の警告・JS のエラー 0 件）
-- [ ] M1: `ManagerAPI` に判定を置き、`checkPermissions()`・`isAllowroot()`・`canOpenWithDocumentGroups()` をそれに通す（各処理・編集画面の入口の確認が新しい条件になる）
+- [x] (2026-11-10) M1: `ManagerAPI` に判定を置き、`checkPermissions()`・`isAllowroot()`・`canOpenWithDocumentGroups()` をそれに通す（1118f9f74、自己レビューの低の手当て f58424d75。M0 との差は adminnosave の 112 行だけで、すべて表の B8・B9・B10・C11・D5 の期待どおり、見えなくなる向きの差は 0。V4 は差 0。PHP の警告・JS のエラー 0 件。自己レビューは高なし、中 1（#1318 の保存の確認の変化が表に無かった）を B12・B13 として表に足し M2 で確かめる）
 - [ ] M2: 管理画面の一覧と読み込み（ツリー・子の一覧・検索・親の選択・文書の情報・編集画面の `db_value()`）を同じ判定にする
 - [ ] M3: TV のアクセス（編集画面・保存・QuickManager）と QuickManager の編集ボタンを同じ判定にする
 - [ ] M4: DocumentParser の取得の関数（管理画面側の分岐は同じ判定、公開側は「ロールの ID が 1」を `bypassesDocumentGroups()` に）
 - [ ] M5: ドキュメント・PHP 7.4 での確認・最終の突き合わせ
 
 ## Surprises & Discoveries
+
+M1 で分かったこと（2026-11-10）:
+
+- #1318 の保存の確認（`canOpenWithDocumentGroups()`）を「管理者か、集合が届く」にしたので、saveonly（save_role、所属あり）が所属しない非公開のグループを引き継ぐ新規の作成と、adminnosave が非公開のグループを付ける保存が、止まらなくなる（表の B12・B13）。どちらも最終の設計どおり。ただし M1 の時点では、保存のあとに戻る編集画面の読み込み（`db_value()`）がまだ `isAdmin() || 所属が空` で絞るので、saveonly の B12 は保存されたのに編集画面が開けない、という一時的な食い違いがある。M2 で `db_value()` を同じ判定にすると消える。PR-A は M1〜M3 をまとめて出すので、この食い違いは main には入らない。
+- `use_udperms` の判定の書き方が 2 通りある（`checkPermissions()` は `!config('use_udperms')`、`restrictsByDocumentGroups()` は `== 1`）。0・1 以外の値（設定の画面では選べない）のときだけ結果が違う。実害は無いので残すリスクとして記録する。
 
 計画時（2026-11-10、main ec7b45146 で調査）に分かったこと:
 
@@ -315,6 +320,10 @@ Docker の検証環境で、M0 の手順 3 のデータを使い、手順 4 の�
 | B9 | adminnosave、V1・V2 | R・P のルート・X のルートへの移動 | なし・なし・`access_permission_parent_denied` | あり・あり・`MOVED`（M1） |
 | B10 | adminnosave、V3 | R | なし | あり（M1） |
 | B11 | acc・web（片方だけ）、V1〜V3 | すべて | editor0 と同じ | editor0 と同じ（V2 の S は A6、V3 は A9 と同じく M2 で変わる） |
+| B12 | saveonly（G1）、V1 | f2（D2）の下への新規の作成（#1318 の保存の確認。D2 を引き継ぐ） | `resource_permissions_error` で止まる | 保存される（M1）。保存のあとに戻る編集画面は M1 では `error_no_privileges`（`db_value()` が古い条件のため）、M2 から開ける |
+| B13 | adminnosave（所属なし）、V1 | T の下の文書に D2 を付けて保存（#1318 の保存の確認） | `resource_permissions_error` で止まる | 保存される（M1）。保存のあと開ける |
+
+B12・B13 は M0 の記録のスクリプトに入っていない（文書グループの集合が変わる保存）ので、M2 の検証で個別に確かめる（M1 の自己レビューの中 1）。
 
 TV・QuickManager:
 
