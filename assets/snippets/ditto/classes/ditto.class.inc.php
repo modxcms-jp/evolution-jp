@@ -959,7 +959,7 @@ class ditto
                     'sc.privateweb=0 %s',
                     $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
-            } elseif (sessionv('mgrRole') != 1) {
+            } elseif (!evo()->managerBypassesDocumentGroups()) {
                 $access = sprintf(
                     'sc.privatemgr=0 %s',
                     $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
@@ -1082,7 +1082,7 @@ class ditto
                     'AND (sc.privateweb=0 OR dg.document_group IN (%s))',
                     implode(',', $docGroup)
                 );
-            } elseif (sessionv('mgrRole') != 1) {
+            } elseif (!evo()->managerBypassesDocumentGroups()) {
                 $where[] = sprintf(
                     'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
                     implode(',', $docGroup)
@@ -1102,7 +1102,7 @@ class ditto
             $where[] = 'AND deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';
-            } elseif (sessionv('mgrRole') != 1) {
+            } elseif (!evo()->managerBypassesDocumentGroups()) {
                 $where[] = 'AND privatemgr=0';
             }
             if ($published) {
