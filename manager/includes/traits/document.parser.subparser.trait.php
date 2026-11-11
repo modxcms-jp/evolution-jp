@@ -453,7 +453,7 @@ trait DocumentParserSubParserTrait
                         sprintf(
                             '<a href="%s" target="_blank">%s</a>',
                             $modx->makeUrl($modx->documentIdentifier),
-                            $resource['pagetitle']
+                            $resource['pagetitle'] ?? ''
                         )
                     )
                 ]
