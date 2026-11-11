@@ -11,7 +11,6 @@ if (!evo()->hasPermission('access_permissions')) {
 // figure out what the user wants to do...
 
 // Get table names (alphabetical)
-$tbl_document_groups = evo()->getFullTableName('document_groups');
 $tbl_documentgroup_names = evo()->getFullTableName('documentgroup_names');
 $tbl_member_groups = evo()->getFullTableName('member_groups');
 $tbl_membergroup_access = evo()->getFullTableName('membergroup_access');

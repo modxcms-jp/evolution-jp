@@ -824,8 +824,11 @@ class ManagerAPI
      * 文書グループを削除する
      *
      * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
-     * 名前・文書との結びつき・管理側とWeb 側のユーザーグループとの結びつきをすべて消し、
-     * そのグループに付いていた文書の privatemgr / privateweb を計算し直す。
+     * 文書グループの id を持つ 5 つの表（install/sql/create_tables.sql）
+     * document_groups・documentgroup_names・membergroup_access・
+     * site_tmplvar_access・webgroup_access の行をすべて消す。
+     * そのグループに付いていた文書があれば、privatemgr / privateweb を全件で計算し直し、
+     * 印ごとキャッシュされたページを消すためページキャッシュも消す。
      *
      * @param int $groupId
      * @return bool 失敗したら false
@@ -837,7 +840,7 @@ class ManagerAPI
             return false;
         }
 
-        // 削除すると対象の文書が分からなくなるので、先に集める
+        // 削除すると対象の文書があったかの判定のため、先に集める
         $rs = db()->select(
             'document',
             '[+prefix+]document_groups',
@@ -850,6 +853,7 @@ class ManagerAPI
             ['[+prefix+]documentgroup_names', 'id'],
             ['[+prefix+]document_groups', 'document_group'],
             ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]site_tmplvar_access', 'documentgroup'],
             ['[+prefix+]webgroup_access', 'documentgroup'],
         ];
         foreach ($targets as [$table, $column]) {
@@ -858,10 +862,10 @@ class ManagerAPI
             }
         }
 
-        foreach ($docIds as $docId) {
-            $docId = (int)$docId;
-            $this->setMgrDocsAsPrivate($docId);
-            $this->setWebDocsAsPrivate($docId);
+        if ($docIds) {
+            $this->setMgrDocsAsPrivate();
+            $this->setWebDocsAsPrivate();
+            evo()->clearCache(['target' => 'pagecache']);
         }
 
         return $result;
