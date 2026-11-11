@@ -16,10 +16,10 @@
 
 - [x] (2026-11-11) 計画の下書き（develop/1.4 ＋ #1394 の変更、2ba7e4b05 で調査。#1394 は #1405 で develop/1.4 にマージ済み）
 - [x] (2026-11-12) Decision Log の D1〜D8 を決めた（本人が 4 点、内部の 3 点は Claude）
-- [x] (2026-11-12) M0: 修正前の記録（Docker。既定のロール・所属なしの利用者を含む）。16,841 行を取り、流し直して差 0。スクリプトの置き場所と観測された食い違いは Artifacts and Notes
+- [x] (2026-11-12) M0: 修正前の記録（Docker。既定のロール・所属なしの利用者を含む）。16,840 行を取り、流し直して差 0。スクリプトの置き場所と観測された食い違いは Artifacts and Notes
 - [x] (2026-11-12) M1: 非公開の印を 1 回の更新で計算し直す（決定不要。#1397 の残り）。PR #1407（ブランチ `fix/1357-m1-private-flags`）。計画の確認を待つため develop/1.4 へのマージは保留
 - [x] (2026-11-12) M2: 呼び出し元がそろっている権限の判定を ManagerAPI に寄せる（決定不要。動きは変えない）。ブランチ `refactor/1357-m2-permission-helpers`
-- [x] (2026-11-12) M3: 文書の操作（移動・公開・削除・複製・編集・新規）の判定を 1 か所にし、入口をそろえる。ブランチ `refactor/1357-m3-document-operations`。表（`OPERATION_PERMISSIONS`）と `can()` を ManagerAPI に置き、M2 の `ELEMENT_PERMISSIONS` を取り込み、入口を表で出し分け、`DocAPI::can*Doc()` を消した。入口の取り直し（Docker）は、既定のロールが変わらず、カスタムのロールが「M3 の変わる行」の行だけ変わることを確かめた。M0 の記録のスクリプトでの取り直しは未了
+- [x] (2026-11-12) M3: 文書の操作（移動・公開・削除・複製・編集・新規）の判定を 1 か所にし、入口をそろえる。ブランチ `refactor/1357-m3-document-operations`。表（`OPERATION_PERMISSIONS`）と `can()` を ManagerAPI に置き、M2 の `ELEMENT_PERMISSIONS` を取り込み、入口を表で出し分け、`DocAPI::can*Doc()` を消した。M0 の記録で取り直した結果は、差が 123 行で、すべて「M3 の変わる行」の行だった（既定のロール・ほかのロール・処理の行は差 0）。注記: 移動は、画面 a=51（`move`・`save`・`publish`）と処理 a=52（`move`・`edit`）の条件が、処理どうしでそろっていない（a=52 だけなら `move`・`edit` で通る）。a=51 から a=52 へ続けて通る経路の条件を合わせて表の `document.move` にしたので、4 つ要る
 - [ ] M4: 文書以外の入口の食い違いをそろえる（モジュール・利用者・ロール・エレメント）
 - [ ] M5: サイトのインポートの取り込み先と初期化を確かめる（#1404）
 - [ ] M6: 権限の依存
@@ -62,7 +62,9 @@ M3 の実装でコードを読んで分かったこと（2026-11-12）:
 - ダッシュボードの古いアイコン（`welcome.static.php` の `NewDocIcon`）は、同梱のテンプレート（welcome.tpl は 4 つのテーマとも `[+iconNewDoc+]` だけを使う）のどれも読まない。入口としてはそろえた（`canCreateDocumentUnder(0)`）が、使われていない。
 - 一括の公開（`$canBatchPublish`）と、一覧のボタン「複製」（`DocAPI::canCopyDoc()` が `new`・`save`）、ツリーの「複製」は、元から処理の条件と同じだった。`DocAPI::can*Doc()` は、入口を表に切り替えると同梱のコードのどこからも呼ばれなくなったので、7 つとも消した（`canSaveDraft()` は権限の判定ではなく、定数 1 を返すだけで、これも呼ばれていないが、M3 の対象外として残した）。
 - 表を引かずに権限名を直接見る場所を、あえて残した: 下書きの画面とボタン（a=131・132・128、`save_draft_content`・`publish_draft_content` など。`save_document` と `publish_document` の組み合わせが下書き固有）、下書きの作成ボタン（`edit_document`）、編集画面の中の公開の切り替え（`fields.php`・`functions.php:327` の `publish_document`）、QuickManager の TV の編集（`assets/plugins/qm/inc/edit_tv.inc.php` の `save_document`）、親の選択（a=135。`save_document`）。入口というより画面の中の項目か、書き込み範囲の外。
-- ツリーの区切り線（`itemSeperator1`・`itemSeperator2`・`itemSeperator3`）は、その群の項目の条件と同じ式にした（以前は `edit`・`new`・`save` のどれかなど、項目と食い違い、項目が 1 つも出ないのに線だけ出る場合があった）。
+- 編集画面（a=27）を開く入口のうち、次の 3 つは `document.edit`（`edit_document`）を見ず、`view_document` で開く: ツリーの文書名のクリック（`tree.php` の `tree.ca == "open"` と、`nodes.php` の `tree_page_click` の既定 27）、文書一覧のタイトルのリンク（`resources_list.static.php` の `$doc['link']`）、QuickManager の編集ボタン（`canOpenDocumentEditor()`）。`edit_document` を持たないロール（`R_noedit` 相当）でも、文書名のクリックで編集画面を開け、保存もできる（処理 a=27・a=5 が見るのは `view_document` と `save_document`）。処理が通る入口しか出ない点は保たれているので、M3 では変えない。`edit_document` を編集の基点にするかは、第 3 段階（権限の依存）で決める。`permissions.md` の判定の置き場所と分かっている課題にも書いた。
+- QuickManager の本文中の新規作成ボタン（`on_web_page_prerender.php` の `newbclass` のコメントの置き換え）は、親の id が置き換えのパターンの中にあり、権限を確かめずに出す。M3 では変えず、`permissions.md` の分かっている課題に書いた。カスタムの「new」ボタンは、親の id が分かるので `canCreateDocumentUnder()` で出し分けた。文書一覧の作成ボタンも、`new_document` だけを見る分岐を外し、常に `canCreateDocumentUnder($id)` にした（範囲の外の親では出なくなる）。
+- ツリーの区切り線（`itemSeperator1`・`itemSeperator2`・`itemSeperator3`）は、操作の項目について同じ式にした（`itemDocList`・`itemDelDocComplete` の項目は含まない）。以前は `edit`・`new`・`save` のどれかなど、項目と食い違い、操作の項目が 1 つも出ないのに線だけ出る場合があった。
 
 ## Decision Log
 
@@ -247,7 +249,7 @@ M0 の記録と比べる。「同じ」は M0 と一致すること。各マイ�
 
 ### M3 の変わる行
 
-実装（表のコミット 89f2462b0 以降）に合わせて確定した。権限の判定はロールの権限だけで決まり、`use_udperms` に関係しないので、V0・V1 のどちらでも同じ（V1 では、文書グループ・範囲の面で元から出ない行は元から出ない）。利用者は M0 のロール名。記録は、入口の HTML から項目を取り出す方法（M0 の記録と同じ）。Docker で、変更前（cd9ffc54c）と変更後を同じ DB で取り、既定のロール（admin＝ロール 2・editor＝ロール 3）の全項目が同じで、カスタムのロール 5 つの差がこの表と一致することを確かめた。
+実装（表のコミット 89f2462b0 以降）に合わせて確定した。権限の判定はロールの権限だけで決まり、`use_udperms` に関係しないので、V0・V1 のどちらでも同じ（V1 では、文書グループ・範囲の面で元から出ない行は元から出ない）。利用者は M0 のロール名。記録は、入口の HTML から項目を取り出す方法（M0 の記録と同じ）。Docker で、変更前（cd9ffc54c）と変更後を同じ DB で取り、既定のロール（M0 の admin・webmaster・editor・editor0。この確認の Docker では、setup-site が作る admin（ロール 2）と editor（ロール 3））の全項目が同じで、カスタムのロール 5 つの差がこの表と一致することを確かめた。
 
 | 利用者 | 入口 | M0（変更前） | M3 |
 | --- | --- | --- | --- |
@@ -262,9 +264,10 @@ M0 の記録と比べる。「同じ」は M0 と一致すること。各マイ�
 | `R_new` | 一覧の右クリック「作成」「複製」「ウェブリンク」 | 出る（複製は押すとエラー 3） | 出ない |
 | `R_new` | 新規作成画面（a=4・72）の保存ボタン | 出る（押すと a=5 が断る） | 出ない（画面そのものは開ける） |
 | `R_noedit`（`edit_document` なし） | ツリーの右クリック「移動」 | 出る（押すと a=52 がエラー 3） | 出ない |
+| 範囲を絞った利用者（M0 の `u_import_f` など。許可するリソースを F に絞り、`new_document` と `save_document` を持つ） | 文書一覧の作成ボタン（F の外の親・ルートの一覧） | 出る（保存で断られる） | 出ない |
 | `R_noedit` | 一覧のボタン「編集」「移動」・一括の「移動」・一覧の右クリック「移動」・文書の情報「編集」「移動」・編集画面（a=27）の「移動」 | 出る | 出ない |
 
-上記以外（編集画面の保存・複製・削除、ツリーと一覧の編集・複製・削除・公開・非公開、既定のロールのすべて）は変わらない。`R_saverole`・`R_saveuser`・`R_import` は文書の権限が投稿担当者と同じ、`R_chunk`・`R_webuser`・`R_roledel`・`R_mod` は文書の権限が無いので、論理上は変わらない（この確認では取っていない）。QuickManager の追加ボタンも `canCreateDocumentUnder()` を通るので、`R_new` では出なくなる（公開側の画面で、この確認では取っていない）。
+上記の行以外は、変わらない（たとえば、編集画面の保存・複製・削除、ツリーと一覧の編集・複製・削除・公開・非公開、既定のロールのすべて）。`R_saverole`・`R_saveuser`・`R_import` は文書の権限が投稿担当者と同じ、`R_chunk`・`R_webuser`・`R_roledel`・`R_mod` は文書の権限が無いので、論理上は変わらない（この確認では取っていない）。QuickManager の追加ボタンとカスタムの「new」ボタンも `canCreateDocumentUnder()` を通るので、`R_new` と範囲の外の親では出なくなる（公開側の画面で、この確認では取っていない）。
 
 ## Idempotence and Recovery
 
@@ -279,7 +282,7 @@ M0 の記録のスクリプトとデータ（DB のダンプ）は作業用デ�
 - M1: ブランチ `fix/1357-m1-private-flags`、PR #1407
 - M2: ブランチ `refactor/1357-m2-permission-helpers`
 - M3: ブランチ `refactor/1357-m3-document-operations`。表は `ManagerAPI::OPERATION_PERMISSIONS`、判定は `can()`。確認は、権限をスタブにした単体確認（php:7.4-cli。表の全項目で、`all` は 1 つ欠けると偽、`any` はどれか 1 つで真、未知の名前は例外、M2 のメソッドの動きは同じ）と、Docker（名前 `evo-m3check`）での入口の記録の前後比較（既定のロール 2 つとカスタムのロール 5 つ、ツリー・メニュー・一覧・文書の情報・編集画面・新規作成画面・ダッシュボード）
-- M0 の記録: 16,841 行（利用者×V0・V1 の入口と処理）。スクリプトと出力はリポジトリの外のジョブの一時ディレクトリにある（リポジトリには置かない。取り直すときは Concrete Steps の M0 の 5 で作る）。観測された食い違いは Surprises のとおり。新しく見つかった食い違い: モジュールの実行のグループの判定が働いていなかった（#1408）、エレメントの管理（a=76）はエレメントの権限が無くても開く、新規作成の権限だけのロールは入口がすべて出るのに保存で断られる。
+- M0 の記録: 16,840 行（利用者×V0・V1 の入口と処理）。スクリプトと出力はリポジトリの外のジョブの一時ディレクトリにある（リポジトリには置かない。取り直すときは Concrete Steps の M0 の 5 で作る）。観測された食い違いは Surprises のとおり。新しく見つかった食い違い: モジュールの実行のグループの判定が働いていなかった（#1408）、エレメントの管理（a=76）はエレメントの権限が無くても開く、新規作成の権限だけのロールは入口がすべて出るのに保存で断られる。
 
 ## Interfaces and Dependencies
 

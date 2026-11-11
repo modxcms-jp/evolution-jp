@@ -169,8 +169,8 @@
 - 名前は `document.move`・`element.template.manage` のような `<対象>.<操作>`。知らない名前は `InvalidArgumentException`
 - 1 つの操作に 2 つの書き方ができる。`all` は列挙した権限のすべて（文書の移動など）、`any` はどれか 1 つ（エレメントの管理を開くには new か edit）。両方あれば、`all` のすべてと `any` のどれか
 - 表が持つのは権限の組み合わせだけ。範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）・ルート（`canUseRootAsParent()`）が要る操作は、呼ぶ側が表を引いたうえで合わせる（`canCreateDocumentUnder()` が `document.create` を引いて合わせる形）。エレメントの種類（`canManageElement()` が使う `ELEMENT_TYPES`）は、表のキーの `element.<種類>.manage` と `element.<種類>.save` に対応する
-- 文書の操作（ツリー・文書一覧・文書の情報・編集画面のボタン・メニュー・ダッシュボード・検索結果のリンク先）は、`can()` か `canCreateDocumentUnder()` で出し分ける（QuickManager は追加ボタンが `canCreateDocumentUnder()`、編集のボタンが `canOpenDocumentEditor()`）。表の組み合わせは、処理（`manager/processors/` と `manager/actions/` の先頭の確かめ）が今求める条件に合わせてあり、通る経路が複数ある操作（移動は a=51 から a=52）は、すべての経路の条件を合わせたもの。つまり、ロールの権限の面では、出た入口は押せば通る。処理の条件に意味の通らないもの（移動が `publish_document`・`edit_document` を求める、削除が `save_document` を求めない）が残るのは、権限の意味の決め直しを、依存の表とあわせて後で行うため（#1357 の第 3 段階。分かっている課題の節）
-- 例外は、編集画面（a=27）を開く入口。処理は `view_document`（ロールの編集画面でオンに固定）しか見ないので入口の条件にならず、入口は `edit_document` で出し分ける（`document.edit`）
+- 文書の操作の入口（ツリー・文書一覧・文書の情報・編集画面のボタン・メニュー・ダッシュボード・検索結果のリンク先）は、`can()` か `canCreateDocumentUnder()` で出し分ける。QuickManager は、追加ボタンとカスタムの「new」ボタンが `canCreateDocumentUnder()`、編集のボタンが `canOpenDocumentEditor()`。表の組み合わせは、処理（`manager/processors/` と `manager/actions/` の先頭の確かめ）が今求める条件に合わせてあり、通る経路が複数ある操作（移動は a=51 から a=52）は、すべての経路の条件を合わせたもの。つまり、ロールの権限の面では、出た入口は押せば通る。処理の条件に意味の通らない組み合わせが表に残る（`document.move`・`document.delete` の行）のは、権限の意味の決め直しを、依存の表とあわせて後で行うため（#1357 の第 3 段階。分かっている課題の節）
+- 編集画面（a=27）を開く入口は例外。処理は `view_document`（ロールの編集画面でオンに固定）しか見ないので、入口の条件にならない。表の `document.edit`（`edit_document`）で出し分けるのは、ツリー・一覧の右クリック、一覧のボタンと文書の情報の「編集」、検索結果のリンク先。次の入口は `document.edit` を見ずに a=27 を開く（`view_document` で開く）ので、`edit_document` を持たないロールでも編集画面を開け、保存もできる（処理が見るのは `view_document` と `save_document`）: ツリーの文書名のクリック（`tree_page_click` が 27 のとき。`manager/frames/tree.php`・`nodes.php`）、文書一覧のタイトルのリンク（`resources_list.static.php`）、QuickManager の編集ボタン（`canOpenDocumentEditor()`）。出た入口は押せば通る点は保たれている。`edit_document` を編集の基点にするかは第 3 段階で決める（分かっている課題の節）
 - 下書きの画面・ボタン（a=131・132・128、下書きの保存・公開）、QuickManager の TV の編集（`save_document`）、文書の編集画面の中の公開の切り替え（`publish_document`）は、表を引かず権限名を直接見る。操作の入口でなく、画面の中の項目のため
 
 ### ManagerAPI の判定
@@ -186,7 +186,7 @@
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
 | `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理などが使う（前の節。知らない操作は `InvalidArgumentException`） |
-| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。新規作成の権限（`can('document.create')`）・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager の追加ボタンが使う |
+| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。新規作成の権限（`can('document.create')`）・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager（追加ボタンとカスタムの「new」ボタン）が使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。新規作成の権限は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
@@ -251,7 +251,9 @@
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 の続き | モジュールの管理（a=106）の入口は `exec_module` も通すが、メニュー・ダッシュボードのモジュールのアイコンは `new_module` または `edit_module`（`canManageElement('module')`）で出していて、入口と一致しない |
-| #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが残る（移動が `publish_document`・`edit_document` を求める一方、削除・元に戻すは `save_document` を求めない。編集画面を開く入口は `edit_document` だが、処理は `view_document` しか見ない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
+| #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが表に残る（`document.move` は、移動の処理 a=52 だけなら `move_document`・`edit_document` で通るのに、画面 a=51 が `publish_document`・`save_document` も求めるため、4 つ要る。`document.delete` は `save_document` を求めない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
+| #1357 の続き | 編集画面（a=27）を開く入口が `edit_document` を見ない（ツリーの文書名のクリック・文書一覧のタイトルのリンク・QuickManager の編集ボタンは `view_document` で開く）。`edit_document` を持たないロールでも、文書名のクリックで編集画面を開け、保存もできる。処理が `view_document` と `save_document` しか見ないので、出た入口が通らないことはない。`edit_document` を編集の基点にするかは、権限の依存（第 3 段階）で決める |
+| #1357 の続き | QuickManager の本文中の新規作成ボタン（`newbclass` のコメントを置き換えるもの。`assets/plugins/qm/inc/on_web_page_prerender.php`）は、親の id が置き換えのパターンの中にあり、権限を確かめずに出す（カスタムの「new」ボタンと追加ボタンは `canCreateDocumentUnder()` で出し分ける）。押した先の画面か保存で、権限が無ければ断られる |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作は済み。文書以外の入口は食い違いが残る）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
 ## 関連ドキュメント
