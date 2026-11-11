@@ -493,7 +493,11 @@ function checkPermissions($id)
             alert()->dumpError();
         }
     } elseif ($i == 72 || $i == 4) {
-        // 新規作成。作成先の親の範囲は保存の処理が確かめる
+        // 新規作成。作成先の親の範囲は保存の処理が確かめる。id を付けた要求は文書を読むので、その文書の範囲をここで確かめる
+        if ((int)$id && !manager()->isInAllowedParents($id)) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
         if (!hasPermission('new_document')) {
             alert()->setError(3);
             alert()->dumpError();

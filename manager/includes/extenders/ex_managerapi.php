@@ -12,7 +12,7 @@ $this->manager = new ManagerAPI;
 // Content manager wrapper class
 class ManagerAPI
 {
-    /** @var array|null [設定値, 範囲の中の文書の ID の配列]（設定値が変わったら作り直す） */
+    /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
     private $allowedDocIdsCache;
     /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
     private $allowedAncestorIdsCache;
@@ -1108,17 +1108,29 @@ class ManagerAPI
     }
 
     /**
-     * ツリー・一覧に出してよい文書か。範囲の中（isAllowed()）か、範囲の頂点の祖先（そこへたどる途中の文書）なら true
+     * ツリー・一覧に出してよい文書か。範囲の中か、範囲の頂点の祖先（そこへたどる途中の文書）なら true。
+     * 表示用で、行ごとに呼ばれるため DB に問い合わせず、getUserAllowedDocs() の集合（リクエスト内でキャッシュ）で判定する。
+     * ルート（0 以下）は常に true。リクエストの値は読まない。保存の判定は鮮度が要るので isInAllowedParents() を使う
      *
      * @param int $id
      * @return bool
      */
     public function isContainAllowed($id)
     {
-        if ($this->isAllowed($id)) {
+        $id = (int)$id;
+        if ($id <= 0 || !evo()->conf_var('allowed_parents')) {
             return true;
         }
-        return in_array((int)$id, $this->allowedParentAncestorIds(), true);
+        $allowed = $this->getAllowedParentIds();
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
+        if (!$allowed) {
+            return false;
+        }
+        $this->getUserAllowedDocs();
+        return isset($this->allowedDocIdsCache[2][$id])
+            || in_array($id, $this->allowedParentAncestorIds(), true);
     }
 
     /**
@@ -1182,10 +1194,11 @@ class ManagerAPI
 
     /**
      * 範囲の中の文書の ID の一覧（許可するリソースに書いた ID と、その子孫すべて）。
-     * isInAllowedParents() と同じ基準（深さの上限なし・削除済みも含む）。制限なしのときは空配列。
+     * isInAllowedParents() と同じ基準（深さの上限なし・削除済みも含む）。
      * 一覧の大きさが問題になる絞り込みには allowedDocsCondition() を使う
      *
-     * @return int[]|string 設定があるのに正しい ID が 1 つも無いときは空文字
+     * @return int[]|string 制限なし（設定が空、または 0 を含む）なら []、正しい ID が 1 つも無いなら ''、
+     *                      それ以外は範囲の中の ID の配列
      */
     public function getUserAllowedDocs()
     {
@@ -1193,11 +1206,16 @@ class ManagerAPI
         if ($setting === '') {
             return [];
         }
-        if (!$this->getAllowedParentIds()) {
+        $parents = $this->getAllowedParentIds();
+        if (!$parents) {
             return '';
         }
+        if (in_array(0, $parents, true)) {
+            return [];
+        }
         if ($this->allowedDocIdsCache === null || $this->allowedDocIdsCache[0] !== $setting) {
-            $this->allowedDocIdsCache = [$setting, $this->collectAllowedDocIds()];
+            $ids = $this->collectAllowedDocIds();
+            $this->allowedDocIdsCache = [$setting, $ids, array_flip($ids)];
         }
         return $this->allowedDocIdsCache[1];
     }
@@ -1261,11 +1279,12 @@ class ManagerAPI
     }
 
     /**
-     * 許可した親それぞれの祖先の ID（範囲の頂点へたどる途中の文書。ツリーに出すために使う）
+     * 許可した親それぞれの祖先の ID（範囲の頂点へたどる途中の文書。ツリーに出す・初期に開くために使う）。
+     * 深さの上限なしで DB の parent をたどる
      *
      * @return int[]
      */
-    private function allowedParentAncestorIds()
+    public function allowedParentAncestorIds()
     {
         $setting = (string)evo()->conf_var('allowed_parents');
         if ($setting === '') {
