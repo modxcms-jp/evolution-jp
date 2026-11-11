@@ -11,6 +11,9 @@
  * - 4 つ目の引数 options（jquery.alerts には無い）: { icon: 'warning' } でメッセージの左に警告アイコンを出す。
  *   okLabel で、そのダイアログだけ OK ボタンの文言を変える
  * ボタンの文言は EvoDialog.okLabel / EvoDialog.cancelLabel で変えられる（header.inc.php が言語に合わせる）
+ * EvoDialog.form(message, fields, title, callback, options)（jquery.alerts には無い）: 入力欄を複数並べる。
+ *   fields は [{name, label, type, value}]（type は text・password など。既定は text）。
+ *   callback には、OK で {name: 値} のオブジェクト、キャンセルで null を渡す。Enter はどの欄でも OK（IME の確定の Enter は除く）
  */
 (function () {
     'use strict';
@@ -32,6 +35,8 @@
         + '.evo-dialog-icon{flex:none;width:24px;height:24px;margin-top:1px}'
         + '.evo-dialog-text{flex:1;min-width:0}'
         + '.evo-dialog-input{flex:none;display:block;box-sizing:border-box;width:calc(100% - 40px);margin:6px 20px 0;padding:6px 8px;font:inherit}'
+        + '.evo-dialog-label{flex:none;display:block;margin:10px 20px 0;font-weight:600}'
+        + '.evo-dialog-label + .evo-dialog-input{margin-top:4px}'
         + '.evo-dialog-buttons{flex:none;display:flex;justify-content:flex-end;gap:8px;padding:16px 20px}'
         // ボタンが 1 つ（jAlert）のときは下の真ん中。jConfirm / jPrompt は右寄せのまま
         + '.evo-dialog-alert .evo-dialog-buttons{justify-content:center}'
@@ -110,12 +115,36 @@
         dialog.append(body);
 
         let input = null;
+        const inputs = [];
         if (type === 'prompt') {
             input = document.createElement('input');
             input.type = 'text';
             input.className = 'evo-dialog-input';
             input.value = value || '';
             dialog.append(input);
+            inputs.push(input);
+        }
+        if (type === 'form') {
+            (Array.isArray(value) ? value : []).forEach(function (field, i) {
+                const el = document.createElement('input');
+                el.type = field.type || 'text';
+                el.name = field.name || ('field' + i);
+                el.id = 'evo-dialog-field-' + i;
+                el.className = 'evo-dialog-input';
+                el.value = field.value || '';
+                // 入力値をブラウザに保存させない。パスワード欄の 'off' は主なブラウザが無視するので new-password にする（保存の提案を完全には止められない）
+                el.autocomplete = el.type === 'password' ? 'new-password' : 'off';
+                if (field.label) {
+                    const label = document.createElement('label');
+                    label.className = 'evo-dialog-label';
+                    label.htmlFor = el.id;
+                    label.textContent = field.label;
+                    dialog.append(label);
+                }
+                dialog.append(el);
+                inputs.push(el);
+            });
+            input = inputs[0] || null;
         }
 
         const buttons = document.createElement('div');
@@ -142,9 +171,16 @@
         }
 
         const okResult = function () {
+            if (type === 'form') {
+                const values = {};
+                inputs.forEach(function (el) {
+                    values[el.name] = el.value;
+                });
+                return values;
+            }
             return type === 'prompt' ? input.value : true;
         };
-        const cancelResult = type === 'prompt' ? null : false;
+        const cancelResult = type === 'prompt' || type === 'form' ? null : false;
         ok.addEventListener('click', function () {
             close(okResult());
         });
@@ -153,14 +189,15 @@
                 close(cancelResult);
             });
         }
-        if (input) {
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
+        inputs.forEach(function (el) {
+            el.addEventListener('keydown', function (e) {
+                // IME の変換を確定する Enter では閉じない
+                if (e.key === 'Enter' && !e.isComposing) {
                     e.preventDefault();
                     close(okResult());
                 }
             });
-        }
+        });
         // Esc。jAlert は OK と同じ扱いにする。
         // 背後のシェルのモーダル（shell.js が document で Esc を受ける）まで閉じないよう、ここで止める
         dialog.addEventListener('keydown', function (e) {
@@ -198,6 +235,9 @@
         },
         prompt: function (message, value, title, callback) {
             show('prompt', message, title === undefined || title === null ? 'Prompt' : title, value, callback);
+        },
+        form: function (message, fields, title, callback, options) {
+            show('form', message, title === undefined || title === null ? 'Prompt' : title, fields, callback, options);
         }
     };
 

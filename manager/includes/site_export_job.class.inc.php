@@ -37,6 +37,8 @@ class EvoSiteExportJob
     const MAX_BUDGET = 10;
     /** 管理画面（a=308 の op=step）から進めるときの 1 回の持ち時間（秒）。進み具合の更新を細かくする */
     const SCREEN_BUDGET = 3;
+    /** ID・パスワードを渡しても Basic 認証に通らなかったとき、受け付ける回数の上限（ここで error にする） */
+    const MAX_AUTH_TRIES = 3;
 
     private $stateFile;
     private $lockFile;
@@ -195,9 +197,13 @@ class EvoSiteExportJob
      *                        状態には保存しない（実行する側が、そのつど渡す）
      * @param string $jobId 呼び出し元が進めているジョブの id。空でなければ、ロックを取って状態を読んだ直後（トークンの発行や書き出しより前）に
      *                      状態の job_id と照合し、違えば何も処理せず今の状態の応答（今の job_id を含む）を返す。空なら照合しない
-     * @return array 応答（state: running | done | cancelled | error | busy | none）
+     * @param string $credentials 取得先が Basic 認証の場所のときの「ID:パスワード」。空なら付けない。
+     *                            状態・ログには書かない（呼び出し側が、そのつど渡す。画面はセッション、CLI は環境変数か入力）
+     * @return array 応答（state: running | done | cancelled | error | busy | none）。
+     *               取得が 401 に当たったときは、そのまとまりを数えずに running のまま auth_required: true を付けて返す
+     *               （ID・パスワードを渡していたときは auth_failed: true も）。渡しても MAX_AUTH_TRIES 回通らなければ error で終える
      */
-    public function step($budgetSeconds = null, $siteUrl = '', $jobId = '')
+    public function step($budgetSeconds = null, $siteUrl = '', $jobId = '', $credentials = '')
     {
         // start() が順番を待っているときは、何も処理せずに譲る
         if ($this->hasTakeoverMark()) {
@@ -229,7 +235,8 @@ class EvoSiteExportJob
                 $state['options'],
                 $this->issueToken(),
                 isset($state['export_dir']) ? $state['export_dir'] : '',
-                $siteUrl
+                $siteUrl,
+                $credentials
             ));
             if (!$exporter->isOutputDirValid()) {
                 return $this->finish($state, self::STATE_ERROR, $began, lang($exporter->getOutputDirError()));
@@ -255,24 +262,22 @@ class EvoSiteExportJob
 
                 $ids = array_slice($state['ids'], $state['pos'], EvoSiteExporter::concurrency());
                 $results = $exporter->exportMany($ids);
-                $state['pos'] += count($ids);
 
-                // まとまりは全件を書き出し済みなので、basic 認証の失敗があっても全件を数えてから止める
-                $basicAuth = false;
+                // Basic 認証に当たったら、このまとまりは数えずに ID・パスワードを求めて返す（通ったあと、このまとまりから続ける）
+                if (in_array('basic_auth', array_column($results, 'reason'), true)) {
+                    return $this->requireAuth($state, $began, (string)$credentials !== '', $results);
+                }
+                unset($state['auth_tries']);
+
+                $state['pos'] += count($ids);
                 foreach ($results as $result) {
-                    if ($result['reason'] === 'basic_auth') {
-                        $basicAuth = true;
-                        $this->addFailure($state, $result);
-                    } elseif ($result['status'] === 'success') {
+                    if ($result['status'] === 'success') {
                         $state['success']++;
                     } elseif ($result['status'] === 'skipped') {
                         $this->addSkip($state, $result);
                     } else {
                         $this->addFailure($state, $result);
                     }
-                }
-                if ($basicAuth) {
-                    return $this->finish($state, self::STATE_ERROR, $began, lang('export_site_basic_auth_warning'));
                 }
             }
 
@@ -287,6 +292,35 @@ class EvoSiteExportJob
         } finally {
             $this->unlock();
         }
+    }
+
+    /**
+     * 取得が Basic 認証に当たったときの応答。ジョブは running のまま、呼び出し側に ID・パスワードを求める。
+     * 渡した ID・パスワードが通らなかった回数（auth_tries）だけを状態に書き、MAX_AUTH_TRIES 回で error にする。
+     * error にするときは、401 になったページを失敗の一覧に残す（一部の場所だけ別の認証がかかっているときなど、原因のページを追えるように）。
+     */
+    private function requireAuth(array $state, $began, $tried, array $results)
+    {
+        if ($tried) {
+            $state['auth_tries'] = (isset($state['auth_tries']) ? (int)$state['auth_tries'] : 0) + 1;
+            if ($state['auth_tries'] >= self::MAX_AUTH_TRIES) {
+                unset($state['auth_tries']);
+                foreach ($results as $result) {
+                    if ($result['reason'] === 'basic_auth') {
+                        $this->addFailure($state, $result);
+                    }
+                }
+                return $this->finish($state, self::STATE_ERROR, $began, lang('export_site_basic_auth_warning'));
+            }
+        }
+        $state['elapsed'] += microtime(true) - $began;
+        if (!$this->writeState($state)) {
+            return $this->stateUnwritable($state);
+        }
+        return $this->toResponse($state) + [
+            'auth_required' => true,
+            'auth_failed'   => $tried,
+        ];
     }
 
     /**
@@ -378,7 +412,7 @@ class EvoSiteExportJob
         return str_replace('[(base_path)]', MODX_BASE_PATH, (string)config('export_dir'));
     }
 
-    private function exporterOptions(array $options, $token, $exportDir, $siteUrl = '')
+    private function exporterOptions(array $options, $token, $exportDir, $siteUrl = '', $basicAuth = '')
     {
         return [
             'target'           => isset($options['target']) ? $options['target'] : 'all',
@@ -389,6 +423,7 @@ class EvoSiteExportJob
             'site_url'         => (string)$siteUrl,
             'export_dir'       => $exportDir,
             'bearer_token'     => $token,
+            'basic_auth'       => (string)$basicAuth,
         ];
     }
 

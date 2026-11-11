@@ -34,6 +34,7 @@ class EvoSiteExporter
     private $exportDir;
     private $siteUrl;
     private $bearerToken = null;
+    private $basicAuth = null;
     private $curlPool = [];
     private $outputDirError = null;
 
@@ -41,7 +42,8 @@ class EvoSiteExporter
      * @param array $options target('all'|'allow'|'ignore'), ids(int[]), include_noncache(bool),
      *                       repl_before, repl_after, export_dir,
      *                       site_url(ページを取得する先のサイトの URL。省略時は設定のサイトの URL。書き出す中身は変えない),
-     *                       bearer_token(サイトが非公開のときにページの取得へ付ける合言葉。発行と取り消しは呼び出し側)
+     *                       bearer_token(サイトが非公開のときにページの取得へ付ける合言葉。発行と取り消しは呼び出し側),
+     *                       basic_auth(取得先が Basic 認証の場所のときの「ID:パスワード」。保存しない。同じサイトへの要求にだけ付く)
      */
     public function __construct(array $options = [])
     {
@@ -53,6 +55,9 @@ class EvoSiteExporter
         $this->replAfter = isset($options['repl_after']) ? (string)$options['repl_after'] : '';
         $this->siteUrl = !empty($options['site_url']) ? rtrim((string)$options['site_url'], '/') . '/' : '';
         $this->bearerToken = !empty($options['bearer_token']) ? (string)$options['bearer_token'] : null;
+        $this->basicAuth = isset($options['basic_auth']) && strpos((string)$options['basic_auth'], ':') !== false
+            ? (string)$options['basic_auth']
+            : null;
 
         $dir = isset($options['export_dir']) && $options['export_dir'] !== ''
             ? $options['export_dir']
@@ -447,7 +452,7 @@ class EvoSiteExporter
      * 3xx は curl の経路でもストリームの経路でも自分で Location を辿る（最大 MAX_REDIRECTS 回、最初の URL と同じオリジンの中だけ）。
      * 同じホスト・既定のポートでの http から https への切り替えも辿る。
      * 取得先を置き換えている（--site-url）ときは、設定のサイトの URL へのリダイレクトを取得先に読み替えて辿る。
-     * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。最初の URL がこのサイト（取得先）の http・https でなければ取得しない。Authorization を付けるのは同じオリジンへの要求だけになる。
+     * 別のオリジンへのリダイレクトや辿れない 3xx は失敗にする。最初の URL がこのサイト（取得先）の http・https でなければ取得しない。合言葉のヘッダー（X-Evo-Export-Token）と Basic 認証の ID・パスワードを付けるのは、同じオリジンへの要求だけになる。
      * このまとまり全体に CHUNK_DEADLINE 秒の締め切りがあり、過ぎたら送り直しとリダイレクトの追跡を打ち切って失敗にする。
      *
      * @param array $urls キー => URL
@@ -734,9 +739,10 @@ class EvoSiteExporter
             return [false, 0, 'not fetched: only http and https are allowed', '', -1];
         }
         $header = ['User-Agent: ' . (serverv('HTTP_USER_AGENT') ?: 'Evolution CMS JP export')];
-        if ($this->bearerToken) {
-            $header[] = 'Authorization: Bearer ' . $this->bearerToken;
+        if ($this->basicAuth) {
+            $header[] = 'Authorization: Basic ' . base64_encode($this->basicAuth);
         }
+        $header = array_merge($header, $this->tokenHeaders());
         $context = stream_context_create([
             'http' => [
                 'method'          => 'GET',
@@ -792,6 +798,19 @@ class EvoSiteExporter
     }
 
     /**
+     * 取得の要求に付ける、合言葉のヘッダー（サイトが非公開のとき、非公開の門を通るため）。
+     * 専用のヘッダー X-Evo-Export-Token で送る（DocumentParser::verifyBearerToken() が受け付ける）。
+     * Authorization は Basic 認証に使うので、合言葉とぶつからない。CGI の PHP で Authorization が渡らない心配もない
+     */
+    private function tokenHeaders()
+    {
+        if (!$this->bearerToken) {
+            return [];
+        }
+        return ['X-Evo-Export-Token: ' . $this->bearerToken];
+    }
+
+    /**
      * 取得に使う curl のハンドル（番号ごとに使い回す）。
      */
     private function curlHandle($index)
@@ -817,10 +836,13 @@ class EvoSiteExporter
         if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, serverv('HTTP_USER_AGENT'));
         }
-        if ($this->bearerToken) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $this->bearerToken
-            ]);
+        if ($this->tokenHeaders()) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $this->tokenHeaders());
+        }
+        if ($this->basicAuth) {
+            // 送り先は fetchAll() が同じサイトの中に限っている（リダイレクトも curl には辿らせない）
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_USERPWD, $this->basicAuth);
         }
 
         $this->curlPool[$index] = $ch;
