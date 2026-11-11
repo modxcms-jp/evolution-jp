@@ -362,8 +362,27 @@ class DocManagerBackend
                     if (count($doc_id) <= 0) {
                         break;
                     }
+                    // 範囲の入力は存在しない id も含むので、存在する文書だけに行を入れる
+                    $existingIds = array_flip(array_map('intval', db()->getColumn(
+                        'id',
+                        db()->select(
+                            'id',
+                            '[+prefix+]site_content',
+                            'id IN (' . implode(',', array_map('intval', $doc_id)) . ')'
+                        )
+                    )));
                     foreach ($doc_id as $value) {
                         $value = (int)$value;
+                        if (!isset($existingIds[$value])) {
+                            if ($value !== 0) {
+                                $this->dm->ph['update.message'] .= sprintf(
+                                    'ID: %d %s<br />',
+                                    $value,
+                                    $this->dm->lang['DM_tv_doc_not_found']
+                                );
+                            }
+                            continue;
+                        }
                         $sqlResult = db()->select(
                             '*',
                             '[+prefix+]document_groups',
