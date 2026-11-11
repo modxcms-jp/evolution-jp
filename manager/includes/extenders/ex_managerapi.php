@@ -12,6 +12,18 @@ $this->manager = new ManagerAPI;
 // Content manager wrapper class
 class ManagerAPI
 {
+    /**
+     * エレメントの種類ごとの権限名。キーは template・snippet・chunk・plugin・module
+     * （TV はテンプレートの権限に従う）
+     */
+    private const ELEMENT_PERMISSIONS = [
+        'template' => ['new' => 'new_template', 'edit' => 'edit_template', 'save' => 'save_template'],
+        'snippet' => ['new' => 'new_snippet', 'edit' => 'edit_snippet', 'save' => 'save_snippet'],
+        'chunk' => ['new' => 'new_chunk', 'edit' => 'edit_chunk', 'save' => 'save_chunk'],
+        'plugin' => ['new' => 'new_plugin', 'edit' => 'edit_plugin', 'save' => 'save_plugin'],
+        'module' => ['new' => 'new_module', 'edit' => 'edit_module', 'save' => 'save_module'],
+    ];
+
     /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
     private $allowedDocIdsCache;
     /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
@@ -668,43 +680,35 @@ class ManagerAPI
     }
 
     /**
-     * エレメントの種類ごとの権限名（新規・編集・保存）。
-     * 種類は template・snippet・chunk・plugin・module（TV はテンプレートの権限に従う）
-     */
-    private const ELEMENT_PERMISSIONS = [
-        'template' => ['new_template', 'edit_template', 'save_template'],
-        'snippet' => ['new_snippet', 'edit_snippet', 'save_snippet'],
-        'chunk' => ['new_chunk', 'edit_chunk', 'save_chunk'],
-        'plugin' => ['new_plugin', 'edit_plugin', 'save_plugin'],
-        'module' => ['new_module', 'edit_module', 'save_module'],
-    ];
-
-    /**
      * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
-     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
+     * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
+     * （main/welcome.static.php）。
+     * モジュールの管理（a=106）の入口は exec_module も通すので、M4 でモジュールだけ分かれる見込み
      *
-     * @param string $type template・snippet・chunk・plugin・module
-     * @return bool 知らない種類は false
+     * @param string $type ELEMENT_PERMISSIONS のキー（template・snippet・chunk・plugin・module）
+     * @return bool
+     * @throws InvalidArgumentException 知らない種類のとき
      */
     public function canManageElement($type)
     {
         if (!isset(self::ELEMENT_PERMISSIONS[$type])) {
-            return false;
+            throw new InvalidArgumentException("Unknown element type: {$type}");
         }
-        [$new, $edit] = self::ELEMENT_PERMISSIONS[$type];
-        return hasPermission($new) || hasPermission($edit);
+        $permissions = self::ELEMENT_PERMISSIONS[$type];
+        return hasPermission($permissions['new']) || hasPermission($permissions['edit']);
     }
 
     /**
-     * エレメントの管理（a=76）のメニューを出すか。
-     * テンプレート・スニペット・チャンク・プラグインのどれかを管理できる（モジュールは含まない）。
+     * エレメントの管理（a=76）を開けるか（メニューの項目の出し分け）。
+     * テンプレート・スニペット・チャンク・プラグインのどれかを管理できる（モジュールは別の入口 a=106）。
      * 使う場所: manager/frames/menu.php
      *
      * @return bool
      */
-    public function canManageAnyElement()
+    public function canOpenElementManager()
     {
-        foreach (['template', 'snippet', 'chunk', 'plugin'] as $type) {
+        foreach (array_keys(array_diff_key(self::ELEMENT_PERMISSIONS, ['module' => true])) as $type) {
             if ($this->canManageElement($type)) {
                 return true;
             }
@@ -721,7 +725,7 @@ class ManagerAPI
     public function canSaveAnyElement()
     {
         foreach (self::ELEMENT_PERMISSIONS as $permissions) {
-            if (hasPermission($permissions[2])) {
+            if (hasPermission($permissions['save'])) {
                 return true;
             }
         }
@@ -733,7 +737,8 @@ class ManagerAPI
      * 出すグループがあるのに、利用者がどれにも所属していない（そのため選べるグループが無い）。
      * 管理者（isAdmin()）は対象外で、グループの権限（access_permissions・web_access_permissions）の
      * どちらかを持つときだけ。
-     * 使う場所: 文書の編集・下書きの編集画面（mutate_content.dynamic.php・mutate_draft.dynamic.php）
+     * 使う場所: 文書の編集・下書きの編集画面（mutate_content.dynamic.php・mutate_draft.dynamic.php）。
+     * use_udperms が有効なときだけ呼ぶ前提（ここでは use_udperms を見ない）
      *
      * @return bool
      */

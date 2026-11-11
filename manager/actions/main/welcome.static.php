@@ -74,7 +74,7 @@ if (evo()->hasPermission('edit_web_user')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserIcon', $src);
 }
-if (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) {
+if (manager()->canManageElement('module')) {
     $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
     $modx->setPlaceholder('ModulesIcon', $src);
 }

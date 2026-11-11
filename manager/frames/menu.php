@@ -269,7 +269,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         manager()->canCreateDocumentUnder(0)); // new-weblink
 
                     // Resources Menu
-                    $perm_element_management = manager()->canManageAnyElement() ? 1 : 0;
+                    $perm_element_management = manager()->canOpenElementManager() ? 1 : 0;
 
                     $item['element_management'] = item($_lang['element_management'], 76,
                         $perm_element_management);// Elements
