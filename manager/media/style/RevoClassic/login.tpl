@@ -763,7 +763,7 @@
     </style>
 
     <script src="media/script/evo-dialog.js?[+evo_dialog_js_ver+]" type="text/javascript"></script>
-    <script src="media/script/login.js?[+login_js_ver+]" type="text/javascript"></script>
+    <script src="media/script/login.js?[+login_js_ver+]" data-error-message="[+login_request_failed+]" type="text/javascript"></script>
 
 </head>
 <body id="login">

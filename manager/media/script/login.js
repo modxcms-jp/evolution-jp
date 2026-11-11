@@ -4,6 +4,8 @@
  * - ログインボタン（#submitButton、Enter キーの送信も含む）で、processors/login.processor.php へ POST する
  * - 応答が "Location: …" なら、その URL へ移る。それ以外はエラーの文として jAlert（evo-dialog.js）で出し、
  *   キャプチャの画像を作り直す
+ * - 応答が 200 以外（500 など）か、送信そのものが失敗したときは、エラーページの中身は出さず、
+ *   決まった文（<script> の data-error-message。無いときは英語の既定の文）と HTTP の番号を jAlert で出す
  * - 「ログイン名を記憶する」（#rememberme）は、チェックしたときだけ 1 を送る
  * - 送っている間はボタンに .loading を付け、押せなくする
  * - パスワードの表示切り替え（.toggle-password の button）で、#password の type を text と password で切り替え、
@@ -11,6 +13,23 @@
  */
 (function () {
     'use strict';
+
+    // ログインの処理が失敗したときに出す文。テーマの login.tpl が言語ファイルの文を data- 属性で渡す
+    // （独自のテーマで属性が無いときは英語の既定の文）
+    const script = document.currentScript;
+    const requestFailedMessage = (script && script.dataset.errorMessage)
+        || 'The login could not be processed because of a server error. Please try again later or contact your site administrator.';
+
+    // jAlert は HTML として出すので、data- 属性から読んだ文はエスケープし直す
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function alertRequestFailed(status) {
+        jAlert(escapeHtml(requestFailedMessage + (status ? ' (HTTP ' + status + ')' : '')));
+    }
 
     // 別のページのフレームの中で開かれたら、ログイン画面を画面全体で開き直す
     // 他のオリジンのフレームでは移せないことがある。そのときも送信処理は動かす
@@ -52,12 +71,16 @@
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(function (response) {
-                // 404・500 などのエラーページは出さず、ボタンを戻すだけにする（今までと同じ）
-                return response.ok ? response.text() : null;
+                // 404・500 などのエラーページの中身は出さず、失敗したことと HTTP の番号だけを伝える
+                if (!response.ok) {
+                    done();
+                    alertRequestFailed(response.status);
+                    return null;
+                }
+                return response.text();
             })
             .then(function (response) {
                 if (response === null) {
-                    done();
                     return;
                 }
                 if (response.substr(0, 9).toLowerCase() === 'location:') {
@@ -71,7 +94,11 @@
                 }
                 jAlert(response);
             })
-            .catch(done);
+            .catch(function () {
+                // 通信そのものの失敗（サーバーに届かない など）。HTTP の番号は無い
+                done();
+                alertRequestFailed(0);
+            });
     }
 
     function setupPasswordToggle(password) {

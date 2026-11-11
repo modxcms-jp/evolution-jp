@@ -437,6 +437,7 @@ return [
     "login_homepage" => 'ログイン後に表示するページ',
     "login_homepage_message" => 'ログインしたウェブユーザーに対して表示するリソースのIDを入力してください。<br /><strong>※非公開のリソースは指定できません。また該当ユーザーがアクセス権限をもつリソースに限ります。</strong>',
     "login_message" => 'ログイン名とパスワードは大文字・小文字を区別します。',
+    "login_request_failed" => 'ログインの処理でエラーが起きました。時間をおいてもう一度試すか、サイトの管理者に連絡してください。',
     "logo_slogan" => 'MODX Content Manager - \nCreate and do more with less',
     "logout" => 'ログアウト',
     "long_title" => '長いタイトル',
