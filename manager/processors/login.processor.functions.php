@@ -191,11 +191,9 @@ function user($key, $default = null)
     }
 
     // ロール 1 の利用者がユーザー名に :roleid=N を付けたとき、そのロールで入る（managerLogin() が mgrForceRole に残す）
-    $user['forceRole'] = 0;
-    if ($user['role'] == 1 && input('forceRole') && (int) input('forceRole') !== 1) {
-        $user['forceRole'] = (int) input('forceRole');
-        $user['role'] = $user['forceRole'];
-    }
+    $role = manager()->resolveMgrRole($user['role'], (int) input('forceRole'));
+    $user['forceRole'] = (int) $role !== (int) $user['role'] ? (int) $role : 0;
+    $user['role'] = $role;
     // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
     if (isExpiredTemporaryLock($user)) {
         $user['failedlogincount'] = '0';
@@ -522,6 +520,10 @@ function isSameSiteUri($uri)
 // （ロール 1 のまま入ると、試したいロールより強い権限で入ってしまう。認証の前に弾くと、ロール 1 のユーザー名だと分かってしまう）
 function rejectUnknownForceRole()
 {
+    evo()->logEvent(0, 2, 'Login rejected: the role to switch to does not exist', 'Login', [
+        'internalKey' => (int) user('internalKey'),
+        'forceRole' => (int) user('forceRole'),
+    ]);
     @session_destroy();
     session_unset();
     jsAlert('指定されたロールがありません');

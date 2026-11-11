@@ -720,16 +720,19 @@ class ManagerAPI
     }
 
     /**
-     * いまのロールを決める。DB のロールが 1 の利用者がログインで差し替えたロール（mgrForceRole）があれば、それを使う。
-     * DB のロールが 1 でなくなったら（降格など）、差し替えは捨てて DB のロールにする
+     * いまのロールを決める。差し替えられるのは、DB のロールが 1 の利用者だけ。
+     * $forceRole が null のときは、ログインで残した差し替え（mgrForceRole）を使い、
+     * DB のロールが 1 でなくなっていれば（降格など）、それを捨てて DB のロールにする。
+     * ログイン時は、指定された候補を $forceRole に渡す（セッションには触れない）
      */
-    public function resolveMgrRole($dbRole)
+    public function resolveMgrRole($dbRole, $forceRole = null)
     {
-        $forceRole = (int) sessionv('mgrForceRole', 0);
+        $fromSession = $forceRole === null;
+        $forceRole = (int) ($fromSession ? sessionv('mgrForceRole', 0) : $forceRole);
         if ($forceRole && (int) $dbRole === 1) {
             return $forceRole;
         }
-        if ($forceRole) {
+        if ($fromSession && $forceRole) {
             sessionv('*mgrForceRole', null);
         }
         return $dbRole;
