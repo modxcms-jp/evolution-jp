@@ -4,12 +4,12 @@ function getActionButtons($id)
     switch (manager()->action) {
         case '4':
         case '72':
-            if (hasPermission('new_document')) {
+            if (manager()->can('document.create')) {
                 $ph['saveButton'] = ab_save();
             }
             break;
         case '27':
-            if (hasPermission('save_document')) {
+            if (manager()->can('document.save')) {
                 $ph['saveButton'] = ab_save();
             }
             break;
@@ -29,14 +29,14 @@ function getActionButtons($id)
             $ph['deleteButton'] = ab_delete_draft();
         }
     } elseif ($id != config('site_start')) {
-        if (manager()->action == 27 && evo()->doc->canSaveDoc()) {
-            if (hasPermission('move_document')) {
+        if (manager()->action == 27) {
+            if (manager()->can('document.move')) {
                 $ph['moveButton'] = ab_move();
             }
-            if (evo()->doc->canCreateDoc()) {
+            if (manager()->can('document.duplicate')) {
                 $ph['duplicateButton'] = ab_duplicate();
             }
-            if (evo()->doc->canDeleteDoc()) {
+            if (manager()->can('document.delete')) {
                 if (doc('deleted') == 0) {
                     $ph['deleteButton'] = ab_delete();
                 } else {
@@ -84,7 +84,7 @@ function ab_save()
             $extra['save_draft'] = '下書きを採用';
         }
     }
-    $withNew = evo()->doc->mode !== 'draft' && hasPermission('new_document') && hasPermission('save_document');
+    $withNew = evo()->doc->mode !== 'draft' && manager()->can('document.create');
     $selected = EvoFormFlow::requestedAfterSave(['save_draft', 'save_standby'])
         ?: EvoFormFlow::documentAfterSaveDefault();
 

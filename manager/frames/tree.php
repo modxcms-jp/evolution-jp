@@ -72,8 +72,8 @@ if (!sessionv('tree_sortdir')) {
         function showPopup(id, title, pub, del, draft, e) {
             var x, y
             var mnu = document.getElementById('mx_contextmenu');
-            var permpub = <?= evo()->hasPermission('publish_document') ? 1 : 0 ?>;
-            var permdel = <?= evo()->hasPermission('delete_document') ? 1 : 0 ?>;
+            var permpub = <?= manager()->can('document.publish') ? 1 : 0 ?>;
+            var permdel = <?= manager()->can('document.delete') ? 1 : 0 ?>;
             // 権限や設定によって出ない項目もあるため、あるときだけ切り替える
             function showItem(id, shown) {
                 var item = document.getElementById(id);
@@ -92,8 +92,6 @@ if (!sessionv('tree_sortdir')) {
                 if (pub == 1) showItem('item61', false);
                 else showItem('item62', false);
             } else {
-                showItem('item51', false);
-
                 if (draft == 1) showItem('item27', false);
                 else showItem('item27', true);
             }
@@ -685,7 +683,7 @@ function itemEditDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('edit_document')) {
+    if (!manager()->can('document.edit')) {
         return '';
     }
     $ph['action'] = '27';
@@ -739,7 +737,7 @@ function itemNewDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('new_document')) {
+    if (!manager()->can('document.create')) {
         return '';
     }
     $ph['action'] = '4';
@@ -752,10 +750,7 @@ function itemMoveDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('move_document')) {
-        return '';
-    }
-    if (!evo()->hasPermission('save_document')) {
+    if (!manager()->can('document.move')) {
         return '';
     }
     $ph['action'] = '51';
@@ -768,7 +763,7 @@ function itemDuplicateDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
+    if (!manager()->can('document.duplicate')) {
         return '';
     }
     $ph['action'] = '94';
@@ -779,7 +774,12 @@ function itemDuplicateDoc()
 
 function itemSeperator1()
 {
-    if (evo()->hasPermission('edit_document') || evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
+    if (
+        manager()->can('document.edit')
+        || manager()->can('document.create')
+        || manager()->can('document.move')
+        || manager()->can('document.duplicate')
+    ) {
         return '<div class="seperator"></div>';
     }
 
@@ -790,7 +790,7 @@ function itemPubDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('publish_document')) {
+    if (!manager()->can('document.publish')) {
         return '';
     }
     $ph['action'] = '61';
@@ -803,7 +803,7 @@ function itemUnPubDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('publish_document')) {
+    if (!manager()->can('document.publish')) {
         return '';
     }
     $ph['action'] = '62';
@@ -816,7 +816,7 @@ function itemDelDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('delete_document')) {
+    if (!manager()->can('document.delete')) {
         return '';
     }
     $ph['action'] = '6';
@@ -829,7 +829,7 @@ function itemUndelDoc()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('delete_document')) {
+    if (!manager()->can('document.delete')) {
         return '';
     }
     $ph['action'] = '63';
@@ -853,7 +853,7 @@ function itemDelDocComplete()
 
 function itemSeperator2()
 {
-    if (evo()->hasPermission('publish_document') || evo()->hasPermission('delete_document')) {
+    if (manager()->can('document.publish') || manager()->can('document.delete')) {
         return '<div class="seperator"></div>';
     }
 
@@ -864,7 +864,7 @@ function itemWebLink()
 {
     global $_style, $_lang;
 
-    if (!evo()->hasPermission('new_document')) {
+    if (!manager()->can('document.create')) {
         return '';
     }
     $ph['action'] = '72';
@@ -875,7 +875,7 @@ function itemWebLink()
 
 function itemSeperator3()
 {
-    if (evo()->hasPermission('new_document')) {
+    if (manager()->can('document.create')) {
         return '<div class="seperator"></div>';
     }
 

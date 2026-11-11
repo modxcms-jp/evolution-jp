@@ -18,9 +18,9 @@ if ($id && !evo()->checkPermissions($id)) {
 include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 
 // 一括の操作。ボタンは操作ごとの権限があるものだけ出し、チェックボックスと選択の部品はどれか 1 つの権限があれば出す
-$canBatchMove = hasPermission('move_document');
-$canBatchDelete = hasPermission('delete_document');
-$canBatchPublish = hasPermission('save_document') && hasPermission('publish_document');
+$canBatchMove = manager()->can('document.move');
+$canBatchDelete = manager()->can('document.delete');
+$canBatchPublish = manager()->can('document.publish');
 $canBatch = $canBatchMove || $canBatchDelete || $canBatchPublish;
 
 evo()->loadExtension('DocAPI');
@@ -282,16 +282,16 @@ echo get_jscript($id, $cm);
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
-            if (hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
+            if (manager()->can('document.edit') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button1', 'editdocument();', $_lang['edit']);
             }
-            if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
+            if (manager()->can('document.move') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button2', 'movedocument();', $_lang['move']);
             }
-            if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isInAllowedParents($id)) {
+            if (manager()->can('document.duplicate') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_lang['duplicate']);
             }
-            if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
+            if (manager()->can('document.delete') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
             }
 
@@ -315,7 +315,7 @@ echo get_jscript($id, $cm);
             $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
             // 2 行目: 作成のボタン（表に子を足す操作）とページ送り。0 件でも作成のボタンは出す
             $createButtons = '';
-            if (hasPermission('new_document') && ($id != 0 || manager()->canCreateDocumentUnder(0))) {
+            if ($id != 0 ? manager()->can('document.create') : manager()->canCreateDocumentUnder(0)) {
                 $createButtons = sprintf(
                     '<ul class="actionButtons resources-list-create">'
                     . '<li class="mutate"><a href="index.php?a=4&amp;pid=%1$d">%2$s</a></li>'
@@ -693,39 +693,39 @@ function getTopicPath($id)
 
 function getContextMenu($cm)
 {
-    if (hasPermission('edit_document')) {
+    if (manager()->can('document.edit')) {
         $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
     }
-    if (hasPermission('new_document')) {
+    if (manager()->can('document.create')) {
         $cm->addItem(lang('create_resource_here'), "js:menuAction(4)", style('icons_new_document'));
     }
-    if (hasPermission('move_document') && hasPermission('save_document') && hasPermission('publish_document')) {
+    if (manager()->can('document.move')) {
         $cm->addItem(lang('move_resource'), "js:menuAction(51)", style('icons_move_document'));
     }
-    if (hasPermission('new_document')) {
+    if (manager()->can('document.duplicate')) {
         $cm->addItem(lang('resource_duplicate'), "js:menuAction(94)", style('icons_resource_duplicate'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
-    if (hasPermission('publish_document')) {
+    if (manager()->can('document.publish')) {
         $cm->addItem(lang('publish_resource'), "js:menuAction(61)", style('icons_publish_document'));
     }
-    if (hasPermission('publish_document')) {
+    if (manager()->can('document.publish')) {
         $cm->addItem(lang('unpublish_resource'), "js:menuAction(62)", style('icons_unpublish_resource'));
     }
-    if (hasPermission('delete_document')) {
+    if (manager()->can('document.delete')) {
         $cm->addItem(lang('delete_resource'), "js:menuAction(6)", style('icons_delete'));
     }
-    if (hasPermission('delete_document')) {
+    if (manager()->can('document.delete')) {
         $cm->addItem(lang('undelete_resource'), "js:menuAction(63)", style('icons_undelete_resource'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
-    if (hasPermission('new_document')) {
+    if (manager()->can('document.create')) {
         $cm->addItem(lang('create_weblink_here'), "js:menuAction(72)", style('icons_weblink'));
     }
     if (0 < $cm->i) {
