@@ -643,6 +643,13 @@ class ManagerAPI
         );
     }
 
+    /**
+     * ロールが access_permissions と web_access_permissions の両方を持つか。
+     * バックアップの復元・ファイルブラウザー・モジュールの実行・ユーザーの削除などにも使うので、
+     * 文書グループの絞り込みの判定には使わない（bypassesDocumentGroups() を使う。#1338）
+     *
+     * @return bool
+     */
     public function isAdmin()
     {
         if (!hasPermission('access_permissions')) {
@@ -1135,10 +1142,11 @@ class ManagerAPI
         return $modx->user_allowed_docs;
     }
 
-    // ルート直下にリソースを作ってよいか
+    // ルート直下にリソースを作ってよいか。
+    // udperms_allowroot は文書グループの設定の 1 つなので、文書グループの絞り込みと同じ管理者の判定を使う
     public function isAllowroot()
     {
-        return evo()->hasPermission('save_role') || (bool)evo()->config('udperms_allowroot');
+        return $this->bypassesDocumentGroups() || (bool)evo()->config('udperms_allowroot');
     }
 
     // PHP の設定から求めたアップロードサイズの上限（バイト数）。無制限なら 0
@@ -1349,33 +1357,174 @@ class ManagerAPI
     }
 
     /**
-     * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
-     * 編集画面が文書を開くときの 2 つの確認を、そのまま式にしたもの。
-     * - 到達できる（$reachable）: 集合に管理側で非公開のグループ（membergroup_access に行がある。
-     *   setMgrDocsAsPrivate() と同じ定義。これが privatemgr=1 の元）が無い、または利用者の所属
-     *   （sessionv('mgrDocgroups')）と重なる
-     * - checkPermissions()（document.parser.subparser.trait.php）: save_role があるか、$reachable
-     * - db_value()（mutate_content/functions.php）: isAdmin()、所属が空、または $reachable のとき絞り込みを省く
-     * 両方を通ったときだけ true。use_udperms が 1 でなければ常に true。
-     * 2 つの確認の食い違い自体は #1338 で 1 か所にまとめる。
-     * sessionv('mgrDocgroups') は、管理画面のリクエストで accesscontrol.inc.php が読み直す値が前提
-     * （管理画面のリクエストで使う）
+     * 文書グループの絞り込みを受けない管理者か（#1338）。
+     * アクセスの規則（ユーザーグループの権限・ロール）を自分で変えられる人: isAdmin()、
+     * または save_role を持つ人（自分のロールに access_permissions・web_access_permissions を付けて
+     * isAdmin() になれるため、save_role だけのロールを絞っても守りにならない）。
+     * use_udperms は見ない（公開側の判定にも使うため）。管理画面の絞り込みは restrictsByDocumentGroups() を通す
+     *
+     * @return bool
+     */
+    public function bypassesDocumentGroups()
+    {
+        return $this->isAdmin() || evo()->hasPermission('save_role');
+    }
+
+    /**
+     * ログイン中の利用者の所属（セッション mgrDocgroups）を、重複のない正の整数の配列で返す。
+     * mgrDocgroups は管理画面のリクエストごとに accesscontrol.inc.php が読み直す
+     *
+     * @return int[]
+     */
+    public function userMgrDocumentGroupIds()
+    {
+        $ids = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])), function ($id) {
+            return $id > 0;
+        });
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * 管理画面で文書を文書グループで絞るか。use_udperms が 1 で、管理者でないとき
+     *
+     * @return bool
+     */
+    public function restrictsByDocumentGroups()
+    {
+        return evo()->config('use_udperms') == 1 && !$this->bypassesDocumentGroups();
+    }
+
+    /**
+     * 文書グループで絞るときの SQL の条件式（前に AND は付けない）。絞らないときは空文字。
+     * 「届く」文書: privatemgr=0、または所属のグループに入っている文書。
+     * privatemgr の列で見るこの式と、保存前の集合で見る canOpenWithDocumentGroups() の定義は同じ
+     * （所属のグループはすべて管理側で非公開）。privatemgr の印が実際の所属と合わない経路は #1353。
+     * 結合に頼らない副問い合わせなので、どの問い合わせにも入れられる
+     *
+     * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function documentAccessCondition($alias = 'sc')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!$this->restrictsByDocumentGroups()) {
+            return '';
+        }
+        $a = $alias === '' ? '' : $alias . '.';
+        $groupIds = $this->userMgrDocumentGroupIds();
+        if (!$groupIds) {
+            return "{$a}privatemgr=0";
+        }
+        return sprintf(
+            '(%sprivatemgr=0 OR %sid IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+            $a,
+            $a,
+            db()->getFullTableName('document_groups'),
+            implode(',', $groupIds)
+        );
+    }
+
+    /**
+     * 文書を、この利用者が文書グループの面で管理画面で扱ってよいか。絞らないなら true。
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない文書は false。
+     * 絞らないときは id によらず true（checkPermissions() の修正前と同じ）
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canAccessDocument($docId)
+    {
+        $cond = $this->documentAccessCondition('sc');
+        if ($cond === '') {
+            return true;
+        }
+        $rs = db()->select(
+            'COUNT(sc.id)',
+            '[+prefix+]site_content sc',
+            sprintf('sc.id=%d AND %s', (int)$docId, $cond)
+        );
+        return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書グループで絞るときの、TV（テンプレート変数）の SQL の条件式（前に AND は付けない）。絞らないときは空文字。
+     * TV のアクセスの判定の正はここ（編集画面・保存・QuickManager が使う）。
+     * 絞るかどうかは文書の判定と同じ restrictsByDocumentGroups()（#1338）。
+     * 「届く」TV: site_tmplvar_access に行が無い、または所属のグループの行がある。
+     * 副問い合わせは外側の行を参照しない（相関なし）。別名があってもなくても同じ式で、
+     * どの問い合わせにも入れられる。site_tmplvar_access.tmplvarid は NOT NULL
+     * （install/sql/create_tables.sql）なので、NOT IN が NULL で崩れることは無い
+     *
+     * @param string $alias site_tmplvars の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function tmplvarAccessCondition($alias = 'tv')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!$this->restrictsByDocumentGroups()) {
+            return '';
+        }
+        $a = $alias === '' ? '' : $alias . '.';
+        $table = db()->getFullTableName('site_tmplvar_access');
+        $groupIds = $this->userMgrDocumentGroupIds();
+        $unrestricted = sprintf('%sid NOT IN (SELECT tmplvarid FROM %s)', $a, $table);
+        if (!$groupIds) {
+            return $unrestricted;
+        }
+        return sprintf(
+            '(%s OR %sid IN (SELECT tmplvarid FROM %s WHERE documentgroup IN (%s)))',
+            $unrestricted,
+            $a,
+            $table,
+            implode(',', $groupIds)
+        );
+    }
+
+    /**
+     * TV を、この利用者が文書グループの面で扱ってよいか。絞らないなら true。
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない TV は false
+     *
+     * @param int|string $tmplvarId
+     * @return bool
+     */
+    public function canAccessTmplvar($tmplvarId)
+    {
+        $cond = $this->tmplvarAccessCondition('tv');
+        if ($cond === '') {
+            return true;
+        }
+        $rs = db()->select(
+            'COUNT(tv.id)',
+            '[+prefix+]site_tmplvars tv',
+            sprintf('tv.id=%d AND %s', (int)$tmplvarId, $cond)
+        );
+        return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか（#1318）。
+     * 絞らない（restrictsByDocumentGroups() が false）、または集合が届く（管理側で非公開のグループが
+     * 無い、または利用者の所属と重なる）とき true。documentAccessCondition() と同じ定義を、
+     * 保存前の集合に当てたもの
      *
      * @param int[] $groupIds 文書に付く文書グループの id
      * @return bool
      */
     public function canOpenWithDocumentGroups($groupIds)
     {
-        if (evo()->config('use_udperms') != 1) {
+        if (!$this->restrictsByDocumentGroups()) {
             return true;
         }
         $private = $this->mgrPrivateDocumentGroupIds($groupIds);
-        $mine = array_map('intval', (array)sessionv('mgrDocgroups', []));
-        $reachable = !$private || (bool)array_intersect($private, $mine);
-
-        $passCheckPermissions = evo()->hasPermission('save_role') || $reachable;
-        $passDbValue = $this->isAdmin() || !$mine || $reachable;
-        return $passCheckPermissions && $passDbValue;
+        return !$private || (bool)array_intersect($private, $this->userMgrDocumentGroupIds());
     }
 
     /**

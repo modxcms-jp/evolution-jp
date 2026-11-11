@@ -35,11 +35,10 @@ evo()->updatePublishStatus();
 $where = [
     sprintf("sc.id=%d", $id)
 ];
-if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
-    $where[] = sprintf(
-        "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
-        implode(',', sessionv('mgrDocgroups'))
-    );
+// 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）
+$accessCond = manager()->documentAccessCondition('sc');
+if ($accessCond !== '') {
+    $where[] = 'AND ' . $accessCond;
 }
 $rs = db()->select(
     'DISTINCT sc.*',

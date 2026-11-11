@@ -135,3 +135,12 @@
 - **改善案**: 設定の行は定義に移し、設定でない行（ブロックなど）は別の表に分ける。`allowed_days` の複数のチェックボックスの型を `EvoSettingsForm` に足す。移したら `USER_TAB_KEYS` を消す
 - **確かめ方（移す前後と、欄を足すとき）**: ユーザー編集画面（`a=12`）を開き、`document.userform.elements` の `name` を集める（`allowed_days[]` の `[]` を除く）。そのうち設定として保存されるものを、保存が実際に受ける一覧（`EvoSettingsForm::names('user')` に、セッションの `pluginSettingNames.user` を足したもの。`save_user.functions.php` の `allowedSettingNames('user')` と同じ）と突き合わせ、過不足がないことを確かめる。集めた名前から除くのは、設定として保存されない名前（`user_attributes` の列・アカウントやプロフィールの項目・`csrf_token`・`mode`・`userid`・`changed_settings`・保存後の行き先 `after_save`・`theme_refresher`・「システム設定に従う」の `default_<キー>` など。`default_<キー>` は `EvoSettingsForm::userDefaultNames()` の行にだけ付く）。画面にあって一覧に無い名前は保存されず、一覧にあって画面に無い名前は無駄な許可になる
 - **関連ロードマップ**: なし（新規候補。#1304 では定数とコメントで 1 か所にして、定義への移動は採らなかった）
+
+## 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う
+
+- **発見日**: 2026-11-10
+- **発見元**: 文書グループの絞り込みを受けない管理者の条件をそろえる ExecPlan（`.agent/plans/2026-11-10-docgroup-admin-bypass.md`、#1338）
+- **ファイル**: `manager/includes/document.parser.class.inc.php`（`getDocumentObject()`・`getDocuments()`・`getPageInfo()`・ページキャッシュの読み込みの確認）、`manager/includes/traits/document.parser.subparser.trait.php`（`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()`）
+- **課題**: 公開側（`privateweb`。Web 側で非公開）の絞り込みを、管理画面にログインした管理者に外すかどうかが関数ごとに違う。`getDocumentObject()`・`getDocuments()`・キャッシュの読み込みの確認は外し、`getAllChildren()` は管理者に所属があるときだけ外し、`getPageInfo()`・`getActiveChildren()`・`getDocumentChildren()` は外さない。同じ文書が、ページとしては見えるのにメニューや一覧には出ない、といった食い違いになる。外す関数の結果は、「ログイン時のキャッシュ」（`disable_cache_at_login`）を無効にしたサイトでは、キャッシュする部品の出力ごとページキャッシュに入り、ログインしていない訪問者にも出うる
+- **改善案**: 公開側の取得の条件を、管理画面側と同じく 1 か所（`privateweb` と Web 側の所属と管理者の判定から式を返すメソッド）にまとめ、各関数はそれを使う。外す向きにそろえるなら、外した結果がページキャッシュに入らないようにする（外したリクエストではページキャッシュを書かない、など）。外さない向きにそろえるなら、管理者がログインしたまま非公開のページを確かめる手段（プレビューなど）を別に用意する
+- **関連ロードマップ**: なし（新規候補。#1338 では、管理者の判定を「ロールの ID が 1」から `ManagerAPI::bypassesDocumentGroups()`（`isAdmin()` または `save_role`）に置き換えるだけにする。公開側の扱いをそろえる向きはここで決める）

@@ -272,26 +272,16 @@ function get_tmplvars()
         return [];
     }
 
-    // get document groups for current user
-    $docgrp = sessionv('mgrDocgroups')
-        ? implode(',', sessionv('mgrDocgroups'))
-        : ''
-    ;
-
+    // 文書グループで絞る条件（#1338）。編集画面の getTmplvars() と同じ ManagerAPI の判定
+    $cond = manager()->tmplvarAccessCondition('tv');
 
     $rs = db()->select(
         'DISTINCT tv.*',
         [
             '[+prefix+]site_tmplvars AS tv',
-            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
-            'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
+            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id'
         ],
-        sprintf(
-            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-            $template,
-            sessionv('mgrRole'),
-            $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
-        ),
+        sprintf('tvtpl.templateid=%d', (int)$template) . ($cond === '' ? '' : " AND {$cond}"),
         'tv.rank'
     );
 

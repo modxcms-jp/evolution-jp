@@ -29,6 +29,10 @@
 
 - `loadExtension()` によって `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、必要な拡張のみを読み込みます。
 - TV は `getDocumentObject()` 内でドキュメントと同時に取得され、後続の解析パスでコアフィールドと同じ扱いを受けます。
+- 管理画面での文書グループによる絞り込みの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）です。管理者（`isAdmin()` または `save_role`）は `bypassesDocumentGroups()`、絞るかどうかは `restrictsByDocumentGroups()`、文書は `documentAccessCondition()`・`canAccessDocument()`・`canOpenWithDocumentGroups()`、TV は `tmplvarAccessCondition()`・`canAccessTmplvar()` です。
+- `evo()->checkPermissions()` はこれらを使う公開の API です。文書グループで絞る問い合わせは、自前で条件を書かずにこれらを使います。
+- `tree_show_protected` は、開けない文書をツリーと子の一覧に印つきで出すかだけの設定で、アクセスの判定には使いません。
+- DocumentParser の取得の関数（`getDocumentObject()` など。公開側と管理画面側の分岐）を同じ判定にする作業は #1338 の後段で行います。詳しい規則は各メソッドの docblock を正とします。
 
 ## イベントフローの概要
 

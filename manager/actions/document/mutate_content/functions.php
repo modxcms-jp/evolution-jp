@@ -1,5 +1,5 @@
 <?php
-function getTmplvars($docid, $template_id, $docgrp)
+function getTmplvars($docid, $template_id)
 {
     // SQL に渡す直前に整数にそろえる（差し戻しの値が入ることがある）
     $docid = (int)$docid;
@@ -10,6 +10,9 @@ function getTmplvars($docid, $template_id, $docgrp)
     }
 
     $tmplVars = [];
+
+    // 文書グループで絞る条件（#1338）。判定の正は ManagerAPI
+    $cond = manager()->tmplvarAccessCondition('tv');
 
     $rs = db()->select(
         [
@@ -31,15 +34,9 @@ function getTmplvars($docid, $template_id, $docgrp)
                     $docid
                 )
                 :
-                '',
-            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+                ''
         ],
-        sprintf(
-            "tvtpl.templateid=%d AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-            $template_id,
-            manager()->isAdmin() ? 1 : 0,
-            $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
-        ),
+        sprintf('tvtpl.templateid=%d', $template_id) . ($cond === '' ? '' : " AND {$cond}"),
         'tvtpl.rank,tv.rank, tv.id'
     );
 
@@ -154,7 +151,7 @@ function rte_fields()
     if (config('use_editor') == 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
-    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), getDocgrp());
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'));
     foreach ($tmplVars as $tv) {
         // Go through and display all Template Variables
         if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
@@ -550,33 +547,22 @@ function checkDocLock($id)
     }
 }
 
-// get document groups for current user
-function getDocgrp()
-{
-    if (sessionv('mgrDocgroups')) {
-        return implode(',', sessionv('mgrDocgroups'));
-    } else {
-        return '';
-    }
-}
-
-function db_value($id, $docgrp)
+function db_value($id)
 {
     if ($id === '0') {
         return [];
     }
 
+    // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()。絞らないときは空）
+    $where = [sprintf("sc.id='%d'", (int) $id)];
+    $cond = manager()->documentAccessCondition('sc');
+    if ($cond !== '') {
+        $where[] = 'AND ' . $cond;
+    }
     $rs = db()->select(
         'DISTINCT sc.*',
         '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id',
-        sprintf(
-            "sc.id='%s' %s",
-            $id,
-            (manager()->isAdmin() || !$docgrp) ? '' : sprintf(
-                'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                $docgrp
-            )
-        )
+        $where
     );
     $limit = db()->count($rs);
     if ($limit > 1) {

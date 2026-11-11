@@ -126,19 +126,11 @@ if (getv('submitok')) {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }
 
-    // ツリー（nodes.php の getNodes()）と同じ、ドキュメントグループによる絞り込み。
-    // アクセス判定 checkPermissions() と同じく、use_udperms が無効なら絞らない
-    if (config('use_udperms') && !config('tree_show_protected') && !manager()->isAdmin()) {
-        $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
-        $access = 'privatemgr=0';
-        if ($mgrDocgroups) {
-            $access .= sprintf(
-                ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
-                db()->getFullTableName('document_groups'),
-                implode(',', $mgrDocgroups)
-            );
-        }
-        $where[] = '(' . $access . ')';
+    // ドキュメントグループによる絞り込み（判定は ManagerAPI::documentAccessCondition()。この問い合わせは表に別名が無い）。
+    // 検索は開けない文書を印なしのリンクで出すしかないので、表示だけの設定の tree_show_protected は見ず、常に絞る
+    $accessCond = manager()->documentAccessCondition('');
+    if ($accessCond !== '') {
+        $where[] = '(' . $accessCond . ')';
     }
 
     include_once(MODX_CORE_PATH . 'controls/data_table.class.php');

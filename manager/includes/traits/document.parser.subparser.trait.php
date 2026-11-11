@@ -1109,6 +1109,7 @@ trait DocumentParserSubParserTrait
         $this->regClientScript($src, $options, $startup);
     }
 
+    // 文書グループの絞り込みの判定の正は ManagerAPI（bypassesDocumentGroups()・canAccessDocument()。#1338）
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
         // 配列など文字列・数値でない値（id[]=1 を渡したときなど）は、権限があるとみなさない
@@ -1121,7 +1122,7 @@ trait DocumentParserSubParserTrait
 
         $allowroot = evo()->config('udperms_allowroot');
 
-        if (evo()->hasPermission('save_role')) {
+        if (manager()->bypassesDocumentGroups()) {
             return true;
         }
 
@@ -1145,27 +1146,7 @@ trait DocumentParserSubParserTrait
             return false; // deny duplicate document at root if Allow Root is No
         }
 
-        // get document groups for current user
-        if (evo()->session('mgrDocgroups')) {
-            foreach ($_SESSION['mgrDocgroups'] as $v) {
-                $docgrp[] = "dg.document_group='{$v}'";
-            }
-            $docgrps = implode(' || ', $docgrp);
-            $where_docgrp = "({$docgrps} || sc.privatemgr = 0)";
-        } else {
-            $where_docgrp = 'sc.privatemgr = 0';
-        }
-
-        $field = 'COUNT(DISTINCT sc.id)';
-        $from = '[+prefix+]site_content sc';
-        $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $from .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
-        $where = "sc.id='{$docid}' AND {$where_docgrp}";
-
-        // COUNT() の値で判定する（count() は結果の行数で、集計クエリでは常に1になる）
-        $total = (int) db()->getValue(db()->select($field, $from, $where));
-
-        return $total === 1;
+        return manager()->canAccessDocument($docid);
     }
 
     /*
