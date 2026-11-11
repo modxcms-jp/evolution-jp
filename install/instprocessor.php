@@ -431,6 +431,14 @@ if ($errors == 0) {
     try {
         $migrator = new EvoMigrator();
         if (sessionv('is_upgradeable')) {
+            // settings_version（設定を保存した版、またはアップデーターで上げた版。ようこそ画面の判定に使う）を今の版にする。新規インストールは '0'（未保存）のまま残す。
+            // 記録の前に書くので、失敗したときは未適用のまま残り、再実行できる
+            $settingsVersion = (string) evo()->getVersionData('version');
+            db()->replace(
+                ['setting_name' => 'settings_version', 'setting_value' => db()->escape($settingsVersion)],
+                '[+prefix+]system_settings'
+            );
+            log_install_event('Updated settings_version', ['version' => $settingsVersion]);
             $migrator->recordApplied($migration['applied']);
             log_install_event('Recorded applied migrations', ['migrations' => $migration['applied']]);
         } else {

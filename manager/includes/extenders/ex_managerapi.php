@@ -12,6 +12,10 @@ $this->manager = new ManagerAPI;
 // Content manager wrapper class
 class ManagerAPI
 {
+    /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
+    private $allowedDocIdsCache;
+    /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
+    private $allowedAncestorIdsCache;
 
     public $action; // action directive
 
@@ -714,8 +718,28 @@ class ManagerAPI
         if ($role === false || $role === null) {
             return;
         }
+        $role = $this->resolveMgrRole($role);
         sessionv('*mgrRole', $role);
         sessionv('*mgrPermissions', $this->getMgrPermissions($role));
+    }
+
+    /**
+     * いまのロールを決める。差し替えられるのは、DB のロールが 1 の利用者だけ。
+     * $forceRole が null のときは、ログインで残した差し替え（mgrForceRole）を使い、
+     * DB のロールが 1 でなくなっていれば（降格など）、それを捨てて DB のロールにする。
+     * ログイン時は、指定された候補を $forceRole に渡す（セッションには触れない）
+     */
+    public function resolveMgrRole($dbRole, $forceRole = null)
+    {
+        $fromSession = $forceRole === null;
+        $forceRole = (int) ($fromSession ? sessionv('mgrForceRole', 0) : $forceRole);
+        if ($forceRole && (int) $dbRole === 1) {
+            return $forceRole;
+        }
+        if ($fromSession && $forceRole) {
+            sessionv('*mgrForceRole', null);
+        }
+        return $dbRole;
     }
 
     public function getMemberGroups($uid = 0)
@@ -743,6 +767,21 @@ class ManagerAPI
         }
 
         return $group;
+    }
+
+    /**
+     * 1 つの文書の非公開の印（privatemgr・privateweb）を、実際の所属から求め直す。
+     * id が 0 や空だと setMgrDocsAsPrivate()・setWebDocsAsPrivate() は全文書を計算するので、
+     * その落とし穴をここで防ぎ、正の id のときだけ行う。
+     */
+    public function refreshDocumentPrivateFlags($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId < 1) {
+            return;
+        }
+        $this->setWebDocsAsPrivate($docId);
+        $this->setMgrDocsAsPrivate($docId);
     }
 
     /**
@@ -825,6 +864,60 @@ class ManagerAPI
             sprintf("id IN (%s)", $ids)
         );
         return $ids;
+    }
+
+    /**
+     * 文書グループを削除する
+     *
+     * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
+     * 文書グループの id を持つ 5 つの表（install/sql/create_tables.sql）
+     * document_groups・documentgroup_names・membergroup_access・
+     * site_tmplvar_access・webgroup_access の行をすべて消す。
+     * そのグループに付いていた文書があれば、privatemgr / privateweb を全件で計算し直し、
+     * 印ごとキャッシュされたページを消すためページキャッシュも消す。
+     *
+     * @param int $groupId
+     * @return bool 失敗したら false
+     */
+    public function deleteDocumentGroup($groupId)
+    {
+        $groupId = (int)$groupId;
+        if ($groupId <= 0) {
+            return false;
+        }
+
+        // 削除の後では分からなくなるので、このグループに付いた文書があるかを先に確かめる
+        $hasDocuments = (bool)db()->getValue(
+            db()->select(
+                'document',
+                '[+prefix+]document_groups',
+                sprintf('document_group=%d', $groupId),
+                '',
+                1
+            )
+        );
+
+        $result = true;
+        $targets = [
+            ['[+prefix+]documentgroup_names', 'id'],
+            ['[+prefix+]document_groups', 'document_group'],
+            ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]site_tmplvar_access', 'documentgroup'],
+            ['[+prefix+]webgroup_access', 'documentgroup'],
+        ];
+        foreach ($targets as [$table, $column]) {
+            if (!db()->delete($table, sprintf('%s=%d', $column, $groupId))) {
+                $result = false;
+            }
+        }
+
+        if ($hasDocuments) {
+            $this->setMgrDocsAsPrivate();
+            $this->setWebDocsAsPrivate();
+            evo()->clearCache(['target' => 'pagecache']);
+        }
+
+        return $result;
     }
 
     public function getStylePath()
@@ -1014,58 +1107,59 @@ class ManagerAPI
         return '';
     }
 
+    /**
+     * 文書が、許可するリソースの範囲の中か。判定は isInAllowedParents() と同じ（範囲の判定の正）。
+     * $id が 0 のときは、リクエストの pid を見る（pid が無ければ true）。
+     * 外部のコードが使うことがあるので残している。新しいコードは isInAllowedParents() を使う
+     *
+     * @param int $id
+     * @return bool
+     */
     public function isAllowed($id)
     {
-        global $modx;
-
         if (!$id) {
             // pid が送られたかどうかだけを見る（'0'・空は無いものと同じ）
             if (!anyv('pid')) {
                 return true;
             }
 
-            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ下で拒否される
+            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ拒否される
             $id = request_intvar('pid');
         }
 
-        if (!evo()->conf_var('allowed_parents')) {
-            return true;
-        }
-
-        if (!isset(evo()->user_allowed_docs)) {
-            evo()->user_allowed_docs = $this->getUserAllowedDocs();
-        }
-
-        if (!in_array($id, (array)evo()->user_allowed_docs)) {
-            return false;
-        }
-
-        return true;
+        return $this->isInAllowedParents($id);
     }
 
+    /**
+     * ツリー・一覧に出してよい文書か。範囲の中か、範囲の頂点の祖先（そこへたどる途中の文書）なら true。
+     * 表示用で、行ごとに呼ばれるため DB に問い合わせず、getUserAllowedDocs() の集合（リクエスト内でキャッシュ）で判定する。
+     * ルート（0 以下）は常に true。リクエストの値は読まない。保存の判定は鮮度が要るので isInAllowedParents() を使う
+     *
+     * @param int $id
+     * @return bool
+     */
     public function isContainAllowed($id)
     {
-        if ($this->isAllowed($id)) {
+        $id = (int)$id;
+        if ($id <= 0 || !evo()->conf_var('allowed_parents')) {
             return true;
         }
-
-        $childlen = evo()->getChildIds($id);
-        if (!$childlen) {
+        $allowed = $this->getAllowedParentIds();
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
+        if (!$allowed) {
             return false;
         }
-
-        foreach ($childlen as $child) {
-            if (in_array($child, evo()->user_allowed_docs)) {
-                return true;
-            }
-        }
-        return false;
+        $this->getUserAllowedDocs();
+        return isset($this->allowedDocIdsCache[2][$id])
+            || in_array($id, $this->allowedParentAncestorIds(), true);
     }
 
     /**
      * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
      * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
-     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * 設定が空なら常に true。設定があるのに正しい ID が 1 つも無いときは false。
      * 一覧に 0（ルート）が含まれていれば、サイト全体を許可する設定として常に true（制限なし）。
      * 一覧に 0 が無いとき、ルート（0）は範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
      * 存在の確認は呼ぶ側で行う。
@@ -1121,28 +1215,114 @@ class ManagerAPI
         return $ids;
     }
 
+    /**
+     * 範囲の中の文書の ID の一覧（許可するリソースに書いた ID と、その子孫すべて）。
+     * isInAllowedParents() と同じ基準（深さの上限なし・削除済みも含む）。
+     * 一覧の大きさが問題になる絞り込みには allowedDocsCondition() を使う
+     *
+     * @return int[]|string 制限なし（設定が空、または 0 を含む）なら []、正しい ID が 1 つも無いなら ''、
+     *                      それ以外は範囲の中の ID の配列
+     */
     public function getUserAllowedDocs()
     {
-        global $modx;
-
-        $modx->user_allowed_docs = [];
-        $allowed_parents = $this->getAllowedParentIds();
-
-        if (!$allowed_parents) {
+        $setting = (string)evo()->conf_var('allowed_parents');
+        if ($setting === '') {
+            return [];
+        }
+        $parents = $this->getAllowedParentIds();
+        if (!$parents) {
             return '';
         }
+        if (in_array(0, $parents, true)) {
+            return [];
+        }
+        if ($this->allowedDocIdsCache === null || $this->allowedDocIdsCache[0] !== $setting) {
+            $ids = $this->collectAllowedDocIds();
+            $this->allowedDocIdsCache = [$setting, $ids, array_flip($ids)];
+        }
+        return $this->allowedDocIdsCache[1];
+    }
 
-        // 0（ルート）を含むときは getChildIds(0) がサイト全体を返す（修正前と同じ）
-        $_ = [];
-        foreach ($allowed_parents as $parent) {
-            $children = evo()->getChildIds($parent);
-            $_[] = $parent;
-            foreach ($children as $child) {
-                $_[] = $child;
+    /**
+     * 範囲の中の文書だけに絞る SQL の条件式（前に AND は付けない）。制限なし（設定が空、または 0 を含む）なら空文字。
+     * 結果は isInAllowedParents() が true になる文書と同じ。
+     * 祖先をたどる条件を SQL で書くと深さが固定になるため、許可した親から子孫の ID を集めて IN で絞る
+     *
+     * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function allowedDocsCondition($alias = 'sc')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!evo()->conf_var('allowed_parents') || in_array(0, $this->getAllowedParentIds(), true)) {
+            return '';
+        }
+        $ids = array_map('intval', (array)$this->getUserAllowedDocs());
+        return sprintf(
+            '%sid IN (%s)',
+            $alias === '' ? '' : $alias . '.',
+            $ids ? implode(',', $ids) : '0'
+        );
+    }
+
+    /**
+     * 許可した親から、子孫を深さの上限なし・削除済みも含めて集める（循環しても止まる）
+     *
+     * @return int[]
+     */
+    private function collectAllowedDocIds()
+    {
+        $found = [];
+        $level = array_map('intval', $this->getAllowedParentIds());
+        foreach ($level as $id) {
+            if ($id > 0) {
+                $found[$id] = true;
             }
         }
-        $modx->user_allowed_docs = $_;
-        return $modx->user_allowed_docs;
+        while ($level) {
+            $rs = db()->select(
+                'id',
+                '[+prefix+]site_content',
+                sprintf('parent IN (%s)', implode(',', $level))
+            );
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                $child = (int)$row['id'];
+                if (!isset($found[$child])) {
+                    $found[$child] = true;
+                    $level[] = $child;
+                }
+            }
+        }
+        return array_keys($found);
+    }
+
+    /**
+     * 許可した親それぞれの祖先の ID（範囲の頂点へたどる途中の文書。ツリーに出す・初期に開くために使う）。
+     * 深さの上限なしで DB の parent をたどる
+     *
+     * @return int[]
+     */
+    public function allowedParentAncestorIds()
+    {
+        $setting = (string)evo()->conf_var('allowed_parents');
+        if ($setting === '') {
+            return [];
+        }
+        if ($this->allowedAncestorIdsCache === null || $this->allowedAncestorIdsCache[0] !== $setting) {
+            $ids = [];
+            foreach ($this->getAllowedParentIds() as $parent) {
+                foreach ($this->getAncestorIds($parent) as $ancestor) {
+                    $ids[$ancestor] = $ancestor;
+                }
+            }
+            $this->allowedAncestorIdsCache = [$setting, array_values($ids)];
+        }
+        return $this->allowedAncestorIdsCache[1];
     }
 
     // udperms_allowroot の設定（向き A の材料）。ルートに置けるかの判定には canPlaceAtRoot() を使う。
@@ -1469,6 +1649,66 @@ class ManagerAPI
             sprintf('sc.id=%d AND %s', (int)$docId, $cond)
         );
         return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書の編集画面（a=27・131・132）を開けない理由を返す。開けるなら空文字。
+     * 理由の順は、許可するリソースの範囲（isInAllowedParents()）、view_document の権限、文書グループ（canAccessDocument()）。
+     * 入口は理由ごとにエラーの出し方を変える。リクエストの値は読まない
+     *
+     * @param int|string $docId
+     * @return string 'invalid_id'|'out_of_range'|'no_permission'|'document_group'|''
+     */
+    public function documentEditorDenial($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId <= 0) {
+            return 'invalid_id';
+        }
+        if (!$this->isInAllowedParents($docId)) {
+            return 'out_of_range';
+        }
+        if (!evo()->hasPermission('view_document')) {
+            return 'no_permission';
+        }
+        if (!$this->canAccessDocument($docId)) {
+            return 'document_group';
+        }
+        return '';
+    }
+
+    /**
+     * 文書の編集画面を、この利用者が開けるか（documentEditorDenial() が空か）。
+     * 保存できるかは save_document（呼ぶ側が見る）。QuickManager のボタンの表示と TV の保存が使う
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canOpenDocumentEditor($docId)
+    {
+        return $this->documentEditorDenial($docId) === '';
+    }
+
+    /**
+     * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
+     * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
+     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは、保存の処理と同じく
+     * isAllowroot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
+     * リクエストの値は読まない。QuickManager の追加ボタンが使う
+     *
+     * @param int|string $parentId
+     * @return bool
+     */
+    public function canCreateDocumentUnder($parentId)
+    {
+        if (!evo()->hasPermission('new_document')) {
+            return false;
+        }
+        $parentId = (int)$parentId;
+        if ($parentId <= 0) {
+            return $this->isAllowroot() && $this->isInAllowedParents(0);
+        }
+        return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
     }
 
     /**

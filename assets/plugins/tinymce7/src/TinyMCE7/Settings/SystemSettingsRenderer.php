@@ -65,7 +65,7 @@ final class SystemSettingsRenderer
         ];
 
         $html = [];
-        $cssUrl = MODX_BASE_URL . 'assets/plugins/tinymce7/css/tinymce7.settings.css';
+        $cssUrl = site_asset(MODX_BASE_URL . 'assets/plugins/tinymce7/css/tinymce7.settings.css');
         $html[] = '<link rel="stylesheet" type="text/css" href="' . hsc($cssUrl) . '">';
         // グローバル設定では、functions.js が「リッチテキストエディターの使用」の切り替えで出し入れする
         $html[] = '<table id="editorRow_TinyMCE7" class="settings" data-show-if="use_editor=1">';

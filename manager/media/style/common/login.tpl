@@ -50,8 +50,8 @@
         .toggle-password[aria-pressed="false"] .icon-visible {display: none;}
     </style>
 
-    <script src="media/script/evo-dialog.js" type="text/javascript"></script>
-    <script src="media/script/login.js" type="text/javascript"></script>
+    <script src="media/script/evo-dialog.js?[+evo_dialog_js_ver+]" type="text/javascript"></script>
+    <script src="media/script/login.js?[+login_js_ver+]" type="text/javascript"></script>
 
 </head>
 <body id="login">

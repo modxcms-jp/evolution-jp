@@ -95,6 +95,11 @@ class DocManager
             $tpl = $this->getFileContents($tpl);
         }
         if ($tpl) {
+            // tpl の JS の版（更新日時）。tpl に ?[+..._ver+] として書く
+            $ph += [
+                'docmanager_js_ver' => asset_version(MODX_BASE_PATH . 'assets/modules/docmanager/js/docmanager.js'),
+                'dragdrop_sort_js_ver' => asset_version(MODX_MANAGER_PATH . 'media/script/dragdrop-sort.js'),
+            ];
             // DatePicker入力を含むテンプレートに読み込みスクリプトを注入する。
             // 断片テンプレート(シェル内表示)には</body>が無いため末尾へ追記する
             if (strpos($tpl, '</body>') !== false) {

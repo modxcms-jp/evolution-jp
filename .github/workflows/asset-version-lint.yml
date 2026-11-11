@@ -1,0 +1,20 @@
+name: Asset version lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  asset_version_lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ubuntu-latest に入っている PHP をそのまま使う（tokenizer（標準で有効）だけを使うので拡張は要らない）
+      - name: Run asset version lint
+        run: php .github/scripts/asset-version-lint.php

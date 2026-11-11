@@ -39,6 +39,11 @@ evo()->setPlaceholder('manager_theme_url',
     )
 );
 
+$theme = evo()->config('manager_theme');
+evo()->setPlaceholder('theme_css_ver', asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css"));
+evo()->setPlaceholder('evo_dialog_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js'));
+evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/login.js'));
+
 global $tpl, $_lang;
 
 $touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;

@@ -52,9 +52,7 @@ if (!sessionv('tree_sortdir')) {
         <?php
         if (!sessionv('openedArray')) {
             if(config('allowed_parents')) {
-                $_SESSION['openedArray'] = openedArray(
-                    config('allowed_parents')
-                ) ?: [];
+                $_SESSION['openedArray'] = manager()->allowedParentAncestorIds();
             } else {
                 $_SESSION['openedArray'] = [];
             }
@@ -339,7 +337,7 @@ if (!sessionv('tree_sortdir')) {
         }
 
     </script>
-    <script src="media/script/tree.js"></script>
+    <script src="<?= manager_asset('media/script/tree.js') ?>"></script>
 <aside id="treePane">
     <script>
         // フレーム時代のbody onclick相当。コンテキストメニューを閉じる
@@ -905,23 +903,6 @@ function itemViewPage()
     $ph['img'] = $_style['icons_information'];
     $ph['text'] = $_lang['preview_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function openedArray($allowed_parents)
-{
-    $allowed_parents = explode(',', $allowed_parents);
-    $openedArray = [];
-    foreach ($allowed_parents as $allowed_parent) {
-        $_ = evo()->getParentIds($allowed_parent);
-        if (!$_) {
-            continue;
-        }
-        // $openedArray[] = $allowed_parent;
-        foreach ($_ as $v) {
-            $openedArray[] = $v;
-        }
-    }
-    return $openedArray;
 }
 
 function isSelectedTreeSortby($name) {

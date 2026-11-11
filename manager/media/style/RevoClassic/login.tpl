@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>MODX CMF Manager Login</title>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css"/>
+    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
     <style type="text/css">
         /* Reset and Base Styles */
         * {
@@ -762,8 +762,8 @@
         }
     </style>
 
-    <script src="media/script/evo-dialog.js" type="text/javascript"></script>
-    <script src="media/script/login.js" type="text/javascript"></script>
+    <script src="media/script/evo-dialog.js?[+evo_dialog_js_ver+]" type="text/javascript"></script>
+    <script src="media/script/login.js?[+login_js_ver+]" type="text/javascript"></script>
 
 </head>
 <body id="login">

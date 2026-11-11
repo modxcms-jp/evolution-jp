@@ -29,10 +29,7 @@
 
 - `loadExtension()` によって `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、必要な拡張のみを読み込みます。
 - TV は `getDocumentObject()` 内でドキュメントと同時に取得され、後続の解析パスでコアフィールドと同じ扱いを受けます。
-- 管理画面での文書グループによる絞り込みの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）です。管理者（`isAdmin()` または `save_role`）は `bypassesDocumentGroups()`、絞るかどうかは `restrictsByDocumentGroups()`、文書は `documentAccessCondition()`・`canAccessDocument()`・`canOpenWithDocumentGroups()`、TV は `tmplvarAccessCondition()`・`canAccessTmplvar()` です。
-- `evo()->checkPermissions()` はこれらを使う公開の API です。文書グループで絞る問い合わせは、自前で条件を書かずにこれらを使います。
-- `tree_show_protected` は、開けない文書をツリーと子の一覧に印つきで出すかだけの設定で、アクセスの判定には使いません。
-- DocumentParser の取得の関数（`getDocumentObject()`・`getDocuments()`・`getPageInfo()`・`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()`、ページキャッシュの読み込みの確認）は、管理画面側（`isFrontend()` が偽）の分岐が `documentAccessCondition()` を使い、公開側の `privateweb` の分岐は管理者の判定に `managerBypassesDocumentGroups()` を使います。ログインしていない閲覧では ManagerAPI を読み込みません。公開側で絞り込みを外す関数がどれかは関数ごとに違います（`core-issues.md`）。詳しい規則は各メソッドの docblock を正とします。
+- 権限・文書グループによる絞り込みの判定（ManagerAPI の `bypassesDocumentGroups()`・`documentAccessCondition()` など、`checkPermissions()`、DocumentParser の取得の関数の分岐）の置き場所と決まりは `permissions.md` を正とします。文書グループで絞る問い合わせは、自前で条件を書かずにそこに挙げた判定を使います。
 
 ## イベントフローの概要
 

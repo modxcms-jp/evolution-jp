@@ -275,23 +275,23 @@ echo getContextMenu($cm);
 echo get_jscript($id, $cm);
 
 ?>
-    <script type="text/javascript" src="media/script/data-table.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/data-table.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
     <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
-            if (hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button1', 'editdocument();', $_lang['edit']);
             }
-            if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button2', 'movedocument();', $_lang['move']);
             }
-            if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
+            if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_lang['duplicate']);
             }
-            if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
             }
 
@@ -638,7 +638,7 @@ function getReturnAction($current)
         return 'index.php?a=2';
     }
 
-    if (!manager()->isAllowed($current['parent'])) {
+    if (!manager()->isInAllowedParents($current['parent'])) {
         return 'index.php?a=120';
     }
 
@@ -679,7 +679,7 @@ function getTopicPath($id)
         if (!evo()->checkPermissions($topic)) {
             // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
             $topics[] = evo()->config('tree_show_protected') ? hsc($doc['alias']) : '…';
-        } elseif (manager()->isAllowed($topic)) {
+        } elseif (manager()->isInAllowedParents($topic)) {
             $topics[] = sprintf('<a href="index.php?a=120&id=%d">%s</a>', (int)$topic, hsc($doc['alias']));
         } else {
             $topics[] = hsc($doc['alias']);

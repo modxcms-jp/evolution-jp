@@ -46,8 +46,13 @@ class TopicPath
         if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
 
         $theme = $theme ?? '';
-        if ($theme === 'li') {
-            $theme = 'list';
+        // 古い版のテーマ名を今の名前に読み替える（古い版は大文字・小文字を区別しなかった）。
+        // string は古い版のスニペットのプロパティの既定値で、アップデーターはプロパティを残すため、
+        // 上げたサイトに残っている。書式は今の simple と同じ
+        $legacyThemes = ['li' => 'list', 'string' => 'simple'];
+        $legacyKey = strtolower(trim((string)$theme));
+        if (isset($legacyThemes[$legacyKey])) {
+            $theme = $legacyThemes[$legacyKey];
         }
         if (!$theme) {
             $theme = 'simple';

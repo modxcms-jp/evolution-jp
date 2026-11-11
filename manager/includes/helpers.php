@@ -1142,6 +1142,51 @@ function manager_style_image_url($subdir = '')
     return MODX_MANAGER_URL . manager_style_image_path($subdir);
 }
 
+/**
+ * 静的ファイルの版（更新日時）を返す。読めないときは本体の版を返す。
+ * ブラウザのキャッシュが古い JS・CSS を使い続けないよう、URL の ?版 に使う。
+ */
+function asset_version($absPath)
+{
+    $mtime = is_file($absPath) ? @filemtime($absPath) : false;
+    if ($mtime) {
+        return (string)$mtime;
+    }
+    return rawurlencode((string)evo()->getVersionData('version'));
+}
+
+/**
+ * 管理画面（manager/）からの相対パスに版を付ける。例: manager_asset('media/script/tree.js')
+ * URL の前置き（MODX_MANAGER_URL など）は呼び出し側が付ける。
+ */
+function manager_asset($path)
+{
+    $path = ltrim((string)$path, '/');
+    return $path . '?' . asset_version(MODX_MANAGER_PATH . $path);
+}
+
+/**
+ * MODX_SITE_URL または MODX_BASE_URL から始まるサイト内の URL に版を付ける。
+ * 外部の URL、// で始まる URL、? や # を含む URL はそのまま返す。
+ */
+function site_asset($url)
+{
+    $url = (string)$url;
+    if (strpos($url, '?') !== false || strpos($url, '#') !== false) {
+        return $url;
+    }
+    // 絶対 URL（MODX_SITE_URL から始まる）と、サイトの根からの相対 URL（MODX_BASE_URL から始まる）だけ。
+    // // で始まるプロトコル相対や、ほかのホストの URL はそのまま返す
+    if (strpos($url, MODX_SITE_URL) === 0) {
+        $relative = substr($url, strlen(MODX_SITE_URL));
+    } elseif (strpos($url, '//') !== 0 && strpos($url, MODX_BASE_URL) === 0) {
+        $relative = substr($url, strlen(MODX_BASE_URL));
+    } else {
+        return $url;
+    }
+    return $url . '?' . asset_version(MODX_BASE_PATH . $relative);
+}
+
 function manager_style_placeholders()
 {
     static $paths = null;
