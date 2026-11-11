@@ -2685,7 +2685,8 @@ class DocumentParser
         }
 
         $sp = '#' . hash('crc32b', 'ConditionalTags' . request_time()) . '#';
-        $content = str_replace(['<?php', '?>'], ["{$sp}b", "{$sp}e"], $content);
+        // 本文の <? はすべて（<?XML・<?PHP・<?=・<? など、short_open_tag で開始タグになり得るもの）eval の前に目印へ逃がす
+        $content = str_replace(['<?', '?>'], ["{$sp}b", "{$sp}e"], $content);
 
         $pieces = explode('<@IF:', $content);
         foreach ($pieces as $i => $split) {
@@ -2711,13 +2712,10 @@ class DocumentParser
         }
 
         $content = str_replace(['<@ELSE>', '<@ENDIF>'], ['<?php else:?>', '<?php endif;?>'], $content);
-        if (strpos($content, '<?xml') !== false) {
-            $content = str_replace('<?xml', '<?= "<?xml";?>', $content);
-        }
         ob_start();
         eval('?>' . $content);
         $content = ob_get_clean();
-        $content = str_replace(["{$sp}b", "{$sp}e"], ['<?php', '?>'], $content);
+        $content = str_replace(["{$sp}b", "{$sp}e"], ['<?', '?>'], $content);
         if ($this->debug) {
             $this->addLogEntry('$modx->' . __FUNCTION__, $fstart);
         }
