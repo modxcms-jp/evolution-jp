@@ -457,8 +457,11 @@ if ($errors == 0) {
     log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
-clean_up($sqlParser->prefix);
-log_install_event('Clean up completed');
+// 新規インストールもアップグレードも、文書グループの結びつきが変わった分を含め、
+// 全文書の非公開の印（privateweb・privatemgr）を ManagerAPI で計算し直す
+manager()->setWebDocsAsPrivate();
+manager()->setMgrDocsAsPrivate();
+log_install_event('Recalculated document private flags');
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
