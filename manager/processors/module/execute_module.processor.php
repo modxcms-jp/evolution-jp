@@ -51,12 +51,8 @@ if (!manager()->isAdmin() && config('use_udperms') == 1) {
     }
 
     if ($permissionAccessInt == 0) {
-        echo "<script type='text/javascript'>" .
-            "function jsalert(){ alert('You do not sufficient privileges to execute this module.');" .
-            "window.location.href='index.php?a=106';}" .
-            "setTimeout('jsalert()',100)" .
-            "</script>";
-        exit;
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
