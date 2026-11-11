@@ -12,7 +12,7 @@
 | 文書グループ | どの文書を開けるか（管理側）、公開側で見えるか（Web 側） | グループの結びつきの表（`document_groups`・`membergroup_access`・`webgroup_access` など） |
 | 許可するリソース | 利用者ごとに、どの文書の下を編集してよいか | 利用者の設定 `allowed_parents` |
 
-3 つは別々の仕組みで、それぞれ自分で判定する。文書を開いて編集するには、ロールの権限・文書グループ・許可するリソースの 3 つを（設定しているものすべて）通る必要がある。ただしロールの権限は 1 か所で文書グループとつながっていて、`access_permissions`・`web_access_permissions`・`save_role` を持つロールは、文書グループの絞り込みを外す（次の「管理者」の判定）。
+3 つは別々の仕組みで、それぞれ自分で判定する。文書を開いて編集するには、ロールの権限・文書グループ・許可するリソースの 3 つを（設定しているものすべて）通る必要がある。ただしロールの権限は 1 か所で文書グループとつながっていて、`access_permissions` と `web_access_permissions` を両方持つか、`save_role` を持つロールは、文書グループの絞り込みを外す（次の「管理者」の判定）。
 
 ## 管理ユーザーの権限
 
@@ -95,7 +95,7 @@
 - 設定の確認（`manager/includes/config_check.inc.php`）は、ロール 1 でログインしていると警告を出す
 - メニューのモジュール一覧は、ロール 1 でなければ実行できるモジュールだけに絞る（`manager/frames/menu.php`）
 - ログインのとき、ユーザー名に `:roleid=N` を付けると、ロール 1 のユーザーはセッションのロールを N にして入る（`forceRole`。`manager/processors/login.processor.functions.php`）。ただし管理画面のリクエストごとの読み直し（`manager/includes/accesscontrol.inc.php` の `refreshMgrPermissions()`）で元のロールに戻るため、実質は効かない（#1376）
-- アップグレード（`manager/includes/migrations/00000000_baseline.php`）は、足した権限の列をロール 1 にだけ 1 で入れ、ロール 1 が無ければ作り、メールの送信元の初期値をロール 1 のユーザーのアドレスにする
+- アップグレード（`manager/includes/migrations/00000000_baseline.php`）は、足した権限の列をロール 1 にだけ 1 で入れ、ロール 1 が無ければ作り、メールの送信元が初期値（you@example.com）のままのときだけ、ロール 1 のユーザーのうち ID が最も小さい人のアドレスにする
 - Ditto・Wayfinder の管理画面側の分岐（上記）
 
 ## 文書グループ
@@ -142,7 +142,7 @@
 
 `documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループそのものの削除では、印を書き直さない（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php` の `delete_document_group`）。さらに、管理側の処理は `membergroup_access` の行だけ、Web 側の処理は `webgroup_access` の行だけを消し、もう片側の結びつきの行は残る（#1375）。
 
-印の計算を別に持つ、または計算せずに書く経路が残っている。#1353 は `DocAPI::create()`（`privatemgr` を直接 1 にする）、DocManager は自前の `secureWebDocument()`・`secureMgrDocument()`（`assets/modules/docmanager/classes/dm_backend.class.php`）で計算する。全件を計算するとき、ほかの文書の古い 1 を 0 に戻さないことがある（結びつきが 1 件でもあれば 1 を付けるだけで、0 に戻すのは結びつきが無いときの分岐だけのため）。
+印の計算を別に持つ、または計算せずに書く経路が残っている。#1353 は `DocAPI::create()`（`privatemgr` を直接 1 にする）、DocManager は自前の `secureWebDocument()`・`secureMgrDocument()`（`assets/modules/docmanager/classes/dm_backend.class.php`）で計算する。今の呼び出しは文書ごと（`dm_backend.class.php` の 338-339・358-359 行付近）なので結果は ManagerAPI と同じだが、計算の規則を 2 か所に持つことが課題。
 
 ### 管理側の所属（mgrDocgroups）
 
