@@ -174,7 +174,7 @@
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
-| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
+| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。QuickManager の追加ボタンが使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。`new_document` は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
@@ -202,11 +202,11 @@
 | メインメニューの新規作成（`manager/frames/menu.php`）・ダッシュボードの新規作成（`welcome.php`） | `canCreateDocumentUnder(0)` |
 | 保存後の「続けて新規」（`save_resource.processor.php` の `goNextAction()`） | 親がルートで `canCreateDocumentUnder(0)` が偽なら、「続けて編集」に戻す。新規作成の画面（a=4・72）そのものは止めない（フォームで親を選べるため） |
 | 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
-| 移動（`move_document.dynamic.php`・`move_document.processor.php`） | 画面は、ルートを選ぶ操作を `canPlaceAtRoot()` と `isInAllowedParents(0)` で受け付けるか決める。処理は、移す文書それぞれの範囲を見たあと、親が変わるときに `parentChangeDeniedMessage()` で決める（拒否は `alertAndQuit()`） |
+| 移動（`move_document.dynamic.php`・`move_document.processor.php`） | 画面は、ルートを選ぶ操作を `canUseRootAsParent()` で受け付けるか決める。処理は、移す文書それぞれの範囲を見たあと、親が変わるときに `parentChangeDeniedMessage()` で決める（拒否は `alertAndQuit()`） |
 | サイトのインポート（`import_site.static.php`） | 取り込み先がルートのときだけ `canUseRootAsParent()`。リセットもルートへの取り込みと同じ判定で止める（リセットはルートへの取り込みのときだけ受け付ける）。画面にも、ルートに置けない利用者へ同じ文言を出す |
 | 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 親が変わるときに、循環と存在、親がルートなら `canPlaceAtRoot()`（それ以外の親は `checkPermissions()`）、`isInAllowedParents()` の順 |
 | 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
-| QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canPlaceAtRoot()` と `isInAllowedParents(0)` |
+| QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canCreateDocumentUnder(0)` 経由で `canUseRootAsParent()` |
 
 ## 許可するリソース（allowed_parents）
 
