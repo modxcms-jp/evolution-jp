@@ -68,6 +68,8 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 
 次の版に入れると決めた Issue（マイルストーンが今の開発中の版より後のもの。2026-11-11 時点では 1.4）は、main ではなく、まとめ用のブランチ `develop/<版>`（例: `develop/1.4`）に向ける。main を今の版のリリースに向けて保ち、次の版の PR どうしを積み重ねずに済ませるため。
 
+この節の対象の Issue と ExecPlan では、このスキルの手順に出てくる main（ブランチと PR の base、修正前と比べる基準、段階ごとのブランチの作り元と切り替え先、衝突を確かめる相手と取り込む元）を、すべて `develop/<版>`（`origin/develop/<版>`）と読み替える。
+
 - ブランチと PR の base: `gh issue develop` の `--base` と PR の base を `develop/<版>` にする。修正前と比べるときの基準も `develop/<版>` にする。
 - マージ: ドラフトを解除して Codex のレビューを受け、指摘を `/resolve-review` の仕分けで片付け、検証・自己レビューで高・中が残らず、CI が通ったら、メインが `develop/<版>` にマージしてよい（main へのマージは従来どおり人が行う）。
 - Issue: main 以外へのマージでは `Closes` で Issue が閉じないので、マージしたらコメントを付けて手で閉じる。
@@ -194,7 +196,7 @@ ExecPlan をマイルストーンごとに進める。
 1. ExecPlan を読み、Progress の最初の未完了のマイルストーンを特定する。対象の Issue は、ExecPlan の Artifacts and Notes に挙がった Issue（無ければ、その ExecPlan を指すロードマップ項目の `Issue:`）のすべてとする。事前確認は、対象の Issue すべてに対して行う。
 2. ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されていれば、それとそのワークツリーを使う（ワークツリーが無ければ、そのブランチで `git worktree add` する）。roadmap-manager の `/next-task --run` で作った ExecPlan は、この形でブランチが記録されている。記録が無ければ、「作業場所」の手順で新しく用意する。`gh issue develop` で紐づけるのは、対象の Issue のうち先頭に書かれたもの 1 件にする（ロードマップの `Issue:` は優先順に並んでいる）。
 3. マイルストーンごとに「1 件ごとの繰り返し」を行う。worker に渡す書き込み範囲は、そのマイルストーンの Plan of Work と Concrete Steps に挙がったファイルにする（ExecPlan の記録はメインが行う）。
-4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。ExecPlan が段階ごとの PR の分け方を決めているときは、「1 件ごとの繰り返し」の手順 9 のとおり段階ごとに PR を分け、前の PR のマージを人に任せて止まる（マージ後に `/run-plan` を呼び直すと、次の段階から続ける）。本人に続けるよう頼まれていて止まれないときは、前の段階のブランチから次の段階のブランチを作って検証と自己レビューまで進め、push して、前の段階のブランチを base にした PR を作ってよい（手元のコミットだけで残すと、進み具合が PR の一覧から見えない）。作ったブランチと PR は ExecPlan の Artifacts and Notes に記録する。積んだ PR は base が main でないので、main との衝突が CI にも mergeable にも出ない。PR を作る前と、前の段階の PR をマージする前に、`git merge-tree --write-tree <段階のブランチ> origin/main` で main との衝突を確かめ、衝突したら前の段階のブランチに `origin/main` を取り込んでから次の段階に取り込んで解く。前の PR がマージされたら、次の PR の base を main に切り替える。切り替える前にそのブランチへ `origin/main` を取り込み、その段階で消した・移したファイルに main 側で入った変更が、新しい実装にも要るかを確かめる。
+4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。ExecPlan が段階ごとの PR の分け方を決めているときは、「1 件ごとの繰り返し」の手順 9 のとおり段階ごとに PR を分け、前の PR のマージを人に任せて止まる（マージ後に `/run-plan` を呼び直すと、次の段階から続ける）。本人に続けるよう頼まれていて止まれないときは、前の段階のブランチから次の段階のブランチを作って検証と自己レビューまで進め、push して、前の段階のブランチを base にした PR を作ってよい（手元のコミットだけで残すと、進み具合が PR の一覧から見えない）。作ったブランチと PR は ExecPlan の Artifacts and Notes に記録する。積んだ PR は base が main でないので、main との衝突が CI にも mergeable にも出ない。PR を作る前と、前の段階の PR をマージする前に、`git merge-tree --write-tree <段階のブランチ> origin/main` で main との衝突を確かめ、衝突したら前の段階のブランチに `origin/main` を取り込んでから次の段階に取り込んで解く。前の PR がマージされたら、次の PR の base を main（次の版のまとめ用ブランチに向けた ExecPlan では `develop/<版>`）に切り替える。切り替える前にそのブランチへ `origin/main`（同じく `origin/develop/<版>`）を取り込み、その段階で消した・移したファイルに main 側で入った変更が、新しい実装にも要るかを確かめる。
 5. すべてのマイルストーンが終わり CI が通ったら、`gh pr ready <PR番号>` で下書きを解除し、報告して終える。マージはしない。完了処理は `/finish-task` で行う。
 
 ### /finish-task <Issue 番号 | ExecPlan のパス>
