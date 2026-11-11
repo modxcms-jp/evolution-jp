@@ -684,7 +684,7 @@ class ManagerAPI
      * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
      * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
      * （main/welcome.static.php）。
-     * モジュールの管理（a=106）の入口は exec_module も通すので、M4 でモジュールだけ分かれる見込み
+     * モジュールの管理（a=106）の入口は exec_module も通すため、モジュールのメニュー・アイコンの条件は入口と一致しない（permissions.md の分かっている課題を参照）
      *
      * @param string $type ELEMENT_PERMISSIONS のキー（template・snippet・chunk・plugin・module）
      * @return bool
