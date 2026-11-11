@@ -20,7 +20,7 @@
  * 非公開の印（site_content の privatemgr・privateweb）は、結びつきから求める値なので、消した行の有無に関わらず
  * 毎回、ManagerAPI の setMgrDocsAsPrivate()・setWebDocsAsPrivate() で全件を求め直す。
  * DELETE のあとで止まっても、流し直しで印が直る。正しいサイトでは値は変わらない。
- * アップデーターでは、このあと instprocessor.php の clean_up() も全件を求め直す。
+ * アップデーターでは、このあと install/functions.php の clean_up()（install/instprocessor.php が呼ぶ。#1397）も全件を求め直す。
  * ページキャッシュは、ランナーが消さない決まりなので、呼び出し側（インストーラ・php evo migrate）が消す。
  *
  * 2 回目は消す行が無く、ログも出さない（印は同じ値に求め直される）。
