@@ -160,7 +160,18 @@
 
 ## 判定の置き場所
 
-文書グループとロールの権限の組み合わせの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）。**文書グループで絞る問い合わせや確認、エレメントの管理などの権限の組み合わせは、自前で条件を書かず、次の判定を使う。** 画面・処理・プラグインごとに条件を書き写さない（食い違いが、権限の抜けや無駄な拒否になる）。
+文書グループとロールの権限の組み合わせの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）。**文書グループで絞る問い合わせや確認、文書の操作・エレメントの管理などの権限の組み合わせは、自前で条件を書かず、次の判定を使う。** 画面・処理・プラグインごとに条件を書き写さない（食い違いが、権限の抜けや無駄な拒否になる）。
+
+### 操作と必要な権限（OPERATION_PERMISSIONS）
+
+ロールの権限の組み合わせは、ManagerAPI の定数 `OPERATION_PERMISSIONS`（操作の名前 → 必要な権限）が 1 か所で持つ。`can($operation)` がこの表を引いて、ログイン中の利用者がその操作をしてよいかを返す。**操作ごとの権限の一覧は、この表が正で、この文書には写さない。** 表を読んで確かめる。
+
+- 名前は `document.move`・`element.template.manage` のような `<対象>.<操作>`。知らない名前は `InvalidArgumentException`
+- 1 つの操作に 2 つの書き方ができる。`all` は列挙した権限のすべて（文書の移動など）、`any` はどれか 1 つ（エレメントの管理を開くには new か edit）。両方あれば、`all` のすべてと `any` のどれか
+- 表が持つのは権限の組み合わせだけ。範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）・ルート（`canUseRootAsParent()`）が要る操作は、呼ぶ側が表を引いたうえで合わせる（`canCreateDocumentUnder()` が `document.create` を引いて合わせる形）。エレメントの種類（`canManageElement()` が使う `ELEMENT_TYPES`）は、表のキーの `element.<種類>.manage` と `element.<種類>.save` に対応する
+- 文書の操作（ツリー・文書一覧・文書の情報・編集画面のボタン・メニュー・ダッシュボード・検索結果のリンク先）は、`can()` か `canCreateDocumentUnder()` で出し分ける（QuickManager は追加ボタンが `canCreateDocumentUnder()`、編集のボタンが `canOpenDocumentEditor()`）。表の組み合わせは、処理（`manager/processors/` と `manager/actions/` の先頭の確かめ）が今求める条件に合わせてあり、通る経路が複数ある操作（移動は a=51 から a=52）は、すべての経路の条件を合わせたもの。つまり、ロールの権限の面では、出た入口は押せば通る。処理の条件に意味の通らないもの（移動が `publish_document`・`edit_document` を求める、削除が `save_document` を求めない）が残るのは、権限の意味の決め直しを、依存の表とあわせて後で行うため（#1357 の第 3 段階。分かっている課題の節）
+- 例外は、編集画面（a=27）を開く入口。処理は `view_document`（ロールの編集画面でオンに固定）しか見ないので入口の条件にならず、入口は `edit_document` で出し分ける（`document.edit`）
+- 下書きの画面・ボタン（a=131・132・128、下書きの保存・公開）、QuickManager の TV の編集（`save_document`）、文書の編集画面の中の公開の切り替え（`publish_document`）は、表を引かず権限名を直接見る。操作の入口でなく、画面の中の項目のため
 
 ### ManagerAPI の判定
 
@@ -174,17 +185,18 @@
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
-| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。QuickManager の追加ボタンが使う |
+| `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理などが使う（前の節。知らない操作は `InvalidArgumentException`） |
+| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。新規作成の権限（`can('document.create')`）・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager の追加ボタンが使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
-| `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。`new_document` は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
+| `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。新規作成の権限は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
 | `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 | `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
 | `hasDocumentGroupCollision()` | 文書グループの「衝突」の知らせを出すか（出すグループがあるのに所属が 0 で、管理者でなく、グループの権限のどちらかを持つ）。文書・下書きの編集画面が使う |
-| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュールのアイコンが使う（知らない種類は `InvalidArgumentException`）。種類と権限名の対応は ManagerAPI の `ELEMENT_PERMISSIONS` が 1 か所で持つ |
+| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`。表の `element.<種類>.manage`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュールのアイコンが使う（知らない種類は `InvalidArgumentException`） |
 | `canOpenElementManager()` | エレメントの管理（a=76）のメニューを出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
-| `canSaveAnyElement()` | いずれかのエレメントを保存できるか（`save_X` のどれか）。カテゴリの削除とエレメントの管理の削除リンクが使う |
+| `canSaveAnyElement()` | いずれかのエレメントを保存できるか（表の `element.<種類>.save` のどれか）。カテゴリの削除とエレメントの管理の削除リンクが使う |
 
 ### DocumentParser の判定
 
@@ -202,8 +214,8 @@
 
 | 入口 | 判定 |
 | --- | --- |
-| ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`） | `canCreateDocumentUnder(0)`（`new_document` と `canUseRootAsParent()`） |
-| 親の選択のルートの項目（`parent_picker.dynamic.php`） | `canUseRootAsParent()`（`new_document` は不要） |
+| ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`） | `canCreateDocumentUnder(0)`（新規作成の権限と `canUseRootAsParent()`） |
+| 親の選択のルートの項目（`parent_picker.dynamic.php`） | `canUseRootAsParent()`（新規作成の権限は不要） |
 | メインメニューの新規作成（`manager/frames/menu.php`）・ダッシュボードの新規作成（`welcome.php`） | `canCreateDocumentUnder(0)` |
 | 保存後の「続けて新規」（`save_resource.processor.php` の `goNextAction()`） | 親がルートで `canCreateDocumentUnder(0)` が偽なら、「続けて編集」に戻す。新規作成の画面（a=4・72）そのものは止めない（フォームで親を選べるため） |
 | 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
@@ -239,7 +251,8 @@
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 の続き | モジュールの管理（a=106）の入口は `exec_module` も通すが、メニュー・ダッシュボードのモジュールのアイコンは `new_module` または `edit_module`（`canManageElement('module')`）で出していて、入口と一致しない |
-| #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
+| #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが残る（移動が `publish_document`・`edit_document` を求める一方、削除・元に戻すは `save_document` を求めない。編集画面を開く入口は `edit_document` だが、処理は `view_document` しか見ない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
+| #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作は済み。文書以外の入口は食い違いが残る）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
 ## 関連ドキュメント
 
