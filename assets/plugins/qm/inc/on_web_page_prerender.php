@@ -43,7 +43,7 @@ else {
             $controls .= $editButton;
         }
 
-        if ($this->addbutton == 'true' && $access) {
+        if ($this->addbutton == 'true' && manager()->canCreateDocumentUnder($docID)) {
             // Add button
             $addButton = '
 <li class="qmAdd">
@@ -51,10 +51,7 @@ else {
 </li>
 ';
 
-            // Does user have permissions to add document
-            if (evo()->hasPermission('new_document')) {
-                $controls .= $addButton;
-            }
+            $controls .= $addButton;
         }
 
         // Custom add buttons if not empty and enough permissions
