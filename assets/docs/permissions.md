@@ -180,6 +180,11 @@
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。`new_document` は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
 | `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
+| `isAdmin()` | `access_permissions` と `web_access_permissions` の両方を持つか。同じ式を書き写さずにこれを呼ぶ |
+| `hasDocumentGroupCollision()` | 文書グループの「衝突」の知らせを出すか（出すグループがあるのに所属が 0 で、管理者でなく、グループの権限のどちらかを持つ）。文書・下書きの編集画面が使う |
+| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`）。エレメントの管理（a=76）のタブと一覧、メニューのモジュールが使う。種類と権限名の対応は ManagerAPI の `ELEMENT_PERMISSIONS` が 1 か所で持つ |
+| `canManageAnyElement()` | エレメントの管理のメニューを出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
+| `canSaveAnyElement()` | いずれかのエレメントを保存できるか（`save_X` のどれか）。カテゴリの削除とエレメントの管理の削除リンクが使う |
 
 ### DocumentParser の判定
 
