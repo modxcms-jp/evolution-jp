@@ -145,6 +145,7 @@ $_lang['DM_process_update_success'] = 'Update was completed successfully, with n
 $_lang['DM_process_update_error'] = 'Update has completed but encountered errors:';
 $_lang['DM_process_date_invalid'] = 'Invalid date. Nothing was changed. Please check the date format.';
 $_lang['DM_process_no_permission'] = 'You do not have permission to change document group access.';
+$_lang['DM_process_no_access'] = 'You do not have access to these documents (document group), so they were skipped. ID:';
 $_lang['DM_process_back'] = 'Back';
 
 //-- manager access logging
