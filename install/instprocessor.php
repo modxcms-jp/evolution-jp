@@ -425,6 +425,14 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     log_install_event('Demo site installation completed successfully');
 }
 
+// 後片付け: 新規インストールもアップグレードも、文書グループの結びつきが変わった分を含め、
+// 全文書の非公開の印（privateweb・privatemgr）を ManagerAPI で計算し直す。
+// マイグレーションの記録より前に行う。記録が済むと公開側の停止が解けるので、そのあとに全件を 0 にして付け直すと、
+// 途中で止まったときや計算中に、非公開の文書が公開側に出る。前なら、失敗しても未記録のまま残り、流し直しで直る
+manager()->setWebDocsAsPrivate();
+manager()->setMgrDocsAsPrivate();
+log_install_event('Recalculated document private flags');
+
 // マイグレーションの記録は、必須の処理がすべて成功したあとに行う。記録が済むと hasPending() が false になり、公開側の停止が解けるため。
 // 新規インストールは最終形をそのまま作ったので流さずに適用済みとだけ記録し、アップグレードは流した ID を記録する
 if ($errors == 0) {
@@ -456,12 +464,6 @@ if ($errors == 0) {
 } else {
     log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
-
-// 新規インストールもアップグレードも、文書グループの結びつきが変わった分を含め、
-// 全文書の非公開の印（privateweb・privatemgr）を ManagerAPI で計算し直す
-manager()->setWebDocsAsPrivate();
-manager()->setMgrDocsAsPrivate();
-log_install_event('Recalculated document private flags');
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
