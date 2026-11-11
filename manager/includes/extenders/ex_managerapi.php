@@ -718,8 +718,28 @@ class ManagerAPI
         if ($role === false || $role === null) {
             return;
         }
+        $role = $this->resolveMgrRole($role);
         sessionv('*mgrRole', $role);
         sessionv('*mgrPermissions', $this->getMgrPermissions($role));
+    }
+
+    /**
+     * いまのロールを決める。差し替えられるのは、DB のロールが 1 の利用者だけ。
+     * $forceRole が null のときは、ログインで残した差し替え（mgrForceRole）を使い、
+     * DB のロールが 1 でなくなっていれば（降格など）、それを捨てて DB のロールにする。
+     * ログイン時は、指定された候補を $forceRole に渡す（セッションには触れない）
+     */
+    public function resolveMgrRole($dbRole, $forceRole = null)
+    {
+        $fromSession = $forceRole === null;
+        $forceRole = (int) ($fromSession ? sessionv('mgrForceRole', 0) : $forceRole);
+        if ($forceRole && (int) $dbRole === 1) {
+            return $forceRole;
+        }
+        if ($fromSession && $forceRole) {
+            sessionv('*mgrForceRole', null);
+        }
+        return $dbRole;
     }
 
     public function getMemberGroups($uid = 0)
