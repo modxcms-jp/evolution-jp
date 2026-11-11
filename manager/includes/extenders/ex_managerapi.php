@@ -820,6 +820,53 @@ class ManagerAPI
         return $ids;
     }
 
+    /**
+     * 文書グループを削除する
+     *
+     * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
+     * 名前・文書との結びつき・管理側とWeb 側のユーザーグループとの結びつきをすべて消し、
+     * そのグループに付いていた文書の privatemgr / privateweb を計算し直す。
+     *
+     * @param int $groupId
+     * @return bool 失敗したら false
+     */
+    public function deleteDocumentGroup($groupId)
+    {
+        $groupId = (int)$groupId;
+        if ($groupId <= 0) {
+            return false;
+        }
+
+        // 削除すると対象の文書が分からなくなるので、先に集める
+        $rs = db()->select(
+            'document',
+            '[+prefix+]document_groups',
+            sprintf('document_group=%d', $groupId)
+        );
+        $docIds = db()->getColumn('document', $rs) ?: [];
+
+        $result = true;
+        $targets = [
+            ['[+prefix+]documentgroup_names', 'id'],
+            ['[+prefix+]document_groups', 'document_group'],
+            ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]webgroup_access', 'documentgroup'],
+        ];
+        foreach ($targets as [$table, $column]) {
+            if (!db()->delete($table, sprintf('%s=%d', $column, $groupId))) {
+                $result = false;
+            }
+        }
+
+        foreach ($docIds as $docId) {
+            $docId = (int)$docId;
+            $this->setMgrDocsAsPrivate($docId);
+            $this->setWebDocsAsPrivate($docId);
+        }
+
+        return $result;
+    }
+
     public function getStylePath()
     {
         return MODX_MANAGER_PATH . 'media/style/';

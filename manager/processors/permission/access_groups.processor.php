@@ -79,14 +79,8 @@ switch (request_choicevar('operation', ['add_user_group', 'add_document_group', 
         if (empty($group)) {
             warning("No document group name specified for deletion");
         } else {
-            if (!db()->delete($tbl_documentgroup_names, "id='{$group}'")) {
-                warning("Unable to delete group. SQL failed.");
-            }
-            if (!db()->delete($tbl_membergroup_access, "documentgroup='{$group}'")) {
-                warning("Unable to delete group from access table. SQL failed.");
-            }
-            if (!db()->delete($tbl_document_groups, "document_group='{$group}'")) {
-                warning("Unable to delete document-group links. SQL failed.");
+            if (!manager()->deleteDocumentGroup($group)) {
+                warning("Unable to delete document group. SQL failed.");
             }
         }
         break;
