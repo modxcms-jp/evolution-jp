@@ -667,6 +667,88 @@ class ManagerAPI
         return true;
     }
 
+    /**
+     * エレメントの種類ごとの権限名（新規・編集・保存）。
+     * 種類は template・snippet・chunk・plugin・module（TV はテンプレートの権限に従う）
+     */
+    private const ELEMENT_PERMISSIONS = [
+        'template' => ['new_template', 'edit_template', 'save_template'],
+        'snippet' => ['new_snippet', 'edit_snippet', 'save_snippet'],
+        'chunk' => ['new_chunk', 'edit_chunk', 'save_chunk'],
+        'plugin' => ['new_plugin', 'edit_plugin', 'save_plugin'],
+        'module' => ['new_module', 'edit_module', 'save_module'],
+    ];
+
+    /**
+     * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧
+     *
+     * @param string $type template・snippet・chunk・plugin・module
+     * @return bool 知らない種類は false
+     */
+    public function canManageElement($type)
+    {
+        if (!isset(self::ELEMENT_PERMISSIONS[$type])) {
+            return false;
+        }
+        [$new, $edit] = self::ELEMENT_PERMISSIONS[$type];
+        return hasPermission($new) || hasPermission($edit);
+    }
+
+    /**
+     * エレメントの管理（a=76）のメニューを出すか。
+     * テンプレート・スニペット・チャンク・プラグインのどれかを管理できる（モジュールは含まない）。
+     * 使う場所: manager/frames/menu.php
+     *
+     * @return bool
+     */
+    public function canManageAnyElement()
+    {
+        foreach (['template', 'snippet', 'chunk', 'plugin'] as $type) {
+            if ($this->canManageElement($type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * テンプレート・スニペット・チャンク・プラグイン・モジュールのどれかを保存できるか。
+     * 使う場所: カテゴリの削除（delete_category.processor.php）と、エレメントの管理の削除リンク
+     *
+     * @return bool
+     */
+    public function canSaveAnyElement()
+    {
+        foreach (self::ELEMENT_PERMISSIONS as $permissions) {
+            if (hasPermission($permissions[2])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 文書グループの「衝突」の知らせを出すか。
+     * 出すグループがあるのに、利用者がどれにも所属していない（そのため選べるグループが無い）。
+     * 管理者（isAdmin()）は対象外で、グループの権限（access_permissions・web_access_permissions）の
+     * どちらかを持つときだけ。
+     * 使う場所: 文書の編集・下書きの編集画面（mutate_content.dynamic.php・mutate_draft.dynamic.php）
+     *
+     * @return bool
+     */
+    public function hasDocumentGroupCollision()
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+        $access = $this->documentGroupAccess();
+        if ($access['yes'] != 0 || $access['no'] <= 0) {
+            return false;
+        }
+        return hasPermission('access_permissions') || hasPermission('web_access_permissions');
+    }
+
     // get user's document groups
     public function getMgrDocgroups($uid = 0)
     {
