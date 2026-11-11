@@ -74,6 +74,8 @@ if (!sessionv('tree_sortdir')) {
             var mnu = document.getElementById('mx_contextmenu');
             var permpub = <?= manager()->can('document.publish') ? 1 : 0 ?>;
             var permdel = <?= manager()->can('document.delete') ? 1 : 0 ?>;
+            // 下書きのある文書の「編集」の出し分けだけが使う。公開・非公開の項目の権限（permpub）とは別で、publish_document の有無そのもの
+            var hasPublishPermission = <?= evo()->hasPermission('publish_document') ? 'true' : 'false' ?>;
             // 権限や設定によって出ない項目もあるため、あるときだけ切り替える
             function showItem(id, shown) {
                 var item = document.getElementById(id);
@@ -91,7 +93,8 @@ if (!sessionv('tree_sortdir')) {
                 showItem('item62', true);
                 if (pub == 1) showItem('item61', false);
                 else showItem('item62', false);
-            } else {
+            }
+            if (!hasPublishPermission) {
                 if (draft == 1) showItem('item27', false);
                 else showItem('item27', true);
             }
