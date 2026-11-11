@@ -1239,6 +1239,7 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
+        sessionv('*mgrForceRole', null); // 前のログインで差し替えたロールを引き継がない
         if (!$this->manager) {
             $this->loadExtension('ManagerAPI');
         }
