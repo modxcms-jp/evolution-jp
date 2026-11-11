@@ -94,7 +94,7 @@
 - ロールの削除は、ロール 1 を削除させない（`manager/processors/permission/delete_role.processor.php`）
 - 設定の確認（`manager/includes/config_check.inc.php`）は、ロール 1 でログインしていると警告を出す
 - メニューのモジュール一覧は、ロール 1 でなければ実行できるモジュールだけに絞る（`manager/frames/menu.php`）
-- ログインのとき、ユーザー名に `:roleid=N` を付けると、ロール 1 のユーザーはセッションのロールを N にして入る（`forceRole`。`manager/processors/login.processor.functions.php`）。ただし管理画面のリクエストごとの読み直し（`manager/includes/accesscontrol.inc.php` の `refreshMgrPermissions()`）で元のロールに戻るため、実質は効かない（#1376）
+- ログインのとき、ユーザー名に `:roleid=N` を付けると、DB のロールが 1 のユーザーはロール N（試したいロールの確認用）として入る（`manager/processors/login.processor.functions.php`）。選んだロールはセッション `mgrForceRole` に残り、ログアウトまで保つ。判定は `ManagerAPI::resolveMgrRole()` で、リクエストごとの読み直し（`refreshMgrPermissions()`）もこれを通す。DB のロールが 1 でなくなったら捨てて DB のロールにする。存在しないロールを指定すると、認証が通った後でログイン失敗にする。`auth_token` でのログインは、残った差し替えを消す
 - アップグレード（`manager/includes/migrations/00000000_baseline.php`）は、足した権限の列をロール 1 にだけ 1 で入れ、ロール 1 が無ければ作り、メールの送信元が初期値（you@example.com）のままのときだけ、ロール 1 のユーザーのうち ID が最も小さい人のアドレスにする
 
 ## 文書グループ
@@ -175,11 +175,11 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 | `canOpenWithDocumentGroups($groupIds)` | 保存前の文書グループの集合が付いた文書を開けるか（保存で文書グループを変えたあとに開けなくなる状態を作らない） |
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
-| `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。`view_document` の権限・許可するリソースの範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）を見る。QuickManager のボタンの表示と TV の保存が使う。管理画面の入口の範囲の判定は `isAllowed()` で、削除済みの文書の下などでは食い違う（#1372） |
+| `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。`view_document` の権限・許可するリソースの範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）を見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
 | `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `isAllowroot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | ルート直下に作ってよいか（`bypassesDocumentGroups()` または `udperms_allowroot`） |
-| `isInAllowedParents($id)`・`isAllowed($id)` | 許可するリソースの範囲の中か（次の節） |
+| `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 
 ### DocumentParser の判定
 
@@ -195,14 +195,18 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 
 利用者ごとの設定 `allowed_parents` に、編集を許可する親の文書の id（空白・カンマ・`|` 区切り）を書く。ユーザー編集画面の「許可するリソース」で、空なら制限しない。0 を含めるとサイト全体を許可する。
 
-文書がこの範囲の中かの判定が、2 通りある。
+文書がこの範囲の中かの基準は 1 つで、`ManagerAPI::isInAllowedParents($id)` が正。許可した親の文書そのものか、その子孫（深さの制限なし、削除済みも含む）なら範囲の中。設定が空、または 0 を含むときは制限なし（0 を含まないとき、ルートは範囲の外）。範囲を使う判定は、すべてこの基準にそろえてある。
 
-| メソッド | 範囲のたどり方 | 使う場所 |
+| メソッド | 返すもの | 使う場所 |
 | --- | --- | --- |
-| `isAllowed($id)` | `getUserAllowedDocs()` が、許可した親の下を `getChildIds()` で深さ 10 まで、削除済みでない文書だけたどって作る一覧に含まれるか。`$id` を省くとリクエストの `pid` を見る | 文書の編集画面の入口（`manager/actions/document/mutate_content/functions.php`）・文書の情報（`manager/actions/document/document_data.static.php`）・リソース一覧。ツリーとリソース一覧の行は、子に許可された文書を含むかを見る `isContainAllowed()` を通す（中で `isAllowed()` を使う） |
-| `isInAllowedParents($id)` | 文書の祖先を `getAncestorIds()` で親の ID から直接たどり、許可した親が含まれるか。深さの制限がなく、削除済みも含める | 文書の保存・移動・複製・公開の切り替え・削除・元に戻す・ドラフトの保存と公開など、文書を変える処理（`manager/processors/document/` 以下）と、移動先の親の確認（`parentChangeDeniedMessage()`） |
+| `isInAllowedParents($id)` | 1 つの文書が範囲の中か。祖先を `getAncestorIds()` で DB の親からたどる | 文書の編集画面の入口（`documentEditorDenial()` 経由）・文書を変える処理（保存・移動・複製・公開の切り替え・削除・元に戻す・ドラフトの保存と公開など。`manager/processors/document/` 以下）・移動先の親の確認（`parentChangeDeniedMessage()`） |
+| `allowedDocsCondition($alias)` | 範囲の中の文書に絞る SQL の条件式（前に `AND` を付けない。制限なしなら空文字）。許可した親から子孫の ID を集めて `IN` で絞る | ツリーの子の問い合わせ（`manager/frames/nodes.php`）・親の選択 |
+| `getUserAllowedDocs()` | 範囲の中の文書の ID の配列。戻り値は 3 通りで、制限なしは `[]`、正しい ID が 1 つも無いときは `''`、それ以外は ID の配列（リクエスト内でキャッシュ） | `allowedDocsCondition()`・`isContainAllowed()` |
+| `isContainAllowed($id)` | ツリー・一覧に出してよいか。範囲の中、または範囲の頂点へたどる途中の祖先なら true。行ごとに呼ぶため DB に問い合わせず、`getUserAllowedDocs()` と `allowedParentAncestorIds()` で判定する | ツリーとリソース一覧の行 |
+| `allowedParentAncestorIds()` | 許可した親それぞれの祖先の ID（ツリーに出す・初期に開くために使う） | ツリーの初期表示（`manager/frames/tree.php`）・`isContainAllowed()` |
+| `isAllowed($id)` | `isInAllowedParents()` と同じ判定。`$id` が 0 のときはリクエストの `pid` を見る（`pid` が無ければ true）。外部のコードが使うことがあるので残している | 新しいコードは `isInAllowedParents()` を使う |
 
-このため、許可した親から 11 段目以降にある文書（許可した親の子を 1 段目とする。`getChildIds()` の深さ 10 の外）・削除済みの文書・祖先に削除済みの文書がある文書は、2 つの判定が食い違う。#1372。
+新規作成の画面（a=4・72）は、作成先の親の範囲を保存の処理が確かめる。`id` を付けた要求は、その文書を読むので、入口でその文書の範囲を `isInAllowedParents()` で確かめる。
 
 ## 分かっている課題
 
@@ -212,9 +216,7 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 | --- | --- |
 | #1378 | グループ管理で結びつきを変えても、ページキャッシュを消さない |
 | #1383 | DocManager が、文書の非公開の印を自前の規則で計算する（本体の ManagerAPI と規則が 2 か所） |
-| #1376 | ログインでロールを差し替える `forceRole` が、次のリクエストで元のロールに戻される |
 | #1356 | 文書をルートに置けるかの扱いが、新規の作成と移動・親の選択で違う（`isAllowroot()` と `use_udperms` の関係） |
-| #1372 | 許可するリソースの範囲の判定が、編集画面の入口（`isAllowed()`）と保存（`isInAllowedParents()`）で違う |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
