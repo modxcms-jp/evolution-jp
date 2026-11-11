@@ -3,6 +3,8 @@
 class DocManagerBackend
 {
     public $dm = null;
+    /** @var int 直前の processRange() で、文書グループの制限により対象から外した文書の数 */
+    private $skippedCount = 0;
 
     public function __construct(&$dm)
     {
@@ -53,11 +55,13 @@ class DocManagerBackend
         $resource = [];
         $parentId = to_uintvar($id);
         if ($parentId !== null) {
+            // 開けない文書（文書グループ）は一覧に出さない
+            $accessCondition = $this->accessCondition();
             $rs = db()->select(
-                'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
-                '[+prefix+]site_content',
-                where('parent', '=', $parentId),
-                'menuindex ASC'
+                'sc.id,sc.pagetitle,sc.parent,sc.menuindex,sc.published,sc.hidemenu,sc.deleted,sc.isfolder',
+                '[+prefix+]site_content sc',
+                'sc.parent=' . (int)$parentId . ($accessCondition !== '' ? ' AND ' . $accessCondition : ''),
+                'sc.menuindex ASC'
             );
             if (!$rs) {
                 return false;
@@ -110,25 +114,63 @@ class DocManagerBackend
 
     public function changeSort($items)
     {
+        $skipped = [];
         if (strlen($items) > 0) {
-            $items = explode(';', $items);
-            foreach ($items as $key => $value) {
-                $key++;
+            $order = [];
+            foreach (explode(';', $items) as $key => $value) {
                 $id = to_intvar(ltrim($value, 'item_'));
                 if ($id > 0) {
-                    $sql = sprintf(
-                        "UPDATE %s set menuindex=%s WHERE id=%s",
-                        evo()->getFullTableName('site_content'),
-                        (int)$key,
-                        (int)$id
-                    );
-                    db()->query($sql);
+                    $order[$id] = $key + 1;
                 }
+            }
+            [$accessible, $skipped] = $this->splitAccessibleIds(array_keys($order));
+            $menuindexes = $order;
+            if ($this->accessCondition() !== '' && $accessible) {
+                // 絞られる利用者は、見えない同じ親の子と menuindex が重ならないよう、
+                // 開ける子が今持つ値を、新しい順番へ割り当て直す（値は必ず増える形に整える）
+                $current = [];
+                $rs = db()->select(
+                    'id,menuindex',
+                    '[+prefix+]site_content',
+                    'id IN (' . implode(',', array_map('intval', $accessible)) . ')'
+                );
+                while ($row = db()->getRow($rs)) {
+                    $current[(int)$row['id']] = (int)$row['menuindex'];
+                }
+                $accessible = array_values(array_filter($accessible, function ($id) use ($current) {
+                    return isset($current[$id]);
+                }));
+                usort($accessible, function ($x, $y) use ($order) {
+                    return $order[$x] <=> $order[$y];
+                });
+                $values = array_values($current);
+                sort($values);
+                foreach ($values as $i => $v) {
+                    if ($i > 0 && $v <= $values[$i - 1]) {
+                        $values[$i] = $values[$i - 1] + 1;
+                    }
+                }
+                $menuindexes = [];
+                foreach ($accessible as $i => $id) {
+                    $menuindexes[$id] = $values[$i];
+                }
+            }
+            foreach ($accessible as $id) {
+                $sql = sprintf(
+                    "UPDATE %s set menuindex=%s WHERE id=%s",
+                    evo()->getFullTableName('site_content'),
+                    (int)$menuindexes[$id],
+                    (int)$id
+                );
+                db()->query($sql);
             }
             $this->logDocumentChange('sortmenu');
             evo()->clearCache();
         }
         $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_updated'];
+        if ($skipped) {
+            $this->dm->ph['sort.message'] .= $this->skippedNotice(count($skipped));
+        }
         $this->dm->ph['sort.save'] = 'none';
         $this->dm->ph['sort.disable_tree_select'] = 'true';
         return $this->dm->parseTemplate('sort_list.tpl', $this->dm->ph);
@@ -141,20 +183,25 @@ class DocManagerBackend
         $error = $results[1];
 
         $templateId = to_uintvar($template);
+        $written = false;
         if ($pids !== '' && $templateId !== null) {
             $values = rtrim($pids, ' OR ');
             $fields = ['template' => $templateId];
             db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
+            $written = true;
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
+        if ($written) {
+            evo()->clearCache();
+        }
         if (!$error) {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_success'];
-            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
 
         $this->logDocumentChange('template');
@@ -290,6 +337,7 @@ class DocManagerBackend
         if ($updateError) {
             $this->dm->ph['update.message'] .= '<br />' . $updateError;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
 
         evo()->clearCache();
@@ -379,6 +427,7 @@ class DocManagerBackend
         } else {
             $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->logDocumentChange('docpermissions');
         return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
     }
@@ -501,12 +550,15 @@ class DocManagerBackend
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
+        if ($new) {
+            evo()->clearCache();
+        }
         if (!$error) {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_success'];
-            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
 
         return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
     }
@@ -517,13 +569,13 @@ class DocManagerBackend
         $values = [];
         $idarray = [];
         $error = '';
+        $this->skippedCount = 0;
 
         if (trim($pids) !== '') {
             $values = explode(',', $pids);
         } else {
             $error .= $this->dm->lang['DM_process_novalues'];
         }
-        $pids = '';
         $rs = db()->select('MAX(id)', $tbl_site_content);
         $total = db()->getValue($rs);
 
@@ -547,11 +599,7 @@ class DocManagerBackend
 
                 $loop = $match[1] - $match[0];
                 for ($i = 0; $i <= $loop; $i++) {
-                    if ($returnval == 0) {
-                        $idarray[] = ($i + $match[0]);
-                    } else {
-                        $pids .= '' . $column . "='" . (int) ($i + $match[0]) . '\' OR ';
-                    }
+                    $idarray[] = (int) ($i + $match[0]);
                 }
             } elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
                 /* value is a group for immediate children */
@@ -559,18 +607,10 @@ class DocManagerBackend
 
                 $group = db()->select('id', $tbl_site_content, 'parent=' . (int)$match);
 
-                if ($returnval == 0) {
-                    $idarray[] = $match;
-                } else {
-                    $pids .= '' . $column . '=\'' . (int) $match . '\' OR ';
-                }
+                $idarray[] = (int) $match;
                 if (db()->count($group) > 0) {
                     while ($row = db()->getRow($group)) {
-                        if ($returnval == 0) {
-                            $idarray[] = ($row['id']);
-                        } else {
-                            $pids .= '' . $column . '=\'' . (int) $row['id'] . '\' OR ';
-                        }
+                        $idarray[] = (int) $row['id'];
                     }
                 }
             } elseif (preg_match('/^[\d]+\*\*$/', $value, $match)) {
@@ -605,32 +645,92 @@ class DocManagerBackend
                 }
 
                 foreach ($descendants as $descendantId) {
-                    if ($returnval == 0) {
-                        $idarray[] = $descendantId;
-                    } else {
-                        $pids .= $column . "='" . (int) $descendantId . "' OR ";
-                    }
+                    $idarray[] = $descendantId;
                 }
             } elseif (preg_match('/^[\d]+$/', $value, $match)) {
-                if ($returnval == 0) {
-                    $idarray[] = ($match[0]);
-                } else {
-                    $pids .= $column . "='" . (int) $value . "' OR ";
-                }
+                $idarray[] = (int) $match[0];
             } else {
                 $error .= $this->dm->lang['DM_process_invalid_error'] . hsc($value) . '<br />';
             }
         }
 
+        // 開けない文書（文書グループ）は対象から外す。判定は splitAccessibleIds() の 1 か所で、
+        // 範囲の入力を受ける更新はこの関数を通る。外した数は skippedNotice() でお知らせとして出す（エラーにしない）
+        [$idarray, $skipped] = $this->splitAccessibleIds($idarray);
+        $this->skippedCount = count($skipped);
+
         if ($returnval == 0) {
-            $results[] = $idarray;
-            $results[] = $error;
-        } else {
-            $results[] = $pids;
-            $results[] = $error;
+            return [$idarray, $error];
         }
 
-        return $results;
+        $pids = '';
+        foreach ($idarray as $id) {
+            $pids .= $column . "='" . (int) $id . "' OR ";
+        }
+        return [$pids, $error];
+    }
+
+    /**
+     * 文書グループで絞る SQL の条件式（site_content の別名 sc）。絞らないときは空文字。判定の入口はここ 1 か所
+     *
+     * @return string
+     */
+    private function accessCondition()
+    {
+        return manager()->documentAccessCondition('sc');
+    }
+
+    /**
+     * 文書の id を、文書グループで開けるものと、存在するが開けないものに分ける（ManagerAPI の判定を使う）。
+     * 絞らないとき（管理者・use_udperms 無効）は何も除かない。存在しない id は除かない（呼び出し側の既存の扱いのまま）
+     *
+     * @param int[] $ids
+     * @return array [開けるまたは存在しない id の配列, 開けない id の配列]
+     */
+    private function splitAccessibleIds(array $ids)
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        $condition = $this->accessCondition();
+        if ($condition === '' || !$ids) {
+            return [$ids, []];
+        }
+
+        $denied = [];
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            $rs = db()->select(
+                'sc.id',
+                '[+prefix+]site_content sc',
+                'sc.id IN (' . implode(',', $chunk) . ') AND NOT (' . $condition . ')'
+            );
+            while ($row = db()->getRow($rs)) {
+                $denied[(int)$row['id']] = true;
+            }
+        }
+        if (!$denied) {
+            return [$ids, []];
+        }
+
+        $accessible = array_values(array_filter($ids, function ($id) use ($denied) {
+            return !isset($denied[$id]);
+        }));
+        $skipped = array_keys($denied);
+        sort($skipped);
+        return [$accessible, $skipped];
+    }
+
+    /**
+     * 外した文書の数を伝えるお知らせ（エラーとは別。id は出さない）。外していなければ空文字
+     *
+     * @param int $count 省略時は直前の processRange() の数
+     * @return string
+     */
+    private function skippedNotice($count = null)
+    {
+        $count = $count ?? $this->skippedCount;
+        if ($count <= 0) {
+            return '';
+        }
+        return '<br />' . sprintf($this->dm->lang['DM_process_no_access'], (int)$count);
     }
 
     function getTemplateVarIds($documentId, $tvNames = [], $ignoreList = [])
