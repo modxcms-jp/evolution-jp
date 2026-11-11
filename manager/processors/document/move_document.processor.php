@@ -37,7 +37,7 @@ if ($new_parent === null) {
     alert()->dumpError();
 }
 // 自分自身・子孫・存在しないリソースへは移動しない（複数移動ではすべてのリソースについて確かめる）
-// 先頭の文書の親が移動先と同じでも、ほかの文書が対象になりうるため、親が変わるかに関わらずここで確かめる
+// 権限のエラーや「新しい親を選んでください」より先に、自分自身・子孫のエラーを出すため、親が変わるかに関わらずここで確かめる
 $invalid_parent = manager()->invalidParentMessage($doc_ids, $new_parent);
 if ($invalid_parent !== '') {
     alertAndQuit($invalid_parent, $doc_ids[0]);

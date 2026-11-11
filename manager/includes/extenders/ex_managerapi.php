@@ -1100,8 +1100,10 @@ class ManagerAPI
             return $message;
         }
         // ルートへの変更は、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
-        $canPlace = $parentId === 0 ? $this->canPlaceAtRoot() : evo()->checkPermissions($parentId);
-        if (!$canPlace || !$this->isInAllowedParents($parentId)) {
+        if ($parentId === 0) {
+            return $this->canUseRootAsParent() ? '' : lang('access_permission_parent_denied');
+        }
+        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
             return lang('access_permission_parent_denied');
         }
         return '';
@@ -1706,9 +1708,21 @@ class ManagerAPI
         }
         $parentId = (int)$parentId;
         if ($parentId <= 0) {
-            return $this->canPlaceAtRoot() && $this->isInAllowedParents(0);
+            return $this->canUseRootAsParent();
         }
         return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
+    }
+
+    /**
+     * ルート（親が 0）を親にできるか。ルートに置いてよい（canPlaceAtRoot()）うえで、
+     * ルートが許可するリソースの範囲の中にある（isInAllowedParents(0)）ときだけ true。
+     * 新規作成・移動・インポートなど、ルートを親にする入口の判定の正。new_document は見ない
+     *
+     * @return bool
+     */
+    public function canUseRootAsParent()
+    {
+        return $this->canPlaceAtRoot() && $this->isInAllowedParents(0);
     }
 
     /**

@@ -315,7 +315,7 @@ echo get_jscript($id, $cm);
             $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
             // 2 行目: 作成のボタン（表に子を足す操作）とページ送り。0 件でも作成のボタンは出す
             $createButtons = '';
-            if (hasPermission('new_document') && ($id != 0 || (manager()->canPlaceAtRoot() && manager()->isInAllowedParents(0)))) {
+            if (hasPermission('new_document') && ($id != 0 || manager()->canCreateDocumentUnder(0))) {
                 $createButtons = sprintf(
                     '<ul class="actionButtons resources-list-create">'
                     . '<li class="mutate"><a href="index.php?a=4&amp;pid=%1$d">%2$s</a></li>'
