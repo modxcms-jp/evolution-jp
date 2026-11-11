@@ -275,8 +275,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_contentvalues`
     `value`     mediumtext,
     PRIMARY KEY (`id`),
     KEY `idx_tmplvarid` (`tmplvarid`),
-    KEY `idx_id` (`contentid`),
-    FULLTEXT KEY `value_ft_idx` (`value`)
+    KEY `idx_id` (`contentid`)
 ) {TABLE_OPTION} COMMENT ='Site Template Variables Content Values Link Table';
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}site_tmplvar_templates`

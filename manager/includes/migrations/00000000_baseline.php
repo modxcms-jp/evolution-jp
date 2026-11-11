@@ -262,7 +262,7 @@ return static function (EvoMigrationHelper $m) {
         $m->addIndex($table, $name, $columns, 'UNIQUE');
     }
 
-    // 6. 通常の索引と FULLTEXT
+    // 6. 通常の索引
     // 作るだけで足りるもの（無ければ作り、違えば作り直す）
     $m->addIndex('user_settings', 'setting_name', ['setting_name']);
     $m->addIndex('user_settings', 'user', ['user']);
@@ -275,16 +275,10 @@ return static function (EvoMigrationHelper $m) {
     // 最終形に無い索引
     $m->dropIndexIfExists('site_content', 'content_ft_idx');
     $m->dropIndexIfExists('site_content', 'id');
-    // コアは使っていない（MATCH ... AGAINST は無い）が、外部のスニペットが使うかもしれないので新規インストールとそろえる。
-    // 大きな表では作るのに時間がかかるので、かかった秒数を残す
-    $started = microtime(true);
-    if ($m->addIndex('site_tmplvar_contentvalues', 'value_ft_idx', ['value'], 'FULLTEXT')) {
-        $m->log('Created the FULLTEXT index', [
-            'table' => 'site_tmplvar_contentvalues',
-            'index' => 'value_ft_idx',
-            'seconds' => round(microtime(true) - $started, 2),
-        ]);
-    }
+    // site_tmplvar_contentvalues の FULLTEXT 索引（value_ft_idx）は作らない。標準のパーサーは空白で語を区切るので
+    // 日本語の文では働かず、コアも同梱の拡張も使っていない（MATCH ... AGAINST は無い）。TV の値の保存のたびに
+    // 索引の更新がかかり、InnoDB の FULLTEXT に対応していない DB（MySQL 5.5 など）ではアップデートも止めていた。
+    // すでにある索引は、外部の処理が使っているかもしれないので消さない
 
     // 7. type の推定。type が空の行だけ（条件が type='' なので、何度流しても同じ）
     if ($m->columnExists('site_content', 'type')) {
