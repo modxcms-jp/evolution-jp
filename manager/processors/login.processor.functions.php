@@ -190,8 +190,11 @@ function user($key, $default = null)
         exit;
     }
 
-    if (($user['role'] == 1 && input('forceRole'))) {
-        $user['role'] = input('forceRole');
+    // ロール 1 の利用者がユーザー名に :roleid=N を付けたとき、そのロールで入る（managerLogin() が mgrForceRole に残す）
+    $user['forceRole'] = 0;
+    if ($user['role'] == 1 && input('forceRole') && (int) input('forceRole') !== 1) {
+        $user['forceRole'] = (int) input('forceRole');
+        $user['role'] = $user['forceRole'];
     }
     // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
     if (isExpiredTemporaryLock($user)) {
@@ -515,8 +518,22 @@ function isSameSiteUri($uri)
     return (bool) preg_match('@^/(?![/\\\\])@', $uri);
 }
 
+// 差し替え先のロールが無いときは、認証が通った後でログインを失敗にする
+// （ロール 1 のまま入ると、試したいロールより強い権限で入ってしまう。認証の前に弾くと、ロール 1 のユーザー名だと分かってしまう）
+function rejectUnknownForceRole()
+{
+    @session_destroy();
+    session_unset();
+    jsAlert('指定されたロールがありません');
+    exit;
+}
+
 function managerLogin()
 {
+    if (user('forceRole') && !manager()->getMgrPermissions(user('forceRole'))) {
+        rejectUnknownForceRole();
+    }
+
     session_regenerate_id(true);
 
     $_SESSION['usertype'] = 'manager'; // user is a backend user
@@ -530,6 +547,7 @@ function managerLogin()
     $_SESSION['mgrFailedlogins'] = user('failedlogincount');
     $_SESSION['mgrLogincount']   = user('logincount');        // login count
     $_SESSION['mgrRole']         = user('role');
+    sessionv('*mgrForceRole', user('forceRole') ?: null);
 
     $_SESSION['mgrPermissions'] = manager()->getMgrPermissions(user('role'));
     // successful login so reset fail count and update key values
