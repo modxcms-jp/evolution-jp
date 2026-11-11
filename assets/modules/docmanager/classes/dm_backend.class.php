@@ -56,7 +56,7 @@ class DocManagerBackend
         $parentId = to_uintvar($id);
         if ($parentId !== null) {
             // 開けない文書（文書グループ）は一覧に出さない
-            $accessCondition = manager()->documentAccessCondition('sc');
+            $accessCondition = $this->accessCondition();
             $rs = db()->select(
                 'sc.id,sc.pagetitle,sc.parent,sc.menuindex,sc.published,sc.hidemenu,sc.deleted,sc.isfolder',
                 '[+prefix+]site_content sc',
