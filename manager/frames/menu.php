@@ -264,9 +264,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $item['search'] = item($_lang['search'], 71);          // search
                     $item['resource_list'] = item($_lang['resources_list'], 120, evo()->hasPermission('view_document'));
                     $item['add_resource'] = item($_lang['add_resource'], 4,
-                        evo()->hasPermission('new_document')); // new-document
+                        manager()->canCreateDocumentUnder(0)); // new-document
                     $item['add_weblink'] = item($_lang['add_weblink'], 72,
-                        evo()->hasPermission('new_document')); // new-weblink
+                        manager()->canCreateDocumentUnder(0)); // new-weblink
 
                     // Resources Menu
                     if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')

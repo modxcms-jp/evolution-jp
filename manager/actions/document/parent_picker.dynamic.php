@@ -37,7 +37,7 @@ $searchUrl = 'index.php?' . http_build_query(['a' => 135, 'ajax' => 'search', 'i
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if (manager()->canPlaceAtRoot() && manager()->isInAllowedParents(0)): ?>
+        <?php if (manager()->canUseRootAsParent()): ?>
             <li><a href="#" id="parentPickerRoot"><?= hsc(lang('parent_picker_root')) ?></a></li>
         <?php endif; ?>
         <li class="mutate"><a href="#" onclick="EvoShell.closeModal({reloadMain: false}); return false;"><?= hsc(lang('cancel')) ?></a></li>

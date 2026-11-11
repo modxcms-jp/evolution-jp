@@ -35,6 +35,10 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 
         if (!postv('import')) {
             echo "<p>" . $_lang['import_site_message'] . "</p>";
+            // 既定の取り込み先はルート。置けない利用者には、親の選択を促す
+            if (!manager()->canUseRootAsParent()) {
+                echo sprintf('<p class="warning">%s</p>', hsc(lang('access_permission_parent_denied')));
+            }
         ?>
 
             <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
@@ -125,6 +129,19 @@ function run()
 
     $output = '';
 
+    // リセットはルートへの取り込みの一部として扱う。どの削除・更新よりも前に止める
+    // （リセットは親がルートのときだけ受け付ける。画面もリセットを親がルートのときだけ有効にしている）
+    $parent = post_intvar('parent');
+    $reset = postv('reset') === 'on';
+    if ($reset && $parent != 0) {
+        echo sprintf('<p><span class="fail">%s</span></p>', hsc(lang('access_permission_parent_denied')));
+        return '';
+    }
+    if (($parent == 0 || $reset) && !manager()->canUseRootAsParent()) {
+        echo sprintf('<p><span class="fail">%s</span></p>', hsc(lang('access_permission_parent_denied')));
+        return '';
+    }
+
     $maxtime = postv('maxtime', 120);
     if (!is_numeric($maxtime)) {
         $maxtime = 30;
@@ -136,13 +153,11 @@ function run()
     $mtime = $mtime[1] + $mtime[0];
     $importstart = $mtime;
 
-    if (postv('reset') === 'on') {
+    if ($reset) {
         db()->delete('[+prefix+]site_content');
         db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
         db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
     }
-
-    $parent = post_intvar('parent');
 
     if (is_dir(MODX_BASE_PATH . 'temp/import')) {
         $filedir = MODX_BASE_PATH . 'temp/import/';

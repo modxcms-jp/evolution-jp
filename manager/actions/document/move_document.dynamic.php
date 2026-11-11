@@ -90,11 +90,18 @@ function get_src_js()
     // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻してから渡す（ex_managerapi.php と同じ）
     $illegalParentSelf = js_literal(stripcslashes(lang('illegal_parent_self')));
     $illegalParentChild = js_literal(stripcslashes(lang('illegal_parent_child')));
+    // ルートへ移せるか（ルートに置けて、許可するリソースの範囲にもルートが含まれる）。移動の処理でも同じ判定をする
+    $rootAllowed = manager()->canUseRootAsParent() ? 'true' : 'false';
+    $parentDenied = js_literal(lang('access_permission_parent_denied'));
     $src = <<< EOT
 <script language="javascript">
 top.mainMenu.defaultTreeFrame();
 parent.tree.ca = "move";
 function setMoveValue(pId, pName) {
+    if (pId===0 && !{$rootAllowed}) {
+        alert({$parentDenied});
+        return;
+    }
     if (pId===0 || checkParentChildRelation(pId, pName)) {
         document.newdocumentparent.new_parent.value=pId;
         const label = document.getElementById('parentName');

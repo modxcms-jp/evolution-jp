@@ -368,7 +368,7 @@ if (is_array($evtOut)) {
                             <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
                                     title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
                             </td>
-                            <?php if (evo()->hasPermission('new_document') && manager()->canPlaceAtRoot() && manager()->isInAllowedParents(0)) { ?>
+                            <?php if (manager()->canCreateDocumentUnder(0)) { ?>
                                 <td><a href="#" class="treeButton" id="treeNewResource"
                                         onclick="EvoShell.navigate('index.php?a=4');return false;"
                                         title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
