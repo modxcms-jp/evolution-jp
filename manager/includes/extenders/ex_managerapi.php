@@ -785,85 +785,93 @@ class ManagerAPI
     }
 
     /**
-     *    Secure Manager Documents
-     *    This script will mark manager documents as private
+     * 管理側の非公開の印（privatemgr）を計算し直す
      *
-     *    A document will be marked as private only if a manager user group
-     *    is assigned to the document group that the document belongs to.
+     * 文書が付く文書グループのどれかに、管理側のユーザーグループへのアクセス
+     * （membergroup_access）の結びつきがあれば 1、無ければ 0 にする。
+     * 0 と 1 は 1 回の UPDATE で書くので、計算の途中で非公開の文書の印が 0 に戻る間はない。
      *
+     * @param int|string $docid 正の id ならその文書だけ。正の整数にならない値（0 以下・空・数字でない文字列）は全文書
+     * @return string 印を 1 にした文書の id のカンマ区切り（無ければ ''）
      */
     public function setMgrDocsAsPrivate($docid = '')
     {
-        db()->update(
-            ['privatemgr' => 0],
-            '[+prefix+]site_content',
-            $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
+        return $this->recalcPrivateFlag(
+            'privatemgr',
+            'membergroup_access',
+            'mga',
+            (int)$docid
         );
-
-        $rs = db()->select(
-            'sc.id',
-            [
-                '[+prefix+]site_content sc',
-                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
-                'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
-            ],
-            $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
-        );
-
-        $ids = db()->getColumn('id', $rs);
-
-        if (!$ids) {
-            return '';
-        }
-
-        $ids = implode(',', $ids);
-        db()->update(
-            ['privatemgr' => 1],
-            '[+prefix+]site_content',
-            sprintf('id IN (%s)', $ids)
-        );
-        return $ids;
     }
 
     /**
-     *    Secure Web Documents
-     *    This script will mark web documents as private
+     * Web 側の非公開の印（privateweb）を計算し直す
      *
-     *    A document will be marked as private only if a web user group
-     *    is assigned to the document group that the document belongs to.
+     * 文書が付く文書グループのどれかに、Web 側のユーザーグループへのアクセス
+     * （webgroup_access）の結びつきがあれば 1、無ければ 0 にする。
+     * 0 と 1 は 1 回の UPDATE で書くので、計算の途中で非公開の文書の印が 0 に戻る間はない。
      *
+     * @param int|string $docid 正の id ならその文書だけ。正の整数にならない値（0 以下・空・数字でない文字列）は全文書
+     * @return string 印を 1 にした文書の id のカンマ区切り（無ければ ''）
      */
     public function setWebDocsAsPrivate($docid = '')
     {
-        db()->update(
-            ['privateweb' => 0],
-            '[+prefix+]site_content',
-            $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
+        return $this->recalcPrivateFlag(
+            'privateweb',
+            'webgroup_access',
+            'wga',
+            (int)$docid
         );
+    }
 
-        $rs = db()->select(
-            'DISTINCT sc.id',
-            [
-                '[+prefix+]site_content sc',
-                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
-                'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
-            ],
-            $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
-        );
-
-        $ids = db()->getColumn('id', $rs);
-
-        if (!$ids) {
-            return '';
+    /**
+     * 非公開の印の列を 1 回の UPDATE で書き直す
+     *
+     * 結びつきのある文書を派生表にして LEFT JOIN で 1 回の UPDATE にする。派生表は site_content を
+     * 読まない（更新する表は副問い合わせで読めないため）。IN (副問い合わせ) の形にすると、
+     * MySQL 5.7 では文書 1 行ごとに副問い合わせを走らせて遅くなる。1 件のときは派生表も
+     * その文書の結びつきだけに絞る。
+     * JOIN 付きの UPDATE は db()->update() の想定する使い方ではないため、db()->query() で流す。
+     * $column・$accessTable・$alias は呼び出し元が固定で渡す。$docid は (int) 済みの値。
+     */
+    private function recalcPrivateFlag($column, $accessTable, $alias, $docid)
+    {
+        if ($docid > 0) {
+            $linkedDocs = sprintf(' AND dg.document = %d', $docid);
+            $where = sprintf('sc.id = %d', $docid);
+        } else {
+            $linkedDocs = '';
+            $where = sprintf('(sc.%s = 1 OR x.document IS NOT NULL)', $column);
         }
 
-        $ids = implode(',', $ids);
-        db()->update(
-            ['privateweb' => 1],
-            '[+prefix+]site_content',
-            sprintf("id IN (%s)", $ids)
+        db()->query(
+            db()->replaceFullTableName(
+                sprintf(
+                    'UPDATE [+prefix+]site_content sc'
+                    . ' LEFT JOIN (SELECT DISTINCT dg.document FROM [+prefix+]document_groups dg'
+                    . ' INNER JOIN [+prefix+]%s %s ON %s.documentgroup = dg.document_group'
+                    . ' WHERE %s.id > 0%s) x ON x.document = sc.id'
+                    . ' SET sc.%s = IF(x.document IS NULL, 0, 1) WHERE %s',
+                    $accessTable,
+                    $alias,
+                    $alias,
+                    $alias,
+                    $linkedDocs,
+                    $column,
+                    $where
+                )
+            )
         );
-        return $ids;
+
+        // 戻り値（印が付いた id）は UPDATE の後に求める
+        $rs = db()->select(
+            'id',
+            '[+prefix+]site_content',
+            $docid > 0
+                ? sprintf('id = %d AND %s = 1', $docid, $column)
+                : sprintf('%s = 1', $column)
+        );
+        return implode(',', db()->getColumn('id', $rs) ?: []);
     }
 
     /**
