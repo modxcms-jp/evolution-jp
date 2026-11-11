@@ -199,6 +199,7 @@
 | ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`）・親の選択のルートの項目（`parent_picker.dynamic.php`） | `new_document`（親の選択は不要）・`canPlaceAtRoot()`・`isInAllowedParents(0)` |
 | 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。文書そのものを開けるかを先に確かめる |
 | 移動（`move_document.processor.php`・`parentChangeDeniedMessage()`） | 親がルートなら `canPlaceAtRoot()`。そのあと `isInAllowedParents()` |
+| 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 移動と同じ。親がルートなら `canPlaceAtRoot()`。そのあと `isInAllowedParents()` |
 | 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
 | QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canPlaceAtRoot()` と `isInAllowedParents(0)` |
 
