@@ -141,6 +141,6 @@
 - **発見日**: 2026-11-10
 - **発見元**: 文書グループの絞り込みを受けない管理者の条件をそろえる ExecPlan（`.agent/plans/2026-11-10-docgroup-admin-bypass.md`、#1338）
 - **ファイル**: `manager/includes/document.parser.class.inc.php`（`getDocumentObject()`・`getDocuments()`・`getPageInfo()`・ページキャッシュの読み込みの確認）、`manager/includes/traits/document.parser.subparser.trait.php`（`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()`）
-- **課題**: 公開側（`privateweb`。Web 側で非公開）の絞り込みを、管理画面にログインした管理者に外すかどうかが関数ごとに違う。`getDocumentObject()`・`getDocuments()`・キャッシュの読み込みの確認は外し、`getAllChildren()` は管理者に所属があるときだけ外し、`getPageInfo()`・`getActiveChildren()`・`getDocumentChildren()` は外さない。同じ文書が、ページとしては見えるのにメニューや一覧には出ない、といった食い違いになる。外す関数の結果は、「ログイン時のキャッシュ」（`disable_cache_at_login`）を無効にしたサイトでは、キャッシュする部品の出力ごとページキャッシュに入り、ログインしていない訪問者にも出うる
+- **課題**: 公開側（`privateweb`。Web 側で非公開）の絞り込みを、管理画面にログインした管理者に外すかどうかが関数ごとに違う。`getDocumentObject()`・`getDocuments()`・`getAllChildren()`・キャッシュの読み込みの確認は外し（`getAllChildren()` は所属に関係なく外す）、`getPageInfo()`・`getActiveChildren()`・`getDocumentChildren()` は外さない。同じ文書が、ページとしては見えるのにメニューや一覧には出ない、といった食い違いになる。外す関数の結果は、「ログイン時のキャッシュ」（`disable_cache_at_login`）を無効にしたサイトでは、キャッシュする部品の出力ごとページキャッシュに入り、ログインしていない訪問者にも出うる
 - **改善案**: 公開側の取得の条件を、管理画面側と同じく 1 か所（`privateweb` と Web 側の所属と管理者の判定から式を返すメソッド）にまとめ、各関数はそれを使う。外す向きにそろえるなら、外した結果がページキャッシュに入らないようにする（外したリクエストではページキャッシュを書かない、など）。外さない向きにそろえるなら、管理者がログインしたまま非公開のページを確かめる手段（プレビューなど）を別に用意する
 - **関連ロードマップ**: なし（新規候補。#1338 では、管理者の判定を「ロールの ID が 1」から `ManagerAPI::bypassesDocumentGroups()`（`isAdmin()` または `save_role`）に置き換えるだけにする。公開側の扱いをそろえる向きはここで決める）
