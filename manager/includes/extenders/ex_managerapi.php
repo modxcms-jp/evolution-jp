@@ -1849,7 +1849,8 @@ class ManagerAPI
      * 新規作成の権限（can('document.create')。保存 a=5 が求める new_document と save_document）、
      * 許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、親の文書グループ（canAccessDocument()）を見る。
      * 親が 0 以下（ルート）のときは、保存の処理と同じく canPlaceAtRoot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
-     * リクエストの値は読まない。QuickManager の追加ボタンが使う
+     * リクエストの値は読まない。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager（追加ボタンとカスタムの「new」ボタン）・
+     * 保存後の「続けて新規」（save_resource.processor.php）が使う
      *
      * @param int|string $parentId
      * @return bool
