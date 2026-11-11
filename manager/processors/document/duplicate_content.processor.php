@@ -23,6 +23,7 @@ $parentOfSource = (int)db()->getValue(
 // check permissions on the document
 if (
     !$modx->checkPermissions($id, true)
+    || ($parentOfSource == 0 && !manager()->canPlaceAtRoot())
     || !manager()->isInAllowedParents($id)
     || !manager()->isInAllowedParents($parentOfSource)
 ) {

@@ -446,35 +446,45 @@ function checkDocPermission($id)
             alert()->setError(7);
             alert()->dumpError();
         }
-        if (evo()->config('use_udperms') != 1) {
-            return;
-        }
         $existingDocument = db()->getRow($rs);
 
         // 保存しようとしている文書そのものにアクセスできるか
-        if (!evo()->checkPermissions($id)) {
+        if (evo()->config('use_udperms') == 1 && !evo()->checkPermissions($id)) {
             evo()->webAlertAndQuit(lang('access_permission_denied'), 'index.php?a=2');
         }
 
-        // check to see if the user is allowed to save the document in the place he wants to save it in
+        // 親が変わらないなら、置き場所の確認は要らない
         if ($existingDocument['parent'] == validated('parent')) {
             return;
         }
 
-        if (!evo()->checkPermissions(validated('parent'))) {
+        $deniedParent = function () use ($id) {
             evo()->manager->saveFormValues(postedScreen());
             evo()->webAlertAndQuit(
                 sprintf(lang('access_permission_parent_denied'), $id, validated('alias')),
                 formReturnUrl()
             );
+        };
+
+        // ルートへは、use_udperms に関係なく、ルートに置いてよいかで決める
+        if (validated('parent') == 0) {
+            if (!manager()->canPlaceAtRoot()) {
+                $deniedParent();
+            }
+            return;
         }
-    } elseif (validated('parent') == 0 && !manager()->isAllowroot()) {
+
+        // 移動先の親にアクセスできるか
+        if (evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
+            $deniedParent();
+        }
+    } elseif (validated('parent') == 0 && !manager()->canPlaceAtRoot()) {
         alert()->setError(3);
         alert()->dumpError();
     } elseif (!evo()->hasPermission('new_document')) {
         alert()->setError(3);
         alert()->dumpError();
-    } elseif (evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
+    } elseif (validated('parent') != 0 && evo()->config('use_udperms') == 1 && !evo()->checkPermissions(validated('parent'))) {
         // 作成先の親にアクセスできるか
         alert()->setError(3);
         alert()->dumpError();

@@ -72,8 +72,13 @@ if (!$rs) {
 $current_parent = (int) db()->getValue($rs);
 
 // check user has permission to move resource to chosen location
-if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
-    if (!evo()->checkPermissions($new_parent)) {
+if ($current_parent != $new_parent) {
+    if ($new_parent == 0) {
+        // ルートへは、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
+        if (!manager()->canPlaceAtRoot()) {
+            accessDenied('access_permission_parent_denied');
+        }
+    } elseif (evo()->config['use_udperms'] == 1 && !evo()->checkPermissions($new_parent)) {
         accessDenied('access_permission_parent_denied');
     }
 }

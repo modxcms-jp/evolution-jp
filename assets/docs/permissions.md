@@ -120,7 +120,7 @@
 | 設定 | 意味 |
 | --- | --- |
 | `use_udperms` | グループ管理機能を使う。無効（既定）のとき、管理画面の文書グループの絞り込みはなく、グループ管理の画面はメニューに出ない。Web 側（a=91）は直接開いても入れず、管理側（a=40）は開けるが無効の旨を出す。文書の保存も印を計算し直さない |
-| `udperms_allowroot` | 管理者でない利用者が、ルート直下に文書を作ってよいか（`isAllowroot()`）。設定画面には `use_udperms` が有効なときだけ出るが、無効で出ないときも、新規作成のルートの判定（`manager/processors/document/save_resource.processor.php`・`manager/frames/tree.php` の `isAllowroot()`）には効く（#1356） |
+| `udperms_allowroot` | 管理者でない利用者が、ルート直下に文書を置いてよいか（`isAllowroot()`）。`use_udperms` が有効なときだけ効く（設定画面にも有効なときだけ出る）。無効なら誰でもルートに置ける（`canPlaceAtRoot()`。`new_document` の権限と許可するリソースの範囲は別に見る） |
 | `tree_show_protected` | 開けない文書を、ツリーと子の一覧に印つきで出すか。表示だけの設定で、アクセスの判定には使わない。親の選択・検索・取得の関数は、この設定を見ずに絞る |
 | `allow_mgr2web` | 公開側で、管理画面にログイン中の利用者を Web ユーザーでもあるとして扱う。具体的には、`DocumentParser::getUserDocGroups()` が公開側の所属に、管理側の所属（`mgrDocgroups`）を足す |
 
@@ -174,9 +174,10 @@
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
-| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `isAllowroot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
+| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
-| `isAllowroot()` | ルート直下に作ってよいか（`bypassesDocumentGroups()` または `udperms_allowroot`） |
+| `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
+| `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 
 ### DocumentParser の判定
@@ -188,6 +189,19 @@
 | `getDocumentObject()`・`getDocuments()`・`getPageInfo()`・`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()` | 取得の関数。管理画面側（`isFrontend()` が偽）の分岐は `documentAccessCondition()`、公開側の分岐は `privateweb` と `managerBypassesDocumentGroups()` を使う。公開側で絞り込みを外す関数は、関数ごとに違う（課題の節） |
 
 ページキャッシュの読み込みの確認（`manager/includes/document.parser.class.inc.php`）も、公開側の分岐と同じく `managerBypassesDocumentGroups()` を使う。
+
+### ルートに置けるか
+
+文書を変える処理（保存・移動・下書き・複製）と、ツリー・文書一覧・親の選択・QuickManager の表示は、ルート（親が 0）に置けるかを `canPlaceAtRoot()` で決める。判定を見ない入口が残る（#1394）。文書グループへのアクセス（`checkPermissions()`）は、ルートには使わない。許可するリソースの範囲は別の判定で、ルートでは入口ごとに `isInAllowedParents(0)` も重ねて確かめる。
+
+| 入口 | 判定 |
+| --- | --- |
+| ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`）・親の選択のルートの項目（`parent_picker.dynamic.php`） | `new_document`（親の選択は不要）・`canPlaceAtRoot()`・`isInAllowedParents(0)` |
+| 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
+| 移動（`move_document.processor.php`） | `move_document.processor.php` は `parentChangeDeniedMessage()` を呼ばず、同じ判定をその場に書いている。範囲（`isInAllowedParents()`）を先に見て、そのあと親が変わるときに、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
+| 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 親が変わるときに、循環と存在、親がルートなら `canPlaceAtRoot()`（それ以外の親は `checkPermissions()`）、`isInAllowedParents()` の順 |
+| 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
+| QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canPlaceAtRoot()` と `isInAllowedParents(0)` |
 
 ## 許可するリソース（allowed_parents）
 
@@ -213,7 +227,7 @@
 | Issue | 内容 |
 | --- | --- |
 | #1378 | グループ管理で結びつきを変えても、ページキャッシュを消さない |
-| #1356 | 文書をルートに置けるかの扱いが、新規の作成と移動・親の選択で違う（`isAllowroot()` と `use_udperms` の関係） |
+| #1394 | ルートに置く入口のうち、`canPlaceAtRoot()` を見ないものが残る（メインメニュー・ダッシュボードの新規作成、保存後の「続けて新規」、移動の画面でツリーのルートを選ぶ操作、サイトのインポート）。移動の処理の切り分けを `parentChangeDeniedMessage()` に寄せることも含む |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 

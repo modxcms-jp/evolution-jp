@@ -1085,6 +1085,7 @@ class ManagerAPI
      * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
      * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
      * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親がルート（0）のときは、文書グループの確認の代わりに canPlaceAtRoot() で決める。
      * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
      *
      * @param int[] $docIds 親を変える文書
@@ -1098,7 +1099,9 @@ class ManagerAPI
         if ($message) {
             return $message;
         }
-        if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
+        // ルートへの変更は、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
+        $canPlace = $parentId === 0 ? $this->canPlaceAtRoot() : evo()->checkPermissions($parentId);
+        if (!$canPlace || !$this->isInAllowedParents($parentId)) {
             return lang('access_permission_parent_denied');
         }
         return '';
@@ -1322,11 +1325,29 @@ class ManagerAPI
         return $this->allowedAncestorIdsCache[1];
     }
 
-    // ルート直下にリソースを作ってよいか。
+    // udperms_allowroot の設定（向き A の材料）。ルートに置けるかの判定には canPlaceAtRoot() を使う。
     // udperms_allowroot は文書グループの設定の 1 つなので、文書グループの絞り込みと同じ管理者の判定を使う
     public function isAllowroot()
     {
         return $this->bypassesDocumentGroups() || (bool)evo()->config('udperms_allowroot');
+    }
+
+    /**
+     * 文書をルート（親が 0）に置いてよいか。ルートに置く入口（新規・保存での親の変更・移動・複製・
+     * 親の選択・作成のボタン）は、すべてこの判定を使う。
+     *
+     * 考え方（向き B）: udperms_allowroot は文書グループの設定の 1 つで、use_udperms が有効なときだけ効く
+     * （設定の画面でも有効なときだけ見える）。use_udperms が無効なら誰でもルートに置ける。
+     * 向き A（use_udperms に関係なく udperms_allowroot で決める）に切り替えるなら、この 1 行だけを
+     * isAllowroot() にすればよい。
+     *
+     * 許可するリソースの範囲（isInAllowedParents(0)）は別の判定なので、ここには混ぜない。
+     *
+     * @return bool
+     */
+    public function canPlaceAtRoot()
+    {
+        return evo()->config('use_udperms') != 1 || $this->isAllowroot();
     }
 
     // PHP の設定から求めたアップロードサイズの上限（バイト数）。無制限なら 0
@@ -1672,7 +1693,7 @@ class ManagerAPI
      * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
      * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
      * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは、保存の処理と同じく
-     * isAllowroot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
+     * canPlaceAtRoot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
      * リクエストの値は読まない。QuickManager の追加ボタンが使う
      *
      * @param int|string $parentId
@@ -1685,7 +1706,7 @@ class ManagerAPI
         }
         $parentId = (int)$parentId;
         if ($parentId <= 0) {
-            return $this->isAllowroot() && $this->isInAllowedParents(0);
+            return $this->canPlaceAtRoot() && $this->isInAllowedParents(0);
         }
         return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
     }
