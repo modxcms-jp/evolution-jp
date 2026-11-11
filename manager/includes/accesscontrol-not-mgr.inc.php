@@ -131,6 +131,8 @@ evo()->setPlaceholder(
 );
 evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
 evo()->setPlaceholder('login_button', $_lang["login_button"]);
+// login.js が、ログインの処理が失敗したとき（500 など）に出す文。<script> の data- 属性に入れる
+evo()->setPlaceholder('login_request_failed', hsc($_lang['login_request_failed']));
 // ログイン画面は下の parseDocumentSource() で解析し直すので、リクエストから来た値に [ ] { } が残ると
 // タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
 evo()->setPlaceholder(

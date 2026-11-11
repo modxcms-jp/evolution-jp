@@ -435,6 +435,7 @@ return [
     "login_homepage" => 'Login Home Page',
     "login_homepage_message" => 'Enter the ID of the Resource you want to send user to after he/she has logged in. <b>NOTE: make sure the ID you enter belongs to an existing Resource, and that it has been published and is accessible by this user!</b>',
     "login_message" => 'Please enter your login credentials to start your Manager session. Your username and password are case-sensitive, so please enter them carefully!',
+    "login_request_failed" => 'The login could not be processed because of a server error. Please try again later or contact your site administrator.',
     "logo_slogan" => 'MODX Content Manager - \nCreate and do more with less',
     "logout" => 'Logout',
     "long_title" => 'Long title',
