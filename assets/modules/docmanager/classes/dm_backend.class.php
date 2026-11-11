@@ -347,7 +347,7 @@ class DocManagerBackend
     public function changeDocGroups($pids, $docgroup, $action)
     {
         $this->dm->ph['update.message'] = '';
-        if (!evo()->hasPermission('access_permissions') || !evo()->hasPermission('web_access_permissions')) {
+        if (!manager()->isAdmin()) {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error']
                 . '<br />' . $this->dm->lang['DM_process_no_permission'];
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);

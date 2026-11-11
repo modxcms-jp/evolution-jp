@@ -25,7 +25,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
         <div class="tab-pane" id="elementsPane">
 
             <!-- Templates -->
-            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
+            <?php if (manager()->canManageElement('template')) { ?>
                 <div class="tab-page" id="tabTemplates">
                     <h2 class="tab"><?= $_lang["manage_templates"] ?></h2>
                     <div><?= $_lang['template_management_msg'] ?></div>
@@ -38,7 +38,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <?php } ?>
 
             <!-- Template variables -->
-            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
+            <?php if (manager()->canManageElement('template')) { ?>
                 <div class="tab-page" id="tabVariables">
                     <h2 class="tab"><?= $_lang["tmplvars"] ?></h2>
                     <!--//
@@ -55,7 +55,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <?php } ?>
 
             <!-- chunks -->
-            <?php if (evo()->hasPermission('new_chunk') || evo()->hasPermission('edit_chunk')) { ?>
+            <?php if (manager()->canManageElement('chunk')) { ?>
                 <div class="tab-page" id="tabChunks">
                     <h2 class="tab"><?= $_lang["manage_htmlsnippets"] ?></h2>
                     <div><?= $_lang['htmlsnippet_management_msg'] ?></div>
@@ -69,7 +69,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <?php } ?>
 
             <!-- snippets -->
-            <?php if (evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet')) { ?>
+            <?php if (manager()->canManageElement('snippet')) { ?>
                 <div class="tab-page" id="tabSnippets">
                     <h2 class="tab"><?= $_lang["manage_snippets"] ?></h2>
                     <div><?= $_lang['snippet_management_msg'] ?></div>
@@ -83,7 +83,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <?php } ?>
 
             <!-- plugins -->
-            <?php if (evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) { ?>
+            <?php if (manager()->canManageElement('plugin')) { ?>
                 <div class="tab-page" id="tabPlugins">
                     <h2 class="tab"><?= $_lang["manage_plugins"] ?></h2>
                     <div><?= $_lang['plugin_management_msg'] ?></div>
@@ -224,11 +224,11 @@ function createCategoryList()
 
     $displayInfo = [];
     $hasPermission = 0;
-    if (evo()->hasPermission('edit_plugin') || evo()->hasPermission('new_plugin')) {
+    if (manager()->canManageElement('plugin')) {
         $displayInfo['plugin'] = ['table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']];
         $hasPermission = 1;
     }
-    if (evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_snippet')) {
+    if (manager()->canManageElement('snippet')) {
         $displayInfo['snippet'] = [
             'table' => 'site_snippets',
             'action' => 22,
@@ -236,7 +236,7 @@ function createCategoryList()
         ];
         $hasPermission = 1;
     }
-    if (evo()->hasPermission('edit_chunk') || evo()->hasPermission('new_chunk')) {
+    if (manager()->canManageElement('chunk')) {
         $displayInfo['htmlsnippet'] = [
             'table' => 'site_htmlsnippets',
             'action' => 78,
@@ -244,7 +244,7 @@ function createCategoryList()
         ];
         $hasPermission = 1;
     }
-    if (evo()->hasPermission('edit_template') || evo()->hasPermission('new_template')) {
+    if (manager()->canManageElement('template')) {
         $displayInfo['templates'] = [
             'table' => 'site_templates',
             'action' => 16,
@@ -253,22 +253,13 @@ function createCategoryList()
         $displayInfo['tmplvars'] = ['table' => 'site_tmplvars', 'action' => 301, 'name' => $_lang['tmplvars']];
         $hasPermission = 1;
     }
-    if (evo()->hasPermission('edit_module') || evo()->hasPermission('new_module')) {
+    if (manager()->canManageElement('module')) {
         $displayInfo['modules'] = ['table' => 'site_modules', 'action' => 108, 'name' => $_lang['modules']];
         $hasPermission = 1;
     }
 
     //Category Delete permission check
-    $delPerm = 0;
-    if (
-        evo()->hasPermission('save_plugin') ||
-        evo()->hasPermission('save_snippet') ||
-        evo()->hasPermission('save_chunk') ||
-        evo()->hasPermission('save_template') ||
-        evo()->hasPermission('save_module')
-    ) {
-        $delPerm = 1;
-    }
+    $delPerm = manager()->canSaveAnyElement() ? 1 : 0;
 
     if ($hasPermission) {
         $finalInfo = [];

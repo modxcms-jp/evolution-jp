@@ -178,8 +178,6 @@ function getGroups($docid)
 
 function getUDGroups($id)
 {
-    global $permissions_yes, $permissions_no;
-
     if (manager()->action == 27 && $id) {
         $docid = $id;
     } elseif (request_intvar('pid')) {
@@ -197,8 +195,6 @@ function getUDGroups($id)
 
     $permissions = []; // New Permissions array list (this contains the HTML)
     $access = manager()->documentGroupAccess();
-    $permissions_yes = $access['yes']; // 出すグループのうち、所属している数
-    $permissions_no = $access['no']; // 出すグループのうち、所属していない数
     $notPublic = false; // true if the document belongs to any of the listed groups
 
     // Query the permissions and names from above
@@ -289,11 +285,11 @@ function getUDGroups($id)
 
     if (!$permissions) {
         // 出すグループはあるが、どれにも所属していないときは、タブを出さない（空の配列）
-        return $permissions_no && !$access['ids'] ? [] : false;
+        return $access['no'] && !$access['ids'] ? [] : false;
     }
 
     // Add the "All Document Groups" item if we have rights in both contexts
-    if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
+    if (manager()->isAdmin()) {
         array_unshift(
             $permissions,
             html_tag(

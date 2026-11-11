@@ -269,14 +269,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         manager()->canCreateDocumentUnder(0)); // new-weblink
 
                     // Resources Menu
-                    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')
-                        || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet')
-                        || evo()->hasPermission('new_chunk') || evo()->hasPermission('edit_chunk')
-                        || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
-                        $perm_element_management = 1;
-                    } else {
-                        $perm_element_management = 0;
-                    }
+                    $perm_element_management = manager()->canManageAnyElement() ? 1 : 0;
 
                     $item['element_management'] = item($_lang['element_management'], 76,
                         $perm_element_management);// Elements
@@ -284,7 +277,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         evo()->hasPermission('file_manager'));// Manage-Files
 
                     // Modules Menu Items
-                    $perm_module_management = (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) ? 1 : 0;
+                    $perm_module_management = manager()->canManageElement('module') ? 1 : 0;
                     $item['modules'] = [];
                     $item['modules']['module_management'] = item($_lang['module_management'], 106,
                         $perm_module_management);// manage-modules
