@@ -11,7 +11,7 @@
 - [x] (2026-11-11) 計画の下書き（develop/1.4 ＋ #1394 の変更、2ba7e4b05 で調査。#1394 は #1405 で develop/1.4 にマージ済み）
 - [ ] Decision Log の未決 D1〜D8 を本人が決める
 - [ ] M0: 修正前の記録（Docker。既定のロール・所属なしの利用者を含む）
-- [ ] M1: 非公開の印を 1 回の更新で計算し直す（決定不要。#1397 の残り）
+- [x] (2026-11-12) M1: 非公開の印を 1 回の更新で計算し直す（決定不要。#1397 の残り）。PR #1407（ブランチ `fix/1357-m1-private-flags`）。計画の確認を待つため develop/1.4 へのマージは保留
 - [ ] M2: 呼び出し元がそろっている権限の判定を ManagerAPI に寄せる（決定不要。動きは変えない）
 - [ ] M3: 文書の操作（移動・公開・削除・複製・編集・新規）の判定を 1 か所にし、入口をそろえる（決定待ち: D1・D2）
 - [ ] M4: 文書以外の入口の食い違いをそろえる（モジュール・利用者・ロール・エレメント）（決定待ち: D1・D2）
@@ -48,7 +48,9 @@
 
 ## Decision Log
 
-- 2026-11-11 / 計画（Claude）/ 決定（実装の選び方。動きは変わらないので本人の判断を待たない。違う案がよければ M1 の前に言ってもらう）: 非公開の印は、1 回の UPDATE で 0 と 1 を同時に書く（`SET privateweb = CASE WHEN id IN (<結びつきから求めた文書の副問い合わせ>) THEN 1 ELSE 0 END`。範囲は、全件なら「今 1 の文書、または付ける文書」、1 件ならその id）。根拠: 1 つの文は InnoDB でも MyISAM（古いサイトに残る。`core-issues.md`）でも、読む側から途中の状態が見えない。副問い合わせは `document_groups` と `webgroup_access`（`membergroup_access`）だけを読み、更新する `site_content` を読まないので、MySQL の「更新する表を副問い合わせで読めない」制限に当たらない。代替案: (イ) 順序を入れ替える（先に 1 を付け、次に付けない文書を 0 に）。間は残るが、公開の文書が一時的に非公開になる向き（安全側）になる。1 つの文で済むなら選ぶ理由が無い。(ロ) トランザクションで囲む。DBAPI に API が無く、MyISAM では効かない。PDO の新 API（#453）の後なら候補。戻り値（印を付けた id）は使う呼び出し元が無いが、外部のコードのために、付けた id を別に SELECT して今と同じ形で返す（要確認: M1 の手順 1 で、同梱以外の呼び出しを想定するか本人に確かめる。不要なら戻り値をやめる）。
+- 2026-11-11 / 計画（Claude）/ 決定（実装の選び方。動きは変わらないので本人の判断を待たない。違う案がよければ M1 の前に言ってもらう）: 非公開の印は、1 回の UPDATE で 0 と 1 を同時に書く（`SET privateweb = CASE WHEN id IN (<結びつきから求めた文書の副問い合わせ>) THEN 1 ELSE 0 END`。範囲は、全件なら「今 1 の文書、または付ける文書」、1 件ならその id）。根拠: 1 つの文は InnoDB でも MyISAM（古いサイトに残る。`core-issues.md`）でも、読む側から途中の状態が見えない。副問い合わせは `document_groups` と `webgroup_access`（`membergroup_access`）だけを読み、更新する `site_content` を読まないので、MySQL の「更新する表を副問い合わせで読めない」制限に当たらない。代替案: (イ) 順序を入れ替える（先に 1 を付け、次に付けない文書を 0 に）。間は残るが、公開の文書が一時的に非公開になる向き（安全側）になる。1 つの文で済むなら選ぶ理由が無い。(ロ) トランザクションで囲む。DBAPI に API が無く、MyISAM では効かない。PDO の新 API（#453）の後なら候補。戻り値（印を付けた id）は使う呼び出し元が無いが、外部のコードのために、付けた id を別に SELECT して今と同じ形で返す（要確認: 同梱以外の呼び出しを想定するか本人に確かめる。不要なら戻り値をやめる）。
+
+- 2026-11-12 / M1（Claude）/ 決定（実装の改め）: 1 文の UPDATE は、`id IN (副問い合わせ)` ではなく、結びつきの一覧（`document_groups` ⋈ アクセスの表の `SELECT DISTINCT dg.document`）への LEFT JOIN にした（`SET col = IF(x.document IS NULL, 0, 1)`。全件は `WHERE col = 1 OR x.document IS NOT NULL`、1 件は `WHERE sc.id = <id>` で、派生表の中も `dg.document = <id>` に絞る）。根拠: MySQL 5.7 で `IN (副問い合わせ)` が文書 1 行ごとの副問い合わせ（DEPENDENT SUBQUERY）になり、文書約 5,000 件で一度 4 秒かかって同時の書き込みが止まった（再現は不安定）。JOIN の形は 5.7・8.0・MariaDB 11 のどれでも行ごとの副問い合わせにならず、全件の計算は MariaDB で修正前 59 ms → 19 ms。`db()->update()` は JOIN 付きの UPDATE を想定していないので、`db()->query()` に `replaceFullTableName()` で展開した文を渡す。戻り値は今と同じ形で残した（本人への確認は未了。外部のコードを壊さない側）。
 
 - 2026-11-11 / 計画（Claude）/ 未決 D1: 文書以外の権限の判定を、ManagerAPI でどんな形で持つか。
   - (a) 操作ごとのメソッド（`canMoveDocuments()`・`canManageRoles()` など）。今の `canCreateDocumentUnder()`・`canOpenDocumentEditor()` と同じ形。利点: 呼ぶ側が読みやすく、範囲・文書グループの判定と同じメソッドで混ぜられる。欠点: 操作が 30 前後あり、ManagerAPI（約 1,850 行）がさらに膨らむ。権限の組み合わせが各メソッドの本文に散り、第 3 段階の依存の表と別に持つことになる。
@@ -152,7 +154,7 @@ DocumentParser への影響: M1 は `privateweb` の値を書く処理だけで�
 
 ## Concrete Steps
 
-作業ディレクトリは、各マイルストーンのブランチの作業ツリー（`gh issue develop 1357 --base develop/1.4 --name <ブランチ名>` で作る。#1404 は M5 で `gh issue develop 1404`）。コンテナの操作はホストから `docker compose -p evo-validate exec app ...`（`adaptive-validation-runner` スキルの `references/environment.md`）。
+作業ディレクトリは、各マイルストーンのブランチの作業ツリー（段階ごとのブランチは、Issue に紐づけずに `git switch -c <ブランチ名> origin/develop/1.4` で作る。紐づけたブランチの PR はマージで Issue を閉じるため。#1404 は M5 で `gh issue develop 1404 --base develop/1.4`）。コンテナの操作はホストから `docker compose -p evo-validate exec app ...`（`adaptive-validation-runner` スキルの `references/environment.md`）。
 
 M0: 修正前の記録
 
@@ -167,7 +169,7 @@ M0: 修正前の記録
 
 M1: 非公開の印
 
-1. 編集: `ex_managerapi.php` の `setMgrDocsAsPrivate()`・`setWebDocsAsPrivate()`。付ける文書を副問い合わせで求め、1 回の `db()->update()` で `CASE WHEN … THEN 1 ELSE 0 END` を書く（`db()->update()` が式の値をそのまま受けられるかを先に確かめる。受けられなければ `db()->query()` に `[+prefix+]` を `getFullTableName()` で展開した UPDATE を渡す。要確認）。`$docid` は `(int)` にし、0 以下は全件。戻り値は Decision Log のとおり。
+1. 編集: `ex_managerapi.php` の `setMgrDocsAsPrivate()`・`setWebDocsAsPrivate()`。結びつきの一覧への LEFT JOIN の 1 文の UPDATE にする（Decision Log の 2026-11-12 の項）。`$docid` は `(int)` にし、0 以下は全件。戻り値は Decision Log のとおり。
 2. 確認のコマンド（前後で同じになること）:
    docker compose -p evo-validate exec app php evo db:query "SELECT id, privatemgr, privateweb FROM evo_site_content ORDER BY id"
    を、グループ管理での結びつきの追加・削除、文書グループの削除、文書の保存（V1）、QuickManager の保存、マイグレーション `20261111_120000_delete_orphan_document_group_rows` の再実行のそれぞれの後に取り、M0 の同じ操作の後の結果と一致すること（表のプレフィックスは環境に合わせる）。
@@ -184,7 +186,7 @@ M3〜M5: 決定が出たら、Decision Log の結論に合わせて手順を書�
 
 M6〜M9: 決定が出たら同じ形で書き足す。マイグレーションを作るときは `docker compose -p evo-validate exec app php evo make:migration <名前>` で作り、`php evo migrate` と `php evo migrate:status` で 1 回だけ当たること、もう一度実行しても何も変えないことを確かめる。アップグレードは `scripts/upgrade-fixture.js` で、古いサイトのロール（Editor・Publisher）を含むデータから上げて確かめる。
 
-M10: PHP 7.4（`references/environment.md` の PHP 7.4 の節）と、DB を `mysql:5.7` の公式イメージにした環境で、M0 の記録の V0・V1 を admin・webmaster・editor・editor0・`R_mv`・`R_saverole` について取り直し、PHP 8 側の最後の記録と一致すること。M1 の UPDATE（副問い合わせ付き）が MySQL 5.7 で通ること。
+M10: PHP 7.4（`references/environment.md` の PHP 7.4 の節）と、DB を `mysql:5.7` の公式イメージにした環境で、M0 の記録の V0・V1 を admin・webmaster・editor・editor0・`R_mv`・`R_saverole` について取り直し、PHP 8 側の最後の記録と一致すること。M1 の UPDATE（結びつきへの JOIN）が MySQL 5.7 で通ること（M1 で 5.7・8.0 は確認済み）。
 
 推奨のコミット単位（各 PR の中）: 判定のメソッドを足すコミット（`refactor(manager): 〇〇の判定を ManagerAPI に寄せる`）、呼び出し元を置き換えるコミット、`permissions.md` のコミット（`docs(permissions): 〇〇の判定の置き場所を書く`）。M1 は `fix(manager): 非公開の印を 1 回の更新で計算し直す`。
 
@@ -224,7 +226,8 @@ M0 の記録のスクリプトとデータ（DB のダンプ）は作業用デ�
 - Issue: #1357（この計画）、#1404（M5）、#1397 の自己レビューの残り（M1）、#1394（#1405 でマージ済み。ルートの入口は済んだ）
 - 正本: `assets/docs/permissions.md`。前の計画: `.agent/plans/2026-11-10-docgroup-admin-bypass.md`（文書グループの判定を ManagerAPI に寄せた #1338。記録と比べる確かめ方の見本）
 - 計画時に `assets/docs/core-issues.md` に足す候補（この下書きでは書いていない）: 利用者の保存が、付けるロールを保存する人の権限の範囲で確かめないこと（M7 で扱う）、モジュールのグループの絞り込みが `use_udperms` の無効でも見えないまま効くこと（M4 で扱う）
-- ブランチ名は着手時に `gh issue develop` で作り、ここに書く
+- ブランチ名は着手時に作り、ここに書く。段階ごとのブランチは Issue に紐づけず `origin/develop/1.4` から作る
+- M1: ブランチ `fix/1357-m1-private-flags`、PR #1407
 
 ## Interfaces and Dependencies
 
@@ -232,5 +235,5 @@ M0 の記録のスクリプトとデータ（DB のダンプ）は作業用デ�
 - `DocAPI`（`evo()->doc`）: `can*Doc()` を M3 で整理する。同梱では `action_buttons.php` と `resources_list.static.php` だけが呼ぶ。
 - `DocumentParser::checkPermissions()`・`managerBypassesDocumentGroups()`: M7 まで変えない。
 - 同梱のモジュール・プラグイン: DocManager（`dm_backend.class.php`。M2）、QuickManager（`assets/plugins/qm/`。M1 の印の計算、M7 の管理者の判定）、ManagerManager（`mm.inc.php:86` がロール ID を読む。M8 で確かめる）、WebLogin（`assets/snippets/weblogin/`。M9）。
-- DB: M1 は副問い合わせ付きの UPDATE（MariaDB 11・MySQL 5.7 で確かめる）。M6・M7（・D4 (c)・D7 (c)）はマイグレーション。
+- DB: M1 は結びつきへの JOIN の UPDATE（MariaDB 11・MySQL 5.7・8.0、MyISAM で確かめた。5.5 は未確認で M10 で扱う）。M6・M7（・D4 (c)・D7 (c)）はマイグレーション。
 - 依存するタスク: 「文書グループの絞り込みを受けない管理者の判定をそろえる」（#1338 ほか。develop/1.4 に入っている）、#1394（#1405 でマージ済み）。
