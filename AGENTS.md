@@ -99,6 +99,8 @@ fix(db): 実行直前でエスケープ処理を統一
 * 既存フック位置を無視して新イベントを追加する
 * キャッシュ無効化条件を考慮しない
 * 小規模修正で新アーキテクチャを導入する
+* 管理画面で自前のダイアログ・モーダルを作る（`EvoDialog` を使う。`assets/docs/manager-dialog.md`）
+* 管理画面の body 直下に要素を足す（シェルの CSS で幅が 0 になる。`assets/docs/manager-shell.md`）
 
 ---
 
@@ -152,6 +154,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `request-input.md`      | リクエスト値 |
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 | `manager-shell.md`      | 管理画面のシェル・frameset 互換の名前 |
+| `manager-dialog.md`     | 管理画面のダイアログ（EvoDialog） |
 | `permissions.md`        | 権限・文書グループ |
 
 ---

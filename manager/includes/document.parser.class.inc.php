@@ -1517,9 +1517,16 @@ class DocumentParser
     }
 
     private function verifyBearerToken() {
-        $auth = $this->getAuthorizationHeader();
-        if ($auth === '' || !preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
-            return false;
+        // エクスポートは専用のヘッダー X-Evo-Export-Token で送る（Authorization は Basic 認証に使うため）。
+        // 無ければ、これまでどおり Authorization: Bearer を見る。本体のエクスポートはもう送らないが、saveBearerToken() は public で、
+        // 外部のツールが発行して Bearer で取りに来ている場合があるので残す（Basic 認証の場所では Authorization が使えない点に注意）
+        $token = trim((string)serverv('HTTP_X_EVO_EXPORT_TOKEN'));
+        if ($token === '') {
+            $auth = $this->getAuthorizationHeader();
+            if ($auth === '' || !preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
+                return false;
+            }
+            $token = $matches[1];
         }
 
         $rs = db()->select(
@@ -1543,7 +1550,7 @@ class DocumentParser
         }
 
         $this->loadExtension('phpass');
-        return $this->phpass->checkPassword($matches[1], $hashedBearerToken);
+        return $this->phpass->checkPassword($token, $hashedBearerToken);
     }
 
     /**

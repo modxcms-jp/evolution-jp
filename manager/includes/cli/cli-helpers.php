@@ -39,6 +39,45 @@ function cli_stdin_is_interactive(): bool
     return false;
 }
 
+/**
+ * 端末で 1 行を聞く。問いは標準エラーへ出す（標準出力の結果に混ぜない）。読めなければ null
+ */
+function cli_prompt(string $prompt): ?string
+{
+    fwrite(STDERR, $prompt);
+    $line = fgets(STDIN);
+    return $line === false ? null : rtrim($line, "\r\n");
+}
+
+/**
+ * 端末で、入力の表示を止められるか（stty が端末を扱えるか）。止められなければ、表示されたまま聞くことになるので聞かない
+ */
+function cli_can_hide_input(): bool
+{
+    if (!cli_stdin_is_interactive() || DIRECTORY_SEPARATOR !== '/' || !function_exists('shell_exec')) {
+        return false;
+    }
+    return trim((string)@shell_exec('stty -g 2>/dev/null')) !== '';
+}
+
+/**
+ * 端末で、入力を表示せずに 1 行を聞く（パスワードなど）。表示を止められない環境（stty が無い・使えない）では聞かずに null
+ */
+function cli_prompt_secret(string $prompt): ?string
+{
+    if (!cli_can_hide_input()) {
+        return null;
+    }
+    @shell_exec('stty -echo 2>/dev/null');
+    try {
+        $line = cli_prompt($prompt);
+    } finally {
+        @shell_exec('stty echo 2>/dev/null');
+        fwrite(STDERR, "\n");
+    }
+    return $line;
+}
+
 function cli_system_log_format_entry(array $entry): string
 {
     $level = strtoupper((string)array_get($entry, 'level', ''));

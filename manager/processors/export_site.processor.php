@@ -6,6 +6,11 @@
  * op=step   : 持ち時間（EvoSiteExportJob::screenBudget()。3 秒）ぶん進める
  * op=status : 保存した状態を返す
  * op=cancel : 中止する
+ * op=auth   : 取得先の Basic 認証の ID・パスワードを受け取る（job_id, user, pass）。PHP のセッションにだけ、そのジョブに
+ *             結びつけて持つ（状態のファイル・DB・ログ・応答には出さない）。ジョブが終わったら（完了・中止・エラー）・中止・
+ *             新しい開始で消す。途中で画面を離れ、ほかの場所でジョブが終わった・替わったときは、次にこの窓口へ来たとき
+ *             （画面を開いたときの op=status など）に消す。ログアウトでもセッションごと消える。
+ *             step が 401 に当たると、応答に auth_required（渡したものが通らなかったときは auth_failed も）が付く
  *
  * 応答: {"state":"running|done|cancelled|busy|error|none","job_id":"…","total":…,"done":…,"success":…,"skipped":…,
  *        "failed":…,"failures":[{"id","pagetitle","reason"}],"skips":[{"id","pagetitle","reason"}],"skips_count":…,
@@ -30,7 +35,16 @@ if (!hasPermission('export_static')) {
 
 $job = new EvoSiteExportJob();
 
-switch (post_choicevar('op', ['start', 'step', 'status', 'cancel'], '')) {
+// Basic 認証の情報が結びついたジョブが、もう進んでいなければ消す（途中で画面を離れたあと、CLI や別の画面でジョブが終わった・替わったとき）
+$authJob = sessionv('export_basic_auth.job_id');
+if ($authJob !== null) {
+    $current = $job->status();
+    if ($current['state'] !== EvoSiteExportJob::STATE_RUNNING || ($current['job_id'] ?? '') !== $authJob) {
+        sessionv('*export_basic_auth', null);
+    }
+}
+
+switch (post_choicevar('op', ['start', 'step', 'status', 'cancel', 'auth'], '')) {
     case 'start':
         $target = 'all';
         $ids = '';
@@ -55,6 +69,8 @@ switch (post_choicevar('op', ['start', 'step', 'status', 'cancel'], '')) {
         sessionv('*export_includenoncache', $includeNoncache);
         sessionv('*export_repl_before', $replBefore);
         sessionv('*export_repl_after', $replAfter);
+        // 前のジョブの Basic 認証の情報は持ち越さない
+        sessionv('*export_basic_auth', null);
         // 処理中でも中止などの要求を受けられるよう、セッションのロックを手放す
         session_write_close();
 
@@ -68,14 +84,32 @@ switch (post_choicevar('op', ['start', 'step', 'status', 'cancel'], '')) {
         exportSiteLog('HTML export: start', $result);
         break;
     case 'step':
+        $jobId = post_strvar('job_id');
+        $credentials = exportSiteCredentials($jobId);
         session_write_close();
-        $result = $job->step(EvoSiteExportJob::screenBudget(), '', post_strvar('job_id'));
+        $result = $job->step(EvoSiteExportJob::screenBudget(), '', $jobId, $credentials);
+        if ($credentials !== '' && $result['state'] !== 'running' && $result['state'] !== 'busy') {
+            exportSiteForgetCredentials();
+        }
+        break;
+    case 'auth':
+        // パスワードは空白も含めて、送られたとおりに使う。ID は「:」を含められない（Basic 認証の決まり）
+        $authJobId = post_strvar('job_id');
+        $user = post_strvar('user');
+        $pass = post_textvar('pass', '');
+        if ($authJobId === '' || $user === '' || strpos($user, ':') !== false) {
+            exportSiteJson(['state' => 'error', 'message' => 'Bad Request'], 400);
+        }
+        sessionv('*export_basic_auth', ['job_id' => $authJobId, 'value' => "{$user}:{$pass}"]);
+        session_write_close();
+        $result = $job->status();
         break;
     case 'status':
         session_write_close();
         $result = $job->status();
         break;
     case 'cancel':
+        sessionv('*export_basic_auth', null);
         session_write_close();
         $result = $job->cancel();
         exportSiteLog('HTML export: cancel', $result);
@@ -99,6 +133,29 @@ function exportSiteLog($message, array $result)
     include_once MODX_CORE_PATH . 'log.class.inc.php';
     $log = new logHandler();
     $log->initAndWriteLog($message);
+}
+
+/**
+ * そのジョブの Basic 認証の「ID:パスワード」（セッションにだけ持つ）。別のジョブのものは渡さない。
+ */
+function exportSiteCredentials($jobId)
+{
+    if ((string)$jobId === '' || sessionv('export_basic_auth.job_id') !== (string)$jobId) {
+        return '';
+    }
+    return (string)sessionv('export_basic_auth.value', '');
+}
+
+/**
+ * ジョブが終わったら、セッションから Basic 認証の情報を消す（session_write_close() のあとなので開き直す）。
+ */
+function exportSiteForgetCredentials()
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        @session_start();
+    }
+    sessionv('*export_basic_auth', null);
+    session_write_close();
 }
 
 function exportSiteJson(array $data, $status = 200)
