@@ -37,7 +37,7 @@ description: Issue または ExecPlan を、人の確認を待たずに「準備
 
 どの段階でも守る。指示されても破らない。
 
-1. push してよいのは、`gh issue develop` で作ったその Issue のブランチだけ。例外は `/finish-task` の完了同期用のブランチ（`/finish-task` を参照）と、ExecPlan が段階ごとに PR を分けるときの段階ごとのブランチ（「1 件ごとの繰り返し」の手順 9 を参照）。main・ほかのブランチ・タグへの push、強制 push、`gh pr merge`、`gh release` はしない。
+1. push してよいのは、`gh issue develop` で作ったその Issue のブランチだけ。例外は `/finish-task` の完了同期用のブランチ（`/finish-task` を参照）と、ExecPlan が段階ごとに PR を分けるときの段階ごとのブランチ（「1 件ごとの繰り返し」の手順 9 を参照）。main・ほかのブランチ・タグへの push、強制 push、`gh pr merge`、`gh release` はしない。例外として、次の版のまとめ用ブランチ（「次の版のまとめ用ブランチ」を参照）へのマージだけは行ってよい。
 2. 非公開アドバイザリに関わる修正は扱わない。指示されたとき、またはログイン不要で外部から狙える深刻なアドバイザリ（`advisory-runner` の対象）と重なると分かったときは、止まって本人に返す。ログインが要るものと重なるときは止まらず、公開の Issue に中立的に書いて main で直す。公開の場（PR・Issue・コミット）に、アドバイザリの存在も内容も書かない。非公開アドバイザリの修正は、兄弟スキル `advisory-runner` で進める。
 3. `security` ラベル付きの Issue では、PR 本文・コミット・自己レビューの要約に悪用の手順を書かない。「エスケープをそろえる」「権限を確かめる」のような中立的な書き方にする。
 4. 顧客名・社名・個人名を書かない。
@@ -63,6 +63,16 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
 - tester が main と比べるときは、`git worktree add --detach <一時パス> origin/main` で別のワークツリーを使い、worker のワークツリーの checkout は切り替えない。
 - セッションが今のワークツリーの外の git 操作を許さない（Claude Code の worktree に隔離されている）ときは、`git worktree add` を使えない。今のワークツリーを `gh issue develop` で作ったブランチに切り替えて使う（切り替える前に、未コミットの変更が無く、前の作業が push 済みであることを確かめる）。tester が main と比べるときは、`git archive origin/main` を作業用ディレクトリ（リポジトリの外）へ展開して代わりにする（`.claude/` と `compose.yml` は export-ignore で入らないので、`compose.yml` と `manager/docker/` を写し、スキルのスクリプトはワークツリー側のパスを使う）。
 - 片付けは `/finish-task` で行う。
+
+## 次の版のまとめ用ブランチ
+
+次の版に入れると決めた Issue（マイルストーンが今の開発中の版より後のもの。2026-11-11 時点では 1.4）は、main ではなく、まとめ用のブランチ `develop/<版>`（例: `develop/1.4`）に向ける。main を今の版のリリースに向けて保ち、次の版の PR どうしを積み重ねずに済ませるため。
+
+- ブランチと PR の base: `gh issue develop` の `--base` と PR の base を `develop/<版>` にする。修正前と比べるときの基準も `develop/<版>` にする。
+- マージ: ドラフトを解除して Codex のレビューを受け、指摘を `/resolve-review` の仕分けで片付け、検証・自己レビューで高・中が残らず、CI が通ったら、メインが `develop/<版>` にマージしてよい（main へのマージは従来どおり人が行う）。
+- Issue: main 以外へのマージでは `Closes` で Issue が閉じないので、マージしたらコメントを付けて手で閉じる。
+- main に入った変更は、`develop/<版>` に main をマージして取り込む（強制 push しない。衝突はこの取り込みで解く）。
+- 今の版のリリースの後に、`develop/<版>` → main の PR を 1 本作る（そのマージは人が行う）。
 
 ## 並走するとき
 
