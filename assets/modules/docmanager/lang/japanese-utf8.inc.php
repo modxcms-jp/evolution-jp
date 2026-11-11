@@ -145,6 +145,7 @@ $_lang['DM_process_update_success'] = '変更は無事完了しました。';
 $_lang['DM_process_update_error'] = 'エラーが発生しました。';
 $_lang['DM_process_date_invalid'] = '日付を解釈できないため、変更しませんでした。日付の形式を確認してください。';
 $_lang['DM_process_no_permission'] = 'リソースグループのアクセス権を変更する権限がありません。';
+$_lang['DM_process_no_access'] = '文書グループの制限で開けない文書 %d 件は、対象から外しました。';
 $_lang['DM_process_back'] = '戻る';
 
 //-- manager access logging
