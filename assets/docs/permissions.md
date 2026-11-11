@@ -78,7 +78,7 @@
 
 | 判定 | 定義 | 使う場所 |
 | --- | --- | --- |
-| `ManagerAPI::isAdmin()` | `access_permissions` と `web_access_permissions` の両方を持つ | バックアップの復元・ファイルブラウザの保護する場所（`PathGuard`）・モジュールの実行・ユーザーの削除・ロック済みモジュールの編集・ユーザー保存の確認・文書グループを付け外しできる範囲（`documentGroupAccess()`）など。アクセスの規則（ユーザーグループ）を扱える人 |
+| `ManagerAPI::isAdmin()` | `access_permissions` と `web_access_permissions` の両方を持つ | バックアップの復元・ファイルブラウザの保護する場所（`PathGuard`）・モジュールの実行・ユーザーの削除・ロック済みモジュールの編集・ユーザー保存の確認・文書グループを付け外しできる範囲（`documentGroupAccess()`）・文書の編集画面の「すべての文書グループ」の欄・DocManager の文書グループの付け外しなど。アクセスの規則（ユーザーグループ）を扱える人 |
 | `ManagerAPI::bypassesDocumentGroups()` | `isAdmin()` または `save_role` | 文書グループの絞り込みを受けない人。本体（DocumentParser・ManagerAPI）の文書グループの判定が使う |
 
 `save_role` を入れる理由は docblock にある（自分のロールに 2 つの権限を付けて `isAdmin()` になれるため、`save_role` だけのロールを絞っても守りにならず、実質の最上位の権限になる）。
@@ -160,7 +160,7 @@
 
 ## 判定の置き場所
 
-文書グループの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）。**文書グループで絞る問い合わせや確認は、自前で条件を書かず、次の判定を使う。** 画面・処理・プラグインごとに条件を書き写さない（食い違いが、権限の抜けや無駄な拒否になる）。
+文書グループとロールの権限の組み合わせの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）。**文書グループで絞る問い合わせや確認、エレメントの管理などの権限の組み合わせは、自前で条件を書かず、次の判定を使う。** 画面・処理・プラグインごとに条件を書き写さない（食い違いが、権限の抜けや無駄な拒否になる）。
 
 ### ManagerAPI の判定
 
@@ -180,6 +180,11 @@
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。`new_document` は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
 | `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
+| `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
+| `hasDocumentGroupCollision()` | 文書グループの「衝突」の知らせを出すか（出すグループがあるのに所属が 0 で、管理者でなく、グループの権限のどちらかを持つ）。文書・下書きの編集画面が使う |
+| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュールのアイコンが使う（知らない種類は `InvalidArgumentException`）。種類と権限名の対応は ManagerAPI の `ELEMENT_PERMISSIONS` が 1 か所で持つ |
+| `canOpenElementManager()` | エレメントの管理（a=76）のメニューを出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
+| `canSaveAnyElement()` | いずれかのエレメントを保存できるか（`save_X` のどれか）。カテゴリの削除とエレメントの管理の削除リンクが使う |
 
 ### DocumentParser の判定
 
@@ -233,6 +238,7 @@
 | --- | --- |
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
+| #1357 の続き | モジュールの管理（a=106）の入口は `exec_module` も通すが、メニュー・ダッシュボードのモジュールのアイコンは `new_module` または `edit_module`（`canManageElement('module')`）で出していて、入口と一致しない |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
 ## 関連ドキュメント

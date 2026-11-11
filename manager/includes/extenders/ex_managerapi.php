@@ -12,6 +12,18 @@ $this->manager = new ManagerAPI;
 // Content manager wrapper class
 class ManagerAPI
 {
+    /**
+     * エレメントの種類ごとの権限名。キーは template・snippet・chunk・plugin・module
+     * （TV はテンプレートの権限に従う）
+     */
+    private const ELEMENT_PERMISSIONS = [
+        'template' => ['new' => 'new_template', 'edit' => 'edit_template', 'save' => 'save_template'],
+        'snippet' => ['new' => 'new_snippet', 'edit' => 'edit_snippet', 'save' => 'save_snippet'],
+        'chunk' => ['new' => 'new_chunk', 'edit' => 'edit_chunk', 'save' => 'save_chunk'],
+        'plugin' => ['new' => 'new_plugin', 'edit' => 'edit_plugin', 'save' => 'save_plugin'],
+        'module' => ['new' => 'new_module', 'edit' => 'edit_module', 'save' => 'save_module'],
+    ];
+
     /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
     private $allowedDocIdsCache;
     /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
@@ -665,6 +677,81 @@ class ManagerAPI
         }
 
         return true;
+    }
+
+    /**
+     * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
+     * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
+     * （main/welcome.static.php）。
+     * モジュールの管理（a=106）の入口は exec_module も通すため、モジュールのメニュー・アイコンの条件は入口と一致しない（permissions.md の分かっている課題を参照）
+     *
+     * @param string $type ELEMENT_PERMISSIONS のキー（template・snippet・chunk・plugin・module）
+     * @return bool
+     * @throws InvalidArgumentException 知らない種類のとき
+     */
+    public function canManageElement($type)
+    {
+        if (!isset(self::ELEMENT_PERMISSIONS[$type])) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+        $permissions = self::ELEMENT_PERMISSIONS[$type];
+        return hasPermission($permissions['new']) || hasPermission($permissions['edit']);
+    }
+
+    /**
+     * エレメントの管理（a=76）を開けるか（メニューの項目の出し分け）。
+     * テンプレート・スニペット・チャンク・プラグインのどれかを管理できる（モジュールは別の入口 a=106）。
+     * 使う場所: manager/frames/menu.php
+     *
+     * @return bool
+     */
+    public function canOpenElementManager()
+    {
+        foreach (array_keys(array_diff_key(self::ELEMENT_PERMISSIONS, ['module' => true])) as $type) {
+            if ($this->canManageElement($type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * テンプレート・スニペット・チャンク・プラグイン・モジュールのどれかを保存できるか。
+     * 使う場所: カテゴリの削除（delete_category.processor.php）と、エレメントの管理の削除リンク
+     *
+     * @return bool
+     */
+    public function canSaveAnyElement()
+    {
+        foreach (self::ELEMENT_PERMISSIONS as $permissions) {
+            if (hasPermission($permissions['save'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 文書グループの「衝突」の知らせを出すか。
+     * 出すグループがあるのに、利用者がどれにも所属していない（そのため選べるグループが無い）。
+     * 管理者（isAdmin()）は対象外で、グループの権限（access_permissions・web_access_permissions）の
+     * どちらかを持つときだけ。
+     * 使う場所: 文書の編集・下書きの編集画面（mutate_content.dynamic.php・mutate_draft.dynamic.php）。
+     * use_udperms が有効なときだけ呼ぶ前提（ここでは use_udperms を見ない）
+     *
+     * @return bool
+     */
+    public function hasDocumentGroupCollision()
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+        $access = $this->documentGroupAccess();
+        if ($access['yes'] != 0 || $access['no'] <= 0) {
+            return false;
+        }
+        return hasPermission('access_permissions') || hasPermission('web_access_permissions');
     }
 
     // get user's document groups
