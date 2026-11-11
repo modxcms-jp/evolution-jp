@@ -30,6 +30,8 @@ $exportJsKeys = [
     'export_site_eta', 'export_site_eta_calculating', 'export_site_eta_seconds', 'export_site_eta_minutes',
     'export_site_eta_hours',
     'export_site_title_done', 'export_site_title_failed', 'export_site_title_stopped',
+    'export_site_basic_auth_title', 'export_site_basic_auth_prompt', 'export_site_basic_auth_retry',
+    'export_site_basic_auth_insecure', 'export_site_basic_auth_user', 'export_site_basic_auth_user_invalid', 'password',
 ];
 $exportJsLang = [];
 foreach ($exportJsKeys as $key) {
@@ -315,6 +317,8 @@ foreach ($exportJsKeys as $key) {
         'use strict';
         const T = {<?= implode(',', $exportJsLang) ?>};
         const ENDPOINT = 'index.php?a=308';
+        // ページを取りに行く先（サイトの URL）が http か。Basic 認証の ID・パスワードは、サーバーからそこへも送られる
+        const FETCH_INSECURE = <?= strpos(MODX_SITE_URL, 'https://') === 0 ? 'false' : 'true' ?>;
         const $ = function (id) {
             return document.getElementById(id);
         };
@@ -821,6 +825,44 @@ foreach ($exportJsKeys as $key) {
             return false;
         };
 
+        // 取得先が Basic 認証の場所のとき、ID とパスワードを聞く（管理画面の共通のダイアログ）。
+        // ID が空か「:」を含むなら聞き直す。取り消したら null
+        const askBasicAuth = function (failed, invalidUser) {
+            return new Promise(function (resolve) {
+                const notes = [T.export_site_basic_auth_prompt];
+                if (failed) {
+                    notes.push(T.export_site_basic_auth_retry);
+                }
+                if (invalidUser) {
+                    notes.push(T.export_site_basic_auth_user_invalid);
+                }
+                // ブラウザから管理画面へ、またはサーバーから取得先へのどちらかが http なら知らせる
+                if (location.protocol !== 'https:' || FETCH_INSECURE) {
+                    notes.push(T.export_site_basic_auth_insecure);
+                }
+                window.EvoDialog.form(
+                    notes.join('<br>'),
+                    [
+                        {name: 'user', label: T.export_site_basic_auth_user},
+                        {name: 'pass', label: T.password, type: 'password'}
+                    ],
+                    T.export_site_basic_auth_title,
+                    function (values) {
+                        if (values === null) {
+                            resolve(null);
+                            return;
+                        }
+                        if (values.user === '' || values.user.indexOf(':') !== -1) {
+                            askBasicAuth(failed, values.user !== '').then(resolve);
+                            return;
+                        }
+                        resolve(values);
+                    },
+                    failed || invalidUser ? {icon: 'warning'} : undefined
+                );
+            });
+        };
+
         // 続きを進めるを、終わるまで繰り返す
         const loop = async function () {
             if (running) {
@@ -854,6 +896,23 @@ foreach ($exportJsKeys as $key) {
                     showStatus(res);
                     setNotice(T.export_site_job_replaced + (els.notice.hidden ? '' : '<br>' + els.notice.innerHTML), true);
                     return;
+                }
+                if (res.state === 'running' && res.auth_required && !cancelling) {
+                    // この step で先に進んだ分を出してから聞く。聞いている間の時間は、進む速さの見積もりに入れない
+                    renderProgress(res);
+                    hideEta();
+                    const cred = await askBasicAuth(!!res.auth_failed, false);
+                    lastUpdate = null;
+                    if (!running || !alive()) {
+                        return;
+                    }
+                    if (cred === null) {
+                        // 取り消したら中止する
+                        cancelling = true;
+                        continue;
+                    }
+                    await call('auth', {job_id: jobId, user: cred.user, pass: cred.pass});
+                    continue;
                 }
                 if (res.state === 'running') {
                     const now = window.performance.now();

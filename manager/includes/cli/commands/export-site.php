@@ -12,7 +12,9 @@ $fail = function ($message) use ($plain) {
 };
 
 $usage = 'Usage: php evo export:site [--target=all|allow|ignore] [--ids=1,2,3] [--include-noncache]'
-    . ' [--replace-before=TEXT] [--replace-after=TEXT] [--site-url=URL] [--restart]';
+    . ' [--replace-before=TEXT] [--replace-after=TEXT] [--site-url=URL] [--restart]'
+    . "\n  If the site is behind HTTP Basic authentication, set EVO_EXPORT_BASIC_AUTH=USER:PASS,"
+    . ' or run it in a terminal to be asked for them.';
 
 $target = 'all';
 $idsArg = null;
@@ -53,6 +55,15 @@ if ($target !== 'all') {
 }
 if ($siteUrl !== '' && !preg_match('#^https?://[^\s/]+#i', $siteUrl)) {
     $fail("Error: --site-url must start with http:// or https://\n" . $usage);
+}
+// 取得先が Basic 認証の場所のときの「ID:パスワード」。引数では受けない（プロセスの一覧やシェルの履歴に残るため）。
+// 環境変数で受け、無ければ 401 に当たったときに端末で聞く。ジョブの状態・ログには書かない
+$credentials = (string)getenv('EVO_EXPORT_BASIC_AUTH');
+// 読んだら消す（このあと起こす子のプロセス（stty やプラグインの exec など）に渡さない）
+putenv('EVO_EXPORT_BASIC_AUTH');
+$credentialsFromEnv = $credentials !== '';
+if ($credentialsFromEnv && strpos($credentials, ':') === false) {
+    $fail('Error: EVO_EXPORT_BASIC_AUTH must be USER:PASS.');
 }
 
 $job = new EvoSiteExportJob();
@@ -108,10 +119,49 @@ cli_out("Exporting {$result['total']} resources...");
 $jobId = $result['job_id'];
 $printedBucket = 0;
 $budget = EvoSiteExportJob::defaultBudget();
+// Basic 認証に当たったとき、端末で ID とパスワードを聞く。
+// 戻り値は [true, 「ID:パスワード」]。聞けない・取り消したときは [false, 止める理由の文]
+$askCredentials = function ($failed) {
+    if (!cli_stdin_is_interactive()) {
+        return [false, 'Error: the site requires HTTP Basic authentication. Set EVO_EXPORT_BASIC_AUTH=USER:PASS'
+            . ' or run it in a terminal.'];
+    }
+    if (!cli_can_hide_input()) {
+        return [false, 'Error: the site requires HTTP Basic authentication, and the password cannot be read without'
+            . ' showing it here (stty is not available). Set EVO_EXPORT_BASIC_AUTH=USER:PASS.'];
+    }
+    cli_err($failed
+        ? 'The user name or password was not accepted.'
+        : 'The site requires HTTP Basic authentication.');
+    $user = cli_prompt('User: ');
+    if ($user === null || $user === '') {
+        return [false, 'Error: no user name was entered.'];
+    }
+    if (strpos($user, ':') !== false) {
+        return [false, 'Error: the user name cannot contain ":".'];
+    }
+    $pass = cli_prompt_secret('Password: ');
+    if ($pass === null) {
+        return [false, 'Error: the password could not be read.'];
+    }
+    return [true, "{$user}:{$pass}"];
+};
 // 持ち時間つきで繰り返す（ベアラートークンを step ごとに発行し直し、1 つを長く使わないため）
 while (true) {
-    // 取得先（--site-url）は状態に保存されないので、そのつど渡す
-    $result = $job->step($budget, $siteUrl, $jobId);
+    // 取得先（--site-url）と Basic 認証の情報は状態に保存されないので、そのつど渡す
+    $result = $job->step($budget, $siteUrl, $jobId, $credentials);
+    if (!empty($result['auth_required'])) {
+        // 環境変数のものが通らなかったときは、聞き直さずに止める。端末なら聞き直す（上限はジョブの MAX_AUTH_TRIES）
+        [$ok, $asked] = $credentialsFromEnv
+            ? [false, 'Error: the site rejected EVO_EXPORT_BASIC_AUTH (HTTP 401).']
+            : $askCredentials(!empty($result['auth_failed']));
+        if (!$ok) {
+            $job->cancel();
+            $fail($asked . ' The export was cancelled.');
+        }
+        $credentials = $asked;
+        continue;
+    }
     if ($result['state'] === EvoSiteExportJob::STATE_BUSY) {
         // 画面のタブなど、ほかが処理中。間をおいて送り直す
         sleep(1);

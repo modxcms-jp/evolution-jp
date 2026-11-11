@@ -65,6 +65,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | `.width()` / `.height()` | 内容領域の大きさ。`getComputedStyle(el)` の `width` / `height` を数値にする（`box-sizing: border-box` のときは padding と border を引く）。`offsetWidth` / `offsetHeight` とは違う |
 | `$j.inArray(v, arr)` / `$j.extend` | `arr.indexOf(v)` / `Object.assign` |
 | `$j.each(arr, function (i, v) { … })` | `arr.forEach(function (v, i) { … })`。引数の順が逆になる。オブジェクトは `Object.keys(obj).forEach(function (k) { … obj[k] … })` |
+| jquery.alerts の `jAlert` / `jConfirm` / `jPrompt` | `EvoDialog.alert` / `EvoDialog.confirm` / `EvoDialog.prompt`（引数は同じ。欄を複数並べるなら `EvoDialog.form`）。jQuery UI の dialog や自前のモーダルのうち、知らせる・確かめる・入力させるものは `EvoDialog` にし、別の管理画面を開くものはシェルのモーダル（`EvoShell.openModal()`）にする。決まりは `manager-dialog.md` |
 
 ## 気をつけること
 
