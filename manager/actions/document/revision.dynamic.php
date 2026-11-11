@@ -51,7 +51,6 @@ function tpl()
 </div>
 <div class="section">
 <div class="sectionBody">
-<script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <div class="msg">
 [+msg+]
 </div>

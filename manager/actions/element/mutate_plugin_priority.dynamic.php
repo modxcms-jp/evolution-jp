@@ -113,7 +113,7 @@ if ($insideUl) {
         display: none;
     }
 </style>
-<script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
+<script type="text/javascript" src="<?= manager_asset('media/script/dragdrop-sort.js') ?>"></script>
 <script type="text/javascript">
     (function() {
         window.save = function() {

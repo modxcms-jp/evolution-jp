@@ -62,9 +62,9 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 ?>
-<script src="media/script/element-properties.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-properties.js') ?>" type="text/javascript"></script>
-<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
-<script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-properties.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-category.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script language="JavaScript">
     Evo.ready(function() {
         EvoElementLock.init(document.forms['mutate'], {

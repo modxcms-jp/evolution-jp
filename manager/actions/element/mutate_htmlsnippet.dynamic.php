@@ -96,8 +96,8 @@ if (isset($content['which_editor'])) {
 
 // Print RTE Javascript function
 ?>
-<script src="media/script/element-category.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-category.js') ?>" type="text/javascript"></script>
-<script src="media/script/element-lock.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/element-lock.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-category.js') ?>" type="text/javascript"></script>
+<script src="<?= manager_asset('media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script>
     // Added for RTE selection
     function changeRTE() {

@@ -176,8 +176,8 @@ class Qm
         if (empty(evo()->documentIdentifier)) {
             return false;
         }
-        // 管理画面で開ける文書か。文書グループの判定は ManagerAPI が正（#1338）
-        return manager()->canAccessDocument(evo()->documentIdentifier);
+        // 管理画面の編集画面で開ける文書か。判定の正は ManagerAPI（#1338・#1360）
+        return manager()->canOpenDocumentEditor(evo()->documentIdentifier);
     }
 
     // Function from: manager/processors/cache_sync.class.processor.php

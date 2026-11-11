@@ -746,6 +746,21 @@ class ManagerAPI
     }
 
     /**
+     * 1 つの文書の非公開の印（privatemgr・privateweb）を、実際の所属から求め直す。
+     * id が 0 や空だと setMgrDocsAsPrivate()・setWebDocsAsPrivate() は全文書を計算するので、
+     * その落とし穴をここで防ぎ、正の id のときだけ行う。
+     */
+    public function refreshDocumentPrivateFlags($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId < 1) {
+            return;
+        }
+        $this->setWebDocsAsPrivate($docId);
+        $this->setMgrDocsAsPrivate($docId);
+    }
+
+    /**
      *    Secure Manager Documents
      *    This script will mark manager documents as private
      *
@@ -825,6 +840,60 @@ class ManagerAPI
             sprintf("id IN (%s)", $ids)
         );
         return $ids;
+    }
+
+    /**
+     * 文書グループを削除する
+     *
+     * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
+     * 文書グループの id を持つ 5 つの表（install/sql/create_tables.sql）
+     * document_groups・documentgroup_names・membergroup_access・
+     * site_tmplvar_access・webgroup_access の行をすべて消す。
+     * そのグループに付いていた文書があれば、privatemgr / privateweb を全件で計算し直し、
+     * 印ごとキャッシュされたページを消すためページキャッシュも消す。
+     *
+     * @param int $groupId
+     * @return bool 失敗したら false
+     */
+    public function deleteDocumentGroup($groupId)
+    {
+        $groupId = (int)$groupId;
+        if ($groupId <= 0) {
+            return false;
+        }
+
+        // 削除の後では分からなくなるので、このグループに付いた文書があるかを先に確かめる
+        $hasDocuments = (bool)db()->getValue(
+            db()->select(
+                'document',
+                '[+prefix+]document_groups',
+                sprintf('document_group=%d', $groupId),
+                '',
+                1
+            )
+        );
+
+        $result = true;
+        $targets = [
+            ['[+prefix+]documentgroup_names', 'id'],
+            ['[+prefix+]document_groups', 'document_group'],
+            ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]site_tmplvar_access', 'documentgroup'],
+            ['[+prefix+]webgroup_access', 'documentgroup'],
+        ];
+        foreach ($targets as [$table, $column]) {
+            if (!db()->delete($table, sprintf('%s=%d', $column, $groupId))) {
+                $result = false;
+            }
+        }
+
+        if ($hasDocuments) {
+            $this->setMgrDocsAsPrivate();
+            $this->setWebDocsAsPrivate();
+            evo()->clearCache(['target' => 'pagecache']);
+        }
+
+        return $result;
     }
 
     public function getStylePath()
@@ -1448,6 +1517,51 @@ class ManagerAPI
             sprintf('sc.id=%d AND %s', (int)$docId, $cond)
         );
         return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書の編集画面（a=27）を、この利用者が開けるか。view_document の権限、許可するリソースの範囲
+     * （isInAllowedParents()。保存の処理と同じ判定）、文書グループ（canAccessDocument()）を順に見る。
+     * リクエストの値は読まない。QuickManager のボタンの表示と TV の保存が使う。
+     * 保存できるかは save_document（呼ぶ側が見る）。
+     * 管理画面の入口（mutate_content/functions.php の checkPermissions()）は範囲に isAllowed() を使い、
+     * getChildIds の深さ（10 段）と削除済みの扱いが違うので、削除済みの文書の下などでは食い違う。
+     * 入口をこの判定にそろえるのは #1372 で扱う
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canOpenDocumentEditor($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId <= 0) {
+            return false;
+        }
+        return evo()->hasPermission('view_document')
+            && $this->isInAllowedParents($docId)
+            && $this->canAccessDocument($docId);
+    }
+
+    /**
+     * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
+     * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
+     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは、保存の処理と同じく
+     * isAllowroot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
+     * リクエストの値は読まない。QuickManager の追加ボタンが使う
+     *
+     * @param int|string $parentId
+     * @return bool
+     */
+    public function canCreateDocumentUnder($parentId)
+    {
+        if (!evo()->hasPermission('new_document')) {
+            return false;
+        }
+        $parentId = (int)$parentId;
+        if ($parentId <= 0) {
+            return $this->isAllowroot() && $this->isInAllowedParents(0);
+        }
+        return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
     }
 
     /**

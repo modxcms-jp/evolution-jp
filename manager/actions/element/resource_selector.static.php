@@ -89,6 +89,11 @@ switch ($type) {
         $cols = "id,pagetitle as 'name',longtitle as 'description'";
         $from = evo()->getFullTableName('site_content');
         $where = $likeWhere('pagetitle', 'longtitle');
+        // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）。検索条件の OR を包んでから足す
+        $accessCond = manager()->documentAccessCondition('');
+        if ($accessCond !== '') {
+            $where = $where === '' ? $accessCond : "({$where}) AND {$accessCond}";
+        }
         $orderby = 'pagetitle';
         break;
 }
@@ -101,7 +106,7 @@ switch ($type) {
     <title><?= $title . ' ' . $_lang['element_selector_title'] ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
     <link rel="stylesheet" type="text/css"
-          href="media/style/<?= hsc(evo()->config('manager_theme')) ?>/style.css?<?= hsc(globalv('modx_version')) ?>"/>
+          href="<?= hsc(manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css')) ?>"/>
 </head>
 
 <body ondragstart="return false">

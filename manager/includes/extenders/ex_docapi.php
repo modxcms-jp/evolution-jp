@@ -19,9 +19,6 @@ class DocAPI
 
         $f['editedon'] = $f['createdon'];
         $f['editedby'] = $f['createdby'];
-        if ($groups) {
-            $f['privatemgr'] = 1;
-        }
 
 //		$f = $this->setPubStatus($f);
         $newdocid = $this->getNewDocID();
@@ -56,11 +53,22 @@ class DocAPI
 
         if ($groups) {
             foreach ($groups as $group) {
+                $group = (int)$group;
+                if ($group < 1) {
+                    continue;
+                }
                 db()->insert(
                     ['document_group' => $group, 'document' => $id],
                     '[+prefix+]document_groups'
                 );
             }
+            // DocAPI は use_udperms に関係なくグループを書くので、印も関係なく計算する
+            // ManagerAPI は公開側・CLI からも呼ばれるので、無ければ読み込む
+            // （#1338 の PR-A（#1361）で manager() が自分で読み込むようになったら不要）
+            if (!evo()->manager) {
+                evo()->loadExtension('ManagerAPI');
+            }
+            manager()->refreshDocumentPrivateFlags($id);
         }
         evo()->clearCache();
         return $id;

@@ -5,7 +5,7 @@
     <title>MODX CMF Manager Login</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]"/>
     <meta name="robots" content="noindex, nofollow"/>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css"/>
+    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
     <style type="text/css">
         /* Neutralize styles, fonts and viewport:
         ---------------------------------------------------------------- */
@@ -33,8 +33,8 @@
         {padding-left:0;}
     </style>
 
-    <script src="media/script/evo-dialog.js" type="text/javascript"></script>
-    <script src="media/script/login.js" type="text/javascript"></script>
+    <script src="media/script/evo-dialog.js?[+evo_dialog_js_ver+]" type="text/javascript"></script>
+    <script src="media/script/login.js?[+login_js_ver+]" type="text/javascript"></script>
 
 </head>
 <body id="login">

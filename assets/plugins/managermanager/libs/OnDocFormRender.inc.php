@@ -12,7 +12,7 @@ $e->output('
     <!-- This document is using template: ' . (int)$mm_current_page['template'] . ' -->
     <!-- You are logged into the following role: ' . hsc($mm_current_page['role']) . ' -->
 
-    <script src="' . hsc(MODX_BASE_URL . $mm_js . '?' . filemtime(MODX_BASE_PATH . $mm_js)) . '"></script>
+    <script src="' . hsc(site_asset(MODX_BASE_URL . $mm_js)) . '"></script>
     <script>
     // シェルで画面を移ったとき、ルールの定義が構文エラーで動かなくても、前の画面の mm_run を動かさない
     window.mm_run = null;

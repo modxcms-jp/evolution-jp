@@ -144,11 +144,6 @@ function warnings()
     return $warnings;
 }
 
-function getNewVersion() {
-    include MODX_CORE_PATH . 'version.inc.php';
-    return $modx_version;
-}
-
 /**
  * フォームから送られてくるが、設定ではないキー（保存しない）
  */
@@ -190,7 +185,7 @@ function save_settiongs()
 {
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
     $form_v = postv() + $default_config;
-    $form_v['settings_version'] = getNewVersion();
+    $form_v['settings_version'] = evo()->getVersionData('version');
 
     $savethese = [];
     $non_settings = nonSettingKeys();

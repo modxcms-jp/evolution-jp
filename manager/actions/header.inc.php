@@ -35,9 +35,9 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
     <?= csrfTokenMeta() ?>
-    <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/shell.css') ?>" />
-    <link rel="stylesheet" type="text/css" href="media/style/common/selection-dock.css?<?= filemtime(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/' . $modx->config('manager_theme') . '/style.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
@@ -49,15 +49,15 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         echo implode("\n", $evtOut);
     } ?>
     <?= $modx->config('manager_inline_style') ?>
-    <script src="media/script/evo-tooltip.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
-    <script src="media/script/evo-dialog.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>" type="text/javascript"></script>
-    <script type="text/javascript" src="media/script/tabpane.js"></script>
+    <script src="<?= manager_asset('media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
+    <script src="<?= manager_asset('media/script/evo-dialog.js') ?>" type="text/javascript"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/tabpane.js') ?>"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
-    <script type="text/javascript" src="media/script/csrf.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/csrf.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/csrf.js') ?>"></script>
     <!-- jQuery 置き換え用の共通部品（Evo.ready / Evo.fetch / Evo.post） -->
-    <script type="text/javascript" src="media/script/evo.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/evo.js') ?>"></script>
-    <script type="text/javascript" src="media/script/shell.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell.js') ?>"></script>
-    <script type="text/javascript" src="media/browser/evo-file-picker.js?<?= filemtime(MODX_MANAGER_PATH . 'media/browser/evo-file-picker.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/evo.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/script/shell.js') ?>"></script>
+    <script type="text/javascript" src="<?= manager_asset('media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
         window.main = window;
