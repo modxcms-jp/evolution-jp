@@ -827,30 +827,27 @@ class ManagerAPI
     /**
      * 非公開の印の列を 1 回の UPDATE で書き直す
      *
-     * 副問い合わせは site_content を読まない（更新する表は副問い合わせで読めないため）。
+     * 結びつきのある文書を派生表にして LEFT JOIN で 1 回の UPDATE にする。派生表は site_content を
+     * 読まない（更新する表は副問い合わせで読めないため）。IN (副問い合わせ) の形にすると、
+     * MySQL 5.7 では文書 1 行ごとに副問い合わせを走らせて遅くなる。
      * $column・$accessTable・$alias は呼び出し元が固定で渡す。$docid は (int) 済みの値。
      */
     private function recalcPrivateFlag($column, $accessTable, $alias, $docid)
     {
-        $content = db()->replaceFullTableName('[+prefix+]site_content');
-        $subQuery = sprintf(
-            'SELECT dg.document FROM %s dg INNER JOIN %s %s ON %s.documentgroup = dg.document_group WHERE %s.id > 0',
-            db()->replaceFullTableName('[+prefix+]document_groups'),
-            db()->replaceFullTableName('[+prefix+]' . $accessTable),
-            $alias,
-            $alias,
-            $alias
-        );
         $where = $docid > 0
-            ? sprintf('id = %d', $docid)
-            : sprintf('%s = 1 OR id IN (%s)', $column, $subQuery);
+            ? sprintf('sc.id = %d', $docid)
+            : sprintf('(sc.%s = 1 OR x.document IS NOT NULL)', $column);
 
         db()->query(
             sprintf(
-                'UPDATE %s SET %s = CASE WHEN id IN (%s) THEN 1 ELSE 0 END WHERE %s',
-                $content,
+                'UPDATE %s sc LEFT JOIN (SELECT DISTINCT dg.document FROM %s dg INNER JOIN %s %s ON %s.documentgroup = dg.document_group WHERE %s.id > 0) x ON x.document = sc.id SET sc.%s = IF(x.document IS NULL, 0, 1) WHERE %s',
+                db()->replaceFullTableName('[+prefix+]site_content'),
+                db()->replaceFullTableName('[+prefix+]document_groups'),
+                db()->replaceFullTableName('[+prefix+]' . $accessTable),
+                $alias,
+                $alias,
+                $alias,
                 $column,
-                $subQuery,
                 $where
             )
         );
