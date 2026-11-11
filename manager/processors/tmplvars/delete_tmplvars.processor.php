@@ -27,6 +27,11 @@ if (!$forced) {
     $rs = db()->select($field, $from, $where);
     $count = db()->count($rs);
     if ($count > 0) {
+        // 使用中かの判定（$count）は全件で行い、一覧の行だけ開ける文書に絞る
+        $accessCond = manager()->documentAccessCondition('sc');
+        if ($accessCond !== '') {
+            $rs = db()->select($field, $from, "{$where} AND {$accessCond}");
+        }
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
         <script type="text/javascript">
@@ -49,10 +54,15 @@ if (!$forced) {
         <?php
         echo "<p>" . $_lang['tmplvar_inuse'] . "</p>";
         echo "<ul>";
+        $shown = 0;
         while ($row = db()->getRow($rs)) {
+            $shown++;
             echo '<li><span style="width: 200px"><a href="index.php?id=' . (int)$row['id'] . '&a=27">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
         }
         echo "</ul>";
+        if ($count > $shown) {
+            echo '<p>' . hsc(sprintf($_lang['resources_hidden_by_permission'], $count - $shown)) . '</p>';
+        }
         echo '</div>';
         echo '</div>';
         include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');

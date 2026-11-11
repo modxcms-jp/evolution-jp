@@ -89,6 +89,11 @@ switch ($type) {
         $cols = "id,pagetitle as 'name',longtitle as 'description'";
         $from = evo()->getFullTableName('site_content');
         $where = $likeWhere('pagetitle', 'longtitle');
+        // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）。検索条件の OR を包んでから足す
+        $accessCond = manager()->documentAccessCondition('');
+        if ($accessCond !== '') {
+            $where = $where === '' ? $accessCond : "({$where}) AND {$accessCond}";
+        }
         $orderby = 'pagetitle';
         break;
 }

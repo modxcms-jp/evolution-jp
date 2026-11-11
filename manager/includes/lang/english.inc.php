@@ -1135,6 +1135,7 @@ return [
     "a16_use_resources" => 'The resources that uses this template',
     "a16_many_resources" => 'Because there is much number of the resources, do not display it here.',
     "a16_no_resource" => 'There is not the resources using this template.',
+    "resources_hidden_by_permission" => '%d resource(s) are not shown because you do not have permission.',
 
     'a17_error_reporting_title' => 'Detection level of the PHP error',
     'a17_error_reporting_msg' => 'Set the detection level of the PHP error.',

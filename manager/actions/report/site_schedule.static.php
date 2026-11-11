@@ -24,14 +24,19 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
     </ul>
 </div>
 
+<?php
+// 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）。空なら絞らない
+$accessCond = manager()->documentAccessCondition('sc');
+$accessAnd = $accessCond === '' ? '' : ' AND ' . $accessCond;
+?>
 <div class="section">
     <div class="sectionHeader"><?= lang("publish_events") ?></div>
     <div class="sectionBody" id="lyr1">
         <?php
         $rs = db()->select(
             'id, pagetitle, pub_date',
-            '[+prefix+]site_content',
-            'pub_date > ' . request_time(),
+            '[+prefix+]site_content sc',
+            'pub_date > ' . request_time() . $accessAnd,
             'pub_date ASC'
         );
         $rows = [];
@@ -74,8 +79,8 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
         <?php
         $rs = db()->select(
             'id, pagetitle, unpub_date',
-            '[+prefix+]site_content',
-            'unpub_date > ' . request_time(),
+            '[+prefix+]site_content sc',
+            'unpub_date > ' . request_time() . $accessAnd,
             'unpub_date ASC'
         );
         $rows = [];
@@ -122,7 +127,7 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                 '[+prefix+]site_revision rv',
                 'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
             ],
-            "0<rv.pub_date AND rv.status='standby' ",
+            "0<rv.pub_date AND rv.status='standby'" . $accessAnd,
             'rv.pub_date ASC'
         );
         $rows = [];
