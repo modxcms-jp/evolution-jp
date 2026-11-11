@@ -141,7 +141,7 @@
 
 その文書の 2 つの印を 1 度に計算し直すのは `ManagerAPI::refreshDocumentPrivateFlags($docId)`（`DocAPI::create()`・ddAutoFolders・DocManager の文書グループの付け外し（`assets/modules/docmanager/classes/dm_backend.class.php`）が使う。0 以下の id では何もしない）。
 
-`documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループの削除は、`ManagerAPI::deleteDocumentGroup($groupId)` に 1 か所にある（管理側・Web 側のグループ管理のどちらからも呼ぶ）。文書グループの id を持つ 5 つの表（`document_groups`・`documentgroup_names`・`membergroup_access`・`site_tmplvar_access`・`webgroup_access`）の行を消し、そのグループに文書が付いていたときは、印を全件で計算し直してページキャッシュも消す。
+`documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。Web 側のグループ管理は、このとき `privateweb` を計算し直したあとページキャッシュも消す（ページキャッシュは文書の `privateweb` ごと残り、公開側の読み込みの確認がそれを使うため）。管理側は `privatemgr` を公開側の判定に使わないので消さない（テンプレートで `[*privatemgr*]` を出す場合は、次にキャッシュが消えるまで古い値が出る）。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループの削除は、`ManagerAPI::deleteDocumentGroup($groupId)` に 1 か所にある（管理側・Web 側のグループ管理のどちらからも呼ぶ）。文書グループの id を持つ 5 つの表（`document_groups`・`documentgroup_names`・`membergroup_access`・`site_tmplvar_access`・`webgroup_access`）の行を消し、そのグループに文書が付いていたときは、印を全件で計算し直してページキャッシュも消す。
 
 ### 管理側の所属（mgrDocgroups）
 
