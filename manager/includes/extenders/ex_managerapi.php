@@ -13,15 +13,43 @@ $this->manager = new ManagerAPI;
 class ManagerAPI
 {
     /**
-     * エレメントの種類ごとの権限名。キーは template・snippet・chunk・plugin・module
+     * エレメントの種類。キーは OPERATION_PERMISSIONS の 'element.<種類>.manage'・'element.<種類>.save' に対応する
      * （TV はテンプレートの権限に従う）
      */
-    private const ELEMENT_PERMISSIONS = [
-        'template' => ['new' => 'new_template', 'edit' => 'edit_template', 'save' => 'save_template'],
-        'snippet' => ['new' => 'new_snippet', 'edit' => 'edit_snippet', 'save' => 'save_snippet'],
-        'chunk' => ['new' => 'new_chunk', 'edit' => 'edit_chunk', 'save' => 'save_chunk'],
-        'plugin' => ['new' => 'new_plugin', 'edit' => 'edit_plugin', 'save' => 'save_plugin'],
-        'module' => ['new' => 'new_module', 'edit' => 'edit_module', 'save' => 'save_module'],
+    private const ELEMENT_TYPES = ['template', 'snippet', 'chunk', 'plugin', 'module'];
+
+    /**
+     * 操作 → 必要なロールの権限。ロールの権限の組み合わせの正（can() が引く）。
+     * 'all' はすべて、'any' はどれか 1 つ（両方あれば、'all' のすべてと 'any' のどれか）。
+     * 文書の操作の組み合わせは、処理（manager/processors/ と manager/actions/ の先頭の確かめ）が今求めるものに合わせてある。
+     * 通る経路が複数ある操作は、すべての経路の条件を合わせたもの
+     */
+    private const OPERATION_PERMISSIONS = [
+        // 文書。編集画面（a=27）を開く入口の edit_document は、処理が見る view_document（ロールの編集画面で外せない）とは別に入口の条件として持つ
+        'document.edit' => ['all' => ['edit_document']],
+        'document.save' => ['all' => ['save_document']],
+        // 新規作成（a=4・72 の保存 a=5 は save_document と、新規のとき new_document を求める）
+        'document.create' => ['all' => ['new_document', 'save_document']],
+        // 複製（a=94）
+        'document.duplicate' => ['all' => ['new_document', 'save_document']],
+        // 移動。画面 a=51 は move・save・publish、処理 a=52 は move・edit を求め、a=51 から a=52 へ続けて通る
+        'document.move' => ['all' => ['move_document', 'save_document', 'publish_document', 'edit_document']],
+        // 公開・非公開（a=61・62、一括の a=121 の publish・unpublish）
+        'document.publish' => ['all' => ['save_document', 'publish_document']],
+        // 削除・元に戻す（a=6・63、一括の a=121 の delete）
+        'document.delete' => ['all' => ['delete_document']],
+        // エレメントの管理を開く（新規作成か編集のどちらか）
+        'element.template.manage' => ['any' => ['new_template', 'edit_template']],
+        'element.snippet.manage' => ['any' => ['new_snippet', 'edit_snippet']],
+        'element.chunk.manage' => ['any' => ['new_chunk', 'edit_chunk']],
+        'element.plugin.manage' => ['any' => ['new_plugin', 'edit_plugin']],
+        'element.module.manage' => ['any' => ['new_module', 'edit_module']],
+        // エレメントの保存
+        'element.template.save' => ['all' => ['save_template']],
+        'element.snippet.save' => ['all' => ['save_snippet']],
+        'element.chunk.save' => ['all' => ['save_chunk']],
+        'element.plugin.save' => ['all' => ['save_plugin']],
+        'element.module.save' => ['all' => ['save_module']],
     ];
 
     /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
@@ -680,23 +708,53 @@ class ManagerAPI
     }
 
     /**
+     * 操作に必要なロールの権限を、OPERATION_PERMISSIONS の表から引いて判定する。
+     * 操作の名前は表のキー（'document.move' など）。表は権限の組み合わせだけを持つので、
+     * 範囲・文書グループが要る操作は、呼ぶ側が canAccessDocument() などを合わせる
+     *
+     * @param string $operation OPERATION_PERMISSIONS のキー
+     * @return bool
+     * @throws InvalidArgumentException 知らない操作のとき
+     */
+    public function can(string $operation): bool
+    {
+        if (!isset(self::OPERATION_PERMISSIONS[$operation])) {
+            throw new InvalidArgumentException("Unknown operation: {$operation}");
+        }
+        $rule = self::OPERATION_PERMISSIONS[$operation];
+        foreach ($rule['all'] ?? [] as $permission) {
+            if (!hasPermission($permission)) {
+                return false;
+            }
+        }
+        if (!isset($rule['any'])) {
+            return true;
+        }
+        foreach ($rule['any'] as $permission) {
+            if (hasPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
      * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
      * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
      * （main/welcome.static.php）。
      * モジュールの管理（a=106）の入口は exec_module も通すため、モジュールのメニュー・アイコンの条件は入口と一致しない（permissions.md の分かっている課題を参照）
      *
-     * @param string $type ELEMENT_PERMISSIONS のキー（template・snippet・chunk・plugin・module）
+     * @param string $type ELEMENT_TYPES の値（template・snippet・chunk・plugin・module）
      * @return bool
      * @throws InvalidArgumentException 知らない種類のとき
      */
     public function canManageElement($type)
     {
-        if (!isset(self::ELEMENT_PERMISSIONS[$type])) {
+        if (!in_array($type, self::ELEMENT_TYPES, true)) {
             throw new InvalidArgumentException("Unknown element type: {$type}");
         }
-        $permissions = self::ELEMENT_PERMISSIONS[$type];
-        return hasPermission($permissions['new']) || hasPermission($permissions['edit']);
+        return $this->can("element.{$type}.manage");
     }
 
     /**
@@ -708,7 +766,7 @@ class ManagerAPI
      */
     public function canOpenElementManager()
     {
-        foreach (array_keys(array_diff_key(self::ELEMENT_PERMISSIONS, ['module' => true])) as $type) {
+        foreach (array_diff(self::ELEMENT_TYPES, ['module']) as $type) {
             if ($this->canManageElement($type)) {
                 return true;
             }
@@ -724,8 +782,8 @@ class ManagerAPI
      */
     public function canSaveAnyElement()
     {
-        foreach (self::ELEMENT_PERMISSIONS as $permissions) {
-            if (hasPermission($permissions['save'])) {
+        foreach (self::ELEMENT_TYPES as $type) {
+            if ($this->can("element.{$type}.save")) {
                 return true;
             }
         }
@@ -1788,9 +1846,9 @@ class ManagerAPI
 
     /**
      * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
-     * new_document の権限、許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、
-     * 親の文書グループ（canAccessDocument()）を見る。親が 0 以下（ルート）のときは、保存の処理と同じく
-     * canPlaceAtRoot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
+     * 新規作成の権限（can('document.create')。保存 a=5 が求める new_document と save_document）、
+     * 許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、親の文書グループ（canAccessDocument()）を見る。
+     * 親が 0 以下（ルート）のときは、保存の処理と同じく canPlaceAtRoot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
      * リクエストの値は読まない。QuickManager の追加ボタンが使う
      *
      * @param int|string $parentId
@@ -1798,7 +1856,7 @@ class ManagerAPI
      */
     public function canCreateDocumentUnder($parentId)
     {
-        if (!evo()->hasPermission('new_document')) {
+        if (!$this->can('document.create')) {
             return false;
         }
         $parentId = (int)$parentId;
