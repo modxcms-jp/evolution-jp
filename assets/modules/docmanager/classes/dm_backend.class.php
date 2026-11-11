@@ -3,6 +3,8 @@
 class DocManagerBackend
 {
     public $dm = null;
+    /** @var int 直前の processRange() で、文書グループの制限により対象から外した文書の数 */
+    private $skippedCount = 0;
 
     public function __construct(&$dm)
     {
@@ -122,11 +124,29 @@ class DocManagerBackend
                 }
             }
             [$accessible, $skipped] = $this->splitAccessibleIds(array_keys($order));
-            foreach ($accessible as $id) {
+            $menuindexes = array_values($order);
+            if ($skipped) {
+                // 見えない同じ親の子と menuindex が重ならないよう、開ける子が今持つ値を小さい順に、新しい順番へ割り当て直す
+                $current = [];
+                $rs = db()->select(
+                    'id,menuindex',
+                    '[+prefix+]site_content',
+                    'id IN (' . implode(',', array_map('intval', $accessible)) . ')'
+                );
+                while ($row = db()->getRow($rs)) {
+                    $current[(int)$row['id']] = (int)$row['menuindex'];
+                }
+                $accessible = array_values(array_filter($accessible, function ($id) use ($current) {
+                    return isset($current[$id]);
+                }));
+                $menuindexes = array_values($current);
+                sort($menuindexes);
+            }
+            foreach ($accessible as $i => $id) {
                 $sql = sprintf(
                     "UPDATE %s set menuindex=%s WHERE id=%s",
                     evo()->getFullTableName('site_content'),
-                    (int)$order[$id],
+                    (int)$menuindexes[$i],
                     (int)$id
                 );
                 db()->query($sql);
@@ -136,7 +156,7 @@ class DocManagerBackend
         }
         $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_updated'];
         if ($skipped) {
-            $this->dm->ph['sort.message'] .= '<br />' . $this->noAccessMessage($skipped);
+            $this->dm->ph['sort.message'] .= $this->skippedNotice(count($skipped));
         }
         $this->dm->ph['sort.save'] = 'none';
         $this->dm->ph['sort.disable_tree_select'] = 'true';
@@ -150,20 +170,25 @@ class DocManagerBackend
         $error = $results[1];
 
         $templateId = to_uintvar($template);
+        $written = false;
         if ($pids !== '' && $templateId !== null) {
             $values = rtrim($pids, ' OR ');
             $fields = ['template' => $templateId];
             db()->update(db()->escape($fields), evo()->getFullTableName('site_content'), $values);
+            $written = true;
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
+        if ($written) {
+            evo()->clearCache();
+        }
         if (!$error) {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_success'];
-            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
 
         $this->logDocumentChange('template');
@@ -299,6 +324,7 @@ class DocManagerBackend
         if ($updateError) {
             $this->dm->ph['update.message'] .= '<br />' . $updateError;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
 
         evo()->clearCache();
@@ -388,6 +414,7 @@ class DocManagerBackend
         } else {
             $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
         $this->logDocumentChange('docpermissions');
         return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
     }
@@ -510,12 +537,15 @@ class DocManagerBackend
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
+        if ($new) {
+            evo()->clearCache();
+        }
         if (!$error) {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_success'];
-            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
+        $this->dm->ph['update.message'] .= $this->skippedNotice();
 
         return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
     }
@@ -526,6 +556,7 @@ class DocManagerBackend
         $values = [];
         $idarray = [];
         $error = '';
+        $this->skippedCount = 0;
 
         if (trim($pids) !== '') {
             $values = explode(',', $pids);
@@ -610,11 +641,10 @@ class DocManagerBackend
             }
         }
 
-        // 開けない文書（文書グループ）は、ここで対象から外す。更新の入口はすべてこの関数を通る
+        // 開けない文書（文書グループ）は対象から外す。判定は splitAccessibleIds() の 1 か所で、
+        // 範囲の入力を受ける更新はこの関数を通る。外した数は skippedNotice() でお知らせとして出す（エラーにしない）
         [$idarray, $skipped] = $this->splitAccessibleIds($idarray);
-        if ($skipped) {
-            $error .= $this->noAccessMessage($skipped) . '<br />';
-        }
+        $this->skippedCount = count($skipped);
 
         if ($returnval == 0) {
             return [$idarray, $error];
@@ -665,11 +695,19 @@ class DocManagerBackend
         return [$accessible, $skipped];
     }
 
-    private function noAccessMessage(array $skippedIds)
+    /**
+     * 外した文書の数を伝えるお知らせ（エラーとは別。id は出さない）。外していなければ空文字
+     *
+     * @param int $count 省略時は直前の processRange() の数
+     * @return string
+     */
+    private function skippedNotice($count = null)
     {
-        $shown = array_slice($skippedIds, 0, 50);
-        return $this->dm->lang['DM_process_no_access'] . ' ' . hsc(implode(', ', $shown))
-            . (count($skippedIds) > count($shown) ? ' ...' : '');
+        $count = $count ?? $this->skippedCount;
+        if ($count <= 0) {
+            return '';
+        }
+        return '<br />' . sprintf($this->dm->lang['DM_process_no_access'], (int)$count);
     }
 
     function getTemplateVarIds($documentId, $tvNames = [], $ignoreList = [])
