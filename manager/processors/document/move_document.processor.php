@@ -40,7 +40,7 @@ if ($new_parent === null) {
 // 権限のエラーや「新しい親を選んでください」より先に、自分自身・子孫のエラーを出すため、親が変わるかに関わらずここで確かめる
 $invalid_parent = manager()->invalidParentMessage($doc_ids, $new_parent);
 if ($invalid_parent !== '') {
-    alertAndQuit($invalid_parent, $doc_ids[0]);
+    alertAndQuit($invalid_parent, $doc_ids);
 }
 
 // 移動するリソースそれぞれについても、操作できるかを確かめる
@@ -74,14 +74,14 @@ $current_parent = (int) db()->getValue($rs);
 if ($current_parent != $new_parent) {
     $denied = manager()->parentChangeDeniedMessage($doc_ids, $new_parent);
     if ($denied !== '') {
-        alertAndQuit($denied, $doc_id);
+        alertAndQuit($denied, $doc_ids);
     }
 }
 
 if ($current_parent == $new_parent) {
     alertAndQuit(
         lang('move_resource_new_parent'),
-        $doc_id
+        $doc_ids
     );
     exit;
 }
@@ -94,7 +94,7 @@ $rs = db()->update(
 if (!$rs) {
     alertAndQuit(
         'An error occured while attempting to change the new parent to a folder.',
-        $doc_id
+        $doc_ids
     );
     exit;
 }
@@ -129,7 +129,7 @@ $rs = db()->select(
 if (!$rs) {
     alertAndQuit(
         "An error occured while attempting to find the old parents' children.",
-        $doc_id
+        $doc_ids
     );
     exit;
 }
@@ -144,7 +144,7 @@ if (!$row['count']) {
     if (!$rs) {
         alertAndQuit(
             'An error occured while attempting to change the old parent to a regular resource.',
-            $doc_id
+            $doc_ids
         );
         exit;
     }
@@ -180,14 +180,18 @@ function accessDenied($lang_key)
     exit;
 }
 
-function alertAndQuit($string, $docid)
+// 断ったあとは、移動の画面に戻す。複数のときは対象を全件引き継ぐ（1 件は id、複数は batch[]。画面の受け取りと同じ）
+function alertAndQuit($string, array $docIds)
 {
+    $docIds = array_map('intval', $docIds);
+    if (count($docIds) === 1) {
+        $query = 'id=' . $docIds[0];
+    } else {
+        $query = 'batch[]=' . implode('&batch[]=', $docIds);
+    }
     evo()->webAlertAndQuit(
         $string,
-        sprintf(
-            "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id=%s';",
-            $docid
-        )
+        "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&" . $query . "';"
     );
     exit;
 }
