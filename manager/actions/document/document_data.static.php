@@ -20,7 +20,7 @@ if (!$id) {
 
 $icons_path = manager_style_image_path('icons');
 
-if (!manager()->isAllowed($id)) {
+if (!manager()->isInAllowedParents($id)) {
     alert()->setError(3);
     alert()->dumpError();
 }

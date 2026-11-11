@@ -472,32 +472,28 @@ function checkPermissions($id)
 {
     global $modx;
 
-    $isAllowed = manager()->isAllowed($id);
-    // 新規作成（4・72）で pid を指定したときは、ここでは止めない
-    // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
-    $isEditAction = in_array(manager()->action, [27, 131, 132]);
-    if (!$isAllowed && ($isEditAction || get_strvar('pid') === '')) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-
     $i = manager()->action;
-    if ($isEditAction) {
+    if (in_array($i, [27, 131, 132])) {
         // 編集・下書きの画面は文書の ID が必須
         abort_if_invalid_id('id', true);
-    }
-    if ($i == 27) {
-        if (!hasPermission('view_document')) {
+        // 開けない理由の判定は ManagerAPI の documentEditorDenial()（QuickManager と同じ）。理由ごとに出し分ける
+        $denial = manager()->documentEditorDenial($id);
+        if ($denial === 'no_permission' && $i == 27) {
             $modx->config['remember_last_tab'] = 0;
+        }
+        if ($i == 27 && in_array($denial, ['', 'document_group'], true)) {
+            // 範囲と view_document を通った後（文書グループの確認の前）にロックを外す
+            manager()->remove_locks('27');
+        }
+        if ($denial === 'document_group') {
+            alert()->setError(3, lang('access_permission_denied'));
+            alert()->dumpError();
+        } elseif ($denial !== '') {
             alert()->setError(3);
             alert()->dumpError();
         }
-        manager()->remove_locks('27');
-        if (!evo()->checkPermissions($id)) {
-            alert()->setError(3, lang('access_permission_denied'));
-            alert()->dumpError();
-        }
     } elseif ($i == 72 || $i == 4) {
+        // 新規作成。作成先の親の範囲は保存の処理が確かめる
         if (!hasPermission('new_document')) {
             alert()->setError(3);
             alert()->dumpError();
@@ -507,15 +503,6 @@ function checkPermissions($id)
                 alert()->setError(3);
                 alert()->dumpError();
             }
-        }
-    } elseif ($i == 132 || $i == 131) {
-        if (!hasPermission('view_document')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        if (!evo()->checkPermissions($id)) {
-            alert()->setError(3, lang('access_permission_denied'));
-            alert()->dumpError();
         }
     } else {
         alert()->setError(3);
