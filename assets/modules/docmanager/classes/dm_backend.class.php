@@ -383,8 +383,7 @@ class DocManagerBackend
                             ['document_group' => (int)$docgroup, 'document' => $value],
                             '[+prefix+]document_groups'
                         );
-                        $this->secureWebDocument($value);
-                        $this->secureMgrDocument($value);
+                        manager()->refreshDocumentPrivateFlags($value);
                     }
                     break;
                 case 'pullDocGroup':
@@ -403,8 +402,7 @@ class DocManagerBackend
                                     '[+prefix+]document_groups',
                                     sprintf('document_group=%d AND document=%d', (int)$docgroup, $value)
                                 );
-                                $this->secureWebDocument($value);
-                                $this->secureMgrDocument($value);
+                                manager()->refreshDocumentPrivateFlags($value);
                             } else {
                                 $this->dm->ph['update.message'] .= sprintf(
                                     '%s%s%s<br />',
@@ -774,44 +772,6 @@ class DocManagerBackend
             );
         }
         return $output;
-    }
-
-    public function secureWebDocument($docId = '')
-    {
-        $tbl_site_content = evo()->getFullTableName('site_content');
-        $sql = sprintf(
-            "SELECT DISTINCT sc.id
-            FROM %s sc
-            LEFT JOIN %s dg ON dg.document = sc.id
-            LEFT JOIN %s wga ON wga.documentgroup = dg.document_group
-            WHERE %swga.id>0",
-            $tbl_site_content,
-            evo()->getFullTableName("document_groups"),
-            evo()->getFullTableName("webgroup_access"),
-            $docId > 0 ? " sc.id=" . (int)$docId . " AND " : ""
-        );
-        $ids = db()->getColumn("id", $sql);
-        if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
-        } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privateweb = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privateweb = 1"));
-        }
-    }
-
-    function secureMgrDocument($docId = '')
-    {
-        $tbl_site_content = evo()->getFullTableName('site_content');
-        $sql = "SELECT DISTINCT sc.id
-                FROM " . $tbl_site_content . " sc
-                LEFT JOIN " . evo()->getFullTableName("document_groups") . " dg ON dg.document = sc.id
-                LEFT JOIN " . evo()->getFullTableName("membergroup_access") . " mga ON mga.documentgroup = dg.document_group
-                WHERE " . ($docId > 0 ? " sc.id=" . (int)$docId . " AND " : "") . "mga.id>0";
-        $ids = db()->getColumn("id", $sql);
-        if (count($ids) > 0) {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 1 WHERE id IN (" . implode(",", array_map('intval', $ids)) . ")");
-        } else {
-            db()->query("UPDATE " . $tbl_site_content . " SET privatemgr = 0 WHERE " . ($docId > 0 ? "id=" . (int)$docId : "privatemgr = 1"));
-        }
     }
 
     function logDocumentChange($action)
