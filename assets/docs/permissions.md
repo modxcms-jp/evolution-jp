@@ -1,0 +1,219 @@
+# 権限と文書グループ
+
+管理画面の権限（ロール・「管理者」の判定・文書グループ・許可するリソース）の今の仕組みと、判定を置く場所の決まり。コードを読んで確かめた事実だけを書く。作り直しの方針は #1357 で決める。
+
+細かい規則（引数・戻り値・境界の扱い）は各メソッドの docblock を正とし、この文書には複製しない。この文書は、どの判定がどこにあり、何を正とするかの地図にあたる。
+
+## 全体の見取り図
+
+| 層 | 決めること | 正 |
+| --- | --- | --- |
+| ロール | 管理画面で何の操作ができるか（約 70 個の真偽） | `user_roles` の列、セッション `mgrPermissions` |
+| 文書グループ | どの文書を開けるか（管理側）、公開側で見えるか（Web 側） | グループの結びつきの表（`document_groups`・`membergroup_access`・`webgroup_access` など） |
+| 許可するリソース | 利用者ごとに、どの文書の下を編集してよいか | 利用者の設定 `allowed_parents` |
+
+3 つは独立していて、互いを前提にしない。文書を開いて編集するには、ロールの権限・文書グループ・許可するリソースの 3 つを（設定しているものすべて）通る必要がある。
+
+## 管理ユーザーの権限
+
+### ロール
+
+管理ユーザーは `user_attributes.role` で 1 つのロール（`user_roles` の 1 行）を持つ。ロールの列は次のとおり。
+
+- `id`・`name`・`description`
+- 権限の列 69 個（`int(1)`、1 が許可。定義は `install/sql/create_tables.sql`）
+
+権限はロールごとの平らな真偽の並びで、権限どうしの関係（階層・依存）は持たない。ある権限を持っても、関連する別の権限が自動で付くことはない。
+
+ロールの編集画面（`manager/actions/permission/mutate_role.dynamic.php`）は、権限を機能ごとの群に分けて並べる。保存（`manager/processors/permission/save_role.processor.php`）は、送られた値が 1 のものだけを 1、それ以外を 0 にして書く。完全な一覧の正は、この編集画面とテーブルの定義で、この文書には全部を列挙しない。
+
+- 画面では、`frames`・`home`・`logout`・`action_ok`・`error_dialog`・`about`・`credits`・`view_document` の 8 個は、オンで固定されている（外せない）
+- `edit_parser`・`save_parser`・`manage_metatags`・`edit_doc_metatags` の 4 個は、編集画面に出ない。どのコードも値を読まない（`edit_parser`・`save_parser` は、ロールの保存が送られない値として 0 に書き直す）
+
+### 主な権限の意味
+
+| 群 | 代表の権限 | 意味 |
+| --- | --- | --- |
+| 文書 | `view_document` | 文書の編集画面を開く（管理画面では常にオン） |
+| | `new_document`・`edit_document`・`save_document` | 文書の作成・編集・保存。ツリーのメニューなどが `edit_document` を、保存の処理が `save_document` を見る |
+| | `move_document`・`publish_document`・`delete_document`・`empty_trash` | 移動・公開の切り替え・削除・ごみ箱を空にする |
+| | `view_unpublished`・`view_schedule` | 未公開の文書を見る・予約の一覧 |
+| エレメント | `new_template`・`edit_template`・`save_template`・`delete_template` | テンプレート。スニペット・チャンク・プラグイン・モジュールも、それぞれ `new_*`・`edit_*`・`save_*`・`delete_*`（モジュールは実行の `exec_module` も） |
+| 利用者 | `new_user`・`edit_user`・`save_user`・`delete_user` | 管理ユーザー。Web ユーザーは `*_web_user` |
+| | `access_permissions` | 管理側のグループ管理（ユーザーグループと文書グループの結びつき、所属）。画面の名前は「所属グループ」 |
+| | `web_access_permissions` | Web 側のグループ管理。画面の名前は「ウェブアクセス許可」 |
+| ロール | `new_role`・`edit_role`・`save_role`・`delete_role` | ロールの作成・表示・保存・削除。`save_role` は特別（後述） |
+| 設定・保守 | `settings` | グローバル設定 |
+| | `file_manager`・`bk_manager`・`import_static`・`export_static` | ファイル管理・バックアップ・静的 HTML の取り込みと書き出し |
+| | `logs`・`view_eventlog`・`delete_eventlog`・`remove_locks` | ログの表示・イベントログ・ロックの解除 |
+| その他 | `help`・`change_password`・`save_password`・`empty_cache` | ヘルプ・パスワードの変更・キャッシュの更新 |
+
+`save_role` は、ロールの編集画面で任意のロールの権限を書き換えられる。自分のロールも書き換えられるので、持てば実質的にほかのすべての権限を付けられる。画面ではほかの権限と同じ 1 つのチェックに見える（「管理者」の判定で特別扱いする理由は次の節）。
+
+### 既定のロール
+
+インストール直後（`install/sql/default_settings.sql` と `install/sql/default_settings_custom.sql`）のロールは次のとおり。
+
+| id | 名前 | 権限 |
+| --- | --- | --- |
+| 1 | `Administrator`（管理者） | すべて |
+| 2 | ウェブマスター | すべて。ロールを編集できるので、必要に応じて自分を昇格できる。最初に作る管理ユーザーのロール |
+| 3 | 投稿担当者 | 文書の作成・編集・保存・移動・公開・削除、未公開の文書を見る、予約、キャッシュの更新、ファイル管理、チャンクの編集・保存、モジュールの実行、ロックの解除など。利用者・ロール・グループ・設定の権限は無い（`access_permissions`・`web_access_permissions`・`save_role` も無い） |
+
+古いサイト（`install/sql/default_settings_custom.sql` を使わなかった、またはその前に作ったサイト）では、id 2 が `Editor`、id 3 が `Publisher` のことがある。`Editor` の権限は投稿担当者と同じ。`Publisher` は、`Editor` に利用者・Web ユーザー・テンプレート・設定・バックアップなどを加えたもので、`access_permissions`・`web_access_permissions`・`save_role` は無い。
+
+アップグレードのとき、`user_roles` に権限の列が足されると、そのときの値は id 1 のロールにだけ 1 で入る（`manager/includes/migrations/00000000_baseline.php`）。id 1 が無ければ作る。
+
+### 権限の読み方（hasPermission）
+
+`hasPermission($key)`（ヘルパー）と `evo()->hasPermission($key)` は、セッションの `mgrPermissions[$key] == 1` を返す。`mgrPermissions` は、ロールの行（`ManagerAPI::getMgrPermissions($role)`。ロールが無ければ空）をそのまま持つ。ログインしていなければ false。`$key` を省くと、セッションの内容を文字列にして返す。
+
+- 管理画面へのログイン時にセットする（`manager/processors/login.processor.functions.php` と `DocumentParser` のログイン処理）
+- 管理画面のリクエストごとに `manager/includes/accesscontrol.inc.php` が `refreshMgrPermissions()` で読み直す。ロールを変えると、ログインし直さなくても次のリクエストから反映される
+- 公開側でも、管理画面にログインしているセッションなら同じ値が読める
+
+## 「管理者」の判定
+
+「管理者」という語が指す範囲は、場所によって 2 つある。
+
+| 判定 | 定義 | 使う場所 |
+| --- | --- | --- |
+| `ManagerAPI::isAdmin()` | `access_permissions` と `web_access_permissions` の両方を持つ | バックアップの復元・ファイルブラウザの保護する場所（`PathGuard`）・モジュールの実行・ユーザーの削除・ロック済みモジュールの編集・ユーザー保存の確認・文書グループを付け外しできる範囲（`documentGroupAccess()`）など。アクセスの規則（ユーザーグループ）を扱える人 |
+| `ManagerAPI::bypassesDocumentGroups()` | `isAdmin()` または `save_role` | 文書グループの絞り込みを受けない人。管理画面と公開側のすべての文書グループの判定が使う |
+
+`bypassesDocumentGroups()` に `save_role` を入れるのは、`save_role` を持つと自分のロールに `access_permissions`・`web_access_permissions` を付けて `isAdmin()` になれるため。`save_role` だけのロールを絞っても守りにならず、実質の最上位の権限になる。
+
+`isAdmin()` は、文書グループの絞り込みの判定には使わない（docblock にもある）。
+
+ロールの ID が 1 かどうかで文書グループの絞り込みを外す場所は、この仕組みには無い（かつては DocumentParser の取得の関数・Ditto・Wayfinder にあった。#1338 で DocumentParser の取得の関数は `bypassesDocumentGroups()` に、Ditto・Wayfinder は #1355 で ManagerAPI の判定にそろえる）。
+
+ロールの ID 1 を特別扱いする場所は、文書グループとは別にいくつか残っている。
+
+- ユーザーの一覧は、ロール 1 でない人にロール 1 のユーザーを出さない（`manager/actions/permission/user_management.static.php`）
+- ユーザーの保存は、`isAdmin()` でない人がロール 1 のユーザーを変えるのを止める（`manager/processors/permission/save_user.processor.php`）
+- 設定の確認（`manager/includes/config_check.inc.php`）は、ロール 1 でログインしていると警告を出す
+- メニューのモジュール一覧は、ロール 1 でなければ実行できるモジュールだけに絞る（`manager/frames/menu.php`）
+- ログインのとき、ロール 1 のユーザーは `forceRole` で別のロールとして入れる
+
+## 文書グループ
+
+利用者のグループと文書をグループで結びつけて、文書を開ける人・見える人を絞る仕組み。管理側（管理ユーザー）と Web 側（公開側の Web ユーザー）が別々の表を持つ。
+
+### 表
+
+| 表 | 内容 |
+| --- | --- |
+| `documentgroup_names` | 文書グループの名前。列 `private_memgroup`・`private_webgroup` は、管理側・Web 側のユーザーグループに結びつけられているかの印（後述） |
+| `document_groups` | 文書（`document`）と文書グループ（`document_group`）の結びつき |
+| `membergroup_names` | 管理側のユーザーグループの名前 |
+| `member_groups` | 管理ユーザー（`member`）とユーザーグループ（`user_group`）の結びつき |
+| `membergroup_access` | 管理側のユーザーグループ（`membergroup`）と文書グループ（`documentgroup`）の結びつき（アクセスを許す） |
+| `webgroup_names`・`web_groups`・`webgroup_access` | 上の 3 つの Web 側。`web_groups` は Web ユーザー（`webuser`）とユーザーグループ（`webgroup`）の結びつき |
+| `site_tmplvar_access` | TV（`tmplvarid`）と文書グループ（`documentgroup`）の結びつき。文書と同じ規則で TV のアクセスを絞る |
+
+アクセスを許す結びつき（`membergroup_access`・`webgroup_access`）が 1 つでもある文書グループは、その側で「非公開」になる。結びつきの無い文書グループは、その側では何も絞らない。
+
+### 設定
+
+| 設定 | 意味 |
+| --- | --- |
+| `use_udperms` | グループ管理機能を使う。無効（既定）のとき、管理画面の文書グループの絞り込みはなく、グループ管理の画面は使えない（Web 側は開けず、管理側は無効の旨を出す）。文書の保存も印を計算し直さない |
+| `udperms_allowroot` | 管理者でない利用者が、ルート直下に文書を作ってよいか（`isAllowroot()`）。`use_udperms` が有効なときだけ設定画面に出る |
+| `tree_show_protected` | 開けない文書を、ツリーと子の一覧に印つきで出すか。表示だけの設定で、アクセスの判定には使わない。親の選択・検索・取得の関数は、この設定を見ずに絞る |
+| `allow_mgr2web` | 公開側で、管理画面にログイン中の利用者を Web ユーザーでもあるとして扱う。具体的には、`DocumentParser::getUserDocGroups()` が公開側の所属に、管理側の所属（`mgrDocgroups`）を足す |
+
+設定の画面は、グローバル設定の「セキュリティ」の項（`manager/includes/settings_form.definition.inc.php`）。
+
+### 非公開の印
+
+文書（`site_content`）には、`privatemgr`（管理側で非公開）と `privateweb`（Web 側で非公開）の列がある。1 は「その文書が付く文書グループのどれかに、その側のユーザーグループへのアクセスの結びつきがある」ことを表す。
+
+印は、結びつきから計算した結果を持っておく列で、正は結びつき（`document_groups` と `membergroup_access`・`webgroup_access`）。印は、検索の条件に使いやすくするために持つ（`documentAccessCondition()` は `privatemgr` の列で絞る）。
+
+印を計算するのは、次の 2 つのメソッド。
+
+- `ManagerAPI::setMgrDocsAsPrivate($docid = '')`: `privatemgr`
+- `ManagerAPI::setWebDocsAsPrivate($docid = '')`: `privateweb`
+
+どちらも、`$docid` を渡すとその文書の分だけ、空だと全文書を計算し直す（空のときは全件に及ぶので、id を渡し忘れない）。呼ぶのは、グループ管理の処理（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php`。全件）、文書の保存（`manager/processors/document/save_resource.processor.php`。`use_udperms` が有効のときだけ）、QuickManager の保存・DocManager（それぞれの文書）。
+
+`documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が結びつきを変えるたびに書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。
+
+印を計算せずに書く経路が残っている（`DocAPI::create()` など）。#1353。
+
+### 管理側の所属（mgrDocgroups）
+
+管理ユーザーが所属するユーザーグループにアクセスを許す文書グループの id を、セッション `mgrDocgroups` に持つ（`ManagerAPI::getMgrDocgroups()`。`member_groups` と `membergroup_access` を結んで作る）。
+
+- ログイン時にセットし、`action` が 1（ツリーなどの一部の読み込み）以外の管理画面のリクエストごとに `manager/includes/accesscontrol.inc.php` が読み直す。所属を変えると、次のリクエストから反映される
+- 判定は `ManagerAPI::userMgrDocumentGroupIds()` を通して読む。重複と 0 以下を除いた整数の配列で返す
+
+### 公開側（Web 側）の絞り込み
+
+公開側では、`privateweb` と Web 側の所属（セッション `webDocgroups`。Web ログインで作る。`allow_mgr2web` が有効なら管理側の所属も足す）で絞る。`DocumentParser::getUserDocGroups()` が所属を返す。
+
+- 所属があるときは `privateweb=0` または所属のグループに入っている文書を返す。所属が無いときは `privateweb=0` の文書だけ
+- 管理画面にログインしていて `managerBypassesDocumentGroups()` が真の利用者は、絞られない
+- ページキャッシュの文書オブジェクトには文書グループ（`__MODxDocGroups__`）を入れ、キャッシュを読み込むときに `privateweb` と所属を確かめる
+
+## 判定の置き場所
+
+文書グループの判定の正は ManagerAPI（`manager/includes/extenders/ex_managerapi.php`）。**文書グループで絞る問い合わせや確認は、自前で条件を書かず、次の判定を使う。** 画面・処理・プラグインごとに条件を書き写さない（食い違いが、権限の抜けや無駄な拒否になる）。
+
+### ManagerAPI の判定
+
+| メソッド | 返すもの |
+| --- | --- |
+| `bypassesDocumentGroups()` | 文書グループの絞り込みを受けない管理者か（`isAdmin()` または `save_role`）。`use_udperms` は見ない（公開側の判定にも使う） |
+| `restrictsByDocumentGroups()` | 管理画面で文書を絞るか（`use_udperms` が有効で、`bypassesDocumentGroups()` でない） |
+| `documentAccessCondition($alias)` | 絞るときの SQL の条件式（前に `AND` を付けない。絞らないなら空文字）。副問い合わせの形で、どの問い合わせにも入れられる |
+| `canAccessDocument($docId)` | 1 つの文書を開けるか |
+| `canOpenWithDocumentGroups($groupIds)` | 保存前の文書グループの集合が付いた文書を開けるか（保存で文書グループを変えたあとに開けなくなる状態を作らない） |
+| `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。文書と同じ絞りの定義 |
+| `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
+| `isAllowroot()` | ルート直下に作ってよいか（`bypassesDocumentGroups()` または `udperms_allowroot`） |
+| `isInAllowedParents($id)`・`isAllowed($id)` | 許可するリソースの範囲の中か（次の節） |
+
+### DocumentParser の判定
+
+| メソッド | 返すもの |
+| --- | --- |
+| `checkPermissions($docid, $duplicateDoc)` | 文書グループの面で扱ってよいか。管理者・`use_udperms` が無効・ルートの扱いを先に決め、それ以外は `canAccessDocument()`。モジュール・プラグインからも呼べる公開の API |
+| `managerBypassesDocumentGroups()` | 公開側で、管理画面にログイン中の利用者が絞り込みを受けないか（`isLoggedIn('mgr')` かつ `bypassesDocumentGroups()`）。ログインしていなければ ManagerAPI を読み込まない。`use_udperms` は見ない（`privateweb` の判定に使う） |
+| `getDocumentObject()`・`getDocuments()`・`getPageInfo()`・`getAllChildren()`・`getActiveChildren()`・`getDocumentChildren()` | 取得の関数。管理画面側（`isFrontend()` が偽）の分岐は `documentAccessCondition()`、公開側の分岐は `privateweb` と `managerBypassesDocumentGroups()` を使う。公開側で絞り込みを外す関数は、関数ごとに違う（課題の節） |
+
+ページキャッシュの読み込みの確認（`manager/includes/document.parser.class.inc.php`）も、公開側の分岐と同じく `managerBypassesDocumentGroups()` を使う。
+
+## 許可するリソース（allowed_parents）
+
+利用者ごとの設定 `allowed_parents` に、編集を許可する親の文書の id（空白・カンマ・`|` 区切り）を書く。ユーザー編集画面の「許可するリソース」で、空なら制限しない。0 を含めるとサイト全体を許可する。
+
+文書がこの範囲の中かの判定が、2 通りある。
+
+| メソッド | 範囲のたどり方 | 使う場所 |
+| --- | --- | --- |
+| `isAllowed($id)` | `getUserAllowedDocs()` が、許可した親の下を `getChildIds()` で深さ 10 まで、削除済みでない文書だけたどって作る一覧に含まれるか。`$id` を省くとリクエストの `pid` を見る | 文書の編集画面の入口・ツリー・子の一覧 |
+| `isInAllowedParents($id)` | 文書の祖先を `getAncestorIds()` で親の ID から直接たどり、許可した親が含まれるか。深さの制限がなく、削除済みも含める | 文書の保存・移動先の親の確認（`parentChangeDeniedMessage()`） |
+
+このため、許可した親から 11 段より深い文書・削除済みの文書・祖先に削除済みの文書がある文書は、2 つの判定が食い違う。#1372。
+
+## 分かっている課題
+
+文書グループの判定を 1 か所に寄せる作業（#1338）に続く課題。どれも、判定を ManagerAPI に集める方向で扱う。
+
+| Issue | 内容 |
+| --- | --- |
+| #1353 | DocAPI と ddtools が、文書の非公開の印を、実際の所属と違う規則で付ける。印の計算を 1 か所にまとめる |
+| #1354 | 管理画面のいくつかの一覧（予約の一覧・エレメントの画面の文書の選択・テンプレートを使う文書など）が、文書グループで非公開の文書を絞り込まずに出す |
+| #1355 | Ditto と Wayfinder が、文書グループの絞り込みを本体と違う条件（ロールの ID 1）で外す |
+| #1356 | 文書をルートに置けるかの扱いが、新規の作成と移動・親の選択で違う（`isAllowroot()` と `use_udperms` の関係） |
+| #1360 | QuickManager の編集ボタンが、管理画面で開けない文書にも出る（許可するリソースの範囲・`view_document` を見ない） |
+| #1369 | DocManager が、文書グループで開けない文書も一覧に出し、まとめて書き換えられる |
+| #1372 | 許可するリソースの範囲の判定が、編集画面の入口（`isAllowed()`）と保存（`isInAllowedParents()`）で違う |
+| `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
+| #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
+
+## 関連ドキュメント
+
+- `architecture.md`: 処理フローと、`DocumentParser` の位置づけ
+- `core-issues.md`: コア課題（公開側の取得の関数ごとの違い）
