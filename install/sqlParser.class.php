@@ -71,15 +71,10 @@ class SqlParser
             )
         );
 
-        $innoDbFulltext = self::supportsInnoDbFulltext((string)db()->getVersion());
-
         foreach ($sql_array as $sql) {
             $sql = trim($sql, "\r\n; ");
             if (!$sql) {
                 continue;
-            }
-            if (!$innoDbFulltext) {
-                $sql = self::withMyIsamForFulltext($sql);
             }
             db()->query($sql, false);
             $error_no = db()->getLastErrorNo();
@@ -94,42 +89,5 @@ class SqlParser
             $this->installFailed = true;
         }
         return !$this->installFailed;
-    }
-
-    /**
-     * InnoDB の表に FULLTEXT 索引を作れる DB か（MySQL 5.6.4 以降・MariaDB 10.0.5 以降）。
-     *
-     * mysqli の server_info は、MariaDB を "5.5.5-10.4.32-MariaDB" の形で返すことがあるので、
-     * そのときは後ろの版で判定する。
-     */
-    public static function supportsInnoDbFulltext($serverInfo)
-    {
-        $serverInfo = (string)$serverInfo;
-        if (preg_match('/^5\.5\.5-(\d+\.\d+\.\d+)/', $serverInfo, $m)) {
-            $serverInfo = $m[1] . '-MariaDB';
-        }
-        if (!preg_match('/^(\d+\.\d+\.\d+)/', $serverInfo, $m)) {
-            // 版が読めないときは、今の DB とみなして何も変えない
-            return true;
-        }
-        $required = stripos($serverInfo, 'mariadb') !== false ? '10.0.5' : '5.6.4';
-        return version_compare($m[1], $required, '>=');
-    }
-
-    /**
-     * FULLTEXT 索引を含み、ストレージエンジンの指定が無い CREATE TABLE に ENGINE=MyISAM を付ける。
-     *
-     * InnoDB の FULLTEXT に対応していない DB（MySQL 5.5 など）では、既定の InnoDB でこの表を作れない。
-     * IF NOT EXISTS でも定義を先に検査するため、表がすでにあってもエラーになる。
-     * 表の定義の閉じ括弧のあとの CHARSET= の前に入れる（{TABLE_OPTION} は "CHARSET=… COLLATE …" に置き換え済み）。
-     */
-    public static function withMyIsamForFulltext($sql)
-    {
-        if (!preg_match('/^\s*CREATE\s+TABLE\b/i', $sql)
-            || stripos($sql, 'FULLTEXT') === false
-            || preg_match('/\bENGINE\s*=/i', $sql)) {
-            return $sql;
-        }
-        return preg_replace('/\)\s*(CHARSET\s*=)/i', ') ENGINE=MyISAM $1', $sql, 1);
     }
 }
