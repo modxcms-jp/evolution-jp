@@ -137,13 +137,13 @@
 - `ManagerAPI::setMgrDocsAsPrivate($docid = '')`: `privatemgr`
 - `ManagerAPI::setWebDocsAsPrivate($docid = '')`: `privateweb`
 
-どちらも、`$docid` を渡すとその文書の分だけ、空だと全文書を計算し直す（空のときは全件に及ぶので、id を渡し忘れない）。呼ぶのは、グループ管理の処理（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php`。全件）、文書の保存（`manager/processors/document/save_resource.processor.php`。`use_udperms` が有効のときだけ）、QuickManager の保存（`assets/plugins/qm/inc/on_doc_form_save.php`。その文書）、ddAutoFolders（`assets/plugins/managermanager/widgets/ddautofolders/ddautofolders.php`。その文書）、`DocAPI::create()`（`manager/includes/extenders/ex_docapi.php`。文書グループを付けたとき、`use_udperms` に関係なく）。
+どちらも、`$docid` を渡すとその文書の分だけ、空だと全文書を計算し直す（空のときは全件に及ぶので、id を渡し忘れない）。呼ぶのは、グループ管理の処理（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php`。全件）、文書の保存（`manager/processors/document/save_resource.processor.php`。`use_udperms` が有効のときだけ）、QuickManager の保存（`assets/plugins/qm/inc/on_doc_form_save.php`。その文書）、ddAutoFolders（`assets/plugins/managermanager/widgets/ddautofolders/ddautofolders.php`。その文書）、`DocAPI::create()`（`manager/includes/extenders/ex_docapi.php`。`refreshDocumentPrivateFlags()` 経由。文書グループを付けたとき、`use_udperms` に関係なく）。
 
 その文書の 2 つの印を 1 度に計算し直すのは `ManagerAPI::refreshDocumentPrivateFlags($docId)`（`DocAPI::create()` と ddAutoFolders が使う。0 以下の id では何もしない）。
 
 `documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループの削除は、`ManagerAPI::deleteDocumentGroup($groupId)` に 1 か所にある（管理側・Web 側のグループ管理のどちらからも呼ぶ）。文書グループの id を持つ 5 つの表（`document_groups`・`documentgroup_names`・`membergroup_access`・`site_tmplvar_access`・`webgroup_access`）の行を消し、そのグループに文書が付いていたときは、印を全件で計算し直してページキャッシュも消す。
 
-DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、印の計算を自前の `secureWebDocument()`・`secureMgrDocument()` で持つ。今の呼び出しは文書ごとなので結果は ManagerAPI と同じだが、計算の規則を 2 か所に持つ。
+DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、印の計算を自前の `secureWebDocument()`・`secureMgrDocument()` で持つ。今の呼び出しは文書ごとなので結果は ManagerAPI と同じだが、計算の規則を 2 か所に持つ（#1383）。
 
 ### 管理側の所属（mgrDocgroups）
 
@@ -211,6 +211,7 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 | Issue | 内容 |
 | --- | --- |
 | #1378 | グループ管理で結びつきを変えても、ページキャッシュを消さない |
+| #1383 | DocManager が、文書の非公開の印を自前の規則で計算する（本体の ManagerAPI と規則が 2 か所） |
 | #1376 | ログインでロールを差し替える `forceRole` が、次のリクエストで元のロールに戻される |
 | #1356 | 文書をルートに置けるかの扱いが、新規の作成と移動・親の選択で違う（`isAllowroot()` と `use_udperms` の関係） |
 | #1372 | 許可するリソースの範囲の判定が、編集画面の入口（`isAllowed()`）と保存（`isInAllowedParents()`）で違う |
