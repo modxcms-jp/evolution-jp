@@ -175,7 +175,7 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 | `canOpenWithDocumentGroups($groupIds)` | 保存前の文書グループの集合が付いた文書を開けるか（保存で文書グループを変えたあとに開けなくなる状態を作らない） |
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
-| `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。`view_document` の権限・許可するリソースの範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）を見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
+| `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
 | `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `isAllowroot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | ルート直下に作ってよいか（`bypassesDocumentGroups()` または `udperms_allowroot`） |
@@ -195,14 +195,14 @@ DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、�
 
 利用者ごとの設定 `allowed_parents` に、編集を許可する親の文書の id（空白・カンマ・`|` 区切り）を書く。ユーザー編集画面の「許可するリソース」で、空なら制限しない。0 を含めるとサイト全体を許可する。
 
-文書がこの範囲の中かの基準は 1 つで、`ManagerAPI::isInAllowedParents($id)` が正。許可した親の文書そのものか、その子孫（深さの制限なし、削除済みも含む）なら範囲の中。設定が空、または 0 を含むときは制限なし（0 を含まないとき、ルートは範囲の外）。範囲を使う判定は、すべてこの基準にそろえてある。
+文書がこの範囲の中かの基準は 1 つで、`ManagerAPI::isInAllowedParents($id)` が正。許可した親の文書そのものか、その子孫（深さの制限なし、削除済みも含む）なら範囲の中。設定が空、または 0 を含むときは制限なし（0 を含まないとき、ルートは範囲の外）。設定があるのに正しい ID が 1 つも無いときは、すべて範囲の外。範囲を使う判定は、すべてこの基準にそろえてある。
 
 | メソッド | 返すもの | 使う場所 |
 | --- | --- | --- |
-| `isInAllowedParents($id)` | 1 つの文書が範囲の中か。祖先を `getAncestorIds()` で DB の親からたどる | 文書の編集画面の入口（`documentEditorDenial()` 経由）・文書を変える処理（保存・移動・複製・公開の切り替え・削除・元に戻す・ドラフトの保存と公開など。`manager/processors/document/` 以下）・移動先の親の確認（`parentChangeDeniedMessage()`） |
+| `isInAllowedParents($id)` | 1 つの文書が範囲の中か。祖先を `getAncestorIds()` で DB の親からたどる | 文書の編集画面の入口（`documentEditorDenial()` 経由）・`canOpenDocumentEditor()`・`canCreateDocumentUnder()`・文書の情報（`manager/actions/document/document_data.static.php`）・リソース一覧のボタン・戻り先・パンくず（`manager/actions/document/resources_list.static.php`）・文書を変える処理（保存・移動・複製・公開の切り替え・削除・元に戻す・ドラフトの保存と公開など。`manager/processors/document/` 以下）・移動先の親の確認（`parentChangeDeniedMessage()`） |
 | `allowedDocsCondition($alias)` | 範囲の中の文書に絞る SQL の条件式（前に `AND` を付けない。制限なしなら空文字）。許可した親から子孫の ID を集めて `IN` で絞る | ツリーの子の問い合わせ（`manager/frames/nodes.php`）・親の選択 |
 | `getUserAllowedDocs()` | 範囲の中の文書の ID の配列。戻り値は 3 通りで、制限なしは `[]`、正しい ID が 1 つも無いときは `''`、それ以外は ID の配列（リクエスト内でキャッシュ） | `allowedDocsCondition()`・`isContainAllowed()` |
-| `isContainAllowed($id)` | ツリー・一覧に出してよいか。範囲の中、または範囲の頂点へたどる途中の祖先なら true。行ごとに呼ぶため DB に問い合わせず、`getUserAllowedDocs()` と `allowedParentAncestorIds()` で判定する | ツリーとリソース一覧の行 |
+| `isContainAllowed($id)` | ツリー・一覧に出してよいか。範囲の中、または範囲の頂点へたどる途中の祖先なら true。行ごとには問い合わせない（最初の 1 回だけ `getUserAllowedDocs()` と `allowedParentAncestorIds()` が読んでキャッシュする） | ツリーとリソース一覧の行 |
 | `allowedParentAncestorIds()` | 許可した親それぞれの祖先の ID（ツリーに出す・初期に開くために使う） | ツリーの初期表示（`manager/frames/tree.php`）・`isContainAllowed()` |
 | `isAllowed($id)` | `isInAllowedParents()` と同じ判定。`$id` が 0 のときはリクエストの `pid` を見る（`pid` が無ければ true）。外部のコードが使うことがあるので残している | 新しいコードは `isInAllowedParents()` を使う |
 
