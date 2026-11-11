@@ -120,7 +120,7 @@
 | 設定 | 意味 |
 | --- | --- |
 | `use_udperms` | グループ管理機能を使う。無効（既定）のとき、管理画面の文書グループの絞り込みはなく、グループ管理の画面はメニューに出ない。Web 側（a=91）は直接開いても入れず、管理側（a=40）は開けるが無効の旨を出す。文書の保存も印を計算し直さない |
-| `udperms_allowroot` | 管理者でない利用者が、ルート直下に文書を置いてよいか（`isAllowroot()`）。`use_udperms` が有効なときだけ効く（設定画面にも有効なときだけ出る）。無効なら誰でもルートに置ける（`canPlaceAtRoot()`） |
+| `udperms_allowroot` | 管理者でない利用者が、ルート直下に文書を置いてよいか（`isAllowroot()`）。`use_udperms` が有効なときだけ効く（設定画面にも有効なときだけ出る）。無効なら誰でもルートに置ける（`canPlaceAtRoot()`。`new_document` の権限と許可するリソースの範囲は別に見る） |
 | `tree_show_protected` | 開けない文書を、ツリーと子の一覧に印つきで出すか。表示だけの設定で、アクセスの判定には使わない。親の選択・検索・取得の関数は、この設定を見ずに絞る |
 | `allow_mgr2web` | 公開側で、管理画面にログイン中の利用者を Web ユーザーでもあるとして扱う。具体的には、`DocumentParser::getUserDocGroups()` が公開側の所属に、管理側の所属（`mgrDocgroups`）を足す |
 
@@ -192,14 +192,14 @@
 
 ### ルートに置けるか
 
-文書をルート（親が 0）に置く入口は、すべて `canPlaceAtRoot()` で決める。文書グループへのアクセス（`checkPermissions()`）は、ルートには使わない。許可するリソースの範囲は別の判定で、ルートでは入口ごとに `isInAllowedParents(0)` も重ねて確かめる。
+文書を変える処理（保存・移動・下書き・複製）と、ツリー・文書一覧・親の選択・QuickManager の表示は、ルート（親が 0）に置けるかを `canPlaceAtRoot()` で決める。判定を見ない入口が残る（#1394）。文書グループへのアクセス（`checkPermissions()`）は、ルートには使わない。許可するリソースの範囲は別の判定で、ルートでは入口ごとに `isInAllowedParents(0)` も重ねて確かめる。
 
 | 入口 | 判定 |
 | --- | --- |
 | ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`）・親の選択のルートの項目（`parent_picker.dynamic.php`） | `new_document`（親の選択は不要）・`canPlaceAtRoot()`・`isInAllowedParents(0)` |
-| 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。文書そのものを開けるかを先に確かめる |
-| 移動（`move_document.processor.php`・`parentChangeDeniedMessage()`） | 親がルートなら `canPlaceAtRoot()`。そのあと `isInAllowedParents()` |
-| 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 移動と同じ。親がルートなら `canPlaceAtRoot()`。そのあと `isInAllowedParents()` |
+| 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
+| 移動（`move_document.processor.php`） | `move_document.processor.php` は `parentChangeDeniedMessage()` を呼ばず、同じ判定をその場に書いている。範囲（`isInAllowedParents()`）を先に見て、そのあと親が変わるときに、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
+| 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 親が変わるときに、循環と存在、親がルートなら `canPlaceAtRoot()`（それ以外の親は `checkPermissions()`）、`isInAllowedParents()` の順 |
 | 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
 | QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canPlaceAtRoot()` と `isInAllowedParents(0)` |
 
@@ -227,6 +227,7 @@
 | Issue | 内容 |
 | --- | --- |
 | #1378 | グループ管理で結びつきを変えても、ページキャッシュを消さない |
+| #1394 | ルートに置く入口のうち、`canPlaceAtRoot()` を見ないものが残る（メインメニュー・ダッシュボードの新規作成、保存後の「続けて新規」、移動の画面でツリーのルートを選ぶ操作、サイトのインポート）。移動の処理の切り分けを `parentChangeDeniedMessage()` に寄せることも含む |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
