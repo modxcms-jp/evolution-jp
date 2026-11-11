@@ -15,7 +15,7 @@
  *
  * Automatically move documents (OnBeforeDocFormSave event) based on their date (publication date; any date in tv) into folders of year and month (like 2012/02/). If folders (documents) of year and month doesn`t exist they are created automatically OnBeforeDocFormSave event.
  *
- * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
+ * @uses modx 1.0.5, ManagerManager plugin 0.3.11
  *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
@@ -36,7 +36,7 @@
  *
  * При сохранении (событие OnBeforeDocFormSave) автоматически перемещает необходимый документ, основываясь на его дате (дата публикации, или любая дата в tv) в папку года и месяца. Если папки (документы) года и/или месяца ещё не созданы, они создадутся автоматически.
  *
- * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
+ * @uses modx 1.0.5, ManagerManager plugin 0.3.11
  *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
@@ -130,8 +130,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         manager()->setNewDocumentGroups($id, (int)$fields['parent'], $access);
         //非公開の印は文書本体の保存と同じく、実際の所属から求める
         if (evo()->config('use_udperms')) {
-            manager()->setWebDocsAsPrivate((int)$id);
-            manager()->setMgrDocsAsPrivate((int)$id);
+            manager()->refreshDocumentPrivateFlags($id);
         }
         return $id;
     };
