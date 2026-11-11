@@ -192,13 +192,16 @@
 
 ### ルートに置けるか
 
-文書を変える処理（保存・移動・下書き・複製）と、ツリー・文書一覧・親の選択・QuickManager の表示は、ルート（親が 0）に置けるかを `canPlaceAtRoot()` で決める。判定を見ない入口が残る（#1394）。文書グループへのアクセス（`checkPermissions()`）は、ルートには使わない。許可するリソースの範囲は別の判定で、ルートでは入口ごとに `isInAllowedParents(0)` も重ねて確かめる。
+文書を変える処理（保存・移動・下書き・複製）と、ツリー・文書一覧・親の選択・QuickManager の表示は、ルート（親が 0）に置けるかを `canPlaceAtRoot()` で決める。新規作成の入口（メインメニュー・ダッシュボード・ツリー・文書一覧・親の選択・QuickManager の追加ボタン）は、すべて `canCreateDocumentUnder(0)` と同じ意味で決める。文書グループへのアクセス（`checkPermissions()`）は、ルートには使わない。許可するリソースの範囲は別の判定で、ルートでは入口ごとに `isInAllowedParents(0)` も重ねて確かめる。
 
 | 入口 | 判定 |
 | --- | --- |
 | ツリーの「ルートに新規作成」（`manager/frames/tree.php`）・文書一覧のルートの作成ボタン（`resources_list.static.php`）・親の選択のルートの項目（`parent_picker.dynamic.php`） | `new_document`（親の選択は不要）・`canPlaceAtRoot()`・`isInAllowedParents(0)` |
+| メインメニューの新規作成（`manager/frames/menu.php`）・ダッシュボードの新規作成（`welcome.php`） | `canCreateDocumentUnder(0)` |
+| 保存後の「続けて新規」（`save_resource.processor.php` の `goNextAction()`） | 親がルートで `canCreateDocumentUnder(0)` が偽なら、「続けて編集」に戻す。新規作成の画面（a=4・72）そのものは止めない（フォームで親を選べるため） |
 | 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
-| 移動（`move_document.processor.php`） | `move_document.processor.php` は `parentChangeDeniedMessage()` を呼ばず、同じ判定をその場に書いている。範囲（`isInAllowedParents()`）を先に見て、そのあと親が変わるときに、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
+| 移動（`move_document.dynamic.php`・`move_document.processor.php`） | 画面は、ルートを選ぶ操作を `canPlaceAtRoot()` と `isInAllowedParents(0)` で受け付けるか決める。処理は、移す文書それぞれの範囲を見たあと、親が変わるときに `parentChangeDeniedMessage()` で決める（拒否は `alertAndQuit()`） |
+| サイトのインポート（`import_site.static.php`） | 取り込み先がルートのときだけ、`canPlaceAtRoot()` と `isInAllowedParents(0)`。画面にも、ルートに置けない利用者へ同じ文言を出す |
 | 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 親が変わるときに、循環と存在、親がルートなら `canPlaceAtRoot()`（それ以外の親は `checkPermissions()`）、`isInAllowedParents()` の順 |
 | 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
 | QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canPlaceAtRoot()` と `isInAllowedParents(0)` |
@@ -226,7 +229,7 @@
 
 | Issue | 内容 |
 | --- | --- |
-| #1394 | ルートに置く入口のうち、`canPlaceAtRoot()` を見ないものが残る（メインメニュー・ダッシュボードの新規作成、保存後の「続けて新規」、移動の画面でツリーのルートを選ぶ操作、サイトのインポート）。移動の処理の切り分けを `parentChangeDeniedMessage()` に寄せることも含む |
+| #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 

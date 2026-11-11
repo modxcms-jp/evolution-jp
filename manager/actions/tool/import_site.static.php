@@ -35,6 +35,10 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 
         if (!postv('import')) {
             echo "<p>" . $_lang['import_site_message'] . "</p>";
+            // 既定の取り込み先はルート。置けない利用者には、親の選択を促す
+            if (!rootImportAllowed()) {
+                echo sprintf('<p class="warning">%s</p>', hsc(lang('access_permission_parent_denied')));
+            }
         ?>
 
             <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
@@ -125,6 +129,13 @@ function run()
 
     $output = '';
 
+    // 取り込み先がルートのときは、ルートに置けるかを先に確かめる（リセットで消す前に止める）
+    $parent = post_intvar('parent');
+    if ($parent == 0 && !rootImportAllowed()) {
+        echo sprintf('<p><span class="fail">%s</span></p>', hsc(lang('access_permission_parent_denied')));
+        return '';
+    }
+
     $maxtime = postv('maxtime', 120);
     if (!is_numeric($maxtime)) {
         $maxtime = 30;
@@ -141,8 +152,6 @@ function run()
         db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
         db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
     }
-
-    $parent = post_intvar('parent');
 
     if (is_dir(MODX_BASE_PATH . 'temp/import')) {
         $filedir = MODX_BASE_PATH . 'temp/import/';
@@ -175,6 +184,12 @@ function run()
     }
 
     return $output;
+}
+
+// 取り込み先をルートにしてよいか（ルートに置けて、許可するリソースの範囲にもルートが含まれる）
+function rootImportAllowed()
+{
+    return manager()->canPlaceAtRoot() && manager()->isInAllowedParents(0);
 }
 
 function importFiles($parent, $filedir, $files, $mode)

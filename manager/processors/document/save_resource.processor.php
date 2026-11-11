@@ -816,6 +816,10 @@ function updateParentStatus($parent)
 // 保存後の行き先（after_save: new・stay・close）に従って移動する
 function goNextAction($id, $parent, $afterSave, $type)
 {
+    // ルートに新規作成できない利用者は、「続けて新規」を「続けて編集」に戻す
+    if ($afterSave === 'new' && (int)$parent <= 0 && !manager()->canCreateDocumentUnder(0)) {
+        $afterSave = 'stay';
+    }
     if ($afterSave === 'new') {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([

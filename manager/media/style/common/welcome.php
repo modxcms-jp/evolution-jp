@@ -22,7 +22,7 @@ function iconNewDoc()
     global $modx, $_lang;
 
     if (!manager_is_dashboard_action()) return;
-    if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
+    if (manager()->canCreateDocumentUnder(0)) {
         $ph['imgsrc'] = 'icons/32x/newdoc.png';
         $ph['action'] = 'index.php?a=4';
         $ph['title'] = $_lang['add_resource'];

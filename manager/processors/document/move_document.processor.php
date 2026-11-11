@@ -37,6 +37,7 @@ if ($new_parent === null) {
     alert()->dumpError();
 }
 // 自分自身・子孫・存在しないリソースへは移動しない（複数移動ではすべてのリソースについて確かめる）
+// 先頭の文書の親が移動先と同じでも、ほかの文書が対象になりうるため、親が変わるかに関わらずここで確かめる
 $invalid_parent = manager()->invalidParentMessage($doc_ids, $new_parent);
 if ($invalid_parent !== '') {
     alertAndQuit($invalid_parent, $doc_ids[0]);
@@ -51,14 +52,11 @@ if (evo()->config['use_udperms'] == 1) {
     }
 }
 
-// 許可するリソースの範囲の外の文書と、範囲の外への移動は止める
+// 許可するリソースの範囲の外の文書は止める（移動先の確認は、親が変わるときに下でまとめて行う）
 foreach ($doc_ids as $v) {
     if (!manager()->isInAllowedParents($v)) {
         accessDenied('access_permission_denied');
     }
-}
-if (!manager()->isInAllowedParents($new_parent)) {
-    accessDenied('access_permission_parent_denied');
 }
 
 $rs = db()->select(
@@ -71,15 +69,12 @@ if (!$rs) {
 }
 $current_parent = (int) db()->getValue($rs);
 
-// check user has permission to move resource to chosen location
+// 親が変わるときは、移動先に置けるかを確かめる
+// （自分自身・子孫・存在しない親、ルートに置けるか・文書グループ、許可するリソースの範囲。複数移動では全件）
 if ($current_parent != $new_parent) {
-    if ($new_parent == 0) {
-        // ルートへは、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
-        if (!manager()->canPlaceAtRoot()) {
-            accessDenied('access_permission_parent_denied');
-        }
-    } elseif (evo()->config['use_udperms'] == 1 && !evo()->checkPermissions($new_parent)) {
-        accessDenied('access_permission_parent_denied');
+    $denied = manager()->parentChangeDeniedMessage($doc_ids, $new_parent);
+    if ($denied !== '') {
+        alertAndQuit($denied, $doc_id);
     }
 }
 
