@@ -842,6 +842,60 @@ class ManagerAPI
         return $ids;
     }
 
+    /**
+     * 文書グループを削除する
+     *
+     * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
+     * 文書グループの id を持つ 5 つの表（install/sql/create_tables.sql）
+     * document_groups・documentgroup_names・membergroup_access・
+     * site_tmplvar_access・webgroup_access の行をすべて消す。
+     * そのグループに付いていた文書があれば、privatemgr / privateweb を全件で計算し直し、
+     * 印ごとキャッシュされたページを消すためページキャッシュも消す。
+     *
+     * @param int $groupId
+     * @return bool 失敗したら false
+     */
+    public function deleteDocumentGroup($groupId)
+    {
+        $groupId = (int)$groupId;
+        if ($groupId <= 0) {
+            return false;
+        }
+
+        // 削除の後では分からなくなるので、このグループに付いた文書があるかを先に確かめる
+        $hasDocuments = (bool)db()->getValue(
+            db()->select(
+                'document',
+                '[+prefix+]document_groups',
+                sprintf('document_group=%d', $groupId),
+                '',
+                1
+            )
+        );
+
+        $result = true;
+        $targets = [
+            ['[+prefix+]documentgroup_names', 'id'],
+            ['[+prefix+]document_groups', 'document_group'],
+            ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]site_tmplvar_access', 'documentgroup'],
+            ['[+prefix+]webgroup_access', 'documentgroup'],
+        ];
+        foreach ($targets as [$table, $column]) {
+            if (!db()->delete($table, sprintf('%s=%d', $column, $groupId))) {
+                $result = false;
+            }
+        }
+
+        if ($hasDocuments) {
+            $this->setMgrDocsAsPrivate();
+            $this->setWebDocsAsPrivate();
+            evo()->clearCache(['target' => 'pagecache']);
+        }
+
+        return $result;
+    }
+
     public function getStylePath()
     {
         return MODX_MANAGER_PATH . 'media/style/';

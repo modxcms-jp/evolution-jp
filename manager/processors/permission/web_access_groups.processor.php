@@ -76,14 +76,8 @@ switch ($operation) {
         if (empty($group)) {
             exit("No document group name specified for deletion");
         } else {
-            if (!$rs = db()->delete($tbl_documentgroup_names, "id='{$group}'")) {
-                exit("Unable to delete group. SQL failed.");
-            }
-            if (!$rs = db()->delete($tbl_webgroup_access, "documentgroup='{$group}'")) {
-                exit("Unable to delete group from access table. SQL failed.");
-            }
-            if (!$rs = db()->delete('[+prefix+]document_groups', "document_group='{$group}'")) {
-                exit("Unable to delete document-group links. SQL failed.");
+            if (!manager()->deleteDocumentGroup($group)) {
+                exit('Unable to delete document group. SQL failed.');
             }
         }
         break;
