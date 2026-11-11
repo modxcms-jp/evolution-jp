@@ -2688,27 +2688,17 @@ class DocumentParser
         // 本文の <? はすべて（<?XML・<?PHP・<?=・<? など、short_open_tag で開始タグになり得るもの）eval の前に目印へ逃がす
         $content = str_replace(['<?', '?>'], ["{$sp}b", "{$sp}e"], $content);
 
-        $pieces = explode('<@IF:', $content);
-        foreach ($pieces as $i => $split) {
-            if ($i === 0) {
-                $content = $split;
-                continue;
+        // 条件は文字列リテラルとして埋め込まず、配列の添字で参照する（エスケープ漏れで PHP として読まれないように）
+        $ctagCmds = [];
+        foreach (['<@IF:' => 'if', '<@ELSEIF:' => 'elseif'] as $tag => $keyword) {
+            $pieces = explode($tag, $content);
+            $content = array_shift($pieces);
+            foreach ($pieces as $split) {
+                [$cmd, $text] = array_pad(explode('>', $split, 2), 2, '');
+                $ctagCmds[] = $cmd;
+                $index = count($ctagCmds) - 1;
+                $content .= "<?php {$keyword}(\$this->_parseCTagCMD(\$ctagCmds[{$index}])): ?>{$text}";
             }
-            [$cmd, $text] = explode('>', $split, 2);
-            $cmd = str_replace("'", "\'", $cmd);
-            $content .= "<?php if(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
-            $content .= $text;
-        }
-        $pieces = explode('<@ELSEIF:', $content);
-        foreach ($pieces as $i => $split) {
-            if ($i === 0) {
-                $content = $split;
-                continue;
-            }
-            [$cmd, $text] = explode('>', $split, 2);
-            $cmd = str_replace("'", "\'", $cmd);
-            $content .= "<?php elseif(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
-            $content .= $text;
         }
 
         $content = str_replace(['<@ELSE>', '<@ENDIF>'], ['<?php else:?>', '<?php endif;?>'], $content);
