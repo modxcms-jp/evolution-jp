@@ -124,9 +124,10 @@ class DocManagerBackend
                 }
             }
             [$accessible, $skipped] = $this->splitAccessibleIds(array_keys($order));
-            $menuindexes = array_values($order);
-            if ($skipped) {
-                // 見えない同じ親の子と menuindex が重ならないよう、開ける子が今持つ値を小さい順に、新しい順番へ割り当て直す
+            $menuindexes = $order;
+            if ($this->accessCondition() !== '' && $accessible) {
+                // 絞られる利用者は、見えない同じ親の子と menuindex が重ならないよう、
+                // 開ける子が今持つ値を、新しい順番へ割り当て直す（値は必ず増える形に整える）
                 $current = [];
                 $rs = db()->select(
                     'id,menuindex',
@@ -139,14 +140,26 @@ class DocManagerBackend
                 $accessible = array_values(array_filter($accessible, function ($id) use ($current) {
                     return isset($current[$id]);
                 }));
-                $menuindexes = array_values($current);
-                sort($menuindexes);
+                usort($accessible, function ($x, $y) use ($order) {
+                    return $order[$x] <=> $order[$y];
+                });
+                $values = array_values($current);
+                sort($values);
+                foreach ($values as $i => $v) {
+                    if ($i > 0 && $v <= $values[$i - 1]) {
+                        $values[$i] = $values[$i - 1] + 1;
+                    }
+                }
+                $menuindexes = [];
+                foreach ($accessible as $i => $id) {
+                    $menuindexes[$id] = $values[$i];
+                }
             }
-            foreach ($accessible as $i => $id) {
+            foreach ($accessible as $id) {
                 $sql = sprintf(
                     "UPDATE %s set menuindex=%s WHERE id=%s",
                     evo()->getFullTableName('site_content'),
-                    (int)$menuindexes[$i],
+                    (int)$menuindexes[$id],
                     (int)$id
                 );
                 db()->query($sql);
@@ -658,6 +671,16 @@ class DocManagerBackend
     }
 
     /**
+     * 文書グループで絞る SQL の条件式（site_content の別名 sc）。絞らないときは空文字。判定の入口はここ 1 か所
+     *
+     * @return string
+     */
+    private function accessCondition()
+    {
+        return manager()->documentAccessCondition('sc');
+    }
+
+    /**
      * 文書の id を、文書グループで開けるものと、存在するが開けないものに分ける（ManagerAPI の判定を使う）。
      * 絞らないとき（管理者・use_udperms 無効）は何も除かない。存在しない id は除かない（呼び出し側の既存の扱いのまま）
      *
@@ -667,7 +690,7 @@ class DocManagerBackend
     private function splitAccessibleIds(array $ids)
     {
         $ids = array_values(array_unique(array_map('intval', $ids)));
-        $condition = manager()->documentAccessCondition('sc');
+        $condition = $this->accessCondition();
         if ($condition === '' || !$ids) {
             return [$ids, []];
         }
