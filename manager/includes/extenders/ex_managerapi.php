@@ -840,13 +840,16 @@ class ManagerAPI
             return false;
         }
 
-        // 削除すると対象の文書があったかの判定のため、先に集める
-        $rs = db()->select(
-            'document',
-            '[+prefix+]document_groups',
-            sprintf('document_group=%d', $groupId)
+        // 削除の後では分からなくなるので、このグループに付いた文書があるかを先に確かめる
+        $hasDocuments = (bool)db()->getValue(
+            db()->select(
+                'document',
+                '[+prefix+]document_groups',
+                sprintf('document_group=%d', $groupId),
+                '',
+                1
+            )
         );
-        $docIds = db()->getColumn('document', $rs) ?: [];
 
         $result = true;
         $targets = [
@@ -862,7 +865,7 @@ class ManagerAPI
             }
         }
 
-        if ($docIds) {
+        if ($hasDocuments) {
             $this->setMgrDocsAsPrivate();
             $this->setWebDocsAsPrivate();
             evo()->clearCache(['target' => 'pagecache']);
