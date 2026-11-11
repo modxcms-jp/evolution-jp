@@ -85,7 +85,7 @@
 
 `isAdmin()` は、文書グループの絞り込みの判定には使わない（docblock にもある）。
 
-ロールの ID が 1 かどうかで文書グループの絞り込みを外す場所は、本体（DocumentParser・ManagerAPI）には無い（かつての DocumentParser の取得の関数の分岐は #1338 で `bypassesDocumentGroups()` にそろえた）。同梱の Ditto（`assets/snippets/ditto/classes/ditto.class.inc.php`）と Wayfinder（`assets/snippets/wayfinder/wayfinder.inc.php`）の管理画面側の分岐には、`mgrRole != 1` の判定が残る（#1355）。
+ロールの ID が 1 かどうかで文書グループの絞り込みを外す場所は、本体（DocumentParser・ManagerAPI）には無い。同梱の Ditto・Wayfinder の管理画面側の分岐も、`documentAccessCondition()` を使う。
 
 ロールの ID 1 を特別扱いする場所は、文書グループとは別にある。主なものは次のとおり。
 
@@ -96,7 +96,6 @@
 - メニューのモジュール一覧は、ロール 1 でなければ実行できるモジュールだけに絞る（`manager/frames/menu.php`）
 - ログインのとき、ユーザー名に `:roleid=N` を付けると、ロール 1 のユーザーはセッションのロールを N にして入る（`forceRole`。`manager/processors/login.processor.functions.php`）。ただし管理画面のリクエストごとの読み直し（`manager/includes/accesscontrol.inc.php` の `refreshMgrPermissions()`）で元のロールに戻るため、実質は効かない（#1376）
 - アップグレード（`manager/includes/migrations/00000000_baseline.php`）は、足した権限の列をロール 1 にだけ 1 で入れ、ロール 1 が無ければ作り、メールの送信元が初期値（you@example.com）のままのときだけ、ロール 1 のユーザーのうち ID が最も小さい人のアドレスにする
-- Ditto・Wayfinder の管理画面側の分岐（上記）
 
 ## 文書グループ
 
@@ -138,11 +137,13 @@
 - `ManagerAPI::setMgrDocsAsPrivate($docid = '')`: `privatemgr`
 - `ManagerAPI::setWebDocsAsPrivate($docid = '')`: `privateweb`
 
-どちらも、`$docid` を渡すとその文書の分だけ、空だと全文書を計算し直す（空のときは全件に及ぶので、id を渡し忘れない）。呼ぶのは、グループ管理の処理（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php`。全件）、文書の保存（`manager/processors/document/save_resource.processor.php`。`use_udperms` が有効のときだけ）、QuickManager の保存（`assets/plugins/qm/inc/on_doc_form_save.php`。その文書）、ddAutoFolders（`assets/plugins/managermanager/widgets/ddautofolders/ddautofolders.php`。その文書）。
+どちらも、`$docid` を渡すとその文書の分だけ、空だと全文書を計算し直す（空のときは全件に及ぶので、id を渡し忘れない）。呼ぶのは、グループ管理の処理（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php`。全件）、文書の保存（`manager/processors/document/save_resource.processor.php`。`use_udperms` が有効のときだけ）、QuickManager の保存（`assets/plugins/qm/inc/on_doc_form_save.php`。その文書）、ddAutoFolders（`assets/plugins/managermanager/widgets/ddautofolders/ddautofolders.php`。その文書）、`DocAPI::create()`（`manager/includes/extenders/ex_docapi.php`。文書グループを付けたとき、`use_udperms` に関係なく）。
 
-`documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループそのものの削除では、印を書き直さない（`manager/processors/permission/access_groups.processor.php`・`manager/processors/permission/web_access_groups.processor.php` の `delete_document_group`）。さらに、管理側の処理は `membergroup_access` の行だけ、Web 側の処理は `webgroup_access` の行だけを消し、もう片側の結びつきの行は残る（#1375）。
+その文書の 2 つの印を 1 度に計算し直すのは `ManagerAPI::refreshDocumentPrivateFlags($docId)`（`DocAPI::create()` と ddAutoFolders が使う。0 以下の id では何もしない）。
 
-印の計算を別に持つ、または計算せずに書く経路が残っている。#1353 は `DocAPI::create()`（`privatemgr` を直接 1 にする）、DocManager は自前の `secureWebDocument()`・`secureMgrDocument()`（`assets/modules/docmanager/classes/dm_backend.class.php`）で計算する。今の呼び出しは文書ごと（`dm_backend.class.php` の 338-339・358-359 行付近）なので結果は ManagerAPI と同じだが、計算の規則を 2 か所に持つことが課題。
+`documentgroup_names.private_memgroup`・`private_webgroup` も、同じく結びつきから計算した印で、グループ管理の処理が、結びつきを変えたとき（ユーザーグループと文書グループの結びつきの追加・削除、ユーザーグループの削除）に書き直す。文書グループを付け外しできるか（`documentGroupAccess()`）が読む。文書グループの削除は、`ManagerAPI::deleteDocumentGroup($groupId)` に 1 か所にある（管理側・Web 側のグループ管理のどちらからも呼ぶ）。文書グループの id を持つ 5 つの表（`document_groups`・`documentgroup_names`・`membergroup_access`・`site_tmplvar_access`・`webgroup_access`）の行を消し、そのグループに文書が付いていたときは、印を全件で計算し直してページキャッシュも消す。
+
+DocManager（`assets/modules/docmanager/classes/dm_backend.class.php`）は、印の計算を自前の `secureWebDocument()`・`secureMgrDocument()` で持つ。今の呼び出しは文書ごとなので結果は ManagerAPI と同じだが、計算の規則を 2 か所に持つ。
 
 ### 管理側の所属（mgrDocgroups）
 
@@ -174,6 +175,9 @@
 | `canOpenWithDocumentGroups($groupIds)` | 保存前の文書グループの集合が付いた文書を開けるか（保存で文書グループを変えたあとに開けなくなる状態を作らない） |
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
+| `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。`view_document` の権限・許可するリソースの範囲（`isInAllowedParents()`）・文書グループ（`canAccessDocument()`）を見る。QuickManager のボタンの表示と TV の保存が使う。管理画面の入口の範囲の判定は `isAllowed()` で、削除済みの文書の下などでは食い違う（#1372） |
+| `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。`new_document`・範囲・親の文書グループを見る。ルート（親が 0 以下）は `isAllowroot()` と `isInAllowedParents(0)` の両方。QuickManager の追加ボタンが使う |
+| `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | ルート直下に作ってよいか（`bypassesDocumentGroups()` または `udperms_allowroot`） |
 | `isInAllowedParents($id)`・`isAllowed($id)` | 許可するリソースの範囲の中か（次の節） |
 
@@ -202,18 +206,13 @@
 
 ## 分かっている課題
 
-文書グループの判定を 1 か所に寄せる作業（#1338）に続く課題。どれも、判定を ManagerAPI に集める方向で扱う。
+未解決の課題。判定を ManagerAPI に集める方向で扱うものが多い。
 
 | Issue | 内容 |
 | --- | --- |
-| #1353 | DocAPI と ddtools が、文書の非公開の印を、実際の所属と違う規則で付ける。印の計算を 1 か所にまとめる（DocManager の自前の計算も同じ課題の範囲） |
-| #1375 | 文書グループを削除しても、文書の非公開の印が計算し直されない（片側の削除はもう片側の結びつきの行も残す） |
+| #1378 | グループ管理で結びつきを変えても、ページキャッシュを消さない |
 | #1376 | ログインでロールを差し替える `forceRole` が、次のリクエストで元のロールに戻される |
-| #1354 | 管理画面のいくつかの一覧（予約の一覧・エレメントの画面の文書の選択・テンプレートを使う文書など）が、文書グループで非公開の文書を絞り込まずに出す |
-| #1355 | Ditto と Wayfinder が、文書グループの絞り込みを本体と違う条件（ロールの ID 1）で外す |
 | #1356 | 文書をルートに置けるかの扱いが、新規の作成と移動・親の選択で違う（`isAllowroot()` と `use_udperms` の関係） |
-| #1360 | QuickManager の編集ボタンが、管理画面で開けない文書にも出る（許可するリソースの範囲・`view_document` を見ない） |
-| #1369 | DocManager が、文書グループで開けない文書も一覧に出し、まとめて書き換えられる |
 | #1372 | 許可するリソースの範囲の判定が、編集画面の入口（`isAllowed()`）と保存（`isInAllowedParents()`）で違う |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 | 権限の作り全体の見直し。2 段階目は判定をほかの権限にも寄せる、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
