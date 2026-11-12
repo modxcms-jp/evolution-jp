@@ -21,7 +21,7 @@ if (1 < db()->count($rs)) {
 
 // reload system settings from the database.
 // this will prevent user-defined settings from being saved as system setting
-$stored = EvoSettingsForm::storedValues() + EvoSettingsForm::screenDefaults();
+$stored = EvoSettingsForm::storedValues();
 evo()->config = $stored;
 $values = EvoSettingsForm::systemValues($stored);
 ?>

@@ -1,6 +1,6 @@
 <?php
 // 既定の設定値の正本。DB に行が無い設定は DocumentParser::getSettings() がこれで補う。
-// 言語に依らない値だけを置く（設定画面だけで足す値は EvoSettingsForm::screenDefaults()）
+// 言語に依らない値だけを置く（メールの文面は言語ごとに違うので、インストーラー・アップデーターが行の無いときに入れる）
 $default_config = [
     'site_url' => defined('MODX_SITE_URL') ? MODX_SITE_URL : '',
     'base_url' => defined('MODX_BASE_URL') ? MODX_BASE_URL : '',
@@ -101,6 +101,9 @@ $default_config = [
     'manager_docs_orderby' => 'isfolder desc, publishedon desc, editedon desc, id desc',
     'manager_treepane_trim_title' => 1,
     'convert_datauri_to_file' => '1',
+    'enable_bindings' => '0',
+    'make_folders' => '1',
+    'pwd_hash_algo' => 'UNCRYPT',
 ];
 
 return $default_config;

@@ -10,12 +10,9 @@
 'new_setting_name' => 'default_value',
 ```
 
-新しい設定は原則ここに足す（既定値の正本は `default.config.php` の 1 か所）。グローバル設定の画面だけで足す既定は `EvoSettingsForm::screenDefaults()`（`manager/includes/settings_form.class.inc.php`）に置き、次のものだけを入れる。
+新しい設定は原則ここに足す（既定値の正本は `default.config.php` の 1 か所。読み込み時に補われ、DB には書かない）。
 
-- 言語の文言を使うもの（メールの文面）
-- 行の無いサイトの動きを変えないよう、設定画面にだけ出す既定（`enable_bindings`・`make_folders`・`pwd_hash_algo`）
-
-`screenDefaults()` の既定は、読み込み時（`getSettings()`）には補われず、グローバル設定の画面（`mutate_settings.dynamic.php`）だけが `storedValues()` に重ねる。
+言語ごとに文面が違うもの（メールの文面 `signupemail_message`・`websignupemail_message`・`webpwdreminder_message`）は `default.config.php` に置けない。インストーラーとアップデーター（`install/instprocessor.php`）が、`system_settings` に行が無いときだけ、そのサイトの管理画面の言語ファイルの文面を入れる（設定を保存しなくてよい。既にある行は、空にしたものも書き換えない）。設定名と言語キーの対応は `EvoSettingsForm::MAIL_TEXT_LANG_KEYS` が正本で、設定画面の定義もこれを使う。
 
 ## 2. 言語ファイルへの追加
 

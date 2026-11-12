@@ -425,9 +425,53 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     log_install_event('Demo site installation completed successfully');
 }
 
+// メールの文面は言語ごとに違うので default.config.php に置けない。system_settings に行が無いときだけ、
+// そのサイトの管理画面の言語ファイルの文面を入れる（利用者が書き換えた文面・空にした文面は触らない）。失敗してもインストールは止めない
+if (!function_exists('seed_mail_text_settings')) {
+    function seed_mail_text_settings()
+    {
+        try {
+            require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
+            $language = db()->getValue(
+                db()->select('setting_value', '[+prefix+]system_settings', "setting_name='manager_language'")
+            ) ?: sessionv('managerlanguage');
+            $language = is_string($language) && preg_match('/^[A-Za-z0-9_-]+$/', $language) ? $language : 'english';
+            $langFile = MODX_CORE_PATH . 'lang/' . $language . '.inc.php';
+            if (!is_file($langFile)) {
+                $langFile = MODX_CORE_PATH . 'lang/english.inc.php';
+            }
+            $messages = include $langFile;
+            if (!is_array($messages)) {
+                return;
+            }
+            $added = [];
+            foreach (EvoSettingsForm::MAIL_TEXT_LANG_KEYS as $name => $langKey) {
+                if (!isset($messages[$langKey])) {
+                    continue;
+                }
+                $exists = db()->getValue(
+                    db()->select('setting_name', '[+prefix+]system_settings', "setting_name='" . db()->escape($name) . "'")
+                );
+                if ($exists !== false && $exists !== null) {
+                    continue;
+                }
+                db()->insert(
+                    db()->escape(['setting_name' => $name, 'setting_value' => $messages[$langKey]]),
+                    '[+prefix+]system_settings'
+                );
+                $added[] = $name;
+            }
+            log_install_event('Added mail text settings', ['settings' => $added, 'language' => $language]);
+        } catch (Throwable $e) {
+            log_install_event('Failed to add mail text settings', ['error' => $e->getMessage()]);
+        }
+    }
+}
+
 // マイグレーションの記録は、必須の処理がすべて成功したあとに行う。記録が済むと hasPending() が false になり、公開側の停止が解けるため。
 // 新規インストールは最終形をそのまま作ったので流さずに適用済みとだけ記録し、アップグレードは流した ID を記録する
 if ($errors == 0) {
+    seed_mail_text_settings();
     try {
         $migrator = new EvoMigrator();
         if (sessionv('is_upgradeable')) {

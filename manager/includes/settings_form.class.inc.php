@@ -22,6 +22,16 @@ final class EvoSettingsForm
      */
     const USER_TAB_KEYS = ['allow_manager_access', 'allowed_parents', 'allowed_ip', 'allowed_days'];
 
+    /**
+     * メールの文面の設定名 => 言語キー（SSOT）。設定画面の定義と、インストーラー・アップデーターが
+     * 行の無いときに言語ファイルの文面を入れる処理（install/instprocessor.php）の両方がこれを使う
+     */
+    const MAIL_TEXT_LANG_KEYS = [
+        'signupemail_message' => 'system_email_signup',
+        'websignupemail_message' => 'system_email_websignup',
+        'webpwdreminder_message' => 'system_email_webreminder',
+    ];
+
     /** @var array */
     private $tabs;
     /** @var array */
@@ -54,23 +64,6 @@ final class EvoSettingsForm
     public static function definition(): array
     {
         return include __DIR__ . '/settings_form.definition.inc.php';
-    }
-
-    /**
-     * グローバル設定の画面（a=17）だけで下敷きにする既定。
-     * 言語の文言を使うもの（メールの文面）と、行の無いサイトの動きを変えないよう画面にだけ出すもの。
-     * getSettings() では補われず、ユーザー編集画面からも使わない
-     */
-    public static function screenDefaults(): array
-    {
-        return [
-            'signupemail_message' => lang('system_email_signup'),
-            'websignupemail_message' => lang('system_email_websignup'),
-            'webpwdreminder_message' => lang('system_email_webreminder'),
-            'enable_bindings' => '0',
-            'make_folders' => '1',
-            'pwd_hash_algo' => 'UNCRYPT',
-        ];
     }
 
     /**
