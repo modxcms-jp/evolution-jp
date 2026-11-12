@@ -104,6 +104,10 @@ else {
                     $customButton = '';
                     switch ($buttonAction) {
                         case 'new':
+                            // 新規作成の権限・範囲・親の文書グループを、親の id で確かめる（追加ボタンと同じ判定）
+                            if (!manager()->canCreateDocumentUnder((int)$buttonParentId)) {
+                                break;
+                            }
                             $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=' . $buttonParentId . '&amp;quickmanager=1&amp;customaddtplid=' . $buttonTplId . '"><span>' . $buttonTitle . '</span></a>

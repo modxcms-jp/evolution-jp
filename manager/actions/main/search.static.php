@@ -163,7 +163,7 @@ if (getv('submitok')) {
         $orderby,
         $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
     );
-    if (evo()->hasPermission('edit_document')) {
+    if (manager()->can('document.edit')) {
         $action = '27';
         $itemicon = style('icons_edit_document');
     } else {

@@ -622,52 +622,9 @@ class DocAPI
         return $form_v;
     }
 
-    public function canSaveDoc()
-    {
-        return evo()->hasPermission('save_document');
-    }
-
-    public function canPublishDoc()
-    {
-        if (evo()->hasPermission('new_document')) {
-            return 1;
-        }
-
-        if (!evo()->documentObject['published']) {
-            return 1;
-        }
-
-        return 0;
-    }
-
     public function canSaveDraft()
     {
         return 1;
-    }
-
-    public function canMoveDoc()
-    {
-        return evo()->hasPermission('save_document');
-    }
-
-    public function canCopyDoc()
-    {
-        return (evo()->hasPermission('new_document') && evo()->hasPermission('save_document'));
-    }
-
-    public function canDeleteDoc()
-    {
-        return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
-    }
-
-    public function canCreateDoc()
-    {
-        return evo()->hasPermission('new_document');
-    }
-
-    public function canEditDoc()
-    {
-        return evo()->hasPermission('edit_document');
     }
 
     public function existsDoc($id = 0)

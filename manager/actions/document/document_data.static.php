@@ -146,28 +146,28 @@ if (isset($content['parent']) && $content['parent'] != 0) {
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if (evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.edit')) : ?>
             <li id="Button1" class="mutate">
                 <a href="javascript:void(0)" onclick="editdocument();">
                     <?= $_lang['edit'] ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
+        <?php if (manager()->can('document.move')) : ?>
             <li id="Button2" class="mutate">
                 <a href="#" onclick="movedocument();">
                     <?= $_lang['move'] ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.duplicate')) : ?>
             <li id="Button4">
                 <a href="#" onclick="duplicatedocument();">
                     <?= $_lang['duplicate'] ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.delete')) : ?>
             <li id="Button3">
                 <a href="#" onclick="deletedocument();">
                     <?= $_lang['delete'] ?>

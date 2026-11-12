@@ -50,7 +50,7 @@ $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
 
 // setup icons
-if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
+if (manager()->canCreateDocumentUnder(0)) {
     if (!isset($_style['icons_newdoc_large'])) {
         $_style['icons_newdoc_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
     }
