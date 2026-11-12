@@ -59,6 +59,7 @@ class Mysqldumper
         return $this->_isDroptables;
     }
 
+    // event_log は今は作らないが、古い版から上げたサイトには残っているので、スナップショットに中身を入れないよう残す
     private function is_log_table($table_name)
     {
         if ($this->in_array($table_name, ['event_log', 'manager_log', 'system_cache'])) {

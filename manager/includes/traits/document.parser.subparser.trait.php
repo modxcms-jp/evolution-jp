@@ -97,7 +97,7 @@ trait DocumentParserSubParserTrait
             && preg_match('@<(?:html|body|p|br|div|table|a\s[^>]*href)\b[^>]*>@i', $p['body']) === 1;
     }
 
-    function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
+    function rotate_log($target, $limit = 2000, $trim = 100)
     {
         if ($limit < $trim) {
             $trim = $limit;

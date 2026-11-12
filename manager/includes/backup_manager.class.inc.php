@@ -17,6 +17,7 @@ class EvoBackupManager
     /**
      * 管理画面から中身の全削除を許可するテーブル名（接頭辞付き）
      * 画面のリンクの出し分けと、削除処理の許可判定が共有する
+     * event_log は今は作らないが、古い版から上げたサイトには残っているので、空にできるよう残す
      */
     public static function truncatableTables(): array
     {
