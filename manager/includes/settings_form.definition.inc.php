@@ -88,7 +88,6 @@ return [
                         'key' => 'xhtml_urls',
                         'type' => 'yesno',
                         'label' => lang('xhtml_urls_title'),
-                        'default' => '0',
                         'desc' => lang('xhtml_urls_message'),
                     ],
                 ],
@@ -492,7 +491,6 @@ return [
                             '2' => lang('a17_error_reporting_opt2'),
                             '99' => lang('a17_error_reporting_opt99'),
                         ],
-                        'default' => '1',
                         'desc' => lang('a17_error_reporting_msg'),
                     ],
                     [
@@ -516,7 +514,6 @@ return [
                             '2' => 'error + warning',
                             '1' => 'error + warning + information',
                         ],
-                        'default' => '0',
                         // 送信者は DB の値なので hsc() する
                         'desc' => static function (array $values) {
                             return evo()->parseText(
@@ -620,7 +617,6 @@ return [
                         'key' => 'modxmailer_log',
                         'type' => 'yesno',
                         'label' => lang('modxmailer_log_title'),
-                        'default' => '0',
                         'desc' => lang('modxmailer_log_message'),
                     ],
                 ],
