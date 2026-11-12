@@ -10,7 +10,7 @@
  * UTF-8 でない中身(Shift_JIS・EUC-JP)は変換して表示するが、保存はさせない(readOnly。書き戻すと文字コードが黙って変わるため)。
  * 保存のときは開いたときの中身の sha1(hash)を送り、今のファイルと違えば 409 modified で断る(FTP などの同時の書き換えを上書きしないため)。
  * エラーコード(この一覧が正本): invalid_name / not_found / not_text / too_large / read_failed / not_editable / read_only / modified /
- * invalid_content / save_failed / not_writable / extension_not_allowed / protected / already_exists / create_failed / not_zip /
+ * invalid_content / save_failed / not_writable / protected / already_exists / create_failed / not_zip /
  * zip_unavailable / invalid_zip / unsafe_zip
  */
 class ManageActions
@@ -118,7 +118,7 @@ class ManageActions
     }
 
     /**
-     * 空のテキストファイルを作る。拡張子は新しい名前の許可リストで確かめる。同じ名前があれば 409(空の中身で上書きしない)
+     * 空のテキストファイルを作る。拡張子は問わない。同じ名前があれば 409(空の中身で上書きしない)
      */
     public static function newfile(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
@@ -130,10 +130,6 @@ class ManageActions
         if ($name === '') {
             fbError('invalid_name', lang('fb_err_invalid_name'), 400);
         }
-        if (!$scope->isAllowedNewName($name)) {
-            fbError('extension_not_allowed', lang('fb_err_extension_not_allowed'), 400);
-        }
-
         $target = $resolver->resolveNewChild($dir['real'], $name);
         if ($target === null) {
             fbError('protected', lang('fb_err_protected'), 403);
@@ -185,7 +181,7 @@ class ManageActions
         }
 
         @set_time_limit(0);
-        $result = ZipService::extract($zipPath, $dir['real'], $resolver, $scope->guard(), [$scope, 'isAllowedNewName'], $modx);
+        $result = ZipService::extract($zipPath, $dir['real'], $resolver, $scope->guard(), $modx);
         if (!$result['ok']) {
             $errors = [
                 'unavailable' => ['zip_unavailable', 'fb_err_unzip_unavailable', 501],
@@ -206,7 +202,6 @@ class ManageActions
         fbSendJson([
             'extracted' => $result['extracted'],
             'failed' => $result['failed'],
-            'skipped' => $result['skipped'],
         ]);
     }
 

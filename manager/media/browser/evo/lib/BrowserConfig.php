@@ -31,29 +31,6 @@ class BrowserConfig
     const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'wav', 'ogg', 'oga', 'flac'];
 
     /**
-     * 管理モードで新しく作れる(アップロード・名前の変更・zip の展開・新しいファイルの)拡張子(小文字)。
-     * サーバーで実行されず、同じオリジンで開いてもスクリプトが動かない形式だけ。html・svg・js・xml などは設定で許したときだけ。
-     * php・phtml・phar・shtml・htaccess・ini・tpl・pagecache・cgi・pl・py・sh なども、置くと実行や設定の書き換えにつながるので入れない
-     * (設定 upload_files・upload_images・upload_media に書けば、サイトの判断で足せる。isAllowedNewExtension())
-     */
-    const MANAGE_CREATABLE_EXTENSIONS = [
-        // テキスト
-        'txt', 'md', 'markdown', 'json', 'yml', 'yaml', 'csv', 'tsv', 'log', 'css',
-        // ラスター画像(svg は含まない)
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'tif', 'tiff', 'psd',
-        // 動画・音声
-        ...self::VIDEO_EXTENSIONS,
-        ...self::AUDIO_EXTENSIONS,
-        'avi', 'mpg', 'mpeg', 'wmv', 'au',
-        // 文書
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'odt', 'ods', 'odp',
-        // アーカイブ
-        'zip', 'gz', 'gzip', 'tar', 'tgz', 'rar', 'z', '7z',
-        // フォント
-        'woff', 'woff2', 'ttf', 'otf',
-    ];
-
-    /**
      * 管理モードで、開く(ダブルクリック・行のアイコン・右クリックの「開く」)と、中身を確かめずに最初からテキストエディターで開く拡張子(小文字)。拡張子だけの名前(.htaccess)は、名前全体(htaccess)をこの一覧と照らす。
      * ここに無いファイルも、クリックで中身を確かめてテキストなら開ける(ManageActions::textFileOrFail())
      */
@@ -144,16 +121,6 @@ class BrowserConfig
         return $this->extensionsOf($key);
     }
 
-    /** upload_files・upload_images・upload_media を合わせた拡張子の許可リスト（旧ファイル管理の uploadablefiles() と同じ範囲） */
-    public function allowedExtensionsAll()
-    {
-        return array_values(array_unique(array_merge(
-            $this->extensionsOf('upload_files'),
-            $this->extensionsOf('upload_images'),
-            $this->extensionsOf('upload_media')
-        )));
-    }
-
     private function extensionsOf($settingKey)
     {
         $value = strtolower((string) $this->modx->config($settingKey));
@@ -181,15 +148,6 @@ class BrowserConfig
     public function isAllowedFilename($type, $name)
     {
         return self::hasExtensionIn($name, $this->allowedExtensions($type));
-    }
-
-    /**
-     * 管理モードで新しく作ってよい名前か。MANAGE_CREATABLE_EXTENSIONS か、設定の 3 つ(allowedExtensionsAll())に含まれる拡張子。
-     * 大文字小文字は区別せず、拡張子の無い名前は許さない。名前は sanitizeFilename() を通した後のものを渡す
-     */
-    public function isAllowedNewExtension($name)
-    {
-        return self::hasExtensionIn($name, array_merge(self::MANAGE_CREATABLE_EXTENSIONS, $this->allowedExtensionsAll()));
     }
 
     /** 管理モードのプレビューで再生する種別。video / audio、どちらでもなければ空文字 */
