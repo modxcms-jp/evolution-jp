@@ -346,7 +346,7 @@ return [
     "fe_editor_lang_title" => 'Front-end Editor Language',
     "file_download_file" => 'Download File',
     "file_not_saved" => 'Cannot save file, please ensure target directory is writable!',
-    "filemanager_path_message" => 'Sets the range that the <a href="index.php?a=31">File Manager</a> can handle. Unlike the File Picker used while editing content (the small window for picking files), it can manage any directory on this server that you have permission for, including directories outside the document root. Existing files can be viewed, edited and deleted whatever their extension. Uploading, creating new files, extracting zip files and renaming to a different extension are limited to the extensions allowed in the Uploadable File, Image and Media Types settings. IIS often does not populate the document_root setting properly. If you are having problems using the File Manager, make sure this path points to the root of your MODX installation.',
+    "filemanager_path_message" => 'Sets the range that the <a href="index.php?a=31">File Manager</a> can handle. Unlike the File Picker used while editing content (the small window for picking files), it can manage any directory on this server that you have permission for, including directories outside the document root. Files of any extension can be viewed, edited, deleted, uploaded, created, extracted from zip files and renamed. IIS often does not populate the document_root setting properly. If you are having problems using the File Manager, make sure this path points to the root of your MODX installation.',
     "filemanager_path_title" => 'File Manager path',
     "export_dir_message" => 'The directory where static HTML files are written by the HTML export. Its contents are deleted when an export starts, so only a directory inside temp/ (not temp/ itself) can be used.',
     "export_dir_title" => 'Export output<br />directory',
@@ -1429,6 +1429,5 @@ return [
     "fb_confirm_unzip" => 'Extract %s into this folder? Files with the same name will be overwritten.',
     "fb_unzip_failed" => 'Could not extract: %s',
     "fb_unzip_done" => 'Extracted %s files.',
-    "fb_unzip_skipped" => 'Files not extracted because their extension is not allowed:',
     "fb_unzip_entry_failed" => 'Files that could not be extracted:',
 ];

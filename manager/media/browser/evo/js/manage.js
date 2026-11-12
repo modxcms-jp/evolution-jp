@@ -61,9 +61,6 @@ function unzipFile(host, name) {
             if (result.failed && result.failed.length) {
                 lines.push('', t('fb_unzip_entry_failed'), result.failed.join('\n'));
             }
-            if (result.skipped && result.skipped.length) {
-                lines.push('', t('fb_unzip_skipped'), result.skipped.join('\n'));
-            }
             window.alert(lines.join('\n'));
             host.reload();
         })

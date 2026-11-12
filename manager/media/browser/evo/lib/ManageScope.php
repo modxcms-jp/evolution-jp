@@ -3,8 +3,8 @@
 /**
  * 管理モード（メニューの「ファイル管理」の範囲）。ルートは設定 filemanager_path（既定はサイトのルート）で、拡張子を問わず扱う。
  * 権限はロールの権限 file_manager だけで決める（設定 use_browser やウェブユーザーのセッションは見ない）。
- * 新しい名前のファイルを作る操作も、拡張子では制限しない（file_manager の権限を持つ人は既にある .php なども編集できるので、
- * 拡張子で止めても守りは変わらない）。upload_files・upload_images・upload_media はファイルピッカーだけの設定。
+ * 新しい名前のファイルを作る操作も、拡張子では制限しない（file_manager の権限は、ルートの中にどんなファイルでも置ける権限として扱う）。
+ * upload_files・upload_images・upload_media はファイルピッカーだけの設定。
  * 守る場所(guard())と名前の無害化(sanitizeFilename())は、ほかの操作と同じく効く。
  */
 class ManageScope implements BrowserScope

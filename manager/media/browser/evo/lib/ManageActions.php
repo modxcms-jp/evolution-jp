@@ -118,7 +118,7 @@ class ManageActions
     }
 
     /**
-     * 空のテキストファイルを作る。拡張子は問わない(ManageScope)。同じ名前があれば 409(空の中身で上書きしない)
+     * 空のテキストファイルを作る。拡張子は問わない。同じ名前があれば 409(空の中身で上書きしない)
      */
     public static function newfile(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
     {
@@ -181,7 +181,7 @@ class ManageActions
         }
 
         @set_time_limit(0);
-        $result = ZipService::extract($zipPath, $dir['real'], $resolver, $scope->guard(), [$scope, 'isAllowedNewName'], $modx);
+        $result = ZipService::extract($zipPath, $dir['real'], $resolver, $scope->guard(), $modx);
         if (!$result['ok']) {
             $errors = [
                 'unavailable' => ['zip_unavailable', 'fb_err_unzip_unavailable', 501],
@@ -202,7 +202,6 @@ class ManageActions
         fbSendJson([
             'extracted' => $result['extracted'],
             'failed' => $result['failed'],
-            'skipped' => $result['skipped'],
         ]);
     }
 
