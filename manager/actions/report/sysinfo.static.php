@@ -109,7 +109,7 @@ global $database_connection_method;
                     'MySQLホスト情報' => db()->host_info(),
                     'MODXのバージョン' => evo()->getVersionData('version'),
                     'サイトのURL' => config('site_url'),
-                    'ホスト名' => gethostbyaddr($_SERVER['SERVER_ADDR']),
+                    'ホスト名' => serverv('SERVER_ADDR') ? gethostbyaddr(serverv('SERVER_ADDR')) : '',
                     'MODX_BASE_URL' => MODX_BASE_URL,
                     'upload_tmp_dir' => sprintf(
                         '%s(ファイルアップロード処理のために一時的なファイル保存領域として用いるテンポラリディレクトリ。この値が空になっている時は、OSが認識するテンポラリディレクトリが用いられます)',

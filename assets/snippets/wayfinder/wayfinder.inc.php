@@ -479,7 +479,7 @@ class Wayfinder
             if (!$this->_config['showPrivate']) {
                 $where[] = 'AND sc.privateweb=0';
             }
-        } elseif ($_SESSION['mgrRole'] != 1) {
+        } elseif (sessionv('mgrRole') != 1) {
             if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
                     'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',

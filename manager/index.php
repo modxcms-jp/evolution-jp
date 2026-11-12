@@ -87,7 +87,7 @@ if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
 }
 
 // double check the session
-if (!isset($_SESSION['mgrValidated'])) {
+if (sessionv('mgrValidated') === null) {
     exit('Not Logged In!');
 }
 

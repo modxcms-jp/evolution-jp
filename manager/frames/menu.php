@@ -291,7 +291,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     if (evo()->hasPermission('exec_module')) {
                         // Each module
                         $uid = evo()->getLoginUserID();
-                        if ($_SESSION['mgrRole'] != 1) {
+                        if (sessionv('mgrRole') != 1) {
                             // Display only those modules the user can execute
                             $field = 'sm.id, sm.name, mg.member';
                             $from = '[+prefix+]site_modules                 AS sm '

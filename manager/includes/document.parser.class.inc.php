@@ -4163,7 +4163,7 @@ class DocumentParser
 
         if ($this->session('mgrPermissions')) {
             if (!$key) {
-                return print_r($_SESSION['mgrPermissions'], true);
+                return print_r(sessionv('mgrPermissions'), true);
             }
             return ($this->session('mgrPermissions.' . $key) == 1);
         }

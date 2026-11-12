@@ -36,11 +36,11 @@ class ManagerAPI
     // check for saved form
     public function hasFormValues()
     {
-        if (isset($_SESSION['mgrFormValues'][$this->action])) {
+        if (sessionv('mgrFormValues.' . $this->action) !== null) {
             return true;
         }
 
-        if (isset($_SESSION['mgrFormValues'])) {
+        if (sessionv('mgrFormValues') !== null) {
             unset($_SESSION['mgrFormValues']);
         }
 
@@ -408,7 +408,7 @@ class ManagerAPI
             if (sessionv('current_request_uri')) {
                 $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
             }
-            $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
+            $_SESSION['current_request_uri'] = serverv('REQUEST_URI');
         }
     }
 

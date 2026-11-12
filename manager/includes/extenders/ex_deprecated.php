@@ -39,9 +39,9 @@ class OldFunctions
 
     public function getUserData()
     {
-        $client['host'] = $_SERVER['REMOTE_ADDR'];
-        $client['ip'] = $_SERVER['REMOTE_ADDR'];
-        $client['ua'] = $_SERVER['HTTP_USER_AGENT'];
+        $client['host'] = serverv('REMOTE_ADDR');
+        $client['ip'] = serverv('REMOTE_ADDR');
+        $client['ua'] = serverv('HTTP_USER_AGENT');
         return $client;
     }
 
@@ -80,18 +80,18 @@ class OldFunctions
     {
         global $modx;
         $userdetails = [];
-        if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
+        if ($modx->isFrontend() && sessionv('webValidated') !== null) {
             // web user
             $userdetails['loggedIn'] = true;
-            $userdetails['id'] = $_SESSION['webInternalKey'];
-            $userdetails['username'] = $_SESSION['webShortname'];
+            $userdetails['id'] = sessionv('webInternalKey');
+            $userdetails['username'] = sessionv('webShortname');
             $userdetails['usertype'] = 'web'; // added by Raymond
             return $userdetails;
-        } elseif ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+        } elseif ($modx->isBackend() && sessionv('mgrValidated') !== null) {
             // manager user
             $userdetails['loggedIn'] = true;
-            $userdetails['id'] = $_SESSION['mgrInternalKey'];
-            $userdetails['username'] = $_SESSION['mgrShortname'];
+            $userdetails['id'] = sessionv('mgrInternalKey');
+            $userdetails['username'] = sessionv('mgrShortname');
             $userdetails['usertype'] = 'manager'; // added by Raymond
             return $userdetails;
         } else {

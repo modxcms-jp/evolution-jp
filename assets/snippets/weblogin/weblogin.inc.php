@@ -29,7 +29,7 @@ if (!isset($tplLogin)) $tplLogin = $tpls[0];
 if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
-if (!isset($_SESSION['webValidated'])) {
+if (sessionv('webValidated') === null) {
     $username = hsc(trim(post_strvar('username')), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
