@@ -4,11 +4,18 @@
 
 ## 1. デフォルト値の定義
 
-`manager/includes/default.config.php` に追加:
+`manager/includes/default.config.base.php` に追加:
 
 ```php
 'new_setting_name' => 'default_value',
 ```
+
+新しい設定は原則ここ（base）に足す。`manager/includes/default.config.php` の `a=17`（グローバル設定の画面）の部分には、次のものだけを足す。
+
+- 言語の文言を使うもの（メールの文面）
+- 行の無いサイトの動きを変えないよう、設定画面にだけ出す既定（`enable_bindings`・`make_folders`・`pwd_hash_algo`）
+
+ここに足した既定は、読み込み時（`getSettings()`）には補われない。
 
 ## 2. 言語ファイルへの追加
 
@@ -72,8 +79,9 @@ user・profile の描き方（グローバル設定との違い）:
 
 ## 4. 設定値の反映
 
-- **新規インストール**: `default.config.php` の値が自動的に使用される
-- **既存インストール**: グローバル設定を一度保存すると `save_settings.processor.php` が反映
+- **DB に行が無い設定**: 読み込み時（`DocumentParser::getSettings()`）に `default.config.base.php` の値で補われる。新規インストールも、設定を足した後の既存インストールも同じで、グローバル設定を保存しなくてよい
+- **アップデーターは行を足さない**: 足すと、今後の既定の変更が届かなくなる（既定の値を書き写す目的では行を足さない）
+- 保存した値（空にした値も）は DB が優先される
 
 ## 設定画面のタブ構成
 
@@ -98,9 +106,9 @@ user・profile の描き方（グローバル設定との違い）:
 
 ## 注意事項
 
-- SQLファイルでの設定追加は不要（`default.config.php` のみで管理）
-- `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
+- SQLファイルでの設定追加は不要（`default.config.base.php` のみで管理）
+- `save_settings.processor.php` は POST データと `default.config.php`（`default.config.base.php` を読み込んだもの）をマージし `REPLACE INTO` で保存
 - 設定でない項目の扱いは「3. 設定画面への表示」の `nonSettingKeys()` を参照
-- 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。値が無いときの既定値は `null`。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
+- 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。`default.config.base.php` にあるキーは読み込み時に既定値で補われるので `null` にならない。第 2 引数の既定値が効くのは、base にも無いキーだけ（無ければ `null`）。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
 - 管理画面では、設定値を `extract()` でグローバル変数にしない。`global $site_url`・`$GLOBALS['manager_theme']`・`$modx->event->getGlobalVariable('…')` では読めない。ユーザーごとの設定は重ねた後の値が返る
 - プラグイン・モジュールも `evo()->config('キー')` で読む。消した `settings.inc.php`・`user_settings.inc.php` は include しない。同梱のプラグイン・モジュール（TinyMCE 7 を含む）で、これらの変数に頼るものが無いことは確かめてある
