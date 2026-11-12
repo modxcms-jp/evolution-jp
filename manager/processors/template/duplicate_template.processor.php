@@ -13,7 +13,7 @@ if (!$id) {
 }
 
 // duplicate template
-$tpl = $_lang['duplicate_title_string'];
+$tpl = lang('duplicate_title_string');
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 $sql = "INSERT INTO {$tbl_site_templates} (templatename, description, content, category, parent)
 		SELECT REPLACE('{$tpl}','[+title+]',templatename) AS 'templatename', description, content, category, parent

@@ -16,7 +16,7 @@ $sql = sprintf(
 		SELECT REPLACE('%s','[+title+]',name) AS 'name', description, snippet, category, editor_type
 		FROM %s WHERE id='%s'",
     evo()->getFullTableName('site_htmlsnippets'),
-    $_lang['duplicate_title_string'],
+    lang('duplicate_title_string'),
     evo()->getFullTableName('site_htmlsnippets'),
     $id
 );

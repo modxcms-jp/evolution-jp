@@ -68,7 +68,7 @@ while ($row = db()->getRow($rs)) {
         $insideUl = 1;
     }
     if ($row['disabled']) {
-        $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '" class="disabledPlugin">' . hsc($row['name']) . ' (' . hsc($_lang['disabled']) . ')</li>';
+        $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '" class="disabledPlugin">' . hsc($row['name']) . ' (' . hsc(lang('disabled')) . ')</li>';
     } else {
         $evtLists .= '<li id="item_' . (int)$row['pluginid'] . '">' . hsc($row['name']) . '</li>';
     }
@@ -134,12 +134,12 @@ if ($insideUl) {
     })();
 </script>
 
-<h1><?= $_lang['plugin_priority_title'] ?></h1>
+<h1><?= lang('plugin_priority_title') ?></h1>
 
 <div class="section">
-<div class="sectionHeader"><?= $_lang['plugin_priority'] ?></div>
+<div class="sectionHeader"><?= lang('plugin_priority') ?></div>
 <div class="sectionBody">
-<p><?= $_lang['plugin_priority_instructions'] ?></p>
+<p><?= lang('plugin_priority_instructions') ?></p>
 <?= $updateMsg ?><span class="warning" style="display:none;" id="updating">Updating...<br /><br /> </span>
 <?= $evtLists ?>
 </div>
@@ -147,8 +147,8 @@ if ($insideUl) {
 
 <div id="actions">
    <ul class="actionButtons">
-        <li class="mutate"><a href="#" onclick="evoCancelPluginPriority(this, 'index.php?a=76'); return false;"><?= $_lang['cancel'] ?></a></li>
-        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= $_lang['update'] ?></a></li>
+        <li class="mutate"><a href="#" onclick="evoCancelPluginPriority(this, 'index.php?a=76'); return false;"><?= lang('cancel') ?></a></li>
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
         </ul>
 </div>
 

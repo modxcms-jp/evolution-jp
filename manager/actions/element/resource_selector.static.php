@@ -45,7 +45,7 @@ $likeWhere = function (string $nameCol, string $descCol) use ($query) {
 };
 switch ($type) {
     case "snippet":
-        $title = $_lang["snippet"];
+        $title = lang("snippet");
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_snippets');
         $where = $likeWhere('name', 'description');
@@ -53,7 +53,7 @@ switch ($type) {
         break;
 
     case "template":
-        $title = $_lang["template"];
+        $title = lang("template");
         $cols = "id,templatename as 'name',description";
         $from = evo()->getFullTableName('site_templates');
         $where = $likeWhere('templatename', 'description');
@@ -61,7 +61,7 @@ switch ($type) {
         break;
 
     case ("tv"):
-        $title = $_lang["tv"];
+        $title = lang("tv");
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_tmplvars');
         $where = $likeWhere('name', 'description');
@@ -69,7 +69,7 @@ switch ($type) {
         break;
 
     case ("chunk"):
-        $title = $_lang["chunk"];
+        $title = lang("chunk");
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_htmlsnippets');
         $where = $likeWhere('name', 'description');
@@ -77,7 +77,7 @@ switch ($type) {
         break;
 
     case ("plugin"):
-        $title = $_lang["plugin"];
+        $title = lang("plugin");
         $cols = 'id,name,description';
         $from = evo()->getFullTableName('site_plugins');
         $where = $likeWhere('name', 'description');
@@ -85,7 +85,7 @@ switch ($type) {
         break;
 
     case ("document"):
-        $title = $_lang["resource"];
+        $title = lang("resource");
         $cols = "id,pagetitle as 'name',longtitle as 'description'";
         $from = evo()->getFullTableName('site_content');
         $where = $likeWhere('pagetitle', 'longtitle');
@@ -98,7 +98,7 @@ switch ($type) {
 <html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '" xml:lang="' . hsc($mxla) . '"' ?>>
 
 <head>
-    <title><?= $title . ' ' . $_lang['element_selector_title'] ?></title>
+    <title><?= $title . ' ' . lang('element_selector_title') ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
     <link rel="stylesheet" type="text/css"
           href="<?= hsc(manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css')) ?>"/>
@@ -191,9 +191,9 @@ switch ($type) {
     <input type="hidden" name="callback" value="<?= hsc($callback) ?>"/>
     <div class="section" style="margin:1em;">
         <div class="sectionHeader"
-            style="margin:0px"><?= $title . " - " . $_lang['element_selector_title'] ?></div>
+            style="margin:0px"><?= $title . " - " . lang('element_selector_title') ?></div>
         <div class="sectionBody" style="margin-right:0px;margin-left:0px;">
-            <p><?= $_lang['element_selector_msg'] ?></p>
+            <p><?= lang('element_selector_msg') ?></p>
             <!-- resources -->
             <table width="100%" border="0" cellspacing="1" cellpadding="2">
                 <tr>
@@ -204,28 +204,28 @@ switch ($type) {
                                     <td nowrap="nowrap">
                                         <table border="0">
                                             <tr>
-                                                <td><?= $_lang["search"] ?></td>
+                                                <td><?= lang("search") ?></td>
                                                 <td><input class="searchtext" name="search" type="text" size="15"
                                                            value="<?= hsc($query) ?>"/></td>
                                                 <td class="actionButtons"><a href="#"
-                                                                             title="<?= $_lang["search"] ?>"
-                                                                             onclick="searchResource();return false;"><?= $_lang["go"] ?></a>
+                                                                             title="<?= lang("search") ?>"
+                                                                             onclick="searchResource();return false;"><?= lang("go") ?></a>
                                                 </td>
                                                 <td class="actionButtons"><a href="#"
-                                                                             title="<?= $_lang["reset"] ?>"
+                                                                             title="<?= lang("reset") ?>"
                                                                              onclick="resetSearch();return false;"><img
                                                             src="<?= $_style['icons_refresh'] ?>" /></a></td>
                                                 <td class="actionButtons"><a href="#"
-                                                                             title="<?= $_lang["list_mode"] ?>"
+                                                                             title="<?= lang("list_mode") ?>"
                                                                              onclick="changeListMode();return false;"><img
                                                             src="<?= $_style['icons_table'] ?>" /></a></td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td width="230" class="actionButtons">
-                                        <a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><?= $_lang['cancel'] ?>
+                                        <a href="#" style="float:right;margin-left:2px;" onclick="window.close()"><?= lang('cancel') ?>
                                         </a>
-                                        <a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><?= $_lang['insert'] ?>
+                                        <a href="#" style="float:right;margin-left:2px;" onclick="saveSelection()"><?= lang('insert') ?>
                                         </a>
                                     </td>
                                 </tr>
@@ -265,7 +265,7 @@ switch ($type) {
                         $columns = [
                             [
                                 'key' => 'name',
-                                'label' => $_lang['name'],
+                                'label' => lang('name'),
                                 'html' => true,
                                 'format' => function ($value, array $row) use ($inputType) {
                                     return sprintf(
@@ -278,10 +278,10 @@ switch ($type) {
                             ],
                             // 要素の説明は無害化して b・strong だけ戻す。文書のロングタイトルは既定のエスケープ
                             $type === 'document'
-                                ? ['key' => 'description', 'label' => $_lang['description']]
+                                ? ['key' => 'description', 'label' => lang('description')]
                                 : [
                                     'key' => 'description',
-                                    'label' => $_lang['description'],
+                                    'label' => lang('description'),
                                     'html' => true,
                                     'format' => function ($value) {
                                         return element_description_html((string) $value);
@@ -292,7 +292,7 @@ switch ($type) {
                             'id' => 'selector',
                             'tableClass' => 'grid',
                             'rowClasses' => ['gridItem', 'gridAltItem'],
-                            'emptyMessage' => $_lang['no_records_found'],
+                            'emptyMessage' => lang('no_records_found'),
                         ]);
                         $nav = $pager->render($links, [
                             'label' => lang('pagination_label'),

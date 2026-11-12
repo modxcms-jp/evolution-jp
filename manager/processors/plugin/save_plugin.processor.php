@@ -24,7 +24,7 @@ if (!is_string($plugincode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['plugin'], 'plugin', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('plugin'), 'plugin', $id);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? '1' : '0';
 $disabled = postv('disabled') === 'on' ? '1' : '0';
@@ -49,7 +49,7 @@ switch ($mode) {
             $count = db()->getValue($rs);
             if ($count > 0) {
                 manager()->redirectToElementForm(
-                    sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
+                    sprintf(lang('duplicate_name_found_general'), lang('plugin'), $rawName),
                     'plugin',
                     0
                 );
@@ -106,7 +106,7 @@ switch ($mode) {
                 "name='" . db()->escape($rawName) . "' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
                 manager()->redirectToElementForm(
-                    sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $rawName),
+                    sprintf(lang('duplicate_name_found_general'), lang('plugin'), $rawName),
                     'plugin',
                     $id
                 );

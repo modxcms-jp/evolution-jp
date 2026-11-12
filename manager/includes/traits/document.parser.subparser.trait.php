@@ -1813,6 +1813,7 @@ trait DocumentParserSubParserTrait
 
     private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
+        // $_lang は @INCLUDE・@EVAL で実行するコードが読むため global に残す
         global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
@@ -1856,8 +1857,8 @@ trait DocumentParserSubParserTrait
             }
             return sprintf(
                 '%s(%s:%s)',
-                $_lang['chunk_no_exist'],
-                $_lang['htmlsnippet_name'],
+                lang('chunk_no_exist'),
+                lang('htmlsnippet_name'),
                 $chunk_name
             );
         }

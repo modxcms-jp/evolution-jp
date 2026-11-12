@@ -42,58 +42,58 @@ $modx->regClientScript($script);
 
 // set placeholders
 $modx->setPlaceholder('theme', config('manager_theme') ?: '');
-$modx->setPlaceholder('home', $_lang["home"]);
-$modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
+$modx->setPlaceholder('home', lang("home"));
+$modx->setPlaceholder('logo_slogan', lang("logo_slogan"));
 $modx->setPlaceholder('site_name', hsc(config('site_name')));
-$modx->setPlaceholder('welcome_title', $_lang['welcome_title']);
-$modx->setPlaceholder('site', $_lang['site']);
-$modx->setPlaceholder('info', $_lang['info']);
+$modx->setPlaceholder('welcome_title', lang('welcome_title'));
+$modx->setPlaceholder('site', lang('site'));
+$modx->setPlaceholder('info', lang('info'));
 
 // setup icons
 if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
     if (!isset($_style['icons_newdoc_large'])) {
         $_style['icons_newdoc_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
     }
-    $src = get_icon($_lang['add_resource'], 4, $_style['icons_newdoc_large'], $_lang['add_resource']);
+    $src = get_icon(lang('add_resource'), 4, $_style['icons_newdoc_large'], lang('add_resource'));
     $modx->setPlaceholder('NewDocIcon', $src);
 }
 if (evo()->hasPermission('view_document')) {
     $src = get_icon(
-        $_lang['view_child_resources_in_container'],
+        lang('view_child_resources_in_container'),
         120,
         $_style['icons_resources_large'],
-        $_lang['view_child_resources_in_container']
+        lang('view_child_resources_in_container')
     );
     $modx->setPlaceholder('iconResources', $src);
 }
 if (evo()->hasPermission('edit_user')) {
-    $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
+    $src = get_icon(lang('security'), 75, $_style['icons_security_large'], lang('user_management_title'));
     $modx->setPlaceholder('SecurityIcon', $src);
 }
 if (evo()->hasPermission('edit_web_user')) {
-    $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
+    $src = get_icon(lang('web_users'), 99, $_style['icons_webusers_large'], lang('web_user_management_title'));
     $modx->setPlaceholder('WebUserIcon', $src);
 }
 if (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) {
-    $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
+    $src = get_icon(lang('modules'), 106, $_style['icons_modules_large'], lang('manage_modules'));
     $modx->setPlaceholder('ModulesIcon', $src);
 }
 if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
     if (!isset($_style['icons_elements_large'])) {
         $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
     }
-    $src = get_icon($_lang['element_management'], 76, $_style['icons_elements_large'], $_lang['element_management']);
+    $src = get_icon(lang('element_management'), 76, $_style['icons_elements_large'], lang('element_management'));
     $modx->setPlaceholder('ResourcesIcon', $src);
 }
 if (evo()->hasPermission('bk_manager')) {
-    $src = get_icon($_lang['backup'], 93, $_style['icons_backup_large'], $_lang['bk_manager']);
+    $src = get_icon(lang('backup'), 93, $_style['icons_backup_large'], lang('bk_manager'));
     $modx->setPlaceholder('BackupIcon', $src);
 }
 if (evo()->hasPermission('help')) {
     if (!isset($_style['icons_help_large'])) {
         $_style['icons_help_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/help.png';
     }
-    $src = get_icon($_lang['help'], 9, $_style['icons_help_large'], $_lang['help']);
+    $src = get_icon(lang('help'), 9, $_style['icons_help_large'], lang('help'));
     $modx->setPlaceholder('HelpIcon', $src);
 }
 
@@ -102,42 +102,42 @@ if (evo()->hasPermission('file_manager')) {
     if (!isset($_style['icons_files_large'])) {
         $_style['icons_files_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/files.png';
     }
-    $src = get_icon($_lang['manage_files'], 31, $_style['icons_files_large'], $_lang['manage_files']);
+    $src = get_icon(lang('manage_files'), 31, $_style['icons_files_large'], lang('manage_files'));
     $modx->setPlaceholder('FileManagerIcon', $src);
 }
 if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
-    $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
+    $src = get_icon(lang('security'), 75, $_style['icons_security_large'], lang('user_management_title'));
     $modx->setPlaceholder('UserManagerIcon', $src);
 }
 if (evo()->hasPermission('new_web_user') || evo()->hasPermission('edit_web_user')) {
-    $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
+    $src = get_icon(lang('web_users'), 99, $_style['icons_webusers_large'], lang('web_user_management_title'));
     $modx->setPlaceholder('WebUserManagerIcon', $src);
 }
 if (evo()->hasPermission('view_eventlog')) {
     if (!isset($_style['icons_log_large'])) {
         $_style['icons_log_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/log.png';
     }
-    $src = get_icon($_lang['eventlog'], 114, $_style['icons_log_large'], $_lang['eventlog']);
+    $src = get_icon(lang('eventlog'), 114, $_style['icons_log_large'], lang('eventlog'));
     $modx->setPlaceholder('EventLogIcon', $src);
 }
 if (evo()->hasPermission('logs')) {
     if (!isset($_style['icons_sysinfo_large'])) {
         $_style['icons_sysinfo_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/info.png';
     }
-    $src = get_icon($_lang['view_sysinfo'], 53, $_style['icons_sysinfo_large'], $_lang['view_sysinfo']);
+    $src = get_icon(lang('view_sysinfo'), 53, $_style['icons_sysinfo_large'], lang('view_sysinfo'));
     $modx->setPlaceholder('SysInfoIcon', $src);
 }
 if (!isset($_style['icons_search_large'])) {
     $_style['icons_search_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/search.png';
 }
-$src = get_icon($_lang['search_resource'], 71, $_style['icons_search_large'], $_lang['search_resource']);
+$src = get_icon(lang('search_resource'), 71, $_style['icons_search_large'], lang('search_resource'));
 $modx->setPlaceholder('SearchIcon', $src);
 
 if (evo()->hasPermission('settings')) {
     if (!isset($_style['icons_settings_large'])) {
         $_style['icons_settings_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/settings.png';
     }
-    $src = get_icon($_lang['edit_settings'], 17, $_style['icons_settings_large'], $_lang['edit_settings']);
+    $src = get_icon(lang('edit_settings'), 17, $_style['icons_settings_large'], lang('edit_settings'));
     $modx->setPlaceholder('SettingsIcon', $src);
 }
 
@@ -185,8 +185,8 @@ if (
     $configCheck->run();
     $config_check_results = $configCheck->getWarnings();
 
-    $modx->setPlaceholder('settings_config', $_lang['warning']);
-    $modx->setPlaceholder('configcheck_title', $_lang['configcheck_title']);
+    $modx->setPlaceholder('settings_config', lang('warning'));
+    $modx->setPlaceholder('configcheck_title', lang('configcheck_title'));
     if ($config_check_results) {
         $modx->setPlaceholder('config_check_results', $config_check_results);
         $modx->setPlaceholder('config_display', 'block');

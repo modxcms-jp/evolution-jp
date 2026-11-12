@@ -221,7 +221,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--user">%s</span>', $loginMarkup);
 
                 if (evo()->hasPermission('help')) {
-                    $helpLabel = htmlspecialchars($_lang['help'], ENT_QUOTES, $charset);
+                    $helpLabel = htmlspecialchars(lang('help'), ENT_QUOTES, $charset);
                     $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--help"><a href="index.php?a=9">%s</a></span>', $helpLabel);
                 }
 
@@ -230,7 +230,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $supplementalNavItems[] = $safeModeNavItem;
                 }
 
-                $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
+                $logoutLabel = htmlspecialchars(lang('logout'), ENT_QUOTES, $charset);
                 $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="%s" data-evo-post="full">%s</a></span>', 'index.php?a=8', $logoutLabel);
 
                 $versionLabelClass = 'supplementalNav__version-label';
@@ -256,16 +256,16 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 // Concatenate menu items based on permissions
 
                 // Site Menu
-                    $item['home'] = item($_lang['home'], 2);             // home
-                    $item['preview'] = item($_lang['view_site'], hsc(config('site_url')), 1,
+                    $item['home'] = item(lang('home'), 2);             // home
+                    $item['preview'] = item(lang('view_site'), hsc(config('site_url')), 1,
                         'target="_blank"'); // preview
-                    $item['refresh_site'] = item($_lang['refresh_site'], 26,
+                    $item['refresh_site'] = item(lang('refresh_site'), 26,
                         evo()->hasPermission('empty_cache'), 'data-evo-post');    // clear-cache
-                    $item['search'] = item($_lang['search'], 71);          // search
-                    $item['resource_list'] = item($_lang['resources_list'], 120, evo()->hasPermission('view_document'));
-                    $item['add_resource'] = item($_lang['add_resource'], 4,
+                    $item['search'] = item(lang('search'), 71);          // search
+                    $item['resource_list'] = item(lang('resources_list'), 120, evo()->hasPermission('view_document'));
+                    $item['add_resource'] = item(lang('add_resource'), 4,
                         evo()->hasPermission('new_document')); // new-document
-                    $item['add_weblink'] = item($_lang['add_weblink'], 72,
+                    $item['add_weblink'] = item(lang('add_weblink'), 72,
                         evo()->hasPermission('new_document')); // new-weblink
 
                     // Resources Menu
@@ -278,15 +278,15 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         $perm_element_management = 0;
                     }
 
-                    $item['element_management'] = item($_lang['element_management'], 76,
+                    $item['element_management'] = item(lang('element_management'), 76,
                         $perm_element_management);// Elements
-                    $item['manage_files'] = item($_lang['manage_files'], 31,
+                    $item['manage_files'] = item(lang('manage_files'), 31,
                         evo()->hasPermission('file_manager'));// Manage-Files
 
                     // Modules Menu Items
                     $perm_module_management = (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) ? 1 : 0;
                     $item['modules'] = [];
-                    $item['modules']['module_management'] = item($_lang['module_management'], 106,
+                    $item['modules']['module_management'] = item(lang('module_management'), 106,
                         $perm_module_management);// manage-modules
                     if (evo()->hasPermission('exec_module')) {
                         // Each module
@@ -320,41 +320,41 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $perm_mgruser = (evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
                     $perm_webuser = (evo()->hasPermission('web_access_permissions') && config('use_udperms') == 1) ? 1 : 0;
 
-                    $item['user_manage'] = item($_lang['user_management_title'], 75,
+                    $item['user_manage'] = item(lang('user_management_title'), 75,
                         evo()->hasPermission('edit_user'));// manager-users
-                    $item['web_user_manage'] = item($_lang['web_user_management_title'], 99,
+                    $item['web_user_manage'] = item(lang('web_user_management_title'), 99,
                         evo()->hasPermission('edit_web_user'));// web-users
-                    $item['role_manage'] = item($_lang['role_management_title'], 86, $perm_role_management);// roles
-                    $item['manager_permissions'] = item($_lang['manager_permissions'], 40,
+                    $item['role_manage'] = item(lang('role_management_title'), 86, $perm_role_management);// roles
+                    $item['manager_permissions'] = item(lang('manager_permissions'), 40,
                         $perm_mgruser);// manager-perms
-                    $item['web_permissions'] = item($_lang['web_permissions'], 91, $perm_webuser);// web-user-perms
-                    $item['remove_locks'] = item($_lang['remove_locks'], 'javascript:removeLocks();',
+                    $item['web_permissions'] = item(lang('web_permissions'), 91, $perm_webuser);// web-user-perms
+                    $item['remove_locks'] = item(lang('remove_locks'), 'javascript:removeLocks();',
                         evo()->hasPermission('remove_locks'), '');// unlock-pages
 
                     // Tools Menu
-                    $item['bk_manager'] = item($_lang['bk_manager'], 93,
+                    $item['bk_manager'] = item(lang('bk_manager'), 93,
                         evo()->hasPermission('bk_manager'));// backup-mgr
-                    $item['import_site'] = item($_lang['import_site'], 95,
+                    $item['import_site'] = item(lang('import_site'), 95,
                         evo()->hasPermission('import_static'));// import-html
-                    $item['export_site'] = item($_lang['export_site'], 83,
+                    $item['export_site'] = item(lang('export_site'), 83,
                         evo()->hasPermission('export_static'));// export-static-site
-                    $item['edit_settings'] = item($_lang['edit_settings'], 17,
+                    $item['edit_settings'] = item(lang('edit_settings'), 17,
                         evo()->hasPermission('settings'));// configuration
 
                     // Reports Menu
-                    $item['site_schedule'] = item($_lang['site_schedule'], 70,
+                    $item['site_schedule'] = item(lang('site_schedule'), 70,
                         evo()->hasPermission('view_schedule'));// site-sched
-                    $item['eventlog_viewer'] = item($_lang['eventlog_viewer'], 114,
+                    $item['eventlog_viewer'] = item(lang('eventlog_viewer'), 114,
                         evo()->hasPermission('view_eventlog'));// eventlog
-                    $item['view_logging'] = item($_lang['view_logging'], 13,
+                    $item['view_logging'] = item(lang('view_logging'), 13,
                         evo()->hasPermission('logs'));// manager-audit-trail
-                    $item['view_sysinfo'] = item($_lang['view_sysinfo'], 53,
+                    $item['view_sysinfo'] = item(lang('view_sysinfo'), 53,
                         evo()->hasPermission('logs'));// system-info
 
                     // User Profile Menu
-                    $item['change_user_pf'] = item($_lang['profile'], 74,
+                    $item['change_user_pf'] = item(lang('profile'), 74,
                         evo()->hasPermission('change_password'));// change password
-                    $item['change_password'] = item($_lang['change_password'], 28,
+                    $item['change_password'] = item(lang('change_password'), 28,
                         evo()->hasPermission('change_password'));// change password
 
                     $sitemenu = buildMenu('site', $item);
@@ -370,31 +370,31 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $tplActive = str_replace(']"><a', ']" class="active"><a', $tpl);
                     if (!empty($sitemenu)) {
                         echo $modx->parseText($tplActive,
-                            ['id' => '1', 'name' => $_lang['site'], 'menuitem' => implode("\n", $sitemenu)]);
+                            ['id' => '1', 'name' => lang('site'), 'menuitem' => implode("\n", $sitemenu)]);
                     }
                     if (!empty($elementmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '2', 'name' => $_lang['elements'], 'menuitem' => implode("\n", $elementmenu)]);
+                            ['id' => '2', 'name' => lang('elements'), 'menuitem' => implode("\n", $elementmenu)]);
                     }
                     if (!empty($modulemenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '3', 'name' => $_lang['modules'], 'menuitem' => implode("\n", $modulemenu)]);
+                            ['id' => '3', 'name' => lang('modules'), 'menuitem' => implode("\n", $modulemenu)]);
                     }
                     if (!empty($securitymenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '4', 'name' => $_lang['users'], 'menuitem' => implode("\n", $securitymenu)]);
+                            ['id' => '4', 'name' => lang('users'), 'menuitem' => implode("\n", $securitymenu)]);
                     }
                     if (!empty($usermenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '7', 'name' => $_lang['user'], 'menuitem' => implode("\n", $usermenu)]);
+                            ['id' => '7', 'name' => lang('user'), 'menuitem' => implode("\n", $usermenu)]);
                     }
                     if (!empty($toolsmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '5', 'name' => $_lang['tools'], 'menuitem' => implode("\n", $toolsmenu)]);
+                            ['id' => '5', 'name' => lang('tools'), 'menuitem' => implode("\n", $toolsmenu)]);
                     }
                     if (!empty($reportsmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '6', 'name' => $_lang['reports'], 'menuitem' => implode("\n", $reportsmenu)]);
+                            ['id' => '6', 'name' => lang('reports'), 'menuitem' => implode("\n", $reportsmenu)]);
                     }
                     ?>
             </ul>

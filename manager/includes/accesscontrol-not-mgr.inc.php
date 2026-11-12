@@ -44,12 +44,12 @@ evo()->setPlaceholder('theme_css_ver', asset_version(MODX_MANAGER_PATH . "media/
 evo()->setPlaceholder('evo_dialog_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js'));
 evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/login.js'));
 
-global $tpl, $_lang;
+global $tpl;
 
 $touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;
 if ($touch_mtime && request_time() < $touch_mtime + 300) {
     $modx->safeMode = 1;
-    evo()->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
+    evo()->addLog(lang('logtitle_login_disp_warning'), lang('logmsg_login_disp_warning'), 2);
     $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
 } else {
     touch($touch_path);
@@ -64,22 +64,22 @@ $html = is_array($evtOut) ? implode('', $evtOut) : '';
 evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
 evo()->setPlaceholder('site_name', hsc(evo()->config('site_name')));
-evo()->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
-evo()->setPlaceholder('login_message', $_lang["login_message"]);
+evo()->setPlaceholder('logo_slogan', lang("logo_slogan"));
+evo()->setPlaceholder('login_message', lang("login_message"));
 evo()->setPlaceholder('year', date('Y'));
 
 // andrazk 20070416 - notify user of install/update
 if (installGoingOn()) {
     $login_message = [
-        1 => $_lang['login_cancelled_install_in_progress'],
-        2 => $_lang['login_cancelled_site_was_updated']
+        1 => lang('login_cancelled_install_in_progress'),
+        2 => lang('login_cancelled_site_was_updated')
     ];
     evo()->setPlaceholder(
         'login_message',
         sprintf(
             '<p><span class="fail">%s</span></p><p>%s</p>',
             $login_message[installGoingOn()],
-            $_lang['login_message']
+            lang('login_message')
         )
     );
 }
@@ -89,12 +89,12 @@ if (evo()->config('use_captcha') == 1) {
         'login_captcha_message',
         sprintf(
             '<p class="loginCaptchaMessage">%s</p>',
-            $_lang["login_captcha_message"]
+            lang("login_captcha_message")
         )
     );
     $captcha_image = sprintf(
         '<img id="captcha_image" class="loginCaptcha" src="../index.php?get=captcha" alt="%s" />',
-        $_lang["captcha_code"]
+        lang("captcha_code")
     );
     $captcha_image = sprintf(
         '<a href="%s" class="loginCaptchaLink">%s</a>',
@@ -106,7 +106,7 @@ if (evo()->config('use_captcha') == 1) {
         'captcha_input',
         sprintf(
             '<label for="captcha_code">%s</label><input type="text" class="text" id="captcha_code" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" />',
-            $_lang["captcha_code"]
+            lang("captcha_code")
         )
     );
 }
@@ -120,19 +120,19 @@ evo()->setPlaceholder(
         to_strvar(cookiev('modx_remember_manager'))
     )
 );
-evo()->setPlaceholder('username', $_lang["username"]);
-evo()->setPlaceholder('password', $_lang["password"]);
-evo()->setPlaceholder('show_password', $_lang['show_password']);
+evo()->setPlaceholder('username', lang("username"));
+evo()->setPlaceholder('password', lang("password"));
+evo()->setPlaceholder('show_password', lang('show_password'));
 
 // remember me
 evo()->setPlaceholder(
     'remember_me',
     cookiev('modx_remember_manager') ? 'checked="checked"' : ''
 );
-evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
-evo()->setPlaceholder('login_button', $_lang["login_button"]);
+evo()->setPlaceholder('remember_username', lang("remember_username"));
+evo()->setPlaceholder('login_button', lang("login_button"));
 // login.js が、ログインの処理が失敗したとき（500 など）に出す文。<script> の data- 属性に入れる
-evo()->setPlaceholder('login_request_failed', hsc($_lang['login_request_failed']));
+evo()->setPlaceholder('login_request_failed', hsc(lang('login_request_failed')));
 // ログイン画面は下の parseDocumentSource() で解析し直すので、リクエストから来た値に [ ] { } が残ると
 // タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
 evo()->setPlaceholder(

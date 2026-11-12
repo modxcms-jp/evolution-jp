@@ -21,7 +21,7 @@ if (!is_string($content)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('templatename'), $_lang['template'], 'template', $id);
+$rawName = manager()->requireElementName(post_strvar('templatename'), lang('template'), 'template', $id);
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
@@ -47,7 +47,7 @@ switch ($mode) {
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
+                sprintf(lang('duplicate_name_found_general'), lang('template'), $rawName),
                 'template',
                 0
             );
@@ -88,7 +88,7 @@ switch ($mode) {
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $rawName),
+                sprintf(lang('duplicate_name_found_general'), lang('template'), $rawName),
                 'template',
                 $id
             );

@@ -34,20 +34,20 @@ if (!$forced) {
                 EvoCsrf.post("index.php?id=<?= $id;?>&a=303&force=1");
             }
         </script>
-        <h1><?= $_lang['tmplvars'] ?></h1>
+        <h1><?= lang('tmplvars') ?></h1>
 
         <div id="actions">
             <ul class="actionButtons">
-                <li><a href="#" onclick="deletedocument();"><?= $_lang["delete"] ?></a></li>
-                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= $_lang["cancel"] ?></a></li>
+                <li><a href="#" onclick="deletedocument();"><?= lang("delete") ?></a></li>
+                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= lang("cancel") ?></a></li>
             </ul>
         </div>
 
         <div class="section">
-            <div class="sectionHeader"><?= $_lang['tmplvars'] ?></div>
+            <div class="sectionHeader"><?= lang('tmplvars') ?></div>
             <div class="sectionBody">
         <?php
-        echo "<p>" . $_lang['tmplvar_inuse'] . "</p>";
+        echo "<p>" . lang('tmplvar_inuse') . "</p>";
         echo "<ul>";
         while ($row = db()->getRow($rs)) {
             echo '<li><span style="width: 200px"><a href="index.php?id=' . (int)$row['id'] . '&a=27">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
