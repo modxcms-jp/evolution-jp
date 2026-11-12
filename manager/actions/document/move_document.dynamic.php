@@ -149,11 +149,10 @@ EOT;
 
 function show_perm_error()
 {
-    global $_lang;
     echo sprintf(
         '<br /><br /><div class="section"><div class="sectionHeader">%s</div><div class="sectionBody"><p>%s</p></div></div>',
-        $_lang['access_permissions'],
-        $_lang['access_permission_denied']
+        lang('access_permissions'),
+        lang('access_permission_denied')
     );
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }

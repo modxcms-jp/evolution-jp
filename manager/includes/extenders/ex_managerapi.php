@@ -78,9 +78,8 @@ class ManagerAPI
         if ($name !== '') {
             return $name;
         }
-        global $_lang;
         $this->redirectToElementForm(
-            sprintf($_lang['element_name_required'], $typeLabel),
+            sprintf(lang('element_name_required'), $typeLabel),
             $kind,
             $id
         );
@@ -606,7 +605,6 @@ class ManagerAPI
 
     public function sysAlert($sysAlertMsgQueque = '')
     {
-        global $_lang;
 
         if (!$sysAlertMsgQueque) {
             $sysAlertMsgQueque = evo()->SystemAlertMsgQueque;
@@ -634,7 +632,7 @@ class ManagerAPI
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
             [
                 '[+alerts+]' => js_literal(implode('<hr />', $alerts)),
-                '[+title+]' => js_literal($_lang['sys_alert'])
+                '[+title+]' => js_literal(lang('sys_alert'))
             ]
         );
     }

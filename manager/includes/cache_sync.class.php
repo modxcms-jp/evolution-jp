@@ -160,11 +160,10 @@ class synccache
 
     public function showReport($info)
     {
-        global $_lang;
         [$filesincache, $deletedfilesincache, $deletedfiles] = $info;
         // finished cache stuff.
         if (0 < $filesincache) {
-            echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
+            echo sprintf(lang('refresh_cache'), $filesincache, $deletedfilesincache);
         } else {
             echo '<p>削除対象のページキャッシュはありません。</p>';
         }
@@ -172,7 +171,7 @@ class synccache
         if (!$deletedfiles) {
             return;
         }
-        echo sprintf('<p>%s</p><ul style="margin-bottom:1em;">', $_lang['cache_files_deleted']);
+        echo sprintf('<p>%s</p><ul style="margin-bottom:1em;">', lang('cache_files_deleted'));
         foreach ($deletedfiles as $i => $deletedfile) {
             echo sprintf('<li>%s</li>', $deletedfile);
         }
@@ -337,7 +336,7 @@ class synccache
      */
     public function buildCache()
     {
-        global $modx, $_lang;
+        global $modx;
 
         // invoke OnBeforeCacheUpdate event
         evo()->invokeEvent('OnBeforeCacheUpdate');
@@ -354,7 +353,7 @@ class synccache
 
 
         if (!evo()->saveToFile($this->cachePath . 'siteCache.idx.php', $content)) {
-            exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
+            exit(sprintf('siteCache.idx.php - %s', lang('file_not_saved')));
         }
 
         if (evo()->config('legacy_cache')) {
@@ -376,7 +375,6 @@ class synccache
 
     private function cache_put_contents($filename, $content)
     {
-        global $_lang;
         if (!$content) {
             return;
         }
@@ -402,7 +400,7 @@ class synccache
         }
 
         if (!defined('IN_MANAGER_MODE')) {
-            exit(sprintf('%s - %s', $cache_path, $_lang['file_not_saved']));
+            exit(sprintf('%s - %s', $cache_path, lang('file_not_saved')));
         }
 
         header('Content-Type: text/html; charset=' . evo()->config('modx_charset', 'utf-8'));
@@ -416,7 +414,7 @@ class synccache
         exit(sprintf(
             '<div class="section"><div class="sectionBody">%s - %s</div></div>',
             $cache_path,
-            $_lang['file_not_saved']
+            lang('file_not_saved')
         ));
     }
 

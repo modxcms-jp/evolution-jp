@@ -13,7 +13,7 @@ if (!$id) {
 }
 
 // duplicate TV
-$tpl = $_lang['duplicate_title_string'];
+$tpl = lang('duplicate_title_string');
 $tbl_site_tmplvars = evo()->getFullTableName('site_tmplvars');
 $sql = "INSERT INTO $tbl_site_tmplvars (`type`, `name`, `caption`, `description`, `default_text`, `elements`, `rank`, `display`, `display_params`, `category`)
     SELECT `type`, REPLACE('{$tpl}','[+title+]',`name`) AS `name`, `caption`, `description`, `default_text`, `elements`, `rank`, `display`, `display_params`, `category`

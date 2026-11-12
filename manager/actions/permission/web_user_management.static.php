@@ -19,13 +19,13 @@ $listmode = get_choicevar('listmode', ['0', '1'], '0');
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
 $cm->addItem(
-    $_lang["edit"],
+    lang("edit"),
     "js:menuAction(1)",
     "{$icons_path}logging.gif",
     (!evo()->hasPermission('edit_user') ? 1 : 0)
 );
 $cm->addItem(
-    $_lang["delete"],
+    lang("delete"),
     "js:menuAction(2)",
     "{$icons_path}delete.gif",
     (!evo()->hasPermission('delete_user') ? 1 : 0)
@@ -104,39 +104,39 @@ echo $cm->render();
     <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
     <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
 
-    <h1><?= $_lang['web_user_management_title'] ?></h1>
+    <h1><?= lang('web_user_management_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
         </ul>
     </div>
 
     <div class="sectionBody">
-        <p><?= $_lang['web_user_management_msg'] ?></p>
+        <p><?= lang('web_user_management_msg') ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td><a class="default" href="index.php?a=87"><?= $_lang['new_web_user'] ?></a>
+                    <td><a class="default" href="index.php?a=87"><?= lang('new_web_user') ?></a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
-                                <td><?= $_lang["search"] ?></td>
+                                <td><?= lang("search") ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
                                         value="<?= hsc($query) ?>" />
                                 </td>
                                 <td>
-                                    <a class="default" href="#" title="<?= $_lang["search"] ?>"
-                                        onclick="searchResource();return false;"><?= $_lang["go"] ?></a>
+                                    <a class="default" href="#" title="<?= lang("search") ?>"
+                                        onclick="searchResource();return false;"><?= lang("go") ?></a>
                                 </td>
-                                <td><a href="#" title="<?= $_lang["reset"] ?>"
+                                <td><a href="#" title="<?= lang("reset") ?>"
                                         onclick="resetSearch();return false;"><img
                                             src="<?= $_style['icons_refresh'] ?>" /></a>
                                 </td>
-                                <td><a href="#" title="<?= $_lang["list_mode"] ?>"
+                                <td><a href="#" title="<?= lang("list_mode") ?>"
                                         onclick="changeListMode();return false;"><img
                                             src="<?= $_style['icons_table'] ?>" /></a>
                                 </td>
@@ -180,50 +180,50 @@ echo $cm->render();
         $columns = [
             [
                 'key' => 'id',
-                'label' => $_lang['icon'],
+                'label' => lang('icon'),
                 'class' => 'is-shrink is-center',
                 'html' => true,
-                'format' => function ($value) use ($_style, $_lang) {
+                'format' => function ($value) use ($_style) {
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>',
                         (int) $value,
-                        hsc($_lang['click_to_context']),
+                        hsc(lang('click_to_context')),
                         hsc($_style['icons_user'])
                     );
                 },
             ],
             [
                 'key' => 'username',
-                'label' => $_lang['username'],
+                'label' => lang('username'),
                 'html' => true,
-                'format' => function ($value, array $row) use ($_lang) {
+                'format' => function ($value, array $row) {
                     return sprintf(
                         '<a href="index.php?a=88&amp;id=%d" title="%s">%s</a>',
                         (int) $row['id'],
-                        hsc($_lang['click_to_edit_title']),
+                        hsc(lang('click_to_edit_title')),
                         hsc($value)
                     );
                 },
             ],
-            ['key' => 'fullname', 'label' => $_lang['user_full_name']],
-            ['key' => 'email', 'label' => $_lang['email']],
+            ['key' => 'fullname', 'label' => lang('user_full_name')],
+            ['key' => 'email', 'label' => lang('email')],
             [
                 'key' => 'gender',
-                'label' => $_lang['user_gender'],
+                'label' => lang('user_gender'),
                 'class' => 'is-shrink is-center',
-                'format' => function ($value) use ($_lang) {
+                'format' => function ($value) {
                     if ((int) $value === 1) {
-                        return $_lang['user_male'];
+                        return lang('user_male');
                     }
-                    return (int) $value === 2 ? $_lang['user_female'] : '-';
+                    return (int) $value === 2 ? lang('user_female') : '-';
                 },
             ],
             [
                 'key' => 'blocked',
-                'label' => $_lang['user_block'],
+                'label' => lang('user_block'),
                 'class' => 'is-shrink is-center',
-                'format' => function ($value) use ($_lang) {
-                    return $value ? $_lang['yes'] : '-';
+                'format' => function ($value) {
+                    return $value ? lang('yes') : '-';
                 },
             ],
         ];
@@ -231,7 +231,7 @@ echo $cm->render();
             'id' => 'web-users',
             'tableClass' => 'grid',
             'rowClasses' => ['gridItem', 'gridAltItem'],
-            'emptyMessage' => $_lang['no_records_found'],
+            'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [
             'label' => lang('pagination_label'),

@@ -14,7 +14,7 @@ if (!$id) {
 
 // duplicate Snippet
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
-$tpl = $_lang['duplicate_title_string'];
+$tpl = lang('duplicate_title_string');
 $sql = "INSERT INTO {$tbl_site_snippets} (name, description, snippet, properties, category)
 		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, properties, category
 		FROM {$tbl_site_snippets} WHERE id={$id}";

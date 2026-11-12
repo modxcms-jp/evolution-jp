@@ -1813,7 +1813,7 @@ trait DocumentParserSubParserTrait
 
     private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
-        global $modx, $_lang;
+        global $modx;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
             $lfpos = strpos($path_str, "\n");
@@ -1856,8 +1856,8 @@ trait DocumentParserSubParserTrait
             }
             return sprintf(
                 '%s(%s:%s)',
-                $_lang['chunk_no_exist'],
-                $_lang['htmlsnippet_name'],
+                lang('chunk_no_exist'),
+                lang('htmlsnippet_name'),
                 $chunk_name
             );
         }

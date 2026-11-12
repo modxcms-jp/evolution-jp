@@ -93,7 +93,7 @@ while ($row = db()->getRow($rs)) {
 $links = ChildDocumentListState::links($id);
 
 // 検索欄と、絞り込み・並べ替えの解除。ユーザー管理の一覧の検索欄と同じ作りで、表を包む POST のフォームの外に置く（フォームは入れ子にできない）
-$kw = hsc($_lang['search']);
+$kw = hsc(lang('search'));
 $listTools = '<form class="child-list-tools" name="childsearch" method="get" action="index.php">'
     . '<input type="hidden" name="a" value="120">'
     . ($id ? '<input type="hidden" name="id" value="' . (int) $id . '">' : '');
@@ -105,17 +105,17 @@ if ($links->orderby() !== '') {
 // 並びは shell.css の .child-list-tools（flex）。ボタンの見た目は各テーマの .actionButtons の規則に任せる
 $listTools .= '<input class="searchtext" name="q" type="text" size="15" maxlength="'
     . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
-    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '">'
+    . hsc(lang('resources_list_search_placeholder')) . '" aria-label="' . $kw . '">'
     . '<ul class="actionButtons"><li><button type="submit">' . $kw . '</button></li></ul>';
 if ($keyword !== '') {
     $listTools .= '<a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
-        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a>';
+        . hsc(lang('resources_list_search_clear')) . '"><img src="' . $_style['icons_refresh']
+        . '" alt="' . hsc(lang('resources_list_search_clear')) . '"></a>';
 }
 if ($links->orderby() !== '') {
     $listTools .= '<a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
-        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a>';
+        . hsc(lang('resources_list_reset_order')) . '"><img src="' . $_style['sort']
+        . '" alt="' . hsc(lang('resources_list_reset_order')) . '"></a>';
 }
 $listTools .= '</form>';
 
@@ -123,7 +123,7 @@ $listTools .= '</form>';
 $navTop = '';
 
 if (!$numRecords) {
-    $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
+    $children_output = "<p>" . ($keyword !== '' ? lang('resources_list_search_no_match') : lang('resources_in_container_no')) . "</p>";
 } else {
     $children_output = '';
     $f = [];
@@ -199,11 +199,11 @@ if (!$numRecords) {
         $columns[] = ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'];
     }
     $columns = array_merge($columns, [
-        ['key' => 'docid', 'label' => $_lang['id'], 'class' => 'is-shrink', 'sort' => 'id'],
-        ['key' => 'title', 'label' => $_lang['resource_title'], 'html' => true, 'sort' => 'pagetitle'],
-        ['key' => 'publishedon', 'label' => $_lang['publish_date'], 'html' => true, 'sort' => 'publishedon'],
-        ['key' => 'editedon', 'label' => $_lang['editedon'], 'html' => true, 'sort' => 'editedon'],
-        ['key' => 'status', 'label' => $_lang['page_data_status'], 'html' => true],
+        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id'],
+        ['key' => 'title', 'label' => lang('resource_title'), 'html' => true, 'sort' => 'pagetitle'],
+        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon'],
+        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon'],
+        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true],
     ]);
     $table = new DataTable($columns, [
         'id' => 'children',
@@ -253,14 +253,14 @@ if (!$numRecords) {
         };
         $buttons = '';
         if ($canBatchMove) {
-            $buttons .= $button($_lang['move'], $_lang['resources_list_move_checked'], 51);
+            $buttons .= $button(lang('move'), lang('resources_list_move_checked'), 51);
         }
         if ($canBatchPublish) {
-            $buttons .= $button($_lang['publish_resource'], $_lang['resources_list_publish_checked'], 121, 'publish');
-            $buttons .= $button($_lang['unpublish_resource'], $_lang['resources_list_unpublish_checked'], 121, 'unpublish');
+            $buttons .= $button(lang('publish_resource'), lang('resources_list_publish_checked'), 121, 'publish');
+            $buttons .= $button(lang('unpublish_resource'), lang('resources_list_unpublish_checked'), 121, 'unpublish');
         }
         if ($canBatchDelete) {
-            $buttons .= $button($_lang['delete'], $_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked'], 'is-danger');
+            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', lang('resources_list_confirm_delete_checked'), 'is-danger');
         }
         $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
@@ -275,30 +275,30 @@ echo get_jscript($id, $cm);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
-    <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
+    <h1><?= lang('view_child_resources_in_container') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
             if (hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button1', 'editdocument();', $_lang['edit']);
+                echo sprintf($tpl, 'Button1', 'editdocument();', lang('edit'));
             }
             if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button2', 'movedocument();', $_lang['move']);
+                echo sprintf($tpl, 'Button2', 'movedocument();', lang('move'));
             }
             if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_lang['duplicate']);
+                echo sprintf($tpl, 'Button4', 'duplicatedocument();', lang('duplicate'));
             }
             if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
+                echo sprintf($tpl, 'Button3', 'deletedocument();', lang('delete'));
             }
 
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
             echo sprintf($tpl, 'Button6', $prev,
-                $id == 0 ? $_lang["view_site"] : $_lang['view_resource']);
+                $id == 0 ? lang("view_site") : lang('view_resource'));
             $action = "EvoShell.go('" . getReturnAction($current) . "', {discard: true});";
-            echo sprintf($tpl, 'Button5', $action, $_lang['cancel']);
+            echo sprintf($tpl, 'Button5', $action, lang('cancel'));
             ?>
         </ul>
     </div>
@@ -321,8 +321,8 @@ echo get_jscript($id, $cm);
                     . '<li class="mutate"><a href="index.php?a=72&amp;pid=%1$d">%3$s</a></li>'
                     . '</ul>',
                     $id,
-                    $_lang['create_resource_here'],
-                    $_lang['create_weblink_here']
+                    lang('create_resource_here'),
+                    lang('create_weblink_here')
                 );
             }
             // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない

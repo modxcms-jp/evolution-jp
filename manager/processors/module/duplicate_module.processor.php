@@ -14,7 +14,7 @@ if (!$id) {
 
 // duplicate module
 $tbl_site_modules = evo()->getFullTableName('site_modules');
-$tpl = $_lang['duplicate_title_string'];
+$tpl = lang('duplicate_title_string');
 $sql = sprintf(
     "
         INSERT INTO %s (name, description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, guid, enable_sharedparams, properties, modulecode)

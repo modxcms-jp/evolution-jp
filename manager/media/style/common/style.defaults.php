@@ -2,7 +2,7 @@
 if (!function_exists('apply_manager_style_defaults')) {
     function apply_manager_style_defaults(string $themePath, array $overrides = []): void
     {
-        global $modx, $_style, $_lang;
+        global $modx, $_style;
 
         if (!isset($modx) || !evo()->isLoggedin()) {
             exit;
@@ -171,7 +171,7 @@ if (!function_exists('apply_manager_style_defaults')) {
         $_style['icons_help_large'] = $icon_path . '32x/help.png';
 
         // Miscellaneous
-        $_style['ajax_loader'] = '<p>' . $_lang['loading_page'] . '</p><p><img src="' . $misc_path . 'ajax-loader.gif" alt="Please wait" /></p>';
+        $_style['ajax_loader'] = '<p>' . lang('loading_page') . '</p><p><img src="' . $misc_path . 'ajax-loader.gif" alt="Please wait" /></p>';
         $_style['tx'] = $misc_path . '_tx_.gif';
     }
 }

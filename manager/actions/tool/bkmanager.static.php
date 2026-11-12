@@ -75,15 +75,15 @@ if (sessionv('result_msg')) {
     $preRestore = hsc($restoreResult['pre_restore'] ?? '');
     switch (sessionv('result_msg')) {
         case 'import_ok':
-            $restoreHtml = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
+            $restoreHtml = sprintf('<div class="okmsg">%s</div>', lang('bkmgr_import_ok'));
             break;
         case 'restore_warn':
             // 復元は成功したが、設定のテーブルが無くキャッシュを作り直さなかった
             $restoreHtml = sprintf(
                 '<div class="okmsg">%s</div><div class="errmsg">%s</div>',
-                $_lang['bkmgr_import_ok'],
+                lang('bkmgr_import_ok'),
                 evo()->parseText(
-                    $_lang['bkmgr_restore_warn'],
+                    lang('bkmgr_restore_warn'),
                     ['pre_restore' => $preRestore]
                 )
             );
@@ -92,7 +92,7 @@ if (sessionv('result_msg')) {
             $restoreHtml = sprintf(
                 '<div class="errmsg">%s</div>',
                 evo()->parseText(
-                    $_lang['bkmgr_restore_failed'],
+                    lang('bkmgr_restore_failed'),
                     [
                         'failed_at'   => (int) ($restoreResult['failed_at'] ?? 0),
                         'error'       => hsc($restoreResult['error'] ?? ''),
@@ -102,10 +102,10 @@ if (sessionv('result_msg')) {
             );
             break;
         case 'restore_no_snapshot':
-            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $_lang['bkmgr_restore_no_snapshot']);
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_snapshot'));
             break;
         case 'snapshot_ok':
-            $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
+            $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', lang('bkmgr_snapshot_ok'));
             break;
     }
     // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
@@ -136,7 +136,7 @@ if (sessionv('result_msg')) {
         return false;
     }
 </script>
-<h1><?= $_lang['bk_manager'] ?></h1>
+<h1><?= lang('bk_manager') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
@@ -144,25 +144,25 @@ if (sessionv('result_msg')) {
             id="Button5"
             class="mutate"><a
                 href="#"
-                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
     </ul>
 </div>
 
 <div class="sectionBody">
     <div class="tab-pane" id="dbmPane">
         <div class="tab-page" id="tabBackup">
-            <h2 class="tab"><?= $_lang['backup'] ?></h2>
+            <h2 class="tab"><?= lang('backup') ?></h2>
             <form name="frmdb" method="post">
                 <input type="hidden" name="mode" value="" />
-                <p><?= $_lang['table_hoverinfo'] ?></p>
+                <p><?= lang('table_hoverinfo') ?></p>
 
-                <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><?= $_lang['database_table_clickbackup'] ?>
+                <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><?= lang('database_table_clickbackup') ?>
                     </a></p>
                 <p>
                     <label>
                         <input
                             type="checkbox" name="droptables"
-                            checked="checked" /><?= $_lang['database_table_droptablestatements'] ?>
+                            checked="checked" /><?= lang('database_table_droptablestatements') ?>
                     </label>
                 </p>
                 <table style="width:100%;background-color:#ccc;">
@@ -174,16 +174,16 @@ if (sessionv('result_msg')) {
                                         name="chkselall"
                                         onclick="selectAll()"
                                         title="Select All Tables"
-                                        type="checkbox" /><b><?= $_lang['database_table_tablename'] ?></b>
+                                        type="checkbox" /><b><?= lang('database_table_tablename') ?></b>
                                 </label>
                             </td>
-                            <td align="right"><b><?= $_lang['database_table_records'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_collation'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_table_datasize'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_table_overhead'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_table_effectivesize'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_table_indexsize'] ?></b></td>
-                            <td align="right"><b><?= $_lang['database_table_totalsize'] ?></b></td>
+                            <td align="right"><b><?= lang('database_table_records') ?></b></td>
+                            <td align="right"><b><?= lang('database_collation') ?></b></td>
+                            <td align="right"><b><?= lang('database_table_datasize') ?></b></td>
+                            <td align="right"><b><?= lang('database_table_overhead') ?></b></td>
+                            <td align="right"><b><?= lang('database_table_effectivesize') ?></b></td>
+                            <td align="right"><b><?= lang('database_table_indexsize') ?></b></td>
+                            <td align="right"><b><?= lang('database_table_totalsize') ?></b></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -224,7 +224,7 @@ if (sessionv('result_msg')) {
                                 ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
                                 '<td align="right">' . (
                                     evo()->hasPermission('settings') && $isTruncateable && $recordCount > 0
-                                    ? '<a href="' . hsc('index.php?a=54&from=bkmanager&truncate=' . $row['Name']) . '" data-evo-post title="' . $_lang['truncate_table'] . '">' . $recordCount . '</a>'
+                                    ? '<a href="' . hsc('index.php?a=54&from=bkmanager&truncate=' . $row['Name']) . '" data-evo-post title="' . lang('truncate_table') . '">' . $recordCount . '</a>'
                                     : $recordCount
                                 ) . '</td>' . "\n";
                             echo '<td align="right">' . $row['Collation'] . '</td>' . "\n";
@@ -239,7 +239,7 @@ if (sessionv('result_msg')) {
                                 echo '<td align="right">-</td>' . "\n";
                             } elseif (evo()->hasPermission('settings')) {
                                 echo '<td align="right">' . ($row['Data_free'] > 0 ?
-                                    '<a href="' . hsc('index.php?a=54&from=bkmanager&table=' . $row['Name']) . '" data-evo-post title="' . $_lang['optimize_table'] . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
+                                    '<a href="' . hsc('index.php?a=54&from=bkmanager&table=' . $row['Name']) . '" data-evo-post title="' . lang('optimize_table') . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
                                     '-') .
                                     '</td>' . "\n";
                             } else {
@@ -257,7 +257,7 @@ if (sessionv('result_msg')) {
                         }
                         ?>
                         <tr bgcolor="#CCCCCC">
-                            <td valign="top"><b><?= $_lang['database_table_totals'] ?></b></td>
+                            <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir="ltr" align="right"
                                 valign="top"><?= $totaloverhead > 0 ? '<b class="overhead-warning">' . evo()->nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
@@ -269,7 +269,7 @@ if (sessionv('result_msg')) {
                 </table>
                 <?php
                 if ($totaloverhead > 0) {
-                    echo '<p>' . $_lang['database_overhead'] . '</p>';
+                    echo '<p>' . lang('database_overhead') . '</p>';
                 }
                 ?>
             </form>
@@ -278,9 +278,9 @@ if (sessionv('result_msg')) {
         <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
         <?php if ($canRestore) { ?>
         <div class="tab-page" id="tabRestore">
-            <h2 class="tab"><?= $_lang["bkmgr_restore_title"] ?></h2>
+            <h2 class="tab"><?= lang("bkmgr_restore_title") ?></h2>
             <?= $ph['result_msg'] ?>
-            <?= $_lang["bkmgr_restore_msg"] ?>
+            <?= lang("bkmgr_restore_msg") ?>
             <form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
                 <input type="hidden" name="a" value="305" />
                 <input type="hidden" name="mode" value="restore1" />
@@ -291,7 +291,7 @@ if (sessionv('result_msg')) {
                     <a
                         href="#"
                         class="primary"
-                        onclick="document.mutate.save.click();"><?= $_lang["bkmgr_run_sql_submit"] ?>
+                        onclick="document.mutate.save.click();"><?= lang("bkmgr_run_sql_submit") ?>
                     </a>
                 </div>
                 <input type="submit" name="save" style="display:none;" />
@@ -299,10 +299,10 @@ if (sessionv('result_msg')) {
         </div>
         <?php } ?>
         <div class="tab-page" id="tabSnapshot">
-            <h2 class="tab"><?= $_lang["bkmgr_snapshot_title"] ?></h2>
+            <h2 class="tab"><?= lang("bkmgr_snapshot_title") ?></h2>
             <?= $ph['snapshot_msg'] ?>
             <?= evo()->parseText(
-                $_lang["bkmgr_snapshot_msg"],
+                lang("bkmgr_snapshot_msg"),
                 ['snapshot_path' => hsc($backup->dir())]
             ); ?>
             <style type="text/css">
@@ -320,22 +320,22 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="snapshot" />
                 <table>
                     <tr>
-                        <th><?= $_lang["bkmgr_content_only"] ?></th>
+                        <th><?= lang("bkmgr_content_only") ?></th>
                         <td><input type="checkbox" name="contentsOnly" value="1" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang["bkmgr_file_name"] ?></th>
-                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText($_lang["bkmgr_file_name_hint"], ['keep' => EvoBackupManager::KEEP]) ?></td>
+                        <th><?= lang("bkmgr_file_name") ?></th>
+                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoBackupManager::KEEP]) ?></td>
                     </tr>
                 </table>
                 <div class="actionButtons">
                     <a href="#" class="primary" onclick="document.snapshot.save.click();">
-                        <?= $_lang["bkmgr_snapshot_submit"] ?>
+                        <?= lang("bkmgr_snapshot_submit") ?>
                     </a>
                     <input type="submit" name="save" style="display:none;" />
                 </div>
             </form>
-        <div class="sectionHeader"><?= $_lang["bkmgr_snapshot_list_title"] ?></div>
+        <div class="sectionHeader"><?= lang("bkmgr_snapshot_list_title") ?></div>
         <div class="sectionBody">
             <form method="post" name="restore2" action="index.php">
                 <input type="hidden" name="a" value="305" />
@@ -346,7 +346,7 @@ if (sessionv('result_msg')) {
                 if ($files) {
                     echo '<ul>';
                     $tpl = $canRestore
-                        ? '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . $_lang["bkmgr_restore_submit"] . '</a>)</li>' . "\n"
+                        ? '<li>[+filename+] ([+filesize+]) (<a href="#" onclick="document.restore2.filename.value=[+filename_js+];document.restore2.save.click()">' . lang("bkmgr_restore_submit") . '</a>)</li>' . "\n"
                         : '<li>[+filename+] ([+filesize+])</li>' . "\n";
                     foreach ($files as $file) {
                         // 置き換えた値の中を再び置換しないよう、strtr() で一度だけ置換する
@@ -358,7 +358,7 @@ if (sessionv('result_msg')) {
                     }
                     echo '</ul>';
                 } else {
-                    echo $_lang["bkmgr_snapshot_nothing"];
+                    echo lang("bkmgr_snapshot_nothing");
                 }
                 ?>
                 <input type="submit" name="save" style="display:none;" />

@@ -35,7 +35,7 @@ if ($total > 1) {
     for ($i = 0; $i < $total; $i++) {
         $lock = db()->getRow($rs);
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang["lock_msg"], $lock['username'], $_lang['role']);
+            $msg = sprintf(lang("lock_msg"), $lock['username'], lang('role'));
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -97,7 +97,7 @@ function role($key, $default = null)
     }
 
     function deletedocument() {
-        jConfirm(<?= js_literal($_lang['confirm_delete_role']) ?>, <?= js_literal($_lang['confirm']) ?>,
+        jConfirm(<?= js_literal(lang('confirm_delete_role')) ?>, <?= js_literal(lang('confirm')) ?>,
             function(r) {
                 if (r)
                     EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=37");
@@ -110,18 +110,18 @@ function role($key, $default = null)
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('role')) ?>">
     <input type="hidden" name="id" value="<?= $role ?>">
 
-    <h1><?= $_lang['role_title'] ?></h1>
+    <h1><?= lang('role_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_role')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a></li>
+                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a></li>
             <?php endif; ?>
             <?php
             if ($action === 35) {
                 $params = [
                     'onclick' => 'deletedocument();',
-                    'label' => $_lang['delete']
+                    'label' => lang('delete')
                 ];
                 if (evo()->hasPermission('delete_role')) {
                     echo manager()->ab($params);
@@ -129,7 +129,7 @@ function role($key, $default = null)
             }
             $params = [
                 'onclick' => "EvoShell.go('index.php?a=86');",
-                'label' => $_lang['cancel']
+                'label' => lang('cancel')
             ];
             echo manager()->ab($params);
             ?>
@@ -141,12 +141,12 @@ function role($key, $default = null)
             <fieldset>
                 <table>
                     <tr>
-                        <td><?= $_lang['role_name'] ?>:</td>
+                        <td><?= lang('role_name') ?>:</td>
                         <td><input name="name" type="text" maxlength="50" value="<?= hsc(role('name')) ?>">
                         </td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_description'] ?>:</td>
+                        <td><?= lang('resource_description') ?>:</td>
                         <td><textarea name="description"><?= hsc(role('description')) ?></textarea></td>
                     </tr>
                 </table>
@@ -165,36 +165,36 @@ function role($key, $default = null)
                 <tr>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['page_data_general'] ?></h3>
+                            <h3><?= lang('page_data_general') ?></h3>
                             <?php
-                            echo render_form('frames', $_lang['role_frames'], 'disabled');
-                            echo render_form('home', $_lang['role_home'], 'disabled');
-                            echo render_form('logout', $_lang['role_logout'], 'disabled');
-                            echo render_form('help', $_lang['role_help']);
-                            echo render_form('action_ok', $_lang['role_actionok'], 'disabled');
-                            echo render_form('error_dialog', $_lang['role_errors'], 'disabled');
-                            echo render_form('about', $_lang['role_about'], 'disabled');
-                            echo render_form('credits', $_lang['role_credits'], 'disabled');
-                            echo render_form('change_password', $_lang['role_change_password']);
-                            echo render_form('save_password', $_lang['role_save_password']);
+                            echo render_form('frames', lang('role_frames'), 'disabled');
+                            echo render_form('home', lang('role_home'), 'disabled');
+                            echo render_form('logout', lang('role_logout'), 'disabled');
+                            echo render_form('help', lang('role_help'));
+                            echo render_form('action_ok', lang('role_actionok'), 'disabled');
+                            echo render_form('error_dialog', lang('role_errors'), 'disabled');
+                            echo render_form('about', lang('role_about'), 'disabled');
+                            echo render_form('credits', lang('role_credits'), 'disabled');
+                            echo render_form('change_password', lang('role_change_password'));
+                            echo render_form('save_password', lang('role_save_password'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_content_management'] ?></h3>
+                            <h3><?= lang('role_content_management') ?></h3>
                             <?php
-                            echo render_form('view_document', $_lang['role_view_docdata'], 'disabled');
-                            echo render_form('new_document', $_lang['role_create_doc']);
-                            echo render_form('edit_document', $_lang['role_edit_doc']);
-                            echo render_form('save_document', $_lang['role_save_doc']);
-                            echo render_form('publish_document', $_lang['role_publish_doc']);
-                            echo render_form('move_document', $_lang['role_move_doc']);
-                            echo render_form('delete_document', $_lang['role_delete_doc']);
-                            echo render_form('empty_trash', $_lang['role_empty_trash']);
-                            echo render_form('empty_cache', $_lang['role_cache_refresh']);
-                            echo render_form('view_unpublished', $_lang['role_view_unpublished']);
-                            echo render_form('view_schedule', $_lang['role_site_schedule']);
+                            echo render_form('view_document', lang('role_view_docdata'), 'disabled');
+                            echo render_form('new_document', lang('role_create_doc'));
+                            echo render_form('edit_document', lang('role_edit_doc'));
+                            echo render_form('save_document', lang('role_save_doc'));
+                            echo render_form('publish_document', lang('role_publish_doc'));
+                            echo render_form('move_document', lang('role_move_doc'));
+                            echo render_form('delete_document', lang('role_delete_doc'));
+                            echo render_form('empty_trash', lang('role_empty_trash'));
+                            echo render_form('empty_cache', lang('role_cache_refresh'));
+                            echo render_form('view_unpublished', lang('role_view_unpublished'));
+                            echo render_form('view_schedule', lang('role_site_schedule'));
                             ?>
                         </fieldset>
                     </td>
@@ -205,45 +205,45 @@ function role($key, $default = null)
                 <tr>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_template_management'] ?></h3>
+                            <h3><?= lang('role_template_management') ?></h3>
                             <?php
-                            echo render_form('new_template', $_lang['role_create_template']);
-                            echo render_form('edit_template', $_lang['role_edit_template']);
-                            echo render_form('save_template', $_lang['role_save_template']);
-                            echo render_form('delete_template', $_lang['role_delete_template']);
+                            echo render_form('new_template', lang('role_create_template'));
+                            echo render_form('edit_template', lang('role_edit_template'));
+                            echo render_form('save_template', lang('role_save_template'));
+                            echo render_form('delete_template', lang('role_delete_template'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_snippet_management'] ?></h3>
+                            <h3><?= lang('role_snippet_management') ?></h3>
                             <?php
-                            echo render_form('new_snippet', $_lang['role_create_snippet']);
-                            echo render_form('edit_snippet', $_lang['role_edit_snippet']);
-                            echo render_form('save_snippet', $_lang['role_save_snippet']);
-                            echo render_form('delete_snippet', $_lang['role_delete_snippet']);
+                            echo render_form('new_snippet', lang('role_create_snippet'));
+                            echo render_form('edit_snippet', lang('role_edit_snippet'));
+                            echo render_form('save_snippet', lang('role_save_snippet'));
+                            echo render_form('delete_snippet', lang('role_delete_snippet'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_chunk_management'] ?></h3>
+                            <h3><?= lang('role_chunk_management') ?></h3>
                             <?php
-                            echo render_form('new_chunk', $_lang['role_create_chunk']);
-                            echo render_form('edit_chunk', $_lang['role_edit_chunk']);
-                            echo render_form('save_chunk', $_lang['role_save_chunk']);
-                            echo render_form('delete_chunk', $_lang['role_delete_chunk']);
+                            echo render_form('new_chunk', lang('role_create_chunk'));
+                            echo render_form('edit_chunk', lang('role_edit_chunk'));
+                            echo render_form('save_chunk', lang('role_save_chunk'));
+                            echo render_form('delete_chunk', lang('role_delete_chunk'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_plugin_management'] ?></h3>
+                            <h3><?= lang('role_plugin_management') ?></h3>
                             <?php
-                            echo render_form('new_plugin', $_lang['role_create_plugin']);
-                            echo render_form('edit_plugin', $_lang['role_edit_plugin']);
-                            echo render_form('save_plugin', $_lang['role_save_plugin']);
-                            echo render_form('delete_plugin', $_lang['role_delete_plugin']);
+                            echo render_form('new_plugin', lang('role_create_plugin'));
+                            echo render_form('edit_plugin', lang('role_edit_plugin'));
+                            echo render_form('save_plugin', lang('role_save_plugin'));
+                            echo render_form('delete_plugin', lang('role_delete_plugin'));
                             ?>
                         </fieldset>
                     </td>
@@ -251,13 +251,13 @@ function role($key, $default = null)
             </table>
 
             <fieldset>
-                <h3><?= $_lang['role_module_management'] ?></h3>
+                <h3><?= lang('role_module_management') ?></h3>
                 <?php
-                echo render_form('new_module', $_lang['role_new_module']);
-                echo render_form('edit_module', $_lang['role_edit_module']);
-                echo render_form('save_module', $_lang['role_save_module']);
-                echo render_form('delete_module', $_lang['role_delete_module']);
-                echo render_form('exec_module', $_lang['role_run_module']);
+                echo render_form('new_module', lang('role_new_module'));
+                echo render_form('edit_module', lang('role_edit_module'));
+                echo render_form('save_module', lang('role_save_module'));
+                echo render_form('delete_module', lang('role_delete_module'));
+                echo render_form('exec_module', lang('role_run_module'));
                 ?>
             </fieldset>
 
@@ -265,43 +265,43 @@ function role($key, $default = null)
                 <tr>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_user_management'] ?></h3>
+                            <h3><?= lang('role_user_management') ?></h3>
                             <?php
-                            echo render_form('new_user', $_lang['role_new_user']);
-                            echo render_form('edit_user', $_lang['role_edit_user']);
-                            echo render_form('save_user', $_lang['role_save_user']);
-                            echo render_form('delete_user', $_lang['role_delete_user']);
+                            echo render_form('new_user', lang('role_new_user'));
+                            echo render_form('edit_user', lang('role_edit_user'));
+                            echo render_form('save_user', lang('role_save_user'));
+                            echo render_form('delete_user', lang('role_delete_user'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_web_user_management'] ?></h3>
+                            <h3><?= lang('role_web_user_management') ?></h3>
                             <?php
-                            echo render_form('new_web_user', $_lang['role_new_web_user']);
-                            echo render_form('edit_web_user', $_lang['role_edit_web_user']);
-                            echo render_form('save_web_user', $_lang['role_save_web_user']);
-                            echo render_form('delete_web_user', $_lang['role_delete_web_user']);
+                            echo render_form('new_web_user', lang('role_new_web_user'));
+                            echo render_form('edit_web_user', lang('role_edit_web_user'));
+                            echo render_form('save_web_user', lang('role_save_web_user'));
+                            echo render_form('delete_web_user', lang('role_delete_web_user'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_udperms'] ?></h3>
+                            <h3><?= lang('role_udperms') ?></h3>
                             <?php
-                            echo render_form('access_permissions', $_lang['role_access_persmissions']);
-                            echo render_form('web_access_permissions', $_lang['role_web_access_persmissions']);
+                            echo render_form('access_permissions', lang('role_access_persmissions'));
+                            echo render_form('web_access_permissions', lang('role_web_access_persmissions'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_role_management'] ?></h3>
+                            <h3><?= lang('role_role_management') ?></h3>
                             <?php
-                            echo render_form('new_role', $_lang['role_new_role']);
-                            echo render_form('edit_role', $_lang['role_edit_role']);
-                            echo render_form('save_role', $_lang['role_save_role']);
-                            echo render_form('delete_role', $_lang['role_delete_role']);
+                            echo render_form('new_role', lang('role_new_role'));
+                            echo render_form('edit_role', lang('role_edit_role'));
+                            echo render_form('save_role', lang('role_save_role'));
+                            echo render_form('delete_role', lang('role_delete_role'));
                             ?>
                         </fieldset>
                     </td>
@@ -312,24 +312,24 @@ function role($key, $default = null)
                 <tr>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_eventlog_management'] ?></h3>
+                            <h3><?= lang('role_eventlog_management') ?></h3>
                             <?php
-                            echo render_form('view_eventlog', $_lang['role_view_eventlog']);
-                            echo render_form('delete_eventlog', $_lang['role_delete_eventlog']);
+                            echo render_form('view_eventlog', lang('role_view_eventlog'));
+                            echo render_form('delete_eventlog', lang('role_delete_eventlog'));
                             ?>
                         </fieldset>
                     </td>
                     <td>
                         <fieldset>
-                            <h3><?= $_lang['role_config_management'] ?></h3>
+                            <h3><?= lang('role_config_management') ?></h3>
                             <?php
-                            echo render_form('logs', $_lang['role_view_logs']);
-                            echo render_form('settings', $_lang['role_edit_settings']);
-                            echo render_form('file_manager', $_lang['role_file_manager']);
-                            echo render_form('bk_manager', $_lang['role_bk_manager']);
-                            echo render_form('import_static', $_lang['role_import_static']);
-                            echo render_form('export_static', $_lang['role_export_static']);
-                            echo render_form('remove_locks', $_lang['role_remove_locks']);
+                            echo render_form('logs', lang('role_view_logs'));
+                            echo render_form('settings', lang('role_edit_settings'));
+                            echo render_form('file_manager', lang('role_file_manager'));
+                            echo render_form('bk_manager', lang('role_bk_manager'));
+                            echo render_form('import_static', lang('role_import_static'));
+                            echo render_form('export_static', lang('role_export_static'));
+                            echo render_form('remove_locks', lang('role_remove_locks'));
                             ?>
                         </fieldset>
                     </td>

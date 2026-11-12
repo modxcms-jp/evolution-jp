@@ -212,20 +212,20 @@ switch ($mode) {
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
 ?>
-            <h1><?= $_lang['web_user_title'] ?></h1>
+            <h1><?= lang('web_user_title') ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?></a></li>
                 </ul>
             </div>
 
             <div class="section">
-                <div class="sectionHeader"><?= $_lang['web_user_title'] ?></div>
+                <div class="sectionHeader"><?= lang('web_user_title') ?></div>
                 <div class="sectionBody">
                     <div id="disp">
                         <p>
-                            <?= sprintf($_lang['password_msg'], hsc($newusername), hsc($newpassword)) ?>
+                            <?= sprintf(lang('password_msg'), hsc($newusername), hsc($newpassword)) ?>
                         </p>
                     </div>
                 </div>
@@ -428,19 +428,19 @@ switch ($mode) {
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
-            <h1><?= $_lang['web_user_title'] ?></h1>
+            <h1><?= lang('web_user_title') ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= $_lang['close'] ?></a></li>
+                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?></a></li>
                 </ul>
             </div>
 
             <div class="section">
-                <div class="sectionHeader"><?= $_lang['web_user_title'] ?></div>
+                <div class="sectionHeader"><?= lang('web_user_title') ?></div>
                 <div class="sectionBody">
                     <div id="disp">
-                        <p><?= sprintf($_lang["password_msg"], hsc($newusername), hsc($newpassword)) ?></p>
+                        <p><?= sprintf(lang("password_msg"), hsc($newusername), hsc($newpassword)) ?></p>
                     </div>
                 </div>
             </div>

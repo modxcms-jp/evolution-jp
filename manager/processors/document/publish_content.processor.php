@@ -21,9 +21,9 @@ $denied = docPublishCheck($id, true);
 if ($denied === 'access_permission_denied') {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>
+    <div class="sectionHeader"><?= lang('access_permissions') ?></div>
     <div class="sectionBody">
-    <p><?= $_lang['access_permission_denied'] ?></p>
+    <p><?= lang('access_permission_denied') ?></p>
     <?php
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;
