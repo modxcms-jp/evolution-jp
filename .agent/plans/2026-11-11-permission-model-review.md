@@ -20,7 +20,7 @@
 - [x] (2026-11-12) M1: 非公開の印を 1 回の更新で計算し直す（決定不要。#1397 の残り）。PR #1407（ブランチ `fix/1357-m1-private-flags`）。計画の確認を待つため develop/1.4 へのマージは保留
 - [x] (2026-11-12) M2: 呼び出し元がそろっている権限の判定を ManagerAPI に寄せる（決定不要。動きは変えない）。ブランチ `refactor/1357-m2-permission-helpers`
 - [x] (2026-11-12) M3: 文書の操作（移動・公開・削除・複製・編集・新規）の判定を 1 か所にし、入口をそろえる。ブランチ `refactor/1357-m3-document-operations`。表（`OPERATION_PERMISSIONS`）と `can()` を ManagerAPI に置き、M2 の `ELEMENT_PERMISSIONS` を取り込み、入口を表で出し分け、`DocAPI::can*Doc()` を消した。M0 の記録で取り直した結果は、差が 123 行で、すべて「M3 の変わる行」の行だった（既定のロール・ほかのロール・処理の行は差 0）。注記: 移動は、画面 a=51（`move`・`save`・`publish`）と処理 a=52（`move`・`edit`）の条件が、処理どうしでそろっていない（a=52 だけなら `move`・`edit` で通る）。a=51 から a=52 へ続けて通る経路の条件を合わせて表の `document.move` にしたので、4 つ要る。一覧の作成ボタンと QuickManager のカスタムの「new」ボタンを親ごとの `canCreateDocumentUnder()` にした追加の修正は、M0 の記録が一覧を id=0 と範囲の内の F だけで取るため、記録との差は 0 だった。範囲の外の親（104・105・108）を直接取り、範囲を絞った利用者で作成ボタンが出なくなり、範囲の内では出たままのこと、カスタムの「new」ボタンが範囲・文書グループの外の親とルートに置けないときに出なくなることを確かめた
-- [ ] M4: 文書以外の入口の食い違いをそろえる（モジュール・利用者・ロール・エレメント）
+- [x] (2026-11-12) M4: 文書以外の入口の食い違いをそろえる（モジュール・利用者・ロール・エレメント）。ブランチ `refactor/1357-m4-other-entries`。`canExecuteModule()`・`getExecutableModules()` を ManagerAPI に置き、実行（a=112。#1409 の判定と同じ意味）・メニュー・ダッシュボード・モジュール管理の一覧の「実行」を寄せた。表（`OPERATION_PERMISSIONS`）に `module.execute`・`module.open`・`role.edit`・`role.create`・`user.edit`・`user.create`・`user.delete`・`webuser.edit`・`webuser.create`・`webuser.delete`・`template.duplicate`・`tmplvar.duplicate` を足した。入口の変更は「M4 の変わる行」の表のとおり。Docker で変更前（28694ec59）と同じ DB・同じスクリプトで取り直し、差は 57 行で、すべて表の行だった（既定のロールの差は、メニューの「モジュールの管理」とダッシュボードのエレメントのアイコンが投稿担当者に出るようになった点など。表に書いた）
 - [ ] M5: サイトのインポートの取り込み先と初期化を確かめる（#1404）
 - [ ] M6: 権限の依存
 - [ ] M7: `save_role` などアクセスの規則を変えられる権限の扱い
@@ -65,6 +65,16 @@ M3 の実装でコードを読んで分かったこと（2026-11-12）:
 - 編集画面（a=27）を開く入口のうち、次の 3 つは `document.edit`（`edit_document`）を見ず、`view_document` で開く: ツリーの文書名のクリック（`tree.php` の `tree.ca == "open"` と、`nodes.php` の `tree_page_click` の既定 27）、文書一覧のタイトルのリンク（`resources_list.static.php` の `$doc['link']`）、QuickManager の編集ボタン（`canOpenDocumentEditor()`）。`edit_document` を持たないロール（`R_noedit` 相当）でも、文書名のクリックで編集画面を開け、保存もできる（処理 a=27・a=5 が見るのは `view_document` と `save_document`）。処理が通る入口しか出ない点は保たれているので、M3 では変えない。`edit_document` を編集の基点にするかは、第 3 段階（権限の依存）で決める。`permissions.md` の判定の置き場所と分かっている課題にも書いた。
 - QuickManager の本文中の新規作成ボタン（`on_web_page_prerender.php` の `newbclass` のコメントの置き換え）は、親の id が置き換えのパターンの中にあり、権限を確かめずに出す。M3 では変えず、`permissions.md` の分かっている課題に書いた。カスタムの「new」ボタンは、親の id が分かるので `canCreateDocumentUnder()` で出し分けた。文書一覧の作成ボタンも、`new_document` だけを見る分岐を外し、常に `canCreateDocumentUnder($id)` にした（範囲の外の親では出なくなる）。
 - ツリーの区切り線（`itemSeperator1`・`itemSeperator2`・`itemSeperator3`）は、操作の項目について同じ式にした（`itemDocList`・`itemDelDocComplete` の項目は含まない）。以前は `edit`・`new`・`save` のどれかなど、項目と食い違い、操作の項目が 1 つも出ないのに線だけ出る場合があった。
+
+M4 の実装でコードを読んで分かったこと（2026-11-12）:
+
+- メインメニュー（`menu.php`）は、モジュールの項目（`module_management` と各モジュール）をまとめた `$modulemenu` を、`exec_module` があるときだけ作っていた。`exec_module` を持たず `new_module`・`edit_module` だけを持つロールは、モジュール管理のメニューが（`perm_module_management` が真でも）出なかった。`array_filter($item['modules'])` を常に作る形にした。a=106 の画面の先頭の確かめは `new_module`・`edit_module`・`exec_module` のどれかなので、入口は表の `module.open`（その 3 つの OR）にした。結果、`exec_module` だけを持つ既定のロール（投稿担当者）にも「モジュールの管理」の項目が出る。
+- ダッシュボードのモジュールの一覧（`[+Modules+]`）とモジュール管理のアイコン（`ModulesIcon`）、ユーザーの旧アイコン（`SecurityIcon`・`WebUserIcon`）、`ResourcesIcon`・`NewDocIcon` は、同梱の 4 つの `welcome.tpl` が読まない（`<!--+Modules+-->` はコメント）。読むのは `iconElements`・`UserManagerIcon`・`WebUserManagerIcon` など。ダッシュボードの判定は、メニューと同じにそろえた。画面で確かめるときは、`manager_welcome_tpl` に `@CODE:` で `[+Modules+]` などを置いて確かめた。
+- モジュールの実行のグループの判定は、`use_udperms` が無効のときは絞らない（#1409）。メニュー・ダッシュボードの以前の判定（`mg.member IS NULL OR mg.member = <利用者>`）は、`use_udperms` を見ず、所属者のいないグループで制限したモジュール（X3）を「グループ無し」と同じに出した。M4 では、管理者（`isAdmin()`）は全部、それ以外は `use_udperms` が有効なときだけグループで絞り、所属者のいないグループだけで制限したモジュールは出さない（実行も断る）。
+- Web ユーザーの一覧とロールの一覧の「新規」ボタン（a=87・a=38）は、処理が `new_web_user`・`new_role` を求めるのに、常に出していた。管理ユーザーの一覧は、`new_user` で出していた。表の `webuser.create`・`role.create`・`user.create` にそろえた。
+- TV の編集画面（a=301）の「複製」ボタンは `new_template` で出していたが、複製の処理（a=304）は `edit_template`。テンプレートの編集画面（a=16）の「複製」ボタン（`new_template`）は、処理（a=96）と同じだった。
+- M0 の記録のメニュー（`a=1&f=menu`）の応答は、メニューの項目とダッシュボードの両方を含む（ダッシュボードの入口と区別するには、メニューの項目だけを見る）。メニューは `<a onclick="this.blur();" href="…">` の項目、ダッシュボードは `class="hometblink"` のアイコンで取る。
+- 入口は、押した先の画面・処理が求める権限にそろえたので、`isAdmin()` や `bypassesDocumentGroups()` の意味は変えていない。`isAdmin()` の書き写し（`mgrRole != 1`）が 1 つ消えた（メニューのモジュール一覧）。ロール ID 1 の特別扱いは、`permissions.md` の一覧から、モジュール一覧の項目を外した。
 
 ## Decision Log
 
@@ -133,6 +143,8 @@ M3 の実装でコードを読んで分かったこと（2026-11-12）:
   - これで M3〜M9 は決定待ちではなくなった。進める順は Plan of Work のとおり（M0 の記録 → M2 → M3・M4 → M5 → 第 3 段階）
 
 - 2026-11-12 / M3（Claude）/ 決定（実装。動きの決め直しは含まない）: D1 の (b) の表は、ManagerAPI の private 定数 `OPERATION_PERMISSIONS`（操作の名前 → `['all' => [...]]`・`['any' => [...]]`）と、公開の `can(string $operation): bool`（知らない名前は `InvalidArgumentException`）にした。名前は `<対象>.<操作>`（`document.move` など）。入口が引く名前は、入口が実際に使う操作の単位だけを置く（編集 `document.edit`、保存 `document.save`、新規 `document.create`、複製 `document.duplicate`、移動 `document.move`、公開・非公開 `document.publish`、削除・元に戻す `document.delete`、エレメントの `element.<種類>.manage`・`.save`）。削除と元に戻すは処理の条件が同じなので 1 つにまとめた（分けると表が 2 か所になる。意味が分かれたら分ける）。M2 のメソッド（`canManageElement()`・`canOpenElementManager()`・`canSaveAnyElement()`）は、名前も戻り値も例外の文言も変えず、`ELEMENT_TYPES`（種類の一覧）と表を引く形にした（`ELEMENT_PERMISSIONS` は消した）。`DocAPI::can*Doc()` は、入口を表に切り替えると呼ぶ所が無くなったので、委ねる形にせず消した。`canCreateDocumentUnder()` は `can('document.create')` を見るので、メニュー・ダッシュボード・ツリー・一覧のルートの入口と QuickManager の追加ボタンは、D2 の (c) のとおり `new_document` と `save_document` の両方で出る。編集画面（a=27）を開く入口は `edit_document`（`document.edit`）のまま。
+
+- 2026-11-12 / M4（Claude）/ 決定（実装。動きの決め直しは含まない）: 文書以外の入口を、押した先の処理（画面の先頭の確かめを含む）が今求める権限にそろえた（D2 の (c)）。(1) モジュールの実行は `ManagerAPI::canExecuteModule(int $moduleId)` 1 つにした（`exec_module`、`isAdmin()` なら全部、それ以外は `use_udperms` が有効なときだけモジュールのグループで絞る。#1409 と同じ意味）。グループの結びつき（`site_module_access` と `member_groups` の LEFT JOIN）は、リクエスト内で 1 回だけ読んで持つ（メニューが一覧を作るとき、モジュールごとに問い合わせない）。実行できるモジュールの一覧は `getExecutableModules()`（`canExecuteModule()` で絞る）で、メニューとダッシュボードが同じ関数を呼ぶ。モジュール管理の一覧の右クリックの「実行」は、行ごとに有効・無効が違うので、実行できる項目と無効の項目を並べて置き、行の `data-can-execute` で JS が切り替える（`ContextMenu` は項目ごとの出し分けを持たないので、部品は変えない）。(2) 表の名前は `<対象>.<操作>` のまま、ロール・ユーザー・Web ユーザーは一覧の先頭の確かめと入口が同じ権限なので、`.manage` を別に持たず `role.edit`・`user.edit`・`webuser.edit` 1 つで（メニュー・アイコン・右クリックの編集が引く）、`.create`・`.delete` を足した。モジュール管理（a=106）を開くのは `module.open`（`new_module`・`edit_module`・`exec_module` の OR）で、`element.module.manage`（a=76 の一覧の項目）とは別にした。(3) a=76 の画面の先頭の確かめは「処理」なので変えず、エレメントの権限が無くても開ける件は `permissions.md` の分かっている課題に書いた。(4) 同梱のテンプレートが読まないダッシュボードのプレースホルダ（`Modules`・`ModulesIcon` など）も、判定はメニューにそろえた（消すかは別）。
 
 ## Outcomes & Retrospective
 
@@ -236,11 +248,16 @@ M0 の記録と比べる。「同じ」は M0 と一致すること。各マイ�
 | M3（D2 が (a)・(c) の場合） | 各ロール・入口の出し分け | 下の「M3 の変わる行」の行だけが変わる |
 | M3（同） | 各利用者の処理 a=51・52・61・62・6・63・94・121・5 の応答 | M0 と同じ（処理は変えない） |
 | M3（同） | 既定のロール（admin・webmaster・editor・editor0）のすべての行 | M0 と同じ |
-| M4（D2 が (a)・(c) の場合） | webmaster（所属なし）のメニューのモジュール | X1〜X3 がすべて出る（M0 は X1・X3 だけ。X3 は所属者の無いグループなので出る。実行は M0 から X1〜X3 とも通る） |
-| M4（同） | `R_mod`（所属なし）と G1 に所属する `R_mod` の利用者の、メニュー・ダッシュボードのモジュールと a=112 の応答 | 出るモジュールと実行できるモジュールが一致する（X3 は M0 ではメニューに出て実行で断られる。M4 では出ない） |
-| M4（同） | `R_webuser` の Web ユーザーの一覧の右クリックの「編集」「削除」 | 有効（M0 は無効） |
+| M4（D2 が (a)・(c) の場合） | webmaster（所属なし）のメニュー・ダッシュボードのモジュール（V0・V1） | X1〜X3 がすべて出る（M0 は X1・X3 だけ。X2 は G1 に所属者がいるので出ず、X3 は所属者の無いグループなので出ていた）。a=112 は M0 から X1〜X3 とも通る |
+| M4（同） | 管理者でないロール（editor・editor0・`R_mod`。所属あり・なし）のメニュー・ダッシュボードのモジュールと a=112 の応答。V1（`use_udperms=1`） | 出るモジュールと a=112 が通るモジュールが一致する。所属なし: X1 だけ（M0 はメニューに X1・X3、a=112 は X1〜X3 とも通る）。G1 所属: X1・X2（M0 はメニューに X1〜X3、a=112 は X1〜X3 とも通る）。X3 は M0 ではメニューに出て、M4 では出ず、a=112 もエラー 3 |
+| M4（同） | 同じロールの V0（`use_udperms=0`） | メニュー・ダッシュボードは X1〜X3 がすべて出る（M0 は V1 と同じ絞り方で、X2 が所属なしには出なかった）。a=112 は M0 から X1〜X3 とも通る（#1409 でも V0 は絞らない） |
+| M4（同） | モジュール管理（a=106）の一覧の右クリックの「実行」 | 実行できるモジュールの行だけ有効（M0 は `exec_module` があれば全行で有効。V1 で実行できないモジュールでは、押すと a=112 がエラー 3） |
+| M4（同） | `exec_module` だけを持つロール（投稿担当者・`R_mod`）と `R_modnew`（`new_module`・`edit_module` だけ）のメニューの「モジュールの管理」・ダッシュボードのモジュール管理のアイコン | 出る（M0 は出ない。`R_modnew` は `exec_module` が無く、メニューにモジュールの群そのものが出なかった）。a=106 は 3 つの権限のどれかで開ける |
+| M4（同） | `R_webuser` の Web ユーザーの一覧の右クリックの「編集」「削除」 | 有効（M0 は無効）。「新規」ボタンは出ない（M0 は出て、押すと a=87 がエラー 3） |
 | M4（同） | `R_roledel` のメニューの「ロールの管理」 | 出ない（M0 は出て、開くとエラー 3） |
 | M4（同） | `R_chunk` のダッシュボードのエレメントのアイコン | 出る（M0 は出ない。メニューには出る） |
+| M4（同） | `new_user`・`new_web_user` だけを持つロールのダッシュボードのユーザー・Web ユーザーのアイコン | 出ない（M0 は出て、開くとエラー 3） |
+| M4（同） | `edit_template` だけを持つロール（M0 の `R_chunk` などとは別。確認では `R_tvdup`）の TV 編集画面（a=301）の「複製」 | 出る（M0 は出ない。a=304 は通る） |
 | M5（D8 が推奨の場合） | `R_import`（範囲を F に絞った人）の F の外への取り込み | `access_permission_parent_denied` で止まり、文書は増えない |
 | M5（同） | 同じ人の初期化 | チェックが出ず、POST しても `site_content` が消えない |
 | M5（同） | admin・webmaster の取り込みと初期化 | M0 と同じ |
@@ -269,6 +286,26 @@ M0 の記録と比べる。「同じ」は M0 と一致すること。各マイ�
 
 上記の行以外は、変わらない（たとえば、編集画面の保存・複製・削除、ツリーと一覧の編集・複製・削除・公開・非公開、既定のロールのすべて）。`R_saverole`・`R_saveuser`・`R_import` は文書の権限が投稿担当者と同じ、`R_chunk`・`R_webuser`・`R_roledel`・`R_mod` は文書の権限が無いので、論理上は変わらない（この確認では取っていない）。QuickManager の追加ボタンとカスタムの「new」ボタンも `canCreateDocumentUnder()` を通るので、`R_new`、範囲・文書グループの外の親、ルートに置けないとき（文書グループの機能が有効で「ルートに置く」を許していない利用者のルート）では出なくなる（公開側の画面で、M3 の追加の確認で直接取った）。
 
+### M4 の変わる行
+
+実装（表と `canExecuteModule()` のコミット f1bd54c14 以降）に合わせて確定した。利用者は M0 のロール名で書く。モジュールの絞り込みは `use_udperms` で変わるので V0・V1 を分け、それ以外の行（権限だけで決まる入口）は V0・V1 のどちらでも同じ。記録は、入口の HTML から項目を取り出す方法（M0 と同じ）。Docker で変更前（28694ec59）と変更後を、同じ DB・同じスクリプトで取った。ロール（`R_mod`・`R_roledel`・`R_chunk`・`R_webuser`・`R_modnew`・`R_tvdup`・`R_newuser`・`R_rolenew`）と、所属のある利用者（G1 に所属する `R_mod`。editor は G2 に所属）を用意し、モジュールは X1（制限なし）・X2（G1）・X3（所属者の無い G3）・X4（G1 と G2）の 4 つ。既定のロールは、setup-site の admin（ロール 2 = ウェブマスター）と editor（ロール 3 = 投稿担当者）。取り直した結果は、差が 57 行（V0 25・V1 32。ロール・利用者ごとに数えた項目の差）で、すべて次の表の行だった（モジュール管理の一覧の右クリックは、実行の項目が「有効」と「無効」の 2 つになり、行に `data-can-execute` が付いたので、全員の記録の表記が変わる。表では動きの差だけを書いた）。それ以外（ロールが開く画面の応答、モジュールの実行 a=112 の応答のうち表にないもの）は変わらない。同梱の Doc Manager（制限なし）は、どの場合も出る。
+
+| 利用者 | 入口 | M0（変更前） | M4 |
+| --- | --- | --- | --- |
+| webmaster（所属なし。V0・V1） | メインメニューのモジュール | X1・X3 だけ（X2・X4 は所属者のいるグループなので出ない） | X1〜X4 すべて（`isAdmin()` なので全部。M0 でも a=112 は全部通る） |
+| 管理者でないロール（editor・editor0・`R_mod`）。V1 | メインメニューのモジュールと a=112 | メニュー: 所属なし X1・X3、G1 所属は X1〜X4。a=112 はどれも通る（#1408） | メニューと a=112 が一致: 所属なし X1 だけ、G1 所属は X1・X2・X4（X3 は出ず、a=112 はエラー 3）、editor（G2 所属）は X1・X4 |
+| 同。V0 | メインメニューのモジュール | 所属で絞る（所属なしは X1・X3） | すべて（`use_udperms` が無効なので絞らない。a=112 は M0 から全部通る） |
+| 同（`exec_module` あり）。V1 | モジュール管理（a=106）の右クリックの「実行」 | 全行で有効 | 実行できるモジュールの行だけ有効（所属なしの `R_mod`: X1 だけ） |
+| editor・editor0（投稿担当者）・`R_mod`・`R_modnew` | メインメニューの「モジュールの管理」（a=106）。ダッシュボードの `ModulesIcon`（同梱のテンプレートは読まない） | 出ない | 出る（a=106 の画面の先頭の確かめは `new_module`・`edit_module`・`exec_module` のどれか） |
+| `R_webuser` | Web ユーザーの一覧の右クリック「編集」「削除」 | 無効 | 有効 |
+| `R_webuser` | Web ユーザーの一覧の「新規」ボタン | 出る（押すと a=87 がエラー 3） | 出ない |
+| `R_roledel` | メニューの「ロールの管理」 | 出る（開くと a=86 がエラー 3） | 出ない |
+| `R_newuser`（`new_user`・`new_web_user` だけ） | ダッシュボードのユーザー管理・Web ユーザー管理のアイコン | 出る（開くとエラー 3） | 出ない |
+| `R_chunk`・editor（投稿担当者） | ダッシュボードのエレメントのアイコン | 出ない（メニューには出る） | 出る |
+| `R_tvdup`（`edit_template` だけ） | TV の編集画面（a=301）の「複製」 | 出ない（a=304 は通る） | 出る |
+
+表のほかに、記録では取っていないが論理上変わる入口: `edit_role` だけを持つロールのロール一覧（a=86）の「新規」ボタン（M0 は出て、押すと a=38 がエラー 3。M4 は出ない）、`edit_user` だけを持つロールのユーザー一覧（a=75）の「新規」ボタン（M0 でも `new_user` で出し分けていたので変わらない）。`R_rolenew`（`edit_role`・`new_role`）、`R_saverole`・`R_saveuser`・`R_import` は、ロール・ユーザーの管理の権限の組み合わせが変わらないので、この確認でも同じだった。ダッシュボードのモジュールの一覧は、同梱のテンプレートが読まないので、`manager_welcome_tpl` を `@CODE:` で差し替えて確かめた（メニューと同じモジュールが出る）。
+
 ## Idempotence and Recovery
 
 M0 の記録のスクリプトとデータ（DB のダンプ）は作業用ディレクトリに残し、各マイルストーンで同じものを使う。処理を試すたびに `php evo db:import` で M0 の状態に戻すので、何度でもやり直せる。中断したら、Progress の最後の完了項目のブランチを `develop/1.4` に追いつかせ、M0 の記録を取り直して差が前回と同じことを確かめてから続ける。マイグレーションは、もう一度実行しても値を変えない形で作り（既に正規化されたロールは触らない）、`php evo migrate:status` で 1 回だけ記録されることを確かめる。
@@ -282,6 +319,7 @@ M0 の記録のスクリプトとデータ（DB のダンプ）は作業用デ�
 - M1: ブランチ `fix/1357-m1-private-flags`、PR #1407
 - M2: ブランチ `refactor/1357-m2-permission-helpers`
 - M3: ブランチ `refactor/1357-m3-document-operations`。表は `ManagerAPI::OPERATION_PERMISSIONS`、判定は `can()`。確認は、権限をスタブにした単体確認（php:7.4-cli。表の全項目で、`all` は 1 つ欠けると偽、`any` はどれか 1 つで真、未知の名前は例外、M2 のメソッドの動きは同じ）と、Docker（名前 `evo-m3check`）での入口の記録の前後比較（既定のロール 2 つとカスタムのロール 5 つ、ツリー・メニュー・一覧・文書の情報・編集画面・新規作成画面・ダッシュボード）
+- M4: ブランチ `refactor/1357-m4-other-entries`。確認は、権限と DB をスタブにした単体確認（php:7.4-cli。追加した表の全項目で、権限があれば真・無関係の権限だけなら偽・`module.open` は 3 つの OR・未知の名前は例外、`canExecuteModule()` と `getExecutableModules()` が、制限なし・所属グループ・複数グループ・所属者のいないグループ・所属なし・管理者・`exec_module` なし・`use_udperms` 無効で期待どおり、M2・M3 のエレメントのメソッドの動きは同じ）と、Docker（名前 `evo-m4check`）での入口の記録の前後比較と、a=106 の右クリックのブラウザ操作（行ごとに「実行」が有効・無効に切り替わり、押すと実行できる）
 - M0 の記録: 16,840 行（利用者×V0・V1 の入口と処理）。スクリプトと出力はリポジトリの外のジョブの一時ディレクトリにある（リポジトリには置かない。取り直すときは Concrete Steps の M0 の 5 で作る）。観測された食い違いは Surprises のとおり。新しく見つかった食い違い: モジュールの実行のグループの判定が働いていなかった（#1408）、エレメントの管理（a=76）はエレメントの権限が無くても開く、新規作成の権限だけのロールは入口がすべて出るのに保存で断られる。
 
 ## Interfaces and Dependencies
