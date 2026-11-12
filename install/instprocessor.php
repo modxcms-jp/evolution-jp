@@ -457,6 +457,13 @@ if ($errors == 0) {
     log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
+// フレンドリー URL は標準。.htaccess が無いときだけ sample.htaccess から置く（既にある .htaccess は書き換えない）
+if ($errors == 0) {
+    require_once MODX_CORE_PATH . 'htaccess.class.inc.php';
+    $htaccessResult = EvoHtaccess::ensure(MODX_BASE_PATH, MODX_BASE_URL, false, serverv('SERVER_SOFTWARE', ''));
+    log_install_event('Checked .htaccess', ['result' => $htaccessResult]);
+}
+
 clean_up($sqlParser->prefix);
 log_install_event('Clean up completed');
 
