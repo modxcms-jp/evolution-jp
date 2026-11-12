@@ -2,7 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('import_static')) {
+if (!manager()->can('site.import')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -16,7 +16,10 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
     function setParent(pId, pName) {
         document.importFrm.parent.value = pId;
         document.getElementById('parentName').textContent = pId + " (" + pName + ")";
-        document.getElementById('reset').disabled = pId != 0;
+        const reset = document.getElementById('reset');
+        if (reset) {
+            reset.disabled = pId != 0;
+        }
     }
 </script>
 
@@ -63,6 +66,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                                 <?= $_lang['import_site_maxtime_message'] ?>
                             </td>
                         </tr>
+                        <?php if (manager()->canResetSiteContent()): ?>
                         <tr>
                             <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_reset_tree'] ?></b>
                             </td>
@@ -72,6 +76,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                                 <?= $_lang['import_site_reset_tree_message'] ?>
                             </td>
                         </tr>
+                        <?php endif; ?>
                         <tr>
                             <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_target'] ?></b>
                             </td>
@@ -129,16 +134,27 @@ function run()
 
     $output = '';
 
-    // リセットはルートへの取り込みの一部として扱う。どの削除・更新よりも前に止める
+    // 取り込み先とリセットは、どの削除・更新よりも前に確かめる
     // （リセットは親がルートのときだけ受け付ける。画面もリセットを親がルートのときだけ有効にしている）
-    $parent = post_intvar('parent');
-    $reset = postv('reset') === 'on';
-    if ($reset && $parent != 0) {
-        echo sprintf('<p><span class="fail">%s</span></p>', hsc(lang('access_permission_parent_denied')));
+    $parent = post_uintvar('parent');
+    if ($parent === null) {
+        // 親が整数として読めない（負の数・文字列・配列など）ときは、ルートに読み替えず断る
+        $raw = postv('parent');
+        echo sprintf(
+            '<p><span class="fail">%s</span></p>',
+            hsc(sprintf(lang('parent_not_found'), is_scalar($raw) ? $raw : ''))
+        );
         return '';
     }
-    if (($parent == 0 || $reset) && !manager()->canUseRootAsParent()) {
-        echo sprintf('<p><span class="fail">%s</span></p>', hsc(lang('access_permission_parent_denied')));
+    $reset = postv('reset') === 'on';
+    $denied = '';
+    if ($reset && ($parent != 0 || !manager()->canResetSiteContent())) {
+        $denied = lang('access_permission_parent_denied');
+    } else {
+        $denied = manager()->importParentDeniedMessage($parent);
+    }
+    if ($denied) {
+        echo sprintf('<p><span class="fail">%s</span></p>', hsc($denied));
         return '';
     }
 

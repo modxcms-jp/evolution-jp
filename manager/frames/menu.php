@@ -312,7 +312,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $item['bk_manager'] = item($_lang['bk_manager'], 93,
                         evo()->hasPermission('bk_manager'));// backup-mgr
                     $item['import_site'] = item($_lang['import_site'], 95,
-                        evo()->hasPermission('import_static'));// import-html
+                        manager()->can('site.import'));// import-html
                     $item['export_site'] = item($_lang['export_site'], 83,
                         evo()->hasPermission('export_static'));// export-static-site
                     $item['edit_settings'] = item($_lang['edit_settings'], 17,

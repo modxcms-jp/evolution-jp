@@ -196,11 +196,13 @@
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
-| `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理・ロールとユーザーの管理の入口・テンプレートと TV の複製などが使う（前の節。知らない操作は `InvalidArgumentException`） |
+| `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理・ロールとユーザーの管理の入口・テンプレートと TV の複製・サイトのインポート（`site.import`）などが使う（前の節。知らない操作は `InvalidArgumentException`） |
 | `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。新規作成の権限（`can('document.create')`）・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager（追加ボタンとカスタムの「new」ボタン）が使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。新規作成の権限は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
+| `importParentDeniedMessage($parentId)` | サイトのインポートの取り込み先に使えない理由（空なら使える）。新しい文書の置き先なので、親が変わる文書は無いものとして `parentChangeDeniedMessage([], $parentId)` に委ねる |
+| `canResetSiteContent()` | サイトのインポートの初期化（`site_content` の全件の削除）を許すか。`canUseRootAsParent()` かつ文書グループで絞られない。範囲に 0（サイト全体）を含む設定も制限なしとみなす。自分に見えない文書も消すため |
 | `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 | `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
@@ -233,7 +235,7 @@
 | 保存後の「続けて新規」（`save_resource.processor.php` の `goNextAction()`） | 親がルートで `canCreateDocumentUnder(0)` が偽なら、「続けて編集」に戻す。新規作成の画面（a=4・72）そのものは止めない（フォームで親を選べるため） |
 | 新規作成の保存・保存での親の変更（`save_resource.processor.php`） | 新規は、親がルートなら常に `canPlaceAtRoot()`、それ以外の親は `checkPermissions()`。更新は、文書そのものを開けるかを先に確かめ、親が変わるときだけ、親がルートなら `canPlaceAtRoot()`、それ以外の親は `checkPermissions()` |
 | 移動（`move_document.dynamic.php`・`move_document.processor.php`） | 画面は、ルートを選ぶ操作を `canUseRootAsParent()` で受け付けるか決める。処理は、移す文書それぞれの範囲を見たあと、親が変わるときに `parentChangeDeniedMessage()` で決める（拒否は `alertAndQuit()`） |
-| サイトのインポート（`import_site.static.php`） | 取り込み先がルートのときだけ `canUseRootAsParent()`。リセットもルートへの取り込みと同じ判定で止める（リセットはルートへの取り込みのときだけ受け付ける）。画面にも、ルートに置けない利用者へ同じ文言を出す |
+| サイトのインポート（`import_site.static.php`） | 入口は `can('site.import')`。取り込み先は、ルートを含めて `importParentDeniedMessage()`（`parentChangeDeniedMessage()` に委ねる。存在・文書グループ・許可するリソースの範囲。ルートは `canUseRootAsParent()`）。リセットは、ルートへの取り込みのときだけ、かつ `canResetSiteContent()`（ルートを親にでき、`restrictsByDocumentGroups()` が偽。範囲の制限が無い）の利用者だけ受け付け、どれも削除・取り込みより前に止める。画面の親の選択は変えず（処理で断る）、リセットのチェックは許されない利用者には出さない。ルートに置けない利用者へは同じ文言の注意を出す |
 | 下書きの保存・公開（`save_draft_content.processor.php`・`publish_draft_content.processor.php`・`parentChangeDeniedMessage()`） | 親が変わるときに、循環と存在、親がルートなら `canPlaceAtRoot()`（それ以外の親は `checkPermissions()`）、`isInAllowedParents()` の順 |
 | 複製（`duplicate_content.processor.php`・`checkPermissions($docid, true)`） | 複製元の親がルートなら `canPlaceAtRoot()` |
 | QuickManager の追加ボタン（`canCreateDocumentUnder()`） | ルートは `canCreateDocumentUnder(0)` 経由で `canUseRootAsParent()` |
@@ -261,7 +263,8 @@
 
 | Issue | 内容 |
 | --- | --- |
-| #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
+| #1417 | サイトのインポートのリンクの変換（`convert_link`）が、許可するリソースの範囲の外の本文も書き換える。初期化では `site_content` 以外の結びつきの行（文書グループなど）が残る |
+| #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 の続き | モジュール管理（a=106。`manager/actions/element/modules.static.php`）は、`new_module`・`edit_module`・`exec_module` のどれかで開く。メニューとダッシュボードの入口は作成・編集できる人（`new_module`・`edit_module`）だけに出すので、`exec_module` だけのロール（投稿担当者など）は、入口が無くても URL を直接開ける（一覧の右クリックの「実行」は実行できるモジュールだけ有効）。メニューは、`exec_module` が無いとモジュールの群そのものを作らないので、`new_module`・`edit_module` だけのロールにはモジュール管理の項目も出ない。処理側の条件と入口をどうそろえるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
 | #1357 の続き | エレメントの管理（a=76。`manager/actions/element/resources.static.php`）は、先頭で権限を確かめず、エレメントの権限が無いロールでも URL を直接開ける（タブは権限のあるものだけ出る）。入口（メニュー・ダッシュボード）は処理の今の条件にそろえたので、出た入口は通る。開けること自体を止めるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
@@ -269,7 +272,7 @@
 | #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが表に残る（`document.move` は、移動の処理 a=52 だけなら `move_document`・`edit_document` で通るのに、画面 a=51 が `publish_document`・`save_document` も求めるため、4 つ要る。`document.delete` は `save_document` を求めない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
 | #1357 の続き | 編集画面（a=27）を開く入口が `edit_document` を見ない（ツリーの文書名のクリック・文書一覧のタイトルのリンク・QuickManager の編集ボタンは `view_document` で開く）。`edit_document` を持たないロールでも、文書名のクリックで編集画面を開け、保存もできる。処理が `view_document` と `save_document` しか見ないので、出た入口が通らないことはない。`edit_document` を編集の基点にするかは、権限の依存（第 3 段階）で決める |
 | #1357 の続き | QuickManager の本文中の新規作成ボタン（`newbclass` のコメントを置き換えるもの。`assets/plugins/qm/inc/on_web_page_prerender.php`）は、親の id が置き換えのパターンの中にあり、権限を確かめずに出す（カスタムの「new」ボタンと追加ボタンは `canCreateDocumentUnder()` で出し分ける）。押した先の画面か保存で、権限が無ければ断られる |
-| #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作・モジュールの実行・ロール／ユーザーの管理・エレメントのアイコン・テンプレート／TV の複製の入口は済み。サイトのインポートが残る）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
+| #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作・モジュールの実行・ロール／ユーザーの管理・エレメントのアイコン・テンプレート／TV の複製・サイトのインポートの入口は済み）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
 ## 関連ドキュメント
 

@@ -38,6 +38,8 @@ class ManagerAPI
         'document.publish' => ['all' => ['save_document', 'publish_document']],
         // 削除・元に戻す（a=6・63、一括の a=121 の delete）
         'document.delete' => ['all' => ['delete_document']],
+        // サイトのインポート（a=95。import_site.static.php）
+        'site.import' => ['all' => ['import_static']],
         // モジュール。実行（a=112。execute_module.processor.php）。グループの絞り込みは canExecuteModule() が合わせる
         'module.execute' => ['all' => ['exec_module']],
         // 管理ユーザー・Web ユーザー・ロール。一覧（a=75・99・86）の先頭の確かめは edit_*、
@@ -1332,7 +1334,7 @@ class ManagerAPI
      * 親がルート（0）のときは、文書グループの確認の代わりに canPlaceAtRoot() で決める。
      * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
      *
-     * @param int[] $docIds 親を変える文書
+     * @param int[] $docIds 親を変える文書。新規作成・取り込みなら空配列
      * @param int $parentId 新しい親の ID
      * @return string
      */
@@ -1351,6 +1353,31 @@ class ManagerAPI
             return lang('access_permission_parent_denied');
         }
         return '';
+    }
+
+    /**
+     * サイトのインポートの取り込み先に $parentId を使えないとき、その理由を表示用の文言で返す。使えるなら空文字。
+     * 新しい文書を親の下に置く判定なので、親が変わる文書は無いものとして parentChangeDeniedMessage() に委ねる
+     * （存在・文書グループ・許可するリソースの範囲。ルートは canUseRootAsParent()）
+     *
+     * @param int $parentId
+     * @return string
+     */
+    public function importParentDeniedMessage($parentId)
+    {
+        return $this->parentChangeDeniedMessage([], $parentId);
+    }
+
+    /**
+     * サイトのインポートの「初期化」（site_content の全件の削除）を許してよいか。
+     * 範囲の制限が無く（isInAllowedParents(0)。範囲に 0（サイト全体）を含む設定も制限なしとみなす）、文書グループでも絞られず（restrictsByDocumentGroups() が偽）、
+     * ルートを親にできる（canUseRootAsParent()）利用者だけ。全件の削除は、自分に見えない文書も消すため
+     *
+     * @return bool
+     */
+    public function canResetSiteContent()
+    {
+        return $this->canUseRootAsParent() && !$this->restrictsByDocumentGroups();
     }
 
     /**
