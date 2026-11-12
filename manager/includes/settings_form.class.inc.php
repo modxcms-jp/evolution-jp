@@ -57,6 +57,23 @@ final class EvoSettingsForm
     }
 
     /**
+     * グローバル設定の画面（a=17）だけで下敷きにする既定。
+     * 言語の文言を使うもの（メールの文面）と、行の無いサイトの動きを変えないよう画面にだけ出すもの。
+     * getSettings() では補われず、ユーザー編集画面からも使わない
+     */
+    public static function screenDefaults(): array
+    {
+        return [
+            'signupemail_message' => lang('system_email_signup'),
+            'websignupemail_message' => lang('system_email_websignup'),
+            'webpwdreminder_message' => lang('system_email_webreminder'),
+            'enable_bindings' => '0',
+            'make_folders' => '1',
+            'pwd_hash_algo' => 'UNCRYPT',
+        ];
+    }
+
+    /**
      * DB の system_settings に default.config.php を下敷きにした値
      */
     public static function storedValues(): array

@@ -18,13 +18,13 @@
 ## 設定
 
 - システム設定キー: `convert_datauri_to_file`（`1`: 有効（デフォルト）、`0`: 無効）
-- DB に行が無い既存インストールでも、読み込み時に `default.config.base.php` の値で補われる（グローバル設定を保存しなくてよい）
+- DB に行が無い既存インストールでも、読み込み時に `default.config.php` の値で補われる（グローバル設定を保存しなくてよい）
 
 ## 実装ファイル
 
 - `manager/actions/document/mutate_content/functions.php` — 変換処理の実装
 - `manager/processors/document/save_resource.processor.php` — リソース保存時の呼び出し
-- `manager/includes/default.config.base.php` — デフォルト設定
+- `manager/includes/default.config.php` — デフォルト設定
 - `manager/includes/lang/japanese-utf8.inc.php` / `english.inc.php` — 言語ファイル
 
 ## 動作フロー

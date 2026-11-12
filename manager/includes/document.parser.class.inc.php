@@ -1299,7 +1299,7 @@ class DocumentParser
     }
 
     /**
-     * 言語に依らない既定の設定値（default.config.base.php）。1 リクエストで 1 回だけ読む
+     * 言語に依らない既定の設定値（default.config.php）。1 リクエストで 1 回だけ読む
      *
      * @return array
      */
@@ -1307,7 +1307,7 @@ class DocumentParser
     {
         static $defaults = null;
         if ($defaults === null) {
-            $defaults = include MODX_CORE_PATH . 'default.config.base.php';
+            $defaults = include MODX_CORE_PATH . 'default.config.php';
         }
         return $defaults;
     }
@@ -6226,7 +6226,7 @@ class DocumentParser
     /**
      * 新しく作るファイル・ディレクトリのパーミッションを chmod() などに渡せる値で返す。
      * 設定が 3〜4 桁の 8 進数で 0 でないときはその値、
-     * それ以外（空・0・読めない値）は default.config.base.php の既定値を使う。
+     * それ以外（空・0・読めない値）は default.config.php の既定値を使う。
      * 保存時（save_settings.processor.php）は 3 桁のとき先頭に 0 を足すだけで値を確かめないので、読むときに確かめる
      *
      * @param string $type 'file' か 'folder'
