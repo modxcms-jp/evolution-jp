@@ -605,7 +605,6 @@ class ManagerAPI
 
     public function sysAlert($sysAlertMsgQueque = '')
     {
-
         if (!$sysAlertMsgQueque) {
             $sysAlertMsgQueque = evo()->SystemAlertMsgQueque;
             if (!$sysAlertMsgQueque) {

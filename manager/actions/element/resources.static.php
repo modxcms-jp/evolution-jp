@@ -176,10 +176,11 @@ function addclass($element_name, $row)
 
 function getArray($element_name, $action, $nameField = 'name')
 {
-    global $modx, $_lang;
+    global $modx;
 
     $tbl_element_name = evo()->getFullTableName($element_name);
     $tbl_categories = evo()->getFullTableName('categories');
+    $no_category = db()->escape(lang('no_category'));
 
     switch ($element_name) {
         case 'site_plugins':
@@ -196,7 +197,7 @@ function getArray($element_name, $action, $nameField = 'name')
     $f[] = "{$tbl_element_name}.id";
     $f[] = "{$tbl_element_name}.description";
     $f[] = "{$tbl_element_name}.locked";
-    $f[] = "if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+    $f[] = "if(isnull({$tbl_categories}.category),'{$no_category}',{$tbl_categories}.category) as category";
     $fields = implode(',', $f);
     $from = "{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
     if ($element_name == 'site_tmplvars') {

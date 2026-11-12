@@ -586,15 +586,15 @@ function getClassName($published, $deleted, $hidemenu, $hasAccess)
 
 function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
 {
-    global $modx, $_lang;
+    global $modx;
 
     $_ = [];
     $_[] = "[{$id}] ";
     $_[] = lang('alias') . ': ' . (!empty($alias) ? $alias : '-');
-    $_[] = "{$_lang['resource_opt_menu_index']}: {$menuindex}";
-    $_[] = "{$_lang['resource_opt_show_menu']}: " . ($hidemenu == 1 ? lang('no') : lang('yes'));
-    $_[] = "{$_lang['page_data_web_access']}: " . ($privateweb ? lang('private') : lang('public'));
-    $_[] = "{$_lang['page_data_mgr_access']}: " . ($privatemgr ? lang('private') : lang('public'));
+    $_[] = lang('resource_opt_menu_index') . ': ' . $menuindex;
+    $_[] = lang('resource_opt_show_menu') . ': ' . ($hidemenu == 1 ? lang('no') : lang('yes'));
+    $_[] = lang('page_data_web_access') . ': ' . ($privateweb ? lang('private') : lang('public'));
+    $_[] = lang('page_data_mgr_access') . ': ' . ($privatemgr ? lang('private') : lang('public'));
     $alt = implode("\n", $_);
     return hsc($alt);
 }

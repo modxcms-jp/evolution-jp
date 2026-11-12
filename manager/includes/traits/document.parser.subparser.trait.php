@@ -1813,7 +1813,8 @@ trait DocumentParserSubParserTrait
 
     private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
-        global $modx;
+        // $_lang は @INCLUDE・@EVAL で実行するコードが読むため global に残す
+        global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
             $lfpos = strpos($path_str, "\n");

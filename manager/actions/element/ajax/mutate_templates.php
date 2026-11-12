@@ -9,7 +9,6 @@ if (request_intvar('id')) {
 
 function get_resources_byajax($id)
 {
-
     $rs = db()->select(
         'pagetitle,id',
         '[+prefix+]site_content',

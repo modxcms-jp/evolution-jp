@@ -490,7 +490,6 @@ class DocAPI
      */
     public function setValue($form_v, $action = 0)
     {
-
         $form_v['alias'] = get_alias(
             array_get($form_v, 'id'),
             array_get($form_v, 'alias'),

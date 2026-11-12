@@ -44,7 +44,7 @@ evo()->setPlaceholder('theme_css_ver', asset_version(MODX_MANAGER_PATH . "media/
 evo()->setPlaceholder('evo_dialog_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js'));
 evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/login.js'));
 
-global $tpl, $_lang;
+global $tpl;
 
 $touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;
 if ($touch_mtime && request_time() < $touch_mtime + 300) {

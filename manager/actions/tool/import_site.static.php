@@ -121,7 +121,6 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 <?php
 function run()
 {
-
     $output = '';
 
     $maxtime = postv('maxtime', 120);
