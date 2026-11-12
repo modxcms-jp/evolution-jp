@@ -22,15 +22,15 @@ else                  $activeParentRowTpl = $wfbc->fetch($activeParentRowTpl);
 
 ////////////////// build
 $activeParentRowTpl = str_replace('[+delim+]', $delim, $activeParentRowTpl);
-if ($modx->config['site_start'] !== $modx->documentIdentifier) {
-    $home = $modx->getDocumentObject('id', $modx->config['site_start']);
+if (config('site_start') !== $modx->documentIdentifier) {
+    $home = $modx->getDocumentObject('id', config('site_start'));
     $home_title = $home['menutitle'] ? $home['menutitle'] : $home['pagetitle'];
     $homeLink = '<a href="' . (!empty($fullLink) ? MODX_SITE_URL : MODX_BASE_URL) . '" title="' . $home_title . '">' . $home_title . '</a>' . $delim;
 } else {
     $homeLink = '';
 }
 
-if ($modx->config['site_start'] !== $modx->documentIdentifier)
+if (config('site_start') !== $modx->documentIdentifier)
     $outerTpl = '@CODE:' . str_replace('[+home+]', $homeLink, $outerTpl);
 else
     $outerTpl = '@CODE: ';

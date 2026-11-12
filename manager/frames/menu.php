@@ -424,7 +424,7 @@ function buildMenu($target, $item)
 {
     global $modx;
 
-    if (!isset($modx->config['topmenu_site'])) {
+    if (config('topmenu_site') === null) {
         include(MODX_CORE_PATH . 'default.config.php');
         // シェル表示では同じリクエスト内で以降の処理が続くため、既存の設定は残して不足分だけ補う
         $modx->config += $default_config;

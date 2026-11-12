@@ -32,10 +32,10 @@ class modxDebugConsole
         $placeholders = [
             '[+ditto_base_url+]' => $base_path,
             '[+base_url+]' => MODX_SITE_URL . 'manager/',
-            '[+theme+]' => $modx->config['manager_theme'],
+            '[+theme+]' => config('manager_theme'),
             '[+title+]' => $title,
             '[+content+]' => $content,
-            '[+charset+]' => $modx->config['modx_charset'],
+            '[+charset+]' => config('modx_charset'),
         ];
 
         return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['main']);
@@ -49,7 +49,7 @@ class modxDebugConsole
     function save($html, $filename)
     {
         global $modx;
-        header(sprintf('Content-Type: text/html; charset=%s', $modx->config['modx_charset']));
+        header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset')));
         header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
         exit($html);
     }
@@ -107,7 +107,7 @@ class modxDebugConsole
         }
         $cID = ($id !== false) ? $id : ($modx->documentObject['id'] ?? '');
         $url = $modx->makeURL(trim($cID), '', $queryString);
-        return ($modx->config['xhtml_urls']) ? $url : str_replace('&', '&amp;', $url);
+        return (config('xhtml_urls')) ? $url : str_replace('&', '&amp;', $url);
     }
 
     // ---------------------------------------------------
@@ -130,7 +130,7 @@ class modxDebugConsole
     function makeMODxSafe($value)
     {
         global $modx;
-        $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']) . '</pre>' : $value;
+        $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, config('modx_charset')) . '</pre>' : $value;
         $value = str_replace(
             ['[', ']', '{', '}'],
             ['&#091;', '&#093;', '&#123;', '&#125;'],

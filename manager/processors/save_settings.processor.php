@@ -110,7 +110,7 @@ function warnings()
 
     $htaccess = MODX_BASE_PATH . '.htaccess';
     $sample_htaccess = MODX_BASE_PATH . 'sample.htaccess';
-    $dir = '/' . trim(evo()->config['base_url'], '/');
+    $dir = '/' . trim(config('base_url'), '/');
     if (is_file($htaccess)) {
         $_ = file_get_contents($htaccess);
         if (strpos($_, 'RewriteEngine') === false) {
@@ -131,7 +131,7 @@ function warnings()
     if (is_file($sample_htaccess)) {
         if (!rename($sample_htaccess, $htaccess)) {
             $warnings[] = lang('settings_friendlyurls_alert');
-        } elseif (evo()->config['base_url'] !== '/') {
+        } elseif (config('base_url') !== '/') {
             $_ = preg_replace(
                 '@RewriteBase.+@', "RewriteBase " . $dir,
                 file_get_contents($htaccess)

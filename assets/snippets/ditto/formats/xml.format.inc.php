@@ -23,7 +23,7 @@ if(!isset($header)) {
             'xml_copyright' => $copyright ?? $_lang['default_copyright'],
             'xml_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
             'xml_ttl'       => (int) ($ttl ?? 120),
-            'xml_charset'   => $charset ?? $modx->config['modx_charset'],
+            'xml_charset'   => $charset ?? config('modx_charset'),
             'xml_xsl'       => (isset($xsl)
                             ? '<?xml-stylesheet type="text/xsl" href="' . MODX_SITE_URL . $xsl . '" ?>'
                             : ''),
@@ -64,7 +64,7 @@ if (!function_exists('xml_parameters')) {
             $xmlArr['xml_' . $name] = htmlentities(
                 $value,
                 ENT_NOQUOTES,
-                $modx->config['modx_charset'] ?: 'UTF-8'
+                config('modx_charset') ?: 'UTF-8'
             );
         }
         return array_merge($xmlArr, $placeholders);

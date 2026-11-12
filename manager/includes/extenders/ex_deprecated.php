@@ -107,7 +107,7 @@ class OldFunctions
         $dir = implode('/', $elements);
         unset($elements);
         if ((strpos($alias, '.') !== false)) {
-            if (isset($modx->config['suffix_mode']) && $modx->config['suffix_mode'] == 1) {
+            if (config('suffix_mode') == 1) {
                 $suff = '';
             } // jp-edition only
         }

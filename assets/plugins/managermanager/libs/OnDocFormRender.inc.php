@@ -17,7 +17,7 @@ $e->output('
     // シェルで画面を移ったとき、ルールの定義が構文エラーで動かなくても、前の画面の mm_run を動かさない
     window.mm_run = null;
     </script>
-    <script charset="' . $modx->config['modx_charset'] . '">
+    <script charset="' . config('modx_charset') . '">
     var mm_lastTab = "tabGeneral";
     var mm_sync_field_count = 0;
     var synch_field = new Array();

@@ -2,7 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('web_access_permissions') || $modx->config['use_udperms'] == 0) {
+if (!evo()->hasPermission('web_access_permissions') || config('use_udperms') == 0) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -44,7 +44,7 @@ if (db()->count($rs) < 1) {
 </div>
 
 <div class="sectionBody">
-    <p><?= $_lang['access_permissions_introtext'] ?></p><?= $modx->config['use_udperms'] != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
+    <p><?= $_lang['access_permissions_introtext'] ?></p><?= config('use_udperms') != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
 
     <div class="tab-pane" id="tabPane1">
         <div class="tab-page" id="tabPage1">

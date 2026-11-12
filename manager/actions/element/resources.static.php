@@ -111,7 +111,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
         </div>
     </div>
     <script type="text/javascript">
-        var tpstatus = <?= $modx->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>;
+        var tpstatus = <?= config('remember_last_tab') == 0 ? 'false' : 'true' ?>;
         tpElements = new WebFXTabPane(document.getElementById("elementsPane"), tpstatus);
     </script>
 <?php

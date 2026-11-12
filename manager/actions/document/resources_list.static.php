@@ -56,7 +56,7 @@ $keyword = ChildDocumentListState::keyword();
 $keywordCondition = ChildDocumentListState::keywordCondition($keyword);
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
-if (!manager()->isAdmin() && !evo()->config['tree_show_protected']) {
+if (!manager()->isAdmin() && !config('tree_show_protected')) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
 }
 if ($keywordCondition !== null) {
@@ -430,7 +430,7 @@ function getStatusIcon($status)
 {
     global $_style;
 
-    if (!evo()->config['enable_draft']) {
+    if (!config('enable_draft')) {
         return '';
     }
 

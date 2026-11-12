@@ -38,7 +38,7 @@ echo EvoSettingsForm::style();
             <!-- 管理画面・エディター・ファイルの設定 -->
             <?= $settingsForm->render() ?>
             <?php
-            if ($modx->config['use_udperms'] == 1) {
+            if (config('use_udperms') == 1) {
                 echo '<div class="tab-page" id="tabAccess">';
                 include __DIR__ . '/form/tab_access.php';
                 echo '</div>';

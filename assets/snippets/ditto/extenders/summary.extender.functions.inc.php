@@ -113,7 +113,7 @@ class truncate
     {
         global $modx;
 
-        mb_internal_encoding($modx->config['modx_charset']);
+        mb_internal_encoding(config('modx_charset'));
         if (mb_strwidth($string) <= $limit) {
             return $string;
         }

@@ -52,5 +52,5 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     </div>
 </div>
 <script type="text/javascript">
-    tpHelp = new WebFXTabPane(document.getElementById("helpPane"), <?= $modx->config['remember_last_tab'] == 0 ? 'false' : 'true' ?> );
+    tpHelp = new WebFXTabPane(document.getElementById("helpPane"), <?= config('remember_last_tab') == 0 ? 'false' : 'true' ?> );
 </script>

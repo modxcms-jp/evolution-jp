@@ -45,11 +45,11 @@ if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirm
 }
 
 // verify email
-if (!isset($modx->config['required_email_wuser'])) {
+if (config('required_email_wuser') === null) {
     $modx->config['required_email_wuser'] = 1;
 }
 
-if ($modx->config['required_email_wuser']) {
+if (config('required_email_wuser')) {
     if ($email == '' || !preg_match('/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i', $email)) {
         webAlert("E-mail address doesn't seem to be valid!");
         exit;
@@ -80,7 +80,7 @@ switch ($mode) {
         }
 
         // check if the email address already exist
-        if ($modx->config['required_email_wuser']) {
+        if (config('required_email_wuser')) {
             $rs = db()->select(
                 'id',
                 '[+prefix+]web_user_attributes',
@@ -187,7 +187,7 @@ switch ($mode) {
         /*******************************************************************************/
         // put the user in the user_groups he/ she should be in
         // first, check that up_perms are switched on!
-        if ($modx->config['use_udperms'] == 1) {
+        if (config('use_udperms') == 1) {
             $field = [];
             foreach ($user_groups as $user_group) {
                 $field['webgroup'] = $user_group;
@@ -204,7 +204,7 @@ switch ($mode) {
         }
         // end of user_groups stuff!
 
-        if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
+        if (config('required_email_wuser') && $passwordnotifymethod === 'e') {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
             header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave));
         } else {
@@ -264,7 +264,7 @@ switch ($mode) {
             $updatepasswordsql = ", password=MD5('" . db()->escape($newpassword) . "') ";
         }
         // パスワードを変えたときだけ、新しいパスワードを知らせる
-        if (!empty($updatepasswordsql) && $modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
+        if (!empty($updatepasswordsql) && config('required_email_wuser') && $passwordnotifymethod === 'e') {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
         }
 
@@ -288,7 +288,7 @@ switch ($mode) {
         }
 
         // check if the email address already exists
-        if ($modx->config['required_email_wuser']) {
+        if (config('required_email_wuser')) {
             $rs = db()->select(
                 'internalKey',
                 '[+prefix+]web_user_attributes',
@@ -395,7 +395,7 @@ switch ($mode) {
         /*******************************************************************************/
         // put the user in the user_groups he/ she should be in
         // first, check that up_perms are switched on!
-        if ($modx->config['use_udperms'] == 1) {
+        if (config('use_udperms') == 1) {
             // as this is an existing user, delete his/ her entries in the groups before saving the new groups
             $rs = db()->delete(evo()->getFullTableName('web_groups'), "webuser='" . $id . "'");
             if (!$rs) {

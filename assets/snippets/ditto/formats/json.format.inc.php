@@ -87,7 +87,7 @@ if (!function_exists("json_parameters")) {
             if ($name == 'date' && !preg_match('@^[0-9]+$@', (string)$value)) {
                 $value = $modx->getUnixtimeFromDateString($value);
             }
-            $value = htmlspecialchars((string)$value, ENT_QUOTES, $modx->config['modx_charset']);
+            $value = htmlspecialchars((string)$value, ENT_QUOTES, config('modx_charset'));
             $jsonArr["json_{$name}"] = ditto_json_str($value);
         }
         $placeholders = array_merge($jsonArr, $placeholders);

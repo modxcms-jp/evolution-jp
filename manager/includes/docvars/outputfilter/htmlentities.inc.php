@@ -6,4 +6,4 @@ if ($tvtype == 'checkbox' || $tvtype == 'listbox-multiple') {
     // remove delimiter from checkbox and listbox-multiple TVs
     $value = str_replace('||', '', $value);
 }
-return htmlentities($value, ENT_NOQUOTES, $this->config['modx_charset']);
+return htmlentities($value, ENT_NOQUOTES, $this->config('modx_charset'));

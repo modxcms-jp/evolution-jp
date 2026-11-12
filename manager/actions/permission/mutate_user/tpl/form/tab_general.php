@@ -191,7 +191,7 @@
             $options = [];
             while ($row = db()->getRow($rs)) {
                 if ($action === 11) {
-                    $selected = ($row['id'] == evo()->config['default_role']);
+                    $selected = ($row['id'] == config('default_role'));
                 } else {
                     $selected = ($row['id'] == user('role'));
                 }

@@ -399,7 +399,7 @@ function content($key, $default = null)
                 </div>
             <?php } ?>
             <?php
-            if ($modx->config['use_udperms'] == 1 && evo()->hasPermission('access_permissions')) {
+            if (config('use_udperms') == 1 && evo()->hasPermission('access_permissions')) {
             ?>
                 <!-- Access permissions -->
                 <div class="tab-page" id="tabAccess">

@@ -216,7 +216,7 @@ function tabOnlineUser()
     $ph = $_lang;
     $timetocheck = (time() - (60 * 20));//+$server_offset_time;
 
-    include_once($modx->config['core_path'] . 'actionlist.inc.php');
+    include_once(config('core_path') . 'actionlist.inc.php');
     $rs = db()->select('*', '[+prefix+]active_users', "lasthit>'{$timetocheck}'", 'username ASC');
     $total = db()->count($rs);
     if ($total == 1) {
