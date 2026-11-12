@@ -19,22 +19,26 @@ if (!$id) {
     exit;
 }
 
-// check if user has access permission, except admins
-if (!manager()->isAdmin()) {
-    $userid = evo()->getLoginUserID();
-    $sql = sprintf("SELECT sma.usergroup,mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND member='%s'WHERE sma.module = '%s'",
+// グループによる制限は、管理者以外に、文書グループの機能が有効なときだけ行う。
+// モジュールのグループを付け外しする欄（mutate_module.dynamic.php）と保存
+// （save_module.processor.php）は use_udperms が有効なときだけ働くので、無効のサイトで
+// 有効だった時期の結びつきが、見えないまま効き始めないようにする。
+if (!manager()->isAdmin() && config('use_udperms') == 1) {
+    $userid = (int)evo()->getLoginUserID();
+    $sql = sprintf(
+        "SELECT sma.usergroup, mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND mg.member = %d WHERE sma.module = %d",
         $tbl_site_module_access,
         $tbl_member_groups,
         $userid,
-        $id
+        (int)$id
     );
-    db()->query($sql);
+    $rs = db()->query($sql);
 
     //initialize permission to -1, if it stays -1 no permissions
     //attached so permission granted
     $permissionAccessInt = -1;
 
-    while ($row = db()->getRow()) {
+    while ($row = db()->getRow($rs)) {
         if ($row['usergroup'] && $row["member"]) {
             //if there are permissions and this member has permission, ofcourse
             //this is granted
@@ -47,12 +51,8 @@ if (!manager()->isAdmin()) {
     }
 
     if ($permissionAccessInt == 0) {
-        echo "<script type='text/javascript'>" .
-            "function jsalert(){ alert('You do not sufficient privileges to execute this module.');" .
-            "window.location.href='index.php?a=106';}" .
-            "setTimeout('jsalert()',100)" .
-            "</script>";
-        exit;
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
