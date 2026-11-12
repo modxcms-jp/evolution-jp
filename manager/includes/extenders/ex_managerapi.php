@@ -38,6 +38,23 @@ class ManagerAPI
         'document.publish' => ['all' => ['save_document', 'publish_document']],
         // 削除・元に戻す（a=6・63、一括の a=121 の delete）
         'document.delete' => ['all' => ['delete_document']],
+        // モジュール。実行（a=112。execute_module.processor.php）。グループの絞り込みは canExecuteModule() が合わせる
+        'module.execute' => ['all' => ['exec_module']],
+        // モジュールの管理（a=106。modules.static.php の先頭の確かめ）を開く
+        'module.open' => ['any' => ['new_module', 'edit_module', 'exec_module']],
+        // 管理ユーザー・Web ユーザー・ロール。一覧（a=75・99・86）の先頭の確かめは edit_*、
+        // 一覧の入口は、押した先（a=11・87・38 の画面、削除の処理 a=12・90・37 など）が求める権限に合わせる
+        'role.edit' => ['all' => ['edit_role']],
+        'role.create' => ['all' => ['new_role']],
+        'user.edit' => ['all' => ['edit_user']],
+        'user.create' => ['all' => ['new_user']],
+        'user.delete' => ['all' => ['delete_user']],
+        'webuser.edit' => ['all' => ['edit_web_user']],
+        'webuser.create' => ['all' => ['new_web_user']],
+        'webuser.delete' => ['all' => ['delete_web_user']],
+        // テンプレート・TV の複製（処理 a=96 は new_template、a=304 は edit_template を求める）
+        'template.duplicate' => ['all' => ['new_template']],
+        'tmplvar.duplicate' => ['all' => ['edit_template']],
         // エレメントの管理を開く（新規作成か編集のどちらか）
         'element.template.manage' => ['any' => ['new_template', 'edit_template']],
         'element.snippet.manage' => ['any' => ['new_snippet', 'edit_snippet']],
@@ -52,6 +69,8 @@ class ManagerAPI
         'element.module.save' => ['all' => ['save_module']],
     ];
 
+    /** @var array|null モジュールの ID → その利用者がグループ経由で実行できるか（グループの指定があるモジュールだけ） */
+    private $moduleGroupAccessCache;
     /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
     private $allowedDocIdsCache;
     /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
@@ -788,6 +807,80 @@ class ManagerAPI
             }
         }
         return false;
+    }
+
+    /**
+     * そのモジュールを実行してよいか。実行（a=112）の処理・メインメニュー・ダッシュボード・
+     * モジュール管理の一覧の実行のメニューがこの判定を使う（#1408・#1357）。
+     * exec_module を持つこと。そのうえで、管理者（isAdmin()）は全部、それ以外は use_udperms が有効なときだけ、
+     * モジュールのグループ（site_module_access）で絞る。グループの指定が無いモジュールは誰でも、
+     * 指定があれば所属者だけ。use_udperms が無効のときに絞らないのは、グループを付け外しする欄と保存が
+     * 有効なときだけ働くので、有効だった時期の結びつきが見えないまま効き始めないようにするため
+     *
+     * @param int $moduleId
+     * @return bool
+     */
+    public function canExecuteModule(int $moduleId): bool
+    {
+        if (!$this->can('module.execute')) {
+            return false;
+        }
+        if ($this->isAdmin() || evo()->config('use_udperms') != 1) {
+            return true;
+        }
+        $access = $this->moduleGroupAccess();
+        return !isset($access[$moduleId]) || $access[$moduleId];
+    }
+
+    /**
+     * 実行してよいモジュールの一覧（無効のモジュールは含めない）。canExecuteModule() で絞る。
+     * 使う場所: メインメニュー（frames/menu.php）・ダッシュボード（main/welcome.static.php）
+     *
+     * @return array[] id・name・icon の行の配列（editedon の新しい順）
+     */
+    public function getExecutableModules(): array
+    {
+        if (!$this->can('module.execute')) {
+            return [];
+        }
+        $rs = db()->select(
+            'id, name, icon',
+            '[+prefix+]site_modules',
+            'disabled != 1',
+            'editedon DESC'
+        );
+        $modules = [];
+        while ($row = db()->getRow($rs)) {
+            if ($this->canExecuteModule((int)$row['id'])) {
+                $modules[] = $row;
+            }
+        }
+        return $modules;
+    }
+
+    /**
+     * グループの指定があるモジュールについて、ログイン中の利用者がどれかのグループに所属しているか。
+     * グループの指定が無いモジュールのキーは無い。リクエスト内でキャッシュする
+     *
+     * @return bool[] モジュールの ID => 所属しているか
+     */
+    private function moduleGroupAccess(): array
+    {
+        if ($this->moduleGroupAccessCache !== null) {
+            return $this->moduleGroupAccessCache;
+        }
+        $rs = db()->select(
+            'sma.module, sma.usergroup, mg.member',
+            '[+prefix+]site_module_access sma'
+            . ' LEFT JOIN [+prefix+]member_groups mg ON mg.user_group = sma.usergroup AND mg.member = '
+            . (int)evo()->getLoginUserID()
+        );
+        $access = [];
+        while ($row = db()->getRow($rs)) {
+            $moduleId = (int)$row['module'];
+            $access[$moduleId] = ($access[$moduleId] ?? false) || ($row['usergroup'] && $row['member']);
+        }
+        return $this->moduleGroupAccessCache = $access;
     }
 
     /**
