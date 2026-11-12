@@ -1,8 +1,8 @@
 <?php
-if (evo()->documentObject['contentType'] !== 'text/html') {
+if ((evo()->documentObject['contentType'] ?? '') !== 'text/html') {
     return;
 }
-if (evo()->documentObject['content_dispo'] == 1) {
+if ((evo()->documentObject['content_dispo'] ?? 0) == 1) {
     return;
 }
 

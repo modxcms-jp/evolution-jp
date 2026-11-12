@@ -2,7 +2,6 @@
 
 /**
  * @var array $_lang
- * @var array $_style
  */
 
 if (!isset($modx) || !evo()->isLoggedin()) {
@@ -273,7 +272,7 @@ if (isset($content['which_editor'])) {
                                 value="<?= entity('pub_date') ?>" class="DatePicker" />
                             <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;"
                                 style="cursor:pointer; cursor:hand;">
-                                <img src="<?= $_style["icons_cal_nodate"] ?>"
+                                <img src="<?= style("icons_cal_nodate") ?>"
                                     alt="<?= lang('remove_date') ?>" /></a>
                         </td>
                     </tr>
@@ -284,7 +283,7 @@ if (isset($content['which_editor'])) {
                                 value="<?= entity('unpub_date') ?>" class="DatePicker" />
                             <a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;"
                                 style="cursor:pointer; cursor:hand">
-                                <img src="<?= $_style["icons_cal_nodate"] ?>"
+                                <img src="<?= style("icons_cal_nodate") ?>"
                                     alt="<?= lang('remove_date') ?>" /></a>
                         </td>
                     </tr>

@@ -289,7 +289,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                         <tr id="showname"
                             style="display: <?= ($action === 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
                             <td colspan="2">
-                                <img src="<?= $_style['icons_user'] ?>"
+                                <img src="<?= style('icons_user') ?>"
                                     alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
                                 - <span class="comment"><a href="#"
                                         onclick="changeName();return false;"><?= lang("change_name") ?></a></span>
@@ -475,7 +475,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                 } elseif (!empty(attribute('photo'))) {
                                     $photo = attribute('photo');
                                 } else {
-                                    $photo = config('base_url') . 'manager/' . $_style['tx'];
+                                    $photo = config('base_url') . 'manager/' . style('tx');
                                 }
 
                                 if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {

@@ -71,7 +71,7 @@ $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" tabindex="0" onclick="alert(this.alt);" style="cursor:help" />';
 $ph = [];
-$ph['src'] = $_style['icons_tooltip_over'];
+$ph['src'] = style('icons_tooltip_over');
 $ph['title'] = lang('tmplvars_input_option_msg');
 $ph['alt'] = lang('tmplvars_input_option_msg');
 $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
@@ -529,7 +529,7 @@ function entity($key, $default = null)
                         <td valign="top" align="left"><?= lang('tmplvars_widget_prop') ?>
                             <div style="padding-top:8px;"><a href="javascript://"
                                     onclick="resetParameters(); return false"><img
-                                        src="<?= $_style['icons_refresh'] ?>"
+                                        src="<?= style('icons_refresh') ?>"
                                         alt="<?= lang('tmplvars_reset_params') ?>"></a></div>
                         </td>
                         <td align="left" id="displayparams">&nbsp;</td>

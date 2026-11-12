@@ -37,7 +37,7 @@ echo get_src_content($id, $parent);
 
 function get_src_content($id, $parent)
 {
-    global $_lang, $_style;
+    global $_lang;
     $redirect = $parent == 0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
     $pickerLabel = hsc(lang('parent_picker_open'));
     $src = <<< EOT

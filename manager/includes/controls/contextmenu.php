@@ -25,9 +25,8 @@ class ContextMenu
 
     public function addItem($text, $action = "", $img = "", $disabled = 0)
     {
-        global $_style;
         if (!$img) {
-            $img = config('base_url') . $_style['tx'];
+            $img = config('base_url') . style('tx');
         }
         if (substr($action, 0, 3) == "js:") {
             $action = substr($action, 3);

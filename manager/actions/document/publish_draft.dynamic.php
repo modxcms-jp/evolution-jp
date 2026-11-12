@@ -44,7 +44,7 @@ echo $modx->parseText($tpl, $ph);
 
 function fieldDraftPub_date($docid, $restored = [])
 {
-    global $modx, $_style;
+    global $modx;
 
     //statusはdraft/standbyでも気にしない
     $rs = db()->select(
@@ -64,7 +64,7 @@ function fieldDraftPub_date($docid, $restored = [])
     } else {
         $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     }
-    $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
+    $ph['icons_cal_nodate'] = style('icons_cal_nodate');
     $ph['remove_date'] = lang('remove_date');
     $ph['datetime_format'] = config('datetime_format');
     $body = $modx->parseText($tpl, $ph);

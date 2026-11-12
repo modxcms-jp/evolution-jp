@@ -1,6 +1,5 @@
 <?php
 /**
- * @var array $_style
  * @var array $_lang
  */
 // Action 127

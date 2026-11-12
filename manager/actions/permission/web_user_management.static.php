@@ -134,11 +134,11 @@ echo $cm->render();
                                 </td>
                                 <td><a href="#" title="<?= lang("reset") ?>"
                                         onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" /></a>
+                                            src="<?= style('icons_refresh') ?>" /></a>
                                 </td>
                                 <td><a href="#" title="<?= lang("list_mode") ?>"
                                         onclick="changeListMode();return false;"><img
-                                            src="<?= $_style['icons_table'] ?>" /></a>
+                                            src="<?= style('icons_table') ?>" /></a>
                                 </td>
                             </tr>
                         </table>
@@ -183,12 +183,12 @@ echo $cm->render();
                 'label' => lang('icon'),
                 'class' => 'is-shrink is-center',
                 'html' => true,
-                'format' => function ($value) use ($_style) {
+                'format' => function ($value) {
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>',
                         (int) $value,
                         hsc(lang('click_to_context')),
-                        hsc($_style['icons_user'])
+                        hsc(style('icons_user'))
                     );
                 },
             ],

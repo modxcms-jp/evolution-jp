@@ -124,7 +124,7 @@ EOT;
         $output .= webLoginAlert('error replacing into active users!');
     } else {
         // display logout
-        $url = preserveUrl($modx->documentObject['id']);
+        $url = preserveUrl($modx->documentObject['id'] ?? 0);
         $url = $url . ((strpos($url, '?') === false) ? '?' : '&amp;') . 'webloginmode=lo';
         $tplLogout = str_replace('[+action+]', $url, $tplLogout);
         $tplLogout = str_replace('[+logouttext+]', $logoutText, $tplLogout);

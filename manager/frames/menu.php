@@ -107,7 +107,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
             function hideTreeFrame() {
                 var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc($_style['show_tree']) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
+                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
@@ -124,7 +124,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             function reloadtree() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc($_style['icons_loading_doc_tree']) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_doc_tree')))) ?>;
+                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc(style('icons_loading_doc_tree')) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_doc_tree')))) ?>;
                     elm.style.display = '';
                 }
                 top.tree.saveFolderState(); // save folder state
@@ -134,7 +134,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             function reloadmenu() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc($_style['icons_working']) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_menu')))) ?>;
+                    elm.innerHTML = <?= js_literal("&nbsp;&nbsp;<img src='" . hsc(style('icons_working')) . "' />&nbsp;" . hsc(stripcslashes(lang('loading_menu')))) ?>;
                     elm.style.display = '';
                 }
                 EvoShell.reloadMenu();
@@ -144,7 +144,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             // These functions are used for showing the user the system is working
             window.work = function() {
                 var workText = document.getElementById('workText');
-                if (workText) workText.innerHTML = <?= js_literal('&nbsp;<img src="' . hsc($_style['icons_working']) . '" />&nbsp;' . hsc(stripcslashes(lang('working')))) ?>;
+                if (workText) workText.innerHTML = <?= js_literal('&nbsp;<img src="' . hsc(style('icons_working')) . '" />&nbsp;' . hsc(stripcslashes(lang('working')))) ?>;
             }
 
             window.stopWork = function() {

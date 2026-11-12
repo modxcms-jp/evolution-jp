@@ -42,7 +42,7 @@ $atom_placeholders['atom_charset'] = isset($charset) ? $charset : config('modx_c
 	MODX default charset
 */
 
-$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', $modx->documentObject["editedon"]);
+$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', ($modx->documentObject['editedon'] ?? null));
 $placeholders['*'] = "atom_placeholders";
 $placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
 $placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];

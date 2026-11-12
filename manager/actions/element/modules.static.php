@@ -2,7 +2,6 @@
 
 /**
  * @var array $_lang
- * @var array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -24,26 +23,26 @@ $cm = new ContextMenu("cntxm", 150);
 $cm->addItem(
     lang("run_module"),
     "js:menuAction(1)",
-    $_style['icons_save'],
+    style('icons_save'),
     (!evo()->hasPermission('exec_module') ? 1 : 0)
 );
 $cm->addSeparator();
 $cm->addItem(
     lang("edit"),
     "js:menuAction(2)",
-    $_style['icons_edit_document'],
+    style('icons_edit_document'),
     (!evo()->hasPermission('edit_module') ? 1 : 0)
 );
 $cm->addItem(
     lang("duplicate"),
     "js:menuAction(3)",
-    $_style['icons_resource_duplicate'],
+    style('icons_resource_duplicate'),
     (!evo()->hasPermission('new_module') ? 1 : 0)
 );
 $cm->addItem(
     lang("delete"),
     "js:menuAction(4)",
-    $_style['icons_delete'],
+    style('icons_delete'),
     (!evo()->hasPermission('delete_module') ? 1 : 0)
 );
 echo $cm->render();
@@ -178,12 +177,12 @@ echo $cm->render();
                 'label' => lang('icon'),
                 'class' => 'is-shrink is-center',
                 'html' => true,
-                'format' => function ($value, array $row) use ($_style) {
+                'format' => function ($value, array $row) {
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
                         (int) $row['id'],
                         hsc(lang('click_to_context')),
-                        hsc($value !== '' && $value !== null ? $value : $_style['icons_modules'])
+                        hsc($value !== '' && $value !== null ? $value : style('icons_modules'))
                     );
                 },
             ],
