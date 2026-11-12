@@ -40,8 +40,6 @@ class ManagerAPI
         'document.delete' => ['all' => ['delete_document']],
         // モジュール。実行（a=112。execute_module.processor.php）。グループの絞り込みは canExecuteModule() が合わせる
         'module.execute' => ['all' => ['exec_module']],
-        // モジュールの管理（a=106。modules.static.php の先頭の確かめ）を開く
-        'module.open' => ['any' => ['new_module', 'edit_module', 'exec_module']],
         // 管理ユーザー・Web ユーザー・ロール。一覧（a=75・99・86）の先頭の確かめは edit_*、
         // 一覧の入口は、押した先（a=11・87・38 の画面、削除の処理 a=12・90・37 など）が求める権限に合わせる
         'role.edit' => ['all' => ['edit_role']],
@@ -759,9 +757,10 @@ class ManagerAPI
 
     /**
      * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
-     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧。
-     * モジュールの管理（a=106）を開く入口（メニュー・ダッシュボード）は、exec_module も通すので
-     * 'module.open' を使う（この判定ではない）
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
+     * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
+     * （main/welcome.static.php）。作成・編集できる人だけに出す入口で、モジュール管理（a=106）の画面は
+     * exec_module だけでも開ける（permissions.md の分かっている課題を参照）
      *
      * @param string $type ELEMENT_TYPES の値（template・snippet・chunk・plugin・module）
      * @return bool

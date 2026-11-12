@@ -279,15 +279,17 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     // Modules Menu Items
                     $item['modules'] = [];
                     $item['modules']['module_management'] = item($_lang['module_management'], 106,
-                        manager()->can('module.open') ? 1 : 0);// manage-modules
-                    // 実行してよいモジュールだけ（判定は ManagerAPI::canExecuteModule()。実行の処理と同じ）
-                    foreach (manager()->getExecutableModules() as $content) {
-                        // 断片出力のモジュールはシェル内に表示される。
-                        // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
-                        $item['modules'][$content['name']] = item(hsc($content['name']),
-                            "index.php?a=112&amp;id={$content['id']}");
+                        manager()->canManageElement('module') ? 1 : 0);// manage-modules
+                    if (manager()->can('module.execute')) {
+                        // 実行してよいモジュールだけ（判定は ManagerAPI::canExecuteModule()。実行の処理と同じ）
+                        foreach (manager()->getExecutableModules() as $content) {
+                            // 断片出力のモジュールはシェル内に表示される。
+                            // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
+                            $item['modules'][$content['name']] = item(hsc($content['name']),
+                                "index.php?a=112&amp;id={$content['id']}");
+                        }
+                        $modulemenu = $item['modules'];
                     }
-                    $modulemenu = array_filter($item['modules']);
 
                     // Security menu items (users)
                     $perm_mgruser = (evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
