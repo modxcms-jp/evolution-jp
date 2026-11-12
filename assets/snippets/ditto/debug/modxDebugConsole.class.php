@@ -48,7 +48,6 @@ class modxDebugConsole
     // ---------------------------------------------------
     function save($html, $filename)
     {
-        global $modx;
         header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset')));
         header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
         exit($html);
@@ -129,7 +128,6 @@ class modxDebugConsole
     // ---------------------------------------------------
     function makeMODxSafe($value)
     {
-        global $modx;
         $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, config('modx_charset')) . '</pre>' : $value;
         $value = str_replace(
             ['[', ']', '{', '}'],

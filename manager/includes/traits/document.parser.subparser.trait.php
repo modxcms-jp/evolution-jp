@@ -3051,7 +3051,7 @@ trait DocumentParserSubParserTrait
                 return $options[$key];
             }
             if (is_array($modx->config) && array_key_exists($key,
-                    $modx->config) && (!$skipEmpty || ($skipEmpty && config($key) !== ''))) {
+                    $modx->config) && (!$skipEmpty || ($skipEmpty && $modx->config[$key] !== ''))) {
                 return $modx->config[$key];
             }
         }

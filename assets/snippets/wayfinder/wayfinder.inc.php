@@ -959,7 +959,6 @@ class Wayfinder
 
     function modxPrep($value)
     {
-        global $modx;
         if (strpos($value, '<') !== false) {
             $value = htmlentities($value, ENT_NOQUOTES, config('modx_charset'));
         }

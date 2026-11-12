@@ -92,7 +92,7 @@ TPL;
 
 if (!function_exists("rss_date")) {
     function rss_date($resource) {
-        global $modx, $dateSource;
+        global $dateSource;
         return date("r", intval($resource[$dateSource]) + config('server_offset_time'));
     }
 }

@@ -141,7 +141,6 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function doSafe($string)
         {
-            global $modx;
             $string = htmlentities($string, ENT_QUOTES, config('modx_charset'));
         }
     }
