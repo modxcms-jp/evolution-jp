@@ -75,6 +75,6 @@ $values = EvoSettingsForm::systemValues($stored);
 <script>
     tpSettings = new WebFXTabPane(
         document.getElementById("settingsPane"),
-        <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
+        <?= config('remember_last_tab') == 0 ? 'false' : 'true' ?>
     );
 </script>

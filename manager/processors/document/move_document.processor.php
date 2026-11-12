@@ -43,7 +43,7 @@ if ($invalid_parent !== '') {
 }
 
 // 移動するリソースそれぞれについても、操作できるかを確かめる
-if (evo()->config['use_udperms'] == 1) {
+if (config('use_udperms') == 1) {
     foreach ($doc_ids as $v) {
         if (!evo()->checkPermissions($v)) {
             accessDenied('access_permission_denied');
@@ -72,7 +72,7 @@ if (!$rs) {
 $current_parent = (int) db()->getValue($rs);
 
 // check user has permission to move resource to chosen location
-if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
+if (config('use_udperms') == 1 && $current_parent != $new_parent) {
     if (!evo()->checkPermissions($new_parent)) {
         accessDenied('access_permission_parent_denied');
     }

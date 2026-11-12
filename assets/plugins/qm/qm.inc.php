@@ -137,7 +137,7 @@ class Qm
         global $_lang;
 
         // Get manager language
-        $manager_language = evo()->config['manager_language'];
+        $manager_language = config('manager_language');
 
         // Get event
         $e = &evo()->event;

@@ -971,7 +971,7 @@ class DocumentParser
                 }
 
                 $path = MODX_CACHE_PATH . $this->uaType;
-                if ($this->config['cache_type'] == 1) {
+                if ($this->config('cache_type') == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
                 }
                 if ($this->ensureDir($path)) {
@@ -1646,7 +1646,7 @@ class DocumentParser
 
         if ($this->config('cache_ttl') && is_file($cacheFile)) {
             $timestamp = filemtime($cacheFile);
-            $timestamp += $this->config['cache_ttl'];
+            $timestamp += $this->config('cache_ttl');
             if ($timestamp < request_time()) {
                 @unlink($cacheFile);
                 $this->documentGenerated = 1;
@@ -1825,7 +1825,7 @@ class DocumentParser
 
         $this->clearCache();
 
-        if ($this->config['legacy_cache']) {
+        if ($this->config('legacy_cache')) {
             $this->setAliasListing();
         }
 
@@ -2318,13 +2318,13 @@ class DocumentParser
 
         switch (strtolower($context)) {
             case 'site_start':
-                $docid = $this->config['site_start'];
+                $docid = $this->config('site_start');
                 break;
             case 'parent':
             case 'p':
                 $docid = $parent;
                 if ($docid == 0) {
-                    $docid = $this->config['site_start'];
+                    $docid = $this->config('site_start');
                 }
                 break;
             case 'ultimateparent':

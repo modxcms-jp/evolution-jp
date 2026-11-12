@@ -17,7 +17,7 @@ function get_resources_byajax($id)
         "template='" . $id . "'"
     );
     $total = db()->count($rs);
-    if (evo()->config['limit_by_container'] < $total) {
+    if (config('limit_by_container') < $total) {
         return sprintf('<p>%s</p>', $_lang['a16_many_resources']);
     }
     if ($total === 0) {

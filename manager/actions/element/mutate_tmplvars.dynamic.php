@@ -627,7 +627,7 @@ function entity($key, $default = null)
 
             <!-- Access Permissions -->
             <?php
-            if ($modx->config['use_udperms'] == 1) {
+            if (config('use_udperms') == 1) {
                 $groupsarray = [];
 
                 // fetch permissions for the variable

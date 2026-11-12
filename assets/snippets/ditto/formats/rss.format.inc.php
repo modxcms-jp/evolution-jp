@@ -36,7 +36,7 @@ if(!isset($header)) {
             'rss_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
             'rss_link'      => MODX_SITE_URL . '[~' . $modx->documentIdentifier . "~]",
             'rss_ttl'       => (int) ($ttl ?? 120),
-            'rss_charset'   => $charset ?? $modx->config['modx_charset'],
+            'rss_charset'   => $charset ?? config('modx_charset'),
             'rss_xsl'       => isset($xsl) ? "\n" . '<?xml-stylesheet type="text/xsl" href="' . MODX_SITE_URL . $xsl . '" ?>' : ''
         ]
     );
@@ -92,8 +92,8 @@ TPL;
 
 if (!function_exists("rss_date")) {
     function rss_date($resource) {
-        global $modx, $dateSource;
-        return date("r", intval($resource[$dateSource]) + $modx->config["server_offset_time"]);
+        global $dateSource;
+        return date("r", intval($resource[$dateSource]) + config('server_offset_time'));
     }
 }
 

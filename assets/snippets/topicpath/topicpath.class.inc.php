@@ -35,7 +35,7 @@ class TopicPath
         $this->set('topicGap', '...');
         $this->array_set('titleField', 'menutitle,pagetitle');
         $this->array_set('descField', 'description,longtitle,pagetitle');
-        $this->set('homeId', $modx->config['site_start']);
+        $this->set('homeId', config('site_start'));
         $this->array_set('stopIds', '');
         $this->set('order', '');
 

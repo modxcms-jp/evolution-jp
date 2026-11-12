@@ -66,7 +66,7 @@ function fieldDraftPub_date($docid, $restored = [])
     }
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
     $ph['remove_date'] = $_lang['remove_date'];
-    $ph['datetime_format'] = $modx->config['datetime_format'];
+    $ph['datetime_format'] = config('datetime_format');
     $body = $modx->parseText($tpl, $ph);
     $body = renderTr($_lang['draft_data_publishdate'], $body);
     $tpl = <<< EOT

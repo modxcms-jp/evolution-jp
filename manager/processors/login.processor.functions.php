@@ -92,7 +92,7 @@ function loginV1($givenPassword, $dbasePassword, $internalKey)
         evo()->config['pwd_hash_algo'] = 'UNCRYPT';
     }
 
-    if ($user_algo !== evo()->config['pwd_hash_algo']) {
+    if ($user_algo !== config('pwd_hash_algo')) {
         evo()->config['pwd_hash_algo'] = $user_algo;
     }
 

@@ -78,8 +78,8 @@ $settingsForm = new EvoSettingsForm(
 $_country_lang = [];
 $lcdir_path = MODX_CORE_PATH . 'lang/country/';
 include_once($lcdir_path . 'english_country.inc.php');
-$lang_path = sprintf($lcdir_path . '%s_country.inc.php', $modx->config['manager_language']);
-if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
+$lang_path = sprintf($lcdir_path . '%s_country.inc.php', config('manager_language'));
+if (config('manager_language') != "english" && is_file($lang_path)) {
     include_once($lang_path);
 }
 ?>
@@ -300,11 +300,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                 } elseif (!empty($userdata['photo'])) {
                                     $photo = $userdata['photo'];
                                 } else {
-                                    $photo = $modx->config['base_url'] . 'manager/' . $_style['tx'];
+                                    $photo = config('base_url') . 'manager/' . $_style['tx'];
                                 }
 
                                 if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {
-                                    $photo = $modx->config['base_url'] . $photo;
+                                    $photo = config('base_url') . $photo;
                                 }
                                 ?>
                                 <img name="iphoto" src="<?= hsc($photo) ?>" />

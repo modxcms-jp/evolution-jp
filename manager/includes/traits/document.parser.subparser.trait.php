@@ -1969,7 +1969,7 @@ trait DocumentParserSubParserTrait
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
-            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . $modx->config['manager_theme'] . '/style.css') . "\" />
+            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . config('manager_theme') . '/style.css') . "\" />
             <script>
                 function __alertQuit() {
                     alert(" . $msg . ");

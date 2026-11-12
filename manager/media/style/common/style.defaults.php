@@ -37,7 +37,7 @@ if (!function_exists('apply_manager_style_defaults')) {
 
         if ($config['manager_menu_height'] !== null) {
             $menuHeight = (int)$config['manager_menu_height'];
-            if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $menuHeight) {
+            if (config('manager_menu_height') === null || (int)config('manager_menu_height') < $menuHeight) {
                 $modx->config['manager_menu_height'] = (string)$menuHeight;
             }
         }

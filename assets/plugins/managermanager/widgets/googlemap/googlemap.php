@@ -38,7 +38,7 @@ function mm_widget_googlemap($fields, $googleApiKey = '', $default = '', $roles 
         }
 
         $output .= "//  -------------- googlemap widget ------------- \n";
-        $output .= includeJs($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
+        $output .= includeJs(config('base_url') . 'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
 
         foreach ($fields as $targetTv) {
             if (!isset($mm_fields[$targetTv])) {

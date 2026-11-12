@@ -231,7 +231,7 @@ class ManagerAPI
             $alias = strtolower(evo()->stripAlias($pagetitle));
         }
 
-        if (evo()->config['allow_duplicate_alias']) {
+        if (config('allow_duplicate_alias')) {
             return '';
         }
 
@@ -341,11 +341,7 @@ class ManagerAPI
 
     public function genV1Hash($password, $seed = '1')
     { // $seed is user_id basically
-        if (isset(evo()->config['pwd_hash_algo']) && !empty(evo()->config['pwd_hash_algo'])) {
-            $algorithm = evo()->config['pwd_hash_algo'];
-        } else {
-            $algorithm = 'UNCRYPT';
-        }
+        $algorithm = config('pwd_hash_algo') ?: 'UNCRYPT';
 
         $salt = md5($password . $seed);
 

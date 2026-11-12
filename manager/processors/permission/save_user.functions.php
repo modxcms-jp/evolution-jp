@@ -86,7 +86,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 {
     $message = evo()->mergeSettingsContent(
         evo()->parseText(
-            evo()->config['signupemail_message'],
+            config('signupemail_message'),
             [
                 'username' => $uid,
                 'uid' => $uid,
@@ -94,11 +94,11 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
                 'pwd' => $pwd,
                 'fullname' => $ufn,
                 'ufn' => $ufn,
-                'site_name' => evo()->config['site_name'],
-                'sname' => evo()->config['site_name'],
-                'manager_email' => evo()->config['emailsender'],
-                'saddr' => evo()->config['emailsender'],
-                'semail' => evo()->config['emailsender'],
+                'site_name' => config('site_name'),
+                'sname' => config('site_name'),
+                'manager_email' => config('emailsender'),
+                'saddr' => config('emailsender'),
+                'semail' => config('emailsender'),
                 'site_url' => MODX_SITE_URL,
                 'surl' => MODX_SITE_URL . 'manager/'
             ]
@@ -511,7 +511,7 @@ function newUser()
 
     // put the user in the user_groups he/ she should be in
     // first, check that up_perms are switched on!
-    if (evo()->config['use_udperms'] == 1) {
+    if (config('use_udperms') == 1) {
         foreach (to_idsvar(userformv('user_groups')) as $user_group) {
             $rs = db()->insert(
                 ['user_group' => $user_group, 'member' => $internalKey],
@@ -648,7 +648,7 @@ function updateUser()
     evo()->clearCache();
     // put the user in the user_groups he/ she should be in
     // first, check that up_perms are switched on!
-    if (evo()->config['use_udperms'] == 1) {
+    if (config('use_udperms') == 1) {
         // as this is an existing user, delete his/ her entries in the groups before saving the new groups
         $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%d'", $userid));
         if (!$rs) {

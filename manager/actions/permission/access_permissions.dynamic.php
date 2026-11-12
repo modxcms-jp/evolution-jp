@@ -42,7 +42,7 @@ if (db()->count($rs) < 1) {
 </div>
 
 <div class="sectionBody">
-    <p><?= $_lang['access_permissions_introtext'] ?></p><?= $modx->config['use_udperms'] != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
+    <p><?= $_lang['access_permissions_introtext'] ?></p><?= config('use_udperms') != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
 
     <div class="tab-pane" id="tabPane1">
 

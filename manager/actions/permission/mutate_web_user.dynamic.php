@@ -475,11 +475,11 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                 } elseif (!empty(attribute('photo'))) {
                                     $photo = attribute('photo');
                                 } else {
-                                    $photo = $modx->config['base_url'] . 'manager/' . $_style['tx'];
+                                    $photo = config('base_url') . 'manager/' . $_style['tx'];
                                 }
 
                                 if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {
-                                    $photo = $modx->config['base_url'] . $photo;
+                                    $photo = config('base_url') . $photo;
                                 }
                                 ?>
                                 <img name="iphoto" src="<?= hsc($photo) ?>" />
@@ -621,7 +621,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                 </table>
             </div>
             <?php
-            if ($modx->config['use_udperms'] == 1) {
+            if (config('use_udperms') == 1) {
                 $groupsarray = [];
 
                 if ($action === 88) { // only do this bit if the user is being edited
