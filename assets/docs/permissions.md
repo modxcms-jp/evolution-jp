@@ -182,7 +182,7 @@
 - それ以外は、`use_udperms` が有効なときだけ、モジュールのグループ（`site_module_access`）で絞る。グループの指定が無いモジュールは誰でも、指定があれば、どれかのグループの所属者だけ。所属者のいないグループだけで制限したモジュールは、管理者以外は実行できず、メニューにも出ない
 - `use_udperms` が無効のときに絞らないのは、グループを付け外しする欄（`mutate_module.dynamic.php`）と保存（`save_module.processor.php`）が有効なときだけ働くので、有効だった時期の結びつきが、見えないまま効き始めないようにするため
 
-モジュール管理（a=106）を開く入口（メニュー・ダッシュボードのアイコン）は、その画面の先頭の確かめと同じ `module.open`（`new_module`・`edit_module`・`exec_module` のどれか）で出す。
+モジュール管理（a=106）を開く入口（メニュー・ダッシュボードのアイコン）は、作成・編集できる人だけに出す（`canManageElement('module')`。`new_module` か `edit_module`）。a=106 の画面そのものは `exec_module` だけでも開ける（分かっている課題の節）。
 
 ### ManagerAPI の判定
 
@@ -205,7 +205,7 @@
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 | `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
 | `hasDocumentGroupCollision()` | 文書グループの「衝突」の知らせを出すか（出すグループがあるのに所属が 0 で、管理者でなく、グループの権限のどちらかを持つ）。文書・下書きの編集画面が使う |
-| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`。表の `element.<種類>.manage`）。エレメントの管理（a=76）のタブと一覧が使う（知らない種類は `InvalidArgumentException`）。モジュール管理（a=106）を開く入口は、`exec_module` も通すので表の `module.open` を使う |
+| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`。表の `element.<種類>.manage`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュール管理の入口が使う（知らない種類は `InvalidArgumentException`） |
 | `canOpenElementManager()` | エレメントの管理（a=76）の入口（メニューとダッシュボードのアイコン）を出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
 | `canExecuteModule($moduleId)` | そのモジュールを実行してよいか（前の節）。実行の処理・メニュー・ダッシュボード・モジュール管理の一覧が使う |
 | `getExecutableModules()` | 実行してよい（無効でない）モジュールの一覧（`id`・`name`・`icon`）。メニューとダッシュボードが使う |
@@ -263,6 +263,7 @@
 | --- | --- |
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
+| #1357 の続き | モジュール管理（a=106。`manager/actions/element/modules.static.php`）は、`new_module`・`edit_module`・`exec_module` のどれかで開く。メニューとダッシュボードの入口は作成・編集できる人（`new_module`・`edit_module`）だけに出すので、`exec_module` だけのロール（投稿担当者など）は、入口が無くても URL を直接開ける（一覧の右クリックの「実行」は実行できるモジュールだけ有効）。メニューは、`exec_module` が無いとモジュールの群そのものを作らないので、`new_module`・`edit_module` だけのロールにはモジュール管理の項目も出ない。処理側の条件と入口をどうそろえるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
 | #1357 の続き | エレメントの管理（a=76。`manager/actions/element/resources.static.php`）は、先頭で権限を確かめず、エレメントの権限が無いロールでも URL を直接開ける（タブは権限のあるものだけ出る）。入口（メニュー・ダッシュボード）は処理の今の条件にそろえたので、出た入口は通る。開けること自体を止めるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
 | #1357 の続き | ダッシュボードのモジュールの一覧（プレースホルダ `Modules`）と、ユーザー・モジュールなどの旧式のアイコンのプレースホルダ（`ModulesIcon`・`SecurityIcon`・`WebUserIcon`・`ResourcesIcon`）は、同梱のテンプレート（`welcome.tpl`）のどれも読まない（`[+Modules+]` はコメントの中）。入口の判定はメニューと同じにそろえてあるが、`manager_welcome_tpl` で独自のテンプレートに差し替えたときだけ画面に出る |
 | #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが表に残る（`document.move` は、移動の処理 a=52 だけなら `move_document`・`edit_document` で通るのに、画面 a=51 が `publish_document`・`save_document` も求めるため、4 つ要る。`document.delete` は `save_document` を求めない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
