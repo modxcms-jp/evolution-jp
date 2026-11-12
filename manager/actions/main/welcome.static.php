@@ -19,8 +19,6 @@ if (evo()->hasPermission('settings') && in_array((string) $settings_version, [''
     exit;
 }
 
-$uid = evo()->getLoginUserID();
-
 $script = <<<JS
         <script>
         function hideConfigCheckWarning(key){
@@ -66,11 +64,11 @@ if (evo()->hasPermission('view_document')) {
     );
     $modx->setPlaceholder('iconResources', $src);
 }
-if (evo()->hasPermission('edit_user')) {
+if (manager()->can('user.edit')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('SecurityIcon', $src);
 }
-if (evo()->hasPermission('edit_web_user')) {
+if (manager()->can('webuser.edit')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserIcon', $src);
 }
@@ -78,7 +76,7 @@ if (manager()->canManageElement('module')) {
     $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
     $modx->setPlaceholder('ModulesIcon', $src);
 }
-if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
+if (manager()->canOpenElementManager()) {
     if (!isset($_style['icons_elements_large'])) {
         $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
     }
@@ -105,11 +103,11 @@ if (evo()->hasPermission('file_manager')) {
     $src = get_icon($_lang['manage_files'], 31, $_style['icons_files_large'], $_lang['manage_files']);
     $modx->setPlaceholder('FileManagerIcon', $src);
 }
-if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
+if (manager()->can('user.edit')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('UserManagerIcon', $src);
 }
-if (evo()->hasPermission('new_web_user') || evo()->hasPermission('edit_web_user')) {
+if (manager()->can('webuser.edit')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserManagerIcon', $src);
 }
@@ -143,30 +141,13 @@ if (evo()->hasPermission('settings')) {
 
 // setup modules
 $modulemenu = [];
-if (evo()->hasPermission('exec_module')) {
-    // Each module
-    if (!manager()->isAdmin()) {
-        // Display only those modules the user can execute
-        $tbl_site_modules = evo()->getFullTableName('site_modules');
-        $tbl_site_module_access = evo()->getFullTableName('site_module_access');
-        $tbl_member_groups = evo()->getFullTableName('member_groups');
-        $field = 'sm.id, sm.name, mg.member, sm.editedon';
-        $from = "{$tbl_site_modules} AS sm";
-        $from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
-        $from .= " LEFT JOIN {$tbl_member_groups} AS mg ON sma.usergroup = mg.user_group";
-        $where = "(mg.member IS NULL OR mg.member={$uid}) AND sm.disabled != 1";
-        $rs = db()->select($field, $from, $where, 'sm.editedon DESC');
-    } else {
-        // Admins get the entire list
-        $rs = db()->select('id,name,icon', evo()->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+// 実行してよいモジュールだけ（判定は ManagerAPI::canExecuteModule()。実行の処理と同じ）
+foreach (manager()->getExecutableModules() as $content) {
+    if (empty($content['icon'])) {
+        $content['icon'] = $_style['icons_modules'];
     }
-    while ($content = db()->getRow($rs)) {
-        if (empty($content['icon'])) {
-            $content['icon'] = $_style['icons_modules'];
-        }
-        $action = 'index.php?a=112&amp;id=' . $content['id'];
-        $modulemenu[] = get_icon(hsc($content['name']), $action, hsc($content['icon']), hsc($content['name']));
-    }
+    $action = 'index.php?a=112&amp;id=' . (int)$content['id'];
+    $modulemenu[] = get_icon(hsc($content['name']), $action, hsc($content['icon']), hsc($content['name']));
 }
 $modules = '';
 if (0 < count($modulemenu)) {

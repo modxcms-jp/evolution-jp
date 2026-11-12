@@ -93,7 +93,6 @@
 - ユーザーの保存・削除は、`isAdmin()` でない人がロール 1 のユーザーを変える・消すのを止める（`manager/processors/permission/save_user.processor.php`・`manager/processors/permission/delete_user.processor.php`）。ユーザー保存の `verifyPermission()`（`manager/processors/permission/save_user.functions.php`）も、ロール 1 を指定するときに `edit_role`・`save_role`・`delete_role`・`new_role` を要求する
 - ロールの削除は、ロール 1 を削除させない（`manager/processors/permission/delete_role.processor.php`）
 - 設定の確認（`manager/includes/config_check.inc.php`）は、ロール 1 でログインしていると警告を出す
-- メニューのモジュール一覧は、ロール 1 でなければ実行できるモジュールだけに絞る（`manager/frames/menu.php`）
 - ログインのとき、ユーザー名に `:roleid=N` を付けると、DB のロールが 1 のユーザーはロール N（試したいロールの確認用）として入る（`manager/processors/login.processor.functions.php`）。選んだロールはセッション `mgrForceRole` に残り、ログアウトまで保つ。判定は `ManagerAPI::resolveMgrRole()` で、リクエストごとの読み直し（`refreshMgrPermissions()`）もこれを通す。DB のロールが 1 でなくなったら捨てて DB のロールにする。存在しないロールを指定すると、認証が通った後でログイン失敗にする。`auth_token` でのログインは、残った差し替えを消す
 - アップグレード（`manager/includes/migrations/00000000_baseline.php`）は、足した権限の列をロール 1 にだけ 1 で入れ、ロール 1 が無ければ作り、メールの送信元が初期値（you@example.com）のままのときだけ、ロール 1 のユーザーのうち ID が最も小さい人のアドレスにする
 
@@ -172,6 +171,18 @@
 - 文書の操作の入口（ツリー・文書一覧・文書の情報・編集画面のボタン・メニュー・ダッシュボード・検索結果のリンク先）は、`can()` か `canCreateDocumentUnder()` で出し分ける。QuickManager は、追加ボタンとカスタムの「new」ボタンが `canCreateDocumentUnder()`、編集のボタンが `canOpenDocumentEditor()`。表の組み合わせは、処理（`manager/processors/` と `manager/actions/` の先頭の確かめ）が今求める条件に合わせてあり、通る経路が複数ある操作（移動は a=51 から a=52）は、すべての経路の条件を合わせたもの。つまり、ロールの権限の面では、出た入口は押せば通る。処理の条件に意味の通らない組み合わせが表に残る（`document.move`・`document.delete` の行）のは、権限の意味の決め直しを、依存の表とあわせて後で行うため（#1357 の第 3 段階。分かっている課題の節）
 - 編集画面（a=27）を開く入口は例外。処理は `view_document`（ロールの編集画面でオンに固定）しか見ないので、入口の条件にならない。表の `document.edit`（`edit_document`）で出し分けるのは、ツリー・一覧の右クリック、一覧のボタンと文書の情報の「編集」、検索結果のリンク先。次の入口は `document.edit` を見ずに a=27 を開く（`view_document` で開く）ので、`edit_document` を持たないロールでも編集画面を開け、保存もできる（処理が見るのは `view_document` と `save_document`）: ツリーの文書名のクリック（`tree_page_click` が 27 のとき。`manager/frames/tree.php`・`nodes.php`）、文書一覧のタイトルのリンク（`resources_list.static.php`）、QuickManager の編集ボタン（`canOpenDocumentEditor()`）。出た入口は押せば通る点は保たれている。`edit_document` を編集の基点にするかは第 3 段階で決める（分かっている課題の節）
 - 下書きの画面・ボタン（a=131・132・128、下書きの保存・公開）、QuickManager の TV の編集（`save_document`）、文書の編集画面の中の公開の切り替え（`publish_document`）は、表を引かず権限名を直接見る。操作の入口でなく、画面の中の項目のため
+- 文書以外の入口も、押した先の処理（画面の先頭の確かめを含む）が今求める権限に合わせて、`can()` で出し分ける。ロール・管理ユーザー・Web ユーザーの管理（メニュー・ダッシュボードのアイコン）は、一覧（a=86・75・99）の先頭の確かめと同じ `role.edit`・`user.edit`・`webuser.edit`。一覧の中の「新規」ボタン・右クリックの編集・削除は、それぞれの表の項目（`role.create`・`user.create`・`user.delete`・`webuser.create`・`webuser.edit`・`webuser.delete`）。エレメントの管理（a=76）のダッシュボードのアイコンはメニューと同じ `canOpenElementManager()`。テンプレート・TV の複製ボタンは、複製の処理が求める `template.duplicate`（`new_template`）・`tmplvar.duplicate`（`edit_template`）。モジュールは次の節
+
+### モジュールの実行
+
+モジュールを実行してよいかは `ManagerAPI::canExecuteModule($moduleId)` が 1 つで決める。実行の処理（a=112。`execute_module.processor.php`）・メインメニュー・ダッシュボード（`getExecutableModules()` で一覧を作る）・モジュール管理の一覧（a=106）の右クリックの「実行」が、この判定を使う。無効のモジュールは、この判定ではなく状態の話なので、呼ぶ側で除く（`getExecutableModules()` は無効を除き、a=106 は無効の行の「実行」を押せなくする）。
+
+- `exec_module`（表の `module.execute`）を持つこと
+- 管理者（`isAdmin()`）は、すべてのモジュールを実行できる
+- それ以外は、`use_udperms` が有効なときだけ、モジュールのグループ（`site_module_access`）で絞る。グループの指定が無いモジュールは誰でも、指定があれば、どれかのグループの所属者だけ。所属者のいないグループだけで制限したモジュールは、管理者以外は実行できず、メニューにも出ない
+- `use_udperms` が無効のときに絞らないのは、グループを付け外しする欄（`mutate_module.dynamic.php`）と保存（`save_module.processor.php`）が有効なときだけ働くので、有効だった時期の結びつきが、見えないまま効き始めないようにするため
+
+モジュール管理（a=106）を開く入口（メニュー・ダッシュボードのアイコン）は、作成・編集できる人だけに出す（`canManageElement('module')`。`new_module` か `edit_module`）。a=106 の画面そのものは `exec_module` だけでも開ける（分かっている課題の節）。
 
 ### ManagerAPI の判定
 
@@ -185,7 +196,7 @@
 | `tmplvarAccessCondition($alias)` | TV（テンプレート変数）の SQL の条件式。絞るかどうかは文書と同じ（`restrictsByDocumentGroups()`）。届く条件は `site_tmplvar_access` の行で決まり、文書の非公開の規則とは別 |
 | `canAccessTmplvar($tmplvarId)` | 1 つの TV を扱えるか |
 | `canOpenDocumentEditor($docId)` | 文書の編集画面（a=27）を開けるか。許可するリソースの範囲（`isInAllowedParents()`）・`view_document` の権限・文書グループ（`canAccessDocument()`）の順に見る。QuickManager のボタンの表示と TV の保存が使う。開けない理由を返す `documentEditorDenial($docId)`（`invalid_id`・`out_of_range`・`no_permission`・`document_group` のどれか、開けるなら空文字）が正で、編集画面の入口（a=27・131・132。理由ごとにエラーの出し方を変える）も同じ判定を使う |
-| `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理などが使う（前の節。知らない操作は `InvalidArgumentException`） |
+| `can($operation)` | 操作から必要なロールの権限を表（`OPERATION_PERMISSIONS`）から引いて判定する。文書の操作の入口・エレメントの管理・ロールとユーザーの管理の入口・テンプレートと TV の複製などが使う（前の節。知らない操作は `InvalidArgumentException`） |
 | `canCreateDocumentUnder($parentId)` | 親の下に新規作成の画面を開けるか。新規作成の権限（`can('document.create')`）・範囲・親の文書グループを見る。ルート（親が 0 以下）は `canUseRootAsParent()`。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager（追加ボタンとカスタムの「new」ボタン）が使う |
 | `deleteDocumentGroup($groupId)` | 文書グループの削除（印の節） |
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
@@ -194,8 +205,10 @@
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 | `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
 | `hasDocumentGroupCollision()` | 文書グループの「衝突」の知らせを出すか（出すグループがあるのに所属が 0 で、管理者でなく、グループの権限のどちらかを持つ）。文書・下書きの編集画面が使う |
-| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`。表の `element.<種類>.manage`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュールのアイコンが使う（知らない種類は `InvalidArgumentException`） |
-| `canOpenElementManager()` | エレメントの管理（a=76）のメニューを出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
+| `canManageElement($type)` | テンプレート・スニペット・チャンク・プラグイン・モジュールの管理を開けるか（`new_X` または `edit_X`。表の `element.<種類>.manage`）。エレメントの管理（a=76）のタブと一覧、メニューとダッシュボードのモジュール管理の入口が使う（知らない種類は `InvalidArgumentException`） |
+| `canOpenElementManager()` | エレメントの管理（a=76）の入口（メニューとダッシュボードのアイコン）を出すか（モジュールを除く 4 種類のどれかを `canManageElement()` で開けられる） |
+| `canExecuteModule($moduleId)` | そのモジュールを実行してよいか（前の節）。実行の処理・メニュー・ダッシュボード・モジュール管理の一覧が使う |
+| `getExecutableModules()` | 実行してよい（無効でない）モジュールの一覧（`id`・`name`・`icon`）。メニューとダッシュボードが使う |
 | `canSaveAnyElement()` | いずれかのエレメントを保存できるか（表の `element.<種類>.save` のどれか）。カテゴリの削除とエレメントの管理の削除リンクが使う |
 
 ### DocumentParser の判定
@@ -250,11 +263,13 @@
 | --- | --- |
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない。サイトのインポートは、ルート以外の取り込み先の権限を確かめない（#1404） |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
-| #1357 の続き | モジュールの管理（a=106）の入口は `exec_module` も通すが、メニュー・ダッシュボードのモジュールのアイコンは `new_module` または `edit_module`（`canManageElement('module')`）で出していて、入口と一致しない |
+| #1357 の続き | モジュール管理（a=106。`manager/actions/element/modules.static.php`）は、`new_module`・`edit_module`・`exec_module` のどれかで開く。メニューとダッシュボードの入口は作成・編集できる人（`new_module`・`edit_module`）だけに出すので、`exec_module` だけのロール（投稿担当者など）は、入口が無くても URL を直接開ける（一覧の右クリックの「実行」は実行できるモジュールだけ有効）。メニューは、`exec_module` が無いとモジュールの群そのものを作らないので、`new_module`・`edit_module` だけのロールにはモジュール管理の項目も出ない。処理側の条件と入口をどうそろえるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
+| #1357 の続き | エレメントの管理（a=76。`manager/actions/element/resources.static.php`）は、先頭で権限を確かめず、エレメントの権限が無いロールでも URL を直接開ける（タブは権限のあるものだけ出る）。入口（メニュー・ダッシュボード）は処理の今の条件にそろえたので、出た入口は通る。開けること自体を止めるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
+| #1357 の続き | ダッシュボードのモジュールの一覧（プレースホルダ `Modules`）と、ユーザー・モジュールなどの旧式のアイコンのプレースホルダ（`ModulesIcon`・`SecurityIcon`・`WebUserIcon`・`ResourcesIcon`）は、同梱のテンプレート（`welcome.tpl`）のどれも読まない（`[+Modules+]` はコメントの中）。入口の判定はメニューと同じにそろえてあるが、`manager_welcome_tpl` で独自のテンプレートに差し替えたときだけ画面に出る |
 | #1357 の続き | 文書の操作の入口は処理の今の条件にそろえたが、処理の条件に意味の通らないものが表に残る（`document.move` は、移動の処理 a=52 だけなら `move_document`・`edit_document` で通るのに、画面 a=51 が `publish_document`・`save_document` も求めるため、4 つ要る。`document.delete` は `save_document` を求めない）。権限の意味の決め直しは、権限の依存の表とあわせて第 3 段階で行う |
 | #1357 の続き | 編集画面（a=27）を開く入口が `edit_document` を見ない（ツリーの文書名のクリック・文書一覧のタイトルのリンク・QuickManager の編集ボタンは `view_document` で開く）。`edit_document` を持たないロールでも、文書名のクリックで編集画面を開け、保存もできる。処理が `view_document` と `save_document` しか見ないので、出た入口が通らないことはない。`edit_document` を編集の基点にするかは、権限の依存（第 3 段階）で決める |
 | #1357 の続き | QuickManager の本文中の新規作成ボタン（`newbclass` のコメントを置き換えるもの。`assets/plugins/qm/inc/on_web_page_prerender.php`）は、親の id が置き換えのパターンの中にあり、権限を確かめずに出す（カスタムの「new」ボタンと追加ボタンは `canCreateDocumentUnder()` で出し分ける）。押した先の画面か保存で、権限が無ければ断られる |
-| #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作は済み。文書以外の入口は食い違いが残る）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
+| #1357 | 権限の作り全体の見直し。2 段階目は判定を表に寄せる（文書の操作・モジュールの実行・ロール／ユーザーの管理・エレメントのアイコン・テンプレート／TV の複製の入口は済み。サイトのインポートが残る）、3 段階目は権限の階層・依存、`save_role` の扱い、管理側と Web 側の統合など作りの見直しを決める（既存のロールのアップグレードでの移し方も含める） |
 
 ## 関連ドキュメント
 

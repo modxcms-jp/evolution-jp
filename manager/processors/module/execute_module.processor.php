@@ -2,15 +2,13 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('exec_module')) {
+if (!manager()->can('module.execute')) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
 $id = request_intvar('id');
 
-$tbl_site_module_access = evo()->getFullTableName('site_module_access');
-$tbl_member_groups = evo()->getFullTableName('member_groups');
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
 // make sure the id's a number
@@ -19,41 +17,11 @@ if (!$id) {
     exit;
 }
 
-// check if user has access permission, except admins
-if (!manager()->isAdmin()) {
-    $userid = evo()->getLoginUserID();
-    $sql = sprintf("SELECT sma.usergroup,mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND member='%s'WHERE sma.module = '%s'",
-        $tbl_site_module_access,
-        $tbl_member_groups,
-        $userid,
-        $id
-    );
-    db()->query($sql);
-
-    //initialize permission to -1, if it stays -1 no permissions
-    //attached so permission granted
-    $permissionAccessInt = -1;
-
-    while ($row = db()->getRow()) {
-        if ($row['usergroup'] && $row["member"]) {
-            //if there are permissions and this member has permission, ofcourse
-            //this is granted
-            $permissionAccessInt = 1;
-        } elseif ($permissionAccessInt == -1) {
-            //if there are permissions but this member has no permission and the
-            //variable was still in init state we set permission to 0; no permissions
-            $permissionAccessInt = 0;
-        }
-    }
-
-    if ($permissionAccessInt == 0) {
-        echo "<script type='text/javascript'>" .
-            "function jsalert(){ alert('You do not sufficient privileges to execute this module.');" .
-            "window.location.href='index.php?a=106';}" .
-            "setTimeout('jsalert()',100)" .
-            "</script>";
-        exit;
-    }
+// 管理者以外は、use_udperms が有効なときだけ、モジュールのグループで絞る（判定は ManagerAPI::canExecuteModule()。
+// メインメニュー・ダッシュボード・モジュール管理の一覧の実行のメニューも同じ判定）
+if (!manager()->canExecuteModule($id)) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $rs = db()->select('*', $tbl_site_modules, "id='" . $id . "'");

@@ -20,13 +20,13 @@ $cm->addItem(
     $_lang['edit'],
     'js:menuAction(1)',
     $_style['icons_edit_document'],
-    (!evo()->hasPermission('edit_user') ? 1 : 0)
+    (!manager()->can('user.edit') ? 1 : 0)
 );
 $cm->addItem(
     $_lang['delete'],
     'js:menuAction(2)',
     $_style['icons_delete'],
-    (!evo()->hasPermission('delete_user') ? 1 : 0)
+    (!manager()->can('user.delete') ? 1 : 0)
 );
 echo $cm->render();
 ?>
@@ -115,7 +115,7 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <?php if (evo()->hasPermission('new_user')): ?>
+                    <?php if (manager()->can('user.create')): ?>
                         <td><a href="index.php?a=11" class="default"><?= $_lang['new_user'] ?></a>
                         </td>
                     <?php endif; ?>

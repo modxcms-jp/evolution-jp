@@ -9,7 +9,7 @@ function iconElements()
     global $modx, $_lang;
 
     if (!manager_is_dashboard_action()) return;
-    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
+    if (manager()->canOpenElementManager()) {
         $ph['imgsrc'] = 'icons/32x/elements.png';
         $ph['action'] = 'index.php?a=76';
         $ph['title'] = $_lang['element_management'];
