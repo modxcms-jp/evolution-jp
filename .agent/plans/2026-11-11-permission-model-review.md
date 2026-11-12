@@ -21,7 +21,7 @@
 - [x] (2026-11-12) M2: 呼び出し元がそろっている権限の判定を ManagerAPI に寄せる（決定不要。動きは変えない）。ブランチ `refactor/1357-m2-permission-helpers`
 - [x] (2026-11-12) M3: 文書の操作（移動・公開・削除・複製・編集・新規）の判定を 1 か所にし、入口をそろえる。ブランチ `refactor/1357-m3-document-operations`。表（`OPERATION_PERMISSIONS`）と `can()` を ManagerAPI に置き、M2 の `ELEMENT_PERMISSIONS` を取り込み、入口を表で出し分け、`DocAPI::can*Doc()` を消した。M0 の記録で取り直した結果は、差が 123 行で、すべて「M3 の変わる行」の行だった（既定のロール・ほかのロール・処理の行は差 0）。注記: 移動は、画面 a=51（`move`・`save`・`publish`）と処理 a=52（`move`・`edit`）の条件が、処理どうしでそろっていない（a=52 だけなら `move`・`edit` で通る）。a=51 から a=52 へ続けて通る経路の条件を合わせて表の `document.move` にしたので、4 つ要る。一覧の作成ボタンと QuickManager のカスタムの「new」ボタンを親ごとの `canCreateDocumentUnder()` にした追加の修正は、M0 の記録が一覧を id=0 と範囲の内の F だけで取るため、記録との差は 0 だった。範囲の外の親（104・105・108）を直接取り、範囲を絞った利用者で作成ボタンが出なくなり、範囲の内では出たままのこと、カスタムの「new」ボタンが範囲・文書グループの外の親とルートに置けないときに出なくなることを確かめた
 - [x] (2026-11-12) M4: 文書以外の入口の食い違いをそろえる（モジュール・利用者・ロール・エレメント）。ブランチ `refactor/1357-m4-other-entries`。`canExecuteModule()`・`getExecutableModules()` を ManagerAPI に置き、実行（a=112。#1409 の判定と同じ意味）・メニュー・ダッシュボード・モジュール管理の一覧の「実行」を寄せた。表（`OPERATION_PERMISSIONS`）に `module.execute`・`role.edit`・`role.create`・`user.edit`・`user.create`・`user.delete`・`webuser.edit`・`webuser.create`・`webuser.delete`・`template.duplicate`・`tmplvar.duplicate` を足した。入口の変更は「M4 の変わる行」の表のとおり。Docker で変更前（28694ec59）と同じ DB・同じスクリプトで取り直し、差は 57 行で、すべて表の行だった。その後、「モジュールの管理」の入口を元の形（作成・編集できる人だけ）に戻した（Decision Log）ので、メニューの「モジュールの管理」の 8 行が消え、差は 49 行になる（取り直しはせず、コードを戻したことと単体確認で確かめた）。既定のロールの差は、ダッシュボードのエレメントのアイコンが投稿担当者に出るようになった点（表に書いた）。ただし、これはモジュールのグループの結びつき（`site_module_access`）が無い DB の場合で、結びつきがあると、webmaster や editor のメニューのモジュールの一覧も変わる（表の最初の 3 行）
-- [ ] M5: サイトのインポートの取り込み先と初期化を確かめる（#1404）
+- [x] (2026-11-12) M5: サイトのインポートの取り込み先と初期化を確かめる（#1404）。ブランチ `fix/1404-import-parent-check`。D8 のとおり、取り込み先は (a)（`importParentDeniedMessage()`。存在・文書グループ・範囲。ルートは `canUseRootAsParent()`）、初期化は (a)（`canResetSiteContent()`）。表に `site.import` を足した。確認は単体（権限・設定をスタブにして php:7.4-cli）と `php -l`。M0 の記録の取り直しは検証で行う（「M5 の変わる行」）
 - [ ] M6: 権限の依存
 - [ ] M7: `save_role` などアクセスの規則を変えられる権限の扱い
 - [ ] M8: ロール ID 1 の特別扱い
@@ -51,6 +51,7 @@
 - 非公開の印（`ManagerAPI::setMgrDocsAsPrivate()`・`setWebDocsAsPrivate()`。`ex_managerapi.php:795-879`）は、「対象の印をすべて 0 にする UPDATE」と「付ける文書を SELECT して 1 にする UPDATE」の 2 回に分けて書く。全件の計算（グループ管理の処理・文書グループの削除・マイグレーション・インストーラの後片付け）では、その間、Web 側で非公開の文書が公開側に `privateweb=0` として出る（管理側も同じく、絞られる利用者のツリーに出る）。DBAPI にトランザクションの API は無い。`setMgrDocsAsPrivate()` は SELECT に `DISTINCT` が無く、`$docid` の扱いが UPDATE（`$docid ?`）と SELECT（`$docid > 0`）で違い、id を `'%s'` で埋め込む。戻り値（印を付けた id のカンマ区切り）を使う呼び出し元は無い（`secureMgrDocument()`・`secureWebDocument()` は返すだけで、呼ぶ側は捨てる）。
 - 利用者の保存（`save_user.functions.php:276-291` の `verifyPermission()`）がロールについて確かめるのは、ロール 1 を付けるかどうかだけで、付けるロールが保存する人の権限の範囲に収まるかは見ない。所属のユーザーグループ（`save_user.functions.php:514,651`）と「許可するリソース」も同じ。編集画面の選択肢（`mutate_user/tpl/form/tab_general.php:177-183`）は自分を編集するときに絞るが、保存の処理とはそろっていない（コードを読んだ範囲。M0 で確かめる）。グローバル設定（`settings`）は `use_udperms` そのものを切れる。つまり、`bypassesDocumentGroups()` が `save_role` を特別に扱う理由（アクセスの規則を自分で変えられる権限）は、`save_user` と `settings` にも当てはまる。
 - サイトのインポート（`import_site.static.php:150-154`）は、「初期化」（`reset`）にチェックがあると、取り込み先や許可するリソースの範囲に関係なく `site_content` を全件消す。`import_static` の権限だけで通る。
+  - M5 で直した（2026-11-12）。M0 の観測: 範囲を絞った利用者が範囲外の親に取り込めた。初期化は、範囲を絞った人には #1394 の判定（ルートを親にできるか）で既に止まっていたので、範囲を絞らず文書グループだけで絞られる人（`use_udperms` が有効で所属が限られ、ルートに置ける人）が残っていた。`canResetSiteContent()` はこの人も止める。親の判定は、`parentChangeDeniedMessage([], $parent)` が新規作成（空配列）にそのまま使えたので、取り込み先の名前で包んだ `importParentDeniedMessage()` にした（共通の中身の切り出しは不要）。画面の親の選択は D8 (a) のとおり変えず、処理で断る。
 
 M3 の実装でコードを読んで分かったこと（2026-11-12）:
 
@@ -307,6 +308,18 @@ M0 の記録と比べる。「同じ」は M0 と一致すること。各マイ�
 | `R_tvdup`（`edit_template` だけ） | TV の編集画面（a=301）の「複製」 | 出ない（a=304 は通る） | 出る |
 
 無効のモジュールの行の「実行」と、モジュールのタブの空の表示は、自己レビューで直した行で、記録は取り直していない（コードと `php -l` で確かめた）。表のほかに、記録では取っていないが論理上変わる入口: `edit_role` だけを持つロールのロール一覧（a=86）の「新規」ボタン（M0 は出て、押すと a=38 がエラー 3。M4 は出ない）、`edit_user` だけを持つロールのユーザー一覧（a=75）の「新規」ボタン（M0 でも `new_user` で出し分けていたので変わらない）。`R_rolenew`（`edit_role`・`new_role`）、`R_saverole`・`R_saveuser`・`R_import` は、ロール・ユーザーの管理の権限の組み合わせが変わらないので、この確認でも同じだった。ダッシュボードのモジュールの一覧は、同梱のテンプレートが読まないので、`manager_welcome_tpl` を `@CODE:` で差し替えて確かめた（メニューと同じモジュールが出る）。
+
+### M5 の変わる行
+
+利用者は M0 のロール名で書く。記録は、入口の HTML と a=95 の応答（M0 と同じ方法）。`use_udperms` は V0・V1。範囲 F はフォルダ F に絞った場合。
+
+| 利用者 | 入口 | M0（変更前） | M5 |
+| --- | --- | --- | --- |
+| `R_import`（許可するリソースを F に絞った人） | F の外の親への取り込み（a=95 の POST） | 取り込まれる | `access_permission_parent_denied` で止まり、文書は増えない |
+| 同 | F の中の親・存在しない親・文書グループで届かない親（V1） | F の中は取り込まれる | F の中は同じ。存在しない親は `parent_not_found`、V1 で届かない親は `access_permission_parent_denied` |
+| 同 | 初期化のチェック（a=95 の画面）と `reset=on` の POST | チェックが出る。ルートに置けないので `access_permission_parent_denied` | チェックが出ない。POST は同じく止まり、`site_content` は消えない |
+| 範囲の制限が無く、V1 で文書グループに絞られる利用者（`R_import` で所属あり、ルートに置ける設定。editor 相当に `import_static` を足した人） | 初期化 | チェックが出て、`site_content` が全件消える | チェックが出ない。POST は `access_permission_parent_denied` で止まり、消えない |
+| admin・webmaster・範囲も文書グループも絞られない利用者 | 取り込みと初期化 | 通る | M0 と同じ（初期化のチェックも出る） |
 
 ## Idempotence and Recovery
 
