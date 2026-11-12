@@ -202,7 +202,7 @@
 | `isAllowroot()` | `udperms_allowroot` の設定を管理者の判定込みで返す（`bypassesDocumentGroups()` または `udperms_allowroot`）。`use_udperms` は見ないので、ルートに置けるかの判定には使わず `canPlaceAtRoot()` を使う |
 | `canUseRootAsParent()` | ルートを親にできるか。`canPlaceAtRoot()` と `isInAllowedParents(0)` の両方。新規作成の権限は見ない。`canCreateDocumentUnder()`・`parentChangeDeniedMessage()`・親の選択・移動の画面・サイトのインポートが使う |
 | `importParentDeniedMessage($parentId)` | サイトのインポートの取り込み先に使えない理由（空なら使える）。新しい文書の置き先なので、親が変わる文書は無いものとして `parentChangeDeniedMessage([], $parentId)` に委ねる |
-| `canResetSiteContent()` | サイトのインポートの初期化（`site_content` の全件の削除）を許すか。`canUseRootAsParent()` かつ文書グループで絞られない。自分に見えない文書も消すため |
+| `canResetSiteContent()` | サイトのインポートの初期化（`site_content` の全件の削除）を許すか。`canUseRootAsParent()` かつ文書グループで絞られない。範囲に 0（サイト全体）を含む設定も制限なしとみなす。自分に見えない文書も消すため |
 | `canPlaceAtRoot()` | 文書をルート（親が 0）に置いてよいか（`use_udperms` が無効、または `isAllowroot()`）。許可するリソースの範囲（`isInAllowedParents(0)`）は混ぜない別の判定 |
 | `isInAllowedParents($id)` ほか | 許可するリソースの範囲の判定（次の節） |
 | `isAdmin()` | 定義は「管理者」の判定の節。同じ式を書き写さずにこれを呼ぶ |
@@ -263,6 +263,7 @@
 
 | Issue | 内容 |
 | --- | --- |
+| #1417 | サイトのインポートのリンクの変換（`convert_link`）が、許可するリソースの範囲の外の本文も書き換える。初期化では `site_content` 以外の結びつきの行（文書グループなど）が残る |
 | #1394 の続き | 保存の処理（`checkDocPermission()`）の親の切り分けは、範囲の確認の順序と拒否の出し方が `parentChangeDeniedMessage()` と違うため寄せていない |
 | `core-issues.md` | 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う（「公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う」の項） |
 | #1357 の続き | モジュール管理（a=106。`manager/actions/element/modules.static.php`）は、`new_module`・`edit_module`・`exec_module` のどれかで開く。メニューとダッシュボードの入口は作成・編集できる人（`new_module`・`edit_module`）だけに出すので、`exec_module` だけのロール（投稿担当者など）は、入口が無くても URL を直接開ける（一覧の右クリックの「実行」は実行できるモジュールだけ有効）。メニューは、`exec_module` が無いとモジュールの群そのものを作らないので、`new_module`・`edit_module` だけのロールにはモジュール管理の項目も出ない。処理側の条件と入口をどうそろえるかは、権限の組み合わせの決め直し（第 3 段階）とあわせて決める |
