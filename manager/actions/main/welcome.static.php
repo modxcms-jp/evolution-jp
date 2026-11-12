@@ -76,7 +76,7 @@ if (manager()->can('module.open')) {
     $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
     $modx->setPlaceholder('ModulesIcon', $src);
 }
-if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
+if (manager()->canOpenElementManager()) {
     if (!isset($_style['icons_elements_large'])) {
         $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
     }
