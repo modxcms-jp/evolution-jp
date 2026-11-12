@@ -80,7 +80,7 @@ echo $output;
 function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
 {
     global $modx;
-    global $_style, $modx_textdir, $_lang, $opened, $opened2;
+    global $modx_textdir, $_lang, $opened, $opened2;
 
     if ($parent == '') {
         $parent = 0;
@@ -166,7 +166,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     if ($hasChild == 0 && $container_status === 'asis') {
         $tpl = tplEmptyFolder();
-        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => $_style['tree_deletedpage'], 'msg' => $_lang['empty_folder']];
+        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => style('tree_deletedpage'), 'msg' => $_lang['empty_folder']];
         $output .= $modx->parseText($tpl, $param);
     }
 
@@ -186,9 +186,9 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         if ($modx->config('enable_draft')) {
             $tpl = '&nbsp;<img src="%s">&nbsp;';
             if ($hasDraft === 'draft') {
-                $draftDisplay = sprintf($tpl, $_style['tree_draft']);
+                $draftDisplay = sprintf($tpl, style('tree_draft'));
             } elseif ($hasDraft === 'standby') {
-                $draftDisplay = sprintf($tpl, $_style['icons_date']);
+                $draftDisplay = sprintf($tpl, style('icons_date'));
             }
         }
 
@@ -226,7 +226,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         if (!$isfolder) {
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
             if ($type === 'reference') {
-                $ph['icon'] = $_style["tree_linkgo"];
+                $ph['icon'] = style("tree_linkgo");
             }
             switch ($modx->config('tree_page_click')) {
                 case '27':
@@ -267,7 +267,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
 
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
             if ($type === 'reference') {
-                $ph['icon'] = $_style["tree_linkgo"];
+                $ph['icon'] = style("tree_linkgo");
             }
             $ph['private_status'] = ($privateweb == 1 || $privatemgr == 1) ? '1' : '0';
 
@@ -278,9 +278,9 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                     $opened2[] = $id;
                 }
                 if ($container_status === 'container_only' && $childFolderCount == 0) {
-                    $ph['_style_tree_minusnode'] = $_style['tree_blanknode'];
+                    $ph['_style_tree_minusnode'] = style('tree_blanknode');
                 } else {
-                    $ph['_style_tree_minusnode'] = $_style['tree_minusnode'];
+                    $ph['_style_tree_minusnode'] = style('tree_minusnode');
                 }
                 $parseNode = parseNode(
                     tplFopenNode(),
@@ -297,9 +297,9 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
                 $output .= '</div></div>';
             } else {
                 if ($container_status === 'container_only' && $childFolderCount == 0) {
-                    $ph['_style_tree_plusnode'] = $_style['tree_blanknode'];
+                    $ph['_style_tree_plusnode'] = style('tree_blanknode');
                 } else {
-                    $ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
+                    $ph['_style_tree_plusnode'] = style('tree_plusnode');
                 }
                 $output .= parseNode(
                     $hasChildren ? tplFcloseNode() : tplPageNode(),
@@ -506,62 +506,62 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
 
 function getIcon($id, $contenttype, $isfolder = '0')
 {
-    global $modx, $_style, $privateweb, $privatemgr;
+    global $modx, $privateweb, $privatemgr;
 
     // icons by content type
     $icons = [
-        'application/rss+xml' => $_style["tree_page_rss"],
-        'application/pdf' => $_style["tree_page_pdf"],
-        'application/vnd.ms-word' => $_style["tree_page_word"],
-        'application/vnd.ms-excel' => $_style["tree_page_excel"],
-        'text/css' => $_style["tree_page_css"],
-        'text/html' => $_style["tree_page_html"],
-        'text/plain' => $_style["tree_page"],
-        'text/xml' => $_style["tree_page_xml"],
-        'text/javascript' => $_style["tree_page_js"],
-        'image/gif' => $_style["tree_page_gif"],
-        'image/jpg' => $_style["tree_page_jpg"],
-        'image/png' => $_style["tree_page_png"]
+        'application/rss+xml' => style("tree_page_rss"),
+        'application/pdf' => style("tree_page_pdf"),
+        'application/vnd.ms-word' => style("tree_page_word"),
+        'application/vnd.ms-excel' => style("tree_page_excel"),
+        'text/css' => style("tree_page_css"),
+        'text/html' => style("tree_page_html"),
+        'text/plain' => style("tree_page"),
+        'text/xml' => style("tree_page_xml"),
+        'text/javascript' => style("tree_page_js"),
+        'image/gif' => style("tree_page_gif"),
+        'image/jpg' => style("tree_page_jpg"),
+        'image/png' => style("tree_page_png")
     ];
     $iconsPrivate = [
-        'application/rss+xml' => $_style["tree_page_rss_secure"],
-        'application/pdf' => $_style["tree_page_pdf_secure"],
-        'application/vnd.ms-word' => $_style["tree_page_word_secure"],
-        'application/vnd.ms-excel' => $_style["tree_page_excel_secure"],
-        'text/css' => $_style["tree_page_css_secure"],
-        'text/html' => $_style["tree_page_html_secure"],
-        'text/plain' => $_style["tree_page_secure"],
-        'text/xml' => $_style["tree_page_xml_secure"],
-        'text/javascript' => $_style["tree_page_js_secure"],
-        'image/gif' => $_style["tree_page_gif"],
-        'image/jpg' => $_style["tree_page_jpg"],
-        'image/png' => $_style["tree_page_png"]
+        'application/rss+xml' => style("tree_page_rss_secure"),
+        'application/pdf' => style("tree_page_pdf_secure"),
+        'application/vnd.ms-word' => style("tree_page_word_secure"),
+        'application/vnd.ms-excel' => style("tree_page_excel_secure"),
+        'text/css' => style("tree_page_css_secure"),
+        'text/html' => style("tree_page_html_secure"),
+        'text/plain' => style("tree_page_secure"),
+        'text/xml' => style("tree_page_xml_secure"),
+        'text/javascript' => style("tree_page_js_secure"),
+        'image/gif' => style("tree_page_gif"),
+        'image/jpg' => style("tree_page_jpg"),
+        'image/png' => style("tree_page_png")
     ];
 
     if ($id == $modx->config('site_start')) {
-        $rs = $_style["tree_page_home"];
+        $rs = style("tree_page_home");
     } elseif ($id == $modx->config('error_page')) {
-        $rs = $_style["tree_page_404"];
+        $rs = style("tree_page_404");
     } elseif ($id == $modx->config('site_unavailable_page')) {
-        $rs = $_style["tree_page_hourglass"];
+        $rs = style("tree_page_hourglass");
     } elseif ($id == $modx->config('unauthorized_page')) {
-        $rs = $_style["tree_page_info"];
+        $rs = style("tree_page_info");
     } else {
         if (!$privateweb && !$privatemgr) :
             if ($isfolder) {
-                $rs = $_style['tree_folder'];
+                $rs = style('tree_folder');
             } elseif (isset($icons[$contenttype])) {
                 $rs = $icons[$contenttype];
             } else {
-                $rs = $_style['tree_page'];
+                $rs = style('tree_page');
             }
         else :
             if ($isfolder) {
-                $rs = $_style['tree_folderopen_secure'];
+                $rs = style('tree_folderopen_secure');
             } elseif (isset($iconsPrivate[$contenttype])) {
                 $rs = $iconsPrivate[$contenttype];
             } else {
-                $rs = $_style['tree_page_secure'];
+                $rs = style('tree_page_secure');
             }
         endif;
     }
@@ -601,7 +601,7 @@ function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
 
 function moreNode($indent, $parent, $offset, $remaining)
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if ($remaining <= 0) {
         return '';
@@ -610,7 +610,7 @@ function moreNode($indent, $parent, $offset, $remaining)
         tplMoreNode(),
         [
             'spacer' => get_spacer($indent) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
-            'icon' => $_style['tree_deletedpage'],
+            'icon' => style('tree_deletedpage'),
             'indent' => (int)$indent,
             'parent' => (int)$parent,
             'offset' => (int)$offset,

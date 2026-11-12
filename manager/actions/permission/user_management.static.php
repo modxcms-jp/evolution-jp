@@ -8,7 +8,6 @@ if (!evo()->hasPermission('edit_user')) {
     alert()->dumpError();
 }
 
-global $_style;
 // 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
 $query = get_strvar('search');
 $listmode = get_choicevar('listmode', ['0', '1'], '0');
@@ -19,13 +18,13 @@ $cm = new ContextMenu('cntxm', 150);
 $cm->addItem(
     $_lang['edit'],
     'js:menuAction(1)',
-    $_style['icons_edit_document'],
+    style('icons_edit_document'),
     (!evo()->hasPermission('edit_user') ? 1 : 0)
 );
 $cm->addItem(
     $_lang['delete'],
     'js:menuAction(2)',
-    $_style['icons_delete'],
+    style('icons_delete'),
     (!evo()->hasPermission('delete_user') ? 1 : 0)
 );
 echo $cm->render();
@@ -129,11 +128,11 @@ echo $cm->render();
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
                                         onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" /></a>
+                                            src="<?= style('icons_refresh') ?>" /></a>
                                 </td>
                                 <td><a href="#" title="<?= $_lang["list_mode"] ?>"
                                         onclick="changeListMode();return false;"><img
-                                            src="<?= $_style['icons_table'] ?>" /></a></td>
+                                            src="<?= style('icons_table') ?>" /></a></td>
                             </tr>
                         </table>
                     </td>
@@ -191,14 +190,14 @@ echo $cm->render();
                 'key' => 'username',
                 'label' => $_lang['username'],
                 'html' => true,
-                'format' => function ($value, array $row) use ($_style, $_lang) {
+                'format' => function ($value, array $row) use ($_lang) {
                     $id = (int) $row['id'];
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
                         . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
                         $id,
                         hsc($_lang['click_to_context']),
-                        hsc($_style['icons_user']),
+                        hsc(style('icons_user')),
                         $row['blocked'] ? 'unpublished' : 'published',
                         $id,
                         hsc($_lang['click_to_edit_title']),

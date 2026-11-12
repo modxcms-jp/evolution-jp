@@ -972,7 +972,7 @@ class Wayfinder
     {
         global $modx;
 
-        if ($modx->documentObject['parent'] == 0) {
+        if (($modx->documentObject['parent'] ?? 0) == 0) {
             return $id;
         }
 
@@ -982,17 +982,17 @@ class Wayfinder
             return $id;
         }
 
-        return $modx->documentObject['parent'];
+        return $modx->documentObject['parent'] ?? 0;
     }
 
     function getParentID($id)
     {
         global $modx;
 
-        if ($modx->documentObject['parent'] == 0) {
+        if (($modx->documentObject['parent'] ?? 0) == 0) {
             return $id;
         }
 
-        return $modx->documentObject['parent'];
+        return $modx->documentObject['parent'] ?? 0;
     }
 }

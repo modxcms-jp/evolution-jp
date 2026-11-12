@@ -625,7 +625,7 @@ class DocAPI
             return 1;
         }
 
-        if (!evo()->documentObject['published']) {
+        if (!(evo()->documentObject['published'] ?? 0)) {
             return 1;
         }
 

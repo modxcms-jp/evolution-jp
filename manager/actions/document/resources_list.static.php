@@ -109,12 +109,12 @@ $listTools .= '<input class="searchtext" name="q" type="text" size="15" maxlengt
     . '<ul class="actionButtons"><li><button type="submit">' . $kw . '</button></li></ul>';
 if ($keyword !== '') {
     $listTools .= '<a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
+        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . style('icons_refresh')
         . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a>';
 }
 if ($links->orderby() !== '') {
     $listTools .= '<a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
+        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . style('sort')
         . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a>';
 }
 $listTools .= '</form>';
@@ -353,13 +353,12 @@ EOT;
 <?php
 function getTitle($doc)
 {
-    global $_style;
 
     $doc['class'] = _getClasses($doc);
     $tpl = '<span [+class+] data-row-menu="[+id+]">[+pagetitle+]</span>';
     $title = parseText($tpl, $doc);
     if ($doc['type'] === 'reference') {
-        return sprintf('<img src="%s" /> ', $_style['tree_weblink']) . $title;
+        return sprintf('<img src="%s" /> ', style('tree_weblink')) . $title;
     }
     return $title;
 }
@@ -428,7 +427,6 @@ function getEditedon($editedon)
 
 function getStatusIcon($status)
 {
-    global $_style;
 
     if (!config('enable_draft')) {
         return '';
@@ -437,9 +435,9 @@ function getStatusIcon($status)
     $tpl = '&nbsp;<img src="%s">&nbsp;';
     switch ($status) {
         case 'draft'   :
-            return sprintf($tpl, $_style['tree_draft']);
+            return sprintf($tpl, style('tree_draft'));
         case 'standby' :
-            return sprintf($tpl, $_style['icons_date']);
+            return sprintf($tpl, style('icons_date'));
         default        :
             return '';
     }
@@ -457,29 +455,28 @@ function getStatus($doc)
 
 function _getIconPath($doc)
 {
-    global $_style;
 
     switch ($doc['id']) {
         case evo()->config('site_start')           :
-            return $_style['tree_page_home'];
+            return style('tree_page_home');
         case evo()->config('error_page', evo()->config('site_start'))           :
-            return $_style['tree_page_404'];
+            return style('tree_page_404');
         case evo()->config('unauthorized_page')    :
-            return $_style['tree_page_info'];
+            return style('tree_page_info');
         case evo()->config('site_unavailable_page'):
-            return $_style['tree_page_hourglass'];
+            return style('tree_page_hourglass');
     }
 
     if (!$doc['isfolder']) {
         if ($doc['privatemgr'] == 1) {
-            return $_style['tree_page_html_secure'];
+            return style('tree_page_html_secure');
         }
-        return $_style['tree_page_html'];
+        return style('tree_page_html');
     }
     if ($doc['privatemgr'] == 1) {
-        return $_style['tree_folderopen_secure'];
+        return style('tree_folderopen_secure');
     }
-    return $_style['tree_folder'];
+    return style('tree_folder');
 }
 
 function get_jscript($id, $cm)

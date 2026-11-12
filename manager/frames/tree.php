@@ -29,17 +29,17 @@ if (!sessionv('tree_sortdir')) {
 
         // preload images
         var i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_page']) ?>;
+        i.src = <?= js_literal(style('tree_page')) ?>;
         i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_globe']) ?>;
+        i.src = <?= js_literal(style('tree_globe')) ?>;
         i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_minusnode']) ?>;
+        i.src = <?= js_literal(style('tree_minusnode')) ?>;
         i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_plusnode']) ?>;
+        i.src = <?= js_literal(style('tree_plusnode')) ?>;
         i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_folderopen']) ?>;
+        i.src = <?= js_literal(style('tree_folderopen')) ?>;
         i = new Image(18, 18);
-        i.src = <?= js_literal($_style['tree_folder']) ?>;
+        i.src = <?= js_literal(style('tree_folder')) ?>;
 
 
         var rpcNode = null;
@@ -217,12 +217,12 @@ if (!sessionv('tree_sortdir')) {
 
             if (box.style.display === 'block' && box.dataset.closing !== '1') {
                 // collapse
-                signImg.src = <?= js_literal($_style['tree_plusnode']) ?>;
+                signImg.src = <?= js_literal(style('tree_plusnode')) ?>;
                 openedArray[id] = 0;
                 slideTreeBox(box, false);
             } else {
                 // expand
-                signImg.src = <?= js_literal($_style['tree_minusnode']) ?>;
+                signImg.src = <?= js_literal(style('tree_minusnode')) ?>;
 
                 rpcNodeText = box.innerHTML;
                 openedArray[id] = 1;
@@ -320,7 +320,7 @@ if (!sessionv('tree_sortdir')) {
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = <?= js_literal($_style['empty_recycle_bin']) ?>;
+                a.innerHTML = <?= js_literal(style('empty_recycle_bin')) ?>;
                 a.className = 'treeButton';
                 a.onclick = emptyTrash;
             }
@@ -332,7 +332,7 @@ if (!sessionv('tree_sortdir')) {
             if (a) {
                 if (!a.setAttribute) a.title = title;
                 else a.setAttribute('title', title);
-                a.innerHTML = <?= js_literal($_style['empty_recycle_bin_empty']) ?>;
+                a.innerHTML = <?= js_literal(style('empty_recycle_bin_empty')) ?>;
                 a.className = 'treeButtonDisabled';
                 a.onclick = '';
             }
@@ -365,29 +365,29 @@ if (is_array($evtOut)) {
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
                             <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
-                                    title="<?= $_lang['expand_tree'] ?>"><?= $_style['expand_tree'] ?></a>
+                                    title="<?= $_lang['expand_tree'] ?>"><?= style('expand_tree') ?></a>
                             </td>
                             <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
-                                    title="<?= $_lang['collapse_tree'] ?>"><?= $_style['collapse_tree'] ?></a>
+                                    title="<?= $_lang['collapse_tree'] ?>"><?= style('collapse_tree') ?></a>
                             </td>
                             <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
                                 <td><a href="#" class="treeButton" id="treeNewResource"
                                         onclick="EvoShell.navigate('index.php?a=4');return false;"
-                                        title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
+                                        title="<?= $_lang['add_resource'] ?>"><?= style('add_doc_tree') ?></a>
                                 </td>
                                 <td><a href="#" class="treeButton" id="treeNewWeblink"
                                         onclick="EvoShell.navigate('index.php?a=72');return false;"
-                                        title="<?= $_lang['add_weblink'] ?>"><?= $_style['add_weblink_tree'] ?></a>
+                                        title="<?= $_lang['add_weblink'] ?>"><?= style('add_weblink_tree') ?></a>
                                 </td>
                             <?php } ?>
                             <td><a href="#" class="treeButton" id="treeRefresh" onclick="top.mainMenu.reloadtree();"
-                                    title="<?= $_lang['refresh_tree'] ?>"><?= $_style['refresh_tree'] ?></a>
+                                    title="<?= $_lang['refresh_tree'] ?>"><?= style('refresh_tree') ?></a>
                             </td>
                             <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
-                                    title="<?= $_lang['sort_tree'] ?>"><?= $_style['sort_tree'] ?></a></td>
+                                    title="<?= $_lang['sort_tree'] ?>"><?= style('sort_tree') ?></a></td>
                             <?php if (evo()->hasPermission('empty_trash')) { ?>
                                 <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
-                                        title="<?= $_lang['empty_recycle_bin_empty'] ?>"><?= $_style['empty_recycle_bin_empty'] ?></a>
+                                        title="<?= $_lang['empty_recycle_bin_empty'] ?>"><?= style('empty_recycle_bin_empty') ?></a>
                                 </td>
                             <?php } ?>
                         </tr>
@@ -397,7 +397,7 @@ if (is_array($evtOut)) {
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
                             <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
-                                    title="<?= $_lang['hide_tree'] ?>"><?= $_style['hide_tree'] ?></a></td>
+                                    title="<?= $_lang['hide_tree'] ?>"><?= style('hide_tree') ?></a></td>
                         </tr>
                     </table>
                 </td>
@@ -481,7 +481,7 @@ if (is_array($evtOut)) {
             echo implode("\n", $evtOut);
         }
         ?>
-        <div><?= $_style['tree_showtree'] ?>&nbsp;<span class="rootNode"
+        <div><?= style('tree_showtree') ?>&nbsp;<span class="rootNode"
                                                                 onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span>
             <div id="treeRoot"></div>
         </div>
@@ -685,74 +685,74 @@ EOT;
 
 function itemEditDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('edit_document')) {
         return '';
     }
     $ph['action'] = '27';
-    $ph['img'] = $_style['icons_edit_document'];
+    $ph['img'] = style('icons_edit_document');
     $ph['text'] = $_lang['edit_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemCreateDraft()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!config('enable_draft')) {
         return '';
     }
 
     $ph['action'] = 'createDraft';
-    $ph['img'] = $_style['icons_new_document'];
+    $ph['img'] = style('icons_new_document');
     $ph['text'] = $_lang["create_draft"];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemEditDraft()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!config('enable_draft')) {
         return '';
     }
 
     $ph['action'] = 'editDraft';
-    $ph['img'] = $_style['icons_edit_document'];
+    $ph['img'] = style('icons_edit_document');
     $ph['text'] = $_lang["edit_draft"];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemDocList()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('view_document')) {
         return '';
     }
     $ph['action'] = '120';
-    $ph['img'] = $_style['icons_table'];
+    $ph['img'] = style('icons_table');
     $ph['text'] = $_lang['view_child_resources_in_container'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemNewDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('new_document')) {
         return '';
     }
     $ph['action'] = '4';
-    $ph['img'] = $_style['icons_new_document'];
+    $ph['img'] = style('icons_new_document');
     $ph['text'] = $_lang['create_resource_here'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemMoveDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('move_document')) {
         return '';
@@ -761,20 +761,20 @@ function itemMoveDoc()
         return '';
     }
     $ph['action'] = '51';
-    $ph['img'] = $_style['icons_move_document'];
+    $ph['img'] = style('icons_move_document');
     $ph['text'] = $_lang['move_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemDuplicateDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
         return '';
     }
     $ph['action'] = '94';
-    $ph['img'] = $_style['icons_resource_duplicate'];
+    $ph['img'] = style('icons_resource_duplicate');
     $ph['text'] = $_lang['resource_duplicate'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
@@ -790,65 +790,65 @@ function itemSeperator1()
 
 function itemPubDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('publish_document')) {
         return '';
     }
     $ph['action'] = '61';
-    $ph['img'] = $_style['icons_publish_document'];
+    $ph['img'] = style('icons_publish_document');
     $ph['text'] = $_lang['publish_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemUnPubDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('publish_document')) {
         return '';
     }
     $ph['action'] = '62';
-    $ph['img'] = $_style['icons_unpublish_resource'];
+    $ph['img'] = style('icons_unpublish_resource');
     $ph['text'] = $_lang['unpublish_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemDelDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('delete_document')) {
         return '';
     }
     $ph['action'] = '6';
-    $ph['img'] = $_style['icons_delete'];
+    $ph['img'] = style('icons_delete');
     $ph['text'] = $_lang['delete_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemUndelDoc()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('delete_document')) {
         return '';
     }
     $ph['action'] = '63';
-    $ph['img'] = $_style['icons_undelete_resource'];
+    $ph['img'] = style('icons_undelete_resource');
     $ph['text'] = $_lang['undelete_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemDelDocComplete()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('empty_trash')) {
         return '';
     }
     $ph['action'] = '64';
-    $ph['img'] = $_style['icons_delete_complete'];
+    $ph['img'] = style('icons_delete_complete');
     $ph['text'] = $_lang['delete_resource_complete'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
@@ -864,13 +864,13 @@ function itemSeperator2()
 
 function itemWebLink()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('new_document')) {
         return '';
     }
     $ph['action'] = '72';
-    $ph['img'] = $_style['icons_weblink'];
+    $ph['img'] = style('icons_weblink');
     $ph['text'] = $_lang['create_weblink_here'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
@@ -886,23 +886,23 @@ function itemSeperator3()
 
 function itemDocInfo()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     if (!evo()->hasPermission('view_document')) {
         return '';
     }
     $ph['action'] = '3';
-    $ph['img'] = $_style['icons_information'];
+    $ph['img'] = style('icons_information');
     $ph['text'] = $_lang['resource_overview'];
     return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function itemViewPage()
 {
-    global $_style, $_lang;
+    global $_lang;
 
     $ph['action'] = 'pv';
-    $ph['img'] = $_style['icons_information'];
+    $ph['img'] = style('icons_information');
     $ph['text'] = $_lang['preview_resource'];
     return evo()->parseText(tplMenuItem(), $ph);
 }

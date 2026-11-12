@@ -300,7 +300,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                                 } elseif (!empty($userdata['photo'])) {
                                     $photo = $userdata['photo'];
                                 } else {
-                                    $photo = config('base_url') . 'manager/' . $_style['tx'];
+                                    $photo = config('base_url') . 'manager/' . style('tx');
                                 }
 
                                 if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {

@@ -214,11 +214,11 @@ switch ($type) {
                                                 <td class="actionButtons"><a href="#"
                                                                              title="<?= $_lang["reset"] ?>"
                                                                              onclick="resetSearch();return false;"><img
-                                                            src="<?= $_style['icons_refresh'] ?>" /></a></td>
+                                                            src="<?= style('icons_refresh') ?>" /></a></td>
                                                 <td class="actionButtons"><a href="#"
                                                                              title="<?= $_lang["list_mode"] ?>"
                                                                              onclick="changeListMode();return false;"><img
-                                                            src="<?= $_style['icons_table'] ?>" /></a></td>
+                                                            src="<?= style('icons_table') ?>" /></a></td>
                                             </tr>
                                         </table>
                                     </td>

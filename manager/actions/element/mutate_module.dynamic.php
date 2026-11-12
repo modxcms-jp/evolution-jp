@@ -200,7 +200,7 @@ function content($key, $default = null)
     <!-- end #actions -->
 
     <div class="sectionBody">
-        <p><img class="icon" src="<?= $_style['icons_modules'] ?>" alt="."
+        <p><img class="icon" src="<?= style('icons_modules') ?>" alt="."
                 style="vertical-align:middle;text-align:left;" /> <?= $_lang['module_msg'] ?></p>
 
         <div class="tab-pane" id="modulePane">
