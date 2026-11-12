@@ -3,19 +3,18 @@
 /**
  * 管理モード（メニューの「ファイル管理」の範囲）。ルートは設定 filemanager_path（既定はサイトのルート）で、拡張子を問わず扱う。
  * 権限はロールの権限 file_manager だけで決める（設定 use_browser やウェブユーザーのセッションは見ない）。
- * 新しい名前のファイルを作る操作だけは、本体で決めた拡張子(BrowserConfig::MANAGE_CREATABLE_EXTENSIONS)と、
- * upload_files・upload_images・upload_media を合わせた許可リストで確かめる。
+ * 新しい名前のファイルを作る操作も、拡張子では制限しない（file_manager の権限を持つ人は既にある .php なども編集できるので、
+ * 拡張子で止めても守りは変わらない）。upload_files・upload_images・upload_media はファイルピッカーだけの設定。
+ * 守る場所(guard())と名前の無害化(sanitizeFilename())は、ほかの操作と同じく効く。
  */
 class ManageScope implements BrowserScope
 {
     private $modx;
-    private $config;
     private $guard;
 
-    private function __construct(DocumentParser $modx, BrowserConfig $config)
+    private function __construct(DocumentParser $modx)
     {
         $this->modx = $modx;
-        $this->config = $config;
     }
 
     /**
@@ -24,7 +23,7 @@ class ManageScope implements BrowserScope
      *
      * @return ManageScope|array よければインスタンス、だめなら ['code', 'lang', 'status']
      */
-    public static function authorize(DocumentParser $modx, BrowserConfig $config)
+    public static function authorize(DocumentParser $modx)
     {
         if (!sessionv('mgrValidated') || sessionv('usertype') !== 'manager') {
             return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
@@ -34,7 +33,7 @@ class ManageScope implements BrowserScope
             return ['code' => 'forbidden', 'lang' => 'fb_err_manage_forbidden', 'status' => 403];
         }
 
-        return new self($modx, $config);
+        return new self($modx);
     }
 
     /** ファイル管理のルート(設定 filemanager_path。空ならサイトのルート)。ルートの決め方はここだけに置く */
@@ -67,19 +66,16 @@ class ManageScope implements BrowserScope
         return true;
     }
 
+    /** 拡張子では制限しない（クラスのコメントを参照） */
     public function isAllowedNewName($name)
     {
-        return $this->config->isAllowedNewExtension($name);
+        return true;
     }
 
-    /** 拡張子が変わらないなら許し（.php のファイルの名前を変えられるように）、変わるときは新しい名前の許可リストで確かめる */
+    /** 拡張子では制限しない（クラスのコメントを参照） */
     public function isAllowedRename($oldName, $newName)
     {
-        if (BrowserConfig::extensionOf($oldName) === BrowserConfig::extensionOf($newName)) {
-            return true;
-        }
-
-        return $this->isAllowedNewName($newName);
+        return true;
     }
 
     /**

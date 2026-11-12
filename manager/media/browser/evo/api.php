@@ -100,7 +100,7 @@ function fbNotFoundMessage($name, $message)
 $config = new BrowserConfig($modx);
 
 // scope=manage は file_manager の権限が無ければ 403 で、ピッカーへは戻さない
-$scope = anyv('scope') === 'manage' ? ManageScope::authorize($modx, $config) : PickerScope::authorize($modx, $config);
+$scope = anyv('scope') === 'manage' ? ManageScope::authorize($modx) : PickerScope::authorize($modx, $config);
 if (is_array($scope)) {
     fbError($scope['code'], lang($scope['lang']), $scope['status']);
 }
