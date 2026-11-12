@@ -457,11 +457,14 @@ if ($errors == 0) {
     log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
-// フレンドリー URL は標準。.htaccess が無いときだけ sample.htaccess から置く（既にある .htaccess は書き換えない）
+// フレンドリー URL は標準。.htaccess が無いときだけ sample.htaccess から置く（既にある .htaccess は書き換えない）。
+// 置けなかったときは、リンクが 404 になるので結果の画面で知らせる
+$htaccessNotice = false;
 if ($errors == 0) {
     require_once MODX_CORE_PATH . 'htaccess.class.inc.php';
     $htaccessResult = EvoHtaccess::ensure(MODX_BASE_PATH, MODX_BASE_URL, false, serverv('SERVER_SOFTWARE', ''));
     log_install_event('Checked .htaccess', ['result' => $htaccessResult]);
+    $htaccessNotice = !in_array($htaccessResult, [EvoHtaccess::PLACED, EvoHtaccess::EXISTS, EvoHtaccess::SKIPPED], true);
 }
 
 clean_up($sqlParser->prefix);
@@ -513,6 +516,9 @@ if ($errors > 0) {
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
+if ($htaccessNotice) {
+    printf('<p><span class="notok"><b>%s</b></span></p>', lang('htaccess_not_placed'));
+}
 // ログインを保つか（$keep_login）は install.php が処理の前に決め、セッションの後始末も install.php が行う
 echo "<p>" . lang($keep_login ? 'to_log_into_content_manager_keep_login' : 'to_log_into_content_manager') . "</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
