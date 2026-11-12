@@ -347,7 +347,7 @@ function entity($key, $default = null)
                     'onclick' => 'duplicaterecord();',
                     'label' => $_lang['duplicate']
                 ];
-                if (evo()->hasPermission('new_template')) {
+                if (manager()->can('tmplvar.duplicate')) {
                     echo manager()->ab($params);
                 }
                 $params = [
