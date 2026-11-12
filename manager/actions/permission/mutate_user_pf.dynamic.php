@@ -143,15 +143,15 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
     <input type="hidden" name="blockedmode"
         value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />
 
-    <h1><?= $_lang['profile'] ?></h1>
+    <h1><?= lang('profile') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button1" class="mutate">
                 <a href="#" onclick="documentDirty=false; document.userform.save.click();">
-                    <?= $_lang['update'] ?>
+                    <?= lang('update') ?>
                 </a>
             </li>
-            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['cancel'] ?></a></li>
+            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= lang('cancel') ?></a></li>
         </ul>
     </div>
     <!-- Tab Start -->
@@ -160,10 +160,10 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
         <div class="tab-pane" id="userPane">
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">
-                <h2 class="tab"><?= $_lang["profile"] ?></h2>
+                <h2 class="tab"><?= lang("profile") ?></h2>
                 <table class="settings">
                     <tr>
-                        <th valign="top"><?= $_lang['change_password_new'] . ":" ?></th>
+                        <th valign="top"><?= lang('change_password_new') . ":" ?></th>
                         <td><label><input name="newpasswordcheck" type="checkbox"
                                     onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"><input
                                     type="hidden" name="newpassword"
@@ -171,19 +171,19 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                             <span style="display:none"
                                 id="passwordBlock">
                                 <fieldset style="width:300px">
-                                    <legend><b><?= $_lang['password_gen_method'] ?></b></legend>
+                                    <legend><b><?= lang('password_gen_method') ?></b></legend>
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= $_lang['password_gen_gen'] ?></label><br />
+                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= lang('password_gen_gen') ?></label><br />
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br />
+                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= lang('password_gen_specify') ?></label><br />
                                     <div style="padding-left:20px">
-                                        <label for="specifiedpassword" style="width:120px"><?= $_lang['change_password_new'] ?>:</label>
+                                        <label for="specifiedpassword" style="width:120px"><?= lang('change_password_new') ?>:</label>
                                         <input type="password" id="specifiedpassword" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
-                                        <label for="confirmpassword" style="width:120px"><?= $_lang['change_password_confirm'] ?>:</label>
+                                        <label for="confirmpassword" style="width:120px"><?= lang('change_password_confirm') ?>:</label>
                                         <input type="password" id="confirmpassword" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
-                                        <small><span class="warning" style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span></small>
+                                        <small><span class="warning" style="font-weight:normal"><?= lang('password_gen_length') ?></span></small>
                                     </div>
                                 </fieldset>
                                 <input type="hidden" name="passwordnotifymethod" value="s" />
@@ -191,7 +191,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_email'] ?>:</th>
+                        <th><?= lang('user_email') ?>:</th>
                         <td>
                             <input type="text" name="email" class="inputBox" autocomplete="email"
                                 value="<?= hsc(userData('email')) ?>" />
@@ -200,49 +200,49 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_full_name'] ?>:</th>
+                        <th><?= lang('user_full_name') ?>:</th>
                         <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
                                 value="<?= hsc(userData('fullname')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_phone'] ?>:</th>
+                        <th><?= lang('user_phone') ?>:</th>
                         <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('phone')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_mobile'] ?>:</th>
+                        <th><?= lang('user_mobile') ?>:</th>
                         <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('mobilephone')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_fax'] ?>:</th>
+                        <th><?= lang('user_fax') ?>:</th>
                         <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(userData('fax')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_street'] ?>:</th>
+                        <th><?= lang('user_street') ?>:</th>
                         <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
                                 value="<?= hsc(userData('street')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_city'] ?>:</th>
+                        <th><?= lang('user_city') ?>:</th>
                         <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
                                 value="<?= hsc(userData('city')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_state'] ?>:</th>
+                        <th><?= lang('user_state') ?>:</th>
                         <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
                                 value="<?= hsc(userData('state')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_zip'] ?>:</th>
+                        <th><?= lang('user_zip') ?>:</th>
                         <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
                                 value="<?= hsc(userData('zip')) ?>" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_country'] ?>:</th>
+                        <th><?= lang('user_country') ?>:</th>
                         <td>
                             <select size="1" name="country" class="inputBox" autocomplete="country-name">
                                 <?php $chosenCountry = post_strvar('country', $userdata['country']); ?>
@@ -256,7 +256,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_dob'] ?>:</th>
+                        <th><?= lang('user_dob') ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
                                 value="<?= manager()->dateInputValue(userData('dob'), 'dateOnly') ?>" onblur="documentDirty=true;">
@@ -264,35 +264,35 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                     src="<?= $icons_path ?>cal_nodate.gif"
                                     border="0"
-                                    alt="<?= $_lang['remove_date'] ?>"></a>
+                                    alt="<?= lang('remove_date') ?>"></a>
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_gender'] ?>:</th>
+                        <th><?= lang('user_gender') ?>:</th>
                         <td><select name="gender" class="inputBox">
                                 <option value=""></option>
                                 <option
-                                    value="1" <?= selected(userData('gender') == 1) ?>><?= $_lang['user_male'] ?></option>
+                                    value="1" <?= selected(userData('gender') == 1) ?>><?= lang('user_male') ?></option>
                                 <option
-                                    value="2" <?= selected(userData('gender') == 2) ?>><?= $_lang['user_female'] ?></option>
+                                    value="2" <?= selected(userData('gender') == 2) ?>><?= lang('user_female') ?></option>
                                 <option
-                                    value="3" <?= selected(userData('gender') == 3) ?>><?= $_lang['user_other'] ?></option>
+                                    value="3" <?= selected(userData('gender') == 3) ?>><?= lang('user_other') ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr>
-                        <th valign="top"><?= $_lang['comment'] ?>:</th>
+                        <th valign="top"><?= lang('comment') ?>:</th>
                         <td>
                             <textarea type="text" name="comment" class="inputBox"
                                 rows="5"><?= hsc(userData('comment')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang["user_photo"] ?></th>
+                        <th><?= lang("user_photo") ?></th>
                         <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
                                 value="<?= hsc(userData('photo')) ?>" />
-                            <input type="button" value="<?= $_lang['insert'] ?>" onclick="BrowseServer();" />
-                            <div><?= $_lang["user_photo_message"] ?></div>
+                            <input type="button" value="<?= lang('insert') ?>" onclick="BrowseServer();" />
+                            <div><?= lang("user_photo_message") ?></div>
                             <div>
                                 <?php
                                 if (post_strvar('photo')) {

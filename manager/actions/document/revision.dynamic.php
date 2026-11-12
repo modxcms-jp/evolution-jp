@@ -14,7 +14,7 @@ if (!$id) {
 }
 
 $ph['id'] = $id;
-$ph['lang_cancel'] = $_lang['cancel'];
+$ph['lang_cancel'] = lang('cancel');
 
 switch (get_choicevar('mode', ['deleted', 'nodeleted', 'publish_draft'], '')) {
     case 'deleted':

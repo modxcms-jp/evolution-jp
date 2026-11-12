@@ -36,11 +36,11 @@ class ManagerAPI
     // check for saved form
     public function hasFormValues()
     {
-        if (isset($_SESSION['mgrFormValues'][$this->action])) {
+        if (sessionv('mgrFormValues.' . $this->action) !== null) {
             return true;
         }
 
-        if (isset($_SESSION['mgrFormValues'])) {
+        if (sessionv('mgrFormValues') !== null) {
             unset($_SESSION['mgrFormValues']);
         }
 
@@ -78,9 +78,8 @@ class ManagerAPI
         if ($name !== '') {
             return $name;
         }
-        global $_lang;
         $this->redirectToElementForm(
-            sprintf($_lang['element_name_required'], $typeLabel),
+            sprintf(lang('element_name_required'), $typeLabel),
             $kind,
             $id
         );
@@ -408,7 +407,7 @@ class ManagerAPI
             if (sessionv('current_request_uri')) {
                 $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
             }
-            $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
+            $_SESSION['current_request_uri'] = serverv('REQUEST_URI');
         }
     }
 
@@ -606,8 +605,6 @@ class ManagerAPI
 
     public function sysAlert($sysAlertMsgQueque = '')
     {
-        global $_lang;
-
         if (!$sysAlertMsgQueque) {
             $sysAlertMsgQueque = evo()->SystemAlertMsgQueque;
             if (!$sysAlertMsgQueque) {
@@ -634,7 +631,7 @@ class ManagerAPI
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
             [
                 '[+alerts+]' => js_literal(implode('<hr />', $alerts)),
-                '[+title+]' => js_literal($_lang['sys_alert'])
+                '[+title+]' => js_literal(lang('sys_alert'))
             ]
         );
     }

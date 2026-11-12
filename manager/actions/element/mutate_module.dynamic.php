@@ -32,7 +32,7 @@ if ($total > 1) {
     for ($i = 0; $i < $total; $i++) {
         $lock = db()->getRow($rs);
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
+            $msg = sprintf(lang('lock_msg'), $lock['username'], 'module');
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -132,7 +132,7 @@ function content($key, $default = null)
             cellpadding: '2',
             cellspacing: '1'
         },
-        head: [<?= js_literal($_lang['parameter']) ?>, <?= js_literal($_lang['value']) ?>],
+        head: [<?= js_literal(lang('parameter')) ?>, <?= js_literal(lang('value')) ?>],
         stacked: false,
         cellStyle: 'background-color:#FFFFFF'
     });
@@ -161,7 +161,7 @@ function content($key, $default = null)
     <input type="hidden" name="id" value="<?= (int) content('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('module')) ?>">
 
-    <h1><?= $_lang['module_title'] ?></h1>
+    <h1><?= lang('module_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -169,7 +169,7 @@ function content($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();">
-                        <?= $_lang['update'] ?>
+                        <?= lang('update') ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="after_save">
@@ -183,7 +183,7 @@ function content($key, $default = null)
                     echo manager()->ab(
                         [
                             'onclick' => 'deletedocument();',
-                            'label' => $_lang['delete']
+                            'label' => lang('delete')
                         ]
                     );
                 }
@@ -191,7 +191,7 @@ function content($key, $default = null)
             echo manager()->ab(
                 [
                     'onclick' => "EvoShell.go('index.php?a=106');",
-                    'label' => $_lang['cancel']
+                    'label' => lang('cancel')
                 ]
             );
             ?>
@@ -201,15 +201,15 @@ function content($key, $default = null)
 
     <div class="sectionBody">
         <p><img class="icon" src="<?= style('icons_modules') ?>" alt="."
-                style="vertical-align:middle;text-align:left;" /> <?= $_lang['module_msg'] ?></p>
+                style="vertical-align:middle;text-align:left;" /> <?= lang('module_msg') ?></p>
 
         <div class="tab-pane" id="modulePane">
             <!-- General -->
             <div class="tab-page" id="tabModule">
-                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
                     <tr>
-                        <td align="left"><?= $_lang['module_name'] ?>:</td>
+                        <td align="left"><?= lang('module_name') ?>:</td>
                         <td align="left"><input name="name" type="text" maxlength="100"
                                 value="<?= hsc(content('name')) ?>" class="inputBox">
                         </td>
@@ -219,7 +219,7 @@ function content($key, $default = null)
                                 type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
                                 value="on" class="inputBox" />
                             <span class="clickable-label"
-                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
+                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . lang('module_disabled') . '</span>' : lang('module_disabled') ?></span>
                         </td>
                     </tr>
                 </table>
@@ -227,8 +227,8 @@ function content($key, $default = null)
                 <!-- PHP text editor start -->
                 <div class="code-editor" style="position:relative">
                     <div class="code-editor-header">
-                        <span class="code-editor-title"><?= $_lang['module_code'] ?></span>
-                        <span class="code-editor-options"><?= $_lang['wrap_lines'] ?><input name="wrap"
+                        <span class="code-editor-title"><?= lang('module_code') ?></span>
+                        <span class="code-editor-options"><?= lang('wrap_lines') ?><input name="wrap"
                                 type="checkbox" <?= content('wrap') == 1 ? ' checked="checked"' : '' ?> class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
@@ -241,10 +241,10 @@ function content($key, $default = null)
 
             <!-- Configuration -->
             <div class="tab-page" id="tabConfig">
-                <h2 class="tab"><?= $_lang['settings_config'] ?></h2>
+                <h2 class="tab"><?= lang('settings_config') ?></h2>
                 <table>
                     <tr>
-                        <td align="left"><?= $_lang['existing_category'] ?>:</td>
+                        <td align="left"><?= lang('existing_category') ?>:</td>
                         <td align="left">
                             <select name="categoryid">
                                 <?= manager()->elementCategoryOptions(content('category')) ?>
@@ -252,7 +252,7 @@ function content($key, $default = null)
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <td align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?>
+                        <td align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?>
                             :
                         </td>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
@@ -260,25 +260,25 @@ function content($key, $default = null)
                                 class="inputBox"></td>
                     </tr>
                     <tr>
-                        <td align="left"><?= $_lang['module_desc'] ?>:</td>
+                        <td align="left"><?= lang('module_desc') ?>:</td>
                         <td align="left"><textarea name="description"
                                 style="padding:0;width:300px;height:4em;"><?= hsc(content('description')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <td align="left"><?= $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
+                        <td align="left"><?= lang('icon') ?> <span class="comment">(32x32)</span>:</td>
                         <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon"
                                 value="<?= hsc(content('icon')) ?>" /> <input type="button"
-                                value="<?= $_lang['insert'] ?>"
+                                value="<?= lang('insert') ?>"
                                 onclick="BrowseServer();" />
                         </td>
                     </tr>
                     <tr style="display:none;">
-                        <td align="left"><input name="enable_resource" title="<?= $_lang['enable_resource'] ?>"
+                        <td align="left"><input name="enable_resource" title="<?= lang('enable_resource') ?>"
                                 type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
                                 class="inputBox" /> <span style="cursor:pointer"
                                 onclick="document.mutate.enable_resource.click();"
-                                title="<?= $_lang['enable_resource'] ?>"><?= $_lang["element"] ?></span>:
+                                title="<?= lang('enable_resource') ?>"><?= lang("element") ?></span>:
                         </td>
                         <td align="left"><input name="resourcefile" type="text" maxlength="255"
                                 value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
@@ -290,21 +290,21 @@ function content($key, $default = null)
                                     type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
                                     class="inputBox" />
                                 <span style="cursor:pointer"
-                                    onclick="document.mutate.locked.click();"><?= $_lang['lock_module'] ?></span>
-                                <span class="comment"><?= $_lang['lock_module_msg'] ?></span>
+                                    onclick="document.mutate.locked.click();"><?= lang('lock_module') ?></span>
+                                <span class="comment"><?= lang('lock_module_msg') ?></span>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <td align="left" valign="top"><?= $_lang['module_config'] ?>:</td>
+                        <td align="left" valign="top"><?= lang('module_config') ?>:</td>
                         <td align="left" valign="top"><textarea
                                 name="properties"
                                 style="display:block;"
                                 maxlength="65535"
                                 class="inputBox phptextarea"
                                 onchange="showParameters(this);"><?= hsc(content('properties')) ?></textarea>
-                            <input type="button" value="<?= $_lang['update_params'] ?>"
-                                style="width:16px; margin-left:2px;" title="<?= $_lang['update_params'] ?>" />
+                            <input type="button" value="<?= lang('update_params') ?>"
+                                style="width:16px; margin-left:2px;" title="<?= lang('update_params') ?>" />
                         </td>
                     </tr>
                     <tr id="displayparamrow">
@@ -319,7 +319,7 @@ function content($key, $default = null)
             <?php } elseif (request_intvar('a') === 108) { ?>
                 <!-- Dependencies -->
                 <div class="tab-page" id="tabDepend">
-                    <h2 class="tab"><?= $_lang['settings_dependencies'] ?></h2>
+                    <h2 class="tab"><?= lang('settings_dependencies') ?></h2>
                     <div class="sectionBody">
                         <?php
                         $display = (content('enable_sharedparams') != 1) ? 'style="display:none;"' : '';
@@ -334,12 +334,12 @@ function content($key, $default = null)
                                         class="inputBox" />
                                     <span style="cursor:pointer"
                                         onclick="document.mutate.enable_sharedparams.click();">
-                                        <?= $_lang['enable_sharedparams'] ?>:
+                                        <?= lang('enable_sharedparams') ?>:
                                     </span>
                                 </td>
                             </tr>
                             <tr class="sharedparams" <?= $display ?>>
-                                <td align="left" valign="top"><?= $_lang['guid'] ?>:</td>
+                                <td align="left" valign="top"><?= lang('guid') ?>:</td>
                                 <td align="left" valign="top">
                                     <input
                                         name="guid" type="text" maxlength="32"
@@ -347,16 +347,16 @@ function content($key, $default = null)
                                                 hsc(content('guid') ?: createGUID())
                                                 ?>"
                                         class="inputBox" /><br />
-                                    <span class="comment"><?= $_lang['enable_sharedparams_msg'] ?></span><br />
+                                    <span class="comment"><?= lang('enable_sharedparams_msg') ?></span><br />
                                 </td>
                             </tr>
                         </table>
                     </div>
                     <div class="sectionBody sharedparams" <?= $display ?>>
-                        <p><?= $_lang['module_viewdepend_msg'] ?></p>
+                        <p><?= lang('module_viewdepend_msg') ?></p>
                         <p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
                             <a href="#" onclick="loadDependencies();return false;">
-                                <?= $_lang['manage_depends'] ?>
+                                <?= lang('manage_depends') ?>
                             </a>
                         </p>
                         <?php
@@ -383,14 +383,14 @@ function content($key, $default = null)
                             include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                             $table = new DataTable(
                                 [
-                                    ['key' => 'name', 'label' => $_lang['element_name']],
-                                    ['key' => 'type', 'label' => $_lang['type']],
+                                    ['key' => 'name', 'label' => lang('element_name')],
+                                    ['key' => 'type', 'label' => lang('type')],
                                 ],
                                 [
                                     'id' => 'module-depends',
                                     'tableClass' => 'grid',
                                     'rowClasses' => ['gridItem', 'gridAltItem'],
-                                    'emptyMessage' => $_lang['no_records_found'],
+                                    'emptyMessage' => lang('no_records_found'),
                                 ]
                             );
                             echo $table->render(db()->getRows($ds) ?: []);
@@ -403,7 +403,7 @@ function content($key, $default = null)
             ?>
                 <!-- Access permissions -->
                 <div class="tab-page" id="tabAccess">
-                    <h2 class="tab"><?= $_lang['group_access_permissions'] ?></h2>
+                    <h2 class="tab"><?= lang('group_access_permissions') ?></h2>
                     <?php
                     // fetch user access permissions for the module
                     $groupsarray = [];
@@ -445,7 +445,7 @@ function content($key, $default = null)
                                 }
                             }
                         </script>
-                        <p><?= $_lang['module_group_access_msg'] ?></p>
+                        <p><?= lang('module_group_access_msg') ?></p>
                     <?php
                     $chks = '';
                     $notPublic = false;
@@ -459,7 +459,7 @@ function content($key, $default = null)
                         }
                         $chks .= '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . hsc($row['name']) . "</label><br />\n";
                     }
-                    $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="mutate-field-title">' . $_lang['all_usr_groups'] . '</span></label><br />' . "\n" . $chks;
+                    $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="mutate-field-title">' . lang('all_usr_groups') . '</span></label><br />' . "\n" . $chks;
                     echo $chks;
                     ?>
                 </div>

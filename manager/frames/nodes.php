@@ -80,7 +80,7 @@ echo $output;
 function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
 {
     global $modx;
-    global $modx_textdir, $_lang, $opened, $opened2;
+    global $modx_textdir, $opened, $opened2;
 
     if ($parent == '') {
         $parent = 0;
@@ -166,7 +166,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     if ($hasChild == 0 && $container_status === 'asis') {
         $tpl = tplEmptyFolder();
-        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => style('tree_deletedpage'), 'msg' => $_lang['empty_folder']];
+        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => style('tree_deletedpage'), 'msg' => lang('empty_folder')];
         $output .= $modx->parseText($tpl, $param);
     }
 
@@ -219,7 +219,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
             );
         $ph['pageIdDisplay'] = '';
         $ph['draftDisplay'] = $draftDisplay;
-        $ph['_lang_click_to_context'] = $_lang['click_to_context'];
+        $ph['_lang_click_to_context'] = lang('click_to_context');
         $ph['pad'] = $pad;
         $ph['pid'] = "'p{$id}'";
 
@@ -586,23 +586,21 @@ function getClassName($published, $deleted, $hidemenu, $hasAccess)
 
 function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
 {
-    global $modx, $_lang;
+    global $modx;
 
     $_ = [];
     $_[] = "[{$id}] ";
-    $_[] = $_lang['alias'] . ': ' . (!empty($alias) ? $alias : '-');
-    $_[] = "{$_lang['resource_opt_menu_index']}: {$menuindex}";
-    $_[] = "{$_lang['resource_opt_show_menu']}: " . ($hidemenu == 1 ? $_lang['no'] : $_lang['yes']);
-    $_[] = "{$_lang['page_data_web_access']}: " . ($privateweb ? $_lang['private'] : $_lang['public']);
-    $_[] = "{$_lang['page_data_mgr_access']}: " . ($privatemgr ? $_lang['private'] : $_lang['public']);
+    $_[] = lang('alias') . ': ' . (!empty($alias) ? $alias : '-');
+    $_[] = lang('resource_opt_menu_index') . ': ' . $menuindex;
+    $_[] = lang('resource_opt_show_menu') . ': ' . ($hidemenu == 1 ? lang('no') : lang('yes'));
+    $_[] = lang('page_data_web_access') . ': ' . ($privateweb ? lang('private') : lang('public'));
+    $_[] = lang('page_data_mgr_access') . ': ' . ($privatemgr ? lang('private') : lang('public'));
     $alt = implode("\n", $_);
     return hsc($alt);
 }
 
 function moreNode($indent, $parent, $offset, $remaining)
 {
-    global $_lang;
-
     if ($remaining <= 0) {
         return '';
     }
@@ -614,7 +612,7 @@ function moreNode($indent, $parent, $offset, $remaining)
             'indent' => (int)$indent,
             'parent' => (int)$parent,
             'offset' => (int)$offset,
-            'msg' => str_replace('[+count+]', (int)$remaining, $_lang['tree_show_more'])
+            'msg' => str_replace('[+count+]', (int)$remaining, lang('tree_show_more'))
         ]
     );
 }

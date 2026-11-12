@@ -97,7 +97,7 @@ trait DocumentParserSubParserTrait
             && preg_match('@<(?:html|body|p|br|div|table|a\s[^>]*href)\b[^>]*>@i', $p['body']) === 1;
     }
 
-    function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
+    function rotate_log($target, $limit = 2000, $trim = 100)
     {
         if ($limit < $trim) {
             $trim = $limit;
@@ -890,7 +890,7 @@ trait DocumentParserSubParserTrait
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
-        if ($_SESSION['webValidated'] != 1) {
+        if (sessionv('webValidated') != 1) {
             return false;
         }
 
@@ -1147,7 +1147,7 @@ trait DocumentParserSubParserTrait
 
         // get document groups for current user
         if (evo()->session('mgrDocgroups')) {
-            foreach ($_SESSION['mgrDocgroups'] as $v) {
+            foreach (sessionv('mgrDocgroups') as $v) {
                 $docgrp[] = "dg.document_group='{$v}'";
             }
             $docgrps = implode(' || ', $docgrp);
@@ -1813,6 +1813,7 @@ trait DocumentParserSubParserTrait
 
     private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
+        // $_lang は @INCLUDE・@EVAL で実行するコードが読むため global に残す
         global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
@@ -1856,8 +1857,8 @@ trait DocumentParserSubParserTrait
             }
             return sprintf(
                 '%s(%s:%s)',
-                $_lang['chunk_no_exist'],
-                $_lang['htmlsnippet_name'],
+                lang('chunk_no_exist'),
+                lang('htmlsnippet_name'),
                 $chunk_name
             );
         }
@@ -2016,7 +2017,7 @@ trait DocumentParserSubParserTrait
         }
 
         // check cache
-        $grpNames = isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
+        $grpNames = sessionv('webUserGroupNames', false);
         if (!is_array($grpNames)) {
             $uid = evo()->getLoginUserID();
             $from = '[+prefix+]webgroup_names wgn' .
@@ -2202,7 +2203,7 @@ trait DocumentParserSubParserTrait
                 $cond = sprintf(
                     "OR dg.document_group IN (%s) OR 1='%s'",
                     $docgrp,
-                    $_SESSION['mgrRole']
+                    sessionv('mgrRole')
                 );
             } else {
                 $cond = '';
@@ -2256,7 +2257,7 @@ trait DocumentParserSubParserTrait
             } else {
                 $where[] = 'AND sc.privateweb=0';
             }
-        } elseif ($_SESSION['mgrRole'] != 1) {
+        } elseif (sessionv('mgrRole') != 1) {
             if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
                     "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
@@ -2296,7 +2297,7 @@ trait DocumentParserSubParserTrait
         $access = '';
         if ($modx->isFrontend()) {
             $access = 'sc.privateweb=0';
-        } elseif ($_SESSION['mgrRole'] != 1) {
+        } elseif (sessionv('mgrRole') != 1) {
             $access = 'sc.privatemgr=0';
         }
         if ($docgrp = $modx->getUserDocGroups()) {

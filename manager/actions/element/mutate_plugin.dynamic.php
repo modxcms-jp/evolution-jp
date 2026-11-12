@@ -27,7 +27,7 @@ abort_if_invalid_id('id', request_intvar('a') === 102);
 $rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", get_intvar('id')));
 $row = db()->getRow($rs);
 if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
-    $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['plugin']);
+    $msg = sprintf(lang('lock_msg'), $row['username'], lang('plugin'));
     alert()->setError(5, $msg);
     alert()->dumpError();
 }
@@ -279,7 +279,7 @@ function entity($key, $default = null)
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('plugin')) ?>">
 
-    <h1><?= $_lang['plugin_title'] ?></h1>
+    <h1><?= lang('plugin_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -287,7 +287,7 @@ function entity($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();">
-                        <?= $_lang['update'] ?>
+                        <?= lang('update') ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="after_save">
@@ -299,14 +299,14 @@ function entity($key, $default = null)
             if (request_intvar('a') === 102) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
-                    'label' => $_lang['duplicate']
+                    'label' => lang('duplicate')
                 ];
                 if (evo()->hasPermission('new_plugin')) {
                     echo manager()->ab($params);
                 }
                 $params = [
                     'onclick' => 'deletedocument();',
-                    'label' => $_lang['delete']
+                    'label' => lang('delete')
                 ];
                 if (evo()->hasPermission('delete_plugin')) {
                     echo manager()->ab($params);
@@ -314,7 +314,7 @@ function entity($key, $default = null)
             }
             $params = [
                 'onclick' => "EvoShell.go('index.php?a=76');",
-                'label' => $_lang['cancel']
+                'label' => lang('cancel')
             ];
             echo manager()->ab($params);
             ?>
@@ -325,10 +325,10 @@ function entity($key, $default = null)
 
             <!-- General -->
             <div class="tab-page" id="tabPlugin">
-                <h2 class="tab"><?= $_lang["settings_general"] ?></h2>
+                <h2 class="tab"><?= lang("settings_general") ?></h2>
                 <table border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                        <th align="left"><?= $_lang['plugin_name'] ?></th>
+                        <th align="left"><?= lang('plugin_name') ?></th>
                         <td align="left"><input id="pluginName" name="name" type="text" maxlength="100"
                                 value="<?= hsc(entity('name')) ?>"
                                 class="inputBox" style="width:300px;"></td>
@@ -337,15 +337,15 @@ function entity($key, $default = null)
                         <td align="left" valign="top" colspan="2"><label><input name="disabled"
                                     type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
                                     value="on"
-                                    class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . $_lang['plugin_disabled'] . "</span></label>" : $_lang['plugin_disabled'] ?>
+                                    class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . lang('plugin_disabled') . "</span></label>" : lang('plugin_disabled') ?>
                         </td>
                     </tr>
                 </table>
                 <!-- PHP text editor start -->
                 <div class="code-editor" style="width:100%;position:relative">
                     <div class="code-editor-header">
-                        <span class="code-editor-title"><?= $_lang['plugin_code'] ?></span>
-                        <span class="code-editor-options"><?= $_lang['wrap_lines'] ?>
+                        <span class="code-editor-title"><?= lang('plugin_code') ?></span>
+                        <span class="code-editor-options"><?= lang('wrap_lines') ?>
                             <input
                                 name="wrap"
                                 type="checkbox"
@@ -364,7 +364,7 @@ function entity($key, $default = null)
 
             <!-- Configuration/Properties -->
             <div class="tab-page" id="tabProps">
-                <h2 class="tab"><?= $_lang["settings_config"] ?></h2>
+                <h2 class="tab"><?= lang("settings_config") ?></h2>
                 <?php
                 $field = 'sm.id,sm.name,sm.guid';
                 $from = '[+prefix+]site_modules sm ' .
@@ -385,7 +385,7 @@ function entity($key, $default = null)
                     if ($guid_total > 0) {
                     ?>
                         <tr>
-                            <th align="left"><?= $_lang['import_params'] ?>:&nbsp;&nbsp;</th>
+                            <th align="left"><?= lang('import_params') ?>:&nbsp;&nbsp;</th>
                             <td align="left">
                                 <select name="moduleguid" style="width:300px;">
                                     <option>&nbsp;</option>
@@ -396,20 +396,20 @@ function entity($key, $default = null)
                         <tr>
                             <td>&nbsp;</td>
                             <td align="left" valign="top"><span style="width:300px;"><span
-                                        class="comment"><?= $_lang['import_params_msg'] ?></span></span><br />
+                                        class="comment"><?= lang('import_params_msg') ?></span></span><br />
                             </td>
                         </tr>
                     <?php
                     }
                     ?>
                     <tr>
-                        <th align="left" valign="top"><?= $_lang['plugin_config'] ?>:</th>
+                        <th align="left" valign="top"><?= lang('plugin_config') ?>:</th>
                         <td align="left" valign="top">
                             <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
                                 onblur='showParameters(this);'
                                 onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea><br />
                             <input
-                                type="button" value="<?= $_lang['update_params'] ?>"
+                                type="button" value="<?= lang('update_params') ?>"
                                 onclick="showParameters(this);" />
                         </td>
                     </tr>
@@ -422,8 +422,8 @@ function entity($key, $default = null)
 
             <!-- System Events -->
             <div class="tab-page" id="tabEvents">
-                <h2 class="tab"><?= $_lang["settings_events"] ?></h2>
-                <p><?= $_lang['plugin_event_msg'] ?></p>
+                <h2 class="tab"><?= lang("settings_events") ?></h2>
+                <p><?= lang('plugin_event_msg') ?></p>
                 <table>
                     <?php
 
@@ -506,10 +506,10 @@ function entity($key, $default = null)
                 </table>
             </div>
             <div class="tab-page" id="tabInfo">
-                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
+                <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['existing_category'] ?>:&nbsp;&nbsp;</th>
+                        <th align="left"><?= lang('existing_category') ?>:&nbsp;&nbsp;</th>
                         <td align="left">
                             <select name="categoryid" id="categoryid" style="width:300px;">
                                 <?= manager()->elementCategoryOptions(entity('category')) ?>
@@ -517,7 +517,7 @@ function entity($key, $default = null)
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?>
+                        <th align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?>
                             :
                         </th>
                         <td align="left" valign="top" style="padding-top:5px;">
@@ -529,7 +529,7 @@ function entity($key, $default = null)
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['plugin_desc'] ?>:&nbsp;&nbsp;</th>
+                        <th align="left"><?= lang('plugin_desc') ?>:&nbsp;&nbsp;</th>
                         <td align="left">
                             <textarea id="pluginDescription" name="description"
                                 style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
@@ -538,30 +538,30 @@ function entity($key, $default = null)
                     <?php $pluginErrorReporting = entity('error_reporting', 'inherit'); ?>
                     <tr>
                         <th align="left" style="padding-top:10px;">
-                            <?= $_lang['a17_error_reporting_title'] ?>:
+                            <?= lang('a17_error_reporting_title') ?>:
                         </th>
                         <td align="left" style="padding-top:10px;">
                             <label>
                                 <input type="radio" name="error_reporting" value="inherit"<?= $pluginErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['element_error_reporting_inherit'] ?>
+                                <?= lang('element_error_reporting_inherit') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="0"<?= $pluginErrorReporting === '0' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt0'] ?>
+                                <?= lang('a17_error_reporting_opt0') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="1"<?= $pluginErrorReporting === '1' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt1'] ?>
+                                <?= lang('a17_error_reporting_opt1') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="2"<?= $pluginErrorReporting === '2' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt2'] ?>
+                                <?= lang('a17_error_reporting_opt2') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="99"<?= $pluginErrorReporting === '99' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt99'] ?>
+                                <?= lang('a17_error_reporting_opt99') ?>
                             </label><br/>
-                            <?= $_lang['a17_error_reporting_msg'] ?>
+                            <?= lang('a17_error_reporting_msg') ?>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
@@ -570,8 +570,8 @@ function entity($key, $default = null)
                                 <label><input name="locked"
                                         type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
                                         value="on" class="inputBox">
-                                    <b><?= $_lang['lock_plugin'] ?></b> <span
-                                        class="comment"><?= $_lang['lock_plugin_msg'] ?></span></label>
+                                    <b><?= lang('lock_plugin') ?></b> <span
+                                        class="comment"><?= lang('lock_plugin_msg') ?></span></label>
                             </td>
                         </tr>
                     <?php } ?>
@@ -579,7 +579,7 @@ function entity($key, $default = null)
             </div>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?= $_lang['plugin_msg'] ?>
+                <?= lang('plugin_msg') ?>
             </div>
         </div>
     </div>

@@ -37,7 +37,7 @@ $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=78
 if (db()->count($rs) > 1) {
     while ($row = db()->getRow($rs)) {
         if ($row['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['chunk']);
+            $msg = sprintf(lang('lock_msg'), $row['username'], lang('chunk'));
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -158,14 +158,14 @@ if (isset($content['which_editor'])) {
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('chunk')) ?>" />
     <input type="hidden" name="changeMode" value="" />
 
-    <h1><?= $_lang['htmlsnippet_title'] ?></h1>
+    <h1><?= lang('htmlsnippet_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_chunk')): ?>
                 <li id="save" class="primary mutate">
                     <a href="#">
-                        <?= $_lang['update'] ?>
+                        <?= lang('update') ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="after_save">
@@ -179,7 +179,7 @@ if (isset($content['which_editor'])) {
                     echo manager()->ab(
                         [
                             'onclick' => 'duplicaterecord();',
-                            'label' => $_lang['duplicate']
+                            'label' => lang('duplicate')
                         ]
                     );
                 }
@@ -187,7 +187,7 @@ if (isset($content['which_editor'])) {
                     echo manager()->ab(
                         [
                             'onclick' => 'deletedocument();',
-                            'label' => $_lang['delete']
+                            'label' => lang('delete')
                         ]
                     );
                 }
@@ -195,7 +195,7 @@ if (isset($content['which_editor'])) {
             echo manager()->ab(
                 [
                     'onclick' => "EvoShell.go('index.php?a=76');",
-                    'label' => $_lang['cancel']
+                    'label' => lang('cancel')
                 ]
             );
             ?>
@@ -205,10 +205,10 @@ if (isset($content['which_editor'])) {
     <div class="sectionBody">
         <div class="tab-pane" id="chunkPane">
             <div class="tab-page" id="tabGeneral">
-                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['htmlsnippet_name'] ?></th>
+                        <th align="left"><?= lang('htmlsnippet_name') ?></th>
                         <td align="left">
                             {{<input name="name" type="text" maxlength="100"
                                     value="<?= hsc(entity('name')) ?>"
@@ -219,18 +219,18 @@ if (isset($content['which_editor'])) {
 
                 <div class="code-editor">
                     <div class="code-editor-header">
-                        <span class="code-editor-title"><?= $_lang['chunk_code'] ?></span>
+                        <span class="code-editor-title"><?= lang('chunk_code') ?></span>
                     </div>
                     <textarea
                         dir="ltr" class="phptextarea" name="post"
                         style="height:350px;width:100%"><?= hsc(entity('post') ?? entity('snippet')) ?></textarea>
                 </div>
 
-                <span class="warning"><?= $_lang['which_editor_title'] ?></span>
+                <span class="warning"><?= lang('which_editor_title') ?></span>
                 <select id="which_editor" name="which_editor"
                     onchange="gotosave=true;documentDirty=false;changeRTE();">
                     <option value="none" <?= $which_editor === 'none' ? ' selected="selected"' : '' ?>>
-                        <?= $_lang['none'] ?>
+                        <?= lang('none') ?>
                     </option>
                     <?php
                     // invoke OnRichTextEditorRegister event
@@ -255,10 +255,10 @@ if (isset($content['which_editor'])) {
             </div>
 
             <div class="tab-page" id="tabInfo">
-                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
+                <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['chunk_opt_published'] ?></th>
+                        <th align="left"><?= lang('chunk_opt_published') ?></th>
                         <td><input
                                 name="published" onclick="resetpubdate();"
                                 type="checkbox"
@@ -266,29 +266,29 @@ if (isset($content['which_editor'])) {
                                 class="inputBox" value="1" /></td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['page_data_publishdate'] ?></th>
+                        <th align="left"><?= lang('page_data_publishdate') ?></th>
                         <td>
                             <input id="pub_date" name="pub_date" type="text"
                                 value="<?= entity('pub_date') ?>" class="DatePicker" />
                             <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;"
                                 style="cursor:pointer; cursor:hand;">
                                 <img src="<?= style("icons_cal_nodate") ?>"
-                                    alt="<?= $_lang['remove_date'] ?>" /></a>
+                                    alt="<?= lang('remove_date') ?>" /></a>
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['page_data_unpublishdate'] ?></th>
+                        <th align="left"><?= lang('page_data_unpublishdate') ?></th>
                         <td>
                             <input id="unpub_date" name="unpub_date" type="text"
                                 value="<?= entity('unpub_date') ?>" class="DatePicker" />
                             <a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;"
                                 style="cursor:pointer; cursor:hand">
                                 <img src="<?= style("icons_cal_nodate") ?>"
-                                    alt="<?= $_lang['remove_date'] ?>" /></a>
+                                    alt="<?= lang('remove_date') ?>" /></a>
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['existing_category'] ?></th>
+                        <th align="left"><?= lang('existing_category') ?></th>
                         <td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
                             <select name="categoryid" style="width:300px;">
                                 <?= manager()->elementCategoryOptions(entity('categoryid', entity('category'))) ?>
@@ -296,7 +296,7 @@ if (isset($content['which_editor'])) {
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="middle"><?= $_lang['new_category'] ?></th>
+                        <th align="left" valign="middle"><?= lang('new_category') ?></th>
                         <td align="left" valign="top"><input
                                 name="newcategory"
                                 type="text" maxlength="45"
@@ -305,7 +305,7 @@ if (isset($content['which_editor'])) {
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['htmlsnippet_desc'] ?></th>
+                        <th align="left"><?= lang('htmlsnippet_desc') ?></th>
                         <td align="left">
                             <textarea
                                 name="description"
@@ -313,7 +313,7 @@ if (isset($content['which_editor'])) {
                         </td>
                     </tr>
                     <tr>
-                        <th align="left" valign="middle"><?= $_lang['resource_opt_richtext'] ?></th>
+                        <th align="left" valign="middle"><?= lang('resource_opt_richtext') ?></th>
                         <td align="left" valign="top"><input
                                 name="editor_type"
                                 type="checkbox"
@@ -327,8 +327,8 @@ if (isset($content['which_editor'])) {
                                         name="locked"
                                         type="checkbox"
                                         <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
-                                        class="inputBox" value="on" /> <?= $_lang['lock_htmlsnippet'] ?>
-                                    <span class="comment"><?= $_lang['lock_htmlsnippet_msg'] ?></span></label>
+                                        class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?>
+                                    <span class="comment"><?= lang('lock_htmlsnippet_msg') ?></span></label>
                             </td>
                         </tr>
                     <?php } ?>
@@ -336,7 +336,7 @@ if (isset($content['which_editor'])) {
             </div>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?= $_lang['htmlsnippet_msg'] ?>
+                <?= lang('htmlsnippet_msg') ?>
             </div>
         </div>
         <script>

@@ -82,7 +82,7 @@ class init
 
     public static function get_base_url($base_path)
     {
-        $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+        $SCRIPT_NAME = serverv('SCRIPT_NAME', '');
         if (defined('IN_MANAGER_MODE')) {
             if (strpos($SCRIPT_NAME, '/manager/') !== false) {
                 return substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/manager/') + 1);
@@ -337,7 +337,7 @@ class init
             return;
         }
         $_SERVER['DOCUMENT_ROOT'] = str_replace(
-            $_SERVER['PATH_INFO'],
+            serverv('PATH_INFO'),
             '',
             str_replace(
                 '\\',
@@ -369,7 +369,7 @@ class init
 
     public static function fix_request_time()
     {
-        if (isset($_SERVER['REQUEST_TIME'])) {
+        if (serverv('REQUEST_TIME') !== null) {
             return;
         }
         $_SERVER['REQUEST_TIME'] = time();
@@ -399,17 +399,17 @@ class init
             return;
         }
 
-        if (isset($_SERVER['HTTP_HTTPS'])) {
-            $_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
-        } elseif (isset($_SERVER['HTTP_X_SAKURA_HTTPS'])) {
-            $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
+        if (serverv('HTTP_HTTPS') !== null) {
+            $_SERVER['HTTPS'] = serverv('HTTP_HTTPS');
+        } elseif (serverv('HTTP_X_SAKURA_HTTPS') !== null) {
+            $_SERVER['HTTPS'] = serverv('HTTP_X_SAKURA_HTTPS');
         }
-        if (!isset($_SERVER['HTTPS'])) {
+        if (serverv('HTTPS') === null) {
             return;
         }
-        if ($_SERVER['HTTPS'] == 1) {
+        if (serverv('HTTPS') == 1) {
             $_SERVER['HTTPS'] = 'on';
-        } elseif ($_SERVER['HTTPS'] === 'off') {
+        } elseif (serverv('HTTPS') === 'off') {
             unset($_SERVER['HTTPS']);
         }
     }

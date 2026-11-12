@@ -7,7 +7,7 @@ if (!evo()->hasPermission('empty_cache')) {
     alert()->dumpError();
 }
 
-$now = $_SERVER['REQUEST_TIME'];
+$now = (int) request_time();
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
 $rs = db()->update(['published' => '1'], '[+prefix+]site_content', $where);
@@ -22,16 +22,16 @@ $num_rows_unpub = db()->getAffectedRows();
 <script type="text/javascript">
     EvoShell.refresh('tree');
 </script>
-<h1><?= $_lang['refresh_title'] ?></h1>
+<h1><?= lang('refresh_title') ?></h1>
 <div class="section">
     <div class="sectionBody">
         <?php
 
         if (0 < $num_rows_pub) {
-            printf('<p>' . $_lang["refresh_published"] . '</p>', $num_rows_pub);
+            printf('<p>' . lang("refresh_published") . '</p>', $num_rows_pub);
         }
         if (0 < $num_rows_unpub) {
-            printf('<p>' . $_lang["refresh_unpublished"] . '</p>', $num_rows_unpub);
+            printf('<p>' . lang("refresh_unpublished") . '</p>', $num_rows_unpub);
         }
 
         $modx->clearCache(['showReport' => true]);
@@ -42,7 +42,7 @@ $num_rows_unpub = db()->getAffectedRows();
         ?>
         <div>
             <ul class="actionButtons">
-                <li id="Button5"><a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['close'] ?></a></li>
+                <li id="Button5"><a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('close') ?></a></li>
             </ul>
         </div>
     </div>

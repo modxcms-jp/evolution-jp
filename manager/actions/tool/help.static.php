@@ -3,12 +3,12 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 ?>
-<h1><?= $_lang['help'] ?></h1>
+<h1><?= lang('help') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?>
+                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?>
             </a></li>
     </ul>
 </div>
@@ -18,10 +18,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
         <?php
         $help_dir = MODX_BASE_PATH . 'assets/templates/help';
         if (is_dir($help_dir) == false) {
-            echo '<h3>' . $_lang["credits"] . '</h3>';
-            echo '<div>' . $_lang["about_msg"] . '</div>';
-            echo '<h3>' . $_lang["help"] . '</h3>';
-            echo '<div>' . $_lang["help_msg"] . '</div>';
+            echo '<h3>' . lang("credits") . '</h3>';
+            echo '<div>' . lang("about_msg") . '</div>';
+            echo '<h3>' . lang("help") . '</h3>';
+            echo '<div>' . lang("help_msg") . '</div>';
             exit;
         }
 

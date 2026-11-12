@@ -9,8 +9,6 @@ if (request_intvar('id')) {
 
 function get_resources_byajax($id)
 {
-    global $_lang;
-
     $rs = db()->select(
         'pagetitle,id',
         '[+prefix+]site_content',
@@ -18,10 +16,10 @@ function get_resources_byajax($id)
     );
     $total = db()->count($rs);
     if (config('limit_by_container') < $total) {
-        return sprintf('<p>%s</p>', $_lang['a16_many_resources']);
+        return sprintf('<p>%s</p>', lang('a16_many_resources'));
     }
     if ($total === 0) {
-        return sprintf('<p>%s</p>', $_lang['a16_no_resource']);
+        return sprintf('<p>%s</p>', lang('a16_no_resource'));
     }
 
     $items = [];

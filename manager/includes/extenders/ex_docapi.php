@@ -490,8 +490,6 @@ class DocAPI
      */
     public function setValue($form_v, $action = 0)
     {
-        global $_lang;
-
         $form_v['alias'] = get_alias(
             array_get($form_v, 'id'),
             array_get($form_v, 'alias'),
@@ -526,9 +524,9 @@ class DocAPI
 
         if ($form_v['pagetitle'] === '') {
             if ($form_v['type'] === 'reference') {
-                $form_v['pagetitle'] = $_lang['untitled_weblink'];
+                $form_v['pagetitle'] = lang('untitled_weblink');
             } else {
-                $form_v['pagetitle'] = $_lang['untitled_resource'];
+                $form_v['pagetitle'] = lang('untitled_resource');
             }
         }
 
@@ -544,7 +542,7 @@ class DocAPI
             if ($timestamp === null || $timestamp < 0) {
                 evo()->manager->saveFormValues($action);
                 evo()->webAlertAndQuit(
-                    $_lang['mgrlog_dateinvalid'],
+                    lang('mgrlog_dateinvalid'),
                     evo()->manager->formReturnUrl($action, array_get($form_v, 'id'), array_get($form_v, 'template'))
                 );
                 exit;

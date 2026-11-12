@@ -41,7 +41,7 @@ if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $lock = db()->getRow($rs);
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang["lock_msg"], $lock['username'], "web user");
+            $msg = sprintf(lang("lock_msg"), $lock['username'], "web user");
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -252,12 +252,12 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
     <input type="hidden" name="blockedmode"
         value="<?= isUserBlocked($userdata) ? "1" : "0" ?>" />
 
-    <h1><?= $_lang['web_user_title'] ?></h1>
+    <h1><?= lang('web_user_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_web_user')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= $_lang['update'] ?></a><span
+                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a><span
                         class="and"> + </span>
                     <select id="stay" name="after_save">
                         <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), evo()->hasPermission('new_web_user')) ?>
@@ -265,10 +265,10 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                 </li>
             <?php endif; ?>
             <?php if ($action === 88) { ?>
-                <li><a href="#" onclick="deleteuser();"><?= $_lang['delete'] ?></a>
+                <li><a href="#" onclick="deleteuser();"><?= lang('delete') ?></a>
                 </li>
             <?php } ?>
-            <li><a href="#" onclick="EvoShell.go('index.php?a=99');"><?= $_lang['cancel'] ?></a></li>
+            <li><a href="#" onclick="EvoShell.go('index.php?a=99');"><?= lang('cancel') ?></a></li>
         </ul>
     </div>
 
@@ -276,13 +276,13 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
     <div class="sectionBody">
         <div class="tab-pane" id="webUserPane">
             <div class="tab-page" id="tabGeneral">
-                <h2 class="tab"><?= $_lang["login_settings"] ?></h2>
+                <h2 class="tab"><?= lang("login_settings") ?></h2>
                 <table class="settings">
                     <tr>
                         <td>
                             <span id="blocked"
                                 class="warning"><?php if (isUserBlocked($userdata)) { ?>
-                                    <b><?= $_lang['user_is_blocked'] ?></b><?php } ?></span>
+                                    <b><?= lang('user_is_blocked') ?></b><?php } ?></span>
                         </td>
                     </tr>
                     <?php if (attribute('id')) { ?>
@@ -292,7 +292,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                 <img src="<?= style('icons_user') ?>"
                                     alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
                                 - <span class="comment"><a href="#"
-                                        onclick="changeName();return false;"><?= $_lang["change_name"] ?></a></span>
+                                        onclick="changeName();return false;"><?= lang("change_name") ?></a></span>
                                 <input type="hidden" name="oldusername"
                                     value="<?= hsc(webuser('oldusername') ?: webuser('username')) ?>" />
                             </td>
@@ -300,13 +300,13 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                     <?php } ?>
                     <tr id="editname"
                         style="display:<?= $action === 87 || (webuser('oldusername') && webuser('oldusername') != webuser('username')) ? 'table-row' : 'none' ?>">
-                        <th><?= $_lang['username'] ?>:</th>
+                        <th><?= lang('username') ?>:</th>
                         <td><input type="text" name="newusername" class="inputBox" autocomplete="username"
                                 value="<?= hsc(post_strvar('newusername', webuser('username'))) ?>"
                                 maxlength="100" /></td>
                     </tr>
                     <tr>
-                        <th valign="top"><?= $action === 87 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                        <th valign="top"><?= $action === 87 ? lang('password') . ":" : lang('change_password_new') . ":" ?></th>
                         <td>
                             <?php if ($action !== 87): ?>
                                 <input name="newpasswordcheck" type="checkbox"
@@ -318,42 +318,42 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                 id="passwordBlock">
                                 <fieldset style="width:300px;padding:0;">
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= $_lang['password_gen_gen'] ?>
+                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= lang('password_gen_gen') ?>
                                     </label><br />
                                     <label><input type=radio name="passwordgenmethod"
-                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?>
+                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= lang('password_gen_specify') ?>
                                     </label> <br />
                                     <div style="padding-left:20px">
                                         <label for="specifiedpassword"
-                                            style="width:120px"><?= $_lang['change_password_new'] ?>
+                                            style="width:120px"><?= lang('change_password_new') ?>
                                             :</label>
                                         <input type="password" id="specifiedpassword" name="specifiedpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
                                         <label for="confirmpassword"
-                                            style="width:120px"><?= $_lang['change_password_confirm'] ?>
+                                            style="width:120px"><?= lang('change_password_confirm') ?>
                                             :</label>
                                         <input type="password" id="confirmpassword" name="confirmpassword"
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
                                         <span class="warning"
-                                            style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span>
+                                            style="font-weight:normal"><?= lang('password_gen_length') ?></span>
                                     </div>
                                 </fieldset>
                                 <br />
                                 <fieldset style="width:300px;padding:0;">
                                     <label><input type=radio name="passwordnotifymethod"
-                                            value="e" <?= post_strvar('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?> /><?= $_lang['password_method_email'] ?>
+                                            value="e" <?= post_strvar('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?> /><?= lang('password_method_email') ?>
                                     </label><br />
                                     <label><input type=radio name="passwordnotifymethod"
-                                            value="s" <?= post_strvar('passwordnotifymethod') === "e" ? "" : 'checked="checked"' ?> /><?= $_lang['password_method_screen'] ?>
+                                            value="s" <?= post_strvar('passwordnotifymethod') === "e" ? "" : 'checked="checked"' ?> /><?= lang('password_method_screen') ?>
                                     </label>
                                 </fieldset>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_email'] ?>:</th>
+                        <th><?= lang('user_email') ?>:</th>
                         <td>
                             <input type="text" name="email" class="inputBox" autocomplete="email"
                                 value="<?= hsc(post_strvar('email', attribute('email'))) ?>" />
@@ -365,58 +365,58 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             </div>
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">
-                <h2 class="tab"><?= $_lang["profile"] ?></h2>
+                <h2 class="tab"><?= lang("profile") ?></h2>
                 <table class="settings">
                     <tr>
-                        <th><?= $_lang['user_full_name'] ?>:</th>
+                        <th><?= lang('user_full_name') ?>:</th>
                         <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
                                 value="<?= hsc(post_strvar('fullname', attribute('fullname'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_phone'] ?>:</th>
+                        <th><?= lang('user_phone') ?>:</th>
                         <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(post_strvar('phone', attribute('phone'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_mobile'] ?>:</th>
+                        <th><?= lang('user_mobile') ?>:</th>
                         <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(post_strvar('mobilephone', attribute('mobilephone'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_fax'] ?>:</th>
+                        <th><?= lang('user_fax') ?>:</th>
                         <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
                                 value="<?= hsc(post_strvar('fax', attribute('fax'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_street'] ?>:</th>
+                        <th><?= lang('user_street') ?>:</th>
                         <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
                                 value="<?= hsc(attribute('street')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_city'] ?>:</th>
+                        <th><?= lang('user_city') ?>:</th>
                         <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
                                 value="<?= hsc(attribute('city')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_state'] ?>:</th>
+                        <th><?= lang('user_state') ?>:</th>
                         <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
                                 value="<?= hsc(post_strvar('state', attribute('state'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_zip'] ?>:</th>
+                        <th><?= lang('user_zip') ?>:</th>
                         <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
                                 value="<?= hsc(post_strvar('zip', attribute('zip'))) ?>" />
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_country'] ?>:</th>
+                        <th><?= lang('user_country') ?>:</th>
                         <td>
                             <select size="1" name="country" autocomplete="country-name">
                                 <?php $chosenCountry = post_strvar('country', attribute('country')); ?>
@@ -431,7 +431,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_dob'] ?>:</th>
+                        <th><?= lang('user_dob') ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
                                 value="<?= manager()->dateInputValue(attribute('dob'), 'dateOnly') ?>" onblur='documentDirty=true;'>
@@ -439,35 +439,35 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                     src="<?= $icons_path ?>cal_nodate.gif"
                                     border="0"
-                                    alt="<?= $_lang['remove_date'] ?>"></a>
+                                    alt="<?= lang('remove_date') ?>"></a>
                         </td>
                     </tr>
                     <tr>
-                        <th><?= $_lang['user_gender'] ?>:</th>
+                        <th><?= lang('user_gender') ?>:</th>
                         <td><select name="gender">
                                 <option value=""></option>
                                 <option
-                                    value="1" <?= (post_intvar('gender') === 1 || attribute('gender') == 1) ? "selected='selected'" : "" ?>><?= $_lang['user_male'] ?></option>
+                                    value="1" <?= (post_intvar('gender') === 1 || attribute('gender') == 1) ? "selected='selected'" : "" ?>><?= lang('user_male') ?></option>
                                 <option
-                                    value="2" <?= (post_intvar('gender') === 2 || attribute('gender') == 2) ? "selected='selected'" : "" ?>><?= $_lang['user_female'] ?></option>
+                                    value="2" <?= (post_intvar('gender') === 2 || attribute('gender') == 2) ? "selected='selected'" : "" ?>><?= lang('user_female') ?></option>
                                 <option
-                                    value="3" <?= (post_intvar('gender') === 3 || attribute('gender') == 3) ? "selected='selected'" : "" ?>><?= $_lang['user_other'] ?></option>
+                                    value="3" <?= (post_intvar('gender') === 3 || attribute('gender') == 3) ? "selected='selected'" : "" ?>><?= lang('user_other') ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr>
-                        <th valign="top"><?= $_lang['comment'] ?>:</th>
+                        <th valign="top"><?= lang('comment') ?>:</th>
                         <td>
                             <textarea type="text" name="comment" class="inputBox"
                                 rows="5"><?= hsc(post_strvar('comment', attribute('comment'))) ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <td nowrap class="warning"><b><?= $_lang["user_photo"] ?></b></td>
+                        <td nowrap class="warning"><b><?= lang("user_photo") ?></b></td>
                         <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
                                 value="<?= hsc(post_strvar('photo') ?: attribute('photo')) ?>" />
-                            <input type="button" value="<?= $_lang['insert'] ?>" onclick="BrowseServer();" />
-                            <div><?= $_lang["user_photo_message"] ?></div>
+                            <input type="button" value="<?= lang('insert') ?>" onclick="BrowseServer();" />
+                            <div><?= lang("user_photo_message") ?></div>
                             <div>
                                 <?php
                                 if (post_strvar('photo')) {
@@ -490,23 +490,23 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             </div>
             <!-- Settings -->
             <div class="tab-page" id="tabSettings">
-                <h2 class="tab"><?= $_lang["settings_users"] ?></h2>
+                <h2 class="tab"><?= lang("settings_users") ?></h2>
                 <table class="settings">
                     <tr>
-                        <td nowrap class="warning"><b><?= $_lang["login_homepage"] ?></b></td>
+                        <td nowrap class="warning"><b><?= lang("login_homepage") ?></b></td>
                         <td>
                             <input type='text' maxlength='50' style="width: 100px;" name="login_home"
                                 value="<?= hsc(post_strvar('login_home', setting('login_home'))) ?>">
-                            <div><?= $_lang["login_homepage_message"] ?></div>
+                            <div><?= lang("login_homepage_message") ?></div>
                         </td>
                     </tr>
                     <?php if ($action === 88): ?>
                         <tr>
-                            <th><?= $_lang['user_logincount'] ?>:</th>
+                            <th><?= lang('user_logincount') ?>:</th>
                             <td><?= (int) attribute('logincount') ?></td>
                         </tr>
                         <tr>
-                            <th><?= $_lang['user_prevlogin'] ?>:</th>
+                            <th><?= lang('user_prevlogin') ?>:</th>
                             <?php
                             if (!empty(attribute('lastlogin'))) {
                                 $lastlogin = $modx->toDateFormat(attribute('lastlogin') + config('server_offset_time'));
@@ -517,16 +517,16 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                             <td><?= $lastlogin ?></td>
                         </tr>
                         <tr>
-                            <th><?= $_lang['user_failedlogincount'] ?>:</th>
+                            <th><?= lang('user_failedlogincount') ?>:</th>
                             <td>
                                 <input type="hidden" name="failedlogincount"
                                     value="<?= (int) attribute('failedlogincount') ?>">
                                 <span id='failed'><?= (int) attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
-                                    href="javascript:resetFailed()"><?= $_lang['reset_failedlogins'] ?></a>]
+                                    href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
                             </td>
                         </tr>
                         <tr>
-                            <th><?= $_lang['user_block'] ?>:</th>
+                            <th><?= lang('user_block') ?>:</th>
                             <td><input name="blockedcheck" type="checkbox"
                                     onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata) ? " checked='checked'" : "" ?> /><input
                                     type="hidden" name="blocked"
@@ -534,7 +534,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                             </td>
                         </tr>
                         <tr>
-                            <th><?= $_lang['user_blockeduntil'] ?>:</th>
+                            <th><?= lang('user_blockeduntil') ?>:</th>
                             <td>
                                 <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker"
                                     value="<?= manager()->dateInputValue(attribute('blockeduntil')) ?>"
@@ -543,11 +543,11 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                         src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0"
-                                        alt="<?= $_lang['remove_date'] ?>" /></a>
+                                        alt="<?= lang('remove_date') ?>" /></a>
                             </td>
                         </tr>
                         <tr>
-                            <th><?= $_lang['user_blockedafter'] ?>:</th>
+                            <th><?= lang('user_blockedafter') ?>:</th>
                             <td>
                                 <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
                                     value="<?= manager()->dateInputValue(attribute('blockedafter')) ?>"
@@ -556,20 +556,20 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                         src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0"
-                                        alt="<?= $_lang['remove_date'] ?>" /></a>
+                                        alt="<?= lang('remove_date') ?>" /></a>
                             </td>
                         </tr>
                     <?php endif; ?>
                     <tr>
-                        <td nowrap class="warning" valign="top"><b><?= $_lang["login_allowed_ip"] ?></b></td>
+                        <td nowrap class="warning" valign="top"><b><?= lang("login_allowed_ip") ?></b></td>
                         <td>
                             <input type="text" maxlength='255' style="width: 300px;" name="allowed_ip"
                                 value="<?= hsc(post_strvar('allowed_ip', setting('allowed_ip'))) ?>" />
-                            <div><?= $_lang["login_allowed_ip_message"] ?></div>
+                            <div><?= lang("login_allowed_ip_message") ?></div>
                         </td>
                     </tr>
                     <tr>
-                        <td nowrap class="warning" valign="top"><b><?= $_lang["login_allowed_days"] ?></b>
+                        <td nowrap class="warning" valign="top"><b><?= lang("login_allowed_days") ?></b>
                         </td>
                         <td>
                             <?php $allowedDays = (string)setting('allowed_days', ''); ?>
@@ -577,45 +577,45 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                     value="1" <?= strpos(
                                                     $allowedDays,
                                                     '1'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['sunday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('sunday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="2" <?= strpos(
                                                     $allowedDays,
                                                     '2'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['monday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('monday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="3" <?= strpos(
                                                     $allowedDays,
                                                     '3'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['tuesday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('tuesday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="4" <?= strpos(
                                                     $allowedDays,
                                                     '4'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['wednesday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('wednesday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="5" <?= strpos(
                                                     $allowedDays,
                                                     '5'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['thursday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('thursday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="6" <?= strpos(
                                                     $allowedDays,
                                                     '6'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['friday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('friday') ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="7" <?= strpos(
                                                     $allowedDays,
                                                     '7'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['saturday'] ?>
+                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('saturday') ?>
                             </label>
-                            <div><?= $_lang["login_allowed_days_message"] ?></div>
+                            <div><?= lang("login_allowed_days_message") ?></div>
                         </td>
                     </tr>
                 </table>
@@ -639,11 +639,11 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             ?>
                 <!-- Access -->
                 <div class="tab-page" id="tabAccess">
-                    <h2 class="tab"><?= $_lang["web_access_permissions"] ?></h2>
-                    <div class="sectionHeader"><?= $_lang['web_access_permissions'] ?></div>
+                    <h2 class="tab"><?= lang("web_access_permissions") ?></h2>
+                    <div class="sectionHeader"><?= lang('web_access_permissions') ?></div>
                     <div class="sectionBody">
                         <?php
-                        echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
+                        echo "<p>" . lang('access_permissions_user_message') . "</p>";
                         $rs = db()->select('name,id', evo()->getFullTableName('webgroup_names'), '', 'name');
                         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
                         while ($row = db()->getRow($rs)) {

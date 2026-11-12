@@ -23,7 +23,7 @@ if (!is_string($snippet) || !is_string($properties)) {
 }
 $snippet = trim($snippet);
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['snippet'], 'snippet', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('snippet'), 'snippet', $id);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
@@ -51,7 +51,7 @@ $rs = db()->select('COUNT(id)', '[+prefix+]site_snippets', $where);
 $count = db()->getValue($rs);
 if ($count > 0) {
     manager()->redirectToElementForm(
-        sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $rawName),
+        sprintf(lang('duplicate_name_found_general'), lang('snippet'), $rawName),
         'snippet',
         $id
     );

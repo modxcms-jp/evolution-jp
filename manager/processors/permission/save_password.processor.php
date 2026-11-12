@@ -26,7 +26,7 @@ if ($password !== post_strvar('pass2')) {
         $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
     } else {
         $userinfo = evo()->getUserInfo($uid);
-        $msg = '<p class="success">' . $_lang["change_password_success"] . '</p>';
+        $msg = '<p class="success">' . lang("change_password_success") . '</p>';
         $tmp = [
             "userid" => $uid,
             "username" => $userinfo['username'],
