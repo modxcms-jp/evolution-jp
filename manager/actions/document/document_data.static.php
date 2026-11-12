@@ -1,7 +1,6 @@
 <?php
 /**
  * @var array $_lang
- * @var  array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
