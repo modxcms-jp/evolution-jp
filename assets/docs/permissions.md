@@ -175,7 +175,7 @@
 
 ### モジュールの実行
 
-モジュールを実行してよいかは `ManagerAPI::canExecuteModule($moduleId)` が 1 つで決める。実行の処理（a=112。`execute_module.processor.php`）・メインメニュー・ダッシュボード（`getExecutableModules()` で一覧を作る）・モジュール管理の一覧（a=106）の右クリックの「実行」が、この判定を使う。
+モジュールを実行してよいかは `ManagerAPI::canExecuteModule($moduleId)` が 1 つで決める。実行の処理（a=112。`execute_module.processor.php`）・メインメニュー・ダッシュボード（`getExecutableModules()` で一覧を作る）・モジュール管理の一覧（a=106）の右クリックの「実行」が、この判定を使う。無効のモジュールは、この判定ではなく状態の話なので、呼ぶ側で除く（`getExecutableModules()` は無効を除き、a=106 は無効の行の「実行」を押せなくする）。
 
 - `exec_module`（表の `module.execute`）を持つこと
 - 管理者（`isAdmin()`）は、すべてのモジュールを実行できる
