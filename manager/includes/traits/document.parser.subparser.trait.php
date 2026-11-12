@@ -890,7 +890,7 @@ trait DocumentParserSubParserTrait
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
-        if ($_SESSION['webValidated'] != 1) {
+        if (sessionv('webValidated') != 1) {
             return false;
         }
 
@@ -1147,7 +1147,7 @@ trait DocumentParserSubParserTrait
 
         // get document groups for current user
         if (evo()->session('mgrDocgroups')) {
-            foreach ($_SESSION['mgrDocgroups'] as $v) {
+            foreach (sessionv('mgrDocgroups') as $v) {
                 $docgrp[] = "dg.document_group='{$v}'";
             }
             $docgrps = implode(' || ', $docgrp);
@@ -2016,7 +2016,7 @@ trait DocumentParserSubParserTrait
         }
 
         // check cache
-        $grpNames = isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
+        $grpNames = sessionv('webUserGroupNames', false);
         if (!is_array($grpNames)) {
             $uid = evo()->getLoginUserID();
             $from = '[+prefix+]webgroup_names wgn' .
@@ -2202,7 +2202,7 @@ trait DocumentParserSubParserTrait
                 $cond = sprintf(
                     "OR dg.document_group IN (%s) OR 1='%s'",
                     $docgrp,
-                    $_SESSION['mgrRole']
+                    sessionv('mgrRole')
                 );
             } else {
                 $cond = '';
@@ -2256,7 +2256,7 @@ trait DocumentParserSubParserTrait
             } else {
                 $where[] = 'AND sc.privateweb=0';
             }
-        } elseif ($_SESSION['mgrRole'] != 1) {
+        } elseif (sessionv('mgrRole') != 1) {
             if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
                     "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
@@ -2296,7 +2296,7 @@ trait DocumentParserSubParserTrait
         $access = '';
         if ($modx->isFrontend()) {
             $access = 'sc.privateweb=0';
-        } elseif ($_SESSION['mgrRole'] != 1) {
+        } elseif (sessionv('mgrRole') != 1) {
             $access = 'sc.privatemgr=0';
         }
         if ($docgrp = $modx->getUserDocGroups()) {

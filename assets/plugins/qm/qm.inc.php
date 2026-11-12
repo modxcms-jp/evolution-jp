@@ -406,7 +406,7 @@ class Qm
             '[+prefix+]active_users',
             [
                 where('action', 27),
-                and_where('internalKey', '!=', $_SESSION['mgrInternalKey']),
+                and_where('internalKey', '!=', sessionv('mgrInternalKey')),
                 and_where('id', evo()->documentIdentifier)
             ]
         );
@@ -430,7 +430,7 @@ class Qm
         db()->update(
             $fields,
             '[+prefix+]active_users',
-            where('internalKey', '=', $_SESSION['mgrInternalKey'])
+            where('internalKey', '=', sessionv('mgrInternalKey'))
         );
     }
 
@@ -514,7 +514,7 @@ class Qm
             return;
         }
         db()->update(
-            ['editedon' => request_time(), 'editedby' => $_SESSION['mgrInternalKey']],
+            ['editedon' => request_time(), 'editedby' => sessionv('mgrInternalKey')],
             '[+prefix+]site_content',
             where('id', evo()->documentIdentifier)
         );

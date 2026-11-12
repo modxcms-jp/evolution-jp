@@ -7,8 +7,8 @@ if (!evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (isset($_SESSION['onetime_msg'])) {
-    $onetime_msg = $_SESSION['onetime_msg'];
+if (sessionv('onetime_msg') !== null) {
+    $onetime_msg = sessionv('onetime_msg');
     unset($_SESSION['onetime_msg']);
 } else {
     $onetime_msg = '';
