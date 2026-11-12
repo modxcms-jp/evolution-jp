@@ -2,7 +2,7 @@
 if (!function_exists('apply_manager_style_defaults')) {
     function apply_manager_style_defaults(string $themePath, array $overrides = []): void
     {
-        // $_lang は同じスコープで include するテーマの config.php・welcome.php が読むため global に残す
+        // $_lang は、外部のテーマの config.php・welcome.php がファイルのスコープで読む場合に備えて global に残す
         global $modx, $_style, $_lang;
 
         if (!isset($modx) || !evo()->isLoggedin()) {
