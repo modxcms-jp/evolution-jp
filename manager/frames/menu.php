@@ -286,9 +286,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                             // 断片出力のモジュールはシェル内に表示される。
                             // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
                             $item['modules'][$content['name']] = item(hsc($content['name']),
-                                "index.php?a=112&amp;id={$content['id']}");
+                                "index.php?a=112&amp;id=" . (int)$content['id']);
                         }
-                        $modulemenu = $item['modules'];
+                        // 項目が 1 つも無いとき（管理の権限も、実行できるモジュールも無い）は、モジュールのタブを出さない
+                        $modulemenu = array_filter($item['modules']);
                     }
 
                     // Security menu items (users)

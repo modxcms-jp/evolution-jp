@@ -183,7 +183,7 @@ echo $cm->render();
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" data-can-execute="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
                         (int) $row['id'],
-                        manager()->canExecuteModule((int) $row['id']) ? 1 : 0,
+                        (!$row['disabled'] && manager()->canExecuteModule((int) $row['id'])) ? 1 : 0, // 無効のモジュールは実行の処理が断るので、実行できない行にする（権限ではなく状態）
                         hsc($_lang['click_to_context']),
                         hsc($value !== '' && $value !== null ? $value : $_style['icons_modules'])
                     );
