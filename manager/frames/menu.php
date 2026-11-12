@@ -290,15 +290,15 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     $modulemenu = array_filter($item['modules']);
 
                     // Security menu items (users)
-                    $perm_role_management = (evo()->hasPermission('new_role') || evo()->hasPermission('edit_role') || evo()->hasPermission('delete_role')) ? 1 : 0;
-                    $perm_mgruser =(evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
+                    $perm_mgruser = (evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
                     $perm_webuser = (evo()->hasPermission('web_access_permissions') && config('use_udperms') == 1) ? 1 : 0;
 
                     $item['user_manage'] = item($_lang['user_management_title'], 75,
-                        evo()->hasPermission('edit_user'));// manager-users
+                        manager()->can('user.edit'));// manager-users
                     $item['web_user_manage'] = item($_lang['web_user_management_title'], 99,
-                        evo()->hasPermission('edit_web_user'));// web-users
-                    $item['role_manage'] = item($_lang['role_management_title'], 86, $perm_role_management);// roles
+                        manager()->can('webuser.edit'));// web-users
+                    $item['role_manage'] = item($_lang['role_management_title'], 86,
+                        manager()->can('role.edit'));// roles
                     $item['manager_permissions'] = item($_lang['manager_permissions'], 40,
                         $perm_mgruser);// manager-perms
                     $item['web_permissions'] = item($_lang['web_permissions'], 91, $perm_webuser);// web-user-perms

@@ -25,9 +25,11 @@ if (!evo()->hasPermission('edit_role')) {
     <div class="sectionBody">
         <p><?= $_lang['role_management_msg'] ?></p>
 
-        <ul class="actionButtons">
-            <li><a class="default" href="index.php?a=38"><?= $_lang['new_role'] ?></a></li>
-        </ul>
+        <?php if (manager()->can('role.create')): ?>
+            <ul class="actionButtons">
+                <li><a class="default" href="index.php?a=38"><?= $_lang['new_role'] ?></a></li>
+            </ul>
+        <?php endif; ?>
         <?php
 
         $tbl_user_roles = evo()->getFullTableName('user_roles');

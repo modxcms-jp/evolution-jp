@@ -64,11 +64,11 @@ if (evo()->hasPermission('view_document')) {
     );
     $modx->setPlaceholder('iconResources', $src);
 }
-if (evo()->hasPermission('edit_user')) {
+if (manager()->can('user.edit')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('SecurityIcon', $src);
 }
-if (evo()->hasPermission('edit_web_user')) {
+if (manager()->can('webuser.edit')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserIcon', $src);
 }
@@ -103,11 +103,11 @@ if (evo()->hasPermission('file_manager')) {
     $src = get_icon($_lang['manage_files'], 31, $_style['icons_files_large'], $_lang['manage_files']);
     $modx->setPlaceholder('FileManagerIcon', $src);
 }
-if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
+if (manager()->can('user.edit')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('UserManagerIcon', $src);
 }
-if (evo()->hasPermission('new_web_user') || evo()->hasPermission('edit_web_user')) {
+if (manager()->can('webuser.edit')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserManagerIcon', $src);
 }
