@@ -41,7 +41,7 @@ class OldFunctions
     {
         $client['host'] = serverv('REMOTE_ADDR');
         $client['ip'] = serverv('REMOTE_ADDR');
-        $client['ua'] = user_agent();
+        $client['ua'] = serverv('HTTP_USER_AGENT');
         return $client;
     }
 

@@ -55,7 +55,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
     session_start();
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         session_write_close();
-        $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI']) . '.pageCache.php';
+        $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI'] ?? '') . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));

@@ -7,7 +7,7 @@ if (!evo()->hasPermission('empty_cache')) {
     alert()->dumpError();
 }
 
-$now = serverv('REQUEST_TIME');
+$now = (int) request_time();
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
 $rs = db()->update(['published' => '1'], '[+prefix+]site_content', $where);
