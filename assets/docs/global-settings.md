@@ -77,7 +77,7 @@ user・profile の描き方（グローバル設定との違い）:
 ## 4. 設定値の反映
 
 - **DB に行が無い設定**: 読み込み時（`DocumentParser::getSettings()`）に `default.config.php` の値で補われる。新規インストールも、設定を足した後の既存インストールも同じで、グローバル設定を保存しなくてよい
-- **アップデーターは行を足さない**: 足すと、今後の既定の変更が届かなくなる（既定の値を書き写す目的では行を足さない）
+- **アップデーターは行を足さない**: 足すと、今後の既定の変更が届かなくなる（既定の値を書き写す目的では行を足さない）。例外はメールの文面で、言語ごとに違うため、行が無いときだけ入れる（「1. デフォルト値の定義」を参照）
 - 保存した値（空にした値も）は DB が優先される
 - **フレンドリー URL の `.htaccess`**: フレンドリー URL は標準なので、インストーラー（`install/instprocessor.php`）が、`.htaccess` が無いときだけ `sample.htaccess` から置く（既にある `.htaccess` は書き換えない。IIS では置かない）。設定の保存（`save_settings.processor.php`）でも `friendly_urls` が `1` のときに置き、既にある `.htaccess` の `RewriteBase` を合わせる。どちらも `manager/includes/htaccess.class.inc.php` の `EvoHtaccess::ensure()`。配布物の名前は `sample.htaccess` のまま（上書き展開で利用者の `.htaccess` を消さないため）。規則は `<IfModule mod_rewrite.c>` で囲まない（mod_rewrite が無いときに黙って 404 に落ちると、原因に気づけないため）
 
@@ -105,7 +105,7 @@ user・profile の描き方（グローバル設定との違い）:
 ## 注意事項
 
 - SQLファイルでの設定追加は不要（`default.config.php` のみで管理）
-- `save_settings.processor.php` は POST データと `default.config.php`をマージし `REPLACE INTO` で保存
+- `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
 - 設定でない項目の扱いは「3. 設定画面への表示」の `nonSettingKeys()` を参照
 - 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。`default.config.php` にあるキーは読み込み時に既定値で補われるので `null` にならない。第 2 引数の既定値が効くのは、`default.config.php` にも無いキーだけ（無ければ `null`）。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
 - 管理画面では、設定値を `extract()` でグローバル変数にしない。`global $site_url`・`$GLOBALS['manager_theme']`・`$modx->event->getGlobalVariable('…')` では読めない。ユーザーごとの設定は重ねた後の値が返る

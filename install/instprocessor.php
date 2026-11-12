@@ -461,7 +461,9 @@ if (!function_exists('seed_mail_text_settings')) {
                 );
                 $added[] = $name;
             }
-            log_install_event('Added mail text settings', ['settings' => $added, 'language' => $language]);
+            if ($added) {
+                log_install_event('Added mail text settings', ['settings' => $added, 'language' => $language]);
+            }
         } catch (Throwable $e) {
             log_install_event('Failed to add mail text settings', ['error' => $e->getMessage()]);
         }
