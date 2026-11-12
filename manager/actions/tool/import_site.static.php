@@ -136,7 +136,16 @@ function run()
 
     // 取り込み先とリセットは、どの削除・更新よりも前に確かめる
     // （リセットは親がルートのときだけ受け付ける。画面もリセットを親がルートのときだけ有効にしている）
-    $parent = post_intvar('parent');
+    $parent = post_uintvar('parent');
+    if ($parent === null) {
+        // 親が整数として読めない（負の数・文字列・配列など）ときは、ルートに読み替えず断る
+        $raw = postv('parent');
+        echo sprintf(
+            '<p><span class="fail">%s</span></p>',
+            hsc(sprintf(lang('parent_not_found'), is_scalar($raw) ? $raw : ''))
+        );
+        return '';
+    }
     $reset = postv('reset') === 'on';
     $denied = '';
     if ($reset && ($parent != 0 || !manager()->canResetSiteContent())) {

@@ -1334,7 +1334,7 @@ class ManagerAPI
      * 親がルート（0）のときは、文書グループの確認の代わりに canPlaceAtRoot() で決める。
      * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
      *
-     * @param int[] $docIds 親を変える文書
+     * @param int[] $docIds 親を変える文書。新規作成・取り込みなら空配列
      * @param int $parentId 新しい親の ID
      * @return string
      */
@@ -1370,7 +1370,7 @@ class ManagerAPI
 
     /**
      * サイトのインポートの「初期化」（site_content の全件の削除）を許してよいか。
-     * 範囲の制限が無く（isInAllowedParents(0)）、文書グループでも絞られず（restrictsByDocumentGroups() が偽）、
+     * 範囲の制限が無く（isInAllowedParents(0)。範囲に 0（サイト全体）を含む設定も制限なしとみなす）、文書グループでも絞られず（restrictsByDocumentGroups() が偽）、
      * ルートを親にできる（canUseRootAsParent()）利用者だけ。全件の削除は、自分に見えない文書も消すため
      *
      * @return bool
