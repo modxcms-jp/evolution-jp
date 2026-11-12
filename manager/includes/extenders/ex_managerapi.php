@@ -759,10 +759,9 @@ class ManagerAPI
 
     /**
      * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
-     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
-     * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
-     * （main/welcome.static.php）。
-     * モジュールの管理（a=106）の入口は exec_module も通すため、モジュールのメニュー・アイコンの条件は入口と一致しない（permissions.md の分かっている課題を参照）
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧。
+     * モジュールの管理（a=106）を開く入口（メニュー・ダッシュボード）は、exec_module も通すので
+     * 'module.open' を使う（この判定ではない）
      *
      * @param string $type ELEMENT_TYPES の値（template・snippet・chunk・plugin・module）
      * @return bool

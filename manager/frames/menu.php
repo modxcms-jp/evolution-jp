@@ -277,40 +277,21 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         evo()->hasPermission('file_manager'));// Manage-Files
 
                     // Modules Menu Items
-                    $perm_module_management = manager()->canManageElement('module') ? 1 : 0;
                     $item['modules'] = [];
                     $item['modules']['module_management'] = item($_lang['module_management'], 106,
-                        $perm_module_management);// manage-modules
-                    if (evo()->hasPermission('exec_module')) {
-                        // Each module
-                        $uid = evo()->getLoginUserID();
-                        if ($_SESSION['mgrRole'] != 1) {
-                            // Display only those modules the user can execute
-                            $field = 'sm.id, sm.name, mg.member';
-                            $from = '[+prefix+]site_modules                 AS sm '
-                                . 'LEFT JOIN [+prefix+]site_module_access AS sma ON sma.module = sm.id '
-                                . 'LEFT JOIN [+prefix+]member_groups      AS mg  ON sma.usergroup = mg.user_group';
-                            $where = "(mg.member IS NULL OR mg.member='{$uid}') AND sm.disabled != 1";
-                            $orderby = 'sm.editedon DESC';
-                            $rs = db()->select($field, $from, $where, $orderby);
-                        } else {
-                            // Admins get the entire list
-                            $rs = db()->select('id,name', '[+prefix+]site_modules', 'disabled != 1',
-                                'editedon DESC');
-                        }
-
-                        while ($content = db()->getRow($rs)) {
-                            // 断片出力のモジュールはシェル内に表示される。
-                            // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
-                            $item['modules'][$content['name']] = item(hsc($content['name']),
-                                "index.php?a=112&amp;id={$content['id']}");
-                        }
-                        $modulemenu = $item['modules'];
+                        manager()->can('module.open') ? 1 : 0);// manage-modules
+                    // 実行してよいモジュールだけ（判定は ManagerAPI::canExecuteModule()。実行の処理と同じ）
+                    foreach (manager()->getExecutableModules() as $content) {
+                        // 断片出力のモジュールはシェル内に表示される。
+                        // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
+                        $item['modules'][$content['name']] = item(hsc($content['name']),
+                            "index.php?a=112&amp;id={$content['id']}");
                     }
+                    $modulemenu = array_filter($item['modules']);
 
                     // Security menu items (users)
                     $perm_role_management = (evo()->hasPermission('new_role') || evo()->hasPermission('edit_role') || evo()->hasPermission('delete_role')) ? 1 : 0;
-                    $perm_mgruser = (evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
+                    $perm_mgruser =(evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
                     $perm_webuser = (evo()->hasPermission('web_access_permissions') && config('use_udperms') == 1) ? 1 : 0;
 
                     $item['user_manage'] = item($_lang['user_management_title'], 75,

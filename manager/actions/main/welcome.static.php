@@ -19,8 +19,6 @@ if (evo()->hasPermission('settings') && in_array((string) $settings_version, [''
     exit;
 }
 
-$uid = evo()->getLoginUserID();
-
 $script = <<<JS
         <script>
         function hideConfigCheckWarning(key){
@@ -74,7 +72,7 @@ if (evo()->hasPermission('edit_web_user')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserIcon', $src);
 }
-if (manager()->canManageElement('module')) {
+if (manager()->can('module.open')) {
     $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
     $modx->setPlaceholder('ModulesIcon', $src);
 }
@@ -143,30 +141,13 @@ if (evo()->hasPermission('settings')) {
 
 // setup modules
 $modulemenu = [];
-if (evo()->hasPermission('exec_module')) {
-    // Each module
-    if (!manager()->isAdmin()) {
-        // Display only those modules the user can execute
-        $tbl_site_modules = evo()->getFullTableName('site_modules');
-        $tbl_site_module_access = evo()->getFullTableName('site_module_access');
-        $tbl_member_groups = evo()->getFullTableName('member_groups');
-        $field = 'sm.id, sm.name, mg.member, sm.editedon';
-        $from = "{$tbl_site_modules} AS sm";
-        $from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
-        $from .= " LEFT JOIN {$tbl_member_groups} AS mg ON sma.usergroup = mg.user_group";
-        $where = "(mg.member IS NULL OR mg.member={$uid}) AND sm.disabled != 1";
-        $rs = db()->select($field, $from, $where, 'sm.editedon DESC');
-    } else {
-        // Admins get the entire list
-        $rs = db()->select('id,name,icon', evo()->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+// 実行してよいモジュールだけ（判定は ManagerAPI::canExecuteModule()。実行の処理と同じ）
+foreach (manager()->getExecutableModules() as $content) {
+    if (empty($content['icon'])) {
+        $content['icon'] = $_style['icons_modules'];
     }
-    while ($content = db()->getRow($rs)) {
-        if (empty($content['icon'])) {
-            $content['icon'] = $_style['icons_modules'];
-        }
-        $action = 'index.php?a=112&amp;id=' . $content['id'];
-        $modulemenu[] = get_icon(hsc($content['name']), $action, hsc($content['icon']), hsc($content['name']));
-    }
+    $action = 'index.php?a=112&amp;id=' . (int)$content['id'];
+    $modulemenu[] = get_icon(hsc($content['name']), $action, hsc($content['icon']), hsc($content['name']));
 }
 $modules = '';
 if (0 < count($modulemenu)) {
