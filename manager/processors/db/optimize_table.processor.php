@@ -32,7 +32,8 @@ if ($table) {
 }
 if ($truncateTarget) {
     $u = $truncateTarget;
-    if (in_array($u, $truncateable, true)) {
+    // event_log は古い版から上げたサイトにしか無いので、表の有無も確かめる
+    if (in_array($u, $truncateable, true) && db()->tableExists($u)) {
         db()->truncate($u);
     } else {
         alert()->setError(3);
