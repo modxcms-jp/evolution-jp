@@ -72,7 +72,7 @@ function resolvePublishFields(string $mode, int $id): array
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
-manager()->requireElementName(post_strvar('name'), $_lang['chunk'], 'chunk', $id);
+manager()->requireElementName(post_strvar('name'), lang('chunk'), 'chunk', $id);
 // 日付が解釈できないときは、イベントや DB に進む前に差し戻す
 $publish = resolvePublishFields($mode, $id);
 
@@ -92,7 +92,7 @@ switch ($mode) {
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
+                sprintf(lang('duplicate_name_found_general'), lang('chunk'), entity('name')),
                 'chunk',
                 0
             );
@@ -135,7 +135,7 @@ switch ($mode) {
 
         if (check_exist_name(entity('name'), $id) !== false) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
+                sprintf(lang('duplicate_name_found_general'), lang('chunk'), entity('name')),
                 'chunk',
                 $id
             );

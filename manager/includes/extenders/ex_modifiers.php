@@ -1512,9 +1512,9 @@ class MODIFIERS
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $_ = compact('key', 'value', 'cmd', 'opt');
-                $_['url'] = $_SERVER['REQUEST_URI'];
-                $_['ip'] = $_SERVER['REMOTE_ADDR'];
-                $_['ua'] = $_SERVER['HTTP_USER_AGENT'];
+                $_['url'] = serverv('REQUEST_URI');
+                $_['ip'] = serverv('REMOTE_ADDR');
+                $_['ua'] = user_agent();
                 $_['docid'] = evo()->documentIdentifier;
                 evo()->addLog('unparsed modifire', $_, 2);
         }

@@ -89,19 +89,18 @@ class ZipService
      * 1 件でもあれば何も展開しない(reason: unsafe): 名前に .. の要素がある(\ は / にしてから見る) / 展開先がルートの外か
      * 守る場所(存在する部分は realpath() で解決する) / 展開先のパスの途中にシンボリックリンクがある(リンク先の無いリンクは
      * realpath() で解決できず、書くときにたどってルートの外へ書けるため、リンクは一切たどらない)。
-     * ファイルは無害化後の名前を $isAllowedName で確かめ、通らないものは skipped。書く直前にもパスを確かめ直し(付け直した後の
-     * パスは事前と同じとは限らない)、通らないものは failed。zip 内のシンボリックリンクは、リンク先の文字列を中身にしたふつうのファイルにする。
+     * 拡張子は問わない。書く直前にもパスを確かめ直し(付け直した後のパスは事前と同じとは限らない)、通らないものは failed。
+     * zip 内のシンボリックリンクは、リンク先の文字列を中身にしたふつうのファイルにする。
      * 前からあるふつうのファイルは上書きし、展開後の大きさと数に上限は設けない(旧と同じ)。umask は変えない。
      *
      * @param string $zipPath resolveFile() で確かめた zip の実パス
      * @param string $destDir resolveDir() で確かめた展開先の実パス
-     * @param callable $isAllowedName 無害化した後のファイル名を受け取り、新しく作ってよい拡張子かを bool で返す
-     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],skipped:string[]} reason は unavailable・open_failed・unsafe・''。
+     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[]} reason は unavailable・open_failed・unsafe・''。
      *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス
      */
-    public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, callable $isAllowedName, DocumentParser $modx)
+    public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, DocumentParser $modx)
     {
-        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => [], 'skipped' => []];
+        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => []];
 
         if (!extension_loaded('zip') || !class_exists('ZipArchive')) {
             $result['reason'] = 'unavailable';
@@ -138,11 +137,6 @@ class ZipService
                 continue;
             }
             $isDirEntry = substr(str_replace('\\', '/', $entryName), -1) === '/';
-            // 拡張子は、無害化した後の名前の最後の要素で確かめる。飛ばすエントリは、次の名前の割り当てに加えない
-            if (!$isDirEntry && !call_user_func($isAllowedName, self::lastSegment($relative))) {
-                $result['skipped'][] = $relative;
-                continue;
-            }
             // 無害化で先に展開したものと名前が重なったときは、上書きせず (1) などを付ける
             $completeRelative = self::uniquePath($modx, $path, $relative, $isDirEntry, $assigned);
 
@@ -343,12 +337,6 @@ class ZipService
     }
 
     // basename() / dirname() は PHP 7.4 ではロケールによってマルチバイトの名前を崩すことがあるため使わない
-    private static function lastSegment($relative)
-    {
-        $pos = strrpos($relative, '/');
-        return $pos === false ? $relative : substr($relative, $pos + 1);
-    }
-
     private static function parentOf($relative)
     {
         $pos = strrpos($relative, '/');

@@ -15,7 +15,7 @@ if (!$id) {
 
 // duplicate Plugin
 $tbl_site_plugins = evo()->getFullTableName('site_plugins');
-$tpl = $_lang['duplicate_title_string'];
+$tpl = lang('duplicate_title_string');
 $sql = "INSERT INTO {$tbl_site_plugins} (name, description, disabled, moduleguid, plugincode, properties, category) 
 		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, moduleguid, plugincode, properties, category 
 		FROM {$tbl_site_plugins} WHERE id={$id}";

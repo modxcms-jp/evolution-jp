@@ -23,12 +23,12 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
     }
 </script>
 
-<h1><?= $_lang['import_site_html'] ?></h1>
+<h1><?= lang('import_site_html') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
     </ul>
 </div>
 
@@ -37,7 +37,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
         <?php
 
         if (!postv('import')) {
-            echo "<p>" . $_lang['import_site_message'] . "</p>";
+            echo "<p>" . lang('import_site_message') . "</p>";
             // 既定の取り込み先はルート。置けない利用者には、親の選択を促す
             if (!manager()->canUseRootAsParent()) {
                 echo sprintf('<p class="warning">%s</p>', hsc(lang('access_permission_parent_denied')));
@@ -45,40 +45,40 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
         ?>
 
             <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
-                <legend><?= $_lang['import_site'] ?></legend>
+                <legend><?= lang('import_site') ?></legend>
                 <form action="index.php" method="post" name="importFrm">
                     <input type="hidden" name="import" value="import" />
                     <input type="hidden" name="a" value="95" />
                     <input type="hidden" name="parent" value="0" />
                     <table border="0" cellspacing="0" cellpadding="2">
                         <tr>
-                            <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
+                            <td nowrap="nowrap"><b><?= lang('import_parent_resource') ?></b></td>
                             <td>&nbsp;</td>
                             <td><b><span id="parentName">0 (<?= hsc(evo()->config('site_name')) ?>)</span></b>
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_maxtime'] ?></b>
+                            <td nowrap="nowrap" valign="top"><b><?= lang('import_site_maxtime') ?></b>
                             </td>
                             <td>&nbsp;</td>
                             <td><input type="text" name="maxtime" value="30" />
                                 <br />
-                                <?= $_lang['import_site_maxtime_message'] ?>
+                                <?= lang('import_site_maxtime_message') ?>
                             </td>
                         </tr>
                         <?php if (manager()->canResetSiteContent()): ?>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_reset_tree'] ?></b>
+                            <td nowrap="nowrap" valign="top"><b><?= lang('import_site_reset_tree') ?></b>
                             </td>
                             <td>&nbsp;</td>
                             <td><input type="checkbox" id="reset" name="reset" value="on" />
                                 <br />
-                                <?= $_lang['import_site_reset_tree_message'] ?>
+                                <?= lang('import_site_reset_tree_message') ?>
                             </td>
                         </tr>
                         <?php endif; ?>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_target'] ?></b>
+                            <td nowrap="nowrap" valign="top"><b><?= lang('import_site_target') ?></b>
                             </td>
                             <td>&nbsp;</td>
                             <td>
@@ -86,25 +86,25 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
                                         type="radio"
                                         name="object"
                                         value="body"
-                                        checked="checked" /> <?= $_lang['import_site_target_body'] ?>
+                                        checked="checked" /> <?= lang('import_site_target_body') ?>
                                 </label>
                                 <label><input
                                         type="radio"
                                         name="object"
-                                        value="all" /> <?= $_lang['import_site_target_all'] ?></label>
+                                        value="all" /> <?= lang('import_site_target_all') ?></label>
                                 <br />
                             </td>
                         </tr>
                         <tr>
-                            <td nowrap="nowrap" valign="top"><b><?= $_lang['a95_convert_link'] ?></b></td>
+                            <td nowrap="nowrap" valign="top"><b><?= lang('a95_convert_link') ?></b></td>
                             <td>&nbsp;</td>
                             <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on" />
-                                    <?= $_lang['a95_convert_link_msg'] ?></label>
+                                    <?= lang('a95_convert_link_msg') ?></label>
                             </td>
                         </tr>
                     </table>
                     <ul class="actionButtons">
-                        <li><a href="#" class="default" onclick="document.importFrm.submit();"><?= $_lang['import_site_start'] ?>
+                        <li><a href="#" class="default" onclick="document.importFrm.submit();"><?= lang('import_site_start') ?>
                             </a></li>
                     </ul>
                 </form>
@@ -115,7 +115,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
             evo()->clearCache();
         ?>
             <ul class="actionButtons">
-                <li><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['close'] ?></a></li>
+                <li><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= lang('close') ?></a></li>
             </ul>
             <script type="text/javascript">
                 top.mainMenu.reloadtree();
@@ -130,8 +130,6 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 <?php
 function run()
 {
-    global $_lang;
-
     $output = '';
 
     // 取り込み先とリセットは、どの削除・更新よりも前に確かめる
@@ -170,6 +168,8 @@ function run()
     $importstart = $mtime;
 
     if ($reset) {
+        db()->delete('[+prefix+]document_groups');
+        db()->delete('[+prefix+]site_tmplvar_contentvalues');
         db()->delete('[+prefix+]site_content');
         db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
         db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
@@ -182,6 +182,7 @@ function run()
     }
 
     $filesfound = 0;
+    $createdIds = [];
 
     $files = pop_index(getFiles($filedir));
 
@@ -191,7 +192,7 @@ function run()
     // import files
     if (0 < count($files)) {
         db()->update(['isfolder' => 1], '[+prefix+]site_content', "id={$parent}");
-        importFiles($parent, $filedir, $files, 'root');
+        importFiles($parent, $filedir, $files, 'root', $createdIds);
     }
 
     $mtime = microtime();
@@ -199,18 +200,18 @@ function run()
     $mtime = $mtime[1] + $mtime[0];
     $importend = $mtime;
     $totaltime = ($importend - $importstart);
-    $output .= sprintf('<p>%s %s</p>', $_lang['import_site_time'], round($totaltime, 3));
+    $output .= sprintf('<p>%s %s</p>', lang('import_site_time'), round($totaltime, 3));
 
     if (postv('convert_link') === 'on') {
-        convertLink();
+        convertLink($createdIds);
     }
 
     return $output;
 }
 
-function importFiles($parent, $filedir, $files, $mode)
+function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
 {
-    global $_lang, $allowedfiles;
+    global $allowedfiles;
 
     $createdby = evo()->getLoginUserID();
     if (!is_array($files)) {
@@ -262,19 +263,20 @@ function importFiles($parent, $filedir, $files, $mode)
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if (!$newid) {
                     $vs = [
-                        $_lang['import_site_failed'],
-                        $_lang['import_site_failed_db_error'],
+                        lang('import_site_failed'),
+                        lang('import_site_failed_db_error'),
                         hsc(db()->getLastError())
                     ];
                     echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                $createdIds[] = $newid;
                 $find = true;
                 echo sprintf(
                     ' - <span class="success">%s</span><br />' . "\n",
-                    $_lang['import_site_success']
+                    lang('import_site_success')
                 );
-                importFiles($newid, $filedir . $alias . '/', $value, 'sub');
+                importFiles($newid, $filedir . $alias . '/', $value, 'sub', $createdIds);
             }
             if ($find === false) {
                 $date = request_time();
@@ -285,12 +287,13 @@ function importFiles($parent, $filedir, $files, $mode)
                 $field['hidemenu'] = '1';
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if ($newid) {
-                    echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
-                    importFiles($newid, $filedir . $alias . '/', $value, 'sub');
+                    $createdIds[] = $newid;
+                    echo sprintf(' - <span class="success">%s</span><br />', lang('import_site_success')) . "\n";
+                    importFiles($newid, $filedir . $alias . '/', $value, 'sub', $createdIds);
                 } else {
                     $vs = [
-                        $_lang['import_site_failed'],
-                        $_lang['import_site_failed_db_error'],
+                        lang('import_site_failed'),
+                        lang('import_site_failed_db_error'),
                         hsc(db()->getLastError())
                     ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
@@ -309,7 +312,7 @@ function importFiles($parent, $filedir, $files, $mode)
             echo "<span>" . hsc($filename) . "</span>";
 
             if (!in_array($ext, $allowedfiles)) {
-                echo sprintf(' - <span class="fail">%s</span><br />', $_lang['import_site_skip']) . "\n";
+                echo sprintf(' - <span class="fail">%s</span><br />', lang('import_site_skip')) . "\n";
             } else {
                 $filepath = $filedir . $filename;
                 $file = getFileContent($filepath);
@@ -338,14 +341,15 @@ function importFiles($parent, $filedir, $files, $mode)
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if (!$newid) {
                     $vs = [
-                        $_lang['import_site_failed'],
-                        $_lang['import_site_failed_db_error'],
+                        lang('import_site_failed'),
+                        lang('import_site_failed_db_error'),
                         hsc(db()->getLastError())
                     ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
-                echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
+                $createdIds[] = $newid;
+                echo sprintf(' - <span class="success">%s</span><br />', lang('import_site_success')) . "\n";
 
                 $is_site_start = false;
                 if ($filename === 'index.html') {
@@ -370,7 +374,6 @@ function importFiles($parent, $filedir, $files, $mode)
 
 function getFiles($directory, $listing = [], $count = 0)
 {
-    global $_lang;
     global $filesfound;
     $c = $count;
     if ($files = scandir($directory)) {
@@ -398,8 +401,8 @@ function getFiles($directory, $listing = [], $count = 0)
     } else {
         echo sprintf(
             '<p><span class="fail">%s</span> %s %s</p>',
-            $_lang['import_site_failed'],
-            $_lang['import_site_failed_no_open_dir'],
+            lang('import_site_failed'),
+            lang('import_site_failed_no_open_dir'),
             hsc($directory)
         );
     }
@@ -408,10 +411,9 @@ function getFiles($directory, $listing = [], $count = 0)
 
 function getFileContent($filepath)
 {
-    global $_lang;
     // get the file
     if (!$buffer = file_get_contents($filepath)) {
-        $vs = [$_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], hsc($filepath)];
+        $vs = [lang('import_site_failed'), lang('import_site_failed_no_retrieve_file'), hsc($filepath)];
         echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
     } else {
         return $buffer;
@@ -473,9 +475,16 @@ function treatContent($src, $filename, $alias)
     return [$pagetitle, $content, $description];
 }
 
-function convertLink()
+function convertLink(array $createdIds)
 {
-    $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
+    if (!$createdIds) {
+        return;
+    }
+    $rs = db()->select(
+        '*',
+        '[+prefix+]site_content',
+        sprintf('id IN (%s) AND deleted!=1', implode(',', array_map('intval', $createdIds)))
+    );
     $alias = [];
     $linkList = [];
     while ($row = db()->getRow($rs)) {
@@ -551,7 +560,7 @@ function convertLink()
                 'content' => db()->escape(str_replace($s, $r, $row['content']))
             ],
             '[+prefix+]site_content',
-            sprintf("id='%s'", $row['id'])
+            sprintf('id=%d', (int) $row['id'])
         );
     }
 }

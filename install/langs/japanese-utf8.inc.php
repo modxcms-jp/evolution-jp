@@ -106,6 +106,7 @@ $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;
 $_lang["installation_install_new_copy"] = '新規インストール - ';
 $_lang["installation_install_new_note"] = 'MODXを新規インストールします。';
 $_lang["installation_mode"] = 'インストールの選択';
+$_lang["htaccess_not_placed"] = 'フレンドリーURL用の.htaccessを置けませんでした。このままでは、トップページ以外の文書へのリンクが開けません（404）。サイトのルートに、配布物のsample.htaccessを.htaccessとして置いてください（サブディレクトリに設置したときは、RewriteBaseを設置先に合わせてください）。';
 $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。';
 $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">インストールは無事に成功しました。</span>';

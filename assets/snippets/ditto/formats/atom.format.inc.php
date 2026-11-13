@@ -28,7 +28,7 @@ $atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lan
 	- <language>
 */
 $atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . ($modx->documentObject['id'] ?? '') . "~]";
-$atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config['modx_charset'];
+$atom_placeholders['atom_charset'] = isset($charset) ? $charset : config('modx_charset');
 /*
 	Param: charset
 
@@ -42,7 +42,7 @@ $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config[
 	MODX default charset
 */
 
-$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', $modx->documentObject["editedon"]);
+$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', ($modx->documentObject['editedon'] ?? null));
 $placeholders['*'] = "atom_placeholders";
 $placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
 $placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];

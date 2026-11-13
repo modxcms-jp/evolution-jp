@@ -13,7 +13,7 @@ if (get_intvar('a') === 4) {
         $docObject['template'] = get_intvar('customaddtplid');
     } else {
         // Normal add button
-        if ($this->tpltype === 'config') $this->tpltype = evo()->config['auto_template_logic'];
+        if ($this->tpltype === 'config') $this->tpltype = config('auto_template_logic');
         switch ($this->tpltype) {
             case 'parent': // Template type is parent
                 // Get parent document id
@@ -23,7 +23,7 @@ if (get_intvar('a') === 4) {
                 $parent = evo()->getDocument($pid, 'template', null);
 
                 // Set parent template
-                $docObject['template'] = $parent['template'] ?? evo()->config['default_template'];
+                $docObject['template'] = $parent['template'] ?? config('default_template');
                 break;
 
             case 'id': // Template is specific id
@@ -34,7 +34,7 @@ if (get_intvar('a') === 4) {
                 // Get parent document id
                 $pid = $docObject['parent'] ? $docObject['parent'] : request_intvar('pid');
 
-                if (evo()->config['auto_template_logic'] === 'sibling') {
+                if (config('auto_template_logic') === 'sibling') {
                     // Eoler: template_autologic in Evolution 1.0.5+
                     // http://tracker.modx.com/issues/9586
                     $tv = [];
@@ -55,11 +55,11 @@ if (get_intvar('a') === 4) {
                 if (($tv['value'] ?? '') != '') {
                     $docObject['template'] = $tv['value'];
                 } else {
-                    $docObject['template'] = evo()->config['default_template'];
+                    $docObject['template'] = config('default_template');
                 }
                 break;
             case 'system':
-                $docObject['template'] = evo()->config['default_template'];
+                $docObject['template'] = config('default_template');
                 break;
         }
     }

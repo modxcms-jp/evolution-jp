@@ -11,23 +11,23 @@ if (!evo()->hasPermission('edit_role')) {
 <br/>
 <!-- User Roles -->
 
-<h1><?= $_lang['role_management_title'] ?></h1>
+<h1><?= lang('role_management_title') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?>
+                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?>
             </a></li>
     </ul>
 </div>
 
 <div class="section">
     <div class="sectionBody">
-        <p><?= $_lang['role_management_msg'] ?></p>
+        <p><?= lang('role_management_msg') ?></p>
 
         <?php if (manager()->can('role.create')): ?>
             <ul class="actionButtons">
-                <li><a class="default" href="index.php?a=38"><?= $_lang['new_role'] ?></a></li>
+                <li><a class="default" href="index.php?a=38"><?= lang('new_role') ?></a></li>
             </ul>
         <?php endif; ?>
         <?php
@@ -47,7 +47,7 @@ if (!evo()->hasPermission('edit_role')) {
                 if ($row['id'] == 1) {
                     ?>
                     <li><span><i><?= "(" . (int) $row['id'] . ") " . hsc($row['name']) ?></i></span> -
-                        <i><?= $_lang['administrator_role_message'] ?></i></li>
+                        <i><?= lang('administrator_role_message') ?></i></li>
                     <?php
                 } else {
                     ?>

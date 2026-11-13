@@ -29,7 +29,7 @@ if (!isset($tplLogin)) $tplLogin = $tpls[0];
 if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
-if (!isset($_SESSION['webValidated'])) {
+if (sessionv('webValidated') === null) {
     $username = hsc(trim(post_strvar('username')), ENT_QUOTES);
     $form = <<< EOT
     <script type="text/JavaScript">
@@ -124,7 +124,7 @@ EOT;
         $output .= webLoginAlert('error replacing into active users!');
     } else {
         // display logout
-        $url = preserveUrl($modx->documentObject['id']);
+        $url = preserveUrl($modx->documentObject['id'] ?? 0);
         $url = $url . ((strpos($url, '?') === false) ? '?' : '&amp;') . 'webloginmode=lo';
         $tplLogout = str_replace('[+action+]', $url, $tplLogout);
         $tplLogout = str_replace('[+logouttext+]', $logoutText, $tplLogout);

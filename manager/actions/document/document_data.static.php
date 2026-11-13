@@ -1,7 +1,6 @@
 <?php
 /**
  * @var array $_lang
- * @var  array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -142,35 +141,35 @@ if (isset($content['parent']) && $content['parent'] != 0) {
         EvoShell.go("index.php?id=<?= $id ?>&a=51");
     }
 </script>
-<h1><?= $_lang['doc_data_title'] ?></h1>
+<h1><?= lang('doc_data_title') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <?php if (manager()->can('document.edit')) : ?>
             <li id="Button1" class="mutate">
                 <a href="javascript:void(0)" onclick="editdocument();">
-                    <?= $_lang['edit'] ?>
+                    <?= lang('edit') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.move')) : ?>
             <li id="Button2" class="mutate">
                 <a href="#" onclick="movedocument();">
-                    <?= $_lang['move'] ?>
+                    <?= lang('move') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.duplicate')) : ?>
             <li id="Button4">
                 <a href="#" onclick="duplicatedocument();">
-                    <?= $_lang['duplicate'] ?>
+                    <?= lang('duplicate') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.delete')) : ?>
             <li id="Button3">
                 <a href="#" onclick="deletedocument();">
-                    <?= $_lang['delete'] ?>
+                    <?= lang('delete') ?>
                 </a>
             </li>
         <?php endif; ?>
@@ -183,13 +182,13 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                     : sprintf("window.open(%s,'previeWin')", hsc(js_literal('../index.php?id=' . $id)));
                 ?>"
             >
-                <?= $_lang['view_resource'] ?>
+                <?= lang('view_resource') ?>
             </a>
         </li>
         <li id="Button5" class="mutate"><a
                 href="#"
                 onclick="EvoShell.go(<?= hsc(js_literal($cancelUrl)) ?>, {discard: true});"
-            ><?= $_lang['cancel'] ?></a>
+            ><?= lang('cancel') ?></a>
         </li>
     </ul>
 </div>
@@ -199,7 +198,7 @@ if (isset($content['parent']) && $content['parent'] != 0) {
 
         <!-- General -->
         <div class="tab-page" id="tabDocInfo">
-            <h2 class="tab"><?= $_lang['information'] ?></h2>
+            <h2 class="tab"><?= lang('information') ?></h2>
             <div class="sectionBody">
                 <table>
                     <tr>
@@ -208,7 +207,7 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                         <td>[*id*]</td>
                     </tr>
                     <tr>
-                        <td width="200"><?= $_lang['page_data_template'] ?>:</td>
+                        <td width="200"><?= lang('page_data_template') ?>:</td>
                         <td><?php
                             echo sprintf(
                                 '%s(id:%s)',
@@ -220,59 +219,59 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                         <td>[*template*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_title'] ?>:</td>
+                        <td><?= lang('resource_title') ?>:</td>
                         <td><?= entity('pagetitle') ?></td>
                         <td>[*pagetitle*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['long_title'] ?>:</td>
+                        <td><?= lang('long_title') ?>:</td>
                         <td><?php
                             if (entity('longtitle') != '') {
                                 echo entity('longtitle');
                             } else {
-                                echo "(<i>" . $_lang['not_set'] . "</i>)";
+                                echo "(<i>" . lang('not_set') . "</i>)";
                             } ?>
                         </td>
                         <td>[*longtitle*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_description'] ?>:</td>
+                        <td><?= lang('resource_description') ?>:</td>
                         <td><?=
                             entity('description') != ''
                                 ? entity('description')
-                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                                : "(<i>" . lang('not_set') . "</i>)"
                             ?></td>
                         <td>[*description*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_summary'] ?>:</td>
+                        <td><?= lang('resource_summary') ?>:</td>
                         <td><?=
                             entity('introtext') != ''
                                 ? entity('introtext')
-                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                                : "(<i>" . lang('not_set') . "</i>)"
                             ?></td>
                         <td>[*introtext*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['type'] ?>:</td>
+                        <td><?= lang('type') ?>:</td>
                         <td><?=
                             entity('type') === 'reference'
-                                ? $_lang['weblink']
-                                : $_lang['resource']
+                                ? lang('weblink')
+                                : lang('resource')
                             ?></td>
                         <td>[*type*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_alias'] ?>:</td>
+                        <td><?= lang('resource_alias') ?>:</td>
                         <td><?=
                             entity('alias') != ''
                                 ? entity('alias')
-                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                                : "(<i>" . lang('not_set') . "</i>)"
                             ?></td>
                         <td>[*alias*]</td>
                     </tr>
                     <tr>
-                        <td width="200"><?= $_lang['page_data_created'] ?>:</td>
+                        <td width="200"><?= lang('page_data_created') ?>:</td>
                         <td><?=
                             evo()->toDateFormat(
                                 entity('createdon') + evo()->config('server_offset_time', 0)
@@ -284,7 +283,7 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                     </tr>
                     <?php if ($editedbyname != '') { ?>
                         <tr>
-                            <td><?= $_lang['page_data_edited'] ?>:</td>
+                            <td><?= lang('page_data_edited') ?>:</td>
                             <td><?= evo()->toDateFormat(entity('editedon') + evo()->config('server_offset_time', 0)) ?>
                                 (<b><?= hsc($editedbyname) ?></b>)
                             </td>
@@ -292,61 +291,61 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                         </tr>
                     <?php } ?>
                     <tr>
-                        <td width="200"><?= $_lang['page_data_status'] ?>:</td>
+                        <td width="200"><?= lang('page_data_status') ?>:</td>
                         <td><?=
                             entity('published') == 0
-                                ? '<span class="unpublishedDoc">' . $_lang['page_data_unpublished'] . '</span>'
-                                : '<span class="publisheddoc">' . $_lang['page_data_published'] . '</span>'
+                                ? '<span class="unpublishedDoc">' . lang('page_data_unpublished') . '</span>'
+                                : '<span class="publisheddoc">' . lang('page_data_published') . '</span>'
                             ?></td>
                         <td>[*published*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_publishdate'] ?>:</td>
+                        <td><?= lang('page_data_publishdate') ?>:</td>
                         <td><?=
                             entity('pub_date') == 0
-                                ? "(<i>" . $_lang['not_set'] . "</i>)"
+                                ? "(<i>" . lang('not_set') . "</i>)"
                                 : evo()->toDateFormat(entity('pub_date'))
                             ?></td>
                         <td>[*pub_date:date*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_unpublishdate'] ?>:</td>
+                        <td><?= lang('page_data_unpublishdate') ?>:</td>
                         <td><?=
                             entity('unpub_date') == 0
-                                ? "(<i>" . $_lang['not_set'] . "</i>)"
+                                ? "(<i>" . lang('not_set') . "</i>)"
                                 : evo()->toDateFormat(entity('unpub_date'))
                             ?></td>
                         <td>[*unpub_date:date*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_cacheable'] ?>:</td>
-                        <td><?= entity('cacheable') == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= lang('page_data_cacheable') ?>:</td>
+                        <td><?= entity('cacheable') == 0 ? lang('no') : lang('yes') ?></td>
                         <td>[*cacheable*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_searchable'] ?>:</td>
-                        <td><?= entity('searchable') == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= lang('page_data_searchable') ?>:</td>
+                        <td><?= entity('searchable') == 0 ? lang('no') : lang('yes') ?></td>
                         <td>[*searchable*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_opt_menu_index'] ?>:</td>
+                        <td><?= lang('resource_opt_menu_index') ?>:</td>
                         <td><?= entity('menuindex') ?></td>
                         <td>[*menuindex*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['resource_opt_show_menu'] ?>:</td>
-                        <td><?= entity('hidemenu') == 1 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= lang('resource_opt_show_menu') ?>:</td>
+                        <td><?= entity('hidemenu') == 1 ? lang('no') : lang('yes') ?></td>
                         <td>[*hidemenu*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_web_access'] ?>:</td>
+                        <td><?= lang('page_data_web_access') ?>:</td>
                         <td><?php
                             if (entity('privateweb') == 0) {
-                                echo $_lang['public'];
+                                echo lang('public');
                             } else {
                                 echo sprintf(
                                     '<b class="access-private">%s</b> <img src="%ssecured.gif" />',
-                                    $_lang['private'],
+                                    lang('private'),
                                     $icons_path
                                 );
                             } ?>
@@ -354,27 +353,27 @@ if (isset($content['parent']) && $content['parent'] != 0) {
                         <td>[*privateweb*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_mgr_access'] ?>:</td>
+                        <td><?= lang('page_data_mgr_access') ?>:</td>
                         <td><?php
                             if (entity('privatemgr') == 0) {
-                                echo $_lang['public'];
+                                echo lang('public');
                             } else {
                                 echo sprintf(
                                     '<b class="access-private">%s</b> <img src="%ssecured.gif" />',
-                                    $_lang['private'],
+                                    lang('private'),
                                     $icons_path
                                 );
                             } ?></td>
                         <td>[*privatemgr*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_editor'] ?>:</td>
-                        <td><?= entity('richtext') == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= lang('page_data_editor') ?>:</td>
+                        <td><?= entity('richtext') == 0 ? lang('no') : lang('yes') ?></td>
                         <td>[*richtext*]</td>
                     </tr>
                     <tr>
-                        <td><?= $_lang['page_data_folder'] ?>:</td>
-                        <td><?= entity('isfolder') == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= lang('page_data_folder') ?>:</td>
+                        <td><?= entity('isfolder') == 0 ? lang('no') : lang('yes') ?></td>
                         <td>[*isfolder*]</td>
                     </tr>
                 </table>
@@ -387,11 +386,11 @@ if (isset($content['parent']) && $content['parent'] != 0) {
             ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
-                <h2 class="tab"><?= $_lang['page_data_source'] ?></h2>
+                <h2 class="tab"><?= lang('page_data_source') ?></h2>
                 <?=
                 sprintf(
                     '%s<p><textarea style="width: 100%%; height: 400px;">%s</textarea>',
-                    $_lang['page_data_cached'],
+                    lang('page_data_cached'),
                     hsc($cache)
                 );
                 ?>

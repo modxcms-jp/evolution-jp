@@ -8,25 +8,25 @@ if (!evo()->hasPermission('save_password')) {
 }
 
 $password = post_strvar('pass1');
+$lengthError = manager()->checkPasswordLength($password);
 
 if ($password !== post_strvar('pass2')) {
     $msg = '<p class="fail">passwords don\'t match!</p>';
 } elseif (empty($password)) {
     $msg = '<p class="fail">passwords don\'t empty!</p>';
-} elseif (strlen($password) < 6) {
+} elseif ($lengthError === 'too_short') {
     $msg = '<p class="fail">Password is too short. Please specify a password of at least 6 characters.</p>';
-} elseif (32 < strlen($password)) {
-    $msg = '<p class="fail">Password is too long. Please specify a password of less than 32 characters.</p>';
+} elseif ($lengthError === 'too_long') {
+    $msg = '<p class="fail">Password is too long. Please specify a password of no more than 72 bytes.</p>';
 } else {
     $uid = evo()->getLoginUserID();
-    evo()->loadExtension('phpass');
-    $f['password'] = evo()->phpass->HashPassword($password);
-    $rs = db()->update($f, '[+prefix+]manager_users', "id='{$uid}'");
+    $f['password'] = manager()->hashPassword($password);
+    $rs = db()->update(db()->escape($f), '[+prefix+]manager_users', sprintf("id='%d'", $uid));
     if (!$rs) {
         $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
     } else {
         $userinfo = evo()->getUserInfo($uid);
-        $msg = '<p class="success">' . $_lang["change_password_success"] . '</p>';
+        $msg = '<p class="success">' . lang("change_password_success") . '</p>';
         $tmp = [
             "userid" => $uid,
             "username" => $userinfo['username'],

@@ -30,7 +30,7 @@ $total = db()->count($rs);
 if ($total > 1) {
     while ($row = db()->getRow($rs)) {
         if ($row['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $row['username'], ' template variable');
+            $msg = sprintf(lang('lock_msg'), $row['username'], ' template variable');
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -71,9 +71,9 @@ $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" tabindex="0" onclick="alert(this.alt);" style="cursor:help" />';
 $ph = [];
-$ph['src'] = $_style['icons_tooltip_over'];
-$ph['title'] = $_lang['tmplvars_input_option_msg'];
-$ph['alt'] = $_lang['tmplvars_input_option_msg'];
+$ph['src'] = style('icons_tooltip_over');
+$ph['title'] = lang('tmplvars_input_option_msg');
+$ph['alt'] = lang('tmplvars_input_option_msg');
 $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
 
 function selected($cond)
@@ -162,7 +162,7 @@ function entity($key, $default = null)
             table.setAttribute('cellpadding', '2');
             table.setAttribute('cellspacing', '1');
             const headRow = document.createElement('tr');
-            [<?= js_literal($_lang['parameter']) ?>, <?= js_literal($_lang['value']) ?>].forEach(function(label) {
+            [<?= js_literal(lang('parameter')) ?>, <?= js_literal(lang('value')) ?>].forEach(function(label) {
                 const th = document.createElement('td');
                 th.width = '50%';
                 th.textContent = label;
@@ -323,7 +323,7 @@ function entity($key, $default = null)
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('tmplvar')) ?>">
     <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
-    <h1><?= $_lang['tmplvars_title'];
+    <h1><?= lang('tmplvars_title');
         if ($id) {
             echo "(ID:{$id})";
         } ?></h1>
@@ -334,7 +334,7 @@ function entity($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();">
-                        <?= $_lang['update'] ?>
+                        <?= lang('update') ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="after_save">
                         <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), true) ?>
@@ -345,14 +345,14 @@ function entity($key, $default = null)
             if (request_intvar('a') === 301) {
                 $params = [
                     'onclick' => 'duplicaterecord();',
-                    'label' => $_lang['duplicate']
+                    'label' => lang('duplicate')
                 ];
                 if (manager()->can('tmplvar.duplicate')) {
                     echo manager()->ab($params);
                 }
                 $params = [
                     'onclick' => 'deletedocument();',
-                    'label' => $_lang['delete']
+                    'label' => lang('delete')
                 ];
                 if (evo()->hasPermission('delete_template')) {
                     echo manager()->ab($params);
@@ -360,7 +360,7 @@ function entity($key, $default = null)
             }
             $params = [
                 'onclick' => "EvoShell.go('index.php?a=76');",
-                'label' => $_lang['cancel']
+                'label' => lang('cancel')
             ];
             echo manager()->ab($params);
             ?>
@@ -370,24 +370,24 @@ function entity($key, $default = null)
     <div class="sectionBody">
         <div class="tab-pane" id="tmplvarsPane">
             <div class="tab-page" id="tabGeneral">
-                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_name'] ?></th>
+                        <th align="left"><?= lang('tmplvars_name') ?></th>
                         <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input
                                 name="name" type="text" maxlength="50" value="<?= hsc(entity('name')) ?>"
                                 class="inputBox" style="width:300px;"><span
                                 style="font-family:'Courier New', Courier, mono">*]</span></td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_caption'] ?></th>
+                        <th align="left"><?= lang('tmplvars_caption') ?></th>
                         <td align="left"><input name="caption" type="text" maxlength="80"
                                 value="<?= hsc(entity('caption')) ?>" class="inputBox"
                                 style="width:300px;"></td>
                     </tr>
 
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_type'] ?></th>
+                        <th align="left"><?= lang('tmplvars_type') ?></th>
                         <td align="left">
                             <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
                                 <?php
@@ -480,18 +480,18 @@ function entity($key, $default = null)
                     }
                     ?>
                     <tr id="inputoption" <?= $display ?>>
-                        <th align="left" valign="top"><?= $_lang['tmplvars_elements'] ?></th>
+                        <th align="left" valign="top"><?= lang('tmplvars_elements') ?></th>
                         <td align="left" nowrap="nowrap"><?= $form_elements . $tooltip_input_option ?></td>
                     </tr>
                     <tr>
-                        <th align="left" valign="top"><?= $_lang['tmplvars_default'] ?></th>
+                        <th align="left" valign="top"><?= lang('tmplvars_default') ?></th>
                         <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
                                 class="inputBox phptextarea" rows="5"
                                 style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_widget'] ?></th>
+                        <th align="left"><?= lang('tmplvars_widget') ?></th>
                         <td align="left">
                             <select name="display" size="1" class="inputBox" style="width:400px;"
                                 onchange="showParameters(this);">
@@ -526,11 +526,11 @@ function entity($key, $default = null)
                         </td>
                     </tr>
                     <tr id="displayparamrow">
-                        <td valign="top" align="left"><?= $_lang['tmplvars_widget_prop'] ?>
+                        <td valign="top" align="left"><?= lang('tmplvars_widget_prop') ?>
                             <div style="padding-top:8px;"><a href="javascript://"
                                     onclick="resetParameters(); return false"><img
-                                        src="<?= $_style['icons_refresh'] ?>"
-                                        alt="<?= $_lang['tmplvars_reset_params'] ?>"></a></div>
+                                        src="<?= style('icons_refresh') ?>"
+                                        alt="<?= lang('tmplvars_reset_params') ?>"></a></div>
                         </td>
                         <td align="left" id="displayparams">&nbsp;</td>
                     </tr>
@@ -539,8 +539,8 @@ function entity($key, $default = null)
 
             <!-- Template Permission -->
             <div class="tab-page" id="tabPerm">
-                <h2 class="tab"><?= $_lang['tmplvar_tmpl_access'] ?></h2>
-                <p><?= $_lang['tmplvar_tmpl_access_msg'] ?></p>
+                <h2 class="tab"><?= lang('tmplvar_tmpl_access') ?></h2>
+                <p><?= lang('tmplvar_tmpl_access_msg') ?></p>
                 <style type="text/css">
                     #tmplvarsPane label {
                         display: block;
@@ -583,10 +583,10 @@ function entity($key, $default = null)
             </div>
 
             <div class="tab-page" id="tabInfo">
-                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
+                <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['existing_category'] ?></th>
+                        <th align="left"><?= lang('existing_category') ?></th>
                         <td align="left">
                             <select name="categoryid" style="width:300px;">
                                 <?= manager()->elementCategoryOptions(entity('category')) ?>
@@ -594,14 +594,14 @@ function entity($key, $default = null)
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?></th>
+                        <th align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?></th>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
                                 maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
                                 class="inputBox"
                                 style="width:300px;"></td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_description'] ?></th>
+                        <th align="left"><?= lang('tmplvars_description') ?></th>
                         <td align="left"><textarea name="description"
                                 style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
                         </td>
@@ -611,13 +611,13 @@ function entity($key, $default = null)
                             <td align="left" colspan="2"><label><input name="locked" value="on"
                                         type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
                                         class="inputBox" />
-                                    <b><?= $_lang['lock_tmplvars'] ?></b> <span
-                                        class="comment"><?= $_lang['lock_tmplvars_msg'] ?></span></label>
+                                    <b><?= lang('lock_tmplvars') ?></b> <span
+                                        class="comment"><?= lang('lock_tmplvars_msg') ?></span></label>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_rank'] ?></th>
+                        <th align="left"><?= lang('tmplvars_rank') ?></th>
                         <td align="left"><input name="rank" type="text" maxlength="4"
                                 value="<?= hsc(entity('rank', 0)) ?>"
                                 class="inputBox" style="width:300px;"></td>
@@ -627,7 +627,7 @@ function entity($key, $default = null)
 
             <!-- Access Permissions -->
             <?php
-            if ($modx->config['use_udperms'] == 1) {
+            if (config('use_udperms') == 1) {
                 $groupsarray = [];
 
                 // fetch permissions for the variable
@@ -638,7 +638,7 @@ function entity($key, $default = null)
                 if (evo()->hasPermission('access_permissions')) {
             ?>
                     <div class="tab-page" id="tabAccess">
-                        <h2 class="tab"><?= $_lang['access_permissions'] ?></h2>
+                        <h2 class="tab"><?= lang('access_permissions') ?></h2>
                         <script type="text/javascript">
                             function makePublic(b) {
                                 var notPublic = false;
@@ -663,7 +663,7 @@ function entity($key, $default = null)
                                 }
                             }
                         </script>
-                        <p><?= $_lang['tmplvar_access_msg'] ?></p>
+                        <p><?= lang('tmplvar_access_msg') ?></p>
                         <?php
                         $chks = '';
                         $notPublic = false;
@@ -681,7 +681,7 @@ function entity($key, $default = null)
                             $number_of_g++;
                         }
                         $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
-                        $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
+                        $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . lang('all_doc_groups') . '</span></label>' . $chks;
                         echo $chks;
                         ?>
                     </div>
@@ -691,7 +691,7 @@ function entity($key, $default = null)
             ?>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?= $_lang['tmplvars_msg'] ?>
+                <?= lang('tmplvars_msg') ?>
             </div>
             <?php
             // invoke OnTVFormRender event

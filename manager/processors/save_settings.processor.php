@@ -104,42 +104,16 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
-    if (post_strvar('friendly_urls') !== '1' || strpos(serverv('SERVER_SOFTWARE', ''), 'IIS') !== false) {
+    if (post_strvar('friendly_urls') !== '1') {
         return $warnings;
     }
 
-    $htaccess = MODX_BASE_PATH . '.htaccess';
-    $sample_htaccess = MODX_BASE_PATH . 'sample.htaccess';
-    $dir = '/' . trim(evo()->config['base_url'], '/');
-    if (is_file($htaccess)) {
-        $_ = file_get_contents($htaccess);
-        if (strpos($_, 'RewriteEngine') === false) {
-            $warnings[] = lang('settings_friendlyurls_alert2');
-            return $warnings;
-        }
-        if (is_writable($htaccess)) {
-            $rs = file_put_contents(
-                $htaccess,
-                preg_replace('@RewriteBase.+@', "RewriteBase " . $dir, $_)
-            );
-            if (!$rs) {
-                $warnings[] = lang('settings_friendlyurls_alert2');
-            }
-        }
-        return $warnings;
-    }
-    if (is_file($sample_htaccess)) {
-        if (!rename($sample_htaccess, $htaccess)) {
-            $warnings[] = lang('settings_friendlyurls_alert');
-        } elseif (evo()->config['base_url'] !== '/') {
-            $_ = preg_replace(
-                '@RewriteBase.+@', "RewriteBase " . $dir,
-                file_get_contents($htaccess)
-            );
-            if (!@file_put_contents($htaccess, $_)) {
-                $warnings[] = lang('settings_friendlyurls_alert2');
-            }
-        }
+    require_once MODX_CORE_PATH . 'htaccess.class.inc.php';
+    $result = EvoHtaccess::ensure(MODX_BASE_PATH, config('base_url'), true, serverv('SERVER_SOFTWARE', ''));
+    if ($result === EvoHtaccess::FAILED_PLACE) {
+        $warnings[] = lang('settings_friendlyurls_alert');
+    } elseif (in_array($result, [EvoHtaccess::NO_REWRITE, EvoHtaccess::FAILED_WRITE], true)) {
+        $warnings[] = lang('settings_friendlyurls_alert2');
     }
     return $warnings;
 }

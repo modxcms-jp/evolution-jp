@@ -87,7 +87,7 @@ if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
 }
 
 // double check the session
-if (!isset($_SESSION['mgrValidated'])) {
+if (sessionv('mgrValidated') === null) {
     exit('Not Logged In!');
 }
 
@@ -110,10 +110,10 @@ if ((int) manager()->action !== 8 && manager()->isUpdatePending()) {
     header('Retry-After: 600');
     echo '<!DOCTYPE html><html><head><meta charset="' . hsc(config('modx_charset', 'utf-8')) . '">'
         . '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        . '<title>' . hsc($_lang['update_in_progress_title']) . '</title></head>'
+        . '<title>' . hsc(lang('update_in_progress_title')) . '</title></head>'
         . '<body style="font-family:sans-serif;text-align:center;padding:4rem 1rem;">'
-        . '<h1>' . hsc($_lang['update_in_progress_title']) . '</h1>'
-        . '<p>' . hsc($_lang[$canUpdate ? 'update_upload_installer_message' : 'update_in_progress_message']) . '</p>'
+        . '<h1>' . hsc(lang('update_in_progress_title')) . '</h1>'
+        . '<p>' . hsc(lang($canUpdate ? 'update_upload_installer_message' : 'update_in_progress_message')) . '</p>'
         . '</body></html>';
     exit;
 }
@@ -822,9 +822,9 @@ switch (manager()->action) {
         }
         echo "
             <div class='section'>
-            <div class='sectionHeader'>" . $_lang['functionnotimpl'] . "</div>
+            <div class='sectionHeader'>" . lang('functionnotimpl') . "</div>
             <div class='sectionBody'>
-                <p>" . $_lang['functionnotimpl_message'] . "</p>
+                <p>" . lang('functionnotimpl_message') . "</p>
             </div>
             </div>
         ";

@@ -36,7 +36,7 @@ if ($this->checkLocked()) {
 
 if (tv('type') === 'richtext') {
     $tmp = [
-        'editor' => evo()->config['which_editor'],
+        'editor' => config('which_editor'),
         'elements' => ['tv' . $tvName]
     ];
     $eventOutput = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
@@ -52,7 +52,7 @@ $tvHtml = evo()->renderFormElement(
     tv('value')
 );
 
-$theme = evo()->config['manager_theme'];
+$theme = config('manager_theme');
 $output = <<< EOT
 <!DOCTYPE html>
 <head>

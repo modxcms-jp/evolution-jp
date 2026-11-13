@@ -99,11 +99,11 @@ class ManagerAPI
     // check for saved form
     public function hasFormValues()
     {
-        if (isset($_SESSION['mgrFormValues'][$this->action])) {
+        if (sessionv('mgrFormValues.' . $this->action) !== null) {
             return true;
         }
 
-        if (isset($_SESSION['mgrFormValues'])) {
+        if (sessionv('mgrFormValues') !== null) {
             unset($_SESSION['mgrFormValues']);
         }
 
@@ -141,9 +141,8 @@ class ManagerAPI
         if ($name !== '') {
             return $name;
         }
-        global $_lang;
         $this->redirectToElementForm(
-            sprintf($_lang['element_name_required'], $typeLabel),
+            sprintf(lang('element_name_required'), $typeLabel),
             $kind,
             $id
         );
@@ -294,7 +293,7 @@ class ManagerAPI
             $alias = strtolower(evo()->stripAlias($pagetitle));
         }
 
-        if (evo()->config['allow_duplicate_alias']) {
+        if (config('allow_duplicate_alias')) {
             return '';
         }
 
@@ -384,8 +383,38 @@ class ManagerAPI
         );
     }
 
+    /**
+     * 管理画面の利用者のパスワードを保存用のハッシュにする（作る処理の置き場所はここだけ）
+     */
+    public function hashPassword($password)
+    {
+        return password_hash((string) $password, PASSWORD_DEFAULT);
+    }
+
+    /**
+     * 管理画面の利用者のパスワードの長さを確かめる（6 文字以上、72 バイト以下）
+     * 上限は bcrypt が照合するバイト数。戻り値は '' (問題なし) / 'too_short' / 'too_long'
+     */
+    public function checkPasswordLength($password)
+    {
+        $length = strlen((string) $password);
+        if ($length < 6) {
+            return 'too_short';
+        }
+        if ($length > 72) {
+            return 'too_long';
+        }
+        return '';
+    }
+
     public function getHashType($db_value = '')
-    { // md5 | v1 | phpass
+    { // password_hash | md5 | v1 | phpass
+        $db_value = (string) $db_value;
+        $info = password_get_info($db_value);
+        if (!empty($info['algo'])) {
+            return 'password_hash';
+        }
+
         $c = substr($db_value, 0, 1);
         if ($c === '$') {
             return 'phpass';
@@ -404,11 +433,7 @@ class ManagerAPI
 
     public function genV1Hash($password, $seed = '1')
     { // $seed is user_id basically
-        if (isset(evo()->config['pwd_hash_algo']) && !empty(evo()->config['pwd_hash_algo'])) {
-            $algorithm = evo()->config['pwd_hash_algo'];
-        } else {
-            $algorithm = 'UNCRYPT';
-        }
+        $algorithm = config('pwd_hash_algo') ?: 'UNCRYPT';
 
         $salt = md5($password . $seed);
 
@@ -475,7 +500,7 @@ class ManagerAPI
             if (sessionv('current_request_uri')) {
                 $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
             }
-            $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
+            $_SESSION['current_request_uri'] = serverv('REQUEST_URI');
         }
     }
 
@@ -673,8 +698,6 @@ class ManagerAPI
 
     public function sysAlert($sysAlertMsgQueque = '')
     {
-        global $_lang;
-
         if (!$sysAlertMsgQueque) {
             $sysAlertMsgQueque = evo()->SystemAlertMsgQueque;
             if (!$sysAlertMsgQueque) {
@@ -701,7 +724,7 @@ class ManagerAPI
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
             [
                 '[+alerts+]' => js_literal(implode('<hr />', $alerts)),
-                '[+title+]' => js_literal($_lang['sys_alert'])
+                '[+title+]' => js_literal(lang('sys_alert'))
             ]
         );
     }

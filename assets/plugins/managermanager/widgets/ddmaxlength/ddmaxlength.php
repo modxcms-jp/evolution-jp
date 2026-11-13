@@ -21,7 +21,7 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
 
     $output = '';
 
-    $base_url = $modx->config['base_url'];
+    $base_url = config('base_url');
 
     // Which template is this page using?
     if (isset($content['template'])) {
@@ -29,7 +29,7 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
     } else {
         // If no content is set, it's likely we're adding a new page at top level.
         // So use the site default template. This may need some work as it might interfere with a default template set by MM?
-        $page_template = $modx->config['default_template'];
+        $page_template = config('default_template');
     }
 
     // Does this page's template use any image or file or text TVs?

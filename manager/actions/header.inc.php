@@ -188,7 +188,7 @@ if (!$evoShellChromeless) {
     // 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
     $evoShellIncludePartial = static function (string $evoShellPartialPath): void {
         // 部品が読むグローバル変数だけを明示する。設定値は config() で読む
-        global $modx, $_lang, $_style, $modx_version, $modx_full_appname, $modx_textdir, $modx_manager_charset;
+        global $modx, $_lang, $modx_version, $modx_full_appname, $modx_textdir, $modx_manager_charset;
         include_once $evoShellPartialPath;
     };
     $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');

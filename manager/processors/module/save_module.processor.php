@@ -25,7 +25,7 @@ if (!is_string($modulecode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$name = manager()->requireElementName(post_strvar('name'), $_lang['module'], 'module', $id);
+$name = manager()->requireElementName(post_strvar('name'), lang('module'), 'module', $id);
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
 $icon = post_strvar('icon');
 if ($icon !== '' && preg_match('@^(' . config('rb_base_url') . ')@', $icon) == 1) {
@@ -51,7 +51,7 @@ switch ($mode) {
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_module'], $name),
+                sprintf(lang('duplicate_name_found_module'), $name),
                 'module',
                 0
             );

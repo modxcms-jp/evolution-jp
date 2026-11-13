@@ -2,7 +2,6 @@
 
 /**
  * @var array $_lang
- * @var array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -23,25 +22,25 @@ include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
 // 実行のメニューは、モジュールごとに実行してよいか（ManagerAPI::canExecuteModule()）が違うので、
 // 実行できる項目と実行できない（無効の）項目を並べ、showContentMenu() が行ごとに切り替える
-$cm->addItem($_lang["run_module"], "js:menuAction(1)", $_style['icons_save'], 0);
-$cm->addItem($_lang["run_module"], "js:menuAction(1)", $_style['icons_save'], 1);
+$cm->addItem(lang("run_module"), "js:menuAction(1)", style('icons_save'), 0);
+$cm->addItem(lang("run_module"), "js:menuAction(1)", style('icons_save'), 1);
 $cm->addSeparator();
 $cm->addItem(
-    $_lang["edit"],
+    lang("edit"),
     "js:menuAction(2)",
-    $_style['icons_edit_document'],
+    style('icons_edit_document'),
     (!evo()->hasPermission('edit_module') ? 1 : 0)
 );
 $cm->addItem(
-    $_lang["duplicate"],
+    lang("duplicate"),
     "js:menuAction(3)",
-    $_style['icons_resource_duplicate'],
+    style('icons_resource_duplicate'),
     (!evo()->hasPermission('new_module') ? 1 : 0)
 );
 $cm->addItem(
-    $_lang["delete"],
+    lang("delete"),
     "js:menuAction(4)",
-    $_style['icons_delete'],
+    style('icons_delete'),
     (!evo()->hasPermission('delete_module') ? 1 : 0)
 );
 echo $cm->render();
@@ -124,21 +123,21 @@ echo $cm->render();
     });
 </script>
 
-<h1><?= $_lang['module_management'] ?></h1>
+<h1><?= lang('module_management') ?></h1>
 
 <div class="sectionBody">
     <!-- load modules -->
     <div id="actions">
         <ul class="actionButtons">
             <?php if ((evo()->hasPermission('new_module'))) {
-                echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . $_lang["new_module"] . '</a></li>';
+                echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . lang("new_module") . '</a></li>';
             } ?>
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
         </ul>
     </div>
 
-    <p><?= $_lang['module_management_msg'] ?></p>
+    <p><?= lang('module_management_msg') ?></p>
 
     <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
@@ -170,54 +169,54 @@ echo $cm->render();
         );
         $rows = db()->getRows($ds) ?: [];
 
-        $yesOrDash = function ($value) use ($_lang) {
-            return $value ? $_lang['yes'] : '-';
+        $yesOrDash = function ($value) {
+            return $value ? lang('yes') : '-';
         };
         $columns = [
             [
                 'key' => 'icon',
-                'label' => $_lang['icon'],
+                'label' => lang('icon'),
                 'class' => 'is-shrink is-center',
                 'html' => true,
-                'format' => function ($value, array $row) use ($_style, $_lang) {
+                'format' => function ($value, array $row) {
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" data-can-execute="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
                         (int) $row['id'],
                         (!$row['disabled'] && manager()->canExecuteModule((int) $row['id'])) ? 1 : 0, // 無効のモジュールは実行の処理が断るので、実行できない行にする（権限ではなく状態）
-                        hsc($_lang['click_to_context']),
-                        hsc($value !== '' && $value !== null ? $value : $_style['icons_modules'])
+                        hsc(lang('click_to_context')),
+                        hsc($value !== '' && $value !== null ? $value : style('icons_modules'))
                     );
                 },
             ],
             [
                 'key' => 'name',
-                'label' => $_lang['name'],
+                'label' => lang('name'),
                 'html' => true,
-                'format' => function ($value, array $row) use ($_lang) {
+                'format' => function ($value, array $row) {
                     return sprintf(
                         '<a href="index.php?a=108&amp;id=%d" title="%s">%s</a>',
                         (int) $row['id'],
-                        hsc($_lang['module_edit_click_title']),
+                        hsc(lang('module_edit_click_title')),
                         hsc($value)
                     );
                 },
             ],
             [
                 'key' => 'description',
-                'label' => $_lang['description'],
+                'label' => lang('description'),
                 'html' => true,
                 'format' => function ($value) {
                     return element_description_html((string) $value);
                 },
             ],
-            ['key' => 'locked', 'label' => $_lang['locked'], 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
-            ['key' => 'disabled', 'label' => $_lang['disabled'], 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
+            ['key' => 'locked', 'label' => lang('locked'), 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
+            ['key' => 'disabled', 'label' => lang('disabled'), 'class' => 'is-shrink is-center', 'format' => $yesOrDash],
         ];
         $table = new DataTable($columns, [
             'id' => 'modules',
             'tableClass' => 'grid',
             'rowClasses' => ['gridItem', 'gridAltItem'],
-            'emptyMessage' => $_lang['no_records_found'],
+            'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [
             'label' => lang('pagination_label'),

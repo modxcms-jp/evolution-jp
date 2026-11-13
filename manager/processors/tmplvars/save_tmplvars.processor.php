@@ -23,7 +23,7 @@ if (!is_string($elements) || !is_string($default_text)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), $_lang['tv'], 'tmplvar', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('tv'), 'tmplvar', $id);
 $description = post_strvar('description');
 $caption = post_strvar('caption', $rawName);
 $type = post_strvar('type');
@@ -42,14 +42,14 @@ switch ($mode) {
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($rawName, 0) !== false) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
+                sprintf(lang('duplicate_name_found_general'), lang('tv'), $rawName),
                 'tmplvar',
                 0
             );
         }
         if (check_reserved_names($rawName) !== false) {
             manager()->redirectToElementForm(
-                sprintf($_lang['reserved_name_warning'], $rawName),
+                sprintf(lang('reserved_name_warning'), $rawName),
                 'tmplvar',
                 0
             );
@@ -102,14 +102,14 @@ switch ($mode) {
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($rawName, $id) !== false) {
             manager()->redirectToElementForm(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $rawName),
+                sprintf(lang('duplicate_name_found_general'), lang('tv'), $rawName),
                 'tmplvar',
                 $id
             );
         }
         if (check_reserved_names($rawName) !== false) {
             manager()->redirectToElementForm(
-                sprintf($_lang['reserved_name_warning'], $rawName),
+                sprintf(lang('reserved_name_warning'), $rawName),
                 'tmplvar',
                 $id
             );

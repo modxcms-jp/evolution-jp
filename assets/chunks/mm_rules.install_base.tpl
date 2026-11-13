@@ -12,7 +12,7 @@
  */
 
 mm_widget_showimagetvs(); // Imageタイプのテンプレート変数の画像をプレビューします
-if($modx->config['track_visitors']==='0') mm_hideFields('log');
+if (config('track_visitors') === '0') mm_hideFields('log');
 
 /* ==========================================================
 http://modx.jp/docs/extras/plugins/mm.html

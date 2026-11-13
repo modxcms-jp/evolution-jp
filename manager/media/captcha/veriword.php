@@ -9,7 +9,7 @@ if (!isset($modx)) {
 }
 $vword = new VeriWord();
 // captcha_words は設定画面を保存するまでDBに無いため、既定値で補う
-$captcha_words = $modx->config['captcha_words'] ?? '';
+$captcha_words = config('captcha_words', '');
 if ($captcha_words === '') {
     $captcha_words = include MODX_CORE_PATH . 'captcha_words.default.php';
 }

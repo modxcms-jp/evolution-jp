@@ -22,11 +22,11 @@ function docIsAccessible($id)
 function docDeleteCheck($id)
 {
     $id = (int)$id;
-    if ($id == evo()->config['site_start']) {
+    if ($id == config('site_start')) {
         $warning = "Document is 'Site start' and cannot be deleted!";
-    } elseif ($id == evo()->config['error_page']) {
+    } elseif ($id == config('error_page')) {
         $warning = "Document is 'Error page' and cannot be deleted!";
-    } elseif ($id == evo()->config['site_unavailable_page']) {
+    } elseif ($id == config('site_unavailable_page')) {
         $warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
     } elseif (!docIsAccessible($id)) {
         $warning = lang('access_permission_denied');
@@ -57,7 +57,7 @@ function docDeleteChildren($parent)
     $rs = db()->select('id', '[+prefix+]site_content', "parent='" . (int)$parent . "' AND deleted='0'");
     while ($row = db()->getRow($rs)) {
         foreach ($protected as $key => $label) {
-            if ($row['id'] == evo()->config[$key]) {
+            if ($row['id'] == config($key)) {
                 return [
                     'warning' => sprintf(
                         "The document you are trying to delete is a folder containing document %s. This document is registered as the '%s' document, and cannot be deleted. Please assign another document as your '%s' document and try again.",
@@ -144,7 +144,7 @@ function docPublishCheck($id, $publish)
     if (!docIsAccessible($id)) {
         return 'access_permission_denied';
     }
-    if (!$publish && $id == evo()->config['site_start']) {
+    if (!$publish && $id == config('site_start')) {
         // サイト開始ページは非公開にできない（リソースの保存と同じ文言）
         evo()->loadExtension('DocAPI');
         return evo()->doc->startDocPubError(0, 0, 0);

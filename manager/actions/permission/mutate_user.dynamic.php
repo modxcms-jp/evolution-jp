@@ -2,7 +2,6 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-global $_style;
 
 include_once __DIR__ . '/mutate_user/form_values.php';
 include_once __DIR__ . '/mutate_user/functions.php';

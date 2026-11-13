@@ -5,18 +5,18 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 ?>
     <script type="text/javascript">
         function deleteCategory(catid) {
-            jConfirm(<?= js_literal($_lang['confirm_delete_category']) ?>, <?= js_literal($_lang['delete_category']) ?>, function (r) {
+            jConfirm(<?= js_literal(lang('confirm_delete_category')) ?>, <?= js_literal(lang('delete_category')) ?>, function (r) {
                 if (r) EvoCsrf.post("index.php?a=501&catId=" + catid);
                 else return false;
             });
         }
     </script>
 
-    <h1><?= $_lang['element_management'] ?></h1>
+    <h1><?= lang('element_management') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= $_lang['cancel'] ?>
+            <li id="Button5" class="mutate"><a href="#" onclick="EvoShell.go('index.php?a=2');"><?= lang('cancel') ?>
                 </a></li>
         </ul>
     </div>
@@ -27,10 +27,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <!-- Templates -->
             <?php if (manager()->canManageElement('template')) { ?>
                 <div class="tab-page" id="tabTemplates">
-                    <h2 class="tab"><?= $_lang["manage_templates"] ?></h2>
-                    <div><?= $_lang['template_management_msg'] ?></div>
+                    <h2 class="tab"><?= lang("manage_templates") ?></h2>
+                    <div><?= lang('template_management_msg') ?></div>
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=19"><?= $_lang['new_template'] ?>
+                        <li><a class="default" href="index.php?a=19"><?= lang('new_template') ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_templates', 16, 'templatename') ?>
@@ -40,14 +40,14 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <!-- Template variables -->
             <?php if (manager()->canManageElement('template')) { ?>
                 <div class="tab-page" id="tabVariables">
-                    <h2 class="tab"><?= $_lang["tmplvars"] ?></h2>
+                    <h2 class="tab"><?= lang("tmplvars") ?></h2>
                     <!--//
                             Modified By Raymond for Template Variables
                             Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
                         -->
-                    <div><?= $_lang['tmplvars_management_msg'] ?></div>
+                    <div><?= lang('tmplvars_management_msg') ?></div>
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=300"><?= $_lang['new_tmplvars'] ?>
+                        <li><a class="default" href="index.php?a=300"><?= lang('new_tmplvars') ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_tmplvars', 301) ?>
@@ -57,11 +57,11 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <!-- chunks -->
             <?php if (manager()->canManageElement('chunk')) { ?>
                 <div class="tab-page" id="tabChunks">
-                    <h2 class="tab"><?= $_lang["manage_htmlsnippets"] ?></h2>
-                    <div><?= $_lang['htmlsnippet_management_msg'] ?></div>
+                    <h2 class="tab"><?= lang("manage_htmlsnippets") ?></h2>
+                    <div><?= lang('htmlsnippet_management_msg') ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=77"><?= $_lang['new_htmlsnippet'] ?>
+                        <li><a class="default" href="index.php?a=77"><?= lang('new_htmlsnippet') ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_htmlsnippets', 78) ?>
@@ -71,11 +71,11 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <!-- snippets -->
             <?php if (manager()->canManageElement('snippet')) { ?>
                 <div class="tab-page" id="tabSnippets">
-                    <h2 class="tab"><?= $_lang["manage_snippets"] ?></h2>
-                    <div><?= $_lang['snippet_management_msg'] ?></div>
+                    <h2 class="tab"><?= lang("manage_snippets") ?></h2>
+                    <div><?= lang('snippet_management_msg') ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=23"><?= $_lang['new_snippet'] ?>
+                        <li><a class="default" href="index.php?a=23"><?= lang('new_snippet') ?>
                             </a></li>
                     </ul>
                     <?= createResourceList('site_snippets', 22) ?>
@@ -85,14 +85,14 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             <!-- plugins -->
             <?php if (manager()->canManageElement('plugin')) { ?>
                 <div class="tab-page" id="tabPlugins">
-                    <h2 class="tab"><?= $_lang["manage_plugins"] ?></h2>
-                    <div><?= $_lang['plugin_management_msg'] ?></div>
+                    <h2 class="tab"><?= lang("manage_plugins") ?></h2>
+                    <div><?= lang('plugin_management_msg') ?></div>
 
                     <ul class="actionButtons">
-                        <li><a class="default" href="index.php?a=101"><?= $_lang['new_plugin'] ?>
+                        <li><a class="default" href="index.php?a=101"><?= lang('new_plugin') ?>
                             </a></li>
                         <?php if (evo()->hasPermission('save_plugin')) { ?>
-                            <li><a href="index.php?a=100" data-modal><?= $_lang['plugin_priority'] ?>
+                            <li><a href="index.php?a=100" data-modal><?= lang('plugin_priority') ?>
                             </a></li><?php } ?>
                     </ul>
                     <?= createResourceList('site_plugins', 102) ?>
@@ -101,8 +101,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
             <!-- category view -->
             <div class="tab-page" id="tabCategory">
-                <h2 class="tab"><?= $_lang["element_categories"] ?></h2>
-                <div><?= $_lang['category_msg'] ?></div>
+                <h2 class="tab"><?= lang("element_categories") ?></h2>
+                <div><?= lang('category_msg') ?></div>
                 <br/>
                 <ul>
                     <?= createCategoryList() ?>
@@ -111,13 +111,13 @@ if (!isset($modx) || !evo()->isLoggedin()) {
         </div>
     </div>
     <script type="text/javascript">
-        var tpstatus = <?= $modx->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>;
+        var tpstatus = <?= config('remember_last_tab') == 0 ? 'false' : 'true' ?>;
         tpElements = new WebFXTabPane(document.getElementById("elementsPane"), tpstatus);
     </script>
 <?php
 function createResourceList($element_name, $action, $nameField = 'name')
 {
-    global $modx, $_lang, $modx_textdir;
+    global $modx, $modx_textdir;
 
     $preCat = '';
     $insideUl = 0;
@@ -139,7 +139,7 @@ function createResourceList($element_name, $action, $nameField = 'name')
             $ph['class'] = addclass($element_name, $row);
             $ph['name'] = hsc($row['name']);
             $ph['description'] = element_description_html($row['description']);
-            $ph['locked'] = $row['locked'] ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
+            $ph['locked'] = $row['locked'] ? ' <em>(' . lang('locked') . ')</em>' : '';
             $src = title($element_name);
             foreach ($ph as $k => $v) {
                 $k = "[+{$k}+]";
@@ -176,10 +176,11 @@ function addclass($element_name, $row)
 
 function getArray($element_name, $action, $nameField = 'name')
 {
-    global $modx, $_lang;
+    global $modx;
 
     $tbl_element_name = evo()->getFullTableName($element_name);
     $tbl_categories = evo()->getFullTableName('categories');
+    $no_category = db()->escape(lang('no_category'));
 
     switch ($element_name) {
         case 'site_plugins':
@@ -196,7 +197,7 @@ function getArray($element_name, $action, $nameField = 'name')
     $f[] = "{$tbl_element_name}.id";
     $f[] = "{$tbl_element_name}.description";
     $f[] = "{$tbl_element_name}.locked";
-    $f[] = "if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
+    $f[] = "if(isnull({$tbl_categories}.category),'{$no_category}',{$tbl_categories}.category) as category";
     $fields = implode(',', $f);
     $from = "{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
     if ($element_name == 'site_tmplvars') {
@@ -208,7 +209,7 @@ function getArray($element_name, $action, $nameField = 'name')
     $rs = db()->select($fields, $from, '', $orderby);
     $limit = db()->count($rs);
     if ($limit < 1) {
-        return $_lang['no_results'];
+        return lang('no_results');
     }
 
     $rows = [];
@@ -220,19 +221,19 @@ function getArray($element_name, $action, $nameField = 'name')
 
 function createCategoryList()
 {
-    global $modx, $_lang;
+    global $modx;
 
     $displayInfo = [];
     $hasPermission = 0;
     if (manager()->canManageElement('plugin')) {
-        $displayInfo['plugin'] = ['table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']];
+        $displayInfo['plugin'] = ['table' => 'site_plugins', 'action' => 102, 'name' => lang('manage_plugins')];
         $hasPermission = 1;
     }
     if (manager()->canManageElement('snippet')) {
         $displayInfo['snippet'] = [
             'table' => 'site_snippets',
             'action' => 22,
-            'name' => $_lang['manage_snippets']
+            'name' => lang('manage_snippets')
         ];
         $hasPermission = 1;
     }
@@ -240,7 +241,7 @@ function createCategoryList()
         $displayInfo['htmlsnippet'] = [
             'table' => 'site_htmlsnippets',
             'action' => 78,
-            'name' => $_lang['manage_htmlsnippets']
+            'name' => lang('manage_htmlsnippets')
         ];
         $hasPermission = 1;
     }
@@ -248,13 +249,13 @@ function createCategoryList()
         $displayInfo['templates'] = [
             'table' => 'site_templates',
             'action' => 16,
-            'name' => $_lang['manage_templates']
+            'name' => lang('manage_templates')
         ];
-        $displayInfo['tmplvars'] = ['table' => 'site_tmplvars', 'action' => 301, 'name' => $_lang['tmplvars']];
+        $displayInfo['tmplvars'] = ['table' => 'site_tmplvars', 'action' => 301, 'name' => lang('tmplvars')];
         $hasPermission = 1;
     }
     if (manager()->canManageElement('module')) {
-        $displayInfo['modules'] = ['table' => 'site_modules', 'action' => 108, 'name' => $_lang['modules']];
+        $displayInfo['modules'] = ['table' => 'site_modules', 'action' => 108, 'name' => lang('modules')];
         $hasPermission = 1;
     }
 
@@ -287,7 +288,7 @@ function createCategoryList()
                     $row['type'] = $v['name'];
                     $row['action'] = $v['action'];
                     if (empty($row['category'])) {
-                        $row['category'] = $_lang['no_category'];
+                        $row['category'] = lang('no_category');
                     }
                     $finalInfo[] = $row;
                 }
@@ -306,10 +307,10 @@ function createCategoryList()
         foreach ($finalInfo as $n => $v) {
             if ($preCat !== $v['category']) {
                 echo $insideUl ? '</ul>' : '';
-                if ($v['category'] == $_lang['no_category'] || !$delPerm) {
+                if ($v['category'] == lang('no_category') || !$delPerm) {
                     echo '<li><strong>' . hsc($v['category']) . '</strong><ul>';
                 } else {
-                    echo '<li><strong>' . hsc($v['category']) . '</strong> (<a href="javascript:deleteCategory(\'' . (int)$v['catid'] . '\');">' . $_lang['delete_category'] . '</a>)<ul>';
+                    echo '<li><strong>' . hsc($v['category']) . '</strong> (<a href="javascript:deleteCategory(\'' . (int)$v['catid'] . '\');">' . lang('delete_category') . '</a>)<ul>';
                 }
                 $insideUl = 1;
             }
@@ -327,7 +328,7 @@ function createCategoryList()
             $ph['name'] = hsc($v['name']);
             $ph['type'] = $v['type'];
             $ph['description'] = (!empty($v['description'])) ? ' - ' . element_description_html($v['description']) : '';
-            $ph['locked'] = ($v['locked']) ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
+            $ph['locked'] = ($v['locked']) ? ' <em>(' . lang('locked') . ')</em>' : '';
             $tpl = '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]</a></span> ([+type+])[+description+][+locked+]</li>';
             foreach ($ph as $k => $value) {
                 $k = '[+' . $k . '+]';

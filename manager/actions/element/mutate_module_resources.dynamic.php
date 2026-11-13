@@ -27,7 +27,7 @@ $limit = db()->count($rs);
 if ($limit > 1) {
     while ($lock = db()->getRow($rs)) {
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['modules']);
+            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('modules'));
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -189,24 +189,24 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
     <input type="hidden" name="type" value="" />
     <input type="hidden" name="newids" value="" />
     <input type="hidden" name="id" value="<?= $content['id'] ?>" />
-    <h1><?= $_lang['module_resource_title'] ?></h1>
+    <h1><?= lang('module_resource_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
-            <li class="mutate"><a href="index.php?a=106"><?= $_lang['cancel'] ?></a>
+            <li class="mutate"><a href="index.php?a=106"><?= lang('cancel') ?></a>
         </ul>
     </div>
 
     <div class="section">
-        <div class="sectionHeader"><?= hsc($content["name"]) . " - " . $_lang['module_resource_title'] ?></div>
+        <div class="sectionHeader"><?= hsc($content["name"]) . " - " . lang('module_resource_title') ?></div>
         <div class="sectionBody">
-            <p><img src="<?= $_style["icons_modules"] ?>" alt=""
-                    align="left" /><?= $_lang['module_resource_msg'] ?></p>
+            <p><img src="<?= style("icons_modules") ?>" alt=""
+                    align="left" /><?= lang('module_resource_msg') ?></p>
             <br />
             <!-- Dependencies -->
             <ul class="actionButtons">
-                <li><a href="#" onclick="addSnippet();return false;"><?= $_lang['add_snippet'] ?></a></li>
-                <li><a href="#" onclick="addPlugin();return false;"><?= $_lang['add_plugin'] ?></a></li>
+                <li><a href="#" onclick="addSnippet();return false;"><?= lang('add_snippet') ?></a></li>
+                <li><a href="#" onclick="addPlugin();return false;"><?= lang('add_plugin') ?></a></li>
             </ul>
             <?php
             $sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
@@ -227,7 +227,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                     [
                         [
                             'key' => 'name',
-                            'label' => $_lang['element_name'],
+                            'label' => lang('element_name'),
                             'html' => true,
                             'format' => function ($value, array $row) {
                                 return sprintf(
@@ -237,20 +237,20 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                                 );
                             },
                         ],
-                        ['key' => 'type', 'label' => $_lang['type']],
+                        ['key' => 'type', 'label' => lang('type')],
                     ],
                     [
                         'id' => 'module-resources',
                         'tableClass' => 'grid',
                         'rowClasses' => ['gridItem', 'gridAltItem'],
-                        'emptyMessage' => $_lang['no_records_found'],
+                        'emptyMessage' => lang('no_records_found'),
                     ]
                 );
                 echo $table->render(db()->getRows($ds) ?: []);
             }
             ?>
             <ul class="actionButtons">
-                <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><?= $_lang['remove'] ?>
+                <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><?= lang('remove') ?>
                     </a></li>
             </ul>
         </div>
