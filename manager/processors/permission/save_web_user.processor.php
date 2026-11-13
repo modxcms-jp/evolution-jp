@@ -98,8 +98,9 @@ switch ($mode) {
 
         // generate a new password for this user
         if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
-            if (strlen($specifiedpassword) < 6) {
-                webAlert('Password is too short!');
+            $passwordError = manager()->passwordError($specifiedpassword);
+            if ($passwordError !== '') {
+                webAlert($passwordError);
                 exit;
             }
             $newpassword = $specifiedpassword;
@@ -246,8 +247,9 @@ switch ($mode) {
         // generate a new password for this user
         if ($genpassword === 1) {
             if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
-                if (strlen($specifiedpassword) < 6) {
-                    webAlert("Password is too short!");
+                $passwordError = manager()->passwordError($specifiedpassword);
+                if ($passwordError !== '') {
+                    webAlert($passwordError);
                     exit;
                 }
 

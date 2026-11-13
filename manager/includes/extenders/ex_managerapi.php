@@ -329,17 +329,22 @@ class ManagerAPI
     }
 
     /**
-     * 管理画面の利用者のパスワードの長さを確かめる（6 文字以上、72 バイト以下）
-     * 上限は bcrypt が照合するバイト数。戻り値は '' (問題なし) / 'too_short' / 'too_long'
+     * 新しいパスワードが決まりに合うかを確かめる（判定の置き場所はここだけ）
+     * 決まり: 半角の印字できる文字（ASCII の 0x20〜0x7E）だけで 6〜72 文字。
+     * 半角だけなら文字数とバイト数が一致し、上限は bcrypt が照合する 72 バイトとそのまま合う。
+     * 戻り値は '' (問題なし) か、利用者に見せるエラー文
      */
-    public function checkPasswordLength($password)
+    public function passwordError($password)
     {
-        $length = strlen((string) $password);
-        if ($length < 6) {
-            return 'too_short';
+        $password = (string) $password;
+        if (!preg_match('/\A[\x20-\x7E]*\z/', $password)) {
+            return lang('password_error_not_ascii');
         }
-        if ($length > 72) {
-            return 'too_long';
+        if (strlen($password) < 6) {
+            return lang('password_error_too_short');
+        }
+        if (strlen($password) > 72) {
+            return lang('password_error_too_long');
         }
         return '';
     }

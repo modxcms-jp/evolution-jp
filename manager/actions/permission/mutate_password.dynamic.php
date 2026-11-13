@@ -27,21 +27,23 @@ if (sessionv('onetime_msg') !== null) {
         <?= $onetime_msg ?>
         <form action="index.php" method="post" name="userform">
             <input type="hidden" name="a" value="34"/>
-            <p><?= lang('change_password_message') ?></p>
+            <?php // パスワード管理ソフトが「この利用者の新しいパスワードの設定」と分かるように、ログイン名を添える（送信はしない） ?>
+            <input type="text" hidden readonly autocomplete="username" value="<?= hsc(evo()->getLoginUserName()) ?>"/>
+            <p><?= lang('password_rule') ?></p>
             <table border="0" cellspacing="0" cellpadding="4">
                 <tr>
-                    <td><?= lang("username") ?>:</td>
-                    <td><b><?= hsc($modx->getLoginUserName()) ?></b></td>
+                    <td><?= lang('username') ?>:</td>
+                    <td><b><?= hsc(evo()->getLoginUserName()) ?></b></td>
                 </tr>
                 <tr>
                     <td><?= lang('change_password_new') ?>:</td>
                     <td><input type="password" name="pass1" class="inputBox" style="width:150px" value=""
-                               autocomplete="off"/></td>
+                               autocomplete="new-password"/></td>
                 </tr>
                 <tr>
                     <td><?= lang('change_password_confirm') ?>:</td>
                     <td><input type="password" name="pass2" class="inputBox" style="width:150px" value=""
-                               autocomplete="off"/></td>
+                               autocomplete="new-password"/></td>
                 </tr>
                 <tr>
                     <td colspan="2">

@@ -8,32 +8,31 @@ if (!evo()->hasPermission('save_password')) {
 }
 
 $password = post_strvar('pass1');
-$lengthError = manager()->checkPasswordLength($password);
+$passwordError = manager()->passwordError($password);
 
 if ($password !== post_strvar('pass2')) {
-    $msg = '<p class="fail">passwords don\'t match!</p>';
-} elseif (empty($password)) {
-    $msg = '<p class="fail">passwords don\'t empty!</p>';
-} elseif ($lengthError === 'too_short') {
-    $msg = '<p class="fail">Password is too short. Please specify a password of at least 6 characters.</p>';
-} elseif ($lengthError === 'too_long') {
-    $msg = '<p class="fail">Password is too long. Please specify a password of no more than 72 bytes.</p>';
+    $msg = '<p class="fail">' . lang('password_error_mismatch') . '</p>';
+} elseif ($passwordError !== '') {
+    $msg = '<p class="fail">' . $passwordError . '</p>';
 } else {
     $uid = evo()->getLoginUserID();
-    $f['password'] = manager()->hashPassword($password);
-    $rs = db()->update(db()->escape($f), '[+prefix+]manager_users', sprintf("id='%d'", $uid));
+    $rs = db()->update(
+        db()->escape(['password' => manager()->hashPassword($password)]),
+        '[+prefix+]manager_users',
+        sprintf("id='%d'", $uid)
+    );
     if (!$rs) {
-        $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
+        $msg = '<p class="fail">' . lang('password_error_save') . '</p>';
     } else {
         $userinfo = evo()->getUserInfo($uid);
-        $msg = '<p class="success">' . lang("change_password_success") . '</p>';
+        $msg = '<p class="success">' . lang('change_password_success') . '</p>';
         $tmp = [
-            "userid" => $uid,
-            "username" => $userinfo['username'],
-            "userpassword" => $userinfo['password']
+            'userid' => $uid,
+            'username' => $userinfo['username'],
+            'userpassword' => $userinfo['password']
         ];
-        evo()->invokeEvent("OnManagerChangePassword", $tmp);
+        evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 }
-$_SESSION['onetime_msg'] = $msg;
-header("Location: index.php?a=28");
+sessionv('*onetime_msg', $msg);
+header('Location: index.php?a=28');

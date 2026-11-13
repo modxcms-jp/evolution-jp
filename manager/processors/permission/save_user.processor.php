@@ -59,13 +59,9 @@ if ($mode === 'new') { // new user
             webAlert("You didn't specify a password for this user!");
             exit;
         }
-        $passwordError = manager()->checkPasswordLength(post_strvar('specifiedpassword'));
-        if ($passwordError === 'too_short') {
-            webAlert('Password is too short!');
-            exit;
-        }
-        if ($passwordError === 'too_long') {
-            webAlert('Password is too long!');
+        $passwordError = manager()->passwordError(post_strvar('specifiedpassword'));
+        if ($passwordError !== '') {
+            webAlert($passwordError);
             exit;
         }
     } elseif (post_strvar('passwordgenmethod') !== 'g') {
@@ -108,13 +104,9 @@ if (in_array($mode, ['edit', 'profile'], true)) {
                 webAlert("You didn't specify a password for this user!");
                 exit;
             }
-            $passwordError = manager()->checkPasswordLength(post_strvar('specifiedpassword'));
-            if ($passwordError === 'too_short') {
-                webAlert('Password is too short!');
-                exit;
-            }
-            if ($passwordError === 'too_long') {
-                webAlert('Password is too long!');
+            $passwordError = manager()->passwordError(post_strvar('specifiedpassword'));
+            if ($passwordError !== '') {
+                webAlert($passwordError);
                 exit;
             }
         } elseif (post_strvar('passwordgenmethod') !== 'g') {

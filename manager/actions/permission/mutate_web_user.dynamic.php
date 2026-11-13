@@ -337,7 +337,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                                             onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
                                         <span class="warning"
-                                            style="font-weight:normal"><?= lang('password_gen_length') ?></span>
+                                            style="font-weight:normal"><?= lang('password_rule') ?></span>
                                     </div>
                                 </fieldset>
                                 <br />

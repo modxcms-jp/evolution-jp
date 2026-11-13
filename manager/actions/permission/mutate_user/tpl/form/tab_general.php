@@ -126,7 +126,7 @@
                         <span
                             class="warning"
                             style="font-weight:normal"
-                        ><?= lang('password_gen_length') ?></span>
+                        ><?= lang('password_rule') ?></span>
                     </div>
                 </fieldset>
                 <fieldset
