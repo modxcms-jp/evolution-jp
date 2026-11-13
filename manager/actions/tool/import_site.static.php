@@ -135,6 +135,8 @@ function run()
     $importstart = $mtime;
 
     if (postv('reset') === 'on') {
+        db()->delete('[+prefix+]document_groups');
+        db()->delete('[+prefix+]site_tmplvar_contentvalues');
         db()->delete('[+prefix+]site_content');
         db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
         db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
@@ -149,6 +151,7 @@ function run()
     }
 
     $filesfound = 0;
+    $createdIds = [];
 
     $files = pop_index(getFiles($filedir));
 
@@ -158,7 +161,7 @@ function run()
     // import files
     if (0 < count($files)) {
         db()->update(['isfolder' => 1], '[+prefix+]site_content', "id={$parent}");
-        importFiles($parent, $filedir, $files, 'root');
+        importFiles($parent, $filedir, $files, 'root', $createdIds);
     }
 
     $mtime = microtime();
@@ -169,13 +172,13 @@ function run()
     $output .= sprintf('<p>%s %s</p>', lang('import_site_time'), round($totaltime, 3));
 
     if (postv('convert_link') === 'on') {
-        convertLink();
+        convertLink($createdIds);
     }
 
     return $output;
 }
 
-function importFiles($parent, $filedir, $files, $mode)
+function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
 {
     global $allowedfiles;
 
@@ -236,12 +239,13 @@ function importFiles($parent, $filedir, $files, $mode)
                     echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                $createdIds[] = $newid;
                 $find = true;
                 echo sprintf(
                     ' - <span class="success">%s</span><br />' . "\n",
                     lang('import_site_success')
                 );
-                importFiles($newid, $filedir . $alias . '/', $value, 'sub');
+                importFiles($newid, $filedir . $alias . '/', $value, 'sub', $createdIds);
             }
             if ($find === false) {
                 $date = request_time();
@@ -252,8 +256,9 @@ function importFiles($parent, $filedir, $files, $mode)
                 $field['hidemenu'] = '1';
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if ($newid) {
+                    $createdIds[] = $newid;
                     echo sprintf(' - <span class="success">%s</span><br />', lang('import_site_success')) . "\n";
-                    importFiles($newid, $filedir . $alias . '/', $value, 'sub');
+                    importFiles($newid, $filedir . $alias . '/', $value, 'sub', $createdIds);
                 } else {
                     $vs = [
                         lang('import_site_failed'),
@@ -312,6 +317,7 @@ function importFiles($parent, $filedir, $files, $mode)
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                $createdIds[] = $newid;
                 echo sprintf(' - <span class="success">%s</span><br />', lang('import_site_success')) . "\n";
 
                 $is_site_start = false;
@@ -438,9 +444,16 @@ function treatContent($src, $filename, $alias)
     return [$pagetitle, $content, $description];
 }
 
-function convertLink()
+function convertLink(array $createdIds)
 {
-    $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
+    if (!$createdIds) {
+        return;
+    }
+    $rs = db()->select(
+        '*',
+        '[+prefix+]site_content',
+        sprintf('id IN (%s) AND deleted!=1', implode(',', array_map('intval', $createdIds)))
+    );
     $alias = [];
     $linkList = [];
     while ($row = db()->getRow($rs)) {
@@ -516,7 +529,7 @@ function convertLink()
                 'content' => db()->escape(str_replace($s, $r, $row['content']))
             ],
             '[+prefix+]site_content',
-            sprintf("id='%s'", $row['id'])
+            sprintf('id=%d', (int) $row['id'])
         );
     }
 }
