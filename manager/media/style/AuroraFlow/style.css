@@ -28,8 +28,7 @@
    ============================================================================ */
 
 :root {
-    /* ページの左右の余白。#mainPane の内側の余白だけで作り、h1・.section・.sectionBody などのブロックは左右の margin を持たない
-       （common/shell.css が読む。assets/docs/theme-spacing.md の「横の余白」） */
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 16px;
 
     /* Gray Scale - Core neutral colors */
@@ -138,6 +137,7 @@
     --button-active-bg: var(--color-neutral-button-active-start);
     --button-active-shadow: none;
     --button-focus-ring-color: var(--color-accent);
+    /* 主ボタンは、上部ナビのネイビーに合わせた濃い青 */
     --button-primary-color: var(--color-text-inverse);
     --button-primary-bg: var(--color-primary);
     --button-primary-border-color: var(--color-primary);
@@ -355,8 +355,7 @@ p.caption, p.comment {
     color: var(--gray-600);
 }
 
-/* 素の button は素の見た目（幅も中身なり）。テーマのボタンの見た目は class="button"（common/forms.css）。
-   素の要素の規則なので evo-base の層に入れる（層に入れないと、.button と .actionButtons の中の button の余白まで上書きする） */
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
         font: inherit;
@@ -365,8 +364,7 @@ p.caption, p.comment {
     }
 }
 
-/* 素の要素の規則は、common/forms.css と同じ土台の層（evo-base）に入れる。層に入れないと、
-   ボタンとして書いたリンク（.actionButtons a・a.button）の文字の色まで、この規則が上書きしてしまう */
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     a, a:active, a:visited, a:link {
         color: var(--color-link);
@@ -554,8 +552,6 @@ optgroup option {
 #ta, .tmplvars textarea {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
-
-/* 入力欄・セレクト・テキストエリアの見た目（枠・余白・角・高さ・フォーカス）は common/forms.css の土台と、上の --control-* の変数で決める */
 
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
@@ -1776,8 +1772,7 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-/* ボタンの見た目（地・文字・枠・角・高さ・ホバー・押下・フォーカス、主ボタン）は common/forms.css と --button-* の変数で決める。
-   ここは横に並べる指定だけ */
+/* ボタンの見た目は common/forms.css。ここは並べ方だけ */
 .actionButtons :is(a, button) {
     float: left;
 }
@@ -1814,8 +1809,6 @@ form > :has(+ .resources-batch-actions),
     color: #3b454f;
     font-weight: 700;
 }
-
-/* 主ボタン(保存など)は、上部ナビのネイビーに合わせた濃い青（--button-primary-* の変数。規則は common/forms.css） */
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。
    リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();" のボタン */

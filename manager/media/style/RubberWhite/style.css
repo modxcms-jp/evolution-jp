@@ -27,8 +27,7 @@
    ============================================================================ */
 
 :root {
-    /* ページの左右の余白。#mainPane の内側の余白だけで作り、h1・.section・.sectionBody などのブロックは左右の margin を持たない
-       （common/shell.css が読む。assets/docs/theme-spacing.md の「横の余白」） */
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 16px;
 
     /* Color - Text */
@@ -402,8 +401,7 @@ p.caption, p.comment {
     color: var(--color-text-secondary);
 }
 
-/* 素の button は素の見た目（幅も中身なり）。テーマのボタンの見た目は class="button"（common/forms.css）。
-   素の要素の規則なので evo-base の層に入れる（層に入れないと、.button と .actionButtons の中の button の余白まで上書きする） */
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
         font: inherit;
@@ -413,8 +411,7 @@ p.caption, p.comment {
     }
 }
 
-/* 素の要素の規則は、common/forms.css と同じ土台の層（evo-base）に入れる。層に入れないと、
-   ボタンとして書いたリンク（.actionButtons a・a.button）の文字の色まで、この規則が上書きしてしまう */
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     a, a:active, a:visited, a:link {
         color: var(--color-link);
@@ -606,8 +603,6 @@ optgroup option {
 #ta, .tmplvars textarea {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
-
-/* 入力欄・セレクト・テキストエリアの見た目（枠・余白・角・高さ・フォーカス）は common/forms.css の土台と、:root の --control-* の変数で決める */
 
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
@@ -1161,8 +1156,6 @@ div.treeNode {
     padding: var(--space-2);
 }
 
-/* 検索欄（.searchtext）の見た目は common/forms.css の土台と --control-* の変数で決める */
-
 /* -------------------------[ home page main links ]--- */
 a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
     text-decoration: underline;
@@ -1616,8 +1609,7 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-/* ボタンの見た目（地・文字・角・高さ・ホバー・押下・フォーカス、主ボタン）は common/forms.css と --button-* の変数で決める。
-   ここは横に並べる指定だけ */
+/* ボタンの見た目は common/forms.css。ここは並べ方だけ */
 .actionButtons :is(a, button) {
     float: inline-start;
 }
@@ -2011,9 +2003,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
-
-/* ボタン・入力欄・セレクトの見た目（地・枠・角・影・ホバー・押下・フォーカス、主ボタン）は
-   common/forms.css と :root の --button-*・--control-* の変数で決める */
 
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
 .sectionHeader {
