@@ -471,9 +471,9 @@ function newUser()
         exit;
     }
     db()->update(
-        ['password' => manager()->hashPassword(newPassword())],
+        db()->escape(['password' => manager()->hashPassword(newPassword())]),
         '[+prefix+]manager_users',
-        sprintf("id='%s'", $internalKey)
+        sprintf("id='%d'", $internalKey)
     );
 
     $field = validate();

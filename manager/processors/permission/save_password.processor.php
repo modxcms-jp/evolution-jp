@@ -20,7 +20,7 @@ if ($password !== post_strvar('pass2')) {
 } else {
     $uid = evo()->getLoginUserID();
     $f['password'] = manager()->hashPassword($password);
-    $rs = db()->update($f, '[+prefix+]manager_users', "id='{$uid}'");
+    $rs = db()->update(db()->escape($f), '[+prefix+]manager_users', sprintf("id='%d'", $uid));
     if (!$rs) {
         $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
     } else {
