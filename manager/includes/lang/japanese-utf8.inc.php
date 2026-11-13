@@ -87,7 +87,7 @@ return [
     "change_name" => 'ログイン名を変更',
     "change_password" => 'パスワード変更',
     "change_password_confirm" => 'パスワードをもう一度',
-    "change_password_message" => 'パスワードの文字数は6～32文字です。',
+    "change_password_message" => 'パスワードは6文字以上、72バイト以下です（全角の文字は1文字を3バイトと数えます）。',
     "change_password_new" => '新しいパスワード',
     "charset_message" => 'サイトの文字コード（[(modx_charset)]）です。UTF-8 だけに対応しています。',
     "charset_title" => '文字コード',
