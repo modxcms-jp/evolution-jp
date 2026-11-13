@@ -19,8 +19,7 @@ if ($password !== post_strvar('pass2')) {
     $msg = '<p class="fail">Password is too long. Please specify a password of less than 32 characters.</p>';
 } else {
     $uid = evo()->getLoginUserID();
-    evo()->loadExtension('phpass');
-    $f['password'] = evo()->phpass->HashPassword($password);
+    $f['password'] = manager()->hashPassword($password);
     $rs = db()->update($f, '[+prefix+]manager_users', "id='{$uid}'");
     if (!$rs) {
         $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';

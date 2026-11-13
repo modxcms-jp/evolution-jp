@@ -8,8 +8,6 @@ if (!canSaveUser()) {
     alert()->dumpError();
 }
 
-evo()->loadExtension('phpass');
-
 // verify password
 if (!confirmPassword()) {
     webAlert('Password typed is mismatched');

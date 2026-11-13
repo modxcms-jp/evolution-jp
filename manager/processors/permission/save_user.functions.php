@@ -471,7 +471,7 @@ function newUser()
         exit;
     }
     db()->update(
-        ['password' => evo()->phpass->HashPassword(newPassword())],
+        ['password' => manager()->hashPassword(newPassword())],
         '[+prefix+]manager_users',
         sprintf("id='%s'", $internalKey)
     );
@@ -584,7 +584,7 @@ function updateUser()
     // update user name and password
     $field = ['username' => $username];
     if ($changePassword) {
-        $field['password'] = evo()->phpass->HashPassword(newPassword());
+        $field['password'] = manager()->hashPassword(newPassword());
     }
     $rs = db()->update(
         db()->escape($field),

@@ -320,8 +320,22 @@ class ManagerAPI
         );
     }
 
+    /**
+     * 管理画面の利用者のパスワードを保存用のハッシュにする（作る処理の置き場所はここだけ）
+     */
+    public function hashPassword($password)
+    {
+        return password_hash((string) $password, PASSWORD_DEFAULT);
+    }
+
     public function getHashType($db_value = '')
-    { // md5 | v1 | phpass
+    { // password_hash | md5 | v1 | phpass
+        $db_value = (string) $db_value;
+        $info = password_get_info($db_value);
+        if (!empty($info['algo'])) {
+            return 'password_hash';
+        }
+
         $c = substr($db_value, 0, 1);
         if ($c === '$') {
             return 'phpass';
