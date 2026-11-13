@@ -1,0 +1,24 @@
+name: Element version lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  element_version_lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 比べるタグ（release-*）を読むため、履歴とタグをすべて取得する
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      # ubuntu-latest に入っている PHP をそのまま使う（git を呼ぶだけで拡張は要らない）
+      - name: Run element version lint
+        run: php .github/scripts/element-version-lint.php
