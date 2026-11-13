@@ -122,7 +122,7 @@
     width: 12em;
 }
 
-/* アイコンだけのボタン。テーマの button { width: 112px } などを受けず、正方形にしてアイコンを真ん中に置く */
+/* アイコンだけのボタン。正方形にしてアイコンを真ん中に置く */
 .evo-fb-icon-toggle {
     display: inline-flex;
     align-items: center;

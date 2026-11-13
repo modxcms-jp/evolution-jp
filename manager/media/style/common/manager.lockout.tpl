@@ -5,7 +5,7 @@
     <title>MODX Content Manager</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]"/>
     <meta name="robots" content="noindex, nofollow"/>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    [+theme_stylesheets+]
     <script type="text/javascript">
         function doLogout() {
             // ログアウトは POST でしか受け付けない

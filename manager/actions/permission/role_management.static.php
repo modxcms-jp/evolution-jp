@@ -8,7 +8,6 @@ if (!evo()->hasPermission('edit_role')) {
     alert()->dumpError();
 }
 ?>
-<br/>
 <!-- User Roles -->
 
 <h1><?= lang('role_management_title') ?></h1>

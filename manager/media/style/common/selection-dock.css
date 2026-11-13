@@ -2,7 +2,8 @@
    出し方（sticky で貼り付ける・常に一覧の下に出す）は使う側の class が決める。
    シェルの外（ファイルピッカーの単独のページ）でも効くよう、shell.css とは別のファイルにして、
    テーマの style.css の後ろで読み込む。詳細度は .selection-dock を前に付けて、テーマの
-   ul.actionButtons・.actionButtons li・.actionButtons :is(a, button)・button の規則（どれも (0,1,1) 以下）に勝つ。
+   ul.actionButtons・.actionButtons li の規則（どれも (0,1,1) 以下）に勝つ。forms.css のボタンの規則は層の中にあるので、
+   層の外のこのファイルの規則が必ず勝つ。
    地色・枠・影・角はテーマの .selection-dock:not(.is-empty) の規則（#actions と共有）が決める */
 .selection-dock {
     display: flex;
@@ -45,7 +46,7 @@
     cursor: pointer;
 }
 
-/* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
+/* ボタンの見た目は common/forms.css の .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
 .selection-dock ul.actionButtons {
     display: flex;
     flex: 1 1 auto;
@@ -62,7 +63,6 @@
 }
 .selection-dock ul.actionButtons button {
     float: none;
-    width: auto; /* テーマの button { width: 112px } を打ち消す */
     margin: 0;
     font-family: inherit;
     line-height: inherit;

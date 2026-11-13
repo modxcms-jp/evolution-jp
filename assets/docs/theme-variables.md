@@ -50,9 +50,8 @@
 
 ## 書き方
 
-- 主ボタン（`.actionButtons #Button1 a`、`li.primary a`、`a.primary`、`a.default`。`:hover` / `:active` は `#Button1 a` と `a.default` に書く）の地・枠・文字の色は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない
-- 主ボタンの規則は、一般のボタン（`.actionButtons :is(a, button)`）の規則より後ろに書く。詳細度が同じセレクタ（`a.primary` など）が、一般のボタンの `:hover` / `:active` に負けるため
-- 一覧の操作の帯（`.data-table-selection-dock`。[data-table.md](data-table.md)）のボタンは `button` なので、一般のボタンの規則（通常・`:hover`・`:active`・`:focus-visible`）は `a` と `button` の両方に当たるように書く。帯の地色・枠・影・角は、`#actions` の規則に `.selection-dock:not(.is-empty)` を足して同じ値にする（外部のテーマはこれでそろう。ファイルブラウザの選択の帯も同じクラス）。足さないテーマの帯は、テーマの `button` の見た目になる（幅は selection-dock.css が auto に戻す）
+- 主ボタンの地・枠・文字の色（`--button-primary-*` の値）は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない。主ボタンの規則そのものは `common/forms.css` にあり、テーマは書かない（「フォーム部品」を参照）
+- 一覧の操作の帯（`.data-table-selection-dock`。[data-table.md](data-table.md)）のボタンは `.actionButtons` の中の `button` なので、`common/forms.css` の一般のボタンの規則が当たる（右上のボタン群と同じ見た目）。帯の地色・枠・影・角は、`#actions` の規則に `.selection-dock:not(.is-empty)` を足して同じ値にする（外部のテーマはこれでそろう。ファイルブラウザの選択の帯も同じクラス）
 - `.actionButtons` のボタンの `:focus-visible` の枠（`outline: 2px solid` と `outline-offset: 2px`、色はテーマのフォーカス色か本文の色。帯の地が灰色のテーマでも 3:1 以上になる色にする。リンク色は灰色の地で 3:1 を下回るテーマがある）は、`outline: none` を持つテーマが必ず足す。帯の上下の余白（8px 以上）が枠の 4px を切らない
 - テーマ固有の別名（`--color-accent-green-*` など）を作って主ボタンの色にしない。別名を挟むと、共通部と同じ色の根拠がなくなる
 - 主な操作の色を 2 色で描くか単色で描くかは、テーマが決める。`--color-primary` と `-start` / `-end` の両方を必ず定義し、共通部がどちらを読んでも主ボタンと同じ系統の色になるようにする
@@ -61,6 +60,41 @@
 - コード欄の帯の右側の文字（`.code-editor-options`）は、まず `--color-text-muted` を使う。帯の背景（上の `color-mix`）に対して 4.5:1 に足りないテーマは、`--color-text-primary` や、それと `--color-surface` の `color-mix` に替える（RevoStyle は凍結のため `#707070` のまま。[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」を参照。AromaHop は `--color-text-primary`、RubberWhite は `color-mix(in srgb, var(--color-text-primary) 75%, var(--color-surface))`。`color-mix()` に対応しないブラウザでは宣言が捨てられ、親の文字色になる。濃くなる側なので許容する）
 - どの枠の変数（`--color-border-default`・`--color-border-light`）を使うかは、テーマが決める。隣の部品の枠とつなげて見せるときは、つながる方に近い方を選ぶ（例: AromaHop の `.code-editor-header` は、真下のテキスト欄の緑の枠に近い `--color-border-light`）
 - 影（`box-shadow`・`text-shadow` の `rgba()` など）は対象外。テーマが好きな色で書いてよい
+
+## フォーム部品
+
+入力欄・セレクト・ボタンの見た目は、共通部の `manager/media/style/common/forms.css` が 1 か所で決める。テーマは `:root` で下の変数の値を決めるだけにし、同じ性質を書いた規則（`form input[type=text]`、`form select`、`.actionButtons :is(a, button)` の地や枠など）を持たない。
+
+- 土台（`@layer evo-base`）: 素の `input`（文字を入れる種類。`text`・`password`・`search`・`email`・`url`・`number`・`date` など）・`select`・`textarea`。目印のクラスは要らない。`form` の中かどうかも問わない
+- 部品（`@layer evo-components`）: ボタン。単独で置くボタンは `class="button"`、主ボタンは `class="button primary"`。`.actionButtons` の中の `a`・`button` も同じボタンとして扱い、前からの主ボタンの書き方（`#Button1 a`、`li.primary a`、`a.primary`、`a.default`）も主ボタンになる
+- 素の `button` は素の見た目のまま（アイコンだけのボタンなど、テーマの見た目にしたくないものがあるため）。テーマは `button` に幅や見た目を付けない
+- 層に入れた規則は、層に入れていない規則に必ず負ける。テーマの素の要素の規則（`a` の色・下線など）は `@layer evo-base { ... }` に入れる。入れないと、ボタンとして書いた `a` の文字の色まで上書きする
+- 寸法（高さ・角・余白）・地・枠・影・動きは変数で決める。テーマが変数で表せない飾りを足すとき（`.actionButtons a.disabled`、下書きの `.opendraft a` など）は、寸法を書かない
+- `.actionButtons` の中の並べ方（`float: left`）は、テーマの規則に残す
+
+| 変数 | 意味 | 既定値（forms.css） |
+| --- | --- | --- |
+| `--control-height` | 入力欄・セレクト・ボタンの高さ（`min-height`）。並べたときにそろう | `32px` |
+| `--control-padding-x` | 入力欄・セレクトの左右の余白 | `8px` |
+| `--control-radius` | 入力欄・セレクトの角 | `3px` |
+| `--control-border` | 入力欄・セレクトの枠（`border` の値） | `1px solid #999` |
+| `--control-bg` / `--control-color` | 入力欄・セレクトの地（`background` の値）と文字の色 | `#fff` / 親の色 |
+| `--control-shadow` / `--control-transition` | 入力欄・セレクトの影と動き | なし |
+| `--control-focus-border-color` / `--control-focus-bg` / `--control-focus-shadow` | フォーカスしたときの枠の色・地・影 | `green` / `--control-bg` / なし |
+| `--button-padding-x` / `--button-radius` | ボタンの左右の余白と角 | `12px` / `4px` |
+| `--button-font-size` / `--button-font-weight` | ボタンの文字の大きさと太さ | `1em` / `700` |
+| `--button-color` / `--button-bg` | 一般のボタンの文字の色と地（`background` の値。グラデーションも可） | `#444` / `--color-neutral-button-start` |
+| `--button-border-width` / `--button-border-color` | 一般のボタンの枠 | `0` / `transparent` |
+| `--button-shadow` / `--button-backdrop-filter` / `--button-transition` | 一般のボタンの影・背景のぼかし・動き | なし |
+| `--button-hover-color` / `--button-hover-bg` / `--button-hover-border-color` / `--button-hover-shadow` / `--button-hover-transform` | ホバーしたとき | 文字・枠・影は通常と同じ、地は `--color-neutral-button-hover-end`、動きなし |
+| `--button-active-bg` / `--button-active-shadow` / `--button-active-transform` | 押したとき | 地は `--color-neutral-button-active-start`、影は通常と同じ、動きなし |
+| `--button-focus-ring-color` | キーボードで選んだときの枠（`outline`）の色 | `--color-text-primary` |
+| `--button-primary-color` / `--button-primary-bg` / `--button-primary-border-color` / `--button-primary-shadow` | 主ボタン | `--color-text-inverse` / `--color-primary` / `transparent` / なし |
+| `--button-primary-font-weight` | 主ボタンの文字の太さ | `--button-font-weight` |
+| `--button-primary-hover-bg` / `--button-primary-hover-border-color` / `--button-primary-hover-shadow` | 主ボタンをホバーしたとき | `--color-primary-hover-start` / 通常と同じ / 通常と同じ |
+| `--button-primary-active-bg` / `--button-primary-active-border-color` / `--button-primary-active-shadow` | 主ボタンを押したとき | `--color-primary-active-start` / 通常と同じ / 通常と同じ |
+
+`input[type=submit]`・`input[type=button]` は、まだこの決まりの外（テーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
 
 ## 新しいテーマを作るとき
 

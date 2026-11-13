@@ -35,7 +35,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
     <?= csrfTokenMeta() ?>
-    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/' . $modx->config('manager_theme') . '/style.css') ?>" />
+    <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
     <style>

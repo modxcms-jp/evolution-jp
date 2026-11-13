@@ -1,0 +1,131 @@
+/*
+ * 管理画面のフォーム部品（入力欄・セレクト・ボタン）の共通の決まり。
+ *
+ * 3 つの層で書く。
+ *   1. 変数: 寸法・色・影などは CSS 変数で受ける。テーマは :root で値を決めるだけにする（無ければ下の既定値）
+ *   2. 土台（evo-base）: 素の要素（input・select・textarea）の見た目。:where() で詳細度を 0 にし、
+ *      画面や部品の規則がどんな書き方でも上書きできるようにする。目印のクラスは要らない
+ *   3. 部品（evo-components）: クラスで明示するもの。ボタンは class="button"、主ボタンは class="button primary"。
+ *      ボタンを横に並べる入れ物 .actionButtons の中の a・button も、同じボタンとして扱う。
+ *      素の button は素の見た目のまま（アイコンだけのボタンなど、テーマの見た目にしたくないものがあるため）
+ *
+ * 層（@layer）に入れた規則は、層に入れていない規則（テーマの style.css・shell.css・画面の <style>）に必ず負ける。
+ * 詳細度の比べ合いをせずに、テーマや画面が上書きできる。逆に、ここの決まりを効かせたいときは、
+ * テーマ側に同じ性質を書いた古い規則（form input[type=text] など）を残さない。
+ * テーマの素の要素の規則（a の色など）も evo-base の層に入れる。層に入れないと、ボタンとして書いた a の色まで上書きする。
+ * 層の順番をこのファイルの先頭で決めるため、管理画面はこのファイルをテーマより先に読む（header.inc.php）。
+ *
+ * 変数の一覧と既定値は assets/docs/theme-variables.md の「フォーム部品」を見る。
+ */
+@layer evo-base, evo-components;
+
+@layer evo-base {
+    /* 文字を入れる入力欄とセレクト。チェックボックス・ラジオ・ファイル・ボタンの類は除く */
+    :where(
+        input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+            [type="submit"], [type="button"], [type="reset"], [type="image"]),
+        select,
+        textarea
+    ) {
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
+        margin: 0;
+        padding: 0 var(--control-padding-x, 8px);
+        border: var(--control-border, 1px solid #999);
+        border-radius: var(--control-radius, 3px);
+        background: var(--control-bg, #fff);
+        box-shadow: var(--control-shadow, none);
+        color: var(--control-color, inherit);
+        font: inherit;
+        vertical-align: middle;
+        transition: var(--control-transition, none);
+    }
+
+    /* 複数行の欄は、上下にも余白を取る */
+    :where(textarea) {
+        padding-block: var(--space-1, 4px);
+    }
+
+    :where(select) {
+        cursor: pointer;
+    }
+
+    :where(input, select, textarea):focus {
+        outline: none;
+        border-color: var(--control-focus-border-color, green);
+        background: var(--control-focus-bg, var(--control-bg, #fff));
+        box-shadow: var(--control-focus-shadow, none);
+    }
+}
+
+@layer evo-components {
+    /* ボタン。単独で置くものは class="button"。.actionButtons の中の a・button も同じ見た目にする
+       （並べ方の float はテーマの規則）。主ボタンは .primary。.actionButtons の中では、前からの書き方
+       （#Button1 a、li.primary a、a.primary、a.default）も主ボタンとして扱う */
+    :is(.button, .actionButtons :is(a, button)) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
+        margin: 0;
+        padding: 0 var(--button-padding-x, 12px);
+        border: var(--button-border-width, 0) solid var(--button-border-color, transparent);
+        border-radius: var(--button-radius, 4px);
+        background: var(--button-bg, var(--color-neutral-button-start, #f1f4f6));
+        box-shadow: var(--button-shadow, none);
+        -webkit-backdrop-filter: var(--button-backdrop-filter, none);
+        backdrop-filter: var(--button-backdrop-filter, none);
+        color: var(--button-color, #444);
+        font-family: inherit;
+        font-size: var(--button-font-size, 1em);
+        font-weight: var(--button-font-weight, 700);
+        line-height: 1.2;
+        text-decoration: none;
+        text-shadow: none;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: var(--button-transition, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button)):hover {
+        border-color: var(--button-hover-border-color, var(--button-border-color, transparent));
+        background: var(--button-hover-bg, var(--color-neutral-button-hover-end, #e6ecef));
+        box-shadow: var(--button-hover-shadow, var(--button-shadow, none));
+        color: var(--button-hover-color, var(--button-color, #444));
+        transform: var(--button-hover-transform, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button)):active {
+        background: var(--button-active-bg, var(--color-neutral-button-active-start, #dbe3e7));
+        box-shadow: var(--button-active-shadow, var(--button-shadow, none));
+        transform: var(--button-active-transform, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button)):focus-visible {
+        outline: 2px solid var(--button-focus-ring-color, var(--color-text-primary, #333));
+        outline-offset: 2px;
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)) {
+        border-color: var(--button-primary-border-color, transparent);
+        font-weight: var(--button-primary-font-weight, var(--button-font-weight, 700));
+        background: var(--button-primary-bg, var(--color-primary, #375665));
+        box-shadow: var(--button-primary-shadow, none);
+        color: var(--button-primary-color, var(--color-text-inverse, #fff));
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)):hover {
+        border-color: var(--button-primary-hover-border-color, var(--button-primary-border-color, transparent));
+        background: var(--button-primary-hover-bg, var(--color-primary-hover-start, var(--color-primary, #375665)));
+        box-shadow: var(--button-primary-hover-shadow, var(--button-primary-shadow, none));
+        color: var(--button-primary-color, var(--color-text-inverse, #fff));
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)):active {
+        border-color: var(--button-primary-active-border-color, var(--button-primary-border-color, transparent));
+        background: var(--button-primary-active-bg, var(--color-primary-active-start, var(--color-primary, #375665)));
+        box-shadow: var(--button-primary-active-shadow, var(--button-primary-shadow, none));
+    }
+}

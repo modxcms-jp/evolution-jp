@@ -136,6 +136,13 @@ if ($insideUl) {
 
 <h1><?= lang('plugin_priority_title') ?></h1>
 
+<div id="actions">
+   <ul class="actionButtons">
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
+        <li class="mutate"><a href="#" onclick="evoCancelPluginPriority(this, 'index.php?a=76'); return false;"><?= lang('cancel') ?></a></li>
+        </ul>
+</div>
+
 <div class="section">
 <div class="sectionHeader"><?= lang('plugin_priority') ?></div>
 <div class="sectionBody">
@@ -143,13 +150,6 @@ if ($insideUl) {
 <?= $updateMsg ?><span class="warning" style="display:none;" id="updating">Updating...<br /><br /> </span>
 <?= $evtLists ?>
 </div>
-</div>
-
-<div id="actions">
-   <ul class="actionButtons">
-        <li class="mutate"><a href="#" onclick="evoCancelPluginPriority(this, 'index.php?a=76'); return false;"><?= lang('cancel') ?></a></li>
-        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
-        </ul>
 </div>
 
 <form action="index.php?a=100" method="post" name="sortableListForm" style="display: none;">

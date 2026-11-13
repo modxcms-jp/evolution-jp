@@ -27,6 +27,10 @@
    ============================================================================ */
 
 :root {
+    /* ページの左右の余白。#mainPane の内側の余白だけで作り、h1・.section・.sectionBody などのブロックは左右の margin を持たない
+       （common/shell.css が読む。assets/docs/theme-spacing.md の「横の余白」） */
+    --page-padding-x: 18px;
+
     /* Gray Scale - Core neutral colors */
     --gray-50: #f9fafb;
     --gray-100: #f5f5f5;
@@ -135,6 +139,20 @@
     --color-neutral-button-hover-end: var(--gray-250);
     --color-neutral-button-active-start: #f0f0f0;
     --color-neutral-button-active-end: #cecece;
+
+    /* フォーム部品（common/forms.css が読む）。RevoStyle は凍結テーマのため、下の古い規則（.actionButtons a など）を残し、
+       forms.css の既定値で見た目が変わらないよう値だけを合わせる。高さは前の .actionButtons a（26px）に合わせる */
+    --control-height: 26px;
+    --button-padding-x: 10px;
+    --button-radius: 2px;
+    --button-color: #444;
+    --button-bg: linear-gradient(var(--color-neutral-button-start), var(--color-neutral-button-end));
+    --button-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
+    --button-hover-bg: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));
+    --button-active-bg: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
+    --button-primary-bg: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+    --button-primary-hover-bg: linear-gradient(var(--color-primary-hover-start), var(--color-primary-hover-end));
+    --button-primary-active-bg: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 
     /* Component Colors - Draft State */
     --color-draft-start: #faf1d4;
@@ -304,7 +322,7 @@ h1 {
     line-height: 1em;
     padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
     border-radius: var(--radius-md);
-    margin: var(--space-7) var(--space-9) var(--space-8);
+    margin: var(--space-7) 0 var(--space-8);
 }
 
 h1.draft {
@@ -331,11 +349,14 @@ p.caption, p.comment {
     color: var(--gray-600);
 }
 
-button {
-    width: 112px;
-    font: inherit;
-    margin: 0 var(--space-4) 0 0;
-    cursor: pointer;
+/* 素の button は素の見た目（幅も中身なり）。テーマのボタンの見た目は class="button"（common/forms.css）。
+   素の要素の規則なので evo-base の層に入れる（層に入れないと、.button と .actionButtons の中の button の余白まで上書きする） */
+@layer evo-base {
+    button {
+        font: inherit;
+        margin: 0 var(--space-4) 0 0;
+        cursor: pointer;
+    }
 }
 
 a, a:active, a:visited, a:link {
@@ -681,7 +702,7 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 var(--space-9);
+    margin: 0;
     padding: var(--space-4) var(--space-8) var(--space-4) var(--space-9);
     font-weight: bold;
     border: var(--border-thin) solid var(--color-border-default);
@@ -693,13 +714,13 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: var(--space-1) var(--space-2) 0;
+    margin: var(--space-1) 0 0;
 }
 
 .sectionBody {
     position: relative;
     display: none;
-    margin: 5px 15px 15px;
+    margin: 5px 0 15px;
     display: block;
 }
 
@@ -707,13 +728,13 @@ form .imeoff {
 .section .sectionBody {
     background: none repeat scroll 0 0 #F7F7F7;
     border: 1px solid #CCCCCC;
-    margin: 0 3px 15px;
+    margin: 0 0 15px;
     padding: 15px;
 }
 
 
 .section .sectionBody {
-    margin: 0 15px 15px;
+    margin: 0 0 15px;
     background-color: var(--color-surface);
 }
 
@@ -1831,7 +1852,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 /* a=95 import_site.static.php: 本体の margin:8px（取り込み前のフォームと実行後の結果の両方の画面） */
 #importSite.sectionBody {
-    margin: 8px;
+    margin-block: 8px;
 }
 
 /* a=13 logging.static.php: タブの組の下のボタン列の margin-top:1em（12px） */

@@ -112,6 +112,8 @@ function entity($key, $default = null)
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('snippet')) ?>">
 
+    <h1><?= lang('snippet_title') ?></h1>
+
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_snippet')): ?>
@@ -148,8 +150,6 @@ function entity($key, $default = null)
             ?>
         </ul>
     </div>
-
-    <h1><?= lang('snippet_title') ?></h1>
 
     <div class="sectionBody">
         <div class="tab-pane" id="snipetPane">

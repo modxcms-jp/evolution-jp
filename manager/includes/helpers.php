@@ -1159,6 +1159,20 @@ function manager_asset($path)
 }
 
 /**
+ * 管理画面のテーマの CSS を読む <link> を返す。フォーム部品の共通の決まり（common/forms.css）と、テーマの style.css の 2 つ。
+ * forms.css は @layer の順番を最初に宣言するため、必ずテーマより先に読む（assets/docs/theme-variables.md の「フォーム部品」）。
+ * テーマの style.css を読む画面（管理画面の枠・ログイン・ロックアウト・小窓・ファイルブラウザ・エラー表示）は、これを使う。
+ */
+function manager_theme_stylesheets()
+{
+    $links = '';
+    foreach (['media/style/common/forms.css', 'media/style/' . evo()->config('manager_theme') . '/style.css'] as $path) {
+        $links .= '<link rel="stylesheet" type="text/css" href="' . hsc(MODX_MANAGER_URL . manager_asset($path)) . '" />' . "\n";
+    }
+    return $links;
+}
+
+/**
  * MODX_SITE_URL または MODX_BASE_URL から始まるサイト内の URL に版を付ける。
  * 外部の URL、// で始まる URL、? や # を含む URL はそのまま返す。
  */

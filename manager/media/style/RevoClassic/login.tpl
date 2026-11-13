@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>MODX CMF Manager Login</title>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    [+theme_stylesheets+]
     <style type="text/css">
         /* Reset and Base Styles */
         * {

@@ -5,7 +5,7 @@
     <title>MODX CMF Manager Login</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]"/>
     <meta name="robots" content="noindex, nofollow"/>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    [+theme_stylesheets+]
     <style type="text/css">
         /* Neutralize styles, fonts and viewport:
         ---------------------------------------------------------------- */

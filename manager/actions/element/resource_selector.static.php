@@ -100,8 +100,7 @@ switch ($type) {
 <head>
     <title><?= $title . ' ' . lang('element_selector_title') ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
-    <link rel="stylesheet" type="text/css"
-          href="<?= hsc(manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css')) ?>"/>
+    <?= manager_theme_stylesheets() ?>
 </head>
 
 <body ondragstart="return false">

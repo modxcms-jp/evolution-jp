@@ -31,6 +31,10 @@
    ============================================================================ */
 
 :root {
+    /* ページの左右の余白。#mainPane の内側の余白だけで作り、h1・.section・.sectionBody などのブロックは左右の margin を持たない
+       （common/shell.css が読む。assets/docs/theme-spacing.md の「横の余白」） */
+    --page-padding-x: 8px;
+
     /* Gray Scale - Core neutral colors (モヒートパレット準拠)
        Base: #FDFDFB(氷白), #FAFFF4(極淡ライム), #DFF5D7, #CBEEC5, #B6E7B3
        Accent: #EAFCCF(レモンイエロー), #F7FFDE(淡黄緑) */
@@ -112,6 +116,45 @@
     --color-draft-start: rgba(247, 255, 222, 0.95);
     --color-draft-end: rgba(234, 252, 207, 0.9);
     --color-draft-light: #F7FFDE;
+
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-height: 36px;
+    --control-padding-x: var(--space-2);
+    --control-radius: var(--radius-sm);
+    --control-border: 1px solid rgba(130, 200, 170, 0.4);
+    --control-bg: rgba(255, 255, 255, 0.9);
+    --control-transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    --control-focus-border-color: rgba(120, 170, 145, 0.6);
+    --control-focus-bg: #fff;
+    --control-focus-shadow: 0 0 0 4px rgba(120, 170, 145, 0.1);
+    --button-padding-x: var(--space-4);
+    --button-radius: var(--radius-md);
+    --button-font-size: 0.95em;
+    --button-font-weight: 600;
+    --button-color: #3a5845;
+    --button-bg: rgba(255, 255, 255, 0.92);
+    --button-border-width: 1px;
+    --button-border-color: rgba(170, 200, 185, 0.45);
+    --button-shadow: 0 2px 8px rgba(60, 90, 75, 0.06);
+    --button-backdrop-filter: blur(12px);
+    --button-transition: all var(--transition-fast);
+    --button-hover-color: #2d4838;
+    --button-hover-bg: rgba(252, 255, 253, 0.96);
+    --button-hover-border-color: rgba(160, 195, 175, 0.55);
+    --button-hover-shadow: 0 4px 12px rgba(60, 90, 75, 0.1);
+    --button-hover-transform: translateY(-1px);
+    --button-active-bg: rgba(248, 253, 250, 0.96);
+    --button-active-shadow: 0 1px 4px rgba(60, 90, 75, 0.08);
+    --button-active-transform: translateY(0);
+    --button-focus-ring-color: var(--color-text-primary);
+    --button-primary-color: var(--color-text-inverse);
+    --button-primary-bg: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+    --button-primary-border-color: transparent;
+    --button-primary-shadow: 0 4px 15px rgba(90, 154, 112, 0.25);
+    --button-primary-hover-bg: linear-gradient(135deg, var(--color-primary-hover-start) 0%, var(--color-primary-hover-end) 100%);
+    --button-primary-hover-shadow: 0 6px 20px rgba(90, 154, 112, 0.3);
+    --button-primary-active-bg: linear-gradient(135deg, var(--color-primary-active-start) 0%, var(--color-primary-active-end) 100%);
+    --button-primary-active-shadow: 0 2px 10px rgba(90, 154, 112, 0.25);
 
     /* Spacing Scale - 8px base */
     --space-1: 4px;
@@ -453,20 +496,27 @@ p.caption, p.comment {
     color: var(--gray-800);
 }
 
-button {
-    width: 112px;
-    font: inherit;
-    margin: 0 5px 0 0;
-    cursor: pointer;
+/* 素の button は素の見た目（幅も中身なり）。テーマのボタンの見た目は class="button"（common/forms.css）。
+   素の要素の規則なので evo-base の層に入れる（層に入れないと、.button と .actionButtons の中の button の余白まで上書きする） */
+@layer evo-base {
+    button {
+        font: inherit;
+        margin: 0 5px 0 0;
+        cursor: pointer;
+    }
 }
 
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
+/* 素の要素の規則は、common/forms.css と同じ土台の層（evo-base）に入れる。層に入れないと、
+   ボタンとして書いたリンク（.actionButtons a・a.button）の文字の色まで、この規則が上書きしてしまう */
+@layer evo-base {
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--color-link-hover);
+    a:hover {
+        color: var(--color-link-hover);
+    }
 }
 
 hr {
@@ -645,48 +695,12 @@ optgroup option {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
-form select {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(130, 200, 170, 0.4);
-    padding: var(--space-2);
-    margin: 0;
-    border-radius: var(--radius-sm);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-form input[type=text] {
-    line-height: 1.4;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(130, 200, 170, 0.4);
-    padding: var(--space-1) var(--space-2);
-    margin: 0 2px 0 0;
-    border-radius: var(--radius-sm);
-    box-shadow: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-}
+/* 入力欄・セレクト・テキストエリアの見た目（枠・余白・角・高さ・フォーカス）は common/forms.css の土台と、上の --control-* の変数で決める */
 
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: #fff;
-    border-color: rgba(120, 170, 145, 0.6);
-    box-shadow: 0 0 0 4px rgba(120, 170, 145, 0.1);
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -849,12 +863,6 @@ input:is([type="button"], [type="submit"]):hover {
 input:is([type="button"], [type="submit"]):active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
-}
-
-select {
-    border: 0;
-    background: #fcfcfc;
-    cursor: pointer;
 }
 
 .form {
@@ -1419,21 +1427,6 @@ div.treeNode {
     background: linear-gradient(135deg, rgba(250, 255, 244, 0.9) 0%, rgba(247, 255, 222, 0.85) 100%);
     border-radius: var(--radius-md);
     padding: var(--space-2);
-}
-
-.searchtext {
-    height: 24px;
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: var(--radius-md);
-    background-color: rgba(253, 253, 251, 0.95);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.searchtext:focus {
-    border-color: #B6E7B3;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
-    outline: none;
 }
 
 /* -------------------------[ home page main links ]--- */
@@ -2136,10 +2129,6 @@ h2#edit_document_title {
     border-radius: var(--radius-lg);
 }
 
-select#stay {
-    padding: var(--space-2);
-}
-
 .actionButtons {
     margin-bottom: var(--space-3);
 }
@@ -2241,43 +2230,10 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
+/* ボタンの見た目（地・文字・角・高さ・ホバー・押下・フォーカス、主ボタン）は common/forms.css と --button-* の変数で決める。
+   ここは横に並べる指定だけ */
 .actionButtons :is(a, button) {
-    display: block;
     float: left;
-    border-radius: var(--radius-md);
-    color: #3a5845;
-    font-size: 0.95em;
-    font-weight: 600;
-    outline: medium none;
-    padding: var(--space-2) var(--space-4);
-    text-decoration: none;
-    white-space: nowrap;
-    border: 1px solid rgba(170, 200, 185, 0.45);
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 2px 8px rgba(60, 90, 75, 0.06);
-    transition: all var(--transition-fast);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: rgba(160, 195, 175, 0.55);
-    background: rgba(252, 255, 253, 0.96);
-    color: #2d4838;
-    box-shadow: 0 4px 12px rgba(60, 90, 75, 0.1);
-    transform: translateY(-1px);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: rgba(160, 195, 175, 0.55);
-    background: rgba(248, 253, 250, 0.96);
-    box-shadow: 0 1px 4px rgba(60, 90, 75, 0.08);
-    transform: translateY(0);
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-text-primary);
-    outline-offset: 2px;
 }
 
 .actionButtons a.disabled {
@@ -2311,33 +2267,6 @@ form > :has(+ .resources-batch-actions),
     margin: 0 2px 0 5px;
     color: #3a5845;
     font-weight: 600;
-}
-
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    text-shadow: none;
-    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
-    border: none;
-    box-shadow: 0 4px 15px rgba(90, 154, 112, 0.25);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    background: linear-gradient(135deg, var(--color-primary-hover-start) 0%, var(--color-primary-hover-end) 100%);
-    box-shadow: 0 6px 20px rgba(90, 154, 112, 0.3);
-    transform: translateY(-1px);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background: linear-gradient(135deg, var(--color-primary-active-start) 0%, var(--color-primary-active-end) 100%);
-    box-shadow: 0 2px 10px rgba(90, 154, 112, 0.25);
-    transform: translateY(0);
 }
 
 

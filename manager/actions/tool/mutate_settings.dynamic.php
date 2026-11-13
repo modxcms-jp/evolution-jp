@@ -52,12 +52,13 @@ $values = EvoSettingsForm::systemValues($stored);
             width: 250px;
         }
     </style>
-    <div>
+    <!-- ほかのタブの画面と同じく、タブの組を .sectionBody で包む -->
+    <div class="sectionBody">
         <input type="hidden" name="site_id" value="<?= hsc($values['site_id'] ?? '') ?>"/>
         <?php
         if (in_array((string)($values['settings_version'] ?? ''), ['', '0'], true)) {
             ?>
-            <div class='sectionBody'><p><?= lang('settings_after_install') ?></p></div>
+            <p><?= lang('settings_after_install') ?></p>
             <?php
         }
         ?>

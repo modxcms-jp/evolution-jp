@@ -88,7 +88,7 @@ $selected = static function ($value, $current) {
                         aria-describedby="search-help"
                         autofocus
                     />
-                    <button type="submit" name="submitok" value="1" class="primary"><?= lang('search') ?></button>
+                    <button type="submit" name="submitok" value="1" class="button primary"><?= lang('search') ?></button>
                     <label class="search-also"><input type="checkbox" name="also_content" value="1"<?= $alsoContent ? ' checked' : '' ?>/> <?= lang('search_also_content') ?></label>
                 </div>
                 <!-- 2 行目: 説明と、閉じた「書き方」「詳しく検索」を 1 行に並べる。開いたものだけ、中身を下に全幅で出す -->
