@@ -17,7 +17,7 @@ Issue: #1448（Refs）。前提: #1451（同じ規則の移動）、#1452（セ�
 ## Surprises & Discoveries
 
 - `.tab-page` の余白の `!important` は、外からの上書き（共通の CSS・tabpane.js・画面の `<style>`・インライン）と張り合うためではなく、テーマの中の `.dynamic-tab-pane-control .tab-page` と `.sectionBody .tab-page`（どちらも詳細度 (0,2,0)）が張り合っていただけだった（並走セッションの調べ）。後ろの `.sectionBody .tab-page` が勝つので、`.sectionBody` で包まれていないタブ（ダッシュボード）だけ余白が違っていた。
-- ダッシュボードの「確認」のタブ（`#tabcheck`）には、テンプレート（welcome.tpl）にインラインの `padding-left:0; padding-right:0` がある。これまでは RevoClassic などの `!important` に打ち消されていた（AromaHop は `!important` が無く、もともと 0）。`!important` をやめたので、テンプレートの意図どおり左右 0 になり、7 テーマでそろった。インラインの指定そのものを見直すかは、別に判断する。
+- ダッシュボードの「確認」のタブ（`#tabcheck`）には、テンプレート（welcome.tpl）にインラインの `padding-left:0; padding-right:0` がある。これまでは RevoClassic などの `!important` に打ち消されていた（AromaHop は `!important` が無く、もともと 0）。`!important` をやめると、この指定が 6 テーマでも効くようになる。インラインの余白は theme-spacing.md の決まり（画面は余白を書かない）にも反するので、4 つの welcome.tpl（common・AromaHop・SakuraFlow・RevoStyle）から消した（並走セッションの提案）。6 テーマは今の見た目のままで、AromaHop もほかのタブと同じ余白になった。テーマごとの welcome.tpl の複製は、後で整理する候補。
 - タブの見出し（`.tab`）は `h2` に付く。層の洗い出しで、クラスだけの右端を `h2` とみなしても 0 件だった。
 
 ## Decision Log
