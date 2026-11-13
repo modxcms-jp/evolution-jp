@@ -1,0 +1,238 @@
+/*
+ * 同梱の 7 テーマで中身まで同じ規則。テーマは書かない。テーマの前に読む（manager_theme_stylesheets()）。
+ * 層には入れない。詳細度でテーマの規則に勝つ前提の規則が多く、層に入れると負けるため。
+ * 新しい規則はここに足さず、部品ごとの CSS に書く。ここの規則も、部品ごとの整理で部品の CSS へ移していく。
+ */
+
+/* 素の要素 */
+html,
+body,
+form,
+fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+tbody,
+thead,
+tr {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+form label {
+    cursor: pointer;
+}
+
+fieldset {
+    border: none;
+}
+
+/* 汎用のクラス */
+.clear {
+    clear: both;
+}
+
+.hide,
+.skip {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+/* メッセージ */
+.fail {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.warning {
+    color: var(--color-warning);
+    font-weight: bold;
+}
+
+.success {
+    color: var(--color-success);
+    font-weight: bold;
+}
+
+/* 操作ボタンの列（.actionButtons）。ボタンの見た目は forms.css */
+.actionButtons:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.actionButtons img {
+    vertical-align: top;
+    margin-top: 1px;
+    opacity: .7;
+}
+
+.actionButtons a:hover img {
+    opacity: 1;
+}
+
+.actionButtons span.and {
+    padding: 4px 2px;
+}
+
+.actionButtons a.disabled img {
+    opacity: .3;
+}
+
+/* 表 */
+.grid .is-shrink {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.grid .is-center {
+    text-align: center;
+}
+
+.row1,
+.row2,
+.row3 {
+    color: var(--color-text-primary);
+}
+
+/* 上部・ツリー・右クリックメニュー */
+#topbar * {
+    vertical-align: middle;
+}
+
+#treeMenu * {
+    vertical-align: middle;
+}
+
+#mx_contextmenu .menuLink:hover img {
+    opacity: 1;
+}
+
+/* 読み込み中の表示 */
+#preLoader {
+    position: absolute;
+    z-index: 50000;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, .3);
+}
+
+#loadingmask {
+    display: none;
+}
+
+/* リソース編集の欄と TV */
+.mutate-field-row {
+    height: 24px;
+}
+
+.mutate-field-label {
+    width: 120px;
+    text-align: left;
+}
+
+.clickable-label {
+    cursor: pointer;
+}
+
+.menuindex-table {
+    width: 333px;
+}
+
+.menuindex-label {
+    white-space: nowrap;
+}
+
+.menuindex-options {
+    text-align: right;
+}
+
+.mutate-tv-table {
+    position: relative;
+    width: 96%;
+}
+
+.mutate-tv-row {
+    height: 24px;
+}
+
+.mutate-tv-label {
+    width: 200px;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.mutate-tv-value {
+    position: relative;
+    vertical-align: top;
+}
+
+form#mutate textarea.textarea {
+    width: 90%;
+    height: 200px;
+}
+
+form#mutate fieldset#settings_page_settings input#pub_date,
+form#mutate fieldset#settings_page_settings input#unpub_date {
+    width: 150px;
+}
+
+form#mutate fieldset#settings_page_settings select {
+    width: 155px;
+}
+
+.tmplvars tr {
+    height: 24px;
+}
+
+.tvname {
+    width: 150px;
+    white-space: nowrap;
+}
+
+/* コード欄 */
+#ta,
+.tmplvars textarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+}
+
+.phptextarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+    box-sizing: border-box;
+}
+
+.code-editor-title {
+    font-weight: bold;
+}
+
+/* そのほかの画面 */
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
+    width: 350px;
+}
+
+.settings {
+    width: 600px;
+}
+
+.form br {
+    clear: both;
+}
+
+.form fieldset.list legend {
+    display: none;
+}
+
+a.hometblink,
+a.hometblink img {
+    border: 0 !important;
+    text-decoration: none !important;
+}

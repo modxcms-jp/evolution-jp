@@ -191,11 +191,6 @@
    Used in: All pages, document structure
    ============================================================================ */
 
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
-
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 75%;
@@ -226,81 +221,10 @@ li, dd, blockquote {
    3. Utility Classes (hide, clear, status messages)
    Used in: All pages for common helpers
    ============================================================================ */
-.clear {
-    clear: both;
-}
-
-.fail {
-    color: var(--color-error);
-    font-weight: bold;
-}
-
-.warning {
-    color: var(--color-warning);
-    font-weight: bold;
-}
-
-.mutate-field-row {
-    height: 24px;
-}
-
-.mutate-field-label {
-    width: 120px;
-    text-align: left;
-}
 
 .mutate-field-title {
     color: var(--color-warning, #444);
     font-weight: bold;
-}
-
-.clickable-label {
-    cursor: pointer;
-}
-
-.menuindex-table {
-    width: 333px;
-}
-
-.menuindex-label {
-    white-space: nowrap;
-}
-
-.menuindex-options {
-    text-align: right;
-}
-
-.mutate-tv-table {
-    position: relative;
-    width: 96%;
-}
-
-.mutate-tv-row {
-    height: 24px;
-}
-
-.mutate-tv-label {
-    width: 200px;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.mutate-tv-value {
-    position: relative;
-    vertical-align: top;
-}
-
-.success {
-    color: var(--color-success);
-    font-weight: bold;
-}
-
-.hide, .skip, .printonly {
-    display: none;
-}
-
-.inline {
-    display: inline;
 }
 
 /* ============================================================================
@@ -398,10 +322,6 @@ hr {
     padding: 0 var(--space-4);
 }
 
-#topbar * {
-    vertical-align: middle;
-}
-
 #topbar a,
 #topbar a:link,
 #topbar a:visited {
@@ -465,19 +385,6 @@ hr {
    5. Forms (Inputs, Selects, Textareas, Buttons)
    Used in: Document editor, settings pages, all form interactions
    ============================================================================ */
-tbody, thead, tr {
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-form label {
-    cursor: pointer;
-}
-
-fieldset {
-    border: none;
-}
 
 input, select, textarea, option, optgroup, td {
     font: inherit;
@@ -503,10 +410,6 @@ optgroup {
 optgroup option {
     font-weight: normal;
     background-color: #fff;
-}
-
-#ta, .tmplvars textarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
 form select {
@@ -538,12 +441,6 @@ form textarea {
     vertical-align: baseline;
     border-radius: var(--radius-md);
     box-shadow: 0px var(--border-thin) var(--radius-md) #E8E8E8 inset;
-}
-
-.sectionBody input.inputBox[type=text],
-.sectionBody input.inputBox[type=password],
-.sectionBody select.inputBox {
-    width: 350px;
 }
 
 input[type="email"]:focus,
@@ -636,10 +533,6 @@ form textarea {
     float: left;
 }
 
-.form br {
-    clear: both;
-}
-
 input.submit {
     display: block !important;
     float: none !important;
@@ -648,10 +541,6 @@ input.submit {
 
 .form fieldset.list {
     margin: var(--space-5) var(--space-5) var(--space-2) 0;
-}
-
-.form fieldset.list legend {
-    display: none;
 }
 
 .form fieldset.list label,
@@ -670,10 +559,6 @@ input.submit {
     padding-left: var(--space-4);
     text-align: left;
     width: auto;
-}
-
-form .imeoff {
-    ime-mode: disabled;
 }
 
 /* -------------------------[ Misc stuff ]--- */
@@ -765,29 +650,12 @@ ul {
     text-align: center;
 }
 
-a img {
-    border: 0;
-}
-
-.disabledImage {
-    width: 20px;
-    opacity: 0.3;
-}
-
-.disabledImage img {
-    border: 0;
-}
-
 .editorCell {
     border-top: 1px solid #808080;
     text-align: left;
     vertical-align: baseline;
 }
 
-
-.row1, .row2, .row3 {
-    color: var(--color-text-primary);
-}
 
 .row1 {
     background-color: #fff;
@@ -804,10 +672,6 @@ a img {
 div.treeframebody {
     background: var(--gray-100) url(../common/images/misc/subnav.png) !important;
     box-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
-}
-
-#treeMenu * {
-    vertical-align: middle;
 }
 
 #treeHolder {
@@ -847,10 +711,6 @@ div.treeframebody {
     cursor: pointer;
     width: auto;
     margin-right: 0;
-}
-
-div.treeNode {
-    white-space: nowrap;
 }
 
 .treeNodeSelected,
@@ -932,15 +792,6 @@ div.treeNode {
     padding: 3px;
 }
 
-.grid .is-shrink {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.grid .is-center {
-    text-align: center;
-}
-
 .gridRowIcon:hover {
     background-color: #f5f5dc;
 }
@@ -1001,16 +852,6 @@ a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hom
 a.hometblink:hover {
     text-decoration: underline;
     color: Gray;
-}
-
-#preLoader {
-    position: absolute;
-    z-index: 50000;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    vertical-align: middle;
-    background-color: rgba(255, 255, 255, .3);
 }
 
 .preLoaderText {
@@ -1272,10 +1113,6 @@ a.hometblink:hover {
     opacity: .3;
 }
 
-#mx_contextmenu .menuLink:hover img {
-    opacity: 1;
-}
-
 #mx_contextmenu #nameHolder {
     color: #fff;
     text-align: left;
@@ -1305,9 +1142,6 @@ a.hometblink:hover {
    9. Tables & Grids (Data Tables, Settings)
    Used in: Configuration tables, data grids
    ============================================================================ */
-.settings {
-    width: 600px;
-}
 
 .settings tr {
     width: 100% !important;
@@ -1444,10 +1278,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-a.hometblink, a.hometblink img {
-    border: 0 !important;
-    text-decoration: none !important;
-}
 
 .wm_button {
     float: left;
@@ -1551,12 +1381,6 @@ select#stay {
     margin-bottom: 15px;
 }
 
-.actionButtons:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
 ul.actionButtons {
     margin: 0;
     padding: 0;
@@ -1576,16 +1400,6 @@ ul.actionButtons {
     margin-right: 6px;
     padding: 0;
     float: left;
-}
-
-.actionButtons img {
-    vertical-align: top;
-    margin-top: 1px;
-    opacity: .7;
-}
-
-.actionButtons a:hover img {
-    opacity: 1;
 }
 
 .actionButtons a {
@@ -1632,14 +1446,6 @@ ul.actionButtons {
     float: left;
 }
 
-.actionButtons span.and {
-    padding: 4px 2px;
-}
-
-.actionButtons a.disabled img {
-    opacity: .3;
-}
-
 .actionButtons .and {
     margin: 0 2px 0 5px;
     color: #3b454f;
@@ -1666,10 +1472,6 @@ ul.actionButtons {
     background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 }
 
-
-#loadingmask {
-    display: none;
-}
 
 /*
 * Generic styles for all form elements
@@ -1703,26 +1505,9 @@ form#mutate textarea {
     width: 300px;
 }
 
-form#mutate textarea.textarea {
-    width: 90%;
-    height: 200px;
-}
-
 #tv_body input[type=text],
 #tv_body textarea {
     background: #fff;
-}
-
-form#mutate textarea.tv_textareamini {
-    height: 100px;
-    width: 300px;
-    overflow-y: scroll;
-}
-
-form#mutate textarea.tv_textarea {
-    height: 100px;
-    width: 100%;
-    overflow-y: scroll;
 }
 
 /*
@@ -1734,40 +1519,11 @@ form#mutate input.tvdate {
 }
 
 /*
-* Individual Styles for fieldset#settings_page_settings
-*/
-form#mutate fieldset#settings_page_settings input#pub_date,
-form#mutate fieldset#settings_page_settings input#unpub_date {
-    width: 150px;
-}
-
-form#mutate fieldset#settings_page_settings select {
-    width: 155px;
-}
-
-/*
-* Individual Styles for fieldset#document_content
-*/
-
-fieldset#document_content textarea#ta {
-    width: 100%;
-    height: 400px;
-    font-size: 1em;
-}
-
-/*
 * Individual Styles for fieldset#access_permissions
 */
-fieldset#access_permissions dt label {
-    width: 200px;
-}
 
 fieldset#access_permissions dd {
     margin-left: 210px;
-}
-
-fieldset#access_permissions dl dd ul li {
-    list-style-type: none;
 }
 
 /* ============================================================================
@@ -1784,20 +1540,6 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
     background: url(../common/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
-}
-
-.phptextarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-    box-sizing: border-box;
-}
-
-.tmplvars tr {
-    height: 24px;
-}
-
-.tvname {
-    width: 150px;
-    white-space: nowrap;
 }
 
 .okmsg {
@@ -1894,10 +1636,6 @@ div:has(> label > input[name="publishoption"]) {
     background-color: #eeeeee;
     border: 1px solid #c3c3c3;
     border-bottom: none;
-}
-
-.code-editor-title {
-    font-weight: bold;
 }
 
 .code-editor-options {

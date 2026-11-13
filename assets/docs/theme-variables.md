@@ -99,7 +99,8 @@
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
-3. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`）にある規則は、テーマに書かない。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
+3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
+4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 
 同梱テーマの例は `manager/media/style/RevoClassic/style.css`、`SoftSlate/style.css` など。
