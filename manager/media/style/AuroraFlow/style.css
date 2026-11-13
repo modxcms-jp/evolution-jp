@@ -192,6 +192,9 @@
     --section-legend-padding: 5px 15px;
     --section-legend-shadow: var(--shadow-md);
     --section-legend-radius: var(--radius-sm);
+
+    /* タブ（common/tabs.css が読む） */
+    --tab-page-padding: 15px 15px 20px;
 }
 
 /* ============================================================================
@@ -1235,8 +1238,6 @@ a.hometblink:hover {
    ============================================================================ */
 
 .dynamic-tab-pane-control.tab-pane {
-    position: relative;
-    width: 100%;
     margin-bottom: var(--space-3);
 }
 
@@ -1245,12 +1246,9 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row .tab {
     color: var(--color-text-muted);
     font-size: 1em;
-    cursor: pointer;
     display: inline;
     margin: 0 var(--space-1) -1px 0;
     padding: 10px var(--space-3) 9px;
-    z-index: 1;
-    position: relative;
     top: 0;
     border: none;
     border-bottom: 2px solid transparent;
@@ -1260,7 +1258,6 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab:hover {
-    text-decoration: none;
     color: var(--color-heading);
     border-bottom-color: #c5d3de;
     background-color: var(--color-accent-soft);
@@ -1286,12 +1283,10 @@ a.hometblink:hover {
 .dynamic-tab-pane-control .tab-row .tab.selected span {
     color: inherit;
     background-color: transparent;
-    text-shadow: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab span {
     color: inherit;
-    text-decoration: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab:hover span {
@@ -1319,19 +1314,13 @@ a.hometblink:hover {
 
 /* タブの中身。タブ列の下線を上辺とする白いカードにし、ごく薄い影で背景から浮かせる */
 .dynamic-tab-pane-control .tab-page {
-    clear: both;
     background: var(--color-surface);
-    z-index: 2;
-    position: relative;
     top: 0;
     border-top: none;
     box-shadow: var(--shadow-card);
-    padding: var(--space-5) var(--space-5) var(--space-4) !important;
 }
 
 .dynamic-tab-pane-control .tab-row {
-    z-index: 1;
-    white-space: nowrap;
     /* タブを折り返して並べ、下線をタブの下に引く */
     display: flex;
     flex-wrap: wrap;
@@ -1396,10 +1385,6 @@ a.hometblink:hover {
 .tab-page {
     border: 1px solid var(--color-card-border);
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-.sectionBody .tab-page {
-    padding: 15px 15px 20px !important;
 }
 
 /* -------------------------[ Pagination table ]--- */
