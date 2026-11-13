@@ -5,35 +5,11 @@
  * メール送信フォームなどに使える多機能フォームプロセッサー
  *
  * @category 	snippet
- * @version 	1.4.4.8
+ * @version 	1.3.0J
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
  * @internal    @installset base, sample
  */
 
-# eForm 1.4.4.8 - Electronic Form Snippet
-# Original created by Raymond Irving 15-Dec-2004.
-# Version 1.3+ extended by Jelle Jager (TobyL) September 2006
-# -----------------------------------------------------
-# Captcha image support - thanks to Djamoer
-# Multi checkbox, radio, select support - thanks to Djamoer
-# Form Parser and extened validation - by Jelle Jager
-#
-
-# Set Snippet Paths
-$snip_dir = isset($snip_dir) && preg_match('/^[\w\-]+$/', (string) $snip_dir) ? $snip_dir : 'eform';
-$snipPath = base_path() . "assets/snippets/{$snip_dir}/";
-
-# check if inside manager
-if ($modx->isBackend()) return ''; // don't go any further when inside manager
-
-# Start processing
-
-$version = '1.4.4.8';
-include("{$snipPath}eform.inc.php");
-
-$output = eForm($modx,$params);
-
-# Return
-return $output;
+return include MODX_BASE_PATH . 'assets/snippets/eform/snippet.eform.php';
