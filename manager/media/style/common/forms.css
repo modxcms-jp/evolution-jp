@@ -37,7 +37,12 @@
         cursor: pointer;
     }
 
-    :where(input, select, textarea):focus {
+    :where(
+        input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+            [type="submit"], [type="button"], [type="reset"], [type="image"]),
+        select,
+        textarea
+    ):focus {
         outline: none;
         border-color: var(--control-focus-border-color, green);
         background: var(--control-focus-bg, var(--control-bg, #fff));
