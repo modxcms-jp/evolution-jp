@@ -27,6 +27,9 @@
    ============================================================================ */
 
 :root {
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
+    --page-padding-x: 16px;
+
     /* Color - Text */
     --color-text-primary: #333;
     --color-text-secondary: #888;
@@ -191,6 +194,41 @@
     --border-medium: 2px;
     --border-thick: 3px;
 
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-height: 36px;
+    --control-padding-x: var(--space-2);
+    --control-radius: var(--radius-md);
+    --control-border: var(--border-thin) solid var(--light-border);
+    --control-bg: var(--color-surface);
+    --control-transition: all 0.2s ease;
+    --control-focus-border-color: var(--accent-blue);
+    --control-focus-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
+    --button-padding-x: var(--space-3);
+    --button-radius: var(--radius-md);
+    --button-font-weight: 500;
+    --button-color: var(--light-text-primary);
+    --button-bg: #f7f9fa;
+    --button-border-width: var(--border-thin);
+    --button-border-color: rgba(0, 0, 0, 0.1);
+    --button-transition: all 0.2s ease;
+    --button-hover-bg: #eef2f5;
+    --button-hover-border-color: rgba(0, 0, 0, 0.12);
+    --button-hover-transform: translateY(-1px);
+    --button-active-bg: #e2e7eb;
+    --button-active-transform: translateY(0);
+    --button-focus-ring-color: var(--color-text-primary);
+    --button-primary-color: var(--color-text-inverse);
+    --button-primary-font-weight: 600;
+    --button-primary-bg: var(--color-primary);
+    --button-primary-border-color: var(--color-primary-end);
+    --button-primary-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
+    --button-primary-hover-bg: var(--color-primary-hover-start);
+    --button-primary-hover-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
+    --button-primary-active-bg: var(--color-primary-active-start);
+    --button-primary-hover-border-color: var(--color-primary-hover-end);
+    --button-primary-active-border-color: var(--color-primary-active-end);
+    --button-primary-active-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
+
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: stripes;
 }
@@ -336,7 +374,7 @@ h1 {
     line-height: 1em;
     padding: var(--space-2);
     border-radius: var(--radius-sm);
-    margin: 0 var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-3);
 }
 
 h1.draft {
@@ -363,21 +401,26 @@ p.caption, p.comment {
     color: var(--color-text-secondary);
 }
 
-button {
-    width: 112px;
-    font: inherit;
-    margin-block: 0;
-    margin-inline-end: 5px;
-    cursor: pointer;
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    button {
+        font: inherit;
+        margin-block: 0;
+        margin-inline-end: 5px;
+        cursor: pointer;
+    }
 }
 
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--color-link-hover);
+    a:hover {
+        color: var(--color-link-hover);
+    }
 }
 
 hr {
@@ -561,52 +604,10 @@ optgroup option {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
-form select {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 6px;
-    padding: 6px 8px;
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    box-shadow: none;
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    padding: 6px 8px;
-    margin-block: 0;
-    margin-inline-end: 2px;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: 6px;
-    box-shadow: none;
-}
-
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: #ffffff;
-    border: 1px solid var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.15);
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -758,7 +759,7 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 8px;
+    margin: 0;
     padding: 8px 16px;
     font-weight: bold;
     border: 1px solid e1e4e8;
@@ -771,14 +772,14 @@ form .imeoff {
 /* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
    枠線は透明にするだけで幅を残し、位置と寸法を変えない */
 .tab-page .sectionHeader {
-    margin: 0 3px;
+    margin: 0;
     background: transparent;
     border-color: transparent transparent var(--clean-border);
 }
 
 .sectionBody {
     position: relative;
-    margin: 0 8px var(--space-3);
+    margin: 0 0 var(--space-3);
     display: block;
 }
 
@@ -794,7 +795,6 @@ form .imeoff {
 
 .tab-page .sectionBody {
     margin-block: 0 var(--space-3);
-    margin-inline: 3px;
     border-color: transparent;
     box-shadow: none;
 }
@@ -805,7 +805,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 8px;
+    margin: 0;
 }
 
 .comment {
@@ -1154,21 +1154,6 @@ div.treeNode {
     background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
     border-radius: var(--radius-md);
     padding: var(--space-2);
-}
-
-.searchtext {
-    height: 28px;
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.searchtext:focus {
-    border-color: var(--color-link);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.15);
-    outline: none;
 }
 
 /* -------------------------[ home page main links ]--- */
@@ -1526,10 +1511,6 @@ h2#edit_document_title {
     border-radius: var(--space-2);
 }
 
-select#stay {
-    padding: var(--space-2);
-}
-
 .actionButtons {
     margin-bottom: var(--space-3);
 }
@@ -1629,27 +1610,7 @@ form > :has(+ .resources-batch-actions),
 }
 
 .actionButtons :is(a, button) {
-    display: block;
     float: inline-start;
-    border-radius: var(--space-1);
-    color: var(--color-gray-800);
-    font-size: 1em;
-    font-weight: 700;
-    outline: medium none;
-    padding: var(--space-2) 12px;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: var(--color-neutral-button-start);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
 }
 
 .actionButtons a.disabled {
@@ -2042,61 +2003,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
-/* ボタン */
-.actionButtons :is(a, button) {
-    background: #f7f9fa;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: var(--radius-md);
-    color: var(--light-text-primary);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):hover {
-    background: #eef2f5;
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: none;
-    transform: translateY(-1px);
-}
-
-.actionButtons :is(a, button):active {
-    background: #e2e7eb;
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-text-primary);
-    outline-offset: 2px;
-}
-
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
-    text-shadow: none;
-    font-weight: 600;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
-}
-
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
 .sectionHeader {
     background: var(--light-bg-tertiary);
@@ -2114,35 +2020,6 @@ h1 {
     border-radius: var(--radius-lg);
     font-weight: 600;
     padding: 12px;
-}
-
-/* フォーム要素 */
-form input[type=text],
-form input[type=password],
-form textarea {
-    border: 1px solid var(--light-border);
-    transition: all 0.2s ease;
-    background: var(--color-surface);
-}
-
-form input[type=text]:focus,
-form input[type=password]:focus,
-form textarea:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
-}
-
-form select {
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-}
-
-form select:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
 }
 
 /* アクションエリア。操作の帯（data-table.js）とファイルブラウザの選択の帯（`.selection-dock`）も同じ見た目にする */

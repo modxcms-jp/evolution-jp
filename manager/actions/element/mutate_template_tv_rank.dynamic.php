@@ -127,6 +127,13 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
 
 <h1><?= lang("template_tv_edit_title") ?></h1>
 
+<div id="actions">
+    <ul class="actionButtons">
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
+        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><?= lang('cancel') ?></a></li>
+    </ul>
+</div>
+
 <div class="section">
 <div class="sectionHeader"><?= lang('template_tv_edit') ?></div>
 <div class="sectionBody">
@@ -134,13 +141,6 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
 <?= $updateMsg ?><span class="warning" style="display:none;" id="updating">Updating...<br /><br /> </span>
 <?= $evtLists ?>
 </div>
-</div>
-
-<div id="actions">
-    <ul class="actionButtons">
-        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><?= lang('cancel') ?></a></li>
-        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
-    </ul>
 </div>
 
 <form action="index.php?a=117&amp;id=<?= $id ?>" method="post" name="sortableListForm" style="display: none;">

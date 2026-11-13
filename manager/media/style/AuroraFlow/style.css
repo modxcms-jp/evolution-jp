@@ -28,6 +28,9 @@
    ============================================================================ */
 
 :root {
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
+    --page-padding-x: 16px;
+
     /* Gray Scale - Core neutral colors */
     --gray-50: #f9fafb;
     --gray-100: #f5f5f5;
@@ -109,6 +112,40 @@
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
+
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-height: 36px;
+    --control-padding-x: var(--space-1);
+    --control-radius: var(--radius-sm);
+    --control-border: 1px solid var(--color-input-border);
+    --control-bg: var(--color-surface);
+    --control-focus-border-color: var(--color-primary-start);
+    --control-focus-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+    --button-padding-x: var(--space-3);
+    --button-radius: var(--radius-md);
+    --button-font-weight: 700;
+    --button-color: var(--color-secondary-hover-text);
+    --button-bg: var(--color-surface);
+    --button-border-width: 1px;
+    --button-border-color: var(--color-input-border);
+    --button-shadow: var(--shadow-sm);
+    --button-transition: background var(--transition-fast), color var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast);
+    --button-hover-color: var(--color-heading);
+    --button-hover-bg: #f3f6f8;
+    --button-hover-border-color: var(--color-neutral-button-border);
+    --button-active-bg: var(--color-neutral-button-active-start);
+    --button-active-shadow: none;
+    --button-focus-ring-color: var(--color-accent);
+    /* 主ボタンは、上部ナビのネイビーに合わせた濃い青 */
+    --button-primary-color: var(--color-text-inverse);
+    --button-primary-bg: var(--color-primary);
+    --button-primary-border-color: var(--color-primary);
+    --button-primary-shadow: none;
+    --button-primary-hover-bg: var(--color-primary-hover-start);
+    --button-primary-active-bg: var(--color-primary-active-start);
+    --button-primary-hover-border-color: var(--color-primary-hover-end);
+    --button-primary-active-border-color: var(--color-primary-active-end);
 
     /* Component Colors - Draft Mode */
     --color-draft-start: #faf1d4;
@@ -289,7 +326,7 @@ h1 {
     line-height: 1.2;
     padding: var(--space-2) var(--space-1);
     border-radius: var(--radius-md);
-    margin: 0 var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-3);
 }
 
 /* 下書きは帯の色で見分けるため、背景を残す */
@@ -318,20 +355,25 @@ p.caption, p.comment {
     color: var(--gray-600);
 }
 
-button {
-    width: 112px;
-    font: inherit;
-    margin: 0 5px 0 0;
-    cursor: pointer;
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    button {
+        font: inherit;
+        margin: 0 5px 0 0;
+        cursor: pointer;
+    }
 }
 
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--color-link-hover);
+    a:hover {
+        color: var(--color-link-hover);
+    }
 }
 
 hr {
@@ -511,54 +553,10 @@ optgroup option {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
-form select {
-    background: var(--color-surface);
-    border-color: var(--color-input-border);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1);
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: var(--color-surface);
-    border-color: var(--color-input-border);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1) 2px var(--space-1) var(--space-1);
-    margin: 0 2px 0 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
-    box-shadow: none;
-}
-
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-primary-start);
-    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -648,12 +646,6 @@ input:is([type="button"], [type="submit"]):hover {
 input:is([type="button"], [type="submit"]):active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
-}
-
-select {
-    border: 0;
-    background: #fcfcfc;
-    cursor: pointer;
 }
 
 .form {
@@ -766,7 +758,7 @@ form .imeoff {
 /* セクション見出し。濃い灰色の帯をやめ、ごく薄い地色と下線だけで本文と区切る */
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 var(--space-2);
+    margin: 0;
     padding: var(--space-3) var(--space-4);
     font-weight: bold;
     border: 1px solid var(--color-card-border);
@@ -775,12 +767,12 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: 0 3px;
+    margin: 0;
 }
 
 .sectionBody {
     position: relative;
-    margin: 0 var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-3);
     display: block;
 }
 
@@ -790,7 +782,7 @@ form .imeoff {
     background: var(--color-section-bg);
     border: 1px solid var(--color-card-border);
     border-radius: var(--radius-lg);
-    margin: 0 3px var(--space-3);
+    margin: 0 0 var(--space-3);
     padding: var(--space-4);
 }
 
@@ -806,7 +798,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 var(--space-2);
+    margin: 0;
     background-color: var(--color-surface);
 }
 
@@ -1104,11 +1096,6 @@ div.treeNode {
     width: 100%;
     border: 1px solid silver;
     background-color: #DBDBDB;
-}
-
-.searchtext {
-    height: 18px;
-    padding: 2px;
 }
 
 /* -------------------------[ home page main links ]--- */
@@ -1687,10 +1674,6 @@ body.evo-shell #evoShellModalFooter #actions {
     box-shadow: none;
 }
 
-select#stay {
-    padding: var(--space-2);
-}
-
 .actionButtons {
     margin-bottom: var(--space-3);
 }
@@ -1790,39 +1773,7 @@ form > :has(+ .resources-batch-actions),
 }
 
 .actionButtons :is(a, button) {
-    display: block;
     float: left;
-    border-radius: var(--radius-md);
-    color: var(--color-secondary-hover-text);
-    font-size: 1em;
-    font-weight: 700;
-    outline: medium none;
-    padding: var(--space-2) var(--space-3);
-    text-decoration: none;
-    white-space: nowrap;
-    border: 1px solid var(--color-input-border);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-sm);
-    transition: background-color var(--transition-fast), color var(--transition-fast),
-        box-shadow var(--transition-fast), border-color var(--transition-fast);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: #f3f6f8;
-    color: var(--color-heading);
-    box-shadow: var(--shadow-sm);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
 }
 
 .actionButtons a.disabled {
@@ -1856,31 +1807,6 @@ form > :has(+ .resources-batch-actions),
     margin: 0 2px 0 5px;
     color: #3b454f;
     font-weight: 700;
-}
-
-/* 主ボタン(保存など)。上部ナビのネイビーに合わせた濃い青で、ほかのボタンと区別する */
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: none;
-    text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    color: var(--color-text-inverse);
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
 }
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。

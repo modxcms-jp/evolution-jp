@@ -27,6 +27,9 @@
    ============================================================================ */
 
 :root {
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
+    --page-padding-x: 16px;
+
     /* Gray Scale - Core neutral colors */
     --gray-50: #f9fafb;
     --gray-100: #f5f5f5;
@@ -128,6 +131,18 @@
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
+
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-height: 34px;
+    --control-padding-x: var(--space-2);
+    --control-radius: var(--radius-md);
+    --control-border: var(--border-thin) solid var(--gray-500);
+    --control-bg: var(--color-surface);
+    --control-focus-border-color: green;
+    --button-padding-x: var(--space-3);
+    --button-radius: var(--radius-lg);
+    --button-font-weight: 700;
+    --button-color: #444;
 
     /* Component Colors - Draft Status */
     --color-draft-start: #faf1d4;
@@ -310,7 +325,7 @@ h1 {
     line-height: 1em;
     padding: var(--space-2);
     border-radius: var(--radius-md);
-    margin: 0 var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-3);
 }
 
 h1.draft {
@@ -337,20 +352,25 @@ p.caption, p.comment {
     color: var(--gray-600);
 }
 
-button {
-    width: 112px;
-    font: inherit;
-    margin: 0 var(--space-1) 0 0;
-    cursor: pointer;
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    button {
+        font: inherit;
+        margin: 0 var(--space-1) 0 0;
+        cursor: pointer;
+    }
 }
 
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--color-link-hover);
+    a:hover {
+        color: var(--color-link-hover);
+    }
 }
 
 hr {
@@ -530,53 +550,10 @@ optgroup option {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
-form select {
-    background: var(--color-surface);
-    border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
-    border-style: solid;
-    border-width: var(--border-thin);
-    padding: var(--space-1);
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-md);
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: var(--color-surface);
-    border-color: var(--gray-500) var(--gray-300) var(--gray-300) var(--gray-500);
-    border-style: solid;
-    border-width: var(--border-thin);
-    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
-    margin: 0 var(--space-1) 0 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-}
-
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: var(--color-surface);
-    border: var(--border-thin) solid green;
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -615,12 +592,6 @@ input:is([type="button"], [type="submit"]):hover {
 input:is([type="button"], [type="submit"]):active {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-active-start);
-}
-
-select {
-    border: 0;
-    background: #fcfcfc;
-    cursor: pointer;
 }
 
 .form {
@@ -732,7 +703,7 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 var(--space-2);
+    margin: 0;
     padding: var(--space-2) var(--space-4);
     font-weight: bold;
     border: var(--border-thin) solid var(--color-section-header-end);
@@ -743,12 +714,12 @@ form .imeoff {
 }
 
 .tab-page .sectionHeader {
-    margin: 0 var(--space-1);
+    margin: 0;
 }
 
 .sectionBody {
     position: relative;
-    margin: 0 var(--space-2) var(--space-3);
+    margin: 0 0 var(--space-3);
     display: block;
 }
 
@@ -756,7 +727,7 @@ form .imeoff {
 .section .sectionBody {
     background: none repeat scroll 0 0 var(--color-section-bg);
     border: var(--border-thin) solid var(--gray-400);
-    margin: 0 var(--space-1) var(--space-3);
+    margin: 0 0 var(--space-3);
     padding: var(--space-4);
 }
 
@@ -766,7 +737,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 var(--space-2);
+    margin: 0;
     background-color: var(--color-surface);
 }
 
@@ -1042,11 +1013,6 @@ div.treeNode {
     width: 100%;
     border: var(--border-thin) solid silver;
     background-color: #DBDBDB;
-}
-
-.searchtext {
-    height: 18px;
-    padding: var(--space-1);
 }
 
 /* Home Page Links */
@@ -1603,10 +1569,6 @@ h2#edit_document_title {
     border-radius: var(--radius-full);
 }
 
-select#stay {
-    padding: var(--space-2);
-}
-
 .actionButtons {
     margin-bottom: var(--space-3);
 }
@@ -1705,33 +1667,7 @@ form > :has(+ .resources-batch-actions),
 }
 
 .actionButtons :is(a, button) {
-    display: block;
     float: left;
-    border-radius: var(--radius-lg);
-    color: #444;
-    font-size: 1em;
-    font-weight: 700;
-    outline: medium none;
-    padding: var(--space-2) var(--space-3);
-    text-decoration: none;
-    white-space: nowrap;
-    border: 0;
-    background-color: var(--color-neutral-button-start);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-text-primary);
-    outline-offset: 2px;
 }
 
 .actionButtons a.disabled {
@@ -1765,29 +1701,6 @@ form > :has(+ .resources-batch-actions),
     margin: 0 var(--space-1) 0 var(--space-1);
     color: #3b454f;
     font-weight: 700;
-}
-
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: none;
-    text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
 }
 
 

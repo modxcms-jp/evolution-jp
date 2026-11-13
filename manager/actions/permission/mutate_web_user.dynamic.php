@@ -257,7 +257,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_web_user')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a><span
+                <li id="Button1" class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a><span
                         class="and"> + </span>
                     <select id="stay" name="after_save">
                         <?= EvoFormFlow::afterSaveOptions(EvoFormFlow::requestedAfterSave(), evo()->hasPermission('new_web_user')) ?>

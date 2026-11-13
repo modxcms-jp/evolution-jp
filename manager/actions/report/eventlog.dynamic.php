@@ -167,11 +167,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
 
 <div id="actions">
     <ul class="actionButtons">
-        <li id="Button5" class="mutate">
-            <a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">
-                <?= lang('cancel') ?>
-            </a>
-        </li>
         <?php if ($canDeleteLog) { ?>
         <li id="Button6" class="mutate">
             <a href="#" id="systemLogClearButton">
@@ -179,6 +174,11 @@ if (getv('download') === '1' && $selectedPath !== '') {
             </a>
         </li>
         <?php } ?>
+        <li id="Button5" class="mutate">
+            <a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">
+                <?= lang('cancel') ?>
+            </a>
+        </li>
     </ul>
 </div>
 
@@ -309,10 +309,9 @@ if (getv('download') === '1' && $selectedPath !== '') {
     }
 </style>
 
-<div class="sectionBody">
+<div class="section"><div class="sectionBody">
     <p><?= hsc(lang('system_log_msg', 'システムログはJSONLines形式で保存されたエラー・警告・情報メッセージを表示します。')) ?></p>
 
-    <div class="sectionBody">
         <?php if ($clearNotice !== '') { ?>
             <div class="system-log-summary"><?= hsc($clearNotice) ?></div>
         <?php } ?>
@@ -381,7 +380,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         placeholder="<?= hsc(lang('keyword', 'キーワード')) ?>"
                     />
                 </label>
-                <button type="submit" class="primary"><?= hsc(lang('search')) ?></button>
+                <button type="submit" class="button primary"><?= hsc(lang('search')) ?></button>
             </form>
             <?php if ($isLatest) { ?>
                 <p class="system-log-summary">
@@ -412,7 +411,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <input type="hidden" name="level" value="<?= hsc($level) ?>" />
                         <input type="hidden" name="source" value="<?= hsc($source) ?>" />
                         <input type="hidden" name="q" value="<?= hsc($query) ?>" />
-                        <button type="submit" class="system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
+                        <button type="submit" class="button system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
                     </form>
                     <?php } ?>
                     <?php } ?>
@@ -435,8 +434,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                 </div>
             <?php } ?>
         <?php } ?>
-    </div>
-</div>
+</div></div>
 
 <?php if ($canDeleteLog) { ?>
 <form id="systemLogClearForm" method="post" action="index.php?a=114">

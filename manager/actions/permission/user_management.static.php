@@ -109,7 +109,7 @@ echo $cm->render();
         </ul>
     </div>
 
-    <div class="sectionBody">
+    <div class="section"><div class="sectionBody">
         <p><?= lang('user_management_msg') ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
@@ -240,5 +240,5 @@ echo $cm->render();
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
         ?>
-    </div>
+    </div></div>
 </form>

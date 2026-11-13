@@ -57,7 +57,7 @@ function get_src_content($id, $parent)
 <input type="hidden" name="id" value="{$id}">
 <p>{$_lang['resource_to_be_moved']}: <b>{$id}</b></p>
 <p><span id="parentName" class="warning">{$_lang['move_resource_new_parent']}</span>
-<button type="button" onclick="openParentPicker();">{$pickerLabel}</button></p>
+<button type="button" class="button" onclick="openParentPicker();">{$pickerLabel}</button></p>
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
 <input type="save" value="Move" style="display:none">

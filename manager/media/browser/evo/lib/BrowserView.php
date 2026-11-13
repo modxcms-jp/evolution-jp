@@ -264,7 +264,7 @@ class BrowserView
 <head>
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($title) ?></title>
-    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css?<?= asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css") ?>">
+    <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= asset_version(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>">
     <link rel="stylesheet" href="filebrowser.css?<?= asset_version(MODX_MANAGER_PATH . 'media/browser/evo/filebrowser.css') ?>">
 </head>

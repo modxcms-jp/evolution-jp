@@ -124,18 +124,18 @@ echo $cm->render();
 
 <h1><?= lang('module_management') ?></h1>
 
-<div class="sectionBody">
-    <!-- load modules -->
-    <div id="actions">
-        <ul class="actionButtons">
-            <?php if ((evo()->hasPermission('new_module'))) {
-                echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . lang("new_module") . '</a></li>';
-            } ?>
-            <li id="Button5" class="mutate"><a href="#"
-                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
-        </ul>
-    </div>
+<div id="actions">
+    <ul class="actionButtons">
+        <?php if ((evo()->hasPermission('new_module'))) {
+            echo '<li id="newModule" class="mutate"><a href="index.php?a=107">' . lang("new_module") . '</a></li>';
+        } ?>
+        <li id="Button5" class="mutate"><a href="#"
+                onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
+    </ul>
+</div>
 
+<div class="section"><div class="sectionBody">
+    <!-- load modules -->
     <p><?= lang('module_management_msg') ?></p>
 
     <?php
@@ -223,4 +223,4 @@ echo $cm->render();
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
         ?>
-</div>
+</div></div>

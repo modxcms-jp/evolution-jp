@@ -115,7 +115,7 @@ function role($key, $default = null)
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_role')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a></li>
+                <li id="Button1" class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a></li>
             <?php endif; ?>
             <?php
             if ($action === 35) {

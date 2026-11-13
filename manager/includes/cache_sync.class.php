@@ -404,13 +404,7 @@ class synccache
         }
 
         header('Content-Type: text/html; charset=' . evo()->config('modx_charset', 'utf-8'));
-        echo evo()->parseText(
-            '<link rel="stylesheet" type="text/css" href="[+manager_url+][+style_css+]" />',
-            [
-                'manager_url' => MODX_MANAGER_URL,
-                'style_css' => manager_asset('media/style/' . evo()->config('manager_theme', '') . '/style.css'),
-            ]
-        );
+        echo manager_theme_stylesheets();
         exit(sprintf(
             '<div class="section"><div class="sectionBody">%s - %s</div></div>',
             $cache_path,
