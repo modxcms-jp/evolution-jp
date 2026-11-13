@@ -1,32 +1,35 @@
 /*
  * 同梱の 7 テーマで中身まで同じ規則。テーマは書かない。テーマの前に読む（manager_theme_stylesheets()）。
- * 層には入れない。詳細度でテーマの規則に勝つ前提の規則が多く、層に入れると負けるため。
+ * 素の要素の初期化は土台の層（evo-base）に入れ、部品の CSS（sections.css など）が上書きできるようにする。
+ * ほかは層に入れない。詳細度でテーマの規則に勝つ前提の規則が多く、層に入れると負けるため。
  * 新しい規則はここに足さず、部品ごとの CSS に書く。ここの規則も、部品ごとの整理で部品の CSS へ移していく。
  */
 
 /* 素の要素 */
-html,
-body,
-form,
-fieldset {
-    margin: 0;
-    padding: 0;
-}
+@layer evo-base {
+    html,
+    body,
+    form,
+    fieldset {
+        margin: 0;
+        padding: 0;
+    }
 
-tbody,
-thead,
-tr {
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
+    tbody,
+    thead,
+    tr {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
 
-form label {
-    cursor: pointer;
-}
+    form label {
+        cursor: pointer;
+    }
 
-fieldset {
-    border: none;
+    fieldset {
+        border: none;
+    }
 }
 
 /* 汎用のクラス */
