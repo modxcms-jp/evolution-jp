@@ -526,11 +526,11 @@ body.evo-shell input.evo-submitting-trigger {
     cursor: pointer;
 }
 
-/* 子リソースの一覧の上の 2 行（resources_list.static.php）。
-   1 行目: パンくずと検索。2 行目: 作成のボタンとページ送り。狭いときは右のものが下に回り込む。
-   クラス名はこの画面専用。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
+/* 一覧の上の行。子リソースの一覧（resources_list.static.php）の上の 2 行と、検索（search.static.php）の結果の上の行。
+   .resources-list-head（子リソースの一覧だけ）: パンくずと検索。.list-toolbar: 作成のボタンか件数と、ページ送り。
+   狭いときは右のものが下に回り込む。.list-pager-bottom: 表の下のページ送り（右寄せ）。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
 .resources-list-head,
-.resources-list-toolbar {
+.list-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -538,16 +538,16 @@ body.evo-shell input.evo-submitting-trigger {
     margin-bottom: var(--space-3, 12px);
 }
 .resources-list-head .resources-topic-path,
-.resources-list-toolbar .pagination,
-.resources-list-toolbar ul.actionButtons,
-.resources-list-pager-bottom .pagination,
+.list-toolbar .pagination,
+.list-toolbar ul.actionButtons,
+.list-pager-bottom .pagination,
 .child-list-tools ul.actionButtons {
     margin: 0;
     padding: 0;
 }
 .resources-list-head .child-list-tools,
-.resources-list-toolbar .pagination,
-.resources-list-pager-bottom .pagination {
+.list-toolbar .pagination,
+.list-pager-bottom .pagination {
     margin-left: auto;
 }
 /* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
@@ -578,10 +578,64 @@ body.evo-shell input.evo-submitting-trigger {
 .child-list-tools > a {
     align-self: center;
 }
-.resources-list-pager-bottom {
+.list-pager-bottom {
     display: flex;
 }
-/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり） */
-#mutate > :has(+ .resources-list-pager-bottom) {
+/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり）。
+   子リソースの一覧は #mutate の直下、検索結果は .sectionBody の直下に表を置く */
+:is(#mutate, .sectionBody) > :has(+ .list-pager-bottom) {
     margin-bottom: var(--space-3, 12px);
 }
+
+/* 検索（a=71, manager/actions/main/search.static.php）。テーマの色・余白の変数があれば使う。
+   結果の上の行は共通の .list-toolbar、下のページ送りは .list-pager-bottom（表との間は上の :has の規則）を使う */
+.search-simple { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+.search-simple input[name="q"] { flex: 1 1 24em; max-width: 40em; box-sizing: border-box; }
+.search-also { white-space: nowrap; }
+/* 2 行目。閉じているあいだは 1 行に並び、開いた details だけ全幅にして中身を下に出す */
+.search-row2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-4, 16px); margin-top: var(--space-2, 8px); }
+.search-help { font-size: 0.9em; color: var(--color-text-muted, #606060); }
+.search-row2 > details > summary { cursor: pointer; width: max-content; }
+.search-row2 > details[open] { flex-basis: 100%; order: 1; margin-top: var(--space-1, 4px); }
+.search-advanced > summary { font-weight: bold; }
+/* テーマが label に幅を付けていても列が広がらないよう、見出しの列は決め打ちにし、全体を左に寄せる */
+.search-advanced-grid { display: grid; grid-template-columns: 9em minmax(0, 26em); justify-content: start; gap: var(--space-2, 8px) var(--space-3, 12px); align-items: center; margin-top: var(--space-3, 12px); }
+.search-advanced-grid > label, .search-advanced-grid > span:not(.search-range) { width: auto; justify-self: start; margin: 0; }
+.search-advanced-grid input, .search-advanced-grid select { width: 100%; max-width: none; box-sizing: border-box; margin: 0; }
+.search-advanced-grid .search-sep { grid-column: 1 / -1; border-top: 1px dashed var(--color-border-light, #ddd); margin: var(--space-1, 4px) 0; }
+.search-range { display: flex; gap: var(--space-2, 8px); align-items: center; }
+.search-range input { flex: 1 1 10em; min-width: 9.5em; }
+@media (max-width: 600px) {
+    .search-advanced-grid { grid-template-columns: minmax(0, 1fr); }
+}
+.search-syntax .grid { margin-top: var(--space-2, 8px); }
+/* 検索条件の欄は、結果をスクロールしても上に貼り付ける（is-sticky のときだけ。高すぎるときは JS が外す） */
+/* スクロールする領域の上の余白（--search-sticky-pad。JS が測る）の分だけ上に寄せ、その余白を領域の背景色で塗る。
+   寄せないと、余白のぶん欄の上に隙間ができ、そこから結果が透けて見える */
+.search-sticky.is-sticky {
+    position: sticky; z-index: 10;
+    top: calc(-1 * var(--search-sticky-pad, 0px));
+    margin-top: calc(-1 * var(--search-sticky-pad, 0px));
+    padding-top: var(--search-sticky-pad, 0px);
+    background: var(--search-sticky-bg, transparent);
+}
+.search-sticky.is-stuck .sectionBody { box-shadow: 0 4px 10px rgb(0 0 0 / 12%); }
+#search-sticky-sentinel { height: 1px; margin-bottom: -1px; }
+/* 開閉のアニメーションで高さを動かすので、はみ出しを隠す */
+.search-details-body { overflow: hidden; }
+.search-syntax-example { white-space: nowrap; }
+.search-conds { list-style: none; margin: 0 0 var(--space-3, 12px); padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1, 4px) var(--space-2, 8px); }
+/* テーマが一覧の行に付けている印（背景の画像・::before）と幅の指定を打ち消して、札の形にする */
+.search-conds li { display: inline-block; width: auto; float: none; margin: 0; padding: 1px var(--space-2, 8px); border-radius: 999px; background: var(--gray-100, #f5f5f5) none; list-style: none; font-size: 0.9em; white-space: nowrap; }
+.search-conds li::before, .search-conds li::after { content: none; display: none; }
+.search-astext { margin: 0 0 var(--space-2, 8px); }
+/* 当たらなかったとき・引けなかったときの文。札との間を空け、下は枠の余白に任せる */
+.search-empty, .search-target-error { margin: 0; padding: var(--space-1, 4px) 0; }
+/* 結果の 1 件（Google の検索結果の形）。タイトル・URL・抜粋 */
+.search-hit-title { font-size: 1.1em; font-weight: bold; }
+.search-hit-title img { vertical-align: -3px; }
+.search-hit-sub { margin-left: var(--space-2, 8px); font-size: 0.85em; font-weight: normal; }
+.search-hit-url { margin-top: var(--space-1, 4px); font-size: 0.85em; color: var(--color-success, #2f7d32); word-break: break-all; }
+.search-hit-url img { vertical-align: -3px; }
+.search-hit-snippet { margin-top: var(--space-1, 4px); color: var(--color-text-muted, #606060); line-height: 1.5; }
+.search-advanced-note { grid-column: 1 / -1; margin: 0; font-size: 0.9em; color: var(--color-text-muted, #606060); }

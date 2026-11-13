@@ -231,7 +231,7 @@ if (!$numRecords) {
     // 上のページ送りは表の上の行（作成のボタンの右）に出し、下は右に寄せる
     $navTop = $nav;
     $children_output = $table->render($rows, $links)
-        . ($nav !== '' ? '<div class="resources-list-pager-bottom">' . $nav . '</div>' : '');
+        . ($nav !== '' ? '<div class="list-pager-bottom">' . $nav . '</div>' : '');
     if ($canBatch) {
         // ボタンごとの送り先は formaction（フォームに hidden の a を置くと、a の値が衝突する）。
         // 操作の種類は URL の op で渡し、今のページ・並べ替え・検索語（q）も同じ URL で引き継ぐ。削除は確認のダイアログを出す
@@ -325,7 +325,7 @@ echo get_jscript($id, $cm);
                 );
             }
             // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない
-            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="resources-list-toolbar">' . $createButtons . $navTop . '</div>' : '';
+            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="list-toolbar">' . $createButtons . $navTop . '</div>' : '';
             echo <<< EOT
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
 <input type="hidden" name="parent" value="{$id}" />
