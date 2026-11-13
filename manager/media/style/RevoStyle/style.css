@@ -184,6 +184,17 @@
     --topnav-gap: var(--space-3);
     --subnav-height: 32px;
     --subnav-horizontal-padding: var(--space-10);
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: var(--border-thin) solid var(--color-border-default);
+    --section-header-radius: var(--space-4) var(--space-4) 0 0;
+    --section-body-bg: none repeat scroll 0 0 #F7F7F7;
+    --section-body-border: 1px solid #CCCCCC;
+    --section-body-padding: 15px;
+    --section-fieldset-padding: var(--space-9);
+    --section-legend-padding: var(--space-4) var(--space-9);
+    --section-legend-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
+    --section-legend-radius: var(--radius-md);
 }
 
 /* ============================================================================

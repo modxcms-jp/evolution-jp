@@ -1167,6 +1167,7 @@ function manager_theme_stylesheets()
     $paths = [
         'media/style/common/forms.css',
         'media/style/common/theme-base.css',
+        'media/style/common/sections.css',
         'media/style/' . evo()->config('manager_theme') . '/style.css',
     ];
     $links = '';

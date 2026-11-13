@@ -182,6 +182,17 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: stripes;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: var(--border-thin) solid var(--color-section-header-end);
+    --section-header-radius: var(--radius-full) var(--radius-full) 0 0;
+    --section-body-bg: none repeat scroll 0 0 var(--color-section-bg);
+    --section-body-border: var(--border-thin) solid var(--gray-400);
+    --section-body-padding: var(--space-4);
+    --section-fieldset-padding: var(--space-4);
+    --section-legend-padding: var(--space-1) var(--space-4);
+    --section-legend-shadow: var(--shadow-lg);
+    --section-legend-radius: var(--radius-md);
 }
 
 /* ============================================================================
@@ -564,19 +575,6 @@ input.submit {
    Used in: Section headers, content areas, fieldsets
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: var(--space-4);
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: var(--space-1) var(--space-4);
-    background: var(--color-surface);
-    border: var(--border-thin) solid var(--color-border-default);
-    box-shadow: var(--shadow-lg);
-    border-radius: var(--radius-md);
-}
-
 .sectionBody h3 {
     font-size: 1.1em;
     font-weight: bold;
@@ -585,15 +583,10 @@ input.submit {
 }
 
 .sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0;
     padding: var(--space-2) var(--space-4);
-    font-weight: bold;
-    border: var(--border-thin) solid var(--color-section-header-end);
     border-bottom: none;
     background-color: var(--color-section-header-end);
     box-shadow: 0 var(--border-thin) 0 var(--color-surface) inset;
-    border-radius: var(--radius-full) var(--radius-full) 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -601,17 +594,12 @@ input.submit {
 }
 
 .sectionBody {
-    position: relative;
     margin: 0 0 var(--space-3);
-    display: block;
 }
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: none repeat scroll 0 0 var(--color-section-bg);
-    border: var(--border-thin) solid var(--gray-400);
     margin: 0 0 var(--space-3);
-    padding: var(--space-4);
 }
 
 /* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */

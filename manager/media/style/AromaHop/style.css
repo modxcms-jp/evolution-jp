@@ -74,7 +74,7 @@
     --color-info-bg: rgba(240, 248, 255, 0.9);
 
     /* Component Colors - Sections (氷の透明感 + ライムの淡い色) */
-    --color-section-header-text: #3A6A40;
+    --color-section-header-text: #3a5845;
     --color-section-header-bg: rgba(250, 255, 244, 0.92);
     --color-section-header-border: rgba(255, 255, 255, 0.45);
     --color-section-bg: rgba(253, 253, 251, 0.94);
@@ -193,6 +193,18 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: dots;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: none;
+    --section-header-radius: 0;
+    /* 箱の地: 氷越しの水平ハイライトと、透明感のあるベース */
+    --section-body-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.5) 0%, rgba(253, 253, 251, 0.15) 2px, transparent 3px, transparent 100%), rgba(253, 253, 251, 0.8);
+    --section-body-border: 1px solid rgba(255, 255, 255, 0.35);
+    --section-body-padding: var(--space-5);
+    --section-fieldset-padding: var(--space-4);
+    --section-legend-padding: var(--space-2) var(--space-4);
+    --section-legend-shadow: var(--shadow-sm);
+    --section-legend-radius: var(--radius-md);
 }
 
 /* ============================================================================
@@ -831,17 +843,10 @@ input.submit {
    Used in: Content areas, settings pages, form sections
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: var(--space-4);
-}
-
 .sectionBody legend {
     font-weight: 600;
-    padding: var(--space-2) var(--space-4);
     background: linear-gradient(135deg, rgba(252, 254, 252, 0.98) 0%, rgba(242, 250, 245, 0.95) 100%);
     border: 1px solid rgba(160, 195, 175, 0.4);
-    box-shadow: var(--shadow-sm);
-    border-radius: var(--radius-md);
     color: var(--color-text-dark);
 }
 
@@ -854,13 +859,9 @@ input.submit {
 }
 
 .sectionHeader {
-    color: #3a5845;
-    margin: 0;
     font-weight: 600;
     letter-spacing: 0.3px;
-    border: none;
     background: transparent;
-    border-radius: 0;
 }
 
 .tab-page .sectionHeader {
@@ -868,28 +869,10 @@ input.submit {
     font-size: 1rem;
 }
 
-.sectionBody {
-    position: relative;
-    display: block;
-}
-
 /* セクション - モヒートパレット準拠（氷の透明感） */
 .tab-page .sectionBody,
 .section .sectionBody {
-    background:
-        /* 氷越しの水平ハイライト */
-        linear-gradient(
-            180deg,
-            rgba(253, 253, 251, 0.5) 0%,
-            rgba(253, 253, 251, 0.15) 2px,
-            transparent 3px,
-            transparent 100%
-        ),
-        /* 透明感のあるベース */
-        rgba(253, 253, 251, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.35);
     margin-bottom: var(--space-3);
-    padding: var(--space-5);
     border-radius: var(--radius-xl);
     box-shadow:
         inset 0 1px 0 rgba(253, 253, 251, 0.7),

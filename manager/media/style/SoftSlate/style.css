@@ -183,6 +183,17 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: spinner;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: 1px solid var(--color-frame);
+    --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --section-body-bg: var(--color-surface);
+    --section-body-border: 1px solid var(--color-frame);
+    --section-body-padding: 15px;
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
+    --section-legend-shadow: 1px 1px 3px var(--color-border-default);
+    --section-legend-radius: 3px;
 }
 
 /* ============================================================================
@@ -568,18 +579,6 @@ input.submit {
 }
 
 /* -------------------------[ Misc stuff ]--- */
-.sectionBody fieldset {
-    padding: 15px;
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
-}
 
 .sectionBody h3 {
     font-size: 1.1em;
@@ -590,15 +589,10 @@ input.submit {
 
 /* セクション見出し。グラデーションの帯をやめ、ごく薄い地色と下線で本文と区切る */
 .sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0;
     padding: 8px 16px;
-    font-weight: bold;
-    border: 1px solid var(--color-frame);
     border-bottom-color: var(--color-frame-light);
     background: var(--color-section-header-end);
     box-shadow: none;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -611,19 +605,14 @@ input.submit {
 }
 
 .sectionBody {
-    position: relative;
     margin: 0 0 var(--space-3);
-    display: block;
 }
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: var(--color-surface);
-    border: 1px solid var(--color-frame);
     border-radius: var(--radius-lg);
     box-shadow: none;
     margin: 0 0 var(--space-3);
-    padding: 15px;
 }
 
 /* 見出しの直後は、見出しと一枚の枠にまとめる(二重線にしない) */

@@ -1,0 +1,39 @@
+/*
+ * 管理画面のセクション（見出しの帯 .sectionHeader と、本体の箱 .sectionBody）の共通の決まり。
+ * 値はテーマが :root の変数で決める（無ければ既定値）。決まりと変数の一覧は assets/docs/theme-variables.md。
+ * 枠の太さは 1px と書く（--border-thin は一部のテーマにしか無い）。
+ */
+@layer evo-components {
+    .sectionHeader {
+        margin: 0;
+        font-weight: bold;
+        color: var(--color-section-header-text);
+        border: var(--section-header-border, 1px solid var(--color-section-header-end));
+        border-radius: var(--section-header-radius, var(--radius-full) var(--radius-full) 0 0);
+    }
+
+    .sectionBody {
+        position: relative;
+        display: block;
+    }
+
+    .tab-page .sectionBody,
+    .section .sectionBody {
+        background: var(--section-body-bg, none repeat scroll 0 0 var(--color-section-bg));
+        border: var(--section-body-border, 1px solid var(--gray-400));
+        padding: var(--section-body-padding, var(--space-4));
+    }
+
+    .sectionBody fieldset {
+        padding: var(--section-fieldset-padding, var(--space-4));
+    }
+
+    .sectionBody legend {
+        font-weight: bold;
+        padding: var(--section-legend-padding, var(--space-1) var(--space-4));
+        background: var(--color-surface);
+        border: 1px solid var(--color-border-default);
+        box-shadow: var(--section-legend-shadow, var(--shadow-lg));
+        border-radius: var(--section-legend-radius, var(--radius-md));
+    }
+}
