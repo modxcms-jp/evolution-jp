@@ -1560,8 +1560,7 @@ class DocumentParser
             return false;
         }
 
-        $this->loadExtension('phpass');
-        return $this->phpass->checkPassword($token, $hashedBearerToken);
+        return hash_equals((string)$hashedBearerToken, hash('sha256', $token));
     }
 
     /**
@@ -1606,8 +1605,8 @@ class DocumentParser
 
     public function saveBearerToken($token, $expire = null)
     {
-        $this->loadExtension('phpass');
-        $hashedToken = $this->phpass->hashPassword($token);
+        // トークンは乱数なので、遅いハッシュは要らず sha256 で保存する
+        $hashedToken = hash('sha256', (string)$token);
         if (!$expire) {
             $expire = request_time() + 60 * 60 * 24 * 30; // 30 days
         }
