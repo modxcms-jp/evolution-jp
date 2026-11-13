@@ -110,6 +110,16 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 `settings_version`（システム設定）は、「システム設定を保存した版、またはアップデーターで上げた版」として残す。アップデートの判定には使わず、新規インストール後にまだ保存していない（`'0'` か空）サイトの初回に設定画面へ案内する判定にだけ使う。版の表示（メニュー・システム情報・バックアップの名前・`health:check`）はコードの版（`$modx_version`）を使う。アップデーター（`install/instprocessor.php`）は、アップグレードのときに `settings_version` をコードの版へ上げる。新規インストールは `'0'` のまま残す。
 
+## 同梱の要素の雛形
+
+同梱のスニペット・プラグイン・モジュールは、`assets/{snippets,plugins,modules}/` の `*.install_base.tpl`（雛形）から DB に入る。アップデーターは、雛形の `@version` が DB の description 先頭の版と同じなら、その要素を入れ直さない。違えば同名の行を上書きする。
+
+- DB に入る雛形は、ファイルを読み込む 1 行（`return include MODX_BASE_PATH . 'assets/snippets/<名前>/snippet.<名前>.php';`）だけにし、処理はファイル側に置く。直しがファイルの置き換えで届き、DB の入れ直しを待たない（例: `assets/snippets/eform/`、`assets/snippets/weblogin/`）
+- `@version` は「雛形を最後に変えた Evolution の版」（例 `1.3.0J`）にする。アップデーターに DB を作り直させる印で、要素自身の版ではない。要素自身の版は、ファイルのコメントや CHANGELOG に残す
+- アップデーターは文字列が同じかだけを見る。保守ブランチ（1.2 系など）で雛形を変えるときは、`main` と同じ文字列を使わない（同じだと、どちらかで入れ直しが起きない）
+- 雛形を変えたのに `@version` が同じだと、`.github/scripts/element-version-lint.php`（CI の Element version lint）が、`release-*` タグのうち今の版以下で一番新しいものと比べて落とす
+- サイトで手を入れた要素を黙って上書きしないため、アップデーターで中身の違いを見ることはしない（見るのは `@version` だけ）
+
 ## 利用者がアップデートするとき
 
 1. ファイルを差し替える。`manager/` だけでなく、ルートの `index.php` も必ず差し替える。1.2 系と未リリースの `main` の古い `index.php` は、今は無い `manager/includes/version_mismatch_guard.php` を読み込むため、`manager/` だけを新しくして古い `index.php` が残ると、公開側が HTTP 500 になる（古いガードのファイルが残っていれば読み込めるが、今の判定は使われず、未適用があっても公開側は止まらない）。
