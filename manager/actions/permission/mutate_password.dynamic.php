@@ -9,7 +9,7 @@ if (!evo()->hasPermission('change_password')) {
 }
 if (sessionv('onetime_msg') !== null) {
     $onetime_msg = sessionv('onetime_msg');
-    unset($_SESSION['onetime_msg']);
+    sessionv('*onetime_msg', null);
 } else {
     $onetime_msg = '';
 }

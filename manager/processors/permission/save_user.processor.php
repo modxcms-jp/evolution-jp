@@ -10,7 +10,7 @@ if (!canSaveUser()) {
 
 // verify password
 if (!confirmPassword()) {
-    webAlert('Password typed is mismatched');
+    webAlert(lang('password_error_mismatch'));
     exit;
 }
 

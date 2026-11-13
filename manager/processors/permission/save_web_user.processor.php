@@ -40,7 +40,7 @@ $afterSave = EvoFormFlow::postedAfterSave();
 
 // verify password
 if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirmpassword')) {
-    webAlert('Password typed is mismatched');
+    webAlert(lang('password_error_mismatch'));
     exit;
 }
 
