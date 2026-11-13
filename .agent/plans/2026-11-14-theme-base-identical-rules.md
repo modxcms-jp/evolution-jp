@@ -28,6 +28,7 @@ Issue: #1448（Refs。最後の PR で閉じる）
 - 2026-11-14: 層に入れない。59 個は詳細度でテーマの規則に勝つ前提の規則が多く、層に入れると負ける。中身が 7 テーマで同じなので、今テーマが上書きしたい規則でもない。層への振り分けは、部品ごとに変数にして移す PR で、その部品のテーマ側の規則と一緒に行う（#1448 の「守ること」の層の項目は、その PR から当てはめる）。
 - 2026-11-14: 見出しの 3 個（`h1, h2, h3, h4, h5, h6, .subTitle`、`h4, h5`、`h6`）はテーマに残す。初期化の規則（RevoStyle だけ中身が違い、移せない）と組で扱う必要がある。
 - 2026-11-14: 使われていない・効かない・重複する規則は、移さずに消す（共通の場所に移すと、生きている規則に見えて読み手を迷わせる）。消したもの: `form#mutate textarea.tv_textarea`・`.tv_textareamini`、`fieldset#document_content textarea#ta`、`.disabledImage`・`.disabledImage img`、`div.treeNode`、`form .imeoff`（`ime-mode` は効かない）、`a img { border: 0 }`（7 テーマの `img, a img { border: 0 }` と重なる）、`fieldset#access_permissions dt label`・`dl dd ul li`、`.printonly`。
+- 2026-11-14（並走セッションの点検を受けて）: 値がテーマごとに違って移す対象ではなかった `fieldset#access_permissions dd` も、同じ理由で当たらないので、見出しのコメントごと 7 テーマから消した。`.form br`・`.form fieldset.list legend` も、`class="form"` が管理画面に無い（インストーラーは自分の CSS を読む）ので消した。theme-base.css は 44 個。
 - 2026-11-14: `.hide`・`.skip`・`.inline` は本体では使われていないが、汎用の名前で外部のモジュールが使っている見込みがあるので、移して残す（PR の本文の「使われていない候補」に入れる）。
 
 ## Outcomes & Retrospective
