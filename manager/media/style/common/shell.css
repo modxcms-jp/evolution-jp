@@ -45,9 +45,7 @@ body.evo-shell > #mainPane {
     min-width: 0;
     overflow: auto;
     position: relative;
-    /* 旧mainフレームのbody paddingに相当する内側余白。
-       左右はページの左右の余白（--page-padding-x）で、ここだけが持つ。h1・.section・.sectionBody・.tab-pane などのブロックは
-       左右の margin を持たないので、入れ子の書き方が画面ごとに違っても、左右の端は h1 とそろう（theme-spacing.md の「横の余白」） */
+    /* ページの左右の余白はここだけが持つ（theme-spacing.md の「横の余白」） */
     padding: var(--shell-main-padding, var(--space-2, 8px));
     padding-inline: var(--page-padding-x, var(--shell-main-padding, var(--space-2, 8px)));
     box-sizing: border-box;

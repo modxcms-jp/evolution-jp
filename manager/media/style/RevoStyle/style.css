@@ -139,8 +139,7 @@
     --color-neutral-button-active-start: #f0f0f0;
     --color-neutral-button-active-end: #cecece;
 
-    /* フォーム部品（common/forms.css が読む）。RevoStyle は凍結テーマのため、下の古い規則（.actionButtons a など）を残し、
-       forms.css の既定値で見た目が変わらないよう値だけを合わせる。高さは前の .actionButtons a（26px）に合わせる */
+    /* フォーム部品の寸法（common/forms.css が読む）。凍結テーマなので、下の古い規則も残す */
     --control-height: 26px;
     --button-padding-x: 10px;
     --button-radius: 2px;

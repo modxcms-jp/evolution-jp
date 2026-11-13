@@ -52,7 +52,6 @@ $values = EvoSettingsForm::systemValues($stored);
             width: 250px;
         }
     </style>
-    <!-- ほかのタブの画面と同じく、タブの組を .sectionBody で包む -->
     <div class="sectionBody">
         <input type="hidden" name="site_id" value="<?= hsc($values['site_id'] ?? '') ?>"/>
         <?php

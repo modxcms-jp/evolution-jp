@@ -1159,9 +1159,8 @@ function manager_asset($path)
 }
 
 /**
- * 管理画面のテーマの CSS を読む <link> を返す。フォーム部品の共通の決まり（common/forms.css）と、テーマの style.css の 2 つ。
- * forms.css は @layer の順番を最初に宣言するため、必ずテーマより先に読む（assets/docs/theme-variables.md の「フォーム部品」）。
- * テーマの style.css を読む画面（管理画面の枠・ログイン・ロックアウト・小窓・ファイルブラウザ・エラー表示）は、これを使う。
+ * 管理画面のテーマの CSS を読む <link> を返す（common/forms.css とテーマの style.css）。
+ * forms.css が @layer の順番を宣言するので、テーマより先に読む。
  */
 function manager_theme_stylesheets()
 {

@@ -66,7 +66,7 @@
 入力欄・セレクト・ボタンの見た目は、共通部の `manager/media/style/common/forms.css` が 1 か所で決める。テーマは `:root` で下の変数の値を決めるだけにし、同じ性質を書いた規則（`form input[type=text]`、`form select`、`.actionButtons :is(a, button)` の地や枠など）を持たない。
 
 - 土台（`@layer evo-base`）: 素の `input`（文字を入れる種類。`text`・`password`・`search`・`email`・`url`・`number`・`date` など）・`select`・`textarea`。目印のクラスは要らない。`form` の中かどうかも問わない
-- 部品（`@layer evo-components`）: ボタン。単独で置くボタンは `class="button"`、主ボタンは `class="button primary"`。`.actionButtons` の中の `a`・`button` も同じボタンとして扱い、前からの主ボタンの書き方（`#Button1 a`、`li.primary a`、`a.primary`、`a.default`）も主ボタンになる
+- 部品（`@layer evo-components`）: ボタン。単独で置くボタンは `class="button"`、主ボタンは `class="button primary"`。`.actionButtons` の中の `a`・`button` も同じボタンとして扱い、その中の `#Button1 a`、`li.primary a`、`a.primary`、`a.default` も主ボタンになる
 - 素の `button` は素の見た目のまま（アイコンだけのボタンなど、テーマの見た目にしたくないものがあるため）。テーマは `button` に幅や見た目を付けない
 - 層に入れた規則は、層に入れていない規則に必ず負ける。テーマの素の要素の規則（`a` の色・下線など）は `@layer evo-base { ... }` に入れる。入れないと、ボタンとして書いた `a` の文字の色まで上書きする
 - 寸法（高さ・角・余白）・地・枠・影・動きは変数で決める。テーマが変数で表せない飾りを足すとき（`.actionButtons a.disabled`、下書きの `.opendraft a` など）は、寸法を書かない

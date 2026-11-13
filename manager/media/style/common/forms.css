@@ -46,9 +46,8 @@
 }
 
 @layer evo-components {
-    /* ボタン。単独で置くものは class="button"。.actionButtons の中の a・button も同じ見た目にする
-       （並べ方の float はテーマの規則）。主ボタンは .primary。.actionButtons の中では、前からの書き方
-       （#Button1 a、li.primary a、a.primary、a.default）も主ボタンとして扱う */
+    /* ボタンは class="button"、主ボタンは .primary。.actionButtons の中の a・button も同じ。
+       .actionButtons の中では #Button1 a、li.primary a、a.primary、a.default も主ボタン */
     :is(.button, .actionButtons :is(a, button)) {
         display: inline-flex;
         align-items: center;

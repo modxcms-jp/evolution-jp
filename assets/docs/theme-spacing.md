@@ -75,7 +75,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 
 - ページのブロック（`h1`・`.section`・`.sectionHeader`・`.sectionBody`・`.tab-pane`。`.tab-page` の中の `.sectionHeader`・`.sectionBody` も）は、左右の `margin` を持たない。上下の `margin` だけを書く
 - こうしておくと、画面ごとに入れ子の書き方（`.sectionBody` で包むか、`.section` の中か、`form` の中か）が違っても、ブロックの左右の端は `h1` とそろう。包みを忘れた画面や二重に包んだ画面だけがずれる、ということが起きない
-- 同梱テーマの値: RevoClassic・AuroraFlow・RubberWhite・SoftSlate は `16px`、AromaHop・SakuraFlow は `8px`、RevoStyle は `18px`（前の「`#mainPane` の余白＋ブロックの左右の margin」と同じ位置）
+- 同梱テーマの値: RevoClassic・AuroraFlow・RubberWhite・SoftSlate は `16px`、AromaHop・SakuraFlow は `8px`、RevoStyle は `18px`
 - 画面の骨組みは、`h1` → `#actions`（操作ボタン）→ 本体の順に置く。本体は、タブの画面なら `.sectionBody > .tab-pane`、それ以外（説明と入力欄の画面、一覧の画面）は `.section > .sectionBody` の箱（見出しの帯があれば `.sectionHeader` を前に）。`h1` の前に `<br>` などを置かない。`.sectionBody` を `.sectionBody` で包まない。`#actions` を本体の中や `h1` の前に置かない
 - `#actions` のボタンは、主ボタン（更新・保存。`#Button1` か `.primary`）を先頭に、ほかの操作をその後に、キャンセル（閉じる・戻る）を最後に並べる。確認のダイアログ（evo-dialog）の「OK → キャンセル」と同じ順
 
@@ -97,7 +97,7 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 
 画面の PHP から直書きの余白を消した分（`.resources-batch-actions` の上・`.system-log-toolbar` と `.system-log-summary` の下の 10px）は、RevoStyle の `style.css` の末尾に、同じ値（px）で保つ規則を足してある。見た目を変えないための規則で、手本にしない。RevoStyle の `.resources-topic-path { margin-bottom: 10px; }` も同じ経緯で残っているが、サブリソース一覧では `common/shell.css` の `.resources-list-head` の規則が 0 にする（テーマのファイルは直さない）。サブリソース一覧の上の 2 行と下のページ送りの間は `common/shell.css` が `--space-3` で作るので、RevoStyle（`--space-3` が 4px）では 4px になる（凍結テーマのため直さない）。
 
-#924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の上下の `margin: 8px`。左右は「横の余白」の決まりで 0 にした）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）。これらも手本にしない。
+#924 で足した分も、同じ値で保つ。システム情報（本体の `padding: 10px 20px`、表の下 20px）、バックアップ（ボタン列の上下 10px）、インポート（`#importSite` の上下の `margin: 8px`）、ログ（ボタン列の上 12px）、エクスポート（`#exportNotice`・`#exportResult dl`）、コード欄の帯の上 5px、テンプレート名の下 10px、TV の一覧の下のボタン列の上 15px、下書きの公開（下 12px）。これらも手本にしない。
 
 #973 で画面の直書きを消したコード欄の帯（`.code-editor-header`）も、`padding`・色・枠を同じ値で保つ。#1004 で足した中の文字（`.code-editor-title` の太字、`.code-editor-options` の `#707070`。帯の背景に対して 4.5:1 に届かないが、凍結のため変えない）も同じ。これも手本にしない。
 

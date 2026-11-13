@@ -1666,7 +1666,6 @@ form > :has(+ .resources-batch-actions),
     opacity: 1;
 }
 
-/* ボタンの見た目は common/forms.css。ここは並べ方だけ */
 .actionButtons :is(a, button) {
     float: left;
 }
