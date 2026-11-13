@@ -186,7 +186,6 @@
     /* セクション（common/sections.css が読む） */
     --section-header-border: var(--border-thin) solid var(--color-section-header-end);
     --section-header-radius: var(--radius-full) var(--radius-full) 0 0;
-    --section-body-bg: none repeat scroll 0 0 var(--color-section-bg);
     --section-body-border: var(--border-thin) solid var(--gray-400);
     --section-body-padding: var(--space-4);
     --section-fieldset-padding: var(--space-4);

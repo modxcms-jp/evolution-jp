@@ -81,6 +81,7 @@
 
     /* Color - Section Header */
     --color-section-header-text: #606060;
+    --color-section-bg: #ffffff;
     --color-section-header-start: #f5f5f5;
     --color-section-header-end: #dddddd;
 
@@ -235,7 +236,6 @@
     /* セクション（common/sections.css が読む） */
     --section-header-border: 1px solid var(--clean-border);
     --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    --section-body-bg: #ffffff;
     --section-body-border: 1px solid #e1e4e8;
     --section-body-padding: 15px;
     --section-fieldset-padding: 15px;

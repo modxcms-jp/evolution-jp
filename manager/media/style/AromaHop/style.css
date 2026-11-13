@@ -75,8 +75,6 @@
 
     /* Component Colors - Sections (氷の透明感 + ライムの淡い色) */
     --color-section-header-text: #3a5845;
-    --color-section-header-bg: rgba(250, 255, 244, 0.92);
-    --color-section-header-border: rgba(255, 255, 255, 0.45);
     --color-section-bg: rgba(253, 253, 251, 0.94);
 
     /* Component Colors - Navigation (氷白 + ライムアクセント) */
@@ -197,8 +195,17 @@
     /* セクション（common/sections.css が読む） */
     --section-header-border: none;
     --section-header-radius: 0;
-    /* 箱の地: 氷越しの水平ハイライトと、透明感のあるベース */
-    --section-body-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.5) 0%, rgba(253, 253, 251, 0.15) 2px, transparent 3px, transparent 100%), rgba(253, 253, 251, 0.8);
+    --section-body-bg:
+        /* 氷越しの水平ハイライト */
+        linear-gradient(
+            180deg,
+            rgba(253, 253, 251, 0.5) 0%,
+            rgba(253, 253, 251, 0.15) 2px,
+            transparent 3px,
+            transparent 100%
+        ),
+        /* 透明感のあるベース */
+        rgba(253, 253, 251, 0.8);
     --section-body-border: 1px solid rgba(255, 255, 255, 0.35);
     --section-body-padding: var(--space-5);
     --section-fieldset-padding: var(--space-4);

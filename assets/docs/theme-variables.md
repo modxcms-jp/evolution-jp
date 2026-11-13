@@ -21,6 +21,7 @@
 | `--color-text-inverse` | 主な操作の色の上に置く文字の色 | shell.css のモーダルの見出し、evo-dialog.js の OK の文字、filebrowser.css・datepicker.css の選択の上の文字 |
 | `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、selection-dock.css（`.selection-dock` の背景の color-mix）、sections.css（箱の中の `legend` の地）、filebrowser.css、datepicker.css |
 | `--color-section-header-text` | セクションの見出しの帯（`.sectionHeader`）の文字の色 | sections.css |
+| `--color-section-bg` | セクションの箱（`.sectionBody`）の地の色 | sections.css（`--section-body-bg` の既定） |
 | `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css |
 | `--color-text-muted` | 補助的な文字の色 | shell.css（検索画面 `.search-*`）、filebrowser.css、datepicker.css |
 | `--color-border-default` | 通常の枠の色 | sections.css（箱の中の `legend` の枠）、filebrowser.css、datepicker.css |
@@ -101,17 +102,19 @@
 
 見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）の見た目は、`manager/media/style/common/sections.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
 
-- 見出しの帯の文字色は、`--color-section-header-text` で決める（上の「変数の一覧」と同じ変数）
+- `--color-section-*` は色の契約（上の「変数の一覧」）、`--section-*` はセクションの部品の変数。見出しの帯の文字色は `--color-section-header-text` で決める。箱の地（`--section-body-bg`）の既定は `--color-section-bg` なので、単色の地のテーマは `--color-section-bg` だけを決めればよい
 - 多くのテーマで同じ値の性質（見出しの帯と legend の文字の太さ `bold`、legend の地 `--color-surface` と枠 `1px solid var(--color-border-default)`）は、sections.css に値で書く。違う値にしたいテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）
 - 一部のテーマにしかない性質（見出しの帯の地・余白・影、箱の角・影など）は、テーマの規則に書く
 - `.sectionBody h3` は、まだこの決まりの外（テーマの規則のまま）。層に入れると、テーマの `h3` の規則に負けるため
 
 | 変数 | 意味 | 既定値（sections.css） |
 | --- | --- | --- |
-| `--section-header-border` / `--section-header-radius` | 見出しの帯の枠と角 | `1px solid var(--color-section-header-end)` / 上だけ `var(--radius-full)` |
-| `--section-body-bg` / `--section-body-border` / `--section-body-padding` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・内側の余白 | `var(--color-section-bg)` / `1px solid var(--gray-400)` / `var(--space-4)` |
-| `--section-fieldset-padding` | 箱の中の `fieldset` の内側の余白 | `var(--space-4)` |
-| `--section-legend-padding` / `--section-legend-shadow` / `--section-legend-radius` | 箱の中の `legend` の余白・影・角 | `var(--space-1) var(--space-4)` / `var(--shadow-lg)` / `var(--radius-md)` |
+| `--section-header-border` / `--section-header-radius` | 見出しの帯の枠と角 | `1px solid #ddd` / `8px 8px 0 0` |
+| `--section-body-bg` / `--section-body-border` / `--section-body-padding` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・内側の余白 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `16px` |
+| `--section-fieldset-padding` | 箱の中の `fieldset` の内側の余白 | `16px` |
+| `--section-legend-padding` / `--section-legend-shadow` / `--section-legend-radius` | 箱の中の `legend` の余白・影・角 | `4px 16px` / `1px 1px 3px #ccc` / `3px` |
+
+既定値は RevoClassic の値。
 
 ## 新しいテーマを作るとき
 

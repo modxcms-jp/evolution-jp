@@ -186,7 +186,6 @@
     /* セクション（common/sections.css が読む） */
     --section-header-border: 1px solid var(--color-card-border);
     --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    --section-body-bg: var(--color-section-bg);
     --section-body-border: 1px solid var(--color-card-border);
     --section-body-padding: var(--space-4);
     --section-fieldset-padding: 15px;

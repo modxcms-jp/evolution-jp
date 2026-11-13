@@ -77,8 +77,6 @@
 
     /* Component Colors - Sections (glass morphism style) */
     --color-section-header-text: #5a4055;
-    --color-section-header-bg: rgba(255, 240, 247, 0.85);
-    --color-section-header-border: rgba(233, 196, 214, 0.6);
     --color-section-bg: rgba(255, 250, 252, 0.9);
 
     /* Component Colors - Navigation (flat, modern) */
