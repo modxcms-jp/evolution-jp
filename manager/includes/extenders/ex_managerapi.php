@@ -328,6 +328,22 @@ class ManagerAPI
         return password_hash((string) $password, PASSWORD_DEFAULT);
     }
 
+    /**
+     * 管理画面の利用者のパスワードの長さを確かめる（6 文字以上、72 バイト以下）
+     * 上限は bcrypt が照合するバイト数。戻り値は '' (問題なし) / 'too_short' / 'too_long'
+     */
+    public function checkPasswordLength($password)
+    {
+        $length = strlen((string) $password);
+        if ($length < 6) {
+            return 'too_short';
+        }
+        if ($length > 72) {
+            return 'too_long';
+        }
+        return '';
+    }
+
     public function getHashType($db_value = '')
     { // password_hash | md5 | v1 | phpass
         $db_value = (string) $db_value;

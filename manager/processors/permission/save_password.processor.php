@@ -13,10 +13,10 @@ if ($password !== post_strvar('pass2')) {
     $msg = '<p class="fail">passwords don\'t match!</p>';
 } elseif (empty($password)) {
     $msg = '<p class="fail">passwords don\'t empty!</p>';
-} elseif (strlen($password) < 6) {
+} elseif (manager()->checkPasswordLength($password) === 'too_short') {
     $msg = '<p class="fail">Password is too short. Please specify a password of at least 6 characters.</p>';
-} elseif (32 < strlen($password)) {
-    $msg = '<p class="fail">Password is too long. Please specify a password of less than 32 characters.</p>';
+} elseif (manager()->checkPasswordLength($password) === 'too_long') {
+    $msg = '<p class="fail">Password is too long. Please specify a password of no more than 72 bytes.</p>';
 } else {
     $uid = evo()->getLoginUserID();
     $f['password'] = manager()->hashPassword($password);
