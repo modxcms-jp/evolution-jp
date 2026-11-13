@@ -2,7 +2,7 @@
 /**
  * WebLogin スニペットの処理（雛形 weblogin.install_base.tpl から読み込まれる）
  *
- * 雛形の @version は「雛形を最後に変えた Evolution の版」。WebLogin 自身の版は 1.2。
+ * 雛形の @version は、WebLogin の版（1.3）。
  */
 
 /* --------------------------------

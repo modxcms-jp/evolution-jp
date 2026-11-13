@@ -4,7 +4,7 @@
  *
  * アップデーター（install/）は、雛形 *.install_base.tpl の @version が DB の description 先頭の版と
  * 同じなら、その要素を入れ直さない。雛形を変えたのに @version が同じだと、DB のコードが古いまま残る。
- * @version は「雛形を最後に変えた Evolution の版」（例 1.3.0J）にする。決まりは assets/docs/migrations.md。
+ * @version は要素自身の版で、雛形を変えたら上げる。決まりは assets/docs/migrations.md。
  *
  * 比べる相手: release-* のタグのうち、版（release- と末尾の J を除いたもの）が
  *   manager/includes/version.inc.php の $modx_version（末尾の J を除く）以下で、version_compare で一番新しいもの。
@@ -122,9 +122,6 @@ if ($code !== 0) {
 }
 echo "比べるタグ: {$tag}\n";
 
-$hintVersion = preg_replace('/rc\d*$/', '', currentVersion($root));
-$hint = $hintVersion . 'J';
-$bumpFirst = version_compare($hintVersion, releaseOf($tag), '<=');
 $violations = [];
 foreach (targetFiles($root) as $rel) {
     [$code, $old] = git($root, ['show', $tag . ':' . $rel]);
@@ -137,20 +134,16 @@ foreach (targetFiles($root) as $rel) {
     $oldVer = docVersion($old);
     if ($oldVer !== null && $oldVer === docVersion(file_get_contents($root . '/' . $rel))) {
         $violations[] = sprintf(
-            '%s  @version %s が %s から変わっていません。雛形を変えたので、@version を雛形を変えた Evolution の版%sに上げてください',
+            '%s  @version %s が %s から変わっていません。雛形を変えたので、@version（要素の版）を上げてください',
             $rel,
             $oldVer,
-            $tag,
-            $bumpFirst ? '（次の版）' : "（例 {$hint}）"
+            $tag
         );
     }
 }
 
 foreach ($violations as $v) {
     echo $v, "\n";
-}
-if ($violations && $bumpFirst) {
-    echo "比べたタグ {$tag} の版が、今の版（" . currentVersion($root) . "）以上です。先に manager/includes/version.inc.php を次の版へ上げ、その版を @version にしてください\n";
 }
 echo count($violations), " violations\n";
 exit($violations ? 1 : 0);

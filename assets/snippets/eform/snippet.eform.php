@@ -2,10 +2,10 @@
 /**
  * eForm スニペットの処理（雛形 eform.install_base.tpl から読み込まれる）
  *
- * 雛形の @version は「雛形を最後に変えた Evolution の版」。eForm 自身の版は下の $version（1.4.4.8）。
+ * 雛形の @version と、下の $version は、eForm の版（1.4.5）。
  */
 
-# eForm 1.4.4.8 - Electronic Form Snippet
+# eForm 1.4.5 - Electronic Form Snippet
 # Original created by Raymond Irving 15-Dec-2004.
 # Version 1.3+ extended by Jelle Jager (TobyL) September 2006
 # -----------------------------------------------------
@@ -23,7 +23,7 @@ if (evo()->isBackend()) return ''; // don't go any further when inside manager
 
 # Start processing
 
-$version = '1.4.4.8';
+$version = '1.4.5';
 include("{$snipPath}eform.inc.php");
 
 $output = eForm(evo(), $params);

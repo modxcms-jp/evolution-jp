@@ -5,7 +5,7 @@
  * メール送信フォームなどに使える多機能フォームプロセッサー
  *
  * @category 	snippet
- * @version 	1.3.0J
+ * @version 	1.4.5
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &sendAsText=テキストで送る;string;1
  * @internal	@modx_category Forms
