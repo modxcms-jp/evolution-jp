@@ -88,7 +88,6 @@ return [
                         'key' => 'xhtml_urls',
                         'type' => 'yesno',
                         'label' => lang('xhtml_urls_title'),
-                        'default' => '0',
                         'desc' => lang('xhtml_urls_message'),
                     ],
                 ],
@@ -492,7 +491,6 @@ return [
                             '2' => lang('a17_error_reporting_opt2'),
                             '99' => lang('a17_error_reporting_opt99'),
                         ],
-                        'default' => '1',
                         'desc' => lang('a17_error_reporting_msg'),
                     ],
                     [
@@ -516,7 +514,6 @@ return [
                             '2' => 'error + warning',
                             '1' => 'error + warning + information',
                         ],
-                        'default' => '0',
                         // 送信者は DB の値なので hsc() する
                         'desc' => static function (array $values) {
                             return evo()->parseText(
@@ -620,7 +617,6 @@ return [
                         'key' => 'modxmailer_log',
                         'type' => 'yesno',
                         'label' => lang('modxmailer_log_title'),
-                        'default' => '0',
                         'desc' => lang('modxmailer_log_message'),
                     ],
                 ],
@@ -644,7 +640,7 @@ return [
                         'type' => 'lang_text',
                         'label' => lang('signupemail_title'),
                         'desc' => lang('signupemail_message'),
-                        'langKey' => 'system_email_signup',
+                        'langKey' => EvoSettingsForm::MAIL_TEXT_LANG_KEYS['signupemail_message'],
                         'reload' => 'reload_signupemail_message',
                         'id' => 'signupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
@@ -655,7 +651,7 @@ return [
                         'type' => 'lang_text',
                         'label' => lang('websignupemail_title'),
                         'desc' => lang('websignupemail_message'),
-                        'langKey' => 'system_email_websignup',
+                        'langKey' => EvoSettingsForm::MAIL_TEXT_LANG_KEYS['websignupemail_message'],
                         'reload' => 'reload_websignupemail_message',
                         'id' => 'websignupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
@@ -666,7 +662,7 @@ return [
                         'type' => 'lang_text',
                         'label' => lang('webpwdreminder_title'),
                         'desc' => lang('webpwdreminder_message'),
-                        'langKey' => 'system_email_webreminder',
+                        'langKey' => EvoSettingsForm::MAIL_TEXT_LANG_KEYS['webpwdreminder_message'],
                         'reload' => 'reload_system_email_webreminder_message',
                         'reloadId' => 'reload_system_email_webreminder_select',
                         'id' => 'system_email_webreminder_textarea',

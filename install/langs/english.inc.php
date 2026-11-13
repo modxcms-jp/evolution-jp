@@ -106,6 +106,7 @@ $_lang["installation_error_occured"] = 'The following errors had occurred during
 $_lang["installation_install_new_copy"] = 'Install a new copy of ';
 $_lang["installation_install_new_note"] = 'Please note this option may overwrite any data inside your database.';
 $_lang["installation_mode"] = 'Installation Mode';
+$_lang["htaccess_not_placed"] = 'The .htaccess file for Friendly URLs could not be placed. Links to documents other than the home page will not open (404) until it is. Put sample.htaccess from the distribution package in the site root as .htaccess (for a subdirectory installation, set RewriteBase to that directory).';
 $_lang["installation_new_installation"] = 'New Installation';
 $_lang["installation_note"] = '<strong>Note:</strong> After logging into the manager, review your System Configuration settings by choosing <strong>Tools</strong> -> System Configuration in the MODX Manager.';
 $_lang["installation_successful"] = 'Installation was successful!';

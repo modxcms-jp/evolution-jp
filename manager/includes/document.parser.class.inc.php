@@ -1298,6 +1298,20 @@ class DocumentParser
         $this->getSettings();
     }
 
+    /**
+     * 言語に依らない既定の設定値（default.config.php）。1 リクエストで 1 回だけ読む
+     *
+     * @return array
+     */
+    private function defaultSettings()
+    {
+        static $defaults = null;
+        if ($defaults === null) {
+            $defaults = include MODX_CORE_PATH . 'default.config.php';
+        }
+        return $defaults;
+    }
+
     public function getSettings()
     {
         $this->settingsLoadStarted = true;
@@ -1312,7 +1326,9 @@ class DocumentParser
             }
             // $this->setSiteCache($config);
         }
-        $this->config = $config;
+        // DB に無い設定（保存したことの無い設定・新しく増えた設定）を既定値で補う。
+        // 行は足さない（既定の変更が届かなくなるため。00000000_baseline.php の方針と同じ）
+        $this->config = array_merge($this->defaultSettings(), $config);
 
         $this->config['base_path'] = MODX_BASE_PATH;
         $this->config['core_path'] = MODX_CORE_PATH;
@@ -1365,10 +1381,6 @@ class DocumentParser
                 $rbBaseDir
             );
         }
-        if (!isset($this->config['modx_charset'])) {
-            $this->config['modx_charset'] = 'utf-8';
-        }
-
         if ($this->lastInstallTime) {
             $this->config['lastInstallTime'] = $this->lastInstallTime;
         }
@@ -6222,17 +6234,12 @@ class DocumentParser
      */
     private function newPermissions($type)
     {
-        static $defaults = null;
-
         $key = "new_{$type}_permissions";
         $value = trim((string) $this->config($key));
         if (preg_match('/^[0-7]{3,4}$/', $value) && octdec($value) > 0) {
             return octdec($value);
         }
-        if ($defaults === null) {
-            $defaults = include MODX_CORE_PATH . 'default.config.php';
-        }
-        return octdec($defaults[$key]);
+        return octdec($this->defaultSettings()[$key]);
     }
 
     /**
@@ -6463,7 +6470,7 @@ class DocumentParser
             $this->loadSettingsIfEmpty();
         }
         if (!$this->config) {
-            $this->config = include MODX_CORE_PATH . 'default.config.php';
+            $this->config = $this->defaultSettings();
         }
         if ($this->config['site_url'] === '[(site_url)]') {
             $this->config['site_url'] = MODX_SITE_URL;
