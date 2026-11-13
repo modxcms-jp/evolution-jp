@@ -44,7 +44,7 @@
             </div>
         </div>
         <!-- system check -->
-        <div class="tab-page" id="tabcheck" style="display:[+config_display+]; padding-left:0; padding-right:0;">
+        <div class="tab-page" id="tabcheck" style="display:[+config_display+];">
             <h2 class="tab" style="display:[+config_display+]"><strong class="alert">[+settings_config+]</strong></h2>
             <script type="text/javascript">tpPane.addTabPage(document.getElementById("tabcheck"));</script>
             <div class="sectionHeader">[+configcheck_title+]</div>
