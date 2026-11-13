@@ -85,7 +85,7 @@ return [
     "change_name" => 'Change name',
     "change_password" => 'Change Password',
     "change_password_confirm" => 'Confirm password',
-    "change_password_message" => 'Please enter your new password, and then enter it again to confirm. Your password needs to be between 6 and 32 characters long.',
+    "change_password_message" => 'Please enter your new password, and then enter it again to confirm. Your password needs to be at least 6 characters and no more than 72 bytes long.',
     "change_password_new" => 'New password',
     "charset_message" => 'The character encoding of the site, available as the [(modx_charset)] system variable. Only UTF-8 is supported.',
     "charset_title" => 'Character encoding',

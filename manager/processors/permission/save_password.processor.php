@@ -8,14 +8,15 @@ if (!evo()->hasPermission('save_password')) {
 }
 
 $password = post_strvar('pass1');
+$lengthError = manager()->checkPasswordLength($password);
 
 if ($password !== post_strvar('pass2')) {
     $msg = '<p class="fail">passwords don\'t match!</p>';
 } elseif (empty($password)) {
     $msg = '<p class="fail">passwords don\'t empty!</p>';
-} elseif (manager()->checkPasswordLength($password) === 'too_short') {
+} elseif ($lengthError === 'too_short') {
     $msg = '<p class="fail">Password is too short. Please specify a password of at least 6 characters.</p>';
-} elseif (manager()->checkPasswordLength($password) === 'too_long') {
+} elseif ($lengthError === 'too_long') {
     $msg = '<p class="fail">Password is too long. Please specify a password of no more than 72 bytes.</p>';
 } else {
     $uid = evo()->getLoginUserID();
