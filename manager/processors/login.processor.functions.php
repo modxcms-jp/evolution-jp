@@ -79,9 +79,24 @@ function failedLogin()
     session_unset();
 }
 
-function loginPhpass($givenPassword, $dbasePassword)
+function loginPasswordHash($givenPassword, $dbasePassword, $internalKey)
 {
-    return evo()->phpass->CheckPassword($givenPassword, $dbasePassword);
+    if (!password_verify($givenPassword, $dbasePassword)) {
+        return false;
+    }
+    if (password_needs_rehash($dbasePassword, PASSWORD_DEFAULT)) {
+        updateNewHash($internalKey, $givenPassword);
+    }
+    return true;
+}
+
+function loginPhpass($givenPassword, $dbasePassword, $internalKey)
+{
+    if (!evo()->phpass->CheckPassword($givenPassword, $dbasePassword)) {
+        return false;
+    }
+    updateNewHash($internalKey, $givenPassword);
+    return true;
 }
 
 function loginV1($givenPassword, $dbasePassword, $internalKey)
@@ -118,11 +133,11 @@ function updateNewHash($internalKey, $password)
 {
     db()->update([
             'password' => db()->escape(
-                evo()->phpass->HashPassword($password)
+                manager()->hashPassword($password)
             )
         ],
         '[+prefix+]manager_users',
-        sprintf("id='%s'", $internalKey)
+        sprintf("id='%s'", (int) $internalKey)
     );
 }
 
@@ -440,8 +455,10 @@ function validPassword($inputPassword = '', $savedPassword = '')
     $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
+        case 'password_hash':
+            return loginPasswordHash($inputPassword, $savedPassword, user('internalKey'));
         case 'phpass':
-            return loginPhpass($inputPassword, $savedPassword);
+            return loginPhpass($inputPassword, $savedPassword, user('internalKey'));
         case 'md5':
             return loginMD5($inputPassword, $savedPassword, user('internalKey'));
         case 'v1':
