@@ -230,9 +230,6 @@ function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
                 $field['createdon'] = $date;
                 $field['editedon'] = $date;
                 $newid = db()->insert($field, '[+prefix+]site_content');
-                if ($newid) {
-                    $createdIds[] = $newid;
-                }
                 if (!$newid) {
                     $vs = [
                         lang('import_site_failed'),
@@ -242,6 +239,7 @@ function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
                     echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                $createdIds[] = $newid;
                 $find = true;
                 echo sprintf(
                     ' - <span class="success">%s</span><br />' . "\n",
@@ -310,9 +308,6 @@ function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
                 $field['isfolder'] = 0;
                 $field['menuindex'] = ($alias == 'index') ? 0 : 2;
                 $newid = db()->insert($field, '[+prefix+]site_content');
-                if ($newid) {
-                    $createdIds[] = $newid;
-                }
                 if (!$newid) {
                     $vs = [
                         lang('import_site_failed'),
@@ -322,6 +317,7 @@ function importFiles($parent, $filedir, $files, $mode, array &$createdIds)
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                $createdIds[] = $newid;
                 echo sprintf(' - <span class="success">%s</span><br />', lang('import_site_success')) . "\n";
 
                 $is_site_start = false;
