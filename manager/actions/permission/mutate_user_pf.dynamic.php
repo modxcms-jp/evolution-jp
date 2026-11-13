@@ -183,7 +183,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                                         <label for="confirmpassword" style="width:120px"><?= lang('change_password_confirm') ?>:</label>
                                         <input type="password" id="confirmpassword" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                                             size="20" autocomplete="new-password" /><br />
-                                        <small><span class="warning" style="font-weight:normal"><?= lang('password_gen_length') ?></span></small>
+                                        <small><span class="warning" style="font-weight:normal"><?= lang('password_rule') ?></span></small>
                                     </div>
                                 </fieldset>
                                 <input type="hidden" name="passwordnotifymethod" value="s" />
