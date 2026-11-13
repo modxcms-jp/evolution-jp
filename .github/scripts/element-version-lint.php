@@ -8,7 +8,8 @@
  *
  * 比べる相手: release-* のタグのうち、版（release- と末尾の J を除いたもの）が
  *   manager/includes/version.inc.php の $modx_version（末尾の J を除く）以下で、version_compare で一番新しいもの。
- *   main の祖先でなくてもよい。該当するタグが無ければ、その旨を出して成功で終える。
+ *   main の祖先でなくてもよい。release-* が 1 つも読めなければ（git fetch --tags が要る）終了コード 2、
+ *   タグはあるが今の版以下のものが無ければ、その旨を出して成功で終える。
  * 対象: install/functions.php の collectTpls() と同じ範囲
  *   （assets/{snippets,plugins,modules}/ の直下と 1 階層下にある *.install_base.tpl）。plugins の /mgr_custom/ は除く。
  *   タグに無い（新しい）ファイルは飛ばす。
@@ -55,15 +56,21 @@ function currentVersion($root)
     return preg_replace('/J$/', '', $m[1]);
 }
 
+/** 比べるタグを返す。release-* が 1 つも読めなければ exit 2、今の版以下のものが無ければ null */
 function baseTag($root, $arg)
 {
     if ($arg !== null) {
         return $arg;
     }
     $current = currentVersion($root);
-    [, $list] = git($root, ['tag', '-l', 'release-*']);
+    [$code, $list] = git($root, ['tag', '-l', 'release-*']);
+    $tags = array_filter(explode("\n", $list));
+    if ($code !== 0 || !$tags) {
+        fwrite(STDERR, "release-* タグを読めません。git fetch --tags でタグを取得してください（CI では actions/checkout に fetch-depth: 0 と fetch-tags: true を付ける）\n");
+        exit(2);
+    }
     $best = null;
-    foreach (array_filter(explode("\n", $list)) as $tag) {
+    foreach ($tags as $tag) {
         $v = releaseOf($tag);
         if (version_compare($v, $current, '>')) {
             continue;
@@ -98,12 +105,13 @@ function targetFiles($root)
 
 function docVersion($content)
 {
-    return preg_match('/@version[ \t]+(\S+)/', $content, $m) ? $m[1] : null;
+    // install/functions.php の parse_docblock() と同じく、行の残り全体を trim する
+    return preg_match('/^\s+\*\s+(?:@internal\s+)?@version[ \t]+(.+)/m', $content, $m) ? trim($m[1]) : null;
 }
 
 $tag = baseTag($root, $argv[1] ?? null);
 if ($tag === null) {
-    echo "比べる release-* タグが見つかりません。検査を飛ばします\n";
+    echo "今の版（" . currentVersion($root) . "）以下の release-* タグが無いので、検査を飛ばします\n";
     echo "0 violations\n";
     exit(0);
 }
@@ -114,7 +122,9 @@ if ($code !== 0) {
 }
 echo "比べるタグ: {$tag}\n";
 
-$hint = preg_replace('/rc\d*$/', '', currentVersion($root)) . 'J';
+$hintVersion = preg_replace('/rc\d*$/', '', currentVersion($root));
+$hint = $hintVersion . 'J';
+$bumpFirst = version_compare($hintVersion, releaseOf($tag), '<=');
 $violations = [];
 foreach (targetFiles($root) as $rel) {
     [$code, $old] = git($root, ['show', $tag . ':' . $rel]);
@@ -138,6 +148,9 @@ foreach (targetFiles($root) as $rel) {
 
 foreach ($violations as $v) {
     echo $v, "\n";
+}
+if ($violations && $bumpFirst) {
+    echo "比べたタグ {$tag} と今の版が同じです。先に manager/includes/version.inc.php を次の版へ上げ、その版を @version にしてください\n";
 }
 echo count($violations), " violations\n";
 exit($violations ? 1 : 0);

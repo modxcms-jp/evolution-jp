@@ -459,7 +459,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
 - [ ] ローカルでの動作確認（インストール・アップグレード）
-- [ ] DB を変えた版はマイグレーションを足し、`install/sql/create_tables.sql` にも同じ変更を入れた。DB にある同梱物を変えた版は入れ替えのマイグレーションを足した（書き方は [`migrations.md`](migrations.md)）
+- [ ] DB を変えた版はマイグレーションを足し、`install/sql/create_tables.sql` にも同じ変更を入れた。古い DB のコードが新しいファイルで動かなくなる版（入れ替えが必須の版）は、入れ替えのマイグレーションを足した。そうでない雛形の変更は `@version` を上げた（書き方は [`migrations.md`](migrations.md) の「同梱の要素の雛形」）
 - [ ] テストケースの実行
 - [ ] 新しいマイグレーションを、古い版の DB から確かめた（[`upgrade-fixtures.md`](../../.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md) の道具で）
 - [ ] 前の版の DB から `/install/` でアップデートし、同梱の要素の DB のコードが新しくなることを確かめた（新規インストールではなくアップデートで。決まりは [`migrations.md`](migrations.md) の「同梱の要素の雛形」）
