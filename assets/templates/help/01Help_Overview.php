@@ -2,17 +2,17 @@
 if (!isset($modx) || !evo()->isLoggedin()) exit;
 ?>
 
-<div class="sectionHeader"><?= $_lang['about_title'] ?></div>
+<div class="sectionHeader"><?= lang('about_title') ?></div>
 <div class="sectionBody">
-    <?= $_lang['about_msg'] ?>
+    <?= lang('about_msg') ?>
 </div>
 
-<div class="sectionHeader"><?= $_lang['help_title'] ?></div>
+<div class="sectionHeader"><?= lang('help_title') ?></div>
 <div class="sectionBody">
-    <?= $_lang['help_msg'] ?>
+    <?= lang('help_msg') ?>
 </div>
 
-<div class="sectionHeader"><?= $_lang['credits'] ?></div>
+<div class="sectionHeader"><?= lang('credits') ?></div>
 <div class="sectionBody">
     <ul>
         <li><a href="https://www.php.net/copyright.php" target="_blank">&copy; 2001-<?= date('Y') ?> The PHP
@@ -24,5 +24,5 @@ if (!isset($modx) || !evo()->isLoggedin()) exit;
         <li><a href="https://www.everaldo.com/" target="_blank">&copy; 2006-<?= date('Y') ?> Everaldo
                 Coelho.</a></li>
     </ul>
-    <?= $_lang['credits_shouts_msg'] ?>
+    <?= lang('credits_shouts_msg') ?>
 </div>

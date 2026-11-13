@@ -39,20 +39,20 @@ if (!$forced) {
                 EvoCsrf.post("index.php?id=<?= $id;?>&a=303&force=1");
             }
         </script>
-        <h1><?= $_lang['tmplvars'] ?></h1>
+        <h1><?= lang('tmplvars') ?></h1>
 
         <div id="actions">
             <ul class="actionButtons">
-                <li><a href="#" onclick="deletedocument();"><?= $_lang["delete"] ?></a></li>
-                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= $_lang["cancel"] ?></a></li>
+                <li><a href="#" onclick="deletedocument();"><?= lang("delete") ?></a></li>
+                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= lang("cancel") ?></a></li>
             </ul>
         </div>
 
         <div class="section">
-            <div class="sectionHeader"><?= $_lang['tmplvars'] ?></div>
+            <div class="sectionHeader"><?= lang('tmplvars') ?></div>
             <div class="sectionBody">
         <?php
-        echo "<p>" . $_lang['tmplvar_inuse'] . "</p>";
+        echo "<p>" . lang('tmplvar_inuse') . "</p>";
         echo "<ul>";
         $shown = 0;
         while ($row = db()->getRow($rs)) {
@@ -61,7 +61,7 @@ if (!$forced) {
         }
         echo "</ul>";
         if ($count > $shown) {
-            echo '<p>' . hsc(sprintf($_lang['resources_hidden_by_permission'], $count - $shown)) . '</p>';
+            echo '<p>' . hsc(sprintf(lang('resources_hidden_by_permission'), $count - $shown)) . '</p>';
         }
         echo '</div>';
         echo '</div>';

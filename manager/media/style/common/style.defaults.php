@@ -2,6 +2,7 @@
 if (!function_exists('apply_manager_style_defaults')) {
     function apply_manager_style_defaults(string $themePath, array $overrides = []): void
     {
+        // $_lang は、外部のテーマの config.php・welcome.php がファイルのスコープで読む場合に備えて global に残す
         global $modx, $_style, $_lang;
 
         if (!isset($modx) || !evo()->isLoggedin()) {
@@ -37,7 +38,7 @@ if (!function_exists('apply_manager_style_defaults')) {
 
         if ($config['manager_menu_height'] !== null) {
             $menuHeight = (int)$config['manager_menu_height'];
-            if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $menuHeight) {
+            if (config('manager_menu_height') === null || (int)config('manager_menu_height') < $menuHeight) {
                 $modx->config['manager_menu_height'] = (string)$menuHeight;
             }
         }
@@ -171,7 +172,7 @@ if (!function_exists('apply_manager_style_defaults')) {
         $_style['icons_help_large'] = $icon_path . '32x/help.png';
 
         // Miscellaneous
-        $_style['ajax_loader'] = '<p>' . $_lang['loading_page'] . '</p><p><img src="' . $misc_path . 'ajax-loader.gif" alt="Please wait" /></p>';
+        $_style['ajax_loader'] = '<p>' . lang('loading_page') . '</p><p><img src="' . $misc_path . 'ajax-loader.gif" alt="Please wait" /></p>';
         $_style['tx'] = $misc_path . '_tx_.gif';
     }
 }

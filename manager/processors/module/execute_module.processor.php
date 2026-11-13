@@ -160,9 +160,9 @@ function evalModule($moduleCode, $params)
         $message = $error_info['message'];
         $line = $error_info['line'];
         $moduleName = $modx->moduleObject['name'] ?? 'Module';
-        $willMessageQuit = $modx->config['error_reporting'] === '99' || 2 < $error_level;
+        $willMessageQuit = config('error_reporting') === '99' || 2 < $error_level;
 
-        if (($error_level > 1 || $modx->config['error_reporting'] === '99') && !$willMessageQuit) {
+        if (($error_level > 1 || config('error_reporting') === '99') && !$willMessageQuit) {
             evo()->logEvent(0, $error_level > 2 ? 3 : 2, $message, $moduleName . ' - Module', [
                 'error' => [
                     'type' => $type,

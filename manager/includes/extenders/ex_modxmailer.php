@@ -239,7 +239,7 @@ class MODxMailer extends PHPMailer
     {
         global $modx;
 
-        if (!isset($modx->config['validate_emailaddr'])) {
+        if (config('validate_emailaddr') === null) {
             $modx->config['validate_emailaddr'] = 'deny_quoted_string';
         }
         $address = trim($address);

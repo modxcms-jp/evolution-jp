@@ -890,6 +890,9 @@ function sessionv($key = null, $default = null)
     if (strpos($key, '*') === 0) {
         return array_set($_SESSION, ltrim($key, '*'), $default);
     }
+    if (!isset($_SESSION)) {
+        return $default;
+    }
     return array_get($_SESSION, $key, $default);
 }
 

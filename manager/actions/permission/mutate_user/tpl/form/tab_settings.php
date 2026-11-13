@@ -37,7 +37,7 @@
         </tr>
         <?php
         if (!empty(user('lastlogin'))) {
-            $lastlogin = $modx->toDateFormat(user('lastlogin') + $modx->config['server_offset_time']);
+            $lastlogin = $modx->toDateFormat(user('lastlogin') + config('server_offset_time'));
         } else {
             $lastlogin = '-';
         }

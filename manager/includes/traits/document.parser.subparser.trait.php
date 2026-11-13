@@ -97,7 +97,7 @@ trait DocumentParserSubParserTrait
             && preg_match('@<(?:html|body|p|br|div|table|a\s[^>]*href)\b[^>]*>@i', $p['body']) === 1;
     }
 
-    function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
+    function rotate_log($target, $limit = 2000, $trim = 100)
     {
         if ($limit < $trim) {
             $trim = $limit;
@@ -890,7 +890,7 @@ trait DocumentParserSubParserTrait
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
-        if ($_SESSION['webValidated'] != 1) {
+        if (sessionv('webValidated') != 1) {
             return false;
         }
 
@@ -1794,6 +1794,7 @@ trait DocumentParserSubParserTrait
 
     private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
+        // $_lang は @INCLUDE・@EVAL で実行するコードが読むため global に残す
         global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
@@ -1837,8 +1838,8 @@ trait DocumentParserSubParserTrait
             }
             return sprintf(
                 '%s(%s:%s)',
-                $_lang['chunk_no_exist'],
-                $_lang['htmlsnippet_name'],
+                lang('chunk_no_exist'),
+                lang('htmlsnippet_name'),
                 $chunk_name
             );
         }
@@ -1950,7 +1951,7 @@ trait DocumentParserSubParserTrait
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
-            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . $modx->config['manager_theme'] . '/style.css') . "\" />
+            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . config('manager_theme') . '/style.css') . "\" />
             <script>
                 function __alertQuit() {
                     alert(" . $msg . ");
@@ -1997,7 +1998,7 @@ trait DocumentParserSubParserTrait
         }
 
         // check cache
-        $grpNames = isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
+        $grpNames = sessionv('webUserGroupNames', false);
         if (!is_array($grpNames)) {
             $uid = evo()->getLoginUserID();
             $from = '[+prefix+]webgroup_names wgn' .

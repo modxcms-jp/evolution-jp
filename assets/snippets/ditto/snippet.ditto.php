@@ -1396,11 +1396,11 @@ if ($debug == 1) {
     if ($debugAction !== '') {
         switch ($debugAction) {
             case "open":
-                exit($_SESSION["ditto_debug_{$dittoID}"]);
+                exit(sessionv("ditto_debug_{$dittoID}", ''));
                 break;
             case "save":
                 $ditto->debug->save(
-                    $_SESSION["ditto_debug_" . $dittoID],
+                    sessionv("ditto_debug_" . $dittoID, ''),
                     sprintf(
                         'ditto%s_debug_doc%s.html',
                         strtolower($ditto_version),

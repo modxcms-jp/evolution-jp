@@ -148,12 +148,12 @@ class DBAPI
                     sprintf(
                         "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s",
                         'Failed to create the database connection!',
-                        evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES),
-                        evo()->hsc(evo()->server('HTTP_USER_AGENT'), ENT_QUOTES),
-                        evo()->server('REMOTE_ADDR'),
-                        evo()->server('REMOTE_HOST') ? evo()->server('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : '',
-                        gethostbyaddr(evo()->server('REMOTE_ADDR')),
-                        evo()->hsc(evo()->server('HTTP_REFERER'), ENT_QUOTES),
+                        evo()->hsc(serverv('REQUEST_URI', ''), ENT_QUOTES),
+                        evo()->hsc(serverv('HTTP_USER_AGENT'), ENT_QUOTES),
+                        serverv('REMOTE_ADDR'),
+                        serverv('REMOTE_HOST') ? serverv('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : '',
+                        gethostbyaddr(serverv('REMOTE_ADDR')),
+                        evo()->hsc(serverv('HTTP_REFERER'), ENT_QUOTES),
                         date('Y-m-d H:i:s')
                     )
                 );

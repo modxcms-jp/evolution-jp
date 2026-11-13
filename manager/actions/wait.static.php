@@ -2,8 +2,8 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-$ph['_lang_cleaningup'] = $_lang['cleaningup'];
-$ph['_lang_actioncomplete'] = $_lang['actioncomplete'];
+$ph['_lang_cleaningup'] = lang('cleaningup');
+$ph['_lang_actioncomplete'] = lang('actioncomplete');
 
 if (get_choicevar('refresh', ['page'], '') === 'page') {
     $ph['reload'] = "EvoShell.refresh('page');";

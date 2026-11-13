@@ -971,7 +971,7 @@ class DocumentParser
                 }
 
                 $path = MODX_CACHE_PATH . $this->uaType;
-                if ($this->config['cache_type'] == 1) {
+                if ($this->config('cache_type') == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
                 }
                 if ($this->ensureDir($path)) {
@@ -1299,6 +1299,20 @@ class DocumentParser
         $this->getSettings();
     }
 
+    /**
+     * 言語に依らない既定の設定値（default.config.php）。1 リクエストで 1 回だけ読む
+     *
+     * @return array
+     */
+    private function defaultSettings()
+    {
+        static $defaults = null;
+        if ($defaults === null) {
+            $defaults = include MODX_CORE_PATH . 'default.config.php';
+        }
+        return $defaults;
+    }
+
     public function getSettings()
     {
         $this->settingsLoadStarted = true;
@@ -1313,7 +1327,9 @@ class DocumentParser
             }
             // $this->setSiteCache($config);
         }
-        $this->config = $config;
+        // DB に無い設定（保存したことの無い設定・新しく増えた設定）を既定値で補う。
+        // 行は足さない（既定の変更が届かなくなるため。00000000_baseline.php の方針と同じ）
+        $this->config = array_merge($this->defaultSettings(), $config);
 
         $this->config['base_path'] = MODX_BASE_PATH;
         $this->config['core_path'] = MODX_CORE_PATH;
@@ -1366,10 +1382,6 @@ class DocumentParser
                 $rbBaseDir
             );
         }
-        if (!isset($this->config['modx_charset'])) {
-            $this->config['modx_charset'] = 'utf-8';
-        }
-
         if ($this->lastInstallTime) {
             $this->config['lastInstallTime'] = $this->lastInstallTime;
         }
@@ -1549,8 +1561,7 @@ class DocumentParser
             return false;
         }
 
-        $this->loadExtension('phpass');
-        return $this->phpass->checkPassword($token, $hashedBearerToken);
+        return hash_equals((string)$hashedBearerToken, hash('sha256', $token));
     }
 
     /**
@@ -1595,8 +1606,8 @@ class DocumentParser
 
     public function saveBearerToken($token, $expire = null)
     {
-        $this->loadExtension('phpass');
-        $hashedToken = $this->phpass->hashPassword($token);
+        // トークンは乱数なので、遅いハッシュは要らず sha256 で保存する
+        $hashedToken = hash('sha256', (string)$token);
         if (!$expire) {
             $expire = request_time() + 60 * 60 * 24 * 30; // 30 days
         }
@@ -1647,7 +1658,7 @@ class DocumentParser
 
         if ($this->config('cache_ttl') && is_file($cacheFile)) {
             $timestamp = filemtime($cacheFile);
-            $timestamp += $this->config['cache_ttl'];
+            $timestamp += $this->config('cache_ttl');
             if ($timestamp < request_time()) {
                 @unlink($cacheFile);
                 $this->documentGenerated = 1;
@@ -1826,7 +1837,7 @@ class DocumentParser
 
         $this->clearCache();
 
-        if ($this->config['legacy_cache']) {
+        if ($this->config('legacy_cache')) {
             $this->setAliasListing();
         }
 
@@ -2319,13 +2330,13 @@ class DocumentParser
 
         switch (strtolower($context)) {
             case 'site_start':
-                $docid = $this->config['site_start'];
+                $docid = $this->config('site_start');
                 break;
             case 'parent':
             case 'p':
                 $docid = $parent;
                 if ($docid == 0) {
-                    $docid = $this->config['site_start'];
+                    $docid = $this->config('site_start');
                 }
                 break;
             case 'ultimateparent':
@@ -4165,7 +4176,7 @@ class DocumentParser
 
         if ($this->session('mgrPermissions')) {
             if (!$key) {
-                return print_r($_SESSION['mgrPermissions'], true);
+                return print_r(sessionv('mgrPermissions'), true);
             }
             return ($this->session('mgrPermissions.' . $key) == 1);
         }
@@ -6241,17 +6252,12 @@ class DocumentParser
      */
     private function newPermissions($type)
     {
-        static $defaults = null;
-
         $key = "new_{$type}_permissions";
         $value = trim((string) $this->config($key));
         if (preg_match('/^[0-7]{3,4}$/', $value) && octdec($value) > 0) {
             return octdec($value);
         }
-        if ($defaults === null) {
-            $defaults = include MODX_CORE_PATH . 'default.config.php';
-        }
-        return octdec($defaults[$key]);
+        return octdec($this->defaultSettings()[$key]);
     }
 
     /**
@@ -6482,7 +6488,7 @@ class DocumentParser
             $this->loadSettingsIfEmpty();
         }
         if (!$this->config) {
-            $this->config = include MODX_CORE_PATH . 'default.config.php';
+            $this->config = $this->defaultSettings();
         }
         if ($this->config['site_url'] === '[(site_url)]') {
             $this->config['site_url'] = MODX_SITE_URL;

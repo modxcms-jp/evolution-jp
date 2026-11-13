@@ -125,12 +125,12 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
     })();
 </script>
 
-<h1><?= $_lang["template_tv_edit_title"] ?></h1>
+<h1><?= lang("template_tv_edit_title") ?></h1>
 
 <div class="section">
-<div class="sectionHeader"><?= $_lang['template_tv_edit'] ?></div>
+<div class="sectionHeader"><?= lang('template_tv_edit') ?></div>
 <div class="sectionBody">
-<p><?= $_lang["template_tv_edit_message"] ?></p>
+<p><?= lang("template_tv_edit_message") ?></p>
 <?= $updateMsg ?><span class="warning" style="display:none;" id="updating">Updating...<br /><br /> </span>
 <?= $evtLists ?>
 </div>
@@ -138,8 +138,8 @@ $cancelUrl = 'index.php?a=16&id=' . $id;
 
 <div id="actions">
     <ul class="actionButtons">
-        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><?= $_lang['cancel'] ?></a></li>
-        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= $_lang['update'] ?></a></li>
+        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><?= lang('cancel') ?></a></li>
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><?= lang('update') ?></a></li>
     </ul>
 </div>
 

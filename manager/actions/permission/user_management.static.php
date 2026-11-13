@@ -8,7 +8,6 @@ if (!evo()->hasPermission('edit_user')) {
     alert()->dumpError();
 }
 
-global $_style;
 // 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
 $query = get_strvar('search');
 $listmode = get_choicevar('listmode', ['0', '1'], '0');
@@ -17,15 +16,15 @@ $listmode = get_choicevar('listmode', ['0', '1'], '0');
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 150);
 $cm->addItem(
-    $_lang['edit'],
+    lang('edit'),
     'js:menuAction(1)',
-    $_style['icons_edit_document'],
+    style('icons_edit_document'),
     (!manager()->can('user.edit') ? 1 : 0)
 );
 $cm->addItem(
-    $_lang['delete'],
+    lang('delete'),
     'js:menuAction(2)',
-    $_style['icons_delete'],
+    style('icons_delete'),
     (!manager()->can('user.delete') ? 1 : 0)
 );
 echo $cm->render();
@@ -101,39 +100,39 @@ echo $cm->render();
     <input type="hidden" name="id" value="<?= hsc($id ?? '') ?>" />
     <input type="hidden" name="listmode" value="<?= hsc($listmode ?? '') ?>" />
 
-    <h1><?= $_lang['user_management_title'] ?></h1>
+    <h1><?= lang('user_management_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?></a></li>
+                    onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?></a></li>
         </ul>
     </div>
 
     <div class="sectionBody">
-        <p><?= $_lang['user_management_msg'] ?></p>
+        <p><?= lang('user_management_msg') ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
                     <?php if (manager()->can('user.create')): ?>
-                        <td><a href="index.php?a=11" class="default"><?= $_lang['new_user'] ?></a>
+                        <td><a href="index.php?a=11" class="default"><?= lang('new_user') ?></a>
                         </td>
                     <?php endif; ?>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
-                                <td><?= $_lang["search"] ?></td>
+                                <td><?= lang("search") ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
                                         value="<?= hsc($query) ?>" /></td>
-                                <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
-                                        onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
-                                <td><a href="#" title="<?= $_lang["reset"] ?>"
+                                <td><a href="#" class="default" title="<?= lang("search") ?>"
+                                        onclick="searchResource();return false;"><?= lang('go') ?></a></td>
+                                <td><a href="#" title="<?= lang("reset") ?>"
                                         onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" /></a>
+                                            src="<?= style('icons_refresh') ?>" /></a>
                                 </td>
-                                <td><a href="#" title="<?= $_lang["list_mode"] ?>"
+                                <td><a href="#" title="<?= lang("list_mode") ?>"
                                         onclick="changeListMode();return false;"><img
-                                            src="<?= $_style['icons_table'] ?>" /></a></td>
+                                            src="<?= style('icons_table') ?>" /></a></td>
                             </tr>
                         </table>
                     </td>
@@ -189,29 +188,29 @@ echo $cm->render();
         $columns = [
             [
                 'key' => 'username',
-                'label' => $_lang['username'],
+                'label' => lang('username'),
                 'html' => true,
-                'format' => function ($value, array $row) use ($_style, $_lang) {
+                'format' => function ($value, array $row) {
                     $id = (int) $row['id'];
                     return sprintf(
                         '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
                         . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
                         $id,
-                        hsc($_lang['click_to_context']),
-                        hsc($_style['icons_user']),
+                        hsc(lang('click_to_context')),
+                        hsc(style('icons_user')),
                         $row['blocked'] ? 'unpublished' : 'published',
                         $id,
-                        hsc($_lang['click_to_edit_title']),
+                        hsc(lang('click_to_edit_title')),
                         hsc($value)
                     );
                 },
             ],
-            ['key' => 'fullname', 'label' => $_lang['user_full_name']],
-            ['key' => 'email', 'label' => $_lang['email']],
-            ['key' => 'rolename', 'label' => $_lang['role']],
+            ['key' => 'fullname', 'label' => lang('user_full_name')],
+            ['key' => 'email', 'label' => lang('email')],
+            ['key' => 'rolename', 'label' => lang('role')],
             [
                 'key' => 'thislogin',
-                'label' => $_lang['login_button'],
+                'label' => lang('login_button'),
                 'format' => function ($value) {
                     if (!$value) {
                         return '-';
@@ -219,12 +218,12 @@ echo $cm->render();
                     return evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', $value);
                 },
             ],
-            ['key' => 'logincount', 'label' => $_lang['user_logincount']],
+            ['key' => 'logincount', 'label' => lang('user_logincount')],
             [
                 'key' => 'blocked',
-                'label' => $_lang['user_block'],
-                'format' => function ($value) use ($_lang) {
-                    return $value ? $_lang['yes'] : '-';
+                'label' => lang('user_block'),
+                'format' => function ($value) {
+                    return $value ? lang('yes') : '-';
                 },
             ],
         ];
@@ -232,7 +231,7 @@ echo $cm->render();
             'id' => 'users',
             'tableClass' => 'grid',
             'rowClasses' => ['gridItem', 'gridAltItem'],
-            'emptyMessage' => $_lang['no_records_found'],
+            'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [
             'label' => lang('pagination_label'),

@@ -10,6 +10,10 @@
 'new_setting_name' => 'default_value',
 ```
 
+新しい設定は原則ここに足す（既定値の正本は `default.config.php` の 1 か所。読み込み時に補われ、DB には書かない）。
+
+言語ごとに文面が違うもの（メールの文面 `signupemail_message`・`websignupemail_message`・`webpwdreminder_message`）は `default.config.php` に置けない。インストーラーとアップデーター（`install/instprocessor.php`）が、`system_settings` に行が無いときだけ、そのサイトの管理画面の言語ファイルの文面を入れる（設定を保存しなくてよい。既にある行は、空にしたものも書き換えない）。設定名と言語キーの対応は `EvoSettingsForm::MAIL_TEXT_LANG_KEYS` が正本で、設定画面の定義もこれを使う。
+
 ## 2. 言語ファイルへの追加
 
 `manager/includes/lang/japanese-utf8.inc.php` と `english.inc.php` に追加:
@@ -36,7 +40,7 @@
 - `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select` のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`）
 - `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
-- `default`: 値が無い・空のときの値（文字列か関数）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
+- `default`: 値が無い・空のときの値（文字列か関数）。`default.config.php` にあるキーには書かない（既定値の正本は `default.config.php`。画面の値はそれを下敷きにする）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
 - `after`: `text` の欄の後ろに出す文字列（単位など）。`toInput`・`fromInput`: 保存の形と欄の形が違う設定（`upload_maxsize` はバイトで保存し、欄は MB の数）の変換の関数。`toInput` は保存の値 → 欄の値、`fromInput` は欄の値 → 保存の値（読めない値は `null`）。変換は行だけに書く。保存処理（`save_settiongs()`・`saveUserSettings()`）は全部の名前を `EvoSettingsForm::storedValue($key, $value)` に通し（`fromInput` の無い名前はそのまま返る。null は保存せず今の値を残す）、差し戻しは `EvoSettingsForm::restoredValues($formValues)` でまとめて保存の形に戻す
 - `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、読み込み時とラジオを切り替えたときに一緒に出し入れされる
 - タブの中を小見出しで分けるときは、`sections` の section の `title` に `lang('settings_section_…')` を書く。`<h3 class="settings-section">` の次に表が続く形で出る（`null` なら見出しなしの 1 つの表）。見た目は `manager/media/style/common/shell.css` の `.tab-page .settings-section` の 2 つの規則（小見出しの `.tab-page .settings-section` と、直前の表の下の余白の `.tab-page > :has(+ .settings-section)`）で決まり、テーマには足さない。文言は `label` と同じ信頼する HTML
@@ -72,8 +76,10 @@ user・profile の描き方（グローバル設定との違い）:
 
 ## 4. 設定値の反映
 
-- **新規インストール**: `default.config.php` の値が自動的に使用される
-- **既存インストール**: グローバル設定を一度保存すると `save_settings.processor.php` が反映
+- **DB に行が無い設定**: 読み込み時（`DocumentParser::getSettings()`）に `default.config.php` の値で補われる。新規インストールも、設定を足した後の既存インストールも同じで、グローバル設定を保存しなくてよい
+- **アップデーターは行を足さない**: 足すと、今後の既定の変更が届かなくなる（既定の値を書き写す目的では行を足さない）。例外はメールの文面で、言語ごとに違うため、行が無いときだけ入れる（「1. デフォルト値の定義」を参照）
+- 保存した値（空にした値も）は DB が優先される
+- **フレンドリー URL の `.htaccess`**: フレンドリー URL は標準なので、インストーラー（`install/instprocessor.php`）が、`.htaccess` が無いときだけ `sample.htaccess` から置く（既にある `.htaccess` は書き換えない。IIS では置かない）。設定の保存（`save_settings.processor.php`）でも `friendly_urls` が `1` のときに置き、既にある `.htaccess` の `RewriteBase` を合わせる。どちらも `manager/includes/htaccess.class.inc.php` の `EvoHtaccess::ensure()`。配布物の名前は `sample.htaccess` のまま（上書き展開で利用者の `.htaccess` を消さないため）。規則は `<IfModule mod_rewrite.c>` で囲まない（mod_rewrite が無いときに黙って 404 に落ちると、原因に気づけないため）
 
 ## 設定画面のタブ構成
 
@@ -101,6 +107,6 @@ user・profile の描き方（グローバル設定との違い）:
 - SQLファイルでの設定追加は不要（`default.config.php` のみで管理）
 - `save_settings.processor.php` は POST データと `default.config.php` をマージし `REPLACE INTO` で保存
 - 設定でない項目の扱いは「3. 設定画面への表示」の `nonSettingKeys()` を参照
-- 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。値が無いときの既定値は `null`。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
+- 設定値の取得は `config('setting_name', $default)`（`evo()->config()` と同じ）を正とする。`default.config.php` にあるキーは読み込み時に既定値で補われるので `null` にならない。第 2 引数の既定値が効くのは、`default.config.php` にも無いキーだけ（無ければ `null`）。`evo()->getConfig()` は既定値が `''` の別の読み方で、同じ値を返す
 - 管理画面では、設定値を `extract()` でグローバル変数にしない。`global $site_url`・`$GLOBALS['manager_theme']`・`$modx->event->getGlobalVariable('…')` では読めない。ユーザーごとの設定は重ねた後の値が返る
 - プラグイン・モジュールも `evo()->config('キー')` で読む。消した `settings.inc.php`・`user_settings.inc.php` は include しない。同梱のプラグイン・モジュール（TinyMCE 7 を含む）で、これらの変数に頼るものが無いことは確かめてある

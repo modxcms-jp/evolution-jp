@@ -34,7 +34,7 @@
 //-------------------------------------------------------
 
 // Run the main code
-$mm_path = $modx->config['base_path'] . 'assets/plugins/managermanager/mm.inc.php';
+$mm_path = config('base_path') . 'assets/plugins/managermanager/mm.inc.php';
 include_once($mm_path);
 $mm = new MANAGERMANAGER();
 $mm->run();

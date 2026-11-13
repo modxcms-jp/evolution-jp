@@ -21,7 +21,7 @@ if (!isset($_SESSION['mgrValidated'])) {
 	return;
 }
 
-include_once($modx->config['base_path'].'assets/plugins/qm/qm.inc.php');
+include_once(config('base_path').'assets/plugins/qm/qm.inc.php');
 $modx->event->params['version'] = $version;
 $qm = new Qm($modx, $modx->event->params);
 $qm->run();

@@ -15,7 +15,7 @@ require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/BrowserView.php';
 
 $fb_config = new BrowserConfig(evo());
 // 管理モードを使ってよいかは API と同じ条件(ManageScope::authorize())。画面を出すだけで、API の認可の代わりにはならない
-$fb_scope = ManageScope::authorize(evo(), $fb_config);
+$fb_scope = ManageScope::authorize(evo());
 if (is_array($fb_scope)) {
     alert()->setError(3);
     alert()->dumpError();

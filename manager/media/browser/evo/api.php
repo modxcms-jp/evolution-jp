@@ -43,7 +43,7 @@
  * GET  action=readText (folder, file)                          -> {name,content,hash,readOnly,readOnlyReason,encoding}
  * POST action=saveText (folder, target, content, hash)         -> {name,hash}(hash は開いたときの中身の sha1。違えば 409 modified)
  * POST action=newfile  (folder, name)                          -> {name}(空のテキストファイルを作る)
- * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],skipped:[...]}(zip を同じフォルダへ展開する)
+ * POST action=unzip    (folder, target)                        -> {extracted,failed:[...]}(zip を同じフォルダへ展開する)
  *
  * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示系は記録しない。
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
@@ -100,7 +100,7 @@ function fbNotFoundMessage($name, $message)
 $config = new BrowserConfig($modx);
 
 // scope=manage は file_manager の権限が無ければ 403 で、ピッカーへは戻さない
-$scope = anyv('scope') === 'manage' ? ManageScope::authorize($modx, $config) : PickerScope::authorize($modx, $config);
+$scope = anyv('scope') === 'manage' ? ManageScope::authorize($modx) : PickerScope::authorize($modx, $config);
 if (is_array($scope)) {
     fbError($scope['code'], lang($scope['lang']), $scope['status']);
 }
@@ -512,12 +512,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
             continue;
         }
 
-        // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
-        if (!$scope->isAllowedNewName($safeName)) {
-            $errors[] = fbUploadError($file, lang('fb_err_extension_not_allowed'));
-            continue;
-        }
 
         // null は本体では制限しない(PHP の upload_max_filesize と post_max_size だけが効く)
         if ($maxSize !== null && $file['size'] > $maxSize) {

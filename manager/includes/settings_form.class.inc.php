@@ -22,6 +22,16 @@ final class EvoSettingsForm
      */
     const USER_TAB_KEYS = ['allow_manager_access', 'allowed_parents', 'allowed_ip', 'allowed_days'];
 
+    /**
+     * メールの文面の設定名 => 言語キー（SSOT）。設定画面の定義と、インストーラー・アップデーターが
+     * 行の無いときに言語ファイルの文面を入れる処理（install/instprocessor.php）の両方がこれを使う
+     */
+    const MAIL_TEXT_LANG_KEYS = [
+        'signupemail_message' => 'system_email_signup',
+        'websignupemail_message' => 'system_email_websignup',
+        'webpwdreminder_message' => 'system_email_webreminder',
+    ];
+
     /** @var array */
     private $tabs;
     /** @var array */

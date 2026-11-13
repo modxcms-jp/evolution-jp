@@ -741,7 +741,8 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
-        'upload_maxsize' => max(0, (int) size_to_bytes(config('upload_maxsize', 32 * 1024 * 1024))),
+        // 空は上限なし（MAX_FILE_SIZE=0。ファイルピッカー・ファイルマネージャーと同じ）
+        'upload_maxsize' => max(0, (int) size_to_bytes(config('upload_maxsize'))),
         'mode' => EvoFormFlow::mode('document') ?: EvoFormFlow::mode('weblink'),
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),

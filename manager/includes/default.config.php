@@ -1,7 +1,9 @@
 <?php
+// 既定の設定値の正本。DB に行が無い設定は DocumentParser::getSettings() がこれで補う。
+// 言語に依らない値だけを置く（メールの文面は言語ごとに違うので、インストーラー・アップデーターが行の無いときに入れる）
 $default_config = [
-    'site_url' => MODX_SITE_URL,
-    'base_url' => MODX_BASE_URL,
+    'site_url' => defined('MODX_SITE_URL') ? MODX_SITE_URL : '',
+    'base_url' => defined('MODX_BASE_URL') ? MODX_BASE_URL : '',
     'fixed_site_url' => '',
     'allow_duplicate_alias' => '0',
     'allow_mgr2web' => '0',
@@ -65,7 +67,7 @@ $default_config = [
     'tree_page_click' => 'auto',
     'tree_show_protected' => '0',
     'udperms_allowroot' => '0',
-    'upload_files' => 'aac,css,csv,cache,doc,docx,gz,gzip,htaccess,htm,html,js,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,xls,xlsx,xml,z,zip',
+    'upload_files' => 'aac,css,csv,doc,docx,gz,gzip,htm,html,js,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,xls,xlsx,xml,z,zip',
     'upload_images' => 'bmp,ico,gif,jpeg,jpg,png,svg,psd,tif,tiff',
     'upload_maxsize' => '',
     'upload_media' => 'au,avi,mp3,mp4,mpeg,mpg,wav,wmv',
@@ -99,19 +101,9 @@ $default_config = [
     'manager_docs_orderby' => 'isfolder desc, publishedon desc, editedon desc, id desc',
     'manager_treepane_trim_title' => 1,
     'convert_datauri_to_file' => '1',
+    'enable_bindings' => '0',
+    'make_folders' => '1',
+    'pwd_hash_algo' => 'UNCRYPT',
 ];
-
-if (getv('a') !== '17') {
-    return $default_config;
-}
-
-$default_config['signupemail_message'] = lang('system_email_signup');
-$default_config['websignupemail_message'] = lang('system_email_websignup');
-$default_config['webpwdreminder_message'] = lang('system_email_webreminder');
-
-$default_config['enable_bindings'] = '0';
-$default_config['make_folders'] = '1';
-
-$default_config['pwd_hash_algo'] = 'UNCRYPT';
 
 return $default_config;

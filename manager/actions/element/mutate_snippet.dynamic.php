@@ -32,7 +32,7 @@ if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $lock = db()->getRow($rs);
         if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['snippet']);
+            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('snippet'));
             alert()->setError(5, $msg);
             alert()->dumpError();
         }
@@ -118,7 +118,7 @@ function entity($key, $default = null)
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;var f=document.getElementById('mutate');f.noValidate=true;f.requestSubmit();">
-                        <?= $_lang['update'] ?>
+                        <?= lang('update') ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="after_save">
@@ -131,34 +131,34 @@ function entity($key, $default = null)
                 if (evo()->hasPermission('new_snippet')) {
                     echo manager()->ab([
                         'onclick' => 'duplicaterecord();',
-                        'label' => $_lang['duplicate']
+                        'label' => lang('duplicate')
                     ]);
                 }
                 if (evo()->hasPermission('delete_snippet')) {
                     echo manager()->ab([
                         'onclick' => 'deletedocument();',
-                        'label' => $_lang['delete']
+                        'label' => lang('delete')
                     ]);
                 }
             }
             echo manager()->ab([
                 'onclick' => "EvoShell.go('index.php?a=76');",
-                'label' => $_lang['cancel']
+                'label' => lang('cancel')
             ]);
             ?>
         </ul>
     </div>
 
-    <h1><?= $_lang['snippet_title'] ?></h1>
+    <h1><?= lang('snippet_title') ?></h1>
 
     <div class="sectionBody">
         <div class="tab-pane" id="snipetPane">
             <!-- General -->
             <div class="tab-page" id="tabSnippet">
-                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['snippet_name'] ?></th>
+                        <th align="left"><?= lang('snippet_name') ?></th>
                         <td align="left">[[<input name="name" type="text" maxlength="100"
                                 value="<?= hsc(entity('name')) ?>"
                                 class="inputBox" style="width:300px;">]]
@@ -168,8 +168,8 @@ function entity($key, $default = null)
                 <!-- PHP text editor start -->
                 <div class="code-editor">
                     <div class="code-editor-header">
-                        <span class="code-editor-title"><?= $_lang['snippet_code'] ?></span>
-                        <span class="code-editor-options"><?= $_lang['wrap_lines'] ?>
+                        <span class="code-editor-title"><?= lang('snippet_code') ?></span>
+                        <span class="code-editor-options"><?= lang('wrap_lines') ?>
                             <input name="wrap" type="checkbox" checked="checked" class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
@@ -190,10 +190,10 @@ function entity($key, $default = null)
 
             <!-- Properties -->
             <div class="tab-page" id="tabProps">
-                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
+                <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['existing_category'] ?>:</th>
+                        <th align="left"><?= lang('existing_category') ?>:</th>
                         <td align="left">
                             <select name="categoryid" style="width:300px;">
                                 <?= manager()->elementCategoryOptions(entity('category')) ?>
@@ -202,7 +202,7 @@ function entity($key, $default = null)
                     </tr>
                     <tr id="newcategry" style="display:none;">
                         <th align="left" valign="top" style="padding-top:10px;">
-                            <?= $_lang['new_category'] ?>:
+                            <?= lang('new_category') ?>:
                         </th>
                         <td align="left" valign="top" style="padding-top:10px;">
                             <input name="newcategory" type="text"
@@ -213,7 +213,7 @@ function entity($key, $default = null)
                     </tr>
                     <tr>
                         <th align="left" style="padding-top:10px">
-                            <?= $_lang['snippet_desc'] ?>:
+                            <?= lang('snippet_desc') ?>:
                         </th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
@@ -223,30 +223,30 @@ function entity($key, $default = null)
                     <?php $snippetErrorReporting = entity('error_reporting', 'inherit'); ?>
                     <tr>
                         <th align="left" style="padding-top:10px;">
-                            <?= $_lang['a17_error_reporting_title'] ?>:
+                            <?= lang('a17_error_reporting_title') ?>:
                         </th>
                         <td align="left" style="padding-top:10px;">
                             <label>
                                 <input type="radio" name="error_reporting" value="inherit"<?= $snippetErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['element_error_reporting_inherit'] ?>
+                                <?= lang('element_error_reporting_inherit') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="0"<?= $snippetErrorReporting === '0' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt0'] ?>
+                                <?= lang('a17_error_reporting_opt0') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="1"<?= $snippetErrorReporting === '1' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt1'] ?>
+                                <?= lang('a17_error_reporting_opt1') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="2"<?= $snippetErrorReporting === '2' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt2'] ?>
+                                <?= lang('a17_error_reporting_opt2') ?>
                             </label><br/>
                             <label>
                                 <input type="radio" name="error_reporting" value="99"<?= $snippetErrorReporting === '99' ? ' checked="checked"' : '' ?>>
-                                <?= $_lang['a17_error_reporting_opt99'] ?>
+                                <?= lang('a17_error_reporting_opt99') ?>
                             </label><br/>
-                            <?= $_lang['a17_error_reporting_msg'] ?>
+                            <?= lang('a17_error_reporting_msg') ?>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
@@ -256,8 +256,8 @@ function entity($key, $default = null)
                                     <input style="padding:0;margin:0;" name="locked"
                                         type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
                                         class="inputBox">
-                                    <b><?= $_lang['lock_snippet'] ?></b>
-                                    <span class="comment"><?= $_lang['lock_snippet_msg'] ?></span>
+                                    <b><?= lang('lock_snippet') ?></b>
+                                    <span class="comment"><?= lang('lock_snippet_msg') ?></span>
                                 </label>
                             </td>
                         </tr>
@@ -283,7 +283,7 @@ function entity($key, $default = null)
                     <?php if ($guid_total > 0) {
                     ?>
                         <tr>
-                            <th align="left" style="padding-top:10px;"><?= $_lang['import_params'] ?>:</th>
+                            <th align="left" style="padding-top:10px;"><?= lang('import_params') ?>:</th>
                             <td align="left" valign="top" style="padding-top:10px;">
                                 <select name="moduleguid" style="width:300px;">
                                     <?= $options ?>
@@ -293,11 +293,11 @@ function entity($key, $default = null)
                         <tr>
                             <td>&nbsp;</td>
                             <td align="left" valign="top"><span
-                                    class="comment"><?= $_lang['import_params_msg'] ?></td>
+                                    class="comment"><?= lang('import_params_msg') ?></td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <th align="left" valign="top"><?= $_lang['snippet_properties'] ?>:</th>
+                        <th align="left" valign="top"><?= lang('snippet_properties') ?>:</th>
                         <td align="left" valign="top">
                             <textarea name="properties" maxlength="65535"
                                 class="inputBox phptextarea"
@@ -312,7 +312,7 @@ function entity($key, $default = null)
             </div>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?= $_lang['snippet_msg'] ?>
+                <?= lang('snippet_msg') ?>
             </div>
         </div>
     </div>

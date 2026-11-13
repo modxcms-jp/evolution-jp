@@ -31,31 +31,31 @@ if (db()->count($rs) < 1) {
 }
 
 ?>
-<h1><?= $_lang['mgr_access_permissions'] ?></h1>
+<h1><?= lang('mgr_access_permissions') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
-                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= $_lang['cancel'] ?>
+                                           onclick="EvoShell.go('index.php?a=2', {discard: true});"><?= lang('cancel') ?>
             </a></li>
     </ul>
 </div>
 
 <div class="sectionBody">
-    <p><?= $_lang['access_permissions_introtext'] ?></p><?= $modx->config['use_udperms'] != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
+    <p><?= lang('access_permissions_introtext') ?></p><?= config('use_udperms') != 1 ? '<p>' . lang('access_permissions_off') . '</p>' : '' ?>
 
     <div class="tab-pane" id="tabPane1">
 
         <div class="tab-page" id="tabPage1">
-            <h2 class="tab"><?= $_lang['access_permissions_user_groups'] ?></h2>
+            <h2 class="tab"><?= lang('access_permissions_user_groups') ?></h2>
             <?php
             // User Groups
-            echo '<p>' . $_lang['access_permissions_users_tab'] . '</p>';
+            echo '<p>' . lang('access_permissions_users_tab') . '</p>';
             ?>
             <table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                 <thead>
                 <tr>
-                    <td><b><?= $_lang['access_permissions_add_user_group'] ?></b></td>
+                    <td><b><?= lang('access_permissions_add_user_group') ?></b></td>
                 </tr>
                 </thead>
                 <tr class="row1">
@@ -65,7 +65,7 @@ if (db()->count($rs) < 1) {
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_user_group"/>
                             <input type="text" value="" name="newusergroup"/>&nbsp;
-                            <input type="submit" value="<?= $_lang['submit'] ?>"/>
+                            <input type="submit" value="<?= lang('submit') ?>"/>
                         </form>
                     </td>
                 </tr>
@@ -79,7 +79,7 @@ if (db()->count($rs) < 1) {
             $orderby = 'groupnames.name';
             $rs = db()->select($field, $from, '', $orderby);
             if (db()->count($rs) < 1) {
-                echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
+                echo '<span class="warning">' . lang('no_groups_found') . '</span>';
             } else {
                 echo "<ul>\n";
                 $pid = '';
@@ -95,16 +95,16 @@ if (db()->count($rs) < 1) {
                             '<input type="hidden" name="user_group" value="' . (int) $row['id'] . '" />' . "\n" .
                             '<input type="hidden" name="operation" value="rename_user_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . hsc($row['name']) . '" />&nbsp;' . "\n" .
-                            '<input type="submit" value="' . $_lang['rename'] . '" />&nbsp;' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&user_group=' . (int) $row['id'] . '&operation=delete_user_group') . '" />' . "\n" .
+                            '<input type="submit" value="' . lang('rename') . '" />&nbsp;' . "\n" .
+                            '<input type="button" value="' . lang('delete') . '" data-evo-post data-href="' . hsc('index.php?a=41&user_group=' . (int) $row['id'] . '&operation=delete_user_group') . '" />' . "\n" .
                             '</form>';
 
                         echo "<ul>\n";
-                        echo "\t<li>" . $_lang['access_permissions_users_in_group'] . ' ';
+                        echo "\t<li>" . lang('access_permissions_users_in_group') . ' ';
                     }
                     if (!$row['user_id']) {
                         // no users in group
-                        echo '<i>' . $_lang['access_permissions_no_users_in_group'] . '</i>';
+                        echo '<i>' . lang('access_permissions_no_users_in_group') . '</i>';
                         $pid = $row['id'];
                         continue;
                     }
@@ -122,16 +122,16 @@ if (db()->count($rs) < 1) {
 
 
         <div class="tab-page" id="tabPage2">
-            <h2 class="tab"><?= $_lang['access_permissions_resource_groups'] ?></h2>
+            <h2 class="tab"><?= lang('access_permissions_resource_groups') ?></h2>
             <?php
             // Document Groups
 
-            echo '<p>' . $_lang['access_permissions_resources_tab'] . '</p>';
+            echo '<p>' . lang('access_permissions_resources_tab') . '</p>';
             ?>
             <table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                 <thead>
                 <tr>
-                    <td><b><?= $_lang['access_permissions_add_resource_group'] ?></b></td>
+                    <td><b><?= lang('access_permissions_add_resource_group') ?></b></td>
                 </tr>
                 </thead>
                 <tr class="row1">
@@ -141,7 +141,7 @@ if (db()->count($rs) < 1) {
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_document_group"/>
                             <input type="text" value="" name="newdocgroup"/>&nbsp;
-                            <input type="submit" value="<?= $_lang['submit'] ?>"/>
+                            <input type="submit" value="<?= lang('submit') ?>"/>
                         </form>
                     </td>
                 </tr>
@@ -155,11 +155,11 @@ if (db()->count($rs) < 1) {
             $orderby = 'dgnames.name, sc.id';
             $rs = db()->select($field, $from, '', $orderby);
             if (db()->count($rs) < 1) {
-                echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
+                echo '<span class="warning">' . lang('no_groups_found') . '</span>';
             } else {
                 echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">' . "\n" .
                     '<thead>' . "\n" .
-                    '<tr><td><b>' . $_lang['access_permissions_resource_groups'] . '</b></td></tr>' . "\n" .
+                    '<tr><td><b>' . lang('access_permissions_resource_groups') . '</b></td></tr>' . "\n" .
                     '</thead>' . "\n";
                 $pid = '';
                 while ($row = db()->getRow($rs)) {
@@ -173,15 +173,15 @@ if (db()->count($rs) < 1) {
                             '<input type="hidden" name="document_group" value="' . (int) $row['id'] . '" />' . "\n" .
                             '<input type="hidden" name="operation" value="rename_document_group" />' . "\n" .
                             '<input type="text" name="newgroupname" value="' . hsc($row['name']) . '">&nbsp;' . "\n" .
-                            '<input type="submit" value="' . $_lang['rename'] . '">' . "\n" .
-                            '<input type="button" value="' . $_lang['delete'] . '" data-evo-post data-href="' . hsc('index.php?a=41&document_group=' . (int) $row['id'] . '&operation=delete_document_group') . '" />' . "\n" .
+                            '<input type="submit" value="' . lang('rename') . '">' . "\n" .
+                            '<input type="button" value="' . lang('delete') . '" data-evo-post data-href="' . hsc('index.php?a=41&document_group=' . (int) $row['id'] . '&operation=delete_document_group') . '" />' . "\n" .
                             '</form>';
 
-                        echo '</td></tr><tr><td class="row2">' . $_lang['access_permissions_resources_in_group'] . ' ';
+                        echo '</td></tr><tr><td class="row2">' . lang('access_permissions_resources_in_group') . ' ';
                     }
                     if (!$row['doc_id']) {
                         // no documents in group
-                        echo $_lang['access_permissions_no_resources_in_group'];
+                        echo lang('access_permissions_no_resources_in_group');
                         $pid = $row['id'];
                         continue;
                     }
@@ -197,11 +197,11 @@ if (db()->count($rs) < 1) {
         </div>
 
         <div class="tab-page" id="tabPage3">
-            <h2 class="tab"><?= $_lang['access_permissions_links'] ?></h2>
+            <h2 class="tab"><?= lang('access_permissions_links') ?></h2>
             <?php
             // User/Document Group Links
 
-            echo '<p>' . $_lang['access_permissions_links_tab'] . '</p>';
+            echo '<p>' . lang('access_permissions_links_tab') . '</p>';
 
             $field = 'groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name';
             $from = "[+prefix+]membergroup_names AS groupnames";
@@ -209,13 +209,13 @@ if (db()->count($rs) < 1) {
             $from .= " LEFT JOIN [+prefix+]documentgroup_names AS dgnames ON dgnames.id = groupacc.documentgroup";
             $rs = db()->select($field, $from, '', 'name');
             if (db()->count($rs) < 1) {
-                echo '<span class="warning">' . $_lang['no_groups_found'] . '</span><br />';
+                echo '<span class="warning">' . lang('no_groups_found') . '</span><br />';
             } else {
                 ?>
                 <table border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                     <thead>
                     <tr>
-                        <td><b><?= $_lang["access_permissions_group_link"] ?></b></td>
+                        <td><b><?= lang("access_permissions_group_link") ?></b></td>
                     </tr>
                     </thead>
                     <tr class="row1">
@@ -223,11 +223,11 @@ if (db()->count($rs) < 1) {
                             <form method="post" action="index.php" name="accesspermissions">
                                 <input type="hidden" name="a" value="41"/>
                                 <input type="hidden" name="operation" value="add_document_group_to_user_group"/>
-                                <?= $_lang["access_permissions_link_user_group"] ?>
+                                <?= lang("access_permissions_link_user_group") ?>
                                 <?= $usrgroupselector ?>
-                                <?= $_lang["access_permissions_link_to_group"] ?>
+                                <?= lang("access_permissions_link_to_group") ?>
                                 <?= $docgroupselector ?>
-                                <input type="submit" value="<?= $_lang['submit'] ?>">
+                                <input type="submit" value="<?= lang('submit') ?>">
                             </form>
                         </td>
                     </tr>
@@ -244,7 +244,7 @@ if (db()->count($rs) < 1) {
                         echo '<li><b>' . hsc($row['name']) . '</b>';
 
                         if (!$row['dg_id']) {
-                            echo ' &raquo; <i>' . $_lang['no_groups_found'] . "</i></li>\n";
+                            echo ' &raquo; <i>' . lang('no_groups_found') . "</i></li>\n";
                             $pid = '';
                             continue;
                         } else {
@@ -256,7 +256,7 @@ if (db()->count($rs) < 1) {
                     }
                     echo "\t<li>" . hsc($row['dg_name']);
                     echo ' <small><i>(<a href="' . hsc('index.php?a=41&coupling=' . (int) $row['link_id'] . '&operation=remove_document_group_from_user_group') . '" data-evo-post>';
-                    echo $_lang['remove'] . '</a>)</i></small>';
+                    echo lang('remove') . '</a>)</i></small>';
                     echo "</li>\n";
 
                     $pid = $row['id'];

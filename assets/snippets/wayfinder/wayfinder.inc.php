@@ -591,7 +591,7 @@ class Wayfinder
                 } else {
                     $row['link'] = $row['content'];
                 }
-            } elseif ($row['id'] == $modx->config['site_start']) {
+            } elseif ($row['id'] == config('site_start')) {
                 $row['link'] = $this->_config['fullLink'] ? MODX_SITE_URL : MODX_BASE_URL;
             } else {
                 $row['link'] = $modx->makeUrl($row['id'], '', '', $linkScheme);
@@ -954,9 +954,8 @@ class Wayfinder
 
     function modxPrep($value)
     {
-        global $modx;
         if (strpos($value, '<') !== false) {
-            $value = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
+            $value = htmlentities($value, ENT_NOQUOTES, config('modx_charset'));
         }
         $s = ['[', ']', '{', '}'];
         $r = ['&#091;', '&#093;', '&#123;', '&#125;'];
@@ -968,7 +967,7 @@ class Wayfinder
     {
         global $modx;
 
-        if ($modx->documentObject['parent'] == 0) {
+        if (($modx->documentObject['parent'] ?? 0) == 0) {
             return $id;
         }
 
@@ -978,17 +977,17 @@ class Wayfinder
             return $id;
         }
 
-        return $modx->documentObject['parent'];
+        return $modx->documentObject['parent'] ?? 0;
     }
 
     function getParentID($id)
     {
         global $modx;
 
-        if ($modx->documentObject['parent'] == 0) {
+        if (($modx->documentObject['parent'] ?? 0) == 0) {
             return $id;
         }
 
-        return $modx->documentObject['parent'];
+        return $modx->documentObject['parent'] ?? 0;
     }
 }

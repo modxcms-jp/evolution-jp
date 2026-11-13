@@ -1,6 +1,5 @@
 <?php
 /** @var array $_lang
- * @var array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -57,7 +56,7 @@ $keywordCondition = ChildDocumentListState::keywordCondition($keyword);
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
 // tree_show_protected は表示だけの設定。有効なら開けない文書も has_access=0 の印つきで出す
-if ($accessCond !== '' && !evo()->config('tree_show_protected')) {
+if ($accessCond !== '' && !config('tree_show_protected')) {
     $where[] = 'AND ' . $accessCond;
 }
 if ($keywordCondition !== null) {
@@ -94,7 +93,7 @@ while ($row = db()->getRow($rs)) {
 $links = ChildDocumentListState::links($id);
 
 // 検索欄と、絞り込み・並べ替えの解除。ユーザー管理の一覧の検索欄と同じ作りで、表を包む POST のフォームの外に置く（フォームは入れ子にできない）
-$kw = hsc($_lang['search']);
+$kw = hsc(lang('search'));
 $listTools = '<form class="child-list-tools" name="childsearch" method="get" action="index.php">'
     . '<input type="hidden" name="a" value="120">'
     . ($id ? '<input type="hidden" name="id" value="' . (int) $id . '">' : '');
@@ -106,17 +105,17 @@ if ($links->orderby() !== '') {
 // 並びは shell.css の .child-list-tools（flex）。ボタンの見た目は各テーマの .actionButtons の規則に任せる
 $listTools .= '<input class="searchtext" name="q" type="text" size="15" maxlength="'
     . ChildDocumentListState::KEYWORD_MAX_LENGTH . '" value="' . hsc($keyword) . '" placeholder="'
-    . hsc($_lang['resources_list_search_placeholder']) . '" aria-label="' . $kw . '">'
+    . hsc(lang('resources_list_search_placeholder')) . '" aria-label="' . $kw . '">'
     . '<ul class="actionButtons"><li><button type="submit">' . $kw . '</button></li></ul>';
 if ($keyword !== '') {
     $listTools .= '<a href="' . hsc($links->url(['q' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_search_clear']) . '"><img src="' . $_style['icons_refresh']
-        . '" alt="' . hsc($_lang['resources_list_search_clear']) . '"></a>';
+        . hsc(lang('resources_list_search_clear')) . '"><img src="' . style('icons_refresh')
+        . '" alt="' . hsc(lang('resources_list_search_clear')) . '"></a>';
 }
 if ($links->orderby() !== '') {
     $listTools .= '<a href="' . hsc($links->url(['orderby' => null, 'orderdir' => null, 'page' => null])) . '" title="'
-        . hsc($_lang['resources_list_reset_order']) . '"><img src="' . $_style['sort']
-        . '" alt="' . hsc($_lang['resources_list_reset_order']) . '"></a>';
+        . hsc(lang('resources_list_reset_order')) . '"><img src="' . style('sort')
+        . '" alt="' . hsc(lang('resources_list_reset_order')) . '"></a>';
 }
 $listTools .= '</form>';
 
@@ -124,7 +123,7 @@ $listTools .= '</form>';
 $navTop = '';
 
 if (!$numRecords) {
-    $children_output = "<p>" . ($keyword !== '' ? $_lang['resources_list_search_no_match'] : $_lang['resources_in_container_no']) . "</p>";
+    $children_output = "<p>" . ($keyword !== '' ? lang('resources_list_search_no_match') : lang('resources_in_container_no')) . "</p>";
 } else {
     $children_output = '';
     $f = [];
@@ -135,7 +134,7 @@ if (!$numRecords) {
     $f[] = 'rev.status';
     $where = [];
     $where[] = "sc.parent='" . $id . "'";
-    if ($accessCond !== '' && !evo()->config('tree_show_protected')) {
+    if ($accessCond !== '' && !config('tree_show_protected')) {
         $where[] = 'AND ' . $accessCond;
     }
     if ($keywordCondition !== null) {
@@ -200,11 +199,11 @@ if (!$numRecords) {
         $columns[] = ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'];
     }
     $columns = array_merge($columns, [
-        ['key' => 'docid', 'label' => $_lang['id'], 'class' => 'is-shrink', 'sort' => 'id'],
-        ['key' => 'title', 'label' => $_lang['resource_title'], 'html' => true, 'sort' => 'pagetitle'],
-        ['key' => 'publishedon', 'label' => $_lang['publish_date'], 'html' => true, 'sort' => 'publishedon'],
-        ['key' => 'editedon', 'label' => $_lang['editedon'], 'html' => true, 'sort' => 'editedon'],
-        ['key' => 'status', 'label' => $_lang['page_data_status'], 'html' => true],
+        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id'],
+        ['key' => 'title', 'label' => lang('resource_title'), 'html' => true, 'sort' => 'pagetitle'],
+        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon'],
+        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon'],
+        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true],
     ]);
     $table = new DataTable($columns, [
         'id' => 'children',
@@ -254,14 +253,14 @@ if (!$numRecords) {
         };
         $buttons = '';
         if ($canBatchMove) {
-            $buttons .= $button($_lang['move'], $_lang['resources_list_move_checked'], 51);
+            $buttons .= $button(lang('move'), lang('resources_list_move_checked'), 51);
         }
         if ($canBatchPublish) {
-            $buttons .= $button($_lang['publish_resource'], $_lang['resources_list_publish_checked'], 121, 'publish');
-            $buttons .= $button($_lang['unpublish_resource'], $_lang['resources_list_unpublish_checked'], 121, 'unpublish');
+            $buttons .= $button(lang('publish_resource'), lang('resources_list_publish_checked'), 121, 'publish');
+            $buttons .= $button(lang('unpublish_resource'), lang('resources_list_unpublish_checked'), 121, 'unpublish');
         }
         if ($canBatchDelete) {
-            $buttons .= $button($_lang['delete'], $_lang['resources_list_delete_checked'], 121, 'delete', $_lang['resources_list_confirm_delete_checked'], 'is-danger');
+            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', lang('resources_list_confirm_delete_checked'), 'is-danger');
         }
         $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
@@ -276,30 +275,30 @@ echo get_jscript($id, $cm);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
-    <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
+    <h1><?= lang('view_child_resources_in_container') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
             if (manager()->can('document.edit') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button1', 'editdocument();', $_lang['edit']);
+                echo sprintf($tpl, 'Button1', 'editdocument();', lang('edit'));
             }
             if (manager()->can('document.move') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button2', 'movedocument();', $_lang['move']);
+                echo sprintf($tpl, 'Button2', 'movedocument();', lang('move'));
             }
             if (manager()->can('document.duplicate') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_lang['duplicate']);
+                echo sprintf($tpl, 'Button4', 'duplicatedocument();', lang('duplicate'));
             }
             if (manager()->can('document.delete') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button3', 'deletedocument();', $_lang['delete']);
+                echo sprintf($tpl, 'Button3', 'deletedocument();', lang('delete'));
             }
 
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
             echo sprintf($tpl, 'Button6', $prev,
-                $id == 0 ? $_lang["view_site"] : $_lang['view_resource']);
+                $id == 0 ? lang("view_site") : lang('view_resource'));
             $action = "EvoShell.go('" . getReturnAction($current) . "', {discard: true});";
-            echo sprintf($tpl, 'Button5', $action, $_lang['cancel']);
+            echo sprintf($tpl, 'Button5', $action, lang('cancel'));
             ?>
         </ul>
     </div>
@@ -322,8 +321,8 @@ echo get_jscript($id, $cm);
                     . '<li class="mutate"><a href="index.php?a=72&amp;pid=%1$d">%3$s</a></li>'
                     . '</ul>',
                     $id,
-                    $_lang['create_resource_here'],
-                    $_lang['create_weblink_here']
+                    lang('create_resource_here'),
+                    lang('create_weblink_here')
                 );
             }
             // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない
@@ -354,13 +353,11 @@ EOT;
 <?php
 function getTitle($doc)
 {
-    global $_style;
-
     $doc['class'] = _getClasses($doc);
     $tpl = '<span [+class+] data-row-menu="[+id+]">[+pagetitle+]</span>';
     $title = parseText($tpl, $doc);
     if ($doc['type'] === 'reference') {
-        return sprintf('<img src="%s" /> ', $_style['tree_weblink']) . $title;
+        return sprintf('<img src="%s" /> ', style('tree_weblink')) . $title;
     }
     return $title;
 }
@@ -429,18 +426,16 @@ function getEditedon($editedon)
 
 function getStatusIcon($status)
 {
-    global $_style;
-
-    if (!evo()->config['enable_draft']) {
+    if (!config('enable_draft')) {
         return '';
     }
 
     $tpl = '&nbsp;<img src="%s">&nbsp;';
     switch ($status) {
         case 'draft'   :
-            return sprintf($tpl, $_style['tree_draft']);
+            return sprintf($tpl, style('tree_draft'));
         case 'standby' :
-            return sprintf($tpl, $_style['icons_date']);
+            return sprintf($tpl, style('icons_date'));
         default        :
             return '';
     }
@@ -458,29 +453,27 @@ function getStatus($doc)
 
 function _getIconPath($doc)
 {
-    global $_style;
-
     switch ($doc['id']) {
         case evo()->config('site_start')           :
-            return $_style['tree_page_home'];
+            return style('tree_page_home');
         case evo()->config('error_page', evo()->config('site_start'))           :
-            return $_style['tree_page_404'];
+            return style('tree_page_404');
         case evo()->config('unauthorized_page')    :
-            return $_style['tree_page_info'];
+            return style('tree_page_info');
         case evo()->config('site_unavailable_page'):
-            return $_style['tree_page_hourglass'];
+            return style('tree_page_hourglass');
     }
 
     if (!$doc['isfolder']) {
         if ($doc['privatemgr'] == 1) {
-            return $_style['tree_page_html_secure'];
+            return style('tree_page_html_secure');
         }
-        return $_style['tree_page_html'];
+        return style('tree_page_html');
     }
     if ($doc['privatemgr'] == 1) {
-        return $_style['tree_folderopen_secure'];
+        return style('tree_folderopen_secure');
     }
-    return $_style['tree_folder'];
+    return style('tree_folder');
 }
 
 function get_jscript($id, $cm)
@@ -678,7 +671,7 @@ function getTopicPath($id)
         }
         if (!evo()->checkPermissions($topic)) {
             // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
-            $topics[] = evo()->config('tree_show_protected') ? hsc($doc['alias']) : '…';
+            $topics[] = config('tree_show_protected') ? hsc($doc['alias']) : '…';
         } elseif (manager()->isInAllowedParents($topic)) {
             $topics[] = sprintf('<a href="index.php?a=120&id=%d">%s</a>', (int)$topic, hsc($doc['alias']));
         } else {

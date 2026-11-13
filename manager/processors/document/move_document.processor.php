@@ -44,7 +44,7 @@ if ($invalid_parent !== '') {
 }
 
 // 移動するリソースそれぞれについても、操作できるかを確かめる
-if (evo()->config['use_udperms'] == 1) {
+if (config('use_udperms') == 1) {
     foreach ($doc_ids as $v) {
         if (!evo()->checkPermissions($v)) {
             accessDenied('access_permission_denied');
