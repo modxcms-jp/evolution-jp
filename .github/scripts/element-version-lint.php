@@ -137,11 +137,11 @@ foreach (targetFiles($root) as $rel) {
     $oldVer = docVersion($old);
     if ($oldVer !== null && $oldVer === docVersion(file_get_contents($root . '/' . $rel))) {
         $violations[] = sprintf(
-            '%s  @version %s が %s から変わっていません。雛形を変えたので、@version を雛形を変えた Evolution の版（例 %s）に上げてください',
+            '%s  @version %s が %s から変わっていません。雛形を変えたので、@version を雛形を変えた Evolution の版%sに上げてください',
             $rel,
             $oldVer,
             $tag,
-            $hint
+            $bumpFirst ? '（次の版）' : "（例 {$hint}）"
         );
     }
 }
@@ -150,7 +150,7 @@ foreach ($violations as $v) {
     echo $v, "\n";
 }
 if ($violations && $bumpFirst) {
-    echo "比べたタグ {$tag} と今の版が同じです。先に manager/includes/version.inc.php を次の版へ上げ、その版を @version にしてください\n";
+    echo "比べたタグ {$tag} の版が、今の版（" . currentVersion($root) . "）以上です。先に manager/includes/version.inc.php を次の版へ上げ、その版を @version にしてください\n";
 }
 echo count($violations), " violations\n";
 exit($violations ? 1 : 0);

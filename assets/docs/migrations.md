@@ -120,7 +120,8 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 - 雛形を変えたのに `@version` が同じだと、`.github/scripts/element-version-lint.php`（CI の Element version lint）が、`release-*` タグのうち今の版以下で一番新しいものと比べて落とす
 - サイトで手を入れた要素を黙って上書きしないため、アップデーターで中身の違いを見ることはしない（見るのは `@version` だけ）
 - `@version` での入れ替えは、利用者が `/install/` を通したときにだけ起きる任意の更新で、未適用のマイグレーションが無ければアップデーターへ送られない。通さないサイトでは、古い DB のコードが動き続ける。そのため `snippet.*.php` などが読むファイルの入口（関数の名前と引数、前提にする変数）は保つ。保てない変更は、上の「DB にある同梱物の入れ替えが要る版」の決まりに従い、マイグレーションで入れ替える
-- テンプレート・TV・チャンクの雛形は、この検査の対象外（アップデートでの扱いが違う）。テンプレート・TV はアップデートでは入れ直さず（新規インストールだけ）、チャンクは版を見ずに、`@overwrite false` でなければアップデートのたびに上書きする（`install/setup.info.php`・`install/functions.php` の `mode()`）
+- テンプレート・TV・チャンクの雛形は、この検査の対象外（アップデートでの扱いが違う）。テンプレート・TV はアップデートでは入れ直さず（新規インストールだけ）、チャンクは版を見ずに、`@overwrite false` でなければアップデートのたびに上書きする（`install/setup.info.php`・`install/processors/prc_insTemplates.inc.php`・`prc_insChunks.inc.php`）
+- アップグレードで要素を入れ直すかどうかは、インストーラーのオプション画面のチェックでも決まる（既定はチェックあり。`install/actions/options.php`、`install/functions.php` の `shouldInstallElement()`）。チェックを外した要素は、上の「`@version` が違う」「上書きする」場合でも入れ直さない
 
 ## 利用者がアップデートするとき
 
