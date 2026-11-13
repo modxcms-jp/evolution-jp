@@ -1504,14 +1504,6 @@ form#mutate input.tvdate {
     margin-inline-end: 10px;
 }
 
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-
-fieldset#access_permissions dd {
-    margin-inline-start: 210px;
-}
-
 /* -------------------------[ date picker ]--- */
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;

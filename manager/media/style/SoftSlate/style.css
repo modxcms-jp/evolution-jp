@@ -1744,14 +1744,6 @@ form#mutate input.tvdate {
     margin-right: 10px;
 }
 
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-
-fieldset#access_permissions dd {
-    margin-left: 210px;
-}
-
 /* -------------------------[ date picker ]--- */
 input.DatePicker {
     width: 150px;

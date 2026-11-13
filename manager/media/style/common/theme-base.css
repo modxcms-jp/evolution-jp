@@ -197,12 +197,13 @@ form#mutate fieldset#settings_page_settings select {
     white-space: nowrap;
 }
 
-/* コード欄 */
+/* 本文欄（RTE を使わないとき）と TV の textarea は等幅の文字にする */
 #ta,
 .tmplvars textarea {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
+/* コード欄 */
 .phptextarea {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
     box-sizing: border-box;
@@ -212,25 +213,19 @@ form#mutate fieldset#settings_page_settings select {
     font-weight: bold;
 }
 
-/* そのほかの画面 */
+/* ユーザー・ウェブユーザーの編集とパスワード変更の入力欄 */
 .sectionBody input.inputBox[type=text],
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
 }
 
+/* ユーザー・ウェブユーザーの編集とエクスポートの設定の表 */
 .settings {
     width: 600px;
 }
 
-.form br {
-    clear: both;
-}
-
-.form fieldset.list legend {
-    display: none;
-}
-
+/* ダッシュボードのアイコンのリンク */
 a.hometblink,
 a.hometblink img {
     border: 0 !important;

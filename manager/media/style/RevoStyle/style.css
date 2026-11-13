@@ -1518,14 +1518,6 @@ form#mutate input.tvdate {
     margin-right: 10px;
 }
 
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-
-fieldset#access_permissions dd {
-    margin-left: 210px;
-}
-
 /* ============================================================================
    12. Specialized Forms (Date Pickers, Custom Inputs)
    Used in: Date/time selection, advanced form controls
