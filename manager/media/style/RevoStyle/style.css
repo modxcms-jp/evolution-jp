@@ -1008,7 +1008,6 @@ a.hometblink:hover {
     top: 31px;
     left: 0;
     border-top: var(--border-thin) solid var(--gray-600);
-    border-bottom: var(--border-thin) solid var(--gray-150);
 }
 
 #nav li.active ul.subnav {
