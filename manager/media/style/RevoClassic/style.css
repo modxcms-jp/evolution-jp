@@ -222,6 +222,10 @@
     --tab-page-border: var(--border-thin) solid #AAA;
     --tab-radius: var(--radius-xl) var(--radius-xl) 0 0;
     --tab-selected-border-width: 1px 1px 0;
+
+    /* セクション（common/sections.css） */
+    --section-header-border-bottom: none;
+    --section-box-bg: var(--color-surface);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -360,43 +364,6 @@ input[type="button"] {
    6. Layout Components (Sections, Containers)
    Used in: Section headers, content areas, fieldsets
    ============================================================================ */
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-.sectionHeader {
-    padding: var(--space-2) var(--space-4);
-    border-bottom: none;
-    background-color: var(--color-section-header-end);
-    box-shadow: 0 var(--border-thin) 0 var(--color-surface) inset;
-}
-
-.tab-page .sectionHeader {
-    margin: 0;
-}
-
-.sectionBody {
-    margin: 0 0 var(--space-3);
-}
-
-.tab-page .sectionBody,
-.section .sectionBody {
-    margin: 0 0 var(--space-3);
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0;
-    background-color: var(--color-surface);
-}
 
 thead td {
     color: var(--color-thead-text);

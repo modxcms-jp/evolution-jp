@@ -178,17 +178,23 @@
 
 ## セクション
 
-見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）の見た目は、`manager/media/style/common/sections.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
+見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）は、`manager/media/style/common/sections.css`（`@layer evo-components`）が描く。`.section` の下の間（12px）、本体の下の間（12px）、見出しの帯と legend の文字の太さ（`bold`）、本体の中の小見出し（`.sectionBody h3`。`1.1em`・`bold`・下の間 12px）は全テーマ共通。テーマは `:root` で下の変数の値を決め、セクションの規則を書かない。
 
-- `--color-section-*` は色の契約（上の「変数の一覧」）、`--section-*` はセクションの部品の変数。見出しの帯の文字色は `--color-section-header-text` で決める。箱の地（`--section-body-bg`）の既定は `--color-section-bg` なので、単色の地のテーマは `--color-section-bg` だけを決めればよい
-- 多くのテーマで同じ値の性質（見出しの帯と legend の文字の太さ `bold`、legend の地 `--color-surface` と枠 `1px solid var(--color-border-default)`）は、sections.css に値で書く。違う値にしたいテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）
-- 一部のテーマにしかない性質（見出しの帯の地・余白・影、箱の角・影など）は、テーマの規則に書く
-- `.sectionBody h3` は、まだこの決まりの外（テーマの規則のまま）。層に入れると、テーマの `h3` の規則に負けるため
+- 見出しの帯の型は 2 つある。地と枠の付いた帯（RevoClassic・AuroraFlow・SoftSlate・RubberWhite・RevoStyle）と、枠も地も持たない文字だけの見出し（AromaHop・SakuraFlow。`--section-header-padding: 0`・`--section-header-bg: transparent`。タブの中では文字を大きくして下に間を空ける）
+- 帯と本体の区切りは、帯の下の枠か本体の上の枠のどちらかで作る。RevoClassic・RevoStyle は帯の下の枠を消す（`--section-header-border-bottom: none`）。AuroraFlow・SoftSlate は帯のすぐ後の本体の上の枠を消し、角を下だけ丸める（`--section-joined-body-*`）。RubberWhite は本体の上の枠をいつも消す（`--section-body-border-top: none`）
+- `--color-section-*` は色の契約（上の「変数の一覧」）。箱の地（`--section-body-bg`）の既定は `--color-section-bg` なので、単色の地のテーマは `--color-section-bg` だけを決めればよい。`.section` の中の本体だけ別の地にするときは `--section-box-bg` を使う
+- 一部のテーマにしかない飾り（RubberWhite のタブの中の見出しと本体の枠の色）は、テーマの規則に書く
 
 | 変数 | 意味 | 既定値（sections.css） |
 | --- | --- | --- |
-| `--section-header-border` / `--section-header-radius` | 見出しの帯の枠と角 | `1px solid #ddd` / `8px 8px 0 0` |
-| `--section-body-bg` / `--section-body-border` / `--section-body-padding` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・内側の余白 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `16px` |
+| `--section-header-padding` / `--section-header-bg` / `--section-header-shadow` / `--section-header-color` / `--section-header-text-shadow` | 見出しの帯の余白・地・影・文字の色・文字の影 | `8px 16px` / `--color-section-header-end` / `0 1px 0 --color-surface inset` / `--color-section-header-text` / なし |
+| `--section-header-border` / `--section-header-border-bottom` / `--section-header-radius` | 見出しの帯の枠・下の枠・角 | `1px solid #ddd` / `--section-header-border` / `8px 8px 0 0` |
+| `--tab-section-header-gap` / `--tab-section-header-font-size` / `--tab-section-header-bg` | タブの中の見出しの下の間・文字の大きさ・地 | `0` / `1em` / `--section-header-bg` |
+| `--section-body-bg` / `--section-body-border` / `--section-body-border-top` / `--section-body-padding` / `--section-body-radius` / `--section-body-shadow` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・上の枠・内側の余白・角・影 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `--section-body-border` / `16px` / `0` / なし |
+| `--section-box-bg` | `.section` の中の箱の地 | `--section-body-bg` |
+| `--tab-section-body-shadow` | タブの中の箱の影 | `--section-body-shadow` |
+| `--section-joined-body-border-top` / `--section-joined-body-radius` | 見出しの帯のすぐ後の箱の上の枠・角 | `--section-body-border-top` / `--section-body-radius` |
+| `--section-h3-color` | 本体の中の小見出しの文字の色 | 親から受け継ぐ |
 | `--section-fieldset-padding` | 箱の中の `fieldset` の内側の余白 | `16px` |
 | `--section-legend-padding` / `--section-legend-shadow` / `--section-legend-radius` | 箱の中の `legend` の余白・影・角 | `4px 16px` / `1px 1px 3px #ccc` / `3px` |
 

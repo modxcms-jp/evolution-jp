@@ -324,6 +324,15 @@
     --readonly-bg: var(--color-gray-200);
     --comment-color: var(--color-border-dark);
     --comment-p-color: var(--color-text-secondary);
+
+    /* セクション（common/sections.css） */
+    --section-header-bg: var(--light-bg-tertiary);
+    --section-header-color: var(--light-text-primary);
+    --section-body-border-top: none;
+    --section-body-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --section-body-radius: 0 0 10px 10px;
+    --tab-section-body-shadow: none;
+    --tab-section-header-bg: transparent;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -465,52 +474,6 @@ input[type="button"] {
    6. Layout Components (Sections, Containers)
    Used in: Content sections, panels, containers
    ============================================================================ */
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-.sectionHeader {
-    padding: 8px 16px;
-    box-shadow: 0 1px 0 var(--color-surface) inset;
-}
-
-/* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
-   枠線は透明にするだけで幅を残し、位置と寸法を変えない */
-.tab-page .sectionHeader {
-    margin: 0;
-    background: transparent;
-    border-color: transparent transparent var(--clean-border);
-}
-
-.sectionBody {
-    margin: 0 0 var(--space-3);
-}
-
-.tab-page .sectionBody,
-.section .sectionBody {
-    border-top:none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    border-radius: 0 0 10px 10px;
-}
-
-.tab-page .sectionBody {
-    margin-block: 0 var(--space-3);
-    border-color: transparent;
-    box-shadow: none;
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0;
-}
 
 thead td {
     color: var(--color-text-primary);
@@ -814,13 +777,6 @@ form#mutate textarea {
     outline-offset: -2px;
 }
 
-/* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
-.sectionHeader {
-    background: var(--light-bg-tertiary);
-    color: var(--light-text-primary);
-    font-weight: 600;
-}
-
 /* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
 body.evo-shell #evoShellModalFooter #actions {
     border: none;
@@ -856,4 +812,13 @@ body#mainpane {
 /* 右上の操作ボタンの帯は、すりガラスにする */
 #actions {
     backdrop-filter: blur(10px);
+}
+
+/* タブの中の見出しは下の線だけ、本体は枠を見せない */
+.tab-page .sectionHeader {
+    border-color: transparent transparent var(--clean-border);
+}
+
+.tab-page .sectionBody {
+    border-color: transparent;
 }

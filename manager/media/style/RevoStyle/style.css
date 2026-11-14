@@ -189,7 +189,7 @@
     /* セクション（common/sections.css が読む） */
     --section-header-border: var(--border-thin) solid var(--color-border-default);
     --section-header-radius: var(--space-4) var(--space-4) 0 0;
-    --section-body-bg: none repeat scroll 0 0 #F7F7F7;
+    --section-body-bg: #F7F7F7;
     --section-body-border: 1px solid #CCCCCC;
     --section-body-padding: 15px;
     --section-fieldset-padding: var(--space-9);
@@ -254,6 +254,13 @@
     --comment-color: #999;
     --datepicker-icon: url(../common/images/misc/datenofocus.gif);
     --datepicker-icon-focus: url(../common/images/misc/datefocus.gif);
+
+    /* セクション（common/sections.css） */
+    --section-header-padding: var(--space-4) var(--space-8) var(--space-4) var(--space-9);
+    --section-header-border-bottom: none;
+    --section-header-bg: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    --section-header-text-shadow: 0 var(--border-thin) 0 var(--color-surface);
+    --section-box-bg: var(--color-surface);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -456,50 +463,6 @@ form textarea {
     border: var(--border-thin) solid var(--color-border-default);
     box-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
     border-radius: var(--radius-md);
-}
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-8);
-}
-
-.sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0;
-    padding: var(--space-4) var(--space-8) var(--space-4) var(--space-9);
-    font-weight: bold;
-    border: var(--border-thin) solid var(--color-border-default);
-    border-bottom: none;
-    text-shadow: 0 var(--border-thin) 0 var(--color-surface);
-    background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
-    box-shadow: 0 var(--border-thin) 0 var(--color-surface) inset;
-    border-radius: var(--space-4) var(--space-4) 0 0;
-}
-
-.tab-page .sectionHeader {
-    margin: var(--space-1) 0 0;
-}
-
-.sectionBody {
-    position: relative;
-    display: none;
-    margin: 5px 0 15px;
-    display: block;
-}
-
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: none repeat scroll 0 0 #F7F7F7;
-    border: 1px solid #CCCCCC;
-    margin: 0 0 15px;
-    padding: 15px;
-}
-
-.section .sectionBody {
-    margin: 0 0 15px;
-    background-color: var(--color-surface);
 }
 
 thead td {

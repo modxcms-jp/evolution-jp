@@ -262,6 +262,13 @@
     /* 編集画面のフォーム（common/forms.css） */
     --datepicker-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
     --datepicker-icon-focus: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
+
+    /* セクション（common/sections.css） */
+    --section-header-shadow: none;
+    --section-body-radius: var(--radius-lg);
+    --section-box-bg: var(--color-surface);
+    --section-joined-body-border-top: none;
+    --section-joined-body-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -454,50 +461,6 @@ input[type="checkbox"]:disabled::after {
    7. Layout Components - Sections, Headers, Bodies
    Used in: Content areas, settings pages, form sections
    ============================================================================ */
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-/* セクション見出し。濃い灰色の帯をやめ、ごく薄い地色と下線だけで本文と区切る */
-.sectionHeader {
-    padding: var(--space-3) var(--space-4);
-    background-color: var(--color-section-header-end);
-}
-
-.tab-page .sectionHeader {
-    margin: 0;
-}
-
-.sectionBody {
-    margin: 0 0 var(--space-3);
-}
-
-/* 白いカード。枠はごく薄くし、角は控えめに丸める */
-.tab-page .sectionBody,
-.section .sectionBody {
-    border-radius: var(--radius-lg);
-    margin: 0 0 var(--space-3);
-}
-
-/* 見出しの直後は見出しと一枚のカードにつなげる */
-.sectionHeader + .sectionBody {
-    border-top: none;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0;
-    background-color: var(--color-surface);
-}
 
 thead td {
     color: var(--gray-900);

@@ -1,27 +1,73 @@
 /*
  * 管理画面のセクション（見出しの帯 .sectionHeader と、本体の箱 .sectionBody）の共通の決まり。
- * 値はテーマが :root の変数で決める（無ければ既定値。既定値は RevoClassic の値）。決まりと変数の一覧は assets/docs/theme-variables.md。
- * 枠の太さは 1px と書く（--border-thin は一部のテーマにしか無い）。
+ * 間・文字の太さ・小見出しの大きさは全テーマ共通。地・枠・角・影・余白・色はテーマが :root の変数で決める（無ければ既定値。既定値は RevoClassic の値）。
+ * 決まりと変数の一覧は assets/docs/theme-variables.md の「セクション」。枠の太さは 1px と書く（--border-thin は一部のテーマにしか無い）。
  */
 @layer evo-components {
+    .section {
+        margin-bottom: 12px;
+    }
+
     .sectionHeader {
         margin: 0;
-        font-weight: bold;
-        color: var(--color-section-header-text, #606060);
+        padding: var(--section-header-padding, 8px 16px);
         border: var(--section-header-border, 1px solid #ddd);
+        border-bottom: var(--section-header-border-bottom, var(--section-header-border, 1px solid #ddd));
         border-radius: var(--section-header-radius, 8px 8px 0 0);
+        background: var(--section-header-bg, var(--color-section-header-end, #e0e0e0));
+        box-shadow: var(--section-header-shadow, 0 1px 0 var(--color-surface, #fff) inset);
+        color: var(--section-header-color, var(--color-section-header-text, #606060));
+        font-weight: bold;
+        text-shadow: var(--section-header-text-shadow, none);
+    }
+
+    /* タブの中の見出し。文字だけの見出しのテーマは、大きくして下に間を空ける */
+    .tab-page .sectionHeader {
+        margin: 0 0 var(--tab-section-header-gap, 0);
+        background: var(--tab-section-header-bg, var(--section-header-bg, var(--color-section-header-end, #e0e0e0)));
+        font-size: var(--tab-section-header-font-size, 1em);
     }
 
     .sectionBody {
         position: relative;
         display: block;
+        margin: 0 0 12px;
     }
 
     .tab-page .sectionBody,
     .section .sectionBody {
-        background: var(--section-body-bg, var(--color-section-bg, #f7f7f7));
-        border: var(--section-body-border, 1px solid #ccc);
+        margin: 0 0 12px;
         padding: var(--section-body-padding, 16px);
+        border: var(--section-body-border, 1px solid #ccc);
+        border-top: var(--section-body-border-top, var(--section-body-border, 1px solid #ccc));
+        border-radius: var(--section-body-radius, 0);
+        background: var(--section-body-bg, var(--color-section-bg, #f7f7f7));
+        box-shadow: var(--section-body-shadow, none);
+    }
+
+    /* 見出しの帯の付いた .section の中の本体。下の間は .section が持つ */
+    .section .sectionBody {
+        margin: 0;
+        background: var(--section-box-bg, var(--section-body-bg, var(--color-section-bg, #f7f7f7)));
+    }
+
+    /* タブの中の本体 */
+    .tab-page .sectionBody {
+        box-shadow: var(--tab-section-body-shadow, var(--section-body-shadow, none));
+    }
+
+    /* 見出しの帯のすぐ後の本体。帯の下の枠を区切りにするテーマは、本体の上の枠を消して、角を下だけ丸める */
+    .sectionHeader + .sectionBody {
+        border-top: var(--section-joined-body-border-top, var(--section-body-border-top, var(--section-body-border, 1px solid #ccc)));
+        border-radius: var(--section-joined-body-radius, var(--section-body-radius, 0));
+    }
+
+    .sectionBody h3 {
+        margin-bottom: 12px;
+        padding-bottom: 0;
+        color: var(--section-h3-color, inherit);
+        font-size: 1.1em;
+        font-weight: bold;
     }
 
     .sectionBody fieldset {

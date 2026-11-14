@@ -311,6 +311,17 @@
     --comment-p-color: var(--gray-800);
     --datepicker-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
     --datepicker-icon-focus: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
+
+    /* セクション（common/sections.css） */
+    --section-header-padding: 0;
+    --section-header-bg: transparent;
+    --section-header-shadow: none;
+    --section-body-radius: var(--radius-xl);
+    --tab-section-header-gap: 12px;
+    --tab-section-header-font-size: calc(var(--font-size-base, 12px) * 1.333);
+    --section-h3-color: var(--color-text-dark);
+    --section-body-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.7), 0 8px 32px rgba(90, 154, 94, 0.06);
+    --section-box-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.4) 0%, transparent 2px), rgba(253, 253, 251, 0.78);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -703,52 +714,6 @@ input[type="radio"]:disabled::after {
     background: linear-gradient(135deg, rgba(252, 254, 252, 0.98) 0%, rgba(242, 250, 245, 0.95) 100%);
     border: 1px solid rgba(160, 195, 175, 0.4);
     color: var(--color-text-dark);
-}
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-    color: var(--color-text-dark);
-}
-
-.sectionHeader {
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    background: transparent;
-}
-
-.tab-page .sectionHeader {
-    margin-bottom: var(--space-3);
-    font-size: calc(var(--font-size-base, 12px) * 1.333);
-}
-
-/* セクション - モヒートパレット準拠（氷の透明感） */
-.tab-page .sectionBody,
-.section .sectionBody {
-    margin-bottom: var(--space-3);
-    border-radius: var(--radius-xl);
-    box-shadow:
-        inset 0 1px 0 rgba(253, 253, 251, 0.7),
-        0 8px 32px rgba(90, 154, 94, 0.06);
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin-bottom: 0;
-    background:
-        linear-gradient(
-            180deg,
-            rgba(253, 253, 251, 0.4) 0%,
-            transparent 2px
-        ),
-        rgba(253, 253, 251, 0.78);
-    border-radius: var(--radius-xl);
 }
 
 thead td {
