@@ -4,10 +4,16 @@
  * 余白は値で書く（RevoStyle は --space-* の値が違う）。
  */
 @layer evo-components {
+    /* 角を丸めるテーマは --grid-border-collapse: separate にする（collapse の表は角が丸まらない） */
     .grid {
         width: 100%;
+        overflow: hidden;
+        border-collapse: var(--grid-border-collapse, collapse);
+        border-spacing: 0;
         background-color: var(--grid-bg, var(--color-surface, #fff));
         border: var(--grid-border, 1px solid silver);
+        border-radius: var(--grid-radius, 0);
+        box-shadow: var(--grid-shadow, none);
     }
 
     .grid a {

@@ -254,6 +254,22 @@
 
 既定値は RevoClassic の値。
 
+## そのほかの部品
+
+上のどの部品にも入らない小さな規則（状態表示・読み込み中の表示・検索の帯・設定の表・区切り・状態を色で示す文字・ダッシュボードのボタン）は `common/theme-base.css`、表（`.grid`）の角と影は `common/tables.css` が描く。大きさと余白は全テーマ共通で、テーマは `:root` で下の変数の値を決める。
+
+| 変数 | 意味 | 既定値 |
+| --- | --- | --- |
+| `--grid-border-collapse` / `--grid-radius` / `--grid-shadow` | 表の枠の重ね方・角・影（角を丸めるときは `separate`） | `collapse` / `0` / なし |
+| `--statusbar-text-color` | 上のメニューの右の状態表示（`#buildText`・`#workText`）の文字の色 | `#fff` |
+| `--preloader-radius` / `--preloader-border-color` | 読み込み中の表示の角・枠の色 | `12px` / `--gray-500` |
+| `--searchbar-bg` / `--searchbar-border-color` / `--searchbar-radius` | リソースの選択の検索の帯の地・枠の色・角 | `#dbdbdb` / `silver` / `0` |
+| `--settings-th-color` / `--fieldset-tab-page-border-color` | 設定の表の見出しの列の文字の色・`fieldset.tab-page` の枠の色 | `#555` / `--gray-200` |
+| `--split-display` | 編集画面の区切りの線を見せるか（見せないテーマは `none`） | `block` |
+| `--okmsg-border-color` | 成功のメッセージ（`.okmsg`）の枠の色（地は `--color-success-bg`） | `--color-success-light` |
+| `--overhead-warning-color` / `--access-private-color` / `--label-disabled-color` / `--resource-description-color` / `--tree-protected-color` / `--disabled-plugin-color` | 状態を色で示す文字の色 | `#990033` / `#821517` / `#ccc` / `#777` / `#77d` / `#aaa` |
+| `--dashboard-link-color` / `--dashboard-link-hover-color` | ダッシュボードのボタンの名前の色・乗せたときの色 | `--gray-900` / `gray` |
+
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する

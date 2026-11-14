@@ -335,6 +335,22 @@
     /* ダッシュボード（common/theme-base.css） */
     --dashboard-link-color: var(--color-text-dark);
     --dashboard-link-hover-color: var(--color-primary);
+
+    /* 表・状態表示・メッセージなど（common/theme-base.css・tables.css） */
+    --grid-border-collapse: separate;
+    --grid-radius: var(--radius-lg);
+    --grid-shadow: 0 4px 16px rgba(90, 154, 94, 0.08);
+    --statusbar-text-color: var(--color-text-dark);
+    --access-private-color: var(--color-error);
+    --overhead-warning-color: var(--color-error);
+    --label-disabled-color: var(--gray-600);
+    --resource-description-color: var(--gray-800);
+    --tree-protected-color: #6080A0;
+    --preloader-radius: var(--radius-xl);
+    --searchbar-border-color: rgba(255, 255, 255, 0.5);
+    --searchbar-bg: linear-gradient(135deg, rgba(250, 255, 244, 0.9) 0%, rgba(247, 255, 222, 0.85) 100%);
+    --searchbar-radius: var(--radius-md);
+    --split-display: none;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -473,30 +489,6 @@ body#mainpane {
    ============================================================================ */
 
 /* -------------------------[ Miscellaneous conveniences ]--- */
-
-.split {
-  display:none;
-}
-
-#buildText,
-#workText {
-    font-weight: 500;
-    line-height: 16px;
-    margin: 0 15px;
-    color: var(--color-text-dark);
-}
-
-#buildText img,
-#workText img {
-    margin: 0 5px;
-}
-
-#statusbar {
-    position: absolute;
-    right: 0;
-    top: 36px;
-    z-index: 1000;
-}
 
 input.button,
 input[type="submit"],
@@ -664,28 +656,10 @@ html body.evo-shell .tree-toolbar {
     backdrop-filter: blur(8px);
 }
 
-.protectedNode {
-    color: #6080A0;
-}
-
-.disabledPlugin a {
-    color: #aaa;
-    text-decoration: line-through;
-}
-
 /* ============================================================================
    9. Tables & Grids - Data Tables
    Used in: User lists, resource grids, data tables
    ============================================================================ */
-
-/* グリッド - モヒートパレット */
-.grid {
-    border-radius: var(--radius-lg);
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(90, 154, 94, 0.08);
-}
 
 .grid th, .grid td {
     border-bottom: 1px solid rgba(203, 238, 197, 0.5);
@@ -724,10 +698,6 @@ html body.evo-shell .tree-toolbar {
 
 .grid a:hover {
     color: var(--color-primary);
-}
-
-.grid img {
-    padding-right: 6px;
 }
 
 /* Grid checkbox styling */
@@ -774,29 +744,9 @@ html body.evo-shell .tree-toolbar {
     font-style: italic;
 }
 
-/* Resource description in grid */
-.resource-description {
-    color: var(--gray-800);
-}
-
-/* Disabled label */
-.label-disabled {
-    color: var(--gray-600);
-}
-
-/* Private access indicator */
-.access-private {
-    color: var(--color-error);
-}
-
 /* Database table name */
 .table-name {
     color: var(--color-success);
-}
-
-/* Database overhead warning */
-.overhead-warning {
-    color: var(--color-error);
 }
 
 /* Database table list (sysinfo/backup) - remove left border on first column */
@@ -808,26 +758,6 @@ html body.evo-shell .tree-toolbar {
 .sectionBody table[style*="background-color:#ccc"] td:last-child,
 .sectionBody table[style*="background-color:#ccc"] th:last-child {
     border-right: none;
-}
-
-/* 検索バー - モヒートパレット */
-.searchbar {
-    width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    background: linear-gradient(135deg, rgba(250, 255, 244, 0.9) 0%, rgba(247, 255, 222, 0.85) 100%);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-}
-
-.preLoaderText {
-    background-color: var(--color-surface);
-    border-radius: var(--radius-xl);
-    opacity: .7;
-    width: 300px;
-    height: 150px;
-    margin: 70px auto;
-    padding: 50px;
-    border: 1px solid var(--gray-500);
 }
 
 /* ============================================================================
@@ -932,17 +862,6 @@ html body.evo-shell .tree-toolbar {
 
 /* -------------------------[ Settings Table ]--- */
 
-.settings tr {
-    width: 100%;
-}
-
-.settings th {
-    width: 200px;
-    text-align: left;
-    color: #555;
-    font-size: 1.2em;
-}
-
 /* ============================================================================
    11. Tabs System - Dynamic Tab Pane Control
    Used in: Document editor, settings pages, multi-tab interfaces
@@ -983,10 +902,6 @@ html body.evo-shell .tree-toolbar {
     border-radius: var(--radius-sm);
 }
 
-fieldset.tab-page {
-    border: 1px solid var(--gray-200) !important;
-}
-
 /* ============================================================================
    12. Action Buttons - Fixed Position Controls
    Used in: Document editor, form pages, action toolbars
@@ -1015,11 +930,4 @@ form#mutate textarea {
 }
 
 /* Custom */
-
-.okmsg {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-light);
-    padding: var(--space-2);
-    margin-bottom: var(--space-2);
-}
 

@@ -269,6 +269,11 @@
 
     /* ダッシュボード（common/theme-base.css） */
     --dashboard-link-color: #333;
+
+    /* 表・状態表示・メッセージなど（common/theme-base.css・tables.css） */
+    --preloader-radius: 10px;
+    --preloader-border-color: #999;
+    --fieldset-tab-page-border-color: #e4e4e4;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -284,35 +289,6 @@
    3. Utility Classes (hide, clear, status messages)
    Used in: All pages for common helpers
    ============================================================================ */
-
-.split {
-    background: transparent;
-    border-top: 1px dotted #556476;
-    height: var(--border-thin);
-    font-size: 0;
-    clear: both;
-    padding: 0;
-}
-
-#buildText,
-#workText {
-    font-weight: bold;
-    line-height: var(--space-10);
-    margin: 0 var(--space-9);
-    color: #FFF;
-}
-
-#buildText img,
-#workText img {
-    margin: 0 var(--space-4);
-}
-
-#statusbar {
-    position: absolute;
-    right: 0;
-    top: 36px;
-    z-index: 1000;
-}
 
 form select {
     background: var(--color-surface);
@@ -390,65 +366,9 @@ form textarea {
     border-radius: var(--radius-md);
 }
 
-.protectedNode {
-    color: #77d;
-}
-
-.disabledPlugin a {
-    color: #aaa;
-    text-decoration: line-through;
-}
-
-/* -------------------------[ grid style ]--- */
-.grid {
-    border-collapse: collapse;
-}
-
-.grid img {
-    padding-right: 4px;
-}
-
-/* Resource description in grid */
-.resource-description {
-    color: #777;
-}
-
-/* Disabled label */
-.label-disabled {
-    color: #ccc;
-}
-
-/* Private access indicator */
-.access-private {
-    color: #821517;
-}
-
-/* Database overhead warning */
-.overhead-warning {
-    color: #990033;
-}
-
-/* -------------------------[ search bar ]--- */
-.searchbar {
-    width: 100%;
-    border: 1px solid silver;
-    background-color: #DBDBDB;
-}
-
 .searchtext {
     height: 18px;
     padding: 2px;
-}
-
-.preLoaderText {
-    background-color: #fff;
-    border-radius: 10px;
-    opacity: .7;
-    width: 300px;
-    height: 150px;
-    margin: 70px auto;
-    padding: 50px;
-    border: 1px solid #999;
 }
 
 /* ============================================================================
@@ -495,17 +415,6 @@ form textarea {
    Used in: Configuration tables, data grids
    ============================================================================ */
 
-.settings tr {
-    width: 100% !important;
-}
-
-.settings th {
-    width: 200px !important;
-    text-align: left;
-    color: #555;
-    font-size: 1.2em;
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: block;
@@ -537,10 +446,6 @@ form textarea {
 
 .sectionBody .tab-page {
     padding: 15px 15px 20px !important;
-}
-
-fieldset.tab-page {
-    border: 1px solid #e4e4e4 !important;
 }
 
 select#stay {
@@ -597,13 +502,6 @@ form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
     width: 300px;
-}
-
-.okmsg {
-    background-color: #edffee;
-    border: 2px solid #3ab63a;
-    padding: 8px;
-    margin-bottom: 8px;
 }
 
 /* 下書きを開くボタンは、グラデーションの地にする */
