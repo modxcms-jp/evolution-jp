@@ -38,11 +38,8 @@
     --form-label-width: 150px;
 }
 
-/* 入力欄とボタンは同じ値を共有する。高さ ＝ 本文の 1 行の高さ（--line-box。styleguide.css）＋ 上下の余白 × 2 ＋ 枠 × 2 を、余白の単位（4px）の目盛りに切り上げる。
-   :root で書くと --line-box が html の値で解決されるので、body で書く */
 body {
     line-height: var(--line-height-base);
-    --control-height: round(up, calc(var(--line-box) + var(--control-padding-y) * 2 + var(--border-width) * 2), var(--space-unit));
 }
 
 /* input[type=submit|button] も、ほかのボタンと同じ高さにする */
