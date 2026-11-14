@@ -1213,13 +1213,6 @@ div.treeNode {
     color: #6080A0;
 }
 
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
-}
-
 .disabledPlugin a {
     color: #aaa;
     text-decoration: line-through;

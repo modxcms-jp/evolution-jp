@@ -949,17 +949,6 @@ div.treeNode {
     color: #77d;
 }
 
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
-}
-
-.rtl #treeSplitter {
-    left: -10px;
-}
-
 .disabledPlugin a {
     color: #aaa;
     text-decoration: line-through;
