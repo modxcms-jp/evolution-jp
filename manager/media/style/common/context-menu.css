@@ -10,7 +10,10 @@
         box-sizing: border-box;
         margin: 0;
         padding: 4px;
-        overflow: hidden;
+        /* 低い画面では、画面に収まる高さにして縦にスクロールする（シェルの画面はスクロールしない） */
+        max-height: calc(100vh - 10px);
+        overflow-x: hidden;
+        overflow-y: auto;
         border: 1px solid;
         border-color: var(--context-menu-border-color, var(--color-border-light, #ededed) #dcdcdc #dcdcdc var(--color-border-light, #ededed));
         border-radius: var(--context-menu-radius, 0);
