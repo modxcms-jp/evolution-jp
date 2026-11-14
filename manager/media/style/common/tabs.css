@@ -1,0 +1,37 @@
+/*
+ * タブ（tabpane.js の部品）の重なりと並び。形（角・枠・地・余白・文字色）はテーマが決める。
+ * タブの中の余白だけは、テーマが :root の --tab-page-padding で決める（無ければ RevoClassic の値）。
+ */
+@layer evo-components {
+    .dynamic-tab-pane-control.tab-pane {
+        position: relative;
+        width: 100%;
+    }
+
+    .dynamic-tab-pane-control .tab-row {
+        z-index: 1;
+        white-space: nowrap;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab {
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab span,
+    .dynamic-tab-pane-control .tab-row .tab:hover {
+        text-decoration: none;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab.selected span {
+        text-shadow: none;
+    }
+
+    .dynamic-tab-pane-control .tab-page {
+        position: relative;
+        z-index: 2;
+        clear: both;
+        padding: var(--tab-page-padding, 16px 16px 20px);
+    }
+}

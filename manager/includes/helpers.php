@@ -1168,6 +1168,7 @@ function manager_theme_stylesheets()
         'media/style/common/forms.css',
         'media/style/common/theme-base.css',
         'media/style/common/sections.css',
+        'media/style/common/tabs.css',
         'media/style/' . evo()->config('manager_theme') . '/style.css',
     ];
     $links = '';

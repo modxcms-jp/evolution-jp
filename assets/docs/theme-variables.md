@@ -117,10 +117,18 @@
 
 既定値は RevoClassic の値。
 
+## タブ
+
+タブ（tabpane.js の部品 `.dynamic-tab-pane-control`）の重なりと並び（`position`・`z-index`・`white-space`・`cursor` など）は、`manager/media/style/common/tabs.css`（`@layer evo-components`）が決める。形（角・枠・地・余白・文字色）はテーマの規則で決める。同梱テーマには、丸い錠剤の形（AromaHop・SakuraFlow）と、上だけ角丸のフォルダの見出しの形（ほかのテーマ）がある。
+
+| 変数 | 意味 | 既定値（tabs.css） |
+| --- | --- | --- |
+| `--tab-page-padding` | タブの中（`.tab-page`）の内側の余白。`.sectionBody` の中か外かに関係なく、この値になる | `16px 16px 20px` |
+
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 

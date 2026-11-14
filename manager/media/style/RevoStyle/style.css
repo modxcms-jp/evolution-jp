@@ -198,6 +198,9 @@
     --section-legend-padding: var(--space-4) var(--space-9);
     --section-legend-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
     --section-legend-radius: var(--radius-md);
+
+    /* タブ（common/tabs.css が読む） */
+    --tab-page-padding: 15px 15px 20px;
 }
 
 /* ============================================================================
