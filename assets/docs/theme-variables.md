@@ -100,6 +100,15 @@
 
 `input[type=submit|button|reset]` も、`.button` と同じ部品として、この変数で描く（主ボタンの `.primary` は付けない）。テーマは `input` のボタンだけの規則を書かない。
 
+編集画面の欄の名前（`.mutate-field-title`）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
+
+| 変数 | 意味 | 既定値 |
+| --- | --- | --- |
+| `--mutate-field-title-color` | 欄の名前の文字の色（太さは `bold`） | `--color-warning` |
+| `--comment-color` / `--comment-p-color` | 説明の文字の色（`p.comment` は `.9em`） | `--gray-500` / `--comment-color` |
+| `--datepicker-icon` / `--datepicker-icon-focus` | 日付の欄のカレンダーのアイコン（`url()`）。ふだんと入力中 | `common/images/misc/date-icon.png` / `date-icon-focus.png` |
+| `--readonly-bg` | 読み取り専用の欄の地 | `#eee` |
+
 ## ページの見出し
 
 画面の一番上の見出しの帯（`h1`）は、`manager/media/style/common/theme-base.css`（`@layer evo-base`）の規則が描く。文字の大きさ（`1.25em`）・太さ（`bold`）・行の高さ（`1.4`）・字間（`.05em`）・下の余白（12px）・枠の太さ（1px）は全テーマ共通で、テーマは変えない。テーマは `:root` で下の変数の値を決め、`h1` の規則を書かない。

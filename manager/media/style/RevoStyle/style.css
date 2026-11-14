@@ -248,6 +248,12 @@
     /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
     --actions-radius: 5px;
     --actions-disabled-color: #777;
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --readonly-bg: var(--gray-150);
+    --comment-color: #999;
+    --datepicker-icon: url(../common/images/misc/datenofocus.gif);
+    --datepicker-icon-focus: url(../common/images/misc/datefocus.gif);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -333,16 +339,6 @@ a img {
    Used in: All pages for common helpers
    ============================================================================ */
 
-.mutate-field-title {
-    color: var(--color-warning, #444);
-    font-weight: bold;
-}
-
-p.comment {
-    font-size: 0.9em;
-    color: var(--gray-600);
-}
-
 /* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
@@ -379,16 +375,6 @@ p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: var(--gray-150) !important;
-    text-shadow: var(--border-thin) var(--border-thin) #fff !important;
-    cursor: not-allowed;
 }
 
 optgroup option {
@@ -449,11 +435,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-}
-
-form input.hidden {
-    display: none !important;
-    position: absolute;
 }
 
 form textarea {
@@ -519,10 +500,6 @@ form textarea {
 .section .sectionBody {
     margin: 0 0 15px;
     background-color: var(--color-surface);
-}
-
-.comment {
-    color: #999;
 }
 
 thead td {
@@ -751,52 +728,10 @@ select#stay {
     background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 }
 
-/*
-* Generic styles for all form elements
-*/
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label {
-    font-size: 1em;
-    display: inline;
-    float: left;
-    width: 200px;
-    color: #821517 !important;
-    font-weight: bold;
-}
-
-form#mutate dd {
-    margin-left: 210px;
-}
-
 form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
     width: 300px;
-}
-
-#tv_body input[type=text],
-#tv_body textarea {
-    background: #fff;
-}
-
-/* ============================================================================
-   12. Specialized Forms (Date Pickers, Custom Inputs)
-   Used in: Date/time selection, advanced form controls
-   ============================================================================ */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px 24px;
-    background-color: #ffffff;
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left #ffffff;
-}
-
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
-    cursor: text;
 }
 
 .okmsg {
@@ -809,4 +744,14 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 /* 下書きを開くボタンは、グラデーションの地にする */
 .actionButtons .opendraft a {
     background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
+}
+
+/* 日付の欄のアイコン（GIF）は、左上に置く作り */
+input.DatePicker,
+#mutate input.DatePicker,
+#userPane input.DatePicker,
+#webUserPane input.DatePicker,
+input#datefrom.DatePicker,
+input#dateto.DatePicker {
+    background-position: left top;
 }

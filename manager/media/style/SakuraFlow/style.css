@@ -287,6 +287,11 @@
     /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
     --actions-radius: var(--radius-lg);
     --actions-and-color: #5a4055;
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --mutate-field-title-color: #8b5a70;
+    --datepicker-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
+    --datepicker-icon-focus: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -478,16 +483,6 @@ a img {
 
 /* -------------------------[ Miscellaneous conveniences ]--- */
 
-.mutate-field-title {
-    color: #8b5a70;
-    font-weight: 600;
-}
-
-p.comment {
-    font-size: 0.9em;
-    color: var(--gray-600);
-}
-
 /* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
@@ -519,16 +514,6 @@ p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: #eee !important;
-    text-shadow: 1px 1px var(--color-surface) !important;
-    cursor: not-allowed;
 }
 
 optgroup option {
@@ -662,19 +647,6 @@ input[type="radio"]:disabled::after {
     background: var(--gray-400);
 }
 
-form input.hidden {
-    display: none !important;
-    position: absolute;
-}
-
-form textarea {
-    height: 78px;
-    width: 350px;
-    line-height: 1.5;
-    overflow: auto;
-    font-size: inherit;
-}
-
 /* ============================================================================
    7. Layout Components - Sections, Headers, Bodies
    Used in: Content areas, settings pages, form sections
@@ -722,10 +694,6 @@ form textarea {
     margin-bottom: 0;
     background: rgba(255, 255, 255, 0.65);
     border-radius: var(--radius-xl);
-}
-
-.comment {
-    color: var(--gray-500);
 }
 
 thead td {
@@ -1082,48 +1050,10 @@ fieldset.tab-page {
    Used in: Document editor forms, settings forms with date pickers
    ============================================================================ */
 
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label {
-    font-size: 1em;
-    display: inline;
-    float: left;
-    width: 200px;
-    color: #8b5a70 !important;
-    font-weight: 600;
-}
-
-form#mutate dd {
-    margin-left: 210px;
-}
-
 form#mutate select.inputBox,
 form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 form#mutate textarea {
     width: 300px;
-}
-
-#tv_body input[type=text],
-#tv_body textarea {
-    background: var(--color-surface);
-}
-
-/* -------------------------[ date picker ]--- */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px 24px;
-    background-color: var(--color-surface);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
-    background-repeat: no-repeat;
-    background-position: var(--space-1) center;
-}
-
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
-    cursor: text;
 }
 
 .okmsg {

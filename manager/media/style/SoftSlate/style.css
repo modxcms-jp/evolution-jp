@@ -256,6 +256,9 @@
     --actions-border: 1px solid var(--color-frame);
     --actions-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
     --actions-radius: var(--radius-lg);
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --comment-color: #999;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -335,16 +338,6 @@ a img {
    Used in: All pages for common utilities
    ============================================================================ */
 
-.mutate-field-title {
-    color: var(--color-warning, #444);
-    font-weight: bold;
-}
-
-p.comment {
-    font-size: 0.9em;
-    color: var(--gray-600);
-}
-
 /* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
@@ -388,16 +381,6 @@ p.comment {
     z-index: 1000;
 }
 
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: #eee !important;
-    text-shadow: 1px 1px #fff !important;
-    cursor: not-allowed;
-}
-
 optgroup option {
     font-weight: normal;
     background-color: #fff;
@@ -413,18 +396,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-}
-
-form input.hidden {
-    display: none !important;
-    position: absolute;
-}
-
-form textarea {
-    height: 78px;
-    width: 350px;
-    line-height: 1.5;
-    overflow: auto;
 }
 
 /* -------------------------[ Misc stuff ]--- */
@@ -483,10 +454,6 @@ form textarea {
 .section .sectionBody {
     margin: 0;
     background-color: var(--color-surface);
-}
-
-.comment {
-    color: #999;
 }
 
 thead td {
@@ -732,44 +699,10 @@ body.evo-shell #evoShellModalFooter #actions {
    Used in: Document editor, complex form interfaces
    ============================================================================ */
 
-/*
-* Generic styles for all form elements
-*/
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label {
-    font-size: 1em;
-    display: inline;
-    float: left;
-    width: 200px;
-    color: #821517 !important;
-    font-weight: bold;
-}
-
-form#mutate dd {
-    margin-left: 210px;
-}
-
 form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
     width: 300px;
-}
-
-/* -------------------------[ date picker ]--- */
-input.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px 24px;
-    background-color: #ffffff;
-    background: url(../common/images/misc/date-icon.png) no-repeat var(--space-1) center #ffffff;
-}
-
-input.DatePicker:focus {
-    background-image: url(../common/images/misc/date-icon-focus.png);
-    cursor: text;
 }
 
 .okmsg {
