@@ -128,6 +128,8 @@ $GLOBALS['action_list'] = [
     '309' => 'Preview draft',
 
     '200' => 'Viewing phpInfo()',
+    '201' => 'Viewing style guide',
+    '202' => 'Viewing style guide sample',
     '501' => 'Delete category',
     '998' => 'Custom action with style',
     '999' => 'Custom action',

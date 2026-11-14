@@ -1,0 +1,84 @@
+/*
+ * デザインの基礎の決まりの案。スタイルガイドの見本（a=202 の proposal=1）だけで、テーマの後に重ねる。本体の画面には当てない。
+ *
+ * 基本の値は 4 つ（文字の大きさ・行の高さ・余白の単位・枠の太さ）。ほかの寸法は、ここからの計算で決める。
+ * 文字の大きさの基準は、テーマの本文の大きさ（多くのテーマは 12px、AromaHop・SakuraFlow は 13px）をそのまま使う。
+ */
+:root {
+    /* 基本の値 */
+    --line-height-base: 1.5;
+    --space-unit: 4px;
+    --border-width: 1px;
+
+    /* 余白の目盛り（--space-unit の倍数。部品の内側も外側も、ここからしか選ばない） */
+    --space-0: 0;
+    --space-1: calc(var(--space-unit) * 1);
+    --space-2: calc(var(--space-unit) * 2);
+    --space-3: calc(var(--space-unit) * 3);
+    --space-4: calc(var(--space-unit) * 4);
+    --space-6: calc(var(--space-unit) * 6);
+    --space-8: calc(var(--space-unit) * 8);
+
+    /* 文字の大きさの目盛り（本文が 1em。em にそろえ、rem と混ぜない） */
+    --font-size-sm: .875em;
+    --font-size-md: 1em;
+    --font-size-lg: 1.125em;
+    --font-size-xl: 1.25em;
+    --font-size-2xl: 1.5em;
+    --font-size-3xl: 1.75em;
+
+    /* 行の高さの目盛り */
+    --line-height-tight: 1.25;
+    --line-height-loose: 1.75;
+
+    /* 入力欄とボタンの上下の余白 */
+    --control-padding-y: var(--space-1);
+
+    /* フォームの行: ラベルの列の幅は 1 つ */
+    --form-label-width: 150px;
+}
+
+/* 入力欄とボタンは同じ値を共有する。高さ ＝ 本文の 1 行の高さ（--line-box。styleguide.css）＋ 上下の余白 × 2 ＋ 枠 × 2 を、余白の単位（4px）の目盛りに切り上げる。
+   :root で書くと --line-box が html の値で解決されるので、body で書く */
+body {
+    line-height: var(--line-height-base);
+    --control-height: round(up, calc(var(--line-box) + var(--control-padding-y) * 2 + var(--border-width) * 2), var(--space-unit));
+}
+
+/* 「今のテーマの値」の見本は、上書きする前のテーマの値（:root）で並べる */
+:root {
+    --control-height-theme: var(--control-height);
+}
+
+.styleguide-sample .sg-size-now {
+    --control-height: var(--control-height-theme);
+}
+
+/* input[type=submit|button] も、ほかのボタンと同じ高さにする */
+input[type="submit"],
+input[type="button"] {
+    min-height: var(--control-height);
+    box-sizing: border-box;
+}
+
+/* 見出しは文字の大きさの目盛りから選ぶ */
+h1 { font-size: var(--font-size-2xl); line-height: var(--line-height-tight); }
+h2 { font-size: var(--font-size-xl); line-height: var(--line-height-tight); }
+h3 { font-size: var(--font-size-lg); line-height: var(--line-height-tight); }
+h4, h5, h6 { font-size: var(--font-size-md); line-height: var(--line-height-tight); }
+small, .comment { font-size: var(--font-size-sm); }
+
+/* フォームの行: ラベルの列の幅をそろえ、ラベルの文字と入力欄の文字の高さをそろえる（上の余白 ＝ 入力欄の上の余白 ＋ 枠） */
+.mutate-field-label,
+.settings th {
+    width: var(--form-label-width);
+    padding-top: calc(var(--control-padding-y) + var(--border-width));
+    vertical-align: top;
+    text-align: left;
+}
+
+/* 箱の内側の余白は 1 段（中の文字の左端を全画面でそろえる） */
+.section .sectionBody,
+.tab-page .sectionBody {
+    padding: var(--space-4);
+}

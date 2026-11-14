@@ -1,0 +1,232 @@
+/*
+ * スタイルガイド（a=201）と、その見本（a=202）だけで使う見た目。部品そのものの見た目はテーマと共通の CSS が決めるので、ここでは書かない。
+ */
+
+/* a=201: テーマと見え方の選択、見本の iframe */
+.styleguide-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4, 16px);
+    align-items: center;
+}
+
+.styleguide-controls label {
+    display: inline-flex;
+    gap: var(--space-2, 8px);
+    align-items: center;
+}
+
+.styleguide-frames {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: var(--space-4, 16px);
+}
+
+.styleguide-frames figure {
+    margin: 0;
+}
+
+.styleguide-frames figcaption {
+    margin-bottom: var(--space-1, 4px);
+    font-weight: bold;
+}
+
+.styleguide-frames iframe {
+    display: block;
+    width: 100%;
+    min-height: 400px;
+    border: 1px solid var(--color-border-default, #ccc);
+}
+
+/* a=202: 見本。管理画面の #mainPane と同じ余白で中身を包む */
+.styleguide-sample #mainPane {
+    padding: var(--shell-main-padding, var(--space-2, 8px));
+    padding-inline: var(--page-padding-x, var(--space-2, 8px));
+}
+
+/* 見本の区切りの見出し。部品の h2 と見分けがつくよう、点線と小さい文字にする */
+.styleguide-sample .sg-title {
+    margin: var(--space-6, 24px) 0 var(--space-3, 12px);
+    padding-top: var(--space-2, 8px);
+    border-top: 1px dashed #999;
+    color: #666;
+    font-size: 11px;
+    font-weight: normal;
+    letter-spacing: .1em;
+}
+
+/* 部品を横に並べる行。上下の中央でそろえ、高さの違いが見えるようにする */
+.styleguide-sample .sg-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2, 8px);
+    align-items: center;
+}
+
+/* 測った高さ */
+.styleguide-sample .sg-dim {
+    display: inline-block;
+    margin-inline: 2px 6px;
+    padding: 0 3px;
+    border-radius: 2px;
+    background: #ffe9a8;
+    color: #6b5200;
+    font: 10px/1.4 monospace;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* input-group の札は枠の中の最後に置く。札の前の部品の右の角を丸めたままにする */
+.styleguide-sample .input-group > .sg-dim {
+    align-self: center;
+    margin-left: var(--space-2, 8px);
+}
+
+.styleguide-sample .input-group:has(> .sg-dim) > :nth-last-child(2) {
+    border-top-right-radius: var(--control-radius, 3px);
+    border-bottom-right-radius: var(--control-radius, 3px);
+}
+
+/* 本文の 1 行の高さ（文字の大きさ × 行の高さ）。body で長さに決めて受け継がせる。
+   長さの変数として登録しないと、使う側の要素（文字の大きさが違うボタンなど）で 1lh が計算され、高さがそろわない */
+@property --line-box {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 18px;
+}
+
+.styleguide-sample {
+    --line-box: 1lh;
+}
+
+/* 本文の文字の大きさを切り替える（a=201 の「本文の文字の大きさ」。見本の中だけ）。
+   本番の書き方（:root の --font-size-base を body が読む）と同じ形で、--font-size-base だけを差し替える */
+.styleguide-sample.sg-font-12 { --font-size-base: 12px; }
+.styleguide-sample.sg-font-13 { --font-size-base: 13px; }
+.styleguide-sample.sg-font-14 { --font-size-base: 14px; }
+
+.styleguide-sample:is(.sg-font-12, .sg-font-13, .sg-font-14) {
+    font-size: var(--font-size-base);
+}
+
+/* 高さの比較の行。計算した高さ ＝ 本文の 1 行の高さ ＋ 上下の余白 4px × 2 ＋ 枠 1px × 2 を、4px の目盛りに切り上げる */
+.styleguide-sample .sg-size-calc {
+    --control-height: round(up, calc(var(--line-box) + 10px), 4px);
+}
+
+.styleguide-sample .sg-size-up {
+    --control-height: calc(round(up, calc(var(--line-box) + 10px), 4px) + 4px);
+}
+
+/* input[type=submit|button] は forms.css の決まりの外なので、比較の行では同じ高さに乗せる */
+.styleguide-sample :is(.sg-size-calc, .sg-size-up) :is(input[type="submit"], input[type="button"]) {
+    min-height: var(--control-height);
+    box-sizing: border-box;
+}
+
+.styleguide-sample .sg-size-caption {
+    margin: var(--space-3, 12px) 0 var(--space-1, 4px);
+    color: #666;
+    font-size: 11px;
+}
+
+/* 案の部品（決まりが決まったら共通の CSS へ移す）。行の部品: ラベルの列と欄の列の 2 列の格子。行と行の間は親の gap ではなく行の上下の余白で取り、区切りの線を引く */
+.form-row {
+    display: grid;
+    grid-template-columns: var(--form-label-width, 150px) minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-3);
+}
+
+.form-row + .form-row {
+    border-top: var(--border-width, 1px) solid var(--color-border-light, #e5e5e5);
+}
+
+/* ラベルは行の上の端に置く。上の余白を「入力欄の上の余白 ＋ 枠」にして、ラベルの文字と入力欄の中の文字の高さをそろえる。
+   右の列が何行に伸びても、ラベルは最初の入力欄の横にとどまる */
+.form-label {
+    align-self: start;
+    padding-top: calc(var(--control-padding-y, 4px) + var(--border-width, 1px));
+    font-weight: bold;
+}
+
+/* チェックボックス・ラジオの行は、選択肢の文字が入力欄の中の文字ではないので、上の余白を取らない */
+.form-row.is-check .form-label {
+    padding-top: 0;
+}
+
+.form-row.is-check .form-field {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+}
+
+/* 欄の列: 説明・欄・説明を縦に積む。間は 1 段 */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.form-text {
+    color: var(--color-text-muted, #666);
+    font-size: var(--font-size-sm, .875em);
+}
+
+/* 前に付く文字・欄・ボタンを 1 つの枠につなぐ。中の部品は同じ高さ（--control-height）になる */
+.input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.input-group > * {
+    margin: 0;
+}
+
+.input-group > * + * {
+    margin-left: calc(var(--border-width, 1px) * -1);
+}
+
+.input-group > :not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group > :not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    border: var(--border-width, 1px) solid var(--color-border-default, #ccc);
+    border-radius: var(--control-radius, 3px);
+    background: var(--color-section-bg, #f7f7f7);
+    color: var(--color-text-muted, #666);
+    white-space: nowrap;
+}
+
+
+/* 欄と、その後ろのボタン・説明のアイコンを横に並べる。縦の真ん中でそろえる */
+.field-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2, 8px);
+}
+
+/* アイコンだけのボタン（日付を消すなど）。枠と地を持たない */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}

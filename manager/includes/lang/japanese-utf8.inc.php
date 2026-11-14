@@ -1487,4 +1487,13 @@ return [
     "fb_unzip_failed" => '展開できませんでした: %s',
     "fb_unzip_done" => '%s 件のファイルを展開しました。',
     "fb_unzip_entry_failed" => '展開できなかったファイル:',
+    "styleguide_title" => 'スタイルガイド',
+    "styleguide_msg" => '管理画面の部品を並べた確認用の画面です。テーマを選んで、部品の見た目と寸法を確かめます。設定は変わりません。',
+    "styleguide_theme" => 'テーマ',
+    "styleguide_font" => '本文の文字の大きさ',
+    "styleguide_font_theme" => 'テーマのまま',
+    "styleguide_view" => '見え方',
+    "styleguide_view_current" => '今の見た目',
+    "styleguide_view_proposal" => '目盛りの案',
+    "styleguide_view_compare" => '並べて比べる',
 ];
