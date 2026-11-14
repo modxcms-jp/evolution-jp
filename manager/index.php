@@ -450,6 +450,7 @@ if (in_array(manager()->action, [
     117,
     127,
     200,
+    201,
     31,
     40,
     91,
@@ -692,6 +693,12 @@ switch (manager()->action) {
     case 200: // show phpInfo
         include_once($action_path . 'report/phpinfo.static.php');
         break;
+    case 201: // スタイルガイド（部品の見本を並べる確認用の画面）
+        include_once($action_path . 'report/styleguide.static.php');
+        break;
+    case 202: // スタイルガイドの見本の本体（iframe の中。header を通さず完全な HTML を返す）
+        include_once($action_path . 'report/styleguide_sample.static.php');
+        exit;
         // file manager
     case 31: // get the page to manage files
         include_once($action_path . 'element/file_manager.static.php');
