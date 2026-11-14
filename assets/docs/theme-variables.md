@@ -187,11 +187,23 @@
 
 ## タブ
 
-タブ（tabpane.js の部品 `.dynamic-tab-pane-control`）の重なりと並び（`position`・`z-index`・`white-space`・`cursor` など）は、`manager/media/style/common/tabs.css`（`@layer evo-components`）が決める。形（角・枠・地・余白・文字色）はテーマの規則で決める。同梱テーマには、丸い錠剤の形（AromaHop・SakuraFlow）と、上だけ角丸のフォルダの見出しの形（ほかのテーマ）がある。
+タブ（tabpane.js の部品 `.dynamic-tab-pane-control`）は、`manager/media/style/common/tabs.css`（`@layer evo-components`）が描く。並び（折り返す `flex`）・重なり・文字の大きさ（`1em`）・誤りの印の太さは全テーマ共通。型と色は、テーマが `:root` で下の変数の値を決め、タブの規則を書かない。同梱テーマには、上だけ角丸のフォルダの見出しの型（RevoClassic・RevoStyle・RubberWhite・SoftSlate）、下線の型（AuroraFlow）、丸い錠剤の型（AromaHop・SakuraFlow）がある。一部のテーマにしかない飾り（SakuraFlow の本体のすりガラス）は、テーマの規則に書く。
+
+フォルダの見出しの型は、タブを `--tab-top` で下へずらし、本体を `--tab-page-top` で上へずらして、選んでいるタブと本体の枠をつなげる（[theme-spacing.md](theme-spacing.md) の「例外」）。下線の型は、タブ列の下線（`--tab-row-border`）を本体の上辺にする。錠剤の型は、タブ列と本体の間を `--tab-row-gap` で空ける。
 
 | 変数 | 意味 | 既定値（tabs.css） |
 | --- | --- | --- |
-| `--tab-page-padding` | タブの中（`.tab-page`）の内側の余白。`.sectionBody` の中か外かに関係なく、この値になる | `16px 16px 20px` |
+| `--tab-row-gap` / `--tab-row-border` | タブ列の下の間・下線 | `0` / なし |
+| `--tab-top` / `--tab-margin` / `--tab-padding` | タブを下へずらす量・外側の余白・内側の余白 | `1px` / `4px 4px 1px 0` / `8px 12px` |
+| `--tab-border-width` / `--tab-border-color` / `--tab-radius` | タブの枠の太さ（下線の型は `0 0 2px`、錠剤の型は `0`）・枠の色・角 | `1px` / `--color-secondary-border` / `8px 8px 0 0` |
+| `--tab-bg` / `--tab-color` / `--tab-font-weight` / `--tab-text-shadow` | タブの地・文字の色・太さ・文字の影 | `--color-secondary-start` / `--color-secondary-text` / `normal` / なし |
+| `--tab-hover-bg` / `--tab-hover-color` / `--tab-hover-border-color` | 乗せたときの地・文字の色・枠の色 | `--color-secondary-hover-start` から `-end` へのグラデーション / `--color-secondary-hover-text` / `--tab-border-color` |
+| `--tab-selected-bg` / `--tab-selected-color` / `--tab-selected-border-width` / `--tab-selected-border-color` / `--tab-selected-font-weight` / `--tab-selected-shadow` | 選んでいるタブの地・文字の色・枠の太さ・枠の色・太さ・影 | `--color-surface` / `--gray-900` / `--tab-border-width` / `--color-primary-hover-end #b7c2c7 --color-surface #b7c2c7` / `--tab-font-weight` / なし |
+| `--tab-selected-hover-bg` / `--tab-selected-hover-color` / `--tab-selected-hover-border-color` | 選んでいるタブに乗せたとき | 選んでいるときと同じ |
+| `--tab-alert-color` / `--tab-selected-alert-color` | 入力に誤りがあるタブの印の色 | `--color-error-light` / `--tab-alert-color` |
+| `--tab-page-top` / `--tab-page-padding` / `--tab-page-bg` / `--tab-page-border` / `--tab-page-radius` / `--tab-page-shadow` | 本体（`.tab-page`）を上へずらす量・内側の余白（`.sectionBody` の中か外かに関係なく、この値）・地・枠・角・影 | `-4px` / `16px 16px 20px` / `--color-surface` / なし / `0` / なし |
+
+既定値は RevoClassic の値。
 
 ## 表・一覧
 

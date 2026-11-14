@@ -198,7 +198,6 @@
     --section-legend-radius: var(--radius-md);
 
     /* タブ（common/tabs.css が読む） */
-    --tab-page-padding: 15px 15px 20px;
 
     /* 表・一覧（common/tables.css） */
     --grid-cell-padding: 3px 5px;
@@ -224,6 +223,25 @@
     --tree-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
     --tree-node-hover-border-color: var(--gray-400);
     --tree-floater-border-color: var(--gray-400);
+
+    /* タブ（common/tabs.css） */
+    --tab-margin: 3px 4px 1px 0;
+    --tab-padding: 3px 10px;
+    --tab-border-color: var(--color-primary-end);
+    --tab-radius: 5px 5px 0 0;
+    --tab-bg: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+    --tab-color: #fff;
+    --tab-text-shadow: 0 -1px 0 #2B5F0C;
+    --tab-hover-bg: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
+    --tab-hover-color: #fff;
+    --tab-hover-border-color: var(--color-primary-end);
+    --tab-selected-border-width: 1px 1px 0;
+    --tab-selected-border-color: #ffcc72 #AAA #FFF #AAA;
+    --tab-selected-color: #111;
+    --tab-alert-color: #ffcc72;
+    --tab-selected-alert-color: #c00;
+    --tab-page-top: -2px;
+    --tab-page-padding: 20px 15px 14px;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -632,83 +650,6 @@ a.hometblink:hover {
     text-align: left;
     color: #555;
     font-size: 1.2em;
-}
-
-/* ============================================================================
-   10. Tabs System (Dynamic Tab Pane)
-   Used in: Tabbed interfaces, multi-panel views
-   ============================================================================ */
-.dynamic-tab-pane-control.tab-pane {
-    position: relative;
-    width: 100%;
-}
-
-.dynamic-tab-pane-control .tab-row .tab {
-    color: #313131;
-    font-size: 1em;
-    cursor: pointer;
-    display: inline;
-    margin: 3px 2px 1px 0;
-    float: left;
-    padding: 3px 10px;
-    z-index: 1;
-    position: relative;
-    top: 1px;
-    border: 1px solid var(--color-primary-end);
-    text-shadow: 0px -1px 0px #2B5F0C;
-    border-radius: 5px 5px 0 0;
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    text-decoration: none;
-    background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: #333;
-    z-index: 999;
-    top: 1px;
-    border-width: 1px;
-    border-bottom-style: solid;
-    border-color: #ffcc72 #AAA #FFF #AAA;
-    border-radius: 5px 5px 0 0;
-    border-width: 1px 1px 0;
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: #111;
-    background-color: var(--color-surface);
-    text-shadow: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: #fff;
-    text-decoration: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #ffcc72;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #c00;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    clear: both;
-    background: var(--color-surface);
-    z-index: 2;
-    position: relative;
-    top: -2px;
-    padding: 20px 15px 14px !important;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    z-index: 1;
-    white-space: nowrap;
 }
 
 /* -------------------------[ Tree buttons ]--- */

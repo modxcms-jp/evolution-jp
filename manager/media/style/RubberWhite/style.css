@@ -292,6 +292,25 @@
     --tree-empty-color: var(--color-text-muted);
     --tree-not-in-menu-color: var(--color-text-tertiary);
     --tree-floater-border-color: var(--color-border-default);
+
+    /* タブ（common/tabs.css） */
+    --tab-margin: 3px 4px 1px 0;
+    --tab-border-color: transparent;
+    --tab-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --tab-bg: #f1f3f5;
+    --tab-color: #5c6670;
+    --tab-font-weight: 500;
+    --tab-hover-border-color: transparent;
+    --tab-hover-bg: #e9ecef;
+    --tab-selected-border-width: 2px 1px 0;
+    --tab-selected-border-color: var(--accent-blue) var(--clean-border) var(--color-surface) var(--clean-border);
+    --tab-selected-color: var(--color-gray-950);
+    --tab-selected-font-weight: 600;
+    --tab-selected-hover-border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
+    --tab-page-top: -2px;
+    --tab-page-border: 1px solid var(--clean-border);
+    --tab-page-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+    --tab-page-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -707,85 +726,6 @@ a.hometblink:hover {
    Used in: Document editor, settings, multi-section forms
    ============================================================================ */
 
-.dynamic-tab-pane-control.tab-pane {
-    margin-bottom: var(--space-3);
-}
-
-.dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-secondary-text);
-    font-size: 1em;
-    display: inline;
-    margin: 3px 2px 1px 0;
-    padding: 8px 16px;
-    top: 1px;
-    border: 1px solid var(--color-secondary-border);
-    border-radius: 5px 5px 0 0;
-    background-color: var(--color-secondary-start);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    color: var(--color-secondary-hover-text);
-    border-color: var(--color-secondary-border);
-    background-color: var(--color-secondary-hover-start);
-    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-text-primary);
-    z-index: 999;
-    top: 1px;
-    border-width: 1px;
-    border-bottom-style: solid;
-    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
-    border-radius: 5px 5px 0 0;
-    border-width: 1px 1px 0;
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-gray-950);
-    background-color: var(--color-surface);
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-text-primary);
-    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: var(--color-gray-950);
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: var(--color-error-light);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: var(--color-error-light);
-}
-
-.dynamic-tab-pane-control .tab-page {
-    background: var(--color-surface);
-    top: -2px;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    /* タブが増えても折り返して、段違いにならないようにする */
-    display: flex;
-    flex-wrap: wrap;
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: block;
@@ -978,45 +918,9 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     --supplemental-nav-link-hover-color: var(--clean-nav-text);
 }
 
-/* タブデザイン。未選択はごく薄いグレーの面だけにして枠を消し、選択中の白い面が中身へつながって見えるようにする */
-.dynamic-tab-pane-control .tab-row .tab {
-    background: #f1f3f5;
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
-    color: #5c6670;
-    font-weight: 500;
-    padding: 10px var(--space-4);
-    transition: all 0.2s ease;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    background: #e9ecef;
-    color: var(--light-text-primary);
-    border-color: transparent;
-}
-
 .dynamic-tab-pane-control .tab-row .tab:focus-visible {
     outline: 2px solid var(--accent-blue);
     outline-offset: -2px;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    background: var(--color-surface);
-    border-color: var(--clean-border) var(--clean-border) var(--color-surface) var(--clean-border);
-    border-top: 2px solid var(--accent-blue);
-    border-bottom: none;
-    color: var(--light-text-primary);
-    font-weight: 600;
-    position: relative;
-    z-index: 10;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    background: var(--color-surface);
-    border: 1px solid var(--clean-border);
-    border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */

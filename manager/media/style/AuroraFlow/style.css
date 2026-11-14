@@ -229,6 +229,26 @@
     --tree-not-in-menu-color: var(--gray-700);
     --tree-floater-border-color: var(--gray-400);
     --tree-pane-border: 1px solid var(--color-card-border);
+
+    /* タブ（common/tabs.css） */
+    --tab-row-border: 1px solid var(--color-card-border);
+    --tab-top: 0;
+    --tab-margin: 0 4px -1px 0;
+    --tab-border-width: 0 0 2px;
+    --tab-border-color: transparent;
+    --tab-radius: var(--radius-md) var(--radius-md) 0 0;
+    --tab-bg: transparent;
+    --tab-color: var(--color-text-muted);
+    --tab-hover-border-color: #c5d3de;
+    --tab-hover-bg: var(--color-accent-soft);
+    --tab-selected-border-color: var(--color-accent);
+    --tab-selected-bg: transparent;
+    --tab-selected-color: var(--color-primary-start);
+    --tab-selected-font-weight: 600;
+    --tab-selected-hover-bg: var(--color-accent-soft);
+    --tab-alert-color: #c00;
+    --tab-page-top: 0;
+    --tab-page-shadow: var(--shadow-card);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -700,94 +720,9 @@ a.hometblink:hover {
    Used in: Document editor, settings pages, multi-tab interfaces
    ============================================================================ */
 
-.dynamic-tab-pane-control.tab-pane {
-    margin-bottom: var(--space-3);
-}
-
-/* タブ。箱と枠をやめたフラットな見出しにし、選択中は青い下線で示す。
-   タブ列の下線(.tab-row の border-bottom)に、選択中の下線を 1px 重ねる */
-.dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-text-muted);
-    font-size: 1em;
-    display: inline;
-    margin: 0 var(--space-1) -1px 0;
-    padding: 10px var(--space-3) 9px;
-    top: 0;
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: transparent;
-    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    color: var(--color-heading);
-    border-bottom-color: #c5d3de;
-    background-color: var(--color-accent-soft);
-    background-image: none;
-}
-
 .dynamic-tab-pane-control .tab-row .tab:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: -2px;
-}
-
-/* 選択中は青い下線に加え、文字を少し太い濃紺にする */
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-primary-start);
-    font-weight: 600;
-    z-index: 999;
-    top: 0;
-    border-bottom-color: var(--color-accent);
-    background-color: transparent;
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: inherit;
-    background-color: transparent;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-primary-start);
-    border-bottom-color: var(--color-accent);
-    background-color: var(--color-accent-soft);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #c00;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #c00;
-}
-
-/* タブの中身。タブ列の下線を上辺とする白いカードにし、ごく薄い影で背景から浮かせる */
-.dynamic-tab-pane-control .tab-page {
-    background: var(--color-surface);
-    top: 0;
-    border-top: none;
-    box-shadow: var(--shadow-card);
-}
-
-.dynamic-tab-pane-control .tab-row {
-    /* タブを折り返して並べ、下線をタブの下に引く */
-    display: flex;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--color-card-border);
 }
 
 /* -------------------------[ Tree buttons ]--- */
