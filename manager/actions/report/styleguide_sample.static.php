@@ -235,12 +235,11 @@ $font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
             <div class="form-row">
                 <label class="form-label" for="rb_base_dir">ファイルの置き場所</label>
                 <div class="form-field">
-                    <div class="form-text">既定値 [(base_path)]content/ (/var/www/html/content/)</div>
                     <div class="input-group">
                         <input type="text" name="rb_base_dir" value="[(base_path)]content/" maxlength="255" id="rb_base_dir" />
                         <button type="button" class="button">リセット</button>
                     </div>
-                    <div class="form-text">ファイルブラウザで扱うファイルを置く場所です。サーバーの中の位置で書きます。</div>
+                    <div class="form-text">ファイルブラウザで扱うファイルを置く場所です。サーバーの中の位置で書きます。<br>既定値: [(base_path)]content/ (/var/www/html/content/)</div>
                 </div>
             </div>
             <div class="form-row">
@@ -251,6 +250,19 @@ $font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
                         <input type="text" name="rb_base_url" value="content/" maxlength="255" id="rb_base_url" />
                     </div>
                     <div class="form-text">上の置き場所を、ブラウザから開くときの URL です。</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_site_name">サイト名</label>
+                <div class="form-field">
+                    <input type="text" id="sg_site_name" value="My MODX Site" />
+                </div>
+            </div>
+            <div class="form-row is-check">
+                <span class="form-label">サイトの状態</span>
+                <div class="form-field">
+                    <label><input type="radio" name="sg-status2" checked> 公開</label>
+                    <label><input type="radio" name="sg-status2"> 非公開</label>
                 </div>
             </div>
         <?php } ?>
@@ -342,7 +354,11 @@ $font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
             const badge = document.createElement('span');
             badge.className = 'sg-dim';
             badge.textContent = Math.round(el.getBoundingClientRect().height) + 'px';
-            el.after(badge);
+            if (el.classList.contains('input-group')) {
+                el.append(badge);
+            } else {
+                el.after(badge);
+            }
         });
     });
 </script>
