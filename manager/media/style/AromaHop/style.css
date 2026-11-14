@@ -322,79 +322,25 @@
     --section-h3-color: var(--color-text-dark);
     --section-body-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.7), 0 8px 32px rgba(90, 154, 94, 0.06);
     --section-box-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.4) 0%, transparent 2px), rgba(253, 253, 251, 0.78);
+
+    /* 素の要素（common/theme-base.css） */
+    --body-line-height: 1.6;
+    --list-marker-image: none;
+    --hr-color: var(--gray-700);
+    --thead-color: #3A6A40;
+    --thead-bg: linear-gradient(180deg, rgba(234, 252, 207, 0.6) 0%, rgba(223, 245, 215, 0.5) 100%);
+    --thead-td-border-color: rgba(255, 255, 255, 0.4);
+    --page-bg: linear-gradient(180deg, #DFF5D7 0%, #E5F7DE 10%, #EBF9E5 20%, #F2FBEF 35%, #F7FCF5 50%, #FBFDFB 70%, #FDFDFB 85%, #ffffff 100%);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
 @layer evo-base {
-    body {
-        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-        font-size: var(--font-size-base);
-        height: 100%;
-        line-height: 1.6;
-        color: var(--color-text-primary);
-        background:
-            linear-gradient(180deg,
-                #DFF5D7 0%,
-                #E5F7DE 10%,
-                #EBF9E5 20%,
-                #F2FBEF 35%,
-                #F7FCF5 50%,
-                #FBFDFB 70%,
-                #FDFDFB 85%,
-                #ffffff 100%);
-        background-attachment: fixed;
-    }
-
-    img {
-        border: 0;
-        text-decoration: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    li, dd, blockquote {
-        margin: 0 0 0 1em;
-    }
-
     h2 {
         font-size: 1.4em;
         font-weight: 600;
         color: #3a5845;
         margin: 0 0 var(--space-4);
         padding: 0;
-    }
-
-    hr {
-        color: var(--gray-700);
-        background-color: var(--gray-700);
-        height: 1px;
-        border: 0;
-    }
-
-    input, select, textarea, option, optgroup, td {
-        color: inherit;
-    }
-
-    optgroup {
-        font-style: normal;
-        font-weight: bold;
-        background-color: var(--gray-300);
-    }
-
-    thead {
-        color: #3A6A40;
-        height: 18px;
-        background: linear-gradient(180deg, rgba(234, 252, 207, 0.6) 0%, rgba(223, 245, 215, 0.5) 100%);
-    }
-
-    li {
-        padding: 0;
-        margin: 0;
-        list-style: disc;
-    }
-
-    ul {
-        margin: 0 var(--space-5) 0 var(--space-5);
     }
 }
 
@@ -517,28 +463,12 @@ body#mainpane {
     background-attachment: fixed;
 }
 
-a img {
-    border: 0;
-    text-decoration: none;
-    padding: 0;
-    margin: 0;
-}
-
 /* ============================================================================
    3. Utility Classes
    Used in: Various components for common patterns
    ============================================================================ */
 
 /* -------------------------[ Miscellaneous conveniences ]--- */
-
-/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
-@layer evo-base {
-    button {
-        font: inherit;
-        margin: 0 5px 0 0;
-        cursor: pointer;
-    }
-}
 
 .split {
   display:none;
@@ -562,11 +492,6 @@ a img {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-optgroup option {
-    font-weight: normal;
-    background-color: var(--color-surface);
 }
 
 input.button,
@@ -714,11 +639,6 @@ input[type="radio"]:disabled::after {
     background: linear-gradient(135deg, rgba(252, 254, 252, 0.98) 0%, rgba(242, 250, 245, 0.95) 100%);
     border: 1px solid rgba(160, 195, 175, 0.4);
     color: var(--color-text-dark);
-}
-
-thead td {
-    color: #3A6A40;
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 li::marker {
