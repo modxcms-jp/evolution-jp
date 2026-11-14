@@ -172,9 +172,7 @@
     /* Layout - Topnav */
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 28px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 10px;
 
     /* Border Radius */
     --radius-sm: 3px;
@@ -1197,117 +1195,22 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 /* トップメニュー全体 */
 #topMenu {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-#Navcontainer {
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
-    color: var(--clean-nav-text);
-}
-
-/* メインナビゲーション */
-#nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: 8px;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 20px;
-    text-decoration: none;
-    white-space: nowrap;
-    color: var(--clean-nav-text);
-    border: none;
-    border-radius: var(--radius-md);
-    background: transparent;
-    transition: all 0.2s ease;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--clean-nav-text);
-    background: var(--clean-nav-bg-hover);
-    border: none;
-}
-
-#nav > li.active > a {
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
-    color: var(--clean-nav-text);
-    background: var(--clean-nav-bg-active);
-    border: none;
-    font-weight: 700;
-}
-
-/* サブナビゲーション */
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    inset-inline: 0;
-    margin: var(--radius-md) 0 0 0;
-    list-style: none;
-    padding: 4px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: var(--radius-md);
-    z-index: 1;
-    box-shadow: none;
-    background: var(--clean-subnav-bg);
-    border-bottom: 1px solid var(--light-border);
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    cursor: pointer;
-    display: block;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    color: var(--clean-nav-text);
-    font-weight: 500;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: var(--color-surface);
-    color: var(--clean-nav-text);
-}
-
-#nav > li > ul.subnav a:active {
-    color: var(--accent-blue-hover);
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    background: var(--color-surface);
-    font-weight: 700;
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-link-color: var(--clean-nav-text);
+    --topnav-link-hover-color: var(--clean-nav-text);
+    --topnav-item-radius: var(--radius-md);
+    --topnav-link-hover-bg: var(--clean-nav-bg-hover);
+    --topnav-link-hover-border-color: transparent;
+    --topnav-link-active-bg: var(--clean-nav-bg-active);
+    --topnav-link-active-border-color: transparent;
+    --topnav-link-active-font-weight: 700;
+    --topnav-subnav-bg: var(--clean-subnav-bg);
+    --topnav-subnav-border-color: transparent var(--light-border);
+    --topnav-sublink-color: var(--clean-nav-text);
+    --topnav-sublink-font-weight: 500;
+    --topnav-sublink-radius: var(--radius-md);
+    --topnav-sublink-hover-bg: var(--color-surface);
+    --topnav-sublink-pressed-color: var(--accent-blue-hover);
 }
 
 /* 補助ナビゲーション（右上） */
