@@ -1347,62 +1347,6 @@ body.evo-shell #evoShellModalFooter #actions {
     padding-bottom: 0;
 }
 
-/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
-   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
-   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
-   これより詳細度が高いもの（id セレクタを使う規則など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
-   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
-#mainPane > :last-child,
-:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
-    margin-bottom: 0;
-}
-
-/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
-.tab-page > :has(+ .sectionHeader) {
-    margin-bottom: var(--space-3);
-}
-
-/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
-   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
-.sectionBody > :is(div, table, fieldset) {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
-.resources-topic-path {
-    margin-bottom: var(--space-3);
-}
-
-/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
-.system-log-toolbar,
-.system-log-summary {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
-   表 → 下のページ送りの間も、同じ規則（:is(.sectionBody, .tab-page, form) > :has(+ .pagination)）で作る。上のページ送りの前の段落なども同じ。:has 非対応のブラウザでは捨てられる */
-form > :has(+ .resources-batch-actions),
-:is(.sectionBody, .tab-page, form) > :has(+ .pagination) {
-    margin-bottom: var(--space-3);
-}
-
-/* 画面から直書きを消した分の間。画面は余白を書かず、前のブロックの margin-bottom と class で決まりを受ける。
-   :has を使う規則は別の規則に分け、:has 非対応のブラウザで一緒に捨てられないようにする */
-/* 操作ボタン列の前（バックアップ・エクスポート・テンプレートの TV の一覧など） */
-:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
-    margin-bottom: var(--space-3);
-}
-
-/* コード欄（帯とテキスト欄の入れ物）の前（テンプレート・スニペット・チャンク・モジュール・プラグイン） */
-:is(.sectionBody, .tab-page, form) > :has(+ .code-editor) {
-    margin-bottom: var(--space-3);
-}
-
-/* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
-.tab-pane > ul.actionButtons {
-    margin-top: var(--space-3);
-}
-
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
     padding: 2px var(--space-1);

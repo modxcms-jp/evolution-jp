@@ -1,0 +1,50 @@
+/*
+ * 縦の余白の決まり（assets/docs/theme-spacing.md）。ブロックの間は上のブロックの margin-bottom で作り、入れ物の最後の子の下は 0 にする。
+ * 同じ詳細度のテーマの規則に勝つよう、層に入れず、テーマの後に読む（manager_theme_stylesheets()）。
+ * 間は 12px（RevoStyle も同じ間にするため、テーマの --space-3 ではなく値で書く）。
+ * :has() を使う規則は別の規則に分け、:has() に対応しないブラウザで一緒に捨てられないようにする。
+ */
+
+/* 入れ物の最後の子の下に、外側の margin を足さない */
+#mainPane > :last-child,
+:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
+    margin-bottom: 0;
+}
+
+/* タブの中で、表などの次に見出しの帯が続くときの間 */
+.tab-page > :has(+ .sectionHeader) {
+    margin-bottom: 12px;
+}
+
+/* 本体の直下のブロックの間（form は含めない。末尾の <style> の前では :last-child に当たらないため） */
+.sectionBody > :is(div, table, fieldset) {
+    margin-bottom: 12px;
+}
+
+/* サブリソース一覧のパンくず、システムログの検索フォームと概要の下 */
+.resources-topic-path,
+.system-log-toolbar,
+.system-log-summary {
+    margin-bottom: 12px;
+}
+
+/* サブリソース一覧の移動のボタンの前、ページ送りの前 */
+form > :has(+ .resources-batch-actions),
+:is(.sectionBody, .tab-page, form) > :has(+ .pagination) {
+    margin-bottom: 12px;
+}
+
+/* 操作ボタン列の前 */
+:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
+    margin-bottom: 12px;
+}
+
+/* コード欄の前 */
+:is(.sectionBody, .tab-page, form) > :has(+ .code-editor) {
+    margin-bottom: 12px;
+}
+
+/* タブの組の直後の操作ボタン列（最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない） */
+.tab-pane > ul.actionButtons {
+    margin-top: 12px;
+}
