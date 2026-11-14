@@ -202,6 +202,7 @@
 | `--tab-selected-hover-bg` / `--tab-selected-hover-color` / `--tab-selected-hover-border-color` | 選んでいるタブに乗せたとき | 選んでいるときと同じ |
 | `--tab-alert-color` / `--tab-selected-alert-color` | 入力に誤りがあるタブの印の色 | `--color-error-light` / `--tab-alert-color` |
 | `--tab-page-top` / `--tab-page-padding` / `--tab-page-bg` / `--tab-page-border` / `--tab-page-radius` / `--tab-page-shadow` | 本体（`.tab-page`）を上へずらす量・内側の余白（`.sectionBody` の中か外かに関係なく、この値）・地・枠・角・影 | `-4px` / `16px 16px 20px` / `--color-surface` / なし / `0` / なし |
+| `--tab-page-border-top` | 本体の上の枠。下線の型は、タブ列の下線を上の辺にするので `none` にする | `--tab-page-border` |
 
 既定値は RevoClassic の値。
 
