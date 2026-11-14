@@ -1,0 +1,120 @@
+/*
+ * 管理画面の表・一覧（.grid）とページ送り（.pagination）、コード欄の見出し（.code-editor-header）の共通の決まり。
+ * 値はテーマが :root の変数で決める（無ければ既定値。既定値は RevoClassic の値）。決まりと変数の一覧は assets/docs/theme-variables.md。
+ * 余白は値で書く（RevoStyle は --space-* の値が違う）。
+ */
+@layer evo-components {
+    .grid {
+        width: 100%;
+        background-color: var(--grid-bg, var(--color-surface, #fff));
+        border: var(--grid-border, 1px solid silver);
+    }
+
+    .grid a {
+        text-decoration: none;
+    }
+
+    .grid img {
+        vertical-align: middle;
+    }
+
+    .grid th,
+    .grid td {
+        padding: var(--grid-cell-padding, 8px);
+    }
+
+    .gridHeader,
+    .grid th {
+        color: var(--color-grid-header-text, var(--gray-900, #333));
+        font-weight: var(--grid-header-weight, bold);
+        white-space: nowrap;
+        background: var(--grid-header-bg, #d2d2d2);
+        text-align: left;
+    }
+
+    /* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
+    .grid th[aria-sort] a::after {
+        margin-left: 4px;
+        font-size: 0.7em;
+        color: var(--color-primary, #375665);
+    }
+
+    .grid th[aria-sort="ascending"] a::after {
+        content: "\25B2";
+        content: "\25B2" / "";
+    }
+
+    .grid th[aria-sort="descending"] a::after {
+        content: "\25BC";
+        content: "\25BC" / "";
+    }
+
+    .gridItem {
+        background-color: var(--grid-bg, var(--color-surface, #fff));
+    }
+
+    .gridAltItem {
+        background-color: var(--grid-alt-bg, #eeeeee);
+    }
+
+    .gridRowIcon:hover {
+        background-color: var(--grid-hover-bg, #f5f5dc);
+    }
+
+    .pagination {
+        margin-top: 0;
+        margin-bottom: 12px;
+    }
+
+    .pagination ul {
+        margin: 0;
+        display: inline;
+    }
+
+    .pagination li {
+        list-style: none;
+        display: inline;
+        width: 15px;
+        margin: 0 0 0 1px;
+        padding: 0;
+    }
+
+    .pagination li a,
+    .pagination li span {
+        padding: 3px 8px;
+        border: 1px solid var(--color-pagination-border, var(--color-row-highlight, #D9E7C2));
+        background: var(--pagination-bg, none);
+        text-decoration: none;
+        color: var(--color-pagination-text, var(--gray-900, #333));
+    }
+
+    .pagination li span {
+        color: var(--color-pagination-disabled, var(--color-row-highlight, #D9E7C2));
+        cursor: default;
+    }
+
+    .pagination a[aria-current="page"],
+    .pagination li a:hover {
+        color: var(--color-pagination-active-text, var(--color-surface, #fff));
+        background: var(--pagination-active-bg, #7fa53d);
+        border: 1px solid var(--color-pagination-active-border, #567959);
+    }
+
+    .table-name {
+        color: #009933;
+    }
+
+    .code-editor-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 4px 8px;
+        background-color: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
+        border: 1px solid var(--color-border-default, #ccc);
+        border-bottom: none;
+    }
+
+    .code-editor-options {
+        color: var(--color-text-muted, #606060);
+    }
+}

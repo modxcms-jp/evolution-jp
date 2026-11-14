@@ -247,6 +247,19 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: 15px 15px 20px;
+
+    /* 表・一覧（common/tables.css） */
+    --grid-border: 1px solid var(--light-border);
+    --grid-cell-padding: var(--space-2) var(--space-4);
+    --color-grid-header-text: var(--color-text-primary);
+    --grid-header-weight: 600;
+    --grid-header-bg: linear-gradient(180deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
+    --grid-alt-bg: var(--color-gray-100);
+    --grid-hover-bg: var(--color-table-hover);
+    --color-pagination-text: var(--color-text-primary);
+    --color-pagination-disabled: var(--color-pagination-border);
+    --color-pagination-active-text: var(--color-text-inverse);
+    --pagination-active-bg: var(--color-pagination-active-bg);
 }
 
 /* ============================================================================
@@ -816,9 +829,6 @@ ul {
 
 /* -------------------------[ grid style ]--- */
 .grid {
-    width: 100%;
-    background-color: var(--color-surface);
-    border: 1px solid var(--light-border);
     border-radius: var(--radius-lg);
     border-collapse: separate;
     border-spacing: 0;
@@ -827,7 +837,6 @@ ul {
 }
 
 .grid th, .grid td {
-    padding: var(--space-2) var(--space-4);
     border-bottom: 1px solid var(--color-border-lighter);
 }
 
@@ -836,11 +845,6 @@ ul {
 }
 
 .gridHeader, .grid th {
-    color: var(--color-text-primary);
-    font-weight: 600;
-    white-space: nowrap;
-    background: linear-gradient(180deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
-    text-align: left;
     border-bottom: 2px solid var(--color-gray-300);
     font-size: 0.9rem;
     letter-spacing: 0.02em;
@@ -854,26 +858,7 @@ ul {
     border-top-right-radius: var(--radius-lg);
 }
 
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
 .gridItem {
-    background-color: var(--color-surface);
-    padding: var(--space-1);
     transition: background-color var(--transition-fast);
 }
 
@@ -882,8 +867,6 @@ ul {
 }
 
 .gridAltItem {
-    background-color: var(--color-gray-100);
-    padding: var(--space-1);
     transition: background-color var(--transition-fast);
 }
 
@@ -891,12 +874,7 @@ ul {
     background-color: var(--color-gray-50);
 }
 
-.gridRowIcon:hover {
-    background-color: var(--color-table-hover);
-}
-
 .grid a {
-    text-decoration: none;
     color: var(--color-text-primary);
     transition: color var(--transition-fast);
 }
@@ -906,7 +884,6 @@ ul {
 }
 
 .grid img {
-    vertical-align: middle;
     padding-inline-end: 6px;
 }
 
@@ -967,11 +944,6 @@ ul {
 /* Private access indicator */
 .access-private {
     color: var(--color-error);
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
 }
 
 /* Database overhead warning */
@@ -1241,43 +1213,6 @@ a.hometblink:hover {
     margin: 10px 0;
 }
 
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
-.pagination li a,
-.pagination li span {
-    padding: 3px var(--space-2);
-    border: 1px solid var(--color-pagination-border);
-    text-decoration: none;
-    color: var(--color-text-primary);
-}
-
-.pagination li span {
-    color: var(--color-pagination-border);
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: var(--color-text-inverse);
-    background-color: var(--color-pagination-active-bg);
-    border: 1px solid var(--color-pagination-active-border);
-}
-
 fieldset.tab-page {
     border: 1px solid var(--color-border-lighter) !important;
 }
@@ -1480,17 +1415,6 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
     background-image: url(../common/images/misc/date-icon-focus.png);
     cursor: text;
-}
-
-/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
 }
 
 .code-editor-options {
