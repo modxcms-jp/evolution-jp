@@ -130,7 +130,7 @@
         font-weight: bold;
     }
 
-    /* 右上のユーザー情報（menu.php の #topbar・#supplementalNav）。上のメニューの項目と同じ高さで、右端にそろえる */
+    /* 右上のユーザー情報（menu.php の #topbar・#supplementalNav）。上のメニューの項目の段に置き、右端にそろえる */
     #topbar {
         position: relative;
         margin: 0;
@@ -140,7 +140,8 @@
 
     #supplementalNav {
         position: absolute;
-        top: var(--topnav-padding-top, 12px);
+        /* 項目より 4px 上に置き、下のサブメニューの帯との間を空ける */
+        top: calc(var(--topnav-padding-top, 12px) - 4px);
         inset-inline-end: 16px;
         z-index: 111;
         display: flex;
