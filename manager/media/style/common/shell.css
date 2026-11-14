@@ -98,6 +98,21 @@ body.evo-shell #treeRoot {
     margin-top: var(--space-1, 4px);
 }
 
+/* ツリーの字下げ。子の項目は親の .tree-children の中に入るので、入れ物の余白が深さの分だけ重なる。
+   ＋－の無い行（ページ・続きを読む・空のフォルダ）は、＋－の画像（幅 18px、テーマの #treeRoot div img の margin -6px）と
+   後ろの空白の分だけ右に寄せ、フォルダのアイコンと揃える */
+#treeRoot .tree-row {
+    padding-inline-start: 0.83em;
+}
+
+#treeRoot .tree-row.is-leaf {
+    padding-inline-start: calc(0.83em + 12px + 0.278em);
+}
+
+#treeRoot .tree-children {
+    padding-inline-start: 1.39em;
+}
+
 /* ツリーの行のアイコン（押すと右クリックメニュー）。乗ったときに地を付ける */
 .tree-node-icon {
     cursor: pointer;
