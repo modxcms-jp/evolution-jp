@@ -118,7 +118,6 @@
     --color-draft-light: #F7FFDE;
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 36px;
     --control-padding-x: var(--space-2);
     --control-radius: var(--radius-sm);
     --control-border: 1px solid rgba(130, 200, 170, 0.4);
@@ -624,8 +623,7 @@ input:is([type="button"], [type="submit"]) {
     cursor: pointer;
     line-height: normal;
     margin: 0 0 0 var(--space-2);
-    min-height: 36px;
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-1) var(--space-4);
     overflow: visible;
     background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
     color: var(--color-text-primary);

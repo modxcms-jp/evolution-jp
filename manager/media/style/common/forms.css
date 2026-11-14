@@ -6,7 +6,22 @@
  */
 @layer evo-base, evo-components;
 
+/* 本文の 1 行の高さ（文字の大きさ × 行の高さ）。body で長さに決めて受け継がせる。
+   長さの変数として登録しないと、使う側の要素（文字の大きさが違うボタンなど）で 1lh が計算され、欄とボタンの高さがそろわない */
+@property --line-box {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 18px;
+}
+
 @layer evo-base {
+    /* 入力欄・セレクト・ボタンの高さ ＝ 本文の 1 行の高さ ＋ 上下の余白 × 2 ＋ 枠 × 2 を、4px の目盛りに切り上げる。
+       テーマは高さを決めず、本文の文字の大きさ（--font-size-base）と行の高さから決まる */
+    body {
+        --line-box: 1lh;
+        --control-height: round(up, calc(var(--line-box) + var(--control-padding-y, 4px) * 2 + 2px), 4px);
+    }
+
     /* 文字を入れる入力欄とセレクト。チェックボックス・ラジオ・ファイル・ボタンの類は除く */
     :where(
         input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
@@ -35,6 +50,12 @@
 
     :where(select) {
         cursor: pointer;
+    }
+
+    /* input[type=submit|button|reset] は、高さだけをほかの欄・ボタンにそろえる（見た目はテーマの規則） */
+    :where(input[type="submit"], input[type="button"], input[type="reset"]) {
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
     }
 
     :where(

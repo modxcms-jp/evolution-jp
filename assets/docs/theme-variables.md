@@ -77,7 +77,8 @@
 
 | 変数 | 意味 | 既定値（forms.css） |
 | --- | --- | --- |
-| `--control-height` | 入力欄・セレクト・ボタンの高さ（`min-height`）。並べたときにそろう | `32px` |
+| `--control-height` | 入力欄・セレクト・ボタン・`input[type=submit\|button\|reset]` の高さ（`min-height`）。テーマは決めない。forms.css が `body` で「本文の 1 行の高さ ＋ 上下の余白 × 2 ＋ 枠 2px」を 4px の目盛りに切り上げて決める（本文 12px・行の高さ 1.5 なら 28px） | 計算 |
+| `--control-padding-y` | 高さの計算に使う上下の余白 | `4px` |
 | `--control-padding-x` | 入力欄・セレクトの左右の余白 | `8px` |
 | `--control-radius` | 入力欄・セレクトの角 | `3px` |
 | `--control-border` | 入力欄・セレクトの枠（`border` の値） | `1px solid #999` |
@@ -97,7 +98,7 @@
 | `--button-primary-hover-bg` / `--button-primary-hover-border-color` / `--button-primary-hover-shadow` | 主ボタンをホバーしたとき | `--color-primary-hover-start` / 通常と同じ / 通常と同じ |
 | `--button-primary-active-bg` / `--button-primary-active-border-color` / `--button-primary-active-shadow` | 主ボタンを押したとき | `--color-primary-active-start` / 通常と同じ / 通常と同じ |
 
-`input[type=submit]`・`input[type=button]` は、まだこの決まりの外（テーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
+`input[type=submit]`・`input[type=button]` は、高さだけをこの決まりにそろえる（見た目はテーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
 
 ## セクション
 
