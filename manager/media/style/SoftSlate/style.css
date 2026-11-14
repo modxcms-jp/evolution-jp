@@ -259,6 +259,14 @@
 
     /* 編集画面のフォーム（common/forms.css） */
     --comment-color: #999;
+
+    /* セクション（common/sections.css） */
+    --section-header-border-bottom: 1px solid var(--color-frame-light);
+    --section-header-shadow: none;
+    --section-body-radius: var(--radius-lg);
+    --section-box-bg: var(--color-surface);
+    --section-joined-body-border-top: none;
+    --section-joined-body-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -400,60 +408,14 @@ input[type="button"] {
 
 /* -------------------------[ Misc stuff ]--- */
 
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-/* セクション見出し。グラデーションの帯をやめ、ごく薄い地色と下線で本文と区切る */
-.sectionHeader {
-    padding: 8px 16px;
-    border-bottom-color: var(--color-frame-light);
-    background: var(--color-section-header-end);
-    box-shadow: none;
-}
-
-.tab-page .sectionHeader {
-    margin: 0;
-}
-
 .rtl .sectionHeader {
     direction: rtl;
     padding: 5px 18px 5px 3px;
 }
 
-.sectionBody {
-    margin: 0 0 var(--space-3);
-}
-
-.tab-page .sectionBody,
-.section .sectionBody {
-    border-radius: var(--radius-lg);
-    box-shadow: none;
-    margin: 0 0 var(--space-3);
-}
-
-/* 見出しの直後は、見出しと一枚の枠にまとめる(二重線にしない) */
-.sectionHeader + .sectionBody {
-    border-top: none;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
 .rtl .sectionBody {
     direction: rtl;
     position: inherit;
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0;
-    background-color: var(--color-surface);
 }
 
 thead td {
