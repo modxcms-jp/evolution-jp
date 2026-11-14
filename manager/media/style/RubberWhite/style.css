@@ -12,7 +12,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -266,6 +266,21 @@
     --page-title-radius: var(--radius-lg);
     --page-title-padding: var(--space-3);
     --page-title-draft-bg: var(--color-draft-bg);
+
+    /* 右クリックメニュー（common/context-menu.css） */
+    --context-menu-border-color: var(--light-border);
+    --context-menu-radius: var(--radius-lg);
+    --context-menu-shadow: var(--shadow-lg);
+    --context-menu-title-bg: linear-gradient(180deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+    --context-menu-title-color: var(--color-text-inverse);
+    --context-menu-title-text-shadow: none;
+    --context-menu-item-color: var(--color-text-primary);
+    --context-menu-item-radius: var(--radius-md);
+    --context-menu-item-hover-bg: var(--color-gray-100);
+    --context-menu-item-hover-color: var(--color-link);
+    --context-menu-item-hover-border-color: transparent;
+    --context-menu-item-disabled-color: var(--color-text-muted);
+    --context-menu-separator: var(--color-context-menu-separator);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -658,7 +673,7 @@ thead td {
 }
 
 /* ============================================================================
-   8. Tree Components (Site Tree, Context Menu)
+   8. Tree Components (Site Tree)
    Used in: Resource tree, folder navigation, context menus
    ============================================================================ */
 
@@ -875,64 +890,6 @@ a.hometblink:hover {
     margin: 70px auto;
     padding: 50px;
     border: 1px solid var(--color-border-dark);
-}
-
-/* -------------------------[ contextmenu in editing modules ]--- */
-.contextMenu {
-    background: var(--color-surface);
-    margin: 0;
-    padding: var(--space-1);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: none;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.cntxMnuItem:hover {
-    background: var(--color-gray-100);
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: var(--space-2) var(--space-4);
-    color: var(--color-text-muted);
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: var(--color-text-primary);
-    background: var(--color-gray-200);
-    padding: var(--space-2) var(--space-4);
-    border: none;
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0;
-    margin-inline-end: var(--space-2);
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .5;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-gray-300), transparent);
-    overflow: hidden;
-    margin: var(--space-1) var(--space-2);
 }
 
 /* ============================================================================
@@ -1489,75 +1446,3 @@ div.treeframebody {
     background: transparent;
 }
 
-/* コンテキストメニューのスタイル改善 */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 180px;
-    margin: 0;
-    padding: var(--space-1);
-    overflow: hidden;
-    line-height: 1.4;
-    background: var(--color-surface);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-}
-
-#mx_contextmenu #nameHolder {
-    text-align: start;
-    cursor: default;
-    font-weight: 600;
-    padding: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-1);
-    background: linear-gradient(180deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
-    border-radius: var(--radius-md);
-    color: var(--color-text-inverse);
-    text-shadow: none;
-}
-
-#mx_contextmenu .menuLink {
-    display: block;
-    cursor: pointer;
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
-    transition: all var(--transition-fast);
-    color: var(--color-text-primary);
-}
-
-#mx_contextmenu .menuLink:hover {
-    cursor: pointer;
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-gray-100);
-    border: none;
-    color: var(--color-link);
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    padding: var(--space-2) var(--space-4);
-    color: var(--color-text-muted);
-    border-radius: var(--radius-md);
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-inline-end: var(--space-2);
-    vertical-align: middle;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .5;
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background-color: var(--color-context-menu-separator);
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
-}

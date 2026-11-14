@@ -60,7 +60,7 @@ class ContextMenu
         global $ContextMenuScript;
 
         $html = $ContextMenuScript .
-            "<div id='{$this->id}' class='contextMenu' style='width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
+            "<div id='{$this->id}' class='contextMenu' style='min-width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
         $ContextMenuScript = ""; // reset css
         return $html;
     }

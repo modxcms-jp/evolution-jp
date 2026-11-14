@@ -1171,6 +1171,7 @@ function manager_theme_stylesheets()
         'media/style/common/tabs.css',
         'media/style/common/tables.css',
         'media/style/common/action-buttons.css',
+        'media/style/common/context-menu.css',
         'media/style/' . evo()->config('manager_theme') . '/style.css',
         'media/style/common/spacing.css',
     ];

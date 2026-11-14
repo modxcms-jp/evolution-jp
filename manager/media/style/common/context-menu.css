@@ -1,0 +1,92 @@
+/*
+ * 右クリックメニュー。ツリーのメニュー（#mx_contextmenu、tree.php）と、一覧の操作メニュー（.contextMenu、controls/contextmenu.php）は同じ見た目にする。
+ * 幅・行の高さ・余白は全テーマ共通。地・枠・角・影・色はテーマが :root の --context-menu-* で決める（theme-variables.md の「右クリックメニュー」）。
+ * 既定値は RevoClassic の値。
+ */
+@layer evo-components {
+    :is(#mx_contextmenu, .contextMenu) {
+        position: absolute;
+        z-index: 10000;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 4px;
+        overflow: hidden;
+        border: 1px solid;
+        border-color: var(--context-menu-border-color, var(--color-border-light, #ededed) #dcdcdc #dcdcdc var(--color-border-light, #ededed));
+        border-radius: var(--context-menu-radius, 0);
+        background: var(--context-menu-bg, var(--color-surface, #fff));
+        box-shadow: var(--context-menu-shadow, var(--shadow-xl, 2px 2px 15px #eaeaea));
+        line-height: 1.4;
+    }
+
+    /* 一覧の操作メニューは、項目が折り返さない幅にする（呼び出し側の幅は最小の幅） */
+    .contextMenu {
+        width: max-content;
+    }
+
+    #mx_contextmenu {
+        width: 180px;
+        height: auto;
+        visibility: hidden;
+    }
+
+    /* 見出し（選んだ項目の名前） */
+    #mx_contextmenu #nameHolder {
+        margin-bottom: 4px;
+        padding: 6px 12px;
+        overflow: hidden;
+        border-radius: var(--context-menu-item-radius, 0);
+        background: var(--context-menu-title-bg, linear-gradient(var(--color-primary-start), var(--color-primary-end)));
+        color: var(--context-menu-title-color, var(--color-surface, #fff));
+        font-weight: bold;
+        text-align: start;
+        text-overflow: ellipsis;
+        text-shadow: var(--context-menu-title-text-shadow, 0 -1px 0 var(--gray-900, #222));
+        white-space: nowrap;
+        cursor: default;
+    }
+
+    /* 項目。乗せたときに枠が出ても位置がずれないよう、いつも透明の枠を持つ */
+    :is(#mx_contextmenu :is(.menuLink, .menuLinkDisabled), .cntxMnuItem, .cntxMnuItemOver, .cntxMnuItemDisabled) {
+        display: block;
+        padding: 6px 12px;
+        border: 1px solid transparent;
+        border-radius: var(--context-menu-item-radius, 0);
+        background: none;
+        color: var(--context-menu-item-color, var(--gray-900, #222));
+        cursor: pointer;
+        transition: background-color .15s ease, color .15s ease;
+    }
+
+    :is(#mx_contextmenu .menuLink:hover, .cntxMnuItem:hover, .cntxMnuItemOver) {
+        border-color: var(--context-menu-item-hover-border-color, #fdfdfd #fdfdfd #dcdcdc);
+        background: var(--context-menu-item-hover-bg, #dde4eb);
+        color: var(--context-menu-item-hover-color, var(--color-text-primary, #333));
+    }
+
+    :is(#mx_contextmenu .menuLinkDisabled, .cntxMnuItemDisabled) {
+        color: var(--context-menu-item-disabled-color, #787878);
+        cursor: default;
+    }
+
+    /* 項目のアイコン。使えるときも薄くし、乗せたときだけ濃くする */
+    :is(#mx_contextmenu :is(.menuLink, .menuLinkDisabled), .cntxMnuItem, .cntxMnuItemOver, .cntxMnuItemDisabled) img {
+        margin: 0;
+        margin-inline-end: 8px;
+        vertical-align: middle;
+        opacity: .4;
+    }
+
+    :is(#mx_contextmenu .menuLink:hover, .cntxMnuItem:hover, .cntxMnuItemOver) img {
+        opacity: 1;
+    }
+
+    /* 区切り線 */
+    :is(#mx_contextmenu .seperator, .cntxMnuSeparator) {
+        height: 1px;
+        margin: 4px 8px;
+        overflow: hidden;
+        background: var(--context-menu-separator, silver);
+        font-size: 0;
+    }
+}

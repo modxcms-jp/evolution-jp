@@ -112,6 +112,21 @@
 | `--page-title-radius` / `--page-title-padding` / `--page-title-shadow` | 角・内側の余白・影 | `4px` / `8px` / なし |
 | `--page-title-draft-bg` / `--page-title-draft-border-color` | 下書きを編集している画面の帯（`h1.draft`）の地と枠の色 | `#f4e2c3` / `--page-title-border-color` |
 
+## 右クリックメニュー
+
+ツリーの右クリックメニュー（`#mx_contextmenu`、`manager/frames/tree.php`）と、一覧の操作メニュー（`.contextMenu`、`manager/includes/controls/contextmenu.php`）は、`manager/media/style/common/context-menu.css`（`@layer evo-components`）が同じ見た目で描く。幅（ツリーは 180px、一覧は項目が折り返さない幅）・行の高さ（`1.4`）・余白・アイコンの薄さは全テーマ共通。テーマは `:root` で下の変数の値を決め、右クリックメニューの規則を書かない。
+
+| 変数 | 意味 | 既定値（context-menu.css） |
+| --- | --- | --- |
+| `--context-menu-bg` / `--context-menu-border-color` / `--context-menu-radius` / `--context-menu-shadow` | メニューの地・枠の色（4 辺を分けて書いてよい）・角・影 | `--color-surface` / `--color-border-light #dcdcdc #dcdcdc --color-border-light` / `0` / `--shadow-xl` |
+| `--context-menu-title-bg` / `--context-menu-title-color` / `--context-menu-title-text-shadow` | ツリーのメニューの見出し（選んだ項目の名前）の地・文字の色・文字の影 | `--color-primary-start` から `--color-primary-end` へのグラデーション / `--color-surface` / `0 -1px 0 var(--gray-900)` |
+| `--context-menu-item-color` / `--context-menu-item-radius` | 項目の文字の色・角（見出しの角も同じ） | `--gray-900` / `0` |
+| `--context-menu-item-hover-bg` / `--context-menu-item-hover-color` / `--context-menu-item-hover-border-color` | 乗せたときの地・文字の色・枠の色 | `#dde4eb` / `--color-text-primary` / `#fdfdfd #fdfdfd #dcdcdc` |
+| `--context-menu-item-disabled-color` | 使えない項目の文字の色 | `#787878` |
+| `--context-menu-separator` | 区切り線（`background` に入れるので、グラデーションも書ける） | `silver` |
+
+既定値は RevoClassic の値。
+
 ## セクション
 
 見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）の見た目は、`manager/media/style/common/sections.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
@@ -162,7 +177,7 @@
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`・`common/action-buttons.css`・`common/context-menu.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 

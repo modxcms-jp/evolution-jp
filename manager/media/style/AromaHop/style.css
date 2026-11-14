@@ -15,7 +15,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -242,6 +242,22 @@
     --page-title-shadow: var(--shadow-sm);
     --page-title-draft-bg: linear-gradient(135deg, var(--color-draft-start) 0%, var(--color-draft-end) 100%);
     --page-title-draft-border-color: rgba(230, 190, 150, 0.5);
+
+    /* 右クリックメニュー（common/context-menu.css） */
+    --context-menu-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.5) 0%, transparent 2px), rgba(253, 253, 251, 0.96);
+    --context-menu-border-color: rgba(255, 255, 255, 0.5);
+    --context-menu-radius: var(--radius-lg);
+    --context-menu-shadow: 0 8px 32px rgba(90, 154, 94, 0.15), 0 4px 12px rgba(90, 154, 94, 0.1);
+    --context-menu-title-bg: linear-gradient(135deg, #DFF5D7 0%, #CBEEC5 50%, #B6E7B3 100%);
+    --context-menu-title-color: #3A6A40;
+    --context-menu-title-text-shadow: none;
+    --context-menu-item-color: #3A6A40;
+    --context-menu-item-radius: var(--radius-md);
+    --context-menu-item-hover-bg: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
+    --context-menu-item-hover-color: #2E5535;
+    --context-menu-item-hover-border-color: transparent;
+    --context-menu-item-disabled-color: #8DC78A;
+    --context-menu-separator: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -893,7 +909,7 @@ li::marker {
 /* 行スタイル - モヒートパレット準拠 */
 
 /* ============================================================================
-   8. Tree Components - Site Tree, Context Menu
+   8. Tree Components - Site Tree
    Used in: Site tree, document tree navigation
    ============================================================================ */
 
@@ -1160,63 +1176,6 @@ a.hometblink:hover {
     border: 1px solid var(--gray-500);
 }
 
-/* コンテキストメニュー - モヒートパレット */
-.contextMenu {
-    background: rgba(253, 253, 251, 0.98);
-    margin: 0;
-    padding: var(--space-1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 8px 32px rgba(90, 154, 94, 0.15);
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: none;
-    cursor: pointer;
-    color: #3A6A40;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    transition: background-color 0.2s ease;
-}
-
-.cntxMnuItem:hover {
-    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: var(--space-2) var(--space-3);
-    color: #8DC78A;
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: #2E5535;
-    background: linear-gradient(135deg, rgba(223, 245, 215, 0.8) 0%, rgba(203, 238, 197, 0.7) 100%);
-    padding: var(--space-2) var(--space-3);
-    border: none;
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 var(--space-2) 0 0;
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .5;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-    overflow: hidden;
-    margin: var(--space-1) var(--space-2);
-}
-
 /* ============================================================================
    10. Navigation - Top Menu, Supplemental Nav
    Used in: Main top navigation bar, sub-navigation menus
@@ -1421,85 +1380,6 @@ a.hometblink:hover {
     background: transparent;
     color: #3A6A40;
     border-bottom-color: #3A6A40;
-}
-
-/* コンテキストメニュー - モヒートパレット準拠 */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 180px;
-    background:
-        linear-gradient(180deg, rgba(253, 253, 251, 0.5) 0%, transparent 2px),
-        rgba(253, 253, 251, 0.96);
-    margin: 0;
-    padding: var(--space-1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    line-height: 1.4;
-    box-shadow: 0 8px 32px rgba(90, 154, 94, 0.15), 0 4px 12px rgba(90, 154, 94, 0.1);
-}
-
-#mx_contextmenu .menuLink {
-    display: block;
-    cursor: pointer;
-    color: #3A6A40;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
-}
-
-#mx_contextmenu .menuLink:hover {
-    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
-    border: none;
-    color: #2E5535;
-}
-
-#mx_contextmenu .menuLink:hover,
-#mx_contextmenu .menuLinkDisabled {
-    cursor: pointer;
-    padding: var(--space-2) var(--space-3);
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    color: #8DC78A;
-    border-radius: var(--radius-md);
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-right: var(--space-2);
-    vertical-align: middle;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .5;
-}
-
-#mx_contextmenu #nameHolder {
-    color: #3A6A40;
-    text-align: left;
-    cursor: default;
-    font-weight: 600;
-    padding: var(--space-2) var(--space-3);
-    margin-bottom: var(--space-1);
-    border-radius: var(--radius-md);
-    text-shadow: none;
-    background: linear-gradient(135deg, #DFF5D7 0%, #CBEEC5 50%, #B6E7B3 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-    overflow: hidden;
-    margin: var(--space-1) var(--space-2);
 }
 
 /* -------------------------[ Settings Table ]--- */
