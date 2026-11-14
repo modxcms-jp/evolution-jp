@@ -81,6 +81,7 @@
 
     /* Color - Section Header */
     --color-section-header-text: #606060;
+    --color-section-bg: #ffffff;
     --color-section-header-start: #f5f5f5;
     --color-section-header-end: #dddddd;
 
@@ -231,6 +232,16 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: stripes;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: 1px solid var(--clean-border);
+    --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --section-body-border: 1px solid #e1e4e8;
+    --section-body-padding: 15px;
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
+    --section-legend-shadow: 1px 1px 3px var(--color-border-default);
+    --section-legend-radius: 3px;
 }
 
 /* ============================================================================
@@ -620,19 +631,6 @@ input.submit {
    Used in: Content sections, panels, containers
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: 15px;
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
-}
-
 .sectionBody h3 {
     font-size: 1.1em;
     font-weight: bold;
@@ -641,15 +639,8 @@ input.submit {
 }
 
 .sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0;
     padding: 8px 16px;
-    font-weight: bold;
-    border: 1px solid e1e4e8;
-    border-bottom: none;
-    background-color: var(--color-section-header-end);
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 8px 8px 0 0;
 }
 
 /* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
@@ -661,19 +652,14 @@ input.submit {
 }
 
 .sectionBody {
-    position: relative;
     margin: 0 0 var(--space-3);
-    display: block;
 }
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: #ffffff;
-    border: 1px solid #e1e4e8;
     border-top:none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
     border-radius: 0 0 10px 10px;
-    padding: 15px;
 }
 
 .tab-page .sectionBody {
@@ -1731,8 +1717,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 /* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
 .sectionHeader {
     background: var(--light-bg-tertiary);
-    border: 1px solid var(--clean-border);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     color: var(--light-text-primary);
     font-weight: 600;
 }

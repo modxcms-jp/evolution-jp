@@ -1,0 +1,39 @@
+/*
+ * 管理画面のセクション（見出しの帯 .sectionHeader と、本体の箱 .sectionBody）の共通の決まり。
+ * 値はテーマが :root の変数で決める（無ければ既定値。既定値は RevoClassic の値）。決まりと変数の一覧は assets/docs/theme-variables.md。
+ * 枠の太さは 1px と書く（--border-thin は一部のテーマにしか無い）。
+ */
+@layer evo-components {
+    .sectionHeader {
+        margin: 0;
+        font-weight: bold;
+        color: var(--color-section-header-text, #606060);
+        border: var(--section-header-border, 1px solid #ddd);
+        border-radius: var(--section-header-radius, 8px 8px 0 0);
+    }
+
+    .sectionBody {
+        position: relative;
+        display: block;
+    }
+
+    .tab-page .sectionBody,
+    .section .sectionBody {
+        background: var(--section-body-bg, var(--color-section-bg, #f7f7f7));
+        border: var(--section-body-border, 1px solid #ccc);
+        padding: var(--section-body-padding, 16px);
+    }
+
+    .sectionBody fieldset {
+        padding: var(--section-fieldset-padding, 16px);
+    }
+
+    .sectionBody legend {
+        font-weight: bold;
+        padding: var(--section-legend-padding, 4px 16px);
+        background: var(--color-surface, #fff);
+        border: 1px solid var(--color-border-default, #ccc);
+        box-shadow: var(--section-legend-shadow, 1px 1px 3px #ccc);
+        border-radius: var(--section-legend-radius, 3px);
+    }
+}

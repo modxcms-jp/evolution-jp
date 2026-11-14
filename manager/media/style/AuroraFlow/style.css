@@ -182,6 +182,16 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: spinner;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: 1px solid var(--color-card-border);
+    --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --section-body-border: 1px solid var(--color-card-border);
+    --section-body-padding: var(--space-4);
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
+    --section-legend-shadow: var(--shadow-md);
+    --section-legend-radius: var(--radius-sm);
 }
 
 /* ============================================================================
@@ -619,19 +629,6 @@ input.submit {
    Used in: Content areas, settings pages, form sections
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: 15px;
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-sm);
-}
-
 .sectionBody h3 {
     font-size: 1.1em;
     font-weight: bold;
@@ -641,13 +638,8 @@ input.submit {
 
 /* セクション見出し。濃い灰色の帯をやめ、ごく薄い地色と下線だけで本文と区切る */
 .sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0;
     padding: var(--space-3) var(--space-4);
-    font-weight: bold;
-    border: 1px solid var(--color-card-border);
     background-color: var(--color-section-header-end);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -655,19 +647,14 @@ input.submit {
 }
 
 .sectionBody {
-    position: relative;
     margin: 0 0 var(--space-3);
-    display: block;
 }
 
 /* 白いカード。枠はごく薄くし、角は控えめに丸める */
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: var(--color-section-bg);
-    border: 1px solid var(--color-card-border);
     border-radius: var(--radius-lg);
     margin: 0 0 var(--space-3);
-    padding: var(--space-4);
 }
 
 /* 見出しの直後は見出しと一枚のカードにつなげる */

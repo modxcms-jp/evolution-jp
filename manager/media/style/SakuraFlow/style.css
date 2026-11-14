@@ -76,9 +76,7 @@
     --color-info-bg: rgba(245, 240, 255, 0.9);
 
     /* Component Colors - Sections (glass morphism style) */
-    --color-section-header-text: #5a3c55;
-    --color-section-header-bg: rgba(255, 240, 247, 0.85);
-    --color-section-header-border: rgba(233, 196, 214, 0.6);
+    --color-section-header-text: #5a4055;
     --color-section-bg: rgba(255, 250, 252, 0.9);
 
     /* Component Colors - Navigation (flat, modern) */
@@ -196,6 +194,17 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: dots;
+
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: none;
+    --section-header-radius: 0;
+    --section-body-bg: rgba(255, 255, 255, 0.60);
+    --section-body-border: 1px solid rgba(255, 200, 230, 0.35);
+    --section-body-padding: var(--space-5);
+    --section-fieldset-padding: var(--space-4);
+    --section-legend-padding: var(--space-2) var(--space-4);
+    --section-legend-shadow: var(--shadow-sm);
+    --section-legend-radius: var(--radius-md);
 }
 
 /* ============================================================================
@@ -807,17 +816,10 @@ input.submit {
    Used in: Content areas, settings pages, form sections
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: var(--space-4);
-}
-
 .sectionBody legend {
     font-weight: 600;
-    padding: var(--space-2) var(--space-4);
     background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
     border: 1px solid rgba(233, 196, 214, 0.5);
-    box-shadow: var(--shadow-sm);
-    border-radius: var(--radius-md);
     color: var(--color-text-dark);
 }
 
@@ -830,13 +832,9 @@ input.submit {
 }
 
 .sectionHeader {
-    color: #5a4055;
-    margin: 0;
     font-weight: 600;
     letter-spacing: 0.3px;
-    border: none;
     background: transparent;
-    border-radius: 0;
 }
 
 .tab-page .sectionHeader {
@@ -844,17 +842,9 @@ input.submit {
     font-size: 1rem;
 }
 
-.sectionBody {
-    position: relative;
-    display: block;
-}
-
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: rgba(255, 255, 255, 0.60);
-    border: 1px solid rgba(255, 200, 230, 0.35);
     margin-bottom: var(--space-3);
-    padding: var(--space-5);
     border-radius: var(--radius-xl);
     box-shadow: 0 8px 32px rgba(200, 150, 180, 0.1);
 }

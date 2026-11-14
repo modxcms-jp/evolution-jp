@@ -19,10 +19,12 @@
 | `--color-primary-hover-start` / `--color-primary-hover-end` | 同じ組の、ホバー時の色 | 共通部は参照しない（テーマの主ボタンが使う） |
 | `--color-primary-active-start` / `--color-primary-active-end` | 同じ組の、押したときの色 | 共通部は参照しない（テーマの主ボタンが使う） |
 | `--color-text-inverse` | 主な操作の色の上に置く文字の色 | shell.css のモーダルの見出し、evo-dialog.js の OK の文字、filebrowser.css・datepicker.css の選択の上の文字 |
-| `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、selection-dock.css（`.selection-dock` の背景の color-mix）、filebrowser.css、datepicker.css |
+| `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、selection-dock.css（`.selection-dock` の背景の color-mix）、sections.css（箱の中の `legend` の地）、filebrowser.css、datepicker.css |
+| `--color-section-header-text` | セクションの見出しの帯（`.sectionHeader`）の文字の色 | sections.css |
+| `--color-section-bg` | セクションの箱（`.sectionBody`）の地の色 | sections.css（`--section-body-bg` の既定） |
 | `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css |
 | `--color-text-muted` | 補助的な文字の色 | shell.css（検索画面 `.search-*`）、filebrowser.css、datepicker.css |
-| `--color-border-default` | 通常の枠の色 | filebrowser.css、datepicker.css |
+| `--color-border-default` | 通常の枠の色 | sections.css（箱の中の `legend` の枠）、filebrowser.css、datepicker.css |
 | `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯の枠、検索画面の区切り線）、selection-dock.css（操作の帯 `.selection-dock` の枠）、filebrowser.css、datepicker.css |
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
 | `--color-error` | エラー・削除の色 | selection-dock.css（操作の帯 `.selection-dock` の削除ボタン）、filebrowser.css、datepicker.css |
@@ -96,10 +98,28 @@
 
 `input[type=submit]`・`input[type=button]` は、まだこの決まりの外（テーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
 
+## セクション
+
+見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）の見た目は、`manager/media/style/common/sections.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
+
+- `--color-section-*` は色の契約（上の「変数の一覧」）、`--section-*` はセクションの部品の変数。見出しの帯の文字色は `--color-section-header-text` で決める。箱の地（`--section-body-bg`）の既定は `--color-section-bg` なので、単色の地のテーマは `--color-section-bg` だけを決めればよい
+- 多くのテーマで同じ値の性質（見出しの帯と legend の文字の太さ `bold`、legend の地 `--color-surface` と枠 `1px solid var(--color-border-default)`）は、sections.css に値で書く。違う値にしたいテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）
+- 一部のテーマにしかない性質（見出しの帯の地・余白・影、箱の角・影など）は、テーマの規則に書く
+- `.sectionBody h3` は、まだこの決まりの外（テーマの規則のまま）。層に入れると、テーマの `h3` の規則に負けるため
+
+| 変数 | 意味 | 既定値（sections.css） |
+| --- | --- | --- |
+| `--section-header-border` / `--section-header-radius` | 見出しの帯の枠と角 | `1px solid #ddd` / `8px 8px 0 0` |
+| `--section-body-bg` / `--section-body-border` / `--section-body-padding` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・内側の余白 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `16px` |
+| `--section-fieldset-padding` | 箱の中の `fieldset` の内側の余白 | `16px` |
+| `--section-legend-padding` / `--section-legend-shadow` / `--section-legend-radius` | 箱の中の `legend` の余白・影・角 | `4px 16px` / `1px 1px 3px #ccc` / `3px` |
+
+既定値は RevoClassic の値。
+
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`）にある規則は、テーマに書かない。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 
