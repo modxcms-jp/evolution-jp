@@ -411,7 +411,7 @@ if (is_array($evtOut)) {
                 <table style="width:100%;border:none;padding:0;margin:0">
                     <tr>
                         <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
-                            <select name="sortby" style="font-size: 12px;">
+                            <select name="sortby">
                                 <option
                                     value="isfolder"
                                     <?= isSelectedTreeSortby('isfolder') ?>
@@ -441,7 +441,7 @@ if (is_array($evtOut)) {
                     </tr>
                     <tr>
                         <td width="99%" style="padding-left: 10px;padding-top: 1px;">
-                            <select name="sortdir" style="font-size: 12px;">
+                            <select name="sortdir">
                                 <option
                                     value="DESC"
                                     <?= isSelectedTreeSortDir('DESC') ?>
