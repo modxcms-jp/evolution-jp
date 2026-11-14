@@ -16,6 +16,8 @@ require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 $theme = getv('theme', '');
 if (array_key_exists($theme, EvoSettingsForm::themes())) {
     evo()->setConfig('manager_theme', $theme);
+    // アイコンの画像（style('icons_*')）も、そのテーマのものにする
+    include MODX_MANAGER_PATH . 'media/style/' . $theme . '/style.php';
 }
 $proposal = getv('proposal') === '1';
 // 本文の文字の大きさ（見本の中だけで --font-size-base を差し替える）
@@ -161,20 +163,92 @@ $font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
 <div class="section">
     <div class="sectionHeader">リソース編集の欄（render_tr.tpl）</div>
     <div class="sectionBody">
-        <table>
-            <tr class="mutate-field-row">
-                <td class="mutate-field-label"><span class="mutate-field-title">リソース名</span></td>
-                <td><input type="text" class="inputBox" value="Home"></td>
-            </tr>
-            <tr class="mutate-field-row">
-                <td class="mutate-field-label"><span class="mutate-field-title">使用テンプレート</span></td>
-                <td><select class="inputBox"><option>Bootstrap</option></select></td>
-            </tr>
-            <tr class="mutate-field-row">
-                <td class="mutate-field-label"><span class="mutate-field-title">公開開始日時</span></td>
-                <td><input type="text" class="DatePicker imeoff" id="pub_date" value=""></td>
-            </tr>
-        </table>
+        <?php
+        // 説明のアイコン（mutate_content/functions.php の tooltip() と同じ img）。$style は今の書き方のインラインの指定
+        $tooltip = static function ($msg, $style = '') {
+            return '<img src="' . hsc(style('icons_tooltip')) . '" alt="' . hsc($msg) . '" title="' . hsc($msg) . '" class="tooltip" tabindex="0"'
+                . ($style !== '' ? ' style="' . hsc($style) . '"' : '') . '>';
+        };
+        $help = 'この欄の説明です。';
+        ?>
+        <?php if (!$proposal) { ?>
+            <!-- 今の書き方（mutate_content/fields.php・functions.php の tooltip() と同じ。インラインの指定もそのまま） -->
+            <table>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">リソース名</span></td>
+                    <td><input type="text" class="inputBox" value="Home"><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?></td>
+                </tr>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">公開開始日時</span></td>
+                    <td><input type="text" class="DatePicker imeoff" id="pub_date" value="2026/11/14 10:00:00"><a style="cursor:pointer; cursor:hand;"><img src="<?= hsc(style('icons_cal_nodate')) ?>" alt="日付を消す"></a><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?><div style="line-height:1;margin:0;color: #555;font-size:10px">YYYY/mm/dd HH:MM:SS</div></td>
+                </tr>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">公開終了日時</span></td>
+                    <td><input type="text" class="DatePicker imeoff" id="unpub_date" value=""><a style="cursor:pointer; cursor:hand"><img src="<?= hsc(style('icons_cal_nodate')) ?>" alt="日付を消す"></a><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?><div style="line-height:1;margin:0;color: #555;font-size:10px">YYYY/mm/dd HH:MM:SS</div></td>
+                </tr>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">リソースタイプ</span></td>
+                    <td><select name="type" style="width:200px"><option>ウェブページ</option><option>ウェブリンク</option></select><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?></td>
+                </tr>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">コンテンツタイプ</span></td>
+                    <td><select name="contentType" style="width:200px"><option>text/html</option></select><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?></td>
+                </tr>
+                <tr class="mutate-field-row">
+                    <td class="mutate-field-label"><span class="mutate-field-title">表示の方法</span></td>
+                    <td><select name="content_dispo" style="width:200px"><option>ブラウザ内に通常表示</option></select><?= $tooltip($help, 'cursor:help;margin-left:5px;') ?></td>
+                </tr>
+            </table>
+        <?php } else { ?>
+            <!-- 案の書き方: 欄と後ろのボタン・説明のアイコンを .field-inline で横に並べ、縦の真ん中にそろえる。インラインの指定は使わない。
+                 日付を消す操作は button にする。書式の文字は説明（.form-text）にする -->
+            <div class="form-row">
+                <label class="form-label" for="sg_pagetitle">リソース名</label>
+                <div class="form-field">
+                    <div class="field-inline"><input type="text" id="sg_pagetitle" value="Home"><?= $tooltip($help) ?></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_pub_date">公開開始日時</label>
+                <div class="form-field">
+                    <div class="field-inline">
+                        <input type="text" class="DatePicker imeoff" id="sg_pub_date" value="2026/11/14 10:00:00">
+                        <button type="button" class="icon-button" title="日付を消す"><img src="<?= hsc(style('icons_cal_nodate')) ?>" alt="日付を消す"></button>
+                        <?= $tooltip($help) ?>
+                    </div>
+                    <div class="form-text">YYYY/mm/dd HH:MM:SS</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_unpub_date">公開終了日時</label>
+                <div class="form-field">
+                    <div class="field-inline">
+                        <input type="text" class="DatePicker imeoff" id="sg_unpub_date" value="">
+                        <button type="button" class="icon-button" title="日付を消す"><img src="<?= hsc(style('icons_cal_nodate')) ?>" alt="日付を消す"></button>
+                        <?= $tooltip($help) ?>
+                    </div>
+                    <div class="form-text">YYYY/mm/dd HH:MM:SS</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_type">リソースタイプ</label>
+                <div class="form-field">
+                    <div class="field-inline"><select id="sg_type"><option>ウェブページ</option><option>ウェブリンク</option></select><?= $tooltip($help) ?></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_ctype">コンテンツタイプ</label>
+                <div class="form-field">
+                    <div class="field-inline"><select id="sg_ctype"><option>text/html</option></select><?= $tooltip($help) ?></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label class="form-label" for="sg_dispo">表示の方法</label>
+                <div class="form-field">
+                    <div class="field-inline"><select id="sg_dispo"><option>ブラウザ内に通常表示</option></select><?= $tooltip($help) ?></div>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 </div>
 <div class="section">
@@ -345,7 +419,7 @@ $font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
     // 入力欄・セレクト・ボタンの横に、測った高さを小さく出す（ガタつきを数字でも見えるようにする）
     window.addEventListener('load', function () {
         const targets = document.querySelectorAll(
-            '.sg-row :is(input, select, textarea, button), .actionButtons a, .settings :is(input, select), .mutate-field-row :is(input, select), .form-row .input-group'
+            '.sg-row :is(input, select, textarea, button), .actionButtons a, .settings :is(input, select), .form-row .input-group'
         );
         targets.forEach(function (el) {
             if (el.type === 'checkbox' || el.type === 'radio') {
