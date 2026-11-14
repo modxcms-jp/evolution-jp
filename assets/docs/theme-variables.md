@@ -136,6 +136,22 @@
 
 既定値は RevoClassic の値。
 
+## ツリー
+
+ツリーの欄（`manager/frames/tree.php`・`nodes.php`）の見た目は、`manager/media/style/common/tree.css`（`@layer evo-components`）が描く。行の並びと字下げ、行の枠の太さは `common/shell.css` が決める。欄の余白・書体・行の高さは全テーマ共通。テーマは `:root` で下の変数の値を決め、ツリーの規則を書かない。
+
+| 変数 | 意味 | 既定値（tree.css） |
+| --- | --- | --- |
+| `--tree-bg` / `--tree-shadow` | 欄（`div.treeframebody`）の地・影 | `#f7f7f7` / なし |
+| `--tree-pane-border` | 欄と本文の境目（`shell.css` の `#treePane` の右の枠） | `3px solid #f7f7f7` |
+| `--tree-node-color` | 行の名前の文字の色 | `#000` |
+| `--tree-node-hover-bg` / `--tree-node-hover-border-color` / `--tree-node-hover-color` / `--tree-node-radius` | 乗せたときの地・枠の色・文字の色・角 | `#fff` / `#ccc` / `--tree-node-color` / `0` |
+| `--tree-node-selected-bg` / `--tree-node-selected-border-color` / `--tree-node-selected-color` | 選んでいる行の地・枠の色・文字の色 | 乗せたときと同じ |
+| `--tree-published-color` / `--tree-unpublished-color` / `--tree-deleted-color` / `--tree-empty-color` / `--tree-not-in-menu-color` | 行の状態の文字の色（公開・非公開・削除済み・子の無いフォルダ・メニューに出さない） | `#222` / `#b68282` / `#a52a2a` / `#aaa` / `#777` |
+| `--tree-floater-border-color` | 並べ替えの枠（`#floater`）の枠の色 | `#ccc` |
+
+既定値は RevoStyle・SoftSlate の値。
+
 ## 右クリックメニュー
 
 ツリーの右クリックメニュー（`#mx_contextmenu`、`manager/frames/tree.php`）と、一覧の操作メニュー（`.contextMenu`、`manager/includes/controls/contextmenu.php`）は、`manager/media/style/common/context-menu.css`（`@layer evo-components`）が同じ見た目で描く。幅（ツリーは 180px、一覧は項目が折り返さない幅）・行の高さ（`1.4`）・余白・アイコンの薄さは全テーマ共通。テーマは `:root` で下の変数の値を決め、右クリックメニューの規則を書かない。
@@ -201,7 +217,7 @@
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`・`common/action-buttons.css`・`common/context-menu.css`・`common/topmenu.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`・`common/action-buttons.css`・`common/context-menu.css`・`common/topmenu.css`・`common/tree.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 

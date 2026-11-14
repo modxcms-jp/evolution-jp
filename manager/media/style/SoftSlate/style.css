@@ -219,6 +219,16 @@
     --context-menu-title-color: #fff;
     --context-menu-title-text-shadow: 0 -1px 0 #222;
     --context-menu-item-color: #222;
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: #eef2f6;
+    --tree-node-hover-bg: rgba(61, 79, 93, 0.07);
+    --tree-node-hover-border-color: transparent;
+    --tree-node-hover-color: #0f172a;
+    --tree-node-radius: var(--radius-md);
+    --tree-node-selected-bg: rgba(61, 79, 93, 0.14);
+    --tree-node-selected-border-color: rgba(61, 79, 93, 0.45);
+    --tree-pane-border: 1px solid var(--color-frame);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -550,91 +560,6 @@ thead td {
 
 .rtl .editorCell {
     text-align: right;
-}
-
-/* ツリーは明るいブルーグレーのフラットな地。メインとの境目は 1px の線にする */
-div.treeframebody {
-    background: #eef2f6 !important;
-    box-shadow: none;
-    padding: var(--space-2);
-}
-
-/* shell.css の 3px の白い境目を、枠と同じ細い線にする
-   (shell.css より後に効かせるため html を足して詳細度を上げる) */
-html body.evo-shell > #treePane {
-    border-inline-end: 1px solid var(--color-frame);
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: 6px 8px 0;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-  }
-
-#treeHolder {
-    padding-left: 12px;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: 5px;
-    top: 25px;
-    left: 4px;
-    background: #fff;
-    border: 1px solid #ccc;
-    z-index: 500;
-}
-
-.rtl #floater {
-    right: 4px
-}
-
-.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
-    color: #000;
-    cursor: pointer;
-    width: auto;
-    margin-right: 0;
-}
-
-/* ホバーは淡い地色だけ、選択中はスレートの地色と枠で示す。行の寸法は変えない */
-.treeNodeSelected,
-.treeNode:hover {
-    background-color: rgba(61, 79, 93, 0.07);
-    border: 1px solid transparent;
-    color: #0f172a;
-    border-radius: var(--radius-md);
-}
-
-.treeNodeSelected {
-    background-color: rgba(61, 79, 93, 0.14);
-    border-color: rgba(61, 79, 93, 0.45);
-}
-
-.unpublished a, .unpublishedNode {
-    color: #B68282;
-}
-
-.deletedNode {
-    color: #A52A2A;
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: #222;
-}
-
-.emptyNode {
-    color: #aaa;
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: #777;
-    text-decoration: none;
 }
 
 .protectedNode {

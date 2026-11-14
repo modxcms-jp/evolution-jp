@@ -1,0 +1,81 @@
+/*
+ * ツリーの欄（tree.php・nodes.php）の見た目。行の並びと字下げは shell.css が決める。
+ * 欄の余白・書体・行の高さは全テーマ共通。地・行の色・乗せたときと選んでいるときの見た目・状態の色は、
+ * テーマが :root の --tree-* で決める（theme-variables.md の「ツリー」）。
+ * 既定値は RevoStyle・SoftSlate の値。
+ */
+@layer evo-components {
+    div.treeframebody {
+        padding: 8px;
+        background: var(--tree-bg, #f7f7f7);
+        box-shadow: var(--tree-shadow, none);
+    }
+
+    #treeHolder {
+        height: 100%;
+        padding: 6px 8px 0 12px;
+        font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
+        line-height: 1.3em;
+        cursor: default;
+    }
+
+    /* 行の名前。枠の太さは shell.css が決め、ここでは色だけを決める */
+    :is(.rootNode, .treeNode, .treeNodeSelected, .emptyNode) {
+        width: auto;
+        margin-inline-end: 0;
+        color: var(--tree-node-color, #000);
+        cursor: pointer;
+    }
+
+    /* 乗せたときと選んでいるときは、:is() でまとめない（:hover の詳細度が選んでいるときにも付き、後ろの状態の色に勝ってしまう） */
+    .treeNode:hover {
+        border-color: var(--tree-node-hover-border-color, #ccc);
+        border-radius: var(--tree-node-radius, 0);
+        background-color: var(--tree-node-hover-bg, #fff);
+        color: var(--tree-node-hover-color, var(--tree-node-color, #000));
+    }
+
+    .treeNodeSelected {
+        border-radius: var(--tree-node-radius, 0);
+        border-color: var(--tree-node-selected-border-color, var(--tree-node-hover-border-color, #ccc));
+        background-color: var(--tree-node-selected-bg, var(--tree-node-hover-bg, #fff));
+        color: var(--tree-node-selected-color, var(--tree-node-hover-color, var(--tree-node-color, #000)));
+    }
+
+    /* 行の状態。選んでいる行の色より後ろに書き、状態の色が勝つようにする（乗せたときは、詳細度の高い乗せたときの色が勝つ） */
+    .unpublishedNode {
+        color: var(--tree-unpublished-color, #b68282);
+    }
+
+    .deletedNode {
+        color: var(--tree-deleted-color, #a52a2a);
+        text-decoration: line-through;
+    }
+
+    .publishedNode {
+        color: var(--tree-published-color, #222);
+    }
+
+    .emptyNode {
+        color: var(--tree-empty-color, #aaa);
+        cursor: default;
+    }
+
+    .notInMenuNode {
+        color: var(--tree-not-in-menu-color, #777);
+        text-decoration: none;
+    }
+
+    /* 並べ替えの枠（tree.php の #floater） */
+    #floater {
+        display: none;
+        position: absolute;
+        top: 25px;
+        inset-inline-start: 4px;
+        z-index: 500;
+        width: 200px;
+        padding: 5px;
+        border: 1px solid var(--tree-floater-border-color, #ccc);
+        background: var(--color-surface, #fff);
+    }
+}

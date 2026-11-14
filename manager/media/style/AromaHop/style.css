@@ -258,6 +258,21 @@
     --context-menu-item-hover-border-color: transparent;
     --context-menu-item-disabled-color: #8DC78A;
     --context-menu-separator: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: rgba(253, 253, 251, 0.32);
+    --tree-node-color: #3A6A40;
+    --tree-node-hover-bg: rgba(234, 252, 207, 0.7);
+    --tree-node-hover-border-color: rgba(255, 255, 255, 0.6);
+    --tree-node-hover-color: #2E5535;
+    --tree-node-radius: 4px;
+    --tree-published-color: #3A6A40;
+    --tree-unpublished-color: #B07070;
+    --tree-deleted-color: #A05050;
+    --tree-empty-color: #8DC78A;
+    --tree-not-in-menu-color: #5A9A5E;
+    --tree-floater-border-color: var(--gray-400);
+    --tree-pane-border: 3px solid rgba(255, 255, 255, 0.6);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -839,89 +854,12 @@ li::marker {
    Used in: Site tree, document tree navigation
    ============================================================================ */
 
-/* ツリー - 画面全体の背景（body#mainpane の泡と光）を透かして、メインペインとつなげる。
-   背景は自前で描かず、文字やアイコンが模様に負けないよう薄い氷白を重ねるだけにする */
-div.treeframebody {
-    background: rgba(253, 253, 251, 0.32);
-    padding: var(--space-2);
-    min-height: 100%;
-}
-
-/* ツリーとメインの境目。shell.css の灰色の線は背景から浮くため、光の縁のような半透明の白にする
-   (shell.css より後に効かせるため html を足して詳細度を上げる) */
-html body.evo-shell > #treePane {
-    border-inline-end-color: rgba(255, 255, 255, 0.6);
-}
-
 /* ボタンの並びは貼り付けて下のツリーに重なるため、泡と光の模様やツリーが透けて読みにくくならないよう氷白を濃くしてぼかす
    (shell.css より後に効かせるため html を足して詳細度を上げる) */
 html body.evo-shell .tree-toolbar {
     background: rgba(253, 253, 251, 0.82);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: 6px 8px 0;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#treeHolder {
-    padding-left: 12px;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: 5px;
-    top: 25px;
-    left: 4px;
-    background: var(--color-surface);
-    border: 1px solid var(--gray-400);
-    z-index: 500;
-}
-
-/* ツリーノード - モヒートパレット準拠 */
-.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
-    color: #3A6A40;
-    cursor: pointer;
-    width: auto;
-    margin-right: 0;
-}
-
-.treeNodeSelected,
-.treeNode:hover {
-    background-color: rgba(234, 252, 207, 0.7);  /* #EAFCCF */
-    border: 1px solid rgba(255, 255, 255, 0.6);  /* #B6E7B3 */
-    border-radius: 4px;
-    color: #2E5535;
-}
-
-.unpublished a, .unpublishedNode {
-    color: #B07070;
-}
-
-.deletedNode {
-    color: #A05050;
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: #3A6A40;
-}
-
-.emptyNode {
-    color: #8DC78A;
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: #5A9A5E;
-    text-decoration: none;
 }
 
 .protectedNode {

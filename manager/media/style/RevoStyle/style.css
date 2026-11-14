@@ -218,6 +218,12 @@
     --context-menu-title-color: #fff;
     --context-menu-title-text-shadow: 0 -1px 0 #222;
     --context-menu-item-color: #222;
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: var(--gray-100) url(../common/images/misc/subnav.png);
+    --tree-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
+    --tree-node-hover-border-color: var(--gray-400);
+    --tree-floater-border-color: var(--gray-400);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -587,69 +593,6 @@ thead td {
     border-top: 1px solid #808080;
     text-align: left;
     vertical-align: baseline;
-}
-
-div.treeframebody {
-    background: var(--gray-100) url(../common/images/misc/subnav.png) !important;
-    box-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: var(--space-5) var(--space-7) 0;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-    padding-left: var(--space-8);
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: var(--space-4);
-    top: var(--space-13);
-    left: var(--space-3);
-    background: #fff;
-    border: var(--border-thin) solid var(--gray-400);
-    z-index: 500;
-}
-
-.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
-    color: #000;
-    cursor: pointer;
-    width: auto;
-    margin-right: 0;
-}
-
-.treeNodeSelected,
-.treeNode:hover {
-    background-color: #FFFFFF;
-    border: var(--border-thin) solid var(--gray-400);
-    color: #000;
-}
-
-.unpublished a, .unpublishedNode {
-    color: #B68282;
-}
-
-.deletedNode {
-    color: #A52A2A;
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: #222;
-}
-
-.emptyNode {
-    color: #aaa;
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: #777;
-    text-decoration: none;
 }
 
 .protectedNode {

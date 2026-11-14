@@ -1173,6 +1173,7 @@ function manager_theme_stylesheets()
         'media/style/common/action-buttons.css',
         'media/style/common/context-menu.css',
         'media/style/common/topmenu.css',
+        'media/style/common/tree.css',
         'media/style/' . evo()->config('manager_theme') . '/style.css',
         'media/style/common/spacing.css',
     ];

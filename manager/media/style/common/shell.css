@@ -31,7 +31,8 @@ body.evo-shell > #topMenu {
 body.evo-shell > #treePane {
     grid-area: tree;
     overflow: auto;
-    border-inline-end: 3px solid #f7f7f7;
+    /* ツリーと本文の境目。テーマは --tree-pane-border で変える（theme-variables.md の「ツリー」） */
+    border-inline-end: var(--tree-pane-border, 3px solid #f7f7f7);
     /* 旧treeフレームのbody背景相当。テーマの.treeframebodyを縦いっぱいに広げる */
     display: flex;
     flex-direction: column;
