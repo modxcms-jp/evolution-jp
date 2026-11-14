@@ -13,15 +13,15 @@ if (!evo()->hasPermission('settings')) {
 }
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
-$theme = getv('theme', '');
-if (array_key_exists($theme, EvoSettingsForm::themes())) {
+$theme = get_choicevar('theme', array_keys(EvoSettingsForm::themes()), '');
+if ($theme !== '') {
     evo()->setConfig('manager_theme', $theme);
     // アイコンの画像（style('icons_*')）も、そのテーマのものにする
     include MODX_MANAGER_PATH . 'media/style/' . $theme . '/style.php';
 }
-$proposal = getv('proposal') === '1';
+$proposal = get_boolvar('proposal');
 // 本文の文字の大きさ（見本の中だけで --font-size-base を差し替える）
-$font = in_array(getv('font'), ['12', '13', '14'], true) ? getv('font') : '';
+$font = get_choicevar('font', ['12', '13', '14'], '');
 ?>
 <!DOCTYPE html>
 <html lang="<?= globalv('modx_lang_attribute', 'en') ?>">
