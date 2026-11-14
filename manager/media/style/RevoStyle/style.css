@@ -301,13 +301,16 @@ p.caption, p.comment {
     }
 }
 
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
+/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
+@layer evo-base {
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--color-link-hover);
+    a:hover {
+        color: var(--color-link-hover);
+    }
 }
 
 hr {
@@ -775,10 +778,6 @@ div.treeframebody {
 /* -------------------------[ grid style ]--- */
 .grid {
     border-collapse: collapse;
-}
-
-.grid a {
-    text-decoration: none;
 }
 
 .grid img {
