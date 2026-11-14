@@ -116,13 +116,14 @@
 
 上のメニュー（`manager/frames/menu.php` の `#Navcontainer`・`#nav`・`ul.subnav`）は、`manager/media/style/common/topmenu.css`（`@layer evo-components`）が描く。上の余白（12px）・左右の余白（16px）・項目の左右の余白（16px）・項目の間・サブメニューの帯の位置は全テーマ共通。テーマは `#topMenu`（または `:root`）で下の変数の値を決め、`#nav` の規則を書かない。一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、同じセレクタの規則をテーマに書く。メニューの段の高さは、`menu.php` の `fitMenuHeight()` がサブメニューの帯の下端に合わせる。
 
-型（タブ・ピル・下線）は、角と枠の色の組み合わせで決める。タブの型は、選んでいる項目の下の枠を透明にして、サブメニューの帯とつなげる。下線の型は、`--topnav-underline-width` を太くし、乗せたときと選んでいるときに下の枠だけに色を付ける。
+型（タブ・ピル・下線）は、角と枠の色の組み合わせで決める。タブの型は、選んでいる項目の下の枠を透明にし、帯を項目に 1px 重ねて、サブメニューの帯とつなげる。下線の型は、`--topnav-underline-width` を太くし、乗せたときと選んでいるときに下の枠だけに色を付ける。
 
 | 変数 | 意味 | 既定値（topmenu.css） |
 | --- | --- | --- |
 | `--topnav-item-height` / `--subnav-height` / `--topnav-padding-top` | 項目の高さ・サブメニューの項目の高さ・上の余白。細いメニューの RevoStyle だけが小さくする | `32px` / `32px` / `12px` |
 | `--topnav-link-color` / `--topnav-item-color` | メニューの文字の色・項目の文字の色 | `#e1f1f4` / `--topnav-link-color` |
 | `--topnav-item-radius` / `--topnav-item-font-weight` / `--topnav-underline-width` | 項目の角・文字の太さ・下の枠の太さ（サブメニューの項目にも使う。既定ではサブメニューの項目は下の枠を持たない） | `6px 6px 0 0` / `normal` / `1px` |
+| `--topnav-item-border-width` / `--topnav-subnav-overlap` | 項目の上と左右の枠の太さ・サブメニューの帯を項目に重ねる幅。下線の型は、どちらも 0 にする（下線の端を四角にし、帯の上の枠に重ねない） | `1px` / `1px` |
 | `--topnav-link-hover-color` / `--topnav-link-hover-bg` / `--topnav-link-hover-border-color` | 乗せたときの文字の色・地・枠の色 | `#fff` / `#195a70` / `--topnav-border` |
 | `--topnav-link-active-bg` / `--topnav-link-active-border-color` / `--topnav-link-active-font-weight` | 選んでいる項目の地・枠の色（上・左右・下）・文字の太さ | `#1b2e37` / `--topnav-border --topnav-link-active-bg transparent` / `--topnav-item-font-weight` |
 | `--topnav-subnav-bg` / `--topnav-subnav-border-color` / `--topnav-subnav-shadow` | サブメニューの帯の地・上と下の枠の色・影 | `--topnav-link-active-bg` / `--topnav-border` / なし |

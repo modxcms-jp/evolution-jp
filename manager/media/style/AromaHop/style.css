@@ -1252,6 +1252,8 @@ a.hometblink:hover {
     --topnav-item-radius: 0;
     --topnav-item-font-weight: 500;
     --topnav-underline-width: 2px;
+    --topnav-item-border-width: 0;
+    --topnav-subnav-overlap: 0px;
     --topnav-link-hover-bg: transparent;
     --topnav-link-hover-border-color: transparent transparent var(--topnav-link-hover-color);
     --topnav-link-active-bg: transparent;
