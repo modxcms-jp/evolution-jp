@@ -703,7 +703,7 @@ div.treeframebody {
     z-index: 500;
 }
 
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
     color: #000;
     cursor: pointer;
     width: auto;
@@ -711,7 +711,7 @@ div.treeframebody {
 }
 
 .treeNodeSelected,
-.treeNodeHover {
+.treeNode:hover {
     background-color: var(--color-tree-selected);
     border: var(--border-thin) solid var(--color-tree-border);
     color: #000;

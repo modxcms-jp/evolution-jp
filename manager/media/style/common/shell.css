@@ -98,6 +98,15 @@ body.evo-shell #treeRoot {
     margin-top: var(--space-1, 4px);
 }
 
+/* ツリーの行のアイコン（押すと右クリックメニュー）。乗ったときに地を付ける */
+.tree-node-icon {
+    cursor: pointer;
+}
+
+.tree-node-icon:hover {
+    background-color: beige;
+}
+
 /* ツリー内の高さ計算をJSからCSSへ移行 */
 body.evo-shell #treeHolder {
     height: auto;

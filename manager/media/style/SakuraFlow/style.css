@@ -995,7 +995,7 @@ html body.evo-shell .tree-toolbar {
     z-index: 500;
 }
 
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
     color: #000;
     cursor: pointer;
     width: auto;
@@ -1003,7 +1003,7 @@ html body.evo-shell .tree-toolbar {
 }
 
 .treeNodeSelected,
-.treeNodeHover {
+.treeNode:hover {
     background-color: var(--color-surface);
     border: 1px solid var(--gray-400);
     color: #000;

@@ -194,25 +194,6 @@ function setSelected(elSel) {
     elSel.className = "treeNodeSelected";
 }
 
-function setHoverClass(el, dir) {
-    if (el.className !== "treeNodeSelected") {
-        if (dir == 1) {
-            el.className = "treeNodeHover";
-        } else {
-            el.className = "treeNode";
-        }
-    }
-}
-
-// set Context Node State
-function setCNS(n, b) {
-    if (b == 1) {
-        n.style.backgroundColor = "beige";
-    } else {
-        n.style.backgroundColor = "";
-    }
-}
-
 function updateTree() {
     rpcNode = document.getElementById('treeRoot');
     var dt = document.sortFrm.dt.value;
