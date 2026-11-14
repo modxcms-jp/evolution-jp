@@ -336,7 +336,6 @@
 
     /* 素の要素（common/theme-base.css） */
     --hr-color: var(--color-text-tertiary);
-    --optgroup-bg: var(--color-border-light);
     --thead-color: var(--color-text-primary);
     --thead-bg: var(--color-border-lighter);
 }

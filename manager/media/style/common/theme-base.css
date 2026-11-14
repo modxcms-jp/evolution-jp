@@ -74,8 +74,10 @@
         color: var(--hr-color, var(--gray-700, #777));
     }
 
+    /* 選択肢のグループの見出し。選んでいる項目（ブラウザが灰色の地を付ける）と見分けられるよう、地は付けず、薄い色の太字にする */
     optgroup {
-        background-color: var(--optgroup-bg, var(--gray-300, #ddd));
+        background-color: transparent;
+        color: var(--optgroup-color, var(--color-text-muted, #777));
         font-style: normal;
         font-weight: bold;
     }
@@ -166,8 +168,10 @@ thead td {
     color: var(--thead-td-color, var(--thead-color, var(--color-thead-text, #333)));
 }
 
+/* グループの中の項目は、見出しの薄い色を受け継がず、本文の色にする */
 optgroup option {
     background-color: var(--color-surface, #fff);
+    color: var(--color-text-primary, #333);
     font-weight: normal;
 }
 
