@@ -211,6 +211,18 @@ body.evo-shell #treeRoot {
     padding-inline-start: 1.39em;
 }
 
+/* ツリーの項目の文字の部分。乗ったとき・選んでいるときの枠と余白を、ふだんから（枠は透明で）確保し、
+   乗っても行の高さと文字の位置が変わらないようにする。枠の色・地・角はテーマの .treeNodeSelected, .treeNode:hover が決める */
+#treeRoot :is(.treeNode, .treeNodeSelected) {
+    padding: 0 4px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+#treeRoot .treeNode:not(:hover) {
+    border-color: transparent;
+}
+
 /* ツリーの行の画像（＋－・アイコン）。＋－の画像は右側に余白を含むので、画像を 6px ずつ前に詰める */
 #treeRoot div img {
     margin: 0;

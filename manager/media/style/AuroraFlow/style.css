@@ -769,7 +769,6 @@ html body.evo-shell > #treePane {
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
     color: #000;
-    padding: 1px 2px;
     margin-left: -3px;
 }
 
