@@ -311,6 +311,14 @@
     --tab-page-border: 1px solid var(--clean-border);
     --tab-page-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
     --tab-page-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-bg: rgba(255, 255, 255, 0.95);
+    --actions-border: 1px solid var(--clean-border);
+    --actions-radius: var(--radius-xl);
+    --actions-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --actions-and-color: var(--color-secondary-hover-text);
+    --actions-disabled-color: var(--color-text-tertiary);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -777,48 +785,6 @@ fieldset.tab-page {
    Based on: https://github.com/manse/ScienceStyle
    ============================================================================ */
 
-#actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-    border-radius: var(--space-2);
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-1);
-    color: var(--color-text-tertiary);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: var(--color-secondary-hover-text);
-    font-weight: 700;
-}
-
 /* ============================================================================
    12. Specialized Forms (Mutate Forms, Date Pickers)
    Used in: Document editor, settings forms, template variables
@@ -925,16 +891,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     font-weight: 600;
 }
 
-/* アクションエリア。操作の帯（data-table.js）とファイルブラウザの選択の帯（`.selection-dock`）も同じ見た目にする */
-#actions,
-.selection-dock:not(.is-empty) {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--clean-border);
-    border-radius: var(--radius-xl);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
 /* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
 body.evo-shell #evoShellModalFooter #actions {
     border: none;
@@ -967,3 +923,7 @@ body#mainpane {
     border-color: var(--light-border);
 }
 
+/* 右上の操作ボタンの帯は、すりガラスにする */
+#actions {
+    backdrop-filter: blur(10px);
+}

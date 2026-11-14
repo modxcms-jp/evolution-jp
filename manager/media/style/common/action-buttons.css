@@ -1,5 +1,5 @@
 /*
- * ボタン列（ul.actionButtons）の並びの共通の決まり。ボタンそのものの見た目は forms.css、帯（#actions）の地・枠・余白はテーマが決める。
+ * ボタン列（ul.actionButtons）の並びと、右上の操作ボタンの帯（#actions）の共通の決まり。ボタンそのものの見た目は forms.css、帯の地・枠・影・角は selection-dock.css（テーマの --actions-*）が決める。
  * 項目は flex で横に並べ、間は gap で作る（項目の間の幅はテーマが --action-buttons-gap で決める）。
  * 値の違うテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）。
  */
@@ -22,5 +22,48 @@
         align-items: center;
         list-style: none;
         padding: 0;
+    }
+
+    /* ul 以外のボタン列（div.actionButtons など）も、下に次のブロックとの間を持つ */
+    .actionButtons {
+        margin-bottom: 12px;
+    }
+
+    /* 右上の操作ボタンの帯。シェルの中の位置は shell.css が決める。地・枠・影・角は selection-dock.css の共有の規則 */
+    #actions {
+        position: fixed;
+        top: 8px;
+        right: 16px;
+        z-index: 100;
+        margin: 0;
+        padding: 8px 16px;
+        text-align: right;
+    }
+
+    #actions .actionButtons {
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    /* 「保存して」と次の動作の選択の間の「＋」 */
+    .actionButtons .and {
+        margin: 0 2px 0 5px;
+        color: var(--actions-and-color, #3b454f);
+        font-weight: bold;
+    }
+
+    .actionButtons a.disabled {
+        padding: 2px 4px;
+        border: 1px solid var(--color-border-default, #ccc);
+        background-color: var(--color-surface, #fff);
+        color: var(--actions-disabled-color, var(--gray-700, #777));
+        cursor: default;
+        pointer-events: none;
+    }
+
+    /* 下書きを開くボタン */
+    .actionButtons .opendraft a {
+        border-color: var(--color-draft-end);
+        background-color: var(--color-draft-start);
     }
 }

@@ -252,6 +252,12 @@
     --tab-alert-color: #c00;
     --tab-page-top: 0;
     --tab-page-shadow: var(--shadow-card);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-bg: rgba(255, 255, 255, 0.94);
+    --actions-border: 1px solid var(--color-card-border);
+    --actions-shadow: var(--shadow-card);
+    --actions-radius: var(--radius-lg);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -779,60 +785,10 @@ fieldset.tab-page {
    From: https://github.com/manse/ScienceStyle
    ============================================================================ */
 
-/* 操作ボタンの浮遊バー。灰色の帯をやめ、カードと同じ白地と薄い枠・影にする */
-#actions {
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-}
-
-/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
-#actions,
-.selection-dock:not(.is-empty) {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid var(--color-card-border);
-    box-shadow: var(--shadow-card);
-    border-radius: var(--radius-lg);
-}
-
 /* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
 body.evo-shell #evoShellModalFooter #actions {
     border: none;
     box-shadow: none;
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: #3b454f;
-    font-weight: 700;
 }
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。

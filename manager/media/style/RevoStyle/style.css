@@ -244,6 +244,10 @@
     --tab-selected-alert-color: #c00;
     --tab-page-top: -2px;
     --tab-page-padding: 20px 15px 14px;
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-radius: 5px;
+    --actions-disabled-color: #777;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -697,39 +701,8 @@ fieldset.tab-page {
     border: 1px solid #e4e4e4 !important;
 }
 
-/* ============================================================================
-   11. Action Buttons (Fixed Position Controls)
-   Used in: Document editing, form submission
-   ============================================================================ */
-/* from https://github.com/manse/ScienceStyle */
-#actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0 -1px 0 0;
-    padding: 8px 5px 7px 10px !important;
-    position: fixed;
-    right: 16px;
-    text-align: right;
-    top: 5px;
-    z-index: 100;
-    border-radius: 5px;
-}
-
 select#stay {
     padding: 5px 5px 5px 2px;
-}
-
-.actionButtons {
-    margin-bottom: 15px;
-}
-
-ul.actionButtons {
-    margin: 0;
-    /* accommodate border on buttons - */
-    padding-bottom: 10px;
-}
-
-#actions .actionButtons {
-    padding-bottom: 0;
 }
 
 .actionButtons a {
@@ -756,23 +729,6 @@ ul.actionButtons {
 .actionButtons a:active {
     border-color: #F0F0F0;
     background-image: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
-}
-
-.actionButtons a.disabled {
-    border: 1px solid #657587;
-    padding: 2px 4px;
-    color: #777;
-    border-width: 0;
-}
-
-.actionButtons .opendraft a {
-    background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: #3b454f;
-    font-weight: 700;
 }
 
 .actionButtons #Button1 a,
@@ -848,4 +804,9 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     border: 2px solid #3ab63a;
     padding: 8px;
     margin-bottom: 8px;
+}
+
+/* 下書きを開くボタンは、グラデーションの地にする */
+.actionButtons .opendraft a {
+    background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
 }
