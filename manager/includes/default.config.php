@@ -85,7 +85,6 @@ $default_config = [
     'export_dir' => '[(base_path)]temp/export/',
     'rb_base_url' => 'content/',
     'image_limit_width' => '',
-    'manager_inline_style' => '<style type="text/css">body {font-size:0.75em;}</style>',
     'topmenu_site' => 'home,preview,refresh_site,search,resource_list,add_resource,add_weblink',
     'topmenu_element' => 'element_management,manage_files',
     'topmenu_security' => 'user_manage,web_user_manage,role_manage,manager_permissions,web_permissions,remove_locks',

@@ -1216,8 +1216,6 @@ return [
 
     "update" => '更新',
 
-    "a17_manager_inline_style_title" => '追加のコード',
-    "a17_manager_inline_style_message" => '管理画面head要素内に追加したいコードがある場合はここで指定します。',
 
     "configcheck_mgr_tpl" => '管理画面テンプレートファイル',
     "configcheck_mgr_tpl_msg" => 'assets/templates/manager/ディレクトリの使用は1.0.6J-r8以降は推奨されなくなりましたので、<a href="index.php?a=31&folder=[+folder+]">ディレクトリごと削除</a>してください。すでにカスタマイズを加えて使用している場合は、manager/media/style/テーマ名/html/ディレクトリに上書きしてください。',
