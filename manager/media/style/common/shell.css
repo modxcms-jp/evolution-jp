@@ -6,9 +6,11 @@
  */
 
 body.evo-shell {
+    /* ツリーの欄の幅。覚えた幅（shell.js）が画面の幅の半分を超えるときは、半分に収める（小さい画面で開いたときや、ウィンドウを縮めたとき） */
+    --shell-tree-column: min(var(--shell-tree-width, 260px), 50vw);
     display: grid;
     grid-template-rows: var(--shell-menu-height, 58px) 1fr;
-    grid-template-columns: var(--shell-tree-width, 260px) minmax(0, 1fr);
+    grid-template-columns: var(--shell-tree-column) minmax(0, 1fr);
     grid-template-areas:
         "menu menu"
         "tree main";
@@ -90,7 +92,7 @@ body.evo-shell > #evoTreeResizer {
     position: fixed;
     top: var(--shell-menu-height, 58px);
     bottom: 0;
-    left: calc(var(--shell-tree-width, 260px) - 4px);
+    left: calc(var(--shell-tree-column) - 4px);
     width: 8px;
     cursor: col-resize;
     touch-action: none;
@@ -328,7 +330,7 @@ body.evo-shell #mainPane #actions {
     inset-inline-end: var(--space-4, 16px);
     z-index: 100;
     width: max-content;
-    max-width: calc(100% - var(--shell-tree-width, 260px) - 2 * var(--space-4, 16px));
+    max-width: calc(100% - var(--shell-tree-column) - 2 * var(--space-4, 16px));
 }
 
 body.evo-shell.tree-hidden #mainPane #actions {
