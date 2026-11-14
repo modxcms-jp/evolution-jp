@@ -207,35 +207,110 @@
     --color-pagination-text: #333;
 }
 
-/* ============================================================================
-   2. Base Styles (Reset, Typography, Links)
-   Used in: All pages, document structure
-   ============================================================================ */
+/* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
+@layer evo-base {
+    body {
+        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+        font-size: var(--font-size-base);
+        height: 100%;
+        line-height: 1.5;
+        color: var(--color-text-primary);
+        background: var(--color-background-page);
+    }
 
-body {
-    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: var(--font-size-base);
-    height: 100%;
-    line-height: 1.5;
-    color: var(--color-text-primary);
-    background: var(--color-background-page);
+    img {
+        border: 0 !important;
+        text-decoration: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
+        margin: .5em 0;
+        padding: 0;
+        font-weight: normal;
+    }
+
+    li, dd, blockquote {
+        margin: 0 0 0 1em;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+    }
+
+    h1 {
+        font-size: 1.25em;
+        color: #585858;
+        font-weight: bold;
+        background-color: #d0d0d0;
+        letter-spacing: var(--border-thin);
+        line-height: 1em;
+        padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
+        border-radius: var(--radius-md);
+        margin: var(--space-7) 0 var(--space-8);
+    }
+
+    h2 {
+        font-size: 1.64em;
+    }
+
+    h4, h5 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    h6 {
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    hr {
+        color: var(--gray-700);
+        background-color: var(--gray-700);
+        height: var(--border-thin);
+        border: 0;
+    }
+
+    input, select, textarea, option, optgroup, td {
+        font: inherit;
+        color: inherit;
+    }
+
+    optgroup {
+        font-style: normal;
+        font-weight: bold;
+        background-color: var(--gray-300);
+    }
+
+    select {
+        border: 0;
+        background: #fcfcfc;
+        cursor: pointer;
+    }
+
+    thead {
+        color: #333;
+        height: 18px !important;
+        background-color: #E4E4E4;
+    }
+
+    li {
+        padding: 0;
+        margin: 0;
+        list-style: disc outside url(../common/images/misc/li.gif);
+    }
+
+    ul {
+        margin: 0 var(--space-12) 0 var(--space-12);
+    }
 }
 
-img, a img {
+a img {
     border: 0 !important;
     text-decoration: none;
     padding: 0;
     margin: 0;
-}
-
-h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: .5em 0;
-    padding: 0;
-    font-weight: normal;
-}
-
-li, dd, blockquote {
-    margin: 0 0 0 1em;
 }
 
 /* ============================================================================
@@ -248,43 +323,12 @@ li, dd, blockquote {
     font-weight: bold;
 }
 
-/* ============================================================================
-   4. Typography (Headings, Paragraphs)
-   Used in: Content areas, document headers
-   ============================================================================ */
-h1, h2, h3, h4, h5, h6, .subTitle {
+.subTitle {
     font-weight: normal;
-}
-
-h1 {
-    font-size: 1.25em;
-    color: #585858;
-    font-weight: bold;
-    background-color: #d0d0d0;
-    letter-spacing: var(--border-thin);
-    line-height: 1em;
-    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
-    border-radius: var(--radius-md);
-    margin: var(--space-7) 0 var(--space-8);
 }
 
 h1.draft {
     background-color: #F4E2C3;
-}
-
-h2 {
-    font-size: 1.64em;
-}
-
-h4,
-h5 {
-    font-size: 1em;
-    font-weight: bold;
-}
-
-h6 {
-    font-size: 0.9em;
-    font-weight: bold;
 }
 
 p.caption, p.comment {
@@ -311,13 +355,6 @@ p.caption, p.comment {
     a:hover {
         color: var(--color-link-hover);
     }
-}
-
-hr {
-    color: var(--gray-700);
-    background-color: var(--gray-700);
-    height: var(--border-thin);
-    border: 0;
 }
 
 .split {
@@ -397,16 +434,6 @@ hr {
     margin: 0;
 }
 
-/* ============================================================================
-   5. Forms (Inputs, Selects, Textareas, Buttons)
-   Used in: Document editor, settings pages, all form interactions
-   ============================================================================ */
-
-input, select, textarea, option, optgroup, td {
-    font: inherit;
-    color: inherit;
-}
-
 textarea[readonly],
 textarea[readonly]:focus,
 input[type='text'][readonly],
@@ -415,12 +442,6 @@ input[type='text'][readonly]:focus,
     background-color: var(--gray-150) !important;
     text-shadow: var(--border-thin) var(--border-thin) #fff !important;
     cursor: not-allowed;
-}
-
-optgroup {
-    font-style: normal;
-    font-weight: bold;
-    background-color: var(--gray-300);
 }
 
 optgroup option {
@@ -499,12 +520,6 @@ input[type="button"] {
 input:is([type="button"], [type="submit"]):hover {
     border-color: green;
     background: linear-gradient(#ffffff, var(--gray-150));
-}
-
-select {
-    border: 0;
-    background: #fcfcfc;
-    cursor: pointer;
 }
 
 .form {
@@ -639,25 +654,9 @@ input.submit {
     color: #999;
 }
 
-thead {
-    color: #333;
-    height: 18px !important;
-    background-color: #E4E4E4;
-}
-
 thead td {
     color: var(--gray-850);
     border-top: var(--border-thin) solid #fff;
-}
-
-li {
-    padding: 0;
-    margin: 0;
-    list-style: disc outside url(../common/images/misc/li.gif);
-}
-
-ul {
-    margin: 0 var(--space-12) 0 var(--space-12);
 }
 
 .screen {
