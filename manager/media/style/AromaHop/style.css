@@ -965,18 +965,6 @@ ul {
 
 /* 行スタイル - モヒートパレット準拠 */
 
-.row1 {
-    background-color: rgba(253, 253, 251, 0.95);  /* #FDFDFB */
-}
-
-.row2 {
-    background-color: rgba(234, 252, 207, 0.45);  /* #EAFCCF */
-}
-
-.row3 {
-    background-color: rgba(250, 255, 244, 0.9);  /* #FAFFF4 */
-}
-
 /* ============================================================================
    8. Tree Components - Site Tree, Context Menu
    Used in: Site tree, document tree navigation
