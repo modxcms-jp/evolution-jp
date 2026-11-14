@@ -185,7 +185,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
 <style>
     .system-log-meta {
         color: #666;
-        font-size: 12px;
     }
     .system-log-summary {
         color: #666;
