@@ -136,7 +136,6 @@
     --color-neutral-button-border: #b9c4c9;
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 34px;
     --control-padding-x: var(--space-2);
     --control-radius: var(--radius-md);
     --control-border: var(--border-thin) solid var(--gray-500);
@@ -564,7 +563,6 @@ input:is([type="button"], [type="submit"]) {
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 var(--space-1);
-    min-height: 27px;
     padding: var(--space-1) var(--space-3);
     overflow: visible;
     background-color: var(--color-neutral-button-start);

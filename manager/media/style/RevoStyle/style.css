@@ -143,7 +143,6 @@
     --color-neutral-button-active-end: #cecece;
 
     /* フォーム部品の寸法（common/forms.css が読む）。凍結テーマなので、下の古い規則も残す */
-    --control-height: 26px;
     --button-padding-x: 10px;
     --button-radius: 2px;
     --button-color: #444;

@@ -198,7 +198,6 @@
     --border-thick: 3px;
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 36px;
     --control-padding-x: var(--space-2);
     --control-radius: var(--radius-md);
     --control-border: var(--border-thin) solid var(--light-border);
@@ -619,7 +618,6 @@ input:is([type="button"], [type="submit"]) {
     line-height: normal;
     margin: -1px 0 0;
     margin-inline-start: 5px;
-    min-height: 27px;
     padding: 6px 12px;
     overflow: visible;
     background: #f7f9fa;
