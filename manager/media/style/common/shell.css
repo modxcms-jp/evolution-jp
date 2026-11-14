@@ -201,18 +201,21 @@ body.evo-shell #treeRoot {
 }
 
 /* ツリーの字下げ。子の項目は親の .tree-children の中に入るので、入れ物の余白が深さの分だけ重なる。
-   ＋－の無い行（ページ・続きを読む・空のフォルダ）は、＋－の画像（幅 18px、テーマの #treeRoot div img の margin -6px）と
-   後ろの空白の分だけ右に寄せ、フォルダのアイコンと揃える */
-#treeRoot .tree-row {
-    padding-inline-start: 0.83em;
-}
-
+   ＋－の無い行（ページ・続きを読む・空のフォルダ）は、＋－の画像と後ろの空白の分だけ右に寄せ、フォルダのアイコンと揃える
+   （＋－の画像は幅 18px で、下の規則で 6px 詰めるので、寄せる幅は 12px と空白 1 つ） */
 #treeRoot .tree-row.is-leaf {
-    padding-inline-start: calc(0.83em + 12px + 0.278em);
+    padding-inline-start: calc(12px + 0.278em);
 }
 
 #treeRoot .tree-children {
     padding-inline-start: 1.39em;
+}
+
+/* ツリーの行の画像（＋－・アイコン）。＋－の画像は右側に余白を含むので、画像を 6px ずつ前に詰める */
+#treeRoot div img {
+    margin: 0;
+    margin-inline-start: -6px;
+    vertical-align: middle;
 }
 
 /* 設定「リソースツリーのタイトルを省略」がオンのとき（#treeHolder.is-trim-title）、名前をツリーの幅で「…」にする。

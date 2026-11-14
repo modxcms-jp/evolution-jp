@@ -732,16 +732,6 @@ ul {
     font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
 }
 
-#treeRoot {
-    margin-inline-start: -10px;
-}
-
-#treeRoot div img {
-    margin: 0;
-    margin-inline-start: -6px;
-    vertical-align: middle;
-}
-
 #floater {
     display: none;
     position: absolute;

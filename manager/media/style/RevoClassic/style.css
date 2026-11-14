@@ -660,15 +660,6 @@ div.treeframebody {
     font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
 }
 
-#treeRoot {
-    margin-left: -10px;
-}
-
-#treeRoot div img {
-    margin: 0 0 0 -6px;
-    vertical-align: middle;
-}
-
 #floater {
     display: none;
     position: absolute;
