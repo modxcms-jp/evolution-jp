@@ -36,7 +36,7 @@
     .grid th[aria-sort] a::after {
         margin-left: 4px;
         font-size: 0.7em;
-        color: var(--color-primary);
+        color: var(--color-primary, #375665);
     }
 
     .grid th[aria-sort="ascending"] a::after {
@@ -109,7 +109,7 @@
         justify-content: space-between;
         flex-wrap: wrap;
         padding: 4px 8px;
-        background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
+        background-color: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
         border: 1px solid var(--color-border-default, #ccc);
         border-bottom: none;
     }
