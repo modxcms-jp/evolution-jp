@@ -198,6 +198,13 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: var(--space-4) var(--space-4) var(--space-5);
+
+    /* ページの見出し（h1。common/theme-base.css） */
+    --page-title-color: var(--gray-800);
+    --page-title-bg: #d0d0d0;
+    --page-title-radius: var(--radius-md);
+    --page-title-padding: var(--space-2);
+    --page-title-draft-bg: var(--color-draft-bg);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -220,18 +227,6 @@
 
     li, dd, blockquote {
         margin: 0 0 0 1em;
-    }
-
-    h1 {
-        font-size: 1.25em;
-        color: var(--gray-800);
-        font-weight: bold;
-        background-color: #d0d0d0;
-        letter-spacing: 1px;
-        line-height: 1em;
-        padding: var(--space-2);
-        border-radius: var(--radius-md);
-        margin: 0 0 var(--space-3);
     }
 
     h2 {
@@ -292,10 +287,6 @@ a img {
 .mutate-field-title {
     color: var(--color-warning, #444);
     font-weight: bold;
-}
-
-h1.draft {
-    background-color: var(--color-draft-bg);
 }
 
 p.caption, p.comment {

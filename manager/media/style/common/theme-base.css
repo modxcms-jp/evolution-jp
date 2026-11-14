@@ -47,6 +47,28 @@
         font-size: 0.9em;
         font-weight: bold;
     }
+
+    /* ページの見出し。大きさ・行の高さ・字間・下の余白は全テーマ共通。
+       色・地・枠・丸み・余白・影はテーマが :root の --page-title-* で決める（theme-variables.md の「ページの見出し」） */
+    h1 {
+        margin: 0 0 12px;
+        padding: var(--page-title-padding, 8px);
+        border: 1px solid var(--page-title-border-color, transparent);
+        border-radius: var(--page-title-radius, 4px);
+        background: var(--page-title-bg, transparent);
+        box-shadow: var(--page-title-shadow, none);
+        color: var(--page-title-color, inherit);
+        font-size: 1.25em;
+        font-weight: bold;
+        line-height: 1.4;
+        letter-spacing: .05em;
+    }
+
+    /* 下書きを編集している画面。帯の地で見分ける */
+    h1.draft {
+        border-color: var(--page-title-draft-border-color, var(--page-title-border-color, transparent));
+        background: var(--page-title-draft-bg, #f4e2c3);
+    }
 }
 
 .subTitle {

@@ -206,6 +206,12 @@
     --color-pagination-disabled: #ccc;
     --pagination-active-bg: var(--color-link);
     --color-pagination-active-border: var(--color-link-hover);
+
+    /* ページの見出し（h1。common/theme-base.css） */
+    --page-title-color: var(--color-heading);
+    --page-title-radius: var(--radius-md);
+    --page-title-padding: var(--space-2);
+    --page-title-draft-bg: #F4E2C3;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -228,18 +234,6 @@
 
     li, dd, blockquote {
         margin: 0 0 0 1em;
-    }
-
-    h1 {
-        font-size: 1.25em;
-        color: var(--color-heading);
-        font-weight: bold;
-        background-color: transparent;
-        letter-spacing: 1px;
-        line-height: 1em;
-        padding: var(--space-2);
-        border-radius: var(--radius-md);
-        margin: 0 0 var(--space-3);
     }
 
     h2 {
@@ -300,11 +294,6 @@ a img {
 .mutate-field-title {
     color: var(--color-warning, #444);
     font-weight: bold;
-}
-
-/* 下書きは地色で見分けるため残す */
-h1.draft {
-    background-color: #F4E2C3;
 }
 
 p.caption, p.comment {
