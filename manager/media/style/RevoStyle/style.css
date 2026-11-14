@@ -225,6 +225,8 @@
     --tree-floater-border-color: var(--gray-400);
 
     /* タブ（common/tabs.css） */
+    --tab-page-radius: 0 0 5px 5px;
+    --tab-page-border: 1px solid #AAA;
     --tab-margin: 3px 4px 1px 0;
     --tab-padding: 3px 10px;
     --tab-border-color: var(--color-primary-end);
@@ -685,11 +687,6 @@ a.hometblink:hover {
     float: left;
     margin: 0 12px 2px 0;
     text-align: center;
-}
-
-.tab-page {
-    border: 1px solid #AAA;
-    border-radius: 0 0 5px 5px;
 }
 
 .sectionBody .tab-page {

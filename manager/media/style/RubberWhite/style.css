@@ -762,11 +762,6 @@ a.hometblink:hover {
     text-align: center;
 }
 
-.tab-page {
-    border: 1px solid var(--color-text-muted);
-    border-radius: 0 0 5px 5px;
-}
-
 /* ============================================================================
    9. Tables & Grids (Data Tables)
    Used in: Resource lists, user management, data grids

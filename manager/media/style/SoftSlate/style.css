@@ -231,6 +231,9 @@
     --tree-pane-border: 1px solid var(--color-frame);
 
     /* タブ（common/tabs.css） */
+    --tab-page-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    --tab-page-border-top: none;
+    --tab-page-border: 1px solid var(--color-frame);
     --tab-row-border: 1px solid var(--color-frame);
     --tab-top: 0;
     --tab-margin: 0 4px -1px 0;
@@ -674,12 +677,6 @@ a.hometblink:hover {
 .rtl .wm_button {
     float: right;
     margin: 0 5px 2px 6px;
-}
-
-.tab-page {
-    border: 1px solid var(--color-frame);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    background: #ffffff;
 }
 
 /* ============================================================================

@@ -231,6 +231,9 @@
     --tree-pane-border: 1px solid var(--color-card-border);
 
     /* タブ（common/tabs.css） */
+    --tab-page-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    --tab-page-border-top: none;
+    --tab-page-border: 1px solid var(--color-card-border);
     --tab-row-border: 1px solid var(--color-card-border);
     --tab-top: 0;
     --tab-margin: 0 4px -1px 0;
@@ -759,11 +762,6 @@ a.hometblink:hover {
     float: left;
     margin: 0 var(--space-3) 2px 0;
     text-align: center;
-}
-
-.tab-page {
-    border: 1px solid var(--color-card-border);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .pagination li a,

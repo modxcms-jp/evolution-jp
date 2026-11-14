@@ -1058,11 +1058,6 @@ a.hometblink:hover {
     display: none;
 }
 
-.tab-page {
-    border: none;
-    border-radius: var(--radius-xl);
-}
-
 .pagination li a,
 .pagination li span {
     border-radius: var(--radius-sm);

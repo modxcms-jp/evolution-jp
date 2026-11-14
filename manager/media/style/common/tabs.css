@@ -90,6 +90,8 @@
         margin-top: 0;
         padding: var(--tab-page-padding, 16px 16px 20px);
         border: var(--tab-page-border, none);
+        /* 下線の型は、タブ列の下線を本体の上の辺にするので、上の枠を消す */
+        border-top: var(--tab-page-border-top, var(--tab-page-border, none));
         border-radius: var(--tab-page-radius, 0);
         background: var(--tab-page-bg, var(--color-surface, #fff));
         box-shadow: var(--tab-page-shadow, none);

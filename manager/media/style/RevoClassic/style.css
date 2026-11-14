@@ -218,6 +218,8 @@
     --tree-floater-border-color: var(--color-tree-border);
 
     /* タブ（common/tabs.css） */
+    --tab-page-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    --tab-page-border: var(--border-thin) solid #AAA;
     --tab-radius: var(--radius-xl) var(--radius-xl) 0 0;
     --tab-selected-border-width: 1px 1px 0;
 }
@@ -587,11 +589,6 @@ a.hometblink:hover {
     float: left;
     margin: 0 var(--space-3) var(--space-1) 0;
     text-align: center;
-}
-
-.tab-page {
-    border: var(--border-thin) solid #AAA;
-    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
 .pagination li a,
