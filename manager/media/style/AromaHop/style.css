@@ -232,6 +232,16 @@
     --color-pagination-disabled: var(--gray-400);
     --pagination-active-bg: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
     --color-pagination-active-border: var(--color-primary-end);
+
+    /* ページの見出し（h1。common/theme-base.css） */
+    --page-title-color: var(--color-text-dark);
+    --page-title-bg: rgba(255, 255, 255, 0.55);
+    --page-title-border-color: rgba(160, 195, 175, 0.4);
+    --page-title-radius: var(--radius-md);
+    --page-title-padding: var(--space-3) var(--space-4);
+    --page-title-shadow: var(--shadow-sm);
+    --page-title-draft-bg: linear-gradient(135deg, var(--color-draft-start) 0%, var(--color-draft-end) 100%);
+    --page-title-draft-border-color: rgba(230, 190, 150, 0.5);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -264,20 +274,6 @@
 
     li, dd, blockquote {
         margin: 0 0 0 1em;
-    }
-
-    h1 {
-        font-size: 1.25em;
-        color: var(--color-text-dark);
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.55);
-        letter-spacing: 0.5px;
-        line-height: 1.4;
-        padding: var(--space-3) var(--space-4);
-        border-radius: var(--radius-md);
-        margin: 0 0 var(--space-3) 0;
-        border: 1px solid rgba(160, 195, 175, 0.4);
-        box-shadow: var(--shadow-sm);
     }
 
     h2 {
@@ -458,11 +454,6 @@ a img {
 .mutate-field-title {
     color: #3d7a5c;
     font-weight: 600;
-}
-
-h1.draft {
-    background: linear-gradient(135deg, var(--color-draft-start) 0%, var(--color-draft-end) 100%);
-    border-color: rgba(230, 190, 150, 0.5);
 }
 
 p.caption, p.comment {

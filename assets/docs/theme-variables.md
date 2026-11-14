@@ -100,6 +100,18 @@
 
 `input[type=submit|button|reset]` も、`.button` と同じ部品として、この変数で描く（主ボタンの `.primary` は付けない）。テーマは `input` のボタンだけの規則を書かない。
 
+## ページの見出し
+
+画面の一番上の見出しの帯（`h1`）は、`manager/media/style/common/theme-base.css`（`@layer evo-base`）の規則が描く。文字の大きさ（`1.25em`）・太さ（`bold`）・行の高さ（`1.4`）・字間（`.05em`）・下の余白（12px）・枠の太さ（1px）は全テーマ共通で、テーマは変えない。テーマは `:root` で下の変数の値を決め、`h1` の規則を書かない。
+
+| 変数 | 意味 | 既定値（theme-base.css） |
+| --- | --- | --- |
+| `--page-title-color` | 文字の色 | 親から受け継ぐ |
+| `--page-title-bg` | 地 | `transparent` |
+| `--page-title-border-color` | 枠の色 | `transparent` |
+| `--page-title-radius` / `--page-title-padding` / `--page-title-shadow` | 角・内側の余白・影 | `4px` / `8px` / なし |
+| `--page-title-draft-bg` / `--page-title-draft-border-color` | 下書きを編集している画面の帯（`h1.draft`）の地と枠の色 | `#f4e2c3` / `--page-title-border-color` |
+
 ## セクション
 
 見出しの帯（`.sectionHeader`）と本体の箱（`.sectionBody`）の見た目は、`manager/media/style/common/sections.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
@@ -150,7 +162,7 @@
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 
