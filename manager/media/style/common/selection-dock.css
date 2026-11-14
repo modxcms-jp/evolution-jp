@@ -58,19 +58,13 @@
     padding: 0;
 }
 .selection-dock ul.actionButtons > li {
-    float: none;
     margin: 0;
 }
 .selection-dock ul.actionButtons button {
-    float: none;
     margin: 0;
     font-family: inherit;
     line-height: inherit;
     cursor: pointer;
-}
-/* テーマの .actionButtons:after（clear 用）が flex の並びの要素になり、右端から離れる・行が増えるのを防ぐ */
-.selection-dock ul.actionButtons::after {
-    content: none;
 }
 /* 押せないボタンは薄くして、押せないと分かるようにする（テーマの .actionButtons には無効の見た目が無い）。
    hover・active でテーマの色が変わらないよう、ボタン自身はポインターを受けず、cursor は包む li に付ける */

@@ -1,9 +1,14 @@
 /*
  * ボタン列（ul.actionButtons）の並びの共通の決まり。ボタンそのものの見た目は forms.css、帯（#actions）の地・枠・余白はテーマが決める。
+ * 項目は flex で横に並べ、間は gap で作る（項目の間の幅はテーマが --action-buttons-gap で決める）。
  * 値の違うテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）。
  */
 @layer evo-components {
     ul.actionButtons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--action-buttons-gap, 6px);
         margin: 0 0 12px;
         padding: 0;
         background: none;
@@ -11,16 +16,11 @@
         white-space: nowrap;
     }
 
+    /* 項目の中（ボタン、「＋」、選択欄）も横に並べ、縦の真ん中にそろえる */
     .actionButtons li {
+        display: flex;
+        align-items: center;
         list-style: none;
         padding: 0;
-        float: inline-start;
-        margin-inline-end: 6px;
-    }
-
-    .actionButtons select,
-    .actionButtons span.and {
-        display: block;
-        float: inline-start;
     }
 }
