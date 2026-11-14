@@ -743,15 +743,6 @@ html body.evo-shell > #treePane {
     padding-left: 12px;
 }
 
-#treeRoot {
-    margin-left: -10px;
-}
-
-#treeRoot div img {
-    margin: 0 0 0 -6px;
-    vertical-align: middle;
-}
-
 #floater {
     display: none;
     position: absolute;
