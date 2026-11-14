@@ -129,9 +129,6 @@ if (!sessionv('tree_sortdir')) {
         }
 
         function dopopup(x, y) {
-            if (selectedObjectName.length > 20) {
-                selectedObjectName = selectedObjectName.substr(0, 20) + "...";
-            }
             x = x<?= $modx_textdir === 'rtl' ? '-190' : '';?>;
             var mnu = document.getElementById('mx_contextmenu');
             var nameHolder = document.getElementById('nameHolder');
@@ -471,7 +468,7 @@ if (is_array($evtOut)) {
         </div>
     </div>
 
-    <div id="treeHolder">
+    <div id="treeHolder"<?= config('manager_treepane_trim_title') ? ' class="is-trim-title"' : '' ?>>
         <?php
         // invoke OnTreeRender event
         $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $esc_request);

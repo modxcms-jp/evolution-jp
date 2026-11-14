@@ -113,6 +113,32 @@ body.evo-shell #treeRoot {
     padding-inline-start: 1.39em;
 }
 
+/* 設定「リソースツリーのタイトルを省略」がオンのとき（#treeHolder.is-trim-title）、名前をツリーの幅で「…」にする。
+   後ろの ID（[12] など）は残すため、行と、押せる部分（span.treeNode など）を横並びにして、名前だけを縮める */
+#treeHolder.is-trim-title .tree-row {
+    display: flex;
+    align-items: center;
+}
+
+#treeHolder.is-trim-title .tree-row > span {
+    display: inline-flex;
+    gap: 0.278em;
+    min-width: 0;
+}
+
+#treeHolder.is-trim-title .tree-node-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 右クリックメニューの見出し（名前） */
+#mx_contextmenu #nameHolder {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 /* ツリーの行のアイコン（押すと右クリックメニュー）。乗ったときに地を付ける */
 .tree-node-icon {
     cursor: pointer;
