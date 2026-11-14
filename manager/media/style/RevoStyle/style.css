@@ -274,6 +274,9 @@
     --preloader-radius: 10px;
     --preloader-border-color: #999;
     --fieldset-tab-page-border-color: #e4e4e4;
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-disabled-color: #777;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -414,33 +417,6 @@ form textarea {
    9. Tables & Grids (Data Tables, Settings)
    Used in: Configuration tables, data grids
    ============================================================================ */
-
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: #809c47;
-    padding: 3px 5px;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.treeButton:hover {
-    border: 1px solid #88939E;
-    padding: 2px 4px;
-    background: #fff;
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid #657587;
-    padding: 2px 4px;
-    color: #777;
-    border-width: 0;
-    opacity: .5;
-}
 
 /* -------------------------[ Welcome Page ]--- */
 

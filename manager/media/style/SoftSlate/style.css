@@ -393,32 +393,6 @@ input[type="button"] {
    Used in: Site tree navigation and context menus
    ============================================================================ */
 
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: var(--color-link);
-    padding: 3px 5px;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.treeButton:hover {
-    border: 1px solid #88939E;
-    padding: 2px 4px;
-    background: #fff;
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid #657587;
-    padding: 2px 4px;
-    color: var(--gray-700);
-    border-width: 0;
-    opacity: .5;
-}
-
 /* -------------------------[ Welcome Page ]--- */
 
 .rtl .wm_button {

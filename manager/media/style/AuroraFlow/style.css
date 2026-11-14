@@ -280,6 +280,10 @@
     --statusbar-text-color: var(--color-surface);
     --preloader-radius: var(--radius-xl);
     --split-display: none;
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-radius: var(--radius-sm);
+    --tree-button-hover-border-color: var(--color-card-border);
 }
 
 body#mainpane {
@@ -485,34 +489,6 @@ li::marker {
 .dynamic-tab-pane-control .tab-row .tab:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: -2px;
-}
-
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: #809c47;
-    padding: 3px 5px;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.treeButton:hover {
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-sm);
-    padding: 2px var(--space-1);
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid #657587;
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    border-width: 0;
-    opacity: .5;
 }
 
 /* -------------------------[ Welcome Page ]--- */

@@ -80,4 +80,33 @@
         border: 1px solid var(--tree-floater-border-color, #ccc);
         background: var(--color-surface, #fff);
     }
+
+    /* ツリーの上のボタン（tree.php の #treeMenu）。いつも透明の 1px の枠を持ち、乗せたときは枠の色と地だけを変えるので、中身が動かない */
+    .treeButton,
+    .treeButtonDisabled {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 4px;
+        border: 1px solid transparent;
+        border-radius: var(--tree-button-radius, 0);
+        color: var(--tree-button-color, var(--color-text-primary, #333));
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .treeButton {
+        cursor: pointer;
+        transition: background-color .15s ease, border-color .15s ease;
+    }
+
+    .treeButton:hover {
+        border-color: var(--tree-button-hover-border-color, #88939e);
+        background: var(--tree-button-hover-bg, var(--color-surface, #fff));
+    }
+
+    .treeButtonDisabled {
+        color: var(--tree-button-disabled-color, var(--gray-700, #777));
+        cursor: default;
+        opacity: .5;
+    }
 }

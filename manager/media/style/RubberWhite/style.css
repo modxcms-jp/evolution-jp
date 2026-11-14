@@ -360,6 +360,12 @@
     --searchbar-radius: var(--radius-md);
     --settings-th-color: var(--color-gray-700);
     --fieldset-tab-page-border-color: var(--color-border-lighter);
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-radius: var(--space-1);
+    --tree-button-hover-border-color: var(--light-border);
+    --tree-button-hover-bg: var(--light-bg-secondary);
+    --tree-button-disabled-color: var(--color-text-tertiary);
 }
 
 body#mainpane {
@@ -489,32 +495,6 @@ input[type="button"] {
    Used in: Document editor, settings, multi-section forms
    ============================================================================ */
 
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: var(--accent-blue);
-    padding: 3px 5px;
-    white-space: nowrap;
-}
-
-.treeButton:hover {
-    border: 1px solid var(--color-gray-500);
-    padding: 2px 4px;
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid var(--color-gray-600);
-    padding: 2px 4px;
-    color: var(--color-text-tertiary);
-    border-width: 0;
-    opacity: .5;
-}
-
 /* -------------------------[ Welcome Page ]--- */
 
 /* ============================================================================
@@ -598,19 +578,6 @@ body#mainpane {
 /* ツリーメニューのツールバー */
 #treeMenu {
     background: transparent;
-}
-
-/* ツリーボタンのスタイル改善 */
-.treeButton {
-    border: 1px solid transparent;
-    border-radius: var(--space-1);
-    padding: var(--space-1) var(--radius-md);
-    transition: all 0.2s ease;
-}
-
-.treeButton:hover {
-    background: var(--light-bg-secondary);
-    border-color: var(--light-border);
 }
 
 /* 右上の操作ボタンの帯は、すりガラスにする */

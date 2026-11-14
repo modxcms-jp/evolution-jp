@@ -297,33 +297,6 @@ input[type="button"] {
    Used in: Document editor, module configuration, multi-section forms
    ============================================================================ */
 
-/* Tree buttons */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: var(--border-thin);
-    border-bottom-color: #809c47;
-    padding: var(--space-1) var(--space-1);
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.treeButton:hover {
-    border: var(--border-thin) solid #88939E;
-    padding: calc(var(--space-1) - var(--border-thin)) calc(var(--space-1) - var(--border-thin));
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: var(--border-thin) solid #657587;
-    padding: var(--space-1) var(--space-1);
-    color: var(--gray-700);
-    border-width: 0;
-    opacity: .5;
-}
-
 /* Welcome Page */
 
 .pagination li a,
