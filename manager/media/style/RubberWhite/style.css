@@ -319,6 +319,11 @@
     --actions-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     --actions-and-color: var(--color-secondary-hover-text);
     --actions-disabled-color: var(--color-text-tertiary);
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --readonly-bg: var(--color-gray-200);
+    --comment-color: var(--color-border-dark);
+    --comment-p-color: var(--color-text-secondary);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -400,16 +405,6 @@ a img {
    Used in: Error messages, visibility controls
    ============================================================================ */
 
-.mutate-field-title {
-    color: var(--color-warning, #444);
-    font-weight: bold;
-}
-
-p.comment {
-    font-size: 0.9em;
-    color: var(--color-text-secondary);
-}
-
 /* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
 @layer evo-base {
     button {
@@ -449,16 +444,6 @@ p.comment {
     z-index: 1000;
 }
 
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: var(--color-gray-200) !important;
-    text-shadow: 1px 1px var(--color-surface) !important;
-    cursor: not-allowed;
-}
-
 optgroup option {
     font-weight: normal;
     background-color: var(--color-surface);
@@ -474,18 +459,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-}
-
-form input.hidden {
-    display: none !important;
-    position: absolute;
-}
-
-form textarea {
-    height: 78px;
-    width: 350px;
-    line-height: 1.5;
-    overflow: auto;
 }
 
 /* ============================================================================
@@ -537,10 +510,6 @@ form textarea {
 
 .section .sectionBody {
     margin: 0;
-}
-
-.comment {
-    color: var(--color-border-dark);
 }
 
 thead td {
@@ -790,49 +759,10 @@ fieldset.tab-page {
    Used in: Document editor, settings forms, template variables
    ============================================================================ */
 
-/*
-* Generic styles for all form elements
-*/
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label {
-    font-size: 1em;
-    display: inline;
-    float: inline-start;
-    width: 200px;
-    color: var(--color-error) !important;
-    font-weight: bold;
-}
-
-form#mutate dd {
-    margin-inline-start: 210px;
-}
-
 form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
     width: 300px;
-}
-
-#tv_body input[type=text],
-#tv_body textarea {
-    background: var(--color-surface);
-}
-
-/* -------------------------[ date picker ]--- */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px var(--space-6);
-    background-color: var(--color-surface);
-    background: url(../common/images/misc/date-icon.png) no-repeat var(--space-1) center var(--color-surface);
-}
-
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background-image: url(../common/images/misc/date-icon-focus.png);
-    cursor: text;
 }
 
 .code-editor-options {

@@ -86,6 +86,51 @@
 }
 
 /* 汎用のクラス */
+/* 編集画面の入力欄（theme-variables.md の「フォーム部品」）。テーマの入力欄の規則と詳細度で張り合うので、層に入れない */
+/* TV の欄は、テーマの欄の地に関係なく白い地にする */
+#tv_body input[type=text],
+#tv_body textarea {
+    background: var(--color-surface, #fff);
+}
+
+/* 日付の欄。カレンダーのアイコンはテーマが --datepicker-icon・--datepicker-icon-focus で変える。
+   テーマの入力欄の規則（form#mutate input など）と詳細度で張り合うので、層に入れない。
+   TV の欄の白い地（上の #tv_body の規則）に負けないよう、id を含むセレクタを並べて後ろに置く */
+input.DatePicker,
+#mutate input.DatePicker,
+#userPane input.DatePicker,
+#webUserPane input.DatePicker,
+input#datefrom.DatePicker,
+input#dateto.DatePicker {
+    width: 150px;
+    padding: 3px 3px 3px 24px;
+    background: var(--datepicker-icon, url(../common/images/misc/date-icon.png)) no-repeat 4px center var(--color-surface, #fff);
+}
+
+input:focus.DatePicker,
+#mutate input:focus.DatePicker,
+#userPane input:focus.DatePicker,
+#webUserPane input:focus.DatePicker,
+input#datefrom:focus.DatePicker,
+input#dateto:focus.DatePicker {
+    background-image: var(--datepicker-icon-focus, url(../common/images/misc/date-icon-focus.png));
+    cursor: text;
+}
+
+/* 読み取り専用の欄。TV の欄の白い地より強くするため !important にする */
+:is(textarea, input[type='text'])[readonly],
+.readonly {
+    background-color: var(--readonly-bg, #eee) !important;
+    text-shadow: 1px 1px var(--color-surface, #fff) !important;
+    cursor: not-allowed;
+}
+
+/* JS が後で見せる、隠した欄 */
+form input.hidden {
+    display: none !important;
+    position: absolute;
+}
+
 .clear {
     clear: both;
 }

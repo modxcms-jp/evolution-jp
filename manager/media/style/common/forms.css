@@ -175,4 +175,27 @@
     img.tooltip {
         cursor: help;
     }
+
+    /* 編集画面の欄の名前（render_tr.tpl） */
+    .mutate-field-title {
+        color: var(--mutate-field-title-color, var(--color-warning, #444));
+        font-weight: bold;
+    }
+
+    /* 欄の下や横の説明 */
+    .comment {
+        color: var(--comment-color, var(--gray-500, #999));
+    }
+
+    p.comment {
+        color: var(--comment-p-color, var(--comment-color, var(--gray-600, #777)));
+        font-size: .9em;
+    }
+
+    form textarea {
+        width: 350px;
+        height: 78px;
+        overflow: auto;
+        line-height: 1.5;
+    }
 }
