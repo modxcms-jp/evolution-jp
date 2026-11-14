@@ -38,6 +38,16 @@
         font-weight: normal;
     }
 
+    /* リンク。色はテーマが --color-link・--color-link-hover で決める */
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
+
+    a:hover {
+        color: var(--color-link-hover);
+    }
+
     h4, h5 {
         font-size: 1em;
         font-weight: bold;

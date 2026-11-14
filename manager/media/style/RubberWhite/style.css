@@ -378,7 +378,7 @@ a img {
     font-weight: bold;
 }
 
-p.caption, p.comment {
+p.comment {
     font-size: 0.9em;
     color: var(--color-text-secondary);
 }
@@ -393,18 +393,6 @@ p.caption, p.comment {
     }
 }
 
-/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
-@layer evo-base {
-    a, a:active, a:visited, a:link {
-        color: var(--color-link);
-        text-decoration: underline;
-    }
-
-    a:hover {
-        color: var(--color-link-hover);
-    }
-}
-
 .split {
     background: transparent;
     border-top: 1px dotted #556476;
@@ -412,14 +400,6 @@ p.caption, p.comment {
     font-size: 0;
     clear: both;
     padding: 0;
-}
-
-.right {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    float: inline-start;
-    padding-block: 0 20px;
-    padding-inline-end: 20px;
 }
 
 #buildText,
@@ -459,7 +439,6 @@ optgroup option {
 
 input.checkbox,
 input.radio,
-input.submit,
 input.button,
 input[type="checkbox"],
 input[type="radio"],
@@ -470,27 +449,9 @@ input[type="button"] {
     cursor: pointer;
 }
 
-.form {
-    padding: 15px;
-    border: solid 1px var(--color-border-light);
-}
-
 form input.hidden {
     display: none !important;
     position: absolute;
-}
-
-.form label,
-.form input,
-.form textarea {
-    display: block;
-    float: inline-start;
-}
-
-.form label {
-    padding-inline-end: 20px;
-    text-align: end;
-    width: 110px;
 }
 
 form textarea {
@@ -498,47 +459,6 @@ form textarea {
     width: 350px;
     line-height: 1.5;
     overflow: auto;
-}
-
-.form legend {
-    color: var(--color-link);
-    font-weight: bold;
-    padding: 5px;
-}
-
-.form select {
-    display: inline;
-    float: inline-start;
-}
-
-input.submit {
-    display: block !important;
-    float: none !important;
-    margin-block: 20px 0;
-    margin-inline-start: 140px !important;
-}
-
-.form fieldset.list {
-    margin: 6px 6px 3px;
-    margin-inline-start: 0;
-}
-
-.form fieldset.list label,
-.form fieldset.list input {
-    padding: 0;
-    margin: 0 0 3px;
-    float: inline-start;
-    display: inline;
-    border: 0;
-    background: none;
-    width: auto;
-    height: auto;
-}
-
-.form fieldset.list label {
-    padding-inline-start: 5px;
-    text-align: start;
-    width: auto;
 }
 
 /* ============================================================================
@@ -599,17 +519,6 @@ input.submit {
 thead td {
     color: var(--color-text-primary);
     border-top: 1px solid var(--color-surface);
-}
-
-.screen {
-    border: 1px solid var(--color-border-light);
-    text-align: center;
-}
-
-.editorCell {
-    border-top: 1px solid #808080;
-    text-align: start;
-    vertical-align: baseline;
 }
 
 /* ============================================================================
@@ -793,10 +702,6 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.filelist td {
-    border-bottom: 1px solid #C2C3CF;
-}
-
 /* ============================================================================
    10. Tabs System (Dynamic Tab Pane)
    Used in: Document editor, settings, multi-section forms
@@ -917,11 +822,6 @@ a.hometblink:hover {
     text-align: center;
 }
 
-/* -------------------------[ Welcome Page ]--- */
-#mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
-}
-
 .tab-page {
     border: 1px solid var(--color-text-muted);
     border-radius: 0 0 5px 5px;
@@ -932,21 +832,8 @@ a.hometblink:hover {
    Used in: Resource lists, user management, data grids
    ============================================================================ */
 
-/* -------------------------[ Pagination table ]--- */
-#max-display-records {
-    margin: 10px 0;
-}
-
 fieldset.tab-page {
     border: 1px solid var(--color-border-lighter) !important;
-}
-
-h2#edit_document_title {
-    font-size: calc(var(--font-size-base, 12px) * 1.25);
-    color: var(--color-section-header-start);
-    width: 100%;
-    border-bottom: none;
-    padding: 5px 10px;
 }
 
 /* ============================================================================
@@ -1010,8 +897,7 @@ form#mutate dd {
     margin-bottom: 10px;
 }
 
-form#mutate dt label,
-form#mutate dt h3.label {
+form#mutate dt label {
     font-size: 1em;
     display: inline;
     float: inline-start;
@@ -1024,10 +910,6 @@ form#mutate dd {
     margin-inline-start: 210px;
 }
 
-form#mutate input.disabled {
-    background-color: var(--color-section-header-start) !important;
-}
-
 form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
@@ -1037,14 +919,6 @@ form#mutate textarea {
 #tv_body input[type=text],
 #tv_body textarea {
     background: var(--color-surface);
-}
-
-/*
-* Styling for datepicker elements in settings and templavars
-*/
-form#mutate input.date,
-form#mutate input.tvdate {
-    margin-inline-end: 10px;
 }
 
 /* -------------------------[ date picker ]--- */

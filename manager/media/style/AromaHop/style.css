@@ -487,7 +487,7 @@ a img {
     font-weight: 600;
 }
 
-p.caption, p.comment {
+p.comment {
     font-size: 0.9em;
     color: var(--gray-800);
 }
@@ -501,27 +501,8 @@ p.caption, p.comment {
     }
 }
 
-/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
-@layer evo-base {
-    a, a:active, a:visited, a:link {
-        color: var(--color-link);
-        text-decoration: underline;
-    }
-
-    a:hover {
-        color: var(--color-link-hover);
-    }
-}
-
 .split {
   display:none;
-}
-
-.right {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    float: left;
-    padding: 0 var(--space-5) var(--space-5);
 }
 
 #buildText,
@@ -559,7 +540,6 @@ optgroup option {
     background-color: var(--color-surface);
 }
 
-input.submit,
 input.button,
 input[type="submit"],
 input[type="button"] {
@@ -695,27 +675,9 @@ input[type="radio"]:disabled::after {
     background: var(--gray-400);
 }
 
-.form {
-    padding: 15px;
-    border: solid 1px var(--gray-300);
-}
-
 form input.hidden {
     display: none;
     position: absolute;
-}
-
-.form label,
-.form input,
-.form textarea {
-    display: block;
-    float: left;
-}
-
-.form label {
-    padding-right: var(--space-5);
-    text-align: right;
-    width: 110px;
 }
 
 form textarea {
@@ -724,45 +686,6 @@ form textarea {
     line-height: 1.5;
     overflow: auto;
     font-size: inherit;
-}
-
-.form legend {
-    color: #04C;
-    font-weight: bold;
-    padding: 5px;
-}
-
-.form select {
-    display: inline;
-    float: left;
-}
-
-input.submit {
-    display: block;
-    float: none;
-    margin: var(--space-5) 0 0 140px;
-}
-
-.form fieldset.list {
-    margin: 6px 6px 3px 0;
-}
-
-.form fieldset.list label,
-.form fieldset.list input {
-    padding: 0;
-    margin: 0 0 3px;
-    float: left;
-    display: inline;
-    border: 0;
-    background: none;
-    width: auto;
-    height: auto;
-}
-
-.form fieldset.list label {
-    padding-left: 5px;
-    text-align: left;
-    width: auto;
 }
 
 /* ============================================================================
@@ -834,17 +757,6 @@ thead td {
 
 li::marker {
     color: var(--gray-500);
-}
-
-.screen {
-    border: 1px solid var(--gray-300);
-    text-align: center;
-}
-
-.editorCell {
-    border-top: 1px solid #808080;
-    text-align: left;
-    vertical-align: baseline;
 }
 
 /* 行スタイル - モヒートパレット準拠 */
@@ -1153,10 +1065,6 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.filelist td {
-    border-bottom: 1px solid #C2C3CF;
-}
-
 /* ============================================================================
    11. Tabs System - Dynamic Tab Pane Control
    Used in: Document editor, settings pages, multi-tab interfaces
@@ -1319,33 +1227,14 @@ a.hometblink:hover {
     opacity: 1;
 }
 
-/* Container for welcome buttons grid */
-.wm_buttons_container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    padding: var(--space-2) 0;
-}
-
 /* Clear fix for floating buttons */
 .wm_button + br {
     display: none;
 }
 
-/* -------------------------[ Welcome Page ]--- */
-#mainActionPages {
-    background: transparent;
-    padding: var(--space-3);
-}
-
 .tab-page {
     border: none;
     border-radius: var(--radius-xl);
-}
-
-/* -------------------------[ Pagination table ]--- */
-#max-display-records {
-    margin: 10px 0;
 }
 
 .pagination li a,
@@ -1355,14 +1244,6 @@ a.hometblink:hover {
 
 fieldset.tab-page {
     border: 1px solid var(--gray-200) !important;
-}
-
-h2#edit_document_title {
-    font-size: calc(var(--font-size-base, 12px) * 1.25);
-    color: var(--gray-100);
-    width: 100%;
-    border-bottom: none;
-    padding: 5px 10px;
 }
 
 /* ============================================================================
@@ -1430,8 +1311,7 @@ form#mutate dd {
     margin-bottom: 10px;
 }
 
-form#mutate dt label,
-form#mutate dt h3.label {
+form#mutate dt label {
     font-size: 1em;
     display: inline;
     float: left;
@@ -1444,10 +1324,6 @@ form#mutate dd {
     margin-left: 210px;
 }
 
-form#mutate input.disabled {
-    background-color: var(--gray-100) !important;
-}
-
 form#mutate select.inputBox,
 form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 form#mutate textarea {
@@ -1457,14 +1333,6 @@ form#mutate textarea {
 #tv_body input[type=text],
 #tv_body textarea {
     background: var(--color-surface);
-}
-
-/*
-* Styling for datepicker elements in settings and templavars
-*/
-form#mutate input.date,
-form#mutate input.tvdate {
-    margin-right: 10px;
 }
 
 /* -------------------------[ date picker ]--- */
