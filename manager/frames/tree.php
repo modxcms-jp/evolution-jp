@@ -356,8 +356,6 @@ if (is_array($evtOut)) {
 }
 ?>
 <div class="treeframebody">
-    <div id="treeSplitter"></div>
-
     <div class="tree-toolbar">
         <table id="treeMenu" width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>

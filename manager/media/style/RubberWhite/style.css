@@ -961,13 +961,6 @@ div.treeNode {
     color: var(--color-tree-protected);
 }
 
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    inset-inline-end: -10px;
-}
-
 .disabledPlugin a {
     color: var(--color-text-muted);
     text-decoration: line-through;
