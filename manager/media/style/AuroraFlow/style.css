@@ -12,7 +12,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -211,6 +211,11 @@
     --page-title-radius: var(--radius-md);
     --page-title-padding: var(--space-2);
     --page-title-draft-bg: var(--color-draft-light);
+
+    /* 右クリックメニュー（common/context-menu.css） */
+    --context-menu-shadow: var(--shadow-lg);
+    --context-menu-title-text-shadow: 0 -1px 0 var(--color-text-dark);
+    --context-menu-item-color: var(--color-text-dark);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -660,7 +665,7 @@ li::marker {
 }
 
 /* ============================================================================
-   8. Tree Components - Site Tree, Context Menu
+   8. Tree Components - Site Tree
    Used in: Site tree, document tree navigation
    ============================================================================ */
 
@@ -816,54 +821,6 @@ a.hometblink:hover {
     margin: 70px auto;
     padding: 50px;
     border: 1px solid var(--gray-500);
-}
-
-/* -------------------------[ contextmenu in editing modules ]--- */
-.contextMenu {
-    background: var(--color-surface);
-    margin: 0;
-    padding: 0;
-    border: 1px solid #039;
-    border-color: #eaeaea #909090 #707070 #eaeaea;
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: none;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    padding: 3px 16px 3px 2px;
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: 3px 16px 3px 2px;
-    color: var(--color-text-darker);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: var(--color-text-primary);
-    background: #e3e3e3;
-    padding: 2px 15px 2px 1px;
-    border: 1px solid #c0c0c0;
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 var(--space-2) 0 0;
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .3;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: 1px;
-    background-color: silver;
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
 }
 
 /* ============================================================================
@@ -1053,78 +1010,6 @@ a.hometblink:hover {
     background: rgba(59, 130, 246, 0.25);
     color: #ffffff;
     font-weight: bold;
-}
-
-/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 165px;
-    background-color: var(--color-surface);
-    margin: 0;
-    padding-bottom: 10px;
-    border: 1px solid var(--color-border-light);
-    border-right-color: #dcdcdc;
-    border-bottom-color: #dcdcdc;
-    overflow: hidden;
-    line-height: 11px;
-    box-shadow: var(--shadow-lg);
-}
-
-#mx_contextmenu .menuLink {
-    cursor: pointer;
-    color: var(--color-text-dark);
-    padding: 3px 5px 3px 4px;
-}
-
-#mx_contextmenu .menuLink:hover {
-    background: #DDE4EB;
-    border: 1px solid #fdfdfd;
-    border-bottom-color: #dcdcdc;
-    color: var(--color-text-primary);
-}
-
-#mx_contextmenu .menuLink:hover,
-#mx_contextmenu .menuLinkDisabled {
-    cursor: pointer;
-    padding: 2px 4px 2px 3px;
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    color: #787878;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-right: 5px;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .3;
-}
-
-#mx_contextmenu #nameHolder {
-    color: var(--color-surface);
-    text-align: left;
-    cursor: default;
-    font-weight: bold;
-    padding: 6px 4px;
-    margin-bottom: 3px;
-    text-shadow: 0px -1px 0px var(--color-text-dark);
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background-color: silver;
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
 }
 
 /* -------------------------[ Settings Table ]--- */

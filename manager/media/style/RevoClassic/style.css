@@ -12,7 +12,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -579,7 +579,7 @@ thead td {
 }
 
 /* ============================================================================
-   8. Tree Components (Site Tree, Context Menu)
+   8. Tree Components (Site Tree)
    Used in: Resource tree, context menus, tree navigation
    ============================================================================ */
 
@@ -725,54 +725,6 @@ a.hometblink:hover {
     border: var(--border-thin) solid var(--gray-500);
 }
 
-/* Context Menu in Editing Modules */
-.contextMenu {
-    background: var(--color-surface);
-    margin: 0;
-    padding: 0;
-    border: var(--border-thin) solid #039;
-    border-color: var(--gray-200) #909090 #707070 var(--gray-200);
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: url(../common/images/misc/_tx_.gif);
-    cursor: pointer;
-    color: var(--color-text-primary);
-    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
-    color: var(--gray-900);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: var(--color-text-primary);
-    background: #e3e3e3;
-    padding: var(--space-1) var(--space-4) var(--space-1) var(--border-thin);
-    border: var(--border-thin) solid #c0c0c0;
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 var(--space-2) 0 0;
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .3;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: var(--border-thin);
-    background-color: silver;
-    overflow: hidden;
-    margin: var(--space-1) var(--border-thin) var(--space-1) var(--space-7);
-}
-
 /* Top Navbar of snap in top menu bar layout */
 #topMenu {
     --topnav-item-height: 32px;
@@ -907,78 +859,6 @@ a.hometblink:hover {
     background: #184753;
     color: #ffffff;
     font-weight: bold;
-}
-
-/* Contextual Menu used in the Tree Menu */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 165px;
-    background-color: var(--color-surface);
-    margin: 0;
-    padding-bottom: var(--space-3);
-    border: var(--border-thin) solid var(--color-border-light);
-    border-right-color: #dcdcdc;
-    border-bottom-color: #dcdcdc;
-    overflow: hidden;
-    line-height: 11px;
-    box-shadow: var(--shadow-xl);
-}
-
-#mx_contextmenu .menuLink {
-    cursor: pointer;
-    color: var(--gray-900);
-    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
-}
-
-#mx_contextmenu .menuLink:hover {
-    background: #DDE4EB;
-    border: var(--border-thin) solid #fdfdfd;
-    border-bottom-color: #dcdcdc;
-    color: var(--color-text-primary);
-}
-
-#mx_contextmenu .menuLink:hover,
-#mx_contextmenu .menuLinkDisabled {
-    cursor: pointer;
-    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    color: #787878;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-right: var(--space-1);
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .3;
-}
-
-#mx_contextmenu #nameHolder {
-    color: var(--color-surface);
-    text-align: left;
-    cursor: default;
-    font-weight: bold;
-    padding: var(--space-2) var(--space-1);
-    margin-bottom: var(--space-1);
-    text-shadow: 0px -1px 0px var(--gray-900);
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: var(--border-thin);
-    background-color: silver;
-    overflow: hidden;
-    margin: var(--space-1) var(--border-thin) var(--space-1) var(--space-7);
 }
 
 /* Settings Table */

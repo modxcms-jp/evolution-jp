@@ -249,13 +249,6 @@ body.evo-shell #treeRoot {
     text-overflow: ellipsis;
 }
 
-/* 右クリックメニューの見出し（名前） */
-#mx_contextmenu #nameHolder {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 /* ツリーの行のアイコン（押すと右クリックメニュー）。乗ったときに地を付ける */
 .tree-node-icon {
     cursor: pointer;
