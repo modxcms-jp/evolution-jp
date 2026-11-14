@@ -73,6 +73,18 @@
     color: #6b5200;
     font: 10px/1.4 monospace;
     vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* input-group の札は枠の中の最後に置く。札の前の部品の右の角を丸めたままにする */
+.styleguide-sample .input-group > .sg-dim {
+    align-self: center;
+    margin-left: var(--space-2, 8px);
+}
+
+.styleguide-sample .input-group:has(> .sg-dim) > :nth-last-child(2) {
+    border-top-right-radius: var(--control-radius, 3px);
+    border-bottom-right-radius: var(--control-radius, 3px);
 }
 
 /* 本文の 1 行の高さ（文字の大きさ × 行の高さ）。body で長さに決めて受け継がせる。
@@ -130,9 +142,23 @@
     border-top: var(--border-width, 1px) solid var(--color-border-light, #e5e5e5);
 }
 
+/* ラベルは行の上の端に置く。上の余白を「入力欄の上の余白 ＋ 枠」にして、ラベルの文字と入力欄の中の文字の高さをそろえる。
+   右の列が何行に伸びても、ラベルは最初の入力欄の横にとどまる */
 .form-label {
+    align-self: start;
     padding-top: calc(var(--control-padding-y, 4px) + var(--border-width, 1px));
     font-weight: bold;
+}
+
+/* チェックボックス・ラジオの行は、選択肢の文字が入力欄の中の文字ではないので、上の余白を取らない */
+.form-row.is-check .form-label {
+    padding-top: 0;
+}
+
+.form-row.is-check .form-field {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
 }
 
 /* 欄の列: 説明・欄・説明を縦に積む。間は 1 段 */
