@@ -291,6 +291,21 @@
         }
     });
 
+    // 日付を消すボタン（data-clear-date に欄の id）。欄を空にし、変更として扱う
+    document.addEventListener('click', function (e) {
+        const button = e.target instanceof Element ? e.target.closest('[data-clear-date]') : null;
+        if (!button || button.disabled) {
+            return;
+        }
+        const field = document.getElementById(button.dataset.clearDate);
+        if (!field || field.disabled) {
+            return;
+        }
+        field.value = '';
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+        window.documentDirty = true;
+    });
+
     window.EvoDatePicker = {
         setup: function (options) {
             Object.assign(config, options);

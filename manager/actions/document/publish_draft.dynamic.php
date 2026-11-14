@@ -55,8 +55,7 @@ function fieldDraftPub_date($docid, $restored = [])
     );
     $pub_date = db()->getValue($rs);
     $tpl[] = '<input type="text" id="pub_date" name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
-    $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
-    $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
+    $tpl[] = clearDateButton('pub_date');
     $tpl = implode("\n", $tpl);
     // 日付のエラーで差し戻されたときは、入力した日付を欄に残す
     if (isset($restored['pub_date'])) {
@@ -64,19 +63,8 @@ function fieldDraftPub_date($docid, $restored = [])
     } else {
         $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     }
-    $ph['icons_cal_nodate'] = style('icons_cal_nodate');
-    $ph['remove_date'] = lang('remove_date');
-    $ph['datetime_format'] = config('datetime_format');
     $body = $modx->parseText($tpl, $ph);
-    $body = renderTr(lang('draft_data_publishdate'), $body);
-    $tpl = <<< EOT
-<tr>
-	<td></td>
-	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
-</tr>
-EOT;
-    $body .= $modx->parseText($tpl, $ph);
-    return $body;
+    return renderTr(lang('draft_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function getTplDraft()

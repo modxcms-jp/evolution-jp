@@ -1,3 +1,3 @@
-<select name="contentType" class="inputBox" style="width:200px">
+<select name="contentType" class="inputBox">
     [+option+]
 </select>

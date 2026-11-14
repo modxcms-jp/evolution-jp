@@ -358,7 +358,6 @@ function tooltip($msg)
             'alt' => $msg,
             'title' => $msg,
             'onclick' => 'alert(this.alt);',
-            'style' => 'cursor:help;margin-left:5px;',
             'class' => 'tooltip',
             'tabindex' => '0'
         ]
@@ -399,7 +398,29 @@ function get_alias_path($id)
     return $path;
 }
 
-function renderTr($head, $body, $rowstyle = '')
+/**
+ * 日付の欄を空にするボタン。押したときの動きは datepicker.js（data-clear-date で欄の id を受け取る）
+ */
+function clearDateButton($target, $disabled = false)
+{
+    return html_tag(
+        '<button>',
+        [
+            'type' => 'button',
+            'class' => 'icon-button',
+            'data-clear-date' => $target,
+            'title' => hsc(lang('remove_date')),
+            'disabled' => $disabled ? null : ''
+        ],
+        img_tag(style('icons_cal_nodate'), ['alt' => hsc(lang('remove_date'))])
+    );
+}
+
+/**
+ * リソース編集の欄の行。$body（欄と、その後ろのボタン・説明のアイコン）は .field-inline で横に並べ、
+ * $note（書式などの説明）は欄の下に .form-text で出す
+ */
+function renderTr($head, $body, $rowstyle = '', $note = '')
 {
     if (!is_array($head)) {
         $ph['head'] = $head;
@@ -420,6 +441,7 @@ function renderTr($head, $body, $rowstyle = '')
         $body = implode("\n", $body);
     }
     $ph['body'] = $body;
+    $ph['note'] = $note !== '' ? '<div class="form-text">' . $note . '</div>' : '';
     $ph['rowstyle'] = $rowstyle;
 
     return parseText(file_get_tpl('render_tr.tpl'), $ph);

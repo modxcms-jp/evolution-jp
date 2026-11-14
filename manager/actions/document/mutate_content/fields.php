@@ -157,8 +157,7 @@ function fieldTemplate()
         select_tag(
             [
                 'id' => 'field_template',
-                'name' => 'template',
-                'style' => 'width:308px'
+                'name' => 'template'
             ],
             get_template_options()
         )
@@ -426,34 +425,19 @@ function fieldPublished()
 
 function fieldPub_date($id = 0)
 {
+    $disabled = !evo()->hasPermission('publish_document') || $id == config('site_start');
     $body = input_text_tag(
         [
             'name' => 'pub_date',
             'id' => 'pub_date',
             'value' => manager()->dateInputValue(doc('pub_date')),
             'class' => 'DatePicker imeoff',
-            'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
+            'disabled' => $disabled ? null : ''
         ]
     )
-        . html_tag(
-            '<a>',
-            ['style' => "cursor:pointer; cursor:hand;"],
-            img_tag(
-                style('icons_cal_nodate'),
-                [
-                    'alt' => lang('remove_date')
-                ]
-            )
-        )
-        . tooltip(lang('page_data_publishdate_help'))
-        . html_tag(
-            '<div>',
-            [
-                'style' => 'line-height:1;margin:0;color: #555;font-size:10px'
-            ],
-            config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_publishdate'), $body);
+        . clearDateButton('pub_date', $disabled)
+        . tooltip(lang('page_data_publishdate_help'));
+    return renderTr(lang('page_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldUnpub_date($id)
@@ -461,6 +445,7 @@ function fieldUnpub_date($id)
     if (!evo()->hasPermission('publish_document')) {
         return '';
     }
+    $disabled = !evo()->hasPermission('publish_document') || $id == config('site_start');
     $body = input_text_tag(
         [
             'id' => 'unpub_date',
@@ -468,23 +453,12 @@ function fieldUnpub_date($id)
             'class' => 'DatePicker imeoff',
             'value' => manager()->dateInputValue(doc('unpub_date')),
             'onblur' => 'documentDirty=true;',
-            'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
+            'disabled' => $disabled ? null : ''
         ]
     )
-        . html_tag(
-            '<a>',
-            ['style' => 'cursor:pointer; cursor:hand'],
-            img_tag(style('icons_cal_nodate'), ['alt' => lang('remove_date')])
-        )
-        . tooltip(lang('page_data_unpublishdate_help'))
-        . html_tag(
-            '<div>',
-            [
-                'style' => 'line-height:1;margin:0;color: #555;font-size:10px'
-            ],
-            config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_unpublishdate'), $body);
+        . clearDateButton('unpub_date', $disabled)
+        . tooltip(lang('page_data_unpublishdate_help'));
+    return renderTr(lang('page_data_unpublishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldLink_attributes()
@@ -661,8 +635,7 @@ function fieldType()
         lang('resource_type'),
         select_tag(
             [
-                'name' => 'type',
-                'style' => 'width:200px'
+                'name' => 'type'
             ],
             [
                 html_tag(
@@ -728,7 +701,6 @@ function fieldContent_dispo()
         select_tag(
             [
                 'name' => 'content_dispo',
-                'style' => 'width:200px',
                 'size' => 1
             ],
             [
