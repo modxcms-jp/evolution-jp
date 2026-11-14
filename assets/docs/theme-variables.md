@@ -112,6 +112,26 @@
 | `--page-title-radius` / `--page-title-padding` / `--page-title-shadow` | 角・内側の余白・影 | `4px` / `8px` / なし |
 | `--page-title-draft-bg` / `--page-title-draft-border-color` | 下書きを編集している画面の帯（`h1.draft`）の地と枠の色 | `#f4e2c3` / `--page-title-border-color` |
 
+## 上のメニュー
+
+上のメニュー（`manager/frames/menu.php` の `#Navcontainer`・`#nav`・`ul.subnav`）は、`manager/media/style/common/topmenu.css`（`@layer evo-components`）が描く。上の余白（12px）・左右の余白（16px）・項目の左右の余白（16px）・項目の間・サブメニューの帯の位置は全テーマ共通。テーマは `#topMenu`（または `:root`）で下の変数の値を決め、`#nav` の規則を書かない。一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、同じセレクタの規則をテーマに書く。メニューの段の高さは、`menu.php` の `fitMenuHeight()` がサブメニューの帯の下端に合わせる。
+
+型（タブ・ピル・下線）は、角と枠の色の組み合わせで決める。タブの型は、選んでいる項目の下の枠を透明にして、サブメニューの帯とつなげる。下線の型は、`--topnav-underline-width` を太くし、乗せたときと選んでいるときに下の枠だけに色を付ける。
+
+| 変数 | 意味 | 既定値（topmenu.css） |
+| --- | --- | --- |
+| `--topnav-item-height` / `--subnav-height` / `--topnav-padding-top` | 項目の高さ・サブメニューの項目の高さ・上の余白。細いメニューの RevoStyle だけが小さくする | `32px` / `32px` / `12px` |
+| `--topnav-link-color` / `--topnav-item-color` | メニューの文字の色・項目の文字の色 | `#e1f1f4` / `--topnav-link-color` |
+| `--topnav-item-radius` / `--topnav-item-font-weight` / `--topnav-underline-width` | 項目の角・文字の太さ・下の枠の太さ（サブメニューの項目にも使う。既定ではサブメニューの項目は下の枠を持たない） | `6px 6px 0 0` / `normal` / `1px` |
+| `--topnav-link-hover-color` / `--topnav-link-hover-bg` / `--topnav-link-hover-border-color` | 乗せたときの文字の色・地・枠の色 | `#fff` / `#195a70` / `--topnav-border` |
+| `--topnav-link-active-bg` / `--topnav-link-active-border-color` / `--topnav-link-active-font-weight` | 選んでいる項目の地・枠の色（上・左右・下）・文字の太さ | `#1b2e37` / `--topnav-border --topnav-link-active-bg transparent` / `--topnav-item-font-weight` |
+| `--topnav-subnav-bg` / `--topnav-subnav-border-color` / `--topnav-subnav-shadow` | サブメニューの帯の地・上と下の枠の色・影 | `--topnav-link-active-bg` / `--topnav-border` / なし |
+| `--topnav-sublink-color` / `--topnav-sublink-radius` / `--topnav-sublink-font-weight` | サブメニューの項目の文字の色・角・文字の太さ | `#f1fbfc` / `999px` / `normal` |
+| `--topnav-sublink-hover-bg` / `--topnav-sublink-hover-color` / `--topnav-sublink-hover-border-color` | サブメニューの項目に乗せたとき（と表示中の画面の項目）の地・文字の色・下の枠の色 | `#184753` / `--topnav-link-hover-color` / `transparent` |
+| `--topnav-sublink-pressed-color` | サブメニューの項目を押しているときの文字の色 | `#d9edf1` |
+
+既定値は RevoClassic の値。
+
 ## 右クリックメニュー
 
 ツリーの右クリックメニュー（`#mx_contextmenu`、`manager/frames/tree.php`）と、一覧の操作メニュー（`.contextMenu`、`manager/includes/controls/contextmenu.php`）は、`manager/media/style/common/context-menu.css`（`@layer evo-components`）が同じ見た目で描く。幅（ツリーは 180px、一覧は項目が折り返さない幅）・行の高さ（`1.4`）・余白・アイコンの薄さは全テーマ共通。テーマは `:root` で下の変数の値を決め、右クリックメニューの規則を書かない。
@@ -177,7 +197,7 @@
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`・`common/action-buttons.css`・`common/context-menu.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`・`common/action-buttons.css`・`common/context-menu.css`・`common/topmenu.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則のうち、素の要素の規則（`h1` など）は土台の層、ほかは層の外にある。層の外の規則をテーマで上書きするときは、同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 

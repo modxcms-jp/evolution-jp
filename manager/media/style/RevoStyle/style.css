@@ -772,134 +772,31 @@ a.hometblink:hover {
    ============================================================================ */
 #topMenu {
     background: url("headers.jpg") repeat scroll 0 0 #23393C;
-}
-
-#Navcontainer {
-    padding: 0 10px;
-    color: #fff;
-}
-
-#nav {
-    margin: 0;
-    padding: 0;
-    height: 25px;
-    width: 100%;
-    position: absolute;
-    top: 6px;
-    overflow: visible !important;
-}
-
-#nav ul {
-    display: none;
-    height: 26px;
-    position: relative;
-    z-index: 500;
-    margin: 0 0 0 -10px;
-    padding: 0 0 0 20px;
-}
-
-#nav li {
-    list-style: none;
-    float: left;
-    width: auto;
-    margin: 0 0 0 10px;
-    padding: 0;
-}
-
-#nav li a {
-    color: #A4B8B6;
-    height: var(--space-13);
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    line-height: var(--space-13);
-    overflow: hidden;
-    padding: 0 var(--space-9);
-    float: none !important;
-    float: left;
-    display: block;
-}
-
-#nav li ul li a {
-    padding: 0 var(--space-11) !important;
-}
-
-#nav li ul li a {
-    background: #d4d4d4;
-    float: left;
-    width: auto;
-}
-
-#nav a:hover,
-#nav a:active {
-    color: #fff;
-}
-
-#nav li.active {
-    background: none repeat scroll 0 0 #616161;
-    border-radius: var(--space-4) var(--space-4) 0 0;
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-padding-top: 6px;
+    --topnav-item-height: 25px;
+    --subnav-height: 19px;
+    --topnav-link-color: #A4B8B6;
+    --topnav-link-hover-color: #fff;
+    --topnav-item-radius: var(--space-4) var(--space-4) 0 0;
+    --topnav-link-hover-bg: transparent;
+    --topnav-link-hover-border-color: transparent;
+    --topnav-link-active-bg: #616161;
+    --topnav-link-active-border-color: transparent;
+    --topnav-subnav-bg: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    --topnav-subnav-border-color: var(--gray-600) transparent;
+    --topnav-sublink-color: #fff;
+    --topnav-sublink-radius: 0;
+    --topnav-sublink-hover-bg: transparent;
+    --topnav-sublink-pressed-color: #ccc;
+}/* 選んでいる項目の立体の影と、文字の影 */
+#nav > li.active > a {
     box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) var(--space-1) rgba(0, 0, 0, .9);
-}
-
-#nav li.active a {
-    border-bottom: var(--border-thin) solid #616161;
-    color: #FFF;
-    position: relative;
     text-shadow: 0 -1px 0 var(--gray-850);
-    z-index: 999999;
 }
 
-#nav li.active a:hover {
-    cursor: pointer;
-}
-
-#nav li.active ul.subnav {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    width: 200%;
-    top: 31px;
-    left: 0;
-    border-top: var(--border-thin) solid var(--gray-600);
-}
-
-#nav li.active ul.subnav {
-    right: 0;
-}
-
-#nav li.active ul.subnav a {
-    border-bottom: none;
-    color: #fff;
-    font-weight: normal;
-    background-color: var(--color-nav-subnav-end);
-    cursor: pointer;
-    border-left: none;
-}
-
-#nav li.active ul.subnav li {
-    margin: 0;
-}
-
-#nav li.active ul.subnav a:hover {
-    color: #fff;
-    text-shadow: 0 0 2px #FFF;
-}
-
-#nav li.active ul.subnav a:active {
-    color: #ccc;
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav li.active ul.subnav a[aria-current="page"] {
-    color: #fff;
-    font-weight: bold;
-    text-shadow: 0 0 2px #FFF;
-}
-
-#nav li.active ul.subnav,
-#nav li.active ul.subnav a {
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+#nav > li > ul.subnav a:is(:hover, [aria-current="page"]) {
+    text-shadow: 0 0 2px #fff;
 }
 
 /* ============================================================================

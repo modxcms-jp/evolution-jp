@@ -834,7 +834,6 @@ a.hometblink:hover {
     --topnav-gap: 4px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 14px;
     --topnav-border: rgba(59, 130, 246, 0.2);
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
@@ -891,125 +890,27 @@ a.hometblink:hover {
         );
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-#Navcontainer {
-    color: #e4f1f3;
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
-}
-
-#nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: var(--space-2);
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
-    color: rgba(226, 232, 240, 0.78);
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 var(--space-5);
-    text-decoration: none;
-    white-space: nowrap;
-    background: transparent;
-    transition: all var(--transition-normal);
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--topnav-link-hover-color);
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.3);
-}
-
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-item-color: rgba(226, 232, 240, 0.78);
+    --topnav-link-hover-bg: rgba(59, 130, 246, 0.2);
+    --topnav-link-hover-border-color: rgba(59, 130, 246, 0.3);
+    --topnav-link-active-bg: rgba(15, 23, 42, 0.6);
+    --topnav-link-active-border-color: var(--topnav-border) var(--topnav-border) transparent;
+    --topnav-subnav-bg: rgba(15, 23, 42, 0.6);
+    --topnav-subnav-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --topnav-sublink-color: rgba(226, 232, 240, 0.95);
+    --topnav-sublink-radius: var(--radius-lg);
+    --topnav-sublink-hover-bg: rgba(59, 130, 246, 0.25);
+}/* 選んでいる項目とサブメニューの帯は、すりガラスにする */
 #nav > li.active > a {
-    background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-color: var(--topnav-border);
-    border-bottom: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    color: var(--topnav-link-hover-color);
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
 }
 
 #nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--topnav-item-height) + 15px);
-    margin: 0;
-    list-style: none;
-    padding: 3px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: 6px;
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: 1px solid var(--topnav-border);
-    background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
-    z-index: 1;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    color: rgba(226, 232, 240, 0.95);
-    cursor: pointer;
-    display: block;
-    font-weight: normal;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    border-radius: var(--radius-lg);
-    background: transparent;
-    transition: all var(--transition-normal);
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: rgba(59, 130, 246, 0.25);
-    color: #ffffff;
-    text-shadow: none;
-}
-
-#nav > li > ul.subnav a:active {
-    color: #d9edf1;
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    background: rgba(59, 130, 246, 0.25);
-    color: #ffffff;
-    font-weight: bold;
 }
 
 /* -------------------------[ Settings Table ]--- */

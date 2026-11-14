@@ -1128,7 +1128,6 @@ a.hometblink:hover {
     --topnav-gap: 2px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 8px;
     --topnav-link-color: #5a4055;
     --topnav-link-hover-color: #d45da7;
 
@@ -1153,121 +1152,23 @@ a.hometblink:hover {
     box-shadow:
         inset 0 -1px 0 rgba(255, 255, 255, 0.3),
         0 2px 8px rgba(160, 120, 145, 0.12);
-}
-
-#Navcontainer {
-    color: var(--topnav-link-color);
-    padding: var(--topnav-padding-top) var(--space-4) calc(var(--subnav-height) + 10px);
-    position: relative;
-}
-
-#nav {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: var(--space-2);
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    border: none;
-    border-radius: 0;
-    color: var(--topnav-link-color);
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 var(--space-4);
-    text-decoration: none;
-    white-space: nowrap;
-    background: transparent;
-    font-weight: 500;
-    border-bottom: 2px solid transparent;
-    transition: all var(--transition-fast);
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--topnav-link-hover-color);
-    background: transparent;
-    border-bottom-color: var(--topnav-link-hover-color);
-}
-
-#nav > li.active > a {
-    background: transparent;
-    color: var(--topnav-link-hover-color);
-    border-bottom-color: var(--topnav-link-hover-color);
-}
-
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--topnav-item-height) + 10px);
-    margin: 0;
-    list-style: none;
-    padding: var(--space-1) var(--space-4);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: 0;
-    row-gap: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.7);
-    border-bottom: 1px solid rgba(185, 145, 162, 0.18);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.45),
-        0 1px 2px rgba(175, 135, 152, 0.05);
-    z-index: 1;
-    /* 下地の色は持たず、トップメニューのガラス越しに水玉を見せる。上端だけ白く光らせて 1 段目と揃える */
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0.04) 100%
-    );
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    color: #5a4055;
-    cursor: pointer;
-    display: block;
-    font-weight: 500;
-    font-size: 0.92em;
-    line-height: var(--subnav-height);
-    padding: 0 var(--space-4);
-    text-decoration: none;
-    border-radius: 0;
-    border-bottom: 2px solid transparent;
-    transition: all var(--transition-fast);
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: transparent;
-    color: #d45da7;
-    border-bottom-color: #d45da7;
-}
-
-#nav > li > ul.subnav a:active {
-    background: transparent;
-    color: #c04d97;
-    border-bottom-color: #c04d97;
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-item-radius: 0;
+    --topnav-item-font-weight: 500;
+    --topnav-underline-width: 2px;
+    --topnav-link-hover-bg: transparent;
+    --topnav-link-hover-border-color: transparent transparent var(--topnav-link-hover-color);
+    --topnav-link-active-bg: transparent;
+    --topnav-link-active-border-color: transparent transparent var(--topnav-link-hover-color);
+    --topnav-subnav-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 100%);
+    --topnav-subnav-border-color: rgba(255, 255, 255, 0.7) rgba(185, 145, 162, 0.18);
+    --topnav-subnav-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 1px 2px rgba(175, 135, 152, 0.05);
+    --topnav-sublink-color: var(--topnav-link-color);
+    --topnav-sublink-radius: 0;
+    --topnav-sublink-font-weight: 500;
+    --topnav-sublink-hover-bg: transparent;
+    --topnav-sublink-hover-border-color: #d45da7;
+    --topnav-sublink-pressed-color: #c04d97;
 }
 
 /* -------------------------[ Settings Table ]--- */
@@ -1600,33 +1501,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     border: 2px solid var(--color-success-light);
     padding: var(--space-2);
     margin-bottom: var(--space-2);
-}
-
-/* ============================================================================
-   14. Custom Navigation Gradients - SakuraFlow Theme
-   Used in: Top menu bar, navigation system
-   Note: Soft pastel gradients for a feminine look
-   ============================================================================ */
-
-/* === ナビゲーション上書き（フラットスタイル） === */
-
-#nav > li > ul.subnav a {
-    color: var(--topnav-link-color);
-    background: transparent;
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: transparent;
-    color: var(--topnav-link-hover-color);
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    color: var(--topnav-link-hover-color);
-    border-bottom-color: currentColor;
-    font-weight: 700;
 }
 
 /* === 右上のユーザー情報エリア === */
