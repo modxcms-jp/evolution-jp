@@ -381,8 +381,12 @@ p.caption, p.comment {
 
 #supplementalNav {
     align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
+    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     border-radius: var(--radius-full);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
@@ -405,6 +409,11 @@ p.caption, p.comment {
     padding: 0;
     text-decoration: none;
     transition: color var(--transition-fast);
+}
+
+/* 文字の色は #topbar a:link より強くする（同じ詳細度で後ろに置く） */
+#supplementalNav a:any-link {
+    color: rgba(225, 241, 244, 0.9);
 }
 
 #supplementalNav a:hover,
@@ -869,18 +878,62 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #062a36;
-    --topnav-border: #10475a;
+    --topnav-border: rgba(59, 130, 246, 0.2);
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #1b2e37;
-    background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
-}
-#topMenu {
-    background-color: #23393C;
-    background-image: url("images/misc/headers.jpg");
+    background-color: #0f1825;
+    background-image:
+        /* === 光源：左側は控えめ、右側は色の変化 === */
+
+        /* 左側 - ティール（青緑）系 - かなり控えめ */
+        radial-gradient(ellipse 900px 80px at 15% 50%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.07) 22%, rgba(20, 184, 166, 0.03) 42%, transparent 65%),
+
+        radial-gradient(circle 110px at 12% 58%, rgba(6, 182, 212, 0.10) 0%, rgba(6, 182, 212, 0.05) 28%, rgba(6, 182, 212, 0.02) 55%, transparent 78%),
+
+        /* 左寄り - シアン・青系 - 控えめ */
+        radial-gradient(ellipse 800px 75px at 28% 50%, rgba(14, 165, 233, 0.11) 0%, rgba(14, 165, 233, 0.06) 24%, rgba(14, 165, 233, 0.03) 45%, transparent 68%),
+
+        radial-gradient(circle 95px at 25% 42%, rgba(59, 130, 246, 0.09) 0%, rgba(59, 130, 246, 0.05) 30%, rgba(59, 130, 246, 0.02) 58%, transparent 82%),
+
+        /* 中央 - 紫系へ移行 - やや抑えめ */
+        radial-gradient(ellipse 850px 70px at 50% 50%, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0.09) 26%, rgba(139, 92, 246, 0.04) 48%, transparent 70%),
+
+        radial-gradient(circle 100px at 48% 65%, rgba(168, 85, 247, 0.14) 0%, rgba(168, 85, 247, 0.07) 32%, rgba(168, 85, 247, 0.03) 60%, transparent 84%),
+
+        /* 中央やや右 - ローズ・オレンジ系へ - 通常 */
+        radial-gradient(ellipse 900px 75px at 68% 50%, rgba(251, 146, 60, 0.22) 0%, rgba(251, 146, 60, 0.12) 24%, rgba(251, 146, 60, 0.06) 46%, transparent 68%),
+
+        radial-gradient(circle 105px at 65% 55%, rgba(251, 113, 133, 0.19) 0%, rgba(251, 113, 133, 0.10) 30%, rgba(251, 113, 133, 0.05) 56%, transparent 80%),
+
+        /* 右側 - アンバー・黄金系 - 通常 */
+        radial-gradient(ellipse 1000px 85px at 85% 50%, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.15) 22%, rgba(245, 158, 11, 0.07) 40%, transparent 62%),
+
+        radial-gradient(circle 115px at 82% 48%, rgba(251, 191, 36, 0.22) 0%, rgba(251, 191, 36, 0.12) 28%, rgba(251, 191, 36, 0.05) 54%, transparent 76%),
+
+        /* 右端 - 茶色系 - 通常 */
+        radial-gradient(circle 90px at 92% 60%, rgba(217, 119, 6, 0.20) 0%, rgba(217, 119, 6, 0.10) 32%, rgba(217, 119, 6, 0.04) 60%, transparent 85%),
+
+        /* === 全体を繋ぐ横方向グラデーション === */
+        linear-gradient(90deg,
+            rgba(20, 184, 166, 0.05) 0%,
+            rgba(14, 165, 233, 0.04) 15%,
+            rgba(59, 130, 246, 0.03) 25%,
+            rgba(139, 92, 246, 0.05) 40%,
+            rgba(168, 85, 247, 0.06) 50%,
+            rgba(251, 146, 60, 0.07) 65%,
+            rgba(245, 158, 11, 0.09) 80%,
+            rgba(217, 119, 6, 0.07) 100%
+        ),
+
+        /* ベースの縦方向グラデーション */
+        linear-gradient(180deg,
+            rgba(30, 64, 175, 0.08) 0%,
+            rgba(20, 24, 38, 0.95) 50%,
+            rgba(15, 23, 24, 1) 100%
+        );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 #Navcontainer {
     color: #e4f1f3;
@@ -908,29 +961,31 @@ a.hometblink:hover {
 #nav > li > a {
     border: 1px solid transparent;
     border-radius: 6px 6px 0 0;
-    color: var(--topnav-link-color);
+    color: rgba(226, 232, 240, 0.78);
     display: block;
     line-height: var(--topnav-item-height);
     padding: 0 var(--space-5);
     text-decoration: none;
     white-space: nowrap;
     background: transparent;
-    transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
+    transition: all var(--transition-normal);
 }
 
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
     color: var(--topnav-link-hover-color);
-    background: var(--topnav-link-hover-bg);
-    border-color: var(--topnav-border);
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.3);
 }
 
 #nav > li.active > a {
-    background: var(--topnav-link-active-bg);
-    border-color: var(--topnav-link-active-bg);
-    border-top: 1px solid var(--topnav-border);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-color: var(--topnav-border);
     border-bottom: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: none;
@@ -953,9 +1008,11 @@ a.hometblink:hover {
     row-gap: 6px;
     border-top: 1px solid var(--topnav-border);
     border-bottom: 1px solid var(--topnav-border);
-    background: var(--topnav-link-active-bg);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
     z-index: 1;
-    box-shadow: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 #nav > li.active > ul.subnav {
@@ -968,7 +1025,7 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #f1fbfc;
+    color: rgba(226, 232, 240, 0.95);
     cursor: pointer;
     display: block;
     font-weight: normal;
@@ -976,18 +1033,26 @@ a.hometblink:hover {
     padding: 0 18px;
     text-decoration: none;
     border-radius: var(--radius-lg);
-    transition: background-color var(--transition-normal), color var(--transition-normal);
+    background: transparent;
+    transition: all var(--transition-normal);
 }
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: #184753;
+    background: rgba(59, 130, 246, 0.25);
     color: #ffffff;
     text-shadow: none;
 }
 
 #nav > li > ul.subnav a:active {
     color: #d9edf1;
+}
+
+/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+#nav > li > ul.subnav a[aria-current="page"] {
+    background: rgba(59, 130, 246, 0.25);
+    color: #ffffff;
+    font-weight: bold;
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
@@ -1391,140 +1456,4 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     border: 2px solid var(--color-success-light);
     padding: var(--space-2);
     margin-bottom: var(--space-2);
-}
-
-/* ============================================================================
-   14. Custom Navigation Gradients - Aurora Theme
-   Used in: Top menu bar, navigation system
-   Note: Complex gradient system for visual polish
-   ============================================================================ */
-
-/* #topMenuの背景 - 左側抑えめ、右側グラデーション */
-#topMenu {
-    background-color: #0f1825 !important;
-    background-image:
-        /* === 光源：左側は控えめ、右側は色の変化 === */
-
-        /* 左側 - ティール（青緑）系 - かなり控えめ */
-        radial-gradient(ellipse 900px 80px at 15% 50%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.07) 22%, rgba(20, 184, 166, 0.03) 42%, transparent 65%),
-
-        radial-gradient(circle 110px at 12% 58%, rgba(6, 182, 212, 0.10) 0%, rgba(6, 182, 212, 0.05) 28%, rgba(6, 182, 212, 0.02) 55%, transparent 78%),
-
-        /* 左寄り - シアン・青系 - 控えめ */
-        radial-gradient(ellipse 800px 75px at 28% 50%, rgba(14, 165, 233, 0.11) 0%, rgba(14, 165, 233, 0.06) 24%, rgba(14, 165, 233, 0.03) 45%, transparent 68%),
-
-        radial-gradient(circle 95px at 25% 42%, rgba(59, 130, 246, 0.09) 0%, rgba(59, 130, 246, 0.05) 30%, rgba(59, 130, 246, 0.02) 58%, transparent 82%),
-
-        /* 中央 - 紫系へ移行 - やや抑えめ */
-        radial-gradient(ellipse 850px 70px at 50% 50%, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0.09) 26%, rgba(139, 92, 246, 0.04) 48%, transparent 70%),
-
-        radial-gradient(circle 100px at 48% 65%, rgba(168, 85, 247, 0.14) 0%, rgba(168, 85, 247, 0.07) 32%, rgba(168, 85, 247, 0.03) 60%, transparent 84%),
-
-        /* 中央やや右 - ローズ・オレンジ系へ - 通常 */
-        radial-gradient(ellipse 900px 75px at 68% 50%, rgba(251, 146, 60, 0.22) 0%, rgba(251, 146, 60, 0.12) 24%, rgba(251, 146, 60, 0.06) 46%, transparent 68%),
-
-        radial-gradient(circle 105px at 65% 55%, rgba(251, 113, 133, 0.19) 0%, rgba(251, 113, 133, 0.10) 30%, rgba(251, 113, 133, 0.05) 56%, transparent 80%),
-
-        /* 右側 - アンバー・黄金系 - 通常 */
-        radial-gradient(ellipse 1000px 85px at 85% 50%, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.15) 22%, rgba(245, 158, 11, 0.07) 40%, transparent 62%),
-
-        radial-gradient(circle 115px at 82% 48%, rgba(251, 191, 36, 0.22) 0%, rgba(251, 191, 36, 0.12) 28%, rgba(251, 191, 36, 0.05) 54%, transparent 76%),
-
-        /* 右端 - 茶色系 - 通常 */
-        radial-gradient(circle 90px at 92% 60%, rgba(217, 119, 6, 0.20) 0%, rgba(217, 119, 6, 0.10) 32%, rgba(217, 119, 6, 0.04) 60%, transparent 85%),
-
-        /* === 全体を繋ぐ横方向グラデーション === */
-        linear-gradient(90deg,
-            rgba(20, 184, 166, 0.05) 0%,
-            rgba(14, 165, 233, 0.04) 15%,
-            rgba(59, 130, 246, 0.03) 25%,
-            rgba(139, 92, 246, 0.05) 40%,
-            rgba(168, 85, 247, 0.06) 50%,
-            rgba(251, 146, 60, 0.07) 65%,
-            rgba(245, 158, 11, 0.09) 80%,
-            rgba(217, 119, 6, 0.07) 100%
-        ),
-
-        /* ベースの縦方向グラデーション */
-        linear-gradient(180deg,
-            rgba(30, 64, 175, 0.08) 0%,
-            rgba(20, 24, 38, 0.95) 50%,
-            rgba(15, 23, 24, 1) 100%
-        ) !important;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.20) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-/* === メインナビゲーション項目 === */
-/* 未選択の文字は、選択中・ホバーの白(1.0)より一段控えめにしつつ、暗い地で読める明るさにする */
-#nav > li > a {
-    background: transparent !important;
-    color: rgba(226, 232, 240, 0.78) !important;
-    border-color: transparent !important;
-    transition: all var(--transition-normal) !important;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    background: rgba(59, 130, 246, 0.2) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-    color: rgba(255, 255, 255, 1) !important;
-}
-
-#nav > li.active > a {
-    background: rgba(15, 23, 42, 0.6) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    border-color: rgba(59, 130, 246, 0.2) !important;
-    color: rgba(255, 255, 255, 1) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* === サブナビゲーション === */
-#nav > li > ul.subnav {
-    background: rgba(15, 23, 42, 0.6) !important;
-    backdrop-filter: blur(20px) saturate(160%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-    border-top-color: rgba(59, 130, 246, 0.2) !important;
-    border-bottom-color: rgba(59, 130, 246, 0.2) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
-}
-
-#nav > li > ul.subnav a {
-    color: rgba(226, 232, 240, 0.95) !important;
-    background: transparent !important;
-    transition: all var(--transition-normal) !important;
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: rgba(255, 255, 255, 1) !important;
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: rgba(255, 255, 255, 1) !important;
-    font-weight: bold;
-}
-
-/* === 右上のユーザー情報エリア === */
-#supplementalNav {
-    background: linear-gradient(180deg, rgba(15, 23, 24, 0.4), rgba(16, 35, 37, 0.4)) !important;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-#supplementalNav a {
-    color: rgba(225, 241, 244, 0.9) !important;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: rgba(255, 255, 255, 1) !important;
 }
