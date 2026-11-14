@@ -775,7 +775,8 @@
     };
 
     // ツリーと本文の境目のつまみ。ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。
-    // ダブルクリックで既定の幅（header.inc.php の値）に戻す。つまみはツリーを読み込み直しても消えないよう body の直下に置く
+    // 下限よりさらに左へ動かして離すと、ツリーを隠す。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
+    // つまみはツリーを読み込み直しても消えないよう body の直下に置く
     const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
     const TREE_WIDTH_MIN = 160;
 
@@ -821,8 +822,13 @@
             handle.setPointerCapture(e.pointerId);
             document.body.classList.add('is-resizing-tree');
             let width = 0;
+            let collapsing = false;
             const min = minTreeWidth();
+            const startWidth = document.getElementById('treePane').getBoundingClientRect().width;
             const move = function (ev) {
+                // 下限の半分より左まで動かしたら、離したときにツリーを隠す
+                collapsing = ev.clientX < min / 2;
+                document.body.classList.toggle('is-collapsing-tree', collapsing);
                 const max = Math.max(min, Math.round(window.innerWidth / 2));
                 width = Math.min(max, Math.max(min, Math.round(ev.clientX)));
                 setTreeWidth(width);
@@ -830,7 +836,13 @@
             handle.addEventListener('pointermove', move);
             handle.addEventListener('lostpointercapture', function () {
                 handle.removeEventListener('pointermove', move);
-                document.body.classList.remove('is-resizing-tree');
+                document.body.classList.remove('is-resizing-tree', 'is-collapsing-tree');
+                if (collapsing && window.mainMenu) {
+                    // 隠す前の幅に戻しておき、上のメニューから表示し直したときにその幅で出す
+                    setTreeWidth(Math.round(startWidth));
+                    window.mainMenu.hideTreeFrame();
+                    return;
+                }
                 if (!width) {
                     return;
                 }
