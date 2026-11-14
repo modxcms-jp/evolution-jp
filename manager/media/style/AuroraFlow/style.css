@@ -207,39 +207,108 @@
     --color-pagination-active-border: var(--color-primary-end);
 }
 
-/* ============================================================================
-   2. Base Styles - Reset & Normalize
-   Used throughout: Global reset
-   ============================================================================ */
+/* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
+@layer evo-base {
+    body {
+        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+        font-size: var(--font-size-base);
+        height: 100%;
+        line-height: 1.5;
+        color: var(--color-text-primary);
+        background: var(--color-background-page);
+    }
 
-body {
-    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: var(--font-size-base);
-    height: 100%;
-    line-height: 1.5;
-    color: var(--color-text-primary);
-    background: var(--color-background-page);
+    img {
+        border: 0 !important;
+        text-decoration: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
+        margin: 0 0 .5em;
+        padding: 0;
+        font-weight: normal;
+    }
+
+    li, dd, blockquote {
+        margin: 0 0 0 1em;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+    }
+
+    h1 {
+        font-size: 1.35em;
+        color: var(--color-heading);
+        font-weight: bold;
+        background-color: transparent;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        padding: var(--space-2) var(--space-1);
+        border-radius: var(--radius-md);
+        margin: 0 0 var(--space-3);
+    }
+
+    h2 {
+        font-size: 1.64em;
+    }
+
+    h4, h5 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    h6 {
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    hr {
+        color: var(--gray-700);
+        background-color: var(--gray-700);
+        height: 1px;
+        border: 0;
+    }
+
+    input, select, textarea, option, optgroup, td {
+        font: inherit;
+        color: inherit;
+    }
+
+    optgroup {
+        font-style: normal;
+        font-weight: bold;
+        background-color: var(--gray-300);
+    }
+
+    thead {
+        color: var(--gray-900);
+        height: 18px !important;
+        background-color: var(--gray-200);
+    }
+
+    li {
+        padding: 0;
+        margin: 0;
+        list-style: disc;
+    }
+
+    ul {
+        margin: 0 var(--space-5) 0 var(--space-5);
+    }
 }
 
 body#mainpane {
     padding: var(--space-2);
 }
 
-img, a img {
+a img {
     border: 0 !important;
     text-decoration: none;
     padding: 0;
     margin: 0;
-}
-
-h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: 0 0 .5em;
-    padding: 0;
-    font-weight: normal;
-}
-
-li, dd, blockquote {
-    margin: 0 0 0 1em;
 }
 
 /* ============================================================================
@@ -254,47 +323,14 @@ li, dd, blockquote {
     font-weight: bold;
 }
 
-/* ============================================================================
-   4. Typography - Headings & Paragraphs
-   Used in: Page titles, section headers, content areas
-   ============================================================================ */
-
-h1, h2, h3, h4, h5, h6, .subTitle {
+.subTitle {
     font-weight: normal;
-}
-
-/* ページタイトル。灰色の帯はやめ、本文より一段大きい濃紺の見出しにする */
-h1 {
-    font-size: 1.35em;
-    color: var(--color-heading);
-    font-weight: bold;
-    background-color: transparent;
-    letter-spacing: 0.02em;
-    line-height: 1.2;
-    padding: var(--space-2) var(--space-1);
-    border-radius: var(--radius-md);
-    margin: 0 0 var(--space-3);
 }
 
 /* 下書きは帯の色で見分けるため、背景を残す */
 h1.draft {
     background-color: var(--color-draft-light);
     padding-inline: var(--space-3);
-}
-
-h2 {
-    font-size: 1.64em;
-}
-
-h4,
-h5 {
-    font-size: 1em;
-    font-weight: bold;
-}
-
-h6 {
-    font-size: 0.9em;
-    font-weight: bold;
 }
 
 p.caption, p.comment {
@@ -321,13 +357,6 @@ p.caption, p.comment {
     a:hover {
         color: var(--color-link-hover);
     }
-}
-
-hr {
-    color: var(--gray-700);
-    background-color: var(--gray-700);
-    height: 1px;
-    border: 0;
 }
 
 .split {
@@ -435,16 +464,6 @@ hr {
     letter-spacing: .02em;
 }
 
-/* ============================================================================
-   6. Forms - Inputs, Selects, Textareas, Buttons
-   Used in: All form elements throughout the application
-   ============================================================================ */
-
-input, select, textarea, option, optgroup, td {
-    font: inherit;
-    color: inherit;
-}
-
 textarea[readonly],
 textarea[readonly]:focus,
 input[type='text'][readonly],
@@ -453,12 +472,6 @@ input[type='text'][readonly]:focus,
     background-color: #eee !important;
     text-shadow: 1px 1px var(--color-surface) !important;
     cursor: not-allowed;
-}
-
-optgroup {
-    font-style: normal;
-    font-weight: bold;
-    background-color: var(--gray-300);
 }
 
 optgroup option {
@@ -677,29 +690,13 @@ input.submit {
     color: var(--gray-500);
 }
 
-thead {
-    color: var(--gray-900);
-    height: 18px !important;
-    background-color: var(--gray-200);
-}
-
 thead td {
     color: var(--gray-900);
     border-top: 1px solid var(--color-surface);
 }
 
-li {
-    padding: 0;
-    margin: 0;
-    list-style: disc;
-}
-
 li::marker {
     color: var(--gray-500);
-}
-
-ul {
-    margin: 0 var(--space-5) 0 var(--space-5);
 }
 
 .screen {
