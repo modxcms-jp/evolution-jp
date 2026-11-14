@@ -1198,7 +1198,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     /* 上のメニュー（common/topmenu.css） */
     --topnav-link-color: var(--clean-nav-text);
     --topnav-link-hover-color: var(--clean-nav-text);
-    --topnav-item-radius: var(--radius-md);
+    --topnav-item-radius: var(--radius-md) var(--radius-md) 0 0;
     --topnav-link-hover-bg: var(--clean-nav-bg-hover);
     --topnav-link-hover-border-color: transparent;
     --topnav-link-active-bg: var(--clean-nav-bg-active);
