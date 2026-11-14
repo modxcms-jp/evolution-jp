@@ -42,13 +42,6 @@ body {
     line-height: var(--line-height-base);
 }
 
-/* input[type=submit|button] も、ほかのボタンと同じ高さにする */
-input[type="submit"],
-input[type="button"] {
-    min-height: var(--control-height);
-    box-sizing: border-box;
-}
-
 /* 見出しは文字の大きさの目盛りから選ぶ */
 h1 { font-size: var(--font-size-2xl); line-height: var(--line-height-tight); }
 h2 { font-size: var(--font-size-xl); line-height: var(--line-height-tight); }

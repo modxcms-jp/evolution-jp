@@ -114,12 +114,6 @@
     --control-height: calc(round(up, calc(var(--line-box) + 10px), 4px) + 4px);
 }
 
-/* input[type=submit|button] は forms.css の決まりの外なので、比較の行では同じ高さに乗せる */
-.styleguide-sample :is(.sg-size-calc, .sg-size-up) :is(input[type="submit"], input[type="button"]) {
-    min-height: var(--control-height);
-    box-sizing: border-box;
-}
-
 .styleguide-sample .sg-size-caption {
     margin: var(--space-3, 12px) 0 var(--space-1, 4px);
     color: #666;
@@ -205,7 +199,6 @@
     color: var(--color-text-muted, #666);
     white-space: nowrap;
 }
-
 
 /* 欄と、その後ろのボタン・説明のアイコンを横に並べる。縦の真ん中でそろえる */
 .field-inline {

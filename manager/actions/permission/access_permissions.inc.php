@@ -34,7 +34,7 @@ $usrgroupselector = $groupSelector($access['group_names'], 'user_group', '[no us
 
 // グループの名前を変える・消すフォーム（一覧の 1 行）
 $renameForm = function (string $field, int $id, string $name, string $deleteOperation) use ($action): string {
-    return '<li><form method="post" action="index.php" name="accesspermissions" enctype="multipart/form-data">' . "\n" .
+    return '<li><form method="post" action="index.php" name="accesspermissions" enctype="multipart/form-data" class="field-inline">' . "\n" .
         '<input type="hidden" name="a" value="' . $action . '" />' . "\n" .
         '<input type="hidden" name="' . $field . '" value="' . $id . '" />' . "\n" .
         '<input type="hidden" name="operation" value="rename_' . $field . '" />' . "\n" .

@@ -492,18 +492,6 @@ form select:focus {
     border: var(--border-thin) solid green;
 }
 
-input:is([type="button"], [type="submit"]) {
-    border: var(--border-thin) solid green;
-    cursor: pointer;
-    line-height: normal;
-    margin: -1px 0 0 var(--space-4);
-    min-height: 27px;
-    padding: var(--space-3) var(--space-8);
-    overflow: visible;
-    background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
-    border-radius: var(--radius-md);
-}
-
 input.checkbox,
 input.radio,
 input.submit,
@@ -515,11 +503,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-}
-
-input:is([type="button"], [type="submit"]):hover {
-    border-color: green;
-    background: linear-gradient(#ffffff, var(--gray-150));
 }
 
 .form {

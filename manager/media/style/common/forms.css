@@ -52,12 +52,6 @@
         cursor: pointer;
     }
 
-    /* input[type=submit|button|reset] は、高さだけをほかの欄・ボタンにそろえる（見た目はテーマの規則） */
-    :where(input[type="submit"], input[type="button"], input[type="reset"]) {
-        box-sizing: border-box;
-        min-height: var(--control-height, 32px);
-    }
-
     :where(
         input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
             [type="submit"], [type="button"], [type="reset"], [type="image"]),
@@ -72,9 +66,9 @@
 }
 
 @layer evo-components {
-    /* ボタンは class="button"、主ボタンは .primary。.actionButtons の中の a・button も同じ。
+    /* ボタンは class="button"、主ボタンは .primary。.actionButtons の中の a・button と、input[type=submit|button|reset] も同じ。
        .actionButtons の中では #Button1 a、li.primary a、a.primary、a.default も主ボタン */
-    :is(.button, .actionButtons :is(a, button)) {
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -101,7 +95,7 @@
         transition: var(--button-transition, none);
     }
 
-    :is(.button, .actionButtons :is(a, button)):hover {
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):hover {
         border-color: var(--button-hover-border-color, var(--button-border-color, transparent));
         background: var(--button-hover-bg, var(--color-neutral-button-hover-end, #e6ecef));
         box-shadow: var(--button-hover-shadow, var(--button-shadow, none));
@@ -109,13 +103,13 @@
         transform: var(--button-hover-transform, none);
     }
 
-    :is(.button, .actionButtons :is(a, button)):active {
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):active {
         background: var(--button-active-bg, var(--color-neutral-button-active-start, #dbe3e7));
         box-shadow: var(--button-active-shadow, var(--button-shadow, none));
         transform: var(--button-active-transform, none);
     }
 
-    :is(.button, .actionButtons :is(a, button)):focus-visible {
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):focus-visible {
         outline: 2px solid var(--button-focus-ring-color, var(--color-text-primary, #333));
         outline-offset: 2px;
     }
