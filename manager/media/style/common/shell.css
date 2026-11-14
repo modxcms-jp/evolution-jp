@@ -108,13 +108,24 @@ body.evo-shell.is-resizing-tree {
     user-select: none;
 }
 
-/* 離すとツリーを隠すところまで動かしたとき。ツリーを薄くして知らせる */
+/* 離すとツリーを隠すところまで動かしたとき。ツリーを薄くして知らせ、そのまま待つと少しずつ薄くなって、
+   薄くなりきったら畳む（shell.js が animationend で畳む。待つ時間はこのアニメーションの長さで決める） */
 body.evo-shell.is-collapsing-tree {
     cursor: w-resize;
 }
 
 body.evo-shell.is-collapsing-tree > #treePane {
-    opacity: 0.4;
+    animation: tree-collapse-wait 1.5s linear forwards;
+}
+
+@keyframes tree-collapse-wait {
+    from {
+        opacity: 0.6;
+    }
+
+    to {
+        opacity: 0.2;
+    }
 }
 
 body.evo-shell.tree-hidden > #evoTreeResizer {

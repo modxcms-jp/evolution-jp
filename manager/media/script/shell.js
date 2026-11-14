@@ -823,9 +823,9 @@
             document.body.classList.add('is-resizing-tree');
             let width = 0;
             let collapsing = false;
-            let collapseTimer = 0;
             const min = minTreeWidth();
-            const startWidth = document.getElementById('treePane').getBoundingClientRect().width;
+            const pane = document.getElementById('treePane');
+            const startWidth = pane.getBoundingClientRect().width;
             let finished = false;
             // ドラッグを終える。離したとき（lostpointercapture）と、薄くなったまま待ったとき（タイマー）の両方から呼ぶ
             const finish = function () {
@@ -834,7 +834,7 @@
                 }
                 finished = true;
                 handle.removeEventListener('pointermove', move);
-                clearTimeout(collapseTimer);
+                pane.removeEventListener('animationend', collapseAfterWait);
                 document.body.classList.remove('is-resizing-tree', 'is-collapsing-tree');
                 if (collapsing && window.mainMenu) {
                     // 隠す前の幅に戻しておき、上のメニューから表示し直したときにその幅で出す
@@ -855,27 +855,23 @@
                 // 下限の半分より左まで動かしたら、離したときにツリーを隠す
                 collapsing = ev.clientX < min / 2;
                 document.body.classList.toggle('is-collapsing-tree', collapsing);
-                // 薄くなったまましばらく待ったら、離さなくても畳む。
-                // 捕捉を解いた合図（lostpointercapture）は次にマウスが動くまで来ないので、ここで直接終える
-                if (collapsing && !collapseTimer) {
-                    collapseTimer = setTimeout(function () {
-                        if (!collapsing) {
-                            return;
-                        }
-                        finish();
-                        if (handle.hasPointerCapture(e.pointerId)) {
-                            handle.releasePointerCapture(e.pointerId);
-                        }
-                    }, 700);
-                } else if (!collapsing && collapseTimer) {
-                    clearTimeout(collapseTimer);
-                    collapseTimer = 0;
-                }
                 const max = Math.max(min, Math.round(window.innerWidth / 2));
                 width = Math.min(max, Math.max(min, Math.round(ev.clientX)));
                 setTreeWidth(width);
             };
+            // 薄くなったまま待ち、薄くなりきったら（shell.css の tree-collapse-wait の終わり）、離さなくても畳む。
+            // 捕捉を解いた合図（lostpointercapture）は次にマウスが動くまで来ないので、ここで直接終える
+            const collapseAfterWait = function (ev) {
+                if (ev.animationName !== 'tree-collapse-wait' || !collapsing) {
+                    return;
+                }
+                finish();
+                if (handle.hasPointerCapture(e.pointerId)) {
+                    handle.releasePointerCapture(e.pointerId);
+                }
+            };
             handle.addEventListener('pointermove', move);
+            pane.addEventListener('animationend', collapseAfterWait);
             handle.addEventListener('lostpointercapture', finish, { once: true });
         });
 
