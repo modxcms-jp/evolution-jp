@@ -1159,13 +1159,18 @@ function manager_asset($path)
 }
 
 /**
- * 管理画面のテーマの CSS を読む <link> を返す（common/forms.css とテーマの style.css）。
- * forms.css が @layer の順番を宣言するので、テーマより先に読む。
+ * 管理画面のテーマの CSS を読む <link> を返す（common の共通の CSS と、テーマの style.css）。
+ * forms.css が @layer の順番を宣言するので、共通の CSS をテーマより先に読む。
  */
 function manager_theme_stylesheets()
 {
+    $paths = [
+        'media/style/common/forms.css',
+        'media/style/common/theme-base.css',
+        'media/style/' . evo()->config('manager_theme') . '/style.css',
+    ];
     $links = '';
-    foreach (['media/style/common/forms.css', 'media/style/' . evo()->config('manager_theme') . '/style.css'] as $path) {
+    foreach ($paths as $path) {
         $links .= '<link rel="stylesheet" type="text/css" href="' . hsc(MODX_MANAGER_URL . manager_asset($path)) . '" />' . "\n";
     }
     return $links;

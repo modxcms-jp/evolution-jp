@@ -52,22 +52,19 @@ $tvHtml = evo()->renderFormElement(
     tv('value')
 );
 
-$theme = config('manager_theme');
 $output = <<< EOT
 <!DOCTYPE html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>qm edit</title>
-<link rel="stylesheet" type="text/css" href="[+site_url+]manager/media/style/[+theme+]/style.css?[+theme_css_ver+]" />
-<link rel="stylesheet" type="text/css" href="[+site_url+]assets/plugins/qm/css/style.css?[+qm_css_ver+]" />
+[+theme_stylesheets+]<link rel="stylesheet" type="text/css" href="[+site_url+]assets/plugins/qm/css/style.css?[+qm_css_ver+]" />
 </head>
 EOT;
 $output = parseText(
     $output,
     [
-        'theme' => $theme,
+        'theme_stylesheets' => manager_theme_stylesheets(),
         'qm_css_ver' => asset_version(MODX_BASE_PATH . 'assets/plugins/qm/css/style.css'),
-        'theme_css_ver' => asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css"),
         'site_url' => MODX_SITE_URL
     ]
 );

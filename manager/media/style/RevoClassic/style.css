@@ -189,11 +189,6 @@
    Used in: All pages, foundational styles
    ============================================================================ */
 
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
-
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 75%;
@@ -230,81 +225,9 @@ li, dd, blockquote {
    Used in: Various components for layout and status indication
    ============================================================================ */
 
-.clear {
-    clear: both;
-}
-
-.fail {
-    color: var(--color-error);
-    font-weight: bold;
-}
-
-.warning {
-    color: var(--color-warning);
-    font-weight: bold;
-}
-
-.mutate-field-row {
-    height: 24px;
-}
-
-.mutate-field-label {
-    width: 120px;
-    text-align: left;
-}
-
 .mutate-field-title {
     color: var(--color-warning, #444);
     font-weight: bold;
-}
-
-.clickable-label {
-    cursor: pointer;
-}
-
-.menuindex-table {
-    width: 333px;
-}
-
-.menuindex-label {
-    white-space: nowrap;
-}
-
-.menuindex-options {
-    text-align: right;
-}
-
-.mutate-tv-table {
-    position: relative;
-    width: 96%;
-}
-
-.mutate-tv-row {
-    height: 24px;
-}
-
-.mutate-tv-label {
-    width: 200px;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.mutate-tv-value {
-    position: relative;
-    vertical-align: top;
-}
-
-.success {
-    color: var(--color-success);
-    font-weight: bold;
-}
-
-.hide, .skip, .printonly {
-    display: none;
-}
-
-.inline {
-    display: inline;
 }
 
 /* ============================================================================
@@ -408,10 +331,6 @@ hr {
     position: relative;
 }
 
-#topbar * {
-    vertical-align: middle;
-}
-
 #topbar a,
 #topbar a:link,
 #topbar a:visited {
@@ -506,20 +425,6 @@ hr {
    Used in: Document editor, settings pages, all form interactions
    ============================================================================ */
 
-tbody, thead, tr {
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-form label {
-    cursor: pointer;
-}
-
-fieldset {
-    border: none;
-}
-
 input, select, textarea, option, optgroup, td {
     font: inherit;
     color: inherit;
@@ -544,16 +449,6 @@ optgroup {
 optgroup option {
     font-weight: normal;
     background-color: var(--color-surface);
-}
-
-#ta, .tmplvars textarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-}
-
-.sectionBody input.inputBox[type=text],
-.sectionBody input.inputBox[type=password],
-.sectionBody select.inputBox {
-    width: 350px;
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -636,10 +531,6 @@ form textarea {
     float: left;
 }
 
-.form br {
-    clear: both;
-}
-
 input.submit {
     display: block !important;
     float: none !important;
@@ -648,10 +539,6 @@ input.submit {
 
 .form fieldset.list {
     margin: var(--space-2) var(--space-2) var(--space-1) 0;
-}
-
-.form fieldset.list legend {
-    display: none;
 }
 
 .form fieldset.list label,
@@ -670,10 +557,6 @@ input.submit {
     padding-left: var(--space-1);
     text-align: left;
     width: auto;
-}
-
-form .imeoff {
-    ime-mode: disabled;
 }
 
 /* ============================================================================
@@ -771,32 +654,15 @@ ul {
     text-align: center;
 }
 
-a img {
-    border: 0;
-}
-
 /* ============================================================================
    8. Tree Components (Site Tree, Context Menu)
    Used in: Resource tree, context menus, tree navigation
    ============================================================================ */
 
-.disabledImage {
-    width: 20px;
-    opacity: 0.3;
-}
-
-.disabledImage img {
-    border: 0;
-}
-
 .editorCell {
     border-top: var(--border-thin) solid #808080;
     text-align: left;
     vertical-align: baseline;
-}
-
-.row1, .row2, .row3 {
-    color: var(--color-text-primary);
 }
 
 .row1 {
@@ -815,10 +681,6 @@ div.treeframebody {
     background: var(--color-tree-bg) url(../common/images/misc/subnav.png) !important;
     box-shadow: var(--shadow-inset);
     padding: var(--space-2);
-}
-
-#treeMenu * {
-    vertical-align: middle;
 }
 
 #treeHolder {
@@ -856,10 +718,6 @@ div.treeframebody {
     cursor: pointer;
     width: auto;
     margin-right: 0;
-}
-
-div.treeNode {
-    white-space: nowrap;
 }
 
 .treeNodeSelected,
@@ -954,15 +812,6 @@ div.treeNode {
     padding: var(--space-1);
 }
 
-.grid .is-shrink {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.grid .is-center {
-    text-align: center;
-}
-
 .gridRowIcon:hover {
     background-color: #f5f5dc;
 }
@@ -1018,16 +867,6 @@ a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hom
 a.hometblink:hover {
     text-decoration: underline;
     color: Gray;
-}
-
-#preLoader {
-    position: absolute;
-    z-index: 50000;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    vertical-align: middle;
-    background-color: rgba(255, 255, 255, .3);
 }
 
 .preLoaderText {
@@ -1278,10 +1117,6 @@ a.hometblink:hover {
     opacity: .3;
 }
 
-#mx_contextmenu .menuLink:hover img {
-    opacity: 1;
-}
-
 #mx_contextmenu #nameHolder {
     color: var(--color-surface);
     text-align: left;
@@ -1303,9 +1138,6 @@ a.hometblink:hover {
 
 
 /* Settings Table */
-.settings {
-    width: 600px;
-}
 
 .settings tr {
     width: 100% !important;
@@ -1459,10 +1291,6 @@ a.hometblink:hover {
 }
 
 /* Welcome Page */
-a.hometblink, a.hometblink img {
-    border: 0 !important;
-    text-decoration: none !important;
-}
 
 .wm_button {
     float: left;
@@ -1566,12 +1394,6 @@ h2#edit_document_title {
     margin-bottom: var(--space-3);
 }
 
-.actionButtons:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
 ul.actionButtons {
     margin: 0 0 var(--space-3);
     padding: 0;
@@ -1649,16 +1471,6 @@ form > :has(+ .resources-batch-actions),
     float: left;
 }
 
-.actionButtons img {
-    vertical-align: top;
-    margin-top: 1px;
-    opacity: .7;
-}
-
-.actionButtons a:hover img {
-    opacity: 1;
-}
-
 .actionButtons :is(a, button) {
     float: left;
 }
@@ -1682,24 +1494,12 @@ form > :has(+ .resources-batch-actions),
     float: left;
 }
 
-.actionButtons span.and {
-    padding: 4px 2px;
-}
-
-.actionButtons a.disabled img {
-    opacity: .3;
-}
-
 .actionButtons .and {
     margin: 0 var(--space-1) 0 var(--space-1);
     color: #3b454f;
     font-weight: 700;
 }
 
-
-#loadingmask {
-    display: none;
-}
 
 /* ============================================================================
    12. Specialized Forms (Mutate Forms, Date Pickers)
@@ -1735,69 +1535,15 @@ form#mutate textarea {
     width: 300px;
 }
 
-form#mutate textarea.textarea {
-    width: 90%;
-    height: 200px;
-}
-
 #tv_body input[type=text],
 #tv_body textarea {
     background: var(--color-surface);
-}
-
-form#mutate textarea.tv_textareamini {
-    height: 100px;
-    width: 300px;
-    overflow-y: scroll;
-}
-
-form#mutate textarea.tv_textarea {
-    height: 100px;
-    width: 100%;
-    overflow-y: scroll;
 }
 
 /* Styling for datepicker elements in settings and templavars */
 form#mutate input.date,
 form#mutate input.tvdate {
     margin-right: var(--space-3);
-}
-
-/*
-* Individual Styles for fieldset#settings_page_settings
-*/
-form#mutate fieldset#settings_page_settings input#pub_date,
-form#mutate fieldset#settings_page_settings input#unpub_date {
-    width: 150px;
-}
-
-form#mutate fieldset#settings_page_settings select {
-    width: 155px;
-}
-
-/*
-* Individual Styles for fieldset#document_content
-*/
-
-fieldset#document_content textarea#ta {
-    width: 100%;
-    height: 400px;
-    font-size: 1em;
-}
-
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-fieldset#access_permissions dt label {
-    width: 200px;
-}
-
-fieldset#access_permissions dd {
-    margin-left: 210px;
-}
-
-fieldset#access_permissions dl dd ul li {
-    list-style-type: none;
 }
 
 /* Date picker */
@@ -1813,11 +1559,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     cursor: text;
 }
 
-.phptextarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-    box-sizing: border-box;
-}
-
 /* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
 .code-editor-header {
     display: flex;
@@ -1829,21 +1570,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     border-bottom: none;
 }
 
-.code-editor-title {
-    font-weight: bold;
-}
-
 .code-editor-options {
     color: var(--color-text-muted);
-}
-
-.tmplvars tr {
-    height: 24px;
-}
-
-.tvname {
-    width: 150px;
-    white-space: nowrap;
 }
 
 .okmsg {
