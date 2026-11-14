@@ -1279,17 +1279,6 @@ a.hometblink:hover {
     border-bottom: 1px solid var(--color-frame);
 }
 
-.dynamic-tab-pane-control ul {
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
-}
-
-.dynamic-tab-pane-control li {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
 /* ============================================================================
    8. Tree Components (Site Tree, Context Menu)
    Used in: Site tree navigation and context menus
@@ -1409,15 +1398,6 @@ body.evo-shell #evoShellModalFooter #actions {
     margin-bottom: var(--space-3);
 }
 
-ul.actionButtons {
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    /* accommodate border on buttons - */
-    background: none;
-    width: auto;
-    white-space: nowrap;
-}
-
 /* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
 #actions .actionButtons {
     margin-bottom: 0;
@@ -1480,13 +1460,6 @@ form > :has(+ .resources-batch-actions),
     margin-top: var(--space-3);
 }
 
-.actionButtons li {
-    list-style: none;
-    margin-right: 6px;
-    padding: 0;
-    float: left;
-}
-
 .actionButtons :is(a, button) {
     float: left;
 }
@@ -1503,11 +1476,6 @@ form > :has(+ .resources-batch-actions),
 .actionButtons .opendraft a {
     background-color: var(--color-draft-start);
     border-color: var(--color-draft-end);
-}
-
-.actionButtons select, .actionButtons span.and {
-    display: block;
-    float: left;
 }
 
 .actionButtons .and {
