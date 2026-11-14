@@ -4,7 +4,7 @@
    テーマの style.css の後ろで読み込む。詳細度は .selection-dock を前に付けて、テーマの
    ul.actionButtons・.actionButtons li の規則（どれも (0,1,1) 以下）に勝つ。forms.css のボタンの規則は層の中にあるので、
    層の外のこのファイルの規則が必ず勝つ。
-   地色・枠・影・角はテーマの .selection-dock:not(.is-empty) の規則（#actions と共有）が決める */
+   地色・枠・影・角は、下の #actions と共有の規則（テーマの --actions-* の変数）が決める */
 .selection-dock {
     display: flex;
     flex-wrap: wrap;
@@ -16,6 +16,16 @@
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
     border: 1px solid var(--color-border-light, #ddd);
     box-shadow: 0 -2px 4px rgb(0 0 0 / 8%);
+}
+
+/* 右上の操作ボタンの帯（#actions）と、操作の帯は、同じ地・枠・影・角にする。値はテーマが :root の --actions-* で決める
+   （theme-variables.md の「操作ボタンの帯」）。上の .selection-dock の既定値に勝つよう、層の外のこのファイルに置く */
+#actions,
+.selection-dock:not(.is-empty) {
+    border: var(--actions-border, 0);
+    border-radius: var(--actions-radius, var(--radius-full, 999px));
+    background: var(--actions-bg, rgba(60, 60, 60, .2));
+    box-shadow: var(--actions-shadow, none);
 }
 
 /* テーマの地色が半透明（右上のボタン群と同じ値）でも、下のものが透けて文字が読めなくならないよう、

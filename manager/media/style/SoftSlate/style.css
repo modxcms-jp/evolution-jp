@@ -250,6 +250,12 @@
     --tab-alert-color: #c00;
     --tab-page-top: 0;
     --tab-page-shadow: var(--shadow-frame);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-bg: var(--color-surface);
+    --actions-border: 1px solid var(--color-frame);
+    --actions-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+    --actions-radius: var(--radius-lg);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -693,28 +699,6 @@ fieldset.tab-page {
    Used in: Document editing and other action-heavy pages
    ============================================================================ */
 
-/* from https://github.com/manse/ScienceStyle */
-/* 操作ボタンの群。灰色の半透明の帯をやめ、白地と細い枠でまとめる。
-   右上に浮かび、タイトルの上にもスクロール後の本文の上にも重なる */
-#actions {
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-}
-
-/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
-#actions,
-.selection-dock:not(.is-empty) {
-    background: var(--color-surface);
-    border: 1px solid var(--color-frame);
-    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
-    border-radius: var(--radius-lg);
-}
-
 /* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
 body.evo-shell #evoShellModalFooter #actions {
     border: none;
@@ -724,36 +708,6 @@ body.evo-shell #evoShellModalFooter #actions {
 .rtl #actions {
     left: 10px;
     text-align: left;
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px 4px;
-    color: var(--gray-700);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: #3b454f;
-    font-weight: 700;
 }
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。

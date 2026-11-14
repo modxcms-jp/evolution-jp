@@ -283,6 +283,10 @@
     --tab-page-border: 1px solid rgba(255, 200, 230, 0.3);
     --tab-page-radius: var(--radius-xl);
     --tab-page-shadow: var(--shadow-sm);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-radius: var(--radius-lg);
+    --actions-and-color: #5a4055;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -1072,55 +1076,6 @@ fieldset.tab-page {
    Used in: Document editor, form pages, action toolbars
    From: https://github.com/manse/ScienceStyle
    ============================================================================ */
-
-#actions {
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-}
-
-/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
-#actions,
-.selection-dock:not(.is-empty) {
-    border: 0;
-    box-shadow: none;
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    border-radius: var(--radius-lg);
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: #5a4055;
-    font-weight: 600;
-}
 
 /* ============================================================================
    13. Specialized Forms - Mutate Forms, Date Pickers

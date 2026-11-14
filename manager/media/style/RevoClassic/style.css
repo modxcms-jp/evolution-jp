@@ -605,55 +605,6 @@ fieldset.tab-page {
    Used in: Document editor, fixed action bar
    ============================================================================ */
 
-#actions {
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-}
-
-/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
-#actions,
-.selection-dock:not(.is-empty) {
-    border: 0;
-    box-shadow: none;
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    border-radius: var(--radius-full);
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.actionButtons a.disabled {
-    border: var(--border-thin) solid var(--color-border-default);
-    padding: var(--space-1) var(--space-1);
-    color: var(--gray-700);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons .and {
-    margin: 0 var(--space-1) 0 var(--space-1);
-    color: #3b454f;
-    font-weight: 700;
-}
-
 /* ============================================================================
    12. Specialized Forms (Mutate Forms, Date Pickers)
    Used in: Document editing forms, template variable forms

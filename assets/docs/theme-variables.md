@@ -54,7 +54,7 @@
 ## 書き方
 
 - 主ボタンの地・枠・文字の色（`--button-primary-*` の値）は、`--color-primary*` と `--color-text-inverse` だけで書く。色を直接（`#xxx`、`rgb()`）書かない。主ボタンの規則そのものは `common/forms.css` にあり、テーマは書かない（「フォーム部品」を参照）
-- 一覧の操作の帯（`.data-table-selection-dock`。[data-table.md](data-table.md)）のボタンは `.actionButtons` の中の `button` なので、`common/forms.css` の一般のボタンの規則が当たる（右上のボタン群と同じ見た目）。帯の地色・枠・影・角は、`#actions` の規則に `.selection-dock:not(.is-empty)` を足して同じ値にする（外部のテーマはこれでそろう。ファイルブラウザの選択の帯も同じクラス）
+- 一覧の操作の帯（`.data-table-selection-dock`。[data-table.md](data-table.md)）のボタンは `.actionButtons` の中の `button` なので、`common/forms.css` の一般のボタンの規則が当たる（右上のボタン群と同じ見た目）。帯の地色・枠・影・角は、右上のボタン群（`#actions`）と同じ規則（`common/selection-dock.css`）が、テーマの `--actions-*` の変数で決める（下の「操作ボタンの帯」。ファイルブラウザの選択の帯も同じクラス）
 - `.actionButtons` のボタンの `:focus-visible` の枠（`outline: 2px solid` と `outline-offset: 2px`、色はテーマのフォーカス色か本文の色。帯の地が灰色のテーマでも 3:1 以上になる色にする。リンク色は灰色の地で 3:1 を下回るテーマがある）は、`outline: none` を持つテーマが必ず足す。帯の上下の余白（8px 以上）が枠の 4px を切らない
 - テーマ固有の別名（`--color-accent-green-*` など）を作って主ボタンの色にしない。別名を挟むと、共通部と同じ色の根拠がなくなる
 - 主な操作の色を 2 色で描くか単色で描くかは、テーマが決める。`--color-primary` と `-start` / `-end` の両方を必ず定義し、共通部がどちらを読んでも主ボタンと同じ系統の色になるようにする
@@ -182,6 +182,18 @@
 | `--section-body-bg` / `--section-body-border` / `--section-body-padding` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・内側の余白 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `16px` |
 | `--section-fieldset-padding` | 箱の中の `fieldset` の内側の余白 | `16px` |
 | `--section-legend-padding` / `--section-legend-shadow` / `--section-legend-radius` | 箱の中の `legend` の余白・影・角 | `4px 16px` / `1px 1px 3px #ccc` / `3px` |
+
+既定値は RevoClassic の値。
+
+## 操作ボタンの帯
+
+右上の操作ボタンの帯（`#actions`）の位置・余白と、中のボタン列の余白は、`manager/media/style/common/action-buttons.css`（`@layer evo-components`）が決める。シェルの中の位置は `shell.css` が決める。帯の地・枠・影・角は、一覧の操作の帯（`.selection-dock:not(.is-empty)`）と同じ規則で、`common/selection-dock.css`（層の外。`.selection-dock` の既定の見た目に勝つため）が決める。テーマは `:root` で下の変数の値を決め、帯の規則を書かない。一部のテーマにしかない飾り（RubberWhite の帯のすりガラス、RevoStyle の下書きを開くボタンのグラデーション）は、テーマの規則に書く。
+
+| 変数 | 意味 | 既定値 |
+| --- | --- | --- |
+| `--actions-bg` / `--actions-border` / `--actions-shadow` / `--actions-radius` | 帯の地・枠（`border` に入れる値）・影・角 | `rgba(60, 60, 60, .2)` / `0` / なし / `--radius-full` |
+| `--actions-and-color` | 「保存して」と次の動作の選択の間の「＋」の文字の色 | `#3b454f` |
+| `--actions-disabled-color` | 使えないボタン（`a.disabled`）の文字の色 | `--gray-700` |
 
 既定値は RevoClassic の値。
 
