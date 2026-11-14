@@ -314,7 +314,7 @@ a img {
     font-weight: bold;
 }
 
-p.caption, p.comment {
+p.comment {
     font-size: 0.9em;
     color: var(--gray-600);
 }
@@ -328,18 +328,6 @@ p.caption, p.comment {
     }
 }
 
-/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
-@layer evo-base {
-    a, a:active, a:visited, a:link {
-        color: var(--color-link);
-        text-decoration: underline;
-    }
-
-    a:hover {
-        color: var(--color-link-hover);
-    }
-}
-
 .split {
     background: transparent;
     border-top: 1px dotted #556476;
@@ -347,13 +335,6 @@ p.caption, p.comment {
     font-size: 0;
     clear: both;
     padding: 0;
-}
-
-.right {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    float: left;
-    padding: 0 var(--space-12) var(--space-12);
 }
 
 #buildText,
@@ -436,7 +417,6 @@ form select:focus {
 
 input.checkbox,
 input.radio,
-input.submit,
 input.button,
 input[type="checkbox"],
 input[type="radio"],
@@ -447,28 +427,9 @@ input[type="button"] {
     cursor: pointer;
 }
 
-.form {
-    padding: var(--space-9);
-    border: solid var(--border-thin) var(--gray-300);
-}
-
 form input.hidden {
     display: none !important;
     position: absolute;
-}
-
-.form label,
-.form input,
-.form textarea {
-    display: block;
-    float: left;
-    vertical-align: middle;
-}
-
-.form label {
-    padding-right: var(--space-12);
-    text-align: right;
-    width: 110px;
 }
 
 form textarea {
@@ -476,45 +437,6 @@ form textarea {
     width: 350px;
     line-height: 1.5;
     overflow: auto;
-}
-
-.form legend {
-    color: #04C;
-    font-weight: bold;
-    padding: var(--space-4);
-}
-
-.form select {
-    display: inline;
-    float: left;
-}
-
-input.submit {
-    display: block !important;
-    float: none !important;
-    margin: var(--space-12) 0 0 140px !important;
-}
-
-.form fieldset.list {
-    margin: var(--space-5) var(--space-5) var(--space-2) 0;
-}
-
-.form fieldset.list label,
-.form fieldset.list input {
-    padding: 0;
-    margin: 0 0 var(--space-2);
-    float: left;
-    display: inline;
-    border: 0;
-    background: none;
-    width: auto;
-    height: auto;
-}
-
-.form fieldset.list label {
-    padding-left: var(--space-4);
-    text-align: left;
-    width: auto;
 }
 
 /* -------------------------[ Misc stuff ]--- */
@@ -582,17 +504,6 @@ input.submit {
 thead td {
     color: var(--gray-850);
     border-top: var(--border-thin) solid #fff;
-}
-
-.screen {
-    border: var(--border-thin) solid var(--gray-300);
-    text-align: center;
-}
-
-.editorCell {
-    border-top: 1px solid #808080;
-    text-align: left;
-    vertical-align: baseline;
 }
 
 .protectedNode {
@@ -723,10 +634,6 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.filelist td {
-    border-bottom: 1px solid #C2C3CF;
-}
-
 /* ============================================================================
    10. Tabs System (Dynamic Tab Pane)
    Used in: Tabbed interfaces, multi-panel views
@@ -839,11 +746,6 @@ a.hometblink:hover {
     text-align: center;
 }
 
-/* -------------------------[ Welcome Page ]--- */
-#mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
-}
-
 .tab-page {
     border: 1px solid #AAA;
     border-radius: 0 0 5px 5px;
@@ -853,21 +755,8 @@ a.hometblink:hover {
     padding: 15px 15px 20px !important;
 }
 
-/* -------------------------[ Pagination table ]--- */
-#max-display-records {
-    margin: 10px 0;
-}
-
 fieldset.tab-page {
     border: 1px solid #e4e4e4 !important;
-}
-
-h2#edit_document_title {
-    font-size: calc(var(--font-size-base, 12px) * 1.25);
-    color: #f5f5f5;
-    width: 100%;
-    border-bottom: none;
-    padding: 5px 10px;
 }
 
 /* ============================================================================
@@ -976,8 +865,7 @@ form#mutate dd {
     margin-bottom: 10px;
 }
 
-form#mutate dt label,
-form#mutate dt h3.label {
+form#mutate dt label {
     font-size: 1em;
     display: inline;
     float: left;
@@ -990,10 +878,6 @@ form#mutate dd {
     margin-left: 210px;
 }
 
-form#mutate input.disabled {
-    background-color: #f5f5f5 !important;
-}
-
 form#mutate select.inputBox,
 form#mutate input,
 form#mutate textarea {
@@ -1003,14 +887,6 @@ form#mutate textarea {
 #tv_body input[type=text],
 #tv_body textarea {
     background: #fff;
-}
-
-/*
-* Styling for datepicker elements in settings and templavars
-*/
-form#mutate input.date,
-form#mutate input.tvdate {
-    margin-right: 10px;
 }
 
 /* ============================================================================
