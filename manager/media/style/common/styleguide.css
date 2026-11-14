@@ -210,3 +210,23 @@
     white-space: nowrap;
 }
 
+
+/* 欄と、その後ろのボタン・説明のアイコンを横に並べる。縦の真ん中でそろえる */
+.field-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1, 4px);
+}
+
+/* アイコンだけのボタン（日付を消すなど）。枠と地を持たない */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
