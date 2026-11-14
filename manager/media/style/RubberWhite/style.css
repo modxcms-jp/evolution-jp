@@ -779,7 +779,7 @@ ul {
     z-index: 500;
 }
 
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
     color: var(--color-gray-950);
     cursor: pointer;
     width: auto;
@@ -787,7 +787,7 @@ ul {
 }
 
 .treeNodeSelected,
-.treeNodeHover {
+.treeNode:hover {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-default);
     color: var(--color-gray-950);
