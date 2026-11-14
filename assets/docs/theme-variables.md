@@ -254,6 +254,19 @@
 
 既定値は RevoClassic の値。
 
+## 素の要素
+
+素の要素（`body`・`ul`・`li`・`hr`・`thead`・`button`・`img`・`optgroup`・`h2` など）の規則は、`common/theme-base.css`（主に `@layer evo-base`）が決める。本文の書体・文字の大きさ・行の高さ（`1.5`）、リストの余白、`button` の余白、`hr` の太さは全テーマ共通。行の高さは、入力欄とボタンの高さ（`--control-height`）の計算の元にもなる。テーマは `:root` で下の変数の値を決め、素の要素の規則を書かない（AromaHop・SakuraFlow の `h2` のような、そのテーマだけの見た目は除く）。
+
+| 変数 | 意味 | 既定値（theme-base.css） |
+| --- | --- | --- |
+| `--page-bg` | 本文（`body`）の地。グラデーションも書ける | `--color-background-page` |
+| `--body-line-height` | 本文の行の高さ。同梱テーマはすべて既定値 | `1.5` |
+| `--hr-color` | 区切り線（`hr`）の色 | `--gray-700` |
+| `--thead-color` / `--thead-bg` / `--thead-td-color` / `--thead-td-border-color` | 表の見出しの行の文字の色・地・セルの文字の色・セルの上の線の色 | `--color-thead-text` / `--color-thead-bg` / `--thead-color` / `--color-surface` |
+| `--list-marker-image` | `li` の印の画像（`none` なら黒丸だけ） | `common/images/misc/li.gif` |
+| `--optgroup-color` | 選択肢のグループの見出しの文字の色（地は付けない。選んでいる項目の灰色の地と見分けるため） | `--color-text-muted` |
+
 ## そのほかの部品
 
 上のどの部品にも入らない小さな規則（状態表示・読み込み中の表示・検索の帯・設定の表・区切り・状態を色で示す文字・ダッシュボードのボタン）は `common/theme-base.css`、表（`.grid`）の角と影は `common/tables.css` が描く。大きさと余白は全テーマ共通で、テーマは `:root` で下の変数の値を決める。

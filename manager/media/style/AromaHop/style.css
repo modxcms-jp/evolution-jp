@@ -324,7 +324,6 @@
     --section-box-bg: linear-gradient(180deg, rgba(253, 253, 251, 0.4) 0%, transparent 2px), rgba(253, 253, 251, 0.78);
 
     /* 素の要素（common/theme-base.css） */
-    --body-line-height: 1.6;
     --list-marker-image: none;
     --hr-color: var(--gray-700);
     --thead-color: #3A6A40;

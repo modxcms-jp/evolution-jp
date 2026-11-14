@@ -305,7 +305,6 @@
     --section-box-bg: rgba(255, 255, 255, 0.65);
 
     /* 素の要素（common/theme-base.css） */
-    --body-line-height: 1.6;
     --list-marker-image: none;
     --hr-color: var(--gray-700);
     --thead-color: var(--gray-900);
