@@ -22,7 +22,7 @@
     $links = DataTableLinks::fromRequest('index.php', ['a' => 120], ['id', 'pagetitle']);
     $pager = new DataTablePager($total, $perPage, $links->page());
     // ... LIMIT に sprintf('%d,%d', $pager->offset(), $pager->limit()) を使って $rows を取る
-    $table = new DataTable($columns, ['id' => 'children', 'rowClasses' => ['gridItem', 'gridAltItem']]);
+    $table = new DataTable($columns, ['id' => 'children']);
     $nav = $pager->render($links, ['label' => lang('pagination_label')]);
     echo $nav . $table->render($rows, $links) . $nav;
 
@@ -48,13 +48,12 @@
 | --- | --- | --- |
 | `id` | `''` | 表を包む `div` の `data-table` の値 |
 | `tableClass` | `grid` | `table` の class（空なら class 属性を出さない） |
-| `rowClasses` | `[]` | 行（`tr`）に順に付ける class |
 | `headerClass` | `''` | `th` に足す class |
 | `caption` / `captionHtml` | なし / false | `caption`。`captionHtml` が真なら HTML のまま |
 | `emptyMessage` | `''` | 0 件のときの文言（エスケープ） |
 | `showHeader` | true | `thead` を出すか |
 | `selection` | なし | 表の上に「選んだ件数」と「この一覧のすべてを選択」の帯を出す（下の「選択の帯」） |
-| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` を返したときは `rowClasses` の値と 1 つの `class` 属性にまとめる） |
+| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` も返せる） |
 
 `DataTable::render(array $rows, ?DataTableLinks $links = null)` に `DataTableLinks` を渡すと、`sort` のある列の見出しが並べ替えのリンクになり、今の列に `aria-sort` が付く。並べ替えのリンクではページが 1 に戻る。
 
@@ -117,10 +116,10 @@
 | class | 内容 |
 | --- | --- |
 | `.grid` | 表 |
-| `.gridItem`・`.gridAltItem` | 行の色分け（`rowClasses` で交互に付ける） |
 | `.pagination` | ページ送りの `nav`。今のページは `a[aria-current="page"]` |
 | `.is-shrink` | 幅を中身に合わせる列 |
 | `.is-center` | 中央寄せの列 |
+| `.is-end` | 右寄せ（行の終わりの側に寄せる）の列 |
 | `.data-table-empty` | 0 件のときのセル |
 
 並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。テーマは `.grid th[aria-sort] a::after` で向きの印（昇順 ▲・降順 ▼）を出す。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、色は `--color-primary`、間は `--space-1` を使う。凍結テーマの RevoStyle は持たない。
@@ -149,7 +148,7 @@
 | --- | --- | --- |
 | TV の出力ウィジェット `datagrid`（`manager/includes/docvars/outputfilter/datagrid.inc.php`） | `tv{TV 名}` | 表示パラメータ（下の表） |
 | 修飾子 `:datagrid`（`manager/includes/extenders/ex_modifiers.php`） | `mdf` | 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り |
-| `db()->getHTMLGrid($dsq, $params)`（`manager/includes/extenders/dbapi/mysqli.inc.php`） | `$params['id']`（既定 `grid`） | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`id`（既定 `grid`）・`cssClass`（`tableClass`）・`itemClass`・`altItemClass`・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
+| `db()->getHTMLGrid($dsq, $params)`（`manager/includes/extenders/dbapi/mysqli.inc.php`） | `$params['id']`（既定 `grid`） | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`id`（既定 `grid`）・`cssClass`（`tableClass`）・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
 
 ### 読む設定と無視する設定
 
@@ -168,7 +167,7 @@
 | `ploc` → `pagerLocation` | `top`・`bottom`・`both`（先頭の語で読む。`top-right` は `top`。空は `top`）。`-left`・`-right` は無視 |
 | `head` → `header` | 表の `<caption>`（HTML のまま） |
 | `foot` → `footer` | 表の後ろの `<div class="gridfooter">`（HTML のまま） |
-| `tblc`・`itmc`・`aitmc`・`chdrc`・`pclass` | 表・行（交互）・見出しのセル・ページ送りの class（ページ送りの既定は `pager`。表は空なら class を付けない。`grid` は管理画面のテーマの class） |
+| `tblc`・`chdrc`・`pclass` | 表・見出しのセル・ページ送りの class（ページ送りの既定は `pager`。表は空なら class を付けない。`grid` は管理画面のテーマの class） |
 | `egmsg` → `emptyMessage` | 0 件のときの文言 |
 
 読まない: `tbls`・`itms`・`aitms`・`chdrs`・`pstyle`（`style`）、`ccolor`（`bgcolor`）、`cwidth`（`width`）、`cpad`・`cspace`、`calign`（`align`）。ウィジェットの設定画面にも出さない。
@@ -185,6 +184,6 @@
 
 ### サイトの CSS に影響する変化
 
-- `itmc`・`aitmc`（`getHTMLGrid()` の `itemClass`・`altItemClass`）の class は `tr` に付く（旧は `td`）。
+- 行に交互の class を付ける指定（`itmc`・`aitmc`、`getHTMLGrid()` の `itemClass`・`altItemClass`）は無くなった。行を 1 行おきに色分けするときは、サイトの CSS で `tbody > tr:nth-child(even)` のように書く。
 - 修飾子 `:datagrid` の `td` に、旧の既定の `class="cell"`・`class="altCell"` は付かない。
 - 列名（`cols`・`columns`・`first line` の見出し）もエスケープする（旧は HTML のまま）。

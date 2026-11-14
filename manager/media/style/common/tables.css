@@ -49,12 +49,18 @@
         content: "\25BC" / "";
     }
 
-    .gridItem {
+    /* 行は 1 行おきに色を変える。合計などの行は tfoot に置く */
+    .grid > tbody > tr {
         background-color: var(--grid-bg, var(--color-surface, #fff));
     }
 
-    .gridAltItem {
+    .grid > tbody > tr:nth-child(even) {
         background-color: var(--grid-alt-bg, #eeeeee);
+    }
+
+    .grid > tfoot > tr {
+        background: var(--grid-header-bg, #d2d2d2);
+        font-weight: bold;
     }
 
     .gridRowIcon:hover {

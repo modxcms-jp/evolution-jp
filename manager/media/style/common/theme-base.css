@@ -97,6 +97,10 @@
     text-align: center;
 }
 
+.grid .is-end {
+    text-align: end;
+}
+
 .row1,
 .row2,
 .row3 {

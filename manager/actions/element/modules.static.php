@@ -213,7 +213,6 @@ echo $cm->render();
         $table = new DataTable($columns, [
             'id' => 'modules',
             'tableClass' => 'grid',
-            'rowClasses' => ['gridItem', 'gridAltItem'],
             'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [

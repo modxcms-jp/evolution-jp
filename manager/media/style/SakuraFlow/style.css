@@ -1078,19 +1078,11 @@ html body.evo-shell .tree-toolbar {
     border-top-right-radius: var(--radius-lg);
 }
 
-.gridItem {
+.grid > tbody > tr {
     transition: background-color 0.2s ease;
 }
 
-.gridItem:hover {
-    background-color: var(--pink-50);
-}
-
-.gridAltItem {
-    transition: background-color 0.2s ease;
-}
-
-.gridAltItem:hover {
+.grid > tbody > tr:hover {
     background-color: var(--pink-50);
 }
 

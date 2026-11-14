@@ -137,10 +137,10 @@
 
 | 変数 | 意味 | 既定値（tables.css） |
 | --- | --- | --- |
-| `--grid-bg` / `--grid-border` | 表と行（`.gridItem`）の地、表の枠 | `--color-surface`（無ければ `#fff`） / `1px solid silver` |
+| `--grid-bg` / `--grid-border` | 表と行の地、表の枠 | `--color-surface`（無ければ `#fff`） / `1px solid silver` |
 | `--grid-cell-padding` | セルの内側の余白 | `8px` |
 | `--color-grid-header-text` / `--grid-header-weight` / `--grid-header-bg` | 見出しの行の文字の色・太さ・地（グラデーションも可） | `--gray-900`（無ければ `#333`） / `bold` / `#d2d2d2` |
-| `--grid-alt-bg` / `--grid-hover-bg` | 1 行おきの行の地、行（`.gridRowIcon`）に乗ったときの地 | `#eeeeee` / `#f5f5dc` |
+| `--grid-alt-bg` / `--grid-hover-bg` | 1 行おきの行（`tbody > tr:nth-child(even)`）の地、行の操作のアイコン（`.gridRowIcon`）に乗ったときの地 | `#eeeeee` / `#f5f5dc` |
 | `--color-pagination-text` / `--color-pagination-border` / `--pagination-bg` | ページ送りの文字の色・枠の色・地 | `--gray-900`（無ければ `#333`） / `--color-row-highlight`（無ければ `#D9E7C2`） / `none` |
 | `--color-pagination-disabled` | 押せないページ（`span`）の文字の色 | `--color-row-highlight`（無ければ `#D9E7C2`） |
 | `--color-pagination-active-text` / `--pagination-active-bg` / `--color-pagination-active-border` | 今のページと、乗ったときの文字の色・地・枠の色 | `--color-surface`（無ければ `#fff`） / `#7fa53d` / `#567959` |
