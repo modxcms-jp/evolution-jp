@@ -341,6 +341,25 @@
 
     /* ダッシュボード（common/theme-base.css） */
     --dashboard-link-color: var(--color-text-primary);
+
+    /* 表・状態表示・メッセージなど（common/theme-base.css・tables.css） */
+    --grid-border-collapse: separate;
+    --grid-radius: var(--radius-lg);
+    --grid-shadow: var(--shadow-sm);
+    --statusbar-text-color: var(--color-text-inverse);
+    --access-private-color: var(--color-error);
+    --label-disabled-color: var(--color-text-muted);
+    --resource-description-color: var(--color-text-secondary);
+    --tree-protected-color: var(--color-tree-protected);
+    --disabled-plugin-color: var(--color-text-muted);
+    --okmsg-border-color: var(--color-success-border);
+    --preloader-radius: 10px;
+    --preloader-border-color: var(--color-border-dark);
+    --searchbar-border-color: var(--light-border);
+    --searchbar-bg: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
+    --searchbar-radius: var(--radius-md);
+    --settings-th-color: var(--color-gray-700);
+    --fieldset-tab-page-border-color: var(--color-border-lighter);
 }
 
 body#mainpane {
@@ -351,35 +370,6 @@ body#mainpane {
    3. Utility Classes (hide, clear, status messages)
    Used in: Error messages, visibility controls
    ============================================================================ */
-
-.split {
-    background: transparent;
-    border-top: 1px dotted #556476;
-    height: 0;
-    font-size: 0;
-    clear: both;
-    padding: 0;
-}
-
-#buildText,
-#workText {
-    font-weight: bold;
-    line-height: 16px;
-    margin: 0 15px;
-    color: var(--color-text-inverse);
-}
-
-#buildText img,
-#workText img {
-    margin: 0 5px;
-}
-
-#statusbar {
-    position: absolute;
-    inset-inline-end: 0;
-    top: 36px;
-    z-index: 1000;
-}
 
 input.checkbox,
 input.radio,
@@ -402,24 +392,6 @@ input[type="button"] {
    8. Tree Components (Site Tree)
    Used in: Resource tree, folder navigation, context menus
    ============================================================================ */
-
-.protectedNode {
-    color: var(--color-tree-protected);
-}
-
-.disabledPlugin a {
-    color: var(--color-text-muted);
-    text-decoration: line-through;
-}
-
-/* -------------------------[ grid style ]--- */
-.grid {
-    border-radius: var(--radius-lg);
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
 
 .grid th, .grid td {
     border-bottom: 1px solid var(--color-border-lighter);
@@ -458,10 +430,6 @@ input[type="button"] {
 
 .grid a:hover {
     color: var(--color-link);
-}
-
-.grid img {
-    padding-inline-end: 6px;
 }
 
 /* Grid checkbox styling */
@@ -508,46 +476,6 @@ input[type="button"] {
     font-style: italic;
 }
 
-/* Resource description in grid */
-.resource-description {
-    color: var(--color-text-secondary);
-}
-
-/* Disabled label */
-.label-disabled {
-    color: var(--color-text-muted);
-}
-
-/* Private access indicator */
-.access-private {
-    color: var(--color-error);
-}
-
-/* Database overhead warning */
-.overhead-warning {
-    color: #990033;
-}
-
-/* -------------------------[ search bar ]--- */
-.searchbar {
-    width: 100%;
-    border: 1px solid var(--light-border);
-    background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-}
-
-.preLoaderText {
-    background-color: var(--color-surface);
-    border-radius: 10px;
-    opacity: .7;
-    width: 300px;
-    height: 150px;
-    margin: 70px auto;
-    padding: 50px;
-    border: 1px solid var(--color-border-dark);
-}
-
 /* ============================================================================
    7. Navigation (Top Menu, Supplemental Nav)
    Used in: Main navigation, menu items, sub-navigation
@@ -555,17 +483,6 @@ input[type="button"] {
    ============================================================================ */
 
 /* -------------------------[ Settings Table ]--- */
-
-.settings tr {
-    width: 100% !important;
-}
-
-.settings th {
-    width: 200px !important;
-    text-align: start;
-    color: var(--color-gray-700);
-    font-size: 1.2em;
-}
 
 /* ============================================================================
    10. Tabs System (Dynamic Tab Pane)
@@ -605,10 +522,6 @@ input[type="button"] {
    Used in: Resource lists, user management, data grids
    ============================================================================ */
 
-fieldset.tab-page {
-    border: 1px solid var(--color-border-lighter) !important;
-}
-
 /* ============================================================================
    11. Action Buttons (Fixed Position Controls)
    Used in: Document save/cancel, primary actions
@@ -628,13 +541,6 @@ form#mutate textarea {
 
 .code-editor-options {
     color: color-mix(in srgb, var(--color-text-primary) 75%, var(--color-surface));
-}
-
-.okmsg {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-border);
-    padding: var(--space-2);
-    margin-bottom: var(--space-2);
 }
 
 /* ============================================================================

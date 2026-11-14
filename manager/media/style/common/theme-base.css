@@ -163,6 +163,11 @@ a img {
     margin: 0;
 }
 
+/* 表のアイコンの右の余白。リンクの中の画像の余白を 0 にする a img より強くする */
+.grid img {
+    padding-inline-end: 4px;
+}
+
 thead td {
     border-top: 1px solid var(--thead-td-border-color, var(--color-surface, #fff));
     color: var(--thead-td-color, var(--thead-color, var(--color-thead-text, #333)));
@@ -173,6 +178,108 @@ optgroup option {
     background-color: var(--color-surface, #fff);
     color: var(--color-text-primary, #333);
     font-weight: normal;
+}
+
+/* 上のメニューの右の状態表示（menu.php の #statusbar）。文字の色はテーマが --statusbar-text-color で決める */
+#statusbar {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 36px;
+    z-index: 1000;
+}
+
+#buildText,
+#workText {
+    margin: 0 15px;
+    color: var(--statusbar-text-color, #fff);
+    font-weight: bold;
+    line-height: 16px;
+}
+
+#buildText img,
+#workText img {
+    margin: 0 5px;
+}
+
+/* 読み込み中の表示（header.inc.php） */
+.preLoaderText {
+    width: 300px;
+    height: 150px;
+    margin: 70px auto;
+    padding: 50px;
+    border: 1px solid var(--preloader-border-color, var(--gray-500, #999));
+    border-radius: var(--preloader-radius, 12px);
+    background-color: var(--color-surface, #fff);
+    opacity: .7;
+}
+
+/* リソースの選択の検索の帯（resource_selector.static.php） */
+.searchbar {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--searchbar-border-color, silver);
+    border-radius: var(--searchbar-radius, 0);
+    background: var(--searchbar-bg, #dbdbdb);
+}
+
+/* 設定の表（.settings）の見出しの列 */
+.settings th {
+    width: 200px !important;
+    color: var(--settings-th-color, #555);
+    font-size: 1.2em;
+    text-align: start;
+}
+
+.settings tr {
+    width: 100% !important;
+}
+
+fieldset.tab-page {
+    border: 1px solid var(--fieldset-tab-page-border-color, var(--gray-200, #e4e4e4)) !important;
+}
+
+/* 編集画面の区切りの線。区切らないテーマは --split-display: none にする */
+.split {
+    display: var(--split-display, block);
+    height: 0;
+    padding: 0;
+    clear: both;
+    border-top: 1px dotted #556476;
+    background: transparent;
+    font-size: 0;
+}
+
+/* 状態を色で示す文字。色はテーマが変数で決める */
+.okmsg {
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 2px solid var(--okmsg-border-color, var(--color-success-light, #3ab63a));
+    background-color: var(--color-success-bg, #edffee);
+}
+
+.overhead-warning {
+    color: var(--overhead-warning-color, #990033);
+}
+
+.access-private {
+    color: var(--access-private-color, #821517);
+}
+
+.label-disabled {
+    color: var(--label-disabled-color, #ccc);
+}
+
+.resource-description {
+    color: var(--resource-description-color, #777);
+}
+
+.protectedNode {
+    color: var(--tree-protected-color, #77d);
+}
+
+.disabledPlugin a {
+    color: var(--disabled-plugin-color, #aaa);
+    text-decoration: line-through;
 }
 
 /* 汎用のクラス */
