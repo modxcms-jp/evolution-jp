@@ -280,19 +280,9 @@
         margin: 0;
     }
 
-    h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-        margin: 0 0 .5em;
-        padding: 0;
-        font-weight: normal;
-    }
-
     li, dd, blockquote {
         margin-block: 0;
         margin-inline: 0 0 0 1em;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-weight: normal;
     }
 
     h1 {
@@ -309,16 +299,6 @@
 
     h2 {
         font-size: 1.64em;
-    }
-
-    h4, h5 {
-        font-size: 1em;
-        font-weight: bold;
-    }
-
-    h6 {
-        font-size: 0.9em;
-        font-weight: bold;
     }
 
     hr {
@@ -385,10 +365,6 @@ a img {
 .mutate-field-title {
     color: var(--color-warning, #444);
     font-weight: bold;
-}
-
-.subTitle {
-    font-weight: normal;
 }
 
 h1.draft {
