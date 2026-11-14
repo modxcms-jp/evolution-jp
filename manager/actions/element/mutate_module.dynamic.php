@@ -389,7 +389,6 @@ function content($key, $default = null)
                                 [
                                     'id' => 'module-depends',
                                     'tableClass' => 'grid',
-                                    'rowClasses' => ['gridItem', 'gridAltItem'],
                                     'emptyMessage' => lang('no_records_found'),
                                 ]
                             );

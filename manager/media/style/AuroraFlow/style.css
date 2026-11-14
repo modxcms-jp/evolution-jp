@@ -776,7 +776,7 @@ html body.evo-shell > #treePane {
     z-index: 500;
 }
 
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
     color: #000;
     cursor: pointer;
     width: auto;
@@ -785,7 +785,7 @@ html body.evo-shell > #treePane {
 
 /* ホバーは淡い青の地色だけ、選択中は地色と枠で示す。行の寸法は変えない */
 .treeNodeSelected,
-.treeNodeHover {
+.treeNode:hover {
     background-color: var(--color-accent-soft);
     border: 1px solid transparent;
     border-radius: var(--radius-sm);

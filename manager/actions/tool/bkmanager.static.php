@@ -165,25 +165,25 @@ if (sessionv('result_msg')) {
                             checked="checked" /><?= lang('database_table_droptablestatements') ?>
                     </label>
                 </p>
-                <table style="width:100%;background-color:#ccc;">
+                <table class="grid">
                     <thead>
                         <tr>
-                            <td width="160">
+                            <th>
                                 <label>
                                     <input
                                         name="chkselall"
                                         onclick="selectAll()"
                                         title="Select All Tables"
-                                        type="checkbox" /><b><?= lang('database_table_tablename') ?></b>
+                                        type="checkbox" /><?= lang('database_table_tablename') ?>
                                 </label>
-                            </td>
-                            <td align="right"><b><?= lang('database_table_records') ?></b></td>
-                            <td align="right"><b><?= lang('database_collation') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_datasize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_overhead') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_effectivesize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_indexsize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_totalsize') ?></b></td>
+                            </th>
+                            <th class="is-end"><?= lang('database_table_records') ?></th>
+                            <th class="is-end"><?= lang('database_collation') ?></th>
+                            <th class="is-end"><?= lang('database_table_datasize') ?></th>
+                            <th class="is-end"><?= lang('database_table_overhead') ?></th>
+                            <th class="is-end"><?= lang('database_table_effectivesize') ?></th>
+                            <th class="is-end"><?= lang('database_table_indexsize') ?></th>
+                            <th class="is-end"><?= lang('database_table_totalsize') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -194,11 +194,9 @@ if (sessionv('result_msg')) {
                             db()->table_prefix
                         ));
                         $truncateable = EvoBackupManager::truncatableTables();
-                        $i = 0;
                         $totaloverhead = 0;
                         $total = 0;
                         while ($row = db()->getRow($rs)) {
-                            $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
                             $isTruncateable = in_array($row['Name'], $truncateable, true);
                             $isInnoDb = strtolower((string)($row['Engine'] ?? '')) === 'innodb';
                             $recordCount = (int)$row['Rows'];
@@ -217,7 +215,7 @@ if (sessionv('result_msg')) {
                                 $table_string = '';
                             }
 
-                            echo '<tr bgcolor="' . $bgcolor . '" title="' . $row['Comment'] . '" style="cursor:default">' . "\n" .
+                            echo '<tr title="' . $row['Comment'] . '" style="cursor:default">' . "\n" .
                                 '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '"' . (strstr(
                                     $table_string,
                                     $row['Name']
@@ -253,10 +251,11 @@ if (sessionv('result_msg')) {
 
                             $total = $total + $row['Index_length'] + $row['Data_length'];
                             $totaloverhead = $totaloverhead + $row['Data_free'];
-                            $i++;
                         }
                         ?>
-                        <tr bgcolor="#CCCCCC">
+                    </tbody>
+                    <tfoot>
+                        <tr>
                             <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir="ltr" align="right"
@@ -265,7 +264,7 @@ if (sessionv('result_msg')) {
                             <td dir="ltr" align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
                 <?php
                 if ($totaloverhead > 0) {

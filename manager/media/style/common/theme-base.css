@@ -97,6 +97,10 @@
     text-align: center;
 }
 
+.grid .is-end {
+    text-align: end;
+}
+
 /* 上部・ツリー・右クリックメニュー */
 #topbar * {
     vertical-align: middle;

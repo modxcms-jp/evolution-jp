@@ -378,9 +378,9 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
                 <tr><th class="is-shrink">ID</th><th>名前</th><th class="is-center">状態</th><th>更新日時</th></tr>
             </thead>
             <tbody>
-                <tr class="gridItem"><td>1</td><td><a href="#">Home</a></td><td class="is-center">公開</td><td>2026/11/14 10:00</td></tr>
-                <tr class="gridAltItem"><td>2</td><td><a href="#">新着情報</a></td><td class="is-center">非公開</td><td>2026/11/13 09:30</td></tr>
-                <tr class="gridItem"><td>3</td><td><a href="#">お問い合わせ</a></td><td class="is-center">公開</td><td>2026/11/12 18:20</td></tr>
+                <tr><td>1</td><td><a href="#">Home</a></td><td class="is-center">公開</td><td>2026/11/14 10:00</td></tr>
+                <tr><td>2</td><td><a href="#">新着情報</a></td><td class="is-center">非公開</td><td>2026/11/13 09:30</td></tr>
+                <tr><td>3</td><td><a href="#">お問い合わせ</a></td><td class="is-center">公開</td><td>2026/11/12 18:20</td></tr>
             </tbody>
         </table>
         <div class="pagination">

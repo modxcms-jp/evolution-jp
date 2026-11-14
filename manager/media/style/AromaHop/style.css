@@ -1026,7 +1026,7 @@ html body.evo-shell .tree-toolbar {
 }
 
 /* ツリーノード - モヒートパレット準拠 */
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
     color: #3A6A40;
     cursor: pointer;
     width: auto;
@@ -1034,7 +1034,7 @@ html body.evo-shell .tree-toolbar {
 }
 
 .treeNodeSelected,
-.treeNodeHover {
+.treeNode:hover {
     background-color: rgba(234, 252, 207, 0.7);  /* #EAFCCF */
     border: 1px solid rgba(255, 255, 255, 0.6);  /* #B6E7B3 */
     border-radius: 4px;
@@ -1111,19 +1111,11 @@ html body.evo-shell .tree-toolbar {
     border-top-right-radius: var(--radius-lg);
 }
 
-.gridItem {
+.grid > tbody > tr {
     transition: background-color 0.2s ease;
 }
 
-.gridItem:hover {
-    background-color: rgba(234, 252, 207, 0.5);
-}
-
-.gridAltItem {
-    transition: background-color 0.2s ease;
-}
-
-.gridAltItem:hover {
+.grid > tbody > tr:hover {
     background-color: rgba(234, 252, 207, 0.5);
 }
 

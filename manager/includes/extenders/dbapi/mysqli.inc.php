@@ -1042,8 +1042,6 @@ class DBAPI
      * @param: $params: Data grid parameters（DataTableSettings で描く。無いキーは既定値）
      *         columnHeaderClass
      *         cssClass            表の class（tableClass も可）
-     *         itemClass
-     *         altItemClass
      *         columns             列名（`||` があれば `||`、無ければ `,` 区切り）
      *         fields              出す列のキー（`,` 区切り。無ければ結果の列の順）
      *         colTypes            列の型（integer・float・currency・date・boolean・description・template）
@@ -1076,8 +1074,6 @@ class DBAPI
             'header' => $params['header'] ?? '',
             'footer' => $params['footer'] ?? '',
             'tableClass' => $params['cssClass'] ?? $params['tableClass'] ?? '',
-            'itemClass' => $params['itemClass'] ?? '',
-            'altItemClass' => $params['altItemClass'] ?? '',
             'headerClass' => $params['columnHeaderClass'] ?? '',
             'pagerClass' => $params['pagerClass'] ?? '',
             'emptyMessage' => $params['noRecordMsg'] ?? '',

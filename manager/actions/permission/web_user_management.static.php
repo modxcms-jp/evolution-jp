@@ -230,7 +230,6 @@ echo $cm->render();
         $table = new DataTable($columns, [
             'id' => 'web-users',
             'tableClass' => 'grid',
-            'rowClasses' => ['gridItem', 'gridAltItem'],
             'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [

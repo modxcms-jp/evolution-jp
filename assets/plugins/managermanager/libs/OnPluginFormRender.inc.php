@@ -6,7 +6,6 @@ $plugin_editing_name = db()->getValue($result);
 // if it's the right plugin
 if (strtolower($plugin_editing_name) == 'managermanager') {
     include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-    $tableOptions = ['rowClasses' => ['gridItem', 'gridAltItem']];
 
     // Get all templates
     $result = db()->select('templatename, id, description', evo()->getFullTableName('site_templates'), '', 'templatename ASC');
@@ -18,7 +17,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
             ['key' => 'templatename', 'label' => 'Template name'],
             ['key' => 'description', 'label' => 'Template description'],
         ],
-        ['id' => 'mm-templates'] + $tableOptions
+        ['id' => 'mm-templates']
     ))->render($all_templates);
 
     // Get all tvs
@@ -30,7 +29,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
             ['key' => 'name', 'label' => 'TV name'],
             ['key' => 'caption', 'label' => 'TV caption'],
         ],
-        ['id' => 'mm-tvs'] + $tableOptions
+        ['id' => 'mm-tvs']
     ))->render($all_tvs);
 
     // Get all roles
@@ -41,7 +40,7 @@ if (strtolower($plugin_editing_name) == 'managermanager') {
             ['key' => 'id', 'label' => 'ID'],
             ['key' => 'name', 'label' => 'Role name'],
         ],
-        ['id' => 'mm-roles'] + $tableOptions
+        ['id' => 'mm-roles']
     ))->render($all_roles);
 
     // タブを足す出力の開始（即時に実行する）

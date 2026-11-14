@@ -579,7 +579,7 @@ if (getv('submitok')) {
                             },
                         ],
                     ],
-                    ['id' => 'search-results', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                    ['id' => 'search-results']
                 );
                 $nav = $pager->render($links, [
                     'label' => lang('pagination_label'),

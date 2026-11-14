@@ -290,7 +290,6 @@ switch ($type) {
                         $table = new DataTable($columns, [
                             'id' => 'selector',
                             'tableClass' => 'grid',
-                            'rowClasses' => ['gridItem', 'gridAltItem'],
                             'emptyMessage' => lang('no_records_found'),
                         ]);
                         $nav = $pager->render($links, [

@@ -365,7 +365,7 @@ $icons_path = manager_style_image_path('icons');
                             },
                         ],
                     ],
-                    ['id' => 'mgrlog', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                    ['id' => 'mgrlog']
                 );
                 $nav = $pager->render($links, [
                     'label' => lang('pagination_label'),
