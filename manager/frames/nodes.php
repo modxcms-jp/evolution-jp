@@ -86,8 +86,6 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $parent = 0;
     }
 
-    // setup spacer
-    $spacer = get_spacer($indent);
     $tree_orderby = get_tree_orderby();
     $mgr_docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
     $in_docgrp = $mgr_docgroups
@@ -163,10 +161,9 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         }
     }
 
-    $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     if ($hasChild == 0 && $container_status === 'asis') {
         $tpl = tplEmptyFolder();
-        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => style('tree_deletedpage'), 'msg' => lang('empty_folder')];
+        $param = ['icon_deletedpage' => style('tree_deletedpage'), 'msg' => lang('empty_folder')];
         $output .= $modx->parseText($tpl, $param);
     }
 
@@ -194,7 +191,6 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
 
         $ph['alt'] = getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb);
         $ph['parent'] = $parent;
-        $ph['spacer'] = $spacer;
         $ph['pagetitle'] = hsc(js_literal($pagetitle));
         $url = $modx->makeUrl($id, '', '', 'full');
         $ph['url'] = hsc(js_literal($url));
@@ -220,7 +216,6 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $ph['pageIdDisplay'] = '';
         $ph['draftDisplay'] = $draftDisplay;
         $ph['_lang_click_to_context'] = lang('click_to_context');
-        $ph['pad'] = $pad;
         $ph['pid'] = "'p{$id}'";
 
         if (!$isfolder) {
@@ -325,7 +320,7 @@ function tplPageNode()
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
-><div>[+spacer+][+pad+]<img
+><div class="tree-row is-leaf"><img
 	id="p[+id+]"
 	title="[+_lang_click_to_context+]"
 	class="tree-node-icon"
@@ -348,7 +343,7 @@ EOT;
 function tplFopenNode()
 {
     $src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
+<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div class="tree-row"><img
 	id="s[+id+]"
 	style="cursor:pointer;"
 	src="[+_style_tree_minusnode+]"
@@ -368,7 +363,7 @@ function tplFopenNode()
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:block;">
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" class="tree-children" style="display:block;">
 
 EOT;
     return $src;
@@ -377,7 +372,7 @@ EOT;
 function tplFcloseNode()
 {
     $src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
+<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div class="tree-row"><img
 	id="s[+id+]"
 	style="cursor: pointer"
 	src="[+_style_tree_plusnode+]"
@@ -397,7 +392,7 @@ function tplFcloseNode()
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:none;"></div></div>
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" class="tree-children" style="display:none;"></div></div>
 
 EOT;
     return $src;
@@ -437,19 +432,6 @@ function allowed_docs_condition()
     }
     $ids = array_filter(array_map('intval', (array)evo()->user_allowed_docs));
     return sprintf('AND sc.id IN (%s)', $ids ? implode(',', $ids) : '0');
-}
-
-function get_spacer($indent)
-{
-    $spacer = '';
-    for ($i = 1; $i <= $indent; $i++) {
-        if ($i !== 1) {
-            $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-        } else {
-            $spacer .= '&nbsp;&nbsp;&nbsp;';
-        }
-    }
-    return $spacer;
 }
 
 function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)
@@ -595,7 +577,6 @@ function moreNode($indent, $parent, $offset, $remaining)
     return evo()->parseText(
         tplMoreNode(),
         [
-            'spacer' => get_spacer($indent) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
             'icon' => style('tree_deletedpage'),
             'indent' => (int)$indent,
             'parent' => (int)$parent,
@@ -607,12 +588,12 @@ function moreNode($indent, $parent, $offset, $remaining)
 
 function tplMoreNode()
 {
-    return '<div class="moreNode" style="white-space:nowrap;">[+spacer+]<img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
+    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()
 {
-    return '<div style="white-space:nowrap;">[+spacer+]<img src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
+    return '<div class="tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
 
 }
 
