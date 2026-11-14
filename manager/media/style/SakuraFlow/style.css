@@ -32,7 +32,7 @@
     --font-size-base: 12px;
 
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
-    --page-padding-x: 8px;
+    --page-padding-x: 16px;
 
     /* Gray Scale - Core neutral colors (softer, more feminine palette) */
     --gray-50: #fffbfd;
@@ -311,6 +311,10 @@
     --thead-color: var(--gray-900);
     --thead-bg: var(--gray-200);
     --page-bg: linear-gradient(180deg, #f0dce8 0%, #f5e2ef 10%, #f8e8f4 20%, #fceef8 35%, #fef5fc 50%, #fff8fd 70%, #fffaff 85%, #ffffff 100%);
+
+    /* ダッシュボード（common/theme-base.css） */
+    --dashboard-link-color: var(--color-text-dark);
+    --dashboard-link-hover-color: var(--color-primary);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -758,18 +762,6 @@ html body.evo-shell .tree-toolbar {
     padding: var(--space-2);
 }
 
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: none;
-    color: var(--color-text-dark);
-    font-weight: 600;
-}
-
-a.hometblink:hover {
-    text-decoration: none;
-    color: var(--color-primary);
-}
-
 .preLoaderText {
     background-color: var(--color-surface);
     border-radius: var(--radius-xl);
@@ -891,37 +883,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-
-.wm_button {
-    float: left;
-    margin: 0;
-    text-align: center;
-    padding: var(--space-4) var(--space-5);
-    border-radius: var(--radius-lg);
-    transition: all var(--transition-fast);
-    min-width: 100px;
-}
-
-.wm_button:hover {
-    background: rgba(255, 235, 245, 0.6);
-    transform: translateY(-1px);
-}
-
-.wm_button img {
-    display: block;
-    margin: 0 auto var(--space-2);
-    opacity: 0.85;
-    transition: opacity var(--transition-fast);
-}
-
-.wm_button:hover img {
-    opacity: 1;
-}
-
-/* Clear fix for floating buttons */
-.wm_button + br {
-    display: none;
-}
 
 .pagination li a,
 .pagination li span {

@@ -403,7 +403,36 @@ form#mutate fieldset#settings_page_settings select {
     width: 600px;
 }
 
-/* ダッシュボードのアイコンのリンク */
+/* ダッシュボードのアイコンのボタン（welcome.tpl）。行ごとに折り返して並べ、ボタンの中はアイコンと名前を縦に並べる。
+   大きさと間は全テーマ共通。名前の色はテーマが --dashboard-link-color・--dashboard-link-hover-color で決める */
+.wm_buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    margin-bottom: 12px;
+}
+
+.wm_buttons:last-child {
+    margin-bottom: 0;
+}
+
+.wm_button {
+    display: inline-flex;
+    text-align: center;
+}
+
+a.hometblink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--dashboard-link-color, var(--gray-900, #333));
+    font-weight: bold;
+}
+
+a.hometblink:hover {
+    color: var(--dashboard-link-hover-color, gray);
+}
+
 a.hometblink,
 a.hometblink img {
     border: 0 !important;

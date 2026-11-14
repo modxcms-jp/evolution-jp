@@ -338,6 +338,9 @@
     --hr-color: var(--color-text-tertiary);
     --thead-color: var(--color-text-primary);
     --thead-bg: var(--color-border-lighter);
+
+    /* ダッシュボード（common/theme-base.css） */
+    --dashboard-link-color: var(--color-text-primary);
 }
 
 body#mainpane {
@@ -534,18 +537,6 @@ input[type="button"] {
     padding: var(--space-2);
 }
 
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: underline;
-    color: var(--color-text-primary);
-    font-weight: bold;
-}
-
-a.hometblink:hover {
-    text-decoration: underline;
-    color: Gray;
-}
-
 .preLoaderText {
     background-color: var(--color-surface);
     border-radius: 10px;
@@ -608,14 +599,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-
-.wm_button {
-    float: inline-start;
-    margin: 0;
-    margin-inline-end: 12px;
-    margin-bottom: 2px;
-    text-align: center;
-}
 
 /* ============================================================================
    9. Tables & Grids (Data Tables)
