@@ -774,10 +774,203 @@
         nativeFormSubmit.call(this);
     };
 
+    // ツリーの欄（サイドバー）と本文の境目のつまみ（header.inc.php の #evoTreeResizer）。
+    // 開いているとき: ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。下限よりさらに左へ動かして
+    // 離すか、そこでしばらく待つと、ツリーを閉じる。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
+    // 閉じているとき: 左端の帯になり、押す（Enter・Space）と前の幅で開き、右へドラッグするとその幅で開く
+    const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
+    const TREE_WIDTH_MIN = 160;
+
+    function setTreeWidth(px) {
+        document.documentElement.style.setProperty('--shell-tree-width', px + 'px');
+    }
+
+    function saveTreeWidth(px) {
+        try {
+            localStorage.setItem(TREE_WIDTH_KEY, String(px));
+        } catch (e) {
+            // 覚えられなくても、今の画面の幅は変わっている
+        }
+    }
+
+    function isTreeHidden() {
+        return document.body.classList.contains('tree-hidden');
+    }
+
+    // ツリーの上のボタンの並び（#treeMenu）が切れない幅。テーマでボタンの大きさが違うので、ドラッグを始めるときに測る
+    function minTreeWidth() {
+        const menu = document.getElementById('treeMenu');
+        const pane = document.getElementById('treePane');
+        if (!menu || !pane) {
+            return TREE_WIDTH_MIN;
+        }
+        const outside = pane.getBoundingClientRect().width - menu.getBoundingClientRect().width;
+        menu.style.width = 'min-content';
+        const need = menu.getBoundingClientRect().width + outside;
+        menu.style.width = '';
+        return Math.max(TREE_WIDTH_MIN, Math.ceil(need));
+    }
+
+    function clampTreeWidth(x, min) {
+        const max = Math.max(min, Math.round(window.innerWidth / 2));
+        return Math.min(max, Math.max(min, Math.round(x)));
+    }
+
+    // 開いているときのドラッグ（幅を変える・左端まで動かして閉じる）
+    function dragOpenTree(handle, e) {
+        document.body.classList.add('is-resizing-tree');
+        let width = 0;
+        let collapsing = false;
+        let finished = false;
+        const min = minTreeWidth();
+        const pane = document.getElementById('treePane');
+        const startWidth = pane.getBoundingClientRect().width;
+        // ドラッグを終える。離したとき（lostpointercapture）と、薄くなったまま待ったとき（animationend）の両方から呼ぶ
+        const finish = function () {
+            if (finished) {
+                return;
+            }
+            finished = true;
+            handle.removeEventListener('pointermove', move);
+            pane.removeEventListener('animationend', collapseAfterWait);
+            document.body.classList.remove('is-resizing-tree', 'is-collapsing-tree');
+            if (collapsing && window.mainMenu) {
+                // 閉じる前の幅に戻しておき、開き直したときにその幅で出す
+                setTreeWidth(Math.round(startWidth));
+                window.mainMenu.hideTreeFrame(true);
+                return;
+            }
+            if (width) {
+                saveTreeWidth(width);
+            }
+        };
+        const move = function (ev) {
+            // 下限の半分より左まで動かしたら、離したときにツリーを閉じる
+            collapsing = ev.clientX < min / 2;
+            document.body.classList.toggle('is-collapsing-tree', collapsing);
+            width = clampTreeWidth(ev.clientX, min);
+            setTreeWidth(width);
+        };
+        // 薄くなったまま待ち、薄くなりきったら（shell.css の tree-collapse-wait の終わり）、離さなくても閉じる。
+        // 捕捉を解いた合図（lostpointercapture）は次にマウスが動くまで来ないので、ここで直接終える
+        const collapseAfterWait = function (ev) {
+            if (ev.animationName !== 'tree-collapse-wait' || !collapsing) {
+                return;
+            }
+            finish();
+            if (handle.hasPointerCapture(e.pointerId)) {
+                handle.releasePointerCapture(e.pointerId);
+            }
+        };
+        handle.addEventListener('pointermove', move);
+        pane.addEventListener('animationend', collapseAfterWait);
+        handle.addEventListener('lostpointercapture', finish, { once: true });
+    }
+
+    // 閉じているときの帯の操作。動かさずに離したら前の幅で開き、右へ動かしたらその幅で開く
+    function dragClosedTree(handle, e) {
+        const startX = e.clientX;
+        let min = 0;
+        let width = 0;
+        const move = function (ev) {
+            if (!min) {
+                if (ev.clientX - startX < 4) {
+                    return;
+                }
+                window.mainMenu.defaultTreeFrame();
+                document.body.classList.add('is-resizing-tree');
+                min = minTreeWidth();
+            }
+            width = clampTreeWidth(ev.clientX, min);
+            setTreeWidth(width);
+        };
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('lostpointercapture', function () {
+            handle.removeEventListener('pointermove', move);
+            document.body.classList.remove('is-resizing-tree');
+            if (!min) {
+                window.mainMenu.defaultTreeFrame(true);
+                return;
+            }
+            saveTreeWidth(width);
+        }, { once: true });
+    }
+
+    // 閉じているときは帯をボタンとして読ませ、キーボードでも開けるようにする
+    function syncTreeRail(handle) {
+        if (isTreeHidden()) {
+            handle.setAttribute('role', 'button');
+            handle.setAttribute('tabindex', '0');
+            handle.setAttribute('aria-label', handle.dataset.showLabel || '');
+            handle.title = handle.dataset.showLabel || '';
+            handle.removeAttribute('aria-orientation');
+        } else {
+            handle.setAttribute('role', 'separator');
+            handle.setAttribute('aria-orientation', 'vertical');
+            handle.removeAttribute('tabindex');
+            handle.removeAttribute('aria-label');
+            handle.removeAttribute('title');
+        }
+    }
+
+    function initTreeResizer() {
+        const handle = document.getElementById('evoTreeResizer');
+        if (!handle || !window.mainMenu) {
+            return;
+        }
+        try {
+            const saved = parseInt(localStorage.getItem(TREE_WIDTH_KEY), 10);
+            if (saved >= TREE_WIDTH_MIN) {
+                setTreeWidth(saved);
+            }
+        } catch (e) {
+            // 保存領域が使えないときは、既定の幅のまま
+        }
+
+        syncTreeRail(handle);
+        new MutationObserver(function () {
+            syncTreeRail(handle);
+        }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        handle.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) {
+                return;
+            }
+            e.preventDefault();
+            handle.setPointerCapture(e.pointerId);
+            if (isTreeHidden()) {
+                dragClosedTree(handle, e);
+            } else {
+                dragOpenTree(handle, e);
+            }
+        });
+
+        handle.addEventListener('keydown', function (e) {
+            if (isTreeHidden() && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                window.mainMenu.defaultTreeFrame(true);
+            }
+        });
+
+        handle.addEventListener('dblclick', function () {
+            if (isTreeHidden()) {
+                return;
+            }
+            document.documentElement.style.removeProperty('--shell-tree-width');
+            try {
+                localStorage.removeItem(TREE_WIDTH_KEY);
+            } catch (e) {
+                // 保存領域が使えないときは、消すものも無い
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
+
+        initTreeResizer();
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
 

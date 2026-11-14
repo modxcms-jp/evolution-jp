@@ -19,12 +19,16 @@
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 - ツリー上部のボタンの並びは `.tree-toolbar` が包む（`#treeMenu` と `#floater`）。`#treePane`（スクロールする箱）の上端に `position: sticky; top: 0` で貼り付き、並べ替えの小窓 `#floater` の位置の基準になる（`top: 100%` で並びの直下に出す）。背景はテーマの `.treeframebody` から引き継ぐ（`background: inherit`）。`.treeframebody` が透明・半透明のテーマは、下のツリーが透けて読めなくならないよう、テーマ側で `.tree-toolbar` の背景を上書きする（例: SakuraFlow・AromaHop は、ツリーの地に近い半透明の色を重ね、`backdrop-filter` でぼかす）。下の境界線は、既定では `--color-border-default` の 1px の線。テーマが帯の `box-shadow` を上書きして別の作りにしてよい（例: SakuraFlow は `#topMenu` と同じく、白い光の筋とやわらかい影）。規則は `manager/media/style/common/shell.css`。
 
+- ツリーの幅は `--shell-tree-width`（既定は header.inc.php が設定 `manager_tree_width`、無ければ 260px で出す）。ツリーの欄（サイドバー）と本文の境目のつまみ（`#evoTreeResizer`。header.inc.php が body の直下に出し、shell.js の `initTreeResizer()` が動かす）をドラッグすると、ツリーの上のボタンの並びが切れない幅（テーマで違う。160px より狭くはしない）から画面の幅の半分までで変わり、幅をブラウザの保存領域（`evo.shell.treeWidth`）に覚える。下限よりさらに左へ、下限の半分より左まで動かすと、ツリーを薄くして知らせ、離すか、そのまま待つとツリーを隠す（待つ間は少しずつ薄くなり、1.1 秒で畳む。時間は shell.css の `tree-collapse-wait` の長さで決め、shell.js は `animationend` で畳む）（`mainMenu.hideTreeFrame(true)`。表示し直すと、ドラッグを始める前の幅で出る）。
+- 利用者の操作でツリーを隠す・表示するとき（`hideTreeFrame(true)`・`defaultTreeFrame(true)`）は、`body` に `tree-animating` を付け、列の幅を 0.2 秒で動かす（急に消えたり広がったりして不具合に見えないように）。ページを開いたときの呼び出し（引数なし）には付けない。隠した状態は `display: none` ではなく、列の幅 0 と `visibility: hidden`（列の形は `0 minmax(0, 1fr)`。表示のときと形をそろえないと、幅が途中の値を取れない）。動きを減らす設定（`prefers-reduced-motion`）では動かさないダブルクリックで既定の幅に戻す
+- ツリーを閉じているとき（`body.tree-hidden`）は、左端に幅 14px の帯（同じ `#evoTreeResizer`）を残し、ツリーの列の幅をその帯の幅にする（本文が帯の下に潜らないように）。帯はボタンとして読ませ（`role="button"`、名前は `lang('show_tree')`）、押すか Enter・Space で前の幅で開き、右へドラッグするとその幅で開く。上のメニューに出していた「ツリーを表示」のボタン（`#tocText`）はやめた
+
 ## body 直下の要素
 
 シェルの body（`body.evo-shell`）はグリッドで、メニュー・ツリー・本文の 3 つを並べる。ほかの body 直下の要素は、ライブラリが足すオーバーレイなどでレイアウトが崩れないよう、本文の領域に重ねた幅 0・高さ 0 の要素になる（`manager/media/style/common/shell.css` の `body.evo-shell > :not(...)`）。
 
 - 画面の部品は `#mainPane` の中に置く。body 直下に要素を足すと、幅 0 になって見えない（`position: fixed` でも、幅を決めていなければ潰れる）。
-- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
+- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`・ツリーの幅を変えるつまみの `#evoTreeResizer`）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
 
 ## JS・CSS の読み込みと版
 

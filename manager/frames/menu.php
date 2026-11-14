@@ -105,16 +105,23 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     .catch(function () {});
             }
 
-            function hideTreeFrame() {
-                var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
+            // ツリーを隠す・表示するときの短い動き。利用者の操作のとき（animate が true）だけ付け、ページを開いたときには付けない
+            function animateTreePane() {
+                document.body.classList.add('tree-animating');
+                clearTimeout(window.__treeAnimationTimer);
+                window.__treeAnimationTimer = setTimeout(function () {
+                    document.body.classList.remove('tree-animating');
+                }, 300);
+            }
+
+            function hideTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
 
-            function defaultTreeFrame() {
-                var elm = document.getElementById('tocText');
-                if (elm) elm.innerHTML = "";
+            function defaultTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 document.body.classList.remove('tree-hidden');
                 top.__hideTree = false;
             }
@@ -199,7 +206,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             }
         </script>
 
-    <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
         <div id="topbar-container">
             <div id="statusbar">

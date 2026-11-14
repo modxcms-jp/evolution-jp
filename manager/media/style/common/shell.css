@@ -6,9 +6,11 @@
  */
 
 body.evo-shell {
+    /* ツリーの欄の幅。覚えた幅（shell.js）が画面の幅の半分を超えるときは、半分に収める（小さい画面で開いたときや、ウィンドウを縮めたとき） */
+    --shell-tree-column: min(var(--shell-tree-width, 260px), 50vw);
     display: grid;
     grid-template-rows: var(--shell-menu-height, 58px) 1fr;
-    grid-template-columns: var(--shell-tree-width, 260px) minmax(0, 1fr);
+    grid-template-columns: var(--shell-tree-column) minmax(0, 1fr);
     grid-template-areas:
         "menu menu"
         "tree main";
@@ -55,7 +57,7 @@ body.evo-shell > #mainPane {
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
    ダイアログ(evo-dialog.js の <dialog>)とツールチップ(evo-tooltip.js の #evoTooltip)は fixed で出すので、幅0にすると潰れる。対象から外す */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip) {
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip):not(#evoTreeResizer) {
     grid-area: main;
     align-self: start;
     justify-self: start;
@@ -84,13 +86,113 @@ body.evo-shell > #preLoader .preLoaderText {
     margin: 0;
 }
 
-/* ツリー非表示 (旧hideTreeFrame相当) */
+/* ツリーの欄（サイドバー）と本文の境目のつまみ（header.inc.php が body の直下に出す。ツリーを読み込み直しても消えないため）。
+   開いているときはツリーの右の端に重ね、ドラッグで --shell-tree-width を変える。閉じているときは左端の帯になる（下の tree-hidden） */
+body.evo-shell > #evoTreeResizer {
+    position: fixed;
+    top: var(--shell-menu-height, 58px);
+    bottom: 0;
+    left: calc(var(--shell-tree-column) - 4px);
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 50;
+}
+
+body.evo-shell > #evoTreeResizer:hover,
+body.evo-shell.is-resizing-tree > #evoTreeResizer {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+/* ドラッグ中は、文字を選ばず、カーソルを保つ */
+body.evo-shell.is-resizing-tree {
+    cursor: col-resize;
+    user-select: none;
+}
+
+/* 離すとツリーを隠すところまで動かしたとき。ツリーを薄くして知らせ、そのまま待つと少しずつ薄くなって、
+   薄くなりきったら畳む（shell.js が animationend で畳む。待つ時間はこのアニメーションの長さで決める） */
+body.evo-shell.is-collapsing-tree {
+    cursor: w-resize;
+}
+
+body.evo-shell.is-collapsing-tree > #treePane {
+    animation: tree-collapse-wait 1.1s linear forwards;
+}
+
+@keyframes tree-collapse-wait {
+    from {
+        opacity: 0.6;
+    }
+
+    to {
+        opacity: 0.2;
+    }
+}
+
+/* ツリー非表示 (旧hideTreeFrame相当)。左端に帯（#evoTreeResizer）の幅だけを残し、本文が帯の下に潜らないようにする。
+   列の形を表示のときと同じ minmax にそろえ、幅を途中の値で動かせるようにする */
 body.evo-shell.tree-hidden {
-    grid-template-columns: 0 1fr;
+    --shell-tree-rail-width: 14px;
+    grid-template-columns: var(--shell-tree-rail-width) minmax(0, 1fr);
+}
+
+/* 閉じているときの帯。押すと開き、右へドラッグするとその幅で開く（shell.js） */
+body.evo-shell.tree-hidden > #evoTreeResizer {
+    left: 0;
+    width: var(--shell-tree-rail-width);
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-3, 12px);
+    box-sizing: border-box;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer::before {
+    content: "\203A" / "";
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-text-muted, #606060);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:hover {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:focus-visible {
+    outline: 2px solid var(--color-primary, #375665);
+    outline-offset: -2px;
 }
 
 body.evo-shell.tree-hidden > #treePane {
+    visibility: hidden;
+    overflow: hidden;
+    border-inline-end-width: 0;
+}
+
+/* 利用者の操作でツリーを隠す・表示するとき（menu.php が tree-animating を付ける）、列の幅を短く動かす。
+   急に消えたり広がったりして不具合に見えないように。隠すときは、縮め終わってから見えなくする */
+body.evo-shell.tree-animating {
+    transition: grid-template-columns 0.2s ease;
+}
+
+body.evo-shell.tree-animating > #treePane {
+    overflow: hidden;
+}
+
+body.evo-shell.tree-animating.tree-hidden > #treePane {
+    transition: visibility 0s 0.2s;
+}
+
+body.evo-shell.tree-animating > #evoTreeResizer {
     display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.evo-shell.tree-animating {
+        transition: none;
+    }
 }
 
 /* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */
@@ -228,7 +330,7 @@ body.evo-shell #mainPane #actions {
     inset-inline-end: var(--space-4, 16px);
     z-index: 100;
     width: max-content;
-    max-width: calc(100% - var(--shell-tree-width, 260px) - 2 * var(--space-4, 16px));
+    max-width: calc(100% - var(--shell-tree-column) - 2 * var(--space-4, 16px));
 }
 
 body.evo-shell.tree-hidden #mainPane #actions {

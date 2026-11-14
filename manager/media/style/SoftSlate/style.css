@@ -368,17 +368,6 @@ hr {
     color: #fff;
 }
 
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-}
-
-.tocTextRTL {
-    right: 3px;
-}
-
-#tocText,
 #buildText,
 #workText {
     font-weight: bold;
@@ -387,7 +376,6 @@ hr {
     color: #FFF;
 }
 
-#tocText,
 #buildText img,
 #workText img {
     margin: 0 5px;
