@@ -1262,10 +1262,6 @@ form > :has(+ .resources-batch-actions),
     margin-top: var(--space-3);
 }
 
-.actionButtons :is(a, button) {
-    float: inline-start;
-}
-
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
     padding: 2px var(--space-1);

@@ -62,13 +62,6 @@
     font-weight: bold;
 }
 
-/* 操作ボタンの列（.actionButtons）。ボタンの見た目は forms.css */
-.actionButtons:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
 .actionButtons img {
     vertical-align: top;
     margin-top: 1px;

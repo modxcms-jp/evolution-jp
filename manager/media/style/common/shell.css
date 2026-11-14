@@ -684,9 +684,8 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-/* 一覧の検索の送信ボタン。テーマの .actionButtons の並べ方（float）を受けない */
+/* 一覧の検索の送信ボタン */
 .child-list-tools ul.actionButtons button {
-    float: none;
     margin: 0;
     font-family: inherit;
     line-height: inherit;
@@ -732,11 +731,6 @@ body.evo-shell input.evo-submitting-trigger {
     height: auto;
     width: 16em;
     max-width: 100%;
-}
-.child-list-tools ul.actionButtons,
-.child-list-tools ul.actionButtons li {
-    display: flex;
-    float: none;
 }
 .child-list-tools ul.actionButtons li {
     margin: 0;

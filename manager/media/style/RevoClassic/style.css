@@ -30,6 +30,9 @@
     /* 本文の文字の大きさ（body が読む） */
     --font-size-base: 12px;
 
+    /* ボタン列の項目の間（common/action-buttons.css が読む） */
+    --action-buttons-gap: 8px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 16px;
 
@@ -1291,14 +1294,6 @@ form > :has(+ .resources-batch-actions),
 /* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
 .tab-pane > ul.actionButtons {
     margin-top: var(--space-3);
-}
-
-.actionButtons li {
-    margin-right: var(--space-2);
-}
-
-.actionButtons :is(a, button) {
-    float: left;
 }
 
 .actionButtons a.disabled {
