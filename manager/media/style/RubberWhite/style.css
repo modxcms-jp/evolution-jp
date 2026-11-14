@@ -409,27 +409,6 @@ p.caption, p.comment {
     padding-inline-end: 20px;
 }
 
-/* -------------------------[ Topbar ]--- */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding-block: 0;
-    padding-inline: 5px;
-    position: relative;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: var(--topnav-link-color);
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: var(--color-text-inverse);
-}
-
 #buildText,
 #workText {
     font-weight: bold;
@@ -448,56 +427,6 @@ p.caption, p.comment {
     inset-inline-end: 0;
     top: 36px;
     z-index: 1000;
-}
-
-#supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
-    border-radius: 999px;
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding-block: 0;
-    padding-inline: 18px;
-    position: absolute;
-    inset-inline-end: var(--subnav-horizontal-padding);
-    top: 6px;
-    z-index: 111;
-}
-
-#supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: color .15s ease;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-inline-start: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
 }
 
 textarea[readonly],
@@ -1211,40 +1140,13 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     --topnav-sublink-radius: var(--radius-md);
     --topnav-sublink-hover-bg: var(--color-surface);
     --topnav-sublink-pressed-color: var(--accent-blue-hover);
-}
-
-/* 補助ナビゲーション（右上） */
-#supplementalNav {
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid var(--light-border);
-    color: var(--clean-text-secondary);
-}
-
-#supplementalNav a {
-    color: var(--clean-text-secondary);
-    font-weight: 500;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--clean-nav-text);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    color: var(--clean-text-secondary);
-    font-weight: 600;
-}
-
-/* トップバーのリンク */
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    color: var(--clean-text-secondary);
-    font-weight: 500;
-}
-
-#topbar a:hover {
-    color: var(--clean-nav-text);
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-bg: rgba(255, 255, 255, 0.98);
+    --supplemental-nav-border-color: var(--light-border);
+    --supplemental-nav-color: var(--clean-text-secondary);
+    --supplemental-nav-link-color: var(--clean-text-secondary);
+    --supplemental-nav-link-font-weight: 500;
+    --supplemental-nav-link-hover-color: var(--clean-nav-text);
 }
 
 /* タブデザイン。未選択はごく薄いグレーの面だけにして枠を消し、選択中の白い面が中身へつながって見えるようにする */

@@ -337,31 +337,10 @@ p.caption, p.comment {
     color: var(--color-text-primary);
     float: left;
     padding: 0 var(--space-5) var(--space-5);
-}
-
-/* ============================================================================
-   5. Top Bar & Status Bar
-   Used in: Main navigation, status indicators
-   ============================================================================ */
-
-/* -------------------------[ Topbar ]--- */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding: 0 5px;
-    position: relative;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: #AAB1B9;
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: var(--color-surface);
+}/* 右上のユーザー情報は、すりガラスにする */
+#supplementalNav {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 #buildText,
@@ -382,64 +361,6 @@ p.caption, p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-#supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    border-radius: var(--radius-full);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding: 0 18px;
-    position: absolute;
-    right: var(--subnav-horizontal-padding);
-    top: 6px;
-    z-index: 111;
-}
-
-#supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-/* 文字の色は #topbar a:link より強くする（同じ詳細度で後ろに置く） */
-#supplementalNav a:any-link {
-    color: rgba(225, 241, 244, 0.9);
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-left: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
 }
 
 textarea[readonly],
@@ -901,6 +822,10 @@ a.hometblink:hover {
     --topnav-sublink-color: rgba(226, 232, 240, 0.95);
     --topnav-sublink-radius: var(--radius-lg);
     --topnav-sublink-hover-bg: rgba(59, 130, 246, 0.25);
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-border-color: rgba(59, 130, 246, 0.15);
+    --supplemental-nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --supplemental-nav-link-color: rgba(225, 241, 244, 0.9);
 }/* 選んでいる項目とサブメニューの帯は、すりガラスにする */
 #nav > li.active > a {
     backdrop-filter: blur(10px);

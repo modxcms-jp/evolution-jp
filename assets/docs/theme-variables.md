@@ -114,7 +114,7 @@
 
 ## 上のメニュー
 
-上のメニュー（`manager/frames/menu.php` の `#Navcontainer`・`#nav`・`ul.subnav`）は、`manager/media/style/common/topmenu.css`（`@layer evo-components`）が描く。上の余白（12px）・左右の余白（16px）・項目の左右の余白（16px）・項目の間・サブメニューの帯の位置は全テーマ共通。テーマは `#topMenu`（または `:root`）で下の変数の値を決め、`#nav` の規則を書かない。一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、同じセレクタの規則をテーマに書く。メニューの段の高さは、`menu.php` の `fitMenuHeight()` がサブメニューの帯の下端に合わせる。
+上のメニュー（`manager/frames/menu.php` の `#Navcontainer`・`#nav`・`ul.subnav`）と右上のユーザー情報（`#topbar`・`#supplementalNav`）は、`manager/media/style/common/topmenu.css`（`@layer evo-components`）が描く。上の余白（12px）・左右の余白（16px）・項目の左右の余白（16px）・項目の間・サブメニューの帯の位置は全テーマ共通。テーマは `#topMenu`（または `:root`）で下の変数の値を決め、`#nav`・`#supplementalNav` の規則を書かない。ユーザー情報の項目の間（12px）と縦の位置（上のメニューの項目と同じ高さ）も全テーマ共通。一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、同じセレクタの規則をテーマに書く。メニューの段の高さは、`menu.php` の `fitMenuHeight()` がサブメニューの帯の下端に合わせる。
 
 型（タブ・ピル・下線）は、角と枠の色の組み合わせで決める。タブの型は、選んでいる項目の下の枠を透明にし、帯を項目に 1px 重ねて、サブメニューの帯とつなげる。下線の型は、`--topnav-underline-width` を太くし、乗せたときと選んでいるときに下の枠だけに色を付ける。
 
@@ -130,6 +130,9 @@
 | `--topnav-sublink-color` / `--topnav-sublink-radius` / `--topnav-sublink-font-weight` | サブメニューの項目の文字の色・角・文字の太さ | `#f1fbfc` / `999px` / `normal` |
 | `--topnav-sublink-hover-bg` / `--topnav-sublink-hover-color` / `--topnav-sublink-hover-border-color` | サブメニューの項目に乗せたとき（と表示中の画面の項目）の地・文字の色・下の枠の色 | `#184753` / `--topnav-link-hover-color` / `transparent` |
 | `--topnav-sublink-pressed-color` | サブメニューの項目を押しているときの文字の色 | `#d9edf1` |
+| `--supplemental-nav-bg` / `--supplemental-nav-border-color` / `--supplemental-nav-shadow` / `--supplemental-nav-padding-x` | 右上のユーザー情報（`#supplementalNav`）の地・枠の色・影・左右の余白。地を持たないテーマは、左右の余白を 0 にする | 半透明の暗いグラデーション / `transparent` / なし / `18px` |
+| `--supplemental-nav-color` | ユーザー情報の文字（版番号など、リンクでない文字）の色 | `--topnav-link-color` |
+| `--supplemental-nav-link-color` / `--supplemental-nav-link-font-weight` / `--supplemental-nav-link-hover-color` | ユーザー情報のリンクの色・太さ・乗せたときの色 | `#aab1b9` / `bold` / `#fff` |
 
 既定値は RevoClassic の値。
 

@@ -509,32 +509,6 @@ p.caption, p.comment {
     padding: 0 var(--space-5) var(--space-5);
 }
 
-/* ============================================================================
-   5. Top Bar & Status Bar
-   Used in: Main navigation, status indicators
-   ============================================================================ */
-
-/* -------------------------[ Topbar ]--- */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding: 0 var(--space-4);
-    position: relative;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: 500;
-    color: var(--color-nav-link);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-#topbar a:hover {
-    color: var(--color-nav-link-hover);
-}
-
 #buildText,
 #workText {
     font-weight: 500;
@@ -553,54 +527,6 @@ p.caption, p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-#supplementalNav {
-    align-items: center;
-    background: transparent;
-    box-sizing: border-box;
-    color: #244A30;
-    column-gap: var(--space-5);
-    display: flex;
-    font-weight: 500;
-    height: 36px;
-    line-height: 36px;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    right: var(--space-4);
-    top: 10px;
-    z-index: 111;
-}
-
-#supplementalNav a {
-    color: #244A30;
-    font-weight: 500;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: all var(--transition-fast);
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: #159070;
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-left: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
 }
 
 textarea[readonly],
@@ -1267,6 +1193,13 @@ a.hometblink:hover {
     --topnav-sublink-hover-bg: transparent;
     --topnav-sublink-hover-border-color: #5A9A5E;
     --topnav-sublink-pressed-color: #3A6A40;
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-padding-x: 0;
+    --supplemental-nav-bg: transparent;
+    --supplemental-nav-color: #244A30;
+    --supplemental-nav-link-color: var(--color-nav-link);
+    --supplemental-nav-link-font-weight: 500;
+    --supplemental-nav-link-hover-color: var(--topnav-link-hover-color);
 }
 
 /* -------------------------[ Settings Table ]--- */
@@ -1630,12 +1563,3 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin-bottom: var(--space-2);
 }
 
-/* === 右上のユーザー情報エリア === */
-#supplementalNav a {
-    color: var(--topnav-link-color);
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
