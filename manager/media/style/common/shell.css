@@ -115,7 +115,7 @@ body.evo-shell.is-collapsing-tree {
 }
 
 body.evo-shell.is-collapsing-tree > #treePane {
-    animation: tree-collapse-wait 1.5s linear forwards;
+    animation: tree-collapse-wait 1.1s linear forwards;
 }
 
 @keyframes tree-collapse-wait {
