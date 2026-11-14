@@ -472,20 +472,6 @@ optgroup option {
     background-color: var(--color-surface);
 }
 
-input:is([type="button"], [type="submit"]) {
-    border: var(--border-thin) solid var(--color-neutral-button-border);
-    cursor: pointer;
-    line-height: normal;
-    margin: -1px 0 0 var(--space-1);
-    padding: var(--space-1) var(--space-3);
-    overflow: visible;
-    background-color: var(--color-neutral-button-start);
-    color: var(--color-text-primary);
-    border-radius: var(--radius-md);
-    box-shadow: none;
-    text-shadow: none;
-}
-
 input.checkbox,
 input.radio,
 input.submit,
@@ -497,16 +483,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-}
-
-input:is([type="button"], [type="submit"]):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-input:is([type="button"], [type="submit"]):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
 }
 
 .form {
