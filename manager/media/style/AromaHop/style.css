@@ -31,6 +31,9 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 13px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 8px;
 
@@ -221,7 +224,7 @@
 
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     height: 100%;
     line-height: 1.6;
     color: var(--color-text-primary);

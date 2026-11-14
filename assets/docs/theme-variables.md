@@ -14,6 +14,7 @@
 
 | 変数 | 役割 | 共通部での参照 |
 | --- | --- | --- |
+| `--font-size-base` | 本文の文字の大きさ（`body` の `font-size`）。`75%` のようなブラウザの既定に掛ける割合では書かない | テーマの `body` が読む |
 | `--color-primary` | 主な操作の色。主ボタンの地の単色 | evo-dialog.js の OK ボタンの地と枠・フォーカスの枠、filebrowser.css の主ボタン・選択行・選択項目、datepicker.css の選択日 |
 | `--color-primary-start` / `--color-primary-end` | 主な操作の色を 2 色で描くときの組。グラデーションの始点・終点、または地と枠。使い方はテーマが決める | shell.css のモーダルの見出し、filebrowser.css の主ボタンのホバー |
 | `--color-primary-hover-start` / `--color-primary-hover-end` | 同じ組の、ホバー時の色 | 共通部は参照しない（テーマの主ボタンが使う） |

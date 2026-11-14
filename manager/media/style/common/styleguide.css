@@ -100,14 +100,10 @@
 }
 
 /* 本文の文字の大きさを切り替える（a=201 の「本文の文字の大きさ」。見本の中だけ）。
-   本番の書き方（:root の --font-size-base を body が読む）と同じ形で、--font-size-base だけを差し替える */
+   テーマの body は --font-size-base を読むので、見本の body でこの変数だけを差し替える */
 .styleguide-sample.sg-font-12 { --font-size-base: 12px; }
 .styleguide-sample.sg-font-13 { --font-size-base: 13px; }
 .styleguide-sample.sg-font-14 { --font-size-base: 14px; }
-
-.styleguide-sample:is(.sg-font-12, .sg-font-13, .sg-font-14) {
-    font-size: var(--font-size-base);
-}
 
 /* 高さの比較の行。計算した高さ ＝ 本文の 1 行の高さ ＋ 上下の余白 4px × 2 ＋ 枠 1px × 2 を、4px の目盛りに切り上げる */
 .styleguide-sample .sg-size-calc {

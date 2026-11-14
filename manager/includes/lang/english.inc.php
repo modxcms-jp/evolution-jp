@@ -1214,8 +1214,6 @@ return [
 
     "update" => 'Save',
 
-    "a17_manager_inline_style_title" => 'Append style',
-    "a17_manager_inline_style_message" => 'Append manager style',
 
     "configcheck_mgr_tpl" => 'Extension of manager template filename',
     "configcheck_mgr_tpl_msg" => 'Should be delete <a href="index.php?a=31&folder=[+folder+]">assets/templates/manager/</a> directory',
