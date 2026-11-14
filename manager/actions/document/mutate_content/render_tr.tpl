@@ -3,6 +3,6 @@
         <span class="mutate-field-title">[+head+]</span>[+extra_head+]
     </td>
     <td>
-        [+body+]
+        <div class="field-inline">[+body+]</div>[+note+]
     </td>
 </tr>

@@ -140,4 +140,45 @@
         background: var(--button-primary-active-bg, var(--color-primary-active-start, var(--color-primary, #375665)));
         box-shadow: var(--button-primary-active-shadow, var(--button-primary-shadow, none));
     }
+
+    /* 欄と、その後ろのボタン・説明のアイコンを横に並べ、縦の真ん中でそろえる。複数行の欄の横では上の端にそろえる */
+    .field-inline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2, 8px);
+    }
+
+    .field-inline:has(> textarea) {
+        align-items: flex-start;
+    }
+
+    /* アイコンだけのボタン（日付を消すなど）。枠と地を持たない */
+    .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .icon-button:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* 欄の下の説明（書式など） */
+    .form-text {
+        margin-top: var(--space-1, 4px);
+        color: var(--color-text-muted, #666);
+        font-size: .875em;
+    }
+
+    /* 説明のアイコン（mutate_content/functions.php の tooltip()） */
+    img.tooltip {
+        cursor: help;
+    }
 }
