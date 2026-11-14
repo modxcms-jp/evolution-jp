@@ -756,8 +756,6 @@ ul {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border-default);
     color: var(--color-gray-950);
-    padding: 1px 2px;
-    margin-inline-start: -3px;
 }
 
 .unpublished a, .unpublishedNode {

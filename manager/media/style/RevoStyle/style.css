@@ -709,8 +709,6 @@ div.treeframebody {
     background-color: #FFFFFF;
     border: var(--border-thin) solid var(--gray-400);
     color: #000;
-    padding: var(--border-thin) var(--space-1);
-    margin-left: -3px;
 }
 
 .unpublished a, .unpublishedNode {

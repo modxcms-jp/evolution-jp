@@ -1018,8 +1018,6 @@ html body.evo-shell .tree-toolbar {
     border: 1px solid rgba(255, 255, 255, 0.6);  /* #B6E7B3 */
     border-radius: 4px;
     color: #2E5535;
-    padding: 1px 4px;
-    margin-left: -3px;
 }
 
 .unpublished a, .unpublishedNode {
