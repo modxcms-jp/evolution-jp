@@ -19,7 +19,8 @@
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 - ツリー上部のボタンの並びは `.tree-toolbar` が包む（`#treeMenu` と `#floater`）。`#treePane`（スクロールする箱）の上端に `position: sticky; top: 0` で貼り付き、並べ替えの小窓 `#floater` の位置の基準になる（`top: 100%` で並びの直下に出す）。背景はテーマの `.treeframebody` から引き継ぐ（`background: inherit`）。`.treeframebody` が透明・半透明のテーマは、下のツリーが透けて読めなくならないよう、テーマ側で `.tree-toolbar` の背景を上書きする（例: SakuraFlow・AromaHop は、ツリーの地に近い半透明の色を重ね、`backdrop-filter` でぼかす）。下の境界線は、既定では `--color-border-default` の 1px の線。テーマが帯の `box-shadow` を上書きして別の作りにしてよい（例: SakuraFlow は `#topMenu` と同じく、白い光の筋とやわらかい影）。規則は `manager/media/style/common/shell.css`。
 
-- ツリーの幅は `--shell-tree-width`（既定は header.inc.php が設定 `manager_tree_width`、無ければ 260px で出す）。ツリーと本文の境目のつまみ（`#evoTreeResizer`。shell.js の `initTreeResizer()` が body の直下に作る）をドラッグすると、ツリーの上のボタンの並びが切れない幅（テーマで違う。160px より狭くはしない）から画面の幅の半分までで変わり、幅をブラウザの保存領域（`evo.shell.treeWidth`）に覚える。下限よりさらに左へ、下限の半分より左まで動かすと、ツリーを薄くして知らせ、離すとツリーを隠す（`mainMenu.hideTreeFrame()`。表示し直すと、ドラッグを始める前の幅で出る）。ダブルクリックで既定の幅に戻す
+- ツリーの幅は `--shell-tree-width`（既定は header.inc.php が設定 `manager_tree_width`、無ければ 260px で出す）。ツリーと本文の境目のつまみ（`#evoTreeResizer`。shell.js の `initTreeResizer()` が body の直下に作る）をドラッグすると、ツリーの上のボタンの並びが切れない幅（テーマで違う。160px より狭くはしない）から画面の幅の半分までで変わり、幅をブラウザの保存領域（`evo.shell.treeWidth`）に覚える。下限よりさらに左へ、下限の半分より左まで動かすと、ツリーを薄くして知らせ、離すか、そのまま 0.7 秒待つとツリーを隠す（`mainMenu.hideTreeFrame(true)`。表示し直すと、ドラッグを始める前の幅で出る）。
+- 利用者の操作でツリーを隠す・表示するとき（`hideTreeFrame(true)`・`defaultTreeFrame(true)`）は、`body` に `tree-animating` を付け、列の幅を 0.2 秒で動かす（急に消えたり広がったりして不具合に見えないように）。ページを開いたときの呼び出し（引数なし）には付けない。隠した状態は `display: none` ではなく、列の幅 0 と `visibility: hidden`（列の形は `0 minmax(0, 1fr)`。表示のときと形をそろえないと、幅が途中の値を取れない）。動きを減らす設定（`prefers-reduced-motion`）では動かさないダブルクリックで既定の幅に戻す
 
 ## body 直下の要素
 

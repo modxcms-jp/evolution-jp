@@ -105,14 +105,25 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     .catch(function () {});
             }
 
-            function hideTreeFrame() {
+            // ツリーを隠す・表示するときの短い動き。利用者の操作のとき（animate が true）だけ付け、ページを開いたときには付けない
+            function animateTreePane() {
+                document.body.classList.add('tree-animating');
+                clearTimeout(window.__treeAnimationTimer);
+                window.__treeAnimationTimer = setTimeout(function () {
+                    document.body.classList.remove('tree-animating');
+                }, 300);
+            }
+
+            function hideTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
+                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame(true);return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
 
-            function defaultTreeFrame() {
+            function defaultTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 var elm = document.getElementById('tocText');
                 if (elm) elm.innerHTML = "";
                 document.body.classList.remove('tree-hidden');

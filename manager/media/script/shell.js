@@ -775,7 +775,7 @@
     };
 
     // ツリーと本文の境目のつまみ。ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。
-    // 下限よりさらに左へ動かして離すと、ツリーを隠す。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
+    // 下限よりさらに左へ動かして離すか、そこでしばらく待つと、ツリーを隠す。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
     // つまみはツリーを読み込み直しても消えないよう body の直下に置く
     const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
     const TREE_WIDTH_MIN = 160;
@@ -823,24 +823,23 @@
             document.body.classList.add('is-resizing-tree');
             let width = 0;
             let collapsing = false;
+            let collapseTimer = 0;
             const min = minTreeWidth();
             const startWidth = document.getElementById('treePane').getBoundingClientRect().width;
-            const move = function (ev) {
-                // 下限の半分より左まで動かしたら、離したときにツリーを隠す
-                collapsing = ev.clientX < min / 2;
-                document.body.classList.toggle('is-collapsing-tree', collapsing);
-                const max = Math.max(min, Math.round(window.innerWidth / 2));
-                width = Math.min(max, Math.max(min, Math.round(ev.clientX)));
-                setTreeWidth(width);
-            };
-            handle.addEventListener('pointermove', move);
-            handle.addEventListener('lostpointercapture', function () {
+            let finished = false;
+            // ドラッグを終える。離したとき（lostpointercapture）と、薄くなったまま待ったとき（タイマー）の両方から呼ぶ
+            const finish = function () {
+                if (finished) {
+                    return;
+                }
+                finished = true;
                 handle.removeEventListener('pointermove', move);
+                clearTimeout(collapseTimer);
                 document.body.classList.remove('is-resizing-tree', 'is-collapsing-tree');
                 if (collapsing && window.mainMenu) {
                     // 隠す前の幅に戻しておき、上のメニューから表示し直したときにその幅で出す
                     setTreeWidth(Math.round(startWidth));
-                    window.mainMenu.hideTreeFrame();
+                    window.mainMenu.hideTreeFrame(true);
                     return;
                 }
                 if (!width) {
@@ -851,7 +850,33 @@
                 } catch (err) {
                     // 覚えられなくても、今の画面の幅は変わっている
                 }
-            }, { once: true });
+            };
+            const move = function (ev) {
+                // 下限の半分より左まで動かしたら、離したときにツリーを隠す
+                collapsing = ev.clientX < min / 2;
+                document.body.classList.toggle('is-collapsing-tree', collapsing);
+                // 薄くなったまましばらく待ったら、離さなくても畳む。
+                // 捕捉を解いた合図（lostpointercapture）は次にマウスが動くまで来ないので、ここで直接終える
+                if (collapsing && !collapseTimer) {
+                    collapseTimer = setTimeout(function () {
+                        if (!collapsing) {
+                            return;
+                        }
+                        finish();
+                        if (handle.hasPointerCapture(e.pointerId)) {
+                            handle.releasePointerCapture(e.pointerId);
+                        }
+                    }, 700);
+                } else if (!collapsing && collapseTimer) {
+                    clearTimeout(collapseTimer);
+                    collapseTimer = 0;
+                }
+                const max = Math.max(min, Math.round(window.innerWidth / 2));
+                width = Math.min(max, Math.max(min, Math.round(ev.clientX)));
+                setTreeWidth(width);
+            };
+            handle.addEventListener('pointermove', move);
+            handle.addEventListener('lostpointercapture', finish, { once: true });
         });
 
         handle.addEventListener('dblclick', function () {

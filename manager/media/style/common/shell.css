@@ -121,13 +121,39 @@ body.evo-shell.tree-hidden > #evoTreeResizer {
     display: none;
 }
 
-/* ツリー非表示 (旧hideTreeFrame相当) */
+/* ツリー非表示 (旧hideTreeFrame相当)。列の形を表示のときと同じ minmax にそろえ、幅を途中の値で動かせるようにする */
 body.evo-shell.tree-hidden {
-    grid-template-columns: 0 1fr;
+    grid-template-columns: 0 minmax(0, 1fr);
 }
 
 body.evo-shell.tree-hidden > #treePane {
+    visibility: hidden;
+    overflow: hidden;
+    border-inline-end-width: 0;
+}
+
+/* 利用者の操作でツリーを隠す・表示するとき（menu.php が tree-animating を付ける）、列の幅を短く動かす。
+   急に消えたり広がったりして不具合に見えないように。隠すときは、縮め終わってから見えなくする */
+body.evo-shell.tree-animating {
+    transition: grid-template-columns 0.2s ease;
+}
+
+body.evo-shell.tree-animating > #treePane {
+    overflow: hidden;
+}
+
+body.evo-shell.tree-animating.tree-hidden > #treePane {
+    transition: visibility 0s 0.2s;
+}
+
+body.evo-shell.tree-animating > #evoTreeResizer {
     display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.evo-shell.tree-animating {
+        transition: none;
+    }
 }
 
 /* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */

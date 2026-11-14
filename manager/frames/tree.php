@@ -391,7 +391,7 @@ if (is_array($evtOut)) {
                 <td align="right">
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                            <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
+                            <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame(true);"
                                     title="<?= lang('hide_tree') ?>"><?= style('hide_tree') ?></a></td>
                         </tr>
                     </table>
