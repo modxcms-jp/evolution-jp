@@ -116,16 +116,12 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
             function hideTreeFrame(animate) {
                 if (animate === true) animateTreePane();
-                var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame(true);return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
 
             function defaultTreeFrame(animate) {
                 if (animate === true) animateTreePane();
-                var elm = document.getElementById('tocText');
-                if (elm) elm.innerHTML = "";
                 document.body.classList.remove('tree-hidden');
                 top.__hideTree = false;
             }
@@ -210,7 +206,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             }
         </script>
 
-    <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
         <div id="topbar-container">
             <div id="statusbar">

@@ -498,17 +498,6 @@ hr {
     color: var(--color-nav-link-hover);
 }
 
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-}
-
-.tocTextRTL {
-    right: 3px;
-}
-
-#tocText,
 #buildText,
 #workText {
     font-weight: 500;
@@ -517,7 +506,6 @@ hr {
     color: var(--color-text-dark);
 }
 
-#tocText,
 #buildText img,
 #workText img {
     margin: 0 5px;

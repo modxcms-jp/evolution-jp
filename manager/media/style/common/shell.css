@@ -84,8 +84,8 @@ body.evo-shell > #preLoader .preLoaderText {
     margin: 0;
 }
 
-/* ツリーと本文の境目のつまみ（shell.js が body の直下に作る。ツリーを読み込み直しても消えないため）。
-   ツリーの右の端に重ね、ドラッグで --shell-tree-width を変える */
+/* ツリーの欄（サイドバー）と本文の境目のつまみ（header.inc.php が body の直下に出す。ツリーを読み込み直しても消えないため）。
+   開いているときはツリーの右の端に重ね、ドラッグで --shell-tree-width を変える。閉じているときは左端の帯になる（下の tree-hidden） */
 body.evo-shell > #evoTreeResizer {
     position: fixed;
     top: var(--shell-menu-height, 58px);
@@ -128,13 +128,39 @@ body.evo-shell.is-collapsing-tree > #treePane {
     }
 }
 
-body.evo-shell.tree-hidden > #evoTreeResizer {
-    display: none;
+/* ツリー非表示 (旧hideTreeFrame相当)。左端に帯（#evoTreeResizer）の幅だけを残し、本文が帯の下に潜らないようにする。
+   列の形を表示のときと同じ minmax にそろえ、幅を途中の値で動かせるようにする */
+body.evo-shell.tree-hidden {
+    --shell-tree-rail-width: 14px;
+    grid-template-columns: var(--shell-tree-rail-width) minmax(0, 1fr);
 }
 
-/* ツリー非表示 (旧hideTreeFrame相当)。列の形を表示のときと同じ minmax にそろえ、幅を途中の値で動かせるようにする */
-body.evo-shell.tree-hidden {
-    grid-template-columns: 0 minmax(0, 1fr);
+/* 閉じているときの帯。押すと開き、右へドラッグするとその幅で開く（shell.js） */
+body.evo-shell.tree-hidden > #evoTreeResizer {
+    left: 0;
+    width: var(--shell-tree-rail-width);
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-3, 12px);
+    box-sizing: border-box;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer::before {
+    content: "\203A" / "";
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-text-muted, #606060);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:hover {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:focus-visible {
+    outline: 2px solid var(--color-primary, #375665);
+    outline-offset: -2px;
 }
 
 body.evo-shell.tree-hidden > #treePane {

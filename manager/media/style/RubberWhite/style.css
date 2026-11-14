@@ -420,18 +420,6 @@ hr {
     color: var(--color-text-inverse);
 }
 
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-    inset-inline-start: 0;
-}
-
-.tocTextRTL {
-    inset-inline-end: 3px;
-}
-
-#tocText,
 #buildText,
 #workText {
     font-weight: bold;
@@ -440,7 +428,6 @@ hr {
     color: var(--color-text-inverse);
 }
 
-#tocText,
 #buildText img,
 #workText img {
     margin: 0 5px;

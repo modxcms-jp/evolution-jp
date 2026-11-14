@@ -358,13 +358,6 @@ hr {
     color: #fff;
 }
 
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-}
-
-#tocText,
 #buildText,
 #workText {
     font-weight: bold;
@@ -373,7 +366,6 @@ hr {
     color: #FFF;
 }
 
-#tocText,
 #buildText img,
 #workText img {
     margin: 0 var(--space-4);
@@ -768,7 +760,6 @@ div.treeframebody {
 .protectedNode {
     color: #77d;
 }
-
 
 .disabledPlugin a {
     color: #aaa;
