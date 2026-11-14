@@ -6,7 +6,7 @@ $dbg_templates['main'] = <<<TPL
 	<head>
 	<title>[+title+]</title> 
 	<meta http-equiv="Content-Type" content="text/html; charset=[+charset+]" />
-	<link rel="stylesheet" type="text/css" href="[+base_url+]media/style/[+theme+]/style.css" /> 
+	[+theme_stylesheets+]
 	<link rel="stylesheet" type="text/css" href="[+ditto_base_url+]debug/debug.template.css" />
 	</head>
 	<body>

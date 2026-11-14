@@ -32,7 +32,7 @@ class modxDebugConsole
         $placeholders = [
             '[+ditto_base_url+]' => $base_path,
             '[+base_url+]' => MODX_SITE_URL . 'manager/',
-            '[+theme+]' => config('manager_theme'),
+            '[+theme_stylesheets+]' => manager_theme_stylesheets(),
             '[+title+]' => $title,
             '[+content+]' => $content,
             '[+charset+]' => config('modx_charset'),
