@@ -333,96 +333,21 @@
     --section-body-radius: 0 0 10px 10px;
     --tab-section-body-shadow: none;
     --tab-section-header-bg: transparent;
-}
 
-/* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
-@layer evo-base {
-    body {
-        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-        font-size: var(--font-size-base);
-        height: 100%;
-        line-height: 1.5;
-        color: var(--color-text-primary);
-        background: var(--color-background-page);
-    }
-
-    img {
-        border: 0 !important;
-        text-decoration: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    li, dd, blockquote {
-        margin-block: 0;
-        margin-inline: 0 0 0 1em;
-    }
-
-    h2 {
-        font-size: 1.64em;
-    }
-
-    hr {
-        color: var(--color-text-tertiary);
-        background-color: var(--color-text-tertiary);
-        height: 1px;
-        border: 0;
-    }
-
-    input, select, textarea, option, optgroup, td {
-        font: inherit;
-        color: inherit;
-    }
-
-    optgroup {
-        font-style: normal;
-        font-weight: bold;
-        background-color: var(--color-border-light);
-    }
-
-    thead {
-        color: var(--color-text-primary);
-        height: 18px !important;
-        background-color: var(--color-border-lighter);
-    }
-
-    li {
-        padding: 0;
-        margin: 0;
-        list-style: disc outside url(../common/images/misc/li.gif);
-    }
-
-    ul {
-        margin-block: 0;
-        margin-inline: 20px;
-    }
+    /* 素の要素（common/theme-base.css） */
+    --hr-color: var(--color-text-tertiary);
+    --thead-color: var(--color-text-primary);
+    --thead-bg: var(--color-border-lighter);
 }
 
 body#mainpane {
   padding: 8px;
 }
 
-a img {
-    border: 0 !important;
-    text-decoration: none;
-    padding: 0;
-    margin: 0;
-}
-
 /* ============================================================================
    3. Utility Classes (hide, clear, status messages)
    Used in: Error messages, visibility controls
    ============================================================================ */
-
-/* 素の要素の規則は evo-base の層に入れる（theme-variables.md の「フォーム部品」） */
-@layer evo-base {
-    button {
-        font: inherit;
-        margin-block: 0;
-        margin-inline-end: 5px;
-        cursor: pointer;
-    }
-}
 
 .split {
     background: transparent;
@@ -453,11 +378,6 @@ a img {
     z-index: 1000;
 }
 
-optgroup option {
-    font-weight: normal;
-    background-color: var(--color-surface);
-}
-
 input.checkbox,
 input.radio,
 input.button,
@@ -474,11 +394,6 @@ input[type="button"] {
    6. Layout Components (Sections, Containers)
    Used in: Content sections, panels, containers
    ============================================================================ */
-
-thead td {
-    color: var(--color-text-primary);
-    border-top: 1px solid var(--color-surface);
-}
 
 /* ============================================================================
    8. Tree Components (Site Tree)

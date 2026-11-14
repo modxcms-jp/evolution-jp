@@ -38,6 +38,57 @@
         font-weight: normal;
     }
 
+    /* 本文。行の高さと地はテーマが --body-line-height・--page-bg で変える */
+    body {
+        height: 100%;
+        background: var(--page-bg, var(--color-background-page, #f4f4f4));
+        color: var(--color-text-primary, #333);
+        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+        font-size: var(--font-size-base, 12px);
+        line-height: var(--body-line-height, 1.5);
+    }
+
+    input, select, textarea, option, optgroup, td {
+        font: inherit;
+        color: inherit;
+    }
+
+    button {
+        margin: 0;
+        margin-inline-end: 5px;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    img {
+        border: 0 !important;
+        text-decoration: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    hr {
+        height: 1px;
+        border: 0;
+        background-color: var(--hr-color, var(--gray-700, #777));
+        color: var(--hr-color, var(--gray-700, #777));
+    }
+
+    /* 選択肢のグループの見出し。選んでいる項目（ブラウザが灰色の地を付ける）と見分けられるよう、地は付けず、薄い色の太字にする */
+    optgroup {
+        background-color: transparent;
+        color: var(--optgroup-color, var(--color-text-muted, #777));
+        font-style: normal;
+        font-weight: bold;
+    }
+
+    /* 表の見出しの行。色と地はテーマが --thead-color・--thead-bg で決める */
+    thead {
+        height: 18px !important;
+        background: var(--thead-bg, var(--color-thead-bg, #e4e4e4));
+        color: var(--thead-color, var(--color-thead-text, #333));
+    }
+
     /* リンク。色はテーマが --color-link・--color-link-hover で決める */
     a, a:active, a:visited, a:link {
         color: var(--color-link);
@@ -46,6 +97,25 @@
 
     a:hover {
         color: var(--color-link-hover);
+    }
+
+    /* リストの字下げ。印の画像はテーマが --list-marker-image で決める（none なら黒丸だけ） */
+    ul {
+        margin: 0 20px;
+    }
+
+    li, dd, blockquote {
+        margin: 0 0 0 1em;
+    }
+
+    li {
+        margin: 0;
+        padding: 0;
+        list-style: disc outside var(--list-marker-image, url(../common/images/misc/li.gif));
+    }
+
+    h2 {
+        font-size: 1.64em;
     }
 
     h4, h5 {
@@ -82,6 +152,26 @@
 }
 
 .subTitle {
+    font-weight: normal;
+}
+
+/* 素の要素のうち、層の外のテーマの規則と張り合うもの */
+a img {
+    border: 0 !important;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+thead td {
+    border-top: 1px solid var(--thead-td-border-color, var(--color-surface, #fff));
+    color: var(--thead-td-color, var(--thead-color, var(--color-thead-text, #333)));
+}
+
+/* グループの中の項目は、見出しの薄い色を受け継がず、本文の色にする */
+optgroup option {
+    background-color: var(--color-surface, #fff);
+    color: var(--color-text-primary, #333);
     font-weight: normal;
 }
 
