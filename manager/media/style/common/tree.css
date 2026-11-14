@@ -43,7 +43,9 @@
     }
 
     /* 行の状態。選んでいる行の色より後ろに書き、状態の色が勝つようにする（乗せたときは、詳細度の高い乗せたときの色が勝つ） */
-    .unpublishedNode {
+    /* .unpublished a は、ツリーの外の一覧（エレメント管理の非公開の要素、ユーザー管理のブロック中のユーザー）でも使う */
+    .unpublishedNode,
+    .unpublished a {
         color: var(--tree-unpublished-color, #b68282);
     }
 
