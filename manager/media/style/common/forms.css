@@ -6,7 +6,22 @@
  */
 @layer evo-base, evo-components;
 
+/* 本文の 1 行の高さ（文字の大きさ × 行の高さ）。body で長さに決めて受け継がせる。
+   長さの変数として登録しないと、使う側の要素（文字の大きさが違うボタンなど）で 1lh が計算され、欄とボタンの高さがそろわない */
+@property --line-box {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 18px;
+}
+
 @layer evo-base {
+    /* 入力欄・セレクト・ボタンの高さ ＝ 本文の 1 行の高さ ＋ 上下の余白 × 2 ＋ 枠 × 2 を、4px の目盛りに切り上げる。
+       テーマは高さを決めず、本文の文字の大きさ（--font-size-base）と行の高さから決まる */
+    body {
+        --line-box: 1lh;
+        --control-height: round(up, calc(var(--line-box) + var(--control-padding-y, 4px) * 2 + 2px), 4px);
+    }
+
     /* 文字を入れる入力欄とセレクト。チェックボックス・ラジオ・ファイル・ボタンの類は除く */
     :where(
         input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
@@ -35,6 +50,12 @@
 
     :where(select) {
         cursor: pointer;
+    }
+
+    /* input[type=submit|button|reset] は、高さだけをほかの欄・ボタンにそろえる（見た目はテーマの規則） */
+    :where(input[type="submit"], input[type="button"], input[type="reset"]) {
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
     }
 
     :where(
@@ -118,5 +139,46 @@
         border-color: var(--button-primary-active-border-color, var(--button-primary-border-color, transparent));
         background: var(--button-primary-active-bg, var(--color-primary-active-start, var(--color-primary, #375665)));
         box-shadow: var(--button-primary-active-shadow, var(--button-primary-shadow, none));
+    }
+
+    /* 欄と、その後ろのボタン・説明のアイコンを横に並べ、縦の真ん中でそろえる。複数行の欄の横では上の端にそろえる */
+    .field-inline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2, 8px);
+    }
+
+    .field-inline:has(> textarea) {
+        align-items: flex-start;
+    }
+
+    /* アイコンだけのボタン（日付を消すなど）。枠と地を持たない */
+    .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .icon-button:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* 欄の下の説明（書式など） */
+    .form-text {
+        margin-top: var(--space-1, 4px);
+        color: var(--color-text-muted, #666);
+        font-size: .875em;
+    }
+
+    /* 説明のアイコン（mutate_content/functions.php の tooltip()） */
+    img.tooltip {
+        cursor: help;
     }
 }

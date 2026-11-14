@@ -27,6 +27,9 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 12px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 16px;
 
@@ -133,7 +136,6 @@
     --color-neutral-button-border: #b9c4c9;
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 34px;
     --control-padding-x: var(--space-2);
     --control-radius: var(--radius-md);
     --control-border: var(--border-thin) solid var(--gray-500);
@@ -204,7 +206,7 @@
 
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
+    font-size: var(--font-size-base);
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
@@ -468,7 +470,6 @@ input:is([type="button"], [type="submit"]) {
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 var(--space-1);
-    min-height: 27px;
     padding: var(--space-1) var(--space-3);
     overflow: visible;
     background-color: var(--color-neutral-button-start);
@@ -743,13 +744,6 @@ div.treeframebody {
 
 .protectedNode {
     color: var(--color-tree-protected);
-}
-
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
 }
 
 .disabledPlugin a {
@@ -1439,11 +1433,11 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
     width: 150px;
     padding: var(--space-1) var(--space-1) var(--space-1) var(--space-6);
     background-color: var(--color-surface);
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
+    background: url(../common/images/misc/date-icon.png) no-repeat var(--space-1) center var(--color-surface);
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
+    background-image: url(../common/images/misc/date-icon-focus.png);
     cursor: text;
 }
 

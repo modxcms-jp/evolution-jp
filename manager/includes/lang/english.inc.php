@@ -1214,8 +1214,6 @@ return [
 
     "update" => 'Save',
 
-    "a17_manager_inline_style_title" => 'Append style',
-    "a17_manager_inline_style_message" => 'Append manager style',
 
     "configcheck_mgr_tpl" => 'Extension of manager template filename',
     "configcheck_mgr_tpl_msg" => 'Should be delete <a href="index.php?a=31&folder=[+folder+]">assets/templates/manager/</a> directory',
@@ -1486,4 +1484,13 @@ return [
     "fb_unzip_failed" => 'Could not extract: %s',
     "fb_unzip_done" => 'Extracted %s files.',
     "fb_unzip_entry_failed" => 'Files that could not be extracted:',
+    "styleguide_title" => 'Style guide',
+    "styleguide_msg" => 'A page that lists the manager UI parts. Choose a theme to check how the parts look and line up. Settings are not changed.',
+    "styleguide_theme" => 'Theme',
+    "styleguide_font" => 'Body font size',
+    "styleguide_font_theme" => 'Theme default',
+    "styleguide_view" => 'View',
+    "styleguide_view_current" => 'Current',
+    "styleguide_view_proposal" => 'Proposed scale',
+    "styleguide_view_compare" => 'Side by side',
 ];

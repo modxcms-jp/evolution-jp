@@ -28,6 +28,9 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 13px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 8px;
 
@@ -113,7 +116,6 @@
     --color-neutral-button-border: rgba(215, 180, 200, 0.6);
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 36px;
     --control-padding-x: var(--space-2);
     --control-radius: var(--radius-sm);
     --control-border: 1px solid rgba(220, 180, 210, 0.4);
@@ -232,7 +234,7 @@
 
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     height: 100%;
     line-height: 1.6;
     color: var(--color-text-primary);
@@ -611,8 +613,7 @@ input:is([type="button"], [type="submit"]) {
     cursor: pointer;
     line-height: normal;
     margin: 0 0 0 var(--space-2);
-    min-height: 36px;
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-1) var(--space-4);
     overflow: visible;
     background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
     color: var(--color-text-primary);
@@ -1035,13 +1036,6 @@ html body.evo-shell .tree-toolbar {
 
 .protectedNode {
     color: #77d;
-}
-
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
 }
 
 .disabledPlugin a {

@@ -14,6 +14,7 @@
 
 | 変数 | 役割 | 共通部での参照 |
 | --- | --- | --- |
+| `--font-size-base` | 本文の文字の大きさ（`body` の `font-size`）。`75%` のようなブラウザの既定に掛ける割合では書かない | テーマの `body` が読む |
 | `--color-primary` | 主な操作の色。主ボタンの地の単色 | evo-dialog.js の OK ボタンの地と枠・フォーカスの枠、filebrowser.css の主ボタン・選択行・選択項目、datepicker.css の選択日 |
 | `--color-primary-start` / `--color-primary-end` | 主な操作の色を 2 色で描くときの組。グラデーションの始点・終点、または地と枠。使い方はテーマが決める | shell.css のモーダルの見出し、filebrowser.css の主ボタンのホバー |
 | `--color-primary-hover-start` / `--color-primary-hover-end` | 同じ組の、ホバー時の色 | 共通部は参照しない（テーマの主ボタンが使う） |
@@ -76,7 +77,8 @@
 
 | 変数 | 意味 | 既定値（forms.css） |
 | --- | --- | --- |
-| `--control-height` | 入力欄・セレクト・ボタンの高さ（`min-height`）。並べたときにそろう | `32px` |
+| `--control-height` | 入力欄・セレクト・ボタン・`input[type=submit\|button\|reset]` の高さ（`min-height`）。テーマは決めない。forms.css が `body` で「本文の 1 行の高さ ＋ 上下の余白 × 2 ＋ 枠 2px」を 4px の目盛りに切り上げて決める（本文 12px・行の高さ 1.5 なら 28px） | 計算 |
+| `--control-padding-y` | 高さの計算に使う上下の余白 | `4px` |
 | `--control-padding-x` | 入力欄・セレクトの左右の余白 | `8px` |
 | `--control-radius` | 入力欄・セレクトの角 | `3px` |
 | `--control-border` | 入力欄・セレクトの枠（`border` の値） | `1px solid #999` |
@@ -96,7 +98,7 @@
 | `--button-primary-hover-bg` / `--button-primary-hover-border-color` / `--button-primary-hover-shadow` | 主ボタンをホバーしたとき | `--color-primary-hover-start` / 通常と同じ / 通常と同じ |
 | `--button-primary-active-bg` / `--button-primary-active-border-color` / `--button-primary-active-shadow` | 主ボタンを押したとき | `--color-primary-active-start` / 通常と同じ / 通常と同じ |
 
-`input[type=submit]`・`input[type=button]` は、まだこの決まりの外（テーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
+`input[type=submit]`・`input[type=button]` は、高さだけをこの決まりにそろえる（見た目はテーマの規則のまま）。RevoStyle は凍結のため、古い規則を残し、`forms.css` の既定値で見た目が変わらないよう変数だけを足す（[theme-spacing.md](theme-spacing.md) の「対象外のテーマ」）。
 
 ## セクション
 

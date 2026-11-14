@@ -28,6 +28,9 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 12px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 16px;
 
@@ -114,7 +117,6 @@
     --color-neutral-button-border: #b9c4c9;
 
     /* フォーム部品の寸法（common/forms.css が読む） */
-    --control-height: 36px;
     --control-padding-x: var(--space-1);
     --control-radius: var(--radius-sm);
     --control-border: 1px solid var(--color-input-border);
@@ -212,7 +214,7 @@
 
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
+    font-size: var(--font-size-base);
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
@@ -481,7 +483,6 @@ input:is([type="button"], [type="submit"]) {
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 5px;
-    min-height: 27px;
     padding: var(--space-1) 10px;
     overflow: visible;
     background-color: var(--color-neutral-button-start);
@@ -836,13 +837,6 @@ html body.evo-shell > #treePane {
 
 .protectedNode {
     color: #77d;
-}
-
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
 }
 
 .disabledPlugin a {

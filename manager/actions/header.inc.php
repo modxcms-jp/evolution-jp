@@ -48,7 +48,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?php if (is_array($evtOut)) {
         echo implode("\n", $evtOut);
     } ?>
-    <?= $modx->config('manager_inline_style') ?>
     <script src="<?= manager_asset('media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
     <script src="<?= manager_asset('media/script/evo-dialog.js') ?>" type="text/javascript"></script>
     <script type="text/javascript" src="<?= manager_asset('media/script/tabpane.js') ?>"></script>

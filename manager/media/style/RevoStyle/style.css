@@ -27,6 +27,9 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 12px;
+
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
     --page-padding-x: 18px;
 
@@ -140,7 +143,6 @@
     --color-neutral-button-active-end: #cecece;
 
     /* フォーム部品の寸法（common/forms.css が読む）。凍結テーマなので、下の古い規則も残す */
-    --control-height: 26px;
     --button-padding-x: 10px;
     --button-radius: 2px;
     --button-color: #444;
@@ -212,7 +214,7 @@
 
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
+    font-size: var(--font-size-base);
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
@@ -764,12 +766,6 @@ div.treeframebody {
     color: #77d;
 }
 
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
-}
 
 .disabledPlugin a {
     color: #aaa;
@@ -987,7 +983,6 @@ a.hometblink:hover {
     top: 31px;
     left: 0;
     border-top: var(--border-thin) solid var(--gray-600);
-    border-bottom: var(--border-thin) solid var(--gray-150);
 }
 
 #nav li.active ul.subnav {
@@ -1325,7 +1320,6 @@ ul.actionButtons {
 }
 
 .actionButtons a {
-    display: block;
     float: left;
     border-radius: 2px;
     color: #444;
@@ -1333,7 +1327,7 @@ ul.actionButtons {
     text-shadow: 0 1px 0 #fff;
     font-weight: 700;
     outline: medium none;
-    padding: 4px 10px;
+    padding: 0 10px;
     text-decoration: none;
     vertical-align: top;
     white-space: nowrap;

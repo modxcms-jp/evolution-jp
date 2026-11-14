@@ -704,19 +704,6 @@ return [
                         'desc' => lang('language_message'),
                     ],
                     [
-                        'key' => 'manager_inline_style',
-                        'scope' => ['system', 'user', 'profile'],
-                        'userDefault' => true,
-                        'type' => 'textarea',
-                        'label' => lang('a17_manager_inline_style_title'),
-                        'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
-                        'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
-                        // ユーザーの値が無いときは、「システム設定に従う」の先のシステム設定の値を出す
-                        'userValue' => static function (array $values, array $stored) {
-                            return (string)($values['manager_inline_style'] ?? $stored['manager_inline_style'] ?? '');
-                        },
-                    ],
-                    [
                         'key' => 'manager_login_startup',
                         'scope' => ['user', 'profile'],
                         'type' => 'text',
