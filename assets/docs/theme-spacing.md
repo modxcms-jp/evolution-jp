@@ -65,7 +65,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 - テーマが持つテンプレート（`welcome.tpl` など）と、画面の HTML（`manager/actions/` の PHP やテンプレート）には、`style` 属性や埋め込みの `<style>` で、ブロックの間の余白を書かない。`style.css` から揃えられなくなる
 - 画面が埋め込む `<style>` は、画面の部品の class か ID に範囲を絞る。`h3 { … }` のように要素だけで書かない。シェル化で管理画面は 1 つの文書になる。`shell.js`（`manager/media/script/shell.js`、`hoistStylesheets`）が `<head>` へ持ち上げるのは `link[rel=stylesheet]` だけで、埋め込みの `<style>` は画面を切り替えると消えるが、表示中は同じ文書のツリー・メニュー・ヘッダーにも効くため
 - 画面とテーマの約束として、次の class をテーマが受ける。画面は余白を書かず、class だけを持つ
-  - `.dynamic-tab-pane-control .tab-row`: タブ列。テーマは `display: flex; flex-wrap: wrap` にして、タブ（`.tab`）を折り返せる作りにする（タブが増えたり名前が長かったりして幅を超えても、次の行に回るだけで、段違いにも重なりにもならない）。flex の子には `float` が効かないので、タブに `float` を書かない。タブ列を `display: flow-root` で包んでいたテーマ（下線や `margin-bottom` を持つ型）も、`flow-root` を `flex` に置き換える。RevoStyle は凍結のため対象外（タブは `float: left` のまま。タブが折り返すと段違いになることがあるが、変えない）。タブの左右の余白は、グローバル設定の 9 タブが 1 段に収まるよう、6 テーマとも 1 段階詰めてある（`--space-4` だった AuroraFlow・RevoClassic は `--space-3`、`--space-5` だった AromaHop・RubberWhite・SakuraFlow は `--space-4`、16px だった SoftSlate は 12px）。リソースの編集画面などほかの画面のタブも同じ余白になる
+  - `.dynamic-tab-pane-control .tab-row`: タブ列。共通部（`common/tabs.css`）が `display: flex; flex-wrap: wrap` にして、タブ（`.tab`）を折り返せる作りにする（タブが増えたり名前が長かったりして幅を超えても、次の行に回るだけで、段違いにも重なりにもならない）。RevoStyle も同じ。タブの内側の余白は、テーマが `--tab-padding` で決める（フォルダの見出しと下線の型は `8px 12px`、ピルの型は `8px 16px`、RevoStyle は `3px 10px`）。グローバル設定の 9 タブが 1 段に収まる余白にしてある
   - `.settings-section`: 設定画面（`EvoSettingsForm`）のタブの中の小見出し（`h3`）。規則は共通部（`shell.css`）に 1 つだけあり、色は `--color-text-primary`・`--color-border-light`、余白は `--space-1`・`--space-3`・`--space-5` を既定値付きで読む。テーマは規則を足さない（RevoStyle は既定値のまま）。直前の表との間は、表の `margin-bottom`（`.tab-page > :has(+ .settings-section)`）で作る
   - `.code-editor`: コード欄（帯とテキスト欄）の入れ物。テンプレート・スニペット・チャンク・モジュール・プラグインの編集画面。前のブロックの下を `:has(+ .code-editor)` で作る
   - `.code-editor-header`: コード欄の上の帯。内側の余白（`padding`）はテーマが決める。画面は float を使わず class だけを付ける。テーマは帯を `display: flex; flex-wrap: wrap; justify-content: space-between` にして、左の `.code-editor-title`（太字）と右の `.code-editor-options` を並べる（狭い幅では右側が次の行に折り返る）。縦の揃えは既定（stretch）のまま、`.code-editor-title`・`.code-editor-options` に背景や枠を付けない。`overflow: hidden` は要らない。色（右側の文字を含む）と枠は [theme-variables.md](theme-variables.md) の「書き方」に従う
@@ -86,7 +86,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 
 | 例外 | 条件（作り） | 同梱の例 | 理由 |
 | --- | --- | --- | --- |
-| つなげて見せる組は 0 | 上のブロックの枠や下線を下のブロックと共有して、1 つに見せる組。タブ列とパネル、見出しの帯と本体。つなげる方法は、(1) `.tab-page` の負の `top`、(2) タブ列の下線（`.tab-row` の `border-bottom`）をパネルの上辺にして、`.tab-page` の `border-top` を消す、(3) 帯と本体で枠を共有する、のいずれか | (1) RevoClassic（-4px）、RubberWhite（-2px）。(2) AuroraFlow、SoftSlate。(3) AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `.sectionHeader` → `.sectionBody` | 間を空けると、つながって見える枠が切れるため |
+| つなげて見せる組は 0 | 上のブロックの枠や下線を下のブロックと共有して、1 つに見せる組。タブ列とパネル、見出しの帯と本体。つなげる方法は、(1) `.tab-page` の負の `top`（テーマの `--tab-page-top`）、(2) タブ列の下線（`.tab-row` の `border-bottom`）をパネルの上辺にして、`.tab-page` の `border-top` を消す、(3) 帯と本体で枠を共有する、のいずれか | (1) RevoClassic（-4px）、RubberWhite（-2px）。(2) AuroraFlow、SoftSlate。(3) AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `.sectionHeader` → `.sectionBody` | 間を空けると、つながって見える枠が切れるため |
 | `.section` の中の、枠の無い文字だけの見出しから本体までは 0 | `.section` の直下の `.sectionHeader` が枠も背景も持たず、文字だけで本体とひと続きに見える作り（見出しと本体を 1 つの組として見せる）。本体の `padding` が文字との間を作る | SakuraFlow、AromaHop の `.section > .sectionHeader` → `.sectionBody` | 見出しと本体の間を、本体の `padding` に任せるため。タブの中の見出し（`.tab-page .sectionHeader`）はこの例外ではなく、ブロックの間（`--space-3`）にする |
 | 負の `top` の分の広がり | 上の (1) の作り | RevoClassic、RubberWhite | `top` は描く位置だけをずらし、箱は元の場所に残る。タブの組の次のブロックまでの間は、`top` の絶対値の分だけ広く測れる。許容する |
 
@@ -102,7 +102,7 @@ RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-
 
 1. `:root` に `--space-1` 〜 `--space-8` を、上の表の値で定義する
 2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。`common/spacing.css` にある規則（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`.sectionBody > :is(div, table, fieldset)`、`.resources-topic-path`・`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`:is(.sectionBody, .tab-page, form) > :has(+ .pagination)`、`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`、`.tab-pane > ul.actionButtons`）は写さない。テーマが書くのは、決まりの表の例のうち、それ以外のセレクタ（`#mainPane > h1`、`.section`、`ul.actionButtons` など）
-3. `grep -n -A14 "^\.dynamic-tab-pane-control \.tab-page {" style.css | grep -E "^[0-9]+-\s+top:"` で、`.tab-page` を `top` でずらしていないか確かめる（出てよいのは、例外の負の値か `0` だけ）
+3. `grep -n -- "--tab-page-top" style.css` で、タブの本体を上へずらす値を確かめる（出てよいのは、例外の負の値か `0` だけ。無ければ共通部の既定の `-4px`）
 4. 管理画面の主な画面（ダッシュボード、サブリソース一覧、リソースの編集、システム設定、アクセス権限など）を開き、ページの端・見出し・ボタン列・表・タブとパネルの間が、決まりの表の値になっているか、ブラウザの開発者ツールで確かめる
 
 同梱テーマの例は `manager/media/style/RevoClassic/style.css`、`manager/media/style/SoftSlate/style.css` など。

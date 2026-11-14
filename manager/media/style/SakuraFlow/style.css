@@ -259,6 +259,30 @@
     --tree-not-in-menu-color: var(--gray-700);
     --tree-floater-border-color: var(--gray-400);
     --tree-pane-border: 3px solid rgba(255, 255, 255, 0.6);
+
+    /* タブ（common/tabs.css） */
+    --tab-row-gap: 8px;
+    --tab-top: 0;
+    --tab-margin: 0 4px 0 0;
+    --tab-padding: 8px 16px;
+    --tab-border-width: 0;
+    --tab-radius: var(--radius-full);
+    --tab-bg: transparent;
+    --tab-font-weight: 500;
+    --tab-hover-border-color: transparent;
+    --tab-selected-border-width: 0;
+    --tab-page-top: 0;
+    --tab-color: var(--color-text-dark);
+    --tab-hover-bg: rgba(255, 235, 245, 0.7);
+    --tab-selected-bg: linear-gradient(135deg, rgba(255, 182, 217, 0.35) 0%, rgba(212, 93, 167, 0.2) 100%);
+    --tab-selected-color: var(--color-nav-link-hover);
+    --tab-selected-hover-bg: linear-gradient(135deg, rgba(255, 182, 217, 0.45) 0%, rgba(212, 93, 167, 0.25) 100%);
+    --tab-alert-color: #e05a85;
+    --tab-selected-alert-color: #d44873;
+    --tab-page-bg: rgba(255, 255, 255, 0.55);
+    --tab-page-border: 1px solid rgba(255, 200, 230, 0.3);
+    --tab-page-radius: var(--radius-xl);
+    --tab-page-shadow: var(--shadow-sm);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -973,90 +997,6 @@ a.hometblink:hover {
    Used in: Document editor, settings pages, multi-tab interfaces
    ============================================================================ */
 
-.dynamic-tab-pane-control.tab-pane {
-    margin-top: 0;
-}
-
-.dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-text-dark);
-    font-size: 0.95em;
-    font-weight: 500;
-    display: block;
-    margin: 0 var(--space-1) 0 0;
-    padding: var(--space-2) var(--space-4);
-    top: 0;
-    border: none;
-    border-radius: var(--radius-full);
-    background: transparent;
-    transition: all var(--transition-fast);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    color: var(--color-nav-link-hover);
-    background: rgba(255, 235, 245, 0.7);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-nav-link-hover);
-    z-index: 999;
-    top: 0;
-    border: none;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, rgba(255, 182, 217, 0.35) 0%, rgba(212, 93, 167, 0.2) 100%);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-nav-link-hover);
-    background: transparent;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-nav-link-hover);
-    background: linear-gradient(135deg, rgba(255, 182, 217, 0.45) 0%, rgba(212, 93, 167, 0.25) 100%);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: var(--color-nav-link-hover);
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #e05a85;
-    font-weight: 600;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #d44873;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(10px) saturate(140%);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    border: 1px solid rgba(255, 200, 230, 0.3);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
-    margin-top: 0;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    /* タブを折り返して並べ、タブ列とパネルの間を margin で作る */
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: var(--space-2);
-}
-
-.dynamic-tab-pane-control.tab-pane {
-    margin-bottom: var(--space-3);
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: inline-flex;
@@ -1116,11 +1056,6 @@ a.hometblink:hover {
 /* Clear fix for floating buttons */
 .wm_button + br {
     display: none;
-}
-
-.tab-page {
-    border: none;
-    border-radius: var(--radius-xl);
 }
 
 .pagination li a,
@@ -1243,3 +1178,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
     margin-bottom: var(--space-2);
 }
 
+/* タブの本体は、すりガラスにする */
+.dynamic-tab-pane-control .tab-page {
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+}

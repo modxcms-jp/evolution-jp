@@ -1,38 +1,100 @@
 /*
- * タブ（tabpane.js の部品）の重なりと並び。形（角・枠・地・余白・文字色）はテーマが決める。
- * タブの中の余白だけは、テーマが :root の --tab-page-padding で決める（無ければ RevoClassic の値）。
+ * タブ（tabpane.js の部品）。並び・重なり・文字の大きさ・横の間は全テーマ共通。
+ * 型（フォルダの見出し・下線・ピル）と色は、テーマが :root の --tab-* で決める（theme-variables.md の「タブ」）。
+ * フォルダの見出しの型は、タブを --tab-top で下へずらし、本体を --tab-page-top で上へずらして、選んでいるタブと本体の枠をつなげる（theme-spacing.md の「例外」）。
+ * 一部のテーマにしかない飾り（すりガラスの効果など）は、テーマの規則に書く。既定値は RevoClassic の値。
  */
 @layer evo-components {
     .dynamic-tab-pane-control.tab-pane {
         position: relative;
         width: 100%;
+        margin-bottom: 12px;
     }
 
     .dynamic-tab-pane-control .tab-row {
+        display: flex;
+        flex-wrap: wrap;
         z-index: 1;
+        margin-bottom: var(--tab-row-gap, 0);
+        border-bottom: var(--tab-row-border, none);
         white-space: nowrap;
     }
 
     .dynamic-tab-pane-control .tab-row .tab {
+        display: block;
         position: relative;
+        top: var(--tab-top, 1px);
         z-index: 1;
+        margin: var(--tab-margin, 4px 4px 1px 0);
+        padding: var(--tab-padding, 8px 12px);
+        border-style: solid;
+        border-width: var(--tab-border-width, 1px);
+        border-color: var(--tab-border-color, var(--color-secondary-border, #c2c9ce));
+        border-radius: var(--tab-radius, 8px 8px 0 0);
+        background: var(--tab-bg, var(--color-secondary-start, #f1f4f6));
+        box-shadow: none;
+        color: var(--tab-color, var(--color-secondary-text, #3f4a51));
+        font-size: 1em;
+        font-weight: var(--tab-font-weight, normal);
+        text-shadow: var(--tab-text-shadow, none);
         cursor: pointer;
+        transition: color .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
-    .dynamic-tab-pane-control .tab-row .tab span,
-    .dynamic-tab-pane-control .tab-row .tab:hover {
+    /* 名前の文字は、タブの色を受け継ぐ */
+    .dynamic-tab-pane-control .tab-row .tab span {
+        background: transparent;
+        color: inherit;
         text-decoration: none;
     }
 
-    .dynamic-tab-pane-control .tab-row .tab.selected span {
+    .dynamic-tab-pane-control .tab-row .tab:hover {
+        border-color: var(--tab-hover-border-color, var(--tab-border-color, var(--color-secondary-border, #c2c9ce)));
+        background: var(--tab-hover-bg, linear-gradient(var(--color-secondary-hover-start, #dbe0e4), var(--color-secondary-hover-end, #c8d0d6)));
+        color: var(--tab-hover-color, var(--color-secondary-hover-text, #3f4a51));
+        text-decoration: none;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab.selected {
+        z-index: 999;
+        border-width: var(--tab-selected-border-width, var(--tab-border-width, 1px));
+        border-color: var(--tab-selected-border-color, var(--color-primary-hover-end, #2d879b) #b7c2c7 var(--color-surface, #fff) #b7c2c7);
+        background: var(--tab-selected-bg, var(--color-surface, #fff));
+        box-shadow: var(--tab-selected-shadow, none);
+        color: var(--tab-selected-color, var(--gray-900, #333));
+        font-weight: var(--tab-selected-font-weight, var(--tab-font-weight, normal));
         text-shadow: none;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab.selected:hover {
+        border-color: var(--tab-selected-hover-border-color, var(--tab-selected-border-color, var(--color-primary-hover-end, #2d879b) #b7c2c7 var(--color-surface, #fff) #b7c2c7));
+        background: var(--tab-selected-hover-bg, var(--tab-selected-bg, var(--color-surface, #fff)));
+        color: var(--tab-selected-hover-color, var(--tab-selected-color, var(--gray-900, #333)));
+    }
+
+    /* 入力に誤りがあるタブの印 */
+    .dynamic-tab-pane-control .tab-row .tab .alert {
+        color: var(--tab-alert-color, var(--color-error-light, #c00));
+        font-weight: 600;
+    }
+
+    .dynamic-tab-pane-control .tab-row .tab.selected .alert {
+        color: var(--tab-selected-alert-color, var(--tab-alert-color, var(--color-error-light, #c00)));
     }
 
     .dynamic-tab-pane-control .tab-page {
         position: relative;
+        top: var(--tab-page-top, -4px);
         z-index: 2;
         clear: both;
+        margin-top: 0;
         padding: var(--tab-page-padding, 16px 16px 20px);
+        border: var(--tab-page-border, none);
+        /* 下線の型は、タブ列の下線を本体の上の辺にするので、上の枠を消す */
+        border-top: var(--tab-page-border-top, var(--tab-page-border, none));
+        border-radius: var(--tab-page-radius, 0);
+        background: var(--tab-page-bg, var(--color-surface, #fff));
+        box-shadow: var(--tab-page-shadow, none);
     }
 
     /* タブの中のリスト。ボタン列（action-buttons.css の ul.actionButtons）は、同じ詳細度で後から読む規則が余白を 0 にする */

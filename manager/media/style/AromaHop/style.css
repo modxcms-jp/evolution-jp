@@ -273,6 +273,33 @@
     --tree-not-in-menu-color: #5A9A5E;
     --tree-floater-border-color: var(--gray-400);
     --tree-pane-border: 3px solid rgba(255, 255, 255, 0.6);
+
+    /* タブ（common/tabs.css） */
+    --tab-row-gap: 8px;
+    --tab-top: 0;
+    --tab-margin: 0 4px 0 0;
+    --tab-padding: 8px 16px;
+    --tab-border-width: 0;
+    --tab-radius: var(--radius-full);
+    --tab-bg: transparent;
+    --tab-font-weight: 500;
+    --tab-hover-border-color: transparent;
+    --tab-selected-border-width: 0;
+    --tab-page-top: 0;
+    --tab-color: #346038;
+    --tab-hover-bg: rgba(255, 255, 255, 0.5);
+    --tab-hover-color: #244828;
+    --tab-selected-bg: linear-gradient(90deg, rgba(200, 230, 185, 0.92) 0%, rgba(215, 240, 195, 0.88) 50%, rgba(200, 230, 185, 0.92) 100%), #B8DDA8;
+    --tab-selected-shadow: inset 0 1px 0 rgba(250, 255, 245, 0.7), 0 1px 3px rgba(60, 100, 70, 0.12);
+    --tab-selected-color: #346038;
+    --tab-selected-hover-bg: linear-gradient(90deg, rgba(190, 225, 175, 0.95) 0%, rgba(205, 235, 188, 0.9) 50%, rgba(190, 225, 175, 0.95) 100%), #ACD59C;
+    --tab-selected-hover-color: #244828;
+    --tab-alert-color: #c62828;
+    --tab-selected-alert-color: #b71c1c;
+    --tab-page-bg: rgba(255, 255, 255, 0.38);
+    --tab-page-border: 1px solid rgba(170, 200, 185, 0.32);
+    --tab-page-radius: var(--radius-xl);
+    --tab-page-shadow: var(--shadow-sm);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -1070,107 +1097,6 @@ a.hometblink:hover {
    Used in: Document editor, settings pages, multi-tab interfaces
    ============================================================================ */
 
-.dynamic-tab-pane-control.tab-pane {
-    margin-top: 0;
-}
-
-.dynamic-tab-pane-control .tab-row .tab {
-    color: #346038;
-    font-size: 0.95em;
-    font-weight: 500;
-    display: block;
-    margin: 0 var(--space-1) 0 0;
-    padding: var(--space-2) var(--space-4);
-    top: 0;
-    border: none;
-    border-radius: var(--radius-full);
-    background: transparent;
-    transition: all var(--transition-fast);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    color: #244828;
-    background: rgba(255, 255, 255, 0.5);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: #346038;
-    z-index: 999;
-    top: 0;
-    border: none;
-    border-radius: var(--radius-full);
-    /* ヘッダーと同じ緑の背景 */
-    background:
-        linear-gradient(
-            90deg,
-            rgba(200, 230, 185, 0.92) 0%,
-            rgba(215, 240, 195, 0.88) 50%,
-            rgba(200, 230, 185, 0.92) 100%
-        ),
-        #B8DDA8;
-    box-shadow:
-        inset 0 1px 0 rgba(250, 255, 245, 0.7),
-        0 1px 3px rgba(60, 100, 70, 0.12);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: #346038;
-    background: transparent;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: #244828;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: #244828;
-    background:
-        linear-gradient(
-            90deg,
-            rgba(190, 225, 175, 0.95) 0%,
-            rgba(205, 235, 188, 0.9) 50%,
-            rgba(190, 225, 175, 0.95) 100%
-        ),
-        #ACD59C;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: #244828;
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #c62828;
-    font-weight: 600;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #b71c1c;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    /* 中の .sectionBody と二重に白が重なるため、外枠は薄くして余白に背景の泡と光を見せる */
-    background: rgba(255, 255, 255, 0.38);
-    border: 1px solid rgba(170, 200, 185, 0.32);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
-    margin-top: 0;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    /* タブを折り返して並べ、タブ列とパネルの間を margin で作る */
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: var(--space-2);
-}
-
-.dynamic-tab-pane-control.tab-pane {
-    margin-bottom: var(--space-3);
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: inline-flex;
@@ -1230,11 +1156,6 @@ a.hometblink:hover {
 /* Clear fix for floating buttons */
 .wm_button + br {
     display: none;
-}
-
-.tab-page {
-    border: none;
-    border-radius: var(--radius-xl);
 }
 
 .pagination li a,
