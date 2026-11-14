@@ -19,12 +19,14 @@
 - `a=1&f=nodes` はツリーのノードの断片で、`tree.js` が `fetch` で取りに行く（開閉状態の保存の `savestateonly=1` を含む）。
 - ツリー上部のボタンの並びは `.tree-toolbar` が包む（`#treeMenu` と `#floater`）。`#treePane`（スクロールする箱）の上端に `position: sticky; top: 0` で貼り付き、並べ替えの小窓 `#floater` の位置の基準になる（`top: 100%` で並びの直下に出す）。背景はテーマの `.treeframebody` から引き継ぐ（`background: inherit`）。`.treeframebody` が透明・半透明のテーマは、下のツリーが透けて読めなくならないよう、テーマ側で `.tree-toolbar` の背景を上書きする（例: SakuraFlow・AromaHop は、ツリーの地に近い半透明の色を重ね、`backdrop-filter` でぼかす）。下の境界線は、既定では `--color-border-default` の 1px の線。テーマが帯の `box-shadow` を上書きして別の作りにしてよい（例: SakuraFlow は `#topMenu` と同じく、白い光の筋とやわらかい影）。規則は `manager/media/style/common/shell.css`。
 
+- ツリーの幅は `--shell-tree-width`（既定は header.inc.php が設定 `manager_tree_width`、無ければ 260px で出す）。ツリーと本文の境目のつまみ（`#evoTreeResizer`。shell.js の `initTreeResizer()` が body の直下に作る）をドラッグすると、ツリーの上のボタンの並びが切れない幅（テーマで違う。160px より狭くはしない）から画面の幅の半分までで変わり、幅をブラウザの保存領域（`evo.shell.treeWidth`）に覚える。ダブルクリックで既定の幅に戻す
+
 ## body 直下の要素
 
 シェルの body（`body.evo-shell`）はグリッドで、メニュー・ツリー・本文の 3 つを並べる。ほかの body 直下の要素は、ライブラリが足すオーバーレイなどでレイアウトが崩れないよう、本文の領域に重ねた幅 0・高さ 0 の要素になる（`manager/media/style/common/shell.css` の `body.evo-shell > :not(...)`）。
 
 - 画面の部品は `#mainPane` の中に置く。body 直下に要素を足すと、幅 0 になって見えない（`position: fixed` でも、幅を決めていなければ潰れる）。
-- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
+- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`・ツリーの幅を変えるつまみの `#evoTreeResizer`）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
 
 ## JS・CSS の読み込みと版
 

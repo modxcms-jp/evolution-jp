@@ -55,7 +55,7 @@ body.evo-shell > #mainPane {
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
    ダイアログ(evo-dialog.js の <dialog>)とツールチップ(evo-tooltip.js の #evoTooltip)は fixed で出すので、幅0にすると潰れる。対象から外す */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip) {
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip):not(#evoTreeResizer) {
     grid-area: main;
     align-self: start;
     justify-self: start;
@@ -82,6 +82,34 @@ body.evo-shell > #preLoader {
 
 body.evo-shell > #preLoader .preLoaderText {
     margin: 0;
+}
+
+/* ツリーと本文の境目のつまみ（shell.js が body の直下に作る。ツリーを読み込み直しても消えないため）。
+   ツリーの右の端に重ね、ドラッグで --shell-tree-width を変える */
+body.evo-shell > #evoTreeResizer {
+    position: fixed;
+    top: var(--shell-menu-height, 58px);
+    bottom: 0;
+    left: calc(var(--shell-tree-width, 260px) - 4px);
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 50;
+}
+
+body.evo-shell > #evoTreeResizer:hover,
+body.evo-shell.is-resizing-tree > #evoTreeResizer {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+/* ドラッグ中は、文字を選ばず、カーソルを保つ */
+body.evo-shell.is-resizing-tree {
+    cursor: col-resize;
+    user-select: none;
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer {
+    display: none;
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */

@@ -774,10 +774,90 @@
         nativeFormSubmit.call(this);
     };
 
+    // ツリーと本文の境目のつまみ。ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。
+    // ダブルクリックで既定の幅（header.inc.php の値）に戻す。つまみはツリーを読み込み直しても消えないよう body の直下に置く
+    const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
+    const TREE_WIDTH_MIN = 160;
+
+    function setTreeWidth(px) {
+        document.documentElement.style.setProperty('--shell-tree-width', px + 'px');
+    }
+
+    // ツリーの上のボタンの並び（#treeMenu）が切れない幅。テーマでボタンの大きさが違うので、ドラッグを始めるときに測る
+    function minTreeWidth() {
+        const menu = document.getElementById('treeMenu');
+        const pane = document.getElementById('treePane');
+        if (!menu || !pane) {
+            return TREE_WIDTH_MIN;
+        }
+        const outside = pane.getBoundingClientRect().width - menu.getBoundingClientRect().width;
+        menu.style.width = 'min-content';
+        const need = menu.getBoundingClientRect().width + outside;
+        menu.style.width = '';
+        return Math.max(TREE_WIDTH_MIN, Math.ceil(need));
+    }
+
+    function initTreeResizer() {
+        try {
+            const saved = parseInt(localStorage.getItem(TREE_WIDTH_KEY), 10);
+            if (saved >= TREE_WIDTH_MIN) {
+                setTreeWidth(saved);
+            }
+        } catch (e) {
+            // 保存領域が使えないときは、既定の幅のまま
+        }
+
+        const handle = document.createElement('div');
+        handle.id = 'evoTreeResizer';
+        handle.setAttribute('role', 'separator');
+        handle.setAttribute('aria-orientation', 'vertical');
+        document.body.appendChild(handle);
+
+        handle.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) {
+                return;
+            }
+            e.preventDefault();
+            handle.setPointerCapture(e.pointerId);
+            document.body.classList.add('is-resizing-tree');
+            let width = 0;
+            const min = minTreeWidth();
+            const move = function (ev) {
+                const max = Math.max(min, Math.round(window.innerWidth / 2));
+                width = Math.min(max, Math.max(min, Math.round(ev.clientX)));
+                setTreeWidth(width);
+            };
+            handle.addEventListener('pointermove', move);
+            handle.addEventListener('lostpointercapture', function () {
+                handle.removeEventListener('pointermove', move);
+                document.body.classList.remove('is-resizing-tree');
+                if (!width) {
+                    return;
+                }
+                try {
+                    localStorage.setItem(TREE_WIDTH_KEY, String(width));
+                } catch (err) {
+                    // 覚えられなくても、今の画面の幅は変わっている
+                }
+            }, { once: true });
+        });
+
+        handle.addEventListener('dblclick', function () {
+            document.documentElement.style.removeProperty('--shell-tree-width');
+            try {
+                localStorage.removeItem(TREE_WIDTH_KEY);
+            } catch (e) {
+                // 保存領域が使えないときは、消すものも無い
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
+
+        initTreeResizer();
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
 
