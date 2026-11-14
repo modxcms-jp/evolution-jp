@@ -731,18 +731,6 @@ ul {
     vertical-align: baseline;
 }
 
-.row1 {
-    background-color: var(--color-surface);
-}
-
-.row2 {
-    background-color: var(--color-table-row-alt);
-}
-
-.row3 {
-    background-color: var(--color-section-header-start);
-}
-
 /* ============================================================================
    8. Tree Components (Site Tree, Context Menu)
    Used in: Resource tree, folder navigation, context menus

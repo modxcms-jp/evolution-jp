@@ -101,12 +101,6 @@
     text-align: end;
 }
 
-.row1,
-.row2,
-.row3 {
-    color: var(--color-text-primary, #333);
-}
-
 /* 上部・ツリー・右クリックメニュー */
 #topbar * {
     vertical-align: middle;

@@ -679,18 +679,6 @@ ul {
     vertical-align: baseline;
 }
 
-.row1 {
-    background-color: #fff;
-}
-
-.row2 {
-    background-color: #C8DAA2;
-}
-
-.row3 {
-    background-color: var(--gray-100);
-}
-
 div.treeframebody {
     background: var(--gray-100) url(../common/images/misc/subnav.png) !important;
     box-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
@@ -768,7 +756,6 @@ div.treeframebody {
 .protectedNode {
     color: #77d;
 }
-
 
 .disabledPlugin a {
     color: #aaa;

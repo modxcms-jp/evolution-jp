@@ -919,18 +919,6 @@ ul {
     vertical-align: baseline;
 }
 
-.row1 {
-    background-color: var(--color-surface);
-}
-
-.row2 {
-    background-color: #C8DAA2;
-}
-
-.row3 {
-    background-color: var(--gray-100);
-}
-
 /* ============================================================================
    8. Tree Components - Site Tree, Context Menu
    Used in: Site tree, document tree navigation

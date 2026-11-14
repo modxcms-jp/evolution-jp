@@ -163,8 +163,6 @@
     --color-tree-protected: #77d;
 
     /* Component Colors - Table Rows */
-    --color-row-odd: #fff;
-    --color-row-alt: #C8DAA2;
     --color-row-highlight: #D9E7C2;
     --color-thead-bg: #E4E4E4;
     --color-thead-text: var(--gray-900);
@@ -653,18 +651,6 @@ ul {
     border-top: var(--border-thin) solid #808080;
     text-align: left;
     vertical-align: baseline;
-}
-
-.row1 {
-    background-color: var(--color-row-odd);
-}
-
-.row2 {
-    background-color: var(--color-row-alt);
-}
-
-.row3 {
-    background-color: var(--color-tree-bg);
 }
 
 div.treeframebody {

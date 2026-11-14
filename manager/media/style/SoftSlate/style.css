@@ -691,18 +691,6 @@ ul {
     text-align: right;
 }
 
-.row1 {
-    background-color: #fff;
-}
-
-.row2 {
-    background-color: #d1d5da;
-}
-
-.row3 {
-    background-color: var(--gray-100);
-}
-
 /* ツリーは明るいブルーグレーのフラットな地。メインとの境目は 1px の線にする */
 div.treeframebody {
     background: #eef2f6 !important;

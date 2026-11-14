@@ -439,7 +439,7 @@ HTML;
             }
         }
         return $heading . "<table class=\"settings\">\n"
-            . '<tr class="row1" style="border-bottom:none;"><td colspan="2"' . (empty($tab['eventPadded']) ? ' style="padding:0;"' : '') . '>'
+            . '<tr style="border-bottom:none;"><td colspan="2"' . (empty($tab['eventPadded']) ? ' style="padding:0;"' : '') . '>'
             . $output . "</td></tr>\n</table>\n";
     }
 
