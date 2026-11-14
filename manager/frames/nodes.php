@@ -327,7 +327,7 @@ function tplPageNode()
 	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
-/>&nbsp;<span
+/><span
 	p="[+parent+]"
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	class="treeNode"
@@ -356,7 +356,7 @@ function tplFopenNode()
 	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-/>&nbsp;<span
+/><span
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
@@ -385,7 +385,7 @@ function tplFcloseNode()
 	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-/>&nbsp;<span
+/><span
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
