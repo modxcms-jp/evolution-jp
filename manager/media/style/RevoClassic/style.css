@@ -684,7 +684,6 @@ div.treeframebody {
     background-color: var(--color-tree-selected);
     border: var(--border-thin) solid var(--color-tree-border);
     color: #000;
-    margin-left: -3px;
 }
 
 .unpublished a, .unpublishedNode {
