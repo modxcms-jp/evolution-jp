@@ -1209,7 +1209,7 @@ fieldset.tab-page {
 }
 
 h2#edit_document_title {
-    font-size: 15px;
+    font-size: calc(var(--font-size-base, 12px) * 1.25);
     color: var(--gray-100);
     width: 100%;
     border-bottom: none;
