@@ -69,7 +69,8 @@
         display: none;
         position: absolute;
         inset-inline: 0;
-        top: calc(var(--topnav-padding-top, 12px) + var(--topnav-item-height, 32px));
+        /* 項目の下端に 1px 重ね、帯の上の枠を、選んでいる項目（重なりの順が上）で隠す。タブの型で項目と帯がつながって見える */
+        top: calc(var(--topnav-padding-top, 12px) + var(--topnav-item-height, 32px) - 1px);
         z-index: 1;
         box-sizing: border-box;
         flex-wrap: wrap;

@@ -793,6 +793,8 @@ a.hometblink:hover {
 #nav > li.active > a {
     box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) var(--space-1) rgba(0, 0, 0, .9);
     text-shadow: 0 -1px 0 var(--gray-850);
+    /* 外側の影は、サブメニューの帯にかかる下側だけ切る */
+    clip-path: inset(-4px -4px 0 -4px);
 }
 
 #nav > li > ul.subnav a:is(:hover, [aria-current="page"]) {
