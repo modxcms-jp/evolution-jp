@@ -215,6 +215,21 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: var(--space-4);
+
+    /* 表・一覧（common/tables.css） */
+    --grid-bg: rgba(253, 253, 251, 0.95);
+    --grid-border: 1px solid rgba(255, 255, 255, 0.5);
+    --grid-cell-padding: var(--space-3);
+    --grid-header-weight: 600;
+    --grid-header-bg: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
+    --grid-alt-bg: rgba(234, 252, 207, 0.3);
+    --grid-hover-bg: rgba(223, 245, 215, 0.6);
+    --pagination-bg: var(--color-neutral-button-start);
+    --color-pagination-text: var(--color-secondary-text);
+    --color-pagination-border: var(--color-neutral-button-border);
+    --color-pagination-disabled: var(--gray-400);
+    --pagination-active-bg: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
+    --color-pagination-active-border: var(--color-primary-end);
 }
 
 /* ============================================================================
@@ -1085,9 +1100,6 @@ html body.evo-shell .tree-toolbar {
 
 /* グリッド - モヒートパレット */
 .grid {
-    width: 100%;
-    background-color: rgba(253, 253, 251, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: var(--radius-lg);
     border-collapse: separate;
     border-spacing: 0;
@@ -1096,7 +1108,6 @@ html body.evo-shell .tree-toolbar {
 }
 
 .grid th, .grid td {
-    padding: var(--space-3);
     border-bottom: 1px solid rgba(203, 238, 197, 0.5);
 }
 
@@ -1105,11 +1116,6 @@ html body.evo-shell .tree-toolbar {
 }
 
 .gridHeader, .grid th {
-    color: #3A6A40;
-    font-weight: 600;
-    white-space: nowrap;
-    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
-    text-align: left;
     border-bottom: 2px solid rgba(255, 255, 255, 0.6);
     font-size: 0.9rem;
     letter-spacing: 0.02em;
@@ -1123,26 +1129,7 @@ html body.evo-shell .tree-toolbar {
     border-top-right-radius: var(--radius-lg);
 }
 
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
 .gridItem {
-    background-color: rgba(253, 253, 251, 0.95);
-    padding: var(--space-2);
     transition: background-color 0.2s ease;
 }
 
@@ -1151,8 +1138,6 @@ html body.evo-shell .tree-toolbar {
 }
 
 .gridAltItem {
-    background-color: rgba(234, 252, 207, 0.3);
-    padding: var(--space-2);
     transition: background-color 0.2s ease;
 }
 
@@ -1160,12 +1145,7 @@ html body.evo-shell .tree-toolbar {
     background-color: rgba(234, 252, 207, 0.5);
 }
 
-.gridRowIcon:hover {
-    background-color: rgba(223, 245, 215, 0.6);
-}
-
 .grid a {
-    text-decoration: none;
     color: var(--color-text-dark);
     transition: color 0.2s ease;
 }
@@ -1175,7 +1155,6 @@ html body.evo-shell .tree-toolbar {
 }
 
 .grid img {
-    vertical-align: middle;
     padding-right: 6px;
 }
 
@@ -1633,7 +1612,6 @@ a.hometblink:hover {
     margin: var(--space-1) var(--space-2);
 }
 
-
 /* -------------------------[ Settings Table ]--- */
 
 .settings tr {
@@ -1853,43 +1831,9 @@ a.hometblink:hover {
     margin: 10px 0;
 }
 
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
 .pagination li a,
 .pagination li span {
-    padding: 3px var(--space-2);
-    border: 1px solid var(--color-neutral-button-border);
-    background: var(--color-neutral-button-start);
-    text-decoration: none;
-    color: var(--color-secondary-text);
     border-radius: var(--radius-sm);
-}
-
-.pagination li span {
-    color: var(--gray-400);
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: var(--color-surface);
-    background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
-    border: 1px solid var(--color-primary-end);
 }
 
 fieldset.tab-page {
@@ -2043,7 +1987,6 @@ form > :has(+ .resources-batch-actions),
     font-weight: 600;
 }
 
-
 /* ============================================================================
    13. Specialized Forms - Mutate Forms, Date Pickers
    Used in: Document editor forms, settings forms with date pickers
@@ -2108,11 +2051,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 /* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜる（theme-variables.md）。枠は、真下のテキスト欄の緑の枠とつなげるため、薄い枠の色にする */
 .code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
     border: 1px solid var(--color-border-light);
     border-bottom: none;
 }

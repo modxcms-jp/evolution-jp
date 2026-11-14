@@ -198,6 +198,11 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: 15px 15px 20px;
+
+    /* 表・一覧（common/tables.css） */
+    --grid-cell-padding: 3px 5px;
+    --color-grid-header-text: #333;
+    --color-pagination-text: #333;
 }
 
 /* ============================================================================
@@ -628,7 +633,6 @@ input.submit {
     padding: 15px;
 }
 
-
 .section .sectionBody {
     margin: 0 0 15px;
     background-color: var(--color-surface);
@@ -670,7 +674,6 @@ ul {
     vertical-align: baseline;
 }
 
-
 .row1 {
     background-color: #fff;
 }
@@ -706,7 +709,6 @@ div.treeframebody {
     vertical-align: middle;
 }
 
-
 #floater {
     display: none;
     position: absolute;
@@ -718,7 +720,6 @@ div.treeframebody {
     border: var(--border-thin) solid var(--gray-400);
     z-index: 500;
 }
-
 
 .rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
     color: #000;
@@ -770,7 +771,6 @@ div.treeframebody {
     right: -10px;
 }
 
-
 .disabledPlugin a {
     color: #aaa;
     text-decoration: line-through;
@@ -778,36 +778,7 @@ div.treeframebody {
 
 /* -------------------------[ grid style ]--- */
 .grid {
-    width: 100%;
-    background-color: #fff;
-    border: 1px solid silver;
     border-collapse: collapse;
-}
-
-.grid th, .grid td {
-    padding: 3px 5px;
-}
-
-.gridHeader, .grid th {
-    color: #333;
-    font-weight: bold;
-    white-space: nowrap;
-    background-color: #d2d2d2;
-    text-align: left;
-}
-
-.gridItem {
-    background-color: #fff;
-    padding: 3px;
-}
-
-.gridAltItem {
-    background-color: #eeeeee;
-    padding: 3px;
-}
-
-.gridRowIcon:hover {
-    background-color: #f5f5dc;
 }
 
 .grid a {
@@ -815,7 +786,6 @@ div.treeframebody {
 }
 
 .grid img {
-    vertical-align: middle;
     padding-right: 4px;
 }
 
@@ -832,11 +802,6 @@ div.treeframebody {
 /* Private access indicator */
 .access-private {
     color: #821517;
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
 }
 
 /* Database overhead warning */
@@ -897,7 +862,6 @@ a.hometblink:hover {
     padding: 3px 16px 3px 2px;
 }
 
-
 .cntxMnuItemDisabled {
     cursor: default;
     padding: 3px 16px 3px 2px;
@@ -912,11 +876,9 @@ a.hometblink:hover {
     border: 1px solid #c0c0c0;
 }
 
-
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
     margin: 0 8px 0 0;
 }
-
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
     opacity: .3;
@@ -929,7 +891,6 @@ a.hometblink:hover {
     overflow: hidden;
     margin: 3px 1px 3px 28px;
 }
-
 
 /* ============================================================================
    7. Navigation (Top Menu, Supplemental Nav)
@@ -954,7 +915,6 @@ a.hometblink:hover {
     overflow: visible !important;
 }
 
-
 #nav ul {
     display: none;
     height: 26px;
@@ -964,7 +924,6 @@ a.hometblink:hover {
     padding: 0 0 0 20px;
 }
 
-
 #nav li {
     list-style: none;
     float: left;
@@ -972,7 +931,6 @@ a.hometblink:hover {
     margin: 0 0 0 10px;
     padding: 0;
 }
-
 
 #nav li a {
     color: #A4B8B6;
@@ -1146,12 +1104,6 @@ a.hometblink:hover {
     margin: 3px 1px 3px 28px;
 }
 
-
-
-
-
-
-
 /* ============================================================================
    9. Tables & Grids (Data Tables, Settings)
    Used in: Configuration tables, data grids
@@ -1168,7 +1120,6 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-
 .filelist td {
     border-bottom: 1px solid #C2C3CF;
 }
@@ -1181,7 +1132,6 @@ a.hometblink:hover {
     position: relative;
     width: 100%;
 }
-
 
 .dynamic-tab-pane-control .tab-row .tab {
     color: #313131;
@@ -1199,7 +1149,6 @@ a.hometblink:hover {
     border-radius: 5px 5px 0 0;
     background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
-
 
 .dynamic-tab-pane-control .tab-row .tab:hover {
     text-decoration: none;
@@ -1246,7 +1195,6 @@ a.hometblink:hover {
     top: -2px;
     padding: 20px 15px 14px !important;
 }
-
 
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
@@ -1299,7 +1247,6 @@ a.hometblink:hover {
     text-align: center;
 }
 
-
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
     background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
@@ -1314,47 +1261,9 @@ a.hometblink:hover {
     padding: 15px 15px 20px !important;
 }
 
-
-
 /* -------------------------[ Pagination table ]--- */
 #max-display-records {
     margin: 10px 0;
-}
-
-.pagination {
-    margin: 10px 0;
-}
-
-.pagination ul {
-    margin: 10px 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
-.pagination li a,
-.pagination li span {
-    padding: 3px 8px;
-    border: 1px solid #D9E7C2;
-    text-decoration: none;
-    color: #333;
-}
-
-.pagination li span {
-    color: #D9E7C2;
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: #fff;
-    background-color: #7fa53d;
-    border: 1px solid #567959;
 }
 
 fieldset.tab-page {
@@ -1389,7 +1298,6 @@ h2#edit_document_title {
 select#stay {
     padding: 5px 5px 5px 2px;
 }
-
 
 .actionButtons {
     margin-bottom: 15px;
@@ -1485,7 +1393,6 @@ ul.actionButtons {
 .actionButtons a:active.default {
     background-image: linear-gradient(var(--color-primary-active-start), var(--color-primary-active-end));
 }
-
 
 /*
 * Generic styles for all form elements
@@ -1633,17 +1540,3 @@ div:has(> label > input[name="publishoption"]) {
     margin-bottom: 12px;
 }
 
-/* a=16・a=19 ほか: コード欄の上の帯（#973・#1004）。画面の直書きだった padding・色・枠と、中の文字の太字・#707070（#1004）を、凍結のため同じ値で保つ */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: 3px 8px;
-    background-color: #eeeeee;
-    border: 1px solid #c3c3c3;
-    border-bottom: none;
-}
-
-.code-editor-options {
-    color: #707070;
-}

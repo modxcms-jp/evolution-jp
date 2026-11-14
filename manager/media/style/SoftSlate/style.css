@@ -197,6 +197,13 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: 18px 18px 22px;
+
+    /* 表・一覧（common/tables.css） */
+    --grid-hover-bg: #e8eaed;
+    --color-pagination-border: #ccc;
+    --color-pagination-disabled: #ccc;
+    --pagination-active-bg: var(--color-link);
+    --color-pagination-active-border: var(--color-link-hover);
 }
 
 /* ============================================================================
@@ -817,61 +824,10 @@ html body.evo-shell > #treePane {
 
 /* -------------------------[ grid style ]--- */
 .grid {
-    width: 100%;
-    background-color: #fff;
-    border: 1px solid silver;
     border-collapse: collapse;
 }
 
-.grid th, .grid td {
-    padding: 8px;
-}
-
-.gridHeader, .grid th {
-    color: #333;
-    font-weight: bold;
-    white-space: nowrap;
-    background-color: #d2d2d2;
-    text-align: left;
-}
-
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
-.gridItem {
-    background-color: #fff;
-    padding: 3px;
-}
-
-.gridAltItem {
-    background-color: #eeeeee;
-    padding: 3px;
-}
-
-.gridRowIcon:hover {
-    background-color: #e8eaed;
-}
-
-.grid a {
-    text-decoration: none;
-}
-
 .grid img {
-    vertical-align: middle;
     padding-right: 4px;
 }
 
@@ -888,11 +844,6 @@ html body.evo-shell > #treePane {
 /* Private access indicator */
 .access-private {
     color: #821517;
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
 }
 
 /* Database overhead warning */
@@ -1250,7 +1201,6 @@ a.hometblink:hover {
     margin: 3px 28px 3px 1px;
 }
 
-
 /* -------------------------[ Settings Table ]--- */
 
 .settings tr {
@@ -1457,43 +1407,6 @@ a.hometblink:hover {
     margin: 10px 0;
 }
 
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
-.pagination li a,
-.pagination li span {
-    padding: 3px 8px;
-    border: 1px solid #ccc;
-    text-decoration: none;
-    color: #333;
-}
-
-.pagination li span {
-    color: #ccc;
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: #fff;
-    background-color: var(--color-link);
-    border: 1px solid var(--color-link-hover);
-}
-
 fieldset.tab-page {
     border: 1px solid #e4e4e4 !important;
 }
@@ -1672,7 +1585,6 @@ form > :has(+ .resources-batch-actions),
     background-color: var(--color-danger-bg-hover);
 }
 
-
 /* ============================================================================
    12. Specialized Forms (Mutate Forms, Date Pickers)
    Used in: Document editor, complex form interfaces
@@ -1729,21 +1641,6 @@ input.DatePicker {
 input.DatePicker:focus {
     background: url(../common/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
-}
-
-/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
-}
-
-.code-editor-options {
-    color: var(--color-text-muted);
 }
 
 .okmsg {

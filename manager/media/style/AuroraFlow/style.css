@@ -195,6 +195,14 @@
 
     /* タブ（common/tabs.css が読む） */
     --tab-page-padding: 15px 15px 20px;
+
+    /* 表・一覧（common/tables.css） */
+    --pagination-bg: var(--color-neutral-button-start);
+    --color-pagination-text: var(--color-secondary-text);
+    --color-pagination-border: var(--color-neutral-button-border);
+    --color-pagination-disabled: var(--gray-400);
+    --pagination-active-bg: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
+    --color-pagination-active-border: var(--color-primary-end);
 }
 
 /* ============================================================================
@@ -848,61 +856,10 @@ html body.evo-shell > #treePane {
    ============================================================================ */
 
 .grid {
-    width: 100%;
-    background-color: var(--color-surface);
-    border: 1px solid silver;
     border-collapse: collapse;
 }
 
-.grid th, .grid td {
-    padding: var(--space-2);
-}
-
-.gridHeader, .grid th {
-    color: var(--gray-900);
-    font-weight: bold;
-    white-space: nowrap;
-    background-color: #d2d2d2;
-    text-align: left;
-}
-
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
-.gridItem {
-    background-color: var(--color-surface);
-    padding: 3px;
-}
-
-.gridAltItem {
-    background-color: #eeeeee;
-    padding: 3px;
-}
-
-.gridRowIcon:hover {
-    background-color: #f5f5dc;
-}
-
-.grid a {
-    text-decoration: none;
-}
-
 .grid img {
-    vertical-align: middle;
     padding-right: 4px;
 }
 
@@ -919,11 +876,6 @@ html body.evo-shell > #treePane {
 /* Private access indicator */
 .access-private {
     color: #821517;
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
 }
 
 /* Database overhead warning */
@@ -1214,7 +1166,6 @@ a.hometblink:hover {
     margin: 3px 1px 3px 28px;
 }
 
-
 /* -------------------------[ Settings Table ]--- */
 
 .settings tr {
@@ -1392,43 +1343,9 @@ a.hometblink:hover {
     margin: 10px 0;
 }
 
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
 .pagination li a,
 .pagination li span {
-    padding: 3px var(--space-2);
-    border: 1px solid var(--color-neutral-button-border);
-    background: var(--color-neutral-button-start);
-    text-decoration: none;
-    color: var(--color-secondary-text);
     border-radius: var(--radius-sm);
-}
-
-.pagination li span {
-    color: var(--gray-400);
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: var(--color-surface);
-    background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
-    border: 1px solid var(--color-primary-end);
 }
 
 fieldset.tab-page {
@@ -1603,7 +1520,6 @@ form > :has(+ .resources-batch-actions),
     background-color: var(--color-danger-bg-hover);
 }
 
-
 /* ============================================================================
    13. Specialized Forms - Mutate Forms, Date Pickers
    Used in: Document editor forms, settings forms with date pickers
@@ -1664,21 +1580,6 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
     cursor: text;
-}
-
-/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
-}
-
-.code-editor-options {
-    color: var(--color-text-muted);
 }
 
 .okmsg {

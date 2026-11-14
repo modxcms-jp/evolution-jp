@@ -124,10 +124,31 @@
 | --- | --- | --- |
 | `--tab-page-padding` | タブの中（`.tab-page`）の内側の余白。`.sectionBody` の中か外かに関係なく、この値になる | `16px 16px 20px` |
 
+## 表・一覧
+
+一覧の表（`.grid`）、ページ送り（`.pagination`）、コード欄の上の帯（`.code-editor-header`）の見た目は、`manager/media/style/common/tables.css`（`@layer evo-components`）が決める。テーマは `:root` で下の変数の値を決める。
+
+- 余白は値で書く（RevoStyle は `--space-*` の値が違うため、`var(--space-2)` と書くと値が変わる）
+- 一部のテーマにしかない性質（表の角・影・`border-collapse`、見出しの行の下の枠、ページ送りの角など）は、テーマの規則に書く
+- 並べ替えの印（`.grid th[aria-sort] a::after`）も tables.css が決める。色は `--color-primary`
+- ページ送りの普段の地（`--pagination-bg`）と、今のページの地（`--pagination-active-bg`）は、どちらも tables.css が決める。普段の地だけをテーマに残すと、層の外の規則が勝ち、今のページの地が出なくなる
+
+| 変数 | 意味 | 既定値（tables.css） |
+| --- | --- | --- |
+| `--grid-bg` / `--grid-border` | 表と行（`.gridItem`）の地、表の枠 | `--color-surface`（無ければ `#fff`） / `1px solid silver` |
+| `--grid-cell-padding` | セルの内側の余白 | `8px` |
+| `--color-grid-header-text` / `--grid-header-weight` / `--grid-header-bg` | 見出しの行の文字の色・太さ・地（グラデーションも可） | `--gray-900`（無ければ `#333`） / `bold` / `#d2d2d2` |
+| `--grid-alt-bg` / `--grid-hover-bg` | 1 行おきの行の地、行（`.gridRowIcon`）に乗ったときの地 | `#eeeeee` / `#f5f5dc` |
+| `--color-pagination-text` / `--color-pagination-border` / `--pagination-bg` | ページ送りの文字の色・枠の色・地 | `--gray-900`（無ければ `#333`） / `--color-row-highlight`（無ければ `#D9E7C2`） / `none` |
+| `--color-pagination-disabled` | 押せないページ（`span`）の文字の色 | `--color-row-highlight`（無ければ `#D9E7C2`） |
+| `--color-pagination-active-text` / `--pagination-active-bg` / `--color-pagination-active-border` | 今のページと、乗ったときの文字の色・地・枠の色 | `--color-surface`（無ければ `#fff`） / `#7fa53d` / `#567959` |
+
+既定値は RevoClassic の値。
+
 ## 新しいテーマを作るとき
 
 1. `:root` に上の表の変数をすべて定義する
-2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
+2. 共通の CSS（`common/forms.css`・`common/theme-base.css`・`common/sections.css`・`common/tabs.css`・`common/tables.css`）にある規則は、テーマに書かない（値を変えたいときの上書きは除く）。共通の CSS はテーマより先に読まれる（`manager_theme_stylesheets()`）。`theme-base.css` の規則は層の外にあるので、テーマで上書きするときは同じか高い詳細度で書く
 3. 主ボタンの規則を、`--color-primary*` と `--color-text-inverse` だけで書く
 4. `grep -nE "color-primary|color-text-inverse" style.css` で、定義と主ボタンでの参照がそろっているか確かめる
 
