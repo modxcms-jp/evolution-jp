@@ -207,7 +207,6 @@ if (!$numRecords) {
     $table = new DataTable($columns, [
         'id' => 'children',
         'tableClass' => 'grid',
-        'rowClasses' => ['gridItem', 'gridAltItem'],
         'selection' => $canBatch ? [
             'name' => 'batch[]',
             'ids' => $allChildIds,

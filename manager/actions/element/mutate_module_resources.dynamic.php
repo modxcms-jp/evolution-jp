@@ -242,7 +242,6 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                     [
                         'id' => 'module-resources',
                         'tableClass' => 'grid',
-                        'rowClasses' => ['gridItem', 'gridAltItem'],
                         'emptyMessage' => lang('no_records_found'),
                     ]
                 );

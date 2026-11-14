@@ -205,7 +205,7 @@ final class DataTablePager
  * 行の配列と列の定義から表を描く。
  *
  * 列の定義: key, label, labelHtml, format, html, class, sort
- * options: id, tableClass, rowClasses, headerClass, caption, captionHtml,
+ * options: id, tableClass, headerClass, caption, captionHtml,
  *          emptyMessage, showHeader, rowAttributes, selection
  */
 final class DataTable
@@ -219,7 +219,6 @@ final class DataTable
         $this->options = $options + [
             'id' => '',
             'tableClass' => 'grid',
-            'rowClasses' => [],
             'headerClass' => '',
             'caption' => null,
             'captionHtml' => false,
@@ -338,12 +337,10 @@ final class DataTable
 
     private function renderRow(array $row, int $index): string
     {
-        $rowClasses = (array) $this->options['rowClasses'];
-        $class = $rowClasses ? [$rowClasses[$index % count($rowClasses)]] : [];
+        $class = [];
         $attr = '';
         if (is_callable($this->options['rowAttributes'])) {
             foreach ((array) call_user_func($this->options['rowAttributes'], $row) as $name => $value) {
-                // class は rowClasses の値と 1 つの属性にまとめる
                 if (strtolower((string) $name) === 'class') {
                     $class[] = (string) $value;
                     continue;
@@ -390,7 +387,7 @@ final class DataTable
  * $source: DB の結果、または区切り文字のテキスト（1 行のファイルのパスも可）
  * $settings のキー（無いキーは既定値）:
  *   columns, fields, types, delimiter, wrapper, encoding, detectHeader, pageSize, pagerLocation,
- *   header, footer, tableClass, itemClass, altItemClass, headerClass, pagerClass, emptyMessage
+ *   header, footer, tableClass, headerClass, pagerClass, emptyMessage
  * 見た目の指定（style・width・align・bgcolor・cellpadding・cellspacing）は受けない。
  */
 final class DataTableSettings
@@ -469,11 +466,8 @@ final class DataTableSettings
             $nav = $pager->render($links, ['class' => (string) ($settings['pagerClass'] ?? '') ?: 'pager']);
         }
 
-        $itemClass = (string) ($settings['itemClass'] ?? '');
-        $altItemClass = (string) ($settings['altItemClass'] ?? '');
         $options = [
             'id' => $id,
-            'rowClasses' => ($itemClass !== '' || $altItemClass !== '') ? [$itemClass, $altItemClass] : [],
             'headerClass' => (string) ($settings['headerClass'] ?? ''),
             'caption' => (string) ($settings['header'] ?? ''),
             'captionHtml' => true,

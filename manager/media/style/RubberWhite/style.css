@@ -858,19 +858,11 @@ ul {
     border-top-right-radius: var(--radius-lg);
 }
 
-.gridItem {
+.grid > tbody > tr {
     transition: background-color var(--transition-fast);
 }
 
-.gridItem:hover {
-    background-color: var(--color-gray-50);
-}
-
-.gridAltItem {
-    transition: background-color var(--transition-fast);
-}
-
-.gridAltItem:hover {
+.grid > tbody > tr:hover {
     background-color: var(--color-gray-50);
 }
 

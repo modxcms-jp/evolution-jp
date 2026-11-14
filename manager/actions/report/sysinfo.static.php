@@ -208,7 +208,6 @@ global $database_connection_method;
                         if (!db()->count($rs)) {
                             echo sprintf('<p>%s</p>', lang('no_edits_creates'));
                         } else {
-                            $i = 0;
                             $where = '';
                             while ($content = db()->getRow($rs)) {
                                 if ($where !== 'id=' . $content['editedby']) {
@@ -226,15 +225,13 @@ global $database_connection_method;
                                     }
                                 }
                                 echo sprintf(
-                                    '<tr bgcolor="%s"><td style="text-align:right;">%s</td><td><a href="index.php?a=3&id=%s">%s</a></td><td>%s</td><td>%s</td></tr>',
-                                    ($i % 2) ? '#EEEEEE' : '#FFFFFF',
+                                    '<tr><td style="text-align:right;">%s</td><td><a href="index.php?a=3&id=%s">%s</a></td><td>%s</td><td>%s</td></tr>',
                                     $content['id'],
                                     $content['id'],
                                     hsc($content['pagetitle']),
                                     hsc($user),
                                     evo()->toDateFormat($content['editedon'] + config('server_offset_time'))
                                 );
-                                $i++;
                             }
                         }
                         ?>
@@ -271,11 +268,12 @@ global $database_connection_method;
                             )
                         );
                         $limit = db()->count($rs);
+                        $total = 0;
+                        $totaloverhead = 0;
                         for ($i = 0; $i < $limit; $i++) {
                             $log_status = db()->getRow($rs);
-                            $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
                         ?>
-                            <tr bgcolor="<?= $bgcolor ?>" title="<?= $log_status['Comment'] ?>"
+                            <tr title="<?= $log_status['Comment'] ?>"
                                 style="cursor:default">
                                 <td><b class="table-name"><?= $log_status['Name'] ?></b></td>
                                 <td><?= $log_status['Engine'] ?></td>
@@ -302,11 +300,13 @@ global $database_connection_method;
                                     align="right"><?= evo()->nicesize($log_status['Index_length'] + $log_status['Data_length'] + $log_status['Data_free']) ?></td>
                             </tr>
                         <?php
-                            $total = $log_status['Index_length'] + $log_status['Data_length'];
-                            $totaloverhead = $log_status['Data_free'];
+                            $total += $log_status['Index_length'] + $log_status['Data_length'];
+                            $totaloverhead += $log_status['Data_free'];
                         }
                         ?>
-                        <tr bgcolor="#e0e0e0">
+                    </tbody>
+                    <tfoot>
+                        <tr>
                             <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir='ltr' align="right"
@@ -315,7 +315,7 @@ global $database_connection_method;
                             <td dir='ltr' align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
                 <?php
                 if ($totaloverhead > 0) { ?>

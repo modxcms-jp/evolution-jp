@@ -60,7 +60,7 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                         },
                     ],
                 ],
-                ['id' => 'schedule-publish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-publish']
             );
             echo $table->render($rows);
         }
@@ -104,7 +104,7 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                         },
                     ],
                 ],
-                ['id' => 'schedule-unpublish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-unpublish']
             );
             echo $table->render($rows);
         }
@@ -164,7 +164,7 @@ include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                         },
                     ],
                 ],
-                ['id' => 'schedule-draft', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-draft']
             );
             echo $table->render($rows);
             ?>
