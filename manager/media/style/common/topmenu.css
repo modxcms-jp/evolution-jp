@@ -1,5 +1,5 @@
 /*
- * 上のメニュー（menu.php の #Navcontainer・#nav・ul.subnav）。
+ * 上のメニュー（menu.php の #Navcontainer・#nav・ul.subnav）と、右上のユーザー情報（#topbar・#supplementalNav）。
  * 余白と項目・サブメニューの高さは全テーマ共通。細いメニューの RevoStyle だけ、高さの変数を小さくする。
  * 型（タブ・ピル・下線）の違いと色は、テーマが #topMenu か :root の --topnav-* で決める（theme-variables.md の「上のメニュー」）。
  * 一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、テーマの規則に書く。
@@ -128,5 +128,59 @@
         background: var(--topnav-sublink-hover-bg, #184753);
         color: var(--topnav-sublink-hover-color, var(--topnav-link-hover-color, #fff));
         font-weight: bold;
+    }
+
+    /* 右上のユーザー情報（menu.php の #topbar・#supplementalNav）。上のメニューの項目と同じ高さで、右端にそろえる */
+    #topbar {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        color: var(--color-text-primary, inherit);
+    }
+
+    #supplementalNav {
+        position: absolute;
+        top: var(--topnav-padding-top, 12px);
+        inset-inline-end: 16px;
+        z-index: 111;
+        display: flex;
+        align-items: center;
+        column-gap: 12px;
+        box-sizing: border-box;
+        height: var(--topnav-item-height, 32px);
+        margin: 0;
+        padding: 0 var(--supplemental-nav-padding-x, 18px);
+        border: 1px solid var(--supplemental-nav-border-color, transparent);
+        border-radius: 999px;
+        background: var(--supplemental-nav-bg, linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4)));
+        box-shadow: var(--supplemental-nav-shadow, none);
+        color: var(--supplemental-nav-color, var(--topnav-link-color, #e1f1f4));
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    #supplementalNav .supplementalNav__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    #supplementalNav .supplementalNav__version-label {
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+
+    #supplementalNav a:any-link {
+        margin: 0;
+        padding: 0;
+        color: var(--supplemental-nav-link-color, #aab1b9);
+        font-weight: var(--supplemental-nav-link-font-weight, bold);
+        text-decoration: none;
+        transition: color .15s ease;
+    }
+
+    #supplementalNav a:any-link:is(:hover, :focus-visible) {
+        color: var(--supplemental-nav-link-hover-color, #fff);
     }
 }

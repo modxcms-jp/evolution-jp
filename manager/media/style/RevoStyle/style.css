@@ -350,28 +350,6 @@ p.caption, p.comment {
     padding: 0 var(--space-12) var(--space-12);
 }
 
-/* ============================================================================
-   6. Layout Components (Sections, Containers, Topbar)
-   Used in: Page structure, section headers
-   ============================================================================ */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding: 0 var(--space-4);
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: #AAB1B9;
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: #fff;
-}
-
 #buildText,
 #workText {
     font-weight: bold;
@@ -390,25 +368,6 @@ p.caption, p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-#supplementalNav {
-    background: transparent none repeat scroll 0 0;
-    color: #89939e;
-    margin: 0;
-    position: absolute;
-    right: var(--space-7);
-    top: var(--space-7);
-    z-index: 111;
-}
-
-#supplementalNav * {
-    vertical-align: bottom;
-}
-
-#supplementalNav a {
-    padding: 0;
-    margin: 0;
 }
 
 textarea[readonly],
@@ -789,6 +748,10 @@ a.hometblink:hover {
     --topnav-sublink-radius: 0;
     --topnav-sublink-hover-bg: transparent;
     --topnav-sublink-pressed-color: #ccc;
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-padding-x: 0;
+    --supplemental-nav-bg: transparent;
+    --supplemental-nav-color: #89939e;
 }/* 選んでいる項目の立体の影と、文字の影 */
 #nav > li.active > a {
     box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) var(--space-1) rgba(0, 0, 0, .9);

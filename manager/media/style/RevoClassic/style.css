@@ -330,30 +330,6 @@ p.caption, p.comment {
     padding: 0 var(--space-5) var(--space-5);
 }
 
-/* ============================================================================
-   7. Navigation (Top Menu, Supplemental Nav)
-   Used in: Header navigation, top menu bar, supplemental links
-   ============================================================================ */
-
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding: 0 var(--space-1);
-    position: relative;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: #AAB1B9;
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: #fff;
-}
-
 #buildText,
 #workText {
     font-weight: bold;
@@ -372,55 +348,6 @@ p.caption, p.comment {
     right: 0;
     top: 36px;
     z-index: 1000;
-}
-
-#supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
-    border-radius: var(--radius-pill);
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: var(--space-1) 0 0 0;
-    padding: 0 var(--space-5);
-    position: absolute;
-    right: var(--subnav-horizontal-padding);
-    top: var(--space-2);
-    z-index: 111;
-}
-
-#supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: var(--space-2);
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-left: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
 }
 
 textarea[readonly],
