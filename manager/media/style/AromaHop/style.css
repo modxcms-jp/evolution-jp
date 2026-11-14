@@ -35,7 +35,7 @@
     --font-size-base: 12px;
 
     /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
-    --page-padding-x: 8px;
+    --page-padding-x: 16px;
 
     /* Gray Scale - Core neutral colors (モヒートパレット準拠)
        Base: #FDFDFB(氷白), #FAFFF4(極淡ライム), #DFF5D7, #CBEEC5, #B6E7B3
@@ -331,6 +331,10 @@
     --thead-bg: linear-gradient(180deg, rgba(234, 252, 207, 0.6) 0%, rgba(223, 245, 215, 0.5) 100%);
     --thead-td-border-color: rgba(255, 255, 255, 0.4);
     --page-bg: linear-gradient(180deg, #DFF5D7 0%, #E5F7DE 10%, #EBF9E5 20%, #F2FBEF 35%, #F7FCF5 50%, #FBFDFB 70%, #FDFDFB 85%, #ffffff 100%);
+
+    /* ダッシュボード（common/theme-base.css） */
+    --dashboard-link-color: var(--color-text-dark);
+    --dashboard-link-hover-color: var(--color-primary);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -815,18 +819,6 @@ html body.evo-shell .tree-toolbar {
     padding: var(--space-2);
 }
 
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: none;
-    color: var(--color-text-dark);
-    font-weight: 600;
-}
-
-a.hometblink:hover {
-    text-decoration: none;
-    color: var(--color-primary);
-}
-
 .preLoaderText {
     background-color: var(--color-surface);
     border-radius: var(--radius-xl);
@@ -985,37 +977,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-
-.wm_button {
-    float: left;
-    margin: 0;
-    text-align: center;
-    padding: var(--space-4) var(--space-5);
-    border-radius: var(--radius-lg);
-    transition: all var(--transition-fast);
-    min-width: 100px;
-}
-
-.wm_button:hover {
-    background: rgba(220, 245, 235, 0.6);
-    transform: translateY(-1px);
-}
-
-.wm_button img {
-    display: block;
-    margin: 0 auto var(--space-2);
-    opacity: 0.85;
-    transition: opacity var(--transition-fast);
-}
-
-.wm_button:hover img {
-    opacity: 1;
-}
-
-/* Clear fix for floating buttons */
-.wm_button + br {
-    display: none;
-}
 
 .pagination li a,
 .pagination li span {

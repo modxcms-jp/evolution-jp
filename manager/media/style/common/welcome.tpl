@@ -19,25 +19,25 @@
                         </td>
                         <td valign="top">
                             [+OnManagerWelcomeHome+]
-                            <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
+                            <div class="wm_buttons">
                                 [+iconNewDoc+]
                                 [+iconResources+]
                                 [+iconSearch+]
                                 [+iconHelp+]
                             </div>
-                            <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
+                            <div class="wm_buttons">
                                 [+iconElements+]
                                 [+iconFileManager+]
                                 [+UserManagerIcon+]
                                 [+WebUserManagerIcon+]
                             </div>
-                            <div>
+                            <div class="wm_buttons">
                                 [+iconSettings+]
                                 [+BackupIcon+]
                                 [+iconEventLog+]
                                 [+iconSysInfo+]
                             </div>
-                            <br style="clear:both"/><!--+Modules+--><br style="clear:both"/>
+                            <!--+Modules+-->
                         </td>
                     </tr>
                 </table>

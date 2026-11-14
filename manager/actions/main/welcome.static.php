@@ -236,8 +236,8 @@ function get_icon($title, $action, $icon_path, $alt = '')
     if (preg_match('@^[1-9][0-9]*$@', $action)) {
         $action = (int)$action === 2 ? './' : 'index.php?a=' . $action;
     }
-    $icon = '<a class="hometblink" href="' . $action . '" alt="' . $alt . '"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
-    return '<span class="wm_button" style="border:0">' . $icon . '</span>';
+    $icon = '<a class="hometblink" href="' . $action . '" alt="' . $alt . '"><img src="' . $icon_path . '" />' . $title . "</a>\n";
+    return '<span class="wm_button">' . $icon . '</span>';
 }
 
 function welcomeTpl($tpl)

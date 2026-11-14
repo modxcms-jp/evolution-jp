@@ -274,5 +274,5 @@ function icontpl()
 {
     global $style_images_path;
 
-    return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="' . $style_images_path . '[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
+    return '<span class="wm_button"><a class="hometblink" href="[+action+]"><img src="' . $style_images_path . '[+imgsrc+]" />[+title+]</a></span>' . "\n";
 }

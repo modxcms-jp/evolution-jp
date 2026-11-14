@@ -444,18 +444,6 @@ li::marker {
     background-color: #DBDBDB;
 }
 
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: underline;
-    color: var(--gray-900);
-    font-weight: bold;
-}
-
-a.hometblink:hover {
-    text-decoration: underline;
-    color: Gray;
-}
-
 .preLoaderText {
     background-color: var(--color-surface);
     border-radius: var(--radius-xl);
@@ -613,12 +601,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-
-.wm_button {
-    float: left;
-    margin: 0 var(--space-3) 2px 0;
-    text-align: center;
-}
 
 .pagination li a,
 .pagination li span {

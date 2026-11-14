@@ -272,6 +272,9 @@
     --hr-color: #777;
     --thead-color: #333;
     --thead-bg: #E4E4E4;
+
+    /* ダッシュボード（common/theme-base.css） */
+    --dashboard-link-color: #333;
 }
 
 body#mainpane {
@@ -388,18 +391,6 @@ input[type="button"] {
     width: 100%;
     border: 1px solid silver;
     background-color: #DBDBDB;
-}
-
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: underline;
-    color: #333;
-    font-weight: bold;
-}
-
-a.hometblink:hover {
-    text-decoration: underline;
-    color: Gray;
 }
 
 .preLoaderText {
@@ -520,12 +511,6 @@ a.hometblink:hover {
 }
 
 /* -------------------------[ Welcome Page ]--- */
-
-.wm_button {
-    float: left;
-    margin: 0 12px 2px 0;
-    text-align: center;
-}
 
 .rtl .wm_button {
     float: right;
