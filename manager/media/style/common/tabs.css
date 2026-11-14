@@ -34,4 +34,14 @@
         clear: both;
         padding: var(--tab-page-padding, 16px 16px 20px);
     }
+
+    /* タブの中のリスト。ボタン列（action-buttons.css の ul.actionButtons）は、同じ詳細度で後から読む規則が余白を 0 にする */
+    .dynamic-tab-pane-control ul {
+        padding-inline: 10px;
+        padding-bottom: 5px;
+    }
+
+    .dynamic-tab-pane-control li {
+        padding-inline: 5px;
+    }
 }

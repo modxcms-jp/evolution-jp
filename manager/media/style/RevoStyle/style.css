@@ -1162,17 +1162,6 @@ a.hometblink:hover {
     white-space: nowrap;
 }
 
-.dynamic-tab-pane-control ul {
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
-}
-
-.dynamic-tab-pane-control li {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: block;
@@ -1266,23 +1255,12 @@ select#stay {
 
 ul.actionButtons {
     margin: 0;
-    padding: 0;
     /* accommodate border on buttons - */
-    background: none;
-    width: auto;
-    white-space: nowrap;
     padding-bottom: 10px;
 }
 
 #actions .actionButtons {
     padding-bottom: 0;
-}
-
-.actionButtons li {
-    list-style: none;
-    margin-right: 6px;
-    padding: 0;
-    float: left;
 }
 
 .actionButtons a {
@@ -1321,11 +1299,6 @@ ul.actionButtons {
 
 .actionButtons .opendraft a {
     background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
-}
-
-.actionButtons select, .actionButtons span.and {
-    display: block;
-    float: left;
 }
 
 .actionButtons .and {

@@ -1110,15 +1110,6 @@ a.hometblink:hover {
     flex-wrap: wrap;
 }
 
-.dynamic-tab-pane-control ul {
-    padding-inline: 10px;
-    padding-bottom: 5px;
-}
-
-.dynamic-tab-pane-control li {
-    padding-inline: 5px;
-}
-
 /* -------------------------[ Tree buttons ]--- */
 .treeButton {
     display: block;
@@ -1209,15 +1200,6 @@ h2#edit_document_title {
     margin-bottom: var(--space-3);
 }
 
-ul.actionButtons {
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    /* accommodate border on buttons - */
-    background: none;
-    width: auto;
-    white-space: nowrap;
-}
-
 /* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
 #actions .actionButtons {
     margin-bottom: 0;
@@ -1280,13 +1262,6 @@ form > :has(+ .resources-batch-actions),
     margin-top: var(--space-3);
 }
 
-.actionButtons li {
-    list-style: none;
-    margin-inline-end: 6px;
-    padding: 0;
-    float: inline-start;
-}
-
 .actionButtons :is(a, button) {
     float: inline-start;
 }
@@ -1303,11 +1278,6 @@ form > :has(+ .resources-batch-actions),
 .actionButtons .opendraft a {
     background-color: var(--color-draft-start);
     border-color: var(--color-draft-end);
-}
-
-.actionButtons select, .actionButtons span.and {
-    display: block;
-    float: inline-start;
 }
 
 .actionButtons .and {

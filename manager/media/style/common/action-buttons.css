@@ -1,0 +1,26 @@
+/*
+ * ボタン列（ul.actionButtons）の並びの共通の決まり。ボタンそのものの見た目は forms.css、帯（#actions）の地・枠・余白はテーマが決める。
+ * 値の違うテーマは、同じセレクタの規則をテーマに書いて上書きする（層の外なので必ず勝つ）。
+ */
+@layer evo-components {
+    ul.actionButtons {
+        margin: 0 0 12px;
+        padding: 0;
+        background: none;
+        width: auto;
+        white-space: nowrap;
+    }
+
+    .actionButtons li {
+        list-style: none;
+        padding: 0;
+        float: inline-start;
+        margin-inline-end: 6px;
+    }
+
+    .actionButtons select,
+    .actionButtons span.and {
+        display: block;
+        float: inline-start;
+    }
+}
