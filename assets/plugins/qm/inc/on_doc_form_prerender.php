@@ -79,7 +79,7 @@ $doc_id = request_intvar('id') ?: request_intvar('pid');
 // HTML は PHP で組み（文言は hsc()、onclick の中の URL は js_literal() してから hsc()）、全体を js_literal() で JS に渡す。
 // makeUrl() は設定（xhtml_urls）で & を &amp; にして返すので、JS の値にする前に元へ戻す
 $cancelUrl = html_entity_decode(evo()->makeUrl($doc_id, '', '', 'full'), ENT_QUOTES | ENT_HTML401, 'UTF-8');
-$controls = '<div style="padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000" id="qmcontrols" class="actionButtons"><ul>'
+$controls = '<div style="padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000" id="qmcontrols"><ul class="actionButtons">'
     . '<li class="primary"><a href="#" onclick="documentDirty=false;gotosave=true;document.mutate.save.click();return false;">' . hsc(lang('save')) . '</a></li>'
     . '<li><a href="#" id="cancel" onclick="parent.location.href=' . hsc(js_literal($cancelUrl)) . ';return false;">' . hsc(lang('cancel')) . '</a></li>'
     . '</ul></div>';
