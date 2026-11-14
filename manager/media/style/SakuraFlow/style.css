@@ -330,6 +330,11 @@
     --searchbar-bg: linear-gradient(135deg, var(--pink-50) 0%, var(--lavender-50) 100%);
     --searchbar-radius: var(--radius-md);
     --split-display: none;
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-color: var(--color-text-dark);
+    --tree-button-radius: var(--radius-sm);
+    --tree-button-hover-border-color: transparent;
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -772,34 +777,6 @@ html body.evo-shell .tree-toolbar {
    11. Tabs System - Dynamic Tab Pane Control
    Used in: Document editor, settings pages, multi-tab interfaces
    ============================================================================ */
-
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    color: var(--color-text-dark);
-    border: none;
-    padding: 4px 6px;
-    white-space: nowrap;
-    border-radius: var(--radius-sm);
-    transition: background var(--transition-fast);
-}
-
-.treeButton:hover {
-    background: rgba(255, 235, 245, 0.8);
-    padding: 2px var(--space-1);
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid #657587;
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    border-width: 0;
-    opacity: .5;
-}
 
 /* -------------------------[ Welcome Page ]--- */
 
