@@ -279,6 +279,19 @@
     --context-menu-item-hover-border-color: transparent;
     --context-menu-item-disabled-color: var(--color-text-muted);
     --context-menu-separator: var(--color-context-menu-separator);
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    --tree-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
+    --tree-node-color: var(--color-gray-950);
+    --tree-node-hover-bg: var(--color-surface);
+    --tree-node-hover-border-color: var(--color-border-default);
+    --tree-published-color: var(--color-tree-published);
+    --tree-unpublished-color: var(--color-tree-unpublished);
+    --tree-deleted-color: var(--color-tree-deleted);
+    --tree-empty-color: var(--color-text-muted);
+    --tree-not-in-menu-color: var(--color-text-tertiary);
+    --tree-floater-border-color: var(--color-border-default);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -603,64 +616,6 @@ thead td {
    8. Tree Components (Site Tree)
    Used in: Resource tree, folder navigation, context menus
    ============================================================================ */
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: 6px 8px 0;
-    padding-inline-start: 12px;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: 5px;
-    top: 25px;
-    inset-inline-start: 4px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    z-index: 500;
-}
-
-.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
-    color: var(--color-gray-950);
-    cursor: pointer;
-    width: auto;
-    margin-inline-end: 0;
-}
-
-.treeNodeSelected,
-.treeNode:hover {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    color: var(--color-gray-950);
-}
-
-.unpublished a, .unpublishedNode {
-    color: var(--color-tree-unpublished);
-}
-
-.deletedNode {
-    color: var(--color-tree-deleted);
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: var(--color-tree-published);
-}
-
-.emptyNode {
-    color: var(--color-text-muted);
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: var(--color-text-tertiary);
-    text-decoration: none;
-}
 
 .protectedNode {
     color: var(--color-tree-protected);
@@ -1221,13 +1176,6 @@ body#mainpane {
 
 /* -------------------------[ Tree Pane - Light Background ]--- */
 
-/* ツリーペイン全体の背景 */
-div.treeframebody {
-    background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%) !important;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
-    padding: var(--space-2);
-}
-
 /* ツリーメニューのツールバー */
 #treeMenu {
     background: transparent;
@@ -1244,10 +1192,5 @@ div.treeframebody {
 .treeButton:hover {
     background: var(--light-bg-secondary);
     border-color: var(--light-border);
-}
-
-/* ツリーホルダー */
-#treeHolder {
-    background: transparent;
 }
 

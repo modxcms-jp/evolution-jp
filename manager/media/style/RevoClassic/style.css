@@ -204,6 +204,18 @@
     --page-title-radius: var(--radius-md);
     --page-title-padding: var(--space-2);
     --page-title-draft-bg: var(--color-draft-bg);
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: var(--color-tree-bg) url(../common/images/misc/subnav.png);
+    --tree-shadow: var(--shadow-inset);
+    --tree-node-hover-bg: var(--color-tree-selected);
+    --tree-node-hover-border-color: var(--color-tree-border);
+    --tree-published-color: var(--color-tree-published);
+    --tree-unpublished-color: var(--color-tree-unpublished);
+    --tree-deleted-color: var(--color-tree-deleted);
+    --tree-empty-color: var(--color-tree-empty);
+    --tree-not-in-menu-color: var(--color-tree-not-in-menu);
+    --tree-floater-border-color: var(--color-tree-border);
 }
 
 /* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
@@ -513,70 +525,6 @@ thead td {
     border-top: var(--border-thin) solid #808080;
     text-align: left;
     vertical-align: baseline;
-}
-
-div.treeframebody {
-    background: var(--color-tree-bg) url(../common/images/misc/subnav.png) !important;
-    box-shadow: var(--shadow-inset);
-    padding: var(--space-2);
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: var(--space-2) var(--space-2) 0;
-    padding-left: var(--space-3);
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: var(--space-1);
-    top: 25px;
-    left: var(--space-1);
-    background: var(--color-surface);
-    border: var(--border-thin) solid var(--color-tree-border);
-    z-index: 500;
-}
-
-.rootNode, .treeNode, .treeNodeSelected, .emptyNode {
-    color: #000;
-    cursor: pointer;
-    width: auto;
-    margin-right: 0;
-}
-
-.treeNodeSelected,
-.treeNode:hover {
-    background-color: var(--color-tree-selected);
-    border: var(--border-thin) solid var(--color-tree-border);
-    color: #000;
-}
-
-.unpublished a, .unpublishedNode {
-    color: var(--color-tree-unpublished);
-}
-
-.deletedNode {
-    color: var(--color-tree-deleted);
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: var(--color-tree-published);
-}
-
-.emptyNode {
-    color: var(--color-tree-empty);
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: var(--color-tree-not-in-menu);
-    text-decoration: none;
 }
 
 .protectedNode {
