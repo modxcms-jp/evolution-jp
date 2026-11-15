@@ -29,7 +29,7 @@ class BrowserView
         'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
         'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',
         'fb_download', 'fb_download_preparing', 'fb_download_failed',
-        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed', 'fb_edit_summary',
+        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed', 'fb_edit_summary', 'fb_edit_resize_hint', 'fb_edit_resize_limit',
         'fb_err_too_large', 'fb_confirm_overwrite', 'fb_discard_confirm',
         // 管理モードだけが使う(js/manage.js・js/textEditor.js)
         'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
@@ -229,7 +229,7 @@ class BrowserView
         $html .= '            </div>';
         $html .= '            <label class="evo-fb-edit-check"><input type="checkbox" data-role="edit-keep-ratio" checked> ' . hsc(lang('fb_edit_keep_ratio')) . '</label>';
         $html .= '            <div class="evo-fb-edit-summary" data-role="edit-summary"></div>';
-        $html .= '            <div class="evo-fb-edit-note">' . hsc(sprintf(lang('fb_edit_resize_hint'), BrowserConfig::EDIT_MAX_DIMENSION)) . '</div>';
+        $html .= '            <div class="evo-fb-edit-note" data-role="edit-resize-hint"></div>';
         $html .= '          </div>';
 
         return $html;

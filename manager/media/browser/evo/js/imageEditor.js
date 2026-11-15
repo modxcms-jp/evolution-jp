@@ -110,6 +110,7 @@ export function createImageEditor(ctx) {
     var statusEl = el('edit-status');
     var errorEl = el('edit-error');
     var summaryEl = el('edit-summary');
+    var resizeHintEl = el('edit-resize-hint');
     var cancelBtn = el('edit-cancel');
     var saveBtn = el('edit-save');
     var keepRatioEl = el('edit-keep-ratio');
@@ -342,6 +343,8 @@ export function createImageEditor(ctx) {
         outInputs.h.max = Math.min(c.h, maxDimension);
         // 保存の大きさは欄に出ているので、ここはリサイズする前の大きさ(トリミングの範囲)だけを出す
         summaryEl.textContent = t('fb_edit_summary', c.w, c.h);
+        // 長い辺の上限は、元の大きさがそれを超えるときだけ知らせる(超えなければ、拡大できないことだけ)
+        resizeHintEl.textContent = Math.max(c.w, c.h) > maxDimension ? t('fb_edit_resize_limit', maxDimension) : t('fb_edit_resize_hint');
         var shown = ratioShown();
         ratioBtns.forEach(function (btn) {
             var pair = RATIOS[btn.dataset.ratio];
@@ -755,6 +758,7 @@ export function createImageEditor(ctx) {
         cropEl.hidden = true;
         holeEl.hidden = true;
         summaryEl.textContent = '';
+        resizeHintEl.textContent = '';
     }
 
     // 後始末は openOverlay() の onClose で行う(管理画面のモーダルが閉じられたときなど、ここを通らずに閉じることもあるため)
