@@ -129,7 +129,8 @@
 
 | 変数 | 意味 | 既定値（topmenu.css） |
 | --- | --- | --- |
-| `--topnav-item-height` / `--subnav-height` / `--topnav-padding-top` | 項目の高さ・サブメニューの項目の高さ・上の余白。細いメニューの RevoStyle だけが小さくする | `32px` / `32px` / `12px` |
+| `--topnav-item-height` / `--subnav-height` / `--topnav-padding-top` | 項目の高さ・サブメニューの項目の高さ・上の余白。細いメニューの RevoStyle だけが小さくする | `32px` / `26px` / `12px` |
+| `--topnav-subnav-padding-y` | サブメニューの帯の上下の余白（選んでいる項目の地と帯の端との間）。下線の型（AromaHop・SakuraFlow）は、下線を帯の下端に置くため `--subnav-height: 32px` とこれを `3px` にする。RevoStyle も `3px` | `6px` |
 | `--topnav-link-color` / `--topnav-item-color` | メニューの文字の色・項目の文字の色 | `#e1f1f4` / `--topnav-link-color` |
 | `--topnav-item-radius` / `--topnav-item-font-weight` / `--topnav-underline-width` | 項目の角・文字の太さ・下の枠の太さ（サブメニューの項目にも使う。既定ではサブメニューの項目は下の枠を持たない） | `6px 6px 0 0` / `normal` / `1px` |
 | `--topnav-item-border-width` / `--topnav-subnav-overlap` | 項目の上と左右の枠の太さ・サブメニューの帯を項目に重ねる幅。下線の型は、どちらも 0 にする（下線の端を四角にし、帯の上の枠に重ねない） | `1px` / `1px` |

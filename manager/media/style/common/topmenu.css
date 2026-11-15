@@ -1,6 +1,6 @@
 /*
  * 上のメニュー（menu.php の #Navcontainer・#nav・ul.subnav）と、右上のユーザー情報（#topbar・#supplementalNav）。
- * 余白と項目・サブメニューの高さは全テーマ共通。細いメニューの RevoStyle だけ、高さの変数を小さくする。
+ * 余白と項目・サブメニューの高さは全テーマ共通。細いメニューの RevoStyle と、下線を帯の下端に置く下線の型のテーマは、高さの変数を変える。
  * 型（タブ・ピル・下線）の違いと色は、テーマが #topMenu か :root の --topnav-* で決める（theme-variables.md の「上のメニュー」）。
  * 一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、テーマの規則に書く。
  * 既定値は RevoClassic の値。
@@ -9,7 +9,7 @@
     #Navcontainer {
         position: relative;
         /* 段の高さは、menu.php の fitMenuHeight() がサブメニューの帯の下端に合わせる */
-        padding: var(--topnav-padding-top, 12px) 16px calc(var(--subnav-height, 32px) + 8px);
+        padding: var(--topnav-padding-top, 12px) 16px calc(var(--subnav-height, 26px) + 2 * var(--topnav-subnav-padding-y, 6px) + 2px);
         color: var(--topnav-link-color, #e1f1f4);
         text-shadow: none;
     }
@@ -77,7 +77,7 @@
         align-items: center;
         gap: 0 4px;
         margin: 0;
-        padding: 3px 16px;
+        padding: var(--topnav-subnav-padding-y, 6px) 16px;
         border-block: 1px solid;
         border-block-color: var(--topnav-subnav-border-color, var(--topnav-border, #10475a));
         background: var(--topnav-subnav-bg, var(--topnav-link-active-bg, #1b2e37));
@@ -99,7 +99,7 @@
         display: flex;
         align-items: center;
         box-sizing: border-box;
-        height: var(--subnav-height, 32px);
+        height: var(--subnav-height, 26px);
         padding: 0 16px;
         border-bottom: var(--topnav-underline-width, 0) solid transparent;
         border-radius: var(--topnav-sublink-radius, 999px);
