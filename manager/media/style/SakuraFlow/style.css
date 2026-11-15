@@ -335,17 +335,6 @@
     --tree-button-hover-border-color: transparent;
 }
 
-/* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
-@layer evo-base {
-    h2 {
-        font-size: 1.4em;
-        font-weight: 600;
-        color: #5a4055;
-        margin: 0 0 var(--space-4);
-        padding: 0;
-    }
-}
-
 /* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、
    水玉をビューポート基準(fixed)で一枚に描き、半透明のナビやツリーから透かして見せる */
 body#mainpane {
