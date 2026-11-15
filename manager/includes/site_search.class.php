@@ -81,7 +81,10 @@ class SiteSearch
      */
     public function sortColumns(): array
     {
-        return $this->scope === 'resources' ? ['id' => 'id', 'pagetitle' => 'pagetitle'] : ['pagetitle' => 'title'];
+        // 更新日時はリソースにしか無い（エレメントのテーブルには無い）ので、リソースだけを探すときに並べ替えられる
+        return $this->scope === 'resources'
+            ? ['id' => 'id', 'pagetitle' => 'pagetitle', 'editedon' => 'editedon']
+            : ['pagetitle' => 'title'];
     }
 
     /** ID・URL から引けなかったときの理由（言語のキー）。リソースだけを探すときにだけ返す */
@@ -208,7 +211,7 @@ class SiteSearch
     private function resourceFields(): string
     {
         return 'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, '
-            . $this->canViewColumn . ' AS can_view, deleted, published, isfolder, type';
+            . $this->canViewColumn . ' AS can_view, deleted, published, isfolder, type, createdon, editedon';
     }
 
     /** @param int[] $ids */

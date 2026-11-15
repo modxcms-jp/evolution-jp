@@ -804,6 +804,7 @@ body.evo-shell input.evo-submitting-trigger {
 .search-hit-url { margin-top: var(--space-1, 4px); font-size: 0.85em; color: var(--color-success, #2f7d32); word-break: break-all; }
 .search-hit-url img { vertical-align: -3px; }
 .search-hit-snippet { margin-top: var(--space-1, 4px); color: var(--color-text-muted, #606060); line-height: 1.5; }
+.search-hit-created { margin-top: var(--space-1, 4px); font-size: 0.85em; color: var(--color-text-muted, #606060); }
 /* エレメントの本文で当たった行（コード） */
 .search-hit-code { margin-top: var(--space-1, 4px); font-family: monospace; font-size: 0.9em; white-space: pre-wrap; word-break: break-all; }
 .search-hit-line { color: var(--color-text-muted, #606060); margin-right: var(--space-2, 8px); }

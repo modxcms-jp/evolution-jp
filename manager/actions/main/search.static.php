@@ -664,6 +664,29 @@ if ($submitted) {
                                 return '<div class="search-hit">' . $wrapNode($title, $row) . $meta . $body . '</div>';
                             },
                         ],
+                        [
+                            // 同じようなタイトルが並んだとき、古さで見分けられるように。作成日時はその下に小さく添える。
+                            // エレメントのテーブルには日時が無いので空にする
+                            'key' => 'editedon',
+                            'label' => lang('editedon'),
+                            'sort' => isset($search->sortColumns()['editedon']) ? 'editedon' : null,
+                            'class' => 'is-shrink',
+                            'html' => true,
+                            'format' => static function ($value, array $row) {
+                                if ($row['kind'] !== 'resource') {
+                                    return '';
+                                }
+                                $html = sprintf('<span class="nowrap">%s</span>', hsc(evo()->toDateFormat($row['editedon'])));
+                                if ((int) $row['createdon'] > 0) {
+                                    $html .= sprintf(
+                                        '<div class="search-hit-created nowrap">%s %s</div>',
+                                        hsc(lang('createdon')),
+                                        hsc(evo()->toDateFormat($row['createdon'], 'dateOnly'))
+                                    );
+                                }
+                                return $html;
+                            },
+                        ],
                     ]),
                     ['id' => 'search-results']
                 );
