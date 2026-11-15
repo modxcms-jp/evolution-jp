@@ -130,10 +130,14 @@ export function createImageEditor(ctx) {
     var rot = 0;
     // トリミングの範囲 { x, y, w, h }(回転後の画像の画素)。最初は画像全体
     var crop = null;
-    // 縦横比のボタンで合わせた比率。ratioKey は RATIOS のキー(null は合わせていない)、ratioPortrait は縦長に向けているか(3:4 など)。
-    // 縦横比は固定せず、範囲がこの比率から外れたら解除する(reconcileRatio())。ボタンの表示はこの状態だけを映す
+    // 縦横比のボタンで選んだ比率。ratioKey は RATIOS のキー(null は選んでいない)、ratioPortrait は縦長に向けているか(3:4 など)。
+    // 縦横比は固定しない。ボタンを選択中と表示するのは、範囲が実際にこの比率のときだけ(ratioShown())。
+    // 選んだ比率を手放すのは、範囲がこの比率から外れて操作を終えたとき(reconcileRatio())。ドラッグの途中で外れても、戻れば表示も戻る
     var ratioKey = null;
     var ratioPortrait = false;
+    // 範囲内のダブルクリックで画像全体にしたときの、元の範囲と縦横比の選択。もう一度ダブルクリックすると戻す。
+    // 範囲を別に変えたときと回転したときは手放す(往復は、途中で別の編集をしない間だけ)
+    var restore = null;
     // リサイズの指定 { w, h }。null は「トリミングの範囲を、長い辺の上限に収めた大きさ」。
     // outKey は最後に入力した辺。縦横比を保つときは、範囲が変わってもこの辺の値を保ち、もう一方を範囲の比率で決める
     var outSize = null;
@@ -173,6 +177,12 @@ export function createImageEditor(ctx) {
             return null;
         }
         return ratioPortrait ? pair[1] / pair[0] : pair[0] / pair[1];
+    }
+
+    // 範囲が、選んだ比率になっているか(画素の丸めの差は同じとみなす)
+    function ratioShown() {
+        var ratio = activeRatio();
+        return !!ratio && matchesRatio(crop, ratio);
     }
 
     // 表示の 1 画素あたりの、画像の画素の数
@@ -319,9 +329,10 @@ export function createImageEditor(ctx) {
         outInputs.w.max = Math.min(c.w, maxDimension);
         outInputs.h.max = Math.min(c.h, maxDimension);
         summaryEl.textContent = t('fb_edit_summary', c.w, c.h, o.w, o.h);
+        var shown = ratioShown();
         ratioBtns.forEach(function (btn) {
             var pair = RATIOS[btn.dataset.ratio];
-            var active = btn.dataset.ratio === ratioKey;
+            var active = shown && btn.dataset.ratio === ratioKey;
             // 縦向きで合わせているボタンは「3:4」のように表示する(押すたびに 4:3 と 3:4 が入れ替わる)
             btn.textContent = active && ratioPortrait ? pair[1] + ':' + pair[0] : pair[0] + ':' + pair[1];
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
@@ -329,17 +340,40 @@ export function createImageEditor(ctx) {
         showCrop();
     }
 
-    // 範囲が、合わせた縦横比から外れたら、ボタンの選択を解除する(画素の丸めの差では外さない)
+    // 範囲が選んだ比率から外れたら、選んだ比率を手放す。ドラッグの途中は手放さず、ドラッグを終えたとき(endDrag())に決める
     function reconcileRatio() {
-        var ratio = activeRatio();
-        if (ratio && !matchesRatio(crop, ratio)) {
+        if (!drag && ratioKey && !ratioShown()) {
             ratioKey = null;
         }
     }
 
     function setCrop(next, ratio) {
+        var prev = crop;
         crop = normalizeRect(next, ratio, bounds());
+        if (restore && (crop.x !== prev.x || crop.y !== prev.y || crop.w !== prev.w || crop.h !== prev.h)) {
+            restore = null;
+        }
         reconcileRatio();
+        updateControls();
+    }
+
+    // 範囲内のダブルクリック: 画像全体と、その前の範囲とを切り替える。回転と保存の大きさの指定は変えない
+    // (保存の大きさは resolveOut() が新しい範囲に収める)
+    function toggleWhole() {
+        if (!img || busy) {
+            return;
+        }
+        if (restore) {
+            crop = restore.crop;
+            ratioKey = restore.ratioKey;
+            ratioPortrait = restore.ratioPortrait;
+            restore = null;
+        } else {
+            restore = { crop: crop, ratioKey: ratioKey, ratioPortrait: ratioPortrait };
+            crop = wholeRect(bounds());
+            // 画像全体が選んだ比率でなければ選択の表示は消えるが、選んだ比率は戻すときのために restore に持っている
+            ratioKey = ratioShown() ? ratioKey : null;
+        }
         updateControls();
     }
 
@@ -371,6 +405,7 @@ export function createImageEditor(ctx) {
         rot = (rot + direction + 4) % 4;
         // 範囲は縦横が入れ替わるので、合わせた比率も向きを入れ替える(4:3 は 3:4 になる)
         ratioPortrait = !ratioPortrait;
+        restore = null;
         reconcileRatio();
         if (outSize) {
             outSize = { w: outSize.h, h: outSize.w };
@@ -426,8 +461,10 @@ export function createImageEditor(ctx) {
 
     // --- トリミングの枠のドラッグ ---
     // つまみ: その辺・角だけを動かす / 枠の内側: 位置を動かす / 枠の外: 押した点から描き直す。
-    // 縦横比は固定しない。Shift を押している間だけ、ドラッグを始めたときの範囲の縦横比を保つ。
-    // 毎回ドラッグを始めたときの範囲から計算し直すので、途中で Shift を押しても離しても、範囲が飛んだり崩れたりしない
+    // 縦横比は固定しない。Shift を押している間だけ、ドラッグを始めたときの範囲の縦横比を保つ
+    // (ボタンの比率になっているときは、丸めた範囲から割り出さず、その比率そのものを使う)。
+    // 毎回ドラッグを始めたときの範囲から計算し直すので、途中で Shift を押しても離しても、範囲が飛んだり崩れたりしない。
+    // 押してから CLICK_SLOP だけ動くまでは何もしない(クリックやダブルクリックで範囲が動かないように)
 
     function onPointerDown(e) {
         if (!img || busy || drag || e.button !== 0) {
@@ -436,9 +473,11 @@ export function createImageEditor(ctx) {
         e.preventDefault();
         var handleEl = e.target.closest('[data-handle]');
         var mode = handleEl ? handleEl.dataset.handle : (cropEl.contains(e.target) ? 'move' : 'draw');
+        lastDownMode = mode;
         drag = {
             id: e.pointerId,
             mode: mode,
+            ratio: ratioShown() ? activeRatio() : crop.w / crop.h,
             start: toImagePoint(e, mode === 'draw'),
             rect: Object.assign({}, crop),
             x: e.clientX,
@@ -457,7 +496,7 @@ export function createImageEditor(ctx) {
         if (!drag || e.pointerId !== drag.id) {
             return;
         }
-        if (!drag.moved && drag.mode === 'draw' && Math.abs(e.clientX - drag.x) < CLICK_SLOP && Math.abs(e.clientY - drag.y) < CLICK_SLOP) {
+        if (!drag.moved && Math.abs(e.clientX - drag.x) < CLICK_SLOP && Math.abs(e.clientY - drag.y) < CLICK_SLOP) {
             return;
         }
         drag.moved = true;
@@ -472,14 +511,31 @@ export function createImageEditor(ctx) {
             return;
         }
         drag.shift = e.shiftKey;
-        if (drag.moved) {
-            applyDrag();
+        if (!drag.moved) {
+            return;
         }
+        if (drag.shift) {
+            // 押したときは、ドラッグを始めたときの比率にその場で揃える(向かいの角・辺は動かない)
+            applyDrag();
+        } else {
+            // 離したときは範囲を動かさず、今の範囲と位置から自由な変形を続ける(離した瞬間に形が飛ばないように)
+            rebaseDrag();
+        }
+    }
+
+    // 今の範囲とポインターの位置を、ドラッグの起点にし直す。枠の外からの描き直しは、ポインターの向きの角のつまみとして続ける
+    function rebaseDrag() {
+        if (drag.mode === 'draw') {
+            var p = toImagePoint(drag.last, true);
+            drag.mode = (p.y < drag.start.y ? 'n' : 's') + (p.x < drag.start.x ? 'w' : 'e');
+        }
+        drag.rect = Object.assign({}, crop);
+        drag.start = toImagePoint(drag.last, false);
     }
 
     function applyDrag() {
         var b = bounds();
-        var ratio = drag.shift ? drag.rect.w / drag.rect.h : null;
+        var ratio = drag.shift ? drag.ratio : null;
         var min = minCropSize();
         var p = toImagePoint(drag.last, drag.mode === 'draw');
         var dx = p.x - drag.start.x;
@@ -504,7 +560,12 @@ export function createImageEditor(ctx) {
         if (wrapEl.hasPointerCapture(drag.id)) {
             wrapEl.releasePointerCapture(drag.id);
         }
+        var moved = drag.moved;
         drag = null;
+        if (moved && img) {
+            reconcileRatio();
+            updateControls();
+        }
         wrapEl.classList.remove('is-dragging');
         window.removeEventListener('keydown', onDragKey, true);
         window.removeEventListener('keyup', onDragKey, true);
@@ -516,6 +577,13 @@ export function createImageEditor(ctx) {
         }
     }
 
+    // ポインターを取り込んでいるので、dblclick の宛先は wrapEl になる。範囲の内側かどうかは、直前の pointerdown で見分ける
+    var lastDownMode = null;
+    wrapEl.addEventListener('dblclick', function () {
+        if (lastDownMode === 'move') {
+            toggleWhole();
+        }
+    });
     wrapEl.addEventListener('pointerdown', onPointerDown);
     wrapEl.addEventListener('pointermove', onPointerMove);
     wrapEl.addEventListener('pointerup', onPointerEnd);
@@ -629,6 +697,7 @@ export function createImageEditor(ctx) {
         loadingImg = null;
         img = null;
         crop = null;
+        restore = null;
         outSize = null;
         // 表示用の canvas の画素も手放す
         canvasEl.width = 0;
@@ -667,6 +736,7 @@ export function createImageEditor(ctx) {
         crop = null;
         ratioKey = null;
         ratioPortrait = false;
+        restore = null;
         outSize = null;
         outKey = 'w';
         keepRatio = true;

@@ -1429,7 +1429,7 @@ return [
     "fb_edit_rotate_left" => '左に90°',
     "fb_edit_rotate_right" => '右に90°',
     "fb_edit_crop" => 'トリミング',
-    "fb_edit_crop_hint" => 'ハンドルで範囲を調整し、枠内のドラッグで移動できます。Shift を押しながらドラッグすると縦横比を保ちます。',
+    "fb_edit_crop_hint" => 'ハンドルで範囲を調整、枠内のドラッグで移動。Shiftキーで縦横比を維持。ダブルクリックで全体表示と元の範囲を切り替えます。',
     "fb_edit_crop_area" => '範囲（px）',
     "fb_edit_resize" => 'リサイズ（px）',
     "fb_edit_width" => '幅',

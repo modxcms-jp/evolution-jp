@@ -1428,7 +1428,7 @@ return [
     "fb_edit_rotate_left" => '90° left',
     "fb_edit_rotate_right" => '90° right',
     "fb_edit_crop" => 'Crop',
-    "fb_edit_crop_hint" => 'Drag the handles to adjust the area, or drag inside the frame to move it. Hold Shift while dragging to keep the aspect ratio.',
+    "fb_edit_crop_hint" => 'Drag the handles to adjust the area and drag inside the frame to move it. Hold Shift to keep the aspect ratio. Double-click to switch between the whole image and the previous area.',
     "fb_edit_crop_area" => 'Area (px)',
     "fb_edit_resize" => 'Resize (px)',
     "fb_edit_width" => 'Width',
