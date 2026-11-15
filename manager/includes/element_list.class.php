@@ -8,12 +8,14 @@ class ElementList
 {
     /**
      * 種類の定義。tab のある種類は、エレメント管理に自分のタブを持つ（label・message・newLabel は言語のキー）。
+     * labelFields は名前・説明と一緒に探す列、contentFields は本文（コード・HTML）の列（検索 a=71 で使う）。
      */
     public static function types(): array
     {
         return [
             'template' => [
                 'table' => 'site_templates',
+                'contentFields' => ['content'],
                 'nameField' => 'templatename',
                 'editAction' => 16,
                 'newAction' => 19,
@@ -26,6 +28,8 @@ class ElementList
             ],
             'tmplvar' => [
                 'table' => 'site_tmplvars',
+                'labelFields' => ['caption'],
+                'contentFields' => ['elements', 'default_text'],
                 'editAction' => 301,
                 'newAction' => 300,
                 'perms' => ['new_template', 'edit_template'],
@@ -38,6 +42,7 @@ class ElementList
             ],
             'chunk' => [
                 'table' => 'site_htmlsnippets',
+                'contentFields' => ['snippet'],
                 'editAction' => 78,
                 'newAction' => 77,
                 'perms' => ['new_chunk', 'edit_chunk'],
@@ -49,6 +54,7 @@ class ElementList
             ],
             'snippet' => [
                 'table' => 'site_snippets',
+                'contentFields' => ['snippet'],
                 'editAction' => 22,
                 'newAction' => 23,
                 'perms' => ['new_snippet', 'edit_snippet'],
@@ -59,6 +65,7 @@ class ElementList
             ],
             'plugin' => [
                 'table' => 'site_plugins',
+                'contentFields' => ['plugincode'],
                 'editAction' => 102,
                 'newAction' => 101,
                 'perms' => ['new_plugin', 'edit_plugin'],
@@ -70,6 +77,7 @@ class ElementList
             ],
             'module' => [
                 'table' => 'site_modules',
+                'contentFields' => ['modulecode'],
                 'editAction' => 108,
                 'newAction' => 107,
                 'perms' => ['new_module', 'edit_module'],
@@ -103,6 +111,105 @@ class ElementList
      */
     public static function rows(string $type): array
     {
+        return static::select($type, [], []);
+    }
+
+    /**
+     * 検索（a=71）。$conditions は ResourceSearchQuery::textConditions() の形（value・negate・fields。fields はリソースの列名）。
+     * リソースの列をエレメントの列に読み替える: pagetitle・longtitle → 名前・説明と labelFields、content → contentFields、alias → なし。
+     * 読み替える列が無い条件は、含む条件なら何も当たらないものとし、除く条件なら掛けない。
+     * 返す行は rows() の形に、hit（本文の中で最初に当たった行 ['line' => 行番号, 'text' => 行の文字列]。無ければ null）を足したもの。
+     * 並びは types() の種類の順 → カテゴリー → 名前。
+     *
+     * @param array<int, array{value: string, negate: bool, fields: string[]}> $conditions
+     * @param string[] $terms 本文の中の当たった行を探す語（ResourceSearchQuery::terms()）
+     */
+    public static function search(array $conditions, array $terms): array
+    {
+        if (!$conditions) {
+            return [];
+        }
+        $results = [];
+        foreach (static::types() as $type => $def) {
+            if (!static::canView($type)) {
+                continue;
+            }
+            $labelColumns = array_merge([$def['nameField'] ?? 'name', 'description'], $def['labelFields'] ?? []);
+            $where = [];
+            foreach ($conditions as $c) {
+                $columns = [];
+                foreach ($c['fields'] as $field) {
+                    if ($field === 'pagetitle' || $field === 'longtitle') {
+                        $columns = array_merge($columns, $labelColumns);
+                    } elseif ($field === 'content') {
+                        $columns = array_merge($columns, $def['contentFields']);
+                    }
+                }
+                $columns = array_values(array_unique($columns));
+                if (!$columns) {
+                    if ($c['negate']) {
+                        continue;
+                    }
+                    $where = ['0=1'];
+                    break;
+                }
+                $like = ResourceSearchQuery::escapeLike($c['value']);
+                $expr = '(' . implode(' OR ', array_map(static function ($column) use ($like) {
+                    return sprintf("IFNULL(e.%s,'') LIKE '%%%s%%'", $column, $like);
+                }, $columns)) . ')';
+                $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
+            }
+            if ($where === ['0=1']) {
+                continue;
+            }
+            foreach (static::select($type, $where, $def['contentFields']) as $row) {
+                $row['hit'] = static::hitLine($row['content'], $terms);
+                unset($row['content']);
+                $results[] = $row;
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * 本文の中で、語を最初に含む行（大文字・小文字を区別しない）。長い行は語の前後を切り出す。
+     *
+     * @param string[] $texts 本文の列の値
+     * @param string[] $terms
+     */
+    public static function hitLine(array $texts, array $terms): ?array
+    {
+        if (!$terms) {
+            return null;
+        }
+        foreach ($texts as $text) {
+            foreach (preg_split('/\R/u', mb_scrub((string) $text)) ?: [] as $n => $line) {
+                foreach ($terms as $term) {
+                    $at = mb_stripos($line, $term);
+                    if ($at === false) {
+                        continue;
+                    }
+                    $line = trim($line);
+                    $at = mb_stripos($line, $term);
+                    $len = 160;
+                    if (mb_strlen($line) > $len) {
+                        $start = max(0, min($at - 50, mb_strlen($line) - $len));
+                        $line = ($start > 0 ? '…' : '') . mb_substr($line, $start, $len)
+                            . ($start + $len < mb_strlen($line) ? '…' : '');
+                    }
+                    return ['line' => $n + 1, 'text' => $line];
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 1 つの種類の行を取り出す。$where は呼ぶ側で安全にした式（AND でつなぐ）。
+     * $contentColumns を渡すと、その列の値を行の content（列名 => 値）に入れる。
+     */
+    private static function select(string $type, array $where, array $contentColumns): array
+    {
         $def = static::type($type);
         $nameField = $def['nameField'] ?? 'name';
         $stateField = $def['stateField'] ?? '';
@@ -118,6 +225,9 @@ class ElementList
         if ($stateField !== '') {
             $fields[] = "e.{$stateField} AS state_value";
         }
+        foreach ($contentColumns as $column) {
+            $fields[] = "e.{$column} AS content_{$column}";
+        }
         $orderBy = ['c.category IS NULL', 'c.category ASC'];
         if (!empty($def['orderByRank'])) {
             $orderBy[] = 'e.rank ASC';
@@ -130,13 +240,18 @@ class ElementList
                 '[+prefix+]%s AS e LEFT JOIN [+prefix+]categories AS c ON e.category = c.id',
                 $def['table']
             ),
-            '',
+            implode(' AND ', $where),
             implode(', ', $orderBy)
         );
 
         $rows = [];
         while ($row = db()->getRow($rs)) {
+            $content = [];
+            foreach ($contentColumns as $column) {
+                $content[$column] = (string) ($row["content_{$column}"] ?? '');
+            }
             $rows[] = [
+                'content' => $content,
                 'id' => (int) $row['id'],
                 'name' => (string) $row['name'],
                 'description' => (string) $row['description'],
@@ -186,16 +301,14 @@ class ElementList
      * カテゴリーごとにまとめたリストを描く。
      *
      * $options:
-     *   id              リストの id（絞り込みの入力欄の data-element-filter の値）
      *   showType        各行に種類の名前を出す（エレメント一覧のタブ）
      *   categoryDelete  カテゴリーの見出しに削除のリンクを出す
-     *   labels          no_category / locked / delete_category / empty / no_match と、種類の名前（type => 名前）
+     *   labels          no_category / locked / delete_category / empty と、種類の名前（type => 名前）
      *   rtl             右から左の言語
      */
     public static function render(array $rows, array $options): string
     {
         $labels = $options['labels'];
-        $listId = $options['id'];
 
         if (!$rows) {
             return sprintf('<p>%s</p>', hsc($labels['empty']));
@@ -206,12 +319,11 @@ class ElementList
             $groups[$row['catid']][] = $row;
         }
 
-        $html = sprintf('<ul class="element-list" id="%s">', hsc($listId));
+        $html = '<ul class="element-list">';
         foreach ($groups as $catid => $items) {
             $category = $catid ? $items[0]['category'] : $labels['no_category'];
             $html .= sprintf(
-                '<li class="element-category" data-category="%s"><strong>%s</strong>%s<ul>',
-                hsc($category),
+                '<li><strong>%s</strong>%s<ul>',
                 hsc($category),
                 ($catid && !empty($options['categoryDelete']))
                     ? sprintf(
@@ -226,13 +338,7 @@ class ElementList
             }
             $html .= '</ul></li>';
         }
-        $html .= '</ul>';
-        $html .= sprintf(
-            '<p class="element-filter-empty" id="%s-empty" hidden>%s</p>',
-            hsc($listId),
-            hsc($labels['no_match'])
-        );
-        return $html;
+        return $html . '</ul>';
     }
 
     private static function renderItem(array $row, array $options): string
@@ -255,8 +361,7 @@ class ElementList
         }
 
         return sprintf(
-            '<li data-filter-text="%s"><span%s><a href="index.php?id=%d&amp;a=%d">%s</a>%s</span>%s %s%s</li>',
-            hsc(implode(' ', [$row['id'], $row['name'], $row['description']])),
+            '<li><span%s><a href="index.php?id=%d&amp;a=%d">%s</a>%s</span>%s %s%s</li>',
             $class !== '' ? ' class="' . $class . '"' : '',
             $row['id'],
             $def['editAction'],

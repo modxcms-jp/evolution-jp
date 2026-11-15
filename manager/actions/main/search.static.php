@@ -28,6 +28,8 @@ if ($q === '') {
     }
 }
 $alsoContent = get_boolvar('also_content');
+// 探す対象。既定はリソースだけ（エレメントの本文を探すときは elements か all）
+$scope = get_choicevar('scope', ['resources', 'elements', 'all'], 'resources');
 $advanced = [
     'pagetitle' => $textParam('pagetitle'),
     'longtitle' => $textParam('longtitle'),
@@ -90,6 +92,11 @@ $selected = static function ($value, $current) {
                     />
                     <button type="submit" name="submitok" value="1" class="button primary"><?= lang('search') ?></button>
                     <label class="search-also"><input type="checkbox" name="also_content" value="1"<?= $alsoContent ? ' checked' : '' ?>/> <?= lang('search_also_content') ?></label>
+                    <span class="search-scope" role="radiogroup" aria-label="<?= hsc(lang('search_scope')) ?>">
+                        <?php foreach (['resources', 'elements', 'all'] as $s): ?>
+                            <label><input type="radio" name="scope" value="<?= $s ?>"<?= $scope === $s ? ' checked' : '' ?>/> <?= lang('search_scope_' . $s) ?></label>
+                        <?php endforeach; ?>
+                    </span>
                 </div>
                 <!-- 2 行目: 説明と、閉じた「書き方」「詳しく検索」を 1 行に並べる。開いたものだけ、中身を下に全幅で出す -->
                 <div class="search-row2">
@@ -305,20 +312,41 @@ $selected = static function ($value, $current) {
         </div>
     </div>
 <?php
-if (getv('submitok')) {
+$submitted = (bool) getv('submitok');
+// 入力欄の書き方と「詳しく検索」の欄を、同じ条件の並びに読み替える（リソースとエレメントの検索で共通）
+$query = new ResourceSearchQuery($q, $alsoContent, [
+    'pagetitle' => $advanced['pagetitle'],
+    'longtitle' => $advanced['longtitle'],
+    'alias' => $advanced['alias'],
+    'content' => $advanced['content'],
+    'status' => $status,
+    'parent' => $parent === null ? '' : (string) $parent,
+    'template' => $template === null ? '' : (string) $template,
+    'edited_from' => $editedFrom,
+    'edited_to' => $editedTo,
+]);
+$terms = $query->terms();
+// 探した語を太字にする。元の文字列を語で分け、片ごとにエスケープしてから、当たった片だけ <b> で包む
+// （エスケープ後の文字列に当てると、&amp; などの実体参照の中に当たって壊す）
+$highlight = function (string $text) use ($terms) {
+    if (!$terms) {
+        return hsc($text);
+    }
+    $pattern = '/(' . implode('|', array_map(static function ($t) {
+        return preg_quote($t, '/');
+    }, $terms)) . ')/iu';
+    $pieces = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if ($pieces === false) {
+        return hsc($text);
+    }
+    $html = '';
+    foreach ($pieces as $n => $piece) {
+        $html .= $n % 2 === 1 ? '<b>' . hsc($piece) . '</b>' : hsc($piece);
+    }
+    return $html;
+};
 
-    // 入力欄の書き方と「詳しく検索」の欄を、同じ条件の並びに読み替えてから WHERE を組む
-    $query = new ResourceSearchQuery($q, $alsoContent, [
-        'pagetitle' => $advanced['pagetitle'],
-        'longtitle' => $advanced['longtitle'],
-        'alias' => $advanced['alias'],
-        'content' => $advanced['content'],
-        'status' => $status,
-        'parent' => $parent === null ? '' : (string) $parent,
-        'template' => $template === null ? '' : (string) $template,
-        'edited_from' => $editedFrom,
-        'edited_to' => $editedTo,
-    ]);
+if ($submitted && $scope !== 'elements') {
     $built = $query->toWhere();
     $where = $built['where'];
     // ID・URL から引けなかったとき（何も当たらない条件になっている。理由は結果の欄に出す）
@@ -369,6 +397,7 @@ if (getv('submitok')) {
     $keep = [
         'q' => $q,
         'also_content' => $alsoContent ? '1' : '',
+        'scope' => $scope === 'resources' ? '' : $scope,
         'status' => $status,
         'parent' => $parent === null ? '' : (string) $parent,
         'template' => $template === null ? '' : (string) $template,
@@ -470,7 +499,6 @@ if (getv('submitok')) {
                     }
                     return $class === '' ? $html : sprintf('<span class="%s">%s</span>', $class, $html);
                 };
-                $terms = $query->terms();
                 $charset = $modx_manager_charset;
                 // 抜粋: 説明があれば説明、無ければ本文（HTML・MODX のタグを外す）。本文では、探した語の前後を切り出す
                 $snippet = function (array $row) use ($terms, $charset) {
@@ -507,26 +535,6 @@ if (getv('submitok')) {
                     }
                     return $text;
                 };
-                // 探した語を太字にする。元の文字列を語で分け、片ごとにエスケープしてから、当たった片だけ <b> で包む
-                // （エスケープ後の文字列に当てると、&amp; などの実体参照の中に当たって壊す）
-                $highlight = function (string $text) use ($terms) {
-                    if (!$terms) {
-                        return hsc($text);
-                    }
-                    $pattern = '/(' . implode('|', array_map(static function ($t) {
-                        return preg_quote($t, '/');
-                    }, $terms)) . ')/iu';
-                    $pieces = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
-                    if ($pieces === false) {
-                        return hsc($text);
-                    }
-                    $html = '';
-                    foreach ($pieces as $n => $piece) {
-                        $html .= $n % 2 === 1 ? '<b>' . hsc($piece) . '</b>' : hsc($piece);
-                    }
-                    return $html;
-                };
-
                 $table = new DataTable(
                     [
                         [
@@ -591,6 +599,88 @@ if (getv('submitok')) {
                 echo '<div class="list-toolbar"><span class="search-results-count">' . $count . '</span>' . $nav . '</div>'
                     . $table->render($rows, $links)
                     . ($nav !== '' ? '<div class="list-pager-bottom">' . $nav . '</div>' : '');
+            }
+            ?>
+        </div>
+    </div>
+    <?php
+}
+
+// エレメント（テンプレート・TV・チャンク・スニペット・プラグイン・モジュール）の検索。
+// 語の条件だけを、エレメントの列（名前・説明、「本文も探す」ならコード・HTML）に読み替えて探す（ElementList::search()）
+if ($submitted && $scope !== 'resources') {
+    include_once MODX_CORE_PATH . 'element_list.class.php';
+    include_once MODX_CORE_PATH . 'controls/data_table.class.php';
+    $elementConditions = $query->textConditions();
+    $elementRows = ElementList::search($elementConditions, $terms);
+    $typeLabels = array_map(static function ($def) {
+        return lang($def['label']);
+    }, ElementList::types());
+    ?>
+    <div class="section">
+        <div class="sectionHeader"><?= lang('search_element_results') ?></div>
+        <div class="sectionBody">
+            <?php
+            if ($query->hasResourceOnlyConditions()) {
+                printf('<p class="search-astext">%s</p>', hsc(lang('search_element_ignored')));
+            }
+            if (!$elementConditions) {
+                printf('<p class="search-empty">%s</p>', hsc(lang('search_element_no_terms')));
+            } elseif (!$elementRows) {
+                printf('<p class="search-empty">%s</p>', lang('search_empty'));
+            } else {
+                $stateClasses = ['disabled' => 'disabledPlugin', 'unpublished' => 'unpublished'];
+                $table = new DataTable(
+                    [
+                        [
+                            'key' => 'type',
+                            'label' => lang('search_element_type'),
+                            'class' => 'is-shrink',
+                            'format' => static function ($value) use ($typeLabels) {
+                                return $typeLabels[$value] ?? '';
+                            },
+                        ],
+                        [
+                            'key' => 'name',
+                            'label' => lang('search_element_name'),
+                            'html' => true,
+                            'format' => static function ($value, array $row) use ($highlight, $stateClasses) {
+                                $title = sprintf(
+                                    '<a class="search-hit-title" href="index.php?a=%d&amp;id=%d">%s</a>',
+                                    ElementList::type($row['type'])['editAction'],
+                                    $row['id'],
+                                    $highlight((string) $value)
+                                );
+                                if (isset($stateClasses[$row['state']])) {
+                                    $title = sprintf('<span class="%s">%s</span>', $stateClasses[$row['state']], $title);
+                                }
+                                if ($row['locked']) {
+                                    $title .= ' <em>(' . hsc(lang('locked')) . ')</em>';
+                                }
+                                $meta = sprintf(
+                                    '<div class="search-hit-url">%s</div>',
+                                    hsc($row['catid'] ? $row['category'] : lang('no_category'))
+                                );
+                                $body = $row['description'] !== ''
+                                    ? '<div class="search-hit-snippet">' . element_description_html($row['description']) . '</div>'
+                                    : '';
+                                if ($row['hit']) {
+                                    $body .= sprintf(
+                                        '<div class="search-hit-code"><span class="search-hit-line">%s</span>%s</div>',
+                                        hsc(sprintf(lang('search_element_line'), $row['hit']['line'])),
+                                        $highlight($row['hit']['text'])
+                                    );
+                                }
+                                return '<div class="search-hit">' . $title . $meta . $body . '</div>';
+                            },
+                        ],
+                    ],
+                    ['id' => 'search-element-results']
+                );
+                echo '<div class="list-toolbar"><span class="search-results-count">'
+                    . sprintf(lang('search_results_returned_msg'), count($elementRows))
+                    . '</span></div>'
+                    . $table->render($elementRows);
             }
             ?>
         </div>

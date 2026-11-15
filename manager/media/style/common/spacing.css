@@ -21,9 +21,8 @@
     margin-bottom: 12px;
 }
 
-/* サブリソース一覧のパンくず、エレメント管理の絞り込み欄、システムログの検索フォームと概要の下 */
+/* サブリソース一覧のパンくず、システムログの検索フォームと概要の下 */
 .resources-topic-path,
-.element-filter,
 .system-log-toolbar,
 .system-log-summary {
     margin-bottom: 12px;
@@ -37,11 +36,6 @@ form > :has(+ .resources-batch-actions),
 
 /* 操作ボタン列の前 */
 :is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
-    margin-bottom: 12px;
-}
-
-/* エレメント管理の絞り込み欄の前 */
-.tab-page > :has(+ .element-filter) {
     margin-bottom: 12px;
 }
 

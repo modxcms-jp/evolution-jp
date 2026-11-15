@@ -95,6 +95,36 @@ class ResourceSearchQuery
     }
 
     /**
+     * 語の条件（エレメントの検索で、リソースの列をエレメントの列に読み替えて使う）。
+     * fields はリソースの列名（pagetitle・longtitle・alias・content）。
+     *
+     * @return array<int, array{value: string, negate: bool, fields: string[]}>
+     */
+    public function textConditions(): array
+    {
+        $out = [];
+        foreach ($this->conditions as $c) {
+            if ($c['type'] === 'text' && $c['value'] !== '') {
+                $out[] = ['value' => $c['value'], 'negate' => $c['negate'], 'fields' => $c['fields']];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * 語のほかの条件（ID・URL・親・テンプレート・公開状態・更新日など、リソースにしか無い条件）があるか
+     */
+    public function hasResourceOnlyConditions(): bool
+    {
+        foreach ($this->conditions as $c) {
+            if ($c['type'] !== 'text') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * SQL の WHERE の条件（AND でつなぐ）。公開状態の指定が無ければ、削除済みを除く。
      *
      * @return array{where: string[], error: string}
@@ -420,7 +450,10 @@ class ResourceSearchQuery
     // ---- 部品 ----
 
     /** LIKE の値として、% と _ と \ を文字に戻し、DB に渡す直前にエスケープする */
-    private static function escapeLike(string $value): string
+    /**
+     * LIKE '%…%' の中に入れる値（%・_・\ を文字として扱い、DB 用にエスケープする）
+     */
+    public static function escapeLike(string $value): string
     {
         return db()->escape(addcslashes($value, '%_\\'));
     }
