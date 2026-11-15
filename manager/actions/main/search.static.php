@@ -143,11 +143,16 @@ $selected = static function ($value, $current) {
                     <summary><?= lang('search_advanced') ?></summary>
                     <div class="search-details-body">
                     <p class="search-advanced-note"><?= lang('search_advanced_note') ?></p>
-                    <div class="search-advanced-grid search-advanced-common">
-                        <label for="s-title"><?= lang('search_criteria_title') ?></label>
-                        <input id="s-title" name="title" type="text" value="<?= hsc($advanced['title']) ?>"/>
-                        <label for="s-content"><?= lang('search_criteria_content') ?></label>
-                        <input id="s-content" name="content" type="text" value="<?= hsc($advanced['content']) ?>"/>
+                    <!-- 共通の欄も下のまとまりと同じ左右の 2 つに分け、ラベルと入力欄の縦の線を揃える -->
+                    <div class="search-advanced-groups">
+                        <div class="search-advanced-group search-advanced-grid">
+                            <label for="s-title"><?= lang('search_criteria_title') ?></label>
+                            <input id="s-title" name="title" type="text" value="<?= hsc($advanced['title']) ?>"/>
+                        </div>
+                        <div class="search-advanced-group search-advanced-grid">
+                            <label for="s-content"><?= lang('search_criteria_content') ?></label>
+                            <input id="s-content" name="content" type="text" value="<?= hsc($advanced['content']) ?>"/>
+                        </div>
                     </div>
                     <div class="search-advanced-groups">
                     <fieldset class="search-advanced-group" data-scope-group="resources"<?= $groupAttr('resources') ?>>

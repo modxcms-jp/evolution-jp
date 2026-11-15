@@ -761,18 +761,25 @@ body.evo-shell input.evo-submitting-trigger {
 .search-range { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 .search-range input { flex: 1 1 10em; min-width: 9.5em; }
 .search-details-body > .search-advanced-note { margin-top: var(--space-3, 12px); }
-/* 共通の語の欄（タイトル・名前、本文）は 1 行に 2 組並べる */
-.search-advanced-grid.search-advanced-common { grid-template-columns: 9em minmax(0, 20em) 9em minmax(0, 20em); }
-/* リソースの条件・エレメントの条件。広いときは左右に並べ、狭いときは縦に積む（探す範囲で使わないほうは hidden） */
-.search-advanced-groups { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-3, 12px); margin-top: var(--space-3, 12px); }
-.search-advanced-group { flex: 1 1 26em; min-width: 0; max-width: 40em; margin: 0; }
+/* 共通の欄（タイトル・名前／本文）と、リソースの条件・エレメントの条件を、同じ左右の 2 列に並べる。
+   どの列もラベルの幅を同じにして、ラベルと入力欄の縦の線を揃える。狭いときは縦に積む（探す範囲で使わないまとまりは hidden） */
+.search-advanced-groups { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-3, 12px) var(--space-5, 24px); margin-top: var(--space-3, 12px); }
+/* 列の幅は半分ずつに決める（片方のまとまりを隠したときも、上の共通の欄と右端が揃うように） */
+.search-advanced-group { flex: 0 0 calc((100% - var(--space-5, 24px)) / 2); min-width: 0; margin: 0; }
 .search-advanced-group[hidden] { display: none; }
-.search-advanced-group .search-advanced-grid { margin-top: 0; grid-template-columns: 8em minmax(0, 1fr); }
+/* まとまりの枠と内側の余白は付けない（テーマの fieldset の余白で左端がずれるため）。見出しは共通の legend の見た目のまま */
+fieldset.search-advanced-group { padding: 0; border: 0; }
+fieldset.search-advanced-group > .search-advanced-grid { padding-top: var(--space-2, 8px); }
+@media (max-width: 1000px) {
+    .search-advanced-group { flex-basis: 100%; }
+}
+.search-advanced-group .search-advanced-grid,
+.search-advanced-grid.search-advanced-group { margin-top: 0; grid-template-columns: 8em minmax(0, 1fr); }
 .search-checks { display: flex; flex-wrap: wrap; gap: var(--space-1, 4px) var(--space-3, 12px); }
 .search-checks label { white-space: nowrap; }
 .search-advanced-grid .search-checks input { width: auto; }
 @media (max-width: 600px) {
-    .search-advanced-grid, .search-advanced-grid.search-advanced-common, .search-advanced-group .search-advanced-grid { grid-template-columns: minmax(0, 1fr); }
+    .search-advanced-grid, .search-advanced-group .search-advanced-grid, .search-advanced-grid.search-advanced-group { grid-template-columns: minmax(0, 1fr); }
 }
 .search-syntax .grid { margin-top: var(--space-2, 8px); }
 /* 検索条件の欄は、結果をスクロールしても上に貼り付ける（is-sticky のときだけ。高すぎるときは JS が外す） */
