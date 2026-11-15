@@ -1238,7 +1238,7 @@
     display: none;
 }
 
-/* 保存のしかた。見出しと 2 つの選択肢を 1 行に並べ、入りきらなければ折り返す */
+/* 保存のしかた。見出しを上の行に置き、2 つの選択肢を下の行に並べる(入りきらなければ選択肢ごとに折り返す) */
 .evo-fb-edit-save-mode {
     display: flex;
     flex-wrap: wrap;
@@ -1246,9 +1246,16 @@
     gap: var(--space-1, 4px) var(--space-3, 12px);
 }
 
+.evo-fb-edit-save-mode .evo-fb-edit-heading {
+    flex: 1 1 100%;
+}
+
 .evo-fb-edit-note {
     color: var(--color-text-muted, #606060);
     font-size: 0.9em;
+    /* 日本語は文節で折り返し、最後の行に 1〜2 文字だけが残らないようにする */
+    word-break: auto-phrase;
+    text-wrap: pretty;
 }
 
 .evo-fb-edit-note:empty {
