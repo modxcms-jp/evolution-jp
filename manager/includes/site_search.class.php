@@ -22,6 +22,8 @@ class SiteSearch
     private $query;
     /** @var string */
     private $scope;
+    /** @var array エレメントの絞り込み（ElementList::searchSelects() の $filters） */
+    private $elementFilters;
     /** @var string[] リソースの WHERE（AND でつなぐ） */
     private $where;
     /** @var string ID・URL から引けなかったときの理由（言語のキー） */
@@ -31,8 +33,12 @@ class SiteSearch
     /** @var string 本文の抜粋を作ってよいかの式（行の can_view） */
     private $canViewColumn = '1';
 
-    public function __construct(ResourceSearchQuery $query, string $scope)
+    /**
+     * @param array{types?: string[], category?: int|null, state?: string} $elementFilters 「詳しく検索」のエレメントの条件
+     */
+    public function __construct(ResourceSearchQuery $query, string $scope, array $elementFilters = [])
     {
+        $this->elementFilters = $elementFilters;
         $this->query = $query;
         $this->scope = in_array($scope, self::SCOPES, true) ? $scope : 'resources';
 
@@ -91,6 +97,16 @@ class SiteSearch
     }
 
     /**
+     * エレメントを探せる条件があるか（語か、エレメントの絞り込み）。
+     * エレメントを探す範囲なのに無いときは、語を入れるよう案内する
+     */
+    public function canSearchElements(): bool
+    {
+        return $this->scope !== 'resources'
+            && ($this->elementConditions() || ElementList::hasFilters($this->elementFilters));
+    }
+
+    /**
      * 数字だけで探したとき、その数字を文字として含むリソースの件数（"20" と囲めば文字として探せる、という案内のため）。
      * リソースだけを探すときにだけ数える。リンク先の検索と同じく、文書グループの条件も掛ける
      */
@@ -144,7 +160,7 @@ class SiteSearch
             return ['total' => $total, 'pager' => $pager, 'rows' => $rows];
         }
 
-        $parts = ElementList::searchSelects($this->elementConditions(), $terms);
+        $parts = ElementList::searchSelects($this->elementConditions(), $terms, $this->elementFilters);
         if ($this->scope === 'all') {
             array_unshift($parts, sprintf(
                 "SELECT 'resource' AS kind, id, %s AS title, %s AS hit FROM [+prefix+]site_content WHERE %s",

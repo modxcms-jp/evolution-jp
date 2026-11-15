@@ -119,30 +119,33 @@ class ElementList
      * hit（名前・labelFields に $terms のどれかを含むか。既定の並びで先に出すため）を返す SELECT。
      * $conditions は ResourceSearchQuery::textConditions() の形（value・negate・scope）。
      * 探す範囲をエレメントの列に読み替える（searchWhere()）。項目を付けない語（any）は本文も探す。
-     *   any                            → 名前・説明・labelFields・contentFields
-     *   title・pagetitle・longtitle    → 名前・説明・labelFields
-     *   content                        → contentFields
-     *   alias                          → なし
-     * 読み替える列が無い条件は、含む条件ならその種類を出さず、除く条件なら掛けない。
+     *   any      → 名前・説明・labelFields・contentFields
+     *   title    → 名前・説明・labelFields
+     *   content  → contentFields
+     * $filters は「詳しく検索」のエレメントの条件（filterWhere()）。語が無くても、絞り込みがあれば探す。
      *
      * @param array<int, array{value: string, negate: bool, scope: string}> $conditions
      * @param string[] $terms 名前に当たるかを見る語（ResourceSearchQuery::terms()）
+     * @param array{types?: string[], category?: int|null, state?: string} $filters
      * @return string[]
      */
-    public static function searchSelects(array $conditions, array $terms): array
+    public static function searchSelects(array $conditions, array $terms, array $filters = []): array
     {
-        if (!$conditions) {
+        if (!$conditions && !static::hasFilters($filters)) {
             return [];
         }
+        $types = $filters['types'] ?? [];
         $selects = [];
         foreach (static::types() as $type => $def) {
-            if (!static::canView($type)) {
+            if (!static::canView($type) || ($types && !in_array($type, $types, true))) {
                 continue;
             }
             $where = static::searchWhere($def, $conditions);
-            if ($where === null) {
+            $filterWhere = static::filterWhere($def, $filters);
+            if ($where === null || $filterWhere === null) {
                 continue;
             }
+            $where = array_merge($where, $filterWhere);
             $nameColumns = static::prefixed(array_merge([$def['nameField'] ?? 'name'], $def['labelFields'] ?? []));
             $selects[] = sprintf(
                 "SELECT '%s' AS kind, e.id AS id, %s AS title, %s AS hit FROM [+prefix+]%s AS e WHERE %s",
@@ -154,6 +157,54 @@ class ElementList
             );
         }
         return $selects;
+    }
+
+    /** 状態の絞り込みの選択肢（「詳しく検索」） */
+    public const STATES = ['active', 'inactive', 'locked'];
+
+    /**
+     * エレメントの絞り込みがあるか（種類をすべて選んだときは、絞り込みとみなさない）
+     */
+    public static function hasFilters(array $filters): bool
+    {
+        $types = $filters['types'] ?? [];
+        return ($types && count($types) < count(static::types()))
+            || ($filters['category'] ?? null) !== null
+            || ($filters['state'] ?? '') !== '';
+    }
+
+    /**
+     * 絞り込みの WHERE（AND でつなぐ式）。この種類では何も当たらないときは null。
+     *   category  カテゴリーの ID（0 はカテゴリーなし）
+     *   state     active   使っているもの（無効でない・非公開でない。状態の無い種類はすべて）
+     *             inactive 使っていないもの（プラグインの無効・チャンクの非公開。状態の無い種類は当たらない）
+     *             locked   ロック中
+     */
+    private static function filterWhere(array $def, array $filters): ?array
+    {
+        $where = [];
+        if (($filters['category'] ?? null) !== null) {
+            $where[] = sprintf('e.category = %d', $filters['category']);
+        }
+        $stateField = $def['stateField'] ?? '';
+        $inactive = ['disabled' => 'e.disabled = 1', 'published' => 'e.published = 0'];
+        switch ($filters['state'] ?? '') {
+            case 'active':
+                if ($stateField !== '') {
+                    $where[] = "NOT ({$inactive[$stateField]})";
+                }
+                break;
+            case 'inactive':
+                if ($stateField === '') {
+                    return null;
+                }
+                $where[] = $inactive[$stateField];
+                break;
+            case 'locked':
+                $where[] = 'e.locked = 1';
+                break;
+        }
+        return $where;
     }
 
     /** @param string[] $columns */
@@ -204,10 +255,7 @@ class ElementList
         $scopeColumns = [
             'any' => array_merge($labelColumns, $def['contentFields']),
             'title' => $labelColumns,
-            'pagetitle' => $labelColumns,
-            'longtitle' => $labelColumns,
             'content' => $def['contentFields'],
-            'alias' => [],
         ];
         $where = [];
         foreach ($conditions as $c) {

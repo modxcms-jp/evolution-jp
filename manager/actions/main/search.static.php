@@ -31,11 +31,22 @@ if ($q === '') {
 }
 // 探す対象。既定はリソースだけ（エレメントの本文を探すときは elements か all）
 $scope = get_choicevar('scope', SiteSearch::SCOPES, 'resources');
+// 「詳しく検索」の語の欄。title・content はリソースとエレメントの共通、alias はリソースだけ
 $advanced = [
-    'pagetitle' => $textParam('pagetitle'),
-    'longtitle' => $textParam('longtitle'),
+    'title' => $textParam('title'),
     'alias' => $textParam('alias'),
     'content' => $textParam('content'),
+];
+// 「詳しく検索」のエレメントの条件。種類は選択肢の配列（何も選ばないときはすべて）、カテゴリーは ID（0 はカテゴリーなし）
+$elementTypes = array_keys(ElementList::types());
+$etypeInput = getv('etype', []);
+$etypes = array_values(array_unique(array_filter(array_map(static function ($v) use ($elementTypes) {
+    return to_choicevar($v, $elementTypes, '');
+}, is_array($etypeInput) ? $etypeInput : []))));
+$elementFilters = [
+    'types' => $etypes,
+    'category' => get_uintvar('ecat'),
+    'state' => get_choicevar('estate', ElementList::STATES, ''),
 ];
 // 既定（空）は削除済みを除くすべて。with_deleted は削除済みも含めたすべて
 $status = get_choicevar('status', ResourceSearchQuery::STATUSES, '');
@@ -51,9 +62,19 @@ $editedFrom = $dateParam('edited_from');
 $editedTo = $dateParam('edited_to');
 // 詳しい条件が 1 つでもあれば、「詳しく検索」を開いた状態で出す
 $advancedUsed = array_filter($advanced, 'strlen') || $status !== '' || $parent !== null || $template !== null
-    || $editedFrom !== '' || $editedTo !== '';
+    || $editedFrom !== '' || $editedTo !== '' || ElementList::hasFilters($elementFilters);
 
 $templates = db()->makeArray(db()->select('id, templatename', '[+prefix+]site_templates', '', 'templatename'));
+$categories = db()->makeArray(db()->select('id, category', '[+prefix+]categories', '', 'category'));
+$elementStateLabels = [
+    'active' => 'search_element_state_active',
+    'inactive' => 'search_element_state_inactive',
+    'locked' => 'search_element_state_locked',
+];
+// 範囲で使わないまとまりは隠し、送らない（disabled）。範囲を切り替えたときは下の script で出し分ける
+$groupAttr = static function ($group) use ($scope) {
+    return $scope === 'all' || $scope === $group ? '' : ' hidden disabled';
+};
 $statusLabels = [
     'published' => 'page_data_published',
     'unpublished' => 'page_data_unpublished',
@@ -121,17 +142,19 @@ $selected = static function ($value, $current) {
                 <details class="search-advanced" id="search-advanced"<?= $advancedUsed ? ' open' : '' ?>>
                     <summary><?= lang('search_advanced') ?></summary>
                     <div class="search-details-body">
-                    <div class="search-advanced-grid">
-                        <p class="search-advanced-note"><?= lang('search_advanced_note') ?></p>
-                        <label for="s-pagetitle"><?= lang('search_criteria_title') ?></label>
-                        <input id="s-pagetitle" name="pagetitle" type="text" value="<?= hsc($advanced['pagetitle']) ?>"/>
-                        <label for="s-longtitle"><?= lang('search_criteria_longtitle') ?></label>
-                        <input id="s-longtitle" name="longtitle" type="text" value="<?= hsc($advanced['longtitle']) ?>"/>
-                        <label for="s-alias"><?= lang('search_criteria_alias') ?></label>
-                        <input id="s-alias" name="alias" type="text" value="<?= hsc($advanced['alias']) ?>"/>
+                    <p class="search-advanced-note"><?= lang('search_advanced_note') ?></p>
+                    <div class="search-advanced-grid search-advanced-common">
+                        <label for="s-title"><?= lang('search_criteria_title') ?></label>
+                        <input id="s-title" name="title" type="text" value="<?= hsc($advanced['title']) ?>"/>
                         <label for="s-content"><?= lang('search_criteria_content') ?></label>
                         <input id="s-content" name="content" type="text" value="<?= hsc($advanced['content']) ?>"/>
-                        <div class="search-sep"></div>
+                    </div>
+                    <div class="search-advanced-groups">
+                    <fieldset class="search-advanced-group" data-scope-group="resources"<?= $groupAttr('resources') ?>>
+                        <legend><?= lang('search_group_resources') ?></legend>
+                        <div class="search-advanced-grid">
+                        <label for="s-alias"><?= lang('search_criteria_alias') ?></label>
+                        <input id="s-alias" name="alias" type="text" value="<?= hsc($advanced['alias']) ?>"/>
                         <label for="s-status"><?= lang('search_filter_status') ?></label>
                         <select id="s-status" name="status">
                             <option value=""><?= lang('search_status_default') ?></option>
@@ -154,6 +177,36 @@ $selected = static function ($value, $current) {
                             <?= lang('search_range_separator') ?>
                             <input name="edited_to" type="date" value="<?= hsc($editedTo) ?>" aria-label="<?= hsc(lang('search_filter_edited_to')) ?>"/>
                         </span>
+                        </div>
+                    </fieldset>
+                    <fieldset class="search-advanced-group" data-scope-group="elements"<?= $groupAttr('elements') ?>>
+                        <legend><?= lang('search_group_elements') ?></legend>
+                        <div class="search-advanced-grid">
+                        <span><?= lang('search_element_type') ?></span>
+                        <span class="search-checks">
+                            <?php foreach (ElementList::types() as $type => $def): ?>
+                                <?php if (ElementList::canView($type)): ?>
+                                    <label><input type="checkbox" name="etype[]" value="<?= $type ?>"<?= !$etypes || in_array($type, $etypes, true) ? ' checked' : '' ?>/> <?= lang($def['label']) ?></label>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </span>
+                        <label for="s-ecat"><?= lang('search_element_category') ?></label>
+                        <select id="s-ecat" name="ecat">
+                            <option value=""><?= lang('search_any') ?></option>
+                            <option value="0"<?= $selected(0, $elementFilters['category'] ?? '') ?>><?= lang('no_category') ?></option>
+                            <?php foreach ($categories as $c): ?>
+                                <option value="<?= (int) $c['id'] ?>"<?= $selected($c['id'], $elementFilters['category'] ?? '') ?>><?= hsc($c['category']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <label for="s-estate"><?= lang('search_element_state') ?></label>
+                        <select id="s-estate" name="estate">
+                            <option value=""><?= lang('search_any') ?></option>
+                            <?php foreach (ElementList::STATES as $s): ?>
+                                <option value="<?= $s ?>"<?= $selected($s, $elementFilters['state']) ?>><?= lang($elementStateLabels[$s]) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        </div>
+                    </fieldset>
                     </div>
                     </div>
                 </details>
@@ -166,6 +219,19 @@ $selected = static function ($value, $current) {
                             window.evoSearchTeardown();
                         }
                         var cleanups = [];
+
+                        // 探す範囲に合わせて、「詳しく検索」のリソースの条件・エレメントの条件を出し分ける。
+                        // 隠したまとまりは disabled にして送らない（最初の表示はサーバー側で出し分けてある）
+                        var scopeSelect = document.querySelector('#search-form select[name="scope"]');
+                        if (scopeSelect) {
+                            scopeSelect.addEventListener('change', function () {
+                                document.querySelectorAll('#search-form [data-scope-group]').forEach(function (group) {
+                                    var on = scopeSelect.value === 'all' || scopeSelect.value === group.getAttribute('data-scope-group');
+                                    group.hidden = !on;
+                                    group.disabled = !on;
+                                });
+                            });
+                        }
 
                         // 「書き方」「詳しく検索」を開閉するとき、中身の高さを動かして、どこが開いたかを分かるようにする。
                         // 視差効果を減らす設定の人には動かさない
@@ -315,8 +381,7 @@ $selected = static function ($value, $current) {
 $submitted = (bool) getv('submitok');
 // 入力欄の書き方と「詳しく検索」の欄を、同じ条件の並びに読み替える（リソースとエレメントの検索で共通）
 $query = new ResourceSearchQuery($q, [
-    'pagetitle' => $advanced['pagetitle'],
-    'longtitle' => $advanced['longtitle'],
+    'title' => $advanced['title'],
     'alias' => $advanced['alias'],
     'content' => $advanced['content'],
     'status' => $status,
@@ -349,14 +414,13 @@ $highlight = function (string $text) use ($terms) {
 if ($submitted) {
     include_once MODX_CORE_PATH . 'controls/data_table.class.php';
 
-    $search = new SiteSearch($query, $scope);
+    $search = new SiteSearch($query, $scope, $elementFilters);
     // ID・URL から引けなかったとき（何も当たらない条件になっている。理由は結果の欄に出す）
     $targetError = $search->targetError();
     $searchTargetInput = $query->target();
     // 数字だけで探したときは ID で出しつつ、その数字を文字として含むものの件数を添える
     $bareNumber = $query->bareNumber();
     $asTextCount = $search->asTextCount();
-    $elementConditions = $search->elementConditions();
 
     $linkParams = ['a' => 71, 'submitok' => 1];
     $keep = [
@@ -367,6 +431,9 @@ if ($submitted) {
         'template' => $template === null ? '' : (string) $template,
         'edited_from' => $editedFrom,
         'edited_to' => $editedTo,
+        'etype' => $etypes,
+        'ecat' => $elementFilters['category'] === null ? '' : (string) $elementFilters['category'],
+        'estate' => $elementFilters['state'],
     ] + $advanced;
     foreach ($keep as $name => $value) {
         if ($value !== '') {
@@ -393,13 +460,12 @@ if ($submitted) {
                 }
                 echo '</ul>';
             }
-            if ($scope !== 'resources') {
-                if ($query->hasResourceOnlyConditions()) {
-                    printf('<p class="search-astext">%s</p>', hsc(lang('search_element_ignored')));
-                }
-                if (!$elementConditions) {
-                    printf('<p class="search-astext">%s</p>', hsc(lang('search_element_no_terms')));
-                }
+            // エレメントだけを探すときに、書き方でリソースにしか無い条件（id:・is: など）を入れた
+            if ($scope === 'elements' && $query->hasResourceOnlyConditions()) {
+                printf('<p class="search-astext">%s</p>', hsc(lang('search_element_ignored')));
+            }
+            if ($scope !== 'resources' && !$search->canSearchElements()) {
+                printf('<p class="search-astext">%s</p>', hsc(lang('search_element_no_terms')));
             }
             if ($bareNumber !== '' && $asTextCount > 0) {
                 $asTextParams = ['a' => 71, 'submitok' => 1, 'q' => '"' . $bareNumber . '"'];

@@ -22,24 +22,22 @@ class ResourceSearchQuery
     /**
      * 語を探す範囲 => リソースの探す列。範囲は列名でなく意味で持ち、列への読み替えはここだけで行う
      * （エレメントの検索は、同じ範囲を ElementList::searchWhere() でエレメントの列に読み替える）。
-     * any は項目名を付けない語。pagetitle・longtitle は「詳しく検索」の欄
+     * any は項目名を付けない語。alias はリソースにしか無い（エレメントの検索には使わない）
      */
     private const SCOPE_FIELDS = [
         'any' => ['pagetitle', 'longtitle', 'alias', 'content'],
         'title' => ['pagetitle', 'longtitle'],
-        'pagetitle' => ['pagetitle'],
-        'longtitle' => ['longtitle'],
         'alias' => ['alias'],
         'content' => ['content'],
     ];
+    /** リソースにしか無い範囲（エレメントの検索には渡さない。textConditions()） */
+    private const RESOURCE_ONLY_SCOPES = ['alias'];
     /** 書き方の項目名（title: など）として使える範囲 */
     private const OPERATOR_SCOPES = ['title', 'alias', 'content'];
     /** 探す列の組 => 「読み取った条件」に出す言い方（言語のキー）。探す列と文言はここで 1 つに決める */
     private const FIELD_LABELS = [
         'pagetitle,longtitle,alias,content' => 'search_cond_any',
         'pagetitle,longtitle' => 'search_cond_title',
-        'pagetitle' => 'search_cond_pagetitle',
-        'longtitle' => 'search_cond_longtitle',
         'alias' => 'search_cond_alias',
         'content' => 'search_cond_content',
     ];
@@ -57,7 +55,7 @@ class ResourceSearchQuery
 
     /**
      * @param string $q 入力欄
-     * @param array<string, string> $form 「詳しく検索」の欄（pagetitle・longtitle・alias・content・status・parent・template・edited_from・edited_to）
+     * @param array<string, string> $form 「詳しく検索」の欄（title・alias・content・status・parent・template・edited_from・edited_to）
      */
     public function __construct(string $q, array $form = [])
     {
@@ -100,8 +98,8 @@ class ResourceSearchQuery
     }
 
     /**
-     * 語の条件（エレメントの検索で、範囲をエレメントの列に読み替えて使う）。
-     * scope は探す範囲（any・title・pagetitle・longtitle・alias・content。SCOPE_FIELDS のキー）。
+     * エレメントにも使える語の条件（エレメントの検索で、範囲をエレメントの列に読み替えて使う）。
+     * scope は探す範囲（any・title・content）。リソースにしか無い範囲（alias）は入れない。
      *
      * @return array<int, array{value: string, negate: bool, scope: string}>
      */
@@ -109,7 +107,7 @@ class ResourceSearchQuery
     {
         $out = [];
         foreach ($this->conditions as $c) {
-            if ($c['type'] === 'text' && $c['value'] !== '') {
+            if ($c['type'] === 'text' && $c['value'] !== '' && !in_array($c['scope'], self::RESOURCE_ONLY_SCOPES, true)) {
                 $out[] = ['value' => $c['value'], 'negate' => $c['negate'], 'scope' => $c['scope']];
             }
         }
@@ -117,12 +115,12 @@ class ResourceSearchQuery
     }
 
     /**
-     * 語のほかの条件（ID・URL・親・テンプレート・公開状態・更新日など、リソースにしか無い条件）があるか
+     * リソースにしか無い条件（ID・URL・親・テンプレート・公開状態・更新日・エイリアス）があるか
      */
     public function hasResourceOnlyConditions(): bool
     {
         foreach ($this->conditions as $c) {
-            if ($c['type'] !== 'text') {
+            if ($c['type'] !== 'text' || in_array($c['scope'], self::RESOURCE_ONLY_SCOPES, true)) {
                 return true;
             }
         }
@@ -385,7 +383,7 @@ class ResourceSearchQuery
     /** 「詳しく検索」の欄を、書き方と同じ条件に読み替える */
     private function addForm(array $form): void
     {
-        foreach (['pagetitle', 'longtitle', 'alias', 'content'] as $name) {
+        foreach (['title', 'alias', 'content'] as $name) {
             $v = trim((string) ($form[$name] ?? ''));
             if ($v !== '') {
                 $this->addText($v, $name, false, false);

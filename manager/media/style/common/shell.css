@@ -758,11 +758,21 @@ body.evo-shell input.evo-submitting-trigger {
 .search-advanced-grid { display: grid; grid-template-columns: 9em minmax(0, 26em); justify-content: start; gap: var(--space-2, 8px) var(--space-3, 12px); align-items: center; margin-top: var(--space-3, 12px); }
 .search-advanced-grid > label, .search-advanced-grid > span:not(.search-range) { width: auto; justify-self: start; margin: 0; }
 .search-advanced-grid input, .search-advanced-grid select { width: 100%; max-width: none; box-sizing: border-box; margin: 0; }
-.search-advanced-grid .search-sep { grid-column: 1 / -1; border-top: 1px dashed var(--color-border-light, #ddd); margin: var(--space-1, 4px) 0; }
-.search-range { display: flex; gap: var(--space-2, 8px); align-items: center; }
+.search-range { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 .search-range input { flex: 1 1 10em; min-width: 9.5em; }
+.search-details-body > .search-advanced-note { margin-top: var(--space-3, 12px); }
+/* 共通の語の欄（タイトル・名前、本文）は 1 行に 2 組並べる */
+.search-advanced-grid.search-advanced-common { grid-template-columns: 9em minmax(0, 20em) 9em minmax(0, 20em); }
+/* リソースの条件・エレメントの条件。広いときは左右に並べ、狭いときは縦に積む（探す範囲で使わないほうは hidden） */
+.search-advanced-groups { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-3, 12px); margin-top: var(--space-3, 12px); }
+.search-advanced-group { flex: 1 1 26em; min-width: 0; max-width: 40em; margin: 0; }
+.search-advanced-group[hidden] { display: none; }
+.search-advanced-group .search-advanced-grid { margin-top: 0; grid-template-columns: 8em minmax(0, 1fr); }
+.search-checks { display: flex; flex-wrap: wrap; gap: var(--space-1, 4px) var(--space-3, 12px); }
+.search-checks label { white-space: nowrap; }
+.search-advanced-grid .search-checks input { width: auto; }
 @media (max-width: 600px) {
-    .search-advanced-grid { grid-template-columns: minmax(0, 1fr); }
+    .search-advanced-grid, .search-advanced-grid.search-advanced-common, .search-advanced-group .search-advanced-grid { grid-template-columns: minmax(0, 1fr); }
 }
 .search-syntax .grid { margin-top: var(--space-2, 8px); }
 /* 検索条件の欄は、結果をスクロールしても上に貼り付ける（is-sticky のときだけ。高すぎるときは JS が外す） */
