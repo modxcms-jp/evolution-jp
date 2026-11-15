@@ -746,7 +746,6 @@ body.evo-shell input.evo-submitting-trigger {
    結果の上の行は共通の .list-toolbar、下のページ送りは .list-pager-bottom（表との間は上の :has の規則）を使う */
 .search-simple { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 .search-simple input[name="q"] { flex: 1 1 24em; max-width: 40em; box-sizing: border-box; }
-.search-also { white-space: nowrap; }
 /* 探す範囲（検索欄の前の select）。テーマが select に幅を付けていても、選択肢の長さに合わせる */
 .search-simple .search-scope { flex: 0 0 auto; width: auto; margin: 0; }
 /* 2 行目。閉じているあいだは 1 行に並び、開いた details だけ全幅にして中身を下に出す */

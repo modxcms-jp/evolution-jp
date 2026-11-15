@@ -7,7 +7,7 @@
  * SQL は conditions からだけ組む。
  *
  * 入力欄の書き方:
- *   語 語          どれも含む（リソース名・タイトル・エイリアス。「本文も探す」なら本文も）
+ *   語 語          どれも含む（リソース名・タイトル・エイリアス・本文）
  *   "語句"         語句をそのまま探す（数字を ID ではなく文字列として探すときにも使う）
  *   -語 / -"語句"  含むものを除く
  *   title:語  alias:語  content:語    その項目だけで探す（値は "語句" でもよい。- を前に付けると除く）
@@ -22,10 +22,10 @@ class ResourceSearchQuery
     /**
      * 語を探す範囲 => リソースの探す列。範囲は列名でなく意味で持ち、列への読み替えはここだけで行う
      * （エレメントの検索は、同じ範囲を ElementList::searchWhere() でエレメントの列に読み替える）。
-     * any は項目名を付けない語で、「本文も探す」なら content も足す。pagetitle・longtitle は「詳しく検索」の欄
+     * any は項目名を付けない語。pagetitle・longtitle は「詳しく検索」の欄
      */
     private const SCOPE_FIELDS = [
-        'any' => ['pagetitle', 'longtitle', 'alias'],
+        'any' => ['pagetitle', 'longtitle', 'alias', 'content'],
         'title' => ['pagetitle', 'longtitle'],
         'pagetitle' => ['pagetitle'],
         'longtitle' => ['longtitle'],
@@ -36,8 +36,7 @@ class ResourceSearchQuery
     private const OPERATOR_SCOPES = ['title', 'alias', 'content'];
     /** 探す列の組 => 「読み取った条件」に出す言い方（言語のキー）。探す列と文言はここで 1 つに決める */
     private const FIELD_LABELS = [
-        'pagetitle,longtitle,alias' => 'search_cond_any',
-        'pagetitle,longtitle,alias,content' => 'search_cond_any_content',
+        'pagetitle,longtitle,alias,content' => 'search_cond_any',
         'pagetitle,longtitle' => 'search_cond_title',
         'pagetitle' => 'search_cond_pagetitle',
         'longtitle' => 'search_cond_longtitle',
@@ -55,21 +54,17 @@ class ResourceSearchQuery
     private $bareNumber = '';
     /** 入力全体が URL のときの、その入力 */
     private $target = '';
-    /** 「本文も探す」（範囲 any のリソースの列に content を足す） */
-    private $alsoContent = false;
 
     /**
      * @param string $q 入力欄
-     * @param bool $alsoContent 「本文も探す」
      * @param array<string, string> $form 「詳しく検索」の欄（pagetitle・longtitle・alias・content・status・parent・template・edited_from・edited_to）
      */
-    public function __construct(string $q, bool $alsoContent, array $form = [])
+    public function __construct(string $q, array $form = [])
     {
         // 不正な UTF-8 は、正規表現や表示で壊れる前に取り除く
         $form = array_map(static function ($v) {
             return mb_scrub((string) $v);
         }, $form);
-        $this->alsoContent = $alsoContent;
         $this->parseInput(trim(mb_scrub($q)));
         $this->addForm($form);
     }
@@ -146,11 +141,7 @@ class ResourceSearchQuery
         foreach ($this->conditions as $c) {
             switch ($c['type']) {
                 case 'text':
-                    // alias・content は NULL のことがあり、NULL の行は NOT (… LIKE …) でも当たらなくなるので、空文字に直して比べる
-                    $cols = array_map(static function ($col) use ($c) {
-                        return sprintf("IFNULL(%s,'') LIKE '%%%s%%'", $col, self::escapeLike($c['value']));
-                    }, $this->fieldsOf($c));
-                    $expr = '(' . implode(' OR ', $cols) . ')';
+                    $expr = self::likeAny($this->fieldsOf($c), [$c['value']]);
                     $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
                     break;
                 case 'id':
@@ -427,11 +418,7 @@ class ResourceSearchQuery
     /** 語の条件の範囲を、リソースの探す列に読み替える */
     private function fieldsOf(array $condition): array
     {
-        $fields = self::SCOPE_FIELDS[$condition['scope']];
-        if ($condition['scope'] === 'any' && $this->alsoContent) {
-            $fields[] = 'content';
-        }
-        return $fields;
+        return self::SCOPE_FIELDS[$condition['scope']];
     }
 
     private function add(array $condition): void
@@ -467,6 +454,25 @@ class ResourceSearchQuery
     }
 
     // ---- 部品 ----
+
+    /**
+     * どれかの列が、どれかの値を含むか（OR）の式。値が無ければ偽の式。
+     * alias・content などは NULL のことがあり、NULL の行は NOT (… LIKE …) でも当たらなくなるので、空文字に直して比べる
+     *
+     * @param string[] $columns 列の式（呼ぶ側で決めた固定の名前。リクエストの値を入れない）
+     * @param string[] $values 探す値（ここでエスケープする）
+     */
+    public static function likeAny(array $columns, array $values): string
+    {
+        $parts = [];
+        foreach ($values as $value) {
+            foreach ($columns as $column) {
+                $parts[] = sprintf("IFNULL(%s,'') LIKE '%%%s%%'", $column, self::escapeLike($value));
+            }
+        }
+        // 値が無いときの偽は式で返す（ORDER BY に置くと、数字だけでは列の番号と読まれる）
+        return $parts ? '(' . implode(' OR ', $parts) . ')' : '(1=0)';
+    }
 
     /** LIKE の値として、% と _ と \ を文字に戻し、DB に渡す直前にエスケープする */
     public static function escapeLike(string $value): string

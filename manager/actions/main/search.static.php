@@ -9,7 +9,7 @@ include_once MODX_CORE_PATH . 'element_list.class.php';
 include_once MODX_CORE_PATH . 'site_search.class.php';
 
 /*
- * 検索の入力。ふだんは 1 つの欄（q）と「本文も探す」だけで、「詳しく検索」を開くと欄ごとの条件と絞り込みが出る。
+ * 検索の入力。ふだんは探す範囲（scope）と 1 つの欄（q）だけで、「詳しく検索」を開くと欄ごとの条件と絞り込みが出る。
  * 前の版のパラメータ（searchid・url・pagetitle・longtitle・alias・content）も受ける（ブックマーク・リンクのため）
  */
 // 文字列の入力。不正な UTF-8 は取り除き、前後の空白を除く
@@ -29,7 +29,6 @@ if ($q === '') {
         }
     }
 }
-$alsoContent = get_boolvar('also_content');
 // 探す対象。既定はリソースだけ（エレメントの本文を探すときは elements か all）
 $scope = get_choicevar('scope', SiteSearch::SCOPES, 'resources');
 $advanced = [
@@ -98,7 +97,6 @@ $selected = static function ($value, $current) {
                         autofocus
                     />
                     <button type="submit" name="submitok" value="1" class="button primary"><?= lang('search') ?></button>
-                    <label class="search-also"><input type="checkbox" name="also_content" value="1"<?= $alsoContent ? ' checked' : '' ?>/> <?= lang('search_also_content') ?></label>
                 </div>
                 <!-- 2 行目: 説明と、閉じた「書き方」「詳しく検索」を 1 行に並べる。開いたものだけ、中身を下に全幅で出す -->
                 <div class="search-row2">
@@ -316,7 +314,7 @@ $selected = static function ($value, $current) {
 <?php
 $submitted = (bool) getv('submitok');
 // 入力欄の書き方と「詳しく検索」の欄を、同じ条件の並びに読み替える（リソースとエレメントの検索で共通）
-$query = new ResourceSearchQuery($q, $alsoContent, [
+$query = new ResourceSearchQuery($q, [
     'pagetitle' => $advanced['pagetitle'],
     'longtitle' => $advanced['longtitle'],
     'alias' => $advanced['alias'],
@@ -351,7 +349,7 @@ $highlight = function (string $text) use ($terms) {
 if ($submitted) {
     include_once MODX_CORE_PATH . 'controls/data_table.class.php';
 
-    $search = new SiteSearch($query, $scope, $alsoContent);
+    $search = new SiteSearch($query, $scope);
     // ID・URL から引けなかったとき（何も当たらない条件になっている。理由は結果の欄に出す）
     $targetError = $search->targetError();
     $searchTargetInput = $query->target();
@@ -363,7 +361,6 @@ if ($submitted) {
     $linkParams = ['a' => 71, 'submitok' => 1];
     $keep = [
         'q' => $q,
-        'also_content' => $alsoContent ? '1' : '',
         'scope' => $scope === 'resources' ? '' : $scope,
         'status' => $status,
         'parent' => $parent === null ? '' : (string) $parent,
@@ -405,7 +402,7 @@ if ($submitted) {
                 }
             }
             if ($bareNumber !== '' && $asTextCount > 0) {
-                $asTextParams = ['a' => 71, 'submitok' => 1, 'q' => '"' . $bareNumber . '"'] + ($alsoContent ? ['also_content' => 1] : []);
+                $asTextParams = ['a' => 71, 'submitok' => 1, 'q' => '"' . $bareNumber . '"'];
                 printf(
                     '<p class="search-astext"><a href="index.php?%s">%s</a></p>',
                     hsc(http_build_query($asTextParams)),

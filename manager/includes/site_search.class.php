@@ -7,9 +7,12 @@
  *   resources  リソースだけ。ID・タイトルで並べ替える
  *   elements   エレメントだけ
  *   all        リソースとエレメント
- * elements・all は、リソースと種類ごとのエレメントの SELECT（kind・id・title）を UNION ALL でまとめ、件数・並べ替え・ページ送りを
+ * elements・all は、リソースと種類ごとのエレメントの SELECT（kind・id・title・hit）を UNION ALL でまとめ、件数・並べ替え・ページ送りを
  * 1 つの問い合わせで行い、そのページの行だけ種類ごとに詳しい列を取る。種類をまたいで ID を比べても意味が無いので、名前・タイトルで並べる。
  * エレメントは語の条件だけで探す（ID・URL・親などはリソースにしか無い。ElementList::searchSelects()）。
+ *
+ * 語は本文まで探すので、並べ替えの指定が無いときは、タイトル（リソースは pagetitle・longtitle、エレメントは名前）に
+ * 語を含むものを先に出し、その中でタイトル順に並べる（本文に含むだけのものの中に埋もれないように）。
  */
 class SiteSearch
 {
@@ -19,8 +22,6 @@ class SiteSearch
     private $query;
     /** @var string */
     private $scope;
-    /** @var bool */
-    private $alsoContent;
     /** @var string[] リソースの WHERE（AND でつなぐ） */
     private $where;
     /** @var string ID・URL から引けなかったときの理由（言語のキー） */
@@ -30,11 +31,10 @@ class SiteSearch
     /** @var string 本文の抜粋を作ってよいかの式（行の can_view） */
     private $canViewColumn = '1';
 
-    public function __construct(ResourceSearchQuery $query, string $scope, bool $alsoContent)
+    public function __construct(ResourceSearchQuery $query, string $scope)
     {
         $this->query = $query;
         $this->scope = in_array($scope, self::SCOPES, true) ? $scope : 'resources';
-        $this->alsoContent = $alsoContent;
 
         $built = $query->toWhere();
         $this->where = $built['where'];
@@ -100,7 +100,7 @@ class SiteSearch
         if ($this->scope !== 'resources' || $bareNumber === '') {
             return 0;
         }
-        $where = (new ResourceSearchQuery('"' . $bareNumber . '"', $this->alsoContent))->toWhere()['where'];
+        $where = (new ResourceSearchQuery('"' . $bareNumber . '"'))->toWhere()['where'];
         if ($this->accessWhere !== '') {
             $where[] = $this->accessWhere;
         }
@@ -112,9 +112,9 @@ class SiteSearch
      * 行は kind（resource か、エレメントの種類）付きで、ページの並びのとおり。
      * リソースの行は site_content の列（本文は先頭だけの content_head）と can_view、エレメントの行は ElementList::rowsByIds() の形。
      *
-     * @param string $orderby sortColumns() のキー（空なら既定のタイトル昇順）
+     * @param string $orderby sortColumns() のキー（空なら既定の、タイトルに当たるものが先・タイトル昇順）
      * @param string $orderdir asc / desc
-     * @param string[] $terms 本文の中の当たった行を探す語
+     * @param string[] $terms タイトルに当たるか・本文の中の当たった行を見る語（ResourceSearchQuery::terms()）
      * @return array{total: int, pager: DataTablePager, rows: array}
      */
     public function fetch(string $orderby, string $orderdir, int $page, int $perPage, array $terms): array
@@ -125,7 +125,7 @@ class SiteSearch
         if ($this->scope === 'resources') {
             $sort = isset($columns[$orderby])
                 ? sprintf('%s %s, id %s', $columns[$orderby], $dir, $dir)
-                : 'pagetitle ASC, id ASC';
+                : sprintf('%s DESC, pagetitle ASC, id ASC', $this->titleHit($terms));
             $total = (int) db()->getValue(
                 db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $this->where))
             );
@@ -144,11 +144,12 @@ class SiteSearch
             return ['total' => $total, 'pager' => $pager, 'rows' => $rows];
         }
 
-        $parts = ElementList::searchSelects($this->elementConditions());
+        $parts = ElementList::searchSelects($this->elementConditions(), $terms);
         if ($this->scope === 'all') {
             array_unshift($parts, sprintf(
-                "SELECT 'resource' AS kind, id, %s AS title FROM [+prefix+]site_content WHERE %s",
+                "SELECT 'resource' AS kind, id, %s AS title, %s AS hit FROM [+prefix+]site_content WHERE %s",
                 ElementList::sortableTitle('pagetitle'),
+                $this->titleHit($terms),
                 implode(' AND ', $this->where)
             ));
         }
@@ -158,7 +159,10 @@ class SiteSearch
         $union = '(' . implode(' UNION ALL ', $parts) . ') AS hits';
         $total = (int) db()->getValue(db()->select('COUNT(*)', $union));
         $pager = new DataTablePager($total, $perPage, $page);
-        $rs = db()->select('kind, id', $union, '', sprintf('title %s, kind ASC, id %s', $dir, $dir), $this->limit($pager));
+        $sort = isset($columns[$orderby])
+            ? sprintf('title %s, kind ASC, id %s', $dir, $dir)
+            : 'hit DESC, title ASC, kind ASC, id ASC';
+        $rs = db()->select('kind, id', $union, '', $sort, $this->limit($pager));
         $idsByKind = [];
         while ($row = db()->getRow($rs)) {
             $idsByKind[$row['kind']][] = (int) $row['id'];
@@ -176,6 +180,12 @@ class SiteSearch
             }
         }
         return ['total' => $total, 'pager' => $pager, 'rows' => $rows];
+    }
+
+    /** リソースのタイトル（pagetitle・longtitle）に語のどれかを含むかの式 */
+    private function titleHit(array $terms): string
+    {
+        return ResourceSearchQuery::likeAny(['pagetitle', 'longtitle'], $terms);
     }
 
     /** リソースの行の列。本文は抜粋に使う先頭だけを取る（大きな本文を全件ぶん読まない） */

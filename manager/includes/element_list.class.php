@@ -115,10 +115,10 @@ class ElementList
     }
 
     /**
-     * 検索（a=71）の UNION ALL の部分。権限のある種類ごとに、条件に当たる行の kind（種類）・id・title を返す SELECT。
+     * 検索（a=71）の UNION ALL の部分。権限のある種類ごとに、条件に当たる行の kind（種類）・id・title と、
+     * hit（名前・labelFields に $terms のどれかを含むか。既定の並びで先に出すため）を返す SELECT。
      * $conditions は ResourceSearchQuery::textConditions() の形（value・negate・scope）。
-     * 探す範囲をエレメントの列に読み替える（searchWhere()）。エレメントは名前より本文で探すことが多いので、
-     * 項目を付けない語（any）は「本文も探す」に関係なく本文も探す。
+     * 探す範囲をエレメントの列に読み替える（searchWhere()）。項目を付けない語（any）は本文も探す。
      *   any                            → 名前・説明・labelFields・contentFields
      *   title・pagetitle・longtitle    → 名前・説明・labelFields
      *   content                        → contentFields
@@ -126,9 +126,10 @@ class ElementList
      * 読み替える列が無い条件は、含む条件ならその種類を出さず、除く条件なら掛けない。
      *
      * @param array<int, array{value: string, negate: bool, scope: string}> $conditions
+     * @param string[] $terms 名前に当たるかを見る語（ResourceSearchQuery::terms()）
      * @return string[]
      */
-    public static function searchSelects(array $conditions): array
+    public static function searchSelects(array $conditions, array $terms): array
     {
         if (!$conditions) {
             return [];
@@ -142,15 +143,25 @@ class ElementList
             if ($where === null) {
                 continue;
             }
+            $nameColumns = static::prefixed(array_merge([$def['nameField'] ?? 'name'], $def['labelFields'] ?? []));
             $selects[] = sprintf(
-                "SELECT '%s' AS kind, e.id AS id, %s AS title FROM [+prefix+]%s AS e WHERE %s",
+                "SELECT '%s' AS kind, e.id AS id, %s AS title, %s AS hit FROM [+prefix+]%s AS e WHERE %s",
                 $type,
                 static::sortableTitle('e.' . ($def['nameField'] ?? 'name')),
+                ResourceSearchQuery::likeAny($nameColumns, $terms),
                 $def['table'],
                 $where ? implode(' AND ', $where) : '1=1'
             );
         }
         return $selects;
+    }
+
+    /** @param string[] $columns */
+    private static function prefixed(array $columns): array
+    {
+        return array_map(static function ($column) {
+            return "e.{$column}";
+        }, $columns);
     }
 
     /**
@@ -207,10 +218,7 @@ class ElementList
                 }
                 return null;
             }
-            $like = ResourceSearchQuery::escapeLike($c['value']);
-            $expr = '(' . implode(' OR ', array_map(static function ($column) use ($like) {
-                return sprintf("IFNULL(e.%s,'') LIKE '%%%s%%'", $column, $like);
-            }, $columns)) . ')';
+            $expr = ResourceSearchQuery::likeAny(static::prefixed($columns), [$c['value']]);
             $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
         }
         return $where;
