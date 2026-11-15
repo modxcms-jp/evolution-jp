@@ -973,7 +973,7 @@
 
 @container (min-width: 640px) {
     .evo-fb-edit-layout {
-        grid-template-columns: minmax(0, 1fr) 240px;
+        grid-template-columns: minmax(0, 1fr) 260px;
         grid-template-rows: auto minmax(0, 1fr) auto;
         grid-template-areas: "head head" "stage controls" "foot buttons";
         overflow: hidden;
@@ -1137,7 +1137,7 @@
     grid-area: controls;
     display: flex;
     flex-direction: column;
-    gap: var(--space-3, 12px);
+    gap: var(--space-2, 8px);
     min-width: 0;
     min-height: 0;
 }
@@ -1146,8 +1146,8 @@
 .evo-fb-edit-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2, 8px);
-    padding-bottom: var(--space-3, 12px);
+    gap: var(--space-1, 4px);
+    padding-bottom: var(--space-2, 8px);
     border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
 }
 
@@ -1157,13 +1157,48 @@
 }
 
 .evo-fb-edit-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2, 8px);
     font-weight: bold;
+}
+
+/* 区分の中の小見出し(縦横比・範囲) */
+.evo-fb-edit-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2, 8px);
+    margin-top: var(--space-1, 4px);
+    color: var(--color-text-muted, #606060);
+    font-size: 0.9em;
+}
+
+/* 見出しの右に置く小さなボタン(トリミングのリセット・縦横比の入れ替え) */
+.evo-fb-edit-mini {
+    padding: 0 var(--space-2, 8px);
+    font-weight: normal;
+    font-size: 0.9em;
+}
+
+.evo-fb-edit-heading .evo-fb-edit-mini {
+    font-size: 0.85em;
+}
+
+.evo-fb-edit-mini:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .evo-fb-edit-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1, 4px);
+}
+
+.evo-fb-edit-buttons .evo-fb-btn {
+    padding: var(--space-1, 4px) var(--space-2, 8px);
 }
 
 .evo-fb-edit-buttons .evo-fb-btn[aria-pressed="true"] {

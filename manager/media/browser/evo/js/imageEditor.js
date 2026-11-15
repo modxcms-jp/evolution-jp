@@ -687,11 +687,12 @@ export function createImageEditor(ctx) {
 
     el('edit-rotate-left').addEventListener('click', function () { rotate(-1); });
     el('edit-rotate-right').addEventListener('click', function () { rotate(1); });
+    // トリミングだけを最初に戻す(範囲は画像全体、縦横比は「自由」)。回転と保存の大きさの指定はそのまま。
+    // 保存の大きさは resolveOut() が新しい範囲に収める
     el('edit-crop-clear').addEventListener('click', function () {
         if (img && !busy) {
-            var ratio = activeRatio();
-            var whole = wholeRect(bounds());
-            setCrop(ratio ? fitRatioInside(whole, ratio) : whole, ratio);
+            ratioKey = 'free';
+            setCrop(wholeRect(bounds()), null);
         }
     });
     ratioBtns.forEach(function (btn) {
