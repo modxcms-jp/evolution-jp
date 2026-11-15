@@ -150,15 +150,20 @@ export function createPreview(ctx) {
         el.hidden = true;
     }
 
+    // action: { label, onSelect, primary?, danger?, disabled?, keepOpen? }。
+    // 押すとプレビューを閉じてから onSelect を呼ぶ。keepOpen のものは閉じずに呼ぶ(閉じるかどうかは onSelect が決める)
     function renderActions(file) {
         ctx.actionsEl.textContent = '';
         ctx.getActions(file).forEach(function (action) {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'evo-fb-btn' + (action.primary ? ' evo-fb-btn-primary' : '');
+            btn.className = 'evo-fb-btn' + (action.primary ? ' evo-fb-btn-primary' : '') + (action.danger ? ' evo-fb-btn-danger' : '');
             btn.textContent = action.label;
+            btn.disabled = !!action.disabled;
             btn.addEventListener('click', function () {
-                closeWith(false);
+                if (!action.keepOpen) {
+                    closeWith(false);
+                }
                 action.onSelect();
             });
             ctx.actionsEl.appendChild(btn);

@@ -10,7 +10,7 @@
 //   itemActions                    ファイルの行のアイコンと右クリックの項目になる操作の種類の配列('open' | 'preview' | 'download')。
 //                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない。
 //                                  右クリック(ファイル 1 件)のダウンロードは、itemActions に 'download' が無い入口でも共通の項目として出す
-//   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
+//   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]。複製・削除はどの入口でも共通に後ろへ足す
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
 //                                  true なら、そのファイルだけを上書きで送り直す
@@ -173,18 +173,34 @@ function init(root, entry, behaviors) {
         performRename(name, window.prompt(t('fb_rename_prompt'), name));
     }
 
+    // 消せたら true で終わる(確かめて取りやめたとき・失敗したときは false)
     function deleteEntry(name, isFolder) {
         if (!window.confirm(t(isFolder ? 'fb_confirm_delete_folder' : 'fb_confirm_delete_file', name))) {
-            return;
+            return Promise.resolve(false);
         }
         var fields = isFolder ? { 'folders[]': [name] } : { 'files[]': [name] };
-        postForm(config, state, 'delete', fields)
+        return postForm(config, state, 'delete', fields)
             .then(function (result) {
                 alertPartialErrors('fb_delete_partial_failed', result.errors);
                 load();
+                return (result.deleted || []).indexOf(name) !== -1;
             })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_delete_failed'));
+                return false;
+            });
+    }
+
+    // 同じフォルダへコピーする(サーバーが 名前(1).拡張子 のように空いている名前を付ける)。できたら一覧を読み直して、複製を選ぶ
+    function duplicateEntry(name) {
+        postForm(config, state, 'copy', { 'files[]': [name], dest: state.folder })
+            .then(function (result) {
+                alertPartialErrors('fb_copy_partial_failed', result.errors);
+                var copied = (result.copied || [])[0];
+                load(copied ? copied.name : undefined, { instant: true });
+            })
+            .catch(function (err) {
+                window.alert(failureMessage(err, 'fb_copy_failed'));
             });
     }
 
@@ -353,7 +369,27 @@ function init(root, entry, behaviors) {
         closeBtn: root.querySelector('[data-role="preview-close"]'),
         actionsEl: root.querySelector('[data-role="preview-actions"]'),
         editBtn: root.querySelector('[data-role="preview-edit"]'),
-        getActions: function (file) { return behaviors.previewActions(file, host); },
+        // 入口ごとのボタンのあとに、複製と削除を足す(書き込めないフォルダでは押せない)。
+        // 削除は確かめる間もプレビューを開いたままにし、消せたときだけ閉じる
+        getActions: function (file) {
+            return behaviors.previewActions(file, host).concat([
+                { label: t('fb_duplicate'), disabled: !state.writable, onSelect: function () { duplicateEntry(file.name); } },
+                {
+                    label: t('delete'),
+                    danger: true,
+                    keepOpen: true,
+                    disabled: !state.writable,
+                    onSelect: function () {
+                        deleteEntry(file.name, false).then(function (deleted) {
+                            if (deleted) {
+                                preview.close();
+                                dropzoneEl.focus({ preventScroll: true });
+                            }
+                        });
+                    }
+                }
+            ]);
+        },
         canEdit: imageEditor.canEdit,
         onEdit: imageEditor.open
     });

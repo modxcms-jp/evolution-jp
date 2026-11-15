@@ -1404,6 +1404,7 @@ return [
     "fb_copy" => 'Copy',
     "fb_cut" => 'Cut',
     "fb_paste" => 'Paste',
+    "fb_duplicate" => 'Duplicate',
     "fb_copy_partial_failed" => 'Some files could not be copied:',
     "fb_copy_failed" => 'Copy failed: %s',
     "fb_err_copy_failed" => 'Could not copy.',
