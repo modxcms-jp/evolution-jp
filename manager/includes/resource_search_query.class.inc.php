@@ -19,14 +19,21 @@
  */
 class ResourceSearchQuery
 {
-    /** 書き方の項目名 => 探す列 */
-    private const FIELDS = [
+    /**
+     * 語を探す範囲 => リソースの探す列。範囲は列名でなく意味で持ち、列への読み替えはここだけで行う
+     * （エレメントの検索は、同じ範囲を ElementList::searchWhere() でエレメントの列に読み替える）。
+     * any は項目名を付けない語で、「本文も探す」なら content も足す。pagetitle・longtitle は「詳しく検索」の欄
+     */
+    private const SCOPE_FIELDS = [
+        'any' => ['pagetitle', 'longtitle', 'alias'],
         'title' => ['pagetitle', 'longtitle'],
+        'pagetitle' => ['pagetitle'],
+        'longtitle' => ['longtitle'],
         'alias' => ['alias'],
         'content' => ['content'],
     ];
-    /** 項目名を付けない語を探す列（「本文も探す」なら content も） */
-    private const DEFAULT_FIELDS = ['pagetitle', 'longtitle', 'alias'];
+    /** 書き方の項目名（title: など）として使える範囲 */
+    private const OPERATOR_SCOPES = ['title', 'alias', 'content'];
     /** 探す列の組 => 「読み取った条件」に出す言い方（言語のキー）。探す列と文言はここで 1 つに決める */
     private const FIELD_LABELS = [
         'pagetitle,longtitle,alias' => 'search_cond_any',
@@ -48,6 +55,8 @@ class ResourceSearchQuery
     private $bareNumber = '';
     /** 入力全体が URL のときの、その入力 */
     private $target = '';
+    /** 「本文も探す」（範囲 any のリソースの列に content を足す） */
+    private $alsoContent = false;
 
     /**
      * @param string $q 入力欄
@@ -60,7 +69,8 @@ class ResourceSearchQuery
         $form = array_map(static function ($v) {
             return mb_scrub((string) $v);
         }, $form);
-        $this->parseInput(trim(mb_scrub($q)), $alsoContent);
+        $this->alsoContent = $alsoContent;
+        $this->parseInput(trim(mb_scrub($q)));
         $this->addForm($form);
     }
 
@@ -95,17 +105,17 @@ class ResourceSearchQuery
     }
 
     /**
-     * 語の条件（エレメントの検索で、リソースの列をエレメントの列に読み替えて使う）。
-     * fields はリソースの列名（pagetitle・longtitle・alias・content）。
+     * 語の条件（エレメントの検索で、範囲をエレメントの列に読み替えて使う）。
+     * scope は探す範囲（any・title・pagetitle・longtitle・alias・content。SCOPE_FIELDS のキー）。
      *
-     * @return array<int, array{value: string, negate: bool, fields: string[]}>
+     * @return array<int, array{value: string, negate: bool, scope: string}>
      */
     public function textConditions(): array
     {
         $out = [];
         foreach ($this->conditions as $c) {
             if ($c['type'] === 'text' && $c['value'] !== '') {
-                $out[] = ['value' => $c['value'], 'negate' => $c['negate'], 'fields' => $c['fields']];
+                $out[] = ['value' => $c['value'], 'negate' => $c['negate'], 'scope' => $c['scope']];
             }
         }
         return $out;
@@ -139,7 +149,7 @@ class ResourceSearchQuery
                     // alias・content は NULL のことがあり、NULL の行は NOT (… LIKE …) でも当たらなくなるので、空文字に直して比べる
                     $cols = array_map(static function ($col) use ($c) {
                         return sprintf("IFNULL(%s,'') LIKE '%%%s%%'", $col, self::escapeLike($c['value']));
-                    }, $c['fields']);
+                    }, $this->fieldsOf($c));
                     $expr = '(' . implode(' OR ', $cols) . ')';
                     $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
                     break;
@@ -201,7 +211,7 @@ class ResourceSearchQuery
         foreach ($this->conditions as $c) {
             switch ($c['type']) {
                 case 'text':
-                    $where = lang(self::FIELD_LABELS[implode(',', $c['fields'])]);
+                    $where = lang(self::FIELD_LABELS[implode(',', $this->fieldsOf($c))]);
                     $value = $c['phrase'] ? '"' . $c['value'] . '"' : $c['value'];
                     $out[] = sprintf(lang($c['negate'] ? 'search_cond_text_not' : 'search_cond_text'), $where, $value);
                     break;
@@ -305,7 +315,7 @@ class ResourceSearchQuery
 
     // ---- 読み取り ----
 
-    private function parseInput(string $q, bool $alsoContent): void
+    private function parseInput(string $q): void
     {
         if ($q === '') {
             return;
@@ -321,18 +331,17 @@ class ResourceSearchQuery
             $this->add(['type' => 'target', 'value' => $q]);
             return;
         }
-        $defaultFields = $alsoContent ? array_merge(self::DEFAULT_FIELDS, ['content']) : self::DEFAULT_FIELDS;
         foreach (self::tokenize($q) as [$negate, $field, $value, $phrase]) {
             if ($value === '') {
                 continue;
             }
             if ($field === '') {
-                $this->addText($value, $defaultFields, $negate, $phrase);
+                $this->addText($value, 'any', $negate, $phrase);
                 continue;
             }
             if (!$this->addOperator($field, $value, $negate, $phrase)) {
                 // 知らない書き方は、そのまま文字として探す
-                $this->addText($field . ':' . $value, $defaultFields, $negate, $phrase);
+                $this->addText($field . ':' . $value, 'any', $negate, $phrase);
             }
         }
     }
@@ -341,8 +350,8 @@ class ResourceSearchQuery
     private function addOperator(string $field, string $value, bool $negate, bool $phrase): bool
     {
         $field = strtolower($field);
-        if (isset(self::FIELDS[$field])) {
-            $this->addText($value, self::FIELDS[$field], $negate, $phrase);
+        if (in_array($field, self::OPERATOR_SCOPES, true)) {
+            $this->addText($value, $field, $negate, $phrase);
             return true;
         }
         if ($negate) {
@@ -388,7 +397,7 @@ class ResourceSearchQuery
         foreach (['pagetitle', 'longtitle', 'alias', 'content'] as $name) {
             $v = trim((string) ($form[$name] ?? ''));
             if ($v !== '') {
-                $this->addText($v, [$name], false, false);
+                $this->addText($v, $name, false, false);
             }
         }
         $status = (string) ($form['status'] ?? '');
@@ -410,9 +419,19 @@ class ResourceSearchQuery
         }
     }
 
-    private function addText(string $value, array $fields, bool $negate, bool $phrase): void
+    private function addText(string $value, string $scope, bool $negate, bool $phrase): void
     {
-        $this->add(['type' => 'text', 'value' => $value, 'fields' => $fields, 'negate' => $negate, 'phrase' => $phrase]);
+        $this->add(['type' => 'text', 'value' => $value, 'scope' => $scope, 'negate' => $negate, 'phrase' => $phrase]);
+    }
+
+    /** 語の条件の範囲を、リソースの探す列に読み替える */
+    private function fieldsOf(array $condition): array
+    {
+        $fields = self::SCOPE_FIELDS[$condition['scope']];
+        if ($condition['scope'] === 'any' && $this->alsoContent) {
+            $fields[] = 'content';
+        }
+        return $fields;
     }
 
     private function add(array $condition): void
@@ -450,9 +469,6 @@ class ResourceSearchQuery
     // ---- 部品 ----
 
     /** LIKE の値として、% と _ と \ を文字に戻し、DB に渡す直前にエスケープする */
-    /**
-     * LIKE '%…%' の中に入れる値（%・_・\ を文字として扱い、DB 用にエスケープする）
-     */
     public static function escapeLike(string $value): string
     {
         return db()->escape(addcslashes($value, '%_\\'));

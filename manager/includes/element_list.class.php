@@ -116,15 +116,16 @@ class ElementList
 
     /**
      * 検索（a=71）の UNION ALL の部分。権限のある種類ごとに、条件に当たる行の kind（種類）・id・title を返す SELECT。
-     * $conditions は ResourceSearchQuery::textConditions() の形（value・negate・fields。fields はリソースの列名）。
-     * リソースの列をエレメントの列に読み替える。エレメントは名前より本文で探すことが多いので、項目を付けない語は本文も探す。
-     *   項目を付けない語（fields に alias を含む） → 名前・説明・labelFields・contentFields
-     *   title:（pagetitle・longtitle）           → 名前・説明・labelFields
-     *   content:                                  → contentFields
-     *   alias:                                    → なし
+     * $conditions は ResourceSearchQuery::textConditions() の形（value・negate・scope）。
+     * 探す範囲をエレメントの列に読み替える（searchWhere()）。エレメントは名前より本文で探すことが多いので、
+     * 項目を付けない語（any）は「本文も探す」に関係なく本文も探す。
+     *   any                            → 名前・説明・labelFields・contentFields
+     *   title・pagetitle・longtitle    → 名前・説明・labelFields
+     *   content                        → contentFields
+     *   alias                          → なし
      * 読み替える列が無い条件は、含む条件ならその種類を出さず、除く条件なら掛けない。
      *
-     * @param array<int, array{value: string, negate: bool, fields: string[]}> $conditions
+     * @param array<int, array{value: string, negate: bool, scope: string}> $conditions
      * @return string[]
      */
     public static function searchSelects(array $conditions): array
@@ -189,21 +190,17 @@ class ElementList
     private static function searchWhere(array $def, array $conditions): ?array
     {
         $labelColumns = array_merge([$def['nameField'] ?? 'name', 'description'], $def['labelFields'] ?? []);
+        $scopeColumns = [
+            'any' => array_merge($labelColumns, $def['contentFields']),
+            'title' => $labelColumns,
+            'pagetitle' => $labelColumns,
+            'longtitle' => $labelColumns,
+            'content' => $def['contentFields'],
+            'alias' => [],
+        ];
         $where = [];
         foreach ($conditions as $c) {
-            if (in_array('alias', $c['fields'], true)) {
-                $columns = array_merge($labelColumns, $def['contentFields']);
-            } else {
-                $columns = [];
-                foreach ($c['fields'] as $field) {
-                    if ($field === 'pagetitle' || $field === 'longtitle') {
-                        $columns = array_merge($columns, $labelColumns);
-                    } elseif ($field === 'content') {
-                        $columns = array_merge($columns, $def['contentFields']);
-                    }
-                }
-            }
-            $columns = array_values(array_unique($columns));
+            $columns = $scopeColumns[$c['scope']] ?? [];
             if (!$columns) {
                 if ($c['negate']) {
                     continue;

@@ -5,6 +5,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 
 include_once MODX_CORE_PATH . 'resource_search_query.class.inc.php';
+include_once MODX_CORE_PATH . 'element_list.class.php';
+include_once MODX_CORE_PATH . 'site_search.class.php';
 
 /*
  * 検索の入力。ふだんは 1 つの欄（q）と「本文も探す」だけで、「詳しく検索」を開くと欄ごとの条件と絞り込みが出る。
@@ -29,7 +31,7 @@ if ($q === '') {
 }
 $alsoContent = get_boolvar('also_content');
 // 探す対象。既定はリソースだけ（エレメントの本文を探すときは elements か all）
-$scope = get_choicevar('scope', ['resources', 'elements', 'all'], 'resources');
+$scope = get_choicevar('scope', SiteSearch::SCOPES, 'resources');
 $advanced = [
     'pagetitle' => $textParam('pagetitle'),
     'longtitle' => $textParam('longtitle'),
@@ -93,7 +95,7 @@ $selected = static function ($value, $current) {
                     <button type="submit" name="submitok" value="1" class="button primary"><?= lang('search') ?></button>
                     <label class="search-also"><input type="checkbox" name="also_content" value="1"<?= $alsoContent ? ' checked' : '' ?>/> <?= lang('search_also_content') ?></label>
                     <span class="search-scope" role="radiogroup" aria-label="<?= hsc(lang('search_scope')) ?>">
-                        <?php foreach (['resources', 'elements', 'all'] as $s): ?>
+                        <?php foreach (SiteSearch::SCOPES as $s): ?>
                             <label><input type="radio" name="scope" value="<?= $s ?>"<?= $scope === $s ? ' checked' : '' ?>/> <?= lang('search_scope_' . $s) ?></label>
                         <?php endforeach; ?>
                     </span>
@@ -347,54 +349,17 @@ $highlight = function (string $text) use ($terms) {
 };
 
 if ($submitted) {
-    include_once MODX_CORE_PATH . 'element_list.class.php';
-    $built = $query->toWhere();
-    $where = $built['where'];
+    include_once MODX_CORE_PATH . 'controls/data_table.class.php';
+
+    $search = new SiteSearch($query, $scope, $alsoContent);
     // ID・URL から引けなかったとき（何も当たらない条件になっている。理由は結果の欄に出す）
-    $targetError = $built['error'];
+    $targetError = $search->targetError();
     $searchTargetInput = $query->target();
-
-    // 閲覧できるリソースの条件（文書グループ。式はここ 1 か所）。checkPermissions() と同じく、use_udperms が無効・管理者なら制限しない。
-    // tree_show_protected が無効なら、ツリー（nodes.php の getNodes()）と同じく結果から外す（$accessWhere）。
-    // 有効なら、ツリーと同じくタイトルは出すが、本文の抜粋は閲覧できる行にだけ作る（can_view。document_data.static.php は拒否するため）
-    $accessExpr = '';
-    if (config('use_udperms') && !manager()->isAdmin()) {
-        $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
-        $access = 'privatemgr=0';
-        if ($mgrDocgroups) {
-            $access .= sprintf(
-                ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
-                db()->getFullTableName('document_groups'),
-                implode(',', $mgrDocgroups)
-            );
-        }
-        $accessExpr = '(' . $access . ')';
-    }
-    $accessWhere = config('tree_show_protected') ? '' : $accessExpr;
-    $canViewColumn = config('tree_show_protected') && $accessExpr !== '' ? $accessExpr : '1';
-
-    if ($accessWhere !== '') {
-        $where[] = $accessWhere;
-    }
-
-    // 数字だけで探したときは ID で出しつつ、その数字を文字として含むものの件数を添える（"20" と囲めば文字として探せる）
+    // 数字だけで探したときは ID で出しつつ、その数字を文字として含むものの件数を添える
     $bareNumber = $query->bareNumber();
-    $asTextCount = 0;
-    if ($bareNumber !== '') {
-        $asText = new ResourceSearchQuery('"' . $bareNumber . '"', $alsoContent);
-        // リンク先の検索と同じく、文書グループの条件も掛ける（見てはいけないリソースを件数に入れない）
-        $asTextWhere = $asText->toWhere()['where'];
-        if ($accessWhere !== '') {
-            $asTextWhere[] = $accessWhere;
-        }
-        $asTextCount = (int) db()->getValue(db()->select('COUNT(id)', '[+prefix+]site_content', implode(' AND ', $asTextWhere)));
-    }
+    $asTextCount = $search->asTextCount();
+    $elementConditions = $search->elementConditions();
 
-    include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
-
-    // 並べ替えのキー => ORDER BY の式（リクエストの値を直接 SQL に入れない）
-    // リソースとエレメントを混ぜるときは、種類をまたいで ID を比べても意味が無いので、名前・タイトルだけで並べ替える
-    $sortColumns = $scope === 'resources' ? ['id' => 'id', 'pagetitle' => 'pagetitle'] : ['pagetitle' => 'title'];
     $linkParams = ['a' => 71, 'submitok' => 1];
     $keep = [
         'q' => $q,
@@ -411,82 +376,11 @@ if ($submitted) {
             $linkParams[$name] = $value;
         }
     }
-    $links = DataTableLinks::fromRequest('index.php', $linkParams, array_keys($sortColumns));
+    $links = DataTableLinks::fromRequest('index.php', $linkParams, array_keys($search->sortColumns()));
     // 並べ替えの指定が無いときの既定はタイトル昇順（見出しの aria-sort は付かない）
-    $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
-    $perPage = (int) config('number_of_results') ?: 20;
-    // 本文は抜粋に使う先頭だけを取る（大きな本文を全件ぶん読まない）
-    $resourceFields = 'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, '
-        . $canViewColumn . ' AS can_view, deleted, published, isfolder, type';
-    // エレメントは語の条件だけで探す（ID・URL・親などはリソースにしか無い）
-    $elementConditions = $scope === 'resources' ? [] : $query->textConditions();
-    $resourceRows = [];
-    $elementRows = [];
-    $order = [];
-
-    if ($scope === 'resources') {
-        $orderby = 'pagetitle ASC, id ASC';
-        if ($links->orderby() !== '') {
-            $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
-        }
-        // 件数を数えてから、そのページの行だけを取る
-        $total = (int) db()->getValue(
-            db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $where))
-        );
-        $pager = new DataTablePager($total, $perPage, $links->page());
-        $rs = db()->select(
-            $resourceFields,
-            '[+prefix+]site_content',
-            implode(' and ', $where),
-            $orderby,
-            $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
-        );
-        while ($row = db()->getRow($rs)) {
-            $resourceRows[$row['id']] = $row;
-            $order[] = ['resource', $row['id']];
-        }
-    } else {
-        // リソース（両方のとき）とエレメントの種類ごとの SELECT を UNION ALL でまとめ、件数・並べ替え・ページ送りを 1 つの問い合わせで行う。
-        // そのページの行だけ、あとで種類ごとに詳しい列を取る
-        $parts = ElementList::searchSelects($elementConditions);
-        if ($scope === 'all') {
-            array_unshift($parts, sprintf(
-                "SELECT 'resource' AS kind, id, %s AS title FROM [+prefix+]site_content WHERE %s",
-                ElementList::sortableTitle('pagetitle'),
-                implode(' AND ', $where)
-            ));
-        }
-        $total = 0;
-        $pager = new DataTablePager(0, $perPage, 1);
-        if ($parts) {
-            $union = '(' . implode(' UNION ALL ', $parts) . ') AS hits';
-            $total = (int) db()->getValue(db()->select('COUNT(*)', $union));
-            $pager = new DataTablePager($total, $perPage, $links->page());
-            $rs = db()->select(
-                'kind, id',
-                $union,
-                '',
-                sprintf('title %s, kind ASC, id %s', $dir, $dir),
-                $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
-            );
-            $idsByKind = [];
-            while ($row = db()->getRow($rs)) {
-                $idsByKind[$row['kind']][] = (int) $row['id'];
-                $order[] = [$row['kind'], (int) $row['id']];
-            }
-            if (!empty($idsByKind['resource'])) {
-                $rs = db()->select($resourceFields, '[+prefix+]site_content', 'id IN (' . implode(',', $idsByKind['resource']) . ')');
-                while ($row = db()->getRow($rs)) {
-                    $resourceRows[$row['id']] = $row;
-                }
-            }
-            foreach ($idsByKind as $kind => $ids) {
-                if ($kind !== 'resource') {
-                    $elementRows[$kind] = ElementList::rowsByIds($kind, $ids, $terms);
-                }
-            }
-        }
-    }
+    $result = $search->fetch($links->orderby(), $links->orderdir(), $links->page(), (int) config('number_of_results') ?: 20, $terms);
+    $total = $result['total'];
+    $pager = $result['pager'];
     // タイトルを押したときの行き先。編集の権限が無ければ、リソースの情報の画面
     $action = evo()->hasPermission('edit_document') ? '27' : '3';
     ?>
@@ -509,11 +403,6 @@ if ($submitted) {
                 if (!$elementConditions) {
                     printf('<p class="search-astext">%s</p>', hsc(lang('search_element_no_terms')));
                 }
-            }
-            if ($scope !== 'resources') {
-                // ID・URL・数字だけの入力の案内はリソースのもの
-                $targetError = '';
-                $asTextCount = 0;
             }
             if ($bareNumber !== '' && $asTextCount > 0) {
                 $asTextParams = ['a' => 71, 'submitok' => 1, 'q' => '"' . $bareNumber . '"'] + ($alsoContent ? ['also_content' => 1] : []);
@@ -548,19 +437,13 @@ if ($submitted) {
                     'image/png' => style('tree_page_png')
                 ];
 
-                // ページの並び（$order）のとおりに、リソースとエレメントの行を並べる。kind は resource か、エレメントの種類
+                // 行は kind（resource か、エレメントの種類）付き。リソースの行にだけアイコンを足す
                 $rows = [];
-                foreach ($order as [$kind, $id]) {
-                    if ($kind !== 'resource') {
-                        if (isset($elementRows[$kind][$id])) {
-                            $rows[] = ['kind' => $kind] + $elementRows[$kind][$id];
-                        }
+                foreach ($result['rows'] as $row) {
+                    if ($row['kind'] !== 'resource') {
+                        $rows[] = $row;
                         continue;
                     }
-                    if (!isset($resourceRows[$id])) {
-                        continue;
-                    }
-                    $row = ['kind' => 'resource'] + $resourceRows[$id];
                     // figure out the icon for the document...
                     if ($row['type'] === 'reference') {
                         $row['icon'] = style('tree_linkgo');
@@ -667,7 +550,7 @@ if ($submitted) {
                 $columns[] = [
                     'key' => 'id',
                     'label' => lang('search_results_returned_id'),
-                    'sort' => isset($sortColumns['id']) ? 'id' : null,
+                    'sort' => isset($search->sortColumns()['id']) ? 'id' : null,
                     'class' => 'is-shrink',
                     'html' => true,
                     'format' => function ($value, array $row) {
