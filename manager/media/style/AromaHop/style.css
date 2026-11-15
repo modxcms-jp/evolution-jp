@@ -221,7 +221,6 @@
     /* 表・一覧（common/tables.css） */
     --grid-bg: rgba(253, 253, 251, 0.95);
     --grid-border: 1px solid rgba(255, 255, 255, 0.5);
-    --grid-cell-padding: var(--space-3);
     --grid-header-weight: 600;
     --grid-header-bg: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
     --grid-alt-bg: rgba(234, 252, 207, 0.3);
@@ -675,8 +674,6 @@ html body.evo-shell .tree-toolbar {
 
 .gridHeader, .grid th {
     border-bottom: 2px solid rgba(255, 255, 255, 0.6);
-    font-size: calc(var(--font-size-base, 12px) * 1.2);
-    letter-spacing: 0.02em;
 }
 
 .grid th:first-child {
@@ -716,22 +713,20 @@ html body.evo-shell .tree-toolbar {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -739,7 +734,6 @@ html body.evo-shell .tree-toolbar {
 /* Nowrap utility for dates */
 .grid .nowrap {
     white-space: nowrap;
-    font-size: calc(var(--font-size-base, 12px) * 1.133);
     color: var(--gray-800);
 }
 

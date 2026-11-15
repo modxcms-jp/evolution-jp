@@ -213,7 +213,6 @@
 
     /* 表・一覧（common/tables.css） */
     --grid-border: 1px solid var(--pink-200);
-    --grid-cell-padding: var(--space-3);
     --color-grid-header-text: var(--color-primary-dark);
     --grid-header-weight: 600;
     --grid-header-bg: linear-gradient(135deg, var(--pink-50) 0%, var(--pink-100) 100%);
@@ -474,6 +473,7 @@ input[type="checkbox"] {
     border-radius: var(--radius-full);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 6px rgba(212, 93, 155, 0.1);
     transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    vertical-align: middle;
     cursor: pointer;
 }
 
@@ -632,8 +632,6 @@ html body.evo-shell .tree-toolbar {
 
 .gridHeader, .grid th {
     border-bottom: 2px solid var(--pink-200);
-    font-size: calc(var(--font-size-base, 12px) * 1.2);
-    letter-spacing: 0.02em;
 }
 
 .grid th:first-child {
@@ -670,22 +668,20 @@ html body.evo-shell .tree-toolbar {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -693,7 +689,6 @@ html body.evo-shell .tree-toolbar {
 /* Nowrap utility for dates */
 .grid .nowrap {
     white-space: nowrap;
-    font-size: calc(var(--font-size-base, 12px) * 1.133);
     color: var(--gray-600);
 }
 
