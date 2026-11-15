@@ -1157,38 +1157,14 @@
 }
 
 .evo-fb-edit-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2, 8px);
     font-weight: bold;
 }
 
 /* 区分の中の小見出し(縦横比・範囲) */
 .evo-fb-edit-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2, 8px);
     margin-top: var(--space-1, 4px);
     color: var(--color-text-muted, #606060);
     font-size: 0.9em;
-}
-
-/* 見出しの右に置く小さなボタン(トリミングのリセット・縦横比の入れ替え) */
-.evo-fb-edit-mini {
-    padding: 0 var(--space-2, 8px);
-    font-weight: normal;
-    font-size: 0.9em;
-}
-
-.evo-fb-edit-heading .evo-fb-edit-mini {
-    font-size: 0.85em;
-}
-
-.evo-fb-edit-mini:disabled {
-    opacity: 0.5;
-    cursor: default;
 }
 
 .evo-fb-edit-buttons {
@@ -1205,6 +1181,12 @@
     background: var(--color-primary, #375665);
     border-color: var(--color-primary, #375665);
     color: var(--color-text-inverse, #fff);
+}
+
+/* 選んでいる縦横比のボタンに、もう一度押すと縦横が入れ替わることを示す印を付ける(1:1 は入れ替わらないので付けない) */
+.evo-fb-edit-buttons .evo-fb-btn[data-ratio]:not([data-ratio="1:1"])[aria-pressed="true"]::after {
+    content: "\21C4";
+    margin-left: var(--space-1, 4px);
 }
 
 .evo-fb-edit-buttons .evo-fb-btn:disabled {

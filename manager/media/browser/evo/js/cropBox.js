@@ -23,6 +23,11 @@ export function fitRatioInside(rect, ratio) {
     return { x: rect.x + (rect.w - w) / 2, y: rect.y + (rect.h - h) / 2, w: w, h: h };
 }
 
+/** 範囲がその比率と言えるか。整数の画素に丸めた差(どちらかの辺で 1 画素まで)は同じとみなす */
+export function matchesRatio(rect, ratio) {
+    return Math.abs(rect.h - rect.w / ratio) <= 1 || Math.abs(rect.w - rect.h * ratio) <= 1;
+}
+
 /** 中心を保って幅と高さを入れ替える。画像からはみ出すときは比率を保って縮め、位置を中へ寄せる */
 export function swapOrientation(rect, bounds) {
     var w = rect.h;

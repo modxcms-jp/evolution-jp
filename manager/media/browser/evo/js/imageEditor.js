@@ -10,6 +10,7 @@ import { openOverlay } from './overlay.js';
 import { withVersion } from './utils.js';
 import {
     fitRatioInside,
+    matchesRatio,
     moveRect,
     normalizeRect,
     resizeCorner,
@@ -27,7 +28,7 @@ var STAGE_MAX_ZOOM = 4;
 var CLICK_SLOP = 3;
 // トリミングの枠の幅・高さの最小(表示の px)。つまみが重なって操作できなくならないようにする
 var MIN_CROP_DISPLAY = 16;
-// 比率の選択肢(幅:高さ)。ボタンの data-ratio と同じ
+// 縦横比の選択肢(幅:高さ)。ボタンの data-ratio と同じ
 var RATIOS = { '1:1': [1, 1], '4:3': [4, 3], '3:2': [3, 2], '16:9': [16, 9] };
 
 function clamp(value, min, max) {
@@ -112,7 +113,6 @@ export function createImageEditor(ctx) {
     var cancelBtn = el('edit-cancel');
     var saveBtn = el('edit-save');
     var keepRatioEl = el('edit-keep-ratio');
-    var swapBtn = el('edit-ratio-swap');
     var ratioBtns = Array.from(overlayEl.querySelectorAll('[data-role="edit-ratio"]'));
     var cropInputs = { x: el('edit-crop-x'), y: el('edit-crop-y'), w: el('edit-crop-w'), h: el('edit-crop-h') };
     var outInputs = { w: el('edit-out-w'), h: el('edit-out-h') };
@@ -130,8 +130,9 @@ export function createImageEditor(ctx) {
     var rot = 0;
     // トリミングの範囲 { x, y, w, h }(回転後の画像の画素)。最初は画像全体
     var crop = null;
-    // 比率の選択。ratioKey は RATIOS のキーか 'free'、ratioPortrait は縦長に向けているか
-    var ratioKey = 'free';
+    // 縦横比のボタンで合わせた比率。ratioKey は RATIOS のキー(null は合わせていない)、ratioPortrait は縦長に向けているか(3:4 など)。
+    // 縦横比は固定せず、範囲がこの比率から外れたら解除する(reconcileRatio())。ボタンの表示はこの状態だけを映す
+    var ratioKey = null;
     var ratioPortrait = false;
     // リサイズの指定 { w, h }。null は「トリミングの範囲を、長い辺の上限に収めた大きさ」。
     // outKey は最後に入力した辺。縦横比を保つときは、範囲が変わってもこの辺の値を保ち、もう一方を範囲の比率で決める
@@ -319,42 +320,45 @@ export function createImageEditor(ctx) {
         outInputs.h.max = Math.min(c.h, maxDimension);
         summaryEl.textContent = t('fb_edit_summary', c.w, c.h, o.w, o.h);
         ratioBtns.forEach(function (btn) {
-            btn.setAttribute('aria-pressed', btn.dataset.ratio === ratioKey ? 'true' : 'false');
+            var pair = RATIOS[btn.dataset.ratio];
+            var active = btn.dataset.ratio === ratioKey;
+            // 縦向きで合わせているボタンは「3:4」のように表示する(押すたびに 4:3 と 3:4 が入れ替わる)
+            btn.textContent = active && ratioPortrait ? pair[1] + ':' + pair[0] : pair[0] + ':' + pair[1];
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
-        // 向きを入れ替えられるのは、正方形でない比率を選んでいるときだけ
-        if (!busy) {
-            swapBtn.disabled = !RATIOS[ratioKey] || ratioKey === '1:1';
-        }
         showCrop();
+    }
+
+    // 範囲が、合わせた縦横比から外れたら、ボタンの選択を解除する(画素の丸めの差では外さない)
+    function reconcileRatio() {
+        var ratio = activeRatio();
+        if (ratio && !matchesRatio(crop, ratio)) {
+            ratioKey = null;
+        }
     }
 
     function setCrop(next, ratio) {
         crop = normalizeRect(next, ratio, bounds());
+        reconcileRatio();
         updateControls();
     }
 
+    // 縦横比のボタン。範囲を中心を保ったままその比率に合わせる(固定はしない)。
+    // 選んでいるボタンをもう一度押すと縦横を入れ替える(1:1 は変わらない)。別のボタンは通常の向き(4:3 など)で合わせる
     function selectRatio(key) {
-        if (!img || busy) {
+        if (!img || busy || !RATIOS[key]) {
             return;
         }
-        ratioKey = RATIOS[key] ? key : 'free';
-        var ratio = activeRatio();
-        if (ratio) {
-            // 今の範囲の向き(縦長か横長か)に合わせ、今の範囲の中で一番大きく取る
-            ratioPortrait = crop.h > crop.w;
-            ratio = activeRatio();
-            setCrop(fitRatioInside(crop, ratio), ratio);
-        } else {
-            updateControls();
-        }
-    }
-
-    function swapRatio() {
-        if (!img || busy || !activeRatio()) {
+        if (key === ratioKey) {
+            if (key !== '1:1') {
+                ratioPortrait = !ratioPortrait;
+                setCrop(swapOrientation(crop, bounds()), activeRatio());
+            }
             return;
         }
-        ratioPortrait = !ratioPortrait;
-        setCrop(swapOrientation(crop, bounds()), activeRatio());
+        ratioKey = key;
+        ratioPortrait = false;
+        setCrop(fitRatioInside(crop, activeRatio()), activeRatio());
     }
 
     // 範囲・比率の向き・リサイズの指定も一緒に回し、回転と他の操作のどちらを先にしても同じ結果になるようにする
@@ -365,7 +369,9 @@ export function createImageEditor(ctx) {
         var before = bounds();
         crop = rotateRect(crop, direction, before);
         rot = (rot + direction + 4) % 4;
+        // 範囲は縦横が入れ替わるので、合わせた比率も向きを入れ替える(4:3 は 3:4 になる)
         ratioPortrait = !ratioPortrait;
+        reconcileRatio();
         if (outSize) {
             outSize = { w: outSize.h, h: outSize.w };
             outKey = outKey === 'w' ? 'h' : 'w';
@@ -380,21 +386,18 @@ export function createImageEditor(ctx) {
             return;
         }
         var b = bounds();
-        var ratio = activeRatio();
         var c = Object.assign({}, crop);
-        // X・Y は大きさを保って位置だけを変える。幅・高さは位置を保ち、画像の外へ出ない大きさまでにする
+        // X・Y は大きさを保って位置だけを変える。幅・高さは位置を保ち、画像の外へ出ない大きさまでにする(縦横比は固定しない)
         if (key === 'x') {
             c.x = clamp(raw, 0, b.w - c.w);
         } else if (key === 'y') {
             c.y = clamp(raw, 0, b.h - c.h);
         } else if (key === 'w') {
-            c.w = clamp(raw, 1, ratio ? Math.min(b.w - c.x, (b.h - c.y) * ratio) : b.w - c.x);
-            c.h = ratio ? c.w / ratio : c.h;
+            c.w = clamp(raw, 1, b.w - c.x);
         } else {
-            c.h = clamp(raw, 1, ratio ? Math.min(b.h - c.y, (b.w - c.x) / ratio) : b.h - c.y);
-            c.w = ratio ? c.h * ratio : c.w;
+            c.h = clamp(raw, 1, b.h - c.y);
         }
-        setCrop(c, ratio);
+        setCrop(c, null);
     }
 
     // key: 'w' か 'h'。縦横比を保つときは、変えなかった側を計算で合わせる。元より大きくはできず、長い辺は上限まで
@@ -423,11 +426,8 @@ export function createImageEditor(ctx) {
 
     // --- トリミングの枠のドラッグ ---
     // つまみ: その辺・角だけを動かす / 枠の内側: 位置を動かす / 枠の外: 押した点から描き直す。
-    // 比率を選んでいるときは比率を保つ。「自由」のときは Shift を押している間だけ正方形にする
-
-    function dragRatio(e) {
-        return activeRatio() || (e.shiftKey ? 1 : null);
-    }
+    // 縦横比は固定しない。Shift を押している間だけ、ドラッグを始めたときの範囲の縦横比を保つ。
+    // 毎回ドラッグを始めたときの範囲から計算し直すので、途中で Shift を押しても離しても、範囲が飛んだり崩れたりしない
 
     function onPointerDown(e) {
         if (!img || busy || drag || e.button !== 0) {
@@ -443,10 +443,14 @@ export function createImageEditor(ctx) {
             rect: Object.assign({}, crop),
             x: e.clientX,
             y: e.clientY,
+            last: { clientX: e.clientX, clientY: e.clientY },
+            shift: e.shiftKey,
             moved: false
         };
         wrapEl.setPointerCapture(e.pointerId);
         wrapEl.classList.add('is-dragging');
+        window.addEventListener('keydown', onDragKey, true);
+        window.addEventListener('keyup', onDragKey, true);
     }
 
     function onPointerMove(e) {
@@ -457,10 +461,27 @@ export function createImageEditor(ctx) {
             return;
         }
         drag.moved = true;
+        drag.last = { clientX: e.clientX, clientY: e.clientY };
+        drag.shift = e.shiftKey;
+        applyDrag();
+    }
+
+    // ドラッグ中に Shift を押した・離したときは、ポインターが止まっていても、その場で範囲を計算し直す
+    function onDragKey(e) {
+        if (!drag || e.key !== 'Shift' || drag.shift === e.shiftKey) {
+            return;
+        }
+        drag.shift = e.shiftKey;
+        if (drag.moved) {
+            applyDrag();
+        }
+    }
+
+    function applyDrag() {
         var b = bounds();
-        var ratio = dragRatio(e);
+        var ratio = drag.shift ? drag.rect.w / drag.rect.h : null;
         var min = minCropSize();
-        var p = toImagePoint(e, drag.mode === 'draw');
+        var p = toImagePoint(drag.last, drag.mode === 'draw');
         var dx = p.x - drag.start.x;
         var dy = p.y - drag.start.y;
         var next;
@@ -485,6 +506,8 @@ export function createImageEditor(ctx) {
         }
         drag = null;
         wrapEl.classList.remove('is-dragging');
+        window.removeEventListener('keydown', onDragKey, true);
+        window.removeEventListener('keyup', onDragKey, true);
     }
 
     function onPointerEnd(e) {
@@ -642,7 +665,7 @@ export function createImageEditor(ctx) {
         folder = ctx.state.folder;
         rot = 0;
         crop = null;
-        ratioKey = 'free';
+        ratioKey = null;
         ratioPortrait = false;
         outSize = null;
         outKey = 'w';
@@ -687,18 +710,9 @@ export function createImageEditor(ctx) {
 
     el('edit-rotate-left').addEventListener('click', function () { rotate(-1); });
     el('edit-rotate-right').addEventListener('click', function () { rotate(1); });
-    // トリミングだけを最初に戻す(範囲は画像全体、縦横比は「自由」)。回転と保存の大きさの指定はそのまま。
-    // 保存の大きさは resolveOut() が新しい範囲に収める
-    el('edit-crop-clear').addEventListener('click', function () {
-        if (img && !busy) {
-            ratioKey = 'free';
-            setCrop(wholeRect(bounds()), null);
-        }
-    });
     ratioBtns.forEach(function (btn) {
         btn.addEventListener('click', function () { selectRatio(btn.dataset.ratio); });
     });
-    swapBtn.addEventListener('click', swapRatio);
     Object.keys(cropInputs).forEach(function (key) {
         cropInputs[key].addEventListener('change', function () { onCropInput(key); });
     });

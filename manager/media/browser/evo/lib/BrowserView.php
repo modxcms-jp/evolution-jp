@@ -194,12 +194,11 @@ class BrowserView
     /** 画像の編集の操作欄。書き出しの順と同じ 回転 → トリミング → リサイズ の 3 つに分ける */
     private static function imageEditorControls()
     {
-        $ratios = '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="free" aria-pressed="true">' . hsc(lang('fb_edit_ratio_free')) . '</button>';
-        $ratios .= '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="1:1" aria-pressed="false" title="' . hsc(lang('fb_edit_ratio_square')) . '">1:1</button>';
+        // 縦横比のボタンは、範囲をその比率に合わせるだけで固定しない。選んでいる間にもう一度押すと縦横を入れ替える(表示は JS が 3:4 などに変える)
+        $ratios = '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="1:1" aria-pressed="false" title="' . hsc(lang('fb_edit_ratio_square')) . '">1:1</button>';
         foreach (['4:3', '3:2', '16:9'] as $ratio) {
-            $ratios .= '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="' . $ratio . '" aria-pressed="false">' . $ratio . '</button>';
+            $ratios .= '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="' . $ratio . '" aria-pressed="false" title="' . hsc(lang('fb_edit_ratio_toggle')) . '">' . $ratio . '</button>';
         }
-        $resetTitle = hsc(lang('fb_edit_crop_reset_title'));
 
         $html = '';
         $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditRotate">';
@@ -210,12 +209,8 @@ class BrowserView
         $html .= '            </div>';
         $html .= '          </div>';
         $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditCrop">';
-        $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditCrop">' . hsc(lang('fb_edit_crop'));
-        $html .= '              <button type="button" class="evo-fb-btn evo-fb-edit-mini" data-role="edit-crop-clear" title="' . $resetTitle . '">' . hsc(lang('fb_edit_crop_reset')) . '</button>';
-        $html .= '            </div>';
-        $html .= '            <div class="evo-fb-edit-label"><span id="evoFbEditRatio">' . hsc(lang('fb_edit_ratio')) . '</span>';
-        $html .= '              <button type="button" class="evo-fb-btn evo-fb-edit-mini" data-role="edit-ratio-swap" disabled>' . hsc(lang('fb_edit_ratio_swap')) . '</button>';
-        $html .= '            </div>';
+        $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditCrop">' . hsc(lang('fb_edit_crop')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-label" id="evoFbEditRatio">' . hsc(lang('fb_edit_ratio')) . '</div>';
         $html .= '            <div class="evo-fb-edit-buttons" role="group" aria-labelledby="evoFbEditRatio">' . $ratios . '</div>';
         $html .= '            <div class="evo-fb-edit-label">' . hsc(lang('fb_edit_crop_area')) . '</div>';
         $html .= '            <div class="evo-fb-edit-fields">';
@@ -224,7 +219,7 @@ class BrowserView
         $html .= '              <label><span>' . hsc(lang('fb_edit_width')) . '</span><input type="number" min="1" step="1" data-role="edit-crop-w"></label>';
         $html .= '              <label><span>' . hsc(lang('fb_edit_height')) . '</span><input type="number" min="1" step="1" data-role="edit-crop-h"></label>';
         $html .= '            </div>';
-        $html .= '            <div class="evo-fb-edit-note" title="' . hsc(lang('fb_edit_crop_shift')) . '">' . hsc(lang('fb_edit_crop_hint')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_crop_hint')) . '</div>';
         $html .= '          </div>';
         $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditResize">';
         $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditResize">' . hsc(lang('fb_edit_resize')) . '</div>';
