@@ -337,15 +337,32 @@ final class EditorInitializer
             return $cssUrl;
         }
 
-        $pathPart = parse_url($editorCssPath, PHP_URL_PATH);
-        if (!is_string($pathPart) || $pathPart === '') {
-            $pathPart = $editorCssPath;
+        $localPath = $this->localCssPath($cssUrl);
+        if ($localPath === null) {
+            return $cssUrl;
         }
 
-        $localPath = defined('MODX_BASE_PATH')
-            ? MODX_BASE_PATH . ltrim($pathPart, '/')
-            : ltrim($pathPart, '/');
-
         return $this->scriptFactory->versionedUrl($cssUrl, $localPath);
+    }
+
+    /**
+     * サイト内を指す CSS の URL から、ファイルの場所を求める（サイトの外なら null）。
+     * URL は MODX_BASE_URL を含むので、それを除いて MODX_BASE_PATH に付ける。
+     */
+    private function localCssPath(string $cssUrl): ?string
+    {
+        $urlPath = parse_url($cssUrl, PHP_URL_PATH);
+        if (!is_string($urlPath) || $urlPath === '') {
+            return null;
+        }
+
+        $baseUrl = defined('MODX_BASE_URL') ? MODX_BASE_URL : '/';
+        if (strpos($urlPath, $baseUrl) !== 0) {
+            return null;
+        }
+
+        $basePath = defined('MODX_BASE_PATH') ? MODX_BASE_PATH : '';
+
+        return $basePath . substr($urlPath, strlen($baseUrl));
     }
 }
