@@ -16,7 +16,7 @@
 
 ## 段の約束
 
-RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--space-8` を 4px 刻み（`--space-N` = 4px × N）で定義する。
+同梱の 7 テーマすべてが、`:root` で `--space-1` 〜 `--space-8` を 4px 刻み（`--space-N` = 4px × N）で定義する。
 
 | 変数 | 値 |
 | --- | --- |
@@ -94,9 +94,7 @@ RevoStyle を除くすべてのテーマが、`:root` で `--space-1` 〜 `--spa
 
 RevoStyle は、旧デザインを保つためのテーマで、廃止予定のため決まりの対象外。新しいテーマの手本にしない。ただし、`common/spacing.css` の規則（ブロックの間 12px、入れ物の最後の子の下 0）は RevoStyle にも当たる。
 
-RevoStyle の `--space-*` は、ほかのテーマと刻みが違う（`--space-0` 〜 `--space-14`。`--space-1` が 2px、`--space-2` が 3px、`--space-8` が 10px）。共通部は `--space-2` を 8px のつもりで読むので、RevoStyle の `#mainPane` の内側の余白は 3px で表示される。この値は今のまま変えない。
-
-サブリソース一覧の上の 2 行と下のページ送りの間は `common/shell.css` が `--space-3` で作るので、RevoStyle（`--space-3` が 4px）では 4px になる（凍結テーマのため直さない）。
+RevoStyle の `--space-*` も、ほかのテーマと同じ 4px 刻み（`--space-1` 〜 `--space-8`）。RevoStyle の中の余白は、目盛りを使わず px で書いてある（旧デザインを保つため）。共通部が目盛りで読む余白（`#mainPane` の内側の余白など）は、ほかのテーマと同じ値になる。
 
 ## 新しいテーマを作るとき
 
