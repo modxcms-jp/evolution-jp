@@ -213,7 +213,6 @@
 
     /* 表・一覧（common/tables.css） */
     --grid-border: 1px solid var(--pink-200);
-    --grid-cell-padding: var(--space-3);
     --color-grid-header-text: var(--color-primary-dark);
     --grid-header-weight: 600;
     --grid-header-bg: linear-gradient(135deg, var(--pink-50) 0%, var(--pink-100) 100%);
@@ -670,22 +669,20 @@ html body.evo-shell .tree-toolbar {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: var(--radius-full);
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }

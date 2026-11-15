@@ -450,22 +450,20 @@ input[type="button"] {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
-    font-size: calc(var(--font-size-base, 12px) * 1.067);
     font-weight: 500;
     white-space: nowrap;
 }
