@@ -674,8 +674,6 @@ html body.evo-shell .tree-toolbar {
 
 .gridHeader, .grid th {
     border-bottom: 2px solid rgba(255, 255, 255, 0.6);
-    font-size: calc(var(--font-size-base, 12px) * 1.2);
-    letter-spacing: 0.02em;
 }
 
 .grid th:first-child {
@@ -736,7 +734,6 @@ html body.evo-shell .tree-toolbar {
 /* Nowrap utility for dates */
 .grid .nowrap {
     white-space: nowrap;
-    font-size: calc(var(--font-size-base, 12px) * 1.133);
     color: var(--gray-800);
 }
 

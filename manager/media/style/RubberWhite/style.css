@@ -409,8 +409,6 @@ input[type="button"] {
 
 .gridHeader, .grid th {
     border-bottom: 2px solid var(--color-gray-300);
-    font-size: calc(var(--font-size-base, 12px) * 1.2);
-    letter-spacing: 0.02em;
 }
 
 .grid th:first-child {
@@ -471,7 +469,6 @@ input[type="button"] {
 /* Nowrap utility for dates */
 .grid .nowrap {
     white-space: nowrap;
-    font-size: calc(var(--font-size-base, 12px) * 1.133);
     color: var(--color-text-secondary);
 }
 
