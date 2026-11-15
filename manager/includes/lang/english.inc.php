@@ -230,6 +230,8 @@ return [
     "editor_css_path_title" => 'Path to CSS file',
     "element" => 'Element',
     "element_categories" => 'Combined View',
+    "element_filter_no_match" => 'No matching elements',
+    "element_filter_placeholder" => 'Filter by keyword',
     "element_management" => 'Manage Elements',
     "element_name" => 'Element name',
     "element_name_required" => 'Please enter a name for the %s.',

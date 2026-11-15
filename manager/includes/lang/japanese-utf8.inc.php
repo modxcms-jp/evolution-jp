@@ -232,6 +232,8 @@ return [
     "editor_css_path_title" => 'CSSファイルへのパス',
     "element" => '外部ファイル',
     "element_categories" => 'エレメント一覧',
+    "element_filter_no_match" => '一致するエレメントがありません',
+    "element_filter_placeholder" => 'キーワードで絞り込み',
     "element_management" => 'エレメント管理',
     "element_name" => 'エレメント名',
     "element_name_required" => '%sの名前を入力してください。',
