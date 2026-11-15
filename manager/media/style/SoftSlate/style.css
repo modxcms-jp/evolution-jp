@@ -332,7 +332,6 @@ input[type="button"] {
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     /* Softer dark gray palette */
     --topnav-background: #3d4f5d;

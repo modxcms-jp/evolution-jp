@@ -173,7 +173,6 @@
     /* Top Navigation Variables */
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-background: #062a36;
     --topnav-border: #10475a;
@@ -272,7 +271,6 @@ input[type="button"] {
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-background: #062a36;
     --topnav-border: #10475a;

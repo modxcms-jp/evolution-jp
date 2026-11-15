@@ -701,6 +701,7 @@ html body.evo-shell .tree-toolbar {
     --topnav-item-height: 32px;
     --topnav-gap: 2px;
     --subnav-height: 32px;
+    --topnav-subnav-padding-y: 3px;
     --subnav-horizontal-padding: 16px;
     --topnav-link-color: #5a4055;
     --topnav-link-hover-color: #d45da7;

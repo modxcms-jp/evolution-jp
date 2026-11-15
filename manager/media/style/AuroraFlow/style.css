@@ -394,7 +394,6 @@ li::marker {
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-border: rgba(59, 130, 246, 0.2);
     --topnav-link-color: #e1f1f4;
