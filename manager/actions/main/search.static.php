@@ -346,7 +346,8 @@ $highlight = function (string $text) use ($terms) {
     return $html;
 };
 
-if ($submitted && $scope !== 'elements') {
+if ($submitted) {
+    include_once MODX_CORE_PATH . 'element_list.class.php';
     $built = $query->toWhere();
     $where = $built['where'];
     // ID・URL から引けなかったとき（何も当たらない条件になっている。理由は結果の欄に出す）
@@ -392,7 +393,8 @@ if ($submitted && $scope !== 'elements') {
     include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
 
     // 並べ替えのキー => ORDER BY の式（リクエストの値を直接 SQL に入れない）
-    $sortColumns = ['id' => 'id', 'pagetitle' => 'pagetitle'];
+    // リソースとエレメントを混ぜるときは、種類をまたいで ID を比べても意味が無いので、名前・タイトルだけで並べ替える
+    $sortColumns = $scope === 'resources' ? ['id' => 'id', 'pagetitle' => 'pagetitle'] : ['pagetitle' => 'title'];
     $linkParams = ['a' => 71, 'submitok' => 1];
     $keep = [
         'q' => $q,
@@ -411,25 +413,80 @@ if ($submitted && $scope !== 'elements') {
     }
     $links = DataTableLinks::fromRequest('index.php', $linkParams, array_keys($sortColumns));
     // 並べ替えの指定が無いときの既定はタイトル昇順（見出しの aria-sort は付かない）
-    $orderby = 'pagetitle ASC, id ASC';
-    if ($links->orderby() !== '') {
-        $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
-        $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
-    }
+    $dir = $links->orderdir() === 'desc' ? 'DESC' : 'ASC';
+    $perPage = (int) config('number_of_results') ?: 20;
+    // 本文は抜粋に使う先頭だけを取る（大きな本文を全件ぶん読まない）
+    $resourceFields = 'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, '
+        . $canViewColumn . ' AS can_view, deleted, published, isfolder, type';
+    // エレメントは語の条件だけで探す（ID・URL・親などはリソースにしか無い）
+    $elementConditions = $scope === 'resources' ? [] : $query->textConditions();
+    $resourceRows = [];
+    $elementRows = [];
+    $order = [];
 
-    // 件数を数えてから、そのページの行だけを取る
-    $total = (int) db()->getValue(
-        db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $where))
-    );
-    $pager = new DataTablePager($total, (int) config('number_of_results') ?: 20, $links->page());
-    $rs = db()->select(
-        // 本文は抜粋に使う先頭だけを取る（大きな本文を全件ぶん読まない）
-        'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, ' . $canViewColumn . ' AS can_view, deleted, published, isfolder, type',
-        '[+prefix+]site_content',
-        implode(' and ', $where),
-        $orderby,
-        $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
-    );
+    if ($scope === 'resources') {
+        $orderby = 'pagetitle ASC, id ASC';
+        if ($links->orderby() !== '') {
+            $orderby = sprintf('%s %s, id %s', $sortColumns[$links->orderby()], $dir, $dir);
+        }
+        // 件数を数えてから、そのページの行だけを取る
+        $total = (int) db()->getValue(
+            db()->select('COUNT(id)', '[+prefix+]site_content', implode(' and ', $where))
+        );
+        $pager = new DataTablePager($total, $perPage, $links->page());
+        $rs = db()->select(
+            $resourceFields,
+            '[+prefix+]site_content',
+            implode(' and ', $where),
+            $orderby,
+            $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
+        );
+        while ($row = db()->getRow($rs)) {
+            $resourceRows[$row['id']] = $row;
+            $order[] = ['resource', $row['id']];
+        }
+    } else {
+        // リソース（両方のとき）とエレメントの種類ごとの SELECT を UNION ALL でまとめ、件数・並べ替え・ページ送りを 1 つの問い合わせで行う。
+        // そのページの行だけ、あとで種類ごとに詳しい列を取る
+        $parts = ElementList::searchSelects($elementConditions);
+        if ($scope === 'all') {
+            array_unshift($parts, sprintf(
+                "SELECT 'resource' AS kind, id, %s AS title FROM [+prefix+]site_content WHERE %s",
+                ElementList::sortableTitle('pagetitle'),
+                implode(' AND ', $where)
+            ));
+        }
+        $total = 0;
+        $pager = new DataTablePager(0, $perPage, 1);
+        if ($parts) {
+            $union = '(' . implode(' UNION ALL ', $parts) . ') AS hits';
+            $total = (int) db()->getValue(db()->select('COUNT(*)', $union));
+            $pager = new DataTablePager($total, $perPage, $links->page());
+            $rs = db()->select(
+                'kind, id',
+                $union,
+                '',
+                sprintf('title %s, kind ASC, id %s', $dir, $dir),
+                $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
+            );
+            $idsByKind = [];
+            while ($row = db()->getRow($rs)) {
+                $idsByKind[$row['kind']][] = (int) $row['id'];
+                $order[] = [$row['kind'], (int) $row['id']];
+            }
+            if (!empty($idsByKind['resource'])) {
+                $rs = db()->select($resourceFields, '[+prefix+]site_content', 'id IN (' . implode(',', $idsByKind['resource']) . ')');
+                while ($row = db()->getRow($rs)) {
+                    $resourceRows[$row['id']] = $row;
+                }
+            }
+            foreach ($idsByKind as $kind => $ids) {
+                if ($kind !== 'resource') {
+                    $elementRows[$kind] = ElementList::rowsByIds($kind, $ids, $terms);
+                }
+            }
+        }
+    }
     // タイトルを押したときの行き先。編集の権限が無ければ、リソースの情報の画面
     $action = evo()->hasPermission('edit_document') ? '27' : '3';
     ?>
@@ -437,12 +494,27 @@ if ($submitted && $scope !== 'elements') {
         <div class="sectionHeader"><?= lang('search_results') ?></div>
         <div class="sectionBody">
             <?php
-            // 読み取った条件（何で探したかを見せる。書き方を覚える助けにもなる）
-            echo '<ul class="search-conds">';
-            foreach ($query->describe() as $cond) {
-                printf('<li>%s</li>', hsc($cond));
+            // 読み取った条件（何で探したかを見せる。書き方を覚える助けにもなる）。文言はリソースの列の言い方なので、エレメントだけのときは出さない
+            if ($scope !== 'elements') {
+                echo '<ul class="search-conds">';
+                foreach ($query->describe() as $cond) {
+                    printf('<li>%s</li>', hsc($cond));
+                }
+                echo '</ul>';
             }
-            echo '</ul>';
+            if ($scope !== 'resources') {
+                if ($query->hasResourceOnlyConditions()) {
+                    printf('<p class="search-astext">%s</p>', hsc(lang('search_element_ignored')));
+                }
+                if (!$elementConditions) {
+                    printf('<p class="search-astext">%s</p>', hsc(lang('search_element_no_terms')));
+                }
+            }
+            if ($scope !== 'resources') {
+                // ID・URL・数字だけの入力の案内はリソースのもの
+                $targetError = '';
+                $asTextCount = 0;
+            }
             if ($bareNumber !== '' && $asTextCount > 0) {
                 $asTextParams = ['a' => 71, 'submitok' => 1, 'q' => '"' . $bareNumber . '"'] + ($alsoContent ? ['also_content' => 1] : []);
                 printf(
@@ -476,8 +548,19 @@ if ($submitted && $scope !== 'elements') {
                     'image/png' => style('tree_page_png')
                 ];
 
+                // ページの並び（$order）のとおりに、リソースとエレメントの行を並べる。kind は resource か、エレメントの種類
                 $rows = [];
-                while ($row = db()->getRow($rs)) {
+                foreach ($order as [$kind, $id]) {
+                    if ($kind !== 'resource') {
+                        if (isset($elementRows[$kind][$id])) {
+                            $rows[] = ['kind' => $kind] + $elementRows[$kind][$id];
+                        }
+                        continue;
+                    }
+                    if (!isset($resourceRows[$id])) {
+                        continue;
+                    }
+                    $row = ['kind' => 'resource'] + $resourceRows[$id];
                     // figure out the icon for the document...
                     if ($row['type'] === 'reference') {
                         $row['icon'] = style('tree_linkgo');
@@ -535,25 +618,74 @@ if ($submitted && $scope !== 'elements') {
                     }
                     return $text;
                 };
+                // エレメントの行: 名前（押すと編集画面）・カテゴリー・説明・本文で当たった行
+                $stateClasses = ['disabled' => 'disabledPlugin', 'unpublished' => 'unpublished'];
+                $renderElement = static function (array $row) use ($highlight, $stateClasses) {
+                    $title = sprintf(
+                        '<a class="search-hit-title" href="index.php?a=%d&amp;id=%d">%s</a>',
+                        ElementList::type($row['type'])['editAction'],
+                        $row['id'],
+                        $highlight($row['name'])
+                    );
+                    if (isset($stateClasses[$row['state']])) {
+                        $title = sprintf('<span class="%s">%s</span>', $stateClasses[$row['state']], $title);
+                    }
+                    if ($row['locked']) {
+                        $title .= ' <em>(' . hsc(lang('locked')) . ')</em>';
+                    }
+                    $html = $title . sprintf(
+                        '<div class="search-hit-url">%s</div>',
+                        hsc($row['catid'] ? $row['category'] : lang('no_category'))
+                    );
+                    if ($row['description'] !== '') {
+                        $html .= '<div class="search-hit-snippet">' . element_description_html($row['description']) . '</div>';
+                    }
+                    if ($row['hit']) {
+                        $html .= sprintf(
+                            '<div class="search-hit-code"><span class="search-hit-line">%s</span>%s</div>',
+                            hsc(sprintf(lang('search_element_line'), $row['hit']['line'])),
+                            $highlight($row['hit']['text'])
+                        );
+                    }
+                    return '<div class="search-hit">' . $html . '</div>';
+                };
+                $kindLabels = ['resource' => lang('search_kind_resource')] + array_map(static function ($def) {
+                    return lang($def['label']);
+                }, ElementList::types());
+
+                $columns = [];
+                if ($scope !== 'resources') {
+                    $columns[] = [
+                        'key' => 'kind',
+                        'label' => lang('search_element_type'),
+                        'class' => 'is-shrink',
+                        'format' => static function ($value) use ($kindLabels) {
+                            return $kindLabels[$value] ?? '';
+                        },
+                    ];
+                }
+                $columns[] = [
+                    'key' => 'id',
+                    'label' => lang('search_results_returned_id'),
+                    'sort' => isset($sortColumns['id']) ? 'id' : null,
+                    'class' => 'is-shrink',
+                    'html' => true,
+                    'format' => function ($value, array $row) {
+                        return (string) (int) $row['id'];
+                    },
+                ];
                 $table = new DataTable(
-                    [
-                        [
-                            'key' => 'id',
-                            'label' => lang('search_results_returned_id'),
-                            'sort' => 'id',
-                            'class' => 'is-shrink',
-                            'html' => true,
-                            'format' => function ($value, array $row) {
-                                return (string) (int) $row['id'];
-                            },
-                        ],
+                    array_merge($columns, [
                         [
                             // Google の検索結果のように、タイトル（押すと編集画面）・ページの URL・説明か本文の抜粋を 1 つの欄に
                             'key' => 'pagetitle',
                             'label' => lang('search_results_returned_title'),
                             'sort' => 'pagetitle',
                             'html' => true,
-                            'format' => function ($value, array $row) use ($action, $wrapNode, $snippet, $highlight) {
+                            'format' => function ($value, array $row) use ($action, $wrapNode, $snippet, $highlight, $renderElement) {
+                                if ($row['kind'] !== 'resource') {
+                                    return $renderElement($row);
+                                }
                                 $id = (int) $row['id'];
                                 $title = sprintf(
                                     '<a class="search-hit-title" href="index.php?a=%s&amp;id=%d"><img src="%s" alt="" /> %s</a>',
@@ -586,7 +718,7 @@ if ($submitted && $scope !== 'elements') {
                                 return '<div class="search-hit">' . $wrapNode($title, $row) . $meta . $body . '</div>';
                             },
                         ],
-                    ],
+                    ]),
                     ['id' => 'search-results']
                 );
                 $nav = $pager->render($links, [
@@ -599,88 +731,6 @@ if ($submitted && $scope !== 'elements') {
                 echo '<div class="list-toolbar"><span class="search-results-count">' . $count . '</span>' . $nav . '</div>'
                     . $table->render($rows, $links)
                     . ($nav !== '' ? '<div class="list-pager-bottom">' . $nav . '</div>' : '');
-            }
-            ?>
-        </div>
-    </div>
-    <?php
-}
-
-// エレメント（テンプレート・TV・チャンク・スニペット・プラグイン・モジュール）の検索。
-// 語の条件だけを、エレメントの列（名前・説明、「本文も探す」ならコード・HTML）に読み替えて探す（ElementList::search()）
-if ($submitted && $scope !== 'resources') {
-    include_once MODX_CORE_PATH . 'element_list.class.php';
-    include_once MODX_CORE_PATH . 'controls/data_table.class.php';
-    $elementConditions = $query->textConditions();
-    $elementRows = ElementList::search($elementConditions, $terms);
-    $typeLabels = array_map(static function ($def) {
-        return lang($def['label']);
-    }, ElementList::types());
-    ?>
-    <div class="section">
-        <div class="sectionHeader"><?= lang('search_element_results') ?></div>
-        <div class="sectionBody">
-            <?php
-            if ($query->hasResourceOnlyConditions()) {
-                printf('<p class="search-astext">%s</p>', hsc(lang('search_element_ignored')));
-            }
-            if (!$elementConditions) {
-                printf('<p class="search-empty">%s</p>', hsc(lang('search_element_no_terms')));
-            } elseif (!$elementRows) {
-                printf('<p class="search-empty">%s</p>', lang('search_empty'));
-            } else {
-                $stateClasses = ['disabled' => 'disabledPlugin', 'unpublished' => 'unpublished'];
-                $table = new DataTable(
-                    [
-                        [
-                            'key' => 'type',
-                            'label' => lang('search_element_type'),
-                            'class' => 'is-shrink',
-                            'format' => static function ($value) use ($typeLabels) {
-                                return $typeLabels[$value] ?? '';
-                            },
-                        ],
-                        [
-                            'key' => 'name',
-                            'label' => lang('search_element_name'),
-                            'html' => true,
-                            'format' => static function ($value, array $row) use ($highlight, $stateClasses) {
-                                $title = sprintf(
-                                    '<a class="search-hit-title" href="index.php?a=%d&amp;id=%d">%s</a>',
-                                    ElementList::type($row['type'])['editAction'],
-                                    $row['id'],
-                                    $highlight((string) $value)
-                                );
-                                if (isset($stateClasses[$row['state']])) {
-                                    $title = sprintf('<span class="%s">%s</span>', $stateClasses[$row['state']], $title);
-                                }
-                                if ($row['locked']) {
-                                    $title .= ' <em>(' . hsc(lang('locked')) . ')</em>';
-                                }
-                                $meta = sprintf(
-                                    '<div class="search-hit-url">%s</div>',
-                                    hsc($row['catid'] ? $row['category'] : lang('no_category'))
-                                );
-                                $body = $row['description'] !== ''
-                                    ? '<div class="search-hit-snippet">' . element_description_html($row['description']) . '</div>'
-                                    : '';
-                                if ($row['hit']) {
-                                    $body .= sprintf(
-                                        '<div class="search-hit-code"><span class="search-hit-line">%s</span>%s</div>',
-                                        hsc(sprintf(lang('search_element_line'), $row['hit']['line'])),
-                                        $highlight($row['hit']['text'])
-                                    );
-                                }
-                                return '<div class="search-hit">' . $title . $meta . $body . '</div>';
-                            },
-                        ],
-                    ],
-                    ['id' => 'search-element-results']
-                );
-                echo '<div class="list-toolbar"><span class="search-results-count">'
-                    . sprintf(lang('search_results_returned_msg'), count($elementRows))
-                    . '</span></div>'
-                    . $table->render($elementRows);
             }
             ?>
         </div>

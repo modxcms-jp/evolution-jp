@@ -115,28 +115,85 @@ class ElementList
     }
 
     /**
-     * 検索（a=71）。$conditions は ResourceSearchQuery::textConditions() の形（value・negate・fields。fields はリソースの列名）。
-     * リソースの列をエレメントの列に読み替える: pagetitle・longtitle → 名前・説明と labelFields、content → contentFields、alias → なし。
-     * 読み替える列が無い条件は、含む条件なら何も当たらないものとし、除く条件なら掛けない。
-     * 返す行は rows() の形に、hit（本文の中で最初に当たった行 ['line' => 行番号, 'text' => 行の文字列]。無ければ null）を足したもの。
-     * 並びは types() の種類の順 → カテゴリー → 名前。
+     * 検索（a=71）の UNION ALL の部分。権限のある種類ごとに、条件に当たる行の kind（種類）・id・title を返す SELECT。
+     * $conditions は ResourceSearchQuery::textConditions() の形（value・negate・fields。fields はリソースの列名）。
+     * リソースの列をエレメントの列に読み替える。エレメントは名前より本文で探すことが多いので、項目を付けない語は本文も探す。
+     *   項目を付けない語（fields に alias を含む） → 名前・説明・labelFields・contentFields
+     *   title:（pagetitle・longtitle）           → 名前・説明・labelFields
+     *   content:                                  → contentFields
+     *   alias:                                    → なし
+     * 読み替える列が無い条件は、含む条件ならその種類を出さず、除く条件なら掛けない。
      *
      * @param array<int, array{value: string, negate: bool, fields: string[]}> $conditions
-     * @param string[] $terms 本文の中の当たった行を探す語（ResourceSearchQuery::terms()）
+     * @return string[]
      */
-    public static function search(array $conditions, array $terms): array
+    public static function searchSelects(array $conditions): array
     {
         if (!$conditions) {
             return [];
         }
-        $results = [];
+        $selects = [];
         foreach (static::types() as $type => $def) {
             if (!static::canView($type)) {
                 continue;
             }
-            $labelColumns = array_merge([$def['nameField'] ?? 'name', 'description'], $def['labelFields'] ?? []);
-            $where = [];
-            foreach ($conditions as $c) {
+            $where = static::searchWhere($def, $conditions);
+            if ($where === null) {
+                continue;
+            }
+            $selects[] = sprintf(
+                "SELECT '%s' AS kind, e.id AS id, %s AS title FROM [+prefix+]%s AS e WHERE %s",
+                $type,
+                static::sortableTitle('e.' . ($def['nameField'] ?? 'name')),
+                $def['table'],
+                $where ? implode(' AND ', $where) : '1=1'
+            );
+        }
+        return $selects;
+    }
+
+    /**
+     * UNION ALL でまとめて並べ替える名前の式。テーブルごとに照合順序が違っても混ぜられるよう、1 つにそろえる
+     */
+    public static function sortableTitle(string $column): string
+    {
+        return "CONVERT({$column} USING utf8mb4) COLLATE utf8mb4_unicode_ci";
+    }
+
+    /**
+     * 1 つの種類の、id で指した行（id => 行）。行は rows() の形に、hit（本文の中で最初に当たった行
+     * ['line' => 行番号, 'text' => 行の文字列]。無ければ null）を足したもの。
+     *
+     * @param int[] $ids
+     * @param string[] $terms 本文の中の当たった行を探す語（ResourceSearchQuery::terms()）
+     */
+    public static function rowsByIds(string $type, array $ids, array $terms): array
+    {
+        if (!$ids) {
+            return [];
+        }
+        $def = static::type($type);
+        $where = ['e.id IN (' . implode(',', array_map('intval', $ids)) . ')'];
+        $rows = [];
+        foreach (static::select($type, $where, $def['contentFields']) as $row) {
+            $row['hit'] = static::hitLine($row['content'], $terms);
+            unset($row['content']);
+            $rows[$row['id']] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * searchSelects() の WHERE（AND でつなぐ式）。この種類では何も当たらないときは null
+     */
+    private static function searchWhere(array $def, array $conditions): ?array
+    {
+        $labelColumns = array_merge([$def['nameField'] ?? 'name', 'description'], $def['labelFields'] ?? []);
+        $where = [];
+        foreach ($conditions as $c) {
+            if (in_array('alias', $c['fields'], true)) {
+                $columns = array_merge($labelColumns, $def['contentFields']);
+            } else {
                 $columns = [];
                 foreach ($c['fields'] as $field) {
                     if ($field === 'pagetitle' || $field === 'longtitle') {
@@ -145,30 +202,21 @@ class ElementList
                         $columns = array_merge($columns, $def['contentFields']);
                     }
                 }
-                $columns = array_values(array_unique($columns));
-                if (!$columns) {
-                    if ($c['negate']) {
-                        continue;
-                    }
-                    $where = ['0=1'];
-                    break;
+            }
+            $columns = array_values(array_unique($columns));
+            if (!$columns) {
+                if ($c['negate']) {
+                    continue;
                 }
-                $like = ResourceSearchQuery::escapeLike($c['value']);
-                $expr = '(' . implode(' OR ', array_map(static function ($column) use ($like) {
-                    return sprintf("IFNULL(e.%s,'') LIKE '%%%s%%'", $column, $like);
-                }, $columns)) . ')';
-                $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
+                return null;
             }
-            if ($where === ['0=1']) {
-                continue;
-            }
-            foreach (static::select($type, $where, $def['contentFields']) as $row) {
-                $row['hit'] = static::hitLine($row['content'], $terms);
-                unset($row['content']);
-                $results[] = $row;
-            }
+            $like = ResourceSearchQuery::escapeLike($c['value']);
+            $expr = '(' . implode(' OR ', array_map(static function ($column) use ($like) {
+                return sprintf("IFNULL(e.%s,'') LIKE '%%%s%%'", $column, $like);
+            }, $columns)) . ')';
+            $where[] = $c['negate'] ? "NOT {$expr}" : $expr;
         }
-        return $results;
+        return $where;
     }
 
     /**
