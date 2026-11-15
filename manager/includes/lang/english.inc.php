@@ -1479,7 +1479,7 @@ return [
     "fb_text_saving" => 'Saving...',
     "fb_text_saved" => 'Saved.',
     "fb_text_save_failed" => 'Could not save: %s',
-    "fb_text_discard_confirm" => 'You have unsaved changes. Discard them and close?',
+    "fb_discard_confirm" => 'You have unsaved changes. Discard them and close?',
     "fb_new_file" => 'New file',
     "fb_new_file_prompt" => 'Enter the name of the new file (for example: memo.txt)',
     "fb_new_file_failed" => 'The file could not be created: %s',

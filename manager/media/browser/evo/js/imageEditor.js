@@ -200,13 +200,19 @@ export function createImageEditor(ctx) {
         return Math.min(1, maxDimension / Math.max(w, h));
     }
 
+    // 範囲を、元より大きくせず長い辺の上限に収めた大きさ(保存の大きさを指定していないときの大きさ)
+    function fittedOut(c) {
+        var f = fitScale(c.w, c.h);
+        return { w: Math.max(1, Math.floor(c.w * f)), h: Math.max(1, Math.floor(c.h * f)) };
+    }
+
     // リサイズ後の大きさ。keep は縦横比を保つか(切り替えの直前の値で求めるときに渡す)
     function resolveOut(c, keep) {
-        var f = fitScale(c.w, c.h);
-        var keptW = Math.max(1, Math.floor(c.w * f));
-        var keptH = Math.max(1, Math.floor(c.h * f));
+        var fitted = fittedOut(c);
+        var keptW = fitted.w;
+        var keptH = fitted.h;
         if (!outSize) {
-            return { w: keptW, h: keptH };
+            return fitted;
         }
         if (!keep) {
             return {
@@ -757,11 +763,25 @@ export function createImageEditor(ctx) {
         }
     }
 
-    // 保存の通信中は、閉じない(閉じても保存は進み、結果を受ける先が無くなるため)
-    function cancel() {
-        if (!busy) {
-            close(true);
+    // 開いたときと違う画像になる編集をしたか(回転した・範囲が画像全体でない・保存の大きさが元と違う)。
+    // 回して元の向きに戻した、ダブルクリックで画像全体に戻したなど、結果が同じなら編集していないとみなす。保存のしかたの選択は含めない
+    function isDirty() {
+        if (!img) {
+            return false;
         }
+        var b = bounds();
+        var o = effectiveOut();
+        var fitted = fittedOut(crop);
+        return rot !== 0 || crop.x !== 0 || crop.y !== 0 || crop.w !== b.w || crop.h !== b.h || o.w !== fitted.w || o.h !== fitted.h;
+    }
+
+    // 保存の通信中は、閉じない(閉じても保存は進み、結果を受ける先が無くなるため)。
+    // 編集していれば、破棄してよいかを確かめる(テキストの編集と同じ)
+    function cancel() {
+        if (busy || (isDirty() && !window.confirm(t('fb_discard_confirm')))) {
+            return;
+        }
+        close(true);
     }
 
     function open(file) {

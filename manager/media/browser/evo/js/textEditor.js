@@ -96,7 +96,7 @@ export function createTextEditor(ctx) {
         if (busy) {
             return;
         }
-        if (isDirty() && !window.confirm(t('fb_text_discard_confirm'))) {
+        if (isDirty() && !window.confirm(t('fb_discard_confirm'))) {
             return;
         }
         close(true);

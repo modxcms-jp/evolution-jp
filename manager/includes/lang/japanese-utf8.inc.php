@@ -1480,7 +1480,7 @@ return [
     "fb_text_saving" => '保存しています...',
     "fb_text_saved" => '保存しました。',
     "fb_text_save_failed" => '保存できませんでした: %s',
-    "fb_text_discard_confirm" => '変更が保存されていません。破棄して閉じますか？',
+    "fb_discard_confirm" => '変更が保存されていません。破棄して閉じますか？',
     "fb_new_file" => '新しいファイル',
     "fb_new_file_prompt" => '新しいファイルの名前を入力してください（例: memo.txt）',
     "fb_new_file_failed" => 'ファイルを作成できませんでした: %s',
