@@ -334,10 +334,14 @@ function fieldsTV()
                     $tvPBV = implode('||', $form_v[$tvid]);
                     break;
                 case 'url':
-                    if ($form_v[$tvid . '_prefix'] === 'DocID') {
-                        $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
-                    } else {
-                        $tvPBV = $form_v[$tvid . '_prefix'] . $form_v[$tvid];
+                    if ( isset($form_v[$tvid . '_prefix']) ) {
+                        if ($form_v[$tvid . '_prefix'] === 'DocID') {
+                            $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
+                        } else {
+                            $tvPBV = $form_v[$tvid . '_prefix'] . $form_v[$tvid];
+                        }
+                    }else{
+                        $tvPBV = $form_v[$tvid];
                     }
                     break;
                 default:
