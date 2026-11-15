@@ -139,18 +139,25 @@ export function resizeEdge(rect, edge, dx, dy, ratio, bounds, min) {
     return { x: x, y: y, w: w, h: h };
 }
 
-/** 整数の画素にそろえ、画像の中へ収める。比率を保つときは、幅から高さを決め直す */
+/**
+ * 整数の画素にそろえ、画像の中へ収める。比率を保たないときは、幅ではなく辺の位置を丸める
+ * (左上のつまみを動かしたときに、固定している右下の辺が 1 画素ずれないように)。比率を保つときは、幅から高さを決め直す
+ */
 export function normalizeRect(rect, ratio, bounds) {
-    var w = clamp(Math.round(rect.w), 1, bounds.w);
-    var h = clamp(Math.round(rect.h), 1, bounds.h);
-    if (ratio) {
-        h = Math.round(w / ratio);
-        if (h > bounds.h) {
-            h = bounds.h;
-            w = clamp(Math.round(h * ratio), 1, bounds.w);
-        }
-        h = Math.max(1, h);
+    if (!ratio) {
+        var left = clamp(Math.round(rect.x), 0, bounds.w - 1);
+        var top = clamp(Math.round(rect.y), 0, bounds.h - 1);
+        var right = clamp(Math.round(rect.x + rect.w), left + 1, bounds.w);
+        var bottom = clamp(Math.round(rect.y + rect.h), top + 1, bounds.h);
+        return { x: left, y: top, w: right - left, h: bottom - top };
     }
+    var w = clamp(Math.round(rect.w), 1, bounds.w);
+    var h = Math.round(w / ratio);
+    if (h > bounds.h) {
+        h = bounds.h;
+        w = clamp(Math.round(h * ratio), 1, bounds.w);
+    }
+    h = Math.max(1, h);
     return {
         x: clamp(Math.round(rect.x), 0, bounds.w - w),
         y: clamp(Math.round(rect.y), 0, bounds.h - h),

@@ -274,7 +274,7 @@ export function createImageEditor(ctx) {
         g.scale(pixW / b.w, pixH / b.h);
         applyRotation(g, rot, srcW, srcH);
         g.drawImage(img, 0, 0);
-        updateControls();
+        updateControls(true);
     }
 
     function scheduleRender() {
@@ -309,23 +309,29 @@ export function createImageEditor(ctx) {
         });
     }
 
-    function updateControls() {
+    // keepFocused: 入力中の欄は書き戻さない(ダイアログの大きさが変わって描き直すときに、打ちかけの値を消さないため)
+    function updateControls(keepFocused) {
         if (!img) {
             return;
         }
         var c = crop;
         var o = effectiveOut();
         var b = bounds();
-        cropInputs.x.value = c.x;
-        cropInputs.y.value = c.y;
-        cropInputs.w.value = c.w;
-        cropInputs.h.value = c.h;
+        function put(input, value) {
+            if (!keepFocused || input !== document.activeElement) {
+                input.value = value;
+            }
+        }
+        put(cropInputs.x, c.x);
+        put(cropInputs.y, c.y);
+        put(cropInputs.w, c.w);
+        put(cropInputs.h, c.h);
         cropInputs.x.max = b.w - c.w;
         cropInputs.y.max = b.h - c.h;
         cropInputs.w.max = b.w;
         cropInputs.h.max = b.h;
-        outInputs.w.value = o.w;
-        outInputs.h.value = o.h;
+        put(outInputs.w, o.w);
+        put(outInputs.h, o.h);
         outInputs.w.max = Math.min(c.w, maxDimension);
         outInputs.h.max = Math.min(c.h, maxDimension);
         summaryEl.textContent = t('fb_edit_summary', c.w, c.h, o.w, o.h);
@@ -383,6 +389,7 @@ export function createImageEditor(ctx) {
         if (!img || busy || !RATIOS[key]) {
             return;
         }
+        endDrag();
         if (key === ratioKey) {
             if (key !== '1:1') {
                 ratioPortrait = !ratioPortrait;
@@ -400,6 +407,7 @@ export function createImageEditor(ctx) {
         if (!img || busy) {
             return;
         }
+        endDrag();
         var before = bounds();
         crop = rotateRect(crop, direction, before);
         rot = (rot + direction + 4) % 4;
@@ -420,6 +428,7 @@ export function createImageEditor(ctx) {
             updateControls();
             return;
         }
+        endDrag();
         var b = bounds();
         var c = Object.assign({}, crop);
         // X・Y は大きさを保って位置だけを変える。幅・高さは位置を保ち、画像の外へ出ない大きさまでにする(縦横比は固定しない)
@@ -474,11 +483,15 @@ export function createImageEditor(ctx) {
         var handleEl = e.target.closest('[data-handle]');
         var mode = handleEl ? handleEl.dataset.handle : (cropEl.contains(e.target) ? 'move' : 'draw');
         lastDownMode = mode;
+        var start = toImagePoint(e, mode === 'draw');
+        var handle = handlePoint(crop, mode);
         drag = {
             id: e.pointerId,
             mode: mode,
             ratio: ratioShown() ? activeRatio() : crop.w / crop.h,
-            start: toImagePoint(e, mode === 'draw'),
+            start: start,
+            // つまみを掴んだ位置と、つまみの位置とのずれ(起点を取り直すときに保つ)
+            grab: handle ? { x: start.x - handle.x, y: start.y - handle.y } : { x: 0, y: 0 },
             rect: Object.assign({}, crop),
             x: e.clientX,
             y: e.clientY,
@@ -499,9 +512,13 @@ export function createImageEditor(ctx) {
         if (!drag.moved && Math.abs(e.clientX - drag.x) < CLICK_SLOP && Math.abs(e.clientY - drag.y) < CLICK_SLOP) {
             return;
         }
+        // keyup を取り逃がしたとき(ウィンドウの外で離したなど)も、Shift の変化を同じように扱う
+        if (drag.moved && e.shiftKey !== drag.shift) {
+            setShift(e.shiftKey);
+        }
         drag.moved = true;
-        drag.last = { clientX: e.clientX, clientY: e.clientY };
         drag.shift = e.shiftKey;
+        drag.last = { clientX: e.clientX, clientY: e.clientY };
         applyDrag();
     }
 
@@ -510,27 +527,51 @@ export function createImageEditor(ctx) {
         if (!drag || e.key !== 'Shift' || drag.shift === e.shiftKey) {
             return;
         }
-        drag.shift = e.shiftKey;
-        if (!drag.moved) {
-            return;
-        }
-        if (drag.shift) {
-            // 押したときは、ドラッグを始めたときの比率にその場で揃える(向かいの角・辺は動かない)
-            applyDrag();
+        if (drag.moved) {
+            setShift(e.shiftKey);
+            if (drag.shift) {
+                applyDrag();
+            }
         } else {
-            // 離したときは範囲を動かさず、今の範囲と位置から自由な変形を続ける(離した瞬間に形が飛ばないように)
+            drag.shift = e.shiftKey;
+        }
+    }
+
+    // Shift を押したときは、ドラッグを始めたときの比率にその場で揃える(向かいの角・辺は動かない。範囲の計算は呼び出し側)。
+    // 離したときは範囲を動かさず、今の範囲から自由な変形を続ける(離した瞬間に形が飛ばないように)
+    function setShift(pressed) {
+        drag.shift = pressed;
+        if (!pressed) {
             rebaseDrag();
         }
     }
 
-    // 今の範囲とポインターの位置を、ドラッグの起点にし直す。枠の外からの描き直しは、ポインターの向きの角のつまみとして続ける
+    // つまみ(または描き直しの動かしている角)の位置。移動のときは null
+    function handlePoint(rect, mode) {
+        if (mode === 'move' || mode === 'draw') {
+            return null;
+        }
+        return {
+            x: mode.indexOf('w') !== -1 ? rect.x : (mode.indexOf('e') !== -1 ? rect.x + rect.w : rect.x + rect.w / 2),
+            y: mode.indexOf('n') !== -1 ? rect.y : (mode.indexOf('s') !== -1 ? rect.y + rect.h : rect.y + rect.h / 2)
+        };
+    }
+
+    // 今の範囲を、ドラッグの起点にし直す。起点のポインターの位置は、今のつまみの位置に掴んだときのずれを足したものにし、
+    // ポインターが画像の外にあって範囲が端で止まっていても、つまみとポインターの関係がずれないようにする。
+    // 枠の外からの描き直しは、ポインターの向きの角のつまみとして続ける。移動は Shift と関係ないので何もしない
     function rebaseDrag() {
+        if (drag.mode === 'move') {
+            return;
+        }
         if (drag.mode === 'draw') {
             var p = toImagePoint(drag.last, true);
             drag.mode = (p.y < drag.start.y ? 'n' : 's') + (p.x < drag.start.x ? 'w' : 'e');
+            drag.grab = { x: 0, y: 0 };
         }
+        var handle = handlePoint(crop, drag.mode);
         drag.rect = Object.assign({}, crop);
-        drag.start = toImagePoint(drag.last, false);
+        drag.start = { x: handle.x + drag.grab.x, y: handle.y + drag.grab.y };
     }
 
     function applyDrag() {
@@ -709,14 +750,11 @@ export function createImageEditor(ctx) {
         summaryEl.textContent = '';
     }
 
+    // 後始末は openOverlay() の onClose で行う(管理画面のモーダルが閉じられたときなど、ここを通らずに閉じることもあるため)
     function close(restoreFocus) {
-        if (!closeOverlay) {
-            return;
+        if (closeOverlay) {
+            closeOverlay(restoreFocus);
         }
-        var fn = closeOverlay;
-        closeOverlay = null;
-        fn(restoreFocus);
-        release();
     }
 
     // 保存の通信中は、閉じない(閉じても保存は進み、結果を受ける先が無くなるため)
@@ -746,7 +784,13 @@ export function createImageEditor(ctx) {
         showError('');
         statusEl.textContent = '';
         saveBtn.disabled = true;
-        closeOverlay = openOverlay(overlayEl, panelEl, null, { onEscape: cancel });
+        closeOverlay = openOverlay(overlayEl, panelEl, null, {
+            onEscape: cancel,
+            onClose: function () {
+                closeOverlay = null;
+                release();
+            }
+        });
 
         var loading = new Image();
         loadingImg = loading;
