@@ -27,7 +27,7 @@ class BrowserView
         'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed', 'fb_delete_partial_failed',
         'fb_mkdir_prompt', 'fb_mkdir_failed',
         'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
-        'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',
+        'fb_copy', 'fb_cut', 'fb_paste', 'fb_duplicate', 'fb_copy_partial_failed', 'fb_copy_failed',
         'fb_download', 'fb_download_preparing', 'fb_download_failed',
         'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed', 'fb_edit_summary', 'fb_edit_resize_hint', 'fb_edit_resize_limit',
         'fb_err_too_large', 'fb_confirm_overwrite', 'fb_discard_confirm',

@@ -1405,6 +1405,7 @@ return [
     "fb_copy" => 'コピー',
     "fb_cut" => '切り取り',
     "fb_paste" => '貼り付け',
+    "fb_duplicate" => '複製',
     "fb_copy_partial_failed" => '一部のファイルをコピーできませんでした:',
     "fb_copy_failed" => 'コピーに失敗しました: %s',
     "fb_err_copy_failed" => 'コピーできませんでした。',

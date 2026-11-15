@@ -108,6 +108,11 @@
     background: var(--color-primary-start, var(--color-primary, #2f8aa1));
 }
 
+/* 取り消せない操作(削除)のボタン。右クリックメニューの削除と同じ色の文字にする */
+.evo-fb-btn-danger {
+    color: var(--color-error, #900);
+}
+
 .evo-fb-search,
 .evo-fb-sort {
     flex: 0 0 auto;
