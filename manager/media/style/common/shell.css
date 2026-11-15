@@ -747,8 +747,8 @@ body.evo-shell input.evo-submitting-trigger {
 .search-simple { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
 .search-simple input[name="q"] { flex: 1 1 24em; max-width: 40em; box-sizing: border-box; }
 .search-also { white-space: nowrap; }
-.search-scope { display: inline-flex; flex-wrap: wrap; gap: 0 var(--space-3, 12px); }
-.search-scope > label { white-space: nowrap; }
+/* 探す範囲（検索欄の前の select）。テーマが select に幅を付けていても、選択肢の長さに合わせる */
+.search-simple .search-scope { flex: 0 0 auto; width: auto; margin: 0; }
 /* 2 行目。閉じているあいだは 1 行に並び、開いた details だけ全幅にして中身を下に出す */
 .search-row2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-4, 16px); margin-top: var(--space-2, 8px); }
 .search-help { font-size: 0.9em; color: var(--color-text-muted, #606060); }

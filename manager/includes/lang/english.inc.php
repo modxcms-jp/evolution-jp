@@ -771,7 +771,7 @@ return [
     "search_scope" => 'Search in',
     "search_scope_resources" => 'Resources',
     "search_scope_elements" => 'Elements',
-    "search_scope_all" => 'Resources and elements',
+    "search_scope_all" => 'All',
     "search_kind_resource" => 'Resource',
     "search_element_ignored" => 'ID, URL, parent, template, status and date conditions are not used for elements.',
     "search_element_no_terms" => 'Elements are searched by words. Please enter words to search for.',

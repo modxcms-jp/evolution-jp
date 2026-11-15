@@ -83,6 +83,11 @@ $selected = static function ($value, $current) {
             <form action="index.php" method="get" id="search-form">
                 <input type="hidden" name="a" value="71"/>
                 <div class="search-simple">
+                    <select name="scope" class="search-scope" aria-label="<?= hsc(lang('search_scope')) ?>">
+                        <?php foreach (SiteSearch::SCOPES as $s): ?>
+                            <option value="<?= $s ?>"<?= $selected($s, $scope) ?>><?= lang('search_scope_' . $s) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                     <input
                         name="q"
                         type="search"
@@ -94,11 +99,6 @@ $selected = static function ($value, $current) {
                     />
                     <button type="submit" name="submitok" value="1" class="button primary"><?= lang('search') ?></button>
                     <label class="search-also"><input type="checkbox" name="also_content" value="1"<?= $alsoContent ? ' checked' : '' ?>/> <?= lang('search_also_content') ?></label>
-                    <span class="search-scope" role="radiogroup" aria-label="<?= hsc(lang('search_scope')) ?>">
-                        <?php foreach (SiteSearch::SCOPES as $s): ?>
-                            <label><input type="radio" name="scope" value="<?= $s ?>"<?= $scope === $s ? ' checked' : '' ?>/> <?= lang('search_scope_' . $s) ?></label>
-                        <?php endforeach; ?>
-                    </span>
                 </div>
                 <!-- 2 行目: 説明と、閉じた「書き方」「詳しく検索」を 1 行に並べる。開いたものだけ、中身を下に全幅で出す -->
                 <div class="search-row2">
