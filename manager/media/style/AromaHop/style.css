@@ -356,17 +356,6 @@
     --tree-button-hover-border-color: transparent;
 }
 
-/* 素の要素の規則。部品の CSS（evo-components）の規則が勝つよう、土台の層に入れる */
-@layer evo-base {
-    h2 {
-        font-size: 1.4em;
-        font-weight: 600;
-        color: #3a5845;
-        margin: 0 0 var(--space-4);
-        padding: 0;
-    }
-}
-
 /* 画面全体の背景。シェル(body.evo-shell)ではこの body がメニュー・ツリー・メインをまとめるので、
    泡と光をビューポート基準(fixed)で一枚に描き、各ペインは背景を持たずに透かして見せる。
    重ね順は上から: 光の帯とライン → 泡 → 光のたまり → ベースのグラデーション */

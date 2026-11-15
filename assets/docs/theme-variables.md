@@ -256,7 +256,7 @@
 
 ## 素の要素
 
-素の要素（`body`・`ul`・`li`・`hr`・`thead`・`button`・`img`・`optgroup`・`h2` など）の規則は、`common/theme-base.css`（主に `@layer evo-base`）が決める。本文の書体・文字の大きさ・行の高さ（`1.5`）、リストの余白、`button` の余白、`hr` の太さは全テーマ共通。行の高さは、入力欄とボタンの高さ（`--control-height`）の計算の元にもなる。テーマは `:root` で下の変数の値を決め、素の要素の規則を書かない（AromaHop・SakuraFlow の `h2` のような、そのテーマだけの見た目は除く）。
+素の要素（`body`・`ul`・`li`・`hr`・`thead`・`button`・`img`・`optgroup`・`h2` など）の規則は、`common/theme-base.css`（主に `@layer evo-base`）が決める。本文の書体・文字の大きさ・行の高さ（`1.5`）、リストの余白、`button` の余白、`hr` の太さは全テーマ共通。行の高さは、入力欄とボタンの高さ（`--control-height`）の計算の元にもなる。テーマは `:root` で下の変数の値を決め、素の要素の規則を書かない。
 
 | 変数 | 意味 | 既定値（theme-base.css） |
 | --- | --- | --- |
