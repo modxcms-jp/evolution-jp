@@ -50,22 +50,15 @@
     --gray-850: #333;
     --gray-900: #222;
 
-    /* Spacing Scale - 8px based system with additional values */
-    --space-0: 0;
-    --space-1: 2px;
-    --space-2: 3px;
-    --space-3: 4px;
-    --space-4: 5px;
-    --space-5: 6px;
-    --space-6: 7px;
-    --space-7: 8px;
-    --space-8: 10px;
-    --space-9: 15px;
-    --space-10: 16px;
-    --space-11: 18px;
-    --space-12: 20px;
-    --space-13: 25px;
-    --space-14: 28px;
+    /* Spacing Scale - 4px 刻み（ほかのテーマと同じ。共通部が読む。RevoStyle の中の余白は px で書く） */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
 
     /* Border Radius */
     --radius-sm: 2px;
@@ -182,18 +175,18 @@
 
     /* Component Specific - Sizes */
     --topnav-item-height: 32px;
-    --topnav-gap: var(--space-3);
+    --topnav-gap: 4px;
     --subnav-height: 32px;
-    --subnav-horizontal-padding: var(--space-10);
+    --subnav-horizontal-padding: 16px;
 
     /* セクション（common/sections.css が読む） */
     --section-header-border: var(--border-thin) solid var(--color-border-default);
-    --section-header-radius: var(--space-4) var(--space-4) 0 0;
+    --section-header-radius: 5px 5px 0 0;
     --section-body-bg: #F7F7F7;
     --section-body-border: 1px solid #CCCCCC;
     --section-body-padding: 15px;
-    --section-fieldset-padding: var(--space-9);
-    --section-legend-padding: var(--space-4) var(--space-9);
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
     --section-legend-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
     --section-legend-radius: var(--radius-md);
 
@@ -208,7 +201,7 @@
     --page-title-color: #585858;
     --page-title-bg: #d0d0d0;
     --page-title-radius: var(--radius-md);
-    --page-title-padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
+    --page-title-padding: 7px 7px 7px 10px;
     --page-title-draft-bg: #F4E2C3;
 
     /* 右クリックメニュー（common/context-menu.css） */
@@ -220,7 +213,7 @@
 
     /* ツリー（common/tree.css） */
     --tree-bg: var(--gray-100) url(../common/images/misc/subnav.png);
-    --tree-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
+    --tree-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
     --tree-node-hover-border-color: var(--gray-400);
     --tree-floater-border-color: var(--gray-400);
 
@@ -256,7 +249,7 @@
     --datepicker-icon-focus: url(../common/images/misc/datefocus.gif);
 
     /* セクション（common/sections.css） */
-    --section-header-padding: var(--space-4) var(--space-8) var(--space-4) var(--space-9);
+    --section-header-padding: 5px 10px 5px 15px;
     --section-header-border-bottom: none;
     --section-header-bg: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     --section-header-text-shadow: 0 var(--border-thin) 0 var(--color-surface);
@@ -298,7 +291,7 @@ form select {
     border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
     border-style: solid;
     border-width: var(--border-thin);
-    padding: var(--space-3);
+    padding: 4px;
     margin: 0;
     min-height: 17px;
     vertical-align: baseline;
@@ -317,7 +310,7 @@ form textarea {
     border-style: solid;
     border-width: 1px;
     padding: 4px 2px 4px 4px;
-    margin: 0 var(--space-1) 0 0;
+    margin: 0 2px 0 0;
     min-height: 17px;
     vertical-align: baseline;
     border-radius: var(--radius-md);
@@ -357,12 +350,12 @@ form textarea {
 
 /* -------------------------[ Misc stuff ]--- */
 .sectionBody fieldset {
-    padding: var(--space-9);
+    padding: 15px;
 }
 
 .sectionBody legend {
     font-weight: bold;
-    padding: var(--space-4) var(--space-9);
+    padding: 5px 15px;
     background: var(--color-surface);
     border: var(--border-thin) solid var(--color-border-default);
     box-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
@@ -386,7 +379,7 @@ form textarea {
     --subnav-height: 19px;
     --topnav-link-color: #A4B8B6;
     --topnav-link-hover-color: #fff;
-    --topnav-item-radius: var(--space-4) var(--space-4) 0 0;
+    --topnav-item-radius: 5px 5px 0 0;
     --topnav-link-hover-bg: transparent;
     --topnav-link-hover-border-color: transparent;
     --topnav-link-active-bg: #616161;
@@ -403,7 +396,7 @@ form textarea {
     --supplemental-nav-color: #89939e;
 }/* 選んでいる項目の立体の影と、文字の影 */
 #nav > li.active > a {
-    box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) var(--space-1) rgba(0, 0, 0, .9);
+    box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) 2px rgba(0, 0, 0, .9);
     text-shadow: 0 -1px 0 var(--gray-850);
     /* 外側の影は、サブメニューの帯にかかる下側だけ切る */
     clip-path: inset(-4px -4px 0 -4px);
