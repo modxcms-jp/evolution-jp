@@ -369,19 +369,31 @@ function init(root, entry, behaviors) {
         closeBtn: root.querySelector('[data-role="preview-close"]'),
         actionsEl: root.querySelector('[data-role="preview-actions"]'),
         editBtn: root.querySelector('[data-role="preview-edit"]'),
-        // 入口ごとのボタンのあとに、複製と削除を足す(書き込めないフォルダでは押せない)。
-        // 削除は確かめる間もプレビューを開いたままにし、消せたときだけ閉じる
+        // 入口ごとのボタンのあとに、複製と削除を足す(書き込めないフォルダでは押せない)。閉じたあとは一覧へフォーカスを戻す。
+        // 削除は確かめる間もプレビューを開いたままにし、通信中はボタンを押せなくする。消せたとき、まだそのファイルを開いていれば閉じる
         getActions: function (file) {
             return behaviors.previewActions(file, host).concat([
-                { label: t('fb_duplicate'), disabled: !state.writable, onSelect: function () { duplicateEntry(file.name); } },
+                {
+                    label: t('fb_duplicate'),
+                    disabled: !state.writable,
+                    onSelect: function () {
+                        dropzoneEl.focus({ preventScroll: true });
+                        duplicateEntry(file.name);
+                    }
+                },
                 {
                     label: t('delete'),
                     danger: true,
                     keepOpen: true,
                     disabled: !state.writable,
-                    onSelect: function () {
+                    onSelect: function (button) {
+                        button.disabled = true;
                         deleteEntry(file.name, false).then(function (deleted) {
-                            if (deleted) {
+                            if (!deleted) {
+                                button.disabled = false;
+                                return;
+                            }
+                            if (preview.isShowing(file)) {
                                 preview.close();
                                 dropzoneEl.focus({ preventScroll: true });
                             }
