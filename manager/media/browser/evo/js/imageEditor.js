@@ -340,7 +340,8 @@ export function createImageEditor(ctx) {
         put(outInputs.h, o.h);
         outInputs.w.max = Math.min(c.w, maxDimension);
         outInputs.h.max = Math.min(c.h, maxDimension);
-        summaryEl.textContent = t('fb_edit_summary', c.w, c.h, o.w, o.h);
+        // 保存の大きさは欄に出ているので、ここはリサイズする前の大きさ(トリミングの範囲)だけを出す
+        summaryEl.textContent = t('fb_edit_summary', c.w, c.h);
         var shown = ratioShown();
         ratioBtns.forEach(function (btn) {
             var pair = RATIOS[btn.dataset.ratio];
