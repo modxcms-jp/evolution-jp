@@ -835,7 +835,7 @@ trait DocumentParserSubParserTrait
     // エラーページ（http_status_code が '404' の転送）の応答の中で再びエラーページが要るときは、転送を繰り返さず最小の 404 を返して終える
     private function exitIfErrorPageFailed()
     {
-        if (!evo()->forwardedResponse || evo()->http_status_code !== '404') {
+        if (!evo()->forwardedResponse || (string) evo()->http_status_code !== '404') {
             return;
         }
         header(serverv('SERVER_PROTOCOL', 'HTTP/1.1') . ' 404 Not Found', true, 404);
@@ -863,7 +863,7 @@ trait DocumentParserSubParserTrait
         global $modx;
 
         $this->exitIfErrorPageFailed();
-        if (evo()->forwardedResponse) {
+        if (evo()->forwardedResponse && in_array((string) evo()->http_status_code, ['403', '503'], true)) {
             // 権限外告知のページやメンテナンス中ページの転送先が出せなかったときは、エラーページへ回す
             $this->sendErrorPage();
             return;

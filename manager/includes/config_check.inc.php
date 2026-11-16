@@ -3,6 +3,8 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
+require_once __DIR__ . '/special_pages.class.inc.php';
+
 class ConfigCheck {
     private $warnings = '';
     private $_lang;
@@ -83,40 +85,26 @@ function templateSwitcherAction(id, op){
 
     private function pageSettingWarnings() {
         $warnings = [];
-        $pages = [
-            'error_page' => ['errorpage', 'errorpage_title'],
-            'unauthorized_page' => ['unauthorizedpage', 'unauthorizedpage_title'],
-            'site_unavailable_page' => ['siteunavailablepage', 'siteunavailable_page_title'],
-        ];
-        foreach ($pages as $key => [$name, $titleKey]) {
+        foreach (SpecialPages::all() as $key => [$name, $titleKey]) {
             $id = (int) config($key);
             if (!$id) {
                 continue;
             }
-            $doc = db()->getRow(
-                db()->select(
-                    'published, privateweb',
-                    '[+prefix+]site_content',
-                    where('id', '=', $id)
-                )
-            );
-            if (!$doc) {
+            $problem = SpecialPages::problem($id, $doc);
+            if ($problem === 'missing' || $problem === 'deleted') {
                 $warnings[] = [
-                    'title' => "configcheck_{$name}_missing",
-                    'message' => sprintf($this->_lang['settings_page_invalid_msg'], $this->_lang[$titleKey], $id)
+                    'title' => "configcheck_{$name}_{$problem}",
+                    'message' => sprintf($this->_lang["configcheck_page_{$problem}_msg"], $this->_lang[$titleKey], $id)
                 ];
                 continue;
             }
-            if ($key === 'site_unavailable_page') {
-                continue;
-            }
-            if (!$doc['published']) {
+            if ($problem === 'unpublished') {
                 $warnings[] = [
                     'title' => "configcheck_{$name}_unpublished",
                     'message' => $this->_lang["configcheck_{$name}_unpublished_msg"]
                 ];
             }
-            if ($doc['privateweb']) {
+            if ($key !== 'site_unavailable_page' && $doc['privateweb']) {
                 $warnings[] = [
                     'title' => "configcheck_{$name}_unavailable",
                     'message' => $this->_lang["configcheck_{$name}_unavailable_msg"]
