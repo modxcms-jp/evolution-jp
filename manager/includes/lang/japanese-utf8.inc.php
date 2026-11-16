@@ -1491,6 +1491,7 @@ return [
     "fb_unzip_failed" => '展開できませんでした: %s',
     "fb_unzip_done" => '%s 件のファイルを展開しました。',
     "fb_unzip_entry_failed" => '展開できなかったファイル:',
+    "fb_content_format_title" => '拡張子は .%s ですが、中身は %s の画像です',
     "styleguide_title" => 'スタイルガイド',
     "styleguide_msg" => '管理画面の部品を並べた確認用の画面です。テーマを選んで、部品の見た目と寸法を確かめます。設定は変わりません。',
     "styleguide_theme" => 'テーマ',

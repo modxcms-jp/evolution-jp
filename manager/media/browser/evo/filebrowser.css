@@ -560,6 +560,35 @@
     color: var(--color-text-subtle, #999);
 }
 
+.evo-fb-thumb-wrap {
+    position: relative;
+    display: flex;
+}
+
+/* 拡張子と中身の形式が違う画像の印。右上は操作ボタンに隠れるので右下。
+   テーマの警告色は灰色のことがあるため、色は固定 */
+.evo-fb-format-badge {
+    position: absolute;
+    right: -4px;
+    bottom: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e67e00;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.evo-fb-grid--list .evo-fb-format-badge {
+    right: -6px;
+    bottom: -4px;
+}
+
 .evo-fb-item.is-checked .evo-fb-thumb {
     color: var(--color-text-inverse, #fff);
 }

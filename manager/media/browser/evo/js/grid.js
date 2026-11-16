@@ -122,11 +122,20 @@ export function createGrid(ctx) {
             ? '<img class="evo-fb-thumb-img" src="' + escapeHtml(src) + '" alt="" loading="lazy">'
             : fileIcon(40);
         var meta = listMetaHtml(file, false);
+        var formatBadge = '';
+        if (file.contentFormat) {
+            var ext = (file.name.split('.').pop() || '').toUpperCase();
+            var formatTitle = escapeHtml(t('fb_content_format_title', ext, String(file.contentFormat).toUpperCase()));
+            formatBadge = '<span class="evo-fb-format-badge" role="img" title="' + formatTitle + '" aria-label="' + formatTitle + '">!</span>';
+        }
 
         return '' +
             '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-kind="file">' +
             '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb">' +
-            '    <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
+            '    <span class="evo-fb-thumb-wrap">' +
+            '      <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
+            formatBadge +
+            '    </span>' +
             '  </button>' +
             '  <button type="button" class="evo-fb-item-name-btn" data-role="name">' +
             '    <span class="evo-fb-name">' + escapeHtml(file.name) + '</span>' +
