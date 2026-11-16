@@ -104,6 +104,12 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
+    foreach (['error_page' => 'errorpage_title', 'unauthorized_page' => 'unauthorizedpage_title', 'site_unavailable_page' => 'siteunavailable_page_title'] as $key => $titleKey) {
+        $warning = invalidPageWarning(formv($key), lang($titleKey));
+        if ($warning) {
+            $warnings[] = $warning;
+        }
+    }
     if (post_strvar('friendly_urls') !== '1') {
         return $warnings;
     }
@@ -121,6 +127,26 @@ function warnings()
 /**
  * フォームから送られてくるが、設定ではないキー（保存しない）
  */
+function invalidPageWarning($value, $name)
+{
+    $value = is_string($value) ? trim($value) : '';
+    if ($value === '' || !ctype_digit($value) || (int) $value === 0) {
+        return '';
+    }
+    $id = (int) $value;
+    $count = db()->getValue(
+        db()->select(
+            'COUNT(*)',
+            '[+prefix+]site_content',
+            where('id', '=', $id) . ' ' . and_where('deleted', '=', 0) . ' ' . and_where('published', '=', 1)
+        )
+    );
+    if ($count) {
+        return '';
+    }
+    return sprintf(lang('settings_page_invalid_msg'), $name, $id);
+}
+
 function nonSettingKeys()
 {
     return [

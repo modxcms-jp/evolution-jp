@@ -832,10 +832,23 @@ trait DocumentParserSubParserTrait
         $modx->sendForward($dist, 'HTTP/1.0 503 Service Unavailable');
     }
 
+    // 転送先（エラーページなど）の応答の中で再びエラーページが要るときは、転送を繰り返さず最小の 404 を返して終える
+    private function exitIfForwardTargetFailed()
+    {
+        if (!evo()->forwardedResponse) {
+            return;
+        }
+        header(serverv('SERVER_PROTOCOL', 'HTTP/1.1') . ' 404 Not Found', true, 404);
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>';
+        exit;
+    }
+
     function sendErrorPage()
     {
         global $modx;
 
+        $this->exitIfForwardTargetFailed();
         evo()->invokeEvent('OnPageNotFound');
 
         $modx->http_status_code = '404';
@@ -849,6 +862,7 @@ trait DocumentParserSubParserTrait
     {
         global $modx;
 
+        $this->exitIfForwardTargetFailed();
         // invoke OnPageUnauthorized event
         // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
         // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す

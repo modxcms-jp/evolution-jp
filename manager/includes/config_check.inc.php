@@ -81,17 +81,49 @@ function templateSwitcherAction(id, op){
 </script>";
     }
 
-    private function get_sc_value($field, $id) {
-        if (empty($id)) {
-            return true;
+    private function pageSettingWarnings() {
+        $warnings = [];
+        $pages = [
+            'error_page' => ['errorpage', 'errorpage_title'],
+            'unauthorized_page' => ['unauthorizedpage', 'unauthorizedpage_title'],
+            'site_unavailable_page' => ['siteunavailablepage', 'siteunavailable_page_title'],
+        ];
+        foreach ($pages as $key => [$name, $titleKey]) {
+            $id = (int) config($key);
+            if (!$id) {
+                continue;
+            }
+            $doc = db()->getRow(
+                db()->select(
+                    'published, privateweb',
+                    '[+prefix+]site_content',
+                    where('id', '=', $id)
+                )
+            );
+            if (!$doc) {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_missing",
+                    'message' => sprintf($this->_lang['settings_page_invalid_msg'], $this->_lang[$titleKey], $id)
+                ];
+                continue;
+            }
+            if ($key === 'site_unavailable_page') {
+                continue;
+            }
+            if (!$doc['published']) {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unpublished",
+                    'message' => $this->_lang["configcheck_{$name}_unpublished_msg"]
+                ];
+            }
+            if ($doc['privateweb']) {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unavailable",
+                    'message' => $this->_lang["configcheck_{$name}_unavailable_msg"]
+                ];
+            }
         }
-        return db()->getValue(
-            db()->select(
-                $field,
-                '[+prefix+]site_content',
-                sprintf("id='%s'", $id)
-            )
-        );
+        return $warnings;
     }
 
     private function checkAjaxSearch() {
@@ -305,32 +337,8 @@ function templateSwitcherAction(id, op){
             ];
         }
 
-        if ($this->get_sc_value('published', config('unauthorized_page')) == 0) {
-            $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unpublished',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unpublished_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('published', config('error_page')) == 0) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unpublished',
-                'message' => $this->_lang['configcheck_errorpage_unpublished_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('unauthorized_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unavailable',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unavailable_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('error_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unavailable',
-                'message' => $this->_lang['configcheck_errorpage_unavailable_msg']
-            ];
+        foreach ($this->pageSettingWarnings() as $warning) {
+            $warnings[] = $warning;
         }
 
         if (!is_writable(MODX_CACHE_PATH)) {
