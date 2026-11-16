@@ -1,7 +1,7 @@
 # Evolution CMS JP Edition
 
 [![License](https://img.shields.io/badge/license-GPLv2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
-[![PHP](https://img.shields.io/badge/PHP-%3E%3D%207.0-8892bf.svg)](https://www.php.net/)
+[![PHP](https://img.shields.io/badge/PHP-%3E%3D%207.4-8892bf.svg)](https://www.php.net/)
 [![Downloads](https://img.shields.io/badge/download-modx.jp-success.svg)](https://modx.jp/download.html)
 [![Docs](https://img.shields.io/badge/docs-evolution--cms--jp-orange.svg)](https://modx.jp/documents.html)
 
@@ -35,7 +35,7 @@
 ## 動作要件
 
 - Web サーバー (Apache / Nginx など)
-- PHP 7.0 以上（8.2 以降を推奨）
+- PHP 7.4 以上（8.2 以降を推奨）
 - MySQL 互換データベース (MySQL 5.x - 8.x / MariaDB など)
 
 インストール前チェックでは PHP バージョンやデータベース拡張、ディレクトリの書き込み権限などが検証されます。推奨環境については `install/langs/japanese-utf8.inc.php` のメッセージを参照してください。

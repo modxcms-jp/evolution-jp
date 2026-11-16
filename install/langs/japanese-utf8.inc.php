@@ -43,7 +43,6 @@ $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>�
 $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
 $_lang["checking_sql_version"] = 'SQLのバージョン: ';
-$_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプレフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
@@ -114,7 +113,6 @@ $_lang["modules"] = 'モジュール';
 $_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="http://modx.com/" target="_blank">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; インストール';
-$_lang["modx_requires_php"] = ', PHP 5.3.0以上が必要です。';
 $_lang["sql_version_is"] = ' Version ';
 $_lang["no"] = 'いいえ';
 $_lang["none"] = '全ての選択を解除';
@@ -186,7 +184,6 @@ $_lang["welcome_message_text"] = 'MODXのインストールは簡単。インス
 $_lang["welcome_message_welcome"] = 'MODXのインストールを開始します。';
 $_lang["writing_config_file"] = 'config.inc.phpへの書き込み(設定情報): ';
 $_lang["yes"] = 'はい';
-$_lang["you_running_php"] = ' - You are running on PHP ';
 
 $_lang['checking_if_backup_exists'] = '<span class="mono">/temp/backup</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_backup_writable'] = '<span class="mono">/temp/backup</span>ディレクトリの書き込み属性: ';

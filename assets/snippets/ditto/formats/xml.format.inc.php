@@ -1,10 +1,6 @@
 <?php
 if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
-if(PHP_MAJOR_VERSION < 7) {
-    exit('PHP 7 or higher required');
-}
-
 /**
  * XML format
  *
