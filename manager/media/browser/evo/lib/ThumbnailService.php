@@ -23,11 +23,11 @@ class ThumbnailService
         'gif' => IMAGETYPE_GIF,
     ];
 
-    /** IMAGETYPE_* に対する、画面へ渡す形式名 */
-    const TYPE_NAMES = [
-        IMAGETYPE_JPEG => 'jpeg',
-        IMAGETYPE_PNG => 'png',
-        IMAGETYPE_GIF => 'gif',
+    /** GD で読み込める形式(IMAGETYPE_*) */
+    const LOADABLE_TYPES = [
+        IMAGETYPE_JPEG,
+        IMAGETYPE_PNG,
+        IMAGETYPE_GIF,
     ];
 
     /** @var string temp/thumbs/ の絶対パス(末尾スラッシュ付き) */
@@ -47,7 +47,7 @@ class ThumbnailService
     }
 
     /**
-     * 拡張子と中身の形式が食い違うときだけ、中身の形式名('jpeg'・'png'・'gif')を返す。
+     * 拡張子と中身の形式が食い違うときだけ、中身の形式名('jpeg'・'png'・'gif'・'webp' など)を返す。
      *
      * @param string $ext 拡張子
      * @param array|false $info getimagesize() の結果
@@ -57,10 +57,10 @@ class ThumbnailService
     {
         $extType = self::EXTENSION_TYPES[strtolower($ext)] ?? null;
         $contentType = is_array($info) ? ($info[2] ?? null) : null;
-        if ($extType === null || !isset(self::TYPE_NAMES[$contentType]) || $contentType === $extType) {
+        if ($extType === null || !$contentType || $contentType === $extType) {
             return null;
         }
-        return self::TYPE_NAMES[$contentType];
+        return image_type_to_extension($contentType, false) ?: null;
     }
 
     /** ブラウザが <img> で表示できる形式の拡張子か(一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ) */
@@ -86,9 +86,12 @@ class ThumbnailService
             return null;
         }
 
-        // 形式は中身で決める。中身を読めないときだけ拡張子に頼る
+        // 形式は中身で決める。拡張子に頼るのは、中身を読めない(getimagesize() が失敗する)ときだけ
         $info = @getimagesize($sourceFile);
-        $type = ($info && isset(self::TYPE_NAMES[$info[2]])) ? $info[2] : self::EXTENSION_TYPES[$ext];
+        $type = $info ? $info[2] : self::EXTENSION_TYPES[$ext];
+        if (!in_array($type, self::LOADABLE_TYPES, true)) {
+            return null;
+        }
         $keepsAlpha = ($type !== IMAGETYPE_JPEG);
         $outExt = $keepsAlpha ? 'png' : 'jpg';
         $cacheFile = $this->cacheDir . md5($sourceFile) . '_' . $mtime . '.' . $outExt;
