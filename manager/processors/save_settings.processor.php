@@ -124,9 +124,6 @@ function warnings()
     return $warnings;
 }
 
-/**
- * フォームから送られてくるが、設定ではないキー（保存しない）
- */
 function invalidPageWarning($value, $name)
 {
     $value = is_string($value) ? trim($value) : '';
@@ -147,6 +144,9 @@ function invalidPageWarning($value, $name)
     return sprintf(lang('settings_page_invalid_msg'), $name, $id);
 }
 
+/**
+ * フォームから送られてくるが、設定ではないキー（保存しない）
+ */
 function nonSettingKeys()
 {
     return [
