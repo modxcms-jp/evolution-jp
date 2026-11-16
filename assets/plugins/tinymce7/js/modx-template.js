@@ -36,23 +36,21 @@
     return tinymce.html.Serializer({}, editor.schema).serialize(fragment);
   }
 
-  // 編集欄と同じ CSS を当てるため、管理画面から切り離した iframe の中に描く。
+  // 編集欄と同じ CSS を当て、管理画面の CSS は混ざらないよう、iframe の中に描く。
   // スクリプトは動かさず、同じオリジンにして CSS のフォントも読めるようにする。
   // body の id・class・dir は、編集欄の実物から写す。
   function previewDocument(editor, html) {
-    const links = (editor.contentCSS || []).map(function (url) {
+    const links = editor.contentCSS.map(function (url) {
       return '<link rel="stylesheet" href="' + escapeHtml(url) + '">';
     }).join('');
     const style = editor.options.get('content_style');
-    const body = editor.getBody ? editor.getBody() : null;
+    const body = editor.getBody();
     let attrs = '';
-    if (body) {
-      ['id', 'className', 'dir'].forEach(function (prop) {
-        if (body[prop]) {
-          attrs += ' ' + (prop === 'className' ? 'class' : prop) + '="' + escapeHtml(body[prop]) + '"';
-        }
-      });
-    }
+    ['id', 'className', 'dir'].forEach(function (prop) {
+      if (body[prop]) {
+        attrs += ' ' + (prop === 'className' ? 'class' : prop) + '="' + escapeHtml(body[prop]) + '"';
+      }
+    });
 
     return '<!DOCTYPE html><html><head><meta charset="utf-8">'
       + '<base href="' + escapeHtml(editor.documentBaseURI.getURI()) + '">'
