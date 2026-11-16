@@ -166,6 +166,8 @@ function init(root, entry, behaviors) {
             .then(function (result) { load((result && result.name) || newName, { instant: true }); })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_rename_failed'));
+                // その場の入力欄が残らないよう、元の名前を選んだまま読み直す
+                load(name, { instant: true });
             });
     }
 
