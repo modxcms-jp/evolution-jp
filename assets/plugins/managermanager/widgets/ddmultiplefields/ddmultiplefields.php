@@ -275,7 +275,8 @@ makeFieldRow: function(id, val){
                 field.after(button);
                 button.addEventListener("click", function(){
                     ddMultiple[id].currentField = ddMultiple.siblings(button, ".ddField")[0] || false;
-                    ddMultiple[id].browseFuntion(id);
+                    //選んだ値は元の欄で受け取り、ピッカーはこの行の値の場所で開く
+                    ddMultiple[id].browseFuntion(id, ddMultiple[id].currentField ? ddMultiple[id].currentField.value : "");
                 });
             }
         }else if (type == "id"){

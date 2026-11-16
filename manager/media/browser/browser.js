@@ -1,16 +1,22 @@
 var lastImageCtrl;
 var lastFileCtrl;
 
-function BrowseServer(ctrl) {
+// ctrl: 選んだ値を入れる欄の id
+// currentValue: ピッカーを開く場所を決める値（省略したら ctrl の欄の値）
+function BrowseServer(ctrl, currentValue) {
     lastImageCtrl = ctrl;
-    var c = document.getElementById(ctrl);
-    window.evoOpenFilePicker(imanager_url, c ? c.value : '');
+    window.evoOpenFilePicker(imanager_url, pickerCurrentValue(ctrl, currentValue));
 }
 
-function BrowseFileServer(ctrl) {
+function BrowseFileServer(ctrl, currentValue) {
     lastFileCtrl = ctrl;
+    window.evoOpenFilePicker(fmanager_url, pickerCurrentValue(ctrl, currentValue));
+}
+
+function pickerCurrentValue(ctrl, currentValue) {
+    if (currentValue !== undefined) return currentValue;
     var c = document.getElementById(ctrl);
-    window.evoOpenFilePicker(fmanager_url, c ? c.value : '');
+    return c ? c.value : '';
 }
 
 function SetUrl(url, width, height, alt) {
