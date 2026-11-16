@@ -3,6 +3,8 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
+
 class ConfigCheck {
     private $warnings = '';
     private $_lang;
@@ -81,17 +83,35 @@ function templateSwitcherAction(id, op){
 </script>";
     }
 
-    private function get_sc_value($field, $id) {
-        if (empty($id)) {
-            return true;
+    private function pageSettingWarnings() {
+        $warnings = [];
+        foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
+            $id = (int) config($key);
+            if (!$id) {
+                continue;
+            }
+            $problem = EvoSpecialPages::problem($id, $doc);
+            if ($problem === 'missing' || $problem === 'deleted') {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_{$problem}",
+                    'message' => sprintf($this->_lang["configcheck_page_{$problem}_msg"], $this->_lang[$titleKey], $id)
+                ];
+                continue;
+            }
+            if ($problem === 'unpublished') {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unpublished",
+                    'message' => $this->_lang["configcheck_{$name}_unpublished_msg"]
+                ];
+            }
+            if ($key !== 'site_unavailable_page' && $doc['privateweb']) {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unavailable",
+                    'message' => $this->_lang["configcheck_{$name}_unavailable_msg"]
+                ];
+            }
         }
-        return db()->getValue(
-            db()->select(
-                $field,
-                '[+prefix+]site_content',
-                sprintf("id='%s'", $id)
-            )
-        );
+        return $warnings;
     }
 
     private function checkAjaxSearch() {
@@ -305,32 +325,8 @@ function templateSwitcherAction(id, op){
             ];
         }
 
-        if ($this->get_sc_value('published', config('unauthorized_page')) == 0) {
-            $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unpublished',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unpublished_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('published', config('error_page')) == 0) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unpublished',
-                'message' => $this->_lang['configcheck_errorpage_unpublished_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('unauthorized_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unavailable',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unavailable_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('error_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unavailable',
-                'message' => $this->_lang['configcheck_errorpage_unavailable_msg']
-            ];
+        foreach ($this->pageSettingWarnings() as $warning) {
+            $warnings[] = $warning;
         }
 
         if (!is_writable(MODX_CACHE_PATH)) {

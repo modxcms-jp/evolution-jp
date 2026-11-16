@@ -7,6 +7,8 @@ if (!evo()->hasPermission('settings')) {
     alert()->dumpError();
 }
 
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
+
 $warnings = warnings();
 if ($warnings) {
     manager()->saveFormValues(17);
@@ -104,6 +106,12 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
+    foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
+        $warning = invalidPageWarning($key, lang($titleKey));
+        if ($warning) {
+            $warnings[] = $warning;
+        }
+    }
     if (post_strvar('friendly_urls') !== '1') {
         return $warnings;
     }
@@ -116,6 +124,21 @@ function warnings()
         $warnings[] = lang('settings_friendlyurls_alert2');
     }
     return $warnings;
+}
+
+// 今の設定値から変えた項目だけを確かめる（既にある値は設定の点検で知らせる）
+function invalidPageWarning($key, $name)
+{
+    $value = formv($key, '');
+    $value = is_string($value) ? trim($value) : '';
+    if ($value === trim((string) config($key)) || !ctype_digit($value) || (int) $value === 0) {
+        return '';
+    }
+    $id = (int) $value;
+    if (EvoSpecialPages::problem($id) === '') {
+        return '';
+    }
+    return sprintf(lang('settings_page_invalid_msg'), $name, $id);
 }
 
 /**
