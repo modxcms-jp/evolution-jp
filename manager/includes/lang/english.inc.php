@@ -124,7 +124,7 @@ return [
     "configcheck_siteunavailablepage_deleted" => 'The document set as the Site unavailable page in the Configuration is deleted.',
     "configcheck_siteunavailablepage_missing" => 'The document set as the Site unavailable page in the Configuration does not exist.',
     "configcheck_siteunavailablepage_unpublished" => 'The document set as the Site unavailable page in the Configuration is not published.',
-    "configcheck_siteunavailablepage_unpublished_msg" => 'The Site unavailable page cannot be shown to visitors. Specify a published document.',
+    "configcheck_siteunavailablepage_unpublished_msg" => 'Set the Site unavailable page to a published document.',
     "configcheck_title" => 'Configuration check',
     "configcheck_templateswitcher_present" => 'TemplateSwitcher Plugin detected',
     "configcheck_templateswitcher_confirm_delete" => 'Delete the plugin "%s" (ID: %d)? This cannot be undone.',

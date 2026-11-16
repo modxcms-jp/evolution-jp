@@ -126,7 +126,7 @@ return [
     "configcheck_siteunavailablepage_deleted" => 'グローバル設定の「メンテナンス中ページ」に指定した文書は削除されています。',
     "configcheck_siteunavailablepage_missing" => 'グローバル設定の「メンテナンス中ページ」に指定した文書がありません。',
     "configcheck_siteunavailablepage_unpublished" => 'グローバル設定の「メンテナンス中ページ」に指定した文書は公開されていません。',
-    "configcheck_siteunavailablepage_unpublished_msg" => 'メンテナンス中ページが誰にも表示できない状態です。公開中の文書を指定してください。',
+    "configcheck_siteunavailablepage_unpublished_msg" => 'メンテナンス中ページには、公開中の文書を指定してください。',
     "configcheck_title" => '設定チェック',
     "configcheck_templateswitcher_present" => 'TemplateSwitcher Plugin detected',
     "configcheck_templateswitcher_confirm_delete" => 'プラグイン「%s」（ID: %d）を削除します。元に戻せません。よろしいですか？',

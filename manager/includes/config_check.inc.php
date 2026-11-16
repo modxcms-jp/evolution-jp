@@ -3,7 +3,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-require_once __DIR__ . '/special_pages.class.inc.php';
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
 
 class ConfigCheck {
     private $warnings = '';
@@ -85,12 +85,12 @@ function templateSwitcherAction(id, op){
 
     private function pageSettingWarnings() {
         $warnings = [];
-        foreach (SpecialPages::all() as $key => [$name, $titleKey]) {
+        foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
             $id = (int) config($key);
             if (!$id) {
                 continue;
             }
-            $problem = SpecialPages::problem($id, $doc);
+            $problem = EvoSpecialPages::problem($id, $doc);
             if ($problem === 'missing' || $problem === 'deleted') {
                 $warnings[] = [
                     'title' => "configcheck_{$name}_{$problem}",

@@ -3,7 +3,7 @@
 /**
  * エラーページ・権限外告知のページ・メンテナンス中ページ（グローバル設定の文書 ID）の確認
  */
-class SpecialPages
+final class EvoSpecialPages
 {
     /**
      * 設定キー => [言語キーの接頭辞, 設定名の言語キー]

@@ -106,7 +106,7 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
-    foreach (SpecialPages::all() as $key => [$name, $titleKey]) {
+    foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
         $warning = invalidPageWarning($key, lang($titleKey));
         if ($warning) {
             $warnings[] = $warning;
@@ -129,12 +129,13 @@ function warnings()
 // 今の設定値から変えた項目だけを確かめる（既にある値は設定の点検で知らせる）
 function invalidPageWarning($key, $name)
 {
-    $value = trim((string) formv($key, ''));
+    $value = formv($key, '');
+    $value = is_string($value) ? trim($value) : '';
     if ($value === trim((string) config($key)) || !ctype_digit($value) || (int) $value === 0) {
         return '';
     }
     $id = (int) $value;
-    if (SpecialPages::problem($id) === '') {
+    if (EvoSpecialPages::problem($id) === '') {
         return '';
     }
     return sprintf(lang('settings_page_invalid_msg'), $name, $id);
