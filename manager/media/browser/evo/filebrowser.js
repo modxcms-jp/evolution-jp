@@ -163,7 +163,7 @@ function init(root, entry, behaviors) {
             return;
         }
         postForm(config, state, 'rename', { target: name, newName: newName })
-            .then(function () { load(newName, { instant: true }); })
+            .then(function (result) { load((result && result.name) || newName, { instant: true }); })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_rename_failed'));
             });
@@ -171,6 +171,11 @@ function init(root, entry, behaviors) {
 
     function renameEntry(name) {
         performRename(name, window.prompt(t('fb_rename_prompt'), name));
+    }
+
+    // 選んでいる 1 件の名前を変えられるか(帯のボタン・F2 の共通の条件)
+    function canRenameSelection() {
+        return state.selection.size === 1 && state.writable;
     }
 
     // 一覧に描かれているファイルはその場の入力で、描かれていない(検索で絞られた等の)ときは確認の入力欄で名前を変える
@@ -325,7 +330,7 @@ function init(root, entry, behaviors) {
             // zip を作れない環境では、2 件以上のときはダウンロードのボタンを無効にする
             selectionBarEl.classList.toggle('is-hidden', count === 0);
             downloadBtn.disabled = !canDownload(count);
-            renameBtn.disabled = count !== 1 || !state.writable;
+            renameBtn.disabled = !canRenameSelection();
             notifySelection();
         },
         isCut: isCutName
@@ -647,7 +652,7 @@ function init(root, entry, behaviors) {
     root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
     root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
     renameBtn.addEventListener('click', function () {
-        if (state.selection.size === 1) {
+        if (canRenameSelection()) {
             startRenameFor(Array.from(state.selection)[0]);
         }
     });
@@ -703,7 +708,7 @@ function init(root, entry, behaviors) {
         if (e.key !== 'F2' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
             return;
         }
-        if (!state.writable || state.selection.size !== 1 || e.target.closest('input, textarea, select, [contenteditable]')) {
+        if (!canRenameSelection() || e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
         if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {

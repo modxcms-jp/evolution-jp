@@ -251,6 +251,10 @@ export function createGrid(ctx) {
 
     // 名前で一覧のファイルを探して、その場の入力を始める。一覧に描かれていなければ false
     function startRename(name) {
+        // 入力中にもう一度始めると、blur で送った直後に古い名前で 2 回目が始まるので、何もしない
+        if (gridEl.querySelector('.evo-fb-rename-input')) {
+            return true;
+        }
         var item = Array.from(gridEl.querySelectorAll('.evo-fb-item-file')).find(function (el) {
             return el.getAttribute('data-name') === name;
         });
