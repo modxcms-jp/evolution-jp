@@ -36,40 +36,29 @@
     return tinymce.html.Serializer({}, editor.schema).serialize(fragment);
   }
 
-  // body_id / body_class は「エディターのid=値,…」形式のこともあるので、このエディターの分を取り出す
-  function bodyOption(editor, name) {
-    const value = String(editor.options.get(name) || '');
-    if (value.indexOf('=') === -1) {
-      return value;
-    }
-
-    const found = value.split(',').map(function (pair) {
-      return pair.split('=');
-    }).filter(function (pair) {
-      return pair[0].trim() === editor.id;
-    })[0];
-
-    return found ? String(found[1] || '').trim() : '';
-  }
-
   // 編集欄と同じ CSS を当てるため、管理画面から切り離した iframe の中に描く。
-  // sandbox を値なしで付け、ひな形の中のスクリプトは動かさない。
+  // スクリプトは動かさず、同じオリジンにして CSS のフォントも読めるようにする。
+  // body の id・class・dir は、編集欄の実物から写す。
   function previewDocument(editor, html) {
     const links = (editor.contentCSS || []).map(function (url) {
       return '<link rel="stylesheet" href="' + escapeHtml(url) + '">';
     }).join('');
     const style = editor.options.get('content_style');
-    const bodyId = bodyOption(editor, 'body_id');
-    const bodyClass = bodyOption(editor, 'body_class');
+    const body = editor.getBody ? editor.getBody() : null;
+    let attrs = '';
+    if (body) {
+      ['id', 'className', 'dir'].forEach(function (prop) {
+        if (body[prop]) {
+          attrs += ' ' + (prop === 'className' ? 'class' : prop) + '="' + escapeHtml(body[prop]) + '"';
+        }
+      });
+    }
 
     return '<!DOCTYPE html><html><head><meta charset="utf-8">'
       + '<base href="' + escapeHtml(editor.documentBaseURI.getURI()) + '">'
       + links
       + (style ? '<style>' + style + '</style>' : '')
-      + '</head><body'
-      + (bodyId ? ' id="' + escapeHtml(bodyId) + '"' : '')
-      + (bodyClass ? ' class="' + escapeHtml(bodyClass) + '"' : '')
-      + '>' + sanitize(editor, html) + '</body></html>';
+      + '</head><body' + attrs + '>' + sanitize(editor, html) + '</body></html>';
   }
 
   function previewHtml(editor, labels, template) {
@@ -83,7 +72,7 @@
 
     return description
       + '<div class="modx-template__label" style="margin:12px 0 4px;">' + escapeHtml(labels.preview) + '</div>'
-      + '<iframe class="modx-template__preview" sandbox srcdoc="' + escapeHtml(previewDocument(editor, template.content)) + '"'
+      + '<iframe class="modx-template__preview" sandbox="allow-same-origin" title="' + escapeHtml(labels.preview) + '" srcdoc="' + escapeHtml(previewDocument(editor, template.content)) + '"'
       + ' style="display:block;width:100%;height:320px;border:1px solid #ccc;box-sizing:border-box;"></iframe>';
   }
 
