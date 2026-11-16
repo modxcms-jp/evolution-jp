@@ -58,7 +58,7 @@ return static function (EvoMigrationHelper $m) {
         throw new EvoMigrationException(
             sprintf(
                 "%d value(s) are longer than the upgraded column allows. Nothing was changed. "
-                . "Shorten these values (for example with php evo db:query), then run the upgrade again.\n%s",
+                . "Shorten these values (for example with a database administration tool), then run the upgrade again.\n%s",
                 count($violations),
                 implode("\n", $lines)
             ),

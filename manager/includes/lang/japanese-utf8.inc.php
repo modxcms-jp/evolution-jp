@@ -1113,7 +1113,7 @@ return [
 
     // bkmanager.static.php
     "bkmgr_alert_mkdir" => 'ディレクトリにファイルを作成できません。[+snapshot_path+]のパーミッションを確認してください。',
-    "bkmgr_restore_msg" => '<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />任意のSQL文を実行するときは、<code>php evo db:query</code> やデータベース管理ツールを使ってください。</p>',
+    "bkmgr_restore_msg" => '<p>「バックアップ」で取得したSQLファイルを用いて、サイトをリストアできます。<br />任意のSQL文を実行するときは、データベース管理ツールを使ってください。</p>',
     "bkmgr_restore_title" => 'リストア',
     "bkmgr_import_ok" => 'リストアは正常に実行されました。',
     "bkmgr_snapshot_ok" => 'スナップショットは正常に保存されました。',
