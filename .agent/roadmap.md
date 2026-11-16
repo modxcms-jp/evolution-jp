@@ -3,7 +3,7 @@
 AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状況を同期して更新する。
 完了済みタスクは `.agent/roadmap-archive.md` へ移す（このファイルには未完了の項目だけを置く）。
 
-最終更新: 2026-11-11 (1.4 に入れるものを、まとめ用のブランチ develop/1.4 に集めることにした)
+最終更新: 2026-11-16 (CLI を evo.phar にして配布 zip から外す項目（#1509）を足した)
 
 ## 現在地（先に読む）
 
@@ -58,6 +58,24 @@ AI実装を前提とした長期計画の正本。Issue・ExecPlan と実装状�
 ## 実行順ロードマップ
 
 ## 1. 基盤整備
+
+### CLI を evo.phar にして配布 zip から外す
+
+- Status: `NEXT`
+- Issue: #1509
+- 着手予定日: `未定`
+- 完了日: `未完了`
+- 目的: CLI（ルートの `evo` と `manager/includes/cli/`）をサイトの公開ディレクトリに置かない形にする。リリースのときに `evo.phar` を作って zip とは別に添付し、利用者はサイトの外に置いて `--path` で対象のサイトを指定して使う
+- 背景/課題: ルートの `evo` は拡張子が無く、Web から開くとソースがそのまま表示される（#1509）。CLI を公開領域に一切置かない方針に改めた（Issue のコメント）
+- 到達条件（Definition of Done）:
+  - 配布 zip に `evo` と CLI のコードが入らない
+  - リリースに `evo.phar` が添付され、サイトの外から `php evo.phar --path=<サイトのルート> health:check` が動く（PHP 7.4 を含む）
+  - サイトと evo.phar の版が合わないときは、本体を読み込む前に止まり、合う evo.phar の場所を示す
+  - CLI を案内する画面の文言・文書が新しい呼び方（利用者は `php evo.phar`、開発者は `php cli/evo`）になっている
+- 非対象（やらないこと）: 既存サイトに残る古い `evo` と `manager/includes/cli/` を消す仕組み（`assets/docs/migrations.md`・リリースノート・`health:check` で案内する）、1.2 系への取り込み、コマンドの追加や動きの変更
+- 依存関係: なし
+- ExecPlan: `.agent/plans/2026-11-16-cli-phar-distribution.md`
+- メモ/判断ログ: 2026-11-16: ExecPlan を作成。1.3 に入れる。CLI のソースは `cli/` に移す。「evo system-upgrade コマンド実装」（#668）と「CLI インストーラとインストール処理の共通化」（#485）は、evo.phar のコマンドとして作る前提に変わる（ExecPlan の Interfaces and Dependencies）。
 
 ### evo system-upgrade コマンド実装
 
