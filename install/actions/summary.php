@@ -26,16 +26,6 @@ echo '<h2>' . lang($preinstallLangKey) . '</h2>';
 echo '<h3>' . lang($summaryCheckLangKey) . '</h3>';
 $errors = 0;
 
-// check PHP version
-
-if (version_compare(phpversion(), '7.4.0') < 0) {
-    $_ = echo_failed() . lang('you_running_php') . phpversion() . lang('modx_requires_php');
-    $errors += 1;
-} else {
-    $_ = echo_ok();
-}
-echo p($_ . lang('checking_php_version'));
-
 // check sessions
 if (sessionv('test') != 1) {
     echo p(echo_failed() . lang('checking_sessions'));
