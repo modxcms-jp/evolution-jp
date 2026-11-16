@@ -46,7 +46,6 @@ $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
 $_lang["upgrade_old_db_title"] = 'Cannot upgrade from this version';
 $_lang["upgrade_old_db_not_supported"] = 'This database is from a version older than 1.0.0J and cannot be upgraded directly to this version. The database has not been changed. Please restore the previous site files.';
-$_lang["checking_php_version"] = 'Checking PHP version: ';
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
@@ -123,7 +122,6 @@ $_lang["modules"] = 'Modules';
 $_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; Install';
-$_lang["modx_requires_php"] = ', and MODX requires PHP 7.4.0 or later';
 $_lang["sql_version_is"] = ' Your SQL version is: ';
 $_lang["no"] = 'No';
 $_lang["none"] = 'None';
@@ -202,7 +200,6 @@ $_lang["welcome_message_text"] = 'This program will guide you through the rest o
 $_lang["welcome_message_welcome"] = 'Welcome to the MODX installation program.';
 $_lang["writing_config_file"] = 'Writing configuration file: ';
 $_lang["yes"] = 'Yes';
-$_lang["you_running_php"] = ' - You are running on PHP ';
 
 $_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
 $_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/assets/backup</span> directory is writable: ';
