@@ -28,12 +28,48 @@
       .replace(/"/g, '&quot;');
   }
 
-  // プレビューは管理画面の DOM に直接入れるため、エディターのスキーマで無害化した HTML を使う。
+  // ひな形は信頼できる内容とは限らないので、エディターのスキーマで無害化してから使う。
   // 挿入時もエディターが同じ処理をするので、実際に入る内容に近い表示になる。
   function sanitize(editor, html) {
     const fragment = editor.parser.parse(html, { insert: true });
 
     return tinymce.html.Serializer({}, editor.schema).serialize(fragment);
+  }
+
+  // body_id / body_class は「エディターのid=値,…」形式のこともあるので、このエディターの分を取り出す
+  function bodyOption(editor, name) {
+    const value = String(editor.options.get(name) || '');
+    if (value.indexOf('=') === -1) {
+      return value;
+    }
+
+    const found = value.split(',').map(function (pair) {
+      return pair.split('=');
+    }).filter(function (pair) {
+      return pair[0].trim() === editor.id;
+    })[0];
+
+    return found ? String(found[1] || '').trim() : '';
+  }
+
+  // 編集欄と同じ CSS を当てるため、管理画面から切り離した iframe の中に描く。
+  // sandbox を値なしで付け、ひな形の中のスクリプトは動かさない。
+  function previewDocument(editor, html) {
+    const links = (editor.contentCSS || []).map(function (url) {
+      return '<link rel="stylesheet" href="' + escapeHtml(url) + '">';
+    }).join('');
+    const style = editor.options.get('content_style');
+    const bodyId = bodyOption(editor, 'body_id');
+    const bodyClass = bodyOption(editor, 'body_class');
+
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+      + '<base href="' + escapeHtml(editor.documentBaseURI.getURI()) + '">'
+      + links
+      + (style ? '<style>' + style + '</style>' : '')
+      + '</head><body'
+      + (bodyId ? ' id="' + escapeHtml(bodyId) + '"' : '')
+      + (bodyClass ? ' class="' + escapeHtml(bodyClass) + '"' : '')
+      + '>' + sanitize(editor, html) + '</body></html>';
   }
 
   function previewHtml(editor, labels, template) {
@@ -47,9 +83,8 @@
 
     return description
       + '<div class="modx-template__label" style="margin:12px 0 4px;">' + escapeHtml(labels.preview) + '</div>'
-      + '<div class="modx-template__preview" style="max-height:320px;overflow:auto;border:1px solid #ccc;padding:8px;">'
-      + sanitize(editor, template.content)
-      + '</div>';
+      + '<iframe class="modx-template__preview" sandbox srcdoc="' + escapeHtml(previewDocument(editor, template.content)) + '"'
+      + ' style="display:block;width:100%;height:320px;border:1px solid #ccc;box-sizing:border-box;"></iframe>';
   }
 
   function openDialog(editor) {

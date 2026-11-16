@@ -137,7 +137,7 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 - 管理画面のエディターで、システム設定 `tinymce7_template_*` から 1 件以上のひな形が見つかったときだけ、`external_plugins` に登録して読み込みます。フロントエンド用（`forfrontend`）では読み込みません。
 - 一覧と本文は `TinyMCE7\Editor\TemplateRepository` が集め、エディター設定の `modx_templates` として渡します（別のエンドポイントは使いません）。リソースは公開中かつ管理画面で閲覧できるもの、チャンクは公開中のものに限ります。
 - ツールバーのボタン名は旧プラグインと同じ `template`、メニュー項目名は TinyMCE 7 の「挿入」メニュー既定値に含まれる `inserttemplate` です。ひな形が無いときは、ツールバー設定から `template` を取り除きます。
-- 本文は MODX タグを含めて保存されているまま挿入します。ダイアログのプレビューは、エディターのスキーマで無害化した HTML を表示します。
+- 本文は MODX タグを含めて保存されているまま挿入します。ダイアログのプレビューは、エディターのスキーマで無害化した HTML を、`sandbox` 付きの iframe（`srcdoc`）に表示します。iframe にはエディターの `contentCSS`（skin の content.css と［CSS ファイルへのパス］の CSS）、`content_style`、`body_id` / `body_class`、`<base href>` を入れるので、編集欄に近い見た目になります。
 
 ## コード構成
 - `TinyMCE7\Plugin` クラスがエントリーポイントで、イベントごとの処理を担当します。
