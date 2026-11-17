@@ -14,9 +14,6 @@ $backup = new EvoBackupManager();
 
 $mode = postv('mode', '');
 
-include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
-
-$dumper = new Mysqldumper();
 if ($mode === 'backup') {
     // 送り先は非表示の iframe。失敗は、親の画面が iframe の読み込みで #evoBackupError を読んで知らせる
     $backupFailed = function ($message) {
@@ -31,8 +28,6 @@ if ($mode === 'backup') {
     }
 
     @set_time_limit(120); // set timeout limit to 2 minutes
-    $dumper->setDBtables($tables);
-    $dumper->addDropCommand(postv('droptables') !== null);
     // 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
     $tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
     if ($tempfile !== false) {
@@ -43,7 +38,7 @@ if ($mode === 'backup') {
             }
         });
     }
-    if ($tempfile === false || !$dumper->dumpToFile($tempfile)) {
+    if ($tempfile === false || !EvoSqlDump::writeFile($tempfile, $tables, ['drop' => postv('droptables') !== null])) {
         if ($tempfile !== false && is_file($tempfile)) {
             unlink($tempfile);
         }
