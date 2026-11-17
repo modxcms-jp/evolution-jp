@@ -256,7 +256,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 - `install/connection.servertest.php` / `install/connection.databasetest.php` — インストーラのDB接続テスト画面。`$conn` への直接アクセス箇所（Step 3で修正）
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目 — 非推奨 `DocumentParser::dbConnect()`（呼び出し箇所0件、本フェーズの互換対象外）
 - `manager/includes/sql_dump.class.inc.php`・`manager/includes/db_tables.class.inc.php` — `db()` 経由でDBAPIに依存するが本フェーズのスコープ外（`assets/docs/core-issues.md` 参照）
-- `assets/docs/core-issues.md` — 「Mysqldumperクラスの設計上の制約」の関連ロードマップとして本タスクが記録済み
+- `assets/docs/core-issues.md` — 「PHP のダンプの書き出し（EvoSqlDump）の設計上の制約」の関連ロードマップとして本タスクが記録済み
 
 ## Interfaces and Dependencies
 
