@@ -148,9 +148,6 @@ class template
                 $fields['db'][] = $field;
             } else if (in_array($field, $tvFields)) {
                 $fields['tv'][] = $field;
-            } else if (strpos($field, 'tv') === 0 && in_array(substr($field, 2), $tvFields)) {
-                $fields['tv'][] = substr($field, 2);
-                // TODO: Remove TV Prefix support in Ditto
             } else if (in_array($field, $custom)) {
                 $fields['custom'][] = $field;
             } else {

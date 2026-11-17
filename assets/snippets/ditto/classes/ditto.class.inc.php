@@ -75,10 +75,6 @@ class ditto
         if ($type === false) {
             $type = $this->getDocVarType($name);
         }
-        if ($type === 'tv:prefix') {
-            $type = 'tv';
-            $name = substr($name, 2);
-        }
         if ($location === '*') {
             $this->fields['backend'][$type][] = $name;
             $this->fields['display'][$type][] = $name;
@@ -159,11 +155,6 @@ class ditto
             return 'tv';
         }
 
-        if (in_array(substr($field, 2), $tvFields, true)) {
-            return 'tv:prefix';
-            // TODO: Remove TV Prefix support
-        }
-
         if (in_array($field, $dbFields, true)) {
             return 'db';
         }
@@ -240,10 +231,6 @@ class ditto
         $advSort = ['pub_date', 'unpub_date', "editedon", "deletedon", "publishedon"];
         $type = $this->getDocVarType($sortBy);
         switch ($type) {
-            case 'tv:prefix':
-                $sortBy = substr($sortBy, 2);
-                $this->advSort = true;
-                break;
             case 'tv':
                 $this->advSort = true;
                 break;
@@ -744,11 +731,6 @@ class ditto
                     if (in_array($key2, $readyFields)) {
                         $keep[$iKey][$key2] = $v2;
                     }
-                    if ($this->getDocVarType($key2) === 'tv:prefix') {
-                        if (in_array(substr($key2, 2), $readyFields)) {
-                            $keep[$iKey][$key2] = $v2;
-                        }
-                    }
                 }
             }
 
@@ -908,7 +890,6 @@ class ditto
         $row['docid'] = $contentId;
         $v = evo()->tvProcessor($row);
         $docs[$k][$name] = $v;
-        $docs[$k]['tv' . $name] = $v;
     }
 
     // ---------------------------------------------------
