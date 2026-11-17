@@ -111,8 +111,10 @@ class filter
                 return (stripos((string)$doc_value, (string)$creteria) !== false);
             case 'regex': // keep the documents matching the pattern
                 return (preg_match((string)$creteria, (string)$doc_value) !== 1);
-            case 'first_char' : // keep the documents beginning with the letter
-                return (strtoupper(substr((string)$doc_value, 0, 1)) != $creteria);
+            case 'first_char' : // keep the documents beginning with the letter (case-insensitive)
+                $charset = evo()->config('modx_charset') ?: 'UTF-8';
+                return mb_strtolower(mb_substr((string)$doc_value, 0, 1, $charset), $charset)
+                    !== mb_strtolower((string)$creteria, $charset);
         }
         return false;
     }

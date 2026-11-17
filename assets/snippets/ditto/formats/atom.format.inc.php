@@ -13,6 +13,8 @@ evo()->documentObject['contentType'] = 'application/atom+xml';
 // set placeholders
 $atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
 $atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . (evo()->documentObject['id'] ?? '') . "~]";
+$atom_placeholders['atom_title'] = ditto::xmlText(evo()->documentObject['pagetitle'] ?? '');
+$atom_placeholders['atom_site_name'] = ditto::xmlText(evo()->config('site_name'));
 $atom_placeholders['atom_charset'] = isset($charset) ? $charset : config('modx_charset');
 
 $atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', (evo()->documentObject['editedon'] ?? null));
@@ -20,6 +22,7 @@ $placeholders['*'] = "atom_placeholders";
 $placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
 $placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];
 $placeholders['atom_author'] = ["createdby", "atomCreatedBy"];
+$placeholders['atom_escaped_pagetitle'] = ["pagetitle", "atomEscapedPagetitle"];
 
 if (!function_exists("atomCreatedDate")) {
     function atomCreatedDate($resource)
@@ -36,7 +39,13 @@ if (!function_exists("atomEditedDate")) {
 if (!function_exists("atomCreatedBy")) {
     function atomCreatedBy($resource)
     {
-        return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
+        return ditto::xmlText(ditto::getAuthor($resource['createdby']));
+    }
+}
+if (!function_exists("atomEscapedPagetitle")) {
+    function atomEscapedPagetitle($resource)
+    {
+        return ditto::xmlText($resource['pagetitle']);
     }
 }
 $extenders[] = "summary";
@@ -49,7 +58,7 @@ if (!function_exists("atom_placeholders")) {
     {
         $field = [];
         foreach ($placeholders as $name => $value) {
-            $field["atom_escaped_" . $name] = htmlspecialchars(html_entity_decode($value));
+            $field["atom_escaped_" . $name] = ditto::xmlEscape($value);
         }
         $placeholders = array_merge($field, $placeholders);
         return $placeholders;
@@ -64,9 +73,9 @@ $atom_header = <<<TPL
     xml:lang="[+atom_lang+]"
     xml:base="[(site_url)]">
 	<id>[(site_url)][~[*id*]~]</id>
-	<title>[*pagetitle*]</title>
+	<title>[+atom_title+]</title>
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
-	<author><name>[(site_name)]</name></author>
+	<author><name>[+atom_site_name+]</name></author>
 	<updated>[+atom_lastmodified+]</updated>
 	<generator>Ditto 2.0 running on MODX</generator>
 TPL;
@@ -80,7 +89,7 @@ $atom_tpl = <<<TPL
 		<id>[+url+]</id>
 		<updated>[+atom_editedon+]</updated>
 		<published>[+atom_createdon+]</published>
-		<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">[+summary+]</div></content>
+		<content type="html"><![CDATA[ [+summary_cdata+] ]]></content>
 	</entry>
 TPL;
 
