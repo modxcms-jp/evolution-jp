@@ -16,9 +16,9 @@
 - [x] (2026-11-18) S6 作成・復元の手順を `EvoBackupManager` にまとめ、復元をファイルから流して読む（動きを変えない）
 - [x] (2026-11-18) S6b PHP の書き出しを複数行の INSERT にする（動きを変える）
 - [x] (2026-11-18) S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
-- [ ] S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
-- [ ] S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する（動きを変える。別の Issue で `develop/1.4` に入れる）
-- [ ] 最終確認: PHP 7.4・MySQL 5.7 で往復を確かめる
+- [x] (2026-11-18) S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
+- [ ] S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する（動きを変える。別の Issue #1584 で `develop/1.4` に入れる。2026-11-18 に Issue を起こした）
+- [x] (2026-11-18) 最終確認: PHP 7.4・MySQL 5.7 で往復を確かめる（S8 のブランチで。結果は Surprises）
 
 ## Surprises & Discoveries
 
@@ -54,6 +54,8 @@
 - 2026-11-18（S7）: 確かめの結果（修正前は main 2fba5e352 を同じ環境で記録。DB は確かめごとに作り直した）。接頭辞 `other_` に書き換えた PHP の書き出しと mysqldump の出力、このサイトの表に接頭辞の無い表 `other_table` を混ぜた mysqldump の出力、トリガーを入れた DB の `db:export`（既定。`DELIMITER` の行が 2 つ）を、`db:import`・管理画面のアップロード・スナップショットの一覧で戻した。修正前は、接頭辞の違うダンプが「成功」になって `other_` の表が 40 個増え（復元の前の控えも作られる）、トリガーのダンプは途中の文で失敗した。修正後は、どれも何も書き換えずに断り（表の数・`CHECKSUM TABLE`・保存先のファイルが前と同じ。復元の前の控えも作られない）、接頭辞の違うダンプはダンプの接頭辞（`other_`。推し量れないときは `?`）・このサイトの接頭辞・外れた表（5 つまで）を、`DELIMITER` のダンプは `mysql` コマンドで戻すことを知らせる。CLI は終了コード 1。このサイトの接頭辞だけのダンプは今どおり戻る。`db:backup`（mysqldump・php）のスナップショットでは、`modx_manager_log` が `CREATE TABLE IF NOT EXISTS` だけになり（`DROP TABLE` と `INSERT` が無い）、戻しても戻した先の管理ログの行が残る（往復の `CHECKSUM TABLE` は同じ）。`$modx->snapshot()` は `a/b`・`bad name` で `false`（修正前は `null`）。S3 と同じ往復は、`db:backup` の 2 つ（ログの表のデータが無くなった分だけ文の数が変わる）のほかは修正前と同じ。php:7.4-cli でも、2 つの断りと PHP の書き出しの往復が通った。
 - 2026-11-18（S7。自己レビューのあと）: 接頭辞の重なりを見分ける本体の表の名前に `user_attributes` を入れると、このサイトの `modx_web_user_attributes` を外れた表とみなし、正しいダンプまで断った（往復の確かめで分かった）。ほかの本体の表の名前の終わりと重ならないもの（`install/sql/create_tables.sql` の 35 表で確かめた 4 つ）だけにした。直したあと、断る確かめ・正しいダンプの往復・`db:backup` の往復を流し直し、前と同じ結果になった。
 - 2026-11-18（S7）: 下読み（`EvoSqlDump::inspect()`）はダンプを最後まで 1 回読むので、復元ではファイルを 2 回読む（DB への問い合わせは増えない）。表の名前の判定（`EvoSqlDump::tableOf()`）は、復元の中で `system_cache` への文を飛ばす判定と同じものを使う。
+- 2026-11-18（S8）: 確かめの結果（修正前は S7 のブランチ。PHP 8.4・MariaDB 11）。画面のボタンで、表を選ばずにダウンロード（EvoDialog の「選んでください」）、すべて選んでダウンロード（40 表。ファイル名は `<日付>-<版>_database_backup.sql`、中身は時刻と a の番号のほかは同じ）、スナップショットの名前の不正と作成、一覧の名前の不正、上限を超えるアップロード（送る前に断る）を、全体の読み込みとシェルの遷移の両方で比べ、知らせはすべて同じ。a=93 に `mode=backup` を POST すると、修正前はダウンロード、修正後は画面（`text/html`）。a=306 を直接呼ぶと、GET は 405、表なし・このサイトでない表だけは「選んでください」（修正前の a=93 は、このサイトでない表だけでも頭だけのファイルをダウンロードさせた）、正しい表は `filename="..."` で引用符付きのダウンロード、「DROP 文を生成」を外すと `DROP TABLE` の無いダンプ、投稿担当者は「権限がありません」（いずれも iframe の `#evoBackupError`）。ダウンロードの失敗（書き出せない）は、`tempnam()` が書けないディレクトリではシステムの一時ディレクトリに作り直すので、`MODX_CACHE_PATH` を書けなくする方法では起こせず、確かめていない。
+- 2026-11-18（最終確認）: S8 のブランチで、`php:7.4-apache`（Dockerfile の `FROM` を変え、apt の取得先をアーカイブへ）と `mysql:5.7`（5.7.44）の環境を立て、S3 の往復（CLI の `db:export --driver=php`（ファイル・標準出力）・`db:backup`（php・mysqldump）・`mysqldump`（MySQL 5.7）の出力・管理画面のダウンロード・スナップショット・コンテンツのみを、`db:import`・管理画面のアップロード・スナップショットの一覧で戻す）、途中で失敗するダンプと空のファイルと `$modx->snapshot()`、S7 の断り（接頭辞の違う PHP の書き出しと mysqldump の出力・接頭辞の無い表を混ぜたもの・トリガーを含む `db:export`）と正しいダンプと `db:backup` の中身（ログの表は `CREATE TABLE IF NOT EXISTS` だけ。MySQL 5.7 の mysqldump の 2 回目の出力も書き換わる）、S8 の画面の操作（全体の読み込みとシェルの遷移）と a=306 の直接の呼び出しを流した。すべて PHP 8.4・MariaDB 11 と同じ結果で、往復の `CHECKSUM TABLE` も元と同じ（管理画面の往復の `user_attributes` はログイン時刻の違い）。アプリのコンテナの mysqldump は Debian 11 の `default-mysql-client`（MariaDB 10.5 の mysqldump）を使った。
 
 ## Decision Log
 
@@ -104,6 +106,7 @@
 - 2026-11-18 / 本人の決定: S7 で、接頭辞が今のサイトと違うダンプは、何も書き換えずに断り、ダンプの接頭辞とこのサイトの接頭辞を示して理由を知らせる（置き換えて取り込む機能は作らない）。
 - 2026-11-18 / 本人の決定: S7 で、`DELIMITER`（トリガー・ストアドプロシージャー）を含むダンプは、復元で何も書き換えずに断り、理由（`mysql` コマンドで戻す）を知らせる。`db:export` の既定（`--routines --triggers`）は変えない。
 - 2026-11-18 / yamamoto（Claude が起案。S7 の自己レビューから）: 接頭辞の判定は「このサイトの接頭辞で始まるか」に加えて、本体の表の名前（`system_settings`・`site_content`・`manager_users`・`site_templates`。ほかの本体の表の名前の終わりと重ならないもの。`user_attributes` は `web_user_attributes` と重なるので入れない）で終わる表が「このサイトの接頭辞 + その名前」かを見る（`modx_` のサイトへの `modx_old_` のダンプと、接頭辞が空のサイトへの `modx_` のダンプを断るため）。接頭辞は大文字小文字を問わず比べ、表の名前は backtick で囲んだものは丸ごと取る（接頭辞に `-` などを含むサイトが自分のダンプを戻せるように）。同じ DB に接頭辞が重なる 2 つのサイトがあると、書き出しの表の一覧（`LIKE` の接頭辞）と復元の判定（本体の表の名前）がずれて、自分のスナップショットも断る（修正前は相手のサイトの表を上書きしていたので、断るほうが安全。判定を `EvoDbTables` にまとめるのは後の課題）。大文字小文字だけ違う接頭辞（`lower_case_table_names=0` の DB で `MODX_` のダンプ）は見分けない。どちらも `assets/docs/backup.md` に書いた。`db:import` の復元の前の控え（`mysqldump`。ログの表のデータを含む）は、管理画面の控え（ログの表は構造だけ）と中身が違うまま残す（S7 は `db:backup` だけをそろえる範囲。控えから戻すと管理ログが取り込み前まで戻る程度で、軽い）。
+- 2026-11-18 / yamamoto（Claude が起案。S8 の自己レビューから）: ダウンロードの手順（このサイトの表に絞る・一時ファイルに書く・ファイル名）は `EvoBackupManager::writeDownload()`・`downloadName()` に置き、a=306 の processor は結果に応じて `#evoBackupError` を返すかファイルを送るだけにする。「このサイトの表に絞る」は `EvoDbTables::own()` 1 つにする。CLI の `db:backup` は、書き手（PHP か mysqldump）を選ぶ処理だけを持ち、作成の手順は `EvoBackupManager::createSnapshot()` を呼ぶので、今のままにする。画面のスナップショットのタブの `<style>`（表の `border-collapse` と `td` の `padding`）は、背景色の決め打ちだけを消し、余白は #1448（テーマの差をそろえる作業）に任せる。ダウンロード・スナップショットの作成（a=306・307）は、processor が `exit` するので管理ログに残らない（修正前の a=93 の `mode=backup` と同じ）。記録するかは別に決める。
 
 ## Outcomes & Retrospective
 
@@ -242,6 +245,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S6: ブランチ `refactor/1561-s6-backup-flow`（`origin/main` から作成。Issue に紐づけない）、PR #1578。マージ済み（main b8d24e587）
 - S6b: ブランチ `refactor/1561-s6b-multirow-insert`（`origin/main` から作成。Issue に紐づけない）、PR #1581。マージ済み（main 2fba5e352）
 - S7: ブランチ `refactor/1561-s7-restore-guard`（`origin/main` から作成。Issue に紐づけない）、PR #1583
+- S8: ブランチ `refactor/1561-s8-thin-entry`（S7 のブランチから作成。PR の base は S7 のブランチ。S7 のマージ後に main へ切り替える）
+- S9: Issue #1584（マイルストーン 1.4。`develop/1.4` に向ける）
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
