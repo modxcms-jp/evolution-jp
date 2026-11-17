@@ -12,7 +12,7 @@
 - [x] (2026-11-17) S2 表を空にする入口を a=54 の 1 つにする（動きを変える）
 - [x] (2026-11-17) S3 ダンプの書く・読むを `EvoSqlDump` にまとめ、`Mysqldumper` を消す（動きを変えない。違いはダンプの頭のサイト名の行と、`db:export --driver=php` を標準出力へ書くときに途中で失敗すると途中までが出ること）
 - [x] (2026-11-17) S4 保存先と世代を `EvoSnapshotStore` にまとめる（動きを変えない。違いはインストーラーが既存の保護の `.htaccess` を書き換えなくなることだけ）
-- [ ] S5 `snapshot_path` をグローバル設定の画面に出し、保存先の黙った切り替えをやめる（動きを変える）
+- [x] (2026-11-18) S5 `snapshot_path` をグローバル設定の画面に出し、保存先の黙った切り替えをやめる（動きを変える）
 - [ ] S6 作成・復元の手順を `EvoBackupManager` にまとめ、復元をファイルから流して読む（動きを変えない）
 - [ ] S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
 - [ ] S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
@@ -44,6 +44,7 @@
 - 2026-11-17（S4）: ファイルブラウザー（`manager/media/browser/evo/lib/PathGuard.php`）も `temp/backup`・`assets/backup` を決め打ちで読ませない一覧に持つ。`snapshot_path` は入っていない。S5 で `snapshot_path` を画面から変えられるようにするときに、`EvoSnapshotStore::denyDirs()` を使うかを決める。
 - 2026-11-17（S4）: インストーラーは、`temp/backup/.htaccess` を毎回上書きしていた。`EvoSnapshotStore::protect()` は、無いか古い書き方（`Order deny,allow` と `Deny from all` だけ）のときだけ書くので、利用者が書き換えた保護の `.htaccess` はアップデートで戻らなくなる。新規インストールでは今と同じファイルができる（確かめた）。
 - 2026-11-17（S4）: 確かめの結果。修正前を記録し、修正後と突き合わせた。保存先の決まり方（`snapshot_path` が無い・サイトの下・サイトの外・存在しない・サイトのルート・相対パス・`assets/backup` だけが在る）ごとに、`getBindDenyDirs()`・`db:backup --driver=php` の書き先と最後の行・a=93 の保存先の表示・a=307 で作られる場所、世代（自動の名前 12・名前付き 2・復元の前の控え 5 を置いて `db:backup --max=10`・`--max=3`・管理画面のスナップショット・管理画面の復元）で消えるファイルと残るファイル、古い書き方の `.htaccess` の書き換え、`$modx->snapshot()` の戻り値（`probe-a`・`probe-b.SQL`・`probe-c.sql`・`a/b`・`bad name`・空）が、すべて同じ。新規インストールで `temp/backup/.htaccess` が修正前と同じ中身でできる（ディレクトリは修正前と同じ 0777）。グローバル設定の保存で、無い `temp/backup/` が作られる。
+- 2026-11-18（S5）: 確かめの結果（修正前は main 172f7faeb を同じ環境で記録）。自己レビューのあとの追加: 保存で ` temp/sp `（前後の空白）は `[(base_path)]temp/sp/`、`manager/`・`content/`・`assets/templates/x/` は「使えません」で保存されず、`manager/`・`content/` に `.htaccess` は作られない。書き込めない保存先（root の 555）が今の値のままでも、ほかの設定は保存できる。`problem()` の判定は PHP 8.4 と php:7.4-cli の両方で 19 通りを確かめた（日本語の名前・`C:/foo/`・`..`・サイトの親を含む）。グローバル設定（a=17）の「ファイル」タブの最後の小見出し「スナップショット」に欄が出て、全体の読み込みとシェルの遷移の両方で既定 `[(base_path)]temp/backup/` を表示し、a=12・a=74 には出ない。保存: `[(base_path)]temp/snap2/`・`<サイト>/temp/newdir`（無い）・`temp/rel`（相対）は `[(base_path)]…/` で保存されて作られ、保護の `.htaccess` も置かれる。空は既定値で保存される。`/tmp/outside/`・サイトのルート・`temp/../../etc/` は「使えません」と知らせ、入力を保ったまま a=17 に戻り、DB は変わらない。DB に直接 `/tmp/outside/`・`<サイト>/temp/../../tmp/outside/` を入れると、a=93 のスナップショットのタブに理由が出て、a=307（作成）・a=305（一覧からの復元）・`$modx->snapshot()`（`false`）・`db:backup`・`db:import`（終了コード 1、何も取り込まない）がすべて断り、システムログに 1 件ずつ残る（修正前は黙って `temp/backup/` に作り、取り込みも行った）。書き込めない保存先（root の 555）も同じく断り、理由は「作れない・書き込めない」で出る。`assets/backup/` だけが在るサイトでは `temp/backup/` に作られ、`assets/backup/` の控えは一覧に出ない（修正前は `assets/backup/` に作った）。`snapshot_path` が `temp/snap2/` のとき、バインドとファイルブラウザー（管理者でない利用者）の守る場所に `temp/snap2/` が入る（修正前は入らなかった）。
 
 ## Decision Log
 
@@ -82,6 +83,11 @@
   - S1 の段階で直すべきものだったが、S1 はマージ済みなので S2 の PR で直す。
 - 2026-11-17 / yamamoto（Claude が起案。S3 で追加）: 「コンテンツのみ」のスナップショットに入れる表と、スナップショットで構造だけを入れるログの表の一覧は、スナップショットの手順の決まりなので `EvoBackupManager`（`contentTables()`・`logTables()`）に置き、`EvoSqlDump::write()` には表の一覧と `structureOnly` で渡す。`write()` の options に `contentsOnly` は持たせない（書く側はどの表をどう書くかだけを知る）。復元は、先頭のコメントを除いた文を実行する（修正前はコメントの付いたまま実行していた。DB にとって同じ文）。
 - 2026-11-17 / yamamoto（Claude が起案。S4 で追加）: 既定の保存先 `temp/backup/` と以前の置き場所 `assets/backup/` は `EvoSnapshotStore::DEFAULT_DIR`・`LEGACY_DIR` に持ち、DB の設定を読めないインストーラーとグローバル設定の保存は `EvoSnapshotStore::defaultDir()` と `protect()` を使う（`ensureDir()` は設定を読むので使わない）。グローバル設定の保存は、修正前と同じく `temp/backup/` を作るだけにする（`ensureDir()` に置き換えるのは、保存先が設定で決まるようになる S5）。名前の `.sql` の付け方は `EvoSnapshotStore::normalizeName()` にまとめ、`snapshot.processor.php` と `$modx->snapshot()` が使う。
+- 2026-11-18 / yamamoto（Claude が起案。S5 で追加）: `snapshot_path` の相対パス（S4 の Surprises）は、サイトのフォルダからの場所として解く（CLI と管理画面で同じ場所になる）。保存のときは `[(base_path)]` を付けた形で保存する。`EvoSnapshotStore::dir()` は値をそのまま解いて返し、使えるかは `problem()` が決める（サイトの外・サイトのルート・`..` で外へ出るものは `OUTSIDE`、無くて作れない・書き込めないものは `UNWRITABLE`）。作成・復元・`db:backup`・`db:import`・`$modx->snapshot()` は `ensureDir()` を通して断り、断ったことは `ensureDir()` が `evo()->logEvent()` に残す（呼び出し元ごとに書かない）。a=93 の画面は `OUTSIDE`・`SHARED` のときに理由を常に出し、一覧も出さない（`UNWRITABLE` は作成・復元を試みたときに今の文言で出す）。グローバル設定の保存は、`warnings()` で `problem()` を確かめ（変えた値はすべて確かめる。今の値のままなら `OUTSIDE`・`SHARED` のときだけ止め、書き込めないだけなら関係のない設定の保存は止めない。自己レビューの指摘で直した）、`setPermission()` は `temp/backup/` の決め打ちをやめて、使える値のときだけ `ensureDir()` を呼ぶ（新しい保存先を作り、保護の `.htaccess` を置く。ディレクトリの権限は `mkd()` の 0777 から `ensureDir()` の 0755 になる）。
+- 2026-11-18 / yamamoto（Claude が起案。S5 で追加）: ファイルブラウザー（`PathGuard::protectedPathsFor()`）の守る場所は、`EvoSnapshotStore::guardedDirs()`（今の保存先・既定の保存先・以前の置き場所）から得る。バインドの `denyDirs()` も同じ一覧から作る。
+- 2026-11-18 / yamamoto（Claude が起案。S5 で追加）: `assets/backup/` に控えが残っているサイトへの知らせは足さない。アップデーターを通ったサイトは `temp/backup/` ができていて、もともと `assets/backup/` は保存先になっていない（一覧にも出ていなかった）。分岐が効いていたのは `temp/backup/` を消したサイトだけで、そのサイトでも次の作成で `temp/backup/` ができる。`assets/backup/` は読ませない場所として残すので、控えが外から読まれることはない。PR の「変更内容」に書く。
+- 2026-11-18 / yamamoto（Claude が起案。S5 の自己レビューから追加）: 本人の決定の「サイトのフォルダの下」のうち、保護の `.htaccess`（`Require all denied`）を置くと表のサイトや管理画面が見えなくなる場所は、保存先にさせない（`SHARED`）。対象は、スナップショット以外のファイルがあって、読ませない `.htaccess`（`<Files>`・`<FilesMatch>`・`<If>`・`<Location>`・`<Directory>` などのブロックの外に `Require all denied` か `Deny from all` を含むもの。古い書き方も含む）も無いフォルダ（`manager/`・`assets/` など。置いてよいのは `.sql`・`.htaccess`・`index.html` と書き出しの途中のファイルだけ）と、`manager/`・`assets/templates/`・`rb_base_dir` の中とその親。拒否の無い `.htaccess` だけがあるフォルダも、守れないので断る（PR #1576 への Codex の指摘）。保存のときにも、DB に直接入れたときの実行時にも断る（画面の欄から 1 回打ち間違えると管理画面が 403 になり、FTP でしか戻せなくなるため）。本人の決定（外なら保存しない）を狭めるのではなく、「サイトのフォルダの下でも、壊すと戻せない場所」を足したものと判断した。値の整え方（前後の空白・空・相対パス・`[(base_path)]`・末尾の `/`）は `EvoSnapshotStore::normalizeValue()` 1 つにし、保存と読むときが同じ規則を使う。絶対パスかは OS ごとに決め（Linux では `C:/…` は相対）、`basename()` は使わない（PHP 7.4 の C ロケールで日本語の名前を落とすため）。守る場所の一覧（`guardedDirs()`）には、`OUTSIDE`・`SHARED` の値を入れない（サイトの親や `content/` ごと守ってしまうため）。Plan of Work の S5 の「`dir()` は使えないときに例外か `false`」は、`dir()` は値を解いて返し、使えるかは `problem()` が決める形にした。
+- 2026-11-18 / 本人の決定: エクスポートの出力先との重なりは S5 では扱わない。
 
 ## Outcomes & Retrospective
 
@@ -210,7 +216,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - PR: S1 は #1563（`refactor/1561-backup-reorg`。Issue に紐づいたブランチなので、マージで #1561 が閉じる。閉じたら開き直して S2 へ進む）。マージ済み（main 10d3bfbed）
 - S2: ブランチ `refactor/1561-s2-truncate-entry`（`origin/main` から作成。Issue に紐づけない）、PR #1566。マージ済み（main 675e39f96）
 - S3: ブランチ `refactor/1561-s3-sql-dump`（`origin/main` から作成。Issue に紐づけない）、PR #1569。マージ済み（main 455f91f4b）
-- S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）、PR #1574
+- S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）、PR #1574。マージ済み（main 172f7faeb）
+- S5: ブランチ `refactor/1561-s5-snapshot-path`（`origin/main` から作成。Issue に紐づけない）、PR #1576
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
@@ -219,7 +226,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - 作るクラスの公開メソッド（呼び出し元はこの計画のファイルだけ）:
   - `EvoDbTables`: `names(): array`、`status(): array`、`name(string $short): string`（接頭辞を除いた名前に必ず接頭辞を付ける。不正なら `''`）、`resolve(string $input): string`（利用者の入力を、このサイトに在る表の名前にする。無ければ `''`）、`resolveWithDb(string $input): string`、`exists(string $table): bool`（接頭辞の付いた完全な名前）、`truncatable(): array`、`isOwn(string $name): bool`
   - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と、先頭のコメントを除いた文を返す。番号は空の文やコメントだけの文も数える）。`write()` の options は `drop`・`structureOnly` の 2 つ（「コンテンツのみ」の表の絞り込みは呼び出し側で行う。Decision Log の S3 の項）、`tablesIn($stream): array`（下読み。S7）
-  - `EvoSnapshotStore`: `dir()`、`ensureDir()`、`normalizeName()`、`isValidFilename()`、`autoFilename($prefix = '')`、`path($name)`、`files()`、`prune($max)`、`counts()`（引数なし。自動の名前とそれ以外の件数を返し、上限は呼び出し側が出す）、`static defaultDir()`、`denyDirs()`、`static protect($dir)`、`checkPath($value)`（S5。保存のときの確かめ）、定数 `HTACCESS`・`KEEP`・`PRE_RESTORE_KEEP`・`AUTO_NAME_PATTERN`・`PRE_RESTORE_PREFIX`
+  - `EvoSnapshotStore`: `dir()`、`ensureDir()`、`normalizeName()`、`isValidFilename()`、`autoFilename($prefix = '')`、`path($name)`、`files()`、`prune($max)`、`counts()`（引数なし。自動の名前とそれ以外の件数を返し、上限は呼び出し側が出す）、`static defaultDir()`、`denyDirs()`、`static protect($dir)`、`__construct($configured = null)`（S5。保存の前の値を渡して確かめる）、`problem()`（S5。`''`・`OUTSIDE`・`SHARED`・`UNWRITABLE`。保存のときの確かめと、実行時に断る理由。計画の `checkPath()` をこの形にした）、`static normalizeValue($value)`（S5。保存と読むときの値の規則）、`guardedDirs()`（S5。ファイルブラウザーとバインドの守る場所）、定数 `HTACCESS`・`KEEP`・`PRE_RESTORE_KEEP`・`AUTO_NAME_PATTERN`・`PRE_RESTORE_PREFIX`
   - `EvoBackupManager`: `store()`、`createSnapshot($name = '', array $options = [])`、`restoreFile($path, $preRestore = null)`（戻り値の配列は今の `restore()` と同じキー）
 - CLI の `mysqldump` を呼ぶ処理（`cli_export_database()`・`cli_export_database_file()`・`cli_mysql_defaults_file()`）は CLI だけのものなので `cli-helpers.php` に残し、`php` の書き手を `EvoSqlDump` に任せる。
 - ほかの計画: `.agent/plans/2026-05-06-evo-system-upgrade-command.md` は `EvoBackupManager` の `ensureDir()`・`dir()`・`autoFilename()`・`HTACCESS` と `cli_export_database_file()` を使う前提で書かれている。S4・S6 の PR で、その計画の Interfaces and Dependencies と Decision Log の名前を新しい置き場所（`EvoSnapshotStore`）に書き直す。
