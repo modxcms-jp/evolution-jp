@@ -52,8 +52,9 @@ function setPermission()
         mkd($export_dir);
     }
     require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
-    if (!is_dir(EvoSnapshotStore::defaultDir())) {
-        mkd(rtrim(EvoSnapshotStore::defaultDir(), '/'));
+    $snapshotStore = new EvoSnapshotStore(formv('snapshot_path'));
+    if ($snapshotStore->problem() === '') {
+        $snapshotStore->ensureDir();
     }
 
     if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
@@ -88,7 +89,7 @@ function setModifiedConfig($form_v, $defaut_v)
 
 function formv($key, $default = null)
 {
-    if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir'])) {
+    if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir', 'snapshot_path'])) {
         $value = postv($key, $default);
         if (!is_string($value)) {
             $value = '';
@@ -106,6 +107,16 @@ function warnings()
     }
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
+    }
+    // 変えた値はすべて確かめる。今の値のままなら、外を指す・専用でないフォルダのときだけ止める
+    // （書き込めないだけなら、関係のない設定の保存は止めない。作成・復元のときに知らせる）
+    require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+    $snapshotStore = new EvoSnapshotStore(formv('snapshot_path'));
+    $snapshotProblem = $snapshotStore->problem();
+    $snapshotChanged = EvoSnapshotStore::normalizeValue(formv('snapshot_path'))
+        !== EvoSnapshotStore::normalizeValue(config('snapshot_path'));
+    if ($snapshotProblem !== '' && ($snapshotChanged || $snapshotProblem !== EvoSnapshotStore::UNWRITABLE)) {
+        $warnings[] = evo()->parseText(lang('snapshot_path_invalid'), ['snapshot_path' => $snapshotStore->dir()]);
     }
     foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
         $warning = invalidPageWarning($key, lang($titleKey));
@@ -172,7 +183,7 @@ function nonSettingKeys()
 function stringSettingKeys()
 {
     return [
-        'base_url', 'fixed_site_url', 'rb_base_url', 'export_dir', 'rb_base_dir', 'filemanager_path',
+        'base_url', 'fixed_site_url', 'rb_base_url', 'export_dir', 'snapshot_path', 'rb_base_dir', 'filemanager_path',
         'error_page', 'unauthorized_page', 'site_start', 'manager_language', 'new_file_permissions',
         'new_folder_permissions', 'smtppw', 'topmenu_site', 'topmenu_element', 'topmenu_security',
         'topmenu_user', 'topmenu_tools', 'topmenu_reports',
@@ -219,6 +230,10 @@ function save_settiongs()
                 continue 2;
             case 'rb_base_url':
                 $v = init::normalize_rb_base_url($v, config('site_url'), MODX_BASE_URL);
+                break;
+            case 'snapshot_path':
+                // 読むとき（EvoSnapshotStore::dir()）と同じ規則で保存する
+                $v = EvoSnapshotStore::normalizeValue($v);
                 break;
             case 'export_dir':
                 $v = exportDirOrDefault($v);

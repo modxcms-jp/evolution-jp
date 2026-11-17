@@ -20,6 +20,9 @@ if ($driver !== 'mysqldump' && $driver !== 'php') {
 }
 
 if (!$store->ensureDir()) {
+    if ($store->problem() !== EvoSnapshotStore::UNWRITABLE) {
+        cli_usage('Error: the snapshot directory ' . $store->dir() . ' cannot be used (outside the site folder, or a folder that holds other files). Fix snapshot_path in the global settings.');
+    }
     cli_usage('Error: cannot create or write directory ' . $store->dir());
 }
 

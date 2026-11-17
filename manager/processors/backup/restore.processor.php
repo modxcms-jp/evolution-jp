@@ -14,7 +14,10 @@ $backup = new EvoBackupManager();
 $source = '';
 $failure = '';
 $mode = post_choicevar('mode', ['restore1', 'restore2'], '');
-if ($mode === 'restore1') {
+// 保存先が使えなければ、復元の前の控えを取れないので戻さない（別の場所には切り替えない）
+if (!$backup->store()->ensureDir()) {
+    $failure = $backup->store()->problem() === EvoSnapshotStore::UNWRITABLE ? 'restore_no_snapshot' : 'restore_path_unusable';
+} elseif ($mode === 'restore1') {
     $uploadError = (int) filev('sqlfile.error', UPLOAD_ERR_NO_FILE);
     $tmpName = (string) filev('sqlfile.tmp_name', '');
     if ($uploadError === UPLOAD_ERR_NO_FILE) {

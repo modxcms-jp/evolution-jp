@@ -23,6 +23,13 @@ if (!defined('EVO_CLI_IMPORT')) {
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
 $backup = new EvoBackupManager();
+// 保存先が使えなければ、復元の前の控えを取れないので戻さない（別の場所には切り替えない）
+if (!$backup->store()->ensureDir()) {
+    if ($backup->store()->problem() !== EvoSnapshotStore::UNWRITABLE) {
+        cli_usage('Error: the snapshot directory ' . $backup->store()->dir() . ' cannot be used (outside the site folder, or a folder that holds other files); nothing was imported. Fix snapshot_path in the global settings.');
+    }
+    cli_usage('Error: cannot create or write directory ' . $backup->store()->dir() . '; nothing was imported.');
+}
 
 // 復元前のスナップショットも mysqldump で取る（PHP のダンパーの遅さとメモリを CLI に持ち込まない）
 // プレフィックスのテーブルが無い（空の DB への取り込み）ときは保存するものが無いので書かない

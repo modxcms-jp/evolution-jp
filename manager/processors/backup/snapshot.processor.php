@@ -17,7 +17,7 @@ if ($filename !== '' && !$backup->store()->isValidFilename($filename)) {
     // 保存先の外や .sql 以外のファイルを作らせないため、ディレクトリを含まない名前に限る
     $result = 'snapshot_invalid_file_name';
 } elseif (!$backup->store()->ensureDir()) {
-    $result = 'snapshot_mkdir_failed';
+    $result = $backup->store()->problem() === EvoSnapshotStore::UNWRITABLE ? 'snapshot_mkdir_failed' : 'snapshot_path_unusable';
 } elseif ($backup->createSnapshot($filename, post_boolvar('contentsOnly')) === false) {
     // 空なら自動の名前になる（古い世代の削除は createSnapshot() が行う）
     $result = 'snapshot_failed';
