@@ -98,11 +98,7 @@ if (!function_exists('xml_parameters')) {
     function xml_parameters($placeholders) {
         $xmlArr = [];
         foreach ($placeholders as $name => $value) {
-            $xmlArr['xml_' . $name] = htmlspecialchars(
-                $value,
-                ENT_NOQUOTES,
-                config('modx_charset') ?: 'UTF-8'
-            );
+            $xmlArr['xml_' . $name] = ditto::xmlText($value);
         }
         return array_merge($xmlArr, $placeholders);
     }
