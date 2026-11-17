@@ -70,7 +70,7 @@ const update = function(){
     const old = document.getElementById("tv[+id+]PreviewContainer");
     if (old) { old.remove(); }
 
-    if (url != "" && !url.match("/.*::.*/")){
+    if (url != "" && !/::/.test(url)){
         // Create a new preview（以前の .parents("td").append() と同じく、祖先の td すべてに足す）
         // 値を HTML として解釈しないよう、要素を作って src に入れる
         MM.parents(field, "td").forEach(function (td) {
