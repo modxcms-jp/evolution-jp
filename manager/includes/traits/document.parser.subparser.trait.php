@@ -1817,8 +1817,7 @@ trait DocumentParserSubParserTrait
         $ph['field_style'] = $field_style;
         $tpl = $this->custom_tv_tpl($field_id, $field_elements, $ph);
         // 定義に差し込む値は、このあとのタグの評価を通るので、値の中のタグが評価されないよう hsc_for_tpl() にする
-        $ph['field_value'] = hsc_for_tpl($field_value);
-        $ph['value'] = hsc_for_tpl($field_value);
+        $ph['field_value'] = $ph['value'] = hsc_for_tpl($field_value);
         return evo()->evalSnippets(
             evo()->mergeChunkContent(
                 evo()->mergeSettingsContent(
