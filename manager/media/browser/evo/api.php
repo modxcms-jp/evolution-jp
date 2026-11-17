@@ -45,7 +45,7 @@
  * POST action=newfile  (folder, name)                          -> {name}(空のテキストファイルを作る)
  * POST action=unzip    (folder, target)                        -> {extracted,failed:[...]}(zip を同じフォルダへ展開する)
  *
- * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)とシステムログ(1 操作につき 1 行)に残す。表示系は記録しない。
+ * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)に残す。管理操作ログに書けなかったパスだけをシステムログに残す。表示系は記録しない。
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
