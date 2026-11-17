@@ -4,7 +4,7 @@
     <meta charset="[+modx_charset+]">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>MODX CMF Manager Login</title>
+    <title>[+login_title+]</title>
     <!-- 既存のstyle.cssは読み込まない（独自スタイルを使用） -->
     <style>
         /* グラスモーフィズム - 洗練されたログイン画面 */

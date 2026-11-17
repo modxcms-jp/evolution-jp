@@ -32,7 +32,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 <html lang="<?= globalv('modx_lang_attribute', 'en') ?>" dir="<?= globalv('modx_textdir', 'ltr') ?>">
 
 <head>
-    <title>MODX</title>
+    <title><?= hsc(evo()->config('site_name')) ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
     <?= csrfTokenMeta() ?>
     <?= manager_theme_stylesheets() ?>
