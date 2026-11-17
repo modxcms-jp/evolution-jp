@@ -18,7 +18,7 @@
 | ダンプの形 | `EvoSqlDump`（`manager/includes/sql_dump.class.inc.php`） | ダンプを書く（PHP の書き手）、ダンプを 1 文ずつ読む |
 | 保存先と世代 | `EvoSnapshotStore`（`manager/includes/snapshot_store.class.inc.php`） | 保存先の決め方と使えるかの判定、保護の `.htaccess`、名前、一覧、世代の削除、読ませない置き場所 |
 | 作成と復元の手順 | `EvoBackupManager`（`manager/includes/backup_manager.class.inc.php`） | スナップショットの作成（`createSnapshot()`）、ダンプのファイルからの復元（`restoreFile()`）、復元の前の控え、環境ごとの設定の保持、キャッシュの作り直し |
-| 入口 | `manager/actions/tool/bkmanager.static.php`・`manager/processors/backup/`・`manager/includes/cli/commands/db-*.php`・`$modx->snapshot()` | 入力を受けて手順を呼び、結果を知らせる |
+| 入口 | 画面 `manager/actions/tool/bkmanager.static.php`（a=93）、`manager/processors/backup/` のダウンロード（a=306）・復元（a=305）・スナップショットの作成（a=307）、`manager/includes/cli/commands/db-*.php`、`$modx->snapshot()` | 入力を受けて手順を呼び、結果を知らせる。画面は表示だけで、操作は processor が受ける（POST と CSRF のトークンが要る） |
 
 表の一覧・状態とダンプの読み書きの問い合わせは、`EvoDbTables` と `EvoSqlDump` に置く。復元の文の実行と、環境ごとの設定の読み書き・キャッシュの表を空にする処理は、まだ `EvoBackupManager` が直接 `db()` を呼ぶ（PDO 移行のときは、この 3 つのクラスを見る）。
 

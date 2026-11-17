@@ -123,6 +123,7 @@ $GLOBALS['action_list'] = [
     '303' => 'Delete Template Variable',
     '304' => 'Duplicate Template Variable',
     '305' => 'Restore SQL data dump',
+    '306' => 'Download SQL data dump',
     '308' => 'HTML export job',
     '309' => 'Preview draft',
 

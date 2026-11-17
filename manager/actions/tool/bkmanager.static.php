@@ -12,57 +12,6 @@ $canRestore = manager()->isAdmin();
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
-$mode = postv('mode', '');
-
-if ($mode === 'backup') {
-    // 送り先は非表示の iframe。失敗は、親の画面が iframe の読み込みで #evoBackupError を読んで知らせる
-    $backupFailed = function ($message) {
-        header('Content-Type: text/html; charset=UTF-8');
-        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><p id="evoBackupError">'
-            . hsc($message) . '</p></body></html>';
-        exit;
-    };
-    $tables = postv('chk', '');
-    if (!is_array($tables) || !$tables) {
-        $backupFailed(lang('bkmgr_backup_no_tables'));
-    }
-
-    @set_time_limit(120); // set timeout limit to 2 minutes
-    // 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
-    $tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
-    if ($tempfile !== false) {
-        // 途中で止められても DB 全体のダンプを残さない
-        register_shutdown_function(function () use ($tempfile) {
-            if (is_file($tempfile)) {
-                @unlink($tempfile);
-            }
-        });
-    }
-    if ($tempfile === false || !EvoSqlDump::writeFile($tempfile, $tables, ['drop' => postv('droptables') !== null])) {
-        if ($tempfile !== false && is_file($tempfile)) {
-            unlink($tempfile);
-        }
-        $backupFailed(lang('bkmgr_backup_failed'));
-    }
-    if (!headers_sent()) {
-        header('Expires: 0');
-        header('Cache-Control: private');
-        header('Pragma: cache');
-        header('Content-type: application/download');
-        header('Content-Length: ' . filesize($tempfile));
-        header(
-            sprintf(
-                'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
-                strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
-                preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
-            )
-        );
-    }
-    readfile($tempfile);
-    unlink($tempfile);
-    exit;
-}
-
 if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを重複出力しない
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
 }
@@ -183,13 +132,12 @@ if (sessionv('result_msg')) {
 }
 
 ?>
-<script language="javascript">
+<script>
     function selectAll() {
         var f = document.forms['frmdb'];
-        var c = f.elements['chk[]'];
-        for (i = 0; i < c.length; i++) {
-            c[i].checked = f.chkselall.checked;
-        }
+        f.querySelectorAll('input[name="chk[]"]').forEach(function (c) {
+            c.checked = f.chkselall.checked;
+        });
     }
 
     // 成功するとダウンロードが始まるだけで、iframe は読み込みを終えない。読み込んだら失敗の応答
@@ -223,7 +171,6 @@ if (sessionv('result_msg')) {
             return false;
         }
         document.querySelector('iframe[name="fileDownloader"]').onload = onBackupFrameLoad;
-        f.mode.value = 'backup';
         f.target = 'fileDownloader';
         f.submit();
         return false;
@@ -258,8 +205,8 @@ if (sessionv('result_msg')) {
     <div class="tab-pane" id="dbmPane">
         <div class="tab-page" id="tabBackup">
             <h2 class="tab"><?= lang('backup') ?></h2>
-            <form name="frmdb" method="post">
-                <input type="hidden" name="mode" value="" />
+            <form name="frmdb" method="post" action="index.php">
+                <input type="hidden" name="a" value="306" />
                 <p><?= lang('table_hoverinfo') ?></p>
 
                 <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><?= lang('database_table_clickbackup') ?>
@@ -393,7 +340,6 @@ if (sessionv('result_msg')) {
             ); ?>
             <style type="text/css">
                 #dbmPane table {
-                    background-color: #fff;
                     border-collapse: collapse;
                 }
 

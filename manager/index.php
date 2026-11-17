@@ -771,6 +771,9 @@ switch (manager()->action) {
     case 305: // Backup Manager
         include_once($prc_path . 'backup/restore.processor.php');
         break;
+    case 306: // Backup Manager: download
+        include_once($prc_path . 'backup/download.processor.php');
+        break;
     case 307: // Backup Manager
         include_once($prc_path . 'backup/snapshot.processor.php');
         break;
