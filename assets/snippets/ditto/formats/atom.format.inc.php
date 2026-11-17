@@ -80,7 +80,7 @@ $atom_tpl = <<<TPL
 		<id>[+url+]</id>
 		<updated>[+atom_editedon+]</updated>
 		<published>[+atom_createdon+]</published>
-		<content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">[+summary+]</div></content>
+		<content type="html">[+summary:hsc+]</content>
 	</entry>
 TPL;
 
