@@ -6,8 +6,8 @@
 
 ## Progress
 
-- [ ] (2026-11-17) ExecPlan 作成
-- [ ] M0 着手前の確認: #1560 のマージを確かめ、Context を今の main に合わせて直す。往復の確認スクリプトを用意する（PR なし）
+- [x] (2026-11-17) ExecPlan 作成
+- [x] (2026-11-17) M0 着手前の確認: #1560 のマージを確かめ、Context を今の main に合わせて直す。往復の確認スクリプトを用意する（PR なし）
 - [ ] S1 表の一覧と状態を `EvoDbTables` にまとめる（動きを変えない）
 - [ ] S2 表を空にする入口を a=54 の 1 つにする（動きを変える）
 - [ ] S3 ダンプの書く・読むを `EvoSqlDump` にまとめ、`Mysqldumper` を消す（動きを変えない）
@@ -26,6 +26,9 @@
 - 2026-11-17: `db:export` の既定は `--routines --triggers` 付きで、出力に `DELIMITER ;;` が入りうる。今の復元（`;` と改行で分ける）はこれを読めない。`db:backup`・`db:import` の控えは `--skip-triggers` なので読める。
 - 2026-11-17: 表の名前の正規化（接頭辞を付ける）は `cli_full_table_name()` と `db-export.php` の中の 2 か所に同じ処理がある。表の一覧（`SHOW TABLE STATUS ... LIKE`）は `Mysqldumper::getTableNames()`・`bkmanager.static.php`・`sysinfo.static.php` の 3 か所で、`_` を LIKE のためにエスケープしているのは `getTableNames()` だけ。表の有無は `EvoBackupManager::tableExists()` と `db()->tableExists()` の 2 通り。
 - 2026-11-17: a=55（`manager/processors/db/empty_table.processor.php`）は `settings` の権限だけで `manager_log` を空にする。a=54 の空にする処理は `settings` かつ（`logs` か `bk_manager`）。a=55 への入口は管理ログの画面（`logs` が要る）の説明文 `mgrlog_sortinst` のリンクだけ。
+- 2026-11-17（M0）: #1560 は PR #1562 で main に入った（77a59e271）。ダンプの値は `db()->escape()` で書かれ、CR が `\r` として残るようになったので、復元の分け方（`;` の後の改行）に掛かる生の改行は値の中に出ない。スナップショットのログの表は `CREATE TABLE IF NOT EXISTS` だけになり、管理画面と processor の失敗の知らせ方も決まった。計画の S3・S7・S8 から、済んだ作業を外し、決まった形を引き継ぐ書き方に直した。
+- 2026-11-17（M0）: `sysinfo.static.php`（a=53）は `SHOW TABLE STATUS` の `Rows` をそのまま出し、`bkmanager.static.php`（a=93）は空にしてよい表だけ `COUNT(*)` に差し替える。同じ表の行数が 2 つの画面で違いうる（InnoDB の `Rows` は見積もり）。
+- 2026-11-17（M0）: `mysqldump` には `CREATE TABLE IF NOT EXISTS` を書かせる選択肢が無い。S7 の `db:backup` のログの表は、2 回目の出力を書き換えて PHP の書き手と同じ形にする。
 
 ## Decision Log
 
@@ -39,11 +42,11 @@
 - 2026-11-17 / yamamoto（Claude が起案）: PDO の新しい DB API（ロードマップの「PDO移行」、#677。AGENTS.md の #453 の取り決め）は待たず、今の `db()` で進める。PDO 移行のフェーズ 1 は `db()->escape()` などの公開メソッドの約束を変えないので、この計画の書き方はそのまま動く。そのかわり、DB に問い合わせる箇所を `EvoDbTables` と `EvoSqlDump` の 2 つに閉じ込め、PDO 移行のフェーズ 2（プレースホルダ）で直す場所をこの 2 つにする。
 - 2026-11-17 / yamamoto（Claude が起案）: 消すクラス・関数・入口に、古い名前の別名を残さない（互換を重ねない方針）。`Mysqldumper`・`mysql_dumper.class.inc.php`（S3）、`EvoBackupManager::truncatableTables()`・`dir()` などの保存先のメソッド（S1・S4）、a=55（S2）、`cli_full_table_name()`（S1）は、移した段階で消す。外の拡張が `Mysqldumper` を読んでいた場合は Fatal error で気付ける（黙って動きが変わらない）。PR の本文の「備考」に消した名前を挙げる。
 - 2026-11-17 / yamamoto（Claude が起案）: a=55 を消し、管理ログの画面のリンクを a=54 の `truncate=<接頭辞>manager_log&from=logging` に向ける（S2）。権限は a=54 の確かめ方（`settings` かつ `logs` か `bk_manager`）にそろえる。リンクのある画面は `logs` が要るので、画面から操作する利用者の動きは変わらない。変わるのは、`settings` だけを持ち `logs` も `bk_manager` も持たない利用者が a=55 を直接呼んだときだけで、これは画面に入口の無い操作なので、本人の確認は要らないと判断した。
-- 2026-11-17 / yamamoto（Claude が起案）: 表の一覧の LIKE の `_` のエスケープは、S1 でそろえる（`getTableNames()` の書き方に合わせる）。違いが出るのは、接頭辞の `_` を任意の 1 文字とみなしたときに当たる別の表がある DB だけで、そのときに他人の表が一覧に混ざる今の動きは不具合とみなす。S1 で出てよい違いはこれだけとする。
+- 2026-11-17 / yamamoto（Claude が起案）: 表の一覧の LIKE の `_` のエスケープは、S1 でそろえる（`getTableNames()` の書き方に合わせる）。違いが出るのは、接頭辞の `_` を任意の 1 文字とみなしたときに当たる別の表がある DB だけで、そのときに他人の表が一覧に混ざる今の動きは不具合とみなす。S1 で出てよい違いは、これと下の a=53 のログの表の行数（M0 で追加）の 2 点とする。
 - 2026-11-17 / yamamoto（Claude が起案）: 大きなダンプのメモリは、S6 で復元を「ファイルを 1 行ずつ読み、`;` で終わる行まで溜めて 1 文として渡す」形（PHP のジェネレーター。PHP 7.4 で使える）にして減らす。分け方の規則（`;` の後に空白とタブだけを挟んで改行）は今の `preg_split('@;[ \t]*\n@', ...)` と同じにし、CR の扱い（CRLF・単独の CR を LF にそろえてから分ける）も行ごとに同じにする。アップロードの復元も一時ファイルから流して読む（`file_get_contents()` しない）。書く側は今も 1MB ごとに書き出しているので変えない。`createDump()`（文字列で返す）は S3 で消し、`db:export --driver=php` の標準出力へは `php://output` のストリームに書く。
 - 2026-11-17 / yamamoto（Claude が起案）: 別の接頭辞のダンプは、S7 で復元の前に断る。読む側が文を流しながら `CREATE TABLE`・`INSERT INTO`・`DROP TABLE` などの対象の表の名前を集めるのでは遅い（書き換えた後に分かる）ので、復元の前に一度ファイルを流して読み（S6 の読む側で、実行せずに）、対象の表がすべて今の接頭辞で始まるかを確かめる。1 つでも外れる表があれば、控えも取らず、何も書き換えずに「接頭辞が違う（ダンプの接頭辞: `<見つかった接頭辞>`、このサイト: `<接頭辞>`）」と知らせる。接頭辞を読み替えて取り込む機能は作らない（YAGNI。必要になったら別の Issue）。`DELIMITER` を含むダンプ（`db:export` の既定の出力など）も同じ下読みで見つけ、「トリガーやルーチンを含むダンプは戻せない。`db:backup` か、`--skip-triggers` を付けた mysqldump の出力を使う」と知らせる。
 - 2026-11-17 / yamamoto（Claude が起案）: `$modx->snapshot()`（`manager/includes/traits/document.parser.subparser.trait.php`。公開の API。本体からの呼び出しは無いが、外のスニペットが使う前提で残す）は、S6 で `EvoBackupManager` の作成の手順を呼ぶだけにする。名前の `.sql` の付け方は `snapshot.processor.php` と同じ処理の写しなので、`EvoSnapshotStore::normalizeName()` に 1 つにし、両方から呼ぶ。戻り値は S7 で「成功は作ったファイルの大きさ（int）、失敗は名前の不正も含めてすべて `false`」にそろえる（今は名前が不正だと `null`）。
-- 2026-11-17 / yamamoto（Claude が起案）: CLI の `db:backup` は S7 で、管理画面のスナップショットと同じ中身（ログの表は構造だけ、データは入れない）にする。同じ置き場所の同じ世代に数えるもので、作った入口によって中身が違うのは分かりにくいため。`mysqldump` で書くときは、ログの表を `--ignore-table` で外した 1 回目と、ログの表だけを `--no-data` で書く 2 回目を同じ一時ファイルに続けて書く。書き手（PHP か mysqldump か）は `EvoBackupManager` の作成の手順に引数で渡す。
+- 2026-11-17 / yamamoto（Claude が起案）: CLI の `db:backup` は S7 で、管理画面のスナップショットと同じ中身（ログの表は構造だけ、データは入れない）にする。同じ置き場所の同じ世代に数えるもので、作った入口によって中身が違うのは分かりにくいため。`mysqldump` で書くときは、ログの表を `--ignore-table` で外した 1 回目と、ログの表だけを `--no-data --skip-add-drop-table` で書く 2 回目を同じ一時ファイルに続けて書き、2 回目の `CREATE TABLE ` を `CREATE TABLE IF NOT EXISTS ` に書き換える（PHP の書き手と同じ形。#1560）。`--ignore-table-data` は MariaDB と新しい MySQL にしか無いので使わない（使えない環境での分岐を作らず、MySQL 5.7 の mysqldump でも同じ手順で書く）。書き手（PHP か mysqldump か）は `EvoBackupManager` の作成の手順に引数で渡す。
 - 2026-11-17 / yamamoto（Claude が起案）: S8 のダウンロードの processor は、空いている a=306 に置く（`manager/processors/backup/download.processor.php`）。a=93 は画面だけにする。a=306 は POST だけを受け、`manager/includes/csrf_token.php` の一覧と `manager/includes/actionlist.inc.php` に足す。
 - 2026-11-17 / 本人の決定: 言葉と CLI のコマンド名（S9）。「バックアップ」を控え全体の呼び名にし、手元へ持ち帰るものを「ダウンロード」、サーバーに置くものを「スナップショット」と呼ぶ。画面のタブ「バックアップ」を「ダウンロード」に、ボタン「選択したテーブルをバックアップ・ダウンロード」を「選択したテーブルをダウンロード」に変える。CLI の `db:backup` は `db:snapshot` に改名し、`db:backup` の別名は残さない。改名は cron などで `db:backup` を呼んでいるサイトの控えを止めるので、S9 は main ではなく次の版（1.4、`develop/1.4`）に入れ、リリースノートに書く（`db:backup` を呼ぶと「unknown command」で終了コードが 0 以外になり、cron のメールなどで気付ける）。退けた案: 画面の言葉だけ変えて `db:backup` の名前を残す（CLI だけ言葉がずれたまま残る）、名前を変えず文書に定義だけ書く。
 - 2026-11-17 / 本人の決定: `snapshot_path`（S5）。グローバル設定の画面に出し、保存するときにサイトのフォルダの下か確かめて、外なら保存しない。実行時に値が使えない（サイトの外・作れない・書き込めない）ときは、`temp/backup/` に切り替えず、作成も復元も止めて「保存先 `<値>` が使えない」と知らせ、`evo()->logEvent()` にも残す。設定のキーは `snapshot_path` のまま。退けた案: 設定をやめて `temp/backup/` に固定する、画面に出さず実行時の不正だけ知らせる。
@@ -54,6 +57,8 @@
   - 保存のときの確かめ: `save_settings.processor.php` の `warnings()` に、`EvoSnapshotStore::checkPath($value)`（サイトのフォルダの下で、サイトのルートそのものではないか。無ければ作れるか）を足す。だめなら言語ファイルの文言で知らせ、今の作法どおり入力を保ったまま a=17 に戻す。`setPermission()` が `temp/backup` を決め打ちで作っている処理は、`EvoSnapshotStore::ensureDir()` に置き換える（保存先の判定を store の外に残さない）。
   - 文書: S5 の PR で、`assets/docs/global-settings.md` の「設定画面のタブ構成」の表のファイルのタブの小見出しに「スナップショット」を足す。
 - 2026-11-17 / yamamoto（Claude が起案）: 古い置き場所 `assets/backup`（S5）は分岐を消す。インストーラー・アップデーターの `install/actions/summary.php` が `temp/backup/` を作るので、アップデーターを通ったサイトではこの分岐はもう通らない。ただし `assets/backup` に残った控えがバインドで読まれないよう、`EvoSnapshotStore::denyDirs()` の一覧には残す。
+- 2026-11-17 / 本人の決定: 管理画面では `mysqldump` を使わない。管理画面のダウンロード・スナップショット・復元の前の控えは、いつも PHP の書き手（S3 からは `EvoSqlDump`）で書く。CLI（`db:backup`・`db:export`・`db:import` の復元の前の控え）は今どおり既定で `mysqldump`、`--driver=php` で PHP の書き手。書き出しは 2 通りのまま残るので、復元（管理画面のアップロード・スナップショットの一覧・`db:import`）は両方の出力を読めることを、S3・S6・S7 の往復の確かめで両方の出力について確かめる。
+- 2026-11-17 / yamamoto（Claude が起案。M0 で追加）: `EvoDbTables::status()` は、空にしてよい表の行数を `COUNT(*)` の正確な数に差し替えた行を返し、a=93 と a=53 の両方がこれを使う。a=53 は今は `SHOW TABLE STATUS` の `Rows`（InnoDB では見積もり）をそのまま出しているので、ログの表（`manager_log`・`event_log`）の行数だけ、見積もりから正確な数に変わりうる。同じ表の行数が画面によって違う今の動きを不具合とみなし、S1 で出てよい違いに加える（上の LIKE のエスケープと合わせて 2 点）。表の有無（`EvoDbTables::exists()`）も `names()` と同じく LIKE の `_`・`%` をエスケープして確かめる（`EvoBackupManager::tableExists()` と復元の中の `system_cache` の確かめが置き換わる。違いが出るのは接頭辞の `_` を任意の 1 文字とみなしたときに当たる別の表がある DB だけ）。
 
 ## Outcomes & Retrospective
 
@@ -69,11 +74,11 @@
 - 環境ごとの設定: `site_url`・`base_url`・`filemanager_path`・`rb_base_dir`・`fixed_site_url`。復元しても、取り込み先の値を残す。
 - 往復: ダンプを作り、それを復元して、元の DB と同じ中身に戻るかを比べること。
 
-今の受け持ち（main 78b61bfec 時点。M0 で #1560 のマージ後の main に合わせて直す）:
-- `manager/includes/mysql_dumper.class.inc.php`: `Mysqldumper`。PHP でダンプを書く。先頭の `if (!isset($modx) || !is_object($modx)) exit;` のため、メソッドの中から読み込む `EvoBackupManager::createSnapshot()`・`db-backup.php`・`db-import.php`・`cli_export_database()` が `global $modx;` を置いている。`getTableNames()` が表の一覧。`dumpToFile()` が `_dbtables` を `array_flip()` で書き換える、全部の表に `SHOW CREATE TABLE` を打つ、`object2Array()` が使われていない、ヘッダーに `site_name` を入れる。
+今の受け持ち（main 77a59e271 時点。#1560 のマージ後）:
+- `manager/includes/mysql_dumper.class.inc.php`: `Mysqldumper`。PHP でダンプを書く。先頭の `if (!isset($modx) || !is_object($modx)) exit;` のため、メソッドの中から読み込む `EvoBackupManager::createSnapshot()`・`db-backup.php`・`db-import.php`・`cli_export_database()` が `global $modx;` を置いている。`getTableNames()` が表の一覧。`dumpToFile()` が `_dbtables` を `array_flip()` で書き換える、全部の表に `SHOW CREATE TABLE` を打つ、`object2Array()` が使われていない、ヘッダーに `site_name` を入れる。値は #1560 で `db()->escape()` で書くようになった（改行・CR は `\n`・`\r` になり、1 件の `INSERT` が 1 行に収まる。CR は LF に変えずに残す）。スナップショット（`mode = 'snapshot'`）のログの表は、`DROP TABLE` もデータも書かず、`CREATE TABLE IF NOT EXISTS` だけを書く（#1560）。
 - `manager/includes/backup_manager.class.inc.php`: `EvoBackupManager`。保存先（`dir()`・`ensureDir()`・`HTACCESS`）・名前（`autoFilename()`・`isValidFilename()`・`path()`）・一覧（`files()`）・世代（`prune()`）・作成（`createSnapshot()`）・復元（`restore($sql, $preRestore)`。文字列で受けて `preg_split()` で分ける）・環境ごとの設定の保持・空にしてよい表（`truncatableTables()`）。
-- `manager/actions/tool/bkmanager.static.php`（a=93）: 画面と、ダウンロード（`mode=backup` の POST を非表示の iframe に送る）の処理。表の一覧を `SHOW TABLE STATUS` で自分で問い合わせる。
-- `manager/processors/backup/restore.processor.php`（a=305）・`snapshot.processor.php`（a=307）: 復元とスナップショットの作成。
+- `manager/actions/tool/bkmanager.static.php`（a=93）: 画面と、ダウンロード（`mode=backup` の POST を非表示の iframe に送る）の処理。表の一覧を `SHOW TABLE STATUS` で自分で問い合わせる。ダウンロードの失敗は、iframe に `#evoBackupError` を返し、親の画面が読み込みで拾って `EvoDialog.alert()` で知らせる（#1560）。表を選ばずに押したときは送る前に `EvoDialog` で知らせ、アップロードの復元は `upload_max_filesize`・`post_max_size` を超えるファイルを送る前に断る（#1560）。
+- `manager/processors/backup/restore.processor.php`（a=305）・`snapshot.processor.php`（a=307）: 復元とスナップショットの作成。失敗はどちらも `sessionv('*result_msg', <理由>)` に入れて a=93 に戻し、画面が言語ファイルの文言で出す（`restore_no_file`・`restore_too_large`・`restore_upload_failed`・`restore_invalid_file`・`snapshot_invalid_file_name`・`snapshot_mkdir_failed`・`snapshot_failed`。#1560）。復元はまだファイル全体を `file_get_contents()` で読む。
 - `manager/includes/cli/cli-helpers.php`: `cli_export_database()`（`mysqldump` を呼ぶか `Mysqldumper::createDump()`）・`cli_export_database_file()`（一時ファイルに書いて rename）・`cli_full_table_name()`（接頭辞を付けて `` `db`.`table` `` にする。`db:count`・`db:describe` が使う）。
 - `manager/includes/cli/commands/db-backup.php`・`db-export.php`・`db-import.php`: CLI。`db-backup.php` は世代の数え方を自分で書き、`db-export.php` は接頭辞の付け方を自分で書く。コマンド名 `a:b` は `evo.php` で `commands/a-b.php` に読み替える。
 - `manager/includes/traits/document.parser.subparser.trait.php`: `snapshot()`（`$modx->snapshot()`）と `getBindDenyDirs()`（バインドで読ませない置き場所。`EvoBackupManager::dir()` に加え `temp/backup`・`assets/backup`・`snapshot_path` を自分で並べる）。
@@ -95,7 +100,7 @@ S1（表の一覧と状態。動きを変えない）: `EvoDbTables` を作り�
 
 S2（表を空にする入口。動きを変える）: a=55 を消し、`logging.static.php` のリンクと言語ファイルの `mgrlog_sortinst` の `href` を a=54 へ向け、`optimize_table.processor.php` の戻り先に `logging`（a=13）を足す。`manager/index.php`・`csrf_token.php`・`actionlist.inc.php` から 55 を消し、`empty_table.processor.php` を消す。
 
-S3（ダンプの形。動きを変えない）: `EvoSqlDump` を作る。書く側は `Mysqldumper::dumpToFile()` を移し、`write($stream, array $tables, array $options)`（options: `drop`・`structureOnly`（構造だけ書く表の一覧。スナップショットのログの表）・`contentsOnly`）と、一時ファイルに書いてから rename する `writeFile($path, ...)` にする。表の一覧は `EvoDbTables` から受け、`SHOW CREATE TABLE` は書き出す表にだけ打つ。`system_settings` の値の置き換え（`[(base_path)]` など）は書く側に残す。ヘッダーの `site_name` の行はやめる（コメントだけの違い）。読む側は `statements($stream)`（ジェネレーター）で、今の `EvoBackupManager::restore()` の分け方と先頭のコメントの除き方（`stripLeadingComments()`）を移す。S3 では `restore()` は今のとおり文字列を受け、`php://memory` に書いてから `statements()` に渡す（流して読むのは S6）。`Mysqldumper` と `mysql_dumper.class.inc.php` を消し、呼び出し元の `global $modx;` も消す。`cli_export_database()` の `php` の書き手は `EvoSqlDump` を使い、標準出力へは `php://output` に書く。
+S3（ダンプの形。動きを変えない）: `EvoSqlDump` を作る。書く側は `Mysqldumper::dumpToFile()` を移し、`write($stream, array $tables, array $options)`（options: `drop`・`structureOnly`（構造だけ書く表の一覧。スナップショットのログの表）・`contentsOnly`）と、一時ファイルに書いてから rename する `writeFile($path, ...)` にする。表の一覧は `EvoDbTables` から受け、`SHOW CREATE TABLE` は書き出す表にだけ打つ。`system_settings` の値の置き換え（`[(base_path)]` など）と、値の書き方（`db()->escape()`。#1560）は書く側に残す。`structureOnly` の表は、#1560 の形（`DROP TABLE` を書かず `CREATE TABLE IF NOT EXISTS` だけ）で書く。ヘッダーの `site_name` の行はやめる（コメントだけの違い）。読む側は `statements($stream)`（ジェネレーター）で、今の `EvoBackupManager::restore()` の分け方と先頭のコメントの除き方（`stripLeadingComments()`）を移す。S3 では `restore()` は今のとおり文字列を受け、`php://memory` に書いてから `statements()` に渡す（流して読むのは S6）。`Mysqldumper` と `mysql_dumper.class.inc.php` を消し、呼び出し元の `global $modx;` も消す。`cli_export_database()` の `php` の書き手は `EvoSqlDump` を使い、標準出力へは `php://output` に書く。
 
 S4（保存先と世代。動きを変えない）: `EvoSnapshotStore` を作り、`dir()`・`ensureDir()`・`HTACCESS`・`autoFilename()`・`isValidFilename()`・`normalizeName()`（`.sql` の付け方。`snapshot.processor.php` と `snapshot()` の写しをまとめる）・`path()`・`files()`・`prune()`・`counts($max)`（自動の名前とそれ以外の件数。`db-backup.php` の数え方を移す）・`denyDirs()`（バインドで読ませない置き場所の一覧。`getBindDenyDirs()` の並べ方を移す）・`static protect($dir)`（保護の `.htaccess` を置く。DB の設定を読めないインストーラーから呼ぶ）を置く。`EvoBackupManager` は保存先のメソッドを消し、`store()` で `EvoSnapshotStore` を返す。`getBindDenyDirs()` は `denyDirs()` を呼び、`summary.php` は `EvoSnapshotStore::protect()` を呼ぶ。
 
@@ -105,7 +110,7 @@ S6（作成と復元の手順。動きを変えない）: `EvoBackupManager` を
 
 S7（復元の前の確かめと作成の結果。動きを変える）: 復元の前の下読み（接頭辞と `DELIMITER`）、`snapshot()` の戻り値、`db:backup` のログの表の扱いを Decision Log のとおりに変える。
 
-S8（入口を薄くする。動きを変える）: ダウンロードを a=306 の processor に移す。`processors/backup/` の 3 つと CLI のコマンドは、`EvoBackupManager` を呼んで結果を知らせるだけにする。画面の残り（`#fff` を決め打ちした `<style>`、`selectAll()` の古い JS、`postv('mode')`、ダウンロードのファイル名を引用符で囲む）を片付ける。#1560 で済んだものは M0 で外す。失敗の知らせ方は、#1560 で決まった形（画面の `EvoDialog`、processor はセッションの結果を画面に出す）にそろえる。
+S8（入口を薄くする。動きを変える）: ダウンロードを a=306 の processor に移す。`processors/backup/` の 3 つと CLI のコマンドは、`EvoBackupManager` を呼んで結果を知らせるだけにする。画面の残り（`#fff` を決め打ちした `<style>`、`selectAll()` の古い JS、`postv('mode')`、ダウンロードのファイル名を引用符で囲む）を片付ける。失敗の知らせ方は #1560 で決まった形（ダウンロードは親の画面の `EvoDialog`、processor は `result_msg` を a=93 で出す）をそのまま使い、a=306 に移したダウンロードでも同じ形にする（a=306 も非表示の iframe に `#evoBackupError` を返す）。
 
 S9（言葉。動きを変える。1.4 向け）: S8 の後に、マイルストーン「1.4」を付けた別の Issue を起こし（#1561 は S8 で閉じる）、`exec-plan-runner` の「次の版のまとめ用ブランチ」のとおり `develop/1.4` に向ける。Decision Log の本人の決定のとおりに、言語ファイル（`backup`・`database_table_clickbackup`・`bkmgr_restore_msg` の「「バックアップ」で取得した」など、画面の「バックアップ」が手元へのダウンロードを指す文言）、`manager/includes/cli/commands/db-backup.php` を `db-snapshot.php` に改名（`db-backup.php` は残さない）、`manager/includes/cli/README.md`・`assets/docs/backup.md`・`.agent/plans/2026-05-06-evo-system-upgrade-command.md` の `db:backup` を変える。リリースノートに載せるため、PR の本文に「`db:backup` は `db:snapshot` に改名。cron などの呼び出しを書き換える」と書く。
 
@@ -126,7 +131,7 @@ M0（着手前の確認。PR なし）:
   - 表の一覧: `php evo.php db:tables` と、管理画面 a=93・a=53 の表の行の名前（`curl` で取り、`class="table-name"` の中身を抜く。管理画面の `curl` には `Accept-Language` を付ける）。
 - mysqldump の出力: DB のコンテナで `docker exec <名前>-db mariadb-dump -uuser -ppassword --skip-triggers evodb <表...> > <作業用>/mysqldump.sql`。MySQL 5.7 の最終確認では `mysql:5.7` のコンテナの `mysqldump` を使う。CLI の `mysqldump` の書き手を確かめるときは、アプリのコンテナに一時的に `apt-get install -y default-mysql-client`（`mariadb-client` でもよい）を入れる（コンテナを作り直せば消える）。
 
-S1 の確かめ: 修正前後で、`db:tables`・a=93・a=53 の表の名前と行数の列、`php evo.php db:count manager_log`・`db:describe site_content`・`db:export --tables=site_content --driver=php --output=/tmp/a.sql`（`-- Generation Time` の行を除いて）が同じ。違ってよいのは `modxXfake` が a=93・a=53 に出なくなることだけ。a=54 で `manager_log` を空にする・`site_content` を最適化する・`other_table` を渡すと権限エラー、が修正前と同じ。期待: `diff` が上の 1 点だけ。
+S1 の確かめ: 修正前後で、`db:tables`・a=93・a=53 の表の名前と行数の列（a=53 のログの表の行数は、Decision Log のとおり見積もりから正確な数に変わってよい）、`php evo.php db:count manager_log`・`db:describe site_content`・`db:export --tables=site_content --driver=php --output=/tmp/a.sql`（`-- Generation Time` の行を除いて）が同じ。違ってよいのは `modxXfake` が a=93・a=53 に出なくなることだけ。a=54 で `manager_log` を空にする・`site_content` を最適化する・`other_table` を渡すと権限エラー、が修正前と同じ。期待: `diff` が上の 2 点（`modxXfake`・a=53 のログの表の行数）だけ。
 
 S2 の確かめ: 管理ログの画面（a=13）の「empty」のリンクで `manager_log` が空になり、管理ログの画面に戻る。`index.php?a=55` は「不明な操作」になる（修正前は空にした）。`settings` だけを持つロールの利用者が a=54 の `truncate` を POST すると権限エラー。`grep -rn "a=55\|empty_table" manager/` が 0 件。
 
