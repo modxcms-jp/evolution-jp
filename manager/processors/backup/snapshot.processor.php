@@ -18,7 +18,7 @@ if ($filename !== '' && !$backup->store()->isValidFilename($filename)) {
     $result = 'snapshot_invalid_file_name';
 } elseif (!$backup->store()->ensureDir()) {
     $result = $backup->store()->problem() === EvoSnapshotStore::UNWRITABLE ? 'snapshot_mkdir_failed' : 'snapshot_path_unusable';
-} elseif ($backup->createSnapshot($filename, post_boolvar('contentsOnly')) === false) {
+} elseif ($backup->createSnapshot($filename, ['contentsOnly' => post_boolvar('contentsOnly')]) === false) {
     // 空なら自動の名前になる（古い世代の削除は createSnapshot() が行う）
     $result = 'snapshot_failed';
 } else {

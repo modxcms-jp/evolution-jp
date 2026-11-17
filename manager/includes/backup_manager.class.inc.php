@@ -6,11 +6,13 @@ require_once __DIR__ . '/snapshot_store.class.inc.php';
 
 /**
  * スナップショットの作成と、ダンプの復元の手順を受け持つ。
- * 保存先・名前・一覧・世代は EvoSnapshotStore（store()）が受け持つ。
+ * 管理画面・CLI・$modx->snapshot() はこの手順を呼ぶ。
+ * 保存先・名前・一覧・世代は EvoSnapshotStore（store()）、ダンプの形は EvoSqlDump が受け持つ。
  */
 class EvoBackupManager
 {
     private $store;
+    private $pruned = [];
 
     public function __construct()
     {
@@ -22,8 +24,17 @@ class EvoBackupManager
         return $this->store;
     }
 
-    public function createSnapshot($name = '', $contentsOnly = false)
+    /**
+     * スナップショットを作り、古い世代を消す。作ったファイルの名前を返す（作れなければ false）。
+     * $name が空なら自動の名前にする。$options:
+     * - contentsOnly: コンテンツの表だけを書く（管理画面の「コンテンツのみ」と $modx->snapshot() の target=c）
+     * - writer: callable($path, array $tables): bool。書き手を替える（CLI の mysqldump など）。
+     *   既定は EvoSqlDump（ログの表は構造だけ）
+     * - keep: 残す自動の名前の世代の数（既定 EvoSnapshotStore::KEEP）。消した名前は pruned() で得る
+     */
+    public function createSnapshot($name = '', array $options = [])
     {
+        $this->pruned = [];
         if ($name === '') {
             $name = $this->store->autoFilename();
         }
@@ -36,17 +47,30 @@ class EvoBackupManager
 
         $this->extendTimeLimit();
         $tables = EvoDbTables::names();
-        if ($contentsOnly) {
+        if (!empty($options['contentsOnly'])) {
             $tables = array_values(array_intersect($tables, self::contentTables()));
         }
-        // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
-        $options = ['drop' => true, 'structureOnly' => self::logTables()];
-        if (!EvoSqlDump::writeFile($this->store->dir() . $name, $tables, $options)) {
+        $path = $this->store->dir() . $name;
+        if (isset($options['writer'])) {
+            $written = (bool)call_user_func($options['writer'], $path, $tables);
+        } else {
+            // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+            $written = EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => self::logTables()]);
+        }
+        if (!$written) {
             return false;
         }
 
-        $this->store->prune();
+        $this->pruned = $this->store->prune($options['keep'] ?? EvoSnapshotStore::KEEP);
         return $name;
+    }
+
+    /**
+     * 直前の createSnapshot() が世代の整理で消したファイルの名前
+     */
+    public function pruned()
+    {
+        return $this->pruned;
     }
 
     // 「コンテンツのみ」のスナップショットに入れる表
@@ -70,7 +94,13 @@ class EvoBackupManager
         return array_map([EvoDbTables::class, 'name'], ['event_log', 'manager_log', 'system_cache']);
     }
 
-    public function restore($sql, $preRestore = null)
+    /**
+     * ダンプのファイルを 1 文ずつ流して読んで戻す（ファイル全体をメモリに読まない）。
+     * 書き換える前に今の DB を復元の前の控えとして保存する。$preRestore は控えの書き手（callable($path): bool。
+     * 既定は createSnapshot() と同じ PHP の書き手）。環境ごとの設定（site_url など）は取り込み先の値を残し、
+     * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す
+     */
+    public function restoreFile($path, $preRestore = null)
     {
         $result = [
             'ok'                 => false,
@@ -80,7 +110,15 @@ class EvoBackupManager
             'failed_at'          => 0,
             'pre_restore'        => '',
             'pre_restore_failed' => false,
+            'read_failed'        => false,
         ];
+
+        // 控えを作る前に開く（世代の整理が、戻すファイルそのもの（古い控えなど）を消しても読めるように）
+        $stream = is_readable($path) ? fopen($path, 'rb') : false;
+        if ($stream === false) {
+            $result['read_failed'] = true;
+            return $result;
+        }
 
         // 失敗したときに戻せるよう、書き換える前に今の DB を保存する
         $name = $this->store->autoFilename(EvoSnapshotStore::PRE_RESTORE_PREFIX);
@@ -90,6 +128,7 @@ class EvoBackupManager
             $saved = $this->store->ensureDir() && call_user_func($preRestore, $this->store->dir() . $name);
         }
         if (!$saved) {
+            fclose($stream);
             $result['pre_restore_failed'] = true;
             return $result;
         }
@@ -104,9 +143,6 @@ class EvoBackupManager
         $keep = $this->getKeptSettings();
         $this->extendTimeLimit();
 
-        $stream = fopen('php://memory', 'w+b');
-        fwrite($stream, $sql);
-        rewind($stream);
         foreach (EvoSqlDump::statements($stream) as $number => $statement) {
             if (preg_match(
                 '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',

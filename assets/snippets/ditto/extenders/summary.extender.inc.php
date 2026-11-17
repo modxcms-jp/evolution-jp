@@ -18,4 +18,5 @@ $summaryExtender = new dittoSummary(
 );
 
 $placeholders['summary'] = ['introtext,content', [$summaryExtender, 'summary']];
+$placeholders['summary_cdata'] = ['introtext,content', [$summaryExtender, 'summaryCdata']];
 $placeholders['link'] = ['id,introtext,content', [$summaryExtender, 'link']];

@@ -29,6 +29,11 @@ class dittoSummary
         );
     }
 
+    public function summaryCdata($resource)
+    {
+        return ditto::cdata($this->summary($resource));
+    }
+
     public function link($resource)
     {
         $url = (new truncate())->link($resource, $this->trunc, $this->splitter, $this->length, $this->splitter);

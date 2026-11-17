@@ -36,7 +36,7 @@ if (!function_exists('dittoFormatXmlTpl')) {
         <title>[+xml_pagetitle+]</title>
         <link>[(site_url)][~[+id+]~]</link>
         <guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
-        <summary><![CDATA[ [+introtext+] ]]></summary>
+        <summary><![CDATA[ [+introtext_cdata+] ]]></summary>
         <lastmod>[+xml_editedon:date=`%Y-%m-%dT%H:%M:%S`+]</lastmod>
         <author>[+xml_author+]</author>
         [+tags+]
@@ -92,6 +92,7 @@ evo()->documentObject['contentType'] = 'application/xml';
 $placeholders['*'] = 'xml_parameters';
 $placeholders['xml_pagetitle'] = ['pagetitle', 'xml_pagetitle'];
 $placeholders['xml_author'] = ['createdby', 'xml_author'];
+$placeholders['introtext_cdata'] = ['introtext', 'dittoIntrotextCdata'];
 
 
 
@@ -109,6 +110,12 @@ if (!function_exists('xml_parameters')) {
 if (!function_exists('xml_pagetitle')) {
     function xml_pagetitle($resource) {
         return ditto::xmlText($resource['pagetitle']);
+    }
+}
+
+if (!function_exists('dittoIntrotextCdata')) {
+    function dittoIntrotextCdata($resource) {
+        return ditto::cdata(ditto::relToAbs($resource['introtext'] ?? '', MODX_SITE_URL));
     }
 }
 

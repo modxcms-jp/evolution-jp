@@ -6,7 +6,8 @@ require_once __DIR__ . '/db_tables.class.inc.php';
  * ダンプ（表の構造と中身を SQL の文として並べたテキスト）を書く・読む。
  *
  * 書く側と読む側は、次の約束を共有する。
- * - 値には生の改行を入れない（改行・CR は db()->escape() で \n・\r になり、1 件の INSERT が 1 行に収まる）。
+ * - 値には生の改行を入れない（改行・CR は db()->escape() で \n・\r になる）。
+ * - 1 つの INSERT は複数の行のデータを持ち、データ 1 行ごとに改行する。途中の行は「),」、最後の行だけ「);」で終わる。
  * - 文は「;」で行を終える。読む側は「;」の後に空白とタブだけを挟んで改行が来たところで文を分ける。
  * mysqldump の出力（--skip-triggers。DELIMITER を含まないもの）も、この約束で読める。
  */
@@ -14,6 +15,10 @@ final class EvoSqlDump
 {
     private const LF = "\n";
     private const FLUSH_BYTES = 1048576;
+    // 1 つの INSERT の大きさの上限。mysqldump の既定の net_buffer_length（1MB − 2KB）と同じ値にし、
+    // max_allowed_packet が 1MB の DB へ戻しても入るようにする。書く DB の max_allowed_packet が小さければそちらに合わせる
+    private const STATEMENT_BYTES = 1046528;
+    private const PACKET_MARGIN = 1024;
 
     /**
      * $tables（接頭辞の付いた表の名前）のダンプを $stream に書く。このサイトの表でない名前は飛ばす。
@@ -46,6 +51,7 @@ final class EvoSqlDump
             '-- ',
         ];
         $ok = self::put($stream, implode($lf, $header));
+        $limit = self::statementLimit();
 
         foreach (EvoDbTables::names() as $table) {
             if (!$ok) {
@@ -78,6 +84,8 @@ final class EvoSqlDump
 
             $output = '';
             $isSettings = $table === EvoDbTables::name('system_settings');
+            $head = "{$lf}INSERT INTO `{$table}` VALUES{$lf}";
+            $statementBytes = 0;
             $rs = db()->select('*', "`{$table}`");
             while ($ok && ($row = db()->getRow($rs))) {
                 if ($isSettings) {
@@ -87,11 +95,26 @@ final class EvoSqlDump
                 foreach ($row as $value) {
                     $values[] = $value === null ? 'NULL' : "'" . db()->escape((string) $value) . "'";
                 }
-                $output .= "{$lf}INSERT INTO `{$table}` VALUES (" . implode(',', $values) . ');' . $lf;
+                $tuple = '(' . implode(',', $values) . ')';
+                // 上限を超えるなら今の文を閉じて次の文にする（1 行だけで上限を超える行は、その行だけの文になる）
+                if ($statementBytes > 0 && $limit < $statementBytes + strlen($tuple) + 2) {
+                    $output .= ';' . $lf;
+                    $statementBytes = 0;
+                }
+                if ($statementBytes === 0) {
+                    $output .= $head . $tuple;
+                    $statementBytes = strlen($head) + strlen($tuple);
+                } else {
+                    $output .= ',' . $lf . $tuple;
+                    $statementBytes += strlen($tuple) + 2;
+                }
                 if (self::FLUSH_BYTES < strlen($output)) {
                     $ok = self::put($stream, $output);
                     $output = '';
                 }
+            }
+            if ($statementBytes > 0) {
+                $output .= ';' . $lf;
             }
             if ($ok) {
                 $ok = self::put($stream, $output);
@@ -189,6 +212,16 @@ final class EvoSqlDump
             $statement = ltrim($statement);
         }
         return $statement;
+    }
+
+    // 1 つの INSERT の大きさの上限
+    private static function statementLimit(): int
+    {
+        $packet = (int) db()->getValue('SELECT @@max_allowed_packet');
+        if ($packet <= self::PACKET_MARGIN) {
+            return self::STATEMENT_BYTES;
+        }
+        return min(self::STATEMENT_BYTES, $packet - self::PACKET_MARGIN);
     }
 
     private static function createStatement(string $table): string

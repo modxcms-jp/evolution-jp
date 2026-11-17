@@ -524,11 +524,8 @@ class ditto
 
     static function xmlText($text)
     {
-        $charset = evo()->config('modx_charset') ?: 'UTF-8';
-        return htmlspecialchars(
-            html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, $charset),
-            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
-            $charset
+        return self::xmlEscape(
+            html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset') ?: 'UTF-8')
         );
     }
 
@@ -544,6 +541,16 @@ class ditto
             ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
             evo()->config('modx_charset') ?: 'UTF-8'
         );
+    }
+
+    // ---------------------------------------------------
+    // Function: cdata
+    // Value put inside <![CDATA[ ]]>: a "]]>" in it is split so that it does not end the section
+    // ---------------------------------------------------
+
+    static function cdata($value)
+    {
+        return str_replace(']]>', ']]]]><![CDATA[>', (string)$value);
     }
 
     // ---------------------------------------------------
@@ -1308,7 +1315,7 @@ class ditto
     // Function: relToAbs
     // Convert relative urls to absolute URLs
     // ---------------------------------------------------
-    function relToAbs($text, $base)
+    static function relToAbs($text, $base)
     {
         return preg_replace(
             '#(href|src)="([^:"]*)"#',

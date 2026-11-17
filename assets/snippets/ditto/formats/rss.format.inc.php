@@ -57,7 +57,7 @@ if (!function_exists('dittoRssTpl')) {
     <item>
         <title>[+rss_pagetitle+]</title>
         <link>[+url+]</link>
-        <description><![CDATA[ [+summary:strip+] ]]></description>
+        <description><![CDATA[ [+summary_cdata:strip+] ]]></description>
         <pubDate>[+rss_date+]</pubDate>
         <guid isPermaLink="true">[+url+]</guid>
         <dc:creator>[+rss_author+]</dc:creator>
