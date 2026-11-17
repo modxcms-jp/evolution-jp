@@ -70,7 +70,7 @@ if (!class_exists('tagging')) {
             return $this->keyTags(array_merge($tags1, $tags2));
         }
 
-        // tag => tag, keyed in lower case unless caseSensitive (empty tags are dropped)
+        // tag => tag, keyed in lower case unless caseSensitive
         private function keyTags($tags)
         {
             $kTags = [];

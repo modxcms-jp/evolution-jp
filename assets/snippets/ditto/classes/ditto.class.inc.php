@@ -1034,7 +1034,7 @@ class ditto
         if (!$docGroups) {
             return "({$private}=0)";
         }
-        return sprintf('(%s=0 OR dg.document_group IN (%s))', $private, implode(',', $docGroups));
+        return sprintf('(%s=0 OR dg.document_group IN (%s))', $private, implode(',', array_map('intval', $docGroups)));
     }
 
     // ---------------------------------------------------
@@ -1078,9 +1078,10 @@ class ditto
     // Build a URL with regard to Ditto ID
     // ---------------------------------------------------
 
-    static function buildURL($args, $id = false)
+    static function buildURL($args, $id = false, $dittoIdentifier = false)
     {
         global $dittoID;
+        $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = [];
         foreach (getv() as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {

@@ -5,7 +5,8 @@ if (!defined('MODX_BASE_PATH')) {
 
 /*
  * Ditto: aggregates documents to create blogs, article/news collections, and more.
- * Parameters and placeholders: see README.md in this directory.
+ * Parameters and placeholders:
+ * https://github.com/modxcms-jp/evolution-jp/blob/main/assets/snippets/ditto/README.md
  *
  * Author:
  *      Mark Kaplan for MODX CMF
