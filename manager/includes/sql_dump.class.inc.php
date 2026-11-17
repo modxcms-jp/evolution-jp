@@ -158,14 +158,23 @@ final class EvoSqlDump
      */
     public static function tableOf(string $statement): string
     {
+        $name = '(?:`((?:[^`]|``)+)`|([0-9a-zA-Z_$]+))';
         if (!preg_match(
-            '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
+            '/^(?:INSERT(?:\s+(?:LOW_PRIORITY|DELAYED|HIGH_PRIORITY))?(?:\s+IGNORE)?\s+INTO'
+            . '|REPLACE(?:\s+(?:LOW_PRIORITY|DELAYED))?\s+INTO'
+            . '|DROP\s+(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+EXISTS)?'
+            . '|CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+NOT\s+EXISTS)?'
+            . '|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+(?:IGNORE\s+)?TABLE)\s*'
+            . '(?:' . $name . '\s*\.\s*)?' . $name . '/i',
             $statement,
             $m
         )) {
             return '';
         }
-        return $m[1];
+        if (isset($m[3]) && $m[3] !== '') {
+            return str_replace('``', '`', $m[3]);
+        }
+        return $m[4] ?? '';
     }
 
     /**

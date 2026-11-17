@@ -140,8 +140,8 @@ if (sessionv('result_msg')) {
             $restoreHtml = sprintf(
                 '<div class="errmsg">%s</div>',
                 evo()->parseText(lang('bkmgr_restore_prefix_mismatch'), [
-                    'dump_prefix' => hsc(($restoreResult['dump_prefix'] ?? '') !== '' ? $restoreResult['dump_prefix'] : '?'),
-                    'site_prefix' => hsc(db()->table_prefix),
+                    'dump_prefix' => hsc(isset($restoreResult['dump_prefix']) ? "'{$restoreResult['dump_prefix']}'" : '?'),
+                    'site_prefix' => hsc("'" . db()->table_prefix . "'"),
                     'tables'      => hsc(implode(', ', array_slice($foreignTables, 0, 5)) . (count($foreignTables) > 5 ? ', …' : '')),
                 ])
             );

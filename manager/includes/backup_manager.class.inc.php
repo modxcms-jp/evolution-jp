@@ -115,7 +115,7 @@ class EvoBackupManager
             'pre_restore_failed' => false,
             'read_failed'        => false,
             'refused'            => '',
-            'dump_prefix'        => '',
+            'dump_prefix'        => null,
             'foreign_tables'     => [],
         ];
 
@@ -126,6 +126,7 @@ class EvoBackupManager
             return $result;
         }
 
+        $this->extendTimeLimit();
         $inspected = EvoSqlDump::inspect($stream);
         if ($inspected['delimiter']) {
             fclose($stream);
@@ -195,29 +196,41 @@ class EvoBackupManager
         return $result;
     }
 
-    // このサイトの接頭辞で始まらない表の名前
+    // 本体の表の名前（接頭辞を除いたもの）。ダンプの接頭辞を見分けるのに使う
+    private const CORE_TABLES = ['system_settings', 'site_content', 'manager_users', 'user_attributes', 'site_templates'];
+
+    /**
+     * このサイトの表でない表の名前。このサイトの接頭辞で始まらない表と（大文字小文字は問わない）、
+     * 本体の表の名前で終わるのに「このサイトの接頭辞 + 本体の表の名前」でない表
+     * （接頭辞が重なるダンプ、例えばこのサイトが modx_ でダンプが modx_old_。接頭辞が空のサイトへの modx_ のダンプ）
+     */
     private static function foreignTables(array $tables): array
     {
         $prefix = (string) db()->table_prefix;
-        if ($prefix === '') {
-            return [];
-        }
         return array_values(array_filter($tables, function ($table) use ($prefix) {
-            return strpos($table, $prefix) !== 0;
+            if (strncasecmp($table, $prefix, strlen($prefix)) !== 0) {
+                return true;
+            }
+            foreach (self::CORE_TABLES as $core) {
+                if (strcasecmp(substr($table, -strlen($core)), $core) === 0 && strcasecmp($table, $prefix . $core) !== 0) {
+                    return true;
+                }
+            }
+            return false;
         }));
     }
 
-    // 知らせに出すダンプの接頭辞。本体の表の名前（*system_settings など）から推し量れなければ ''
-    private static function dumpPrefix(array $tables): string
+    // 知らせに出すダンプの接頭辞。本体の表の名前から推し量れなければ null
+    private static function dumpPrefix(array $tables)
     {
-        foreach (['system_settings', 'site_content', 'manager_users'] as $core) {
+        foreach (self::CORE_TABLES as $core) {
             foreach ($tables as $table) {
-                if (substr($table, -strlen($core)) === $core) {
+                if (strcasecmp(substr($table, -strlen($core)), $core) === 0) {
                     return substr($table, 0, -strlen($core));
                 }
             }
         }
-        return '';
+        return null;
     }
 
     // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）

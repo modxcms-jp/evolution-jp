@@ -147,7 +147,8 @@ function cli_mysql_defaults_file()
 
 /**
  * @param array $options ['routines' => false] で --routines --triggers の代わりに --skip-triggers を付ける
- *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）
+ *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）。
+ *                       ['noData' => true] で --no-data --skip-add-drop-table を付ける（構造だけ、DROP なし）
  */
 function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTables = [], $quiet = false, $options = [])
 {
@@ -260,7 +261,7 @@ function cli_export_snapshot_mysqldump($path, array $tables, array $structureOnl
     $dataTables = array_values(array_diff($tables, $structureOnly));
     $structureTables = array_values(array_intersect($tables, $structureOnly));
     $tmp = $path . '.' . uniqid('part', true) . '.tmp';
-    $structureTmp = $tmp . '.structure';
+    $structureTmp = $path . '.' . uniqid('part', true) . '.structure.tmp';
     register_shutdown_function(function () use ($tmp, $structureTmp) {
         foreach ([$tmp, $structureTmp] as $file) {
             if (is_file($file)) {
@@ -277,20 +278,22 @@ function cli_export_snapshot_mysqldump($path, array $tables, array $structureOnl
     if ($structureTables) {
         cli_export_database('mysqldump', $structureTmp, $structureTables, true, ['routines' => false, 'noData' => true]);
         $in = fopen($structureTmp, 'rb');
-        $out = fopen($tmp, 'ab');
-        if ($in === false || $out === false) {
+        $out = $in === false ? false : fopen($tmp, 'ab');
+        if ($out === false) {
+            if ($in !== false) {
+                fclose($in);
+            }
             return false;
         }
-        while (($line = fgets($in)) !== false) {
+        $ok = true;
+        while ($ok && ($line = fgets($in)) !== false) {
             if (strpos($line, 'CREATE TABLE `') === 0) {
                 $line = 'CREATE TABLE IF NOT EXISTS `' . substr($line, strlen('CREATE TABLE `'));
             }
-            if (fwrite($out, $line) !== strlen($line)) {
-                return false;
-            }
+            $ok = fwrite($out, $line) === strlen($line);
         }
         fclose($in);
-        if (!fclose($out)) {
+        if (!fclose($out) || !$ok) {
             return false;
         }
         unlink($structureTmp);

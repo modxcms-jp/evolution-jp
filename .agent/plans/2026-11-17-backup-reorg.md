@@ -102,6 +102,7 @@
 - 2026-11-18 / yamamoto（Claude が起案。S6b の区切り）: 1 つの `INSERT` の大きさは、`mysqldump` の既定の `net_buffer_length`（1,046,528 バイト。1MB − 2KB で、`max_allowed_packet` が 1MB の DB へ戻しても入る）に合わせ、それを超えたら次の文にする（1 行だけで超える行は、その 1 行で 1 つの文）。書く DB の `max_allowed_packet` が小さいときに超えないよう、上限は「`min(1,046,528, max_allowed_packet の値 − 余白 1KB)`」にする（自己レビューで 1MB ちょうどでは 1MB の DB へ戻せないと分かり直した）（書くときに `SELECT @@max_allowed_packet` を 1 回だけ問い合わせる）。1 行がそれだけで `max_allowed_packet` を超える行は、修正前もその行を戻せなかったので、扱いは変えない。
 - 2026-11-18 / 本人の決定: S7 で、接頭辞が今のサイトと違うダンプは、何も書き換えずに断り、ダンプの接頭辞とこのサイトの接頭辞を示して理由を知らせる（置き換えて取り込む機能は作らない）。
 - 2026-11-18 / 本人の決定: S7 で、`DELIMITER`（トリガー・ストアドプロシージャー）を含むダンプは、復元で何も書き換えずに断り、理由（`mysql` コマンドで戻す）を知らせる。`db:export` の既定（`--routines --triggers`）は変えない。
+- 2026-11-18 / yamamoto（Claude が起案。S7 の自己レビューから）: 接頭辞の判定は「このサイトの接頭辞で始まるか」に加えて、本体の表の名前（`system_settings`・`site_content`・`manager_users`・`user_attributes`・`site_templates`）で終わる表が「このサイトの接頭辞 + その名前」かを見る（`modx_` のサイトへの `modx_old_` のダンプと、接頭辞が空のサイトへの `modx_` のダンプを断るため）。接頭辞は大文字小文字を問わず比べ、表の名前は backtick で囲んだものは丸ごと取る（接頭辞に `-` などを含むサイトが自分のダンプを戻せるように）。`db:import` の復元の前の控え（`mysqldump`。ログの表のデータを含む）は、管理画面の控え（ログの表は構造だけ）と中身が違うまま残す（S7 は `db:backup` だけをそろえる範囲。控えから戻すと管理ログが取り込み前まで戻る程度で、軽い）。
 
 ## Outcomes & Retrospective
 
@@ -247,7 +248,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - 依存: #1560 のマージ（M0 で確かめる）。
 - 作るクラスの公開メソッド（呼び出し元はこの計画のファイルだけ）:
   - `EvoDbTables`: `names(): array`、`status(): array`、`name(string $short): string`（接頭辞を除いた名前に必ず接頭辞を付ける。不正なら `''`）、`resolve(string $input): string`（利用者の入力を、このサイトに在る表の名前にする。無ければ `''`）、`resolveWithDb(string $input): string`、`exists(string $table): bool`（接頭辞の付いた完全な名前）、`truncatable(): array`、`isOwn(string $name): bool`
-  - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と、先頭のコメントを除いた文を返す。番号は空の文やコメントだけの文も数える）。`write()` の options は `drop`・`structureOnly` の 2 つ（「コンテンツのみ」の表の絞り込みは呼び出し側で行う。Decision Log の S3 の項）、`tablesIn($stream): array`（下読み。S7）
+  - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と、先頭のコメントを除いた文を返す。番号は空の文やコメントだけの文も数える）。`write()` の options は `drop`・`structureOnly` の 2 つ（「コンテンツのみ」の表の絞り込みは呼び出し側で行う。Decision Log の S3 の項）、`tableOf(string $statement): string` と `inspect($stream): array`（下読み。S7。対象の表の名前と `DELIMITER` を含むか）
   - `EvoSnapshotStore`: `dir()`、`ensureDir()`、`normalizeName()`、`isValidFilename()`、`autoFilename($prefix = '')`、`path($name)`、`files()`、`prune($max)`、`counts()`（引数なし。自動の名前とそれ以外の件数を返し、上限は呼び出し側が出す）、`static defaultDir()`、`denyDirs()`、`static protect($dir)`、`__construct($configured = null)`（S5。保存の前の値を渡して確かめる）、`problem()`（S5。`''`・`OUTSIDE`・`SHARED`・`UNWRITABLE`。保存のときの確かめと、実行時に断る理由。計画の `checkPath()` をこの形にした）、`static normalizeValue($value)`（S5。保存と読むときの値の規則）、`guardedDirs()`（S5。ファイルブラウザーとバインドの守る場所）、定数 `HTACCESS`・`KEEP`・`PRE_RESTORE_KEEP`・`AUTO_NAME_PATTERN`・`PRE_RESTORE_PREFIX`
   - `EvoBackupManager`: `store()`、`createSnapshot($name = '', array $options = [])`、`restoreFile($path, $preRestore = null)`（戻り値の配列は今の `restore()` と同じキー）
 - CLI の `mysqldump` を呼ぶ処理（`cli_export_database()`・`cli_export_database_file()`・`cli_mysql_defaults_file()`）は CLI だけのものなので `cli-helpers.php` に残し、`php` の書き手を `EvoSqlDump` に任せる。

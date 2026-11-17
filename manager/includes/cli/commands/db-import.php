@@ -53,8 +53,8 @@ if ($result['refused'] === 'prefix') {
     $tables = array_slice($result['foreign_tables'], 0, 5);
     cli_usage(sprintf(
         'Error: the dump has tables without this site\'s prefix (dump prefix: %s, this site: %s, tables: %s); nothing was changed.',
-        $result['dump_prefix'] !== '' ? $result['dump_prefix'] : '?',
-        db()->table_prefix,
+        $result['dump_prefix'] !== null ? "'{$result['dump_prefix']}'" : '?',
+        "'" . db()->table_prefix . "'",
         implode(', ', $tables) . (count($result['foreign_tables']) > 5 ? ', ...' : '')
     ));
 }
