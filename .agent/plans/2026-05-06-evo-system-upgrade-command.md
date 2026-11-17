@@ -46,8 +46,8 @@
 - 2026-10-31 / yamamoto（Claude が起案）: 新しい `manager/`・`install/` へ引き継ぐサイト固有のファイルは、決まった一覧で持つ。一覧は `manager/includes/config.inc.php`、`manager/includes/extra.config.php`、`manager/.htaccess`、`manager/.user.ini`、`manager/media/style/*/config.php`、`install/install-config.php` で、あるものだけをコピーする。一覧に無く、新しい版にも無い古い `manager/`・`install/` のファイルは引き継がない。かわりに、確認の画面と完了の表示で一覧にして、バックアップの場所を示す。代替案の「新しい版に無いファイルをすべて引き継ぐ」は、古い版のコアのファイルが残り、丸ごと入れ替える意味が無くなるので採らない。
 - 2026-10-31 / yamamoto（Claude が起案）: 引き継ぐファイルは、サイトへ移す前に、展開先（`package/manager/`・`package/install/`）へコピーしておく。サイトに `config.inc.php` の無い `manager/` が置かれる時間を作らないためである。展開先での準備はサイトを変えないので、ジャーナルにも記録しない。入れ替えは `manager/` を先に、`install/` を後に行う。
 - 2026-10-31 / yamamoto（Claude が起案）: ディレクトリの入れ替えは、コピーではなく同じファイルシステム内の `rename()` で行う。入れ替えが一瞬で済み、戻すときも `rename()` を逆にたどるだけで済む。作業用の領域（`temp/upgrade/`）がサイトと別のファイルシステムにあると `rename()` が失敗するので、事前の確認で `stat()` の `dev` を比べて止める。
-- 2026-10-31 / yamamoto（Claude が起案）: DB のバックアップは、`EvoBackupManager` の保存先へ `pre-upgrade-<自動の名前>.sql` として書く。管理画面のバックアップ管理からそのまま戻せ、`prune()` の対象（自動の名前と `pre-restore-`）にも入らない。書き出しは `manager/includes/cli/commands/db-backup.php` と同じく `cli_export_database_file()` を使う。失敗すると `exit` するが、下の終了時の処理で後片付けする。旧計画の「`temp/backup/migrate/` に SQL も置く」は取り消す。
-- 2026-10-31 / yamamoto（Claude が起案）: ファイルのバックアップ・ダウンロードした zip・展開先は、すべて `temp/upgrade/<YYYYmmdd-HHMMSS>-<ランダムな 8 文字>/` の下に置く。`temp/upgrade/.htaccess` には `EvoBackupManager::HTACCESS` と同じ内容を書く。`temp/.htaccess` とあわせて二重に守り、名前を推測しにくくする。`assets/` のバックアップは、上書きするファイルだけを取る。旧計画の「`assets/images/`・`assets/files/` を除いて丸ごと複写」は取り消す。
+- 2026-10-31 / yamamoto（Claude が起案）: DB のバックアップは、`EvoSnapshotStore` の保存先（#1561 で `EvoBackupManager` から分けた）へ `pre-upgrade-<自動の名前>.sql` として書く。管理画面のバックアップ管理からそのまま戻せ、`prune()` の対象（自動の名前と `pre-restore-`）にも入らない。書き出しは `manager/includes/cli/commands/db-backup.php` と同じく `cli_export_database_file()` を使う。失敗すると `exit` するが、下の終了時の処理で後片付けする。旧計画の「`temp/backup/migrate/` に SQL も置く」は取り消す。
+- 2026-10-31 / yamamoto（Claude が起案）: ファイルのバックアップ・ダウンロードした zip・展開先は、すべて `temp/upgrade/<YYYYmmdd-HHMMSS>-<ランダムな 8 文字>/` の下に置く。`temp/upgrade/.htaccess` には `EvoSnapshotStore::HTACCESS` と同じ内容を書く（`EvoSnapshotStore::protect()` が使える）。`temp/.htaccess` とあわせて二重に守り、名前を推測しにくくする。`assets/` のバックアップは、上書きするファイルだけを取る。旧計画の「`assets/images/`・`assets/files/` を除いて丸ごと複写」は取り消す。
 - 2026-10-31 / yamamoto（Claude が起案）: ロールバックはジャーナル方式とする。操作は `dir_moved`・`file_overwritten`・`file_created`・`dir_created` の 4 種で、戻し方は各操作の逆に限る。記録する時点は次のとおり。DB は自動では戻さない（ファイルを戻せば、古いコードは古い DB でそのまま動くため）。
   - `rename()` は一度で終わるので、成功したあとに記録する。
   - ファイルの上書きと作成は、途中まで書かれたファイルも戻せるように、操作の前に記録する。そのため戻し方は冪等にする。`file_overwritten` はバックアップから書き戻し、`file_created` はファイルがあれば消す。
@@ -85,7 +85,7 @@
 - `manager/includes/cli/bootstrap.php`: `define-path.php` で `MODX_BASE_PATH`（サイトのルート、末尾 `/` 付き）を定義し、`DocumentParser` を作って設定を読む。`MODX_CORE_PATH` は、その中で `manager/includes/initialize.inc.php` が定義する。
 - `manager/includes/cli/cli-helpers.php`: `cli_out()`・`cli_err()`・`cli_usage($message, $code = 1)`（表示して `exit`）・`cli_export_database_file($driver, $path, $fullTables, $options)`。
 - `manager/includes/cli/commands/db-backup.php`: DB のバックアップの既存の作り。
-- `manager/includes/backup_manager.class.inc.php`: `EvoBackupManager`。`ensureDir()`、`dir()`、`autoFilename($prefix)`（`<prefix><日時>-<版>.sql`）、定数 `HTACCESS`。
+- `manager/includes/snapshot_store.class.inc.php`: `EvoSnapshotStore`。`ensureDir()`、`dir()`、`autoFilename($prefix)`（`<prefix><日時>-<版>.sql`）、`static protect($dir)`、定数 `HTACCESS`（#1561 で `EvoBackupManager` から移した。`EvoBackupManager` は作成と復元の手順で、`store()` で `EvoSnapshotStore` を返す）。
 - `manager/includes/migrator.class.inc.php`: `EvoMigrator`（`hasPending()`）。
 - `manager/includes/version.inc.php`: 版。
 - `manager/includes/update_guard.php`: 未適用のマイグレーションがあるときの 503。
@@ -143,7 +143,7 @@ CLI だけの変更で、`executeParser()`・`prepareResponse()`・`parseDocumen
    - 今の `manager/`・`install/` にあって、新しい版にも引き継ぐ一覧にも無いファイルを数える。
    - 次を表示する。今の版 → 新しい版、取得元、差し替えの対象、引き継ぐファイル、引き継がないファイル（多ければ先頭の 20 件と件数）、バックアップの置き場所。
    - `--yes` が無ければ `Continue? [y/N]` と聞く。`y`・`yes` 以外（入力の終わりを含む）なら、`Aborted.` と表示して終わる。
-8. **DB のバックアップを取る。** `EvoBackupManager` の保存先へ `pre-upgrade-<自動の名前>.sql` として書き出す。続けて、開始を記録する。
+8. **DB のバックアップを取る。** `EvoSnapshotStore` の保存先へ `pre-upgrade-<自動の名前>.sql` として書き出す。続けて、開始を記録する。
    - 形は `evo()->logEvent(0, 1, 'system:upgrade started', 'system:upgrade', ['from' => <今の版>, 'to' => <新しい版>, 'source' => <取得元>, 'db_backup' => <パス>, 'backup_dir' => <パス>])`。
    - ここで状態を `swapping` にする。
 9. **差し替える。** ここから先の操作は、すべてジャーナルに記録する。`cli_usage()` と `exit` は呼ばない。失敗は返り値で確かめ、`RuntimeException` を投げる。
@@ -321,7 +321,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 
 - GitHub REST API: `GET https://api.github.com/repos/modxcms-jp/evolution-jp/releases?per_page=100` と `GET .../releases/tags/<tag>`。使う項目は `tag_name`・`prerelease`・`assets[].name`・`assets[].size`・`assets[].browser_download_url`・`assets[].digest`。`User-Agent` が要る。
 - 配布 zip: `.github/workflows/release.yml` の作り（`git archive`、トップのディレクトリ無し、名前は `evo-<tag>.zip`）。作り方が変わったら、このコマンドの展開の確認も合わせて変える。
-- `EvoBackupManager`（`manager/includes/backup_manager.class.inc.php`）: DB のバックアップの保存先、名前、保護の `.htaccess`。
+- `EvoSnapshotStore`（`manager/includes/snapshot_store.class.inc.php`）: DB のバックアップの保存先、名前、保護の `.htaccess`。
 - `EvoMigrator::hasPending()`（`manager/includes/migrator.class.inc.php`）: 事前の確認で使う。
 - `manager/includes/update_guard.php` とマイグレーション（`assets/docs/migrations.md`）: 差し替えたあと、アップデーターを実行するまで公開側を止める役割。このコマンドからは呼ばない。
 - インストーラ（`install/`）: `config.inc.php` の有無で新規とアップデートを分ける。引き継ぐファイルを先に置く順序は、これに合わせたもの。
