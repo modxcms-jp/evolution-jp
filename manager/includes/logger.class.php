@@ -19,7 +19,8 @@ class EvoLogger
     private static string $runtimeTraceId = '';
     private static array $recentEvents = [];
 
-    private array $levels = [
+    /** 重い順(RFC 5424 / PSR-3) */
+    public const LEVELS = [
         self::EMERGENCY,
         self::ALERT,
         self::CRITICAL,
@@ -120,7 +121,7 @@ class EvoLogger
     private function normalizeLevel($level): string
     {
         $level = strtolower((string)$level);
-        if (!in_array($level, $this->levels, true)) {
+        if (!in_array($level, self::LEVELS, true)) {
             return self::INFO;
         }
         return $level;
