@@ -244,7 +244,7 @@ function eForm($modx, $params)
                             }
                             break;
                         case "email":
-                            if (strlen($value) > 0 && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                            if (strlen($value) > 0 && (filter_var($value, FILTER_VALIDATE_EMAIL) === false || strpbrk($value, "\",[]") !== false)) {
                                 $vMsg[count($vMsg)] = isset($formats[$name][4]) ? $formats[$name][4] : $desc . $_lang["ef_invalid_email"];
                                 $rClass[$name] = $invalidClass;
                             }
@@ -489,7 +489,7 @@ function eForm($modx, $params)
                     $modx->mail->FromName = $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $report;
-                    AddAddressToMailer($modx->mail, 'to', $fields['email']);
+                    $modx->mail->AddAddress($fields['email']);
                     AttachFilesToMailer($modx->mail, $attachments);
                     if (!$modx->mail->send()) {
                         return 'CCSender: ' . $_lang['ef_mail_error'] . $modx->mail->ErrorInfo;
@@ -506,7 +506,7 @@ function eForm($modx, $params)
                     $modx->mail->FromName = ($autoSenderName) ? $autoSenderName : $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $autotext;
-                    AddAddressToMailer($modx->mail, 'to', $fields['email']);
+                    $modx->mail->AddAddress($fields['email']);
                     if (!$modx->mail->send()) {
                         return 'AutoText: ' . $_lang['ef_mail_error'] . $modx->mail->ErrorInfo;
                     }
@@ -633,13 +633,19 @@ function eForm($modx, $params)
 # スキームは見ない（TLS を手前で終える構成では site_url が http のことがある）
 function efIsSameHostRequest()
 {
-    $source = serverv('HTTP_ORIGIN', '') ?: serverv('HTTP_REFERER', '');
-    if (!is_string($source) || $source === '') {
+    $site = parse_url(config('site_url', MODX_SITE_URL));
+    if (empty($site['host'])) {
         return false;
     }
-    $from = parse_url($source);
-    $site = parse_url(config('site_url', MODX_SITE_URL));
-    if (empty($from['host']) || empty($site['host'])) {
+    // Origin が "null" など host を取れないときは Referer を見る
+    $from = [];
+    foreach ([serverv('HTTP_ORIGIN', ''), serverv('HTTP_REFERER', '')] as $source) {
+        $from = is_string($source) && $source !== '' ? parse_url($source) : [];
+        if (!empty($from['host'])) {
+            break;
+        }
+    }
+    if (empty($from['host'])) {
         return false;
     }
     return strtolower($from['host']) === strtolower($site['host'])
@@ -1057,6 +1063,18 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
         return false;
     }
 
+    // 知らない #FILTER のルールは、値を変えず警告を 1 回だけ残す
+    if ($cmd === '#FILTER') {
+        $filterCmd = strtoupper(trim(explode(' ', trim($param), 2)[0]));
+        if (!in_array($filterCmd, ['#REGEX', '#LIST'], true)) {
+            evo()->logEvent(0, 2, "eForm: 知らない #FILTER のルールです: {$filterCmd}", 'eForm', [
+                'field' => $fld[0] ?? '',
+                'rule' => $fld[5],
+            ]);
+            return $value;
+        }
+    }
+
     $valueIsArray = is_array($value);
     $valList = $valueIsArray ? $value : [$value];
     $errMsg = '';
@@ -1207,8 +1225,6 @@ function filterEformValue($value, $param)
             $value = str_replace($src, $dst, $value);
             break;
 
-        default:
-            evo()->logEvent(0, 2, "eForm: 知らない #FILTER のルールです: {$cmd}", 'eForm', ['rule' => $param]);
     }
     return $value;
 }

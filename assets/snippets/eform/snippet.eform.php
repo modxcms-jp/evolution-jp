@@ -9,6 +9,7 @@ $snipPath = base_path() . "assets/snippets/{$snip_dir}/";
 
 if (evo()->isBackend()) return ''; // don't go any further when inside manager
 
+// eform.install_base.tpl の @version とそろえる
 $version = '1.5.0';
 include("{$snipPath}eform.inc.php");
 

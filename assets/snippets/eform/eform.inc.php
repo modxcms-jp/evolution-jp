@@ -24,7 +24,7 @@ foreach (['mobile', 'mobiletext', 'sendAsHtml', 'reportAbuse', 'sendirect'] as $
         $removedParams[] = $removedName;
     }
 }
-if ($removedParams && is_post()) {
+if ($removedParams && is_post() && postv('formid') === $formid) {
     evo()->logEvent(
         0,
         2,
@@ -79,7 +79,7 @@ $params = [
     'invalidClass' => isset($invalidClass) ? $invalidClass : "invalid",
     'runSnippet' => (isset($runSnippet) && !is_numeric($runSnippet)) ? $runSnippet : '',
     'autoSenderName' => isset($autoSenderName) ? $autoSenderName : '',
-    'version' => isset($version) ? $version : '1.5.0'
+    'version' => isset($version) ? $version : ''
 ];
 
 // PHx 対応: (( )) を [+ +] に直す
