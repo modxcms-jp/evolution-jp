@@ -5,6 +5,49 @@ require_once __DIR__ . '/filesystem.class.inc.php';
 class SystemLogViewer
 {
     private const LOG_NAME_PATTERN = '/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/';
+    /** 重い順(RFC 5424 / PSR-3) */
+    private const LEVELS = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
+    private const MIN_LEVEL_PREFIX = 'min:';
+
+    public static function levels(): array
+    {
+        return self::LEVELS;
+    }
+
+    /**
+     * 重さの絞り込みで受け付ける値。'' は絞り込まない、'error' はその重さだけ、'min:error' はその重さ以上。
+     */
+    public static function levelFilters(): array
+    {
+        $filters = [''];
+        foreach (self::LEVELS as $level) {
+            $filters[] = $level;
+            $filters[] = self::minLevelFilter($level);
+        }
+        return $filters;
+    }
+
+    public static function minLevelFilter(string $level): string
+    {
+        return self::MIN_LEVEL_PREFIX . $level;
+    }
+
+    /**
+     * 記録の重さが絞り込みに合うか。重さの名前が決まった値でない記録(raw など)は、絞り込むと出さない。
+     */
+    public static function matchesLevel(string $filter, string $entryLevel): bool
+    {
+        if ($filter === '') {
+            return true;
+        }
+        if (strpos($filter, self::MIN_LEVEL_PREFIX) !== 0) {
+            return $entryLevel === $filter;
+        }
+
+        $minRank = array_search(substr($filter, strlen(self::MIN_LEVEL_PREFIX)), self::LEVELS, true);
+        $rank = array_search($entryLevel, self::LEVELS, true);
+        return $minRank !== false && $rank !== false && $rank <= $minRank;
+    }
 
     /**
      * ログファイルの一覧。読めないフォルダがあっても止まらず、読めるところを返す。
@@ -472,7 +515,7 @@ class SystemLogViewer
             if ($encoded === false) {
                 $encoded = $line;
             }
-            if ($level !== '' && $entryLevel !== $level) {
+            if (!self::matchesLevel($level, $entryLevel)) {
                 continue;
             }
             if ($source !== '' && $entrySource !== $source) {

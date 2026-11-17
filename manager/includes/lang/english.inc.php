@@ -150,6 +150,8 @@ return [
     "delete_all_system_logs" => 'Delete all',
     "system_log_cleared" => 'Deleted %d system log file(s).',
     "system_log_clear_failed" => '%d file(s) could not be deleted.',
+    "system_log_level_min_error" => 'Error and above',
+    "system_log_level_min_warning" => 'Warning and above',
     "confirm_delete_htmlsnippet" => 'Are you sure you want to delete this Chunk?',
     "confirm_delete_module" => 'Are you sure you want to delete this Module?',
     "confirm_delete_plugin" => 'Are you sure you want to delete this Plugin?',

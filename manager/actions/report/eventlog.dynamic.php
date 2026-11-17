@@ -37,13 +37,13 @@ if (!$isLatest && !$selectedFileInfo && $files) {
 $selectedPath = $isLatest ? '' : SystemLogViewer::resolveFile($logRoot, $selectedFile);
 $fileList = SystemLogViewer::fileList($visibleFiles);
 $years = SystemLogViewer::years($files);
-$level = strtolower(get_strvar('level'));
+$level = to_choicevar(strtolower(get_strvar('level')), SystemLogViewer::levelFilters(), '');
 $source = trim(get_strvar('source'));
 $query = trim(get_strvar('q'));
-$allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
-if (!in_array($level, $allowedLevels, true)) {
-    $level = '';
-}
+$minLevelOptions = [
+    SystemLogViewer::minLevelFilter('error') => lang('system_log_level_min_error', 'エラー以上'),
+    SystemLogViewer::minLevelFilter('warning') => lang('system_log_level_min_warning', '警告以上'),
+];
 $sourceOptions = [
     '' => lang('all', 'All'),
     'MODxMailer request log' => 'MODxMailer',
@@ -353,7 +353,12 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     <?= hsc(lang('type')) ?>
                     <select name="level" id="systemLogLevel">
                         <option value=""><?= hsc(lang('all', 'All')) ?></option>
-                        <?php foreach (array_slice($allowedLevels, 1) as $option) { ?>
+                        <?php foreach ($minLevelOptions as $option => $optionLabel) { ?>
+                            <option value="<?= hsc($option) ?>"<?= $level === $option ? ' selected' : '' ?>>
+                                <?= hsc($optionLabel) ?>
+                            </option>
+                        <?php } ?>
+                        <?php foreach (SystemLogViewer::levels() as $option) { ?>
                             <option value="<?= hsc($option) ?>"<?= $level === $option ? ' selected' : '' ?>>
                                 <?= hsc($option) ?>
                             </option>
