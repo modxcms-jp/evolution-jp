@@ -48,14 +48,15 @@ final class EvoDbTables
     /**
      * 利用者が入力した名前（完全な名前と接頭辞を除いた名前のどちらもありうる）を、このサイトに在る表の名前にする。
      * 完全な名前として在ればそれを、無ければ接頭辞を付けた名前として在ればそれを返す。どちらも無ければ ''
+     * いくつも決めるときは、names() の結果を $names に渡すと一覧を引き直さない
      */
-    public static function resolve(string $input): string
+    public static function resolve(string $input, ?array $names = null): string
     {
         $input = trim($input);
         if (!preg_match(self::NAME_PATTERN, $input)) {
             return '';
         }
-        $names = self::names();
+        $names = $names ?? self::names();
         if (in_array($input, $names, true)) {
             return $input;
         }
