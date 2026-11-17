@@ -63,8 +63,6 @@ function webLoginGeneratePassword($length = 10, $allow_chars = '')
     return substr(implode('', $chars), 0, $length);
 }
 
-// Send new password to the user
-
 // ログイン後の戻り先。権限が無くてログインページへ転送したときは、元の文書を優先する
 function webLoginRefUrl()
 {

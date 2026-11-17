@@ -155,5 +155,4 @@ class convert2utf8mb4 {
 
         return count($tables);
     }
-
 }

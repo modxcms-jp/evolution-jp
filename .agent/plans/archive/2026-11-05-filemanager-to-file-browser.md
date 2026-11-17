@@ -231,10 +231,10 @@ Issue: #1046
 
 関連する計画と Issue:
 
-- `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`: ファイルブラウザを作り直した計画。モーダルの断片と `EvoFileBrowserInit()` の作り、`temp/thumbs/` のサムネイル、`evo/.htaccess` の `Cache-Control: no-cache`（`js/` のモジュールにキャッシュバスターが付かないため）の経緯がある。
+- `.agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md`: ファイルブラウザを作り直した計画。モーダルの断片と `EvoFileBrowserInit()` の作り、`temp/thumbs/` のサムネイル、`evo/.htaccess` の `Cache-Control: no-cache`（`js/` のモジュールにキャッシュバスターが付かないため）の経緯がある。
 - `.agent/plans/archive/2026-11-01-file-browser-kcfinder-extension.md`: 多言語化（`fb_` の言語キーと `js/i18n.js`）、右クリックメニュー、コピー、zip のダウンロード（`lib/ZipService.php`）、画像の編集（`js/overlay.js`）。教訓として「ファイルを読み書きする操作を足すときは、最初から `resolveFile()` と『リンクをたどらない』を前提にする」「ファイル操作の戻り値を確かめ、警告で止まらないようにする（`fbAttempt()`）」がある。M2・M3 の操作はこれに従う。
 - #1043（ツリーにはフォルダだけ）、#1041（選んだファイルまでスクロール）、#1017（移動のダイアログのフォーカス）: どれも閉じている。M4 のツリーの開閉は #1043 の形のツリーに足す。`a=31&select=` の選択は #1041 の `scrollToSelected()` で見える位置に出る。M3 のテキストのダイアログは #1017 と同じく `js/overlay.js` でフォーカスを扱う。
-- `.agent/plans/2026-10-10-manager-input-and-csrf-hardening.md`: `a=31` のサブ操作を CSRF の一覧に入れた経緯。
+- `.agent/plans/archive/2026-10-10-manager-input-and-csrf-hardening.md`: `a=31` のサブ操作を CSRF の一覧に入れた経緯。
 
 実装時の注意（互換性）:
 
@@ -589,7 +589,7 @@ M4 で `files.dynamic.php` を消した後に問題が見つかったときは�
 
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/1046
 - 関連の Issue: #1043、#1041、#1017（いずれも閉じている）
-- 関連の ExecPlan: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`、`.agent/plans/archive/2026-11-01-file-browser-kcfinder-extension.md`、`.agent/plans/2026-10-10-manager-input-and-csrf-hardening.md`
+- 関連の ExecPlan: `.agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md`、`.agent/plans/archive/2026-11-01-file-browser-kcfinder-extension.md`、`.agent/plans/archive/2026-10-10-manager-input-and-csrf-hardening.md`
 - 新しく作るファイル: `manager/media/browser/evo/lib/PathGuard.php`（M1）、`lib/BrowserScope.php`・`lib/PickerScope.php`・`lib/ManageScope.php`・`lib/BrowserView.php`・`js/picker.js`・`js/manage.js`（M2）、`lib/ManageActions.php`・`lib/ChangeLog.php`・`js/textEditor.js`（M3）、`manager/actions/element/file_manager.static.php`（M4）
 - 消すファイル: `manager/actions/element/files.dynamic.php`（M4）
 - PR は段階ごとに分ける。M1〜M3 の PR は `Refs #1046`、M4 の PR で `Closes #1046` にする

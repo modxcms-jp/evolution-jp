@@ -15,7 +15,6 @@ if (!class_exists('Mcc')) {
         var $head;
         var $tabs;
         var $sections;
-        var $fields;
 
         //_______________________________________________________
         function __construct()
@@ -31,8 +30,6 @@ if (!class_exists('Mcc')) {
                 'content' => ['index' => 1, 'name' => 'Content'],
                 'tvs' => ['index' => 2, 'name' => 'TVs']
             ];
-
-            $this->fields = ['content', 'pagetitle', 'longtitle', 'menuindex', 'parent', 'description', 'alias', 'link_attributes', 'introtext', 'template', 'menutitle'];
         }
 
         //_______________________________________________________
@@ -54,11 +51,6 @@ if (!class_exists('Mcc')) {
 
             return $out;
         }
-
-        // Template
-        //_______________________________________________________
-
-        //_______________________________________________________
 
         // Section
         //_______________________________________________________
@@ -105,9 +97,5 @@ if (!class_exists('Mcc')) {
                 'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { for (var p = el.parentElement; p; p = p.parentElement) { if (p.tagName === "TR") { p.style.display = "none"; } } });'
             );
         }
-
-        //_______________________________________________________
-
-        //_______________________________________________________
     }
 }
