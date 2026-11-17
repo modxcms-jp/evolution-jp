@@ -11,8 +11,7 @@ if (!is_file($inputPath)) {
     cli_usage("File not found: {$inputPath}");
 }
 
-$source = file_get_contents($inputPath);
-if ($source === false || $source === '') {
+if (!is_readable($inputPath) || (int) filesize($inputPath) === 0) {
     cli_usage('Error: failed to read SQL file.');
 }
 
@@ -42,8 +41,11 @@ $preRestore = function ($fullPath) use (&$preRestoreSkipped) {
     }
     return cli_export_database_file('mysqldump', $fullPath, $tables, ['routines' => false]);
 };
-$result = $backup->restore($source, $preRestore);
+$result = $backup->restoreFile($inputPath, $preRestore);
 
+if ($result['read_failed']) {
+    cli_usage('Error: failed to read SQL file.');
+}
 if ($result['pre_restore_failed']) {
     cli_usage('Error: failed to save the pre-restore snapshot; nothing was imported.');
 }

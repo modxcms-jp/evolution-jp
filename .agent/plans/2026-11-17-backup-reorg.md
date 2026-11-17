@@ -13,7 +13,8 @@
 - [x] (2026-11-17) S3 ダンプの書く・読むを `EvoSqlDump` にまとめ、`Mysqldumper` を消す（動きを変えない。違いはダンプの頭のサイト名の行と、`db:export --driver=php` を標準出力へ書くときに途中で失敗すると途中までが出ること）
 - [x] (2026-11-17) S4 保存先と世代を `EvoSnapshotStore` にまとめる（動きを変えない。違いはインストーラーが既存の保護の `.htaccess` を書き換えなくなることだけ）
 - [x] (2026-11-18) S5 `snapshot_path` をグローバル設定の画面に出し、保存先の黙った切り替えをやめる（動きを変える）
-- [ ] S6 作成・復元の手順を `EvoBackupManager` にまとめ、復元をファイルから流して読む（動きを変えない）
+- [x] (2026-11-18) S6 作成・復元の手順を `EvoBackupManager` にまとめ、復元をファイルから流して読む（動きを変えない）
+- [ ] S6b PHP の書き出しを複数行の INSERT にする（動きを変える。S6 のマージの後、本人の指示で始める）
 - [ ] S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
 - [ ] S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
 - [ ] S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する（動きを変える。別の Issue で `develop/1.4` に入れる）
@@ -45,6 +46,10 @@
 - 2026-11-17（S4）: インストーラーは、`temp/backup/.htaccess` を毎回上書きしていた。`EvoSnapshotStore::protect()` は、無いか古い書き方（`Order deny,allow` と `Deny from all` だけ）のときだけ書くので、利用者が書き換えた保護の `.htaccess` はアップデートで戻らなくなる。新規インストールでは今と同じファイルができる（確かめた）。
 - 2026-11-17（S4）: 確かめの結果。修正前を記録し、修正後と突き合わせた。保存先の決まり方（`snapshot_path` が無い・サイトの下・サイトの外・存在しない・サイトのルート・相対パス・`assets/backup` だけが在る）ごとに、`getBindDenyDirs()`・`db:backup --driver=php` の書き先と最後の行・a=93 の保存先の表示・a=307 で作られる場所、世代（自動の名前 12・名前付き 2・復元の前の控え 5 を置いて `db:backup --max=10`・`--max=3`・管理画面のスナップショット・管理画面の復元）で消えるファイルと残るファイル、古い書き方の `.htaccess` の書き換え、`$modx->snapshot()` の戻り値（`probe-a`・`probe-b.SQL`・`probe-c.sql`・`a/b`・`bad name`・空）が、すべて同じ。新規インストールで `temp/backup/.htaccess` が修正前と同じ中身でできる（ディレクトリは修正前と同じ 0777）。グローバル設定の保存で、無い `temp/backup/` が作られる。
 - 2026-11-18（S5）: 確かめの結果（修正前は main 172f7faeb を同じ環境で記録）。自己レビューのあとの追加: 保存で ` temp/sp `（前後の空白）は `[(base_path)]temp/sp/`、`manager/`・`content/`・`assets/templates/x/` は「使えません」で保存されず、`manager/`・`content/` に `.htaccess` は作られない。書き込めない保存先（root の 555）が今の値のままでも、ほかの設定は保存できる。`problem()` の判定は PHP 8.4 と php:7.4-cli の両方で 19 通りを確かめた（日本語の名前・`C:/foo/`・`..`・サイトの親を含む）。グローバル設定（a=17）の「ファイル」タブの最後の小見出し「スナップショット」に欄が出て、全体の読み込みとシェルの遷移の両方で既定 `[(base_path)]temp/backup/` を表示し、a=12・a=74 には出ない。保存: `[(base_path)]temp/snap2/`・`<サイト>/temp/newdir`（無い）・`temp/rel`（相対）は `[(base_path)]…/` で保存されて作られ、保護の `.htaccess` も置かれる。空は既定値で保存される。`/tmp/outside/`・サイトのルート・`temp/../../etc/` は「使えません」と知らせ、入力を保ったまま a=17 に戻り、DB は変わらない。DB に直接 `/tmp/outside/`・`<サイト>/temp/../../tmp/outside/` を入れると、a=93 のスナップショットのタブに理由が出て、a=307（作成）・a=305（一覧からの復元）・`$modx->snapshot()`（`false`）・`db:backup`・`db:import`（終了コード 1、何も取り込まない）がすべて断り、システムログに 1 件ずつ残る（修正前は黙って `temp/backup/` に作り、取り込みも行った）。書き込めない保存先（root の 555）も同じく断り、理由は「作れない・書き込めない」で出る。`assets/backup/` だけが在るサイトでは `temp/backup/` に作られ、`assets/backup/` の控えは一覧に出ない（修正前は `assets/backup/` に作った）。`snapshot_path` が `temp/snap2/` のとき、バインドとファイルブラウザー（管理者でない利用者）の守る場所に `temp/snap2/` が入る（修正前は入らなかった）。
+- 2026-11-18（S6）: 確かめの結果（修正前は main 4ad093602 を同じ環境で記録）。S3 と同じ往復（CLI の `db:export --driver=php`（ファイル・標準出力）・`db:backup`（php・mysqldump）・`mariadb-dump`・管理画面のダウンロード・スナップショット・コンテンツのみを、`db:import` と管理画面のアップロード・スナップショットの一覧で戻す）で、実行した文・飛ばした文の数、`CHECKSUM TABLE`、ダンプの中身（時刻を除く）が修正前と同じ。DB への問い合わせの回数は増えていない（復元は同じ文を同じ数だけ実行する。作成は、自己レビューで `db:backup` の表の一覧の問い合わせが 1 回増えていると分かり、空の確かめを書き手の中へ移して修正前と同じ 1 回にした）。途中で失敗するダンプ（69 番目の文が不正）は、`db:import` と管理画面のどちらも修正前と同じく 69 番目で止まり、復元の前の控えの名前を知らせる。空のファイルは修正前と同じく断る。`$modx->snapshot()` は `abc`・`abc2.SQL`・空で大きさを返し、`a/b` は `null`（修正前と同じ）。世代の削除と `db:backup` の件数の行（S4 の記録）も同じ。大きなダンプ: 本文が合わせて 229MB の文書 200 件を `db:backup`（mysqldump）で書いた 256MB のダンプを `php -d memory_limit=128M evo.php db:import` で戻すと、修正前は `Allowed memory size of 134217728 bytes exhausted` で何も取り込まずに止まり、修正後は通って最大のメモリが 12MB（計画どおりの違い）。php:7.4-cli でも、PHP の書き手のダンプを `restoreFile()` で戻す往復が通り（実行 468・飛ばし 2、復元の前の控えあり）、`CHECKSUM TABLE` が元と同じ。
+- 2026-11-18（S6。自己レビュー）: 復元するファイルを、控えを作ったあとの世代の整理（`prune()`）が先に消しうる（控えが上限まである状態で一番古い控えを戻すとき）。修正前は中身を先にメモリへ読んでいたので戻せた。`restoreFile()` は控えを作る前にファイルを開くようにした（開いたファイルは消されても読める）。開けないときは何もせずに `read_failed` を返し、画面と CLI は修正前と同じ文言（`restore_invalid_file`・`restore_upload_failed`・「failed to read SQL file」）で知らせる。
+- 2026-11-18（S6）: PHP の書き手（`EvoSqlDump::write()`）は、表ごとの `SELECT *` の結果を DBAPI がまとめて受け取るので、大きな表ではメモリが要る（上の 229MB の DB で `db:export --driver=php` が 256MB の上限を超えた）。管理画面のスナップショットと復元の前の控えも同じ書き手なので、大きなサイトでは作れないことがある。修正前から同じで、S6 の範囲（復元）の外。
+- 2026-11-18（S6）: PHP の書き手は 1 行ごとに 1 つの `INSERT` を書くので、復元の文の数が行の数と同じになる（`mysqldump` は複数行の `INSERT`）。DB サーバーが離れていると、復元が行の数に比べて遅くなる。S6b で扱う（本人の決定）。
 
 ## Decision Log
 
@@ -88,6 +93,10 @@
 - 2026-11-18 / yamamoto（Claude が起案。S5 で追加）: `assets/backup/` に控えが残っているサイトへの知らせは足さない。アップデーターを通ったサイトは `temp/backup/` ができていて、もともと `assets/backup/` は保存先になっていない（一覧にも出ていなかった）。分岐が効いていたのは `temp/backup/` を消したサイトだけで、そのサイトでも次の作成で `temp/backup/` ができる。`assets/backup/` は読ませない場所として残すので、控えが外から読まれることはない。PR の「変更内容」に書く。
 - 2026-11-18 / yamamoto（Claude が起案。S5 の自己レビューから追加）: 本人の決定の「サイトのフォルダの下」のうち、保護の `.htaccess`（`Require all denied`）を置くと表のサイトや管理画面が見えなくなる場所は、保存先にさせない（`SHARED`）。対象は、スナップショット以外のファイルがあって、読ませない `.htaccess`（`<Files>`・`<FilesMatch>`・`<If>`・`<Location>`・`<Directory>` などのブロックの外に `Require all denied` か `Deny from all` を含むもの。古い書き方も含む）も無いフォルダ（`manager/`・`assets/` など。置いてよいのは `.sql`・`.htaccess`・`index.html` と書き出しの途中のファイルだけ）と、`manager/`・`assets/templates/`・`rb_base_dir` の中とその親。拒否の無い `.htaccess` だけがあるフォルダも、守れないので断る（PR #1576 への Codex の指摘）。保存のときにも、DB に直接入れたときの実行時にも断る（画面の欄から 1 回打ち間違えると管理画面が 403 になり、FTP でしか戻せなくなるため）。本人の決定（外なら保存しない）を狭めるのではなく、「サイトのフォルダの下でも、壊すと戻せない場所」を足したものと判断した。値の整え方（前後の空白・空・相対パス・`[(base_path)]`・末尾の `/`）は `EvoSnapshotStore::normalizeValue()` 1 つにし、保存と読むときが同じ規則を使う。絶対パスかは OS ごとに決め（Linux では `C:/…` は相対）、`basename()` は使わない（PHP 7.4 の C ロケールで日本語の名前を落とすため）。守る場所の一覧（`guardedDirs()`）には、`OUTSIDE`・`SHARED` の値を入れない（サイトの親や `content/` ごと守ってしまうため）。Plan of Work の S5 の「`dir()` は使えないときに例外か `false`」は、`dir()` は値を解いて返し、使えるかは `problem()` が決める形にした。
 - 2026-11-18 / 本人の決定: エクスポートの出力先との重なりは S5 では扱わない。
+- 2026-11-18 / yamamoto（Claude が起案。S6 で追加）: `EvoBackupManager::createSnapshot($name, array $options)` の書き手は、計画の `driver` の名前ではなく `writer`（callable($path, array $tables): bool）で受ける。`mysqldump` を呼ぶ処理は CLI だけのもの（`cli-helpers.php`）なので、`EvoBackupManager` から CLI の関数を呼ばないため。`db:backup` は、今と同じく `cli_export_database_file()` を書き手として渡す（`--driver=php` でもログの表のデータを入れる今の中身のまま。管理画面と同じ中身にするのは S7）。世代の数は `keep` で受け、消した名前は `pruned()` で得る（`db:backup` の「Removed old backup」の行のため）。復元は `restore($sql)` を消して `restoreFile($path, $preRestore)` にした（別名は残さない）。`assets/docs/core-issues.md` の節は、トランザクションの整合性が残るので、解決済みの見出しにはせず、メモリの項だけを解消にした。
+- 2026-11-18 / 本人の決定: PHP の書き出しは、複数行の `INSERT`（バルクインサート）にできるならそれがよい。S6 の後に S6b として足す（S6 の PR のマージの後、本人の指示で始める）。
+- 2026-11-18 / 本人の判断（S6b の形）: 複数行の `INSERT` の中で、1 行のデータごとに改行する。理由: DB への問い合わせは 1 つの文で 1 回のまま（速さ）、ダンプの差分は 1 行 1 データで取れる（diff の取りやすさ）。読む側は「`;` で終わる行で文を区切る」ままで、途中の行は `),` で終わるので、変えずに 1 つの文として読める。
+- 2026-11-18 / yamamoto（Claude が起案。S6b の区切り）: 1 つの `INSERT` の大きさは、`mysqldump` の既定（`net_buffer_length` の 1MB）に合わせて、文が 1MB を超えたら次の文にする（1 行だけで 1MB を超える行は、その 1 行で 1 つの文）。`max_allowed_packet` を超えないよう、上限は「`min(1MB, max_allowed_packet の値 − 余白 1KB)`」にする（書くときに `SELECT @@max_allowed_packet` を 1 回だけ問い合わせる）。1 行がそれだけで `max_allowed_packet` を超える行は、修正前もその行を戻せなかったので、扱いは変えない。
 
 ## Outcomes & Retrospective
 
@@ -137,6 +146,8 @@ S5（保存先の黙った切り替えをやめる。動きを変える）: Deci
 
 S6（作成と復元の手順。動きを変えない）: `EvoBackupManager` を手順だけにする。`createSnapshot($name, $options)`（書き手を options の `driver` で受ける。管理画面は `php`、CLI は `mysqldump` が既定）、`restoreFile($path, $preRestore)`（`EvoSqlDump::statements()` でファイルから流して読む）、復元の前の控え、環境ごとの設定の保持、キャッシュの作り直し。`restore.processor.php` はアップロードの一時ファイルとスナップショットのパスを `restoreFile()` に渡す。`db-backup.php`・`db-import.php` は `createSnapshot()`・`restoreFile()` を呼ぶ。`$modx->snapshot()` は `normalizeName()` と `createSnapshot()` を呼ぶだけにする。`assets/docs/backup.md` を作り、5 つの受け持ちとダンプの約束を書き、AGENTS.md のドキュメントマップに足す。`assets/docs/core-issues.md` の「PHP のダンプの書き出し（EvoSqlDump）の設計上の制約」（S3 で見出しを変えた）を解決済みにする。
 
+S6b（PHP の書き出しを複数行の INSERT にする。動きを変える）: `EvoSqlDump::write()` の書く側で、表ごとに複数の行を 1 つの `INSERT` にまとめ、1 行のデータごとに改行する（`INSERT INTO `t` VALUES` の行のあとに、途中の行は `(...),`、最後の行だけ `(...);`）。値に生の改行を入れない約束はそのまま（値の中の改行は `\n` にエスケープされる）。区切りは Decision Log の S6b の項のとおり。読む側（`statements()`）は変えない。`assets/docs/backup.md` のダンプの約束の「1 件の `INSERT` が 1 行に収まる」を、「1 つの `INSERT` が複数の行のデータを持ち、データ 1 行ごとに改行する。文の終わりは最後の行の `;`」に置き換える。PR に `仕様変更` のラベルを付ける（ダンプの形が変わる）。
+
 S7（復元の前の確かめと作成の結果。動きを変える）: 復元の前の下読み（接頭辞と `DELIMITER`）、`snapshot()` の戻り値、`db:backup` のログの表の扱いを Decision Log のとおりに変える。
 
 S8（入口を薄くする。動きを変える）: ダウンロードを a=306 の processor に移す。`processors/backup/` の 3 つと CLI のコマンドは、`EvoBackupManager` を呼んで結果を知らせるだけにする。画面の残り（`#fff` を決め打ちした `<style>`、`selectAll()` の古い JS、`postv('mode')`、ダウンロードのファイル名を引用符で囲む）を片付ける。失敗の知らせ方は #1560 で決まった形（ダウンロードは親の画面の `EvoDialog`、processor は `result_msg` を a=93 で出す）をそのまま使い、a=306 に移したダウンロードでも同じ形にする（a=306 も非表示の iframe に `#evoBackupError` を返す）。
@@ -172,6 +183,8 @@ S5 の確かめ: グローバル設定（a=17）の「ファイル」タブの�
 
 S6 の確かめ: S3 と同じ往復を、管理画面・CLI の両方で行い、修正前と `checksum`・復元の結果の表示（実行した文の数・飛ばした数）が同じ。大きなダンプ: 本文 1MB の文書を 200 件入れた DB のダンプ（約 200MB）を `php -d memory_limit=128M evo.php db:import` で戻すと、修正前は `Allowed memory size` で止まり、修正後は通る（これは計画どおりの違い）。`$modx->snapshot('abc')` が `abc.sql` を作り、大きさを返す（修正前と同じ）。
 
+S6b の確かめ: 修正前（S6 の後の main）と修正後で、管理画面（ダウンロード・スナップショット・コンテンツのみ）と CLI の `--driver=php`（`db:export`・`db:backup`）のダンプを、`db:import` と管理画面のアップロード・スナップショットの一覧で戻し、`CHECKSUM TABLE` が元と同じ（特別な文字を含む値も）。修正後のダンプの `INSERT` の文の数が大きく減る（表ごとの行の数から、1MB ごとの数へ）。修正前の形（1 行ずつの `INSERT`）のダンプも、修正後に戻せる。値が `;` で終わる行、`)`・`,`・`'),(` を含む値、空の表、1 行だけの表、上限ちょうどで文が分かれる表を往復に入れ、読む側の文の数（表ごとの文の数の合計）と `CHECKSUM TABLE` を確かめる。大きな行（1MB を超える 1 行）と、`max_allowed_packet` を小さくした DB（例 `SET GLOBAL max_allowed_packet=2097152`）でも往復が通る。離れた DB を模して、DB のコンテナとの間に遅延を入れ（`tc qdisc add dev eth0 root netem delay 20ms`。使えなければ toxiproxy、それも無理なら、問い合わせの回数（`SHOW SESSION STATUS LIKE 'Questions'`）と復元の時間の比較）、復元の時間が修正前より大きく減ることを測る。
+
 S7 の確かめ: 接頭辞 `other_` で作ったダンプ（別のサイトのダンプ）を管理画面と `db:import` で戻すと、「接頭辞が違う」と出て、`pre-restore-` の控えも作られず、`checksum` が変わらない（修正前は「成功」と出て `other_` の表が増えた）。`db:export`（既定の `--routines --triggers`）の出力にトリガーを含めて戻すと「トリガーやルーチンを含むダンプは戻せない」と出る。`$modx->snapshot('a/b')` が `false`（修正前は `null`）。`db:backup`（mysqldump）で作ったスナップショットに `manager_log` の `CREATE TABLE` があり、`INSERT INTO` が無い（管理画面のスナップショットと同じ）。
 
 S8 の確かめ: 管理画面で、表を選ばずにダウンロード・成功（ファイル名がそろい、中身が S3 と同じ）・失敗（`MODX_CACHE_PATH` を書き込めなくする）、スナップショットの作成の成功・失敗（保存先を書き込めなくする）・名前の不正、復元のアップロードの失敗（上限を超えるファイル）・スナップショットの名前の不正、のそれぞれで画面に出るものを、修正前と比べる（#1560 で決めた知らせ方にそろっている）。画面はシェルの遷移と全体の読み込み（F5）の両方で開く。`index.php?a=93` に `mode=backup` を POST しても何もダウンロードされない。
@@ -187,6 +200,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S4: `refactor(backup): スナップショットの保存先と世代を EvoSnapshotStore にまとめる`
 - S5: `feat(settings): スナップショットの保存先をグローバル設定に出す` と `fix(backup): 保存先が使えないときに別の場所へ切り替えず知らせる`
 - S6: `refactor(backup): 作成と復元の手順をまとめ、復元をファイルから流して読む`
+- S6b: `feat(backup): PHP の書き出しを複数行の INSERT にする`
 - S7: `fix(backup): 接頭辞の違うダンプとトリガーを含むダンプの復元を断る`
 - S8: `refactor(backup): ダウンロードを processor へ移し、入口を薄くする`
 - S9: `feat(backup): ダウンロードとスナップショットの言葉をそろえ、db:backup を db:snapshot に改名する`
@@ -217,7 +231,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S2: ブランチ `refactor/1561-s2-truncate-entry`（`origin/main` から作成。Issue に紐づけない）、PR #1566。マージ済み（main 675e39f96）
 - S3: ブランチ `refactor/1561-s3-sql-dump`（`origin/main` から作成。Issue に紐づけない）、PR #1569。マージ済み（main 455f91f4b）
 - S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）、PR #1574。マージ済み（main 172f7faeb）
-- S5: ブランチ `refactor/1561-s5-snapshot-path`（`origin/main` から作成。Issue に紐づけない）、PR #1576
+- S5: ブランチ `refactor/1561-s5-snapshot-path`（`origin/main` から作成。Issue に紐づけない）、PR #1576。マージ済み（main 4ad093602）
+- S6: ブランチ `refactor/1561-s6-backup-flow`（`origin/main` から作成。Issue に紐づけない）、PR #1578
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
@@ -230,4 +245,4 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
   - `EvoBackupManager`: `store()`、`createSnapshot($name = '', array $options = [])`、`restoreFile($path, $preRestore = null)`（戻り値の配列は今の `restore()` と同じキー）
 - CLI の `mysqldump` を呼ぶ処理（`cli_export_database()`・`cli_export_database_file()`・`cli_mysql_defaults_file()`）は CLI だけのものなので `cli-helpers.php` に残し、`php` の書き手を `EvoSqlDump` に任せる。
 - ほかの計画: `.agent/plans/2026-05-06-evo-system-upgrade-command.md` は `EvoBackupManager` の `ensureDir()`・`dir()`・`autoFilename()`・`HTACCESS` と `cli_export_database_file()` を使う前提で書かれている。S4・S6 の PR で、その計画の Interfaces and Dependencies と Decision Log の名前を新しい置き場所（`EvoSnapshotStore`）に書き直す。
-- PDO 移行（#677）: この計画の後に入るとき、DB への問い合わせは `EvoDbTables` と `EvoSqlDump` だけを見ればよい。
+- PDO 移行（#677）: この計画の後に入るとき、DB への問い合わせは `EvoDbTables`・`EvoSqlDump` と、`EvoBackupManager` の復元の文の実行・環境ごとの設定の読み書き・キャッシュの表を空にする処理を見ればよい（S6 の時点。`assets/docs/backup.md`）。
