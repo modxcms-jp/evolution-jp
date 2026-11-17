@@ -160,7 +160,7 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
         $tables = $fullTables ?: EvoDbTables::names();
         if ($outputPath !== '') {
             // 書き終えたダンプを --output の先へ写す。先のファイルは mysqldump の --result-file と同じく
-            // その場で書き換える（権限・所有者・リンクの先を変えない）。失敗したときは先に何も書かない
+            // その場で書き換える（権限・所有者・リンクの先を変えない）。ダンプを書けなかったときは先に何も書かない
             $tmp = tempnam(MODX_CACHE_PATH, 'bktemp');
             if ($tmp === false) {
                 cli_usage('Error: export failed.');
