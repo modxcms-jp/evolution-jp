@@ -192,7 +192,11 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
 // ブラウザは文字参照を元の文字に戻すので、画面の表示と送信される値は変わらない
 function hsc_for_tpl($string = '')
 {
-    return strtr(hsc($string), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;']);
+    $escaped = hsc($string);
+    if (!is_string($escaped)) {
+        return $escaped;
+    }
+    return strtr($escaped, ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;']);
 }
 
 /**
