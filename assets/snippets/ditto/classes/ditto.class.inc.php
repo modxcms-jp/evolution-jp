@@ -535,6 +535,21 @@ class ditto
     }
 
     // ---------------------------------------------------
+    // Function: xmlText
+    // Text of an XML element written by the site ([(setting)] tags are resolved first; entities already written are kept)
+    // ---------------------------------------------------
+
+    static function xmlText($text)
+    {
+        return htmlspecialchars(
+            evo()->mergeSettingsContent((string)$text),
+            ENT_XML1 | ENT_QUOTES,
+            evo()->config('modx_charset') ?: 'UTF-8',
+            false
+        );
+    }
+
+    // ---------------------------------------------------
     // Function: userSort
     // Sort the resource array by a user defined function
     // ---------------------------------------------------

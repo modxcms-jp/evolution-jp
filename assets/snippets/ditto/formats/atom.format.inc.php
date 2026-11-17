@@ -64,9 +64,9 @@ $atom_header = <<<TPL
     xml:lang="[+atom_lang+]"
     xml:base="[(site_url)]">
 	<id>[(site_url)][~[*id*]~]</id>
-	<title>[*pagetitle*]</title>
+	<title>[*pagetitle:hsc*]</title>
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
-	<author><name>[(site_name)]</name></author>
+	<author><name>[(site_name:hsc)]</name></author>
 	<updated>[+atom_lastmodified+]</updated>
 	<generator>Ditto 2.0 running on MODX</generator>
 TPL;

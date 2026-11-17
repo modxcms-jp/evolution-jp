@@ -26,11 +26,52 @@ $placeholders['rss_author']    = ["createdby", "rss_author"];
 
 $extenders[] = 'summary';
 
+if (!function_exists('dittoRssHeaderTpl')) {
+    function dittoRssHeaderTpl() {
+        return <<<TPL
+<?xml version="1.0" encoding="[+rss_charset+]" ?>[+rss_xsl+]
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>[*pagetitle:hsc*]</title>
+        <link>[(site_url)]</link>
+        <description>[*description:strip:hsc*]</description>
+        <language>[+rss_lang+]</language>
+        <copyright>[+rss_copyright+]</copyright>
+        <ttl>[+rss_ttl+]</ttl>
+TPL;
+    }
+}
+
+if (!function_exists('dittoRssFooterTpl')) {
+    function dittoRssFooterTpl() {
+        return <<<TPL
+    </channel>
+</rss>
+TPL;
+    }
+}
+
+if (!function_exists('dittoRssTpl')) {
+    function dittoRssTpl() {
+        return <<<TPL
+    <item>
+        <title>[+rss_pagetitle+]</title>
+        <link>[+url+]</link>
+        <description><![CDATA[ [+summary:strip+] ]]></description>
+        <pubDate>[+rss_date+]</pubDate>
+        <guid isPermaLink="true">[+url+]</guid>
+        <dc:creator>[+rss_author+]</dc:creator>
+        [+tagLinks+]
+    </item>
+TPL;
+    }
+}
+
 // set template values
 if(!isset($header)) {
     $header = evo()->parseText(
         dittoRssHeaderTpl(), [
-            'rss_copyright' => $copyright ?? $_lang['default_copyright'],
+            'rss_copyright' => ditto::xmlText($copyright ?? $_lang['default_copyright']),
             'rss_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
             'rss_link'      => MODX_SITE_URL . '[~' . evo()->documentIdentifier . "~]",
             'rss_ttl'       => (int) ($ttl ?? 120),
@@ -50,43 +91,6 @@ if(!isset($footer)) {
 
 // set emptytext
 $noResults = "      ";
-
-
-
-function dittoRssHeaderTpl() {
-    return <<<TPL
-<?xml version="1.0" encoding="[+rss_charset+]" ?>[+rss_xsl+]
-<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <channel>
-        <title>[*pagetitle*]</title>
-        <link>[(site_url)]</link>
-        <description>[*description:strip*]</description>
-        <language>[+rss_lang+]</language>
-        <copyright>[+rss_copyright+]</copyright>
-        <ttl>[+rss_ttl+]</ttl>
-TPL;
-}
-
-function dittoRssFooterTpl() {
-    return <<<TPL
-    </channel>
-</rss>
-TPL;
-}
-
-function dittoRssTpl() {
-    return <<<TPL
-    <item>
-        <title>[+rss_pagetitle+]</title>
-        <link>[+url+]</link>
-        <description><![CDATA[ [+summary:strip+] ]]></description>
-        <pubDate>[+rss_date+]</pubDate>
-        <guid isPermaLink="true">[+url+]</guid>
-        <dc:creator>[+rss_author+]</dc:creator>
-        [+tagLinks+]
-    </item>
-TPL;
-}
 
 if (!function_exists("rss_date")) {
     function rss_date($resource) {
