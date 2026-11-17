@@ -197,7 +197,7 @@ class EvoBackupManager
     }
 
     // 本体の表の名前（接頭辞を除いたもの）。ダンプの接頭辞を見分けるのに使う
-    private const CORE_TABLES = ['system_settings', 'site_content', 'manager_users', 'user_attributes', 'site_templates'];
+    private const CORE_TABLES = ['system_settings', 'site_content', 'manager_users', 'site_templates'];
 
     /**
      * このサイトの表でない表の名前。このサイトの接頭辞で始まらない表と（大文字小文字は問わない）、
