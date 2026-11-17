@@ -67,6 +67,48 @@ class EvoBackupManager
     }
 
     /**
+     * 管理画面のダウンロード用のダンプを一時ファイルに書き、そのパスを返す。
+     * このサイトの表を 1 つも選んでいなければ 'no_tables'、書けなければ 'failed' を返す（一時ファイルは残さない）。
+     * 一時ファイルは、呼び出し側が送ったあとに消す（途中で止まったときは終わりの処理が消す）
+     */
+    public function writeDownload(array $requested, $drop)
+    {
+        $tables = EvoDbTables::own($requested);
+        if (!$tables) {
+            return 'no_tables';
+        }
+        $this->extendTimeLimit();
+        $path = tempnam(MODX_CACHE_PATH, 'bktemp');
+        if ($path === false) {
+            return 'failed';
+        }
+        register_shutdown_function(function () use ($path) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        });
+        if (!EvoSqlDump::writeFile($path, $tables, ['drop' => (bool) $drop])) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+            return 'failed';
+        }
+        return $path;
+    }
+
+    /**
+     * ダウンロードのファイル名（日付と版）
+     */
+    public static function downloadName()
+    {
+        return sprintf(
+            '%s-%s_database_backup.sql',
+            strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
+            preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
+        );
+    }
+
+    /**
      * 直前の createSnapshot() が世代の整理で消したファイルの名前
      */
     public function pruned()

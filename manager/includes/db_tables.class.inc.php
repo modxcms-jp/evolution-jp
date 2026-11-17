@@ -99,6 +99,14 @@ final class EvoDbTables
     }
 
     /**
+     * 渡された名前のうち、このサイトの表の名前（並びはこのサイトの表の順）。文字列でないものは除く
+     */
+    public static function own(array $names): array
+    {
+        return array_values(array_intersect(self::names(), array_filter($names, 'is_string')));
+    }
+
+    /**
      * 管理画面から中身を全部消してよい表（接頭辞付き）。
      * 画面のリンクの出し分けと、消す処理の許可の判定が使う。
      * event_log は今は作らないが、古い版から上げたサイトには残っているので、空にできるよう残す

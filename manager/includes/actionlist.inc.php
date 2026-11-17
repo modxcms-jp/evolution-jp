@@ -124,6 +124,7 @@ $GLOBALS['action_list'] = [
     '304' => 'Duplicate Template Variable',
     '305' => 'Restore SQL data dump',
     '306' => 'Download SQL data dump',
+    '307' => 'Create SQL snapshot',
     '308' => 'HTML export job',
     '309' => 'Preview draft',
 

@@ -14,42 +14,23 @@ if (!evo()->hasPermission('bk_manager')) {
     $backupFailed(lang('error_no_privileges'));
 }
 
-require_once MODX_CORE_PATH . 'sql_dump.class.inc.php';
+require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
-// 書き出すのはこのサイトの表だけ
-$tables = postv('chk', '');
-$tables = is_array($tables) ? array_values(array_intersect(EvoDbTables::names(), $tables)) : [];
-if (!$tables) {
+$requested = postv('chk', []);
+// 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
+$path = (new EvoBackupManager())->writeDownload(is_array($requested) ? $requested : [], post_boolvar('droptables'));
+if ($path === 'no_tables') {
     $backupFailed(lang('bkmgr_backup_no_tables'));
 }
-
-@set_time_limit(120);
-// 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
-$tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
-if ($tempfile !== false) {
-    // 途中で止められても DB 全体のダンプを残さない
-    register_shutdown_function(function () use ($tempfile) {
-        if (is_file($tempfile)) {
-            @unlink($tempfile);
-        }
-    });
-}
-if ($tempfile === false || !EvoSqlDump::writeFile($tempfile, $tables, ['drop' => postv('droptables') !== null])) {
-    if ($tempfile !== false && is_file($tempfile)) {
-        unlink($tempfile);
-    }
+if ($path === 'failed') {
     $backupFailed(lang('bkmgr_backup_failed'));
 }
 header('Expires: 0');
 header('Cache-Control: private');
 header('Pragma: cache');
 header('Content-Type: application/download');
-header('Content-Length: ' . filesize($tempfile));
-header(sprintf(
-    'Content-Disposition: attachment; filename="%s-%s_database_backup.sql"',
-    strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
-    preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
-));
-readfile($tempfile);
-unlink($tempfile);
+header('Content-Length: ' . filesize($path));
+header('Content-Disposition: attachment; filename="' . EvoBackupManager::downloadName() . '"');
+readfile($path);
+unlink($path);
 exit;

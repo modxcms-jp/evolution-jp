@@ -349,7 +349,6 @@ if (sessionv('result_msg')) {
             </style>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />
-                <input type="hidden" name="mode" value="snapshot" />
                 <table>
                     <tr>
                         <th><?= lang("bkmgr_content_only") ?></th>
@@ -401,7 +400,7 @@ if (sessionv('result_msg')) {
 </div>
 
 </div>
-<script type="text/javascript">
+<script>
     tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
 </script>
 
