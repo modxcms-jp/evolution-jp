@@ -144,6 +144,16 @@ function mask_csrf_token_in_uri($uri): string
     return substr($uri, 0, $qpos + 1) . implode('&', $pairs) . $fragment;
 }
 
+// 管理画面・ログイン画面の <title> の書式の正本。「画面名 | サイト名」。空の要素は区切りごと省く。
+// エスケープしていない文字列を返す（出力の直前で hsc() する）
+function manager_title($screen = '')
+{
+    return implode(' | ', array_filter([
+        trim((string) $screen),
+        trim((string) evo()->config('site_name')),
+    ], 'strlen'));
+}
+
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
     if ($string === null) {

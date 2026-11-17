@@ -66,6 +66,10 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 
 互換の名前は、外部のプラグイン・モジュール・テーマのために残す。本体の中には、まだ `top.`・`parent.` の書き方で使っている箇所がある（`manager/frames/nodes.php` のノードの `onclick`、`move_document.dynamic.php`・`move_document.processor.php`、`import_site.static.php`、同梱の docmanager など）。これらを書き換えても、互換の名前は消さない。消すときは、外部への影響を Issue で調べてから決める。
 
+## タイトル（`<title>`）
+
+書式「画面名 | サイト名」の正本は `manager_title($screen)`（`manager/includes/helpers.php`。エスケープ前の文字列を返し、出力の直前で `hsc()`）。ログイン画面もこれを使う。管理画面の `header.inc.php` は、書式（画面名の位置に `{screen}`）とサイト名だけのタイトルを `<title>` の `data-format` / `data-site-only` に渡し、`shell.js` の `updateDocumentTitle()` が `#mainPane` の最初の `<h1>` の文字を当てはめる（h1 が無ければサイト名だけ）。見出しと違う名前をタブに出したい画面は、`#mainPane` の中の要素に `data-page-title="..."`（値は `hsc()`）を付ける。空でなければ h1 より優先する（例: 文書の編集画面は、既存の文書なら pagetitle）。全体の読み込み時と、`#mainPane` の差し替え後に呼ぶ。画面に画面名を付けるには、その画面に `<h1>` を置く。
+
 ## 残している名残
 
 frameset の名前やしくみが残っているが、理由があって残しているもの。

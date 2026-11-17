@@ -444,6 +444,7 @@ return [
     "login_allowed_ip" => 'Allowed IP Address',
     "login_allowed_ip_message" => 'Enter the IP addresses that this user is allowed to login from. <b>NOTE: Separate multiple IP addresses with a comma (,)</b>',
     "login_button" => 'Login',
+    "login_screen_title" => 'Login',
     "login_cancelled_install_in_progress" => 'Install/update of this site is currently in progress. Please retry in a couple of minutes!',
     "login_cancelled_site_was_updated" => 'Install/update on this site was executed, please login again!',
     "login_captcha_message" => 'Please enter the security code shown in the graphic. If you can\'t read the code, click the image to generate a new one or contact your site admin.',
