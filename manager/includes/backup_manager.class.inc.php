@@ -70,6 +70,8 @@ class EvoBackupManager
      * 管理画面のダウンロード用のダンプを一時ファイルに書き、そのパスを返す。
      * このサイトの表を 1 つも選んでいなければ 'no_tables'、書けなければ 'failed' を返す（一時ファイルは残さない）。
      * 一時ファイルは、呼び出し側が送ったあとに消す（途中で止まったときは終わりの処理が消す）
+     *
+     * @return string 一時ファイルの絶対パス、または 'no_tables'・'failed'
      */
     public function writeDownload(array $requested, $drop)
     {
