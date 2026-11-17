@@ -9,7 +9,7 @@
 
 class template
 {
-    var $language, $fields, $current;
+    public $language, $fields, $current;
 
     // ---------------------------------------------------
     // Function: template
@@ -51,7 +51,7 @@ class template
         unset($template['default']);
 
         foreach ($template as $name => $tpl) {
-            if (!empty($tpl) && $tpl != '') {
+            if (!empty($tpl)) {
                 $templates[$name] = $this->fetch($tpl);
             }
         }
@@ -210,9 +210,7 @@ class template
 
     // ---------------------------------------------------
     // Function: fetch
-    // Get a template, based on version by Doze
-    //
-    // https://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
+    // Get a template
     // ---------------------------------------------------
     public function fetch($tpl)
     {

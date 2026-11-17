@@ -14,7 +14,7 @@ if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_
 
 // set template values
 if(!isset($header)) {
-    $header = $modx->parseText(
+    $header = evo()->parseText(
         dittoFormatXmlHeaderTpl(), [
             'xml_copyright' => $copyright ?? $_lang['default_copyright'],
             'xml_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
@@ -23,7 +23,7 @@ if(!isset($header)) {
             'xml_xsl'       => (isset($xsl)
                             ? '<?xml-stylesheet type="text/xsl" href="' . MODX_SITE_URL . $xsl . '" ?>'
                             : ''),
-            'xml_link'      => MODX_SITE_URL . '[~' . $modx->documentIdentifier . '~]',
+            'xml_link'      => MODX_SITE_URL . '[~' . evo()->documentIdentifier . '~]',
         ]
     );
 }
@@ -43,7 +43,7 @@ if(!isset($parents)) {
 // set emptytext
 $noResults = '      ';
 
-$modx->documentObject['contentType'] = 'application/xml';
+evo()->documentObject['contentType'] = 'application/xml';
 
 
 // set tpl xml placeholders
@@ -54,7 +54,6 @@ $placeholders['*'] = 'xml_parameters';
 
 if (!function_exists('xml_parameters')) {
     function xml_parameters($placeholders) {
-        global $modx;
         $xmlArr = [];
         foreach ($placeholders as $name => $value) {
             $xmlArr['xml_' . $name] = htmlentities(

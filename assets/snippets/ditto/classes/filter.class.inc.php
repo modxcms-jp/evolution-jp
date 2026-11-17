@@ -7,11 +7,6 @@
 
 class filter
 {
-
-    public function __construct()
-    {
-    }
-
     public function execute($docs, $filter)
     {
         foreach ($filter['basic'] as $current_filter) {
@@ -38,8 +33,6 @@ class filter
 
     private function _getParams($param)
     {
-        global $modx;
-
         $rs = [];
         $op = $this->_get_operator_name($param['mode']);
         if (!$op && $param['mode'] === null) {
@@ -72,7 +65,7 @@ class filter
         }
 
         if (strpos($rs['creteria'], '[+') !== false) {
-            $rs['creteria'] = $modx->mergePlaceholderContent($rs['creteria']);
+            $rs['creteria'] = evo()->mergePlaceholderContent($rs['creteria']);
         }
 
         $rs['creteria'] = trim($rs['creteria']);
