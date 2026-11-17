@@ -1554,7 +1554,7 @@ trait DocumentParserSubParserTrait
             '<input type="text" id="tv%s" name="tv%s" value="%s" style="%s" />',
             $field_id,
             $field_id,
-            $modx->hsc($field_value),
+            hsc_for_tpl($field_value),
             $modx->hsc($field_style)
         );
     }
@@ -1574,7 +1574,7 @@ trait DocumentParserSubParserTrait
                 'class'  => $class,
                 'id'     => 'tv' . $field_id,
                 'name'   => 'tv' . $field_id,
-                'value'  => evo()->hsc($field_value),
+                'value'  => hsc_for_tpl($field_value),
                 'style'  => $field_style,
                 'tvtype' => $field_type
             ]
@@ -1588,7 +1588,7 @@ trait DocumentParserSubParserTrait
             [
                 'id'     => 'tv' . $field_id,
                 'name'   => 'tv' . $field_id,
-                'value'  => evo()->hsc($field_value),
+                'value'  => hsc_for_tpl($field_value),
                 'style'  => $field_style,
                 'tvtype' => $field_type,
                 'rows'   => $field_type === 'textareamini' ? '5' : '15'
@@ -1640,7 +1640,7 @@ trait DocumentParserSubParserTrait
                 'prefix_id' => evo()->hsc('tv' . $field_id . '_prefix'),
                 'prefix_name' => evo()->hsc('tv' . $field_id . '_prefix'),
                 'options' => implode("\n", $options),
-                'value' => evo()->hsc($field_value),
+                'value' => hsc_for_tpl($field_value),
                 'style' => evo()->hsc($field_style)
             ]
         );
@@ -1661,7 +1661,7 @@ trait DocumentParserSubParserTrait
                     str_replace(['-', '.'], '_', urldecode($field_id))
                 ),
                 'name'            => 'tv' . $field_id,
-                'value'           => $field_value ? evo()->hsc($field_value) : '',
+                'value'           => $field_value ? hsc_for_tpl($field_value) : '',
                 'style'           => evo()->hsc($field_style),
                 'tvtype'          => $field_type,
                 'form_name'       => evo()->hsc($formName),
@@ -1774,7 +1774,7 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl'),
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             evo()->hsc($field_style),
             lang('insert'),
             $field_id
@@ -1787,7 +1787,7 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl'),
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             evo()->hsc($field_style),
             lang('insert'),
             $field_id
@@ -1800,7 +1800,7 @@ trait DocumentParserSubParserTrait
             '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />',
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             'hidden'
         );
     }

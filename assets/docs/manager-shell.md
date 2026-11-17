@@ -68,7 +68,7 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 
 ## タイトル（`<title>`）
 
-書式「画面名 | サイト名」の正本は `manager_title($screen)`（`manager/includes/helpers.php`。エスケープ前の文字列を返し、出力の直前で `hsc()`）。ログイン画面もこれを使う。管理画面の `header.inc.php` は、書式（画面名の位置に `{screen}`）とサイト名だけのタイトルを `<title>` の `data-format` / `data-site-only` に渡し、`shell.js` の `updateDocumentTitle()` が `#mainPane` の最初の `<h1>` の文字を当てはめる（h1 が無ければサイト名だけ）。見出しと違う名前をタブに出したい画面は、`#mainPane` の中の要素に `data-page-title="..."`（値は `hsc()`）を付ける。空でなければ h1 より優先する（例: 文書の編集画面は、既存の文書なら pagetitle）。全体の読み込み時と、`#mainPane` の差し替え後に呼ぶ。画面に画面名を付けるには、その画面に `<h1>` を置く。
+書式「画面名 | サイト名」の正本は `manager_title($screen)`（`manager/includes/helpers.php`。エスケープ前の文字列を返し、出力の直前で `hsc()`）。ログイン画面もこれを使う。管理画面の `header.inc.php` は、書式（画面名の位置に `{screen}`）とサイト名だけのタイトルを `<title>` の `data-format` / `data-site-only` に渡し、`shell.js` の `updateDocumentTitle()` が `#mainPane` の最初の `<h1>` の文字を当てはめる（h1 が無ければサイト名だけ）。見出しと違う名前をタブに出したい画面は、`#mainPane` の中の要素に `data-page-title="..."`（tpl を `parseText()` に通す画面では、値は `hsc_for_tpl()`。タグ解析を通るため）を付ける。空でなければ h1 より優先する（例: 文書の編集画面は、既存の文書なら pagetitle）。全体の読み込み時と、`#mainPane` の差し替え後に呼ぶ。画面に画面名を付けるには、その画面に `<h1>` を置く。
 
 ## 残している名残
 

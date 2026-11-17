@@ -7,7 +7,7 @@ function fieldPagetitle()
             [
                 'id' => 'field_pagetitle',
                 'name' => 'pagetitle',
-                'value' => hsc(doc('pagetitle'))
+                'value' => hsc_for_tpl(doc('pagetitle'))
             ]
         ) . tooltip(lang('resource_title_help'))
     );
@@ -21,7 +21,7 @@ function fieldLongtitle()
             [
                 'id' => 'field_longtitle',
                 'name' => 'longtitle',
-                'value' => hsc(doc('longtitle'))
+                'value' => hsc_for_tpl(doc('longtitle'))
             ]
         ) . tooltip(lang('resource_long_title_help'))
     );
@@ -38,7 +38,7 @@ function fieldDescription()
                 'class' => 'inputBox',
                 'rows' => '2'
             ],
-            hsc(doc('description', ''))
+            hsc_for_tpl(doc('description', ''))
         )
             . tooltip(lang('resource_description_help')),
         'vertical-align:top;'
@@ -54,7 +54,7 @@ function fieldAlias($id)
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => hsc(doc('alias')),
+                    'value' => hsc_for_tpl(doc('alias')),
                     'maxlength' => 100
                 ]
             )
@@ -68,7 +68,7 @@ function fieldAlias($id)
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => hsc(doc('alias')),
+                    'value' => hsc_for_tpl(doc('alias')),
                     'size' => 20,
                     'style' => 'width:120px;',
                     'maxlength' => 50,
@@ -117,7 +117,7 @@ function fieldWeblink()
             [
                 'id' => 'field_weblink',
                 'name' => 'content',
-                'value' => hsc(doc('content'))
+                'value' => hsc_for_tpl(doc('content'))
             ]
         )
             . html_tag(
@@ -144,7 +144,7 @@ function fieldIntrotext()
                 'style' => 'height:60px;',
                 'rows' => '3'
             ],
-            hsc(doc('introtext', ''))
+            hsc_for_tpl(doc('introtext', ''))
         ) . tooltip(lang('resource_summary_help')),
         'vertical-align:top;'
     );
@@ -236,7 +236,7 @@ function fieldMenutitle()
             [
                 'id' => 'field_menutitle',
                 'name' => 'menutitle',
-                'value' => hsc(doc('menutitle'))
+                'value' => hsc_for_tpl(doc('menutitle'))
             ]
         )
             . tooltip(lang('resource_opt_menu_title_help'))
@@ -298,7 +298,7 @@ function fieldParent()
         sprintf('id=%d', (int) doc('parent', 0))
     );
     $ph['pid'] = array_get($parent, 'id', 0);
-    $ph['pname'] = hsc($parent ? $parent['pagetitle'] : config('site_name'));
+    $ph['pname'] = hsc_for_tpl($parent ? $parent['pagetitle'] : config('site_name'));
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
     $ph['lang_parent_picker_open'] = hsc(lang('parent_picker_open'));
@@ -466,7 +466,7 @@ function fieldLink_attributes()
     $body = input_text_tag(
         [
             'name' => 'link_attributes',
-            'value' => hsc(doc('link_attributes'))
+            'value' => hsc_for_tpl(doc('link_attributes'))
         ]
     )
         . tooltip(lang('link_attributes_help'));
