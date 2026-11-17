@@ -15,8 +15,9 @@ final class EvoSqlDump
 {
     private const LF = "\n";
     private const FLUSH_BYTES = 1048576;
-    // 1 つの INSERT の大きさの上限（mysqldump の既定の net_buffer_length に合わせる）。max_allowed_packet が小さければそちらに合わせる
-    private const STATEMENT_BYTES = 1048576;
+    // 1 つの INSERT の大きさの上限。mysqldump の既定の net_buffer_length（1MB − 2KB）と同じ値にし、
+    // max_allowed_packet が 1MB の DB へ戻しても入るようにする。書く DB の max_allowed_packet が小さければそちらに合わせる
+    private const STATEMENT_BYTES = 1046528;
     private const PACKET_MARGIN = 1024;
 
     /**
@@ -213,10 +214,10 @@ final class EvoSqlDump
         return $statement;
     }
 
-    // 1 つの INSERT の大きさの上限。max_allowed_packet が読めなければ STATEMENT_BYTES
+    // 1 つの INSERT の大きさの上限
     private static function statementLimit(): int
     {
-        $packet = (int) db()->getValue(db()->query('SELECT @@max_allowed_packet'));
+        $packet = (int) db()->getValue('SELECT @@max_allowed_packet');
         if ($packet <= self::PACKET_MARGIN) {
             return self::STATEMENT_BYTES;
         }
