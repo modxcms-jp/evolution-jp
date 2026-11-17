@@ -13,6 +13,7 @@ $backup = new EvoBackupManager();
 
 $source = '';
 $failure = '';
+// 戻すダンプのファイル（アップロードの一時ファイルか、スナップショット）
 $mode = post_choicevar('mode', ['restore1', 'restore2'], '');
 // 保存先が使えなければ、復元の前の控えを取れないので戻さない（別の場所には切り替えない）
 if (!$backup->store()->ensureDir()) {
@@ -26,21 +27,17 @@ if (!$backup->store()->ensureDir()) {
         $failure = 'restore_too_large';
     } elseif ($uploadError !== UPLOAD_ERR_OK || !is_uploaded_file($tmpName)) {
         $failure = 'restore_upload_failed';
+    } elseif ((int) filesize($tmpName) === 0) {
+        $failure = 'restore_no_file';
     } else {
-        $source = (string) file_get_contents($tmpName);
-        if ($source === '') {
-            $failure = 'restore_no_file';
-        }
+        $source = $tmpName;
     }
 } elseif ($mode === 'restore2') {
     $path = $backup->store()->path(post_strvar('filename'));
-    if ($path === false) {
+    if ($path === false || !is_readable($path) || (int) filesize($path) === 0) {
         $failure = 'restore_invalid_file';
     } else {
-        $source = (string) file_get_contents($path);
-        if ($source === '') {
-            $failure = 'restore_invalid_file';
-        }
+        $source = $path;
     }
 }
 
@@ -50,7 +47,7 @@ if ($failure !== '') {
 }
 
 if ($failure === '' && $source !== '') {
-    $result = $backup->restore($source);
+    $result = $backup->restoreFile($source);
     sessionv('*restore_result', [
         'mode'               => $mode,
         'ok'                 => $result['ok'],

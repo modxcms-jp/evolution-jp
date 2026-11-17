@@ -2,7 +2,8 @@
 
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
-$store = new EvoSnapshotStore();
+$backup = new EvoBackupManager();
+$store = $backup->store();
 $maxGenerations = EvoSnapshotStore::KEEP;
 $driver = 'mysqldump';
 foreach ($args as $arg) {
@@ -31,16 +32,18 @@ if (!$tables) {
     cli_usage('Error: no tables found with the configured prefix.');
 }
 
+// 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
+$writer = function ($path, array $tables) use ($driver) {
+    return cli_export_database_file($driver, $path, $tables, ['routines' => false]);
+};
 $filename = $store->autoFilename();
 $outputPath = $store->dir() . $filename;
-
-// 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
-if (!cli_export_database_file($driver, $outputPath, $tables, ['routines' => false])) {
+if ($backup->createSnapshot($filename, ['writer' => $writer, 'keep' => $maxGenerations]) === false) {
     cli_usage("Error: failed to write backup {$outputPath}");
 }
 cli_out("Backup written: {$outputPath}");
 
-foreach ($store->prune($maxGenerations) as $removed) {
+foreach ($backup->pruned() as $removed) {
     cli_out('Removed old backup: ' . $removed);
 }
 

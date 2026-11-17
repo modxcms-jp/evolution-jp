@@ -2598,7 +2598,7 @@ trait DocumentParserSubParserTrait
         }
 
         // target が c のときはコンテンツのテーブルだけを書き出す
-        $name = $backup->createSnapshot($filename, $target === 'c');
+        $name = $backup->createSnapshot($filename, ['contentsOnly' => $target === 'c']);
         if ($name === false) {
             return false;
         }

@@ -31,7 +31,7 @@
 - **課題**:
   - ~~`addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）~~ → 解消（#1560、値は `db()->escape()` で書き出す）
   - トランザクション整合性なし（`LOCK TABLES` / `--single-transaction` 相当がない）
-  - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 書き出しは解消（`EvoSqlDump::writeFile()` が一時ファイルへ書き、書き終えてから rename する。`db:export --driver=php` の標準出力へは流して書く。#1561）。復元（SQL 全体を文字列で読み込んでから文に分ける）は、大きな DB ではメモリが要るまま（#1561 の S6 で直す）
+  - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 書き出しは解消（`EvoSqlDump::writeFile()` が一時ファイルへ書き、書き終えてから rename する。`db:export --driver=php` の標準出力へは流して書く。#1561）。復元も解消（`EvoBackupManager::restoreFile()` がダンプのファイルを 1 行ずつ読む。#1561）
   - ~~ファイル先頭の `$modx` グローバル変数チェックがクラス定義として不適切~~ → 解消（#1561。クラスの定義だけのファイルにした）
 - **改善案**: CLI では `mysqldump` を既定にして回避済み。管理画面は `mysqldump` を使わず、いつも PHP の書き出しを使う（#1561 の本人の決定）。トランザクションの整合性は PDO 移行と合わせて扱う。
 - **関連ロードマップ**: Phase 2 PDO 移行
