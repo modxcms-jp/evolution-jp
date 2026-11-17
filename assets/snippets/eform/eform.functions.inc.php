@@ -743,9 +743,7 @@ function eForm($modx, $params)
             $varName = trim($varName);
             $sessionValue = sessionv($varName);
             if ($sessionValue !== null && $sessionValue !== '') {
-                if (isset($fields[$varName]) && $postOverides) {
-                    $fields[$varName] = $fields[$varName];
-                } else {
+                if (!isset($fields[$varName]) || !$postOverides) {
                     $fields[$varName] = $sessionValue;
                 }
             }
@@ -800,7 +798,7 @@ function efHtmlFields($fields)
 function formMerge($docText, $docFields, $vClasses = '')
 {
     global $formats;
-    static $lastitems = [];
+    $lastitems = [];
 
     if (!$docText) {
         return '';
@@ -938,7 +936,7 @@ function AttachFilesToMailer(&$mail, &$attachFiles)
 /*--- Form Parser stuff----------------------*/
 function eFormParseTemplate($tpl, $isDebug = false)
 {
-    global $formats, $optionsName, $_lang, $debugText, $fields, $validFormId;
+    global $formats, $optionsName, $_lang, $debugText, $fields;
     global $efPostBack, $_dfnMaxlength;
 
     $formats = [];  //clear formats so values don't persist through multiple snippet calls
@@ -1004,10 +1002,6 @@ function eFormParseTemplate($tpl, $isDebug = false)
         if (empty($formats[$name][1])) {
             $formats[$name][1] = (isset($labels[$name])) ? $labels[$name] : $name;
         }
-
-        if (isset($id)) {
-            $formats[6] = $id;
-        } //added in 1.4.4.1
 
         unset($tagAttributes[$optionsName]);
 
@@ -1200,10 +1194,10 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
         return false;
     }
 
-    $valList = (is_array($value)) ? $value : [$value];
+    $valueIsArray = is_array($value);
+    $valList = $valueIsArray ? $value : [$value];
     //init vars
     $errMsg = '';
-    unset($vlist);
 
     foreach ($valList as $i => $iValue) {
         $value = $iValue; //re-using $value, destroying original!!
@@ -1297,10 +1291,13 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
             case "#FUNCTION":
                 $tmp = $cmd; //just in case function destroys cmd
                 // バインディングが無効のときは、関数が見つからないときと同じ扱いにする
-                if (evo()->config('enable_bindings') == 1 && function_exists($param))
-                    if (!@$param($value)) $errMsg = $_lang['ef_failed_eval'];
-                    else
-                        if ($isDebug) $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_no_function'] . " $param";
+                if (evo()->config('enable_bindings') == 1 && function_exists($param)) {
+                    if (!@$param($value)) {
+                        $errMsg = $_lang['ef_failed_eval'];
+                    }
+                } elseif ($isDebug) {
+                    $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_no_function'] . " $param";
+                }
                 $cmd = $tmp;
                 break;
 
@@ -1336,7 +1333,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
 
 
     //make sure we have correct return value in case of #filter
-    $valList = (!is_array($value)) ? implode('', $valList) : $valList;
+    $valList = $valueIsArray ? $valList : implode('', $valList);
 
     return ($cmd == "#FILTER") ? $valList : $output;
 }//end validateField
@@ -1349,7 +1346,10 @@ function filterEformValue($value, $param)
     switch (strtoupper($cmd)) {
         case "#REGEX":
             [$src, $dst] = explode("||", $param, 2);
-            $value = ($v = preg_replace($src, $dst, $value)) ? $v : $value;
+            $replaced = preg_replace($src, $dst, $value);
+            if ($replaced !== null) {
+                $value = $replaced;
+            }
             break;
 
         case "#LIST":
@@ -1396,7 +1396,6 @@ function efLoadTemplate($key)
         //try snippet if chunk is not found
         if (!$tpl) $tpl = ($doc = $modx->runSnippet($key)) ? $doc : false;
     }
-    $modx->parseDocumentSource($tpl);
     return $tpl;
 }
 
@@ -1406,7 +1405,7 @@ function efRegisterStartupBlock($src_array, $noScript = false)
 {
     global $modx;
 
-    if (![$src_array]) {
+    if (!$src_array) {
         return;
     }
 
@@ -1417,7 +1416,7 @@ function efRegisterStartupBlock($src_array, $noScript = false)
             continue;
         }
         //try to load from document or chunk
-        if ($tmp = efLoadtemplate($src)) {
+        if ($tmp = efLoadTemplate($src)) {
             $src = $tmp;
         }
         $src = trim($src);

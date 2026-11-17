@@ -14,6 +14,7 @@ $_lang["ef_eval_deprecated"] = '#EVALルールは将来のバージョンで動�
 $_lang["ef_failed_default"] = "無効な値です";
 $_lang["ef_failed_ereg"] = "有効な値ではありません";
 $_lang["ef_failed_eval"] = "有効な値ではありません";
+$_lang["ef_no_function"] = "関数が見つかりません:";
 $_lang["ef_failed_list"] = "有効なリスト項目ではありません";
 $_lang["ef_failed_range"] = "有効範囲外です";
 $_lang["ef_failed_upload"] = "有効なファイルタイプではありません";
