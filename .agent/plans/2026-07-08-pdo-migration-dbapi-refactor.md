@@ -26,7 +26,7 @@ DBアクセス層（`DBAPI` クラス）の内部実装を、mysqli直叩きか�
 - `dataSeek()` の外部呼び出しは0件（`DBAPI` 内部でも未使用）だが、公開メソッドである以上フェーズ1の「シグネチャ・返却値互換を変えない」要件の対象。省略はせず、行バッファ方式で互換実装する（Result ラッパー参照）。
 - `numFields()` / `fieldName()` は `manager/includes/traits/document.parser.subparser.trait.php` から使われている（`manager/includes/controls/datagrid.class.php` からも使われていたが、#1087 で `DataTable` に置き換えて消えた）（PDOStatement の `columnCount()` / `getColumnMeta()` で代替可能）。
 - mysqli に直接依存する外部ファイルは4つあるが、いずれも実処理ではなく判定・表示用の文字列: `manager/includes/cli/bootstrap.php`（`extension_loaded('mysqli')` チェック）、`manager/includes/cli/commands/health-check.php`（同）、`install/instprocessor.php`（`$ph['database_type']='mysqli'` という表示用文字列）、`manager/includes/default.config.php`（文字コード関連のエラーメッセージ文言）。これらはPDO移行後に `pdo_mysql` 拡張の確認へ差し替える必要がある。
-- `manager/includes/mysql_dumper.class.inc.php` は `db()` 経由のみで mysqli 非依存。ただし `addslashes` ベースの独自エスケープ等、別の設計課題を抱えている（`assets/docs/core-issues.md` の「Mysqldumperクラスの設計上の制約」に記録済み、関連ロードマップ: 本タスク）。改修するかはフェーズ2以降で判断し、本フェーズのスコープには含めない。
+- `manager/includes/sql_dump.class.inc.php`（#1561 で `mysql_dumper.class.inc.php` から移した）は `db()` 経由のみで mysqli 非依存。値は `db()->escape()` で書き出す。トランザクションの整合性など、別の設計課題を抱えている（`assets/docs/core-issues.md` の「PHP のダンプの書き出し（EvoSqlDump）の設計上の制約」に記録済み、関連ロードマップ: 本タスク）。改修するかはフェーズ2以降で判断し、本フェーズのスコープには含めない。
 - 独立した `mysql_*()` 関数のポリフィルファイルは存在しなかった。ロードマップ記載の「既存 mysql_ 系互換レイヤーを整理」は、`mysqli.inc.php` の `DBAPI` クラス自体を新実装に置き換えることで満たされると解釈する。
 
 ## Decision Log
@@ -255,7 +255,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 - `manager/includes/traits/document.parser.subparser.trait.php` — `numFields` の利用箇所
 - `install/connection.servertest.php` / `install/connection.databasetest.php` — インストーラのDB接続テスト画面。`$conn` への直接アクセス箇所（Step 3で修正）
 - `manager/includes/document.parser.class.inc.php` 5475〜5479行目 — 非推奨 `DocumentParser::dbConnect()`（呼び出し箇所0件、本フェーズの互換対象外）
-- `manager/includes/mysql_dumper.class.inc.php` — `db()` 経由でDBAPIに依存するが本フェーズのスコープ外（`assets/docs/core-issues.md` 参照）
+- `manager/includes/sql_dump.class.inc.php`・`manager/includes/db_tables.class.inc.php` — `db()` 経由でDBAPIに依存するが本フェーズのスコープ外（`assets/docs/core-issues.md` 参照）
 - `assets/docs/core-issues.md` — 「Mysqldumperクラスの設計上の制約」の関連ロードマップとして本タスクが記録済み
 
 ## Interfaces and Dependencies
