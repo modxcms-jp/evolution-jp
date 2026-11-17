@@ -2384,7 +2384,8 @@ class DocumentParser
                     if (isset($prev[$key])) {
                         return $prev[$key];
                     }
-                    $docid = $prev['id'];
+                    // 先頭の文書には前が無い
+                    $docid = $prev ? $prev['id'] : '';
                 } else {
                     $docid = '';
                 }
@@ -2412,7 +2413,8 @@ class DocumentParser
                     if (isset($next[$key])) {
                         return $next[$key];
                     }
-                    $docid = $next['id'];
+                    // 末尾の文書には次が無い
+                    $docid = $next ? $next['id'] : '';
                 } else {
                     $docid = '';
                 }
@@ -2422,7 +2424,8 @@ class DocumentParser
         }
 
         if (preg_match('@^[1-9][0-9]*$@', $docid)) {
-            return $this->getField($key, $docid);
+            // 文書に無いフィールドは、文書が見つからないときと同じく空にする
+            return $this->getField($key, $docid) ?? '';
         }
         return '';
     }
