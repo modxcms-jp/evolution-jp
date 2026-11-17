@@ -4,7 +4,7 @@ $inputPath = $args[0] ?? '';
 $inputPath = trim($inputPath);
 
 if ($inputPath === '') {
-    cli_usage('Usage: php evo db:import path/to/file.sql');
+    cli_usage('Usage: php evo.php db:import path/to/file.sql');
 }
 
 if (!is_file($inputPath)) {

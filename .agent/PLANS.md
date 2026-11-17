@@ -74,12 +74,12 @@ ExecPlan を作らなかったタスク（`ExecPlan: 不要`）は、`Issue:` �
 7. `DONE` にした項目を `.agent/roadmap-archive.md` へ移し、`.agent/roadmap.md` の `最終更新` を同期する。ほかの項目の `依存関係:` に名前が出ていれば `なし（〇〇は完了済み）` と書き換える
 8. **スキル成長ループ**（アプリコンテナに対してホストから実行する）:
    - 8-1. `skill:init` が未実行の場合は先に実行する:
-     `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=<skill-name>`
+     `docker compose exec <app-service> php evo.php skill:init --plan=<plan_id> --skill=<skill-name>`
      （`<skill-name>` は例: `project-worker`）
    - 8-2. `<run_id>` を確認する（`--skill` で絞り込み、先頭の未アーカイブ run を採用する）:
-     `docker compose exec <app-service> php evo skill:status --plan=<plan_id> --skill=<skill-name>`
+     `docker compose exec <app-service> php evo.php skill:status --plan=<plan_id> --skill=<skill-name>`
    - 8-3. 完了処理を実行する（整合検証・次 run 雛形作成・現 run の完了マーク）:
-     `docker compose exec <app-service> php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict`
+     `docker compose exec <app-service> php evo.php skill:complete --plan=<plan_id> --run-id=<run_id> --strict`
    - 8-4. `learning.json` と `proposal.json` を読み、得られた学びと反映候補を簡潔に提示する
    - 8-5. 提示後に、`この学びをスキルへ反映しますか？ はい・いいえ` と 1 問だけ確認する
    - 8-6. `はい` の場合のみ、`proposal-first` を維持したまま対象 skill / references / scripts への反映作業を進める

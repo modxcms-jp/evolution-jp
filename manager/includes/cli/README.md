@@ -5,43 +5,43 @@ Evolution CMS JP Edition の最小 CLI。コマンドは `manager/includes/cli/c
 ## 使い方
 
 ```bash
-php evo help
-php evo db:query "SELECT 1"
-php evo db:query SELECT * FROM modx_site_content
-php evo config:show
-php evo config:show site_name
-php evo cache:clear
-php evo db:tables
-php evo db:tables --pattern=site_%
-php evo db:describe site_content
-php evo db:count site_content
-php evo db:count site_content --where=published=1
-php evo db:export --output=/tmp/backup.sql
-php evo db:export --tables=site_content,site_templates --output=/tmp/content.sql
-php evo db:export --driver=php --output=/tmp/backup.sql
-EVO_CLI_IMPORT=1 php evo db:import /tmp/backup.sql
-php evo db:backup
-php evo db:backup --max=20
-php evo db:backup --driver=php
-php evo export:site
-php evo export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
-php evo health:check
-php evo log:tail --lines=20
-php evo log:search "インストーラー" --level=error --limit=10
-php evo log:tail --level=min:error
-php evo log:clear --before=2026-01-01
-php evo db:console
-php evo make:command cache:clear
-php evo migrate
-php evo migrate:status
-php evo make:migration add_example_column
-php evo skill:init --plan=2026-05-02-agent-skill-growth-loop --skill=issue-resolver
-php evo skill:validate --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
-php evo skill:complete --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
-php evo skill:status --skill=issue-resolver
-php evo skill:prune --skill=issue-resolver
-php evo skill:archive --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
-php evo skill:sync --skill=issue-resolver
+php evo.php help
+php evo.php db:query "SELECT 1"
+php evo.php db:query SELECT * FROM modx_site_content
+php evo.php config:show
+php evo.php config:show site_name
+php evo.php cache:clear
+php evo.php db:tables
+php evo.php db:tables --pattern=site_%
+php evo.php db:describe site_content
+php evo.php db:count site_content
+php evo.php db:count site_content --where=published=1
+php evo.php db:export --output=/tmp/backup.sql
+php evo.php db:export --tables=site_content,site_templates --output=/tmp/content.sql
+php evo.php db:export --driver=php --output=/tmp/backup.sql
+EVO_CLI_IMPORT=1 php evo.php db:import /tmp/backup.sql
+php evo.php db:backup
+php evo.php db:backup --max=20
+php evo.php db:backup --driver=php
+php evo.php export:site
+php evo.php export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
+php evo.php health:check
+php evo.php log:tail --lines=20
+php evo.php log:search "インストーラー" --level=error --limit=10
+php evo.php log:tail --level=min:error
+php evo.php log:clear --before=2026-01-01
+php evo.php db:console
+php evo.php make:command cache:clear
+php evo.php migrate
+php evo.php migrate:status
+php evo.php make:migration add_example_column
+php evo.php skill:init --plan=2026-05-02-agent-skill-growth-loop --skill=issue-resolver
+php evo.php skill:validate --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
+php evo.php skill:complete --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
+php evo.php skill:status --skill=issue-resolver
+php evo.php skill:prune --skill=issue-resolver
+php evo.php skill:archive --run-dir=.agent/runs/2026-05-02-agent-skill-growth-loop-001
+php evo.php skill:sync --skill=issue-resolver
 ```
 
 注意: シェル展開が必要な記号（`*` など）を含む場合は引用符で囲むことを推奨します。
@@ -64,7 +64,7 @@ php evo skill:sync --skill=issue-resolver
 - サイトが非公開（公開ステータスがオフ）のときは、続きを進めるたびに期限 10 分の合言葉（ベアラートークン）を発行し、ページの取得に専用のヘッダー `X-Evo-Export-Token` で付けます（`DocumentParser` が照合し、非公開の門を通します。`Authorization: Bearer` も受け付けます）。ジョブが終わると取り消します。
 - 取得先が Basic 認証（HTTP ベーシック認証）の場所のときは、ID とパスワードを次のどちらかで渡します。引数では受けません（プロセスの一覧やシェルの履歴に残るため）。
   - 端末（STDIN が対話）で動かす: 401 に当たったところで ID とパスワードを聞きます（パスワードは表示しません）。いちばん安全なので、手で動かすときはこれを使います。違っていれば聞き直し、3 回通らなければエラーで止まります。`stty` で表示を止められない環境（Windows など）では聞かずに止まります。
-  - 環境変数 `EVO_EXPORT_BASIC_AUTH=ID:パスワード`: 端末の無い自動の実行（CI のシークレットなど）向けです。コマンドの行に値を書くと、シェルの履歴やプロセスの一覧に残るので書きません。Docker では、ホストで `read -rs` などで変数に入れて `export` してから、`docker compose exec -e EVO_EXPORT_BASIC_AUTH app php evo export:site`（`-e` には名前だけを書き、値はホストの環境から渡す）のように動かします。読んだあとは、コマンドの中で消します（子のプロセスへ渡しません）。通らなければ聞き直さずに止まります。
+  - 環境変数 `EVO_EXPORT_BASIC_AUTH=ID:パスワード`: 端末の無い自動の実行（CI のシークレットなど）向けです。コマンドの行に値を書くと、シェルの履歴やプロセスの一覧に残るので書きません。Docker では、ホストで `read -rs` などで変数に入れて `export` してから、`docker compose exec -e EVO_EXPORT_BASIC_AUTH app php evo.php export:site`（`-e` には名前だけを書き、値はホストの環境から渡す）のように動かします。読んだあとは、コマンドの中で消します（子のプロセスへ渡しません）。通らなければ聞き直さずに止まります。
   - どちらも無いまま 401 に当たったとき、ID を空や「:」を含むものにしたときは、ジョブを中止して終了コード 1 で止まります。
   - ID とパスワードは、ジョブの状態のファイル・ログには書きません。画面（a=83）では、401 に当たるとダイアログで聞き、そのジョブの間だけ PHP のセッションに持ちます（終わる・中止する・新しく始めると消します。途中で画面を離れたあとにジョブが終わったときは、次にエクスポートの画面を開いたときに消します）。
   - 3 回通らずに止まったときは、401 になったページを失敗の一覧に出します（サイトの一部だけ別の ID の場所があるときなどに、原因のページが分かるように）。
@@ -110,7 +110,7 @@ ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-req
 `skill:prune` は `stats.json` と `history.jsonl` から stale 候補を抽出します。
 `skill:archive` は完了済み run を `archive/` へ移し、`proposal.json` を `archived` に更新します。
 `skill:sync` は run と archive を再集計し、`inventory.json` / `stats.json` / `history.jsonl` を更新します。
-ホスト側で `php evo` が `mysqli` 不在になる環境では、`docker compose exec <app-service> php evo ...` を使ってください。
+ホスト側で `php evo.php` が `mysqli` 不在になる環境では、`docker compose exec <app-service> php evo.php ...` を使ってください。
 
 ## スキル自己成長コマンド運用メモ
 

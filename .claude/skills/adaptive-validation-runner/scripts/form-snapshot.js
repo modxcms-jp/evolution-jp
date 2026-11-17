@@ -22,7 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
-const { config, login, clickAlertOk, sql, appExec } = require('./lib');
+const { config, login, clickAlertOk, sql, refreshCache } = require('./lib');
 
 // 毎回変わる値は伏せる（保存後の画面に出る sessToken も含む）
 const MASK_NAMES = ['csrf_token', 'sessToken'];
@@ -195,7 +195,7 @@ function writeJson(file, data) {
         const page = await login(browser, opts.user || config.adminUser);
         if (opts.sql) {
             sql(opts.sql);
-            appExec(['php', 'evo', 'cache:clear']);
+            await refreshCache(page);
         }
         await page.setViewportSize({ width: opts.width, height: 900 });
         page.on('dialog', d => d.accept().catch(() => {}));

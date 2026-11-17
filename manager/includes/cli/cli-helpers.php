@@ -174,7 +174,7 @@ function cli_full_table_name($table)
 function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTables = [], $quiet = false, $options = [])
 {
     if ($driver !== 'mysqldump' && $driver !== 'php') {
-        cli_usage('Usage: php evo db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
+        cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
     }
 
     if ($driver === 'php') {

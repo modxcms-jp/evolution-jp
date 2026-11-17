@@ -3,7 +3,7 @@
 $commandName = $args[0] ?? '';
 $commandName = trim($commandName);
 if ($commandName === '') {
-    echo "Usage: php evo make:command command:name\n";
+    echo "Usage: php evo.php make:command command:name\n";
     exit(1);
 }
 

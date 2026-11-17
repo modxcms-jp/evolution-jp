@@ -15,7 +15,7 @@ foreach ($args as $arg) {
 
 $fullTable = cli_full_table_name($table);
 if ($fullTable === '') {
-    cli_usage('Usage: php evo db:count table_name [--where=condition]');
+    cli_usage('Usage: php evo.php db:count table_name [--where=condition]');
 }
 
 $sql = 'SELECT COUNT(*) AS cnt FROM ' . $fullTable;

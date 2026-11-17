@@ -12,7 +12,7 @@ if (is_array($files)) {
 sort($commands);
 
 echo "Usage:\n";
-echo "  php evo <command> [args]\n\n";
+echo "  php evo.php <command> [args]\n\n";
 
 echo "Commands:\n";
 foreach ($commands as $name) {

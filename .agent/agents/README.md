@@ -42,7 +42,7 @@
 学習ループ対象の run は `skill:complete` / `skill:archive` /
 `skill:sync` / `skill:prune` の順で更新し、契約チェックは
 `skill:validate --strict` を使う。
-`php evo` はホスト直実行せず、`docker compose exec <app-service> php evo ...` を使う。
+`php evo.php` はホスト直実行せず、`docker compose exec <app-service> php evo.php ...` を使う。
 
 ## 開始時の宣言
 

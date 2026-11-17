@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
-    cli_usage('Usage: php evo skill:archive --run-dir=PATH | --plan=PLAN_ID --run-id=RUN_ID [--skill=SKILL] [--strict] [--force]');
+    cli_usage('Usage: php evo.php skill:archive --run-dir=PATH | --plan=PLAN_ID --run-id=RUN_ID [--skill=SKILL] [--strict] [--force]');
 };
 
 $runDir = skill_get_arg($args, 'run-dir', '');

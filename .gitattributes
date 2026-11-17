@@ -17,9 +17,9 @@ CLAUDE.md export-ignore
 SECURITY.md export-ignore
 compose.yml export-ignore
 manager/docker/ export-ignore
-# CLI は開発用で、まだ利用者には配らない（#1509）
-/evo export-ignore
-manager/includes/cli/ export-ignore
+# CLI の skill:* は .agent/（配布しない）を前提にした開発用のコマンド
+manager/includes/cli/commands/skill-*.php export-ignore
+manager/includes/cli/skill-lib.php export-ignore
 *.png binary
 *.jpg binary
 *.gif binary

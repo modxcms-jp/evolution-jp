@@ -16,7 +16,7 @@ foreach ($args as $arg) {
 }
 
 if ($driver !== 'mysqldump' && $driver !== 'php') {
-    cli_usage('Usage: php evo db:backup [--max=N] [--driver=mysqldump|php]');
+    cli_usage('Usage: php evo.php db:backup [--max=N] [--driver=mysqldump|php]');
 }
 
 if (!$backup->ensureDir()) {

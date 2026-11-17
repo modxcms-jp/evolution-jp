@@ -18,10 +18,10 @@ if (!isset($_SERVER['REQUEST_TIME'])) {
     $_SERVER['REQUEST_TIME'] = time();
 }
 if (!isset($_SERVER['SCRIPT_NAME'])) {
-    $_SERVER['SCRIPT_NAME'] = '/evo';
+    $_SERVER['SCRIPT_NAME'] = '/evo.php';
 }
 if (!isset($_SERVER['REQUEST_URI'])) {
-    $_SERVER['REQUEST_URI'] = '/evo';
+    $_SERVER['REQUEST_URI'] = '/evo.php';
 }
 if (!isset($_SERVER['SERVER_NAME'])) {
     $_SERVER['SERVER_NAME'] = 'localhost';
@@ -62,12 +62,12 @@ if (is_file(MODX_BASE_PATH . 'autoload.php')) {
 }
 
 if (!extension_loaded('mysqli')) {
-    fwrite(STDERR, "PHP extension 'mysqli' is not available. Run `php evo` inside the app container.\n");
+    fwrite(STDERR, "PHP extension 'mysqli' is not available. Run `php evo.php` inside the app container.\n");
     exit(1);
 }
 
 if (!extension_loaded('mbstring')) {
-    fwrite(STDERR, "PHP extension 'mbstring' is not available. Run `php evo` inside the app container.\n");
+    fwrite(STDERR, "PHP extension 'mbstring' is not available. Run `php evo.php` inside the app container.\n");
     exit(1);
 }
 

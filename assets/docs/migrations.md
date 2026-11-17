@@ -21,7 +21,7 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 | 記録の表 | `{prefix}migrations`（既定の接頭辞で `modx_migrations`） | 適用した ID と時刻（`id`・`applied_at`）。定義はランナーだけが持ち、`create_tables.sql` には書かない |
 | ランナー | `manager/includes/migrator.class.inc.php` | 未適用を名前順に流して記録する。`GET_LOCK()` で同時に 2 回走らせない（30 秒待って取れなければ失敗）。アップデーターは、流してから記録するまでのあいだはロックを持たない（記録は重なっても壊れない） |
 | 補助 | `manager/includes/migration_helper.class.inc.php` | マイグレーションの関数に渡される `EvoMigrationHelper` |
-| CLI | `php evo migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
+| CLI | `php evo.php migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
 | 最終形の定義 | `install/sql/create_tables.sql`、`install/sql/system_eventnames.sql` | 表の定義とイベント名。毎回そろえる |
 
 `system_eventnames.sql` に同梱のイベントを足すときは、1000 より小さい空き番号を使う。1001 以上は AUTO_INCREMENT で利用者の独自イベントに割り当てられる領域なので、同梱では使わない。
@@ -46,7 +46,7 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 ### 作り方
 
 ```bash
-php evo make:migration add_example_column
+php evo.php make:migration add_example_column
 ```
 
 `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形ができる。
@@ -102,7 +102,7 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 - 公開側（`manager/includes/update_guard.php`）: 未適用があればメンテナンスの表示（HTTP 503）を返す。呼ぶ位置は `index.php` の `executeParser()` より前。
 - 管理画面の入口（`manager()->isUpdatePending()`）: 未適用があればアップデーター（`install/`）へ送る。settings 権限のある人は、`install/` があればアップデーターへ送られ、無ければアップデーターを置いて実行するよう案内される。ほかの人には、`install/` の有無に関わらずメンテナンスの表示を出す。
-- `php evo health:check`: 未適用の件数を表示する。
+- `php evo.php health:check`: 未適用の件数を表示する。
 
 記録の表が読めないときは、止める側に倒す（未適用あり、として扱う）。公開側のリクエストごとに、ファイルの一覧（`glob()` 1 回）と記録の表の SELECT 1 回を行う。
 
@@ -133,22 +133,22 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 settings 権限のある人がいないと、管理画面からはアップデーターへ案内されず、`/install/` を直接開いてもアップデーターは動かない。DB でロールに `settings` の権限を戻してから管理画面を開き直すと、アップデーターへ送られる（権限は管理画面を開くたびに読み直される）。
 
-CLI の `php evo migrate` は、baseline が記録済みのサイトで、開発中などに足したマイグレーションを流すためのもの。古い版からは使えない（baseline が記録されていないと、何も流さずに止まる）。古い版の DB は、必ずアップデーターで上げる（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しは、アップデーターだけが行うため）。
+CLI の `php evo.php migrate` は、baseline が記録済みのサイトで、開発中などに足したマイグレーションを流すためのもの。古い版からは使えない（baseline が記録されていないと、何も流さずに止まる）。古い版の DB は、必ずアップデーターで上げる（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しは、アップデーターだけが行うため）。
 
 ## 止まったとき
 
 ログの場所:
 
-- システムログ: `temp/logs/system/YYYY/MM/`（JSONLines。`php evo log:tail` / `log:search` で読める）。マイグレーションの失敗は、ID とエラーがここに残る。
+- システムログ: `temp/logs/system/YYYY/MM/`（JSONLines。`php evo.php log:tail` / `log:search` で読める）。マイグレーションの失敗は、ID とエラーがここに残る。
 - インストールのログ: `temp/logs/install/YYYY/MM/`。アップデーターの進行と、適用したマイグレーションの ID（`Migrations applied`）が残る。
 
 よくある止まり方:
 
-- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面とシステムログに出る。DB の道具か `php evo db:query` で値を短くしてから、アップデーターをやり直す。
+- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面とシステムログに出る。DB の道具か `php evo.php db:query` で値を短くしてから、アップデーターをやり直す。
 - **新規インストールの途中の失敗**: 新規インストールが途中で失敗したときは、アップデーター（`install/`）をもう一度通す。
 - **ロック**: ほかの処理が走っていて 30 秒待っても取れないと、失敗になる。ほかのアップデーターや `migrate` が走っていないか確かめて、やり直す。
-- **途中の失敗**: アップデーターでは、あとの手順が失敗すると、その回に流したマイグレーションも記録されず、次のアップデーターで全部流し直される。原因を直して、アップデーターをやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。アップデーターが途中で失敗したときは、CLI ではなくアップデーターでやり直す（CLI はアップデーターの残りの手順を行わない）。baseline のあとに足したマイグレーション自体の失敗は、`php evo migrate` でもやり直せる。ただし MyISAM の表の変更は、途中で戻せない。
-- **以前の版の一時ロックで管理画面にログインできない**: 以前の版は、ログインの失敗回数が上限に達すると `blocked` も 1 にしていた。この形の行の `blocked` は、マイグレーション `20261107_180000_unblock_legacy_temporary_login_locks` で外れる。マイグレーションの前でも、期限が過ぎていれば、正しいパスワードでログインした本人の行はその場で外れる（ログインの処理が、このマイグレーションの記録が無いあいだだけ同じ条件で外す）。このあいだにパスワードかキャプチャを 1 回間違えると、失敗回数を数え直さないので、また期限まで待つことになる。期限内なら、期限が過ぎてからログインし直す。それでもログインできないときは、念のための戻し方として、DB の道具か `php evo db:query` で次を流してからログインし直す。`modx_` は実際の表の接頭辞に、`5` はグローバル設定の `failed_login_attempts` の値（0 か空なら 1）に置き換える。条件はマイグレーションと同じで、管理者が付けたブロックがたまたま同じ形のときは、それも外れる。
+- **途中の失敗**: アップデーターでは、あとの手順が失敗すると、その回に流したマイグレーションも記録されず、次のアップデーターで全部流し直される。原因を直して、アップデーターをやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。アップデーターが途中で失敗したときは、CLI ではなくアップデーターでやり直す（CLI はアップデーターの残りの手順を行わない）。baseline のあとに足したマイグレーション自体の失敗は、`php evo.php migrate` でもやり直せる。ただし MyISAM の表の変更は、途中で戻せない。
+- **以前の版の一時ロックで管理画面にログインできない**: 以前の版は、ログインの失敗回数が上限に達すると `blocked` も 1 にしていた。この形の行の `blocked` は、マイグレーション `20261107_180000_unblock_legacy_temporary_login_locks` で外れる。マイグレーションの前でも、期限が過ぎていれば、正しいパスワードでログインした本人の行はその場で外れる（ログインの処理が、このマイグレーションの記録が無いあいだだけ同じ条件で外す）。このあいだにパスワードかキャプチャを 1 回間違えると、失敗回数を数え直さないので、また期限まで待つことになる。期限内なら、期限が過ぎてからログインし直す。それでもログインできないときは、念のための戻し方として、DB の道具か `php evo.php db:query` で次を流してからログインし直す。`modx_` は実際の表の接頭辞に、`5` はグローバル設定の `failed_login_attempts` の値（0 か空なら 1）に置き換える。条件はマイグレーションと同じで、管理者が付けたブロックがたまたま同じ形のときは、それも外れる。
 
   ```sql
   UPDATE modx_user_attributes SET blocked=0

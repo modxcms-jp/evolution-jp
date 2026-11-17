@@ -215,8 +215,8 @@ PR がマージされたあとの片付けと完了処理を行う。完了処�
    ```
 6. そのワークツリーで、ロードマップの更新を roadmap-manager の `/roadmap-sync` で、ExecPlan のアーカイブを `.agent/PLANS.md` のとおりに行う。スキル成長ループ（`.agent/PLANS.md` の手順 8）は省かない。次の順に行う。
    - 同期用のワークツリーをマウントした検証環境を、ほかと重ならない `EVO_VALIDATE_NAME`・`EVO_BIND_IP` で立てる（`EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose --project-directory <同期用のワークツリー> -f <同期用のワークツリー>/compose.yml -f <同期用のワークツリー>/.claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build`）。シェルの状態はコマンドをまたいで残らないので、`setup-site.js` と片付け（`down -v --rmi local`）のコマンドにも、同じ値を毎回先頭に付ける。起動の前に、`.claude/skills/adaptive-validation-runner/references/environment.md` の「並走するとき」の確認を行う。
-   - その環境に `setup-site.js` でインストールする。インストールしていないと、`php evo` は何も出さずに終わる。`setup-site.js` は今いるディレクトリに `sample.htaccess` を書き戻すので、必ず同期用のワークツリーをカレントにして動かす。
-   - アプリのコンテナで `php evo skill:init` → `skill:status` → `skill:complete --strict` を行う（`docker exec -w /var/www/html <名前>-app php evo …`）。`learning.json`・`proposal.json`・`trace.jsonl` は、`skill:complete` の前にメインが書く（書式は `.agent/runs/README.md` とテンプレート）。
+   - その環境に `setup-site.js` でインストールする。インストールしていないと、`php evo.php` は何も出さずに終わる。`setup-site.js` は今いるディレクトリに `sample.htaccess` を書き戻すので、必ず同期用のワークツリーをカレントにして動かす。
+   - アプリのコンテナで `php evo.php skill:init` → `skill:status` → `skill:complete --strict` を行う（`docker exec -w /var/www/html <名前>-app php evo.php …`）。`learning.json`・`proposal.json`・`trace.jsonl` は、`skill:complete` の前にメインが書く（書式は `.agent/runs/README.md` とテンプレート）。
    - 前例どおり、次の run の雛形（`skill:complete` が作る）と `.agent/skill-metadata/<スキル名>/` も残す（`skill:sync` で更新する）。
    - 手順 8-5（反映するかの確認）は省かない。反映すると決まったものは、完了同期とは別の PR で入れる。
    - 終わったら検証環境を片付け、追跡外の `manager/includes/config.inc.php` を消す。

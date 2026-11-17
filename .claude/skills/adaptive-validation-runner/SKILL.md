@@ -1,6 +1,6 @@
 ---
 name: adaptive-validation-runner
-description: 改修後の動作確認を、AIが自分で環境を立てて最後まで進めるための検証スキル。CLI（curl / php evo / DB）を優先し、画面操作でしか判定できないときだけ Playwright（既定はヘッドレス）に切り替える。Docker の検証環境の起動、インストール、テスト用ユーザー作成、mailpit でのメール確認、main との比較、後片付けまでを扱う。「動作確認」「自走で確認」「実環境で確かめる」「ブラウザで確認」「再現を確認」「Playwright」と依頼されたとき、または修正のあとに実機での裏付けが必要なときに使う。
+description: 改修後の動作確認を、AIが自分で環境を立てて最後まで進めるための検証スキル。CLI（curl / php evo.php / DB）を優先し、画面操作でしか判定できないときだけ Playwright（既定はヘッドレス）に切り替える。Docker の検証環境の起動、インストール、テスト用ユーザー作成、mailpit でのメール確認、main との比較、後片付けまでを扱う。「動作確認」「自走で確認」「実環境で確かめる」「ブラウザで確認」「再現を確認」「Playwright」と依頼されたとき、または修正のあとに実機での裏付けが必要なときに使う。
 ---
 
 # Adaptive Validation Runner
@@ -11,7 +11,7 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 
 ## モード
 
-1. `cli`（既定）: `curl` / `php evo` / DB 問い合わせ / ログで確認する
+1. `cli`（既定）: `curl` / `php evo.php` / DB 問い合わせ / ログで確認する
 2. `playwright-headless`（任意）: 画面を表示せずに操作し、DOM・応答・スクリーンショットで判定する
 3. `playwright-headed`（任意）: 目視が必要で、ユーザーが明示したときだけ画面を表示する
 
@@ -45,7 +45,7 @@ description: 改修後の動作確認を、AIが自分で環境を立てて最�
 ### 3. CLI での確認（既定）
 
 1. `curl -I` でステータスとリダイレクト、`curl -s` で本文の断片を確かめる。管理画面には必ず `Accept-Language` を付ける（無いと 404）
-2. 必要に応じて `php evo`（`config:show` / `db:query` / `log:tail` / `health:check` など）や DB で裏付けを取る
+2. 必要に応じて `php evo.php`（`config:show` / `db:query` / `log:tail` / `health:check` など）や DB で裏付けを取る
 3. CLI の根拠で判定できるなら、ここで終える
 
 ### 4. ブラウザでの確認（任意）
