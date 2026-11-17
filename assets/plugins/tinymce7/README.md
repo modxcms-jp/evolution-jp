@@ -1,6 +1,5 @@
 # TinyMCE 7 プラグイン
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TinyMCE 7](https://img.shields.io/badge/TinyMCE-7.x-blue.svg)](https://www.tiny.cloud/tinymce/)
 [![MODX Evolution](https://img.shields.io/badge/MODX%20Evolution%20JP-latest-0f7fb3.svg)](https://modx.jp/)
 
@@ -16,10 +15,6 @@ MODX Evolution で最新の TinyMCE エディターを利用できるように�
 * 管理画面・フロントエンドの両方で同じエディター体験を実現します。
 * MODX Evolution 標準の MCPuk ファイルブラウザーと連携し、画像やファイルを簡単に選択できます。
 * 画像をクリック／ダブルクリックすると Cropper.js を使ったトリミング・回転・サイズ変更が行えます。
-
-## スクリーンショット
-
-![MODX Evolution のリソース編集画面で表示された TinyMCE 7](docs/images/resource-editor.jpg)
 
 ## 導入手順
 
@@ -57,4 +52,4 @@ MODX Evolution で最新の TinyMCE エディターを利用できるように�
 
 ## ライセンス
 
-本プロジェクトは [MIT License](LICENSE) のもとで公開されています。
+本プロジェクトは MIT License のもとで公開されています。
