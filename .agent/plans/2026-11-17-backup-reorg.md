@@ -9,7 +9,7 @@
 - [x] (2026-11-17) ExecPlan 作成
 - [x] (2026-11-17) M0 着手前の確認: #1560 のマージを確かめ、Context を今の main に合わせて直す。往復の確認スクリプトを用意する（PR なし）
 - [x] (2026-11-17) S1 表の一覧と状態を `EvoDbTables` にまとめる（動きを変えない。出てよい違いは Decision Log の 3 点）
-- [ ] S2 表を空にする入口を a=54 の 1 つにする（動きを変える）
+- [x] (2026-11-17) S2 表を空にする入口を a=54 の 1 つにする（動きを変える）
 - [ ] S3 ダンプの書く・読むを `EvoSqlDump` にまとめ、`Mysqldumper` を消す（動きを変えない）
 - [ ] S4 保存先と世代を `EvoSnapshotStore` にまとめる（動きを変えない）
 - [ ] S5 `snapshot_path` をグローバル設定の画面に出し、保存先の黙った切り替えをやめる（動きを変える）
@@ -31,6 +31,9 @@
 - 2026-11-17（M0）: `mysqldump` には `CREATE TABLE IF NOT EXISTS` を書かせる選択肢が無い。S7 の `db:backup` のログの表は、2 回目の出力を書き換えて PHP の書き手と同じ形にする。
 - 2026-11-17（S1）: `rotate_log()` の `automatic_optimize` も、接頭辞で絞らない 5 か所目の表の一覧だった（同じ DB のすべての表を、名前を囲まずに `OPTIMIZE` していた）。
 - 2026-11-17（S1）: 確かめの結果。修正前を記録し、同じ DB（`baseline.sql`）に戻して修正後を記録して diff を取った。`db:tables`・`db:count`・`db:describe`・`db:export`（php・mysqldump）・`db:backup`（php・mysqldump）・`db:import`（両方の出力）と復元後の `CHECKSUM TABLE`・a=54 の 8 通りが同じ。違いは a=93・a=53 の `modxXfake` と、`recent_update` の時刻だけ。a=53 のログの表の行数は、フィクスチャで `ANALYZE TABLE` をしたため見積もりと正確な数が一致し、差は出なかった。自動最適化は修正後 36 表（このサイトの表だけ）。`EvoDbTables` の単体と `db:count`・`db:describe`・`db:export --driver=php` は `php:7.4-cli` でも動いた。
+- 2026-11-17（S2）: a=55 は CSRF の一覧（`csrf_token.php`）に入っていたので、GET で開くと 405 になり、POST だけが空にしていた。修正後は GET も POST も「まだ実装されていない機能」の画面になる（`index.php` の `default`）。
+- 2026-11-17（S2）: 管理ログの画面（a=13）の「empty」のリンクは、`logs` を持つ利用者すべてに出る。`settings` を持たない利用者（`logs` だけのロール）が押すと、修正前（a=55）も修正後（a=54）も「この操作を行なう権限がありません」になり、ログは消えない。リンクを権限で出し分けるのは S2 の範囲の外として残した。
+- 2026-11-17（S2）: 確かめの結果。既定のロール（ウェブマスター・投稿担当者）と、`settings` だけ・`logs` だけ・`settings`+`logs`・`settings`+`bk_manager` の 4 つのロールの利用者で、a=13 のリンクを押す・a=55 を POST と GET で開く・a=54 に `from=logging` で POST する、を修正前後で比べた。違いは計画どおりの 3 点だけ: リンクの行き先が a=54 になる、a=55 がどの利用者でも「まだ実装されていない機能」になる（修正前は `settings` を持つ利用者が POST で空にできた。`settings` だけのロールもここで空にできなくなる）、a=54 の `from=logging` の戻り先が a=13 になる（修正前は戻り先が無くダッシュボード）。`settings`+`bk_manager` で `logs` の無い利用者が `from=logging` で直接 POST すると、空にしたあと a=13 に戻って権限のエラーになる（画面にリンクの無い操作なので残した）。
 
 ## Decision Log
 
@@ -188,7 +191,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 
 - Issue: #1561（対象）、#1560（依存。不具合の修正）
 - ブランチ: `refactor/1561-backup-reorg`（`gh issue develop 1561` で作成。S1 に使う。S2 以降の段階のブランチと PR は、作ったらここに書き足す）
-- PR: S1 は #1563（`refactor/1561-backup-reorg`。Issue に紐づいたブランチなので、マージで #1561 が閉じる。閉じたら開き直して S2 へ進む）
+- PR: S1 は #1563（`refactor/1561-backup-reorg`。Issue に紐づいたブランチなので、マージで #1561 が閉じる。閉じたら開き直して S2 へ進む）。マージ済み（main 10d3bfbed）
+- S2: ブランチ `refactor/1561-s2-truncate-entry`（`origin/main` から作成。Issue に紐づけない）
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
