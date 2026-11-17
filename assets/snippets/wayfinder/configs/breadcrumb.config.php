@@ -26,13 +26,9 @@ if ((int)config('site_start') !== (int)evo()->documentIdentifier) {
     $home = evo()->getDocumentObject('id', config('site_start'));
     $home_title = $home['menutitle'] ?: $home['pagetitle'];
     $homeLink = '<a href="' . (!empty($fullLink) ? MODX_SITE_URL : MODX_BASE_URL) . '" title="' . $home_title . '">' . $home_title . '</a>' . $delim;
-} else {
-    $homeLink = '';
-}
-
-if ((int)config('site_start') !== (int)evo()->documentIdentifier) {
     $outerTpl = '@CODE:' . str_replace('[+home+]', $homeLink, $outerTpl);
 } else {
+    $homeLink = '';
     $outerTpl = '@CODE: ';
 }
 

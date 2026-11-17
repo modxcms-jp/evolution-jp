@@ -3,6 +3,8 @@
  * Wayfinder
  *
  * Template-driven menu builder: lists the documents under &startId as a nested menu.
+ *
+ * @author Kyle Jaebker, Ryan Thrash and others
  */
 if (!defined('MODX_BASE_PATH')) {
     die('What are you doing? Get out of here!');

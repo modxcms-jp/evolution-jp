@@ -446,7 +446,6 @@ class Wayfinder
 
         $level = 1;
         $prevParent = -1;
-        //Setup startlevel for determining each items level
         if ($this->_config['id'] == 0) {
             $startLevel = 0;
         } else {
@@ -468,11 +467,9 @@ class Wayfinder
                 $row['link'] = evo()->makeUrl($row['id'], '', '', $linkScheme);
             }
 
-            //determine the level, if parent has changed
             if ($prevParent !== $row['parent']) {
                 $level = count(evo()->getParentIds($row['id'])) + 1 - $startLevel;
             }
-            //add parent to hasChildren array for later processing
             if (($level > 1 || $this->_config['displayStart']) && !in_array($row['parent'], $this->hasChildren)) {
                 $this->hasChildren[] = $row['parent'];
             }
