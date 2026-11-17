@@ -77,8 +77,9 @@ if ($source === 'get') {
 } else {
     $year = $month = $day = 0;
     $sourceValue = request_strvar($dittoID . $source);
-    if ($sourceValue) {
-        $date = getdate(strtotime($sourceValue));
+    $timestamp = $sourceValue ? strtotime($sourceValue) : false;
+    if ($timestamp !== false) {
+        $date = getdate($timestamp);
         $year = $date['year'];
         $month = $date['mon'];
         $day = $date['mday'];
