@@ -1,6 +1,5 @@
 # TinyMCE 7 プラグイン
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TinyMCE 7](https://img.shields.io/badge/TinyMCE-7.x-blue.svg)](https://www.tiny.cloud/tinymce/)
 [![MODX Evolution](https://img.shields.io/badge/MODX%20Evolution%20JP-latest-0f7fb3.svg)](https://modx.jp/)
 
@@ -53,4 +52,4 @@ MODX Evolution で最新の TinyMCE エディターを利用できるように�
 
 ## ライセンス
 
-本プロジェクトは [MIT License](LICENSE) のもとで公開されています。
+本プロジェクトは MIT License のもとで公開されています。
