@@ -19,7 +19,7 @@
     [+OnDocFormPrerender+]
 
     <fieldset id="create_edit">
-        <h1 class="[+class+]">[+title+][+(ID:%s)+]</h1>
+        <h1 class="[+class+]"[+page_title_attr+]>[+title+][+(ID:%s)+]</h1>
 
         [+actionButtons+]
 

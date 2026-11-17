@@ -242,15 +242,19 @@
     }
 
     // <title> を「画面名 | サイト名」にする。書式は header.inc.php が manager_title() で作って渡す。
-    // 画面名は #mainPane の最初の h1（無ければサイト名だけ）
+    // 画面名は #mainPane の最初の [data-page-title] の値、無ければ最初の h1（どちらも無ければサイト名だけ）
     function updateDocumentTitle() {
         const titleEl = document.querySelector('head > title[data-format]');
         if (!titleEl) {
             return;
         }
         const pane = document.getElementById('mainPane');
+        const named = pane ? pane.querySelector('[data-page-title]') : null;
         const h1 = pane ? pane.querySelector('h1') : null;
-        const screen = h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '';
+        const source = named && named.getAttribute('data-page-title').trim()
+            ? named.getAttribute('data-page-title')
+            : (h1 ? h1.textContent : '');
+        const screen = source.replace(/\s+/g, ' ').trim();
         document.title = screen
             ? titleEl.getAttribute('data-format').split('{screen}').join(screen)
             : titleEl.getAttribute('data-site-only');
