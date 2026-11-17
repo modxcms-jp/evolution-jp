@@ -110,17 +110,16 @@ if (!is_dir(MODX_BASE_PATH . 'temp')) {
 
 // cache writable?
 
+require_once MODX_BASE_PATH . 'manager/includes/snapshot_store.class.inc.php';
 if (!is_writable(MODX_BASE_PATH . 'temp')) {
     $_ = echo_failed();
     $errors += 1;
 } else {
     $_ = echo_ok();
     mkd(MODX_BASE_PATH . 'temp/export');
-    mkd(MODX_BASE_PATH . 'temp/backup');
-    if (is_dir(MODX_BASE_PATH . 'temp/backup')) {
-        // 中身は管理画面・CLI と同じ EvoBackupManager::HTACCESS を使う
-        require_once MODX_BASE_PATH . 'manager/includes/backup_manager.class.inc.php';
-        @file_put_contents(MODX_BASE_PATH . 'temp/backup/.htaccess', EvoBackupManager::HTACCESS);
+    mkd(rtrim(EvoSnapshotStore::defaultDir(), '/'));
+    if (is_dir(EvoSnapshotStore::defaultDir())) {
+        EvoSnapshotStore::protect(EvoSnapshotStore::defaultDir());
     }
 }
 echo p($_ . lang('checking_if_temp_writable'));
@@ -139,13 +138,13 @@ if (is_writable(MODX_BASE_PATH . 'temp')) {
     echo p($_ . lang('checking_if_export_writable'));
 
     // backup exists?
-    if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
+    if (!is_dir(EvoSnapshotStore::defaultDir())) {
         $errors += 1;
         echo p(echo_failed() . lang('checking_if_backup_exists'));
     }
 
     // backup writable?
-    if (!is_writable(MODX_BASE_PATH . 'temp/backup')) {
+    if (!is_writable(EvoSnapshotStore::defaultDir())) {
         $_ = echo_failed();
         $errors += 1;
     } else $_ = echo_ok();

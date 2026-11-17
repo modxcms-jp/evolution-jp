@@ -2592,15 +2592,9 @@ trait DocumentParserSubParserTrait
 
         include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
         $backup = new EvoBackupManager();
-        if ($filename !== '') {
-            if (preg_match('/\.sql\z/i', $filename)) {
-                $filename = substr($filename, 0, -4) . '.sql';
-            } else {
-                $filename .= '.sql';
-            }
-            if (!$backup->isValidFilename($filename)) {
-                return;
-            }
+        $filename = $backup->store()->normalizeName($filename);
+        if ($filename !== '' && !$backup->store()->isValidFilename($filename)) {
+            return;
         }
 
         // target が c のときはコンテンツのテーブルだけを書き出す
@@ -2608,7 +2602,7 @@ trait DocumentParserSubParserTrait
         if ($name === false) {
             return false;
         }
-        return filesize($backup->dir() . $name);
+        return filesize($backup->store()->dir() . $name);
     }
 
     /**
@@ -2854,44 +2848,13 @@ trait DocumentParserSubParserTrait
     }
 
     /*
-     * バインドで読まない置き場所（バックアップ・スナップショット）の実パスの一覧。
+     * バインドで読まない置き場所（スナップショットの保存先と、以前の置き場所）の実パスの一覧。
      * 小文字にそろえ、末尾に / を付けて返す。存在しない場所は含めない。
      */
     function getBindDenyDirs()
     {
-        include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
-        // 保存先の判定は EvoBackupManager::dir() が持つ。以前の置き場所も、残っていれば読めないままにする
-        $dirs = [(new EvoBackupManager())->dir(), MODX_BASE_PATH . 'temp/backup', MODX_BASE_PATH . 'assets/backup'];
-        $snapshot_path = $this->config('snapshot_path');
-        if ($snapshot_path) {
-            $dirs[] = $snapshot_path;
-        }
-
-        // 設定を広く誤っても、サイトのルート・assets/・assets/templates/ やその親は一覧に入れない
-        $keep = [];
-        foreach ([MODX_BASE_PATH, MODX_BASE_PATH . 'assets', MODX_BASE_PATH . 'assets/templates'] as $dir) {
-            $real_dir = realpath($dir);
-            if ($real_dir !== false) {
-                $keep[] = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
-            }
-        }
-
-        $result = [];
-        foreach ($dirs as $dir) {
-            $real_dir = realpath(str_replace('\\', '/', $dir));
-            if ($real_dir === false || !is_dir($real_dir)) {
-                continue;
-            }
-            $deny = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
-            foreach ($keep as $protected) {
-                if (strpos($protected, $deny) === 0) {
-                    continue 2;
-                }
-            }
-            $result[] = $deny;
-        }
-
-        return array_values(array_unique($result));
+        include_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+        return (new EvoSnapshotStore())->denyDirs();
     }
 
     /*

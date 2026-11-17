@@ -162,8 +162,8 @@ $_lang["welcome_message_welcome"] = 'Welcome to the MODX installation program.';
 $_lang["writing_config_file"] = 'Writing configuration file: ';
 $_lang["yes"] = 'Yes';
 
-$_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
-$_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/assets/backup</span> directory is writable: ';
+$_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/temp/backup</span> directory exists: ';
+$_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/temp/backup</span> directory is writable: ';
 $_lang['no_update_options'] = 'There is no option for update.';
 $_lang['no_update_options_with_utf8mb4'] = 'There are no optional items to update. config.inc.php\'s "$lastInstallTime" will be refreshed and existing tables will be converted to utf8mb4.';
 $_lang['utf8mb4_conversion_title'] = 'Database character set conversion';

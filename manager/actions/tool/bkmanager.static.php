@@ -139,7 +139,7 @@ if (sessionv('result_msg')) {
         case 'snapshot_mkdir_failed':
             $ph['snapshot_msg'] = sprintf(
                 '<div class="errmsg">%s</div>',
-                evo()->parseText(lang('bkmgr_alert_mkdir'), ['snapshot_path' => hsc($backup->dir())])
+                evo()->parseText(lang('bkmgr_alert_mkdir'), ['snapshot_path' => hsc($backup->store()->dir())])
             );
             break;
         case 'snapshot_failed':
@@ -360,7 +360,7 @@ if (sessionv('result_msg')) {
             <?= $ph['snapshot_msg'] ?>
             <?= evo()->parseText(
                 lang("bkmgr_snapshot_msg"),
-                ['snapshot_path' => hsc($backup->dir())]
+                ['snapshot_path' => hsc($backup->store()->dir())]
             ); ?>
             <style type="text/css">
                 #dbmPane table {
@@ -382,7 +382,7 @@ if (sessionv('result_msg')) {
                     </tr>
                     <tr>
                         <th><?= lang("bkmgr_file_name") ?></th>
-                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoBackupManager::KEEP]) ?></td>
+                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoSnapshotStore::KEEP]) ?></td>
                     </tr>
                 </table>
                 <div class="actionButtons">
@@ -399,7 +399,7 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="restore2" />
                 <input type="hidden" name="filename" value="" />
                 <?php
-                $files = $backup->files();
+                $files = $backup->store()->files();
                 if ($files) {
                     echo '<ul>';
                     $tpl = $canRestore

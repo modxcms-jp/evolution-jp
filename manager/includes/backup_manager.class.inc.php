@@ -2,141 +2,35 @@
 
 require_once __DIR__ . '/db_tables.class.inc.php';
 require_once __DIR__ . '/sql_dump.class.inc.php';
+require_once __DIR__ . '/snapshot_store.class.inc.php';
 
 /**
- * スナップショット（サーバー上の保存先に置く DB のバックアップ）の
- * 保存先・ファイル名・一覧・世代・作成・復元を受け持つ。
+ * スナップショットの作成と、ダンプの復元の手順を受け持つ。
+ * 保存先・名前・一覧・世代は EvoSnapshotStore（store()）が受け持つ。
  */
 class EvoBackupManager
 {
-    const AUTO_NAME_PATTERN = '/\A\d{4}-\d{2}-\d{2}-\d{6}-[0-9A-Za-z._-]+\.sql\z/';
-    const FILE_NAME_PATTERN = '/\A[0-9A-Za-z][0-9A-Za-z._-]*\.sql\z/';
-    const PRE_RESTORE_PREFIX = 'pre-restore-';
-    const KEEP = 10;
-    const PRE_RESTORE_KEEP = 3;
-    const HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
+    private $store;
 
-    public function dir()
+    public function __construct()
     {
-        $base = realpath(MODX_BASE_PATH);
-        if ($base === false) {
-            return MODX_BASE_PATH . 'temp/backup/';
-        }
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-
-        $configured = (string)evo()->config('snapshot_path', '');
-        if ($configured !== '') {
-            $real = realpath($configured);
-            if ($real !== false) {
-                $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
-                if ($real !== $base && strpos($real, $base) === 0) {
-                    return $real;
-                }
-            }
-        }
-        if (!is_dir($base . 'temp/backup') && is_dir($base . 'assets/backup')) {
-            return $base . 'assets/backup/';
-        }
-        return $base . 'temp/backup/';
+        $this->store = new EvoSnapshotStore();
     }
 
-    public function ensureDir()
+    public function store()
     {
-        $dir = $this->dir();
-        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            return false;
-        }
-        if (!is_writable($dir)) {
-            return false;
-        }
-
-        $htaccess = $dir . '.htaccess';
-        if (is_file($htaccess)) {
-            $current = file_get_contents($htaccess);
-            if ($current === false) {
-                return false;
-            }
-            if (!$this->isLegacyHtaccess($current)) {
-                return true;
-            }
-        }
-        if (file_put_contents($htaccess, self::HTACCESS) === false) {
-            // 書き込めなくても、保護の .htaccess が既に在れば保存先は使える
-            return is_file($htaccess);
-        }
-        return true;
-    }
-
-    public function autoFilename($prefix = '')
-    {
-        return sprintf(
-            '%s%s-%s.sql',
-            $prefix,
-            date('Y-m-d-His', request_time() + (int)evo()->config('server_offset_time', 0)),
-            preg_replace('/[^0-9A-Za-z._-]/', '-', (string)(evo()->getVersionData('version') ?: 'unknown'))
-        );
-    }
-
-    public function isValidFilename($name)
-    {
-        return is_string($name) && preg_match(self::FILE_NAME_PATTERN, $name) === 1;
-    }
-
-    public function path($name)
-    {
-        // 既存のファイルを読むので、作るときの規則より緩くする（日本語や空白を含む名前も通す）
-        if (!is_string($name) || $name === '' || $name !== basename(str_replace('\\', '/', $name))
-            || strpos($name, '..') !== false || strpos($name, "\0") !== false
-            || !preg_match('/\.sql\z/i', $name)) {
-            return false;
-        }
-        $dir = realpath($this->dir());
-        $path = realpath($this->dir() . $name);
-        if ($dir === false || $path === false || !is_file($path)) {
-            return false;
-        }
-        $dir = rtrim(str_replace('\\', '/', $dir), '/') . '/';
-        if (strpos(str_replace('\\', '/', $path), $dir) !== 0) {
-            return false;
-        }
-        return $path;
-    }
-
-    public function files()
-    {
-        $paths = glob($this->dir() . '*.sql');
-        if ($paths === false) {
-            return [];
-        }
-        $files = [];
-        foreach ($paths as $path) {
-            if (!is_file($path)) {
-                continue;
-            }
-            $files[] = [
-                'name'  => basename($path),
-                'size'  => (int)filesize($path),
-                'mtime' => (int)filemtime($path),
-            ];
-        }
-        usort($files, function ($a, $b) {
-            if ($a['mtime'] !== $b['mtime']) {
-                return $b['mtime'] - $a['mtime'];
-            }
-            return strcmp($b['name'], $a['name']);
-        });
-        return $files;
+        return $this->store;
     }
 
     public function createSnapshot($name = '', $contentsOnly = false)
     {
         if ($name === '') {
-            $name = $this->autoFilename();
+            $name = $this->store->autoFilename();
         }
-        if (!$this->isValidFilename($name)) {
+        if (!$this->store->isValidFilename($name)) {
             return false;
         }
-        if (!$this->ensureDir()) {
+        if (!$this->store->ensureDir()) {
             return false;
         }
 
@@ -147,11 +41,11 @@ class EvoBackupManager
         }
         // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
         $options = ['drop' => true, 'structureOnly' => self::logTables()];
-        if (!EvoSqlDump::writeFile($this->dir() . $name, $tables, $options)) {
+        if (!EvoSqlDump::writeFile($this->store->dir() . $name, $tables, $options)) {
             return false;
         }
 
-        $this->prune();
+        $this->store->prune();
         return $name;
     }
 
@@ -176,38 +70,6 @@ class EvoBackupManager
         return array_map([EvoDbTables::class, 'name'], ['event_log', 'manager_log', 'system_cache']);
     }
 
-    public function prune($max = self::KEEP)
-    {
-        $max = max(1, (int)$max);
-        $auto = [];
-        $preRestore = [];
-        foreach ($this->files() as $file) {
-            if (strpos($file['name'], self::PRE_RESTORE_PREFIX) === 0) {
-                $name = substr($file['name'], strlen(self::PRE_RESTORE_PREFIX));
-                if (preg_match(self::AUTO_NAME_PATTERN, $name)) {
-                    $preRestore[] = $file['name'];
-                }
-                continue;
-            }
-            if (preg_match(self::AUTO_NAME_PATTERN, $file['name'])) {
-                $auto[] = $file['name'];
-            }
-        }
-
-        // files() は新しい順。上限から溢れた古いものを消す
-        $targets = array_merge(
-            array_slice($auto, $max),
-            array_slice($preRestore, self::PRE_RESTORE_KEEP)
-        );
-        $removed = [];
-        foreach ($targets as $name) {
-            if (@unlink($this->dir() . $name)) {
-                $removed[] = $name;
-            }
-        }
-        return $removed;
-    }
-
     public function restore($sql, $preRestore = null)
     {
         $result = [
@@ -221,18 +83,18 @@ class EvoBackupManager
         ];
 
         // 失敗したときに戻せるよう、書き換える前に今の DB を保存する
-        $name = $this->autoFilename(self::PRE_RESTORE_PREFIX);
+        $name = $this->store->autoFilename(EvoSnapshotStore::PRE_RESTORE_PREFIX);
         if ($preRestore === null) {
             $saved = $this->createSnapshot($name) !== false;
         } else {
-            $saved = $this->ensureDir() && call_user_func($preRestore, $this->dir() . $name);
+            $saved = $this->store->ensureDir() && call_user_func($preRestore, $this->store->dir() . $name);
         }
         if (!$saved) {
             $result['pre_restore_failed'] = true;
             return $result;
         }
         $result['pre_restore'] = $name;
-        $this->prune();
+        $this->store->prune();
 
         $cacheTable = EvoDbTables::name('system_cache');
         if (EvoDbTables::exists($cacheTable)) {
@@ -296,12 +158,6 @@ class EvoBackupManager
         if ($limit !== 0 && $limit < 120) {
             @set_time_limit(120);
         }
-    }
-
-    private function isLegacyHtaccess($content)
-    {
-        $lines = array_filter(array_map('trim', explode("\n", strtolower($content))));
-        return array_values($lines) === ['order deny,allow', 'deny from all'];
     }
 
     // 取り込み先にある、環境ごとに違う設定の値

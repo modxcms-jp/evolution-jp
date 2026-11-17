@@ -30,7 +30,7 @@ if ($mode === 'restore1') {
         }
     }
 } elseif ($mode === 'restore2') {
-    $path = $backup->path(post_strvar('filename'));
+    $path = $backup->store()->path(post_strvar('filename'));
     if ($path === false) {
         $failure = 'restore_invalid_file';
     } else {

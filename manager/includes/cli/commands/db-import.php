@@ -52,7 +52,7 @@ if (!$result['ok']) {
     if ($preRestoreSkipped) {
         cli_usage('The database had no tables with the prefix before the import; there is no snapshot to restore from.');
     }
-    cli_usage("Restore the previous state from {$result['pre_restore']} in " . $backup->dir());
+    cli_usage("Restore the previous state from {$result['pre_restore']} in " . $backup->store()->dir());
 }
 
 cli_out("Import completed. Executed: {$result['executed']}, Skipped: {$result['skipped']}");
