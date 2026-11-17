@@ -43,6 +43,9 @@ $preRestore = function ($fullPath) use (&$preRestoreSkipped) {
 };
 $result = $backup->restoreFile($inputPath, $preRestore);
 
+if ($result['read_failed']) {
+    cli_usage('Error: failed to read SQL file.');
+}
 if ($result['pre_restore_failed']) {
     cli_usage('Error: failed to save the pre-restore snapshot; nothing was imported.');
 }

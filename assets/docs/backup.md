@@ -20,7 +20,7 @@
 | 作成と復元の手順 | `EvoBackupManager`（`manager/includes/backup_manager.class.inc.php`） | スナップショットの作成（`createSnapshot()`）、ダンプのファイルからの復元（`restoreFile()`）、復元の前の控え、環境ごとの設定の保持、キャッシュの作り直し |
 | 入口 | `manager/actions/tool/bkmanager.static.php`・`manager/processors/backup/`・`manager/includes/cli/commands/db-*.php`・`$modx->snapshot()` | 入力を受けて手順を呼び、結果を知らせる |
 
-DB に問い合わせるのは `EvoDbTables` と `EvoSqlDump` だけにする（PDO 移行で直す場所をこの 2 つに閉じ込めるため）。
+表の一覧・状態とダンプの読み書きの問い合わせは、`EvoDbTables` と `EvoSqlDump` に置く。復元の文の実行と、環境ごとの設定の読み書き・キャッシュの表を空にする処理は、まだ `EvoBackupManager` が直接 `db()` を呼ぶ（PDO 移行のときは、この 3 つのクラスを見る）。
 
 ## ダンプの約束
 
@@ -31,7 +31,8 @@ DB に問い合わせるのは `EvoDbTables` と `EvoSqlDump` だけにする（
 - 読む側は CRLF と単独の CR を LF にそろえてから分け、文の先頭のコメント（`--`・`#`・`/* */`。`/*! */` は残す）を除く
 
 `mysqldump` の出力（`--skip-triggers` を付けた、`DELIMITER` を含まないもの）も、この約束で読める。
-書き手は 2 つある。管理画面はいつも PHP の書き手を使い、CLI は既定で `mysqldump`、`--driver=php` で PHP の書き手を使う。復元はどちらの出力も読む。
+書き手は 2 つある。管理画面はいつも PHP の書き手を使う。CLI の `db:backup`・`db:export` は既定で `mysqldump`、`--driver=php` で PHP の書き手を使い、`db:import` の復元の前の控えはいつも `mysqldump` で書く。復元はどちらの出力も読む。
+`db:backup` は今、管理画面のスナップショットと違ってログの表のデータも入れる（そろえるのは #1561 の S7）。
 
 復元はダンプのファイルを 1 行ずつ読み、文ごとに実行する（ファイル全体をメモリに読まない）。
 

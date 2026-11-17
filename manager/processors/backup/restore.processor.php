@@ -27,7 +27,7 @@ if (!$backup->store()->ensureDir()) {
         $failure = 'restore_too_large';
     } elseif ($uploadError !== UPLOAD_ERR_OK || !is_uploaded_file($tmpName)) {
         $failure = 'restore_upload_failed';
-    } elseif ((int) filesize($tmpName) === 0) {
+    } elseif (!is_readable($tmpName) || (int) filesize($tmpName) === 0) {
         $failure = 'restore_no_file';
     } else {
         $source = $tmpName;
@@ -56,7 +56,9 @@ if ($failure === '' && $source !== '') {
         'pre_restore'        => $result['pre_restore'],
         'pre_restore_failed' => $result['pre_restore_failed'],
     ]);
-    if ($result['pre_restore_failed']) {
+    if ($result['read_failed']) {
+        sessionv('*result_msg', $mode === 'restore2' ? 'restore_invalid_file' : 'restore_upload_failed');
+    } elseif ($result['pre_restore_failed']) {
         sessionv('*result_msg', 'restore_no_snapshot');
     } elseif (!$result['ok']) {
         sessionv('*result_msg', 'restore_failed');

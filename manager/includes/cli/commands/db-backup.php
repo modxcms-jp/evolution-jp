@@ -27,13 +27,11 @@ if (!$store->ensureDir()) {
     cli_usage('Error: cannot create or write directory ' . $store->dir());
 }
 
-$tables = EvoDbTables::names();
-if (!$tables) {
-    cli_usage('Error: no tables found with the configured prefix.');
-}
-
 // 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
 $writer = function ($path, array $tables) use ($driver) {
+    if (!$tables) {
+        cli_usage('Error: no tables found with the configured prefix.');
+    }
     return cli_export_database_file($driver, $path, $tables, ['routines' => false]);
 };
 $filename = $store->autoFilename();

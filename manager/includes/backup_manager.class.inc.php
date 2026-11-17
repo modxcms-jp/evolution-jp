@@ -98,7 +98,7 @@ class EvoBackupManager
      * ダンプのファイルを 1 文ずつ流して読んで戻す（ファイル全体をメモリに読まない）。
      * 書き換える前に今の DB を復元の前の控えとして保存する。$preRestore は控えの書き手（callable($path): bool。
      * 既定は createSnapshot() と同じ PHP の書き手）。環境ごとの設定（site_url など）は取り込み先の値を残し、
-     * 最後にキャッシュを作り直す
+     * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す
      */
     public function restoreFile($path, $preRestore = null)
     {
@@ -110,7 +110,15 @@ class EvoBackupManager
             'failed_at'          => 0,
             'pre_restore'        => '',
             'pre_restore_failed' => false,
+            'read_failed'        => false,
         ];
+
+        // 控えを作る前に開く（世代の整理が、戻すファイルそのもの（古い控えなど）を消しても読めるように）
+        $stream = is_readable($path) ? fopen($path, 'rb') : false;
+        if ($stream === false) {
+            $result['read_failed'] = true;
+            return $result;
+        }
 
         // 失敗したときに戻せるよう、書き換える前に今の DB を保存する
         $name = $this->store->autoFilename(EvoSnapshotStore::PRE_RESTORE_PREFIX);
@@ -120,6 +128,7 @@ class EvoBackupManager
             $saved = $this->store->ensureDir() && call_user_func($preRestore, $this->store->dir() . $name);
         }
         if (!$saved) {
+            fclose($stream);
             $result['pre_restore_failed'] = true;
             return $result;
         }
@@ -134,11 +143,6 @@ class EvoBackupManager
         $keep = $this->getKeptSettings();
         $this->extendTimeLimit();
 
-        $stream = fopen($path, 'rb');
-        if ($stream === false) {
-            $result['error'] = 'cannot read ' . basename($path);
-            return $result;
-        }
         foreach (EvoSqlDump::statements($stream) as $number => $statement) {
             if (preg_match(
                 '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
