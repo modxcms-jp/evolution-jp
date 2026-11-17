@@ -256,7 +256,7 @@
             : (h1 ? h1.textContent : '');
         const screen = source.replace(/\s+/g, ' ').trim();
         document.title = screen
-            ? titleEl.getAttribute('data-format').split('{screen}').join(screen)
+            ? titleEl.getAttribute('data-format').replace('{screen}', function () { return screen; })
             : titleEl.getAttribute('data-site-only');
     }
 

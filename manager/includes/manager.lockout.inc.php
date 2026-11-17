@@ -16,6 +16,7 @@ evo()->toPlaceholders(
         'modx_charset' => $modx_manager_charset,
         'theme' => $theme,
         'theme_stylesheets' => manager_theme_stylesheets(),
+        'page_title' => hsc(manager_title()),
         'site_name' => hsc(evo()->config('site_name')),
         'logo_slogan' => lang('logo_slogan'),
         'manager_lockout_message' => lang('manager_lockout_message'),
