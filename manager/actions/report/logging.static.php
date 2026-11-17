@@ -301,8 +301,9 @@ $icons_path = manager_style_image_path('icons');
                     $rows[] = $row;
                 }
 
+                require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                 echo '<p>' . evo()->parseText(lang('mgrlog_sortinst'), [
-                    'empty_url' => hsc('index.php?a=54&from=logging&truncate=' . db()->table_prefix . 'manager_log'),
+                    'empty_url' => hsc('index.php?a=54&from=logging&truncate=' . EvoDbTables::qualify('manager_log')),
                 ]) . '</p>';
 
                 // 「X 件目から Y 件目（全 Z 件）」

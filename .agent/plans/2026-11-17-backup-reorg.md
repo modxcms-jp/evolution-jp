@@ -33,7 +33,7 @@
 - 2026-11-17（S1）: 確かめの結果。修正前を記録し、同じ DB（`baseline.sql`）に戻して修正後を記録して diff を取った。`db:tables`・`db:count`・`db:describe`・`db:export`（php・mysqldump）・`db:backup`（php・mysqldump）・`db:import`（両方の出力）と復元後の `CHECKSUM TABLE`・a=54 の 8 通りが同じ。違いは a=93・a=53 の `modxXfake` と、`recent_update` の時刻だけ。a=53 のログの表の行数は、フィクスチャで `ANALYZE TABLE` をしたため見積もりと正確な数が一致し、差は出なかった。自動最適化は修正後 36 表（このサイトの表だけ）。`EvoDbTables` の単体と `db:count`・`db:describe`・`db:export --driver=php` は `php:7.4-cli` でも動いた。
 - 2026-11-17（S2）: a=55 は CSRF の一覧（`csrf_token.php`）に入っていたので、GET で開くと 405 になり、POST だけが空にしていた。修正後は GET も POST も「まだ実装されていない機能」の画面になる（`index.php` の `default`）。
 - 2026-11-17（S2）: 管理ログの画面（a=13）の「empty」のリンクは、`logs` を持つ利用者すべてに出る。`settings` を持たない利用者（`logs` だけのロール）が押すと、修正前（a=55）も修正後（a=54）も「この操作を行なう権限がありません」になり、ログは消えない。リンクを権限で出し分けるのは S2 の範囲の外として残した。
-- 2026-11-17（S2）: 確かめの結果。既定のロール（ウェブマスター・投稿担当者）と、`settings` だけ・`logs` だけ・`settings`+`logs`・`settings`+`bk_manager` の 4 つのロールの利用者で、a=13 のリンクを押す・a=55 を POST と GET で開く・a=54 に `from=logging` で POST する、を修正前後で比べた。違いは計画どおりの 3 点だけ: リンクの行き先が a=54 になる、a=55 がどの利用者でも「まだ実装されていない機能」になる（修正前は `settings` を持つ利用者が POST で空にできた。`settings` だけのロールもここで空にできなくなる）、a=54 の `from=logging` の戻り先が a=13 になる（修正前は戻り先が無くダッシュボード）。`settings`+`bk_manager` で `logs` の無い利用者が `from=logging` で直接 POST すると、空にしたあと a=13 に戻って権限のエラーになる（画面にリンクの無い操作なので残した）。
+- 2026-11-17（S2）: 確かめの結果。既定のロール（ウェブマスター・投稿担当者）と、`settings` だけ・`logs` だけ・`settings`+`logs`・`settings`+`bk_manager` の 4 つのロールの利用者で、a=13 のリンクを押す・a=55 を POST と GET で開く・a=54 に `from=logging` で POST する、を修正前後で比べた。違いは計画どおりの 3 点だけ: リンクの行き先が a=54 になる、a=55 がどの利用者でも「まだ実装されていない機能」になる（修正前は `settings` を持つ利用者が POST で空にできた。`settings` だけのロールもここで空にできなくなる）、a=54 の `from=logging` の戻り先が a=13 になる（修正前は戻り先が無くダッシュボード）。`settings`+`bk_manager` で `logs` の無い利用者が `from=logging` で直接 POST すると、空にしたあと a=13 に戻って権限のエラーになる（画面にリンクの無い操作なので残した）。`grep -rn "a=55\|empty_table" manager/ install/ assets/docs/` は 0 件、`php:7.4-cli` の `php -l` と security-lint は通過。
 
 ## Decision Log
 
@@ -140,7 +140,7 @@ M0（着手前の確認。PR なし）:
 
 S1 の確かめ: 修正前後で、`db:tables`・a=93・a=53 の表の名前と行数の列（a=53 のログの表の行数は、Decision Log のとおり見積もりから正確な数に変わってよい）、`php evo.php db:count manager_log`・`db:describe site_content`・`db:export --tables=site_content --driver=php --output=/tmp/a.sql`（`-- Generation Time` の行を除いて）が同じ。違ってよいのは `modxXfake` が a=93・a=53 に出なくなることだけ。a=54 で `manager_log` を空にする・`site_content` を最適化する・`other_table` を渡すと権限エラー、が修正前と同じ。自動最適化（`automatic_optimize=1` で `rotate_log()`）の `OPTIMIZE` が、このサイトの表だけになる。期待: `diff` が上の 3 点（`modxXfake`・a=53 のログの表の行数・自動最適化の対象）と時刻（`recent_update`）だけ。
 
-S2 の確かめ: 管理ログの画面（a=13）の「empty」のリンクで `manager_log` が空になり、管理ログの画面に戻る。`index.php?a=55` は「不明な操作」になる（修正前は空にした）。`settings` だけを持つロールの利用者が a=54 の `truncate` を POST すると権限エラー。`grep -rn "a=55\|empty_table" manager/` が 0 件。
+S2 の確かめ: 管理ログの画面（a=13）の「empty」のリンクで `manager_log` が空になり、管理ログの画面に戻る。`index.php?a=55` は「まだ実装されていない機能」の画面（`index.php` の `default`）になる（修正前は空にした）。`settings` だけを持つロールの利用者が a=54 の `truncate` を POST すると権限エラー。`grep -rn "a=55\|empty_table" manager/` が 0 件。
 
 S3 の確かめ（往復）: `fixture` を入れた DB で、管理画面のダウンロード（`DROP 文を生成` あり）・スナップショット・`db:export --driver=php`・`db:backup --driver=php` のそれぞれの出力を、修正前と修正後で `-- Generation Time`・`--  Server version` などのヘッダーのコメントを除いて `diff` し、違いがヘッダーの `site_name` の行だけであることを確かめる。それぞれを復元（管理画面のアップロードと `EVO_CLI_IMPORT=1 php evo.php db:import <ファイル>`）して `checksum` が元と同じ。mysqldump の出力も復元でき、`checksum` が同じ。`grep -rn "Mysqldumper\|mysql_dumper" manager/ install/` が 0 件。
 
