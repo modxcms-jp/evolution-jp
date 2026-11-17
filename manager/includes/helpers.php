@@ -187,6 +187,14 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
+// HTML の値として出す文字列を hsc() し、さらに [ ] { } を文字参照にする。
+// 出力したあとにテンプレートのタグ解析（parseText() など）が走る場面で、値の中の [+xxx+] [[xxx]] などがタグとして評価されないようにする。
+// ブラウザは文字参照を元の文字に戻すので、画面の表示と送信される値は変わらない
+function hsc_for_tpl($string = '')
+{
+    return strtr(hsc($string), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;']);
+}
+
 /**
  * 要素（テンプレート変数など）の説明を HTML として出すための変換。
  * 要素の一覧など、説明を並べて出すとき用。hsc() のあと、属性なしで対になった b・strong タグだけを元に戻す。

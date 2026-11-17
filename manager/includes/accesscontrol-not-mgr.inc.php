@@ -137,7 +137,7 @@ evo()->setPlaceholder('login_request_failed', hsc(lang('login_request_failed')))
 // タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
 evo()->setPlaceholder(
     'login_return',
-    strtr(hsc($loginReturn), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;'])
+    hsc_for_tpl($loginReturn)
 );
 
 $loginTplOutput = loadLoginTpl($tpl);

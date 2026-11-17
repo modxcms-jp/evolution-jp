@@ -125,12 +125,12 @@ function sectionContent()
     if (config('use_editor') && doc('richtext')) {
         $editors = evo()->invokeEvent('OnRichTextEditorRegister');
         if ($editors) {
-            $ph['body'] = rteContent(hsc(doc('content'), ENT_COMPAT, '', true), $editors);
+            $ph['body'] = rteContent(hsc_for_tpl(doc('content')), $editors);
         } else {
-            $ph['body'] = $planetpl(hsc(doc('content'), ENT_COMPAT, '', true));
+            $ph['body'] = $planetpl(hsc_for_tpl(doc('content')));
         }
     } else {
-        $ph['body'] = $planetpl(hsc(doc('content'), ENT_COMPAT, '', true));
+        $ph['body'] = $planetpl(hsc_for_tpl(doc('content')));
     }
 
     return parseText(file_get_tpl('section_content.tpl'), $ph);
@@ -798,7 +798,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'title' => (evo()->doc->mode === 'normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode === 'normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
-        'page_title_attr' => ($id && doc('pagetitle') !== '') ? ' data-page-title="' . strtr(hsc(doc('pagetitle')), ['[' => '&#91;', ']' => '&#93;']) . '"' : '',
+        'page_title_attr' => ($id && doc('pagetitle') !== '') ? ' data-page-title="' . hsc_for_tpl(doc('pagetitle')) . '"' : '',
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
