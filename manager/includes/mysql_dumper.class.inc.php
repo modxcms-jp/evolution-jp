@@ -193,6 +193,16 @@ class Mysqldumper
             );
             $output .= sprintf('-- %s-- Table structure for table `%s`%s', $lf, $table_name, $lf);
             $output .= sprintf('-- %s%s', $lf, $lf);
+            // スナップショットのログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
+                $output .= preg_replace(
+                    '/\ACREATE TABLE /',
+                    'CREATE TABLE IF NOT EXISTS ',
+                    $createtable[$table_name][0]
+                ) . ';' . $lf . $lf;
+                $ok = $this->write($fp, $output);
+                continue;
+            }
             // Generate DROP TABLE statement when client wants it to.
             if ($this->isDroptables()) {
                 $output .= 'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;' . $lf;
@@ -204,10 +214,6 @@ class Mysqldumper
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
-
-            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
-                continue;
-            }
 
             $output .= sprintf(
                 '-- %s-- Dumping data for table `%s`%s-- %s',
@@ -227,23 +233,8 @@ class Mysqldumper
                     $row = $this->convertValues($row);
                 }
                 foreach ($row as $value) {
-                    if ($value === null) {
-                        $value = 'NULL';
-                    } else {
-                        $value = addslashes($value);
-                        if (strpos($value, "\\'") !== false) {
-                            $value = str_replace("\\'", "''", $value);
-                        }
-                        if (strpos($value, "\r\n") !== false) {
-                            $value = str_replace("\r\n", "\n", $value);
-                        }
-                        if (strpos($value, "\r") !== false) {
-                            $value = str_replace("\r", "\n", $value);
-                        }
-                        $value = str_replace("\n", '\\n', $value);
-                        $value = "'{$value}'";
-                    }
-                    $insertdump .= $value . ',';
+                    // 改行・CR は \n・\r になり、1 件の INSERT が 1 行に収まる（復元は「;」の直後の改行で文を分ける）
+                    $insertdump .= ($value === null ? 'NULL' : "'" . db()->escape((string) $value) . "'") . ',';
                 }
                 $output .= rtrim($insertdump, ',') . ");".$lf;
                 if (1048576 < strlen($output)) {

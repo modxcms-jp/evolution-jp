@@ -12,20 +12,41 @@ require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
 $source = '';
+$failure = '';
 $mode = post_choicevar('mode', ['restore1', 'restore2'], '');
 if ($mode === 'restore1') {
-    if (filev('sqlfile.tmp_name')) {
-        $source = (string) file_get_contents(filev('sqlfile.tmp_name'));
+    $uploadError = (int) filev('sqlfile.error', UPLOAD_ERR_NO_FILE);
+    $tmpName = (string) filev('sqlfile.tmp_name', '');
+    if ($uploadError === UPLOAD_ERR_NO_FILE) {
+        $failure = 'restore_no_file';
+    } elseif ($uploadError === UPLOAD_ERR_INI_SIZE || $uploadError === UPLOAD_ERR_FORM_SIZE) {
+        $failure = 'restore_too_large';
+    } elseif ($uploadError !== UPLOAD_ERR_OK || !is_uploaded_file($tmpName)) {
+        $failure = 'restore_upload_failed';
+    } else {
+        $source = (string) file_get_contents($tmpName);
+        if ($source === '') {
+            $failure = 'restore_no_file';
+        }
     }
 } elseif ($mode === 'restore2') {
     $path = $backup->path(post_strvar('filename'));
     if ($path === false) {
-        exit('Error');
+        $failure = 'restore_invalid_file';
+    } else {
+        $source = (string) file_get_contents($path);
+        if ($source === '') {
+            $failure = 'restore_invalid_file';
+        }
     }
-    $source = (string) file_get_contents($path);
 }
 
-if ($source !== '') {
+if ($failure !== '') {
+    sessionv('*restore_result', ['mode' => $mode]);
+    sessionv('*result_msg', $failure);
+}
+
+if ($failure === '' && $source !== '') {
     $result = $backup->restore($source);
     sessionv('*restore_result', [
         'mode'               => $mode,

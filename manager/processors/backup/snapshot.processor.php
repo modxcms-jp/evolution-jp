@@ -17,27 +17,20 @@ if ($filename !== '') {
     } else {
         $filename .= '.sql';
     }
+}
+
+// 失敗も成功と同じく、バックアップの画面のスナップショットのタブに出す
+if ($filename !== '' && !$backup->isValidFilename($filename)) {
     // 保存先の外や .sql 以外のファイルを作らせないため、ディレクトリを含まない名前に限る
-    if (!$backup->isValidFilename($filename)) {
-        alert()->setError(1, lang('bkmgr_invalid_file_name'));
-        alert()->dumpError();
-    }
+    $result = 'snapshot_invalid_file_name';
+} elseif (!$backup->ensureDir()) {
+    $result = 'snapshot_mkdir_failed';
+} elseif ($backup->createSnapshot($filename, post_boolvar('contentsOnly')) === false) {
+    // 空なら自動の名前になる（古い世代の削除は createSnapshot() が行う）
+    $result = 'snapshot_failed';
+} else {
+    $result = 'snapshot_ok';
 }
-
-if (!$backup->ensureDir()) {
-    echo evo()->parseText(
-        lang('bkmgr_alert_mkdir'),
-        ['snapshot_path' => hsc($backup->dir())]
-    );
-    exit;
-}
-
-// 空なら自動の名前になる（古い世代の削除は createSnapshot() が行う）
-if ($backup->createSnapshot($filename, post_boolvar('contentsOnly')) !== false) {
-    sessionv('*result_msg', 'snapshot_ok');
-    header('Location: index.php?a=93');
-    exit;
-}
-
-alert()->setError(1, 'Unable to Backup Database');
-alert()->dumpError();
+sessionv('*result_msg', $result);
+header('Location: index.php?a=93');
+exit;
