@@ -56,7 +56,6 @@ $GLOBALS['action_list'] = [
     '52' => 'Moved resource',
     '53' => 'Viewing system info',
     '54' => 'Optimizing a table',
-    '55' => 'Empty logs',
     '56' => 'Refresh resource tree',
     '57' => 'Refresh menu',
     '58' => 'Logged in',

@@ -734,9 +734,6 @@ switch (manager()->action) {
     case 13: // view logging
         include_once($action_path . 'report/logging.static.php');
         break;
-    case 55: // get the settings editor
-        include_once($prc_path . 'db/empty_table.processor.php');
-        break;
     case 64: // get the Recycle bin emptier
         include_once($prc_path . 'document/remove_content.processor.php');
         break;

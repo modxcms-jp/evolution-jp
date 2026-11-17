@@ -489,7 +489,7 @@ return [
     "mgrlog_qresults" => '結果',
     "mgrlog_results" => 'ページあたりの表示件数',
     "mgrlog_searchlogs" => '検索の履歴',
-    "mgrlog_sortinst" => '各列のヘッダをクリックすると表示順を変更できます。ログが溜まってきたときには、<a href="index.php?a=55">empty</a> をクリックすることでログを全部消去できます。 この操作は即実行され元に戻せません。',
+    "mgrlog_sortinst" => '各列のヘッダをクリックすると表示順を変更できます。ログが溜まってきたときには、<a href="[+empty_url+]" data-evo-post>empty</a> をクリックすることでログを全部消去できます。 この操作は即実行され元に戻せません。',
     "mgrlog_time" => '時刻',
     "mgrlog_user" => 'ユーザー',
     "mgrlog_username" => 'ユーザー名',

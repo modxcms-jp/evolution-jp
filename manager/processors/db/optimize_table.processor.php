@@ -40,6 +40,7 @@ if ($truncateTarget) {
 
 // 戻り先は画面の名前で受け、画面の番号に直す（無ければダッシュボード）
 $returnScreens = [
+    'logging' => 13,
     'sysinfo' => 53,
     'bkmanager' => 93,
 ];

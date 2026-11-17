@@ -487,7 +487,7 @@ return [
     "mgrlog_qresults" => 'Query results',
     "mgrlog_results" => 'No. of results',
     "mgrlog_searchlogs" => 'Search logs',
-    "mgrlog_sortinst" => 'Sort the table by clicking on the column headers. If the logs are too large, <a href="index.php?a=55">empty the log file</a> to remove all log entries up to now. This cannot be undone!',
+    "mgrlog_sortinst" => 'Sort the table by clicking on the column headers. If the logs are too large, <a href="[+empty_url+]" data-evo-post>empty the log file</a> to remove all log entries up to now. This cannot be undone!',
     "mgrlog_time" => 'Time',
     "mgrlog_user" => 'User',
     "mgrlog_username" => 'Username',
