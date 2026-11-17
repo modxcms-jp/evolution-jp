@@ -1,9 +1,10 @@
 <?php
 
+require_once __DIR__ . '/db_tables.class.inc.php';
+
 /**
  * スナップショット（サーバー上の保存先に置く DB のバックアップ）の
  * 保存先・ファイル名・一覧・世代・作成・復元を受け持つ。
- * あわせて、バックアップの画面のテーブル一覧で、中身を削除してよいテーブルを決める。
  */
 class EvoBackupManager
 {
@@ -13,19 +14,6 @@ class EvoBackupManager
     const KEEP = 10;
     const PRE_RESTORE_KEEP = 3;
     const HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
-
-    /**
-     * 管理画面から中身の全削除を許可するテーブル名（接頭辞付き）
-     * 画面のリンクの出し分けと、削除処理の許可判定が共有する
-     * event_log は今は作らないが、古い版から上げたサイトには残っているので、空にできるよう残す
-     */
-    public static function truncatableTables(): array
-    {
-        return [
-            db()->table_prefix . 'event_log',
-            db()->table_prefix . 'manager_log',
-        ];
-    }
 
     public function dir()
     {
@@ -227,14 +215,9 @@ class EvoBackupManager
             $sql = str_replace(["\r\n", "\r"], "\n", $sql);
         }
 
-        $prefix = db()->table_prefix;
-        $cacheTable = $prefix . 'system_cache';
-        $rs = db()->query("SHOW TABLES LIKE '" . db()->escape($cacheTable) . "'");
-        if ($rs !== false) {
-            if (db()->count($rs) > 0) {
-                db()->query('TRUNCATE TABLE `' . $cacheTable . '`');
-            }
-            db()->freeResult($rs);
+        $cacheTable = db()->table_prefix . 'system_cache';
+        if (EvoDbTables::exists($cacheTable)) {
+            db()->query('TRUNCATE TABLE `' . $cacheTable . '`');
         }
 
         $keep = $this->getKeptSettings();
@@ -263,7 +246,7 @@ class EvoBackupManager
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $i + 1;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
-                if ($this->tableExists('system_settings')) {
+                if (EvoDbTables::exists('system_settings')) {
                     $this->restoreSettings($keep);
                 }
                 return $result;
@@ -281,11 +264,11 @@ class EvoBackupManager
     // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）
     private function finish($keep)
     {
-        if (!$this->tableExists('system_settings')) {
+        if (!EvoDbTables::exists('system_settings')) {
             return false;
         }
         $this->restoreSettings($keep);
-        if (!$this->tableExists('system_cache')) {
+        if (!EvoDbTables::exists('system_cache')) {
             return false;
         }
         evo()->clearCache();
@@ -303,17 +286,6 @@ class EvoBackupManager
             $statement = ltrim($statement);
         }
         return $statement;
-    }
-
-    private function tableExists($name)
-    {
-        $rs = db()->query("SHOW TABLES LIKE '" . db()->escape(db()->table_prefix . $name) . "'");
-        if ($rs === false) {
-            return false;
-        }
-        $exists = db()->count($rs) > 0;
-        db()->freeResult($rs);
-        return $exists;
     }
 
     // 制限時間は延ばすだけにする（残り時間を縮めない）
@@ -335,7 +307,7 @@ class EvoBackupManager
     private function getKeptSettings()
     {
         $keep = [];
-        if (!$this->tableExists('system_settings')) {
+        if (!EvoDbTables::exists('system_settings')) {
             return $keep;
         }
         $keys = ['site_url', 'base_url', 'filemanager_path', 'rb_base_dir', 'fixed_site_url'];

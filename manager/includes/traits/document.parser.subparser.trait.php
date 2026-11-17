@@ -110,11 +110,9 @@ trait DocumentParserSubParserTrait
             db()->delete("[+prefix+]{$target}", '', '', $trim);
         }
         if (config('automatic_optimize') == 1) {
-            $rs = db()->query(
-                sprintf('SHOW TABLE STATUS FROM `%s`', trim(db()->dbname, '`'))
-            );
-            while ($row = db()->getRow($rs)) {
-                db()->query('OPTIMIZE TABLE ' . $row['Name']);
+            require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
+            foreach (EvoDbTables::names() as $name) {
+                db()->query('OPTIMIZE TABLE `' . $name . '`');
             }
         }
     }

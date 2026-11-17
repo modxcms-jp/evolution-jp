@@ -15,6 +15,8 @@ if (!isset($modx) || !is_object($modx)) {
     exit;
 }
 
+require_once __DIR__ . '/db_tables.class.inc.php';
+
 class Mysqldumper
 {
     public $_dbtables;
@@ -43,7 +45,7 @@ class Mysqldumper
     public function setDBtables($dbtables = false)
     {
         if (!$dbtables) {
-            $this->_dbtables = $this->getTableNames();
+            $this->_dbtables = EvoDbTables::names();
             return;
         }
         $this->_dbtables = $dbtables;
@@ -120,7 +122,7 @@ class Mysqldumper
         }
 
         if (!$this->_dbtables) {
-            $this->_dbtables = $this->getTableNames();
+            $this->_dbtables = EvoDbTables::names();
             if (!$this->_dbtables) {
                 return false;
             }
@@ -318,32 +320,5 @@ class Mysqldumper
         }
         db()->freeResult($resource);
         return $array;
-    }
-
-    function getTableNames($dbname = '', $table_prefix = '')
-    {
-        if (!$table_prefix) {
-            $table_prefix = $this->table_prefix;
-        }
-        $table_prefix = str_replace('_', '\\_', $table_prefix);
-        if ($dbname === '') {
-            $dbname = $this->dbname;
-        }
-        $rs = db()->query(
-            sprintf(
-                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
-                $dbname,
-                $table_prefix
-            )
-        );
-
-        $tables = [];
-        if (db()->count($rs)) {
-            while ($row = db()->getRow($rs)) {
-                $tables[] = $row['Name'];
-            }
-        }
-
-        return $tables;
     }
 }
