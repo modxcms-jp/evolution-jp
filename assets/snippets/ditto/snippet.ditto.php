@@ -50,10 +50,15 @@ if (str_starts_with($config, '@CHUNK')) {
     evo()->logEvent(
         0,
         2,
-        sprintf(
-            'Ditto の &config の @CHUNK は廃止しました（%s）。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
-            $config
-        ),
+        'Ditto の &config の @CHUNK は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+        'Ditto ' . $ditto_version,
+        ['value' => $config]
+    );
+} elseif ($config === 'compatibility') {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &config=compatibility は廃止しました。スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
         'Ditto ' . $ditto_version
     );
 } elseif (str_starts_with($config, '@FILE')) {
@@ -102,26 +107,12 @@ $renamedParams = array_intersect_key(
     (array) event()->params
 );
 if ($renamedParams) {
-    $renamedPairs = [];
-    foreach ($renamedParams as $oldName => $newName) {
-        $renamedPairs[] = "&{$oldName} → &{$newName}";
-    }
     evo()->logEvent(
         0,
         2,
-        sprintf(
-            'Ditto の古いパラメータ名は廃止しました。スニペットの呼び出しを今の名前に書き換えてください: %s',
-            implode('、', $renamedPairs)
-        ),
-        'Ditto ' . $ditto_version
-    );
-}
-if ($config === 'compatibility') {
-    evo()->logEvent(
-        0,
-        2,
-        'Ditto の &config=compatibility は廃止しました。スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
-        'Ditto ' . $ditto_version
+        'Ditto の古いパラメータ名は廃止しました。スニペットの呼び出しを今の名前に書き換えてください。',
+        'Ditto ' . $ditto_version,
+        ['renamed' => $renamedParams]
     );
 }
 
@@ -192,11 +183,9 @@ if (count($extenders) > 0) {
             evo()->logEvent(
                 0,
                 2,
-                sprintf(
-                    'Ditto の &extenders の @CHUNK は廃止しました（%s）。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
-                    $extender
-                ),
-                'Ditto ' . $ditto_version
+                'Ditto の &extenders の @CHUNK は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+                'Ditto ' . $ditto_version,
+                ['value' => $extender]
             );
             continue;
         }
@@ -216,6 +205,15 @@ if (count($extenders) > 0) {
 
         // PHP として読み込むので .php だけ
         if (!$extender_path || evo()->getExtention($extender_path) !== '.php') {
+            if (strpos($extender, '@') !== 0 && evo()->getChunk($extender) !== '') {
+                evo()->logEvent(
+                    0,
+                    2,
+                    'Ditto の &extenders にチャンク名を書く指定は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+                    'Ditto ' . $ditto_version,
+                    ['value' => $extender]
+                );
+            }
             $message = $extender . ' ' . $_lang['extender_does_not_exist'];
             evo()->logEvent(1, 3, $message, 'Ditto ' . $ditto_version);
             return $message;
@@ -339,18 +337,12 @@ $documentIDs = $ditto->determineIDs(
 );
 
 if ($ditto->tvPrefixFields) {
-    $tvPrefixPairs = [];
-    foreach ($ditto->tvPrefixFields as $prefixedName => $tvName) {
-        $tvPrefixPairs[] = "[+{$prefixedName}+] → [+{$tvName}+]";
-    }
     evo()->logEvent(
         0,
         2,
-        sprintf(
-            'Ditto の TV の tv 接頭辞は廃止しました（%s）。テンプレートや &orderBy などには、TV の名前のまま書いてください。',
-            implode('、', $tvPrefixPairs)
-        ),
-        'Ditto ' . $ditto_version
+        'Ditto の TV の tv 接頭辞は廃止しました。テンプレートのプレースホルダーや &orderBy・&filter などのフィールド名には、tv を付けずに TV の名前を書いてください。',
+        'Ditto ' . $ditto_version,
+        ['fields' => $ditto->tvPrefixFields]
     );
 }
 

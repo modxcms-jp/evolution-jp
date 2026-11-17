@@ -22,7 +22,7 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
 
 `configs/default.config.php` があれば、`config` の指定にかかわらず最初に読み込む。
-`extenders` の名前は `extenders/<名前>.extender.inc.php` を読む。
+`extenders` の名前は `extenders/<名前>.extender.inc.php` を読む。チャンク名だけの extender は読まない（エラーになる）。
 `config`・`extenders` に `@CHUNK チャンク名` は使えない（チャンクを PHP として実行しない）。チャンクに書いていた PHP は `.php` のファイル（例: `assets/ditto/my.config.php`）に移し（先頭が `<?php` でなければ付ける）、`@FILE assets/ditto/my.config.php` で指定する。`@CHUNK` を渡すと、その指定を読まずにシステムログへ警告を残す。
 
 ## 対象のリソース
@@ -39,7 +39,6 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `seeThruUnpub` | 非公開のコンテナの下にあるリソースも集める（`depth` が 2 以上のときに意味がある） | `0` 集めない / `1` 集める | `1` |
 | `where` | SQL の WHERE に足す条件。`AND` で区切った各条件の先頭に `sc.` が付く | リソースのフィールドだけを使った条件（TV は不可） | 空 |
 | `queryLimit` | データベースから取り出す件数の上限（SQL の LIMIT）（関連: `where`） | 数。`0` は上限なし | 上限なし |
-| `limit` | `queryLimit` の別名 | 同上 | — |
 | `filter` | 条件に合うリソースを結果から除く。下の「filter の書き方」を参照 | `フィールド,値,モード` を `globalFilterDelimiter` で区切って並べる | 空 |
 | `globalFilterDelimiter` | `filter` の中で条件どうしを区切る文字 | 条件の中で使わない文字 | `\|` |
 | `localFilterDelimiter` | 1 つの条件の中でフィールド・値・モードを区切る文字 | 条件の中で使わない文字 | `,` |

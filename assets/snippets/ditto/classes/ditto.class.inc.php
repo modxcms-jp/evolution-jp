@@ -169,7 +169,7 @@ class ditto
 
     // ---------------------------------------------------
     // Function: noteTvPrefixField
-    // Remember a field written as "tv" + TV name, which is no longer read as the TV
+    // Remember a field written as "tv" + TV name to report it (it is not read as the TV)
     // ---------------------------------------------------
 
     private function noteTvPrefixField($field)
