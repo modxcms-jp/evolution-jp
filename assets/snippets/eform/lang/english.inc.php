@@ -14,6 +14,7 @@ $_lang["ef_eval_deprecated"] = "The #EVAL rule is deprecated and may not work in
 $_lang["ef_failed_default"] = "Incorrect value";
 $_lang["ef_failed_ereg"] = "Value did not validate";
 $_lang["ef_failed_eval"] = "Value did not validate";
+$_lang["ef_no_function"] = "Could not find the function:";
 $_lang["ef_failed_list"] = "Value not in list of permitted values";
 $_lang["ef_failed_range"] = "Value not in permitted range";
 $_lang["ef_failed_upload"] = "Incorrect file type.";
