@@ -34,6 +34,9 @@
 - 2026-11-17（S2）: a=55 は CSRF の一覧（`csrf_token.php`）に入っていたので、GET で開くと 405 になり、POST だけが空にしていた。修正後は GET も POST も「まだ実装されていない機能」の画面になる（`index.php` の `default`）。
 - 2026-11-17（S2）: 管理ログの画面（a=13）の「empty」のリンクは、`logs` を持つ利用者すべてに出る。`settings` を持たない利用者（`logs` だけのロール）が押すと、修正前（a=55）も修正後（a=54）も「この操作を行なう権限がありません」になり、ログは消えない。リンクを権限で出し分けるのは S2 の範囲の外として残した。
 - 2026-11-17（S2）: 確かめの結果。既定のロール（ウェブマスター・投稿担当者）と、`settings` だけ・`logs` だけ・`settings`+`logs`・`settings`+`bk_manager` の 4 つのロールの利用者で、a=13 のリンクを押す・a=55 を POST と GET で開く・a=54 に `from=logging` で POST する、を修正前後で比べた。違いは計画どおりの 3 点だけ: リンクの行き先が a=54 になる、a=55 がどの利用者でも「まだ実装されていない機能」になる（修正前は `settings` を持つ利用者が POST で空にできた。`settings` だけのロールもここで空にできなくなる）、a=54 の `from=logging` の戻り先が a=13 になる（修正前は戻り先が無くダッシュボード）。`settings`+`bk_manager` で `logs` の無い利用者が `from=logging` で直接 POST すると、空にしたあと a=13 に戻って権限のエラーになる（画面にリンクの無い操作なので残した）。`grep -rn "a=55\|empty_table" manager/ install/ assets/docs/` は 0 件、`php:7.4-cli` の `php -l` と security-lint は通過。
+- 2026-11-17（S2。#1566 への Codex の指摘）: S1 で入れた `EvoDbTables::qualify()` は「接頭辞で始まれば、もう付いている」とみなしていた。接頭辞が `manager_` のサイトでは `qualify('manager_log')` が `manager_log` を返し、管理ログの画面のリンク（S2 で足した）が a=54 の `truncatable()` で断られて権限エラーになる。同じ取り違えは、修正前（main 10d3bfbed）の CLI にもあった: 接頭辞 `manager_` で `db:count manager_log` は無い表を数えようとしてエラー、`db:export --tables=manager_log,site_content --driver=php` は `manager_log` を黙って書かず、mysqldump では「Couldn't find table」で終わる。下線の無い接頭辞 `sys` では `db:count system_settings` がエラー。S1 の前の `cli_full_table_name()` と `db-export.php` も同じ推し量り方だった。
+- 2026-11-17（S2）: 呼び出し元の洗い出し。接頭辞を除いた名前を本体が決め打ちで渡すもの: `truncatable()`（`event_log`・`manager_log`）、`EvoBackupManager` の `system_settings`・`system_cache`、管理ログの画面のリンク（`manager_log`）。利用者が入力するもの（完全な名前と接頭辞を除いた名前のどちらもありうる）: CLI の `db:count`・`db:describe`・`db:export --tables=`。完全な名前を受けるもの: `exists()`（`EvoBackupManager`・a=54）、`isOwn()`（a=54 の最適化）。
+- 2026-11-17（S2）: 確かめの結果。接頭辞 `modx_`・`manager_`・`sys` のサイト（`modx_` の表を写して作り、`config.inc.php` の接頭辞を切り替えた）で、`db:count`・`db:describe`・`db:export`（php・mysqldump）が接頭辞の付いた名前と付いていない名前のどちらでもこのサイトの表を指し、無い表はエラーで終わる。管理ログの画面のリンクは `<接頭辞>manager_log` を指して空にでき、a=54・a=93 の空にするリンクも同じ。`db:backup --driver=php` → `db:import` は 3 つとも「Import completed」で警告なし（`system_settings` を取り違えない）。S2 の利用者 6 人の確かめは、この直しの後も結果が同じ。
 
 ## Decision Log
 
@@ -66,6 +69,10 @@
 - 2026-11-17 / yamamoto（Claude が起案。M0 で追加）: `EvoDbTables::status()` は、空にしてよい表の行数を `COUNT(*)` の正確な数に差し替えた行を返し、a=93 と a=53 の両方がこれを使う。a=53 は今は `SHOW TABLE STATUS` の `Rows`（InnoDB では見積もり）をそのまま出しているので、ログの表（`manager_log`・`event_log`）の行数だけ、見積もりから正確な数に変わりうる。同じ表の行数が画面によって違う今の動きを不具合とみなし、S1 で出てよい違いに加える（上の LIKE のエスケープ、下の `rotate_log()` と合わせて 3 点）。表の有無（`EvoDbTables::exists()`。接頭辞の付いた完全な名前を受ける。下の S1 の項）も `names()` と同じく LIKE の `_`・`%` をエスケープして確かめる（`EvoBackupManager::tableExists()` と復元の中の `system_cache` の確かめが置き換わる。違いが出るのは接頭辞の `_` を任意の 1 文字とみなしたときに当たる別の表がある DB だけ）。
 - 2026-11-17 / yamamoto（Claude が起案。S1 で追加）: `rotate_log()`（`manager/includes/traits/document.parser.subparser.trait.php`。管理のログ `log.class.inc.php` から呼ばれる）の `automatic_optimize` は、`SHOW TABLE STATUS FROM <DB>` で同じ DB のすべての表（ほかのサイトの表も）を最適化していた。`EvoDbTables::names()` の表だけを最適化するようにし、S1 で出てよい違いに加える（3 点目）。ほかのサイトの表にロックをかけていた今の動きは不具合とみなす。完了条件の「`SHOW TABLE STATUS` は `db_tables.class.inc.php` だけ」のためにも要る。DocumentParser の `executeParser()`・`prepareResponse()`・`parseDocumentSource()`・`postProcess()` には影響しない。
 - 2026-11-17 / yamamoto（Claude が起案。S1 で追加）: `EvoDbTables::exists()` は接頭辞の付いた完全な名前だけを受ける（`qualify()` を通さない）。「接頭辞で始まれば付いているとみなす」推測は CLI に入力された名前（`qualify()`）にだけ使う。下線の無い接頭辞（例 `sys`）で `system_settings` を完全な名前と取り違えないため。表の有無の 3 通り（上の Surprises）を 1 つにするのは、この計画では行わない（PDO 移行か別の Issue）。
+- 2026-11-17 / yamamoto（Claude が起案。S2 で追加。#1566 への Codex の指摘から）: 表の名前に接頭辞が付いているかを、名前の頭から推し量らない。S1 で入れた `qualify()`・`qualifiedWithDb()` を消し、次の 2 つに分ける。
+  - `EvoDbTables::name($short)`: 接頭辞を除いた名前（本体が決め打ちで持つ名前）に、必ず接頭辞を付ける。`truncatable()`・`EvoBackupManager`・管理ログの画面のリンクが使う。
+  - `EvoDbTables::resolve($input)`: 利用者が入力した名前を、このサイトに在る表（`names()`）で決める。入力のとおりの名前の表が在ればそれを、無ければ接頭辞を付けた名前の表が在ればそれを返し、どちらも無ければ `''`。CLI の `db:count`・`db:describe`・`db:export --tables=` が使い、`''` なら「no such table with the prefix <接頭辞>: <名前>」で終える（修正前は、無い表を渡すと SQL や mysqldump のエラーで終わるか、PHP の書き手では黙って飛ばしていた）。両方の名前の表が在る（例: 接頭辞 `manager_` で、`manager_log` という名前のこのサイトの表と `manager_manager_log` が両方在る）ときは、入力のとおりの名前を選ぶ。もう一方は接頭辞の付いた名前で指せる。
+  - S1 の段階で直すべきものだったが、S1 はマージ済みなので S2 の PR で直す。
 
 ## Outcomes & Retrospective
 
@@ -199,7 +206,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 
 - 依存: #1560 のマージ（M0 で確かめる）。
 - 作るクラスの公開メソッド（呼び出し元はこの計画のファイルだけ）:
-  - `EvoDbTables`: `names(): array`、`status(): array`、`qualify(string $name): string`（不正なら `''`）、`qualifiedWithDb(string $name): string`、`exists(string $table): bool`（接頭辞の付いた完全な名前）、`truncatable(): array`、`isOwn(string $name): bool`
+  - `EvoDbTables`: `names(): array`、`status(): array`、`name(string $short): string`（接頭辞を除いた名前に必ず接頭辞を付ける。不正なら `''`）、`resolve(string $input): string`（利用者の入力を、このサイトに在る表の名前にする。無ければ `''`）、`resolveWithDb(string $input): string`、`exists(string $table): bool`（接頭辞の付いた完全な名前）、`truncatable(): array`、`isOwn(string $name): bool`
   - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と本文を返す）、`tablesIn($stream): array`（下読み。S7）
   - `EvoSnapshotStore`: `dir()`、`ensureDir()`、`normalizeName()`、`isValidFilename()`、`autoFilename($prefix = '')`、`path($name)`、`files()`、`prune($max)`、`counts($max)`、`denyDirs()`、`static protect($dir)`、`checkPath($value)`（S5。保存のときの確かめ）、定数 `HTACCESS`・`KEEP`・`PRE_RESTORE_KEEP`・`AUTO_NAME_PATTERN`・`PRE_RESTORE_PREFIX`
   - `EvoBackupManager`: `store()`、`createSnapshot($name = '', array $options = [])`、`restoreFile($path, $preRestore = null)`（戻り値の配列は今の `restore()` と同じキー）
