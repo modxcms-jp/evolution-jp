@@ -23,7 +23,7 @@
 - 2026-10-31: 旧計画のコード例にある `str_starts_with()` は PHP 8 の関数である。`manager/includes/helpers.php` に代わりの実装はあるが、既存のコマンド（`manager/includes/cli/commands/db-backup.php` など）にそろえて `strpos(...) === 0` を使う。
 - 2026-10-31: CLI のコマンド名は、ファイル名の `-` を `:` に読み替えて一覧に出る（`manager/includes/cli/commands/help.php`）。`manager/includes/cli/commands/system-upgrade.php` は `system:upgrade` になる。既存のコマンドは、表示をすべて英語で出す。
 - 2026-10-31: このコマンドを動かすのは、サイトに今入っている版のコードである。そのため、使えるのはこのコマンドを含む版（1.3.0 以降）からの更新に限られる。1.2 系のサイトは、今までどおり手で 1.3 へ上げる。
-- 2026-10-31: 配布 zip の `manager/` にあるのは `ht.access` で、利用者はこれを `.htaccess` に名前を変えて、管理画面を保護する（Basic 認証や IP の制限）。テーマには `manager/media/style/common/config.php.sample` があり、テーマのフォルダに `config.php` を置いて使う。`manager/` を丸ごと入れ替えると、これらが知らせなく消える。
+- 2026-10-31: 配布 zip の `manager/` には `.htaccess` の見本を置かない（2026-11-17 に古い `ht.access` を削除）。利用者は自分で `manager/.htaccess` を置いて、管理画面を保護することがある（Basic 認証や IP の制限）。テーマには `manager/media/style/common/config.php.sample` があり、テーマのフォルダに `config.php` を置いて使う。`manager/` を丸ごと入れ替えると、これらが知らせなく消える。
 - 2026-10-31: CLI では `DocumentParser::phpError()` が `true` を返す（`manager/includes/document.parser.class.inc.php` の `phpError()`）。このため、警告のあとで `error_get_last()` を呼んでも `NULL` が返り、`rename()` や `copy()` が失敗した理由を取れない。
 - 2026-10-31: `cli_export_database()` は、失敗すると `cli_usage()` を呼んで `exit` する（`manager/includes/cli/cli-helpers.php`）。呼んだ側の後片付けは飛ばされる。
 - 2026-10-31: インストーラは、`manager/includes/config.inc.php` が無ければ新規インストールと判定し、アップデートのときの認証（管理者のログイン）を求めない（`install/index.php`、`install/functions.php` の `managerConfigExists()`）。`config.inc.php` が無い新しい `manager/` を先に置くと、`install/` が既にあるサイトでは、その間だけ認証なしで新規インストールに入れてしまう。
