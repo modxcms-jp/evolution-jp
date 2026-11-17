@@ -504,13 +504,17 @@ if ($errors == 0) {
 }
 
 // フレンドリー URL は標準。.htaccess が無いときだけ sample.htaccess から置く（既にある .htaccess は書き換えない）。
-// 置けなかったときは、リンクが 404 になるので結果の画面で知らせる
-$htaccessNotice = false;
+// 置けなかったとき・既存の .htaccess に書き換えの規則が無いときは、リンクが 404 になるので結果の画面で知らせる
+$htaccessNotice = '';
 if ($errors == 0) {
     require_once MODX_CORE_PATH . 'htaccess.class.inc.php';
     $htaccessResult = EvoHtaccess::ensure(MODX_BASE_PATH, MODX_BASE_URL, false, serverv('SERVER_SOFTWARE', ''));
     log_install_event('Checked .htaccess', ['result' => $htaccessResult]);
-    $htaccessNotice = !in_array($htaccessResult, [EvoHtaccess::PLACED, EvoHtaccess::EXISTS, EvoHtaccess::SKIPPED], true);
+    if ($htaccessResult === EvoHtaccess::NO_REWRITE) {
+        $htaccessNotice = 'htaccess_no_rewrite';
+    } elseif (!in_array($htaccessResult, [EvoHtaccess::PLACED, EvoHtaccess::EXISTS, EvoHtaccess::SKIPPED], true)) {
+        $htaccessNotice = 'htaccess_not_placed';
+    }
 }
 
 clean_up($sqlParser->prefix);
@@ -562,8 +566,8 @@ if ($errors > 0) {
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
-if ($htaccessNotice) {
-    printf('<p><span class="notok"><b>%s</b></span></p>', lang('htaccess_not_placed'));
+if ($htaccessNotice !== '') {
+    printf('<p><span class="notok"><b>%s</b></span></p>', lang($htaccessNotice));
 }
 // ログインを保つか（$keep_login）は install.php が処理の前に決め、セッションの後始末も install.php が行う
 echo "<p>" . lang($keep_login ? 'to_log_into_content_manager_keep_login' : 'to_log_into_content_manager') . "</p>";
