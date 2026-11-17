@@ -17,24 +17,16 @@ if (isset($eFormCSS)) $cssStyle = $eFormCSS;
 $from = isset($from) ? $from : config('emailsender');
 $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode : '';
-# 廃止した引数が書かれていたら、送信のときに警告を残す（表示のたびに残すとログがあふれる。処理は止めない）
+# 廃止した引数の名前を集める（警告は eForm() が送信のときに残す）
 $removedParams = [];
 foreach (['mobile', 'mobiletext', 'sendAsHtml', 'reportAbuse', 'sendirect'] as $removedName) {
     if (isset($$removedName)) {
         $removedParams[] = $removedName;
     }
 }
-if ($removedParams && is_post() && postv('formid') === $formid) {
-    evo()->logEvent(
-        0,
-        2,
-        'eForm: 廃止した引数が指定されています。効果はありません: ' . implode(', ', $removedParams),
-        'eForm',
-        ['formid' => $formid, 'params' => $removedParams]
-    );
-}
 
 $params = [
+    'removedParams' => $removedParams,
     'snipPath' => $snipPath,//includes $snip_dir
     'snipFolder' => $snip_dir,
 

@@ -78,6 +78,18 @@ function eForm($modx, $params)
 
     $efPostBack = $validFormId && is_post() && efIsSameHostRequest();
 
+    // 廃止した引数が書かれていたら、送信のときに警告を残す（表示のたびに残すとログがあふれる。処理は止めない）
+    $removed = $removedParams ?? [];
+    if ($efPostBack && $removed) {
+        evo()->logEvent(
+            0,
+            2,
+            'eForm: 廃止した引数が指定されています。効果はありません: ' . implode(', ', $removed),
+            'eForm',
+            ['formid' => $formid, 'params' => $removed]
+        );
+    }
+
     if ($efPostBack) {
         if ($report) {
             $report = (($tmp = efLoadTemplate($report)) !== false) ? $tmp : $_lang['ef_no_doc'] . " '$report'";
@@ -244,7 +256,7 @@ function eForm($modx, $params)
                             }
                             break;
                         case "email":
-                            if (strlen($value) > 0 && (filter_var($value, FILTER_VALIDATE_EMAIL) === false || strpbrk($value, "\",[]") !== false)) {
+                            if (strlen($value) > 0 && !efIsValidEmail($value)) {
                                 $vMsg[count($vMsg)] = isset($formats[$name][4]) ? $formats[$name][4] : $desc . $_lang["ef_invalid_email"];
                                 $rClass[$name] = $invalidClass;
                             }
@@ -457,8 +469,11 @@ function eForm($modx, $params)
                 }
 
                 // $replyto にはアドレスか項目名を指定する
+                // 項目名のときは、利用者の入力が正しいアドレスの場合だけ 1 件使う
+                $replytoIsInput = false;
                 if (strpos($replyto, '@') === false) {
-                    $replyto = (!empty($fields[$replyto]) && strpos($fields[$replyto], '@') !== false) ? $fields[$replyto] : $from;
+                    $replytoIsInput = isset($fields[$replyto]) && efIsValidEmail($fields[$replyto]);
+                    $replyto = $replytoIsInput ? $fields[$replyto] : $from;
                 }
 
                 evo()->loadExtension('MODxMailer');
@@ -472,7 +487,11 @@ function eForm($modx, $params)
                     $modx->mail->FromName = $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $report;
-                    AddAddressToMailer($modx->mail, "replyto", $replyto);
+                    if ($replytoIsInput) {
+                        $modx->mail->AddReplyTo($replyto);
+                    } else {
+                        AddAddressToMailer($modx->mail, "replyto", $replyto);
+                    }
                     AddAddressToMailer($modx->mail, "to", $to);
                     AddAddressToMailer($modx->mail, "cc", $cc);
                     AddAddressToMailer($modx->mail, "bcc", $bcc);
@@ -482,7 +501,12 @@ function eForm($modx, $params)
                     }
                 }
 
-                if ($ccsender && !empty($fields['email'])) {
+                $emailIsValid = efIsValidEmail($fields['email'] ?? '');
+                if (!empty($fields['email']) && !$emailIsValid && ($ccsender || $autotext)) {
+                    evo()->logEvent(0, 2, 'eForm: 宛先が正しくないため、控えと自動返信を送りませんでした', 'eForm', ['formid' => $formid]);
+                }
+
+                if ($ccsender && $emailIsValid) {
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From = $from;
@@ -498,7 +522,7 @@ function eForm($modx, $params)
 
                 // 既定は HTML
                 $isHtml = ($sendAsText == 1 || strpos($sendAsText, 'autotext') !== false) ? false : true;
-                if ($autotext && !empty($fields['email'])) {
+                if ($autotext && $emailIsValid) {
                     $autotext = formMerge($autotext, $fields);
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
@@ -627,6 +651,14 @@ function eForm($modx, $params)
         efRegisterStartupBlock($startupSource);
     }
     return formMerge($tpl, efHtmlFields($fields));
+}
+
+# メールアドレスとして正しいか。引用符つきのローカル部・カンマ・ドメインリテラルは認めない
+function efIsValidEmail($value)
+{
+    return is_string($value)
+        && filter_var($value, FILTER_VALIDATE_EMAIL) !== false
+        && strpbrk($value, "\",[]") === false;
 }
 
 # 送信元（Origin、無ければ Referer）のホストとポートが、サイトの URL と同じか
