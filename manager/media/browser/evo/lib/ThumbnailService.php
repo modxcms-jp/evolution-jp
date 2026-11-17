@@ -35,9 +35,12 @@ class ThumbnailService
         }
     }
 
-    /** この環境の GD で読み込める形式か(WebP は GD が WebP 付きで組まれているときだけ)。対応の判定はここだけ */
+    /** この環境の GD で読み込める形式か(WebP は GD が WebP 付きで組まれているときだけ)。サムネイルの対応の判定はここだけ */
     public static function canLoadType($type)
     {
+        if (!extension_loaded('gd')) {
+            return false;
+        }
         if ($type === IMAGETYPE_WEBP) {
             return (imagetypes() & IMG_WEBP) !== 0;
         }

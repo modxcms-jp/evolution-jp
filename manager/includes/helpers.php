@@ -1394,11 +1394,12 @@ function size_to_bytes($value, $defaultUnit = 1)
  * (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
  * GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。縮小先は imagecreatetruecolor() で 4。
  * BMP: 6000×6000 で約 4.1 (JPEG と同じ 4 に、4MB の余裕で収まる)。
- * WebP: 4000×3000 で約 4.19、6000×6000 で約 4.14(透過の有無で差なし。JPEG と同じ 4 に、4MB の余裕で収まる)。
+ * WebP: GD はファイル全体をメモリ(memory_limit に数えられる)へ読み込んでから 4 で展開するので、4 + ファイルの大きさ。
+ *   透過の有無では差がなく、圧縮が効く画像は 4000×3000 で約 4.2。可逆で圧縮が効かない(乱数画素)と約 7〜7.7 になるので、安全側の 8。
  *
  * @param int $width 元画像の幅
  * @param int $height 元画像の高さ
- * @param int $imageType IMAGETYPE_PNG は 8、それ以外(JPEG・GIF・BMP・WebP など)は 4 バイト/画素で見積もる
+ * @param int $imageType IMAGETYPE_PNG・IMAGETYPE_WEBP は 8、それ以外(JPEG・GIF・BMP など)は 4 バイト/画素で見積もる
  * @param int $destWidth 縮小先の幅
  * @param int $destHeight 縮小先の高さ
  */
@@ -1409,7 +1410,7 @@ function gd_can_load_image($width, $height, $imageType, $destWidth, $destHeight)
         return true;
     }
 
-    $bytesPerPixel = ((int) $imageType === IMAGETYPE_PNG) ? 8 : 4;
+    $bytesPerPixel = in_array((int) $imageType, [IMAGETYPE_PNG, IMAGETYPE_WEBP], true) ? 8 : 4;
     // 縮小先と、そのほかの確保の余裕(4MB)
     $need = $width * $height * $bytesPerPixel + $destWidth * $destHeight * 4 + 4194304;
     return $need <= $limit - memory_get_usage(true);
