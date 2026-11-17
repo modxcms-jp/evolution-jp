@@ -3,7 +3,8 @@
 /**
  * ファイルブラウザの成功した変更の記録(範囲によらず共通)。
  * 管理操作ログ(manager_log。画面は a=13)に 1 件ごとに 1 行を書く。
- * 管理操作ログに書けなかったパス(1 回の要求で MAX_ROWS 行を超えた分と、管理画面にログインしていない利用者の変更)だけを、
+ * 管理操作ログに書けなかったパス(1 回の要求で MAX_ROWS 行を超えた分と、管理画面にログインしていない利用者の変更)と、
+ * 管理操作ログには省いたり置き換えたりして書いたパス(ITEMNAME_MAX を超えるもの・UTF-8 でないもの)の元の形だけを、
  * システムログ(evo()->logEvent())に 1 操作につき 1 行で書く。システムログはエラーや異常を見つける場所なので、ふだんの変更は重ねて書かない。
  * 範囲の印は BrowserScope::logLabel()(管理操作ログの message の先頭)と name()(システムログの scope)の値を書くだけで、範囲は見分けない。
  * 記録するのは成功した変更だけ(一覧・プレビュー・テキストの表示は見るたびに増え、変更の追跡に要らないため)。失敗は各操作が logEvent() で記録する。
@@ -12,7 +13,7 @@ class ChangeLog
 {
     /** 1 回の要求で管理操作ログに書く行数の上限。超えた分は最後に「ほか N 件(trace_id=...)」の 1 行にまとめ、パスはシステムログに書く */
     const MAX_ROWS = 50;
-    /** manager_log.itemname の長さ(文字数)。超えるときは先頭を省く */
+    /** manager_log.itemname の長さ(文字数)。超えるときは先頭を省き、元のパスはシステムログに書く */
     const ITEMNAME_MAX = 255;
 
     private static $rows = 0;
@@ -40,7 +41,8 @@ class ChangeLog
             return;
         }
 
-        // MAX_ROWS を超えた分は、管理操作ログの「ほか N 件(trace_id=...)」の行から trace_id でこの行を引ける
+        // MAX_ROWS を超えた分は、管理操作ログの「ほか N 件(trace_id=...)」の行から trace_id でこの行を引ける。
+        // 省いて書いたパスは、同じ操作の時刻と operation で管理操作ログの行と突き合わせる
         evo()->logEvent(0, 1, 'File changed in the file browser', 'File browser', [
             'scope' => $scope->name(),
             'operation' => (string) $operation,
@@ -56,7 +58,7 @@ class ChangeLog
     /**
      * 管理操作ログへ、1 件ごとに 1 行を書く(1 回の要求で MAX_ROWS 行まで)。管理画面にログインしている利用者だけが書ける
      * (manager_log の internalKey は管理ユーザーの ID のため)。itemname と message は logHandler が escape するので、前もってエスケープしない。
-     * 書けなかったパスを返す
+     * 書けなかったパスと、省いたり置き換えたりして書いたパスを、元の形で返す
      */
     private static function writeManagerLog(BrowserScope $scope, $operation, array $paths)
     {
@@ -69,13 +71,18 @@ class ChangeLog
         $message = $scope->logLabel() . $operation;
 
         $omitted = [];
+        $shortened = [];
         foreach ($paths as $path) {
             if (self::$rows >= self::MAX_ROWS) {
                 $omitted[] = $path;
                 continue;
             }
             self::$rows++;
-            $log->initAndWriteLog($message, '', '', 31, 'x', self::itemName($path));
+            $itemName = self::itemName($path);
+            if ($itemName !== $path) {
+                $shortened[] = $path;
+            }
+            $log->initAndWriteLog($message, '', '', 31, 'x', $itemName);
         }
 
         if ($omitted) {
@@ -89,7 +96,7 @@ class ChangeLog
             );
         }
 
-        return $omitted;
+        return array_merge($shortened, $omitted);
     }
 
     /**
