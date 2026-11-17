@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/db_tables.class.inc.php';
+require_once __DIR__ . '/sql_dump.class.inc.php';
 
 /**
  * スナップショット（サーバー上の保存先に置く DB のバックアップ）の
@@ -140,17 +141,39 @@ class EvoBackupManager
         }
 
         $this->extendTimeLimit();
-        global $modx;
-        include_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-        $dumper = new Mysqldumper();
-        $dumper->mode = 'snapshot';
-        $dumper->contentsOnly = $contentsOnly ? 1 : 0;
-        if (!$dumper->dumpToFile($this->dir() . $name)) {
+        $tables = EvoDbTables::names();
+        if ($contentsOnly) {
+            $tables = array_values(array_intersect($tables, self::contentTables()));
+        }
+        // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+        $options = ['drop' => true, 'structureOnly' => self::logTables()];
+        if (!EvoSqlDump::writeFile($this->dir() . $name, $tables, $options)) {
             return false;
         }
 
         $this->prune();
         return $name;
+    }
+
+    // 「コンテンツのみ」のスナップショットに入れる表
+    private static function contentTables(): array
+    {
+        return array_map([EvoDbTables::class, 'name'], [
+            'site_content',
+            'site_htmlsnippets',
+            'site_templates',
+            'system_settings',
+            'site_tmplvars',
+            'site_tmplvar_access',
+            'site_tmplvar_contentvalues',
+            'site_tmplvar_templates',
+        ]);
+    }
+
+    // スナップショットに構造だけを入れる表。event_log は今は作らないが、古い版から上げたサイトには残っている
+    private static function logTables(): array
+    {
+        return array_map([EvoDbTables::class, 'name'], ['event_log', 'manager_log', 'system_cache']);
     }
 
     public function prune($max = self::KEEP)
@@ -211,10 +234,6 @@ class EvoBackupManager
         $result['pre_restore'] = $name;
         $this->prune();
 
-        if (strpos($sql, "\r") !== false) {
-            $sql = str_replace(["\r\n", "\r"], "\n", $sql);
-        }
-
         $cacheTable = EvoDbTables::name('system_cache');
         if (EvoDbTables::exists($cacheTable)) {
             db()->query('TRUNCATE TABLE `' . $cacheTable . '`');
@@ -223,20 +242,13 @@ class EvoBackupManager
         $keep = $this->getKeptSettings();
         $this->extendTimeLimit();
 
-        $statements = preg_split('@;[ \t]*\n@', $sql);
-        foreach ($statements as $i => $statement) {
-            $statement = trim($statement);
-            if ($statement === '') {
-                continue;
-            }
-            // mysqldump 形式は文の前に行コメントが付く。判定はコメントを除いた形で行う
-            $body = $this->stripLeadingComments($statement);
-            if ($body === '') {
-                continue;
-            }
+        $stream = fopen('php://memory', 'w+b');
+        fwrite($stream, $sql);
+        rewind($stream);
+        foreach (EvoSqlDump::statements($stream) as $number => $statement) {
             if (preg_match(
                 '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
-                $body,
+                $statement,
                 $m
             ) && $m[1] === $cacheTable) {
                 $result['skipped']++;
@@ -244,15 +256,17 @@ class EvoBackupManager
             }
             if (db()->query($statement, false) === false) {
                 $result['error'] = db()->getLastError();
-                $result['failed_at'] = $i + 1;
+                $result['failed_at'] = $number;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
                 if (EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
                     $this->restoreSettings($keep);
                 }
+                fclose($stream);
                 return $result;
             }
             $result['executed']++;
         }
+        fclose($stream);
 
         if (!$this->finish($keep)) {
             $result['error'] = 'system_settings or system_cache is missing; cache was not rebuilt';
@@ -273,19 +287,6 @@ class EvoBackupManager
         }
         evo()->clearCache();
         return true;
-    }
-
-    // 文の先頭の行コメント（-- / #）と /* */ を除く。/*! */ は実行される文なので残す
-    private function stripLeadingComments($statement)
-    {
-        $prev = null;
-        while ($prev !== $statement) {
-            $prev = $statement;
-            $statement = preg_replace('/\A\s*(?:--(?:[ \t][^\n]*|(?=\n|\z))|#[^\n]*)(?:\n|\z)/', '', $statement);
-            $statement = preg_replace('/\A\s*\/\*(?!!).*?\*\//s', '', $statement);
-            $statement = ltrim($statement);
-        }
-        return $statement;
     }
 
     // 制限時間は延ばすだけにする（残り時間を縮めない）

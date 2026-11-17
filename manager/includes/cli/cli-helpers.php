@@ -156,22 +156,26 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
     }
 
     if ($driver === 'php') {
-        global $modx;
-        if (!isset($modx) || !is_object($modx)) {
-            cli_usage('Error: MODX context is not initialized.');
-        }
-        require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-        $dump = new Mysqldumper();
-        if ($fullTables) {
-            $dump->setDBtables($fullTables);
-        }
-        $sql = $dump->createDump();
-        if ($sql === false || $sql === '') {
-            cli_usage('Error: export failed.');
-        }
+        require_once MODX_CORE_PATH . 'sql_dump.class.inc.php';
+        $tables = $fullTables ?: EvoDbTables::names();
         if ($outputPath !== '') {
-            $written = file_put_contents($outputPath, $sql);
-            if ($written === false) {
+            // 書き終えたダンプを --output の先へ写す。先のファイルは mysqldump の --result-file と同じく
+            // その場で書き換える（権限・所有者・リンクの先を変えない）。ダンプを書けなかったときは先に何も書かない
+            $tmp = tempnam(MODX_CACHE_PATH, 'bktemp');
+            if ($tmp === false) {
+                cli_usage('Error: export failed.');
+            }
+            register_shutdown_function(function () use ($tmp) {
+                if (is_file($tmp)) {
+                    @unlink($tmp);
+                }
+            });
+            if (!EvoSqlDump::writeFile($tmp, $tables, ['drop' => true])) {
+                cli_usage('Error: export failed.');
+            }
+            $copied = copy($tmp, $outputPath);
+            unlink($tmp);
+            if (!$copied) {
                 cli_usage('Error: failed to write output.');
             }
             if (!$quiet) {
@@ -179,7 +183,12 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
             }
             return;
         }
-        echo $sql;
+        $stdout = fopen('php://output', 'wb');
+        $ok = EvoSqlDump::write($stdout, $tables, ['drop' => true]);
+        fclose($stdout);
+        if (!$ok) {
+            cli_usage('Error: export failed.');
+        }
         return;
     }
 
