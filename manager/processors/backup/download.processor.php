@@ -16,8 +16,10 @@ if (!evo()->hasPermission('bk_manager')) {
 
 require_once MODX_CORE_PATH . 'sql_dump.class.inc.php';
 
+// 書き出すのはこのサイトの表だけ
 $tables = postv('chk', '');
-if (!is_array($tables) || !$tables) {
+$tables = is_array($tables) ? array_values(array_intersect(EvoDbTables::names(), $tables)) : [];
+if (!$tables) {
     $backupFailed(lang('bkmgr_backup_no_tables'));
 }
 
@@ -32,7 +34,6 @@ if ($tempfile !== false) {
         }
     });
 }
-// 書き出すのはこのサイトの表だけ（EvoSqlDump::write() が、このサイトの表でない名前を飛ばす）
 if ($tempfile === false || !EvoSqlDump::writeFile($tempfile, $tables, ['drop' => postv('droptables') !== null])) {
     if ($tempfile !== false && is_file($tempfile)) {
         unlink($tempfile);
