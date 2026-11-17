@@ -46,6 +46,18 @@ $result = $backup->restoreFile($inputPath, $preRestore);
 if ($result['read_failed']) {
     cli_usage('Error: failed to read SQL file.');
 }
+if ($result['refused'] === 'delimiter') {
+    cli_usage('Error: the dump contains DELIMITER (triggers or stored routines) and cannot be restored here; nothing was changed. Restore it with the mysql command.');
+}
+if ($result['refused'] === 'prefix') {
+    $tables = array_slice($result['foreign_tables'], 0, 5);
+    cli_usage(sprintf(
+        'Error: the dump has tables without this site\'s prefix (dump prefix: %s, this site: %s, tables: %s); nothing was changed.',
+        $result['dump_prefix'] !== null ? "'{$result['dump_prefix']}'" : '?',
+        "'" . db()->table_prefix . "'",
+        implode(', ', $tables) . (count($result['foreign_tables']) > 5 ? ', ...' : '')
+    ));
+}
 if ($result['pre_restore_failed']) {
     cli_usage('Error: failed to save the pre-restore snapshot; nothing was imported.');
 }

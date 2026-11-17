@@ -153,6 +153,51 @@ final class EvoSqlDump
     }
 
     /**
+     * 文が対象にする表の名前（INSERT・REPLACE・DROP TABLE・CREATE TABLE・TRUNCATE・LOCK TABLES・ALTER TABLE）。
+     * 当たらなければ ''。文は statements() が返す形（先頭のコメントを除いたもの）で渡す
+     */
+    public static function tableOf(string $statement): string
+    {
+        $name = '(?:`((?:[^`]|``)+)`|([0-9a-zA-Z_$]+))';
+        if (!preg_match(
+            '/^(?:INSERT(?:\s+(?:LOW_PRIORITY|DELAYED|HIGH_PRIORITY))?(?:\s+IGNORE)?\s+INTO'
+            . '|REPLACE(?:\s+(?:LOW_PRIORITY|DELAYED))?\s+INTO'
+            . '|DROP\s+(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+EXISTS)?'
+            . '|CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+NOT\s+EXISTS)?'
+            . '|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+(?:IGNORE\s+)?TABLE)(?:\s+|(?=`))'
+            . '(?:' . $name . '\s*\.\s*)?' . $name . '/i',
+            $statement,
+            $m
+        )) {
+            return '';
+        }
+        if (isset($m[3]) && $m[3] !== '') {
+            return str_replace('``', '`', $m[3]);
+        }
+        return $m[4] ?? '';
+    }
+
+    /**
+     * 戻す前の下読み。$stream のダンプを最後まで読み、対象の表の名前（重なりなし）と、
+     * DELIMITER（トリガー・ストアドプロシージャー）を含むかを返す。DB には何も送らない
+     */
+    public static function inspect($stream): array
+    {
+        $tables = [];
+        $delimiter = false;
+        foreach (self::statements($stream) as $statement) {
+            if (preg_match('/(?:\A|\n)[ \t]*DELIMITER\s/i', $statement)) {
+                $delimiter = true;
+            }
+            $table = self::tableOf($statement);
+            if ($table !== '') {
+                $tables[$table] = true;
+            }
+        }
+        return ['tables' => array_keys($tables), 'delimiter' => $delimiter];
+    }
+
+    /**
      * $stream のダンプを 1 文ずつ返す（キーは文の番号、値は先頭のコメントを除いた文）。
      * CRLF と単独の CR は LF にそろえてから分ける。番号は空の文やコメントだけの文も数える。
      */

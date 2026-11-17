@@ -2586,7 +2586,7 @@ trait DocumentParserSubParserTrait
         $filename = (string)$filename;
 
         if (strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
-            return;
+            return false;
         }
         $target = substr(strtolower((string)$target), 0, 1);
 
@@ -2594,7 +2594,7 @@ trait DocumentParserSubParserTrait
         $backup = new EvoBackupManager();
         $filename = $backup->store()->normalizeName($filename);
         if ($filename !== '' && !$backup->store()->isValidFilename($filename)) {
-            return;
+            return false;
         }
 
         // target が c のときはコンテンツのテーブルだけを書き出す

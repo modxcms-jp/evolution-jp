@@ -55,9 +55,15 @@ if ($failure === '' && $source !== '') {
         'failed_at'          => $result['failed_at'],
         'pre_restore'        => $result['pre_restore'],
         'pre_restore_failed' => $result['pre_restore_failed'],
+        'dump_prefix'        => $result['dump_prefix'],
+        'foreign_tables'     => $result['foreign_tables'],
     ]);
     if ($result['read_failed']) {
         sessionv('*result_msg', $mode === 'restore2' ? 'restore_invalid_file' : 'restore_upload_failed');
+    } elseif ($result['refused'] === 'delimiter') {
+        sessionv('*result_msg', 'restore_has_delimiter');
+    } elseif ($result['refused'] === 'prefix') {
+        sessionv('*result_msg', 'restore_prefix_mismatch');
     } elseif ($result['pre_restore_failed']) {
         sessionv('*result_msg', 'restore_no_snapshot');
     } elseif (!$result['ok']) {

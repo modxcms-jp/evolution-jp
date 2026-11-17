@@ -27,12 +27,15 @@ if (!$store->ensureDir()) {
     cli_usage('Error: cannot create or write directory ' . $store->dir());
 }
 
-// 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
-$writer = function ($path, array $tables) use ($driver) {
+// 管理画面のスナップショットと同じ中身にする（プレフィックスのテーブルだけ、ルーチンとトリガーなし、ログの表は構造だけ）
+$writer = function ($path, array $tables, array $structureOnly) use ($driver) {
     if (!$tables) {
         cli_usage('Error: no tables found with the configured prefix.');
     }
-    return cli_export_database_file($driver, $path, $tables, ['routines' => false]);
+    if ($driver === 'php') {
+        return EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => $structureOnly]);
+    }
+    return cli_export_snapshot_mysqldump($path, $tables, $structureOnly);
 };
 $filename = $store->autoFilename();
 $outputPath = $store->dir() . $filename;

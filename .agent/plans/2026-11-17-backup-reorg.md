@@ -15,7 +15,7 @@
 - [x] (2026-11-18) S5 `snapshot_path` をグローバル設定の画面に出し、保存先の黙った切り替えをやめる（動きを変える）
 - [x] (2026-11-18) S6 作成・復元の手順を `EvoBackupManager` にまとめ、復元をファイルから流して読む（動きを変えない）
 - [x] (2026-11-18) S6b PHP の書き出しを複数行の INSERT にする（動きを変える）
-- [ ] S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
+- [x] (2026-11-18) S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
 - [ ] S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
 - [ ] S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する（動きを変える。別の Issue で `develop/1.4` に入れる）
 - [ ] 最終確認: PHP 7.4・MySQL 5.7 で往復を確かめる
@@ -51,6 +51,9 @@
 - 2026-11-18（S6）: PHP の書き手（`EvoSqlDump::write()`）は、表ごとの `SELECT *` の結果を DBAPI がまとめて受け取るので、大きな表ではメモリが要る（上の 229MB の DB で `db:export --driver=php` が 256MB の上限を超えた）。管理画面のスナップショットと復元の前の控えも同じ書き手なので、大きなサイトでは作れないことがある。修正前から同じで、S6 の範囲（復元）の外。
 - 2026-11-18（S6）: PHP の書き手は 1 行ごとに 1 つの `INSERT` を書くので、復元の文の数が行の数と同じになる（`mysqldump` は複数行の `INSERT`）。DB サーバーが離れていると、復元が行の数に比べて遅くなる。S6b で扱う（本人の決定）。
 - 2026-11-18（S6b）: 確かめの結果（修正前は main b8d24e587 を同じ環境で記録）。テスト用の表を足した: 空の表、1 行だけの表、値が `;` で終わる・`)`・`,`・`),(`・`');` と改行・`);`・`),`・日本語と絵文字・CR を含む表、2 万行の表。往復（S3 と同じ組み合わせ。CLI の `--driver=php` と管理画面のダウンロード・スナップショット・コンテンツのみを、`db:import`・管理画面のアップロード・スナップショットの一覧で戻す）は、すべて `CHECKSUM TABLE` が元と同じ（管理画面の往復の `user_attributes` はログイン時刻の違いで、修正前も同じ）。実行した文の数は、`db:export --driver=php` の復元で 20,496 から 178 に、コンテンツのみのスナップショットで 168 から 37 に減った（mysqldump の出力は 513 のまま）。修正前の形（1 行ずつの `INSERT`）のダンプ 3 つも、修正後の `db:import` で戻せて `CHECKSUM TABLE` が同じ。上限で分かれる場合: `max_allowed_packet` が 16MB（上限 1,046,528 バイト）と 64KB（上限 64,512 バイト）の両方で、2 行でちょうど上限になる文、上限を超える 1 行だけの文、その前後の 1 行の文に分かれ、往復の `CHECKSUM TABLE` が同じ。復元の問い合わせの回数と時間（`restoreFile()`、復元の前の控えを除く、3 回の平均）: 修正前 20,529 回・約 11.7 秒、修正後 211 回・約 0.38 秒（遅延を入れた DB は、検証環境のコンテナに `tc` を使う権限が無いので測っていない。問い合わせの回数がほぼ 100 分の 1 になったので、離れた DB ではその分だけ速くなる見込み）。16MB の DB で書いた上限ちょうどの文を、`max_allowed_packet` が 1MB の DB へ戻す往復も通った（自己レビューの指摘で上限を 1MB から 1,046,528 バイトに直したあと）。php:7.4-cli でも、上限で分かれる場合と、PHP の書き手のダンプを `restoreFile()` で戻す往復が通った。
+- 2026-11-18（S7）: 確かめの結果（修正前は main 2fba5e352 を同じ環境で記録。DB は確かめごとに作り直した）。接頭辞 `other_` に書き換えた PHP の書き出しと mysqldump の出力、このサイトの表に接頭辞の無い表 `other_table` を混ぜた mysqldump の出力、トリガーを入れた DB の `db:export`（既定。`DELIMITER` の行が 2 つ）を、`db:import`・管理画面のアップロード・スナップショットの一覧で戻した。修正前は、接頭辞の違うダンプが「成功」になって `other_` の表が 40 個増え（復元の前の控えも作られる）、トリガーのダンプは途中の文で失敗した。修正後は、どれも何も書き換えずに断り（表の数・`CHECKSUM TABLE`・保存先のファイルが前と同じ。復元の前の控えも作られない）、接頭辞の違うダンプはダンプの接頭辞（`other_`。推し量れないときは `?`）・このサイトの接頭辞・外れた表（5 つまで）を、`DELIMITER` のダンプは `mysql` コマンドで戻すことを知らせる。CLI は終了コード 1。このサイトの接頭辞だけのダンプは今どおり戻る。`db:backup`（mysqldump・php）のスナップショットでは、`modx_manager_log` が `CREATE TABLE IF NOT EXISTS` だけになり（`DROP TABLE` と `INSERT` が無い）、戻しても戻した先の管理ログの行が残る（往復の `CHECKSUM TABLE` は同じ）。`$modx->snapshot()` は `a/b`・`bad name` で `false`（修正前は `null`）。S3 と同じ往復は、`db:backup` の 2 つ（ログの表のデータが無くなった分だけ文の数が変わる）のほかは修正前と同じ。php:7.4-cli でも、2 つの断りと PHP の書き出しの往復が通った。
+- 2026-11-18（S7。自己レビューのあと）: 接頭辞の重なりを見分ける本体の表の名前に `user_attributes` を入れると、このサイトの `modx_web_user_attributes` を外れた表とみなし、正しいダンプまで断った（往復の確かめで分かった）。ほかの本体の表の名前の終わりと重ならないもの（`install/sql/create_tables.sql` の 35 表で確かめた 4 つ）だけにした。直したあと、断る確かめ・正しいダンプの往復・`db:backup` の往復を流し直し、前と同じ結果になった。
+- 2026-11-18（S7）: 下読み（`EvoSqlDump::inspect()`）はダンプを最後まで 1 回読むので、復元ではファイルを 2 回読む（DB への問い合わせは増えない）。表の名前の判定（`EvoSqlDump::tableOf()`）は、復元の中で `system_cache` への文を飛ばす判定と同じものを使う。
 
 ## Decision Log
 
@@ -100,6 +103,7 @@
 - 2026-11-18 / yamamoto（Claude が起案。S6b の区切り）: 1 つの `INSERT` の大きさは、`mysqldump` の既定の `net_buffer_length`（1,046,528 バイト。1MB − 2KB で、`max_allowed_packet` が 1MB の DB へ戻しても入る）に合わせ、それを超えたら次の文にする（1 行だけで超える行は、その 1 行で 1 つの文）。書く DB の `max_allowed_packet` が小さいときに超えないよう、上限は「`min(1,046,528, max_allowed_packet の値 − 余白 1KB)`」にする（自己レビューで 1MB ちょうどでは 1MB の DB へ戻せないと分かり直した）（書くときに `SELECT @@max_allowed_packet` を 1 回だけ問い合わせる）。1 行がそれだけで `max_allowed_packet` を超える行は、修正前もその行を戻せなかったので、扱いは変えない。
 - 2026-11-18 / 本人の決定: S7 で、接頭辞が今のサイトと違うダンプは、何も書き換えずに断り、ダンプの接頭辞とこのサイトの接頭辞を示して理由を知らせる（置き換えて取り込む機能は作らない）。
 - 2026-11-18 / 本人の決定: S7 で、`DELIMITER`（トリガー・ストアドプロシージャー）を含むダンプは、復元で何も書き換えずに断り、理由（`mysql` コマンドで戻す）を知らせる。`db:export` の既定（`--routines --triggers`）は変えない。
+- 2026-11-18 / yamamoto（Claude が起案。S7 の自己レビューから）: 接頭辞の判定は「このサイトの接頭辞で始まるか」に加えて、本体の表の名前（`system_settings`・`site_content`・`manager_users`・`site_templates`。ほかの本体の表の名前の終わりと重ならないもの。`user_attributes` は `web_user_attributes` と重なるので入れない）で終わる表が「このサイトの接頭辞 + その名前」かを見る（`modx_` のサイトへの `modx_old_` のダンプと、接頭辞が空のサイトへの `modx_` のダンプを断るため）。接頭辞は大文字小文字を問わず比べ、表の名前は backtick で囲んだものは丸ごと取る（接頭辞に `-` などを含むサイトが自分のダンプを戻せるように）。同じ DB に接頭辞が重なる 2 つのサイトがあると、書き出しの表の一覧（`LIKE` の接頭辞）と復元の判定（本体の表の名前）がずれて、自分のスナップショットも断る（修正前は相手のサイトの表を上書きしていたので、断るほうが安全。判定を `EvoDbTables` にまとめるのは後の課題）。大文字小文字だけ違う接頭辞（`lower_case_table_names=0` の DB で `MODX_` のダンプ）は見分けない。どちらも `assets/docs/backup.md` に書いた。`db:import` の復元の前の控え（`mysqldump`。ログの表のデータを含む）は、管理画面の控え（ログの表は構造だけ）と中身が違うまま残す（S7 は `db:backup` だけをそろえる範囲。控えから戻すと管理ログが取り込み前まで戻る程度で、軽い）。
 
 ## Outcomes & Retrospective
 
@@ -236,7 +240,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）、PR #1574。マージ済み（main 172f7faeb）
 - S5: ブランチ `refactor/1561-s5-snapshot-path`（`origin/main` から作成。Issue に紐づけない）、PR #1576。マージ済み（main 4ad093602）
 - S6: ブランチ `refactor/1561-s6-backup-flow`（`origin/main` から作成。Issue に紐づけない）、PR #1578。マージ済み（main b8d24e587）
-- S6b: ブランチ `refactor/1561-s6b-multirow-insert`（`origin/main` から作成。Issue に紐づけない）、PR #1581
+- S6b: ブランチ `refactor/1561-s6b-multirow-insert`（`origin/main` から作成。Issue に紐づけない）、PR #1581。マージ済み（main 2fba5e352）
+- S7: ブランチ `refactor/1561-s7-restore-guard`（`origin/main` から作成。Issue に紐づけない）、PR #1583
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
@@ -244,7 +249,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - 依存: #1560 のマージ（M0 で確かめる）。
 - 作るクラスの公開メソッド（呼び出し元はこの計画のファイルだけ）:
   - `EvoDbTables`: `names(): array`、`status(): array`、`name(string $short): string`（接頭辞を除いた名前に必ず接頭辞を付ける。不正なら `''`）、`resolve(string $input): string`（利用者の入力を、このサイトに在る表の名前にする。無ければ `''`）、`resolveWithDb(string $input): string`、`exists(string $table): bool`（接頭辞の付いた完全な名前）、`truncatable(): array`、`isOwn(string $name): bool`
-  - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と、先頭のコメントを除いた文を返す。番号は空の文やコメントだけの文も数える）。`write()` の options は `drop`・`structureOnly` の 2 つ（「コンテンツのみ」の表の絞り込みは呼び出し側で行う。Decision Log の S3 の項）、`tablesIn($stream): array`（下読み。S7）
+  - `EvoSqlDump`: `write($stream, array $tables, array $options = []): bool`、`writeFile(string $path, array $tables, array $options = []): bool`、`statements($stream): Generator`（1 文ずつ、文の番号と、先頭のコメントを除いた文を返す。番号は空の文やコメントだけの文も数える）。`write()` の options は `drop`・`structureOnly` の 2 つ（「コンテンツのみ」の表の絞り込みは呼び出し側で行う。Decision Log の S3 の項）、`tableOf(string $statement): string` と `inspect($stream): array`（下読み。S7。対象の表の名前と `DELIMITER` を含むか）
   - `EvoSnapshotStore`: `dir()`、`ensureDir()`、`normalizeName()`、`isValidFilename()`、`autoFilename($prefix = '')`、`path($name)`、`files()`、`prune($max)`、`counts()`（引数なし。自動の名前とそれ以外の件数を返し、上限は呼び出し側が出す）、`static defaultDir()`、`denyDirs()`、`static protect($dir)`、`__construct($configured = null)`（S5。保存の前の値を渡して確かめる）、`problem()`（S5。`''`・`OUTSIDE`・`SHARED`・`UNWRITABLE`。保存のときの確かめと、実行時に断る理由。計画の `checkPath()` をこの形にした）、`static normalizeValue($value)`（S5。保存と読むときの値の規則）、`guardedDirs()`（S5。ファイルブラウザーとバインドの守る場所）、定数 `HTACCESS`・`KEEP`・`PRE_RESTORE_KEEP`・`AUTO_NAME_PATTERN`・`PRE_RESTORE_PREFIX`
   - `EvoBackupManager`: `store()`、`createSnapshot($name = '', array $options = [])`、`restoreFile($path, $preRestore = null)`（戻り値の配列は今の `restore()` と同じキー）
 - CLI の `mysqldump` を呼ぶ処理（`cli_export_database()`・`cli_export_database_file()`・`cli_mysql_defaults_file()`）は CLI だけのものなので `cli-helpers.php` に残し、`php` の書き手を `EvoSqlDump` に任せる。
