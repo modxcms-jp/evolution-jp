@@ -18,11 +18,12 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `id` | この呼び出しの名前。URL のパラメータとプレースホルダーの名前の前に `<id>_` が付き、1 ページに複数の Ditto を置ける。Reflect などほかのスニペットとの連携にも使う | 英字・数字・アンダースコア（大文字と小文字を区別する） | 空 |
 | `language` | 既定の文言・エラーメッセージの言語 | `lang/` にある言語ファイルの名前 | 管理画面の言語（`manager_language`）。そのファイルが無ければ `english` |
 | `format` | 出力の形式 | `html` / `json` / `xml` / `atom` / `rss` | `html` |
-| `config` | 設定ファイルを読み込む | `default`、`configs/` にある設定の名前、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | `default` |
-| `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、チャンク名、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
+| `config` | 設定ファイルを読み込む | `default`、`configs/` にある設定の名前、`@FILE サイトのルートからのパス`（`.php` だけ） | `default` |
+| `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
 
 `configs/default.config.php` があれば、`config` の指定にかかわらず最初に読み込む。
-`extenders` の名前は、まず同じ名前のチャンクを探し、無ければ `extenders/<名前>.extender.inc.php` を読む。
+`extenders` の名前は `extenders/<名前>.extender.inc.php` を読む。
+`config`・`extenders` に `@CHUNK チャンク名` は使えない（チャンクを PHP として実行しない）。チャンクに書いていた PHP は `.php` のファイル（例: `assets/ditto/my.config.php`）に移し（先頭が `<?php` でなければ付ける）、`@FILE assets/ditto/my.config.php` で指定する。`@CHUNK` を渡すと、その指定を読まずにシステムログへ警告を残す。
 
 ## 対象のリソース
 

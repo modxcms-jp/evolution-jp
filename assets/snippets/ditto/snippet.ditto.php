@@ -47,7 +47,15 @@ if (is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
 
 if (str_starts_with($config, '@CHUNK')) {
-    eval('?>' . evo()->getChunk(trim(substr($config, 7))));
+    evo()->logEvent(
+        0,
+        2,
+        sprintf(
+            'Ditto の &config の @CHUNK は廃止しました（%s）。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+            $config
+        ),
+        'Ditto ' . $ditto_version
+    );
 } elseif (str_starts_with($config, '@FILE')) {
     // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
     $config_path = evo()->resolveBindFilePath(MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/'));
@@ -136,48 +144,40 @@ if (isset($tagData)) {
 if (count($extenders) > 0) {
     $extenders = array_unique($extenders);
     foreach ($extenders as $extender) {
-        $extender = trim($extender);
-        $extender = str_replace('\\', '/', $extender);
-        $rs = false;
+        $extender = str_replace('\\', '/', trim($extender));
         if (strpos($extender, '@CHUNK') === 0) {
-            $chunk = evo()->getChunk(trim(substr($extender, 7)));
-            if (!empty($chunk)) {
-                eval($chunk);
-                $rs = true;
-            }
-        } elseif (strpos($extender, '@FILE') === 0) {
-            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
+            evo()->logEvent(
+                0,
+                2,
+                sprintf(
+                    'Ditto の &extenders の @CHUNK は廃止しました（%s）。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+                    $extender
+                ),
+                'Ditto ' . $ditto_version
+            );
+            continue;
+        }
+
+        if (strpos($extender, '@FILE') === 0) {
+            // サイトのルートからの指定は、本体のバインドと同じ判定に通す
             $extender_path = evo()->resolveBindFilePath(
                 MODX_BASE_PATH . trim(trim(substr($extender, 6)), '/')
             );
-            if ($extender_path && evo()->getExtention($extender_path) === '.php') {
-                include($extender_path);
-                $rs = true;
-            }
         } else {
-            $chunk = evo()->getChunk($extender);
-            if (!empty($chunk)) {
-                eval($chunk);
-                $rs = true;
-            }
+            // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
+            $extender_path = evo()->resolveFileUnderDir(
+                sprintf('%sextenders/%s.extender.inc.php', $ditto_base, $extender),
+                $ditto_base . 'extenders'
+            );
         }
 
-        // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
-        $extender_path = evo()->resolveFileUnderDir(
-            sprintf('%sextenders/%s.extender.inc.php', $ditto_base, $extender),
-            $ditto_base . 'extenders'
-        );
-
-        if ($rs === false && $extender_path && evo()->getExtention($extender_path) === '.php') {
-            include($extender_path);
-            $rs = true;
-        }
-
-        if ($rs === false) {
+        // PHP として読み込むので .php だけ
+        if (!$extender_path || evo()->getExtention($extender_path) !== '.php') {
             $message = $extender . ' ' . $_lang['extender_does_not_exist'];
             evo()->logEvent(1, 3, $message, 'Ditto ' . $ditto_version);
             return $message;
         }
+        include($extender_path);
     }
 }
 
