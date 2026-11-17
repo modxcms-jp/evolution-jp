@@ -1323,6 +1323,7 @@ return [
     "bkmgr_restore_no_snapshot" => 'The restore was not run because a snapshot before the restore could not be created. The database was not changed. Please check the permission of the snapshot directory.',
     "bkmgr_backup_no_tables" => 'Please select the tables to back up.',
     "bkmgr_backup_failed" => 'The backup could not be created. Please check that the cache directory (temp/cache/) is writable and that the database is reachable.',
+    "bkmgr_backup_unexpected" => 'The backup could not be created. Please reload the page and try again.',
     "bkmgr_snapshot_failed" => 'The snapshot could not be created. Please check that the snapshot directory is writable and that the database is reachable.',
     "bkmgr_restore_no_file" => 'Please select an SQL file to restore (an empty file cannot be restored).',
     "bkmgr_restore_too_large" => 'The file could not be uploaded because it is too large. The server limits are upload_max_filesize [+upload_max_filesize+] and post_max_size [+post_max_size+].',

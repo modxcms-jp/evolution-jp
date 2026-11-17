@@ -29,7 +29,7 @@
 - **発見元**: CLI self-bootstrap プラン (`db:export` mysqldump 改修時)
 - **ファイル**: `manager/includes/mysql_dumper.class.inc.php`
 - **課題**:
-  - `addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）
+  - ~~`addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）~~ → 解消（#1560、値は `db()->escape()` で書き出す）
   - トランザクション整合性なし（`LOCK TABLES` / `--single-transaction` 相当がない）
   - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 管理画面のスナップショット・ダウンロードは解消（2026-10-24、`dumpToFile()` が一時ファイルへ書き、書き終えてから rename する）。`createDump()`（`db:export --driver=php` と `db:backup --driver=php` が使う）と復元（SQL 全体を文字列で読み込んでから文に分ける）は、大きな DB ではメモリが要るまま
   - ファイル先頭の `$modx` グローバル変数チェックがクラス定義として不適切

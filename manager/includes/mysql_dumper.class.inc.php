@@ -193,6 +193,16 @@ class Mysqldumper
             );
             $output .= sprintf('-- %s-- Table structure for table `%s`%s', $lf, $table_name, $lf);
             $output .= sprintf('-- %s%s', $lf, $lf);
+            // スナップショットのログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
+                $output .= preg_replace(
+                    '/\ACREATE TABLE /',
+                    'CREATE TABLE IF NOT EXISTS ',
+                    $createtable[$table_name][0]
+                ) . ';' . $lf . $lf;
+                $ok = $this->write($fp, $output);
+                continue;
+            }
             // Generate DROP TABLE statement when client wants it to.
             if ($this->isDroptables()) {
                 $output .= 'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;' . $lf;
@@ -204,12 +214,6 @@ class Mysqldumper
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
-
-            // ログの表は構造だけを書き出し、データは入れない
-            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
-                $ok = $this->write($fp, $output);
-                continue;
-            }
 
             $output .= sprintf(
                 '-- %s-- Dumping data for table `%s`%s-- %s',

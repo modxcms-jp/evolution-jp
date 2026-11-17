@@ -74,6 +74,20 @@ if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを�
 $ph['result_msg'] = '';
 $ph['snapshot_msg'] = '';
 $restoreHtml = '';
+$uploadLimits = array_filter([
+    ini_size_to_bytes(ini_get('upload_max_filesize')),
+    ini_size_to_bytes(ini_get('post_max_size')),
+], function ($bytes) {
+    return $bytes > 0;
+});
+$uploadMax = $uploadLimits ? min($uploadLimits) : 0;
+$restoreTooLarge = evo()->parseText(
+    lang('bkmgr_restore_too_large'),
+    [
+        'upload_max_filesize' => hsc((string) ini_get('upload_max_filesize')),
+        'post_max_size'       => hsc((string) ini_get('post_max_size')),
+    ]
+);
 if (sessionv('result_msg')) {
     $restoreResult = sessionv('restore_result', []);
     $restoreResult = is_array($restoreResult) ? $restoreResult : [];
@@ -113,16 +127,7 @@ if (sessionv('result_msg')) {
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_file'));
             break;
         case 'restore_too_large':
-            $restoreHtml = sprintf(
-                '<div class="errmsg">%s</div>',
-                evo()->parseText(
-                    lang('bkmgr_restore_too_large'),
-                    [
-                        'upload_max_filesize' => hsc((string) ini_get('upload_max_filesize')),
-                        'post_max_size'       => hsc((string) ini_get('post_max_size')),
-                    ]
-                )
-            );
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $restoreTooLarge);
             break;
         case 'restore_upload_failed':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_upload_failed'));
@@ -182,7 +187,7 @@ if (sessionv('result_msg')) {
         if (error) {
             message = error.innerHTML;
         } else if (doc.body.textContent.trim() !== '') {
-            message = <?= js_literal(lang('bkmgr_backup_failed')) ?>;
+            message = <?= js_literal(lang('bkmgr_backup_unexpected')) ?>;
         }
         doc.body.innerHTML = '';
         if (message !== '') {
@@ -200,6 +205,19 @@ if (sessionv('result_msg')) {
         f.mode.value = 'backup';
         f.target = 'fileDownloader';
         f.submit();
+        return false;
+    }
+
+    // post_max_size を超えると本文ごと捨てられ、サーバーは理由を返せないので、送る前に確かめる
+    function restoreUpload() {
+        var f = document.forms['mutate'];
+        var file = f.sqlfile.files[0];
+        var max = <?= (int) $uploadMax ?>;
+        if (file && max > 0 && file.size > max) {
+            EvoDialog.alert(<?= js_literal($restoreTooLarge) ?>, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+            return false;
+        }
+        f.save.click();
         return false;
     }
 </script>
@@ -357,7 +375,7 @@ if (sessionv('result_msg')) {
                     <a
                         href="#"
                         class="primary"
-                        onclick="document.mutate.save.click();"><?= lang("bkmgr_run_sql_submit") ?>
+                        onclick="return restoreUpload();"><?= lang("bkmgr_run_sql_submit") ?>
                     </a>
                 </div>
                 <input type="submit" name="save" style="display:none;" />

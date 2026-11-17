@@ -1324,6 +1324,7 @@ return [
     "bkmgr_restore_no_snapshot" => '復元前のスナップショットを作成できなかったため、リストアは実行しませんでした。データベースは変更されていません。保存先のパーミッションを確認してください。',
     "bkmgr_backup_no_tables" => 'バックアップするテーブルを選んでください。',
     "bkmgr_backup_failed" => 'バックアップを作成できませんでした。キャッシュのディレクトリ（temp/cache/）に書き込めるか、データベースに接続できるかを確認してください。',
+    "bkmgr_backup_unexpected" => 'バックアップを作成できませんでした。ページを読み込み直してから、もう一度お試しください。',
     "bkmgr_snapshot_failed" => 'スナップショットを作成できませんでした。保存先に書き込めるか、データベースに接続できるかを確認してください。',
     "bkmgr_restore_no_file" => 'リストアするSQLファイルを選んでください（空のファイルはリストアできません）。',
     "bkmgr_restore_too_large" => 'ファイルが大きすぎるため、アップロードできませんでした。サーバの上限は upload_max_filesize が [+upload_max_filesize+]、post_max_size が [+post_max_size+] です。',
