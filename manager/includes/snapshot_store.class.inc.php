@@ -116,28 +116,19 @@ class EvoSnapshotStore
         return ($path === '' || preg_match('@\A[A-Za-z]:\z@', $path)) ? $path . '/' : $path;
     }
 
-    // 保存先と重ねられないサイトの置き場所（末尾に /）。サイトのフォルダそのものは含めない。
-    // 管理画面・テンプレート・ファイルピッカーは保護の .htaccess で表から見えなくなり、
-    // HTML エクスポートの出力先は書き出しの始めに中身を消すため
+    // 表から読まれるサイトの置き場所の実パス（末尾に /）。サイトのフォルダそのものは含めない
     private static function siteDirs($base)
     {
         $dirs = [
             MODX_MANAGER_PATH,
             MODX_BASE_PATH . 'assets/templates/',
             str_replace('[(base_path)]', MODX_BASE_PATH, (string)evo()->config('rb_base_dir', '')),
-            str_replace('[(base_path)]', MODX_BASE_PATH, (string)evo()->config('export_dir', '[(base_path)]temp/export/')),
         ];
         $result = [];
         foreach ($dirs as $dir) {
-            if ($dir === '') {
-                continue;
-            }
-            // まだ無い場所（エクスポートの出力先など）は、サイトのフォルダの実パスに読み替えて比べる
-            $real = realpath($dir);
+            $real = $dir !== '' ? realpath($dir) : false;
             if ($real === false) {
-                $dir = str_replace('\\', '/', $dir);
-                $siteBase = str_replace('\\', '/', MODX_BASE_PATH);
-                $real = strpos($dir, $siteBase) === 0 ? $base . substr($dir, strlen($siteBase)) : $dir;
+                continue;
             }
             $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
             if ($real !== $base) {
