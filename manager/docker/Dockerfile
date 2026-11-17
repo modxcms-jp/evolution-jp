@@ -8,11 +8,11 @@ ARG GROUP_ID=1000
 # 公式イメージで最初から読み込まれている版もあるため、読み込まれていないときだけビルドする
 RUN apt-get update && apt-get install -y \
   wget curl vim net-tools iputils-ping unzip \
-  libpng-dev libjpeg-dev libfreetype6-dev \
+  libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev \
   libzip-dev libxml2-dev libicu-dev libcurl4-openssl-dev \
   libonig-dev libxslt1-dev libexif-dev \
   msmtp msmtp-mta \
-  && docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
   && docker-php-ext-install gd mysqli curl mbstring zip xml intl bcmath soap exif \
     $(php -r 'echo extension_loaded("Zend OPcache") ? "" : "opcache";') \
   && a2enmod rewrite headers \
