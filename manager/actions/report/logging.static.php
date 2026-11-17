@@ -301,7 +301,10 @@ $icons_path = manager_style_image_path('icons');
                     $rows[] = $row;
                 }
 
-                echo '<p>' . str_replace('href="index.php?a=55"', 'href="index.php?a=55" data-evo-post', lang('mgrlog_sortinst')) . '</p>';
+                require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
+                echo '<p>' . evo()->parseText(lang('mgrlog_sortinst'), [
+                    'empty_url' => hsc('index.php?a=54&from=logging&truncate=' . EvoDbTables::name('manager_log')),
+                ]) . '</p>';
 
                 // 「X 件目から Y 件目（全 Z 件）」
                 $lower = $pager->offset() + 1;
