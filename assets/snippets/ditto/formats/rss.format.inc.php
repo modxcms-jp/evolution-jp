@@ -10,16 +10,14 @@
 
 if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
-$modx->documentObject['contentType'] = 'application/rss+xml';
+evo()->documentObject['contentType'] = 'application/rss+xml';
 
 global $dateSource;
-$dateSource = $modx->event->params['dateSource'] ?? 'publishedon';
+$dateSource = evo()->event->params['dateSource'] ?? 'publishedon';
 // orderBy['unparsed'] is always set by the snippet; use the default only when no &orderBy is given
 if (($orderBy['unparsed'] ?? '') === '') {
     $orderBy ['unparsed'] = "{$dateSource} DESC";
 }
-
-// date type to display (values can be createdon, pub_date, editedon)
 
 // set tpl rss placeholders
 $placeholders['rss_date']      = [$dateSource, "rss_date"];
@@ -30,11 +28,11 @@ $extenders[] = 'summary';
 
 // set template values
 if(!isset($header)) {
-    $header = $modx->parseText(
+    $header = evo()->parseText(
         dittoRssHeaderTpl(), [
             'rss_copyright' => $copyright ?? $_lang['default_copyright'],
             'rss_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
-            'rss_link'      => MODX_SITE_URL . '[~' . $modx->documentIdentifier . "~]",
+            'rss_link'      => MODX_SITE_URL . '[~' . evo()->documentIdentifier . "~]",
             'rss_ttl'       => (int) ($ttl ?? 120),
             'rss_charset'   => $charset ?? config('modx_charset'),
             'rss_xsl'       => isset($xsl) ? "\n" . '<?xml-stylesheet type="text/xsl" href="' . MODX_SITE_URL . $xsl . '" ?>' : ''

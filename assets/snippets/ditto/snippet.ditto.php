@@ -3,9 +3,10 @@ if (!defined('MODX_BASE_PATH')) {
     die('What are you doing? Get out of here!');
 }
 
-/* Description:
- *      Aggregates documents to create blogs, article/news
- *      collections, and more,with full support for templating.
+/*
+ * Ditto: aggregates documents to create blogs, article/news collections, and more.
+ * Parameters and placeholders:
+ * https://github.com/modxcms-jp/evolution-jp/blob/main/assets/snippets/ditto/README.md
  *
  * Author:
  *      Mark Kaplan for MODX CMF
@@ -14,7 +15,6 @@ if (!defined('MODX_BASE_PATH')) {
 //---Core Settings---------------------------------------------------- //
 
 $ditto_version = '2.1.4';
-// Ditto version being executed
 
 // 指定された置き場所は、サイトの中（本体のバインドと同じ判定）に限る。外れたら同梱の場所を使う
 if (isset($ditto_base) && trim($ditto_base, '/ ') !== '') {
@@ -25,82 +25,23 @@ if (isset($ditto_base) && trim($ditto_base, '/ ') !== '') {
 if (empty($ditto_base)) {
     $ditto_base = str_replace('\\', '/', __DIR__) . '/';
 }
-/*
-    Param: ditto_base
 
-    Purpose:
-    Location of Ditto files
-
-    Options:
-    Any valid folder location containing the Ditto source code with a trailing slash
-
-    Default:
-    [(base_path)]assets/snippets/ditto/
-*/
-if (isset($id)) {
-    $dittoID = $id . '_';
-} else {
-    $dittoID = '';
-}
+$dittoID = isset($id) ? $id . '_' : '';
 $GLOBALS['dittoID'] = $dittoID;
-/*
-    Param: id
 
-    Purpose:
-    Unique ID for this Ditto instance for connection with other scripts (like Reflect) and unique URL parameters
-
-    Options:
-    Any combination of characters a-z, underscores, and numbers 0-9
-
-    Note:
-    This is case sensitive
-
-    Default:
-    "" - blank
-*/
-if (!isset($language)) {
-    $language = evo()->config('manager_language');
-}
+$language = $language ?? evo()->config('manager_language');
 if (!preg_match('/^[\w\-]+$/', (string) $language)
     || !is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))
 ) {
     $language = 'english';
 }
-/*
-    Param: language
 
-    Purpose:
-    language for defaults, debug, and error messages
-
-    Options:
-    Any language name with a corresponding file in the &ditto_base/lang folder
-
-    Default:
-    "english"
-*/
 $format = isset($format) ? strtolower($format) : 'html';
 if (!preg_match('/^[\w\-]+$/', $format)) {
     $format = 'html';
 }
-/*
-    Param: format
 
-    Purpose:
-    Output format to use
-
-    Options:
-    - "html"
-    - "json"
-    - "xml"
-    - "atom"
-    - "rss"
-
-    Default:
-    "html"
-*/
-if (!isset($config)) {
-    $config = 'default';
-}
+$config = $config ?? 'default';
 
 if (is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
@@ -124,67 +65,17 @@ if (str_starts_with($config, '@CHUNK')) {
     }
 }
 
-/*
-    Param: config
-
-    Purpose:
-    Load a custom configuration
-
-    Options:
-    "default" - default blank config file
-    CONFIG_NAME - Other configs installed in the configs folder or in any folder within the MODX base path via @FILE
-
-    Default:
-    "default"
-
-    Related:
-    - <extenders>
-*/
 $debug = !empty($debug) ? $debug : 0;
-/*
-    Param: debug
 
-    Purpose:
-    Output debugging information
-
-    Options:
-    0 - off
-    1 - on
-
-    Default:
-    0 - off
-
-    Related:
-    - <debug>
-*/
 // a config may already have added extenders as an array ($extenders[] = ...)
 if (!isset($extenders)) {
     $extenders = [];
 } elseif (!is_array($extenders)) {
     $extenders = explode(',', $extenders);
 }
-/*
-    Param: extenders
-
-    Purpose:
-    Load an extender which adds functionality to Ditto
-
-    Options:
-    Any extender in the extenders folder or in any folder within the MODX base path via @FILE
-
-    Default:
-    [NULL]
-
-    Related:
-    - <config>
-*/
-// Variable: extenders
-// Array that can be added to by configs or formats to load that extender
 
 // keep placeholders a config may have added
 $placeholders = isset($placeholders) && is_array($placeholders) ? $placeholders : [];
-// Variable: placeholders
-// Initialize custom placeholders array for configs or extenders to add to
 
 $orderBy = trim($orderBy ?? '');
 
@@ -192,12 +83,6 @@ if ($orderBy !== '' && substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
 }
 $orderBy = ['parsed' => [], 'custom' => [], 'unparsed' => $orderBy];
-// Variable: orderBy
-// An array that holds all criteria to sort the result set by.
-// Note that using a custom sort will disable all other sorting.
-// (code)
-// $orderBy["parsed"][] = array("sortBy","sortDir");
-// $orderBy["custom"][] = array("sortBy","callback_function");
 
 //---Includes-------------------------------------------------------- //
 
@@ -218,55 +103,29 @@ if ($debug == 1) {
     $files['debug_templates'] = $ditto_base . 'debug/debug.templates.php';
 }
 
-$files = array_unique($files);
-foreach ($files as $filename => $filevalue) {
-    if (strpos($filename, 'class') !== false && is_file($filevalue)) {
-        include_once($filevalue);
-    } elseif (is_file($filevalue)) {
-        @include($filevalue);
-    } elseif ($filename === 'language') {
-        evo()->logEvent(
-            1,
-            3,
-            sprintf(
-                'Language file does not exist Please check: %s',
-                $filevalue
-            ),
-            'Ditto ' . $ditto_version
-        );
-        return sprintf('Language file does not exist Please check: %s', $filevalue);
-    } else {
-        evo()->logEvent(
-            1,
-            3,
-            sprintf(
-                '%s %s',
-                $filevalue,
-                $_lang['file_does_not_exist']
-            ),
-            'Ditto ' . $ditto_version
-        );
-        return sprintf(
-            '%s %s',
-            $filevalue,
-            $_lang['file_does_not_exist']
-        );
+foreach (array_unique($files) as $filename => $filevalue) {
+    if (is_file($filevalue)) {
+        if (strpos($filename, 'class') !== false) {
+            include_once($filevalue);
+        } else {
+            include($filevalue);
+        }
+        continue;
     }
+    $message = $filename === 'language'
+        ? sprintf('Language file does not exist Please check: %s', $filevalue)
+        : sprintf('%s %s', $filevalue, $_lang['file_does_not_exist']);
+    evo()->logEvent(1, 3, $message, 'Ditto ' . $ditto_version);
+    return $message;
 }
 
 //---Initiate Class-------------------------------------------------- //
 $dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
-if (class_exists('ditto')) {
-    $ditto = new ditto($format, $_lang, $dbg_templates);
-} else {
-    evo()->logEvent(
-        1,
-        3,
-        $_lang['invalid_class'],
-        'Ditto ' . $ditto_version
-    );
+if (!class_exists('ditto')) {
+    evo()->logEvent(1, 3, $_lang['invalid_class'], 'Ditto ' . $ditto_version);
     return $_lang['invalid_class'];
 }
+$ditto = new ditto($format, $_lang, $dbg_templates);
 
 //---Initiate Extenders---------------------------------------------- //
 if (isset($tagData)) {
@@ -288,12 +147,7 @@ if (count($extenders) > 0) {
         } elseif (strpos($extender, '@FILE') === 0) {
             // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
             $extender_path = evo()->resolveBindFilePath(
-                MODX_BASE_PATH . trim(
-                    trim(
-                        substr($extender, 6)
-                    ),
-                    '/'
-                )
+                MODX_BASE_PATH . trim(trim(substr($extender, 6)), '/')
             );
             if ($extender_path && evo()->getExtention($extender_path) === '.php') {
                 include($extender_path);
@@ -309,11 +163,7 @@ if (count($extenders) > 0) {
 
         // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
         $extender_path = evo()->resolveFileUnderDir(
-            sprintf(
-                '%sextenders/%s.extender.inc.php',
-                $ditto_base,
-                $extender
-            ),
+            sprintf('%sextenders/%s.extender.inc.php', $ditto_base, $extender),
             $ditto_base . 'extenders'
         );
 
@@ -323,18 +173,14 @@ if (count($extenders) > 0) {
         }
 
         if ($rs === false) {
-            evo()->logEvent(
-                1,
-                3,
-                $extender . " " . $_lang['extender_does_not_exist'],
-                "Ditto " . $ditto_version
-            );
-            return $extender . " " . $_lang['extender_does_not_exist'];
+            $message = $extender . ' ' . $_lang['extender_does_not_exist'];
+            evo()->logEvent(1, 3, $message, 'Ditto ' . $ditto_version);
+            return $message;
         }
     }
 }
 
-//---Parameters------------------------------------------------------- /*
+//---Parameters------------------------------------------------------- //
 // Aliases (startID, summarize, limit). When the canonical name is in $never of
 // extenders/request.extender.inc.php, list the alias there too, because the request
 // extender runs before this mapping. sortBy and sortDir below are not aliases of orderBy.
@@ -353,471 +199,60 @@ if (isset($sortBy) || isset($sortDir)) {
     if ($sortDir !== 'ASC') {
         $sortDir = 'DESC';
     }
-    $sortBy = isset($sortBy) ? $sortBy : "createdon";
+    $sortBy = $sortBy ?? 'createdon';
     $orderBy['parsed'][] = [$sortBy, $sortDir];
 }
-// Allow backwards compatibility
 
-if (isset($documents)) {
-    $idType = 'documents';
-} else {
-    $idType = 'parents';
-}
-// Variable: idType
-// type of IDs provided; can be either parents or documents
-
-if (isset($parents)) {
-    $parents = trim(preg_replace('`(,)+`', ',', $parents), ',');
-} else {
-    $parents = evo()->documentIdentifier;
-}
-
-/*
-    Param: parents
-
-    Purpose:
-    IDs of containers for Ditto to retrieve their children to &depth depth
-
-    Options:
-    Any valid MODX document marked as a container
-
-    Default:
-    Current MODX Document
-
-    Related:
-    - <documents>
-    - <depth>
-*/
-if (isset($documents)) {
-    $documents = trim(preg_replace('`(,)+`', ',', $documents), ',');
-} else {
-    $documents = false;
-}
-/*
-    Param: documents
-
-    Purpose:
-    IDs of documents for Ditto to retrieve
-
-    Options:
-    Any valid MODX document marked as a container
-
-    Default:
-    None
-
-    Related:
-    - <parents>
-*/
-
-if ($idType === 'parents') {
-    $IDs = $parents;
-} else {
-    $IDs = $documents;
-}
-// Variable: IDs
-// Internal variable which holds the set of IDs for Ditto to fetch
-
-if (!isset($depth)) {
-    $depth = 1;
-}
-/*
-    Param: depth
-
-    Purpose:
-    Number of levels deep to retrieve documents
-
-    Options:
-    Any number greater than or equal to 1
-    0 - infinite depth
-
-    Default:
-    1
-
-    Related:
-    - <seeThruUnpub>
-*/
-if (!isset($paginate)) {
-    $paginate = 0;
-}
-/*
-    Param: paginate
-
-    Purpose:
-    Paginate the results set into pages of &display length.
-    Use &total to limit the number of documents retreived.
-
-    Options:
-    0 - off
-    1 - on
-
-    Default:
-    0 - off
-
-    Related:
-    - <paginateAlwaysShowLinks>
-    - <paginateSplitterCharacter>
-    - <display>
-*/
-if (!isset($dateSource)) {
-    $dateSource = 'createdon';
-}
-/*
-    Param: dateSource
-
-    Purpose:
-    Source of the [+date+] placeholder
-
-    Options:
-    # - Any UNIX timestamp from MODX fields or TVs such as createdon, pub_date, or editedon
-
-    Default:
-    "createdon"
-
-    Related:
-    - <dateFormat>
-*/
-if (!isset($dateFormat)) {
-    $dateFormat = $_lang['dateFormat'];
-}
-/*
-    Param: dateFormat
-
-    Purpose:
-    Format the [+date+] placeholder in human readable form
-
-    Options:
-    Any PHP valid strftime option
-
-    Default:
-    [LANG]
-
-    Related:
-    - <dateSource>
-*/
-if (!isset($display)) {
-    $display = 'all';
-}
-/*
-    Param: display
-
-    Purpose:
-    Number of documents to display in the results
-
-    Options:
-    # - Any number
-    "all" - All documents found
-
-    Default:
-    "all"
-
-    Related:
-    - <queryLimit>
-    - <total>
-*/
-if (!isset($total)) {
-    $total = 'all';
-}
-/*
-    Param: total
-
-    Purpose:
-    Number of documents to retrieve
-
-    Options:
-    # - Any number
-    "all" - All documents found
-
-    Default:
-    "all" - All documents found
-
-    Related:
-    - <display>
-    - <queryLimit>
-*/
-if (!isset($showPublishedOnly)) {
-    $showPublishedOnly = 1;
-}
-/*
-    Param: showPublishedOnly
-
-    Purpose:
-    Show only published documents
-
-    Options:
-    0 - show only unpublished documents
-    1 - show both published and unpublished documents
-
-    Default:
-    1 - show both published and unpublished documents
-
-    Related:
-    - <seeThruUnpub>
-    - <hideFolders>
-    - <showPublishedOnly>
-    - <where>
-*/
-if (!isset($showInMenuOnly)) {
-    $showInMenuOnly = 0;
-}
-/*
-    Param: showInMenuOnly
-
-    Purpose:
-    Show only documents visible in the menu
-
-    Options:
-    0 - show all documents
-    1 - show only documents with the show in menu flag checked
-
-    Default:
-    0 - show all documents
-
-    Related:
-    - <seeThruUnpub>
-    - <hideFolders>
-    - <where>
-*/
-if (!isset($hideFolders)) {
-    $hideFolders = 0;
-}
-/*
-    Param: hideFolders
-
-    Purpose:
-    Don't show folders in the returned results
-
-    Options:
-    0 - keep folders
-    1 - remove folders
-
-    Default:
-    0 - keep folders
-
-    Related:
-    - <seeThruUnpub>
-    - <showInMenuOnly>
-    - <where>
-*/
-if (!isset($hidePrivate)) {
-    $hidePrivate = 1;
-}
-/*
-    Param: hidePrivate
-
-    Purpose:
-    Don't show documents the guest or user does not have permission to see
-
-    Options:
-    0 - show private documents
-    1 - hide private documents
-
-    Default:
-    1 - hide private documents
-
-    Related:
-    - <seeThruUnpub>
-    - <showInMenuOnly>
-    - <where>
-*/
-if (!isset($seeThruUnpub)) {
-    $seeThruUnpub = 1;
-}
-/*
-    Param: seeThruUnpub
-
-    Purpose:
-    See through unpublished folders to retrive their children
-    Used when depth is greater than 1
-
-    Options:
-    0 - off
-    1 - on
-
-    Default:
-    1 - on
-
-    Related:
-    - <hideFolders>
-    - <showInMenuOnly>
-    - <where>
-*/
-if (!isset($queryLimit)) {
-    $queryLimit = null;
-}
-/*
-    Param: queryLimit
-
-    Purpose:
-    Number of documents to retrieve from the database, same as MySQL LIMIT
-
-    Options:
-    # - Any number
-    0 - automatic
-
-    Default:
-    0 - automatic
-
-    Related:
-    - <where>
-*/
-if (!isset($where)) {
-    $where = '';
-}
-/*
-    Param: where
-
-    Purpose:
-    Custom MySQL WHERE statement
-
-    Options:
-    A valid MySQL WHERE statement using only document object items (no TVs)
-
-    Default:
-    [NULL]
-
-    Related:
-    - <queryLimit>
-*/
+$idType = isset($documents) ? 'documents' : 'parents';
+$parents = isset($parents)
+    ? trim(preg_replace('`(,)+`', ',', $parents), ',')
+    : evo()->documentIdentifier;
+$documents = isset($documents)
+    ? trim(preg_replace('`(,)+`', ',', $documents), ',')
+    : false;
+$IDs = $idType === 'parents' ? $parents : $documents;
+
+$depth = $depth ?? 1;
+$paginate = $paginate ?? 0;
+$dateSource = $dateSource ?? 'createdon';
+$dateFormat = $dateFormat ?? $_lang['dateFormat'];
+$display = $display ?? 'all';
+$total = $total ?? 'all';
+$showPublishedOnly = $showPublishedOnly ?? 1;
+$showInMenuOnly = $showInMenuOnly ?? 0;
+$hideFolders = $hideFolders ?? 0;
+$hidePrivate = $hidePrivate ?? 1;
+$seeThruUnpub = $seeThruUnpub ?? 1;
+$queryLimit = $queryLimit ?? null;
+$where = $where ?? '';
 // keep the value a format (rss, json etc.) has set unless &noResults is given
-$noResults = event()->param('noResults', isset($noResults) ? $noResults : $_lang['no_documents']);
+$noResults = event()->param('noResults', $noResults ?? $_lang['no_documents']);
+$removeChunk = isset($removeChunk) ? explode(',', $removeChunk) : false;
+$hiddenFields = isset($hiddenFields) ? explode(',', $hiddenFields) : false;
 
-/*
-    Param: noResults
-
-    Purpose:
-    Text or chunk to display when there are no results
-
-    Options:
-    Any valid chunk name or text
-
-    Default:
-    [LANG]
-*/
-if (isset($removeChunk)) {
-    $removeChunk = explode(',', $removeChunk);
-} else {
-    $removeChunk = false;
-}
-/*
-    Param: removeChunk
-
-    Purpose:
-    Name of chunks to be stripped from content separated by commas
-    - Commonly used to remove comments
-
-    Options:
-    Any valid chunkname that appears in the output
-
-    Default:
-    [NULL]
-*/
-if (isset($hiddenFields)) {
-    $hiddenFields = explode(',', $hiddenFields);
-} else {
-    $hiddenFields = false;
-}
-/*
-    Param: hiddenFields
-
-    Purpose:
-    Allow Ditto to retrieve fields its template parser cannot handle such as nested placeholders and [*fields*]
-
-    Options:
-    Any valid MODX fieldnames or TVs comma separated
-
-    Default:
-    [NULL]
-*/
-$offset = isset($start) ? $start : 0;
+$offset = $start ?? 0;
 // 先頭のゼロも含めて 9 桁まで
 $rawStart = !empty($paginate) ? get_strvar($dittoID . 'start') : '';
 $start = strlen($rawStart) <= 9 ? to_uintvar($rawStart, 0) : 0;
-/*
-    Param: start
 
-    Purpose:
-    Number of documents to skip in the results
+$globalFilterDelimiter = $globalFilterDelimiter ?? '|';
+$localFilterDelimiter = $localFilterDelimiter ?? ',';
 
-    Options:
-    Any number
-
-    Default:
-    0
-*/
-if (!isset($globalFilterDelimiter)) {
-    $globalFilterDelimiter = '|';
-}
-/*
-    Param: globalFilterDelimiter
-
-    Purpose:
-    Filter delimiter used to separate filters in the filter string
-
-    Options:
-    Any character not used in the filters
-
-    Default:
-    "|"
-
-    Related:
-    - <localFilterDelimiter>
-    - <filter>
-    - <parseFilters>
-*/
-
-if (!isset($localFilterDelimiter)) {
-    $localFilterDelimiter = ',';
-}
-/*
-    Param: localFilterDelimiter
-
-    Purpose:
-    Delimiter used to separate individual parameters within each filter string
-
-    Options:
-    Any character not used in the filter itself
-
-    Default:
-    ","
-
-    Related:
-    - <globalFilterDelimiter>
-    - <filter>
-    - <parseFilters>
-*/
+// false turns the custom / parsed filters off; any other non-array value starts empty.
+// $cFilters and $parsedFilters are the names used by configs written for 2.0.0
 if (!isset($filters) || !is_array($filters)) {
     $filters = [];
 }
-
-if (!array_key_exists('custom', $filters)) {
-    $filters['custom'] = [];
+foreach (['custom' => $cFilters ?? null, 'parsed' => $parsedFilters ?? null] as $filterType => $legacyFilters) {
+    if (!array_key_exists($filterType, $filters)
+        || ($filters[$filterType] !== false && !is_array($filters[$filterType]))
+    ) {
+        $filters[$filterType] = [];
+    }
+    if ($legacyFilters !== null && $filters[$filterType] !== false) {
+        $filters[$filterType] = array_merge($filters[$filterType], $legacyFilters);
+    }
 }
-
-if ($filters['custom'] !== false && !is_array($filters['custom'])) {
-    $filters['custom'] = [];
-}
-
-if (!array_key_exists('parsed', $filters)) {
-    $filters['parsed'] = [];
-}
-
-if ($filters['parsed'] !== false && !is_array($filters['parsed'])) {
-    $filters['parsed'] = [];
-}
-// Variable: filters
-// Holds both the custom filters array for configs or extenders to add to
-// and the parsed filters array. To add to this array, use the following format
-// (code)
-// $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
-// $filters["custom"][] = array("source","callback_function");
-if (isset($cFilters) && $filters['custom'] !== false) {
-    $filters['custom'] = array_merge($filters['custom'], $cFilters);
-}
-
-if (isset($parsedFilters) && $filters['parsed'] !== false) {
-    $filters['parsed'] = array_merge($filters['parsed'], $parsedFilters);
-}
-// handle 2.0.0 compatibility
 $filter = $filter ?? '';
 if ($filter || $filters['custom'] !== false || $filters['parsed'] !== false) {
     $filter = $ditto->parseFilters(
@@ -830,196 +265,28 @@ if ($filter || $filters['custom'] !== false || $filters['parsed'] !== false) {
 } else {
     $filter = false;
 }
-/*
-    Param: filter
 
-    Purpose:
-    Removes items not meeting a critera. Thus, if pagetitle == joe then it will be removed.
-    Use in the format field,criteria,mode with the comma being the local delimiter
+$randomize = $randomize ?? 0;
+$save = $save ?? 0;
 
-    *Mode* *Meaning*
-
-    1 - !=
-    2 - ==
-    3 - <
-    4 - >
-    5 - <=
-    6 - >=
-    7 - Text not in field value
-    8 - Text in field value
-    9 - case insenstive version of #7
-    10 - case insenstive version of #8
-    11 - checks leading character of the field
-
-    @EVAL:
-        @EVAL in filters works the same as it does in MODX exect it can only be used
-        with basic filtering, not custom filtering (tagging, etc). Make sure that
-        you return the value you wish Ditto to filter by and that the code is valid PHP.
-
-    Default:
-    [NULL]
-
-    Related:
-    - <localFilterDelimiter>
-    - <globalFilterDelimiter>
-    - <parseFilters>
-*/
-
-if (!isset($randomize)) {
-    $randomize = 0;
-}
-/*
-    Param: randomize
-
-    Purpose:
-    Randomize the order of the output
-
-    Options:
-    0 - off
-    1 - on
-    Any MODX field or TV for weighted random
-
-    Default:
-    0 - off
-*/
-if (!isset($save)) {
-    $save = 0;
-}
-/*
-    Param: save
-
-    Purpose:
-    Saves the ditto object and results set to placeholders
-    for use by other snippets
-
-    Options:
-    0 - off; returns output
-    1 - remaining; returns output
-    2 - all;
-    3 - all; returns ph only
-
-    Default:
-        0 - off; returns output
-*/
-if (!isset($tplAlt)) {
-    $tplAlt = '';
-}
-if (!isset($tplFirst)) {
-    $tplFirst = '';
-}
-if (!isset($tplLast)) {
-    $tplLast = '';
-}
-if (!isset($tplCurrentDocument)) {
-    $tplCurrentDocument = '';
-}
-if (!isset($tpl)) {
-    $tpl = '';
-}
 $templates = [
     'default' => '@CODE ' . $_lang['default_template'],
-    'base' => $tpl,
-    'alt' => $tplAlt,
-    'first' => $tplFirst,
-    'last' => $tplLast,
-    'current' => $tplCurrentDocument
+    'base' => $tpl ?? '',
+    'alt' => $tplAlt ?? '',
+    'first' => $tplFirst ?? '',
+    'last' => $tplLast ?? '',
+    'current' => $tplCurrentDocument ?? ''
 ];
-/*
-    Param: tpl
 
-    Purpose:
-    User defined chunk to format the documents
-
-    Options:
-    - Any valid chunk name
-    - Code via @CODE
-    - File via @FILE
-
-    Default:
-    [LANG]
-*/
-/*
-    Param: tplAlt
-
-    Purpose:
-    User defined chunk to format every other document
-
-    Options:
-    - Any valid chunk name
-    - Code via @CODE
-    - File via @FILE
-
-    Default:
-    &tpl
-*/
-/*
-    Param: tplFirst
-
-    Purpose:
-    User defined chunk to format the first document
-
-    Options:
-    - Any valid chunk name
-    - Code via @CODE
-    - File via @FILE
-
-    Default:
-    &tpl
-*/
-/*
-    Param: tplLast
-
-    Purpose:
-    User defined chunk to format the last document
-
-    Options:
-    - Any valid chunk name
-    - Code via @CODE
-    - File via @FILE
-
-    Default:
-    &tpl
-*/
-/*
-    Param: tplCurrentDocument
-
-    Purpose:
-    User defined chunk to format the current document
-
-    Options:
-    - Any valid chunk name
-    - Code via @CODE
-    - File via @FILE
-
-    Default:
-    &tpl
-*/
 $orderBy = $ditto->parseOrderBy($orderBy, $randomize);
-/*
-    Param: orderBy
 
-    Purpose:
-    Sort the result set
-
-    Options:
-    Any valid MySQL style orderBy statement
-    A direction left out sorts DESC on the last field and ASC on the others;
-    write ASC or DESC for every field.
-
-    Default:
-    id ASC (with &documents: the listed order; the rss format uses "[dateSource] DESC")
-    In SQL sorts (not TVs, pub_date, unpub_date, editedon, deletedon or publishedon),
-    documents with the same value follow the id in the direction of the first field.
-*/
-//-------------------------------------------------------------------- */
+//---Documents-------------------------------------------------------- //
 $templates = $ditto->template->process($templates);
-// parse the templates for TV's and store them for later use
 
 $ditto->setDisplayFields($ditto->template->fields, $hiddenFields);
-// parse hidden fields
 
 $ditto->parseFields($placeholders, $seeThruUnpub, $dateSource, $randomize);
-// parse the fields into the field array
+
 $documentIDs = $ditto->determineIDs(
     $IDs,
     $idType,
@@ -1039,206 +306,30 @@ $documentIDs = $ditto->determineIDs(
     $randomize
 );
 
-// retrieves a list of document IDs that meet the criteria and populates the $resources array with them
-// count the number of documents to be retrieved
 $count = count($documentIDs) - $offset;
-// handle the offset
 
 if ($count > 0) {
-    // if documents are returned continue with execution
-
-    if ($total === 'all') {
-        $total = $count;
-    } else {
-        $total = min($total, $count);
-    }
-    // set total equal to count if all documents are to be included
-
-    if ($display === 'all') {
-        $display = min($count, $total);
-    } else {
-        $display = min($display, $total);
-    }
-    // allow show to use all option
-
-    if ($save == 1) {
-        $stop = min($count, $total);
-    } else {
-        $stop = min($total - $start, $display);
-    }
-    // set initial stop count
+    $total = $total === 'all' ? $count : min($total, $count);
+    $display = $display === 'all' ? min($count, $total) : min($display, $total);
+    $stop = $save == 1 ? min($count, $total) : min($total - $start, $display);
 
     if ($paginate == 1) {
-        $paginateAlwaysShowLinks = isset($paginateAlwaysShowLinks)
-            ? $paginateAlwaysShowLinks
-            : 0;
-        /*
-            Param: paginateAlwaysShowLinks
+        $paginateAlwaysShowLinks = $paginateAlwaysShowLinks ?? 0;
+        $paginateSplitterCharacter = $paginateSplitterCharacter ?? $_lang['button_splitter'];
 
-            Purpose:
-            Determine whether or not to always show previous next links
-
-            Options:
-            0 - off
-            1 - on
-
-            Default:
-            0 - off
-
-            Related:
-            - <paginate>
-            - <paginateSplitterCharacter>
-        */
-        if (!isset($paginateSplitterCharacter)) {
-            $paginateSplitterCharacter = $_lang['button_splitter'];
+        $paginateTemplates = [
+            'tplPaginatePrevious' => '<a href="[+url+]" class="ditto_previous_link">[+lang:previous+]</a>',
+            'tplPaginateNext' => '<a href="[+url+]" class="ditto_next_link">[+lang:next+]</a>',
+            'tplPaginateNextOff' => '<span class="ditto_next_off ditto_off">[+lang:next+]</span>',
+            'tplPaginatePreviousOff' => '<span class="ditto_previous_off ditto_off">[+lang:previous+]</span>',
+            'tplPaginatePage' => '<a class="ditto_page" href="[+url+]">[+page+]</a>',
+            'tplPaginateCurrentPage' => '<span class="ditto_currentpage">[+page+]</span>',
+        ];
+        foreach ($paginateTemplates as $paginateName => $paginateDefault) {
+            $$paginateName = isset($$paginateName)
+                ? $ditto->template->fetch($$paginateName)
+                : $paginateDefault;
         }
-        /*
-            Param: paginateSplitterCharacter
-
-            Purpose:
-            Splitter to use if always show is disabled
-
-            Options:
-            Any valid character
-
-            Default:
-            [LANG]
-
-            Related:
-            - <paginate>
-            - <paginateSplitterCharacter>
-        */
-        if (isset($tplPaginatePrevious)) {
-            $tplPaginatePrevious = $ditto->template->fetch($tplPaginatePrevious);
-        } else {
-            $tplPaginatePrevious = '<a href="[+url+]" class="ditto_previous_link">[+lang:previous+]</a>';
-        }
-        /*
-            Param: tplPaginatePrevious
-
-            Purpose:
-            Template for the previous link
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            url - URL for the previous link
-            lang:previous - value of 'prev' from the language file
-
-            Related:
-            - <tplPaginateNext>
-            - <paginateSplitterCharacter>
-        */
-        $tplPaginateNext = isset($tplPaginateNext)
-            ? $ditto->template->fetch($tplPaginateNext)
-            : '<a href="[+url+]" class="ditto_next_link">[+lang:next+]</a>';
-        /*
-            Param: tplPaginateNext
-
-            Purpose:
-            Template for the next link
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            url - url for the next link
-            lang:next - value of 'next' from the language file
-
-            Related:
-            - <tplPaginatePrevious>
-            - <paginateSplitterCharacter>
-        */
-        $tplPaginateNextOff = isset($tplPaginateNextOff)
-            ? $ditto->template->fetch($tplPaginateNextOff)
-            : '<span class="ditto_next_off ditto_off">[+lang:next+]</span>';
-        /*
-            Param: tplPaginateNextOff
-
-            Purpose:
-            Template for the inside of the next link
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            lang:next - value of 'next' from the language file
-
-            Related:
-            - <tplPaginatePrevious>
-            - <paginateSplitterCharacter>
-        */
-        $tplPaginatePreviousOff = isset($tplPaginatePreviousOff)
-            ? $ditto->template->fetch($tplPaginatePreviousOff)
-            : '<span class="ditto_previous_off ditto_off">[+lang:previous+]</span>';
-        /*
-            Param: tplPaginatePreviousOff
-
-            Purpose:
-            Template for the previous link when it is off
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            lang:previous - value of 'prev' from the language file
-
-            Related:
-            - <tplPaginatePrevious>
-            - <paginateSplitterCharacter>
-        */
-        $tplPaginatePage = isset($tplPaginatePage)
-            ? $ditto->template->fetch($tplPaginatePage)
-            : '<a class="ditto_page" href="[+url+]">[+page+]</a>';
-        /*
-            Param: tplPaginatePage
-
-            Purpose:
-            Template for the page link
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            url - url for the page
-            page - number of the page
-
-            Related:
-            - <tplPaginatePrevious>
-            - <paginateSplitterCharacter>
-        */
-        $tplPaginateCurrentPage = isset($tplPaginateCurrentPage)
-            ? $ditto->template->fetch($tplPaginateCurrentPage)
-            : '<span class="ditto_currentpage">[+page+]</span>';
-        /*
-            Param: tplPaginateCurrentPage
-
-            Purpose:
-            Template for the current page link
-
-            Options:
-            - Any valid chunk name
-            - Code via @CODE
-            - File via @FILE
-
-            Placeholders:
-            page - number of the page
-
-            Related:
-            - <tplPaginatePrevious>
-            - <paginateSplitterCharacter>
-        */
 
         $ditto->paginate(
             $start,
@@ -1254,13 +345,10 @@ if ($count > 0) {
             $paginateAlwaysShowLinks,
             $paginateSplitterCharacter
         );
-        // generate the pagination placeholders
     }
 
     $dbFields = $ditto->fields['display']['db'];
-    // get the database fields
     $TVs = $ditto->fields['display']['tv'];
-    // get the TVs
 
     switch ($orderBy['parsed'][0][1] ?? null) {
         case 'DESC':
@@ -1275,19 +363,14 @@ if ($count > 0) {
 
     if ($ditto->prefetch !== false) {
         $documentIDs = array_slice($documentIDs, $start, $stop);
-        // set the document IDs equal to the trimmed array
+        // fetch only what the prefetch has not read yet
         $dbFields = array_diff($dbFields, $ditto->prefetch['fields']['db']);
-        // calculate the difference between the database fields and those already prefetched
         $dbFields[] = 'id';
-        // append id to the db fields array
         $TVs = array_diff($TVs, $ditto->prefetch['fields']['tv']);
-        // calculate the difference between the tv fields and those already prefetched
         $start = 0;
         $stop = min($display, ($queryLimit != 0) ? $queryLimit : $display, count($documentIDs));
-    } else {
-        if (($queryLimit == 0)) {
-            $queryLimit = '';
-        }
+    } elseif ($queryLimit == 0) {
+        $queryLimit = '';
     }
 
     $resource = $ditto->getDocuments(
@@ -1303,14 +386,11 @@ if ($count > 0) {
         $randomize,
         $dateSource
     );
-    // retrieves documents
     $output = $header;
-    // initialize the output variable and send the header
 
     if ($resource) {
         if ($randomize != '0' && $randomize != '1') {
             $resource = $ditto->weightedRandom($resource, $randomize, $stop);
-            // randomize the documents
         }
 
         $resource = array_values($resource);
@@ -1325,7 +405,6 @@ if ($count > 0) {
                 $stop,
                 $resource[$x]['id']
             );
-            // choose the template to use and set the code of that template to the template variable
             $renderedOutput = $ditto->render(
                 $resource[$x],
                 $template,
@@ -1336,27 +415,13 @@ if ($count > 0) {
                 abs($start - $x),
                 $stop
             );
-            // render the output using the correct template, in the correct format and language
             evo()->setPlaceholder($dittoID . "item[" . abs($start - $x) . "]", $renderedOutput);
-            /*
-                Placeholder: item[x]
-
-                Content:
-                Individual items rendered output
-            */
             $output .= $renderedOutput;
-            // send the rendered output to the buffer
         }
     } else {
         $output .= $ditto->noResults($noResults, $paginate);
-        // if no documents are found return a no documents found string
     }
     $output .= $footer;
-    // send the footer
-
-    // ---------------------------------------------------
-    // Save Object
-    // ---------------------------------------------------
 
     if ($save) {
         evo()->setPlaceholder($dittoID . "ditto_object", $ditto);
@@ -1376,7 +441,7 @@ if ($debug == 1) {
     $ditto_params =& event()->params;
     $debugAction = get_choicevar("ditto_{$dittoID}debug", ['open', 'save'], '');
     if ($debugAction === '') {
-        $_SESSION["ditto_debug_" . $dittoID] = $ditto->debug->render_popup(
+        sessionv("*ditto_debug_{$dittoID}", $ditto->debug->render_popup(
             $ditto,
             $ditto_base,
             $ditto_version,
@@ -1391,7 +456,7 @@ if ($debug == 1) {
             $total ?? 0,
             $filter ?? [],
             $resource ?? []
-        );
+        ));
     }
     if ($debugAction !== '') {
         switch ($debugAction) {
@@ -1413,7 +478,6 @@ if ($debug == 1) {
         $output = $ditto->debug->render_link($dittoID, $ditto_base) . $output;
     }
 }
-// outerTpl by Dmi3yy & Jako
 if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;
 }

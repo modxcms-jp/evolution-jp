@@ -17,48 +17,6 @@ class random
         $this->data[] = ['s' => $string, 'w' => $weight];
     }
 
-    function optimize()
-    {
-        $new = [];
-        foreach ($this->data as $var) {
-            if ($new[$var['s']]) $new[$var['s']] += $var['w'];
-            else                $new[$var['s']] = $var['w'];
-        }
-        $this->data = [];
-        foreach ($new as $key => $var) {
-            $this->data[] = ['s' => $key, 'w' => $var];
-        }
-    }
-
-    public function select($amount = 1)
-    {
-        if ($amount == 1) {
-            $rand = array_rand($this->data);
-            $result = $this->data[$rand]['s'];
-        } else {
-            $i = 0;
-            while ($i < $amount) {
-                $result[] = $this->data[array_rand($this->data)]['s'];
-                ++$i;
-            }
-        }
-        return $result;
-    }
-
-    public function select_unique($amount = 1)
-    {
-        if ($amount == 1) {
-            $rand = array_rand($this->data);
-            $result = $this->data[$rand]['s'];
-        } else {
-            $rand = array_rand($this->data, $amount);
-            foreach ($rand as $var) {
-                $result[] = $this->data[$var]['s'];
-            }
-        }
-        return $result;
-    }
-
     public function select_weighted_unique($amount = 1)
     {
         $count = count($this->data);

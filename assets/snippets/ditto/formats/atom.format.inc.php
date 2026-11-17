@@ -8,41 +8,14 @@
 
 if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
-$modx->documentObject['contentType'] = 'application/atom+xml';
+evo()->documentObject['contentType'] = 'application/atom+xml';
 
 // set placeholders
 $atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
-/*
-	Param: abbrLanguage
-
-	Purpose:
-	Language for the Atom feed
-
-	Options:
-	Any valid 2 character language abbreviation
-
-	Default:
-	[LANG]
-
-	Related:
-	- <language>
-*/
-$atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . ($modx->documentObject['id'] ?? '') . "~]";
+$atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . (evo()->documentObject['id'] ?? '') . "~]";
 $atom_placeholders['atom_charset'] = isset($charset) ? $charset : config('modx_charset');
-/*
-	Param: charset
 
-	Purpose:
-	Charset to use for the Atom feed
-
-	Options:
-	Any valid charset identifier
-
-	Default:
-	MODX default charset
-*/
-
-$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', ($modx->documentObject['editedon'] ?? null));
+$atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', (evo()->documentObject['editedon'] ?? null));
 $placeholders['*'] = "atom_placeholders";
 $placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
 $placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];
