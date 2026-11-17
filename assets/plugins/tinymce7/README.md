@@ -17,10 +17,6 @@ MODX Evolution で最新の TinyMCE エディターを利用できるように�
 * MODX Evolution 標準の MCPuk ファイルブラウザーと連携し、画像やファイルを簡単に選択できます。
 * 画像をクリック／ダブルクリックすると Cropper.js を使ったトリミング・回転・サイズ変更が行えます。
 
-## スクリーンショット
-
-![MODX Evolution のリソース編集画面で表示された TinyMCE 7](docs/images/resource-editor.jpg)
-
 ## 導入手順
 
 1. プラグイン一式をダウンロードします。
