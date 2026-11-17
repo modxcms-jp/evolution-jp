@@ -246,7 +246,7 @@ class EvoBackupManager
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $i + 1;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
-                if (EvoDbTables::exists('system_settings')) {
+                if (EvoDbTables::exists(db()->table_prefix . 'system_settings')) {
                     $this->restoreSettings($keep);
                 }
                 return $result;
@@ -264,11 +264,11 @@ class EvoBackupManager
     // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）
     private function finish($keep)
     {
-        if (!EvoDbTables::exists('system_settings')) {
+        if (!EvoDbTables::exists(db()->table_prefix . 'system_settings')) {
             return false;
         }
         $this->restoreSettings($keep);
-        if (!EvoDbTables::exists('system_cache')) {
+        if (!EvoDbTables::exists(db()->table_prefix . 'system_cache')) {
             return false;
         }
         evo()->clearCache();
@@ -307,7 +307,7 @@ class EvoBackupManager
     private function getKeptSettings()
     {
         $keep = [];
-        if (!EvoDbTables::exists('system_settings')) {
+        if (!EvoDbTables::exists(db()->table_prefix . 'system_settings')) {
             return $keep;
         }
         $keys = ['site_url', 'base_url', 'filemanager_path', 'rb_base_dir', 'fixed_site_url'];

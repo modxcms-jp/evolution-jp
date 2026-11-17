@@ -63,12 +63,11 @@ final class EvoDbTables
     }
 
     /**
-     * 表があるか（名前は qualify() で接頭辞を付けてから照合する）
+     * 表があるか（名前は接頭辞の付いた完全な名前で渡す）
      */
-    public static function exists(string $name): bool
+    public static function exists(string $table): bool
     {
-        $table = self::qualify($name);
-        if ($table === '') {
+        if (!preg_match(self::NAME_PATTERN, $table)) {
             return false;
         }
         $rs = db()->query(sprintf(
