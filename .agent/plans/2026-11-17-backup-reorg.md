@@ -94,6 +94,7 @@
 - 2026-11-18 / 本人の決定: エクスポートの出力先との重なりは S5 では扱わない。
 - 2026-11-18 / yamamoto（Claude が起案。S6 で追加）: `EvoBackupManager::createSnapshot($name, array $options)` の書き手は、計画の `driver` の名前ではなく `writer`（callable($path, array $tables): bool）で受ける。`mysqldump` を呼ぶ処理は CLI だけのもの（`cli-helpers.php`）なので、`EvoBackupManager` から CLI の関数を呼ばないため。`db:backup` は、今と同じく `cli_export_database_file()` を書き手として渡す（`--driver=php` でもログの表のデータを入れる今の中身のまま。管理画面と同じ中身にするのは S7）。世代の数は `keep` で受け、消した名前は `pruned()` で得る（`db:backup` の「Removed old backup」の行のため）。復元は `restore($sql)` を消して `restoreFile($path, $preRestore)` にした（別名は残さない）。`assets/docs/core-issues.md` の節は、トランザクションの整合性が残るので、解決済みの見出しにはせず、メモリの項だけを解消にした。
 - 2026-11-18 / 本人の決定: PHP の書き出しは、複数行の `INSERT`（バルクインサート）にできるならそれがよい。S6 の後に S6b として足す（S6 の PR のマージの後、本人の指示で始める）。
+- 2026-11-18 / 本人の判断（S6b の形）: 複数行の `INSERT` の中で、1 行のデータごとに改行する。理由: DB への問い合わせは 1 つの文で 1 回のまま（速さ）、ダンプの差分は 1 行 1 データで取れる（diff の取りやすさ）。読む側は「`;` で終わる行で文を区切る」ままで、途中の行は `),` で終わるので、変えずに 1 つの文として読める。
 - 2026-11-18 / yamamoto（Claude が起案。S6b の区切り）: 1 つの `INSERT` の大きさは、`mysqldump` の既定（`net_buffer_length` の 1MB）に合わせて、文が 1MB を超えたら次の文にする（1 行だけで 1MB を超える行は、その 1 行で 1 つの文）。`max_allowed_packet` を超えないよう、上限は「`min(1MB, max_allowed_packet の値 − 余白 1KB)`」にする（書くときに `SELECT @@max_allowed_packet` を 1 回だけ問い合わせる）。1 行がそれだけで `max_allowed_packet` を超える行は、修正前もその行を戻せなかったので、扱いは変えない。
 
 ## Outcomes & Retrospective
@@ -144,7 +145,7 @@ S5（保存先の黙った切り替えをやめる。動きを変える）: Deci
 
 S6（作成と復元の手順。動きを変えない）: `EvoBackupManager` を手順だけにする。`createSnapshot($name, $options)`（書き手を options の `driver` で受ける。管理画面は `php`、CLI は `mysqldump` が既定）、`restoreFile($path, $preRestore)`（`EvoSqlDump::statements()` でファイルから流して読む）、復元の前の控え、環境ごとの設定の保持、キャッシュの作り直し。`restore.processor.php` はアップロードの一時ファイルとスナップショットのパスを `restoreFile()` に渡す。`db-backup.php`・`db-import.php` は `createSnapshot()`・`restoreFile()` を呼ぶ。`$modx->snapshot()` は `normalizeName()` と `createSnapshot()` を呼ぶだけにする。`assets/docs/backup.md` を作り、5 つの受け持ちとダンプの約束を書き、AGENTS.md のドキュメントマップに足す。`assets/docs/core-issues.md` の「PHP のダンプの書き出し（EvoSqlDump）の設計上の制約」（S3 で見出しを変えた）を解決済みにする。
 
-S6b（PHP の書き出しを複数行の INSERT にする。動きを変える）: `EvoSqlDump::write()` の書く側で、表ごとに複数の行を 1 つの `INSERT INTO ... VALUES (...),(...);` にまとめる。1 つの文は 1 行に収める（値に生の改行を入れない約束はそのまま）。区切りは Decision Log の S6b の項のとおり。読む側（`statements()`）は変えない。`assets/docs/backup.md` のダンプの約束に、1 つの `INSERT` が複数の行を持つことを書く。PR に `仕様変更` のラベルを付ける（ダンプの形が変わる）。
+S6b（PHP の書き出しを複数行の INSERT にする。動きを変える）: `EvoSqlDump::write()` の書く側で、表ごとに複数の行を 1 つの `INSERT` にまとめ、1 行のデータごとに改行する（`INSERT INTO `t` VALUES` の行のあとに、途中の行は `(...),`、最後の行だけ `(...);`）。値に生の改行を入れない約束はそのまま（値の中の改行は `\n` にエスケープされる）。区切りは Decision Log の S6b の項のとおり。読む側（`statements()`）は変えない。`assets/docs/backup.md` のダンプの約束に、1 つの `INSERT` が複数の行を持つことを書く。PR に `仕様変更` のラベルを付ける（ダンプの形が変わる）。
 
 S7（復元の前の確かめと作成の結果。動きを変える）: 復元の前の下読み（接頭辞と `DELIMITER`）、`snapshot()` の戻り値、`db:backup` のログの表の扱いを Decision Log のとおりに変える。
 
@@ -181,7 +182,7 @@ S5 の確かめ: グローバル設定（a=17）の「ファイル」タブの�
 
 S6 の確かめ: S3 と同じ往復を、管理画面・CLI の両方で行い、修正前と `checksum`・復元の結果の表示（実行した文の数・飛ばした数）が同じ。大きなダンプ: 本文 1MB の文書を 200 件入れた DB のダンプ（約 200MB）を `php -d memory_limit=128M evo.php db:import` で戻すと、修正前は `Allowed memory size` で止まり、修正後は通る（これは計画どおりの違い）。`$modx->snapshot('abc')` が `abc.sql` を作り、大きさを返す（修正前と同じ）。
 
-S6b の確かめ: 修正前（S6 の後の main）と修正後で、管理画面（ダウンロード・スナップショット・コンテンツのみ）と CLI の `--driver=php`（`db:export`・`db:backup`）のダンプを、`db:import` と管理画面のアップロード・スナップショットの一覧で戻し、`CHECKSUM TABLE` が元と同じ（特別な文字を含む値も）。修正後のダンプの `INSERT` の文の数が大きく減る（表ごとの行の数から、1MB ごとの数へ）。修正前の形（1 行ずつの `INSERT`）のダンプも、修正後に戻せる。大きな行（1MB を超える 1 行）と、`max_allowed_packet` を小さくした DB（例 `SET GLOBAL max_allowed_packet=2097152`）でも往復が通る。離れた DB を模して、DB のコンテナとの間に遅延を入れ（`tc qdisc add dev eth0 root netem delay 20ms`。使えなければ toxiproxy、それも無理なら、問い合わせの回数（`SHOW SESSION STATUS LIKE 'Questions'`）と復元の時間の比較）、復元の時間が修正前より大きく減ることを測る。
+S6b の確かめ: 修正前（S6 の後の main）と修正後で、管理画面（ダウンロード・スナップショット・コンテンツのみ）と CLI の `--driver=php`（`db:export`・`db:backup`）のダンプを、`db:import` と管理画面のアップロード・スナップショットの一覧で戻し、`CHECKSUM TABLE` が元と同じ（特別な文字を含む値も）。修正後のダンプの `INSERT` の文の数が大きく減る（表ごとの行の数から、1MB ごとの数へ）。修正前の形（1 行ずつの `INSERT`）のダンプも、修正後に戻せる。値が `;` で終わる行、`)`・`,`・`'),(` を含む値、空の表、1 行だけの表、上限ちょうどで文が分かれる表を往復に入れ、読む側の文の数（表ごとの文の数の合計）と `CHECKSUM TABLE` を確かめる。大きな行（1MB を超える 1 行）と、`max_allowed_packet` を小さくした DB（例 `SET GLOBAL max_allowed_packet=2097152`）でも往復が通る。離れた DB を模して、DB のコンテナとの間に遅延を入れ（`tc qdisc add dev eth0 root netem delay 20ms`。使えなければ toxiproxy、それも無理なら、問い合わせの回数（`SHOW SESSION STATUS LIKE 'Questions'`）と復元の時間の比較）、復元の時間が修正前より大きく減ることを測る。
 
 S7 の確かめ: 接頭辞 `other_` で作ったダンプ（別のサイトのダンプ）を管理画面と `db:import` で戻すと、「接頭辞が違う」と出て、`pre-restore-` の控えも作られず、`checksum` が変わらない（修正前は「成功」と出て `other_` の表が増えた）。`db:export`（既定の `--routines --triggers`）の出力にトリガーを含めて戻すと「トリガーやルーチンを含むダンプは戻せない」と出る。`$modx->snapshot('a/b')` が `false`（修正前は `null`）。`db:backup`（mysqldump）で作ったスナップショットに `manager_log` の `CREATE TABLE` があり、`INSERT INTO` が無い（管理画面のスナップショットと同じ）。
 
