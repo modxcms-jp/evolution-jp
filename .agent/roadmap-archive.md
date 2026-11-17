@@ -415,7 +415,7 @@
 - 非対象（やらないこと）: デザイン全面刷新
 - 依存関係: なし（既存 `index.php?a=` ルーティングのまま実施。API Router統合は将来の別タスク）
 - ExecPlan: `.agent/plans/archive/2026-07-07-manager-frameset-removal.md`
-- メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。2026-08-15: ExecPlan本体のM6（保存フロー・履歴・未保存警告・RTL）のブラウザ最終確認を完了し、StatusをDONEへ更新。ExecPlanは完了処理に従いarchiveへ移動。
+- メモ/判断ログ: 当初は段階実施・API Router基盤依存の想定 → 2026-07-07 ユーザー判断により一括移行・API Router非依存で先行実施へ変更（詳細はExecPlanのDecision Log）。2026-07-11: マネージャ内最後のframeset(mcpukファイルブラウザ)を別ExecPlan(.agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md)でモーダル化・削除完了。`<frameset>`/`<frame>`の実タグはリポジトリ内0件。2026-08-15: ExecPlan本体のM6（保存フロー・履歴・未保存警告・RTL）のブラウザ最終確認を完了し、StatusをDONEへ更新。ExecPlanは完了処理に従いarchiveへ移動。
 
 ### jQuery廃止
 
@@ -454,7 +454,7 @@
 - 着手予定日: `2026-10-30`
 - 完了日: `2026-11-01`
 - 目的: 2026-07-11に刷新した新ファイルブラウザ(manager/media/browser/evo/)を、KCFinder相当の機能水準まで拡張し管理画面の利便性を高める
-- 背景/課題: 新ファイルブラウザ(ExecPlan: .agent/plans/2026-07-11-file-browser-modal-rewrite.md)はD&Dアップロード・一括操作・移動・検索・ソート・ツリー表示・矩形選択・インラインリネームまで実装済みだが、KCFinder等の高機能ファイルマネージャと比較すると以下が未実装: (1)クリップボード操作(コピー・切り取り・貼り付け)、(2)複数ファイルのzip一括ダウンロード、(3)画像のリサイズ・回転等の簡易編集、(4)右クリックコンテキストメニュー、(5)UI文言の多言語化(現状は日本語固定文字列)
+- 背景/課題: 新ファイルブラウザ(ExecPlan: .agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md)はD&Dアップロード・一括操作・移動・検索・ソート・ツリー表示・矩形選択・インラインリネームまで実装済みだが、KCFinder等の高機能ファイルマネージャと比較すると以下が未実装: (1)クリップボード操作(コピー・切り取り・貼り付け)、(2)複数ファイルのzip一括ダウンロード、(3)画像のリサイズ・回転等の簡易編集、(4)右クリックコンテキストメニュー、(5)UI文言の多言語化(現状は日本語固定文字列)
 - 到達条件（Definition of Done）: ExecPlan の M1〜M5（多言語化 → 右クリックメニュー → コピー・切り取り・貼り付け → zip 一括ダウンロード → 画像の簡易編集）がすべて完了している。M1〜M3 は #965、M4・M5 はそれぞれ別の PR にする
 - 非対象（やらないこと）: 画像編集の高度化(レイヤー・フィルタ等の本格的な画像編集機能)は対象外。あくまで簡易なリサイズ・回転に留める
 - 依存関係: なし（2026-07-11-file-browser-modal-rewrite.md のM1〜M5完了が前提）
