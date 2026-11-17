@@ -18,19 +18,18 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `id` | この呼び出しの名前。URL のパラメータとプレースホルダーの名前の前に `<id>_` が付き、1 ページに複数の Ditto を置ける。Reflect などほかのスニペットとの連携にも使う | 英字・数字・アンダースコア（大文字と小文字を区別する） | 空 |
 | `language` | 既定の文言・エラーメッセージの言語 | `lang/` にある言語ファイルの名前 | 管理画面の言語（`manager_language`）。そのファイルが無ければ `english` |
 | `format` | 出力の形式 | `html` / `json` / `xml` / `atom` / `rss` | `html` |
-| `config` | 設定ファイルを読み込む | `default`、`configs/` にある設定の名前、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | `default` |
-| `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、チャンク名、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
-| `debug` | デバッグ情報を出す | `0` オフ / `1` オン | `0` |
+| `config` | 設定ファイルを読み込む | `default`、`configs/` にある設定の名前、`@FILE サイトのルートからのパス`（`.php` だけ） | `default` |
+| `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
 
 `configs/default.config.php` があれば、`config` の指定にかかわらず最初に読み込む。
-`extenders` の名前は、まず同じ名前のチャンクを探し、無ければ `extenders/<名前>.extender.inc.php` を読む。
+`extenders` の名前は `extenders/<名前>.extender.inc.php` を読む。チャンク名だけの extender は読まない（エラーになる）。
+`config`・`extenders` に `@CHUNK チャンク名` は使えない（チャンクを PHP として実行しない）。チャンクに書いていた PHP は `.php` のファイル（例: `assets/ditto/my.config.php`）に移し（先頭が `<?php` でなければ付ける）、`@FILE assets/ditto/my.config.php` で指定する。`@CHUNK` を渡すと、その指定を読まずにシステムログへ警告を残す。
 
 ## 対象のリソース
 
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
 | `parents` | このリソースの子を `depth` の深さまで集める（関連: `documents`・`depth`） | リソース ID（カンマ区切り） | 今のリソース |
-| `startID` | `parents` の別名 | 同上 | — |
 | `documents` | 集めるリソースを直接指定する。指定すると `parents` は使わない | リソース ID（カンマ区切り） | なし |
 | `depth` | 子をたどる深さ（関連: `seeThruUnpub`） | 1 以上の数。`0` は制限なし | `1` |
 | `showPublishedOnly` | 公開中のリソースだけを対象にする | `1` 公開中だけ / `0` 非公開も含める | `1` |
@@ -40,7 +39,6 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `seeThruUnpub` | 非公開のコンテナの下にあるリソースも集める（`depth` が 2 以上のときに意味がある） | `0` 集めない / `1` 集める | `1` |
 | `where` | SQL の WHERE に足す条件。`AND` で区切った各条件の先頭に `sc.` が付く | リソースのフィールドだけを使った条件（TV は不可） | 空 |
 | `queryLimit` | データベースから取り出す件数の上限（SQL の LIMIT）（関連: `where`） | 数。`0` は上限なし | 上限なし |
-| `limit` | `queryLimit` の別名 | 同上 | — |
 | `filter` | 条件に合うリソースを結果から除く。下の「filter の書き方」を参照 | `フィールド,値,モード` を `globalFilterDelimiter` で区切って並べる | 空 |
 | `globalFilterDelimiter` | `filter` の中で条件どうしを区切る文字 | 条件の中で使わない文字 | `\|` |
 | `localFilterDelimiter` | 1 つの条件の中でフィールド・値・モードを区切る文字 | 条件の中で使わない文字 | `,` |
@@ -76,7 +74,6 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
 | `display` | 出力する件数（ページ送りでは 1 ページの件数）（関連: `queryLimit`・`total`） | 数 / `all` | `all` |
-| `summarize` | `display` の別名 | 同上 | — |
 | `total` | 対象にする件数の上限（関連: `display`・`queryLimit`） | 数 / `all` | `all` |
 | `start` | 先頭から読み飛ばす件数 | 数 | `0` |
 | `orderBy` | 並び順 | SQL の ORDER BY と同じ書き方（`フィールド 向き` をカンマ区切り）。向きを省くと最後のフィールドは DESC、それ以外は ASC になるので、フィールドごとに ASC か DESC を書く | `id ASC`（`documents` を指定したときは指定した順、`format=rss` のときは `<dateSource> DESC`） |
@@ -187,13 +184,12 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
 | `stripTags` | URL の値から HTML タグを取り除く | `0` オフ / `1` オン | `1` |
-| `good` | URL から変えてよいパラメータ | パラメータ名（カンマ区切り）。`filter` を含めると `filter_1`・`filter_2`・… も通る | `display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,dateSource,dateFormat,filter` |
-| `bad` | URL から変えさせないパラメータ | パラメータ名（カンマ区切り） | `seeThruUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID` |
+| `good` | URL から変えてよいパラメータ | パラメータ名（カンマ区切り）。`filter` を含めると `filter_1`・`filter_2`・… も通る | `display,total,paginate,paginateAlwaysShowLinks,randomize,noResults,dateSource,dateFormat,filter` |
+| `bad` | URL から変えさせないパラメータ | パラメータ名（カンマ区切り） | `seeThruUnpub,showInMenuOnly,showPublishedOnly,start,config,extenders,dittoID` |
 
 - テンプレート（`tpl`・`tplAlt` など）は、`good` に挙げたときだけ URL から変えられる。
-- SQL の条件・権限・対象のリソースに関わるもの（`where`・`hidePrivate`・`parents`・`startID`・`documents`・`depth`・`orderBy`・`queryLimit`・`limit`・`format`・`save` など）は、`good` に挙げても URL からは変えられない。
+- SQL の条件・権限・対象のリソースに関わるもの（`where`・`hidePrivate`・`parents`・`documents`・`depth`・`orderBy`・`queryLimit`・`format`・`save` など）は、`good` に挙げても URL からは変えられない。
 - 記号（`` ^ ` ~ ! / @ # $ % : ; ( ) { } & * = | ' + ``）を含む値は使わない。
-- URL に `<id>_dbg=1` を付けると、セットした値を出力する（`debug` が有効のときだけ）。
 
 ### tagging — タグ
 

@@ -24,32 +24,3 @@ $_lang['invalid_class'] = "Dittoクラスが不正です。classesディレク�
 $_lang['none'] = "なし";
 $_lang['edit'] = "編集";
 $_lang['dateFormat'] = "%Y/%m/%d %H:%M";
-
-// Debug Tab Names
-$_lang['info'] = "情報";
-$_lang['modx'] = "MODX";
-$_lang['fields'] = "フィールド";
-$_lang['templates'] = "テンプレート";
-$_lang['filters'] = "フィルタ";
-$_lang['prefetch_data'] = "先読みデータ";
-$_lang['retrieved_data'] = "取得済みデータ";
-
-// Debug Text
-$_lang['placeholders'] = "プレースホルダ";
-$_lang['params'] = "パラメータ";
-$_lang['basic_info'] = "基本情報";
-$_lang['document_info'] = "ドキュメント情報";
-$_lang['debug'] = "デバッグ";
-$_lang['version'] = "バージョン";
-$_lang['summarize'] = "出力件数";
-$_lang['total'] = "総件数";
-$_lang['sortBy'] = "並び替えフィールド";
-$_lang['sortDir'] = "並び替え順";
-$_lang['start'] = "開始位置";
-
-$_lang['stop'] = "停止位置";
-$_lang['ditto_IDs'] = "ID";
-$_lang['ditto_IDs_selected'] = "選択済みID";
-$_lang['ditto_IDs_all'] = "全てのID";
-$_lang['open_dbg_console'] = "デバッグコンソールを開く";
-$_lang['save_dbg_console'] = "デバッグコンソールを保存";

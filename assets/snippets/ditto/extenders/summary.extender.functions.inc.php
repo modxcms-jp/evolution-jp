@@ -129,18 +129,12 @@ class truncate
 
     private function closeTags($text)
     {
-        global $debug;
         $openPattern = "/<([^\/].*?)>/";
         $closePattern = "/<\/(.*?)>/";
         $endTags = '';
 
         preg_match_all($openPattern, $text, $openTags);
         preg_match_all($closePattern, $text, $closeTags);
-
-        if ($debug == 1) {
-            print_r($openTags);
-            print_r($closeTags);
-        }
 
         $c = 0;
         $loopCounter = count($closeTags[1]);
@@ -150,9 +144,6 @@ class truncate
                 $tag = trim($openTags[1][$i]);
                 if (strpos($tag, ' ') !== false) {
                     $tag = substr($tag, 0, strpos($tag, ' '));
-                }
-                if ($debug == 1) {
-                    echo $tag . '==' . $closeTags[1][$c] . "\n";
                 }
                 if ($tag == $closeTags[1][$c]) {
                     $openTags[1][$i] = '';

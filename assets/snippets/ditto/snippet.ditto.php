@@ -47,7 +47,20 @@ if (is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
 
 if (str_starts_with($config, '@CHUNK')) {
-    eval('?>' . evo()->getChunk(trim(substr($config, 7))));
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &config の @CHUNK は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+        'Ditto ' . $ditto_version,
+        ['value' => $config]
+    );
+} elseif ($config === 'compatibility') {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &config=compatibility は廃止しました。スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
+        'Ditto ' . $ditto_version
+    );
 } elseif (str_starts_with($config, '@FILE')) {
     // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
     $config_path = evo()->resolveBindFilePath(MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/'));
@@ -65,7 +78,43 @@ if (str_starts_with($config, '@CHUNK')) {
     }
 }
 
-$debug = !empty($debug) ? $debug : 0;
+if (isset($debug)) {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &debug は廃止しました。スニペットの呼び出しから &debug を外してください。',
+        'Ditto ' . $ditto_version
+    );
+}
+
+$renamedParams = array_intersect_key(
+    [
+        'startID' => 'parents',
+        'summarize' => 'display',
+        'limit' => 'queryLimit',
+        'commentsChunk' => 'removeChunk',
+        'hiddenTVs' => 'hiddenFields',
+        'dateFormatType' => 'dateSource',
+        'descendentDepth' => 'depth',
+        'rssLanguage' => 'abbrLanguage',
+        'tplAltRows' => 'tplAlt',
+        'tplFirstRow' => 'tplFirst',
+        'tplLastRow' => 'tplLast',
+        'tplArchivePrevious' => 'tplPaginatePrevious',
+        'tplArchiveNext' => 'tplPaginateNext',
+        'emptyText' => 'noResults',
+    ],
+    (array) event()->params
+);
+if ($renamedParams) {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の古いパラメータ名は廃止しました。スニペットの呼び出しを今の名前に書き換えてください。',
+        'Ditto ' . $ditto_version,
+        ['renamed' => $renamedParams]
+    );
+}
 
 // a config may already have added extenders as an array ($extenders[] = ...)
 if (!isset($extenders)) {
@@ -97,11 +146,6 @@ $files = [
 if (isset($randomize)) {
     $files['randomize_class'] = $ditto_base . 'classes/random.class.inc.php';
 }
-if ($debug == 1) {
-    $files['modx_debug_class'] = $ditto_base . 'debug/modxDebugConsole.class.php';
-    $files['debug_class'] = $ditto_base . 'classes/debug.class.inc.php';
-    $files['debug_templates'] = $ditto_base . 'debug/debug.templates.php';
-}
 
 foreach (array_unique($files) as $filename => $filevalue) {
     if (is_file($filevalue)) {
@@ -120,12 +164,11 @@ foreach (array_unique($files) as $filename => $filevalue) {
 }
 
 //---Initiate Class-------------------------------------------------- //
-$dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
 if (!class_exists('ditto')) {
     evo()->logEvent(1, 3, $_lang['invalid_class'], 'Ditto ' . $ditto_version);
     return $_lang['invalid_class'];
 }
-$ditto = new ditto($format, $_lang, $dbg_templates);
+$ditto = new ditto($format, $_lang);
 
 //---Initiate Extenders---------------------------------------------- //
 if (isset($tagData)) {
@@ -135,64 +178,51 @@ if (isset($tagData)) {
 if (count($extenders) > 0) {
     $extenders = array_unique($extenders);
     foreach ($extenders as $extender) {
-        $extender = trim($extender);
-        $extender = str_replace('\\', '/', $extender);
-        $rs = false;
+        $extender = str_replace('\\', '/', trim($extender));
         if (strpos($extender, '@CHUNK') === 0) {
-            $chunk = evo()->getChunk(trim(substr($extender, 7)));
-            if (!empty($chunk)) {
-                eval($chunk);
-                $rs = true;
-            }
-        } elseif (strpos($extender, '@FILE') === 0) {
-            // サイトのルートからの指定は、本体のバインドと同じ判定に通す（PHP として読み込むので .php だけ）
+            evo()->logEvent(
+                0,
+                2,
+                'Ditto の &extenders の @CHUNK は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+                'Ditto ' . $ditto_version,
+                ['value' => $extender]
+            );
+            continue;
+        }
+
+        if (strpos($extender, '@FILE') === 0) {
+            // サイトのルートからの指定は、本体のバインドと同じ判定に通す
             $extender_path = evo()->resolveBindFilePath(
                 MODX_BASE_PATH . trim(trim(substr($extender, 6)), '/')
             );
-            if ($extender_path && evo()->getExtention($extender_path) === '.php') {
-                include($extender_path);
-                $rs = true;
-            }
         } else {
-            $chunk = evo()->getChunk($extender);
-            if (!empty($chunk)) {
-                eval($chunk);
-                $rs = true;
+            // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
+            $extender_path = evo()->resolveFileUnderDir(
+                sprintf('%sextenders/%s.extender.inc.php', $ditto_base, $extender),
+                $ditto_base . 'extenders'
+            );
+        }
+
+        // PHP として読み込むので .php だけ
+        if (!$extender_path || evo()->getExtention($extender_path) !== '.php') {
+            if (strpos($extender, '@') !== 0 && evo()->getChunk($extender) !== '') {
+                evo()->logEvent(
+                    0,
+                    2,
+                    'Ditto の &extenders にチャンク名を書く指定は廃止しました。チャンクの PHP をファイルに移し、@FILE（サイトのルートからのパス）で指定してください。',
+                    'Ditto ' . $ditto_version,
+                    ['value' => $extender]
+                );
             }
-        }
-
-        // 名前から組み立てたパスは、extenders/ の下にあるときだけ読む
-        $extender_path = evo()->resolveFileUnderDir(
-            sprintf('%sextenders/%s.extender.inc.php', $ditto_base, $extender),
-            $ditto_base . 'extenders'
-        );
-
-        if ($rs === false && $extender_path && evo()->getExtention($extender_path) === '.php') {
-            include($extender_path);
-            $rs = true;
-        }
-
-        if ($rs === false) {
             $message = $extender . ' ' . $_lang['extender_does_not_exist'];
             evo()->logEvent(1, 3, $message, 'Ditto ' . $ditto_version);
             return $message;
         }
+        include($extender_path);
     }
 }
 
 //---Parameters------------------------------------------------------- //
-// Aliases (startID, summarize, limit). When the canonical name is in $never of
-// extenders/request.extender.inc.php, list the alias there too, because the request
-// extender runs before this mapping. sortBy and sortDir below are not aliases of orderBy.
-if (isset($startID)) {
-    $parents = $startID;
-}
-if (isset($summarize)) {
-    $display = $summarize;
-}
-if (isset($limit)) {
-    $queryLimit = $limit;
-}
 // legacy &sortBy / &sortDir: the missing one defaults to createdon / DESC
 if (isset($sortBy) || isset($sortDir)) {
     $sortDir = isset($sortDir) ? strtoupper(trim($sortDir)) : 'DESC';
@@ -305,6 +335,16 @@ $documentIDs = $ditto->determineIDs(
     $filter,
     $randomize
 );
+
+if ($ditto->tvPrefixFields) {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の TV の tv 接頭辞は廃止しました。テンプレートのプレースホルダーや &orderBy・&filter などのフィールド名には、tv を付けずに TV の名前を書いてください。',
+        'Ditto ' . $ditto_version,
+        ['fields' => $ditto->tvPrefixFields]
+    );
+}
 
 $count = count($documentIDs) - $offset;
 
@@ -432,51 +472,6 @@ if ($count > 0) {
     }
 } else {
     $output = $header . $ditto->noResults($noResults, $paginate) . $footer;
-}
-// ---------------------------------------------------
-// Handle Debugging
-// ---------------------------------------------------
-
-if ($debug == 1) {
-    $ditto_params =& event()->params;
-    $debugAction = get_choicevar("ditto_{$dittoID}debug", ['open', 'save'], '');
-    if ($debugAction === '') {
-        sessionv("*ditto_debug_{$dittoID}", $ditto->debug->render_popup(
-            $ditto,
-            $ditto_base,
-            $ditto_version,
-            $ditto_params,
-            $documentIDs ?? [],
-            ["db" => $dbFields ?? [], "tv" => $TVs ?? []],
-            $display ?? 0,
-            $templates ?? [],
-            $orderBy,
-            $start ?? 0,
-            $stop ?? 0,
-            $total ?? 0,
-            $filter ?? [],
-            $resource ?? []
-        ));
-    }
-    if ($debugAction !== '') {
-        switch ($debugAction) {
-            case "open":
-                exit(sessionv("ditto_debug_{$dittoID}", ''));
-                break;
-            case "save":
-                $ditto->debug->save(
-                    sessionv("ditto_debug_" . $dittoID, ''),
-                    sprintf(
-                        'ditto%s_debug_doc%s.html',
-                        strtolower($ditto_version),
-                        evo()->documentIdentifier
-                    )
-                );
-                break;
-        }
-    } else {
-        $output = $ditto->debug->render_link($dittoID, $ditto_base) . $output;
-    }
 }
 if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;

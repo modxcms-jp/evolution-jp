@@ -9,9 +9,10 @@
 
 class ditto
 {
-    public $template, $format, $debug, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
+    public $template, $format, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
+    public $tvPrefixFields = [];
 
-    function __construct($format, $language, $debug)
+    function __construct($format, $language)
     {
         $this->format = $format;
         $GLOBALS['ditto_lang'] = $language;
@@ -42,10 +43,6 @@ class ditto
         ];
         $this->sortOrder = false;
         $this->template = new template();
-
-        if ($debug !== null) {
-            $this->debug = new debug($debug);
-        }
     }
 
     // ---------------------------------------------------
@@ -78,10 +75,6 @@ class ditto
     {
         if ($type === false) {
             $type = $this->getDocVarType($name);
-        }
-        if ($type === 'tv:prefix') {
-            $type = 'tv';
-            $name = substr($name, 2);
         }
         if ($location === '*') {
             $this->fields['backend'][$type][] = $name;
@@ -140,6 +133,9 @@ class ditto
     function setDisplayFields($fields, $hiddenFields)
     {
         $this->fields['display'] = $fields;
+        foreach ($fields['unknown'] ?? [] as $field) {
+            $this->noteTvPrefixField($field);
+        }
         if ($this->fields['display']['qe']) {
             $this->addField('pagetitle', 'display', 'db');
         }
@@ -163,16 +159,29 @@ class ditto
             return 'tv';
         }
 
-        if (in_array(substr($field, 2), $tvFields, true)) {
-            return 'tv:prefix';
-            // TODO: Remove TV Prefix support
-        }
-
         if (in_array($field, $dbFields, true)) {
             return 'db';
         }
 
+        $this->noteTvPrefixField($field);
         return 'unknown';
+    }
+
+    // ---------------------------------------------------
+    // Function: noteTvPrefixField
+    // Remember a field written as "tv" + TV name to report it (it is not read as the TV)
+    // ---------------------------------------------------
+
+    private function noteTvPrefixField($field)
+    {
+        $field = (string) $field;
+        if (strpos($field, 'tv') !== 0 || isset($this->tvPrefixFields[$field])) {
+            return;
+        }
+        $tvName = substr($field, 2);
+        if (in_array($tvName, $this->constantFields['tv'], true)) {
+            $this->tvPrefixFields[$field] = $tvName;
+        }
     }
 
     // ---------------------------------------------------
@@ -244,10 +253,6 @@ class ditto
         $advSort = ['pub_date', 'unpub_date', "editedon", "deletedon", "publishedon"];
         $type = $this->getDocVarType($sortBy);
         switch ($type) {
-            case 'tv:prefix':
-                $sortBy = substr($sortBy, 2);
-                $this->advSort = true;
-                break;
             case 'tv':
                 $this->advSort = true;
                 break;
@@ -684,9 +689,6 @@ class ditto
         $limit = ($limit == 0) ? '' : $limit;
 
         $customReset = $this->customReset;
-        if ($this->debug) {
-            $this->addField('pagetitle', 'backend', 'db');
-        }
         if ($customReset) {
             $this->addField('createdon', 'backend', 'db');
         }
@@ -724,9 +726,6 @@ class ditto
                     }
                 }
             }
-            if ($this->debug) {
-                $dbg_resource = $resource;
-            }
             if ($filter) {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
@@ -761,20 +760,10 @@ class ditto
                     if (in_array($key2, $readyFields)) {
                         $keep[$iKey][$key2] = $v2;
                     }
-                    if ($this->getDocVarType($key2) === 'tv:prefix') {
-                        if (in_array(substr($key2, 2), $readyFields)) {
-                            $keep[$iKey][$key2] = $v2;
-                        }
-                    }
                 }
             }
 
             $this->prefetch = ['resource' => $keep, 'fields' => $fields];
-            if ($this->debug) {
-                $this->prefetch['dbg_resource'] = $dbg_resource;
-                $this->prefetch['dbg_IDs_pre'] = $documentIDs;
-                $this->prefetch['dbg_IDs_post'] = $processedIDs;
-            }
             if ($processedIDs) {
                 if ($randomize) {
                     shuffle($processedIDs);
@@ -930,7 +919,6 @@ class ditto
         $row['docid'] = $contentId;
         $v = evo()->tvProcessor($row);
         $docs[$k][$name] = $v;
-        $docs[$k]['tv' . $name] = $v;
     }
 
     // ---------------------------------------------------
