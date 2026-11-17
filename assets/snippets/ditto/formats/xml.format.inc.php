@@ -36,7 +36,7 @@ if (!function_exists('dittoFormatXmlTpl')) {
         <title>[+xml_pagetitle+]</title>
         <link>[(site_url)][~[+id+]~]</link>
         <guid isPermaLink="true">[(site_url)][~[+id+]~]</guid>
-        <summary><![CDATA[ [+xml_introtext+] ]]></summary>
+        <summary><![CDATA[ [+introtext+] ]]></summary>
         <lastmod>[+xml_editedon:date=`%Y-%m-%dT%H:%M:%S`+]</lastmod>
         <author>[+xml_author+]</author>
         [+tags+]
