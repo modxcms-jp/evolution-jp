@@ -85,6 +85,8 @@ $_lang["installation_finished_with_errors"] = '<span style="color:#c00;">途中�
 $_lang["installation_error_occured"] = '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>';
 $_lang["installation_install_new_note"] = 'MODXを新規インストールします。';
 $_lang["htaccess_not_placed"] = 'フレンドリーURL用の.htaccessを置けませんでした。このままでは、トップページ以外の文書へのリンクが開けません（404）。サイトのルートに、配布物のsample.htaccessを.htaccessとして置いてください（サブディレクトリに設置したときは、RewriteBaseを設置先に合わせてください）。';
+$_lang["htaccess_no_rewrite"] = 'サイトのルートにある.htaccessに、フレンドリーURL用の書き換えの規則がなく、足すこともできませんでした（書き込めない、または配布物のsample.htaccessがありません）。このままでは、トップページ以外の文書へのリンクが開けません（404）。配布物のsample.htaccessの「# BEGIN MODX」から「# END MODX」までを、既存の.htaccessに足してください（サブディレクトリに設置したときは、RewriteBaseを設置先に合わせてください）。';
+$_lang["htaccess_rules_added"] = 'サイトのルートにある.htaccessに、フレンドリーURL用の書き換えの規則が無かったため、末尾に足しました（「# BEGIN MODX」から「# END MODX」まで）。それより前の行は変えていません。';
 $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。';
 $_lang["installation_successful"] = '<span style="color:#080;font-size:22px;">インストールは無事に成功しました。</span>';

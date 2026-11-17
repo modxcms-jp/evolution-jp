@@ -1135,7 +1135,7 @@ return [
     "bkmgr_restore_submit" => 'このデータに戻す',
     "bkmgr_snapshot_nothing" => 'スナップショットはありません。',
     "settings_friendlyurls_alert" => ".htaccessを置けませんでした。配布物の\nsample.htaccessファイルを.htaccessにリネームしてください。\nサブディレクトリに設置している場合はファイル内の\nRewriteBaseの値を変更してください。",
-    "settings_friendlyurls_alert2" => '.htaccessの内容を変更する必要があります。(参考 : 配布物のsample.htaccess)',
+    "settings_friendlyurls_alert2" => '.htaccessの内容を確かめてください（書き換えの規則（RewriteEngine）が無い、または書き込めません）。配布物のsample.htaccessを参考に、書き換えの規則を足してください。',
 
     "configcheck_rb_base_dir" => 'ファイルピッカーのディレクトリのパス設定が正しくありません。',
     "configcheck_filemanager_path" => 'ファイルマネージャーの対象ディレクトリのパス設定が正しくありません。',

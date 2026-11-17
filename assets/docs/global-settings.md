@@ -79,7 +79,7 @@ user・profile の描き方（グローバル設定との違い）:
 - **DB に行が無い設定**: 読み込み時（`DocumentParser::getSettings()`）に `default.config.php` の値で補われる。新規インストールも、設定を足した後の既存インストールも同じで、グローバル設定を保存しなくてよい
 - **アップデーターは行を足さない**: 足すと、今後の既定の変更が届かなくなる（既定の値を書き写す目的では行を足さない）。例外はメールの文面で、言語ごとに違うため、行が無いときだけ入れる（「1. デフォルト値の定義」を参照）
 - 保存した値（空にした値も）は DB が優先される
-- **フレンドリー URL の `.htaccess`**: フレンドリー URL は標準なので、インストーラー（`install/instprocessor.php`）が、`.htaccess` が無いときだけ `sample.htaccess` から置く（既にある `.htaccess` は書き換えない。IIS では置かない）。設定の保存（`save_settings.processor.php`）でも `friendly_urls` が `1` のときに置き、既にある `.htaccess` の `RewriteBase` を合わせる。どちらも `manager/includes/htaccess.class.inc.php` の `EvoHtaccess::ensure()`。配布物の名前は `sample.htaccess` のまま（上書き展開で利用者の `.htaccess` を消さないため）。規則は `<IfModule mod_rewrite.c>` で囲まない（mod_rewrite が無いときに黙って 404 に落ちると、原因に気づけないため）
+- **フレンドリー URL の `.htaccess`**: フレンドリー URL は標準なので、インストーラー（`install/instprocessor.php`）が、`.htaccess` が無いときは `sample.htaccess` から置く（IIS では置かない）。既にある `.htaccess` に書き換えの規則（`RewriteEngine`）が無いときは、`sample.htaccess` の目印（`# BEGIN MODX` 〜 `# END MODX`）で囲んだ部分を末尾に足し、それより前の行は変えない。本体が書き換えるのは目印の中だけで、目印の外に利用者が書いた規則には触らない。足せない（書き込めない・`sample.htaccess` が無い）ときは、結果の画面と設定の保存で、足すよう案内する。設定の保存（`save_settings.processor.php`）でも `friendly_urls` が `1` のときに置き、既にある `.htaccess` の `RewriteBase` を合わせる（目印があればその中だけ）。どちらも `manager/includes/htaccess.class.inc.php` の `EvoHtaccess::ensure()`。配布物の名前は `sample.htaccess` のまま（上書き展開で利用者の `.htaccess` を消さないため）。規則は `<IfModule mod_rewrite.c>` で囲まない（mod_rewrite が無いときに黙って 404 に落ちると、原因に気づけないため）
 
 ## 設定画面のタブ構成
 
