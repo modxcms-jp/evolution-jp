@@ -113,6 +113,7 @@ class BrowserView
         $markup .= '        <ul class="actionButtons">';
         $markup .= '          <li><button type="button" data-action="bulk-copy">' . hsc(lang('fb_copy')) . '</button></li>';
         $markup .= '          <li><button type="button" data-action="bulk-cut">' . hsc(lang('fb_cut')) . '</button></li>';
+        $markup .= '          <li><button type="button" data-action="bulk-rename">' . hsc(lang('fb_rename')) . '</button></li>';
         $markup .= '          <li><button type="button" data-action="bulk-download">' . hsc(lang('fb_download')) . '</button></li>';
         $markup .= '          <li><button type="button" data-action="bulk-move">' . hsc(lang('move')) . '</button></li>';
         $markup .= '          <li class="is-danger"><button type="button" data-action="bulk-delete">' . hsc(lang('delete')) . '</button></li>';

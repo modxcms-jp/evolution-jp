@@ -249,6 +249,23 @@ export function createGrid(ctx) {
         input.addEventListener('blur', settle);
     }
 
+    // 名前で一覧のファイルを探して、その場の入力を始める。一覧に描かれていなければ false
+    function startRename(name) {
+        // 入力中にもう一度始めると、blur で送った直後に古い名前で 2 回目が始まるので、何もしない
+        if (gridEl.querySelector('.evo-fb-rename-input')) {
+            return true;
+        }
+        var item = Array.from(gridEl.querySelectorAll('.evo-fb-item-file')).find(function (el) {
+            return el.getAttribute('data-name') === name;
+        });
+        if (!item) {
+            return false;
+        }
+        cancelPendingRename();
+        startInlineRename(item, name);
+        return true;
+    }
+
     function updateSelectionBar() {
         var count = state.selection.size;
         ctx.selectionCountEl.textContent = t('fb_selected_count', count);
@@ -427,6 +444,7 @@ export function createGrid(ctx) {
 
     return {
         renderList: renderList,
+        startRename: startRename,
         renderLoading: renderLoading,
         renderError: renderError,
         updateSelectionDom: updateSelectionDom,

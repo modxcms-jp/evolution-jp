@@ -163,14 +163,28 @@ function init(root, entry, behaviors) {
             return;
         }
         postForm(config, state, 'rename', { target: name, newName: newName })
-            .then(function () { load(); })
+            .then(function (result) { load((result && result.name) || newName, { instant: true }); })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_rename_failed'));
+                // その場の入力欄が残らないよう、元の名前を選んだまま読み直す
+                load(name, { instant: true });
             });
     }
 
     function renameEntry(name) {
         performRename(name, window.prompt(t('fb_rename_prompt'), name));
+    }
+
+    // 選んでいる 1 件の名前を変えられるか(帯のボタン・F2 の共通の条件)
+    function canRenameSelection() {
+        return state.selection.size === 1 && state.writable;
+    }
+
+    // 一覧に描かれているファイルはその場の入力で、描かれていない(検索で絞られた等の)ときは確認の入力欄で名前を変える
+    function startRenameFor(name) {
+        if (!grid.startRename(name)) {
+            renameEntry(name);
+        }
     }
 
     // 消せたら true で終わる(確かめて取りやめたとき・失敗したときは false)
@@ -209,6 +223,7 @@ function init(root, entry, behaviors) {
     var pasteBtn = root.querySelector('[data-action="paste"]');
     var selectionBarEl = root.querySelector('[data-role="selectionbar"]');
     var downloadBtn = root.querySelector('[data-action="bulk-download"]');
+    var renameBtn = root.querySelector('[data-action="bulk-rename"]');
 
     function isCutName(name) {
         return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
@@ -317,6 +332,7 @@ function init(root, entry, behaviors) {
             // zip を作れない環境では、2 件以上のときはダウンロードのボタンを無効にする
             selectionBarEl.classList.toggle('is-hidden', count === 0);
             downloadBtn.disabled = !canDownload(count);
+            renameBtn.disabled = !canRenameSelection();
             notifySelection();
         },
         isCut: isCutName
@@ -379,6 +395,14 @@ function init(root, entry, behaviors) {
                     onSelect: function () {
                         dropzoneEl.focus({ preventScroll: true });
                         duplicateEntry(file.name);
+                    }
+                },
+                {
+                    label: t('fb_rename'),
+                    disabled: !state.writable,
+                    onSelect: function () {
+                        dropzoneEl.focus({ preventScroll: true });
+                        startRenameFor(file.name);
                     }
                 },
                 {
@@ -629,6 +653,11 @@ function init(root, entry, behaviors) {
     root.querySelector('[data-action="bulk-move"]').addEventListener('click', bulkMove);
     root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
     root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
+    renameBtn.addEventListener('click', function () {
+        if (canRenameSelection()) {
+            startRenameFor(Array.from(state.selection)[0]);
+        }
+    });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
 
     downloadBtn.addEventListener('click', bulkDownload);
@@ -674,6 +703,21 @@ function init(root, entry, behaviors) {
         }
         e.preventDefault();
         setClipboard(key === 'c' ? 'copy' : 'cut');
+    });
+
+    // F2: 選んでいる 1 件の名前の変更を始める(入力欄・ダイアログ・右クリックメニューが開いているときは受けない)
+    root.addEventListener('keydown', function (e) {
+        if (e.key !== 'F2' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
+            return;
+        }
+        if (!canRenameSelection() || e.target.closest('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+            return;
+        }
+        e.preventDefault();
+        startRenameFor(Array.from(state.selection)[0]);
     });
 
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
