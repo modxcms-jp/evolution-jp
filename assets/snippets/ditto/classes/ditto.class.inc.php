@@ -10,6 +10,7 @@
 class ditto
 {
     public $template, $format, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
+    public $tvPrefixFields = [];
 
     function __construct($format, $language)
     {
@@ -132,6 +133,9 @@ class ditto
     function setDisplayFields($fields, $hiddenFields)
     {
         $this->fields['display'] = $fields;
+        foreach ($fields['unknown'] ?? [] as $field) {
+            $this->noteTvPrefixField($field);
+        }
         if ($this->fields['display']['qe']) {
             $this->addField('pagetitle', 'display', 'db');
         }
@@ -159,7 +163,25 @@ class ditto
             return 'db';
         }
 
+        $this->noteTvPrefixField($field);
         return 'unknown';
+    }
+
+    // ---------------------------------------------------
+    // Function: noteTvPrefixField
+    // Remember a field written as "tv" + TV name, which is no longer read as the TV
+    // ---------------------------------------------------
+
+    private function noteTvPrefixField($field)
+    {
+        $field = (string) $field;
+        if (strpos($field, 'tv') !== 0 || isset($this->tvPrefixFields[$field])) {
+            return;
+        }
+        $tvName = substr($field, 2);
+        if (in_array($tvName, $this->constantFields['tv'], true)) {
+            $this->tvPrefixFields[$field] = $tvName;
+        }
     }
 
     // ---------------------------------------------------

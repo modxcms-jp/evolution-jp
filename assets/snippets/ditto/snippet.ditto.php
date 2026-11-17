@@ -338,6 +338,22 @@ $documentIDs = $ditto->determineIDs(
     $randomize
 );
 
+if ($ditto->tvPrefixFields) {
+    $tvPrefixPairs = [];
+    foreach ($ditto->tvPrefixFields as $prefixedName => $tvName) {
+        $tvPrefixPairs[] = "[+{$prefixedName}+] → [+{$tvName}+]";
+    }
+    evo()->logEvent(
+        0,
+        2,
+        sprintf(
+            'Ditto の TV の tv 接頭辞は廃止しました（%s）。テンプレートや &orderBy などには、TV の名前のまま書いてください。',
+            implode('、', $tvPrefixPairs)
+        ),
+        'Ditto ' . $ditto_version
+    );
+}
+
 $count = count($documentIDs) - $offset;
 
 if ($count > 0) {
