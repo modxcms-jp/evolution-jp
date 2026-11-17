@@ -535,6 +535,42 @@ class ditto
     }
 
     // ---------------------------------------------------
+    // Function: xmlText
+    // Plain text (titles, names) of an XML element: entities already written (&amp; &copy; &#169;) become the character, then & < > " ' are escaped
+    // ---------------------------------------------------
+
+    static function xmlText($text)
+    {
+        return self::xmlEscape(
+            html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset') ?: 'UTF-8')
+        );
+    }
+
+    // ---------------------------------------------------
+    // Function: xmlEscape
+    // Value that may hold HTML source (content, introtext, TVs): escaped as it is, so the HTML reads back unchanged
+    // ---------------------------------------------------
+
+    static function xmlEscape($value)
+    {
+        return htmlspecialchars(
+            (string)$value,
+            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
+            evo()->config('modx_charset') ?: 'UTF-8'
+        );
+    }
+
+    // ---------------------------------------------------
+    // Function: cdata
+    // Value put inside <![CDATA[ ]]>: a "]]>" in it is split so that it does not end the section
+    // ---------------------------------------------------
+
+    static function cdata($value)
+    {
+        return str_replace(']]>', ']]]]><![CDATA[>', (string)$value);
+    }
+
+    // ---------------------------------------------------
     // Function: userSort
     // Sort the resource array by a user defined function
     // ---------------------------------------------------
@@ -624,14 +660,12 @@ class ditto
         // 非公開の親の除外は後段でしか行わないため、&seeThruUnpub=0 のときは速い経路を通さない
         if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $seeThruUnpub) {
             $this->prefetch = false;
-            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
-            $documentIDs = [];
-            if ($documents) {
-                foreach ($documents as $doc) {
-                    $documentIDs[] = $doc['id'];
-                }
+            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly) ?: [];
+            if (!$randomize && $this->followsDocumentsOrder()) {
+                $documents = $this->unsort($documents, event()->param('documents'));
+                $this->sortOrder = array_flip(array_column($documents, 'id'));
             }
-            return $documentIDs;
+            return array_column($documents, 'id');
         }
 
         $this->prefetch = true;
@@ -702,7 +736,7 @@ class ditto
             }
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource, $orderBy);
-            } elseif (event()->param('documents') && !event()->param('orderBy')) {
+            } elseif ($this->followsDocumentsOrder()) {
                 $resource = $this->unsort(
                     $resource,
                     event()->param('documents')
@@ -753,6 +787,12 @@ class ditto
         return [];
     }
 
+    // &documents without &orderBy: the documents come out in the order they are listed
+    private function followsDocumentsOrder()
+    {
+        return event()->param('documents') && !event()->param('orderBy');
+    }
+
     private function unsort($docs, $ids)
     {
         $docs_tmp = [];
@@ -762,10 +802,11 @@ class ditto
         $ids = explode(',', $ids);
         $rs = [];
         foreach ($ids as $id) {
-            // documents not retrieved (unpublished, deleted, filtered) are skipped
+            // documents not retrieved (unpublished, deleted, filtered) are skipped; a repeated id keeps its first position
             $id = trim($id);
             if (isset($docs_tmp[$id])) {
                 $rs[] = $docs_tmp[$id];
+                unset($docs_tmp[$id]);
             }
         }
         return $rs;
@@ -966,7 +1007,7 @@ class ditto
                 $row[$dateSource] += evo()->config('server_offset_time');
             }
 
-            if ($this->prefetch == true && $this->sortOrder !== false) {
+            if ($this->sortOrder) {
                 $row['ditto_sort'] = $this->sortOrder[$docid];
             }
 
@@ -997,7 +1038,7 @@ class ditto
         }
 
         $docs = $this->array_merge_recursive($docs, $TVData);
-        if ($this->prefetch && $this->sortOrder) {
+        if ($this->sortOrder) {
             uasort($docs, function ($a, $b) {
                 return strnatcmp($a['ditto_sort'], $b['ditto_sort']);
             });
@@ -1308,7 +1349,7 @@ class ditto
     // Function: relToAbs
     // Convert relative urls to absolute URLs
     // ---------------------------------------------------
-    function relToAbs($text, $base)
+    static function relToAbs($text, $base)
     {
         return preg_replace(
             '#(href|src)="([^:"]*)"#',

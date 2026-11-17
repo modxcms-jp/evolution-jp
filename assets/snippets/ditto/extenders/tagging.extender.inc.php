@@ -15,7 +15,7 @@ $landing = $tagDocumentID ?? evo()->documentObject['id'] ?? '';
 $source = $tagData ?? '';
 $caseSensitive = $caseSensitive ?? 0;
 $mode = $tagMode ?? 'onlyTags';
-$delimiter = $tagDelimiter ?? ' ';
+$delimiter = ($tagDelimiter ?? '') !== '' ? $tagDelimiter : ' ';
 $displayDelimiter = $tagDisplayDelimiter ?? $delimiter;
 $sort = $tagSort ?? 1;
 $displayMode = $tagDisplayMode ?? 1;
@@ -157,7 +157,6 @@ if (!class_exists('tagging')) {
                 return sprintf('<category>%s</category>', $ditto_lang['none']);
             }
 
-            $output = '';
             if ($this->sort) {
                 ksort($tags);
             }
@@ -165,29 +164,23 @@ if (!class_exists('tagging')) {
             $tplRss = "\r\n" . '				<category>[+tag+]</category>';
             $tpl = ($this->tpl == false) ? '<a href="[+url+]" class="ditto_tag" rel="tag">[+tag+]</a>' : $this->tpl;
 
-            $tpl = (($format === 'rss' || $format === 'xml' || $format === 'atom') && $this->tpl == false) ? $tplRss : $tpl;
+            $feed = $format === 'rss' || $format === 'xml' || $format === 'atom';
+            $tpl = ($feed && $this->tpl == false) ? $tplRss : $tpl;
 
-            if ($this->displayMode == 1) {
-                foreach ($tags as $tag) {
-                    $tagDocID = (!$tagID) ? (evo()->documentObject['id'] ?? '') : $tagID;
-                    $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
-                    $output .= template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
-                    $output .= ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? $this->displayDelimiter : '';
-                }
-            } else if ($format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $this->displayMode == 2) {
-                $tagList = [];
-                foreach ($tags as $tag) {
-                    $tagDocID = (!$tagID) ? (evo()->documentObject['id'] ?? '') : $tagID;
-                    $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
-                    $tagList[] = template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
-                }
-                $output = $this->makeList($tagList, $ulroot = 'ditto_tag_list', $ulprefix = 'ditto_tag_', $type = '', $ordered = false, $tablevel = 0);
+            $tagList = [];
+            foreach ($tags as $tag) {
+                $tagDocID = (!$tagID) ? (evo()->documentObject['id'] ?? '') : $tagID;
+                $url = ditto::buildURL(['tags' => $tag, 'start' => 0], $tagDocID);
+                $tagList[] = template::replace(['url' => $url, 'tag' => hsc($tag)], $tpl);
             }
 
-            // remove the last delimiter (only displayMode 1 adds them)
-            return ($this->displayMode == 1 && $format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $output !== '')
-                ? substr($output, 0, -1 * strlen($this->displayDelimiter))
-                : $output;
+            if ($this->displayMode == 1) {
+                return implode($feed ? '' : $this->displayDelimiter, $tagList);
+            }
+            if ($this->displayMode == 2 && !$feed) {
+                return $this->makeList($tagList, $ulroot = 'ditto_tag_list', $ulprefix = 'ditto_tag_', $type = '', $ordered = false, $tablevel = 0);
+            }
+            return '';
         }
 
         function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)

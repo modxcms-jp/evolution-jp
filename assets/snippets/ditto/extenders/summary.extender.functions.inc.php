@@ -1,53 +1,50 @@
 <?php
 // ---------------------------------------------------
-// Truncate Functions
+// Summary Placeholders
 // ---------------------------------------------------
-function determineLink($resource)
+class dittoSummary
 {
-    global $ditto_object, $ditto_summary_params, $ditto_summary_link;
-    if ($ditto_summary_link === false) {
-        return '';
-    }
-    return $ditto_object->template->replace(
-        [
-            "url" => $ditto_summary_link,
-            "text" => $ditto_summary_params["text"],
-        ],
-        $ditto_summary_params['trunc_tpl'] === false
-            ? '<a href="[+url+]" title="[+text+]">[+text+]</a>'
-            : $ditto_summary_params['trunc_tpl']
-    );
-}
+    private $trunc, $splitter, $length, $offset, $text, $tpl;
 
-function determineSummary($resource)
-{
-    global $ditto_summary_params;
-    $trunc = new truncate();
-    $p = $ditto_summary_params;
-    $output = $trunc->execute(
-        $resource,
-        $p['trunc'],
-        $p['splitter'],
-        $p['length'],
-        $p['offset'],
-        $p['splitter'],
-        true
-    );
-    $GLOBALS['ditto_summary_link'] = $trunc->link(
-        $resource,
-        $p['trunc'],
-        $p['splitter'],
-        $p['length'],
-        $p['splitter']
-    );
-    $GLOBALS['ditto_summary_type'] = $trunc->summaryType(
-        $resource,
-        $p['trunc'],
-        $p['splitter'],
-        $p['length'],
-        $p['splitter']
-    );
-    return $output;
+    public function __construct($trunc, $splitter, $length, $offset, $text, $tpl)
+    {
+        $this->trunc = $trunc;
+        $this->splitter = $splitter;
+        $this->length = $length;
+        $this->offset = $offset;
+        $this->text = $text;
+        $this->tpl = $tpl;
+    }
+
+    public function summary($resource)
+    {
+        return (new truncate())->execute(
+            $resource,
+            $this->trunc,
+            $this->splitter,
+            $this->length,
+            $this->offset,
+            $this->splitter,
+            true
+        );
+    }
+
+    public function summaryCdata($resource)
+    {
+        return ditto::cdata($this->summary($resource));
+    }
+
+    public function link($resource)
+    {
+        $url = (new truncate())->link($resource, $this->trunc, $this->splitter, $this->length, $this->splitter);
+        if ($url === false) {
+            return '';
+        }
+        return template::replace(
+            ['url' => $url, 'text' => $this->text],
+            $this->tpl === false ? '<a href="[+url+]" title="[+text+]">[+text+]</a>' : $this->tpl
+        );
+    }
 }
 
 // ---------------------------------------------------
@@ -55,9 +52,16 @@ function determineSummary($resource)
 // ---------------------------------------------------
 class truncate
 {
+    // lengths (truncLen, truncOffset) are counted in characters
+    private function charset()
+    {
+        return evo()->config('modx_charset') ?: 'UTF-8';
+    }
+
     private function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars = false)
     {
-        if (mb_strlen($posttext) <= $minimum_length || $truncChars == 1) {
+        $charset = $this->charset();
+        if (mb_strlen($posttext, $charset) <= $minimum_length || $truncChars == 1) {
             return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
         }
 
@@ -65,9 +69,9 @@ class truncate
         $tag_counter = 0;
         $quotes_on = false;
         $c = 0;
-        for ($i = 0, $iMax = mb_strlen($posttext); $i < $iMax; $i++) {
-            $current_char = mb_substr($posttext, $i, 1);
-            $next_char = $i >= (strlen($posttext) - 1) ? '' : mb_substr($posttext, $i + 1, 1);
+        for ($i = 0, $iMax = mb_strlen($posttext, $charset); $i < $iMax; $i++) {
+            $current_char = mb_substr($posttext, $i, 1, $charset);
+            $next_char = mb_substr($posttext, $i + 1, 1, $charset);
             if (!$quotes_on) {
                 if ($current_char === '<') {
                     $tag_counter = $next_char === '/' ? $tag_counter + 1 : $tag_counter + 3;
@@ -86,8 +90,7 @@ class truncate
             }
 
             if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
-                $posttext = mb_substr($posttext, 0, $i + 1);
-                return $posttext;
+                return mb_substr($posttext, 0, $i + 1, $charset);
             }
         }
         return $this->truncWithoutPartial($posttext, $minimum_length + $length_offset);
@@ -111,15 +114,14 @@ class truncate
 
     private function textTrunc($string, $limit, $break = "。")
     {
-
-        mb_internal_encoding(config('modx_charset'));
-        if (mb_strwidth($string) <= $limit) {
+        $charset = $this->charset();
+        if (mb_strlen($string, $charset) <= $limit) {
             return $string;
         }
 
-        $string = mb_strimwidth($string, 0, $limit);
-        if (false !== ($breakpoint = mb_strrpos($string, $break))) {
-            $string = mb_substr($string, 0, $breakpoint + 1);
+        $string = mb_substr($string, 0, $limit, $charset);
+        if (false !== ($breakpoint = mb_strrpos($string, $break, 0, $charset))) {
+            $string = mb_substr($string, 0, $breakpoint + 1, $charset);
         }
 
         return $string;
@@ -196,30 +198,13 @@ class truncate
             return $introtext;
             // fall back to the summary text count of characters
         }
-        if (strlen($content) > $truncLen && $trunc == 1) {
+        if (mb_strlen($content, $this->charset()) > $truncLen && $trunc == 1) {
             // and back to where we started if all else fails (short post)
             return $this->closeTags(
                 $this->html_substr($content, $truncLen, $truncOffset, $truncChars)
             );
         }
         return $this->closeTags($content);
-    }
-
-    public function summaryType($resource, $trunc, $splitter, $truncLen, $truncsplit)
-    {
-        $content = is_array($resource) ? ($resource['content'] ?? '') : '';
-        $introtext = is_array($resource) ? ($resource['introtext'] ?? '') : '';
-
-        if (strpos($content, $splitter) !== false && $truncsplit) {
-            return 'content';
-        }
-        if (mb_strlen($introtext) > 0) {
-            return 'introtext';
-        }
-        if (strlen($content) > $truncLen && $trunc == 1) {
-            return 'content';
-        }
-        return 'content';
     }
 
     public function link($resource, $trunc, $splitter, $truncLen, $truncsplit)
@@ -231,10 +216,10 @@ class truncate
         if (strpos($content, $splitter) !== false && $truncsplit) {
             return '[~' . $id . '~]';
         }
-        if (mb_strlen($introtext) > 0) {
+        if ($introtext !== '') {
             return '[~' . $id . '~]';
         }
-        if (strlen($content) > $truncLen && $trunc == 1) {
+        if (mb_strlen($content, $this->charset()) > $truncLen && $trunc == 1) {
             return '[~' . $id . '~]';
         }
         return false;
