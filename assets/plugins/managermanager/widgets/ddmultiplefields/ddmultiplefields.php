@@ -46,13 +46,15 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
                 $columnsData[] = $value;
                 continue;
             }
-            //PHP の配列の書き方（[...]・array(...)）は、値を返す形にしてから評価する
-            $code = preg_match('/^(\[|array\s*\()/i', $value) ? "return {$value};" : $value;
-            //Евалим знение и записываем результат или исходное значени
-            try {
-                $eval = eval($code);
-            } catch (\Throwable $e) {
-                $eval = null; // not PHP code: use the value as is
+            //PHP の書き方（[...]・array(...)・return ...）だけを、末尾の ; の有無によらず値を返す形にして評価する
+            $eval = null;
+            if (preg_match('/^(\[|array\s*\(|return\b)/i', $value)) {
+                $expr = rtrim(preg_replace('/^return\b/i', '', $value), " \t\r\n;");
+                try {
+                    $eval = eval("return {$expr};");
+                } catch (\Throwable $e) {
+                    $eval = null; // not PHP code: use the value as is
+                }
             }
             $columnsData[] = $eval ? json_encode($eval) : $value;
         }
