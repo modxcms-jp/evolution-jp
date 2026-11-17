@@ -140,9 +140,10 @@ if (sessionv('result_msg')) {
             $restoreHtml = sprintf(
                 '<div class="errmsg">%s</div>',
                 evo()->parseText(lang('bkmgr_restore_prefix_mismatch'), [
-                    'dump_prefix' => hsc(isset($restoreResult['dump_prefix']) ? "'{$restoreResult['dump_prefix']}'" : '?'),
-                    'site_prefix' => hsc("'" . db()->table_prefix . "'"),
-                    'tables'      => hsc(implode(', ', array_slice($foreignTables, 0, 5)) . (count($foreignTables) > 5 ? ', …' : '')),
+                    // ダンプから来た名前なので、parseText() の置き換えのタグとして読まれないようにする
+                    'dump_prefix' => hsc_for_tpl(isset($restoreResult['dump_prefix']) ? "'{$restoreResult['dump_prefix']}'" : '?'),
+                    'site_prefix' => hsc_for_tpl("'" . db()->table_prefix . "'"),
+                    'tables'      => hsc_for_tpl(implode(', ', array_slice($foreignTables, 0, 5)) . (count($foreignTables) > 5 ? ', …' : '')),
                 ])
             );
             break;
