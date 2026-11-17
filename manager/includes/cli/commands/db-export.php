@@ -27,9 +27,9 @@ if ($tablesArg !== '') {
         cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
     }
     foreach ($tables as $table) {
-        $fullTable = EvoDbTables::qualify($table);
+        $fullTable = EvoDbTables::resolve($table);
         if ($fullTable === '') {
-            cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
+            cli_usage("Error: no such table with the prefix " . db()->table_prefix . ": {$table}");
         }
         $fullTables[] = $fullTable;
     }

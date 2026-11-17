@@ -34,27 +34,41 @@ final class EvoDbTables
     }
 
     /**
-     * 接頭辞の付いた表の名前にする（付いていなければ付ける）。名前に使えない文字があれば ''
+     * 接頭辞を除いた名前（例 'manager_log'）に、必ず接頭辞を付ける。名前に使えない文字があれば ''
+     * 接頭辞が付いているかを名前の頭から推し量らない（接頭辞 'manager_' のサイトの 'manager_log' を取り違えないため）
      */
-    public static function qualify(string $name): string
+    public static function name(string $short): string
     {
-        $name = trim($name);
-        if (!preg_match(self::NAME_PATTERN, $name)) {
+        if (!preg_match(self::NAME_PATTERN, $short)) {
             return '';
         }
-        $prefix = (string) db()->table_prefix;
-        if ($prefix !== '' && strpos($name, $prefix) === 0) {
-            return $name;
-        }
-        return $prefix . $name;
+        return db()->table_prefix . $short;
     }
 
     /**
-     * qualify() の名前を `db`.`table` の形で返す。名前が不正なとき、DB 名が無いときは ''
+     * 利用者が入力した名前（完全な名前と接頭辞を除いた名前のどちらもありうる）を、このサイトに在る表の名前にする。
+     * 完全な名前として在ればそれを、無ければ接頭辞を付けた名前として在ればそれを返す。どちらも無ければ ''
      */
-    public static function qualifiedWithDb(string $name): string
+    public static function resolve(string $input): string
     {
-        $table = self::qualify($name);
+        $input = trim($input);
+        if (!preg_match(self::NAME_PATTERN, $input)) {
+            return '';
+        }
+        $names = self::names();
+        if (in_array($input, $names, true)) {
+            return $input;
+        }
+        $table = self::name($input);
+        return in_array($table, $names, true) ? $table : '';
+    }
+
+    /**
+     * resolve() の表を `db`.`table` の形で返す。表が無いとき、DB 名が無いときは ''
+     */
+    public static function resolveWithDb(string $input): string
+    {
+        $table = self::resolve($input);
         $dbase = (string) db()->dbase;
         if ($table === '' || $dbase === '') {
             return '';
@@ -91,8 +105,8 @@ final class EvoDbTables
     public static function truncatable(): array
     {
         return [
-            db()->table_prefix . 'event_log',
-            db()->table_prefix . 'manager_log',
+            self::name('event_log'),
+            self::name('manager_log'),
         ];
     }
 

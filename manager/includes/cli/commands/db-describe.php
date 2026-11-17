@@ -2,9 +2,12 @@
 
 $table = $args[0] ?? '';
 require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
-$fullTable = EvoDbTables::qualifiedWithDb($table);
-if ($fullTable === '') {
+$fullTable = EvoDbTables::resolveWithDb($table);
+if (trim($table) === '') {
     cli_usage('Usage: php evo.php db:describe table_name');
+}
+if ($fullTable === '') {
+    cli_usage("Error: no such table with the prefix " . db()->table_prefix . ": {$table}");
 }
 
 $sql = 'DESCRIBE ' . $fullTable;
