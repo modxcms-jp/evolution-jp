@@ -18,10 +18,16 @@ include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 
 $dumper = new Mysqldumper();
 if ($mode === 'backup') {
-    $tables = postv('chk', '');
-    if (!is_array($tables)) {
-        evo()->webAlertAndQuit('Please select a valid table from the list below', 'javascript:history.back(-1);');
+    // 送り先は非表示の iframe。失敗は、親の画面が iframe の読み込みで #evoBackupError を読んで知らせる
+    $backupFailed = function ($message) {
+        header('Content-Type: text/html; charset=UTF-8');
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><p id="evoBackupError">'
+            . hsc($message) . '</p></body></html>';
         exit;
+    };
+    $tables = postv('chk', '');
+    if (!is_array($tables) || !$tables) {
+        $backupFailed(lang('bkmgr_backup_no_tables'));
     }
 
     @set_time_limit(120); // set timeout limit to 2 minutes
@@ -41,8 +47,7 @@ if ($mode === 'backup') {
         if ($tempfile !== false && is_file($tempfile)) {
             unlink($tempfile);
         }
-        alert()->setError(1, 'Unable to Backup Database');
-        alert()->dumpError();
+        $backupFailed(lang('bkmgr_backup_failed'));
     }
     if (!headers_sent()) {
         header('Expires: 0');
@@ -69,6 +74,20 @@ if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを�
 $ph['result_msg'] = '';
 $ph['snapshot_msg'] = '';
 $restoreHtml = '';
+$uploadLimits = array_filter([
+    ini_size_to_bytes(ini_get('upload_max_filesize')),
+    ini_size_to_bytes(ini_get('post_max_size')),
+], function ($bytes) {
+    return $bytes > 0;
+});
+$uploadMax = $uploadLimits ? min($uploadLimits) : 0;
+$restoreTooLarge = evo()->parseText(
+    lang('bkmgr_restore_too_large'),
+    [
+        'upload_max_filesize' => hsc((string) ini_get('upload_max_filesize')),
+        'post_max_size'       => hsc((string) ini_get('post_max_size')),
+    ]
+);
 if (sessionv('result_msg')) {
     $restoreResult = sessionv('restore_result', []);
     $restoreResult = is_array($restoreResult) ? $restoreResult : [];
@@ -104,8 +123,32 @@ if (sessionv('result_msg')) {
         case 'restore_no_snapshot':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_snapshot'));
             break;
+        case 'restore_no_file':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_file'));
+            break;
+        case 'restore_too_large':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $restoreTooLarge);
+            break;
+        case 'restore_upload_failed':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_upload_failed'));
+            break;
+        case 'restore_invalid_file':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_invalid_file'));
+            break;
         case 'snapshot_ok':
             $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', lang('bkmgr_snapshot_ok'));
+            break;
+        case 'snapshot_invalid_file_name':
+            $ph['snapshot_msg'] = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_invalid_file_name'));
+            break;
+        case 'snapshot_mkdir_failed':
+            $ph['snapshot_msg'] = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_alert_mkdir'), ['snapshot_path' => hsc($backup->dir())])
+            );
+            break;
+        case 'snapshot_failed':
+            $ph['snapshot_msg'] = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_snapshot_failed'));
             break;
     }
     // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
@@ -128,11 +171,53 @@ if (sessionv('result_msg')) {
         }
     }
 
+    // 成功するとダウンロードが始まるだけで、iframe は読み込みを終えない。読み込んだら失敗の応答
+    function onBackupFrameLoad() {
+        var doc;
+        try {
+            doc = this.contentDocument;
+        } catch (e) {
+            doc = null;
+        }
+        if (!doc || !doc.body) {
+            return;
+        }
+        var error = doc.getElementById('evoBackupError');
+        var message = '';
+        if (error) {
+            message = error.innerHTML;
+        } else if (doc.body.textContent.trim() !== '') {
+            message = <?= js_literal(lang('bkmgr_backup_unexpected')) ?>;
+        }
+        doc.body.innerHTML = '';
+        if (message !== '') {
+            EvoDialog.alert(message, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+        }
+    }
+
     function backup() {
         var f = document.forms['frmdb'];
+        if (!f.querySelector('input[name="chk[]"]:checked')) {
+            EvoDialog.alert(<?= js_literal(lang('bkmgr_backup_no_tables')) ?>, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+            return false;
+        }
+        document.querySelector('iframe[name="fileDownloader"]').onload = onBackupFrameLoad;
         f.mode.value = 'backup';
         f.target = 'fileDownloader';
         f.submit();
+        return false;
+    }
+
+    // post_max_size を超えると本文ごと捨てられ、サーバーは理由を返せないので、送る前に確かめる
+    function restoreUpload() {
+        var f = document.forms['mutate'];
+        var file = f.sqlfile.files[0];
+        var max = <?= (int) $uploadMax ?>;
+        if (file && max > 0 && file.size > max) {
+            EvoDialog.alert(<?= js_literal($restoreTooLarge) ?>, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+            return false;
+        }
+        f.save.click();
         return false;
     }
 </script>
@@ -290,7 +375,7 @@ if (sessionv('result_msg')) {
                     <a
                         href="#"
                         class="primary"
-                        onclick="document.mutate.save.click();"><?= lang("bkmgr_run_sql_submit") ?>
+                        onclick="return restoreUpload();"><?= lang("bkmgr_run_sql_submit") ?>
                     </a>
                 </div>
                 <input type="submit" name="save" style="display:none;" />
