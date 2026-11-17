@@ -175,7 +175,7 @@ SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`de
 | `xsl` | xml / rss | XSL スタイルシート（サイトのルートからのパス） | なし |
 
 - `json`: URL に `<id>_jsonp=関数名` を付けると、出力全体を `関数名( … );` で包む（JSONP）。関数名は JavaScript の識別子（`a.b` の形も可）だけ。
-- 1 件ごとのテンプレートでは、`[+json_フィールド+]`・`[+xml_フィールド+]`・`[+atom_escaped_フィールド+]` でその形式向けにエスケープした値が使える。`xml`・`atom` では、題名（`xml_pagetitle`・`atom_escaped_pagetitle`）と作成者（`xml_author`・`atom_author`）は地の文として扱い、書き済みの実体（`&amp;` など）を文字に戻してからエスケープする。ほかのフィールドは HTML を含みうるので、値をそのままエスケープする（読み取ると元の HTML に戻る）。`rss` は `[+rss_date+]`・`[+rss_pagetitle+]`・`[+rss_author+]`、`atom` は `[+atom_createdon+]`・`[+atom_editedon+]`・`[+atom_author+]` を持つ。
+- 1 件ごとのテンプレートでは、`[+json_フィールド+]`・`[+xml_フィールド+]`・`[+atom_escaped_フィールド+]` でその形式向けにエスケープした値が使える。題名（`xml_pagetitle`・`rss_pagetitle`・`atom_escaped_pagetitle`）と作成者（`xml_author`・`rss_author`・`atom_author`）は地の文として扱い、書き済みの実体（`&amp;` など）を文字に戻してからエスケープする。ほかのフィールドは HTML を含みうるので、値をそのままエスケープする（読み取ると元の HTML に戻る）。`<![CDATA[ ]]>` の中に入れる値には、`]]>` で途中で閉じないようにした `[+summary_cdata+]`（`rss`・`atom`。summary の extender の要約）と `[+xml_summary+]`（`xml`。`introtext`）を使う。`rss` は `[+rss_date+]`・`[+rss_pagetitle+]`・`[+rss_author+]`、`atom` は `[+atom_createdon+]`・`[+atom_editedon+]`・`[+atom_author+]` を持つ。
 
 ## extender
 
@@ -230,7 +230,7 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 
 ### summary — 要約
 
-1 件ごとのテンプレートで `[+summary+]`（要約）と `[+link+]`（続きへのリンク）を使えるようにする。
+1 件ごとのテンプレートで `[+summary+]`（要約）、`[+summary_cdata+]`（XML の `<![CDATA[ ]]>` に入れるための要約）、`[+link+]`（続きへのリンク）を使えるようにする。
 要約は、本文に `truncAt` の区切りがあればその手前まで、無ければ `introtext`、それも無ければ本文を `truncLen` の長さで切ったもの。
 
 | パラメータ | 用途 | とりうる値 | 既定値 |

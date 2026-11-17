@@ -89,7 +89,7 @@ $atom_tpl = <<<TPL
 		<id>[+url+]</id>
 		<updated>[+atom_editedon+]</updated>
 		<published>[+atom_createdon+]</published>
-		<content type="html"><![CDATA[ [+summary+] ]]></content>
+		<content type="html"><![CDATA[ [+summary_cdata+] ]]></content>
 	</entry>
 TPL;
 
