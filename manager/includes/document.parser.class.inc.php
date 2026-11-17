@@ -2866,9 +2866,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Plugin', $this->event->activePlugin ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2889,9 +2887,7 @@ class DocumentParser
         $this->leaveErrorContext($contextState);
         unset($modx->event->params);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         return (($echo === false) ? '' : $echo) . ($return ?? '');
     }
@@ -2931,9 +2927,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Snippet', $this->currentSnippet ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2965,9 +2959,7 @@ class DocumentParser
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         if (is_array($return) || is_object($return)) {
             return $return;

@@ -29,14 +29,7 @@ function cli_stdin_is_interactive(): bool
     if (!defined('STDIN') || !is_resource(STDIN)) {
         return false;
     }
-    if (function_exists('stream_isatty')) {
-        return stream_isatty(STDIN);
-    }
-    if (function_exists('posix_isatty')) {
-        return posix_isatty(STDIN);
-    }
-
-    return false;
+    return stream_isatty(STDIN);
 }
 
 /**
