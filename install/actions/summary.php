@@ -118,7 +118,7 @@ if (!is_writable(MODX_BASE_PATH . 'temp')) {
     $_ = echo_ok();
     mkd(MODX_BASE_PATH . 'temp/export');
     mkd(rtrim(EvoSnapshotStore::defaultDir(), '/'));
-    if (is_dir(EvoSnapshotStore::defaultDir())) {
+    if (is_dir(EvoSnapshotStore::defaultDir()) && is_writable(EvoSnapshotStore::defaultDir())) {
         EvoSnapshotStore::protect(EvoSnapshotStore::defaultDir());
     }
 }
