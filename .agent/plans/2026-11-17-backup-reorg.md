@@ -245,7 +245,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S6: ブランチ `refactor/1561-s6-backup-flow`（`origin/main` から作成。Issue に紐づけない）、PR #1578。マージ済み（main b8d24e587）
 - S6b: ブランチ `refactor/1561-s6b-multirow-insert`（`origin/main` から作成。Issue に紐づけない）、PR #1581。マージ済み（main 2fba5e352）
 - S7: ブランチ `refactor/1561-s7-restore-guard`（`origin/main` から作成。Issue に紐づけない）、PR #1583
-- S8: ブランチ `refactor/1561-s8-thin-entry`（S7 のブランチから作成。PR の base は S7 のブランチ。S7 のマージ後に main へ切り替える）
+- S8: ブランチ `refactor/1561-s8-thin-entry`（S7 のブランチから作成。PR の base は S7 のブランチ。S7 のマージ後に main へ切り替える）、PR #1585
 - S9: Issue #1584（マイルストーン 1.4。`develop/1.4` に向ける）
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
