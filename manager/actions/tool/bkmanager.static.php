@@ -19,8 +19,7 @@ include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 $dumper = new Mysqldumper();
 if ($mode === 'backup') {
     // 送り先は非表示の iframe。失敗は、親の画面が iframe の読み込みで #evoBackupError を読んで知らせる
-    $backupFailed = function ($message, $status) {
-        http_response_code($status);
+    $backupFailed = function ($message) {
         header('Content-Type: text/html; charset=UTF-8');
         echo '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><p id="evoBackupError">'
             . hsc($message) . '</p></body></html>';
@@ -28,7 +27,7 @@ if ($mode === 'backup') {
     };
     $tables = postv('chk', '');
     if (!is_array($tables) || !$tables) {
-        $backupFailed(lang('bkmgr_backup_no_tables'), 400);
+        $backupFailed(lang('bkmgr_backup_no_tables'));
     }
 
     @set_time_limit(120); // set timeout limit to 2 minutes
@@ -48,7 +47,7 @@ if ($mode === 'backup') {
         if ($tempfile !== false && is_file($tempfile)) {
             unlink($tempfile);
         }
-        $backupFailed(lang('bkmgr_backup_failed'), 500);
+        $backupFailed(lang('bkmgr_backup_failed'));
     }
     if (!headers_sent()) {
         header('Expires: 0');
