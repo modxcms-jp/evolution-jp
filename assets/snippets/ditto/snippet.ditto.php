@@ -82,6 +82,49 @@ if (isset($debug)) {
     );
 }
 
+$renamedParams = array_intersect_key(
+    [
+        'startID' => 'parents',
+        'summarize' => 'display',
+        'limit' => 'queryLimit',
+        'commentsChunk' => 'removeChunk',
+        'hiddenTVs' => 'hiddenFields',
+        'dateFormatType' => 'dateSource',
+        'descendentDepth' => 'depth',
+        'rssLanguage' => 'abbrLanguage',
+        'tplAltRows' => 'tplAlt',
+        'tplFirstRow' => 'tplFirst',
+        'tplLastRow' => 'tplLast',
+        'tplArchivePrevious' => 'tplPaginatePrevious',
+        'tplArchiveNext' => 'tplPaginateNext',
+        'emptyText' => 'noResults',
+    ],
+    (array) event()->params
+);
+if ($renamedParams) {
+    $renamedPairs = [];
+    foreach ($renamedParams as $oldName => $newName) {
+        $renamedPairs[] = "&{$oldName} → &{$newName}";
+    }
+    evo()->logEvent(
+        0,
+        2,
+        sprintf(
+            'Ditto の古いパラメータ名は廃止しました。スニペットの呼び出しを今の名前に書き換えてください: %s',
+            implode('、', $renamedPairs)
+        ),
+        'Ditto ' . $ditto_version
+    );
+}
+if ($config === 'compatibility') {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &config=compatibility は廃止しました。スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
+        'Ditto ' . $ditto_version
+    );
+}
+
 // a config may already have added extenders as an array ($extenders[] = ...)
 if (!isset($extenders)) {
     $extenders = [];
@@ -182,18 +225,6 @@ if (count($extenders) > 0) {
 }
 
 //---Parameters------------------------------------------------------- //
-// Aliases (startID, summarize, limit). When the canonical name is in $never of
-// extenders/request.extender.inc.php, list the alias there too, because the request
-// extender runs before this mapping. sortBy and sortDir below are not aliases of orderBy.
-if (isset($startID)) {
-    $parents = $startID;
-}
-if (isset($summarize)) {
-    $display = $summarize;
-}
-if (isset($limit)) {
-    $queryLimit = $limit;
-}
 // legacy &sortBy / &sortDir: the missing one defaults to createdon / DESC
 if (isset($sortBy) || isset($sortDir)) {
     $sortDir = isset($sortDir) ? strtoupper(trim($sortDir)) : 'DESC';
