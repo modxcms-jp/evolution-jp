@@ -1,61 +1,17 @@
 <?php
-# eForm 1.4.4.8 - Electronic Form Snippet
+# eForm - Electronic Form Snippet
 # Original created by: Raymond Irving 15-Dec-2004.
 # Extended by: Jelle Jager (TobyL) September 2006
-# -----------------------------------------------------
-#
-#
-# Captcha image support - thanks to Djamoer
-# Multi checkbox, radio, select support - thanks to Djamoer
-# Form Parser and extended validation - by Jelle Jager
-#
-# see docs/eform.htm for installation and usage information
-#
-# VERSION HISTORY
-# Work around for setting required class on check & radio labels
-# fixed bug: If eform attibute is set on multiple check boxes only the last
-#            value is set in values list
-# For a full version history see the eform_history.htm file in the docs directory
-#
-# Some more fixes and problems:
-# FIXED: reg expression failed for select and textarea boxes which have regex special
-# characters in their name attribute. eg name="multipleSelection[]"
-# FIXED: validation of multiple values with #LIST & #SELECT stopped after 1st value
-# Caused by repeating $v variable naming (overwriting $v array)
-# e.g.
-# <select name="multipleSelection[]" multiple="multiple" eform="::1::"/>
-#   <option value="1">1</option>
-#   <option value="2">2</option>
-#   <option value="3">3</option>
-# </select>
-# would only have the first selected value validated!
-#
-# bugfix: &jScript parameter doesn't accept chunks, only a link to a JS file if more than one chunk is declared (eg &jScript=`chunk1,chunk2)
-# bugfix: &protectSubmit creates hash for all fields instead of fields declared in &protectSubmit
-# bugfix: Auto respond email didn't honour the &sendAsText parameter
-# bugfix: The #FUNCTION validation rule for select boxes never calls the function
-# bugfix: Validation css class isn't being added to labels.
-#
-# SECURITY FIX: add additional sanitization to fields after stripping slashes to avoid remote tag execution
-##
-
-#----------------------------------------------------------
-# Modify ZeRo(http://www.petit-power.com) $Revision: 58 $
-# $Date: 2009-07-27 16:31:59 +0900 (??, 01 3 2009) $
-#----------------------------------------------------------
 
 function eForm($modx, $params)
 {
     global $_lang;
     global $debugText;
-    global $formats, $fields, $efPostBack, $_dfnMaxlength;
+    global $formats, $fields, $efPostBack;
 
-    $fields = []; //reset fields array - needed in case of multiple forms
+    $fields = []; // 同じページに複数のフォームがあってもよいように、毎回空にする
 
-// define some variables used as array index
-    $_dfnMaxlength = 6;
-
-    extract($params, EXTR_SKIP); // extract params into variables
+    extract($params, EXTR_SKIP);
 
     // バインディングが無効のときは、引数で指定したフックを呼ばない（フックが無いときと同じ扱い）
     if (config('enable_bindings', 0) != 1) {
@@ -66,11 +22,9 @@ function eForm($modx, $params)
         $eFormOnBeforeFormMerge = '';
     }
 
-    #include default language file
     // read every call: another form on the page may use another language or &submitLimit
     include($snipPath . "lang/english.inc.php");
 
-    #include other language file if set.
     $form_language = isset($language) ? $language : config('manager_language', 'english');
     if (!preg_match('/^[\w\-]+$/', (string) $form_language)) {
         $form_language = 'english';
@@ -80,35 +34,29 @@ function eForm($modx, $params)
             include("{$snipPath}lang/{$form_language}.inc.php");
         } else {
             if ($isDebug) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />";
-        } //always in english!
+        }
     }
 
-    # add debug warning - moved again...
     if ($isDebug) {
         $debugText .= $_lang['ef_debug_warning'];
     }
 
-    # check for valid form key - moved to below fetching form template to allow id coming from form template
-
-    $nomail = $noemail; //adjust variable name confusion
-    # activate nomail if missing $to
+    $nomail = $noemail;
+    // 宛先が無いときはメールを送らない
     if (!$to) {
         $nomail = 1;
     }
 
-
-    # load templates
     if ($tpl == $modx->documentIdentifier) {
         return $_lang['ef_is_own_id'] . "'$tpl'";
     }
 
-    //required
     if (empty($tpl)) {
         $tpl = get_default_tpl();
     } elseif ($tmp = efLoadTemplate($tpl)) $tpl = $tmp;
     else return $_lang['ef_no_doc'] . " '$tpl'";
 
-    // try to get formid from <form> tag id
+    // フォームの id は <form> タグの id、無ければ hidden の formid から取る
     if (preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i', $tpl, $matches)) {
         $formid = $matches[1];
     } elseif (!preg_match('/<input[^>]*?name=[\'"]formid[\'"][^>]*?>/i', $tpl, $matches)) {
@@ -118,9 +66,7 @@ function eForm($modx, $params)
             $formid = $matches[1];
         }
     }
-    //check for <input type='hidden name='formid'...>
     if (!preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i', $tpl)) {
-        //insert hidden formid field
         $tpl = str_replace('</form>', sprintf(
             '<input type="hidden" name="formid" value="%s" /></form>',
             $formid
@@ -130,9 +76,19 @@ function eForm($modx, $params)
     $postedFormId = postv('formid'); // 文字列だけを受け付ける（配列は不正）
     $validFormId = is_string($postedFormId) && $formid == $postedFormId ? 1 : 0;
 
-    # check if postback mode
-    $efPostBack = ($validFormId && is_post() && (strpos(serverv('HTTP_REFERER', ''), config('site_url', MODX_SITE_URL)) !== false)) ? true : false; //retain old variable?
+    $efPostBack = $validFormId && is_post() && efIsSameHostRequest();
 
+    // 廃止した引数が書かれていたら、送信のときに警告を残す（表示のたびに残すとログがあふれる。処理は止めない）
+    $removed = $removedParams ?? [];
+    if ($efPostBack && $removed) {
+        evo()->logEvent(
+            0,
+            2,
+            'eForm: 廃止した引数が指定されています。効果はありません: ' . implode(', ', $removed),
+            'eForm',
+            ['formid' => $formid, 'params' => $removed]
+        );
+    }
 
     if ($efPostBack) {
         if ($report) {
@@ -148,7 +104,7 @@ function eForm($modx, $params)
         }
     }
 
-    //these will be added to the HEAD section of the document when the form is displayed!
+    // フォームの表示時に HEAD へ足す
     if ($cssStyle) {
         $cssStyle = (strpos($cssStyle, ',') && strpos($cssStyle, '<style') === false) ? explode(',', $cssStyle) : [$cssStyle];
         foreach ($cssStyle as $tmp) {
@@ -162,14 +118,12 @@ function eForm($modx, $params)
         }
     }
 
-    #New in 1.4.4 - run snippet to include 'event' functions
+    // イベント用の関数を定義するスニペットを実行する
     if (strlen($runSnippet) > 0) {
         $modx->runSnippet($runSnippet, ['formid' => $formid]);
-        //Sadly we cannot know if the snippet fails or if it exists as modx->runsnippet's return value
-        //is ambiguous
+        // runSnippet の戻り値は曖昧で、失敗したかどうかは分からない
     }
 
-    # invoke onBeforeFormParse event set by another script
     if ($eFormOnBeforeFormParse) {
         if ($isDebug && !function_exists($eFormOnBeforeFormParse)) {
             $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeFormParse event: Could not find the function " . $eFormOnBeforeFormParse;
@@ -178,11 +132,10 @@ function eForm($modx, $params)
             if ($eFormOnBeforeFormParse($fields, $templates) === false) {
                 return "";
             } elseif (is_array($templates))
-                extract($templates); // extract back into original variables
+                extract($templates);
         }
     }
 
-# parse form for formats and generate placeholders
     $tpl = eFormParseTemplate($tpl, $isDebug);
 
     if ($efPostBack) {
@@ -190,14 +143,12 @@ function eForm($modx, $params)
             if (!isset($fields[$k])) {
                 $fields[$k] = "";
             }
-        } // store dummy value inside $fields
+        }
 
         $disclaimer = (($tmp = efLoadTemplate($disclaimer)) !== false) ? $tmp : '';
 
-        //error message containers
         $vMsg = $rMsg = $rClass = [];
 
-        # get user post back data
         $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
         foreach (postv() as $name => $value) {
             // 単一の値と配列の各値に同じ処理を通す（allowhtml と html 書式のときだけタグを許す）
@@ -220,10 +171,9 @@ function eForm($modx, $params)
             }
         }
 
-        # sanitize the values with slashes stripped to avoid remote execution of Snippets
+        // スニペットのタグが実行されないように無害化する
         $modx->sanitize_gpc($fields);
 
-        # get uploaded files
         foreach ($_FILES as $name => $value) {
             if (($formats[$name][2] ?? '') == 'file') {
                 $fields[$name] = $value;
@@ -241,21 +191,17 @@ function eForm($modx, $params)
             }
         }
 
-        # check vericode
         if ($vericode) {
-            //add support for captcha code - thanks to Djamoer
-            $code = (string)(sessionv('veriword') ?: sessionv('eForm.VeriCode'));
+            $code = (string)sessionv('veriword');
             $postedCode = post_strvar('vericode');
-            // a code is used once; an empty expected code never matches
+            // 認証コードは 1 回だけ使える。答えが空のときは一致させない
             sessionv('*veriword', null);
-            sessionv('*eForm.VeriCode', null);
             if ($code === '' || !hash_equals($code, $postedCode)) {
                 $vMsg[count($vMsg)] = $_lang['ef_failed_vericode'];
-                $rClass['vericode'] = $invalidClass; //added in 1.4.4
+                $rClass['vericode'] = $invalidClass;
             }
         }
 
-        # validate fields
         foreach ($fields as $name => $value) {
             $fld = isset($formats[$name]) ? $formats[$name] : '';
             if ($fld) {
@@ -287,11 +233,11 @@ function eForm($modx, $params)
                     if ($value === false) {
                         $rClass[$name] = $invalidClass;
                     } elseif ($value !== true) {
-                        //if returned value is not of type boolean replace value...
+                        // #FILTER は値を返すので置き換える
                         $fields[$name] = $value;
-                    } //replace value.
+                    }
 
-                } else { //value check
+                } else {
                     switch ($datatype) {
                         case "integer":
                         case "float":
@@ -304,17 +250,13 @@ function eForm($modx, $params)
                             if (strlen($value) == 0) {
                                 break;
                             }
-                            //corrected by xwisdom for php version differences
-                            $rt = strtotime($value); //php 5.1.0+ returns false while < 5.1.0 returns -1
-                            if ($rt === false || $rt === -1) {
+                            if (strtotime($value) === false) {
                                 $vMsg[count($vMsg)] = $desc . $_lang["ef_invalid_date"];
                                 $rClass[$name] = $invalidClass;
                             }
                             break;
                         case "email":
-                            //stricter email validation - udated to allow + in local name part
-                            if (strlen($value) > 0 && !preg_match(
-                                    '/^(?:[a-z0-9+_-]+?\.)*?[a-z0-9_+-]+?@(?:[a-z0-9_-]+?\.)*?[a-z0-9_-]+?\.[a-z0-9]{2,5}$/i', $value)) {
+                            if (strlen($value) > 0 && !efIsValidEmail($value)) {
                                 $vMsg[count($vMsg)] = isset($formats[$name][4]) ? $formats[$name][4] : $desc . $_lang["ef_invalid_email"];
                                 $rClass[$name] = $invalidClass;
                             }
@@ -347,11 +289,10 @@ function eForm($modx, $params)
                         default:
                             break;
                     }
-                }//end required test
+                }
             }
         }
 
-// Changed in 1.4.4.5  - now expects 4 parameters
         if ($eFormOnValidate) {
             if ($isDebug && !function_exists($eFormOnValidate)) {
                 $fields['debug'] = ($fields['debug'] ?? '') . "eformOnValidate event: Could not find the function " . $eFormOnValidate;
@@ -362,21 +303,19 @@ function eForm($modx, $params)
             }
         }
 
-
         if ($vMsg || $rMsg) {
-            //New in 1.4.2 - classes are set in labels and form elements for invalid fields
+            // 不正な項目のラベルと入力欄に class を付ける
             foreach ($rClass as $n => $class) {
                 $fields[$n . '_class'] = !empty($fields[$n . '_class']) ? $fields[$n . '_class'] . ' ' . $class : $class;
                 $fields[$n . '_vClass'] = isset($fields[$n . '_vClass']) ? $fields[$n . '_vClass'] . ' ' . $class : $class;
-                //work around for checkboxes
-                if (isset($formats[$n][6])) { //have separate id's for check and option tags - set classes as well
+                // チェックボックスは選択肢ごとの id にも class を付ける
+                if (isset($formats[$n][6])) {
                     foreach (explode(',', $formats[$n][6]) as $id) {
                         $fields[$id . '_vClass'] = !empty($fields[$id . '_vClass']) ? $fields[$id . '_vClass'] . ' ' . $class : $class;
                     }
                 }
             }
 
-            //add debugging info to fields array
             if ($isDebug) {
                 ksort($fields);
                 if ($isDebug > 1) {
@@ -388,7 +327,6 @@ function eForm($modx, $params)
                 $fields['debug'] = $debugText;
             }
 
-            #set validation message
             $tmp = ($rMsg) ? str_replace("{fields}", implode(", ", $rMsg), $_lang['ef_required_message']) : "";
             $tmp .= implode("<br />", $vMsg);
             if (strpos($tpl, '[+validationmessage+]') === false) {
@@ -399,35 +337,32 @@ function eForm($modx, $params)
             }
         } else {
 
-            # format report fields
             foreach ($fields as $name => $value) {
                 $fld = $formats[$name] ?? '';
                 if ($fld) {
                     $datatype = $fld[2] ?? '';
                     switch ($datatype) {
                         case "integer":
-                            $value = number_format((float)$value);    //EM~
+                            $value = number_format((float)$value);
                             break;
                         case "float":
                             $localeInfo = localeconv();
                             $th_sep = empty($_lang['ef_thousands_separator']) ? $localeInfo['thousands_sep'] : $_lang['ef_thousands_separator'];
                             $dec_point = $localeInfo['decimal_point'];
                             $debugText .= 'Locale<pre>' . var_export($localeInfo, true) . '</pre>';
-                            $value = number_format((float)$value, 2, $dec_point, $th_sep);    //EM~
+                            $value = number_format((float)$value, 2, $dec_point, $th_sep);
                             break;
                         case "date":
                             $format_string = isset($_lang['ef_date_format']) ? $_lang['ef_date_format'] : '%d-%b-%Y %H:%M:%S';
                             $value = ($value) ? evo()->mb_strftime($format_string, strtotime($value)) : "";
-                            $value = str_replace("00:00:00", "", $value);// remove trailing zero time values
+                            $value = str_replace("00:00:00", "", $value);
                             break;
                         case "html":
-                            // convert \n to <br />
                             if (!$sendAsText) {
                                 $value = preg_replace('#(\n<br[ /]*?>|<br[ /]*?>\n|\n)#i', '<br />', $value);
                             }
                             break;
                         case "file":
-                            // set file name
                             if (is_array($value) && ($value['type'] ?? '') != "" && ($value['error'] ?? UPLOAD_ERR_NO_FILE) == UPLOAD_ERR_OK) {
                                 $value = $value["name"];
                                 $patharray = explode(((strpos($value, "/") === false) ? "\\" : "/"), $value);
@@ -443,54 +378,23 @@ function eForm($modx, $params)
                     $fields[$name] = implode(', ', $value);
                 }
             }
-            # set postdate
             $fields['postdate'] = evo()->mb_strftime($modx->toDateFormat(null, 'formatOnly') . " %H:%M:%S", time());
 
-            //check against email injection and replace suspect content
-            if (hasMailHeaders($fields)) {
-                //send email to webmaster??
-                if ($reportAbuse) { //set in snippet configuration tab
-                    $body = $_lang['ef_mail_abuse_message'];
-                    $body .= "<table>";
-                    foreach ($fields as $key => $value) {
-                        $body .= "<tr><td>$key</td><td><pre>$value</pre></td></tr>";
-                    }
-                    $body .= "</table>";
-                    evo()->loadExtension('MODxMailer');
-                    # send abuse alert
-                    $modx->mail->IsHTML(true);
-                    $modx->mail->From = $modx->config('emailsender');
-                    $modx->mail->FromName = $modx->config('site_name');
-                    $modx->mail->Subject = $_lang['ef_mail_abuse_subject'];
-                    $modx->mail->Body = $body;
-                    AddAddressToMailer($modx->mail, "to", $modx->config('emailsender'));
-                    $modx->mail->send(); //ignore mail errors in this case
-                }
-                //return empty form with error message
-                //register css and/or javascript
-                if (isset($startupSource)) {
-                    efRegisterStartupBlock($startupSource);
-                }
-                return formMerge($tpl, ['validationmessage' => $_lang['ef_mail_abuse_error']]);
-            }
-
-            # added in 1.4.2 - Limit the time between form submissions
+            // 送信の間隔を制限する
             if ($submitLimit > 0) {
                 if (time() < $submitLimit + sessionv($formid . '_limit', 0)) {
                     return formMerge($_lang['ef_submit_time_limit'], efHtmlFields($fields));
                 } else {
                     sessionv('*' . $formid . '_limit', null);
                     sessionv('*' . $formid . '_hash', null);
-                } //time expired
+                }
             }
 
-            # invoke OnBeforeMailSent event set by another script
             if ($eFormOnBeforeMailSent) {
                 if ($isDebug && !function_exists($eFormOnBeforeMailSent)) {
                     $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeMailSent event: Could not find the function " . $eFormOnBeforeMailSent;
                 } elseif ($eFormOnBeforeMailSent($fields) === false) {
                     if (isset($fields['validationmessage']) && !empty($fields['validationmessage'])) {
-                        //register css and/or javascript
                         if (isset($startupSource)) {
                             efRegisterStartupBlock($startupSource);
                         }
@@ -502,14 +406,13 @@ function eForm($modx, $params)
 
             if ($protectSubmit) {
                 $hash = '';
-                # create a hash of key data
-                if (!is_numeric($protectSubmit)) { //supplied field names
+                if (!is_numeric($protectSubmit)) {
                     $protectSubmit = (strpos($protectSubmit, ',')) ? explode(',', $protectSubmit) : [$protectSubmit];
                     foreach ($protectSubmit as $fld) {
                         $hash .= isset($fields[$fld]) ? $fields[$fld] : '';
                     }
                 } else {
-                    //all required fields
+                    // 必須項目すべて
                     foreach ($formats as $fld) {
                         $hash .= (($fld[3] ?? 0) == 1) ? ($fields[$fld[0]] ?? '') : '';
                     }
@@ -523,7 +426,7 @@ function eForm($modx, $params)
                     $debugText .= "<strong>SESSION HASH</strong>:" . $sessionHash . "<br />" . "<b>FORM HASH</b>:" . $hash . "<br />";
                 }
 
-                # check if already succesfully submitted with same data
+                // 同じ内容で送信済みなら止める
                 if ($sessionHash === $hash && $hash != '') {
                     return formMerge($_lang['ef_multiple_submit'], efHtmlFields($fields));
                 }
@@ -537,7 +440,7 @@ function eForm($modx, $params)
             } else {
                 $subject = ($subject) ? formMerge($subject, $fields) : "from {$fromname}";
             }
-            $fields['subject'] = $subject; //make subject available in report & thank you page
+            $fields['subject'] = $subject;
             if ($report) {
                 $report = $modx->mergeConditionalTagsContent($report);
                 $report = $modx->parseText($report, $fields);
@@ -552,7 +455,6 @@ function eForm($modx, $params)
             }
 
             if (!$nomail) {
-                # check for mail selector field - select an email from to list
                 if ($mselector && !empty($fields[$mselector])) {
                     $i = (int)$fields[$mselector];
                     $ar = explode(",", $to);
@@ -566,29 +468,30 @@ function eForm($modx, $params)
                     }
                 }
 
-                //set reply-to address
-                //$replyto snippet parameter must contain email or fieldname
+                // $replyto にはアドレスか項目名を指定する
+                // 項目名のときは、利用者の入力が正しいアドレスの場合だけ 1 件使う
+                $replytoIsInput = false;
                 if (strpos($replyto, '@') === false) {
-                    $replyto = (!empty($fields[$replyto]) && strpos($fields[$replyto], '@') !== false) ? $fields[$replyto] : $from;
+                    $replytoIsInput = isset($fields[$replyto]) && efIsValidEmail($fields[$replyto]);
+                    $replyto = $replytoIsInput ? $fields[$replyto] : $from;
                 }
 
-                # include PHP Mailer
                 evo()->loadExtension('MODxMailer');
 
-                # send form
-                //defaults to html so only test sendasText
+                // 既定は HTML
                 $isHtml = !($sendAsText == 1 || strpos($sendAsText, 'report') !== false);
 
                 if (!$noemail) {
-                    if ($sendirect) {
-                        $to = $fields['email'] ?? '';
-                    }
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From = $from;
                     $modx->mail->FromName = $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $report;
-                    AddAddressToMailer($modx->mail, "replyto", $replyto);
+                    if ($replytoIsInput) {
+                        $modx->mail->AddReplyTo($replyto);
+                    } else {
+                        AddAddressToMailer($modx->mail, "replyto", $replyto);
+                    }
                     AddAddressToMailer($modx->mail, "to", $to);
                     AddAddressToMailer($modx->mail, "cc", $cc);
                     AddAddressToMailer($modx->mail, "bcc", $bcc);
@@ -598,25 +501,28 @@ function eForm($modx, $params)
                     }
                 }
 
-                # send user a copy of the report
-                if ($ccsender && !empty($fields['email'])) {
+                $emailIsValid = efIsValidEmail($fields['email'] ?? '');
+                if (!empty($fields['email']) && !$emailIsValid && ($ccsender || $autotext)) {
+                    evo()->logEvent(0, 2, 'eForm: 宛先が正しくないため、控えと自動返信を送りませんでした', 'eForm', ['formid' => $formid]);
+                }
+
+                if ($ccsender && $emailIsValid) {
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From = $from;
                     $modx->mail->FromName = $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $report;
-                    AddAddressToMailer($modx->mail, 'to', $fields['email']);
+                    $modx->mail->AddAddress($fields['email']);
                     AttachFilesToMailer($modx->mail, $attachments);
                     if (!$modx->mail->send()) {
                         return 'CCSender: ' . $_lang['ef_mail_error'] . $modx->mail->ErrorInfo;
                     }
                 }
 
-                # send auto-respond email
-                //defaults to html so only test sendasText
+                // 既定は HTML
                 $isHtml = ($sendAsText == 1 || strpos($sendAsText, 'autotext') !== false) ? false : true;
-                if ($autotext && !empty($fields['email'])) {
+                if ($autotext && $emailIsValid) {
                     $autotext = formMerge($autotext, $fields);
                     evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
@@ -624,39 +530,22 @@ function eForm($modx, $params)
                     $modx->mail->FromName = ($autoSenderName) ? $autoSenderName : $fromname;
                     $modx->mail->Subject = $subject;
                     $modx->mail->Body = $autotext;
-                    AddAddressToMailer($modx->mail, 'to', $fields['email']);
+                    $modx->mail->AddAddress($fields['email']);
                     if (!$modx->mail->send()) {
                         return 'AutoText: ' . $_lang['ef_mail_error'] . $modx->mail->ErrorInfo;
                     }
                 }
+            }
 
-                //defaults to text - test for sendAsHtml
-                $isHtml = ($sendAsHtml == 1 || strpos((string)$sendAsHtml, 'mobile') !== false);
-                # send mobile email
-                if ($mobile && $mobiletext) {
-                    $mobiletext = formMerge($mobiletext, $fields);
-                    evo()->loadExtension('MODxMailer');
-                    $modx->mail->IsHTML($isHtml);
-                    $modx->mail->From = $from;
-                    $modx->mail->FromName = $fromname;
-                    $modx->mail->Subject = $subject;
-                    $modx->mail->Body = $mobiletext;
-                    AddAddressToMailer($modx->mail, 'to', $mobile);
-                    $modx->mail->send();
-                }
-
-            }//end test nomail
-            # added in 1.4.2 - Protection against multiple submit with same form data
+            // 同じ内容の二重送信を防ぐ（ハッシュは前の処理で作ってある）
             if ($protectSubmit) {
                 sessionv('*' . $formid . '_hash', $hash);
-            } //hash is set earlier
+            }
 
-            # added in 1.4.2 - Limit the time between form submissions
             if ($submitLimit > 0) {
                 sessionv('*' . $formid . '_limit', time());
             }
 
-            # invoke OnMailSent event set by another script
             if ($eFormOnMailSent) {
                 if ($isDebug && !function_exists($eFormOnMailSent)) {
                     $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnMailSent event: Could not find the function" . $eFormOnMailSent;
@@ -664,7 +553,6 @@ function eForm($modx, $params)
                     if ($eFormOnMailSent($fields) === false) return;
                 }
             }
-
 
             if ($isDebug) {
                 $debugText .= sprintf(
@@ -684,7 +572,6 @@ function eForm($modx, $params)
                 $fields['debug'] = $debugText;
             }
 
-            # show or redirect to thank you page
             if ($gid == $modx->documentIdentifier) {
                 if (!empty($thankyou)) {
                     if ($isDebug && strpos($thankyou, '[+debug+]') === false) {
@@ -692,7 +579,7 @@ function eForm($modx, $params)
                     }
                     if (isset($startupSource)) {
                         efRegisterStartupBlock($startupSource, true);
-                    }    //skip scripts
+                    }
                     $htmlFields = efHtmlFields($fields);
                     // the disclaimer is merged with the posted values: rebuild it from the escaped ones
                     $htmlFields['disclaimer'] = $disclaimer ? formMerge($disclaimer, $htmlFields) : '';
@@ -711,29 +598,23 @@ function eForm($modx, $params)
 
             $url = $modx->makeURL($gid);
             $modx->sendRedirect($url);
-            return ''; // stop here
+            return '';
         }
-    } else { //not postback
-
-        //add debugging info to fields array
+    } else {
         if ($isDebug) {
             $debugText .= "<br /><strong>eForm configuration:</strong><pre>" . var_export($params, true) . '</pre>';
             $fields['debug'] = $debugText;
         }
 
-        //strip the eform attribute
+        // eform 属性は表示しない
         $regExpr = "#eform=([\"'])[^\\1]*?\\1#si";
         $tpl = preg_replace($regExpr, '', $tpl);
     }
 
-    // set vericode
     if ($vericode) {
-        sessionv('*eForm.VeriCode', substr(uniqid(''), -5));
-        $fields['vericode'] = sessionv('eForm.VeriCode');
         $fields['verimageurl'] = $modx->config('base_url') . 'index.php?get=captcha';
     }
 
-    # get SESSION data - thanks to sottwell
     if ($sessionVars) {
         $sessionVars = (strpos($sessionVars, ',', 0)) ? explode(',', $sessionVars) : [$sessionVars];
         foreach ($sessionVars as $varName) {
@@ -750,7 +631,6 @@ function eForm($modx, $params)
         }
     }
 
-    # invoke OnBeforeFormMerge event set by another script
     if ($eFormOnBeforeFormMerge) {
         if ($isDebug && !function_exists($eFormOnBeforeFormMerge)) {
             $fields['debug'] = ($fields['debug'] ?? '') . "eFormOnBeforeFormMerge event: Could not find the function " . $eFormOnBeforeFormMerge;
@@ -761,18 +641,47 @@ function eForm($modx, $params)
         }
     }
 
-    # build form
     if ($isDebug && empty($fields['debug'])) {
         $fields['debug'] = $debugText;
     }
     if ($isDebug && strpos($tpl, '[+debug+]') === false) {
         $tpl .= '[+debug+]';
     }
-    //register css and/or javascript
     if (isset($startupSource)) {
         efRegisterStartupBlock($startupSource);
     }
     return formMerge($tpl, efHtmlFields($fields));
+}
+
+# メールアドレスとして正しいか。引用符つきのローカル部・カンマ・ドメインリテラルは認めない
+function efIsValidEmail($value)
+{
+    return is_string($value)
+        && filter_var($value, FILTER_VALIDATE_EMAIL) !== false
+        && strpbrk($value, "\",[]") === false;
+}
+
+# 送信元（Origin、無ければ Referer）のホストとポートが、サイトの URL と同じか
+# スキームは見ない（TLS を手前で終える構成では site_url が http のことがある）
+function efIsSameHostRequest()
+{
+    $site = parse_url(config('site_url', MODX_SITE_URL));
+    if (empty($site['host'])) {
+        return false;
+    }
+    // Origin が "null" など host を取れないときは Referer を見る
+    $from = [];
+    foreach ([serverv('HTTP_ORIGIN', ''), serverv('HTTP_REFERER', '')] as $source) {
+        $from = is_string($source) && $source !== '' ? parse_url($source) : [];
+        if (!empty($from['host'])) {
+            break;
+        }
+    }
+    if (empty($from['host'])) {
+        return false;
+    }
+    return strtolower($from['host']) === strtolower($site['host'])
+        && ($from['port'] ?? null) === ($site['port'] ?? null);
 }
 
 # Escape field values for pages shown in the browser (not for mail bodies).
@@ -814,7 +723,6 @@ function formMerge($docText, $docFields, $vClasses = '')
         }
         $value = isset($docFields[$listName]) ? $docFields[$listName] : '';
 
-// support for multi checkbox, radio and select - Djamoer
         if (is_array($value)) {
             $value = implode(', ', $value);
         }
@@ -882,7 +790,7 @@ function formMerge($docText, $docFields, $vClasses = '')
             $lastitems[count($lastitems)] = "[+$name+]";
         }
     }
-    $lastitems[count($lastitems)] = "class=\"\""; //removal off empty class attributes
+    $lastitems[count($lastitems)] = "class=\"\"";
     $docText = str_replace($lastitems, "", $docText);
     return $docText;
 }
@@ -937,9 +845,10 @@ function AttachFilesToMailer(&$mail, &$attachFiles)
 function eFormParseTemplate($tpl, $isDebug = false)
 {
     global $formats, $optionsName, $_lang, $debugText, $fields;
-    global $efPostBack, $_dfnMaxlength;
+    global $efPostBack;
 
-    $formats = [];  //clear formats so values don't persist through multiple snippet calls
+    $formats = []; // スニペットを複数回呼んでも値が残らないようにする
+    $autoLists = []; // 選択肢から自動で作った #LIST の項目（利用者が書いたルールとは区別する）
     $labels = [];
 
     $regExpr = "#(<label[^>]*?>)(.*?)</label>#si";
@@ -948,17 +857,14 @@ function eFormParseTemplate($tpl, $isDebug = false)
         $attr = attr2array($fld);
         if (isset($attr['for'])) {
             $name = substr($attr['for'], 1, -1);
-            //add class to fields array
             $fields[$name . "_vClass"] = isset($attr['class']) ? substr($attr['class'], 1, -1) : '';
             $labels[$name] = strip_tags($matches[2][$key]);
-            //create placeholder for class
             $attr['class'] = '"[+' . $name . '_vClass+]"';
             $newTag = buildTagPlaceholder('label', $attr, $name);
             $tpl = str_replace($fld, $newTag, $tpl);
         }
     }
 
-    //retrieve all the form fields
     $regExpr = "#(<(input|select|textarea)[^>]*?>)#si";
     preg_match_all($regExpr, $tpl, $matches);
 
@@ -968,17 +874,14 @@ function eFormParseTemplate($tpl, $isDebug = false)
     for ($i = 0, $iMax = count($fieldTypes); $i < $iMax; $i++) {
         $type = $fieldTypes[$i];
 
-        //get array of html attributes
         $tagAttributes = attr2array($fieldTags[$i]) ?: [];
-        //attribute values are stored including quotes
-        //strip quotes as well as any brackets to get the raw name
+        // 属性の値は引用符つきで持っている。引用符と角かっこを除いて項目名にする
         if (!isset($tagAttributes['name'])) {
             continue;
         }
         $name = str_replace(["'", '"', '[', ']'], '', $tagAttributes['name']);
 
-        #skip vericode field - updated in 1.4.4
-        #special case. We need to set the class placeholder but forget about the rest
+        // vericode は class のプレースホルダーだけ作り、書式は持たない
         if ($name === 'vericode') {
             if (isset($tagAttributes['class'])) {
                 $fields[$name . '_class'] = substr($tagAttributes['class'], 1, -1);
@@ -990,22 +893,21 @@ function eFormParseTemplate($tpl, $isDebug = false)
             continue;
         }
 
-        //store the field options
         if (isset($tagAttributes[$optionsName])) {
-            //split to max of 5 so validation rule can contain ':'
+            // 検証ルールに ':' を書けるように 5 つまでに分ける
             $formats[$name] = explode(":", stripTagQuotes($tagAttributes[$optionsName]), 5);
             array_unshift($formats[$name], $name);
+            unset($autoLists[$name]);
         } else {
             if (!isset($formats[$name])) $formats[$name] = [$name, '', '', 0];
         }
-        //added for 1.4 - use label if it is defined
+        // ラベルがあれば項目の説明にする
         if (empty($formats[$name][1])) {
             $formats[$name][1] = (isset($labels[$name])) ? $labels[$name] : $name;
         }
 
         unset($tagAttributes[$optionsName]);
 
-        //added in 1.4.2 - add placeholder to class attribute
         if (isset($tagAttributes['class'])) {
             $fields[$name . '_class'] = substr($tagAttributes['class'], 1, -1);
         }
@@ -1013,13 +915,11 @@ function eFormParseTemplate($tpl, $isDebug = false)
 
         switch ($type) {
             case "select":
-                //replace with 'cleaned' tag and added placeholder
                 $newTag = buildTagPlaceholder('select', $tagAttributes, $name);
                 $tpl = str_replace($fieldTags[$i], $newTag, $tpl);
                 if ($formats[$name]) $formats[$name][2] = 'listbox';
 
-                //Get the whole select block with option tags
-                //escape any regex characters!
+                // option を含む select 全体を取り出す（項目名の正規表現の記号はエスケープする）
                 preg_match(
                     "#<select [^><]*?name=" . preg_quote($tagAttributes['name'], '#') . "[^>]*?" . ">(.*?)</select>#si",
                     $tpl,
@@ -1050,27 +950,22 @@ function eFormParseTemplate($tpl, $isDebug = false)
                     },
                     $select
                 );
-                //replace complete select block
                 $tpl = str_replace($select, $newSelect, $tpl);
-                //add valid values to formats... (extension to $formats)
-
                 if ($formats[$name] && !isset($formats[$name][5])) {
                     $formats[$name][4] = $_lang['ef_failed_default'];
-                    //convert commas in values to something else !
                     $formats[$name][5] = "#LIST " . implode(",", str_replace(',', '&#44;', $validValues));
                 }
                 break;
 
             case "textarea":
-                // maxlength attribute get's stripped form form
-                // (not validated: index 6 of $formats holds checkbox ids)
+                // maxlength は検証しない（$formats の 6 番目はチェックボックスの id 用）
                 unset($tagAttributes['maxlength']);
                 $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
                 $regExp = "#<textarea\\s[^>]*?name=" . preg_quote($tagAttributes["name"], '#') . "[^>]*?" . ">(.*?)</textarea>#si";
                 if (!preg_match($regExp, $tpl, $matches)) {
                     break;
                 }
-                //if nothing Posted retain the content between start/end tags
+                // 送信前は開始タグと終了タグの間の内容を残す
                 $placeholderValue = ($efPostBack) ? "[+$name+]" : $matches[1];
 
                 $tpl = str_replace($matches[0], $newTag . $placeholderValue . "</textarea>", $tpl);
@@ -1083,24 +978,30 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 }
                 $newTag = buildTagPlaceholder($type, $tagAttributes, $name);
                 if ($formats[$name] && empty($formats[$name][2])) $formats[$name][2] = ($fieldType == 'text') ? "string" : $fieldType;
-                //populate automatic validation values for hidden, checkbox and radio fields
+                // hidden・チェックボックス・ラジオの検証値は自動で決める
                 if ($fieldType == 'hidden') {
                     if (!$isDebug) $formats[$name][1] = "[undefined]"; //do not want to disclose hidden field names
                     if (!isset($formats[$name][4])) $formats[$name][4] = $_lang['ef_tamper_attempt'];
                     if (!isset($formats[$name][5])) $formats[$name][5] = "#VALUE " . stripTagQuotes($tagAttributes['value'] ?? '');
                 } elseif ($fieldType == 'checkbox' || $fieldType == 'radio') {
-                    $formats[$name][4] = $_lang['ef_failed_default'];
-                    $formats[$name][5] = isset($formats[$name][5]) ? $formats[$name][5] . "," : "#LIST ";
-                    //convert embedded comma's in values!
-                    $formats[$name][5] .= str_replace(',', '&#44;', stripTagQuotes($tagAttributes['value'] ?? ''));
-                    //store the id as well
-                    //if no postback, retain any checked values
+                    // 利用者が eform 属性にルールを書いた項目は、ルールもメッセージもそのまま使う
+                    $choice = str_replace(',', '&#44;', stripTagQuotes($tagAttributes['value'] ?? ''));
+                    if (!isset($formats[$name][5])) {
+                        if (($formats[$name][4] ?? '') === '') {
+                            $formats[$name][4] = $_lang['ef_failed_default'];
+                        }
+                        $formats[$name][5] = '#LIST ' . $choice;
+                        $autoLists[$name] = true;
+                    } elseif (isset($autoLists[$name])) {
+                        $formats[$name][5] .= ',' . $choice;
+                    }
+                    // 送信前は checked の値を残す
                     if (!$efPostBack && !empty($tagAttributes['checked'])) $fields[$name][] = stripTagQuotes($tagAttributes['value'] ?? '');
                     if (isset($tagAttributes['id'])) {
                         $formats[$name][6] = (isset($formats[$name][6]) ? $formats[$name][6] . "," : "") . stripTagQuotes($tagAttributes['id']);
                     }
-                } elseif (empty($fields[$name])) { //plain old text input field
-                    //retain default value set in form template if not already set in code
+                } elseif (empty($fields[$name])) {
+                    // テンプレートに書かれた既定値を残す
                     $fields[$name] = (isset($tagAttributes['value'])) ? stripTagQuotes($tagAttributes['value']) : '';
                 }
 
@@ -1164,7 +1065,7 @@ function buildTagPlaceholder($tag, $attributes, $name)
             return "<$tag$t>";
         default:
             return "<input$t value=\"[+$name+]\" />";
-    } // switch
+    }
 }
 
 function attr2array($tag)
@@ -1185,7 +1086,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
     $output = true;
     $desc = $fld[1] ?? '';
     $fldMsg = trim($fld[4] ?? '');
-    if (empty($fld[5])) return $output; //if no rule value validates
+    if (empty($fld[5])) return $output;
 
     [$cmd, $param] = explode(" ", trim($fld[5]), 2) + [1 => ''];
     $cmd = strtoupper(trim($cmd));
@@ -1194,62 +1095,67 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
         return false;
     }
 
+    // 知らない #FILTER のルールは、値を変えず警告を 1 回だけ残す
+    if ($cmd === '#FILTER') {
+        $filterCmd = strtoupper(trim(explode(' ', trim($param), 2)[0]));
+        if (!in_array($filterCmd, ['#REGEX', '#LIST'], true)) {
+            evo()->logEvent(0, 2, "eForm: 知らない #FILTER のルールです: {$filterCmd}", 'eForm', [
+                'field' => $fld[0] ?? '',
+                'rule' => $fld[5],
+            ]);
+            return $value;
+        }
+    }
+
     $valueIsArray = is_array($value);
     $valList = $valueIsArray ? $value : [$value];
-    //init vars
     $errMsg = '';
 
     foreach ($valList as $i => $iValue) {
-        $value = $iValue; //re-using $value, destroying original!!
+        $value = $iValue;
         switch ($cmd) {
-            //really only used internally for hidden fields
+            // hidden の項目の検証に内部で使う
             case "#VALUE":
                 if ($value != $param) $errMsg = $_lang['ef_failed_default'];
                 break;
             case "#RANGE":
-                if (!isset($vlist)) $vlist = explode(',', strtolower(trim($param))); //cached
-                //the crude way first - will have to refine this
+                if (!isset($vlist)) $vlist = explode(',', strtolower(trim($param)));
                 foreach ($vlist as $p) {
                     if (strpos($p, '~') > 0) {
                         $range = explode('~', $p);
                     } else {
                         $range = [$p, $p];
-                    } //yes,.. I know - cheating :)
+                    }
 
                     if ($isDebug && (!is_numeric($range[0]) || !is_numeric($range[1])))
                         $modx->messageQuit('Error in validating form field!', '', false, E_USER_WARNING, __FILE__, '', '#RANGE rule contains non-numeric values: ' . $fld[5], __LINE__);
                     sort($range);
-                    if ($value >= $range[0] && $value <= $range[1]) break 2; //valid
+                    if ($value >= $range[0] && $value <= $range[1]) break 2;
                 }
                 $errMsg = $_lang['ef_failed_range'];
                 break;
 
-            case "#LIST":        // List of comma separated values (not case sensitive)
-                //added in 1.4 - file upload filetype test
-//FS#960 - removed trimming of $param - values with leading or trailing spaces would always fail validation
-                if ($fld[2] == 'file') $value = substr($value, strrpos($value, '.') + 1); //file extension
+            case "#LIST":        // カンマ区切りの値（大文字小文字は区別しない）
+                // ファイルは拡張子で調べる。$param は前後の空白も値なので trim しない
+                if ($fld[2] == 'file') $value = substr($value, strrpos($value, '.') + 1);
                 if (!isset($vlist)) {
-                    $vlist = explode(',', strtolower($param)); //cached
+                    $vlist = explode(',', strtolower($param));
                     foreach ($vlist as $k => $v) {
                         $vlist[$k] = str_replace('&#44;', ',', $v);
                     }
-
-                } //changes to make sure embedded commma's in values are recognized
+                } // 値に含まれるカンマ（&#44;）は戻す
 
                 if ($isDebug && count($vlist) == 1 && empty($vlist[0])) {
-                    //if debugging bail out big time
                     $modx->messageQuit('Error in validating form field!', '', false, E_USER_WARNING, __FILE__, '', '#LIST rule declared but no list values supplied: ' . $fld[5], __LINE__);
                 } elseif (!in_array(strtolower($value), $vlist))
                     $errMsg = ($fld[2] == 'file') ? $_lang["ef_failed_upload"] : $_lang['ef_failed_list'];
                 break;
 
-            case "#SELECT":    //validates against a list of values from the cms database
-                #cache all this
+            case "#SELECT":    // DB から取った値の一覧で検証する
                 if (!isset($vlist)) {
                     $rt = [];
                     $param = str_replace('{DBASE}', db()->get('dbase'), $param);
                     $param = str_replace('{PREFIX}', db()->get('table_prefix'), $param);
-                    //added in 1.4
                     if (preg_match("/{([^}]*?)\}/", $param, $matches)) {
                         $tmp = db()->escape(formMerge('[+' . $matches[1] . '+]', $fields));
                         $param = str_replace('{' . $matches[1] . '}', $tmp, $param);
@@ -1263,35 +1169,25 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                         }
                         break;
                     }
-                    //select value from 1st field in records only (not case sensitive)
+                    // 1 列目の値だけを使う（大文字小文字は区別しない）
                     while ($v = db()->getValue($rs)) $vlist[] = strtolower($v);
                 }
                 if (!is_array($vlist)) {
-                    //WARNING! if not debugging (and query fails) error is ignored, and value will validate!!
-                    //version 1.4 - replaced fatal error with friendly debug message when debugging
+                    // 結果が無いときは検証を通す（デバッグ時だけ知らせる）
                     $debugText .= ($isDebug) ? "'<strong>$fld[1]</strong>' " . $_lang['ef_sql_no_result'] . '<br />' : '';
                 } elseif (!in_array(strtolower($value), $vlist)) {
                     $errMsg = $_lang['ef_failed_list'];
                 }
                 break;
 
-            case "#EVAL":    // php code should return true or false
-                // バインディングが無効のときは実行せず、検証を通さない
-                if (evo()->config('enable_bindings') != 1) {
-                    $errMsg = $_lang['ef_failed_eval'];
-                    break;
-                }
-                $tmp = $cmd; //just in case eval destroys cmd
-                if (eval($param) === false)
-                    $errMsg = $_lang['ef_failed_eval'];
-                if ($isDebug) $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_eval_deprecated'] . " $param";
-                $cmd = $tmp;
-                break;
-            //added in 1.4
             case "#FUNCTION":
-                $tmp = $cmd; //just in case function destroys cmd
-                // バインディングが無効のときは、関数が見つからないときと同じ扱いにする
-                if (evo()->config('enable_bindings') == 1 && function_exists($param)) {
+                $tmp = $cmd; // 関数が $cmd を書き換えても影響しないように退避する
+                // バインディングが無効のときは関数を呼ばず、検証は通す
+                if (evo()->config('enable_bindings') != 1) {
+                    if ($isDebug) {
+                        $debugText .= "<strong>$fld[1]</strong>: " . $_lang['ef_function_bindings_disabled'] . " $param";
+                    }
+                } elseif (function_exists($param)) {
                     if (!@$param($value)) {
                         $errMsg = $_lang['ef_failed_eval'];
                     }
@@ -1315,9 +1211,12 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                 break;
 
             default:
+                evo()->logEvent(0, 2, "eForm: 知らない検証ルールです: {$cmd}", 'eForm', [
+                    'field' => $fld[0] ?? '',
+                    'rule' => $fld[5],
+                ]);
                 $errMsg = $_lang['ef_error_validation_rule'];
-
-        }//end switch
+        }
         if ($isDebug) {
             $debugText .= "'<strong>$fld[1]</strong>' ";
             $debugText .= (empty($errMsg)) ? 'passed' : '<span style="color:red;">Failed</span>';
@@ -1327,16 +1226,15 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
             $errMsg = ($fldMsg) ? "$desc &raquo; $fldMsg" : "$desc &raquo; $errMsg";
             $vMsg[count($vMsg)] = $errMsg;
             $output = false;
-            break; //quit testing more values
+            break;
         }
-    }//end for
+    }
 
-
-    //make sure we have correct return value in case of #filter
+    // #FILTER は変換後の値を返す
     $valList = $valueIsArray ? $valList : implode('', $valList);
 
     return ($cmd == "#FILTER") ? $valList : $output;
-}//end validateField
+}
 
 function filterEformValue($value, $param)
 {
@@ -1359,12 +1257,6 @@ function filterEformValue($value, $param)
             $value = str_replace($src, $dst, $value);
             break;
 
-        case "#EVAL":
-            // バインディングが無効のときは実行せず、値を変えない
-            if (evo()->config('enable_bindings') == 1) {
-                $value = ($v = @eval($param)) ? $v : $value;
-            }
-            break;
     }
     return $value;
 }
@@ -1385,22 +1277,21 @@ function efLoadTemplate($key)
         }
     } elseif (strpos($key, '@CODE') === 0) {
         $tpl = substr($key, 6);
-    } elseif (is_numeric($key)) { //get from document id
-        //try unpublished docs first
+    } elseif (is_numeric($key)) {
+        // 未公開の文書を先に調べる
         $tpl = ($doc = $modx->getDocument($key, 'content', 0)) ? $doc['content'] : false;
         if (!$tpl)
             $tpl = ($doc = $modx->getDocument($key, 'content', 1)) ? $doc['content'] : false;
 
     } elseif ($key) {
         $tpl = ($doc = $modx->getChunk($key)) ? $doc : false;
-        //try snippet if chunk is not found
         if (!$tpl) $tpl = ($doc = $modx->runSnippet($key)) ? $doc : false;
     }
     return $tpl;
 }
 
 
-# registers css and/or javascript to modx class
+# CSS・JavaScript を登録する
 function efRegisterStartupBlock($src_array, $noScript = false)
 {
     global $modx;
@@ -1411,11 +1302,9 @@ function efRegisterStartupBlock($src_array, $noScript = false)
 
     foreach ($src_array as $item) {
         [$src, $type] = $item;
-        //skip scripts if told to do so
         if ($type === 'javascript' && $noScript) {
             continue;
         }
-        //try to load from document or chunk
         if ($tmp = efLoadTemplate($src)) {
             $src = $tmp;
         }
@@ -1429,32 +1318,7 @@ function efRegisterStartupBlock($src_array, $noScript = false)
             $modx->regClientStartupHTMLBlock($src);
         }
 
-    }//end foreach
-}
-
-/**
- * adapted from http://php.mirrors.ilisys.com.au/manual/en/ref.mail.php
- * If any field contains newline followed by email-header specific string it is replaced by a harmless substitute
- * (we hope) If any subsitutiosn are made the function returns true
- * Currently tests for
- *     Content-Transfer-Encoding:
- *     MIME-Version:
- *     content-type:
- *     to:
- *     cc:
- *     bcc:
- */
-function hasMailHeaders(&$fields)
-{
-    $injectionAttempt = false;
-    $re = "/(%0A|%0D|\n+|\r+)(Content-Transfer-Encoding:|MIME-Version:|content-type:|to:|cc:|bcc:)/i";
-    foreach ($fields as $fld => $text) {
-        if (($match = preg_replace($re, '\\[\2]\\', $text)) != $text) {
-            $injectionAttempt = true;
-            $fields[$fld] = $match; //replace with 'disabled' version
-        }
     }
-    return ($injectionAttempt) ? true : false;
 }
 
 function get_default_tpl()
