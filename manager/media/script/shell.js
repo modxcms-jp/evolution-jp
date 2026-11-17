@@ -241,6 +241,21 @@
         }
     }
 
+    // <title> を「画面名 | サイト名」にする。書式は header.inc.php が manager_title() で作って渡す。
+    // 画面名は #mainPane の最初の h1（無ければサイト名だけ）
+    function updateDocumentTitle() {
+        const titleEl = document.querySelector('head > title[data-format]');
+        if (!titleEl) {
+            return;
+        }
+        const pane = document.getElementById('mainPane');
+        const h1 = pane ? pane.querySelector('h1') : null;
+        const screen = h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '';
+        document.title = screen
+            ? titleEl.getAttribute('data-format').split('{screen}').join(screen)
+            : titleEl.getAttribute('data-site-only');
+    }
+
     // finalUrl はアドレスバーと履歴に残すURL、screenUrl は表示する画面のURL（省略時は finalUrl）。
     // リダイレクトしないPOSTの結果では、アドレスバーは元の画面のまま、表示するのは操作の結果の画面になる
     function applyFragment(html, finalUrl, push, screenUrl) {
@@ -282,6 +297,7 @@
                 const action = new URL(finalUrl, window.location.href).searchParams.get('a');
                 window.evoBindDirtyTracking(action);
             }
+            updateDocumentTitle();
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
             stopWork();
@@ -966,6 +982,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        updateDocumentTitle();
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }

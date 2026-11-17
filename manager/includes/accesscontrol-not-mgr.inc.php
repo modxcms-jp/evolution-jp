@@ -63,7 +63,7 @@ $html = is_array($evtOut) ? implode('', $evtOut) : '';
 evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
 evo()->setPlaceholder('site_name', hsc(evo()->config('site_name')));
-evo()->setPlaceholder('login_title', hsc(lang('login_button') . ' | ' . evo()->config('site_name')));
+evo()->setPlaceholder('login_title', hsc(manager_title(lang('login_screen_title'))));
 evo()->setPlaceholder('logo_slogan', lang("logo_slogan"));
 evo()->setPlaceholder('login_message', lang("login_message"));
 evo()->setPlaceholder('year', date('Y'));
