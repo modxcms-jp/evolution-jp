@@ -57,27 +57,8 @@ if (!class_exists('Mcc')) {
 
         // Template
         //_______________________________________________________
-        function hideTemplate($tpl)
-        {
-            $this->addLine(
-                'document.querySelectorAll("select#field_template option").forEach(function (el) { if (el.getAttribute("value") === '
-                . js_literal($tpl)
-                . ') { el.remove(); } });'
-            );
-        }
 
         //_______________________________________________________
-        function hideTemplates($tpls)
-        {
-            if (is_array($tpls)) {
-                foreach ($tpls as $tpl) {
-                    $this->hideTemplate($tpl);
-                }
-                $this->hideTemplate(0); // remove blank
-            } else {
-                $this->hideTemplate(0); // remove blank
-            }
-        }
 
         // Section
         //_______________________________________________________
@@ -126,22 +107,7 @@ if (!class_exists('Mcc')) {
         }
 
         //_______________________________________________________
-        function showFields($fields)
-        {
-            if (!($fields = explode(',', $fields))) return;
-            foreach ($fields as $key => $value) {
-                $fields[$key] = trim($value);
-            }
-            foreach ($this->fields as $field) {
-                if (!in_array($field, $fields))
-                    $this->hideField($field);
-            }
-        }
 
         //_______________________________________________________
-        function doSafe($string)
-        {
-            $string = htmlentities($string, ENT_QUOTES, config('modx_charset'));
-        }
     }
 }

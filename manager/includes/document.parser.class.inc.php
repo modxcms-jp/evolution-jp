@@ -2073,30 +2073,6 @@ class DocumentParser
         return true;
     }
 
-    private function getAliasFromID($docid)
-    {
-
-        if (isset($this->aliaslist[$docid])) {
-            return $this->aliaslist[$docid];
-        }
-
-        $rs = db()->select(
-            "id, IF(alias='', id, alias) AS alias",
-            '[+prefix+]site_content',
-            where('parent', '=', $this->getParentID($docid))
-        );
-
-        if (!$rs) {
-            return false;
-        }
-
-        while ($row = db()->getRow($rs)) {
-            $this->aliaslist[$row['id']] = $row['alias'];
-        }
-
-        return $this->aliaslist[$docid];
-    }
-
     public function getParentID($docid)
     {
 

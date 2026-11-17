@@ -59,46 +59,6 @@ class random
         return $result;
     }
 
-    private function select_weighted($amount = 1)
-    {
-        $count = count($this->data);
-        $i = 0;
-        $max = -1;
-        while ($i < $count) {
-            $max += $this->data[$i]['w'];
-            ++$i;
-        }
-        if (1 == $amount) {
-            $rand = mt_rand(0, $max);
-            $w = 0;
-            $n = 0;
-            while ($w <= $rand) {
-                $w += $this->data[$n]['w'];
-                ++$n;
-            }
-            $key = $this->data[$n - 1]['s'];
-        } else {
-            $i = 0;
-            while ($i < $amount) {
-                $random[] = mt_rand(0, $max);
-                ++$i;
-            }
-            sort($random);
-            $i = 0;
-            $n = 0;
-            $w = 0;
-            while ($i < $amount) {
-                while ($w <= $random[$i]) {
-                    $w += $this->data[$n]['w'];
-                    ++$n;
-                }
-                $key[] = $this->data[$n - 1]['s'];
-                ++$i;
-            }
-        }
-        return $key;
-    }
-
     public function select_weighted_unique($amount = 1)
     {
         $count = count($this->data);

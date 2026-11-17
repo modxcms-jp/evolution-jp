@@ -64,28 +64,6 @@ function webLoginGeneratePassword($length = 10, $allow_chars = '')
 }
 
 // Send new password to the user
-function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
-{
-    global $modx, $site_url;
-    $ph = $modx->getConfig();
-    $ph['sname'] = $modx->config('site_name');
-    $ph['uid'] = $uid;
-    $ph['pwd'] = $pwd;
-    $ph['ufn'] = $ufn;
-    $ph['surl'] = MODX_SITE_URL;
-    $message = $modx->parseText(
-        sprintf($modx->config('websignupemail_message'), $uid, $pwd),
-        $ph
-    );
-    $emailsubject = $modx->config('emailsubject');
-
-    $sent = $modx->sendmail($email, $message);         //ignore mail errors in this cas
-
-    if (!$sent) {
-        webLoginAlert('Error while sending mail to ' . $modx->config('mailto'), 1);
-    }
-    return true;
-}
 
 // ログイン後の戻り先。権限が無くてログインページへ転送したときは、元の文書を優先する
 function webLoginRefUrl()
@@ -137,22 +115,4 @@ function fmplang($key, $ph = [])
         $value = str_replace($k, $v, $value);
     }
     return $value;
-}
-
-function webLoginGetCode($target)
-{
-    global $modx;
-    if (preg_match('@^[0-9][1-9]*$@', $target)) {
-        $content = $modx->getField('content', $target);
-        if (!$content) {
-            return sprintf("Document '%s' not found.", $target);
-        }
-        return $content;
-    }
-
-    $result = $modx->getChunk($target);
-    if (!$result) {
-        return sprintf("Chunk '%s' not found.", $target);
-    }
-    return $result;
 }

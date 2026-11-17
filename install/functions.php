@@ -1,10 +1,5 @@
 <?php
 ini_set('display_errors', 1);
-function setOption($fieldName, $value = '')
-{
-    $_SESSION[$fieldName] = $value;
-    return $value;
-}
 
 function getOption($fieldName)
 {
@@ -943,20 +938,6 @@ function lang_name()
     }
 
     return sessionv('install_language', browser_lang());
-}
-
-function withSample($installset)
-{
-    if (sessionv('is_upgradeable')) {
-        return false;
-    }
-    if (!sessionv('installdata')) {
-        return false;
-    }
-    if (!in_array('sample', $installset)) {
-        return false;
-    }
-    return true;
 }
 
 function shouldInstallElement($index, $installset, $selected, $installSampleData = false)
