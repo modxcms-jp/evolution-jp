@@ -6,7 +6,7 @@
  * 保存先は temp/thumbs/ (コンテンツフォルダ直下に .thumb/ を作らない)。
  * キャッシュキーは元ファイルの実体の絶対パスの md5 に元ファイルのmtimeを連結し、
  * 元ファイルの更新で自動的に新キーへ切り替わる(rename/move/delete追随処理が不要)。
- * 透過を持つ形式(PNG/GIF)はPNGで、JPEGはJPEGで出力し(形式は拡張子でなく中身で決める)、白背景パディングをしない
+ * 透過を持つ形式(PNG/GIF/WebP)はPNGで、JPEGはJPEGで出力し(形式は拡張子でなく中身で決める)、白背景パディングをしない
  * (キャンバスは常に画像そのもののリサイズ後サイズにする)。
  */
 class ThumbnailService
@@ -21,13 +21,7 @@ class ThumbnailService
         'jpeg' => IMAGETYPE_JPEG,
         'png' => IMAGETYPE_PNG,
         'gif' => IMAGETYPE_GIF,
-    ];
-
-    /** GD で読み込める形式(IMAGETYPE_*) */
-    const LOADABLE_TYPES = [
-        IMAGETYPE_JPEG,
-        IMAGETYPE_PNG,
-        IMAGETYPE_GIF,
+        'webp' => IMAGETYPE_WEBP,
     ];
 
     /** @var string temp/thumbs/ の絶対パス(末尾スラッシュ付き) */
@@ -41,9 +35,19 @@ class ThumbnailService
         }
     }
 
+    /** この環境の GD で読み込める形式か(WebP は GD が WebP 付きで組まれているときだけ)。対応の判定はここだけ */
+    public static function canLoadType($type)
+    {
+        if ($type === IMAGETYPE_WEBP) {
+            return (imagetypes() & IMG_WEBP) !== 0;
+        }
+        return in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true);
+    }
+
     public static function isRasterImageExtension($ext)
     {
-        return isset(self::EXTENSION_TYPES[strtolower($ext)]);
+        $type = self::EXTENSION_TYPES[strtolower($ext)] ?? null;
+        return $type !== null && self::canLoadType($type);
     }
 
     /**
@@ -89,7 +93,7 @@ class ThumbnailService
         // 形式は中身で決める。拡張子に頼るのは、中身を読めない(getimagesize() が失敗する)ときだけ
         $info = @getimagesize($sourceFile);
         $type = $info ? $info[2] : self::EXTENSION_TYPES[$ext];
-        if (!in_array($type, self::LOADABLE_TYPES, true)) {
+        if (!self::canLoadType($type)) {
             return null;
         }
         $keepsAlpha = ($type !== IMAGETYPE_JPEG);
@@ -184,6 +188,12 @@ class ThumbnailService
                 return $img ?: null;
             case IMAGETYPE_GIF:
                 return @imagecreatefromgif($file) ?: null;
+            case IMAGETYPE_WEBP:
+                $img = @imagecreatefromwebp($file);
+                if ($img) {
+                    imagesavealpha($img, true);
+                }
+                return $img ?: null;
         }
         return null;
     }
