@@ -28,8 +28,8 @@ class EvoBackupManager
      * スナップショットを作り、古い世代を消す。作ったファイルの名前を返す（作れなければ false）。
      * $name が空なら自動の名前にする。$options:
      * - contentsOnly: コンテンツの表だけを書く（管理画面の「コンテンツのみ」と $modx->snapshot() の target=c）
-     * - writer: callable($path, array $tables): bool。書き手を替える（CLI の mysqldump など）。
-     *   既定は EvoSqlDump（ログの表は構造だけ）
+     * - writer: callable($path, array $tables, array $structureOnly): bool。書き手を替える（CLI の mysqldump）。
+     *   $structureOnly の表（ログの表）は構造だけを書く。既定は EvoSqlDump
      * - keep: 残す自動の名前の世代の数（既定 EvoSnapshotStore::KEEP）。消した名前は pruned() で得る
      */
     public function createSnapshot($name = '', array $options = [])
@@ -51,11 +51,12 @@ class EvoBackupManager
             $tables = array_values(array_intersect($tables, self::contentTables()));
         }
         $path = $this->store->dir() . $name;
+        // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+        $structureOnly = self::logTables();
         if (isset($options['writer'])) {
-            $written = (bool)call_user_func($options['writer'], $path, $tables);
+            $written = (bool)call_user_func($options['writer'], $path, $tables, $structureOnly);
         } else {
-            // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
-            $written = EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => self::logTables()]);
+            $written = EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => $structureOnly]);
         }
         if (!$written) {
             return false;
@@ -98,7 +99,9 @@ class EvoBackupManager
      * ダンプのファイルを 1 文ずつ流して読んで戻す（ファイル全体をメモリに読まない）。
      * 書き換える前に今の DB を復元の前の控えとして保存する。$preRestore は控えの書き手（callable($path): bool。
      * 既定は createSnapshot() と同じ PHP の書き手）。環境ごとの設定（site_url など）は取り込み先の値を残し、
-     * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す
+     * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す。
+     * 書き換える前にファイルを下読みし、このサイトの接頭辞で始まらない表を含むダンプ（refused = 'prefix'）と、
+     * DELIMITER を含むダンプ（refused = 'delimiter'）は、控えも作らず何も書き換えずに断る
      */
     public function restoreFile($path, $preRestore = null)
     {
@@ -111,11 +114,34 @@ class EvoBackupManager
             'pre_restore'        => '',
             'pre_restore_failed' => false,
             'read_failed'        => false,
+            'refused'            => '',
+            'dump_prefix'        => '',
+            'foreign_tables'     => [],
         ];
 
         // 控えを作る前に開く（世代の整理が、戻すファイルそのもの（古い控えなど）を消しても読めるように）
         $stream = is_readable($path) ? fopen($path, 'rb') : false;
         if ($stream === false) {
+            $result['read_failed'] = true;
+            return $result;
+        }
+
+        $inspected = EvoSqlDump::inspect($stream);
+        if ($inspected['delimiter']) {
+            fclose($stream);
+            $result['refused'] = 'delimiter';
+            return $result;
+        }
+        $foreign = self::foreignTables($inspected['tables']);
+        if ($foreign) {
+            fclose($stream);
+            $result['refused'] = 'prefix';
+            $result['foreign_tables'] = $foreign;
+            $result['dump_prefix'] = self::dumpPrefix($foreign);
+            return $result;
+        }
+        if (!rewind($stream)) {
+            fclose($stream);
             $result['read_failed'] = true;
             return $result;
         }
@@ -144,11 +170,7 @@ class EvoBackupManager
         $this->extendTimeLimit();
 
         foreach (EvoSqlDump::statements($stream) as $number => $statement) {
-            if (preg_match(
-                '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
-                $statement,
-                $m
-            ) && $m[1] === $cacheTable) {
+            if (EvoSqlDump::tableOf($statement) === $cacheTable) {
                 $result['skipped']++;
                 continue;
             }
@@ -171,6 +193,31 @@ class EvoBackupManager
         }
         $result['ok'] = true;
         return $result;
+    }
+
+    // このサイトの接頭辞で始まらない表の名前
+    private static function foreignTables(array $tables): array
+    {
+        $prefix = (string) db()->table_prefix;
+        if ($prefix === '') {
+            return [];
+        }
+        return array_values(array_filter($tables, function ($table) use ($prefix) {
+            return strpos($table, $prefix) !== 0;
+        }));
+    }
+
+    // 知らせに出すダンプの接頭辞。本体の表の名前（*system_settings など）から推し量れなければ ''
+    private static function dumpPrefix(array $tables): string
+    {
+        foreach (['system_settings', 'site_content', 'manager_users'] as $core) {
+            foreach ($tables as $table) {
+                if (substr($table, -strlen($core)) === $core) {
+                    return substr($table, 0, -strlen($core));
+                }
+            }
+        }
+        return '';
     }
 
     // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）

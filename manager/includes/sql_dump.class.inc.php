@@ -153,6 +153,42 @@ final class EvoSqlDump
     }
 
     /**
+     * 文が対象にする表の名前（INSERT・REPLACE・DROP TABLE・CREATE TABLE・TRUNCATE・LOCK TABLES・ALTER TABLE）。
+     * 当たらなければ ''。文は statements() が返す形（先頭のコメントを除いたもの）で渡す
+     */
+    public static function tableOf(string $statement): string
+    {
+        if (!preg_match(
+            '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
+            $statement,
+            $m
+        )) {
+            return '';
+        }
+        return $m[1];
+    }
+
+    /**
+     * 戻す前の下読み。$stream のダンプを最後まで読み、対象の表の名前（重なりなし）と、
+     * DELIMITER（トリガー・ストアドプロシージャー）を含むかを返す。DB には何も送らない
+     */
+    public static function inspect($stream): array
+    {
+        $tables = [];
+        $delimiter = false;
+        foreach (self::statements($stream) as $statement) {
+            if (preg_match('/(?:\A|\n)[ \t]*DELIMITER\s/i', $statement)) {
+                $delimiter = true;
+            }
+            $table = self::tableOf($statement);
+            if ($table !== '') {
+                $tables[$table] = true;
+            }
+        }
+        return ['tables' => array_keys($tables), 'delimiter' => $delimiter];
+    }
+
+    /**
      * $stream のダンプを 1 文ずつ返す（キーは文の番号、値は先頭のコメントを除いた文）。
      * CRLF と単独の CR は LF にそろえてから分ける。番号は空の文やコメントだけの文も数える。
      */

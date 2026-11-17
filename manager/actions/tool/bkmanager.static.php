@@ -132,6 +132,20 @@ if (sessionv('result_msg')) {
         case 'restore_upload_failed':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_upload_failed'));
             break;
+        case 'restore_has_delimiter':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_has_delimiter'));
+            break;
+        case 'restore_prefix_mismatch':
+            $foreignTables = array_map('strval', (array) ($restoreResult['foreign_tables'] ?? []));
+            $restoreHtml = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_restore_prefix_mismatch'), [
+                    'dump_prefix' => hsc(($restoreResult['dump_prefix'] ?? '') !== '' ? $restoreResult['dump_prefix'] : '?'),
+                    'site_prefix' => hsc(db()->table_prefix),
+                    'tables'      => hsc(implode(', ', array_slice($foreignTables, 0, 5)) . (count($foreignTables) > 5 ? ', …' : '')),
+                ])
+            );
+            break;
         case 'restore_invalid_file':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_invalid_file'));
             break;

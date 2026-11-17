@@ -1334,6 +1334,8 @@ return [
     "bkmgr_restore_no_file" => 'リストアするSQLファイルを選んでください（空のファイルはリストアできません）。',
     "bkmgr_restore_too_large" => 'ファイルが大きすぎるため、アップロードできませんでした。サーバの上限は upload_max_filesize が [+upload_max_filesize+]、post_max_size が [+post_max_size+] です。',
     "bkmgr_restore_upload_failed" => 'ファイルをアップロードできませんでした。もう一度お試しください。',
+    "bkmgr_restore_has_delimiter" => 'トリガーやストアドプロシージャー（DELIMITER）を含むダンプは、ここではリストアできません。mysql コマンドで戻してください。データベースは変更されていません。',
+    "bkmgr_restore_prefix_mismatch" => 'ダンプに、このサイトの接頭辞（[+site_prefix+]）で始まらない表があるため、リストアしませんでした（ダンプの接頭辞: [+dump_prefix+]、表: [+tables+]）。データベースは変更されていません。',
     "bkmgr_restore_invalid_file" => '選んだスナップショットが見つからないか、読み込めませんでした。',
     "delete_resource_complete" => '完全に削除',
 

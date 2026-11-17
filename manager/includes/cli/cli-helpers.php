@@ -203,9 +203,10 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
 
     $routines = !array_key_exists('routines', $options) || $options['routines'];
     $cmd = sprintf(
-        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces %s',
+        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces%s %s',
         escapeshellarg($defaultsFile),
         $routines ? '--routines --triggers' : '--skip-triggers',
+        empty($options['noData']) ? '' : ' --no-data --skip-add-drop-table',
         escapeshellarg($dbname)
     );
 
@@ -243,6 +244,58 @@ function cli_export_database_file($driver, $path, $fullTables = [], $options = [
     });
     cli_export_database($driver, $tmp, $fullTables, true, $options);
     if (!is_file($tmp) || !rename($tmp, $path)) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * スナップショットを mysqldump で書く（管理画面のスナップショットと同じ中身）。
+ * $structureOnly の表（ログの表）は 2 回目に --no-data --skip-add-drop-table で構造だけを書き、
+ * CREATE TABLE を CREATE TABLE IF NOT EXISTS にして続ける（戻した先の履歴を消さない）。
+ * --ignore-table-data は MariaDB と新しい MySQL にしか無いので使わない
+ */
+function cli_export_snapshot_mysqldump($path, array $tables, array $structureOnly)
+{
+    $dataTables = array_values(array_diff($tables, $structureOnly));
+    $structureTables = array_values(array_intersect($tables, $structureOnly));
+    $tmp = $path . '.' . uniqid('part', true) . '.tmp';
+    $structureTmp = $tmp . '.structure';
+    register_shutdown_function(function () use ($tmp, $structureTmp) {
+        foreach ([$tmp, $structureTmp] as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    });
+    // 表を渡さない mysqldump は DB の全部の表を書くので、空のときは呼ばない
+    if ($dataTables) {
+        cli_export_database('mysqldump', $tmp, $dataTables, true, ['routines' => false]);
+    } elseif (file_put_contents($tmp, '') === false) {
+        return false;
+    }
+    if ($structureTables) {
+        cli_export_database('mysqldump', $structureTmp, $structureTables, true, ['routines' => false, 'noData' => true]);
+        $in = fopen($structureTmp, 'rb');
+        $out = fopen($tmp, 'ab');
+        if ($in === false || $out === false) {
+            return false;
+        }
+        while (($line = fgets($in)) !== false) {
+            if (strpos($line, 'CREATE TABLE `') === 0) {
+                $line = 'CREATE TABLE IF NOT EXISTS `' . substr($line, strlen('CREATE TABLE `'));
+            }
+            if (fwrite($out, $line) !== strlen($line)) {
+                return false;
+            }
+        }
+        fclose($in);
+        if (!fclose($out)) {
+            return false;
+        }
+        unlink($structureTmp);
+    }
+    if (!is_file($tmp) || filesize($tmp) === 0 || !rename($tmp, $path)) {
         return false;
     }
     return true;
