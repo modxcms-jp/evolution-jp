@@ -29,7 +29,7 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
-| `parents` | このリソースの子を `depth` の深さまで集める（関連: `documents`・`depth`） | リソース ID（カンマ区切り） | 今のリソース（`format=xml` のときは `0`） |
+| `parents` | このリソースの子を `depth` の深さまで集める（関連: `documents`・`depth`） | リソース ID（カンマ区切り） | 今のリソース |
 | `startID` | `parents` の別名 | 同上 | — |
 | `documents` | 集めるリソースを直接指定する。指定すると `parents` は使わない | リソース ID（カンマ区切り） | なし |
 | `depth` | 子をたどる深さ（関連: `seeThruUnpub`） | 1 以上の数。`0` は制限なし | `1` |
@@ -62,7 +62,7 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `8` | `!~` `!=~` `!find` `!search` `!strpos` | 値を含むもの |
 | `9` | — | 値を含まないもの（大文字と小文字を区別しない） |
 | `10` | — | 値を含むもの（大文字と小文字を区別しない） |
-| `11` | — | 先頭の 1 文字（大文字にしたもの）が値と違うもの |
+| `11` | — | 先頭の 1 文字が値と違うもの（大文字・小文字は区別しない） |
 | — | `regex` `preg` | 値の正規表現に合わないもの |
 
 - モードを省いたとき、知らないモードのときは `9` として扱う。
@@ -169,7 +169,7 @@ SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`de
 | パラメータ | 使う形式 | 用途 | 既定値 |
 | --- | --- | --- | --- |
 | `abbrLanguage` | json / xml / rss / atom | 言語の略称（2 文字） | 言語ファイル（`abbr_lang`） |
-| `copyright` | json / xml / rss | 著作権の表示 | 言語ファイル（`default_copyright`） |
+| `copyright` | json / xml / rss | 著作権の表示。xml・rss では `&`・`<` などをエスケープして出す（`&#169;` のような書き済みの文字参照はそのまま） | 言語ファイル（`default_copyright`） |
 | `ttl` | json / xml / rss | キャッシュしてよい時間（分）。整数 | `120` |
 | `charset` | xml / rss / atom | 文字コード | サイトの文字コード（`modx_charset`） |
 | `xsl` | xml / rss | XSL スタイルシート（サイトのルートからのパス） | なし |
@@ -203,8 +203,8 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 | --- | --- | --- | --- |
 | `tagData` | タグを入れてあるフィールド | フィールド名・TV 名（カンマ区切り） | 空 |
 | `tagDocumentID` | タグのリンクの飛び先 | タグを受け取る Ditto を置いたリソースの ID | 今のリソース |
-| `tagDelimiter` | `tagData` の中でタグを区切る文字 | タグに含まれない文字 | 半角スペース |
-| `tagDisplayDelimiter` | `[+tagLinks+]` でタグの間に入れる文字 | 任意の文字 | `tagDelimiter` |
+| `tagDelimiter` | `tagData` の中でタグを区切る文字 | タグに含まれない文字（空にすると既定の値を使う） | 半角スペース |
+| `tagDisplayDelimiter` | `[+tagLinks+]` でタグの間に入れる文字 | 任意の文字（空にすると区切りなしでつなぐ） | `tagDelimiter` |
 | `tagMode` | 絞り込みの方法 | `onlyTags` どれかのタグを持つものだけ / `onlyAllTags` すべてのタグを持つものだけ / `removeTags` どれかのタグを持つものを除く / `removeAllTags` すべてのタグを持つものを除く | `onlyTags` |
 | `tags` | 最初から絞り込んでおくタグ | タグ（`tagDelimiter` 区切り） | なし |
 | `caseSensitive` | タグの一致と重複の判定で、大文字と小文字を区別する | `0` しない / `1` する | `0` |
@@ -221,7 +221,7 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
-| `dateFilterSource` | 年・月・日の受け取り方 | `get` URL の `<id>_year`・`<id>_month`・`<id>_day` / `params` スニペットの呼び出しの `year`・`month`・`day` / それ以外の文字列: その名前（前に `<id>_` が付く）のリクエストの値を日付として読む | `get` |
+| `dateFilterSource` | 年・月・日の受け取り方 | `get` URL の `<id>_year`・`<id>_month`・`<id>_day` / `params` スニペットの呼び出しの `year`・`month`・`day` / それ以外の文字列: その名前（前に `<id>_` が付く）のリクエストの値を日付として読む（日付として読めない値のときは絞り込まない） | `get` |
 | `dateSource` | 絞り込みに使う日付のフィールド（`[+date+]` と共通） | 日付のフィールド・TV | `createdon` |
 | `dateFilterDefault` | 年・月・日の指定が無いときの扱い | `0` 絞り込まない / `1` 今年 / `2` 今月 / `3` 今日 | `0` |
 | `year` / `month` / `day` | `dateFilterSource=params` のときの年・月（1〜12）・日 | 数 | なし |
@@ -237,7 +237,7 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 | --- | --- | --- | --- |
 | `trunc` | 本文を切り詰める | `0` オフ / `1` オン | `1` |
 | `truncAt` | 本文を区切る目印 | 本文の中に置く文字列 | `<!-- splitter -->` |
-| `truncLen` | 切り詰める長さ | `truncOffset` より大きい数 | `300` |
+| `truncLen` | 切り詰める長さ（文字数。全角も半角も 1 文字と数える） | `truncOffset` より大きい数 | `300` |
 | `truncOffset` | `truncLen` の前後に許す幅 | `truncLen` より小さい数 | `30` |
 | `truncText` | `[+link+]` の文言 | 文字列・HTML | `Read more...` |
 | `tplTrunc` | `[+link+]` のテンプレート。`[+url+]`・`[+text+]`（`truncText`）が使える | チャンク名・`@CODE`・`@FILE` | `<a href="[+url+]" title="[+text+]">[+text+]</a>` |
