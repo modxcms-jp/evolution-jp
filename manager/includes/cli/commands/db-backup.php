@@ -2,8 +2,8 @@
 
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
-$backup = new EvoBackupManager();
-$maxGenerations = EvoBackupManager::KEEP;
+$store = new EvoSnapshotStore();
+$maxGenerations = EvoSnapshotStore::KEEP;
 $driver = 'mysqldump';
 foreach ($args as $arg) {
     if (strpos($arg, '--max=') === 0) {
@@ -19,8 +19,8 @@ if ($driver !== 'mysqldump' && $driver !== 'php') {
     cli_usage('Usage: php evo.php db:backup [--max=N] [--driver=mysqldump|php]');
 }
 
-if (!$backup->ensureDir()) {
-    cli_usage('Error: cannot create or write directory ' . $backup->dir());
+if (!$store->ensureDir()) {
+    cli_usage('Error: cannot create or write directory ' . $store->dir());
 }
 
 $tables = EvoDbTables::names();
@@ -28,8 +28,8 @@ if (!$tables) {
     cli_usage('Error: no tables found with the configured prefix.');
 }
 
-$filename = $backup->autoFilename();
-$outputPath = $backup->dir() . $filename;
+$filename = $store->autoFilename();
+$outputPath = $store->dir() . $filename;
 
 // 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
 if (!cli_export_database_file($driver, $outputPath, $tables, ['routines' => false])) {
@@ -37,17 +37,9 @@ if (!cli_export_database_file($driver, $outputPath, $tables, ['routines' => fals
 }
 cli_out("Backup written: {$outputPath}");
 
-foreach ($backup->prune($maxGenerations) as $removed) {
+foreach ($store->prune($maxGenerations) as $removed) {
     cli_out('Removed old backup: ' . $removed);
 }
 
-$autoCount = 0;
-$otherCount = 0;
-foreach ($backup->files() as $file) {
-    if (preg_match(EvoBackupManager::AUTO_NAME_PATTERN, $file['name'])) {
-        $autoCount++;
-    } else {
-        $otherCount++;
-    }
-}
-cli_out('Backups in ' . $backup->dir() . ": auto-named {$autoCount}/{$maxGenerations}, other {$otherCount}");
+$counts = $store->counts();
+cli_out('Backups in ' . $store->dir() . ": auto-named {$counts['auto']}/{$maxGenerations}, other {$counts['other']}");

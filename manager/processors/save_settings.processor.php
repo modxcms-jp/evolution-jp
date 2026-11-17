@@ -51,8 +51,9 @@ function setPermission()
     if (!is_dir($export_dir)) {
         mkd($export_dir);
     }
-    if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
-        mkd(MODX_BASE_PATH . 'temp/backup');
+    require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+    if (!is_dir(EvoSnapshotStore::defaultDir())) {
+        mkd(rtrim(EvoSnapshotStore::defaultDir(), '/'));
     }
 
     if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
