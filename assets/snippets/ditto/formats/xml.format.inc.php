@@ -19,9 +19,9 @@ if (!function_exists('dittoFormatXmlHeaderTpl')) {
 [+xml_xsl+]
 <xml version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
-        <title>[*pagetitle:hsc*]</title>
+        <title>[+xml_title+]</title>
         <link>[+xml_link+]</link>
-        <description>[*description:hsc*]</description>
+        <description>[+xml_description+]</description>
         <language>[+xml_lang+]</language>
         <copyright>[+xml_copyright+]</copyright>
         <ttl>[+xml_ttl+]</ttl>
@@ -58,7 +58,11 @@ TPL;
 if(!isset($header)) {
     $header = evo()->parseText(
         dittoFormatXmlHeaderTpl(), [
-            'xml_copyright' => ditto::xmlText($copyright ?? $_lang['default_copyright']),
+            'xml_title'     => ditto::xmlText(evo()->documentObject['pagetitle'] ?? ''),
+            'xml_description' => ditto::xmlText(evo()->documentObject['description'] ?? ''),
+            'xml_copyright' => ditto::xmlText(
+                evo()->mergeSettingsContent($copyright ?? $_lang['default_copyright'])
+            ),
             'xml_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
             'xml_ttl'       => (int) ($ttl ?? 120),
             'xml_charset'   => $charset ?? config('modx_charset'),

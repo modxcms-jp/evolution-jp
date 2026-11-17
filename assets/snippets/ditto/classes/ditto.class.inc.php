@@ -536,16 +536,16 @@ class ditto
 
     // ---------------------------------------------------
     // Function: xmlText
-    // Text of an XML element written by the site ([(setting)] tags are resolved first; entities already written are kept)
+    // Text of an XML element: entities already written (&amp; &copy; &#169;) become the character, then & < > " ' are escaped
     // ---------------------------------------------------
 
     static function xmlText($text)
     {
+        $charset = evo()->config('modx_charset') ?: 'UTF-8';
         return htmlspecialchars(
-            evo()->mergeSettingsContent((string)$text),
-            ENT_XML1 | ENT_QUOTES,
-            evo()->config('modx_charset') ?: 'UTF-8',
-            false
+            html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, $charset),
+            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
+            $charset
         );
     }
 
@@ -644,7 +644,7 @@ class ditto
                 $documents = $this->unsort($documents, event()->param('documents'));
                 $this->sortOrder = array_flip(array_column($documents, 'id'));
             }
-            return array_values(array_unique(array_column($documents, 'id')));
+            return array_column($documents, 'id');
         }
 
         $this->prefetch = true;
@@ -781,10 +781,11 @@ class ditto
         $ids = explode(',', $ids);
         $rs = [];
         foreach ($ids as $id) {
-            // documents not retrieved (unpublished, deleted, filtered) are skipped
+            // documents not retrieved (unpublished, deleted, filtered) are skipped; a repeated id keeps its first position
             $id = trim($id);
             if (isset($docs_tmp[$id])) {
                 $rs[] = $docs_tmp[$id];
+                unset($docs_tmp[$id]);
             }
         }
         return $rs;

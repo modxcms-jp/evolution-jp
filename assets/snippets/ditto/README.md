@@ -169,7 +169,7 @@ SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`de
 | パラメータ | 使う形式 | 用途 | 既定値 |
 | --- | --- | --- | --- |
 | `abbrLanguage` | json / xml / rss / atom | 言語の略称（2 文字） | 言語ファイル（`abbr_lang`） |
-| `copyright` | json / xml / rss | 著作権の表示。xml・rss では `&`・`<` などをエスケープして出す（`&#169;` のような書き済みの文字参照はそのまま） | 言語ファイル（`default_copyright`） |
+| `copyright` | json / xml / rss | 著作権の表示。xml・rss では XML の文字としてエスケープして出す（`&copy;`・`&amp;` のような書き済みの実体は、その文字として出る） | 言語ファイル（`default_copyright`） |
 | `ttl` | json / xml / rss | キャッシュしてよい時間（分）。整数 | `120` |
 | `charset` | xml / rss / atom | 文字コード | サイトの文字コード（`modx_charset`） |
 | `xsl` | xml / rss | XSL スタイルシート（サイトのルートからのパス） | なし |
@@ -221,7 +221,7 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 
 | パラメータ | 用途 | とりうる値 | 既定値 |
 | --- | --- | --- | --- |
-| `dateFilterSource` | 年・月・日の受け取り方 | `get` URL の `<id>_year`・`<id>_month`・`<id>_day` / `params` スニペットの呼び出しの `year`・`month`・`day` / それ以外の文字列: その名前（前に `<id>_` が付く）のリクエストの値を日付として読む（日付として読めない値のときは絞り込まない） | `get` |
+| `dateFilterSource` | 年・月・日の受け取り方 | `get` URL の `<id>_year`・`<id>_month`・`<id>_day` / `params` スニペットの呼び出しの `year`・`month`・`day` / それ以外の文字列: その名前（前に `<id>_` が付く）のリクエストの値を日付として読む（日付として読めない値のときは、指定が無いときと同じ扱いで、`dateFilterDefault` に従う） | `get` |
 | `dateSource` | 絞り込みに使う日付のフィールド（`[+date+]` と共通） | 日付のフィールド・TV | `createdon` |
 | `dateFilterDefault` | 年・月・日の指定が無いときの扱い | `0` 絞り込まない / `1` 今年 / `2` 今月 / `3` 今日 | `0` |
 | `year` / `month` / `day` | `dateFilterSource=params` のときの年・月（1〜12）・日 | 数 | なし |

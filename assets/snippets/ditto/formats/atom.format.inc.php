@@ -13,6 +13,8 @@ evo()->documentObject['contentType'] = 'application/atom+xml';
 // set placeholders
 $atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
 $atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . (evo()->documentObject['id'] ?? '') . "~]";
+$atom_placeholders['atom_title'] = ditto::xmlText(evo()->documentObject['pagetitle'] ?? '');
+$atom_placeholders['atom_site_name'] = ditto::xmlText(evo()->config('site_name'));
 $atom_placeholders['atom_charset'] = isset($charset) ? $charset : config('modx_charset');
 
 $atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', (evo()->documentObject['editedon'] ?? null));
@@ -36,7 +38,7 @@ if (!function_exists("atomEditedDate")) {
 if (!function_exists("atomCreatedBy")) {
     function atomCreatedBy($resource)
     {
-        return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
+        return ditto::xmlText(ditto::getAuthor($resource['createdby']));
     }
 }
 $extenders[] = "summary";
@@ -49,7 +51,7 @@ if (!function_exists("atom_placeholders")) {
     {
         $field = [];
         foreach ($placeholders as $name => $value) {
-            $field["atom_escaped_" . $name] = htmlspecialchars(html_entity_decode($value));
+            $field["atom_escaped_" . $name] = ditto::xmlText($value);
         }
         $placeholders = array_merge($field, $placeholders);
         return $placeholders;
@@ -64,9 +66,9 @@ $atom_header = <<<TPL
     xml:lang="[+atom_lang+]"
     xml:base="[(site_url)]">
 	<id>[(site_url)][~[*id*]~]</id>
-	<title>[*pagetitle:hsc*]</title>
+	<title>[+atom_title+]</title>
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
-	<author><name>[(site_name:hsc)]</name></author>
+	<author><name>[+atom_site_name+]</name></author>
 	<updated>[+atom_lastmodified+]</updated>
 	<generator>Ditto 2.0 running on MODX</generator>
 TPL;

@@ -32,9 +32,9 @@ if (!function_exists('dittoRssHeaderTpl')) {
 <?xml version="1.0" encoding="[+rss_charset+]" ?>[+rss_xsl+]
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
-        <title>[*pagetitle:hsc*]</title>
+        <title>[+rss_title+]</title>
         <link>[(site_url)]</link>
-        <description>[*description:strip:hsc*]</description>
+        <description>[+rss_description+]</description>
         <language>[+rss_lang+]</language>
         <copyright>[+rss_copyright+]</copyright>
         <ttl>[+rss_ttl+]</ttl>
@@ -71,7 +71,13 @@ TPL;
 if(!isset($header)) {
     $header = evo()->parseText(
         dittoRssHeaderTpl(), [
-            'rss_copyright' => ditto::xmlText($copyright ?? $_lang['default_copyright']),
+            'rss_title'     => ditto::xmlText(evo()->documentObject['pagetitle'] ?? ''),
+            'rss_description' => ditto::xmlText(
+                preg_replace('/\s+/', ' ', evo()->documentObject['description'] ?? '')
+            ),
+            'rss_copyright' => ditto::xmlText(
+                evo()->mergeSettingsContent($copyright ?? $_lang['default_copyright'])
+            ),
             'rss_lang'      => $abbrLanguage ?? $_lang['abbr_lang'],
             'rss_link'      => MODX_SITE_URL . '[~' . evo()->documentIdentifier . "~]",
             'rss_ttl'       => (int) ($ttl ?? 120),
@@ -101,7 +107,7 @@ if (!function_exists("rss_date")) {
 
 if (!function_exists("rss_pagetitle")) {
     function rss_pagetitle($resource) {
-        return htmlspecialchars(html_entity_decode($resource['pagetitle'], ENT_QUOTES));
+        return ditto::xmlText($resource['pagetitle']);
     }
 }
 if (!function_exists("rss_author")) {
@@ -115,6 +121,6 @@ if (!function_exists("rss_author")) {
             return '';
         }
 
-        return htmlspecialchars(html_entity_decode(ditto::getAuthor($createdBy), ENT_QUOTES));
+        return ditto::xmlText(ditto::getAuthor($createdBy));
     }
 }
