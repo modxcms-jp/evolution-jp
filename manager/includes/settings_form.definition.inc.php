@@ -5,6 +5,8 @@
  * 形は assets/docs/global-settings.md の「設定画面への表示」を参照。
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
+require_once __DIR__ . '/snapshot_store.class.inc.php';
+
 return [
     [
         'id' => 'settingsTabSite',
@@ -1125,6 +1127,18 @@ return [
                         'label' => lang('export_dir_title'),
                         'desc' => lang('export_dir_message'),
                         'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . 'temp/export/',
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_snapshot'),
+                'rows' => [
+                    [
+                        'key' => 'snapshot_path',
+                        'type' => 'path',
+                        'label' => lang('snapshot_path_title'),
+                        'desc' => lang('snapshot_path_message'),
+                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . EvoSnapshotStore::DEFAULT_DIR,
                     ],
                 ],
             ],

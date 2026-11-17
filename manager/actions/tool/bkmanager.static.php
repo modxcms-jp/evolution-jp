@@ -69,6 +69,11 @@ if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを�
 $ph['result_msg'] = '';
 $ph['snapshot_msg'] = '';
 $restoreHtml = '';
+$snapshotProblem = $backup->store()->problem();
+$snapshotPathUnusable = sprintf(
+    '<div class="errmsg">%s</div>',
+    evo()->parseText(lang('bkmgr_snapshot_path_unusable'), ['snapshot_path' => hsc($backup->store()->dir())])
+);
 $uploadLimits = array_filter([
     ini_size_to_bytes(ini_get('upload_max_filesize')),
     ini_size_to_bytes(ini_get('post_max_size')),
@@ -144,6 +149,12 @@ if (sessionv('result_msg')) {
             break;
         case 'snapshot_failed':
             $ph['snapshot_msg'] = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_snapshot_failed'));
+            break;
+        case 'snapshot_path_unusable':
+            $ph['snapshot_msg'] = $snapshotPathUnusable;
+            break;
+        case 'restore_path_unusable':
+            $restoreHtml = $snapshotPathUnusable;
             break;
     }
     // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
@@ -358,6 +369,9 @@ if (sessionv('result_msg')) {
         <div class="tab-page" id="tabSnapshot">
             <h2 class="tab"><?= lang("bkmgr_snapshot_title") ?></h2>
             <?= $ph['snapshot_msg'] ?>
+            <?php if ($ph['snapshot_msg'] === '' && in_array($snapshotProblem, [EvoSnapshotStore::OUTSIDE, EvoSnapshotStore::SHARED], true)) : ?>
+                <?= $snapshotPathUnusable ?>
+            <?php endif; ?>
             <?= evo()->parseText(
                 lang("bkmgr_snapshot_msg"),
                 ['snapshot_path' => hsc($backup->store()->dir())]

@@ -83,6 +83,7 @@ $default_config = [
     'filemanager_path' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH : '',
     'rb_base_dir' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH . 'content/' : '',
     'export_dir' => '[(base_path)]temp/export/',
+    'snapshot_path' => '[(base_path)]temp/backup/',
     'rb_base_url' => 'content/',
     'image_limit_width' => '',
     'topmenu_site' => 'home,preview,refresh_site,search,resource_list,add_resource,add_weblink',

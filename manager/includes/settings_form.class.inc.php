@@ -90,7 +90,7 @@ final class EvoSettingsForm
     {
         $values = $stored;
 
-        foreach (['filemanager_path', 'rb_base_dir', 'export_dir'] as $key) {
+        foreach (['filemanager_path', 'rb_base_dir', 'export_dir', 'snapshot_path'] as $key) {
             $path = (string)($values[$key] ?? '');
             if (MODX_BASE_PATH !== '' && strpos($path, MODX_BASE_PATH) === 0) {
                 $values[$key] = self::BASE_PATH_TOKEN . substr($path, strlen(MODX_BASE_PATH));
