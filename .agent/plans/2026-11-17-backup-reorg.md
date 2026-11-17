@@ -210,7 +210,7 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - PR: S1 は #1563（`refactor/1561-backup-reorg`。Issue に紐づいたブランチなので、マージで #1561 が閉じる。閉じたら開き直して S2 へ進む）。マージ済み（main 10d3bfbed）
 - S2: ブランチ `refactor/1561-s2-truncate-entry`（`origin/main` から作成。Issue に紐づけない）、PR #1566。マージ済み（main 675e39f96）
 - S3: ブランチ `refactor/1561-s3-sql-dump`（`origin/main` から作成。Issue に紐づけない）、PR #1569。マージ済み（main 455f91f4b）
-- S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）
+- S4: ブランチ `refactor/1561-s4-snapshot-store`（`origin/main` から作成。Issue に紐づけない）、PR #1574
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
 ## Interfaces and Dependencies
