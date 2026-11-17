@@ -32,17 +32,17 @@ foreach ($args as $arg) {
         continue;
     }
 
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
+    cli_usage('Usage: php evo.php log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
 }
 
 if ($type !== 'system') {
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
+    cli_usage('Usage: php evo.php log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
 }
 
 include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
 
 if (!in_array($level, SystemLogViewer::levelFilters(), true)) {
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
+    cli_usage('Usage: php evo.php log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
 }
 
 $root = MODX_BASE_PATH . 'temp/logs/system/';

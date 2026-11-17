@@ -17,9 +17,6 @@ CLAUDE.md export-ignore
 SECURITY.md export-ignore
 compose.yml export-ignore
 manager/docker/ export-ignore
-# CLI は開発用で、まだ利用者には配らない（#1509）
-/evo export-ignore
-manager/includes/cli/ export-ignore
 *.png binary
 *.jpg binary
 *.gif binary

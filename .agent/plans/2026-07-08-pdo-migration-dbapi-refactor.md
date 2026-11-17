@@ -197,7 +197,7 @@ AGENTS.mdの規約（`db()->insert(db()->escape($data), $table)` / `db()->update
 変更前: `include_once __DIR__ . '/dbapi/mysqli.inc.php';`
 変更後: `include_once __DIR__ . '/dbapi/DBAPI.php';`
 
-期待される観測結果: `docker compose exec <app-service> php evo db:tables` が引き続きテーブル一覧を返す（新しいロード先で接続が確立できている証拠）。ブラウザでインストーラのDB接続テスト画面（`connection.servertest.php`/`connection.databasetest.php` を呼ぶ画面）を開き、Step 3で書き換えた2ファイルがエラーなく動作することも確認する。
+期待される観測結果: `docker compose exec <app-service> php evo.php db:tables` が引き続きテーブル一覧を返す（新しいロード先で接続が確立できている証拠）。ブラウザでインストーラのDB接続テスト画面（`connection.servertest.php`/`connection.databasetest.php` を呼ぶ画面）を開き、Step 3で書き換えた2ファイルがエラーなく動作することも確認する。
 
 ### Step 5: 旧ファイルを削除
 
@@ -205,7 +205,7 @@ AGENTS.mdの規約（`db()->insert(db()->escape($data), $table)` / `db()->update
 
 Step 1〜4の動作確認が完了してから削除する（Idempotence and Recoveryも参照）。
 
-期待される観測結果: `rg -n "mysqli.inc.php" . -g '*.php'` が0件になる。削除後も `docker compose exec <app-service> php evo db:tables` が引き続き成功する。
+期待される観測結果: `rg -n "mysqli.inc.php" . -g '*.php'` が0件になる。削除後も `docker compose exec <app-service> php evo.php db:tables` が引き続き成功する。
 
 ### Step 6: 判定用の互換メッセージ・チェックを更新
 
@@ -218,7 +218,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 
 これらは実処理に影響しないため、Step 1〜5完了後に更新する。
 
-期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)|database_type'\\]\\s*=\\s*'mysqli'|mysqli_set_charset" manager/includes/cli install/ manager/includes/default.config.php -g '*.php'` が0件になる（`mysqli.inc.php` 自体は既に削除済みのため対象外）。`docker compose exec <app-service> php evo health:check` が `PHP pdo_mysql extension` 項目を表示し、正常完了する。
+期待される観測結果: `rg -n "extension_loaded\\('mysqli'\\)|database_type'\\]\\s*=\\s*'mysqli'|mysqli_set_charset" manager/includes/cli install/ manager/includes/default.config.php -g '*.php'` が0件になる（`mysqli.inc.php` 自体は既に削除済みのため対象外）。`docker compose exec <app-service> php evo.php health:check` が `PHP pdo_mysql extension` 項目を表示し、正常完了する。
 
 ### Step 7: ドキュメントのパス言及を更新
 
@@ -232,12 +232,12 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 
 いずれもDockerコンテナ内（`docker compose exec <app-service> ...`）で確認する。
 
-1. **CLIによる疎通確認**: `php evo db:tables` がテーブル一覧を正常に返す（接続・`SHOW TABLES` 相当の実行が機能している証拠）
-2. **CRUD確認**: `php evo db:query "SELECT * FROM {prefix}system_settings LIMIT 5"` が結果を返す。`php evo db:count site_content` が件数を返す
+1. **CLIによる疎通確認**: `php evo.php db:tables` がテーブル一覧を正常に返す（接続・`SHOW TABLES` 相当の実行が機能している証拠）
+2. **CRUD確認**: `php evo.php db:query "SELECT * FROM {prefix}system_settings LIMIT 5"` が結果を返す。`php evo.php db:count site_content` が件数を返す
 3. **管理画面での動作確認**: ブラウザで管理画面にログインし、リソース一覧表示（`select`/`getRow`/`count` 経由）、リソースの新規作成・更新・削除（`insert`/`update`/`delete` 経由）が従来どおり動作する
 4. **エラー処理の互換確認**: 既に存在するカラムへの `ADD COLUMN`（errno 1060相当）や構文エラーのSQLを実行し、既定では `messageQuit()` で停止して `false` が返ること、`query($sql, false)` では停止せず `false` が返り `getLastErrorNo()` でエラー番号が取れることを確認する（インストーラは後者でエラーを集めている）
 5. **`getObject`/`getObjects`/`makeArray`/`getXML`/`getHTMLGrid` の確認**: `getHTMLGrid` の表（`data_table.class.php` の `DataTableSettings` 経由。DB の結果は `getRow()` で読み、`numFields`/`fieldName` は使わない）が崩れずに表示される
-6. **健全性チェック**: `php evo health:check` がエラーなく完了する
+6. **健全性チェック**: `php evo.php health:check` がエラーなく完了する
 7. **インストーラの動作確認**: インストーラのDB接続テスト画面（サーバ接続テスト・DB接続テスト）を実行し、`connection.servertest.php`/`connection.databasetest.php` がエラーなく応答する。既存DBが存在する状態で再テストしても（`isConnected()`→`disconnect()`経由の再接続が機能し）正常に完了する
 
 ## Idempotence and Recovery
@@ -246,7 +246,7 @@ Step 1〜4の動作確認が完了してから削除する（Idempotence and Rec
 - Step 3（インストーラの `$conn` 直接アクセス解消）はStep 4より前に完了させる。Step 3のみを先行して個別にコミットしても、`isConnected()`/`disconnect()`/`query()` は現行の `mysqli.inc.php` にも存在するため単独で動作し、後方互換を壊さない
 - Step 4（`ex_dbapi.php` の読み込み先変更）は1行の変更のみのため、途中で中断しても `mysqli.inc.php` が残っていれば元に戻すだけで旧実装に復帰できる
 - Step 5（旧ファイル削除）はStep 1〜4の動作確認が完了するまで実行しない
-- 本番相当の検証は必ずDBのバックアップ（`php evo db:backup` 等の既存コマンド）を取得してから行う
+- 本番相当の検証は必ずDBのバックアップ（`php evo.php db:backup` 等の既存コマンド）を取得してから行う
 
 ## Artifacts and Notes
 

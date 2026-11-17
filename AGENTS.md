@@ -120,7 +120,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 * 管理機能は CLI 実行可能
 * ログはコンテキスト配列形式
-* `php evo` はホストから `docker compose exec <app-service> php evo ...` で実行する（補助ルールの「検証環境」を参照）
+* `php evo.php` はホストから `docker compose exec <app-service> php evo.php ...` で実行する（補助ルールの「検証環境」を参照）
 
 ---
 
@@ -248,7 +248,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ## ログ確認
 
 - システムログ: `temp/logs/system/YYYY/MM/`（JSONLines形式）
-- CLI: `php evo log:tail --lines=20` / `php evo log:search "検索語" --level=error --limit=10`
+- CLI: `php evo.php log:tail --lines=20` / `php evo.php log:search "検索語" --level=error --limit=10`
 
 ---
 

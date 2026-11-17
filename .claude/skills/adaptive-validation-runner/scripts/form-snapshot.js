@@ -195,7 +195,7 @@ function writeJson(file, data) {
         const page = await login(browser, opts.user || config.adminUser);
         if (opts.sql) {
             sql(opts.sql);
-            appExec(['php', 'evo', 'cache:clear']);
+            appExec(['php', 'evo.php', 'cache:clear']);
         }
         await page.setViewportSize({ width: opts.width, height: 900 });
         page.on('dialog', d => d.accept().catch(() => {}));

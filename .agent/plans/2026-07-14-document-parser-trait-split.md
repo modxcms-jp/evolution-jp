@@ -55,7 +55,7 @@
 - スニペット/チャンク/TV: Evolution CMSのコンテンツ部品。スニペット=PHPコード片、チャンク=HTML断片、TV(テンプレート変数)=ドキュメントに付く追加フィールド。
 - サブパーサ (subparser): 過去に「使用頻度の低い関数」を分離した既存トレイトの通称。本計画で廃止される。
 
-前提条件: PHPがホストにあれば構文チェックと合成チェックは可能（確認済み: PHP 8.3）。DBを伴う実機確認は `docker compose exec app php evo ...` で行う（`AGENTS.md` 106行参照。ホスト直実行は mysqli 不在で失敗する）。テストスイートとオートローダーは存在しないため、検証は本計画のコマンド群で担保する。
+前提条件: PHPがホストにあれば構文チェックと合成チェックは可能（確認済み: PHP 8.3）。DBを伴う実機確認は `docker compose exec app php evo.php ...` で行う（`AGENTS.md` 106行参照。ホスト直実行は mysqli 不在で失敗する）。テストスイートとオートローダーは存在しないため、検証は本計画のコマンド群で担保する。
 
 ## Plan of Work
 
@@ -188,7 +188,7 @@
 
 7. 実機スモークテスト（DBを伴うフルブート）:
 
-       docker compose exec app php evo help
+       docker compose exec app php evo.php help
 
    期待: コマンド一覧が表示される（bootstrap が `new DocumentParser` に成功した証拠）。加えてブラウザでフロントページ表示と管理画面ログインを確認する。マイルストーン固有の確認点は下記。
 
@@ -218,7 +218,7 @@
 
        php -l manager/includes/document.parser.class.inc.php
        php -r "define('MODX_API_MODE', true); require 'manager/includes/document.parser.class.inc.php'; echo class_exists('DocumentParser') ? 'compose OK' : 'NG';"
-       docker compose exec app php evo help
+       docker compose exec app php evo.php help
 
    期待: `php -l` は「No syntax errors detected」、合成チェックは `compose OK`、`evo help` はコマンド一覧を表示する。
 
@@ -236,7 +236,7 @@
 1. `manager/includes/traits/` に新トレイト11ファイルが存在し、`document.parser.subparser.trait.php` が存在しない。
 2. `manager/includes/document.parser.class.inc.php` が概ね500行程度（プロパティ・マジックメソッド・コンストラクタ・loadExtension のみ）。
 3. M0ベースラインとの棚卸し diff（メソッド名一覧・シグネチャ一覧の両方）が空（公開APIのメソッド集合・可視性・シグネチャが分割前と完全一致）。
-4. `docker compose exec app php evo help` がコマンド一覧を表示する。
+4. `docker compose exec app php evo.php help` がコマンド一覧を表示する。
 5. ブラウザで、フロントページ表示・管理画面ログイン・ドキュメント編集画面のTVフォーム描画・システムイベントログ表示がすべて分割前と同様に動作する。
 
 ## Idempotence and Recovery

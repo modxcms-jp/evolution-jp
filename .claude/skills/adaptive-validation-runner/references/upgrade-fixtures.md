@@ -48,9 +48,9 @@ EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> EVO_WORK_DIR=<work> \
 
 `<work>/uf.sh load <work>/fixture-1.0.0J.sql` のように使う。
 
-### `migrate`（道具）と `php evo migrate`（CLI）の違い
+### `migrate`（道具）と `php evo.php migrate`（CLI）の違い
 
-| | 道具の `migrate` | CLI の `php evo migrate` |
+| | 道具の `migrate` | CLI の `php evo.php migrate` |
 | --- | --- | --- |
 | ガード（`requiresInstaller()`） | 通さない | 通る。baseline のファイルがあり、まだ記録されていない DB では、何も流さず「アップデーターで上げる」旨を出して終了コード 1 |
 | キャッシュ | 消さない | 1 本でも適用したか失敗したときに `clearCache()` で消す。`system_cache` の無い DB（1.0.20J より前）では、ここで `Error` を出して止まる（baseline のファイルがあれば、その前にガードで止まる） |

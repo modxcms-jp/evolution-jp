@@ -17,7 +17,7 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 3. 変更は最小単位に分割し、影響範囲を明示する。
 4. 修正方針を先に判定し、軽微な修正は ExecPlan 作成を省略して `implement-fix` へ進んでよい（ただし調査報告への承認後に限る）。
 5. 問題が分かりにくい場合、影響範囲が読みにくい場合、または実装が複雑な場合は `.agent/PLANS.md` に従って ExecPlan を作成する。
-6. 不具合調査では手動確認より先に `docker compose exec <app-service> php evo` でシステムログ・設定・DB状態・キャッシュ状態を確認する。
+6. 不具合調査では手動確認より先に `docker compose exec <app-service> php evo.php` でシステムログ・設定・DB状態・キャッシュ状態を確認する。
 7. このスキルはローカル開発環境専用とし、本番環境を前提にした慎重運用は行わない。本番環境にAIを常駐させたり、本番ログを直接解析したりする前提は置かず、開発環境で再現したエラーを構造化ログから調査する用途を主目的にする。
 8. 調査と修正は効率優先・トークン節約優先で進め、過剰な説明や確認を省く。
 9. 検証に必要な範囲でローカルDBの更新・削除・初期化を許容し、必要なら即時にリセットする。
@@ -32,22 +32,22 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 
 ## evo CLI（実用最小）
 
-- `docker compose exec <app-service> php evo log:tail [--lines=N] [--level=error]`
-- `docker compose exec <app-service> php evo log:search <query> [--limit=N] [--level=error]`
-- `docker compose exec <app-service> php evo config:show <key>`
-- `docker compose exec <app-service> php evo db:describe <table>`
-- `docker compose exec <app-service> php evo db:count <table> --where=...`
-- `docker compose exec <app-service> php evo db:query "SELECT ..."`
-- `docker compose exec <app-service> php evo cache:clear`
+- `docker compose exec <app-service> php evo.php log:tail [--lines=N] [--level=error]`
+- `docker compose exec <app-service> php evo.php log:search <query> [--limit=N] [--level=error]`
+- `docker compose exec <app-service> php evo.php config:show <key>`
+- `docker compose exec <app-service> php evo.php db:describe <table>`
+- `docker compose exec <app-service> php evo.php db:count <table> --where=...`
+- `docker compose exec <app-service> php evo.php db:query "SELECT ..."`
+- `docker compose exec <app-service> php evo.php cache:clear`
 
 詳細リファレンスは `manager/includes/cli/README.md` を参照する。
 本番接続情報や本番データを扱う前提は置かない。
 
 ### システムログ調査の使い分け
 
-- 直近の失敗を確認する: `docker compose exec <app-service> php evo log:tail --lines=20 --level=error`
-- 既知の文言・ファイル名・関数名から探す: `docker compose exec <app-service> php evo log:search <query> --limit=20`
-- AI解析用に構造化データを確認する: `docker compose exec <app-service> php evo log:tail --lines=5 --json`
+- 直近の失敗を確認する: `docker compose exec <app-service> php evo.php log:tail --lines=20 --level=error`
+- 既知の文言・ファイル名・関数名から探す: `docker compose exec <app-service> php evo.php log:search <query> --limit=20`
+- AI解析用に構造化データを確認する: `docker compose exec <app-service> php evo.php log:tail --lines=5 --json`
 - ログ種別は既定で `system`。明示が必要な場合のみ `--type=system` を使う。
 - 本番環境のログを直接読む運用は想定しない。必要な場合は、再現環境で同じ操作を行ってログを生成するか、ユーザーから貼り付けられたログ断片を入力として扱う。
 
@@ -63,12 +63,12 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 3. `curl` が失敗した場合は、制限外実行（承認付き）で `wget -qO- "<URL>" | php -r '$h=stream_get_contents(STDIN); $t=strip_tags($h); $t=preg_replace("/\s+/u"," ",$t); echo trim($t), PHP_EOL;'` を実行する。
 4. 取得したテキストから事実情報（環境、手順、実際結果、期待結果）を抽出する。
 5. `AGENTS.md` のドキュメントマップを参照し、関連コンポーネントと確認ドキュメントを特定する。
-6. 開発環境で再現済み、または直前に操作した不具合なら `docker compose exec <app-service> php evo log:tail --lines=20 --level=error` で直近の構造化ログを確認する。
-7. 報告文にエラーメッセージ・ファイル名・関数名がある場合は `docker compose exec <app-service> php evo log:search <query> --limit=20` で該当ログを探す。
+6. 開発環境で再現済み、または直前に操作した不具合なら `docker compose exec <app-service> php evo.php log:tail --lines=20 --level=error` で直近の構造化ログを確認する。
+7. 報告文にエラーメッセージ・ファイル名・関数名がある場合は `docker compose exec <app-service> php evo.php log:search <query> --limit=20` で該当ログを探す。
 8. ログから原因箇所を読む必要がある場合は `--json` を付け、`context.error` / `context.exception` / `context.fatal` / `context.caller` を優先して確認する。
-9. `docker compose exec <app-service> php evo config:show <key>` で関連設定値を確認する。
-10. `docker compose exec <app-service> php evo db:describe <table>` で対象テーブル構造を確認する。
-11. 必要時のみ `docker compose exec <app-service> php evo db:count <table> --where=...` で件数を確認する。
+9. `docker compose exec <app-service> php evo.php config:show <key>` で関連設定値を確認する。
+10. `docker compose exec <app-service> php evo.php db:describe <table>` で対象テーブル構造を確認する。
+11. 必要時のみ `docker compose exec <app-service> php evo.php db:count <table> --where=...` で件数を確認する。
 12. 現象の要約、再現条件、観測ログ、原因仮説（最大3件）を作る。
 13. 原因が判明した場合は、修正前に「原因・影響範囲・修正方針案」を短く報告する。
 14. URL本文を取得できない場合は、失敗理由を1行で記録し、環境制限またはアクセス制限の種別を明記する。
@@ -79,11 +79,11 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 
 ### reproduce
 1. 失敗条件を固定し、最小再現コードまたは最小再現手順を作る。
-2. 再現直前に `docker compose exec <app-service> php evo log:tail --lines=5` で既存の直近ログを把握する。
-3. `docker compose exec <app-service> php evo db:query "SELECT ..."` で再現に必要なレコード状態を確認する。
-4. 再現前後で `docker compose exec <app-service> php evo cache:clear` を実行し、キャッシュ要因を切り分ける。
-5. 再現後に `docker compose exec <app-service> php evo log:tail --lines=20 --level=error` を実行し、発生したログを特定する。
-6. 必要に応じて `docker compose exec <app-service> php evo log:search <message-or-file> --limit=10 --json` で構造化コンテキストを確認する。
+2. 再現直前に `docker compose exec <app-service> php evo.php log:tail --lines=5` で既存の直近ログを把握する。
+3. `docker compose exec <app-service> php evo.php db:query "SELECT ..."` で再現に必要なレコード状態を確認する。
+4. 再現前後で `docker compose exec <app-service> php evo.php cache:clear` を実行し、キャッシュ要因を切り分ける。
+5. 再現後に `docker compose exec <app-service> php evo.php log:tail --lines=20 --level=error` を実行し、発生したログを特定する。
+6. 必要に応じて `docker compose exec <app-service> php evo.php log:search <message-or-file> --limit=10 --json` で構造化コンテキストを確認する。
 7. 再現できない場合は「再現不能」のまま進めず、前提差分を明示する。
 
 ### create-branch
@@ -99,8 +99,8 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 2. `draft-plan` に沿って最小差分で実装する。
 3. 既存パターンを優先し、ヘルパー利用・DB安全性・イベント/キャッシュ影響を確認する。
 4. 必要なテストまたは手動確認を実施し、結果を記録する。画面操作が絡む確認や、main で再現 → 修正ブランチで解消の比較は `adaptive-validation-runner` スキル（`/verify-live`）で行う。
-5. 修正後に `docker compose exec <app-service> php evo log:tail --lines=20 --level=error` で同じエラーが増えていないことを確認する。
-6. 必要に応じて `docker compose exec <app-service> php evo health:check` を実行し、基本健全性を確認する。
+5. 修正後に `docker compose exec <app-service> php evo.php log:tail --lines=20 --level=error` で同じエラーが増えていないことを確認する。
+6. 必要に応じて `docker compose exec <app-service> php evo.php health:check` を実行し、基本健全性を確認する。
 7. CLI 実行結果は検証ログへ要約して残す。
 
 ### archive

@@ -1,5 +1,9 @@
-#!/usr/bin/env php
 <?php
+
+// 配布物の直下に置くので、ブラウザから開かれたときは何もせずに終える
+if (PHP_SAPI !== 'cli') {
+    exit('CLI only.');
+}
 
 define('EVO_CLI', true);
 define('EVO_CLI_START', microtime(true));

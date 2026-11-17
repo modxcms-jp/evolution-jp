@@ -56,7 +56,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 移行タスクでは追加で: 旧API使用箇所のGrep棚卸し、旧→新の置換パターン表、モジュール単位の分割
 
 ### 補助ツール（CLI導入済みの場合）
-`php evo config:show [key]` / `db:tables [--pattern]` / `db:describe <table>` / `db:count <table> [--where]`
+`php evo.php config:show [key]` / `db:tables [--pattern]` / `db:describe <table>` / `db:count <table> [--where]`
 
 ### /validate-plan [path]
 `references/quality-checklist.md` に基づき品質チェック: 必須12セクション、非交渉要件・アンチパターンを検出し改善提案

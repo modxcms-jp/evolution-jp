@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
-    cli_usage('Usage: php evo skill:status [--plan=PLAN_ID] [--skill=SKILL] [--limit=N] [--json] [--archived]');
+    cli_usage('Usage: php evo.php skill:status [--plan=PLAN_ID] [--skill=SKILL] [--limit=N] [--json] [--archived]');
 };
 
 $planId = skill_get_arg($args, 'plan', '');

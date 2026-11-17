@@ -3,7 +3,7 @@
 $table = $args[0] ?? '';
 $fullTable = cli_full_table_name($table);
 if ($fullTable === '') {
-    cli_usage('Usage: php evo db:describe table_name');
+    cli_usage('Usage: php evo.php db:describe table_name');
 }
 
 $sql = 'DESCRIBE ' . $fullTable;

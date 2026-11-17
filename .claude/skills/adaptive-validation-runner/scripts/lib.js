@@ -59,7 +59,7 @@ async function login(browser, user = config.adminUser, password = config.adminPa
     return page;
 }
 
-// キャッシュは「サイトをリフレッシュ」(a=26) で作り直す（CLI なら php evo cache:clear でもよい。どちらもすぐ作り直す）。
+// キャッシュは「サイトをリフレッシュ」(a=26) で作り直す（CLI なら php evo.php cache:clear でもよい。どちらもすぐ作り直す）。
 // temp/cache/*.php を直接消しても次のアクセスで作り直されるが、確認の手順ではこちらを使う
 // a=26 は状態を変える操作のため、POST でしか受け付けず（GET は 405）、CSRF トークンが要る。
 // トークンは <meta name="csrf-token"> から読み、開いたばかりのページなどで無ければ、先に管理画面を開いて取得する

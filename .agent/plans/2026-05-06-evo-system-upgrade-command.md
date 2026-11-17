@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-サイトの管理者が `php evo system:upgrade` を 1 回実行すると、同じ系列の新しいリリースを GitHub から取得して検証する。続けて DB とファイルのバックアップを取り、`manager/`・`install/`・ルートのファイル・`assets/` を差し替える。そのあとはブラウザでアップデーター（`install/`）を実行するだけで済む。差し替えの途中で失敗したときは、ファイルを実行前の状態に自動で戻す。
+サイトの管理者が `php evo.php system:upgrade` を 1 回実行すると、同じ系列の新しいリリースを GitHub から取得して検証する。続けて DB とファイルのバックアップを取り、`manager/`・`install/`・ルートのファイル・`assets/` を差し替える。そのあとはブラウザでアップデーター（`install/`）を実行するだけで済む。差し替えの途中で失敗したときは、ファイルを実行前の状態に自動で戻す。
 
 `assets/docs/migrations.md` の「利用者がアップデートするとき」に照らすと、この計画が自動化するのは、手順 1（ファイルを差し替える）と手順 2 の前半（`install/` を置く）である。アップデーターを動かして DB を上げる作業は、今までどおり人がブラウザで行う。
 
@@ -17,7 +17,7 @@
 
 - 2026-10-31: GitHub の Latest は保守系列の `release-1.2.4J` を指す。main の版は `1.3.0rc2` で、1.3 系のリリースはまだ無い（`gh release list`）。旧計画のように Latest を取ると、1.3 のサイトが 1.2 に下がる。
 - 2026-10-31: 公式の配布物は、リリースに添付された `evo-<tag>.zip` である。`.github/workflows/release.yml` が `git archive --format=zip "refs/tags/${GITHUB_REF_NAME}"` で作るので、zip の中にトップのディレクトリは無く、`manager/` などが直下にある。旧計画は、トップのディレクトリがある zipball を前提にしていた。リリースの API は、添付ファイルの `digest`（`sha256:<16 進>`）を返す。
-- 2026-10-31: 配布 zip の直下にあるのは `assets/ content/ install/ manager/ temp/ index.php define-path.php evo sample.htaccess` である（`git archive origin/main | tar -t` で確認）。旧計画は `install/` を差し替えず、`content/` と `temp/` の扱いも決めていなかった。
+- 2026-10-31: 配布 zip の直下にあるのは `assets/ content/ install/ manager/ temp/ index.php define-path.php evo.php sample.htaccess` である（`git archive origin/main | tar -t` で確認）。旧計画は `install/` を差し替えず、`content/` と `temp/` の扱いも決めていなかった。
 - 2026-10-31: #933 のマージにより、未適用のマイグレーションがある間は、公開側が `manager/includes/update_guard.php` で HTTP 503 のメンテナンス表示を返す。管理画面も、settings 権限のある人をアップデーターへ案内する（`assets/docs/migrations.md`「アップデート待ちの判定」）。旧計画の「`.htaccess` を書き換えてメンテナンス化する」は、この仕組みと役割が重なる。
 - 2026-10-31: `$modx_version` の書き方は系列で違う。1.2.4J では `1.2.4J`、main では `1.3.0rc2` である。PHP 7.4 の `version_compare('1.3.0J', '1.3.0rc2')` は `-1` を返すので、末尾の `J` を外さないと正しく比べられない。`version_compare('1.3.0', '1.3.0rc2')` と `version_compare('1.3.0rc2', '1.3.0rc1')` は、どちらも `1` を返す（`php:7.4-cli` で確認）。
 - 2026-10-31: 旧計画のコード例にある `str_starts_with()` は PHP 8 の関数である。`manager/includes/helpers.php` に代わりの実装はあるが、既存のコマンド（`manager/includes/cli/commands/db-backup.php` など）にそろえて `strpos(...) === 0` を使う。
@@ -58,7 +58,7 @@
   - 完了した: 何もしない。
   - 例外は `Throwable` で捕まえる。
   - 取得と入れ替えの間だけ、警告を `ErrorException` に変えるエラーハンドラを `set_error_handler()` で置き、失敗の理由を表示する。終わったら `restore_error_handler()` で戻す。
-- 2026-10-31 / yamamoto（Claude が起案）: POSIX 関数が使えるサーバーでは、実行する利用者（`posix_geteuid()`）が `manager/` の持ち主（`fileowner()`）と違えば止める。新しいファイルの持ち主がずれると、アップデーターが `config.inc.php` を書き直せず、Web から `install/` も消せなくなるためである。止めるときは、`sudo -u <持ち主> php evo system:upgrade` のように持ち主で実行するよう案内する。POSIX 関数が無い環境（Windows など）では、この確認を飛ばす。引き継ぐファイルは、コピーしたあと元の権限（`fileperms()`）にそろえる。
+- 2026-10-31 / yamamoto（Claude が起案）: POSIX 関数が使えるサーバーでは、実行する利用者（`posix_geteuid()`）が `manager/` の持ち主（`fileowner()`）と違えば止める。新しいファイルの持ち主がずれると、アップデーターが `config.inc.php` を書き直せず、Web から `install/` も消せなくなるためである。止めるときは、`sudo -u <持ち主> php evo.php system:upgrade` のように持ち主で実行するよう案内する。POSIX 関数が無い環境（Windows など）では、この確認を飛ばす。引き継ぐファイルは、コピーしたあと元の権限（`fileperms()`）にそろえる。
 - 2026-10-31 / yamamoto（Claude が起案）: 前回のアップデーターが済んでいない（未適用のマイグレーションがある。`EvoMigrator::hasPending()`）ときは止める。前の更新を終えてから次へ進むようにするためである。
 - 2026-10-31 / yamamoto（Claude が起案）: 表示は、既存の CLI にそろえて英語にする。次の手順の案内は、サイトの URL を決め打ちせず、「サイトの URL の後ろに `install/?action=mode`」と書く。CLI の `MODX_SITE_URL` は `http://localhost/` の仮の値であるため。
 - 2026-05-06 / yamamoto: ブラウザでのアップデーター（`install/`）の操作は自動化しない（引き続き有効）。
@@ -81,7 +81,7 @@
 
 ### 関係するファイル（リポジトリのルートから）
 
-- `evo`: CLI の入口。`php evo system:upgrade` は `manager/includes/cli/commands/system-upgrade.php` を読み込む（`:` を `-` に読み替える）。コマンドのファイルでは `$args`（コマンド名より後の引数の配列）が使える。
+- `evo.php`: CLI の入口。`php evo.php system:upgrade` は `manager/includes/cli/commands/system-upgrade.php` を読み込む（`:` を `-` に読み替える）。コマンドのファイルでは `$args`（コマンド名より後の引数の配列）が使える。
 - `manager/includes/cli/bootstrap.php`: `define-path.php` で `MODX_BASE_PATH`（サイトのルート、末尾 `/` 付き）を定義し、`DocumentParser` を作って設定を読む。`MODX_CORE_PATH` は、その中で `manager/includes/initialize.inc.php` が定義する。
 - `manager/includes/cli/cli-helpers.php`: `cli_out()`・`cli_err()`・`cli_usage($message, $code = 1)`（表示して `exit`）・`cli_export_database_file($driver, $path, $fullTables, $options)`。
 - `manager/includes/cli/commands/db-backup.php`: DB のバックアップの既存の作り。
@@ -189,16 +189,16 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 確かめるコマンド（使い捨てのワークツリーの検証環境で、`docker compose exec -T app ...` を使う）:
 
     php -l manager/includes/cli/commands/system-upgrade.php
-    php evo system:upgrade --help
+    php evo.php system:upgrade --help
       → 使い方を表示する
-    php evo system:upgrade
+    php evo.php system:upgrade
       → 1.3 系のリリースが無いあいだは "Already up to date: 1.3.0rc2 ..." と出て、終了コード 0
         （1.3 系のリリースが出たあとは、その版を選んで確認の問い合わせまで進む）
-    php evo system:upgrade --tag=release-1.2.4J
+    php evo.php system:upgrade --tag=release-1.2.4J
       → 通信の前に、新しい版ではないとして止まる（終了コード 1）
-    echo n | php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip
+    echo n | php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip
       → 1.3.0rc2 → 1.3.0、差し替えの対象、引き継ぐファイルを表示し、"Aborted." で終わる。temp/upgrade/ の下に作業用のディレクトリが残らない
-    php evo system:upgrade --zip=temp/upgrade-fixtures/evil.zip
+    php evo.php system:upgrade --zip=temp/upgrade-fixtures/evil.zip
       → "Unsafe entry in zip: ../escape.txt" と出て止まる
 
 コミット: `feat(cli): system:upgrade でリリースの取得と確認までを行う`
@@ -212,7 +212,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 確かめるコマンド（使い捨てのワークツリーで）:
 
     php -l manager/includes/cli/commands/system-upgrade.php
-    php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes
+    php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes
       → 版・バックアップ・差し替えの経過を表示し、最後に次の手順を表示する。終了コード 0
     （失敗を起こした別の使い捨てのワークツリーで同じコマンド）
       → "Rolled back. ..." と表示し、終了コード 1
@@ -224,7 +224,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 編集するファイル: `manager/includes/cli/README.md`、`assets/docs/migrations.md`。
 
 - CLI の README に、`system:upgrade` の使い方、オプション、差し替えの対象と引き継ぐファイル、戻し方、後片付けを書く。
-- `assets/docs/migrations.md` の「利用者がアップデートするとき」に、1.3.0 以降は `php evo system:upgrade` で手順 1 と手順 2 の前半をまとめて行えることを足し、詳しくは CLI の README を参照するよう書く。手順の正本は `migrations.md` に残す。
+- `assets/docs/migrations.md` の「利用者がアップデートするとき」に、1.3.0 以降は `php evo.php system:upgrade` で手順 1 と手順 2 の前半をまとめて行えることを足し、詳しくは CLI の README を参照するよう書く。手順の正本は `migrations.md` に残す。
 - `/doc-audit` で、変えたドキュメントを確かめる。
 - Validation and Acceptance のすべてを通す。
 
@@ -260,7 +260,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 - 管理画面の保護 `manager/.htaccess`（中身は `# site protection` の 1 行）
 - テーマの設定 `manager/media/style/<既定のテーマ>/config.php`
 
-置いたら、`php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes` を実行する。次のことを確かめる。
+置いたら、`php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes` を実行する。次のことを確かめる。
 
 - 終了コードが 0 である。最後に次の手順が表示される（`install/?action=mode` を開く、終わったら `install/` を消す、戻し方、後片付け）。
 - 版と引き継いだファイル:
@@ -276,14 +276,14 @@ Windows のサーバーでは、開いているファイルがあるとディレ
   - DB のバックアップの保存先に `pre-upgrade-*.sql` があり、管理画面のバックアップ管理の一覧に出る。
 - 公開側とアップデーター:
   - `curl -s -o /dev/null -w '%{http_code}' http://<サイト>/` が `503` を返す（未適用のマイグレーションがあるため）。
-  - 管理画面に管理者でログインし、`/install/?action=mode` からアップデーターを最後まで進める（画面の操作は Playwright で行う）。そのあと、公開側が `200` に戻り、`php evo migrate:status` が `0 pending` を表示する。
+  - 管理画面に管理者でログインし、`/install/?action=mode` からアップデーターを最後まで進める（画面の操作は Playwright で行う）。そのあと、公開側が `200` に戻り、`php evo.php migrate:status` が `0 pending` を表示する。
 - 繰り返したとき: 同じ zip でもう一度実行すると、版が新しくないので止まる（終了コード 1）。
 
 ### 失敗したら戻ること
 
-実行の前に、`find manager install assets index.php define-path.php evo sample.htaccess -type f -print0 | sort -z | xargs -0 sha256sum > <一時ファイル>` で一覧を取っておく。実行のあとに同じ一覧を取り、`diff` が空であること、終了コードが 1 で `Rolled back.` が表示されることを確かめる。場面は次の 2 つで、それぞれ新しい使い捨てのワークツリーで行う。
+実行の前に、`find manager install assets index.php define-path.php evo.php sample.htaccess -type f -print0 | sort -z | xargs -0 sha256sum > <一時ファイル>` で一覧を取っておく。実行のあとに同じ一覧を取り、`diff` が空であること、終了コードが 1 で `Rolled back.` が表示されることを確かめる。場面は次の 2 つで、それぞれ新しい使い捨てのワークツリーで行う。
 
-- **場面 rollback-assets（最後の段階で失敗）**: 配布 zip にある `assets/snippets/upgrade_probe.txt` と同じパスに、ディレクトリを作っておく（root でも書き込みに失敗させられる）。`manager/` と `install/` の入れ替えのあとで失敗するので、ディレクトリの入れ替えを戻せることが分かる。公開側が `200` を返すこと（`manager/` が戻り、未適用のマイグレーションも無い）と、`php evo log:search "system:upgrade"` で開始と失敗の記録が出ることも確かめる。
+- **場面 rollback-assets（最後の段階で失敗）**: 配布 zip にある `assets/snippets/upgrade_probe.txt` と同じパスに、ディレクトリを作っておく（root でも書き込みに失敗させられる）。`manager/` と `install/` の入れ替えのあとで失敗するので、ディレクトリの入れ替えを戻せることが分かる。公開側が `200` を返すこと（`manager/` が戻り、未適用のマイグレーションも無い）と、`php evo.php log:search "system:upgrade"` で開始と失敗の記録が出ることも確かめる。
 - **場面 rollback-manager（早い段階で失敗）**: サイトの `install` を、ディレクトリではなく同じ名前の空のファイルにしておく。`manager/` を入れ替えた直後、`install/` を移すところで失敗するので、`manager/` の入れ替えを戻せることが分かる。実行の前に `manager/includes/config.inc.php` が置かれたままであることも、一覧の比較で確かめられる。
 
 途中まで書かれたファイルを戻す動き（容量不足などで `copy()` が途中で止まる）は、実機で確実に起こす方法が無い（`ulimit -f` は PHP ごと SIGXFSZ で終わらせ、終了時の処理も走らない）。そのため、自己レビューで、`file_overwritten`・`file_created` の記録が書き込みより前にあること、戻し方が冪等であることを、コードで確かめる。
@@ -291,7 +291,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 ### 取得の経路（場面: fetch）
 
 - 引数なしでは `Already up to date` を表示する。`--tag=release-1.2.4J` では、通信の前に止まる。
-- ダウンロードと sha256 の照合は、使い捨てのワークツリーの `manager/includes/version.inc.php` の版を `1.2.0` に書き換えてから確かめる。`echo n | php evo system:upgrade --tag=release-1.2.4J` を実行し、`SHA-256 verified.` が表示され、`Aborted.` のあと作業用のディレクトリが残らなければ合格とする。
+- ダウンロードと sha256 の照合は、使い捨てのワークツリーの `manager/includes/version.inc.php` の版を `1.2.0` に書き換えてから確かめる。`echo n | php evo.php system:upgrade --tag=release-1.2.4J` を実行し、`SHA-256 verified.` が表示され、`Aborted.` のあと作業用のディレクトリが残らなければ合格とする。
 - `evil.zip` では `Unsafe entry in zip: ../escape.txt` を表示して止まる。判定はこの表示で行う（`extractTo()` は自分で `../` を外すので、ファイルができないことだけでは判定できない）。
 
 ### 版の互換

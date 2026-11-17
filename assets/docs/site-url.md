@@ -50,7 +50,7 @@
 
 ## DB の取り込み
 
-`php evo db:import` と、管理画面のバックアップからの復元（`EvoBackupManager::restore()`）は、どちらも取り込み先の `fixed_site_url` を残す。
+`php evo.php db:import` と、管理画面のバックアップからの復元（`EvoBackupManager::restore()`）は、どちらも取り込み先の `fixed_site_url` を残す。
 
 - 取り込み先に値があれば、その値に戻す（取り込むダンプに行が無くても戻す）
 - 取り込み先に値が無ければ、取り込んだ値（別の環境の URL）は使わず、未設定にする
@@ -60,7 +60,7 @@
 管理画面に入れなくなった場合は、次のどちらかで戻せる。
 
 - `.env` に正しい `SITE_URL` を書く（システム設定より優先される）
-- DB の `modx_system_settings`（接頭辞はサイトによる）で `setting_name='fixed_site_url'` の値を空にし、`php evo cache:clear` で `basicConfig.php` を作り直す（空なら今までの動きに戻る）
+- DB の `modx_system_settings`（接頭辞はサイトによる）で `setting_name='fixed_site_url'` の値を空にし、`php evo.php cache:clear` で `basicConfig.php` を作り直す（空なら今までの動きに戻る）
 
 ## 補足
 

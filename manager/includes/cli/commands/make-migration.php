@@ -10,7 +10,7 @@ $description = trim($args[0] ?? '');
 // ID（YYYYMMDD_HHMMSS_ の 16 文字 + 説明）は記録の表の id 列の長さに収める
 $maxLength = EvoMigrator::MAX_ID_LENGTH - strlen('YYYYMMDD_HHMMSS_');
 if (!preg_match('/\A[a-z0-9_]+\z/', $description) || strlen($description) > $maxLength) {
-    cli_usage("Usage: php evo make:migration <description>  (description: a-z, 0-9, _ up to {$maxLength} characters)");
+    cli_usage("Usage: php evo.php make:migration <description>  (description: a-z, 0-9, _ up to {$maxLength} characters)");
 }
 
 $migrator = new EvoMigrator();

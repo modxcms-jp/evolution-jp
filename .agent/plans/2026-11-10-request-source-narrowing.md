@@ -201,7 +201,7 @@ M0 判定表と修正前の記録
    - V1: 画面と同じ形。
    - V2: 判定表で get / post に絞る値を、もう一方の場所へ移した形（クエリの値を本文へ、本文の値をクエリへ）。GET の画面の値を本文へ移すときは、POST（CSRF トークン付き）で送る。main では値そのものは今と同じく読まれるが、POST のときだけ通る分岐（`!postv()` の判定など）で V1 と結果が違うことがある。その違いもそのまま記録する。
    - V3: V1 に、シナリオのすべてのキーと同じ名前で別の値の cookie を足した形。
-   記録するもの: HTTP の状態・`Location`・本文を正規化したもの（`csrf_token` などの値、時刻、セッション名を伏せる）と、`<form>` の欄の一覧（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js` と同じ形）、状態を変える操作は対象の表の行（`<dc> exec app php evo db:query "SELECT …"`）。スクリプトは `<work>/1070-scenarios.js`（`scripts/lib.js` の `login()` を使い、`page.request` で送る。リダイレクトは追わずに `Location` を控える）。結果は `<work>/1070-m0.tsv`（シナリオ・型・状態・Location・本文の要約のハッシュ・DB の行のハッシュ）。
+   記録するもの: HTTP の状態・`Location`・本文を正規化したもの（`csrf_token` などの値、時刻、セッション名を伏せる）と、`<form>` の欄の一覧（`.claude/skills/adaptive-validation-runner/scripts/form-snapshot.js` と同じ形）、状態を変える操作は対象の表の行（`<dc> exec app php evo.php db:query "SELECT …"`）。スクリプトは `<work>/1070-scenarios.js`（`scripts/lib.js` の `login()` を使い、`page.request` で送る。リダイレクトは追わずに `Location` を控える）。結果は `<work>/1070-m0.tsv`（シナリオ・型・状態・Location・本文の要約のハッシュ・DB の行のハッシュ）。
    期待: main では V3 が V1 と同じ結果（`anyv()` が cookie を読まないため）。V3 が違えば Surprises に書く。V2 の記録は、後の段階で「値が無いときの動き」に変わったことを確かめるための比較の元にする。あわせて、絞る値を除いた要求（値が無いとき）も 1 回送って記録し、後の段階の V2 の期待値にする。
 7. 判定表の件数（get / post / any / `manager()->action` / 呼び出し側へ移す）と、仕様変更の印の付いた行を、Progress の M0 の行に書く。基準のコミットとシナリオの数を Artifacts and Notes に書く。
 
