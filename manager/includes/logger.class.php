@@ -42,11 +42,6 @@ class EvoLogger
         }
     }
 
-    public static function getRecentEvents(): array
-    {
-        return self::$recentEvents;
-    }
-
     /** @param mixed $message */
     public function emergency($message, array $context = []): void
     {

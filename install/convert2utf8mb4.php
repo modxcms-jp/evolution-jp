@@ -155,14 +155,4 @@ class convert2utf8mb4 {
 
         return count($tables);
     }
-
-    public function getDbCollation()
-    {
-        $rs = db()->select(
-            'DEFAULT_COLLATION_NAME',
-            'INFORMATION_SCHEMA.SCHEMATA',
-            sprintf("SCHEMA_NAME = '%s'", db()->dbase)
-        );
-        return db()->getValue($rs);
-    }
 }

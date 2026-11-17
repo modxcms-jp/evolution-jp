@@ -209,7 +209,6 @@ class Qm
         return false;
     }
 
-    // Function from: manager/processors/cache_sync.class.processor.php
     //_____________________________________________________
     function getParents($id, $path = '')
     {

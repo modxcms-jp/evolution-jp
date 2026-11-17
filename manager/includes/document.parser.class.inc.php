@@ -2073,30 +2073,6 @@ class DocumentParser
         return true;
     }
 
-    private function getAliasFromID($docid)
-    {
-
-        if (isset($this->aliaslist[$docid])) {
-            return $this->aliaslist[$docid];
-        }
-
-        $rs = db()->select(
-            "id, IF(alias='', id, alias) AS alias",
-            '[+prefix+]site_content',
-            where('parent', '=', $this->getParentID($docid))
-        );
-
-        if (!$rs) {
-            return false;
-        }
-
-        while ($row = db()->getRow($rs)) {
-            $this->aliaslist[$row['id']] = $row['alias'];
-        }
-
-        return $this->aliaslist[$docid];
-    }
-
     public function getParentID($docid)
     {
 
@@ -2893,9 +2869,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Plugin', $this->event->activePlugin ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2916,9 +2890,7 @@ class DocumentParser
         $this->leaveErrorContext($contextState);
         unset($modx->event->params);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         return (($echo === false) ? '' : $echo) . ($return ?? '');
     }
@@ -2958,9 +2930,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Snippet', $this->currentSnippet ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2992,9 +2962,7 @@ class DocumentParser
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         if (is_array($return) || is_object($return)) {
             return $return;

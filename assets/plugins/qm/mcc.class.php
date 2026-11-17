@@ -15,7 +15,6 @@ if (!class_exists('Mcc')) {
         var $head;
         var $tabs;
         var $sections;
-        var $fields;
 
         //_______________________________________________________
         function __construct()
@@ -31,8 +30,6 @@ if (!class_exists('Mcc')) {
                 'content' => ['index' => 1, 'name' => 'Content'],
                 'tvs' => ['index' => 2, 'name' => 'TVs']
             ];
-
-            $this->fields = ['content', 'pagetitle', 'longtitle', 'menuindex', 'parent', 'description', 'alias', 'link_attributes', 'introtext', 'template', 'menutitle'];
         }
 
         //_______________________________________________________
@@ -53,30 +50,6 @@ if (!class_exists('Mcc')) {
                 . '});</script>';
 
             return $out;
-        }
-
-        // Template
-        //_______________________________________________________
-        function hideTemplate($tpl)
-        {
-            $this->addLine(
-                'document.querySelectorAll("select#field_template option").forEach(function (el) { if (el.getAttribute("value") === '
-                . js_literal($tpl)
-                . ') { el.remove(); } });'
-            );
-        }
-
-        //_______________________________________________________
-        function hideTemplates($tpls)
-        {
-            if (is_array($tpls)) {
-                foreach ($tpls as $tpl) {
-                    $this->hideTemplate($tpl);
-                }
-                $this->hideTemplate(0); // remove blank
-            } else {
-                $this->hideTemplate(0); // remove blank
-            }
         }
 
         // Section
@@ -123,25 +96,6 @@ if (!class_exists('Mcc')) {
             $this->addLine(
                 'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { for (var p = el.parentElement; p; p = p.parentElement) { if (p.tagName === "TR") { p.style.display = "none"; } } });'
             );
-        }
-
-        //_______________________________________________________
-        function showFields($fields)
-        {
-            if (!($fields = explode(',', $fields))) return;
-            foreach ($fields as $key => $value) {
-                $fields[$key] = trim($value);
-            }
-            foreach ($this->fields as $field) {
-                if (!in_array($field, $fields))
-                    $this->hideField($field);
-            }
-        }
-
-        //_______________________________________________________
-        function doSafe($string)
-        {
-            $string = htmlentities($string, ENT_QUOTES, config('modx_charset'));
         }
     }
 }

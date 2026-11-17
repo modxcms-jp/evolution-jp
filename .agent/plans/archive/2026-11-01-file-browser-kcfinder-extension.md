@@ -66,7 +66,7 @@ Issue: #678（ロードマップ「ファイルブラウザのKCFinder級拡張�
 
 ## Context and Orientation
 
-ファイルブラウザは `manager/media/browser/evo/` にある。2026-07-11 に作り直したもので、そのときの計画は `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`。3 通りの開かれ方がある。EvoShell モーダル（管理画面の中に重ねて開く小窓。TV の入力欄などから開く）、ポップアップウィンドウ（QuickManager など）、TinyMCE（本文エディター）のダイアログの 3 つ。
+ファイルブラウザは `manager/media/browser/evo/` にある。2026-07-11 に作り直したもので、そのときの計画は `.agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md`。3 通りの開かれ方がある。EvoShell モーダル（管理画面の中に重ねて開く小窓。TV の入力欄などから開く）、ポップアップウィンドウ（QuickManager など）、TinyMCE（本文エディター）のダイアログの 3 つ。
 
 主なファイルの役割は次のとおり。
 
@@ -291,7 +291,7 @@ M5 は次をすべて満たせば完了とする。確認は Docker の検証環
 
 - ブランチ: `feat/678-filebrowser-i18n`、PR: #965（M1〜M3、マージ済み）。M4 はブランチ `feat/678-filebrowser-zip`、PR: #993（マージ済み）。M5 はブランチ `feat/678-filebrowser-image-edit`（Decision Log の 2026-10-31）
 - Issue: https://github.com/modxcms-jp/evolution-jp/issues/678 （2026-10-17 のコメントに画像編集の決定と、足りないもの（保存の API、拡張子、サムネイル、EXIF）の一覧がある）
-- 前の計画: `.agent/plans/2026-07-11-file-browser-modal-rewrite.md`
+- 前の計画: `.agent/plans/archive/2026-07-11-file-browser-modal-rewrite.md`
 - 参考: TinyMCE7 プラグインの画像編集 `assets/plugins/tinymce7/js/tinymce-cropper.js`（モーダルの組み立て方の参考にする。Cropper.js は使わない）
 
 想定するコミットの分け方:

@@ -67,7 +67,6 @@ $cookieKey = substr(md5($site_id . 'Web-User'), 0, 15);
  * 共通処理
  * -------------------------------- */
 require_once $snipPath . 'weblogin/weblogin.common.inc.php';
-require_once $snipPath . 'weblogin/crypt.class.inc.php';
 
 /* --------------------------------
  * 状態に応じた処理

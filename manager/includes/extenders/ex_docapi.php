@@ -327,24 +327,6 @@ class DocAPI
         );
     }
 
-    private function tmplVars($template_id)
-    {
-        static $tmplvars = null;
-        if ($tmplvars !== null) {
-            return $tmplvars;
-        }
-        $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
-        $tmplvars = [];
-        while ($row = db()->getRow($rs)) {
-            if (!$this->hasTmplvarRelation($row['id'], $template_id)) {
-                continue;
-            }
-            $tmplvars[$row['name']] = $row['id'];
-            $tmplvars['tv' . $row['id']] = $row['id'];
-        }
-        return $tmplvars;
-    }
-
     private function hasTmplvar($tmplvarid, $doc_id)
     {
         $rs = db()->select(
@@ -357,20 +339,6 @@ class DocAPI
             )
         );
         return db()->count($rs);
-    }
-
-    private function hasTmplvarRelation($tmplvarid, $template_id)
-    {
-        $rs = db()->select(
-            '*',
-            '[+prefix+]site_tmplvar_templates',
-            sprintf(
-                "tmplvarid='%s' AND templateid='%s'",
-                db()->escape($tmplvarid),
-                db()->escape($template_id)
-            )
-        );
-        return db()->count($rs) == 1;
     }
 
     private function isTv($key)
