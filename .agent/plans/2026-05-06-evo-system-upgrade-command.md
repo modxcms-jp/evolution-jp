@@ -17,7 +17,7 @@
 
 - 2026-10-31: GitHub の Latest は保守系列の `release-1.2.4J` を指す。main の版は `1.3.0rc2` で、1.3 系のリリースはまだ無い（`gh release list`）。旧計画のように Latest を取ると、1.3 のサイトが 1.2 に下がる。
 - 2026-10-31: 公式の配布物は、リリースに添付された `evo-<tag>.zip` である。`.github/workflows/release.yml` が `git archive --format=zip "refs/tags/${GITHUB_REF_NAME}"` で作るので、zip の中にトップのディレクトリは無く、`manager/` などが直下にある。旧計画は、トップのディレクトリがある zipball を前提にしていた。リリースの API は、添付ファイルの `digest`（`sha256:<16 進>`）を返す。
-- 2026-10-31: 配布 zip の直下にあるのは `assets/ content/ install/ manager/ temp/ index.php define-path.php evo.php sample.htaccess` である（`git archive origin/main | tar -t` で確認）。旧計画は `install/` を差し替えず、`content/` と `temp/` の扱いも決めていなかった。
+- 2026-10-31: 配布 zip の直下にあるのは `assets/ content/ install/ manager/ temp/ index.php define-path.php evo sample.htaccess` である（`git archive origin/main | tar -t` で確認）。旧計画は `install/` を差し替えず、`content/` と `temp/` の扱いも決めていなかった。
 - 2026-10-31: #933 のマージにより、未適用のマイグレーションがある間は、公開側が `manager/includes/update_guard.php` で HTTP 503 のメンテナンス表示を返す。管理画面も、settings 権限のある人をアップデーターへ案内する（`assets/docs/migrations.md`「アップデート待ちの判定」）。旧計画の「`.htaccess` を書き換えてメンテナンス化する」は、この仕組みと役割が重なる。
 - 2026-10-31: `$modx_version` の書き方は系列で違う。1.2.4J では `1.2.4J`、main では `1.3.0rc2` である。PHP 7.4 の `version_compare('1.3.0J', '1.3.0rc2')` は `-1` を返すので、末尾の `J` を外さないと正しく比べられない。`version_compare('1.3.0', '1.3.0rc2')` と `version_compare('1.3.0rc2', '1.3.0rc1')` は、どちらも `1` を返す（`php:7.4-cli` で確認）。
 - 2026-10-31: 旧計画のコード例にある `str_starts_with()` は PHP 8 の関数である。`manager/includes/helpers.php` に代わりの実装はあるが、既存のコマンド（`manager/includes/cli/commands/db-backup.php` など）にそろえて `strpos(...) === 0` を使う。

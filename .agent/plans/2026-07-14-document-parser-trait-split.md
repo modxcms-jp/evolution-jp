@@ -220,7 +220,7 @@
        php -r "define('MODX_API_MODE', true); require 'manager/includes/document.parser.class.inc.php'; echo class_exists('DocumentParser') ? 'compose OK' : 'NG';"
        docker compose exec app php evo.php help
 
-   期待: `php -l` は「No syntax errors detected」、合成チェックは `compose OK`、`evo help` はコマンド一覧を表示する。
+   期待: `php -l` は「No syntax errors detected」、合成チェックは `compose OK`、`php evo.php help` はコマンド一覧を表示する。
 
 5. 参照残りの最終確認:
 
