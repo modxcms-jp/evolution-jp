@@ -145,28 +145,6 @@ function cli_mysql_defaults_file()
     return $tmpFile;
 }
 
-function cli_full_table_name($table)
-{
-    $table = trim($table);
-    if ($table === '') {
-        return '';
-    }
-    if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
-        return '';
-    }
-    $prefix = db()->config['table_prefix'] ?? '';
-    $dbase = db()->config['dbase'] ?? '';
-    if ($dbase === '') {
-        return '';
-    }
-    if ($prefix !== '' && str_starts_with($table, $prefix)) {
-        $full = $table;
-    } else {
-        $full = $prefix . $table;
-    }
-    return sprintf('`%s`.`%s`', $dbase, $full);
-}
-
 /**
  * @param array $options ['routines' => false] で --routines --triggers の代わりに --skip-triggers を付ける
  *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）

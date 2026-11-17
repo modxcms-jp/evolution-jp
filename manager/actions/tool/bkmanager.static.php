@@ -273,38 +273,16 @@ if (sessionv('result_msg')) {
                     </thead>
                     <tbody>
                         <?php
-                        $rs = db()->query(sprintf(
-                            "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
-                            db()->dbname,
-                            db()->table_prefix
-                        ));
-                        $truncateable = EvoBackupManager::truncatableTables();
+                        $truncateable = EvoDbTables::truncatable();
                         $totaloverhead = 0;
                         $total = 0;
-                        while ($row = db()->getRow($rs)) {
+                        foreach (EvoDbTables::status() as $row) {
                             $isTruncateable = in_array($row['Name'], $truncateable, true);
                             $isInnoDb = strtolower((string)($row['Engine'] ?? '')) === 'innodb';
                             $recordCount = (int)$row['Rows'];
-                            if ($isTruncateable) {
-                                $recordCount = (int)db()->getValue(
-                                    db()->select(
-                                        'COUNT(*)',
-                                        $row['Name']
-                                    )
-                                );
-                            }
-
-                            if (isset($dumper->_dbtables) && !empty($dumper->_dbtables)) {
-                                $table_string = implode(',', $dumper->_dbtables);
-                            } else {
-                                $table_string = '';
-                            }
 
                             echo '<tr title="' . $row['Comment'] . '" style="cursor:default">' . "\n" .
-                                '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '"' . (strstr(
-                                    $table_string,
-                                    $row['Name']
-                                ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
+                                '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '" /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
                                 '<td align="right">' . (
                                     evo()->hasPermission('settings') && $isTruncateable && $recordCount > 0
                                     ? '<a href="' . hsc('index.php?a=54&from=bkmanager&truncate=' . $row['Name']) . '" data-evo-post title="' . lang('truncate_table') . '">' . $recordCount . '</a>'

@@ -22,16 +22,13 @@ if (!defined('EVO_CLI_IMPORT')) {
 
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
-global $modx;
-require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-
 $backup = new EvoBackupManager();
 
 // 復元前のスナップショットも mysqldump で取る（PHP のダンパーの遅さとメモリを CLI に持ち込まない）
 // プレフィックスのテーブルが無い（空の DB への取り込み）ときは保存するものが無いので書かない
 $preRestoreSkipped = false;
 $preRestore = function ($fullPath) use (&$preRestoreSkipped) {
-    $tables = (new Mysqldumper())->getTableNames();
+    $tables = EvoDbTables::names();
     if (!$tables) {
         $preRestoreSkipped = true;
         return true;

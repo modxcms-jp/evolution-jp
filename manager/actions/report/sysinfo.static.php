@@ -7,6 +7,7 @@ if (!evo()->hasPermission('logs')) {
     alert()->dumpError();
 }
 global $database_connection_method;
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 ?>
 <h1><?= lang('view_sysinfo') ?></h1>
 <div id="actions">
@@ -260,18 +261,9 @@ global $database_connection_method;
                     </thead>
                     <tbody>
                         <?php
-                        $rs = db()->query(
-                            sprintf(
-                                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
-                                db()->dbname,
-                                db()->table_prefix
-                            )
-                        );
-                        $limit = db()->count($rs);
                         $total = 0;
                         $totaloverhead = 0;
-                        for ($i = 0; $i < $limit; $i++) {
-                            $log_status = db()->getRow($rs);
+                        foreach (EvoDbTables::status() as $log_status) {
                         ?>
                             <tr title="<?= $log_status['Comment'] ?>"
                                 style="cursor:default">

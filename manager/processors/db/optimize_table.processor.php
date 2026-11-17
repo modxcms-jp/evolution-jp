@@ -16,25 +16,22 @@ if (!$table && !$truncateTarget) {
 
 // 画面のリンクに頼らず、対象テーブル名をサーバー側でも検証する。
 // truncate（中身の全削除）は破壊的なので、画面で許可しているテーブルだけに厳格制限する。
-require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
-$truncateable = EvoBackupManager::truncatableTables();
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 
 if ($table) {
     // optimize（最適化）は非破壊だが、他DBや無関係なテーブルを触らせないよう
     // 自サイトの接頭辞を持つテーブル名に限定する
-    $t = $table;
-    if (preg_match('@^' . preg_quote(db()->table_prefix, '@') . '[0-9a-zA-Z_]+$@', $t)) {
-        db()->optimize($t);
+    if (EvoDbTables::isOwn($table)) {
+        db()->optimize($table);
     } else {
         alert()->setError(3);
         alert()->dumpError();
     }
 }
 if ($truncateTarget) {
-    $u = $truncateTarget;
     // event_log は古い版から上げたサイトにしか無いので、表の有無も確かめる
-    if (in_array($u, $truncateable, true) && db()->tableExists($u)) {
-        db()->truncate($u);
+    if (in_array($truncateTarget, EvoDbTables::truncatable(), true) && EvoDbTables::exists($truncateTarget)) {
+        db()->truncate($truncateTarget);
     } else {
         alert()->setError(3);
         alert()->dumpError();

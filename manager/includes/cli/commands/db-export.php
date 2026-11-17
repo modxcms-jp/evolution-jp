@@ -19,7 +19,7 @@ if ($driver !== 'mysqldump' && $driver !== 'php') {
     cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
 }
 
-$prefix = db()->config['table_prefix'] ?? '';
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 $fullTables = [];
 if ($tablesArg !== '') {
     $tables = array_filter(array_map('trim', explode(',', $tablesArg)));
@@ -27,14 +27,11 @@ if ($tablesArg !== '') {
         cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
     }
     foreach ($tables as $table) {
-        if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+        $fullTable = EvoDbTables::qualify($table);
+        if ($fullTable === '') {
             cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
         }
-        if ($prefix !== '' && str_starts_with($table, $prefix)) {
-            $fullTables[] = $table;
-        } else {
-            $fullTables[] = $prefix . $table;
-        }
+        $fullTables[] = $fullTable;
     }
 }
 

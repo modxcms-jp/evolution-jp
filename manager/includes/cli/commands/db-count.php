@@ -13,7 +13,8 @@ foreach ($args as $arg) {
     }
 }
 
-$fullTable = cli_full_table_name($table);
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
+$fullTable = EvoDbTables::qualifiedWithDb($table);
 if ($fullTable === '') {
     cli_usage('Usage: php evo.php db:count table_name [--where=condition]');
 }

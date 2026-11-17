@@ -23,10 +23,7 @@ if (!$backup->ensureDir()) {
     cli_usage('Error: cannot create or write directory ' . $backup->dir());
 }
 
-global $modx;
-require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-$dumper = new Mysqldumper();
-$tables = $dumper->getTableNames();
+$tables = EvoDbTables::names();
 if (!$tables) {
     cli_usage('Error: no tables found with the configured prefix.');
 }
