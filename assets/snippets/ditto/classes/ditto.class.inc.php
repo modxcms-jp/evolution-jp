@@ -624,14 +624,12 @@ class ditto
         // 非公開の親の除外は後段でしか行わないため、&seeThruUnpub=0 のときは速い経路を通さない
         if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $seeThruUnpub) {
             $this->prefetch = false;
-            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
-            $documentIDs = [];
-            if ($documents) {
-                foreach ($documents as $doc) {
-                    $documentIDs[] = $doc['id'];
-                }
+            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly) ?: [];
+            if (!$randomize && $this->followsDocumentsOrder()) {
+                $documents = $this->unsort($documents, event()->param('documents'));
+                $this->sortOrder = array_flip(array_column($documents, 'id'));
             }
-            return $documentIDs;
+            return array_values(array_unique(array_column($documents, 'id')));
         }
 
         $this->prefetch = true;
@@ -702,7 +700,7 @@ class ditto
             }
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource, $orderBy);
-            } elseif (event()->param('documents') && !event()->param('orderBy')) {
+            } elseif ($this->followsDocumentsOrder()) {
                 $resource = $this->unsort(
                     $resource,
                     event()->param('documents')
@@ -751,6 +749,12 @@ class ditto
         }
 
         return [];
+    }
+
+    // &documents without &orderBy: the documents come out in the order they are listed
+    private function followsDocumentsOrder()
+    {
+        return event()->param('documents') && !event()->param('orderBy');
     }
 
     private function unsort($docs, $ids)
@@ -966,7 +970,7 @@ class ditto
                 $row[$dateSource] += evo()->config('server_offset_time');
             }
 
-            if ($this->prefetch == true && $this->sortOrder !== false) {
+            if ($this->sortOrder) {
                 $row['ditto_sort'] = $this->sortOrder[$docid];
             }
 
@@ -997,7 +1001,7 @@ class ditto
         }
 
         $docs = $this->array_merge_recursive($docs, $TVData);
-        if ($this->prefetch && $this->sortOrder) {
+        if ($this->sortOrder) {
             uasort($docs, function ($a, $b) {
                 return strnatcmp($a['ditto_sort'], $b['ditto_sort']);
             });
