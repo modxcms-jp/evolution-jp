@@ -2,7 +2,6 @@
 # eForm - Electronic Form Snippet
 # Original created by: Raymond Irving 15-Dec-2004.
 # Extended by: Jelle Jager (TobyL) September 2006
-# see docs/eform.htm for installation and usage information
 
 $GLOBALS['optionsName'] = 'eform'; // 書式を書く疑似属性の名前
 $GLOBALS['efPostBack'] = false;
@@ -18,14 +17,14 @@ if (isset($eFormCSS)) $cssStyle = $eFormCSS;
 $from = isset($from) ? $from : config('emailsender');
 $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode : '';
-# 廃止した引数が書かれていたら、警告を 1 回だけ残す（処理は止めない）
+# 廃止した引数が書かれていたら、送信のときに警告を残す（表示のたびに残すとログがあふれる。処理は止めない）
 $removedParams = [];
 foreach (['mobile', 'mobiletext', 'sendAsHtml', 'reportAbuse', 'sendirect'] as $removedName) {
     if (isset($$removedName)) {
         $removedParams[] = $removedName;
     }
 }
-if ($removedParams) {
+if ($removedParams && is_post()) {
     evo()->logEvent(
         0,
         2,
