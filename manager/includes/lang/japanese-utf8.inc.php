@@ -152,6 +152,8 @@ return [
     "delete_all_system_logs" => 'すべて削除',
     "system_log_cleared" => 'システムログのファイルを %d 件削除しました。',
     "system_log_clear_failed" => '%d 件は削除できませんでした。',
+    "system_log_level_min_error" => 'エラー以上',
+    "system_log_level_min_warning" => '警告以上',
     "confirm_delete_htmlsnippet" => 'このチャンクを削除してもよろしいですか?',
     "confirm_delete_module" => 'このモジュールを削除してもよろしいですか?',
     "confirm_delete_plugin" => 'このプラグインを削除してもよろしいですか?',

@@ -32,19 +32,18 @@ foreach ($args as $arg) {
         continue;
     }
 
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL] [--files=N] [--json]');
+    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
 }
 
 if ($type !== 'system') {
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL] [--files=N] [--json]');
-}
-
-$allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
-if (!in_array($level, $allowedLevels, true)) {
-    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL] [--files=N] [--json]');
+    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
 }
 
 include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
+
+if (!in_array($level, SystemLogViewer::levelFilters(), true)) {
+    cli_usage('Usage: php evo log:tail [--type=system] [--lines=N] [--level=LEVEL|min:LEVEL] [--files=N] [--json]');
+}
 
 $root = MODX_BASE_PATH . 'temp/logs/system/';
 $files = SystemLogViewer::latestFiles(SystemLogViewer::files($root), $fileLimit);
