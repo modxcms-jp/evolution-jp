@@ -6,7 +6,7 @@
  * 保存先は temp/thumbs/ (コンテンツフォルダ直下に .thumb/ を作らない)。
  * キャッシュキーは元ファイルの実体の絶対パスの md5 に元ファイルのmtimeを連結し、
  * 元ファイルの更新で自動的に新キーへ切り替わる(rename/move/delete追随処理が不要)。
- * 透過を持つ形式(PNG/GIF)はPNGで、JPEGはJPEGで出力し、白背景パディングをしない
+ * 透過を持つ形式(PNG/GIF/WebP)はPNGで、JPEGはJPEGで出力し(形式は拡張子でなく中身で決める)、白背景パディングをしない
  * (キャンバスは常に画像そのもののリサイズ後サイズにする)。
  */
 class ThumbnailService
@@ -14,6 +14,15 @@ class ThumbnailService
     const MAX_DIM = 128;
     const GC_PROBABILITY_DIVISOR = 200;
     const GC_MAX_AGE = 2592000;
+
+    /** サムネイルを作れる拡張子と、その形式(IMAGETYPE_*) */
+    const EXTENSION_TYPES = [
+        'jpg' => IMAGETYPE_JPEG,
+        'jpeg' => IMAGETYPE_JPEG,
+        'png' => IMAGETYPE_PNG,
+        'gif' => IMAGETYPE_GIF,
+        'webp' => IMAGETYPE_WEBP,
+    ];
 
     /** @var string temp/thumbs/ の絶対パス(末尾スラッシュ付き) */
     private $cacheDir;
@@ -26,9 +35,39 @@ class ThumbnailService
         }
     }
 
+    /** この環境の GD で読み込める形式か(WebP は GD が WebP 付きで組まれているときだけ)。サムネイルの対応の判定はここだけ */
+    public static function canLoadType($type)
+    {
+        if (!extension_loaded('gd')) {
+            return false;
+        }
+        if ($type === IMAGETYPE_WEBP) {
+            return (imagetypes() & IMG_WEBP) !== 0;
+        }
+        return in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF], true);
+    }
+
     public static function isRasterImageExtension($ext)
     {
-        return in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif'], true);
+        $type = self::EXTENSION_TYPES[strtolower($ext)] ?? null;
+        return $type !== null && self::canLoadType($type);
+    }
+
+    /**
+     * 拡張子と中身の形式が食い違うときだけ、中身の形式名('jpeg'・'png'・'gif'・'webp' など)を返す。
+     *
+     * @param string $ext 拡張子
+     * @param array|false $info getimagesize() の結果
+     * @return string|null
+     */
+    public static function mismatchedFormat($ext, $info)
+    {
+        $extType = self::EXTENSION_TYPES[strtolower($ext)] ?? null;
+        $contentType = is_array($info) ? ($info[2] ?? null) : null;
+        if ($extType === null || !$contentType || $contentType === $extType) {
+            return null;
+        }
+        return image_type_to_extension($contentType, false) ?: null;
     }
 
     /** ブラウザが <img> で表示できる形式の拡張子か(一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ) */
@@ -54,8 +93,14 @@ class ThumbnailService
             return null;
         }
 
-        $isJpeg = ($ext === 'jpg' || $ext === 'jpeg');
-        $outExt = $isJpeg ? 'jpg' : 'png';
+        // 形式は中身で決める。拡張子に頼るのは、中身を読めない(getimagesize() が失敗する)ときだけ
+        $info = @getimagesize($sourceFile);
+        $type = $info ? $info[2] : self::EXTENSION_TYPES[$ext];
+        if (!self::canLoadType($type)) {
+            return null;
+        }
+        $keepsAlpha = ($type !== IMAGETYPE_JPEG);
+        $outExt = $keepsAlpha ? 'png' : 'jpg';
         $cacheFile = $this->cacheDir . md5($sourceFile) . '_' . $mtime . '.' . $outExt;
 
         if (is_file($cacheFile)) {
@@ -64,23 +109,23 @@ class ThumbnailService
 
         $this->cleanupStale($sourceFile, $cacheFile);
 
-        if (!$this->canLoad($sourceFile, $ext)) {
+        if (!$this->canLoad($info, $type)) {
             return null;
         }
 
-        $image = $this->loadImage($sourceFile, $ext);
+        $image = $this->loadImage($sourceFile, $type);
         if ($image === null) {
             return null;
         }
 
-        $resized = $this->resize($image, !$isJpeg);
+        $resized = $this->resize($image, $keepsAlpha);
         // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
         unset($image);
 
-        if ($isJpeg) {
-            $saved = imagejpeg($resized, $cacheFile, 85);
-        } else {
+        if ($keepsAlpha) {
             $saved = imagepng($resized, $cacheFile, 6);
+        } else {
+            $saved = imagejpeg($resized, $cacheFile, 85);
         }
 
         return $saved ? $cacheFile : null;
@@ -124,33 +169,34 @@ class ThumbnailService
      * 足りないものは作らずアイコン表示に回し、一覧のほかの画像まで巻き込んで止まるのを防ぐ。
      * 画像のサイズを読めない(壊れた画像など)ときは従来どおり loadImage() に任せる。
      */
-    private function canLoad($file, $ext)
+    private function canLoad($info, $type)
     {
-        $info = @getimagesize($file);
         if (!$info || empty($info[0]) || empty($info[1])) {
             return true;
         }
 
-        // 形式は loadImage() と同じく拡張子で決める
-        $types = ['png' => IMAGETYPE_PNG, 'gif' => IMAGETYPE_GIF];
-        $type = $types[$ext] ?? IMAGETYPE_JPEG;
         return gd_can_load_image($info[0], $info[1], $type, self::MAX_DIM, self::MAX_DIM);
     }
 
-    private function loadImage($file, $ext)
+    private function loadImage($file, $type)
     {
-        switch ($ext) {
-            case 'jpg':
-            case 'jpeg':
+        switch ($type) {
+            case IMAGETYPE_JPEG:
                 return @imagecreatefromjpeg($file) ?: null;
-            case 'png':
+            case IMAGETYPE_PNG:
                 $img = @imagecreatefrompng($file);
                 if ($img) {
                     imagesavealpha($img, true);
                 }
                 return $img ?: null;
-            case 'gif':
+            case IMAGETYPE_GIF:
                 return @imagecreatefromgif($file) ?: null;
+            case IMAGETYPE_WEBP:
+                $img = @imagecreatefromwebp($file);
+                if ($img) {
+                    imagesavealpha($img, true);
+                }
+                return $img ?: null;
         }
         return null;
     }

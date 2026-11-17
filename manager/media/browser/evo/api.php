@@ -245,12 +245,14 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
 
         $width = null;
         $height = null;
+        $contentFormat = null;
         if ($isRaster) {
             $dimensions = @getimagesize($file['fullPath']);
             if ($dimensions) {
                 $width = $dimensions[0];
                 $height = $dimensions[1];
             }
+            $contentFormat = ThumbnailService::mismatchedFormat($ext, $dimensions);
         }
 
         $item = [
@@ -265,6 +267,9 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
         ];
         if (ThumbnailService::isDisplayableImageExtension($ext)) {
             $item['image'] = true;
+        }
+        if ($contentFormat !== null) {
+            $item['contentFormat'] = $contentFormat;
         }
         $files[] = $item;
     }
@@ -308,6 +313,10 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
             if ($dimensions) {
                 $item['width'] = $dimensions[0];
                 $item['height'] = $dimensions[1];
+            }
+            $contentFormat = ThumbnailService::mismatchedFormat($ext, $dimensions);
+            if ($contentFormat !== null) {
+                $item['contentFormat'] = $contentFormat;
             }
         }
         $files[] = $item;
