@@ -164,7 +164,7 @@ final class EvoSqlDump
             . '|REPLACE(?:\s+(?:LOW_PRIORITY|DELAYED))?\s+INTO'
             . '|DROP\s+(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+EXISTS)?'
             . '|CREATE\s+(?:OR\s+REPLACE\s+)?(?:TEMPORARY\s+)?TABLE(?:\s+IF\s+NOT\s+EXISTS)?'
-            . '|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+(?:IGNORE\s+)?TABLE)\s*'
+            . '|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+(?:IGNORE\s+)?TABLE)(?:\s+|(?=`))'
             . '(?:' . $name . '\s*\.\s*)?' . $name . '/i',
             $statement,
             $m
