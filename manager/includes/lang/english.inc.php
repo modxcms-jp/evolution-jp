@@ -1321,6 +1321,13 @@ return [
     "bkmgr_restore_warn" => 'The cache was not rebuilt after the restore (the settings or cache table was not found). If the site does not work correctly, restore from [+pre_restore+], which was saved automatically before the restore.',
     "bkmgr_restore_failed" => 'The restore failed at statement [+failed_at+] ([+error+]). The database may be in an incomplete state. Select [+pre_restore+], which was saved automatically before the restore, from the list on the "Snapshot save and recovery" tab and restore it.',
     "bkmgr_restore_no_snapshot" => 'The restore was not run because a snapshot before the restore could not be created. The database was not changed. Please check the permission of the snapshot directory.',
+    "bkmgr_backup_no_tables" => 'Please select the tables to back up.',
+    "bkmgr_backup_failed" => 'The backup could not be created. Please check that the cache directory (temp/cache/) is writable and that the database is reachable.',
+    "bkmgr_snapshot_failed" => 'The snapshot could not be created. Please check that the snapshot directory is writable and that the database is reachable.',
+    "bkmgr_restore_no_file" => 'Please select an SQL file to restore (an empty file cannot be restored).',
+    "bkmgr_restore_too_large" => 'The file could not be uploaded because it is too large. The server limits are upload_max_filesize [+upload_max_filesize+] and post_max_size [+post_max_size+].',
+    "bkmgr_restore_upload_failed" => 'The file could not be uploaded. Please try again.',
+    "bkmgr_restore_invalid_file" => 'The selected snapshot was not found or could not be read.',
     "delete_resource_complete" => 'Delete complete',
 
     "enable_draft_title" => 'Draft function',

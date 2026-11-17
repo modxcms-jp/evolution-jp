@@ -1322,6 +1322,13 @@ return [
     "bkmgr_restore_warn" => '復元後のキャッシュの再作成は行われていません（設定かキャッシュのテーブルが見つかりませんでした）。サイトが正しく動かないときは、復元前に自動で保存した [+pre_restore+] から戻してください。',
     "bkmgr_restore_failed" => 'リストアは [+failed_at+] 番目の文で失敗しました（[+error+]）。データベースが途中の状態になっている可能性があります。復元前に自動で保存した [+pre_restore+] を、「スナップショット」タブの一覧から選んで戻してください。',
     "bkmgr_restore_no_snapshot" => '復元前のスナップショットを作成できなかったため、リストアは実行しませんでした。データベースは変更されていません。保存先のパーミッションを確認してください。',
+    "bkmgr_backup_no_tables" => 'バックアップするテーブルを選んでください。',
+    "bkmgr_backup_failed" => 'バックアップを作成できませんでした。キャッシュのディレクトリ（temp/cache/）に書き込めるか、データベースに接続できるかを確認してください。',
+    "bkmgr_snapshot_failed" => 'スナップショットを作成できませんでした。保存先に書き込めるか、データベースに接続できるかを確認してください。',
+    "bkmgr_restore_no_file" => 'リストアするSQLファイルを選んでください（空のファイルはリストアできません）。',
+    "bkmgr_restore_too_large" => 'ファイルが大きすぎるため、アップロードできませんでした。サーバの上限は upload_max_filesize が [+upload_max_filesize+]、post_max_size が [+post_max_size+] です。',
+    "bkmgr_restore_upload_failed" => 'ファイルをアップロードできませんでした。もう一度お試しください。',
+    "bkmgr_restore_invalid_file" => '選んだスナップショットが見つからないか、読み込めませんでした。',
     "delete_resource_complete" => '完全に削除',
 
     "enable_draft_title" => '下書き機能',

@@ -205,7 +205,9 @@ class Mysqldumper
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
 
+            // ログの表は構造だけを書き出し、データは入れない
             if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
+                $ok = $this->write($fp, $output);
                 continue;
             }
 
@@ -227,23 +229,8 @@ class Mysqldumper
                     $row = $this->convertValues($row);
                 }
                 foreach ($row as $value) {
-                    if ($value === null) {
-                        $value = 'NULL';
-                    } else {
-                        $value = addslashes($value);
-                        if (strpos($value, "\\'") !== false) {
-                            $value = str_replace("\\'", "''", $value);
-                        }
-                        if (strpos($value, "\r\n") !== false) {
-                            $value = str_replace("\r\n", "\n", $value);
-                        }
-                        if (strpos($value, "\r") !== false) {
-                            $value = str_replace("\r", "\n", $value);
-                        }
-                        $value = str_replace("\n", '\\n', $value);
-                        $value = "'{$value}'";
-                    }
-                    $insertdump .= $value . ',';
+                    // 改行・CR は \n・\r になり、1 件の INSERT が 1 行に収まる（復元は「;」の直後の改行で文を分ける）
+                    $insertdump .= ($value === null ? 'NULL' : "'" . db()->escape((string) $value) . "'") . ',';
                 }
                 $output .= rtrim($insertdump, ',') . ");".$lf;
                 if (1048576 < strlen($output)) {
