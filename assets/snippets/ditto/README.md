@@ -175,7 +175,7 @@ SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`de
 | `xsl` | xml / rss | XSL スタイルシート（サイトのルートからのパス） | なし |
 
 - `json`: URL に `<id>_jsonp=関数名` を付けると、出力全体を `関数名( … );` で包む（JSONP）。関数名は JavaScript の識別子（`a.b` の形も可）だけ。
-- 1 件ごとのテンプレートでは、`[+json_フィールド+]`・`[+xml_フィールド+]`・`[+atom_escaped_フィールド+]` でその形式向けにエスケープした値が使える。`rss` は `[+rss_date+]`・`[+rss_pagetitle+]`・`[+rss_author+]`、`atom` は `[+atom_createdon+]`・`[+atom_editedon+]`・`[+atom_author+]` を持つ。
+- 1 件ごとのテンプレートでは、`[+json_フィールド+]`・`[+xml_フィールド+]`・`[+atom_escaped_フィールド+]` でその形式向けにエスケープした値が使える。`xml`・`atom` では、題名（`xml_pagetitle`・`atom_escaped_pagetitle`）と作成者（`xml_author`・`atom_author`）は地の文として扱い、書き済みの実体（`&amp;` など）を文字に戻してからエスケープする。ほかのフィールドは HTML を含みうるので、値をそのままエスケープする（読み取ると元の HTML に戻る）。`rss` は `[+rss_date+]`・`[+rss_pagetitle+]`・`[+rss_author+]`、`atom` は `[+atom_createdon+]`・`[+atom_editedon+]`・`[+atom_author+]` を持つ。
 
 ## extender
 

@@ -22,6 +22,7 @@ $placeholders['*'] = "atom_placeholders";
 $placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
 $placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];
 $placeholders['atom_author'] = ["createdby", "atomCreatedBy"];
+$placeholders['atom_escaped_pagetitle'] = ["pagetitle", "atomEscapedPagetitle"];
 
 if (!function_exists("atomCreatedDate")) {
     function atomCreatedDate($resource)
@@ -41,6 +42,12 @@ if (!function_exists("atomCreatedBy")) {
         return ditto::xmlText(ditto::getAuthor($resource['createdby']));
     }
 }
+if (!function_exists("atomEscapedPagetitle")) {
+    function atomEscapedPagetitle($resource)
+    {
+        return ditto::xmlText($resource['pagetitle']);
+    }
+}
 $extenders[] = "summary";
 // load required summary extender for backwards compatibility
 // TODO: Remove summary extender in next major version
@@ -51,7 +58,7 @@ if (!function_exists("atom_placeholders")) {
     {
         $field = [];
         foreach ($placeholders as $name => $value) {
-            $field["atom_escaped_" . $name] = ditto::xmlText($value);
+            $field["atom_escaped_" . $name] = ditto::xmlEscape($value);
         }
         $placeholders = array_merge($field, $placeholders);
         return $placeholders;

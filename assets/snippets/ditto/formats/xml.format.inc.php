@@ -90,6 +90,8 @@ evo()->documentObject['contentType'] = 'application/xml';
 
 // set tpl xml placeholders
 $placeholders['*'] = 'xml_parameters';
+$placeholders['xml_pagetitle'] = ['pagetitle', 'xml_pagetitle'];
+$placeholders['xml_author'] = ['createdby', 'xml_author'];
 
 
 
@@ -98,8 +100,20 @@ if (!function_exists('xml_parameters')) {
     function xml_parameters($placeholders) {
         $xmlArr = [];
         foreach ($placeholders as $name => $value) {
-            $xmlArr['xml_' . $name] = ditto::xmlText($value);
+            $xmlArr['xml_' . $name] = ditto::xmlEscape($value);
         }
         return array_merge($xmlArr, $placeholders);
+    }
+}
+
+if (!function_exists('xml_pagetitle')) {
+    function xml_pagetitle($resource) {
+        return ditto::xmlText($resource['pagetitle']);
+    }
+}
+
+if (!function_exists('xml_author')) {
+    function xml_author($resource) {
+        return ditto::xmlText(ditto::getAuthor($resource['createdby']));
     }
 }

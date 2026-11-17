@@ -536,7 +536,7 @@ class ditto
 
     // ---------------------------------------------------
     // Function: xmlText
-    // Text of an XML element: entities already written (&amp; &copy; &#169;) become the character, then & < > " ' are escaped
+    // Plain text (titles, names) of an XML element: entities already written (&amp; &copy; &#169;) become the character, then & < > " ' are escaped
     // ---------------------------------------------------
 
     static function xmlText($text)
@@ -546,6 +546,20 @@ class ditto
             html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, $charset),
             ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
             $charset
+        );
+    }
+
+    // ---------------------------------------------------
+    // Function: xmlEscape
+    // Value that may hold HTML source (content, introtext, TVs): escaped as it is, so the HTML reads back unchanged
+    // ---------------------------------------------------
+
+    static function xmlEscape($value)
+    {
+        return htmlspecialchars(
+            (string)$value,
+            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
+            evo()->config('modx_charset') ?: 'UTF-8'
         );
     }
 
