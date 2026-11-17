@@ -143,7 +143,8 @@ class EvoSnapshotStore
     {
         $htaccess = $dir . '/.htaccess';
         if (is_file($htaccess)) {
-            $current = (string)file_get_contents($htaccess);
+            // 一部のファイルにしか効かないブロック（<Files> など）の中の拒否は数えない
+            $current = (string)preg_replace('@<(Files|FilesMatch|If|ElseIf|Else|Location|LocationMatch|Directory|DirectoryMatch)\b.*?</\1>@is', '', (string)file_get_contents($htaccess));
             if (stripos($current, 'require all denied') !== false || stripos($current, 'deny from all') !== false) {
                 return true;
             }
