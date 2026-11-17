@@ -9,9 +9,9 @@
 
 class ditto
 {
-    public $template, $format, $debug, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
+    public $template, $format, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
 
-    function __construct($format, $language, $debug)
+    function __construct($format, $language)
     {
         $this->format = $format;
         $GLOBALS['ditto_lang'] = $language;
@@ -42,10 +42,6 @@ class ditto
         ];
         $this->sortOrder = false;
         $this->template = new template();
-
-        if ($debug !== null) {
-            $this->debug = new debug($debug);
-        }
     }
 
     // ---------------------------------------------------
@@ -677,9 +673,6 @@ class ditto
         $limit = ($limit == 0) ? '' : $limit;
 
         $customReset = $this->customReset;
-        if ($this->debug) {
-            $this->addField('pagetitle', 'backend', 'db');
-        }
         if ($customReset) {
             $this->addField('createdon', 'backend', 'db');
         }
@@ -716,9 +709,6 @@ class ditto
                         }
                     }
                 }
-            }
-            if ($this->debug) {
-                $dbg_resource = $resource;
             }
             if ($filter) {
                 $filterObj = new filter();
@@ -763,11 +753,6 @@ class ditto
             }
 
             $this->prefetch = ['resource' => $keep, 'fields' => $fields];
-            if ($this->debug) {
-                $this->prefetch['dbg_resource'] = $dbg_resource;
-                $this->prefetch['dbg_IDs_pre'] = $documentIDs;
-                $this->prefetch['dbg_IDs_post'] = $processedIDs;
-            }
             if ($processedIDs) {
                 if ($randomize) {
                     shuffle($processedIDs);

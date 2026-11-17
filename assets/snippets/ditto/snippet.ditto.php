@@ -65,7 +65,14 @@ if (str_starts_with($config, '@CHUNK')) {
     }
 }
 
-$debug = !empty($debug) ? $debug : 0;
+if (isset($debug)) {
+    evo()->logEvent(
+        0,
+        2,
+        'Ditto の &debug は廃止しました。スニペットの呼び出しから &debug を外してください。',
+        'Ditto ' . $ditto_version
+    );
+}
 
 // a config may already have added extenders as an array ($extenders[] = ...)
 if (!isset($extenders)) {
@@ -97,11 +104,6 @@ $files = [
 if (isset($randomize)) {
     $files['randomize_class'] = $ditto_base . 'classes/random.class.inc.php';
 }
-if ($debug == 1) {
-    $files['modx_debug_class'] = $ditto_base . 'debug/modxDebugConsole.class.php';
-    $files['debug_class'] = $ditto_base . 'classes/debug.class.inc.php';
-    $files['debug_templates'] = $ditto_base . 'debug/debug.templates.php';
-}
 
 foreach (array_unique($files) as $filename => $filevalue) {
     if (is_file($filevalue)) {
@@ -120,12 +122,11 @@ foreach (array_unique($files) as $filename => $filevalue) {
 }
 
 //---Initiate Class-------------------------------------------------- //
-$dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
 if (!class_exists('ditto')) {
     evo()->logEvent(1, 3, $_lang['invalid_class'], 'Ditto ' . $ditto_version);
     return $_lang['invalid_class'];
 }
-$ditto = new ditto($format, $_lang, $dbg_templates);
+$ditto = new ditto($format, $_lang);
 
 //---Initiate Extenders---------------------------------------------- //
 if (isset($tagData)) {
@@ -432,51 +433,6 @@ if ($count > 0) {
     }
 } else {
     $output = $header . $ditto->noResults($noResults, $paginate) . $footer;
-}
-// ---------------------------------------------------
-// Handle Debugging
-// ---------------------------------------------------
-
-if ($debug == 1) {
-    $ditto_params =& event()->params;
-    $debugAction = get_choicevar("ditto_{$dittoID}debug", ['open', 'save'], '');
-    if ($debugAction === '') {
-        sessionv("*ditto_debug_{$dittoID}", $ditto->debug->render_popup(
-            $ditto,
-            $ditto_base,
-            $ditto_version,
-            $ditto_params,
-            $documentIDs ?? [],
-            ["db" => $dbFields ?? [], "tv" => $TVs ?? []],
-            $display ?? 0,
-            $templates ?? [],
-            $orderBy,
-            $start ?? 0,
-            $stop ?? 0,
-            $total ?? 0,
-            $filter ?? [],
-            $resource ?? []
-        ));
-    }
-    if ($debugAction !== '') {
-        switch ($debugAction) {
-            case "open":
-                exit(sessionv("ditto_debug_{$dittoID}", ''));
-                break;
-            case "save":
-                $ditto->debug->save(
-                    sessionv("ditto_debug_" . $dittoID, ''),
-                    sprintf(
-                        'ditto%s_debug_doc%s.html',
-                        strtolower($ditto_version),
-                        evo()->documentIdentifier
-                    )
-                );
-                break;
-        }
-    } else {
-        $output = $ditto->debug->render_link($dittoID, $ditto_base) . $output;
-    }
 }
 if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;

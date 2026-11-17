@@ -20,7 +20,6 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `format` | 出力の形式 | `html` / `json` / `xml` / `atom` / `rss` | `html` |
 | `config` | 設定ファイルを読み込む | `default`、`configs/` にある設定の名前、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | `default` |
 | `extenders` | 機能を足す extender を読み込む（関連: `config`） | カンマ区切り。`extenders/` にある名前（`request` / `tagging` / `dateFilter` / `summary`）、チャンク名、`@CHUNK チャンク名`、`@FILE サイトのルートからのパス`（`.php` だけ） | なし |
-| `debug` | デバッグ情報を出す | `0` オフ / `1` オン | `0` |
 
 `configs/default.config.php` があれば、`config` の指定にかかわらず最初に読み込む。
 `extenders` の名前は、まず同じ名前のチャンクを探し、無ければ `extenders/<名前>.extender.inc.php` を読む。
@@ -188,12 +187,11 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 | --- | --- | --- | --- |
 | `stripTags` | URL の値から HTML タグを取り除く | `0` オフ / `1` オン | `1` |
 | `good` | URL から変えてよいパラメータ | パラメータ名（カンマ区切り）。`filter` を含めると `filter_1`・`filter_2`・… も通る | `display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,dateSource,dateFormat,filter` |
-| `bad` | URL から変えさせないパラメータ | パラメータ名（カンマ区切り） | `seeThruUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID` |
+| `bad` | URL から変えさせないパラメータ | パラメータ名（カンマ区切り） | `seeThruUnpub,showInMenuOnly,showPublishedOnly,start,config,extenders,dittoID` |
 
 - テンプレート（`tpl`・`tplAlt` など）は、`good` に挙げたときだけ URL から変えられる。
 - SQL の条件・権限・対象のリソースに関わるもの（`where`・`hidePrivate`・`parents`・`startID`・`documents`・`depth`・`orderBy`・`queryLimit`・`limit`・`format`・`save` など）は、`good` に挙げても URL からは変えられない。
 - 記号（`` ^ ` ~ ! / @ # $ % : ; ( ) { } & * = | ' + ``）を含む値は使わない。
-- URL に `<id>_dbg=1` を付けると、セットした値を出力する（`debug` が有効のときだけ）。
 
 ### tagging — タグ
 
