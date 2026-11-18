@@ -268,6 +268,55 @@ class EvoMigrationHelper
     }
 
     /**
+     * 表の文字セットと照合順序。表が無ければ null
+     *
+     * @return array|null ['charset' => 文字セット, 'collation' => 照合順序]
+     */
+    public function tableCollation($table): ?array
+    {
+        $this->assertName($table);
+        $rows = $this->rows(sprintf(
+            'SELECT c.CHARACTER_SET_NAME, t.TABLE_COLLATION FROM INFORMATION_SCHEMA.TABLES t'
+            . ' JOIN INFORMATION_SCHEMA.COLLATIONS c ON c.COLLATION_NAME = t.TABLE_COLLATION'
+            . " WHERE t.TABLE_SCHEMA='%s' AND t.TABLE_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table)
+        ));
+        if (!$rows) {
+            return null;
+        }
+        return [
+            'charset' => $this->assertName($rows[0]['CHARACTER_SET_NAME']),
+            'collation' => $this->assertName($rows[0]['TABLE_COLLATION']),
+        ];
+    }
+
+    /**
+     * 表の文字セットと照合順序を $source の表にそろえる（列も変換する）。
+     * どちらかの表が無いか、もうそろっていれば何もしない。変えたら true
+     */
+    public function matchTableCollation($table, $source): bool
+    {
+        $current = $this->tableCollation($table);
+        $target = $this->tableCollation($source);
+        if (!$current || !$target || $current['collation'] === $target['collation']) {
+            return false;
+        }
+        $this->exec(sprintf(
+            'ALTER TABLE %s CONVERT TO CHARACTER SET %s COLLATE %s',
+            $this->table($table),
+            $target['charset'],
+            $target['collation']
+        ));
+        $this->log('Changed the table collation', [
+            'table' => $table,
+            'from' => $current['collation'],
+            'to' => $target['collation'],
+        ]);
+        return true;
+    }
+
+    /**
      * サーバー変数の値。変数が無ければ null
      */
     protected function serverVariable($name): ?string

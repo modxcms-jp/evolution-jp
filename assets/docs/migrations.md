@@ -18,7 +18,7 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 | 要素 | 場所 | 役割 |
 | --- | --- | --- |
 | マイグレーション | `manager/includes/migrations/` | 版依存のアップグレード処理の置き場所は、ここだけ |
-| 記録の表 | `{prefix}migrations`（既定の接頭辞で `modx_migrations`） | 適用した ID と時刻（`id`・`applied_at`）。定義はランナーだけが持ち、`create_tables.sql` には書かない |
+| 記録の表 | `{prefix}migrations`（既定の接頭辞で `modx_migrations`） | 適用した ID と時刻（`id`・`applied_at`）。定義はランナーだけが持ち、`create_tables.sql` には書かない。文字セットと照合順序は `system_settings` にそろえて作る |
 | ランナー | `manager/includes/migrator.class.inc.php` | 未適用を名前順に流して記録する。`GET_LOCK()` で同時に 2 回走らせない（30 秒待って取れなければ失敗）。アップデーターは、流してから記録するまでのあいだはロックを持たない（記録は重なっても壊れない） |
 | 補助 | `manager/includes/migration_helper.class.inc.php` | マイグレーションの関数に渡される `EvoMigrationHelper` |
 | CLI | `php evo.php migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
@@ -92,6 +92,7 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 | 実行 | `exec($sql, $summary = null)`（失敗で例外。`$summary` を渡すと SQL の代わりにそれをログと例外に出す。値を含む SQL に使う）、`rows($sql, $summary = null)`、`table($name)`（接頭辞つきの表名） |
 | 存在確認 | `tableExists`・`columnExists`・`column`・`index`・`indexExists`・`indexColumns`・`primaryKey` |
 | 列・索引 | `addColumn`（足したら true）、`modifyColumn`（最終形と違うときだけ変える）、`syncPrimaryKey`、`addIndex`、`dropIndexIfExists`・`dropColumnIfExists`・`dropTableIfExists` |
+| 文字セット | `tableCollation`（表の文字セットと照合順序）、`matchTableCollation($table, $source)`（`$source` の表にそろえる。変えたら true） |
 | データ | `removeDuplicates($table, $keyColumns, $keepRule)`（主キー・UNIQUE を付ける前に重複行を消す） |
 | 設定 | `setting`・`hasSetting`・`saveSetting`・`deleteSetting` |
 | ログ | `log($message, array $context = [], $type = 1)` |

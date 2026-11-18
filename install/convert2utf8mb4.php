@@ -95,7 +95,8 @@ class convert2utf8mb4 {
             'web_user_settings',
             'web_users',
             'webgroup_access',
-            'webgroup_names'
+            'webgroup_names',
+            'migrations'
         ];
     }
 
