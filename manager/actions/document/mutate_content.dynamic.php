@@ -75,7 +75,7 @@ $template = doc('template');
 
 checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
-$_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
+sessionv('*itemname', doc('pagetitle'));
 
 $body = [];
 $body[] = parseText(
