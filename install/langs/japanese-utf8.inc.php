@@ -16,7 +16,7 @@ $_lang["alert_database_test_connection"] = '先にデータベースの接続テ
 $_lang["alert_database_test_connection_failed"] = 'データベースに接続できません。';
 $_lang["alert_enter_adminemail"] = '管理者のメールアドレスを入力してください';
 $_lang["alert_enter_adminpassword"] = '管理者のパスワードを入力してください';
-$_lang["all"] = '全て選択';
+$_lang["all"] = 'すべて選択';
 $_lang["and_try_again"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。';
 $_lang["and_try_again_plural"] = 'これらのエラーを修正し、右下の「再チェック」ボタンをクリックしてください。'; //Plural form
 $_lang["begin"] = '開始';
@@ -103,12 +103,12 @@ $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creativ
 $_lang["modx_install"] = 'MODX &raquo; インストール';
 $_lang["sql_version_is"] = ' Version ';
 $_lang["no"] = 'いいえ';
-$_lang["none"] = '全ての選択を解除';
+$_lang["none"] = 'すべての選択を解除';
 $_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
 $_lang["optional_items_update"] = 'アップデートオプションの選択';
-$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODXを試す場合は、全てチェックを入れましょう。';
+$_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODXを試す場合は、すべてチェックを入れましょう。';
 $_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b>【アップデート時の注意】</b> プラグインに関しては、インストール時に既存プラグインを無効にします。';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。';
@@ -117,7 +117,7 @@ $_lang["plugin_disabled_in_site"] = 'このサイトでは無効にしてあり�
 $_lang["preinstall_validation"] = 'インストール前の状態確認';
 $_lang["preupdate_validation"] = 'アップデート前の状態確認';
 $_lang["remove_install_folder_auto"] = 'インストールディレクトリを自動で削除する<br />※サーバーの設定によっては削除できないことがあります。<br />削除できなかったときはログイン時に警告が出るので、手作業で削除してください。';
-$_lang["remove_install_folder_manual"] = '管理画面にログインする前に、&quot;<b>install</b>&quot; フォルダを必ず削除してください。';
+$_lang["remove_install_folder_manual"] = '管理画面にログインする前に、&quot;<b>install</b>&quot; フォルダーを必ず削除してください。';
 $_lang["retry"] = '再チェック';
 $_lang["sample_web_site"] = 'サンプルサイト';
 $_lang["sample_web_site_note"] = '<span style="font-style:normal;">簡易なテンプレート・新着情報一覧・ナビゲーション・パン屑リスト・問い合わせフォームの実装サンプルが含まれています。</span>';
@@ -158,7 +158,7 @@ $_lang["upgrade_note_keep_login"] = '<strong>注意:</strong>管理画面で、�
 $_lang["upgraded"] = 'アップデートしました';
 $_lang["visit_forum"] = '';
 $_lang["warning"] = '注意 ';
-$_lang["welcome_message_text"] = 'MODXのインストールは簡単。インストーラの説明に従って進めてください。';
+$_lang["welcome_message_text"] = 'MODXのインストールは簡単。インストーラーの説明に従って進めてください。';
 $_lang["welcome_message_welcome"] = 'MODXのインストールを開始します。';
 $_lang["writing_config_file"] = 'config.inc.phpへの書き込み(設定情報): ';
 $_lang["yes"] = 'はい';
@@ -179,7 +179,7 @@ $_lang['checking_if_content_writable'] = '<span class="mono">/content</span>デ�
 $_lang['checking_if_temp_exists'] = '<span class="mono">/temp</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_temp_writable'] = '<span class="mono">/temp</span>ディレクトリの書き込み属性: ';
 
-$_lang["welcome_message_upd_text"] = 'MODXのアップデートは簡単。インストーラの説明に従って進めてください。';
+$_lang["welcome_message_upd_text"] = 'MODXのアップデートは簡単。インストーラーの説明に従って進めてください。';
 $_lang["welcome_message_upd_welcome"] = 'MODXのアップデートを開始します。';
 $_lang["install_config_title"] = 'インストーラーのアクセス制御';
 $_lang["install_config_missing_message"] = '<span class="mono">install-config.php</span> がないため、インストールを続けられません。';
@@ -190,9 +190,9 @@ $_lang["install_config_step1"] = '<span class="mono">%s</span> ディレクト�
 $_lang["install_config_step2"] = '許可するIPアドレス（<span class="mono">allowed_ips</span>）、または BASIC 認証を設定してください。';
 $_lang["install_config_step3"] = '設定ファイルを保存したら、このページを再読み込みしてください。';
 $_lang["install_config_footer"] = '両方を空にするとアクセス制御は無効になります（非推奨）。';
-$_lang["upgrade_auth_required_title"] = 'アップグレードには管理者認証が必要です';
-$_lang["upgrade_auth_required_message"] = '<p>アップグレードを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
+$_lang["upgrade_auth_required_title"] = 'アップデートには管理者認証が必要です';
+$_lang["upgrade_auth_required_message"] = '<p>アップデートを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
 $_lang["upgrade_auth_login_link"] = '管理画面にログイン';
-$_lang["upgrade_auth_after_login"] = 'ログイン後、このページに戻ってアップグレードを続行してください。';
-$_lang["upgrade_permission_required_title"] = 'アップグレードを実行する権限がありません';
-$_lang["upgrade_permission_required_message"] = 'アップグレードを実行するには、システム設定（settings）の権限が必要です。権限のある管理者に依頼してください。';
+$_lang["upgrade_auth_after_login"] = 'ログイン後、このページに戻ってアップデートを続行してください。';
+$_lang["upgrade_permission_required_title"] = 'アップデートを実行する権限がありません';
+$_lang["upgrade_permission_required_message"] = 'アップデートを実行するには、システム設定（settings）の権限が必要です。権限のある管理者に依頼してください。';
