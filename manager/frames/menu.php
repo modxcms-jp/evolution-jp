@@ -95,14 +95,14 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 var o = Math.random();
                 var params = new URLSearchParams({"tok": tok, "o": o});
                 // 失敗時（HTTP エラー・JSON でない応答）は何もしない。
-                // ok でないときはこの画面のセッションがもう無く、CSRF トークンも合わないので、ログアウトを送らずに開き直す
+                // ok でないときは、この画面を開いたときのセッションが無く、ログアウトを送っても CSRF トークンが古くて断られる。管理画面を開き直す
                 // （期限切れならログイン画面、別のタブでログインし直していれば新しいセッションの管理画面になる）
                 Evo.fetch('session_keepalive.php?' + params.toString())
                     .then(function (response) {
                         return response.ok ? response.json() : null;
                     })
                     .then(function (resp) {
-                        if (resp && resp.status != 'ok') window.top.location.href = 'index.php';
+                        if (resp && resp.status != 'ok') EvoShell.refresh('page');
                     })
                     .catch(function () {});
             }
