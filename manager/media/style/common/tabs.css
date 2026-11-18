@@ -84,7 +84,7 @@
 
     .dynamic-tab-pane-control .tab-page {
         position: relative;
-        top: var(--tab-page-top, -4px);
+        top: var(--tab-page-top, -1px);
         z-index: 2;
         clear: both;
         margin-top: 0;
