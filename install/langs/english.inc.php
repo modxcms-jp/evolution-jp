@@ -81,7 +81,7 @@ $_lang["install_results_failed"] = 'The installation could not be completed.';
 $_lang["install_aborted"] = 'The installation was aborted.';
 $_lang["install_session_missing"] = 'The information required for the installation (such as the database connection) is no longer available, so the installation was aborted without making any changes. This can happen when the session expires during the setup. Please start over.';
 $_lang["install_start_over"] = 'Start over';
-$_lang["installation_finished_with_errors"] = '<span style="color:#c00;">Errors occurred during the installation, so it may not have completed correctly. Please check the messages above.</span>';
+$_lang["installation_finished_with_errors"] = '<span class="notok">Errors occurred during the installation, so it may not have completed correctly. Please check the messages above.</span>';
 $_lang["installation_error_occured"] = 'The following errors had occurred during installation';
 $_lang["installation_install_new_note"] = 'Please note this option may overwrite any data inside your database.';
 $_lang["htaccess_not_placed"] = 'The .htaccess file for Friendly URLs could not be placed. Links to documents other than the home page will not open (404) until it is. Put sample.htaccess from the distribution package in the site root as .htaccess (for a subdirectory installation, set RewriteBase to that directory).';
@@ -98,7 +98,7 @@ $_lang["install_in_progress"] = 'Installation is in progress…';
 $_lang["language_code"] = 'en';    // for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';
-$_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="https://modx.com/" target="_blank">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
 $_lang["modx_install"] = 'MODX &raquo; Install';
 $_lang["sql_version_is"] = ' Your SQL version is: ';
