@@ -157,7 +157,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
                             // Make the RTE displayed match the default value that has been set here
                             if (originalRichtextValue != "none"){
                                 MM.setValue("#which_editor", "none");
-                                changeRTE();
+                                MM.fire("#which_editor", "change");
                             }
 
                             ';
