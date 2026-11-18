@@ -103,7 +103,7 @@ function block_install_sample_site($ph)
 <input type="checkbox" name="installdata" id="installdata_field" value="1" [+checked+] />&nbsp;
 <label for="installdata_field">[+install_overwrite+] <span class="comname">[+sample_web_site+]</span></label>
 </p>
-<p><em>&nbsp;[+sample_web_site_note+]</em></p>
+<p>[+sample_web_site_note+]</p>
 TPL;
     $ph['checked'] = sessionv('installdata', false) == 1 ? 'checked' : '';
     return evo()->parseText($tpl, $ph);

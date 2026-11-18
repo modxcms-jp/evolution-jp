@@ -186,7 +186,7 @@ return [
     "database_charset" => 'Database Charset',
     "database_collation" => 'Database Collation Charset',
     "database_name" => 'Database name',
-    "database_overhead" => '<b style="color:#990033;">Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.',
+    "database_overhead" => '<b class="fail">Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.',
     "database_server" => 'Database server',
     "database_table_clickbackup" => 'to backup &amp; download the selected tables',
     "database_table_datasize" => 'Data size',
