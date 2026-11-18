@@ -94,13 +94,15 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 var tok = tokInput ? tokInput.value : '';
                 var o = Math.random();
                 var params = new URLSearchParams({"tok": tok, "o": o});
-                // 失敗時（HTTP エラー・JSON でない応答）は何もしない
+                // 失敗時（HTTP エラー・JSON でない応答）は何もしない。
+                // ok でないときはこの画面のセッションがもう無く、CSRF トークンも合わないので、ログアウトを送らずに開き直す
+                // （期限切れならログイン画面、別のタブでログインし直していれば新しいセッションの管理画面になる）
                 Evo.fetch('session_keepalive.php?' + params.toString())
                     .then(function (response) {
                         return response.ok ? response.json() : null;
                     })
                     .then(function (resp) {
-                        if (resp && resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
+                        if (resp && resp.status != 'ok') window.top.location.href = 'index.php';
                     })
                     .catch(function () {});
             }
