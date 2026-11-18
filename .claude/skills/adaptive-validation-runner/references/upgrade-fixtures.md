@@ -174,7 +174,7 @@ rm -rf temp/logs/system/*
 - 文字セットと照合順序: 利用者がインストーラで選ぶ utf8mb4 への変換（`convert2utf8mb4()`）の役
 - ストレージエンジン: 古いサイトの MyISAM を変える処理がもともと無く、この計画の非対象
 
-`diff` の出力は、`なし`（`<ref>` にあって `<target>` に無い列・索引）、`余分`（`<ref>` に無い列・索引）、`相違`（定義が違う）、`表なし`（`<ref>` にあって `<target>` に無い表）の 4 種類。`<ref>` に無い表は「残す表」（消えた表 `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` やサンプルの `jot_*`。利用者のデータが入っているので消さない）として別に出す。
+`diff` の出力は、`なし`（`<ref>` にあって `<target>` に無い列・索引）、`余分`（`<ref>` に無い列・索引）、`相違`（定義が違う）、`表なし`（`<ref>` にあって `<target>` に無い表）の 4 種類。`<ref>` に無い表は「残す表」（消えた表 `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` のうち行が入っているもの（空なら `20261118_130000_drop_empty_retired_tables` が消す）や、サンプルの `jot_*`。利用者のデータが入っているので消さない）として別に出す。
 
 ## 古い版のコードを動かさない理由
 
