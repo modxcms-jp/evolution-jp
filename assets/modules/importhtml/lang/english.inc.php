@@ -2,7 +2,7 @@
 return [
     'title' => 'Import HTML',
     'message' => 'Imports a site written in HTML files as documents. Copy the HTML files, with their directories, into /temp/import/ and click "Start import". The file name becomes the alias and the <title> element becomes the document title. A directory becomes a folder, and its index.html (or index.htm) becomes the folder\'s content.',
-    'no_permission' => 'You do not have permission to create and save documents.',
+    'no_permission' => 'This module requires the permissions to edit the system settings and to create and save documents.',
     'no_import_dir' => 'The directory to import from was not found. Create /temp/import/ and copy the HTML files into it.',
     'parent' => 'Parent document',
     'parent_message' => 'Click a document in the tree to import under it.',

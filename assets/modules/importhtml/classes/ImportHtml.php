@@ -59,17 +59,23 @@ class ImportHtml
         return $this->page($this->renderResult());
     }
 
+    /**
+     * サイトを移すときの作業なので、システム設定の権限を求める。
+     * 取り込みは、公開の権限や文書グループによる制限を確かめずに文書を作るため、編集の担当者には使わせない
+     */
     private function canImport()
     {
-        return evo()->hasPermission('new_document') && evo()->hasPermission('save_document');
+        return evo()->hasPermission('settings')
+            && evo()->hasPermission('new_document')
+            && evo()->hasPermission('save_document');
     }
 
     /**
-     * ツリーを空にする指定は、文書の削除とサイトの設定の変更を含むので、両方の権限を求める
+     * ツリーを空にする指定は、ごみ箱を通さずに文書をすべて消し、ID も振り直す（戻せない）ので、管理者だけに許す
      */
     private function canReset()
     {
-        return evo()->hasPermission('delete_document') && evo()->hasPermission('settings');
+        return $this->canImport() && manager()->isAdmin();
     }
 
     private function text($key)
