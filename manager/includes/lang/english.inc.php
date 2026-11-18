@@ -1060,7 +1060,6 @@ return [
     "users" => 'Security',
     "value" => 'Value',
     "view" => 'View',
-    "view_child_resources_in_container" => 'View children',
     "view_logging" => 'Manager Actions',
     "view_sysinfo" => 'System Info',
     "warning" => 'Warning!',
