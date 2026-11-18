@@ -481,6 +481,7 @@ function redirectAfterLogin()
  * ログイン後の行き先。ログイン前に開こうとした画面を、ユーザー設定の初期ページより優先する
  * - 管理画面: ログインフォームが持つ画面のクエリ（return。accesscontrol-not-mgr.inc.php が入れる）
  * - 表側の下書きプレビュー: 管理画面のトップへ移ってからログインするので、URL はセッション（save_uri）に覚えてある
+ * - インストーラーのアップデートの認証画面: install/functions.php の renderUpgradeAuthRequired() が、インストーラーのトップのパスを save_uri に入れる
  */
 function loginRedirectUri()
 {
