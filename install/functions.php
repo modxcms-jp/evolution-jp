@@ -851,6 +851,8 @@ function renderUpgradePermissionRequired()
 
 function renderUpgradeAuthRequired()
 {
+    // Ajax の入口からも呼ばれるため、戻り先は現在の URL でなくインストーラのトップにする
+    sessionv('*save_uri', MODX_SITE_URL . 'install/');
     $ph = ph();
     $ph['install_config_title'] = lang('upgrade_auth_required_title');
     $ph['install_config_message'] = lang('upgrade_auth_required_message');

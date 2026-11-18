@@ -193,6 +193,6 @@ $_lang["install_config_footer"] = '両方を空にするとアクセス制御は
 $_lang["upgrade_auth_required_title"] = 'アップデートには管理者認証が必要です';
 $_lang["upgrade_auth_required_message"] = '<p>アップデートを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
 $_lang["upgrade_auth_login_link"] = '管理画面にログイン';
-$_lang["upgrade_auth_after_login"] = 'ログイン後、このページに戻ってアップデートを続行してください。';
+$_lang["upgrade_auth_after_login"] = 'ログインすると、この画面に戻ります。';
 $_lang["upgrade_permission_required_title"] = 'アップデートを実行する権限がありません';
 $_lang["upgrade_permission_required_message"] = 'アップデートを実行するには、システム設定（settings）の権限が必要です。権限のある管理者に依頼してください。';

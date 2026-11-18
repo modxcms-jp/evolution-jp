@@ -183,6 +183,6 @@ $_lang["install_config_footer"] = 'Leaving both empty disables access control, w
 $_lang["upgrade_auth_required_title"] = 'Manager authentication required for upgrade';
 $_lang["upgrade_auth_required_message"] = '<p>To perform an upgrade, you must be logged into the Evolution CMS manager.</p>';
 $_lang["upgrade_auth_login_link"] = 'Log in to manager';
-$_lang["upgrade_auth_after_login"] = 'After logging in, return to this page to continue the upgrade.';
+$_lang["upgrade_auth_after_login"] = 'After logging in, you will return to this page.';
 $_lang["upgrade_permission_required_title"] = 'You do not have permission to run the upgrade';
 $_lang["upgrade_permission_required_message"] = 'Running the upgrade requires the System Configuration (settings) permission. Ask an administrator who has this permission.';
