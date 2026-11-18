@@ -786,9 +786,6 @@ switch (manager()->action) {
     case 94: // get the duplicate processor
         include_once($prc_path . 'document/duplicate_content.processor.php');
         break;
-    case 95: // Import Document from file
-        include_once($action_path . 'tool/import_site.static.php');
-        break;
     case 9: // get the help page
         include_once($action_path . 'tool/help.static.php');
         break;

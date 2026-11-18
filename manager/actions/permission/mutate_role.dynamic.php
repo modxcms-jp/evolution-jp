@@ -327,7 +327,6 @@ function role($key, $default = null)
                             echo render_form('settings', lang('role_edit_settings'));
                             echo render_form('file_manager', lang('role_file_manager'));
                             echo render_form('bk_manager', lang('role_bk_manager'));
-                            echo render_form('import_static', lang('role_import_static'));
                             echo render_form('export_static', lang('role_export_static'));
                             echo render_form('remove_locks', lang('role_remove_locks'));
                             ?>

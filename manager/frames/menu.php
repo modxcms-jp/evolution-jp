@@ -340,8 +340,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     // Tools Menu
                     $item['bk_manager'] = item(lang('bk_manager'), 93,
                         evo()->hasPermission('bk_manager'));// backup-mgr
-                    $item['import_site'] = item(lang('import_site'), 95,
-                        evo()->hasPermission('import_static'));// import-html
                     $item['export_site'] = item(lang('export_site'), 83,
                         evo()->hasPermission('export_static'));// export-static-site
                     $item['edit_settings'] = item(lang('edit_settings'), 17,

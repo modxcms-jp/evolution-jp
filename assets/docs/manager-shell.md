@@ -64,7 +64,7 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 - 互換の名前を使わない。画面の移動・メニューやツリーの読み直しは `EvoShell` の API（`go`・`navigate`・`reloadTree`・`reloadMenu`・`refresh`・`closeModal`）を使う。
 - 例外は `window.tree` だけ。ツリーの状態 `ca` を変える API は `EvoShell` に無いので、`window.tree` を使う。`top.`・`parent.` を付けずに書き、無いとき（`chromeless`・QuickManager の埋め込み）は何もしない（例: `manager/media/style/common/jscripts.tpl` の `enableParentSelection()`）。
 
-互換の名前は、外部のプラグイン・モジュール・テーマのために残す。本体の中には、まだ `top.`・`parent.` の書き方で使っている箇所がある（`manager/frames/nodes.php` のノードの `onclick`、`move_document.dynamic.php`・`move_document.processor.php`、`import_site.static.php`、同梱の docmanager など）。これらを書き換えても、互換の名前は消さない。消すときは、外部への影響を Issue で調べてから決める。
+互換の名前は、外部のプラグイン・モジュール・テーマのために残す。本体の中には、まだ `top.`・`parent.` の書き方で使っている箇所がある（`manager/frames/nodes.php` のノードの `onclick`、`move_document.dynamic.php`・`move_document.processor.php`、同梱の docmanager・Import HTML など）。これらを書き換えても、互換の名前は消さない。消すときは、外部への影響を Issue で調べてから決める。
 
 ## タイトル（`<title>`）
 
