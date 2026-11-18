@@ -75,11 +75,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
                 $output .= sprintf(
                     $hideRows,
-                    js_literal(sprintf(
-                        '%s[name="%s"]',
-                        $mm_fields[$field]['fieldtype'],
-                        str_replace('\\', '', $mm_fields[$field]['fieldname'])
-                    ))
+                    js_literal(mmFieldSelector($field))
                 );
         }
         $output .= "\n";

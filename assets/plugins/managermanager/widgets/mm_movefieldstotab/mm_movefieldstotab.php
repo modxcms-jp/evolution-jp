@@ -144,7 +144,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
                 $fieldname = str_replace('\\', '', $mm_fields[$field]['fieldname']);
                 $output .= sprintf(
                     '    moveFieldRows(MM.parents(%s, "tr:not(.urltv)"));' . "\n",
-                    js_literal(sprintf('%s[name="%s"]', $mm_fields[$field]['fieldtype'], $fieldname))
+                    js_literal(mmFieldSelector($field))
                 );
                 // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
                 $output .= sprintf(

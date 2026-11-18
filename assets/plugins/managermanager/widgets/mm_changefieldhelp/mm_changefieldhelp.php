@@ -31,10 +31,8 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
         return;
     }
     $output = "//  -------------- mm_changeFieldHelp :: Begin ------------- \n";
-    $fieldtype = $mm_fields[$field]['fieldtype'];
     $fieldname = $mm_fields[$field]['fieldname'];
-    // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-    $selector = js_literal(sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname)));
+    $selector = js_literal(mmFieldSelector($field));
 
     //Is this TV?
     if ($mm_fields[$field]['tv']) {
