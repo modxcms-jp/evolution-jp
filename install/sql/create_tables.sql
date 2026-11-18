@@ -406,7 +406,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles`
     `delete_web_user`        int(1)       NOT NULL DEFAULT '0',
     `web_access_permissions` int(1)       NOT NULL DEFAULT '0',
     `view_unpublished`       int(1)       NOT NULL DEFAULT '0',
-    `import_static`          int(1)       NOT NULL DEFAULT '0',
     `export_static`          int(1)       NOT NULL DEFAULT '0',
     `remove_locks`           int(1)       NOT NULL DEFAULT '0',
     `view_schedule`          int(1)       NOT NULL DEFAULT '0',

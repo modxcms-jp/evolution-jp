@@ -54,10 +54,6 @@ class PathGuard
         if (!$modx->hasPermission('empty_cache')) {
             $protected[] = rtrim(MODX_CACHE_PATH, '/');
         }
-        if (!$modx->hasPermission('import_static')) {
-            $protected[] = base_path() . 'temp/import';
-            $protected[] = base_path() . 'assets/import';
-        }
         if (!$modx->hasPermission('export_static')) {
             $protected[] = base_path() . 'temp/export';
             $protected[] = base_path() . 'assets/export';
