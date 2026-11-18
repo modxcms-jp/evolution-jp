@@ -217,7 +217,7 @@
 
 タブ（tabpane.js の部品 `.dynamic-tab-pane-control`）は、`manager/media/style/common/tabs.css`（`@layer evo-components`）が描く。並び（折り返す `flex`）・重なり・文字の大きさ（`1em`）・誤りの印の太さは全テーマ共通。型と色は、テーマが `:root` で下の変数の値を決め、タブの規則を書かない。同梱テーマには、上だけ角丸のフォルダの見出しの型（RevoClassic・RevoStyle・RubberWhite・SoftSlate）、下線の型（AuroraFlow）、丸い錠剤の型（AromaHop・SakuraFlow）がある。一部のテーマにしかない飾り（SakuraFlow の本体のすりガラス）は、テーマの規則に書く。
 
-フォルダの見出しの型は、タブを `--tab-top` で下へずらし、本体を `--tab-page-top` で上へずらして、選んでいるタブと本体の枠をつなげる（[theme-spacing.md](theme-spacing.md) の「例外」）。下線の型は、タブ列の下線（`--tab-row-border`）を本体の上辺にする。錠剤の型は、タブ列と本体の間を `--tab-row-gap` で空ける。
+フォルダの見出しの型は、タブを `--tab-top` で下へずらし、本体を `--tab-page-top` で上へずらして、選んでいるタブと本体の枠をつなげる（[theme-spacing.md](theme-spacing.md) の「例外」）。選んでいるタブの左右の枠が本体の上の枠の下端でちょうど止まるのは、`--tab-page-top` が「`--tab-top` − タブの下の外側の余白（`--tab-margin` の下）− 本体の上の枠の太さ」のとき（既定の `1px − 1px − 1px = -1px`）。これより上へずらすと、タブの左右の枠が本体の中へはみ出す。下線の型は、タブ列の下線（`--tab-row-border`）を本体の上辺にする。錠剤の型は、タブ列と本体の間を `--tab-row-gap` で空ける。
 
 | 変数 | 意味 | 既定値（tabs.css） |
 | --- | --- | --- |
@@ -229,7 +229,7 @@
 | `--tab-selected-bg` / `--tab-selected-color` / `--tab-selected-border-width` / `--tab-selected-border-color` / `--tab-selected-font-weight` / `--tab-selected-shadow` | 選んでいるタブの地・文字の色・枠の太さ・枠の色・太さ・影 | `--color-surface` / `--gray-900` / `--tab-border-width` / `--color-primary-hover-end #b7c2c7 --color-surface #b7c2c7` / `--tab-font-weight` / なし |
 | `--tab-selected-hover-bg` / `--tab-selected-hover-color` / `--tab-selected-hover-border-color` | 選んでいるタブに乗せたとき | 選んでいるときと同じ |
 | `--tab-alert-color` / `--tab-selected-alert-color` | 入力に誤りがあるタブの印の色 | `--color-error-light` / `--tab-alert-color` |
-| `--tab-page-top` / `--tab-page-padding` / `--tab-page-bg` / `--tab-page-border` / `--tab-page-radius` / `--tab-page-shadow` | 本体（`.tab-page`）を上へずらす量・内側の余白（`.sectionBody` の中か外かに関係なく、この値）・地・枠・角・影 | `-4px` / `16px 16px 20px` / `--color-surface` / なし / `0` / なし |
+| `--tab-page-top` / `--tab-page-padding` / `--tab-page-bg` / `--tab-page-border` / `--tab-page-radius` / `--tab-page-shadow` | 本体（`.tab-page`）を上へずらす量・内側の余白（`.sectionBody` の中か外かに関係なく、この値）・地・枠・角・影 | `-1px` / `16px 16px 20px` / `--color-surface` / なし / `0` / なし |
 | `--tab-page-border-top` | 本体の上の枠。下線の型は、タブ列の下線を上の辺にするので `none` にする | `--tab-page-border` |
 
 既定値は RevoClassic の値。

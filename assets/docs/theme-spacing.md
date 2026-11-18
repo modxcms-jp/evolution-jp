@@ -86,7 +86,7 @@
 
 | 例外 | 条件（作り） | 同梱の例 | 理由 |
 | --- | --- | --- | --- |
-| つなげて見せる組は 0 | 上のブロックの枠や下線を下のブロックと共有して、1 つに見せる組。タブ列とパネル、見出しの帯と本体。つなげる方法は、(1) `.tab-page` の負の `top`（テーマの `--tab-page-top`）、(2) タブ列の下線（`.tab-row` の `border-bottom`）をパネルの上辺にして、`.tab-page` の `border-top` を消す、(3) 帯と本体で枠を共有する、のいずれか | (1) RevoClassic（-4px）、RubberWhite（-2px）。(2) AuroraFlow、SoftSlate。(3) AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `.sectionHeader` → `.sectionBody` | 間を空けると、つながって見える枠が切れるため |
+| つなげて見せる組は 0 | 上のブロックの枠や下線を下のブロックと共有して、1 つに見せる組。タブ列とパネル、見出しの帯と本体。つなげる方法は、(1) `.tab-page` の負の `top`（テーマの `--tab-page-top`）、(2) タブ列の下線（`.tab-row` の `border-bottom`）をパネルの上辺にして、`.tab-page` の `border-top` を消す、(3) 帯と本体で枠を共有する、のいずれか | (1) RevoClassic・RevoStyle・RubberWhite（共通部の既定の -1px）。(2) AuroraFlow、SoftSlate。(3) AuroraFlow・RevoClassic・RubberWhite・SoftSlate の `.sectionHeader` → `.sectionBody` | 間を空けると、つながって見える枠が切れるため |
 | `.section` の中の、枠の無い文字だけの見出しから本体までは 0 | `.section` の直下の `.sectionHeader` が枠も背景も持たず、文字だけで本体とひと続きに見える作り（見出しと本体を 1 つの組として見せる）。本体の `padding` が文字との間を作る | SakuraFlow、AromaHop の `.section > .sectionHeader` → `.sectionBody` | 見出しと本体の間を、本体の `padding` に任せるため。タブの中の見出し（`.tab-page .sectionHeader`）はこの例外ではなく、ブロックの間（`--space-3`）にする |
 | 負の `top` の分の広がり | 上の (1) の作り | RevoClassic、RubberWhite | `top` は描く位置だけをずらし、箱は元の場所に残る。タブの組の次のブロックまでの間は、`top` の絶対値の分だけ広く測れる。許容する |
 
@@ -100,7 +100,7 @@ RevoStyle の `--space-*` も、ほかのテーマと同じ 4px 刻み（`--spac
 
 1. `:root` に `--space-1` 〜 `--space-8` を、上の表の値で定義する
 2. ブロックの間を、決まりの表の段の `margin-bottom` で書く。入れ物の最初と最後の子には外側の `margin` を足さない。`common/spacing.css` にある規則（最後の子の規則、`.tab-page > :has(+ .sectionHeader)`、`.sectionBody > :is(div, table, fieldset)`、`.resources-topic-path`・`.system-log-toolbar`・`.system-log-summary`、`form > :has(+ .resources-batch-actions)`・`:is(.sectionBody, .tab-page, form) > :has(+ .pagination)`、`:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons)`、`:is(.sectionBody, .tab-page, form) > :has(+ .code-editor)`、`.tab-pane > ul.actionButtons`）は写さない。テーマが書くのは、決まりの表の例のうち、それ以外のセレクタ（`#mainPane > h1`、`.section`、`ul.actionButtons` など）
-3. `grep -n -- "--tab-page-top" style.css` で、タブの本体を上へずらす値を確かめる（出てよいのは、例外の負の値か `0` だけ。無ければ共通部の既定の `-4px`）
+3. `grep -n -- "--tab-page-top" style.css` で、タブの本体を上へずらす値を確かめる（出てよいのは、例外の負の値か `0` だけ。無ければ共通部の既定の `-1px`）
 4. 管理画面の主な画面（ダッシュボード、サブリソース一覧、リソースの編集、システム設定、アクセス権限など）を開き、ページの端・見出し・ボタン列・表・タブとパネルの間が、決まりの表の値になっているか、ブラウザの開発者ツールで確かめる
 
 同梱テーマの例は `manager/media/style/RevoClassic/style.css`、`manager/media/style/SoftSlate/style.css` など。

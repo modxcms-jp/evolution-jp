@@ -234,7 +234,6 @@
     --tab-selected-color: #111;
     --tab-alert-color: #ffcc72;
     --tab-selected-alert-color: #c00;
-    --tab-page-top: -2px;
     --tab-page-padding: 20px 15px 14px;
 
     /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */

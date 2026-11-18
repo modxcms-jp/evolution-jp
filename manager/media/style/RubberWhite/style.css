@@ -307,7 +307,6 @@
     --tab-selected-color: var(--color-gray-950);
     --tab-selected-font-weight: 600;
     --tab-selected-hover-border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
-    --tab-page-top: -2px;
     --tab-page-border: 1px solid var(--clean-border);
     --tab-page-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
     --tab-page-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
