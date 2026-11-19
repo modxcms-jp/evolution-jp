@@ -14,8 +14,8 @@ final class EvoElementTypes
      * - permissions: delete（削除）・duplicate（複製）に要る権限
      * - events: before_delete・after_delete のイベント名
      * - actions: delete・duplicate のアクション番号
-     * - deleted_url: 削除のあとの移動先
-     * - duplicated_url: 複製のあとの移動先（%d に新しい id）
+     * - refresh: 削除・複製のあとに読み直すもの（EvoFormFlow の refresh の値。モジュールだけ）。
+     *   移動先の画面の番号は EvoFormFlow が持つ（種類のキーは同じ）
      * - copy_fields: 複製で写す列（名前の列を含む）
      * - guid_field: 複製のたびに作り直す GUID の列（モジュールだけ）
      * - relations: 関連テーブル。削除ではこの順に全部消す。
@@ -34,8 +34,6 @@ final class EvoElementTypes
                     'after_delete' => 'OnSnipFormDelete',
                 ],
                 'actions' => ['delete' => 25, 'duplicate' => 98],
-                'deleted_url' => 'index.php?a=76',
-                'duplicated_url' => 'index.php?a=22&id=%d',
                 'copy_fields' => ['name', 'description', 'snippet', 'properties', 'category'],
                 'relations' => [],
             ],
@@ -49,8 +47,6 @@ final class EvoElementTypes
                     'after_delete' => 'OnChunkFormDelete',
                 ],
                 'actions' => ['delete' => 80, 'duplicate' => 97],
-                'deleted_url' => 'index.php?a=76',
-                'duplicated_url' => 'index.php?a=78&id=%d',
                 'copy_fields' => ['name', 'description', 'snippet', 'category', 'editor_type'],
                 'relations' => [],
             ],
@@ -64,8 +60,6 @@ final class EvoElementTypes
                     'after_delete' => 'OnPluginFormDelete',
                 ],
                 'actions' => ['delete' => 104, 'duplicate' => 105],
-                'deleted_url' => 'index.php?a=76',
-                'duplicated_url' => 'index.php?a=102&id=%d',
                 'copy_fields' => [
                     'name', 'description', 'disabled', 'moduleguid', 'plugincode', 'properties', 'category',
                 ],
@@ -83,8 +77,7 @@ final class EvoElementTypes
                     'after_delete' => 'OnModFormDelete',
                 ],
                 'actions' => ['delete' => 110, 'duplicate' => 111],
-                'deleted_url' => 'index.php?a=106&refresh=menu',
-                'duplicated_url' => 'index.php?refresh=menu&a=108&id=%d',
+                'refresh' => 'menu',
                 'copy_fields' => [
                     'name', 'description', 'disabled', 'category', 'wrap', 'icon', 'enable_resource',
                     'resourcefile', 'createdon', 'editedon', 'enable_sharedparams', 'properties', 'modulecode',
@@ -105,8 +98,6 @@ final class EvoElementTypes
                     'after_delete' => 'OnTempFormDelete',
                 ],
                 'actions' => ['delete' => 21, 'duplicate' => 96],
-                'deleted_url' => 'index.php?a=76',
-                'duplicated_url' => 'index.php?a=16&id=%d',
                 'copy_fields' => ['templatename', 'description', 'content', 'category', 'parent'],
                 'relations' => [
                     ['table' => 'site_tmplvar_templates', 'key' => 'templateid', 'copy' => ['tmplvarid', 'rank']],
@@ -122,8 +113,6 @@ final class EvoElementTypes
                     'after_delete' => 'OnTVFormDelete',
                 ],
                 'actions' => ['delete' => 303, 'duplicate' => 304],
-                'deleted_url' => 'index.php?a=76',
-                'duplicated_url' => 'index.php?a=301&id=%d',
                 'copy_fields' => [
                     'type', 'name', 'caption', 'description', 'default_text', 'elements', 'rank',
                     'display', 'display_params', 'category',
@@ -143,6 +132,30 @@ final class EvoElementTypes
     public static function get($type)
     {
         return self::all()[$type] ?? null;
+    }
+
+    /**
+     * 削除のあとの移動先（一覧の画面）。エスケープ前の文字列
+     */
+    public static function deletedUrl($type)
+    {
+        return EvoFormFlow::url(['a' => EvoFormFlow::screen($type, 'close')] + self::refreshQuery($type));
+    }
+
+    /**
+     * 複製のあとの移動先（複製してできたエレメントの編集の画面）。エスケープ前の文字列
+     */
+    public static function duplicatedUrl($type, $newId)
+    {
+        return EvoFormFlow::url(
+            ['a' => EvoFormFlow::screen($type, 'edit'), 'id' => (int) $newId] + self::refreshQuery($type)
+        );
+    }
+
+    private static function refreshQuery($type)
+    {
+        $refresh = self::get($type)['refresh'] ?? null;
+        return $refresh === null ? [] : ['refresh' => $refresh];
     }
 
     /**

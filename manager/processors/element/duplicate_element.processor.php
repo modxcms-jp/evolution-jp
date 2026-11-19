@@ -32,4 +32,4 @@ if (!$newId) {
     );
 }
 
-header('Location: ' . sprintf($def['duplicated_url'], $newId));
+header('Location: ' . EvoElementTypes::duplicatedUrl($type, $newId));
