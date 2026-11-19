@@ -22,7 +22,7 @@ if (!$id) {
 
 $newId = manager()->duplicateElement($type, $id);
 if ($newId === 0) {
-    alert()->setError(2);
+    alert()->setError(7);
     alert()->dumpError();
 }
 if (!$newId) {
