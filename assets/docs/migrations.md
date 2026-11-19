@@ -162,3 +162,11 @@ CLI の `php evo.php migrate` は、baseline が記録済みのサイトで、�
 - **MariaDB 11 以外では、2 回目のアップデーターで `system_cache.cache_value` の型が戻る**: `create_tables.sql` が `system_cache` を毎回作り直すため（インストーラの動き）。
 - **`alias` の索引**: InnoDB の古い表（行形式が COMPACT・REDUNDANT）では、索引の長さの上限が 767 バイトで、`alias`（245 文字）全体の索引を utf8mb4 で作れない。baseline は、まず `ROW_FORMAT=DYNAMIC` にして作れるか確かめる。`DYNAMIC` にできない環境や、`DYNAMIC` にしても上限が 767 バイトの環境（MySQL 5.6 の Antelope、`innodb_large_prefix=OFF` など）では、`alias` の索引を前置き長のまま残し、ログ（種別 2）で知らせる。最終形との差になるが、動作には支障が無い。
 - **`site_tmplvar_contentvalues` の FULLTEXT 索引（`value_ft_idx`）**: 新規インストールでも baseline でも作らない（最終形に無い）。MySQL の標準のパーサーは空白で語を区切るので日本語の文では働かず、コアも同梱の拡張も `MATCH ... AGAINST` を使っていない。TV の値の保存のたびに索引の更新がかかり、InnoDB の FULLTEXT に対応していない DB（MySQL 5.5 など）では `create_tables.sql` でアップデートも止まっていた。すでに作られているサイトの索引は、外部の処理が使っているかもしれないので消さない（残っていても動作には支障が無い）。
+
+## サイトのコードの書き換えが要る差
+
+アップデーターでは直らず、テンプレート・スニペット・プラグインなどサイト側のコードを書き換える必要がある差。
+
+- **`doc('TV名')` が TV の値の文字列を返す**: 1.0.24J〜1.0.26J と、2024 年 2 月より前の 1.1.0J の開発版（版の表示は `1.1.0J`）の `doc()`（`manager/includes/helpers.php`）は、TV のときに TV の配列（`name`・`caption`・`value` など）を返していた。リリースされた 1.1.0J から後は、値の文字列を返す。古い版に合わせて `doc('TV名')['value']` と書いたコードは、文字列に添字を付けることになり、PHP 8 では `Cannot access offset of type string on string` で止まってページが HTTP 500 になる（PHP 7.4 では警告が出て、値の 1 文字めだけが返る）。
+  - `doc('TV名')['value']` は `doc('TV名')` に書き換える。`value` 以外は `doc('TV名.caption')` のようにドットでつないで取れる。
+  - 古い版と新しい版の両方で動かすコードは、`$value = doc('TV名'); if (is_array($value)) { $value = $value['value']; }` のように `is_array()` で分ける。
