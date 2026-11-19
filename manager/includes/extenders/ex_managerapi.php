@@ -101,19 +101,25 @@ class ManagerAPI
     public function redirectToElementForm($message, string $kind, $id = 0): void
     {
         $mode = $id ? 'edit' : 'new';
-        $this->saveFormValues(EvoFormFlow::screen($kind, $mode));
+        // 戻った画面は、読み込んだ行の id（新規は 0）と入力の id が一致したときだけ入力を重ねる
+        $this->saveFormValues(EvoFormFlow::screen($kind, $mode), ['id' => (int)$id]);
         evo()->webAlertAndQuit($message, EvoFormFlow::formUrl($kind, $mode, (int)$id, EvoFormFlow::postedAfterSave()));
         exit;
     }
 
-    // saved form post from $_POST
-    public function saveFormValues($id = 0)
+    /**
+     * 差し戻す画面のために、送られた入力（POST）をセッションに残す
+     *
+     * @param int $id 残す先の画面の番号（0 なら今の画面）
+     * @param array $override POST の値の代わりに残す値（キー => 値）
+     */
+    public function saveFormValues($id = 0, array $override = [])
     {
         if (!$_POST) {
             return false;
         }
         $actionId = $id ?: $this->action;
-        $_SESSION['mgrFormValues'][$actionId] = $_POST;
+        $_SESSION['mgrFormValues'][$actionId] = array_merge($_POST, $override);
         return true;
     }
 
