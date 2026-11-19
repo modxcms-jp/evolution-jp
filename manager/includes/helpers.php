@@ -252,22 +252,37 @@ function manager_safe_mode_can_toggle()
         );
 }
 
+// セーフモードを切り替える要求（manager_safe_mode_toggle_form() の POST）か。CSRF はここでは確かめない
+function manager_is_safe_mode_request()
+{
+    return is_post()
+        && postv('manager_safe_mode') !== null
+        && anyv('a') === '1'
+        && anyv('f') === 'menu';
+}
+
 function manager_apply_safe_mode_request()
 {
-    $requested = postv('manager_safe_mode');
-    if (
-        !is_post()
-        || $requested === null
-        || anyv('a') !== '1'
-        || anyv('f') !== 'menu'
-        || !manager_safe_mode_can_toggle()
-    ) {
+    if (!manager_is_safe_mode_request() || !manager_safe_mode_can_toggle()) {
         return false;
     }
 
     checkCsrfToken();
-    sessionv('*safeMode', $requested === '1' ? 1 : 0);
+    sessionv('*safeMode', postv('manager_safe_mode') === '1' ? 1 : 0);
     return true;
+}
+
+// セッションのセーフモードを、この要求に効かせる（invokeEvent() が止める）。
+// セーフモードに入る要求も、その要求のプラグインを止める（OnGetConfig が壊れていても入れるように）。
+// セッションに書くのは manager_apply_safe_mode_request()（CSRF を確かめてから）。
+// プラグインの権限が無い人のセーフモードは消す。権限は accesscontrol.inc.php が読み直すので、その前と後の両方で呼ぶ
+function manager_sync_safe_mode()
+{
+    if (sessionv('safeMode') == 1 && !manager_safe_mode_can_toggle()) {
+        sessionv('*safeMode', 0);
+    }
+    $entering = manager_is_safe_mode_request() && postv('manager_safe_mode') === '1';
+    evo()->safeMode = (sessionv('safeMode') == 1 || $entering) && manager_safe_mode_can_toggle() ? 1 : 0;
 }
 
 function manager_safe_mode_toggle_value()
