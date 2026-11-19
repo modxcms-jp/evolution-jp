@@ -107,7 +107,8 @@ $renamedParams = array_intersect_key(
     (array) event()->params
 );
 if ($renamedParams) {
-    // 古い名前の値は今の名前に引き継ぐ。両方を指定したときは今の名前を使う
+    // 古い名前の値は今の名前に引き継ぐ。両方を指定したときは今の名前を使う。
+    // format などは event()->params を直接読むので、params にも今の名前で入れる
     $ignoredParams = [];
     foreach ($renamedParams as $oldName => $newName) {
         if (array_key_exists($newName, event()->params)) {
@@ -115,6 +116,7 @@ if ($renamedParams) {
             continue;
         }
         ${$newName} = event()->params[$oldName];
+        event()->setParam($newName, ${$newName});
     }
     evo()->logEvent(
         0,

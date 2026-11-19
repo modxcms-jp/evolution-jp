@@ -83,7 +83,7 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `paginateAlwaysShowLinks` | 前後のページが無いときも「前へ」「次へ」を出す（リンクなしのテンプレートを使う） | `0` オフ / `1` オン | `0` |
 | `paginateSplitterCharacter` | ページ番号の間と、`[+splitter+]` に入る区切り | 任意の文字 | 言語ファイル（`button_splitter`） |
 
-件数を指定するパラメータは 2 つある。`queryLimit` はデータベースから取り出す件数（SQL の LIMIT）で、`filter` での絞り込みや、TV などで並べ替えるときの並べ替えより前に効く。`display` は、絞り込み・並べ替えのあとで出力する件数（ページ送りでは 1 ページの件数）。ページ送りも `filter` も使わず、データベースで並べ替えるときに「1 件だけ出す」なら、どちらでも同じ結果になる。それ以外は `display` を使う。
+件数を指定するパラメータは 2 つある。`queryLimit` はデータベースから取り出す件数（SQL の LIMIT）で、取り出したあとの処理（`filter` での絞り込み、`seeThruUnpub=0` による除外、`start` による読み飛ばし、`randomize` にフィールド名を渡したときの選び方、TV や `pub_date`・`unpub_date`・`editedon`・`deletedon`・`publishedon` での並べ替え）より前に効く。`display` は、それらのあとで出力する件数（ページ送りでは 1 ページの件数）。それらもページ送りも使わずに「1 件だけ出す」なら、どちらでも同じ結果になる。それ以外は `display` を使う。
 
 SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`deletedon`・`publishedon` 以外）、値が同じリソースは、最初のフィールドの向きで id の順に並ぶ。
 
