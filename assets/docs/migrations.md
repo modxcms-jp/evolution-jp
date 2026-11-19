@@ -1,6 +1,6 @@
 # マイグレーション
 
-DB のスキーマと、設定・データの移行（アップグレードの処理）の仕組みと書き方。サイトを管理する人と、マイグレーションを書く開発者の両方が読む。
+DB のスキーマと、設定・データの移行（アップグレードの処理）の仕組みと書き方、アップグレードでサイト側のコードの書き換えが要る差。サイトを管理する人と、マイグレーションを書く開発者の両方が読む。
 
 CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/includes/cli/README.md)、古い版の DB を作って確かめる道具は [`.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md`](../../.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md) を正とする。ここでは参照する。
 
@@ -167,6 +167,6 @@ CLI の `php evo.php migrate` は、baseline が記録済みのサイトで、�
 
 アップデーターでは直らず、テンプレート・スニペット・プラグインなどサイト側のコードを書き換える必要がある差。
 
-- **`doc('TV名')` が TV の値の文字列を返す**: 1.0.24J〜1.0.26J と、2024 年 2 月より前の 1.1.0J の開発版（版の表示は `1.1.0J`）の `doc()`（`manager/includes/helpers.php`）は、TV のときに TV の配列（`name`・`caption`・`value` など）を返していた。リリースされた 1.1.0J から後は、値の文字列を返す。古い版に合わせて `doc('TV名')['value']` と書いたコードは、文字列に添字を付けることになり、PHP 8 では `Cannot access offset of type string on string` で止まってページが HTTP 500 になる（PHP 7.4 では警告が出て、値の 1 文字めだけが返る）。
-  - `doc('TV名')['value']` は `doc('TV名')` に書き換える。`value` 以外は `doc('TV名.caption')` のようにドットでつないで取れる。
-  - 古い版と新しい版の両方で動かすコードは、`$value = doc('TV名'); if (is_array($value)) { $value = $value['value']; }` のように `is_array()` で分ける。
+- **`doc('TV名')` が TV の値の文字列を返す**: 1.0.24J〜1.0.26J と、2024 年 2 月 11 日より前の 1.1.0J の開発版（版の表示は `1.1.0J`）の関数 `doc()`（`manager/includes/helpers.php`）は、TV のときに TV の配列（`name`・`value` など）を返していた。リリースされた 1.1.0J から後は、値の文字列を返す。古い版に合わせて `doc('TV名')['value']` と書いたコードは、文字列に添字を付けることになり、PHP 8 では `Cannot access offset of type string on string` で止まってページが HTTP 500 になる（PHP 7.4 では警告が出て、値の 1 文字めだけが返る）。
+  - `doc('TV名')['value']` は `doc('TV名.value')` に書き換える。古い版でも新しい版でも値の文字列を返す。新しい版だけで動かすなら `doc('TV名')` でもよい。`value` 以外も `doc('TV名.caption')` のようにドットでつないで取れる。
+  - 対象は関数の `doc()` だけ。`evo()->doc('TV名')` と `$modx->documentObject['TV名']` は今も TV の配列を返すので、`['value']` を付けたままでよい。
