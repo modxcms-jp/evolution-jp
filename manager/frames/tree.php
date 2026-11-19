@@ -9,15 +9,16 @@ $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
     ? 'date'
     : 'str';
+$showDeleted = (bool)sessionv('tree_show_deleted');
 if (!sessionv('tree_sortby')) {
-    $_SESSION['tree_sortby'] = tree_sortby_default(
+    sessionv('*tree_sortby', tree_sortby_default(
         config('resource_tree_sortby_default','menuindex')
-    );
+    ));
 }
 if (!sessionv('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = tree_sortdir_default(
+    sessionv('*tree_sortdir', tree_sortdir_default(
         config('resource_tree_sortdir_default','ASC')
-    );
+    ));
 }
 
 // シェルの部品（header.inc.php が描く。再読み込みは shell.js の reloadPartial）。単独のページとしては出さない
@@ -380,6 +381,10 @@ if (is_array($evtOut)) {
                             </td>
                             <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
                                     title="<?= lang('sort_tree') ?>"><?= style('sort_tree') ?></a></td>
+                            <td><a href="#" role="button" class="treeButton<?= $showDeleted ? ' is-active' : '' ?>" id="treeToggleDeleted"
+                                    aria-pressed="<?= $showDeleted ? 'true' : 'false' ?>"
+                                    onclick="toggleDeletedNodes();return false;"
+                                    title="<?= lang('tree_show_deleted') ?>"><?= style('show_deleted_tree') ?></a></td>
                             <?php if (evo()->hasPermission('empty_trash')) { ?>
                                 <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
                                         title="<?= lang('empty_recycle_bin_empty') ?>"><?= style('empty_recycle_bin_empty') ?></a>

@@ -73,6 +73,7 @@ if (!function_exists('apply_manager_style_defaults')) {
         $_style['refresh_tree'] = '<img src="' . $icon_path . 'refresh.png" />';
         $_style['show_tree'] = $icon_path . 'application_side_expand.png';
         $_style['sort_tree'] = '<img src="' . $icon_path . 'sort.png" />';
+        $_style['show_deleted_tree'] = '<img src="' . $icon_path . 'page_white_delete.png" />';
 
         // Tree Icons
         $_style['tree_blanknode'] = $tree_path . 'empty.png';
