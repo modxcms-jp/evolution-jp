@@ -8,15 +8,10 @@ if (!evo()->hasPermission('settings')) {
 }
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 // check to see the edit settings page isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', 'action=17');
-if (1 < db()->count($rs)) {
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] == evo()->getLoginUserID()) {
-            continue;
-        }
-        alert()->setError(5, sprintf(lang('lock_settings_msg'), $row['username']));
-        alert()->dumpError();
-    }
+$username = manager()->editLockedBy(17);
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_settings_msg'), $username));
+    alert()->dumpError();
 }
 
 // reload system settings from the database.

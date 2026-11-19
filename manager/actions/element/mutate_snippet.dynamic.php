@@ -3,60 +3,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 22:
-        if (!evo()->hasPermission('edit_snippet')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 23:
-        if (!evo()->hasPermission('new_snippet')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 22);
-
+$content = manager()->openElementForm('snippet', lang('snippet'));
 $id = request_intvar('id');
+sessionv('*itemname', $content ? $content['name'] : 'New snippet');
 
-// check to see the snippet editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    for ($i = 0; $i < $limit; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('snippet'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
-}
-// end check for lock
-
-$content = [];
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
-    $limit = db()->count($rs);
-    if ($limit > 1) {
-        echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
-        exit;
-    }
-    if ($limit < 1) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-    $content = db()->getRow($rs);
-    $_SESSION['itemname'] = $content['name'];
-} else {
-    $_SESSION['itemname'] = "New snippet";
-}
 // restore saved form
 $content = manager()->restoreElementFormValues($content, 'snippet');
 

@@ -8,58 +8,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 78:
-        if (!evo()->hasPermission('edit_chunk')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 77:
-        if (!evo()->hasPermission('new_chunk')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 78);
-
+$content = manager()->openElementForm('chunk', lang('chunk'));
 $id = request_intvar('id');
-
-// Get table names (alphabetical)
-
-// Check to see the snippet editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
-if (db()->count($rs) > 1) {
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $row['username'], lang('chunk'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
-}
-
-$content = [];
-if ($id) {
-    $rs = db()->select('*', '[+prefix+]site_htmlsnippets', "id='{$id}'");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
-    }
-    if (!$total) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-    $content = db()->getRow($rs);
-    $_SESSION['itemname'] = $content['name'];
-} else {
-    $_SESSION['itemname'] = 'New Chunk';
-}
+sessionv('*itemname', $content ? $content['name'] : 'New Chunk');
 
 // restore saved form
 $formRestored = manager()->hasFormValues();

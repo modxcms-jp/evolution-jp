@@ -3,54 +3,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 102:
-        if (!evo()->hasPermission('edit_plugin')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 101:
-        if (!evo()->hasPermission('new_plugin')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 102);
-
-// check to see the plugin editor isn't locked
-$rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", get_intvar('id')));
-$row = db()->getRow($rs);
-if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
-    $msg = sprintf(lang('lock_msg'), $row['username'], lang('plugin'));
-    alert()->setError(5, $msg);
-    alert()->dumpError();
-}
-// end check for lock
-
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_plugins', sprintf("id='%d'", get_intvar('id')));
-    $total = db()->count($rs);
-    $content = db()->getRow($rs);
-
-    if (1 < $total):
-        echo "Multiple plugins sharing same unique id. Not good.<p>";
-        exit;
-    elseif ($total < 1):
-        alert()->setError(3);
-        alert()->dumpError();
-    endif;
-
-    $_SESSION['itemname'] = entity('name');
-} else {
-    $content = [];
-    $_SESSION['itemname'] = 'New Plugin';
-}
+$content = manager()->openElementForm('plugin', lang('plugin'));
+sessionv('*itemname', $content ? $content['name'] : 'New Plugin');
 
 // 名前の検証で差し戻されたときは、送信した入力を重ねる
 $content = manager()->restoreElementFormValues($content, 'plugincode', ['disabled', 'locked'], ['sysevents']);

@@ -322,6 +322,26 @@ class ManagerAPI
     }
 
     /**
+     * 編集中のほかの利用者を探す（active_users に、自分以外でそのアクションの行があるか）。
+     *
+     * @param int $action 編集の画面のアクション番号
+     * @param int|null $id 編集している対象の id。null なら id を問わない（グローバル設定のように対象が 1 つの画面）
+     * @return string 最初に見つかった利用者の username。いなければ空文字
+     */
+    public function editLockedBy(int $action, ?int $id = null): string
+    {
+        $where = [
+            where('action', '=', (int) $action),
+            and_where('internalKey', '!=', (int) evo()->getLoginUserID()),
+        ];
+        if ($id !== null) {
+            $where[] = and_where('id', '=', (int) $id);
+        }
+        $row = db()->getRow(db()->select('username', '[+prefix+]active_users', $where, '', 1));
+        return $row ? (string) $row['username'] : '';
+    }
+
+    /**
      * 管理画面の利用者のパスワードを保存用のハッシュにする（作る処理の置き場所はここだけ）
      */
     public function hashPassword($password)
@@ -603,6 +623,49 @@ class ManagerAPI
     }
 
     /**
+     * エレメントの新規・編集の画面を開く前の確かめをして、編集する行を読み込む。
+     * 権限が無い・新規でも編集でもない画面・行が無いときはエラー 3、id が正しくないときはエラー 2、
+     * ほかの利用者が編集中のときはエラー 5 の画面を出して止まる。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param string $lockLabel 編集中のメッセージ（lock_msg）に出す種類の名前
+     * @return array 読み込んだ行。id が無いとき（新規）は空の配列
+     */
+    public function openElementForm(string $type, string $lockLabel): array
+    {
+        $def = EvoElementTypes::get($type);
+        if (!$def) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+
+        $mode = EvoFormFlow::mode($type);
+        if ($mode === '' || !evo()->hasPermission($def['permissions'][$mode])) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+
+        abort_if_invalid_id('id', $mode === 'edit');
+
+        $id = request_intvar('id');
+        if (!$id) {
+            return [];
+        }
+
+        $username = $this->editLockedBy(EvoFormFlow::screen($type, 'edit'), $id);
+        if ($username !== '') {
+            alert()->setError(5, sprintf(lang('lock_msg'), $username, $lockLabel));
+            alert()->dumpError();
+        }
+
+        $row = db()->getRow(db()->select('*', "[+prefix+]{$def['table']}", where('id', '=', $id)));
+        if (!$row) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        return $row;
+    }
+
+    /**
      * エレメントを id で 1 件削除する（関連テーブルの行も消し、削除の前後のイベントを呼ぶ）。
      * 権限の確かめとキャッシュの削除は呼び出し側で行う。
      *
@@ -743,7 +806,10 @@ class ManagerAPI
         }
     }
 
-    private function createGuid()
+    /**
+     * モジュールの GUID を作る
+     */
+    public function createGuid()
     {
         return md5(uniqid(getmypid() . mt_rand() . (float) microtime() * 1000000, true));
     }

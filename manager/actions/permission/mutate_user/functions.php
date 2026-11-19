@@ -87,19 +87,10 @@ function hasUserPermission($action)
 
 function activeUserCheck($userid)
 {
-    $rs = db()->select(
-        'internalKey, username',
-        '[+prefix+]active_users',
-        sprintf("action='12' AND id='%d'", (int)$userid)
-    );
-    if (db()->count($rs) > 1) {
-        while ($lock = db()->getRow($rs)) {
-            if ($lock['internalKey'] == evo()->getLoginUserID()) {
-                continue;
-            }
-            alert()->setError(5, sprintf(lang('lock_msg'), $lock['username'], 'user'));
-            return false;
-        }
+    $username = manager()->editLockedBy(12, (int) $userid);
+    if ($username !== '') {
+        alert()->setError(5, sprintf(lang('lock_msg'), $username, 'user'));
+        return false;
     }
     return true;
 }

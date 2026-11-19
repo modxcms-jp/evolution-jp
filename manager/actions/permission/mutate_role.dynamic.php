@@ -29,17 +29,10 @@ if ($action === 38) {
 }
 
 // check to see the role editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
-$total = db()->count($rs);
-if ($total > 1) {
-    for ($i = 0; $i < $total; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang("lock_msg"), $lock['username'], lang('role'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = $role ? manager()->editLockedBy(35, $role) : '';
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('role')));
+    alert()->dumpError();
 }
 // end check for lock
 

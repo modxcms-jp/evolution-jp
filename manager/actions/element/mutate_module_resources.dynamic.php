@@ -22,16 +22,10 @@ $tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // check to see the  editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    while ($lock = db()->getRow($rs)) {
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('modules'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = manager()->editLockedBy(108, $id);
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('modules')));
+    alert()->dumpError();
 }
 // end check for lock
 
