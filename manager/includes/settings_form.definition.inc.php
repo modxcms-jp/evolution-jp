@@ -757,7 +757,8 @@ return [
                     ],
                     [
                         'key' => 'manager_tree_narrow',
-                        'type' => 'radio',
+                        'scope' => ['system', 'user', 'profile'],
+                        'type' => 'select',
                         'label' => lang('setting_manager_tree_narrow'),
                         'options' => [
                             '0' => lang('setting_manager_tree_narrow_off'),

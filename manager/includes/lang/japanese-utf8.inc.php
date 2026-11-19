@@ -1244,7 +1244,7 @@ return [
     "tree_pane_open_default_title" => 'ツリーペインの初期状態',
     "tree_pane_open_default_message" => '管理画面を開いたときにツリーペインを開いておくかを設定します。',
     "setting_manager_tree_narrow" => 'ツリーを細くする',
-    "setting_manager_tree_narrow_desc" => 'ダッシュボード以外の画面で、ツリーを細くして少しぼかし、本文を広く使います。ツリーにマウスを乗せると、本文に重ねて元の幅で出ます。',
+    "setting_manager_tree_narrow_desc" => 'ダッシュボードとリソースの移動以外の画面で、ツリーを細くして少しぼかし、本文を広く使います。ツリーにマウスを乗せると元の幅に戻り、本文は右へずれます。マウスを乗せられない端末（タッチ）では細くしません。',
     "setting_manager_tree_narrow_off" => 'しない',
     "setting_manager_tree_narrow_half" => '半分の幅',
     "setting_manager_tree_narrow_third" => '3分の1の幅',
