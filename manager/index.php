@@ -600,7 +600,7 @@ switch (manager()->action) {
         include_once($prc_path . 'template/delete_template.processor.php');
         break;
     case 96: // get the duplicate template processor
-        include_once($prc_path . 'template/duplicate_template.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 117:
         // change the tv rank for selected template
@@ -614,10 +614,10 @@ switch (manager()->action) {
         include_once($prc_path . 'snippet/save_snippet.processor.php');
         break;
     case 25: // get the delete processor
-        include_once($prc_path . 'snippet/delete_snippet.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 98: // get the duplicate processor
-        include_once($prc_path . 'snippet/duplicate_snippet.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 78: // get the edit snippet action
     case 77: // get the new chunk action
@@ -627,10 +627,10 @@ switch (manager()->action) {
         include_once($prc_path . 'chunk/save_htmlsnippet.processor.php');
         break;
     case 80: // get the delete processor
-        include_once($prc_path . 'chunk/delete_htmlsnippet.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 97: // get the duplicate processor
-        include_once($prc_path . 'chunk/duplicate_htmlsnippet.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 26: // get the cache emptying processor
         include_once($action_path . 'main/refresh_site.dynamic.php');
@@ -646,10 +646,10 @@ switch (manager()->action) {
         include_once($prc_path . 'module/save_module.processor.php');
         break;
     case 110: // get the delete processor
-        include_once($prc_path . 'module/delete_module.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 111: // get the duplicate processor
-        include_once($prc_path . 'module/duplicate_module.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 112:
         // execute/run the module
@@ -669,10 +669,10 @@ switch (manager()->action) {
         include_once($prc_path . 'plugin/save_plugin.processor.php');
         break;
     case 104: // get the delete processor
-        include_once($prc_path . 'plugin/delete_plugin.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 105: // get the duplicate processor
-        include_once($prc_path . 'plugin/duplicate_plugin.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 127: // get review action
         include_once($action_path . 'document/revision.dynamic.php');
@@ -798,7 +798,7 @@ switch (manager()->action) {
         include_once($prc_path . 'tmplvars/delete_tmplvars.processor.php');
         break;
     case 304: // get the duplicate processor
-        include_once($prc_path . 'tmplvars/duplicate_tmplvars.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 114: // System log viewer
         include_once($action_path . 'report/eventlog.dynamic.php');
