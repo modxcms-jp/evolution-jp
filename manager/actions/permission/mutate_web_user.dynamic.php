@@ -35,7 +35,7 @@ if ($action === 87) {
 
 
 // check to see the snippet editor isn't locked
-$username = $user ? manager()->editLockedBy(88, $user) : '';
+$username = $user ? manager()->editLockedBy(EvoFormFlow::screen('web_user', 'edit'), $user) : '';
 if ($username !== '') {
     alert()->setError(5, sprintf(lang('lock_msg'), $username, 'web user'));
     alert()->dumpError();

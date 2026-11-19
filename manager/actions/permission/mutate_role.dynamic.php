@@ -29,7 +29,7 @@ if ($action === 38) {
 }
 
 // check to see the role editor isn't locked
-$username = $role ? manager()->editLockedBy(35, $role) : '';
+$username = $role ? manager()->editLockedBy(EvoFormFlow::screen('role', 'edit'), $role) : '';
 if ($username !== '') {
     alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('role')));
     alert()->dumpError();
@@ -39,12 +39,7 @@ if ($username !== '') {
 
 if ($action === 35) {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        echo "More than one role returned!<p>";
-        exit;
-    }
-    if ($total < 1) {
+    if (db()->count($rs) < 1) {
         echo "No role returned!<p>";
         exit;
     }

@@ -22,7 +22,7 @@ $tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // check to see the  editor isn't locked
-$username = manager()->editLockedBy(108, $id);
+$username = manager()->editLockedBy(EvoFormFlow::screen('module', 'edit'), $id);
 if ($username !== '') {
     alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('modules')));
     alert()->dumpError();
@@ -98,13 +98,7 @@ switch (request_choicevar('op', ['add', 'del'], '')) {
 
 // load record
 $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
-    exit;
-}
-
-if ($limit < 1) {
+if (db()->count($rs) < 1) {
     echo "<p>Module not found for id '$id'.</p>";
     exit;
 }

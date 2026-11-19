@@ -87,7 +87,7 @@ function hasUserPermission($action)
 
 function activeUserCheck($userid)
 {
-    $username = manager()->editLockedBy(12, (int) $userid);
+    $username = manager()->editLockedBy(EvoFormFlow::screen('user', 'edit'), (int) $userid);
     if ($username !== '') {
         alert()->setError(5, sprintf(lang('lock_msg'), $username, 'user'));
         return false;
