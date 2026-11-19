@@ -380,6 +380,10 @@ if (is_array($evtOut)) {
                             </td>
                             <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
                                     title="<?= lang('sort_tree') ?>"><?= style('sort_tree') ?></a></td>
+                            <td><a href="#" class="treeButton<?= sessionv('tree_show_deleted') ? ' is-active' : '' ?>" id="treeToggleDeleted"
+                                    aria-pressed="<?= sessionv('tree_show_deleted') ? 'true' : 'false' ?>"
+                                    onclick="toggleDeletedNodes();return false;"
+                                    title="<?= lang('tree_show_deleted') ?>"><?= style('show_deleted_tree') ?></a></td>
                             <?php if (evo()->hasPermission('empty_trash')) { ?>
                                 <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
                                         title="<?= lang('empty_recycle_bin_empty') ?>"><?= style('empty_recycle_bin_empty') ?></a>

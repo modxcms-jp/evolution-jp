@@ -915,6 +915,7 @@ return [
     "sort_asc" => 'Ascending',
     "sort_desc" => 'Descending',
     "sort_tree" => 'Sort the Site Tree',
+    "tree_show_deleted" => 'Show deleted resources',
     "source" => 'Source',
     "stay" => 'Continue editing',
     "stay_new" => 'Add another',

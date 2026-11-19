@@ -212,6 +212,26 @@ function updateTree() {
     }, rpcLoadData);
 }
 
+function toggleDeletedNodes() {
+    var button = document.getElementById('treeToggleDeleted');
+    if (!button) {
+        return;
+    }
+    var show = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', show ? 'true' : 'false');
+    button.classList.toggle('is-active', show);
+
+    rpcNode = document.getElementById('treeRoot');
+    loadTreeRequest({
+        "a": "1",
+        "f": "nodes",
+        "indent": "1",
+        "parent": "0",
+        "expandAll": "2",
+        "tree_show_deleted": show ? "1" : "0"
+    }, rpcLoadData);
+}
+
 //Raymond: added getFolderState,saveFolderState
 function getFolderState() {
     if (openedArray == [0]) {

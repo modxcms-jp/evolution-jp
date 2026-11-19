@@ -104,6 +104,11 @@
         background: var(--tree-button-hover-bg, var(--color-surface, #fff));
     }
 
+    .treeButton.is-active {
+        border-color: var(--tree-button-hover-border-color, #88939e);
+        background: var(--tree-button-hover-bg, var(--color-surface, #fff));
+    }
+
     .treeButtonDisabled {
         color: var(--tree-button-disabled-color, var(--gray-700, #777));
         cursor: default;

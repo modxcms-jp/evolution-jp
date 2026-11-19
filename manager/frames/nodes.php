@@ -35,6 +35,10 @@ if (request_strvar('tree_sortdir')) {
     $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
 }
 
+if (anyv('tree_show_deleted') !== null) {
+    sessionv('*tree_show_deleted', request_boolvar('tree_show_deleted') ? 1 : 0);
+}
+
 global $opened, $opened2;
 
 if (sessionv('openedArray')) {
@@ -638,21 +642,23 @@ function parseNode($tpl, $param, $id)
 
 /**
  * ツリーに表示してよいリソースだけに絞る条件（getNodes() と hasChildren() で共通）
- * 管理者と tree_show_protected が有効なときは絞らない
+ * 管理者と tree_show_protected が有効なときは権限では絞らない。削除済みはセッション tree_show_deleted が 1 のときだけ含める
  */
 function tree_access_condition()
 {
+    $deleted = sessionv('tree_show_deleted') ? '' : 'AND sc.deleted=0';
     if (config('tree_show_protected') || manager()->isAdmin()) {
-        return '';
+        return $deleted;
     }
     $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
     if (!$groups) {
-        return 'AND sc.privatemgr=0';
+        return trim('AND sc.privatemgr=0 ' . $deleted);
     }
     return sprintf(
-        'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+        'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s))) %s',
         db()->getFullTableName('document_groups'),
-        implode(',', $groups)
+        implode(',', $groups),
+        $deleted
     );
 }
 
