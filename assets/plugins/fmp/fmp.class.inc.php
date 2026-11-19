@@ -227,7 +227,7 @@ class ForgotManagerPassword
 
     private function removeLoginTouchFile()
     {
-        $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+        $touch_path = manager_login_guard_path();
         if (is_file($touch_path)) {
             @unlink($touch_path);
         }

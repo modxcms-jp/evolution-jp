@@ -45,8 +45,7 @@ evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/s
 
 global $tpl;
 
-$touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;
-if ($touch_mtime && request_time() < $touch_mtime + 300) {
+if (manager_login_guard_active()) {
     $modx->safeMode = 1;
     evo()->addLog(lang('logtitle_login_disp_warning'), lang('logmsg_login_disp_warning'), 2);
     $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');

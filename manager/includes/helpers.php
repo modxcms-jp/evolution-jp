@@ -358,6 +358,44 @@ function manager_safe_mode_button_html()
     );
 }
 
+// ログイン画面の守りの目印。ログイン画面を出す前に置き、出せたら消す（accesscontrol-not-mgr.inc.php）
+function manager_login_guard_path()
+{
+    return MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+}
+
+// 守りが効いているか。目印を置いてから 300 秒のうちは、ログイン画面をプラグインを外して出す
+function manager_login_guard_active()
+{
+    $path = manager_login_guard_path();
+    clearstatcache(true, $path);
+    $mtime = is_file($path) ? @filemtime($path) : false;
+    return $mtime && request_time() < $mtime + 300;
+}
+
+// ログイン画面のプラグインが失敗したとき（messageQuit() の未ログインの表示）、Error だけを出す代わりに、
+// 同じログイン画面へ送り直す。送り直した要求は、守りが効いているのでプラグインを外して出る。
+// 守りが効いていない（目印を置けなかった・古い目印を新しくできなかった）ときは、送り直しても同じ失敗を繰り返すので送らない
+function manager_retry_login_form_without_plugins()
+{
+    if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== 'true' || evo()->isLoggedin()) {
+        return false;
+    }
+    if (!in_array(evo()->event->name, ['OnManagerLoginFormPrerender', 'OnManagerLoginFormRender'], true)) {
+        return false;
+    }
+    if (!is_get() || headers_sent() || !manager_login_guard_active()) {
+        return false;
+    }
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    $query = serverv('QUERY_STRING', '');
+    header('Location: ' . MODX_MANAGER_URL . 'index.php' . ($query === '' ? '' : '?' . $query), true, 302);
+    return true;
+}
+
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
 {
     if (evo()) {

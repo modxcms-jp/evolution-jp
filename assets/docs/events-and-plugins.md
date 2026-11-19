@@ -28,6 +28,12 @@
 - リッチテキストのエディタ（TinyMCE など）は、内容が変わったら元の欄（textarea）へ bubbles の `input` イベントを送る。日本語などの変換中は送らず、確定（`compositionend`）で送る。composition イベント（`compositionstart` / `compositionend`）も元の欄へ送る（フォーム側が変換中かを普通の欄と同じ処理で判定できる）。iframe の中の変更はフォームから見えないため、フォームの `input` を拾う仕組み（ライブプレビューの自動更新など）はこれに頼る。
 - テンプレートへデータを渡す場合は `$modx->setPlaceholder()` を用いてプレースホルダーに値を仕込み、標準の解析サイクルに乗せる。
 
+## プラグインが失敗したとき
+
+- 管理画面（ログイン後）: エラーの画面に、セーフモードのボタンが出る（プラグインの権限のある人だけ。`manager_safe_mode_button_html()`）。セーフモードの間は、その人の管理画面の要求でプラグインを動かさない。セーフモードは `manager/index.php` の `getSettings()` より前に効くので、`OnGetConfig` のプラグインも止まる（`manager_sync_safe_mode()`）。アップデート待ちのときも、セーフモードに入ればアップデーターへ進める。
+- ログイン画面: 画面を出す前に守りの目印（`manager_login_guard_path()`）を置き、出せたら消す。目印を置いてから 300 秒のうちは守りが効き（`manager_login_guard_active()`）、ログイン画面をプラグインを外して出す。ログイン画面のイベント（`OnManagerLoginFormPrerender`・`OnManagerLoginFormRender`）でプラグインが失敗すると、`messageQuit()` は `Error` を出さずに同じログイン画面へ送り直す（`manager_retry_login_form_without_plugins()`）。送り直した要求は、守りが効いているのでプラグインを外して出る。守りが効いていない（目印を置けない・古い目印を新しくできない）ときは、送り直さずに `Error` を出す。
+- ログインする前に止まるとき（ログインの処理 `login.processor.php` か `OnGetConfig` のプラグインが壊れているとき）は、DB でそのプラグインを無効にする。
+
 ## ファイルブラウザのイベント
 
 ファイルブラウザ（`manager/media/browser/evo/api.php`）には、範囲が 2 つあります。投稿画面などから開いてファイルを選ぶ範囲（ピッカー）と、メニューの「ファイルマネージャー」（`index.php?a=31`）の範囲（管理モード）です。アップロードのイベントは範囲ごとに別の名前で、どちらも同じ値を渡します。

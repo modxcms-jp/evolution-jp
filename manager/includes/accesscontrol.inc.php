@@ -30,7 +30,7 @@ if ($lastInstallTime && sessionv('modx.session.created.time') && sessionv('mgrVa
 }
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
-$touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+$touch_path = manager_login_guard_path();
 if (!sessionv('mgrValidated')) {
     // AJAXシェルと管理画面の AJAX（Evo.fetch など）からの要求にはログイン要求を示すヘッダーを返し、
     // クライアント側でフルリロードさせる
