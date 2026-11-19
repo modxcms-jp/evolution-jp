@@ -260,6 +260,32 @@
             : titleEl.getAttribute('data-site-only');
     }
 
+    // ツリーを細くする画面か（shell.css。設定で細くするとき、data-shell-tree="full" の画面だけ今までの幅で出す）
+    function isTreePeek() {
+        return document.body.classList.contains('tree-narrow')
+            && !document.querySelector('#mainPane [data-shell-tree="full"]');
+    }
+
+    // 今までの幅の画面から細くする画面へシェルの中で移ったときは、マウスがツリーから離れるまで今までの幅のままにする
+    // （ノードを押した直後に縮めると、押した先が動き、本文がツリーの下へ潜ったように見える）。
+    // 細い画面どうしの移動では、ノードを押すマウスがツリーに乗っていて広げて重ねたままなので、何もしなくても動かない。
+    // ツリーは読み直すと要素ごと差し替わるので、document でツリーの外に出たかを見る。
+    // 全体の読み込み（再読み込み・URL の直打ち）ではツリーを押していないので呼ばず、初めから細く描く
+    function releaseTreePeek(e) {
+        if (!e.target.closest('#treePane')) {
+            document.body.classList.remove('tree-peek-hold');
+            document.removeEventListener('pointermove', releaseTreePeek);
+        }
+    }
+
+    function holdTreePeek(wasPeek) {
+        if (wasPeek || !isTreePeek()) {
+            return;
+        }
+        document.body.classList.add('tree-peek-hold');
+        document.addEventListener('pointermove', releaseTreePeek);
+    }
+
     // finalUrl はアドレスバーと履歴に残すURL、screenUrl は表示する画面のURL（省略時は finalUrl）。
     // リダイレクトしないPOSTの結果では、アドレスバーは元の画面のまま、表示するのは操作の結果の画面になる
     function applyFragment(html, finalUrl, push, screenUrl) {
@@ -269,6 +295,7 @@
             return;
         }
 
+        const wasTreePeek = isTreePeek();
         teardownPane(pane);
         window.documentDirty = false;
         pane.innerHTML = html;
@@ -302,6 +329,7 @@
                 window.evoBindDirtyTracking(action);
             }
             updateDocumentTitle();
+            holdTreePeek(wasTreePeek);
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
             stopWork();

@@ -756,6 +756,17 @@ return [
                         'desc' => lang('tree_pane_open_default_message'),
                     ],
                     [
+                        'key' => 'manager_tree_narrow',
+                        'type' => 'radio',
+                        'label' => lang('setting_manager_tree_narrow'),
+                        'options' => [
+                            '0' => lang('setting_manager_tree_narrow_off'),
+                            '2' => lang('setting_manager_tree_narrow_half'),
+                            '3' => lang('setting_manager_tree_narrow_third'),
+                        ],
+                        'desc' => lang('setting_manager_tree_narrow_desc'),
+                    ],
+                    [
                         'key' => 'tree_page_click',
                         'type' => 'radio',
                         'label' => lang('tree_page_click'),
