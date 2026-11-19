@@ -2181,9 +2181,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->documentObject;
@@ -2443,9 +2441,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->config;
@@ -2494,9 +2490,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->chunkCache;
@@ -2558,9 +2552,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->placeholders;
@@ -2608,9 +2600,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $matches = $this->getTagsFromContent($content, $left, $right);
         if (empty($matches)) {
@@ -2672,9 +2662,7 @@ class DocumentParser
         $elsetag = '<@ELSE>',
         $endiftag = '<@ENDIF>'
     ) {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $content = $this->_prepareCTag($content, $iftag, $elseiftag, $elsetag, $endiftag);
         if (strpos($content, $iftag) === false) {
@@ -2905,9 +2893,7 @@ class DocumentParser
         }
 
         $modx = &$this;
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (isset($params) && is_array($params)) {
             foreach ($params as $k => $v) {
@@ -5353,9 +5339,7 @@ class DocumentParser
     # invoke an event. $extParams - hash array: name=>value
     public function invokeEvent($evtName, &$extParams = [])
     {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
         $return = true;
         if ($this->safeMode) {
             $return = false;
@@ -5388,9 +5372,7 @@ class DocumentParser
         $this->event->name = $evtName;
         $results = [];
         foreach ($this->pluginEvent[$evtName] as $pluginName) {
-            if ($this->debug) {
-                $fstart = $this->getMicroTime();
-            }
+            $fstart = $this->getMicroTime();
             $pluginName = stripslashes($pluginName);
 
             // reset event object
