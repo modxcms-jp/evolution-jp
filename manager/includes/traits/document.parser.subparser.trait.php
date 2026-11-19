@@ -592,6 +592,8 @@ trait DocumentParserSubParserTrait
             if ($modx->event->name !== 'OnWebPageComplete') {
                 echo '</body></html>';
             }
+        } elseif (manager_retry_login_form_without_plugins()) {
+            exit;
         } else {
             echo 'Error';
         }
