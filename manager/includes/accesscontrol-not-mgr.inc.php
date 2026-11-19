@@ -64,24 +64,16 @@ evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 evo()->setPlaceholder('site_name', hsc(evo()->config('site_name')));
 evo()->setPlaceholder('login_title', hsc(manager_title(lang('login_screen_title'))));
 evo()->setPlaceholder('logo_slogan', lang("logo_slogan"));
-evo()->setPlaceholder('login_message', lang("login_message"));
 evo()->setPlaceholder('year', date('Y'));
 
-// andrazk 20070416 - notify user of install/update
-if (installGoingOn()) {
-    $login_message = [
-        1 => lang('login_cancelled_install_in_progress'),
-        2 => lang('login_cancelled_site_was_updated')
-    ];
-    evo()->setPlaceholder(
-        'login_message',
-        sprintf(
-            '<p><span class="fail">%s</span></p><p>%s</p>',
-            $login_message[installGoingOn()],
-            lang('login_message')
-        )
-    );
-}
+// インストール・アップデートの作業中の案内。
+// login_message は案内に続けて操作の説明を出す。login_notice は案内だけを出す（操作の説明を出さないテーマ用）
+$installState = installGoingOn();
+$loginNotice = $installState
+    ? sprintf('<span class="fail">%s</span>', lang($installState === 1 ? 'login_cancelled_install_in_progress' : 'login_cancelled_site_was_updated'))
+    : '';
+evo()->setPlaceholder('login_message', ($loginNotice === '' ? '' : $loginNotice . '<br>') . lang('login_message'));
+evo()->setPlaceholder('login_notice', $loginNotice === '' ? '' : sprintf('<p class="loginNotice">%s</p>', $loginNotice));
 
 if (evo()->config('use_captcha') == 1) {
     evo()->setPlaceholder(

@@ -76,7 +76,7 @@ frameset の名前やしくみが残っているが、理由があって残し�
 
 | 名残 | 残す理由 |
 | --- | --- |
-| セーフモードの切り替えは `a=1&f=menu` へ POST する（`manager/includes/helpers.php` の `manager_safe_mode_toggle_form()` と `manager_apply_safe_mode_request()`） | 送り先と受け手の判定がそろっていて動いている。送り先を変えるなら両方を一緒に変える |
+| セーフモードの切り替えは `a=1&f=menu` へ POST する（`manager/includes/helpers.php` の `manager_safe_mode_toggle_form()` と、受け手の判定 `manager_is_safe_mode_request()`） | 送り先と受け手の判定がそろっていて動いている。送り先を変えるなら両方を一緒に変える |
 | 画面の `body` の `id` は `f` から取り、既定は `mainpane`（`manager/actions/header.inc.php`） | テーマの CSS が `body#mainpane` を参照している |
 | ログイン画面とロックアウトの画面は、最上位の画面にフレーム（iframe）があれば、最上位の画面で開き直す（`manager/media/script/login.js`、`manager/media/style/common/manager.lockout.tpl` の `top.frames.length` の判定） | iframe の中（TinyMCE のダイアログ、QuickManager の埋め込みなど）でセッションが切れたとき、ログイン画面を最上位に出すため |
 | イベント名 `OnManagerMainFrameHeaderHTMLBlock`・`OnManagerPreFrameLoader`・`OnManagerFrameLoader` | プラグインの API なので改名しない |

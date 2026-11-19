@@ -48,6 +48,10 @@ $modx->error_reporting = $error_reporting ?? 1;
 
 evo()->loadExtension('ManagerAPI');
 
+// セーフモードは OnGetConfig（getSettings() の最後）より前に効かせる。
+// OnGetConfig のプラグインが壊れていても、エラーの画面のボタンでセーフモードに入れば、管理画面（アップデート待ちならアップデーター）へ進めるように
+manager_sync_safe_mode();
+
 $modx->getSettings();
 
 // include_once the language file
@@ -71,15 +75,8 @@ if (!$isActionSpecified && !sessionv('mgrForgetPassword')) {
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 
 $managerSafeModeUpdated = manager_apply_safe_mode_request();
-
-if (sessionv('safeMode') == 1) {
-    if (manager_safe_mode_can_toggle()) {
-        $modx->safeMode = 1;
-    } else {
-        sessionv('*safeMode', 0);
-        $modx->safeMode = 0;
-    }
-}
+// accesscontrol.inc.php が読み直した権限で、もう一度そろえる
+manager_sync_safe_mode();
 
 if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
     header('Location: ' . MODX_MANAGER_URL);
