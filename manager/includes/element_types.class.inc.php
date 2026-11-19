@@ -14,7 +14,7 @@ final class EvoElementTypes
      * - permissions: delete（削除）・duplicate（複製）に要る権限
      * - events: before_delete・after_delete のイベント名
      * - actions: delete・duplicate のアクション番号
-     * - refresh: 削除・複製のあとに読み直すもの（EvoFormFlow の refresh の値。モジュールだけ）。
+     * - refresh: 保存・削除・複製のあとに読み直すもの（EvoFormFlow の refresh の値。モジュールだけ）。
      *   移動先の画面の番号は EvoFormFlow が持つ（種類のキーは同じ）
      * - copy_fields: 複製で写す列（名前の列を含む）
      * - guid_field: 複製のたびに作り直す GUID の列（モジュールだけ）
@@ -152,7 +152,10 @@ final class EvoElementTypes
         );
     }
 
-    private static function refreshQuery($type)
+    /**
+     * 保存・削除・複製のあとの URL に足す refresh の引数。読み直すものが無い種類は空の配列
+     */
+    public static function refreshQuery($type)
     {
         $refresh = self::get($type)['refresh'] ?? null;
         return $refresh === null ? [] : ['refresh' => $refresh];

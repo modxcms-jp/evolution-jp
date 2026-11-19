@@ -103,7 +103,7 @@ if ($enable_sharedparams !== 0) {
 }
 header(
     'Location: '
-    . EvoFormFlow::afterSaveUrl('module', $savedId, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu'])
+    . EvoFormFlow::afterSaveUrl('module', $savedId, EvoFormFlow::postedAfterSave(), EvoElementTypes::refreshQuery('module'))
 );
 
 // saves module user group access
