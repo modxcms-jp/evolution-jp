@@ -687,6 +687,62 @@ class ManagerAPI
         return $newId;
     }
 
+    /**
+     * 同じ名前のエレメントがすでにあるか。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param string $name 確かめる名前（生の値。エスケープしない）
+     * @param int $exceptId 数えない id（更新のときの自分。新規は 0）
+     * @param array $among 列 => 値。この値を持つ行の間でだけ確かめる（プラグインは有効なものどうしだけ）
+     */
+    public function elementNameExists($type, $name, $exceptId = 0, array $among = []): bool
+    {
+        $def = EvoElementTypes::get($type);
+        if (!$def) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+
+        $where = [where($def['name_field'], '=', db()->escape($name))];
+        if ((int) $exceptId) {
+            $where[] = and_where('id', '!=', (int) $exceptId);
+        }
+        foreach ($among as $field => $value) {
+            $where[] = and_where($field, '=', db()->escape($value));
+        }
+        return db()->getValue(db()->select('COUNT(id)', "[+prefix+]{$def['table']}", $where)) > 0;
+    }
+
+    /**
+     * エレメントの名前を変えたとき、文書・テンプレート・チャンク・テンプレート変数の値の中のタグを新しい名前に書き換える。
+     *
+     * @param string[] $forms タグの形。名前の位置を %s にした sprintf() の書式（'{{%s}}'・'[*%s:' など）
+     * @param string $oldName 前の名前（生の値。エスケープしない）
+     * @param string $newName 新しい名前（生の値。エスケープしない）
+     */
+    public function renameElementTags(array $forms, $oldName, $newName): void
+    {
+        $columns = [
+            'site_content' => 'content',
+            'site_templates' => 'content',
+            'site_htmlsnippets' => 'snippet',
+            'site_tmplvar_contentvalues' => 'value',
+        ];
+        foreach ($forms as $form) {
+            foreach ($columns as $table => $column) {
+                db()->update(
+                    sprintf(
+                        "%s=REPLACE(%s,'%s','%s')",
+                        $column,
+                        $column,
+                        db()->escape(sprintf($form, $oldName)),
+                        db()->escape(sprintf($form, $newName))
+                    ),
+                    "[+prefix+]{$table}"
+                );
+            }
+        }
+    }
+
     private function createGuid()
     {
         return md5(uniqid(getmypid() . mt_rand() . (float) microtime() * 1000000, true));

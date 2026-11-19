@@ -76,166 +76,63 @@ manager()->requireElementName(post_strvar('name'), lang('chunk'), 'chunk', $id);
 // 日付が解釈できないときは、イベントや DB に進む前に差し戻す
 $publish = resolvePublishFields($mode, $id);
 
-switch ($mode) {
-    case 'new':
-        $tmp = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent('OnBeforeChunkFormSave', $tmp);
+$isNew = $mode === 'new';
+// 差し戻し先と、名前の重複から除く id（新規は 0）
+$formId = $isNew ? 0 : $id;
 
-        $rs = db()->select(
-            'COUNT(id)',
-            '[+prefix+]site_htmlsnippets',
-            where('name', db()->escape(entity('name')))
-        );
-        $count = db()->getValue($rs);
-        if ($count > 0) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('chunk'), entity('name')),
-                'chunk',
-                0
-            );
-        }
-        $field = [
-            'name' => entity('name'),
-            'description' => entity('description'),
-            'published' => $publish['published'],
-            'pub_date' => $publish['pub_date'],
-            'unpub_date' => $publish['unpub_date'],
-            'snippet' => entity('post'),
-            'locked' => entity('locked'),
-            'editor_type' => entity('editor_type'),
-            'category' => entity('category')
-        ];
-        $newid = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
-        if (!$newid) {
-            exit("Couldn't get last insert key!");
-        }
+// invoke OnBeforeChunkFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforeChunkFormSave', $tmp);
 
-        $tmp = [
-            'mode' => 'new',
-            'id' => $newid
-        ];
-        evo()->invokeEvent('OnChunkFormSave', $tmp);
-
-        // empty cache
-        evo()->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $newid, EvoFormFlow::postedAfterSave()));
-        break;
-    case 'edit':
-
-        // invoke OnBeforeChunkFormSave event
-        $tmp = [
-            "mode" => "upd",
-            "id" => $id
-        ];
-        evo()->invokeEvent("OnBeforeChunkFormSave", $tmp);
-
-        if (check_exist_name(entity('name'), $id) !== false) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('chunk'), entity('name')),
-                'chunk',
-                $id
-            );
-        }
-
-        //do stuff to save the edited doc
-        $was_name = db()->getValue(
-            db()->select('name', '[+prefix+]site_htmlsnippets', where('id', $id))
-        );
-        $field = [
-            'name' => entity('name'),
-            'description' => entity('description'),
-            'published' => $publish['published'],
-            'pub_date' => $publish['pub_date'],
-            'unpub_date' => $publish['unpub_date'],
-            'snippet' => entity('post'),
-            'locked' => entity('locked'),
-            'editor_type' => entity('editor_type'),
-            'category' => entity('category')
-        ];
-        $rs = db()->update(db()->escape($field), '[+prefix+]site_htmlsnippets', where('id', $id));
-        if (!$rs) {
-            echo "\$rs not set! Edited htmlsnippet not saved!";
-        } else {
-            if (entity('name') !== $was_name) {
-                // 生の名前を SQL に入れる直前に 1 回だけエスケープする
-                $chunkName = db()->escape(entity('name'));
-                $was_name = db()->escape($was_name);
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $chunkName),
-                    '[+prefix+]site_content'
-                );
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $chunkName),
-                    '[+prefix+]site_templates'
-                );
-                db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s}}','{{%s}}')", $was_name, $chunkName),
-                    '[+prefix+]site_htmlsnippets'
-                );
-                db()->update(
-                    sprintf("value=REPLACE(value,'{{%s}}','{{%s}}')", $was_name, $chunkName),
-                    '[+prefix+]site_tmplvar_contentvalues'
-                );
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $chunkName),
-                    '[+prefix+]site_content'
-                );
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $chunkName),
-                    '[+prefix+]site_templates'
-                );
-                db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s:','{{%s:')", $was_name, $chunkName),
-                    '[+prefix+]site_htmlsnippets'
-                );
-                db()->update(
-                    sprintf("value=REPLACE(value,'{{%s:','{{%s:')", $was_name, $chunkName),
-                    '[+prefix+]site_tmplvar_contentvalues'
-                );
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $chunkName),
-                    '[+prefix+]site_content'
-                );
-                db()->update(
-                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $chunkName),
-                    '[+prefix+]site_templates'
-                );
-                db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s?','{{%s?')", $was_name, $chunkName),
-                    '[+prefix+]site_htmlsnippets'
-                );
-                db()->update(
-                    sprintf("value=REPLACE(value,'{{%s?','{{%s?')", $was_name, $chunkName),
-                    '[+prefix+]site_tmplvar_contentvalues'
-                );
-            }
-
-            // invoke OnChunkFormSave event
-            $tmp = [
-                'mode' => 'upd',
-                'id' => $id
-            ];
-            evo()->invokeEvent('OnChunkFormSave', $tmp);
-
-            // empty cache
-            evo()->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $id, EvoFormFlow::postedAfterSave()));
-        }
-        break;
+if (manager()->elementNameExists('chunk', entity('name'), $formId)) {
+    manager()->redirectToElementForm(
+        sprintf(lang('duplicate_name_found_general'), lang('chunk'), entity('name')),
+        'chunk',
+        $formId
+    );
 }
 
-// 更新で、自分以外に同じ名前のチャンクがあるか
-function check_exist_name($chunkName, $id)
-{
-    $where = "name='" . db()->escape($chunkName) . "' AND id!=" . (int)$id;
-    $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
-    if (!db()->getValue($rs)) {
-        return false;
+// 更新では、名前が変わったかを見るために、保存の前の名前を読んでおく
+$was_name = $isNew ? null : db()->getValue(
+    db()->select('name', '[+prefix+]site_htmlsnippets', where('id', $id))
+);
+$field = [
+    'name' => entity('name'),
+    'description' => entity('description'),
+    'published' => $publish['published'],
+    'pub_date' => $publish['pub_date'],
+    'unpub_date' => $publish['unpub_date'],
+    'snippet' => entity('post'),
+    'locked' => entity('locked'),
+    'editor_type' => entity('editor_type'),
+    'category' => entity('category')
+];
+if ($isNew) {
+    $savedId = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
+    if (!$savedId) {
+        exit("Couldn't get last insert key!");
     }
-    return true;
+} else {
+    $rs = db()->update(db()->escape($field), '[+prefix+]site_htmlsnippets', where('id', $id));
+    if (!$rs) {
+        echo "\$rs not set! Edited htmlsnippet not saved!";
+        return;
+    }
+    if (is_string($was_name) && entity('name') !== $was_name) {
+        manager()->renameElementTags(['{{%s}}', '{{%s:', '{{%s?'], $was_name, entity('name'));
+    }
+    $savedId = $id;
 }
+
+// invoke OnChunkFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnChunkFormSave', $tmp);
+
+evo()->clearCache();
+header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $savedId, EvoFormFlow::postedAfterSave()));

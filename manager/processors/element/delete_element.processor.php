@@ -25,4 +25,4 @@ if (!manager()->deleteElement($type, $id)) {
 }
 
 evo()->clearCache();
-header("Location: {$def['deleted_url']}");
+header('Location: ' . EvoElementTypes::deletedUrl($type));

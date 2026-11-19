@@ -37,119 +37,76 @@ $locked = postv('locked') === 'on' ? 1 : 0;
 $enable_sharedparams = postv('enable_sharedparams') === 'on' ? 1 : 0;
 $createdon = $editedon = time();
 
-switch ($mode) {
-    case 'new':
-        // invoke OnBeforeModFormSave event
-        $eventParams = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent("OnBeforeModFormSave", $eventParams);
+$isNew = $mode === 'new';
 
-        // disallow duplicate names for new modules
-        $rs = db()->select('COUNT(id)', $tbl_site_modules, where('name', db()->escape($name)));
-        $count = db()->getValue($rs);
-        if ($count > 0) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_module'), $name),
-                'module',
-                0
-            );
-        }
+// invoke OnBeforeModFormSave event
+$eventParams = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforeModFormSave', $eventParams);
 
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+// 名前の重複を確かめるのは新規だけ
+if ($isNew && manager()->elementNameExists('module', $name)) {
+    manager()->redirectToElementForm(
+        sprintf(lang('duplicate_name_found_module'), $name),
+        'module',
+        0
+    );
+}
 
-        // save the new module
-
-        $f = [
-            'name' => $name,
-            'description' => post_strvar('description'),
-            'icon' => $icon,
-            'enable_resource' => $enable_resource,
-            'resourcefile' => post_strvar('resourcefile'),
-            'disabled' => $disabled,
-            'wrap' => $wrap,
-            'locked' => $locked,
-            'category' => $category,
-            'enable_sharedparams' => $enable_sharedparams,
-            'guid' => post_strvar('guid'),
-            'modulecode' => $modulecode,
-            'properties' => $properties,
-            'editedon' => $editedon,
-            'createdon' => $createdon
-        ];
-        $newid = db()->insert(db()->escape($f), $tbl_site_modules);
-        if (!$newid) {
-            echo '$newid not set! New module not saved!';
-            exit;
-        }
-
-        saveUserGroupAccessPermissons($newid);
-
-        // invoke OnModFormSave event
-        $eventParams = [
-            'mode' => 'new',
-            'id' => $newid
-        ];
-        evo()->invokeEvent("OnModFormSave", $eventParams);
-
-        $location = EvoFormFlow::afterSaveUrl('module', $newid, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
-        if ($enable_sharedparams !== 0) {
-            $modx->clearCache();
-        }
-        header('Location: ' . $location);
-        break;
-    case 'edit':
-        // invoke OnBeforeModFormSave event
-        $eventParams = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnBeforeModFormSave', $eventParams);
-
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        // save the edited module
-        $f = [
-            'name' => $name,
-            'description' => post_strvar('description'),
-            'icon' => $icon,
-            'enable_resource' => $enable_resource,
-            'resourcefile' => post_strvar('resourcefile'),
-            'disabled' => $disabled,
-            'wrap' => $wrap,
-            'locked' => $locked,
-            'category' => $category,
-            'enable_sharedparams' => $enable_sharedparams,
-            'guid' => post_strvar('guid'),
-            'modulecode' => $modulecode,
-            'properties' => $properties,
-            'editedon' => $editedon
-        ];
-
-        $rs = db()->update(db()->escape($f), $tbl_site_modules, "id='" . $id . "'");
-        if (!$rs) {
-            echo '$rs not set! Edited module not saved!' . db()->getLastError();
-            exit;
-        }
+$f = [
+    'name' => $name,
+    'description' => post_strvar('description'),
+    'icon' => $icon,
+    'enable_resource' => $enable_resource,
+    'resourcefile' => post_strvar('resourcefile'),
+    'disabled' => $disabled,
+    'wrap' => $wrap,
+    'locked' => $locked,
+    'category' => manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory')),
+    'enable_sharedparams' => $enable_sharedparams,
+    'guid' => post_strvar('guid'),
+    'modulecode' => $modulecode,
+    'properties' => $properties,
+    'editedon' => $editedon
+];
+if ($isNew) {
+    $f['createdon'] = $createdon;
+    $savedId = db()->insert(db()->escape($f), $tbl_site_modules);
+    if (!$savedId) {
+        echo '$newid not set! New module not saved!';
+        exit;
+    }
+} else {
+    $rs = db()->update(db()->escape($f), $tbl_site_modules, "id='" . $id . "'");
+    if (!$rs) {
+        echo '$rs not set! Edited module not saved!' . db()->getLastError();
+        exit;
+    }
+    $savedId = $id;
+}
 
 // save user group access permissions
-        saveUserGroupAccessPermissons($id);
+saveUserGroupAccessPermissons($savedId);
 
-        // invoke OnModFormSave event
-        $eventParams = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnModFormSave', $eventParams);
+// invoke OnModFormSave event
+$eventParams = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnModFormSave', $eventParams);
 
-        $location = EvoFormFlow::afterSaveUrl('module', $id, EvoFormFlow::postedAfterSave(), ['refresh' => 'menu']);
-        if ($enable_sharedparams !== 0) {
-            $modx->clearCache();
-        }
-        header('Location: ' . $location);
-        break;
+// キャッシュを削除するのは、設定の共有を使うモジュールだけ
+if ($enable_sharedparams !== 0) {
+    evo()->clearCache();
 }
+header('Location: ' . EvoFormFlow::afterSaveUrl(
+    'module',
+    $savedId,
+    EvoFormFlow::postedAfterSave(),
+    EvoElementTypes::refreshQuery('module')
+));
 
 // saves module user group access
 function saveUserGroupAccessPermissons($id)
