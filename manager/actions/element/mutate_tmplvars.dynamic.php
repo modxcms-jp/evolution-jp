@@ -2,60 +2,10 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-switch (request_intvar('a')) {
-    case 301:
-        if (!hasPermission('edit_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 300:
-        if (!hasPermission('new_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 301);
-
-$id = request_intvar('id');
-
-// check to see the variable editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
-$total = db()->count($rs);
-if ($total > 1) {
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $row['username'], ' template variable');
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
-}
-// end check for lock
-
 global $content;
-$content = [];
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        echo 'Oops, Multiple variables sharing same unique id. Not good.';
-        exit;
-    }
-    if ($total < 1) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-    $content = db()->getRow($rs);
-    $_SESSION['itemname'] = entity('caption');
-} else {
-    $_SESSION['itemname'] = "New Template Variable";
-}
+$content = manager()->openElementForm('tmplvar', ' template variable');
+$id = request_intvar('id');
+sessionv('*itemname', $content ? $content['caption'] : 'New Template Variable');
 
 $content = manager()->restoreElementFormValues($content);
 

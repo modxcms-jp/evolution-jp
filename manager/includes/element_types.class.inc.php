@@ -11,7 +11,7 @@ final class EvoElementTypes
      * - table: 本体のテーブル（接頭辞なし）
      * - name_field: 名前の列
      * - label: エラーメッセージに出す名前
-     * - permissions: delete（削除）・duplicate（複製）に要る権限
+     * - permissions: new（新規の画面）・edit（編集の画面）・delete（削除）・duplicate（複製）に要る権限
      * - events: before_delete・after_delete のイベント名
      * - actions: delete・duplicate のアクション番号
      * - refresh: 保存・削除・複製のあとに読み直すもの（EvoFormFlow の refresh の値。モジュールだけ）。
@@ -28,7 +28,10 @@ final class EvoElementTypes
                 'table' => 'site_snippets',
                 'name_field' => 'name',
                 'label' => 'snippet',
-                'permissions' => ['delete' => 'delete_snippet', 'duplicate' => 'new_snippet'],
+                'permissions' => [
+                    'new' => 'new_snippet', 'edit' => 'edit_snippet',
+                    'delete' => 'delete_snippet', 'duplicate' => 'new_snippet',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforeSnipFormDelete',
                     'after_delete' => 'OnSnipFormDelete',
@@ -41,7 +44,10 @@ final class EvoElementTypes
                 'table' => 'site_htmlsnippets',
                 'name_field' => 'name',
                 'label' => 'chunk',
-                'permissions' => ['delete' => 'delete_chunk', 'duplicate' => 'new_chunk'],
+                'permissions' => [
+                    'new' => 'new_chunk', 'edit' => 'edit_chunk',
+                    'delete' => 'delete_chunk', 'duplicate' => 'new_chunk',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforeChunkFormDelete',
                     'after_delete' => 'OnChunkFormDelete',
@@ -54,7 +60,10 @@ final class EvoElementTypes
                 'table' => 'site_plugins',
                 'name_field' => 'name',
                 'label' => 'plugin',
-                'permissions' => ['delete' => 'delete_plugin', 'duplicate' => 'new_plugin'],
+                'permissions' => [
+                    'new' => 'new_plugin', 'edit' => 'edit_plugin',
+                    'delete' => 'delete_plugin', 'duplicate' => 'new_plugin',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforePluginFormDelete',
                     'after_delete' => 'OnPluginFormDelete',
@@ -71,7 +80,10 @@ final class EvoElementTypes
                 'table' => 'site_modules',
                 'name_field' => 'name',
                 'label' => 'module',
-                'permissions' => ['delete' => 'delete_module', 'duplicate' => 'new_module'],
+                'permissions' => [
+                    'new' => 'new_module', 'edit' => 'edit_module',
+                    'delete' => 'delete_module', 'duplicate' => 'new_module',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforeModFormDelete',
                     'after_delete' => 'OnModFormDelete',
@@ -92,7 +104,10 @@ final class EvoElementTypes
                 'table' => 'site_templates',
                 'name_field' => 'templatename',
                 'label' => 'template',
-                'permissions' => ['delete' => 'delete_template', 'duplicate' => 'new_template'],
+                'permissions' => [
+                    'new' => 'new_template', 'edit' => 'edit_template',
+                    'delete' => 'delete_template', 'duplicate' => 'new_template',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforeTempFormDelete',
                     'after_delete' => 'OnTempFormDelete',
@@ -107,7 +122,10 @@ final class EvoElementTypes
                 'table' => 'site_tmplvars',
                 'name_field' => 'name',
                 'label' => 'template variable',
-                'permissions' => ['delete' => 'delete_template', 'duplicate' => 'edit_template'],
+                'permissions' => [
+                    'new' => 'new_template', 'edit' => 'edit_template',
+                    'delete' => 'delete_template', 'duplicate' => 'edit_template',
+                ],
                 'events' => [
                     'before_delete' => 'OnBeforeTVFormDelete',
                     'after_delete' => 'OnTVFormDelete',

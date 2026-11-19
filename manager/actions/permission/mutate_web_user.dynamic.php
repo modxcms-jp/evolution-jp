@@ -35,17 +35,10 @@ if ($action === 87) {
 
 
 // check to see the snippet editor isn't locked
-$rs = db()->select('internalKey, username', evo()->getFullTableName('active_users'), "action='88' AND id='" . (int) $user . "'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    for ($i = 0; $i < $limit; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang("lock_msg"), $lock['username'], "web user");
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = $user ? manager()->editLockedBy(EvoFormFlow::screen('web_user', 'edit'), $user) : '';
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, 'web user'));
+    alert()->dumpError();
 }
 // end check for lock
 

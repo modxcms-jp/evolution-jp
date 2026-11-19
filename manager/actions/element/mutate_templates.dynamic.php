@@ -3,42 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 16:
-        if (!hasPermission('edit_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 19:
-        if (!hasPermission('new_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 16);
-
-if (id()) {
-    $username = is_locked(id());
-    if ($username) {
-        alert()->setError(
-            5,
-            sprintf(
-                lang('lock_msg'),
-                $username,
-                lang('template')
-            )
-        );
-        alert()->dumpError();
-    }
-}
-
-// 出力を始める前に読み込む。存在しない id はここで権限エラーの画面になる
+// 出力を始める前に、権限・id・編集ロックを確かめて読み込む
 template('id');
 
 ?>
@@ -374,23 +339,8 @@ function template($key, $default = null)
         return array_get($tplObject, $key, $default);
     }
     $loaded = true;
-    if (get_intvar('id')) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . get_intvar('id') . "'");
-        $total = db()->count($rs);
-        if ($total > 1) {
-            echo "Oops, something went terribly wrong...<p>";
-            echo "More results returned than expected. Which sucks. <p>Aborting.";
-            exit;
-        }
-        if ($total < 1) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        $tplObject = db()->getRow($rs);
-        $_SESSION['itemname'] = $tplObject['templatename'];
-    } else {
-        $_SESSION['itemname'] = 'New template';
-    }
+    $tplObject = manager()->openElementForm('template', lang('template'));
+    sessionv('*itemname', $tplObject ? $tplObject['templatename'] : 'New template');
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
     $tplObject = manager()->restoreElementFormValues($tplObject);
     return array_get($tplObject, $key, $default);
@@ -401,26 +351,6 @@ function id()
 {
     $id = get_intvar('id');
     return $id ? (string) $id : '';
-}
-
-function is_locked($id)
-{
-    $rs = db()->select(
-        'internalKey, username',
-        '[+prefix+]active_users',
-        sprintf("action=16 AND id='%s'", $id)
-    );
-    if (!db()->count($rs)) {
-        return false;
-    }
-
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] == evo()->getLoginUserID()) {
-            continue;
-        }
-        return $row['username'];
-    }
-    return false;
 }
 
 function checked($cond)

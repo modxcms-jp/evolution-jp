@@ -29,29 +29,17 @@ if ($action === 38) {
 }
 
 // check to see the role editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
-$total = db()->count($rs);
-if ($total > 1) {
-    for ($i = 0; $i < $total; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang("lock_msg"), $lock['username'], lang('role'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = $role ? manager()->editLockedBy(EvoFormFlow::screen('role', 'edit'), $role) : '';
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('role')));
+    alert()->dumpError();
 }
 // end check for lock
 
 
 if ($action === 35) {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        echo "More than one role returned!<p>";
-        exit;
-    }
-    if ($total < 1) {
+    if (db()->count($rs) < 1) {
         echo "No role returned!<p>";
         exit;
     }

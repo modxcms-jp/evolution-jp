@@ -550,24 +550,9 @@ function checkPermissions($id)
 
 function checkDocLock($id)
 {
-    $rs = db()->select(
-        'internalKey, username',
-        '[+prefix+]active_users',
-        sprintf(
-            "action='%s' AND id=%d",
-            manager()->action,
-            (int)$id
-        )
-    );
-    if (db()->count($rs) <= 1) {
-        return;
-    }
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] == evo()->getLoginUserID()) {
-            continue;
-        }
-        $msg = sprintf(lang('lock_msg'), $row['username'], lang('resource'));
-        alert()->setError(5, $msg);
+    $username = manager()->editLockedBy((int) manager()->action, (int) $id);
+    if ($username !== '') {
+        alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('resource')));
         alert()->dumpError();
     }
 }

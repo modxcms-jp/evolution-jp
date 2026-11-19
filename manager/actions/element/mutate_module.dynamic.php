@@ -3,57 +3,12 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 107:
-        if (!evo()->hasPermission('new_module')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 108:
-        if (!evo()->hasPermission('edit_module')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 108);
-
+$content = manager()->openElementForm('module', 'module');
 $id = request_intvar('id');
-
-// Check to see the editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
-$total = db()->count($rs);
-if ($total > 1) {
-    for ($i = 0; $i < $total; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $lock['username'], 'module');
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
-}
-// end check for lock
-
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        exit('<p>Multiple modules sharing same unique id. Not good.<p>');
-    }
-    if ($total < 1) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-    $content = db()->getRow($rs);
-    $_SESSION['itemname'] = content('name');
+if ($content) {
+    sessionv('*itemname', $content['name']);
 } else {
-    $_SESSION['itemname'] = 'New Module';
+    sessionv('*itemname', 'New Module');
     $content['wrap'] = '1';
 }
 
@@ -315,7 +270,7 @@ function content($key, $default = null)
             </div>
 
             <?php if (request_intvar('a') === 107) { ?>
-                <input name="guid" type="hidden" value="<?= createGUID() ?>" />
+                <input name="guid" type="hidden" value="<?= manager()->createGuid() ?>" />
             <?php } elseif (request_intvar('a') === 108) { ?>
                 <!-- Dependencies -->
                 <div class="tab-page" id="tabDepend">
@@ -344,7 +299,7 @@ function content($key, $default = null)
                                     <input
                                         name="guid" type="text" maxlength="32"
                                         value="<?=
-                                                hsc(content('guid') ?: createGUID())
+                                                hsc(content('guid') ?: manager()->createGuid())
                                                 ?>"
                                         class="inputBox" /><br />
                                     <span class="comment"><?= lang('enable_sharedparams_msg') ?></span><br />
@@ -481,12 +436,3 @@ function content($key, $default = null)
     tpModule = new WebFXTabPane(document.getElementById("modulePane"), tpstatus);
     setTimeout('showParameters();', 10);
 </script>
-
-<?php
-// create globally unique identifiers (guid)
-function createGUID()
-{
-    return md5(
-        uniqid(getmypid() . mt_rand() . (float)microtime() * 1000000, 1)
-    );
-}
