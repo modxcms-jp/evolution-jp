@@ -61,7 +61,7 @@ $limit = db()->count($rs);
 if ($limit > 1) {
     echo "<script type='text/javascript'>" .
         "function jsalert(){ alert('Multiple modules sharing same unique id $id. Please contact the Site Administrator');" .
-        "window.location.href='index.php?a=106';}" .
+        "window.location.href=" . js_literal(EvoFormFlow::url(['a' => EvoFormFlow::screen('module', 'close')])) . ";}" .
         "setTimeout('jsalert()',100)" .
         "</script>";
     exit;
@@ -69,7 +69,7 @@ if ($limit > 1) {
 if ($limit < 1) {
     echo "<script type='text/javascript'>" .
         "function jsalert(){ alert('No record found for id $id');" .
-        "window.location.href='index.php?a=106';}" .
+        "window.location.href=" . js_literal(EvoFormFlow::url(['a' => EvoFormFlow::screen('module', 'close')])) . ";}" .
         "setTimeout('jsalert()',100)" .
         "</script>";
     exit;
@@ -79,7 +79,7 @@ evo()->moduleObject = $content;
 if ($content['disabled']) {
     echo "<script type='text/javascript'>" .
         "function jsalert(){ alert('This module is disabled and cannot be executed.');" .
-        "window.location.href='index.php?a=106';}" .
+        "window.location.href=" . js_literal(EvoFormFlow::url(['a' => EvoFormFlow::screen('module', 'close')])) . ";}" .
         "setTimeout('jsalert()',100)" .
         "</script>";
     exit;

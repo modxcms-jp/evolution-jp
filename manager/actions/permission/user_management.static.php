@@ -170,7 +170,7 @@ echo $cm->render();
         $page = get_intvar('page') ?: 1;
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        $params = ['a' => 75];
+        $params = ['a' => EvoFormFlow::screen('user', 'close')];
         if ($query !== '') {
             $params['search'] = $query;
         }

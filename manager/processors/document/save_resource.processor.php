@@ -692,7 +692,7 @@ function getExistsValues($id)
     if (!$row) {
         evo()->webAlertAndQuit(
             "An error occured while attempting to find the document's current parent.",
-            sprintf('index.php?a=27&id=%s', $id)
+            EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => $id])
         );
     }
     return $row;

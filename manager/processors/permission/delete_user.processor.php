@@ -69,4 +69,4 @@ evo()->invokeEvent("OnManagerDeleteUser", $tmp);
 $tmp = ['id' => $id];
 evo()->invokeEvent("OnUserFormDelete", $tmp);
 
-header('Location: index.php?a=75');
+header('Location: ' . EvoFormFlow::url(['a' => EvoFormFlow::screen('user', 'close')]));

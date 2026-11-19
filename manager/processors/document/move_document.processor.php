@@ -203,7 +203,8 @@ function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
         $find = db()->count($rs);
         if (0 < $find) {
             $target_id = db()->getValue($rs);
-            $url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=27&id={$doc_id}';";
+            $editUrl = EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => $doc_id]);
+            $url = "javascript:parent.tree.ca='open';window.location.href=" . js_literal($editUrl) . ';';
             evo()->webAlertAndQuit(sprintf(lang('duplicate_alias_found'), $target_id, $alias), $url);
             exit;
         }
