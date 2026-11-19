@@ -4,7 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 global $content;
 $content = manager()->openElementForm('tmplvar', ' template variable');
-$id = request_intvar('id');
+$id = (int) ($content['id'] ?? 0);
 sessionv('*itemname', $content ? $content['caption'] : 'New Template Variable');
 
 $content = manager()->restoreElementFormValues($content);
@@ -47,7 +47,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>) == true) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=304");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=304");
         }
     }
 

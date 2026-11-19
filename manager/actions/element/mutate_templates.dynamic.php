@@ -13,7 +13,7 @@ template('id');
         function duplicaterecord() {
             if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
                 documentDirty = false;
-                EvoCsrf.post("index.php?id=<?= get_intvar('id') ?>&a=96");
+                EvoCsrf.post("index.php?id=<?= (int) id() ?>&a=96");
             }
         }
 
@@ -34,7 +34,7 @@ template('id');
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
+        <input type="hidden" name="id" value="<?= (int) id() ?>">
         <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('template')) ?>">
 
         <h1><?= lang('template_title') ?></h1>
@@ -233,7 +233,7 @@ template('id');
                             ?>
                             <ul class="actionButtons">
                                 <?php
-                                $query = get_intvar('id') ? '&amp;tpl=' . get_intvar('id') : '';
+                                $query = id() ? '&amp;tpl=' . id() : '';
                                 ?>
                                 <li>
                                     <a href="index.php?&amp;a=300<?= $query ?>">
@@ -242,7 +242,7 @@ template('id');
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal>' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . (int) id() . '" data-modal>' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
@@ -346,10 +346,10 @@ function template($key, $default = null)
     return array_get($tplObject, $key, $default);
 }
 
-// 編集するテンプレートの id。新規作成のときは空文字
+// 編集するテンプレートの id（読み込んだ行の id）。新規作成のときは空文字
 function id()
 {
-    $id = get_intvar('id');
+    $id = (int) template('id');
     return $id ? (string) $id : '';
 }
 

@@ -4,7 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $content = manager()->openElementForm('module', 'module');
-$id = request_intvar('id');
+$id = (int) ($content['id'] ?? 0);
 if ($content) {
     sessionv('*itemname', $content['name']);
 } else {
@@ -31,7 +31,7 @@ function content($key, $default = null)
 <script src="<?= manager_asset('media/script/element-category.js') ?>" type="text/javascript"></script>
 <script src="<?= manager_asset('media/script/element-lock.js') ?>" type="text/javascript"></script>
 <script type="text/javascript">
-    var docid = <?= request_intvar('id') ?>;
+    var docid = <?= $id ?>;
     Evo.ready(function() {
         EvoElementLock.init(document.forms['mutate'], {
             locked: <?= content('locked') == 1 ? 'true' : 'false' ?>,

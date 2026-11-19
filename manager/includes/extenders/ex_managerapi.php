@@ -188,7 +188,7 @@ class ManagerAPI
         }
         $values = $this->loadFormValues();
         // 別の要素（新規か id が違う）向けの入力は混ぜない
-        if ((int)($values['id'] ?? 0) !== get_intvar('id')) {
+        if ((int)($values['id'] ?? 0) !== (int)($content['id'] ?? 0)) {
             return $content;
         }
         if (isset($values['categoryid'])) {
@@ -629,7 +629,7 @@ class ManagerAPI
      *
      * @param string $type EvoElementTypes の種類
      * @param string $lockLabel 編集中のメッセージ（lock_msg）に出す種類の名前
-     * @return array 読み込んだ行。id が無いとき（新規）は空の配列
+     * @return array 読み込んだ行。新規の画面では、URL に id が付いていても読まずに空の配列
      */
     public function openElementForm(string $type, string $lockLabel): array
     {
@@ -644,12 +644,12 @@ class ManagerAPI
             alert()->dumpError();
         }
 
-        abort_if_invalid_id('id', $mode === 'edit');
-
-        $id = request_intvar('id');
-        if (!$id) {
+        if ($mode === 'new') {
             return [];
         }
+
+        abort_if_invalid_id('id', true);
+        $id = request_intvar('id');
 
         $username = $this->editLockedBy(EvoFormFlow::screen($type, 'edit'), $id);
         if ($username !== '') {
