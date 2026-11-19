@@ -916,6 +916,7 @@ class DocumentParser
                 && $this->doc('cacheable') == 1
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
+                && in_array((string)$this->config('cache_type'), ['1', '2'], true)
                 && !($this->config('cache_type') == 2 && ($this->doc('privateweb') || $this->isLoggedIn('web')))
                 && !($this->config('cache_type') == 2 && serverv('REQUEST_METHOD', 'GET') !== 'GET')
             ) {
@@ -928,6 +929,9 @@ class DocumentParser
                 $this->invokeEvent('OnBeforeSaveWebPageCache', $param);
 
                 if ($param['makeCache'] != true) {
+                    return;
+                }
+                if (!in_array((string)$this->config('cache_type'), ['1', '2'], true)) {
                     return;
                 }
 
