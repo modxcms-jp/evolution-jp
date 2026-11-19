@@ -18,7 +18,7 @@ class DBAPI
     public $charset;
     public $connection_method;
     /**
-     * connect() が接続のあとで止めた理由。接続の時点では messageQuit() が画面に出せないので、呼び出し側が出す
+     * connect() が接続のあとで止めた理由。設定を読む前は messageQuit() が何も出さないので、呼び出し側が出す
      */
     public $connectError = '';
     private $rs;
@@ -184,7 +184,8 @@ class DBAPI
             // 指定があって設定できなければ、違う文字セットのまま続けないよう止める
             if ($this->charset && !$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
                 $this->connectError = sprintf(
-                    "Failed to set the connection charset '%s'. Check \$database_connection_charset in manager/includes/config.inc.php",
+                    'Failed to set the connection charset (%s %s). Check $database_connection_charset (DB_CHARSET) in manager/includes/config.inc.php',
+                    $this->connection_method,
                     $this->charset
                 );
                 evo()->messageQuit(
