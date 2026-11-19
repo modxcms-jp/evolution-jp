@@ -58,7 +58,7 @@ if (str_starts_with($config, '@CHUNK')) {
     evo()->logEvent(
         0,
         2,
-        'Ditto の &config=compatibility は廃止しました。スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
+        'Ditto の &config=compatibility は廃止予定です。今は summary extender を読み込みますが、スニペットの呼び出しから外し、[+summary+] を使うときは &extenders に summary を指定してください。',
         'Ditto ' . $ditto_version
     );
 } elseif (str_starts_with($config, '@FILE')) {
@@ -107,12 +107,21 @@ $renamedParams = array_intersect_key(
     (array) event()->params
 );
 if ($renamedParams) {
+    // 古い名前の値は今の名前に引き継ぐ。両方を指定したときは今の名前を使う
+    $ignoredParams = [];
+    foreach ($renamedParams as $oldName => $newName) {
+        if (array_key_exists($newName, event()->params)) {
+            $ignoredParams[$oldName] = $newName;
+            continue;
+        }
+        ${$newName} = event()->params[$oldName];
+    }
     evo()->logEvent(
         0,
         2,
-        'Ditto の古いパラメータ名は廃止しました。スニペットの呼び出しを今の名前に書き換えてください。',
+        'Ditto の古いパラメータ名は廃止予定です。今は値を今の名前に引き継ぎますが、スニペットの呼び出しを今の名前に書き換えてください。',
         'Ditto ' . $ditto_version,
-        ['renamed' => $renamedParams]
+        ['renamed' => $renamedParams, 'ignored' => $ignoredParams]
     );
 }
 
@@ -121,6 +130,9 @@ if (!isset($extenders)) {
     $extenders = [];
 } elseif (!is_array($extenders)) {
     $extenders = explode(',', $extenders);
+}
+if ($config === 'compatibility') {
+    $extenders[] = 'summary';
 }
 
 // keep placeholders a config may have added

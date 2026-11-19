@@ -83,6 +83,8 @@ HTML のほかに JSON・XML・RSS・Atom でも出力でき、ページ送り�
 | `paginateAlwaysShowLinks` | 前後のページが無いときも「前へ」「次へ」を出す（リンクなしのテンプレートを使う） | `0` オフ / `1` オン | `0` |
 | `paginateSplitterCharacter` | ページ番号の間と、`[+splitter+]` に入る区切り | 任意の文字 | 言語ファイル（`button_splitter`） |
 
+件数を指定するパラメータは 2 つある。`queryLimit` はデータベースから取り出す件数（SQL の LIMIT）で、`filter` での絞り込みや、TV などで並べ替えるときの並べ替えより前に効く。`display` は、絞り込み・並べ替えのあとで出力する件数（ページ送りでは 1 ページの件数）。ページ送りも `filter` も使わず、データベースで並べ替えるときに「1 件だけ出す」なら、どちらでも同じ結果になる。それ以外は `display` を使う。
+
 SQL で並べ替えるとき（TV、`pub_date`・`unpub_date`・`editedon`・`deletedon`・`publishedon` 以外）、値が同じリソースは、最初のフィールドの向きで id の順に並ぶ。
 
 ## テンプレート
@@ -237,6 +239,29 @@ URL の `ditto_パラメータ名=値`（`id` を指定したときは `ditto_<i
 | `truncOffset` | `truncLen` の前後に許す幅 | `truncLen` より小さい数 | `30` |
 | `truncText` | `[+link+]` の文言 | 文字列・HTML | `Read more...` |
 | `tplTrunc` | `[+link+]` のテンプレート。`[+url+]`・`[+text+]`（`truncText`）が使える | チャンク名・`@CODE`・`@FILE` | `<a href="[+url+]" title="[+text+]">[+text+]</a>` |
+
+## 廃止予定のパラメータ名
+
+次の古い名前は、指定されると値を今の名前に引き継いだうえで、システムログに警告を残す。今の名前に書き換える。古い名前と今の名前を両方指定したときは、今の名前を使う。
+
+| 古い名前 | 今の名前 |
+| --- | --- |
+| `startID` | `parents` |
+| `summarize` | `display` |
+| `limit` | `queryLimit` |
+| `commentsChunk` | `removeChunk` |
+| `hiddenTVs` | `hiddenFields` |
+| `dateFormatType` | `dateSource` |
+| `descendentDepth` | `depth` |
+| `rssLanguage` | `abbrLanguage` |
+| `tplAltRows` | `tplAlt` |
+| `tplFirstRow` | `tplFirst` |
+| `tplLastRow` | `tplLast` |
+| `tplArchivePrevious` | `tplPaginatePrevious` |
+| `tplArchiveNext` | `tplPaginateNext` |
+| `emptyText` | `noResults` |
+
+`&config=compatibility` も廃止予定。指定すると summary extender を読み込み、システムログに警告を残す。呼び出しから外し、`[+summary+]` を使うときは `&extenders` に `summary` を指定する。
 
 ## config・extender を書くとき
 
