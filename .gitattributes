@@ -13,6 +13,8 @@ AGENTS.md export-ignore
 CLAUDE.md export-ignore
 compose.yml export-ignore
 manager/docker/ export-ignore
+# 1.2 系ではルートの evo コマンドを配布しない
+/evo export-ignore
 # CLI の skill:* は .agent/（配布しない）を前提にした開発用のコマンド
 manager/includes/cli/commands/skill-*.php export-ignore
 manager/includes/cli/skill-lib.php export-ignore
