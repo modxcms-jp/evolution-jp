@@ -917,7 +917,7 @@ return [
     "sort_asc" => '昇順',
     "sort_desc" => '降順',
     "sort_tree" => 'ツリーの並べ替え',
-    "tree_show_deleted" => '削除済みリソースを表示する',
+    "tree_show_deleted" => '削除済みリソースを表示',
     "source" => 'ソース',
     "stay" => 'この画面',
     "stay_new" => '次の作成',

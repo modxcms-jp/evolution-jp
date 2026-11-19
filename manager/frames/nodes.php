@@ -28,15 +28,16 @@ if (getv('savestateonly')) {
 
 // setup sorting
 if (request_strvar('tree_sortby')) {
-    $_SESSION['tree_sortby'] = request_strvar('tree_sortby');
+    sessionv('*tree_sortby', request_strvar('tree_sortby'));
 }
 
 if (request_strvar('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
+    sessionv('*tree_sortdir', request_strvar('tree_sortdir'));
 }
 
-if (anyv('tree_show_deleted') !== null) {
-    sessionv('*tree_show_deleted', request_boolvar('tree_show_deleted') ? 1 : 0);
+$showDeleted = request_boolvar('tree_show_deleted', null);
+if ($showDeleted !== null) {
+    sessionv('*tree_show_deleted', $showDeleted ? 1 : 0);
 }
 
 global $opened, $opened2;
@@ -97,7 +98,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         : ''
     ;
 
-    $access = tree_access_condition();
+    $access = tree_visibility_condition();
     $field = [];
     $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
     $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
@@ -641,32 +642,34 @@ function parseNode($tpl, $param, $id)
 }
 
 /**
- * ツリーに表示してよいリソースだけに絞る条件（getNodes() と hasChildren() で共通）
+ * ツリーに表示するリソースだけに絞る条件（getNodes() と hasChildren() で共通）
  * 管理者と tree_show_protected が有効なときは権限では絞らない。削除済みはセッション tree_show_deleted が 1 のときだけ含める
  */
-function tree_access_condition()
+function tree_visibility_condition()
 {
-    $deleted = sessionv('tree_show_deleted') ? '' : 'AND sc.deleted=0';
-    if (config('tree_show_protected') || manager()->isAdmin()) {
-        return $deleted;
-    }
     $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    if (!$groups) {
-        return trim('AND sc.privatemgr=0 ' . $deleted);
+    if (config('tree_show_protected') || manager()->isAdmin()) {
+        $condition = '';
+    } elseif (!$groups) {
+        $condition = 'AND sc.privatemgr=0';
+    } else {
+        $condition = sprintf(
+            'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+            db()->getFullTableName('document_groups'),
+            implode(',', $groups)
+        );
     }
-    return sprintf(
-        'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s))) %s',
-        db()->getFullTableName('document_groups'),
-        implode(',', $groups),
-        $deleted
-    );
+    if (!sessionv('tree_show_deleted')) {
+        $condition .= ' AND sc.deleted=0';
+    }
+    return $condition;
 }
 
 function hasChildren($id) {
     $result = db()->select(
         'sc.id',
         '[+prefix+]site_content AS sc',
-        sprintf('sc.parent=%d %s', (int)$id, tree_access_condition()),
+        sprintf('sc.parent=%d %s', (int)$id, tree_visibility_condition()),
         '',
         '1'
     );

@@ -99,11 +99,7 @@
         transition: background-color .15s ease, border-color .15s ease;
     }
 
-    .treeButton:hover {
-        border-color: var(--tree-button-hover-border-color, #88939e);
-        background: var(--tree-button-hover-bg, var(--color-surface, #fff));
-    }
-
+    .treeButton:hover,
     .treeButton.is-active {
         border-color: var(--tree-button-hover-border-color, #88939e);
         background: var(--tree-button-hover-bg, var(--color-surface, #fff));

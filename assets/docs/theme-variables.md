@@ -158,6 +158,9 @@
 | `--tree-node-hover-bg` / `--tree-node-hover-border-color` / `--tree-node-hover-color` / `--tree-node-radius` | 乗せたときの地・枠の色・文字の色・角 | `#fff` / `#ccc` / `--tree-node-color` / `0` |
 | `--tree-node-selected-bg` / `--tree-node-selected-border-color` / `--tree-node-selected-color` | 選んでいる行の地・枠の色・文字の色 | 乗せたときと同じ |
 | `--tree-published-color` / `--tree-unpublished-color` / `--tree-deleted-color` / `--tree-empty-color` / `--tree-not-in-menu-color` | 行の状態の文字の色（公開・非公開・削除済み・子の無いフォルダ・メニューに出さない） | `#222` / `#b68282` / `#a52a2a` / `#aaa` / `#777` |
+| `--tree-button-color` / `--tree-button-radius` | ツリー上部のボタン（`.treeButton`）の文字の色・角 | `--color-text-primary`（`#333`）/ `0` |
+| `--tree-button-hover-border-color` / `--tree-button-hover-bg` | ボタンに乗せたときと、押したままのボタン（`.treeButton.is-active`。削除済みリソースの表示）の枠の色・地 | `#88939e` / `--color-surface`（`#fff`） |
+| `--tree-button-disabled-color` | 使えないボタン（`.treeButtonDisabled`）の文字の色 | `--gray-700`（`#777`） |
 | `--tree-floater-border-color` | 並べ替えの枠（`#floater`）の枠の色 | `#ccc` |
 
 既定値は RevoStyle・SoftSlate の値。
