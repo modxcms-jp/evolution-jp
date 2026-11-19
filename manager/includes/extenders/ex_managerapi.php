@@ -727,8 +727,6 @@ class ManagerAPI
             'site_htmlsnippets' => 'snippet',
             'site_tmplvar_contentvalues' => 'value',
         ];
-        $oldName = db()->escape($oldName);
-        $newName = db()->escape($newName);
         foreach ($forms as $form) {
             foreach ($columns as $table => $column) {
                 db()->update(
@@ -736,8 +734,8 @@ class ManagerAPI
                         "%s=REPLACE(%s,'%s','%s')",
                         $column,
                         $column,
-                        sprintf($form, $oldName),
-                        sprintf($form, $newName)
+                        db()->escape(sprintf($form, $oldName)),
+                        db()->escape(sprintf($form, $newName))
                     ),
                     "[+prefix+]{$table}"
                 );

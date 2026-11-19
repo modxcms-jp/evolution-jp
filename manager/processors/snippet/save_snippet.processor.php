@@ -42,16 +42,17 @@ if (strncmp($snippet, '<?', 2) == 0) {
 }
 $moduleguid = post_strvar('moduleguid');
 
+$isNew = $mode === 'new';
+$formId = $isNew ? 0 : $id;
+
 // disallow duplicate names
-if (manager()->elementNameExists('snippet', $rawName, $id)) {
+if (manager()->elementNameExists('snippet', $rawName, $formId)) {
     manager()->redirectToElementForm(
         sprintf(lang('duplicate_name_found_general'), lang('snippet'), $rawName),
         'snippet',
-        $id
+        $formId
     );
 }
-
-$isNew = $mode === 'new';
 
 // invoke OnBeforeSnipFormSave event
 $tmp = [

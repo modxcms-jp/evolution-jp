@@ -88,7 +88,7 @@ if ($isNew) {
         exit;
     }
     // update all references to this TV
-    if ($rawName !== $was_name) {
+    if (is_string($was_name) && $rawName !== $was_name) {
         manager()->renameElementTags(['[*%s*]', '[*%s:'], $was_name, $rawName);
     }
     $savedId = $id;

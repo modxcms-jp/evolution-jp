@@ -101,10 +101,12 @@ evo()->invokeEvent('OnModFormSave', $eventParams);
 if ($enable_sharedparams !== 0) {
     evo()->clearCache();
 }
-header(
-    'Location: '
-    . EvoFormFlow::afterSaveUrl('module', $savedId, EvoFormFlow::postedAfterSave(), EvoElementTypes::refreshQuery('module'))
-);
+header('Location: ' . EvoFormFlow::afterSaveUrl(
+    'module',
+    $savedId,
+    EvoFormFlow::postedAfterSave(),
+    EvoElementTypes::refreshQuery('module')
+));
 
 // saves module user group access
 function saveUserGroupAccessPermissons($id)

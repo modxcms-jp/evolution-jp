@@ -121,7 +121,7 @@ if ($isNew) {
         echo "\$rs not set! Edited htmlsnippet not saved!";
         return;
     }
-    if (entity('name') !== $was_name) {
+    if (is_string($was_name) && entity('name') !== $was_name) {
         manager()->renameElementTags(['{{%s}}', '{{%s:', '{{%s?'], $was_name, entity('name'));
     }
     $savedId = $id;
