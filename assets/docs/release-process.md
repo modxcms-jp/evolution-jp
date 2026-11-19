@@ -288,32 +288,7 @@ rm -rf "${CHECK_DIR}"
 
 ## 除外ファイル一覧
 
-`.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
-
-```
-.github/
-.agent/
-.agents/
-.claude/
-.codex/
-.vscode/
-.work/
-.gitignore
-.gitkeep
-.gitattributes
-.coderabbit.yaml
-.editorconfig
-docs/
-**/docs/
-readme*
-README*
-AGENTS.md
-CLAUDE.md
-SECURITY.md
-compose.yml
-custom-instructions/
-manager/docker/
-```
+リリースパッケージから除外されるファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) の `export-ignore` の行である。`.git/` は `git archive` の仕様で常に含まれない。
 
 ### 除外設定の追加方法
 
