@@ -2824,9 +2824,7 @@ trait DocumentParserSubParserTrait
             return $content;
         }
 
-        if ($modx->debug) {
-            $fstart = $modx->getMicroTime();
-        }
+        $fstart = $modx->getMicroTime();
 
         $matches = $modx->getTagsFromContent($content, '[+@', '+]');
         if (!$matches) {

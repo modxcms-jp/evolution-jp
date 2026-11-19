@@ -856,6 +856,7 @@ class DocumentParser
                 && $this->doc('cacheable') == 1
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
+                && in_array((string)$this->config('cache_type'), ['1', '2'], true)
                 && !($this->config('cache_type') == 2 && ($this->doc('privateweb') || $this->isLoggedIn('web')))
             ) {
                 // cache_type=2 のフルページキャッシュは閲覧者を区別せず配信されるため、
@@ -866,6 +867,9 @@ class DocumentParser
                 $this->invokeEvent('OnBeforeSaveWebPageCache', $param);
 
                 if ($param['makeCache'] != true) {
+                    return;
+                }
+                if (!in_array((string)$this->config('cache_type'), ['1', '2'], true)) {
                     return;
                 }
 
@@ -2117,9 +2121,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->documentObject;
@@ -2371,9 +2373,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->config;
@@ -2422,9 +2422,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->chunkCache;
@@ -2486,9 +2484,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->placeholders;
@@ -2536,9 +2532,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $matches = $this->getTagsFromContent($content, $left, $right);
         if (empty($matches)) {
@@ -2600,9 +2594,7 @@ class DocumentParser
         $elsetag = '<@ELSE>',
         $endiftag = '<@ENDIF>'
     ) {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $content = $this->_prepareCTag($content, $iftag, $elseiftag, $elsetag, $endiftag);
         if (strpos($content, $iftag) === false) {
@@ -2849,9 +2841,7 @@ class DocumentParser
         }
 
         $modx = &$this;
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (isset($params) && is_array($params)) {
             foreach ($params as $k => $v) {
@@ -5148,9 +5138,7 @@ class DocumentParser
     # invoke an event. $extParams - hash array: name=>value
     public function invokeEvent($evtName, &$extParams = [])
     {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
         $return = true;
         if ($this->safeMode) {
             $return = false;
@@ -5183,9 +5171,7 @@ class DocumentParser
         $this->event->name = $evtName;
         $results = [];
         foreach ($this->pluginEvent[$evtName] as $pluginName) {
-            if ($this->debug) {
-                $fstart = $this->getMicroTime();
-            }
+            $fstart = $this->getMicroTime();
             $pluginName = stripslashes($pluginName);
 
             // reset event object

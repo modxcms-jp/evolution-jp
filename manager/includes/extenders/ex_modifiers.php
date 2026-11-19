@@ -220,9 +220,7 @@ class MODIFIERS
         }
 
         foreach ($modifiers as $i => $a) {
-            if (evo()->debug) {
-                $fstart = evo()->getMicroTime();
-            }
+            $fstart = evo()->getMicroTime();
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
             if (evo()->debug) {
                 evo()->addLogEntry(
