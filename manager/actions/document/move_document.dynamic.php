@@ -52,7 +52,7 @@ function get_src_content($id, $parent)
 <div class="section">
 <div class="sectionBody">
 <p>{$_lang['move_resource_message']}</p>
-<form method="post" action="index.php" name='newdocumentparent'>
+<form method="post" action="index.php" name='newdocumentparent' data-shell-tree="full">
 <input type="hidden" name="a" value="52">
 <input type="hidden" name="id" value="{$id}">
 <p>{$_lang['resource_to_be_moved']}: <b>{$id}</b></p>
