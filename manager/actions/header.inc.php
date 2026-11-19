@@ -38,10 +38,18 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
+    <?php
+    // ツリーを細くするとき、覚えた幅を割る数（2: 半分、3: 3 分の 1。0 は細くしない）。shell.css の tree-narrow
+    $treeNarrow = (int)config('manager_tree_narrow');
+    $treeNarrow = in_array($treeNarrow, [2, 3], true) ? $treeNarrow : 0;
+    ?>
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
             --shell-tree-width: <?= (int)$modx->config('manager_tree_width', 260) ?>px;
+<?php if ($treeNarrow): ?>
+            --shell-tree-narrow: <?= $treeNarrow ?>;
+<?php endif; ?>
         }
     </style>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
@@ -161,7 +169,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= !$evoShellChromeless && $treeNarrow ? ' tree-narrow' : '' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <script type="text/javascript">
         // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
         // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の

@@ -229,6 +229,8 @@ if ($js = $modx->getRegisteredClientScripts()) {
     $welcome_tpl .= $js;
 }
 $welcome_tpl = preg_replace('~\[\+(.*?)\+]~', '', $welcome_tpl); //cleanup
+// ダッシュボードだけツリーを今までの幅で出す（shell.css）。テンプレートは差し替えられるので、目印は中身と別に出す
+echo '<span data-shell-tree="full" hidden></span>';
 echo $welcome_tpl;
 
 function get_icon($title, $action, $icon_path, $alt = '')

@@ -1241,6 +1241,11 @@ return [
 
     "tree_pane_open_default_title" => 'Tree pane default',
     "tree_pane_open_default_message" => 'Tree pane default',
+    "setting_manager_tree_narrow" => 'Narrow tree',
+    "setting_manager_tree_narrow_desc" => 'On screens other than the dashboard and Move Resource, the tree is narrowed and slightly blurred so the content area gets more room. Hover over the tree to return it to full width; the content shifts to the right. Not applied on devices without hover (touch).',
+    "setting_manager_tree_narrow_off" => 'Off',
+    "setting_manager_tree_narrow_half" => 'Half width',
+    "setting_manager_tree_narrow_third" => 'One-third width',
 
 
     "resources_list" => 'Resources List',
