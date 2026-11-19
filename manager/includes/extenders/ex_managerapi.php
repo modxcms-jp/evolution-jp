@@ -1,5 +1,6 @@
 <?php
 require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
+require_once MODX_CORE_PATH . 'element_types.class.inc.php';
 
 $this->manager = new ManagerAPI;
 
@@ -602,32 +603,93 @@ class ManagerAPI
     }
 
     /**
-     * プラグインを id で 1 件削除する（イベントの割り当ても消し、削除の前後のイベントを呼ぶ）。
+     * エレメントを id で 1 件削除する（関連テーブルの行も消し、削除の前後のイベントを呼ぶ）。
      * 権限の確かめとキャッシュの削除は呼び出し側で行う。
      *
-     * @param int $id プラグインの id
+     * @param string $type EvoElementTypes の種類
+     * @param int $id エレメントの id
      * @return bool 削除の SQL がすべて通ったら true
      */
-    public function deletePlugin($id)
+    public function deleteElement($type, $id)
     {
+        $def = EvoElementTypes::get($type);
         $id = (int) $id;
-        if ($id < 1) {
+        if (!$def || $id < 1) {
             return false;
         }
 
         $params = ['id' => $id];
-        evo()->invokeEvent('OnBeforePluginFormDelete', $params);
+        evo()->invokeEvent($def['events']['before_delete'], $params);
 
-        if (!db()->delete('[+prefix+]site_plugins', "id='{$id}'")) {
+        if (!db()->delete("[+prefix+]{$def['table']}", where('id', '=', $id))) {
             return false;
         }
-        if (!db()->delete('[+prefix+]site_plugin_events', "pluginid='{$id}'")) {
-            return false;
+        foreach ($def['relations'] as $relation) {
+            if (!db()->delete("[+prefix+]{$relation['table']}", where($relation['key'], '=', $id))) {
+                return false;
+            }
         }
 
         $params = ['id' => $id];
-        evo()->invokeEvent('OnPluginFormDelete', $params);
+        evo()->invokeEvent($def['events']['after_delete'], $params);
         return true;
+    }
+
+    /**
+     * エレメントを id で 1 件複製する（関連テーブルの行も写す）。
+     * 権限の確かめは呼び出し側で行う。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param int $id 複製元の id
+     * @return int|false 新しい id。複製元が無いときは 0、SQL が通らなかったときは false
+     */
+    public function duplicateElement($type, $id)
+    {
+        $def = EvoElementTypes::get($type);
+        $id = (int) $id;
+        if (!$def || $id < 1) {
+            return 0;
+        }
+
+        $table = "[+prefix+]{$def['table']}";
+        $source = db()->getRow(db()->select('*', $table, where('id', '=', $id)));
+        if (!$source) {
+            return 0;
+        }
+
+        $row = array_intersect_key($source, array_flip($def['copy_fields']));
+        $nameField = $def['name_field'];
+        $row[$nameField] = str_replace('[+title+]', $source[$nameField], lang('duplicate_title_string'));
+        if (isset($def['guid_field'])) {
+            $row[$def['guid_field']] = $this->createGuid();
+        }
+
+        $newId = (int) db()->insert(db()->escape($row), $table);
+        if (!$newId) {
+            return false;
+        }
+
+        foreach ($def['relations'] as $relation) {
+            if ($relation['copy'] === null) {
+                continue;
+            }
+            $relationTable = "[+prefix+]{$relation['table']}";
+            $rs = db()->select('*', $relationTable, where($relation['key'], '=', $id));
+            while ($related = db()->getRow($rs)) {
+                $copy = array_intersect_key($related, array_flip($relation['copy']));
+                $copy[$relation['key']] = $newId;
+                if (db()->insert(db()->escape($copy), $relationTable) === false) {
+                    return false;
+                }
+            }
+        }
+
+        return $newId;
+    }
+
+    private function createGuid()
+    {
+        return md5(uniqid(getmypid() . mt_rand() . (float) microtime() * 1000000, true));
     }
 
     /**
