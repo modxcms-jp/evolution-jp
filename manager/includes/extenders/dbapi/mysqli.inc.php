@@ -17,6 +17,10 @@ class DBAPI
     public $table_prefix;
     public $charset;
     public $connection_method;
+    /**
+     * connect() が接続のあとで止めた理由。接続の時点では messageQuit() が画面に出せないので、呼び出し側が出す
+     */
+    public $connectError = '';
     private $rs;
     private $rawQuery = false;
     private $dbconnectionmethod;
@@ -84,6 +88,7 @@ class DBAPI
         if ($this->isConnected()) {
             return true;
         }
+        $this->connectError = '';
 
         if ($host) {
             $this->hostname = $host;
@@ -175,8 +180,13 @@ class DBAPI
                 );
                 return false;
             }
-            // 文字セットを設定できなければ、違う文字セットのまま続けないよう止める
-            if (!$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+            // 文字セットが空（config.inc.php で NULL など）なら設定せず、サーバの既定の文字セットのまま使う。
+            // 指定があって設定できなければ、違う文字セットのまま続けないよう止める
+            if ($this->charset && !$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+                $this->connectError = sprintf(
+                    "Failed to set the connection charset '%s'. Check \$database_connection_charset in manager/includes/config.inc.php",
+                    $this->charset
+                );
                 evo()->messageQuit(
                     sprintf(
                         "Failed to set the connection charset '%s %s' - %s",
