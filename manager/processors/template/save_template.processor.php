@@ -21,7 +21,7 @@ if (!is_string($content)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('templatename'), lang('template'), 'template', $id);
+$rawName = manager()->requireElementName(post_strvar('templatename'), lang('template'), 'template', $mode === 'edit' ? $id : 0);
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 

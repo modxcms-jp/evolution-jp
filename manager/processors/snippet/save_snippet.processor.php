@@ -23,7 +23,7 @@ if (!is_string($snippet) || !is_string($properties)) {
 }
 $snippet = trim($snippet);
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('snippet'), 'snippet', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('snippet'), 'snippet', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
