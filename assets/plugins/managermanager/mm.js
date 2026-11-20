@@ -55,6 +55,18 @@
             });
         },
 
+        // 欄（x）が入っている編集画面の行（data-field の付いた行）。同じ行は 1 つにまとめる
+        fieldRows: function (x) {
+            const rows = [];
+            all(x).forEach(function (el) {
+                const row = window.Evo.fieldRow(el);
+                if (row && rows.indexOf(row) === -1) {
+                    rows.push(row);
+                }
+            });
+            return rows;
+        },
+
         // 表の行なども扱うので hidden 属性ではなく display で出し分ける
         hide: function (x) {
             return each(x, function (el) {

@@ -92,9 +92,9 @@ if (!class_exists('Mcc')) {
             // field names only (used in a selector)
             if (!preg_match('/^[A-Za-z0-9_\-]+$/', $field)) return;
             if ($field == 'content') return $this->hideSection($field);
-            // 祖先の tr をすべて隠す（直近の 1 つではない。以前の .parents("tr") と同じ）
+            // $field は欄の name。その欄が入っている行（data-field の付いた行）を隠す
             $this->addLine(
-                'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { for (var p = el.parentElement; p; p = p.parentElement) { if (p.tagName === "TR") { p.style.display = "none"; } } });'
+                'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { qmHide([Evo.fieldRow(el)]); });'
             );
         }
     }

@@ -1,7 +1,8 @@
 <?php
 function fieldPagetitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'pagetitle',
         lang('resource_title'),
         input_text_tag(
             [
@@ -15,7 +16,8 @@ function fieldPagetitle()
 
 function fieldLongtitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'longtitle',
         lang('long_title'),
         input_text_tag(
             [
@@ -29,7 +31,8 @@ function fieldLongtitle()
 
 function fieldDescription()
 {
-    return renderTr(
+    return renderFieldTr(
+        'description',
         lang('resource_description'),
         textarea_tag(
             [
@@ -48,7 +51,8 @@ function fieldDescription()
 function fieldAlias($id)
 {
     if (!config('friendly_urls') || doc('type') !== 'document') {
-        return renderTr(
+        return renderFieldTr(
+            'alias',
             lang('resource_alias'),
             input_text_tag(
                 [
@@ -61,7 +65,8 @@ function fieldAlias($id)
                 . tooltip(lang('resource_alias_help'))
         );
     }
-    return renderTr(
+    return renderFieldTr(
+        'alias',
         lang('resource_alias'),
         get_alias_path($id)
             . input_text_tag(
@@ -99,7 +104,8 @@ function fieldAlias($id)
 // Web Link specific
 function fieldWeblink()
 {
-    return renderTr(
+    return renderFieldTr(
+        'weblink',
         [
             lang('weblink'),
             html_tag(
@@ -134,7 +140,8 @@ function fieldWeblink()
 
 function fieldIntrotext()
 {
-    return renderTr(
+    return renderFieldTr(
+        'introtext',
         lang('resource_summary'),
         textarea_tag(
             [
@@ -152,7 +159,8 @@ function fieldIntrotext()
 
 function fieldTemplate()
 {
-    return renderTr(
+    return renderFieldTr(
+        'template',
         lang('page_data_template'),
         select_tag(
             [
@@ -230,7 +238,8 @@ function option_tags($templates)
 
 function fieldMenutitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'menutitle',
         lang('resource_opt_menu_title'),
         input_text_tag(
             [
@@ -245,7 +254,8 @@ function fieldMenutitle()
 
 function fieldMenuindex()
 {
-    return renderTr(
+    return renderFieldTr(
+        'menuindex',
         lang('resource_opt_menu_index'),
         menuindex()
     );
@@ -302,7 +312,8 @@ function fieldParent()
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
     $ph['lang_parent_picker_open'] = hsc(lang('parent_picker_open'));
-    return renderTr(
+    return renderFieldTr(
+        'parent',
         lang('resource_parent'),
         parseText(file_get_tpl('field_parent_form.tpl'), $ph)
     );
@@ -361,6 +372,7 @@ function fieldsTV()
             $hidden[] = $formElement;
         } else {
             $ph = [];
+            $ph['field'] = $tvid;
             $ph['caption'] = evo()->hsc($tv['caption']);
             $ph['description'] = tv_input_description_html($tv['description']);
             $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
@@ -420,7 +432,7 @@ function fieldPublished()
         ]
     );
     $body .= tooltip(lang('resource_opt_published_help'));
-    return renderTr(lang('resource_opt_published'), $body);
+    return renderFieldTr('published', lang('resource_opt_published'), $body);
 }
 
 function fieldPub_date($id = 0)
@@ -437,7 +449,7 @@ function fieldPub_date($id = 0)
     )
         . clearDateButton('pub_date', $disabled)
         . tooltip(lang('page_data_publishdate_help'));
-    return renderTr(lang('page_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
+    return renderFieldTr('pub_date', lang('page_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldUnpub_date($id)
@@ -458,7 +470,7 @@ function fieldUnpub_date($id)
     )
         . clearDateButton('unpub_date', $disabled)
         . tooltip(lang('page_data_unpublishdate_help'));
-    return renderTr(lang('page_data_unpublishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
+    return renderFieldTr('unpub_date', lang('page_data_unpublishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldLink_attributes()
@@ -470,7 +482,7 @@ function fieldLink_attributes()
         ]
     )
         . tooltip(lang('link_attributes_help'));
-    return renderTr(lang('link_attributes'), $body);
+    return renderFieldTr('link_attributes', lang('link_attributes'), $body);
 }
 
 function fieldIsfolder()
@@ -495,7 +507,7 @@ function fieldIsfolder()
             ]
         )
         . tooltip(lang('resource_opt_folder_help'));
-    return renderTr(lang('resource_opt_folder'), $body);
+    return renderFieldTr('isfolder', lang('resource_opt_folder'), $body);
 }
 
 function fieldRichtext()
@@ -520,7 +532,7 @@ function fieldRichtext()
             ]
         )
         . tooltip(lang('resource_opt_richtext_help'));
-    return renderTr(lang('resource_opt_richtext'), $body);
+    return renderFieldTr('richtext', lang('resource_opt_richtext'), $body);
 }
 
 function fieldDonthit()
@@ -545,7 +557,7 @@ function fieldDonthit()
             ]
         )
         . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('track_visitors_title'), $body);
+    return renderFieldTr('donthit', lang('track_visitors_title'), $body);
 }
 
 
@@ -570,7 +582,7 @@ function fieldSearchable()
             ]
         )
         . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('page_data_searchable'), $body);
+    return renderFieldTr('searchable', lang('page_data_searchable'), $body);
 }
 
 function fieldCacheable()
@@ -595,7 +607,7 @@ function fieldCacheable()
             ]
         )
         . tooltip(lang('page_data_cacheable_help'));
-    return renderTr(lang('page_data_cacheable'), $body);
+    return renderFieldTr('cacheable', lang('page_data_cacheable'), $body);
 }
 
 function fieldSyncsite()
@@ -626,12 +638,13 @@ function fieldSyncsite()
             ]
         )
         . tooltip(lang('resource_opt_emptycache_help'));
-    return renderTr(lang('resource_opt_emptycache'), $body);
+    return renderFieldTr('syncsite', lang('resource_opt_emptycache'), $body);
 }
 
 function fieldType()
 {
-    return renderTr(
+    return renderFieldTr(
+        'type',
         lang('resource_type'),
         select_tag(
             [
@@ -688,7 +701,7 @@ function fieldContentType()
         ]
     )
         . tooltip(lang('page_data_contentType_help'));
-    return renderTr(lang('page_data_contentType'), $body);
+    return renderFieldTr('contentType', lang('page_data_contentType'), $body);
 }
 
 function fieldContent_dispo()
@@ -696,7 +709,8 @@ function fieldContent_dispo()
     if (doc('type') === 'reference') {
         return '';
     }
-    return renderTr(
+    return renderFieldTr(
+        'content_dispo',
         lang('resource_opt_contentdispo'),
         select_tag(
             [

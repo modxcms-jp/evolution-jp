@@ -71,16 +71,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             r.after(t.content);
         });
     }
-    // 以前の .before(集合) と同じく、最後の行の前には元の行を、ほかの行の前には複製を入れる
-    function putBefore(targets, rows) {
-        if (!targets.length) { return; }
-        const frag = document.createDocumentFragment();
-        rows.forEach(function (r) { frag.appendChild(r); });
-        targets.forEach(function (t, i) {
-            t.before(i === targets.length - 1 ? frag : frag.cloneNode(true));
-        });
-    }
-    // 行を移し、後ろの説明の行を消し、区切りを足して、見出しの列の幅を外す
+    // 行を移し、後ろの区切りの行を消し、区切りを足して、見出しの列の幅を外す
     function moveFieldRows(toMove) {
         const helps = [];
         nextRows(toMove).forEach(function (n) { helps.push.apply(helps, n.querySelectorAll(\'td[colspan="2"]\')); });
@@ -89,12 +80,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
         addRule(movedTV); // Insert a rule after
         movedTV.forEach(function (r) { r.querySelectorAll("td[width]").forEach(function (td) { td.width = ""; }); }); // Remove widths from label column
     }
-
-    // Try and identify any URL type TVs
-    MM.all(\'select[id$="_prefix"]\').forEach(function (el) {
-        const tr = el.parentElement && el.parentElement.closest("tr");
-        if (tr) { tr.classList.add("urltv"); }
-    });
 ';
 
     // Go through each field that has been supplied
@@ -114,42 +99,27 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             case 'hidemenu':
             case 'show_in_menu':
                 $output .= '    {
-        const rows = MM.all("input[name=menuindex]").map(function (el) { const t = el.closest("table"); return t && t.closest("tr"); }).filter(function (r, i, a) { return r && a.indexOf(r) === i; });
+        const rows = MM.all(Evo.fieldRow("menuindex"));
         nextRows(rows).forEach(function (r) { r.remove(); });
         addRule(moveRows(rows));
     }
 ';
                 break;
 
-            case 'pub_date':
-            case 'unpub_date':
-                $selector = js_literal('input[name=' . $field . ']');
-                $output .= '    {
-        const helpline = moveRows(nextRows(MM.parents(' . $selector . ', "tr")));
-        putBefore(helpline, MM.parents(' . $selector . ', "tr"));
-        addRule(helpline);
-    }
-';
-                break;
-
             case 'weblink':
-                $output .= '    moveFieldRows(MM.parents("input#field_weblink", "tr:not(.urltv)"));' . "\n";
+                $output .= '    moveFieldRows(MM.all(Evo.fieldRow("weblink")));' . "\n";
                 break;
 
             default:
                 if (!isset($mm_fields[$field])) {
                     break;
                 }
-                // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-                $fieldname = str_replace('\\', '', $mm_fields[$field]['fieldname']);
-                $output .= sprintf(
-                    '    moveFieldRows(MM.parents(%s, "tr:not(.urltv)"));' . "\n",
-                    js_literal(mmFieldSelector($field))
-                );
+                $selector = js_literal(mmFieldSelector($field));
+                $output .= sprintf('    moveFieldRows(MM.fieldRows(%s));' . "\n", $selector);
                 // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
                 $output .= sprintf(
-                    '    MM.parents(document.querySelector(%s), "td").forEach(function (td) { td.removeAttribute("style"); });' . "\n",
-                    js_literal(sprintf('[name^="%s"]', $fieldname))
+                    '    MM.all(Evo.fieldPart(document.querySelector(%s), "value")).forEach(function (td) { td.removeAttribute("style"); });' . "\n",
+                    $selector
                 );
                 break;
         }
