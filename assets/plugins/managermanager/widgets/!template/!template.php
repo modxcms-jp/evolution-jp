@@ -23,7 +23,7 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
 
     // Your output should be stored in a string, which is outputted at the end
     // It will be inserted as a Javascript block, which is executed in Evo.ready()
-    // 要素の操作には mm.js の MM（MM.all・MM.parents・MM.hide など）を使う。要素が無くても例外にならない
+    // 要素の操作には mm.js の MM（MM.all・MM.fieldRows・MM.hide など）を使う。要素が無くても例外にならない
     // We always put a JS comment, which makes debugging much easier
     $output = "//  -------------- mm_widget_template :: Begin ------------- \n";
 
@@ -51,7 +51,7 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
         $tv_id = $mm_fields[$targetTv]['fieldname'];
 
         // 例: 項目の行を隠す
-        $output .= 'MM.hide(MM.parents("#' . $tv_id . '", "tr"));' . "\n";
+        $output .= 'MM.hide(MM.fieldRows("#' . $tv_id . '"));' . "\n";
     }
 
     //JS comment for end of widget

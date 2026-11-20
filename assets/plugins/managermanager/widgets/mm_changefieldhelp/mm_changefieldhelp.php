@@ -36,9 +36,9 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
 
     //Is this TV?
     if ($mm_fields[$field]['tv']) {
-        // 最も近い祖先の td の、直前の td の説明
+        // 行の説明
         $output .= sprintf(
-            'MM.all(%s).forEach(function (el) { const td = el.parentElement && el.parentElement.closest("td"); const p = td && td.previousElementSibling; if (p && p.matches("td")) { MM.html(p.querySelectorAll(":scope > span.comment"), "%s"); } });',
+            'MM.html(Evo.fieldPart(document.querySelector(%s), "help"), "%s");',
             $selector,
             jsSafe($helptext)
         );

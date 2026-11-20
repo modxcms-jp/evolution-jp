@@ -35,16 +35,12 @@ function mm_requireFields($fields, $roles = '', $templates = '')
     $output .= '(function () {
     MM.addStyle(".mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }");
     const requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
-    // 欄の親の td の直前の td にある見出し（this will be easier in Evo 1.1 with more semantic code）
+    // 欄の行の見出し
     function titles(els) {
         const found = [];
         els.forEach(function (el) {
-            const td = el.parentElement;
-            const prev = td && td.matches("td") ? td.previousElementSibling : null;
-            if (!prev || !prev.matches("td")) { return; }
-            prev.querySelectorAll(":scope > span.mutate-field-title").forEach(function (span) {
-                if (found.indexOf(span) === -1) { found.push(span); }
-            });
+            const title = Evo.fieldPart(el, "title");
+            if (title && found.indexOf(title) === -1) { found.push(title); }
         });
         return found;
     }

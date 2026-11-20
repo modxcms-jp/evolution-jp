@@ -418,33 +418,32 @@ function clearDateButton($target, $disabled = false)
 
 /**
  * リソース編集の欄の行。$body（欄と、その後ろのボタン・説明のアイコン）は .field-inline で横に並べ、
- * $note（書式などの説明）は欄の下に .form-text で出す
+ * $note（書式などの説明）は欄の下に .form-text で出す。
+ * $field は行の data-field 属性に出す名前（assets/docs/jquery-migration.md の「編集画面の行と data-field 属性」）
  */
-function renderTr($head, $body, $rowstyle = '', $note = '')
+function renderFieldTr($field, $head, $body, $rowstyle = '', $note = '')
 {
-    if (!is_array($head)) {
-        $ph['head'] = $head;
-        $ph['extra_head'] = '';
-    } else {
-        $i = 0;
-        foreach ($head as $v) {
-            if ($i === 0) {
-                $ph['head'] = $v;
-            } else {
-                $extra_head[] = $v;
-            }
-            $i++;
-        }
-        $ph['extra_head'] = implode("\n", $extra_head);
-    }
+    $heads = (array) $head;
     if (is_array($body)) {
         $body = implode("\n", $body);
     }
-    $ph['body'] = $body;
-    $ph['note'] = $note !== '' ? '<div class="form-text">' . $note . '</div>' : '';
-    $ph['rowstyle'] = $rowstyle;
 
-    return parseText(file_get_tpl('render_tr.tpl'), $ph);
+    return parseText(file_get_tpl('render_tr.tpl'), [
+        'field' => $field,
+        'head' => array_shift($heads),
+        'extra_head' => implode("\n", $heads),
+        'body' => $body,
+        'note' => $note !== '' ? '<div class="form-text">' . $note . '</div>' : '',
+        'rowstyle' => $rowstyle
+    ]);
+}
+
+/**
+ * 文書のフィールドではない行（data-field は空）
+ */
+function renderTr($head, $body, $rowstyle = '', $note = '')
+{
+    return renderFieldTr('', $head, $body, $rowstyle, $note);
 }
 
 if (!function_exists('getDefaultTemplate')) {

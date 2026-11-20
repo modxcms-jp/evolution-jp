@@ -75,15 +75,11 @@ MM.all("#tv' . $tv['id'] . '").forEach(function (field) {
                         fields.forEach(function (f) { f.classList.remove("maxLenghtErrorField"); });
                     });
                 });
-                // 欄の祖先の行にある、最初の列の項目名（文書の順につなぐ）
+                // 欄の行の見出し
                 const titles = [];
-                MM.parents(fields, "tr").forEach(function (tr) {
-                    MM.all(":scope td:first-child .mutate-field-title", tr).forEach(function (t) {
-                        if (titles.indexOf(t) === -1) { titles.push(t); }
-                    });
-                });
-                titles.sort(function (a, b) {
-                    return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+                fields.forEach(function (field) {
+                    const title = Evo.fieldPart(field, "title");
+                    if (title && titles.indexOf(title) === -1) { titles.push(title); }
                 });
                 ddErrors.push(titles.map(function (t) { return t.textContent; }).join(""));
             }

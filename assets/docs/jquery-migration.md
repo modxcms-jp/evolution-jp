@@ -4,13 +4,14 @@
 
 ## 共通部品
 
-`manager/media/script/evo.js`（`header.inc.php` で読み込む）に次の 3 つがある。
+`manager/media/script/evo.js`（`header.inc.php` で読み込む）に次の部品がある。
 
 | 部品 | 代わりにするもの | 補足 |
 | --- | --- | --- |
 | `Evo.ready(fn)` | `$j(function(){…})` / `$j(document).ready(…)` | DOM の準備ができていれば待たずに実行する。シェルが後から差し込んだインラインスクリプトでも動く |
 | `Evo.fetch(url, options)` | `$j.ajax(…)` / `$j.get(…)` / `$j.getJSON(…)` | `X-Requested-With` を付け、GET・HEAD 以外では `X-CSRF-Token` を付ける。セッション切れならログイン画面へ移る |
 | `Evo.post(url, data)` | `$j.post(url, data, …)` | `data` はオブジェクト・`FormData`・`URLSearchParams`・文字列（`a=1&b=2` の形）。配列の値は `key[]` で送る（入れ子のオブジェクトは扱わない） |
+| `Evo.fieldRow(field, root)` / `Evo.fieldPart(field, part)` | `.parents('tr')` / `.closest('td').prev()` など、表の並びをたどって行・見出しを探す処理 | 下の「編集画面の行と data-field 属性」を参照 |
 
 - `DOMContentLoaded` へ単純に書き換えない。シェルの画面遷移で差し込まれたスクリプトでは、すでに発火していて実行されない。
 - シェルの画面遷移では、画面の `<script>`（`src` のものも含む）が同じ window で読み直される。トップレベルは `const`・`let`・`class` で宣言せず、`var` か `window` への代入で定義する（二重宣言のエラーになる）。状態は読み直すたびに作り直し、前の画面の設定が残らないようにする（例: `manager/media/script/tabpane.js`、`manager/media/script/element-properties.js`）。
@@ -26,6 +27,30 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
     .then(function (response) { return response.text(); })
     .then(function (data) { … });
 ```
+
+## 編集画面の行と data-field 属性
+
+編集画面の欄の行は、`tr`・`td` の並びをたどらず、行に付けた `data-field` 属性で探す。
+
+| 属性 | 付ける所 | 値 |
+| --- | --- | --- |
+| `data-field` | 欄の行（`tr`） | 欄の名前 |
+| `data-field-part` | 行の中の部分 | `title`（見出し）・`value`（入力のセル）・`help`（説明） |
+
+| 部品 | 返すもの |
+| --- | --- |
+| `Evo.fieldRow(name, root)` | `root`（省略時は `document`）の中の、`data-field` が `name` の行。無ければ `null` |
+| `Evo.fieldRow(el)` | 要素 `el` が入っている行（`el` 自身が行ならその行）。無ければ `null` |
+| `Evo.fieldPart(nameOrEl, part)` | その行の中の、`data-field-part` が `part` の要素。無ければ `null` |
+
+- 文書の編集画面では、属性を `manager/actions/document/mutate_content/render_tr.tpl`（標準のフィールド）と `tv_row.tpl`（TV）に書いている。名前は `fields.php` の各関数が `renderFieldTr()` に渡す。
+- 標準のフィールドの名前は `site_content` の列名にそろえる: `pagetitle`・`longtitle`・`description`・`alias`・`introtext`・`template`・`menutitle`・`menuindex`・`parent`・`published`・`pub_date`・`unpub_date`・`type`・`contentType`・`content_dispo`・`link_attributes`・`isfolder`・`richtext`・`donthit`・`searchable`・`cacheable`。列名と違うのは 2 つで、ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）。
+- TV の行は `tv{id}`（例: `tv12`）。
+- 「メニューに表示」（`hidemenu`）は `menuindex` の行の中にあり、自分の行を持たない。本文（`#content_body`）とエディターの選択（`#which_editor`）は表の行ではないので、id で探す。
+- `help` があるのは TV の行（TV の説明）だけ。標準のフィールドの説明のアイコン（`img.tooltip`）は `value` の中にある。
+- `renderTr()` で出すフィールドではない行（下書きの採用日時など）は `data-field` が空で、`Evo.fieldRow()` の対象にならない。
+- エレメントの編集画面（`manager/actions/element/mutate_*.dynamic.php` の 6 つ）の、新しいカテゴリー名の行は `data-field="newcategory"`（`manager/media/script/element-category.js` が使う）。
+- `custom_tpl_dir` で `render_tr.tpl`・`tv_row.tpl` を差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。
 
 ## 画面の JS から別の画面へ移る
 
@@ -118,6 +143,7 @@ ManagerManager（`assets/plugins/managermanager/`）が出力する JS は、#81
 | --- | --- |
 | `MM.all(x)` | 要素の配列（`querySelectorAll` の結果を配列にしたもの） |
 | `MM.parents(el, sel)` | `sel` に一致する祖先をすべて（自身は含まない）。1 つだけでよければ `el.parentElement.closest(sel)` |
+| `MM.fieldRows(x)` | `x` の欄が入っている行（`data-field` の付いた行）の配列。同じ行は 1 つにまとめる。行の中の見出しなどは `Evo.fieldPart(el, part)` で取る（「編集画面の行と data-field 属性」） |
 | `MM.hide(x)` / `MM.show(x)` | `style.display` を `none` / `''` にする（表の行も扱うので `hidden` 属性は使わない） |
 | `MM.setValue(x, v)` / `MM.setChecked(x, bool)` / `MM.html(x, s)` | `value` / `checked` / `innerHTML` を入れる |
 | `MM.fire(x, type)` | `bubbles: true` の素のイベントを起こす |

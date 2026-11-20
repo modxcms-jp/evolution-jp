@@ -89,12 +89,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
         addRule(movedTV); // Insert a rule after
         movedTV.forEach(function (r) { r.querySelectorAll("td[width]").forEach(function (td) { td.width = ""; }); }); // Remove widths from label column
     }
-
-    // Try and identify any URL type TVs
-    MM.all(\'select[id$="_prefix"]\').forEach(function (el) {
-        const tr = el.parentElement && el.parentElement.closest("tr");
-        if (tr) { tr.classList.add("urltv"); }
-    });
 ';
 
     // Go through each field that has been supplied
@@ -114,7 +108,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             case 'hidemenu':
             case 'show_in_menu':
                 $output .= '    {
-        const rows = MM.all("input[name=menuindex]").map(function (el) { const t = el.closest("table"); return t && t.closest("tr"); }).filter(function (r, i, a) { return r && a.indexOf(r) === i; });
+        const rows = MM.all(Evo.fieldRow("menuindex"));
         nextRows(rows).forEach(function (r) { r.remove(); });
         addRule(moveRows(rows));
     }
@@ -123,33 +117,29 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
 
             case 'pub_date':
             case 'unpub_date':
-                $selector = js_literal('input[name=' . $field . ']');
                 $output .= '    {
-        const helpline = moveRows(nextRows(MM.parents(' . $selector . ', "tr")));
-        putBefore(helpline, MM.parents(' . $selector . ', "tr"));
+        const rows = MM.all(Evo.fieldRow(' . js_literal($field) . '));
+        const helpline = moveRows(nextRows(rows));
+        putBefore(helpline, rows);
         addRule(helpline);
     }
 ';
                 break;
 
             case 'weblink':
-                $output .= '    moveFieldRows(MM.parents("input#field_weblink", "tr:not(.urltv)"));' . "\n";
+                $output .= '    moveFieldRows(MM.all(Evo.fieldRow("weblink")));' . "\n";
                 break;
 
             default:
                 if (!isset($mm_fields[$field])) {
                     break;
                 }
-                // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-                $fieldname = str_replace('\\', '', $mm_fields[$field]['fieldname']);
-                $output .= sprintf(
-                    '    moveFieldRows(MM.parents(%s, "tr:not(.urltv)"));' . "\n",
-                    js_literal(mmFieldSelector($field))
-                );
+                $selector = js_literal(mmFieldSelector($field));
+                $output .= sprintf('    moveFieldRows(MM.fieldRows(%s));' . "\n", $selector);
                 // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
                 $output .= sprintf(
-                    '    MM.parents(document.querySelector(%s), "td").forEach(function (td) { td.removeAttribute("style"); });' . "\n",
-                    js_literal(sprintf('[name^="%s"]', $fieldname))
+                    '    MM.all(Evo.fieldPart(document.querySelector(%s), "value")).forEach(function (td) { td.removeAttribute("style"); });' . "\n",
+                    $selector
                 );
                 break;
         }
