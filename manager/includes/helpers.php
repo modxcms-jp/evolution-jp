@@ -1567,3 +1567,18 @@ function gd_apply_orientation($image, $orientation)
     imageflip($rotated, IMG_FLIP_HORIZONTAL);
     return $rotated;
 }
+
+/**
+ * 画像を <img> で表示したときの幅と高さ。JPEG は EXIF の Orientation が 5〜8 なら、ブラウザが倒して表示するので入れ替える。
+ *
+ * @param string $file 画像の絶対パス
+ * @param array $info getimagesize() の結果
+ * @return int[] [幅, 高さ]
+ */
+function image_display_size($file, $info)
+{
+    if (($info[2] ?? null) === IMAGETYPE_JPEG && jpeg_exif_orientation($file) >= 5) {
+        return [$info[1], $info[0]];
+    }
+    return [$info[0], $info[1]];
+}
