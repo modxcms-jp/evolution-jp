@@ -118,13 +118,17 @@ final class PreferenceResolver
     /**
      * リンクのダイアログの「クラス」の選択肢を、CSSスタイルセレクタの書式から作る。
      * 先頭の「None」は TinyMCE の言語ファイルで訳される。
+     * 付く class が分かるよう、表示名とクラス名が違えば「表示名 (クラス名)」にする。
      */
     private function linkClassList(array $formats): array
     {
         $list = [['title' => 'None', 'value' => '']];
 
         foreach ($formats as $format) {
-            $list[] = ['title' => $format['title'], 'value' => $format['classes']];
+            $title = $format['title'] === $format['classes']
+                ? $format['classes']
+                : "{$format['title']} ({$format['classes']})";
+            $list[] = ['title' => $title, 'value' => $format['classes']];
         }
 
         return $list;
