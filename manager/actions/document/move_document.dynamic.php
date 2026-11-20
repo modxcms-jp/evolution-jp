@@ -64,7 +64,6 @@ function get_src_content($id, $parent)
 <button type="button" class="button" data-move-action="picker">{$pickerLabel}</button></p>
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
-<input type="save" value="Move" style="display:none">
 </form>
 </div>
 </div>
@@ -72,21 +71,6 @@ EOT;
     return $src;
 }
 
-function batch_move()
-{
-    $batch = anyv('batch');
-    if (!$batch) {
-        return;
-    }
-    foreach ($batch as $v) {
-        $ids[] = sprintf("id='%s'", db()->escape($v));
-    }
-    $where = implode(' OR ', $ids);
-    $rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
-    while ($row = db()->getRow($rs)) {
-        echo hsc($row['pagetitle']) . '<br />';
-    }
-}
 
 function get_src_js()
 {
