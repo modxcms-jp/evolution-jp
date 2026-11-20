@@ -42,12 +42,10 @@ final class SystemSettingsRenderer
         $toolbarFieldId = 'tinymce7_toolbar_preset';
         $cssSelectorsFieldId = 'tinymce7_css_selectors';
 
-        $toolbarOptions = [
-            ['value' => 'simple', 'label' => $this->t('tinymce7_toolbar_simple', 'Simple')],
-            ['value' => 'basic', 'label' => $this->t('tinymce7_toolbar_basic', 'Basic')],
-            ['value' => 'legacy', 'label' => $this->t('tinymce7_toolbar_legacy', 'Legacy (Default)')],
-            ['value' => 'full', 'label' => $this->t('tinymce7_toolbar_full', 'Full')],
-        ];
+        $toolbarOptions = [];
+        foreach ($preferences->toolbarPresetNames() as $name) {
+            $toolbarOptions[] = ['value' => $name, 'label' => $this->t("tinymce7_toolbar_{$name}", $name)];
+        }
         if (!$isSystemSettingsScreen) {
             array_unshift($toolbarOptions, ['value' => '', 'label' => lang('user_use_config')]);
         }
@@ -140,6 +138,13 @@ final class SystemSettingsRenderer
             $html[] = '    <td>';
             $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectCssSelectors()) . '">';
             $html[] = '      <div>' . hsc($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_link_rel">' . hsc($this->t('tinymce7_link_rel_label', 'Link rel')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <input type="text" name="tinymce7_link_rel" id="tinymce7_link_rel" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectLinkRel()) . '">';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_link_rel_description', 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2".')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';

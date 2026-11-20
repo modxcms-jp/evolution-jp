@@ -121,55 +121,35 @@ if (isset($content['parent']) && $content['parent'] != 0) {
     $cancelUrl = 'index.php?a=2';
 }
 ?>
-<script type="text/javascript">
-    function duplicatedocument() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>)) {
-            EvoCsrf.post("index.php?id=<?= $id ?>&a=94");
-        }
-    }
-
-    function deletedocument() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>)) {
-            EvoCsrf.post("index.php?id=<?= $id ?>&a=6");
-        }
-    }
-
-    function editdocument() {
-        EvoShell.go("index.php?id=<?= $id ?>&a=27");
-    }
-
-    function movedocument() {
-        EvoShell.go("index.php?id=<?= $id ?>&a=51");
-    }
-</script>
+<script type="text/javascript" src="<?= manager_asset('media/script/document-actions.js') ?>"></script>
 <h1><?= lang('doc_data_title') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <?php if (evo()->hasPermission('save_document')) : ?>
             <li id="Button1" class="mutate">
-                <a href="javascript:void(0)" onclick="editdocument();">
+                <a href="#" data-doc-action="edit" data-doc-id="<?= (int) $id ?>">
                     <?= lang('edit') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
             <li id="Button2" class="mutate">
-                <a href="#" onclick="movedocument();">
+                <a href="#" data-doc-action="move" data-doc-id="<?= (int) $id ?>">
                     <?= lang('move') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button4">
-                <a href="#" onclick="duplicatedocument();">
+                <a href="#" data-doc-action="duplicate" data-doc-id="<?= (int) $id ?>" data-confirm="<?= hsc(stripcslashes(lang('confirm_resource_duplicate'))) ?>">
                     <?= lang('duplicate') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button3">
-                <a href="#" onclick="deletedocument();">
+                <a href="#" data-doc-action="delete" data-doc-id="<?= (int) $id ?>" data-confirm="<?= hsc(stripcslashes(lang('confirm_delete_resource'))) ?>">
                     <?= lang('delete') ?>
                 </a>
             </li>

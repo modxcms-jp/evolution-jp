@@ -5,8 +5,11 @@
   "content_css": false,
   "branding": false,
   "promotion": false,
+  "image_caption": true,
+  "link_context_toolbar": true,
   "relative_urls": false,
   "convert_urls": false,
+  "font_size_formats": "12px 14px 16px 18px 20px 24px 28px 32px 40px 48px",
   "image_cropper": {
     "enabled": true,
     "jsUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js",

@@ -57,3 +57,58 @@ function ddMaxLength(field, options) {
         });
     });
 }
+
+// mm_ddMaxLength の画面側の処理。PHP から attach() と guardSubmit() を呼ぶ
+var mmDdMaxLength = {
+    // 欄に残りの文字数の表示を付ける。fieldIds: 欄の id の配列、max: 最大の文字数
+    attach: function (fieldIds, max) {
+        fieldIds.forEach(function (id) {
+            MM.all('#' + id).forEach(function (field) {
+                field.classList.add('ddMaxLengthField');
+                field.parentElement.insertAdjacentHTML('beforeend', '<div class="ddMaxLengthCount"><span></span></div>');
+                ddMaxLength(field, {
+                    max: max,
+                    containerSelector: 'div.ddMaxLengthCount span',
+                    warningClass: 'maxLenghtWarning'
+                });
+            });
+        });
+    },
+    // 欄の行の見出し
+    titles: function (fields) {
+        const found = [];
+        fields.forEach(function (field) {
+            const title = Evo.fieldPart(field, 'title');
+            if (title && found.indexOf(title) === -1) { found.push(title); }
+        });
+        return found;
+    },
+    // 残りが負の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
+    guardSubmit: function () {
+        const self = this;
+        const form = document.getElementById('mutate');
+        if (!form) { return; }
+        form.addEventListener('submit', function (e) {
+            const ddErrors = [];
+            MM.all('div.ddMaxLengthCount span').forEach(function (span) {
+                const box = span.parentElement ? span.parentElement.closest('.ddMaxLengthCount') : null;
+                const fields = box && box.parentElement ? MM.all('.ddMaxLengthField', box.parentElement) : [];
+                if (parseInt(span.textContent) < 0) {
+                    fields.forEach(function (field) {
+                        field.classList.add('maxLenghtErrorField');
+                        field.addEventListener('focus', function () {
+                            fields.forEach(function (f) { f.classList.remove('maxLenghtErrorField'); });
+                        });
+                    });
+                    ddErrors.push(self.titles(fields).map(function (t) { return t.textContent; }).join(''));
+                }
+            });
+
+            if (ddErrors.length > 0) {
+                alert('Некорректно заполнены поля: ' + ddErrors.join(','));
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
+};

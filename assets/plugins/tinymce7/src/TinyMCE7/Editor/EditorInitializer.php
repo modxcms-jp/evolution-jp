@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TinyMCE7\Editor;
 
 use TinyMCE7\Config\ConfigRepository;
+use TinyMCE7\Config\PluginList;
 use TinyMCE7\Config\PreferenceResolver;
 use TinyMCE7\Support\Language;
 
@@ -104,11 +105,17 @@ final class EditorInitializer
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyToolbarVisibility($config);
         $config = $this->preferences->applyEnterMode($config);
+        // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
+        if (empty($params['forfrontend']) && !isset($config['link_list'])) {
+            // ダイアログを開くたびに、ログイン中の利用者のセッションで取りに行く
+            $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
+        }
         $config = $this->preferences->applyCssSelectors($config);
+        $config = $this->preferences->applyLinkRel($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
-        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         // 同梱の TinyMCE が後から読むプラグイン・スキン・言語ファイルのキャッシュ対策（利用者の cache_suffix を優先）
         if (empty($config['cache_suffix'])) {
@@ -142,12 +149,18 @@ final class EditorInitializer
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
+        $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
+
         $output = [];
         $output[] = implode("\n", $scripts);
         $output[] = '<script>';
         $output[] = '(function() {';
         $output[] = '    if (typeof tinymce === "undefined") {';
         $output[] = '        console.error("TinyMCE 7 is not loaded. Check assets/plugins/tinymce7/tinymce/js/tinymce/tinymce.min.js");';
+        $output[] = '        return;';
+        $output[] = '    }';
+        $output[] = '    if (typeof window.tinymce7EditorSetup !== "function") {';
+        $output[] = '        console.error("TinyMCE7: assets/plugins/tinymce7/js/editor-setup.js is not loaded.");';
         $output[] = '        return;';
         $output[] = '    }';
         $output[] = '    const config = ' . $configJson . ';';
@@ -164,60 +177,13 @@ final class EditorInitializer
         $output[] = '                delete config.file_picker_callback;';
         $output[] = '            }';
         $output[] = '    }';
-        // 本文の変更を管理画面の未保存の印(documentDirty)に反映する。iframe の中の変更は input 欄の change では拾えない。
-        // 設定ファイルやサイトが setup を持っていても上書きせず、その後ろに重ねる
+        // 設定ファイルやサイトが setup を持っていても上書きせず、先に呼んでからエディター共通の設定を重ねる
         $output[] = '    const userSetup = typeof config.setup === "function" ? config.setup : null;';
         $output[] = '    config.setup = function(editor) {';
         $output[] = '        if (userSetup) {';
         $output[] = '            userSetup.call(this, editor);';
         $output[] = '        }';
-        $output[] = '        editor.on("dirty", function() {';
-        $output[] = '            if ("documentDirty" in window) {';
-        $output[] = '                window.documentDirty = true;';
-        $output[] = '            }';
-        $output[] = '        });';
-        // リッチテキストのエディタは、内容が変わったら元の欄(textarea)に bubbles の input イベントを送る決まり。
-        // iframe の中の変更はフォームから見えないため、フォームの input を拾う仕組み(ライブプレビューの自動更新など)へ伝える。
-        // 値の書き戻しは送信前の triggerSave() が行うので、ここでは通知だけ。初期化時の SetContent は変更ではないので送らない
-        $output[] = '        const notifyInput = function() {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new Event("input", {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        // 変換中(compositionstart から compositionend まで)は、input・change・undo・redo・SetContent のどれでも送らず、確定(compositionend)で 1 回送る
-        $output[] = '        let composing = false;';
-        // composition イベントも元の欄へ送り、フォーム側の変換中の判定を普通の欄と同じ処理にする。変換の途中で blur したら、compositionend が来なくても元の欄へ終わりを伝えて印を戻す
-        $output[] = '        const notifyComposition = function(type) {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new CompositionEvent(type, {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("compositionstart", function() {';
-        $output[] = '            composing = true;';
-        $output[] = '            notifyComposition("compositionstart");';
-        $output[] = '        });';
-        $output[] = '        editor.on("compositionend", function() {';
-        $output[] = '            composing = false;';
-        $output[] = '            notifyInput();';
-        $output[] = '            notifyComposition("compositionend");';
-        $output[] = '        });';
-        $output[] = '        editor.on("blur", function() {';
-        $output[] = '            if (composing) {';
-        $output[] = '                composing = false;';
-        $output[] = '                notifyComposition("compositionend");';
-        $output[] = '            }';
-        $output[] = '        });';
-        $output[] = '        const notifyUnlessComposing = function() {';
-        $output[] = '            if (!composing) {';
-        $output[] = '                notifyInput();';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("input change undo redo", notifyUnlessComposing);';
-        $output[] = '        editor.on("init", function() {';
-        $output[] = '            editor.on("SetContent", notifyUnlessComposing);';
-        $output[] = '        });';
+        $output[] = '        window.tinymce7EditorSetup(editor);';
         $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';
@@ -242,7 +208,7 @@ final class EditorInitializer
             return $config;
         }
 
-        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $config['plugins'] = PluginList::append($config['plugins'] ?? [], 'modxtemplate');
         $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
         $externalPlugins['modxtemplate'] = $this->scriptFactory->bundledAssetUrl('js/modx-template.js');
         $config['external_plugins'] = $externalPlugins;
@@ -263,24 +229,6 @@ final class EditorInitializer
      * @param string|array $plugins
      * @return string|array
      */
-    private function appendPlugin($plugins, string $name)
-    {
-        if (is_array($plugins)) {
-            if (!in_array($name, $plugins, true)) {
-                $plugins[] = $name;
-            }
-
-            return $plugins;
-        }
-
-        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        if (!in_array($name, $list, true)) {
-            $list[] = $name;
-        }
-
-        return implode(' ', $list);
-    }
-
     /**
      * @param mixed $toolbar
      * @return mixed

@@ -38,9 +38,9 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
     if ($mm_fields[$field]['tv']) {
         // 行の説明
         $output .= sprintf(
-            'MM.html(Evo.fieldPart(document.querySelector(%s), "help"), "%s");',
+            'MM.html(Evo.fieldPart(document.querySelector(%s), "help"), %s);',
             $selector,
-            jsSafe($helptext)
+            mmHtmlLiteral($helptext)
         );
         //Or document field
     } else {

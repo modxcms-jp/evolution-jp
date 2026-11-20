@@ -5,6 +5,24 @@ namespace TinyMCE7\Config;
 
 final class PreferenceResolver
 {
+    private const WIDE_TOOLBAR_ITEMS = [
+        'blocks' => 3,
+        'fontfamily' => 3,
+        'styles' => 3,
+        'fontsize' => 2,
+    ];
+
+    /**
+     * 「表示名=要素名.クラス名」で書ける要素名ごとの定義。
+     * list はその要素のダイアログの「クラス」の選択肢を入れる設定キー、
+     * withUnprefixed は要素名の無い項目も同じ選択肢に入れるか
+     */
+    private const CLASS_TARGETS = [
+        'a' => ['list' => 'link_class_list', 'withUnprefixed' => true],
+        'img' => ['list' => 'image_class_list', 'withUnprefixed' => false],
+        'table' => ['list' => 'table_class_list', 'withUnprefixed' => false],
+    ];
+
     private ConfigRepository $repository;
     private ?array $settings;
 
@@ -94,24 +112,83 @@ final class PreferenceResolver
 
     /**
      * 「表示名=クラス名;...」形式のCSSスタイルセレクタ設定を style_formats に変換する。
-     * TinyMCE 3 の theme_advanced_styles と同じ書式定義（selector '*' と inline 'span' の mixed 書式）にする。
+     * 要素名の無い項目は TinyMCE 3 の theme_advanced_styles と同じ書式定義（selector '*' と inline 'span' の mixed 書式）にする。
      * 要素全体を選んだときは要素に class を付け、文中の一部を選んだときは span で包む。
+     * 「表示名=a.クラス名」のように要素名を付けた項目は、その要素にだけ class を付ける書式にする。
+     * 要素名の無い項目は、リンクのダイアログの「クラス」にも出す。画像・表のダイアログには出さない（要素名ごとの扱いは CLASS_TARGETS）
      */
     public function applyCssSelectors(array $config): array
     {
-        $formats = $this->parseCssSelectors($this->detectCssSelectors());
+        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換え、
+        // 取り込めるクラスが無いと「書式」の欄が空で押せなくなるため、いつも追記にする
+        $config['importcss_append'] = $config['importcss_append'] ?? true;
 
-        if ($formats === []) {
+        $items = $this->parseCssItems($this->detectCssSelectors());
+
+        if ($items === []) {
             return $config;
         }
 
         $existing = $config['style_formats'] ?? [];
-        $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], $formats);
+        $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], array_map([$this, 'toFormat'], $items));
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
-        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
-        $config['importcss_append'] = $config['importcss_append'] ?? true;
+        // 指定したクラスだけを出す（TinyMCE 3 と同じ）。CSS のクラスをすべて取り込むと一覧が長くなり、同じクラスが重なる
+        if (isset($config['plugins'])) {
+            $config['plugins'] = PluginList::remove($config['plugins'], 'importcss');
+        }
+
+        foreach (self::CLASS_TARGETS as $element => $target) {
+            $values = array_filter($items, static function (array $item) use ($element, $target) {
+                return $item['element'] === $element || ($target['withUnprefixed'] && $item['element'] === '');
+            });
+            if ($values !== [] && !isset($config[$target['list']])) {
+                $config[$target['list']] = $this->choiceList($values);
+            }
+        }
 
         return $this->ensureStylesButton($config);
+    }
+
+    /**
+     * リンクのダイアログの「rel」の選択肢を、設定「リンクの rel」から作る。
+     * 設定ファイルで link_rel_list を指定していればそちらを使い、どちらも無ければ欄を出さない
+     */
+    public function applyLinkRel(array $config): array
+    {
+        if (isset($config['link_rel_list'])) {
+            return $config;
+        }
+
+        $values = $this->parseNamedValues($this->detectLinkRel());
+        if ($values !== []) {
+            $config['link_rel_list'] = $this->choiceList($values);
+        }
+
+        return $config;
+    }
+
+    public function detectLinkRel(): string
+    {
+        return $this->detectString(['tinymce7_link_rel']);
+    }
+
+    /**
+     * リンクのダイアログの選択肢（{title, value} の並び）にする。
+     * 先頭の「None」は TinyMCE の言語ファイルで訳される。
+     * 付く値が分かるよう、表示名と値が違えば「表示名 (値)」にする。
+     */
+    private function choiceList(array $values): array
+    {
+        $list = [['title' => 'None', 'value' => '']];
+
+        foreach ($values as $item) {
+            $title = $item['title'] === $item['value']
+                ? $item['value']
+                : "{$item['title']} ({$item['value']})";
+            $list[] = ['title' => $title, 'value' => $item['value']];
+        }
+
+        return $list;
     }
 
     /**
@@ -168,9 +245,49 @@ final class PreferenceResolver
         return '';
     }
 
-    public function parseCssSelectors(string $value): array
+    /**
+     * 「表示名=クラス名」の項目を {title, value, element} の並びにする。
+     * 値が「要素名.クラス名」で、要素名が CLASS_TARGETS にあれば element に分ける。無ければ element は空。
+     * 要素名を分けた後のクラス名は、CSS のセレクタと同じく「.」でつないで複数書ける（a.btn.primary は btn primary）
+     */
+    private function parseCssItems(string $value): array
     {
-        $formats = [];
+        return array_map(static function (array $item) {
+            $element = '';
+            if (preg_match('/^([A-Za-z][A-Za-z0-9]*)\.(\S.*)$/', $item['value'], $m)
+                && isset(self::CLASS_TARGETS[strtolower($m[1])])) {
+                $element = strtolower($m[1]);
+                $item['value'] = trim(preg_replace('/[.\s]+/', ' ', $m[2]));
+            }
+
+            return $item + ['element' => $element];
+        }, $this->parseNamedValues($value));
+    }
+
+    private function toFormat(array $item): array
+    {
+        if ($item['element'] !== '') {
+            return [
+                'title' => $item['title'],
+                'selector' => $item['element'],
+                'classes' => $item['value'],
+            ];
+        }
+
+        return [
+            'title' => $item['title'],
+            'selector' => '*',
+            'inline' => 'span',
+            'classes' => $item['value'],
+        ];
+    }
+
+    /**
+     * 「表示名=値;表示名2=値2」を {title, value} の並びにする。表示名を省いたら値を表示名にする
+     */
+    public function parseNamedValues(string $value): array
+    {
+        $items = [];
 
         foreach (explode(';', $value) as $entry) {
             $entry = trim($entry);
@@ -180,24 +297,19 @@ final class PreferenceResolver
             }
 
             if (str_contains($entry, '=')) {
-                [$title, $classes] = array_map('trim', explode('=', $entry, 2));
+                [$title, $itemValue] = array_map('trim', explode('=', $entry, 2));
             } else {
-                $title = $classes = $entry;
+                $title = $itemValue = $entry;
             }
 
-            if ($classes === '') {
+            if ($itemValue === '') {
                 continue;
             }
 
-            $formats[] = [
-                'title' => $title !== '' ? $title : $classes,
-                'selector' => '*',
-                'inline' => 'span',
-                'classes' => $classes,
-            ];
+            $items[] = ['title' => $title !== '' ? $title : $itemValue, 'value' => $itemValue];
         }
 
-        return $formats;
+        return $items;
     }
 
     private function ensureStylesButton(array $config): array
@@ -216,21 +328,50 @@ final class PreferenceResolver
         // toolbar は文字列、文字列の配列（行ごと）、{name, items} のグループ配列のいずれか
         $rows = is_array($toolbar) ? array_values($toolbar) : [$toolbar];
 
+        // 空の配列はボタンを出さない指定
+        if ($rows === []) {
+            return $config;
+        }
+
         foreach ($rows as $row) {
             if ($this->rowHasStyles($row)) {
                 return $config;
             }
         }
 
-        if (is_array($rows[0] ?? null)) {
-            array_unshift($rows, ['name' => 'styles', 'items' => ['styles']]);
-        } else {
-            $rows[0] = 'styles ' . ltrim((string)($rows[0] ?? ''));
+        // グループの配列は 1 本のツールバーなので、末尾にグループを足す
+        if (is_array($rows[0])) {
+            $rows[] = ['name' => 'styles', 'items' => ['styles']];
+            $config['toolbar'] = $rows;
+
+            return $config;
         }
+
+        // 並びを崩さず行の長さをそろえるため、ボタンが少ない行の末尾に足す（同じ数なら後ろの行）
+        $target = 0;
+        foreach ($rows as $index => $row) {
+            if ($this->countToolbarItems($row) <= $this->countToolbarItems($rows[$target])) {
+                $target = $index;
+            }
+        }
+        $rows[$target] = rtrim((string)$rows[$target]) . ' | styles';
 
         $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
 
         return $config;
+    }
+
+    /**
+     * 行の長さの目安。選択欄は幅に応じて、普通のボタン何個ぶんかで数える
+     */
+    private function countToolbarItems($row): int
+    {
+        $count = 0;
+        foreach (preg_split('/[\s|]+/', (string)$row, -1, PREG_SPLIT_NO_EMPTY) as $item) {
+            $count += self::WIDE_TOOLBAR_ITEMS[$item] ?? 1;
+        }
+
+        return $count;
     }
 
     private function rowHasStyles($row): bool
@@ -240,6 +381,14 @@ final class PreferenceResolver
         }
 
         return (bool)preg_match('/(^|[\s|])styles($|[\s|])/', (string)$row);
+    }
+
+    /**
+     * ツールバー構成の名前（toolbar-presets.json のキーの並び）
+     */
+    public function toolbarPresetNames(): array
+    {
+        return array_keys(array_filter($this->repository->loadToolbarPresets(), 'is_array'));
     }
 
     public function detectToolbarPreset(): string
@@ -254,12 +403,11 @@ final class PreferenceResolver
     {
         $keys = ['tinymce7_toolbar_preset', 'tinymce_toolbar_preset'];
 
-        $aliases = [
-            'simple' => 'simple',
-            'basic' => 'basic',
-            'legacy' => 'legacy',
+        $names = $this->toolbarPresetNames();
+        // 旧プラグインの構成名（classic・advanced）と、なくした構成（basic）の読み替え
+        $aliases = array_combine($names, $names) + [
+            'basic' => 'formats',
             'classic' => 'legacy',
-            'full' => 'full',
             'advanced' => 'full',
         ];
 

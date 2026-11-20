@@ -1,5 +1,21 @@
 {
   "simple": {},
+  "formats": {
+    "plugins": [
+      "code",
+      "fullscreen",
+      "help",
+      "image",
+      "link",
+      "lists",
+      "media",
+      "quickbars",
+      "table"
+    ],
+    "menubar": "edit view insert format tools table help",
+    "quickbars_insert_toolbar": false,
+    "toolbar": "undo redo styles forecolor backcolor bullist numlist blockquote link unlink image media table template removeformat code fullscreen help"
+  },
   "legacy": {
     "plugins": [
       "quickbars",
@@ -29,32 +45,10 @@
     "menubar": "edit view insert format tools table help",
     "quickbars_insert_toolbar": false,
     "toolbar": [
-      "undo redo bold forecolor backcolor strikethrough formatselect fontsizeselect table alignleft aligncenter alignright template code fullscreen help",
-      "image media link unlink anchor bullist numlist blockquote outdent indent hr visualblocks visualchars removeformat"
+      "undo redo bold forecolor backcolor strikethrough styles fontsize pastetext code template fullscreen help",
+      "image media link unlink anchor alignleft aligncenter alignright bullist numlist blockquote outdent indent table hr visualblocks removeformat"
     ],
     "toolbar_mode": "wrap"
-  },
-  "basic": {
-    "plugins": [
-      "advlist",
-      "autolink",
-      "lists",
-      "link",
-      "image",
-      "preview",
-      "anchor",
-      "code",
-      "fullscreen",
-      "table",
-      "quickbars",
-      "help",
-      "wordcount"
-    ],
-    "menubar": "edit view insert format tools table help",
-    "quickbars_insert_toolbar": false,
-    "toolbar": "bold forecolor backcolor strikethrough removeformat quickimage image link unlink anchor bullist numlist table fullscreen help",
-    "height": 500,
-    "content_style": "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }"
   },
   "full": {
     "menubar": "edit view insert format tools table help",

@@ -90,22 +90,37 @@ if (!function_exists('str_ends_with')) {
 }
 
 /**
+ * <script> の中へ値を埋め込むための、JS の値（配列・オブジェクト・数値・真偽値・null・文字列）を返す。
+ * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
+ * 不正な UTF-8 は置き換え、それでも失敗したら null を返す。
+ * 文字列だけを渡すなら js_literal() を使う。
+ *
+ * @param mixed $value
+ * @return string
+ */
+function js_value($value): string
+{
+    $json = json_encode(
+        $value,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+    return $json === false ? 'null' : $json;
+}
+
+/**
  * <script> の中へ値を埋め込むための、JS の文字列リテラル（引用符付き）を返す。
  * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
  * 不正な UTF-8 は置き換え、それでも失敗したら空文字列のリテラルを返す。
- * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれを使う。
+ * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれ（配列などは js_value()）を使う。
  *
  * @param mixed $value
  * @return string
  */
 function js_literal($value): string
 {
-    $json = json_encode(
-        (string)$value,
-        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
-    );
-    return $json === false ? '""' : $json;
+    $json = js_value((string)$value);
+    return $json === 'null' ? '""' : $json;
 }
 
 /**

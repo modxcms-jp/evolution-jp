@@ -70,6 +70,10 @@
 .selection-dock ul.actionButtons > li {
     margin: 0;
 }
+/* 隠す項目(hidden)。.actionButtons li の display: flex(層の中)が、ブラウザー既定の [hidden] に勝ってしまうため */
+.selection-dock ul.actionButtons > li[hidden] {
+    display: none;
+}
 .selection-dock ul.actionButtons button {
     margin: 0;
     font-family: inherit;

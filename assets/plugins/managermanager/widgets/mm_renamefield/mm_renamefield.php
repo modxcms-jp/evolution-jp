@@ -23,7 +23,7 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
 
     $output = "// ----------- mm_renameField :: Begin ------------- \n";
 
-    $label = '"' . jsSafe($newlabel) . '"';
+    $label = mmHtmlLiteral($newlabel);
     // 行の見出し（%s は行の名前か、欄の要素を返す式）
     $rowTitle = 'MM.html(Evo.fieldPart(%s, "title"), %s);';
 

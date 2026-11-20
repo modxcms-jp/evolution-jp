@@ -26,7 +26,7 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
 
     switch ($section) {
         case 'content':
-            $output .= 'MM.html("div#content_header", "' . jsSafe($newname) . '");' . "\n";
+            $output .= 'MM.html("div#content_header", ' . mmHtmlLiteral($newname) . ');' . "\n";
             break;
 
         case 'tvs':
@@ -35,7 +35,7 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
             break;
 
         case 'access': // These have moved to tabs in 1.0.1
-            $output .= 'MM.html("div#sectionAccessHeader", "' . jsSafe($newname) . '");' . "\n";
+            $output .= 'MM.html("div#sectionAccessHeader", ' . mmHtmlLiteral($newname) . ');' . "\n";
             break;
     }
 

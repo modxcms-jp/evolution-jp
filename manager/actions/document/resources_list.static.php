@@ -266,10 +266,11 @@ if (!$numRecords) {
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
-$cm = new ContextMenu('cntxm', 180);
+$menuId = 'cntxm';
+$cm = new ContextMenu($menuId, 180);
 echo getContextMenu($cm);
 
-echo get_jscript($id, $cm);
+echo get_jscript($menuId);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
@@ -279,17 +280,27 @@ echo get_jscript($id, $cm);
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
+            $docButton = function ($buttonId, $action, $label, $confirmKey = '') use ($id) {
+                return sprintf(
+                    '<li id="%s" class="mutate"><a href="#" data-doc-action="%s" data-doc-id="%d"%s>%s</a></li>',
+                    $buttonId,
+                    $action,
+                    (int) $id,
+                    $confirmKey !== '' ? ' data-confirm="' . hsc(stripcslashes(lang($confirmKey))) . '"' : '',
+                    $label
+                );
+            };
             if (hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button1', 'editdocument();', lang('edit'));
+                echo $docButton('Button1', 'edit', lang('edit'));
             }
             if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button2', 'movedocument();', lang('move'));
+                echo $docButton('Button2', 'move', lang('move'));
             }
             if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button4', 'duplicatedocument();', lang('duplicate'));
+                echo $docButton('Button4', 'duplicate', lang('duplicate'), 'confirm_resource_duplicate');
             }
             if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo sprintf($tpl, 'Button3', 'deletedocument();', lang('delete'));
+                echo $docButton('Button3', 'delete', lang('delete'), 'confirm_delete_resource');
             }
 
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
@@ -474,153 +485,38 @@ function _getIconPath($doc)
     return style('tree_folder');
 }
 
-function get_jscript($id, $cm)
+function get_jscript($menuId)
 {
     global $modx_textdir;
 
-    $contextm = $cm->getClientScriptObject();
-    $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // メニューの操作後の戻り先に、今のページ・並べ替え・検索語（q）を残す
     $returnQuery = ChildDocumentListState::returnQuery();
-    $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
-    $siteStart = (int) evo()->config('site_start');
-
-    $js_confirm_resource_duplicate = js_literal(stripcslashes(lang('confirm_resource_duplicate')));
-    $js_confirm_delete_resource = js_literal(stripcslashes(lang('confirm_delete_resource')));
-    $js_confirm_publish = js_literal(stripcslashes(lang('confirm_publish')));
-    $js_confirm_unpublish = js_literal(stripcslashes(lang('confirm_unpublish')));
-    $js_confirm_undelete = js_literal(stripcslashes(lang('confirm_undelete')));
-
-    $block = <<< EOT
-<style type="text/css">
-a span.withmenu {border:1px solid transparent;}
-a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
-.nowrap {white-space:nowrap;}
-.disable {color:#777;}
-</style>
-<script type="text/javascript">
-    function duplicatedocument() {
-        if (confirm({$js_confirm_resource_duplicate}) == true) {
-            EvoCsrf.post("index.php?id={$id}&a=94");
-        }
-    }
-    function deletedocument() {
-        if (confirm({$js_confirm_delete_resource}) == true) {
-            EvoCsrf.post("index.php?id={$id}&a=6");
-        }
-    }
-    function editdocument() {
-        EvoShell.go("index.php?id={$id}&a=27");
-    }
-    function movedocument() {
-        EvoShell.go("index.php?id={$id}&a=51");
+    $confirm = [];
+    foreach ([
+        'duplicate' => 'confirm_resource_duplicate',
+        'delete' => 'confirm_delete_resource',
+        'publish' => 'confirm_publish',
+        'unpublish' => 'confirm_unpublish',
+        'undelete' => 'confirm_undelete',
+    ] as $name => $key) {
+        $confirm[] = js_literal($name) . ':' . js_literal(stripcslashes(lang($key)));
     }
 
-    // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
-    var selectedItem;
-    var contextm = {$contextm};
-    function showContentMenu(id,e){
-        selectedItem=id;
-        //offset menu if RTL is selected
-        contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))){$textdir}+10+"px";
-        contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))-150 + 'px';
-        contextm.style.visibility = "visible";
-        e.cancelBubble=true;
-        return false;
-    }
+    $config = sprintf(
+        '{menuId:%s,rtl:%s,returnQuery:%s,siteStart:%d,confirm:{%s}}',
+        js_literal($menuId),
+        $modx_textdir === 'rtl' ? 'true' : 'false',
+        js_literal($returnQuery),
+        (int) evo()->config('site_start'),
+        implode(',', $confirm)
+    );
 
-    function menuAction(a) {
-        let id = selectedItem;
-        const gotoUrl = EvoShell.go;
-        switch(a) {
-            case 27:        // edit
-                gotoUrl('index.php?a=27&id='+id);
-                break;
-            case 4:         // new Resource
-                gotoUrl('index.php?a=4&pid='+id);
-                break;
-            case 51:        // move
-                gotoUrl('index.php?a=51&id='+id{$page});
-                break;
-            case 94:        // duplicate
-                if(confirm({$js_confirm_resource_duplicate})==true)
-                {
-                    EvoCsrf.post('index.php?a=94&id='+id{$page});
-                }
-                break;
-            case 61:        // publish
-                if(confirm({$js_confirm_publish})==true)
-                {
-                    EvoCsrf.post('index.php?a=61&id='+id{$page});
-                }
-                break;
-            case 62:        // unpublish
-                if (id != {$siteStart})
-                {
-                    if(confirm({$js_confirm_unpublish})==true)
-                    {
-                        EvoCsrf.post("index.php?a=62&id=" + id{$page});
-                    }
-                }
-                else
-                {
-                    alert('Document is linked to site_start variable and cannot be unpublished!');
-                }
-                break;
-            case 6:         // delete
-                if(confirm({$js_confirm_delete_resource})==true)
-                {
-                    EvoCsrf.post('index.php?a=6&id='+id{$page});
-                }
-                break;
-            case 63:        // undelete
-                if(confirm({$js_confirm_undelete})==true)
-                {
-                    EvoCsrf.post("index.php?a=63&id=" + id{$page});
-                }
-                break;
-            case 72:         // new Weblink
-                gotoUrl('index.php?a=72&pid='+id);
-                break;
-            case 3:        // view
-                gotoUrl('index.php?a=3&id='+id);
-                break;
-        }
-    }
-    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
-    if (!window.evoContextMenuClose) {
-        window.evoContextMenuClose = true;
-        document.addEventListener('click', function(){
-            contextm.style.visibility = "hidden";
-        });
-    }
-
-    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
-    Evo.ready(function () {
-        const table = document.querySelector('[data-table="children"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
-            if (el && el.tagName === 'IMG') {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-        table.addEventListener('contextmenu', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    });
-</script>
-EOT;
-    return $block;
+    return sprintf(
+        '<script type="text/javascript" src="%s"></script>' . "\n" . '<script type="text/javascript">EvoDocumentActions.initChildMenu(%s);</script>',
+        hsc(manager_asset('media/script/document-actions.js')),
+        $config
+    );
 }
 
 function getReturnAction($current)
@@ -685,46 +581,46 @@ function getTopicPath($id)
 function getContextMenu($cm)
 {
     if (hasPermission('edit_document')) {
-        $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
+        $cm->addItem(lang('edit_resource'), "js:EvoDocumentActions.menu(27)", style('icons_edit_document'));
     }
     if (hasPermission('new_document')) {
-        $cm->addItem(lang('create_resource_here'), "js:menuAction(4)", style('icons_new_document'));
+        $cm->addItem(lang('create_resource_here'), "js:EvoDocumentActions.menu(4)", style('icons_new_document'));
     }
     if (hasPermission('move_document') && hasPermission('save_document') && hasPermission('publish_document')) {
-        $cm->addItem(lang('move_resource'), "js:menuAction(51)", style('icons_move_document'));
+        $cm->addItem(lang('move_resource'), "js:EvoDocumentActions.menu(51)", style('icons_move_document'));
     }
     if (hasPermission('new_document')) {
-        $cm->addItem(lang('resource_duplicate'), "js:menuAction(94)", style('icons_resource_duplicate'));
+        $cm->addItem(lang('resource_duplicate'), "js:EvoDocumentActions.menu(94)", style('icons_resource_duplicate'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
     if (hasPermission('publish_document')) {
-        $cm->addItem(lang('publish_resource'), "js:menuAction(61)", style('icons_publish_document'));
+        $cm->addItem(lang('publish_resource'), "js:EvoDocumentActions.menu(61)", style('icons_publish_document'));
     }
     if (hasPermission('publish_document')) {
-        $cm->addItem(lang('unpublish_resource'), "js:menuAction(62)", style('icons_unpublish_resource'));
+        $cm->addItem(lang('unpublish_resource'), "js:EvoDocumentActions.menu(62)", style('icons_unpublish_resource'));
     }
     if (hasPermission('delete_document')) {
-        $cm->addItem(lang('delete_resource'), "js:menuAction(6)", style('icons_delete'));
+        $cm->addItem(lang('delete_resource'), "js:EvoDocumentActions.menu(6)", style('icons_delete'));
     }
     if (hasPermission('delete_document')) {
-        $cm->addItem(lang('undelete_resource'), "js:menuAction(63)", style('icons_undelete_resource'));
+        $cm->addItem(lang('undelete_resource'), "js:EvoDocumentActions.menu(63)", style('icons_undelete_resource'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
     if (hasPermission('new_document')) {
-        $cm->addItem(lang('create_weblink_here'), "js:menuAction(72)", style('icons_weblink'));
+        $cm->addItem(lang('create_weblink_here'), "js:EvoDocumentActions.menu(72)", style('icons_weblink'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
     if (hasPermission('view_document')) {
-        $cm->addItem(lang('resource_overview'), "js:menuAction(3)", style('icons_resource_overview'));
+        $cm->addItem(lang('resource_overview'), "js:EvoDocumentActions.menu(3)", style('icons_resource_overview'));
     }
     return $cm->render();
 }
