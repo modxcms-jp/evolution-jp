@@ -35,59 +35,47 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
             <div class="sectionHeader"><?= lang('view_sysinfo') ?></div>
             <div class="sectionBody" id="lyr2">
                 <table border="0" cellspacing="2" cellpadding="2">
+                    <colgroup><col style="width:150px"></colgroup>
                     <?php
-                    echo render_tr(
-                        lang('modx_version'),
-                        evo()->getVersionData('version')
-                    );
-                    echo render_tr(
-                        lang('release_date'),
-                        $modx_release_date
-                    );
-                    echo render_tr(
-                        'システム更新日時',
-                        evo()->toDateFormat(config('lastInstallTime'))
-                    );
-                    echo render_tr(
-                        'phpInfo()',
-                        sprintf(
-                            '<a href="#" onclick="viewPHPInfo();return false;">%s</a>',
-                            lang('view')
-                        )
-                    );
-                    echo render_tr(
-                        lang('udperms_title'),
-                        config('use_udperms') == 1 ? lang('enabled') : lang('disabled')
-                    );
-                    echo render_tr(lang('servertime'), date('H:i:s'));
-                    echo render_tr(lang('localtime'), date('H:i:s'));
-                    echo render_tr(
-                        lang('serveroffset'),
-                        (config('server_offset_time') / (60 * 60)) . ' h'
-                    );
-                    echo render_tr(lang('database_name'), db()->dbname);
-                    echo render_tr(lang('database_server'), db()->hostname);
-                    echo render_tr(lang('database_version'), db()->getVersion());
-
-                    $rs = db()->query(
-                        "show variables like 'character_set_database'"
-                    );
-                    $charset = db()->getRow($rs, 'num');
-                    echo render_tr(
-                        lang('database_charset'),
-                        $charset[1]
+                    $charset = db()->getRow(
+                        db()->query("show variables like 'character_set_database'"),
+                        'num'
                     );
                     $collation = db()->getRow(
                         db()->query("SHOW variables LIKE 'collation_database'"),
                         'num'
                     );
-                    echo render_tr(lang('database_collation'), $collation[1]);
-                    echo render_tr(lang('table_prefix'), db()->table_prefix);
-                    echo render_tr(lang('cfg_base_path'), MODX_BASE_PATH);
-                    echo render_tr(lang('cfg_base_url'), MODX_BASE_URL);
-                    echo render_tr(lang('cfg_manager_url'), MODX_MANAGER_URL);
-                    echo render_tr(lang('cfg_manager_path'), MODX_MANAGER_PATH);
-                    echo render_tr(lang('cfg_site_url'), MODX_SITE_URL);
+                    // [見出し, 値]。値は HTML。画面の外から来る値は hsc_for_tpl() で文字にする
+                    $items = [
+                        [lang('modx_version'), hsc_for_tpl(evo()->getVersionData('version'))],
+                        [lang('release_date'), hsc_for_tpl($modx_release_date)],
+                        ['システム更新日時', hsc_for_tpl(evo()->toDateFormat(config('lastInstallTime')))],
+                        [
+                            'phpInfo()',
+                            sprintf('<a href="#" onclick="viewPHPInfo();return false;">%s</a>', lang('view'))
+                        ],
+                        [lang('udperms_title'), config('use_udperms') == 1 ? lang('enabled') : lang('disabled')],
+                        [lang('servertime'), date('H:i:s')],
+                        [lang('localtime'), date('H:i:s')],
+                        [lang('serveroffset'), hsc_for_tpl((config('server_offset_time') / (60 * 60)) . ' h')],
+                        [lang('database_name'), hsc_for_tpl(db()->dbname)],
+                        [lang('database_server'), hsc_for_tpl(db()->hostname)],
+                        [lang('database_version'), hsc_for_tpl(db()->getVersion())],
+                        [lang('database_charset'), hsc_for_tpl($charset[1])],
+                        [lang('database_collation'), hsc_for_tpl($collation[1])],
+                        [lang('table_prefix'), hsc_for_tpl(db()->table_prefix)],
+                        [lang('cfg_base_path'), hsc_for_tpl(MODX_BASE_PATH)],
+                        [lang('cfg_base_url'), hsc_for_tpl(MODX_BASE_URL)],
+                        [lang('cfg_manager_url'), hsc_for_tpl(MODX_MANAGER_URL)],
+                        [lang('cfg_manager_path'), hsc_for_tpl(MODX_MANAGER_PATH)],
+                        [lang('cfg_site_url'), hsc_for_tpl(MODX_SITE_URL)],
+                    ];
+                    foreach ($items as [$label, $value]) {
+                        echo EvoFieldRow::render([
+                            'label' => $label,
+                            'body' => '<strong>' . $value . '</strong>',
+                        ]);
+                    }
                     ?>
                 </table>
             </div>
@@ -389,18 +377,3 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 <script type="text/javascript">
     tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);
 </script>
-
-<?php
-function render_tr($label, $content)
-{
-    $ph['label'] = $label;
-    $ph['content'] = $content;
-    $tpl = <<< EOT
-<tr>
-<td width="150">[+label+]
-<td width="20">&nbsp;</td>
-<td style="font-weight:bold;">[+content+]</td>
-</tr>
-EOT;
-    return evo()->parseText($tpl, $ph);
-}
