@@ -10,7 +10,7 @@
 
 - [x] (2026-11-20) 現状を調べ、段階 0 の設計と互換の扱いを決めた（Decision Log）
 - [x] (2026-11-20) 段階 0: `EvoFieldRow` を作り、文書の編集画面・`EvoSettingsForm`・システム情報・スタイルガイドを移し、`manager()->renderTr()` などを消した（7 テーマ × 10 画面で計画どおり以外の違い 0）
-- [ ] 段階 1: 送信用の隠し input を `class="hidden"` へ。レポートとツールの画面（ログ・サイトの書き出し・バックアップ）の表を整える
+- [x] (2026-11-20) 段階 1: 送信用の隠し input 11 件を `class="hidden"` に、管理ログの検索・システム情報の詳細・サイトの書き出し・バックアップのスナップショットの行を部品へ移し、見出しの右の間を共通の 12px にした（直書きの style の行 189 → 164）
 - [ ] 段階 2: エレメントの編集画面（TV・スニペット・チャンク・プラグイン・テンプレート・モジュール）の行を部品へ移し、余白をそろえる
 - [ ] 段階 3: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
@@ -23,6 +23,7 @@
 - 見出しの色の変数も 2 つある（`--mutate-field-title-color` と `--settings-th-color`）。
 - `EvoSettingsForm::style()` は画面に `<style>` を直に出している。`table.settings`（詳細度 0,1,1）の `width: 100%` が `theme-base.css` の `.settings`（0,1,0）の 600px に勝つので、`style()` を出す画面（グローバル設定・ユーザー・プロフィール）では 600px が効かず、出さない Web ユーザーの画面では効く（推測。段階 3 で計算後のスタイルで確かめる）。
 - `custom_tpl_dir` は設定の定義に無い隠れた設定で、読むのは文書の編集画面の `file_get_tpl()`（`manager/actions/document/mutate_content/functions.php`）だけ。
+- 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
 ## Decision Log
 
@@ -48,6 +49,8 @@
 - 2026-11-20 互換（本人の判断）: 本体・同梱のプラグイン・同梱のモジュールから呼ばれていない `manager()->renderTr()`・`renderSection()`・`renderTabPane()`・`renderTabPage()` と `manager/media/style/common/block_tr.tpl`・`block_section.tpl`・`block_tabpage.tpl`・`block_tabpane.tpl` を消す。自作プラグインで使っているサイトでは呼び出しがエラーになるので、リリースノートに書く。
 - 2026-11-20 互換（本人の判断）: `custom_tpl_dir` での差し替えは、新しい `field_row.tpl` 1 つだけを対象にする（`EvoFieldRow` が `custom_tpl_dir` に同名のファイルがあればそれを読む）。古い名前の `render_tr.tpl` は読まなくなる（段階 4 で `tv_row.tpl` も）。差し替えているサイトは作り直しが要るので、リリースノートに書く。`custom_tpl_dir` の `field_row.tpl` は文書の画面だけでなく、部品を使うすべての画面に効く。
 - 2026-11-20 外の ManagerManager の部品が `closest('td')` などの構造に頼っている場合は考えない（互換を気にする外部のプラグインは TinyMCE 7 だけ、という本人の方針）。同梱の部品は #1632 で `data-field` に移っている。
+- 2026-11-20 行の見出しと値の間（本人の判断）: 行の部品の共通の CSS で、見出しのセルの右に `--space-3`（12px）の間を取る（`.field-label { padding-inline-end: var(--space-3, 12px) }`、詳細度 0,1,0。行の部品の行は `.grid` の中に出ないので、表の th の規則とは競わない）。文書の編集画面の入力欄も右へずれる。設定の表は `EvoSettingsForm::style()` の `table.settings th`（0,1,2、5px）が勝つので変わらない（設定の表の余白は段階 3 で `style()` を共通の CSS へ移すときに合わせる）。段階 0 の「見た目を変えない」の例外として、この 1 点だけ先に決めた。
+- 2026-11-20 段階 1 の範囲: 手で組んだ一覧表（システム情報の最新の編集・DB の一覧・オンラインの一覧、バックアップの DB の一覧）は #1204（DataTable へ移す）と重なるので触らない。管理者しか値を入れない欄（DB の変数・テーブルのコメントなど）にエスケープを足すことはしない（今壊れていない値に守りを足さない、という本人の方針）。管理ログの検索フォームの値の右揃えと 1 行おきの白い地はやめ、ほかのフォームと同じにする。サイトの書き出しの設定の表は `class="settings"` を持つので、グローバル設定と同じ見出し（`.settings th`）にそろえる。
 - 2026-11-20 PR の分け方: 1 段階を 1 PR にする。段階ごとのブランチは `origin/main` から `git worktree add -b` で作り、Issue には紐づけない（紐づけると `Refs` でもマージで #1631 が閉じる）。段階 0〜3 の PR は `Refs #1631`、段階 4 の PR だけ `Closes #1631`。
 
 ## Outcomes & Retrospective
@@ -113,9 +116,19 @@
 
 期待される観測: `git grep -n "renderTr\b\|render_tr\b\|block_tr" -- manager assets` が `EvoFieldRow` と文書以外で 0 件。文書の編集画面・グローバル設定・ユーザーの編集・プロフィール・システム情報・スタイルガイドの行が `tr.field-row[data-field]` で出る。
 
-### 段階 1〜4
+### 段階 1（ブランチ `refactor/1631-stage1-report-tables`）
 
-段階 1 の手順に足すこと: システム情報の表の見出しと値の間の余白（段階 0 で空の列を無くした結果ほぼ 0）を、行の部品の共通の CSS で決める。
+1. 行の間の CSS: `theme-base.css` の `.field-label` に `padding-inline-end: var(--space-3, 12px)` を足す（Decision Log）。
+2. 送信用の隠し input の `style="display:none"` を `class="hidden"` にする（`form input.hidden` は form の中の input に効く。全部 form の中にある）: `document/mutate_content/_template.tpl`、`permission/mutate_user_pf.dynamic.php`、`permission/mutate_password.dynamic.php`、`permission/mutate_role.dynamic.php`、`permission/mutate_web_user.dynamic.php`、`permission/mutate_user/tpl/form.php`、`element/mutate_module_resources.dynamic.php`、`report/logging.static.php`、`tool/bkmanager.static.php`（3 か所）。JS が表示を切り替える `display:none`（`#newcategry`・`#passwordBlock`・`#inputoption`・`.sharedparams`・`#showname`・`#editname`・`#allow_ids`・`#ignore_ids`）は残す。
+3. `document/move_document.dynamic.php` の `<input type="save" … style="display:none">` を消す（無効な type で、送信は JS の `form.submit()` が行い、どこからも使われていない）。
+4. 管理ログの検索フォーム（`report/logging.static.php` の 2 つの表）を `EvoFieldRow::render()` へ移す（`field` は空、見出しは th）。消すもの: `cellpadding`・`cellspacing`・`border`、`tr` の白い地、見出しの列の 120px、値の `align="right"`、`img` の `border="0"`、余白のための透明画像。`cursor:pointer; cursor:hand` は `.clickable-label` に。`ul.actionButtons` の `margin-left:5px` は消す。欄の幅（240px・100px）は欄ごとの値なので残す。閉じていない `</tbody>` を足し、`class="inputbox"` は `inputBox` にそろえる（幅は直書きが勝つので見た目は変わらない）。
+5. システム情報（`report/sysinfo.static.php`）: サーバーの表の `border`・`cellspacing`・`cellpadding` を消す。詳細の key と値の表（PHP・DB の設定など、`padding-right:30px` の表）を `EvoFieldRow::render()` へ移し、30px の直書きを消す（間は手順 1 の共通の CSS）。値は今と同じく渡す（エスケープは足さない。Decision Log）。key は文字なので `hsc()`。一覧表 3 つは触らない。
+6. サイトの書き出し（`tool/export_site.static.php`）: 設定の表の行（`td.head` + `td`）を `EvoFieldRow::render()` へ移し、ページの `<style>` の `td.head` の規則を消す（見出しは `.settings th`）。`table.settings { width: 100% }` は、共通の `.settings` の 600px を打ち消す画面の上書きなので消す。結果の `dt`/`dd` の横並びの float を grid にする。許可・除外の欄の緑・赤の地の直書きは、緑は `--color-success-bg`、赤は `color-mix(in srgb, var(--color-error) N%, var(--color-surface))`（`theme-variables.md` の規則）を使う class か、欄の `style` から変数へ（画面専用の class を作らない。既存の class が無ければ変数を使う直書きを残し、理由を書く）。欄の幅 300px は欄ごとの値なので残す。`#exportPane [hidden]` と進捗の規則は残す。
+7. バックアップ（`tool/bkmanager.static.php`）: スナップショットの表（2 行）を `EvoFieldRow::render()` へ移し、説明（`<br />` の後ろ）は `help` に。`#dbmPane td { padding: 4px }` を消す（DB の一覧が共通の `.grid` の余白に戻る）。ダウンロード用の iframe は `width`・`height`・`style` をやめて `hidden` 属性にする。DB の一覧の表は触らない。
+
+期待される観測: 管理ログの検索・システム情報・サイトの書き出し・バックアップの見出しと値の行が `tr.field-row` で出て、見出しと値の間が 12px。`git grep -n 'display:none' -- manager/actions` に送信用の input が残らない。
+
+### 段階 2〜4
 
 段階 4 の手順に足すこと: `tv_row.tpl` を部品へ移すとき、`custom_tpl_dir` から tpl の場所を決める処理（今は `EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` の 2 か所）を 1 つにまとめ、`file_get_tpl()` もそれを使う。
 
@@ -140,6 +153,7 @@
 
 - Issue: #1631（関連: #1632 / PR #1640 で `data-field` を導入、#1448 でテーマの値の差をそろえた、#1347 レスポンシブ対応）
 - 段階 0: ブランチ `refactor/1631-form-row-component`、ワークツリー `.claude/worktrees/issue-1631`、PR #1642
+- 段階 1: ブランチ `refactor/1631-stage1-report-tables`（段階 0 のワークツリーで main から切り替えた）、PR #1653
 
 ## Interfaces and Dependencies
 

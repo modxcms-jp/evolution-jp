@@ -54,7 +54,7 @@ if (sessionv('onetime_msg') !== null) {
                     </td>
                 </tr>
             </table>
-            <input type="submit" name="save" style="display:none">
+            <input type="submit" name="save" class="hidden">
         </form>
     </div>
 </div>

@@ -322,7 +322,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
             ?>
         </div>
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
     <?php
 
     // invoke OnUserFormRender event

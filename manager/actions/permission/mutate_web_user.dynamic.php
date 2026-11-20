@@ -660,7 +660,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
         </div>
 
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
     <?php
     // invoke OnWUsrFormRender event
     $tmp = ["id" => $user];
