@@ -36,7 +36,7 @@
     ],
     "menubar": "edit view insert format tools table help",
     "quickbars_insert_toolbar": false,
-    "toolbar": "undo redo | styles | forecolor backcolor | bullist numlist blockquote | link unlink image media table | removeformat | code fullscreen help"
+    "toolbar": "undo redo styles forecolor backcolor bullist numlist blockquote link unlink image media table removeformat code fullscreen help"
   },
   "legacy": {
     "plugins": [
