@@ -110,8 +110,24 @@ final class PreferenceResolver
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
         // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
         $config['importcss_append'] = $config['importcss_append'] ?? true;
+        $config['link_class_list'] = $config['link_class_list'] ?? $this->linkClassList($formats);
 
         return $this->ensureStylesButton($config);
+    }
+
+    /**
+     * リンクのダイアログの「クラス」の選択肢を、CSSスタイルセレクタの書式から作る。
+     * 先頭の「None」は TinyMCE の言語ファイルで訳される。
+     */
+    private function linkClassList(array $formats): array
+    {
+        $list = [['title' => 'None', 'value' => '']];
+
+        foreach ($formats as $format) {
+            $list[] = ['title' => $format['title'], 'value' => $format['classes']];
+        }
+
+        return $list;
     }
 
     /**
