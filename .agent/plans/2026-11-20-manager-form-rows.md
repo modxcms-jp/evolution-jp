@@ -130,6 +130,8 @@
 
 ### 段階 2〜4
 
+段階 4 は、PR #1644（投稿画面の並びの組み替えと、テンプレート変数を独立したタブに出す変更。ManagerManager・QM の TV のタブの扱いも変える）のマージ後に、その並びに合わせて着手する。
+
 段階 4 の手順に足すこと: `tv_row.tpl` を部品へ移すとき、`custom_tpl_dir` から tpl の場所を決める処理（今は `EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` の 2 か所）を 1 つにまとめ、`file_get_tpl()` もそれを使う。
 
 各段階に着手するときに、対象画面の行と直書きの style を数え直し、この節に手順を書き足してから実装する（段階 0 の部品と規則が決まっているので、段階ごとの手順は「どの画面のどの行を移すか」と「残す style とその理由」の表になる）。段階 1 では Issue の「ついでに見つかった小さな不具合」のうち `document/move_document.dynamic.php` の `<input type="save">` を、段階 3 では `permission/mutate_user/tpl/form/tab_general.php` の `echo 'style="display:none";'` を直す（`sysinfo` の `td` の閉じ忘れは段階 0 で無くなる）。
