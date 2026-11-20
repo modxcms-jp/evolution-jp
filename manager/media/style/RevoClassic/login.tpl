@@ -520,6 +520,12 @@
             box-sizing: border-box !important;
         }
 
+        #mx_loginbox input.text:hover,
+        #mx_loginbox input[type="text"]:hover,
+        #mx_loginbox input[type="password"]:hover {
+            border-color: #dee2e6 !important;
+        }
+
         #mx_loginbox input.text:focus,
         #mx_loginbox input[type="text"]:focus,
         #mx_loginbox input[type="password"]:focus {
@@ -529,26 +535,25 @@
             box-shadow: 0 0 0 3px rgba(44, 83, 100, 0.1) !important;
         }
 
-        #mx_loginbox input.text:hover,
-        #mx_loginbox input[type="text"]:hover,
-        #mx_loginbox input[type="password"]:hover {
-            border-color: #dee2e6 !important;
-        }
-
         /* ブラウザの自動補完スタイルを上書き */
         #mx_loginbox input.text:-webkit-autofill,
         #mx_loginbox input[type="text"]:-webkit-autofill,
         #mx_loginbox input[type="password"]:-webkit-autofill,
         #mx_loginbox input.text:-webkit-autofill:hover,
         #mx_loginbox input[type="text"]:-webkit-autofill:hover,
-        #mx_loginbox input[type="password"]:-webkit-autofill:hover,
-        #mx_loginbox input.text:-webkit-autofill:focus,
-        #mx_loginbox input[type="text"]:-webkit-autofill:focus,
-        #mx_loginbox input[type="password"]:-webkit-autofill:focus {
+        #mx_loginbox input[type="password"]:-webkit-autofill:hover {
             -webkit-box-shadow: 0 0 0 1000px #f8f9fa inset !important;
             -webkit-text-fill-color: #333 !important;
             transition: background-color 5000s ease-in-out 0s !important;
             border: 2px solid #e9ecef !important;
+        }
+
+        /* 自動補完された欄でも、フォーカスの枠と地を出す（地は内側の影で塗る） */
+        #mx_loginbox input.text:-webkit-autofill:focus,
+        #mx_loginbox input[type="text"]:-webkit-autofill:focus,
+        #mx_loginbox input[type="password"]:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(44, 83, 100, 0.1) !important;
+            border-color: #2c5364 !important;
         }
 
         /* パスワードの表示切り替え（処理は media/script/login.js） */

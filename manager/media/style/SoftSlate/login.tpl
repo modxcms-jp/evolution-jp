@@ -275,7 +275,7 @@
         input.text:-webkit-autofill:focus,
         input[type="text"]:-webkit-autofill:focus,
         input[type="password"]:-webkit-autofill:focus {
-            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(74, 111, 165, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
             border: 1px solid #4a6fa5 !important;
         }
 

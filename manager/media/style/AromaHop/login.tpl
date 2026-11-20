@@ -226,14 +226,19 @@
         input[type="password"]:-webkit-autofill,
         input.text:-webkit-autofill:hover,
         input[type="text"]:-webkit-autofill:hover,
-        input[type="password"]:-webkit-autofill:hover,
-        input.text:-webkit-autofill:focus,
-        input[type="text"]:-webkit-autofill:focus,
-        input[type="password"]:-webkit-autofill {
+        input[type="password"]:-webkit-autofill:hover {
             -webkit-box-shadow: 0 0 0 1000px rgba(250, 255, 244, 0.95) inset !important;
             -webkit-text-fill-color: #2E5535 !important;
             border-color: rgba(182, 231, 179, 0.6);
             transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* 自動補完された欄でも、フォーカスの枠と地を出す（地は内側の影で塗る） */
+        input.text:-webkit-autofill:focus,
+        input[type="text"]:-webkit-autofill:focus,
+        input[type="password"]:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #FDFDFB inset, 0 0 0 4px rgba(182, 231, 179, 0.2), 0 8px 18px rgba(90, 154, 94, 0.08) !important;
+            border-color: #B6E7B3;
         }
 
         .toggle-password {
