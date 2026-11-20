@@ -223,9 +223,10 @@ body.evo-shell.tree-animating > #evoTreeResizer {
         opacity: var(--shell-tree-dim-opacity);
     }
 
-    /* 境目のつまみの当たりを、ツリーの側（左）へ広げる（見える線は 8px のまま）。つまみの上ではツリーを広げないので、
-       ツリーの右端から境目へ近づいても広がらずにつかめる。本文の側は乗ってもツリーが広がらないので広げない */
-    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer {
+    /* 細く見せているあいだは、境目のつまみの当たりをツリーの側（左）へ広げる（見える線は 8px のまま）。つまみの上ではツリーを
+       広げないので、ツリーの右端から境目へ近づいても広がらずにつかめる。本文の側は乗ってもツリーが広がらないので広げない。
+       広げているあいだは今までの 8px に戻し、ツリーの右端（縦のスクロールバー・「ツリーを隠す」ボタン）を覆わない */
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow))) > #evoTreeResizer {
         --shell-tree-resizer-reach: 24px;
         left: calc(var(--shell-tree-column) - 4px - var(--shell-tree-resizer-reach));
         box-sizing: content-box;
