@@ -148,7 +148,7 @@ template('id');
                                 </select>
                             </td>
                         </tr>
-                        <tr data-field="newcategory" style="display:none;">
+                        <tr id="newcategry" data-field="newcategory" style="display:none;">
                             <th valign="top" style="padding-top:5px;">
                                 <?= lang('new_category') ?>:
                             </th>
