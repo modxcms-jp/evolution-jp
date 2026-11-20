@@ -35,26 +35,24 @@ final class PreferenceResolver
 
     public function applyMenubarPreference(array $config): array
     {
-        $preference = $this->detectMenubarPreference();
-
-        if ($preference === null) {
-            return $config;
-        }
-
-        if ($preference === false) {
+        if (!$this->detectMenubarPreference()) {
             $config['menubar'] = false;
 
             return $config;
         }
 
-        if (!array_key_exists('menubar', $config)) {
+        // ツールバー構成で並びが決まっていればそれを使い、無ければ TinyMCE 既定のメニューを出す
+        if (!array_key_exists('menubar', $config) || is_bool($config['menubar'])) {
             $config['menubar'] = true;
-
-            return $config;
         }
 
-        if (is_bool($config['menubar'])) {
-            $config['menubar'] = true;
+        return $config;
+    }
+
+    public function applyToolbarVisibility(array $config): array
+    {
+        if (!$this->detectToolbarVisibility()) {
+            $config['toolbar'] = false;
         }
 
         return $config;
@@ -284,10 +282,40 @@ final class PreferenceResolver
         return null;
     }
 
-    public function detectMenubarPreference(): ?bool
+    /**
+     * メニューバーを出すか。未設定なら出さない
+     */
+    public function detectMenubarPreference(): bool
     {
-        $keys = ['tinymce7_menubar', 'tinymce_menubar'];
+        return $this->detectMenubarPreferenceSetting() ?? false;
+    }
 
+    /**
+     * 設定されているメニューバーの表示。未設定なら null
+     */
+    public function detectMenubarPreferenceSetting(): ?bool
+    {
+        return $this->detectBool(['tinymce7_menubar', 'tinymce_menubar']);
+    }
+
+    /**
+     * ツールバーを出すか。未設定なら出す
+     */
+    public function detectToolbarVisibility(): bool
+    {
+        return $this->detectToolbarVisibilitySetting() ?? true;
+    }
+
+    /**
+     * 設定されているツールバーの表示。未設定なら null
+     */
+    public function detectToolbarVisibilitySetting(): ?bool
+    {
+        return $this->detectBool(['tinymce7_toolbar']);
+    }
+
+    private function detectBool(array $keys): ?bool
+    {
         foreach ($keys as $key) {
             if (!array_key_exists($key, $this->settings())) {
                 continue;
@@ -299,28 +327,22 @@ final class PreferenceResolver
                 return $raw;
             }
 
-            if (is_int($raw)) {
-                return $raw !== 0;
-            }
-
-            if (is_string($raw)) {
-                $value = strtolower(trim($raw));
-
-                if ($value === '') {
-                    continue;
-                }
-
-                if (in_array($value, ['1', 'true', 'yes', 'on', 'show'], true)) {
-                    return true;
-                }
-
-                if (in_array($value, ['0', 'false', 'no', 'off', 'hide'], true)) {
-                    return false;
-                }
-            }
-
-            if (is_float($raw)) {
+            if (is_int($raw) || is_float($raw)) {
                 return (int)$raw !== 0;
+            }
+
+            if (!is_string($raw)) {
+                continue;
+            }
+
+            $value = strtolower(trim($raw));
+
+            if (in_array($value, ['1', 'true', 'yes', 'on', 'show'], true)) {
+                return true;
+            }
+
+            if (in_array($value, ['0', 'false', 'no', 'off', 'hide'], true)) {
+                return false;
             }
         }
 
