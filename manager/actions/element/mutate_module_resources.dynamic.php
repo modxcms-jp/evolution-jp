@@ -48,10 +48,9 @@ switch (request_choicevar('op', ['add', 'del'], '')) {
         db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
         $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
         if (!$ds) {
-            echo '<script type="text/javascript">' .
-                'function jsalert(){ alert(\'An error occured while trying to update the database. \'' . db()->getLastError() . ');' .
-                'setTimeout(\'jsalert()\',100)' .
-                '</script>';
+            echo '<script type="text/javascript">alert(' .
+                js_literal('An error occured while trying to update the database. ' . db()->getLastError()) .
+                ');</script>';
         }
         break;
     case 'del':
