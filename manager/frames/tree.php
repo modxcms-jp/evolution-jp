@@ -9,6 +9,9 @@ $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
     ? 'date'
     : 'str';
+if (sessionv('tree_show_deleted') === null) {
+    sessionv('*tree_show_deleted', config('resource_tree_show_deleted_default') ? 1 : 0);
+}
 $showDeleted = (bool)sessionv('tree_show_deleted');
 if (!sessionv('tree_sortby')) {
     sessionv('*tree_sortby', tree_sortby_default(

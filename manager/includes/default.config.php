@@ -48,6 +48,7 @@ $default_config = [
     'remember_last_tab' => '1',
     'resource_tree_sortby_default' => 'menuindex',
     'resource_tree_node_name' => 'pagetitle',
+    'resource_tree_show_deleted_default' => '0',
     'rss_url_news' => 'https://feeds2.feedburner.com/modxjp',
     'rss_url_security' => 'https://feeds2.feedburner.com/modxjpsec',
     'search_default' => '1',

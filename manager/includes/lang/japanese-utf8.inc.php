@@ -1089,6 +1089,8 @@ return [
     'setting_resource_tree_sortby_default_desc' => '管理画面のリソースツリー上の並び順を指定します。デフォルトはmenuindexですが、menutitle・alias など任意のリソースフィールドを使用できます。',
     'setting_resource_tree_node_name' => 'リソースツリーのノード名',
     'setting_resource_tree_node_name_desc' => '管理画面のリソースツリー上のノード表示に使用するリソースフィールドを指定します。デフォルトは pagetitle ですが、menutitle・alias など任意のリソースフィールドを使用できます。',
+    'setting_resource_tree_show_deleted_default' => '削除済みリソースの表示',
+    'setting_resource_tree_show_deleted_default_desc' => 'ログインしたときに、リソースツリーに削除済みのリソースを表示するかどうかを指定します。ツリーの上のボタンで切り替えた表示は、ログアウトするまで続きます。',
     'setting_cache_type' => 'キャッシュ設定',
     'setting_cache_type_desc' => '「バイパスモード」はプラグイン処理をキャッシュします。キャッシュ処理を想定しないプラグインがある場合は注意が必要です。',
     'setting_conditional_get' => '条件付きGET',

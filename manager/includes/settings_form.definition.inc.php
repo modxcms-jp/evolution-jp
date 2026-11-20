@@ -808,6 +808,12 @@ return [
                         'desc' => lang('setting_resource_tree_node_name_desc'),
                     ],
                     [
+                        'key' => 'resource_tree_show_deleted_default',
+                        'type' => 'yesno',
+                        'label' => lang('setting_resource_tree_show_deleted_default'),
+                        'desc' => lang('setting_resource_tree_show_deleted_default_desc'),
+                    ],
+                    [
                         'key' => 'manager_treepane_trim_title',
                         'type' => 'yesno',
                         'label' => lang('manager_treepane_trim_title'),
