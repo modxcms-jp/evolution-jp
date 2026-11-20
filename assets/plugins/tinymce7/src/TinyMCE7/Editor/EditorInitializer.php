@@ -224,15 +224,23 @@ final class EditorInitializer
         // リンクのダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
         // 開く前に、本文のリンクの値のうち一覧に無いものを選択肢に足す。
         // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
-        // rel は、TinyMCE が新しいウィンドウのリンクに足す noopener を除き、並べ替えて比べる
+        // 種類ごとの値のそろえ方。canonical は本文の値を TinyMCE が選択肢と比べる形に、normalize は選択肢どうしを比べる形にする。
+        // TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには noopener を足してから、リンクの値と完全一致で比べる
+        $output[] = '        const sortTokens = function(value) {';
+        $output[] = '            return value.split(/\\s+/).filter(function(token) {';
+        $output[] = '                return token !== "";';
+        $output[] = '            }).sort().join(" ");';
+        $output[] = '        };';
         $output[] = '        const linkChoiceLists = [';
-        $output[] = '            {option: "link_class_list", attribute: "class", base: null, normalize: function(value) {';
+        $output[] = '            {option: "link_class_list", attribute: "class", base: null, canonical: function(value) {';
+        $output[] = '                return value;';
+        $output[] = '            }, normalize: function(value) {';
         $output[] = '                return value;';
         $output[] = '            }},';
-        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, normalize: function(value) {';
-        $output[] = '                return value.split(/\\s+/).filter(function(token) {';
-        $output[] = '                    return token !== "" && token !== "noopener";';
-        $output[] = '                }).sort().join(" ");';
+        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, canonical: sortTokens, normalize: function(value) {';
+        $output[] = '                return sortTokens(value.split(/\\s+/).filter(function(token) {';
+        $output[] = '                    return token !== "noopener";';
+        $output[] = '                }).join(" "));';
         $output[] = '            }}';
         $output[] = '        ];';
         $output[] = '        editor.on("BeforeExecCommand", function(e) {';
@@ -253,7 +261,14 @@ final class EditorInitializer
         $output[] = '                }));';
         $output[] = '                const extra = [];';
         $output[] = '                links.forEach(function(link) {';
-        $output[] = '                    const value = choices.normalize(link.getAttribute(choices.attribute) || "");';
+        $output[] = '                    const raw = link.getAttribute(choices.attribute) || "";';
+        $output[] = '                    const canonical = choices.canonical(raw);';
+        $output[] = '                    if (canonical !== raw) {';
+        $output[] = '                        editor.undoManager.ignore(function() {';
+        $output[] = '                            editor.dom.setAttrib(link, choices.attribute, canonical);';
+        $output[] = '                        });';
+        $output[] = '                    }';
+        $output[] = '                    const value = choices.normalize(canonical);';
         $output[] = '                    if (value !== "" && !listed.has(value)) {';
         $output[] = '                        listed.add(value);';
         $output[] = '                        extra.push({title: value, value: value});';
