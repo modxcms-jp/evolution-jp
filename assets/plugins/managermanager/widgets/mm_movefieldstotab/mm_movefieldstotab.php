@@ -47,8 +47,8 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
     // Make sure the new tab exists in the DOM
     $output .= '(function (tab) {
     if (!tab) { return; }
-    // 移す先は、タブの直下の最初の表
-    const table = tab.querySelector(":scope > table");
+    // 移す先は、タブの直下の data-moved-fields の付いた表。無ければタブの直下の最初の表（mm_createTab のタブなど）
+    const table = tab.querySelector(":scope > [data-moved-fields]") || tab.querySelector(":scope > table");
     const ruleHtml = ' . js_literal($ruleHtml) . ';
     // 以前の appendTo と同じく、集合の順に表の末尾へ移す（表が無ければ動かさない）。
     // 表に直下の tbody があれば、以前と同じくその中へ入れる
@@ -100,7 +100,8 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             case 'show_in_menu':
                 $output .= '    {
         const rows = MM.all(Evo.fieldRow("menuindex"));
-        nextRows(rows).forEach(function (r) { r.remove(); });
+        // 後ろの区切りの行だけを消す（次の行が親などの欄のこともある）
+        nextRows(rows).filter(function (r) { return !r.hasAttribute("data-field") && r.querySelector(\':scope > td[colspan="2"]\'); }).forEach(function (r) { r.remove(); });
         addRule(moveRows(rows));
     }
 ';

@@ -53,6 +53,16 @@ $e->output('
                 });
             }
 
+            // TV のタブは、タブの中に入力が無くなったら隠す（custom_tpl_dir の以前の tab_tv.tpl には div.tmplvars が無いので、タブの中で数える）
+            const tvTab = document.getElementById("tabTVs");
+            if (tvTab && !tvTab.querySelector("input, select, textarea, button")) {
+                MM.hide("#tabTVsHeader");
+                MM.hide(tvTab);
+            }
+
+            // 欄をすべて隠した・ほかへ移したまとまり（アコーディオンなど）は、見出しだけを残さない
+            Evo.hideEmptyFieldGroups();
+
             // If template category is empty, hide the optgroup
             MM.all("#field_template optgroup").forEach(function (group) {
                 const visible = Array.from(group.querySelectorAll("option")).some(function (option) {

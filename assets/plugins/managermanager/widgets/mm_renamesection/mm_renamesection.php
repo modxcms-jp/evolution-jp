@@ -30,9 +30,8 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
             break;
 
         case 'tvs':
-            $output .= '
-            MM.html("div#tv_header", "' . jsSafe($newname) . '");
-            ';
+            // 本文の下の見出しと TV のタブの名前の両方を変える（mm_renameTab('tv') と同じ）
+            mm_renameTab('tv', $newname, $roles, $templates);
             break;
 
         case 'access': // These have moved to tabs in 1.0.1

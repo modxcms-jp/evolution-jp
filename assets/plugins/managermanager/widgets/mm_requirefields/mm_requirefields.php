@@ -52,6 +52,13 @@ function mm_requireFields($fields, $roles = '', $templates = '')
         }
         return el.value;
     }
+    // 欄を囲む開閉するまとまり（details）を開いて、必須の欄を見えるようにする
+    function openGroups(els) {
+        els.forEach(function (el) {
+            const group = el.closest("details");
+            if (group) { group.open = true; }
+        });
+    }
     // Add an event so the hilight is removed upon focussing
     function unmark() {
         this.classList.remove("mmRequired");
@@ -137,6 +144,7 @@ function mm_requireFields($fields, $roles = '', $templates = '')
                     el.classList.add("mmRequired");
                     el.addEventListener("focus", unmark);
                 });
+                openGroups(els);
             }
         }
 ';
@@ -144,6 +152,7 @@ function mm_requireFields($fields, $roles = '', $templates = '')
                     // Add an indicator this is required
                     $load_js .= '
     titles(MM.all(' . js_literal($selector) . ')).forEach(function (span) { span.insertAdjacentHTML("beforeend", requiredHTML); });
+    openGroups(MM.all(' . js_literal($selector) . '));
 ';
                 }
                 break;
