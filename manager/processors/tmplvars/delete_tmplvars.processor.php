@@ -31,7 +31,7 @@ if (!get_boolvar('force')) {
         <div id="actions">
             <ul class="actionButtons">
                 <li><a href="#" onclick="deletedocument();"><?= lang("delete") ?></a></li>
-                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= lang("cancel") ?></a></li>
+                <li class="mutate"><a href="<?= hsc(EvoFormFlow::url(['a' => EvoFormFlow::screen('tmplvar', 'edit'), 'id' => $id])) ?>"><?= lang("cancel") ?></a></li>
             </ul>
         </div>
 
@@ -42,7 +42,7 @@ if (!get_boolvar('force')) {
         echo "<p>" . lang('tmplvar_inuse') . "</p>";
         echo "<ul>";
         while ($row = db()->getRow($rs)) {
-            echo '<li><span style="width: 200px"><a href="index.php?id=' . (int)$row['id'] . '&a=27">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
+            echo '<li><span style="width: 200px"><a href="' . hsc(EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => (int)$row['id']])) . '">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
         }
         echo "</ul>";
         echo '</div>';

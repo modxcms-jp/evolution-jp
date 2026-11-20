@@ -683,7 +683,7 @@ function updateUser()
     evo()->getSettings();
     if ($isSelf && (string)sessionv('mgrRole') !== (string)userformv_int('role')) {
         sessionv('*mgrRole', (string)userformv_int('role'));
-        evo()->webAlertAndQuit(lang('save_user_relogin'), 'index.php?a=75');
+        evo()->webAlertAndQuit(lang('save_user_relogin'), EvoFormFlow::url(['a' => EvoFormFlow::screen('user', 'close')]));
         exit;
     }
     $afterSave = EvoFormFlow::postedAfterSave();

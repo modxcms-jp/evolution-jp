@@ -12,7 +12,7 @@ $tb_user_roles = evo()->getFullTableName('user_roles');
 
 $id = get_intvar('id');
 if (!$id) {
-    header("Location: index.php?a=86");
+    header("Location: " . EvoFormFlow::url(['a' => EvoFormFlow::screen('role', 'close')]));
     exit;
 }
 
@@ -38,4 +38,4 @@ if (!$rs) {
     exit;
 }
 
-header("Location: index.php?a=86");
+header("Location: " . EvoFormFlow::url(['a' => EvoFormFlow::screen('role', 'close')]));
