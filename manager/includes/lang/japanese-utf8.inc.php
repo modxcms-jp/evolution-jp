@@ -855,6 +855,11 @@ return [
     "settings_mail" => 'メール',
     "settings_page_invalid_msg" => '「%s」には、削除されていない公開中の文書の ID を指定してください（ID: %s）',
     "settings_page_settings" => 'ページ設定',
+    "mutate_group_basic" => '基本情報',
+    "mutate_group_menu" => 'メニュー・配置',
+    "mutate_group_publish" => '公開',
+    "mutate_group_type" => '種類と出力',
+    "mutate_group_behavior" => 'その他の設定',
     "settings_properties" => 'プロパティ',
     "settings_resources" => 'リソース',
     "settings_section_basics" => '基本',
@@ -1325,6 +1330,10 @@ return [
     "bkmgr_restore_invalid_file" => '選んだスナップショットが見つからないか、読み込めませんでした。',
     "delete_resource_complete" => '完全に削除',
 
+    "setting_tvs_below_content" => 'テンプレート変数の表示位置',
+    "setting_tvs_below_content_tab" => '「テンプレート変数」タブ',
+    "setting_tvs_below_content_below" => '「メイン」タブの本文の下',
+    "setting_tvs_below_content_desc" => '投稿画面で、テンプレート変数の入力欄を出す場所を選びます。ManagerManager でほかのタブへ移した欄は、この設定に関係なく移した先に出ます。',
     "enable_draft_title" => '下書き機能',
     "enable_draft_message" => '下書き機能の操作ボタンなどを表示します。無効にしても下書きデータは失われません。',
 

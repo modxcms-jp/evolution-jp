@@ -67,6 +67,7 @@ $default_config = [
     'track_visitors' => '0',
     'tree_page_click' => 'auto',
     'tree_show_protected' => '0',
+    'tvs_below_content' => '0',
     'udperms_allowroot' => '0',
     'upload_files' => 'aac,css,csv,doc,docx,gz,gzip,htm,html,js,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,xls,xlsx,xml,z,zip',
     'upload_images' => 'bmp,ico,gif,jpeg,jpg,png,svg,psd,tif,tiff',

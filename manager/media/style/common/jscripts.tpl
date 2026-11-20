@@ -438,6 +438,38 @@
                 submitMutate();
             });
         }
+
+        // 欄のまとまり（details）の開閉を、このブラウザーで覚える。閉じていても中の欄は送られる。
+        // 覚えるのは見出し（summary）を押したときだけ。スクリプトで開いたとき（ManagerManager の必須の欄など）は覚えない
+        document.querySelectorAll('details[data-field-group]').forEach(function (group) {
+            var key = 'evo.mutate.group.' + group.getAttribute('data-field-group');
+            var byUser = false;
+            var summary = group.querySelector(':scope > summary');
+            if (summary) {
+                summary.addEventListener('click', function () {
+                    byUser = true;
+                });
+            }
+            try {
+                var saved = localStorage.getItem(key);
+                if (saved !== null) {
+                    group.open = saved === '1';
+                }
+            } catch (e) {
+                // 読めなくても、閉じた状態で使える
+            }
+            group.addEventListener('toggle', function () {
+                if (!byUser) {
+                    return;
+                }
+                byUser = false;
+                try {
+                    localStorage.setItem(key, group.open ? '1' : '0');
+                } catch (e) {
+                    // 覚えられなくても、今の開閉は変わっている
+                }
+            });
+        });
     });
 
     function changestate(element) {
