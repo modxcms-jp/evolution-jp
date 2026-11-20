@@ -15,6 +15,7 @@
 - MCPuk 連携スクリプト: `js/mcpuk-picker.js`
 - 画像編集モーダル連携スクリプト: `js/tinymce-cropper.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
+- リンクのダイアログの文書の一覧（JSON を返す入口）: `link-list.php`
 - エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
@@ -149,6 +150,16 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - URL を直して Enter か「Link」で反映できます。ダイアログは開きません。クラス・Rel・開き方を変えるときは、ツールバーのリンクのボタンか Ctrl+K でダイアログを開きます（`link_quicklink` は既定の `false` のままなので、ツールバーのボタンと Ctrl+K はダイアログを開きます）。
 - リンクの文字を範囲選択したときも、quickbars の選択時ツールバーとは同時に出ず、リンクの操作の帯だけが出ます。
 - 帯で URL だけ直したときの class・target・rel の残り方は、ダイアログで URL だけ直したときと同じです（確かめた結果は下）。`link_rel_list`（システム設定「リンクの rel」）が空でも、本文のリンクに rel があれば、その値から選択肢を作るので、帯でもダイアログでも rel は残ります（`noopener` は `target="_blank"` のときに TinyMCE が付けます）。class も残ります。「リンクの rel」が空で、本文に noopener 以外の rel が無い文書では、新しいウィンドウのリンクを直すと `noopener` が外れます（`target="_blank"` は残ります。今のブラウザーは `_blank` を `noopener` として扱います）。
+
+## リンクのダイアログの文書の一覧 (`link_list`)
+管理画面のエディターには、リンクの挿入/編集のダイアログに「リンクの一覧」が出ます。サイト内の文書を木の形で選ぶと、URL の欄に `[~id~]` が入ります（TinyMCE 3 の `tinymce.linklist.php` にあたります）。設定やシステム設定の項目は無く、いつも有効です。公開側のエディター（`frontend.json`・`forfrontend`）には出しません。設定ファイルに `link_list` を書いていれば、そちらを使います。
+
+- **入口**: `link-list.php` が JSON を返します。`EditorInitializer` が `link_list` に URL を渡すので、TinyMCE がダイアログを開くたびに、管理画面の利用者のセッションで取りに行きます。ファイルピッカー（`manager/media/browser/evo/api.php`）の一覧と同じく、読み取りだけで状態を変えないため、セッション（`mgrValidated`）の確認だけで CSRF トークンは要りません。ログインしていなければ 403 と `[]` を返します。
+- **作り**: 文書の取り出しと木にする処理は `TinyMCE7\Editor\LinkListRepository`。入口は取り出しを呼んで JSON にするだけです。
+- **値と表示**: 値は文書を移してもリンクが切れない `[~id~]` で、`convert_urls: false`・`relative_urls: false` のため TinyMCE は書き換えず、本文には `href="[~id~]"` のまま保存され、公開側で URL になります。表示は「メニュータイトル（無ければページタイトル）(ID)」で、未公開の文書は末尾に「（未公開）」を添えます（言語ファイルの `tinymce7_link_list_unpublished`）。削除済みの文書は出しません。メニューに表示しない文書も出します。
+- **並び**: メニューオーダー順。子を持つ文書は入れ子のメニューになり、メニューの見出し自身は選べないので、先頭に同じ名前の項目を置いて、その文書を選べるようにします。親が見えない文書（削除済み・権限なし）は最上位に置きます。
+- **権限**: `use_udperms` が有効で、利用者が管理者（`access_permissions` と `web_access_permissions` を両方持つ）でないときは、`privatemgr=0`、または利用者の文書グループ（セッションの `mgrDocgroups`）に入る文書だけを返します。式の形はツリー（`manager/frames/nodes.php` の `tree_visibility_condition()`）と同じです。ただし `use_udperms` が無効なら絞りません（ツリーは `use_udperms` を見ずに `privatemgr` で絞ります。この一覧は保存の確かめ `ManagerAPI::canOpenWithDocumentGroups()` と同じ扱い）。`tree_show_protected` は見ません。一覧に出すのはリンクを張れる文書だけです。
+- **件数の上限**: 出す文書は 1000 件（`LinkListRepository::MAX_ITEMS`）までです。ダイアログを開くたびに、削除済みでない全件（軽い列だけ）を読んでから木にして打ち切ります。超えるときは、1000 件に収まる深さまでで打ち切ります（最上位だけで超えるときは、先頭の 1000 件）。深さで打ち切ったときは、末尾に選べない説明の項目（`tinymce7_link_list_truncated`。値は空で、選ぶと URL が空になるだけ）を足します。深いところの文書は一覧に出ないので、URL の欄に `[~id~]` を直接書いてください。遅延読み込みや検索はしません。
 
 ## システム設定キー
 プラグインが参照する主なシステム設定キーです。旧 TinyMCE プラグインのキーも互換処理しています。

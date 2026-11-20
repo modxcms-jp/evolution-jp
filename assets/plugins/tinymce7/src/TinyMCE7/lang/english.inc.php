@@ -37,3 +37,5 @@ $_lang['tinymce7_template_select'] = 'Template';
 $_lang['tinymce7_template_preview'] = 'Preview';
 $_lang['tinymce7_template_insert'] = 'Insert';
 $_lang['tinymce7_template_cancel'] = 'Cancel';
+$_lang['tinymce7_link_list_unpublished'] = ' (unpublished)';
+$_lang['tinymce7_link_list_truncated'] = '(Documents deeper than this are omitted. Write [~ID~] in the URL field.)';
