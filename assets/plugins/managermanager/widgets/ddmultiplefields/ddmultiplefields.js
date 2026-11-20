@@ -438,7 +438,7 @@ maskQuoutes: function(text){
 //ページの準備ができてから動かす
 Evo.ready(function(){
 //If we have imageTVs on this page, modify the SetUrl function so it triggers a "change" event on the URL field
-if (typeof(SetUrl) != "undefined") {
+if (typeof(SetUrl) != "undefined" && !SetUrl.ddMultipleWrapped) {
     var OldSetUrl = SetUrl; // Copy the existing Image browser SetUrl function
     SetUrl = function(url, width, height, alt){    // Redefine it to also tell the preview to update
         var c = null;
@@ -453,6 +453,8 @@ if (typeof(SetUrl) != "undefined") {
         // 素の change を起こす（管理画面の未保存の検知と、元の欄の change のリスナーに届く）
         if (c) c.dispatchEvent(new Event("change", {bubbles: true}));
     };
+    //シェルで画面を移っても SetUrl は残るので、包み直さない（change が重なる）
+    SetUrl.ddMultipleWrapped = true;
 }
 //Самбмит главной формы
 var form = document.getElementById("mutate");

@@ -4,8 +4,8 @@
  * @param tvs {comma separated string} - Имена TV, для которых необходимо применить виджет.
  * @param roles {comma separated string} - Роли, для которых необходимо применить виждет, пустое значение — все роли. По умолчанию: ''.
  * @param templates {comma separated string} - Id шаблонов, для которых необходимо применить виджет, пустое значение — все шаблоны. По умолчанию: ''.
- * @param coloumns {comma separated string} - Типы колонок (field — колонка типа поля, text — текстовая колонка, id — скрытое поле с уникальным идентификатором, select — список с выбором значений (см. coloumnsData)). По умолчанию: 'field'.
- * @param coloumnsTitle {comma separated string} - Названия колонок. По умолчанию: ''.
+ * @param columns {comma separated string} - Типы колонок (field — колонка типа поля, text — текстовая колонка, id — скрытое поле с уникальным идентификатором, select — список с выбором значений (см. columnsData)). По умолчанию: 'field'.
+ * @param columnsTitle {comma separated string} - Названия колонок. По умолчанию: ''.
  * @param colWidth {comma separated string} - Ширины колонок (может быть задана одна ширина). По умолчанию: 180;
  * @param splY {string} - Разделитель между строками. По умолчанию: '||'.
  * @param splX {string} - Разделитель между колонками. По умолчанию: '::'.
@@ -13,7 +13,7 @@
  * @param imgH {integer} - Максимальная высота превьюшки. По умолчанию: 100.
  * @param minRow {integer} - Минимальное количество строк. По умолчанию: 0.
  * @param maxRow {integer} - Максимальное количество строк. По умолчанию: 0 (без лимита).
- * @param coloumnsData {separated string} - Список возможных значений для полей в формате json, через ||. По умолчанию: ''.
+ * @param columnsData {separated string} - Список возможных значений для полей в формате json, через ||. По умолчанию: ''.
  *
  * @version 4.3.4 (2012-12-20)
  *
@@ -24,16 +24,6 @@
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
  */
-
-// JS に渡す設定を、<script> の中に置いても安全な JSON にする
-function mm_ddMultipleJson(array $data)
-{
-    return json_encode(
-        $data,
-        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
-    );
-}
 
 function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns = 'field', $columnsTitle = '', $colWidth = '180', $splY = '||', $splX = '::', $imgW = 300, $imgH = 100, $minRow = 0, $maxRow = 0, $columnsData = '')
 {
@@ -106,12 +96,12 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
     $output .= includeJs(MODX_MANAGER_URL . 'media/script/dragdrop-sort.js');
     $output .= includeJs($widgetDir . 'ddmultiplefields.js');
     $output .= includeCss($widgetDir . 'ddmultiplefields.css');
-    $output .= 'ddMultiple.configure(' . mm_ddMultipleJson([
+    $output .= 'ddMultiple.configure(' . js_value([
         'baseUrl' => MODX_BASE_URL,
         'insertLabel' => lang('insert'),
     ]) . ');' . "\n";
 
-    $settings = mm_ddMultipleJson([
+    $settings = js_value([
         'columns' => (string)$columns,
         'columnsTitle' => (string)$columnsTitle,
         'columnsData' => (string)$columnsData,
