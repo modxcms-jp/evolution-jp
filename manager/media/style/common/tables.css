@@ -69,13 +69,14 @@
         font-weight: bold;
     }
 
-    /* 子リソースの一覧（resources_list.static.php）の行。メニューを開けるアイコンは、乗せたときに枠を出す */
+    /* 子リソースの一覧（resources_list.static.php）の行。メニューを開けるアイコンは、乗せたときに枠を出す。
+       枠の #ccc と予約の日付の #777 は、どのテーマでも同じ見え方になる変数が無いので値で書く（--color-border-* は淡いテーマで枠が消え、--color-text-muted は凍結テーマの色を変える） */
     .grid a span.withmenu {
         border: 1px solid transparent;
     }
 
     .grid a span.withmenu:hover {
-        border: 1px solid var(--color-border-light, #ccc);
+        border: 1px solid #ccc;
         background-color: var(--color-surface, #fff);
     }
 
@@ -84,7 +85,7 @@
     }
 
     .grid .nowrap.disable {
-        color: var(--color-text-muted, #777);
+        color: #777;
     }
 
     .gridRowIcon:hover {
@@ -140,7 +141,7 @@
         flex-wrap: wrap;
         padding: 4px 8px;
         background-color: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
-        border: 1px solid var(--color-border-default, #ccc);
+        border: 1px solid #ccc;
         border-bottom: none;
     }
 

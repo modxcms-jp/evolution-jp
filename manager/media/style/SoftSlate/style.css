@@ -421,17 +421,19 @@ body.evo-shell #evoShellModalFooter #actions {
 }
 
 /* 削除系。取り消せない操作なので赤い文字と枠で示す。
-   リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();" のボタン */
+   リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();"、一覧と詳細の文書は data-doc-action="delete" のボタン */
 .actionButtons #delete a,
 .actionButtons #deletedraft a,
-.actionButtons a[onclick^="delete"] {
+.actionButtons a[onclick^="delete"],
+.actionButtons a[data-doc-action="delete"] {
     color: var(--color-danger);
     border-color: var(--color-danger-border);
 }
 
 .actionButtons #delete a:hover,
 .actionButtons #deletedraft a:hover,
-.actionButtons a[onclick^="delete"]:hover {
+.actionButtons a[onclick^="delete"]:hover,
+.actionButtons a[data-doc-action="delete"]:hover {
     color: var(--color-danger);
     border-color: var(--color-danger);
     background-color: var(--color-danger-bg-hover);
