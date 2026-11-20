@@ -15,10 +15,10 @@ final class PreferenceResolver
     /**
      * 「表示名=要素名.クラス名」で書ける要素名ごとの定義。
      * list はその要素のダイアログの「クラス」の選択肢を入れる設定キー、
-     * plain は要素名の無い項目も同じ選択肢に入れるか
+     * withUnprefixed は要素名の無い項目も同じ選択肢に入れるか
      */
     private const CLASS_TARGETS = [
-        'a' => ['list' => 'link_class_list', 'plain' => true],
+        'a' => ['list' => 'link_class_list', 'withUnprefixed' => true],
     ];
 
     private ConfigRepository $repository;
@@ -137,7 +137,7 @@ final class PreferenceResolver
 
         foreach (self::CLASS_TARGETS as $element => $target) {
             $values = array_filter($items, static function (array $item) use ($element, $target) {
-                return $item['element'] === $element || ($target['plain'] && $item['element'] === '');
+                return $item['element'] === $element || ($target['withUnprefixed'] && $item['element'] === '');
             });
             if ($values !== [] && !isset($config[$target['list']])) {
                 $config[$target['list']] = $this->choiceList($values);
@@ -243,14 +243,10 @@ final class PreferenceResolver
         return '';
     }
 
-    public function parseCssSelectors(string $value): array
-    {
-        return array_map([$this, 'toFormat'], $this->parseCssItems($value));
-    }
-
     /**
      * 「表示名=クラス名」の項目を {title, value, element} の並びにする。
-     * 値が「要素名.クラス名」で、要素名が CLASS_TARGETS にあれば element に分ける。無ければ element は空
+     * 値が「要素名.クラス名」で、要素名が CLASS_TARGETS にあれば element に分ける。無ければ element は空。
+     * 要素名を分けた後のクラス名は、CSS のセレクタと同じく「.」でつないで複数書ける（a.btn.primary は btn primary）
      */
     private function parseCssItems(string $value): array
     {
@@ -259,7 +255,7 @@ final class PreferenceResolver
             if (preg_match('/^([A-Za-z][A-Za-z0-9]*)\.(\S.*)$/', $item['value'], $m)
                 && isset(self::CLASS_TARGETS[strtolower($m[1])])) {
                 $element = strtolower($m[1]);
-                $item['value'] = $m[2];
+                $item['value'] = trim(preg_replace('/[.\s]+/', ' ', $m[2]));
             }
 
             return $item + ['element' => $element];
