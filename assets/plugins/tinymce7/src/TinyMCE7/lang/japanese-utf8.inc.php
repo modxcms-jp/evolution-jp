@@ -4,6 +4,7 @@ $_lang['tinymce7_toolbar_label'] = 'ツールバー構成';
 $_lang['tinymce7_toolbar_description'] = 'TinyMCE 7 のツールバー構成を選択します。';
 $_lang['tinymce7_toolbar_simple'] = 'シンプル';
 $_lang['tinymce7_toolbar_basic'] = '基本';
+$_lang['tinymce7_toolbar_formats'] = '書式中心';
 $_lang['tinymce7_toolbar_legacy'] = 'レガシー（既定）';
 $_lang['tinymce7_toolbar_full'] = 'フル';
 $_lang['tinymce7_toolbar_visibility_label'] = 'ツールバーの表示';

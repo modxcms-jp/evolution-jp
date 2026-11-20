@@ -4,6 +4,7 @@ $_lang['tinymce7_toolbar_label'] = 'Toolbar layout';
 $_lang['tinymce7_toolbar_description'] = 'Choose the TinyMCE 7 toolbar configuration.';
 $_lang['tinymce7_toolbar_simple'] = 'Simple';
 $_lang['tinymce7_toolbar_basic'] = 'Basic';
+$_lang['tinymce7_toolbar_formats'] = 'Format-centric';
 $_lang['tinymce7_toolbar_legacy'] = 'Legacy (default)';
 $_lang['tinymce7_toolbar_full'] = 'Full';
 $_lang['tinymce7_toolbar_visibility_label'] = 'Toolbar visibility';

@@ -262,6 +262,14 @@ final class PreferenceResolver
         return (bool)preg_match('/(^|[\s|])styles($|[\s|])/', (string)$row);
     }
 
+    /**
+     * ツールバー構成の名前（toolbar-presets.json のキーの並び）
+     */
+    public function toolbarPresetNames(): array
+    {
+        return array_keys($this->repository->loadToolbarPresets());
+    }
+
     public function detectToolbarPreset(): string
     {
         return $this->detectToolbarPresetSetting() ?? 'legacy';
@@ -274,12 +282,10 @@ final class PreferenceResolver
     {
         $keys = ['tinymce7_toolbar_preset', 'tinymce_toolbar_preset'];
 
-        $aliases = [
-            'simple' => 'simple',
-            'basic' => 'basic',
-            'legacy' => 'legacy',
+        $names = $this->toolbarPresetNames();
+        // 旧プラグインの構成名の読み替え
+        $aliases = array_combine($names, $names) + [
             'classic' => 'legacy',
-            'full' => 'full',
             'advanced' => 'full',
         ];
 
