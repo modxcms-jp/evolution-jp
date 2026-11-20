@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TinyMCE7\Editor;
 
 use TinyMCE7\Config\ConfigRepository;
+use TinyMCE7\Config\PluginList;
 use TinyMCE7\Config\PreferenceResolver;
 use TinyMCE7\Support\Language;
 
@@ -104,11 +105,12 @@ final class EditorInitializer
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyToolbarVisibility($config);
         $config = $this->preferences->applyEnterMode($config);
+        // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
         $config = $this->preferences->applyCssSelectors($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
-        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         // 同梱の TinyMCE が後から読むプラグイン・スキン・言語ファイルのキャッシュ対策（利用者の cache_suffix を優先）
         if (empty($config['cache_suffix'])) {
@@ -270,7 +272,7 @@ final class EditorInitializer
             return $config;
         }
 
-        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $config['plugins'] = PluginList::append($config['plugins'] ?? [], 'modxtemplate');
         $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
         $externalPlugins['modxtemplate'] = $this->scriptFactory->bundledAssetUrl('js/modx-template.js');
         $config['external_plugins'] = $externalPlugins;
@@ -291,24 +293,6 @@ final class EditorInitializer
      * @param string|array $plugins
      * @return string|array
      */
-    private function appendPlugin($plugins, string $name)
-    {
-        if (is_array($plugins)) {
-            if (!in_array($name, $plugins, true)) {
-                $plugins[] = $name;
-            }
-
-            return $plugins;
-        }
-
-        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        if (!in_array($name, $list, true)) {
-            $list[] = $name;
-        }
-
-        return implode(' ', $list);
-    }
-
     /**
      * @param mixed $toolbar
      * @return mixed

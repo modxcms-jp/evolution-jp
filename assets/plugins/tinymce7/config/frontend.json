@@ -6,5 +6,6 @@
   "promotion": false,
   "relative_urls": false,
   "convert_urls": false,
+  "font_size_formats": "12px 14px 16px 18px 20px 24px 28px 32px 40px 48px",
   "license_key": "gpl"
 }

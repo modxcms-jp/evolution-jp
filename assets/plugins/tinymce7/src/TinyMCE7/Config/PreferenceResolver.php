@@ -5,6 +5,13 @@ namespace TinyMCE7\Config;
 
 final class PreferenceResolver
 {
+    private const WIDE_TOOLBAR_ITEMS = [
+        'blocks' => 3,
+        'fontfamily' => 3,
+        'styles' => 3,
+        'fontsize' => 2,
+    ];
+
     private ConfigRepository $repository;
     private ?array $settings;
 
@@ -99,6 +106,10 @@ final class PreferenceResolver
      */
     public function applyCssSelectors(array $config): array
     {
+        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換え、
+        // 取り込めるクラスが無いと「書式」の欄が空で押せなくなるため、いつも追記にする
+        $config['importcss_append'] = $config['importcss_append'] ?? true;
+
         $formats = $this->parseCssSelectors($this->detectCssSelectors());
 
         if ($formats === []) {
@@ -108,8 +119,10 @@ final class PreferenceResolver
         $existing = $config['style_formats'] ?? [];
         $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], $formats);
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
-        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
-        $config['importcss_append'] = $config['importcss_append'] ?? true;
+        // 指定したクラスだけを出す（TinyMCE 3 と同じ）。CSS のクラスをすべて取り込むと一覧が長くなり、同じクラスが重なる
+        if (isset($config['plugins'])) {
+            $config['plugins'] = PluginList::remove($config['plugins'], 'importcss');
+        }
         $config['link_class_list'] = $config['link_class_list'] ?? $this->linkClassList($formats);
 
         return $this->ensureStylesButton($config);
@@ -236,21 +249,50 @@ final class PreferenceResolver
         // toolbar は文字列、文字列の配列（行ごと）、{name, items} のグループ配列のいずれか
         $rows = is_array($toolbar) ? array_values($toolbar) : [$toolbar];
 
+        // 空の配列はボタンを出さない指定
+        if ($rows === []) {
+            return $config;
+        }
+
         foreach ($rows as $row) {
             if ($this->rowHasStyles($row)) {
                 return $config;
             }
         }
 
-        if (is_array($rows[0] ?? null)) {
-            array_unshift($rows, ['name' => 'styles', 'items' => ['styles']]);
-        } else {
-            $rows[0] = 'styles ' . ltrim((string)($rows[0] ?? ''));
+        // グループの配列は 1 本のツールバーなので、末尾にグループを足す
+        if (is_array($rows[0])) {
+            $rows[] = ['name' => 'styles', 'items' => ['styles']];
+            $config['toolbar'] = $rows;
+
+            return $config;
         }
+
+        // 並びを崩さず行の長さをそろえるため、ボタンが少ない行の末尾に足す（同じ数なら後ろの行）
+        $target = 0;
+        foreach ($rows as $index => $row) {
+            if ($this->countToolbarItems($row) <= $this->countToolbarItems($rows[$target])) {
+                $target = $index;
+            }
+        }
+        $rows[$target] = rtrim((string)$rows[$target]) . ' | styles';
 
         $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
 
         return $config;
+    }
+
+    /**
+     * 行の長さの目安。選択欄は幅に応じて、普通のボタン何個ぶんかで数える
+     */
+    private function countToolbarItems($row): int
+    {
+        $count = 0;
+        foreach (preg_split('/[\s|]+/', (string)$row, -1, PREG_SPLIT_NO_EMPTY) as $item) {
+            $count += self::WIDE_TOOLBAR_ITEMS[$item] ?? 1;
+        }
+
+        return $count;
     }
 
     private function rowHasStyles($row): bool

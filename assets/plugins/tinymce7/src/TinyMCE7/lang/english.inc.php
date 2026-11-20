@@ -23,7 +23,7 @@ $_lang['tinymce7_body_id_description'] = 'ID added to the body of the editing ar
 $_lang['tinymce7_body_class_label'] = 'Editor body class';
 $_lang['tinymce7_body_class_description'] = 'Classes added to the body of the editing area. Enter the classes of the element that wraps the content on the public site, and the rules for those classes in the stylesheet set in "Path to CSS file" also apply in the editor. Separate multiple classes with spaces. The body_class in Custom Parameters of the old TinyMCE plugin is carried over when updating.';
 $_lang['tinymce7_css_selectors_label'] = 'CSS style selectors';
-$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The same classes are offered in the Class list of the link dialog. The setting of the old TinyMCE plugin is carried over if present.';
+$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The same classes are offered in the Class list of the link dialog. When empty, the Legacy and Full layouts list every class found in the CSS of "Path to CSS file" in the Formats list; enter the classes you use here to keep the list short. The setting of the old TinyMCE plugin is carried over if present.';
 
 $_lang['tinymce7_template_label'] = 'Templates';
 $_lang['tinymce7_template_docs'] = 'Resource IDs';

@@ -40,6 +40,10 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 
 更新後は Evolution CMS のキャッシュをクリアして反映させます。
 
+文字の大きさの一覧は、`manager.json`・`frontend.json` の `font_size_formats`（px）で決めます。欄には今の文字の計算後の大きさ（px）が出るので、一覧も px にして単位をそろえています。
+
+ツールバーのボタン名は TinyMCE 7 の名前で書きます。TinyMCE 6 で `formatselect` → `blocks`、`fontsizeselect` → `fontsize`、`styleselect` → `styles`、`fontselect` → `fontfamily` などに変わり、古い名前は警告なしで無視されます（[公式の移行ガイド](https://www.tiny.cloud/docs/tinymce/latest/migration-from-5x/)）。
+
 ### TinyMCE 本体の読み込み元
 
 `tinymce_script_url` を指定していればその URL を使用し、未指定の場合は既定の CDN (`https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js`) から読み込みます。ローカルで使いたい場合は公式パッケージの `tinymce/` を `assets/plugins/tinymce7/tinymce/` に配置し、設定ファイルに `"tinymce_use_local": true` を追加してください。CDN・ローカル問わず独自 URL を使う場合は `tinymce_script_url` で上書きできます。
@@ -113,7 +117,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
 | `tinymce7_body_id` | 編集欄の body に付ける id。TinyMCE の `body_id` に渡し、設定ファイル（`config/*.json`）の `body_id` より優先します。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。旧 TinyMCE の `customparams` の `body_id` は、マイグレーション（`manager/includes/migrations/20261107_120000_carry_over_tinymce_body_attributes.php`）が引き継ぎます（どちらかの設定が保存済みなら何もしません）。空の値、サイトのタグ（`[*…*]`・`[(…)]`・`[~…~]` など）や引用符・`\`・`:`・改行を含む値・文字列でない値と、ほかのキーは引き継がず、キー名だけをシステムログに種別 2（警告）で残します。|
 | `tinymce7_body_class` | 編集欄の body に付けるクラス（半角スペース区切り）。TinyMCE の `body_class` に渡します。扱いは `tinymce7_body_id` と同じです。|
-| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「書式」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。importcss プラグインが取り込むクラスに置き換えられないよう `importcss_append` も有効にし、ツールバーに `styles` が無ければ先頭に足します。同じ一覧から、リンクのダイアログの「クラス」の選択肢（`link_class_list`、先頭は「なし」）も作ります。選択肢の名前は、表示名とクラス名が違えば「表示名 (クラス名)」です。設定ファイルで `link_class_list` を指定していれば、そちらを使います。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
+| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「書式」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式（見出し・インライン・ブロック・配置）の後ろに並びます。指定があるときは importcss プラグインを外し、「書式」にはこのクラスだけを並べます（TinyMCE 3 と同じ。「CSSファイルへのパス」の CSS のクラスをすべて取り込むと一覧が長くなり、同じクラスが重なるため）。設定ファイルで importcss を入れていても外します。指定が空なら、importcss が「CSSファイルへのパス」の CSS からクラスを取り込み、`importcss_append` を有効にして既定の書式の後ろに並べます（取り込めるクラスが無くても、既定の書式が出て押せるように）。ツールバーに `styles` が無ければ、ボタンが少ない行の末尾に足します（選択欄は幅に応じて普通のボタン 2〜3 個ぶんで数え、同じ数なら後ろの行。グループの配列なら末尾にグループを足す）。レガシーの構成は「書式」を段落の種類の欄として 1 行目に持つので、足しません。同じ一覧から、リンクのダイアログの「クラス」の選択肢（`link_class_list`、先頭は「なし」）も作ります。選択肢の名前は、表示名とクラス名が違えば「表示名 (クラス名)」です。設定ファイルで `link_class_list` を指定していれば、そちらを使います。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
 | `tinymce7_template_docs` | ひな形にするリソースの ID（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_docs` を読みます。|
 | `tinymce7_template_chunks` | ひな形にするチャンクの名前（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_chunks` を読みます。|
 | `tinymce7_template_category` | このカテゴリに属するチャンクをすべてひな形にします（カテゴリ名で指定）。ひな形の 3 項目はサイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。|
