@@ -24,8 +24,6 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
     $output = "// ----------- mm_renameField :: Begin ------------- \n";
 
     $label = '"' . jsSafe($newlabel) . '"';
-    // 自分以外の兄弟の見出し
-    $siblingsTitle = 'MM.all(%s).forEach(function (el) { MM.html(Array.from(el.parentNode.children).filter(function (c) { return c !== el && c.matches("span.mutate-field-title"); }), %s); });';
     // 行の見出し（%s は行の名前か、欄の要素を返す式）
     $rowTitle = 'MM.html(Evo.fieldPart(%s, "title"), %s);';
 
@@ -34,7 +32,7 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
         case 'hidemenu':
         case 'show_in_menu':
         case 'hide_menu':
-            $output .= sprintf($siblingsTitle, '"input[name=hidemenucheck]"', $label);
+            $output .= sprintf($rowTitle, '"hidemenu"', $label);
             break;
 
         case 'which_editor':

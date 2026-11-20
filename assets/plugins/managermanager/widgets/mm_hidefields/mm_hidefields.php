@@ -38,7 +38,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
             // Exceptions
             case 'hidemenu':
             case 'show_in_menu':
-                $output .= sprintf($hideParentTd, '"input[name=hidemenucheck]"');
+                $output .= 'MM.hide(Evo.fieldRow("hidemenu"));';
                 break;
 
             case 'menuindex':

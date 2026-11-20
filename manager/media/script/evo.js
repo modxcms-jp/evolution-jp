@@ -10,7 +10,8 @@
  *   ログイン画面へ移り、Promise は解決しない（呼び出し側の後続処理やエラー表示を走らせない）
  * - Evo.post(url, data): $j.post の代わり。data はオブジェクト・FormData・URLSearchParams・文字列
  * - Evo.fieldRow(field, root): 編集画面の欄の行（data-field 属性の付いた要素）。field が名前なら
- *   root（省略時は document）の中でその名前の行を、要素ならその要素が入っている行を返す。無ければ null
+ *   root（省略時は document）の中でその名前の行を、要素ならその要素が入っている行（入れ子なら
+ *   いちばん外側）を返す。無ければ null
  * - Evo.fieldPart(field, part): その行の中の部分（data-field-part 属性が part の要素）。無ければ null
  *
  * fetch は HTTP のエラー（404・500 など）でも reject しない。必要なら response.ok を確かめること。
@@ -63,10 +64,27 @@
         if (!field) {
             return null;
         }
-        if (field.nodeType === 1) {
-            return field.closest(FIELD_ROW);
+        if (field.nodeType !== 1) {
+            return (root || document).querySelector('[data-field="' + CSS.escape(field) + '"]');
         }
-        return (root || document).querySelector('[data-field="' + CSS.escape(field) + '"]');
+        // 行の中に別の欄（data-field）が入れ子になっているときは、いちばん外側の行
+        let row = field.closest(FIELD_ROW);
+        while (row && row.parentElement && row.parentElement.closest(FIELD_ROW)) {
+            row = row.parentElement.closest(FIELD_ROW);
+        }
+        return row;
+    }
+
+    // 行の中の部分。入れ子の欄の部分は、その欄のものなので除く
+    function fieldPart(field, part) {
+        const row = fieldRow(field);
+        if (!row) {
+            return null;
+        }
+        const parts = row.querySelectorAll('[data-field-part="' + CSS.escape(part) + '"]');
+        return Array.prototype.find.call(parts, function (el) {
+            return el.closest(FIELD_ROW) === row;
+        }) || null;
     }
 
     window.Evo = {
@@ -116,9 +134,6 @@
 
         fieldRow: fieldRow,
 
-        fieldPart: function (field, part) {
-            const row = fieldRow(field);
-            return row ? row.querySelector('[data-field-part="' + CSS.escape(part) + '"]') : null;
-        }
+        fieldPart: fieldPart
     };
 })();
