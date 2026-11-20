@@ -267,7 +267,7 @@ final class PreferenceResolver
      */
     public function toolbarPresetNames(): array
     {
-        return array_keys($this->repository->loadToolbarPresets());
+        return array_keys(array_filter($this->repository->loadToolbarPresets(), 'is_array'));
     }
 
     public function detectToolbarPreset(): string
