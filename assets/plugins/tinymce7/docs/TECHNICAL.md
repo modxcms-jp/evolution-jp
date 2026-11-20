@@ -15,6 +15,7 @@
 - MCPuk 連携スクリプト: `js/mcpuk-picker.js`
 - 画像編集モーダル連携スクリプト: `js/tinymce-cropper.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
+- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -106,6 +107,49 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 フロントエンド用設定でも `image_cropper` を定義すれば同様の機能を利用できます。不要な場合は `enabled` を `false` に設定するか、オブジェクトごと削除してください。
 
+## 画像のキャプション (`image_caption`)
+`config/manager.json`・`config/frontend.json` で `image_caption: true` を指定しており、どのツールバー構成でも画像のダイアログに「キャプションの表示」が出ます（構成の定義 `toolbar-presets.json` は同じキーを持たないので、設定ファイルの値がそのまま効きます）。オンにすると、画像が次の形で保存されます。
+
+```html
+<figure class="image">
+  <img src="assets/images/sample.jpg" alt="...">
+  <figcaption>キャプション</figcaption>
+</figure>
+```
+
+- 公開側の CSS では、`figure.image` を画像とキャプションを包む箱として扱います。書き方の例です。
+
+  ```css
+  figure.image {
+      display: table;      /* 画像の幅に箱を合わせる */
+      margin: 1em auto;
+  }
+  figure.image img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+  }
+  figure.image > figcaption {
+      display: table-caption;
+      caption-side: bottom;
+      font-size: 0.875em;
+      text-align: center;
+  }
+  ```
+
+  編集欄に同じ見た目を出すには、「CSSファイルへのパス」の CSS に同じ規則を書きます。
+- キャプションをオンにすると、仮の文字「Caption」（英語）が `<figcaption>` に入ります。本文で書き換えてください。書き換えずに保存すると、公開側にもそのまま `Caption` と出ます。
+- キャプションを外すと `figure` ごと `<img>` だけに戻ります。
+- 画像にリンクを付けたときは `figure.image > a > img` の形です。リンクのダイアログの「クラス」「Rel」の補正（「リンクのダイアログの「クラス」と「Rel」」）は、ダイアログが編集するリンクではなく本文のすべてのリンクを見るので、この形でも働きます。
+- 画像のダブルクリックで開く画像編集（`image_cropper`）は、`figure` の中の画像でも開きます。
+
+## リンクの操作の帯 (`link_context_toolbar`)
+`manager.json`・`frontend.json` で `link_context_toolbar: true` を指定しており（TinyMCE 7 の既定はオフ）、リンクの中にカーソルを置くと、リンクの上に小さなツールバー（link プラグインのコンテキストフォーム）が出ます。URL の入力欄と、「Link」（入力欄の URL を反映）・「Remove link」（リンクの削除）・「Open link」（リンクを開く）のボタンが並びます。
+
+- URL を直して Enter か「Link」で反映できます。ダイアログは開きません。クラス・Rel・開き方を変えるときは、ツールバーのリンクのボタンか Ctrl+K でダイアログを開きます（`link_quicklink` は既定の `false` のままなので、ツールバーのボタンと Ctrl+K はダイアログを開きます）。
+- リンクの文字を範囲選択したときも、quickbars の選択時ツールバーとは同時に出ず、リンクの操作の帯だけが出ます。
+- 帯で URL だけ直したときの class・target・rel の残り方は、ダイアログで URL だけ直したときと同じです（確かめた結果は下）。`link_rel_list`（システム設定「リンクの rel」）が空のときは、帯でもダイアログでも rel が外れます（`rel="lightbox"` は消え、`target="_blank"` の `noopener` も消える）。一覧があれば rel は残ります（`noopener` は `target="_blank"` のときに TinyMCE が付けます）。class は、どちらも残ります。
+
 ## システム設定キー
 プラグインが参照する主なシステム設定キーです。旧 TinyMCE プラグインのキーも互換処理しています。
 
@@ -147,7 +191,7 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 
 ## リンクのダイアログの「クラス」と「Rel」
 - 選択肢は `link_class_list`・`link_rel_list` です。設定ファイルで指定していればそれを、無ければ `tinymce7_css_selectors`・`tinymce7_link_rel` から作った一覧を使います。どちらも先頭は「なし」で、表示名と値が違えば「表示名 (値)」と出します。一覧が無ければ欄を出しません。
-- TinyMCE のリンクのダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します。そこで `EditorInitializer` の `setup` で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの値のうち一覧に無いものを末尾に足します。class と rel は同じ処理を定義の表（`linkChoiceLists`）で回し、表に種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、トークンの順が違う rel（`nofollow lightbox` など）は開く前に並べ替えた順に書き直し（元に戻す履歴には残さない。ただし、そのあとほかの操作やエディターから離れたときに、未保存の印が立つことがある）、選択肢どうしは `noopener` を除いて比べます。
+- TinyMCE のリンクのダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します。そこで `js/editor-setup.js` の setup で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの値のうち一覧に無いものを末尾に足します。class と rel は同じ処理を定義の表（`linkChoiceLists`）で回し、表に種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、`link_rel_list` があるときだけ、`PreInit` で `editor.parser.addAttributeFilter("rel", ...)` を登録し、本文を読み込む・貼り付ける・挿入する（ソースコードの画面・ひな形の挿入を含む）ときに、トークンの順が違う rel（`nofollow lightbox` など）を並べ替えます。最初の履歴より前にそろうので、未保存の印は立ちません。一覧が無いサイトの本文は書き換えません。選択肢どうしは `noopener` を除いて比べます。
 - ダイアログが編集するリンクは選び方（キャレット・範囲選択・キャプション付き画像）で決まり方が変わるため、選んでいるリンクではなく本文のすべてのリンクを見ます。そのため、ほかのリンクの値も選択肢に出ます。
 - 「新しいウィンドウ」で開くリンクには、TinyMCE が `rel` に `noopener` を足します（例: `rel="lightbox noopener"`）。ダイアログでは選んだ値が選ばれたまま出ます。
 

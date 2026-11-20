@@ -36,7 +36,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
 * **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
 
-  * HTML → `hsc()` / あとで `parseText()` などのタグ解析を通す HTML（管理画面の tpl に差し込む値など）→ `hsc_for_tpl()`（`assets/docs/template-system.md`）/ `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）
+  * HTML → `hsc()` / あとで `parseText()` などのタグ解析を通す HTML（管理画面の tpl に差し込む値など）→ `hsc_for_tpl()`（`assets/docs/template-system.md`）/ `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）/ 配列やオブジェクト → `js_value()`
   * ❌ JS への埋め込みに `addslashes()` や `db()->escape()` を使う（`</script>` などを防げない）
 * **コーディングスタイル**:
 
