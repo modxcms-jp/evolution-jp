@@ -100,7 +100,7 @@
 
 `input[type=submit|button|reset]` も、`.button` と同じ部品として、この変数で描く（主ボタンの `.primary` は付けない）。テーマは `input` のボタンだけの規則を書かない。
 
-編集画面の欄の名前（`.mutate-field-title`）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
+編集画面の欄の名前（文書の行は `.mutate-field-row .field-title`。RTE の見出しなどの `.mutate-field-title` も同じ）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
 
 | 変数 | 意味 | 既定値 |
 | --- | --- | --- |

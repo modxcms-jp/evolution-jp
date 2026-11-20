@@ -756,8 +756,9 @@ EOT;
 
 function file_get_tpl($path)
 {
-    if (is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
-        return file_get_contents(MODX_BASE_PATH . config('custom_tpl_dir') . $path);
+    $dir = (string)config('custom_tpl_dir');
+    if ($dir !== '' && is_file(MODX_BASE_PATH . $dir . $path)) {
+        return file_get_contents(MODX_BASE_PATH . $dir . $path);
     }
     return file_get_contents(tpl_base_dir() . $path);
 }

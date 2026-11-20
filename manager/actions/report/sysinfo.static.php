@@ -72,7 +72,7 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                     foreach ($items as [$label, $value]) {
                         echo EvoFieldRow::render([
                             'label' => $label,
-                            'body' => '<strong>' . $value . '</strong>',
+                            'body' => $value,
                         ]);
                     }
                     ?>

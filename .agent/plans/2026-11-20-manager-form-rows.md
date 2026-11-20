@@ -44,6 +44,7 @@
   `help` は `<div class="form-text" data-field-part="help">…</div>` で包む。見出しは `th` にそろえる（手書きの行の大半と `EvoSettingsForm` が `th`。表の行見出しとして正しい）。`data-field-part="title"` は名前だけを包む `span` に付ける（ManagerManager の名前の変更が `title` の中身を置き換えるので、鍵のアイコンなどを巻き込まない）。`style` 属性は `attr` に指定したときだけ出す（今の `render_tr.tpl` は空でも `style=""` を出している）。
 - 2026-11-20 文書の編集画面の行は、`class` に `mutate-field-row` を渡して残す（外のサイトの CSS・JS が使っている可能性があり、残しても害が無い）。値のセルの `.field-inline` の包みは、部品ではなく呼び出し側（`renderFieldTr()`）で行う（設定の表は包まないので、部品に分岐を持たせない）。
 - 2026-11-20 段階 0 は見た目を変えない。見出しの列の幅・色・余白をそろえる（`foundation-proposal.css` の案を本採用するか）は見た目が変わる判断なので、段階 0〜4 の対象外とし、部品が 1 つになった後に別の Issue で決める。そのため段階 0 の CSS は、今の見た目を保つための付け替え（`.mutate-field-label` → `.mutate-field-row > .field-label` など）だけにする。
+- 2026-11-20 見出しのセルは th の既定の太字を使う。手書きの行（`<th align=left>` が大半）を移すとき、打ち消しを積まないため。太字にしない見出しが要る画面は、段階ごとに理由を書く。共通の規則は揃え（`text-align: start`）だけ。
 - 2026-11-20 互換（本人の判断）: 本体・同梱のプラグイン・同梱のモジュールから呼ばれていない `manager()->renderTr()`・`renderSection()`・`renderTabPane()`・`renderTabPage()` と `manager/media/style/common/block_tr.tpl`・`block_section.tpl`・`block_tabpage.tpl`・`block_tabpane.tpl` を消す。自作プラグインで使っているサイトでは呼び出しがエラーになるので、リリースノートに書く。
 - 2026-11-20 互換（本人の判断）: `custom_tpl_dir` での差し替えは、新しい `field_row.tpl` 1 つだけを対象にする（`EvoFieldRow` が `custom_tpl_dir` に同名のファイルがあればそれを読む）。古い名前の `render_tr.tpl` は読まなくなる（段階 4 で `tv_row.tpl` も）。差し替えているサイトは作り直しが要るので、リリースノートに書く。`custom_tpl_dir` の `field_row.tpl` は文書の画面だけでなく、部品を使うすべての画面に効く。
 - 2026-11-20 外の ManagerManager の部品が `closest('td')` などの構造に頼っている場合は考えない（互換を気にする外部のプラグインは TinyMCE 7 だけ、という本人の方針）。同梱の部品は #1632 で `data-field` に移っている。
@@ -113,6 +114,8 @@
 期待される観測: `git grep -n "renderTr\b\|render_tr\b\|block_tr" -- manager assets` が `EvoFieldRow` と文書以外で 0 件。文書の編集画面・グローバル設定・ユーザーの編集・プロフィール・システム情報・スタイルガイドの行が `tr.field-row[data-field]` で出る。
 
 ### 段階 1〜4
+
+段階 1 の手順に足すこと: システム情報の表の見出しと値の間の余白（段階 0 で空の列を無くした結果ほぼ 0）を、行の部品の共通の CSS で決める。
 
 各段階に着手するときに、対象画面の行と直書きの style を数え直し、この節に手順を書き足してから実装する（段階 0 の部品と規則が決まっているので、段階ごとの手順は「どの画面のどの行を移すか」と「残す style とその理由」の表になる）。段階 1 では Issue の「ついでに見つかった小さな不具合」のうち `document/move_document.dynamic.php` の `<input type="save">` を、段階 3 では `permission/mutate_user/tpl/form/tab_general.php` の `echo 'style="display:none";'` を直す（`sysinfo` の `td` の閉じ忘れは段階 0 で無くなる）。
 

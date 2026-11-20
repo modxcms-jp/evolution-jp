@@ -202,14 +202,16 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
     <div class="sectionBody">
         <h3 class="settings-section">サイト</h3>
         <table class="settings">
-            <tr>
-                <th>サイト名</th>
-                <td><input type="text" value="My MODX Site"><div class="comment">サイトの名前を入れます。</div></td>
-            </tr>
-            <tr>
-                <th>サイトの状態</th>
-                <td><label><input type="radio" name="sg-status" checked> 公開</label> <label><input type="radio" name="sg-status"> 非公開</label></td>
-            </tr>
+            <?= EvoFieldRow::render([
+                'field' => 'site_name',
+                'label' => 'サイト名',
+                'body' => '<input type="text" value="My MODX Site"><div class="comment">サイトの名前を入れます。</div>',
+            ]) ?>
+            <?= EvoFieldRow::render([
+                'field' => 'site_status',
+                'label' => 'サイトの状態',
+                'body' => '<label><input type="radio" name="sg-status" checked> 公開</label> <label><input type="radio" name="sg-status"> 非公開</label>',
+            ]) ?>
         </table>
     </div>
 </div>
@@ -218,22 +220,22 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
     <div class="sectionHeader">グローバル設定のファイルの欄（既定値・リセット・前に付く文字）</div>
     <div class="sectionBody">
         <?php if (!$proposal) { ?>
-            <!-- 今の書き方（settings_form.class.inc.php の path と、before の付いた text と同じ） -->
+            <!-- 今の書き方（EvoSettingsForm が EvoFieldRow に渡す行。path と、before の付いた text と同じ） -->
             <table class="settings">
-                <tr>
-                    <th>ファイルの置き場所</th>
-                    <td>既定値 <span id="default_rb_base_dir">[(base_path)]content/</span> (/var/www/html/content/)<br/>
+                <?= EvoFieldRow::render([
+                    'field' => 'rb_base_dir',
+                    'label' => 'ファイルの置き場所',
+                    'body' => '既定値 <span id="default_rb_base_dir">[(base_path)]content/</span> (/var/www/html/content/)<br/>
                         <input type="text" name="rb_base_dir" value="[(base_path)]content/" maxlength="255" id="rb_base_dir" />
                         <input type="button" value="リセット" name="reset_rb_base_dir"><br/>
-                        ファイルブラウザで扱うファイルを置く場所です。サーバーの中の位置で書きます。
-                    </td>
-                </tr>
-                <tr>
-                    <th>ファイルの URL</th>
-                    <td>http://localhost/<input type="text" name="rb_base_url" value="content/" maxlength="255" /><br/>
-                        上の置き場所を、ブラウザから開くときの URL です。
-                    </td>
-                </tr>
+                        ファイルブラウザで扱うファイルを置く場所です。サーバーの中の位置で書きます。',
+                ]) ?>
+                <?= EvoFieldRow::render([
+                    'field' => 'rb_base_url',
+                    'label' => 'ファイルの URL',
+                    'body' => 'http://localhost/<input type="text" name="rb_base_url" value="content/" maxlength="255" /><br/>
+                        上の置き場所を、ブラウザから開くときの URL です。',
+                ]) ?>
             </table>
         <?php } else { ?>
             <!-- 案の書き方: 行の部品（ラベルの列と欄の列）、前に付く文字とボタンをつなぐ input-group、説明文の form-text -->

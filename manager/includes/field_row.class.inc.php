@@ -14,7 +14,8 @@ final class EvoFieldRow
      *                   label_extra（見出しのセルで名前の後ろに置く HTML）/ body（値のセルの HTML）/
      *                   help（値の下の説明の HTML。空なら出さない）/ class（行に足す class）/
      *                   attr（行に足す属性 [名前 => 値]。値は hsc() する）
-     *                   HTML を受けるキーは、呼び出し側で出力に合わせてエスケープしてから渡す
+     *                   HTML を受けるキーは、呼び出し側で出力に合わせてエスケープしてから渡す。
+     *                   差し込んだ値は再評価しない（値の中の [+…+] はそのまま出る）
      */
     public static function render(array $row): string
     {
@@ -24,14 +25,14 @@ final class EvoFieldRow
         }
         $help = (string)($row['help'] ?? '');
 
-        return parseText(self::tpl(), [
-            'field' => hsc($row['field'] ?? ''),
-            'label' => $row['label'] ?? '',
-            'label_extra' => $row['label_extra'] ?? '',
-            'body' => $row['body'] ?? '',
-            'help' => $help !== '' ? '<div class="form-text" data-field-part="help">' . $help . '</div>' : '',
-            'class' => !empty($row['class']) ? ' ' . hsc($row['class']) : '',
-            'attr' => $attr,
+        return strtr(self::tpl(), [
+            '[+field+]' => hsc($row['field'] ?? ''),
+            '[+label+]' => $row['label'] ?? '',
+            '[+label_extra+]' => $row['label_extra'] ?? '',
+            '[+body+]' => $row['body'] ?? '',
+            '[+help+]' => $help !== '' ? '<div class="form-text" data-field-part="help">' . $help . '</div>' : '',
+            '[+class+]' => !empty($row['class']) ? ' ' . hsc($row['class']) : '',
+            '[+attr+]' => $attr,
         ]);
     }
 

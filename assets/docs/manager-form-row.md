@@ -1,6 +1,6 @@
 # 管理画面のフォームの行
 
-管理画面の編集画面で、見出し（項目名）と値（入力欄など）を並べる行（`tr`）は、部品 `EvoFieldRow`（`manager/includes/field_row.class.inc.php`）と tpl `manager/media/style/common/field_row.tpl` で出す。行の HTML を直す場所はこの 2 つだけ。`manager()` と同じく、管理画面の初期化（`ex_managerapi.php`）が読み込む。
+管理画面の編集画面で、見出し（項目名）と値（入力欄など）を並べる行（`tr`）は、部品 `EvoFieldRow`（`manager/includes/field_row.class.inc.php`）と tpl `manager/media/style/common/field_row.tpl` で出す。この部品を使う行の HTML を直す場所はこの 2 つだけ（`tv_row.tpl` と手書きの行は、段階的に移すまで残る）。`manager()` と同じく、管理画面の初期化（`ex_managerapi.php`）が読み込む。
 
 ## 使い方
 
@@ -9,7 +9,7 @@ echo EvoFieldRow::render([
     'field' => 'pagetitle',
     'label' => lang('resource_title'),
     'body' => $inputHtml,
-    'help' => hsc(config('datetime_format')),
+    'help' => hsc(config('datetime_format')) . ' HH:MM:SS',
 ]);
 ```
 
@@ -23,7 +23,7 @@ echo EvoFieldRow::render([
 | `class` | 行に足す class（文書の編集画面は `mutate-field-row`） |
 | `attr` | 行に足す属性 `[名前 => 値]`（`data-show-if`・`style` など）。値は部品が `hsc()` する |
 
-- HTML を受けるキー（`label`・`label_extra`・`body`・`help`）は、呼び出し側で出力に合わせてエスケープしてから渡す。利用者の入力・DB や環境から来る値は `hsc_for_tpl()`（あとで `parseText()` を通るため。`template-system.md`）。言語ファイルとコードの定数の HTML はそのまま渡してよい。
+- HTML を受けるキー（`label`・`label_extra`・`body`・`help`）は、呼び出し側で出力に合わせてエスケープしてから渡す（利用者の入力・DB や環境から来る値は `hsc()`）。部品は差し込んだ値を再評価しないので、値の中の `[+…+]` はそのまま出る。部品の出力を、あとで `parseText()` などのタグ解析に通す画面（文書の編集画面は大きな tpl に差し込む）は、値を `hsc_for_tpl()` で渡す（`template-system.md`）。言語ファイルとコードの定数の HTML はそのまま渡してよい。
 - 種類ごとの違いは、呼び出し側が配列で表す。部品の中に画面ごとの分岐を足さない。文書の編集画面の値のセルの `.field-inline` の包みは、呼び出し側の `renderFieldTr()`（`mutate_content/functions.php`）が行う。
 - 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド。
 
@@ -47,4 +47,4 @@ echo EvoFieldRow::render([
 - 横並びのためだけの float は flex にする。回り込みの float は残す。
 - 文字・色・揃えは既存の class（`.warning`・`.comment`）とテーマの変数（`theme-variables.md`）を使う。
 
-画面ごとに決まった値がどうしても要るときは、画面専用の class を作らず、その理由を行の定義（呼び出し側）で分かる形で残す。
+画面ごとに決まった値がどうしても要るときは、画面専用の class を作らず、その理由を行の定義（呼び出し側）で分かる形で残す（例: `EvoSettingsForm::renderRow()` は、条件に合わず初めから隠す行だけ `attr` に `style => display:none` を渡す。`data-show-if` の JS が表示を切り替えるので、class にできない）。

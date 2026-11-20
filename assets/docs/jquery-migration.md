@@ -45,6 +45,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 
 - 文書の編集画面では、属性を行の部品の tpl `manager/media/style/common/field_row.tpl`（標準のフィールド。`manager-form-row.md`）と `manager/actions/document/mutate_content/tv_row.tpl`（TV）に書いている。名前は `fields.php` の各関数が `renderFieldTr()` を通して部品に渡す。
 - 標準のフィールドの名前は `site_content` の列名にそろえる（`pagetitle`・`pub_date`・`contentType` など）。例外は 3 つ。ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）、「メニューに表示」の `hidemenu` は行ではなく `menuindex` の行の中の入れ子。名前の正本は `fields.php`（`renderFieldTr()` の第 1 引数）と `field_menuindex.tpl`。
+- `EvoFieldRow` を使う設定の表（グローバル設定・ユーザーの設定）の行は、設定のキー（例 `site_name`）。
 - TV の行は `tv{id}`（例: `tv12`）。
 - 「メニューに表示」は `hidemenu`。`menuindex` の行の中に入れ子になっていて、`data-field` はそのセル（`field_menuindex.tpl` の `td.menuindex-options`）に付く。
 - 入れ子の欄は名前で探す。`Evo.fieldRow('hidemenu')` はそのセルを、`Evo.fieldRow('menuindex')` は外側の行を返す。`Evo.fieldPart('menuindex', part)` は `hidemenu` の部分を返さない。
