@@ -167,7 +167,7 @@ class ConfigCheck {
             );
         }
         if (evo()->hasPermission('settings')) {
-            $msg .= sprintf($this->_lang['configcheck_hide_warning'], 'templateswitcher_present');
+            $msg .= sprintf($this->_lang['configcheck_hide_warning'], hsc('templateswitcher_present'));
         }
         return '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n";
     }
