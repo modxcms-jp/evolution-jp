@@ -4,6 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $content = manager()->openElementForm('plugin', lang('plugin'));
+$id = (int) ($content['id'] ?? 0);
 sessionv('*itemname', $content ? $content['name'] : 'New Plugin');
 
 // 名前の検証で差し戻されたときは、送信した入力を重ねる
@@ -32,7 +33,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=105");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=105");
         }
     }
 
@@ -224,7 +225,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
     <?php
     // invoke OnPluginFormPrerender event
-    $tmp = ["id" => get_intvar('id')];
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -324,7 +325,7 @@ function entity($key, $default = null)
                 $from = '[+prefix+]site_modules sm ' .
                     'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
                     'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
-                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", get_intvar('id'));
+                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", $id);
                 $ds = db()->select($field, $from, $where, 'sm.name');
                 $guid_total = db()->count($ds);
                 if ($guid_total > 0) {
@@ -385,9 +386,9 @@ function entity($key, $default = null)
                     if (isset($content['sysevents'])) {
                         // 差し戻された入力があれば、DB よりそちらを優先する
                         $evts = array_map('intval', (array)$content['sysevents']);
-                    } elseif (get_intvar('id')) {
+                    } elseif ($id) {
                         $evts = [];
-                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", get_intvar('id')));
+                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", $id));
                         while ($row = db()->getRow($rs)) {
                             $evts[] = $row['evtid'];
                         }
@@ -543,7 +544,7 @@ function entity($key, $default = null)
     </script>
     <?php
     // invoke OnPluginFormRender event
-    $tmp = ["id" => get_intvar('id')];
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

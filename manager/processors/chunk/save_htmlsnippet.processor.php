@@ -72,7 +72,7 @@ function resolvePublishFields(string $mode, int $id): array
 }
 
 // 名前が空だと一覧から開けず、更新では {{旧名}} の参照まで空の名前に書き換わるため、保存しない
-manager()->requireElementName(post_strvar('name'), lang('chunk'), 'chunk', $id);
+manager()->requireElementName(post_strvar('name'), lang('chunk'), 'chunk', $mode === 'edit' ? $id : 0);
 // 日付が解釈できないときは、イベントや DB に進む前に差し戻す
 $publish = resolvePublishFields($mode, $id);
 

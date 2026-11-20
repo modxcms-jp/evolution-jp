@@ -23,7 +23,7 @@ if (!is_string($elements) || !is_string($default_text)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('tv'), 'tmplvar', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('tv'), 'tmplvar', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $caption = post_strvar('caption', $rawName);
 $type = post_strvar('type');

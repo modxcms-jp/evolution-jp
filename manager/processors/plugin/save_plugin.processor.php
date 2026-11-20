@@ -24,7 +24,7 @@ if (!is_string($plugincode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('plugin'), 'plugin', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('plugin'), 'plugin', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? '1' : '0';
 $disabled = postv('disabled') === 'on' ? '1' : '0';

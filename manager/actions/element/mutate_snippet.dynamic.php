@@ -4,7 +4,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $content = manager()->openElementForm('snippet', lang('snippet'));
-$id = request_intvar('id');
+$id = (int) ($content['id'] ?? 0);
 sessionv('*itemname', $content ? $content['name'] : 'New snippet');
 
 // restore saved form
@@ -24,7 +24,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=98");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=98");
         }
     }
 

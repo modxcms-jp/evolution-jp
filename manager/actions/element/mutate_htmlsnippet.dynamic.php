@@ -9,7 +9,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 $content = manager()->openElementForm('chunk', lang('chunk'));
-$id = request_intvar('id');
+$id = (int) ($content['id'] ?? 0);
 sessionv('*itemname', $content ? $content['name'] : 'New Chunk');
 
 // restore saved form
@@ -71,7 +71,7 @@ if (isset($content['which_editor'])) {
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=97");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=97");
         }
     }
 
@@ -105,7 +105,7 @@ if (isset($content['which_editor'])) {
 
     ?>
     <input type="hidden" name="a" value="79" />
-    <input type="hidden" name="id" value="<?= request_intvar('id') ?>" />
+    <input type="hidden" name="id" value="<?= $id ?>" />
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('chunk')) ?>" />
     <input type="hidden" name="changeMode" value="" />
 
