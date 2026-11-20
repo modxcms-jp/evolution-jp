@@ -202,7 +202,7 @@ if (!$evoShellChromeless) {
     $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/tree.php');
     unset($evoShellIncludePartial);
     // ツリーの欄の幅のつまみ。閉じているときは左端の帯になり、押すと開く（shell.js の initTreeResizer()）
-    echo '<div id="evoTreeResizer" data-show-label="' . hsc(lang('show_tree')) . '"></div>' . "\n";
+    echo '<div id="evoTreeResizer" data-show-label="' . hsc(lang('show_tree')) . '" data-narrow-restore-label="' . hsc(lang('tree_narrow_restore_hint')) . '"></div>' . "\n";
 
     $tmp = ['action' => manager()->action];
     evo()->invokeEvent('OnManagerFrameLoader', $tmp);

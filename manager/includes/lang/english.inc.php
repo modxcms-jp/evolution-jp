@@ -1246,6 +1246,7 @@ return [
     "setting_manager_tree_narrow_off" => 'Off',
     "setting_manager_tree_narrow_half" => 'Half width',
     "setting_manager_tree_narrow_third" => 'One-third width',
+    "tree_narrow_restore_hint" => 'Double-click to turn automatic tree narrowing back on',
 
 
     "resources_list" => 'Resources List',

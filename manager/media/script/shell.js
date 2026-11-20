@@ -798,12 +798,15 @@
     // 開いているとき: ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。下限よりさらに左へ動かして
     // 離すか、そこでしばらく待つと、ツリーを閉じる。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
     // 閉じているとき: 左端の帯になり、押す（Enter・Space）と前の幅で開き、右へドラッグするとその幅で開く。
-    // ツリーを細くしているとき: 細い状態でのドラッグとダブルクリックは、元の幅ではなく細い幅を変える・戻す
+    // ツリーを細くしているとき: 細い状態でのドラッグとダブルクリックは、元の幅ではなく細い幅を変える・戻す。
+    // 細い状態で元の幅まで広げると自動の拡縮を止め、止めているあいだのダブルクリックで戻す
     const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
     const TREE_WIDTH_MIN = 160;
     // ツリーを細くしているとき（shell.css の tree-narrow）の細い幅。初めは「元の幅 ÷ 設定」で、細い状態で境目を動かすと別に覚える
     const TREE_NARROW_WIDTH_KEY = 'evo.shell.treeNarrowWidth';
     const TREE_NARROW_WIDTH_MIN = 40;
+    // 細い状態で元の幅まで広げたら、このブラウザーでは自動の拡縮を止める（境目のダブルクリックで戻す）
+    const TREE_NARROW_OFF_KEY = 'evo.shell.treeNarrowOff';
 
     function setTreeWidth(px) {
         document.documentElement.style.setProperty('--shell-tree-width', px + 'px');
@@ -833,9 +836,27 @@
         document.documentElement.style.setProperty('--shell-tree-narrow-width', px + 'px');
     }
 
+    // 設定で細くしていて、このブラウザーで自動の拡縮を止めているか
+    function isTreeNarrowOff() {
+        return document.body.classList.contains('tree-narrow') && document.body.classList.contains('tree-narrow-off');
+    }
+
+    // 自動の拡縮を止める・戻す。どちらも細い幅を忘れ、戻したときは既定の細い幅（元の幅 ÷ 設定）で出す
+    function setTreeNarrowOff(off) {
+        document.body.classList.toggle('tree-narrow-off', off);
+        document.documentElement.style.removeProperty('--shell-tree-narrow-width');
+        forgetStoredWidth(TREE_NARROW_WIDTH_KEY);
+        if (off) {
+            saveStoredWidth(TREE_NARROW_OFF_KEY, 1);
+        } else {
+            forgetStoredWidth(TREE_NARROW_OFF_KEY);
+        }
+    }
+
     // 今の画面でツリーを細くしているか（shell.css の細くする規則と同じ条件）
     function isTreeNarrowed() {
         return document.body.classList.contains('tree-narrow')
+            && !isTreeNarrowOff()
             && !isTreeHidden()
             && !document.querySelector('#mainPane [data-shell-tree="full"]')
             && window.matchMedia('(hover: hover)').matches;
@@ -906,6 +927,10 @@
                 // 閉じる前の幅に戻しておき、開き直したときにその幅で出す
                 setWidth(Math.round(startWidth));
                 window.mainMenu.hideTreeFrame(true);
+                return;
+            }
+            if (narrow && width >= max) {
+                setTreeNarrowOff(true);
                 return;
             }
             if (width) {
@@ -980,7 +1005,12 @@
             handle.setAttribute('aria-orientation', 'vertical');
             handle.removeAttribute('tabindex');
             handle.removeAttribute('aria-label');
-            handle.removeAttribute('title');
+            // 自動の拡縮を止めているときは、戻し方を出す
+            if (isTreeNarrowOff()) {
+                handle.title = handle.dataset.narrowRestoreLabel || '';
+            } else {
+                handle.removeAttribute('title');
+            }
         }
     }
 
@@ -998,6 +1028,7 @@
             if (savedNarrow >= TREE_NARROW_WIDTH_MIN) {
                 setTreeNarrowWidth(savedNarrow);
             }
+            document.body.classList.toggle('tree-narrow-off', localStorage.getItem(TREE_NARROW_OFF_KEY) === '1');
         } catch (e) {
             // 保存領域が使えないときは、既定の幅のまま
         }
@@ -1039,6 +1070,10 @@
         // ダブルクリックで既定の幅に戻す。細くしているときは細い幅を、広げて見せているときは元の幅を戻す
         handle.addEventListener('dblclick', function () {
             if (isTreeHidden()) {
+                return;
+            }
+            if (isTreeNarrowOff()) {
+                setTreeNarrowOff(false);
                 return;
             }
             const narrow = isTreeNarrowed() && !isTreeExpanded();
