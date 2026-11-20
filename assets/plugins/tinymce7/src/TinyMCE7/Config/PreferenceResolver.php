@@ -404,8 +404,9 @@ final class PreferenceResolver
         $keys = ['tinymce7_toolbar_preset', 'tinymce_toolbar_preset'];
 
         $names = $this->toolbarPresetNames();
-        // 旧プラグインの構成名の読み替え
+        // 旧プラグインの構成名（classic・advanced）と、なくした構成（basic）の読み替え
         $aliases = array_combine($names, $names) + [
+            'basic' => 'formats',
             'classic' => 'legacy',
             'advanced' => 'full',
         ];

@@ -8,6 +8,7 @@ class ContextMenu
     private $id;
     private $width;
     private $visible;
+    private static $scriptLoaded = false;
 
     public function __construct($id = '', $width = 120, $visible = false)
     {
@@ -35,7 +36,7 @@ class ContextMenu
         } else {
             $action = "EvoShell.go('{$action}')";
         }
-        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; hideCntxMenu('{$this->id}');\"";
+        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; EvoContextMenu.hide('{$this->id}');\"";
         if ($disabled) {
             $action = "";
         }
@@ -56,29 +57,18 @@ class ContextMenu
 
     public function render()
     {
-        global $modx;
-        global $ContextMenuScript;
-
-        $html = $ContextMenuScript .
+        // 部品の JS は 1 ページで 1 回だけ読む
+        $script = '';
+        if (!self::$scriptLoaded) {
+            self::$scriptLoaded = true;
+            $script = '<script src="' . hsc(manager_asset('media/script/context-menu.js')) . '"></script>';
+        }
+        return $script .
             "<div id='{$this->id}' class='contextMenu' style='min-width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
-        $ContextMenuScript = ""; // reset css
-        return $html;
     }
 
     public function getClientScriptObject()
     {
-        return "getCntxMenu('{$this->id}')";
+        return "EvoContextMenu.get('{$this->id}')";
     }
 }
-
-$ContextMenuScript = <<<BLOCK
-<script>
-    function getCntxMenu(id) {
-        return document.getElementById(id);
-    }
-    function hideCntxMenu(id){
-        var cm = getCntxMenu(id);
-        cm.style.visibility = 'hidden';
-    }
-</script>
-BLOCK;

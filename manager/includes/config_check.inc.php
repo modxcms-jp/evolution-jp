@@ -45,44 +45,6 @@ class ConfigCheck {
         return $this->warnings;
     }
 
-    /**
-     * 警告の「無効にする」「削除」の操作。確認の文言は対象ごとに PHP で組み立てて渡す
-     *
-     * @param array $confirms プラグインの id => ['disable' => 文言, 'delete' => 文言]
-     */
-    private function get_src_TemplateSwitcher_js(array $confirms) {
-        $entries = [];
-        foreach ($confirms as $id => $messages) {
-            $pairs = [];
-            foreach ($messages as $op => $message) {
-                $pairs[] = js_literal($op) . ':' . js_literal($message);
-            }
-            $entries[] = (int) $id . ':{' . implode(',', $pairs) . '}';
-        }
-        return "<script>
-var templateSwitcherConfirms = {" . implode(',', $entries) . "};
-function templateSwitcherAction(id, op){
-    var message = (templateSwitcherConfirms[id] || {})[op];
-    if (!message || !window.confirm(message)) return;
-    var action = op === 'delete' ? 'deleteplugin' : 'disableplugin';
-    Evo.post('index.php', {'a':'118','action':action,'id':String(id)}).then(function(response){
-        // 処理できたときだけ本文が true になる（mutate_settings.ajax.php）
-        return response.ok ? response.text() : '';
-    }).then(function(body){
-        if (body.trim() !== 'true') return;
-        var line = document.getElementById('templateswitcher_plugin_' + id);
-        var wrapper = line ? line.closest('#templateswitcher_present_warning_wrapper') : null;
-        if (line) line.remove();
-        // 対象が残っていなければ、警告の入った fieldset を隠す
-        if (wrapper && !wrapper.querySelector('.templateswitcher-plugin')) {
-            var fieldset = wrapper.closest('fieldset');
-            if (fieldset) fieldset.style.display = 'none';
-        }
-    }).catch(function(){});
-}
-</script>";
-    }
-
     private function pageSettingWarnings() {
         $warnings = [];
         foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
@@ -177,25 +139,24 @@ function templateSwitcherAction(id, op){
         $canDisable = evo()->hasPermission('save_plugin');
         $canDelete = evo()->hasPermission('delete_plugin');
         $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
-        $confirms = [];
         foreach ($plugins as $plugin) {
             $id = (int) $plugin['id'];
             $links = [];
             if ($canDisable) {
                 $links[] = sprintf(
-                    '<a href="javascript:templateSwitcherAction(%d,\'disable\');">%s</a>',
+                    '<a href="#" data-config-check-plugin="disable" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id)),
                     $this->_lang['configcheck_templateswitcher_disable_label']
                 );
-                $confirms[$id]['disable'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id);
             }
             if ($canDelete) {
                 $links[] = sprintf(
-                    '<a href="javascript:templateSwitcherAction(%d,\'delete\');">%s</a>',
+                    '<a href="#" data-config-check-plugin="delete" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id)),
                     $this->_lang['configcheck_templateswitcher_delete_label']
                 );
-                $confirms[$id]['delete'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id);
             }
             $msg .= sprintf(
                 '<span class="templateswitcher-plugin" id="templateswitcher_plugin_%d" style="display:block">%s (ID: %d)%s</span>',
@@ -204,9 +165,6 @@ function templateSwitcherAction(id, op){
                 $id,
                 $links ? ' - ' . implode(' | ', $links) : ''
             );
-        }
-        if ($confirms) {
-            evo()->regClientScript($this->get_src_TemplateSwitcher_js($confirms));
         }
         if (evo()->hasPermission('settings')) {
             $msg .= sprintf($this->_lang['configcheck_hide_warning'], 'templateswitcher_present');

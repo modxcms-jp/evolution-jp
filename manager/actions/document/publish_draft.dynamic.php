@@ -36,6 +36,7 @@ $ph['checked_reserve'] = $reserve ? ' checked' : '';
 $ph['pubdate_display'] = $reserve ? 'block' : 'none';
 $ph['fieldDraftPub_date'] = fieldDraftPub_date($docid, $restored);
 $ph['id'] = $docid;
+$ph['script_src'] = hsc(manager_asset('media/script/publish-draft.js'));
 $ph['token'] = $modx->genTokenString();
 $_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理はコアで統一して管理する
 
@@ -73,19 +74,7 @@ function getTplDraft()
 <style>
 	.draft-publish-options label {display:block;}
 </style>
-<script>
-	Evo.ready(function(){
-		// 「今すぐ」以外を選んだときだけ日時の欄を出す
-		document.querySelectorAll("input[name='publishoption']").forEach(function(radio){
-			radio.addEventListener('click', function(){
-				var checked = document.querySelector("input[name='publishoption']:checked");
-				var pubdate = document.getElementById('pubdate');
-				if (!pubdate) return;
-				pubdate.style.display = (checked && checked.value=='now') ? 'none' : 'block';
-			});
-		});
-	});
-</script>
+<script src="[+script_src+]"></script>
 <form name="mutate" id="mutate" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
 	<input type="hidden" name="a" value="129" />
 	<input type="hidden" name="id" value="[+id+]" />
