@@ -228,7 +228,7 @@ body.evo-shell.tree-animating > #evoTreeResizer {
        広げているあいだは今までの 8px に戻し、ツリーの右端（縦のスクロールバー・「ツリーを隠す」ボタン）を覆わない */
     body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow))) > #evoTreeResizer {
         --shell-tree-resizer-reach: 24px;
-        left: calc(var(--shell-tree-column) - 4px - var(--shell-tree-resizer-reach));
+        margin-left: calc(-1 * var(--shell-tree-resizer-reach));
         box-sizing: content-box;
         padding-left: var(--shell-tree-resizer-reach);
         background-clip: content-box;

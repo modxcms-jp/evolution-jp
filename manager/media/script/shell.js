@@ -804,23 +804,27 @@
     const TREE_WIDTH_MIN = 160;
     // ツリーを細くしているとき（shell.css の tree-narrow）の細い幅。初めは「元の幅 ÷ 設定」で、細い状態で境目を動かすと別に覚える
     const TREE_NARROW_WIDTH_KEY = 'evo.shell.treeNarrowWidth';
-    const TREE_NARROW_WIDTH_MIN = 40;
-    // 細い状態で元の幅まで広げたら、このブラウザーでは自動の拡縮を止める（境目のダブルクリックで戻す）
+    const TREE_NARROW_WIDTH_MIN = 64;
+    // 細い状態で元の幅まで広げたら、このブラウザーでは自動の拡縮を止める（境目のダブルクリックで戻す）。
+    // 値は止めたときの設定の数（--shell-tree-narrow）で、設定が変わったら止めた状態を解く
     const TREE_NARROW_OFF_KEY = 'evo.shell.treeNarrowOff';
+    // 直前の描画でのツリーの幅（#mainPane の ResizeObserver が測る）。境目へ移った時点では、
+    // ホバーが外れて縮み始めている（動きを減らす設定では縮み終わっている）ので、広げていたかはこの値で見る
+    let lastTreeWidth = 0;
 
     function setTreeWidth(px) {
         document.documentElement.style.setProperty('--shell-tree-width', px + 'px');
     }
 
-    function saveStoredWidth(key, px) {
+    function saveStored(key, value) {
         try {
-            localStorage.setItem(key, String(px));
+            localStorage.setItem(key, String(value));
         } catch (e) {
             // 覚えられなくても、今の画面の幅は変わっている
         }
     }
 
-    function forgetStoredWidth(key) {
+    function forgetStored(key) {
         try {
             localStorage.removeItem(key);
         } catch (e) {
@@ -836,6 +840,16 @@
         document.documentElement.style.setProperty('--shell-tree-narrow-width', px + 'px');
     }
 
+    function forgetTreeNarrowWidth() {
+        document.documentElement.style.removeProperty('--shell-tree-narrow-width');
+        forgetStored(TREE_NARROW_WIDTH_KEY);
+    }
+
+    // 設定で元の幅を割る数（header.inc.php の --shell-tree-narrow。細くしない設定では 0）
+    function treeNarrowDivisor() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-tree-narrow')) || 0;
+    }
+
     // 設定で細くしていて、このブラウザーで自動の拡縮を止めているか
     function isTreeNarrowOff() {
         return document.body.classList.contains('tree-narrow') && document.body.classList.contains('tree-narrow-off');
@@ -844,12 +858,11 @@
     // 自動の拡縮を止める・戻す。どちらも細い幅を忘れ、戻したときは既定の細い幅（元の幅 ÷ 設定）で出す
     function setTreeNarrowOff(off) {
         document.body.classList.toggle('tree-narrow-off', off);
-        document.documentElement.style.removeProperty('--shell-tree-narrow-width');
-        forgetStoredWidth(TREE_NARROW_WIDTH_KEY);
+        forgetTreeNarrowWidth();
         if (off) {
-            saveStoredWidth(TREE_NARROW_OFF_KEY, 1);
+            saveStored(TREE_NARROW_OFF_KEY, treeNarrowDivisor());
         } else {
-            forgetStoredWidth(TREE_NARROW_OFF_KEY);
+            forgetStored(TREE_NARROW_OFF_KEY);
         }
     }
 
@@ -870,16 +883,15 @@
 
     // 細いときの幅（覚えた細い幅、無ければ元の幅 ÷ 設定。元の幅より広くしない）
     function narrowTreeWidth() {
-        const root = getComputedStyle(document.documentElement);
-        const saved = parseFloat(root.getPropertyValue('--shell-tree-narrow-width'));
-        const divisor = parseFloat(root.getPropertyValue('--shell-tree-narrow')) || 1;
-        return Math.min(saved || fullTreeWidth() / divisor, fullTreeWidth());
+        const saved = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-tree-narrow-width'));
+        return Math.min(saved || fullTreeWidth() / (treeNarrowDivisor() || 1), fullTreeWidth());
     }
 
-    // ツリーを広げて見せているか（ホバーで元の幅へ戻している途中も含む）
-    function isTreeExpanded() {
+    // ツリーを広げて見せているか（ホバーで元の幅へ戻している途中も含む）。width を省くと今の幅で見る
+    function isTreeExpanded(width) {
         const pane = document.getElementById('treePane');
-        return !!pane && pane.getBoundingClientRect().width > narrowTreeWidth() + 2;
+        const current = width === undefined ? (pane ? pane.getBoundingClientRect().width : 0) : width;
+        return current > narrowTreeWidth() + 2;
     }
 
     // ツリーの上のボタンの並び（#treeMenu）が切れない幅。テーマでボタンの大きさが違うので、ドラッグを始めるときに測る
@@ -914,6 +926,10 @@
         const setWidth = narrow ? setTreeNarrowWidth : setTreeWidth;
         const pane = document.getElementById('treePane');
         const startWidth = pane.getBoundingClientRect().width;
+        // 押した位置と境目のずれ。つまみの当たりは境目より広いので、ポインターの位置そのものを幅にすると、押しただけで幅が飛ぶ
+        const grab = e.clientX - startWidth;
+        const narrowBefore = document.documentElement.style.getPropertyValue('--shell-tree-narrow-width');
+        let started = false;
         // ドラッグを終える。離したとき（lostpointercapture）と、薄くなったまま待ったとき（animationend）の両方から呼ぶ
         const finish = function () {
             if (finished) {
@@ -924,8 +940,14 @@
             pane.removeEventListener('animationend', collapseAfterWait);
             document.body.classList.remove('is-resizing-tree', 'is-resizing-narrow', 'is-collapsing-tree');
             if (collapsing && window.mainMenu) {
-                // 閉じる前の幅に戻しておき、開き直したときにその幅で出す
-                setWidth(Math.round(startWidth));
+                // 閉じる前の幅に戻しておき、開き直したときにその幅で出す。細い幅は、覚えていなければ「元の幅 ÷ 設定」のままにする
+                if (!narrow) {
+                    setTreeWidth(Math.round(startWidth));
+                } else if (narrowBefore) {
+                    document.documentElement.style.setProperty('--shell-tree-narrow-width', narrowBefore);
+                } else {
+                    document.documentElement.style.removeProperty('--shell-tree-narrow-width');
+                }
                 window.mainMenu.hideTreeFrame(true);
                 return;
             }
@@ -933,15 +955,27 @@
                 setTreeNarrowOff(true);
                 return;
             }
-            if (width) {
-                saveStoredWidth(narrow ? TREE_NARROW_WIDTH_KEY : TREE_WIDTH_KEY, width);
+            if (!width) {
+                return;
+            }
+            saveStored(narrow ? TREE_NARROW_WIDTH_KEY : TREE_WIDTH_KEY, width);
+            // 元の幅を、覚えた細い幅以下まで縮めたら、細い幅を忘れる（細くならないまま、ぼけて出るのを避ける）
+            if (!narrow && narrowBefore && parseFloat(narrowBefore) >= width) {
+                forgetTreeNarrowWidth();
             }
         };
         const move = function (ev) {
+            // 4px 動くまでは始めない（押しただけ・ダブルクリックの手ぶれで幅を変えない）
+            if (!started) {
+                if (Math.abs(ev.clientX - e.clientX) < 4) {
+                    return;
+                }
+                started = true;
+            }
             // 下限の半分より左まで動かしたら、離したときにツリーを閉じる
             collapsing = ev.clientX < min / 2;
             document.body.classList.toggle('is-collapsing-tree', collapsing);
-            width = clampTreeWidth(ev.clientX, min);
+            width = clampTreeWidth(ev.clientX - grab, min);
             if (max) {
                 width = Math.min(width, max);
             }
@@ -988,7 +1022,7 @@
                 window.mainMenu.defaultTreeFrame(true);
                 return;
             }
-            saveStoredWidth(TREE_WIDTH_KEY, width);
+            saveStored(TREE_WIDTH_KEY, width);
         }, { once: true });
     }
 
@@ -1028,15 +1062,23 @@
             if (savedNarrow >= TREE_NARROW_WIDTH_MIN) {
                 setTreeNarrowWidth(savedNarrow);
             }
-            document.body.classList.toggle('tree-narrow-off', localStorage.getItem(TREE_NARROW_OFF_KEY) === '1');
+            const off = localStorage.getItem(TREE_NARROW_OFF_KEY);
+            if (off !== null && off !== String(treeNarrowDivisor())) {
+                forgetStored(TREE_NARROW_OFF_KEY);
+            }
+            document.body.classList.toggle('tree-narrow-off', off !== null && off === String(treeNarrowDivisor()));
         } catch (e) {
             // 保存領域が使えないときは、既定の幅のまま
         }
 
         // 細くしているとき、境目に乗っただけではツリーを広げない（shell.css）。ただし広げて見せている途中で境目へ移ったときは、
         // 縮めると境目が逃げてつかめないので、離れるまで広げたままにする
+        new ResizeObserver(function () {
+            const pane = document.getElementById('treePane');
+            lastTreeWidth = pane ? pane.getBoundingClientRect().width : 0;
+        }).observe(document.getElementById('mainPane'));
         handle.addEventListener('pointerenter', function () {
-            document.body.classList.toggle('tree-resizer-hold', isTreeNarrowed() && isTreeExpanded());
+            document.body.classList.toggle('tree-resizer-hold', isTreeNarrowed() && isTreeExpanded(lastTreeWidth));
         });
         handle.addEventListener('pointerleave', function () {
             document.body.classList.remove('tree-resizer-hold');
@@ -1076,9 +1118,12 @@
                 setTreeNarrowOff(false);
                 return;
             }
-            const narrow = isTreeNarrowed() && !isTreeExpanded();
-            document.documentElement.style.removeProperty(narrow ? '--shell-tree-narrow-width' : '--shell-tree-width');
-            forgetStoredWidth(narrow ? TREE_NARROW_WIDTH_KEY : TREE_WIDTH_KEY);
+            if (isTreeNarrowed() && !isTreeExpanded()) {
+                forgetTreeNarrowWidth();
+                return;
+            }
+            document.documentElement.style.removeProperty('--shell-tree-width');
+            forgetStored(TREE_WIDTH_KEY);
         });
     }
 
