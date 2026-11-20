@@ -19,8 +19,6 @@ $e->output('
     </script>
     <script charset="' . config('modx_charset') . '">
     var mm_lastTab = "tabGeneral";
-    var mm_sync_field_count = 0;
-    var synch_field = new Array();
 
 var mm_run = function(){
         // Lets handle errors nicely...
