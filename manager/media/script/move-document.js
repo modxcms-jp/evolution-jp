@@ -44,15 +44,15 @@ if (!window.EvoMoveDocument) {
             return true;
         }
 
-        // ツリーのクリックから呼ばれる（tree.php の treeAction）
-        window.setMoveValue = function (pId, pName) {
+        // ツリーのクリックから呼ばれる（tree.php の treeAction が main.setMoveValue を呼ぶ）
+        function setMoveValue(pId, pName) {
             if (!form()) {
                 return;
             }
             if (pId === 0 || checkParentChildRelation(pId)) {
                 showParent(pId, pName);
             }
-        };
+        }
 
         // ツリーで省略されたリソースも移動先にできるよう、タイトルか ID で検索して選ぶ。
         // 移動するリソース自身と子孫はダイアログ側で選べないようにしている
@@ -66,8 +66,10 @@ if (!window.EvoMoveDocument) {
             );
         }
 
-        // 画面を開くたびに呼ぶ。ツリーを移動先の選択に切り替える
+        // 画面を開くたびに呼ぶ。ツリーを移動先の選択に切り替える。
+        // DocManager も同名の setMoveValue を window に置くので、戻ってきたときに設定し直す
         window.EvoMoveDocument.init = function () {
+            window.setMoveValue = setMoveValue;
             top.mainMenu.defaultTreeFrame();
             parent.tree.ca = 'move';
         };
