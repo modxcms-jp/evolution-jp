@@ -1,10 +1,5 @@
 // mm_requireFields の画面側の処理。PHP から mmRequire.run() で、必須にする欄の設定を渡される
 var mmRequire = {
-    escapeHtml: function (text) {
-        var div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-    },
     // 欄の行の見出し
     titles: function (els) {
         var found = [];
@@ -59,8 +54,8 @@ var mmRequire = {
             });
             if (errors.length > 0) {
                 // EvoDialog の message は HTML なので、欄の名前はエスケープして並べる
-                var items = errors.map(function (name) { return " - " + self.escapeHtml(name); });
-                EvoDialog.alert(self.escapeHtml(settings.messages.missing) + "\n\n" + items.join("\n"), "", null, {icon: "warning"});
+                var items = errors.map(function (name) { return " - " + Evo.escapeHtml(name); });
+                EvoDialog.alert(settings.messages.missing + "\n\n" + items.join("\n"), "", null, {icon: "warning"});
                 e.preventDefault();
                 e.stopPropagation();
             }

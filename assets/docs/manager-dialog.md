@@ -19,7 +19,7 @@
 | `EvoDialog.prompt(message, value, title, callback)` | 1 行を入力させる | OK で入力値、キャンセル・Esc で null |
 | `EvoDialog.form(message, fields, title, callback, options)` | 欄を複数並べて入力させる | OK で `{name: 値}`、キャンセル・Esc で null |
 
-- `message` は HTML として出し、改行は `<br />` にする。利用者のデータ（ページタイトルなど）を入れるときは、呼び出し側でエスケープする。`title` は文字列として出す（空文字なら見出しを出さない）。
+- `message` は HTML として出し、改行は `<br />` にする。利用者のデータ（ページタイトルなど）を入れるときは、呼び出し側で `Evo.escapeHtml()`（`manager/media/script/evo.js`）でエスケープする。言語ファイルの文言はエスケープしない。`title` は文字列として出す（空文字なら見出しを出さない）。
 - `options`（`alert`・`form`）: `{icon: 'warning'}` でメッセージの左に警告アイコンを出す。`okLabel` で、そのダイアログだけ OK ボタンの文言を変える。
 - `form` の `fields` は `[{name, label, type, value}]`。`type` は `text`（既定）・`password` など。Enter はどの欄でも OK（IME の確定の Enter は除く）。入力値はブラウザに保存させないよう `autocomplete` を付ける（パスワード欄は `new-password`。ブラウザによっては保存の提案を完全には止められない）。
 - ボタンの文言は `manager/actions/header.inc.php` が言語に合わせる（`EvoDialog.okLabel`・`EvoDialog.cancelLabel`）。

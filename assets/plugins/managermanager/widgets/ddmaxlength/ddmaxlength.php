@@ -49,7 +49,7 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
         $fieldIds[] = 'tv' . $tv['id'];
     }
     $output .= 'mmDdMaxLength.attach(' . js_value($fieldIds) . ', ' . (int)$length . ');' . "\n";
-    $output .= 'mmDdMaxLength.guardSubmit();' . "\n";
+    $output .= 'mmDdMaxLength.guardSubmit(' . js_literal(lang('max_length_exceeded')) . ');' . "\n";
 
     $output .= "\n// ---------------- mm_ddMaxLength :: End -------------";
 

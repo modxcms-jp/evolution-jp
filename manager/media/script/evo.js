@@ -88,6 +88,12 @@
     }
 
     window.Evo = {
+        // HTML として出す文脈（EvoDialog の message など）へ、利用者や外から来る値を入れるときに使う
+        escapeHtml: function (text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        },
         ready: function (fn) {
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function () {

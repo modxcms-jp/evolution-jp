@@ -98,9 +98,7 @@ mm_gmap.geoSearch = function (mapContainerId) {
       mm_gmap.addMarker(loc, tvId);
     } else {
       // status は Google の応答コード（ZERO_RESULTS など）。EvoDialog の message は HTML なのでエスケープする
-      const code = document.createElement('div');
-      code.textContent = status;
-      EvoDialog.alert(mm_gmap.notFoundMessage + ' (' + code.innerHTML + ')', '', null, {icon: 'warning'});
+      EvoDialog.alert(mm_gmap.notFoundMessage + ' (' + Evo.escapeHtml(status) + ')', '', null, {icon: 'warning'});
     }
   });
 };
