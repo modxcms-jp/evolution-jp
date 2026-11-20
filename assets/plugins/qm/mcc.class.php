@@ -19,16 +19,19 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function __construct()
         {
+            // タブの id（見出しの id は、これに Header を付けたもの）
             $this->tabs = [
-                'general' => ['index' => 1, 'id' => 'tabGeneral'],
-                'settings' => ['index' => 2, 'id' => 'tabSettings'],
-                'access' => ['index' => 3, 'id' => 'tabAccess']
+                'general' => 'tabGeneral',
+                'settings' => 'tabSettings',
+                'tv' => 'tabTVs',
+                'access' => 'tabAccess'
             ];
 
+            // 隠す要素。tvs は、TV を本文の下に出すときの見出しと本体と、TV のタブに出すときのタブ
             $this->sections = [
-                'docsettings' => ['index' => 0, 'name' => 'DocSettings'],
-                'content' => ['index' => 1, 'name' => 'Content'],
-                'tvs' => ['index' => 2, 'name' => 'TVs']
+                'docsettings' => '#tabGeneral > table, #tabGeneral > [data-field-group]',
+                'content' => '#content_header, #content_body',
+                'tvs' => '#tv_header, #tv_body, #tabTVsHeader, #tabTVs'
             ];
         }
 
@@ -47,6 +50,8 @@ if (!class_exists('Mcc')) {
             $out .= '<script type="text/javascript">Evo.ready(function () {' . "\n"
                 . 'var qmHide = function (els) { Array.prototype.forEach.call(els, function (el) { if (el) { el.style.display = "none"; } }); };' . "\n"
                 . $this->script
+                // 欄をすべて隠したまとまり（アコーディオンなど）は、見出しだけを残さない
+                . 'Evo.hideEmptyFieldGroups();' . "\n"
                 . '});</script>';
 
             return $out;
@@ -58,18 +63,7 @@ if (!class_exists('Mcc')) {
         {
             $section = trim($section);
             if (!isset($this->sections[$section])) return;
-            $sectionBodyIndex = $this->sections[$section]['index'];
-            $sectionHeaderIndex = $sectionBodyIndex - 1;
-
-            // Handle docsettings
-            if ($sectionHeaderIndex == -1) {
-                $this->addLine('qmHide([document.querySelector("#tabGeneral table")]);');
-                return;
-            }
-
-            // 文書の中で n 番目（0 始まり）の 1 つだけ（以前の :eq(n) と同じ）
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionHeader")[' . $sectionHeaderIndex . ']]);');
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionBody")[' . $sectionBodyIndex . ']]);');
+            $this->addLine('qmHide(document.querySelectorAll(' . js_literal($this->sections[$section]) . '));');
         }
 
         // Tab
@@ -78,10 +72,10 @@ if (!class_exists('Mcc')) {
         {
             $tab = trim($tab);
             if (!isset($this->tabs[$tab])) return;
-            $tabIndex = $this->tabs[$tab]['index'];
-            $tabId = $this->tabs[$tab]['id'];
-            $this->addLine('qmHide(document.querySelectorAll("div#documentPane h2:nth-child(' . $tabIndex . ')"));');
-            $this->addLine('qmHide([document.getElementById("' . $tabId . '")]);');
+            // TV は置き場所の設定（tvs_below_content）に関係なく効くよう、セクションの指定と同じに隠す
+            if ($tab === 'tv') return $this->hideSection('tvs');
+            $tabId = $this->tabs[$tab];
+            $this->addLine('qmHide([document.getElementById(' . js_literal($tabId . 'Header') . '), document.getElementById(' . js_literal($tabId) . ')]);');
         }
 
         // Field
