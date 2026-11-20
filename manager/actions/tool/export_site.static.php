@@ -186,7 +186,7 @@ foreach ($exportJsKeys as $key) {
                             type="text"
                             name="allow_ids"
                             value="<?= hsc(sessionv('export_allow_ids', '')) ?>"
-                            style="width:300px;background-color:var(--color-success-bg, #f2fff2);"
+                            style="width:300px;background-color:var(--color-success-bg, #edffee);"
                         /><br/>
                         <?= lang('export_site_target_allow_hint') ?>
                     </div>

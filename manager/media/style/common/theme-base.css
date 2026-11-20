@@ -222,14 +222,10 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
-/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字） */
+/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字）。右に値のセルとの間を取る */
 .field-label {
     text-align: start;
-}
-
-/* 見出しのセルと値のセルの間 */
-.field-row > th {
-    padding-inline-end: var(--space-3);
+    padding-inline-end: var(--space-3, 12px);
 }
 
 /* 設定の表（.settings）の見出しの列 */
@@ -332,7 +328,7 @@ input#dateto:focus.DatePicker {
     cursor: not-allowed;
 }
 
-/* JS が後で見せる、隠した欄 */
+/* 送信用の隠し input（JS が click() で送る）と、JS が class を外して見せる欄 */
 form input.hidden {
     display: none !important;
     position: absolute;
