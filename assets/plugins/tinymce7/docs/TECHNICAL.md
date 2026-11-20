@@ -107,6 +107,49 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 フロントエンド用設定でも `image_cropper` を定義すれば同様の機能を利用できます。不要な場合は `enabled` を `false` に設定するか、オブジェクトごと削除してください。
 
+## 画像のキャプション (`image_caption`)
+`config/manager.json`・`config/frontend.json` で `image_caption: true` を指定しており、どのツールバー構成でも画像のダイアログに「キャプションの表示」が出ます（構成の定義 `toolbar-presets.json` は同じキーを持たないので、設定ファイルの値がそのまま効きます）。オンにすると、画像が次の形で保存されます。
+
+```html
+<figure class="image">
+  <img src="assets/images/sample.jpg" alt="...">
+  <figcaption>キャプション</figcaption>
+</figure>
+```
+
+- 公開側の CSS では、`figure.image` を画像とキャプションを包む箱として扱います。書き方の例です。
+
+  ```css
+  figure.image {
+      display: table;      /* 画像の幅に箱を合わせる */
+      margin: 1em auto;
+  }
+  figure.image img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+  }
+  figure.image > figcaption {
+      display: table-caption;
+      caption-side: bottom;
+      font-size: 0.875em;
+      text-align: center;
+  }
+  ```
+
+  編集欄に同じ見た目を出すには、「CSSファイルへのパス」の CSS に同じ規則を書きます。
+- キャプションをオンにすると、仮の文字「Caption」（英語）が `<figcaption>` に入ります。本文で書き換えてください。書き換えずに保存すると、公開側にもそのまま `Caption` と出ます。
+- キャプションを外すと `figure` ごと `<img>` だけに戻ります。
+- 画像にリンクを付けたときは `figure.image > a > img` の形です。リンクのダイアログの「クラス」「Rel」の補正（「リンクのダイアログの「クラス」と「Rel」」）は、ダイアログが編集するリンクではなく本文のすべてのリンクを見るので、この形でも働きます。
+- 画像のダブルクリックで開く画像編集（`image_cropper`）は、`figure` の中の画像でも開きます。
+
+## リンクの操作の帯 (`link_context_toolbar`)
+`manager.json`・`frontend.json` で `link_context_toolbar: true` を指定しており（TinyMCE 7 の既定はオフ）、リンクの中にカーソルを置くと、リンクの上に小さなツールバー（link プラグインのコンテキストフォーム）が出ます。URL の入力欄と、「Link」（入力欄の URL を反映）・「Remove link」（リンクの削除）・「Open link」（リンクを開く）のボタンが並びます。
+
+- URL を直して Enter か「Link」で反映できます。ダイアログは開きません。クラス・Rel・開き方を変えるときは、ツールバーのリンクのボタンか Ctrl+K でダイアログを開きます（`link_quicklink` は既定の `false` のままなので、ツールバーのボタンと Ctrl+K はダイアログを開きます）。
+- リンクの文字を範囲選択したときも、quickbars の選択時ツールバーとは同時に出ず、リンクの操作の帯だけが出ます。
+- 帯で URL だけ直したときの class・target・rel の残り方は、ダイアログで URL だけ直したときと同じです（確かめた結果は下）。`link_rel_list`（システム設定「リンクの rel」）が空のときは、帯でもダイアログでも rel が外れます（`rel="lightbox"` は消え、`target="_blank"` の `noopener` も消える）。一覧があれば rel は残ります（`noopener` は `target="_blank"` のときに TinyMCE が付けます）。class は、どちらも残ります。
+
 ## システム設定キー
 プラグインが参照する主なシステム設定キーです。旧 TinyMCE プラグインのキーも互換処理しています。
 
