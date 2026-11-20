@@ -222,6 +222,11 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
+/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字） */
+.field-label {
+    text-align: start;
+}
+
 /* 設定の表（.settings）の見出しの列 */
 .settings th {
     width: 200px !important;
@@ -418,9 +423,8 @@ form input.hidden {
     height: 24px;
 }
 
-.mutate-field-label {
+.mutate-field-row > .field-label {
     width: 120px;
-    text-align: left;
 }
 
 .clickable-label {

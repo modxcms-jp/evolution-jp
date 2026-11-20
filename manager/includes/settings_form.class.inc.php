@@ -445,29 +445,31 @@ HTML;
 
     private function renderRow(array $row): string
     {
-        $attr = '';
+        $attr = [];
         if (isset($row['showIf']) && $this->isSystem()) {
             [$name, $expected] = $row['showIf'];
-            $attr = ' data-show-if="' . hsc("{$name}={$expected}") . '"';
+            $attr['data-show-if'] = "{$name}={$expected}";
         }
         if ($this->isConditionHidden($row)) {
-            $attr .= ' style="display:none"';
+            $attr['style'] = 'display:none';
         }
 
-        return "<tr{$attr}>\n"
-            . $this->renderHeading($row) . "\n"
-            . '<td>' . $this->renderCell($row) . "</td>\n"
-            . "</tr>\n";
+        return EvoFieldRow::render([
+            'field' => $row['key'] ?? '',
+            'label' => $this->resolve($row['label'] ?? ''),
+            'label_extra' => $this->renderLabelExtra($row),
+            'body' => $this->renderCell($row),
+            'attr' => $attr,
+        ]) . "\n";
     }
 
     /**
-     * 行の見出しのセル。lang_text は「言語から読み込む」select を見出しのセルに持つ
+     * 見出しのセルで名前の後ろに置く HTML。lang_text は「言語から読み込む」select を持つ
      */
-    private function renderHeading(array $row): string
+    private function renderLabelExtra(array $row): string
     {
-        $label = $this->resolve($row['label'] ?? '');
         if ($row['type'] !== 'lang_text') {
-            return '<th>' . $label . '</th>';
+            return '';
         }
         $reload = (string)$row['reload'];
         $options = '<option value="">' . hsc(lang('language_title')) . "</option>\n";
@@ -486,7 +488,7 @@ HTML;
             hsc($onchange),
             $options
         );
-        return '<th>' . $label . "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select . '</th>';
+        return "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select;
     }
 
     private function renderCell(array $row): string
@@ -638,7 +640,7 @@ HTML;
     }
 
     /**
-     * 言語ファイルの文面を初期値に持つ複数行の欄。読み込みの select は見出しのセルに出す（renderHeading）
+     * 言語ファイルの文面を初期値に持つ複数行の欄。読み込みの select は見出しのセルに出す（renderLabelExtra）
      */
     private function langText(array $row): string
     {

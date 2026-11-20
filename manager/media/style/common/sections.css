@@ -15,7 +15,7 @@
         border-bottom: var(--section-header-border-bottom, var(--section-header-border, 1px solid #ddd));
         border-radius: var(--section-header-radius, 8px 8px 0 0);
         background: var(--section-header-bg, var(--color-section-header-end, #e0e0e0));
-        box-shadow: var(--section-header-shadow, 0 1px 0 var(--color-surface, #fff) inset);
+        box-shadow: var(--section-header-shadow, none);
         color: var(--section-header-color, var(--color-section-header-text, #606060));
         font-weight: bold;
         text-shadow: var(--section-header-text-shadow, none);

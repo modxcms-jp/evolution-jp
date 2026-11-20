@@ -1,5 +1,6 @@
 <?php
 require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
+require_once MODX_CORE_PATH . 'field_row.class.inc.php';
 require_once MODX_CORE_PATH . 'element_types.class.inc.php';
 
 $this->manager = new ManagerAPI;
@@ -1041,103 +1042,6 @@ class ManagerAPI
     public function getStylePath()
     {
         return MODX_MANAGER_PATH . 'media/style/';
-    }
-
-    public function renderTabPane($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tabpane.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'tab' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['tab-pages'])) {
-            $ph['tab-pages'] = 'content';
-        } elseif (is_array($ph['tab-pages'])) {
-            $ph['tab-pages'] = implode("\n", $ph['tab-pages']);
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderTabPage($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tabpage.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderSection($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_section.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderTr($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tr.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
     }
 
     /**

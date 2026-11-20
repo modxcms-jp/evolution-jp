@@ -100,7 +100,7 @@
 
 `input[type=submit|button|reset]` も、`.button` と同じ部品として、この変数で描く（主ボタンの `.primary` は付けない）。テーマは `input` のボタンだけの規則を書かない。
 
-編集画面の欄の名前（`.mutate-field-title`）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
+編集画面の欄の名前（文書の行は `.mutate-field-row .field-title`。RTE の見出しなどの `.mutate-field-title` も同じ）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
 
 | 変数 | 意味 | 既定値 |
 | --- | --- | --- |
@@ -191,7 +191,7 @@
 
 | 変数 | 意味 | 既定値（sections.css） |
 | --- | --- | --- |
-| `--section-header-padding` / `--section-header-bg` / `--section-header-shadow` / `--section-header-color` / `--section-header-text-shadow` | 見出しの帯の余白・地・影・文字の色・文字の影 | `8px 16px` / `--color-section-header-end` / `0 1px 0 --color-surface inset` / `--color-section-header-text` / なし |
+| `--section-header-padding` / `--section-header-bg` / `--section-header-shadow` / `--section-header-color` / `--section-header-text-shadow` | 見出しの帯の余白・地・影・文字の色・文字の影 | `8px 16px` / `--color-section-header-end` / なし / `--color-section-header-text` / なし |
 | `--section-header-border` / `--section-header-border-bottom` / `--section-header-radius` | 見出しの帯の枠・下の枠・角 | `1px solid #ddd` / `--section-header-border` / `8px 8px 0 0` |
 | `--tab-section-header-gap` / `--tab-section-header-font-size` / `--tab-section-header-bg` | タブの中の見出しの下の間・文字の大きさ・地 | `0` / `1em` / `--section-header-bg` |
 | `--section-body-bg` / `--section-body-border` / `--section-body-border-top` / `--section-body-padding` / `--section-body-radius` / `--section-body-shadow` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・上の枠・内側の余白・角・影 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `--section-body-border` / `16px` / `0` / なし |

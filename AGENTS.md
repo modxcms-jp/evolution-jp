@@ -155,6 +155,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 | `manager-shell.md`      | 管理画面のシェル・frameset 互換の名前 |
 | `manager-dialog.md`     | 管理画面のダイアログ（EvoDialog） |
+| `manager-form-row.md`   | 管理画面のフォームの行（EvoFieldRow）・直書きの style の振り分け |
 | `ui-wording.md`         | 管理画面の文言（言語ファイルの書き方・表記） |
 | `backup.md`             | DB のバックアップ・スナップショット・復元 |
 
