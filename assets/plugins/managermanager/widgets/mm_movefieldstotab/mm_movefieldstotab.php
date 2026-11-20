@@ -71,7 +71,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             r.after(t.content);
         });
     }
-    // 行を移し、後ろの説明の行を消し、区切りを足して、見出しの列の幅を外す
+    // 行を移し、後ろの区切りの行を消し、区切りを足して、見出しの列の幅を外す
     function moveFieldRows(toMove) {
         const helps = [];
         nextRows(toMove).forEach(function (n) { helps.push.apply(helps, n.querySelectorAll(\'td[colspan="2"]\')); });
