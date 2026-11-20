@@ -71,18 +71,11 @@ function makeArray($csv)
     return $return;
 }
 
-// Make an output JS safe
-function jsSafe($str)
+// innerHTML（MM.html()）に入れる文字列の、JS の文字列リテラル（引用符付き）を返す
+// 値は先に HTML のエスケープをする（既にある文字参照は二重にしない）。JS への埋め込みは js_literal() が行う
+function mmHtmlLiteral($str)
 {
-    global $modx;
-
-    $str = htmlentities((string)$str, ENT_QUOTES, $modx->config('modx_charset', 'utf-8'), false);
-    // Also keep it inside a JS string literal: escape backslashes and line breaks
-    return str_replace(
-        ['\\', "\r", "\n", "\u{2028}", "\u{2029}"],
-        ['\\\\', '\\r', '\\n', '\\u2028', '\\u2029'],
-        $str
-    );
+    return js_literal(htmlentities((string)$str, ENT_QUOTES, config('modx_charset', 'utf-8'), false));
 }
 
 // Does the specified template use the specified TVs?
