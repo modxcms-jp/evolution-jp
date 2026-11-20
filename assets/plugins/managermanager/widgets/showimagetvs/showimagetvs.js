@@ -55,8 +55,10 @@ var mmImageTvs = {
         update();
     },
     // 画像の欄の値が書き換えられたら（ファイルピッカーなど）、change を起こしてプレビューを更新する
+    // シェルで画面を移るたびに呼ばれるので、前の見張りは止めてから足す（id は window に持たせる）
     watch: function () {
-        setInterval(function () {
+        clearInterval(window.mmImageTvsTimer);
+        window.mmImageTvsTimer = setInterval(function () {
             MM.all('.imageField').forEach(function (el) {
                 if (el.value != el.dataset.lastvalue) {
                     // 素の change を起こす（管理画面の未保存の検知に届く）

@@ -78,6 +78,12 @@ function mmHtmlLiteral($str)
     return js_literal(htmlentities((string)$str, ENT_QUOTES, config('modx_charset', 'utf-8'), false));
 }
 
+// HTML のエスケープをした、引用符の中に置ける JS の文字列（引用符なし）を返す。互換のため。新しいコードは mmHtmlLiteral() を使う
+function jsSafe($str)
+{
+    return substr(mmHtmlLiteral($str), 1, -1);
+}
+
 // Does the specified template use the specified TVs?
 // $tpl_id = Template ID (int)
 // $tvs = TV names - either array or comma separated list
