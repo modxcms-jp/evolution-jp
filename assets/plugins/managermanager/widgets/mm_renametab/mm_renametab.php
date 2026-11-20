@@ -33,9 +33,9 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = '')
     if (isset($headers[$tab])) {
         // WebFXTabPage wraps the heading text in a span (styles and click handling): rename inside it
         $output .= sprintf(
-            '(function (h) { if (!h) { return; } const s = h.querySelector(":scope > span"); (s || h).innerHTML = "%s"; })(document.getElementById("%s"));' . "\n",
-            jsSafe($newname),
-            $headers[$tab]
+            '(function (h) { if (!h) { return; } const s = h.querySelector(":scope > span"); (s || h).innerHTML = %s; })(document.getElementById(%s));' . "\n",
+            mmHtmlLiteral($newname),
+            js_literal($headers[$tab])
         );
     }
 
