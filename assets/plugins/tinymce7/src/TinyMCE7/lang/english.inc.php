@@ -37,3 +37,4 @@ $_lang['tinymce7_template_select'] = 'Template';
 $_lang['tinymce7_template_preview'] = 'Preview';
 $_lang['tinymce7_template_insert'] = 'Insert';
 $_lang['tinymce7_template_cancel'] = 'Cancel';
+$_lang['tinymce7_link_list_unpublished'] = ' (unpublished)';

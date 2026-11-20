@@ -1,0 +1,145 @@
+<?php
+declare(strict_types=1);
+
+namespace TinyMCE7\Editor;
+
+/**
+ * リンクのダイアログ（TinyMCE の link_list）に並べる、サイト内の文書の木を作る。
+ *
+ * 利用者が管理画面で見られる文書だけを、メニュー名（無ければページタイトル）と ID で並べる。
+ * 値は文書を移してもリンクが切れない `[~id~]`。未公開は表示名に添え、削除済みは出さない。
+ * 件数が MAX_ITEMS を超えるときは、MAX_ITEMS 件に収まる深さまでで打ち切る（最上位だけで超えるときは先頭の MAX_ITEMS 件）。
+ */
+final class LinkListRepository
+{
+    public const MAX_ITEMS = 1000;
+
+    private string $unpublishedLabel;
+
+    public function __construct(string $unpublishedLabel = ' (unpublished)')
+    {
+        $this->unpublishedLabel = $unpublishedLabel;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> link_list にそのまま渡せる {title, value} と {title, menu} の並び
+     */
+    public function tree(): array
+    {
+        $rows = db()->getRows(db()->select(
+            'sc.id,sc.pagetitle,sc.menutitle,sc.parent,sc.published',
+            '[+prefix+]site_content AS sc',
+            'sc.deleted=0' . $this->accessCondition(),
+            'sc.menuindex ASC, sc.id ASC'
+        )) ?: [];
+
+        $byId = [];
+        foreach ($rows as $row) {
+            $byId[(int)$row['id']] = true;
+        }
+
+        $children = [];
+        foreach ($rows as $row) {
+            $parent = (int)$row['parent'];
+            // 親が見えない（削除済み・権限なし）文書は最上位に置く
+            $children[isset($byId[$parent]) ? $parent : 0][] = $row;
+        }
+
+        return $this->build($children, 0, $this->depthLimit($children));
+    }
+
+    /**
+     * 文書グループで絞る条件。use_udperms が無効、または管理者なら絞らない。
+     * 式はツリー（manager/frames/nodes.php の tree_visibility_condition()）・検索と同じ
+     * （tree_show_protected は見ない。一覧に出すのはリンクを張れる文書だけ）。
+     */
+    private function accessCondition(): string
+    {
+        if (!evo()->config('use_udperms') || manager()->isAdmin()) {
+            return '';
+        }
+
+        $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
+        if (!$groups) {
+            return ' AND sc.privatemgr=0';
+        }
+
+        return sprintf(
+            ' AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+            db()->getFullTableName('document_groups'),
+            implode(',', $groups)
+        );
+    }
+
+    /**
+     * 全体が MAX_ITEMS 件以内なら制限なし（null）。超えるときは、深さ N までの件数が MAX_ITEMS 以内になる最大の N（最小 1）。
+     *
+     * @param array<int, array<int, array>> $children 親の id => 子の行
+     */
+    private function depthLimit(array $children): ?int
+    {
+        $counts = [];
+        $level = $children[0] ?? [];
+        $depth = 1;
+        while ($level) {
+            $counts[$depth] = count($level);
+            $next = [];
+            foreach ($level as $row) {
+                foreach ($children[(int)$row['id']] ?? [] as $child) {
+                    $next[] = $child;
+                }
+            }
+            $level = $next;
+            $depth++;
+        }
+
+        if (array_sum($counts) <= self::MAX_ITEMS) {
+            return null;
+        }
+
+        $limit = 1;
+        $total = 0;
+        foreach ($counts as $depth => $count) {
+            $total += $count;
+            if ($total > self::MAX_ITEMS) {
+                break;
+            }
+            $limit = $depth;
+        }
+
+        return $limit;
+    }
+
+    /**
+     * @param array<int, array<int, array>> $children
+     */
+    private function build(array $children, int $parent, ?int $depthLimit, int $depth = 1): array
+    {
+        $items = [];
+        foreach ($children[$parent] ?? [] as $row) {
+            if ($depth === 1 && count($items) >= self::MAX_ITEMS) {
+                break;
+            }
+            $item = ['title' => $this->title($row), 'value' => '[~' . (int)$row['id'] . '~]'];
+            $sub = $depthLimit === null || $depth < $depthLimit
+                ? $this->build($children, (int)$row['id'], $depthLimit, $depth + 1)
+                : [];
+            if ($sub === []) {
+                $items[] = $item;
+                continue;
+            }
+            // 子のある文書は入れ子の見出しになり、見出し自身は選べないので、先頭に自分を置く
+            $items[] = ['title' => $item['title'], 'menu' => array_merge([$item], $sub)];
+        }
+
+        return $items;
+    }
+
+    private function title(array $row): string
+    {
+        $menutitle = (string)$row['menutitle'];
+        $title = sprintf('%s (%d)', $menutitle !== '' ? $menutitle : (string)$row['pagetitle'], (int)$row['id']);
+
+        return (int)$row['published'] === 1 ? $title : $title . $this->unpublishedLabel;
+    }
+}
