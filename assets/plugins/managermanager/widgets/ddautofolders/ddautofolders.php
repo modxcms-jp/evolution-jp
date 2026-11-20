@@ -34,7 +34,6 @@
  *
  * @version 1.0.1 (2012-02-15)
  *
- *
  * @uses modx 1.0.5, ManagerManager plugin 0.3.11
  *
  * @copyright 2012, DivanDesign
@@ -43,7 +42,7 @@
 
 function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddDateSource = 'pub_date', $ddYearTpl = 0, $ddMonthTpl = 0, $ddYearPub = '0', $ddMonthPub = '0')
 {
-    global $modx, $modx_lang_attribute;
+    global $modx;
     $e = &$modx->event;
 
     //$ddParent is required
@@ -84,13 +83,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     $ddDate['m'] = strtolower(date('F', $ddDate['date']));
     $ddDate['n'] = date('n', $ddDate['date']);
 
-    if (strtolower($modx_lang_attribute) === 'ru') {
-        $ruMonthes = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-
-        $ddDate['mTitle'] = $ruMonthes[$ddDate['n'] - 1];
-    } else {
-        $ddDate['mTitle'] = date('F', $ddDate['date']);
-    }
+    $ddDate['mTitle'] = date('F', $ddDate['date']);
 
     // 文書グループは、フォルダを実際に作るとき（$createDocument の中）に初めて求める（文書の保存と同じ判定は manager()->setNewDocumentGroups()。文書グループの権限は 1 回だけ求めて年・月で使い回す）
     // OnBeforeDocFormSave は save_resource.processor.php のほか qm.inc.php も呼ぶが、後者は doc_vars が無く途中で抜ける
