@@ -33,42 +33,15 @@ $mm_includes = null;
 
 // Close it off
 $e->output('
-            // Misc tidying up
-
-            // General tab table container is too narrow for receiving TVs -- make it a bit wider
-            MM.all("div#tabGeneral table").forEach(function (table) {
-                table.width = "100%";
-            });
-
-            // if template variables containers are empty, remove their section
-            if (MM.all("div.tmplvars input, div.tmplvars select, div.tmplvars textarea, div.tmplvars button").length === 0) {
-                MM.all("div.tmplvars").forEach(function (el) {
-                    MM.hide(el);    // Still contains an empty table and some dividers
-                    const prev = el.previousElementSibling;
-                    if (prev && prev.tagName === "DIV") {
-                        MM.hide(prev);
-                    }
-                });
-            }
-
-            // If template category is empty, hide the optgroup
-            MM.all("#field_template optgroup").forEach(function (group) {
-                const visible = Array.from(group.querySelectorAll("option")).some(function (option) {
-                    return getComputedStyle(option).display !== "none";
-                });
-                if (!visible) {
-                    MM.hide(group);
-                }
-            });
-
+    MM.tidyUp();
     }catch(e){
-            // If theres an error, fail nicely
-            alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
+        // If theres an error, fail nicely
+        alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
     }finally{
-            // Whatever happens, hide the loading mask（mm.js が読めなくても隠せるよう、素の DOM で）
-            var mask = document.getElementById("loadingmask");
-            if (mask) mask.style.display = "none";
-        }
+        // Whatever happens, hide the loading mask（mm.js が読めなくても隠せるよう、素の DOM で）
+        var mask = document.getElementById("loadingmask");
+        if (mask) mask.style.display = "none";
+    }
     };
     </script>
 ');
@@ -79,16 +52,13 @@ foreach ($includes['js'] as $url) {
 
 $e->output('
     <script>
-    [' . implode(',', array_map('js_literal', $includes['css'])) . '].forEach(function (href) {
-        const exists = Array.from(document.head.querySelectorAll("link[rel=stylesheet]")).some(function (link) {
-            return link.getAttribute("href") === href;
-        });
-        if (!exists) {
-            document.head.appendChild(Object.assign(document.createElement("link"), {rel: "stylesheet", type: "text/css", href: href}));
+    try {
+        MM.loadCss(' . js_value($includes['css']) . ');
+    } finally {
+        // mm.js が読めなくても mm_run は動かし、覆いを隠す
+        if (typeof mm_run === "function") {
+            Evo.ready(mm_run);
         }
-    });
-    if (typeof mm_run === "function") {
-        Evo.ready(mm_run);
     }
     </script>
     <!-- ManagerManager Plugin :: End -->

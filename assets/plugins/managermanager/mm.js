@@ -110,6 +110,47 @@
             style.textContent = cssText;
             document.head.appendChild(style);
             return style;
+        },
+
+        // ルールの実行後に毎回行う整理（OnDocFormRender.inc.php の mm_run の最後）
+        tidyUp: function () {
+            // General tab table container is too narrow for receiving TVs -- make it a bit wider
+            all('div#tabGeneral table').forEach(function (table) {
+                table.width = '100%';
+            });
+
+            // if template variables containers are empty, remove their section
+            if (all('div.tmplvars input, div.tmplvars select, div.tmplvars textarea, div.tmplvars button').length === 0) {
+                all('div.tmplvars').forEach(function (el) {
+                    MM.hide(el); // Still contains an empty table and some dividers
+                    const prev = el.previousElementSibling;
+                    if (prev && prev.tagName === 'DIV') {
+                        MM.hide(prev);
+                    }
+                });
+            }
+
+            // If template category is empty, hide the optgroup
+            all('#field_template optgroup').forEach(function (group) {
+                const visible = Array.from(group.querySelectorAll('option')).some(function (option) {
+                    return getComputedStyle(option).display !== 'none';
+                });
+                if (!visible) {
+                    MM.hide(group);
+                }
+            });
+        },
+
+        // ルールの中の includeCss() で登録された CSS を head に足す（重複は足さない）
+        loadCss: function (hrefs) {
+            hrefs.forEach(function (href) {
+                const exists = Array.from(document.head.querySelectorAll('link[rel=stylesheet]')).some(function (link) {
+                    return link.getAttribute('href') === href;
+                });
+                if (!exists) {
+                    document.head.appendChild(Object.assign(document.createElement('link'), {rel: 'stylesheet', type: 'text/css', href: href}));
+                }
+            });
         }
     };
 })();
