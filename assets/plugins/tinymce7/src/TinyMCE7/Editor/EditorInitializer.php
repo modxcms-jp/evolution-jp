@@ -145,6 +145,8 @@ final class EditorInitializer
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
+        $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
+
         $output = [];
         $output[] = implode("\n", $scripts);
         $output[] = '<script>';
@@ -167,115 +169,13 @@ final class EditorInitializer
         $output[] = '                delete config.file_picker_callback;';
         $output[] = '            }';
         $output[] = '    }';
-        // 本文の変更を管理画面の未保存の印(documentDirty)に反映する。iframe の中の変更は input 欄の change では拾えない。
-        // 設定ファイルやサイトが setup を持っていても上書きせず、その後ろに重ねる
+        // 設定ファイルやサイトが setup を持っていても上書きせず、先に呼んでからエディター共通の設定を重ねる
         $output[] = '    const userSetup = typeof config.setup === "function" ? config.setup : null;';
         $output[] = '    config.setup = function(editor) {';
         $output[] = '        if (userSetup) {';
         $output[] = '            userSetup.call(this, editor);';
         $output[] = '        }';
-        $output[] = '        editor.on("dirty", function() {';
-        $output[] = '            if ("documentDirty" in window) {';
-        $output[] = '                window.documentDirty = true;';
-        $output[] = '            }';
-        $output[] = '        });';
-        // リッチテキストのエディタは、内容が変わったら元の欄(textarea)に bubbles の input イベントを送る決まり。
-        // iframe の中の変更はフォームから見えないため、フォームの input を拾う仕組み(ライブプレビューの自動更新など)へ伝える。
-        // 値の書き戻しは送信前の triggerSave() が行うので、ここでは通知だけ。初期化時の SetContent は変更ではないので送らない
-        $output[] = '        const notifyInput = function() {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new Event("input", {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        // 変換中(compositionstart から compositionend まで)は、input・change・undo・redo・SetContent のどれでも送らず、確定(compositionend)で 1 回送る
-        $output[] = '        let composing = false;';
-        // composition イベントも元の欄へ送り、フォーム側の変換中の判定を普通の欄と同じ処理にする。変換の途中で blur したら、compositionend が来なくても元の欄へ終わりを伝えて印を戻す
-        $output[] = '        const notifyComposition = function(type) {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new CompositionEvent(type, {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("compositionstart", function() {';
-        $output[] = '            composing = true;';
-        $output[] = '            notifyComposition("compositionstart");';
-        $output[] = '        });';
-        $output[] = '        editor.on("compositionend", function() {';
-        $output[] = '            composing = false;';
-        $output[] = '            notifyInput();';
-        $output[] = '            notifyComposition("compositionend");';
-        $output[] = '        });';
-        $output[] = '        editor.on("blur", function() {';
-        $output[] = '            if (composing) {';
-        $output[] = '                composing = false;';
-        $output[] = '                notifyComposition("compositionend");';
-        $output[] = '            }';
-        $output[] = '        });';
-        $output[] = '        const notifyUnlessComposing = function() {';
-        $output[] = '            if (!composing) {';
-        $output[] = '                notifyInput();';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("input change undo redo", notifyUnlessComposing);';
-        $output[] = '        editor.on("init", function() {';
-        $output[] = '            editor.on("SetContent", notifyUnlessComposing);';
-        $output[] = '        });';
-        // リンクのダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
-        // 開く前に、本文のリンクの値のうち一覧に無いものを選択肢に足す。
-        // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
-        // 種類ごとの値のそろえ方。canonical は本文の値を TinyMCE が選択肢と比べる形に、normalize は選択肢どうしを比べる形にする。
-        // TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには noopener を足してから、リンクの値と完全一致で比べる
-        $output[] = '        const sortTokens = function(value) {';
-        $output[] = '            return value.split(/\\s+/).filter(function(token) {';
-        $output[] = '                return token !== "";';
-        $output[] = '            }).sort().join(" ");';
-        $output[] = '        };';
-        $output[] = '        const asIs = function(value) {';
-        $output[] = '            return value;';
-        $output[] = '        };';
-        $output[] = '        const linkChoiceLists = [';
-        $output[] = '            {option: "link_class_list", attribute: "class", base: null, canonical: asIs, normalize: asIs},';
-        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, canonical: sortTokens, normalize: function(value) {';
-        $output[] = '                return sortTokens(value.split(/\\s+/).filter(function(token) {';
-        $output[] = '                    return token !== "noopener";';
-        $output[] = '                }).join(" "));';
-        $output[] = '            }}';
-        $output[] = '        ];';
-        $output[] = '        editor.on("BeforeExecCommand", function(e) {';
-        $output[] = '            if (e.command !== "mceLink") {';
-        $output[] = '                return;';
-        $output[] = '            }';
-        $output[] = '            const links = editor.dom.select("a[href]");';
-        $output[] = '            linkChoiceLists.forEach(function(choices) {';
-        $output[] = '                if (choices.base === null) {';
-        $output[] = '                    const list = editor.options.get(choices.option);';
-        $output[] = '                    choices.base = Array.isArray(list) ? list : [];';
-        $output[] = '                }';
-        $output[] = '                if (choices.base.length === 0) {';
-        $output[] = '                    return;';
-        $output[] = '                }';
-        $output[] = '                const listed = new Set(choices.base.map(function(item) {';
-        $output[] = '                    return item && typeof item.value === "string" ? choices.normalize(item.value) : undefined;';
-        $output[] = '                }));';
-        $output[] = '                const extra = [];';
-        $output[] = '                links.forEach(function(link) {';
-        $output[] = '                    const raw = link.getAttribute(choices.attribute) || "";';
-        $output[] = '                    const canonical = choices.canonical(raw);';
-        $output[] = '                    if (canonical !== raw) {';
-        $output[] = '                        editor.undoManager.ignore(function() {';
-        $output[] = '                            editor.dom.setAttrib(link, choices.attribute, canonical);';
-        $output[] = '                        });';
-        $output[] = '                    }';
-        $output[] = '                    const value = choices.normalize(canonical);';
-        $output[] = '                    if (value !== "" && !listed.has(value)) {';
-        $output[] = '                        listed.add(value);';
-        $output[] = '                        extra.push({title: value, value: value});';
-        $output[] = '                    }';
-        $output[] = '                });';
-        $output[] = '                editor.options.set(choices.option, choices.base.concat(extra));';
-        $output[] = '            });';
-        $output[] = '        });';
+        $output[] = '        window.tinymce7EditorSetup(editor);';
         $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';

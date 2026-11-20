@@ -15,6 +15,7 @@
 - MCPuk 連携スクリプト: `js/mcpuk-picker.js`
 - 画像編集モーダル連携スクリプト: `js/tinymce-cropper.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
+- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -147,7 +148,7 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 
 ## リンクのダイアログの「クラス」と「Rel」
 - 選択肢は `link_class_list`・`link_rel_list` です。設定ファイルで指定していればそれを、無ければ `tinymce7_css_selectors`・`tinymce7_link_rel` から作った一覧を使います。どちらも先頭は「なし」で、表示名と値が違えば「表示名 (値)」と出します。一覧が無ければ欄を出しません。
-- TinyMCE のリンクのダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します。そこで `EditorInitializer` の `setup` で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの値のうち一覧に無いものを末尾に足します。class と rel は同じ処理を定義の表（`linkChoiceLists`）で回し、表に種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、トークンの順が違う rel（`nofollow lightbox` など）は開く前に並べ替えた順に書き直し（元に戻す履歴には残さない。ただし、そのあとほかの操作やエディターから離れたときに、未保存の印が立つことがある）、選択肢どうしは `noopener` を除いて比べます。
+- TinyMCE のリンクのダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します。そこで `js/editor-setup.js` の setup で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの値のうち一覧に無いものを末尾に足します。class と rel は同じ処理を定義の表（`linkChoiceLists`）で回し、表に種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、`link_rel_list` があるときだけ、`PreInit` で `editor.parser.addAttributeFilter("rel", ...)` を登録し、読み込み時（ソースコードの画面で書いた値を含む）にトークンの順が違う rel（`nofollow lightbox` など）を並べ替えます。最初の履歴より前にそろうので、未保存の印は立ちません。一覧が無いサイトの本文は書き換えません。選択肢どうしは `noopener` を除いて比べます。
 - ダイアログが編集するリンクは選び方（キャレット・範囲選択・キャプション付き画像）で決まり方が変わるため、選んでいるリンクではなく本文のすべてのリンクを見ます。そのため、ほかのリンクの値も選択肢に出ます。
 - 「新しいウィンドウ」で開くリンクには、TinyMCE が `rel` に `noopener` を足します（例: `rel="lightbox noopener"`）。ダイアログでは選んだ値が選ばれたまま出ます。
 
