@@ -1248,6 +1248,8 @@ return [
     "setting_manager_tree_narrow_off" => 'しない',
     "setting_manager_tree_narrow_half" => '半分の幅',
     "setting_manager_tree_narrow_third" => '3分の1の幅',
+    "tree_narrow_restore_hint" => 'ダブルクリックか、ツリーの上のピンのボタンで、ツリーを自動で細くする動きに戻します',
+    "tree_pin" => 'ツリーの幅を固定する（自動で細くしない）',
 
 
     "resources_list" => 'リソース一覧',

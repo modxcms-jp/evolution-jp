@@ -396,6 +396,13 @@ if (is_array($evtOut)) {
                 <td align="right">
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
+                            <?php if (manager_tree_narrow()) { ?>
+                                <td class="tree-pin-cell"><a href="#" role="button" class="treeButton" id="treePin" aria-pressed="false"
+                                        onclick="EvoShell.toggleTreePin();return false;"
+                                        title="<?= lang('tree_pin') ?>"><?= style('pin_tree') ?></a>
+                                    <script>EvoShell.syncTreePin();</script>
+                                </td>
+                            <?php } ?>
                             <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame(true);"
                                     title="<?= lang('hide_tree') ?>"><?= style('hide_tree') ?></a></td>
                         </tr>

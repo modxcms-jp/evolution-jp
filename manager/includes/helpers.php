@@ -1189,6 +1189,13 @@ function remove_tags($value, $params = '')
     return strip_tags($value, $params);
 }
 
+// ツリーを細くするとき、元の幅を割る数（設定 manager_tree_narrow。2: 半分、3: 3 分の 1。細くしないときは 0）
+function manager_tree_narrow()
+{
+    $divisor = (int)config('manager_tree_narrow');
+    return in_array($divisor, [2, 3], true) ? $divisor : 0;
+}
+
 function manager_style_image_path($subdir = '')
 {
     $theme = config('manager_theme', '');
