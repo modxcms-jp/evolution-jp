@@ -104,11 +104,12 @@ final class EditorInitializer
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyToolbarVisibility($config);
         $config = $this->preferences->applyEnterMode($config);
+        // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
         $config = $this->preferences->applyCssSelectors($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
-        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         // 同梱の TinyMCE が後から読むプラグイン・スキン・言語ファイルのキャッシュ対策（利用者の cache_suffix を優先）
         if (empty($config['cache_suffix'])) {

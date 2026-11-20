@@ -5,6 +5,13 @@ namespace TinyMCE7\Config;
 
 final class PreferenceResolver
 {
+    private const WIDE_TOOLBAR_ITEMS = [
+        'blocks' => 3,
+        'fontfamily' => 3,
+        'styles' => 3,
+        'fontsize' => 2,
+    ];
+
     private ConfigRepository $repository;
     private ?array $settings;
 
@@ -269,9 +276,17 @@ final class PreferenceResolver
         return $config;
     }
 
+    /**
+     * 行の長さの目安。選択欄は幅に応じて、普通のボタン何個ぶんかで数える
+     */
     private function countToolbarItems($row): int
     {
-        return count(preg_split('/[\s|]+/', (string)$row, -1, PREG_SPLIT_NO_EMPTY));
+        $count = 0;
+        foreach (preg_split('/[\s|]+/', (string)$row, -1, PREG_SPLIT_NO_EMPTY) as $item) {
+            $count += self::WIDE_TOOLBAR_ITEMS[$item] ?? 1;
+        }
+
+        return $count;
     }
 
     private function rowHasStyles($row): bool
