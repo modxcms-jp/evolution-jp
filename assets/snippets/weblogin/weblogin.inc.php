@@ -31,55 +31,6 @@ if (!isset($tplLogout)) $tplLogout = $tpls[1] ?? '';
 
 if (sessionv('webValidated') === null) {
     $username = hsc(trim(post_strvar('username')), ENT_QUOTES);
-    $form = <<< EOT
-    <script type="text/JavaScript">
-    <!--//--><![CDATA[//><!--
-        function getElementById(id){
-            var o, d=document;
-            if (d.layers) {o=d.layers[id];if(o) o.style=o}
-            if (!o && d.getElementById) o=d.getElementById(id);
-            if (!o && d.all) o = d.all[id];
-            return o;
-        }
-
-        function webLoginShowForm(i){
-            var a = getElementById('WebLoginLayer0');
-            var b = getElementById('WebLoginLayer2');
-            if(i==1 && a && b) {
-                a.style.display="block";
-                b.style.display="none";
-                document.forms['loginreminder'].txtpwdrem.value = 0;
-            }
-            else if(i==2 && a && b) {
-                a.style.display="none";
-                b.style.display="block";
-                document.forms['loginreminder'].txtpwdrem.value = 1;
-            }
-        }
-        function webLoginCheckRemember () {
-            if(document.loginfrm.rememberme.value==1) {
-                document.loginfrm.rememberme.value=0;
-            } else {
-                document.loginfrm.rememberme.value=1;
-            }
-        }
-        function webLoginEnter(nextfield,event) {
-            if(event && event.keyCode == 13) {
-                if(nextfield.name=='cmdweblogin') {
-                    document.loginfrm.submit();
-                    return false;
-                }
-                else {
-                    nextfield.focus();
-                    return false;
-                }
-            } else {
-                return true;
-            }
-        }
-    //--><!]]>
-    </script>
-EOT;
     if (isset($uid)) {
         $rs = db()->select('*', '[+prefix+]web_users', "id='{$uid}'");
         $row = db()->getRow($rs);
@@ -89,7 +40,8 @@ EOT;
     }
 
     // display login
-    $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
+    $form = '<script type="text/javascript" src="' . hsc(site_asset(MODX_SITE_URL . 'assets/snippets/weblogin/weblogin.js')) . '"></script>';
+    $form .='<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
     $refurl = webLoginRefUrl();
     $ref = $refurl !== '' ? ['refurl' => urlencode($refurl)] : [];
