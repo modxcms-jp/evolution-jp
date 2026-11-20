@@ -223,11 +223,13 @@ body.evo-shell.tree-animating > #evoTreeResizer {
         opacity: var(--shell-tree-dim-opacity);
     }
 
-    /* 境目のつまみの当たりを左右に広げる（見える線は 8px のまま）。つまみの上ではツリーを広げないので、つかみやすくする */
+    /* 境目のつまみの当たりを、ツリーの側（左）へ広げる（見える線は 8px のまま）。つまみの上ではツリーを広げないので、
+       ツリーの右端から境目へ近づいても広がらずにつかめる。本文の側は乗ってもツリーが広がらないので広げない */
     body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer {
-        left: calc(var(--shell-tree-column) - 12px);
+        --shell-tree-resizer-reach: 24px;
+        left: calc(var(--shell-tree-column) - 4px - var(--shell-tree-resizer-reach));
         box-sizing: content-box;
-        padding-inline: 8px;
+        padding-left: var(--shell-tree-resizer-reach);
         background-clip: content-box;
     }
 
