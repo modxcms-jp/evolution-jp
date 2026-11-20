@@ -23,6 +23,7 @@
 - 見出しの色の変数も 2 つある（`--mutate-field-title-color` と `--settings-th-color`）。
 - `EvoSettingsForm::style()` は画面に `<style>` を直に出している。`table.settings`（詳細度 0,1,1）の `width: 100%` が `theme-base.css` の `.settings`（0,1,0）の 600px に勝つので、`style()` を出す画面（グローバル設定・ユーザー・プロフィール）では 600px が効かず、出さない Web ユーザーの画面では効く（推測。段階 3 で計算後のスタイルで確かめる）。
 - `custom_tpl_dir` は設定の定義に無い隠れた設定で、読むのは文書の編集画面の `file_get_tpl()`（`manager/actions/document/mutate_content/functions.php`）だけ。
+- 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
 ## Decision Log
 
