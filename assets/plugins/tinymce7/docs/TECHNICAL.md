@@ -40,6 +40,8 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 
 更新後は Evolution CMS のキャッシュをクリアして反映させます。
 
+ツールバーのボタン名は TinyMCE 7 の名前で書きます。TinyMCE 6 で `formatselect` → `blocks`、`fontsizeselect` → `fontsize`、`styleselect` → `styles`、`fontselect` → `fontfamily` などに変わり、古い名前は警告なしで無視されます（[公式の移行ガイド](https://www.tiny.cloud/docs/tinymce/latest/migration-from-5x/)）。
+
 ### TinyMCE 本体の読み込み元
 
 `tinymce_script_url` を指定していればその URL を使用し、未指定の場合は既定の CDN (`https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js`) から読み込みます。ローカルで使いたい場合は公式パッケージの `tinymce/` を `assets/plugins/tinymce7/tinymce/` に配置し、設定ファイルに `"tinymce_use_local": true` を追加してください。CDN・ローカル問わず独自 URL を使う場合は `tinymce_script_url` で上書きできます。
