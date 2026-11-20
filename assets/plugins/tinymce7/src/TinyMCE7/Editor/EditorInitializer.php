@@ -224,9 +224,16 @@ final class EditorInitializer
         // リンクのダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
         // 開く前に、本文のリンクの値のうち一覧に無いものを選択肢に足す。
         // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
+        // rel は、TinyMCE が新しいウィンドウのリンクに足す noopener を除き、並べ替えて比べる
         $output[] = '        const linkChoiceLists = [';
-        $output[] = '            {option: "link_class_list", attribute: "class", base: null},';
-        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null}';
+        $output[] = '            {option: "link_class_list", attribute: "class", base: null, normalize: function(value) {';
+        $output[] = '                return value;';
+        $output[] = '            }},';
+        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, normalize: function(value) {';
+        $output[] = '                return value.split(/\\s+/).filter(function(token) {';
+        $output[] = '                    return token !== "" && token !== "noopener";';
+        $output[] = '                }).sort().join(" ");';
+        $output[] = '            }}';
         $output[] = '        ];';
         $output[] = '        editor.on("BeforeExecCommand", function(e) {';
         $output[] = '            if (e.command !== "mceLink") {';
@@ -242,11 +249,11 @@ final class EditorInitializer
         $output[] = '                    return;';
         $output[] = '                }';
         $output[] = '                const listed = new Set(choices.base.map(function(item) {';
-        $output[] = '                    return item ? item.value : undefined;';
+        $output[] = '                    return item && typeof item.value === "string" ? choices.normalize(item.value) : undefined;';
         $output[] = '                }));';
         $output[] = '                const extra = [];';
         $output[] = '                links.forEach(function(link) {';
-        $output[] = '                    const value = link.getAttribute(choices.attribute) || "";';
+        $output[] = '                    const value = choices.normalize(link.getAttribute(choices.attribute) || "");';
         $output[] = '                    if (value !== "" && !listed.has(value)) {';
         $output[] = '                        listed.add(value);';
         $output[] = '                        extra.push({title: value, value: value});';

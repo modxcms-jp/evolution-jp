@@ -24,7 +24,7 @@ $_lang['tinymce7_body_class_description'] = '編集欄の body に付けるク�
 $_lang['tinymce7_css_selectors_label'] = 'CSSスタイルセレクタ';
 $_lang['tinymce7_css_selectors_description'] = 'ツールバーの「書式」から選べる CSS クラスを「表示名=クラス名;表示名2=クラス名2」の形式で指定します（例：本のタイトル=booktitle;著者=author）。要素全体を選ぶとその要素に、文中の一部を選ぶと span でクラスを付けます。リンクの挿入・編集の画面の「クラス」にも同じ一覧を出します。空のときは、レガシー・フルの構成では「CSSファイルへのパス」の CSS にあるクラスがすべて「書式」に並びます。一覧を絞りたいときは、使うクラスをここに書いてください。旧 TinyMCE の設定が残っていれば引き継ぎます。';
 $_lang['tinymce7_link_rel_label'] = 'リンクの rel';
-$_lang['tinymce7_link_rel_description'] = 'リンクの挿入・編集の画面の「rel」から選べる値を「表示名=値;表示名2=値2」の形式で指定します（例：画像を拡大=lightbox;外部サイト=nofollow）。旧 TinyMCE の「ページからターゲットの関係」にあたります。空のときは「rel」の欄を出しません。';
+$_lang['tinymce7_link_rel_description'] = 'リンクの挿入・編集の画面の「Rel」から選べる値を「表示名=値;表示名2=値2」の形式で指定します（例：画像を拡大=lightbox;外部サイト=nofollow）。旧 TinyMCE の「ページからターゲットの関係」にあたります。空のときは「Rel」の欄を出しません。';
 
 $_lang['tinymce7_template_label'] = 'ひな形';
 $_lang['tinymce7_template_docs'] = 'リソースID';
