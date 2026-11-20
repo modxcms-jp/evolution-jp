@@ -106,6 +106,44 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 フロントエンド用設定でも `image_cropper` を定義すれば同様の機能を利用できます。不要な場合は `enabled` を `false` に設定するか、オブジェクトごと削除してください。
 
+## 画像のキャプション (`image_caption`)
+`config/manager.json`・`config/frontend.json` で `image_caption: true` を指定しており、どのツールバー構成でも画像のダイアログに「キャプションの表示」が出ます（構成の定義 `toolbar-presets.json` は同じキーを持たないので、設定ファイルの値がそのまま効きます）。オンにすると、画像が次の形で保存されます。
+
+```html
+<figure class="image">
+  <img src="assets/images/sample.jpg" alt="...">
+  <figcaption>キャプション</figcaption>
+</figure>
+```
+
+- 公開側の CSS では、`figure.image` を画像とキャプションを包む箱として扱います。書き方の例です。
+
+  ```css
+  figure.image {
+      display: table;      /* 画像の幅に箱を合わせる */
+      margin: 1em auto;
+  }
+  figure.image img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+  }
+  figure.image > figcaption {
+      display: table-caption;
+      caption-side: bottom;
+      font-size: 0.875em;
+      text-align: center;
+  }
+  ```
+
+  編集欄に同じ見た目を出すには、「CSSファイルへのパス」の CSS に同じ規則を書きます。
+- キャプションを外すと `figure` ごと `<img>` だけに戻ります。
+- 画像にリンクを付けたときは `figure.image > a > img` の形です。リンクのダイアログの「クラス」「Rel」の補正（「リンクのダイアログの「クラス」と「Rel」」）は、ダイアログが編集するリンクではなく本文のすべてのリンクを見るので、この形でも働きます。
+- 画像のダブルクリックで開く画像編集（`image_cropper`）は、`figure` の中の画像でも開きます。
+
+## リンクの操作の帯 (`link_context_toolbar`)
+`manager.json`・`frontend.json` で `link_context_toolbar: true` を指定しており、リンクの中にカーソルを置くと、リンクの上に操作の帯（編集・解除・リンクを開く）が出ます（TinyMCE 7 の既定はオフ）。quickbars プラグインの選択時のツールバー（`quickbars_selection_toolbar`）とは、リンクの文字を範囲選択したときも、同時には出ず、リンクの操作の帯だけが出ます。
+
 ## システム設定キー
 プラグインが参照する主なシステム設定キーです。旧 TinyMCE プラグインのキーも互換処理しています。
 
