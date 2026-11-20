@@ -191,7 +191,7 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 
 ## リンクのダイアログの「クラス」と「Rel」
 - 選択肢は `link_class_list`・`link_rel_list` です。設定ファイルで指定していればそれを、無ければ `tinymce7_css_selectors`・`tinymce7_link_rel` から作った一覧を使います。どちらも先頭は「なし」で、表示名と値が違えば「表示名 (値)」と出します。一覧が無ければ欄を出しません。
-- TinyMCE のリンクのダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します。そこで `js/editor-setup.js` の setup で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの値のうち一覧に無いものを末尾に足します。class と rel は同じ処理を定義の表（`linkChoiceLists`）で回し、表に種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、`link_rel_list` があるときだけ、`PreInit` で `editor.parser.addAttributeFilter("rel", ...)` を登録し、本文を読み込む・貼り付ける・挿入する（ソースコードの画面・ひな形の挿入を含む）ときに、トークンの順が違う rel（`nofollow lightbox` など）を並べ替えます。最初の履歴より前にそろうので、未保存の印は立ちません。一覧が無いサイトの本文は書き換えません。選択肢どうしは `noopener` を除いて比べます。
+- TinyMCE のリンク・画像のダイアログは、一覧に無い値を初期値にできず、そのまま保存すると class・rel を消します（表のプロパティは class を保つので対象外）。そこで `js/editor-setup.js` の setup で、ダイアログを開く前（`BeforeExecCommand`）に、本文の該当する要素の値のうち一覧に無いものを末尾に足します。リンクの class・rel と画像の class は同じ処理を定義の表（`choiceLists`）で回し、表にダイアログを開くコマンド（`command`: `mceLink`・`mceImage`）、値を集める要素（`selector`）、選択肢の設定キー（`option`）、属性（`attribute`）、種類ごとの値のそろえ方（`normalize`）を持たせます。TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには `noopener` を足してから、リンクの値と完全一致で比べます。そこで、`link_rel_list` があるときだけ、`PreInit` で `editor.parser.addAttributeFilter("rel", ...)` を登録し、本文を読み込む・貼り付ける・挿入する（ソースコードの画面・ひな形の挿入を含む）ときに、トークンの順が違う rel（`nofollow lightbox` など）を並べ替えます。最初の履歴より前にそろうので、未保存の印は立ちません。一覧が無いサイトの本文は書き換えません。選択肢どうしは `noopener` を除いて比べます。
 - ダイアログが編集するリンクは選び方（キャレット・範囲選択・キャプション付き画像）で決まり方が変わるため、選んでいるリンクではなく本文のすべてのリンクを見ます。そのため、ほかのリンクの値も選択肢に出ます。
 - 「新しいウィンドウ」で開くリンクには、TinyMCE が `rel` に `noopener` を足します（例: `rel="lightbox noopener"`）。ダイアログでは選んだ値が選ばれたまま出ます。
 
