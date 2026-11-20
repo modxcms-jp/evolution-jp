@@ -40,7 +40,7 @@ if (sessionv('webValidated') === null) {
     }
 
     // display login
-    $form = '<script type="text/javascript" src="' . hsc(site_asset(MODX_SITE_URL . 'assets/snippets/weblogin/weblogin.js')) . '"></script>';
+    $form = '<script type="text/javascript" src="' . hsc(site_asset(MODX_BASE_URL . 'assets/snippets/weblogin/weblogin.js')) . '"></script>';
     $form .='<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
     $refurl = webLoginRefUrl();
