@@ -75,8 +75,8 @@
     }
 
     .grid a span.withmenu:hover {
-        border: 1px solid #ccc;
-        background-color: #fff;
+        border: 1px solid var(--color-border-light, #ccc);
+        background-color: var(--color-surface, #fff);
     }
 
     .grid .nowrap {
@@ -84,7 +84,7 @@
     }
 
     .grid .nowrap.disable {
-        color: #777;
+        color: var(--color-text-muted, #777);
     }
 
     .gridRowIcon:hover {
