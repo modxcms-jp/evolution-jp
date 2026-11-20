@@ -143,6 +143,13 @@ final class SystemSettingsRenderer
             $html[] = '    </td>';
             $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_link_rel">' . hsc($this->t('tinymce7_link_rel_label', 'Link rel')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <input type="text" name="tinymce7_link_rel" id="tinymce7_link_rel" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectLinkRel()) . '">';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_link_rel_description', 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $html[] = '  <tr class="row1">';
             $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
             $html[] = '    <td>';
             $templateFields = [

@@ -123,25 +123,50 @@ final class PreferenceResolver
         if (isset($config['plugins'])) {
             $config['plugins'] = PluginList::remove($config['plugins'], 'importcss');
         }
-        $config['link_class_list'] = $config['link_class_list'] ?? $this->linkClassList($formats);
+        $config['link_class_list'] = $config['link_class_list'] ?? $this->choiceList(array_map(static function (array $format) {
+            return ['title' => $format['title'], 'value' => $format['classes']];
+        }, $formats));
 
         return $this->ensureStylesButton($config);
     }
 
     /**
-     * リンクのダイアログの「クラス」の選択肢を、CSSスタイルセレクタの書式から作る。
-     * 先頭の「None」は TinyMCE の言語ファイルで訳される。
-     * 付く class が分かるよう、表示名とクラス名が違えば「表示名 (クラス名)」にする。
+     * リンクのダイアログの「rel」の選択肢を、設定「リンクの rel」から作る。
+     * 設定ファイルで link_rel_list を指定していればそちらを使い、どちらも無ければ欄を出さない
      */
-    private function linkClassList(array $formats): array
+    public function applyLinkRel(array $config): array
+    {
+        if (isset($config['link_rel_list'])) {
+            return $config;
+        }
+
+        $values = $this->parseNamedValues($this->detectLinkRel());
+        if ($values !== []) {
+            $config['link_rel_list'] = $this->choiceList($values);
+        }
+
+        return $config;
+    }
+
+    public function detectLinkRel(): string
+    {
+        return $this->detectString(['tinymce7_link_rel']);
+    }
+
+    /**
+     * リンクのダイアログの選択肢（{title, value} の並び）にする。
+     * 先頭の「None」は TinyMCE の言語ファイルで訳される。
+     * 付く値が分かるよう、表示名と値が違えば「表示名 (値)」にする。
+     */
+    private function choiceList(array $values): array
     {
         $list = [['title' => 'None', 'value' => '']];
 
-        foreach ($formats as $format) {
-            $title = $format['title'] === $format['classes']
-                ? $format['classes']
-                : "{$format['title']} ({$format['classes']})";
-            $list[] = ['title' => $title, 'value' => $format['classes']];
+        foreach ($values as $item) {
+            $title = $item['title'] === $item['value']
+                ? $item['value']
+                : "{$item['title']} ({$item['value']})";
+            $list[] = ['title' => $title, 'value' => $item['value']];
         }
 
         return $list;
@@ -203,7 +228,22 @@ final class PreferenceResolver
 
     public function parseCssSelectors(string $value): array
     {
-        $formats = [];
+        return array_map(static function (array $item) {
+            return [
+                'title' => $item['title'],
+                'selector' => '*',
+                'inline' => 'span',
+                'classes' => $item['value'],
+            ];
+        }, $this->parseNamedValues($value));
+    }
+
+    /**
+     * 「表示名=値;表示名2=値2」を {title, value} の並びにする。表示名を省いたら値を表示名にする
+     */
+    public function parseNamedValues(string $value): array
+    {
+        $items = [];
 
         foreach (explode(';', $value) as $entry) {
             $entry = trim($entry);
@@ -213,24 +253,19 @@ final class PreferenceResolver
             }
 
             if (str_contains($entry, '=')) {
-                [$title, $classes] = array_map('trim', explode('=', $entry, 2));
+                [$title, $itemValue] = array_map('trim', explode('=', $entry, 2));
             } else {
-                $title = $classes = $entry;
+                $title = $itemValue = $entry;
             }
 
-            if ($classes === '') {
+            if ($itemValue === '') {
                 continue;
             }
 
-            $formats[] = [
-                'title' => $title !== '' ? $title : $classes,
-                'selector' => '*',
-                'inline' => 'span',
-                'classes' => $classes,
-            ];
+            $items[] = ['title' => $title !== '' ? $title : $itemValue, 'value' => $itemValue];
         }
 
-        return $formats;
+        return $items;
     }
 
     private function ensureStylesButton(array $config): array
