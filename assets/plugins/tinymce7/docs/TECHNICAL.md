@@ -108,7 +108,8 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | キー | 内容 |
 | --- | --- |
 | `tinymce7_toolbar_preset` | プリセットを `simple` / `basic` / `legacy` / `full` から選択します。|
-| `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示、空 = TinyMCE 既定値）。|
+| `tinymce7_toolbar` | ツールバーの表示制御（`1` = 表示、`0` = 非表示）。未設定なら表示します。非表示のときは TinyMCE の `toolbar` に `false` を渡し、ツールバー構成の並びより優先します。|
+| `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示）。未設定なら表示しません。表示のときはツールバー構成の `menubar` の並びを使い、無ければ TinyMCE 既定のメニューを出します。|
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
 | `tinymce7_body_id` | 編集欄の body に付ける id。TinyMCE の `body_id` に渡し、設定ファイル（`config/*.json`）の `body_id` より優先します。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。旧 TinyMCE の `customparams` の `body_id` は、マイグレーション（`manager/includes/migrations/20261107_120000_carry_over_tinymce_body_attributes.php`）が引き継ぎます（どちらかの設定が保存済みなら何もしません）。空の値、サイトのタグ（`[*…*]`・`[(…)]`・`[~…~]` など）や引用符・`\`・`:`・改行を含む値・文字列でない値と、ほかのキーは引き継がず、キー名だけをシステムログに種別 2（警告）で残します。|
 | `tinymce7_body_class` | 編集欄の body に付けるクラス（半角スペース区切り）。TinyMCE の `body_class` に渡します。扱いは `tinymce7_body_id` と同じです。|
