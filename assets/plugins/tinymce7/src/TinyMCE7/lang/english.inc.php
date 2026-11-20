@@ -2,10 +2,9 @@
 $_lang['tinymce7_settings_header'] = 'TinyMCE 7';
 $_lang['tinymce7_toolbar_label'] = 'Toolbar layout';
 $_lang['tinymce7_toolbar_description'] = 'Choose the TinyMCE 7 toolbar configuration.';
-$_lang['tinymce7_toolbar_simple'] = 'Simple';
-$_lang['tinymce7_toolbar_basic'] = 'Basic';
+$_lang['tinymce7_toolbar_simple'] = 'Minimal';
 $_lang['tinymce7_toolbar_formats'] = 'Space-saving';
-$_lang['tinymce7_toolbar_legacy'] = 'Legacy (default)';
+$_lang['tinymce7_toolbar_legacy'] = 'TinyMCE 3 style (default)';
 $_lang['tinymce7_toolbar_full'] = 'Full';
 $_lang['tinymce7_toolbar_visibility_label'] = 'Toolbar visibility';
 $_lang['tinymce7_toolbar_visibility_description'] = 'Choose whether TinyMCE 7 displays the toolbar. Shown by default.';
@@ -23,7 +22,7 @@ $_lang['tinymce7_body_id_description'] = 'ID added to the body of the editing ar
 $_lang['tinymce7_body_class_label'] = 'Editor body class';
 $_lang['tinymce7_body_class_description'] = 'Classes added to the body of the editing area. Enter the classes of the element that wraps the content on the public site, and the rules for those classes in the stylesheet set in "Path to CSS file" also apply in the editor. Separate multiple classes with spaces. The body_class in Custom Parameters of the old TinyMCE plugin is carried over when updating.';
 $_lang['tinymce7_css_selectors_label'] = 'CSS style selectors';
-$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The same classes are offered in the Class list of the link dialog. Put the element name a, img or table before the class, as "Display name=a.class", to make a class for that element only (e.g. Button=a.btn, Float left=img.float-left, Striped=table.striped). It is offered in the Class list of the link, image or table properties dialog, and in Formats it can be applied only to that element, never to a paragraph. Classes without an element name are not offered in the image and table dialogs. Join several classes with dots, as a.btn.primary. When empty, the Legacy and Full layouts list every class found in the CSS of "Path to CSS file" in the Formats list; enter the classes you use here to keep the list short. The setting of the old TinyMCE plugin is carried over if present.';
+$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The same classes are offered in the Class list of the link dialog. Put the element name a, img or table before the class, as "Display name=a.class", to make a class for that element only (e.g. Button=a.btn, Float left=img.float-left, Striped=table.striped). It is offered in the Class list of the link, image or table properties dialog, and in Formats it can be applied only to that element, never to a paragraph. Classes without an element name are not offered in the image and table dialogs. Join several classes with dots, as a.btn.primary. When empty, the TinyMCE 3 style and Full layouts list every class found in the CSS of "Path to CSS file" in the Formats list; enter the classes you use here to keep the list short. The setting of the old TinyMCE plugin is carried over if present.';
 $_lang['tinymce7_link_rel_label'] = 'Link rel';
 $_lang['tinymce7_link_rel_description'] = 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2" (e.g. Enlarge image=lightbox;External site=nofollow). Corresponds to "Relationship page to target" of the old TinyMCE. When empty, the Rel list is not shown.';
 
