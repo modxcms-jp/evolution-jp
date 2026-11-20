@@ -260,6 +260,14 @@ body.evo-shell.tree-animating > #evoTreeResizer {
     }
 }
 
+/* ツリーの上のピン（自動の拡縮を止める・戻す。shell.js の toggleTreePin）。押した見た目は tree.css の .treeButton.is-active。
+   乗れない端末では細くしないので出さない */
+@media not (hover: hover) {
+    body.evo-shell .tree-pin-cell {
+        display: none;
+    }
+}
+
 @media (hover: hover) and (prefers-reduced-motion: reduce) {
     body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])),
     body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer,

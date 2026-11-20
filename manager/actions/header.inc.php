@@ -39,9 +39,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
     <?php
-    // ツリーを細くするとき、覚えた幅を割る数（2: 半分、3: 3 分の 1。0 は細くしない）。shell.css の tree-narrow
-    $treeNarrow = (int)config('manager_tree_narrow');
-    $treeNarrow = in_array($treeNarrow, [2, 3], true) ? $treeNarrow : 0;
+    // ツリーを細くするとき、元の幅を割る数（shell.css の tree-narrow）
+    $treeNarrow = manager_tree_narrow();
     ?>
     <style>
         :root {

@@ -635,6 +635,16 @@
         unsavedMessage: 'Your changes are not saved. Continue?',
         networkErrorMessage: 'A network error occurred. The page will be reloaded.',
 
+        // ツリーの上のピン（manager/frames/tree.php の #treePin）。押すと自動の拡縮を止め、もう一度押すと戻す
+        toggleTreePin: function () {
+            setTreeNarrowOff(!isTreeNarrowOff());
+        },
+
+        // ピンの押された状態を、止めているか（body の tree-narrow-off）に合わせる。ツリーを読み直したときは tree.php が呼ぶ
+        syncTreePin: function () {
+            syncTreePin();
+        },
+
         // 未保存の変更があれば確認する。続けてよいなら true(EvoCsrf.post()も送る前に使う)
         confirmIfDirty: function () {
             return confirmIfDirty();
@@ -1026,6 +1036,16 @@
         }, { once: true });
     }
 
+    function syncTreePin() {
+        const pin = document.getElementById('treePin');
+        if (!pin) {
+            return;
+        }
+        const off = isTreeNarrowOff();
+        pin.classList.toggle('is-active', off);
+        pin.setAttribute('aria-pressed', off ? 'true' : 'false');
+    }
+
     // 閉じているときは帯をボタンとして読ませ、キーボードでも開けるようにする
     function syncTreeRail(handle) {
         if (isTreeHidden()) {
@@ -1085,8 +1105,10 @@
         });
 
         syncTreeRail(handle);
+        syncTreePin();
         new MutationObserver(function () {
             syncTreeRail(handle);
+            syncTreePin();
         }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
         handle.addEventListener('pointerdown', function (e) {
