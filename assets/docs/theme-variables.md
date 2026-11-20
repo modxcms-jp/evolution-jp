@@ -191,7 +191,7 @@
 
 | 変数 | 意味 | 既定値（sections.css） |
 | --- | --- | --- |
-| `--section-header-padding` / `--section-header-bg` / `--section-header-shadow` / `--section-header-color` / `--section-header-text-shadow` | 見出しの帯の余白・地・影・文字の色・文字の影 | `8px 16px` / `--color-section-header-end` / `0 1px 0 --color-surface inset` / `--color-section-header-text` / なし |
+| `--section-header-padding` / `--section-header-bg` / `--section-header-shadow` / `--section-header-color` / `--section-header-text-shadow` | 見出しの帯の余白・地・影・文字の色・文字の影 | `8px 16px` / `--color-section-header-end` / なし / `--color-section-header-text` / なし |
 | `--section-header-border` / `--section-header-border-bottom` / `--section-header-radius` | 見出しの帯の枠・下の枠・角 | `1px solid #ddd` / `--section-header-border` / `8px 8px 0 0` |
 | `--tab-section-header-gap` / `--tab-section-header-font-size` / `--tab-section-header-bg` | タブの中の見出しの下の間・文字の大きさ・地 | `0` / `1em` / `--section-header-bg` |
 | `--section-body-bg` / `--section-body-border` / `--section-body-border-top` / `--section-body-padding` / `--section-body-radius` / `--section-body-shadow` | 箱（`.section .sectionBody`・`.tab-page .sectionBody`）の地・枠・上の枠・内側の余白・角・影 | `--color-section-bg`（無ければ `#f7f7f7`） / `1px solid #ccc` / `--section-body-border` / `16px` / `0` / なし |

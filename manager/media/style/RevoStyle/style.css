@@ -250,6 +250,7 @@
     --section-header-padding: 5px 10px 5px 15px;
     --section-header-border-bottom: none;
     --section-header-bg: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    --section-header-shadow: 0 1px 0 var(--color-surface) inset;
     --section-header-text-shadow: 0 var(--border-thin) 0 var(--color-surface);
     --section-box-bg: var(--color-surface);
 
