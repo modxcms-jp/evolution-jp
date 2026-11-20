@@ -419,7 +419,8 @@ function clearDateButton($target, $disabled = false)
 /**
  * リソース編集の欄の行。$body（欄と、その後ろのボタン・説明のアイコン）は .field-inline で横に並べ、
  * $note（書式などの説明）は欄の下に .form-text で出す。
- * $field は行の data-field 属性に出す名前（assets/docs/jquery-migration.md の「編集画面の行と data-field 属性」）
+ * $field は行の data-field 属性に出す名前（assets/docs/jquery-migration.md の「編集画面の行と data-field 属性」）。
+ * フィールドではない行は空にする
  */
 function renderFieldTr($field, $head, $body, $rowstyle = '', $note = '')
 {
@@ -428,22 +429,15 @@ function renderFieldTr($field, $head, $body, $rowstyle = '', $note = '')
         $body = implode("\n", $body);
     }
 
-    return parseText(file_get_tpl('render_tr.tpl'), [
+    return EvoFieldRow::render([
         'field' => $field,
-        'head' => array_shift($heads),
-        'extra_head' => implode("\n", $heads),
-        'body' => $body,
-        'note' => $note !== '' ? '<div class="form-text">' . $note . '</div>' : '',
-        'rowstyle' => $rowstyle
+        'label' => array_shift($heads),
+        'label_extra' => implode("\n", $heads),
+        'body' => '<div class="field-inline">' . $body . '</div>',
+        'help' => $note,
+        'class' => 'mutate-field-row',
+        'attr' => $rowstyle !== '' ? ['style' => $rowstyle] : [],
     ]);
-}
-
-/**
- * 文書のフィールドではない行（data-field は空）
- */
-function renderTr($head, $body, $rowstyle = '', $note = '')
-{
-    return renderFieldTr('', $head, $body, $rowstyle, $note);
 }
 
 if (!function_exists('getDefaultTemplate')) {

@@ -64,7 +64,7 @@ function fieldDraftPub_date($docid, $restored = [])
         $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     }
     $body = $modx->parseText($tpl, $ph);
-    return renderTr(lang('draft_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
+    return renderFieldTr('', lang('draft_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function getTplDraft()

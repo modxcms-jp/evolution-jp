@@ -161,10 +161,10 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
 <!-- ラベルと入力欄の行 -->
 <h2 class="sg-title">ラベルと入力欄の行</h2>
 <div class="section">
-    <div class="sectionHeader">リソース編集の欄（render_tr.tpl）</div>
+    <div class="sectionHeader">リソース編集の欄（field_row.tpl）</div>
     <div class="sectionBody">
         <?php
-        // 実際の投稿画面と同じ関数（mutate_content/functions.php の renderTr()・tooltip()・clearDateButton()）で組み立てる。
+        // 実際の投稿画面と同じ関数（mutate_content/functions.php の renderFieldTr()・tooltip()・clearDateButton()）で組み立てる。
         // 画面の組み方を直せば、この見本も同じになる。幅などの規則が同じく当たるよう、投稿画面と同じ form#mutate で包む
         include_once MODX_MANAGER_PATH . 'actions/document/mutate_content/functions.php';
         $help = 'この欄の説明です。';
@@ -172,12 +172,12 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
         ?>
         <form id="mutate" onsubmit="return false;">
         <table>
-            <?= renderTr('リソース名', '<input type="text" class="inputBox" value="Home">' . tooltip($help)) ?>
-            <?= renderTr('公開開始日時', '<input type="text" class="DatePicker imeoff" id="pub_date" value="2026/11/14 10:00:00">' . clearDateButton('pub_date') . tooltip($help), '', $dateNote) ?>
-            <?= renderTr('公開終了日時', '<input type="text" class="DatePicker imeoff" id="unpub_date" value="">' . clearDateButton('unpub_date') . tooltip($help), '', $dateNote) ?>
-            <?= renderTr('リソースタイプ', '<select name="type" class="inputBox"><option>ウェブページ</option><option>ウェブリンク</option></select>' . tooltip($help)) ?>
-            <?= renderTr('コンテンツタイプ', '<select name="contentType" class="inputBox"><option>text/html</option></select>' . tooltip($help)) ?>
-            <?= renderTr('表示の方法', '<select name="content_dispo" class="inputBox"><option>ブラウザ内に通常表示</option></select>' . tooltip($help)) ?>
+            <?= renderFieldTr('', 'リソース名', '<input type="text" class="inputBox" value="Home">' . tooltip($help)) ?>
+            <?= renderFieldTr('', '公開開始日時', '<input type="text" class="DatePicker imeoff" id="pub_date" value="2026/11/14 10:00:00">' . clearDateButton('pub_date') . tooltip($help), '', $dateNote) ?>
+            <?= renderFieldTr('', '公開終了日時', '<input type="text" class="DatePicker imeoff" id="unpub_date" value="">' . clearDateButton('unpub_date') . tooltip($help), '', $dateNote) ?>
+            <?= renderFieldTr('', 'リソースタイプ', '<select name="type" class="inputBox"><option>ウェブページ</option><option>ウェブリンク</option></select>' . tooltip($help)) ?>
+            <?= renderFieldTr('', 'コンテンツタイプ', '<select name="contentType" class="inputBox"><option>text/html</option></select>' . tooltip($help)) ?>
+            <?= renderFieldTr('', '表示の方法', '<select name="content_dispo" class="inputBox"><option>ブラウザ内に通常表示</option></select>' . tooltip($help)) ?>
         </table>
         </form>
     </div>

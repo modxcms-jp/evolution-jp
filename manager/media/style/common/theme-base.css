@@ -222,11 +222,19 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
+/* 行の部品（field_row.tpl）の見出しのセル。表の td と同じ左揃え・親の文字にそろえる（th の既定の中央揃え・太字を使わない）。
+   設定の表（.settings th）はこれより詳細度が高いので、自分の指定が勝つ */
+:where(.field-row) > .field-label {
+    text-align: left;
+    font: inherit;
+}
+
 /* 設定の表（.settings）の見出しの列 */
 .settings th {
     width: 200px !important;
     color: var(--settings-th-color, #555);
     font-size: 1.2em;
+    font-weight: bold;
     text-align: start;
 }
 
@@ -418,9 +426,8 @@ form input.hidden {
     height: 24px;
 }
 
-.mutate-field-label {
+.mutate-field-row > .field-label {
     width: 120px;
-    text-align: left;
 }
 
 .clickable-label {
