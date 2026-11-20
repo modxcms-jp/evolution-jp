@@ -825,7 +825,8 @@ function init(root, entry, behaviors) {
         SELECTION_ACTIONS.forEach(function (action, i) {
             var btn = selectionActionBtns[i];
             var visible = isActionVisible(action, files);
-            btn.parentNode.hidden = !visible;
+            // 未選択のときは全部を押せない状態で残す。隠すと帯が低くなり、最初の選択で一覧の高さが変わる
+            btn.parentNode.hidden = files.length > 0 && !visible;
             btn.disabled = !(visible && isActionEnabled(action, files));
         });
     }
