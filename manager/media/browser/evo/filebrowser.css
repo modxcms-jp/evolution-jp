@@ -866,7 +866,10 @@
     display: none;
 }
 
+/* 枠の高さの上限に収まるよう縮める。flex の子は既定では中身より小さくならず、縦長の画像でボタンの列が枠の外に出る */
 .evo-fb-preview-media {
+    flex: 0 1 auto;
+    min-height: 0;
     max-width: 100%;
     max-height: 50vh;
 }
@@ -876,6 +879,8 @@
 }
 
 .evo-fb-preview-img {
+    flex: 0 1 auto;
+    min-height: 0;
     max-width: 100%;
     max-height: 50vh;
     object-fit: contain;
