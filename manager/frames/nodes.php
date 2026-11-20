@@ -643,7 +643,7 @@ function parseNode($tpl, $param, $id)
 
 /**
  * ツリーに表示するリソースだけに絞る条件（getNodes() と hasChildren() で共通）
- * 管理者と tree_show_protected が有効なときは権限では絞らない。削除済みはセッション tree_show_deleted が 1 のときだけ含める
+ * 管理者と tree_show_protected が有効なときは権限では絞らない。削除済みはセッション tree_show_deleted が 1 のときだけ含める（初期値は tree.php が resource_tree_show_deleted_default で入れる）
  */
 function tree_visibility_condition()
 {

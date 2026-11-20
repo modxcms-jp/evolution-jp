@@ -1087,6 +1087,8 @@ return [
     'setting_resource_tree_sortby_default_desc' => 'Specify the sorting order on the resource tree of the management screen. The default is menuindex, but you can use any resource field such as menutitle, alias, etc.',
     'setting_resource_tree_node_name' => 'The node name of resource tree',
     'setting_resource_tree_node_name_desc' => 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.',
+    'setting_resource_tree_show_deleted_default' => 'Show deleted resources',
+    'setting_resource_tree_show_deleted_default_desc' => 'Whether to show deleted resources in the Resource Tree after logging in. When toggled with the button above the tree, the choice lasts until you log out.',
     'setting_cache_type' => 'Cache mode',
     'setting_cache_type_desc' => 'Selection of "Cache disabled" will repeal all the cache functions. Caching invalid does not recommend.',
     'setting_conditional_get' => 'Conditional get',
