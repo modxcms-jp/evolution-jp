@@ -155,6 +155,10 @@ final class EditorInitializer
         $output[] = '        console.error("TinyMCE 7 is not loaded. Check assets/plugins/tinymce7/tinymce/js/tinymce/tinymce.min.js");';
         $output[] = '        return;';
         $output[] = '    }';
+        $output[] = '    if (typeof window.tinymce7EditorSetup !== "function") {';
+        $output[] = '        console.error("TinyMCE7: assets/plugins/tinymce7/js/editor-setup.js is not loaded.");';
+        $output[] = '        return;';
+        $output[] = '    }';
         $output[] = '    const config = ' . $configJson . ';';
         $output[] = '    if (!config.selector) {';
         $output[] = '        console.warn("TinyMCE7: selector is empty. Please set selector in config file.");';
