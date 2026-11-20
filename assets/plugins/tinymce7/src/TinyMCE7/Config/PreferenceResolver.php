@@ -242,10 +242,12 @@ final class PreferenceResolver
             }
         }
 
-        if (is_array($rows[0] ?? null)) {
-            array_unshift($rows, ['name' => 'styles', 'items' => ['styles']]);
+        // ツールバーの並びを崩さないよう、最後の行の末尾に足す
+        $last = count($rows) - 1;
+        if (is_array($rows[$last])) {
+            $rows[] = ['name' => 'styles', 'items' => ['styles']];
         } else {
-            $rows[0] = 'styles ' . ltrim((string)($rows[0] ?? ''));
+            $rows[$last] = rtrim((string)$rows[$last]) . ' | styles';
         }
 
         $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
