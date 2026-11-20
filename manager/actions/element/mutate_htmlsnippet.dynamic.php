@@ -246,7 +246,7 @@ if (isset($content['which_editor'])) {
                             </select>
                         </td>
                     </tr>
-                    <tr id="newcategry" data-field="newcategory" style="display:none;">
+                    <tr data-field="newcategory" style="display:none;">
                         <th align="left" valign="middle"><?= lang('new_category') ?></th>
                         <td align="left" valign="top"><input
                                 name="newcategory"

@@ -142,7 +142,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `events-and-plugins.md` | イベント   |
 | `cache-mechanism.md`    | キャッシュ  |
 | `ai-runtime-governance.md` | AIランタイム運用 |
-| `jquery-migration.md`   | jQuery 置き換え |
+| `jquery-migration.md`   | jQuery 置き換え・編集画面の行の data-field 属性 |
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
 | `site-url.md`           | サイトのURL |

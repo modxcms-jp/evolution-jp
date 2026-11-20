@@ -71,15 +71,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
             r.after(t.content);
         });
     }
-    // 以前の .before(集合) と同じく、最後の行の前には元の行を、ほかの行の前には複製を入れる
-    function putBefore(targets, rows) {
-        if (!targets.length) { return; }
-        const frag = document.createDocumentFragment();
-        rows.forEach(function (r) { frag.appendChild(r); });
-        targets.forEach(function (t, i) {
-            t.before(i === targets.length - 1 ? frag : frag.cloneNode(true));
-        });
-    }
     // 行を移し、後ろの説明の行を消し、区切りを足して、見出しの列の幅を外す
     function moveFieldRows(toMove) {
         const helps = [];
@@ -111,17 +102,6 @@ function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
         const rows = MM.all(Evo.fieldRow("menuindex"));
         nextRows(rows).forEach(function (r) { r.remove(); });
         addRule(moveRows(rows));
-    }
-';
-                break;
-
-            case 'pub_date':
-            case 'unpub_date':
-                $output .= '    {
-        const rows = MM.all(Evo.fieldRow(' . js_literal($field) . '));
-        const helpline = moveRows(nextRows(rows));
-        putBefore(helpline, rows);
-        addRule(helpline);
     }
 ';
                 break;

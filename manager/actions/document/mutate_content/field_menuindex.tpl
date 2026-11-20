@@ -1,6 +1,6 @@
 <table class="menuindex-table" cellpadding="0" cellspacing="0">
     <tr>
-        <td class="menuindex-label">
+        <td class="menuindex-label" data-field-part="input">
             <div class="field-inline">
                 [+menuindex+]
                 <input type="button" value="&lt;"

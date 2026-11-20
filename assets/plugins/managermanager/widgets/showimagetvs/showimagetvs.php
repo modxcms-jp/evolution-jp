@@ -71,9 +71,9 @@ const update = function(){
     if (old) { old.remove(); }
 
     if (url != "" && !/::/.test(url)){
-        // Create a new preview（以前の .parents("td").append() と同じく、祖先の td すべてに足す）
+        // Create a new preview（行の入力のセルに足す）
         // 値を HTML として解釈しないよう、要素を作って src に入れる
-        MM.parents(field, "td").forEach(function (td) {
+        MM.all(Evo.fieldPart(field, "value")).forEach(function (td) {
             const box = document.createElement("div");
             box.className = "tvimage";
             box.id = "tv[+id+]PreviewContainer";

@@ -35,23 +35,25 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | 属性 | 付ける所 | 値 |
 | --- | --- | --- |
 | `data-field` | 欄の行（`tr`）。行の中に入れ子になった欄は、その欄を囲む要素 | 欄の名前 |
-| `data-field-part` | 行の中の部分 | `title`（見出し）・`value`（入力のセル）・`help`（説明） |
+| `data-field-part` | 行の中の部分 | `title`（見出し）・`value`（入力のセル）・`help`（説明）・`input`（`value` の中に入れ子の欄が並ぶとき、この欄自身の入力のまとまり。`menuindex` だけ） |
 
 | 部品 | 返すもの |
 | --- | --- |
 | `Evo.fieldRow(name, root)` | `root`（省略時は `document`）の中の、`data-field` が `name` の行。無ければ `null` |
 | `Evo.fieldRow(el)` | 要素 `el` が入っている行（`el` 自身が行ならその行。入れ子のときはいちばん外側の行）。無ければ `null` |
-| `Evo.fieldPart(nameOrEl, part)` | その行の中の、`data-field-part` が `part` の要素（入れ子の欄の部分は含めない）。無ければ `null` |
+| `Evo.fieldPart(nameOrEl, part)` | `Evo.fieldRow(nameOrEl)` の行の中の、`data-field-part` が `part` の要素（入れ子の欄の部分は含めない）。無ければ `null` |
 
 - 文書の編集画面では、属性を `manager/actions/document/mutate_content/render_tr.tpl`（標準のフィールド）と `tv_row.tpl`（TV）に書いている。名前は `fields.php` の各関数が `renderFieldTr()` に渡す。
-- 標準のフィールドの名前は `site_content` の列名にそろえる: `pagetitle`・`longtitle`・`description`・`alias`・`introtext`・`template`・`menutitle`・`menuindex`・`parent`・`published`・`pub_date`・`unpub_date`・`type`・`contentType`・`content_dispo`・`link_attributes`・`isfolder`・`richtext`・`donthit`・`searchable`・`cacheable`。列名と違うのは 2 つで、ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）。
+- 標準のフィールドの名前は `site_content` の列名にそろえる（`pagetitle`・`pub_date`・`contentType` など）。例外は 3 つ。ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）、「メニューに表示」の `hidemenu` は行ではなく `menuindex` の行の中の入れ子。名前の正本は `fields.php`（`renderFieldTr()` の第 1 引数）と `field_menuindex.tpl`。
 - TV の行は `tv{id}`（例: `tv12`）。
 - 「メニューに表示」は `hidemenu`。`menuindex` の行の中に入れ子になっていて、`data-field` はそのセル（`field_menuindex.tpl` の `td.menuindex-options`）に付く。
-- 入れ子の欄は名前で探す。`Evo.fieldRow('hidemenu')` はそのセルを、`Evo.fieldRow('menuindex')` は外側の行を返す。要素から探すと（`Evo.fieldRow(el)`）、「メニューに表示」のチェックボックスからでも外側の `menuindex` の行が返る（行を隠す・移す処理が、表の行をまるごと扱えるように）。`Evo.fieldPart('menuindex', part)` は `hidemenu` の部分を返さない。
+- 入れ子の欄は名前で探す。`Evo.fieldRow('hidemenu')` はそのセルを、`Evo.fieldRow('menuindex')` は外側の行を返す。`Evo.fieldPart('menuindex', part)` は `hidemenu` の部分を返さない。
+- 要素から探すと、入れ子の欄の中の要素でも外側の行が基準になる（行を隠す・移す処理が、表の行をまるごと扱えるように）。「メニューに表示」のチェックボックス `el` では、`Evo.fieldRow(el)` は `menuindex` の行、`Evo.fieldPart(el, 'title')` は `menuindex` の見出しを返す。`hidemenu` の部分が要るときは `Evo.fieldPart('hidemenu', part)` と名前で指定する。
+- ManagerManager の `mm_hideFields` は、この違いがそのまま出る。`show_in_menu`・`hidemenu` は名前で探すので「メニューに表示」のセルだけを隠し、`hide_menu` は欄の要素から探すので `menuindex` の行ごと隠す。
 - 本文（`#content_body`）とエディターの選択（`#which_editor`）は表の行ではないので、id で探す。
 - `help` があるのは、TV の行（TV の説明の文字）と `hidemenu`（説明のアイコンを囲む `span`）。ほかの標準のフィールドの説明のアイコン（`img.tooltip`）は `value` の中にある。
 - `renderTr()` で出すフィールドではない行（下書きの採用日時など）は `data-field` が空で、`Evo.fieldRow()` の対象にならない。
-- エレメントの編集画面（`manager/actions/element/mutate_*.dynamic.php` の 6 つ）の、新しいカテゴリー名の行は `data-field="newcategory"`（`manager/media/script/element-category.js` が使う）。
+- エレメントの編集画面（`manager/actions/element/` の `mutate_templates`・`mutate_htmlsnippet`・`mutate_snippet`・`mutate_plugin`・`mutate_module`・`mutate_tmplvars` の各 `.dynamic.php`）の、新しいカテゴリー名の行は `data-field="newcategory"`（`manager/media/script/element-category.js` が使う）。
 - `custom_tpl_dir` で `render_tr.tpl`・`tv_row.tpl`・`field_menuindex.tpl` を差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。
 
 ## 画面の JS から別の画面へ移る

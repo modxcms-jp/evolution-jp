@@ -28,10 +28,6 @@ function mm_hideFields($fields, $roles = '', $templates = '')
 
     // 行（%s は行を返す式）を隠し、次の tr の中に td[colspan="2"] があれば、その td の親の tr（区切りの行）も隠す
     $hideRows = 'MM.all(%s).forEach(function (tr) { MM.hide(tr); const n = tr.nextElementSibling; if (n && n.matches("tr")) { n.querySelectorAll(\'td[colspan="2"]\').forEach(function (td) { if (td.parentElement.matches("tr")) { MM.hide(td.parentElement); } }); } });';
-    // 行（%s は行を返す式）の次の tr を隠し、行も隠す
-    $hideDateRows = 'MM.all(%s).forEach(function (tr) { const n = tr.nextElementSibling; if (n && n.matches("tr")) { MM.hide(n); } MM.hide(tr); });';
-    // 親が td のときだけ親を隠す
-    $hideParentTd = 'MM.all(%s).forEach(function (el) { if (el.parentElement && el.parentElement.matches("td")) { MM.hide(el.parentElement); } });';
 
     foreach ($fields as $field) {
         switch ($field) {
@@ -42,8 +38,9 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 break;
 
             case 'menuindex':
+                // 見出しと入力のセルを隠す（同じ行の「メニューに表示」は残す）
                 $output .= 'MM.hide(Evo.fieldPart("menuindex", "title"));' . "\n";
-                $output .= sprintf($hideParentTd, '"input[name=menuindex]"');
+                $output .= 'MM.hide(Evo.fieldPart("menuindex", "input"));';
                 break;
 
             case 'which_editor':
@@ -53,14 +50,6 @@ function mm_hideFields($fields, $roles = '', $templates = '')
             case 'content':
                 // For 1.0.1
                 $output .= 'MM.all("#ta").forEach(function (el) { const p = el.parentElement; const d = p && p.matches("div") ? p.parentElement : null; if (d && d.matches("div")) { MM.hide(d); const prev = d.previousElementSibling; if (prev && prev.matches("div")) { MM.hide(prev); } } });';
-                break;
-
-            case 'pub_date':
-                $output .= sprintf($hideDateRows, 'Evo.fieldRow("pub_date")');
-                break;
-
-            case 'unpub_date':
-                $output .= sprintf($hideDateRows, 'Evo.fieldRow("unpub_date")');
                 break;
 
             case 'weblink':

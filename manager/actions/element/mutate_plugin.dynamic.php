@@ -471,7 +471,7 @@ function entity($key, $default = null)
                             </select>
                         </td>
                     </tr>
-                    <tr id="newcategry" data-field="newcategory" style="display:none;">
+                    <tr data-field="newcategory" style="display:none;">
                         <th align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?>
                             :
                         </th>
