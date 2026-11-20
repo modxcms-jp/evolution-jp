@@ -1514,4 +1514,9 @@ return [
     "styleguide_view_current" => '今の見た目',
     "styleguide_view_proposal" => '目盛りの案',
     "styleguide_view_compare" => '並べて比べる',
+    "cannot_unpublish_site_start" => 'このリソースはトップページに設定されているため、非公開にできません。',
+    "required_field" => '必須',
+    "required_fields_missing" => '次の必須の欄が空です。入力してください。',
+    "max_length_exceeded" => '次の欄が文字数の上限を超えています。短くしてください。',
+    "googlemap_not_found" => '住所が見つかりませんでした。',
 ];

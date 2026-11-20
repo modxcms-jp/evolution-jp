@@ -86,7 +86,9 @@ MM.all("#tv' . $tv['id'] . '").forEach(function (field) {
         });
 
         if (ddErrors.length > 0) {
-            alert("Некорректно заполнены поля: " + ddErrors.join(","));
+            const text = document.createElement("div");
+            text.textContent = ddErrors.join(", ");
+            EvoDialog.alert(' . js_literal(hsc(lang('max_length_exceeded'))) . ' + "\n\n" + text.innerHTML, "", null, {icon: "warning"});
             e.preventDefault();
             e.stopPropagation();
         }
