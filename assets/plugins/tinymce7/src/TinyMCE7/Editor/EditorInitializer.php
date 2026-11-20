@@ -108,6 +108,7 @@ final class EditorInitializer
         // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
         $config = $this->applyTemplates($config, empty($params['forfrontend']));
         $config = $this->preferences->applyCssSelectors($config);
+        $config = $this->preferences->applyLinkRel($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
@@ -220,33 +221,60 @@ final class EditorInitializer
         $output[] = '        editor.on("init", function() {';
         $output[] = '            editor.on("SetContent", notifyUnlessComposing);';
         $output[] = '        });';
-        // リンクのダイアログの「クラス」は、一覧に無い値を保てず、そのまま保存すると class を消す。
-        // 開く前に、本文のリンクの class のうち一覧に無いものを選択肢に足す。
+        // リンクのダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
+        // 開く前に、本文のリンクの値のうち一覧に無いものを選択肢に足す。
         // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
-        $output[] = '        let baseLinkClasses = null;';
+        // 種類ごとの値のそろえ方。canonical は本文の値を TinyMCE が選択肢と比べる形に、normalize は選択肢どうしを比べる形にする。
+        // TinyMCE は rel の選択肢を並べ替え、新しいウィンドウのリンクには noopener を足してから、リンクの値と完全一致で比べる
+        $output[] = '        const sortTokens = function(value) {';
+        $output[] = '            return value.split(/\\s+/).filter(function(token) {';
+        $output[] = '                return token !== "";';
+        $output[] = '            }).sort().join(" ");';
+        $output[] = '        };';
+        $output[] = '        const asIs = function(value) {';
+        $output[] = '            return value;';
+        $output[] = '        };';
+        $output[] = '        const linkChoiceLists = [';
+        $output[] = '            {option: "link_class_list", attribute: "class", base: null, canonical: asIs, normalize: asIs},';
+        $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, canonical: sortTokens, normalize: function(value) {';
+        $output[] = '                return sortTokens(value.split(/\\s+/).filter(function(token) {';
+        $output[] = '                    return token !== "noopener";';
+        $output[] = '                }).join(" "));';
+        $output[] = '            }}';
+        $output[] = '        ];';
         $output[] = '        editor.on("BeforeExecCommand", function(e) {';
         $output[] = '            if (e.command !== "mceLink") {';
         $output[] = '                return;';
         $output[] = '            }';
-        $output[] = '            if (baseLinkClasses === null) {';
-        $output[] = '                const list = editor.options.get("link_class_list");';
-        $output[] = '                baseLinkClasses = Array.isArray(list) ? list : [];';
-        $output[] = '            }';
-        $output[] = '            if (baseLinkClasses.length === 0) {';
-        $output[] = '                return;';
-        $output[] = '            }';
-        $output[] = '            const listed = new Set(baseLinkClasses.map(function(item) {';
-        $output[] = '                return item ? item.value : undefined;';
-        $output[] = '            }));';
-        $output[] = '            const extra = [];';
-        $output[] = '            editor.dom.select("a[href]").forEach(function(link) {';
-        $output[] = '                const linkClass = link.getAttribute("class") || "";';
-        $output[] = '                if (linkClass !== "" && !listed.has(linkClass)) {';
-        $output[] = '                    listed.add(linkClass);';
-        $output[] = '                    extra.push({title: linkClass, value: linkClass});';
+        $output[] = '            const links = editor.dom.select("a[href]");';
+        $output[] = '            linkChoiceLists.forEach(function(choices) {';
+        $output[] = '                if (choices.base === null) {';
+        $output[] = '                    const list = editor.options.get(choices.option);';
+        $output[] = '                    choices.base = Array.isArray(list) ? list : [];';
         $output[] = '                }';
+        $output[] = '                if (choices.base.length === 0) {';
+        $output[] = '                    return;';
+        $output[] = '                }';
+        $output[] = '                const listed = new Set(choices.base.map(function(item) {';
+        $output[] = '                    return item && typeof item.value === "string" ? choices.normalize(item.value) : undefined;';
+        $output[] = '                }));';
+        $output[] = '                const extra = [];';
+        $output[] = '                links.forEach(function(link) {';
+        $output[] = '                    const raw = link.getAttribute(choices.attribute) || "";';
+        $output[] = '                    const canonical = choices.canonical(raw);';
+        $output[] = '                    if (canonical !== raw) {';
+        $output[] = '                        editor.undoManager.ignore(function() {';
+        $output[] = '                            editor.dom.setAttrib(link, choices.attribute, canonical);';
+        $output[] = '                        });';
+        $output[] = '                    }';
+        $output[] = '                    const value = choices.normalize(canonical);';
+        $output[] = '                    if (value !== "" && !listed.has(value)) {';
+        $output[] = '                        listed.add(value);';
+        $output[] = '                        extra.push({title: value, value: value});';
+        $output[] = '                    }';
+        $output[] = '                });';
+        $output[] = '                editor.options.set(choices.option, choices.base.concat(extra));';
         $output[] = '            });';
-        $output[] = '            editor.options.set("link_class_list", baseLinkClasses.concat(extra));';
         $output[] = '        });';
         $output[] = '    };';
         $output[] = '    tinymce.init(config);';
