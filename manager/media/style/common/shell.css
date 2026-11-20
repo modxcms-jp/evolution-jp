@@ -441,6 +441,39 @@ body.evo-shell.tree-hidden #mainPane #actions {
     margin-bottom: var(--space-5, 20px);
 }
 
+/* タブの行は、本文をスクロールしても #mainPane の上に貼り付ける。入れ子のタブは外側の行だけ。
+   #mainPane の上の余白の分だけ上に寄せ、その余白も行の背景で覆う。
+   背景はページの地（body の背景）を shell.js が写したもの。body はスクロールしないので fixed で同じ位置に重なる。
+   本体（.tab-page、z-index: 2）より前に出す */
+body.evo-shell #mainPane .dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row {
+    position: sticky;
+    top: calc(-1 * var(--shell-main-padding, var(--space-2, 8px)));
+    z-index: 3;
+    background-color: var(--shell-page-bg-color, transparent);
+    background-image: var(--shell-page-bg-image, none);
+    background-position: var(--shell-page-bg-position, 0 0);
+    background-size: var(--shell-page-bg-size, auto);
+    background-repeat: var(--shell-page-bg-repeat, repeat);
+    background-attachment: fixed;
+}
+
+/* 貼り付いているあいだ（shell.js が is-stuck を付ける）は、右上に固定した #actions（shell.js が測った幅）の分だけ行の右を空け、タブを折り返す */
+body.evo-shell #mainPane .dynamic-tab-pane-control > .tab-row.is-stuck {
+    padding-inline-end: calc(var(--shell-actions-width, 0px) + var(--space-2, 8px));
+}
+
+/* 本体の上の枠（フォルダの見出しの型でタブの下に見える線）を、行の下端にも引いて一緒に貼り付ける。
+   選んでいないタブより前、選んでいるタブ（z-index: 999）より後ろに置き、選んでいるタブと本体をつなげる */
+body.evo-shell #mainPane .dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
+    border-top: var(--tab-page-border-top, var(--tab-page-border, none));
+    pointer-events: none;
+}
+
 /* TinyMCE fullscreen時はエディタを最前面にし、管理画面シェルの操作部品を隠す */
 body.evo-shell.tox-fullscreen {
     grid-template-rows: 0 1fr;

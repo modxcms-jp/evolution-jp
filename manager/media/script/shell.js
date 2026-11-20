@@ -472,6 +472,69 @@
         return el.getClientRects().length > 0;
     }
 
+    // 上に貼り付けたタブの行（shell.css）に、CSS の変数で 2 つを渡す。
+    // ページの地（body の背景）: 行の後ろを地と同じ模様で塗り、スクロールした本文を透かさない。
+    // #actions の幅: 貼り付いているとき（is-stuck）だけ、右上に固定したボタンの列の分を行の右に空ける。
+    // 画面ごとにボタンの数が違うので測る。貼り付く前のボタンは見出しの行にあり、タブとは重ならない
+    const STICKY_TAB_ROW = '.dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row';
+
+    function copyPageBackground() {
+        const bg = getComputedStyle(document.body);
+        const root = document.documentElement.style;
+        root.setProperty('--shell-page-bg-color', bg.backgroundColor);
+        root.setProperty('--shell-page-bg-image', bg.backgroundImage);
+        root.setProperty('--shell-page-bg-position', bg.backgroundPosition);
+        root.setProperty('--shell-page-bg-size', bg.backgroundSize);
+        root.setProperty('--shell-page-bg-repeat', bg.backgroundRepeat);
+    }
+
+    const actionsObserver = typeof ResizeObserver === 'function'
+        ? new ResizeObserver(syncActionsWidth)
+        : null;
+
+    function syncActionsWidth() {
+        const pane = document.getElementById('mainPane');
+        if (!pane) {
+            return;
+        }
+        const actions = pane.querySelector('#actions');
+        pane.style.setProperty('--shell-actions-width', (actions ? actions.offsetWidth : 0) + 'px');
+    }
+
+    function watchActions() {
+        const actions = document.querySelector('#mainPane #actions');
+        if (actionsObserver) {
+            actionsObserver.disconnect();
+            if (actions) {
+                actionsObserver.observe(actions);
+            }
+        }
+        syncActionsWidth();
+        syncStuckTabRows();
+    }
+
+    function syncStuckTabRows() {
+        const pane = document.getElementById('mainPane');
+        if (!pane) {
+            return;
+        }
+        const paneTop = pane.getBoundingClientRect().top;
+        pane.querySelectorAll(STICKY_TAB_ROW).forEach(function (row) {
+            row.classList.toggle('is-stuck', pane.scrollTop > 0 && row.getBoundingClientRect().top <= paneTop + 1);
+        });
+    }
+
+    let stuckFrame = 0;
+
+    function onPaneScroll() {
+        if (!stuckFrame) {
+            stuckFrame = requestAnimationFrame(function () {
+                stuckFrame = 0;
+                syncStuckTabRows();
+            });
+        }
+    }
+
     // アニメーションを出すボタンを決める。決まらなければnull(今の半透明のまま)
     function resolveTrigger(submitter, targets) {
         const clicked = lastClicked;
@@ -1254,5 +1317,13 @@
         });
 
         scrollPaneToHash(window.location.href);
+
+        copyPageBackground();
+        watchActions();
+        document.addEventListener('evoshell:load', watchActions);
+        const pane = document.getElementById('mainPane');
+        if (pane) {
+            pane.addEventListener('scroll', onPaneScroll, { passive: true });
+        }
     });
 })();
