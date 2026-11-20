@@ -8,8 +8,8 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 
 ## Progress
 
-- [x] (2026-11-21) 現状を調べ、ExecPlan を作った（本人の決定は Decision Log、決めてほしい点は「決めること」）
-- [ ] 「決めること」を本人に確かめ、Decision Log に移す
+- [x] (2026-11-21) 現状を調べ、ExecPlan を作った
+- [x] (2026-11-21) 計画者が挙げた 9 つの論点を本人が決め、Decision Log に移した（計画の手順と検証も合わせて直した）
 - [ ] M1: ファイルピッカーを、指定したファイルの画像編集を開いた状態で起動できるようにする（PR 1、Refs #1666）
 - [ ] M2: TinyMCE で画像をダブルクリックすると、ファイルピッカーの画像編集が開き、保存後に src を差し替える（PR 2、M3 と一緒）
 - [ ] M3: `tinymce-cropper.js`・`image_cropper` の設定・Cropper.js の読み込みを消す（PR 2、Closes #1666）
@@ -37,60 +37,36 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21 本人の決定: 貼り付け・ドロップした画像は、ファイルピッカーと同じアップロードの API（`api.php`・`upload.js` の仕組み。権限・CSRF・`upload_images`・`upload_maxsize` の確かめ）で `{rb_base_dir}` に保存し、本文にはその URL を入れる（TinyMCE 7 の `images_upload_handler`）。
 - 2026-11-21 本人の決定: 画像をダブルクリックしたときは、TinyMCE 7 プラグインの独自の画像編集（`tinymce-cropper.js`、CDN の Cropper.js、`config/manager.json` の `image_cropper`）を廃止し、その画像を開いた状態でファイルピッカーの画像編集（`imageEditor.js`、API の `saveImage`）を起動する。保存後に本文の src を差し替える。サイトの外の画像では何もしない。
 - 2026-11-21 本人の決定: ファイルピッカーは、開くときの指定で特定のファイルの画像編集を開いた状態で起動できるようにする。
+- 2026-11-21 本人の決定（置き場所）: 貼り付け・ドロップした画像は `images/年/月/`（例 `images/2026/11/`）に置く。月はサイトの時刻（`server_offset_time` を足した今の時刻）で決める。
+  - 理由: 文書の ID が要らないので、新規の文書・TV のリッチテキスト・フロントでも同じに動き、ファイルピッカーで月ごとに探せる。
+  - 却下: `images/` の直下（根に溜まって一覧が長くなる）。文書ごと（新規の文書は保存するまで ID が無く、ID の取り直しでファイルを移す処理が要る。TV・複製の扱いも要る）。
+- 2026-11-21 本人の決定（ファイル名）: ドロップしたファイルは元の名前（サーバーの `sanitizeFilename()` を通す）。名前の無い貼り付け（スクリーンショットなど。ブラウザは `image.png` のような名前を付ける）は `pasted-年月日-時分秒.拡張子`（例 `pasted-20261121-143022.png`）。同名はファイルピッカーと同じく `名前(1).拡張子`。
+  - 却下: いつも日時と乱数（名前から中身が分からない）。いつも元の名前（スクリーンショットが `image(1).png`・`image(2).png`… と並ぶ）。
+- 2026-11-21 本人の決定（アップロードできないとき）: 受け付けない。ファイルピッカーが使えない利用者（`use_browser` が無効、フロントのウェブユーザーで `rb_webuser` が無効など）には、貼り付け・ドロップの画像を最初から受け付けない（`paste_data_images: false`）。送って断られたもの（書き込めない・拡張子が `upload_images` に無い・`upload_maxsize` を超える・CSRF の失敗）は、本文から消して理由を通知に出す。data: 画像のまま残すことはしない。
+  - 本体に「ファイルのアップロード」のロールの権限が無い件は、この計画では扱わず別の Issue にする（Artifacts and Notes）。
+- 2026-11-21 本人の決定（保存のしかたの既定）: TinyMCE から開いた画像編集は、ファイルピッカーと同じく「別名で保存」が既定。`imageEditor.js` の今の既定（開くたびに `copy` に戻す）をそのまま使うので、既定を変える引数は足さない。利用者が編集画面で「上書き」を選んだときは、src が同じ URL のままなので、エディタの中の画像を `fetch(url, {cache: 'reload'})` で読み直してから src を付け直す（要確認: これでエディタの iframe の中の表示が新しくなること）。
+- 2026-11-21 本人の決定（width・height 属性）: 編集した画像を本文に戻すとき、width の属性はそのまま、height は保存した画像の縦横比で計算し直す（`Math.round(width × 新しい高さ ÷ 新しい幅)`）。width が無く height だけあるときは、height をそのままにして width を計算し直す。どちらも無ければ付けない。
+  - 却下: 保存した画像の画素数にする（今の cropper の動き。大きな写真ではページの中で大きく出る）。両方消す。
+- 2026-11-21 本人の決定（既存の data: 画像）: 既に本文に入っている data: 画像はそのまま残す。開いた時点の本文にある data: 画像は、`editor.editorUpload.addFilter()` でアップロードの対象から外す（開くだけでファイルが書かれ、開くたびに増えることを防ぐ）。文書をまとめて移す CLI は別の Issue にする（Artifacts and Notes）。
+- 2026-11-21 本人の決定（保存時の変換 `convert_datauri_to_file`）: 残す（今どおり要約だけが対象）。`assets/docs/datauri-conversion.md` の「対象: content、introtext」を実装に合わせて直す。
+- 2026-11-21 本人の決定（画像のダイアログの「アップロード」タブ）: 出さない（`image_uploadtab: false`）。アップロードは同じダイアログの参照ボタンから、ファイルピッカーで置き場所を選んで行う。
+- 2026-11-21 本人の決定（進め方）: PR #1670（#1661、TinyMCE の setup を `js/editor-setup.js` へ）と PR #1671（#1668、ファイルピッカーの選択の帯）のマージを待ち、それから `origin/main` から始める。M1 は #1671 と同じ `filebrowser.js` を、M2・M4 は #1670 と同じ setup を触るため。
 - 2026-11-21（計画者）ファイルピッカーへの指定は、今ある `folder`・`select`（開いたときに選ぶファイル）に `edit=1` を足す形にする。`select` のファイルが一覧にあり、`imageEditor.canEdit()` が通れば画像編集を開く。通らなければ（無い・gif・大きすぎる）一覧のまま理由を出す。
   - 理由: 開いたときに選ぶ処理（見つからなければ根のフォルダへ戻る、`navigateTo('', initialSelect)`）と URL の組み立て（`mcpuk-picker.js` の `buildUrl()`、`evo-file-picker.js` の `withInitialSelection()`）をそのまま使える。
   - 却下: Issue のコメントの案 `edit=<rb_base_dir からのパス>`（パスを分ける処理がもう 1 つ増える）。
 - 2026-11-21（計画者）画像編集から開いたピッカーは、保存できたら保存したファイルを「選んだ」として返す。返し方は今の `pickFile()` をそのまま使う（シェルのモーダル・ポップアップ・TinyMCE の iframe の 3 通り）。呼び出し側から見ると、ファイルを選んだときと同じ形で URL が届く。編集を取り消したら、ピッカーごと閉じる（TinyMCE の iframe には新しい `postMessage({mceAction: 'evoFbClose'})`、シェルのモーダルは `EvoShell.closeModal()`、ポップアップは `window.close()`）。
   - 理由: 編集のためだけに開いたので、取り消しの後に一覧が残ると、もう一度閉じる手間が増える。返し方を増やさない。
   - 却下: 取り消し後も一覧を残す（別の画像を選べるが、TinyMCE のダブルクリックでは選んでも何も起きない）。
-- 2026-11-21（計画者）TinyMCE からは、ファイルの選択（`file_picker_callback`）と同じく `editor.windowManager.openUrl()` の iframe で開く。開く・閉じる・結果を受ける処理は `mcpuk-picker.js` の `openInEditorDialog()` に寄せ、ダブルクリックの処理もこのファイルに置く（ファイルピッカーとの橋渡しを 1 ファイルにする）。`file_browser` が `none` のときはこのファイルを読まないので、ダブルクリックも貼り付けのアップロードも無い（貼り付けは受け付けない。「決めること」3）。
+- 2026-11-21（計画者）TinyMCE からは、ファイルの選択（`file_picker_callback`）と同じく `editor.windowManager.openUrl()` の iframe で開く。開く・閉じる・結果を受ける処理は `mcpuk-picker.js` の `openInEditorDialog()` に寄せ、ダブルクリックの処理もこのファイルに置く（ファイルピッカーとの橋渡しを 1 ファイルにする）。`file_browser` が `none` のときはこのファイルを読まないので、ダブルクリックも貼り付けのアップロードも無い（貼り付けの画像は受け付けない）。
 - 2026-11-21（計画者）画像の src からファイルを割り出すのは JS（`mcpuk-picker.js`）で行う。PHP は `BrowserConfig::baseUrl()`（`rb_base_url` の絶対の URL）を、今の `mcpukBootstrapScript()` の値と一緒に渡す。src は `editor.documentBaseURI.toAbsolute()` で絶対の URL にし、`baseUrl` で始まり、その次の要素が `images`・`media`・`files` のどれかなら、その種類・フォルダ・ファイル名（要素ごとに `decodeURIComponent`）で開く。始まらない（別のオリジン・`rb_base_url` の外）、`data:`・`blob:`、拡張子が jpg・jpeg・png でないものは、何もしない。
   - 却下: 今の `splitCurrentPath()`（パスの中の `images` という要素を探す）を使う。`rb_base_url` の外の `/images/` を誤って拾う。
 - 2026-11-21（計画者）画像を選んだときの帯の「画像を編集」ボタンは残し、ダブルクリックと同じ処理にする（キーボードで操作する人のため。今の cropper にもある）。アイコンは TinyMCE の `edit-image`。
-- 2026-11-21（計画者）貼り付けのアップロードは、`api.php` のピッカーの範囲に新しい操作（仮の名前 `uploadPasted`、CSRF あり・POST だけ）を足す。置き場所の決まり（「決めること」1）をサーバーで持ち、無いフォルダを作り（`mkdir` と同じ確かめ。守る場所・パーミッション・管理操作ログ）、1 ファイルずつの保存は `fbPickerUpload()` の繰り返しの中身を共通の関数に出して使う（拡張子・大きさ・同名・縮小・イベントが同じになる）。応答は `{uploaded:[{index,name,path,url}], errors:[...]}`。`path` は一覧と同じ作り方（共通の関数）にする。
+- 2026-11-21（計画者）貼り付けのアップロードは、`api.php` のピッカーの範囲に新しい操作（仮の名前 `uploadPasted`、CSRF あり・POST だけ）を足す。置き場所の決まり（`images/年/月/`）をサーバーで持ち、無いフォルダを作り（`mkdir` と同じ確かめ。守る場所・パーミッション・管理操作ログ）、1 ファイルずつの保存は `fbPickerUpload()` の繰り返しの中身を共通の関数に出して使う（拡張子・大きさ・同名・縮小・イベントが同じになる）。応答は `{uploaded:[{index,name,path,url}], errors:[...]}`。`path` は一覧と同じ作り方（共通の関数）にする。
   - 理由: 置き場所の決まりを JS に持たせると、フォルダを作る往復（1 階層ずつの `mkdir`）が増え、決まりがサーバーと画面に分かれる。
   - 却下: 今の `upload` に「フォルダが無ければ作る」を足す（ピッカーの画面のアップロードの動きまで変わる）。
 - 2026-11-21（計画者）アップロードできるかは、エディタを出すときに PHP で `PickerScope::authorize(evo(), new BrowserConfig(evo()), 'images')` を呼んで決める（ピッカーの入口と同じ判定を使う）。通れば `images_upload_handler` を設定し、トークン（`getCurrentCsrfToken()`）と送り先の URL を渡す。通らなければ受け手を設定せず `paste_data_images: false` にする。`images_file_types` は TinyMCE の既定と `upload_images` の重なりにする（許可していない形式は最初から受け付けない）。
 - 2026-11-21（計画者）アップロードの途中で保存したときは、送る前にアップロードを待つ。エディタの元の欄のフォームに、捕捉の段階（capture）の `submit` の受け手を付け、未アップロードの画像があれば `preventDefault()` して `editor.uploadImages()` を待ち、終わったら `form.requestSubmit(e.submitter)` で送り直す（要確認: shell の document の受け手は `defaultPrevented` を見て送らないこと、TinyMCE の `submit` の受け手より先に呼ばれること、`document.mutate.save.click()` の合成クリックでも同じに動くこと）。
 - 2026-11-21（計画者）既存のサイトの設定ファイルに `image_cropper` の項目が残っていても、読む処理を消すだけにする（TinyMCE は知らない設定を無視する）。互換のための読み替えは置かず、リリースノートに書く。
-
-## 決めること
-
-本人に確かめてから、Decision Log に移す。推奨は計画者の案。
-
-1. 貼り付けた画像の置き場所
-   - A: `images/` の直下（ファイルピッカーの根に溜まり、一覧が長くなる）
-   - B: `images/年/月/`（例 `images/2026/11/`）。推奨。文書の ID が要らないので、新規の文書・TV のリッチテキスト・フロントでも同じに動き、ファイルピッカーで月ごとに探せる
-   - C: 文書ごと（例 `images/docs/123/`）。新規の文書は保存するまで ID が無く、今の `convert_datauri_to_file` は ID の取り直しでファイルを移す処理（`moveDataUriFilesToNewId()`）まで持っている。TV や複製のときの扱いも要る
-2. 貼り付けた画像のファイル名
-   - A: ドロップしたファイルは元の名前（`sanitizeFilename()` を通す）。名前の無いもの（スクリーンショットの貼り付けなど。ブラウザは `image.png` を付ける）は `pasted-年月日-時分秒.拡張子`。同名はファイルピッカーと同じく `名前(1).拡張子`。推奨
-   - B: いつも日時と乱数（今の `convert_datauri_to_file` と同じ `20261121143022_a1b2c3d4.png`）。名前から中身が分からない
-   - C: いつも元の名前（スクリーンショットは `image(1).png`、`image(2).png`… と並ぶ）
-3. 貼り付けた画像をアップロードできないとき（ファイルピッカーが無効、フロントのウェブユーザーで `rb_webuser` が無効、保存先に書き込めない、拡張子が `upload_images` に無い、`upload_maxsize` を超える）
-   - A: 受け付けない。ピッカーが使えない利用者には貼り付け・ドロップの画像を受け付けず（`paste_data_images: false`）、送って断られたものは本文から消して理由を通知に出す。推奨（決定の「本文に data: 画像を入れない」どおり）
-   - B: 送れなかった画像だけ data: 画像のまま残す
-   - 補足: 本体に「ファイルのアップロード」のロールの権限は無く、ファイルピッカーは管理画面にログインしている人なら誰でもアップロードできる。権限を足すかは、この計画の外（要るなら別の Issue）
-4. TinyMCE から開いた画像編集の、保存のしかたの既定
-   - A: 別名で保存（`名前(1).拡張子` の新しいファイル）。推奨。ファイルピッカーの既定と同じで、同じ画像を使っているほかのページが変わらない
-   - B: 上書き。ファイルは増えないが、同じ画像を使うすべてのページが変わり、ブラウザに古い画像が残ることがある
-   - どちらでも、編集画面で切り替えられる。上書きを選んだときは、エディタの中の画像を `fetch(url, {cache: 'reload'})` で読み直してから src を付け直す（要確認）
-5. 編集した画像を本文に戻すときの width・height 属性（トリミングで縦横比が変わる）
-   - A: 幅の属性はそのまま、高さを新しい縦横比で計算し直す。属性が無ければ付けない。推奨（ページの中での大きさが変わらない）
-   - B: 保存した画像の画素数にする（今の cropper と同じ。大きな写真ではページの中で大きく表示される）
-   - C: 両方消す
-6. 既に本文に入っている data: 画像（#1652・#1666 の不具合で入ったもの）
-   - A: 開いたときに自動で移す（受け手を足したときの TinyMCE の既定の動き）。開くだけでファイルが書かれ、保存せずに閉じると開くたびに同じ画像のファイルが増える
-   - B: そのまま残す。開いた時点の data: 画像はアップロードの対象から外す（`editor.editorUpload.addFilter()`）。推奨。移す手段が要るなら、文書をまとめて移す CLI を別の Issue にする
-   - C: 保存時にサーバーで移す（`convert_datauri_to_file` を本文にも戻し、置き場所を 1 の決まりにそろえる）。本文は 2025-11 に一度この対象から外している
-7. 要約（introtext）だけに残っている保存時の変換 `convert_datauri_to_file`
-   - A: 残し、`assets/docs/datauri-conversion.md` の「対象: content」の食い違いだけ直す。推奨（この計画の目的の外）
-   - B: 廃止する（設定・関数・ドキュメントを消す）
-8. 画像のダイアログ（TinyMCE の「画像の挿入/編集」）の「アップロード」タブ。受け手を設定すると出るようになる（`image_uploadtab` の既定が true）
-   - A: 出さない（`image_uploadtab: false`）。推奨。同じダイアログの参照ボタンから、ファイルピッカーで置き場所を選んでアップロードできる
-   - B: 出す（貼り付けと同じ置き場所へ入る）
-9. 進め方（マージ前の PR への依存）
-   - A: #1671（PR、#1668 のファイルピッカーの選択の帯）と #1670（PR、#1661 の TinyMCE の setup を `js/editor-setup.js` へ切り出し）のマージを待ってから、main から始める。推奨。M1 は #1671 と同じ `filebrowser.js` を、M2・M4 は #1670 と同じ `EditorInitializer.php` の setup を触る
-   - B: 待たずに、それぞれの PR のブランチを base にして積む
 
 ## Outcomes & Retrospective
 
@@ -129,14 +105,14 @@ TinyMCE 側の新しい処理は、ファイルピッカーとの橋渡しとし
 
 ## Concrete Steps
 
-ブランチは `origin/main`（「決めること」9 が B なら前の PR のブランチ）から `git worktree add -b <ブランチ名>` で作る。Issue には紐づけない（M1 の PR が #1666 を閉じないように）。PHP を変えたら、`docker run --rm -v "$PWD":/app -w /app php:7.4-cli php -l <ファイル>` と検証用のイメージの `php -l` を通す。
+始める前に `gh pr view 1670 -R modxcms-jp/evolution-jp --json state` と `gh pr view 1671 ...` が両方 `MERGED` であることを確かめる（まだなら待つ）。ブランチは `origin/main` から `git worktree add -b <ブランチ名>` で作る。Issue には紐づけない（M1 の PR が #1666 を閉じないように）。PHP を変えたら、`docker run --rm -v "$PWD":/app -w /app php:7.4-cli php -l <ファイル>` と検証用のイメージの `php -l` を通す。
 
 ### M1: 指定したファイルの画像編集を開いて起動する（ブランチ `feat/1666-picker-open-editor`）
 
 1. `manager/media/browser/evo/browser.php`: `get_boolvar('edit')` を読み、`BrowserView::jsConfig()` に `initialEdit` として渡す。`lib/BrowserView.php` の `jsConfig()` に `'initialEdit' => !empty($options['initialEdit'])` を足す。
 2. `manager/media/browser/evo/filebrowser.js`: 最初の一覧を読み終えたとき（`load(initialSelect)` の後、選んだファイルが見つかったとき）、`config.initialEdit` なら `imageEditor.canEdit(file)` を確かめて `imageEditor.open(file)` する。通らなければ、一覧の上にメッセージ（言語の項目を足す。例 `fb_edit_unavailable`「この画像は編集できません」）を出す。最初の一覧の 1 回だけで、フォルダを移ったあとには開かない。
 3. 編集から開いたときの終わり方を、振る舞い（`behaviors`）に問う形で足す。`imageEditor.js` の `createImageEditor()` に `onCancel` を足し（取り消し・Esc・閉じるで呼ぶ。保存のあとは呼ばない）、`filebrowser.js` は `config.initialEdit` で開いた編集に限り、保存したら一覧を読み直して保存したファイルの項目を `behaviors.editDone(entry)` に、取り消したら `behaviors.editCancel()` に渡す。`js/picker.js` の振る舞いに `editDone`（`pickFile(entry.path)`）と `editCancel`（シェルのモーダルは `EvoShell.closeModal()`、ポップアップは `window.close()`、iframe は `window.parent.postMessage({mceAction: 'evoFbClose'}, window.location.origin)`）を足す。管理モード（`js/manage.js`）は足さない（`initialEdit` を渡さない）。
-4. 保存のしかたの既定（「決めること」4）を `imageEditor.open(file, options)` の引数で受けられるようにする（既定は今どおり別名）。B に決まったら `browser.php` が `editMode=overwrite` を読んで渡す。
+4. 保存のしかたの既定は今どおり「別名で保存」のまま（`imageEditor.js` は変えない）。
 5. `api.php` の頭の説明に、`browser.php` の `edit` は書かない（API ではない）。`browser.php` の頭のコメントに `edit=1` の意味を足す。
 
 期待される観測: `browser.php?type=images&folder=<f>&select=<jpg>&edit=1` を単独で開くと、画像編集が開いた状態で出る。保存するとピッカーが閉じ（ポップアップ）、呼んだ側の `SetUrl` に保存したファイルの `path` が渡る。`edit` を付けないときは main と同じ。
@@ -146,7 +122,7 @@ TinyMCE 側の新しい処理は、ファイルピッカーとの橋渡しとし
 1. `FileBrowserResolver::mcpukBootstrapScript()`: `BrowserConfig::baseUrl()` を足して渡す（`require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/BrowserConfig.php'`）。値が増えるので、`window.MODX_*` を足し続けず、1 つのオブジェクト（例 `window.MODX_FILE_PICKER = {browserUrl, baseUrl, rbBaseUrl, siteUrl, stripImagePaths}`）にまとめ、`mcpuk-picker.js` の読み方も合わせる。
 2. `assets/plugins/tinymce7/js/mcpuk-picker.js`:
    - `resolveSiteImage(editor, img)`: Decision Log の割り出しを行い、`{type, folder, name}` か null を返す。
-   - `openImageEditor(editor, img)`: `browser.php?type=..&folder=..&select=..&edit=1` を `openInEditorDialog()` で開く。`onMessage` に `evoFbClose`（ダイアログを閉じる）を足す。`evoFbPick` で受けた `path` を `normalizeUrl()` に通し、`editor.undoManager.transact()` の中で src を差し替え、`data-mce-src` も同じ値にし、`srcset` を消し、width・height を「決めること」5 のとおりに直す。最後に `editor.nodeChanged()` と `editor.dispatch('change')`。
+   - `openImageEditor(editor, img)`: `browser.php?type=..&folder=..&select=..&edit=1` を `openInEditorDialog()` で開く。`onMessage` に `evoFbClose`（ダイアログを閉じる）を足す。`evoFbPick` で受けた `path` を `normalizeUrl()` に通し、`editor.undoManager.transact()` の中で src を差し替え、`data-mce-src` も同じ値にし、`srcset` を消し、width・height を Decision Log のとおりに直す（新しい画像の縦横比は、受けた URL を `new Image()` で読んで `naturalWidth`・`naturalHeight` から取る。上書きのときは `fetch(url, {cache: 'reload'})` の後に読む）。最後に `editor.nodeChanged()` と `editor.dispatch('change')`。
    - `global.mceModxImageEdit = function (editor) {...}`: `DblClick`（`event.target` が `IMG` で、`data-mce-object`・`data-mce-placeholder` が無く、`resolveSiteImage()` が null でないとき `preventDefault()` して開く。null なら何もしない）と、`edit-image` アイコンのボタンを context toolbar（画像を選んだとき）に登録する。ボタンの文言はプラグインの言語ファイル（`src/TinyMCE7/lang/`）から渡す。
 3. setup から `if (window.mceModxImageEdit) window.mceModxImageEdit(editor)` を呼ぶ（#1670 の後は `js/editor-setup.js`、前なら `EditorInitializer.php` の文字列）。
 4. M3: `assets/plugins/tinymce7/js/tinymce-cropper.js` を消す。`EditorInitializer.php` の `image_cropper` を読む処理・`window.tinymce7CropperConfig`・cropper の script を消す。`config/manager.json` の `image_cropper` を消す。`README.md` の 17 行目と `docs/TECHNICAL.md` の節を、ファイルピッカーの画像編集の説明に書き換える。
@@ -159,16 +135,16 @@ TinyMCE 側の新しい処理は、ファイルピッカーとの橋渡しとし
 1. `manager/media/browser/evo/api.php`:
    - `fbPickerUpload()` の 1 ファイルの保存（拡張子・大きさ・空いている名前・`fbStoreUpload()`・`OnFileBrowserUpload`・記録）を `fbPickerStoreFile($resolver, $scope, $modx, $dir, $file)` に出し、`fbPickerUpload()` はそれを繰り返すだけにする（応答は今と同じ）。
    - `fbPickerList()` の `path`・`url` の作り方を `fbPickerFileUrls($scope, $relPath)` に出す。
-   - 新しい操作 `uploadPasted`（`PickerScope::actions()` に `'csrf' => true, 'post' => true`）: 「決めること」1 の置き場所を決め、無ければ 1 階層ずつ作る（`fbActionMkdir()` の確かめと作り方を共通の関数 `fbEnsureFolder()` に出して両方で使う）。ファイルは `files[]` で受け、`fbPickerStoreFile()` で保存し、`{uploaded:[{index,name,path,url}], errors:[{index,name,message}]}` を返す。名前（「決めること」2）は画面が付けて送り、サーバーは今のアップロードと同じく無害化と同名の連番だけを行う。
+   - 新しい操作 `uploadPasted`（`PickerScope::actions()` に `'csrf' => true, 'post' => true`）: 置き場所 `images/年/月/`（サイトの時刻）を決め、無ければ 1 階層ずつ作る（`fbActionMkdir()` の確かめと作り方を共通の関数 `fbEnsureFolder()` に出して両方で使う）。ファイルは `files[]` で受け、`fbPickerStoreFile()` で保存し、`{uploaded:[{index,name,path,url}], errors:[{index,name,message}]}` を返す。名前は画面が付けて送り（M4 の 3）、サーバーは今のアップロードと同じく無害化と同名の連番だけを行う。
    - 頭の説明に `uploadPasted` を足し、upload の応答の説明の `url` を実装に合わせて直す。
-2. `EditorInitializer.php`（`file_browser` が `mcpuk` のときだけ）: `PickerScope::authorize()` が通れば、`mcpukBootstrapScript()` の値に `upload: {url: api.php の絶対の URL, csrfToken: getCurrentCsrfToken()}` を足し、設定に `images_upload_handler`（JS で `window.mceModxImageUpload` を入れる。`file_picker_callback` と同じ書き方）・`images_file_types`（`upload_images` との重なり）・`image_uploadtab`（「決めること」8）を入れる。通らなければ `paste_data_images: false`。`getCurrentCsrfToken()` が無い（管理画面の外の）ときも通らない扱いにする。
+2. `EditorInitializer.php`（`file_browser` が `mcpuk` のときだけ）: `PickerScope::authorize()` が通れば、`mcpukBootstrapScript()` の値に `upload: {url: api.php の絶対の URL, csrfToken: getCurrentCsrfToken()}` を足し、設定に `images_upload_handler`（JS で `window.mceModxImageUpload` を入れる。`file_picker_callback` と同じ書き方）・`images_file_types`（`upload_images` との重なり）・`image_uploadtab: false` を入れる。通らなければ `paste_data_images: false`。`getCurrentCsrfToken()` が無い（管理画面の外の）ときも通らない扱いにする。
 3. `mcpuk-picker.js`:
-   - `global.mceModxImageUpload = function (blobInfo, progress) {...}`: FormData に `action=uploadPasted`・`type=images`・`csrf_token`・`files[]`（名前は「決めること」2）を入れ、`XMLHttpRequest` で送る（`upload.onprogress` を `progress()` に渡す）。成功なら `normalizeUrl(uploaded[0].path)` で resolve、`errors` か JSON でない応答（CSRF の 403 など）なら `reject({message, remove: true})`（「決めること」3 が A のとき）。
-   - 「決めること」6 が B なら、`init` のときに本文の data: 画像の src を覚え、`editor.editorUpload.addFilter()` でそれを外す。
+   - `global.mceModxImageUpload = function (blobInfo, progress) {...}`: FormData に `action=uploadPasted`・`type=images`・`csrf_token`・`files[]` を入れ（名前は、`blobInfo.blob()` が名前を持つ `File` で、その名前が `image.拡張子` でなければ元の名前、そうでなければブラウザの時刻で `pasted-年月日-時分秒.拡張子`。拡張子は `blob.type` から決める（`image/jpeg` は `jpg`））、`XMLHttpRequest` で送る（`upload.onprogress` を `progress()` に渡す）。成功なら `normalizeUrl(uploaded[0].path)` で resolve、`errors` か JSON でない応答（CSRF の 403 など）なら `reject({message, remove: true})`（画像を本文から消して理由を出す）。
+   - `init` のときに本文の data: 画像の src を覚え、`editor.editorUpload.addFilter()` でそれを外す（既存の data: 画像を開くたびにアップロードしない）。貼り付けた画像は blob: で入るので対象に残る。
    - 保存の前に待つ処理（Decision Log の capture の `submit`）を `global.mceModxImageEdit` と同じ setup の入口で付ける。
-4. 文書: `assets/docs/file-storage.md` に「エディタに貼り付けた画像の置き場所」の節を足す。`assets/plugins/tinymce7/docs/TECHNICAL.md` に貼り付けのアップロードを書く。`assets/docs/datauri-conversion.md` を「決めること」7 のとおりに直す。
+4. 文書: `assets/docs/file-storage.md` に「エディタに貼り付けた画像の置き場所」の節を足す。`assets/plugins/tinymce7/docs/TECHNICAL.md` に貼り付けのアップロードを書く。`assets/docs/datauri-conversion.md` の対象を「要約（introtext）だけ」に直し、本文の data: 画像はエディタで入らなくなったこと（貼り付けはファイルピッカーの API でアップロード）を書く。
 
-期待される観測: a=27 で PNG を貼り付けると、少しのあいだ通知が出て、`content/images/2026/11/pasted-....png`（「決めること」1・2 が推奨のとき）ができ、ファイルピッカーの一覧に出る。保存後の DB の `content` の src はそのファイルの URL で、`data:` も `blob:` も無い。
+期待される観測: a=27 で PNG を貼り付けると、少しのあいだ通知が出て、`content/images/2026/11/pasted-20261121-143022.png` のようなファイルができ、ファイルピッカーの一覧に出る。保存後の DB の `content` の src はそのファイルの URL で、`data:` も `blob:` も無い。
 
 ## Validation and Acceptance
 
@@ -188,8 +164,9 @@ M2・M3:
 | 操作 | main | 修正後 |
 | --- | --- | --- |
 | ピッカーで入れた jpg をダブルクリック → 何もせず保存（別名） | cropper が開き、適用で data: の PNG（本文 1,650,099 文字） | ピッカーの編集が開き、src が `(1).jpg` に変わる。本文の長さは 200 文字未満で、`data:` が 0 |
-| 左回転・トリミングして保存 | data: の PNG | 新しいファイルの URL。width・height は「決めること」5 のとおり |
+| width・height 属性のある画像を左回転・トリミングして保存 | data: の PNG、width・height は書き出した画素数 | 新しいファイルの URL。width は元のまま、height は新しい縦横比で計算した値 |
 | 帯の「画像を編集」ボタン | cropper が開く | ダブルクリックと同じ |
+| 開いたときの保存のしかた | ― | 「別名で保存」が選ばれている |
 | 上書きを選んで保存 | ― | src は同じ URL のまま、エディタの中の画像が新しい中身で出る |
 | 別のオリジンの画像・data: 画像・gif をダブルクリック | cropper が開く | 何も開かない |
 | 編集を取り消す | ― | ダイアログが閉じ、本文は変わらない（未保存の印も立たない） |
@@ -203,12 +180,16 @@ M4:
 | PNG を貼り付け（Playwright で `ClipboardEvent('paste')` に `DataTransfer` の `File` を入れて送る）して保存 | 本文に data: | 置き場所にファイルができ、本文はその URL。システムの管理操作ログに `[picker] Uploaded File` |
 | jpg のファイルをドロップ | 本文に data: | 元の名前で保存、同名があれば `(1)` |
 | 貼り付けの直後（アップロード中）に保存 | ― | アップロードを待ってから送られ、本文に `data:`・`blob:` が無い |
-| `upload_images` から png を外して貼り付け | ― | 受け付けない（または送って断られ、画像が消えて理由が出る） |
-| `upload_maxsize` を 1000 にして貼り付け | ― | 画像が消え、大きすぎる旨が出る。ファイルはできない |
-| `use_browser` を 0 にして貼り付け | 本文に data: | 受け付けない。本文は変わらない |
+| `upload_images` から png を外して PNG を貼り付け | 本文に data: | 本文に画像が入らない（`images_file_types` から外れる。要確認: TinyMCE が受け付けなかった画像をブラウザの既定の貼り付けで data: のまま入れないこと。入るなら `paste_preprocess` で落とす） |
+| `upload_maxsize` を 1000 にして貼り付け | 本文に data: | 画像が消え、大きすぎる旨が出る。ファイルはできない |
+| 保存先に書き込めない（`content/images/` を 555 にして貼り付け） | 本文に data: | 画像が消え、失敗の理由が出る |
+| `use_browser` を 0 にして貼り付け・ドロップ | 本文に data: | 受け付けない。本文は変わらない |
+| 月の初めの貼り付け（フォルダが無い） | ― | `images/年/月/` が作られ、管理操作ログに `[picker] Created Folder` とアップロードの行が残る |
+| スクリーンショット（名前 `image.png`）を同じ秒に 2 回貼り付け | ― | `pasted-年月日-時分秒.png` と `pasted-年月日-時分秒(1).png` |
 | CSRF のトークンが古い（セッションのトークンを消してから貼り付け） | ― | 画像が消え、失敗が出る（エディタは壊れない） |
-| data: 画像の入った既存の文書を開いて、何もせず閉じる・保存する | ― | 「決めること」6 のとおり（B なら、ファイルは増えず本文もそのまま） |
-| 画像のダイアログ | アップロードのタブが無い | 「決めること」8 のとおり |
+| data: 画像の入った既存の文書を開いて、何もせず閉じる・保存する | 本文に data: | ファイルは増えず、本文もそのまま（data: のまま） |
+| 画像のダイアログ | アップロードのタブが無い | 無い（main と同じ） |
+| 要約（introtext）に data: 画像を入れて保存 | `content/images/datauri/<ID>/` に変換される | 同じ |
 
 PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer.php`・`FileBrowserResolver.php` の `php -l` が通る。`uploadPasted` を `php:7.4-cli` ではなく検証用のイメージで動かし、`curl` で CSRF なし（403）・GET（405）・拡張子違い・大きすぎ・正常の 5 通りの応答を確かめる（管理画面の curl には `Accept-Language` を付ける）。
 
@@ -233,6 +214,10 @@ PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer
   - M4（tinymce7）: `feat(tinymce7): 貼り付け・ドロップした画像をファイルピッカーの API でアップロードする`
   - 文書: `docs: 貼り付けた画像の置き場所と保存時の変換の対象を実装に合わせる`
 - ExecPlan のブランチ: `plan/1652-1666-image-upload`
+- 別に起票する（起票はまとめ役が行う。この計画では扱わない）:
+  - ファイルのアップロードのロールの権限: 本体に「ファイルのアップロード」に当たるロールの権限が無く、ファイルピッカー（`PickerScope`）は管理画面にログインしている人なら誰でもアップロードできる。貼り付けのアップロードも同じ判定を使うので、権限を足すとそのまま効く
+  - 既に本文に入っている data: 画像をまとめてファイルへ移す CLI: #1652・#1666 の不具合で入った data: 画像を、文書をまたいで `images/年/月/` などへ移し、本文の src を書き換える（この計画では開いたときにアップロードの対象から外すだけ）
+  - 配布 zip の大きさ: `git archive --format=zip HEAD` で、main（be35be6db）がすでに 1,621,293 バイトで、目安の 1.5MB を超えている
 
 ## Interfaces and Dependencies
 
