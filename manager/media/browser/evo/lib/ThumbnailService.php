@@ -4,7 +4,7 @@
  * サムネイル生成・キャッシュ。
  *
  * 保存先は temp/thumbs/ (コンテンツフォルダ直下に .thumb/ を作らない)。
- * キャッシュキーは元ファイルの実体の絶対パスの md5 に元ファイルのmtimeを連結し、
+ * キャッシュキーは元ファイルの実体の絶対パスの md5 に元ファイルのmtimeとキャッシュの版(CACHE_VERSION)を連結し、
  * 元ファイルの更新で自動的に新キーへ切り替わる(rename/move/delete追随処理が不要)。
  * 透過を持つ形式(PNG/GIF/WebP)はPNGで、JPEGはJPEGで出力し(形式は拡張子でなく中身で決める)、白背景パディングをしない
  * (キャンバスは常に画像そのもののリサイズ後サイズにする)。
@@ -14,6 +14,8 @@ class ThumbnailService
     const MAX_DIM = 128;
     const GC_PROBABILITY_DIVISOR = 200;
     const GC_MAX_AGE = 2592000;
+    /** キャッシュの作り方を変えたときに上げる(古いキャッシュは次のアクセスで作り直され、cleanupStale() が消す)。1: EXIF の Orientation を反映 */
+    const CACHE_VERSION = 1;
 
     /** サムネイルを作れる拡張子と、その形式(IMAGETYPE_*) */
     const EXTENSION_TYPES = [
@@ -70,6 +72,21 @@ class ThumbnailService
         return image_type_to_extension($contentType, false) ?: null;
     }
 
+    /**
+     * 一覧・プレビューに出す表示上の幅と高さ。JPEG は EXIF の Orientation が 5〜8 なら、ブラウザが倒して表示するので入れ替える。
+     *
+     * @param string $file 画像の絶対パス
+     * @param array $info getimagesize() の結果
+     * @return int[] [幅, 高さ]
+     */
+    public static function displaySize($file, $info)
+    {
+        if (($info[2] ?? null) === IMAGETYPE_JPEG && jpeg_exif_orientation($file) >= 5) {
+            return [$info[1], $info[0]];
+        }
+        return [$info[0], $info[1]];
+    }
+
     /** ブラウザが <img> で表示できる形式の拡張子か(一覧の image: true の元。サムネイルを作れるのは isRasterImageExtension() だけ) */
     public static function isDisplayableImageExtension($ext)
     {
@@ -101,7 +118,8 @@ class ThumbnailService
         }
         $keepsAlpha = ($type !== IMAGETYPE_JPEG);
         $outExt = $keepsAlpha ? 'png' : 'jpg';
-        $cacheFile = $this->cacheDir . md5($sourceFile) . '_' . $mtime . '.' . $outExt;
+        $orientation = ($type === IMAGETYPE_JPEG) ? jpeg_exif_orientation($sourceFile) : 1;
+        $cacheFile = $this->cacheDir . md5($sourceFile) . '_' . $mtime . '_v' . self::CACHE_VERSION . '.' . $outExt;
 
         if (is_file($cacheFile)) {
             return $cacheFile;
@@ -121,6 +139,8 @@ class ThumbnailService
         $resized = $this->resize($image, $keepsAlpha);
         // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
         unset($image);
+        // 縮小してから向きを反映する(大きな画像を回転させない)。縮小は縦横どちらも MAX_DIM に収めるので、順序は結果に影響しない
+        $resized = gd_apply_orientation($resized, $orientation);
 
         if ($keepsAlpha) {
             $saved = imagepng($resized, $cacheFile, 6);
@@ -256,7 +276,7 @@ class ThumbnailService
         $expireBefore = time() - self::GC_MAX_AGE;
         foreach (glob($this->cacheDir . '*') ?: [] as $cacheFile) {
             $name = basename($cacheFile);
-            if (!preg_match('/^[a-f0-9]{32}_[0-9]+\.(jpg|png)$/', $name)) {
+            if (!preg_match('/^[a-f0-9]{32}_[0-9]+(_v[0-9]+)?\.(jpg|png)$/', $name)) {
                 continue;
             }
 

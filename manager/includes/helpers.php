@@ -1512,3 +1512,58 @@ function gd_can_load_image($width, $height, $imageType, $destWidth, $destHeight)
     $need = $width * $height * $bytesPerPixel + $destWidth * $destHeight * 4 + 4194304;
     return $need <= $limit - memory_get_usage(true);
 }
+
+/**
+ * JPEG の EXIF の Orientation(1〜8)を返す。読めない・タグが無いときは 1(回転なし)。
+ * ブラウザは <img> で表示するとき Orientation を反映するので、GD で作る画像も同じ向きにそろえるために使う。
+ * exif 拡張が無い環境では読めないので 1 を返す(従来どおり向きを反映しない)。
+ */
+function jpeg_exif_orientation($file)
+{
+    if (!function_exists('exif_read_data')) {
+        return 1;
+    }
+    $exif = @exif_read_data($file, 'IFD0');
+    $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+    return ($orientation >= 1 && $orientation <= 8) ? $orientation : 1;
+}
+
+/**
+ * GD の画像へ EXIF の Orientation を反映した、表示上の向きの画像を返す(1 のときは同じ画像)。
+ * 5〜8 は幅と高さが入れ替わる。
+ *
+ * @param GdImage|resource $image
+ * @param int $orientation 1〜8
+ * @return GdImage|resource
+ */
+function gd_apply_orientation($image, $orientation)
+{
+    switch ((int) $orientation) {
+        case 2:
+            imageflip($image, IMG_FLIP_HORIZONTAL);
+            return $image;
+        case 3:
+            return imagerotate($image, 180, 0) ?: $image;
+        case 4:
+            imageflip($image, IMG_FLIP_VERTICAL);
+            return $image;
+        case 5:
+            $rotated = imagerotate($image, 270, 0);
+            break;
+        case 6:
+            return imagerotate($image, 270, 0) ?: $image;
+        case 7:
+            $rotated = imagerotate($image, 90, 0);
+            break;
+        case 8:
+            return imagerotate($image, 90, 0) ?: $image;
+        default:
+            return $image;
+    }
+    // 5・7 は回転のあと左右を反転する
+    if (!$rotated) {
+        return $image;
+    }
+    imageflip($rotated, IMG_FLIP_HORIZONTAL);
+    return $rotated;
+}
