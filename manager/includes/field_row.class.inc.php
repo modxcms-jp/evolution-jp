@@ -40,9 +40,10 @@ final class EvoFieldRow
         if (self::$tpl !== null) {
             return self::$tpl;
         }
-        $custom = MODX_BASE_PATH . config('custom_tpl_dir') . 'field_row.tpl';
+        $dir = (string)config('custom_tpl_dir');
+        $custom = $dir !== '' ? MODX_BASE_PATH . $dir . 'field_row.tpl' : '';
         self::$tpl = file_get_contents(
-            is_file($custom) ? $custom : MODX_MANAGER_PATH . 'media/style/common/field_row.tpl'
+            $custom !== '' && is_file($custom) ? $custom : MODX_MANAGER_PATH . 'media/style/common/field_row.tpl'
         );
         return self::$tpl;
     }

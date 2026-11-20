@@ -35,7 +35,6 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
             <div class="sectionHeader"><?= lang('view_sysinfo') ?></div>
             <div class="sectionBody" id="lyr2">
                 <table border="0" cellspacing="2" cellpadding="2">
-                    <colgroup><col style="width:150px"></colgroup>
                     <?php
                     $charset = db()->getRow(
                         db()->query("show variables like 'character_set_database'"),

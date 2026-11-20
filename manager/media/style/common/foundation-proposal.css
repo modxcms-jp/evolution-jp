@@ -50,7 +50,7 @@ h4, h5, h6 { font-size: var(--font-size-md); line-height: var(--line-height-tigh
 small, .comment { font-size: var(--font-size-sm); }
 
 /* フォームの行: ラベルの列の幅をそろえ、ラベルの文字と入力欄の文字の高さをそろえる（上の余白 ＝ 入力欄の上の余白 ＋ 枠） */
-.mutate-field-label,
+.field-row > .field-label,
 .settings th {
     width: var(--form-label-width);
     padding-top: calc(var(--control-padding-y) + var(--border-width));

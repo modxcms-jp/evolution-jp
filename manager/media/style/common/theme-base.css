@@ -222,11 +222,11 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
-/* 行の部品（field_row.tpl）の見出しのセル。表の td と同じ左揃え・親の文字にそろえる（th の既定の中央揃え・太字を使わない）。
+/* 行の部品（field_row.tpl）の見出しのセル。表の td と同じ左揃え・親と同じ太さにする（th の既定の中央揃え・太字を使わない）。
    設定の表（.settings th）はこれより詳細度が高いので、自分の指定が勝つ */
 :where(.field-row) > .field-label {
     text-align: left;
-    font: inherit;
+    font-weight: inherit;
 }
 
 /* 設定の表（.settings）の見出しの列 */
