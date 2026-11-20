@@ -46,27 +46,20 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
     } else {
         // Give the help button an ID, and modify the alt/title text
         // title・alt はプロパティなので生の文字列を、data-powertip は属性なので hsc() したものを入れる
-        $setHelp = sprintf(
-            'function (c) { c.id = "%s-help"; c.title = %s; c.alt = %s; c.setAttribute("data-powertip", %s); }',
-            $fieldname,
-            js_literal($helptext),
+        if ($fieldname === 'hidemenucheck') {
+            // 「メニューに表示」は、説明の部分の中のアイコン
+            $icons = 'MM.innerIcons(Evo.fieldPart("hidemenu", "help"))';
+        } else {
+            // 欄の兄弟のアイコン
+            $icons = 'MM.siblingIcons(' . $selector . ')';
+        }
+        $output .= sprintf(
+            'MM.setHelp(%s, %s, %s, %s);',
+            $icons,
+            js_literal($fieldname . '-help'),
             js_literal($helptext),
             js_literal(hsc($helptext))
         );
-        if ($fieldname === 'hidemenucheck') {
-            // 「メニューに表示」は、説明の部分の中のアイコン
-            $output .= sprintf(
-                'MM.all(Evo.fieldPart("hidemenu", "help")).forEach(function (help) { help.querySelectorAll("img.tooltip").forEach(%s); }); ',
-                $setHelp
-            );
-        } else {
-            // 欄の兄弟のアイコン
-            $output .= sprintf(
-                'MM.all(%s).forEach(function (el) { Array.from(el.parentNode.children).filter(function (c) { return c !== el && c.matches("img.tooltip"); }).forEach(%s); }); ',
-                $selector,
-                $setHelp
-            );
-        }
     }
     $output .= "//  -------------- mm_changeFieldHelp :: End ------------- \n";
 

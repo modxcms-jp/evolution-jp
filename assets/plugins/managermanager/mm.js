@@ -112,6 +112,55 @@
             return style;
         },
 
+        // 行を隠し、次の tr の中に td[colspan="2"] があれば、その td の親の tr（区切りの行）も隠す
+        hideRows: function (x) {
+            all(x).forEach(function (tr) {
+                MM.hide(tr);
+                const n = tr.nextElementSibling;
+                if (n && n.matches('tr')) {
+                    n.querySelectorAll('td[colspan="2"]').forEach(function (td) {
+                        if (td.parentElement.matches('tr')) {
+                            MM.hide(td.parentElement);
+                        }
+                    });
+                }
+            });
+        },
+
+        // 欄の兄弟の img.tooltip（説明のアイコン）
+        siblingIcons: function (x) {
+            const icons = [];
+            all(x).forEach(function (el) {
+                Array.from(el.parentNode.children).forEach(function (c) {
+                    if (c !== el && c.matches('img.tooltip')) {
+                        icons.push(c);
+                    }
+                });
+            });
+            return icons;
+        },
+
+        // 説明の部分の中の img.tooltip
+        innerIcons: function (x) {
+            const icons = [];
+            all(x).forEach(function (help) {
+                help.querySelectorAll('img.tooltip').forEach(function (c) {
+                    icons.push(c);
+                });
+            });
+            return icons;
+        },
+
+        // 説明のアイコンの id・title・alt（プロパティなので生の文字列）と data-powertip（属性なので HTML のエスケープ済みの文字列）を変える
+        setHelp: function (icons, id, text, tipHtml) {
+            icons.forEach(function (c) {
+                c.id = id;
+                c.title = text;
+                c.alt = text;
+                c.setAttribute('data-powertip', tipHtml);
+            });
+        },
+
         // ルールの実行後に毎回行う整理（OnDocFormRender.inc.php の mm_run の最後）
         tidyUp: function () {
             // General tab table container is too narrow for receiving TVs -- make it a bit wider
