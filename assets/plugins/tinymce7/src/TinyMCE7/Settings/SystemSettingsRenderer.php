@@ -42,12 +42,10 @@ final class SystemSettingsRenderer
         $toolbarFieldId = 'tinymce7_toolbar_preset';
         $cssSelectorsFieldId = 'tinymce7_css_selectors';
 
-        $toolbarOptions = [
-            ['value' => 'simple', 'label' => $this->t('tinymce7_toolbar_simple', 'Simple')],
-            ['value' => 'basic', 'label' => $this->t('tinymce7_toolbar_basic', 'Basic')],
-            ['value' => 'legacy', 'label' => $this->t('tinymce7_toolbar_legacy', 'Legacy (Default)')],
-            ['value' => 'full', 'label' => $this->t('tinymce7_toolbar_full', 'Full')],
-        ];
+        $toolbarOptions = [];
+        foreach ($preferences->toolbarPresetNames() as $name) {
+            $toolbarOptions[] = ['value' => $name, 'label' => $this->t("tinymce7_toolbar_{$name}", $name)];
+        }
         if (!$isSystemSettingsScreen) {
             array_unshift($toolbarOptions, ['value' => '', 'label' => lang('user_use_config')]);
         }
