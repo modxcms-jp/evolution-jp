@@ -199,17 +199,19 @@ body.evo-shell.tree-animating > #evoTreeResizer {
 
 /* ツリーは細くして本文を広く使う（設定 manager_tree_narrow。header.inc.php が body に tree-narrow と、幅を割る数 --shell-tree-narrow を出す）。
    ツリーを広く見せたい画面（#mainPane の中に data-shell-tree="full" がある。ダッシュボードとリソースの移動）は今までの幅にする。
-   ツリーに乗る・キーボードでフォーカスする・つまみに乗ると、元の幅に戻して本文を右へ押し出す（本文を隠さない）。
+   ツリーに乗る・キーボードでフォーカスすると、元の幅に戻して本文を右へ押し出す（本文を隠さない）。境目のつまみに乗っただけでは広げず、
+   細い状態でつまみを動かすと細い幅を変える。広げている途中でつまみへ移ったときは、shell.js が tree-resizer-hold を付けて広げたままにする。
    ノードを押して画面を移っても、マウスがツリーに乗っているあいだは元の幅のままで、離れると縮む。
    乗れない端末（タッチ）では、ぼけた細いツリーを直接押すことになるので細くしない */
 @media (hover: hover) {
     body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])) {
-        --shell-tree-column: calc(var(--shell-tree-full) / var(--shell-tree-narrow));
+        /* 細い幅。細い状態で境目を動かすと shell.js が --shell-tree-narrow-width に覚える。元の幅より広くしない */
+        --shell-tree-column: min(var(--shell-tree-narrow-width, calc(var(--shell-tree-full) / var(--shell-tree-narrow))), var(--shell-tree-full));
         --shell-tree-dim-filter: blur(1.5px) saturate(0.8);
         --shell-tree-dim-opacity: 0.7;
     }
 
-    body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), :has(> #evoTreeResizer:hover), .is-resizing-tree) {
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow)) {
         --shell-tree-column: var(--shell-tree-full);
         --shell-tree-dim-filter: none;
         --shell-tree-dim-opacity: 1;
@@ -221,8 +223,16 @@ body.evo-shell.tree-animating > #evoTreeResizer {
         opacity: var(--shell-tree-dim-opacity);
     }
 
+    /* 境目のつまみの当たりを左右に広げる（見える線は 8px のまま）。つまみの上ではツリーを広げないので、つかみやすくする */
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer {
+        left: calc(var(--shell-tree-column) - 12px);
+        box-sizing: content-box;
+        padding-inline: 8px;
+        background-clip: content-box;
+    }
+
     /* 細いあいだは、ボタンの並び（ドラッグの下限より狭くなる）で横のスクロールバーを出さない */
-    body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), :has(> #evoTreeResizer:hover), .is-resizing-tree)) > #treePane {
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow))) > #treePane {
         overflow-x: hidden;
     }
 
@@ -240,9 +250,9 @@ body.evo-shell.tree-animating > #evoTreeResizer {
         transition: filter 0.2s ease, opacity 0.2s ease;
     }
 
-    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), :has(> #evoTreeResizer:hover)),
-    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), :has(> #evoTreeResizer:hover)) > #evoTreeResizer,
-    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), :has(> #evoTreeResizer:hover)) > #treePane :is(.tree-toolbar, #treeHolder) {
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible)),
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible)) > #evoTreeResizer,
+    body.evo-shell.tree-narrow:not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible)) > #treePane :is(.tree-toolbar, #treeHolder) {
         transition-delay: 0.3s;
     }
 }
