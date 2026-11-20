@@ -231,12 +231,11 @@ final class EditorInitializer
         $output[] = '                return token !== "";';
         $output[] = '            }).sort().join(" ");';
         $output[] = '        };';
+        $output[] = '        const asIs = function(value) {';
+        $output[] = '            return value;';
+        $output[] = '        };';
         $output[] = '        const linkChoiceLists = [';
-        $output[] = '            {option: "link_class_list", attribute: "class", base: null, canonical: function(value) {';
-        $output[] = '                return value;';
-        $output[] = '            }, normalize: function(value) {';
-        $output[] = '                return value;';
-        $output[] = '            }},';
+        $output[] = '            {option: "link_class_list", attribute: "class", base: null, canonical: asIs, normalize: asIs},';
         $output[] = '            {option: "link_rel_list", attribute: "rel", base: null, canonical: sortTokens, normalize: function(value) {';
         $output[] = '                return sortTokens(value.split(/\\s+/).filter(function(token) {';
         $output[] = '                    return token !== "noopener";';
