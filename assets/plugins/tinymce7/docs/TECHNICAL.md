@@ -113,7 +113,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
 | `tinymce7_body_id` | 編集欄の body に付ける id。TinyMCE の `body_id` に渡し、設定ファイル（`config/*.json`）の `body_id` より優先します。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。旧 TinyMCE の `customparams` の `body_id` は、マイグレーション（`manager/includes/migrations/20261107_120000_carry_over_tinymce_body_attributes.php`）が引き継ぎます（どちらかの設定が保存済みなら何もしません）。空の値、サイトのタグ（`[*…*]`・`[(…)]`・`[~…~]` など）や引用符・`\`・`:`・改行を含む値・文字列でない値と、ほかのキーは引き継がず、キー名だけをシステムログに種別 2（警告）で残します。|
 | `tinymce7_body_class` | 編集欄の body に付けるクラス（半角スペース区切り）。TinyMCE の `body_class` に渡します。扱いは `tinymce7_body_id` と同じです。|
-| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「書式」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。importcss プラグインが取り込むクラスに置き換えられないよう `importcss_append` も有効にし、ツールバーに `styles` が無ければ先頭に足します。同じ一覧から、リンクのダイアログの「クラス」の選択肢（`link_class_list`、先頭は「なし」）も作ります。設定ファイルで `link_class_list` を指定していれば、そちらを使います。一覧に無い class を持つリンクのダイアログを開くと、その class を選択肢の末尾に足し、保存しても消えないようにします。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
+| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「書式」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。importcss プラグインが取り込むクラスに置き換えられないよう `importcss_append` も有効にし、ツールバーに `styles` が無ければ先頭に足します。同じ一覧から、リンクのダイアログの「クラス」の選択肢（`link_class_list`、先頭は「なし」）も作ります。設定ファイルで `link_class_list` を指定していれば、そちらを使います。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
 | `tinymce7_template_docs` | ひな形にするリソースの ID（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_docs` を読みます。|
 | `tinymce7_template_chunks` | ひな形にするチャンクの名前（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_chunks` を読みます。|
 | `tinymce7_template_category` | このカテゴリに属するチャンクをすべてひな形にします（カテゴリ名で指定）。ひな形の 3 項目はサイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。|
@@ -139,6 +139,11 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 - 一覧と本文は `TinyMCE7\Editor\TemplateRepository` が集め、エディター設定の `modx_templates` として渡します（別のエンドポイントは使いません）。リソースは公開中かつ管理画面で閲覧できるもの、チャンクは公開中のものに限ります。
 - ツールバーのボタン名は旧プラグインと同じ `template`、メニュー項目名は TinyMCE 7 の「挿入」メニュー既定値に含まれる `inserttemplate` です。ひな形が無いときは、ツールバー設定から `template` を取り除きます。
 - 本文は MODX タグを含めて保存されているまま挿入します。ダイアログのプレビューは、エディターのスキーマで無害化した HTML を、`sandbox="allow-same-origin"` 付きの iframe（`srcdoc`）に表示します（スクリプトは動きません）。iframe には、`contentCSS`（設定の `content_css`（［CSS ファイルへのパス］を含む）とスキンの `content.min.css`）、`content_style`、`<base href>` を入れ、body の id・class・dir は編集欄の body から写すので、編集欄に近い見た目になります。
+
+## リンクのダイアログの「クラス」
+- 選択肢は `link_class_list` です。設定ファイルで指定していればそれを、無ければ `tinymce7_css_selectors` から作った一覧を使います。
+- TinyMCE のリンクのダイアログは、一覧に無い class を初期値にできず、そのまま保存すると class を消します。そこで `EditorInitializer` の `setup` で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの class のうち一覧に無いものを末尾に足します。どちらの元の一覧でも同じです。
+- ダイアログが編集するリンクは選び方（キャレット・範囲選択・キャプション付き画像）で決まり方が変わるため、選んでいるリンクではなく本文のすべてのリンクを見ます。そのため、ほかのリンクの class も選択肢に出ます。
 
 ## コード構成
 - `TinyMCE7\Plugin` クラスがエントリーポイントで、イベントごとの処理を担当します。
