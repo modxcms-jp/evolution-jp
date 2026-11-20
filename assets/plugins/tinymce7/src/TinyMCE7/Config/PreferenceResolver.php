@@ -236,23 +236,42 @@ final class PreferenceResolver
         // toolbar は文字列、文字列の配列（行ごと）、{name, items} のグループ配列のいずれか
         $rows = is_array($toolbar) ? array_values($toolbar) : [$toolbar];
 
+        // 空の配列はボタンを出さない指定
+        if ($rows === []) {
+            return $config;
+        }
+
         foreach ($rows as $row) {
             if ($this->rowHasStyles($row)) {
                 return $config;
             }
         }
 
-        // ツールバーの並びを崩さないよう、最後の行の末尾に足す
-        $last = count($rows) - 1;
-        if (is_array($rows[$last])) {
+        // グループの配列は 1 本のツールバーなので、末尾にグループを足す
+        if (is_array($rows[0])) {
             $rows[] = ['name' => 'styles', 'items' => ['styles']];
-        } else {
-            $rows[$last] = rtrim((string)$rows[$last]) . ' | styles';
+            $config['toolbar'] = $rows;
+
+            return $config;
         }
+
+        // 並びを崩さず行の長さをそろえるため、ボタンが少ない行の末尾に足す（同じ数なら後ろの行）
+        $target = 0;
+        foreach ($rows as $index => $row) {
+            if ($this->countToolbarItems($row) <= $this->countToolbarItems($rows[$target])) {
+                $target = $index;
+            }
+        }
+        $rows[$target] = rtrim((string)$rows[$target]) . ' | styles';
 
         $config['toolbar'] = is_array($toolbar) ? $rows : $rows[0];
 
         return $config;
+    }
+
+    private function countToolbarItems($row): int
+    {
+        return count(preg_split('/[\s|]+/', (string)$row, -1, PREG_SPLIT_NO_EMPTY));
     }
 
     private function rowHasStyles($row): bool

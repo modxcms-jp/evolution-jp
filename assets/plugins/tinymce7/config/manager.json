@@ -7,6 +7,7 @@
   "promotion": false,
   "relative_urls": false,
   "convert_urls": false,
+  "font_size_formats": "80% 90% 100% 120% 140% 160% 180% 220% 260% 320% 400% 500% 700%",
   "image_cropper": {
     "enabled": true,
     "jsUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js",
