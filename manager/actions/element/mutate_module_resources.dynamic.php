@@ -49,7 +49,7 @@ switch (request_choicevar('op', ['add', 'del'], '')) {
         $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
         if (!$ds) {
             echo '<script type="text/javascript">alert(' .
-                js_literal('An error occured while trying to update the database. ' . db()->getLastError()) .
+                js_literal('An error occurred while trying to update the database. ' . db()->getLastError()) .
                 ');</script>';
         }
         break;
@@ -207,7 +207,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                 "WHERE smd.module=$id ORDER BY smd.type,name ";
             $ds = db()->query($sql);
             if (!$ds) {
-                echo "An error occured while loading module dependencies.";
+                echo "An error occurred while loading module dependencies.";
             } else {
                 include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                 $table = new DataTable(
