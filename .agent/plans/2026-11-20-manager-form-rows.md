@@ -139,7 +139,7 @@
 ## Artifacts and Notes
 
 - Issue: #1631（関連: #1632 / PR #1640 で `data-field` を導入、#1448 でテーマの値の差をそろえた、#1347 レスポンシブ対応）
-- 段階 0: ブランチ `refactor/1631-form-row-component`、ワークツリー `.claude/worktrees/issue-1631`
+- 段階 0: ブランチ `refactor/1631-form-row-component`、ワークツリー `.claude/worktrees/issue-1631`、PR #1642
 
 ## Interfaces and Dependencies
 
