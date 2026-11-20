@@ -34,7 +34,7 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
             <!-- server -->
             <div class="sectionHeader"><?= lang('view_sysinfo') ?></div>
             <div class="sectionBody" id="lyr2">
-                <table border="0" cellspacing="2" cellpadding="2">
+                <table>
                     <?php
                     $charset = db()->getRow(
                         db()->query("show variables like 'character_set_database'"),
@@ -115,7 +115,7 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 
                 echo '<table>';
                 foreach ($info as $key => $value) {
-                    echo '<tr><td style="padding-right:30px;vertical-align:top;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($key), 'body' => $value]);
                 }
                 echo '</table>' . "\n";
                 echo '<h4>mbstring</h4>' . "\n" . "\n";
@@ -126,7 +126,7 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                     if (is_array($value)) {
                         $value = implode(',', $value);
                     }
-                    echo '<tr><td style="padding-right:30px;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($key), 'body' => $value]);
                 }
                 echo '</table>' . "\n";
 
@@ -136,11 +136,11 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                 $res = db()->query("SHOW VARIABLES LIKE 'collation_database';");
                 $collation = db()->getRow($res, 'num');
 
-                echo '<tr><td style="padding-right:30px;">接続メソッド</td><td>' . $database_connection_method . '</td></tr>' . "\n";
-                echo '<tr><td style="padding-right:30px;">文字セット照合順序</td><td>' . $collation[1] . '</td></tr>' . "\n";
+                echo EvoFieldRow::render(['label' => '接続メソッド', 'body' => $database_connection_method]);
+                echo EvoFieldRow::render(['label' => '文字セット照合順序', 'body' => $collation[1]]);
                 $rs = db()->query("SHOW VARIABLES LIKE 'char%';");
                 while ($row = db()->getRow($rs)) {
-                    echo '<tr><td style="padding-right:30px;">' . $row['Variable_name'] . '</td><td>' . $row['Value'] . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($row['Variable_name']), 'body' => $row['Value']]);
                 }
                 echo '</table>' . "\n";
 

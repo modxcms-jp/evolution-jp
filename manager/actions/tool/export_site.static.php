@@ -66,17 +66,6 @@ foreach ($exportJsKeys as $key) {
                 onsubmit="return false;"
             >
                 <style type="text/css">
-                    table.settings {
-                        width: 100%;
-                    }
-
-                    table.settings td.head {
-                        white-space: nowrap;
-                        vertical-align: top;
-                        padding-right: 20px;
-                        font-weight: bold;
-                    }
-
                     #exportPane [hidden] {
                         display: none !important;
                     }
@@ -138,15 +127,17 @@ foreach ($exportJsKeys as $key) {
                         margin-left: 1em;
                     }
 
+                    #exportResult dl {
+                        display: grid;
+                        grid-template-columns: 8em 1fr;
+                    }
+
                     #exportResult dt {
-                        float: left;
-                        clear: left;
-                        width: 8em;
                         font-weight: bold;
                     }
 
                     #exportResult dd {
-                        margin-left: 8em;
+                        margin-left: 0;
                     }
 
                     #exportFailures {
@@ -154,103 +145,108 @@ foreach ($exportJsKeys as $key) {
                         overflow: auto;
                     }
                 </style>
-                <table class="settings" cellspacing="0" cellpadding="2">
-                    <tr>
-                        <td class="head"><?= lang('export_site_target') ?></td>
-                        <td>
-                            <label>
-                                <input
-                                    name="target"
-                                    type="radio"
-                                    value="all"
-                                    <?= $exportTarget === 'all' ? 'checked' : '' ?>
-                                ><?= lang('export_site_target_all') ?>
-                            </label>
-                            <label>
-                                <input
-                                    name="target"
-                                    type="radio"
-                                    value="allow_ids"
-                                    <?= $exportTarget === 'allow_ids' ? 'checked' : '' ?>
-                                ><?= lang('export_site_target_allow') ?>
-                            </label>
-                            <label>
-                                <input
-                                    name="target"
-                                    type="radio"
-                                    value="ignore_ids"
-                                    <?= $exportTarget === 'ignore_ids' ? 'checked' : '' ?>
-                                ><?= lang('export_site_target_ignore') ?>
-                            </label>
-                            <div
-                                id="allow_ids"
-                                style="display:<?= $exportTarget === 'allow_ids' ? 'block' : 'none' ?>"
-                            >
-                                <input
-                                    type="text"
-                                    name="allow_ids"
-                                    value="<?= hsc(sessionv('export_allow_ids', '')) ?>"
-                                    style="width:300px;background-color:#f2fff2;"
-                                /><br/>
-                                <?= lang('export_site_target_allow_hint') ?>
-                            </div>
-                            <div
-                                id="ignore_ids"
-                                style="display:<?= $exportTarget === 'ignore_ids' ? 'block' : 'none' ?>"
-                            >
-                                <input
-                                    type="text"
-                                    name="ignore_ids"
-                                    value="<?= hsc(sessionv('export_ignore_ids', '')) ?>"
-                                    style="width:300px;background-color:#fff2f2;"
-                                /><br/>
-                                <?= lang('export_site_target_ignore_hint') ?>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php $includeNoncache = (bool)sessionv('export_includenoncache'); ?>
-                    <tr>
-                        <td class="head"><?= lang('export_site_cacheable') ?></td>
-                        <td>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="includenoncache"
-                                    value="1"
-                                    <?= $includeNoncache ? 'checked' : '' ?>
-                                ><?= lang('yes') ?>
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="includenoncache"
-                                    value="0"
-                                    <?= $includeNoncache ? '' : 'checked' ?>
-                                ><?= lang('no') ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="head"><?= lang('export_site_replace_before') ?></td>
-                        <td>
-                            <input
-                                type="text"
-                                name="repl_before"
-                                value="<?= hsc(sessionv('export_repl_before', MODX_SITE_URL)) ?>"
-                                style="width:300px;"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="head"><?= lang('export_site_replace_after') ?></td>
-                        <td>
-                            <input
-                                type="text"
-                                name="repl_after"
-                                value="<?= hsc(sessionv('export_repl_after', MODX_SITE_URL)) ?>"
-                                style="width:300px;"
-                            />
-                        </td>
-                    </tr>
+                <table class="settings">
+                    <?php
+                    $includeNoncache = (bool)sessionv('export_includenoncache');
+
+                    ob_start();
+                    ?>
+                    <label>
+                        <input
+                            name="target"
+                            type="radio"
+                            value="all"
+                            <?= $exportTarget === 'all' ? 'checked' : '' ?>
+                        ><?= lang('export_site_target_all') ?>
+                    </label>
+                    <label>
+                        <input
+                            name="target"
+                            type="radio"
+                            value="allow_ids"
+                            <?= $exportTarget === 'allow_ids' ? 'checked' : '' ?>
+                        ><?= lang('export_site_target_allow') ?>
+                    </label>
+                    <label>
+                        <input
+                            name="target"
+                            type="radio"
+                            value="ignore_ids"
+                            <?= $exportTarget === 'ignore_ids' ? 'checked' : '' ?>
+                        ><?= lang('export_site_target_ignore') ?>
+                    </label>
+                    <?php
+                    // 許可の欄は成功の色、除外の欄はエラーの色の薄い地にする（テーマの変数。画面専用の class は作らない）
+                    ?>
+                    <div
+                        id="allow_ids"
+                        style="display:<?= $exportTarget === 'allow_ids' ? 'block' : 'none' ?>"
+                    >
+                        <input
+                            type="text"
+                            name="allow_ids"
+                            value="<?= hsc(sessionv('export_allow_ids', '')) ?>"
+                            style="width:300px;background-color:var(--color-success-bg, #f2fff2);"
+                        /><br/>
+                        <?= lang('export_site_target_allow_hint') ?>
+                    </div>
+                    <div
+                        id="ignore_ids"
+                        style="display:<?= $exportTarget === 'ignore_ids' ? 'block' : 'none' ?>"
+                    >
+                        <input
+                            type="text"
+                            name="ignore_ids"
+                            value="<?= hsc(sessionv('export_ignore_ids', '')) ?>"
+                            style="width:300px;background-color:color-mix(in srgb, var(--color-error, #c62828) 6%, var(--color-surface, #fff));"
+                        /><br/>
+                        <?= lang('export_site_target_ignore_hint') ?>
+                    </div>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('export_site_target'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <label>
+                        <input
+                            type="radio"
+                            name="includenoncache"
+                            value="1"
+                            <?= $includeNoncache ? 'checked' : '' ?>
+                        ><?= lang('yes') ?>
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="includenoncache"
+                            value="0"
+                            <?= $includeNoncache ? '' : 'checked' ?>
+                        ><?= lang('no') ?>
+                    </label>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('export_site_cacheable'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    echo EvoFieldRow::render([
+                        'label' => lang('export_site_replace_before'),
+                        'body' => sprintf(
+                            '<input type="text" name="repl_before" value="%s" style="width:300px;"/>',
+                            hsc(sessionv('export_repl_before', MODX_SITE_URL))
+                        ),
+                    ]);
+                    echo EvoFieldRow::render([
+                        'label' => lang('export_site_replace_after'),
+                        'body' => sprintf(
+                            '<input type="text" name="repl_after" value="%s" style="width:300px;"/>',
+                            hsc(sessionv('export_repl_after', MODX_SITE_URL))
+                        ),
+                    ]);
+                    ?>
                 </table>
 
                 <ul class="actionButtons">

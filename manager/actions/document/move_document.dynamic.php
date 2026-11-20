@@ -60,7 +60,6 @@ function get_src_content($id, $parent)
 <button type="button" class="button" onclick="openParentPicker();">{$pickerLabel}</button></p>
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
-<input type="save" value="Move" style="display:none">
 </form>
 </div>
 </div>

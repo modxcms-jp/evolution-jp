@@ -242,5 +242,5 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             </ul>
         </div>
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
 </form>

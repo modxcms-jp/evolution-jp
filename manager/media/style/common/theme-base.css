@@ -227,6 +227,11 @@ optgroup option {
     text-align: start;
 }
 
+/* 見出しのセルと値のセルの間 */
+.field-row > th {
+    padding-inline-end: var(--space-3);
+}
+
 /* 設定の表（.settings）の見出しの列 */
 .settings th {
     width: 200px !important;

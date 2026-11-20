@@ -34,158 +34,116 @@ $icons_path = manager_style_image_path('icons');
         <div class="tab-pane" id="logPane">
             <div class="tab-page" id="tabGeneral">
                 <h2 class="tab"><?= lang('general') ?></h2>
-                <table border="0" cellpadding="2" cellspacing="0">
-                    <tbody>
-                        <tr style="background-color:#fff;">
-                            <td
-                                style="width:120px;"><b><?= lang('mgrlog_msg') ?></b></td>
-                            <td align="right">
-                                <input
-                                    type="text"
-                                    name="message"
-                                    class="inputbox"
-                                    style="width:240px"
-                                    value="<?= hsc(get_strvar('message')) ?>" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b><?= lang('mgrlog_user') ?></b></td>
-                            <td align="right">
-                                <select name="searchuser" class="inputBox" style="width:240px">
-                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
-                                    <?php
-                                    // get all users currently in the log
-                                    $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
-                                    foreach ($logs_user as $row) {
-                                        echo sprintf(
-                                            '<option value="%s" %s>%s</option>',
-                                            $row['internalKey'],
-                                            get_intvar('searchuser') && (int)$row['internalKey'] === get_intvar('searchuser') ? 'selected="selected"' : '',
-                                            hsc($row['username'])
-                                        ) . "\n";
-                                    }
-                                    ?>
-                                </select>
-                            </td>
-                        </tr>
+                <table>
+                    <?php
+                    $anyAll = '<option value="0">' . lang('mgrlog_anyall') . '</option>';
+
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_msg'),
+                        'body' => sprintf(
+                            '<input type="text" name="message" class="inputBox" style="width:240px" value="%s" />',
+                            hsc(get_strvar('message'))
+                        ),
+                    ]);
+
+                    // ログにあるユーザー
+                    $options = '';
+                    foreach (record_sort(array_unique_multi($logs, 'internalKey'), 'username') as $row) {
+                        $options .= sprintf(
+                            '<option value="%s" %s>%s</option>',
+                            $row['internalKey'],
+                            get_intvar('searchuser') && (int)$row['internalKey'] === get_intvar('searchuser') ? 'selected="selected"' : '',
+                            hsc($row['username'])
+                        ) . "\n";
+                    }
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_user'),
+                        'body' => '<select name="searchuser" class="inputBox" style="width:240px">' . $anyAll . $options . '</select>',
+                    ]);
+                    ?>
                 </table>
             </div>
             <div class="tab-page" id="tabSettings">
                 <h2 class="tab"><?= lang('option') ?></h2>
-                <table border="0" cellpadding="2" cellspacing="0">
-                    <tbody>
-                        <tr>
-                            <td><b><?= lang('mgrlog_action') ?></b></td>
-                            <td align="right">
-                                <select name="action" class="inputBox" style="width:240px;">
-                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
-                                    <?php
-                                    // get all available actions in the log
-                                    include_once(MODX_CORE_PATH . 'actionlist.inc.php');
-                                    $logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
-                                    foreach ($logs_actions as $row) {
-                                        $action = getAction($row['action']);
-                                        if ($action == 'Idle') {
-                                            continue;
-                                        }
-                                        echo sprintf(
-                                            '<option value="%s" %s>%s - %s</option>',
-                                            $row['action'],
-                                            get_intvar('action') && (int)$row['action'] === get_intvar('action') ? 'selected="selected"' : '',
-                                            $row['action'],
-                                            $action
-                                        ) . "\n";
-                                    }
-                                    ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr style="background-color:#fff;">
-                            <td><b><?= lang('mgrlog_itemid') ?></b></td>
-                            <td align="right">
-                                <select name="itemid" class="inputBox" style="width:240px">
-                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
-                                    <?php
-                                    // get all itemid currently in logging
-                                    $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
-                                    foreach ($logs_items as $row) {
-                                        $selectedtext = $row['itemid'] == get_strvar('itemid') ? ' selected="selected"' : '';
-                                        echo sprintf(
-                                            '<option value="%s"%s>%s</option>',
-                                            hsc($row['itemid']),
-                                            $selectedtext,
-                                            hsc($row['itemid'])
-                                        );
-                                    }
-                                    ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b><?= lang('mgrlog_itemname') ?></b></td>
-                            <td align="right">
-                                <select name="itemname" class="inputBox" style="width:240px">
-                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
-                                    <?php
-                                    // get all itemname currently in logging
-                                    $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
-                                    foreach ($logs_names as $row) {
-                                        echo sprintf(
-                                            '<option value="%s"%s>%s</option>',
-                                            hsc($row['itemname']),
-                                            $row['itemname'] == get_strvar('itemname') ? ' selected="selected"' : '',
-                                            hsc($row['itemname'])
-                                        );
-                                    }
-                                    ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b><?= lang('mgrlog_datefr') ?></b></td>
-                            <td align="right">
-                                <input type="text" id="datefrom" name="datefrom" class="DatePicker"
-                                    value="<?= hsc(get_strvar('datefrom')) ?>" />
-                                <a
-                                    onclick="document.logging.datefrom.value=''; return true;"
-                                    style="cursor:pointer; cursor:hand"><img
-                                        src="<?= $icons_path ?>cal_nodate.gif"
-                                        border="0" alt="No date" /></a>
-                            </td>
-                        </tr>
-                        <tr style="background-color:#fff;">
-                            <td><b><?= lang('mgrlog_dateto') ?></b></td>
-                            <td align="right">
-                                <input
-                                    type="text"
-                                    id="dateto"
-                                    name="dateto"
-                                    class="DatePicker"
-                                    value="<?= hsc(get_strvar('dateto')) ?>" />
-                                <a
-                                    onclick="document.logging.dateto.value=''; return true;"
-                                    style="cursor:pointer; cursor:hand">
-                                    <img
-                                        src="<?= $icons_path ?>cal_nodate.gif"
-                                        border="0"
-                                        alt="No date" />
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b><?= lang('mgrlog_results') ?></b></td>
-                            <td align="right">
-                                <input
-                                    type="text" name="nrresults"
-                                    class="inputbox" style="width:100px"
-                                    value="<?= hsc(get_strvar('nrresults', config('number_of_logs'))) ?>" />
-                                <img src="<?= style('tx') ?>" border="0" />
-                            </td>
-                        </tr>
-                    </tbody>
+                <table>
+                    <?php
+                    // ログにある操作
+                    include_once(MODX_CORE_PATH . 'actionlist.inc.php');
+                    $options = '';
+                    foreach (record_sort(array_unique_multi($logs, 'action'), 'action') as $row) {
+                        $action = getAction($row['action']);
+                        if ($action == 'Idle') {
+                            continue;
+                        }
+                        $options .= sprintf(
+                            '<option value="%s" %s>%s - %s</option>',
+                            $row['action'],
+                            get_intvar('action') && (int)$row['action'] === get_intvar('action') ? 'selected="selected"' : '',
+                            $row['action'],
+                            $action
+                        ) . "\n";
+                    }
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_action'),
+                        'body' => '<select name="action" class="inputBox" style="width:240px;">' . $anyAll . $options . '</select>',
+                    ]);
+
+                    // ログにある ID
+                    $options = '';
+                    foreach (record_sort(array_unique_multi($logs, 'itemid'), 'itemid') as $row) {
+                        $options .= sprintf(
+                            '<option value="%s"%s>%s</option>',
+                            hsc($row['itemid']),
+                            $row['itemid'] == get_strvar('itemid') ? ' selected="selected"' : '',
+                            hsc($row['itemid'])
+                        );
+                    }
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_itemid'),
+                        'body' => '<select name="itemid" class="inputBox" style="width:240px">' . $anyAll . $options . '</select>',
+                    ]);
+
+                    // ログにある名前
+                    $options = '';
+                    foreach (record_sort(array_unique_multi($logs, 'itemname'), 'itemname') as $row) {
+                        $options .= sprintf(
+                            '<option value="%s"%s>%s</option>',
+                            hsc($row['itemname']),
+                            $row['itemname'] == get_strvar('itemname') ? ' selected="selected"' : '',
+                            hsc($row['itemname'])
+                        );
+                    }
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_itemname'),
+                        'body' => '<select name="itemname" class="inputBox" style="width:240px">' . $anyAll . $options . '</select>',
+                    ]);
+
+                    // 日付の欄と、日付を消すボタン
+                    foreach (['datefrom' => 'mgrlog_datefr', 'dateto' => 'mgrlog_dateto'] as $name => $labelKey) {
+                        echo EvoFieldRow::render([
+                            'label' => lang($labelKey),
+                            'body' => sprintf(
+                                '<input type="text" id="%1$s" name="%1$s" class="DatePicker" value="%2$s" />'
+                                . '<a class="clickable-label" onclick="document.logging.%1$s.value=\'\'; return true;">'
+                                . '<img src="%3$scal_nodate.gif" alt="No date" /></a>',
+                                $name,
+                                hsc(get_strvar($name)),
+                                $icons_path
+                            ),
+                        ]);
+                    }
+
+                    echo EvoFieldRow::render([
+                        'label' => lang('mgrlog_results'),
+                        'body' => sprintf(
+                            '<input type="text" name="nrresults" class="inputBox" style="width:100px" value="%s" />',
+                            hsc(get_strvar('nrresults', config('number_of_logs')))
+                        ),
+                    ]);
+                    ?>
                 </table>
             </div>
-            <ul class="actionButtons" style="margin-left:5px;">
+            <ul class="actionButtons">
                 <li><a
                         href="#" class="default"
                         onclick="documentDirty=false;document.logging.log_submit.click();">
@@ -202,7 +160,7 @@ $icons_path = manager_style_image_path('icons');
                 type="submit"
                 name="log_submit"
                 value="<?= lang('mgrlog_searchlogs') ?>"
-                style="display:none;" />
+                class="hidden" />
         </div>
     </form>
 </div>

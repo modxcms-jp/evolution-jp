@@ -305,7 +305,7 @@ if (sessionv('result_msg')) {
             </form>
         </div>
         <!-- This iframe is used when downloading file backup file -->
-        <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+        <iframe name="fileDownloader" hidden></iframe>
         <?php if ($canRestore) { ?>
         <div class="tab-page" id="tabRestore">
             <h2 class="tab"><?= lang("bkmgr_restore_title") ?></h2>
@@ -324,7 +324,7 @@ if (sessionv('result_msg')) {
                         onclick="return restoreUpload();"><?= lang("bkmgr_run_sql_submit") ?>
                     </a>
                 </div>
-                <input type="submit" name="save" style="display:none;" />
+                <input type="submit" name="save" class="hidden" />
             </form>
         </div>
         <?php } ?>
@@ -342,28 +342,25 @@ if (sessionv('result_msg')) {
                 #dbmPane table {
                     border-collapse: collapse;
                 }
-
-                #dbmPane td {
-                    padding: 4px;
-                }
             </style>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />
                 <table>
-                    <tr>
-                        <th><?= lang("bkmgr_content_only") ?></th>
-                        <td><input type="checkbox" name="contentsOnly" value="1" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang("bkmgr_file_name") ?></th>
-                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoSnapshotStore::KEEP]) ?></td>
-                    </tr>
+                    <?= EvoFieldRow::render([
+                        'label' => lang("bkmgr_content_only"),
+                        'body' => '<input type="checkbox" name="contentsOnly" value="1" />',
+                    ]) ?>
+                    <?= EvoFieldRow::render([
+                        'label' => lang("bkmgr_file_name"),
+                        'body' => '<input type="text" name="file_name" size="50" value="" />',
+                        'help' => evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoSnapshotStore::KEEP]),
+                    ]) ?>
                 </table>
                 <div class="actionButtons">
                     <a href="#" class="primary" onclick="document.snapshot.save.click();">
                         <?= lang("bkmgr_snapshot_submit") ?>
                     </a>
-                    <input type="submit" name="save" style="display:none;" />
+                    <input type="submit" name="save" class="hidden" />
                 </div>
             </form>
         <div class="sectionHeader"><?= lang("bkmgr_snapshot_list_title") ?></div>
@@ -392,7 +389,7 @@ if (sessionv('result_msg')) {
                     echo lang("bkmgr_snapshot_nothing");
                 }
                 ?>
-                <input type="submit" name="save" style="display:none;" />
+                <input type="submit" name="save" class="hidden" />
             </form>
         </div>
     </div>

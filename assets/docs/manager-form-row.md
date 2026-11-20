@@ -35,6 +35,10 @@ echo EvoFieldRow::render([
 
 設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む（文書の画面だけでなく、部品を使うすべての画面に効く）。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
 
+## 見出しと値の間
+
+見出しのセルの右の間（`--space-3`）は、共通の CSS（`theme-base.css` の `.field-row > th`）が決める。画面ごとに `padding-right` を直書きしない。設定の表（`.settings th`）は自分の余白が勝つ。
+
 ## 直書きの style の振り分け
 
 画面の HTML の `style="..."` は、次のように扱う。画面専用の class を作って移し替えるだけにしない。
