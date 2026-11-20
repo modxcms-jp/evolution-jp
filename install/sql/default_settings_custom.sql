@@ -7,7 +7,7 @@ TRUNCATE TABLE `{PREFIX}site_content`;
 
 INSERT INTO `{PREFIX}site_content`
 VALUES (1, 'document', 'text/html', '最初のページ', 'これは最初のページです。', '', 'begin', '', 1, 0, 0, 0, 0, '',
-        '<h3>MODXへようこそ。</h3>\n<p>MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"http://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"http://modx.jp/docs/faq.html\">こちら</a>。</p>\n',
+        '<h3>MODXへようこそ。</h3>\n<p>MODXの操作は簡単。まずは管理画面左側のサイトツリーを右クリック。操作メニューが表示されます。ページごとにURLを自由に設定したい場合は、フレンドリーURL設定を有効にしてください。</p>\n\n<h3>MODXの使い方</h3>\n<p><a href=\"https://modx.jp/docs.html\">ドキュメントはこちら。</a>\n<p>よくある質問は<a href=\"https://modx.jp/docs/faq.html\">こちら</a>。</p>\n',
         1, 1, 0, 1, 1, 1, {DATE_NOW}, 1, {DATE_NOW}, 0, 0, 0, {DATE_NOW}, 1, '初期ページ', 0, 0, 0, 0, 0, 0, 0, 1);
 
 REPLACE INTO `{PREFIX}user_roles`
