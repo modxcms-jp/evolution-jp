@@ -3,6 +3,8 @@
 /**
  * QuickManager+ Manager Control Class
  *
+ * 編集画面で隠す対象と保存・キャンセルの設定を集め、assets/plugins/qm/js/qm-edit.js の QMEdit.init() に渡す。
+ *
  * @author      Mikko Lammi, www.maagit.fi
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
  * @version     1.5.5 updated 02/08/2010
@@ -11,8 +13,11 @@
 if (!class_exists('Mcc')) {
     class Mcc
     {
-        var $script;
         var $head;
+        // 保存・キャンセルの文言と、キャンセルの戻り先（QMEdit.init() の controls）
+        var $controls = [];
+        // 隠す対象（QMEdit.init() の hide）
+        var $hide = [];
         var $tabs;
         var $sections;
 
@@ -33,23 +38,13 @@ if (!class_exists('Mcc')) {
         }
 
         //_______________________________________________________
-        function addLine($line)
-        {
-            $this->script .= $line . "\n";
-        }
-
-        //_______________________________________________________
         function Output()
         {
-            $out = $this->head;
-            $this->addLine('document.body.style.display = "block";');
-            // qmHide: 要素の配列や NodeList を隠す（無い要素は飛ばす。表の行も扱うので hidden ではなく display を none に）
-            $out .= '<script type="text/javascript">Evo.ready(function () {' . "\n"
-                . 'var qmHide = function (els) { Array.prototype.forEach.call(els, function (el) { if (el) { el.style.display = "none"; } }); };' . "\n"
-                . $this->script
-                . '});</script>';
+            $config = ['controls' => $this->controls, 'hide' => $this->hide];
 
-            return $out;
+            return $this->head
+                . '<script src="' . hsc(site_asset(MODX_SITE_URL . 'assets/plugins/qm/js/qm-edit.js')) . '"></script>'
+                . '<script>QMEdit.init(' . js_value($config) . ');</script>';
         }
 
         // Section
@@ -63,13 +58,13 @@ if (!class_exists('Mcc')) {
 
             // Handle docsettings
             if ($sectionHeaderIndex == -1) {
-                $this->addLine('qmHide([document.querySelector("#tabGeneral table")]);');
+                $this->hide[] = ['sel' => '#tabGeneral table'];
                 return;
             }
 
-            // 文書の中で n 番目（0 始まり）の 1 つだけ（以前の :eq(n) と同じ）
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionHeader")[' . $sectionHeaderIndex . ']]);');
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionBody")[' . $sectionBodyIndex . ']]);');
+            // 文書の中で n 番目（0 始まり）の 1 つだけ
+            $this->hide[] = ['sel' => 'div.sectionHeader', 'nth' => $sectionHeaderIndex];
+            $this->hide[] = ['sel' => 'div.sectionBody', 'nth' => $sectionBodyIndex];
         }
 
         // Tab
@@ -80,8 +75,8 @@ if (!class_exists('Mcc')) {
             if (!isset($this->tabs[$tab])) return;
             $tabIndex = $this->tabs[$tab]['index'];
             $tabId = $this->tabs[$tab]['id'];
-            $this->addLine('qmHide(document.querySelectorAll("div#documentPane h2:nth-child(' . $tabIndex . ')"));');
-            $this->addLine('qmHide([document.getElementById("' . $tabId . '")]);');
+            $this->hide[] = ['sel' => 'div#documentPane h2:nth-child(' . $tabIndex . ')', 'all' => true];
+            $this->hide[] = ['sel' => '#' . $tabId];
         }
 
         // Field
@@ -93,9 +88,7 @@ if (!class_exists('Mcc')) {
             if (!preg_match('/^[A-Za-z0-9_\-]+$/', $field)) return;
             if ($field == 'content') return $this->hideSection($field);
             // $field は欄の name。その欄が入っている行（data-field の付いた行）を隠す
-            $this->addLine(
-                'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { qmHide([Evo.fieldRow(el)]); });'
-            );
+            $this->hide[] = ['field' => $field];
         }
     }
 }
