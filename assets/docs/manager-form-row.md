@@ -24,6 +24,7 @@ echo EvoFieldRow::render([
 | `attr` | 行に足す属性 `[名前 => 値]`（`data-show-if`・`style` など）。値は部品が `hsc()` する |
 
 - HTML を受けるキー（`label`・`label_extra`・`body`・`help`）は、呼び出し側で出力に合わせてエスケープしてから渡す（利用者の入力・DB や環境から来る値は `hsc()`）。部品は差し込んだ値を再評価しないので、値の中の `[+…+]` はそのまま出る。部品の出力を、あとで `parseText()` などのタグ解析に通す画面（文書の編集画面は大きな tpl に差し込む）は、値を `hsc_for_tpl()` で渡す（`template-system.md`）。言語ファイルとコードの定数の HTML はそのまま渡してよい。
+- 値のセルの HTML が大きい行は、PHP の画面では `ob_start()` と `ob_get_clean()` で HTML を組んで `body` に渡す（`sprintf()` や heredoc で組まない）。
 - 種類ごとの違いは、呼び出し側が配列で表す。部品の中に画面ごとの分岐を足さない。文書の編集画面の値のセルの `.field-inline` の包みは、呼び出し側の `renderFieldTr()`（`mutate_content/functions.php`）が行う。
 - 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド。
 
@@ -34,6 +35,10 @@ echo EvoFieldRow::render([
 ## custom_tpl_dir
 
 設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む（文書の画面だけでなく、部品を使うすべての画面に効く）。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
+
+## 見出しと値の間
+
+見出しのセルの右の間（`--space-3`）は、共通の CSS（`theme-base.css` の `.field-label`）が決める。画面ごとに `padding-right` を直書きしない。`EvoSettingsForm::style()` を出す画面（グローバル設定・ユーザーの設定・プロフィール）では、その `table.settings th` の 5px が勝つ（#1631 の段階 3 で `style()` を共通の CSS へ移すときに合わせる）。
 
 ## 直書きの style の振り分け
 

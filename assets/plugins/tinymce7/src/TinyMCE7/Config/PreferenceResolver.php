@@ -19,6 +19,8 @@ final class PreferenceResolver
      */
     private const CLASS_TARGETS = [
         'a' => ['list' => 'link_class_list', 'withUnprefixed' => true],
+        'img' => ['list' => 'image_class_list', 'withUnprefixed' => false],
+        'table' => ['list' => 'table_class_list', 'withUnprefixed' => false],
     ];
 
     private ConfigRepository $repository;
@@ -113,7 +115,7 @@ final class PreferenceResolver
      * 要素名の無い項目は TinyMCE 3 の theme_advanced_styles と同じ書式定義（selector '*' と inline 'span' の mixed 書式）にする。
      * 要素全体を選んだときは要素に class を付け、文中の一部を選んだときは span で包む。
      * 「表示名=a.クラス名」のように要素名を付けた項目は、その要素にだけ class を付ける書式にする。
-     * 要素名の無い項目は、リンクのダイアログの「クラス」にも出す（要素名ごとの扱いは CLASS_TARGETS）
+     * 要素名の無い項目は、リンクのダイアログの「クラス」にも出す。画像・表のダイアログには出さない（要素名ごとの扱いは CLASS_TARGETS）
      */
     public function applyCssSelectors(array $config): array
     {

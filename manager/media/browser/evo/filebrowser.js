@@ -7,9 +7,9 @@
 //
 // behaviors(host は { root, config, state, preview, reload, download(names) }):
 //   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
-//   itemActions                    ファイルの行のアイコンと右クリックの項目になる操作の種類の配列('open' | 'preview' | 'download')。
-//                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない。
-//                                  右クリック(ファイル 1 件)のダウンロードは、itemActions に 'download' が無い入口でも共通の項目として出す
+//   itemActions                    ファイルの行のアイコンになる操作の種類の配列('open' | 'preview' | 'download')。種類ごとの定義は ITEM_ACTIONS。
+//                                  行のアイコンはここから作り、grid.js は入口を判定しない。'open'・'preview' は右クリックと選択の帯にも出る
+//                                  (その並びと条件は SELECTION_ACTIONS)。ダウンロードは itemActions に無い入口でも、右クリックと帯に共通で出す
 //   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]。複製・削除はどの入口でも共通に後ろへ足す
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
@@ -222,8 +222,7 @@ function init(root, entry, behaviors) {
     var clipboard = null;
     var pasteBtn = root.querySelector('[data-action="paste"]');
     var selectionBarEl = root.querySelector('[data-role="selectionbar"]');
-    var downloadBtn = root.querySelector('[data-action="bulk-download"]');
-    var renameBtn = root.querySelector('[data-action="bulk-rename"]');
+    var selectionActionsEl = root.querySelector('[data-role="selection-actions"]');
 
     function isCutName(name) {
         return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
@@ -328,11 +327,9 @@ function init(root, entry, behaviors) {
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
         onSelectionChange: function (count) {
-            // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)。
-            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを無効にする
+            // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)
             selectionBarEl.classList.toggle('is-hidden', count === 0);
-            downloadBtn.disabled = !canDownload(count);
-            renameBtn.disabled = !canRenameSelection();
+            updateSelectionActions();
             notifySelection();
         },
         isCut: isCutName
@@ -649,18 +646,7 @@ function init(root, entry, behaviors) {
         moveDialog.open(state.folder);
     }
 
-    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', bulkDelete);
-    root.querySelector('[data-action="bulk-move"]').addEventListener('click', bulkMove);
-    root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
-    root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
-    renameBtn.addEventListener('click', function () {
-        if (canRenameSelection()) {
-            startRenameFor(Array.from(state.selection)[0]);
-        }
-    });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
-
-    downloadBtn.addEventListener('click', bulkDownload);
 
     // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
     dropzoneEl.addEventListener('click', function (e) {
@@ -750,6 +736,101 @@ function init(root, entry, behaviors) {
         behaviors.openFile(file, host);
     });
 
+    // --- 選択に対する操作の表 ---
+    // 右クリックメニューと下の選択の帯は、どちらもこの表から作る(並び・文言・出す条件・実行がここだけにある)。
+    // files は選んでいるファイル。single は 1 件だけのときの操作、when は出す条件、enabled は押せる条件(省くと常に押せる)。
+    // メニューは押せない操作を出さず、帯は single の操作を複数のときも出したまま押せなくする(件数で位置が動かないように)。
+    // open・preview は入口の itemActions に入っているときだけ出す(入口ごとの内訳は behaviors が決める)
+    var SELECTION_ACTIONS = [
+        {
+            id: 'open', label: ITEM_ACTIONS.open.label, single: true,
+            when: function () { return itemActionKinds.indexOf('open') !== -1; },
+            run: function (files) { ITEM_ACTIONS.open.run(files[0], behaviors, host); }
+        },
+        {
+            id: 'preview', label: ITEM_ACTIONS.preview.label, single: true,
+            when: function () { return itemActionKinds.indexOf('preview') !== -1; },
+            run: function (files) { ITEM_ACTIONS.preview.run(files[0], behaviors, host); }
+        },
+        {
+            id: 'edit', label: 'fb_edit', single: true,
+            when: function (files) { return files.every(imageEditor.canEdit); },
+            run: function (files) { imageEditor.open(files[0]); }
+        },
+        {
+            id: 'download', label: ITEM_ACTIONS.download.label,
+            enabled: function (files) { return canDownload(files.length); },
+            run: bulkDownload
+        },
+        { id: 'copy', label: 'fb_copy', run: function () { setClipboard('copy'); } },
+        { id: 'cut', label: 'fb_cut', enabled: isWritable, run: function () { setClipboard('cut'); } },
+        {
+            id: 'rename', label: 'fb_rename', single: true,
+            enabled: canRenameSelection,
+            run: function (files) { startRenameFor(files[0].name); }
+        },
+        { id: 'move', label: 'move', enabled: isWritable, run: bulkMove },
+        { id: 'delete', label: 'delete', danger: true, enabled: isWritable, run: bulkDelete }
+    ];
+
+    // 書き込めないフォルダでは、コピー以外(切り取り・名前を変更・移動・削除)を押せなくする
+    function isWritable() {
+        return state.writable;
+    }
+
+    function selectedFiles() {
+        return Array.from(state.selection).map(findFile).filter(Boolean);
+    }
+
+    function isActionVisible(action, files) {
+        return files.length > 0 && (!action.when || action.when(files));
+    }
+
+    function isActionEnabled(action, files) {
+        return (!action.single || files.length === 1) && (!action.enabled || action.enabled(files));
+    }
+
+    // メニューに出す操作
+    function actionsFor(files) {
+        return SELECTION_ACTIONS.filter(function (action) {
+            return isActionVisible(action, files) && isActionEnabled(action, files);
+        });
+    }
+
+    // 帯のボタンは入口の画面を作るときに 1 度だけ並べ、選択が変わるたびに出し入れと押せるかどうかだけを更新する
+    var selectionActionBtns = SELECTION_ACTIONS.map(function (action) {
+        var li = document.createElement('li');
+        var btn = document.createElement('button');
+        li.classList.toggle('is-danger', !!action.danger);
+        btn.type = 'button';
+        btn.setAttribute('data-action', 'selection-' + action.id);
+        btn.textContent = t(action.label);
+        btn.addEventListener('click', function () {
+            var files = selectedFiles();
+            if (isActionVisible(action, files) && isActionEnabled(action, files)) {
+                action.run(files);
+            }
+        });
+        li.appendChild(btn);
+        selectionActionsEl.appendChild(li);
+        return btn;
+    });
+
+    function updateSelectionActions() {
+        // 帯のボタンを並べる前(grid の初期化中)に呼ばれることがある
+        if (!selectionActionBtns) {
+            return;
+        }
+        var files = selectedFiles();
+        SELECTION_ACTIONS.forEach(function (action, i) {
+            var btn = selectionActionBtns[i];
+            var visible = isActionVisible(action, files);
+            // 未選択のときは全部を押せない状態で残す。隠すと帯が低くなり、最初の選択で一覧の高さが変わる
+            btn.parentNode.hidden = files.length > 0 && !visible;
+            btn.disabled = !(visible && isActionEnabled(action, files));
+        });
+    }
+
     // --- 右クリックメニュー ---
     // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。
 
@@ -788,39 +869,11 @@ function init(root, entry, behaviors) {
             state.selection.add(name);
             grid.updateSelectionDom();
         }
-        if (state.selection.size > 1) {
-            var multiItems = [];
-            if (canDownload(state.selection.size)) {
-                multiItems.push({ label: t('fb_download'), onSelect: bulkDownload });
-            }
-            return multiItems.concat([
-                { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
-                { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
-                { label: t('move'), onSelect: bulkMove },
-                { label: t('delete'), danger: true, onSelect: bulkDelete }
-            ]);
-        }
         var file = findFile(name);
-        var items = file ? behaviors.contextMenuItems(file, host).slice() : [];
-        if (file) {
-            itemActionKinds.forEach(function (kind) {
-                items.push({ label: t(ITEM_ACTIONS[kind].label), onSelect: function () { ITEM_ACTIONS[kind].run(file, behaviors, host); } });
-            });
-            if (imageEditor.canEdit(file)) {
-                items.push({ label: t('fb_edit'), onSelect: function () { imageEditor.open(file); } });
-            }
-        }
-        if (itemActionKinds.indexOf('download') === -1) {
-            items.push({ label: t('fb_download'), onSelect: bulkDownload });
-        }
-        items.push(
-            { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
-            { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
-            { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
-            { label: t('move'), onSelect: bulkMove },
-            { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, false); } }
-        );
-        return items;
+        var items = state.selection.size === 1 && file ? behaviors.contextMenuItems(file, host).slice() : [];
+        return items.concat(actionsFor(selectedFiles()).map(function (action) {
+            return { label: t(action.label), danger: action.danger, onSelect: function () { action.run(selectedFiles()); } };
+        }));
     }
 
     dropzoneEl.addEventListener('contextmenu', function (e) {
