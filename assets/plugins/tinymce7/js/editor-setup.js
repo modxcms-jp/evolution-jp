@@ -108,23 +108,22 @@
     }).join(' '));
   }
 
-  // リンクのダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
-  // 開く前に、本文のリンクの値のうち一覧に無いものを選択肢に足す。
-  // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
-  const linkChoiceLists = [
-    {option: 'link_class_list', attribute: 'class', normalize: asIs},
-    {option: 'link_rel_list', attribute: 'rel', normalize: relWithoutNoopener}
+  // リンク・画像のダイアログの「クラス」「rel」は、一覧に無い値を保てず、そのまま保存すると属性を消す。
+  // ダイアログは開くときに一覧を読む。ツールバー・メニュー・右クリックはコマンドを通さずに開くため、
+  // 本文が変わるたびに、本文の該当する要素の値のうち一覧に無いものを選択肢に足して作り直しておく。
+  // ダイアログが編集する要素は選び方で変わるため、本文のすべての該当する要素を見る
+  // selector は値を集める要素
+  const choiceLists = [
+    {selector: 'a[href]', option: 'link_class_list', attribute: 'class', normalize: asIs},
+    {selector: 'a[href]', option: 'link_rel_list', attribute: 'rel', normalize: relWithoutNoopener},
+    {selector: 'img', option: 'image_class_list', attribute: 'class', normalize: asIs}
   ];
 
-  function bindLinkChoices(editor) {
+  function bindChoiceLists(editor) {
     const bases = {};
 
-    editor.on('BeforeExecCommand', function (e) {
-      if (e.command !== 'mceLink') {
-        return;
-      }
-      const links = editor.dom.select('a[href]');
-      linkChoiceLists.forEach(function (choices) {
+    function refresh() {
+      choiceLists.forEach(function (choices) {
         if (!bases[choices.option]) {
           const list = editor.options.get(choices.option);
           bases[choices.option] = Array.isArray(list) ? list : [];
@@ -137,8 +136,8 @@
           return item && typeof item.value === 'string' ? choices.normalize(item.value) : undefined;
         }));
         const extra = [];
-        links.forEach(function (link) {
-          const value = choices.normalize(link.getAttribute(choices.attribute) || '');
+        editor.dom.select(choices.selector).forEach(function (element) {
+          const value = choices.normalize(element.getAttribute(choices.attribute) || '');
           if (value !== '' && !listed.has(value)) {
             listed.add(value);
             extra.push({title: value, value: value});
@@ -146,6 +145,14 @@
         });
         editor.options.set(choices.option, base.concat(extra));
       });
+    }
+
+    editor.on('init SetContent change undo redo', refresh);
+    // 変化の通知が間に合わない操作の取りこぼしを防ぐ
+    editor.on('BeforeExecCommand', function (e) {
+      if (e.command === 'mceLink') {
+        refresh();
+      }
     });
   }
 
@@ -153,6 +160,6 @@
     bindDocumentDirty(editor);
     bindInputNotification(editor);
     bindRelOrdering(editor);
-    bindLinkChoices(editor);
+    bindChoiceLists(editor);
   };
 })(window);
