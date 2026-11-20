@@ -106,6 +106,10 @@ final class PreferenceResolver
      */
     public function applyCssSelectors(array $config): array
     {
+        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換え、
+        // 取り込めるクラスが無いと「書式」の欄が空で押せなくなるため、いつも追記にする
+        $config['importcss_append'] = $config['importcss_append'] ?? true;
+
         $formats = $this->parseCssSelectors($this->detectCssSelectors());
 
         if ($formats === []) {
@@ -115,8 +119,6 @@ final class PreferenceResolver
         $existing = $config['style_formats'] ?? [];
         $config['style_formats'] = array_merge(is_array($existing) ? $existing : [], $formats);
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
-        // importcss プラグインは既定でスタイル一覧を CSS から取り込んだクラスで置き換えるため、追記にする
-        $config['importcss_append'] = $config['importcss_append'] ?? true;
         $config['link_class_list'] = $config['link_class_list'] ?? $this->linkClassList($formats);
 
         return $this->ensureStylesButton($config);
