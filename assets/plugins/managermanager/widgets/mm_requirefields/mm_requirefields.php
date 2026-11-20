@@ -51,7 +51,6 @@ function mm_requireFields($fields, $roles = '', $templates = '')
             case 'clear_cache':
             case 'content_type':
             case 'content_dispo':
-                $output .= '';
                 break;
 
             // Pub/unpub dates don't have a type attribute on their input tag in 1.0.2, so add this. Won't do any harm to other versions
