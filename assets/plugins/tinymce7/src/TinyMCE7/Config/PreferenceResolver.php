@@ -404,6 +404,7 @@ final class PreferenceResolver
         $names = $this->toolbarPresetNames();
         // 旧プラグインの構成名の読み替え
         $aliases = array_combine($names, $names) + [
+            'basic' => 'formats',
             'classic' => 'legacy',
             'advanced' => 'full',
         ];
