@@ -3,7 +3,7 @@
  * mm_ddMaxLength
  * @version 1.0.1 (2012-01-13)
  *
- * Позволяет ограничить количество вводимых символов в TV.
+ * TV に入力できる文字数を制限する
  *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru

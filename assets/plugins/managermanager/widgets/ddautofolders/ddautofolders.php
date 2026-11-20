@@ -23,18 +23,17 @@
 
 /**
  * mm_ddAutoFolders
- * @param $ddRoles {comma separated string} - ID ролей, к которым необходимо применить правило. [Optional; Default: '']
- * @param $ddTemplates {comma separated string} - ID шаблонов, к которым необходимо применить правило. [Optional; Default: '']
- * @param $ddParent {integer} - ID корневого родителя. [Required]
- * @param $ddDateSource {string} - Поле, откуда необходимо брать дату. [Optional; Default: 'pub_date']
- * @param $ddYearTpl {integer} - ID шаблона, который необходимо выставлять документам-годам. [Optional; Default: 0]
- * @param $ddMonthTpl {integer} - ID шаблона, который необходимо выставлять документам-месяцам. [Optional; Default: 0]
- * @param $ddYearPub {0; 1} - Надо ли публиковать документы-годы. [Optional; Default: 0]
- * @param $ddMonthPub {0; 1} - Надо ли публиковать документы-месяцы. [Optional; Default: 0]
+ * @param $ddRoles {comma separated string} - ルールを適用するロールの ID。省略時はすべて
+ * @param $ddTemplates {comma separated string} - ルールを適用するテンプレートの ID。省略時はすべて
+ * @param $ddParent {integer} - 年のドキュメントを置く親の ID（必須）
+ * @param $ddDateSource {string} - 日付を読む欄。既定は pub_date
+ * @param $ddYearTpl {integer} - 年のドキュメントに設定するテンプレートの ID
+ * @param $ddMonthTpl {integer} - 月のドキュメントに設定するテンプレートの ID
+ * @param $ddYearPub {0; 1} - 年のドキュメントを公開するか
+ * @param $ddMonthPub {0; 1} - 月のドキュメントを公開するか
  *
  * @version 1.0.1 (2012-02-15)
  *
- * При сохранении (событие OnBeforeDocFormSave) автоматически перемещает необходимый документ, основываясь на его дате (дата публикации, или любая дата в tv) в папку года и месяца. Если папки (документы) года и/или месяца ещё не созданы, они создадутся автоматически.
  *
  * @uses modx 1.0.5, ManagerManager plugin 0.3.11
  *
@@ -60,22 +59,16 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     $tvVars = $e->params['tv_vars'] ?? [];
     $template = (int)($docVars['template'] ?? 0);
 
-    //Дата
     $ddDate = [];
 
-    //Если задано, откуда брать дату и это не дата публикации, пытаемся найти в tv`шках
     if ($ddDateSource && $ddDateSource !== 'pub_date') {
-        //Получаем tv с датой для данного шаблона
         $dateTv = tplUseTvs($template, $ddDateSource);
 
-        //Если tv удалось получить, такая tv есть и есть её значение
         $dateTvValue = $dateTv && $dateTv[0]['id'] ? ($tvVars[$dateTv[0]['id']] ?? false) : false;
         if ($dateTvValue) {
-            //Если дата в юникс-времени
             if (is_numeric($dateTvValue)) {
                 $ddDate['date'] = (int)$dateTvValue;
             } else {
-                //Пытаемся преобразовать в unix-время
                 $ddDate['date'] = strtotime($dateTvValue);
             }
         }
@@ -83,32 +76,22 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         $ddDate['date'] = $docVars['pub_date'] ?? 0;
     }
 
-    //Если не задана дата, выбрасываем
     if (empty($ddDate['date'])) {
         return;
     }
 
-    //Псевдонимы родителей (какие должны быть)
-    //Год в формате 4 цифры
     $ddDate['y'] = date('Y', $ddDate['date']);
-    //Название месяца на английском
     $ddDate['m'] = strtolower(date('F', $ddDate['date']));
-    //Порядковый номер месяца
     $ddDate['n'] = date('n', $ddDate['date']);
 
-    //Если язык админки — русский
     if (strtolower($modx_lang_attribute) === 'ru') {
-        //Все месяцы на русском
         $ruMonthes = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-        //Название месяца на русском
         $ddDate['mTitle'] = $ruMonthes[$ddDate['n'] - 1];
     } else {
-        //Просто запишем на английском
         $ddDate['mTitle'] = date('F', $ddDate['date']);
     }
 
-    //Получаем список групп документов, к которым принадлежит текущий документ (пригодится при создании годов и месяцев)
     // 文書グループは、フォルダを実際に作るとき（$createDocument の中）に初めて求める（文書の保存と同じ判定は manager()->setNewDocumentGroups()。文書グループの権限は 1 回だけ求めて年・月で使い回す）
     // OnBeforeDocFormSave は save_resource.processor.php のほか qm.inc.php も呼ぶが、後者は doc_vars が無く途中で抜ける
 
@@ -117,7 +100,6 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     $createDocument = function ($fields) use (&$access) {
         $fields['createdon'] = time();
         $fields['createdby'] = (int)evo()->getLoginUserID();
-        //Если надо публиковать, поставим дату публикации текущей
         if ($fields['published'] == 1) {
             $fields['pub_date'] = $fields['createdon'];
         }
@@ -158,51 +140,41 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         return (int)db()->getValue($rs);
     };
 
-    //Получаем id нужного нам года
     $yearId = $findChild($ddParent, $ddDate['y']);
     $monthId = 0;
     if ($docId && $docId === $yearId) {
         return;
     }
 
-    //Если нужный год существует
     if ($yearId) {
-        //Проставим году нужные параметры
         $updateDocument($yearId, [
             'isfolder' => 1,
             'template' => $ddYearTpl,
             'published' => $ddYearPub
         ]);
-        //Получаем id нужного нам месяца
         $monthId = $findChild($yearId, $ddDate['m']);
         if ($docId && $docId === $monthId) {
             return;
         }
-        //Если нужный год не существует
     } else {
-        //Создадим его
         $yearId = $createDocument([
             'pagetitle' => $ddDate['y'],
             'alias' => $ddDate['y'],
             'parent' => $ddParent,
             'isfolder' => 1,
             'template' => $ddYearTpl,
-            //Да пусть будут тупо по году, сортироваться нормально зато будут
             'menuindex' => $ddDate['y'] - 2000,
             'published' => $ddYearPub
         ]);
     }
 
     //         if (!$monthId && $yearId){
-    //Если нужный месяц существует
     if ($monthId) {
-        //Проставим месяцу нужные параметры
         $updateDocument($monthId, [
             'isfolder' => 1,
             'template' => $ddMonthTpl,
             'published' => $ddMonthPub
         ]);
-        //Если нужный месяц не существует (на всякий случай проверим ещё и год)
     } else if ($yearId) {
         $monthId = $createDocument([
             'pagetitle' => $ddDate['mTitle'],
@@ -210,13 +182,11 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             'parent' => $yearId,
             'isfolder' => 1,
             'template' => $ddMonthTpl,
-            //Для месяца выставляем menuindex в соответствии с его порядковым номером
             'menuindex' => $ddDate['n'] - 1,
             'published' => $ddMonthPub
         ]);
     }
 
-    //Ещё раз на всякий случай проверим, что с месяцем всё хорошо
     if ($monthId && $monthId != ($docVars['parent'] ?? 0)) {
         //本体の保存に反映させるため、params の doc_vars を書き換える
         $docVars['parent'] = (int)$monthId;
