@@ -26,7 +26,8 @@ require_once __DIR__ . '/src/bootstrap.php';
 
 $language = new \TinyMCE7\Support\Language();
 $repository = new \TinyMCE7\Editor\LinkListRepository(
-    $language->translate('tinymce7_link_list_unpublished', ' (unpublished)')
+    $language->translate('tinymce7_link_list_unpublished', ' (unpublished)'),
+    $language->translate('tinymce7_link_list_truncated', '(Documents deeper than this are omitted. Write [~ID~] in the URL field.)')
 );
 
 echo json_encode(

@@ -15,10 +15,12 @@ final class LinkListRepository
     public const MAX_ITEMS = 1000;
 
     private string $unpublishedLabel;
+    private string $truncatedLabel;
 
-    public function __construct(string $unpublishedLabel = ' (unpublished)')
+    public function __construct(string $unpublishedLabel = ' (unpublished)', string $truncatedLabel = '')
     {
         $this->unpublishedLabel = $unpublishedLabel;
+        $this->truncatedLabel = $truncatedLabel;
     }
 
     /**
@@ -45,13 +47,21 @@ final class LinkListRepository
             $children[isset($byId[$parent]) ? $parent : 0][] = $row;
         }
 
-        return $this->build($children, 0, $this->depthLimit($children));
+        $depthLimit = $this->depthLimit($children);
+        $items = $this->build($children, 0, $depthLimit);
+        // 打ち切ったことを末尾に示す。選んでも URL が空になるだけの項目
+        if ($depthLimit !== null && $this->truncatedLabel !== '') {
+            $items[] = ['title' => $this->truncatedLabel, 'value' => ''];
+        }
+
+        return $items;
     }
 
     /**
      * 文書グループで絞る条件。use_udperms が無効、または管理者なら絞らない。
-     * 式はツリー（manager/frames/nodes.php の tree_visibility_condition()）・検索と同じ
-     * （tree_show_protected は見ない。一覧に出すのはリンクを張れる文書だけ）。
+     * 式の形はツリー（manager/frames/nodes.php の tree_visibility_condition()）と同じ。ただし use_udperms が無効なら絞らない
+     * （ツリーは use_udperms を見ずに privatemgr で絞る。この一覧は保存の確かめ ManagerAPI::canOpenWithDocumentGroups() と同じ）。
+     * tree_show_protected は見ない。一覧に出すのはリンクを張れる文書だけ。
      */
     private function accessCondition(): string
     {

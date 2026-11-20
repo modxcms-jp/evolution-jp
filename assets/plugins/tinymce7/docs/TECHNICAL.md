@@ -158,8 +158,8 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - **作り**: 文書の取り出しと木にする処理は `TinyMCE7\Editor\LinkListRepository`。入口は取り出しを呼んで JSON にするだけです。
 - **値と表示**: 値は文書を移してもリンクが切れない `[~id~]` で、`convert_urls: false`・`relative_urls: false` のため TinyMCE は書き換えず、本文には `href="[~id~]"` のまま保存され、公開側で URL になります。表示は「メニュータイトル（無ければページタイトル）(ID)」で、未公開の文書は末尾に「（未公開）」を添えます（言語ファイルの `tinymce7_link_list_unpublished`）。削除済みの文書は出しません。メニューに表示しない文書も出します。
 - **並び**: メニューオーダー順。子を持つ文書は入れ子のメニューになり、メニューの見出し自身は選べないので、先頭に同じ名前の項目を置いて、その文書を選べるようにします。親が見えない文書（削除済み・権限なし）は最上位に置きます。
-- **権限**: `use_udperms` が有効で、利用者が管理者（`access_permissions` と `web_access_permissions` を両方持つ）でないときは、`privatemgr=0`、または利用者の文書グループ（セッションの `mgrDocgroups`）に入る文書だけを返します。条件はツリー（`manager/frames/nodes.php` の `tree_visibility_condition()`）・検索と同じです（`tree_show_protected` は見ません。一覧に出すのはリンクを張れる文書だけ）。`use_udperms` が無効なら絞りません。
-- **件数の上限**: 出す文書は 1000 件（`LinkListRepository::MAX_ITEMS`）までです。超えるときは、1000 件に収まる深さまでで打ち切ります（最上位だけで超えるときは、先頭の 1000 件）。深いところの文書は一覧に出ないので、URL の欄に `[~id~]` を直接書いてください。遅延読み込みや検索はしません。
+- **権限**: `use_udperms` が有効で、利用者が管理者（`access_permissions` と `web_access_permissions` を両方持つ）でないときは、`privatemgr=0`、または利用者の文書グループ（セッションの `mgrDocgroups`）に入る文書だけを返します。式の形はツリー（`manager/frames/nodes.php` の `tree_visibility_condition()`）と同じです。ただし `use_udperms` が無効なら絞りません（ツリーは `use_udperms` を見ずに `privatemgr` で絞ります。この一覧は保存の確かめ `ManagerAPI::canOpenWithDocumentGroups()` と同じ扱い）。`tree_show_protected` は見ません。一覧に出すのはリンクを張れる文書だけです。
+- **件数の上限**: 出す文書は 1000 件（`LinkListRepository::MAX_ITEMS`）までです。ダイアログを開くたびに、削除済みでない全件（軽い列だけ）を読んでから木にして打ち切ります。超えるときは、1000 件に収まる深さまでで打ち切ります（最上位だけで超えるときは、先頭の 1000 件）。深さで打ち切ったときは、末尾に選べない説明の項目（`tinymce7_link_list_truncated`。値は空で、選ぶと URL が空になるだけ）を足します。深いところの文書は一覧に出ないので、URL の欄に `[~id~]` を直接書いてください。遅延読み込みや検索はしません。
 
 ## システム設定キー
 プラグインが参照する主なシステム設定キーです。旧 TinyMCE プラグインのキーも互換処理しています。
