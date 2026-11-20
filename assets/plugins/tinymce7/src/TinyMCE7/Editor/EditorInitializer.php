@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TinyMCE7\Editor;
 
 use TinyMCE7\Config\ConfigRepository;
+use TinyMCE7\Config\PluginList;
 use TinyMCE7\Config\PreferenceResolver;
 use TinyMCE7\Support\Language;
 
@@ -271,7 +272,7 @@ final class EditorInitializer
             return $config;
         }
 
-        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $config['plugins'] = PluginList::append($config['plugins'] ?? [], 'modxtemplate');
         $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
         $externalPlugins['modxtemplate'] = $this->scriptFactory->bundledAssetUrl('js/modx-template.js');
         $config['external_plugins'] = $externalPlugins;
@@ -292,24 +293,6 @@ final class EditorInitializer
      * @param string|array $plugins
      * @return string|array
      */
-    private function appendPlugin($plugins, string $name)
-    {
-        if (is_array($plugins)) {
-            if (!in_array($name, $plugins, true)) {
-                $plugins[] = $name;
-            }
-
-            return $plugins;
-        }
-
-        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        if (!in_array($name, $list, true)) {
-            $list[] = $name;
-        }
-
-        return implode(' ', $list);
-    }
-
     /**
      * @param mixed $toolbar
      * @return mixed

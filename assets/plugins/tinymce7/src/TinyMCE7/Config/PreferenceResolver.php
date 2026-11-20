@@ -121,29 +121,11 @@ final class PreferenceResolver
         $config['style_formats_merge'] = $config['style_formats_merge'] ?? true;
         // 指定したクラスだけを出す（TinyMCE 3 と同じ）。CSS のクラスをすべて取り込むと一覧が長くなり、同じクラスが重なる
         if (isset($config['plugins'])) {
-            $config['plugins'] = $this->removePlugin($config['plugins'], 'importcss');
+            $config['plugins'] = PluginList::remove($config['plugins'], 'importcss');
         }
         $config['link_class_list'] = $config['link_class_list'] ?? $this->linkClassList($formats);
 
         return $this->ensureStylesButton($config);
-    }
-
-    /**
-     * plugins（空白・カンマ区切りの文字列か配列）から 1 つ外す。渡された形のまま返す
-     */
-    private function removePlugin($plugins, string $name)
-    {
-        if (is_array($plugins)) {
-            return array_values(array_filter($plugins, function ($plugin) use ($name) {
-                return $plugin !== $name;
-            }));
-        }
-
-        $list = preg_split('/[\s,]+/', (string)$plugins, -1, PREG_SPLIT_NO_EMPTY);
-
-        return implode(' ', array_filter($list, function ($plugin) use ($name) {
-            return $plugin !== $name;
-        }));
     }
 
     /**
