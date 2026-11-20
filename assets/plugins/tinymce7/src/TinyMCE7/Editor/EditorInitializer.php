@@ -218,6 +218,27 @@ final class EditorInitializer
         $output[] = '        editor.on("init", function() {';
         $output[] = '            editor.on("SetContent", notifyUnlessComposing);';
         $output[] = '        });';
+        // リンクのダイアログの「クラス」は、一覧に無い値を保てず、そのまま保存すると class を消す。
+        // 開く前に、選んでいるリンクの class が一覧に無ければ選択肢に足す
+        $output[] = '        let baseLinkClasses = null;';
+        $output[] = '        editor.on("BeforeExecCommand", function(e) {';
+        $output[] = '            if (e.command !== "mceLink") {';
+        $output[] = '                return;';
+        $output[] = '            }';
+        $output[] = '            if (baseLinkClasses === null) {';
+        $output[] = '                const list = editor.options.get("link_class_list");';
+        $output[] = '                baseLinkClasses = Array.isArray(list) ? list : [];';
+        $output[] = '            }';
+        $output[] = '            if (baseLinkClasses.length === 0) {';
+        $output[] = '                return;';
+        $output[] = '            }';
+        $output[] = '            const link = editor.dom.getParent(editor.selection.getNode(), "a[href]");';
+        $output[] = '            const linkClass = link ? (link.getAttribute("class") || "") : "";';
+        $output[] = '            const listed = linkClass === "" || baseLinkClasses.some(function(item) {';
+        $output[] = '                return item && item.value === linkClass;';
+        $output[] = '            });';
+        $output[] = '            editor.options.set("link_class_list", listed ? baseLinkClasses : baseLinkClasses.concat([{title: linkClass, value: linkClass}]));';
+        $output[] = '        });';
         $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';
