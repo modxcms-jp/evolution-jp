@@ -9,7 +9,7 @@ echo EvoFieldRow::render([
     'field' => 'pagetitle',
     'label' => lang('resource_title'),
     'body' => $inputHtml,
-    'help' => hsc(config('datetime_format')) . ' HH:MM:SS',
+    'help' => hsc_for_tpl(config('datetime_format')) . ' HH:MM:SS',
 ]);
 ```
 

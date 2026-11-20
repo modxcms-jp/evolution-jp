@@ -44,11 +44,11 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                         db()->query("SHOW variables LIKE 'collation_database'"),
                         'num'
                     );
-                    // [見出し, 値]。値は HTML。画面の外から来る値は hsc_for_tpl() で文字にする
+                    // [見出し, 値]。値は HTML。画面の外から来る値は hsc() で文字にする
                     $items = [
-                        [lang('modx_version'), hsc_for_tpl(evo()->getVersionData('version'))],
-                        [lang('release_date'), hsc_for_tpl($modx_release_date)],
-                        ['システム更新日時', hsc_for_tpl(evo()->toDateFormat(config('lastInstallTime')))],
+                        [lang('modx_version'), hsc(evo()->getVersionData('version'))],
+                        [lang('release_date'), hsc($modx_release_date)],
+                        ['システム更新日時', hsc(evo()->toDateFormat(config('lastInstallTime')))],
                         [
                             'phpInfo()',
                             sprintf('<a href="#" onclick="viewPHPInfo();return false;">%s</a>', lang('view'))
@@ -56,18 +56,18 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                         [lang('udperms_title'), config('use_udperms') == 1 ? lang('enabled') : lang('disabled')],
                         [lang('servertime'), date('H:i:s')],
                         [lang('localtime'), date('H:i:s')],
-                        [lang('serveroffset'), hsc_for_tpl((config('server_offset_time') / (60 * 60)) . ' h')],
-                        [lang('database_name'), hsc_for_tpl(db()->dbname)],
-                        [lang('database_server'), hsc_for_tpl(db()->hostname)],
-                        [lang('database_version'), hsc_for_tpl(db()->getVersion())],
-                        [lang('database_charset'), hsc_for_tpl($charset[1])],
-                        [lang('database_collation'), hsc_for_tpl($collation[1])],
-                        [lang('table_prefix'), hsc_for_tpl(db()->table_prefix)],
-                        [lang('cfg_base_path'), hsc_for_tpl(MODX_BASE_PATH)],
-                        [lang('cfg_base_url'), hsc_for_tpl(MODX_BASE_URL)],
-                        [lang('cfg_manager_url'), hsc_for_tpl(MODX_MANAGER_URL)],
-                        [lang('cfg_manager_path'), hsc_for_tpl(MODX_MANAGER_PATH)],
-                        [lang('cfg_site_url'), hsc_for_tpl(MODX_SITE_URL)],
+                        [lang('serveroffset'), hsc((config('server_offset_time') / (60 * 60)) . ' h')],
+                        [lang('database_name'), hsc(db()->dbname)],
+                        [lang('database_server'), hsc(db()->hostname)],
+                        [lang('database_version'), hsc(db()->getVersion())],
+                        [lang('database_charset'), hsc($charset[1])],
+                        [lang('database_collation'), hsc($collation[1])],
+                        [lang('table_prefix'), hsc(db()->table_prefix)],
+                        [lang('cfg_base_path'), hsc(MODX_BASE_PATH)],
+                        [lang('cfg_base_url'), hsc(MODX_BASE_URL)],
+                        [lang('cfg_manager_url'), hsc(MODX_MANAGER_URL)],
+                        [lang('cfg_manager_path'), hsc(MODX_MANAGER_PATH)],
+                        [lang('cfg_site_url'), hsc(MODX_SITE_URL)],
                     ];
                     foreach ($items as [$label, $value]) {
                         echo EvoFieldRow::render([

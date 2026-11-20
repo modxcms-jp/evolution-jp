@@ -9,7 +9,7 @@
 ## Progress
 
 - [x] (2026-11-20) 現状を調べ、段階 0 の設計と互換の扱いを決めた（Decision Log）
-- [ ] 段階 0: 行の部品 `EvoFieldRow` を作り、今ある使い手（文書の編集画面・`EvoSettingsForm`・システム情報）を移し、使われていない `manager()->renderTr()` などを消す
+- [x] (2026-11-20) 段階 0: `EvoFieldRow` を作り、文書の編集画面・`EvoSettingsForm`・システム情報・スタイルガイドを移し、`manager()->renderTr()` などを消した（7 テーマ × 10 画面で計画どおり以外の違い 0）
 - [ ] 段階 1: 送信用の隠し input を `class="hidden"` へ。レポートとツールの画面（ログ・サイトの書き出し・バックアップ）の表を整える
 - [ ] 段階 2: エレメントの編集画面（TV・スニペット・チャンク・プラグイン・テンプレート・モジュール）の行を部品へ移し、余白をそろえる
 - [ ] 段階 3: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
@@ -116,6 +116,8 @@
 ### 段階 1〜4
 
 段階 1 の手順に足すこと: システム情報の表の見出しと値の間の余白（段階 0 で空の列を無くした結果ほぼ 0）を、行の部品の共通の CSS で決める。
+
+段階 4 の手順に足すこと: `tv_row.tpl` を部品へ移すとき、`custom_tpl_dir` から tpl の場所を決める処理（今は `EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` の 2 か所）を 1 つにまとめ、`file_get_tpl()` もそれを使う。
 
 各段階に着手するときに、対象画面の行と直書きの style を数え直し、この節に手順を書き足してから実装する（段階 0 の部品と規則が決まっているので、段階ごとの手順は「どの画面のどの行を移すか」と「残す style とその理由」の表になる）。段階 1 では Issue の「ついでに見つかった小さな不具合」のうち `document/move_document.dynamic.php` の `<input type="save">` を、段階 3 では `permission/mutate_user/tpl/form/tab_general.php` の `echo 'style="display:none";'` を直す（`sysinfo` の `td` の閉じ忘れは段階 0 で無くなる）。
 
