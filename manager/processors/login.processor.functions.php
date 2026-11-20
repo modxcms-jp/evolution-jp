@@ -19,9 +19,9 @@ function jsAlert($msg)
         echo $msg;
     } else {
         echo sprintf(
-            "<script>alert('%s');location.href='%s';</script>",
-            hsc($msg),
-            MODX_MANAGER_URL
+            '<script>alert(%s);location.href=%s;</script>',
+            js_literal($msg),
+            js_literal(MODX_MANAGER_URL)
         );
     }
 }
