@@ -763,15 +763,20 @@ function init(root, entry, behaviors) {
             run: bulkDownload
         },
         { id: 'copy', label: 'fb_copy', run: function () { setClipboard('copy'); } },
-        { id: 'cut', label: 'fb_cut', run: function () { setClipboard('cut'); } },
+        { id: 'cut', label: 'fb_cut', enabled: isWritable, run: function () { setClipboard('cut'); } },
         {
             id: 'rename', label: 'fb_rename', single: true,
             enabled: canRenameSelection,
             run: function (files) { startRenameFor(files[0].name); }
         },
-        { id: 'move', label: 'move', run: bulkMove },
-        { id: 'delete', label: 'delete', danger: true, run: bulkDelete }
+        { id: 'move', label: 'move', enabled: isWritable, run: bulkMove },
+        { id: 'delete', label: 'delete', danger: true, enabled: isWritable, run: bulkDelete }
     ];
+
+    // 書き込めないフォルダでは、コピー以外(切り取り・名前を変更・移動・削除)を押せなくする
+    function isWritable() {
+        return state.writable;
+    }
 
     function selectedFiles() {
         return Array.from(state.selection).map(findFile).filter(Boolean);
@@ -812,11 +817,16 @@ function init(root, entry, behaviors) {
     });
 
     function updateSelectionActions() {
+        // 帯のボタンを並べる前(grid の初期化中)に呼ばれることがある
+        if (!selectionActionBtns) {
+            return;
+        }
         var files = selectedFiles();
         SELECTION_ACTIONS.forEach(function (action, i) {
             var btn = selectionActionBtns[i];
-            btn.parentNode.hidden = !isActionVisible(action, files);
-            btn.disabled = !isActionEnabled(action, files);
+            var visible = isActionVisible(action, files);
+            btn.parentNode.hidden = !visible;
+            btn.disabled = !(visible && isActionEnabled(action, files));
         });
     }
 
