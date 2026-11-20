@@ -1124,6 +1124,11 @@
             }
             document.documentElement.style.removeProperty('--shell-tree-width');
             forgetStored(TREE_WIDTH_KEY);
+            // 戻した元の幅以上の細い幅は忘れる（細くならないまま、ぼけて出るのを避ける。ドラッグの終わりと同じ）
+            const narrowWidth = parseFloat(document.documentElement.style.getPropertyValue('--shell-tree-narrow-width'));
+            if (narrowWidth >= fullTreeWidth()) {
+                forgetTreeNarrowWidth();
+            }
         });
     }
 
