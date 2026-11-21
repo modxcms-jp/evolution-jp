@@ -1,4 +1,4 @@
-<div class="sectionHeader" id="content_header">[+header+]</div>
-<div class="sectionBody" id="content_body">
-    <div>[+body+]</div>
+<div class="mutate-content-title" id="content_header" hidden>[+header+]</div>
+<div class="mutate-content" id="content_body">
+    [+body+]
 </div>

@@ -40,7 +40,7 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
             break;
 
         case 'content':
-            $output .= 'MM.html("#content_header", ' . $label . ');';
+            mm_renameSection('content', $newlabel, $roles, $templates);
             break;
 
         case 'menuindex':
