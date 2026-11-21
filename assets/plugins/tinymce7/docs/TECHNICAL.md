@@ -35,7 +35,7 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 
 | ファイル | 説明 |
 | --- | --- |
-| `manager.json` | 管理画面での TinyMCE 設定。高さ、プラグイン、ツールバーなどを定義。リソースの編集画面の本文だけは、画面の高さに合わせてこの高さより広げる（`js/editor-setup.js`）。|
+| `manager.json` | 管理画面での TinyMCE 設定。高さ、プラグイン、ツールバーなどを定義。リソースの編集画面の本文だけは、内容の量に合わせて、この高さから画面に収まる高さまでの間で伸び縮みさせる（`js/editor-setup.js`）。|
 | `frontend.json` | `OnRichTextEditorInit` で `forfrontend` パラメーターが真の場合に読み込まれます。|
 | `toolbar-presets.json` | 管理画面のプリセット選択肢（simple/formats/legacy/full など）を定義します。キーの並びが設定画面の選択肢の並びになり、表示名は言語ファイルの `tinymce7_toolbar_<キー>` です。|
 

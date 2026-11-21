@@ -180,24 +180,58 @@
     editor.on('paste drop', notify);
   }
 
-  // リソースの編集画面の本文（#content_body の中の欄）は、エディタ全体が管理画面の本文の枠（#mainPane）の見える高さに収まるまで広げる。
-  // 上のタブの行（スクロールしても貼り付く）と、下の「使用エディター」の欄の分を空ける。設定の height より低くはしない。
-  // height は setup の時点ではまだ登録されていないので、枠ができたあとで枠の高さを変える（右下のつまみで変えるのと同じ）
+  // リソースの編集画面の本文（#content_body の中の欄）は、内容の量に合わせて高さを変える。
+  // 下限は設定の height、上限はエディタ全体が管理画面の本文の枠（#mainPane）の見える高さに収まる高さ
+  // （上のタブの行と、下の「使用エディター」の欄の分を空ける）。上限を超える分はエディタの中でスクロールする。
+  // 右下のつまみで高さを変えたら、そのあとは変えない。全画面表示の間も変えない。
+  // height は setup の時点ではまだ登録されていないので、枠の高さを直接変える（つまみで変えるのと同じ）
   function fitContentHeight(editor) {
     const el = editor.getElement();
     if (!el || !el.closest('#content_body')) {
       return;
     }
-    editor.on('PostRender', function () {
+    let minHeight = 0;
+    let maxHeight = 0;
+    let resizedByUser = false;
+
+    function resize() {
       const container = editor.getContainer();
+      const iframe = editor.iframeElement;
+      const body = editor.getBody();
+      if (resizedByUser || !container || !iframe || !body || (editor.plugins.fullscreen && editor.plugins.fullscreen.isFullscreen())) {
+        return;
+      }
+      const style = editor.getWin().getComputedStyle(body);
+      const contentHeight = body.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+      const chromeHeight = container.offsetHeight - iframe.offsetHeight;
+      const height = Math.min(Math.max(contentHeight + chromeHeight, minHeight), maxHeight);
+      if (height !== container.offsetHeight) {
+        container.style.height = height + 'px';
+      }
+    }
+
+    editor.on('PostRender', function () {
       const pane = document.getElementById('mainPane');
       const tabRow = document.querySelector('#mainPane .tab-row');
       const visible = (pane ? pane.clientHeight : global.innerHeight) - (tabRow ? tabRow.offsetHeight : 0);
-      const height = Math.floor(visible - 120);
-      if (container && height > container.offsetHeight) {
-        container.style.height = height + 'px';
+      const container = editor.getContainer();
+      minHeight = container.offsetHeight;
+      maxHeight = Math.max(Math.floor(visible - 120), minHeight);
+      // つまみの操作（ドラッグとキー操作）。ResizeEditor は全画面の切り替えでも起きるので使わない
+      function markResizedByUser(e) {
+        if (e.target.closest('.tox-statusbar__resize-handle')) {
+          resizedByUser = true;
+        }
       }
+      container.addEventListener('pointerdown', markResizedByUser);
+      container.addEventListener('keydown', markResizedByUser);
     });
+    editor.on('init', function () {
+      resize();
+      // 画像は読み込み終わるまで高さが決まらない
+      editor.getBody().addEventListener('load', resize, true);
+    });
+    editor.on('SetContent input change undo redo NodeChange', resize);
   }
 
   global.tinymce7EditorSetup = function (editor) {
