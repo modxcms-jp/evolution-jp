@@ -94,3 +94,7 @@ frameset の名前やしくみが残っているが、理由があって残し�
 | イベント名 `OnManagerMainFrameHeaderHTMLBlock`・`OnManagerPreFrameLoader`・`OnManagerFrameLoader` | プラグインの API なので改名しない |
 | ディレクトリ名 `manager/frames/`、テーマの CSS の `div.treeframebody` | テーマや拡張が参照しうる |
 | ロールの権限 `frames` | 本体では確かめていないが、DB の列の既定値が 0 で、外部の拡張が `hasPermission('frames')` を見ている可能性がある（#1265） |
+
+## 文書の操作の設定
+
+`document-actions.js` は header で全画面に 1 回だけ読み、確認と警告の文言・トップページ・エラーページ・メンテナンス中ページの ID（`EvoDocumentActions.config`、`ex_docapi.php` の `actionConfig()`）もページ全体を読んだときに決まる。システム設定でこれらを変えたあと、シェルの遷移だけで読み直さずにいると古い ID で判定されるが、サーバー側（`docDeleteCheck()`）が正しく断るので壊れない（断りの警告が確認のあとに出る）。

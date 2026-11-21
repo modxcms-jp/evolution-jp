@@ -48,12 +48,14 @@
             EvoShell.go('index.php?a=131&id=[+id+]');
         });
         onClick('delete', function () {
-            if (confirm([+lang_confirm_delete_resource+]))
+            EvoDocumentActions.run('delete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=6");
+            }, {hasChildren: [+docHasChildren+]});
         });
         onClick('undelete', function () {
-            if (confirm([+lang_confirm_undelete+]))
+            EvoDocumentActions.run('undelete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=63");
+            });
         });
         onClick('deletedraft', function () {
             if (confirm([+lang_confirm_delete_draft_resource+])) {
@@ -66,8 +68,9 @@
             EvoShell.go("index.php?id=[+id+]&a=51");
         });
         onClick('duplicate', function () {
-            if (confirm([+lang_confirm_resource_duplicate+]))
+            EvoDocumentActions.run('duplicate', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
+            });
         });
 
         // 前の画面（シェルの遷移では同じ window で JS が読み直される）の自動更新の後始末

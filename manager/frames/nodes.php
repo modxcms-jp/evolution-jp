@@ -108,6 +108,8 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $field[] = '1 AS has_access';
     }
     $field[] = 'rev.status AS status';
+    // 右クリックメニューの削除の確認に出す、削除していない子の有無（DocAPI の hasLiveChildren() と同じ条件を行ごとに 1 回の問い合わせで取る）
+    $field[] = sprintf("EXISTS(SELECT 1 FROM %s AS ch WHERE ch.parent=sc.id AND ch.deleted='0') AS has_live_children", db()->getFullTableName('site_content'));
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
@@ -176,13 +178,14 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft] = $row;
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasLiveChildren] = $row;
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
 
         $ph['id'] = $id;
         $ph['hasdraft'] = !empty($hasDraft) ? 1 : 0;
+        $ph['haschildren'] = (int)$hasLiveChildren;
 
         $draftDisplay = '';
         if ($modx->config('enable_draft')) {
@@ -329,7 +332,7 @@ function tplPageNode()
 	title="[+_lang_click_to_context+]"
 	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
 /><span
@@ -358,7 +361,7 @@ function tplFopenNode()
 	title="[+_lang_click_to_context+]"
 	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 /><span
@@ -387,7 +390,7 @@ function tplFcloseNode()
 	title="[+_lang_click_to_context+]"
 	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 /><span

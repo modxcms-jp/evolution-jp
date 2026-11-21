@@ -86,9 +86,7 @@ if (postedMode() === 'new') {
 }
 
 if (postedMode() === 'edit') {
-    if (validated('id') == evo()->config('site_start')) {
-        checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
-    }
+    checkProtectedPage(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     validated('*isfolder', checkFolderStatus(validated('id')));
 
     $db_v = getExistsValues(validated('id'));
@@ -603,9 +601,10 @@ function getInputValues($id = 0, $mode = 'new')
     return $fields;
 }
 
-function checkStartDoc($id, $published, $pub_date, $unpub_date)
+// サイトの設定で使っているページ（トップページなど）は、非公開にも公開日・公開終了日の設定にもできない
+function checkProtectedPage($id, $published, $pub_date, $unpub_date)
 {
-    $error = evo()->doc->startDocPubError($published, $pub_date, $unpub_date);
+    $error = evo()->doc->protectedPubError($id, $published, $pub_date, $unpub_date);
     if ($error === '') {
         return;
     }
