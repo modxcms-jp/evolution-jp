@@ -443,30 +443,6 @@ form input.hidden {
     margin-bottom: 0;
 }
 
-/* 閉じた最後のまとまりの見出しは、下の線を引かない（下は本文のエディタの枠で区切られる） */
-.tab-page .mutate-group:not([open]):not(:has(~ .mutate-group)) > summary {
-    border-bottom: 0;
-}
-
-/* 本文の欄。エディタが自分の枠を持つので、セクションの箱に入れずタブの幅いっぱいに置く。
-   見出し（#content_header）は既定では出さない。ManagerManager で名前を変えたときだけ出す */
-.mutate-content {
-    margin-bottom: var(--space-3, 12px);
-}
-
-/* エディタの下のエディタの選択（rteContent() の見出しと #which_editor） */
-.mutate-content > .mutate-field-title {
-    display: inline-block;
-    margin: var(--space-2, 8px) var(--space-2, 8px) 0 0;
-}
-
-.mutate-content-title {
-    margin-bottom: var(--space-2, 8px);
-    color: var(--color-text-primary, #333);
-    font-size: 1.1em;
-    font-weight: bold;
-}
-
 /* 移された欄の無い表（data-moved-fields。tpl は中身なしで書く）は出さない */
 table[data-moved-fields]:empty {
     display: none;

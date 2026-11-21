@@ -183,55 +183,55 @@
   // リソースの編集画面の本文（#content_body の中の欄）は、内容の量に合わせて高さを変える。
   // 下限は設定の height、上限はエディタ全体が管理画面の本文の枠（#mainPane）の見える高さに収まる高さ
   // （上のタブの行と、下の「使用エディター」の欄の分を空ける）。上限を超える分はエディタの中でスクロールする。
-  // 右下のつまみで高さを変えたら、そのあとは変えない。全画面表示の間も変えない。
-  // height は setup の時点ではまだ登録されていないので、枠の高さを直接変える（つまみで変えるのと同じ）
+  // 右下のつまみで高さを変えたら、そのあとは変えない。全画面表示の間と、本文が隠れたタブにある間も変えない。
+  // 高さは枠に直接付ける（つまみで変えるのと同じ）。測り直すのは本文の body の大きさが変わったとき
+  // （内容の変更・画像の読み込み・タブの切り替え・窓の幅の変更）と、窓の大きさが変わったとき。枠を変えても body の大きさは変わらないので繰り返さない
   function fitContentHeight(editor) {
     const el = editor.getElement();
     if (!el || !el.closest('#content_body')) {
       return;
     }
-    let minHeight = 0;
-    let maxHeight = 0;
     let resizedByUser = false;
+
+    function maxHeight() {
+      const pane = document.getElementById('mainPane');
+      const tabRow = document.querySelector('#mainPane .tab-row');
+      const visible = (pane ? pane.clientHeight : global.innerHeight) - (tabRow ? tabRow.offsetHeight : 0);
+      return Math.floor(visible - 120);
+    }
 
     function resize() {
       const container = editor.getContainer();
       const iframe = editor.iframeElement;
       const body = editor.getBody();
-      if (resizedByUser || !container || !iframe || !body || (editor.plugins.fullscreen && editor.plugins.fullscreen.isFullscreen())) {
+      if (resizedByUser || !container || !container.offsetParent || !iframe || !body
+        || (editor.plugins.fullscreen && editor.plugins.fullscreen.isFullscreen())) {
         return;
       }
+      const minHeight = parseInt(editor.options.get('height'), 10) || 0;
       const style = editor.getWin().getComputedStyle(body);
       const contentHeight = body.offsetHeight + parseFloat(style.marginTop) + parseFloat(style.marginBottom);
       const chromeHeight = container.offsetHeight - iframe.offsetHeight;
-      const height = Math.min(Math.max(contentHeight + chromeHeight, minHeight), maxHeight);
+      const height = Math.max(Math.min(contentHeight + chromeHeight, maxHeight()), minHeight);
       if (height !== container.offsetHeight) {
         container.style.height = height + 'px';
       }
     }
 
-    editor.on('PostRender', function () {
-      const pane = document.getElementById('mainPane');
-      const tabRow = document.querySelector('#mainPane .tab-row');
-      const visible = (pane ? pane.clientHeight : global.innerHeight) - (tabRow ? tabRow.offsetHeight : 0);
+    editor.on('init', function () {
+      // つまみの操作（ドラッグと矢印キー）。ResizeEditor は全画面の切り替えでも起きるので使わない
       const container = editor.getContainer();
-      minHeight = container.offsetHeight;
-      maxHeight = Math.max(Math.floor(visible - 120), minHeight);
-      // つまみの操作（ドラッグとキー操作）。ResizeEditor は全画面の切り替えでも起きるので使わない
       function markResizedByUser(e) {
-        if (e.target.closest('.tox-statusbar__resize-handle')) {
+        if (e.target.closest('.tox-statusbar__resize-handle') && (e.type === 'pointerdown' || e.key.indexOf('Arrow') === 0)) {
           resizedByUser = true;
         }
       }
       container.addEventListener('pointerdown', markResizedByUser);
       container.addEventListener('keydown', markResizedByUser);
+      new (editor.getWin().ResizeObserver)(resize).observe(editor.getBody());
+      // 窓の高さだけが変わったときは body の大きさが変わらない
+      global.addEventListener('resize', resize);
     });
-    editor.on('init', function () {
-      resize();
-      // 画像は読み込み終わるまで高さが決まらない
-      editor.getBody().addEventListener('load', resize, true);
-    });
-    editor.on('SetContent input change undo redo NodeChange', resize);
   }
 
   global.tinymce7EditorSetup = function (editor) {

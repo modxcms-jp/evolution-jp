@@ -435,13 +435,31 @@ body.evo-shell.tree-hidden #mainPane #actions {
    リソースの投稿画面の開閉するまとまりの見出し(.mutate-group > summary)も同じ見た目にする。
    色と余白はテーマの変数から読む。上の間は直前の表の margin-bottom で作る(theme-spacing.md の書き方) */
 .tab-page .settings-section,
-.tab-page .mutate-group > summary {
+.tab-page .mutate-group > summary,
+.tab-page .mutate-content-title {
     margin: 0 0 var(--space-3, 12px);
     padding-bottom: var(--space-1, 4px);
     border-bottom: 1px solid var(--color-border-light, #ededed);
     color: var(--color-text-primary, #333);
     font-size: 1.1em;
     font-weight: bold;
+}
+
+/* 本文の欄（section_content.tpl）。エディタが自分の枠を持つので、セクションの箱に入れずタブの幅いっぱいに置く。
+   見出し（.mutate-content-title）は既定では出さない（hidden）。ManagerManager で名前を変えたときだけ出す */
+.mutate-content {
+    margin-bottom: var(--space-3, 12px);
+}
+
+/* エディタの下のエディタの選択（rteContent() の見出しと #which_editor） */
+.mutate-content > .mutate-field-title {
+    display: inline-block;
+    margin: var(--space-2, 8px) var(--space-2, 8px) 0 0;
+}
+
+/* 本文のすぐ上にある、閉じた最後のまとまりの見出しは、下の線を引かない（下はエディタの枠で区切られる） */
+.tab-page .mutate-group:not([open]):not(:has(~ .mutate-group)):has(~ .mutate-content) > summary {
+    border-bottom: 0;
 }
 
 .tab-page > :has(+ .settings-section) {
