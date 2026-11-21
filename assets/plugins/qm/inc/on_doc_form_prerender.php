@@ -71,21 +71,16 @@ $mc = new Mcc();
 // Get doc id
 $doc_id = request_intvar('id') ?: request_intvar('pid');
 
-// 本体の操作ボタンの帯（#actions）の中身を、QuickManager の保存・キャンセルに入れ替える（帯の地・余白・位置はテーマのまま）
-// アイコンは付けない（どのテーマも .actionButtons a img を隠す。テーマに images/icons も無い）
-// HTML は PHP で組み（文言は hsc()、onclick の中の URL は js_literal() してから hsc()）、全体を js_literal() で JS に渡す。
+// 本体の操作ボタンの帯（#actions）の中身を、QuickManager の保存・キャンセルに入れ替える（assets/plugins/qm/js/qm-edit.js）。
 // makeUrl() は設定（xhtml_urls）で & を &amp; にして返すので、JS の値にする前に元へ戻す
-$cancelUrl = html_entity_decode(evo()->makeUrl($doc_id, '', '', 'full'), ENT_QUOTES | ENT_HTML401, 'UTF-8');
-$controls = '<ul class="actionButtons">'
-    . '<li class="primary"><a href="#" onclick="documentDirty=false;gotosave=true;document.mutate.save.click();return false;">' . hsc(lang('save')) . '</a></li>'
-    . '<li><a href="#" id="cancel" onclick="parent.location.href=' . hsc(js_literal($cancelUrl)) . ';return false;">' . hsc(lang('cancel')) . '</a></li>'
-    . '</ul>';
-$mc->addLine('var controls = ' . js_literal($controls) . ';');
+$mc->controls = [
+    'save' => lang('save'),
+    'cancel' => lang('cancel'),
+    'cancelUrl' => html_entity_decode(evo()->makeUrl($doc_id, '', '', 'full'), ENT_QUOTES | ENT_HTML401, 'UTF-8'),
+];
 
 // Modify head
 $mc->head = '<script>document.body.style.display="none";</script>';
-
-$mc->addLine('var qmActions = document.getElementById("actions"); if (qmActions) { qmActions.innerHTML = controls; }');
 
 // Hide fields to from front-end editors
 if ($this->hidefields != '') {

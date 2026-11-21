@@ -112,7 +112,7 @@ return [
     "configcheck_errorpage_unavailable_msg" => 'This means that your Error page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.',
     "configcheck_errorpage_unpublished" => 'Your site\'s Error page is not published or does not exist.',
     "configcheck_errorpage_unpublished_msg" => 'This means that your Error page is inaccessible to the general public. Publish the page or make sure it is assigned to an existing Resource in your Site Tree in the Tools &gt; Configuration menu.',
-    "configcheck_hide_warning" => '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>',
+    "configcheck_hide_warning" => '<a href="#" data-config-check-hide="%s"><em>Don\'t show this again.</em></a>',
     "configcheck_images" => 'Images directory not writable',
     "configcheck_images_msg" => 'The images directory isn\'t writable, or doesn\'t exist. This means the Image Manager functions in the editor will not work!',
     "configcheck_notok" => 'One or more configuration details didn\'t check out OK:',

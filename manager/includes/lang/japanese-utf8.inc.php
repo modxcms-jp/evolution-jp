@@ -114,7 +114,7 @@ return [
     "configcheck_errorpage_unavailable_msg" => '設定した「エラーページ」が存在しないか、誰でも見られるページ（public）になっていません。このままではループが起き、エラーログに大量に記録されます。「エラーページ」には、公開中でpublicのページを指定してください。',
     "configcheck_errorpage_unpublished" => 'グローバル設定で設定されたエラーページは公開されていません。',
     "configcheck_errorpage_unpublished_msg" => 'エラーページは、誰でも見られる（public）公開中のページにしてください。',
-    "configcheck_hide_warning" => '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>次からこの警告を表示しない</em></a>',
+    "configcheck_hide_warning" => '<a href="#" data-config-check-hide="%s"><em>次からこの警告を表示しない</em></a>',
     "configcheck_images" => 'images/ディレクトリに書き込みできません',
     "configcheck_images_msg" => 'images/ディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません。',
     "configcheck_notok" => '動作環境に問題があります。',

@@ -22,18 +22,24 @@ if (!window.EvoConfigCheck) {
             });
         }
 
-        // 言語ファイルの configcheck_hide_warning のリンクが href="javascript:hideConfigCheckWarning('key')" で呼ぶ。
+        // 言語ファイルの configcheck_hide_warning のリンク（data-config-check-hide="<key>"）。
         // 警告の本文は #<key>_warning_wrapper の中にある
-        window.hideConfigCheckWarning = function (key) {
+        function hideWarning(key) {
             post({action: 'setsetting', key: '_hide_configcheck_' + key, value: '1'}).then(function (ok) {
                 if (ok) {
                     hideFieldset(document.getElementById(key + '_warning_wrapper'));
                 }
             });
-        };
+        }
 
         // TemplateSwitcher の警告の「無効にする」「削除」（data-config-check-plugin="disable|delete"）
         document.addEventListener('click', function (e) {
+            const hide = e.target.closest('[data-config-check-hide]');
+            if (hide) {
+                e.preventDefault();
+                hideWarning(hide.dataset.configCheckHide);
+                return;
+            }
             const el = e.target.closest('[data-config-check-plugin]');
             if (!el) {
                 return;
