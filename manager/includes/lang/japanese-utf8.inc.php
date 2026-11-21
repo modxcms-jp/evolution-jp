@@ -720,6 +720,8 @@ return [
     "role_eventlog_management" => 'システムログ管理',
     "role_export_static" => '静的HTMLファイルとして書き出す',
     "role_file_manager" => 'ファイルマネージャーを使用',
+    "role_file_upload" => 'ファイルのアップロード',
+    "role_file_upload_desc" => 'ファイルピッカーでのアップロード、画像の別名保存、本文への画像の貼り付けに必要です。',
     "role_frames" => '管理画面へのアクセス（全域）',
     "role_help" => 'ヘルプページを表示',
     "role_home" => '管理画面ホームへのアクセス',

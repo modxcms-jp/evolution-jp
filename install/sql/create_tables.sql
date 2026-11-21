@@ -378,6 +378,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles`
     `error_dialog`           int(1)       NOT NULL DEFAULT '0',
     `about`                  int(1)       NOT NULL DEFAULT '0',
     `file_manager`           int(1)       NOT NULL DEFAULT '0',
+    `file_upload`            int(1)       NOT NULL DEFAULT '0',
     `save_user`              int(1)       NOT NULL DEFAULT '0',
     `delete_user`            int(1)       NOT NULL DEFAULT '0',
     `save_password`          int(11)      NOT NULL DEFAULT '0',
