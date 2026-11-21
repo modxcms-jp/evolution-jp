@@ -218,12 +218,16 @@
   // 画像編集できる拡張子の画像のときだけ {type, folder, name} を返す。
   // それ以外（data:・blob:・別オリジン・範囲外・ピッカーと別のオリジンの rb_base_url）は null
   function resolveSiteImage(editor, img) {
+    return img ? resolveSiteSrc(editor, img.getAttribute('src')) : null;
+  }
+
+  function resolveSiteSrc(editor, src) {
     const rbBaseUrl = String(settings().rbBaseUrl || '');
-    if (!rbBaseUrl || !img) {
+    if (!rbBaseUrl || !src) {
       return null;
     }
 
-    const target = parseSiteUrl(editor, img.getAttribute('src'));
+    const target = parseSiteUrl(editor, src);
     const base = parseSiteUrl(editor, rbBaseUrl);
     if (!target || !base || target.origin !== base.origin || base.origin !== global.location.origin) {
       return null;
@@ -248,23 +252,33 @@
     return {type: type, folder: segments.slice(1, -1).join('/'), name: name};
   }
 
-  function openImageEditor(editor, img) {
-    const target = resolveSiteImage(editor, img);
+  // ファイルピッカーを、そのファイルの画像編集を開いた状態で起動する URL
+  function pickerEditUrl(target) {
     const baseUrl = settings().browserUrl;
     if (!target || !baseUrl) {
-      return;
+      return null;
     }
-
     const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
     let url = baseUrl + separator + 'type=' + encodeURIComponent(target.type);
     if (target.folder) {
       url += '&folder=' + encodeURIComponent(target.folder);
     }
-    url += '&select=' + encodeURIComponent(target.name) + '&edit=1';
+    return url + '&select=' + encodeURIComponent(target.name) + '&edit=1';
+  }
 
+  function openImageEditor(editor, img) {
+    const url = pickerEditUrl(resolveSiteImage(editor, img));
+    if (!url) {
+      return;
+    }
     openInEditorDialog(editor, url, function (path) {
       replaceImage(editor, img, normalizeUrl(path));
     });
+  }
+
+  // 上書きのときは同じ URL の古い画像がブラウザの画像キャッシュに残るので、大きさの取得と表示にはクエリ付きの URL を使う
+  function cacheBusted(url) {
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + '_evofb=' + Date.now();
   }
 
   function loadImageSize(url) {
@@ -282,12 +296,13 @@
 
   // width はそのまま、height を新しい縦横比で決める。height だけがあれば width を決める。どちらも無ければ付けない。
   // ただし新しい画像より大きくはしない（小さくリサイズした画像を、元の大きさに引き伸ばして粗く出さない）
-  function scaledSize(img, size) {
+  // width・height は、本文の属性の値か、画像のダイアログの欄の値（文字列）
+  function scaledSize(widthValue, heightValue, size) {
     if (!size || !size.width || !size.height) {
       return {};
     }
-    const width = parseInt(img.getAttribute('width'), 10);
-    const height = parseInt(img.getAttribute('height'), 10);
+    const width = parseInt(widthValue, 10);
+    const height = parseInt(heightValue, 10);
     if (width > 0) {
       const shownWidth = Math.min(width, size.width);
       return {width: shownWidth, height: Math.round(shownWidth * size.height / size.width)};
@@ -306,11 +321,8 @@
 
     const current = img.getAttribute('data-mce-src') || img.getAttribute('src');
     const overwritten = sameFile(parseSiteUrl(editor, current), parseSiteUrl(editor, url));
-    // 上書きのときは同じ URL の古い画像がブラウザの画像キャッシュに残るので、
-    // 大きさの取得と表示にはクエリ付きの URL を使う。本文に残る URL（data-mce-src）はクエリなしのまま
-    const shown = overwritten
-      ? url + (url.indexOf('?') === -1 ? '?' : '&') + '_evofb=' + Date.now()
-      : url;
+    // 本文に残る URL（data-mce-src）はクエリなしのまま
+    const shown = overwritten ? cacheBusted(url) : url;
     const removed = function () {
       return editor.removed || !editor.getBody().contains(img);
     };
@@ -319,7 +331,7 @@
       if (removed()) {
         return;
       }
-      const dimensions = scaledSize(img, size);
+      const dimensions = scaledSize(img.getAttribute('width'), img.getAttribute('height'), size);
       const attributes = {
         src: shown,
         'data-mce-src': url,
@@ -342,15 +354,121 @@
       && !node.hasAttribute('data-mce-placeholder');
   }
 
+  // TinyMCE の「画像の挿入/編集」ダイアログ（image プラグイン）の、ソース欄の参照ボタンの隣に「画像を編集」を入れる。
+  // ダイアログにボタンを足す API が無いので、開いたダイアログの DOM に差し込む。
+  // 差し込めないとき（TinyMCE の更新でダイアログの作りが変わったとき）は、コンソールにエラーを出す。
+  // 画像を選んだときの帯の「画像を編集」（公式の部品）は、そのときも使える
+  function attachEditButtonToImageDialog(editor, dialog, overwrittenUrls) {
+    let data;
+    try {
+      data = dialog.getData();
+    } catch (e) {
+      return;
+    }
+    if (!data || !data.src || typeof data.src !== 'object' || !('dimensions' in data)) {
+      return;
+    }
+    const dialogs = global.document.querySelectorAll('.tox-dialog');
+    const root = dialogs[dialogs.length - 1];
+    const browse = root && root.querySelector('.tox-browse-url');
+    if (!browse) {
+      console.error('TinyMCE7: the image dialog layout has changed; the "' + editor.options.get('modx_image_edit_label') + '" button could not be added next to the browse button.');
+      return;
+    }
+    if (root.querySelector('.evo-image-edit-button')) {
+      return;
+    }
+
+    const label = editor.options.get('modx_image_edit_label');
+    const button = browse.cloneNode(false);
+    button.classList.add('evo-image-edit-button');
+    button.removeAttribute('id');
+    button.removeAttribute('data-alloy-id');
+    button.setAttribute('type', 'button');
+    button.setAttribute('title', label);
+    button.setAttribute('aria-label', label);
+    button.innerHTML = '<span class="tox-icon">' + (editor.ui.registry.getAll().icons['edit-image'] || '') + '</span>';
+    browse.parentNode.insertBefore(button, browse.nextSibling);
+
+    function updateEnabled() {
+      button.disabled = !resolveSiteSrc(editor, dialog.getData().src.value);
+    }
+    updateEnabled();
+    const input = browse.parentNode.querySelector('input');
+    if (input) {
+      input.addEventListener('input', updateEnabled);
+      input.addEventListener('change', updateEnabled);
+    }
+
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      const before = dialog.getData().src.value;
+      const url = pickerEditUrl(resolveSiteSrc(editor, before));
+      if (!url) {
+        return;
+      }
+      openInEditorDialog(editor, url, function (path) {
+        const saved = normalizeUrl(path);
+        const overwritten = sameFile(parseSiteUrl(editor, before), parseSiteUrl(editor, saved));
+        loadImageSize(editor.documentBaseURI.toAbsolute(overwritten ? cacheBusted(saved) : saved)).then(function (size) {
+          const latest = dialog.getData();
+          const dimensions = scaledSize(latest.dimensions && latest.dimensions.width, latest.dimensions && latest.dimensions.height, size);
+          latest.src = {value: saved, meta: {}};
+          if (dimensions.width) {
+            latest.dimensions = {width: String(dimensions.width), height: String(dimensions.height)};
+          }
+          dialog.setData(latest);
+          updateEnabled();
+          if (overwritten) {
+            overwrittenUrls.add(saved);
+          }
+        });
+      });
+    });
+  }
+
+  // 画像のダイアログから上書き保存した画像は、ダイアログを閉じた後に、本文の表示だけをクエリ付きの URL で読み直す
+  function refreshOverwrittenImages(editor, overwrittenUrls) {
+    if (overwrittenUrls.size === 0) {
+      return;
+    }
+    const urls = Array.from(overwrittenUrls);
+    overwrittenUrls.clear();
+    global.setTimeout(function () {
+      editor.dom.select('img').forEach(function (node) {
+        const src = node.getAttribute('data-mce-src');
+        if (urls.indexOf(src) !== -1) {
+          editor.dom.setAttribs(node, {src: cacheBusted(src), 'data-mce-src': src});
+        }
+      });
+    }, 0);
+  }
+
   global.mceModxImageEdit = function (editor) {
     editor.options.register('modx_image_edit_label', {processor: 'string', default: 'Edit image'});
 
+    // ダブルクリックでは「画像の挿入/編集」ダイアログを開く（幅・高さ・キャプションなどもそこで直せる）。
+    // 画像の編集は、ダイアログに入れた「画像を編集」から開く
     editor.on('DblClick', function (event) {
-      if (!isEditableTarget(event.target) || !resolveSiteImage(editor, event.target)) {
+      if (!isEditableTarget(event.target)) {
         return;
       }
       event.preventDefault();
-      openImageEditor(editor, event.target);
+      editor.selection.select(event.target);
+      editor.execCommand('mceImage');
+    });
+
+    const overwrittenUrls = new Set();
+    editor.on('OpenWindow', function (event) {
+      if (event && event.dialog) {
+        // ダイアログの DOM は、通知の後に描かれる
+        global.setTimeout(function () {
+          attachEditButtonToImageDialog(editor, event.dialog, overwrittenUrls);
+        }, 0);
+      }
+    });
+    editor.on('CloseWindow', function () {
+      refreshOverwrittenImages(editor, overwrittenUrls);
     });
 
     editor.ui.registry.addButton('modxImageEdit', {
