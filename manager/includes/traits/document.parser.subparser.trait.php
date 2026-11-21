@@ -580,9 +580,9 @@ trait DocumentParserSubParserTrait
         // Display error
         if (evo()->isLoggedin()) {
             if ($modx->event->name !== 'OnWebPageComplete') {
-                echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+                echo '<!DOCTYPE html>';
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
-                echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+                echo '<meta charset="utf-8">';
                 echo manager_theme_stylesheets();
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';

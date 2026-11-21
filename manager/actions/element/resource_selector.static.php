@@ -94,12 +94,12 @@ switch ($type) {
 }
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '" xml:lang="' . hsc($mxla) . '"' ?>>
+<!DOCTYPE html>
+<html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '"' ?>>
 
 <head>
     <title><?= $title . ' ' . lang('element_selector_title') ?></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
+    <meta charset="<?= hsc(evo()->config('modx_charset')) ?>">
     <?= manager_theme_stylesheets() ?>
 </head>
 

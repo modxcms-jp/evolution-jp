@@ -33,7 +33,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
 <head>
     <title data-format="<?= hsc(manager_title('{screen}')) ?>" data-site-only="<?= hsc(manager_title()) ?>"><?= hsc(manager_title()) ?></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
+    <meta charset="<?= hsc(evo()->config('modx_charset')) ?>">
     <?= csrfTokenMeta() ?>
     <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
