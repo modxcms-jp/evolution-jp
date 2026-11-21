@@ -93,9 +93,10 @@ class FileStore
     /**
      * 新しい名前のファイルとして保存してよいかを確かめる(保存はしない)。拡張子の許可・大きさの上限・名前の無害化を、ここ 1 か所で判定する。
      *
+     * @param int|false $sizeLimit 大きさの上限(バイト)。false なら範囲の設定($scope->maxUploadSize())。CLI など、設定と別の上限で移す処理だけが渡す
      * @return array{safeName:string}|array{error:string} 失敗は error に、利用者に見せる文言
      */
-    public static function checkNewFile(BrowserScope $scope, DocumentParser $modx, $originalName, $size)
+    public static function checkNewFile(BrowserScope $scope, DocumentParser $modx, $originalName, $size, $sizeLimit = false)
     {
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
@@ -103,7 +104,7 @@ class FileStore
             return ['error' => lang('fb_err_extension_not_allowed')];
         }
 
-        $maxSize = $scope->maxUploadSize();
+        $maxSize = $sizeLimit === false ? $scope->maxUploadSize() : $sizeLimit;
         if ($maxSize !== null && $size > $maxSize) {
             return ['error' => lang('fb_err_too_large')];
         }
@@ -144,6 +145,7 @@ class FileStore
      * @param array $dir PathResolver::resolveDir() の戻り値
      * @param int $size 保存する中身の大きさ(バイト)
      * @param callable $write function (string $targetPath): bool。確保した(空の)ファイルのフルパスを受けて書き、書けたら true
+     * @param int|false $sizeLimit checkNewFile() の $sizeLimit と同じ
      * @return array{name:string,size:int}|array{error:string} 失敗は error に、利用者に見せる文言
      */
     public static function saveNewFile(
@@ -153,9 +155,10 @@ class FileStore
         array $dir,
         $originalName,
         $size,
-        callable $write
+        callable $write,
+        $sizeLimit = false
     ) {
-        $checked = self::checkNewFile($scope, $modx, $originalName, $size);
+        $checked = self::checkNewFile($scope, $modx, $originalName, $size, $sizeLimit);
         if (isset($checked['error'])) {
             return $checked;
         }

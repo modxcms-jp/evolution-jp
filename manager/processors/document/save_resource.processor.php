@@ -58,7 +58,7 @@ if (postedMode() === 'new') {
         evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit($msg, formReturnUrl());
     }
-    moveDataUriFilesAfterInsert($param['doc_vars'], $newid);
+    convertDataUriAfterInsert($param['doc_vars'], $newid);
 
     if (!empty($param['tv_vars'])) {
         insert_tmplvars($newid, $param['tv_vars']);
@@ -218,71 +218,8 @@ function refreshNewDocId($doc_vars)
     if (!db()->count($rs)) {
         return $doc_vars;
     }
-    $oldId = (int)$doc_vars['id'];
     $doc_vars['id'] = evo()->doc->getNewDocID();
-    if ((int)$doc_vars['id'] !== $oldId && evo()->getConfig('convert_datauri_to_file', 1)) {
-        $doc_vars = moveDataUriFilesToNewId($doc_vars, $oldId, (int)$doc_vars['id']);
-    }
     return $doc_vars;
-}
-
-// saveDataUriFile()（mutate_content/functions.php）の書き出し先の前の部分と同じ規則
-function dataUriRelativeDir($docid)
-{
-    return sprintf('content/images/datauri/%d/', $docid);
-}
-
-// ID を取り直したとき、本文の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
-// 古い ID の場所は、プラグインが作った別の文書のものが同居し得るので、フォルダごとではなく本文に出てくるファイルだけを移す
-function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
-{
-    if (empty($doc_vars['content']) || !is_string($doc_vars['content'])) {
-        return $doc_vars;
-    }
-    $oldDir = dataUriRelativeDir($oldId);
-    $newDir = dataUriRelativeDir($newId);
-    $pattern = '@' . preg_quote($oldDir, '@') . '[A-Za-z0-9_.\-]+@';
-    if (!preg_match_all($pattern, $doc_vars['content'], $matches)) {
-        return $doc_vars;
-    }
-    foreach (array_unique($matches[0]) as $oldPath) {
-        $newPath = $newDir . substr($oldPath, strlen($oldDir));
-        $absoluteNewDir = MODX_BASE_PATH . $newDir;
-        if (!is_file(MODX_BASE_PATH . $oldPath)) {
-            continue;
-        }
-        if (
-            (!is_dir($absoluteNewDir) && !mkdir($absoluteNewDir, 0755, true))
-            || !rename(MODX_BASE_PATH . $oldPath, MODX_BASE_PATH . $newPath)
-        ) {
-            evo()->logEvent(0, 3, sprintf('Failed to move Data URI file: %s -> %s', $oldPath, $newPath), 'refreshNewDocId');
-            continue;
-        }
-        $doc_vars['content'] = str_replace($oldPath, $newPath, $doc_vars['content']);
-    }
-    return $doc_vars;
-}
-
-// ID を DB の自動採番に任せる設定（docid_incrmnt_method が 0）では、挿入するまで ID が分からず、本文の Data URI 変換は 0 の場所に書く
-// 挿入して ID が決まったら、そのファイルを新しい ID の場所へ移し、本文のパスを直して保存し直す
-function moveDataUriFilesAfterInsert($doc_vars, $newId)
-{
-    if (
-        !empty($doc_vars['id'])
-        || empty($doc_vars['content'])
-        || !evo()->getConfig('convert_datauri_to_file', 1)
-    ) {
-        return;
-    }
-    $moved = moveDataUriFilesToNewId($doc_vars, 0, (int)$newId);
-    if ($moved['content'] === $doc_vars['content']) {
-        return;
-    }
-    db()->update(
-        db()->escape(['content' => $moved['content']]),
-        '[+prefix+]site_content',
-        sprintf('id=%d', (int)$newId)
-    );
 }
 
 function get_tmplvars()
@@ -553,6 +490,30 @@ function checkAllowedParents($id)
     }
 }
 
+function shouldConvertDataUri($fields)
+{
+    return $fields['type'] !== 'reference'
+        && !empty($fields['content'])
+        && evo()->getConfig('convert_datauri_to_file', 1);
+}
+
+// 新規の文書は、INSERT で ID が決まってから本文の Data URI をファイルにして、本文を書き直す
+function convertDataUriAfterInsert($doc_vars, $newId)
+{
+    if (!shouldConvertDataUri($doc_vars)) {
+        return;
+    }
+    $converted = convertDataUriToFiles($doc_vars['content'], $newId);
+    if ($converted === $doc_vars['content']) {
+        return;
+    }
+    db()->update(
+        db()->escape(['content' => $converted]),
+        '[+prefix+]site_content',
+        sprintf('id=%d', (int)$newId)
+    );
+}
+
 function getInputValues($id = 0, $mode = 'new')
 {
     $db_v_names = explode(
@@ -569,12 +530,8 @@ function getInputValues($id = 0, $mode = 'new')
         $fields[$key] = validated($key);
     }
 
-    // 本文に貼り付けた画像（img の src の Data URI）をファイルに書き出す
-    if (
-        $fields['type'] !== 'reference'
-        && !empty($fields['content'])
-        && evo()->getConfig('convert_datauri_to_file', 1)
-    ) {
+    // 本文に貼り付けた画像（img の src の Data URI）をファイルに書き出す。新規の文書は ID が決まる INSERT のあとに行う
+    if ($mode === 'edit' && shouldConvertDataUri($fields)) {
         $fields['content'] = convertDataUriToFiles($fields['content'], $id);
     }
 

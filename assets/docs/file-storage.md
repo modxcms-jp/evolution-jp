@@ -25,7 +25,16 @@
 - 管理画面のエディターで、ピッカーを使えない利用者（`use_browser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）。フロントのエディターでは、貼り付けた画像を受けない
 - 保存する名前は、空きを `fopen('xb')` で排他的に確保（`FileStore::createFreeFile()`）してから、その空のファイルへ書く。ファイルブラウザの copy・saveImage（別名）も同じ関数を使う
 
-保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（足すなら、DocumentParser の縮小（今は private の `resizeImage()`）を公開する入口を設けてから、`bytesWriter()` で書いた後に通す）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
+保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（`data:` 画像の縮小は、呼ぶ側が書く前に `EvoDataUri::resize()` で行う）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
+
+## data: 画像（保存時の変換・CLI）の置き場所
+
+リソースの保存時の変換（`convert_datauri_to_file`）と CLI の `content:extract-datauri` は、本文などに入っている `<img>` の `src` の `data:` 画像（Data URI）を、貼り付けた画像と同じ `{rb_base_dir}/images/年/月/` に書く（`manager/includes/datauri_store.class.inc.php` の `EvoDataUriStore` が `FileStore` を通す。詳細は `assets/docs/datauri-conversion.md`）。
+
+- 名前は `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）。連番は、そのフォルダで同じ ID の画像がまだ使っていない 1 からの番号（拡張子は問わない）。名前の決まりは `EvoDataUriStore::fileName()` の 1 か所
+- 年月は、保存時の変換では保存のときのサイトの時刻、CLI ではそのリソースの更新日時（`editedon`。下書きは下書きの更新日時）
+- 拡張子（`upload_images`）・大きさ・同名の連番・`OnFileBrowserUpload`・管理操作ログ（`Uploaded File`）はピッカーのアップロードと同じ。大きさの上限は、保存時の変換ではピッカーの `upload_maxsize`、CLI では 50MB（`FileStore::checkNewFile()` の `$sizeLimit`）
+- 以前の版が書いた `content/images/datauri/{リソースID}/` のファイルは動かさず、本文のその URL も書き換えない
 
 ## 外の置き場所（EFS・NFS など）の使い方
 
