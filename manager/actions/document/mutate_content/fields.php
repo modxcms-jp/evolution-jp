@@ -420,7 +420,8 @@ function fieldPublished()
             'name' => 'publishedcheck',
             'checked' => $published() ? null : '',
             'onclick' => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled' => (!evo()->hasPermission('publish_document') || request_intvar('id') === (int)config('site_start')) ? null : ''
+            // 設定で使っているページは、今公開中のときだけ公開を外せない（すでに非公開のものは、チェックを入れて公開に戻せる）
+            'disabled' => (!evo()->hasPermission('publish_document') || (doc('published') && evo()->doc->protectedPageSetting(request_intvar('id')) !== '')) ? null : ''
         ]
     );
     $body .= html_tag(
@@ -437,7 +438,7 @@ function fieldPublished()
 
 function fieldPub_date($id = 0)
 {
-    $disabled = !evo()->hasPermission('publish_document') || $id == config('site_start');
+    $disabled = !evo()->hasPermission('publish_document') || evo()->doc->protectedPageSetting($id) !== '';
     $body = input_text_tag(
         [
             'name' => 'pub_date',
@@ -457,7 +458,7 @@ function fieldUnpub_date($id)
     if (!evo()->hasPermission('publish_document')) {
         return '';
     }
-    $disabled = !evo()->hasPermission('publish_document') || $id == config('site_start');
+    $disabled = !evo()->hasPermission('publish_document') || evo()->doc->protectedPageSetting($id) !== '';
     $body = input_text_tag(
         [
             'id' => 'unpub_date',

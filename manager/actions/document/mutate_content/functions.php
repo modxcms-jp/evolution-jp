@@ -724,11 +724,8 @@ function getJScripts($docid)
     $ph['preview_mode'] = (int)config('preview_mode', 1);
     // confirm()・alert() の文言。言語ファイルの文字列は JS 向けに \n を含むため、改行へ戻してから JS のリテラルにする
     $langKeys = [
-        'confirm_delete_resource',
         'confirm_delete_draft_resource',
-        'confirm_undelete',
         'confirm_reset_pub_dates',
-        'confirm_resource_duplicate',
         'illegal_parent_self',
         'illegal_parent_child',
         'error_occurred',
@@ -740,6 +737,9 @@ function getJScripts($docid)
     $ph['id'] = $docid;
     $ph['docParent'] = (int) doc('parent');
     $ph['docIsFolder'] = (int) doc('isfolder');
+    // 削除の確認に「サブリソースも…」の行を出すかは、isfolder ではなく実際の子の有無で決める
+    evo()->loadExtension('DocAPI');
+    $ph['docHasChildren'] = $docid && evo()->doc->hasLiveChildren($docid) ? 'true' : 'false';
     $ph['docMode'] = evo()->doc->mode;
     $ph['style_tree_folder'] = style('tree_folder');
     $ph['style_icons_set_parent'] = style('icons_set_parent');
@@ -1295,14 +1295,19 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
         return null;
     }
 
-    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
+    // 向きは JPEG だけが持つ。縮める大きさは表示上の向きで決める
     $info = @getimagesizefromstring($imageData);
+    $orientation = (($info[2] ?? null) === IMAGETYPE_JPEG) ? jpeg_exif_orientation_from_string($imageData) : 1;
+
+    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
     if ($info && $info[0] > 0 && $info[1] > 0) {
-        $resize = calculateResizeDimensions($info[0], $info[1], $dimensions);
+        [$displayWidth, $displayHeight] = image_display_size_by_orientation($info[0], $info[1], $orientation);
+        $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
         if ($resize === null) {
             return $imageData;
         }
-        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $resize[0], $resize[1])) {
+        [$loadWidth, $loadHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
+        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $loadWidth, $loadHeight)) {
             evo()->logEvent(
                 0, 2, 'Image not resized: not enough memory', 'convertSingleDataUri',
                 ['docid' => $docid, 'mime' => $mimeType, 'width' => $info[0], 'height' => $info[1], 'target_width' => $resize[0], 'target_height' => $resize[1], 'memory_limit' => ini_get('memory_limit')]
@@ -1319,18 +1324,15 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
     $originalWidth = imagesx($sourceImage);
     $originalHeight = imagesy($sourceImage);
 
-    // リサイズサイズを計算
-    $resize = calculateResizeDimensions(
-        $originalWidth,
-        $originalHeight,
-        $dimensions
-    );
+    [$displayWidth, $displayHeight] = image_display_size_by_orientation($originalWidth, $originalHeight, $orientation);
+    $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
 
     if ($resize === null) {
         return $imageData;
     }
 
-    list($finalWidth, $finalHeight) = $resize;
+    // 元の画像の向きのまま縮め、あとで向きを反映する
+    [$finalWidth, $finalHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
 
     // リサイズ実行
     $resizedImage = createResizedImage(
@@ -1343,7 +1345,12 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
     );
 
     // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
+    // 向きの反映(回転で縮小した大きさの画像がもう 1 枚できる)の前に、元の画像を手放す
     unset($sourceImage);
+
+    if ($resizedImage !== false) {
+        $resizedImage = gd_apply_orientation($resizedImage, $orientation);
+    }
 
     if ($resizedImage === false) {
         return null;

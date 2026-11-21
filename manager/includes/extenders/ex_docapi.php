@@ -1,6 +1,7 @@
 <?php
 
 $this->doc = new DocAPI;
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
 
 // 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
 // ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
@@ -166,17 +167,21 @@ class DocAPI
     }
 
     /**
-     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
-     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 設定で使っているページ（EvoSpecialPages::protectedSettings()）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。当たるページでない・問題が無ければ空文字。
      * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
      */
-    public function startDocPubError($published, $pub_date, $unpub_date)
+    public function protectedPubError($id, $published, $pub_date, $unpub_date)
     {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
         if ($published == 0) {
-            return 'Document is linked to site_start variable and cannot be unpublished!';
+            return stripcslashes(lang('cannot_unpublish_' . $setting));
         }
         if ($pub_date > request_time() || $unpub_date) {
-            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+            return stripcslashes(lang('cannot_pub_dates_' . $setting));
         }
         return '';
     }
@@ -185,7 +190,7 @@ class DocAPI
      * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
      * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
      * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
-     * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * 設定で使っているページに許さない状態なら、その理由の文も返す（protectedPubError()。無ければ空文字）。
      * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
      * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
      */
@@ -202,12 +207,9 @@ class DocAPI
         if ($canPublish) {
             $draft = $ruled;
         }
-        if ((int)$docid !== (int)evo()->config('site_start')) {
-            return [$draft, ''];
-        }
         return [
             $draft,
-            $this->startDocPubError($draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+            $this->protectedPubError($docid, $draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
         ];
     }
 
@@ -616,6 +618,103 @@ class DocAPI
     public function canDeleteDoc()
     {
         return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
+    }
+
+    /**
+     * そのリソースが当たる設定名（EvoSpecialPages::protectedSettings()）。当たらなければ空文字
+     */
+    public function protectedPageSetting($id)
+    {
+        $id = (int)$id;
+        if (!$id) {
+            return '';
+        }
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
+            if ($id === (int)evo()->config($setting)) {
+                return $setting;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * 削除を止める警告の言語キー。当たらなければ空文字。
+     * $asChild が真なら、そのリソースが子孫にあって親の削除を止めるときの言語キー（文の中に ID の %d を持つ）
+     */
+    public function deleteGuardKey($id, $asChild = false)
+    {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
+        return ($asChild ? 'cannot_delete_child_' : 'cannot_delete_') . $setting;
+    }
+
+    /**
+     * 非公開にするのを止める警告の言語キー。当たらなければ空文字
+     */
+    public function unpublishGuardKey($id)
+    {
+        $setting = $this->protectedPageSetting($id);
+        return $setting === '' ? '' : 'cannot_unpublish_' . $setting;
+    }
+
+    /**
+     * 文書の操作の確認の文言（document-actions.js の operations の表が言語キーで引く）。警告の文言は EvoSpecialPages::protectedSettings() から組み立てる
+     */
+    const ACTION_LANG_KEYS = [
+        'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
+        'confirm_batch_publish', 'confirm_batch_unpublish',
+        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+    ];
+
+    /**
+     * document-actions.js へ渡す設定（header.inc.php が EvoDocumentActions.config に入れる）。
+     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」
+     */
+    public function actionConfig()
+    {
+        $ids = [];
+        $keys = self::ACTION_LANG_KEYS;
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
+            $ids[$setting] = (int)evo()->config($setting);
+            $keys[] = 'cannot_delete_' . $setting;
+            $keys[] = 'cannot_unpublish_' . $setting;
+        }
+        $lang = [];
+        foreach ($keys as $key) {
+            $lang[$key] = stripcslashes(lang($key));
+        }
+        return js_value(['ids' => $ids, 'lang' => $lang]);
+    }
+
+    /**
+     * 削除していない子があるか（削除で一緒に削除される子の有無。isfolder の設定とは別）
+     */
+    public function hasLiveChildren($id)
+    {
+        return (bool)$this->idsWithLiveChildren([$id]);
+    }
+
+    /**
+     * 渡した ID のうち、削除していない子を持つものの ID の配列（一覧の行など、まとめて調べるとき用）
+     */
+    public function idsWithLiveChildren(array $ids)
+    {
+        $ids = array_filter(array_map('intval', $ids));
+        if (!$ids) {
+            return [];
+        }
+        $rs = db()->select(
+            'DISTINCT parent',
+            '[+prefix+]site_content',
+            sprintf("parent IN (%s) AND deleted='0'", implode(',', $ids))
+        );
+        $result = [];
+        while ($row = db()->getRow($rs)) {
+            $result[] = (int)$row['parent'];
+        }
+        return $result;
     }
 
     public function canCreateDoc()
