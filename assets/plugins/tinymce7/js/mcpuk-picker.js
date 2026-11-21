@@ -437,6 +437,15 @@
         const overwritten = sameFile(parseSiteUrl(editor, before), parseSiteUrl(editor, saved));
         // ダイアログを閉じた後の後始末（表示の読み直し・srcset を外す）は、大きさを読む前に頼んでおく
         edited.push({url: saved, overwritten: overwritten});
+        // ソースはすぐ書き換える（大きさを読む間にダイアログを保存しても、新しい画像が入るように）。幅・高さだけを読み込みの後に書き換える
+        try {
+          const data = dialog.getData();
+          data.src = {value: saved, meta: {}};
+          dialog.setData(data);
+        } catch (e) {
+          return;
+        }
+        updateEnabled();
         loadImageSize(editor.documentBaseURI.toAbsolute(overwritten ? cacheBusted(saved) : saved)).then(function (size) {
           let latest;
           try {
@@ -444,17 +453,20 @@
           } catch (e) {
             return;
           }
-          const dimensions = scaledSize(latest.dimensions && latest.dimensions.width, latest.dimensions && latest.dimensions.height, size);
-          latest.src = {value: saved, meta: {}};
-          if (dimensions.width) {
-            latest.dimensions = {width: String(dimensions.width), height: String(dimensions.height)};
+          // 読み込みの間にソースが別のものに変わっていたら、幅・高さも触らない
+          if (!latest.src || latest.src.value !== saved) {
+            return;
           }
+          const dimensions = scaledSize(latest.dimensions && latest.dimensions.width, latest.dimensions && latest.dimensions.height, size);
+          if (!dimensions.width) {
+            return;
+          }
+          latest.dimensions = {width: String(dimensions.width), height: String(dimensions.height)};
           try {
             dialog.setData(latest);
           } catch (e) {
-            return;
+            // ダイアログが先に閉じられた
           }
-          updateEnabled();
         });
       });
     });
