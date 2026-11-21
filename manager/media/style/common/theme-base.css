@@ -420,6 +420,49 @@ form input.hidden {
 }
 
 /* リソース編集の欄と TV */
+.mutate-fields {
+    width: 100%;
+}
+
+/* 欄のまとまり。メインタブは開閉する details、ページ設定タブは小見出し（.settings-section）の付いた箱。
+   開閉の見出し（summary）の見た目は、小見出しと同じ規則（common/shell.css の .settings-section）で決める */
+.mutate-group {
+    margin-bottom: var(--space-3, 12px);
+}
+
+.mutate-section {
+    margin-bottom: var(--space-5, 20px);
+}
+
+.mutate-group > summary {
+    cursor: pointer;
+}
+
+/* 閉じているときは、見出しの下の間を空けない（まとまりどうしの間は .mutate-group の margin） */
+.tab-page .mutate-group:not([open]) > summary {
+    margin-bottom: 0;
+}
+
+/* 移された欄の無い表（data-moved-fields。tpl は中身なしで書く）は出さない */
+table[data-moved-fields]:empty {
+    display: none;
+}
+
+/* 欄が 1 つも無いまとまり（下書きの公開の欄など）は出さない */
+[data-field-group]:not(:has([data-field])) {
+    display: none;
+}
+
+/* リソース名の表と、その下の開閉するまとまりの間 */
+.tab-page > :has(+ .mutate-group) {
+    margin-bottom: var(--space-3, 12px);
+}
+
+/* 出ない移された欄の表がタブの最後の子になるので、その前の見えている最後のブロックの下を 0 にする（spacing.css の :last-child の代わり） */
+.tab-page > :has(+ table[data-moved-fields]:empty) {
+    margin-bottom: 0;
+}
+
 .mutate-field-row {
     height: 24px;
 }

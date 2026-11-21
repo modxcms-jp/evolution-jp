@@ -38,6 +38,10 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = '')
             js_literal($headers[$tab])
         );
     }
+    if ($tab === 'tv') {
+        // TV の置き場所の設定（tvs_below_content）に関係なく効くよう、本文の下の見出しも変える
+        $output .= 'MM.html("div#tv_header", ' . mmHtmlLiteral($newname) . ');' . "\n";
+    }
 
     $output .= "//  -------------- mm_renameTab :: End ------------- \n";
 

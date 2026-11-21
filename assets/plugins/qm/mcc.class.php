@@ -24,16 +24,19 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function __construct()
         {
+            // タブの id（見出しの id は、これに Header を付けたもの）
             $this->tabs = [
-                'general' => ['index' => 1, 'id' => 'tabGeneral'],
-                'settings' => ['index' => 2, 'id' => 'tabSettings'],
-                'access' => ['index' => 3, 'id' => 'tabAccess']
+                'general' => 'tabGeneral',
+                'settings' => 'tabSettings',
+                'tv' => 'tabTVs',
+                'access' => 'tabAccess'
             ];
 
+            // 隠す要素。tvs は、TV を本文の下に出すときの見出しと本体と、TV のタブに出すときのタブ
             $this->sections = [
-                'docsettings' => ['index' => 0, 'name' => 'DocSettings'],
-                'content' => ['index' => 1, 'name' => 'Content'],
-                'tvs' => ['index' => 2, 'name' => 'TVs']
+                'docsettings' => '#tabGeneral > table, #tabGeneral > [data-field-group]',
+                'content' => '#content_header, #content_body',
+                'tvs' => '#tv_header, #tv_body, #tabTVsHeader, #tabTVs'
             ];
         }
 
@@ -53,18 +56,7 @@ if (!class_exists('Mcc')) {
         {
             $section = trim($section);
             if (!isset($this->sections[$section])) return;
-            $sectionBodyIndex = $this->sections[$section]['index'];
-            $sectionHeaderIndex = $sectionBodyIndex - 1;
-
-            // Handle docsettings
-            if ($sectionHeaderIndex == -1) {
-                $this->hide[] = ['sel' => '#tabGeneral table'];
-                return;
-            }
-
-            // 文書の中で n 番目（0 始まり）の 1 つだけ
-            $this->hide[] = ['sel' => 'div.sectionHeader', 'nth' => $sectionHeaderIndex];
-            $this->hide[] = ['sel' => 'div.sectionBody', 'nth' => $sectionBodyIndex];
+            $this->hide[] = ['sel' => $this->sections[$section], 'all' => true];
         }
 
         // Tab
@@ -73,10 +65,10 @@ if (!class_exists('Mcc')) {
         {
             $tab = trim($tab);
             if (!isset($this->tabs[$tab])) return;
-            $tabIndex = $this->tabs[$tab]['index'];
-            $tabId = $this->tabs[$tab]['id'];
-            $this->hide[] = ['sel' => 'div#documentPane h2:nth-child(' . $tabIndex . ')', 'all' => true];
-            $this->hide[] = ['sel' => '#' . $tabId];
+            // TV は置き場所の設定（tvs_below_content）に関係なく効くよう、セクションの指定と同じに隠す
+            if ($tab === 'tv') return $this->hideSection('tvs');
+            $tabId = $this->tabs[$tab];
+            $this->hide[] = ['sel' => '#' . $tabId . 'Header, #' . $tabId, 'all' => true];
         }
 
         // Field

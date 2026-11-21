@@ -1,5 +1,5 @@
 /**
- * 管理画面の共通部品（Evo.ready / Evo.fetch / Evo.post / Evo.fieldRow / Evo.fieldPart）
+ * 管理画面の共通部品（Evo.ready / Evo.fetch / Evo.post / Evo.fieldRow / Evo.fieldPart / Evo.hideEmptyFieldGroups）
  *
  * 置き換えの書き方は assets/docs/jquery-migration.md を参照。
  * - Evo.ready(fn): $j(function(){…}) の代わり。シェルが後から差し込んだインラインスクリプトでは
@@ -13,6 +13,7 @@
  *   root（省略時は document）の中でその名前の行を、要素ならその要素が入っている行（入れ子なら
  *   いちばん外側）を返す。無ければ null
  * - Evo.fieldPart(field, part): その行の中の部分（data-field-part 属性が part の要素）。無ければ null
+ * - Evo.hideEmptyFieldGroups(root): 見えている入力欄が無い欄のまとまり（data-field-group 属性の付いた要素）を隠す
  *
  * fetch は HTTP のエラー（404・500 など）でも reject しない。必要なら response.ok を確かめること。
  */
@@ -87,6 +88,26 @@
         }) || null;
     }
 
+    // 見えている入力欄が 1 つも無い欄のまとまり（data-field-group）を隠す。
+    // 欄を隠す・ほかのタブへ移す処理（ManagerManager・QuickManager）の後に呼ぶ。隠れているかは style の display で見る
+    const FIELD_CONTROLS = 'input:not([type="hidden"]), select, textarea, button';
+
+    function hideEmptyFieldGroups(root) {
+        (root || document).querySelectorAll('[data-field-group]').forEach(function (group) {
+            const shown = Array.prototype.some.call(group.querySelectorAll(FIELD_CONTROLS), function (el) {
+                for (let p = el; p && p !== group; p = p.parentElement) {
+                    if (p.style.display === 'none') {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            if (!shown) {
+                group.style.display = 'none';
+            }
+        });
+    }
+
     window.Evo = {
         // HTML として出す文脈（EvoDialog の message など）へ、利用者や外から来る値を入れるときに使う
         escapeHtml: function (text) {
@@ -140,6 +161,8 @@
 
         fieldRow: fieldRow,
 
-        fieldPart: fieldPart
+        fieldPart: fieldPart,
+
+        hideEmptyFieldGroups: hideEmptyFieldGroups
     };
 })();

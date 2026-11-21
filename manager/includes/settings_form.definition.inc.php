@@ -245,6 +245,16 @@ return [
                         'desc' => lang('docid_incrmnt_method_message'),
                     ],
                     [
+                        'key' => 'tvs_below_content',
+                        'type' => 'radio',
+                        'label' => lang('setting_tvs_below_content'),
+                        'options' => [
+                            '0' => lang('setting_tvs_below_content_tab'),
+                            '1' => lang('setting_tvs_below_content_below'),
+                        ],
+                        'desc' => lang('setting_tvs_below_content_desc'),
+                    ],
+                    [
                         'key' => 'enable_draft',
                         'type' => 'enabled',
                         'label' => lang('enable_draft_title'),
