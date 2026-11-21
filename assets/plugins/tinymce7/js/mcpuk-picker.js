@@ -392,13 +392,11 @@
     'image/bmp': 'bmp'
   });
 
-  // 保存先の名前の決め方は、サーバー（FileStore::pastedPlaceholderExtension）が持つ。
-  // 名前を持つファイルはその名前で送り、貼り付け・名前の無い画像は image.拡張子 を送って、サーバーが pasted-年月日-時分秒.拡張子 にする
+  // 名前を持つファイルはその名前、無ければ image.拡張子 を送る。保存先の名前（pasted-年月日-時分秒 への置き換え）は、サーバー（FileStore）が決める
   function uploadName(blobInfo) {
     const blob = blobInfo.blob();
-    const name = blob && typeof blob.name === 'string' ? blob.name : '';
-    if (name && !/^image\.[A-Za-z0-9]+$/.test(name)) {
-      return name;
+    if (blob && typeof blob.name === 'string' && blob.name !== '') {
+      return blob.name;
     }
 
     let extension = IMAGE_EXTENSIONS_BY_TYPE[blob && blob.type];
@@ -524,22 +522,44 @@
       event.preventDefault();
       const submitter = event.submitter;
       submittingForms.add(form);
+
+      // 送らずに終える道では、黙らずに通知を出し、未保存の印を戻す（保存の操作は、documentDirty を false にしてから呼ばれる）
+      function cancelSubmit() {
+        submittingForms.delete(form);
+        if ('documentDirty' in global) {
+          global.documentDirty = true;
+        }
+        editor.notificationManager.open({
+          type: 'error',
+          text: editor.options.get('modx_upload_not_saved_message')
+        });
+      }
+
       global.Promise.all(pending.map(function (candidate) {
         return candidate.uploadImages();
-      })).then(function () {
-        submittingForms.delete(form);
-        // アップロードに失敗した画像は、TinyMCE が本文から外す。残っているなら、blob: の URL を保存しないよう送らない
-        if (pending.some(hasPendingUploads)) {
+      })).then(function (results) {
+        // 失敗した画像は、TinyMCE が本文から外して理由を通知する。画像が欠けたまま保存しないよう、送らずに知らせる。
+        // 失敗の印が無くても blob: が残っていれば、その URL を保存しないよう送らない
+        const failed = results.some(function (items) {
+          return items.some(function (item) {
+            return item && item.status === false;
+          });
+        });
+        if (failed || pending.some(hasPendingUploads)) {
+          cancelSubmit();
           return;
         }
-        if (submitter) {
-          form.requestSubmit(submitter);
-        } else {
-          form.requestSubmit();
-        }
-      }, function () {
         submittingForms.delete(form);
-      });
+        try {
+          if (submitter && submitter.form === form) {
+            form.requestSubmit(submitter);
+          } else {
+            form.requestSubmit();
+          }
+        } catch (error) {
+          cancelSubmit();
+        }
+      }, cancelSubmit);
     }, true);
   }
 
@@ -549,6 +569,10 @@
       return;
     }
 
+    editor.options.register('modx_upload_not_saved_message', {
+      processor: 'string',
+      default: 'Saving was cancelled because an image upload did not finish. Please save again.'
+    });
     const existingImages = rememberExistingImages(editor);
     existingImagesByEditor.set(editor, existingImages);
     // editorUpload は、エディターの初期化の途中（PreInit の時点）で作られる

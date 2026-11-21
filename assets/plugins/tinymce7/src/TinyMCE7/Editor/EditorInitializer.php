@@ -120,11 +120,13 @@ final class EditorInitializer
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
         // 画像編集もピッカーの API を使うので、ピッカーを使えない利用者には付けない
-        $canEditImage = $fileBrowser === 'mcpuk' && $this->fileBrowserResolver->canUsePicker();
+        // 管理画面ではセッションで決める。フロントのページはキャッシュに入りセッションごとに変えられないので、mcpuk なら出し、使えない人が開いたときはピッカーが断る
+        $isManager = empty($params['forfrontend']);
+        $canEditImage = $fileBrowser === 'mcpuk' && (!$isManager || $this->fileBrowserResolver->canUsePicker());
         if ($canEditImage) {
             $config['modx_image_edit_label'] = $this->language->translate('tinymce7_image_edit', 'Edit image');
         }
-        $canUploadPasted = $this->canUploadPasted($fileBrowser);
+        $canUploadPasted = $this->canUploadPasted($fileBrowser, $isManager);
         $config = $this->applyPastedUpload($config, $canUploadPasted);
 
         $configJson = $this->configRepository->encode($config);
@@ -189,13 +191,15 @@ final class EditorInitializer
 
     /**
      * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
-     * 使えるのは、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、
-     * 送信に付ける CSRF トークンがあり、アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * 使えるのは、管理画面のエディターで、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、
+     * アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
      * 使えないときは、本文に data: 画像が入らないよう、貼り付けの画像を受けない（applyPastedUpload()）
      */
-    private function canUploadPasted(string $fileBrowser): bool
+    private function canUploadPasted(string $fileBrowser, bool $isManager): bool
     {
-        return $fileBrowser === 'mcpuk'
+        return $isManager
+            && $fileBrowser === 'mcpuk'
             && function_exists('getCurrentCsrfToken')
             && $this->fileBrowserResolver->canUsePicker('images')
             && $this->fileBrowserResolver->imagesFileTypes() !== [];
@@ -210,6 +214,10 @@ final class EditorInitializer
         $config['image_uploadtab'] = false;
         if ($canUploadPasted) {
             $config['images_file_types'] = implode(',', $this->fileBrowserResolver->imagesFileTypes());
+            $config['modx_upload_not_saved_message'] = $this->language->translate(
+                'tinymce7_upload_not_saved',
+                'Saving was cancelled because an image upload did not finish. Please save again.'
+            );
         } else {
             $config['paste_data_images'] = false;
         }
