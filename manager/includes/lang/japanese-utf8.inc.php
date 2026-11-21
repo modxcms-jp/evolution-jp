@@ -1403,6 +1403,7 @@ return [
     "fb_err_unauthorized" => 'ログインセッションが確認できません。',
     "fb_err_forbidden" => 'ファイルピッカーの利用が許可されていません。',
     "fb_err_invalid_type" => '不正なファイル種別です。',
+    "fb_err_invalid_target" => '貼り付けた画像の保存先（リソースまたはチャンク）が正しくありません。',
     "fb_err_invalid_root" => 'この種類のフォルダーが、ファイルの置き場所（rb_base_dir）の外を指しているため、利用できません。',
     "fb_err_invalid_action" => '対応していない操作です。',
     "fb_err_folder_not_found" => '指定されたフォルダーが見つかりません。',
