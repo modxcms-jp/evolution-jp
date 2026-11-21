@@ -870,10 +870,43 @@ if (!function_exists('collect_tab_settings_ph')) {
 }
 
 /**
+ * 保存の処理が書いた data: 画像のファイルを持つストア。DB の更新が済むまで、管理操作ログに書かず、消せるように持っておく
+ * （finishDataUriFiles() で確定する。確定しないまま処理が終わったら、書いたファイルを消す）
+ */
+function dataUriSaveStore($create = true)
+{
+    static $store = null;
+    if ($store === null && $create) {
+        require_once MODX_CORE_PATH . 'datauri_store.class.inc.php';
+        $store = new EvoDataUriStore(evo());
+        register_shutdown_function(function () use ($store) {
+            $store->discardAll();
+        });
+    }
+
+    return $store;
+}
+
+/**
+ * convertDataUriToFiles() が書いたファイルを確定する。DB の更新が済んだら true（管理操作ログに書く）、
+ * 失敗したら false（書いたファイルを消す）
+ */
+function finishDataUriFiles($committed)
+{
+    $store = dataUriSaveStore(false);
+    if ($store === null) {
+        return;
+    }
+    $committed ? $store->record() : $store->discardAll();
+}
+
+/**
  * コンテンツ内の img の src の Data URI を、ファイルピッカーの images/年/月/ にファイルとして書き、その URL に置き換える
  *
  * 置き場所・名前・拡張子と大きさの確かめ・同名の連番・OnFileBrowserUpload・管理操作ログはエディターに貼り付けた画像と同じ
- * （EvoDataUriStore）。年月は保存のときのサイトの時刻、名前は文書の ID と連番。書けなかった Data URI は置き換えずに残し、システムログに残す
+ * （EvoDataUriStore）。年月は保存のときのサイトの時刻、名前は文書の ID と連番。書けなかった Data URI は置き換えずに残し、
+ * システムログに残す。ロールにファイルのアップロードの権限（file_upload）が無いときは、何も書かずに残す。
+ * 書いたファイルは、呼ぶ側が DB の更新のあとに finishDataUriFiles() で確定する
  *
  * @param string $content 処理対象のコンテンツ
  * @param int $docid ドキュメント ID（ファイルの名前に入る。新規の文書は INSERT のあとに呼ぶ）
@@ -885,13 +918,20 @@ function convertDataUriToFiles($content, $docid)
         return $content;
     }
 
-    require_once MODX_CORE_PATH . 'datauri_store.class.inc.php';
-    $store = new EvoDataUriStore(evo());
+    $store = dataUriSaveStore();
     $timestamp = request_time() + (int)evo()->config('server_offset_time', 0);
+    $deniedLogged = false;
 
-    $content = EvoDataUri::replaceImgSrc(
+    return EvoDataUri::replaceImgSrc(
         $content,
-        function ($dataUri, $dimensions) use ($store, $timestamp, $docid) {
+        function ($dataUri, $dimensions) use ($store, $timestamp, $docid, &$deniedLogged) {
+            if (!$store->allowsUpload()) {
+                if (!$deniedLogged) {
+                    evo()->logEvent(0, 2, sprintf('Data URI not converted: the role lacks the file_upload permission (docid: %s)', $docid), 'convertDataUriToFiles');
+                    $deniedLogged = true;
+                }
+                return null;
+            }
             $prepared = $store->prepare($dataUri, $dimensions, $docid);
             $result = isset($prepared['error']) ? $prepared : $store->place($prepared, $docid, $timestamp);
             if (isset($result['error'])) {
@@ -920,7 +960,4 @@ function convertDataUriToFiles($content, $docid)
             return $result['path'];
         }
     );
-    $store->record();
-
-    return $content;
 }

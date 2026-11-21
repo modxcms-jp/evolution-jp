@@ -115,6 +115,7 @@ if (postedMode() === 'edit') {
         sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
+        finishDataUriFiles(false);
         evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit(
             sprintf(
@@ -124,6 +125,7 @@ if (postedMode() === 'edit') {
             formReturnUrl()
         );
     }
+    finishDataUriFiles(true);
 
     if ($param['tv_vars']) {
         update_tmplvars(validated('id'), $param['tv_vars']);
@@ -505,13 +507,15 @@ function convertDataUriAfterInsert($doc_vars, $newId)
     }
     $converted = convertDataUriToFiles($doc_vars['content'], $newId);
     if ($converted === $doc_vars['content']) {
+        finishDataUriFiles(false);
         return;
     }
-    db()->update(
+    $updated = db()->update(
         db()->escape(['content' => $converted]),
         '[+prefix+]site_content',
         sprintf('id=%d', (int)$newId)
     );
+    finishDataUriFiles((bool)$updated);
 }
 
 function getInputValues($id = 0, $mode = 'new')

@@ -32,9 +32,10 @@
 
 リソースの保存時の変換（`convert_datauri_to_file`）と CLI の `content:extract-datauri` は、本文などに入っている `<img>` の `src` の `data:` 画像（Data URI）を、貼り付けた画像と同じ `{rb_base_dir}/images/年/月/` に書く（`manager/includes/datauri_store.class.inc.php` の `EvoDataUriStore` が `FileStore` を通す。詳細は `assets/docs/datauri-conversion.md`）。
 
-- 名前は `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）。連番は、そのフォルダで同じ ID の画像がまだ使っていない 1 からの番号（拡張子は問わない）。名前の決まりは `EvoDataUriStore::fileName()` の 1 か所
+- 名前は `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）。連番は、そのフォルダで同じ ID の画像の最大の番号 + 1（1 から。拡張子は問わない。消えた番号は使い回さない）。名前の決まりは `EvoDataUriStore::fileName()` の 1 か所
 - 年月は、保存時の変換では保存のときのサイトの時刻、CLI ではそのリソースの更新日時（`editedon`。下書きは下書きの更新日時）
 - 拡張子（`upload_images`）・大きさ・同名の連番・`OnFileBrowserUpload`・管理操作ログ（`Uploaded File`）はピッカーのアップロードと同じ。大きさの上限は、保存時の変換ではピッカーの `upload_maxsize`、CLI では 50MB（`FileStore::checkNewFile()` の `$sizeLimit`）
+- 保存時の変換は、ロールにファイルのアップロードの権限（`file_upload`）が無いと変換せず、`data:` のまま残す。CLI は管理画面のセッションが無く、`PickerScope::allows()` が true を返すので、権限を見ない
 - 以前の版が書いた `content/images/datauri/{リソースID}/` のファイルは動かさず、本文のその URL も書き換えない
 
 ## 外の置き場所（EFS・NFS など）の使い方

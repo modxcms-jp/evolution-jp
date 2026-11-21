@@ -128,22 +128,21 @@ class EvoDataUriStore
         return 'pasted-doc-' . (int)$docId . '-' . (int)$number . '.' . $extension;
     }
 
-    /** そのフォルダで、同じ文書の ID の画像がまだ使っていない、1 からの最小の連番（拡張子は問わない） */
+    /**
+     * そのフォルダの、同じ文書の ID の画像の連番の最大 + 1（1 から。拡張子は問わない）。
+     * 消えた番号は使い回さない（ブラウザーや CDN が、同じ URL の古い画像を出し続けるため）
+     */
     private static function nextNumber($dirReal, $docId)
     {
-        $used = [];
+        $max = 0;
         $pattern = '/^pasted-doc-' . (int)$docId . '-([0-9]+)\./';
         foreach (scandir($dirReal) ?: [] as $name) {
             if (preg_match($pattern, $name, $m)) {
-                $used[(int)$m[1]] = true;
+                $max = max($max, (int)$m[1]);
             }
         }
-        $number = 1;
-        while (isset($used[$number])) {
-            $number++;
-        }
 
-        return $number;
+        return $max + 1;
     }
 
     /** place() で書いたファイルを消す（そのあとの DB の更新に失敗したときなど）。管理操作ログにも書かない */
@@ -152,6 +151,20 @@ class EvoDataUriStore
         if (isset($this->saved[$rel])) {
             @unlink($this->saved[$rel]);
             unset($this->saved[$rel]);
+        }
+    }
+
+    /** ロールの権限 file_upload でファイルを置いてよいか（管理画面のセッションが無い CLI は常に true） */
+    public function allowsUpload()
+    {
+        return $this->scope->allows('file_upload');
+    }
+
+    /** place() で書いて、まだ discard() も record() もしていないファイルを、すべて消す */
+    public function discardAll()
+    {
+        foreach (array_keys($this->saved) as $rel) {
+            $this->discard($rel);
         }
     }
 

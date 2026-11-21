@@ -13,9 +13,12 @@ TinyMCE 7 では、貼り付け・ドロップした画像はエディター側�
 - 対象フィールド: `content`（本文）だけ。`introtext`（要約）は対象にしない。ウェブリンク（`type` が `reference`）の本文も対象にしない
 - 対象の位置: `<img>` 要素の `src` 属性の値になっている Data URI だけ（`isImgSrcValue()`）。属性を 1 つずつ読むので、`data-src` やほかの属性の値の中の `src=` は対象にならない。本文の文章、`<script>`・`<style>`・`<textarea>` の中、HTML コメントの中の `data:` は書き換えない。本文を頭からタグ単位でたどり、引用符で囲んだ属性の値は読み飛ばすので、属性の値の中に `<textarea>` などの文字があっても要素とは見なさない（`openTagStartAtEnd()`）
 - 新規のリソースは、INSERT で ID が決まったあとに変換し、本文だけを UPDATE し直す（`convertDataUriAfterInsert()`）。既存のリソースは保存の前に変換する。どちらも同じ `convertDataUriToFiles()` を通る
-- 保存先: ファイルピッカーの画像の置き場所 `{rb_base_dir}/images/年/月/`（年月は保存のときのサイトの時刻）。名前は `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）。連番は、そのフォルダで同じ ID の画像がまだ使っていない 1 からの番号。置き場所・名前の確保・拡張子（`upload_images`）・大きさ（`upload_maxsize`）・`OnFileBrowserUpload`・管理操作ログ（`Uploaded File`）は、エディターに貼り付けた画像と同じ `FileStore` を通る（`assets/docs/file-storage.md`）。拡張子や大きさの決まりに合わない Data URI（既定では webp など）は、置き換えずに本文に残し、システムログに残す
+- 保存先: ファイルピッカーの画像の置き場所 `{rb_base_dir}/images/年/月/`（年月は保存のときのサイトの時刻）。名前は `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）。連番は、そのフォルダで同じ ID の画像の最大の番号 + 1（1 から。消えた番号は使い回さない。ブラウザーや CDN が古い画像を出し続けないため）。置き場所・名前の確保・拡張子（`upload_images`）・大きさ（`upload_maxsize`）・`OnFileBrowserUpload`・管理操作ログ（`Uploaded File`）は、エディターに貼り付けた画像と同じ `FileStore` を通る（`assets/docs/file-storage.md`）。拡張子や大きさの決まりに合わない Data URI（既定では webp など）は、置き換えずに本文に残し、システムログに残す
+- ロールにファイルのアップロードの権限（`file_upload`）が無いときは、変換せずに Data URI のまま残し、システムログに残す（ソースコードの画面で `data:` を書いて保存しても、ピッカーの置き場所にファイルができない抜け道を作らないため。CLI は管理者の操作なので見ない）
+- 新規のリソースは、`OnBeforeDocFormSave` の時点ではまだ `data:` のまま（INSERT のあとに変換する）。プラグインがそこで本文を書き換えると、書き換えたあとの本文が変換の対象になる
+- ファイルは DB の更新が済んでから確定する（管理操作ログに書く）。更新に失敗したら、書いたファイルを消す
 - 以前の版が `content/images/datauri/{リソースID}/` に書いたファイルと、本文のその URL は動かさず、書き換えない
-- 復号後の大きさの上限: 50MB（`EvoDataUri::MAX_BYTES`）。保存時の変換では、さらにピッカーの `upload_maxsize` が効く
+- 復号後の大きさの上限: 50MB（`EvoDataUri::MAX_BYTES`）。保存時の変換では、さらにピッカーの `upload_maxsize`（空なら 5000000）が効く。これを超える `data:` は、保存時には変換されずに残る（CLI は 50MB まで移せる）
 - 対応 MIME: `image/png`, `jpeg`, `gif`, `webp`, `svg+xml`, `bmp`, `application/pdf`, `text/plain`, `text/html`, `text/css`, `application/json`, `application/xml`
 
 ## 画像リサイズ
