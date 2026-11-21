@@ -44,9 +44,7 @@ function pickFile(path) {
 function closePicker() {
     var kind = embedKind();
     if (kind === 'shell') {
-        if (window.EvoShell && typeof window.EvoShell.closeModal === 'function') {
-            window.EvoShell.closeModal();
-        }
+        window.EvoShell.closeModal();
     } else if (kind === 'popup') {
         window.close();
     } else if (kind === 'iframe') {

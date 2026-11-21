@@ -367,13 +367,15 @@ function init(root, entry, behaviors) {
         state: state,
         config: config,
         onSaved: function (name) {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
             // 保存したファイルが変わったので、プレビューは閉じて一覧を読み直し、保存した名前を選ぶ
             preview.close();
             dropzoneEl.focus({ preventScroll: true });
             // フォルダは移っていないので、保存した画像の位置はすぐ出す
             load(name, {
                 instant: true,
-                onLoaded: editFromPicker && behaviors.editDone ? function () {
+                onLoaded: fromPicker && behaviors.editDone ? function () {
                     var saved = findFile(name);
                     if (saved) {
                         behaviors.editDone(saved);
@@ -382,7 +384,9 @@ function init(root, entry, behaviors) {
             });
         },
         onCancel: function () {
-            if (editFromPicker && behaviors.editCancel) {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
+            if (fromPicker && behaviors.editCancel) {
                 behaviors.editCancel();
             }
         }
@@ -556,12 +560,6 @@ function init(root, entry, behaviors) {
                 if (selected) {
                     scrollToSelected(hasShownList && !instant);
                 }
-                if (openEditAfter) {
-                    openInitialEdit(selected ? findFile(selectName) : null);
-                }
-                if (options && options.onLoaded) {
-                    options.onLoaded();
-                }
                 hasShownList = true;
                 emit('evofb:navigate', { folder: state.folder });
                 pruneClipboard();
@@ -572,11 +570,21 @@ function init(root, entry, behaviors) {
                 }
                 tree.syncWithList(state.folder, data.folders);
                 tree.revealPath(state.folder);
+                if (openEditAfter) {
+                    openInitialEdit(selected ? findFile(selectName) : null);
+                }
+                if (options && options.onLoaded) {
+                    options.onLoaded();
+                }
             })
             .catch(function (err) {
                 if (allowInitialFallback && !initialFallbackTried && initialFolder !== '') {
                     initialFallbackTried = true;
-                    navigateTo('', initialSelect);
+                    // 初期フォルダーが無いとき。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かず、理由だけ出す
+                    state.folder = '';
+                    load(initialSelect, {
+                        onLoaded: initialEdit ? function () { window.alert(t('fb_edit_open_not_found')); } : null
+                    });
                     return;
                 }
                 grid.renderError(err);
