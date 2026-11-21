@@ -1104,7 +1104,7 @@ return [
     'setting_disable_cache_at_login' => 'Cache at login',
     'setting_disable_cache_at_login_desc' => 'When logging in, caching control is invalidated, and dynamic output is always done.',
     'setting_convert_datauri_to_file' => 'Auto-convert Data URI to file',
-    'setting_convert_datauri_to_file_desc' => 'When set to Yes, images pasted into the content as Data URIs (data:image/png;base64,...) are saved as files when the resource is saved, and the content refers to those files instead. Save location: content/images/datauri/{resource_id}/',
+    'setting_convert_datauri_to_file_desc' => 'When set to Yes, images pasted into the content as Data URIs (data:image/png;base64,...) are saved as files when the resource is saved, and the content refers to those files instead. Save location: images/year/month/ in the file browser (pasted-doc-{resource_id}-{number}). Roles without the file upload permission, and images the file browser would reject (file type, size), are left as Data URIs.',
     'auto_pub_date_title' => 'Auto-set publish start date',
     'auto_pub_date_message' => 'When the publish start date (pub_date) is not set, the value of the published date (publishedon) is used.',
     'setting_legacy_cache' => 'Legacy cache mechanism',

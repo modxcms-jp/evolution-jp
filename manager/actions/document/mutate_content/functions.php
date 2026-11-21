@@ -870,606 +870,103 @@ if (!function_exists('collect_tab_settings_ph')) {
 }
 
 /**
- * コンテンツ内の Data URI を検出してファイルに変換
+ * 保存の処理が書いた data: 画像のファイルを持つストア。DB の更新が済むまで、管理操作ログに書かず、消せるように持っておく
+ * （finishDataUriFiles() で確定する。確定しないまま処理が終わったら、書いたファイルを消す）。
+ * images の範囲が作れないとき（images のフォルダの実体が rb_base_dir の外にあるなど）は、ストアでなく EvoDataUriStore::create() のエラー（['code', ...]）を返す
+ *
+ * @return EvoDataUriStore|array|null $create が false で、まだ作っていないときは null
+ */
+function dataUriSaveStore($create = true)
+{
+    static $store = null;
+    if ($store === null && $create) {
+        require_once MODX_CORE_PATH . 'datauri_store.class.inc.php';
+        $store = EvoDataUriStore::create(evo());
+        if ($store instanceof EvoDataUriStore) {
+            register_shutdown_function(function () use ($store) {
+                $store->discardAll();
+            });
+        }
+    }
+
+    return $store;
+}
+
+/**
+ * convertDataUriToFiles() が書いたファイルを確定する。DB の更新が済んだら true（管理操作ログに書く）、
+ * 失敗したら false（書いたファイルを消す）
+ */
+function finishDataUriFiles($committed)
+{
+    $store = dataUriSaveStore(false);
+    if (!($store instanceof EvoDataUriStore)) {
+        return;
+    }
+    $committed ? $store->record() : $store->discardAll();
+}
+
+/**
+ * コンテンツ内の img の src の Data URI を、ファイルピッカーの images/年/月/ にファイルとして書き、その URL に置き換える
+ *
+ * 置き場所・名前・拡張子と大きさの確かめ・同名の連番・OnFileBrowserUpload・管理操作ログはエディターに貼り付けた画像と同じ
+ * （EvoDataUriStore）。年月は保存のときのサイトの時刻、名前は文書の ID と連番。書けなかった Data URI は置き換えずに残し、
+ * システムログに残す。ロールにファイルのアップロードの権限（file_upload）が無いときは、何も書かずに残す。
+ * 書いたファイルは、呼ぶ側が DB の更新のあとに finishDataUriFiles() で確定する
  *
  * @param string $content 処理対象のコンテンツ
- * @param int $docid ドキュメント ID
+ * @param int $docid ドキュメント ID（ファイルの名前に入る。新規の文書は INSERT のあとに呼ぶ）
  * @return string 変換後のコンテンツ
  */
 function convertDataUriToFiles($content, $docid)
 {
-    if (empty($content) || !is_string($content)) {
+    if (empty($content) || !is_string($content) || strpos($content, 'data:') === false) {
         return $content;
     }
 
-    $offset = 0;
-    while (($pos = strpos($content, 'data:', $offset)) !== false) {
-        if (!isImgSrcValue($content, $pos)) {
-            $offset = $pos + 5;
-            continue;
-        }
-        $result = extractDataUri($content, $pos);
-
-        if ($result === null) {
-            $offset = $pos + 5;
-            continue;
-        }
-
-        list($dataUri, $endPos) = $result;
-        $dimensions = extractImageDimensions($content, $pos);
-        $filePath = convertSingleDataUri($dataUri, $docid, $dimensions);
-
-        if ($filePath) {
-            $content = substr_replace($content, $filePath, $pos, $endPos - $pos);
-            $offset = $pos + strlen($filePath);
-        } else {
-            $offset = $endPos;
-        }
+    $store = dataUriSaveStore();
+    if (!($store instanceof EvoDataUriStore)) {
+        evo()->logEvent(0, 3, sprintf('Data URI not converted: the images folder of the file browser cannot be used (%s) (docid: %s)', $store['code'], $docid), 'convertDataUriToFiles');
+        return $content;
     }
+    $timestamp = request_time() + (int)evo()->config('server_offset_time', 0);
+    $deniedLogged = false;
 
-    return $content;
-}
-
-/**
- * data: が img 要素の src 属性の値の先頭にあるか
- *
- * 本文の文章、ほかの属性の値、script・style・textarea・コメントの中の data: は書き換えない
- *
- * @param string $content コンテンツ全体
- * @param int $dataUriPos data: の位置
- * @return bool
- */
-function isImgSrcValue($content, $dataUriPos)
-{
-    $before = substr($content, 0, $dataUriPos);
-    $tagStart = openTagStartAtEnd($before);
-    if ($tagStart === null) {
-        return false;
-    }
-
-    // 属性を 1 つずつ読み、最後が src= のときだけ一致させる（ほかの属性の値の中の src= は値として読み飛ばす）
-    return (bool)preg_match(
-        '/^<img(?:\s+[^\s"\'<>\/=]+(?:\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'<>`=]+))?)*\s+src\s*=\s*["\']?$/i',
-        substr($before, $tagStart)
-    );
-}
-
-/**
- * HTML を頭からたどり、末尾が開始タグの途中なら、そのタグの < の位置を返す
- *
- * 末尾がタグの外、script・style・textarea の中身（タグとして読まれない）、コメントの中なら null
- *
- * @param string $html 判定する位置より前の HTML
- * @return int|null
- */
-function openTagStartAtEnd($html)
-{
-    $pos = 0;
-    while (($lt = strpos($html, '<', $pos)) !== false) {
-        if (substr($html, $lt, 4) === '<!--') {
-            $end = strpos($html, '-->', $lt + 4);
-            if ($end === false) {
+    return EvoDataUri::replaceImgSrc(
+        $content,
+        function ($dataUri, $dimensions) use ($store, $timestamp, $docid, &$deniedLogged) {
+            if (!$store->allowsUpload()) {
+                if (!$deniedLogged) {
+                    evo()->logEvent(0, 2, sprintf('Data URI not converted: the role lacks the file_upload permission (docid: %s)', $docid), 'convertDataUriToFiles');
+                    $deniedLogged = true;
+                }
                 return null;
             }
-            $pos = $end + 3;
-            continue;
-        }
-        if (!preg_match('/\G<\/?[a-z]/i', $html, $m, 0, $lt)) {
-            $pos = $lt + 1;
-            continue;
-        }
-        $gt = tagEndPos($html, $lt);
-        if ($gt === null) {
-            return $lt;
-        }
-        $pos = $gt + 1;
-        if (preg_match('/\G<(script|style|textarea)\b/i', $html, $m, 0, $lt)) {
-            $close = stripos($html, '</' . $m[1], $pos);
-            if ($close === false) {
+            $prepared = $store->prepare($dataUri, $dimensions, $docid);
+            $result = isset($prepared['error']) ? $prepared : $store->place($prepared, $docid, $timestamp);
+            if (isset($result['error'])) {
+                $message = $result['param'] !== null
+                    ? sprintf($result['error'] . ' (docid: %s)', $result['param'], $docid)
+                    : sprintf($result['error'] . ' (docid: %s)', $docid);
+                evo()->logEvent(0, $result['level'], $message, 'convertDataUriToFiles');
                 return null;
             }
-            $pos = $close;
-        }
-    }
 
-    return null;
-}
-
-/**
- * タグを閉じる > の位置。= のあとの引用符で囲んだ値の中の > は飛ばす
- *
- * @param string $html HTML
- * @param int $lt タグの < の位置
- * @return int|null 閉じていなければ null
- */
-function tagEndPos($html, $lt)
-{
-    $len = strlen($html);
-    $afterEquals = false;
-    for ($i = $lt + 1; $i < $len; $i++) {
-        $c = $html[$i];
-        if ($c === '>') {
-            return $i;
-        }
-        if ($afterEquals && ($c === '"' || $c === "'")) {
-            $i = strpos($html, $c, $i + 1);
-            if ($i === false) {
-                return null;
-            }
-            $afterEquals = false;
-            continue;
-        }
-        if ($c === '=') {
-            $afterEquals = true;
-        } elseif (!ctype_space($c)) {
-            $afterEquals = false;
-        }
-    }
-
-    return null;
-}
-
-/**
- * 指定位置から Data URI を抽出
- *
- * @param string $content コンテンツ全体
- * @param int $startPos data: の開始位置
- * @return array|null [dataUri文字列, 終了位置] または null
- */
-function extractDataUri($content, $startPos)
-{
-    $len = strlen($content);
-    $pos = $startPos + 5; // "data:" の長さ
-
-    // MIME タイプの終了（; または ,）を探す
-    $mimeEnd = $pos;
-    while ($mimeEnd < $len && !in_array($content[$mimeEnd], [';', ',', '"', "'", ' ', '>'])) {
-        $mimeEnd++;
-    }
-
-    if ($mimeEnd >= $len || in_array($content[$mimeEnd], ['"', "'", ' ', '>'])) {
-        return null;
-    }
-
-    $mimeType = substr($content, $pos, $mimeEnd - $pos);
-
-    if (empty($mimeType) || strpos($mimeType, '/') === false) {
-        return null;
-    }
-
-    $pos = $mimeEnd;
-    $isBase64 = false;
-
-    // ;base64 チェック
-    if ($content[$pos] === ';') {
-        if (substr($content, $pos, 8) === ';base64,') {
-            $isBase64 = true;
-            $pos += 8;
-        } else {
-            // その他のパラメータをスキップ
-            $pos = strpos($content, ',', $pos);
-            if ($pos === false || $pos >= $len) {
-                return null;
-            }
-            $pos++;
-        }
-    } elseif ($content[$pos] === ',') {
-        $pos++;
-    } else {
-        return null;
-    }
-
-    // データ部分の終了を探す
-    $dataStart = $pos;
-    $dataEnd = findDataEnd($content, $pos, $len, $isBase64);
-
-    if (($dataEnd - $dataStart) < 10) {
-        return null;
-    }
-
-    return [substr($content, $startPos, $dataEnd - $startPos), $dataEnd];
-}
-
-/**
- * Data URI のデータ部分の終了位置を検索
- *
- * @param string $content コンテンツ
- * @param int $pos 開始位置
- * @param int $len コンテンツ長
- * @param bool $isBase64 Base64 エンコードか
- * @return int 終了位置
- */
-function findDataEnd($content, $pos, $len, $isBase64)
-{
-    $terminators = ['"', "'", ' ', '>', '<'];
-    $validPattern = $isBase64 ? '/[A-Za-z0-9+\/=\s]/' : '/[A-Za-z0-9%\-._~]/';
-
-    while ($pos < $len) {
-        $char = $content[$pos];
-        if (in_array($char, $terminators) || !preg_match($validPattern, $char)) {
-            break;
-        }
-        $pos++;
-    }
-
-    return $pos;
-}
-
-/**
- * img タグから width と height 属性を抽出
- *
- * @param string $content コンテンツ全体
- * @param int $dataUriPos data: の位置
- * @return array|null ['width' => int, 'height' => int] または null
- */
-function extractImageDimensions($content, $dataUriPos)
-{
-    $searchStart = max(0, $dataUriPos - 500);
-    $searchContent = substr($content, $searchStart, $dataUriPos - $searchStart);
-
-    $imgPos = strrpos($searchContent, '<img');
-    if ($imgPos === false) {
-        return null;
-    }
-
-    $imgStart = $searchStart + $imgPos;
-    $imgEnd = strpos($content, '>', $imgStart);
-    if ($imgEnd === false) {
-        return null;
-    }
-
-    $imgTag = substr($content, $imgStart, $imgEnd - $imgStart + 1);
-    $dimensions = [];
-
-    foreach (['width', 'height'] as $attr) {
-        if (preg_match('/' . $attr . '=["\']?(\d+)["\']?/i', $imgTag, $matches)) {
-            $dimensions[$attr] = (int)$matches[1];
-        }
-    }
-
-    return !empty($dimensions) ? $dimensions : null;
-}
-
-/**
- * 単一の Data URI をファイルに変換
- *
- * @param string $dataUri Data URI 文字列
- * @param int $docid ドキュメント ID
- * @param array|null $dimensions ['width' => int, 'height' => int] または null
- * @return string|null 変換後のファイルパス または null
- */
-function convertSingleDataUri($dataUri, $docid, $dimensions = null)
-{
-    if (!preg_match('/^data:([^;,]+)(;base64)?,(.+)$/s', $dataUri, $matches)) {
-        return null;
-    }
-
-    $mimeType = $matches[1];
-    $isBase64 = !empty($matches[2]);
-    $data = $matches[3];
-
-    $extension = getExtensionFromMimeType($mimeType);
-    if (!$extension) {
-        logDataUriEvent(2, 'Unsupported MIME type: %s', $mimeType, $docid);
-        return null;
-    }
-
-    // データのデコード
-    $fileData = $isBase64
-        ? base64_decode(preg_replace('/\s+/', '', $data), true)
-        : urldecode($data);
-
-    if ($fileData === false) {
-        logDataUriEvent(3, 'Base64 decode failed', null, $docid);
-        return null;
-    }
-
-    // サイズチェック（50MB制限）
-    $fileSize = strlen($fileData);
-    if ($fileSize > 50 * 1024 * 1024) {
-        logDataUriEvent(3, 'Data URI too large: %d bytes', $fileSize, $docid);
-        return null;
-    }
-
-    // 画像のリサイズ処理
-    $isResized = false;
-    if ($dimensions && strpos($mimeType, 'image/') === 0) {
-        $resized = resizeImage($fileData, $mimeType, $dimensions, $docid);
-        if ($resized !== null) {
-            $isResized = $resized !== $fileData;
-            $fileData = $resized;
-        }
-    }
-
-    $savedPath = saveDataUriFile($fileData, $extension, $docid);
-    if (!$savedPath) {
-        return null;
-    }
-
-    // 成功ログ
-    $logMsg = sprintf('Data URI converted: %s -> %s (size: %d bytes)',
-        $mimeType, $savedPath, strlen($fileData)
-    );
-    if ($isResized) {
-        $logMsg .= sprintf(' [resized, requested %sx%s]',
-            !empty($dimensions['width']) ? $dimensions['width'] : 'auto',
-            !empty($dimensions['height']) ? $dimensions['height'] : 'auto'
-        );
-    }
-    evo()->logEvent(0, 1, $logMsg, 'convertSingleDataUri');
-
-    return $savedPath;
-}
-
-/**
- * Data URI 処理のログを記録
- *
- * @param int $level ログレベル（1:情報, 2:警告, 3:エラー）
- * @param string $message メッセージフォーマット
- * @param mixed $param パラメータ
- * @param int $docid ドキュメント ID
- */
-function logDataUriEvent($level, $message, $param, $docid)
-{
-    $msg = $param !== null
-        ? sprintf($message . ' (docid: %s)', $param, $docid)
-        : sprintf($message . ' (docid: %s)', $docid);
-
-    evo()->logEvent(0, $level, $msg, 'convertSingleDataUri');
-}
-
-/**
- * MIME タイプから拡張子を取得
- *
- * @param string $mimeType MIME タイプ
- * @return string|null 拡張子（ドット付き）
- */
-function getExtensionFromMimeType($mimeType)
-{
-    static $mimeMap = [
-        'image/png' => '.png',
-        'image/jpeg' => '.jpg',
-        'image/gif' => '.gif',
-        'image/webp' => '.webp',
-        'image/svg+xml' => '.svg',
-        'image/bmp' => '.bmp',
-        'application/pdf' => '.pdf',
-        'text/plain' => '.txt',
-        'text/html' => '.html',
-        'text/css' => '.css',
-        'application/json' => '.json',
-        'application/xml' => '.xml',
-    ];
-
-    return $mimeMap[$mimeType] ?? null;
-}
-
-/**
- * Data URI から変換したファイルを保存
- *
- * @param string $data ファイルデータ
- * @param string $extension 拡張子
- * @param int $docid ドキュメント ID
- * @return string|null 保存したファイルのパス（MODX_BASE_PATH からの相対）
- */
-function saveDataUriFile($data, $extension, $docid)
-{
-    $relativeDir = sprintf('content/images/datauri/%d/', $docid);
-    $absoluteDir = MODX_BASE_PATH . $relativeDir;
-
-    if (!is_dir($absoluteDir) && !mkdir($absoluteDir, 0755, true)) {
-        evo()->logEvent(0, 3, 'Failed to create directory: ' . $absoluteDir, 'saveDataUriFile');
-        return null;
-    }
-
-    $filename = sprintf('%s_%s%s',
-        date('YmdHis'),
-        substr(md5(uniqid(mt_rand(), true)), 0, 8),
-        $extension
-    );
-
-    $absolutePath = $absoluteDir . $filename;
-    $relativePath = $relativeDir . $filename;
-
-    if (file_put_contents($absolutePath, $data) === false) {
-        evo()->logEvent(0, 3, 'Failed to write file: ' . $absolutePath, 'saveDataUriFile');
-        return null;
-    }
-
-    @chmod($absolutePath, 0644);
-    return $relativePath;
-}
-
-/**
- * 画像データをリサイズ（縮小のみ）
- *
- * @param string $imageData 元の画像データ
- * @param string $mimeType MIME タイプ
- * @param array $dimensions ['width' => int, 'height' => int]
- * @param int $docid ドキュメント ID（ログ用）
- * @return string|null リサイズ後の画像データ または null
- */
-function resizeImage($imageData, $mimeType, $dimensions, $docid)
-{
-    if (!function_exists('imagecreatefromstring')) {
-        return null;
-    }
-
-    // 向きは JPEG だけが持つ。縮める大きさは表示上の向きで決める
-    $info = @getimagesizefromstring($imageData);
-    $orientation = (($info[2] ?? null) === IMAGETYPE_JPEG) ? jpeg_exif_orientation_from_string($imageData) : 1;
-
-    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
-    if ($info && $info[0] > 0 && $info[1] > 0) {
-        [$displayWidth, $displayHeight] = image_display_size_by_orientation($info[0], $info[1], $orientation);
-        $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
-        if ($resize === null) {
-            return $imageData;
-        }
-        [$loadWidth, $loadHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
-        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $loadWidth, $loadHeight)) {
-            evo()->logEvent(
-                0, 2, 'Image not resized: not enough memory', 'convertSingleDataUri',
-                ['docid' => $docid, 'mime' => $mimeType, 'width' => $info[0], 'height' => $info[1], 'target_width' => $resize[0], 'target_height' => $resize[1], 'memory_limit' => ini_get('memory_limit')]
+            $logMsg = sprintf(
+                'Data URI converted: %s -> %s (size: %d bytes)',
+                $prepared['mime'],
+                $result['path'],
+                strlen($prepared['bytes'])
             );
-            return null;
+            if ($prepared['resized']) {
+                $logMsg .= sprintf(
+                    ' [resized, requested %sx%s]',
+                    !empty($dimensions['width']) ? $dimensions['width'] : 'auto',
+                    !empty($dimensions['height']) ? $dimensions['height'] : 'auto'
+                );
+            }
+            evo()->logEvent(0, 1, $logMsg, 'convertDataUriToFiles');
+
+            return $result['path'];
         }
-    }
-
-    $sourceImage = @imagecreatefromstring($imageData);
-    if ($sourceImage === false) {
-        return null;
-    }
-
-    $originalWidth = imagesx($sourceImage);
-    $originalHeight = imagesy($sourceImage);
-
-    [$displayWidth, $displayHeight] = image_display_size_by_orientation($originalWidth, $originalHeight, $orientation);
-    $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
-
-    if ($resize === null) {
-        return $imageData;
-    }
-
-    // 元の画像の向きのまま縮め、あとで向きを反映する
-    [$finalWidth, $finalHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
-
-    // リサイズ実行
-    $resizedImage = createResizedImage(
-        $sourceImage,
-        $finalWidth,
-        $finalHeight,
-        $originalWidth,
-        $originalHeight,
-        $mimeType
     );
-
-    // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
-    // 向きの反映(回転で縮小した大きさの画像がもう 1 枚できる)の前に、元の画像を手放す
-    unset($sourceImage);
-
-    if ($resizedImage !== false) {
-        $resizedImage = gd_apply_orientation($resizedImage, $orientation);
-    }
-
-    if ($resizedImage === false) {
-        return null;
-    }
-
-    // 画像を出力
-    return outputImage($resizedImage, $mimeType);
-}
-
-/**
- * リサイズ後のサイズを計算
- *
- * @param int $originalWidth 元の幅
- * @param int $originalHeight 元の高さ
- * @param array $dimensions 指定サイズ
- * @return array|null [width, height] または null（リサイズ不要）
- */
-function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
-{
-    // 0 は「指定なし」とみなす
-    $requestedWidth = !empty($dimensions['width']) ? $dimensions['width'] : null;
-    $requestedHeight = !empty($dimensions['height']) ? $dimensions['height'] : null;
-    if ($requestedWidth === null && $requestedHeight === null) {
-        return null;
-    }
-
-    // 指定の無い側はアスペクト比から求める（丸めずに小数のまま比べる）
-    $targetWidth = $requestedWidth ?? $originalWidth * ($requestedHeight / $originalHeight);
-    $targetHeight = $requestedHeight ?? $originalHeight * ($requestedWidth / $originalWidth);
-
-    // 拡大しない（縮小のみ）
-    if ($targetWidth >= $originalWidth && $targetHeight >= $originalHeight) {
-        return null;
-    }
-
-    // 指定サイズに収める（アスペクト比維持）
-    $ratio = min($targetWidth / $originalWidth, $targetHeight / $originalHeight, 1);
-
-    $finalWidth = max(1, (int)round($originalWidth * $ratio));
-    $finalHeight = max(1, (int)round($originalHeight * $ratio));
-
-    // サイズが変わらない場合はリサイズ不要
-    if ($finalWidth == $originalWidth && $finalHeight == $originalHeight) {
-        return null;
-    }
-
-    return [$finalWidth, $finalHeight];
-}
-
-/**
- * リサイズ後の画像リソースを作成
- *
- * @param \GdImage $sourceImage 元画像リソース
- * @param int $finalWidth リサイズ後の幅
- * @param int $finalHeight リサイズ後の高さ
- * @param int $originalWidth 元の幅
- * @param int $originalHeight 元の高さ
- * @param string $mimeType MIME タイプ
- * @return \GdImage|false リサイズ後の画像リソース
- */
-function createResizedImage($sourceImage, $finalWidth, $finalHeight, $originalWidth, $originalHeight, $mimeType)
-{
-    $resizedImage = imagecreatetruecolor($finalWidth, $finalHeight);
-    if ($resizedImage === false) {
-        return false;
-    }
-
-    // 透明度をサポート
-    if (in_array($mimeType, ['image/png', 'image/gif', 'image/webp'])) {
-        imagealphablending($resizedImage, false);
-        imagesavealpha($resizedImage, true);
-        $transparent = imagecolorallocatealpha($resizedImage, 0, 0, 0, 127);
-        imagefilledrectangle($resizedImage, 0, 0, $finalWidth, $finalHeight, $transparent);
-    }
-
-    $success = imagecopyresampled(
-        $resizedImage, $sourceImage,
-        0, 0, 0, 0,
-        $finalWidth, $finalHeight,
-        $originalWidth, $originalHeight
-    );
-
-    if (!$success) {
-        return false;
-    }
-
-    return $resizedImage;
-}
-
-/**
- * 画像リソースを出力バッファに保存
- *
- * @param \GdImage $image 画像リソース
- * @param string $mimeType MIME タイプ
- * @return string|null 画像データ
- */
-function outputImage($image, $mimeType)
-{
-    ob_start();
-    $success = false;
-
-    switch ($mimeType) {
-        case 'image/jpeg':
-            $success = imagejpeg($image, null, 90);
-            break;
-        case 'image/png':
-            $success = imagepng($image, null, 6);
-            break;
-        case 'image/gif':
-            $success = imagegif($image);
-            break;
-        case 'image/webp':
-            $success = function_exists('imagewebp') && imagewebp($image, null, 90);
-            break;
-        case 'image/bmp':
-            $success = function_exists('imagebmp') && imagebmp($image);
-            break;
-    }
-
-    $output = ob_get_clean();
-    return $success ? $output : null;
 }

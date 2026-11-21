@@ -1106,7 +1106,7 @@ return [
     'setting_disable_cache_at_login' => 'ログイン時のキャッシュ',
     'setting_disable_cache_at_login_desc' => 'ログイン時はキャッシュを無効にし常に動的出力します。',
     'setting_convert_datauri_to_file' => 'Data URI の自動ファイル化',
-    'setting_convert_datauri_to_file_desc' => '「はい」にすると、リソースを保存するときに、本文に貼り付けた画像（data:image/png;base64,... の形式）をファイルに書き出し、そのファイルを参照する形に置き換えます。保存先は content/images/datauri/{リソースID}/ です。',
+    'setting_convert_datauri_to_file_desc' => '「はい」にすると、リソースを保存するときに、本文に貼り付けた画像（data:image/png;base64,... の形式）をファイルに書き出し、そのファイルを参照する形に置き換えます。保存先はファイルピッカーの images/年/月/（pasted-doc-{リソースID}-{連番}）です。ファイルのアップロードの権限が無いロールの保存と、ファイルピッカーが受けない画像（拡張子・大きさ）は、data: のまま残ります。',
     'auto_pub_date_title' => '公開開始日時自動設定',
     'auto_pub_date_message' => '公開開始日時(pub_date)を設定しない場合、公開日時(publishedon)の値を取得し設定します。',
     'setting_legacy_cache' => '旧式のキャッシュ機構',
