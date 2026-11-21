@@ -354,11 +354,17 @@
       && !node.hasAttribute('data-mce-placeholder');
   }
 
+  function imagePickerEnabled(editor) {
+    const types = String(editor.options.get('file_picker_types') || '');
+    return typeof editor.options.get('file_picker_callback') === 'function' && /(^|\s)image(\s|$)/.test(types);
+  }
+
   // TinyMCE の「画像の挿入/編集」ダイアログ（image プラグイン）の、ソース欄の参照ボタンの隣に「画像を編集」を入れる。
   // ダイアログにボタンを足す API が無いので、開いたダイアログの DOM に差し込む。
   // 差し込めないとき（TinyMCE の更新でダイアログの作りが変わったとき）は、コンソールにエラーを出す。
-  // 画像を選んだときの帯の「画像を編集」（公式の部品）は、そのときも使える
-  function attachEditButtonToImageDialog(editor, dialog, overwrittenUrls) {
+  // 画像を選んだときの帯の「画像を編集」（公式の部品）は、そのときも使える。
+  // image_advtab などでタブを付けたときは、タブを切り替えると TinyMCE が中身を描き直すので、ボタンは消える
+  function attachEditButtonToImageDialog(editor, dialog, edited) {
     let data;
     try {
       data = dialog.getData();
@@ -372,7 +378,9 @@
     const root = dialogs[dialogs.length - 1];
     const browse = root && root.querySelector('.tox-browse-url');
     if (!browse) {
-      console.error('TinyMCE7: the image dialog layout has changed; the "' + editor.options.get('modx_image_edit_label') + '" button could not be added next to the browse button.');
+      if (imagePickerEnabled(editor)) {
+        console.error('TinyMCE7: the image dialog layout has changed; the "' + editor.options.get('modx_image_edit_label') + '" button could not be added next to the browse button.');
+      }
       return;
     }
     if (root.querySelector('.evo-image-edit-button')) {
@@ -390,19 +398,36 @@
     button.innerHTML = '<span class="tox-icon">' + (editor.ui.registry.getAll().icons['edit-image'] || '') + '</span>';
     browse.parentNode.insertBefore(button, browse.nextSibling);
 
+    function currentSrc() {
+      try {
+        return dialog.getData().src.value;
+      } catch (e) {
+        return '';
+      }
+    }
+    // 参照ボタンで入った値は欄の DOM のイベントを出さないので、ダイアログが開いている間は値を見続ける
     function updateEnabled() {
-      button.disabled = !resolveSiteSrc(editor, dialog.getData().src.value);
+      if (!button.isConnected) {
+        global.clearInterval(timer);
+        return;
+      }
+      button.disabled = !resolveSiteSrc(editor, currentSrc());
     }
+    const timer = global.setInterval(updateEnabled, 500);
     updateEnabled();
-    const input = browse.parentNode.querySelector('input');
-    if (input) {
-      input.addEventListener('input', updateEnabled);
-      input.addEventListener('change', updateEnabled);
-    }
+
+    // ダイアログのキー操作は TinyMCE が受けるので、Enter・Space はここで押したことにする
+    button.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+        button.click();
+      }
+    });
 
     button.addEventListener('click', function (event) {
       event.preventDefault();
-      const before = dialog.getData().src.value;
+      const before = currentSrc();
       const url = pickerEditUrl(resolveSiteSrc(editor, before));
       if (!url) {
         return;
@@ -410,36 +435,59 @@
       openInEditorDialog(editor, url, function (path) {
         const saved = normalizeUrl(path);
         const overwritten = sameFile(parseSiteUrl(editor, before), parseSiteUrl(editor, saved));
+        // ダイアログを閉じた後の後始末（表示の読み直し・srcset を外す）は、大きさを読む前に頼んでおく
+        edited.push({url: saved, overwritten: overwritten});
         loadImageSize(editor.documentBaseURI.toAbsolute(overwritten ? cacheBusted(saved) : saved)).then(function (size) {
-          const latest = dialog.getData();
+          let latest;
+          try {
+            latest = dialog.getData();
+          } catch (e) {
+            return;
+          }
           const dimensions = scaledSize(latest.dimensions && latest.dimensions.width, latest.dimensions && latest.dimensions.height, size);
           latest.src = {value: saved, meta: {}};
           if (dimensions.width) {
             latest.dimensions = {width: String(dimensions.width), height: String(dimensions.height)};
           }
-          dialog.setData(latest);
-          updateEnabled();
-          if (overwritten) {
-            overwrittenUrls.add(saved);
+          try {
+            dialog.setData(latest);
+          } catch (e) {
+            return;
           }
+          updateEnabled();
         });
       });
     });
   }
 
-  // 画像のダイアログから上書き保存した画像は、ダイアログを閉じた後に、本文の表示だけをクエリ付きの URL で読み直す
-  function refreshOverwrittenImages(editor, overwrittenUrls) {
-    if (overwrittenUrls.size === 0) {
+  // 画像のダイアログから編集した画像は、ダイアログを閉じた後に srcset を外し、上書きしたものは表示をクエリ付きの URL で読み直す
+  // （本文に保存される値 data-mce-src は変えない）
+  function finishEditedImages(editor, edited) {
+    if (edited.length === 0) {
       return;
     }
-    const urls = Array.from(overwrittenUrls);
-    overwrittenUrls.clear();
+    const items = edited.splice(0, edited.length).map(function (item) {
+      return {file: parseSiteUrl(editor, item.url), overwritten: item.overwritten};
+    });
     global.setTimeout(function () {
+      if (editor.removed) {
+        return;
+      }
       editor.dom.select('img').forEach(function (node) {
-        const src = node.getAttribute('data-mce-src');
-        if (urls.indexOf(src) !== -1) {
-          editor.dom.setAttribs(node, {src: cacheBusted(src), 'data-mce-src': src});
+        const src = node.getAttribute('data-mce-src') || node.getAttribute('src');
+        const file = parseSiteUrl(editor, src);
+        const match = items.filter(function (item) {
+          return sameFile(item.file, file);
+        });
+        if (match.length === 0) {
+          return;
         }
+        const attributes = {srcset: null};
+        if (match.some(function (item) { return item.overwritten; })) {
+          attributes.src = cacheBusted(src);
+          attributes['data-mce-src'] = src;
+        }
+        editor.dom.setAttribs(node, attributes);
       });
     }, 0);
   }
@@ -462,17 +510,17 @@
       editor.execCommand('mceImage');
     });
 
-    const overwrittenUrls = new Set();
+    const edited = [];
     editor.on('OpenWindow', function (event) {
       if (event && event.dialog) {
         // ダイアログの DOM は、通知の後に描かれる
         global.setTimeout(function () {
-          attachEditButtonToImageDialog(editor, event.dialog, overwrittenUrls);
+          attachEditButtonToImageDialog(editor, event.dialog, edited);
         }, 0);
       }
     });
     editor.on('CloseWindow', function () {
-      refreshOverwrittenImages(editor, overwrittenUrls);
+      finishEditedImages(editor, edited);
     });
 
     editor.ui.registry.addButton('modxImageEdit', {
