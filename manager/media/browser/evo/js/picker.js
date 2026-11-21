@@ -12,22 +12,44 @@ import { t } from './i18n.js';
 //      → window.opener.SetUrl(旧mcpuk互換の規約)
 //   3. TinyMCEのeditor.windowManager.openUrl()によるiframeダイアログ
 //      → postMessageでmcpuk-picker.jsのonMessageハンドラへ返す
-function pickFile(path) {
+function embedKind() {
     if (typeof window.EvoFileBrowserPick === 'function') {
-        window.EvoFileBrowserPick(path);
-        return;
+        return 'shell';
     }
     if (window.opener && typeof window.opener.SetUrl === 'function') {
-        window.opener.SetUrl(path);
-        window.close();
-        return;
+        return 'popup';
     }
     if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ mceAction: 'evoFbPick', url: path }, window.location.origin);
-        return;
+        return 'iframe';
     }
-    // eslint-disable-next-line no-console
-    console.log('[filebrowser] picked', path);
+    return '';
+}
+
+function pickFile(path) {
+    var kind = embedKind();
+    if (kind === 'shell') {
+        window.EvoFileBrowserPick(path);
+    } else if (kind === 'popup') {
+        window.opener.SetUrl(path);
+        window.close();
+    } else if (kind === 'iframe') {
+        window.parent.postMessage({ mceAction: 'evoFbPick', url: path }, window.location.origin);
+    } else {
+        // eslint-disable-next-line no-console
+        console.log('[filebrowser] picked', path);
+    }
+}
+
+// 何も選ばずにピッカーを閉じる(画像編集を取り消したとき)
+function closePicker() {
+    var kind = embedKind();
+    if (kind === 'shell') {
+        window.EvoShell.closeModal();
+    } else if (kind === 'popup') {
+        window.close();
+    } else if (kind === 'iframe') {
+        window.parent.postMessage({ mceAction: 'evoFbClose' }, window.location.origin);
+    }
 }
 
 var behaviors = {
@@ -49,6 +71,11 @@ var behaviors = {
         }
         return [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(entry.path); } }];
     },
+    // 画像編集を開いた状態で起動したとき(edit=1)の終わり方。保存したファイルを選んだものとして返す / 取り消したら閉じる
+    editDone: function (entry) {
+        pickFile(entry.path);
+    },
+    editCancel: closePicker,
     // サーバーは同じ名前を別の名前(名前(1).拡張子)で保存するので、上書きの確認は起きない
     confirmOverwrite: function () {
         return false;

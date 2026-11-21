@@ -76,6 +76,9 @@ function init(root, entry, behaviors) {
     setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
+    // edit=1 で開いたとき、最初の一覧だけで画像編集を開く。editFromPicker は、その編集の終わりを入口へ返すかどうか
+    var initialEdit = config.initialEdit === true && initialSelect !== '';
+    var editFromPicker = false;
     var initialFallbackTried = false;
     var isInitialLoad = true;
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
@@ -364,11 +367,28 @@ function init(root, entry, behaviors) {
         state: state,
         config: config,
         onSaved: function (name) {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
             // 保存したファイルが変わったので、プレビューは閉じて一覧を読み直し、保存した名前を選ぶ
             preview.close();
             dropzoneEl.focus({ preventScroll: true });
             // フォルダは移っていないので、保存した画像の位置はすぐ出す
-            load(name, { instant: true });
+            load(name, {
+                instant: true,
+                onLoaded: fromPicker && behaviors.editDone ? function () {
+                    var saved = findFile(name);
+                    if (saved) {
+                        behaviors.editDone(saved);
+                    }
+                } : null
+            });
+        },
+        onCancel: function () {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
+            if (fromPicker && behaviors.editCancel) {
+                behaviors.editCancel();
+            }
         }
     });
 
@@ -498,9 +518,22 @@ function init(root, entry, behaviors) {
         });
     }
 
+    // edit=1 のとき、select のファイルの画像編集を開く。開けないときは、一覧のまま理由を出す
+    function openInitialEdit(file) {
+        if (!file) {
+            window.alert(t('fb_edit_open_not_found'));
+        } else if (!imageEditor.canEdit(file)) {
+            window.alert(t('fb_edit_open_not_editable'));
+        } else {
+            editFromPicker = true;
+            imageEditor.open(file);
+        }
+    }
+
     function load(selectName, options) {
         var instant = !!(options && options.instant);
         var allowInitialFallback = isInitialLoad;
+        var openEditAfter = isInitialLoad && initialEdit && selectName === initialSelect;
         isInitialLoad = false;
         // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
         var hadFocus = root.contains(document.activeElement);
@@ -537,11 +570,21 @@ function init(root, entry, behaviors) {
                 }
                 tree.syncWithList(state.folder, data.folders);
                 tree.revealPath(state.folder);
+                if (openEditAfter) {
+                    openInitialEdit(selected ? findFile(selectName) : null);
+                }
+                if (options && options.onLoaded) {
+                    options.onLoaded();
+                }
             })
             .catch(function (err) {
                 if (allowInitialFallback && !initialFallbackTried && initialFolder !== '') {
                     initialFallbackTried = true;
-                    navigateTo('', initialSelect);
+                    // 初期フォルダーが無いとき。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かず、理由だけ出す
+                    state.folder = '';
+                    load(initialSelect, {
+                        onLoaded: initialEdit ? function () { window.alert(t('fb_edit_open_not_found')); } : null
+                    });
                     return;
                 }
                 grid.renderError(err);
