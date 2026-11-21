@@ -49,12 +49,10 @@ h3 { font-size: var(--font-size-lg); line-height: var(--line-height-tight); }
 h4, h5, h6 { font-size: var(--font-size-md); line-height: var(--line-height-tight); }
 small, .comment { font-size: var(--font-size-sm); }
 
-/* フォームの行: ラベルの列の幅をそろえ、ラベルの文字と入力欄の文字の高さをそろえる（上の余白 ＝ 入力欄の上の余白 ＋ 枠） */
+/* フォームの行: ラベルの列の幅をそろえる（ラベルの縦の揃えは theme-base.css の .field-label が決める） */
 .field-row > .field-label,
 .settings th {
     width: var(--form-label-width);
-    padding-top: calc(var(--control-padding-y) + var(--border-width));
-    vertical-align: top;
     text-align: left;
 }
 

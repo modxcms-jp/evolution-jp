@@ -222,9 +222,12 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
-/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字）。右に値のセルとの間を取る */
+/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字）。右に値のセルとの間を取る。
+   縦は上揃えで、上の余白は 1 行の入力欄の文字と見出しの 1 行目の高さをそろえる値（複数行の欄でも見出しは上に来る） */
 .field-label {
     text-align: start;
+    vertical-align: top;
+    padding-top: calc((var(--control-height, 32px) - var(--line-box, 18px)) / 2);
     padding-inline-end: var(--space-3, 12px);
 }
 
