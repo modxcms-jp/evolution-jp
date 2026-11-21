@@ -618,6 +618,86 @@ class DocAPI
         return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
     }
 
+    /**
+     * 削除できないページの設定名と、警告の言語キーの末尾（トップページ・エラーページ・サイト停止中のページ。この順に当てる）
+     */
+    const DELETE_PROTECTED = [
+        'site_start' => 'site_start',
+        'error_page' => 'error_page',
+        'site_unavailable_page' => 'site_unavailable_page',
+    ];
+
+    /**
+     * 設定でトップページ・エラーページ・サイト停止中のページになっているリソースの削除を止める警告の言語キー。当たらなければ空文字。
+     * $asChild が真なら、そのリソースが子孫にあって親の削除を止めるときの言語キー（文の中に ID の %d を持つ）
+     */
+    public function deleteGuardKey($id, $asChild = false)
+    {
+        foreach (self::DELETE_PROTECTED as $setting => $suffix) {
+            if ((int)$id === (int)evo()->config($setting)) {
+                return ($asChild ? 'cannot_delete_child_' : 'cannot_delete_') . $suffix;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * 文書の操作の確認・警告の文言（document-actions.js の operations の表が言語キーで引く）
+     */
+    const ACTION_LANG_KEYS = [
+        'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
+        'confirm_batch_publish', 'confirm_batch_unpublish',
+        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+        'cannot_delete_site_start', 'cannot_delete_error_page', 'cannot_delete_site_unavailable_page',
+        'cannot_unpublish_site_start',
+    ];
+
+    /**
+     * document-actions.js へ渡す設定（header.inc.php が EvoDocumentActions.config に入れる）。
+     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」
+     */
+    public function actionConfig()
+    {
+        $ids = [];
+        foreach (array_keys(self::DELETE_PROTECTED) as $setting) {
+            $ids[$setting] = (int)evo()->config($setting);
+        }
+        $lang = [];
+        foreach (self::ACTION_LANG_KEYS as $key) {
+            $lang[$key] = stripcslashes(lang($key));
+        }
+        return js_value(['ids' => $ids, 'lang' => $lang]);
+    }
+
+    /**
+     * 削除していない子があるか（削除で一緒に削除される子の有無。isfolder の設定とは別）
+     */
+    public function hasLiveChildren($id)
+    {
+        return (bool)$this->idsWithLiveChildren([$id]);
+    }
+
+    /**
+     * 渡した ID のうち、削除していない子を持つものの ID の配列（一覧の行など、まとめて調べるとき用）
+     */
+    public function idsWithLiveChildren(array $ids)
+    {
+        $ids = array_filter(array_map('intval', $ids));
+        if (!$ids) {
+            return [];
+        }
+        $rs = db()->select(
+            'DISTINCT parent',
+            '[+prefix+]site_content',
+            sprintf("parent IN (%s) AND deleted='0'", implode(',', $ids))
+        );
+        $result = [];
+        while ($row = db()->getRow($rs)) {
+            $result[] = (int)$row['parent'];
+        }
+        return $result;
+    }
+
     public function canCreateDoc()
     {
         return evo()->hasPermission('new_document');

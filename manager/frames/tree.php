@@ -50,6 +50,7 @@ if (!sessionv('tree_sortdir')) {
         var selectedObject = 0;
         var selectedObjectDeleted = 0;
         var selectedObjectName = "";
+        var selectedObjectHasChildren = false;
         var _rc = 0; // added to fix onclick body event from closing ctx menu
 
         var openedArray = [];
@@ -75,7 +76,7 @@ if (!sessionv('tree_sortdir')) {
         }
         ?>
 
-        function showPopup(id, title, pub, del, draft, e) {
+        function showPopup(id, title, pub, del, draft, hasChildren, e) {
             var x, y
             var mnu = document.getElementById('mx_contextmenu');
             var permpub = <?= evo()->hasPermission('publish_document') ? 1 : 0 ?>;
@@ -127,6 +128,7 @@ if (!sessionv('tree_sortdir')) {
             }
             itemToChange = id;
             selectedObjectName = title;
+            selectedObjectHasChildren = hasChildren == 1;
             dopopup(x + 5, y);
             e.cancelBubble = true;
             return false;
@@ -547,16 +549,16 @@ if (is_array($evtOut)) {
                     EvoShell.navigate("index.php?a=72&pid=" + itemToChange);
                     break;
                 case '94' : // duplicate
-                    if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>) == true) {
+                    EvoDocumentActions.run('duplicate', [Number(itemToChange)], function () {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=94&id=" + itemToChange);
-                    }
+                    }, {title: selectedObjectName});
                     break;
                 case '6' : // delete
                     if (selectedObjectDeleted == 0) {
-                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
+                        EvoDocumentActions.run('delete', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=6&id=" + itemToChange);
-                        }
+                        }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
                         alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
                     }
@@ -565,35 +567,34 @@ if (is_array($evtOut)) {
                     if (selectedObjectDeleted == 0) {
                         alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>);
                     } else {
-                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_undelete'))) ?>) == true) {
+                        EvoDocumentActions.run('undelete', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=63&id=" + itemToChange);
-                        }
+                        }, {title: selectedObjectName});
                     }
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
-                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
-                            EvoCsrf.post("index.php?a=64&id=" + itemToChange);
-                        }
+                        // 完全に削除するのは、削除済みのこのリソース 1 件だけ（子は巻き込まない）
+                        EvoDialog.confirm(Evo.escapeHtml("'" + selectedObjectName + "'") + "\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>, '', function (ok) {
+                            if (ok) {
+                                EvoCsrf.post("index.php?a=64&id=" + itemToChange);
+                            }
+                        });
                     } else {
                         alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
                     }
                     break;
                 case '61' : // publish
-                    if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_publish'))) ?>) == true) {
+                    EvoDocumentActions.run('publish', [Number(itemToChange)], function () {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=61&id=" + itemToChange);
-                    }
+                    }, {title: selectedObjectName});
                     break;
                 case '62' : // unpublish
-                    if (itemToChange != <?= (int) config('site_start') ?>) {
-                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_unpublish'))) ?>) == true) {
-                            setActiveFromContextMenu(itemToChange);
-                            EvoCsrf.post("index.php?a=62&id=" + itemToChange);
-                        }
-                    } else {
-                        alert('Document is linked to site_start variable and cannot be unpublished!');
-                    }
+                    EvoDocumentActions.run('unpublish', [Number(itemToChange)], function () {
+                        setActiveFromContextMenu(itemToChange);
+                        EvoCsrf.post("index.php?a=62&id=" + itemToChange);
+                    }, {title: selectedObjectName});
                     break;
                 case 'pv' : // preview
                     setActiveFromContextMenu(itemToChange);

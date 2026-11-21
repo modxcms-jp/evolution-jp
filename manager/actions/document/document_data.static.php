@@ -17,6 +17,7 @@ if (!$id) {
     alert()->dumpError();
 }
 
+evo()->loadExtension('DocAPI');
 $icons_path = manager_style_image_path('icons');
 
 if (!manager()->isAllowed($id)) {
@@ -142,14 +143,14 @@ if (isset($content['parent']) && $content['parent'] != 0) {
         <?php endif; ?>
         <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button4">
-                <a href="#" data-doc-action="duplicate" data-doc-id="<?= (int) $id ?>" data-confirm="<?= hsc(stripcslashes(lang('confirm_resource_duplicate'))) ?>">
+                <a href="#" data-doc-action="duplicate" data-doc-id="<?= (int) $id ?>">
                     <?= lang('duplicate') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button3">
-                <a href="#" data-doc-action="delete" data-doc-id="<?= (int) $id ?>" data-confirm="<?= hsc(stripcslashes(lang('confirm_delete_resource'))) ?>">
+                <a href="#" data-doc-action="delete" data-doc-id="<?= (int) $id ?>" data-has-children="<?= evo()->doc->hasLiveChildren($id) ? '1' : '0' ?>">
                     <?= lang('delete') ?>
                 </a>
             </li>

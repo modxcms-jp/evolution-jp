@@ -237,7 +237,8 @@ if (!$numRecords) {
         $returnQuery = ChildDocumentListState::returnQuery();
         // ボタンは選択件数の帯の隣に出す（data-table.js が data-selection-actions の欄を帯へ移す）。
         // 帯に「n 件を選択」と出るので、ボタンは短い文言にし、元の長い文言は title に残す
-        $button = function ($label, $title, $a, $op = '', $confirm = '', $class = '') use ($returnQuery) {
+        // 確認は document-actions.js の operations の表から引く。ボタンは操作の名前（data-batch-op）だけ持つ
+        $button = function ($label, $title, $a, $op = '', $class = '') use ($returnQuery) {
             $url = 'index.php?a=' . $a . ($op !== '' ? '&op=' . $op . $returnQuery : '');
             // 見た目は各テーマの .actionButtons の規則に任せる（リンクにはできないので button で formaction を使う）
             return sprintf(
@@ -245,7 +246,7 @@ if (!$numRecords) {
                 $class !== '' ? ' class="' . hsc($class) . '"' : '',
                 hsc($title),
                 hsc($url),
-                $confirm !== '' ? ' data-submit-confirm="' . hsc(stripcslashes($confirm)) . '"' : '',
+                $op !== '' ? ' data-batch-op="' . hsc($op) . '"' : '',
                 hsc($label)
             );
         };
@@ -258,7 +259,7 @@ if (!$numRecords) {
             $buttons .= $button(lang('unpublish_resource'), lang('resources_list_unpublish_checked'), 121, 'unpublish');
         }
         if ($canBatchDelete) {
-            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', lang('resources_list_confirm_delete_checked'), 'is-danger');
+            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', 'is-danger');
         }
         $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
@@ -270,7 +271,7 @@ $menuId = 'cntxm';
 $cm = new ContextMenu($menuId, 180);
 echo getContextMenu($cm);
 
-echo get_jscript($menuId);
+echo get_jscript($menuId, array_unique(array_merge(array_keys($docs ?? []), $allChildIds)));
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
@@ -280,13 +281,17 @@ echo get_jscript($menuId);
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
-            $docButton = function ($buttonId, $action, $label, $confirmKey = '') use ($id) {
+            $docButton = function ($buttonId, $action, $label) use ($id) {
+                // 確認は document-actions.js の operations の表から引く。削除は、子があるかだけ渡す
+                $attr = $action === 'delete'
+                    ? ' data-has-children="' . (evo()->doc->hasLiveChildren($id) ? '1' : '0') . '"'
+                    : '';
                 return sprintf(
                     '<li id="%s" class="mutate"><a href="#" data-doc-action="%s" data-doc-id="%d"%s>%s</a></li>',
                     $buttonId,
                     $action,
                     (int) $id,
-                    $confirmKey !== '' ? ' data-confirm="' . hsc(stripcslashes(lang($confirmKey))) . '"' : '',
+                    $attr,
                     $label
                 );
             };
@@ -297,10 +302,10 @@ echo get_jscript($menuId);
                 echo $docButton('Button2', 'move', lang('move'));
             }
             if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
-                echo $docButton('Button4', 'duplicate', lang('duplicate'), 'confirm_resource_duplicate');
+                echo $docButton('Button4', 'duplicate', lang('duplicate'));
             }
             if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
-                echo $docButton('Button3', 'delete', lang('delete'), 'confirm_delete_resource');
+                echo $docButton('Button3', 'delete', lang('delete'));
             }
 
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
@@ -485,32 +490,19 @@ function _getIconPath($doc)
     return style('tree_folder');
 }
 
-function get_jscript($menuId)
+function get_jscript($menuId, array $rowIds)
 {
     global $modx_textdir;
 
     // メニューの操作後の戻り先に、今のページ・並べ替え・検索語（q）を残す
     $returnQuery = ChildDocumentListState::returnQuery();
 
-    $confirm = [];
-    foreach ([
-        'duplicate' => 'confirm_resource_duplicate',
-        'delete' => 'confirm_delete_resource',
-        'publish' => 'confirm_publish',
-        'unpublish' => 'confirm_unpublish',
-        'undelete' => 'confirm_undelete',
-    ] as $name => $key) {
-        $confirm[] = js_literal($name) . ':' . js_literal(stripcslashes(lang($key)));
-    }
-
     $config = sprintf(
-        '{menuId:%s,rtl:%s,returnQuery:%s,siteStart:%d,siteStartMessage:%s,confirm:{%s}}',
+        '{menuId:%s,rtl:%s,returnQuery:%s,withChildren:%s}',
         js_literal($menuId),
         $modx_textdir === 'rtl' ? 'true' : 'false',
         js_literal($returnQuery),
-        (int) evo()->config('site_start'),
-        js_literal(stripcslashes(lang('cannot_unpublish_site_start'))),
-        implode(',', $confirm)
+        js_value(evo()->doc->idsWithLiveChildren($rowIds))
     );
 
     return sprintf(

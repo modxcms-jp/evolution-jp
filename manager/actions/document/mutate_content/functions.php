@@ -716,11 +716,8 @@ function getJScripts($docid)
     $ph['preview_mode'] = (int)config('preview_mode', 1);
     // confirm()・alert() の文言。言語ファイルの文字列は JS 向けに \n を含むため、改行へ戻してから JS のリテラルにする
     $langKeys = [
-        'confirm_delete_resource',
         'confirm_delete_draft_resource',
-        'confirm_undelete',
         'confirm_reset_pub_dates',
-        'confirm_resource_duplicate',
         'illegal_parent_self',
         'illegal_parent_child',
         'error_occurred',
@@ -732,6 +729,9 @@ function getJScripts($docid)
     $ph['id'] = $docid;
     $ph['docParent'] = (int) doc('parent');
     $ph['docIsFolder'] = (int) doc('isfolder');
+    // 削除の確認に「サブリソースも…」の行を出すかは、isfolder ではなく実際の子の有無で決める
+    evo()->loadExtension('DocAPI');
+    $ph['docHasChildren'] = $docid && evo()->doc->hasLiveChildren($docid) ? 'true' : 'false';
     $ph['docMode'] = evo()->doc->mode;
     $ph['style_tree_folder'] = style('tree_folder');
     $ph['style_icons_set_parent'] = style('icons_set_parent');
