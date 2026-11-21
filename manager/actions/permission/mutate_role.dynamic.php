@@ -314,7 +314,7 @@ function role($key, $default = null)
                             echo render_form('logs', lang('role_view_logs'));
                             echo render_form('settings', lang('role_edit_settings'));
                             echo render_form('file_manager', lang('role_file_manager'));
-                            echo render_form('file_upload', lang('role_file_upload'), '', true, lang('role_file_upload_desc'));
+                            echo render_form('file_upload', lang('role_file_upload'), '', true);
                             echo render_form('bk_manager', lang('role_bk_manager'));
                             echo render_form('export_static', lang('role_export_static'));
                             echo render_form('remove_locks', lang('role_remove_locks'));
@@ -331,13 +331,13 @@ function role($key, $default = null)
 
 
 <?php
-function render_form($name, $label, $status = '', $defaultOn = false, $hint = '')
+function render_form($name, $label, $status = '', $defaultOn = false)
 {
     $tpl = <<< EOT
 <label>
 	<input name="[+name+]check" class="click" type="checkbox" onchange="changestate(document.userform.[+name+])" [+checked+] [+status+]>
 	<input type="hidden" class="[+set+]" name="[+name+]" value="[+value+]">
-	[+label+][+hint+]
+	[+label+]
 </label>
 
 EOT;
@@ -359,7 +359,6 @@ EOT;
     $output = str_replace('[+status+]', $status, $output);
     $output = str_replace('[+value+]', $value, $output);
     $output = str_replace('[+label+]', $label, $output);
-    $output = str_replace('[+hint+]', $hint === '' ? '' : '<br><small>' . hsc($hint) . '</small>', $output);
     $output = str_replace('[+set+]', $set, $output);
     return $output;
 }
