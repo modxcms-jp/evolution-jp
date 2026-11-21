@@ -180,7 +180,28 @@
     editor.on('paste drop', notify);
   }
 
+  // リソースの編集画面の本文（#content_body の中の欄）は、エディタ全体が管理画面の本文の枠（#mainPane）の見える高さに収まるまで広げる。
+  // 上のタブの行（スクロールしても貼り付く）と、下の「使用エディター」の欄の分を空ける。設定の height より低くはしない。
+  // height は setup の時点ではまだ登録されていないので、枠ができたあとで枠の高さを変える（右下のつまみで変えるのと同じ）
+  function fitContentHeight(editor) {
+    const el = editor.getElement();
+    if (!el || !el.closest('#content_body')) {
+      return;
+    }
+    editor.on('PostRender', function () {
+      const container = editor.getContainer();
+      const pane = document.getElementById('mainPane');
+      const tabRow = document.querySelector('#mainPane .tab-row');
+      const visible = (pane ? pane.clientHeight : global.innerHeight) - (tabRow ? tabRow.offsetHeight : 0);
+      const height = Math.floor(visible - 120);
+      if (container && height > container.offsetHeight) {
+        container.style.height = height + 'px';
+      }
+    });
+  }
+
   global.tinymce7EditorSetup = function (editor) {
+    fitContentHeight(editor);
     bindUploadForbiddenNotice(editor);
     bindDocumentDirty(editor);
     bindInputNotification(editor);

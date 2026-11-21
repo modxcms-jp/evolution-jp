@@ -15,7 +15,7 @@
 - MCPuk 連携スクリプト（ファイルの選択と画像の編集）: `js/mcpuk-picker.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
 - リンクのダイアログの文書の一覧（JSON を返す入口）: `link-list.php`
-- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢・画像編集と貼り付けのアップロードの呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
+- エディター共通の setup（未保存の印・input の通知・リソースの本文の高さ・リンクのダイアログの選択肢・画像編集と貼り付けのアップロードの呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -35,7 +35,7 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 
 | ファイル | 説明 |
 | --- | --- |
-| `manager.json` | 管理画面での TinyMCE 設定。高さ、プラグイン、ツールバーなどを定義。|
+| `manager.json` | 管理画面での TinyMCE 設定。高さ、プラグイン、ツールバーなどを定義。リソースの編集画面の本文だけは、画面の高さに合わせてこの高さより広げる（`js/editor-setup.js`）。|
 | `frontend.json` | `OnRichTextEditorInit` で `forfrontend` パラメーターが真の場合に読み込まれます。|
 | `toolbar-presets.json` | 管理画面のプリセット選択肢（simple/formats/legacy/full など）を定義します。キーの並びが設定画面の選択肢の並びになり、表示名は言語ファイルの `tinymce7_toolbar_<キー>` です。|
 
