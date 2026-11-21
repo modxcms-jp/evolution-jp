@@ -76,13 +76,11 @@
   }
 
   // TinyMCE は rel の選択肢を並べ替えてからリンクの値と完全一致で比べる。
-  // 一覧があるときだけ、読み込み時に本文の rel も同じ順にそろえる（最初の履歴より前なので未保存の印は立たない）
+  // 「リンクの rel」が空でも、本文の rel から選択肢を作る(bindChoiceLists の seedNone)ので、一覧の有無にかかわらず、
+  // 読み込み時に本文の rel を同じ順にそろえる（最初の履歴より前なので未保存の印は立たない）。
+  // 並べ替えで変わるのは、複数の値を持ち順が昇順でない rel だけ（意味は同じ）
   function bindRelOrdering(editor) {
     editor.on('PreInit', function () {
-      const list = editor.options.get('link_rel_list');
-      if (!Array.isArray(list) || list.length === 0) {
-        return;
-      }
       editor.parser.addAttributeFilter('rel', function (nodes) {
         nodes.forEach(function (node) {
           if (node.name !== 'a') {
@@ -112,10 +110,11 @@
   // ダイアログは開くときに一覧を読む。ツールバー・メニュー・右クリックはコマンドを通さずに開くため、
   // 本文が変わるたびに、本文の該当する要素の値のうち一覧に無いものを選択肢に足して作り直しておく。
   // ダイアログが編集する要素は選び方で変わるため、本文のすべての該当する要素を見る
-  // selector は値を集める要素
+  // selector は値を集める要素。seedNone を true にした行は、元の一覧が空でも、本文に値があれば
+  // 「None + その値」の一覧を作る（本文に値が無ければ空のまま。欄を出さない）
   const choiceLists = [
     {selector: 'a[href]', option: 'link_class_list', attribute: 'class', normalize: asIs},
-    {selector: 'a[href]', option: 'link_rel_list', attribute: 'rel', normalize: relWithoutNoopener},
+    {selector: 'a[href]', option: 'link_rel_list', attribute: 'rel', normalize: relWithoutNoopener, seedNone: true},
     {selector: 'img', option: 'image_class_list', attribute: 'class', normalize: asIs}
   ];
 
@@ -129,7 +128,7 @@
           bases[choices.option] = Array.isArray(list) ? list : [];
         }
         const base = bases[choices.option];
-        if (base.length === 0) {
+        if (base.length === 0 && !choices.seedNone) {
           return;
         }
         const listed = new Set(base.map(function (item) {
@@ -143,6 +142,10 @@
             extra.push({title: value, value: value});
           }
         });
+        if (base.length === 0) {
+          editor.options.set(choices.option, extra.length === 0 ? [] : [{title: 'None', value: ''}].concat(extra));
+          return;
+        }
         editor.options.set(choices.option, base.concat(extra));
       });
     }
