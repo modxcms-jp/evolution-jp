@@ -200,8 +200,12 @@ final class EditorInitializer
      */
     private function managerScreen(): array
     {
+        // ManagerAPI は管理画面でだけ読み込まれる（forfrontend を付けずにフロントで呼ばれたときは、ID の無い画面）
+        if (!evo()->isBackend() || !manager()) {
+            return ['target' => null, 'newDocument' => false];
+        }
         $action = (int) manager()->action;
-        $id = get_intvar('id');
+        $id = request_intvar('id');
 
         if (in_array($action, [27, 131, 132], true) && $id > 0) {
             return ['target' => ['kind' => 'doc', 'id' => $id], 'newDocument' => false];

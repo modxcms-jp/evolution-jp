@@ -28,7 +28,7 @@ class FileStore
      *
      * @param callable|null $nameFor function (int $n): string。n 番目(0 から)の候補の名前。省略すると 名前、名前(1)、名前(2)…
      */
-    public static function findFreePath(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, callable $nameFor = null)
+    public static function findFreePath(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, ?callable $nameFor = null)
     {
         $dotPos = strrpos($safeName, '.');
         $baseName = $dotPos === false ? $safeName : substr($safeName, 0, $dotPos);
@@ -122,7 +122,7 @@ class FileStore
      * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
      *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
      */
-    public static function createFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, callable $nameFor = null)
+    public static function createFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, ?callable $nameFor = null)
     {
         for ($attempt = 0; $attempt < 5; $attempt++) {
             $targetPath = self::findFreePath($resolver, $modx, $dirReal, $safeName, $nameFor);
@@ -159,7 +159,7 @@ class FileStore
         $originalName,
         $size,
         callable $write,
-        callable $nameFor = null
+        ?callable $nameFor = null
     ) {
         $checked = self::checkNewFile($scope, $modx, $originalName, $size);
         if (isset($checked['error'])) {
@@ -297,7 +297,7 @@ class FileStore
         $max = 0;
         $prefix = preg_quote(self::pastedBaseName($kind, $id), '/');
         foreach (@scandir($dirReal) ?: [] as $entry) {
-            if (preg_match('/^' . $prefix . '-(\d+)\./', $entry, $m)) {
+            if (preg_match('/^' . $prefix . '-(\d{1,9})\./', $entry, $m)) {
                 $max = max($max, (int) $m[1]);
             }
         }
@@ -308,7 +308,7 @@ class FileStore
     /**
      * 貼り付けた画像を保存する(置き場所のフォルダーは、pastedFolder() と ensureFolderPath() で決めて渡す)。
      * 名前は pastedBaseName() に、そのフォルダーにある同じ名前の頭(pasted-doc-12-*)の連番の最大 + 1(無ければ 1)と拡張子を付ける(pasted-doc-12-3.png)。
-     * 消した画像の番号を使い回さない(同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため)。
+     * 途中の番号を消しても、その番号は使い回さない(同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため)。いちばん大きい番号を消したときだけ、その番号がまた使われる(番号はフォルダーの中身だけで決め、別に持たない)。連番は 9 桁まで数える
      * 空きは排他的に確保し、取り合いで負けたら次の番号で取り直すので、同時の貼り付けでも重ならない。確かめ・イベントは saveNewFile() と同じ。
      * CLI から: ensureFolderPath() でフォルダーを作ったあと、bytesWriter($modx, $bytes) を $write にして呼ぶ
      *

@@ -26,7 +26,7 @@
  *                     path・url はピッカーの応答だけに付く(一覧の files と同じ作り方)
  * POST action=uploadPasted (type=images, kind, id, files[])     -> {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}(ピッカーだけ)
  *                     エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっていて、folder は受けない。
- *                     kind は doc か chunk、id は貼り付けた画面のリソース・チャンクの ID(実在するものだけ。それ以外は 400 invalid_target)。
+ *                     kind は doc か chunk、id は貼り付けた画面のリソース・チャンクの ID(1 以上の整数。名前に使うだけで実在は確かめない。それ以外は 400 invalid_target)。
  *                     名前が image.拡張子 なら pasted-doc-12-3.png(kind-id-連番。連番はそのフォルダーの同じ kind-id の連番の最大 + 1、無ければ 1)にし、ほかの名前は元のまま(同名は 名前(1).拡張子)。拡張子・大きさ・OnFileBrowserUpload は upload と同じ
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
@@ -456,11 +456,8 @@ function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, Docume
 
     $kind = post_strvar('kind');
     $id = post_intvar('id');
+    // ID は名前に使うだけなので、実在は確かめない(確かめると、見えない文書の ID があるかを調べる口になる)
     if (!in_array($kind, FileStore::PASTED_KINDS, true) || $id < 1) {
-        fbError('invalid_target', lang('fb_err_invalid_target'), 400);
-    }
-    $table = $kind === 'doc' ? '[+prefix+]site_content' : '[+prefix+]site_htmlsnippets';
-    if (!db()->getValue(db()->select('id', $table, 'id=' . $id, '', 1))) {
         fbError('invalid_target', lang('fb_err_invalid_target'), 400);
     }
 

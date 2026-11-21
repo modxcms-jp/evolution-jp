@@ -18,7 +18,7 @@
 エディター（TinyMCE 7）に貼り付けた・ドロップした画像は、ファイルピッカーの操作 `uploadPasted`（`api.php`）で `{rb_base_dir}/images/年/月/` に保存し、本文にはその URL を入れる。年・月と時刻は、サイトの時刻（`server_offset_time` を足した今の時刻）。
 
 - フォルダーは、無ければ 1 階層ずつ作る（`FileStore::ensureFolderPath()`）。ピッカーの「フォルダーを作る」と同じ決まりで、守る場所には作らず、同名のファイルがあれば作らない。パーミッションは `new_folder_permissions`、管理操作ログには `[picker] Created Folder` を 1 階層ずつ残す
-- 名前は、名前の無い画像（スクリーンショットなど。名前が `image.拡張子`）なら、リソースの編集では `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）、チャンクの編集では `pasted-chunk-{チャンクID}-{連番}.拡張子`。連番は、そのフォルダーにある同じ種類・ID（`pasted-doc-12-*`）の連番の最大 + 1（無ければ 1）。消した画像の番号を使い回さない（同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため）。同時の貼り付けでも重ならないよう排他的に確保し、取り合いで負けたら次の番号で取り直す（`FileStore::savePastedFile()`）。リソース・チャンクの ID は、画面が `kind`（`doc`・`chunk`）と `id` で送り、実在するものだけを受ける（それ以外は 400）。ファイルをドロップしたときなど、名前のあるファイルは元の名前のまま。同名があれば `名前(1).拡張子`（ピッカーのアップロードと同じ）
+- 名前は、名前の無い画像（スクリーンショットなど。名前が `image.拡張子`）なら、リソースの編集では `pasted-doc-{リソースID}-{連番}.拡張子`（例 `pasted-doc-12-1.png`）、チャンクの編集では `pasted-chunk-{チャンクID}-{連番}.拡張子`。連番は、そのフォルダーにある同じ種類・ID（`pasted-doc-12-*`）の連番の最大 + 1（無ければ 1）。途中の番号を消しても、その番号は使い回さない（同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため）。いちばん大きい番号を消したときだけ、その番号がまた使われる（番号はフォルダーの中身だけで決め、別に持たない）。同時の貼り付けでも重ならないよう排他的に確保し、取り合いで負けたら次の番号で取り直す（`FileStore::savePastedFile()`）。リソース・チャンクの ID は、画面が `kind`（`doc`・`chunk`）と `id` で送る。サーバーは種類と 1 以上の整数かだけを確かめ（それ以外は 400）、ID は名前に使うだけで実在は確かめない（見えない文書の ID があるかを調べる口にしないため）。ファイルをドロップしたときなど、名前のあるファイルは元の名前のまま。同名があれば `名前(1).拡張子`（ピッカーのアップロードと同じ）
 - ID の無い画面（新しいリソース・新しいチャンク）では、アップロードしない。新しいリソースは `data:` 画像をエディターに置き、保存時の変換がファイルにする。新しいチャンクは貼り付けた画像を受けない
 - 拡張子（`upload_images`）・大きさ（`upload_maxsize`）・名前の無害化・`image_limit_width` による縮小・ファイルのパーミッション（`new_file_permissions`）・`OnFileBrowserUpload` の発火は、ピッカーのアップロード（`upload`）と同じ
 - 画像の置き場所はこの 1 か所に決まっていて、リクエストでは変えられない。種類が `images` 以外の要求は断る
@@ -28,7 +28,7 @@
 
 保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（足すなら、DocumentParser の縮小（今は private の `resizeImage()`）を公開する入口を設けてから、`bytesWriter()` で書いた後に通す）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
 
-CLI で、バイト列を `pasted-doc-{ID}-{次の番号}.拡張子` に保存する呼び方: `$scope = PickerScope::forType($modx, $config, 'images'); $resolver = new PathResolver($scope); $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($timestamp)); FileStore::savePastedFile($resolver, $scope, $modx, $folder['dir'], 'doc', $id, 'png', strlen($bytes), FileStore::bytesWriter($modx, $bytes));`（`$timestamp` はサイトの時刻）。
+CLI で、バイト列を `pasted-doc-{ID}-{次の番号}.拡張子` に保存する呼び方: `$scope = PickerScope::forType($modx, $config, 'images'); $resolver = new PathResolver($scope); $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($timestamp)); if (isset($folder['error'])) { /* フォルダーを作れない */ } $saved = FileStore::savePastedFile($resolver, $scope, $modx, $folder['dir'], 'doc', $id, 'png', strlen($bytes), FileStore::bytesWriter($modx, $bytes)); if (isset($saved['error'])) { /* 保存できない */ }`（`$timestamp` はサイトの時刻）。
 
 ## 外の置き場所（EFS・NFS など）の使い方
 
