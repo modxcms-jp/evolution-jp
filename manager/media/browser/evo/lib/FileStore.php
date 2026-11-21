@@ -317,6 +317,7 @@ class FileStore
      *
      * @param string $kind PASTED_KINDS のどれか
      * @param string $extension 拡張子(ドットなし)
+     * @param int|false $sizeLimit checkNewFile() の $sizeLimit と同じ
      * @return array{name:string,size:int}|array{error:string}
      */
     public static function savePastedFile(
@@ -328,14 +329,15 @@ class FileStore
         $id,
         $extension,
         $size,
-        callable $write
+        callable $write,
+        $sizeLimit = false
     ) {
         $first = self::maxPastedNumber($dir['real'], $kind, $id) + 1;
         $nameFor = function ($n) use ($kind, $id, $extension, $first) {
             return self::pastedBaseName($kind, $id) . '-' . ($first + $n) . '.' . $extension;
         };
 
-        return self::saveNewFile($resolver, $scope, $modx, $dir, $nameFor(0), $size, $write, $nameFor);
+        return self::saveNewFile($resolver, $scope, $modx, $dir, $nameFor(0), $size, $write, $nameFor, $sizeLimit);
     }
 
     /**

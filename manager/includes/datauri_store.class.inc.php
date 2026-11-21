@@ -68,7 +68,7 @@ class EvoDataUriStore
         $checked = FileStore::checkNewFile(
             $this->scope,
             $this->modx,
-            self::fileName($docId, 1, $decoded['extension']),
+            FileStore::pastedBaseName('doc', $docId) . '-1.' . $decoded['extension'],
             strlen($decoded['bytes']),
             $this->sizeLimit
         );
@@ -100,12 +100,14 @@ class EvoDataUriStore
             return ['error' => 'Failed to prepare the folder: %s', 'level' => 3, 'param' => $folder['error']];
         }
 
-        $saved = FileStore::saveNewFile(
+        $saved = FileStore::savePastedFile(
             $this->resolver,
             $this->scope,
             $this->modx,
             $folder['dir'],
-            self::fileName($docId, self::nextNumber($folder['dir']['real'], $docId), $prepared['extension']),
+            'doc',
+            $docId,
+            $prepared['extension'],
             strlen($prepared['bytes']),
             FileStore::bytesWriter($this->modx, $prepared['bytes']),
             $this->sizeLimit
@@ -118,31 +120,6 @@ class EvoDataUriStore
         $this->saved[$rel] = $folder['dir']['real'] . $saved['name'];
 
         return ['path' => $this->scope->fileUrls($rel)['path'], 'rel' => $rel];
-    }
-
-    /**
-     * ファイルの名前。名前の決まりはここ 1 か所に置く（FileStore::pastedName() が文書の ID を取る形になったら、そちらに寄せる）
-     */
-    private static function fileName($docId, $number, $extension)
-    {
-        return 'pasted-doc-' . (int)$docId . '-' . (int)$number . '.' . $extension;
-    }
-
-    /**
-     * そのフォルダの、同じ文書の ID の画像の連番の最大 + 1（1 から。拡張子は問わない）。
-     * 消えた番号は使い回さない（ブラウザーや CDN が、同じ URL の古い画像を出し続けるため）
-     */
-    private static function nextNumber($dirReal, $docId)
-    {
-        $max = 0;
-        $pattern = '/^pasted-doc-' . (int)$docId . '-([0-9]+)\./';
-        foreach (scandir($dirReal) ?: [] as $name) {
-            if (preg_match($pattern, $name, $m)) {
-                $max = max($max, (int)$m[1]);
-            }
-        }
-
-        return $max + 1;
     }
 
     /** place() で書いたファイルを消す（そのあとの DB の更新に失敗したときなど）。管理操作ログにも書かない */
