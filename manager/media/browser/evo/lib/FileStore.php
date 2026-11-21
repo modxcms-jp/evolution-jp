@@ -65,7 +65,7 @@ class FileStore
     /**
      * バイト列を保存先へ書く書き手(saveNewFile() の $write に渡す)。$_FILES に頼らないので、CLI からも使える(パスから書く書き手は持たない。CLI は data: を復号したバイト列から書く)。
      * image_limit_width による縮小は、アップロードの経路($modx->move_uploaded_file())だけが行う。
-     * この経路にも縮小を足すなら、ここで書き込んだあとに $modx->resizeImage() を通す
+     * この経路にも縮小を足すなら、DocumentParser の縮小(今は private の resizeImage())を公開する入口を設けてから、書き込んだあとに通す
      */
     public static function bytesWriter(DocumentParser $modx, $bytes)
     {

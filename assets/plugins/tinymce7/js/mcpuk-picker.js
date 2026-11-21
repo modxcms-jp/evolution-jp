@@ -540,8 +540,8 @@
       })).then(function (results) {
         // 失敗した画像は、TinyMCE が本文から外して理由を通知する。画像が欠けたまま保存しないよう、送らずに知らせる。
         // 失敗の印が無くても blob: が残っていれば、その URL を保存しないよう送らない
-        const failed = results.some(function (items) {
-          return items.some(function (item) {
+        const failed = !Array.isArray(results) || results.some(function (items) {
+          return !Array.isArray(items) || items.some(function (item) {
             return item && item.status === false;
           });
         });
@@ -559,7 +559,7 @@
         } catch (error) {
           cancelSubmit();
         }
-      }, cancelSubmit);
+      }).catch(cancelSubmit);
     }, true);
   }
 
