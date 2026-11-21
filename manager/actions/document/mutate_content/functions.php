@@ -1227,12 +1227,14 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
         $originalHeight,
         $mimeType
     );
+
+    // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
+    // 向きの反映(回転で縮小した大きさの画像がもう 1 枚できる)の前に、元の画像を手放す
+    unset($sourceImage);
+
     if ($resizedImage !== false) {
         $resizedImage = gd_apply_orientation($resizedImage, $orientation);
     }
-
-    // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
-    unset($sourceImage);
 
     if ($resizedImage === false) {
         return null;

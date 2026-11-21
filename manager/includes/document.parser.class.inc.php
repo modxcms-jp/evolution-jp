@@ -6359,6 +6359,8 @@ class DocumentParser
         imagecopyresampled(
             $new_image, $source, 0, 0, 0, 0, $newWidth, $newHeight, $img[0], $img[1]
         );
+        // 向きを反映する前に元の画像を手放す(回転で縮小した大きさの画像がもう 1 枚できるため。imagedestroy() は PHP 8.5 で非推奨)
+        unset($source);
         // 縮めてから向きを画素に反映する(書き出すと EXIF は残らないため)
         $new_image = gd_apply_orientation($new_image, $orientation);
         switch ($img[2]) {
