@@ -68,13 +68,6 @@ final class EditorInitializer
 
         $uiLanguage = $this->language->detectUiLanguage();
 
-        if (array_key_exists('image_cropper', $config)) {
-            $imageCropperOptions = is_array($config['image_cropper']) ? $config['image_cropper'] : [];
-            unset($config['image_cropper']);
-        } else {
-            $imageCropperOptions = [];
-        }
-
         if (empty($config['language'])) {
             $config['language'] = $uiLanguage;
         }
@@ -135,17 +128,6 @@ final class EditorInitializer
         $scripts = [
             $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config)),
         ];
-
-        $imageCropperJson = json_encode($imageCropperOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        if ($imageCropperJson === false) {
-            $imageCropperJson = '{}';
-        }
-
-        $scripts[] = $this->scriptFactory->inlineScript('window.tinymce7CropperConfig = ' . $imageCropperJson . ';');
-
-        if (!empty($imageCropperOptions['enabled'])) {
-            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tinymce-cropper.js'));
-        }
 
         if ($fileBrowser === 'mcpuk') {
             $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript());
