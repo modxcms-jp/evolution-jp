@@ -593,6 +593,8 @@
       const form = new global.FormData();
       form.append('action', 'uploadPasted');
       form.append('type', 'images');
+      form.append('kind', upload.kind);
+      form.append('id', upload.id);
       form.append('csrf_token', upload.csrfToken);
       form.append('files[]', blobInfo.blob(), uploadName(blobInfo));
 

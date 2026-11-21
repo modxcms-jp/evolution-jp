@@ -126,8 +126,9 @@ final class EditorInitializer
         if ($canEditImage) {
             $config['modx_image_edit_label'] = $this->language->translate('tinymce7_image_edit', 'Edit image');
         }
-        $canUploadPasted = $this->canUploadPasted($fileBrowser, $isManager);
-        $config = $this->applyPastedUpload($config, $canUploadPasted);
+        $screen = $isManager ? $this->managerScreen() : ['target' => null, 'newDocument' => false];
+        $canUploadPasted = $this->canUploadPasted($fileBrowser, $screen['target']);
+        $config = $this->applyPastedUpload($config, $canUploadPasted, $screen['newDocument']);
 
         $configJson = $this->configRepository->encode($config);
 
@@ -138,7 +139,7 @@ final class EditorInitializer
         if ($fileBrowser === 'mcpuk') {
             $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript(
                 $canEditImage,
-                $canUploadPasted ? $this->pastedUploadSettings() : null
+                $canUploadPasted ? $this->pastedUploadSettings($screen['target']) : null
             ));
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
@@ -190,15 +191,43 @@ final class EditorInitializer
     }
 
     /**
-     * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
-     * 使えるのは、管理画面のエディターで、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、
-     * アップロードできる画像の拡張子が 1 つ以上あるとき。
-     * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
-     * 使えないときは、本文に data: 画像が入らないよう、貼り付けの画像を受けない（applyPastedUpload()）
+     * 管理画面の、エディターを出している画面。貼り付けた画像の名前（pasted-doc-12-1.png）に使う、リソースかチャンクの ID の有無を決める。
+     * manager()->action と id で判定する（リソースの編集 27・下書きの編集 131/132 と、チャンクの編集 78 は id が要る）。
+     * target は、ID のある画面の ['kind' => 'doc'|'chunk', 'id' => int]。ID の無い画面（新しいリソース 4・72、新しいチャンク 77、ほか）は null。
+     * newDocument は、新しいリソースの画面（保存するまで ID が無いので、アップロードせず data: 画像を置き、保存時の変換がファイルにする）
+     *
+     * @return array{target: array{kind: string, id: int}|null, newDocument: bool}
      */
-    private function canUploadPasted(string $fileBrowser, bool $isManager): bool
+    private function managerScreen(): array
     {
-        return $isManager
+        $action = (int) manager()->action;
+        $id = get_intvar('id');
+
+        if (in_array($action, [27, 131, 132], true) && $id > 0) {
+            return ['target' => ['kind' => 'doc', 'id' => $id], 'newDocument' => false];
+        }
+        if (in_array($action, [4, 72, 27, 131, 132], true)) {
+            return ['target' => null, 'newDocument' => true];
+        }
+        if ($action === 78 && $id > 0) {
+            return ['target' => ['kind' => 'chunk', 'id' => $id], 'newDocument' => false];
+        }
+
+        return ['target' => null, 'newDocument' => false];
+    }
+
+    /**
+     * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
+     * 使えるのは、管理画面のエディターで、ID のある画面（managerScreen() の target）で、ファイルブラウザが mcpuk で、
+     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
+     * 使えないときは、貼り付けの画像を受けない（applyPastedUpload()）
+     *
+     * @param array{kind: string, id: int}|null $target
+     */
+    private function canUploadPasted(string $fileBrowser, ?array $target): bool
+    {
+        return $target !== null
             && $fileBrowser === 'mcpuk'
             && function_exists('getCurrentCsrfToken')
             && $this->fileBrowserResolver->canUsePicker('images')
@@ -207,9 +236,11 @@ final class EditorInitializer
 
     /**
      * 貼り付けのアップロードの設定。どちらのときも、画像のダイアログのアップロードタブは出さない
-     * （画像の入口はファイルピッカーの参照ボタンと、貼り付け・ドロップ）
+     * （画像の入口はファイルピッカーの参照ボタンと、貼り付け・ドロップ）。
+     * アップロードしないときは、新しいリソースだけ貼り付けた画像を受ける（data: のまま置き、保存時の変換が ID の決まった後にファイルにする）。
+     * ほかは、本文に data: 画像が入らないよう受けない（チャンクは保存時の変換の対象外）
      */
-    private function applyPastedUpload(array $config, bool $canUploadPasted): array
+    private function applyPastedUpload(array $config, bool $canUploadPasted, bool $newDocument): array
     {
         $config['image_uploadtab'] = false;
         if ($canUploadPasted) {
@@ -219,18 +250,21 @@ final class EditorInitializer
                 'Saving was cancelled because an image upload did not finish. Please save again.'
             );
         } else {
-            $config['paste_data_images'] = false;
+            $config['paste_data_images'] = $newDocument;
         }
 
         return $config;
     }
 
     /**
-     * @return array{url: string, csrfToken: string}
+     * @param array{kind: string, id: int} $target
+     * @return array{url: string, csrfToken: string, kind: string, id: int}
      */
-    private function pastedUploadSettings(): array
+    private function pastedUploadSettings(array $target): array
     {
         return [
+            'kind' => $target['kind'],
+            'id' => $target['id'],
             'url' => $this->fileBrowserResolver->mcpukApiUrl(),
             'csrfToken' => (string) getCurrentCsrfToken(),
         ];
