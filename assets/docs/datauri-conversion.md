@@ -2,11 +2,15 @@
 
 ## 概要
 
-リソース保存時に Data URI スキーム (`data:image/png;base64,...`) を自動検出し、ファイルに変換する機能。TinyMCE などで画像を貼り付けると Data URI として埋め込まれ HTML が肥大化する問題を解決する。
+リソース保存時に本文の Data URI スキーム (`data:image/png;base64,...`) の画像を検出し、ファイルに変換する機能。エディターで画像を貼り付けると Data URI として埋め込まれ、HTML が肥大化する。
+
+貼り付けた画像は、本来はエディター側でアップロードして URL を入れる（TinyMCE 7 は `.agent/plans/2026-11-21-tinymce7-image-picker-unify.md` の M4）。この変換は、それで防げなかったもののフォールバックとして残す。エディター側で防げない経路（ほかのエディター、HTML ごとの貼り付け）と、すでに本文に入っている Data URI の画像を扱う。既存のリソースは、利用者に「リソースを開いて、そのまま保存してください」と伝えれば直る。
 
 ## 対象と保存先
 
-- 対象フィールド: `content`、`introtext`
+- 対象フィールド: `content`（本文）だけ。`introtext`（要約）は対象にしない。ウェブリンク（`type` が `reference`）の本文も対象にしない
+- 対象の位置: `<img>` タグの `src` 属性の値になっている Data URI だけ（`isImgSrcValue()`）。本文の文章や `<style>` の中の `data:` は書き換えない
+- 新規のリソースの ID を保存の途中で取り直したときは、書き出したファイルを新しい ID の場所へ移し、本文のパスも直す（`moveDataUriFilesToNewId()`）
 - 保存先: `content/images/datauri/{リソースID}/` （例: `20250103143022_a1b2c3d4.png`）
 - 最大ファイルサイズ: 50MB
 - 対応 MIME: `image/png`, `jpeg`, `gif`, `webp`, `svg+xml`, `bmp`, `application/pdf`, `text/plain`, `text/html`, `text/css`, `application/json`, `application/xml`
@@ -29,7 +33,7 @@
 
 ## 動作フロー
 
-リソース保存 → `getInputValues()` → 設定チェック → `convertDataUriToFiles()` で Data URI を検出 → `<img>` タグから寸法抽出 → 必要に応じリサイズ → ファイル保存 → パスに置換 → 変換済みコンテンツで保存
+リソース保存 → `getInputValues()` → 設定チェック → `convertDataUriToFiles()` で `<img>` の `src` の Data URI を検出 → `<img>` タグから寸法抽出 → 必要に応じリサイズ → ファイル保存 → パスに置換 → 変換済みコンテンツで保存
 
 ## トラブルシューティング
 

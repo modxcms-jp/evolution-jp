@@ -58,6 +58,7 @@ if (postedMode() === 'new') {
         evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit($msg, formReturnUrl());
     }
+    moveDataUriFilesAfterInsert($param['doc_vars'], $newid);
 
     if (!empty($param['tv_vars'])) {
         insert_tmplvars($newid, $param['tv_vars']);
@@ -233,17 +234,17 @@ function dataUriRelativeDir($docid)
     return sprintf('content/images/datauri/%d/', $docid);
 }
 
-// ID を取り直したとき、introtext の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
+// ID を取り直したとき、本文の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
 // 古い ID の場所は、プラグインが作った別の文書のものが同居し得るので、フォルダごとではなく本文に出てくるファイルだけを移す
 function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
 {
-    if (empty($doc_vars['introtext']) || !is_string($doc_vars['introtext'])) {
+    if (empty($doc_vars['content']) || !is_string($doc_vars['content'])) {
         return $doc_vars;
     }
     $oldDir = dataUriRelativeDir($oldId);
     $newDir = dataUriRelativeDir($newId);
     $pattern = '@' . preg_quote($oldDir, '@') . '[A-Za-z0-9_.\-]+@';
-    if (!preg_match_all($pattern, $doc_vars['introtext'], $matches)) {
+    if (!preg_match_all($pattern, $doc_vars['content'], $matches)) {
         return $doc_vars;
     }
     foreach (array_unique($matches[0]) as $oldPath) {
@@ -259,9 +260,31 @@ function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
             evo()->logEvent(0, 3, sprintf('Failed to move Data URI file: %s -> %s', $oldPath, $newPath), 'refreshNewDocId');
             continue;
         }
-        $doc_vars['introtext'] = str_replace($oldPath, $newPath, $doc_vars['introtext']);
+        $doc_vars['content'] = str_replace($oldPath, $newPath, $doc_vars['content']);
     }
     return $doc_vars;
+}
+
+// ID を DB の自動採番に任せる設定（docid_incrmnt_method が 0）では、挿入するまで ID が分からず、本文の Data URI 変換は 0 の場所に書く
+// 挿入して ID が決まったら、そのファイルを新しい ID の場所へ移し、本文のパスを直して保存し直す
+function moveDataUriFilesAfterInsert($doc_vars, $newId)
+{
+    if (
+        !empty($doc_vars['id'])
+        || empty($doc_vars['content'])
+        || !evo()->getConfig('convert_datauri_to_file', 1)
+    ) {
+        return;
+    }
+    $moved = moveDataUriFilesToNewId($doc_vars, 0, (int)$newId);
+    if ($moved['content'] === $doc_vars['content']) {
+        return;
+    }
+    db()->update(
+        db()->escape(['content' => $moved['content']]),
+        '[+prefix+]site_content',
+        sprintf('id=%d', (int)$newId)
+    );
 }
 
 function get_tmplvars()
@@ -548,12 +571,13 @@ function getInputValues($id = 0, $mode = 'new')
         $fields[$key] = validated($key);
     }
 
-    // Data URI を自動的にファイル化
-    $convertEnabled = evo()->getConfig('convert_datauri_to_file', 1); // デフォルト有効
-
-    // introtext も処理対象にする場合
-    if (!empty($fields['introtext']) && $convertEnabled) {
-        $fields['introtext'] = convertDataUriToFiles($fields['introtext'], $id);
+    // 本文に貼り付けた画像（img の src の Data URI）をファイルに書き出す
+    if (
+        $fields['type'] !== 'reference'
+        && !empty($fields['content'])
+        && evo()->getConfig('convert_datauri_to_file', 1)
+    ) {
+        $fields['content'] = convertDataUriToFiles($fields['content'], $id);
     }
 
     if ($fields['type'] === 'reference') {
