@@ -25,6 +25,8 @@ php evo.php db:backup --max=20
 php evo.php db:backup --driver=php
 php evo.php export:site
 php evo.php export:site --target=allow --ids=1,2,3 --site-url=http://localhost:8080/
+php evo.php content:extract-datauri --dry-run
+php evo.php content:extract-datauri --ids=1,2,3 --limit=50
 php evo.php health:check
 php evo.php log:tail --lines=20
 php evo.php log:search "インストーラー" --level=error --limit=10
@@ -92,6 +94,16 @@ php evo.php skill:sync --skill=issue-resolver
 マイグレーションの仕組みと書き方は [`assets/docs/migrations.md`](../../../assets/docs/migrations.md) を参照してください。
 `migrate:status` は `applied <ID> <日時>` と `pending <ID>` を並べ、最後に `N applied, M pending` を表示します。記録の表がまだ無いときは、先頭に `Migrations table not found (every migration is pending).` を表示します。記録はあるのにファイルが無いマイグレーションは `applied <ID> <日時> (file missing)` と表示します。
 `make:migration <説明>` は `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形を作ります。説明は `a-z`・`0-9`・`_` だけで、合わなければ終了コード 1 です。
+`content:extract-datauri` は、本文などに入っている `data:` 画像（`<img>` の `src` の Data URI）を、ファイルピッカーの置き場所 `{rb_base_dir}/images/年/月/` にファイルとして書き、その URL に書き換えます。保存時の変換（`convert_datauri_to_file`）と同じ処理を使います（`assets/docs/datauri-conversion.md`）。ウェブサーバーと同じユーザーで実行してください（別のユーザーで動かすと、作られた `images/年/月/` の所有者が変わり、ウェブ側から書けなくなることがあります）。
+- 引数: `--dry-run`（移すものを、文書の ID・欄・大きさ・MIME の一覧にして出す。何も変えず、控えも取らない）、`--ids=1,2,3`（対象の文書の ID。`export:site` と同じ書き方）、`--limit=N`（移す画像のある文書を、ID の小さい順に N 件まで）。
+- 対象: `site_content` の `content`・`introtext`、`site_tmplvar_contentvalues` の `value`、`site_revision` の下書き（`element='resource'`、`version=0`）の本文・要約・TV。スニペット・テンプレートなどのコードの表は対象外です。TV の値は、`<img>` の `src` に加えて、値そのものが `data:image/...` のとき（画像の TV）も URL に書き換えます。下書きの中身は、シリアライズされた配列の本文・要約・`tv` の値を直します。
+- 置き場所と名前: `images/年/月/pasted-doc-{文書ID}-{連番}.拡張子`。年月は、その文書の更新日時（`editedon`。下書きは下書きの更新日時）で決めるので、何度流しても同じ場所になります。連番は、そのフォルダで同じ ID の空いている次の番号（1 から）です。
+- 移さずに残すもの: 復号後に 50MB を超えるもの、壊れた base64、ピッカーの「アップロードできる画像」（`upload_images`。既定では webp は入っていません）にない拡張子。一覧に理由を出し、本文はそのままです。`<img>` の `width`・`height` 属性が元の画像より小さいときは、保存時の変換と同じに縮小します。
+- 書き換えの前に、DB の控え（スナップショット。管理画面のスナップショットと同じ PHP の書き手で、このサイトの表の全部）を自動で取り、`Backup written: <パス>` を出します。取れなければ、何もせずに終了コード 1 です。控えの世代の上限（既定 10）を超えると、古い自動の名前の控えが消えます（`Removed old backup: <名前>` を表示）。
+- 文書の更新日時（`editedon`）は変えません。直したあとに、ページキャッシュを消します（サイト全体）。
+- ファイルを書いてから DB を直します。DB の更新に失敗したら、そのファイルを消し、終了コード 1 で終わります。2 回目は何も変わりません（移せずに残したものは、毎回一覧に出ます）。
+- 終了時の出力は `Moved N image(s) in M document(s), K left as is, F failed.` です。
+
 `log:tail` / `log:search` は `temp/logs/system/` 配下のJSONLines形式システムログを表示・検索します。`--level=error` はその重さだけ、`--level=min:error` はその重さ以上（error・critical・alert・emergency）を出します。
 `log:clear` は `temp/logs/system/` 配下のシステムログ（`system-日付.log` とローテーション分）を削除し、空になった `YYYY/MM`・`YYYY` のフォルダも消します。実行前に `[y/N]` で確認し、STDIN が対話でないとき（対話かどうかを判定できない環境も含む）は `--force` がなければ終了コード 1 で拒否します。`n` などで取り消したときも終了コード 1 です。`--before=YYYY-MM-DD` はファイル名の日付がその日より前のものだけを消します（値が空・日付の形が不正なら、何も消さず終了コード 1）。`Deleted: N` と `Failed: M` を表示し、消せなかったパス（読めないフォルダを含む。読めるところは消します）は標準エラーへ出して終了コード 1 にします。削除のあと、システムログに「Cleared system logs」を 1 件記録します。ウェブサーバーと同じユーザーで実行してください（別のユーザーで動かすと、作り直されたログのフォルダとファイルの所有者が変わり、ウェブ側から書けなくなることがあります）。
 `db:import` は `EVO_CLI_IMPORT=1` を付けたときだけ実行します。このサイトの接頭辞で始まらない表を含むダンプと、`DELIMITER`（トリガー・ストアドプロシージャー）を含むダンプは、何も変えずに終了コード 1 で断ります（`DELIMITER` を含むダンプは `mysql` コマンドで戻します）。
