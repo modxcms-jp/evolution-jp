@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-21-tinymce7-image-picker-unify",
+    "run_id": "2026-11-21-tinymce7-image-picker-unify-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-21T23:15:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-056",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "画像の表示（src の差し替え・同じ URL の画像の読み直し）に関わる変更は、Chromium に加えて Firefox でも確かめる（Firefox は同じ URL の画像を読み込み済みのまま持ち続ける）",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-057",
+            "action": "add",
+            "target": "SKILL.md（/run-plan の手順 4）",
+            "summary": "画面の使い勝手が変わる段階では、PR を出したら本人が触れるお試し環境（作業ツリーとは別の場所に取り出して立てる）を渡し、マージの前に使ってもらう",
+            "source_ref": "finding-002",
+            "confidence": "medium"
+        },
+        {
+            "id": "change-058",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 7「修正」）",
+            "summary": "自己レビューの指摘は、直す前に実際の運用で起きうるかで仕分ける。起きないものは直さずに、PR 本文の備考に理由を書く。外から入る値の安全化・権限の穴は直す",
+            "source_ref": "finding-003",
+            "confidence": "high"
+        },
+        {
+            "id": "change-059",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 9「push と PR」と /run-plan の手順 4）",
+            "summary": "積み重ねの PR（base が main でない）では GitHub のワークフローが動かないので、.github/scripts の lint を手元の検証用イメージで流して代わりにし、PR 本文に書く。base を main に切り替えた後に CI を確かめる",
+            "source_ref": "finding-004",
+            "confidence": "high"
+        }
+    ]
+}

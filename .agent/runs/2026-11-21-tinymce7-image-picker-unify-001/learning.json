@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-21-tinymce7-image-picker-unify",
+    "run_id": "2026-11-21-tinymce7-image-picker-unify-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-21T23:15:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "画像の表示（src の差し替え・上書きした画像の読み直し）に関わる変更は、Chromium に加えて Firefox でも確かめる。Firefox は同じ URL の画像を読み込み済みの画像として持ち続け、Chromium だけでは見つからない不具合が出た",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "missing_instruction",
+            "summary": "画面の使い勝手が変わる段階では、PR を出した後（マージの前）に、本人が触れるお試し環境を渡すと、計画の段階では出なかった問題が早く見つかる。今回は 3 つ見つかり、計画を変えた",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "medium"
+        },
+        {
+            "id": "finding-003",
+            "kind": "bad_assumption",
+            "summary": "自己レビューの指摘は、直す前に実際の運用で起きうるかで仕分ける。起きないもの（ありえない長さの連番など）は直さずに理由を書いて流す。外から入る値の安全化・権限の穴は別で、そちらは直す",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-004",
+            "kind": "missing_instruction",
+            "summary": "前の段階のブランチを base にした積み重ねの PR では、GitHub のワークフローが動かない（no checks reported のまま、衝突なし）。積んだ PR では、.github/scripts の lint を手元の検証用イメージで流して代わりにし、PR 本文に書く。base を main に切り替えたら CI が動く",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        }
+    ]
+}
