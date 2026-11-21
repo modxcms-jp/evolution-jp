@@ -15,7 +15,7 @@
 - MCPuk 連携スクリプト（ファイルの選択と画像の編集）: `js/mcpuk-picker.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
 - リンクのダイアログの文書の一覧（JSON を返す入口）: `link-list.php`
-- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
+- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢・画像編集の呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -78,11 +78,13 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 `tinymce7_file_browser` が `mcpuk`（既定）のとき、本文の画像をダブルクリックするか、画像を選んだときに出る帯の「画像を編集」ボタンを押すと、その画像を開いた状態でファイルピッカーの画像編集（トリミング・回転・サイズ変更）が TinyMCE のダイアログの中に開きます。保存すると、保存したファイルの URL で本文の画像の `src` を差し替えます（`data:` 画像にはなりません）。処理は `js/mcpuk-picker.js` の `window.mceModxImageEdit(editor)` で、`js/editor-setup.js` から呼びます。
 
-- 対象は、`src` がファイルピッカーの種類のフォルダ（`rb_base_url` の下の `images`・`media`・`files`）にある jpg・jpeg・png の画像だけです。`data:`・`blob:`、別のサイトの画像、`rb_base_url` の外、ほかの形式の画像ではダブルクリックしても TinyMCE 既定の画像のダイアログが開き、帯のボタンは無効になります。
-- 保存のしかたは「別のファイルとして保存」が既定です。「元のファイルを上書き」を選んだときは `src` は同じ URL のままで、画像を読み直して表示を新しくします。
+- 対象は、`src` がファイルピッカーの種類のフォルダ（`rb_base_url` の下の `images`・`media`・`files`）にある jpg・jpeg・png の画像だけです。`data:`・`blob:`、別のサイトの画像、`rb_base_url` の外、ほかの形式の画像、`rb_base_url` が管理画面と別のオリジンのときの画像では、ダブルクリックしても何も起きず（TinyMCE 7 は画像のダブルクリックでは何も開きません）、帯のボタンは無効になります。
+- 保存のしかたは「別のファイルとして保存」が既定です。「元のファイルを上書き」を選んだときは、同じファイルかを URL の origin とパス（`decodeURIComponent` した要素）で比べ、エディターの画像の表示用の `src` にだけ `_evofb=<時刻>` のクエリを付けて表示を新しくします。保存される値（`data-mce-src`。本文の `src` の元）にはクエリは付かず、元の `src` にあったクエリも保存後は付きません。
 - 本文の `width` はそのまま、`height` は新しい画像の縦横比で計算し直します（`height` だけがあるときは `width` を計算し、どちらも無ければ付けません）。`srcset` は消します。
 - 編集を取り消すと、ダイアログが閉じて本文は変わりません。
 - `tinymce7_file_browser` を `none` にすると `js/mcpuk-picker.js` を読まないので、この機能は働きません。
+- 大きさを読めなかったときは、`width`・`height` は元のままにします。
+- ピッカーへの設定は `window.MODX_FILE_PICKER`（`FileBrowserResolver::mcpukBootstrapScript()` が出力）で渡します。キーは `browserUrl`（ピッカーの URL）、`rbBaseUrl`（`rb_base_url` の絶対 URL）、`baseUrl`（サイトの設置パス `MODX_BASE_URL`）、`siteUrl`（`MODX_SITE_URL`）、`stripImagePaths`（グローバル設定「相対パスを渡す」）、`types`（`BrowserConfig::TYPES`）、`editableExtensions`（`BrowserConfig::EDITABLE_EXTENSIONS`）です。
 - ボタンの文言は言語ファイルの `tinymce7_image_edit` で、エディターのオプション `modx_image_edit_label` として渡します。
 
 ## 画像のキャプション (`image_caption`)

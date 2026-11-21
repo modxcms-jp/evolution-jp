@@ -46,14 +46,16 @@ final class FileBrowserResolver
     {
         $settings = [
             'browserUrl' => $this->mcpukBrowserUrl(),
-            'baseUrl' => (new \BrowserConfig(evo()))->baseUrl(),
-            'basePath' => MODX_BASE_URL,
+            'rbBaseUrl' => (new \BrowserConfig(evo()))->baseUrl(),
+            'baseUrl' => MODX_BASE_URL,
+            'types' => \BrowserConfig::TYPES,
+            'editableExtensions' => \BrowserConfig::EDITABLE_EXTENSIONS,
             'stripImagePaths' => (string) evo()->config('strip_image_paths') === '1',
         ];
         if (defined('MODX_SITE_URL')) {
             $settings['siteUrl'] = MODX_SITE_URL;
         }
 
-        return 'window.MODX_FILE_PICKER = ' . json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) . ';';
+        return 'window.MODX_FILE_PICKER = ' . json_encode($settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';';
     }
 }

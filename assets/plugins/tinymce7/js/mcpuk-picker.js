@@ -154,7 +154,7 @@
       return sanitizeUrlSegment(siteUrl) + '/' + sanitizePath(url);
     }
 
-    const baseUrl = String(settings().basePath || '').trim();
+    const baseUrl = String(settings().baseUrl || '').trim();
     if (baseUrl) {
       return sanitizeUrlSegment(baseUrl) + '/' + sanitizePath(url);
     }
@@ -193,43 +193,55 @@
     return restore;
   }
 
-  const EDITABLE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
-
-  // 画像の src が、ファイルピッカーの種類のフォルダ（rb_base_url の下の images・media・files）の
-  // jpg・jpeg・png のときだけ {type, folder, name} を返す。それ以外（data:・blob:・別オリジン・範囲外）は null
-  function resolveSiteImage(editor, img) {
-    const baseUrl = String(settings().baseUrl || '');
-    const src = img && img.getAttribute('src');
-    if (!baseUrl || !src) {
+  // src を、エディターの基準 URL から見た絶対 URL にし、{origin, segments（要素ごとに decodeURIComponent）} にする。
+  // 画像の判定と、上書きかどうかの比較で同じ正規化を使う
+  function parseSiteUrl(editor, src) {
+    if (!src) {
       return null;
     }
-
-    let target;
-    let base;
     try {
-      target = new URL(editor.documentBaseURI.toAbsolute(src));
-      base = new URL(baseUrl, global.location.href);
+      const url = new URL(String(src), editor.documentBaseURI.getURI());
+      return {
+        origin: url.origin,
+        segments: url.pathname.split('/').map(normalizePathSegment)
+      };
     } catch (e) {
       return null;
     }
-    if (target.origin !== base.origin) {
+  }
+
+  function sameFile(a, b) {
+    return !!a && !!b && a.origin === b.origin && a.segments.join('/') === b.segments.join('/');
+  }
+
+  // 画像の src が、ファイルピッカーの種類のフォルダ（rb_base_url の下の images・media・files）の
+  // 画像編集できる拡張子の画像のときだけ {type, folder, name} を返す。
+  // それ以外（data:・blob:・別オリジン・範囲外・ピッカーと別のオリジンの rb_base_url）は null
+  function resolveSiteImage(editor, img) {
+    const rbBaseUrl = String(settings().rbBaseUrl || '');
+    if (!rbBaseUrl || !img) {
       return null;
     }
 
-    const basePath = base.pathname.replace(/\/+$/, '') + '/';
-    if (target.pathname.indexOf(basePath) !== 0) {
+    const target = parseSiteUrl(editor, img.getAttribute('src'));
+    const base = parseSiteUrl(editor, rbBaseUrl);
+    if (!target || !base || target.origin !== base.origin || base.origin !== global.location.origin) {
       return null;
     }
 
-    const segments = target.pathname.slice(basePath.length).split('/').map(normalizePathSegment);
-    if (segments.length < 2 || segments.some(function (segment) { return segment === ''; })) {
+    const baseSegments = base.segments.filter(Boolean);
+    const rest = target.segments.filter(Boolean);
+    if (rest.length < baseSegments.length + 2 || baseSegments.some(function (segment, index) {
+      return rest[index] !== segment;
+    })) {
       return null;
     }
 
+    const segments = rest.slice(baseSegments.length);
     const type = segments[0];
     const name = segments[segments.length - 1];
     const extension = name.indexOf('.') === -1 ? '' : name.split('.').pop().toLowerCase();
-    if (Object.values(TYPE_MAP).indexOf(type) === -1 || EDITABLE_EXTENSIONS.indexOf(extension) === -1) {
+    if ((settings().types || []).indexOf(type) === -1 || (settings().editableExtensions || []).indexOf(extension) === -1) {
       return null;
     }
 
@@ -285,34 +297,39 @@
   }
 
   function replaceImage(editor, img, url) {
-    if (!url || !img.parentNode) {
+    if (!url || editor.removed || !editor.getBody().contains(img)) {
       return;
     }
 
-    const absolute = editor.documentBaseURI.toAbsolute(url);
-    const overwritten = absolute === editor.documentBaseURI.toAbsolute(img.getAttribute('data-mce-src') || img.getAttribute('src'));
+    const current = img.getAttribute('data-mce-src') || img.getAttribute('src');
+    const overwritten = sameFile(parseSiteUrl(editor, current), parseSiteUrl(editor, url));
     // 上書きのときは同じ URL の古い画像がブラウザの画像キャッシュに残るので、
     // 大きさの取得と表示にはクエリ付きの URL を使う。本文に残る URL（data-mce-src）はクエリなしのまま
     const shown = overwritten
       ? url + (url.indexOf('?') === -1 ? '?' : '&') + '_evofb=' + Date.now()
       : url;
+    const removed = function () {
+      return editor.removed || !editor.getBody().contains(img);
+    };
 
     loadImageSize(editor.documentBaseURI.toAbsolute(shown)).then(function (size) {
-      if (!img.parentNode) {
+      if (removed()) {
         return;
       }
       const dimensions = scaledSize(img, size);
+      const attributes = {
+        src: shown,
+        'data-mce-src': url,
+        srcset: null
+      };
+      if (size) {
+        attributes.width = dimensions.width || null;
+        attributes.height = dimensions.height || null;
+      }
       editor.undoManager.transact(function () {
-        editor.dom.setAttribs(img, {
-          src: shown,
-          'data-mce-src': url,
-          srcset: null,
-          width: dimensions.width || null,
-          height: dimensions.height || null
-        });
+        editor.dom.setAttribs(img, attributes);
       });
       editor.nodeChanged();
-      editor.dispatch('change');
     });
   }
 
