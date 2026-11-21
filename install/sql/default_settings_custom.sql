@@ -1,7 +1,7 @@
 -- MODX Database Script for Override Installations
 
 REPLACE INTO `{PREFIX}site_templates` 
-(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template','0','0','','0','<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n    <title>[*pagetitle*] | [(site_name)]</title> <!--リソース変数pagetitleとコンフィグ変数site_name-->\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=[(modx_charset)]\" /> <!--コンフィグ変数modx_charset-->\n  <base href=\"[(site_url)]\" />                   <!--コンフィグ変数site_url-->\n</head>\n<body>\n    <h1>[*pagetitle*]</h1>                       <!--リソース変数pagetitle-->\n     [*content*]                                 <!--リソース変数content-->\n</body>\n</html>\n','0');
+(id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template','0','0','','0','<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n    <meta charset=\"[(modx_charset)]\">                <!--コンフィグ変数modx_charset-->\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>[*pagetitle*] | [(site_name)]</title> <!--リソース変数pagetitleとコンフィグ変数site_name-->\n    <base href=\"[(site_url)]\">                      <!--コンフィグ変数site_url-->\n</head>\n<body>\n    <h1>[*pagetitle*]</h1>                       <!--リソース変数pagetitle-->\n    [*content*]                                  <!--リソース変数content-->\n</body>\n</html>\n','0');
 
 TRUNCATE TABLE `{PREFIX}site_content`;
 
