@@ -158,14 +158,10 @@ if (isset($content['which_editor'])) {
             <div class="tab-page" id="tabGeneral">
                 <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('htmlsnippet_name') ?></th>
-                        <td align="left">
-                            {{<input name="name" type="text" maxlength="100"
-                                    value="<?= hsc(entity('name')) ?>"
-                                    class="inputBox" style="width:300px;">}}
-                        </td>
-                    </tr>
+                    <?= EvoFieldRow::render([
+                        'label' => lang('htmlsnippet_name'),
+                        'body' => '{{<input name="name" type="text" maxlength="100" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;">}}',
+                    ]) ?>
                 </table>
 
                 <div class="code-editor">
@@ -208,81 +204,105 @@ if (isset($content['which_editor'])) {
             <div class="tab-page" id="tabInfo">
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('chunk_opt_published') ?></th>
-                        <td><input
-                                name="published" onclick="resetpubdate();"
+                    <?php
+                    ob_start();
+                    ?>
+                    <input
+                        name="published" onclick="resetpubdate();"
+                        type="checkbox"
+                        <?= (entity('published') == 1) ? ' checked="checked"' : '' ?>
+                        class="inputBox" value="1" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('chunk_opt_published'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 公開日・公開終了日と、日付を消すボタン
+                    foreach (['pub_date' => 'page_data_publishdate', 'unpub_date' => 'page_data_unpublishdate'] as $name => $labelKey) {
+                        ob_start();
+                        ?>
+                        <input id="<?= $name ?>" name="<?= $name ?>" type="text"
+                            value="<?= entity($name) ?>" class="DatePicker" />
+                        <a class="clickable-label"
+                            onclick="document.mutate.<?= $name ?>.value=''; documentDirty=true; return true;">
+                            <img src="<?= style("icons_cal_nodate") ?>"
+                                alt="<?= lang('remove_date') ?>" /></a>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang($labelKey),
+                            'body' => ob_get_clean(),
+                        ]);
+                    }
+
+                    ob_start();
+                    ?>
+                    <select name="categoryid" style="width:300px;">
+                        <?= manager()->elementCategoryOptions(entity('categoryid', entity('category'))) ?>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('existing_category'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                    ob_start();
+                    ?>
+                    <input
+                        name="newcategory"
+                        type="text" maxlength="45"
+                        value="<?= hsc(entity('newcategory')) ?>"
+                        class="inputBox" style="width:300px;">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'field' => 'newcategory',
+                        'label' => lang('new_category'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea
+                        name="description"
+                        style="padding:0;height:4em;width:300px;"><?= hsc(entity('description')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('htmlsnippet_desc'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <input
+                        name="editor_type"
+                        type="checkbox"
+                        <?= entity('editor_type') == 1 ? ' checked="checked"' : '' ?>
+                        class="inputBox" value="1" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('resource_opt_richtext'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    if (evo()->hasPermission('save_chunk') == 1) {
+                        ob_start();
+                        ?>
+                        <label><input
+                                name="locked"
                                 type="checkbox"
-                                <?= (entity('published') == 1) ? ' checked="checked"' : '' ?>
-                                class="inputBox" value="1" /></td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('page_data_publishdate') ?></th>
-                        <td>
-                            <input id="pub_date" name="pub_date" type="text"
-                                value="<?= entity('pub_date') ?>" class="DatePicker" />
-                            <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;"
-                                style="cursor:pointer; cursor:hand;">
-                                <img src="<?= style("icons_cal_nodate") ?>"
-                                    alt="<?= lang('remove_date') ?>" /></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('page_data_unpublishdate') ?></th>
-                        <td>
-                            <input id="unpub_date" name="unpub_date" type="text"
-                                value="<?= entity('unpub_date') ?>" class="DatePicker" />
-                            <a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;"
-                                style="cursor:pointer; cursor:hand">
-                                <img src="<?= style("icons_cal_nodate") ?>"
-                                    alt="<?= lang('remove_date') ?>" /></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('existing_category') ?></th>
-                        <td align="left"><span style="font-family:'Courier New', Courier, mono"></span>
-                            <select name="categoryid" style="width:300px;">
-                                <?= manager()->elementCategoryOptions(entity('categoryid', entity('category'))) ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="newcategry" data-field="newcategory" style="display:none;">
-                        <th align="left" valign="middle"><?= lang('new_category') ?></th>
-                        <td align="left" valign="top"><input
-                                name="newcategory"
-                                type="text" maxlength="45"
-                                value="<?= hsc(entity('newcategory')) ?>"
-                                class="inputBox" style="width:300px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('htmlsnippet_desc') ?></th>
-                        <td align="left">
-                            <textarea
-                                name="description"
-                                style="padding:0;height:4em;width:300px;"><?= hsc(entity('description')) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left" valign="middle"><?= lang('resource_opt_richtext') ?></th>
-                        <td align="left" valign="top"><input
-                                name="editor_type"
-                                type="checkbox"
-                                <?= entity('editor_type') == 1 ? ' checked="checked"' : '' ?>
-                                class="inputBox" value="1" /></td>
-                    </tr>
-                    <?php if (evo()->hasPermission('save_chunk') == 1) { ?>
-                        <tr>
-                            <td align="left" colspan="2">
-                                <label><input
-                                        name="locked"
-                                        type="checkbox"
-                                        <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
-                                        class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?>
-                                    <span class="comment"><?= lang('lock_htmlsnippet_msg') ?></span></label>
-                            </td>
-                        </tr>
-                    <?php } ?>
+                                <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
+                                class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?>
+                            <span class="comment"><?= lang('lock_htmlsnippet_msg') ?></span></label>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => ob_get_clean(),
+                        ]);
+                    }
+                    ?>
                 </table>
             </div>
             <div class="tab-page" id="tabHelp">
@@ -296,8 +316,8 @@ if (isset($content['which_editor'])) {
                         ?>;
             chunkPane = new WebFXTabPane(document.getElementById('chunkPane'), tpstatus);
         </script>
+    </div>
 </form>
-</div>
 <script>
     // EvoShell は再表示時にこの script を同じ window で再実行するため、変数は関数の中に置く
     (function() {
